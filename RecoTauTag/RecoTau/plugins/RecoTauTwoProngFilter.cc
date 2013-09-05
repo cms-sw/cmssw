@@ -35,7 +35,7 @@ class RecoTauTwoProngFilter : public RecoTauModifierPlugin {
   public:
     explicit RecoTauTwoProngFilter(const edm::ParameterSet& pset);
     virtual ~RecoTauTwoProngFilter() {}
-    void operator()(PFTau&) const;
+    void operator()(PFTau&) const override;
   private:
     double minPtFractionForSecondProng_;
 };

@@ -252,7 +252,7 @@ namespace edm {
       addSignals(e,setup);
     }
 
-    doPileUp(e,setup);
+    doPileUp(e, setup);
 
     // Includes putting digi products into the edm::Event.
     finalizeEvent(e, setup);

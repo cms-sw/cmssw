@@ -39,7 +39,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
@@ -62,12 +61,12 @@ namespace edm {
       void setTree(TTree* iTree) {eventTree_ = iTree;}
       void set(boost::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
      private:
-      virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const;
+      virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const override;
       virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::auto_ptr<EventEntryDescription>();
       }
-      virtual void mergeReaders_(DelayedReader*) {}
-      virtual void reset_() {}
+      virtual void mergeReaders_(DelayedReader*) override {}
+      virtual void reset_() override {}
       Long64_t entry_;
       TTree* eventTree_;
       boost::shared_ptr<ProductRegistry const>(reg_);
@@ -111,6 +110,7 @@ namespace edm {
       TFWLiteSelectorMembers() :
       tree_(0),
       reg_(new ProductRegistry()),
+      phreg_(new ProcessHistoryRegistry()),
       branchIDListHelper_(new BranchIDListHelper()),
       processNames_(),
       reader_(new FWLiteDelayedReader),
@@ -125,6 +125,7 @@ namespace edm {
       }
       TTree* tree_;
       boost::shared_ptr<ProductRegistry> reg_;
+      boost::shared_ptr<ProcessHistoryRegistry> phreg_;
       boost::shared_ptr<BranchIDListHelper> branchIDListHelper_;
       ProcessHistory processNames_;
       boost::shared_ptr<FWLiteDelayedReader> reader_;
@@ -287,12 +288,12 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
                 new edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
          boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(
                 new edm::LuminosityBlockPrincipal(lumiAux, m_->reg_, m_->pc_, nullptr,0));
-         m_->ep_->fillEventPrincipal(*eaux, eventSelectionIDs_, branchListIndexes_, m_->mapper_, m_->reader_.get());
+         m_->ep_->fillEventPrincipal(*eaux, *m_->phreg_, eventSelectionIDs_, branchListIndexes_, m_->mapper_, m_->reader_.get());
          lbp->setRunPrincipal(rp);
          m_->ep_->setLuminosityBlockPrincipal(lbp);
          m_->processNames_ = m_->ep_->processHistory();
 
-         edm::Event event(*m_->ep_, m_->md_);
+         edm::Event event(*m_->ep_, m_->md_, nullptr);
 
          //Make the event principal accessible to edm::Ref's
          Operate sentry(m_->ep_->prodGetter());
@@ -393,13 +394,13 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
     psetRegistry.insertMapped(pset);
   }
 
-  edm::ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
-  edm::ProcessConfigurationRegistry::instance()->insertCollection(procConfigVector);
+  for(auto const& ph : pHistVector) {
+     m_->phreg_->registerProcessHistory(ph);
+  }
 
   m_->pointerToBranchBuffer_.erase(m_->pointerToBranchBuffer_.begin(),
                                    m_->pointerToBranchBuffer_.end());
 
-  fillProductRegistryTransients(procConfigVector, *m_->reg_);
   std::auto_ptr<edm::ProductRegistry> newReg(new edm::ProductRegistry());
 
   edm::ProductRegistry::ProductList& prodList = m_->reg_->productListUpdator();

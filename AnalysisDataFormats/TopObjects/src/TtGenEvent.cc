@@ -1,5 +1,4 @@
 //
-// $Id: TtGenEvent.cc,v 1.34 2012/04/23 10:26:38 snaumann Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"

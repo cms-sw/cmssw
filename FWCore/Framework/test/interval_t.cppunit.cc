@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 using edm::Timestamp;
 using edm::IOVSyncValue;

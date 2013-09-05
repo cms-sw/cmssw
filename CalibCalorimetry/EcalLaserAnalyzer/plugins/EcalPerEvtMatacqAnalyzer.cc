@@ -1,7 +1,6 @@
 /* 
  *  \class EcalPerEvtMatacqAnalyzer
  *
- *  $Date: 2010/01/18 17:28:45 $
  *  primary author: Gautier Hamel De Monchenault - CEA/Saclay
  *  author: Julie Malcles - CEA/Saclay
  */

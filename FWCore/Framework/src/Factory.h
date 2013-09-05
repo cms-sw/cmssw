@@ -4,7 +4,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
-#include "FWCore/Framework/src/WorkerParams.h"
+#include "FWCore/Framework/src/MakeModuleParams.h"
 
 #include <map>
 #include <string>
@@ -23,13 +23,16 @@ namespace edm {
 
     static Factory* get();
 
-    std::unique_ptr<Worker> makeWorker(const WorkerParams&,
-                                     signalslot::Signal<void(const ModuleDescription&)>& pre,
-                                     signalslot::Signal<void(const ModuleDescription&)>& post) const;
+    std::shared_ptr<maker::ModuleHolder> makeModule(const MakeModuleParams&,
+                                                    signalslot::Signal<void(const ModuleDescription&)>& pre,
+                                                    signalslot::Signal<void(const ModuleDescription&)>& post) const;
+
+    std::shared_ptr<maker::ModuleHolder> makeReplacementModule(const edm::ParameterSet&) const;
 
 
   private:
     Factory();
+    Maker* findMaker(const MakeModuleParams& p) const;
     static Factory singleInstance_;
     mutable MakerMap makers_;
   };

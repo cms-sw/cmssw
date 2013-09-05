@@ -1,11 +1,11 @@
 #include <algorithm>
 #include <vector>
 
-#include <Math/GenVector/PxPyPzE4D.h>
+#include "Math/GenVector/PxPyPzE4D.h"
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/GenParticle.h>
-#include <HepMC/GenVertex.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
+#include "HepMC/GenVertex.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"

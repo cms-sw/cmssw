@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.23 2009/10/12 14:24:30 muzaffar Exp $
 //
 //
 
@@ -67,8 +66,9 @@ TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) :
   m_calibrationCacheId3D = 0;
   m_calibrationCacheId2D = 0;
 
-  m_associator              = m_config.getParameter<InputTag>("jetTracks");
-  m_primaryVertexProducer   = m_config.getParameter<InputTag>("primaryVertex");
+  token_associator          = consumes<reco::JetTracksAssociationCollection>(m_config.getParameter<edm::InputTag>("jetTracks"));
+  token_primaryVertex       = consumes<reco::VertexCollection>(m_config.getParameter<edm::InputTag>("primaryVertex"));
+
   m_computeProbabilities    = m_config.getParameter<bool>("computeProbabilities");
   m_computeGhostTrack       = m_config.getParameter<bool>("computeGhostTrack");
   m_ghostTrackPriorDeltaR   = m_config.getParameter<double>("ghostTrackPriorDeltaR");
@@ -104,10 +104,10 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  
    //input objects 
    Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
-   iEvent.getByLabel(m_associator, jetTracksAssociation);
+   iEvent.getByToken(token_associator, jetTracksAssociation);
    
    Handle<reco::VertexCollection> primaryVertex;
-   iEvent.getByLabel(m_primaryVertexProducer, primaryVertex);
+   iEvent.getByToken(token_primaryVertex, primaryVertex);
 
    edm::ESHandle<TransientTrackBuilder> builder;
    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);

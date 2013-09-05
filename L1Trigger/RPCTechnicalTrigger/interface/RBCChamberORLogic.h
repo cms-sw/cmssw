@@ -1,4 +1,3 @@
-// $Id: RBCChamberORLogic.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
 #ifndef RBCCHAMBERORLOGIC_H 
 #define RBCCHAMBERORLOGIC_H 1
 

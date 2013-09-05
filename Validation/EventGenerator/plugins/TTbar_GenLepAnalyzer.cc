@@ -10,6 +10,8 @@ TTbar_GenLepAnalyzer::TTbar_GenLepAnalyzer(const edm::ParameterSet& iConfig):
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
 
+  lepsToken_=consumes< edm::View<reco::Candidate> >(leps_);
+
 }
 
 
@@ -33,7 +35,7 @@ TTbar_GenLepAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   // Handle to the Leptons collections
   edm::Handle< edm::View<reco::Candidate> > leps;
-  iEvent.getByLabel(leps_, leps);
+  iEvent.getByToken(lepsToken_, leps);
   if(!leps.isValid()) return;
 
   // loop Jet collection and fill histograms

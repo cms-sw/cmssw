@@ -20,7 +20,6 @@
 //
 // Original Author:  Konstantinos Theofilatos, Ulla Gebbert and Christian Sander
 //         Created:  Sat Nov 14 18:43:21 CET 2009
-// $Id: EcalDeadCellBoundaryEnergyFilter.cc,v 1.1 2012/03/21 14:43:35 lhx Exp $
 //
 //
 
@@ -64,9 +63,9 @@ class EcalDeadCellBoundaryEnergyFilter: public edm::EDFilter {
       ~EcalDeadCellBoundaryEnergyFilter();
 
    private:
-      virtual void beginJob();
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      virtual void beginJob() override;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
 
       // ----------member data ---------------------------
       const int kMAX;

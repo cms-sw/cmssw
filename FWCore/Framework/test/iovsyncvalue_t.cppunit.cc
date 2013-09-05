@@ -6,7 +6,7 @@
  *
  */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Utilities/interface/Exception.h"

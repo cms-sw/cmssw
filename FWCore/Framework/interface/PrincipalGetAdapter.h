@@ -108,9 +108,11 @@ edm::Ref<AppleCollection> ref(refApples, index);
 
 namespace edm {
 
+  class ModuleCallingContext;
+
   namespace principal_get_adapter_detail {
     struct deleter {
-      void operator()(std::pair<WrapperOwningHolder, ConstBranchDescription const*> const p) const;
+      void operator()(std::pair<WrapperOwningHolder, BranchDescription const*> const p) const;
     };
     void
     throwOnPutOfNullProduct(char const* principalType, TypeID const& productType, std::string const& productInstanceName);
@@ -147,7 +149,7 @@ namespace edm {
 
     template <typename PROD>
     void 
-    getManyByType(std::vector<Handle<PROD> >& results) const;
+    getManyByType(std::vector<Handle<PROD> >& results, ModuleCallingContext const* mcc) const;
 
     ProcessHistory const&
     processHistory() const;
@@ -155,7 +157,7 @@ namespace edm {
     Principal& principal() {return principal_;}
     Principal const& principal() const {return principal_;}
 
-    ConstBranchDescription const&
+    BranchDescription const&
     getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
 
     typedef std::vector<BasicHandle>  BasicHandleVec;
@@ -168,30 +170,36 @@ namespace edm {
     // from the Principal class.
 
     BasicHandle 
-    getByLabel_(TypeID const& tid, InputTag const& tag) const;
+    getByLabel_(TypeID const& tid, InputTag const& tag,
+                ModuleCallingContext const* mcc) const;
 
     BasicHandle 
     getByLabel_(TypeID const& tid,
-		std::string const& label,
-		std::string const& instance,
-		std::string const& process) const;
+                std::string const& label,
+                std::string const& instance,
+                std::string const& process,
+                ModuleCallingContext const* mcc) const;
 
     BasicHandle
-    getByToken_(TypeID const& id, KindOfType kindOfType, EDGetToken token) const;
-    
+    getByToken_(TypeID const& id, KindOfType kindOfType, EDGetToken token,
+                ModuleCallingContext const* mcc) const;
+
     BasicHandle
     getMatchingSequenceByLabel_(TypeID const& typeID,
-                                InputTag const& tag) const;
+                                InputTag const& tag,
+                                ModuleCallingContext const* mcc) const;
 
     BasicHandle
     getMatchingSequenceByLabel_(TypeID const& typeID,
                                 std::string const& label,
                                 std::string const& instance,
-                                std::string const& process) const;
+                                std::string const& process,
+                                ModuleCallingContext const* mcc) const;
     
     void 
     getManyByType_(TypeID const& tid, 
-		   BasicHandleVec& results) const;
+		   BasicHandleVec& results,
+                   ModuleCallingContext const* mcc) const;
 
     // Also isolates the PrincipalGetAdapter class
     // from the Principal class.
@@ -307,9 +315,10 @@ namespace edm {
   template <typename PROD>
   inline
   void 
-  PrincipalGetAdapter::getManyByType(std::vector<Handle<PROD> >& results) const { 
+  PrincipalGetAdapter::getManyByType(std::vector<Handle<PROD> >& results,
+                                     ModuleCallingContext const* mcc) const { 
     BasicHandleVec bhv;
-    this->getManyByType_(TypeID(typeid(PROD)), bhv);
+    this->getManyByType_(TypeID(typeid(PROD)), bhv, mcc);
     
     // Go through the returned handles; for each element,
     //   1. create a Handle<PROD> and

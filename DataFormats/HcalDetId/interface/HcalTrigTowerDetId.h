@@ -9,8 +9,6 @@
     
 Cell id for an Calo Trigger tower
 
-   $Date: 2007/07/31 15:20:09 $
-   $Revision: 1.8 $
    \author J. Mans - Minnesota
 */
 class HcalTrigTowerDetId : public DetId {

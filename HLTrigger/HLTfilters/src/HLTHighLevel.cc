@@ -17,17 +17,22 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/PathContext.h"
+#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 // needed for trigger bits from EventSetup as in ALCARECO paths
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 
 //
@@ -35,6 +40,7 @@
 //
 HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) :
   inputTag_     (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
+  inputToken_   (consumes<edm::TriggerResults>(inputTag_)),
   triggerNamesID_ (),
   andOr_        (iConfig.getParameter<bool> ("andOr")),
   throw_        (iConfig.getParameter<bool> ("throw")),
@@ -69,11 +75,28 @@ HLTHighLevel::~HLTHighLevel()
 // member functions
 //
 
+void
+HLTHighLevel::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("TriggerResultsTag",edm::InputTag("TriggerResults","","HLT"));
+  std::vector<std::string> hltPaths(0);
+  // # provide list of HLT paths (or patterns) you want
+  desc.add<std::vector<std::string> >("HLTPaths",hltPaths);
+  // # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
+  desc.add<std::string>("eventSetupPathsKey","");
+  // # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
+  desc.add<bool>("andOr",true);
+  // # throw exception on unknown path names
+  desc.add<bool>("throw",true);
+  descriptions.add("hltHighLevel", desc);
+}
+
 // Initialize the internal trigger path representation (names and indices) from the 
 // patterns specified in the configuration.
 // This needs to be called once at startup, whenever the trigger table has changed
 // or in case of paths from eventsetup and IOV changed
 void HLTHighLevel::init(const edm::TriggerResults & result,
+                        const edm::Event &event,
                         const edm::EventSetup& iSetup,
                         const edm::TriggerNames & triggerNames )
 {
@@ -85,7 +108,7 @@ void HLTHighLevel::init(const edm::TriggerResults & result,
 
   // Overwrite paths from EventSetup via AlCaRecoTriggerBitsRcd if configured:
   if (eventSetupPathsKey_.size()) {
-    HLTPatterns_ = this->pathsFromSetup(eventSetupPathsKey_, iSetup);
+    HLTPatterns_ = this->pathsFromSetup(eventSetupPathsKey_, event, iSetup);
   }
 
   if (HLTPatterns_.empty()) {
@@ -162,7 +185,7 @@ void HLTHighLevel::init(const edm::TriggerResults & result,
 
 // ------------ getting paths from EventSetup  ------------
 std::vector<std::string>
-HLTHighLevel::pathsFromSetup(const std::string &key, const edm::EventSetup &iSetup) const
+HLTHighLevel::pathsFromSetup(const std::string &key, const edm::Event &event, const edm::EventSetup &iSetup) const
 {
   // Get map of strings to concatenated list of names of HLT paths from EventSetup:
   edm::ESHandle<AlCaRecoTriggerBits> triggerBits;
@@ -173,7 +196,7 @@ HLTHighLevel::pathsFromSetup(const std::string &key, const edm::EventSetup &iSet
   TriggerMap::const_iterator listIter = triggerMap.find(key);
   if (listIter == triggerMap.end()) {
     throw cms::Exception("Configuration")
-      << " HLTHighLevel [instance: " << moduleLabel() << " - path: " << pathName()
+      << " HLTHighLevel [instance: " << moduleLabel() << " - path: " << pathName(event)
       << "]: No triggerList with key " << key << " in AlCaRecoTriggerBitsRcd";
   }
 
@@ -191,7 +214,7 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get hold of TriggerResults Object
   Handle<TriggerResults> trh;
-  iEvent.getByLabel(inputTag_, trh);
+  iEvent.getByToken(inputToken_, trh);
   if (trh.isValid()) {
     LogDebug("HLTHighLevel") << "TriggerResults found, number of HLT paths: " << trh->size();
   } else {
@@ -212,7 +235,7 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // - or the HLT table has changed 
   // - or selected trigger bits come from AlCaRecoTriggerBitsRcd and these changed
   if (config_changed or (watchAlCaRecoTriggerBitsRcd_ and watchAlCaRecoTriggerBitsRcd_->check(iSetup))) {
-    this->init(*trh, iSetup, triggerNames);  
+    this->init(*trh, iEvent, iSetup, triggerNames);  
   }
   unsigned int n     = HLTPathsByName_.size();
   unsigned int nbad  = 0;
@@ -236,7 +259,7 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (config_changed) {
       LogTrace("HLTHighLevel")
         << " HLTHighLevel [instance: " << moduleLabel()
-        << " - path: " << pathName()
+        << " - path: " << pathName(iEvent)
         << "] configured with " << nbad
         << "/" << n
         << " unknown HLT path names: " << message;
@@ -245,7 +268,7 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (throw_) {
       throw cms::Exception("Configuration")
         << " HLTHighLevel [instance: " << moduleLabel()
-        << " - path: " << pathName()
+        << " - path: " << pathName(iEvent)
         << "] configured with " << nbad
         << "/" << n
         << " unknown HLT path names: " << message;
@@ -260,10 +283,10 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-std::string const & HLTHighLevel::pathName() const {
-  return * currentContext()->pathName();
+std::string const & HLTHighLevel::pathName(const edm::Event &event) const {
+  return event.moduleCallingContext()->placeInPathContext()->pathContext()->pathName();
 }
 
 std::string const & HLTHighLevel::moduleLabel() const {
-  return * currentContext()->moduleLabel();
+  return moduleDescription().moduleLabel();
 }

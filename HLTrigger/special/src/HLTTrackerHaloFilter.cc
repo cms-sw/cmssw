@@ -27,10 +27,25 @@ HLTTrackerHaloFilter::HLTTrackerHaloFilter(const edm::ParameterSet& config) : HL
   max_back_     (config.getParameter<int>("MaxAccus")),
   fastproc_     (config.getParameter<int>("FastProcessing"))
 {
+  inputToken_ = consumes<edm::RefGetter<SiStripCluster> >(inputTag_);
 }
 
 HLTTrackerHaloFilter::~HLTTrackerHaloFilter()
 {
+}
+
+void
+HLTTrackerHaloFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltSiStripClusters"));
+  desc.add<int>("MaxClustersTECp",50);
+  desc.add<int>("MaxClustersTECm",50);
+  desc.add<int>("SignalAccumulation",5);
+  desc.add<int>("MaxClustersTEC",60);
+  desc.add<int>("MaxAccus",4);
+  desc.add<int>("FastProcessing",1);
+  descriptions.add("hltTrackerHaloFilter",desc);
 }
 
 //
@@ -55,7 +70,7 @@ bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& i
   
   // get hold of products from Event
   edm::Handle<edm::RefGetter<SiStripCluster> > refgetter;
-  event.getByLabel(inputTag_, refgetter);
+  event.getByToken(inputToken_, refgetter);
   
 
   /// First initialize some variables

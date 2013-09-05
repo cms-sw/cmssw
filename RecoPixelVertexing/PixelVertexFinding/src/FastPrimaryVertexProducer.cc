@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Thu Dec 22 14:51:44 CET 2011
-// $Id: FastPrimaryVertexProducer.cc,v 1.2 2012/02/02 09:01:35 arizzi Exp $
 //
 //
 
@@ -77,7 +76,7 @@ class FastPrimaryVertexProducer : public edm::EDProducer {
       explicit FastPrimaryVertexProducer(const edm::ParameterSet&);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       edm::InputTag m_clusters;
       edm::InputTag m_jets;
       edm::InputTag m_beamSpot;

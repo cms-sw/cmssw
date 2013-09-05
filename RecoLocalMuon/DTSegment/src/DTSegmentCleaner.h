@@ -12,8 +12,6 @@
  *  retaining the segment with higher number of hits and best chi2, while the
  *  others are deleted.
  *
- * $Date: 2007/02/13 13:31:40 $
- * $Revision: 1.4 $
  * \author : Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -45,14 +43,14 @@ class DTSegmentCleaner{
 
     /* Operations */ 
     /// do the cleaning
-    std::vector<DTSegmentCand*> clean(std::vector<DTSegmentCand*> inputCands) const ;
+    std::vector<DTSegmentCand*> clean(const std::vector<DTSegmentCand*>& inputCands) const ;
 
   private:
     /// solve the conflicts
-    std::vector<DTSegmentCand*> solveConflict(std::vector<DTSegmentCand*> inputCands) const ;
+    std::vector<DTSegmentCand*> solveConflict(const std::vector<DTSegmentCand*>& inputCands) const ;
 
     /// ghost  suppression
-    std::vector<DTSegmentCand*> ghostBuster(std::vector<DTSegmentCand*> inputCands) const ;
+    std::vector<DTSegmentCand*> ghostBuster(const std::vector<DTSegmentCand*>& inputCands) const ;
 
     int nSharedHitsMax;
     int nUnSharedHitsMin;

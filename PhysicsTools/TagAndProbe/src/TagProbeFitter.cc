@@ -42,7 +42,7 @@
 using namespace std;
 using namespace RooFit;
 
-TagProbeFitter::TagProbeFitter(std::vector<std::string> inputFileNames, string inputDirectoryName, string inputTreeName, string outputFileName, int numCPU_, bool saveWorkspace_, bool floatShapeParameters_, std::vector<std::string> fixVars_){
+TagProbeFitter::TagProbeFitter(const std::vector<std::string>& inputFileNames, string inputDirectoryName, string inputTreeName, string outputFileName, int numCPU_, bool saveWorkspace_, bool floatShapeParameters_, const std::vector<std::string>& fixVars_){
   inputTree = new TChain((inputDirectoryName+"/"+inputTreeName).c_str());
   for(size_t i=0; i<inputFileNames.size(); i++){
     inputTree->Add(inputFileNames[i].c_str());
@@ -99,7 +99,7 @@ bool TagProbeFitter::addCategory(string name, string title, string expression){
   return true;
 }
 
-bool TagProbeFitter::addExpression(string expressionName, string title, string expression, vector<string> arguments) {
+bool TagProbeFitter::addExpression(string expressionName, string title, string expression, const std::vector<string>& arguments) {
   expressionVars.push_back(make_pair(make_pair(expressionName,title), make_pair(expression,arguments)));
   return true;
 }
@@ -123,7 +123,7 @@ void TagProbeFitter::setWeightVar(const std::string &var) {
   weightVar = var;
 }
 
-string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCats, vector<string> effStates, vector<string>& unbinnedVariables, map<string, vector<double> >& binnedReals, map<string, std::vector<string> >& binnedCategories, vector<string>& binToPDFmap){
+string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<string>& effCats,const std::vector<string>& effStates, vector<string>& unbinnedVariables, map<string, vector<double> >& binnedReals, map<string, std::vector<string> >& binnedCategories, vector<string>& binToPDFmap){
   //go to home directory
   outputDirectory->cd();
   //make a directory corresponding to this efficiency binning
@@ -668,7 +668,7 @@ void TagProbeFitter::saveDistributionsPlot(RooWorkspace* w){
   delete dataFail;
 }
 
-void TagProbeFitter::saveEfficiencyPlots(RooDataSet& eff, TString effName, RooArgSet& binnedVariables, RooArgSet& mappedCategories){
+void TagProbeFitter::saveEfficiencyPlots(RooDataSet& eff, const TString& effName, RooArgSet& binnedVariables, RooArgSet& mappedCategories){
   TIterator* v1it = binnedVariables.createIterator();
   for(RooRealVar* v1 = (RooRealVar*)v1it->Next(); v1!=0; v1 = (RooRealVar*)v1it->Next() ){
     RooArgSet binCategories1D;
@@ -719,7 +719,7 @@ void TagProbeFitter::saveEfficiencyPlots(RooDataSet& eff, TString effName, RooAr
   }
 }
 
-void TagProbeFitter::makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, TString plotName, TString plotTitle, TString effName){
+void TagProbeFitter::makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, const TString& plotName, const TString& plotTitle, const TString& effName){
   TCanvas canvas(plotName);
   const RooArgSet* set = eff.get();
   RooRealVar* e = (RooRealVar*) set->find("efficiency");
@@ -732,7 +732,7 @@ void TagProbeFitter::makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, TStrin
   delete p;  
 }
 
-void TagProbeFitter::makeEfficiencyPlot2D(RooDataSet& eff, RooRealVar& v1, RooRealVar& v2, TString plotName, TString plotTitle, TString effName){
+void TagProbeFitter::makeEfficiencyPlot2D(RooDataSet& eff, RooRealVar& v1, RooRealVar& v2, const TString& plotName, const TString& plotTitle, const TString& effName){
   TCanvas canvas(plotName);
   canvas.SetRightMargin(0.15);
   TH2F* h = new TH2F(plotName, plotName, v1.getBinning().numBins(), v1.getBinning().array(), v2.getBinning().numBins(), v2.getBinning().array());

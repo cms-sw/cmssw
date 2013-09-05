@@ -860,7 +860,8 @@ std::ostream& operator<< ( std::ostream& os, const SiStripPartition& params ) {
 
 // -----------------------------------------------------------------------------
 // 
-SiStripPartition::Versions SiStripPartition::versions( std::vector<uint32_t> input ) {
+SiStripPartition::Versions SiStripPartition::versions( const std::vector<uint32_t>& _input ) {
+  std::vector<uint32_t> input =  _input;
   if ( input.size() != 2 ) { 
     edm::LogWarning(mlConfigDb_)
       << "[SiStripPartition::" << __func__ << "]"

@@ -5,8 +5,6 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2013/03/06 01:51:10 $
- *  $Revision: 1.19 $
  *
  */
 
@@ -33,7 +31,7 @@
 
 #include "Validation/EventGenerator/interface/WeightManager.h"
 
-class TauValidation : public edm::EDAnalyzer
+class TauValidation : public  edm::EDAnalyzer
 {
     public:
 	// tau decays
@@ -72,6 +70,8 @@ class TauValidation : public edm::EDAnalyzer
 	virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
     private:
+	WeightManager wmanager_;
+
 	int tauMother(const HepMC::GenParticle*, double weight);
 	int tauProngs(const HepMC::GenParticle*, double weight);
 	int tauDecayChannel(const HepMC::GenParticle*, double weight=0.0);
@@ -92,8 +92,6 @@ class TauValidation : public edm::EDAnalyzer
 	const HepMC::GenParticle* GetMother(const HepMC::GenParticle* tau);
 	const std::vector<HepMC::GenParticle*> GetMothers(const HepMC::GenParticle* boson);
 	double Zstoa(double zs);
-
-        WeightManager _wmanager;
 
     	edm::InputTag hepmcCollection_;
 
@@ -121,6 +119,8 @@ class TauValidation : public edm::EDAnalyzer
 
 	int zsbins;
 	double zsmin,zsmax;
+
+	edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
 };
 
 #endif

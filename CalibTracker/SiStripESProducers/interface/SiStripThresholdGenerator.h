@@ -13,11 +13,11 @@ class SiStripThresholdGenerator : public SiStripCondObjBuilderBase<SiStripThresh
   explicit SiStripThresholdGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripThresholdGenerator();
   
-  void getObj(SiStripThreshold* & obj){createObject(); obj=obj_;}
+  void getObj(SiStripThreshold* & obj){obj=createObject();}
 
  private:
   
-  void createObject();
+  SiStripThreshold* createObject();
 
   
 };

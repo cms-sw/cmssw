@@ -23,7 +23,7 @@ public:
    FWTrackingParticleProxyBuilder( void ) {} 
    virtual ~FWTrackingParticleProxyBuilder( void ) {}
 
-   virtual void setItem(const FWEventItem* iItem) {
+   virtual void setItem(const FWEventItem* iItem) override {
       FWProxyBuilderBase::setItem(iItem);
       iItem->getConfig()->assertParam("Point Size", 1l, 3l, 1l);
    }
@@ -36,7 +36,7 @@ private:
    // Disable default assignment operator
    const FWTrackingParticleProxyBuilder& operator=( const FWTrackingParticleProxyBuilder& );
 
-   void build( const TrackingParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   void build( const TrackingParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void

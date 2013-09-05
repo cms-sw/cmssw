@@ -11,10 +11,10 @@
 #include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include <TH1.h>
+#include "TH1.h"
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/SimpleVector.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/SimpleVector.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -42,7 +42,7 @@ class LHEAnalyzer : public edm::EDAnalyzer {
 
     protected:
 	virtual void analyze(const edm::Event &event,
-	                     const edm::EventSetup &es);
+	                     const edm::EventSetup &es) override;
 
 
     private:

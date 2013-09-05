@@ -37,7 +37,8 @@ namespace edm {
     void write(std::ostream& os) const;
 
     std::vector<BranchID> const& parents() const {return parents_;}
-    std::vector<BranchID> & parents() {return parents_;}
+    
+    void setParents(std::vector<BranchID> const& parents) {parents_ = parents;} 
 
   private:
 

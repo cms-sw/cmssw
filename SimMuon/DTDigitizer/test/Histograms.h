@@ -4,8 +4,6 @@
 /** \class Histograms
  *  Classes for histograms handling.
  *
- *  $Date: 2007/03/07 19:17:39 $
- *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino
  */
 #include "TString.h"

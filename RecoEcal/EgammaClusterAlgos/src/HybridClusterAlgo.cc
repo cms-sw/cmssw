@@ -19,12 +19,12 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
 				     double xi,
 				     bool useEtForXi,
 				     double ewing,
-				     std::vector<int> v_chstatus,
+				     const std::vector<int>& v_chstatus,
 				     const PositionCalc& posCalculator,
 				     bool dynamicEThres,
 				     double eThresA,
 				     double eThresB,
-				     std::vector<int> severityToExclude,
+				     const std::vector<int>& severityToExclude,
 				     bool excludeFromCluster
 				     ) :
   

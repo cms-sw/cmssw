@@ -13,7 +13,6 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: L1RCTChannelMaskTester.cc,v 1.4 2010/06/16 15:31:25 bachtis Exp $
 //
 //
 // user include files
@@ -45,7 +44,7 @@ public:
     }
     virtual ~L1RCTChannelMaskTester() {
     }
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 };
 

@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripFecCrate.h,v 1.2 2007/03/21 09:54:20 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_SiStripFecCrate_H
 #define CalibFormats_SiStripObjects_SiStripFecCrate_H

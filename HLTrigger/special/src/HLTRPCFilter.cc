@@ -41,6 +41,9 @@ HLTRPCFilter::HLTRPCFilter(const edm::ParameterSet& iConfig)
   rpcRecHitsLabel = iConfig.getParameter<edm::InputTag>("rpcRecHits");
   rpcDTPointsLabel  = iConfig.getParameter<edm::InputTag>("rpcDTPoints");
   rpcCSCPointsLabel  = iConfig.getParameter<edm::InputTag>("rpcCSCPoints");
+  rpcRecHitsToken = consumes<RPCRecHitCollection>(rpcRecHitsLabel);
+  rpcDTPointsToken = consumes<RPCRecHitCollection>(rpcDTPointsLabel);
+  rpcCSCPointsToken = consumes<RPCRecHitCollection>(rpcCSCPointsLabel);
 }
 
 
@@ -51,6 +54,16 @@ HLTRPCFilter::~HLTRPCFilter()
 }
 
 
+void
+HLTRPCFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("rpcRecHits",edm::InputTag("hltRpcRecHits"));
+  desc.add<edm::InputTag>("rpcDTPoints",edm::InputTag("rpcPointProducer","RPCDTExtrapolatedPoints"));
+  desc.add<edm::InputTag>("rpcCSCPoints",edm::InputTag("rpcPointProducer","RPCCSCExtrapolatedPoints"));
+  desc.addUntracked<double>("rangestrips",4.0);
+  descriptions.add("hltRPCFilter",desc);
+}
+
 //
 // member functions
 //
@@ -59,20 +72,20 @@ HLTRPCFilter::~HLTRPCFilter()
 bool HLTRPCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<RPCRecHitCollection> rpcHits;
-  iEvent.getByLabel(rpcRecHitsLabel,rpcHits);
+  iEvent.getByToken(rpcRecHitsToken,rpcHits);
 
   RPCRecHitCollection::const_iterator rpcPoint;
  
   if(rpcHits->begin()==rpcHits->end()){
-    //std::cout<<" skiped preventing no RPC runs"<<std::endl;
+    //std::cout<<" skipped preventing no RPC runs"<<std::endl;
     return false;
   }
 
   edm::Handle<RPCRecHitCollection> rpcDTPoints;
-  iEvent.getByLabel(rpcDTPointsLabel,rpcDTPoints);
+  iEvent.getByToken(rpcDTPointsToken,rpcDTPoints);
 
   edm::Handle<RPCRecHitCollection> rpcCSCPoints;
-  iEvent.getByLabel(rpcCSCPointsLabel,rpcCSCPoints);
+  iEvent.getByToken(rpcCSCPointsToken,rpcCSCPoints);
 
   float cluSize = 0;
   

@@ -4,7 +4,6 @@
 /** \class L3MuonTrajectorySeedCollection
  *  No description available.
  *
- *  $Revision: 1.1 $
  *  \author J.R. Vlimant
  */
 

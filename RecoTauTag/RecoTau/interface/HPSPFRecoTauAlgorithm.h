@@ -137,7 +137,7 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
     ~HPSTauPtSorter()
       {}
 
-    bool operator()(reco::PFTau a , reco::PFTau b) {
+    bool operator()(const reco::PFTau& a , const reco::PFTau& b) {
       return (a.pt() > b.pt());
     }
   };
@@ -154,7 +154,7 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
     ~HPSTauIsolationSorter()
       {}
 
-    bool operator()(reco::PFTau a , reco::PFTau b) {
+    bool operator()(const reco::PFTau& a , const reco::PFTau& b) {
       return (a.isolationPFGammaCandsEtSum()+a.isolationPFChargedHadrCandsPtSum())<
 	(b.isolationPFGammaCandsEtSum()+b.isolationPFChargedHadrCandsPtSum());
     }

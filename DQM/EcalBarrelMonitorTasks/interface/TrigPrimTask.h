@@ -14,12 +14,12 @@ namespace ecaldqm {
     TrigPrimTask(const edm::ParameterSet &, const edm::ParameterSet &);
     ~TrigPrimTask();
 
-    void bookMEs();
+    void bookMEs() override;
 
-    void analyze(const void*, Collections);
+    void analyze(const void*, Collections) override;
 
-    void beginRun(const edm::Run &, const edm::EventSetup &);
-    void beginEvent(const edm::Event &, const edm::EventSetup &);
+    void beginRun(const edm::Run &, const edm::EventSetup &) override;
+    void beginEvent(const edm::Event &, const edm::EventSetup &) override;
 
     void runOnRealTPs(const EcalTrigPrimDigiCollection &);
     void runOnEmulTPs(const EcalTrigPrimDigiCollection &);

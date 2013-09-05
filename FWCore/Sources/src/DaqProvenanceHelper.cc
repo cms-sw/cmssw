@@ -1,11 +1,11 @@
 #include <algorithm>
+#include <cassert>
 #include <vector>
 
 #include "FWCore/Sources/interface/DaqProvenanceHelper.h"
 
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -74,22 +74,18 @@ namespace edm {
   }
 
   ProcessHistoryID
-  DaqProvenanceHelper::daqInit(ProductRegistry& productRegistry) const {
+  DaqProvenanceHelper::daqInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry) const {
     // Now we need to set all the metadata
     // Add the product to the product registry  
-    productRegistry.copyProduct(constBranchDescription_.me());
+    productRegistry.copyProduct(constBranchDescription_);
 
     // Insert an entry for this process in the process history registry
     ProcessHistory ph;
     ph.emplace_back(constBranchDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
-    ProcessConfiguration const& pc = ph.data().back();
-    ProcessHistoryRegistry::instance()->insertMapped(ph);
-
-    // Insert an entry for this process in the process configuration registry
-    ProcessConfigurationRegistry::instance()->insertMapped(pc);
+    processHistoryRegistry.registerProcessHistory(ph);
 
     // Save the process history ID for use every event.
-    return ph.id();
+    return ph.setProcessHistoryID();
   }
 
   bool

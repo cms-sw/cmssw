@@ -13,7 +13,6 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Mar 27 15:19:03 CET 2009
-// $Id: TrackMCQuality.cc,v 1.2 2010/09/09 15:42:23 sunanda Exp $
 //
 //
 
@@ -47,9 +46,9 @@ class TrackMCQuality : public edm::EDProducer {
       ~TrackMCQuality();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       
       // ----------member data ---------------------------
 

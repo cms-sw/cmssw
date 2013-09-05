@@ -22,7 +22,7 @@ public:
   FittedEntry(){ };
   FittedEntry( Entry* entry, ALIint order, ALIdouble sigma);
   FittedEntry( ALIstring name, float value, float sigma);
-  FittedEntry( std::vector<FittedEntry*> vFEntry );
+  FittedEntry( const std::vector<FittedEntry*>& vFEntry );
   ~FittedEntry(){ };
 
   void BuildName();

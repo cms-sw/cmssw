@@ -529,7 +529,7 @@ void CocoaAnalyzer::CorrectOptAlignments( std::vector<OpticalAlignInfo>& oaListC
 
 
 //------------------------------------------------------------------------
-OpticalAlignInfo* CocoaAnalyzer::FindOpticalAlignInfoXML( OpticalAlignInfo oaInfo )
+OpticalAlignInfo* CocoaAnalyzer::FindOpticalAlignInfoXML( const OpticalAlignInfo& oaInfo )
 {
   OpticalAlignInfo* oaInfoXML = 0;
   std::vector<OpticalAlignInfo>::iterator it;
@@ -553,7 +553,7 @@ OpticalAlignInfo* CocoaAnalyzer::FindOpticalAlignInfoXML( OpticalAlignInfo oaInf
 
 
 //------------------------------------------------------------------------
-bool CocoaAnalyzer::CorrectOaParam( OpticalAlignParam* oaParamXML, OpticalAlignParam oaParamDB )
+bool CocoaAnalyzer::CorrectOaParam( OpticalAlignParam* oaParamXML, const OpticalAlignParam& oaParamDB )
 {
   if(ALIUtils::debug >= 4) {
     std::cout << "CocoaAnalyzer::CorrectOaParam  old value= " << oaParamXML->value_  << " new value= " << oaParamDB.value_ << std::endl;

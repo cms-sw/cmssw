@@ -1,5 +1,4 @@
 //
-// $Id: Lepton.h,v 1.23 2010/03/02 21:01:48 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -17,7 +16,6 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Lepton.h,v 1.23 2010/03/02 21:01:48 rwolf Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"

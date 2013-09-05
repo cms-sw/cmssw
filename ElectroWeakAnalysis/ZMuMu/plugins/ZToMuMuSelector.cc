@@ -9,7 +9,7 @@
 class ZToMuMuSelector : public edm::EDFilter {
 public:
   ZToMuMuSelector (const edm::ParameterSet &);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 private:
   edm::InputTag muonTag_;
   edm::InputTag isoTag_;

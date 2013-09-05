@@ -11,10 +11,8 @@ existence.
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 
@@ -38,14 +36,14 @@ namespace edm {
   public:
     Provenance();
 
-    Provenance(boost::shared_ptr<ConstBranchDescription> const& p, ProductID const& pid);
+    Provenance(boost::shared_ptr<BranchDescription const> const& p, ProductID const& pid);
 
     Parentage const& event() const {return parentage();}
-    BranchDescription const& product() const {return branchDescription_->me();}
+    BranchDescription const& product() const {return *branchDescription_;}
 
-    BranchDescription const& branchDescription() const {return branchDescription_->me();}
-    ConstBranchDescription const& constBranchDescription() const {return *branchDescription_;}
-    boost::shared_ptr<ConstBranchDescription> const& constBranchDescriptionPtr() const {return branchDescription_;}
+    BranchDescription const& branchDescription() const {return *branchDescription_;}
+    BranchDescription const& constBranchDescription() const {return *branchDescription_;}
+    boost::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {return branchDescription_;}
 
     ProductProvenance* resolve() const;
     ProductProvenance* productProvenance() const {
@@ -64,17 +62,9 @@ namespace edm {
     std::string const& productInstanceName() const {return product().productInstanceName();}
     std::string const& friendlyClassName() const {return product().friendlyClassName();}
     boost::shared_ptr<BranchMapper> const& store() const {return store_;}
-    ProcessHistoryID const& processHistoryID() const {return *processHistoryID_;}
-    ProcessConfigurationID processConfigurationID() const;
-    ParameterSetID psetID() const;
-    std::string moduleName() const;
+    ProcessHistory const& processHistory() const {return *processHistory_;}
+    bool getProcessConfiguration(ProcessConfiguration& pc) const;
     ReleaseVersion releaseVersion() const;
-    std::map<ProcessConfigurationID, ParameterSetID> const& parameterSetIDs() const {
-      return product().parameterSetIDs();
-    }
-    std::map<ProcessConfigurationID, std::string> const& moduleNames() const {
-      return product().moduleNames();
-    }
     std::set<std::string> const& branchAliases() const {return product().branchAliases();}
 
     std::vector<BranchID> const& parents() const {return parentage().parents();}
@@ -83,7 +73,7 @@ namespace edm {
 
     void setStore(boost::shared_ptr<BranchMapper> store) const {store_ = store;}
 
-    void setProcessHistoryID(ProcessHistoryID const& phid) {processHistoryID_ = &phid;}
+    void setProcessHistory(ProcessHistory const& ph) {processHistory_ = &ph;}
 
     ProductID const& productID() const {return productID_;}
 
@@ -93,7 +83,7 @@ namespace edm {
       productID_ = pid;
     }
 
-    void setBranchDescription(boost::shared_ptr<ConstBranchDescription> const& p) {
+    void setBranchDescription(boost::shared_ptr<BranchDescription const> const& p) {
       branchDescription_ = p;
     }
 
@@ -102,9 +92,9 @@ namespace edm {
     void swap(Provenance&);
 
   private:
-    boost::shared_ptr<ConstBranchDescription> branchDescription_;
+    boost::shared_ptr<BranchDescription const> branchDescription_;
     ProductID productID_;
-    ProcessHistoryID const* processHistoryID_; // Owned by Auxiliary
+    ProcessHistory const* processHistory_; // We don't own this
     mutable bool productProvenanceValid_;
     mutable boost::shared_ptr<ProductProvenance> productProvenancePtr_;
     mutable boost::shared_ptr<BranchMapper> store_;

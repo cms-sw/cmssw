@@ -4,7 +4,6 @@
 /** \class GEMDigiReader
  *  Dumps GEM digis 
  *  
- *  $Id:$
  *  \authors: Vadim Khotilovich
  */
 

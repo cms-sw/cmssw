@@ -13,7 +13,6 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: PFTauMVADiscriminator.cc,v 1.3 2010/02/11 00:18:31 friis Exp $
 //
 //
 
@@ -52,8 +51,8 @@ class PFTauMVADiscriminator : public PFTauDiscriminationProducerBase {
       typedef std::vector<MVAComputerFromDB>    MVAList;
       typedef std::map<int, MVAList::iterator> DecayModeToMVAMap;
 
-      void beginEvent(const edm::Event&, const edm::EventSetup&); // called at the beginning of each event
-      double discriminate(const PFTauRef&);             // called on every tau in input collection
+      void beginEvent(const edm::Event&, const edm::EventSetup&) override; // called at the beginning of each event
+      double discriminate(const PFTauRef&) override;             // called on every tau in input collection
 
    private:
       edm::InputTag                  pfTauDecayModeSrc_;

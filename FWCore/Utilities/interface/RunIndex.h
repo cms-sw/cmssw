@@ -19,7 +19,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri, 26 Apr 2013 19:38:56 GMT
-// $Id$
 //
 
 // system include files
@@ -49,8 +48,9 @@ namespace edm {
     /** \return value ranging from 0 to one less than max number of simultaneous runs.
      */
     unsigned int value() const { return value_;}
-    
-    
+
+    static RunIndex invalidRunIndex();
+
   private:
     ///Only the RunPrincipal is allowed to make one of these
     friend class RunPrincipal;
@@ -60,7 +60,8 @@ namespace edm {
     
     // ---------- member data --------------------------------
     unsigned int value_;
-    
+
+    static const unsigned int invalidValue_;    
   };
 }
 

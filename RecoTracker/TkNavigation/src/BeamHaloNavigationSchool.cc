@@ -284,7 +284,7 @@ addInward(DetLayer * det, ForwardDetLayer * newF){
 }
 
 void BeamHaloNavigationSchool::
-addInward(DetLayer * det, FDLC news){
+addInward(DetLayer * det, const FDLC& news){
   //get the navigable layer for this DetLayer
   SimpleNavigableLayer* navigableLayer =
     dynamic_cast<SimpleNavigableLayer*>((*det).navigableLayer());

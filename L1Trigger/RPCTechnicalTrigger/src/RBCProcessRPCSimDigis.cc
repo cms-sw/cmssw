@@ -1,4 +1,3 @@
-// $Id: RBCProcessRPCSimDigis.cc,v 1.1 2009/09/20 22:06:50 aosorio Exp $
 // Include files 
 
 // local

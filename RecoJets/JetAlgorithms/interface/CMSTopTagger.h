@@ -1,6 +1,6 @@
-// Original JHTopTagger code copyright (c) 2011 Matteo Cacciari, Gregory Soyez,
+// Original JHTopTagger code 2011 Matteo Cacciari, Gregory Soyez,
 //  and Gavin Salam.
-// Modifications to make it CMSTopTagger copyright (c) 2011 Christopher
+// Modifications to make it CMSTopTagger 2011 Christopher
 //  Vermilion.
 //
 //----------------------------------------------------------------------

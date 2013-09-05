@@ -10,10 +10,10 @@
  */
 // Original Author:  Nhan Tran
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackSplittingMonitor.h,v 1.2 2009/11/05 17:07:51 boudoul Exp $
 
 #include <memory>
 #include <fstream>
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -32,6 +32,11 @@
 class DQMStore;
 class TrackAnalyzer;
 class TProfile;
+
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+
 
 class TrackSplittingMonitor : public edm::EDAnalyzer {
 public:
@@ -64,7 +69,8 @@ private:
 	
 	edm::InputTag splitTracks_;
 	edm::InputTag splitMuons_;
-	
+	edm::EDGetTokenT<std::vector<reco::Track> > splitTracksToken_;
+	edm::EDGetTokenT<std::vector<reco::Muon> > splitMuonsToken_;
 	
 	bool plotMuons_;
 	int pixelHitsPerLeg_;

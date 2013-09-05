@@ -54,7 +54,7 @@ private:
     FFTJetCorrectorDBReader(const FFTJetCorrectorDBReader&);
     FFTJetCorrectorDBReader& operator=(const FFTJetCorrectorDBReader&);
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     std::string record;
     std::string outputFile;

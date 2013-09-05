@@ -2,8 +2,6 @@
  *  
  *  Class to produce efficiency histograms by dividing nominator by denominator histograms
  *
- *  $Date: 2012/06/18 12:29:24 $
- *  $Revision: 1.7 $
  *  \author Christian Veelken, UC Davis
  */
 
@@ -41,9 +39,9 @@ class DQMHistNormalizer : public edm::EDAnalyzer
  public:
   explicit DQMHistNormalizer(const edm::ParameterSet&);
   virtual ~DQMHistNormalizer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(){}
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& c);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override{}
+  virtual void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   lat::Regexp* buildRegex(const string & expr);

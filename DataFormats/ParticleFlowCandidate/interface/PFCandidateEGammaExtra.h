@@ -87,7 +87,7 @@ namespace reco {
     const std::vector<reco::TrackRef>& singleLegConvTrackRef() const {return assoSingleLegRefTrack_;}
 
     /// add Single Leg Conversion mva
-    void addSingleLegConvMva(float& mvasingleleg);
+    void addSingleLegConvMva(const float& mvasingleleg);
 
     /// return Single Leg Conversion mva
     const std::vector<float>& singleLegConvMva() const {return assoSingleLegMva_;}

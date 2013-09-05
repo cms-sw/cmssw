@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2008/01/29 13:18:06 $
- *  $Revision: 1.3 $
  *  \author G. Cerminara
  */
 

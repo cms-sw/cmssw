@@ -3,7 +3,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -25,12 +24,16 @@ using namespace std;
 KVFTest::KVFTest(const edm::ParameterSet& iConfig)
   : theConfig(iConfig), associatorForParamAtPca(0), tree(0)
 {
-  trackLabel_ = iConfig.getParameter<std::string>("TrackLabel");
+  token_tracks = consumes<TrackCollection>(iConfig.getParameter<string>("TrackLabel"));
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile");
   kvfPSet = iConfig.getParameter<edm::ParameterSet>("KVFParameters");
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); 
   edm::LogInfo("RecoVertex/KVFTest") 
     << "Initializing KVF TEST analyser  - Output file: " << outputFile_ <<"\n";
+
+  token_TrackTruth = consumes<TrackingParticleCollection>(edm::InputTag("trackingtruth", "TrackTruth"));
+  token_VertexTruth = consumes<TrackingVertexCollection>(edm::InputTag("trackingtruth", "VertexTruth"));
+
 }
 
 
@@ -69,7 +72,7 @@ KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // get RECO tracks from the event
   // `tks` can be used as a ptr to a reco::TrackCollection
   edm::Handle<edm::View<reco::Track> > tks;
-  iEvent.getByLabel(trackLabel_, tks);
+  iEvent.getByToken(token_tracks, tks);
   if (!tks.isValid()) {
     edm::LogInfo("RecoVertex/KVFTest") 
       << "Exception during event number: " << iEvent.id()
@@ -101,7 +104,7 @@ KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       // For the analysis: compare to your SimVertex
       TrackingVertex sv = getSimVertex(iEvent);
       edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-      iEvent.getByLabel("trackingtruth","TrackTruth",TPCollectionH);
+      iEvent.getByToken(token_TrackTruth, TPCollectionH);
       if (!TPCollectionH.isValid()) {
 	edm::LogInfo("RecoVertex/KVFTest") 
 	  << "Exception during event number: " << iEvent.id() 
@@ -123,7 +126,7 @@ TrackingVertex KVFTest::getSimVertex(const edm::Event& iEvent) const
 {
    // get the simulated vertices
   edm::Handle<TrackingVertexCollection>  TVCollectionH ;
-  iEvent.getByLabel("trackingtruth","VertexTruth",TVCollectionH);
+  iEvent.getByToken(token_VertexTruth,TVCollectionH);
   const TrackingVertexCollection tPC = *(TVCollectionH.product());
 
 //    Handle<edm::SimVertexContainer> simVtcs;

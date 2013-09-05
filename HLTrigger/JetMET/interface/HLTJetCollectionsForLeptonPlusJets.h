@@ -27,6 +27,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -45,6 +48,8 @@ template <typename jetType> class HLTJetCollectionsForLeptonPlusJets: public edm
   private:
     virtual void produce(edm::Event&, const edm::EventSetup&);
 
+    edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_theLeptonToken;
+    edm::EDGetTokenT<std::vector<jetType>> m_theJetToken;
     edm::InputTag hltLeptonTag;
     edm::InputTag sourceJetTag;
 

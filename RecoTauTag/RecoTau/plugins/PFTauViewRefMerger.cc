@@ -26,7 +26,7 @@ class PFTauViewRefMerger : public edm::EDProducer {
           produces<reco::PFTauRefVector>();
         }
   private:
-    void produce(edm::Event & evt, const edm::EventSetup &) {
+    void produce(edm::Event & evt, const edm::EventSetup &) override {
       std::auto_ptr<reco::PFTauRefVector> out(new reco::PFTauRefVector());
       BOOST_FOREACH(const edm::InputTag& inputSrc, src_) {
         edm::Handle<reco::CandidateView> src;

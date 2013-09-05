@@ -34,10 +34,13 @@
 #include <memory>
 
 // user include files
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 //
@@ -49,12 +52,12 @@ class HLTHFAsymmetryFilter : public edm::EDFilter {
       explicit HLTHFAsymmetryFilter(const edm::ParameterSet&);
       ~HLTHFAsymmetryFilter();
 
-
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool filter(edm::Event &, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
 
-
+ edm::EDGetTokenT<HFRecHitCollection> HFHitsToken_;
  edm::InputTag HFHits_;
  double eCut_HF_;
  double os_asym_;

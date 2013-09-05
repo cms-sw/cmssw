@@ -1,4 +1,3 @@
-// $Id: CompositePtrCandidate.cc,v 1.3 2008/07/10 15:19:17 cbern Exp $
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

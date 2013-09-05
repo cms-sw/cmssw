@@ -1,4 +1,3 @@
-// $Id$
 
 #include "DataFormats/Luminosity/interface/LumiSummaryRunHeader.h"
 

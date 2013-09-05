@@ -17,8 +17,8 @@ public:
                    uint64 first_event_offset,
                    uint64 last_event_offset);
 
-  uint8* recAddress() const { return (uint8*) &buf_[0]; }
-  uint32 size() const {return (uint32) buf_.size(); }
+  uint8 const* recAddress() const { return &buf_[0]; }
+  uint32 size() const {return static_cast<uint32>(buf_.size()); }
 
 private:
   std::vector<uint8> buf_;

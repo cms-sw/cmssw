@@ -21,7 +21,7 @@ class RecoTauPhotonFilter : public RecoTauModifierPlugin {
   public:
     explicit RecoTauPhotonFilter(const edm::ParameterSet& pset);
     virtual ~RecoTauPhotonFilter() {}
-    void operator()(PFTau&) const;
+    void operator()(PFTau&) const override;
   private:
     bool filter(const RecoTauPiZero* piZero,
                 const reco::Candidate::LorentzVector& tau) const;

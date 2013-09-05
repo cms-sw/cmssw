@@ -42,7 +42,11 @@ class SoftPFElectronTagInfoProducer : public edm::EDProducer
     
     // service used to make transient tracks from tracks
     const TransientTrackBuilder* transientTrackBuilder;
-    edm::InputTag PVerTag_,PFJet_;
+    edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
+    edm::EDGetTokenT<edm::View<reco::Jet> > token_jets;
+    edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot;
+    edm::EDGetTokenT<reco::ConversionCollection> token_allConversions;
+
     bool goodvertex;
 
     const reco::Vertex* vertex;

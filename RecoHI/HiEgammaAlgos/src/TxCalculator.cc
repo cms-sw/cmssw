@@ -21,7 +21,7 @@ using namespace std;
 using namespace ROOT::Math::VectorUtil; 
 
 
-TxCalculator::TxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel)
+TxCalculator::TxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup,const edm::InputTag& trackLabel)
 {
    iEvent.getByLabel(trackLabel, recCollection); 
    edm::Service<edm::RandomNumberGenerator> rng;
@@ -83,7 +83,7 @@ double TxCalculator::getMPT( double ptCut     ,   double etaCut  )
 }
 
 
-double TxCalculator::getTx(const reco::Photon cluster, double x, double threshold, double innerDR, double effRatio)
+double TxCalculator::getTx(const reco::Photon& cluster, double x, double threshold, double innerDR, double effRatio)
 {
 
    using namespace edm;
@@ -121,7 +121,7 @@ double TxCalculator::getTx(const reco::Photon cluster, double x, double threshol
 
 
 
-double TxCalculator::getCTx(const reco::Photon cluster, double x, double threshold, double innerDR,double effRatio)
+double TxCalculator::getCTx(const reco::Photon& cluster, double x, double threshold, double innerDR,double effRatio)
 {
    using namespace edm;
    using namespace reco;
@@ -162,7 +162,7 @@ double TxCalculator::getCTx(const reco::Photon cluster, double x, double thresho
 
 
 
-double TxCalculator::getJt(const reco::Photon cluster, double r1, double r2, double jWidth, double threshold)
+double TxCalculator::getJt(const reco::Photon& cluster, double r1, double r2, double jWidth, double threshold)
 {
 
    using namespace edm;
@@ -200,7 +200,7 @@ double TxCalculator::getJt(const reco::Photon cluster, double r1, double r2, dou
 }
 
 
-double TxCalculator::getJct(const reco::Photon cluster, double r1, double r2, double jWidth, double threshold)
+double TxCalculator::getJct(const reco::Photon& cluster, double r1, double r2, double jWidth, double threshold)
 {
 
    using namespace edm;

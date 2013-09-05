@@ -12,7 +12,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
-#include <HepMC/GenEvent.h>
+#include "HepMC/GenEvent.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

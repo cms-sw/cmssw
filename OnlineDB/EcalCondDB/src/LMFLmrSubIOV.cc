@@ -42,7 +42,7 @@ LMFLmrSubIOV& LMFLmrSubIOV::setTimes(Tm *t) {
   return *this;
 }
 
-LMFLmrSubIOV& LMFLmrSubIOV::setTimes(Tm t1, Tm t2, Tm t3) {
+LMFLmrSubIOV& LMFLmrSubIOV::setTimes(const Tm& t1, const Tm& t2, const Tm& t3) {
   m_t[0] = t1;
   m_t[1] = t2;
   m_t[2] = t3;

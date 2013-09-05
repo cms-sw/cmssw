@@ -10,9 +10,12 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+///Data Format
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 #include<string>
 #include<map>
@@ -94,8 +97,12 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	bool saveRootFile;
 	std::string RootFileName;
 
-	edm::InputTag rpcRecHitLabel_;
-	edm::InputTag muonLabel_;
+	edm::EDGetTokenT<reco::CandidateView> muonLabel_;
+	edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitLabel_;
+	edm::EDGetTokenT<DcsStatusCollection> scalersRawToDigiLabel_;
+
+
+
 };
 
 #endif

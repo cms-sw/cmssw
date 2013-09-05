@@ -7,8 +7,6 @@
 //
 //   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideL1ConfigOnlineProd r11
 //
-//   $Date: 2009/03/13 17:59:48 $
-//   $Revision: 1.2 $
 //
 //   Author :
 //   Thomas Themel
@@ -34,7 +32,7 @@ class L1MuTriggerScaleKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
 
       ~L1MuTriggerScaleKeysOnlineProd() {}
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
+      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
 
    private:    
     std::vector<std::string> m_objectTypes;

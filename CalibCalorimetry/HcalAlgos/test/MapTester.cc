@@ -13,7 +13,6 @@
 //
 // Original Author:  Jared Todd Sturdy
 //         Created:  Thu Oct 23 18:16:33 CEST 2008
-// $Id: MapTester.cc,v 1.6 2011/11/15 14:19:38 pbgeff Exp $
 //
 //
 

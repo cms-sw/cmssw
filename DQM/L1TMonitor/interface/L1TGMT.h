@@ -4,8 +4,6 @@
 /*
  * \file L1TGMT.h
  *
- * $Date: 2010/01/13 13:04:58 $
- * $Revision: 1.10 $
  * \author J. Berryhill, I. Mikulec
  *
 */

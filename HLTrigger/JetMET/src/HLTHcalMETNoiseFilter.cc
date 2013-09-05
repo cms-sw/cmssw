@@ -26,8 +26,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/METReco/interface/HcalNoiseRBX.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -68,6 +66,8 @@ HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig) :
   for(int i = 0; i < (int)TS4TS5LowerThresholdTemp.size() && i < (int)TS4TS5LowerCutTemp.size(); i++)
      TS4TS5LowerCut_.push_back(std::pair<double, double>(TS4TS5LowerThresholdTemp[i], TS4TS5LowerCutTemp[i]));
   sort(TS4TS5LowerCut_.begin(), TS4TS5LowerCut_.end());
+
+  m_theHcalNoiseToken = consumes<reco::HcalNoiseRBXCollection>(HcalNoiseRBXCollectionTag_);
 }
 
 
@@ -125,7 +125,7 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
   // get the RBXs produced by RecoMET/METProducers/HcalNoiseInfoProducer
   edm::Handle<HcalNoiseRBXCollection> rbxs_h;
-  iEvent.getByLabel(HcalNoiseRBXCollectionTag_,rbxs_h);
+  iEvent.getByToken(m_theHcalNoiseToken,rbxs_h);
   if(!rbxs_h.isValid()) {
     edm::LogError("DataNotFound") << "HLTHcalMETNoiseFilter: Could not find HcalNoiseRBXCollection product named "
 				  << HcalNoiseRBXCollectionTag_ << "." << std::endl;

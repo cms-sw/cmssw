@@ -45,7 +45,7 @@ namespace edm {
     
     ProcessHistoryID const& processHistoryID() const {return processHistoryID_;}
 
-    void setProcessHistoryID(ProcessHistoryID const& phid) const {processHistoryID_ = phid;}
+    void setProcessHistoryID(ProcessHistoryID const& phid) {processHistoryID_ = phid;}
 
     BranchListIndexes const& branchListIndexes() const {return branchListIndexes_;}
 
@@ -62,7 +62,7 @@ namespace edm {
 
     BranchListIndexes branchListIndexes_;
 
-    mutable ProcessHistoryID processHistoryID_;
+    ProcessHistoryID processHistoryID_;
   };
 
 }

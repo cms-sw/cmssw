@@ -33,7 +33,7 @@ namespace cond {
     {
       // here one can make stuff really complicated...
     }
-    void compute(Class const & it){
+    void compute(Class const & it) override{
     }
   private:
   
@@ -58,7 +58,7 @@ namespace cond {
     //change me
     typedef EcalTPGLinearizationConstant EcalObject;
 
-    type_vValues getValues( const std::vector<EcalObject> & vItems)
+    type_vValues getValues( const std::vector<EcalObject> & vItems) override
     {
 
 			type_vValues vValues(total_values);

@@ -31,7 +31,7 @@ class AlignableDTWheel : public AlignableComposite
 
  public:
 
-  AlignableDTWheel( const std::vector<AlignableDTStation*> dtStations );
+  AlignableDTWheel( const std::vector<AlignableDTStation*>& dtStations );
 
   ~AlignableDTWheel();
   

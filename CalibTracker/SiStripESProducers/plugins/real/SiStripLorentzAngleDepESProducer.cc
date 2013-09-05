@@ -13,7 +13,6 @@
 //
 // Original Author:  Michael Segala and Rebeca Gonzalez Suarez 
 //         Created:  15/02/2011
-// $Id: SiStripLorentzAngleDepESProducer.cc,v 1.1 2011/03/02 15:47:07 rebeca Exp $
 //
 //
 

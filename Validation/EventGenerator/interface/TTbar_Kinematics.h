@@ -13,7 +13,6 @@
 //
 // Original Author:  Martijn Gosselink,,,
 //         Created:  Thu Jan 19 18:40:35 CET 2012
-// $Id: TTbar_Kinematics.h,v 1.3 2012/08/24 21:47:01 wdd Exp $
 //
 //
 // Added to: Validation/EventGenerator by Ian M. Nugent June 28, 2012
@@ -78,8 +77,8 @@ class TTbar_Kinematics : public edm::EDAnalyzer {
       ///ME's "container"
       DQMStore *dbe;
 
-      edm::InputTag hepmcCollection_;
-      edm::InputTag genEventInfoProductTag_;
+  edm::InputTag hepmcCollection_;
+  edm::InputTag genEventInfoProductTag_,genEvt_;
 
 
       double weight ;
@@ -120,6 +119,9 @@ class TTbar_Kinematics : public edm::EDAnalyzer {
       MonitorElement* hBottomMassEta         ;
       MonitorElement* hBottomMassY           ;
       MonitorElement* hBottomMassDeltaY      ;
+
+  edm::EDGetTokenT<GenEventInfoProduct> genEventInfoProductTagToken_;
+  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
 
 };
 

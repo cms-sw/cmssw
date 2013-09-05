@@ -9,6 +9,7 @@ Toy EDProducers of Ints for testing purposes only.
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 //
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -69,7 +70,8 @@ namespace edmtest {
   //
   // Produces an IntProduct instance.
   //
-  class IntProducer : public edm::EDProducer {
+  // NOTE: this really should be a global::EDProducer<> but for testing we use stream
+  class IntProducer : public edm::stream::EDProducer<> {
   public:
     explicit IntProducer(edm::ParameterSet const& p) :
       value_(p.getParameter<int>("ivalue")) {

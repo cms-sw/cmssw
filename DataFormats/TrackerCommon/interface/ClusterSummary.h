@@ -13,7 +13,6 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Wed Feb 23 17:36:23 CST 2011
-// $Id: ClusterSummary.h,v 1.8 2012/12/21 19:13:15 wmtan Exp $
 //
 //
 

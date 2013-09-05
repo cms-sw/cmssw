@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: siStripElectronSequence_cff.py,v 1.4 2008/06/19 14:55:00 rahatlou Exp $
 #
 # complete sequence to 1) make siStripElectrons
 #                      2) do tracking based on these siStripElectrons

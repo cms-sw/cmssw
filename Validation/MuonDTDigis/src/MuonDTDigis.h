@@ -4,8 +4,6 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2008/09/17 11:52:40 $
- *  $Revision: 1.5 $
  *  \authors: R. Bellan
  */
 #include <FWCore/Framework/interface/Event.h>

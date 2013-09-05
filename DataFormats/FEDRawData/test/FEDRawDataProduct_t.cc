@@ -3,7 +3,6 @@
    unit test file for class FEDRawDataProduct 
 
    \author Stefano ARGIRO
-   \version $Id: FEDRawDataProduct_t.cc,v 1.3 2005/10/04 12:23:56 namapane Exp $
    \date 28 Jun 2005
 */
 

@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripNullKey.h,v 1.3 2007/07/31 15:20:24 ratnik Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripNullKey_H
 #define DataFormats_SiStripCommon_SiStripNullKey_H

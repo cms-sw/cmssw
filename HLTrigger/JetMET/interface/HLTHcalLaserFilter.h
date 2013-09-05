@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -27,6 +28,7 @@ class HLTHcalLaserFilter : public edm::EDFilter {
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   
  private:
+  edm::EDGetTokenT<HcalCalibDigiCollection> m_theCalibToken;
   // parameters
   edm::InputTag hcalDigiCollection_;
   std::vector<int> timeSlices_;

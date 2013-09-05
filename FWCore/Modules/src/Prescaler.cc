@@ -1,22 +1,22 @@
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include <atomic>
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
-  class Prescaler : public EDFilter {
+  class Prescaler : public global::EDFilter<> {
   public:
     explicit Prescaler(ParameterSet const&);
     virtual ~Prescaler();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
-    virtual bool filter(Event& e, EventSetup const& c);
-    void endJob();
+    virtual bool filter(StreamID, Event& e, EventSetup const& c) const override final;
 
   private:
-    int count_;
+    mutable std::atomic<int> count_;
     int n_; // accept one in n
     int offset_; // with offset, ie. sequence of events does not have to start at first event
   };
@@ -30,12 +30,10 @@ namespace edm {
   Prescaler::~Prescaler() {
   }
 
-  bool Prescaler::filter(Event&, EventSetup const&) {
-    ++count_;
-    return count_ % n_ == offset_ ? true : false;
-  }
-
-  void Prescaler::endJob() {
+  bool Prescaler::filter(StreamID, Event&, EventSetup const&) const {
+    //have to capture the value here since it could change by the time we do the comparision
+    int count = ++count_;
+    return count % n_ == offset_ ? true : false;
   }
 
   void

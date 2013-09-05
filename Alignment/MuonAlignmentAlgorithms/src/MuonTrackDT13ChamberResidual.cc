@@ -6,7 +6,7 @@
 
 
 MuonTrackDT13ChamberResidual::MuonTrackDT13ChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator,
-                                                           DetId chamberId, AlignableDetOrUnitPtr chamberAlignable)
+                                                           DetId chamberId, const AlignableDetOrUnitPtr& chamberAlignable)
   : MuonChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable)
 {
   m_type = MuonChamberResidual::kDT13;

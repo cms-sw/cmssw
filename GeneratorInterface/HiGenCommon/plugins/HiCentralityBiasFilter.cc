@@ -54,9 +54,9 @@ class HiCentralityBiasFilter : public edm::EDFilter {
       ~HiCentralityBiasFilter();
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
       
   edm::InputTag hepmcSrc_;
 

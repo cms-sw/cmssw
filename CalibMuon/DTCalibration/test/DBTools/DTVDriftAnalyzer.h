@@ -4,8 +4,6 @@
 /** \class DTVDriftAnalyzer
  *  Plot the vdrift from the DB
  *
- *  $Date: 2008/09/19 14:25:42 $
- *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -16,6 +14,7 @@
 
 #include <string>
 #include <fstream>
+#include <map>
 #include <vector>
 
 class DTMtime;

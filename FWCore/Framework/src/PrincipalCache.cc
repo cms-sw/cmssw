@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
@@ -14,6 +15,12 @@ namespace edm {
   }
 
   PrincipalCache::~PrincipalCache() { }
+
+  
+  void PrincipalCache::setNumberOfConcurrentPrincipals(PreallocationConfiguration const& iConfig)
+  {
+    eventPrincipals_.resize(iConfig.numberOfStreams());
+  }
 
   RunPrincipal&
   PrincipalCache::runPrincipal(ProcessHistoryID const& phid, RunNumber_t run) const {
@@ -98,7 +105,7 @@ namespace edm {
         << "Contact a Framework Developer\n";
     }
     if (inputProcessHistoryID_ != aux->processHistoryID()) {
-      if (reducedInputProcessHistoryID_ != ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(aux->processHistoryID())) {
+      if (reducedInputProcessHistoryID_ != processHistoryRegistry_->reducedProcessHistoryID(aux->processHistoryID())) {
         throw edm::Exception(edm::errors::LogicError)
           << "PrincipalCache::merge\n"
           << "Illegal attempt to merge run into cache\n"
@@ -128,7 +135,7 @@ namespace edm {
         << "Contact a Framework Developer\n";
     }
     if (inputProcessHistoryID_ != aux->processHistoryID()) {
-      if (reducedInputProcessHistoryID_ != ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(aux->processHistoryID())) {
+      if (reducedInputProcessHistoryID_ != processHistoryRegistry_->reducedProcessHistoryID(aux->processHistoryID())) {
         throw edm::Exception(edm::errors::LogicError)
           << "PrincipalCache::merge\n"
           << "Illegal attempt to merge run into cache\n"
@@ -158,7 +165,7 @@ namespace edm {
         << "Contact a Framework Developer\n";
     }
     if (inputProcessHistoryID_ != rp->aux().processHistoryID()) {
-      reducedInputProcessHistoryID_ = ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(rp->aux().processHistoryID());
+      reducedInputProcessHistoryID_ = processHistoryRegistry_->reducedProcessHistoryID(rp->aux().processHistoryID());
       inputProcessHistoryID_ = rp->aux().processHistoryID();
     }
     run_ = rp->run();
@@ -180,7 +187,7 @@ namespace edm {
         << "Contact a Framework Developer\n";
     }
     if (inputProcessHistoryID_ != lbp->aux().processHistoryID()) {
-      if (reducedInputProcessHistoryID_ != ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(lbp->aux().processHistoryID())) {
+      if (reducedInputProcessHistoryID_ != processHistoryRegistry_->reducedProcessHistoryID(lbp->aux().processHistoryID())) {
         throw edm::Exception(edm::errors::LogicError)
           << "PrincipalCache::insert\n"
           << "Illegal attempt to insert lumi into cache\n"
@@ -239,11 +246,13 @@ namespace edm {
     lumiPrincipal_.reset();
   }
 
-  void PrincipalCache::adjustEventToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg) {
-    if (eventPrincipal_) {
-      eventPrincipal_->adjustIndexesAfterProductRegistryAddition();
-      bool eventOK = eventPrincipal_->adjustToNewProductRegistry(*reg);
-      assert(eventOK);
+  void PrincipalCache::adjustEventsToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg) {
+    for(auto &eventPrincipal : eventPrincipals_) {
+      if (eventPrincipal) {
+        eventPrincipal->adjustIndexesAfterProductRegistryAddition();
+        bool eventOK = eventPrincipal->adjustToNewProductRegistry(*reg);
+        assert(eventOK);
+      }
     }
   }
   

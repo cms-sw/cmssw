@@ -384,7 +384,7 @@ public:
       Start(0, kTRUE);
    }
 
-   virtual Bool_t Notify()
+   virtual Bool_t Notify() override
    {
       TurnOff();
       fApp->doExit();

@@ -8,8 +8,6 @@
  *   - using a reduced matrix
  *   - implements Regional Householder Algorithm
  *
- * $Date: 2007/03/14 13:55:40 $
- * $Revision: 1.3 $
  * \author Lorenzo Agostino, R.Ofierzynski, CERN
  */
 

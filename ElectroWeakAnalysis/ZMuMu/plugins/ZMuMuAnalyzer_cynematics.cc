@@ -16,7 +16,6 @@
  * \modified by Davide Piccolo, INFN Naples to include gerarchyc selection of Z and histos as a finction of eta pt phi
  * 
  *
- * \id $Id: ZMuMuAnalyzer_cynematics.cc,v 1.5 2010/01/10 19:08:08 hegner Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -51,9 +50,9 @@ class ZMuMuAnalyzer_cynematics : public edm::EDAnalyzer {
 public:
   ZMuMuAnalyzer_cynematics(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   bool isContained(const Candidate &, const Candidate &);
-  virtual void endJob();
+  virtual void endJob() override;
   
   OverlapChecker overlap_;
   InputTag zMuMu_;

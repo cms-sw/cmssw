@@ -7,7 +7,6 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: BeamFitter.cc,v 1.75 2011/03/18 14:06:38 friis Exp $
 
 ________________________________________________________________**/
 

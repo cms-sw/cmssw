@@ -1,5 +1,4 @@
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
-#include "DataFormats/Provenance/interface/FullHistoryToReducedHistoryMap.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -151,14 +150,12 @@ namespace edm {
     runOrLumiIndexes().reserve(runOrLumiEntries_.size());
 
     int index = 0;
-    for(std::vector<RunOrLumiEntry>::const_iterator iter = runOrLumiEntries_.begin(),
-                                                    iEnd = runOrLumiEntries_.end();
-         iter != iEnd;
-         ++iter, ++index) {
-      runOrLumiIndexes().emplace_back(iter->processHistoryIDIndex(),
-                                      iter->run(),
-                                      iter->lumi(),
+    for(RunOrLumiEntry const& item : runOrLumiEntries_) {
+      runOrLumiIndexes().emplace_back(item.processHistoryIDIndex(),
+                                      item.run(),
+                                      item.lumi(),
                                       index);
+      ++index;
     }
     stable_sort_all(runOrLumiIndexes());
 
@@ -323,9 +320,7 @@ namespace edm {
   }
 
   void
-  IndexIntoFile::reduceProcessHistoryIDs() {
-
-    FullHistoryToReducedHistoryMap & phidConverter(ProcessHistoryRegistry::instance()->extra());
+  IndexIntoFile::reduceProcessHistoryIDs(ProcessHistoryRegistry const& processHistoryRegistry) {
 
     std::vector<ProcessHistoryID> reducedPHIDs;
 
@@ -334,11 +329,9 @@ namespace edm {
     std::pair<std::map<ProcessHistoryID, int>::iterator, bool> insertResult;
 
     std::vector<int> phidIndexConverter;
-    for(std::vector<ProcessHistoryID>::const_iterator phid = processHistoryIDs_.begin(),
-         iEnd = processHistoryIDs_.end();
-         phid != iEnd; ++phid) {
+    for(auto const& phid : processHistoryIDs_) {
 
-      ProcessHistoryID const& reducedPHID = phidConverter.reduceProcessHistoryID(*phid);
+      ProcessHistoryID const& reducedPHID = processHistoryRegistry.reducedProcessHistoryID(phid);
       mapEntry.first = reducedPHID;
       insertResult = reducedPHIDToIndex.insert(mapEntry);
 
@@ -364,30 +357,28 @@ namespace edm {
     std::pair<std::map<IndexIntoFile::IndexRunLumiKey, int>::iterator, bool> lumiInsertResult;
 
     // loop over all the RunOrLumiEntry's
-    for(std::vector<RunOrLumiEntry>::iterator i = runOrLumiEntries_.begin(),
-         iterEnd = runOrLumiEntries_.end();
-         i != iterEnd; ++i) {
+    for(auto& item : runOrLumiEntries_) {
 
       // Convert the process history index so it points into the new vector of reduced IDs
-      i->setProcessHistoryIDIndex(phidIndexConverter.at(i->processHistoryIDIndex()));
+      item.setProcessHistoryIDIndex(phidIndexConverter.at(item.processHistoryIDIndex()));
 
       // Convert the phid-run order
-      IndexIntoFile::IndexRunKey runKey(i->processHistoryIDIndex(), i->run());
+      IndexIntoFile::IndexRunKey runKey(item.processHistoryIDIndex(), item.run());
       runInsertResult = runOrderMap.insert(std::pair<IndexIntoFile::IndexRunKey, int>(runKey,0));
       if(runInsertResult.second) {
-        runInsertResult.first->second = i->orderPHIDRun();
+        runInsertResult.first->second = item.orderPHIDRun();
       } else {
-        i->setOrderPHIDRun(runInsertResult.first->second);
+        item.setOrderPHIDRun(runInsertResult.first->second);
       }
 
       // Convert the phid-run-lumi order for the lumi entries
-      if(i->lumi() != 0) {
-        IndexIntoFile::IndexRunLumiKey lumiKey(i->processHistoryIDIndex(), i->run(), i->lumi());
+      if(item.lumi() != 0) {
+        IndexIntoFile::IndexRunLumiKey lumiKey(item.processHistoryIDIndex(), item.run(), item.lumi());
         lumiInsertResult = lumiOrderMap.insert(std::pair<IndexIntoFile::IndexRunLumiKey, int>(lumiKey,0));
         if(lumiInsertResult.second) {
-          lumiInsertResult.first->second = i->orderPHIDRunLumi();
+          lumiInsertResult.first->second = item.orderPHIDRunLumi();
         } else {
-          i->setOrderPHIDRunLumi(lumiInsertResult.first->second);
+          item.setOrderPHIDRunLumi(lumiInsertResult.first->second);
         }
       }
     }
@@ -413,21 +404,15 @@ namespace edm {
     }
     processHistoryIDs_ = processHistoryIDs;
 
-    for(std::vector<RunOrLumiEntry>::iterator iter = runOrLumiEntries_.begin(),
-                                               iEnd = runOrLumiEntries_.end();
-         iter != iEnd;
-         ++iter) {
-      iter->setProcessHistoryIDIndex(oldToNewIndex[iter->processHistoryIDIndex()]);
+    for(RunOrLumiEntry& item : runOrLumiEntries_) {
+      item.setProcessHistoryIDIndex(oldToNewIndex[item.processHistoryIDIndex()]);
     }
   }
 
   void IndexIntoFile::sortVector_Run_Or_Lumi_Entries() {
-    for(std::vector<RunOrLumiEntry>::iterator iter = runOrLumiEntries_.begin(),
-                                               iEnd = runOrLumiEntries_.end();
-         iter != iEnd;
-         ++iter) {
+    for(RunOrLumiEntry& item : runOrLumiEntries_) {
       std::map<IndexRunKey, EntryNumber_t>::const_iterator firstRunEntry =
-        runToFirstEntry().find(IndexRunKey(iter->processHistoryIDIndex(), iter->run()));
+        runToFirstEntry().find(IndexRunKey(item.processHistoryIDIndex(), item.run()));
       if(firstRunEntry == runToFirstEntry().end()) {
         throw Exception(errors::LogicError)
           << "In IndexIntoFile::sortVector_Run_Or_Lumi_Entries. A run entry is missing.\n"
@@ -438,7 +423,7 @@ namespace edm {
           << "the primary exception. This is an expected side effect.\n"
           << "Otherwise please report this to the core framework developers\n";
       }
-      iter->setOrderPHIDRun(firstRunEntry->second);
+      item.setOrderPHIDRun(firstRunEntry->second);
     }
     stable_sort_all(runOrLumiEntries_);
   }
@@ -847,13 +832,11 @@ namespace edm {
                                   indexIntoFile.eventEntries().begin() + beginEventNumbers2,
                                   indexIntoFile.eventEntries().begin() + endEventNumbers2,
                                   insertIter);
-            for(std::vector<EventEntry>::const_iterator iEvent = matchingEvents.begin(),
-                                                           iEnd = matchingEvents.end();
-                 iEvent != iEnd; ++iEvent) {
+            for(EventEntry const& entry : matchingEvents) {
               intersection.insert(IndexRunLumiEventKey(indexes1.processHistoryIDIndex(),
                                                        indexes1.run(),
                                                        indexes1.lumi(),
-                                                       iEvent->event()));
+                                                       entry.event()));
             }
           } else {
             fillEventNumbers();
@@ -865,13 +848,11 @@ namespace edm {
                                   indexIntoFile.eventNumbers().begin() + beginEventNumbers2,
                                   indexIntoFile.eventNumbers().begin() + endEventNumbers2,
                                   insertIter);
-            for(std::vector<EventNumber_t>::const_iterator iEvent = matchingEvents.begin(),
-                                                              iEnd = matchingEvents.end();
-                 iEvent != iEnd; ++iEvent) {
+            for(EventNumber_t const& eventNumber : matchingEvents) {
               intersection.insert(IndexRunLumiEventKey(indexes1.processHistoryIDIndex(),
                                                        indexes1.run(),
                                                        indexes1.lumi(),
-                                                       *iEvent));
+                                                       eventNumber));
             }
           }
         }

@@ -38,6 +38,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 //
 // class decleration
@@ -48,12 +53,15 @@ class HLTEcalPhiSymFilter : public edm::EDFilter {
       explicit HLTEcalPhiSymFilter(const edm::ParameterSet&);
       ~HLTEcalPhiSymFilter();
 
-
       virtual bool filter(edm::Event &, const edm::EventSetup&);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
    private:
       // ----------member data ---------------------------
 
  
+ edm::EDGetTokenT<EBRecHitCollection> barrelHitsToken_;
+ edm::EDGetTokenT<EERecHitCollection> endcapHitsToken_;
  edm::InputTag barrelHits_;
  edm::InputTag endcapHits_;
  std::string phiSymBarrelHits_;

@@ -12,8 +12,6 @@
  *   
  * \author: Jim Brooke
  * 
- * $Date: 2009/05/06 16:29:01 $
- * $Revision: 1.1 $
  *
  */
 

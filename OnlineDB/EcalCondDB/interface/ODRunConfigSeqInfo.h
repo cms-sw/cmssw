@@ -39,7 +39,7 @@ class ODRunConfigSeqInfo : public IODConfig {
   inline  int getSequenceNumber() const{return m_seq_num;}
   //
   RunSeqDef getRunSeqDef() const;
-  void setRunSeqDef(const RunSeqDef runSeqDef);
+  void setRunSeqDef(const RunSeqDef& runSeqDef);
 
   // operators
   inline bool operator==(const ODRunConfigSeqInfo &r) const {  return (m_ID   == r.m_ID ); }

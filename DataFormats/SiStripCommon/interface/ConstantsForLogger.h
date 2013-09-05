@@ -1,4 +1,3 @@
-// Last commit: $Id: ConstantsForLogger.h,v 1.5 2007/03/26 10:11:53 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForLogger_H
 #define DataFormats_SiStripCommon_ConstantsForLogger_H

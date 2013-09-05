@@ -11,7 +11,7 @@ class RecoTauDiscriminationBinnedIsolationImpl
     RecoTauDiscriminationBinnedIsolationImpl(const edm::ParameterSet& pset)
       :RecoTauDiscriminationBinnedIsolation(pset),extractor_(pset) {}
     reco::PFCandidateRefVector extractIsoObjects(
-        const reco::PFTauRef& tau) const {
+        const reco::PFTauRef& tau) const override {
       return extractor_(tau);
     }
   private:

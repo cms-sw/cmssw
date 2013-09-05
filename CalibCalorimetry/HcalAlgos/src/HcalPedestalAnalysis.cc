@@ -5,7 +5,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPedestalAnalysis.h"
 #include "TFile.h"
-#include <math.h>
+#include <cmath>
 
 //
 // Michal Szleper, Mar 30, 2007

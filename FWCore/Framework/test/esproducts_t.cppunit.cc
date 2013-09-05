@@ -7,7 +7,7 @@
  *
  */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "FWCore/Framework/interface/ESProducts.h"
 using edm::ESProducts;

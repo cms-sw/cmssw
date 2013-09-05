@@ -8,6 +8,7 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -26,7 +27,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -79,15 +80,16 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
-  ep.fillEventPrincipal(eventAux);
+  edm::ProcessHistoryRegistry phr;
+  ep.fillEventPrincipal(eventAux, phr);
   ep.setLuminosityBlockPrincipal(lbp);
   try {
      edm::ParameterSet pset;
      pset.registerIt();
      boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(
       new edm::ProcessConfiguration());
-     edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get());
-     edm::Event event(ep, modDesc);
+     edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get(), edm::ModuleDescription::getUniqueID());
+     edm::Event event(ep, modDesc, nullptr);
 
      std::string label("this does not exist");
      edm::RefProd<edmtest::DummyProduct> ref = event.getRefBeforePut<edmtest::DummyProduct>(label);
@@ -151,14 +153,15 @@ void testEventGetRefBeforePut::getRefTest() {
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
-  ep.fillEventPrincipal(eventAux);
+  edm::ProcessHistoryRegistry phr;
+  ep.fillEventPrincipal(eventAux, phr);
   ep.setLuminosityBlockPrincipal(lbp);
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {
     edm::ModuleDescription modDesc("Blah", label, pcPtr.get());
 
-    edm::Event event(ep, modDesc);
+    edm::Event event(ep, modDesc, nullptr);
     std::auto_ptr<edmtest::IntProduct> pr(new edmtest::IntProduct);
     pr->value = 10;
 

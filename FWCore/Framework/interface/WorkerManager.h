@@ -22,46 +22,56 @@
 namespace edm {
   class ExceptionCollector;
   class StreamID;
+  class StreamContext;
+  class ModuleRegistry;
+  class PreallocationConfiguration;
   
   class WorkerManager {
   public:
     typedef std::vector<Worker*> AllWorkers;
 
-    WorkerManager(boost::shared_ptr<ActivityRegistry> actReg, ActionTable const& actions);
+    WorkerManager(boost::shared_ptr<ActivityRegistry> actReg, ExceptionToActionTable const& actions);
 
+    WorkerManager(boost::shared_ptr<ModuleRegistry> modReg,
+                  boost::shared_ptr<ActivityRegistry> actReg,
+                  ExceptionToActionTable const& actions);
     void addToUnscheduledWorkers(ParameterSet& pset,
-                      ProductRegistry& preg,
-                      boost::shared_ptr<ProcessConfiguration> processConfiguration,
-                      std::string label,
-                      bool useStopwatch,
-                      std::set<std::string>& unscheduledLabels,
-                      std::vector<std::string>& shouldBeUsedLabels);
+                                 ProductRegistry& preg,
+                                 PreallocationConfiguration const* prealloc,
+                                 boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                                 std::string label,
+                                 bool useStopwatch,
+                                 std::set<std::string>& unscheduledLabels,
+                                 std::vector<std::string>& shouldBeUsedLabels);
 
     void setOnDemandProducts(ProductRegistry& pregistry, std::set<std::string> const& unscheduledLabels) const;
 
-    template <typename T>
+    template <typename T, typename U>
     void processOneOccurrence(typename T::MyPrincipal& principal,
                               EventSetup const& eventSetup,
                               StreamID streamID,
+                              typename T::Context const* topContext,
+                              U const* context,
                               bool cleaningUpAfterException = false);
 
     void beginJob(ProductRegistry const& iRegistry);
     void endJob();
     void endJob(ExceptionCollector& collector);
 
-    void beginStream(StreamID iID);
-    void endStream(StreamID iID);
+    void beginStream(StreamID iID, StreamContext& streamContext);
+    void endStream(StreamID iID, StreamContext& streamContext);
     
     AllWorkers const& allWorkers() const {return allWorkers_;}
 
     void addToAllWorkers(Worker* w, bool useStopwatch);
 
-    ActionTable const&  actionTable() const {return *actionTable_;}
+    ExceptionToActionTable const&  actionTable() const {return *actionTable_;}
 
     Worker* getWorker(ParameterSet& pset,
                       ProductRegistry& preg,
+                      PreallocationConfiguration const* prealloc,
                       boost::shared_ptr<ProcessConfiguration const> processConfiguration,
-                      std::string label);
+                      std::string const& label);
 
   private:
 
@@ -70,18 +80,20 @@ namespace edm {
     void setupOnDemandSystem(EventPrincipal& principal, EventSetup const& es);
 
     WorkerRegistry      workerReg_;
-    ActionTable const*  actionTable_;
+    ExceptionToActionTable const*  actionTable_;
 
     AllWorkers          allWorkers_;
 
     boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
   };
 
-  template <typename T>
+  template <typename T, typename U>
   void
   WorkerManager::processOneOccurrence(typename T::MyPrincipal& ep,
                                  EventSetup const& es,
                                  StreamID streamID,
+                                 typename T::Context const* topContext,
+                                 U const* context,
                                  bool cleaningUpAfterException) {
     this->resetAll();
 
@@ -92,14 +104,14 @@ namespace edm {
             setupOnDemandSystem(dynamic_cast<EventPrincipal&>(ep), es);
           } else {
             //make sure the unscheduled items see this run or lumi rtansition
-            unscheduled_->runNow<T>(ep, es,streamID);
+            unscheduled_->runNow<T,U>(ep, es,streamID, topContext, context);
           }
         }
         catch(cms::Exception& e) {
-          actions::ActionCodes action = (T::isEvent_ ? actionTable_->find(e.category()) : actions::Rethrow);
-          assert (action != actions::IgnoreCompletely);
-          assert (action != actions::FailPath);
-          if (action == actions::SkipEvent) {
+          exception_actions::ActionCodes action = (T::isEvent_ ? actionTable_->find(e.category()) : exception_actions::Rethrow);
+          assert (action != exception_actions::IgnoreCompletely);
+          assert (action != exception_actions::FailPath);
+          if (action == exception_actions::SkipEvent) {
             printCmsExceptionWarning("SkipEvent", e);
           } else {
             throw;

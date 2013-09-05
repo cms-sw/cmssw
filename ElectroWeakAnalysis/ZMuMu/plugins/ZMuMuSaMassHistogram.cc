@@ -39,8 +39,8 @@ public:
   typedef math::XYZVector Vector;
   ZMuMuSaMassHistogram(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  virtual void endJob();
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  virtual void endJob() override;
   InputTag src_muons;
   int counter;
   double min, max;

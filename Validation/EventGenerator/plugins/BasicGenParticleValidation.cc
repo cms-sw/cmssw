@@ -2,8 +2,6 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/12/29 10:53:11 $
- *  $Revision: 1.3 $
  */
  
 #include "Validation/EventGenerator/interface/BasicGenParticleValidation.h"
@@ -14,7 +12,7 @@
 using namespace edm;
 
 BasicGenParticleValidation::BasicGenParticleValidation(const edm::ParameterSet& iPSet): 
-  _wmanager(iPSet),
+  wmanager_(iPSet,consumesCollector()),
   hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")),
   genparticleCollection_(iPSet.getParameter<edm::InputTag>("genparticleCollection")),
   genjetCollection_(iPSet.getParameter<edm::InputTag>("genjetsCollection")),
@@ -23,6 +21,11 @@ BasicGenParticleValidation::BasicGenParticleValidation(const edm::ParameterSet& 
 {    
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
+
+  hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
+  genparticleCollectionToken_=consumes<reco::GenParticleCollection>(genparticleCollection_);
+  genjetCollectionToken_=consumes<reco::GenJetCollection>(genjetCollection_);
+
 }
 
 BasicGenParticleValidation::~BasicGenParticleValidation() {}
@@ -81,12 +84,12 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent,const edm::Eve
 
   ///Gathering the HepMCProduct information
   edm::Handle<HepMCProduct> evt;
-  iEvent.getByLabel(hepmcCollection_, evt);
+  iEvent.getByToken(hepmcCollectionToken_, evt);
 
   //Get HepMC EVENT
   HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
 
-  double weight = _wmanager.weight(iEvent);
+  double weight =    wmanager_.weight(iEvent);
 
   nEvt->Fill(0.5, weight);
 
@@ -110,7 +113,7 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent,const edm::Eve
 
   // Gather information on the reco::GenParticle collection
   edm::Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByLabel(genparticleCollection_, genParticles );
+  iEvent.getByToken(genparticleCollectionToken_, genParticles );
   
   std::vector<const reco::GenParticle*> particles;
   particles.reserve(initSize);
@@ -183,7 +186,7 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent,const edm::Eve
 
   // Gather information in the GenJet collection
   edm::Handle<reco::GenJetCollection> genJets;
-  iEvent.getByLabel(genjetCollection_, genJets );
+  iEvent.getByToken(genjetCollectionToken_, genJets );
 
   int nJets = 0;
   int nJetso1 = 0;

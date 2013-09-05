@@ -41,7 +41,7 @@ namespace pat {
     public:
 
       ObjectResolutionCalc();
-      ObjectResolutionCalc(TString resopath, bool useNN);
+      ObjectResolutionCalc(const TString& resopath, bool useNN);
       ~ObjectResolutionCalc();
 
       float obsRes(int obs, int eta, float eT);

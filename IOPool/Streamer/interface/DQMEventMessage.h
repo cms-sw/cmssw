@@ -41,7 +41,7 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "boost/shared_ptr.hpp"
-#include <TObject.h>
+#include "TObject.h"
 #include <map>
 
 #include "DataFormats/Provenance/interface/Timestamp.h"

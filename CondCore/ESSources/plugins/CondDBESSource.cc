@@ -58,7 +58,7 @@ namespace {
     CondGetterFromESSource(CondDBESSource::ProxyMap const & ip) : m_proxies(ip){}
     virtual ~CondGetterFromESSource(){}
 
-    cond::IOVProxy get(std::string name) const {
+    cond::IOVProxy get(std::string name) const override {
       CondDBESSource::ProxyMap::const_iterator p = m_proxies.find(name);
       if ( p != m_proxies.end())
 	return (*p).second->proxy()->iov();

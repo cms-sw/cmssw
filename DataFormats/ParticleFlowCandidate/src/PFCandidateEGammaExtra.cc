@@ -157,7 +157,7 @@ void PFCandidateEGammaExtra::addSingleLegConvTrackRef(const reco::TrackRef& trac
   assoSingleLegRefTrack_.push_back(trackref);
 }
 
-void PFCandidateEGammaExtra::addSingleLegConvMva(float& mvasingleleg){
+void PFCandidateEGammaExtra::addSingleLegConvMva(const float& mvasingleleg){
   assoSingleLegMva_.push_back(mvasingleleg);
 }
 

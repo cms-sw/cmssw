@@ -7,7 +7,6 @@
  *
  * \author Piotr Traczyk, CERN
  *
- * \version $Id: TimeMeasurementSequence.h,v 1.3 2009/10/16 09:04:41 ptraczyk Exp $
  *
  */
 

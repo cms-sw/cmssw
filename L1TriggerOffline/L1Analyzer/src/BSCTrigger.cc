@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Jul 16 16:11:05 CEST 2008
-// $Id: BSCTrigger.cc,v 1.8 2010/02/11 00:12:53 wmtan Exp $
 //
 //
 
@@ -48,9 +47,9 @@ public:
   ~BSCTrigger();
 
 private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob() override ;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
   int   getBSCNum(int id, float z);
   bool  isInner(int id);
   bool  isZplus(int id);

@@ -1,4 +1,3 @@
-// Last commit: $Id: testSiStripHashedDetId.cc,v 1.1 2008/01/09 13:27:27 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/test/plugins/testSiStripHashedDetId.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripHashedDetId.h"

@@ -2,7 +2,7 @@
  *  TrackQuality.cc
  *
  *  Created by Christophe Saout on 9/25/08.
- *  Copyright 2007 __MyCompanyName__. All rights reserved.
+ *  2007 __MyCompanyName__. 
  *
  */
 
@@ -68,7 +68,7 @@ struct MatchedHit
                simTrackId == other.simTrackId;
     }
 };
-
+  /*
 static bool operator < (const MatchedHit &hit, DetId detId)
 {
     return hit.detId < detId;
@@ -77,6 +77,7 @@ static bool operator < (DetId detId, const MatchedHit &hit)
 {
     return detId < hit.detId;
 }
+  */
 }
 
 typedef std::pair<TrackQuality::Layer::SubDet, short int> DetLayer;

@@ -30,6 +30,26 @@ ConeIsolationAlgorithm::ConeIsolationAlgorithm(const ParameterSet & parameters)
   variableMinCone = parameters.getParameter<double>("VariableMinCone");
 }
 
+void ConeIsolationAlgorithm::fillDescription(edm::ParameterSetDescription& desc){
+  desc.add<int>("MinimumNumberOfPixelHits",2);
+  desc.add<int>("MinimumNumberOfHits",8);
+  desc.add<double>("MaximumTransverseImpactParameter",0.03);
+  desc.add<double>("MinimumTransverseMomentum",1.0);
+  desc.add<double>("MaximumChiSquared",100.0);
+  desc.add<double>("DeltaZetTrackVertex",0.2);
+  desc.add<bool>("useVertex",true);
+  desc.add<double>("MatchingCone",0.1);
+  desc.add<double>("SignalCone",0.07);
+  desc.add<double>("IsolationCone",0.45);
+  desc.add<double>("MinimumTransverseMomentumInIsolationRing",0.0);
+  desc.add<double>("MinimumTransverseMomentumLeadingTrack",6.0);
+  desc.add<int>("MaximumNumberOfTracksIsolationRing",0);
+  desc.add<bool>("UseFixedSizeCone",true);
+  desc.add<double>("VariableConeParameter",3.5);
+  desc.add<double>("VariableMaxCone",0.17);
+  desc.add<double>("VariableMinCone",0.05);
+}
+
 pair<float,IsolatedTauTagInfo> ConeIsolationAlgorithm::tag(const JetTracksAssociationRef & jetTracks, const Vertex & pv) 
 {
   const edm::RefVector<reco::TrackCollection> & tracks = jetTracks->second;

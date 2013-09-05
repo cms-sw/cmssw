@@ -13,7 +13,6 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Jul 21 04:26:01 EDT 2009
-// $Id: HiGenCleaner.cc,v 1.2 2010/05/17 14:50:16 yilmaz Exp $
 //
 //
 
@@ -56,7 +55,7 @@ public:
       ~HiGenCleaner();
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       // ----------member data ---------------------------
 
    InputTag jetSrc_;

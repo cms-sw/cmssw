@@ -56,10 +56,10 @@ void SiStripInformationExtractor::readConfiguration() {
 
   subdetVec.push_back("SiStrip/MechanicalView/TIB");
   subdetVec.push_back("SiStrip/MechanicalView/TOB");
-  subdetVec.push_back("SiStrip/MechanicalView/TID/side_2");
-  subdetVec.push_back("SiStrip/MechanicalView/TID/side_1");
-  subdetVec.push_back("SiStrip/MechanicalView/TEC/side_2");
-  subdetVec.push_back("SiStrip/MechanicalView/TEC/side_1");
+  subdetVec.push_back("SiStrip/MechanicalView/TID/PLUS");
+  subdetVec.push_back("SiStrip/MechanicalView/TID/MINUS");
+  subdetVec.push_back("SiStrip/MechanicalView/TEC/PLUS");
+  subdetVec.push_back("SiStrip/MechanicalView/TEC/MINUS");
 
 }
 //

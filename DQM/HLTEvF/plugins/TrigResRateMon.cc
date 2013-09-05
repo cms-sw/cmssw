@@ -1,4 +1,3 @@
-// $Id: TrigResRateMon.cc,v 1.25 2012/01/31 15:59:03 davidlt Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "TString.h"

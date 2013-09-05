@@ -24,49 +24,47 @@ namespace edm {
                        statemachine::FileMode const& fileMode,
                        statemachine::EmptyRunLumiMode const& emptyRunLumiMode);
 
-    virtual StatusCode runToCompletion(bool onlineStateTransitions);
+    virtual StatusCode runToCompletion() override;
 
-    virtual void readFile();
-    virtual void closeInputFile(bool cleaningUpAfterException);
-    virtual void openOutputFiles();
-    virtual void closeOutputFiles();
+    virtual void readFile() override;
+    virtual void closeInputFile(bool cleaningUpAfterException) override;
+    virtual void openOutputFiles() override;
+    virtual void closeOutputFiles() override;
 
-    virtual void respondToOpenInputFile();
-    virtual void respondToCloseInputFile();
-    virtual void respondToOpenOutputFiles();
-    virtual void respondToCloseOutputFiles();
+    virtual void respondToOpenInputFile() override;
+    virtual void respondToCloseInputFile() override;
 
-    virtual void startingNewLoop();
-    virtual bool endOfLoop();
-    virtual void rewindInput();
-    virtual void prepareForNextLoop();
-    virtual bool shouldWeCloseOutput() const;
+    virtual void startingNewLoop() override;
+    virtual bool endOfLoop() override;
+    virtual void rewindInput() override;
+    virtual void prepareForNextLoop() override;
+    virtual bool shouldWeCloseOutput() const override;
 
-    virtual void doErrorStuff();
+    virtual void doErrorStuff() override;
 
-    virtual void beginRun(statemachine::Run const& run);
-    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException);
+    virtual void beginRun(statemachine::Run const& run) override;
+    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException) override;
 
-    virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
-    virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException);
+    virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
+    virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) override;
 
-    virtual statemachine::Run readAndCacheRun();
-    virtual statemachine::Run readAndMergeRun();
-    virtual int readAndCacheLumi();
-    virtual int readAndMergeLumi();
-    virtual void writeRun(statemachine::Run const& run);
-    virtual void deleteRunFromCache(statemachine::Run const& run);
-    virtual void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
-    virtual void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
+    virtual statemachine::Run readRun() override;
+    virtual statemachine::Run readAndMergeRun() override;
+    virtual int readLuminosityBlock() override;
+    virtual int readAndMergeLumi() override;
+    virtual void writeRun(statemachine::Run const& run) override;
+    virtual void deleteRunFromCache(statemachine::Run const& run) override;
+    virtual void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
+    virtual void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
 
-    virtual void readAndProcessEvent();
-    virtual bool shouldWeStop() const;
+    virtual void readAndProcessEvent() override;
+    virtual bool shouldWeStop() const override;
 
-    virtual void setExceptionMessageFiles(std::string& message);
-    virtual void setExceptionMessageRuns(std::string& message);
-    virtual void setExceptionMessageLumis(std::string& message);
+    virtual void setExceptionMessageFiles(std::string& message) override;
+    virtual void setExceptionMessageRuns(std::string& message) override;
+    virtual void setExceptionMessageLumis(std::string& message) override;
 
-    virtual bool alreadyHandlingException() const;
+    virtual bool alreadyHandlingException() const override;
 
   private:
     std::string mockData_;

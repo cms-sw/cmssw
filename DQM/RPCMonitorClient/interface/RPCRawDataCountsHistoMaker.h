@@ -1,6 +1,8 @@
 #ifndef DQM_RPCMonitorModule_RPCRawDataCountsHistoMaker_H
 #define DQM_RPCMonitorModule_RPCRawDataCountsHistoMaker_H
 
+#include "EventFilter/RPCRawToDigi/interface/RPCRawDataCounts.h"
+
 class TH1F;
 class TH2F;
 

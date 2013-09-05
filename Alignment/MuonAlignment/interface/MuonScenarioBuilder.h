@@ -43,7 +43,7 @@ public:
   
   align::Scalars extractParameters( const edm::ParameterSet& , const char* );
 
-  void moveChamberInSector( Alignable *, align::Scalars, align::Scalars, align::Scalars, align::Scalars );
+  void moveChamberInSector( Alignable *, const align::Scalars&, const align::Scalars&, const align::Scalars&, const align::Scalars& );
 private: // Members
 
   AlignableMuon* theAlignableMuon;   ///< Pointer to alignable Muon object

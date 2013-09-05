@@ -14,7 +14,6 @@
  *
  * Original Author:  gbruno
  *         Created:  Wed Mar 22 12:24:20 CET 2006
- * $Id: SiStripGain.h,v 1.8 2010/04/15 14:30:41 demattia Exp $
  *
  * Modifications by M. De Mattia (demattia@pd.infn.it) on 11/11/2009:
  * It now holds a std::vector of pointers to ApvGain and a std::vector of corresponding

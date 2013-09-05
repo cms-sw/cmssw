@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#include <errno.h>
+#include <cerrno>
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
@@ -56,17 +56,16 @@ namespace edm {
     return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(eventID_.run(), eventID_.luminosityBlock(), ts, Timestamp::invalidTimestamp()));
   }
 
-  EventPrincipal *
+  void
   ProducerSourceBase::readEvent_(EventPrincipal& eventPrincipal) {
     assert(eventCached() || processingMode() != RunsLumisAndEvents);
     EventSourceSentry sentry(*this);
     EventAuxiliary aux(eventID_, processGUID(), Timestamp(presentTime_), isRealData_, eType_);
-    eventPrincipal.fillEventPrincipal(aux);
-    Event e(eventPrincipal, moduleDescription());
+    eventPrincipal.fillEventPrincipal(aux, processHistoryRegistryForUpdate());
+    Event e(eventPrincipal, moduleDescription(), nullptr);
     produce(e);
     e.commit_();
     resetEventCached();
-    return &eventPrincipal;
   }
 
   void

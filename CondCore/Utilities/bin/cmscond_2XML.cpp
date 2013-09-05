@@ -23,7 +23,7 @@ namespace cond {
     public:
       XMLUtilities();
       ~XMLUtilities();
-      int execute();
+      int execute() override;
   };
 
   static const size_t sinceTillColumnSize = 20;

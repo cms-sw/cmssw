@@ -19,6 +19,9 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 //
 // class declaration
@@ -28,6 +31,7 @@ class HLTEventAnalyzerRAW : public edm::EDAnalyzer {
  public:
   explicit HLTEventAnalyzerRAW(const edm::ParameterSet&);
   ~HLTEventAnalyzerRAW();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   virtual void beginRun(edm::Run const &, edm::EventSetup const&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
@@ -38,8 +42,10 @@ class HLTEventAnalyzerRAW : public edm::EDAnalyzer {
   /// module config parameters
   std::string   processName_;
   std::string   triggerName_;
-  edm::InputTag triggerResultsTag_;
-  edm::InputTag triggerEventWithRefsTag_;
+  edm::InputTag                                   triggerResultsTag_;
+  edm::EDGetTokenT<edm::TriggerResults>           triggerResultsToken_;
+  edm::InputTag                                   triggerEventWithRefsTag_;
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs> triggerEventWithRefsToken_;
 
   /// additional class data memebers
   edm::Handle<edm::TriggerResults>           triggerResultsHandle_;

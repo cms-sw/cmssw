@@ -32,7 +32,7 @@ class ODScanConfig : public IODConfig {
 
   inline void setStep(int x) { m_step = x; }
   inline int getStep() const { return m_step ; }
-  void setParameters(std::map<std::string,std::string> my_keys_map);
+  void setParameters(const std::map<std::string,std::string>& my_keys_map);
 
  private:
   void prepareWrite()  throw(std::runtime_error);

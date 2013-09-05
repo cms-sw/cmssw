@@ -10,7 +10,6 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.2 2013/01/02 14:30:24 wmtan Exp $
 //
 
 #include <sstream>
@@ -19,6 +18,7 @@
 #include <algorithm>
 #include <cassert>
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -72,9 +72,9 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
     double Counter;
   };
 
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
 
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
@@ -84,6 +84,7 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
 
   //tag of FEDRawData collection
   edm::InputTag rawDataTag_;
+  edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
   //folder name for histograms in DQMStore
   std::string folderName_;
   //vector of fedIDs which will have detailed histograms made
@@ -137,6 +138,7 @@ SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
     cablingCacheId_(0)
     
 {
+  rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
   //print config to debug log
   std::ostringstream debugStream;
   if (printDebug_>1) {
@@ -200,7 +202,8 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
   
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
-  iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
+  //  iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
+  iEvent.getByToken(rawDataToken_,rawDataCollectionHandle);
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
   //FED errors

@@ -9,8 +9,8 @@
 #include "Alignment/SurveyAnalysis/interface/SurveyPxbImage.h"
 #include "Math/SMatrix.h"
 #include "Math/SVector.h"
-#include <CLHEP/Random/RandGauss.h>
-#include <CLHEP/Random/Random.h>
+#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/Random.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <iostream>

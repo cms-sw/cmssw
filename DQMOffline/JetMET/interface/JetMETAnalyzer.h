@@ -6,8 +6,6 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2012/03/23 11:36:14 $
- *  $Revision: 1.31 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */

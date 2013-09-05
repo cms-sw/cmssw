@@ -5,8 +5,6 @@
  *    Muon Chamber Trigger Phi candidate 
  *
  *
- *   $Date: 2007/02/09 11:22:02 $
- *   $Revision: 1.2 $
  *
  *   \author C. Grandi S. Marcellini. D. Bonacorsi
  */

@@ -412,8 +412,8 @@ void popcon::EcalChannelStatusHandler::physicsMasking() {
 
 // ----------------------------------------------------------
 // START DAQ EXCLUDED FEDs ROUTINES
-void popcon::EcalChannelStatusHandler::daqOut(RunIOV myRun) {
-  
+void popcon::EcalChannelStatusHandler::daqOut(const RunIOV& _myRun) {
+  RunIOV myRun = _myRun;
   std::map<EcalLogicID, RunFEConfigDat> feconfig;
   econn->fetchDataSet(&feconfig, &myRun);
   

@@ -1,4 +1,3 @@
-// $Id: TTUWedgeORLogic.h,v 1.2 2009/08/19 15:04:01 aosorio Exp $
 #ifndef INTERFACE_TTUWEDGEORLOGIC_H 
 #define INTERFACE_TTUWEDGEORLOGIC_H 1
 

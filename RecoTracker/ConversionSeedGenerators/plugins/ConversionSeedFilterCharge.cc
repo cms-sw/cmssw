@@ -13,7 +13,6 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Thu Mar 11 10:48:48 CET 2010
-// $Id: ConversionSeedFilterCharge.cc,v 1.2 2011/12/23 05:38:40 innocent Exp $
 //
 //
 
@@ -41,9 +40,9 @@ public:
   ~ConversionSeedFilterCharge();
   
 private:
-  virtual void beginJob() ;
+  virtual void beginJob() override ;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
+  virtual void endJob() override ;
   edm::InputTag inputCollPos;
   edm::InputTag inputCollNeg;
   double deltaPhiCut, deltaCotThetaCut, deltaRCut, deltaZCut;

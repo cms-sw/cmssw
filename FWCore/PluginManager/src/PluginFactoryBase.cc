@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 13:09:50 EDT 2007
-// $Id: PluginFactoryBase.cc,v 1.7 2010/10/05 16:35:12 eulisse Exp $
 //
 
 // system include files

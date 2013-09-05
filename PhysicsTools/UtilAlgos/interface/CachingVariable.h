@@ -105,7 +105,7 @@ class CachingVariable {
 class ComputedVariable;
 class VariableComputer{
  public:
-  VariableComputer(CachingVariable::CachingVariableFactoryArg arg);
+  VariableComputer(const CachingVariable::CachingVariableFactoryArg& arg);
   virtual ~VariableComputer(){}
 
   virtual void compute(const edm::Event & iEvent) const = 0;
@@ -116,7 +116,7 @@ class VariableComputer{
   void doesNotCompute(std::string var) const;
 
  protected:
-  CachingVariable::CachingVariableFactoryArg & arg_;
+  const CachingVariable::CachingVariableFactoryArg & arg_;
   std::string name_;
   std::string method_;
   mutable std::map<std::string ,const ComputedVariable *> iCompute_;
@@ -132,7 +132,7 @@ typedef edmplugin::PluginFactory< VariableComputer* (CachingVariable::CachingVar
 
 class ComputedVariable : public CachingVariable {
  public:
-  ComputedVariable(CachingVariableFactoryArg arg );
+  ComputedVariable(const CachingVariableFactoryArg& arg );
   ComputedVariable(const std::string & M, std::string & N, edm::ParameterSet & P, const VariableComputer * c) : 
     CachingVariable(M,N,P), myComputer(c){}
   virtual ~ComputedVariable(){};
@@ -148,7 +148,7 @@ class ComputedVariable : public CachingVariable {
 
 class VariableComputerTest : public VariableComputer {
  public:
-  VariableComputerTest(CachingVariable::CachingVariableFactoryArg arg) ;
+  VariableComputerTest(const CachingVariable::CachingVariableFactoryArg& arg) ;
   ~VariableComputerTest(){};
 
   void compute(const edm::Event & iEvent) const;
@@ -187,7 +187,7 @@ class Splitter : public CachingVariable {
 
 class VarSplitter : public Splitter{ 
  public:
-  VarSplitter(CachingVariableFactoryArg arg ) :
+  VarSplitter(const CachingVariableFactoryArg& arg ) :
     Splitter("VarSplitter",arg.n,arg.iConfig) {
     var_=arg.iConfig.getParameter<std::string>("var");
     useUnderFlow_=arg.iConfig.getParameter<bool>("useUnderFlow");
@@ -255,7 +255,7 @@ template <typename Object> class sortByStringFunction  {
 template <typename Object, const char * label> 
 class ExpressionVariable : public CachingVariable {
  public:
-  ExpressionVariable(CachingVariableFactoryArg arg) :
+  ExpressionVariable(const CachingVariableFactoryArg& arg) :
     CachingVariable(std::string(label)+"ExpressionVariable",arg.n,arg.iConfig) , f_(0), forder_(0) {
     src_=edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig);
     //old style constructor
@@ -409,7 +409,7 @@ class ExpressionVariable : public CachingVariable {
 template< typename LHS,const char * lLHS, typename RHS,const char * lRHS, typename Calculator>
 class TwoObjectVariable : public CachingVariable {
 public:
-  TwoObjectVariable(CachingVariableFactoryArg arg) :
+  TwoObjectVariable(const CachingVariableFactoryArg& arg) :
     CachingVariable(Calculator::calculationType()+std::string(lLHS)+std::string(lRHS),arg.n,arg.iConfig),
     srcLhs_(edm::Service<InputTagDistributorService>()->retrieve("srcLhs",arg.iConfig)),
     indexLhs_(arg.iConfig.getParameter<unsigned int>("indexLhs")),
@@ -481,7 +481,7 @@ private:
 
 class VariablePower : public CachingVariable {
  public:
-  VariablePower(CachingVariableFactoryArg arg) :
+  VariablePower(const CachingVariableFactoryArg& arg) :
     CachingVariable("Power",arg.n,arg.iConfig){
     power_=arg.iConfig.getParameter<double>("power");
     var_=arg.iConfig.getParameter<std::string>("var");
@@ -504,7 +504,7 @@ class VariablePower : public CachingVariable {
 template <typename TYPE>
 class SimpleValueVariable : public CachingVariable {
  public:
-  SimpleValueVariable(CachingVariableFactoryArg arg) :
+  SimpleValueVariable(const CachingVariableFactoryArg& arg) :
     CachingVariable("SimpleValueVariable",arg.n,arg.iConfig),
     src_(edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig)) { arg.m[arg.n]=this;}
   CachingVariable::evalType eval(const edm::Event & iEvent) const{
@@ -521,7 +521,7 @@ class SimpleValueVariable : public CachingVariable {
 template <typename TYPE>
 class SimpleValueVectorVariable : public CachingVariable {
  public:
-  SimpleValueVectorVariable(CachingVariableFactoryArg arg) :
+  SimpleValueVectorVariable(const CachingVariableFactoryArg& arg) :
     CachingVariable("SimpleValueVectorVariable",arg.n,arg.iConfig),
     src_(edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig)),
     index_(arg.iConfig.getParameter<unsigned int>("index")) { arg.m[arg.n]=this;}

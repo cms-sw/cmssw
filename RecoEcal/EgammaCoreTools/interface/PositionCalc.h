@@ -8,7 +8,6 @@
  *
  * \author Ted Kolberg, ND
  * 
- * \version $Id: PositionCalc.h,v 1.13 2009/03/25 18:00:08 ferriff Exp $
  *
  */
 

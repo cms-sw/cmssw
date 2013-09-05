@@ -2,7 +2,6 @@
 #define DataFormats_HepMCCandidate_PdfInfo_h
 /** \class reco::PdfInfo
  *
- * \verson $Id$
  *
  */
 

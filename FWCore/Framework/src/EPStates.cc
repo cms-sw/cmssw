@@ -78,7 +78,6 @@ namespace statemachine {
   void HandleFiles::closeFiles(bool cleaningUpAfterException) {
     ep_.respondToCloseInputFile();
     ep_.closeInputFile(cleaningUpAfterException);
-    ep_.respondToCloseOutputFiles();
     ep_.closeOutputFiles();
   }
 
@@ -141,7 +140,6 @@ namespace statemachine {
     ep_.respondToOpenInputFile();
 
     ep_.openOutputFiles();
-    ep_.respondToOpenOutputFiles();
   }
 
   HandleNewInputFile1::HandleNewInputFile1(my_context ctx) :
@@ -179,14 +177,12 @@ namespace statemachine {
     ep_.respondToCloseInputFile();
     ep_.closeInputFile(false);
 
-    ep_.respondToCloseOutputFiles();
     ep_.closeOutputFiles();
 
     ep_.readFile();
     ep_.respondToOpenInputFile();
 
     ep_.openOutputFiles();
-    ep_.respondToOpenOutputFiles();
   }
 
   HandleRuns::HandleRuns(my_context ctx) :
@@ -222,7 +218,7 @@ namespace statemachine {
   void HandleRuns::setupCurrentRun() {
 
     runException_ = true;
-    currentRun_ = ep_.readAndCacheRun();
+    currentRun_ = ep_.readRun();
     runException_ = false;
 
     if(context<Machine>().emptyRunLumiMode() != doNotHandleEmptyRunsAndLumis) {
@@ -414,7 +410,7 @@ namespace statemachine {
     Run const& run = context<HandleRuns>().currentRun();
     assert(run != INVALID_RUN);
     lumiException_ = true;
-    currentLumi_ = HandleLumis::LumiID(run.processHistoryID(), run.runNumber(), ep_.readAndCacheLumi());
+    currentLumi_ = HandleLumis::LumiID(run.processHistoryID(), run.runNumber(), ep_.readLuminosityBlock());
 
     if(context<Machine>().emptyRunLumiMode() == handleEmptyRunsAndLumis) {
       assert(context<HandleRuns>().beginRunCalled());

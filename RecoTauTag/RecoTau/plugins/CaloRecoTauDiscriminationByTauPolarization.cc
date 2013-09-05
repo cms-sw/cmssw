@@ -19,7 +19,7 @@ class CaloRecoTauDiscriminationByTauPolarization : public CaloTauDiscriminationP
         }
 
     ~CaloRecoTauDiscriminationByTauPolarization(){}
-    double discriminate(const CaloTauRef&);
+    double discriminate(const CaloTauRef&) override;
 
   private:
     bool booleanOutput;

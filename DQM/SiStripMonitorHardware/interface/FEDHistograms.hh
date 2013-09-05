@@ -77,7 +77,7 @@ public:
   bool cmHistosEnabled();
 
    //book the top level histograms
-  void bookTopLevelHistograms(DQMStore* dqm);
+  void bookTopLevelHistograms(DQMStore* dqm,std::string topFolderName = "SiStrip");
 
   //book individual FED histograms or book all FED level histograms at once
   void bookFEDHistograms(unsigned int fedId,

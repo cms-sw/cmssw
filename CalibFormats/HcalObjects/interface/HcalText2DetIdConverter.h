@@ -14,7 +14,6 @@
    fField2 is iphi
    fField3 is ctype (CALIB only)
 
-   $Id: HcalText2DetIdConverter.h,v 1.1 2006/07/31 19:51:49 fedor Exp $
 */
 #include <string>
 #include "DataFormats/DetId/interface/DetId.h"

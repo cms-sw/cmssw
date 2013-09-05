@@ -1447,3 +1447,62 @@ float CompareLastFilledBin::runTest(const MonitorElement *me){
   else
     return 0;
 } 
+//----------------------------------------------------//
+//--------------- CheckVariance ---------------------//
+//----------------------------------------------------//
+float CheckVariance::runTest(const MonitorElement*me)
+{
+  badChannels_.clear();
+
+  if (!me)
+    return -1;
+  if (!me->getRootObject())
+    return -1;
+  TH1* h=0;
+
+  if (verbose_>1)
+    std::cout << "QTest:" << getAlgoName() << "::runTest called on "
+              << me-> getFullname() << "\n";
+  // -- TH1F
+  if (me->kind()==MonitorElement::DQM_KIND_TH1F )
+    {
+      h = me->getTH1F();
+    }
+  // -- TH1D
+  else if ( me->kind()==MonitorElement::DQM_KIND_TH1D )
+    {
+      h = me->getTH1D();
+    }
+  else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE)
+    {
+      h  = me->getTProfile(); // access Test histo
+    }
+  else
+    {
+      if (verbose_>0) std::cout << "QTest:CheckVariance"
+                                << " ME " << me->getFullname()
+                                << " does not contain TH1F/TH1D/TPROFILE, exiting\n";
+      return -1;
+    }
+
+  int ncx = h->GetXaxis()->GetNbins();
+
+  double sum = 0;
+  double sum2 = 0;
+  for (int bin = 1; bin <= ncx; ++bin)
+    {
+      double contents = h->GetBinContent(bin);
+      sum += contents;
+    }
+  if (sum==0) return -1;
+  double avg = sum/ncx;
+
+  for (int bin = 1; bin <= ncx; ++bin)
+    {
+      double contents = h->GetBinContent(bin);
+      sum2 += (contents - avg)*(contents - avg);
+    }
+
+  double Variance = TMath::Sqrt(sum2/ncx);
+  return Variance;
+}

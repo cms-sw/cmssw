@@ -13,7 +13,6 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.24 2010/08/05 22:06:39 wmtan Exp $
 //
 //
 
@@ -47,8 +46,10 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include <string>
 #include <fstream>
@@ -57,12 +58,13 @@
 class V0Fitter {
  public:
   V0Fitter(const edm::ParameterSet& theParams,
-	   const edm::Event& iEvent, const edm::EventSetup& iSetup);
+	   edm::ConsumesCollector && iC);
   ~V0Fitter();
 
   // Switching to L. Lista's reco::Candidate infrastructure for V0 storage
   const reco::VertexCompositeCandidateCollection& getKshorts() const;
   const reco::VertexCompositeCandidateCollection& getLambdas() const;
+  void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
  private:
   // STL vector of VertexCompositeCandidate that will be filled with VertexCompositeCandidates by fitAll()
@@ -74,7 +76,6 @@ class V0Fitter {
 
   const MagneticField* magField;
 
-  edm::InputTag recoAlg;
   bool useRefTrax;
   bool storeRefTrax;
   bool doKshorts;
@@ -100,10 +101,11 @@ class V0Fitter {
 
   std::vector<reco::TrackBase::TrackQuality> qualities;
 
+  edm::EDGetTokenT<reco::TrackCollection>	 token_tracks; 
+  edm::EDGetTokenT<reco::BeamSpot> 	 token_beamSpot; 
   edm::InputTag vtxFitter;
 
   // Helper method that does the actual fitting using the KalmanVertexFitter
-  void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   double findV0MassError(const GlobalPoint &vtxPos, const std::vector<reco::TransientTrack> &dauTracks);
 
   // Applies cuts to the VertexCompositeCandidates after they are fitted/created.

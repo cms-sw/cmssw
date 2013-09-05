@@ -3,7 +3,6 @@
  * 
  * Analyzer to test Shower Containment Corrections
  *   
- * $Id: $
  *
 */
 

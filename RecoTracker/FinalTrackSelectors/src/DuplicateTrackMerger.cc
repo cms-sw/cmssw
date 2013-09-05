@@ -36,7 +36,7 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : mer
   if(iPara.exists("maxDdsz"))maxDdsz_ = iPara.getParameter<double>("maxDdsz");
   if(iPara.exists("maxDdxy"))maxDdxy_ = iPara.getParameter<double>("maxDdxy");
   if(iPara.exists("maxDQoP"))maxDQoP_ = iPara.getParameter<double>("maxDQoP");
-  if(iPara.exists("source"))trackSource_ = iPara.getParameter<edm::InputTag>("source");
+  if(iPara.exists("source"))trackSource_ = consumes<reco::TrackCollection>(iPara.getParameter<edm::InputTag>("source"));
   if(iPara.exists("minDeltaR3d"))minDeltaR3d_ = iPara.getParameter<double>("minDeltaR3d");
   if(iPara.exists("minBDTG"))minBDTG_ = iPara.getParameter<double>("minBDTG");
 
@@ -95,7 +95,7 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   //edm::Handle<edm::View<reco::Track> >handle;
   edm::Handle<reco::TrackCollection >handle;
-  iEvent.getByLabel(trackSource_,handle);
+  iEvent.getByToken(trackSource_,handle);
   reco::TrackRefProd refTrks(handle);
 
   iSetup.get<IdealMagneticFieldRecord>().get(magfield_);

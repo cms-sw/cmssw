@@ -27,9 +27,9 @@ class TkAlCaSkimTreeMerger : public edm::EDAnalyzer{
  public:
   TkAlCaSkimTreeMerger(const edm::ParameterSet &iConfig);
   ~TkAlCaSkimTreeMerger();
-  void beginJob();
-  void endJob();
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   TTree *out_;//TTree containing the merged result

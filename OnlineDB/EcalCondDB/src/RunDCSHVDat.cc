@@ -58,7 +58,7 @@ void RunDCSHVDat::fetchData(map< EcalLogicID, RunDCSHVDat >* fillMap, RunIOV* io
 
 
 
-ResultSet *RunDCSHVDat::getBarrelRset(Tm timeStart) {
+ResultSet *RunDCSHVDat::getBarrelRset(const Tm& timeStart) {
 
   DateHandler dh(m_env, m_conn);
 
@@ -82,7 +82,7 @@ ResultSet *RunDCSHVDat::getBarrelRset(Tm timeStart) {
   return rset;
 }
 
-ResultSet *RunDCSHVDat::getEndcapAnodeRset(Tm timeStart) {
+ResultSet *RunDCSHVDat::getEndcapAnodeRset(const Tm& timeStart) {
 
   DateHandler dh(m_env, m_conn);
 
@@ -106,7 +106,7 @@ ResultSet *RunDCSHVDat::getEndcapAnodeRset(Tm timeStart) {
   return rset;
 }
 
-ResultSet *RunDCSHVDat::getEndcapDynodeRset(Tm timeStart) {
+ResultSet *RunDCSHVDat::getEndcapDynodeRset(const Tm& timeStart) {
 
   DateHandler dh(m_env, m_conn);
 
@@ -312,7 +312,7 @@ int  RunDCSHVDat::nowMicroseconds() {
 
 
 
-void RunDCSHVDat::setStatusForBarrel(RunDCSHVDat &dat, Tm sinceTm) {
+void RunDCSHVDat::setStatusForBarrel(RunDCSHVDat &dat, const Tm& sinceTm) {
   int t_now_gmt_micros = nowMicroseconds();
 
   float hv_diff=dat.getHV() - dat.getHVNominal();
@@ -334,7 +334,7 @@ void RunDCSHVDat::setStatusForBarrel(RunDCSHVDat &dat, Tm sinceTm) {
 
 }
 
-void  RunDCSHVDat::setStatusForEndcaps(RunDCSHVDat &dat, Tm sinceTm) {
+void  RunDCSHVDat::setStatusForEndcaps(RunDCSHVDat &dat, const Tm& sinceTm) {
   int t_now_gmt_micros = nowMicroseconds();
 
   if (fabs(dat.getHV() - dat.getHVNominal())*1000 > maxHVDifferenceEE) {
@@ -378,7 +378,7 @@ void RunDCSHVDat::fetchLastData(map< EcalLogicID, RunDCSHVDat >* fillMap )
   }
 }
 
-void RunDCSHVDat::fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap, Tm timeStart  )
+void RunDCSHVDat::fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap, const Tm& timeStart  )
   throw(std::runtime_error)
 {
   this->checkConnection();

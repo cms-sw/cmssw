@@ -33,7 +33,6 @@
 #include "TauSpinner/SimpleParticle.h"
 
 using namespace edm;
-using namespace std;
 using namespace TauSpinner;
 
 class TauSpinnerCMS : public edm::EDProducer
@@ -55,11 +54,14 @@ class TauSpinnerCMS : public edm::EDProducer
   bool isReco_;
   bool isTauolaConfigured_;
   bool isLHPDFConfigured_;
-  string LHAPDFname_;
+  std::string LHAPDFname_;
   double CMSEnergy_;
   edm::InputTag gensrc_;
   int MotherPDGID_,Ipol_,nonSM2_,nonSMN_;
   static bool isTauSpinnerConfigure;
+
+  edm::EDGetTokenT<HepMCProduct> EvtHandleToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> gensrcToken_;
 
   // Additional funtionms for Reco (not provided by Tauola/TauSpinner authors)
   int readParticlesfromReco(edm::Event& e,SimpleParticle &X,SimpleParticle &tau,SimpleParticle &tau2,
@@ -68,5 +70,6 @@ class TauSpinnerCMS : public edm::EDProducer
   void GetRecoDaughters(const reco::GenParticle *Particle,std::vector<SimpleParticle> &daughters,int parentpdgid);
   bool isFirst(const reco::GenParticle *Particle);
   double roundOff_;
+
 }; 
 #endif

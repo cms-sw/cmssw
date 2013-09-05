@@ -27,7 +27,7 @@
 namespace edm {
   RootInputFileSequence::RootInputFileSequence(
                 ParameterSet const& pset,
-                PoolSource const& input,
+                PoolSource& input,
                 InputFileCatalog const& catalog,
                 InputType::InputType inputType) :
     input_(input),
@@ -40,7 +40,6 @@ namespace edm {
     fileIter_(fileIterEnd_),
     fileIterLastOpened_(fileIterEnd_),
     rootFile_(),
-    parametersMustMatch_(BranchDescription::Permissive),
     branchesMustMatch_(BranchDescription::Permissive),
     flatDistribution_(),
     indexesIntoFiles_(fileCatalogItems().size()),
@@ -88,9 +87,6 @@ namespace edm {
         break;
       }
     }
-
-    std::string parametersMustMatch = pset.getUntrackedParameter<std::string>("parametersMustMatch", std::string("permissive"));
-    if(parametersMustMatch == std::string("strict")) parametersMustMatch_ = BranchDescription::Strict;
 
     std::string branchesMustMatch = pset.getUntrackedParameter<std::string>("branchesMustMatch", std::string("permissive"));
     if(branchesMustMatch == std::string("strict")) branchesMustMatch_ = BranchDescription::Strict;
@@ -191,6 +187,7 @@ namespace edm {
     }
 
     lfn_ = fileIter_->logicalFileName().empty() ? fileIter_->fileName() : fileIter_->logicalFileName();
+    usedFallback_ = false;
 
     // Determine whether we have a fallback URL specified; if so, prepare it;
     // Only valid if it is non-empty and differs from the original filename.
@@ -198,9 +195,10 @@ namespace edm {
     bool hasFallbackUrl = !fallbackName.empty() && fallbackName != fileIter_->fileName();
 
     boost::shared_ptr<InputFile> filePtr;
+    std::list<std::string> originalInfo;
     try {
       std::unique_ptr<InputSource::FileOpenSentry>
-        sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_) : 0);
+        sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_, lfn_, usedFallback_) : 0);
       filePtr.reset(new InputFile(gSystem->ExpandPathName(fileIter_->fileName().c_str()), "  Initiating request to open file "));
     }
     catch (cms::Exception const& e) {
@@ -210,6 +208,7 @@ namespace edm {
           out << e.explainSelf();
           std::string pfn(gSystem->ExpandPathName(fallbackName.c_str()));
           InputFile::reportFallbackAttempt(pfn, fileIter_->logicalFileName(), out.str());
+          originalInfo = e.additionalInfo();
         } else {
           InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
           Exception ex(errors::FileOpenError, "", e);
@@ -223,10 +222,10 @@ namespace edm {
     }
     if(!filePtr && (hasFallbackUrl)) {
       try {
-        std::unique_ptr<InputSource::FileOpenSentry>
-          sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_) : 0);
-        filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file "));
         usedFallback_ = true;
+        std::unique_ptr<InputSource::FileOpenSentry>
+          sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_, lfn_, usedFallback_) : 0);
+        filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file "));
       }
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {
@@ -236,7 +235,15 @@ namespace edm {
           std::ostringstream out;
           out << "Input file " << fileIter_->fileName() << " could not be opened.\n";
           out << "Fallback Input file " << fallbackName << " also could not be opened.";
-          ex.addAdditionalInfo(out.str());
+          if (originalInfo.size()) {
+            out << std::endl << "Original exception info is above; fallback exception info is below.";
+            ex.addAdditionalInfo(out.str());
+            for (auto const & s : originalInfo) {
+              ex.addAdditionalInfo(s);
+            }
+          } else {
+            ex.addAdditionalInfo(out.str());
+          }
           throw ex;
         }
       }
@@ -255,6 +262,7 @@ namespace edm {
           (inputType_ == InputType::SecondarySource ?  boost::shared_ptr<BranchIDListHelper>(new BranchIDListHelper()) :  input_.branchIDListHelper()),
           duplicateChecker_,
           dropDescendants_,
+          processHistoryRegistryForUpdate(),
           indexesIntoFiles_,
           currentIndexIntoFile,
           orderedProcessHistoryIDs_,
@@ -309,7 +317,6 @@ namespace edm {
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
                                                             fileIter_->fileName(),
-                                                            parametersMustMatch_,
                                                             branchesMustMatch_);
       if(!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
@@ -334,7 +341,6 @@ namespace edm {
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
                                                             fileIter_->fileName(),
-                                                            parametersMustMatch_,
                                                             branchesMustMatch_);
       if(!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
@@ -357,14 +363,14 @@ namespace edm {
     return rootFile_->readLuminosityBlockAuxiliary_();
   }
 
-  boost::shared_ptr<RunPrincipal>
-  RootInputFileSequence::readRun_(boost::shared_ptr<RunPrincipal> runPrincipal) {
-    return rootFile_->readRun_(runPrincipal);
+  void
+  RootInputFileSequence::readRun_(RunPrincipal& runPrincipal) {
+    rootFile_->readRun_(runPrincipal);
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  RootInputFileSequence::readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal) {
-    return rootFile_->readLumi(lumiPrincipal);
+  void
+  RootInputFileSequence::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
+    rootFile_->readLuminosityBlock_(lumiPrincipal);
   }
 
   // readEvent() is responsible for setting up the EventPrincipal.
@@ -380,9 +386,9 @@ namespace edm {
   //  when it is asked to do so.
   //
 
-  EventPrincipal*
+  void
   RootInputFileSequence::readEvent(EventPrincipal& eventPrincipal) {
-    return rootFile_->readEvent(eventPrincipal);
+    rootFile_->readEvent(eventPrincipal);
   }
 
   InputSource::ItemType
@@ -477,7 +483,7 @@ namespace edm {
           initFile(false);
           // Now get the item from the correct file.
           bool found = rootFile_->goToEvent(eventID);
-          assert (found);
+          assert(found);
           return true;
         }
       }
@@ -542,7 +548,7 @@ namespace edm {
           }
           // Now get the item from the correct file.
           found = rootFile_->setEntryAtItem(run, lumi, event);
-          assert (found);
+          assert(found);
           return true;
         }
       }
@@ -591,7 +597,7 @@ namespace edm {
     productSelectorRules_ = ProductSelectorRules(pset, "inputCommands", "InputSource");
   }
 
-  EventPrincipal*
+  bool
   RootInputFileSequence::readOneSequential(EventPrincipal& cache) {
     skipBadFiles_ = false;
     if(fileIter_ == fileIterEnd_ || !rootFile_) {
@@ -603,20 +609,20 @@ namespace edm {
       rootFile_->setAtEventEntry(-1);
     }
     rootFile_->nextEventEntry();
-    EventPrincipal* ep = rootFile_->readCurrentEvent(cache);
-    if(ep == 0) {
+    bool found = rootFile_->readCurrentEvent(cache);
+    if(!found) {
       ++fileIter_;
       if(fileIter_ == fileIterEnd_) {
-        return 0;
+        return false;
       }
       initFile(false);
       rootFile_->setAtEventEntry(-1);
       return readOneSequential(cache);
     }
-    return ep;
+    return true;
   }
 
-  EventPrincipal*
+  bool
   RootInputFileSequence::readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id) {
     if(fileIterEnd_ == fileIterBegin_) {
       throw Exception(errors::Configuration) << "RootInputFileSequence::readOneSequentialWithID(): no input files specified.\n";
@@ -627,21 +633,24 @@ namespace edm {
         rootFile_->indexIntoFileIter().lumi() != id.luminosityBlock()) {
       bool found = skipToItem(id.run(), id.luminosityBlock(), 0, false);
       if(!found) {
-        return 0;
+        return false;
       }
     }
-    bool nextFound = rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
-    EventPrincipal* ep = (nextFound ? rootFile_->readCurrentEvent(cache) : 0);
-    if(ep == 0) {
-      bool found = skipToItemInNewFile(id.run(), id.luminosityBlock(), 0);
-      if(found) {
-        return readOneSequentialWithID(cache, id);
-      }
+    bool found = rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
+    if(found) {
+      found = rootFile_->readCurrentEvent(cache);
     }
-    return ep;
+    if(!found) {
+      found = skipToItemInNewFile(id.run(), id.luminosityBlock(), 0);
+      if(!found) {
+        return false; 
+      }
+      return readOneSequentialWithID(cache, id);
+    }
+    return true;
   }
 
-  EventPrincipal*
+  void
   RootInputFileSequence::readOneSpecified(EventPrincipal& cache, EventID const& id) {
     skipBadFiles_ = false;
     bool found = skipToItem(id.run(), id.luminosityBlock(), id.event());
@@ -651,12 +660,11 @@ namespace edm {
          fileIter_->fileName() <<
          " does not contain specified event:\n" << id << "\n";
     }
-    EventPrincipal* ep = rootFile_->readCurrentEvent(cache);
-    assert(ep != 0);
-    return ep;
+    found = rootFile_->readCurrentEvent(cache);
+    assert(found);
   }
 
-  EventPrincipal*
+  void
   RootInputFileSequence::readOneRandom(EventPrincipal& cache) {
     if(fileIterEnd_ == fileIterBegin_) {
       throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandom(): no input files specified.\n";
@@ -684,19 +692,18 @@ namespace edm {
     }
     rootFile_->nextEventEntry();
 
-    EventPrincipal* ep = rootFile_->readCurrentEvent(cache);
-    if(ep == 0) {
+    bool found = rootFile_->readCurrentEvent(cache);
+    if(!found) {
       rootFile_->setAtEventEntry(0);
-      ep = rootFile_->readCurrentEvent(cache);
-      assert(ep != 0);
+      bool found = rootFile_->readCurrentEvent(cache);
+      assert(found);
     }
     --eventsRemainingInFile_;
-    return ep;
   }
 
   // bool RootFile::setEntryAtNextEventInLumi(RunNumber_t run, LuminosityBlockNumber_t lumi) {
 
-  EventPrincipal*
+  bool
   RootInputFileSequence::readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id) {
     if(fileIterEnd_ == fileIterBegin_) {
       throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandomWithID(): no input files specified.\n";
@@ -712,7 +719,7 @@ namespace edm {
         rootFile_->indexIntoFileIter().lumi() != id.luminosityBlock()) {
       bool found = skipToItem(id.run(), id.luminosityBlock(), 0);
       if(!found) {
-        return 0;
+        return false;
       }
       int eventsInLumi = 0;
       while(rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock())) ++eventsInLumi;
@@ -724,15 +731,18 @@ namespace edm {
         assert(found);
       }
     }
-    bool nextFound = rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
-    EventPrincipal* ep = (nextFound ? rootFile_->readCurrentEvent(cache) : 0);
-    if(ep == 0) {
-      bool found = rootFile_->setEntryAtItem(id.run(), id.luminosityBlock(), 0);
-      if(found) {
-        return readOneRandomWithID(cache, id);
-      }
+    bool found = rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
+    if(found) {
+      found = rootFile_->readCurrentEvent(cache);
     }
-    return ep;
+    if(!found) {
+      bool found = rootFile_->setEntryAtItem(id.run(), id.luminosityBlock(), 0);
+      if(!found) {
+        return false;
+      }
+      return readOneRandomWithID(cache, id);
+    }
+    return true;
   }
 
   void
@@ -757,9 +767,6 @@ namespace edm {
     desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true)
         ->setComment("If True, also drop on input any descendent of any branch dropped on input.");
     std::string defaultString("permissive");
-    desc.addUntracked<std::string>("parametersMustMatch", defaultString)
-        ->setComment("'strict':     Values of tracked parameters must be unique across all input files.\n"
-                     "'permissive': Values of tracked parameters may differ across or within files.");
     desc.addUntracked<std::string>("branchesMustMatch", defaultString)
         ->setComment("'strict':     Branches in each input file must match those in the first file.\n"
                      "'permissive': Branches in each input file may be any subset of those in the first file.");

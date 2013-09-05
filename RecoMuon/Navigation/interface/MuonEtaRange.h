@@ -5,8 +5,6 @@
  *
  *  a class to define eta range used in Muon Navigation
  *
- * $Date: $
- * $Revision: $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *

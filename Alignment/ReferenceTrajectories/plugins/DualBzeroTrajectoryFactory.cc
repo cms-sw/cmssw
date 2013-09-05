@@ -24,14 +24,14 @@ public:
   /// Produce the reference trajectories.
   virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
-							    const reco::BeamSpot &beamSpot) const;
+							    const reco::BeamSpot &beamSpot) const override;
 
   virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const ExternalPredictionCollection &external,
-							   const reco::BeamSpot &beamSpot) const;
+							   const reco::BeamSpot &beamSpot) const override;
 
-  virtual DualBzeroTrajectoryFactory* clone() const { return new DualBzeroTrajectoryFactory(*this); }
+  virtual DualBzeroTrajectoryFactory* clone() const override { return new DualBzeroTrajectoryFactory(*this); }
 
 protected:
   struct DualBzeroTrajectoryInput

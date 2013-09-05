@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include <Math/GenVector/PxPyPzE4D.h>
+#include "Math/GenVector/PxPyPzE4D.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

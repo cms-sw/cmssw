@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include <TFile.h>
 
   /**
@@ -34,5 +35,5 @@ public:
 private:
 
   edm::ParameterSet theConfig;
-  std::string gsfTrackLabel_, ckfTrackLabel_ ; // label of track producers
+  edm::EDGetTokenT<edm::View<reco::Track> > token_gsf, token_ckf;
 };

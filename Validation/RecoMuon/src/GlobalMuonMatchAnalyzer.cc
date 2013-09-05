@@ -2,8 +2,6 @@
  * Class: GlobalMuonMatchAnalyzer
  *
  *
- * $Date: 2010/02/20 21:02:34 $
- * $Revision: 1.10 $
  *
  * Authors :
  * \author Adam Everett - Purdue University

@@ -4,8 +4,6 @@
 /*
  * \file EcalEndcapDigisValidation.h
  *
- * $Date: 2008/02/29 20:48:25 $
- * $Revision: 1.8 $
  * \author F. Cossutti
  *
 */

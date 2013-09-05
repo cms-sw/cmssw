@@ -16,7 +16,6 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Oct 24 00:01:12 EDT 2006
-// $Id: L1CaloGeometryProd.h,v 1.1 2006/12/21 01:55:36 wsun Exp $
 //
 
 // system include files

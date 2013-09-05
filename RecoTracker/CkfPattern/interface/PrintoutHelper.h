@@ -50,8 +50,10 @@ std::string PrintoutHelper::dumpCandidate( const Candidate & traj,bool showError
 	buffer <<"Last [Predicted] state\n x: "<<tsos.globalPosition()<<"\n p: "<<tsos.globalMomentum()<<"\n";
     }
     buffer <<" hit is: "<<(last.recHit()->isValid()?"valid":"invalid")<<"\n";
-    if (last.recHit()->isValid())
+    if (last.recHit()->isValid()) {
       buffer <<"on detId: "<<last.recHit()->geographicalId().rawId()<<"\n";  
+      buffer <<"gp: "<<last.recHit()->globalPosition()<<"\n";
+    }
   }
   else{
       buffer<<" no measurement. \n";}

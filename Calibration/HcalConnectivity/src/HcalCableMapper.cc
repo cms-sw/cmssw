@@ -8,16 +8,15 @@
 
 using namespace std;
 
-/*$Date: 2012/01/11 16:20:48 $
-version 3.1 02-13-07 
+/*version 3.1 02-13-07 
 
 author Kevin Klapoetke - Minnesota*/
 
 class HcalCableMapper : public edm::EDAnalyzer {
 public:
   explicit HcalCableMapper(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-  virtual void endJob ();
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  virtual void endJob () override;
   //std::string sourceDigi_;
 private:
   typedef std::vector<HcalQIESample> SampleSet;

@@ -7,7 +7,6 @@
 */
 //
 //         Created:  2009/12/07
-// $Id: SiStripShotFilter.cc,v 1.5 2012/07/22 12:21:56 threus Exp $
 //
 
 #include <sstream>
@@ -18,6 +17,7 @@
 #include <algorithm>
 #include <cassert>
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -58,9 +58,9 @@ class SiStripShotFilter : public edm::EDFilter
   ~SiStripShotFilter();
  private:
 
-  virtual void beginJob();
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void beginJob() override;
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
 
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
@@ -73,6 +73,7 @@ class SiStripShotFilter : public edm::EDFilter
   const SiStripFedCabling* cabling_;
 
   edm::InputTag digicollection_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > digiToken_;
   bool zs_;
 
 };
@@ -89,6 +90,8 @@ SiStripShotFilter::SiStripShotFilter(const edm::ParameterSet& iConfig)
     zs_(iConfig.getUntrackedParameter<bool>("ZeroSuppressed",true))
  
 {
+
+  digiToken_ = consumes<edm::DetSetVector<SiStripDigi> >(digicollection_);
 
 }
 
@@ -112,7 +115,8 @@ SiStripShotFilter::filter(edm::Event& iEvent,
   
   //get digi data
   edm::Handle<edm::DetSetVector<SiStripDigi> > digis;
-  iEvent.getByLabel(digicollection_,digis);
+  //  iEvent.getByLabel(digicollection_,digis);
+  iEvent.getByToken(digiToken_,digis);
 
   // loop on detector with digis
 

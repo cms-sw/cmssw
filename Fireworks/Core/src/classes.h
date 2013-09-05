@@ -29,7 +29,7 @@
 #include "Fireworks/Core/interface/FWGUIEventSelector.h"
 #include "Fireworks/Core/interface/FWTEventList.h"
 #include "Fireworks/Core/interface/FWTSelectorToEventList.h"
-#include "Fireworks/Core/src/FWEveDigitSetScalableMarker.cc"
+#include "Fireworks/Core/src/FWEveDigitSetScalableMarker.h"
 #include "Fireworks/Core/src/FW3DViewDistanceMeasureTool.h"
 namespace {
    struct Fireworks_Core {

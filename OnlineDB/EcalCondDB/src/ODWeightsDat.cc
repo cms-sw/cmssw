@@ -164,7 +164,7 @@ void ODWeightsDat::fetchData(ODWeightsDat * p)
 
 //  ************************************************************************   // 
 
-void ODWeightsDat::writeArrayDB(const std::vector< ODWeightsDat > data, ODFEWeightsInfo* iov)
+void ODWeightsDat::writeArrayDB(const std::vector< ODWeightsDat >& data, ODFEWeightsInfo* iov)
     throw(std::runtime_error)
 {
   this->checkConnection();

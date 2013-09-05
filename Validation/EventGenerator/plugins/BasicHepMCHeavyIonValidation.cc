@@ -12,12 +12,14 @@
 using namespace edm;
 
 BasicHepMCHeavyIonValidation::BasicHepMCHeavyIonValidation(const edm::ParameterSet& iPSet): 
-	_wmanager(iPSet),
+  wmanager_(iPSet,consumesCollector()),
 	hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection"))
 {    
 	dbe = 0;
 	dbe = edm::Service<DQMStore>().operator->();
 	QWdebug_ = iPSet.getUntrackedParameter<bool>("QWdebug",false);
+
+	hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
 }
 
 BasicHepMCHeavyIonValidation::~BasicHepMCHeavyIonValidation() {}
@@ -64,7 +66,7 @@ void BasicHepMCHeavyIonValidation::analyze(const edm::Event& iEvent,const edm::E
 
 	///Gathering the HepMCProduct information
 	edm::Handle<HepMCProduct> evt;
-	iEvent.getByLabel(hepmcCollection_, evt);
+	iEvent.getByToken(hepmcCollectionToken_, evt);
 
 	//Get EVENT
 	//HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
@@ -78,7 +80,7 @@ void BasicHepMCHeavyIonValidation::analyze(const edm::Event& iEvent,const edm::E
 		return;
 	}
 
-	double weight = _wmanager.weight(iEvent);
+	double weight = wmanager_.weight(iEvent);
 	nEvt->Fill(0.5,weight);
 
 	Ncoll_hard->Fill(ion->Ncoll_hard(), weight);

@@ -10,32 +10,32 @@
 namespace edm {
 
   VParameterSetEntry::VParameterSetEntry() :
-      tracked(false),
-      theVPSet(),
-      theIDs() {
+      tracked_(false),
+      theVPSet_(),
+      theIDs_() {
   }
 
   VParameterSetEntry::VParameterSetEntry(std::vector<ParameterSet> const& vpset, bool isTracked) :
-      tracked(isTracked),
-      theVPSet(new std::vector<ParameterSet>),
-      theIDs() {
+      tracked_(isTracked),
+      theVPSet_(new std::vector<ParameterSet>),
+      theIDs_() {
     for (std::vector<ParameterSet>::const_iterator i = vpset.begin(), e = vpset.end(); i != e; ++i) {
-      theVPSet->push_back(*i);
+      theVPSet_->push_back(*i);
     }
   }
 
   VParameterSetEntry::VParameterSetEntry(std::string const& rep) :
-      tracked(rep[0] == '+'),
-      theVPSet(),
-      theIDs(new std::vector<ParameterSetID>) {
+      tracked_(rep[0] == '+'),
+      theVPSet_(),
+      theIDs_(new std::vector<ParameterSetID>) {
     assert(rep[0] == '+' || rep[0] == '-');
     std::vector<std::string> temp;
     // need a substring that starts at the '{'
     std::string bracketedRepr(rep.begin()+2, rep.end());
     split(std::back_inserter(temp), bracketedRepr, '{', ',', '}');
-    theIDs->reserve(temp.size());
+    theIDs_->reserve(temp.size());
     for (std::vector<std::string>::const_iterator i = temp.begin(), e = temp.end(); i != e; ++i) {
-      theIDs->push_back(ParameterSetID(*i));
+      theIDs_->push_back(ParameterSetID(*i));
     }
   }
 
@@ -43,12 +43,12 @@ namespace edm {
 
   void
   VParameterSetEntry::toString(std::string& result) const {
-    assert(theIDs);
-    result += tracked ? "+q" : "-q";
+    assert(theIDs_);
+    result += tracked_ ? "+q" : "-q";
     result += '{';
     std::string start;
     std::string const between(",");
-    for (std::vector<ParameterSetID>::const_iterator i = theIDs->begin(), e = theIDs->end(); i != e; ++i) {
+    for (std::vector<ParameterSetID>::const_iterator i = theIDs_->begin(), e = theIDs_->end(); i != e; ++i) {
       result += start;
       i->toString(result);
       start = between;
@@ -58,10 +58,10 @@ namespace edm {
 
   void
   VParameterSetEntry::toDigest(cms::Digest &digest) const {
-    assert(theIDs);
-    digest.append(tracked ? "+q{" : "-q{", 3);
+    assert(theIDs_);
+    digest.append(tracked_ ? "+q{" : "-q{", 3);
     bool started = false;
-    for (std::vector<ParameterSetID>::const_iterator i = theIDs->begin(), e = theIDs->end(); i != e; ++i) {
+    for (std::vector<ParameterSetID>::const_iterator i = theIDs_->begin(), e = theIDs_->end(); i != e; ++i) {
       if (started)
         digest.append(",", 1);
       i->toDigest(digest);
@@ -77,43 +77,52 @@ namespace edm {
   }
 
   std::vector<ParameterSet> const& VParameterSetEntry::vpset() const {
-    if (!theVPSet) {
-      assert(theIDs);
-      theVPSet = value_ptr<std::vector<ParameterSet> >(new std::vector<ParameterSet>);
-      theVPSet->reserve(theIDs->size());
-      for (std::vector<ParameterSetID>::const_iterator i = theIDs->begin(), e = theIDs->end(); i != e; ++i) {
-        theVPSet->push_back(getParameterSet(*i));
-      }
-    }
-    return *theVPSet;
+    fillVPSet();
+    return *theVPSet_;
   }
 
-  std::vector<ParameterSet>& VParameterSetEntry::vpset() {
-    if (!theVPSet) {
-      assert(theIDs);
-      theVPSet = value_ptr<std::vector<ParameterSet> >(new std::vector<ParameterSet>);
-      theVPSet->reserve(theIDs->size());
-      for (std::vector<ParameterSetID>::const_iterator i = theIDs->begin(), e = theIDs->end(); i != e; ++i) {
-        theVPSet->push_back(getParameterSet(*i));
-      }
-    }
-    return *theVPSet;
+  // NOTE: This function, and other non-const functions of this class
+  // that expose internals, may be used in a way that causes the cached
+  // "theVPSet_" and "theIDs_" to be inconsistent.
+  // THIS PROBLEM NEEDS TO BE ADDRESSED
+  std::vector<ParameterSet>& VParameterSetEntry::vpsetForUpdate() {
+    fillVPSet();
+    return *theVPSet_;
   }
 
+  void VParameterSetEntry::fillVPSet() const {
+    if(nullptr == theVPSet_.load()) {
+      std::unique_ptr<std::vector<ParameterSet> > tmp(new std::vector<ParameterSet>);
+      tmp->reserve(theIDs_->size());
+      for (auto const& theID : *theIDs_) {
+        tmp->push_back(getParameterSet(theID));
+      }
+      VParameterSet* expected = nullptr;
+      if(theVPSet_.compare_exchange_strong(expected, tmp.get())) {
+        // theVPSet_ was equal to nullptr and now is equal to tmp.get()
+        tmp.release();
+      }
+    }
+  }
+
+  // NOTE: This function, and other non-const functions of this class
+  // that expose internals, may be used in a way that causes the cached
+  // "theVPSet_" and "theIDs_" to be inconsistent.
+  // THIS PROBLEM NEEDS TO BE ADDRESSED
   ParameterSet& VParameterSetEntry::psetInVector(int i) {
-    assert(theVPSet);
-    return theVPSet->at(i);
+    assert(theVPSet_);
+    return theVPSet_->at(i);
   }
 
   void VParameterSetEntry::registerPsetsAndUpdateIDs() {
-    vpset();
-    theIDs = value_ptr<std::vector<ParameterSetID> >(new std::vector<ParameterSetID>);
-    theIDs->resize(theVPSet->size());
-    for (std::vector<ParameterSet>::iterator i = theVPSet->begin(), e = theVPSet->end(); i != e; ++i) {
+    fillVPSet();
+    theIDs_ = value_ptr<std::vector<ParameterSetID> >(new std::vector<ParameterSetID>);
+    theIDs_->resize(theVPSet_->size());
+    for (std::vector<ParameterSet>::iterator i = theVPSet_->begin(), e = theVPSet_->end(); i != e; ++i) {
       if (!i->isRegistered()) {
         i->registerIt();
       }
-      theIDs->at(i - theVPSet->begin()) = i->id();
+      theIDs_->at(i - theVPSet_->begin()) = i->id();
     }
   }
 

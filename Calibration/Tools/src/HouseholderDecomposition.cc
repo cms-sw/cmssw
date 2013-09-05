@@ -1,7 +1,5 @@
 /** \file HouseholderDecomposition.cc
  *
- * $Date: 2009/02/26 13:48:08 $
- * $Revision: 1.6 $
  *
  * \author Lorenzo Agostino, R.Ofierzynski, CERN
  */

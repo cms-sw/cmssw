@@ -1,4 +1,3 @@
-// Last commit: $Id: Constants.h,v 1.7 2009/02/10 21:45:54 lowette Exp $
 
 #ifndef DataFormats_SiStripCommon_Constants_H
 #define DataFormats_SiStripCommon_Constants_H

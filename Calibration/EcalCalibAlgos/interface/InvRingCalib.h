@@ -2,8 +2,6 @@
   * \file InvRingCalib.h
   * \class InvRingCalib
   * \brief ECAL TB 2006 calibration with matrix inversion technique
-  * $Date: 2009/02/11 15:46:48 $
-  * $Revision: 1.4 $
   * \author 
   *
 */

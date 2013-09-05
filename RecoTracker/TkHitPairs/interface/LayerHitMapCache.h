@@ -29,7 +29,7 @@ private:
       theContainer[key]=value;
     }
     /// emptify cache, delete values associated to Key
-    void clear() {
+    void clear() {      
       for ( auto & v : theContainer)  { delete v; v=nullptr;}
     }
   private:
@@ -48,7 +48,7 @@ public:
   const RecHitsSortedInPhi & 
   operator()(const ctfseeding::SeedingLayer * layer, const TrackingRegion & region, 
 	     const edm::Event & iEvent, const edm::EventSetup & iSetup) {
-    int key = layer->detLayer()->seqNum();
+    int key = layer->seqNum();
     assert (key>=0);
     const RecHitsSortedInPhi * lhm = theCache.get(key);
     if (lhm==nullptr) {

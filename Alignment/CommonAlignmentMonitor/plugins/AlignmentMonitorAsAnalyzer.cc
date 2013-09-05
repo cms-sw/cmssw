@@ -66,9 +66,9 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
       typedef std::vector<ConstTrajTrackPair> ConstTrajTrackPairCollection;
 
    private:
-      virtual void beginJob();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      virtual void beginJob() override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
 
       // ----------member data ---------------------------
       edm::InputTag m_tjTag;

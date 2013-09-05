@@ -5,8 +5,6 @@
  *  Class to calculate the different TMax values according to
  *  the track path
  *
- *  $Date: 2008/08/04 16:18:46 $
- *  $Revision: 1.1 $
 
  *  \author Marina Giunta
  */

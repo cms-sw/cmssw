@@ -1,5 +1,4 @@
-// $Id: testAssociationNew.cc,v 1.5.4.1 2008/11/04 19:24:08 wmtan Exp $
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 #include <algorithm>
 #include <iterator>
 #include <iostream>

@@ -1,5 +1,4 @@
 //
-// $Id: TriggerCondition.cc,v 1.1 2011/02/22 18:33:05 vadler Exp $
 //
 
 

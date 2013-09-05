@@ -4,8 +4,6 @@
  *  A regional muon trigger candidate as received by the GMT
 */
 //
-//   $Date: 2007/09/06 13:48:48 $
-//   $Revision: 1.6 $
 //
 //   Author :
 //   H. Sakulin                    HEPHY Vienna

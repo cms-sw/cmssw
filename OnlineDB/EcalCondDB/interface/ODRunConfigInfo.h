@@ -22,7 +22,7 @@ class ODRunConfigInfo : public IODConfig {
  
   
 
-  void setDBTime(Tm x) { m_db_time=x; }
+  void setDBTime(const Tm& x) { m_db_time=x; }
 inline Tm getDBTime() const{  return m_db_time;}
 //
 inline void setTag(std::string x) { m_tag = x; }
@@ -51,9 +51,9 @@ std::string getUsageStatus() const{  return m_usage_status;}
 //
 
   RunTypeDef getRunTypeDef() const;
-  void setRunTypeDef(const RunTypeDef runTypeDef);
+  void setRunTypeDef(const RunTypeDef& runTypeDef);
   RunModeDef getRunModeDef() const;
-  void setRunModeDef(const RunModeDef runModeDef);
+  void setRunModeDef(const RunModeDef& runModeDef);
 
 
   // operators

@@ -1,7 +1,7 @@
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 int main() {
@@ -10,9 +10,9 @@ int main() {
   edm::Parentage ed2;
   assert(ed1 == ed2);
 
-  ed2.parents() = std::vector<edm::BranchID>(1);
+  ed2.setParents(std::vector<edm::BranchID>(1));
   edm::Parentage ed3;
-  ed3.parents() = std::vector<edm::BranchID>(2);
+  ed3.setParents(std::vector<edm::BranchID>(2));
 
   try {
     edm::ParentageID id1 = ed1.id();
@@ -27,7 +27,7 @@ int main() {
     assert(ed2 != ed3);
 
     edm::Parentage ed4;
-    ed4.parents() = std::vector<edm::BranchID>(1);
+    ed4.setParents(std::vector<edm::BranchID>(1));
     edm::ParentageID id4 = ed4.id();
     assert(ed4 == ed2);
     assert (id4 == id2);

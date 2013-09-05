@@ -11,8 +11,6 @@
 /*
  * \file HcalHotCellClient.cc
  * 
- * $Date: 2011/09/27 11:49:53 $
- * $Revision: 1.78 $
  * \author J. Temple
  * \brief Hot Cell Client class
  */

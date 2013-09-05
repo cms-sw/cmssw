@@ -16,7 +16,6 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: XMLRBXPedestalsLoader.h,v 1.4 2009/04/14 22:53:05 kukartse Exp $
 //
 
 // system include files

@@ -8,7 +8,6 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLLUTLoader.cc,v 1.4 2010/08/06 20:24:13 wmtan Exp $
 //
 
 // system include files

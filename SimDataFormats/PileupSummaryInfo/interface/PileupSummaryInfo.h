@@ -13,7 +13,6 @@ Usage: purely descriptive
 //
 // Original Author:  Mike Hildreth, Notre Dame
 //         Created:  July 1, 2010
-// $Id: PileupSummaryInfo.h,v 1.3 2011/03/07 05:57:38 mikeh Exp $
 //
 
 #include "DataFormats/Provenance/interface/EventID.h"

@@ -3,7 +3,6 @@
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetVetoedTracksAssociatorAtVertex.cc,v 1.3 2008/07/23 01:40:41 bazterra Exp $
 //
 //
 
@@ -27,7 +26,7 @@ class JetVetoedTracksAssociatorAtVertex : public edm::EDProducer
 public:
     JetVetoedTracksAssociatorAtVertex(const edm::ParameterSet&);
     virtual ~JetVetoedTracksAssociatorAtVertex();
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
 private:
     edm::InputTag mJets;
     edm::InputTag mTracks;

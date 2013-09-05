@@ -13,9 +13,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -44,6 +41,8 @@ HLTJetCollectionsVBFFilter<T>::HLTJetCollectionsVBFFilter(const edm::ParameterSe
    minNJets_(iConfig.getParameter<unsigned int> ("MinNJets")),
    triggerType_(iConfig.getParameter<int> ("TriggerType"))
 {
+  typedef std::vector<edm::RefVector<std::vector<T>,T,edm::refhelper::FindUsingAdvance<std::vector<T>,T> > > TCollectionVector;
+  m_theJetToken = consumes<TCollectionVector>(inputTag_);
 }
 
 template <typename T>
@@ -53,9 +52,9 @@ template <typename T>
 void
 HLTJetCollectionsVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltIterativeCone5CaloJets"));
   desc.add<edm::InputTag>("originalTag",edm::InputTag("hltIterativeCone5CaloJets"));
-  desc.add<bool>("saveTags",false);
   desc.add<double>("SoftJetPt",25.0);
   desc.add<double>("HardJetPt",35.0);
   desc.add<double>("MinDeltaEta",3.0);
@@ -86,7 +85,7 @@ HLTJetCollectionsVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSet
   if (saveTags()) filterproduct.addCollectionTag(originalTag_);
 
   Handle<TCollectionVector> theJetCollectionsHandle;
-  iEvent.getByLabel(inputTag_,theJetCollectionsHandle);
+  iEvent.getByToken(m_theJetToken, theJetCollectionsHandle);
   const TCollectionVector & theJetCollections = *theJetCollectionsHandle;
   // filter decision
   bool accept(false);

@@ -31,7 +31,7 @@ class AlignableDTStation : public AlignableComposite
 
  public:
 
-  AlignableDTStation( const std::vector<AlignableDTChamber*> dtChambers );
+  AlignableDTStation( const std::vector<AlignableDTChamber*>& dtChambers );
 
   ~AlignableDTStation();
   

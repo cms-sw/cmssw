@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/12/21 09:43:29 $
- *  $Revision: 1.5 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -10,10 +8,10 @@
 //#include "CalibMuon/DTCalibration/src/vDriftHistos.h"
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
 #include <string>
-#include <math.h>
+#include <cmath>
 
 #include "TFile.h"
 #include "TCanvas.h"

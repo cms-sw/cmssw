@@ -34,7 +34,7 @@ TripletFilter::~TripletFilter()
 
 /*****************************************************************************/
 bool TripletFilter::checkTrack
-(vector<const TrackingRecHit*> recHits, vector<LocalVector> localDirs, const TrackerTopology *tTopo)
+(const vector<const TrackingRecHit*>& recHits, const vector<LocalVector>& localDirs, const TrackerTopology *tTopo)
 {
   bool ok = true;
 
@@ -66,7 +66,7 @@ bool TripletFilter::checkTrack
 
 /*****************************************************************************/
 bool TripletFilter::checkTrack
-(vector<const TrackingRecHit*> recHits, vector<GlobalVector> globalDirs, const TrackerTopology *tTopo)
+(const vector<const TrackingRecHit*>& recHits, const vector<GlobalVector>& globalDirs, const TrackerTopology *tTopo)
 {
   bool ok = true;
 

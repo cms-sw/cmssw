@@ -6,35 +6,41 @@
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 
-
 namespace edm {
   ProcessHistoryID
   ProcessHistory::id() const {
-    if(phid().isValid()) {
-      return phid();
+    if(transient_.phid_.isValid()) {
+      return transient_.phid_;
     }
     // This implementation is ripe for optimization.
     // We do not use operator<< because it does not write out everything.
     std::ostringstream oss;
-    for (const_iterator i = begin(), e = end(); i != e; ++i) {
-      oss << i->processName() << ' '
-	  << i->parameterSetID() << ' ' 
-	  << i->releaseVersion() << ' '
-	  << i->passID() << ' ';
+    for(auto const& item : *this) {
+      oss << item.processName() << ' '
+	  << item.parameterSetID() << ' ' 
+	  << item.releaseVersion() << ' '
+	  << item.passID() << ' ';
     }
     std::string stringrep = oss.str();
     cms::Digest md5alg(stringrep);
-    ProcessHistoryID tmp(md5alg.digest().toString());
-    phid().swap(tmp);
-    return phid();
+    ProcessHistoryID phID(md5alg.digest().toString());
+    return phID;
+  }
+
+  ProcessHistoryID
+  ProcessHistory::setProcessHistoryID() {
+    if(!transient_.phid_.isValid()) {
+      transient_.phid_ = id();
+    }
+    return transient_.phid_;
   }
 
   bool
   ProcessHistory::getConfigurationForProcess(std::string const& name, 
 					     ProcessConfiguration& config) const {
-    for (const_iterator i = begin(), e = end(); i != e; ++i) {
-      if (i->processName() == name) {
-	config = *i;
+    for(auto const& item : *this) {
+      if (item.processName() == name) {
+	config = item;
 	return true;
       }
     }
@@ -42,12 +48,13 @@ namespace edm {
     return false;				    
   }
 
-  void
+  ProcessHistory&
   ProcessHistory::reduce() {
     phid() = ProcessHistoryID();
-    for (iterator i = data_.begin(), e = data_.end(); i != e; ++i) {
-      i->reduce();
+    for(auto& item : data_) {
+      item.reduce();
     }
+    return *this;
   }
 
   bool

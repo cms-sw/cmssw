@@ -18,9 +18,9 @@ SiStripBaseDelayGenerator::~SiStripBaseDelayGenerator()
   edm::LogInfo("SiStripBaseDelayGenerator") << "[SiStripBaseDelayGenerator::~SiStripBaseDelayGenerator]";
 }
 
-void SiStripBaseDelayGenerator::createObject()
+SiStripBaseDelay* SiStripBaseDelayGenerator::createObject()
 {
-  obj_ = new SiStripBaseDelay();
+  SiStripBaseDelay* obj = new SiStripBaseDelay();
 
   // Read the full list of detIds
   edm::FileInPath fp_ = _pset.getParameter<edm::FileInPath>("file");
@@ -31,10 +31,11 @@ void SiStripBaseDelayGenerator::createObject()
   if( !detInfos.empty() ) {
     std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = detInfos.begin();
     for( ; it != detInfos.end(); ++it ) {
-      obj_->put(it->first, coarseDelay, fineDelay);
+      obj->put(it->first, coarseDelay, fineDelay);
     }
   }
   else {
     edm::LogError("SiStripBaseDelayGenerator") << "Error: detInfo map is empty." << std::endl;
   }
+  return obj;
 }

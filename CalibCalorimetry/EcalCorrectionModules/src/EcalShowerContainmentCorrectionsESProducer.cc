@@ -11,7 +11,6 @@
      
  \author  Stefano Argiro
          Created:  Mon Mar  5 08:39:12 CET 2007
- \id $Id: EcalShowerContainmentCorrectionsESProducer.cc,v 1.1 2007/05/15 20:46:31 argiro Exp $
 */
 
 // system include files

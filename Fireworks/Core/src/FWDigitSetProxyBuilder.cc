@@ -32,12 +32,12 @@ public:
    FWSecondarySelectableSelector(const TEveSecondarySelectable::SelectionSet_t& s, const FWEventItem* i): m_selected(s), m_item(i) {}
    ~FWSecondarySelectableSelector() {}
 
-   virtual void doSelect()
+   virtual void doSelect() override
    {
       syncSelection();
    }
 
-   virtual void doUnselect()
+   virtual void doUnselect() override
    { 
       syncSelection(); 
    }

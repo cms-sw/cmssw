@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 #
 #  simple analyzer to make histos within a framework job off the super clusters in the event
 #  Author: Shahram Rahatlou, University of Rome & INFN
-#  $Id: egammaSimpleAnalyzer.cfi,v 1.12 2007/05/04 09:12:50 futyand Exp $
 #
 egammaSimpleAnalyzer = cms.EDAnalyzer("EgammaSimpleAnalyzer",
     xMaxHist = cms.double(60.0),

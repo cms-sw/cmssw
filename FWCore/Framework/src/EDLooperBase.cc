@@ -8,15 +8,21 @@
 
 #include "FWCore/Framework/interface/EDLooperBase.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
-#include "FWCore/Framework/interface/Actions.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
 #include "boost/bind.hpp"
 
@@ -32,9 +38,18 @@ namespace edm {
   }
 
   EDLooperBase::Status
-  EDLooperBase::doDuringLoop(edm::EventPrincipal& eventPrincipal, const edm::EventSetup& es, edm::ProcessingController& ioController) {
-    edm::ModuleDescription modDesc("EDLooperBase", "");
-    Event event(eventPrincipal, modDesc);
+  EDLooperBase::doDuringLoop(edm::EventPrincipal& eventPrincipal, const edm::EventSetup& es,
+                             edm::ProcessingController& ioController, StreamContext* streamContext) {
+
+    edm::ModuleDescription modDesc("Looper", "looper");
+    streamContext->setTransition(StreamContext::Transition::kEvent);
+    streamContext->setEventID(eventPrincipal.id());
+    streamContext->setRunIndex(eventPrincipal.luminosityBlockPrincipal().runPrincipal().index());
+    streamContext->setLuminosityBlockIndex(eventPrincipal.luminosityBlockPrincipal().index());
+    streamContext->setTimestamp(eventPrincipal.time());
+    ParentContext parentContext(streamContext);
+    ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
+    Event event(eventPrincipal, modDesc, &moduleCallingContext);
 
     Status status = kContinue;
     try {
@@ -42,8 +57,8 @@ namespace edm {
     }
     catch(cms::Exception& e) {
       e.addContext("Calling the 'duringLoop' method of a looper");
-      actions::ActionCodes action = (act_table_->find(e.category()));
-      if (action != actions::Rethrow) {
+      exception_actions::ActionCodes action = (act_table_->find(e.category()));
+      if (action != exception_actions::Rethrow) {
         edm::printCmsExceptionWarning("SkipEvent", e);
       }
       else {
@@ -73,25 +88,57 @@ namespace edm {
 
   void EDLooperBase::endOfJob() { }
 
-  void EDLooperBase::doBeginRun(RunPrincipal& iRP, EventSetup const& iES){
-        edm::ModuleDescription modDesc("EDLooperBase", "");
-	Run run(iRP, modDesc);
+  void EDLooperBase::doBeginRun(RunPrincipal& iRP, EventSetup const& iES, ProcessContext* processContext) {
+        edm::ModuleDescription modDesc("Looper", "looper");
+        GlobalContext globalContext(GlobalContext::Transition::kBeginRun,
+                                    LuminosityBlockID(iRP.run(), 0),
+                                    iRP.index(),
+                                    LuminosityBlockIndex::invalidLuminosityBlockIndex(),
+                                    iRP.beginTime(),
+                                    processContext);
+        ParentContext parentContext(&globalContext);
+        ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
+	Run run(iRP, modDesc, &moduleCallingContext);
 	beginRun(run,iES);
   }
 
-  void EDLooperBase::doEndRun(RunPrincipal& iRP, EventSetup const& iES){
-        edm::ModuleDescription modDesc("EDLooperBase", "");
-	Run run(iRP, modDesc);
+  void EDLooperBase::doEndRun(RunPrincipal& iRP, EventSetup const& iES, ProcessContext* processContext){
+        edm::ModuleDescription modDesc("Looper", "looper");
+        GlobalContext globalContext(GlobalContext::Transition::kEndRun,
+                                    LuminosityBlockID(iRP.run(), 0),
+                                    iRP.index(),
+                                    LuminosityBlockIndex::invalidLuminosityBlockIndex(),
+                                    iRP.endTime(),
+                                    processContext);
+        ParentContext parentContext(&globalContext);
+        ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
+	Run run(iRP, modDesc, &moduleCallingContext);
 	endRun(run,iES);
   }
-  void EDLooperBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES){
-    edm::ModuleDescription modDesc("EDLooperBase", "");
-    LuminosityBlock luminosityBlock(iLB, modDesc);
+  void EDLooperBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES, ProcessContext* processContext){
+    edm::ModuleDescription modDesc("Looper", "looper");
+    GlobalContext globalContext(GlobalContext::Transition::kBeginLuminosityBlock,
+                                iLB.id(),
+                                iLB.runPrincipal().index(),
+                                iLB.index(),
+                                iLB.beginTime(),
+                                processContext);
+    ParentContext parentContext(&globalContext);
+    ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
+    LuminosityBlock luminosityBlock(iLB, modDesc, &moduleCallingContext);
     beginLuminosityBlock(luminosityBlock,iES);
   }
-  void EDLooperBase::doEndLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES){
-    edm::ModuleDescription modDesc("EDLooperBase", "");
-    LuminosityBlock luminosityBlock(iLB, modDesc);
+  void EDLooperBase::doEndLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES, ProcessContext* processContext){
+    edm::ModuleDescription modDesc("Looper", "looper");
+    GlobalContext globalContext(GlobalContext::Transition::kEndLuminosityBlock,
+                                iLB.id(),
+                                iLB.runPrincipal().index(),
+                                iLB.index(),
+                                iLB.beginTime(),
+                                processContext);
+    ParentContext parentContext(&globalContext);
+    ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
+    LuminosityBlock luminosityBlock(iLB, modDesc, &moduleCallingContext);
     endLuminosityBlock(luminosityBlock,iES);
   }
 

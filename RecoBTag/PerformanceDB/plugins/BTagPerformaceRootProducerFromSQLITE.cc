@@ -13,7 +13,6 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Thu Feb 11 14:21:59 CST 2010
-// $Id: BTagPerformaceRootProducerFromSQLITE.cc,v 1.2 2010/06/03 14:38:09 srappocc Exp $
 //
 //
 
@@ -57,9 +56,9 @@ class BTagPerformaceRootProducerFromSQLITE : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
   std::vector<std::string>  names_;

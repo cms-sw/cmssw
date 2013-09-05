@@ -43,7 +43,7 @@ class ODVfeToRejectDat : public IODConfig {
   void writeDB(const ODVfeToRejectDat* item, ODVfeToRejectInfo* iov )
     throw(std::runtime_error);
 
-  void writeArrayDB(const std::vector< ODVfeToRejectDat > data, ODVfeToRejectInfo* iov)
+  void writeArrayDB(const std::vector< ODVfeToRejectDat >& data, ODVfeToRejectInfo* iov)
     throw(std::runtime_error);
 
 

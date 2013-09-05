@@ -19,27 +19,27 @@ from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
 ## uncomment the following lines to add ak5JPTJets to your PAT output
 #addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
-#                 'AK5', 'JPT',
-#                 doJTA        = True,
-#                 doBTagging   = True,
-#                 jetCorrLabel = ('AK5JPT', cms.vstring(['L1Offset', 'L1JPTOffset', 'L2Relative', 'L3Absolute'])),
-#                 doType1MET   = False,
-#                 doL1Cleaning = False,
-#                 doL1Counters = True,
-#                 genJetCollection = cms.InputTag("ak5GenJets"),
-#                 doJetID      = True,
-#                 jetIdLabel   = "ak5"
-#                 )
+                #'AK5', 'JPT',
+                #doJTA        = True,
+                #doBTagging   = True,
+                #jetCorrLabel = ('AK5JPT', cms.vstring(['L1Offset', 'L1JPTOffset', 'L2Relative', 'L3Absolute'])),
+                #doType1MET   = False,
+                #doL1Cleaning = False,
+                #doL1Counters = True,
+                #genJetCollection = cms.InputTag("ak5GenJets"),
+                #doJetID      = True,
+                #jetIdLabel   = "ak5"
+                #)
 
 ## uncomment the following lines to add ak7CaloJets to your PAT output
-addJetCollection(
-   process,
-   labelName = 'AK7Calo',
-   jetSource = cms.InputTag('ak7CaloJets'),
-   jetCorrections = ('AK7Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-2'),
-   )
-process.patJetsAK7Calo.addJetID=True
-process.patJetsAK7Calo.jetIDMap="ak7JetID"
+#addJetCollection(
+   #process,
+   #labelName = 'AK7Calo',
+   #jetSource = cms.InputTag('ak7CaloJets'),
+   #jetCorrections = ('AK7Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   #)
+#process.patJetsAK7Calo.addJetID=True
+#process.patJetsAK7Calo.jetIDMap="ak7JetID"
 
 ## uncomment the following lines to add kt6CaloJets to your PAT output
 postfixAK5Calo = 'Copy'

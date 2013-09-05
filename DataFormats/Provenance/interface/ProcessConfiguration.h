@@ -8,6 +8,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <vector>
 
 namespace edm {
   class ProcessConfiguration {
@@ -31,6 +32,8 @@ namespace edm {
 
     void setParameterSetID(ParameterSetID const& pSetID);
 
+    ProcessConfigurationID setProcessConfigurationID();
+
     void reduce();
 
     void initializeTransients() {transient_.reset();}
@@ -42,12 +45,11 @@ namespace edm {
         pcid_.reset();
         isCurrentProcess_ = false;
       }
-      mutable ProcessConfigurationID pcid_;
+      ProcessConfigurationID pcid_;
       bool isCurrentProcess_;
     };
 
   private:
-    ProcessConfigurationID const& pcid() const {return transient_.pcid_;}
     void setPCID(ProcessConfigurationID const& pcid) {transient_.pcid_ = pcid;}
     bool isCurrentProcess() const {return transient_.isCurrentProcess_;}
     void setCurrentProcess() {transient_.isCurrentProcess_ = true;}
@@ -58,6 +60,8 @@ namespace edm {
     PassID passID_;
     Transients transient_;
   };
+
+  typedef std::vector<ProcessConfiguration> ProcessConfigurationVector;
 
   bool
   operator<(ProcessConfiguration const& a, ProcessConfiguration const& b);

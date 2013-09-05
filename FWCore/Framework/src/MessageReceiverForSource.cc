@@ -15,8 +15,8 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/socket.h>
-#include <errno.h>
-#include <string.h>
+#include <cerrno>
+#include <cstring>
 
 // user include files
 #include "FWCore/Framework/interface/MessageReceiverForSource.h"

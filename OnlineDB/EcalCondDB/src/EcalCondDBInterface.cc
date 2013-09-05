@@ -734,7 +734,7 @@ MonRunIOV EcalCondDBInterface::fetchMonRunIOV(RunTag* runtag, MonRunTag* montag,
 
 
 
-DCUIOV EcalCondDBInterface::fetchDCUIOV(DCUTag* tag, Tm eventTm)
+DCUIOV EcalCondDBInterface::fetchDCUIOV(DCUTag* tag, const Tm& eventTm)
   throw(std::runtime_error)
 {
   DCUIOV dcuiov;
@@ -789,7 +789,7 @@ bool EcalCondDBInterface::fetchLMFRunIOV(const LMFSeqDat &seq, LMFRunIOV& iov,
   return ret;
 }
 
-CaliIOV EcalCondDBInterface::fetchCaliIOV(CaliTag* tag, Tm eventTm)
+CaliIOV EcalCondDBInterface::fetchCaliIOV(CaliTag* tag, const Tm& eventTm)
   throw(std::runtime_error)
 {
   CaliIOV caliiov;
@@ -798,7 +798,7 @@ CaliIOV EcalCondDBInterface::fetchCaliIOV(CaliTag* tag, Tm eventTm)
   return caliiov;
 }
 
-DCSPTMTempList EcalCondDBInterface::fetchDCSPTMTempList(EcalLogicID ecid)
+DCSPTMTempList EcalCondDBInterface::fetchDCSPTMTempList(const EcalLogicID& ecid)
   throw(std::runtime_error)
 {  
   DCSPTMTempList r;
@@ -807,7 +807,7 @@ DCSPTMTempList EcalCondDBInterface::fetchDCSPTMTempList(EcalLogicID ecid)
   return r;
 }
 
-DCSPTMTempList EcalCondDBInterface::fetchDCSPTMTempList(EcalLogicID ecid, Tm start, Tm end)
+DCSPTMTempList EcalCondDBInterface::fetchDCSPTMTempList(const EcalLogicID& ecid, const Tm& start, const Tm& end)
   throw(std::runtime_error)
 {  
   DCSPTMTempList r;
@@ -816,7 +816,7 @@ DCSPTMTempList EcalCondDBInterface::fetchDCSPTMTempList(EcalLogicID ecid, Tm sta
   return r;
 }
 
-RunList EcalCondDBInterface::fetchRunList(RunTag tag)
+RunList EcalCondDBInterface::fetchRunList(const RunTag& tag)
   throw(std::runtime_error)
 {  
   RunList r;
@@ -826,7 +826,7 @@ RunList EcalCondDBInterface::fetchRunList(RunTag tag)
   return r;
 }
 
-RunList EcalCondDBInterface::fetchRunList(RunTag tag, int min_run, int max_run) throw(std::runtime_error){
+RunList EcalCondDBInterface::fetchRunList(const RunTag& tag, int min_run, int max_run) throw(std::runtime_error){
   RunList r;
   r.setConnection(env, conn);
   r.setRunTag(tag);
@@ -834,7 +834,7 @@ RunList EcalCondDBInterface::fetchRunList(RunTag tag, int min_run, int max_run) 
   return r;
 }
 
-RunList EcalCondDBInterface::fetchNonEmptyRunList(RunTag tag, int min_run, int max_run) throw(std::runtime_error){
+RunList EcalCondDBInterface::fetchNonEmptyRunList(const RunTag& tag, int min_run, int max_run) throw(std::runtime_error){
   RunList r;
   r.setConnection(env, conn);
   r.setRunTag(tag);
@@ -842,7 +842,7 @@ RunList EcalCondDBInterface::fetchNonEmptyRunList(RunTag tag, int min_run, int m
   return r;
 }
 
-RunList EcalCondDBInterface::fetchNonEmptyGlobalRunList(RunTag tag, int min_run, int max_run) throw(std::runtime_error){
+RunList EcalCondDBInterface::fetchNonEmptyGlobalRunList(const RunTag& tag, int min_run, int max_run) throw(std::runtime_error){
   RunList r;
   r.setConnection(env, conn);
   r.setRunTag(tag);
@@ -850,7 +850,7 @@ RunList EcalCondDBInterface::fetchNonEmptyGlobalRunList(RunTag tag, int min_run,
   return r;
 }
 
-RunList EcalCondDBInterface::fetchRunListByLocation(RunTag tag, int min_run, int max_run , const LocationDef locDef) 
+RunList EcalCondDBInterface::fetchRunListByLocation(const RunTag& tag, int min_run, int max_run , const LocationDef& locDef) 
   throw(std::runtime_error) {
   RunList r;
   r.setConnection(env, conn);
@@ -859,7 +859,7 @@ RunList EcalCondDBInterface::fetchRunListByLocation(RunTag tag, int min_run, int
   return r;
 }
 
-RunList EcalCondDBInterface::fetchGlobalRunListByLocation(RunTag tag, int min_run, int max_run , const LocationDef locDef) 
+RunList EcalCondDBInterface::fetchGlobalRunListByLocation(const RunTag& tag, int min_run, int max_run , const LocationDef& locDef) 
   throw(std::runtime_error) {
   RunList r;
   r.setConnection(env, conn);
@@ -868,7 +868,7 @@ RunList EcalCondDBInterface::fetchGlobalRunListByLocation(RunTag tag, int min_ru
   return r;
 }
 
-RunList EcalCondDBInterface::fetchRunListLastNRuns(RunTag tag, int max_run, int n_runs) 
+RunList EcalCondDBInterface::fetchRunListLastNRuns(const RunTag& tag, int max_run, int n_runs) 
   throw(std::runtime_error){
   RunList r;
   r.setConnection(env, conn);
@@ -882,7 +882,7 @@ RunList EcalCondDBInterface::fetchRunListLastNRuns(RunTag tag, int max_run, int 
 
 // from here it is for the MonRunList 
 
-MonRunList EcalCondDBInterface::fetchMonRunList(RunTag tag, MonRunTag monrunTag)
+MonRunList EcalCondDBInterface::fetchMonRunList(const RunTag& tag, const MonRunTag& monrunTag)
   throw(std::runtime_error)
 {  
   MonRunList r;
@@ -893,7 +893,7 @@ MonRunList EcalCondDBInterface::fetchMonRunList(RunTag tag, MonRunTag monrunTag)
   return r;
 }
 
-MonRunList EcalCondDBInterface::fetchMonRunList(RunTag tag, MonRunTag monrunTag,int min_run, int max_run)
+MonRunList EcalCondDBInterface::fetchMonRunList(const RunTag& tag, const MonRunTag& monrunTag,int min_run, int max_run)
   throw(std::runtime_error)
 {  
   MonRunList r;
@@ -904,7 +904,7 @@ MonRunList EcalCondDBInterface::fetchMonRunList(RunTag tag, MonRunTag monrunTag,
   return r;
 }
 
-MonRunList EcalCondDBInterface::fetchMonRunListLastNRuns(RunTag tag, MonRunTag monrunTag,int max_run, int n_runs )
+MonRunList EcalCondDBInterface::fetchMonRunListLastNRuns(const RunTag& tag, const MonRunTag& monrunTag,int max_run, int n_runs )
   throw(std::runtime_error)
 {  
   MonRunList r;

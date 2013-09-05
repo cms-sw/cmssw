@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-# $Id: RecoMET_cff.py,v 1.18 2012/09/04 21:18:33 sakuma Exp $
 
 ##____________________________________________________________________________||
 from RecoJets.Configuration.CaloTowersES_cfi import *

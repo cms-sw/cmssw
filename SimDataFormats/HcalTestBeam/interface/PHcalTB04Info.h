@@ -17,7 +17,6 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Sun May 14 10:14:34 CEST 2006
-// $Id: PHcalTB04Info.h,v 1.2 2006/11/15 05:52:36 sunanda Exp $
 //
 
 // system include files

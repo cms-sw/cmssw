@@ -24,7 +24,7 @@ class ODCond2ConfInfo : public IODConfig {
   inline void setType(std::string x) { m_type = x; }
   inline std::string getType() const { return m_type; }
 
-  inline void setRecordDate(Tm x) { m_rec_time = x; }
+  inline void setRecordDate(const Tm& x) { m_rec_time = x; }
   inline Tm getRecordDate() const { return m_rec_time; }
 
   inline void setLocation(std::string x) { m_loc = x; }
@@ -36,7 +36,7 @@ class ODCond2ConfInfo : public IODConfig {
   inline void setDescription(std::string x) { m_desc = x; }
   inline std::string getDescription() const { return m_desc ; }
 
-  inline void setDBDate(Tm x) { m_db_time = x; }
+  inline void setDBDate(const Tm& x) { m_db_time = x; }
   inline Tm getDBDate() const { return m_db_time; }
 
   // the tag is already in IODConfig 
@@ -44,7 +44,7 @@ class ODCond2ConfInfo : public IODConfig {
   int fetchID()  throw(std::runtime_error);
 
   int fetchNextId() throw(std::runtime_error);
-  void setParameters(std::map<std::string,std::string> my_keys_map);
+  void setParameters(const std::map<std::string,std::string>& my_keys_map);
   
  private:
   void prepareWrite()  throw(std::runtime_error);

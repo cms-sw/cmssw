@@ -8,7 +8,6 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: TotemG4Hit.cc,v 1.2 2007/03/08 00:09:09 sunanda Exp $
 //
 
 // system include files

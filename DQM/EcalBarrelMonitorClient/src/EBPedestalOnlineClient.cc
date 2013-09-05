@@ -1,8 +1,6 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2012/03/29 22:30:18 $
- * $Revision: 1.164.2.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

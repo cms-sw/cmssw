@@ -94,8 +94,7 @@ int main(int argc, char* argv[]) try {
                                                  fileMode,
                                                  emptyRunLumiMode);
 
-      bool onlineStateTransitions = false;
-      mockEventProcessor.runToCompletion(onlineStateTransitions);
+      mockEventProcessor.runToCompletion();
     }
   }
   return 0;

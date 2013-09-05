@@ -7,7 +7,6 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpot.h,v 1.11 2009/09/08 22:02:55 yumiceva Exp $
  *
  */
 

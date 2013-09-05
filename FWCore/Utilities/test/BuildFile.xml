@@ -10,6 +10,8 @@
   </bin>
   <bin   file="value_ptr_t.cpp">
   </bin>
+  <bin   file="atomic_value_ptr_t.cpp">
+  </bin>
   <bin   file="Digest_t.cpp">
   </bin>
   <bin   file="CRC32Calculator_t.cpp">
@@ -33,7 +35,7 @@
 <bin   file="MallocOpts_t.cpp">
   <use   name="cppunit"/>
 </bin>
-<bin   name="testFWCoreUtilities" file="typeidbase_t.cppunit.cpp,typeid_t.cppunit.cpp,cputimer_t.cppunit.cpp,extensioncord_t.cppunit.cpp,friendlyname_t.cppunit.cpp,signal_t.cppunit.cpp,soatuple_t.cppunit.cpp">
+<bin   name="testFWCoreUtilities" file="typeidbase_t.cppunit.cpp,typeid_t.cppunit.cpp,cputimer_t.cppunit.cpp,extensioncord_t.cppunit.cpp,friendlyname_t.cppunit.cpp,signal_t.cppunit.cpp,soatuple_t.cppunit.cpp,transform.cppunit.cpp">
   <use   name="cppunit"/>
 </bin>
 

@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # sequence to make photons from clusters in ECAL
-# $Id: photonSequence_CSA06.cff,v 1.1 2006/09/27 12:37:44 rahatlou Exp $
 #
 # photon producer
 from RecoEgamma.EgammaPhotonProducers.photons_cfi import *

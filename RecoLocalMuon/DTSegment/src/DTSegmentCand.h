@@ -7,8 +7,6 @@
  * and store relative information. It must be transformed into a DTSegment
  * for further use.
  *
- * $Date: 2008/12/03 12:52:22 $
- * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -44,11 +42,11 @@ class DTSegmentCand{
     DTSegmentCand(AssPointCont& hits,
                   const DTSuperLayer* sl) ;
 
-    DTSegmentCand(AssPointCont hits,
+    DTSegmentCand(const AssPointCont& hits,
                   LocalPoint& position,
                   LocalVector& direction,
                   double chi2,
-                  AlgebraicSymMatrix covMat,
+                  const AlgebraicSymMatrix& covMat,
                   const DTSuperLayer* sl);
 
 /// Destructor

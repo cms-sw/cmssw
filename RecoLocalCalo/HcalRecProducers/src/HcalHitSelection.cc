@@ -13,7 +13,6 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Thu Nov  4 22:17:56 CET 2010
-// $Id: HcalHitSelection.cc,v 1.3 2011/03/18 12:57:51 abdullin Exp $
 //
 //
 
@@ -50,9 +49,9 @@ class HcalHitSelection : public edm::EDProducer {
       ~HcalHitSelection();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override ;
   
   edm::InputTag hbheTag,hoTag,hfTag;
   int hoSeverityLevel;

@@ -13,13 +13,14 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -34,7 +35,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "cppunit/extensions/HelperMacros.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -176,7 +177,7 @@ void test_ep::setUp() {
     edm::BranchKey const bk(branch);
     edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
 
-    edm::ConstBranchDescription const branchFromRegistry(it->second);
+    edm::BranchDescription const branchFromRegistry(it->second);
 
     boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
     edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);
@@ -192,7 +193,8 @@ void test_ep::setUp() {
     lbp->setRunPrincipal(rp);
     edm::EventAuxiliary eventAux(eventID_, uuid, now, true);
     pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, branchIDListHelper, *process, &historyAppender_,edm::StreamID::invalidStreamID()));
-    pEvent_->fillEventPrincipal(eventAux);
+    edm::ProcessHistoryRegistry phr;
+    pEvent_->fillEventPrincipal(eventAux, phr);
     pEvent_->setLuminosityBlockPrincipal(lbp);
     pEvent_->put(branchFromRegistry, product, prov);
   }
@@ -235,7 +237,7 @@ void test_ep::failgetbyLabelTest() {
 
   std::string label("this does not exist");
 
-  edm::BasicHandle h(pEvent_->getByLabel(edm::PRODUCT_TYPE, tid, label, std::string(), std::string(),nullptr));
+  edm::BasicHandle h(pEvent_->getByLabel(edm::PRODUCT_TYPE, tid, label, std::string(), std::string(), nullptr, nullptr));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
@@ -244,7 +246,7 @@ void test_ep::failgetManybyTypeTest() {
   edm::TypeID tid(dummy);
   std::vector<edm::BasicHandle > handles;
 
-  pEvent_->getManyByType(tid, handles,nullptr);
+  pEvent_->getManyByType(tid, handles, nullptr, nullptr);
   CPPUNIT_ASSERT(handles.empty());
 }
 
@@ -258,5 +260,5 @@ void test_ep::failgetbyInvalidIdTest() {
 
 void test_ep::failgetProvenanceTest() {
   edm::BranchID id;
-  CPPUNIT_ASSERT_THROW(pEvent_->getProvenance(id), edm::Exception);
+  CPPUNIT_ASSERT_THROW(pEvent_->getProvenance(id, nullptr), edm::Exception);
 }

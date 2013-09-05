@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/05/13 13:25:04 $
- *  $Revision: 1.8 $
  *  \author Marina Giunta
  */
 

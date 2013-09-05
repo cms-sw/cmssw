@@ -13,7 +13,6 @@
 //
 // Original Author:  Yousi Ma
 //         Created:  Tue Jun 19 23:06:36 CEST 2007
-// $Id: EcalLaserAnalyzerYousi.cc,v 1.2 2010/01/18 17:28:44 ferriff Exp $
 //
 //
 
@@ -61,9 +60,9 @@ class EcalLaserAnalyzerYousi : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob();
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      virtual void beginJob() override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
 
       // ----------member data ---------------------------
   // Declare histograms and ROOT trees, etc.

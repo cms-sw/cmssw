@@ -717,7 +717,7 @@ public:
    InfoFrame(const TGWindow* p, UInt_t w, UInt_t h, UInt_t opts) : TGMainFrame(p, w, h, opts) {}
    virtual ~InfoFrame() {}
    
-   virtual void CloseWindow()
+   virtual void CloseWindow() override
    {
       UnmapWindow();  
    }

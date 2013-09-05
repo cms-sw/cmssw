@@ -3,7 +3,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <HepMC/GenEvent.h>
+#include "HepMC/GenEvent.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -25,8 +25,8 @@ namespace {
 		~NoHadronisation() {}
 
 	    private:
-		void doInit() {}
-		std::auto_ptr<HepMC::GenEvent> doHadronisation()
+		void doInit() override {}
+		std::auto_ptr<HepMC::GenEvent> doHadronisation() override
 		{ return getRawEvent()->asHepMCEvent(); }
 };
 

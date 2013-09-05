@@ -20,7 +20,7 @@ class RxCalculator
 {
   public:
   
-   RxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag hbheLabel, edm::InputTag hfLabel, edm::InputTag hoLabel) ;
+   RxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::InputTag& hbheLabel,const edm::InputTag& hfLabel,const edm::InputTag& hoLabel) ;
   
    double getRx (const reco::SuperClusterRef clus, double i, double threshold, double innerR=0.0);
    double getRFx(const reco::SuperClusterRef clus, double i, double threshold);

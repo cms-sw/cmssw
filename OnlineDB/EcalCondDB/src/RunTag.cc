@@ -50,7 +50,7 @@ LocationDef RunTag::getLocationDef() const
 
 
 
-void RunTag::setLocationDef(const LocationDef locDef)
+void RunTag::setLocationDef(const LocationDef& locDef)
 {
   if (locDef != m_locDef) {
     m_ID = 0;
@@ -67,7 +67,7 @@ RunTypeDef RunTag::getRunTypeDef() const
 
 
 
-void RunTag::setRunTypeDef(const RunTypeDef runTypeDef)
+void RunTag::setRunTypeDef(const RunTypeDef& runTypeDef)
 {
   if (runTypeDef != m_runTypeDef) {
     m_ID = 0;

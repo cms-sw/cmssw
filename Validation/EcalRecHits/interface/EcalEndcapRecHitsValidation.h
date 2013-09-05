@@ -4,7 +4,6 @@
 /*
  * \file EcalEndcapRecHitsValidation.h
  *
- * $Date: 2008/02/29 20:48:30 $
  * \author C. Rovelli
  *
 */

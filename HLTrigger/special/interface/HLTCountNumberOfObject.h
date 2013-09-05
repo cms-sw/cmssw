@@ -42,7 +42,7 @@ private:
     bool answer=true;
     if (minN_!=-1) answer = answer && (s>=minN_);
     if (maxN_!=-1) answer = answer && (s<=maxN_);
-    LogDebug("HLTCountNumberOfObject")<<module()<<" sees: "<<s<<" objects. Filtere answer is: "<<(answer?"true":"false");
+    LogDebug("HLTCountNumberOfObject")<<module(iEvent)<<" sees: "<<s<<" objects. Filtere answer is: "<<(answer?"true":"false");
 
     return answer;
   }

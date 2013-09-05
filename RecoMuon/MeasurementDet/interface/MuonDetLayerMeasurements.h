@@ -4,8 +4,6 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2010/05/12 23:01:23 $
- *  $Revision: 1.20 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -39,9 +37,9 @@ class MuonDetLayerMeasurements {
  public:
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
-  MuonDetLayerMeasurements(edm::InputTag dtlabel,
-			   edm::InputTag csclabel,
-			   edm::InputTag rpclabel,
+  MuonDetLayerMeasurements(const edm::InputTag& dtlabel,
+			   const edm::InputTag& csclabel,
+			   const edm::InputTag& rpclabel,
 			   bool enableDT = true,
 			   bool enableCSC = true,
 			   bool enableRPC = true);

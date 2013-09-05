@@ -55,7 +55,7 @@ class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProduce
 
       }
 
-      double discriminate(const PFTauRef& pfTau);
+      double discriminate(const PFTauRef& pfTau) override;
 
       ~PFRecoTauDiscriminationAgainstElectron(){}
 

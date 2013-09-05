@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Mon Dec 14 15:29:19 CST 2009
-// $Id: ESHandle.cc,v 1.1 2009/12/16 17:42:32 chrjones Exp $
 //
 
 // system include files

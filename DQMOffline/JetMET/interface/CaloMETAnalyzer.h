@@ -5,8 +5,6 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2012/04/20 14:37:05 $
- *  $Revision: 1.34 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */

@@ -379,7 +379,7 @@ void ThirdHitPrediction::getRanges
 
 /*****************************************************************************/
 bool ThirdHitPrediction::isCompatibleWithMultipleScattering
-  (GlobalPoint g3, vector<const TrackingRecHit*> h,
+  (GlobalPoint g3, const vector<const TrackingRecHit*>& h,
    vector<GlobalVector>& globalDirs, const edm::EventSetup& es)
 {
   Global2DVector p1(g1.x(),g1.y());
@@ -403,7 +403,7 @@ bool ThirdHitPrediction::isCompatibleWithMultipleScattering
 
   // Transform to tt
   vector<TransientTrackingRecHit::RecHitPointer> th;
-  for(vector<const TrackingRecHit*>::iterator ih = h.begin(); ih!= h.end(); ih++)
+  for(vector<const TrackingRecHit*>::const_iterator ih = h.begin(); ih!= h.end(); ih++)
     th.push_back(theTTRecHitBuilder->build(*ih));
 
   float sigma1_le2 = max(th[0]->parametersError()[0][0],

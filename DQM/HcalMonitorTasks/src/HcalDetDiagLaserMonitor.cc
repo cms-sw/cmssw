@@ -13,7 +13,6 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Wed Mar  3 12:14:16 CET 2010
-// $Id: HcalDetDiagLaserMonitor.cc,v 1.20 2011/11/14 13:29:05 apresyan Exp $
 //
 //
 
@@ -279,11 +278,11 @@ class HcalDetDiagLaserMonitor : public HcalBaseDQMonitor {
       }
       return &calib_data[SD][ETA+2][PHI-1];
       };   
-      void beginRun(const edm::Run& run, const edm::EventSetup& c);  
-      void endRun(const edm::Run& run, const edm::EventSetup& c);
-      void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) ;
-      void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);
-      void analyze(const edm::Event&, const edm::EventSetup&);
+      void beginRun(const edm::Run& run, const edm::EventSetup& c) override;  
+      void endRun(const edm::Run& run, const edm::EventSetup& c) override;
+      void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) override ;
+      void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       const HcalElectronicsMap  *emap;
       edm::InputTag inputLabelDigi_;

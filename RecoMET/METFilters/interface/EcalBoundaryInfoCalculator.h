@@ -36,7 +36,7 @@ public:
                                    CaloTopology> theCaloTopology, const edm::ESHandle<EcalChannelStatus> ecalStatus, const edm::ESHandle<
                                    CaloGeometry> geometry);
 
-    bool checkRecHitHasDeadNeighbour(const EcalRecHit hit, const edm::ESHandle<EcalChannelStatus> ecalStatus, std::vector<
+    bool checkRecHitHasDeadNeighbour(const EcalRecHit& hit, const edm::ESHandle<EcalChannelStatus> ecalStatus, std::vector<
                                      int> &stati) {
 
         stati.clear();
@@ -133,7 +133,7 @@ public:
 
     }
 
-    bool checkRecHitHasInvalidNeighbour(const EcalRecHit hit, const edm::ESHandle<EcalChannelStatus> ecalStatus) {
+    bool checkRecHitHasInvalidNeighbour(const EcalRecHit& hit, const edm::ESHandle<EcalChannelStatus> ecalStatus) {
         //// return true, if *direct* neighbour is invalid
 
         EcalDetId hitdetid = EcalDetId(hit.id());

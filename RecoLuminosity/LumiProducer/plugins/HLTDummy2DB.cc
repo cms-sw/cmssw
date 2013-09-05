@@ -22,9 +22,9 @@ namespace lumi{
   class HLTDummy2DB : public DataPipe{
   public:
     HLTDummy2DB( const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int );
-    virtual const std::string dataType() const;
-    virtual const std::string sourceType() const;
+    virtual unsigned long long retrieveData( unsigned int ) override;
+    virtual const std::string dataType() const override;
+    virtual const std::string sourceType() const override;
     virtual ~HLTDummy2DB();
   };//cl HLTDummy2DB
   //

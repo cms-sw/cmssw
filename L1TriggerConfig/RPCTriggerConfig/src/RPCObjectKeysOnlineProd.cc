@@ -13,7 +13,6 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Oct  2 19:35:26 CEST 2008
-// $Id: RPCObjectKeysOnlineProd.cc,v 1.3 2009/04/01 18:34:06 wsun Exp $
 //
 //
 
@@ -34,7 +33,7 @@ class RPCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       RPCObjectKeysOnlineProd(const edm::ParameterSet&);
       ~RPCObjectKeysOnlineProd();
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) ;
+      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
    private:
       // ----------member data ---------------------------
   bool m_enableL1RPCConfig ;

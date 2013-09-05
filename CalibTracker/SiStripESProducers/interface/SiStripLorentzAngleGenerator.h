@@ -25,11 +25,11 @@ class SiStripLorentzAngleGenerator : public SiStripCondObjBuilderBase<SiStripLor
   explicit SiStripLorentzAngleGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripLorentzAngleGenerator();
   
-  void getObj(SiStripLorentzAngle* & obj){createObject(); obj=obj_;}
+  void getObj(SiStripLorentzAngle* & obj){obj=createObject();}
 
  private:
 
-  void createObject();
+  SiStripLorentzAngle* createObject();
   float hallMobility_;
   /**
    * This method fills the hallMobility_ variable with different values according to the parameters passed in the cfg. <br>

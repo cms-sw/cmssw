@@ -111,7 +111,7 @@ void ODPedestalOffsetsDat::fetchData(std::vector< ODPedestalOffsetsDat >* p, ODF
 
 //  ************************************************************************   // 
 
-void ODPedestalOffsetsDat::writeArrayDB(const std::vector< ODPedestalOffsetsDat > data, ODFEPedestalOffsetInfo* iov)
+void ODPedestalOffsetsDat::writeArrayDB(const std::vector< ODPedestalOffsetsDat >& data, ODFEPedestalOffsetInfo* iov)
     throw(std::runtime_error)
 {
   this->checkConnection();

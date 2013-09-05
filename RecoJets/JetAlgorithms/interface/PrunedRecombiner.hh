@@ -1,4 +1,3 @@
-// $Id: PrunedRecombiner.hh 984 2010-12-20 22:35:41Z verm $
 ///////////////////////////////////////////////////////////////////////////////
 //
 // The PrunedRecombiner class.  This class extends any Recombiner

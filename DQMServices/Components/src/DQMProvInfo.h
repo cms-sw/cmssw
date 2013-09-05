@@ -4,8 +4,6 @@
 /*
  * \file DQMProvInfo.h
  *
- * $Date: 2010/09/20 15:25:20 $
- * $Revision: 1.13 $
  * \author A.Meyer - DESY
  *
 */

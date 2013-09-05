@@ -540,11 +540,11 @@ MessageLogger::preSource()
 void MessageLogger::postSource()
 { unEstablish("AfterSource"); }
 
-void MessageLogger::preFile()
+void MessageLogger::preFile( std::string const &, bool )
 {  establish("file_open"); }
 void MessageLogger::preFileClose( std::string const &, bool )
 {  establish("file_close"); }
-void MessageLogger::postFile()
+void MessageLogger::postFile( std::string const &, bool )
 { unEstablish("AfterFile"); }
 
 

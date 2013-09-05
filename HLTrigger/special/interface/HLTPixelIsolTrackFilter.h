@@ -3,14 +3,24 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class HLTPixelIsolTrackFilter : public HLTFilter {
 
    public:
       explicit HLTPixelIsolTrackFilter(const edm::ParameterSet&);
       ~HLTPixelIsolTrackFilter();
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
+      edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> candToken_;
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> hltGTseedToken_;
       edm::InputTag candTag_; 
       edm::InputTag hltGTseedlabel_;
       double maxptnearby_;    

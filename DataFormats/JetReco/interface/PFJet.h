@@ -10,7 +10,6 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.20 2010/03/10 21:52:19 pandolf Exp $
  ************************************************************/
 
 

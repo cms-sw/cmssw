@@ -19,8 +19,6 @@ namespace edm {
   * Abstract interface for the mutual transcoder required for compressing
   * and uncompressing the ET stored in HCAL and ECAL Trigger Primitives
   * 
-  * $Date: 2008/08/20 12:02:09 $
-  * $Revision: 1.6 $
   * \author J. Mans - Minnesota
   */
 class CaloTPGTranscoder {

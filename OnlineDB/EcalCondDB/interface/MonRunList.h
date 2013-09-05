@@ -22,9 +22,9 @@ class MonRunList  : public IDBObject {
 
   // Methods for user data
   
-  void setRunTag(RunTag tag);
+  void setRunTag(const RunTag& tag);
   RunTag getRunTag() const;
-  void setMonRunTag(MonRunTag tag);
+  void setMonRunTag(const MonRunTag& tag);
   MonRunTag getMonRunTag() const;
   std::vector<MonRunIOV> getRuns() ;
   

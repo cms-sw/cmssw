@@ -1,4 +1,3 @@
-// Last commit: $Id: NumberOfDevices.h,v 1.5 2007/03/21 09:54:20 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_NumberOfDevices_H
 #define CalibFormats_SiStripObjects_NumberOfDevices_H

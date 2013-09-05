@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
 from Validation.TrackerHits.trackerHitsValidation_cff import *
 from Validation.TrackerDigis.trackerDigisValidation_cff import *
 from Validation.TrackerRecHits.trackerRecHitsValidation_cff import *
@@ -37,7 +38,8 @@ from DQMOffline.RecoB.dqmAnalyzer_cff import *
 
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidation = cms.Sequence( 
-    tracksValidationSelectors
+    simHitTPAssocProducer
+  * tracksValidationSelectors
   * photonPrevalidationSequence
   * produceDenoms
   * prebTagSequence

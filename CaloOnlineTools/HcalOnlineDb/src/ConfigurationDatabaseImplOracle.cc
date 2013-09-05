@@ -1,4 +1,3 @@
-// $Id: ConfigurationDatabaseImplOracle.cc,v 1.3 2010/08/06 20:24:11 wmtan Exp $
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImplOracle.hh"
 

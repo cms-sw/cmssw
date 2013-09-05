@@ -29,7 +29,7 @@ class RecoTauPiZeroFlattener : public edm::EDProducer {
   public:
     explicit RecoTauPiZeroFlattener(const edm::ParameterSet &pset);
     ~RecoTauPiZeroFlattener() {}
-    void produce(edm::Event& evt, const edm::EventSetup& es);
+    void produce(edm::Event& evt, const edm::EventSetup& es) override;
   private:
     edm::InputTag jetSrc_;
     edm::InputTag piZeroSrc_;

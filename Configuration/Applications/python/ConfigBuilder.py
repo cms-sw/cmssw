@@ -1720,7 +1720,7 @@ class ConfigBuilder(object):
 	    loadMe='from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag'
 	    if not loadMe in self.additionalCommands:
 		    self.additionalCommands.append(loadMe)
-	    self.additionalCommands.append('massSearchReplaceAnyInputTag(process.%s,"%s","%s",False)'%(sequence,oldT,newT))
+	    self.additionalCommands.append('massSearchReplaceAnyInputTag(process.%s,"%s","%s",False,True)'%(sequence,oldT,newT))
 
     #change the process name used to address HLT results in any sequence
     def renameHLTprocessInSequence(self,sequence,proc=None,HLTprocess='HLT'):

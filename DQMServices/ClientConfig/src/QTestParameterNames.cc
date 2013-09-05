@@ -2,8 +2,6 @@
  *
  *  Implementation of QTestParameterNames 
  *
- *  $Date: 2010/03/14 13:07:53 $
- *  $Revision: 1.12 $
  *  \author Ilaria Segoni
  */
  
@@ -31,7 +29,7 @@ QTestParameterNames::QTestParameterNames(){
 
 	this->constructMap(CompareToMedianROOT::getAlgoName(), "MinRel", "MaxRel", "UseEmptyBins", "MinAbs", "MaxAbs");
 	this->constructMap(CompareLastFilledBinROOT::getAlgoName(), "AvVal", "MinVal", "MaxVal");
-
+	this->constructMap(CheckVarianceROOT::getAlgoName());
 }
   
 

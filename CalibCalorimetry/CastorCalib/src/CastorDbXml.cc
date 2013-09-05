@@ -1,6 +1,5 @@
 // F.Ratnikov (UMd), Oct 28, 2005
 // Modified by S. Won 6 May 2008
-// $Id: CastorDbXml.cc,v 1.1 2009/03/26 17:49:44 mundim Exp $
 //
 #include <vector>
 #include <string>

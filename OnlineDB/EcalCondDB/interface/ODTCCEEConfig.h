@@ -49,7 +49,7 @@ class ODTCCEEConfig : public IODConfig {
   inline void setSLBClob(unsigned char* x) { m_slb_clob = x; }
   inline unsigned char* getSLBClob() const { return m_slb_clob; }
 
-  void setParameters(std::map<std::string,std::string> my_keys_map);
+  void setParameters(const std::map<std::string,std::string>& my_keys_map);
 
   
  private:

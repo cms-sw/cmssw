@@ -1,5 +1,4 @@
 //
-// $Id: PFParticle.h,v 1.2 2008/10/08 19:04:42 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PFParticle_h
@@ -14,7 +13,6 @@
    isolated leptons or photons, or inside jets, end up as pat::PFParticles.
 
   \author   Colin Bernet
-  \version  $Id: PFParticle.h,v 1.2 2008/10/08 19:04:42 gpetrucc Exp $
 */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"

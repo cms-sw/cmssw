@@ -57,17 +57,17 @@ public:
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-   virtual void beginJob();
-   virtual void analyze(edm::Event const&, edm::EventSetup const&);
-   virtual void endJob();
-   virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-   virtual void preForkReleaseResources();
+   virtual void beginJob() override;
+   virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+   virtual void endJob() override;
+   virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) override;
+   virtual void preForkReleaseResources() override;
 
-   virtual void beginRun(edm::Run const& run, edm::EventSetup const& es);
-   virtual void endRun(edm::Run const& run, edm::EventSetup const& es);
+   virtual void beginRun(edm::Run const& run, edm::EventSetup const& es) override;
+   virtual void endRun(edm::Run const& run, edm::EventSetup const& es) override;
    
-   virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
-   virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
+   virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
+   virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
 
    void check(edm::EventID const& iID, bool isEvent);
    

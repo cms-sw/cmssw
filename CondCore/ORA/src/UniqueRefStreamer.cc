@@ -145,7 +145,7 @@ namespace ora {
         m_valid = true;
       }
       
-      void* load() const {
+      void* load() const override {
         if(!m_valid){
           throwException("Ref Loader has been invalidate.",
                          "RelationalRefLoader::load");
@@ -153,11 +153,11 @@ namespace ora {
         return m_reader.read( m_refId );
       }
 
-      void invalidate(){
+      void invalidate() override{
         m_valid = false;
       }
 
-      bool isValid() const{
+      bool isValid() const override{
         return m_valid;
       }
       

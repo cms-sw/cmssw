@@ -1,8 +1,6 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2012/04/13 17:59:46 $
- * $Revision: 1.111.2.1 $
  * \author G. Della Ricca
  *
 */

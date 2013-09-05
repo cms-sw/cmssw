@@ -84,7 +84,7 @@ namespace TauTagTools{
 
   class refVectorPtSorter {
   public:
-    refVectorPtSorter(const reco::PFCandidateRefVector vec)
+    refVectorPtSorter(const reco::PFCandidateRefVector& vec)
       {
 	vec_ = vec;
       }

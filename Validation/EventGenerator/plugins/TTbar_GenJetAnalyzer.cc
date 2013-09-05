@@ -8,6 +8,10 @@ TTbar_GenJetAnalyzer::TTbar_GenJetAnalyzer(const edm::ParameterSet& iConfig):
    //now do what ever initialization is needed
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
+
+  genEventInfoProductTagToken_=consumes<GenEventInfoProduct>(genEventInfoProductTag_);
+  jetsToken_=consumes<std::vector<reco::GenJet> >(jets_);
+
 }
 
 
@@ -33,13 +37,13 @@ TTbar_GenJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
  
   // --- the MC weights ---
   Handle<GenEventInfoProduct> evt_info;
-  iEvent.getByLabel(genEventInfoProductTag_, evt_info);
+  iEvent.getByToken(genEventInfoProductTagToken_, evt_info);
   if(!evt_info.isValid()) return;
   weight = evt_info->weight() ;
 
   // Gather information in the GenJet collection
   edm::Handle<std::vector<reco::GenJet> > jets;
-  iEvent.getByLabel(jets_, jets );
+  iEvent.getByToken(jetsToken_, jets );
 
   if(!jets.isValid()) return;
   // loop Jet collection and fill histograms

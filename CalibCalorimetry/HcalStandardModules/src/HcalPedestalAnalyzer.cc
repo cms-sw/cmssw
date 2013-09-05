@@ -20,8 +20,6 @@
 /*
  * \file HcalPedestalAnalyzer.cc
  * 
- * $Date: 2012/10/09 14:58:05 $
- * $Revision: 1.15 $
  * \author S Stoynev / W Fisher
  *
 */

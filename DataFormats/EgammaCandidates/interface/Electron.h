@@ -6,7 +6,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Electron.h,v 1.12 2009/03/20 22:59:16 chamont Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"

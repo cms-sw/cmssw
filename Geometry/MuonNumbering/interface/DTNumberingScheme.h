@@ -26,9 +26,9 @@ class DTNumberingScheme : public MuonNumberingScheme {
   DTNumberingScheme( const MuonDDDConstants& muonConstants );
   ~DTNumberingScheme(){}
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber num);
+  virtual int baseNumberToUnitNumber(const MuonBaseNumber& num);
 
-  int getDetId(const MuonBaseNumber num) const;
+  int getDetId(const MuonBaseNumber& num) const;
   
  private:
 

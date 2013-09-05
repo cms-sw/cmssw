@@ -19,19 +19,19 @@ namespace edm {
   }
 
   void
-  RunPrincipal::fillRunPrincipal(DelayedReader* reader) {
+  RunPrincipal::fillRunPrincipal(ProcessHistoryRegistry& processHistoryRegistry, DelayedReader* reader) {
     complete_ = false;
 
-    fillPrincipal(aux_->processHistoryID(), reader);
+    fillPrincipal(aux_->processHistoryID(), processHistoryRegistry, reader);
 
     for(auto const& prod : *this) {
-      prod->setProcessHistoryID(processHistoryID());
+      prod->setProcessHistory(processHistory());
     }
   }
 
   void
   RunPrincipal::put(
-        ConstBranchDescription const& bd,
+        BranchDescription const& bd,
         WrapperOwningHolder const& edp) {
 
     // Assert commented out for LHESource.

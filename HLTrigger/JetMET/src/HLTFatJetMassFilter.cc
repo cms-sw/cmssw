@@ -9,8 +9,6 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
@@ -42,6 +40,7 @@ HLTFatJetMassFilter<jetType>::HLTFatJetMassFilter(const edm::ParameterSet& iConf
   minJetPt_     (iConfig.template getParameter<double> ("minJetPt")),
   triggerType_  (iConfig.template getParameter<int> ("triggerType"))
 {
+  m_theJetToken = consumes<std::vector<jetType>>(inputJetTag_);
   LogDebug("") << "HLTFatJetMassFilter: Input/minMass/fatJetDeltaR/maxDeltaEta/maxJetEta/minJetPt/triggerType : "
 	       << inputJetTag_.encode() << " "
 	       << minMass_ << " " 
@@ -87,7 +86,7 @@ HLTFatJetMassFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::EventSetu
   
   // All jets
   Handle<JetCollection> objects;
-  iEvent.getByLabel (inputJetTag_,objects);
+  iEvent.getByToken ( m_theJetToken,objects);
   
   // Selected jets
   CaloJetCollection recojets;

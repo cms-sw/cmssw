@@ -16,7 +16,6 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:51 CET 2006
-// $Id: SiStripHistoId.h,v 1.5 2013/01/02 17:37:22 wmtan Exp $
 //
 
 #include <string>

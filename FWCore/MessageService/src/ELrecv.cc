@@ -25,13 +25,13 @@ namespace service {
 class ELservConSup : public ELcontextSupplier  {
 
 public:
-  ELstring context()                      const  { return con_; }
-  ELstring summaryContext()               const  { return sumcon_; }
-  ELstring fullContext()                  const  { return fullcon_; }
+  ELstring context()                      const override  { return con_; }
+  ELstring summaryContext()               const override  { return sumcon_; }
+  ELstring fullContext()                  const override  { return fullcon_; }
   void setContext        ( const ELstring & s )  { con_     = s; }
   void setSummaryContext ( const ELstring & s )  { sumcon_  = s; }
   void setFullContext    ( const ELstring & s )  { fullcon_ = s; }
-  ELservConSup * clone() const {  return new ELservConSup ( *this );   }
+  ELservConSup * clone() const override {  return new ELservConSup ( *this );   }
 private:
   ELstring  con_;
   ELstring  sumcon_;

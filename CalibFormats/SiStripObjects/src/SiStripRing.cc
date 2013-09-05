@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripRing.cc,v 1.6 2007/03/28 09:13:33 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripRing.h"
 #include <iostream>

@@ -1,8 +1,6 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2012/04/20 06:20:35 $
- * $Revision: 1.78.2.2 $
  * \author G. Della Ricca
  *
 */

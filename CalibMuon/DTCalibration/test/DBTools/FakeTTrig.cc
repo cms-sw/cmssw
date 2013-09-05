@@ -1,8 +1,6 @@
  /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/19 09:51:31 $
- *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -26,11 +24,11 @@
 
 // Database
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
-#include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
+#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 //Random generator
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include <CLHEP/Random/RandGaussQ.h>
+#include "CLHEP/Random/RandGaussQ.h"
 
 // DTDigitizer
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"

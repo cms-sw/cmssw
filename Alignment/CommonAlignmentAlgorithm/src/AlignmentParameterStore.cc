@@ -250,8 +250,9 @@ align::Alignables AlignmentParameterStore::validAlignables(void) const
 }
 
 //__________________________________________________________________________________________________
-Alignable* AlignmentParameterStore::alignableFromAlignableDet( AlignableDetOrUnitPtr alignableDet ) const
+Alignable* AlignmentParameterStore::alignableFromAlignableDet( const AlignableDetOrUnitPtr& _alignableDet ) const
 {
+  AlignableDetOrUnitPtr alignableDet = _alignableDet;
   Alignable *mother = alignableDet;
   while (mother) {
     if (mother->alignmentParameters()) return mother;

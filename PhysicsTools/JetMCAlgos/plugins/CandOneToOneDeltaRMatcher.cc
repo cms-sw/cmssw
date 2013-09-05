@@ -19,7 +19,7 @@ class CandOneToOneDeltaRMatcher : public edm::EDProducer {
   CandOneToOneDeltaRMatcher( const edm::ParameterSet & );
   ~CandOneToOneDeltaRMatcher();
  private:
-  void produce( edm::Event&, const edm::EventSetup& );
+  void produce( edm::Event&, const edm::EventSetup& ) override;
   double lenght( const std::vector<int>& );
   std::vector<int> AlgoBruteForce(int, int);
   std::vector<int> AlgoSwitchMethod(int, int);

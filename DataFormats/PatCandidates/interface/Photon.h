@@ -1,5 +1,4 @@
 //
-// $Id: Photon.h,v 1.23 2009/10/15 17:37:53 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -16,7 +15,6 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Photon.h,v 1.23 2009/10/15 17:37:53 rwolf Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"

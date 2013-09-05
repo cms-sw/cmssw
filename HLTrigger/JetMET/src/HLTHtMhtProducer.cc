@@ -8,13 +8,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 
 HLTHtMhtProducer::HLTHtMhtProducer(const edm::ParameterSet & iConfig) :
@@ -31,6 +27,9 @@ HLTHtMhtProducer::HLTHtMhtProducer(const edm::ParameterSet & iConfig) :
   tracksLabel_    ( iConfig.getParameter<edm::InputTag>("tracksLabel") ),
   pfCandidatesLabel_ ( iConfig.getParameter<edm::InputTag>("pfCandidatesLabel") )
 {
+  m_theJetToken = consumes<edm::View<reco::Jet>>(jetsLabel_);
+  m_theTrackToken = consumes<reco::TrackCollection>(tracksLabel_);
+  m_thePfCandidateToken = consumes<reco::PFCandidateCollection>(pfCandidatesLabel_);
   produces<reco::METCollection>();
 }
 
@@ -63,11 +62,11 @@ void HLTHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   //edm::Handle<reco::CaloJetCollection> jets;
   edm::Handle<edm::View<reco::Jet> > jets;
-  iEvent.getByLabel(jetsLabel_, jets);
+  iEvent.getByToken(m_theJetToken, jets);
   edm::Handle<reco::TrackCollection> tracks;
-  if (useTracks_) iEvent.getByLabel(tracksLabel_, tracks);
+  if (useTracks_) iEvent.getByToken(m_theTrackToken, tracks);
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
-  if (excludePFMuons_) iEvent.getByLabel(pfCandidatesLabel_, pfCandidates);
+  if (excludePFMuons_) iEvent.getByToken(m_thePfCandidateToken, pfCandidates);
   
   int nj_ht = 0, nj_mht = 0;
   double ht=0.;

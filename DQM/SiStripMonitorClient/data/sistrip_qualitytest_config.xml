@@ -184,16 +184,16 @@
 <LINK name="*Summary_ClusterStoNCorr__OnTrack__TOB__layer__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTOB</TestName>
 </LINK>
-<LINK name="*Summary_ClusterStoNCorr__OnTrack__TEC__side__1__wheel__*">
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TEC__MINUS__wheel__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTEC</TestName>
 </LINK>
-<LINK name="*Summary_ClusterStoNCorr__OnTrack__TEC__side__2__wheel__*">
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TEC__PLUS__wheel__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTEC</TestName>
 </LINK>
-<LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__side__1__wheel__*">
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__MINUS__wheel__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
 </LINK>
-<LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__side__2__wheel__*">
+<LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__PLUS__wheel__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
 </LINK>
 <LINK name="*TrackParameters/GeneralProperties/GoodTracks/NumberOfGoodTracks_GenTk">
