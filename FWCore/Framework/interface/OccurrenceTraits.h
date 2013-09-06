@@ -54,7 +54,7 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry *a, EventPrincipal* ep, EventSetup const* es, StreamContext const* streamContext) {
       edm::ModuleDescription modDesc("postScheduledSignal", "");
       ParentContext parentContext(streamContext);
-      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
+      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext, nullptr);
       Event ev(*ep, ModuleDescription(), &moduleCallingContext);
       a->postProcessEventSignal_(ev, *es);
       a->postEventSignal_(*streamContext, ev, *es);
@@ -103,7 +103,7 @@ namespace edm {
       // Next 4 lines not needed when we go to threaded interface
       edm::ModuleDescription modDesc("postScheduledSignal", "");
       ParentContext parentContext(globalContext);
-      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
+      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext, nullptr);
       Run run(*ep, ModuleDescription(), &moduleCallingContext);
       a->postBeginRunSignal_(run, *es);
       a->postGlobalBeginRunSignal_(*globalContext);
@@ -182,7 +182,7 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* ep, EventSetup const* es, StreamContext const* streamContext) {
       edm::ModuleDescription modDesc("postScheduledSignal", "");
       ParentContext parentContext(streamContext);
-      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
+      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext, nullptr);
       Run run(*ep, ModuleDescription(), &moduleCallingContext);
       a->postStreamEndRunSignal_(*streamContext, run, *es);
     }
@@ -223,7 +223,7 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* ep, EventSetup const* es, GlobalContext const* globalContext) {
       edm::ModuleDescription modDesc("postScheduledSignal", "");
       ParentContext parentContext(globalContext);
-      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
+      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext, nullptr);
       Run run(*ep, ModuleDescription(), &moduleCallingContext);
       a->postEndRunSignal_(run, *es);
       a->postGlobalEndRunSignal_(*globalContext, run, *es);
@@ -270,7 +270,7 @@ namespace edm {
       // Next 4 lines not needed when we go to threaded interface
       edm::ModuleDescription modDesc("postScheduledSignal", "");
       ParentContext parentContext(globalContext);
-      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
+      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext, nullptr);
       LuminosityBlock lumi(*ep, ModuleDescription(), &moduleCallingContext);
       a->postBeginLumiSignal_(lumi, *es);
       a->postGlobalBeginLumiSignal_(*globalContext);
@@ -351,7 +351,7 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal* ep, EventSetup const* es, StreamContext const* streamContext) {
       edm::ModuleDescription modDesc("postScheduledSignal", "");
       ParentContext parentContext(streamContext);
-      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
+      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext, nullptr);
       LuminosityBlock lumi(*ep, ModuleDescription(), &moduleCallingContext);
       a->postStreamEndLumiSignal_(*streamContext, lumi, *es);
     }
@@ -392,7 +392,7 @@ namespace edm {
     static void postScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal* ep, EventSetup const* es, GlobalContext const* globalContext) {
       edm::ModuleDescription modDesc("postScheduledSignal", "");
       ParentContext parentContext(globalContext);
-      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
+      ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext, nullptr);
       LuminosityBlock lumi(*ep, ModuleDescription(), &moduleCallingContext);
       a->postEndLumiSignal_(lumi, *es);
       a->postGlobalEndLumiSignal_(*globalContext, lumi, *es); 

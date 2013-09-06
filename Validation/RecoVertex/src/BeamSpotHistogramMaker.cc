@@ -29,7 +29,7 @@ BeamSpotHistogramMaker::~BeamSpotHistogramMaker() {
 void BeamSpotHistogramMaker::book(const std::string dirname) {
 
   edm::Service<TFileService> tfserv;
-  TFileDirectory* currdir = &(*tfserv);
+  TFileDirectory* currdir = &(tfserv->tFileDirectory());
 
   if(dirname!="") {
     currdir = new TFileDirectory(tfserv->mkdir(dirname));
@@ -85,7 +85,7 @@ void BeamSpotHistogramMaker::beginRun(const unsigned int nrun) {
   TFileDirectory* currdir = _currdir;
   if(currdir==0) {
     edm::Service<TFileService> tfserv;
-    currdir = &(*tfserv);
+    currdir = &(tfserv->tFileDirectory());
   }
 
   _rhm.beginRun(nrun,*currdir);
