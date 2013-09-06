@@ -26,7 +26,7 @@ static void initTest(void)
   try
   {
     gobbleUpTheGoop = boost::shared_ptr<edm::Presence>
-      (edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
+      (edm::PresenceFactory::get()->makePresence("SingleThreadMSPresence").release());
   }
   catch (cms::Exception &e)
   {
