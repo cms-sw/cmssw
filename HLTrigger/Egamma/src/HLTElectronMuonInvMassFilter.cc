@@ -42,8 +42,6 @@ HLTElectronMuonInvMassFilter::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<edm::InputTag>("ElectronL1IsoCand",edm::InputTag("hltPixelMatchElectronsActivity"));
   desc.add<edm::InputTag>("ElectronL1NonIsoCand",edm::InputTag("hltPixelMatchElectronsActivity"));
   desc.add<edm::InputTag>("MuonCand",edm::InputTag("hltL3MuonCandidates"));
-  desc.add<edm::InputTag>("isoTag",edm::InputTag("hltSingleElectronTrackIsol"));
-  desc.add<edm::InputTag>("nonIsoTag",edm::InputTag("hltSingleElectronHcalTrackIsol"));
   descriptions.add("hltElectronMuonInvMassFilter",desc);  
 }
 

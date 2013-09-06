@@ -42,8 +42,8 @@ HLTElectronOneOEMinusOneOPFilterRegional::fillDescriptions(edm::ConfigurationDes
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("candTag",edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"));
-  desc.add<edm::InputTag>("electronIsolatedProducer",edm::InputTag("pixelMatchElectronsL1Iso"));
-  desc.add<edm::InputTag>("electronNonIsolatedProducer",edm::InputTag("pixelMatchElectronsL1NonIso"));
+  desc.add<edm::InputTag>("electronIsolatedProducer",edm::InputTag("hltPixelMatchElectronsL1Iso"));
+  desc.add<edm::InputTag>("electronNonIsolatedProducer",edm::InputTag("hltPixelMatchElectronsL1NonIso"));
   desc.add<double>("barrelcut",999.9);
   desc.add<double>("endcapcut",999.9);
   desc.add<int>("ncandcut",1);
