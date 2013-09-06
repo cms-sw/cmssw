@@ -57,13 +57,20 @@ namespace cond{
   public:
 
     // default constructor
+    IOVEditor();
+
+    /// Destructor
+    ~IOVEditor();
+
+    // 
     explicit IOVEditor(cond::DbSession& dbSess);
 
     // constructor from existing iov
     IOVEditor( cond::DbSession& dbSess, const std::string& token);
  
-    /// Destructor
-    ~IOVEditor();
+    IOVEditor( const IOVEditor& rhs );
+
+    IOVEditor& operator=( const IOVEditor& rhs );
 
     void reload();
 
@@ -123,7 +130,7 @@ namespace cond{
 
     std::string const & token() const; 
 
-    cond::IOVProxy proxy();
+    cond::IOVProxy proxy() const;
 
   private:
 

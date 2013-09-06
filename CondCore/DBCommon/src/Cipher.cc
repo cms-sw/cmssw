@@ -66,13 +66,24 @@ size_t cond::Cipher::encrypt( const std::string& input, unsigned char*& output )
 std::string cond::Cipher::decrypt( const unsigned char* input, size_t inputSize ){
   unsigned char* out = 0;
   size_t outSize = bf_process_alloc( input, inputSize, out, true );
+  size_t i = 0;
+  for( i=0;i<outSize; i++ ) {
+    if( out[i]==0 ) break;
+  }
+
   char* sout = reinterpret_cast<char*>(out);
   // the output can still contain one or more \0 chars...
-  size_t soutSize = strlen( sout ); 
+  //size_t soutSize = strlen( sout ); 
+  size_t soutSize = 0;
+  for( soutSize=0; soutSize<outSize; soutSize++) if( out[soutSize]==0 ) break;
+
   if( soutSize < outSize ){
     outSize = soutSize;
   }
-  std::string ret( sout, outSize );
+
+  std::string ret("");
+  if( outSize ) 
+    ret = std::string( sout, outSize );
   free (out );
   return ret;
 }

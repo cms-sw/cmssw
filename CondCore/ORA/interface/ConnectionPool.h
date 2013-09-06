@@ -23,6 +23,7 @@ namespace ora {
     SharedSession& operator=( const SharedSession& rhs );
     bool isValid();
     coral::ISessionProxy& get();
+    boost::shared_ptr<coral::ISessionProxy> share();
     void close();
     private:
     boost::shared_ptr<coral::ISessionProxy> m_proxy;
