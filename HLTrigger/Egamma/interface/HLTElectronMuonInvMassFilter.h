@@ -28,6 +28,10 @@
 #include "TLorentzVector.h"
 #include "TVector3.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -38,11 +42,13 @@ class HLTElectronMuonInvMassFilter : public HLTFilter {
       explicit HLTElectronMuonInvMassFilter(const edm::ParameterSet&);
       ~HLTElectronMuonInvMassFilter();
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);      
-
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       edm::InputTag eleCandTag_;
       edm::InputTag muonCandTag_; 
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> eleCandToken_;
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> muonCandToken_;
 
       double lowerMassCut_;
       double upperMassCut_;

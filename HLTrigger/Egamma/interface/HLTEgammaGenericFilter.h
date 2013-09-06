@@ -9,6 +9,13 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -19,11 +26,15 @@ class HLTEgammaGenericFilter : public HLTFilter {
       explicit HLTEgammaGenericFilter(const edm::ParameterSet&);
       ~HLTEgammaGenericFilter();
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       edm::InputTag candTag_; // input tag identifying product that contains filtered photons
       edm::InputTag isoTag_; // input tag identifying product that contains isolated map
       edm::InputTag nonIsoTag_; // input tag identifying product that contains non-isolated map
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
+      edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> isoToken_;
+      edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> nonIsoToken_;
       bool lessThan_;           // the cut is "<" or ">" ?
       bool useEt_;              // use E or Et in relative isolation cuts
       double thrRegularEB_;     // threshold for regular cut (x < thr) - ECAL barrel 
