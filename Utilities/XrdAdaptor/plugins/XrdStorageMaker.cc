@@ -6,11 +6,18 @@
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
 
-// These are to be removed once the new client supports prepare requests.
-#include "XrdClient/XrdClientAdmin.hh"
-#include "XrdClient/XrdClientUrlSet.hh"
 #include "XrdCl/XrdClDefaultEnv.hh"
 
+class MakerResponseHandler : public XrdCl::ResponseHandler
+{
+public:
+    virtual void HandleResponse( XrdCl::XRootDStatus *status,
+                                 XrdCl::AnyObject    *response )
+    {
+        if (response) delete response;
+    }
+
+};
 
 class XrdStorageMaker : public StorageMaker
 {
@@ -40,13 +47,10 @@ public:
   virtual void stagein (const std::string &proto, const std::string &path) override
   {
     std::string fullpath(proto + ":" + path);
-    XrdClientAdmin admin(fullpath.c_str());
-    if (admin.Connect())
-    {
-      XrdOucString str(fullpath.c_str());
-      XrdClientUrlSet url(str);
-      admin.Prepare(url.GetFile().c_str(), kXR_stage | kXR_noerrs, 0);
-    }
+    XrdCl::URL url(fullpath);
+    XrdCl::FileSystem fs(url);
+    std::vector<std::string> fileList; fileList.push_back(url.GetPath());
+    fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, &m_null_handler);
   }
 
   virtual bool check (const std::string &proto,
@@ -54,22 +58,16 @@ public:
 		      IOOffset *size = 0) override
   {
     std::string fullpath(proto + ":" + path);
-    XrdClientAdmin admin(fullpath.c_str());
-    if (! admin.Connect())
-      return false; // FIXME: Throw?
+    XrdCl::URL url(fullpath);
+    XrdCl::FileSystem fs(url);
 
-    long      id;
-    long      flags;
-    long      modtime;
-    long long xrdsize;
+    XrdCl::StatInfo *stat;
+    if (!(fs.Stat(fullpath, stat)).IsOK() || (stat == nullptr))
+    {
+        return false;
+    }
 
-    XrdOucString str(fullpath.c_str());
-    XrdClientUrlSet url(str);
-
-    if (! admin.Stat(url.GetFile().c_str(), id, xrdsize, flags, modtime))
-      return false; // FIXME: Throw?
-
-    *size = xrdsize;
+    if (size) *size = stat->GetSize();
     return true;
   }
 
@@ -99,6 +97,9 @@ public:
         throw ex;
     }
   }
+
+private:
+  MakerResponseHandler m_null_handler;
 };
 
 DEFINE_EDM_PLUGIN (StorageMakerFactory, XrdStorageMaker, "root");
