@@ -39,7 +39,7 @@ HLTEgammaDoubleEtDeltaPhiFilter::fillDescriptions(edm::ConfigurationDescriptions
    desc.add<edm::InputTag>("inputTag",edm::InputTag("hltDoublePhotonEt5L1MatchFilterRegional"));
    desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
    desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
-   desc.add<bool>("relaxed",false);
+   desc.addUntracked<bool>("relaxed",false);
    desc.add<double>("etcut", 5.0);
    desc.add<double>("minDeltaPhi", 2.5);
    descriptions.add("hltEgammaDoubleEtDeltaPhiFilter",desc);

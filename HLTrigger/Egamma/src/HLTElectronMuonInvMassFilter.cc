@@ -24,6 +24,8 @@ HLTElectronMuonInvMassFilter::HLTElectronMuonInvMassFilter(const edm::ParameterS
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("ElectronL1IsoCand"); 
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("ElectronL1NonIsoCand");
   MuonCollTag_= iConfig.getParameter< edm::InputTag > ("MuonCand");
+  eleCandToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(eleCandTag_);
+  muonCandToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(muonCandTag_);
 }
 
 
@@ -38,7 +40,7 @@ HLTElectronMuonInvMassFilter::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("lowerMassCut",4.0);
   desc.add<double>("upperMassCut",999999.0);
   desc.add<int>("ncandcut",1);
-  desc.add<bool>("electronRelaxed",true);
+  desc.addUntracked<bool>("electronRelaxed",true);
   desc.add<edm::InputTag>("ElectronL1IsoCand",edm::InputTag("hltPixelMatchElectronsActivity"));
   desc.add<edm::InputTag>("ElectronL1NonIsoCand",edm::InputTag("hltPixelMatchElectronsActivity"));
   desc.add<edm::InputTag>("MuonCand",edm::InputTag("hltL3MuonCandidates"));
@@ -67,7 +69,7 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   edm::Handle<trigger::TriggerFilterObjectWithRefs> EleFromPrevFilter;
   iEvent.getByToken (eleCandToken_,EleFromPrevFilter); 
 
-  edm::Handle<TriggerFilterObjectWithRefs> MuonFromPrevFilter;
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> MuonFromPrevFilter;
   iEvent.getByToken (muonCandToken_,MuonFromPrevFilter);
 
   std::vector<TLorentzVector> pElectron;

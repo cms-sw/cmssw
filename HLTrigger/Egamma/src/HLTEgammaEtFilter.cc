@@ -38,7 +38,7 @@ HLTEgammaEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions
    desc.add<edm::InputTag>("inputTag",edm::InputTag("HLTEgammaL1MatchFilter"));
    desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
    desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
-   desc.add<bool>("relaxed",true);
+   desc.addUntracked<bool>("relaxed",true);
    desc.add<double>("etcutEB", 1.0);
    desc.add<double>("etcutEE", 1.0);
    desc.add<int>("ncandcut", 1);
