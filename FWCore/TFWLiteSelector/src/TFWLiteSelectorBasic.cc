@@ -61,7 +61,9 @@ namespace edm {
       void setTree(TTree* iTree) {eventTree_ = iTree;}
       void set(boost::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
      private:
+      WrapperOwningHolder getTheProduct(BranchKey const& k) const;
       virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const override;
+      virtual WrapperOwningHolder getProductInStream_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep, StreamID const& streamID) const override;
       virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::auto_ptr<EventEntryDescription>();
       }
@@ -74,6 +76,17 @@ namespace edm {
 
     WrapperOwningHolder
     FWLiteDelayedReader::getProduct_(BranchKey const& k, WrapperInterfaceBase const* /*interface*/, EDProductGetter const* /*ep*/) const {
+      return getTheProduct(k);
+    }
+
+    WrapperOwningHolder
+    FWLiteDelayedReader::getProductInStream_(BranchKey const& k, WrapperInterfaceBase const* /*interface*/, EDProductGetter const* /*ep*/, StreamID const&) const {
+      return getTheProduct(k); 
+    }
+
+
+    WrapperOwningHolder
+    FWLiteDelayedReader::getTheProduct(BranchKey const& k) const {
       ProductRegistry::ProductList::const_iterator itFind= reg_->productList().find(k);
       if(itFind == reg_->productList().end()) {
         throw Exception(errors::ProductNotFound) << "could not find entry for product " << k;
@@ -452,7 +465,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   }
   m_->branchIDListHelper_->updateFromInput(*branchIDListsPtr);
   m_->reg_->setFrozen();
-  m_->ep_.reset(new edm::EventPrincipal(m_->reg_, m_->branchIDListHelper_, m_->pc_, nullptr,edm::StreamID::invalidStreamID()));
+  m_->ep_.reset(new edm::EventPrincipal(m_->reg_, m_->branchIDListHelper_, m_->pc_, nullptr, edm::StreamID::invalidStreamID()));
   everythingOK_ = true;
 }
 

@@ -27,6 +27,7 @@ namespace edm {
   }
   RootTree::RootTree(boost::shared_ptr<InputFile> filePtr,
                      BranchType const& branchType,
+                     unsigned int nStreams,
                      unsigned int maxVirtualSize,
                      unsigned int cacheSize,
                      unsigned int learningEntries,
@@ -44,6 +45,7 @@ namespace edm {
     triggerSet_(),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
+    entryNumberForStream_((branchType == InEvent) ? new std::vector<EntryNumber>(nStreams, -1LL) : nullptr),
     branchNames_(),
     branches_(new BranchMap),
     trainNow_(false),
@@ -82,6 +84,20 @@ namespace edm {
   }
 
   RootTree::~RootTree() {
+  }
+
+  RootTree::EntryNumber const&
+  RootTree::entryNumberForStream(StreamID const& streamID) const {
+    auto value = streamID.value();
+    assert(value < entryNumberForStream_->size());
+    return (*entryNumberForStream_)[value];
+  }
+
+  void
+  RootTree::insertEntryForStream(StreamID const& streamID) {
+    auto value = streamID.value();
+    assert(value < entryNumberForStream_->size());
+    (*entryNumberForStream_)[value] = entryNumber();
   }
 
   bool

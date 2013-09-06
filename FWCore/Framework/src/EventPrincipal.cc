@@ -163,7 +163,7 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(phb.branchDescription());
-    WrapperOwningHolder edp(reader()->getProduct(bk, phb.productData().getInterface(), this));
+    WrapperOwningHolder edp(reader()->getProductInStream(bk, phb.productData().getInterface(), this, streamID()));
 
     // Now fix up the ProductHolder
     checkUniquenessAndType(edp, &phb);

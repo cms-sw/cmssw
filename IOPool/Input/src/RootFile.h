@@ -63,6 +63,7 @@ namespace edm {
              bool skipAnyEvents,
              int remainingEvents,
              int remainingLumis,
+             unsigned int nStreams,
              unsigned int treeCacheSize,
              int treeMaxVirtualSize,
              InputSource::ProcessingMode processingMode,

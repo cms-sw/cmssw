@@ -10,6 +10,8 @@
 #include "TBranch.h"
 #include "TClass.h"
 
+#include <cassert>
+
 namespace edm {
 
   RootDelayedReader::RootDelayedReader(
@@ -35,7 +37,7 @@ namespace edm {
     }
     roottree::BranchInfo const& branchInfo = getBranchInfo(iter);
     TBranch* br = branchInfo.productBranch_;
-    if (br == 0) {
+    if (nullptr == br) {
       if (nextReader_) {
         return nextReader_->getProduct(k, interface, ep);
       } else {
@@ -44,13 +46,50 @@ namespace edm {
     }
     setRefCoreStreamer(ep);
     TClass* cp = branchInfo.classCache_;
-    if(0 == cp) {
+    if(nullptr == cp) {
       branchInfo.classCache_ = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
       cp = branchInfo.classCache_;
     }
     void* p = cp->New();
     br->SetAddress(&p);
     tree_.getEntry(br, entryNumber());
+    if(tree_.branchType() == InEvent) {
+      InputFile::reportReadBranch(std::string(br->GetName()));
+    }
+    setRefCoreStreamer(false);
+    WrapperOwningHolder edp(p, interface);
+    return edp;
+  }
+
+  WrapperOwningHolder
+  RootDelayedReader::getProductInStream_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep, StreamID const& streamID) const {
+    iterator iter = branchIter(k);
+    if (!found(iter)) {
+      if (nextReader_) {
+        return nextReader_->getProductInStream(k, interface, ep, streamID);
+      } else {
+        return WrapperOwningHolder();
+      }
+    }
+    roottree::BranchInfo const& branchInfo = getBranchInfo(iter);
+    TBranch* br = branchInfo.productBranch_;
+    if (br == nullptr) {
+      if (nextReader_) {
+        return nextReader_->getProductInStream(k, interface, ep, streamID);
+      } else {
+        return WrapperOwningHolder();
+      }
+    }
+   
+    setRefCoreStreamer(ep);
+    TClass* cp = branchInfo.classCache_;
+    if(nullptr == cp) {
+      branchInfo.classCache_ = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
+      cp = branchInfo.classCache_;
+    }
+    void* p = cp->New();
+    br->SetAddress(&p);
+    tree_.getEntry(br, tree_.entryNumberForStream(streamID));
     if(tree_.branchType() == InEvent) {
       InputFile::reportReadBranch(std::string(br->GetName()));
     }

@@ -54,21 +54,24 @@ namespace edm {
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
     rootServiceChecker_(),
-    primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), 
+    primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), desc.nStreams_,
                                                    primary() ? InputType::Primary : InputType::SecondarySource)),
-    secondaryFileSequence_(catalog(1).empty() ? 0 :
-                           new RootInputFileSequence(pset, *this, catalog(1), InputType::SecondaryFile)),
+    secondaryFileSequence_(catalog(1).empty() ? nullptr :
+                           new RootInputFileSequence(pset, *this, catalog(1), desc.nStreams_, InputType::SecondaryFile)),
     secondaryRunPrincipal_(),
     secondaryLumiPrincipal_(),
-    secondaryEventPrincipal_(secondaryFileSequence_ ?
-                             new EventPrincipal(secondaryFileSequence_->fileProductRegistry(),
-                                                secondaryFileSequence_->fileBranchIDListHelper(),
-                                                processConfiguration(),
-                                                nullptr,
-                                                StreamID::invalidStreamID()) : 0),
+    secondaryEventPrincipals_(),
     branchIDsToReplace_() {
     if(secondaryFileSequence_) {
       assert(primary());
+      secondaryEventPrincipals_.reserve(desc.nStreams_);
+      for(unsigned int index = 0; index < desc.nStreams_; ++index) {
+        secondaryEventPrincipals_.emplace_back(new EventPrincipal(secondaryFileSequence_->fileProductRegistry(),
+                                                                  secondaryFileSequence_->fileBranchIDListHelper(),
+                                                                  processConfiguration(),
+                                                                  nullptr,
+                                                                  index));
+      }
       std::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
       ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry()->productList();
       ProductRegistry::ProductList const& primary = primaryFileSequence_->fileProductRegistry()->productList();
@@ -193,12 +196,13 @@ namespace edm {
                                                       eventPrincipal.luminosityBlock(),
                                                       eventPrincipal.id().event());
       if(found) {
-        secondaryFileSequence_->readEvent(*secondaryEventPrincipal_);
-        checkConsistency(eventPrincipal, *secondaryEventPrincipal_);
-        checkHistoryConsistency(eventPrincipal, *secondaryEventPrincipal_);
-        eventPrincipal.recombine(*secondaryEventPrincipal_, branchIDsToReplace_[InEvent]);
-        eventPrincipal.mergeMappers(*secondaryEventPrincipal_);
-        secondaryEventPrincipal_->clearPrincipal();
+        EventPrincipal& secondaryEventPrincipal = *secondaryEventPrincipals_[eventPrincipal.streamID().value()];
+        secondaryFileSequence_->readEvent(secondaryEventPrincipal);
+        checkConsistency(eventPrincipal, secondaryEventPrincipal);
+        checkHistoryConsistency(eventPrincipal, secondaryEventPrincipal);
+        eventPrincipal.recombine(secondaryEventPrincipal, branchIDsToReplace_[InEvent]);
+        eventPrincipal.mergeMappers(secondaryEventPrincipal);
+        secondaryEventPrincipal.clearPrincipal();
       } else {
         throw Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_") <<
           eventPrincipal.id() << " is not found in the secondary input files\n";

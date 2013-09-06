@@ -26,10 +26,11 @@ class TTree;
 class TTreeCache;
 
 namespace edm {
-  struct BranchKey;
+  class BranchKey;
   class DelayedReader;
   class InputFile;
   class RootTree;
+  class StreamID;
 
   namespace roottree {
     unsigned int const defaultCacheSize = 20U * 1024 * 1024;
@@ -60,6 +61,7 @@ namespace edm {
     typedef roottree::EntryNumber EntryNumber;
     RootTree(boost::shared_ptr<InputFile> filePtr,
              BranchType const& branchType,
+             unsigned int nStreams,
              unsigned int maxVirtualSize,
              unsigned int cacheSize,
              unsigned int learningEntries,
@@ -80,12 +82,14 @@ namespace edm {
 
     bool next() {return ++entryNumber_ < entries_;}
     bool previous() {return --entryNumber_ >= 0;}
-    bool current() {return entryNumber_ < entries_ && entryNumber_ >= 0;}
+    bool current() const {return entryNumber_ < entries_ && entryNumber_ >= 0;}
     void rewind() {entryNumber_ = 0;}
     void close();
     EntryNumber const& entryNumber() const {return entryNumber_;}
+    EntryNumber const& entryNumberForStream(StreamID const& streamID) const;
     EntryNumber const& entries() const {return entries_;}
     void setEntryNumber(EntryNumber theEntryNumber);
+    void insertEntryForStream(StreamID const& streamID);
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     DelayedReader* rootDelayedReader() const;
     template <typename T>
@@ -150,6 +154,7 @@ namespace edm {
     mutable std::unordered_set<TBranch*> triggerSet_;
     EntryNumber entries_;
     EntryNumber entryNumber_;
+    std::unique_ptr<std::vector<EntryNumber> > entryNumberForStream_;
     std::vector<std::string> branchNames_;
     boost::shared_ptr<BranchMap> branches_;
     bool trainNow_;

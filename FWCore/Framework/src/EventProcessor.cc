@@ -95,7 +95,8 @@ namespace edm {
             ProductRegistry& preg,
             boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
             boost::shared_ptr<ActivityRegistry> areg,
-            boost::shared_ptr<ProcessConfiguration const> processConfiguration) {
+            boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+            unsigned int nStreams) {
     ParameterSet* main_input = params.getPSetForUpdate("@main_input");
     if(main_input == 0) {
       throw Exception(errors::Configuration)
@@ -142,7 +143,7 @@ namespace edm {
                          processConfiguration.get(),
                          ModuleDescription::getUniqueID());
 
-    InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_);
+    InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_, nStreams);
     areg->preSourceConstructionSignal_(md);
     std::unique_ptr<InputSource> input;
     try {
@@ -490,7 +491,7 @@ namespace edm {
     preallocations_ = PreallocationConfiguration{nThreads,nStreams,nConcurrentLumis,nConcurrentRuns};
 
     // initialize the input source
-    input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_);
+    input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_, nStreams);
 
     // intialize the Schedule
     schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get(),preallocations_,&processContext_);
@@ -514,7 +515,7 @@ namespace edm {
                                                               *processConfiguration_,
                                                               historyAppender_.get(),
                                                               index));
-      principalCache_.insert(ep,index);
+      principalCache_.insert(ep);
     }
     // initialize the subprocess, if there is one
     if(subProcessParameterSet) {

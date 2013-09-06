@@ -18,22 +18,27 @@ namespace edm {
     InputSourceDescription() :
       moduleDescription_(),
       productRegistry_(nullptr),
-      actReg_(), maxEvents_(-1),
-      maxLumis_(-1) {}
+      actReg_(),
+      maxEvents_(-1),
+      maxLumis_(-1),
+      nStreams_(1U) {
+    }
+
     InputSourceDescription(ModuleDescription const& md,
-			   ProductRegistry& preg,
+                           ProductRegistry& preg,
                            boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
-			   boost::shared_ptr<ActivityRegistry> areg,
-			   int maxEvents,
-			   int maxLumis) :
+                           boost::shared_ptr<ActivityRegistry> areg,
+                           int maxEvents,
+                           int maxLumis,
+                           unsigned int nStreams = 1U) :
       moduleDescription_(md),
       productRegistry_(&preg),
       branchIDListHelper_(branchIDListHelper),
       actReg_(areg),
       maxEvents_(maxEvents),
-      maxLumis_(maxLumis)
-	 
-    {}
+      maxLumis_(maxLumis),
+      nStreams_(nStreams) {
+   }
 
     ModuleDescription moduleDescription_;
     ProductRegistry* productRegistry_;
@@ -41,6 +46,7 @@ namespace edm {
     boost::shared_ptr<ActivityRegistry> actReg_;
     int maxEvents_;
     int maxLumis_;
+    unsigned int nStreams_;
   };
 }
 

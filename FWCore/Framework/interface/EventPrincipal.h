@@ -110,9 +110,6 @@ namespace edm {
     }
 
     StreamID streamID() const { return streamID_;}
-    void setStreamID(StreamID const& iID) {
-      streamID_ = iID;
-    }
     
     LuminosityBlockNumber_t luminosityBlock() const {
       return id().luminosityBlock();

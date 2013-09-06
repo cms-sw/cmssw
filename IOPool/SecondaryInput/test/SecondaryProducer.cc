@@ -65,8 +65,7 @@ namespace edm {
     eventPrincipal_.reset(new EventPrincipal(secInput_->productRegistry(),
                                              secInput_->branchIDListHelper(),
                                              *processConfiguration_,
-                                             nullptr,
-                                             StreamID::invalidStreamID()));
+                                             nullptr));
 
   }
 
@@ -156,7 +155,7 @@ namespace edm {
                                 *productRegistry_,
 				boost::shared_ptr<BranchIDListHelper>(new BranchIDListHelper),
 				boost::shared_ptr<ActivityRegistry>(new ActivityRegistry),
-				-1, -1);
+				-1, -1, 1U);
     boost::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>
       (VectorInputSourceFactory::get()->makeVectorInputSource(sec_input,
       desc).release()));
