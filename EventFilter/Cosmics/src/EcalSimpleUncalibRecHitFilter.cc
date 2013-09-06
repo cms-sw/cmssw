@@ -13,7 +13,6 @@
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: EcalSimpleUncalibRecHitFilter.cc,v 1.3 2010/02/03 03:12:45 wmtan Exp $
 //
 //
 

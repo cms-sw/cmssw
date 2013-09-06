@@ -5,8 +5,6 @@
 //   L1 DT Track Finder Raw-to-Digi
 //
 //
-//   $Date: 2009/05/28 16:20:59 $
-//   $Revision: 1.15 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid

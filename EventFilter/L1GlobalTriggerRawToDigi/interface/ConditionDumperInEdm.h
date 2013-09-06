@@ -15,7 +15,6 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Thu Feb 11 19:46:28 CET 2010
-// $Id: ConditionDumperInEdm.h,v 1.3 2010/03/16 23:58:25 ghete Exp $
 //
 //
 

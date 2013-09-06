@@ -8,8 +8,6 @@
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2009/02/10 12:50:58 $
- *  $Revision: 1.00 $
  *  \author A. Campbell - DESY
  */
 

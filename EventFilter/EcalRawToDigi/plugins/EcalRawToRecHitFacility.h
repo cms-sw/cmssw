@@ -16,7 +16,6 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Sat Oct  6 02:26:08 CEST 2007
-// $Id: EcalRawToRecHitFacility.h,v 1.6 2009/10/14 12:33:48 vlimant Exp $
 //
 //
 
