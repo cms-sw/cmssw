@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/12/29 10:53:11 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/05/25 16:50:50 $
+ *  $Revision: 1.1 $
  */
  
 #include "Validation/EventGenerator/interface/BasicGenParticleValidation.h"
