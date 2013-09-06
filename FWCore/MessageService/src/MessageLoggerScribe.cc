@@ -213,7 +213,7 @@ namespace service {
 
 
 MessageLoggerScribe::MessageLoggerScribe(boost::shared_ptr<ThreadQueue> queue)
-: admin_p   ( ELadministrator::instance() )
+: admin_p   ( new ELadministrator() )
 , early_dest( admin_p->attach(ELoutput(std::cerr, false)) )
 , file_ps   ( )
 , job_pset_p( )

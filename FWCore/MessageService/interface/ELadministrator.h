@@ -66,10 +66,9 @@ namespace service {
 // Prerequisite classes:
 // ----------------------------------------------------------------------
 
-class ELcontextSupplier;
 class ELdestination;
-class ELadminDestroyer;
 class ELcout;
+class MessageLoggerScribe;
 
 
 // ----------------------------------------------------------------------
@@ -78,20 +77,19 @@ class ELcout;
 
 class ELadministrator  {	// *** Destructable Singleton Pattern ***
 
-  friend class ELadminDestroyer;	// proper ELadministrator cleanup
+  friend class MessageLoggerScribe;	// proper ELadministrator cleanup
   friend class ELcout;			// ELcout behavior
 
 // *** Error Logger Functionality ***
 
 public:
+  
+  ~ELadministrator();
+
 
   //Replaces ErrorLog which is no longer needed
   void log(edm::ErrorObj & msg);
   
-  // ---  birth via a surrogate:
-  //
-  static ELadministrator * instance(); 		// *** Singleton Pattern
-
   // ---  furnish/recall destinations:
   //
   ELdestControl attach( const ELdestination & sink );
@@ -123,7 +121,6 @@ public:
 protected:
   // ---  member data accessors:
   //
-  ELcontextSupplier           & context() const;
   const ELseverityLevel       & abortThreshold() const;
   const ELseverityLevel       &  exitThreshold() const;
   std::list<boost::shared_ptr<ELdestination> >  & sinks();
@@ -134,13 +131,8 @@ protected:
   // ---  traditional birth/death, but disallowed to users:
   //
   ELadministrator();
-  virtual ~ELadministrator();
 
 private:
-  // ---  reach the actual (single) ELadministrator's instantiation
-  // ---  (the instance() method records the ELadminDestroyer object):
-  //
-  static ELadministrator* instance_;
 
   // ---  traditional member data:
   //
@@ -151,30 +143,6 @@ private:
   std::map < ELstring, boost::shared_ptr<ELdestination> > attachedDestinations_;
 
 };  // ELadministrator
-
-
-// ----------------------------------------------------------------------
-// ELadminDestroyer:
-// ----------------------------------------------------------------------
-
-class ELadminDestroyer  {
-
-public:
-  // ---  birth/death:
-  //
-  ELadminDestroyer( ELadministrator * ad = 0 );
- ~ELadminDestroyer();
-
-  // ---  record our (single) self:
-  //
-  void setELadmin( ELadministrator * ad );
-
-private:
-  // ---  member data:
-  //
-  ELadministrator * admin_;	// keep track of our (single) self
-
-};  // ELadminDestroyer
 
 
 // ----------------------------------------------------------------------

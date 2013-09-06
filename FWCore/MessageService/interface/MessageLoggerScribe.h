@@ -220,7 +220,7 @@ private:
   void parseCategories (std::string const & s, std::vector<std::string> & cats);
   
   // --- data:
-  ELadministrator                   * admin_p;
+  boost::shared_ptr<ELadministrator>  admin_p;
   ELdestControl                       early_dest;
   std::vector<boost::shared_ptr<std::ofstream> > file_ps;
   boost::shared_ptr<PSet>             job_pset_p;

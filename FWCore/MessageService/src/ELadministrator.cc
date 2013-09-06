@@ -303,31 +303,6 @@ void ELadministrator::finish()  {
 }  // wipe()
 
 
-// ----------------------------------------------------------------------
-// The Destructable Singleton pattern
-// (see "To Kill a Singleton," Vlissides, C++ Report):
-// ----------------------------------------------------------------------
-
-
-ELadministrator * ELadministrator::instance_ = 0;
-
-
-ELadministrator * ELadministrator::instance()  {
-
-  static ELadminDestroyer destroyer_;
-  // This deviates from Vlissides' pattern where destroyer_ was a static
-  // instance in the ELadministrator class.  This construct should be
-  // equivalent, but the original did not call the destructor under KCC.
-
-  if ( !instance_ )  {
-    instance_ = new ELadministrator;
-    destroyer_.setELadmin( instance_ );
-  }
-  return instance_;
-
-}  // instance()
-
-
 ELadministrator::ELadministrator()
 : sinks_         (                                                           )
 , highSeverity_  ( ELseverityLevel (ELseverityLevel::ELsev_zeroSeverity)     )
@@ -340,26 +315,7 @@ ELadministrator::ELadministrator()
   for ( int lev = 0;  lev < ELseverityLevel::nLevels;  ++lev )
     severityCounts_[lev] = 0;
 
-}  // ELadministrator()
-
-
-ELadminDestroyer::ELadminDestroyer( ELadministrator * ad )  : admin_( ad )  {}
-
-
-ELadminDestroyer::~ELadminDestroyer()  {
-
-  #ifdef ELadministratorCONSTRUCTOR_TRACE
-    std::cerr << "~ELadminDestroyer: Deleting admin_\n";
-  #endif
-
-  delete admin_;
-
-}  // ~ELadminDestroyer()
-
-
-void ELadminDestroyer::setELadmin( ELadministrator * ad )  { admin_ = ad; }
-
-
+}
 //-*****************************
 // The ELadminstrator destructor
 //-*****************************
