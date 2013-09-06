@@ -23,6 +23,9 @@ HLTElectronPFMTFilter::HLTElectronPFMTFilter(const edm::ParameterSet& iConfig) :
   minN_        = iConfig.getParameter<int>("minN");
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+
+  inputMetToken_ = consumes<reco::METCollection>(inputMetTag_);
+  inputEleToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputEleTag_);
 }
 
 HLTElectronPFMTFilter::~HLTElectronPFMTFilter(){}
@@ -61,7 +64,7 @@ bool
   
   // Get the Met collection
   edm::Handle<reco::METCollection> pfMHT;
-  iEvent.getByLabel(inputMetTag_,pfMHT);
+  iEvent.getByToken(inputMetToken_,pfMHT);
 
   // Sanity check:
   if(!pfMHT.isValid()) {
@@ -75,7 +78,7 @@ bool
   met = &(metcol->front());
   
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByLabel (inputEleTag_,PrevFilterOutput); 
+  iEvent.getByToken (inputEleToken_,PrevFilterOutput); 
    
   int nW = 0;
     
