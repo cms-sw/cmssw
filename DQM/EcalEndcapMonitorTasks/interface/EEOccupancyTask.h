@@ -20,6 +20,10 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 class MonitorElement;
 class DQMStore;
 
@@ -73,11 +77,11 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
-edm::InputTag EcalRawDataCollection_;
-edm::InputTag EEDigiCollection_;
-edm::InputTag EcalPnDiodeDigiCollection_;
-edm::InputTag EcalRecHitCollection_;
-edm::InputTag EcalTrigPrimDigiCollection_;
+edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
+edm::EDGetTokenT<EEDigiCollection> EEDigiCollection_;
+edm::EDGetTokenT<EcalPnDiodeDigiCollection> EcalPnDiodeDigiCollection_;
+edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
+edm::EDGetTokenT<EcalTrigPrimDigiCollection> EcalTrigPrimDigiCollection_;
 
 enum runClassification { notdata, physics, testpulse, laser, led, pedestal };
 

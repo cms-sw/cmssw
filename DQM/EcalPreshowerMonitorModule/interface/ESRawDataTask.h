@@ -5,6 +5,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 class MonitorElement;
 class DQMStore;
 
@@ -52,8 +55,8 @@ class ESRawDataTask : public edm::EDAnalyzer {
       bool enableCleanup_;
       bool mergeRuns_;
 
-      edm::InputTag dccCollections_;
-      edm::InputTag FEDRawDataCollection_;
+      edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
+      edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
 
       //MonitorElement* meRunNumberErrors_;
       MonitorElement* meL1ADCCErrors_;

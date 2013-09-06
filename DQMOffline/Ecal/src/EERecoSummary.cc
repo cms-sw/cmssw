@@ -18,8 +18,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -33,11 +31,8 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
@@ -72,10 +67,10 @@ EERecoSummary::EERecoSummary(const edm::ParameterSet& ps)
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   //now do what ever initialization is needed
-  recHitCollection_EE_       = ps.getParameter<edm::InputTag>("recHitCollection_EE");
-  redRecHitCollection_EE_    = ps.getParameter<edm::InputTag>("redRecHitCollection_EE");
-  basicClusterCollection_EE_ = ps.getParameter<edm::InputTag>("basicClusterCollection_EE");
-  superClusterCollection_EE_ = ps.getParameter<edm::InputTag>("superClusterCollection_EE");
+  recHitCollection_EE_       = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("recHitCollection_EE"));
+  redRecHitCollection_EE_    = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("redRecHitCollection_EE"));
+  basicClusterCollection_EE_ = consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("basicClusterCollection_EE"));
+  superClusterCollection_EE_ = consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("superClusterCollection_EE"));
 
   ethrEE_                    = ps.getParameter<double>("ethrEE");
 
@@ -143,7 +138,7 @@ void EERecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
   // --- REDUCED REC HITS ------------------------------------------------------------------------------------- 
   // ... endcap
   edm::Handle<EcalRecHitCollection> redRecHitsEE;
-  ev.getByLabel( redRecHitCollection_EE_, redRecHitsEE );
+  ev.getByToken( redRecHitCollection_EE_, redRecHitsEE );
   const EcalRecHitCollection* theEndcapEcalredRecHits = redRecHitsEE.product () ;
   if ( ! redRecHitsEE.isValid() ) {
     edm::LogWarning("EERecoSummary") << "redRecHitsEE not found"; 
@@ -163,7 +158,7 @@ void EERecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
   
   // ... endcap
   edm::Handle<EcalRecHitCollection> recHitsEE;
-  ev.getByLabel( recHitCollection_EE_, recHitsEE );
+  ev.getByToken( recHitCollection_EE_, recHitsEE );
   const EcalRecHitCollection* theEndcapEcalRecHits = recHitsEE.product () ;
   if ( ! recHitsEE.isValid() ) {
     edm::LogWarning("EERecoSummary") << "recHitsEE not found"; 
@@ -227,7 +222,7 @@ void EERecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 
   // ... endcap
   edm::Handle<reco::BasicClusterCollection> basicClusters_EE_h;
-  ev.getByLabel( basicClusterCollection_EE_, basicClusters_EE_h );
+  ev.getByToken( basicClusterCollection_EE_, basicClusters_EE_h );
   if ( ! basicClusters_EE_h.isValid() ) {
     edm::LogWarning("EERecoSummary") << "basicClusters_EE_h not found"; 
   }
@@ -248,7 +243,7 @@ void EERecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
   // Super Clusters
   // ... endcap
   edm::Handle<reco::SuperClusterCollection> superClusters_EE_h;
-  ev.getByLabel( superClusterCollection_EE_, superClusters_EE_h );
+  ev.getByToken( superClusterCollection_EE_, superClusters_EE_h );
   const reco::SuperClusterCollection* theEndcapSuperClusters = superClusters_EE_h.product () ;
   if ( ! superClusters_EE_h.isValid() ) {
     edm::LogWarning("EERecoSummary") << "superClusters_EE_h not found"; 

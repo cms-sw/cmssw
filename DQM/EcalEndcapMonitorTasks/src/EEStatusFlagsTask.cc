@@ -16,7 +16,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
@@ -38,7 +37,7 @@ EEStatusFlagsTask::EEStatusFlagsTask(const edm::ParameterSet& ps){
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
 
   for (int i = 0; i < 18; i++) {
     meEvtType_[i] = 0;
@@ -253,7 +252,7 @@ void EEStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalRawDataCollection> dcchs;
 
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -313,7 +312,7 @@ void EEStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EEStatusFlagsTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EEStatusFlagsTask") << "EcalRawDataCollection not available";
 
   }
 

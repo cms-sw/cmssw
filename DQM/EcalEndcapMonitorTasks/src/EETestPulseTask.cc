@@ -17,12 +17,9 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -40,10 +37,10 @@ EETestPulseTask::EETestPulseTask(const edm::ParameterSet& ps){
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
-  EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
-  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
+  EEDigiCollection_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEDigiCollection"));
+  EcalPnDiodeDigiCollection_ = consumes<EcalPnDiodeDigiCollection>(ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection"));
+  EcalUncalibratedRecHitCollection_ = consumes<EcalUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection"));
 
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
@@ -355,7 +352,7 @@ void EETestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalRawDataCollection> dcchs;
 
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -373,7 +370,7 @@ void EETestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EETestPulseTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EETestPulseTask") << "EcalRawDataCollection not available";
 
   }
 
@@ -385,7 +382,7 @@ void EETestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EEDigiCollection> digis;
 
-  if ( e.getByLabel(EEDigiCollection_, digis) ) {
+  if ( e.getByToken(EEDigiCollection_, digis) ) {
 
     int need = digis->size();
     LogDebug("EETestPulseTask") << "event " << ievt_ << " digi collection size " << need;
@@ -426,13 +423,13 @@ void EETestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EETestPulseTask") << EEDigiCollection_ << " not available";
+    edm::LogWarning("EETestPulseTask") << "EEDigiCollection not available";
 
   }
 
   edm::Handle<EcalUncalibratedRecHitCollection> hits;
 
-  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
+  if ( e.getByToken(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EETestPulseTask") << "event " << ievt_ << " hits collection size " << neh;
@@ -473,13 +470,13 @@ void EETestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EETestPulseTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    edm::LogWarning("EETestPulseTask") << "EcalUncalibratedRecHitCollection not available";
 
   }
 
   edm::Handle<EcalPnDiodeDigiCollection> pns;
 
-  if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
+  if ( e.getByToken(EcalPnDiodeDigiCollection_, pns) ) {
 
     int nep = pns->size();
     LogDebug("EETestPulseTask") << "event " << ievt_ << " pns collection size " << nep;
@@ -541,7 +538,7 @@ void EETestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EETestPulseTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EETestPulseTask") << "EcalPnDiodeDigiCollection not available";
 
   }
 

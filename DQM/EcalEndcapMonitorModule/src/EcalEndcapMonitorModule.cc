@@ -6,11 +6,8 @@
  *
 */
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -40,10 +37,10 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
-  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
-  EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
+  EEDigiCollection_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEDigiCollection"));
+  EcalRecHitCollection_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollection"));
+  EcalTrigPrimDigiCollection_ = consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection"));
 
   // this should come from the event header
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 0);
@@ -384,10 +381,10 @@ void EcalEndcapMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   edm::Handle<EcalRawDataCollection> dcchs;
 
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     if ( dcchs->size() == 0 ) {
-      LogDebug("EcalEndcapMonitorModule") << EcalRawDataCollection_ << " is empty";
+      LogDebug("EcalEndcapMonitorModule") << "EcalRawDataCollection is empty";
       return;
     }
 
@@ -430,7 +427,7 @@ void EcalEndcapMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
     if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
     if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./18.);
 
-    edm::LogWarning("EcalEndcapMonitorModule") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EcalEndcapMonitorModule") << "EcalRawDataCollection not available";
 
   }
 
@@ -458,7 +455,7 @@ void EcalEndcapMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   edm::Handle<EEDigiCollection> digis;
 
-  if ( e.getByLabel(EEDigiCollection_, digis) ) {
+  if ( e.getByToken(EEDigiCollection_, digis) ) {
 
     int need = digis->size();
     LogDebug("EcalEndcapMonitorModule") << "event " << ievt_ << " digi collection size " << need;
@@ -489,13 +486,13 @@ void EcalEndcapMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   } else {
 
-    edm::LogWarning("EcalEndcapMonitorModule") << EEDigiCollection_ << " not available";
+    edm::LogWarning("EcalEndcapMonitorModule") << "EEDigiCollection not available";
 
   }
 
   edm::Handle<EcalRecHitCollection> hits;
 
-  if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
+  if ( e.getByToken(EcalRecHitCollection_, hits) ) {
 
     int neeh = hits->size();
     LogDebug("EcalEndcapMonitorModule") << "event " << ievt_ << " hits collection size " << neeh;
@@ -544,13 +541,13 @@ void EcalEndcapMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   } else {
 
-    edm::LogWarning("EcalEndcapMonitorModule") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EcalEndcapMonitorModule") << "EcalRecHitCollection not available";
 
   }
 
   edm::Handle<EcalTrigPrimDigiCollection> tpdigis;
 
-  if ( e.getByLabel(EcalTrigPrimDigiCollection_, tpdigis) ) {
+  if ( e.getByToken(EcalTrigPrimDigiCollection_, tpdigis) ) {
 
     int neetpd = 0;
     int counter[18] = { 0 };
@@ -583,7 +580,7 @@ void EcalEndcapMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
   } else {
 
-    edm::LogWarning("EcalEndcapMonitorModule") << EcalTrigPrimDigiCollection_ << " not available";
+    edm::LogWarning("EcalEndcapMonitorModule") << "EcalTrigPrimDigiCollection not available";
 
   }
 

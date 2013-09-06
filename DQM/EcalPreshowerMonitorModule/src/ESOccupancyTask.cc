@@ -10,7 +10,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -25,8 +24,7 @@ using namespace std;
 
 ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps) {
 
-  rechitlabel_ = ps.getParameter<InputTag>("RecHitLabel");
-  digilabel_   = ps.getParameter<InputTag>("DigiLabel");
+  rechittoken_ = consumes<ESRecHitCollection>(ps.getParameter<InputTag>("RecHitLabel"));
   prefixME_	= ps.getUntrackedParameter<string>("prefixME", "EcalPreshower"); 
   
   dqmStore_	= Service<DQMStore>().operator->();
@@ -138,7 +136,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
      }
    
    Handle<ESRecHitCollection> ESRecHit;
-   if ( e.getByLabel(rechitlabel_, ESRecHit) ) {
+   if ( e.getByToken(rechittoken_, ESRecHit) ) {
      
      for (ESRecHitCollection::const_iterator hitItr = ESRecHit->begin(); hitItr != ESRecHit->end(); ++hitItr) {
        
@@ -167,7 +165,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
        
      }
    } else {
-     LogWarning("ESOccupancyTask") << rechitlabel_ << " not available";
+     LogWarning("ESOccupancyTask") << "RecHitCollection not available";
    }
 
    //Fill histograms after a event
