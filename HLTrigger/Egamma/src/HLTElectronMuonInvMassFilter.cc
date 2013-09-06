@@ -8,6 +8,8 @@
 
 #include "HLTrigger/Egamma/interface/HLTElectronMuonInvMassFilter.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 //
 // constructors and destructor
 //
@@ -27,6 +29,23 @@ HLTElectronMuonInvMassFilter::HLTElectronMuonInvMassFilter(const edm::ParameterS
 
 HLTElectronMuonInvMassFilter::~HLTElectronMuonInvMassFilter(){}
 
+void
+HLTElectronMuonInvMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("elePrevCandTag",edm::InputTag("hltL1NonIsoHLTCaloIdTTrkIdVLSingleElectronEt8NoCandDphiFilter"));
+  desc.add<edm::InputTag>("muonPrevCandTag",edm::InputTag("hltL1Mu0HTT50L3Filtered3"));
+  desc.add<double>("lowerMassCut",4.0);
+  desc.add<double>("upperMassCut",999999.0);
+  desc.add<int>("ncandcut",1);
+  desc.add<bool>("electronRelaxed",true);
+  desc.add<edm::InputTag>("ElectronL1IsoCand",edm::InputTag("hltPixelMatchElectronsActivity"));
+  desc.add<edm::InputTag>("ElectronL1NonIsoCand",edm::InputTag("hltPixelMatchElectronsActivity"));
+  desc.add<edm::InputTag>("MuonCand",edm::InputTag("hltL3MuonCandidates"));
+  desc.add<edm::InputTag>("isoTag",edm::InputTag("hltSingleElectronTrackIsol"));
+  desc.add<edm::InputTag>("nonIsoTag",edm::InputTag("hltSingleElectronHcalTrackIsol"));
+  descriptions.add("hltElectronMuonInvMassFilter",desc);  
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -48,10 +67,10 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   }
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> EleFromPrevFilter;
-  iEvent.getByLabel (eleCandTag_,EleFromPrevFilter); 
+  iEvent.getByToken (eleCandToken_,EleFromPrevFilter); 
 
   edm::Handle<TriggerFilterObjectWithRefs> MuonFromPrevFilter;
-  iEvent.getByLabel (muonCandTag_,MuonFromPrevFilter);
+  iEvent.getByToken (muonCandToken_,MuonFromPrevFilter);
 
   std::vector<TLorentzVector> pElectron;
   std::vector<double> eleCharge;
