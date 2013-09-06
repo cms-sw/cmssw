@@ -181,7 +181,7 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     titlestring='<b>Report executed with release %s on %s.</b>\n<br>\n<hr>\n'\
                                    %(os.environ['CMSSW_VERSION'],time.asctime())
         
-    html_file_name='%s/%s.html' %(outdir,logfile_name[:-4])# a way to say the string until its last but 4th char
+    html_file_name='%s/%s_TimingReport.html' %(outdir,logfile_name[:-4])# a way to say the string until its last but 4th char
     html_file=open(html_file_name,'w')
     html_file.write('<html>\n<body>\n'+\
                     titlestring)
