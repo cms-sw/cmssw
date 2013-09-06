@@ -1,7 +1,5 @@
 /* file 
  *
- *  $Date: 2007/05/07 16:16:39 $
- *  $Revision: 1.3 $
  *  \author  M. Zanetti  INFN Padova
  */
 

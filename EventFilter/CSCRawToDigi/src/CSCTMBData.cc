@@ -1,7 +1,5 @@
 /** \class CSCTMBData
  *
- *  $Date: 2011/11/01 16:31:54 $
- *  $Revision: 1.31 $
  *  \author A. Tumanov - Rice
  */
 
