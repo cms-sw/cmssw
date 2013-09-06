@@ -486,7 +486,7 @@ public:
   // Change Log 15
   // The following two methods have no effect except in stand-alone apps
   // that do not create a MessageServicePresence:
-  void setStandAloneMessageThreshold    (std::string const & severity);
+  void setStandAloneMessageThreshold    (edm::ELseverityLevel const& severity);
   void squelchStandAloneMessageCategory (std::string const & category);
   
 }  // namespace edm

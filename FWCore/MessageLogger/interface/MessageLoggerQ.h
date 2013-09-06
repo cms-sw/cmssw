@@ -64,7 +64,7 @@ public:
   static bool handshaked ( const OpCode & op );
 
   // --- special control of standAlone logging behavior
-  static  void standAloneThreshold(std::string const & severity);
+  static  void standAloneThreshold(edm::ELseverityLevel const& severity);
   static  void squelch(std::string const & category);
   static  bool ignore ( edm::ELseverityLevel const & severity, 
   			std::string const & category );

@@ -69,8 +69,6 @@ namespace service {
 class ELcontextSupplier;
 class ELdestination;
 class ELadminDestroyer;
-class ErrorLog;
-class ELtsErrorLog;
 class ELcout;
 
 
@@ -81,33 +79,23 @@ class ELcout;
 class ELadministrator  {	// *** Destructable Singleton Pattern ***
 
   friend class ELadminDestroyer;	// proper ELadministrator cleanup
-  friend class ErrorLog;		// ELadministrator user behavior
   friend class ELcout;			// ELcout behavior
-  friend class ELtsErrorLog;		// which walks sink list
 
 // *** Error Logger Functionality ***
 
 public:
 
+  //Replaces ErrorLog which is no longer needed
+  void log(edm::ErrorObj & msg);
+  
   // ---  birth via a surrogate:
   //
   static ELadministrator * instance(); 		// *** Singleton Pattern
-
-  // ---  get/set fundamental properties:
-  //
-  void setProcess( const ELstring & process );
-  ELstring swapProcess( const ELstring & process );
-  void setContextSupplier( const ELcontextSupplier & supplier );
-  const ELcontextSupplier & getContextSupplier() const;
-  ELcontextSupplier & swapContextSupplier( ELcontextSupplier & cs );
-  void setAbortThreshold( const ELseverityLevel & sev );
-  void setExitThreshold ( const ELseverityLevel & sev );
 
   // ---  furnish/recall destinations:
   //
   ELdestControl attach( const ELdestination & sink );
   ELdestControl attach( const ELdestination & sink, const ELstring & name );
-  bool getELdestControl ( const ELstring & name, ELdestControl & theControl );
 
   // ---  handle severity information:
   //
@@ -135,18 +123,12 @@ public:
 protected:
   // ---  member data accessors:
   //
-  const ELstring              & process() const;
   ELcontextSupplier           & context() const;
   const ELseverityLevel       & abortThreshold() const;
   const ELseverityLevel       &  exitThreshold() const;
   std::list<boost::shared_ptr<ELdestination> >  & sinks();
   const ELseverityLevel       & highSeverity() const;
   int                           severityCounts( int lev ) const;
-
-  // ---  actions on messages:
-  //
-  void finishMsg();
-  void clearMsg();
 
 protected:
   // ---  traditional birth/death, but disallowed to users:
@@ -162,17 +144,11 @@ private:
 
   // ---  traditional member data:
   //
-  ELstring                   process_;	     
-  boost::shared_ptr<ELcontextSupplier> context_;	     
-  ELseverityLevel            abortThreshold_; 
-  ELseverityLevel            exitThreshold_; 
   std::list<boost::shared_ptr<ELdestination> > sinks_;		
   ELseverityLevel            highSeverity_;
   int                        severityCounts_[ ELseverityLevel::nLevels ];
-  edm::ErrorObj              msg;
-  bool                       msgIsActive;
 
-  std::map < ELstring, boost::shared_ptr<ELdestination> > attachedDestinations;
+  std::map < ELstring, boost::shared_ptr<ELdestination> > attachedDestinations_;
 
 };  // ELadministrator
 

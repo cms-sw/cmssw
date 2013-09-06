@@ -33,7 +33,6 @@ namespace service {
 //
 // -----------------------------------------------------------------------
 
-class ErrorLog;
 class ThreadQueue;
 
 class MainThreadMLscribe : public AbstractMLscribe
@@ -48,12 +47,8 @@ public:
   void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand);
 		  						
 
-  // --- obtain a pointer to the errorlog 
-  static ErrorLog * getErrorLog_ptr() {return static_errorlog_p;}
-  
 private:
 
-  static ErrorLog		    * static_errorlog_p;
    boost::shared_ptr<ThreadQueue>   m_queue;
 };  // MainThreadMLscribe
 

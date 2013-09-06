@@ -188,7 +188,6 @@
 #include "FWCore/MessageService/interface/ELoutput.h"
 #include "FWCore/MessageService/interface/ELstatistics.h"
 #include "FWCore/MessageService/interface/ELfwkJobReport.h"
-#include "FWCore/MessageService/interface/ErrorLog.h"
 #include "FWCore/MessageService/interface/NamedDestination.h"
 #include "FWCore/MessageService/interface/ThreadQueue.h"
 
@@ -216,7 +215,6 @@ namespace service {
 MessageLoggerScribe::MessageLoggerScribe(boost::shared_ptr<ThreadQueue> queue)
 : admin_p   ( ELadministrator::instance() )
 , early_dest( admin_p->attach(ELoutput(std::cerr, false)) )
-, errorlog_p( new ErrorLog() )
 , file_ps   ( )
 , job_pset_p( )
 , extern_dests( )
@@ -229,7 +227,6 @@ MessageLoggerScribe::MessageLoggerScribe(boost::shared_ptr<ThreadQueue> queue)
 , count (false)							// changeLog 32
 , m_queue(queue)						// changeLog 36
 {
-  admin_p->setContextSupplier(msg_context);
 }
 
 MessageLoggerScribe::~MessageLoggerScribe()
@@ -464,15 +461,11 @@ void
 }  // MessageLoggerScribe::runCommand(opcode, operand)
 
 void MessageLoggerScribe::log ( ErrorObj *  errorobj_p ) {
-  ELcontextSupplier& cs =
-    const_cast<ELcontextSupplier&>(admin_p->getContextSupplier());
-  MsgContext& mc = dynamic_cast<MsgContext&>(cs);
-  mc.setContext(errorobj_p->context());
   std::vector<std::string> categories;
   parseCategories(errorobj_p->xid().id, categories);
   for (unsigned int icat = 0; icat < categories.size(); ++icat) {
     errorobj_p->setID(categories[icat]);
-    (*errorlog_p)( *errorobj_p );  // route the message text
+    admin_p->log( *errorobj_p );  // route the message text
   } 
 }
 
@@ -1021,7 +1014,6 @@ void
       dest_ctrl = admin_p->attach( ELoutput(*os_sp) );
       stream_ps[actual_filename] = os_sp.get();
     }
-    //(*errorlog_p)( ELinfo, "added_dest") << filename << endmsg;
 
     // now configure this destination:
     configure_dest(dest_ctrl, psetname);
@@ -1235,7 +1227,6 @@ void
   }
 }
 
-ErrorLog * MessageLoggerScribe::static_errorlog_p;
 
 
 } // end of namespace service  

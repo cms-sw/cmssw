@@ -254,10 +254,10 @@ bool
 }  // MessageLoggerQ::handshaked(op)
 
 // change Log 13:
-edm::ELseverityLevel MessageLoggerQ::threshold ("WARNING");
+edm::ELseverityLevel MessageLoggerQ::threshold (edm::ELseverityLevel::ELsev_warning);
 std::set<std::string> MessageLoggerQ::squelchSet;
-void MessageLoggerQ::standAloneThreshold(std::string const & severity) {
-  threshold = edm::ELseverityLevel(severity);  
+void MessageLoggerQ::standAloneThreshold(edm::ELseverityLevel const& severity) {
+  threshold = severity;
 }
 void MessageLoggerQ::squelch(std::string const & category) {
   squelchSet.insert(category);  
