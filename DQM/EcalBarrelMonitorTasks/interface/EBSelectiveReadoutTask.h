@@ -13,6 +13,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 class MonitorElement;
 class DQMStore;
@@ -328,12 +332,11 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
-edm::InputTag EBDigiCollection_;
-edm::InputTag EBUnsuppressedDigiCollection_;
-edm::InputTag EcalRecHitCollection_;
-edm::InputTag EBSRFlagCollection_;
-edm::InputTag EcalTrigPrimDigiCollection_;
-edm::InputTag FEDRawDataCollection_;
+edm::EDGetTokenT<EBDigiCollection> EBDigiCollection_;
+edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
+edm::EDGetTokenT<EBSrFlagCollection> EBSRFlagCollection_;
+edm::EDGetTokenT<EcalTrigPrimDigiCollection> EcalTrigPrimDigiCollection_;
+edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
 
 float xbins[37];
 float ybins[89];

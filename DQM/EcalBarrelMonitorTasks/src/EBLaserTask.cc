@@ -17,12 +17,8 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -40,10 +36,10 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps){
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
-  EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
-  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
+  EBDigiCollection_ = consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBDigiCollection"));
+  EcalPnDiodeDigiCollection_ = consumes<EcalPnDiodeDigiCollection>(ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection"));
+  EcalUncalibratedRecHitCollection_ = consumes<EcalUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection"));
 
   // vector of enabled wavelengths (Default to all 4)
   laserWavelengths_.reserve(4);
@@ -671,7 +667,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalRawDataCollection> dcchs;
 
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -690,7 +686,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBLaserTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBLaserTask") << "EcalRawDataCollection not available";
 
   }
 
@@ -702,7 +698,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EBDigiCollection> digis;
 
-  if ( e.getByLabel(EBDigiCollection_, digis) ) {
+  if ( e.getByToken(EBDigiCollection_, digis) ) {
 
     int maxpos[10];
     for(int i(0); i < 10; i++)
@@ -800,7 +796,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBLaserTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EBLaserTask") << "EBDigiCollection not available";
 
   }
 
@@ -814,7 +810,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalPnDiodeDigiCollection> pns;
 
-  if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
+  if ( e.getByToken(EcalPnDiodeDigiCollection_, pns) ) {
 
     int nep = pns->size();
     LogDebug("EBLaserTask") << "event " << ievt_ << " pns collection size " << nep;
@@ -899,13 +895,13 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBLaserTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EBLaserTask") << "EcalPnDiodeDigiCollection not available";
 
   }
 
   edm::Handle<EcalUncalibratedRecHitCollection> hits;
 
-  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
+  if ( e.getByToken(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EBLaserTask") << "event " << ievt_ << " hits collection size " << neh;
@@ -1006,7 +1002,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBLaserTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    edm::LogWarning("EBLaserTask") << "EcalUncalibratedRecHitCollection not available";
 
   }
 

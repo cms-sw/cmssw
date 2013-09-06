@@ -10,13 +10,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/EcalPreshowerMonitorModule/interface/ESTrendTask.h"
 #include "DataFormats/EcalRawData/interface/ESDCCHeaderBlock.h"
 #include "DataFormats/EcalRawData/interface/ESKCHIPBlock.h"
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 using namespace cms;
 using namespace edm;
@@ -31,8 +29,8 @@ ESTrendTask::ESTrendTask(const ParameterSet& ps) {
   prefixME_       = ps.getUntrackedParameter<string>("prefixME", "EcalPreshower"); 
   enableCleanup_  = ps.getUntrackedParameter<bool>("enableCleanup", false);
   mergeRuns_      = ps.getUntrackedParameter<bool>("mergeRuns", false);
-  rechitlabel_    = ps.getParameter<InputTag>("RecHitLabel");
-  dccCollections_ = ps.getParameter<InputTag>("ESDCCCollections");
+  rechittoken_    = consumes<ESRecHitCollection>(ps.getParameter<InputTag>("RecHitLabel"));
+  dccCollections_ = consumes<ESRawDataCollection>(ps.getParameter<InputTag>("ESDCCCollections"));
 
   for (int i=0; i<2; ++i)
     for (int j=0; j<2; ++j) {
@@ -217,7 +215,7 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
   Int_t fiberErr = 0;
   vector<int> fiberStatus;
   Handle<ESRawDataCollection> dccs;
-  if ( e.getByLabel(dccCollections_, dccs) ) {
+  if ( e.getByToken(dccCollections_, dccs) ) {
     for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
       ESDCCHeaderBlock dcc = (*dccItr);
 
@@ -252,8 +250,8 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
       nrh[i][j] = 0;
     }
 
-  Handle<EcalRecHitCollection> ESRecHit;
-  if ( e.getByLabel(rechitlabel_, ESRecHit) ) {
+  Handle<ESRecHitCollection> ESRecHit;
+  if ( e.getByToken(rechittoken_, ESRecHit) ) {
     
     for (ESRecHitCollection::const_iterator hitItr = ESRecHit->begin(); hitItr != ESRecHit->end(); ++hitItr) {
       
@@ -268,7 +266,7 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
       nrh[i][j]++;
     }
   } else {
-    LogWarning("ESTrendTask") << rechitlabel_ << " not available";
+    LogWarning("ESTrendTask") << "RecHitCollection not available";
   }
   
   for (int i=0; i<2; ++i) 

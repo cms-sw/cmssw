@@ -16,14 +16,73 @@
 
 #include "TStopwatch.h"
 
-using namespace ecaldqm;
+void
+EcalDQMonitorTask::registerCollection(ecaldqm::Collections _collection, edm::InputTag const& _inputTag)
+{
+  switch(_collection){
+    case ecaldqm::kSource:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<FEDRawDataCollection>(_inputTag)); break;
+    case ecaldqm::kEcalRawData:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalRawDataCollection>(_inputTag)); break;
+    case ecaldqm::kGainErrors:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<DetIdCollection>(_inputTag)); break;
+    case ecaldqm::kChIdErrors:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<DetIdCollection>(_inputTag)); break;
+    case ecaldqm::kGainSwitchErrors:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<DetIdCollection>(_inputTag)); break;
+    case ecaldqm::kTowerIdErrors:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalElectronicsIdCollection>(_inputTag)); break;
+    case ecaldqm::kBlockSizeErrors:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalElectronicsIdCollection>(_inputTag)); break;
+    case ecaldqm::kMEMTowerIdErrors:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalElectronicsIdCollection>(_inputTag)); break;
+    case ecaldqm::kMEMBlockSizeErrors:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalElectronicsIdCollection>(_inputTag)); break;
+    case ecaldqm::kMEMChIdErrors:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalElectronicsIdCollection>(_inputTag)); break;
+    case ecaldqm::kMEMGainErrors:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalElectronicsIdCollection>(_inputTag)); break;
+    case ecaldqm::kEBSrFlag:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EBSrFlagCollection>(_inputTag)); break;
+    case ecaldqm::kEESrFlag:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EESrFlagCollection>(_inputTag)); break;
+    case ecaldqm::kEBDigi:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EBDigiCollection>(_inputTag)); break;
+    case ecaldqm::kEEDigi:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EEDigiCollection>(_inputTag)); break;
+    case ecaldqm::kPnDiodeDigi:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalPnDiodeDigiCollection>(_inputTag)); break;
+    case ecaldqm::kTrigPrimDigi:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalTrigPrimDigiCollection>(_inputTag)); break;
+    case ecaldqm::kTrigPrimEmulDigi:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalTrigPrimDigiCollection>(_inputTag)); break;
+    case ecaldqm::kEBUncalibRecHit:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalUncalibratedRecHitCollection>(_inputTag)); break;
+    case ecaldqm::kEEUncalibRecHit:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalUncalibratedRecHitCollection>(_inputTag)); break;
+    case ecaldqm::kEBRecHit:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalRecHitCollection>(_inputTag)); break;
+    case ecaldqm::kEERecHit:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<EcalRecHitCollection>(_inputTag)); break;
+    case ecaldqm::kEBBasicCluster:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<reco::BasicClusterCollection>(_inputTag)); break;
+    case ecaldqm::kEEBasicCluster:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<reco::BasicClusterCollection>(_inputTag)); break;
+    case ecaldqm::kEBSuperCluster:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<reco::SuperClusterCollection>(_inputTag)); break;
+    case ecaldqm::kEESuperCluster:
+      collectionTokens_[_collection] = edm::EDGetToken(consumes<reco::SuperClusterCollection>(_inputTag)); break;
+    default:
+      throw cms::Exception("InvalidConfiguration") << "Undefined collection " << _collection;
+  }
+}
 
 template <class C>
 void
-EcalDQMonitorTask::runOnCollection(const edm::Event& _evt, Collections _colName)
+EcalDQMonitorTask::runOnCollection(edm::Event const& _evt, ecaldqm::Collections _collection)
 {
   edm::Handle<C> hndl;
-  if(_evt.getByLabel(collectionTags_[_colName], hndl)){
+  if(_evt.getByToken(collectionTokens_[_collection], hndl)){
 
     TStopwatch* sw(0);
     if(evaluateTime_){
@@ -31,12 +90,12 @@ EcalDQMonitorTask::runOnCollection(const edm::Event& _evt, Collections _colName)
       sw->Stop();
     }
 
-    DQWorkerTask* task(0);
+    ecaldqm::DQWorkerTask* task(0);
 
-    for(std::vector<DQWorkerTask *>::iterator wItr(taskLists_[_colName].begin()); wItr != taskLists_[_colName].end(); ++wItr){
+    for(std::vector<ecaldqm::DQWorkerTask *>::iterator wItr(taskLists_[_collection].begin()); wItr != taskLists_[_collection].end(); ++wItr){
       task = *wItr;
       if(evaluateTime_) sw->Start();
-      if(enabled_[task]) task->analyze(hndl.product(), _colName);
+      if(enabled_[task]) task->analyze(hndl.product(), _collection);
       if(evaluateTime_){
 	sw->Stop();
 	taskTimes_[task] += sw->RealTime();
@@ -46,16 +105,16 @@ EcalDQMonitorTask::runOnCollection(const edm::Event& _evt, Collections _colName)
     delete sw;
   }
   else if(!allowMissingCollections_)
-    throw cms::Exception("ObjectNotFound") << "Collection with InputTag " << collectionTags_[_colName] << " does not exist";
+    throw cms::Exception("ObjectNotFound") << ecaldqm::collectionName[_collection] << " does not exist";
 }
 
 template <>
 void
-EcalDQMonitorTask::runOnCollection<DetIdCollection>(const edm::Event& _evt, Collections _colName)
+EcalDQMonitorTask::runOnCollection<DetIdCollection>(edm::Event const& _evt, ecaldqm::Collections _collection)
 {
   edm::Handle<EBDetIdCollection> ebHndl;
   edm::Handle<EEDetIdCollection> eeHndl;
-  if(_evt.getByLabel(collectionTags_[_colName], ebHndl) && _evt.getByLabel(collectionTags_[_colName], eeHndl)){
+  if(_evt.getByToken(collectionTokens_[_collection], ebHndl) && _evt.getByToken(collectionTokens_[_collection], eeHndl)){
     unsigned nEB(ebHndl->size());
     unsigned nEE(eeHndl->size());
 
@@ -71,12 +130,12 @@ EcalDQMonitorTask::runOnCollection<DetIdCollection>(const edm::Event& _evt, Coll
       sw->Stop();
     }
 
-    DQWorkerTask* task(0);
+    ecaldqm::DQWorkerTask* task(0);
 
-    for(std::vector<DQWorkerTask *>::iterator wItr(taskLists_[_colName].begin()); wItr != taskLists_[_colName].end(); ++wItr){
+    for(std::vector<ecaldqm::DQWorkerTask *>::iterator wItr(taskLists_[_collection].begin()); wItr != taskLists_[_collection].end(); ++wItr){
       task = *wItr;
       if(evaluateTime_) sw->Start();
-      if(enabled_[task]) task->analyze(const_cast<const DetIdCollection*>(&ids), _colName);
+      if(enabled_[task]) task->analyze(const_cast<const DetIdCollection*>(&ids), _collection);
       if(evaluateTime_){
 	sw->Stop();
 	taskTimes_[task] += sw->RealTime();
@@ -86,24 +145,23 @@ EcalDQMonitorTask::runOnCollection<DetIdCollection>(const edm::Event& _evt, Coll
     delete sw;
   }
   else if(!allowMissingCollections_)
-    throw cms::Exception("ObjectNotFound") << "DetIdCollection with InputTag " << collectionTags_[_colName] << " does not exist";
+    throw cms::Exception("ObjectNotFound") << ecaldqm::collectionName[_collection] << " does not exist";
 }
 
 void
-EcalDQMonitorTask::formSchedule_(const std::vector<Collections>& _usedCollections, const std::multimap<Collections, Collections>& _dependencies)
+EcalDQMonitorTask::formSchedule_(std::vector<ecaldqm::Collections> const& _usedCollections, std::multimap<ecaldqm::Collections, ecaldqm::Collections> const& _dependencies)
 {
-  using namespace std;
-  typedef multimap<Collections, Collections>::const_iterator mmiter;
+  typedef std::multimap<ecaldqm::Collections, ecaldqm::Collections>::const_iterator mmiter;
 
-  vector<Collections> preSchedule;
-  vector<Collections>::iterator insertPoint, findPoint;
+  std::vector<ecaldqm::Collections> preSchedule;
+  std::vector<ecaldqm::Collections>::iterator insertPoint, findPoint;
 
-  for(vector<Collections>::const_iterator colItr(_usedCollections.begin()); colItr != _usedCollections.end(); ++colItr){
+  for(std::vector<ecaldqm::Collections>::const_iterator colItr(_usedCollections.begin()); colItr != _usedCollections.end(); ++colItr){
 
     bool inserted(true);
     if((insertPoint = find(preSchedule.begin(), preSchedule.end(), *colItr)) == preSchedule.end()) inserted = false;
 
-    pair<mmiter, mmiter> range(_dependencies.equal_range(*colItr));
+    std::pair<mmiter, mmiter> range(_dependencies.equal_range(*colItr));
 
     for(mmiter depItr(range.first); depItr != range.second; ++depItr){
 
@@ -123,61 +181,61 @@ EcalDQMonitorTask::formSchedule_(const std::vector<Collections>& _usedCollection
 
   }
 
-  for(vector<Collections>::const_iterator colItr(preSchedule.begin()); colItr != preSchedule.end(); ++colItr){
-    std::pair<Processor, Collections> sch;
+  for(std::vector<ecaldqm::Collections>::const_iterator colItr(preSchedule.begin()); colItr != preSchedule.end(); ++colItr){
+    std::pair<Processor, ecaldqm::Collections> sch;
 
     switch(*colItr){
-    case kSource:
+    case ecaldqm::kSource:
       sch.first = &EcalDQMonitorTask::runOnCollection<FEDRawDataCollection>; break;
-    case kEcalRawData:
+    case ecaldqm::kEcalRawData:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalRawDataCollection>; break;
-    case kGainErrors:
+    case ecaldqm::kGainErrors:
       sch.first = &EcalDQMonitorTask::runOnCollection<DetIdCollection>; break;
-    case kChIdErrors:
+    case ecaldqm::kChIdErrors:
       sch.first = &EcalDQMonitorTask::runOnCollection<DetIdCollection>; break;
-    case kGainSwitchErrors:
+    case ecaldqm::kGainSwitchErrors:
       sch.first = &EcalDQMonitorTask::runOnCollection<DetIdCollection>; break;
-    case kTowerIdErrors:
+    case ecaldqm::kTowerIdErrors:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalElectronicsIdCollection>; break;
-    case kBlockSizeErrors:
+    case ecaldqm::kBlockSizeErrors:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalElectronicsIdCollection>; break;
-    case kMEMTowerIdErrors:
+    case ecaldqm::kMEMTowerIdErrors:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalElectronicsIdCollection>; break;
-    case kMEMBlockSizeErrors:
+    case ecaldqm::kMEMBlockSizeErrors:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalElectronicsIdCollection>; break;
-    case kMEMChIdErrors:
+    case ecaldqm::kMEMChIdErrors:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalElectronicsIdCollection>; break;
-    case kMEMGainErrors:
+    case ecaldqm::kMEMGainErrors:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalElectronicsIdCollection>; break;
-    case kEBSrFlag:
+    case ecaldqm::kEBSrFlag:
       sch.first = &EcalDQMonitorTask::runOnCollection<EBSrFlagCollection>; break;
-    case kEESrFlag:
+    case ecaldqm::kEESrFlag:
       sch.first = &EcalDQMonitorTask::runOnCollection<EESrFlagCollection>; break;
-    case kEBDigi:
+    case ecaldqm::kEBDigi:
       sch.first = &EcalDQMonitorTask::runOnCollection<EBDigiCollection>; break;
-    case kEEDigi:
+    case ecaldqm::kEEDigi:
       sch.first = &EcalDQMonitorTask::runOnCollection<EEDigiCollection>; break;
-    case kPnDiodeDigi:
+    case ecaldqm::kPnDiodeDigi:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalPnDiodeDigiCollection>; break;
-    case kTrigPrimDigi:
+    case ecaldqm::kTrigPrimDigi:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalTrigPrimDigiCollection>; break;
-    case kTrigPrimEmulDigi:
+    case ecaldqm::kTrigPrimEmulDigi:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalTrigPrimDigiCollection>; break;
-    case kEBUncalibRecHit:
+    case ecaldqm::kEBUncalibRecHit:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalUncalibratedRecHitCollection>; break;
-    case kEEUncalibRecHit:
+    case ecaldqm::kEEUncalibRecHit:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalUncalibratedRecHitCollection>; break;
-    case kEBRecHit:
+    case ecaldqm::kEBRecHit:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalRecHitCollection>; break;
-    case kEERecHit:
+    case ecaldqm::kEERecHit:
       sch.first = &EcalDQMonitorTask::runOnCollection<EcalRecHitCollection>; break;
-    case kEBBasicCluster:
+    case ecaldqm::kEBBasicCluster:
       sch.first = &EcalDQMonitorTask::runOnCollection<reco::BasicClusterCollection>; break;
-    case kEEBasicCluster:
+    case ecaldqm::kEEBasicCluster:
       sch.first = &EcalDQMonitorTask::runOnCollection<reco::BasicClusterCollection>; break;
-    case kEBSuperCluster:
+    case ecaldqm::kEBSuperCluster:
       sch.first = &EcalDQMonitorTask::runOnCollection<reco::SuperClusterCollection>; break;
-    case kEESuperCluster:
+    case ecaldqm::kEESuperCluster:
       sch.first = &EcalDQMonitorTask::runOnCollection<reco::SuperClusterCollection>; break;
     default:
       throw cms::Exception("InvalidConfiguration") << "Undefined collection " << *colItr;

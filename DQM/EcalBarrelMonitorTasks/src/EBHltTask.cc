@@ -18,7 +18,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
@@ -43,17 +42,17 @@ EBHltTask::EBHltTask(const edm::ParameterSet& ps){
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  EBDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection0");
-  EBDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection1");
-  EBDetIdCollection2_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection2");
-  EBDetIdCollection3_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection3");
-  EcalElectronicsIdCollection1_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1");
-  EcalElectronicsIdCollection2_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2");
-  EcalElectronicsIdCollection3_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection3");
-  EcalElectronicsIdCollection4_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection4");
-  EcalElectronicsIdCollection5_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection5");
-  EcalElectronicsIdCollection6_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection6");
-  FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
+  EBDetIdCollection0_ =  consumes<EBDetIdCollection>(ps.getParameter<edm::InputTag>("EBDetIdCollection0"));
+  EBDetIdCollection1_ =  consumes<EBDetIdCollection>(ps.getParameter<edm::InputTag>("EBDetIdCollection1"));
+  EBDetIdCollection2_ =  consumes<EBDetIdCollection>(ps.getParameter<edm::InputTag>("EBDetIdCollection2"));
+  EBDetIdCollection3_ =  consumes<EBDetIdCollection>(ps.getParameter<edm::InputTag>("EBDetIdCollection3"));
+  EcalElectronicsIdCollection1_ = consumes<EcalElectronicsIdCollection>(ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1"));
+  EcalElectronicsIdCollection2_ = consumes<EcalElectronicsIdCollection>(ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2"));
+  EcalElectronicsIdCollection3_ = consumes<EcalElectronicsIdCollection>(ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection3"));
+  EcalElectronicsIdCollection4_ = consumes<EcalElectronicsIdCollection>(ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection4"));
+  EcalElectronicsIdCollection5_ = consumes<EcalElectronicsIdCollection>(ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection5"));
+  EcalElectronicsIdCollection6_ = consumes<EcalElectronicsIdCollection>(ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection6"));
+  FEDRawDataCollection_ = consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("FEDRawDataCollection"));
 
   meEBFedsOccupancy_ = 0;
   meEBFedsSizeErrors_ = 0;
@@ -164,7 +163,7 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EBDetIdCollection> ids0;
 
-  if ( e.getByLabel(EBDetIdCollection0_, ids0) ) {
+  if ( e.getByToken(EBDetIdCollection0_, ids0) ) {
 
     for ( EBDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++idItr ) {
 
@@ -180,7 +179,7 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<FEDRawDataCollection> allFedRawData;
 
-  if ( e.getByLabel(FEDRawDataCollection_, allFedRawData) ) {
+  if ( e.getByToken(FEDRawDataCollection_, allFedRawData) ) {
 
     for ( int ism=1; ism<=36; ism++ ) {
 
@@ -203,7 +202,7 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     }
 
   } else {
-    edm::LogWarning("EBHltTask") << FEDRawDataCollection_ << " not available";
+    edm::LogWarning("EBHltTask") << "FEDRawDataCollection not available";
   }
 
 
@@ -221,7 +220,7 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   // Integrity errors
   edm::Handle<EBDetIdCollection> ids1;
 
-  if ( e.getByLabel(EBDetIdCollection1_, ids1) ) {
+  if ( e.getByToken(EBDetIdCollection1_, ids1) ) {
 
     for ( EBDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++idItr ) {
 
@@ -233,13 +232,13 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBHltTask") << EBDetIdCollection1_ << " not available";
+    edm::LogWarning("EBHltTask") << "EBDetIdCollection1 not available";
 
   }
 
   edm::Handle<EBDetIdCollection> ids2;
 
-  if ( e.getByLabel(EBDetIdCollection2_, ids2) ) {
+  if ( e.getByToken(EBDetIdCollection2_, ids2) ) {
 
     for ( EBDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++idItr ) {
 
@@ -251,13 +250,13 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBHltTask") << EBDetIdCollection2_ << " not available";
+    edm::LogWarning("EBHltTask") << "EBDetIdCollection2 not available";
 
   }
 
   edm::Handle<EBDetIdCollection> ids3;
 
-  if ( e.getByLabel(EBDetIdCollection3_, ids3) ) {
+  if ( e.getByToken(EBDetIdCollection3_, ids3) ) {
 
     for ( EBDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++idItr ) {
 
@@ -269,13 +268,13 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBHltTask") << EBDetIdCollection3_ << " not available";
+    edm::LogWarning("EBHltTask") << "EBDetIdCollection3 not available";
 
   }
 
   edm::Handle<EcalElectronicsIdCollection> ids4;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection1_, ids4) ) {
+  if ( e.getByToken(EcalElectronicsIdCollection1_, ids4) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++idItr ) {
 
@@ -289,13 +288,13 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBHltTask") << EcalElectronicsIdCollection1_ << " not available";
+    edm::LogWarning("EBHltTask") << "EcalElectronicsIdCollection1 not available";
 
   }
 
   edm::Handle<EcalElectronicsIdCollection> ids5;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection2_, ids5) ) {
+  if ( e.getByToken(EcalElectronicsIdCollection2_, ids5) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++idItr ) {
 
@@ -309,13 +308,13 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBHltTask") << EcalElectronicsIdCollection2_ << " not available";
+    edm::LogWarning("EBHltTask") << "EcalElectronicsIdCollection2 not available";
 
   }
 
   edm::Handle<EcalElectronicsIdCollection> ids6;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection3_, ids6) ) {
+  if ( e.getByToken(EcalElectronicsIdCollection3_, ids6) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++idItr ) {
 
@@ -329,13 +328,13 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBHltTask") << EcalElectronicsIdCollection3_ << " not available";
+    edm::LogWarning("EBHltTask") << "EcalElectronicsIdCollection3 not available";
 
   }
 
   edm::Handle<EcalElectronicsIdCollection> ids7;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection4_, ids7) ) {
+  if ( e.getByToken(EcalElectronicsIdCollection4_, ids7) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++idItr ) {
 
@@ -349,13 +348,13 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBHltTask") << EcalElectronicsIdCollection4_ << " not available";
+    edm::LogWarning("EBHltTask") << "EcalElectronicsIdCollection4 not available";
 
   }
 
   edm::Handle<EcalElectronicsIdCollection> ids8;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection5_, ids8) ) {
+  if ( e.getByToken(EcalElectronicsIdCollection5_, ids8) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++idItr ) {
 
@@ -369,13 +368,13 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBHltTask") << EcalElectronicsIdCollection5_ << " not available";
+    edm::LogWarning("EBHltTask") << "EcalElectronicsIdCollection5 not available";
 
   }
 
   edm::Handle<EcalElectronicsIdCollection> ids9;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection6_, ids9) ) {
+  if ( e.getByToken(EcalElectronicsIdCollection6_, ids9) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++idItr ) {
 
@@ -389,7 +388,7 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBHltTask") << EcalElectronicsIdCollection6_ << " not available";
+    edm::LogWarning("EBHltTask") << "EcalElectronicsIdCollection6 not available";
 
   }
 

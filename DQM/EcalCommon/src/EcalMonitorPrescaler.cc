@@ -7,15 +7,13 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-
 #include "DQM/EcalCommon/interface/EcalMonitorPrescaler.h"
 
 EcalMonitorPrescaler::EcalMonitorPrescaler(const edm::ParameterSet& ps) {
 
   count_ = 0;
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
 
   occupancyPrescaleFactor_ = ps.getUntrackedParameter<int>("occupancyPrescaleFactor" , 0);
   integrityPrescaleFactor_ = ps.getUntrackedParameter<int>("integrityPrescaleFactor", 0);
@@ -72,7 +70,7 @@ bool EcalMonitorPrescaler::filter(edm::Event &e, const edm::EventSetup &c) {
 
   edm::Handle<EcalRawDataCollection> dcchs;
 
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -138,7 +136,7 @@ bool EcalMonitorPrescaler::filter(edm::Event &e, const edm::EventSetup &c) {
 
   } else {
 
-    edm::LogWarning("EcalMonitorPrescaler") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EcalMonitorPrescaler") << "EcalRawDataCollection not available";
 
   }
 

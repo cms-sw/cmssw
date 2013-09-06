@@ -15,10 +15,8 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -36,9 +34,9 @@ EECosmicTask::EECosmicTask(const edm::ParameterSet& ps){
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
-  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
+  EcalUncalibratedRecHitCollection_ = consumes<EcalUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection"));
+  EcalRecHitCollection_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollection"));
 
   threshold_ = 0.12500; // typical muon energy deposit is 250 MeV
 
@@ -168,7 +166,7 @@ void EECosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalRawDataCollection> dcchs;
 
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -190,7 +188,7 @@ void EECosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   } else {
 
     isData = false; enable = true;
-    edm::LogWarning("EECosmicTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EECosmicTask") << "EcalRawDataCollection not available";
 
   }
 
@@ -202,15 +200,15 @@ void EECosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalRecHitCollection> hits;
 
-  if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
+  if ( e.getByToken(EcalRecHitCollection_, hits) ) {
 
     int neeh = hits->size();
     LogDebug("EECosmicTask") << "event " << ievt_ << " hits collection size " << neeh;
 
     edm::Handle<EcalUncalibratedRecHitCollection> uhits;
 
-    if ( ! e.getByLabel(EcalUncalibratedRecHitCollection_, uhits) ) {
-      edm::LogWarning("EECosmicTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    if ( ! e.getByToken(EcalUncalibratedRecHitCollection_, uhits) ) {
+      edm::LogWarning("EECosmicTask") << "EcalUncalibratedRecHitCollection not available";
     }
 
     for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
@@ -290,7 +288,7 @@ void EECosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EECosmicTask") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EECosmicTask") << "EcalRecHitCollection not available";
 
   }
 

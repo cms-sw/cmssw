@@ -12,6 +12,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 class MonitorElement;
 class DQMStore;
 
@@ -63,9 +67,9 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
-edm::InputTag EcalRawDataCollection_;
-edm::InputTag EcalUncalibratedRecHitCollection_;
-edm::InputTag EcalRecHitCollection_;
+edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
+edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EcalUncalibratedRecHitCollection_;
+edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
 
 MonitorElement* meCutMap_[36];
 

@@ -23,31 +23,32 @@ namespace ecaldqm{
 
 class EcalDQMonitorTask : public EcalDQMonitor {
  public:
-  EcalDQMonitorTask(const edm::ParameterSet &);
+  EcalDQMonitorTask(edm::ParameterSet const&);
   ~EcalDQMonitorTask();
 
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
  private:
-  void beginRun(const edm::Run&, const edm::EventSetup&);
-  void endRun(const edm::Run&, const edm::EventSetup&);
+  void beginRun(edm::Run const&, edm::EventSetup const&);
+  void endRun(edm::Run const&, edm::EventSetup const&);
 
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(edm::Event const&, edm::EventSetup const&);
 
-  typedef void (EcalDQMonitorTask::*Processor)(const edm::Event&, ecaldqm::Collections);
+  typedef void (EcalDQMonitorTask::*Processor)(edm::Event const&, ecaldqm::Collections);
 
-  template <class C> void runOnCollection(const edm::Event&, ecaldqm::Collections);
+  void registerCollection(ecaldqm::Collections, edm::InputTag const&);
+  template <class C> void runOnCollection(edm::Event const&, ecaldqm::Collections);
 
-  void formSchedule_(const std::vector<ecaldqm::Collections>&, const std::multimap<ecaldqm::Collections, ecaldqm::Collections>&);
+  void formSchedule_(std::vector<ecaldqm::Collections> const&, std::multimap<ecaldqm::Collections, ecaldqm::Collections> const&);
 
   int ievt_;
   // list of workers
   std::vector<ecaldqm::DQWorkerTask*> workers_;
-  // list of InputTags
-  edm::InputTag collectionTags_[ecaldqm::nCollections];
+  // list of EDGetTokens
+  edm::EDGetToken collectionTokens_[ecaldqm::nCollections];
   // schedule of collections to run
   std::vector<std::pair<Processor, ecaldqm::Collections> > schedule_;
   // which worker runs on each collection? this information is static within a job

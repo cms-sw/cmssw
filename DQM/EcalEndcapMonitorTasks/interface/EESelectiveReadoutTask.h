@@ -15,6 +15,10 @@
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
 class MonitorElement;
 class DQMStore;
 class EcalSRSettings;
@@ -335,12 +339,11 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
-edm::InputTag EEDigiCollection_;
-edm::InputTag EEUnsuppressedDigiCollection_;
-edm::InputTag EcalRecHitCollection_;
-edm::InputTag EESRFlagCollection_;
-edm::InputTag EcalTrigPrimDigiCollection_;
-edm::InputTag FEDRawDataCollection_;
+edm::EDGetTokenT<EEDigiCollection> EEDigiCollection_;
+edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
+edm::EDGetTokenT<EESrFlagCollection> EESRFlagCollection_;
+edm::EDGetTokenT<EcalTrigPrimDigiCollection> EcalTrigPrimDigiCollection_;
+edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
 
 float xbins[19];
 float ybins[133];

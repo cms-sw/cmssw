@@ -16,7 +16,6 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRawData/interface/ESDCCHeaderBlock.h"
 #include "DataFormats/EcalRawData/interface/ESKCHIPBlock.h"
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 #include "DQM/EcalPreshowerMonitorModule/interface/ESIntegrityTask.h"
 
@@ -35,8 +34,8 @@ ESIntegrityTask::ESIntegrityTask(const ParameterSet& ps) {
    mergeRuns_     = ps.getUntrackedParameter<bool>("mergeRuns", false);
    lookup_        = ps.getUntrackedParameter<FileInPath>("LookupTable");
 
-   dccCollections_   = ps.getParameter<InputTag>("ESDCCCollections");
-   kchipCollections_ = ps.getParameter<InputTag>("ESKChipCollections");
+   dccCollections_   = consumes<ESRawDataCollection>(ps.getParameter<InputTag>("ESDCCCollections"));
+   kchipCollections_ = consumes<ESLocalRawDataCollection>(ps.getParameter<InputTag>("ESKChipCollections"));
 
    doLumiAnalysis_   = ps.getParameter<bool>("DoLumiAnalysis");
 
@@ -290,7 +289,7 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
    // DCC 
    vector<int> fiberStatus;
-   if ( e.getByLabel(dccCollections_, dccs) ) {
+   if ( e.getByToken(dccCollections_, dccs) ) {
      
      for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
        ESDCCHeaderBlock dcc = (*dccItr);
@@ -356,11 +355,11 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
        meGain_->Fill(gain_);
      }
    } else {
-     LogWarning("ESIntegrityTask") << dccCollections_  << " not available";
+     LogWarning("ESIntegrityTask") << "dccCollections not available";
    }
 
    // KCHIP's
-   if ( e.getByLabel(kchipCollections_, kchips) ) {
+   if ( e.getByToken(kchipCollections_, kchips) ) {
      
      for (ESLocalRawDataCollection::const_iterator kItr = kchips->begin(); kItr != kchips->end(); ++kItr) {
        
@@ -372,7 +371,7 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
        if (kchip.getEC() != kchip.getOptoEC()) meKEC_->Fill(kchip.id());
      }
    } else {
-     LogWarning("ESIntegrityTask") << kchipCollections_  << " not available";
+     LogWarning("ESIntegrityTask") << "kchipCollections not available";
    }
 
    // Fill # of DI errors

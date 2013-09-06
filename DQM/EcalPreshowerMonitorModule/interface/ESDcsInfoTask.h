@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Scalers/interface/DcsStatus.h"
+
 class MonitorElement;
 class DQMStore;
 
@@ -51,7 +53,7 @@ class ESDcsInfoTask: public edm::EDAnalyzer{
 
       bool mergeRuns_;
 
-      edm::InputTag dcsStatuslabel_;
+      edm::EDGetTokenT<DcsStatusCollection> dcsStatustoken_;
 
       MonitorElement* meESDcsFraction_;
       MonitorElement* meESDcsActiveMap_;

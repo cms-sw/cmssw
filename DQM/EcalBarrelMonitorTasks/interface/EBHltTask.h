@@ -17,6 +17,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
@@ -82,18 +83,18 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
-edm::InputTag EBDetIdCollection0_;
-edm::InputTag EBDetIdCollection1_;
-edm::InputTag EBDetIdCollection2_;
-edm::InputTag EBDetIdCollection3_;
-edm::InputTag EBDetIdCollection4_;
-edm::InputTag EcalElectronicsIdCollection1_;
-edm::InputTag EcalElectronicsIdCollection2_;
-edm::InputTag EcalElectronicsIdCollection3_;
-edm::InputTag EcalElectronicsIdCollection4_;
-edm::InputTag EcalElectronicsIdCollection5_;
-edm::InputTag EcalElectronicsIdCollection6_;
-edm::InputTag FEDRawDataCollection_;
+edm::EDGetTokenT<EBDetIdCollection> EBDetIdCollection0_;
+edm::EDGetTokenT<EBDetIdCollection> EBDetIdCollection1_;
+edm::EDGetTokenT<EBDetIdCollection> EBDetIdCollection2_;
+edm::EDGetTokenT<EBDetIdCollection> EBDetIdCollection3_;
+edm::EDGetTokenT<EBDetIdCollection> EBDetIdCollection4_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection1_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection2_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection3_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection4_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection5_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection6_;
+edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
 
 MonitorElement* meEBFedsOccupancy_;
 MonitorElement* meEBFedsSizeErrors_;
