@@ -1,8 +1,14 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImpl.hh"
 
+#ifndef HAVE_XDAQ
+#include "CaloOnlineTools/HcalOnlineDb/interface/xdaq_compat.h"  // Includes typedef for log4cplus::Logger
+#endif
+
+#include <iostream>  // std::cout
+
 namespace hcal {
 
-ConfigurationDatabaseImpl::ConfigurationDatabaseImpl() : m_logger(log4cplus::Logger::getInstance("hcal_ConfigurationDatabaseImpl")) {
+ConfigurationDatabaseImpl::ConfigurationDatabaseImpl() : m_logger(&std::cout) {
   }
 
   void ConfigurationDatabaseImpl::parseAccessor(const std::string& accessor, std::string& method, std::string& host, std::string& port, std::string& user, std::string& db, std::map<std::string,std::string>& params) {

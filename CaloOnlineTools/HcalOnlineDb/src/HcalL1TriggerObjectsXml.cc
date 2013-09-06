@@ -18,9 +18,8 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalL1TriggerObjectsXml.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConnectionManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
-#include "xgi/Utils.h"
-#include "toolbox/string.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
+
 
 using namespace std;
 using namespace oracle::occi;

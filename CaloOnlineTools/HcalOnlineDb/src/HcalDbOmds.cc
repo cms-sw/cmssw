@@ -18,6 +18,12 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalDbOmds.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
 
+#ifdef HAVE_XDAQ
+#include "toolbox/string.h"
+#else
+#include "CaloOnlineTools/HcalOnlineDb/interface/xdaq_compat.h"  // Replaces toolbox::toString
+#endif
+
 typedef oracle::occi::ResultSet ResultSet;
 typedef oracle::occi::SQLException SQLException;
 

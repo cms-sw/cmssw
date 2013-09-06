@@ -5,8 +5,12 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImpl.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseStandardXMLParser.hh"
 
+#ifdef HAVE_XDAQ
 #include "xgi/Method.h"
 #include "xdata/xdata.h"
+#else
+#include <string>
+#endif
 
 //OCCI include
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -62,16 +66,25 @@ class ConfigurationDatabaseImplOracle: public hcal::ConfigurationDatabaseImpl {
 
 		ConfigurationDatabaseStandardXMLParser m_parser;
 		
+#ifdef HAVE_XDAQ
 		xdata::String username_;
 		xdata::String password_;
 		xdata::String database_;
+#else
+		std::string username_;
+		std::string password_;
+		std::string database_;
+#endif
 
 		//Used by getZSThresholds
 		std::string lhwm_version;
 
 		//Utility methods
 		std::string clobToString(const oracle::occi::Clob&);
+
+#ifdef HAVE_XDAQ
 		std::string getParameter(cgicc::Cgicc &cgi,const std::string &name);
+#endif
 
   		void getLUTs_real(const std::string& tag, int crate, std::map<hcal::ConfigurationDatabase::LUTId, 
 				hcal::ConfigurationDatabase::LUT >& LUTs) throw (hcal::exception::ConfigurationDatabaseException);
