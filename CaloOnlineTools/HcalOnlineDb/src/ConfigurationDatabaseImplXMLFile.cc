@@ -1,7 +1,12 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImplXMLFile.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationItemNotFoundException.hh"
 #include <zlib.h>
-#include "toolbox/string.h"
+
+#ifdef HAVE_XDAQ
+#include <toolbox/string.h>
+#else
+#include "CaloOnlineTools/HcalOnlineDb/interface/xdaq_compat.h"  // Replaces toolbox::toString
+#endif
 
 DECLARE_PLUGGABLE(hcal::ConfigurationDatabaseImpl,ConfigurationDatabaseImplXMLFile)
 
@@ -144,6 +149,7 @@ unsigned int ConfigurationDatabaseImplXMLFile::getFirmwareChecksum(const std::st
 }
 
 void ConfigurationDatabaseImplXMLFile::getFirmwareMCS(const std::string& board, unsigned int version, std::vector<std::string>& mcsLines) throw (hcal::exception::ConfigurationDatabaseException) {
+
   std::string key=::toolbox::toString("%s:%x",board.c_str(),version);
 
   std::map<std::string, std::pair<int,int> >::iterator j=m_lookup.find(key);
@@ -230,6 +236,7 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(const std::string& tag, int crate
 void ConfigurationDatabaseImplXMLFile::getZSThresholds(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::ZSChannelId, int>& thresholds) throw (hcal::exception::ConfigurationDatabaseException) {
   thresholds.clear();
   for (int tb=0; tb<=1; tb++) {
+
     std::string key=toolbox::toString("%s:%d:%d:%d",
 				      tag.c_str(), crate, slot, tb);
     std::map<std::string, std::pair<int,int> >::iterator j=m_lookup.find(key);
