@@ -59,9 +59,13 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
         }
         catch (edm::Exception& ex)
         {
-            ex.addContext("In XrdAdaptor::ClientRequest::HandleResponse() case for failure");
-            //m_promise.set_exception(std::make_exception_ptr(ex));
+            ex.addContext("XrdAdaptor::ClientRequest::HandleResponse() failure while running connection recovery");
+            std::stringstream ss;
+            ss << "Original error: '" << status->ToStr() << "' (errno="
+              << status->errNo << ", code=" << status->code << ").";
+            ex.addAdditionalInfo(ss.str());
             m_promise.set_exception(std::current_exception());
+            edm::LogWarning("XrdAdaptorInternal") << "Caught a CMSSW exception when running connection recovery.";
         }
         catch (...)
         {
@@ -74,6 +78,7 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
             ex.addContext("Calling XrdRequestManager::handle()");
             m_manager.addConnections(ex);
             m_promise.set_exception(std::make_exception_ptr(ex));
+            edm::LogWarning("XrdAdaptorInternal") << "Caught a new exception when running connection recovery.";
         }
     }
     m_self_reference = nullptr;

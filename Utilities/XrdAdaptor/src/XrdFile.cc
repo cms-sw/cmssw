@@ -15,6 +15,7 @@ using namespace XrdAdaptor;
 //static const char *kCrabJobIdEnv = "CRAB_UNIQUE_JOB_ID";
 
 #define XRD_CL_MAX_CHUNK 512*1024
+#define XRD_CL_MAX_SIZE 1024
 
 XrdFile::XrdFile (void)
   :  m_offset (0),
@@ -275,6 +276,19 @@ XrdFile::readv (IOBuffer *into, IOSize n)
 IOSize
 XrdFile::readv (IOPosBuffer *into, IOSize n)
 {
+  // CMSSW may issue large readv's; Xrootd is only able to handle
+  // 1024.  Further, the splitting algorithm may slightly increase
+  // the number of buffers.
+  // Note we ignore return values as we always throw exceptions on
+  // errors.
+  IOSize adjust = XRD_CL_MAX_SIZE - 2;
+  IOSize addl = 0;
+  if (n + 1 > adjust) 
+  {
+    addl = readv(into+adjust, n-adjust);
+    n = adjust;
+  }
+
   // A trivial vector read - unlikely, considering ROOT data format.
   if (unlikely(n == 0)) {
     return 0;
@@ -323,7 +337,7 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
   timer.stop();
   assert(result == size);
   edm::LogVerbatim("XrdAdaptorInternal") << "[" << m_op_count.fetch_add(1) << "] Time for readv: " << static_cast<int>(1000*timer.realTime()) << std::endl;
-  return result;
+  return result + addl;
 }
 
 IOSize
