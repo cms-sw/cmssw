@@ -13,7 +13,8 @@ namespace edm {
 
 class EcalUncalibRecHitWorkerBaseClass {
         public:
-                EcalUncalibRecHitWorkerBaseClass(const edm::ParameterSet&, edm::ConsumesCollector& c){}
+	            EcalUncalibRecHitWorkerBaseClass(const edm::ParameterSet&, edm::ConsumesCollector& c){}
+				EcalUncalibRecHitWorkerBaseClass(const edm::ParameterSet&){}
                 virtual ~EcalUncalibRecHitWorkerBaseClass(){}
 
                 virtual void set(const edm::EventSetup& es) = 0;

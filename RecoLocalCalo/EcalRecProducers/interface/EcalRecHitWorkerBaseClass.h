@@ -15,6 +15,7 @@ class EcalRecHitWorkerBaseClass {
                 enum RecoveryFlags { EB_single, EE_single, EB_VFE, EE_VFE, EB_FE, EE_FE };
 
                 EcalRecHitWorkerBaseClass(const edm::ParameterSet&, edm::ConsumesCollector& c) {};
+			    EcalRecHitWorkerBaseClass(const edm::ParameterSet&) {};
                 virtual ~EcalRecHitWorkerBaseClass() {};
 
                 virtual void set(const edm::EventSetup& es) = 0;
