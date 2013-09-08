@@ -17,12 +17,12 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 6_2_0
-setenv RELEASE 6_2_0
-setenv PRERELEASE pre6_patch1 
+setenv CMSSWver1 7_0_0
+setenv RELEASE 7_0_0
+setenv PRERELEASE pre1
 
-setenv FULLGLOBALTAG PRE_ST62_V6-v1
-setenv FASTGLOBALTAG PRE_ST62_V6_FastSim-v1
+setenv FULLGLOBALTAG PRE_ST62_V8-v1
+setenv FASTGLOBALTAG PRE_ST62_V8_FastSim-v1
 
 setenv RELEASE ${RELEASE}_${PRERELEASE}
 #setenv RELEASE ${RELEASE}
@@ -232,10 +232,8 @@ EOF
 
 
 cat > unscaledhistosForPhotons <<EOF
-pEResVsR9All
 pEResVsR9Barrel
 pEResVsR9Endcap
-scpEResVsR9All
 scpEResVsR9Barrel
 scpEResVsR9Endcap
 pEResVsEtAll
@@ -263,27 +261,6 @@ EOF
 
 
 
-cat > 2dhistosForPhotons <<EOF
-  R9VsEtaAll
-  R1VsEtaAll
-  R2VsEtaAll
-  sigmaIetaIetaVsEtaAll
-  isoTrkSolidConeDR04VsEtaAll
-  nTrkSolidConeDR04VsEtaAll
-  R9VsEtAll
-  R1VsEtAll
-  R2VsEtAll
-  sigmaIetaIetaVsEtAll
-  isoTrkSolidConeDR04VsEtAll
-  nTrkSolidConeDR04VsEtAll
-  eResVsR9All
-  eResVsR9Barrel
-  eResVsR9Endcap
-  sceResVsR9All
-  sceResVsR9Barrel
-  sceResVsR9Endcap
-
-EOF
 
 
 
@@ -519,29 +496,6 @@ end
 
 
 
-foreach i (`cat 2dhistosForPhotons`)
-  cat > temp$N.C <<EOF
-TCanvas *c$i = new TCanvas("c$i");
-c$i->SetFillColor(10);
-file_old->cd("$HISTOPATHNAME_Photons");
-$i->SetStats(0);
-$i->SetMinimum(0.);
-$i->SetMarkerColor(kPink+8);
-$i->SetMarkerStyle(2);
-$i->SetMarkerSize(0.2);
-$i->Draw();
-file_new->cd("$HISTOPATHNAME_Photons");
-$i->SetStats(0);
-$i->SetMarkerColor(kBlack);
-$i->SetMarkerStyle(2);
-$i->SetMarkerSize(0.2);
-$i->Draw("same");
-c$i->SaveAs("gifs/$i.gif");
-
-EOF
-  setenv N `expr $N + 1`
-end
-
 
 setenv NTOT `expr $N - 1`
 setenv N 1
@@ -609,7 +563,6 @@ rm  validationPlotsTemplate.html
 
 rm scaledhistosForPhotons
 rm unscaledhistosForPhotons
-rm 2dhistosForPhotons
 rm efficiencyForPhotons
 rm scaledhistosForPhotonsLogScale
 
