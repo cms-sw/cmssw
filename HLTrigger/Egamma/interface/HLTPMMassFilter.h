@@ -24,6 +24,9 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -45,6 +48,7 @@
 #include "TH2F.h"
 #include "TLorentzVector.h"
 #include "TVector3.h"
+
 //
 // class declaration
 //
@@ -55,6 +59,7 @@ class HLTPMMassFilter : public HLTFilter {
       explicit HLTPMMassFilter(const edm::ParameterSet&);
       ~HLTPMMassFilter();
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);      
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       TLorentzVector approxMomAtVtx( const MagneticField *magField, const GlobalPoint& xvert, const reco::SuperClusterRef sc, int charge) ;
@@ -63,10 +68,11 @@ class HLTPMMassFilter : public HLTFilter {
       edm::ESHandle<MagneticField> theMagField;
 
       edm::InputTag candTag_;     // input tag identifying product contains filtered egammas
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
       edm::InputTag beamSpot_;    // input tag identifying beamSpot product
+      edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
       double lowerMassCut_;
       double upperMassCut_;
-      // double lowerPtCut_;
       int    nZcandcut_;           // number of Z candidates required
       bool   reqOppCharge_;
 
