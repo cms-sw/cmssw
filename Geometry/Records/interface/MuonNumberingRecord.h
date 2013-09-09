@@ -16,7 +16,6 @@
 //
 // Author:      
 // Created:     Thu Sep 28 16:41:02 PDT 2006
-// $Id: MuonNumberingRecord.h,v 1.1 2006/10/12 20:00:31 case Exp $
 //
 
 #include <boost/mpl/vector.hpp>

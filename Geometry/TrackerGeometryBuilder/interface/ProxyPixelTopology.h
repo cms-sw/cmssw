@@ -18,9 +18,6 @@
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : December 2010
-///  $Revision: 1.9 $
-///  $Date: 2012/09/15 16:31:43 $
-///  (last update by $Author: innocent $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 

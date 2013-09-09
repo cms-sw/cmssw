@@ -19,7 +19,6 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2012/11/12 21:38:35 $
    $Revision: 1.17 $
    \author J. Mans - Minnesota
 */

@@ -13,7 +13,6 @@
 //
 // Original Author:  Michael Case
 //         Created:  Tue Jan 16 2009
-// $Id: TestIdealGeometryESProducer.cc,v 1.2 2010/03/25 22:08:45 case Exp $
 //
 //
 

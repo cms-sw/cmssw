@@ -13,7 +13,6 @@
 //
 // Original Author:  Michael Case
 //         Created:  Thu Sep 10, 2009
-// $Id: TestCompareDDDumpFiles.cc,v 1.1 2009/09/11 01:59:35 case Exp $
 //
 //
 

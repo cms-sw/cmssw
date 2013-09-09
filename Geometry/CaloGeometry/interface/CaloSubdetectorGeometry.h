@@ -17,7 +17,6 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2013/03/04 15:55:17 $
 $Revision: 1.32 $
 \author J. Mans - Minnesota
 */
