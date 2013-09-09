@@ -45,6 +45,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -563,6 +564,10 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
+    service::SystemBounds bounds(preallocations_.numberOfStreams(),
+                                 preallocations_.numberOfLuminosityBlocks(),
+                                 preallocations_.numberOfRuns());
+    actReg_->preallocateSignal_(bounds);
     //NOTE:  This implementation assumes 'Job' means one call
     // the EventProcessor::run
     // If it really means once per 'application' then this code will

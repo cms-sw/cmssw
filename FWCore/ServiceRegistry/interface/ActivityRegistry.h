@@ -57,12 +57,23 @@ namespace edm {
    class StreamContext;
    class PathContext;
    class ModuleCallingContext;
+   namespace service {
+     class SystemBounds;
+   }
 
    class ActivityRegistry : private boost::noncopyable {
    public:
       ActivityRegistry() {}
 
       // ---------- signals ------------------------------------
+      typedef signalslot::Signal<void(service::SystemBounds const&)> Preallocate;
+      ///signal is emitted before beginJob
+      Preallocate preallocateSignal_;
+      void watchPreallocate(Preallocate::slot_type const& iSlot) {
+        preallocateSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_1(watchPreallocate)
+     
       typedef signalslot::Signal<void()> PostBeginJob;
       ///signal is emitted after all modules have gotten their beginJob called
       PostBeginJob postBeginJobSignal_;
