@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:26:23 EST 2008
-// $Id: FWViewManagerManager.h,v 1.11 2009/04/07 14:04:49 chrjones Exp $
 //
 
 // system include files

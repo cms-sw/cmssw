@@ -4,7 +4,6 @@
 // 
 // Simplified model of the CMS detector magnetic field
 // 
-// $id$
 #include "TEveTrackPropagator.h"
 class TH1F;
 

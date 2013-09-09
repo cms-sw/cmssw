@@ -8,7 +8,6 @@
 //
 // Original Author:  Giulio Eulisse 
 //         Created:  Fri Feb 18 :51:44 EDT 2010
-// $Id$
 //
 
 // system include files

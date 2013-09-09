@@ -1,4 +1,3 @@
-// @(#)root/eve:$Id: SKEL-base.cxx 23035 2008-04-08 09:17:02Z matevz $
 // Author: Matevz Tadel 2011
 
 #include "Fireworks/Core/interface/RootGuiUtils.h"

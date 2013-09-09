@@ -2,7 +2,6 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.37 2012/06/07 06:23:44 yana Exp $
 //
 
 #include "TEveVSDStructs.h"

@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:43:54 EST 2009
-// $Id: FWFramedTextTableCellRenderer.cc,v 1.2 2010/06/02 21:47:59 matevz Exp $
 //
 
 // system include files

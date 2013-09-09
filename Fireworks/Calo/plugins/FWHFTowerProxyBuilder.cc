@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.21 2011/02/23 11:34:52 amraktad Exp $
 //
 
 // system include files

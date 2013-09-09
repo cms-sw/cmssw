@@ -16,7 +16,6 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.20 2011/07/30 04:49:40 amraktad Exp $
 //
 
 // system include files

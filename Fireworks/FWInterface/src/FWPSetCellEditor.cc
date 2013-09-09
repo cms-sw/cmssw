@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 20:44:59 CET 2011
-// $Id: FWPSetCellEditor.cc,v 1.6 2012/09/08 06:14:44 amraktad Exp $
 //
 #include <boost/algorithm/string.hpp>
 #include <sstream>

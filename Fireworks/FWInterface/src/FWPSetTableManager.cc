@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:54 CET 2011
-// $Id: FWPSetTableManager.cc,v 1.17 2012/09/08 04:47:56 matevz Exp $
 //
 
 #include <map>

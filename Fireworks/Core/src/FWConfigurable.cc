@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:30 EST 2008
-// $Id: FWConfigurable.cc,v 1.2 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files

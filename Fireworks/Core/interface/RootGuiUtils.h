@@ -1,4 +1,3 @@
-// @(#)root/eve:$Id: SKEL-base.h 23035 2008-04-08 09:17:02Z matevz $
 // Author: Matevz Tadel 2011
 
 #ifndef Fireworks_Core_RootGuiUtils

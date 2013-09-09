@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 11:20:00 EST 2008
-// $Id: FWSimpleProxyBuilderTemplate.h,v 1.6 2010/05/03 15:53:18 amraktad Exp $
 //
 
 // system include files

@@ -2,7 +2,6 @@
 //
 // Package:     Electrons
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.58 2011/02/26 00:14:00 dlange Exp $
 //
 
 // ROOT includes

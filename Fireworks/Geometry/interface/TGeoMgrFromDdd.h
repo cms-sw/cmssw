@@ -16,7 +16,6 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:33 CEST 2010
-// $Id: TGeoMgrFromDdd.h,v 1.1 2010/07/02 18:51:37 matevz Exp $
 //
 
 // system include files

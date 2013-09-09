@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:34 EST 2008
-// $Id: FWParameters.h,v 1.1.24.1 2012/02/18 01:58:26 matevz Exp $
 //
 
 // user include files

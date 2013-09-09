@@ -3,7 +3,6 @@
 // Package:     Muons
 // Class  :     FWMuonGlimpseProxyBuilder
 //
-// $Id: FWMuonGlimpseProxyBuilder.cc,v 1.1 2010/07/30 08:36:01 yana Exp $
 //
 
 #include "TEveScalableStraightLineSet.h"

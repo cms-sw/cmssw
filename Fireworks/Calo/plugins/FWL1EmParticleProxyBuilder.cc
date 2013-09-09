@@ -8,7 +8,6 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1EmParticleProxyBuilder.cc,v 1.6 2010/09/03 10:20:04 yana Exp $
 //
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"

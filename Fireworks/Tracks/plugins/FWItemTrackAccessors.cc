@@ -7,7 +7,6 @@
 //
 // Original Author:  Tom McCauley
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemTrackAccessors.cc,v 1.8 2010/06/18 12:44:47 yana Exp $
 //
 
 #include <cassert>

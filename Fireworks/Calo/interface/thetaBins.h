@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 11 22:59:29 EST 2008
-// $Id: thetaBins.h,v 1.1 2008/12/12 04:16:10 chrjones Exp $
 //
 
 // system include files

@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackProxyBuilderFF.cc,v 1.3 2012/09/12 06:31:37 amraktad Exp $
 //
 
 // system include files

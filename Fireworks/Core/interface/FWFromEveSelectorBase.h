@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Oct 23 10:50:21 CDT 2009
-// $Id: FWFromEveSelectorBase.h,v 1.1 2009/10/23 22:05:58 chrjones Exp $
 //
 
 // system include files

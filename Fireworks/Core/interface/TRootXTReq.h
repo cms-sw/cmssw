@@ -1,4 +1,3 @@
-// $Id: TRootXTReq.h,v 1.2 2010/07/01 18:49:58 chrjones Exp $
 
 #ifndef Fireworks_Core_TRootXTReq_h
 #define Fireworks_Core_TRootXTReq_h
