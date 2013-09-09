@@ -484,7 +484,7 @@ consumeChunkFront(size_t &front, std::vector<IOPosBuffer> &input, std::vector<IO
         if (io.size() > chunksize)
         {
             IOSize consumed;
-            if (output.size() && (outio.offset() + static_cast<IOOffset>(outio.size()) == io.offset()))
+            if (output.size() && (outio.size() < XRD_CL_MAX_CHUNK) && (outio.offset() + static_cast<IOOffset>(outio.size()) == io.offset()))
             {
                 if (outio.size() + chunksize > XRD_CL_MAX_CHUNK)
                 {
@@ -533,7 +533,7 @@ consumeChunkBack(size_t front, std::vector<IOPosBuffer> &input, std::vector<IOPo
         if (io.size() > chunksize)
         {
             IOSize consumed;
-            if (output.size() && (outio.offset() + static_cast<IOOffset>(outio.size()) == io.offset()))
+            if (output.size() && (outio.size() < XRD_CL_MAX_CHUNK) && (outio.offset() + static_cast<IOOffset>(outio.size()) == io.offset()))
             {
                 if (outio.size() + chunksize > XRD_CL_MAX_CHUNK)
                 {
