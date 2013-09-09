@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalCalibTypeFilter.cc,v 1.9 2012/01/21 15:00:16 fwyzard Exp $
 //
 //
 

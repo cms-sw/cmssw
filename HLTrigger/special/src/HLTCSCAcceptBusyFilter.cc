@@ -13,7 +13,6 @@
 //
 // Original Author:  Ingo Bloch
 //         Created:  Mon Mar 15 11:39:08 CDT 2010
-// $Id: HLTCSCAcceptBusyFilter.cc,v 1.2 2010/03/18 19:53:28 gruen Exp $
 //
 //
 

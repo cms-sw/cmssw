@@ -14,7 +14,6 @@
 //
 // Original Author:  Christos Leonidopoulos
 //         Created:  Mon Jul 10 14:13:58 CEST 2006
-// $Id: Timer.cc,v 1.8 2007/03/27 16:49:47 cleonido Exp $
 //
 //
 

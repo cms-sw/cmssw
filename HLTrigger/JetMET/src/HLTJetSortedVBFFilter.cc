@@ -2,10 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/12 09:34:06 $
 
 
- *  $Revision: 1.5 $
  *
  *  \author Jacopo Bernardini
  *

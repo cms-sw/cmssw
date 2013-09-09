@@ -1,7 +1,5 @@
 
 /** \file HLTMuonPlotter.cc
- *  $Date: 2011/09/07 16:31:47 $
- *  $Revision: 1.1 $
  */
 
 

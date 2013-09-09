@@ -1,4 +1,3 @@
-// $Id: SealModule.cc,v 1.4 2009/07/19 14:34:19 wittich Exp $
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

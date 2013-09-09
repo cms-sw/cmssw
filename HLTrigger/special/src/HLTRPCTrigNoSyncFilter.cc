@@ -12,7 +12,6 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Thu Oct 29 11:04:22 CET 2009
-// $Id: HLTRPCTrigNoSyncFilter.cc,v 1.3 2010/02/23 14:43:03 carrillo Exp $
 //
 //
 

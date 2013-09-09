@@ -16,7 +16,6 @@ Implementation:
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
 //  Philip Hebda, July 2009
-// $Id: TriggerValidator.cc,v 1.23 2010/06/27 14:15:01 wmtan Exp $
 //
 //
 

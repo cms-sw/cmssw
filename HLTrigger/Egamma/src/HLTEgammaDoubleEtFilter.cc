@@ -1,6 +1,5 @@
 /** \class HLTEgammaDoubleEtFilter
  *
- * $Id: HLTEgammaDoubleEtFilter.cc,v 1.9 2012/01/21 14:56:56 fwyzard Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
