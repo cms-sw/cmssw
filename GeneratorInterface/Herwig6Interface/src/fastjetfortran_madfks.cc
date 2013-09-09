@@ -1,5 +1,4 @@
 //STARTHEADER
-// $Id: fastjetfortran.cc 2577 2011-09-13 15:11:38Z salam $
 //
 // Copyright (c) 2005-2011, Matteo Cacciari, Gavin P. Salam and Gregory Soyez
 //

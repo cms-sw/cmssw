@@ -15,7 +15,6 @@
 //
 // Original Author:  Daniele Pedrini
 //         Created:  Apr 29 2008
-// $Id: PythiaDauVFilter.h,v 1.4 2011/09/12 12:39:54 ursl Exp $
 //
 //
 

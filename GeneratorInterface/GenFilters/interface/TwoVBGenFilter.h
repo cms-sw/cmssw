@@ -12,7 +12,6 @@
 */
 //
 // Original Author:  Maurizio Pierini, Thiago Tomei
-// $Id: TwoVBGenGenFilter.h,v 1.1 2010/03/23 13:26:26 fabstoec Exp $
 //
 //
 
