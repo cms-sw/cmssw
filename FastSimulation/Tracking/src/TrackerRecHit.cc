@@ -359,25 +359,44 @@ TrackerRecHit::makesATripletWith(const TrackerRecHit& anotherHit,
     ( ( theSubDetId == 1 && theLayerNumber == 1 ) && 
       ( anotherSubDetId == 1 && anotherLayerNumber == 2) && ( 
       ( yetAnotherSubDetId == 1 && yetAnotherLayerNumber == 3) || 
+      ( yetAnotherSubDetId == 1 && yetAnotherLayerNumber == 4) || 
       ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 1) || 
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 2) || 
       ( yetAnotherSubDetId == 3 && yetAnotherLayerNumber == 1) ) ) || 
     // First hit on PXB1, second on PXB3 
     ( ( theSubDetId == 1 && theLayerNumber == 1 ) &&
-      ( anotherSubDetId == 1 && anotherLayerNumber == 3) && 
-      ( yetAnotherSubDetId == 3 && yetAnotherLayerNumber == 1) ) || 
+      ( anotherSubDetId == 1 && anotherLayerNumber == 3) && (
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 1) || 
+      ( yetAnotherSubDetId == 1 && yetAnotherLayerNumber == 4) || 
+      ( yetAnotherSubDetId == 3 && yetAnotherLayerNumber == 1) ) ) || 
     // First hit on PXB2, second on PXB3 
     ( ( theSubDetId == 1 && theLayerNumber == 2 ) &&
-      ( anotherSubDetId == 1 && anotherLayerNumber == 3) && 
-      ( yetAnotherSubDetId == 3 && yetAnotherLayerNumber == 1) ) || 
+      ( anotherSubDetId == 1 && anotherLayerNumber == 3) && (
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 1) || 
+      ( yetAnotherSubDetId == 1 && yetAnotherLayerNumber == 4) || 
+      ( yetAnotherSubDetId == 3 && yetAnotherLayerNumber == 1) ) ) || 
+
+    // First Hit on PXB2, second on PXD1
+    ( ( theSubDetId == 1 && theLayerNumber == 2 ) &&
+      ( anotherSubDetId == 2 && anotherLayerNumber == 1) && (  
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 2) ) ) || 
     // First Hit on PXB1, second on PXD1
     ( ( theSubDetId == 1 && theLayerNumber == 1 ) &&
       ( anotherSubDetId == 2 && anotherLayerNumber == 1) && ( 
       ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 2) || 
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 3) || 
       ( yetAnotherSubDetId == 4 && yetAnotherLayerNumber == 1) || 
       ( yetAnotherSubDetId == 4 && yetAnotherLayerNumber == 2) ) ) || 
+
+    // First Hit on PXB1, second on PXD2
+    ( ( theSubDetId == 1 && theLayerNumber == 1 ) &&
+      ( anotherSubDetId == 2 && anotherLayerNumber == 2) && ( 
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 3) ) ) || 
+
     // First Hit on PXD1, second on PXD2
     ( ( theSubDetId == 2 && theLayerNumber == 1 ) && 
       ( anotherSubDetId == 2 && anotherLayerNumber == 2 ) && (
+      ( yetAnotherSubDetId == 2 && yetAnotherLayerNumber == 3 ) ||
       ( yetAnotherSubDetId == 6 && yetAnotherLayerNumber == 1 ) ||
       ( yetAnotherSubDetId == 6 && yetAnotherLayerNumber == 2 ) ) ) ||
     // First hit on TIB1 (pixel less)

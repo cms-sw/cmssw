@@ -19,6 +19,7 @@
 
 #include<iostream>
 
+
 TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& trackerMaterial,
 						       const GeometricSearchTracker* theGeomSearchTracker)
 {
@@ -996,6 +997,8 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
   double zout, rout;
   unsigned nCyl=0;
   std::list<TrackerLayer>::const_iterator cyliterOut=cylinderBegin();
+  LogDebug("FastSimGeom") << "Number of defined cylinders: " << nCylinders() ;
+
   // Inner cylinder dimensions
   if ( cyliterOut->forward() ) {
     zin = cyliterOut->disk()->position().z();
@@ -1022,6 +1025,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     nCyl++;
     if ( zout < zin || rout < rin ) { 
       throw cms::Exception("FastSimulation/TrackerInteractionGeometry ") 
+	//	std::cout 
 	<< " WARNING with cylinder number " << nCyl 
 	<< " (Active Layer Number = " <<  cyliterOut->layerNumber() 
 	<< " Forward ? " <<  cyliterOut->forward() << " ) "
@@ -1029,14 +1033,12 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
 	<< " zout/zin = " << zout << " " << zin << std::endl
 	<< " rout/rin = " << rout << " " << rin << std::endl;
     } else {
-      /*
-      std::cout << " Cylinder number " << nCyl 
+      LogDebug("FastSimGeom") << " Cylinder number " << nCyl 
 		<< " (Active Layer Number = " <<  cyliterOut->layerNumber() 
 		<< " Forward ? " <<  cyliterOut->forward() << " ) "
 		<< " has dimensions of : " 
 		<< " zout = " << zout << "; " 
-		<< " rout = " << rout << std::endl;
-      */
+		<< " rout = " << rout ;
     }
 
     // Go to the next cylinder

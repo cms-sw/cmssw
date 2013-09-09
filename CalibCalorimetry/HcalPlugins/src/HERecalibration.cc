@@ -7,7 +7,8 @@
 
 #include "HERecalibration.h"
 
-HERecalibration::HERecalibration(double integrated_lumi):iLumi(integrated_lumi), darkening()
+HERecalibration::HERecalibration(double integrated_lumi, double cutoff):
+iLumi(integrated_lumi),cutoff_(cutoff),darkening()
 { }
    
 HERecalibration::~HERecalibration() { }
@@ -34,9 +35,8 @@ double HERecalibration::getCorr(int ieta, int idepth) {
 
   //  int init_ieta = ieta;
   ieta = abs(ieta)-16; // 0 - 13   
-  double cutoff = 20.0;  // cutoff to avoid too big corrections!
   
-  if(corr[ieta][idepth] > cutoff) return cutoff;
+  if(corr[ieta][idepth] > cutoff_) return cutoff_;
   else return corr[ieta][idepth];
 }
 

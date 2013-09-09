@@ -963,11 +963,20 @@ class ConfigBuilder(object):
 	self.GeometryCFF='Configuration/StandardSequences/GeometryRecoDB_cff'
 	self.geometryDBLabel=None
 	simGeometry=''
-        if self._options.fast:
-                if 'start' in self._options.conditions.lower():
-                        self.GeometryCFF='FastSimulation/Configuration/Geometries_START_cff'
-                else:
-                        self.GeometryCFF='FastSimulation/Configuration/Geometries_MC_cff'
+	if self._options.fast:
+		def inGeometryFastSimKeys(opt):
+			from Configuration.StandardSequences.GeometryConf import FastSimGeometryConf
+			if opt in FastSimGeometryConf:
+				return FastSimGeometryConf[opt]
+			else:
+				return opt
+		if self._options.geometry  != defaultOptions.geometry:	
+			self.GeometryCFF=inGeometryFastSimKeys(self._options.geometry)	
+		else:
+			if 'start' in self._options.conditions.lower():
+				self.GeometryCFF='FastSimulation/Configuration/Geometries_START_cff'
+			else:
+				self.GeometryCFF='FastSimulation/Configuration/Geometries_MC_cff'
         else:
 		def inGeometryKeys(opt):
 			from Configuration.StandardSequences.GeometryConf import GeometryConf

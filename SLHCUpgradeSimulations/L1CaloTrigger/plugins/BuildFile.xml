@@ -1,0 +1,25 @@
+<library   file="*.cc" name="L1CaloTriggerPlugins">
+	<use   name="SimDataFormats/SLHC"/>
+	<use   name="CommonTools/UtilAlgos"/>
+	<use   name="FWCore/Framework"/>
+	<use   name="FWCore/PluginManager"/>
+	<use   name="FWCore/ParameterSet"/>
+	<use   name="FWCore/Utilities"/>
+	<use   name="Geometry/Records"/>
+	<use   name="DataFormats/L1Trigger"/>
+	<use   name="DataFormats/EcalDigi"/>
+	<use   name="DataFormats/EcalDetId"/>
+	<use   name="DataFormats/HcalDigi"/>
+	<use   name="DataFormats/HcalDetId"/>
+	<use   name="CondFormats/L1TObjects"/>
+	<use   name="CondFormats/DataRecord"/>
+	<use   name="FWCore/MessageLogger"/>
+	<use   name="clhep"/>
+	<use   name="xerces-c"/>
+	<use   name="boost"/>
+	<use   name="root"/>
+    <use   name="roottmva"/>
+	<use   name="rootrflx"/>
+	<use   name="rootcore"/>
+	<use   name="rootinteractive"/>
+</library>

@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualModule.h,v 1.4 2010/06/09 01:16:03 merkelp Exp $
+// $Id: SiPixelTrackResidualModule.h,v 1.5 2013/02/04 13:45:49 merkelp Exp $
 
 
 #ifndef SiPixelMonitorTrack_SiPixelTrackResidualModule_h
@@ -30,7 +30,7 @@ class SiPixelTrackResidualModule {
     SiPixelTrackResidualModule(const uint32_t);
    ~SiPixelTrackResidualModule();
 
-   void book(const edm::ParameterSet&, bool reducedSet=true, int type=0);
+   void book(const edm::ParameterSet&, bool reducedSet=true, int type=0, bool isUpgrade=false);
    void fill(const Measurement2DVector&, bool reducedSet=true, bool modon=true, bool ladon=true, bool layon=true, bool phion = true, bool bladeon=true, bool diskon=true, bool ringon=true);
    void fill(const SiPixelCluster &clust, bool onTrack, double corrCharge, bool reducedSet,  bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon); 
    void nfill(int onTrack, int offTrack, bool reducedSet,  bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon);

@@ -16,6 +16,7 @@ GeometryConf={
     'Extended2017'   : 'Extended2017,Extended2017Reco',
     'Extended2019'   : 'Extended2019,Extended2019Reco',
     'ExtendedPhase2TkBE'   : 'ExtendedPhase2TkBE,ExtendedPhase2TkBEReco',
+    'ExtendedPhase2TkBE5D'   : 'ExtendedPhase2TkBE5D,ExtendedPhase2TkBE5DReco',
     'ExtendedPhase2TkLB_6PS'   : 'ExtendedPhase2TkLB6PS,ExtendedPhase2TkLB6PSReco',
     'ExtendedPhase2TkLB_4LPS_2L2S'   : 'ExtendedPhase2TkLB4LPS_2L2S,ExtendedPhase2TkLB4LPS_2L2SReco',
     'ExtendedGFlash' : 'ExtendedGFlash,ExtendedGFlashReco',
@@ -44,4 +45,12 @@ GeometryConf={
     'IdealAPD1'   : 'Configuration/StandardSequences/GeometryIdealAPD1_cff,Configuration/StandardSequences/GeometryIdeal_cff',
     'SLHC'        : 'Configuration.Geometry.GeometrySLHCSimIdeal_cff,Configuration.Geometry.GeometrySLHCReco_cff',
     'Design'      : 'Design,DesignReco'
+    }
+
+FastSimGeometryConf={
+    'MC'                        : 'FastSimulation/Configuration/Geometries_MC_cff',
+    'STARTUP'                   : 'FastSimulation/Configuration/Geometries_START_cff',
+    'Extended2017'              : 'FastSimulation/Configuration/GeometriesExtended2017_cff',
+    'ExtendedPhase2TkBE'        : 'FastSimulation/Configuration/GeometriesExtendedPhase2TkBE_cff',
+    'ExtendedPhase2TkBEForward' : 'FastSimulation/Configuration/GeometriesExtendedPhase2TkBEForward_cff',
     }
