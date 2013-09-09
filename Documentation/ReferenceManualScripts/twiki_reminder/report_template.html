@@ -1,0 +1,41 @@
+<html><head><title>Twiki Reminder Service Report</title>
+<style>
+.odd{background-color: #FFECB0}
+.even{background-color:#FFF7B7}
+</style>
+</head><body style='font-family: arial, helvetica,sans-serif; background-color:#FFF9CE'>
+<div style='text-align: right; font-size: 10px;'>Generated from a file scan provided<br> by CMS TwikiSupport (REPLACE_DATE_PROVIDED)</div> 
+<form id='twikiForm' action='http://twikireminderservice.web.cern.ch/TwikiReminderService/index.php' method='post'>
+<h3 style='text-align:center; background-color:#FFC65B;'>LIST 1: All the pages where REPLACE_USERNAME is the responsible</h3>
+<table style='font-size: 11px; width: 90%; margin: 10px auto; border-collapse:collapse; border: 1px dashed #FFE099'>
+<caption style='font-size: 13px;'>Please make sure that these topics are up-to-date. If the topics are not anymore under your responsibility, contact your group convener to find out who can take them over.<br><b>Delete the topics which are not needed. The ones marked in red have not been udpated in last six months<b></caption>
+<tr><th>Responsible</th><th>Topic</th><th>Last Review</th><th>Last Editor</th><th>Creator</th><th>Delete</th></tr>
+REPLACE_RESPONSIBLE
+</table>
+<br>
+<h3 style='text-align:center; background-color:#FFC65B;'>LIST 2: All the pages without responsible where REPLACE_USERNAME is the last reviewer</h3>
+<table style='font-size: 11px; width: 90%; margin: 10px auto;'>
+<caption style='font-size: 13px;'>Add your name as the page responsible (in the format %RESPONSIBLE% Main.TwikiName %BR% - see details in <a href='https://twiki.cern.ch/twiki/bin/view/CMS/CMSTwikiPolicy'>CMSTwikiPolicy</a>)<br>or contact your group convener to find out who can take over the responsibility of these topics.<br><b>Delete the topics which are not needed. The ones marked in red have not been udpated in last six months<b></caption>
+<tr><th>Responsible</th><th>Topic</th><th>Last Review</th><th>Last Editor</th><th>Creator</th><th>Delete</th></tr>
+REPLACE_REVIEWER
+</table>
+<br>
+<h3 style='text-align:center; background-color:#FFC65B;'>LIST 3: All the pages without responsible where REPLACE_USERNAME is the creator of the topic</h3>
+<table style='font-size: 11px; width: 90%; margin: 10px auto;'>
+<caption style='font-size: 13px;'>Add your name as the page responsible (in the format %RESPONSIBLE% Main.TwikiName %BR% - see details in <a href='https://twiki.cern.ch/twiki/bin/view/CMS/CMSTwikiPolicy'>CMSTwikiPolicy</a>)<br>or contact your group convener to find out who can take over the responsibility of these topics.<br><b>Delete the topics which are not needed. The ones marked in red have not been udpated in last six months<b></caption>
+<tr><th>Responsible</th><th>Topic</th><th>Last Review</th><th>Last Editor</th><th>Creator</th><th>Delete</th></tr>
+REPLACE_CREATOR
+</table>
+<br>
+<input type='hidden' name='sender' value='REPLACE_SENDER'>
+<br><br><div style='text-align:center; margin: 0 auto;'><b>Clicking on the delete button sends a request to delete the selected topics.<br>Note that the deletion will not be immediate!</b><br><input type='submit' value='Delete'></div>
+</form>
+
+<form action='http://twikireminderservice.web.cern.ch/TwikiReminderService/unsubscribe/form.php'>
+<input type='hidden' name='sender' value='REPLACE_SENDER'>
+
+<div style='text-align:center; margin: 0 auto;'><b>Not at CERN anymore? </b><br><input type='submit' value='Unsubscribe'></div>
+</form>
+
+<br><br><br><br><div style='text-align: right; font-size: 10px;'>For further questions: CMS-User.Support@cern.ch</div>
+</body>
