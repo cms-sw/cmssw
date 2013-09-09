@@ -14,9 +14,13 @@
  *
  */
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include<vector>
@@ -39,6 +43,7 @@ class HLTrigReport : public edm::EDAnalyzer {
    public:
       explicit HLTrigReport(const edm::ParameterSet&);
       ~HLTrigReport();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
       static
       ReportEvery decode(const std::string & value);
@@ -66,6 +71,7 @@ class HLTrigReport : public edm::EDAnalyzer {
       void dumpReport(std::string const & header = std::string());
 
       edm::InputTag hlTriggerResults_;      // Input tag for TriggerResults
+      edm::EDGetTokenT<edm::TriggerResults> hlTriggerResultsToken_;
       bool          configured_;            // is HLTConfigProvider configured ?
 
       unsigned int  nEvents_;               // number of events processed
