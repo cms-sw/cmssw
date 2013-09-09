@@ -3,4 +3,10 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Input/test TestPoolInput.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <library   file="IOExerciser.cc" name="IOExerciser">
+    <flags   EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ParameterSet"/>
+  </library>
 </environment>
