@@ -12,6 +12,7 @@
  */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
@@ -106,6 +107,22 @@ namespace muon {
 				    const double tune=4.);
   
   double trackProbability(const reco::TrackRef track);
+ 
+  inline bool cocktailInputIsOK(const reco::TrackRef& combinedTrack,
+				 const reco::TrackRef& trackerTrack,
+				const reco::TrackRef& tpfmsTrack,
+				const reco::TrackRef& pickyTrack){
+    
+    return combinedTrack.isNonnull() && trackerTrack.isNonnull() && tpfmsTrack.isNonnull() && pickyTrack.isNonnull();
+  }
+  
+  inline bool cocktailInputIsOK(const reco::Muon& muon){
+    return cocktailInputIsOK(muon.globalTrack(),
+			     muon.innerTrack(),
+			     muon.tpfmsTrack(),
+			     muon.pickyTrack());
+  }
+  
+  reco::Muon::MuonTrackTypePair muonBestTrack(const reco::Muon& muon, reco::TunePType tunePType);
 }
-
 #endif

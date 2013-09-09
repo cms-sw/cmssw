@@ -34,9 +34,9 @@
 // Define typedefs for convenience
 namespace pat {
   class Muon;
-  typedef std::vector<Muon>              MuonCollection; 
-  typedef edm::Ref<MuonCollection>       MuonRef; 
-  typedef edm::RefVector<MuonCollection> MuonRefVector; 
+  typedef std::vector<Muon>              MuonCollection;
+  typedef edm::Ref<MuonCollection>       MuonRef;
+  typedef edm::RefVector<MuonCollection> MuonRefVector;
 }
 
 namespace reco {
@@ -51,9 +51,6 @@ namespace pat {
   class Muon : public Lepton<reco::Muon> {
 
     public:
-
-      enum TunePType{defaultTuneP, improvedTuneP};
-
 
       /// default constructor
       Muon();
@@ -83,9 +80,20 @@ namespace pat {
       reco::TrackRef combinedMuon() const;
       /// reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
       reco::TrackRef globalTrack() const { return combinedMuon(); }
+      /// reference to the Best Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon), old (default bt deprecated) tuneP
+      reco::TrackRef muonBestTrack() const;
+      /// reference to the Best Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon), after new tuneP
+      reco::TrackRef improvedMuonBestTrack() const;
+
+      // get reference to the Improved Best Track
+      virtual MuonTrackType improvedMuonBestTrackType() const {return improvedMuonBestTrackType_;}
+      // set reference to the Improved Best Track
+      virtual void setImprovedBestTrack(MuonTrackType muonType) {improvedMuonBestTrackType_ = muonType;}
 
       /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon)
       void embedMuonBestTrack();
+      /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon), after new tuneP
+      void embedImprovedMuonBestTrack();
       /// set reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
       void embedTrack();
       /// set reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)
@@ -102,7 +110,7 @@ namespace pat {
       void embedTcMETMuonCorrs(const reco::MuonMETCorrectionData& t);
 
       // ---- methods for TeV refit tracks ----
-    
+
       /// reference to Track reconstructed using hits in the tracker + "good" muon hits (reimplemented from reco::Muon)
       reco::TrackRef pickyTrack() const;
       /// reference to Track reconstructed using hits in the tracker + info from the first muon station that has hits (reimplemented from reco::Muon)
@@ -126,11 +134,11 @@ namespace pat {
       /// add a reference to the source IsolatedPFCandidate
       void setPFCandidateRef(const reco::PFCandidateRef& ref) {
 	pfCandidateRef_ = ref;
-      } 
+      }
       /// embed the IsolatedPFCandidate pointed to by pfCandidateRef_
       void embedPFCandidate();
       /// get the number of non-null PF candidates
-      size_t numberOfSourceCandidatePtrs() const { 
+      size_t numberOfSourceCandidatePtrs() const {
 	return pfCandidateRef_.isNonnull() ? 1 : 0;
       }
       /// get the candidate pointer with index i
@@ -155,24 +163,24 @@ namespace pat {
       bool isSoftMuon(const reco::Vertex&) const;
 
       /// For 53X series this method requires an additional mandatory argument: the tuneP type
-      /// make sure you know what you are doing. If you use the default tuneP for the momentum assignment 
+      /// make sure you know what you are doing. If you use the default tuneP for the momentum assignment
       /// then use defaultTuneP. Insted if you use the newly optimized version (present in release 537 and above)
-      /// then use improvedTuneP. 
-      bool isHighPtMuon(const reco::Vertex&, TunePType) const;
+      /// then use improvedTuneP.
+      bool isHighPtMuon(const reco::Vertex&, reco::TunePType) const;
 
       // ---- overload of isolation functions ----
       /// Overload of pat::Lepton::trackIso(); returns the value of
       /// the summed track pt in a cone of deltaR<0.3
       float trackIso() const { return isolationR03().sumPt; }
-      /// Overload of pat::Lepton::trackIso(); returns the value of 
-      /// the summed Et of all recHits in the ecal in a cone of 
+      /// Overload of pat::Lepton::trackIso(); returns the value of
+      /// the summed Et of all recHits in the ecal in a cone of
       /// deltaR<0.3
       float ecalIso()  const { return isolationR03().emEt; }
-      /// Overload of pat::Lepton::trackIso(); returns the value of 
-      /// the summed Et of all caloTowers in the hcal in a cone of 
+      /// Overload of pat::Lepton::trackIso(); returns the value of
+      /// the summed Et of all caloTowers in the hcal in a cone of
       /// deltaR<0.4
       float hcalIso()  const { return isolationR03().hadEt; }
-      /// Overload of pat::Lepton::trackIso(); returns the sum of 
+      /// Overload of pat::Lepton::trackIso(); returns the sum of
       /// ecalIso() and hcalIso
       float caloIso()  const { return ecalIso()+hcalIso(); }
 
@@ -181,8 +189,8 @@ namespace pat {
       /// global tracks. If the global track is present these should
       /// not be set, but the "getters" will return the appropriate
       /// value. The exception is dB which requires the beamline
-      //  as external input. 
-	
+      //  as external input.
+
 	// ---- embed various impact parameters with errors ----
 	//
 	// example:
@@ -200,18 +208,18 @@ namespace pat {
 	//    muon->edB(pat::Muon::PV2D);
 	//
 	// IpType defines the type of the impact parameter
-	// None is default and reverts to old behavior controlled by 
+	// None is default and reverts to old behavior controlled by
 	// patMuons.usePV = True/False
-	typedef enum IPTYPE 
+	typedef enum IPTYPE
 	  {
 	    None = 0, PV2D = 1, PV3D = 2, BS2D = 3, BS3D = 4
-	  } IpType; 
+	  } IpType;
 	void initImpactParameters(void); // init IP defaults in a constructor
 	double dB(IpType type = None) const;
 	double edB(IpType type = None) const;
-	void   setDB ( double dB, double edB, IpType type = None ) { 
+	void   setDB ( double dB, double edB, IpType type = None ) {
 	  if (type == None) {
-	    dB_ = dB; edB_ = edB; 
+	    dB_ = dB; edB_ = edB;
 	    cachedDB_ = true;
 	  }
 	  ip_[type] = dB; eip_[type] = edB; cachedIP_[type] = true;
@@ -219,12 +227,12 @@ namespace pat {
 
       /// numberOfValidHits returns the number of valid hits on the global track.
       unsigned int numberOfValidHits() const;
-      void setNumberOfValidHits(unsigned int numberOfValidHits ) 
+      void setNumberOfValidHits(unsigned int numberOfValidHits )
       { numberOfValidHits_ = numberOfValidHits; cachedNumberOfValidHits_ = true; }
 
-      /// Norm chi2 gives the normalized chi2 of the global track. 
+      /// Norm chi2 gives the normalized chi2 of the global track.
       double normChi2() const;
-      void setNormChi2 (double normChi2 ) 
+      void setNormChi2 (double normChi2 )
       { normChi2_ = normChi2; cachedNormChi2_ = true; }
 
       /// Returns the segment compatibility, using muon::segmentCompatibility (DataFormats/MuonReco/interface/MuonSelectors.h)
@@ -240,6 +248,10 @@ namespace pat {
       /// best muon track
       bool embeddedMuonBestTrack_;
       std::vector<reco::Track> muonBestTrack_;
+      /// best muon track, after new tuneP
+      bool embeddedImprovedMuonBestTrack_;
+      std::vector<reco::Track> improvedMuonBestTrack_;
+      MuonTrackType improvedMuonBestTrackType_;
       /// track of inner track detector
       bool embeddedTrack_;
       std::vector<reco::Track> track_;
@@ -267,7 +279,7 @@ namespace pat {
 
       // ---- PF specific members ----
       /// true if the IsolatedPFCandidate is embedded
-      bool embeddedPFCandidate_;      
+      bool embeddedPFCandidate_;
       /// if embeddedPFCandidate_, a copy of the source IsolatedPFCandidate
       /// is stored in this vector
       reco::PFCandidateCollection pfCandidate_;
@@ -275,7 +287,7 @@ namespace pat {
       /// null if this has been built from a standard muon
       reco::PFCandidateRef pfCandidateRef_;
 
-      // V+Jets group selection variables. 
+      // V+Jets group selection variables.
       bool    cachedNormChi2_;         /// has the normalized chi2 been cached?
       bool    cachedDB_;               /// has the dB been cached?
 
