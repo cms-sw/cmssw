@@ -13,7 +13,6 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.h,v 1.3 2008/04/21 22:14:19 heltsley Exp $
 //
 //
 

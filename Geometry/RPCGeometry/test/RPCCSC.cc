@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Haiyun Teng
 //         Created:  Wed Feb 25 18:09:15 CET 2009
-// $Id: RPCCSC.cc,v 1.6 2011/09/27 09:13:43 yana Exp $
 //
 //
 

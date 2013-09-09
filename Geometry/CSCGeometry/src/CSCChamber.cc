@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2006/07/14 14:37:20 $
- *  $Revision: 1.4 $
  */
 
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>

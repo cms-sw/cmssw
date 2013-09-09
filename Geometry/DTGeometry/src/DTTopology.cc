@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2011/09/27 09:23:01 $
- *  $Revision: 1.3 $
  *  \author R. Bellan  - INFN Torino
  */
 

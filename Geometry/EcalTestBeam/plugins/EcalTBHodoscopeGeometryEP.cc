@@ -12,7 +12,6 @@
 */
 //
 
-// $Id: EcalTBHodoscopeGeometryEP.cc,v 1.3 2010/03/25 22:08:43 case Exp $
 //
 //
 

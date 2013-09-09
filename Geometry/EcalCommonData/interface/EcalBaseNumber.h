@@ -4,7 +4,6 @@
 /** \class EcalBaseNumber
  *   
  * \author Paolo Meridiani, INFN Roma1 
- *  $Id: EcalBaseNumber.h,v 1.4 2007/06/14 06:41:58 innocent Exp $
  */
 
 #include <vector>
