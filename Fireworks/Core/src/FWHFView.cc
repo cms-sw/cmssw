@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:42:13 CEST 2010
-// $Id: FWHFView.cc,v 1.11 2010/09/21 17:20:55 amraktad Exp $
 //
 
 // system include files

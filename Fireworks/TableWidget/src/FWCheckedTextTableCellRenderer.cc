@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb  3 14:29:51 EST 2009
-// $Id: FWCheckedTextTableCellRenderer.cc,v 1.2 2009/03/04 15:31:20 chrjones Exp $
 //
 
 // system include files

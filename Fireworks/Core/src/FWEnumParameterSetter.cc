@@ -8,7 +8,6 @@
 //
 // Original Author:  matevz
 //         Created:  Fri Apr 30 15:17:33 CEST 2010
-// $Id: FWEnumParameterSetter.cc,v 1.6 2011/02/15 18:32:34 amraktad Exp $
 //
 
 // system include files

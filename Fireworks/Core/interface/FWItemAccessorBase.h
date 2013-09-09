@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:14:21 EDT 2008
-// $Id: FWItemAccessorBase.h,v 1.5 2010/07/23 16:02:54 eulisse Exp $
 //
 
 // system include files

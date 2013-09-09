@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Nov  2 13:46:48 CST 2009
-// $Id: FWViewContextMenuHandlerBase.cc,v 1.3 2009/11/03 14:01:51 amraktad Exp $
 //
 
 // system include files

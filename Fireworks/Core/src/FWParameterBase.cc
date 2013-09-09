@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 23 13:36:24 EST 2008
-// $Id: FWParameterBase.cc,v 1.3.40.1 2012/02/18 01:58:29 matevz Exp $
 //
 
 // system include files

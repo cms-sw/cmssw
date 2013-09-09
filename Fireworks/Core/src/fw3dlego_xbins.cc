@@ -2,7 +2,6 @@
 //
 // Package:     Core
 // Class  :     fw3dlego_xbins
-// $Id: fw3dlego_xbins.cc,v 1.3 2009/09/05 10:51:35 dmytro Exp $
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 // Information is extracted from:

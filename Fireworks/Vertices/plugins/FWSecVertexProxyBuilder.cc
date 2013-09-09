@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Id: FWSecVertexProxyBuilder.cc,v 1.4 2010/11/11 20:25:29 amraktad Exp $
 //
 #include <vector>
 

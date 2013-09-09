@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 13:55:42 EST 2008
-// $Id: fw3dlego_xbins.h,v 1.2 2009/01/23 21:35:42 amraktad Exp $
 //
 
 namespace fw3dlego

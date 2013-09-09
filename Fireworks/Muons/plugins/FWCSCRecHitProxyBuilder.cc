@@ -3,7 +3,6 @@
 // Package:     Muons
 // Class  :     FWCSCRecHitProxyBuilder
 //
-// $Id: FWCSCRecHitProxyBuilder.cc,v 1.12 2010/09/06 15:49:55 yana Exp $
 //
 
 #include "TEvePointSet.h"

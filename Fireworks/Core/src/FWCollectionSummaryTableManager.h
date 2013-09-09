@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:37 CST 2009
-// $Id: FWCollectionSummaryTableManager.h,v 1.1 2009/03/04 16:40:51 chrjones Exp $
 //
 
 // system include files

@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.41 2010/09/16 15:42:21 yana Exp $
 //
 
 #include <boost/bind.hpp>

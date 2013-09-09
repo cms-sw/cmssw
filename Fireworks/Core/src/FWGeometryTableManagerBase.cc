@@ -8,7 +8,6 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManagerBase.cc,v 1.7 2012/05/10 23:57:52 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE

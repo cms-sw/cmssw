@@ -16,7 +16,6 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManagerBase.h,v 1.7 2012/05/10 23:57:52 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
