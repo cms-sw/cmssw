@@ -187,7 +187,6 @@
 #include "FWCore/MessageService/interface/ELadministrator.h"
 #include "FWCore/MessageService/interface/ELoutput.h"
 #include "FWCore/MessageService/interface/ELstatistics.h"
-#include "FWCore/MessageService/interface/ELfwkJobReport.h"
 #include "FWCore/MessageService/interface/NamedDestination.h"
 #include "FWCore/MessageService/interface/ThreadQueue.h"
 
@@ -218,7 +217,6 @@ MessageLoggerScribe::MessageLoggerScribe(boost::shared_ptr<ThreadQueue> queue)
 , file_ps   ( )
 , job_pset_p( )
 , extern_dests( )
-, jobReportOption( )
 , clean_slate_configuration( true )
 , active( true )
 , singleThread (queue.get() == 0)				// changeLog 36
@@ -377,32 +375,6 @@ void
 	}
       break;
     }
-    case MessageLoggerQ::JOBREPORT:  {			// change log 19
-      std::string* jobReportOption_p =
-	      static_cast<std::string*>(operand);
-      try {
-	jobReportOption = *jobReportOption_p;
-      }
-      catch(cms::Exception& e)
-	{
-	  std::cerr << "MessageLoggerScribe caught a cms::Exception "
-	       << "during processing of --jobReport option:\n"
-	       << e.what() << "\n"
-	       << "This likely will affect or prevent the job report.\n"
-	       << "However, the rest of the logger continues to run.\n";
-	}
-      catch(...)
-	{
-	  std::cerr << "MessageLoggerScribe caught unkonwn exception type\n"
-	       << "during processing of --jobReport option.\n"
-	       << "This likely will affect or prevent the job report.\n"
-	       << "However, the rest of the logger continues to run.\n";
-	}
-      delete jobReportOption_p;  // dispose of the message text
-				 // which will have been new-ed
-				 // in MessageLogger.cc (service version)
-      break;
-    }
     case MessageLoggerQ::JOBMODE:  {			// change log 24
       std::string* jobMode_p =
 	      static_cast<std::string*>(operand);
@@ -503,7 +475,6 @@ void
     	<< "The message logger has been configured multiple times"; 
     clean_slate_configuration = false;				// Change Log 22
   }
-  configure_fwkJobReports();					// Change Log 16
   configure_ordinary_destinations();				// Change Log 16
   configure_statistics();					// Change Log 16
 
@@ -754,142 +725,6 @@ void
   }
 
 }  // MessageLoggerScribe::configure_dest()
-
-void
-  MessageLoggerScribe::configure_default_fwkJobReport 
-  				( ELdestControl & dest_ctrl ) 
-{
- 
-  dest_ctrl.setLimit("*", 0 );
-  String  msgID = "FwkJob";
-  int FwkJob_limit = 10000000;
-  dest_ctrl.setLimit(msgID, FwkJob_limit);
-  dest_ctrl.setLineLength(32000);
-  dest_ctrl.suppressTime();
- 
-}  // MessageLoggerScribe::configure_default_fwkJobReport()
-
-
-void
-  MessageLoggerScribe::configure_fwkJobReports()		// Changelog 16
-{
-  vString  empty_vString;
-  String   empty_String;
-  PSet     empty_PSet;
-  
-  // decide whether to configure any job reports at all		// Changelog 19
-  bool jobReportExists  = false;
-  bool enableJobReports = false;
-  #ifdef DEFINE_THIS_TO_MAKE_REPORTS_THE_DEFAULT
-  enableJobReports = true;
-  #endif
-  if (jobReportOption != empty_String) enableJobReports = true;
-  if (jobReportOption == "~") enableJobReports = false; //  --nojobReport
-  if (!enableJobReports) return;
-   
-  if ((jobReportOption != "*") && (jobReportOption != empty_String)) {
-    const std::string::size_type npos = std::string::npos;
-    if ( jobReportOption.find('.') == npos ) {
-      jobReportOption += ".xml";
-    }  
-  }
-
-  // grab list of fwkJobReports:
-  vString  fwkJobReports
-     = getAparameter<vString>(*job_pset_p, "fwkJobReports", empty_vString);
-
-  // Use the default list of fwkJobReports if and only if the grabbed list is
-  // empty						 	// change log 24
-  if (fwkJobReports.empty()) {
-    fwkJobReports = messageLoggerDefaults->fwkJobReports;
-  }
-  
-  // establish each fwkJobReports destination:
-  for( vString::const_iterator it = fwkJobReports.begin()
-     ; it != fwkJobReports.end()
-     ; ++it
-     )
-  {
-    String filename = *it;
-    String psetname = filename;
-
-    // check that this destination is not just a placeholder // change log 20
-    PSet  fjr_pset = getAparameter<PSet>(*job_pset_p, psetname, empty_PSet);
-    bool is_placeholder 
-	= getAparameter<bool>(fjr_pset, "placeholder", false);
-    if (is_placeholder) continue;
-
-    // Modify the file name if extension or name is explicitly specified
-    // change log 14 
-    String explicit_filename 
-        = getAparameter<String>(fjr_pset, "filename", empty_String);
-    if (explicit_filename != empty_String) filename = explicit_filename;
-    String explicit_extension 
-        = getAparameter<String>(fjr_pset, "extension", empty_String);
-    if (explicit_extension != empty_String) {
-      if (explicit_extension[0] == '.') {
-	filename += explicit_extension;             
-      } else {
-	filename = filename + "." + explicit_extension;   
-      }
-    }
-
-    // Attach a default extension of .xml if there is no extension on a file
-    std::string actual_filename = filename;			// change log 4
-    const std::string::size_type npos = std::string::npos;
-    if ( filename.find('.') == npos ) {
-      actual_filename += ".xml";
-    }  
-
-     // Check that this is not a duplicate name			// change log 18
-    if ( stream_ps.find(actual_filename)!=stream_ps.end() ) {        
-      if (clean_slate_configuration) {				// change log 22
-       throw edm::Exception ( edm::errors::Configuration ) 
-       <<"Duplicate name for a MessageLogger Framework Job Report Destination: " 
-       << actual_filename
-       << "\n";
-      } else {
-       LogWarning("duplicateDestination")
-       <<"Duplicate name for a MessageLogger Framework Job Report Destination: " 
-       << actual_filename
-       << "\n" << "Only original configuration instructions are used";
-       continue;
-      }
-     } 
-    
-    jobReportExists = true;					// Changelog 19
-    if ( actual_filename == jobReportOption ) jobReportOption = empty_String;   
-    
-    boost::shared_ptr<std::ofstream> os_sp(new std::ofstream(actual_filename.c_str()));
-    file_ps.push_back(os_sp);
-    ELdestControl dest_ctrl;
-    dest_ctrl = admin_p->attach( ELfwkJobReport(*os_sp) );
-    stream_ps[actual_filename] = os_sp.get();
-
-    // now configure this destination:
-    configure_dest(dest_ctrl, psetname);	
-
-  }  // for [it = fwkJobReports.begin() to end()]
-
-  // Now possibly add the file specified by --jobReport 	// Changelog 19
-  if (jobReportOption==empty_String) return;
-  if (jobReportExists && ( jobReportOption=="*" )) return;
-  if (jobReportOption=="*") jobReportOption = "FrameworkJobReport.xml";
-  // Check that this report is not already on order -- here the duplicate
-  // name would not be a configuration error, but we shouldn't do it twice			
-  std::string actual_filename = jobReportOption;
-  if ( stream_ps.find(actual_filename)!=stream_ps.end() ) return;
-
-  boost::shared_ptr<std::ofstream> os_sp(new std::ofstream(actual_filename.c_str()));
-  file_ps.push_back(os_sp);
-  ELdestControl dest_ctrl;
-  dest_ctrl = admin_p->attach( ELfwkJobReport(*os_sp) );
-  stream_ps[actual_filename] = os_sp.get();
-
-  // now configure this destination, in the jobreport default manner:
-  configure_default_fwkJobReport (dest_ctrl);	
-
-}
 
 void
   MessageLoggerScribe::configure_ordinary_destinations()	// Changelog 16

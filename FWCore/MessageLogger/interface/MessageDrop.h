@@ -100,14 +100,12 @@ public:
   void setSinglet(const char * sing);
   void snapshot();
   std::string runEvent;
-  std::string jobreport_name;				// change log 5
   std::string jobMode;					// change log 6
   static bool debugEnabled;                             // change log 8
   static bool infoEnabled;                              // change log 8
   static bool warningEnabled;                           // change log 8
   static bool errorEnabled;                             // change log 8, 12
   static unsigned char messageLoggerScribeIsRunning;	// change log 7
-  static edm::Exception * ex_p;				// change log 4
   static bool debugAlwaysSuppressed;			// change log 9
   static bool infoAlwaysSuppressed;			// change log 9
   static bool warningAlwaysSuppressed;			// change log 9

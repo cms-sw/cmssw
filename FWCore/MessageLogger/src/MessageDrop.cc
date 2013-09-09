@@ -47,7 +47,6 @@
 
 using namespace edm;
 
-edm::Exception * MessageDrop::ex_p = 0;
 bool MessageDrop::debugEnabled=true;
 bool MessageDrop::infoEnabled=true;
 bool MessageDrop::warningEnabled=true;
@@ -223,7 +222,6 @@ class StringProducerSinglet : public StringProducer{
 MessageDrop::MessageDrop()
   : moduleName ("")
   , runEvent("pre-events")
-  , jobreport_name()					
   , jobMode("")						
   , spWithPhase(new  messagedrop::StringProducerWithPhase)
   , spPath (new messagedrop::StringProducerPath)

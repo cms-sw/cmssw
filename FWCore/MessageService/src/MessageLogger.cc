@@ -195,13 +195,6 @@ MessageLogger( ParameterSet const & iPS
         debugEnabledModules_.insert(*it); 
       }
   }
-
-  								// change log 5
-  std::string jr_name = edm::MessageDrop::instance()->jobreport_name; 
-  if (!jr_name.empty()) {			
-    std::string * jr_name_p = new std::string(jr_name);
-    MessageLoggerQ::MLqJOB( jr_name_p ); 			// change log 9
-  }
   
   								// change log 7
   std::string jm = edm::MessageDrop::instance()->jobMode; 

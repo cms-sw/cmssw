@@ -115,13 +115,11 @@ private:
   
   // --- handle details of configuring via a ParameterSet:
   void  configure_errorlog( );
-  void  configure_fwkJobReports( );				// Change Log 3
   void  configure_ordinary_destinations( );			// Change Log 3
   void  configure_statistics( );				// Change Log 3
   void  configure_dest( ELdestControl & dest_ctrl		
                       , String const &  filename
 		      );
-  void  configure_default_fwkJobReport( ELdestControl & dest_ctrl); //ChangeLog 4
   void  configure_external_dests( );
 
 #define VALIDATE_ELSEWHERE					// ChangeLog 11
@@ -229,7 +227,6 @@ private:
   std::vector<String> 	  	      ordinary_destination_filenames;
   std::vector<ELdestControl>          statisticsDestControls;
   std::vector<bool>                   statisticsResets;
-  std::string	  		      jobReportOption;
   bool				      clean_slate_configuration;
   value_ptr<MessageLoggerDefaults>    messageLoggerDefaults;
   bool				      active;

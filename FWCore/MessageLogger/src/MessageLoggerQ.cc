@@ -94,7 +94,6 @@ namespace {
             delete errorobj_p;
             break;
          }
-         case edm::MessageLoggerQ::JOBREPORT:
          case edm::MessageLoggerQ::JOBMODE:
          case edm::MessageLoggerQ::GROUP_STATS:
 	 {
@@ -210,12 +209,6 @@ void
 {
   simpleCommand (SUMMARIZE, 0); 
 }  // MessageLoggerQ::SUM()
-
-void
-  MessageLoggerQ::MLqJOB( std::string * j )
-{
-  simpleCommand (JOBREPORT, static_cast<void *>(j)); 
-}  // MessageLoggerQ::JOB()
 
 void
   MessageLoggerQ::MLqMOD( std::string * jm )
