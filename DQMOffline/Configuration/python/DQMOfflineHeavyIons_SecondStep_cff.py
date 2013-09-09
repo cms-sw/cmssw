@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from CondTools.DQM.DQMReferenceHistogramRootFileEventSetupAnalyzer_cfi import *
 from DQMServices.Components.DQMMessageLoggerClient_cff import *
 from DQMServices.Components.DQMDcsInfoClient_cfi import *
+from DQMServices.Components.DQMFastTimerServiceClient_cff import *
 
 from DQMOffline.Ecal.ecal_dqm_client_offline_cff import *
 from DQM.HcalMonitorModule.hcal_dqm_client_fileT0_cff import *
@@ -46,7 +47,8 @@ DQMOfflineHeavyIons_SecondStep_PrePOG = cms.Sequence( muonQualityTests
 
 DQMOfflineHeavyIons_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                                   DQMOfflineHeavyIons_SecondStep_PrePOG *
-                                                  DQMMessageLoggerClientSeq )
+                                                  DQMMessageLoggerClientSeq *
+                                                  dqmFastTimerServiceClient)
 
 DQMOfflineHeavyIons_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                                DQMOfflineHeavyIons_SecondStep_PreDPG *
