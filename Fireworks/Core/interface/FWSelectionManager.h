@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:45 EST 2008
-// $Id: FWSelectionManager.h,v 1.6 2009/08/12 18:12:45 chrjones Exp $
 //
 
 // system include files

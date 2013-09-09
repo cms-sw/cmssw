@@ -11,7 +11,6 @@
 //
 // Original Author:  
 //         Created:  Mon Feb  2 16:40:52 EST 2009
-// $Id: FWTableViewTableManager.h,v 1.6 2010/04/23 21:36:28 chrjones Exp $
 //
 
 // system include files

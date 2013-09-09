@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:15:56 CDT 2008
-// $Id: CSGAction.h,v 1.14 2009/08/26 18:59:20 amraktad Exp $
 //
 
 // system include files

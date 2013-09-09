@@ -1,7 +1,6 @@
 //
 // Package:     Electrons
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.29 2010/06/22 14:03:10 matevz Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"

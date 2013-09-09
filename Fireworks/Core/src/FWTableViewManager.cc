@@ -8,7 +8,6 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.26 2013/01/25 19:44:03 wmtan Exp $
 //
 
 // system include files

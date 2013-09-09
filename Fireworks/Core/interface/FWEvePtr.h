@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 12 11:08:49 EST 2008
-// $Id: FWEvePtr.h,v 1.1 2008/11/14 15:08:31 chrjones Exp $
 //
 
 // system include files

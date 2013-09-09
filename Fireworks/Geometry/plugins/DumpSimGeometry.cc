@@ -13,7 +13,6 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpSimGeometry.cc,v 1.2 2010/08/24 16:49:50 matevz Exp $
 //
 //
 

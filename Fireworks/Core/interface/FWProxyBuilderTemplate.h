@@ -16,7 +16,6 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  April 23 2010
-// $Id: FWProxyBuilderTemplate.h,v 1.3 2010/04/20 20:49:41 amraktad Exp $
 //
 
 // system include files

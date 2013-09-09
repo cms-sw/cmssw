@@ -17,7 +17,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:43:50 EST 2009
-// $Id: FWFramedTextTableCellRenderer.h,v 1.1 2010/04/16 19:46:46 chrjones Exp $
 //
 
 // system include files

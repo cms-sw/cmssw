@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:14 EST 2008
-// $Id: FWParameterSetterBase.h,v 1.7.4.1 2012/02/18 01:58:26 matevz Exp $
 //
 
 // system include files

@@ -16,7 +16,6 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Fri Aug 12 01:12:28 CEST 2011
-// $Id: FWTextProjected.h,v 1.1 2011/08/13 04:04:20 amraktad Exp $
 //
 
 #include "TNamed.h"

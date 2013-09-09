@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.19 2010/09/07 15:46:48 yana Exp $
 //
 
 #include "TEveGeoNode.h"

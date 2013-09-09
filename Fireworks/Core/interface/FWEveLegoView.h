@@ -16,7 +16,6 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon May 31 13:09:38 CEST 2010
-// $Id: FWEveLegoView.h,v 1.31 2010/11/15 17:14:27 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWLegoViewBase.h"

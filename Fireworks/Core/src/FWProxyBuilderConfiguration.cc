@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Wed Jul 27 00:58:43 CEST 2011
-// $Id: FWProxyBuilderConfiguration.cc,v 1.7 2011/08/16 01:16:05 amraktad Exp $
 //
 
 // system include files

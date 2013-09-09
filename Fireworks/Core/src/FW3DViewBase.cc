@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.32 2013/04/25 18:45:32 amraktad Exp $
 //
 #include <boost/bind.hpp>
 

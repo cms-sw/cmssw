@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.39 2012/05/10 21:02:31 amraktad Exp $
 //
 
 // system include files

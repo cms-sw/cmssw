@@ -4,7 +4,6 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.24 2010/09/03 14:47:58 yana Exp $
 //
 
 // system include files

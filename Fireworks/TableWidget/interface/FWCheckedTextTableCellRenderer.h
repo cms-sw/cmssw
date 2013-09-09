@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb  3 14:29:48 EST 2009
-// $Id: FWCheckedTextTableCellRenderer.h,v 1.1 2009/02/03 20:33:03 chrjones Exp $
 //
 
 // system include files

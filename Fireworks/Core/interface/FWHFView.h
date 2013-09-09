@@ -16,7 +16,6 @@
 //
 // Original Author:  Yanjun
 //         Created:  Mon May 31 13:42:21 CEST 2010
-// $Id: FWHFView.h,v 1.7 2010/09/21 17:20:55 amraktad Exp $
 //
 
 // system include files

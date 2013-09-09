@@ -16,7 +16,6 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Mar 22 12:08:40 CET 2010
-// $Id: FWViewType.h,v 1.21.2.1 2011/12/23 02:24:33 amraktad Exp $
 //
 #include <string>
 

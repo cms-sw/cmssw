@@ -16,7 +16,6 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Tue Oct 19 12:00:57 CEST 2010
-// $Id: FWDigitSetProxyBuilder.h,v 1.2 2010/11/09 18:37:30 amraktad Exp $
 //
 
 // system include files
