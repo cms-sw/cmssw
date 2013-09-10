@@ -2,9 +2,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: dpiparo $
-# $Date: 2012/07/03 05:38:00 $
-# $Revision: 1.2 $
+# $Author: anorkus $
+# $Date: 2013/07/05 09:45:01 $
+# $Revision: 1.5 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -48,8 +48,9 @@ class Weighted(object):
 
 #-------------------------------------------------------------------------------
 class CompInfo(object):
-  def __init__(self,sample="",release1="",release2="",run1="",run2="",tier1=0,tier2=0):
-    self.sample=sample
+  def __init__(self,sample1="",sample2="",release1="",release2="",run1="",run2="",tier1=0,tier2=0):
+    self.sample1=sample1
+    self.sample2=sample2
     self.release1=release1
     self.release2=release2
     self.run1=run1
@@ -79,7 +80,14 @@ class Directory(Weighted):
     self.do_pngs=do_pngs
     self.rank_histo=TH1I("rh%s"%name,"",50,-0.01,1.001)
     self.rank_histo.SetDirectory(0)
-
+    self.different_histograms = {}
+    self.different_histograms['file1']= {}
+    self.different_histograms['file2']= {}
+    self.filename1 = ""
+    self.filename2 = ""
+    self.n_missing_objs = 0
+    self.full_path = ""
+    
   def is_empty(self):
     if len(self.subdirs)==0 and len(self.comparisons)==0:
       return True
@@ -102,7 +110,10 @@ class Directory(Weighted):
     
     self.n_skiped = 0
     self.n_comp_skiped = 0
-    
+    self.n_missing_objs = len(self.different_histograms['file1'].keys())+len(self.different_histograms['file2'].keys())
+    if self.n_missing_objs != 0:
+      print "    [*] Missing in %s: %s" %(self.filename1, self.different_histograms['file1'])
+      print "    [*] Missing in %s: %s" %(self.filename2, self.different_histograms['file2'])
     # clean from empty dirs    
     self.subdirs = filter(lambda subdir: not subdir.is_empty(),self.subdirs)    
     
@@ -126,6 +137,7 @@ class Directory(Weighted):
 
     for subdir in self.subdirs:
       subdir.mother_dir=join(self.mother_dir,self.name)
+      subdir.full_path = join(self.mother_dir,self.name).replace("/Run summary","")
       subdir.calcStats(make_pie)
       subdir.meta=self.meta 
       self.weight+=subdir.weight
@@ -134,10 +146,12 @@ class Directory(Weighted):
       self.n_nulls+=subdir.n_nulls
       
       self.n_skiped+=subdir.n_skiped
+      self.n_missing_objs += subdir.n_missing_objs
       
       self.rank_histo.Add(subdir.rank_histo)
 
-    self.stats_calculated=True 
+    self.stats_calculated=True
+    self.full_path = join(self.mother_dir,self.name).replace("/Run summary","")
     #if make_pie:
       #self.__create_pie_image()
 
@@ -186,6 +200,7 @@ class Directory(Weighted):
       print " o Nulls: %.2f%% (%s/%s) " %(self.get_null_rate(),self.n_nulls,self.weight)
       print " o Successes: %.2f%% (%s/%s) " %(self.get_success_rate(),self.n_successes,self.weight)
       print " o Skipped: %.2f%% (%s/%s) " %(self.get_skiped_rate(),self.n_skiped,self.weight)
+      print " o Missing objects: %s" %(self.n_missing_objs)
 
   def get_skiped_rate(self):
     if self.weight == 0: return 0
