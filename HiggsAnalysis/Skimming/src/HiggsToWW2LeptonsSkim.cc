@@ -3,8 +3,6 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2007/12/20 00:40:30 $
- *  $Revision: 1.10 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *
