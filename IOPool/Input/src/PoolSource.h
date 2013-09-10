@@ -65,7 +65,7 @@ namespace edm {
     std::unique_ptr<RootInputFileSequence> secondaryFileSequence_;
     boost::shared_ptr<RunPrincipal> secondaryRunPrincipal_;
     boost::shared_ptr<LuminosityBlockPrincipal> secondaryLumiPrincipal_;
-    std::unique_ptr<EventPrincipal> secondaryEventPrincipal_;
+    std::vector<std::unique_ptr<EventPrincipal>> secondaryEventPrincipals_;
     std::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
   }; // class PoolSource
   typedef PoolSource PoolRASource;

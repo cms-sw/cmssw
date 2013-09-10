@@ -149,7 +149,7 @@ namespace edm {
                                                               *processConfiguration_,
                                                               historyAppender_.get(),
                                                               index));
-      principalCache_.insert(ep,index);
+      principalCache_.insert(ep);
     }
     if(subProcessParameterSet) {
       subProcess_.reset(new SubProcess(*subProcessParameterSet,
@@ -300,7 +300,6 @@ namespace edm {
     }
 
     EventPrincipal& ep = principalCache_.eventPrincipal(principal.streamID().value());
-    ep.setStreamID(principal.streamID());
     ep.fillEventPrincipal(aux,
                           processHistoryRegistry_,
                           esids,

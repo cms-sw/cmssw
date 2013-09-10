@@ -36,6 +36,10 @@ namespace edm {
      // ---------- const member functions ---------------------
      virtual WrapperHolder getIt(ProductID const&) const = 0;
 
+     unsigned int transitionIndex() const {
+       return transitionIndex_();
+     }
+
      // ---------- member functions ---------------------------
 
      ///These can only be used internally by the framework
@@ -43,6 +47,8 @@ namespace edm {
      static void assignEDProductGetter(EDProductGetter const*&);
 
 private:
+    virtual unsigned int transitionIndex_() const = 0;
+
      // ---------- member data --------------------------------
 
    };

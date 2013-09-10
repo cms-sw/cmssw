@@ -73,4 +73,10 @@ namespace edm {
       putOrMerge(edp, &phb);
     }
   }
+
+  unsigned int
+  RunPrincipal::transitionIndex_() const {
+    return 0U;
+  }
+
 }

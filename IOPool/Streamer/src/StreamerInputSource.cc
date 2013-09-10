@@ -51,7 +51,7 @@ namespace edm {
     dest_(init_size),
     xbuf_(TBuffer::kRead, init_size),
     sendEvent_(),
-    productGetter_(),
+    eventPrincipalHolder_(),
     adjustEventToNewProductRegistry_(false) {
   }
 
@@ -233,7 +233,7 @@ namespace edm {
     xbuf_.SetBuffer(&dest_[0],dest_size,kFALSE);
     RootDebug tracer(10,10);
 
-    setRefCoreStreamer(&productGetter_);
+    setRefCoreStreamer(&eventPrincipalHolder_);
     sendEvent_ = std::unique_ptr<SendEvent>((SendEvent*)xbuf_.ReadObjectAny(tc_));
     setRefCoreStreamer();
 
@@ -271,7 +271,7 @@ namespace edm {
     boost::shared_ptr<BranchListIndexes> indexes(new BranchListIndexes(sendEvent_->branchListIndexes()));
     branchIDListHelper()->fixBranchListIndexes(*indexes);
     eventPrincipal.fillEventPrincipal(sendEvent_->aux(), processHistoryRegistryForUpdate(), ids, indexes);
-    productGetter_.setEventPrincipal(&eventPrincipal);
+    eventPrincipalHolder_.setEventPrincipal(&eventPrincipal);
 
     // no process name list handling
 
@@ -367,17 +367,23 @@ namespace edm {
      << "Contact a Storage Manager Developer\n";
   }
 
-  StreamerInputSource::ProductGetter::ProductGetter() : eventPrincipal_(0) {}
+  StreamerInputSource::EventPrincipalHolder::EventPrincipalHolder() : eventPrincipal_(nullptr) {}
 
-  StreamerInputSource::ProductGetter::~ProductGetter() {}
+  StreamerInputSource::EventPrincipalHolder::~EventPrincipalHolder() {}
 
   WrapperHolder
-  StreamerInputSource::ProductGetter::getIt(ProductID const& id) const {
+  StreamerInputSource::EventPrincipalHolder::getIt(ProductID const& id) const {
     return eventPrincipal_ ? eventPrincipal_->getIt(id) : WrapperHolder();
   }
 
+  unsigned int
+  StreamerInputSource::EventPrincipalHolder::transitionIndex_() const {
+    assert(eventPrincipal_ != nullptr);
+    return eventPrincipal_->transitionIndex();
+  }
+
   void
-  StreamerInputSource::ProductGetter::setEventPrincipal(EventPrincipal* ep) {
+  StreamerInputSource::EventPrincipalHolder::setEventPrincipal(EventPrincipal* ep) {
     eventPrincipal_ = ep;
   }
 

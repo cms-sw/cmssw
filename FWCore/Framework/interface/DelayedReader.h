@@ -3,12 +3,13 @@
 
 /*----------------------------------------------------------------------
 
-DelayedReader: The abstract interface through which the EventPrincipal
+DelayedReader: The abstract interface through which the Principal
 uses input sources to retrieve EDProducts from external storage.
 
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/WrapperOwningHolder.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include <memory>
 
@@ -25,7 +26,9 @@ namespace edm {
     void mergeReaders(DelayedReader* other) {mergeReaders_(other);}
     void reset() {reset_();}
   private:
-    virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const = 0;
+    virtual WrapperOwningHolder getProduct_(BranchKey const& k,
+                                            WrapperInterfaceBase const* interface,
+                                            EDProductGetter const* ep) const = 0;
     virtual void mergeReaders_(DelayedReader*) = 0;
     virtual void reset_() = 0;
   };

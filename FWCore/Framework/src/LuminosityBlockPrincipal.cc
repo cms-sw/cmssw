@@ -54,8 +54,8 @@ namespace edm {
 
   void
   LuminosityBlockPrincipal::readImmediate() const {
-    for(Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      ProductHolderBase const& phb = **i;
+    for(auto const& prod : *this) {
+      ProductHolderBase const& phb = *prod;
       if(phb.singleProduct() && !phb.branchDescription().produced()) {
         if(!phb.productUnavailable()) {
           resolveProductImmediate(phb);
@@ -78,4 +78,10 @@ namespace edm {
       putOrMerge(edp, &phb);
     }
   }
+
+  unsigned int
+  LuminosityBlockPrincipal::transitionIndex_() const {
+    return 0U;
+  }
+
 }
