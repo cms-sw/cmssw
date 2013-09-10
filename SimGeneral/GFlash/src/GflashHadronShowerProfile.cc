@@ -14,7 +14,7 @@
 
 #include <math.h>
 
-GflashHadronShowerProfile::GflashHadronShowerProfile(edm::ParameterSet parSet) : theParSet(parSet)
+GflashHadronShowerProfile::GflashHadronShowerProfile(const edm::ParameterSet& parSet) : theParSet(parSet)
 {
   theBField = parSet.getParameter<double>("bField");
   theGflashHcalOuter = parSet.getParameter<bool>("GflashHcalOuter");

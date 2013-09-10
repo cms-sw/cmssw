@@ -19,7 +19,7 @@ HcalNumberingScheme::~HcalNumberingScheme() {
   edm::LogInfo("HcalSim") << "Deleting HcalNumberingScheme";
 }
 
-uint32_t HcalNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID id){
+uint32_t HcalNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID& id){
 
   int zside = 2*(id.zside) - 1;
   int etaR  = zside*(id.etaR);

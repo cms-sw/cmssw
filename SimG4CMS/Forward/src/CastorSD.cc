@@ -546,7 +546,7 @@ int CastorSD::setTrackID (G4Step* aStep) {
 
 //=======================================================================================
 
-uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, CastorShowerEvent shower) {
+uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, const CastorShowerEvent& shower) {
 // ==============================================================
 //
 //   o   Exploit Castor phi symmetry to return newUnitID for  

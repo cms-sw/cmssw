@@ -68,7 +68,7 @@ Local3DPoint SensitiveDetector::FinalStepPosition(G4Step * s, coordinates c)
     return ConvertToLocal3DPoint(localCoordinates); 
 }
 
-Local3DPoint SensitiveDetector::ConvertToLocal3DPoint(G4ThreeVector p)
+Local3DPoint SensitiveDetector::ConvertToLocal3DPoint(const G4ThreeVector& p)
 {
     return Local3DPoint(p.x(),p.y(),p.z());
 }

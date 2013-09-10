@@ -18,10 +18,10 @@ namespace Gflash {
     kNumberCalorimeter
   };
   
-  CalorimeterNumber getCalorimeterNumber(const Gflash3Vector position);
-  double rhoBackEB(const Gflash3Vector position);
-  double zBackEE(const Gflash3Vector position);
-  int findShowerType(const Gflash3Vector position);
+  CalorimeterNumber getCalorimeterNumber(const Gflash3Vector& position);
+  double rhoBackEB(const Gflash3Vector& position);
+  double zBackEE(const Gflash3Vector& position);
+  int findShowerType(const Gflash3Vector& position);
 
   //                                            EB     HB     EE     HE      HO,     HF
   const double Zmin[kNumberCalorimeter]   = {0.000, 0.000, 317.2, 391.95, 0.000, 1110.0}; // in cm

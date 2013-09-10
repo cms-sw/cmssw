@@ -8,7 +8,7 @@
 //#define DebugLog
 //#define mkodebug
 
-int HFFibreFiducial::PMTNumber(G4ThreeVector pe_effect)
+int HFFibreFiducial::PMTNumber(const G4ThreeVector& pe_effect)
 {
 #ifdef mkodebug
   static double mX=0.;
