@@ -747,12 +747,12 @@ double ElectronEnergyRegressionEvaluate::regressionValueNoTrkVar(
   if (printDebug) {    
     if ( fabs(scEta) <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 38; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 38; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 31; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 31; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "BinIndex : " << BinIndex << "\n";
@@ -910,12 +910,12 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyNoTrkVar(
   if (printDebug) {    
     if (fabs(scEta) <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 38; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 38; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 31; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 31; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "BinIndex : " << BinIndex << "\n";
@@ -1079,12 +1079,12 @@ double ElectronEnergyRegressionEvaluate::regressionValueNoTrkVarV1(
   if (printDebug) {    
     if ( fabs(scEta) <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 39; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 39; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 32; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 32; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "BinIndex : " << BinIndex << "\n";
@@ -1245,12 +1245,12 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyNoTrkVarV1(
   if (printDebug) {    
     if (fabs(scEta) <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 39; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 39; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 32; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 32; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "BinIndex : " << BinIndex << "\n";
@@ -1419,12 +1419,12 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVar(
   if (printDebug) {
     if (scEta <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 43; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 43; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 36; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 36; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "pt = " << pt << " : SCRawEnergy = " << SCRawEnergy << " : PreShowerOverRaw = " << PreShowerOverRaw << std::endl;
@@ -1591,12 +1591,12 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVar(
   if (printDebug) {
     if (scEta <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 43; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 43; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 36; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 36; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "pt = " << pt << " : SCRawEnergy = " << SCRawEnergy << " : PreShowerOverRaw = " << PreShowerOverRaw << std::endl;
@@ -1771,12 +1771,12 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV1(
   if (printDebug) {
     if (fabs(scEta) <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 46; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 46; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 39; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 39; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "SCRawEnergy = " << SCRawEnergy << " : PreShowerOverRaw = " << PreShowerOverRaw << std::endl;
@@ -1949,12 +1949,12 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV1(
   if (printDebug) {
     if (fabs(scEta) <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 46; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 46; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 39; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 39; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << " SCRawEnergy = " << SCRawEnergy << " : PreShowerOverRaw = " << PreShowerOverRaw << std::endl;
@@ -2134,12 +2134,12 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV1(std::vector
   if (printDebug) {
     if (fabs(scEta) <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 46; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 46; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 39; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 39; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "SCRawEnergy = " << SCRawEnergy << " : PreShowerOverRaw = " << PreShowerOverRaw << std::endl;
@@ -2317,12 +2317,12 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV1(std::
   if (printDebug) {
     if (fabs(scEta) <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 46; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 46; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 39; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 39; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << " SCRawEnergy = " << SCRawEnergy << " : PreShowerOverRaw = " << PreShowerOverRaw << std::endl;
@@ -2517,12 +2517,12 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV2(
   if (printDebug) {
     if (fabs(scEta) <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 53; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 53; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 46; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 46; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "SCRawEnergy = " << SCRawEnergy << " : PreShowerOverRaw = " << PreShowerOverRaw << std::endl;
@@ -2716,12 +2716,12 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV2(
   if (printDebug) {
     if (fabs(scEta) <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 53; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 53; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 46; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 46; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "SCRawEnergy = " << SCRawEnergy << " : PreShowerOverRaw = " << PreShowerOverRaw << std::endl;
@@ -2921,12 +2921,12 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithTrkVarV2(std::vector
   if (printDebug) {
     if (fabs(scEta) <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 53; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 53; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 46; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 46; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "SCRawEnergy = " << SCRawEnergy << " : PreShowerOverRaw = " << PreShowerOverRaw << std::endl;
@@ -3124,12 +3124,12 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithTrkVarV2(std::
   if (printDebug) {
     if (fabs(scEta) <= 1.479) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 53; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 53; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 46; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 46; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "SCRawEnergy = " << SCRawEnergy << " : PreShowerOverRaw = " << PreShowerOverRaw << std::endl;
@@ -3379,12 +3379,12 @@ double ElectronEnergyRegressionEvaluate::regressionValueWithSubClusters(
   if (printDebug) {    
     if (isEB) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 61; ++v) std::cout << v << "=" << vals[v] << ", ";
+      for (unsigned int v=0; v < 61; ++v) std::cout << v << "=" << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 65; ++v) std::cout << v << "=" << vals[v] << ", ";
+      for (unsigned int v=0; v < 65; ++v) std::cout << v << "=" << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "BinIndex : " << BinIndex << "\n";
@@ -3632,12 +3632,12 @@ double ElectronEnergyRegressionEvaluate::regressionUncertaintyWithSubClusters(
   if (printDebug) {    
     if (isEB) {
       std::cout << "Barrel :";
-      for (uint v=0; v < 38; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 38; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     else {
       std::cout << "Endcap :";
-      for (uint v=0; v < 31; ++v) std::cout << vals[v] << ", ";
+      for (unsigned int v=0; v < 31; ++v) std::cout << vals[v] << ", ";
       std::cout << "\n";
     }
     std::cout << "BinIndex : " << BinIndex << "\n";
