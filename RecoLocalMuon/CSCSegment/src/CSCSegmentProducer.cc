@@ -7,17 +7,17 @@
 
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
-#include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegment.h>
 
 CSCSegmentProducer::CSCSegmentProducer(const edm::ParameterSet& pas) : iev(0) {
 	
-    inputObjectsTag = pas.getParameter<edm::InputTag>("inputObjects");
+    m_token = consumes<CSCRecHit2DCollection>( pas.getParameter<edm::InputTag>("inputObjects") );
     segmentBuilder_ = new CSCSegmentBuilder(pas); // pass on the PS
 
   	// register what this produces
@@ -43,7 +43,7 @@ void CSCSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
 	
     // get the collection of CSCRecHit2D
     edm::Handle<CSCRecHit2DCollection> cscRecHits;
-    ev.getByLabel(inputObjectsTag, cscRecHits);  
+    ev.getByToken( m_token, cscRecHits);
 
     // create empty collection of Segments
     std::auto_ptr<CSCSegmentCollection> oc( new CSCSegmentCollection );
