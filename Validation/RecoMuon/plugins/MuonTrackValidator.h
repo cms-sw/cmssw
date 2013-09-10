@@ -48,12 +48,12 @@ class MuonTrackValidator : public edm::EDAnalyzer, protected MuonTrackValidatorB
     // dump cfg parameters
     edm::LogVerbatim("MuonTrackValidator") << "constructing  MuonTrackValidator: " << pset.dump();
     
-    // Declare concumes (also for the base class)
+    // Declare consumes (also for the base class)
     bsSrc_Token = consumes<reco::BeamSpot>(bsSrc);
     tp_effic_Token = consumes<TrackingParticleCollection>(label_tp_effic);
     tp_fake_Token = consumes<TrackingParticleCollection>(label_tp_fake);
     for (unsigned int www=0;www<label.size();www++){
-      track_Collection_Token[www] = consumes<edm::View<reco::Track> >(label[www]);
+      track_Collection_Token.push_back(consumes<edm::View<reco::Track> >(label[www]));
     }
     simToRecoCollection_Token = consumes<reco::SimToRecoCollection>(associatormap);
     recoToSimCollection_Token = consumes<reco::RecoToSimCollection>(associatormap);
