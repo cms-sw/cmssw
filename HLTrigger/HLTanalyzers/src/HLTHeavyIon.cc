@@ -18,15 +18,32 @@
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 using namespace std;
 
+HLTHeavyIon::HLTHeavyIon(edm::ConsumesCollector && iC) : HLTHeavyIon::HLTHeavyIon()
+{
+  centralityBin_Token = iC.consumes<int>( centralityBin_Label); 
+}
+
 HLTHeavyIon::HLTHeavyIon() {
 
   //set parameter defaults 
-   _Monte = false;
-  _Debug=false;
+  _Monte = false;
+  _Debug = false;
   _OR_BXes=false;
   UnpackBxInEvent=1;
+  centralityBin_Label = edm::InputTag("centralityBin");
 
 }
+
+void
+HLTHeavyIon::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+  edm::ParameterSetDescription hltParameterSet;
+  desc.add<edm::ParameterSetDescription>("RunParameters",hltParameterSet);
+  desc.add<bool>("Debug",false);
+  desc.add<bool>("Monte",false);
+  descriptions.add("hltHeavyIon", desc);
+}
+
 
 void HLTHeavyIon::beginRun(const edm::Run& run, const edm::EventSetup& c){ 
 
@@ -152,7 +169,8 @@ void HLTHeavyIon::analyze(const edm::Handle<edm::TriggerResults>                
    }
 
    edm::Handle<int> binHandle;
-   iEvent.getByLabel("centralityBin",binHandle);
+   if (centralityBin_Token.isUnitialized()) iEvent.getByToken(centralityBin_Token,binHandle);
+   else iEvent.getByLabel(centralityBin_Label,binHandle);
    hiBin = *binHandle;
 
   hiNpix = centrality->multiplicityPixel();
