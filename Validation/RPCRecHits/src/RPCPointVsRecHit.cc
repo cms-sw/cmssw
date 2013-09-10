@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -15,8 +14,8 @@ typedef MonitorElement* MEP;
 
 RPCPointVsRecHit::RPCPointVsRecHit(const edm::ParameterSet& pset)
 {
-  refHitLabel_ = pset.getParameter<edm::InputTag>("refHit");
-  recHitLabel_ = pset.getParameter<edm::InputTag>("recHit");
+  refHitToken_ = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("refHit"));
+  recHitToken_ = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("recHit"));
 
   dbe_ = edm::Service<DQMStore>().operator->();
   if ( !dbe_ )
@@ -56,7 +55,7 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
 
   // Retrieve RefHits from the event
   edm::Handle<RPCRecHitCollection> refHitHandle;
-  if ( !event.getByLabel(refHitLabel_, refHitHandle) )
+  if ( !event.getByToken(refHitToken_, refHitHandle) )
   {
     edm::LogInfo("RPCPointVsRecHit") << "Cannot find reference hit collection\n";
     return;
@@ -64,7 +63,7 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
 
   // Retrieve RecHits from the event
   edm::Handle<RPCRecHitCollection> recHitHandle;
-  if ( !event.getByLabel(recHitLabel_, recHitHandle) )
+  if ( !event.getByToken(recHitToken_, recHitHandle) )
   {
     edm::LogInfo("RPCPointVsRecHit") << "Cannot find recHit collection\n";
     return;
