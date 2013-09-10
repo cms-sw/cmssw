@@ -1,7 +1,5 @@
 *
-* $Id: locatf.F,v 1.2 1996/05/24 10:56:52 jamie Exp $
 *
-* $Log: locatf.F,v $
 * Revision 1.2  1996/05/24 10:56:52  jamie
 * add locatr entry for consistency with wrup
 *

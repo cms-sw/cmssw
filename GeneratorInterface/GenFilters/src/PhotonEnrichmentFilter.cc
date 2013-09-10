@@ -13,7 +13,6 @@
 //
 // Original Author:  Douglas Ryan Berry,512 1-008,+41227670494,
 //         Created:  Mon Jul 26 10:02:34 CEST 2010
-// $Id: PhotonEnrichmentFilter.cc,v 1.1 2011/01/19 13:38:06 drberry Exp $
 //
 //
 
