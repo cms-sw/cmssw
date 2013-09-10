@@ -2,7 +2,7 @@
 
 import os
 
-version = 'antiMuonDiscr_v1_8'
+version = 'antiMuonDiscr_v1_10'
 
 inputFilePath  = "/data2/veelken/CMSSW_5_3_x/Ntuples/antiMuonDiscrMVATraining/%s/" % version
 inputFilePath += "user/veelken/CMSSW_5_3_x/Ntuples/antiMuonDiscrMVATraining/%s/" % version
@@ -21,7 +21,7 @@ preselection_newDMs = \
 mvaDiscriminators = {
     'mvaAntiMuonDiscrOpt1' : {
         'preselection'        : preselection_newDMs,
-        'applyPtReweighting'  : True,
+        'applyPtReweighting'  : False,
         'applyEtaReweighting' : True,
         'reweight'            : 'min',
         'applyEventPruning'   : 0,
@@ -49,7 +49,7 @@ mvaDiscriminators = {
     },
     'mvaAntiMuonDiscrOpt2' : {
         'preselection'        : preselection_newDMs,
-        'applyPtReweighting'  : True,
+        'applyPtReweighting'  : False,
         'applyEtaReweighting' : True,
         'reweight'            : 'min',
         'applyEventPruning'   : 0,

@@ -2,7 +2,7 @@
 
 import os
 
-version = 'antiElectronDiscr_v1_1'
+version = 'antiElectronDiscr_v1_2'
 
 inputFilePath  = "/data2/veelken/CMSSW_5_3_x/Ntuples/antiElectronDiscrMVATraining/%s/" % version
 inputFilePath += "user/veelken/CMSSW_5_3_x/Ntuples/antiElectronDiscrMVATraining/%s/" % version
@@ -1013,8 +1013,8 @@ for discriminator in mvaDiscriminators.keys():
         cfg_modified += "process.makeROCcurveTauIdMVA.classId_signal = cms.int32(0)\n"
         cfg_modified += "process.makeROCcurveTauIdMVA.classId_background = cms.int32(1)\n"
         cfg_modified += "process.makeROCcurveTauIdMVA.branchNameClassId = cms.string('classID')\n"
-        cfg_modified += "process.makeROCcurveTauIdMVA.branchNameLogTauPt = cms.string('')\n"
-        cfg_modified += "process.makeROCcurveTauIdMVA.branchNameTauPt = cms.string('Tau_Pt')\n"
+        cfg_modified += "process.makeROCcurveTauIdMVA.branchNameLogTauPt = cms.string('TMath_Log_TMath_Max_1.,Tau_Pt__')\n"
+        cfg_modified += "process.makeROCcurveTauIdMVA.branchNameTauPt = cms.string('')\n"
         cfg_modified += "process.makeROCcurveTauIdMVA.discriminator = cms.string('BDTGmapped')\n"
         cfg_modified += "process.makeROCcurveTauIdMVA.branchNameEvtWeight = cms.string('weight')\n"
         cfg_modified += "process.makeROCcurveTauIdMVA.graphName = cms.string('%s_%s')\n" % (discriminator, tree)
@@ -1311,4 +1311,4 @@ makeFile.write("\techo 'Finished deleting old files.'\n")
 makeFile.write("\n")
 makeFile.close()
 
-print("Finished building Makefile. Now execute 'make -j 2 -f %s'." % makeFileName)
+print("Finished building Makefile. Now execute 'make -j 4 -f %s'." % makeFileName)

@@ -157,7 +157,7 @@ for massPoint in DrellYanMassPoints:
         'type'                               : 'BackgroundMC'
     }
 
-version = "antiMuonDiscr_v1_8"
+version = "antiMuonDiscr_v1_10"
 
 submitJobFraction = 1.00
 
@@ -224,8 +224,8 @@ configFile = "produceAntiMuonDiscrMVATrainingNtuple_cfg.py"
 currentDirectory    = os.getcwd()
 submissionDirectory = os.path.join(currentDirectory, "crab")
 
-#executable_crab = 'crab'
-executable_crab = 'crab -GRID.dont_check_proxy 1' # NOTE: requires to execute 'voms-proxy-init -voms cms -valid 72:0' prior to running submitAntiMuonDiscrMVATrainingNtupleProduction_grid.py
+executable_crab = 'crab'
+#executable_crab = 'crab -GRID.dont_check_proxy 1' # NOTE: requires to execute 'voms-proxy-init -voms cms -valid 72:0' prior to running submitAntiMuonDiscrMVATrainingNtupleProduction_grid.py
 
 def getStringRep_bool(flag):
     retVal = None

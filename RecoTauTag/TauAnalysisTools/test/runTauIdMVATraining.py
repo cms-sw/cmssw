@@ -2,19 +2,19 @@
 
 import os
 
-version = 'tauId_v1_13'
+version = 'tauId_v1_14'
 
 inputFilePath  = "/data2/veelken/CMSSW_5_3_x/Ntuples/tauIdMVATraining/%s/" % version
 inputFilePath += "user/veelken/CMSSW_5_3_x/Ntuples/tauIdMVATraining/%s/" % version
 
-outputFilePath = "/data1/veelken/tmp/tauIdMVATraining/%s_5/" % version
+outputFilePath = "/data1/veelken/tmp/tauIdMVATraining/%s_2/" % version
 
 preselection_oldDMs = \
-    'decayModeFindingNewDMs > 0.5' \
+    'decayModeFindingOldDMs > 0.5' \
   + ' && numSelectedOfflinePrimaryVertices >= 1 && TMath::Abs(recTauVtxZ - selectedOfflinePrimaryVertexZ) < 0.4 && recJetLooseId > 0.5' \
   + ' && leadPFChargedHadrCandPt > 1.'
 preselection_newDMs = \
-    'decayModeFindingOldDMs > 0.5' \
+    'decayModeFindingNewDMs > 0.5' \
   + ' && numSelectedOfflinePrimaryVertices >= 1 && TMath::Abs(recTauVtxZ - selectedOfflinePrimaryVertexZ) < 0.4 && recJetLooseId > 0.5' \
   + ' && leadPFChargedHadrCandPt > 1.'  
 

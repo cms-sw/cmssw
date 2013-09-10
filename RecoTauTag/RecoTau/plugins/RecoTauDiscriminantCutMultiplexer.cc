@@ -191,8 +191,9 @@ RecoTauDiscriminantCutMultiplexer::discriminate(const reco::PFTauRef& tau)
     double xMin, xMax, dummy;
     cutIter->second->cutFunction_->GetPoint(0, xMin, dummy);
     cutIter->second->cutFunction_->GetPoint(cutIter->second->cutFunction_->GetN() - 1, xMax, dummy);
-    if      ( cutVariable < xMin ) cutVariable = xMin;
-    else if ( cutVariable > xMax ) cutVariable = xMax;
+    const double epsilon = 1.e-3;
+    if      ( cutVariable < (xMin + epsilon) ) cutVariable = xMin + epsilon;
+    else if ( cutVariable > (xMax - epsilon) ) cutVariable = xMax - epsilon;
     double cutValue = cutIter->second->cutFunction_->Eval(cutVariable);
     passesCuts = (disc_result > cutValue);
     if ( verbosity_ ) {

@@ -13,7 +13,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
         cms.PSet(
             categories = cms.VPSet(
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_NoEleMatch_woGwoGSF_Barrel_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_NoEleMatch_woGwoGSF_Barrel_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Tau_EtaAtEcalEntrance',
@@ -30,7 +30,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_NoEleMatch_woGwoGSF_BL")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_NoEleMatch_woGwGSF_Barrel_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_NoEleMatch_woGwGSF_Barrel_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Tau_EtaAtEcalEntrance',
@@ -53,7 +53,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_NoEleMatch_woGwGSF_BL")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_NoEleMatch_wGwoGSF_Barrel_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_NoEleMatch_wGwoGSF_Barrel_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Tau_EtaAtEcalEntrance',
@@ -74,7 +74,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_NoEleMatch_wGwoGSF_BL")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_NoEleMatch_wGwGSF_Barrel_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_NoEleMatch_wGwGSF_Barrel_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Tau_EtaAtEcalEntrance',
@@ -101,7 +101,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_NoEleMatch_wGwGSF_BL")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_woGwoGSF_Barrel_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_woGwoGSF_Barrel_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Elec_EtotOverPin',
@@ -126,7 +126,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_woGwoGSF_BL")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_woGwGSF_Barrel_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_woGwGSF_Barrel_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Elec_EtotOverPin',
@@ -157,7 +157,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_woGwGSF_BL")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_wGwoGSF_Barrel_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_wGwoGSF_Barrel_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Elec_EtotOverPin',
@@ -186,7 +186,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_wGwoGSF_BL")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_wGwGSF_Barrel_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_wGwGSF_Barrel_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Elec_EtotOverPin',
@@ -221,7 +221,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_wGwGSF_BL")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_NoEleMatch_woGwoGSF_Endcap_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_NoEleMatch_woGwoGSF_Endcap_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Tau_EtaAtEcalEntrance',
@@ -237,7 +237,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_NoEleMatch_woGwoGSF_EC")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_NoEleMatch_woGwGSF_Endcap_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_NoEleMatch_woGwGSF_Endcap_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Tau_EtaAtEcalEntrance',
@@ -259,7 +259,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_NoEleMatch_woGwGSF_EC")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_NoEleMatch_wGwoGSF_Endcap_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_NoEleMatch_wGwoGSF_Endcap_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Tau_EtaAtEcalEntrance',
@@ -279,7 +279,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_NoEleMatch_wGwoGSF_EC")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_NoEleMatch_wGwGSF_Endcap_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_NoEleMatch_wGwGSF_Endcap_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Tau_EtaAtEcalEntrance',
@@ -305,7 +305,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_NoEleMatch_wGwGSF_EC")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_woGwoGSF_Endcap_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_woGwoGSF_Endcap_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Elec_EtotOverPin',
@@ -329,7 +329,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_woGwoGSF_EC")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_woGwGSF_Endcap_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_woGwGSF_Endcap_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Elec_EtotOverPin',
@@ -359,7 +359,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_woGwGSF_EC")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_wGwoGSF_Endcap_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_wGwoGSF_Endcap_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Elec_EtotOverPin',
@@ -387,7 +387,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
                     gbrForestName = cms.string("gbr_wGwoGSF_EC")
                 ),
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_1/mvaAntiElectronDiscr5_wGwGSF_Endcap_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiElectronDiscrMVATraining/antiElectronDiscr_v1_2/mvaAntiElectronDiscr5_wGwGSF_Endcap_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'Elec_EtotOverPin',

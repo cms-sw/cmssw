@@ -37,6 +37,8 @@
 struct workingPointEntryType
 {
   double targetSignalEfficiency_;
+  double minPt_;
+  double maxPt_;
   typedef std::map<Int_t, double> wpMap; // key = category
   wpMap cuts_;
   double S_;
@@ -59,6 +61,11 @@ std::vector<workingPointEntryType> readWorkingPoints(const std::string& wpFileNa
   Float_t targetSignalEfficiency;
   wpTree->SetBranchAddress("targetSignalEfficiency", &targetSignalEfficiency);
   
+  Float_t minPt;
+  wpTree->SetBranchAddress("minPt", &minPt);
+  Float_t maxPt;
+  wpTree->SetBranchAddress("maxPt", &maxPt);
+
   std::map<Int_t, Float_t> cuts; // key = category
   for ( std::vector<int>::const_iterator category = categories.begin();
 	category != categories.end(); ++category ) {
@@ -83,6 +90,9 @@ std::vector<workingPointEntryType> readWorkingPoints(const std::string& wpFileNa
 
     std::cout << "targetSignalEfficiency = " << targetSignalEfficiency << ":" << std::endl;
     workingPoint.targetSignalEfficiency_ = targetSignalEfficiency;
+
+    workingPoint.minPt_ = minPt;
+    workingPoint.maxPt_ = maxPt;
 
     for ( std::vector<int>::const_iterator category = categories.begin();
 	  category != categories.end(); ++category ) {
@@ -164,9 +174,11 @@ int main(int argc, char* argv[])
 
   std::string branchName_mvaOutput = cfgComputeBDTGmappedAntiElectronDiscrMVA.getParameter<std::string>("branchName_mvaOutput");
   std::string branchName_categoryIdx = cfgComputeBDTGmappedAntiElectronDiscrMVA.getParameter<std::string>("branchName_categoryIdx");
+  std::string branchName_tauPt = cfgComputeBDTGmappedAntiElectronDiscrMVA.getParameter<std::string>("branchName_tauPt");
+  std::string branchName_logTauPt = cfgComputeBDTGmappedAntiElectronDiscrMVA.getParameter<std::string>("branchName_logTauPt");
 
   std::vector<int> categories = cfgComputeBDTGmappedAntiElectronDiscrMVA.getParameter<vint>("categories");
-
+  
   std::string wpFileName = cfgComputeBDTGmappedAntiElectronDiscrMVA.getParameter<std::string>("wpFileName");
   std::string wpTreeName = cfgComputeBDTGmappedAntiElectronDiscrMVA.getParameter<std::string>("wpTreeName");
   std::vector<workingPointEntryType> workingPoints = readWorkingPoints(wpFileName, wpTreeName, categories);
@@ -196,6 +208,8 @@ int main(int argc, char* argv[])
   std::vector<branchEntryType*> branches_to_copy;
   branchEntryType* branch_mvaOutput   = 0;
   branchEntryType* branch_categoryIdx = 0;
+  branchEntryType* branch_tauPt       = 0;
+  branchEntryType* branch_logTauPt    = 0;
 
   TObjArray* branches = inputTree->GetListOfBranches();
   int numBranches = branches->GetEntries();
@@ -222,10 +236,15 @@ int main(int argc, char* argv[])
     branches_to_copy.push_back(branch_to_copy);
     if ( branchName == branchName_mvaOutput   ) branch_mvaOutput   = branch_to_copy;
     if ( branchName == branchName_categoryIdx ) branch_categoryIdx = branch_to_copy;
+    if ( branchName == branchName_tauPt       ) branch_tauPt       = branch_to_copy;
+    if ( branchName == branchName_logTauPt    ) branch_logTauPt    = branch_to_copy;
   }
   if ( !(branch_mvaOutput && branch_categoryIdx) ) 
     throw cms::Exception("computeBDTGmappedAntiElectronDiscrMVA") 
       << "Failed to find Branches '" << branchName_mvaOutput << "' and '" << branchName_categoryIdx << "' in input Tree !!\n";
+  if ( !(branch_tauPt || branch_logTauPt) )
+    throw cms::Exception("computeBDTGmappedAntiElectronDiscrMVA") 
+      << "Failed to find either one of the Branches '" << branchName_tauPt << "' and '" << branchName_logTauPt << "' in input Tree !!\n";
   
   for ( std::vector<branchEntryType*>::iterator branch = branches_to_copy.begin();
         branch != branches_to_copy.end(); ++branch ) {
@@ -274,13 +293,19 @@ int main(int argc, char* argv[])
     Float_t mvaOutput = branch_mvaOutput->inputValueF_;
     Int_t categoryIdx = TMath::Nint(branch_categoryIdx->inputValueF_); // CV: TMVA stores Tau_Category branch in floating-point format !!
     
+    double tauPt_value;
+    if      ( branch_logTauPt ) tauPt_value = TMath::Exp(branch_logTauPt->inputValueF_);
+    else if ( branch_tauPt    ) tauPt_value = branch_tauPt->inputValueF_;
+    else assert(0);
+
     double SoverBmax = 0.;
     for ( vint::const_iterator category = categories.begin();
 	  category != categories.end(); ++category ) {
       if ( categoryIdx & (1<<(*category)) ) {
 	for ( std::vector<workingPointEntryType>::iterator workingPoint = workingPoints.begin();
 	      workingPoint != workingPoints.end(); ++workingPoint ) {
-	  if ( mvaOutput > workingPoint->cuts_[*category] && workingPoint->SoverB_ > SoverBmax ) SoverBmax = workingPoint->SoverB_;
+	  if ( tauPt_value > workingPoint->minPt_ && tauPt_value < workingPoint->maxPt_ &&
+	       mvaOutput > workingPoint->cuts_[*category] && workingPoint->SoverB_ > SoverBmax ) SoverBmax = workingPoint->SoverB_;
 	}
       }
     }

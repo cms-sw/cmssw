@@ -13,7 +13,7 @@ process.GlobalTag.globaltag = cms.string('START53_V15::All')
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/user/veelken/CMSSW_5_3_x/skims/SVfitStudies/AccLowPtThresholds/ZplusJets_mutau/genTauLeptonPairSkim_ZplusJets_mutau_1_1_aWJ.root'
+        'file:/data1/veelken/CMSSW_5_3_x/skims/96E96DDB-61D3-E111-BEFB-001E67397D05.root'
         ##'file:/data1/veelken/CMSSW_5_3_x/skims/QCD_Pt-470to600_MuEnrichedPt5_TuneZ2star_8TeV_pythia6_AOD.root'
         ##'file:/data1/veelken/CMSSW_5_3_x/skims/selEvents_pfCandCaloEnNan_AOD.root'
         ##'/store/user/veelken/CMSSW_5_3_x/skims/simQCDmuEnrichedPt470to600_AOD_1_1_A8V.root'

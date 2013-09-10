@@ -852,10 +852,10 @@ void plotTauIdMVAEfficiency_and_FakeRate()
   std::vector<mvaEntryType*> mvaEntries;
   //mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_6/trainTauIdMVA_mvaIsolation3HitsDeltaR04opt1b.root",     "opt1b",   0.80, kLogTauPt, kTauAbsEta));
   //mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_6/trainTauIdMVA_mvaIsolation3HitsDeltaR04opt1c.root",     "opt1c",   0.80, kTauPt, kTauAbsEta));
-  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_5/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2a.root",   "opt2a",   0.80, kLogTauPt, kTauAbsEta));
-  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_5/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2aLT.root", "opt2aLT", 0.80, kLogTauPt, kTauAbsEta));
-  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_5/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2b.root",   "opt2b",   0.80, kLogTauPt, kTauAbsEta));
-  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_5/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2bLT.root", "opt2bLT", 0.80, kLogTauPt, kTauAbsEta));
+  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_14_2/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2a.root",   "oldDMwoLT", 0.80, kLogTauPt, kTauAbsEta));
+  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_14_2/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2aLT.root", "oldDMwLT",  0.80, kLogTauPt, kTauAbsEta));
+  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_14_2/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2b.root",   "newDMwoLT", 0.80, kLogTauPt, kTauAbsEta));
+  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/tauIdMVATraining/tauId_v1_14_2/trainTauIdMVA_mvaIsolation3HitsDeltaR05opt2bLT.root", "newDMwLT",  0.80, kLogTauPt, kTauAbsEta));
 
   for ( std::vector<mvaEntryType*>::iterator mvaEntry = mvaEntries.begin();
 	mvaEntry != mvaEntries.end(); ++mvaEntry ) {

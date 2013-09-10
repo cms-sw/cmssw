@@ -62,6 +62,8 @@ double compIntegral(const TH1* histogram, double cut)
 struct workingPointEntryType
 {
   double targetSignalEfficiency_;
+  double minPt_;
+  double maxPt_;
   typedef std::map<Int_t, double> wpMap; // key = category
   wpMap cuts_;
   double S_;
@@ -214,6 +216,11 @@ void writeWorkingPoints(const std::string& outputFileName, const std::string& ou
   Float_t targetSignalEfficiency;
   outputTree->Branch("targetSignalEfficiency", &targetSignalEfficiency, "targetSignalEfficiency/F");
 
+  Float_t minPt;
+  outputTree->Branch("minPt", &minPt, "minPt/F");
+  Float_t maxPt;
+  outputTree->Branch("maxPt", &maxPt, "maxPt/F");
+
   std::map<Int_t, Float_t> cuts; // key = category
   for ( std::vector<int>::const_iterator category = categories.begin();
 	category != categories.end(); ++category ) {
@@ -232,6 +239,8 @@ void writeWorkingPoints(const std::string& outputFileName, const std::string& ou
 	workingPoint != workingPoints.end(); ++workingPoint ) {
     std::cout << "targetSignalEfficiency = " << workingPoint->targetSignalEfficiency_ << ":" << std::endl;
     targetSignalEfficiency = workingPoint->targetSignalEfficiency_;
+    minPt = workingPoint->minPt_;
+    maxPt = workingPoint->maxPt_;
     for ( std::vector<int>::const_iterator category = categories.begin();
 	  category != categories.end(); ++category ) {
       std::cout << " category #" << (*category) << ": cut = " << workingPoint->cuts_[*category] << std::endl;
@@ -258,6 +267,17 @@ void writeWorkingPoints(const std::string& outputFileName, const std::string& ou
 
 typedef std::vector<std::string> vstring;
 typedef std::vector<int> vint;
+typedef std::vector<double> vdouble;
+
+struct ptBinEntryType
+{
+  double minPt_;
+  double maxPt_;
+  std::map<Int_t, TH1*> histograms_mvaOutput_signal_;        // key = category
+  std::map<Int_t, double> categoryProbabilities_signal_;     // key = category
+  std::map<Int_t, TH1*> histograms_mvaOutput_background_;    // key = category
+  std::map<Int_t, double> categoryProbabilities_background_; // key = category
+};
 
 int main(int argc, char* argv[]) 
 {
@@ -287,12 +307,15 @@ int main(int argc, char* argv[])
 
   std::string branchName_mvaOutput = cfgComputeWPcutsAntiElectronDiscrMVA.getParameter<std::string>("branchName_mvaOutput");
   std::string branchName_categoryIdx = cfgComputeWPcutsAntiElectronDiscrMVA.getParameter<std::string>("branchName_categoryIdx");
+  std::string branchName_tauPt = cfgComputeWPcutsAntiElectronDiscrMVA.getParameter<std::string>("branchName_tauPt");
+  std::string branchName_logTauPt = cfgComputeWPcutsAntiElectronDiscrMVA.getParameter<std::string>("branchName_logTauPt");
   std::string branchName_evtWeight = cfgComputeWPcutsAntiElectronDiscrMVA.getParameter<std::string>("branchName_evtWeight");
   std::string branchName_classId = cfgComputeWPcutsAntiElectronDiscrMVA.getParameter<std::string>("branchName_classId");
   int classId_signal = cfgComputeWPcutsAntiElectronDiscrMVA.getParameter<int>("classId_signal");
   int classId_background = cfgComputeWPcutsAntiElectronDiscrMVA.getParameter<int>("classId_background");
 
-  std::vector<int> categories = cfgComputeWPcutsAntiElectronDiscrMVA.getParameter<vint>("categories");
+  vint categories = cfgComputeWPcutsAntiElectronDiscrMVA.getParameter<vint>("categories");
+  vdouble ptBinning = cfgComputeWPcutsAntiElectronDiscrMVA.getParameter<vdouble>("ptBinning");
 
   fwlite::InputSource inputFiles(cfg); 
   int maxEvents = inputFiles.maxEvents();
@@ -333,11 +356,30 @@ int main(int argc, char* argv[])
     evtWeight_formula = new TTreeFormula("evtWeight_formula", branchName_evtWeight.data(), inputTree);   
   }
 
-  std::map<Int_t, TH1*> histograms_mvaOutput_signal;        // key = category
-  std::map<Int_t, double> categoryProbabilities_signal;     // key = category
-  std::map<Int_t, TH1*> histograms_mvaOutput_background;    // key = category
-  std::map<Int_t, double> categoryProbabilities_background; // key = category
-
+  int numPtBins = ptBinning.size() - 1;
+  if ( !(numPtBins >= 2) ) {
+    throw cms::Exception("computeWPcutsAntiElectronDiscrMVA") 
+      << "Invalid Configuration Parameter 'ptBinning' !!\n";
+  }
+  std::vector<ptBinEntryType> ptBinEntries;
+  for ( int iPtBin = 0; iPtBin < numPtBins; ++iPtBin ) {
+    ptBinEntryType ptBinEntry;
+    ptBinEntry.minPt_ = ptBinning[iPtBin];
+    ptBinEntry.maxPt_ = ptBinning[iPtBin + 1];
+    ptBinEntries.push_back(ptBinEntry);
+  }
+  
+  enum { kLogTauPt, kTauPt };
+  int mode = -1;
+  Float_t logTauPt, tauPt;
+  if ( branchName_logTauPt != "" && branchName_tauPt == "" ) {
+    inputTree->SetBranchAddress(branchName_logTauPt.data(), &logTauPt);
+    mode = kLogTauPt;
+  } else if ( branchName_logTauPt == "" && branchName_tauPt != "" ) {
+    inputTree->SetBranchAddress(branchName_tauPt.data(), &tauPt);
+    mode = kTauPt;
+  } 
+  
   int currentTreeNumber = inputTree->GetTreeNumber();
 
   int numEntries = inputTree->GetEntries();
@@ -362,19 +404,32 @@ int main(int argc, char* argv[])
     if ( evtWeight_formula ) {
       evtWeight = evtWeight_formula->EvalInstance();
     }
+    
+    double tauPt_value;
+    if      ( mode == kLogTauPt ) tauPt_value = TMath::Exp(logTauPt);
+    else if ( mode == kTauPt    ) tauPt_value = tauPt;
+    else assert(0);
 
     std::map<Int_t, TH1*>* histograms_mvaOutput = 0;
     std::map<Int_t, double>* categoryProbabilities = 0;
     std::string classId_string;
-    if ( classId == classId_signal ) {
-      histograms_mvaOutput = &histograms_mvaOutput_signal;
-      categoryProbabilities = &categoryProbabilities_signal;
-      classId_string = "signal";
-    } else if ( classId == classId_background ) {
-      histograms_mvaOutput = &histograms_mvaOutput_background;
-      categoryProbabilities = &categoryProbabilities_background;
-      classId_string = "background";
-    } 
+    const ptBinEntryType* ptBinEntry_ref = 0;
+    for ( std::vector<ptBinEntryType>::iterator ptBinEntry = ptBinEntries.begin();
+	  ptBinEntry != ptBinEntries.end(); ++ptBinEntry ) {
+      if ( tauPt_value > ptBinEntry->minPt_ && tauPt_value < ptBinEntry->maxPt_ ) {
+	if ( classId == classId_signal ) {
+	  histograms_mvaOutput = &ptBinEntry->histograms_mvaOutput_signal_;
+	  categoryProbabilities = &ptBinEntry->categoryProbabilities_signal_;
+	  classId_string = "signal";
+	  ptBinEntry_ref = &(*ptBinEntry);
+	} else if ( classId == classId_background ) {
+	  histograms_mvaOutput = &ptBinEntry->histograms_mvaOutput_background_;
+	  categoryProbabilities = &ptBinEntry->categoryProbabilities_background_;
+	  classId_string = "background";
+	  ptBinEntry_ref = &(*ptBinEntry);
+	} 
+      }
+    }
 
     //std::cout << "Entry #" << iEntry << ": classId = " << classId << ", categoryIdx = " << categoryIdx << ", mvaOutput = " << mvaOutput << ", evtWeight = " << evtWeight << std::endl;
 
@@ -384,7 +439,7 @@ int main(int argc, char* argv[])
 	if ( TMath::Nint(categoryIdx) & (1<<(*category)) ) {
 	  TH1* histogram = (*histograms_mvaOutput)[*category];
 	  if ( !histogram ) {
-	    std::string histogramName = Form("histogram_mvaOutput_category%i_%s", *category, classId_string.data());
+	    std::string histogramName = Form("histogram_mvaOutput_category%i_pt%1.0fto%1.0f_%s", *category, ptBinEntry_ref->minPt_, ptBinEntry_ref->maxPt_, classId_string.data());
 	    histogram = new TH1D(histogramName.data(), histogramName.data(), 202000, -1.01, +1.01);
 	    (*histograms_mvaOutput)[*category] = histogram;
 	  }
@@ -399,43 +454,53 @@ int main(int argc, char* argv[])
 
   std::cout << "--> " << inputTree->GetEntries() << " Entries processed." << std::endl;
 
-  // normalize categoryProbabilities
-  double normalization_signal = 0.;
-  double normalization_background = 0.;
-  for ( vint::const_iterator category = categories.begin();
-	category != categories.end(); ++category ) {
-    normalization_signal += categoryProbabilities_signal[*category];
-    normalization_background += categoryProbabilities_background[*category];
-  }
-  for ( vint::const_iterator category = categories.begin();
-	category != categories.end(); ++category ) {
-    categoryProbabilities_signal[*category] /= normalization_signal;
-    categoryProbabilities_background[*category] /= normalization_background;
-    std::cout << "category #" << (*category) << ": P(signal) = " << categoryProbabilities_signal[*category] << ", P(background) = " << categoryProbabilities_background[*category] << std::endl;
-  }
-
-  // normalize histograms
-  for ( vint::const_iterator category = categories.begin();
-	category != categories.end(); ++category ) {
-    normalizeHistogram(histograms_mvaOutput_signal[*category]);
-    normalizeHistogram(histograms_mvaOutput_background[*category]);
-  }
-  
-  // compute working-points
   std::vector<workingPointEntryType> workingPoints;
-  for ( double targetSignalEfficiency = 0.50; targetSignalEfficiency <= 0.995; targetSignalEfficiency += 0.01 ) {
-    workingPointEntryType workingPoint = computeDifferentialWP(
-      targetSignalEfficiency, 
-      categories, 
-      histograms_mvaOutput_signal, categoryProbabilities_signal, 
-      histograms_mvaOutput_background, categoryProbabilities_background);
+  for ( std::vector<ptBinEntryType>::iterator ptBinEntry = ptBinEntries.begin();
+	ptBinEntry != ptBinEntries.end(); ++ptBinEntry ) {
+    std::cout << "Pt = " << ptBinEntry->minPt_ << ".." << ptBinEntry->maxPt_ << std::endl;
+    
+    // normalize categoryProbabilities
+    double normalization_signal = 0.;
+    double normalization_background = 0.;
+    for ( vint::const_iterator category = categories.begin();
+	  category != categories.end(); ++category ) {
+      normalization_signal += ptBinEntry->categoryProbabilities_signal_[*category];
+      normalization_background += ptBinEntry->categoryProbabilities_background_[*category];
+    }
+    for ( vint::const_iterator category = categories.begin();
+	  category != categories.end(); ++category ) {
+      ptBinEntry->categoryProbabilities_signal_[*category] /= normalization_signal;
+      ptBinEntry->categoryProbabilities_background_[*category] /= normalization_background;
+      std::cout << " category #" << (*category) << ":" 
+		<< " P(signal) = " << ptBinEntry->categoryProbabilities_signal_[*category] << "," 
+		<< " P(background) = " << ptBinEntry->categoryProbabilities_background_[*category] << std::endl;
+    }
 
-    testWP(workingPoint,
-	   categories,
-	   histograms_mvaOutput_signal, categoryProbabilities_signal,
-	   histograms_mvaOutput_background, categoryProbabilities_background);
+    // normalize histograms
+    for ( vint::const_iterator category = categories.begin();
+	  category != categories.end(); ++category ) {
+      normalizeHistogram(ptBinEntry->histograms_mvaOutput_signal_[*category]);
+      normalizeHistogram(ptBinEntry->histograms_mvaOutput_background_[*category]);
+    }
+  
+    // compute working-points
+    for ( double targetSignalEfficiency = 0.50; targetSignalEfficiency <= 0.995; targetSignalEfficiency += 0.01 ) {
+      workingPointEntryType workingPoint = computeDifferentialWP(
+        targetSignalEfficiency, 
+        categories, 
+        ptBinEntry->histograms_mvaOutput_signal_, ptBinEntry->categoryProbabilities_signal_, 
+        ptBinEntry->histograms_mvaOutput_background_, ptBinEntry->categoryProbabilities_background_);
 
-    workingPoints.push_back(workingPoint);    
+      testWP(workingPoint,
+	     categories,
+	     ptBinEntry->histograms_mvaOutput_signal_, ptBinEntry->categoryProbabilities_signal_,
+	     ptBinEntry->histograms_mvaOutput_background_, ptBinEntry->categoryProbabilities_background_);
+
+      workingPoint.minPt_ = ptBinEntry->minPt_;
+      workingPoint.maxPt_ = ptBinEntry->maxPt_;
+
+      workingPoints.push_back(workingPoint);    
+    }
   }
 
   // write working-points to output file

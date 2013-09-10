@@ -139,7 +139,7 @@ for massPoint in DrellYanMassPoints:
         'type'                               : 'BackgroundMC'
     }
 
-version = "antiElectronDiscr_v1_1"
+version = "antiElectronDiscr_v1_2"
 
 submitJobFraction = 1.00
 

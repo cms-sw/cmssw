@@ -235,7 +235,7 @@ for massPoint in WprimeMassPoints:
         'type'                               : 'SignalMC'
     }
 
-version = "tauId_v1_13"
+version = "tauId_v1_14"
 
 submitJobFraction = 1.00
 

@@ -13,7 +13,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
         cms.PSet(
             categories = cms.VPSet(
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_5/mvaIsolation3HitsDeltaR05opt2a_BDTG.weights.xml'),                                                           
+                    inputFileName = cms.string('/data1/veelken/tmp/tauIdMVATraining/tauId_v1_14_2/mvaIsolation3HitsDeltaR05opt2a_BDTG.weights.xml'),                                                           
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'TMath::Log(TMath::Max(1., recTauPt))',
@@ -39,7 +39,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
         cms.PSet(
             categories = cms.VPSet(
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_5/mvaIsolation3HitsDeltaR05opt2aLT_BDTG.weights.xml'),                                                           
+                    inputFileName = cms.string('/data1/veelken/tmp/tauIdMVATraining/tauId_v1_14_2/mvaIsolation3HitsDeltaR05opt2aLT_BDTG.weights.xml'),                                                           
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'TMath::Log(TMath::Max(1., recTauPt))',
@@ -71,7 +71,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
         cms.PSet(
             categories = cms.VPSet(
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_5/mvaIsolation3HitsDeltaR05opt2b_BDTG.weights.xml'),                                                           
+                    inputFileName = cms.string('/data1/veelken/tmp/tauIdMVATraining/tauId_v1_14_2/mvaIsolation3HitsDeltaR05opt2b_BDTG.weights.xml'),                                                           
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'TMath::Log(TMath::Max(1., recTauPt))',
@@ -97,7 +97,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
         cms.PSet(
             categories = cms.VPSet(
                 cms.PSet(                                     
-                    inputFileName = cms.string('/data1/veelken/tmp/tauIdMVATraining/tauId_v1_13_5/mvaIsolation3HitsDeltaR05opt2bLT_BDTG.weights.xml'),                                                           
+                    inputFileName = cms.string('/data1/veelken/tmp/tauIdMVATraining/tauId_v1_14_2/mvaIsolation3HitsDeltaR05opt2bLT_BDTG.weights.xml'),                                                           
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'TMath::Log(TMath::Max(1., recTauPt))',

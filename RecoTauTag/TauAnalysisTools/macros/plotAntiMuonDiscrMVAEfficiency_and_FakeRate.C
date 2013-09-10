@@ -838,8 +838,8 @@ void plotAntiMuonDiscrMVAEfficiency_and_FakeRate()
   gROOT->SetBatch(true);
 
   std::vector<mvaEntryType*> mvaEntries;
-  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/antiMuonDiscrMVATraining/antiMuonDiscr_v1_8/trainAntiMuonDiscrMVA_mvaAntiMuonDiscrOpt1.root", "opt1", 0.98, kTauPt, kTauEta));
-  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/antiMuonDiscrMVATraining/antiMuonDiscr_v1_8/trainAntiMuonDiscrMVA_mvaAntiMuonDiscrOpt2.root", "opt2", 0.98, kTauPt, kTauAbsEta));
+  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/antiMuonDiscrMVATraining/antiMuonDiscr_v1_10/trainAntiMuonDiscrMVA_mvaAntiMuonDiscrOpt1.root", "opt1", 0.98, kTauPt, kTauEta));
+  mvaEntries.push_back(new mvaEntryType("/data1/veelken/tmp/antiMuonDiscrMVATraining/antiMuonDiscr_v1_10/trainAntiMuonDiscrMVA_mvaAntiMuonDiscrOpt2.root", "opt2", 0.98, kTauPt, kTauAbsEta));
   
   for ( std::vector<mvaEntryType*>::iterator mvaEntry = mvaEntries.begin();
 	mvaEntry != mvaEntries.end(); ++mvaEntry ) {

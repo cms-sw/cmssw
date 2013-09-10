@@ -13,7 +13,7 @@ process.gbrForestWriter = cms.EDAnalyzer("GBRForestWriter",
         cms.PSet(
             categories = cms.VPSet(
                 cms.PSet(
-                    inputFileName = cms.string('/data1/veelken/tmp/antiMuonDiscrMVATraining/antiMuonDiscr_v1_8/mvaAntiMuonDiscrOpt2_BDTG.weights.xml'),
+                    inputFileName = cms.string('/data1/veelken/tmp/antiMuonDiscrMVATraining/antiMuonDiscr_v1_10/mvaAntiMuonDiscrOpt2_BDTG.weights.xml'),
                     inputFileType = cms.string("XML"),
                     inputVariables = cms.vstring(
                         'TMath::Abs(recTauEta)',

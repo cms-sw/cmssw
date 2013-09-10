@@ -121,9 +121,9 @@ namespace
     
       tree->GetEntry(iEntry);
 
-      double tauPt_double;
-      if      ( mode == kLogTauPt ) tauPt_double = TMath::Exp(logTauPt);
-      else if ( mode == kTauPt    ) tauPt_double = tauPt;
+      double tauPt_value;
+      if      ( mode == kLogTauPt ) tauPt_value = TMath::Exp(logTauPt);
+      else if ( mode == kTauPt    ) tauPt_value = tauPt;
       else assert(0);
 
       // CV: need to call TTreeFormula::UpdateFormulaLeaves whenever input files changes in TChain
@@ -138,7 +138,7 @@ namespace
 
       for ( std::vector<plotEntryType*>::iterator plotEntry = plotEntries.begin();
 	    plotEntry != plotEntries.end(); ++plotEntry ) {
-	(*plotEntry)->fillHistograms(tauPt_double, discriminator, evtWeight);
+	(*plotEntry)->fillHistograms(tauPt_value, discriminator, evtWeight);
       }
     }
 
@@ -363,8 +363,8 @@ int main(int argc, char* argv[])
   if ( tree_background != tree_signal ) tree_background->LoadTree(0);
 
   vstring branchesToKeep_expressions;
-  branchesToKeep_expressions.push_back("TMath_Log_TMath_Max_1.,recTauPt__");
-  branchesToKeep_expressions.push_back("recTauPt");
+  branchesToKeep_expressions.push_back(branchNameLogTauPt.data());
+  branchesToKeep_expressions.push_back(branchNameTauPt.data());  
   branchesToKeep_expressions.push_back(discriminator);
   branchesToKeep_expressions.push_back(branchNameEvtWeight);
 
