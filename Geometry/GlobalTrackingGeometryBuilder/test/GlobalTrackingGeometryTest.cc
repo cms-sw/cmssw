@@ -1,8 +1,6 @@
 /*
  * \file GlobalTrackingGeometryTest.cc
  *
- *  $Date: 2008/01/22 21:32:38 $
- *  $Revision: 1.4 $
  *  \author M. Sani
  */
 

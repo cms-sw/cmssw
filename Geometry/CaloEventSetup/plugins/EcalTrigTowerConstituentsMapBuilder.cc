@@ -12,7 +12,6 @@
 */
 //
 // Original Author:  Paolo Meridiani
-// $Id: EcalTrigTowerConstituentsMapBuilder.cc,v 1.3 2009/04/08 20:36:57 heltsley Exp $
 //
 //
 

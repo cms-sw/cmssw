@@ -5,8 +5,6 @@
  * 
  *  ESProducer for GlobalTrackingGeometry in MuonGeometryRecord
  *
- *  $Date: 2006/05/09 14:08:52 $
- *  $Revision: 1.2 $
  *  \author Matteo Sani
  */
 

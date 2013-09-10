@@ -16,7 +16,6 @@
 //
 // Author:      
 // Created:     Mon Jul 25 11:05:09 EDT 2005
-// $Id: IdealGeometryRecord.h,v 1.4 2010/05/27 23:14:26 case Exp $
 //
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"

@@ -13,7 +13,6 @@
 //
 // Original Author:  pts/91
 //         Created:  Wed Sep 26 17:08:29 CEST 2007
-// $Id: RPCGEO2.cc,v 1.1 2011/11/14 15:53:36 carrillo Exp $
 //
 //
 
