@@ -15,7 +15,6 @@
 // Modified by Eduardo Luiggi
 //
 //         Created:  Tue Oct 31 10:52:41 CET 2006
-// $Id: JetVertexAssociation.cc,v 1.7 2007/08/31 12:46:24 kodolova Exp $
 //
 //
 

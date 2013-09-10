@@ -10,9 +10,7 @@
  * \authors Anne-Maria Visuri, Mikko Voutilainen
  *          Tai Sakuma
  *
- * \version $Revision: 1.2 $
  *
- * $Id: PFchsMETcorrInputProducer.h,v 1.2 2011/10/14 10:14:35 veelken Exp $
  *
  */
 
