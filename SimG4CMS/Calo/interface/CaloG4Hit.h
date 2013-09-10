@@ -73,7 +73,7 @@ public:
 
   CaloHitID      getID() const                 {return hitID;}
   void           setID (uint32_t i, double d, int j, uint16_t k=0) { hitID.setID(i,d,j,k);}
-  void           setID (CaloHitID id)          {hitID = id;}
+  void           setID (const CaloHitID& id)          {hitID = id;}
   
   void           addEnergyDeposit(double em, double hd);
   void           addEnergyDeposit(const CaloG4Hit& aHit);

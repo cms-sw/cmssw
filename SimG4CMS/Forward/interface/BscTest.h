@@ -66,16 +66,16 @@
 class BscAnalysisHistManager : public TNamed {
         public:
 
-                BscAnalysisHistManager(TString managername);
+                BscAnalysisHistManager(const TString& managername);
                 ~BscAnalysisHistManager();
 
                 TH1F* GetHisto(Int_t Number);
-                TH1F* GetHisto(const TObjString histname);
+                TH1F* GetHisto(const TObjString& histname);
 
                 TH2F* GetHisto2(Int_t Number);
-                TH2F* GetHisto2(const TObjString histname);
+                TH2F* GetHisto2(const TObjString& histname);
 
-                void WriteToFile(TString fOutputFile,TString fRecreateFile);
+                void WriteToFile(const TString& fOutputFile,const TString& fRecreateFile);
 
         private:
 

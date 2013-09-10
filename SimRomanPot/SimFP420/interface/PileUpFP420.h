@@ -18,7 +18,7 @@ class PileUpFP420{
   virtual ~PileUpFP420(){}
   
   PileUpFP420(){reset();}
-  virtual void add(HitDigitizerFP420::hit_map_type, const PSimHit& hit, int);
+  virtual void add(const HitDigitizerFP420::hit_map_type&, const PSimHit& hit, int);
   void reset(){resetLink();resetSignal();}
   signal_map_type dumpSignal() {return theMap;}
   HitToDigisMapType dumpLink() {return theMapLink;}

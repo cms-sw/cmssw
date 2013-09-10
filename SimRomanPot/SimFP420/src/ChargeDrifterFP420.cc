@@ -45,7 +45,7 @@ ChargeDrifterFP420::ChargeDrifterFP420(                              double mt,
 
 
 
-CDrifterFP420::collection_type ChargeDrifterFP420::drift(const CDrifterFP420::ionization_type ion, const G4ThreeVector& driftDir,const int& xytype){
+CDrifterFP420::collection_type ChargeDrifterFP420::drift(const CDrifterFP420::ionization_type& ion, const G4ThreeVector& driftDir,const int& xytype){
   //
   //
   if(verbo>0) {

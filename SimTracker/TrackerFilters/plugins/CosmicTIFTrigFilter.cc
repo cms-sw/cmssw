@@ -180,7 +180,7 @@ namespace cms
     return false;
   }
   
-  bool CosmicTIFTrigFilter::Sci_trig(HepMC::FourVector vertex,  HepMC::FourVector momentum, HepMC::FourVector S)
+  bool CosmicTIFTrigFilter::Sci_trig(const HepMC::FourVector& vertex, const HepMC::FourVector& momentum, const HepMC::FourVector& S)
   {
     float x0= vertex.x();
     float y0= vertex.y();
