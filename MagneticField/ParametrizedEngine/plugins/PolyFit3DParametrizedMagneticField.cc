@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2009/10/21 14:36:56 $
- *  $Revision: 1.1 $
  *  \author N. Amapane
  */
 

@@ -6,8 +6,6 @@
  *  Test the grid for a given volume: each grid point should be
  *  inside the volume.  
  *
- *  $Date: $
- *  $Revision: $
  *  \author T. Todorov
  */
 
