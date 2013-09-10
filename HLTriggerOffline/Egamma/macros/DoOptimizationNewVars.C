@@ -1,5 +1,3 @@
-// $Id: DoOptimizationNewVars.C,v 1.3 2008/01/21 02:25:22 wittich Exp $
-// $Log: DoOptimizationNewVars.C,v $
 // Revision 1.3  2008/01/21 02:25:22  wittich
 // cleanup, tweak of case where eff is the same
 //

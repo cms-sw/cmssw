@@ -2,8 +2,6 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/01/27 10:38:51 $
- *  $Revision: 1.7 $
  *
  *  \author various
  *

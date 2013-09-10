@@ -2,7 +2,6 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronOneOEMinusOneOPFilterRegional.cc,v 1.10 2011/05/01 08:14:08 gruen Exp $
  *
  */
 

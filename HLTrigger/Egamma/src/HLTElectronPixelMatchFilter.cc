@@ -1,6 +1,5 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.14 2012/01/21 14:56:58 fwyzard Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *

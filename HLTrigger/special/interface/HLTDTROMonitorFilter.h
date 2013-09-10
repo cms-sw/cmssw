@@ -4,8 +4,6 @@
 /** \class HLTDTROMonitorFilter.h
  *  No description available.
  *
- *  $Date: 2012/01/21 15:00:13 $
- *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 

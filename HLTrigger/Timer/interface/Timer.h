@@ -33,7 +33,6 @@
 //
 // Original Author:  Christos Leonidopoulos
 //         Created:  Mon Jul 10 14:13:58 CEST 2006
-// $Id: Timer.h,v 1.10 2007/03/27 19:10:58 cleonido Exp $
 //
 //
 //

@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # Original Author: James Jackson
-# $Id: HltComparatorCreateWorkflow.py,v 1.1 2009/06/22 20:11:40 wittich Exp $
-# $Log$
 
 # MakeValidationConfig.py
 #   Makes CMSSW config for prompt validation of a given run number,

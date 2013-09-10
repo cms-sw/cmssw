@@ -1,7 +1,5 @@
 
 /** \file HLTHiggsSubAnalysis.cc
- *  $Date: 2012/03/23 11:50:56 $
- *  $Revision: 1.7 $
  */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"

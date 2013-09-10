@@ -8,8 +8,6 @@
  *  single jet requirement with an Energy threshold (not Et!)
  *  Based on HLTSinglet
  *
- *  $Date: 2012/02/04 18:13:00 $
- *  $Revision: 1.2 $
  *
  *  \author Jacopo Bernardini
  *

@@ -1,6 +1,5 @@
 /** \class HLTEgammaGenericQuadraticEtaFilter
  *
- * $Id: HLTEgammaGenericQuadraticEtaFilter.cc,v 1.3 2012/02/01 16:47:56 gruen Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *  modified by Chris Tully (Princeton)
