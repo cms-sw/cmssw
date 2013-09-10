@@ -15,24 +15,23 @@
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCStripDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
 
 CSCRecHitDProducer::CSCRecHitDProducer( const edm::ParameterSet& ps ) : 
   iRun( 0 ),   
   useCalib( ps.getParameter<bool>("CSCUseCalibrations") ),
   useStaticPedestals( ps.getParameter<bool>("CSCUseStaticPedestals") ),
   useTimingCorrections(ps.getParameter<bool>("CSCUseTimingCorrections") ),
-  useGasGainCorrections(ps.getParameter<bool>("CSCUseGasGainCorrections") ),
-  stripDigiTag_( ps.getParameter<edm::InputTag>("stripDigiTag") ),
-  wireDigiTag_(  ps.getParameter<edm::InputTag>("wireDigiTag") )
+  useGasGainCorrections(ps.getParameter<bool>("CSCUseGasGainCorrections") )
 
 {
+  s_token = consumes<CSCStripDigiCollection>( ps.getParameter<edm::InputTag>("stripDigiTag") );
+  w_token = consumes<CSCWireDigiCollection>( ps.getParameter<edm::InputTag>("wireDigiTag") );
+
   recHitBuilder_     = new CSCRecHitDBuilder( ps ); // pass on the parameter sets
   recoConditions_    = new CSCRecoConditions( ps ); // access to conditions data
 
   recHitBuilder_->setConditions( recoConditions_ ); // pass down to who needs access
-  
+
   // register what this produces
   produces<CSCRecHit2DCollection>();
 
@@ -64,8 +63,9 @@ void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup 
   // Get the collections of strip & wire digis from event
   edm::Handle<CSCStripDigiCollection> stripDigis;
   edm::Handle<CSCWireDigiCollection> wireDigis;
-  ev.getByLabel( stripDigiTag_, stripDigis);
-  ev.getByLabel( wireDigiTag_,  wireDigis);
+
+  ev.getByToken( s_token, stripDigis);
+  ev.getByToken( w_token, wireDigis);
 
   // Create empty collection of rechits  
   std::auto_ptr<CSCRecHit2DCollection> oc( new CSCRecHit2DCollection );
