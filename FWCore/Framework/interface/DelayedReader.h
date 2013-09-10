@@ -9,7 +9,6 @@ uses input sources to retrieve EDProducts from external storage.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/WrapperOwningHolder.h"
-#include "FWCore/Utilities/interface/StreamID.h"
 
 #include <memory>
 

@@ -81,7 +81,7 @@ namespace edm {
 
   unsigned int
   LuminosityBlockPrincipal::transitionIndex_() const {
-    return 0U;
+    return index().value();
   }
 
 }

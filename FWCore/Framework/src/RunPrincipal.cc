@@ -76,7 +76,7 @@ namespace edm {
 
   unsigned int
   RunPrincipal::transitionIndex_() const {
-    return 0U;
+    return index().value();
   }
 
 }
