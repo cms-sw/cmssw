@@ -3,13 +3,20 @@
 
 /** \class CSCDigiToRawModule
  *
- *  $Date: 2010/04/23 23:03:04 $
- *  $Revision: 1.8 $
  *  \author A. Tumanov - Rice
  */
 
+#include <FWCore/Framework/interface/ConsumesCollector.h>
 #include <FWCore/Framework/interface/EDProducer.h>
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
 class CSCDigiToRaw;
 
@@ -26,13 +33,15 @@ class CSCDigiToRawModule : public edm::EDProducer {
 
  private:
   CSCDigiToRaw * packer;
-  edm::InputTag theStripDigiTag;
-  edm::InputTag theWireDigiTag;
-  edm::InputTag theComparatorDigiTag;
-  edm::InputTag theALCTDigiTag;
-  edm::InputTag theCLCTDigiTag;
-  edm::InputTag thePreTriggerTag;
-  edm::InputTag theCorrelatedLCTDigiTag;
+
+  edm::EDGetTokenT<CSCWireDigiCollection>             wd_token;
+  edm::EDGetTokenT<CSCStripDigiCollection>            sd_token;
+  edm::EDGetTokenT<CSCComparatorDigiCollection>       cd_token;
+  edm::EDGetTokenT<CSCALCTDigiCollection>             al_token;
+  edm::EDGetTokenT<CSCCLCTDigiCollection>             cl_token;
+  edm::EDGetTokenT<CSCCLCTPreTriggerCollection>       pr_token;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection>    co_token;
+
 };
 #endif
 
