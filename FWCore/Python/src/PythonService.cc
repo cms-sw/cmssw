@@ -12,6 +12,8 @@
 
 // system include files
 
+#include <iostream>
+
 // user include files
 #include "FWCore/Python/src/PythonService.h"
 

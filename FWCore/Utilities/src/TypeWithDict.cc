@@ -15,7 +15,6 @@
 #include "TClass.h"
 #include "TDataType.h"
 #include "TMethodArg.h"
-#include "Cintex/Cintex.h"
 #include "Reflex/Member.h"
 #include "Reflex/Object.h"
 #include "boost/thread/tss.hpp"
