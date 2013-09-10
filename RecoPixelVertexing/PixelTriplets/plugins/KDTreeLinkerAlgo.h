@@ -145,6 +145,10 @@ KDTreeLinkerAlgo<DATA>::recSearch(int	current,
   assert (!(((nodePool_.left[current] < 0) && (nodePool_.right[current] >= 0)) ||
             ((nodePool_.left[current] >= 0) && (nodePool_.right[current] < 0))));
   */
+  // Iterate until leaf is found, or there are no children in the
+  // search window. If search has to proceed on both children, proceed
+  // the search to left child via recursion. Swap search window
+  // dimension on alternate levels.
   while(true) {
     int right = nodePool_.right[current];
     if(nodePool_.isLeaf(right)) {
@@ -169,6 +173,7 @@ KDTreeLinkerAlgo<DATA>::recSearch(int	current,
       bool goLeft = (dimCurrMin <= median);
       bool goRight = (dimCurrMax > median);
 
+      // Swap dimension for the next search level
       std::swap(dimCurrMin, dimOtherMin);
       std::swap(dimCurrMax, dimOtherMax);
       if(goLeft & goRight) {
