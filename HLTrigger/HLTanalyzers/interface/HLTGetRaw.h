@@ -7,8 +7,6 @@
  *  This class is an EDAnalyzer implementing a "get data into RAM"
  *  functionality for RAW, to simulate online FF running/timimg.
  *
- *  $Date: 2007/04/20 06:58:26 $
- *  $Revision: 1.1 $
  *
  *  \author various
  *

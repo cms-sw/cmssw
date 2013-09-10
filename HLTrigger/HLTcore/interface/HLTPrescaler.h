@@ -7,8 +7,6 @@
  *  This class is an EDFilter implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2012/01/23 10:15:21 $
- *  $Revision: 1.23 $
  *
  *  \author Martin Grunewald
  *  \author Philipp Schieferdecker

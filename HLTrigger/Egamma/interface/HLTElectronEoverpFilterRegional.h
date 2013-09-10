@@ -4,7 +4,6 @@
 /** \class HLTElectronEoverpFilterRegional
  *
  *  \author Monica Vazquez Acosta (CERN)
- * $Id: HLTElectronEoverpFilterRegional.h,v 1.3 2009/02/09 16:27:17 covarell Exp $
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"

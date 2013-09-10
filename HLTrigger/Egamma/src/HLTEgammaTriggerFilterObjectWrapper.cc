@@ -1,6 +1,5 @@
 /** \class HLTEgammaL1MatchFilterRegional
  *
- * $Id: HLTEgammaTriggerFilterObjectWrapper.cc,v 1.1 2009/01/21 19:00:50 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *

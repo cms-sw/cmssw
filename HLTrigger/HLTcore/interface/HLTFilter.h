@@ -7,8 +7,6 @@
  *  This class derives from EDFilter and adds a few HLT specific items.
  *  All HLT filters that wish to save summary objects for the AOD must derive from the HLTFilter class.
  *
- *  $Date: 2012/01/23 00:12:46 $
- *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *

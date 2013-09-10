@@ -1,4 +1,3 @@
-// $Id: HLTJetPairDzMatchFilter.cc,v 1.1 2012/02/10 06:38:03 gruen Exp $
 
 #include "HLTrigger/btau/src/HLTJetPairDzMatchFilter.h"
 

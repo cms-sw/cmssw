@@ -1,4 +1,3 @@
-// $Id: HLTSingleVertexPixelTrackFilter.cc,v 1.4 2012/01/21 15:00:22 fwyzard Exp $
 
 #include "HLTrigger/special/interface/HLTSingleVertexPixelTrackFilter.h"
 

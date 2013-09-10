@@ -8,8 +8,6 @@
  *  global sums such as the scalar sum of Et (a.k.a. H_T), available
  *  in the T=CaloMET or T=MET object.
  *
- *  $Date: 2012/02/23 12:21:51 $
- *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *

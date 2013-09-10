@@ -7,7 +7,6 @@
  *  This class is an HLTFilter (-> EDFilter) implementing a minimum-bias
  *  HLT trigger acting on candidates, requiring tracks in Pixel det
  *
- *  $Date: 2007/03/30 15:56:10 $
  *
  *  \author Mika Huhtinen
  *

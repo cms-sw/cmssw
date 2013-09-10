@@ -13,7 +13,6 @@
 */
 //
 // Original Author:  Grigory Safronov
-//         Created:  $Date: 2008/01/21 16:49:16 $
 //
 
 
