@@ -1,7 +1,5 @@
 
 /*
-*  $Date: 2008/12/10 09:36:52 $
-*  $Revision: 1.13 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"

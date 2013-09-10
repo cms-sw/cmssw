@@ -4,8 +4,6 @@
 /** \class DaqReaderPluginFactory
  *  Plugin factory for actual data sources for DaqSource.
  *
- *  $Date: 2007/04/10 23:10:02 $
- *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 

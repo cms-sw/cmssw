@@ -1,6 +1,4 @@
 /*
- *  $Date: 2010/09/10 13:19:37 $
- *  $Revision: 1.5 $
  *  \author Jean-Roch Vlimant
  */
 

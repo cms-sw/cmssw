@@ -5,8 +5,6 @@
  *  Generates empty FEDRawData of random size for all FEDs
  *  Proper headers and trailers are included; but the payloads are all 0s
  *
- *  $Date: 2010/01/11 16:14:28 $
- *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 

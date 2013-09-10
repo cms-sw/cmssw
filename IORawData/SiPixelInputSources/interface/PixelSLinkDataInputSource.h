@@ -15,7 +15,6 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id: PixelSLinkDataInputSource.h,v 1.9 2008/02/25 21:12:09 fblekman Exp $
 //
 //
 

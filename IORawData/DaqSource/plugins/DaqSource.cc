@@ -1,7 +1,5 @@
 /** \file 
  *
- *  $Date: 2012/11/29 01:34:39 $
- *  $Revision: 1.66 $
  *  \author N. Amapane - S. Argiro'
  */
 
