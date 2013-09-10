@@ -22,9 +22,6 @@ corrPfMetType2 = cms.EDProducer(
 
 ##____________________________________________________________________________||
 correctionTermsPfMetType1Type2 = cms.Sequence(
-    ak5PFJetsPtrs +
-    particleFlowPtrs +
-    pfCandsNotInJetPtrs +
     pfCandsNotInJet +
     pfCandMETcorr +
     corrPfMetType1 +
