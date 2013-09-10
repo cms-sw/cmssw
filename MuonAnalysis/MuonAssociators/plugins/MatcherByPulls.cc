@@ -14,7 +14,6 @@
 //
 // Original Author:  Giovanni Petrucciani (SNS Pisa and CERN PH-CMG)
 //         Created:  Sun Nov 16 16:14:09 CET 2008
-// $Id: MatcherByPulls.cc,v 1.3 2009/11/05 15:21:23 gpetrucc Exp $
 //
 
 
