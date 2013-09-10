@@ -20,7 +20,6 @@
 //
 // Original Author:  Michael Maes
 //         Created:  Wed Dec  3 12:07:13 CET 2009
-// $Id: PythiaFilterTTBar.h,v 1.3 2010/02/25 00:19:52 wmtan Exp $
 //
 //
 

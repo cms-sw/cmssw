@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Aug 13 08:39:51 EDT 2009
-// $Id: GenHIEventProducer.cc,v 1.6 2010/08/17 15:52:34 dmoon Exp $
 //
 //
 

@@ -1,4 +1,3 @@
-# $Id: DECAY.DEC,v 1.5 2009/02/16 10:53:32 covarell Exp $ 
 #Define the B0B0bar mass difference
 Define dm 0.502e12
 Define dgamma 0
