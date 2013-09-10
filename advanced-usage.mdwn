@@ -163,6 +163,18 @@ which returns:
         boost::shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
         //std::cerr << parameterSet->dump() << std::endl;
 
+### How can I find out who is developing in a given package?
+
+If you are interested in the general developers for a given package, the best
+option is probably to use `git log -- <subsytem>/<package>` in the toplevel
+directory and have a look at recent developments. A slightly fancier way of
+doing it is via:
+
+    git log --pretty="%an" --since 1y -- <subsytem>/<package> | sort -u
+
+which will print only the authors ( `--pretty="%an"` ) who have committed something in 
+the given `<subsytem>/<package>` in the last year ( `--since 1y` ).
+
 ### Downloading from github is painfully slow, how can I improve the situation?
 
 If you have a local mirror of CMSSW repository at your site / university you
