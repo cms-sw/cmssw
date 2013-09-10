@@ -62,9 +62,6 @@ class KDTreeLinkerAlgo
                  float dimCurrMin, float dimCurrMax,
                  float dimOtherMin, float dimOtherMax);
 
-  // Add all elements of an subtree to the closest elements. Used during the recSearch().
-  void addSubtree(int			current);
-
   // This method frees the KDTree.     
   void clearTree();
 };
@@ -192,25 +189,6 @@ KDTreeLinkerAlgo<DATA>::recSearch(int	current,
     }
   }
 }
-
-template < typename DATA >
-void
-KDTreeLinkerAlgo<DATA>::addSubtree(int current)
-{
-  // By construction, current can't be null
-  // assert(current >= 0);
-
-  if (nodePool_.isLeaf(current)) {// leaf
-    closestNeighbour->push_back(nodePool_.info[current]);
-  }
-  else { // node
-    addSubtree(current+1);
-    addSubtree(nodePool_.right[current]);
-  }
-}
-
-
-
 
 template <typename DATA>
 KDTreeLinkerAlgo<DATA>::KDTreeLinkerAlgo()

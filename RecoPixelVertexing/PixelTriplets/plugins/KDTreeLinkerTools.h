@@ -49,37 +49,6 @@ struct KDTreeNodeInfo
   {}
 };
 
-// KDTree node.
-template <typename DATA>
-struct KDTreeNode
-{
-  // Data
-  KDTreeNodeInfo<DATA> info;
-  
-  // Right/left sons.
-  KDTreeNode *left, *right;
-  
-  // Region bounding box.
-  KDTreeBox region;
-  
-  public:
-  KDTreeNode()
-    : left(0), right(0)
-  {}
-  
-  void setAttributs(const KDTreeBox&		regionBox,
-		    const KDTreeNodeInfo<DATA>&	infoToStore) 
-  {
-    info = infoToStore;
-    region = regionBox;
-  }
-  
-  void setAttributs(const KDTreeBox&   regionBox) 
-  {
-    region = regionBox;
-  }
-};
-
 template <typename DATA>
 struct KDTreeNodes {
   std::vector<float> median; // or dimCurrent;
