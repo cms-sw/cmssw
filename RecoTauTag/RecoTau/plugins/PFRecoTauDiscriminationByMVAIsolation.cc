@@ -30,13 +30,13 @@ namespace reco {
 	  vector<float> all;
 	  all.reserve(33);
     
-	  for(uint i = 0; i < niso.size(); i++)
+	  for(unsigned int i = 0; i < niso.size(); i++)
 	    all.push_back(niso[i]);
 
-	  for(uint i = 0; i < rings.size(); i++)
+	  for(unsigned int i = 0; i < rings.size(); i++)
 	    all.insert(all.end(), rings[i].begin(), rings[i].end());
 
-	  for(uint i = 0; i < shapes.size(); i++)
+	  for(unsigned int i = 0; i < shapes.size(); i++)
 	    all.insert(all.end(), shapes[i].begin(), shapes[i].end());
 
 	  return all;
@@ -109,7 +109,7 @@ reco::tau::cone::IsoRings PFRecoTauDiscriminationByMVAIsolation::computeIsoRings
   vector<vector<float> > shapes(3, vector<float>(5));
   vector<float>          isoptsum(3);
 
-  for(uint i = 0; i < pfTau->isolationPFCands().size(); i++)
+  for(unsigned int i = 0; i < pfTau->isolationPFCands().size(); i++)
   {
     const PFCandidateRef pf = pfTau->isolationPFCands().at(i);
 
@@ -144,9 +144,9 @@ reco::tau::cone::IsoRings PFRecoTauDiscriminationByMVAIsolation::computeIsoRings
   }
 
   // Mean and variance of angle variables are weighted by pT
-  for(uint i = 0; i < shapes.size(); i++)
+  for(unsigned int i = 0; i < shapes.size(); i++)
   {
-    for(uint j = 0; j < shapes[i].size(); j++)
+    for(unsigned int j = 0; j < shapes[i].size(); j++)
     {
       shapes[i][j] = isoptsum[i] > 0 ? fabs(shapes[i][j]/isoptsum[i]) : 0;
     }
