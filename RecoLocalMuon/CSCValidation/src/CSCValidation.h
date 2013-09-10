@@ -249,7 +249,7 @@ private:
   edm::EDGetTokenT<L1MuGMTReadoutCollection>       l1_token;
   edm::EDGetTokenT<edm::TriggerResults>            tr_token;
   edm::EDGetTokenT<reco::TrackCollection>          sa_token;
-  edm::EDGetTokenT<edm::PSimHitContainer>               sh_token;
+  edm::EDGetTokenT<edm::PSimHitContainer>          sh_token;
 
   // module on/off switches
   bool makeOccupancyPlots;
