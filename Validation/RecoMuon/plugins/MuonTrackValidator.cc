@@ -14,7 +14,6 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
@@ -238,15 +237,15 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
   setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);    
   
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
-  event.getByLabel(label_tp_effic,TPCollectionHeff);
+  event.getByToken(tp_effic_Token,TPCollectionHeff);
   const TrackingParticleCollection tPCeff = *(TPCollectionHeff.product());
   
   edm::Handle<TrackingParticleCollection>  TPCollectionHfake ;
-  event.getByLabel(label_tp_fake,TPCollectionHfake);
+  event.getByToken(tp_fake_Token,TPCollectionHfake);
   const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
   
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  event.getByLabel(bsSrc,recoBeamSpotHandle);
+  event.getByToken(bsSrc_Token,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;      
   
   int w=0;
@@ -255,14 +254,13 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
       //
       //get collections from the event
       //
-      edm::Handle<View<Track> >  trackCollection;
+      edm::Handle<edm::View<Track> >  trackCollection;
 
       reco::RecoToSimCollection recSimColl;
       reco::SimToRecoCollection simRecColl;
       unsigned int trackCollectionSize = 0;
 
-      //      if(!event.getByLabel(label[www], trackCollection)&&ignoremissingtkcollection_) continue;
-      if(!event.getByLabel(label[www], trackCollection)&&ignoremissingtkcollection_) {
+      if(!event.getByToken(track_Collection_Token[www], trackCollection)&&ignoremissingtkcollection_) {
 
 	recSimColl.post_insert();
 	simRecColl.post_insert();
@@ -299,11 +297,11 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 						 << associatormap.instance()<<"\n";
 	
 	  Handle<reco::SimToRecoCollection > simtorecoCollectionH;
-	  event.getByLabel(associatormap,simtorecoCollectionH);
+	  event.getByToken(simToRecoCollection_Token,simtorecoCollectionH);
 	  simRecColl= *(simtorecoCollectionH.product()); 
 	
 	  Handle<reco::RecoToSimCollection > recotosimCollectionH;
-	  event.getByLabel(associatormap,recotosimCollectionH);
+	  event.getByToken(recoToSimCollection_Token,recotosimCollectionH);
 	  recSimColl= *(recotosimCollectionH.product()); 
 	}
 
@@ -528,7 +526,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 					 << ": " << trackCollectionSize << "\n";
       int at=0;
       int rT=0;
-      for(View<Track>::size_type i=0; i<trackCollectionSize; ++i){
+      for(edm::View<Track>::size_type i=0; i<trackCollectionSize; ++i){
         bool Track_is_matched = false; 
 	RefToBase<Track> track(trackCollection, i);
 	rT++;

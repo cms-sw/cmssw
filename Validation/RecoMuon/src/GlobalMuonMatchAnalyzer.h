@@ -23,6 +23,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 namespace reco {class Track;}
@@ -62,6 +66,7 @@ class GlobalMuonMatchAnalyzer : public edm::EDAnalyzer {
   const TrackAssociatorBase *tkAssociator_, *muAssociator_;
   std::string tkAssociatorName_, muAssociatorName_;
   edm::InputTag tkName_, tpName_, glbName_, staName_;
+  edm::EDGetTokenT<edm::View<reco::Track> >  tkToken_, tpToken_, glbToken_, staToken_;
 
 
 };
