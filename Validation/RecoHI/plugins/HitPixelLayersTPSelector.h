@@ -96,25 +96,8 @@ class HitPixelLayersTPSelector
     std::vector<bool> pixelHitPattern( const TrackingParticleRef& simTrack, const TrackerTopology *tTopo )
       {
 	std::vector<bool> hitpattern(5,false); // PXB 0,1,2  PXF 0,1
-	
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-	for(std::vector<PSimHit>::const_iterator simHit = simTrack->pSimHit_begin();simHit!= simTrack->pSimHit_end();simHit++){
-	  
-	  DetId id = DetId(simHit->detUnitId());
-	  uint32_t detid = id.det();
-	  uint32_t subdet = id.subdetId();
-	  
-	  if (detid == DetId::Tracker) {
-	    if (subdet == PixelSubdetector::PixelBarrel) 
-	      hitpattern[tTopo->pxbLayer(id)-1]=true;
-	    else if (subdet == PixelSubdetector::PixelEndcap) 
-	      hitpattern[tTopo->pxfDisk(id)+2]=true;
-	  }
-	  
-	}// end simhit loop
-#endif
-	
+	// This currently will always return false, since we can no loger use the sim hits to check for triplets.  This would need to be fixed if we want to enable this feature, but it's not being used at the moment, since tripletSeedOnly is always set to False  - Matt Nguyen, 24/7/2013
+
 	return hitpattern;
       }
     
