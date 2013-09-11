@@ -195,6 +195,20 @@ it in a separate repository, you can follow the instructions at:
 
 https://help.github.com/articles/splitting-a-subpath-out-into-a-new-repository
 
+### How do I checkout a file from the read-only CVS repository?
+
+CVS access will be provided read-only for those people who might still need it
+or who want to check historical information.
+
+In order to use it you'll need to adapt your `CVSROOT` environment variable
+via:
+
+    export CVSROOT=:ext:<cern-user-account>@lxplus.cern.ch:/afs/cern.ch/user/c/cvscmssw/public/CMSSW
+    # setenv CVSROOT :ext:<cern-user-account>@lxplus.cern.ch:/afs/cern.ch/user/c/cvscmssw/public/CMSSW
+
+and then use the usual CVS commands. Of course you'll be not allowed to modify
+the repository anymore.
+
 ### How do I ask a question?
 
 If you have more questions about git and CMSSW on git, please use [this
