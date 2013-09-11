@@ -1,5 +1,4 @@
 //
-// $Id: PATConversionProducer.h,v 1.1 2012/04/14 02:12:39 tjkim Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATConversionProducer_h

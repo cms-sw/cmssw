@@ -1,5 +1,4 @@
 //
-// $Id: ObjectResolutionCalc.cc,v 1.4 2008/03/03 16:45:29 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"

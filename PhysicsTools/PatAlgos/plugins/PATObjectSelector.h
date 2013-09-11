@@ -1,5 +1,4 @@
 //
-// $Id: PATObjectSelector.h,v 1.6 2010/06/16 18:21:38 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATObjectSelector_h

@@ -1,4 +1,3 @@
-// $Id: testThrust.cc,v 1.7 2007/10/19 06:55:14 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "PhysicsTools/CandUtils/interface/Thrust.h"

@@ -1,5 +1,4 @@
 //
-// $Id: LeptonJetIsolationAngle.h,v 1.3 2008/03/05 14:51:02 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_LeptonJetIsolationAngle_h

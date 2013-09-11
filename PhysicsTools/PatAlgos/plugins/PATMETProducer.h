@@ -1,5 +1,4 @@
 //
-// $Id: PATMETProducer.h,v 1.10 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMETProducer_h

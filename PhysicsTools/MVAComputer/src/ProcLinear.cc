@@ -10,7 +10,6 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLinear.cc,v 1.4 2007/12/07 15:04:44 saout Exp $
 //
 
 #include <vector>

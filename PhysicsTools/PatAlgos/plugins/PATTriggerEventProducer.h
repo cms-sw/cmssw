@@ -7,7 +7,6 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerEventProducer
 //
-// $Id: PATTriggerEventProducer.h,v 1.11 2010/11/27 15:16:20 vadler Exp $
 //
 /**
   \class    pat::PATTriggerEventProducer PATTriggerEventProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerEventProducer.h"

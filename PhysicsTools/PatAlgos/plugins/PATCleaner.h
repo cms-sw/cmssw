@@ -1,7 +1,6 @@
 #ifndef PhysicsTools_PatAlgos_plugins_PATCleaner_h
 #define PhysicsTools_PatAlgos_plugins_PATCleaner_h
 //
-// $Id: PATCleaner.h,v 1.3 2010/10/20 23:08:30 wmtan Exp $
 //
 
 /**

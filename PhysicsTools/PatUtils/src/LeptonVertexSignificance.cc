@@ -1,5 +1,4 @@
 //
-// $Id: LeptonVertexSignificance.cc,v 1.2 2008/02/28 14:54:25 llista Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/LeptonVertexSignificance.h"

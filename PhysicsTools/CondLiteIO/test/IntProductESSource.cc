@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:39:39 EDT 2005
-// $Id: IntProductESSource.cc,v 1.12 2009/09/23 23:32:07 wmtan Exp $
 //
 
 // system include files
