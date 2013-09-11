@@ -11,9 +11,7 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
  *
- * $Id: CorrectedCaloMETProducer.cc,v 1.1 2011/09/13 14:35:34 veelken Exp $
  *
  */
 

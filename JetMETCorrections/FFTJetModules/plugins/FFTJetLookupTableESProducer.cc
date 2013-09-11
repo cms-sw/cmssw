@@ -13,7 +13,6 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Aug  2 22:34:02 CDT 2012
-// $Id$
 //
 //
 

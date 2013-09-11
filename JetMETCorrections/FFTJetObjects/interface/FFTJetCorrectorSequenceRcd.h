@@ -16,7 +16,6 @@
 //
 // Author:      I. Volobouev
 // Created:     Tue Jul 31 19:49:12 CDT 2012
-// $Id$
 //
 
 #include <boost/mpl/vector.hpp>

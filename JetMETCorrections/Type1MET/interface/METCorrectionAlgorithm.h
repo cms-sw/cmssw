@@ -13,9 +13,7 @@
  *          Christian Veelken, LLR
  *          Tai Sakuma, Texas A&M
  *
- * \version $Revision: 1.2 $
  *
- * $Id: METCorrectionAlgorithm.h,v 1.2 2011/10/14 10:14:35 veelken Exp $
  *
  */
 
