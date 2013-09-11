@@ -1,5 +1,4 @@
 
-// $Id: GaussEvtVtxGenerator.cc,v 1.5 2008/04/04 21:38:25 yumiceva Exp $
 
 #include "IOMC/EventVertexGenerators/interface/GaussEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
