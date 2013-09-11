@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import sys
 
 infile_name = sys.argv[2]
-outfile_name = '/afs/cern.ch/user/l/lgray/work/public/CMSSW_7_0_0_pre0_ged/src/RecoParticleFlow/Configuration/test/%s/superClusterDump_%i.root'%(sys.argv[5],int(sys.argv[3]))
+outfile_name = '/afs/cern.ch/user/l/lgray/work/public/CMSSW_7_0_0_pre3_singlegconv/src/RecoParticleFlow/Configuration/test/%s/superClusterDump_%i.root'%(sys.argv[5],int(sys.argv[3]))
 nevents = int(sys.argv[4])
 
 
@@ -24,7 +24,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    infile_name
+    'root://cms-xrd-global.cern.ch/%s'%infile_name
     ),
     eventsToProcess = cms.untracked.VEventRange(),
     #eventsToProcess = cms.untracked.VEventRange('1:1217421-1:1217421'),
