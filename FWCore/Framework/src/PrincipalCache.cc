@@ -207,6 +207,12 @@ namespace edm {
     lumiPrincipal_ = lbp; 
   }
 
+  void PrincipalCache::insert(boost::shared_ptr<EventPrincipal> ep) {
+    unsigned int iStreamIndex = ep->streamID().value();
+    assert(iStreamIndex < eventPrincipals_.size());
+    eventPrincipals_[iStreamIndex] = ep;
+  }
+
   void PrincipalCache::deleteRun(ProcessHistoryID const& phid, RunNumber_t run) {
     if (runPrincipal_.get() == 0) {
       throw edm::Exception(edm::errors::LogicError)

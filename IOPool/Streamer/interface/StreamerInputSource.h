@@ -62,12 +62,14 @@ namespace edm {
 
   private:
 
-    class ProductGetter : public EDProductGetter {
+    class EventPrincipalHolder : public EDProductGetter {
     public:
-      ProductGetter();
-      virtual ~ProductGetter();
+      EventPrincipalHolder();
+      virtual ~EventPrincipalHolder();
 
-      virtual WrapperHolder getIt(edm::ProductID const& id) const;
+      virtual WrapperHolder getIt(edm::ProductID const& id) const override;
+ 
+      virtual unsigned int transitionIndex_() const override;
 
       void setEventPrincipal(EventPrincipal* ep);
 
@@ -86,7 +88,7 @@ namespace edm {
     std::vector<unsigned char> dest_;
     TBufferFile xbuf_;
     std::unique_ptr<SendEvent> sendEvent_;
-    ProductGetter productGetter_;
+    EventPrincipalHolder eventPrincipalHolder_;
     bool adjustEventToNewProductRegistry_;
 
     //Do not like these to be static, but no choice as deserializeRegistry() that sets it is a static memeber 

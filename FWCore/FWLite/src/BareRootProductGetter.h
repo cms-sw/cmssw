@@ -40,11 +40,16 @@ class BareRootProductGetter : public edm::EDProductGetter {
       virtual ~BareRootProductGetter();
 
       // ---------- const member functions ---------------------
-      virtual edm::WrapperHolder getIt(edm::ProductID const&) const;
+      virtual edm::WrapperHolder getIt(edm::ProductID const&) const override;
+
+private:
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+      virtual unsigned int transitionIndex_() const override {
+        return 0u;
+      }
 
       struct Buffer {
         Buffer(edm::WrapperOwningHolder const& iProd, TBranch* iBranch, void* iAddress,

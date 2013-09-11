@@ -110,10 +110,7 @@ namespace edm {
     }
 
     StreamID streamID() const { return streamID_;}
-    void setStreamID(StreamID const& iID) {
-      streamID_ = iID;
-    }
-    
+
     LuminosityBlockNumber_t luminosityBlock() const {
       return id().luminosityBlock();
     }
@@ -170,6 +167,8 @@ namespace edm {
                                  bool fillOnDemand,
                                  ModuleCallingContext const* mcc) const override;
 
+    virtual unsigned int transitionIndex_() const override;
+    
   private:
 
     class UnscheduledSentry {

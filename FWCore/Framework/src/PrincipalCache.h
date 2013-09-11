@@ -68,7 +68,7 @@ namespace edm {
     void setNumberOfConcurrentPrincipals(PreallocationConfiguration const&);
     void insert(boost::shared_ptr<RunPrincipal> rp);
     void insert(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
-    void insert(boost::shared_ptr<EventPrincipal> ep, unsigned int iStreamIndex) { assert(iStreamIndex < eventPrincipals_.size()); eventPrincipals_[iStreamIndex] = ep; }
+    void insert(boost::shared_ptr<EventPrincipal> ep);
 
     void deleteRun(ProcessHistoryID const& phid, RunNumber_t run);
     void deleteLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
