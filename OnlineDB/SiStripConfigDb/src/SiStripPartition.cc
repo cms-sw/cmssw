@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.19 2009/09/03 17:04:49 lowette Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"

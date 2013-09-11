@@ -1,4 +1,3 @@
-// Last commit: $Id: $
 
 #include "OnlineDB/SiStripESSources/test/stubs/testSiStripGainBuilderFromDb.h"
 #include "FWCore/Framework/interface/ESHandle.h"
