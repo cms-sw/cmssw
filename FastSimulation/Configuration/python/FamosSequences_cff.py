@@ -271,6 +271,7 @@ simulationSequence = cms.Sequence(
 # Calo simulation mode is defined in FastSimulation/CaloRecHitsProducer/python/CaloRecHits_cff.py
 if(CaloMode==0):
     lowLevelRecoSequence = cms.Sequence(
+        siTrackerGaussianSmearingRecHits+
         caloRecHits
         )
     trackVertexReco = cms.Sequence(
@@ -280,6 +281,7 @@ if(CaloMode==0):
         )
 elif(CaloMode==1):
     lowLevelRecoSequence = cms.Sequence(
+        siTrackerGaussianSmearingRecHits+
         caloDigis+
         caloRecHits 
         )
