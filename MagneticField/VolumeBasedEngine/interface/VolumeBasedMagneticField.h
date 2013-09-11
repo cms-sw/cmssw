@@ -5,8 +5,6 @@
  *
  *  Field engine providing interpolation within the full CMS region.
  *
- *  $Date: 2009/05/23 22:21:34 $
- *  $Revision: 1.9 $
  *  \author N. Amapane - CERN
  */
 

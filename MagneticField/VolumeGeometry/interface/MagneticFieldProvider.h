@@ -5,8 +5,6 @@
  *
  *  Virtual interface for the field provider for an individual field volume.
  *
- *  $Date: 2008/03/29 14:10:47 $
- *  $Revision: 1.3 $
  *  \author T. Todorov
  */
 
