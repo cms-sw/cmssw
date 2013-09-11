@@ -1,0 +1,3 @@
+PAI - Publication / Author / Institute
+
+used to gather information about publications written by authors/institutes/countries/etc...
