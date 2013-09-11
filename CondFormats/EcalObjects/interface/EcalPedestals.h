@@ -2,6 +2,8 @@
 #define EcalPedestals_h
 
 
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 
 struct EcalPedestal {
@@ -31,6 +33,8 @@ struct EcalPedestal {
                 if (i==0) return 0.;
                 return *(&rms_x12+(2*(i-1)));
         }
+
+        COND_SERIALIZABLE;
 };
 
 typedef EcalCondObjectContainer<EcalPedestal> EcalPedestalsMap;

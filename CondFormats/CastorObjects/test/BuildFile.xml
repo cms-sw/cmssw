@@ -1,0 +1,5 @@
+<use   name="CondFormats/CastorObjects"/>
+
+<bin file="testSerializationCastorObjects.cpp">
+    <use   name="CondFormats/External"/>
+</bin>

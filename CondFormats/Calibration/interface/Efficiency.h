@@ -6,6 +6,8 @@
  * at the moment though all derived classes better sit in the same package together with the base one
  */
 
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include<cmath>
 
 namespace condex {
@@ -23,7 +25,9 @@ namespace condex {
 
     virtual float value(float pt, float eta) const=0;
 
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 
   class ParametricEfficiencyInPt : public Efficiency {
@@ -42,7 +46,9 @@ namespace condex {
     float cutLow, cutHigh;
     float low, high;
 
-  };  
+  
+  COND_SERIALIZABLE;
+};  
 
 class ParametricEfficiencyInEta : public Efficiency {
   public:
@@ -61,7 +67,9 @@ class ParametricEfficiencyInEta : public Efficiency {
     float cutLow, cutHigh;
     float low, high;
 
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 }
 

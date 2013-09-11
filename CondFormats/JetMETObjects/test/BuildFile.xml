@@ -1,0 +1,5 @@
+<use   name="CondFormats/JetMETObjects"/>
+
+<bin file="testSerializationJetMETObjects.cpp">
+    <use   name="CondFormats/External"/>
+</bin>

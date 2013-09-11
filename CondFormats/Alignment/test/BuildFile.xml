@@ -1,0 +1,3 @@
+<bin file="testSerializationAlignment.cpp">
+    <use   name="CondFormats/External"/>
+</bin>

@@ -1,6 +1,8 @@
 #ifndef ECAL_CONDTOWER_OBJECT_CONTAINER_HH
 #define ECAL_CONDTOWER_OBJECT_CONTAINER_HH
 
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include "DataFormats/EcalDetId/interface/EcalContainer.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
@@ -127,6 +129,8 @@ class EcalCondTowerObjectContainer {
         private:
                 EcalContainer< EcalTrigTowerDetId , Item > eb_;
                 EcalContainer< EcalScDetId , Item > ee_;
+
+    COND_SERIALIZABLE;
 };
 
 typedef EcalCondTowerObjectContainer<float> EcalTowerFloatCondObjectContainer;

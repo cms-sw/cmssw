@@ -8,6 +8,8 @@
 #ifndef SiPixelCalibConfiguration_H
 #define SiPixelCalibConfiguration_H
 
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -61,6 +63,8 @@ class SiPixelCalibConfiguration
   std::vector<short>        fColumnPattern;//
   std::vector<short>        fVCalValues;//
   std::string               fMode;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -1,0 +1,5 @@
+<use   name="CondFormats/Calibration"/>
+
+<bin file="testSerializationCalibration.cpp">
+    <use   name="CondFormats/External"/>
+</bin>

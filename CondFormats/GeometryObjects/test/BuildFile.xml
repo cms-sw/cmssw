@@ -1,0 +1,5 @@
+<use   name="CondFormats/GeometryObjects"/>
+
+<bin file="testSerializationGeometryObjects.cpp">
+    <use   name="CondFormats/External"/>
+</bin>
