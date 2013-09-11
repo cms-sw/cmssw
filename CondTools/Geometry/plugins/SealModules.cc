@@ -23,3 +23,6 @@ DEFINE_FWK_MODULE(DTRecoIdealDBLoader);
 
 #include "CondTools/Geometry/plugins/RPCRecoIdealDBLoader.h"
 DEFINE_FWK_MODULE(RPCRecoIdealDBLoader);
+
+#include "CondTools/Geometry/plugins/GEMRecoIdealDBLoader.h"
+DEFINE_FWK_MODULE(GEMRecoIdealDBLoader);
