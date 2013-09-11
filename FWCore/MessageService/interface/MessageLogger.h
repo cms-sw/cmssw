@@ -122,8 +122,6 @@ private:
   // set up the module name in the message drop, and the enable/suppress info
   void  establishModule       ( const ModuleDescription& desc,
   		                const char* whichPhase );
-  void  establishModuleCtor   ( const ModuleDescription& desc,
-  		                const char*  whichPhase );
   void  unEstablishModule     ( const ModuleDescription& desc,
   		                const char*  whichPhase );
   void  establish             ( const char*  whichPhase ); 

@@ -179,10 +179,10 @@ MessageLogger( ParameterSet const & iPS
   // (and info-enabled and warning-enabled)
   if ( debugModules.empty()) {
     anyDebugEnabled_ = false;					// change log 11
-    MessageDrop::debugEnabled = false;		// change log 1
+    MessageDrop::instance()->debugEnabled = false;		// change log 1
   } else {
     anyDebugEnabled_ = true;					// change log 11
-    MessageDrop::debugEnabled = false;
+    MessageDrop::instance()->debugEnabled = false;
     // this will be over-ridden when specific modules are entered
   }
 
@@ -197,7 +197,7 @@ MessageLogger( ParameterSet const & iPS
   }
   
   								// change log 7
-  std::string jm = edm::MessageDrop::instance()->jobMode; 
+  std::string jm = edm::MessageDrop::jobMode; 
   std::string * jm_p = new std::string(jm);
   MessageLoggerQ::MLqMOD( jm_p ); 				// change log 9
   
@@ -275,8 +275,8 @@ MessageLogger( ParameterSet const & iPS
 //
 
 void
-MessageLogger::establishModule(ModuleDescription const & desc, 
-			       const char * whichPhase)	// ChangeLog 13, 17
+MessageLogger::establishModule(ModuleDescription const & desc,
+                               const char * whichPhase)	// ChangeLog 13, 17
 {
   MessageDrop* messageDrop = MessageDrop::instance();
   nonModule_debugEnabled   = messageDrop->debugEnabled;
@@ -286,8 +286,8 @@ MessageLogger::establishModule(ModuleDescription const & desc,
 
   // std::cerr << "establishModule( " << desc.moduleName() << ")\n";
   // Change Log 17
-  messageDrop->setModuleWithPhase( desc.moduleName(), desc.moduleLabel(), 
-  				&desc, whichPhase );
+  messageDrop->setModuleWithPhase(desc.moduleName(), desc.moduleLabel(), 
+                                  desc.id(), whichPhase );
   // Removed caching per change 17 - caching is now done in MessageDrop.cc
   // in theContext() method, and only happens if a message is actually issued.
   
@@ -300,8 +300,7 @@ MessageLogger::establishModule(ModuleDescription const & desc,
     			debugEnabledModules_.count(desc.moduleLabel());
   }
 
-  std::map<const std::string,ELseverityLevel>::const_iterator it =
-       suppression_levels_.find(desc.moduleLabel());
+  auto it = suppression_levels_.find(desc.moduleLabel());
   if ( it != suppression_levels_.end() ) {
     messageDrop->debugEnabled  = messageDrop->debugEnabled 
                                            && (it->second < ELseverityLevel::ELsev_success );
@@ -314,48 +313,6 @@ MessageLogger::establishModule(ModuleDescription const & desc,
     messageDrop->errorEnabled   = true;
   }
 } // establishModule
-
-void
-MessageLogger::establishModuleCtor(ModuleDescription const & desc, 
-			       const char* whichPhase)	// ChangeLog 16
-{
-  MessageDrop* messageDrop = MessageDrop::instance();
-  nonModule_debugEnabled   = messageDrop->debugEnabled;
-  nonModule_infoEnabled    = messageDrop->infoEnabled;
-  nonModule_warningEnabled = messageDrop->warningEnabled;
-  nonModule_errorEnabled   = messageDrop->errorEnabled;         // change log 20
-
-  // std::cerr << "establishModuleCtor( " << desc.moduleName() << ")\n";
-  // Change Log 17
-  messageDrop->setModuleWithPhase( desc.moduleName(), desc.moduleLabel(), 
-  				0, whichPhase );
-  // Cannot cache the value to improve performance because addresses are 
-  // not yet permanent - see change log 16.  So did not provide desc ptr.
-
-  if (!anyDebugEnabled_) {
-    messageDrop->debugEnabled = false;
-  } else if (everyDebugEnabled_) {
-    messageDrop->debugEnabled = true;
-  } else {
-    messageDrop->debugEnabled = 
-    			debugEnabledModules_.count(desc.moduleLabel());
-  }
-
-  std::map<const std::string,ELseverityLevel>::const_iterator it =
-       suppression_levels_.find(desc.moduleLabel());
-  if ( it != suppression_levels_.end() ) {
-    messageDrop->debugEnabled  = messageDrop->debugEnabled 
-                                           && (it->second < ELseverityLevel::ELsev_success );
-    messageDrop->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
-    messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning );
-    messageDrop->errorEnabled   = (it->second < ELseverityLevel::ELsev_error );
-  } else {
-    messageDrop->infoEnabled    = true;
-    messageDrop->warningEnabled = true;
-    messageDrop->errorEnabled   = true;
-  }
-  messageDrop->snapshot();				// Change Log 18 
-} // establishModuleCtor
 
 void
 MessageLogger::unEstablishModule(ModuleDescription const & /*unused*/, 
@@ -421,11 +378,12 @@ MessageLogger::preModuleConstruction(const ModuleDescription& desc)
 	           )                                         );
     }
     messageServicePSetHasBeenValidated_ = true;
-  } 
-  establishModuleCtor (desc,"@ctor");				// ChangeLog 16
+  }
+  establishModule (desc,"@ctor");				// ChangeLog 16
 }
 void MessageLogger::postModuleConstruction(const ModuleDescription& iDescription)
-{ unEstablishModule (iDescription, "AfterModConstruction"); }
+{ //it is now guaranteed that this will be called even if the module throws
+  unEstablishModule (iDescription, "AfterModConstruction"); }
 
 void
 MessageLogger::preModuleBeginJob(const ModuleDescription& desc)
@@ -447,7 +405,7 @@ MessageLogger::preSourceConstruction(const ModuleDescription& desc)
     }
     messageServicePSetHasBeenValidated_ = true;
   } 
-  establishModuleCtor (desc,"@sourceConstruction");		// ChangeLog 16
+  establishModule(desc,"@sourceConstruction");		// ChangeLog 16
 }
 void MessageLogger::postSourceConstruction(const ModuleDescription& iDescription)
 { unEstablishModule (iDescription, "AfterSourceConstruction"); }
@@ -693,7 +651,7 @@ void
 MessageLogger::jobFailure()
 {
   MessageDrop* messageDrop = MessageDrop::instance();
-  messageDrop->moduleName = "jobFailure";
+  messageDrop->setSinglet("jobFailure");
   SummarizeInJobReport();     // Put summary info into Job Rep  // change log 10
   MessageLoggerQ::MLqSUM ( ); // trigger summary info.		// change log 9
 }

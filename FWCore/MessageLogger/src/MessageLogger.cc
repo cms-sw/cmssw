@@ -70,21 +70,21 @@ void LogStatistics() {
 
 bool isDebugEnabled() {
   return ((!edm::MessageDrop::debugAlwaysSuppressed)		// 9/27/10 mf
-         && edm::MessageDrop::debugEnabled );
+         && edm::MessageDrop::instance()->debugEnabled );
 }
 
 bool isInfoEnabled() {
   return ((!edm::MessageDrop::infoAlwaysSuppressed)		// 9/27/10 mf
-         && edm::MessageDrop::infoEnabled );
+         && edm::MessageDrop::instance()->infoEnabled );
 }
 
 bool isWarningEnabled() {
   return ((!edm::MessageDrop::warningAlwaysSuppressed)		// 9/27/10 mf
-         && edm::MessageDrop::warningEnabled );
+         && edm::MessageDrop::instance()->warningEnabled );
 }
 
 bool isErrorEnabled() {
-  return edm::MessageDrop::errorEnabled;                        // 7/6/11 fwyzard
+  return edm::MessageDrop::instance()->errorEnabled;                        // 7/6/11 fwyzard
 }
 
 void HaltMessageLogging() {
@@ -97,11 +97,8 @@ void FlushMessageLog() {
   edm::MessageLoggerQ::MLqFLS ( ); // Flush the message log queue
 }
 
-void snapshotMessageLog() {					// 11/30/10 mf
-  // Capture module name and label strings.
-  // Use if module objects are about to disappear due to exception,
-  // but a message will then be issued.
-  MessageDrop::instance()->snapshot();
+void clearMessageLog() {					// 11/30/10 mf
+  MessageDrop::instance()->clear();
 }
 
 bool isMessageProcessingSetUp() {				// 6/20/08 mf

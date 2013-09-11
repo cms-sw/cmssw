@@ -90,21 +90,22 @@ private:
 public:
   ~MessageDrop();					// change log 10
   static MessageDrop * instance ();
-  std::string moduleName;
   std::string moduleContext();
   void setModuleWithPhase(std::string const & name,
-  			  std::string const & label,
-			  const void * moduleID,
-			  const char* phase);  
+                          std::string const & label,
+                          unsigned int moduleID,
+                          const char* phase);  
   void setPath(const char* type, std::string const & pathname);
   void setSinglet(const char * sing);
-  void snapshot();
+  void clear();
+
   std::string runEvent;
-  std::string jobMode;					// change log 6
-  static bool debugEnabled;                             // change log 8
-  static bool infoEnabled;                              // change log 8
-  static bool warningEnabled;                           // change log 8
-  static bool errorEnabled;                             // change log 8, 12
+  bool debugEnabled=true;                             // change log 8
+  bool infoEnabled=true;                              // change log 8
+  bool warningEnabled=true;                           // change log 8
+  bool errorEnabled=true;                             // change log 8, 12
+
+  static std::string jobMode;					// change log 6
   static unsigned char messageLoggerScribeIsRunning;	// change log 7
   static bool debugAlwaysSuppressed;			// change log 9
   static bool infoAlwaysSuppressed;			// change log 9

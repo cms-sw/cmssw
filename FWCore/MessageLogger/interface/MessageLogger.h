@@ -479,7 +479,7 @@ public:
   bool isWarningEnabled();
   void HaltMessageLogging();
   void FlushMessageLog();
-  void snapshotMessageLog(); 
+  void clearMessageLog();
   void GroupLogStatistics(std::string const & category);
   bool isMessageProcessingSetUp();
 
@@ -502,8 +502,8 @@ public:
 #define LogTrace(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()
 #else
 // change log 21
-#define LogDebug(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled) ? edm::LogDebug_() : edm::LogDebug_(id, __FILE__, __LINE__)
-#define LogTrace(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled) ? edm::LogTrace_() : edm::LogTrace_(id)
+#define LogDebug(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::instance()->debugEnabled) ? edm::LogDebug_() : edm::LogDebug_(id, __FILE__, __LINE__)
+#define LogTrace(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::instance()->debugEnabled) ? edm::LogTrace_() : edm::LogTrace_(id)
 #endif
 
 #endif  // MessageLogger_MessageLogger_h
