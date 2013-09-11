@@ -17,7 +17,6 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: ConeAreaFunction.h,v 1.1 2007/05/23 20:23:08 veelken Exp $
 //
 //
 

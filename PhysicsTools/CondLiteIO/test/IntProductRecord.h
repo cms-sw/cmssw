@@ -16,7 +16,6 @@
 //
 // Author:      Chris Jones
 // Created:     Tue Jun 22 10:37:05 CDT 2010
-// $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

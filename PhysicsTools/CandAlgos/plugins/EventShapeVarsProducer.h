@@ -28,9 +28,7 @@
  *
  * \author Christian Veelken, UC Davis
  *
- * \version $Revision: 1.2 $
  *
- * $Id: EventShapeVarsProducer.h,v 1.2 2009/12/14 22:23:30 wmtan Exp $
  *
  */
 

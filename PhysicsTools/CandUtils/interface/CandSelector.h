@@ -6,9 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision$
  *
- * $Id: Track.h,v 1.12 2006/03/01 12:23:40 llista Exp $
  *
  */
 

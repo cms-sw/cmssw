@@ -1,5 +1,4 @@
 //
-// $Id: PATUserDataMerger.h,v 1.10 2011/10/26 17:01:25 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataMerger_h

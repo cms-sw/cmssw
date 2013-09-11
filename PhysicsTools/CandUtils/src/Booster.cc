@@ -1,4 +1,3 @@
-// $Id: Booster.cc,v 1.8 2006/11/09 09:24:51 llista Exp $
 #include "PhysicsTools/CandUtils/interface/Booster.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <Math/VectorUtil.h>

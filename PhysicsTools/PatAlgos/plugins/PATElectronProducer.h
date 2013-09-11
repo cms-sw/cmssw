@@ -1,4 +1,3 @@
-// $Id: PATElectronProducer.h,v 1.31 2013/02/27 23:26:56 wmtan Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h

@@ -1,7 +1,6 @@
 #ifndef PhysicsTools_PatAlgos_PATSingleVertexSelector_h
 #define PhysicsTools_PatAlgos_PATSingleVertexSelector_h
 //
-// $Id: PATSingleVertexSelector.h,v 1.5 2011/06/15 11:47:25 friis Exp $
 //
 
 /**

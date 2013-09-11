@@ -7,7 +7,6 @@
 // Package:    PatUtils
 // Class:      pat::helper::TriggerHelper
 //
-// $Id: TriggerHelper.h,v 1.6 2010/12/20 11:55:48 vadler Exp $
 //
 /**
   \class    pat::helper::TriggerHelper TriggerHelper.h "PhysicsTools/PatUtils/interface/TriggerHelper.h"
