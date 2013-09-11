@@ -60,11 +60,19 @@ namespace fwlite {
             public:
                 ProductGetter(Event* iEvent) : event_(iEvent) {}
 
+                virtual
                 edm::WrapperHolder
                 getIt(edm::ProductID const& iID) const override {
                     return event_->getByProductID(iID);
                 }
+
             private:
+                virtual
+                unsigned int
+                transitionIndex_() const override {
+                    return 0U;
+                }
+
                 Event* event_;
         };
     }

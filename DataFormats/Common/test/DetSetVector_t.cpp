@@ -167,7 +167,10 @@ namespace {
   struct DSVGetter : edm::EDProductGetter {
     DSVGetter() : edm::EDProductGetter(), prod_(0) {}
     virtual WrapperHolder
-    getIt(ProductID const&) const {return WrapperHolder(prod_, prod_->getInterface());}
+    getIt(ProductID const&) const override {return WrapperHolder(prod_, prod_->getInterface());}
+    virtual unsigned int
+    transitionIndex_() const override {return 0U;}
+
     edm::Wrapper<T> const* prod_;
   };
 }

@@ -175,9 +175,13 @@ void testRefToBaseProd::constructTest() {
 namespace {
    struct TestGetter : public edm::EDProductGetter {
       WrapperHolder hold_;
-      WrapperHolder getIt(ProductID const&) const {
+      virtual WrapperHolder getIt(ProductID const&) const override {
          return hold_;
       }
+      virtual unsigned int transitionIndex_() const override {
+         return 0U;
+      }
+
       TestGetter() : hold_() {}
    };
 }

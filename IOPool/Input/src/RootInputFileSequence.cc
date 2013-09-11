@@ -29,6 +29,7 @@ namespace edm {
                 ParameterSet const& pset,
                 PoolSource& input,
                 InputFileCatalog const& catalog,
+                unsigned int nStreams,
                 InputType::InputType inputType) :
     input_(input),
     inputType_(inputType),
@@ -44,6 +45,7 @@ namespace edm {
     flatDistribution_(),
     indexesIntoFiles_(fileCatalogItems().size()),
     orderedProcessHistoryIDs_(),
+    nStreams_(nStreams),
     eventSkipperByID_(inputType == InputType::Primary ? EventSkipperByID::create(pset).release() : 0),
     eventsRemainingInFile_(0),
     // The default value provided as the second argument to the getUntrackedParameter function call
@@ -240,10 +242,18 @@ namespace edm {
     }
     if(filePtr) {
       std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile = fileIter_ - fileIterBegin_;
-      rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(),
-          processConfiguration(), fileIter_->logicalFileName(), filePtr,
-          eventSkipperByID_, initialNumberOfEventsToSkip_ != 0,
-          remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
+      rootFile_ = RootFileSharedPtr(new RootFile(
+          fileIter_->fileName(),
+          processConfiguration(),
+          fileIter_->logicalFileName(),
+          filePtr,
+          eventSkipperByID_,
+          initialNumberOfEventsToSkip_ != 0,
+          remainingEvents(),
+          remainingLuminosityBlocks(),
+	  nStreams_,
+          treeCacheSize_,
+          treeMaxVirtualSize_,
           input_.processingMode(),
           setRun_,
           noEventSort_,

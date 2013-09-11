@@ -37,7 +37,11 @@ namespace edm {
 
   class RootInputFileSequence {
   public:
-    explicit RootInputFileSequence(ParameterSet const& pset, PoolSource& input, InputFileCatalog const& catalog, InputType::InputType inputType);
+    explicit RootInputFileSequence(ParameterSet const& pset,
+                                   PoolSource& input,
+                                   InputFileCatalog const& catalog,
+                                   unsigned int nStreams,
+                                   InputType::InputType inputType);
     virtual ~RootInputFileSequence();
 
     RootInputFileSequence(RootInputFileSequence const&) = delete; // Disallow copying and moving
@@ -105,6 +109,7 @@ namespace edm {
     std::vector<boost::shared_ptr<IndexIntoFile> > indexesIntoFiles_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
 
+    unsigned int nStreams_; 
     boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
     int eventsRemainingInFile_;
     int initialNumberOfEventsToSkip_;
