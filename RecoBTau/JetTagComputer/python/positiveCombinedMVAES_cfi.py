@@ -1,55 +1,55 @@
 import FWCore.ParameterSet.Config as cms
 
-combinedMVA = cms.ESProducer("CombinedMVAJetTagESProducer",
+positiveCombinedMVA = cms.ESProducer("CombinedMVAJetTagESProducer",
 	useCategories = cms.bool(False),
 	calibrationRecord = cms.string('CombinedMVA'),
 	jetTagComputers = cms.VPSet(
 		cms.PSet(
 			discriminator = cms.bool(True),
 			variables = cms.bool(False),
-			jetTagComputer = cms.string('jetProbability')
+			jetTagComputer = cms.string('positiveOnlyJetProbability')
 		),
 		cms.PSet(
 			discriminator = cms.bool(True),
 			variables = cms.bool(False),
-			jetTagComputer = cms.string('combinedSecondaryVertex')
+			jetTagComputer = cms.string('combinedSecondaryVertexPositive')
 		),
 		cms.PSet(
 			discriminator = cms.bool(True),
 			variables = cms.bool(False),
-			jetTagComputer = cms.string('softPFMuon')
+			jetTagComputer = cms.string('positiveSoftPFMuon')
 		),
 		cms.PSet(
 			discriminator = cms.bool(True),
 			variables = cms.bool(False),
-			jetTagComputer = cms.string('softPFElectron')
+			jetTagComputer = cms.string('positiveSoftPFElectron')
 		)
 	)
 )
 
-combinedSecondaryVertexSoftPFLeptonV1 = cms.ESProducer("CombinedMVAJetTagESProducer",
+positiveCombinedSecondaryVertexSoftPFLeptonV1 = cms.ESProducer("CombinedMVAJetTagESProducer",
 	useCategories = cms.bool(False),
 	calibrationRecord = cms.string('CombinedCSVSL'),
 	jetTagComputers = cms.VPSet(
 		cms.PSet(
 			discriminator = cms.bool(True),
 			variables = cms.bool(False),
-			jetTagComputer = cms.string('jetProbability')
+			jetTagComputer = cms.string('positiveOnlyJetProbability')
 		),
 		cms.PSet(
 			discriminator = cms.bool(True),
 			variables = cms.bool(False),
-			jetTagComputer = cms.string('combinedSecondaryVertexV1')
+			jetTagComputer = cms.string('combinedSecondaryVertexV1Positive')
 		),
 		cms.PSet(
 			discriminator = cms.bool(True),
 			variables = cms.bool(False),
-			jetTagComputer = cms.string('softPFMuon')
+			jetTagComputer = cms.string('positiveSoftPFMuon')
 		),
 		cms.PSet(
 			discriminator = cms.bool(True),
 			variables = cms.bool(False),
-			jetTagComputer = cms.string('softPFElectron')
+			jetTagComputer = cms.string('positiveSoftPFElectron')
 		)
 	)
 )

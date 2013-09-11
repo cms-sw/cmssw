@@ -14,10 +14,10 @@ LeptonSelector::LeptonSelector(const edm::ParameterSet &params) :
   m_leptonId(reco::SoftLeptonProperties::quality::btagLeptonCands),
   m_qualityCut(0.5)
 {
-  if (params.exists("leptonId") || params.exists("reco::SoftLeptonProperties::qualityCut")) {
+  if (params.exists("leptonId") || params.exists("qualityCut")) {
     std::string leptonId = params.getParameter<std::string>("leptonId");
     m_leptonId = reco::SoftLeptonProperties::quality::byName<reco::SoftLeptonProperties::quality::Generic>(leptonId.c_str());
-    m_qualityCut = params.getParameter<double>("reco::SoftLeptonProperties::qualityCut");
+    m_qualityCut = params.getParameter<double>("qualityCut");
   }
 }
 
