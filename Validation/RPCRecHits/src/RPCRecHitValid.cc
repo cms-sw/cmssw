@@ -5,12 +5,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -19,7 +16,6 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 
 #include <algorithm>
 
@@ -29,11 +25,11 @@ typedef MonitorElement* MEP;
 
 RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
 {
-  simHitLabel_ = pset.getParameter<edm::InputTag>("simHit");
-  recHitLabel_ = pset.getParameter<edm::InputTag>("recHit");
-  simParticleLabel_ = pset.getParameter<edm::InputTag>("simTrack");
-  simHitAssocLabel_ = pset.getParameter<edm::InputTag>("simHitAssoc");
-  muonLabel_ = pset.getParameter<edm::InputTag>("muon");
+  simHitToken_ = consumes<SimHits>(pset.getParameter<edm::InputTag>("simHit"));
+  recHitToken_ = consumes<RecHits>(pset.getParameter<edm::InputTag>("recHit"));
+  simParticleToken_ = consumes<SimParticles>(pset.getParameter<edm::InputTag>("simTrack"));
+  simHitAssocToken_ = consumes<SimHitAssoc>(pset.getParameter<edm::InputTag>("simHitAssoc"));
+  muonToken_ = consumes<reco::MuonCollection>(pset.getParameter<edm::InputTag>("muon"));
   dbe_ = edm::Service<DQMStore>().operator->();
   if ( !dbe_ )
   {
@@ -349,7 +345,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
   // Retrieve SimHits from the event
   edm::Handle<edm::PSimHitContainer> simHitHandle;
-  if ( !event.getByLabel(simHitLabel_, simHitHandle) )
+  if ( !event.getByToken(simHitToken_, simHitHandle) )
   {
     edm::LogInfo("RPCRecHitValid") << "Cannot find simHit collection\n";
     return;
@@ -357,7 +353,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
   // Retrieve RecHits from the event
   edm::Handle<RPCRecHitCollection> recHitHandle;
-  if ( !event.getByLabel(recHitLabel_, recHitHandle) )
+  if ( !event.getByToken(recHitToken_, recHitHandle) )
   {
     edm::LogInfo("RPCRecHitValid") << "Cannot find recHit collection\n";
     return;
@@ -365,7 +361,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
   // Get SimParticles
   edm::Handle<TrackingParticleCollection> simParticleHandle;
-  if ( !event.getByLabel(simParticleLabel_, simParticleHandle) )
+  if ( !event.getByToken(simParticleToken_, simParticleHandle) )
   {
     edm::LogInfo("RPCRecHitValid") << "Cannot find TrackingParticle collection\n";
     return;
@@ -373,15 +369,15 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
   // Get SimParticle to SimHit association map
   edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
-  if ( !event.getByLabel(simHitAssocLabel_, simHitsTPAssoc) )
+  if ( !event.getByToken(simHitAssocToken_, simHitsTPAssoc) )
   {
     edm::LogInfo("RPCRecHitValid") << "Cannot find TrackingParticle to SimHit association map\n";
     return;
   }
 
   // Get RecoMuons
-  edm::Handle<edm::View<reco::Muon> > muonHandle;
-  if ( !event.getByLabel(muonLabel_, muonHandle) )
+  edm::Handle<reco::MuonCollection> muonHandle;
+  if ( !event.getByToken(muonToken_, muonHandle) )
   {
     edm::LogInfo("RPCRecHitValid") << "Cannot find muon collection\n";
     return;
@@ -714,7 +710,7 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
   h_.nMatchHitEndcap->Fill(nMatchHitEndcap);
 
   // Reco Muon hits
-  for ( edm::View<reco::Muon>::const_iterator muon = muonHandle->begin();
+  for ( reco::MuonCollection::const_iterator muon = muonHandle->begin();
         muon != muonHandle->end(); ++muon )
   {
     if ( !muon->isGlobalMuon() ) continue;
