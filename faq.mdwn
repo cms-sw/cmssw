@@ -259,6 +259,14 @@ GitHub and the Topic Collector.
 
 Yes, please look at the [Advanced Usage](advanced-usage) section.
 
+### How do I receive notifications about pull requests for a given package / subsystem?
+
+Please open an issue at
+
+https://github.com/cms-sw/cmssw/issues/new
+
+specifying which package / subsytem whose changes you would like to be notified about.
+
 ### Do you have a nice tutorial on how to develop CMSSW on git?
 
 Yes, please have a look at the [CMSSW git tutorial pages](tutorial.html).
