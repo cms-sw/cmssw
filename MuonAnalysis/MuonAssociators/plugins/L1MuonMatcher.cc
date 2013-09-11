@@ -1,5 +1,4 @@
 //
-// $Id: L1MuonMatcher.cc,v 1.4 2011/03/31 09:59:33 gpetrucc Exp $
 //
 
 /**

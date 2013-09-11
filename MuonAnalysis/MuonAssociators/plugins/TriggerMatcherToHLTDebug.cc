@@ -13,7 +13,6 @@
 //
 // Original Author:  Cristina Botta (Torino), Giovanni Petrucciani (UCSD)
 //         Created:  Fri 30 Apr 2010
-// $Id: TriggerMatcherToHLTDebug.cc,v 1.5 2011/03/20 17:59:26 botta Exp $
 //
 
 
