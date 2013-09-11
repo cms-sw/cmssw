@@ -5,8 +5,6 @@
  *
  *   Description: Producer for the Parametrized Magnetic Field
  *
- *  $Date: 2008/05/06 12:04:34 $
- *  $Revision: 1.1 $
  *  \author Massimiliano Chiorboli, updated NA 03/08
  */
 

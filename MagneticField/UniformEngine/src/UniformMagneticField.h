@@ -5,8 +5,6 @@
  *
  *  A MagneticField engine that returns a constant programmable field value.
  *
- *  $Date: 2008/03/29 11:54:58 $
- *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 

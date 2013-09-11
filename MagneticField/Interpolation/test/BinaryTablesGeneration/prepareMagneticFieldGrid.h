@@ -23,7 +23,6 @@
  * transfer data, or activate the interpolation between grid points
  *
  * \author : <Volker.Drollinger@cern.ch>, updated N. Amapane 04/2008, 2102, 2013
- * $date   : 09/09/2003 11:49:38 CET $
  * 
  *
  */
