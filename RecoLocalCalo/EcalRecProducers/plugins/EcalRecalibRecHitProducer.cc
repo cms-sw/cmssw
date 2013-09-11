@@ -23,20 +23,18 @@
 #include <cmath>
 #include <vector>
 
-//#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-//#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 
 
 EcalRecalibRecHitProducer::EcalRecalibRecHitProducer(const edm::ParameterSet& ps) {
 
-   EBRecHitCollection_ = ps.getParameter<edm::InputTag>("EBRecHitCollection");
-   EERecHitCollection_ = ps.getParameter<edm::InputTag>("EERecHitCollection");
+   EBRecHitToken_ = consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("EBRecHitCollection"));
+   EERecHitToken_ = consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("EERecHitCollection"));
    EBRecalibRecHitCollection_        = ps.getParameter<std::string>("EBRecalibRecHitCollection");
    EERecalibRecHitCollection_        = ps.getParameter<std::string>("EERecalibRecHitCollection");
    doEnergyScale_             = ps.getParameter<bool>("doEnergyScale");
@@ -70,31 +68,12 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
         const EBRecHitCollection*  EBRecHits = 0;
         const EERecHitCollection*  EERecHits = 0; 
 
-	//        if ( EBRecHitCollection_.label() != "" && EBRecHitCollection_.instance() != "" ) {
-        if ( EBRecHitCollection_.label() != "" ) {
-                evt.getByLabel( EBRecHitCollection_, pEBRecHits);
-                if ( pEBRecHits.isValid() ) {
-                        EBRecHits = pEBRecHits.product(); // get a ptr to the product
-#ifdef DEBUG
-                        LogDebug("EcalRecHitDebug") << "total # EB rechits to be re-calibrated: " << EBRecHits->size();
-#endif
-                } else {
-                        edm::LogError("EcalRecHitError") << "Error! can't get the product " << EBRecHitCollection_.label() ;
-                }
-        }
 
-	//        if ( EERecHitCollection_.label() != "" && EERecHitCollection_.instance() != "" ) {
-        if ( EERecHitCollection_.label() != ""  ) {
-                evt.getByLabel( EERecHitCollection_, pEERecHits);
-                if ( pEERecHits.isValid() ) {
-                        EERecHits = pEERecHits.product(); // get a ptr to the product
-#ifdef DEBUG
-                        LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits to be re-calibrated: " << EERecHits->size();
-#endif
-                } else {
-                        edm::LogError("EcalRecHitError") << "Error! can't get the product " << EERecHitCollection_.label() ;
-                }
-        }
+	evt.getByToken( EBRecHitToken_, pEBRecHits);
+	EBRecHits = pEBRecHits.product(); // get a ptr to the product
+
+	evt.getByToken( EERecHitToken_, pEERecHits);
+	EERecHits = pEERecHits.product(); // get a ptr to the product
 
         // collection of rechits to put in the event
         std::auto_ptr< EBRecHitCollection > EBRecalibRecHits( new EBRecHitCollection );
