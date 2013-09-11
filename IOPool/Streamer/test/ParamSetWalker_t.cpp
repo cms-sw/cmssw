@@ -22,8 +22,8 @@ class ParamSetWalker {
       boost::shared_ptr<ParameterSet> procPset = pdesc.getProcessPSet();
       std::cout<< "Process PSet:" << procPset->toString() << std::endl;           
       
-      //cout << "Module Label: " << procPset->getParameter<string>("@module_label")
-      //     << std::endl;
+      //std::cout << "Module Label: " << procPset->getParameter<std::string>("@module_label")
+      //          << std::endl;
       
      edm::ParameterSet const& allTrigPaths = procPset->getParameterSet("@trigger_paths");
      std::cout << "Found  Trig Path :" << allTrigPaths.toString() << std::endl; 
@@ -44,7 +44,7 @@ class ParamSetWalker {
         {
           std::cout << "Found an end Path :" << (*it) << std::endl;
           //Lets try to get this PSet from the Process PSet
-          vector<std::string> anEndPath = procPset->getParameter<vector<std::string> >((*it));
+          std::vector<std::string> anEndPath = procPset->getParameter<std::vector<std::string> >((*it));
           for(std::vector<std::string>::iterator it = anEndPath.begin(), itEnd = anEndPath.end();
           it != itEnd; ++it) {  
               std::cout << "Found a end Path PSet :" << (*it) << std::endl;
@@ -54,11 +54,11 @@ class ParamSetWalker {
                     throw cms::Exception("ParamSetWalker","ParamSetWalker") 
                           << "Empty End Path Found in the Config File" << std::endl;
               std::cout << "This Module PSet is: " << aModInEndPathPset.toString() << std::endl;
-              std::string mod_type = aModInEndPathPset.getParameter<string> ("@module_type");
+              std::string mod_type = aModInEndPathPset.getParameter<std::string> ("@module_type");
               std::cout << "Type of This Module is: " << mod_type << std::endl;
               if (mod_type == "EventStreamFileWriter") {
                  std::cout << "FOUND WHAT WAS LOOKING FOR:::" << std::endl;
-                 std::string fileName = aModInEndPathPset.getParameter<string> ("fileName");
+                 std::string fileName = aModInEndPathPset.getParameter<std::string> ("fileName");
                  std::cout << "Streamer File Name:" << fileName << std::endl; 
 
                  edm::ParameterSet selectEventsPSet const& = aModInEndPathPset.getUntrackedParameterSet("SelectEvents");
@@ -79,7 +79,7 @@ class ParamSetWalker {
   
   
 int main() {
-  string test_config =   "process PROD  = { 
+  std::string test_config =   "process PROD  = { 
     untracked PSet maxEvents = { untracked int32 input = 10 }
     untracked PSet options = { 
           untracked bool wantSummary=false 
@@ -95,7 +95,7 @@ int main() {
           bool use_compression = true
           int32 compression_level = 1
 
-          string fileName = \"teststreamfile.dat\"
+          std::string fileName = \"teststreamfile.dat\"
           # untracked int32 numPerFile = 5
           untracked PSet SelectEvents = { vstring SelectEvents={\"p2\"}}
         }
