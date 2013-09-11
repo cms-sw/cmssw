@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2010/01/15 19:25:27 $
- *  $Revision: 1.9 $
  *  \author M. Zanetti
  */
 

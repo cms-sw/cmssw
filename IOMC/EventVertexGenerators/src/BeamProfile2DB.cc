@@ -13,7 +13,6 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Fri Jan  6 14:49:42 CET 2012
-// $Id: BeamProfile2DB.cc,v 1.1 2012/01/17 11:59:18 vlimant Exp $
 //
 //
 
