@@ -41,10 +41,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Other included files
-#include "DataFormats/TrackReco/interface/Track.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 //Using declarations
 using std::vector;
@@ -65,8 +61,8 @@ MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
   dirName = iConfig.getParameter<std::string>("directory");
   
   //--------Initialize tags-------
-  Muon_Tag                 = iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label");
-  theVertexCollectionLabel = iConfig.getUntrackedParameter<edm::InputTag>("vertexLabel");
+  theMuonCollectionLabel_   = consumes<reco::MuonCollection>(iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label"));
+  theVertexCollectionLabel_ = consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexLabel"));
   
   //-------Initialize Counterse----------------
   nEvents = 0;
@@ -527,7 +523,7 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   
   // Get Muon Collection 
   edm::Handle<edm::View<reco::Muon> > muonsHandle; // 
-  iEvent.getByLabel(Muon_Tag, muonsHandle);
+  iEvent.getByToken(theMuonCollectionLabel_, muonsHandle);
   
   //Fill event entry in histogram of number of muons
   edm::LogInfo("Tutorial") << "Number of Muons: " << muonsHandle->size();
@@ -537,7 +533,7 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //Get Vertex Information
   int _numPV = 0;
   edm::Handle<reco::VertexCollection> vertexHandle;
-  iEvent.getByLabel(theVertexCollectionLabel, vertexHandle);
+  iEvent.getByToken(theVertexCollectionLabel_, vertexHandle);
 
   if (vertexHandle.isValid()){
     reco::VertexCollection vertex = *(vertexHandle.product());

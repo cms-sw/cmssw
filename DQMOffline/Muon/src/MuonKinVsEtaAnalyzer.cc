@@ -2,23 +2,9 @@
  *  See header file for a description of this class.
  *
  *  \author S. Goy Lopez, CIEMAT 
+ *  \author S. Folgueras, U. Oviedo
  */
-
 #include "DQMOffline/Muon/interface/MuonKinVsEtaAnalyzer.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
-#include "DataFormats/MuonReco/interface/MuonEnergy.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
@@ -26,17 +12,15 @@
 using namespace std;
 using namespace edm;
 
+MuonKinVsEtaAnalyzer::MuonKinVsEtaAnalyzer(const edm::ParameterSet& pSet) {
+  parameters = pSet;
 
-
-MuonKinVsEtaAnalyzer::MuonKinVsEtaAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService):MuonAnalyzerBase(theService){  parameters = pSet;
+  theVertexLabel_   = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("vertexLabel"));
+  theBeamSpotLabel_ = mayConsume<reco::BeamSpot>      (parameters.getParameter<edm::InputTag>("bsLabel"));
 }
-
-
 MuonKinVsEtaAnalyzer::~MuonKinVsEtaAnalyzer() { }
 
-
 void MuonKinVsEtaAnalyzer::beginJob(DQMStore * dbe) {
-
   metname = "muonKinVsEta";
 
   LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] Parameters initialization";
@@ -45,9 +29,7 @@ void MuonKinVsEtaAnalyzer::beginJob(DQMStore * dbe) {
 
 void MuonKinVsEtaAnalyzer::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup){
   metname = "muonKinVsEta";                                                                                                   
-  vertexTag  = parameters.getParameter<edm::InputTag>("vertexLabel");
-  bsTag  = parameters.getParameter<edm::InputTag>("bsLabel");
-
+  
   etaBin = parameters.getParameter<int>("etaBin");
   etaMin = parameters.getParameter<double>("etaMin");
   etaMax = parameters.getParameter<double>("etaMax");
@@ -69,7 +51,6 @@ void MuonKinVsEtaAnalyzer::beginRun(DQMStore *dbe, const edm::Run& iRun, const e
   chiMax = parameters.getParameter<double>("chiMax");
   chiprobMin = parameters.getParameter<double>("chiprobMin");
   chiprobMax = parameters.getParameter<double>("chiprobMax");
-
 
   etaBMin = parameters.getParameter<double>("etaBMin");
   etaBMax = parameters.getParameter<double>("etaBMax");
@@ -99,11 +80,11 @@ void MuonKinVsEtaAnalyzer::beginRun(DQMStore *dbe, const edm::Run& iRun, const e
     phiTrack.push_back(dbe->book1D("TkMuon_phi_"+EtaName, "#phi_{TK}" +EtaName +"(rad)", phiBin, phiMin, phiMax));
     phiStaTrack.push_back(dbe->book1D("StaMuon_phi_"+EtaName, "#phi_{STA}"+EtaName+" (rad)", phiBin, phiMin, phiMax));
     phiTightTrack.push_back(dbe->book1D("TightMuon_phi_"+EtaName, "#phi_{Tight}_"+EtaName, phiBin, phiMin, phiMax));
-   phiLooseTrack.push_back(dbe->book1D("LooseMuon_phi_"+EtaName, "#phi_{Loose}_"+EtaName, phiBin, phiMin, phiMax));
-   phiSoftTrack.push_back(dbe->book1D("SoftMuon_phi_"+EtaName, "#phi_{Soft}_"+EtaName, phiBin, phiMin, phiMax));
-   phiHighPtTrack.push_back(dbe->book1D("HighPtMuon_phi_"+EtaName, "#phi_{HighPt}_"+EtaName, phiBin, phiMin, phiMax));
-   
-   // monitoring of the momentum
+    phiLooseTrack.push_back(dbe->book1D("LooseMuon_phi_"+EtaName, "#phi_{Loose}_"+EtaName, phiBin, phiMin, phiMax));
+    phiSoftTrack.push_back(dbe->book1D("SoftMuon_phi_"+EtaName, "#phi_{Soft}_"+EtaName, phiBin, phiMin, phiMax));
+    phiHighPtTrack.push_back(dbe->book1D("HighPtMuon_phi_"+EtaName, "#phi_{HighPt}_"+EtaName, phiBin, phiMin, phiMax));
+    
+    // monitoring of the momentum
     pGlbTrack.push_back(dbe->book1D("GlbMuon_p_"+EtaName, "p_{GLB} "+EtaName, pBin, pMin, pMax));
     pTrack.push_back(dbe->book1D("TkMuon_p"+EtaName, "p_{TK} "+EtaName, pBin, pMin, pMax));
     pStaTrack.push_back(dbe->book1D("StaMuon_p"+EtaName, "p_{STA} "+EtaName, pBin, pMin, pMax));
@@ -136,29 +117,20 @@ void MuonKinVsEtaAnalyzer::beginRun(DQMStore *dbe, const edm::Run& iRun, const e
     chi2probSoftTrack.push_back(dbe->book1D("SoftMuon_chi2prob_"+EtaName, "#chi^{2}_{Soft} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
     chi2HighPtTrack.push_back(dbe->book1D("HighPtMuon_chi2_"+EtaName, "#chi^{2}_{HighPt} " + EtaName, chiBin, chiMin, chiMax));
     chi2probHighPtTrack.push_back(dbe->book1D("HighPtMuon_chi2prob_"+EtaName, "#chi^{2}_{HighPt} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
-
-
- }
+  }
 }
-
-
-
-
-void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Muon& recoMu) {
+void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Muon& recoMu){
 
   // ==========================================================
   // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
-
   reco::Vertex::Point posVtx;
   reco::Vertex::Error errVtx;
- 
   unsigned int theIndexOfThePrimaryVertex = 999.;
  
   edm::Handle<reco::VertexCollection> vertex;
-  iEvent.getByLabel(vertexTag, vertex);
+  iEvent.getByToken(theVertexLabel_, vertex);
 
   if (vertex.isValid()){
-
     for (unsigned int ind=0; ind<vertex->size(); ++ind) {
       if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
 	theIndexOfThePrimaryVertex = ind;
@@ -170,12 +142,12 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   if (theIndexOfThePrimaryVertex<100) {
     posVtx = ((*vertex)[theIndexOfThePrimaryVertex]).position();
     errVtx = ((*vertex)[theIndexOfThePrimaryVertex]).error();
-  }   else {
+  }   
+  else {
     LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
-  
-    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    iEvent.getByLabel(bsTag,recoBeamSpotHandle);
     
+    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+    iEvent.getByToken(theBeamSpotLabel_,recoBeamSpotHandle);
     reco::BeamSpot bs = *recoBeamSpotHandle;
     
     posVtx = bs.position();
@@ -184,15 +156,8 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
     errVtx(2,2) = bs.sigmaZ();
   }
   const reco::Vertex thePrimaryVertex(posVtx,errVtx);
-
   // ==========================================================
 
-  
-  reco::BeamSpot beamSpot;
-  Handle<reco::BeamSpot> beamSpotHandle;
-  iEvent.getByLabel("offlineBeamSpot", beamSpotHandle);
-  beamSpot = *beamSpotHandle;
-  
   LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] Analyze the mu in different eta regions";
 
   for(unsigned int iEtaRegion=0;iEtaRegion<4;iEtaRegion++){

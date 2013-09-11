@@ -13,25 +13,25 @@
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMOffline/Muon/src/MuonAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/SegmentsTrackAssociator.h"
 
 
-class SegmentTrackAnalyzer : public MuonAnalyzerBase {
+class SegmentTrackAnalyzer : public edm::EDAnalyzer {
  public:
 
   /// Constructor
-  SegmentTrackAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService);
+  SegmentTrackAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~SegmentTrackAnalyzer();
+  virtual ~SegmentTrackAnalyzer() {};
   
   /// Inizialize parameters for histo binning
   void beginJob(DQMStore *dbe);
@@ -39,7 +39,7 @@ class SegmentTrackAnalyzer : public MuonAnalyzerBase {
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const reco::Track& recoTrack);
-
+  void analyze(const edm::Event&, const edm::EventSetup&) {};
 
  private:
   // ----------member data ---------------------------

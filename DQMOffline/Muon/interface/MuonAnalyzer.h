@@ -20,7 +20,14 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-//
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 class MuonEnergyDepositAnalyzer;
@@ -37,7 +44,7 @@ class EfficiencyAnalyzer;
 
 class MuonAnalyzer : public edm::EDAnalyzer {
  public:
-
+  
   /// Constructor
   MuonAnalyzer(const edm::ParameterSet&);
   
@@ -53,8 +60,7 @@ class MuonAnalyzer : public edm::EDAnalyzer {
 
   /// Save the histos
   void endJob(void);
-  void endRun(const edm::Run&, const edm::EventSetup&)
-  {};
+  void endRun(const edm::Run&, const edm::EventSetup&){};
   
  private:
   // ----------member data ---------------------------
@@ -65,14 +71,11 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   std::string metname;
 
   // Muon Label
-  edm::InputTag theMuonCollectionLabel;
-  // Glb Muon Track label
-  edm::InputTag theGlbMuTrackCollectionLabel;
-  // Sta Muon Track label
-  edm::InputTag theStaMuTrackCollectionLabel;
-  // Seed Label
-  edm::InputTag theSeedsCollectionLabel;
-  edm::InputTag theTriggerResultsLabel;
+  edm::EDGetTokenT<reco::MuonCollection>     theMuonCollectionLabel_;
+  edm::EDGetTokenT<reco::TrackCollection>    theGlbMuTrackCollectionLabel_;
+  edm::EDGetTokenT<reco::TrackCollection>    theStaMuTrackCollectionLabel_;
+  edm::EDGetTokenT<TrajectorySeedCollection> theSeedsCollectionLabel_;
+  edm::EDGetTokenT<edm::TriggerResults>      theTriggerResultsLabel_;
 
   bool theMuEnergyAnalyzerFlag;
   bool theSeedsAnalyzerFlag;

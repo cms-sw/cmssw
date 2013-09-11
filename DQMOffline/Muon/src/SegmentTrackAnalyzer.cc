@@ -1,4 +1,3 @@
-
 /*
  *  See header file for a description of this class.
  *
@@ -25,31 +24,21 @@
 using namespace std;
 using namespace edm;
 
-
-
-SegmentTrackAnalyzer::SegmentTrackAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService):MuonAnalyzerBase(theService) {
+SegmentTrackAnalyzer::SegmentTrackAnalyzer(const edm::ParameterSet& pSet) {
 
   parameters = pSet;
-
+  
   const ParameterSet SegmentsTrackAssociatorParameters = parameters.getParameter<ParameterSet>("SegmentsTrackAssociatorParameters");
   theSegmentsAssociator = new SegmentsTrackAssociator(SegmentsTrackAssociatorParameters);
-
 }
-
-
-SegmentTrackAnalyzer::~SegmentTrackAnalyzer() { }
-
-
 void SegmentTrackAnalyzer::beginJob(DQMStore * dbe) {
-
-
   metname = "segmTrackAnalyzer";
   LogTrace(metname)<<"[SegmentTrackAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/SegmentTrackAnalyzer");
 }
-
 void SegmentTrackAnalyzer::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup){
   metname = "segmTrackAnalyzer";
+  
   string trackCollection = parameters.getParameter<edm::InputTag>("MuTrackCollection").label() + parameters.getParameter<edm::InputTag>("MuTrackCollection").instance();
 
   // histograms initalization
@@ -114,7 +103,7 @@ void SegmentTrackAnalyzer::beginRun(DQMStore *dbe, const edm::Run& iRun, const e
 void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& recoTrack){
 
   LogTrace(metname)<<"[SegmentTrackAnalyzer] Filling the histos";
-  
+
   MuonTransientTrackingRecHit::MuonRecHitContainer segments = theSegmentsAssociator->associate(iEvent, iSetup, recoTrack );
  
   LogTrace(metname)<<"[SegmentTrackAnalyzer] # of segments associated to the track: "<<(segments).size();

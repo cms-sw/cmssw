@@ -16,33 +16,26 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
 using namespace std;
 using namespace edm;
+using namespace reco;
 
-MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
+MuonAnalyzer::MuonAnalyzer(const ParameterSet& pSet) {
   parameters = pSet;
   
   // the services
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
   
   // Muon Collection Label
-  theMuonCollectionLabel       = parameters.getParameter<edm::InputTag>("MuonCollection");
-  theGlbMuTrackCollectionLabel = parameters.getParameter<edm::InputTag>("GlobalMuTrackCollection");
-  theStaMuTrackCollectionLabel = parameters.getParameter<edm::InputTag>("STAMuTrackCollection");
-  theSeedsCollectionLabel      = parameters.getParameter<edm::InputTag>("SeedCollection");
-  theTriggerResultsLabel       = parameters.getParameter<edm::InputTag>("TriggerResultsLabel");
+  theMuonCollectionLabel_       = consumes<MuonCollection>(parameters.getParameter<InputTag>("MuonCollection"));
+  theGlbMuTrackCollectionLabel_ = consumes<TrackCollection>(parameters.getParameter<InputTag>("GlobalMuTrackCollection"));
+  theStaMuTrackCollectionLabel_ = consumes<TrackCollection>(parameters.getParameter<InputTag>("STAMuTrackCollection"));
+  theSeedsCollectionLabel_      = consumes<TrajectorySeedCollection>(parameters.getParameter<InputTag>("SeedCollection"));
+  theTriggerResultsLabel_       = consumes<TriggerResults>(parameters.getParameter<InputTag>("TriggerResultsLabel"));
  
   // Analyzer Flags - define wheter or not run a submodule
   theMuEnergyAnalyzerFlag       = parameters.getUntrackedParameter<bool>("DoMuonEnergyAnalysis"   ,true);
@@ -55,23 +48,31 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   theEfficiencyAnalyzerFlag     = parameters.getUntrackedParameter<bool>("DoEfficiencyAnalysis"   ,true);
   
   // If the previous are defined... create the analyzer class 
-  if(theMuEnergyAnalyzerFlag) theMuEnergyAnalyzer     = new MuonEnergyDepositAnalyzer(parameters.getParameter<ParameterSet>("muonEnergyAnalysis"), theService);
-  if(theSeedsAnalyzerFlag)    theSeedsAnalyzer        = new MuonSeedsAnalyzer(parameters.getParameter<ParameterSet>("seedsAnalysis"),              theService);
-  if(theMuonRecoAnalyzerFlag) theMuonRecoAnalyzer     = new MuonRecoAnalyzer(parameters.getParameter<ParameterSet>("muonRecoAnalysis"),            theService);
-  if(theMuonRecoAnalyzerFlag) theMuonKinVsEtaAnalyzer = new MuonKinVsEtaAnalyzer(parameters.getParameter<ParameterSet>("muonKinVsEtaAnalysis"),    theService);
-  if(theDiMuonHistogramsFlag) theDiMuonHistograms     = new DiMuonHistograms(parameters.getParameter<ParameterSet>("dimuonHistograms"),            theService);
+  if(theMuEnergyAnalyzerFlag) 
+    theMuEnergyAnalyzer = new MuonEnergyDepositAnalyzer(parameters.getParameter<ParameterSet>("muonEnergyAnalysis"), theService);
+  if(theSeedsAnalyzerFlag)    
+    theSeedsAnalyzer    = new MuonSeedsAnalyzer(parameters.getParameter<ParameterSet>("seedsAnalysis"),              theService);
+  if(theMuonRecoAnalyzerFlag) 
+    theMuonRecoAnalyzer = new MuonRecoAnalyzer(parameters.getParameter<ParameterSet>("muonRecoAnalysis"),            theService);
+  if(theMuonKinVsEtaAnalyzerFlag) 
+    theMuonKinVsEtaAnalyzer = new MuonKinVsEtaAnalyzer(parameters.getParameter<ParameterSet>("muonKinVsEtaAnalysis"));
+  if(theDiMuonHistogramsFlag) 
+    theDiMuonHistograms     = new DiMuonHistograms(parameters.getParameter<ParameterSet>("dimuonHistograms"));
+  if(theEfficiencyAnalyzerFlag)     
+    theEfficiencyAnalyzer     = new EfficiencyAnalyzer(parameters.getParameter<ParameterSet>("efficiencyAnalysis"));
+  if(theMuonRecoOneHLTAnalyzerFlag) 
+    theMuonRecoOneHLTAnalyzer = new MuonRecoOneHLT(parameters.getParameter<ParameterSet>("muonRecoOneHLTAnalysis"));
   if(theMuonSegmentsAnalyzerFlag){
     // analysis on glb muon tracks
     ParameterSet  trackGlbMuAnalysisParameters = parameters.getParameter<ParameterSet>("trackSegmentsAnalysis");
-    trackGlbMuAnalysisParameters.addParameter<edm::InputTag>("MuTrackCollection",theGlbMuTrackCollectionLabel);
-    theGlbMuonSegmentsAnalyzer = new SegmentTrackAnalyzer(trackGlbMuAnalysisParameters, theService);
+    trackGlbMuAnalysisParameters.addParameter<edm::InputTag>("MuTrackCollection",parameters.getParameter<InputTag>("GlobalMuTrackCollection"));
+    theGlbMuonSegmentsAnalyzer = new SegmentTrackAnalyzer(trackGlbMuAnalysisParameters);
+    
     // analysis on sta muon tracks
     ParameterSet  trackStaMuAnalysisParameters = parameters.getParameter<ParameterSet>("trackSegmentsAnalysis");
-    trackStaMuAnalysisParameters.addParameter<edm::InputTag>("MuTrackCollection",theStaMuTrackCollectionLabel);
-    theStaMuonSegmentsAnalyzer = new SegmentTrackAnalyzer(trackStaMuAnalysisParameters, theService);
+    trackStaMuAnalysisParameters.addParameter<edm::InputTag>("MuTrackCollection",parameters.getParameter<InputTag>("STAMuTrackCollection"));
+    theStaMuonSegmentsAnalyzer = new SegmentTrackAnalyzer(trackStaMuAnalysisParameters);
   }
-  if(theMuonRecoOneHLTAnalyzerFlag) theMuonRecoOneHLTAnalyzer = new MuonRecoOneHLT(parameters.getParameter<ParameterSet>("muonRecoOneHLTAnalysis"),theService);
-  if(theEfficiencyAnalyzerFlag)     theEfficiencyAnalyzer = new EfficiencyAnalyzer(parameters.getParameter<ParameterSet>("efficiencyAnalysis"), theService);
 }
 
 MuonAnalyzer::~MuonAnalyzer() {
@@ -126,10 +127,10 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   
   // Take the STA muon container
   edm::Handle<reco::MuonCollection> muons;
-  iEvent.getByLabel(theMuonCollectionLabel,muons);
+  iEvent.getByToken(theMuonCollectionLabel_,muons);
 
   edm::Handle<TriggerResults> triggerResults;
-  iEvent.getByLabel(theTriggerResultsLabel, triggerResults);
+  iEvent.getByToken(theTriggerResultsLabel_, triggerResults);
   
   if(muons.isValid()){
     for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu!=muons->end(); ++recoMu){
@@ -142,8 +143,8 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	theMuonRecoAnalyzer->analyze(iEvent, iSetup, *recoMu);
       }
       if(theMuonKinVsEtaAnalyzerFlag){
-	LogTrace(metname)<<"[MuonAnalyzer] Call to the muon KinVsEta analyzer";
-	theMuonKinVsEtaAnalyzer->analyze(iEvent, iSetup, *recoMu);
+      	LogTrace(metname)<<"[MuonAnalyzer] Call to the muon KinVsEta analyzer";
+      	theMuonKinVsEtaAnalyzer->analyze(iEvent, iSetup, *recoMu);
       }
     }
     if(theMuonRecoOneHLTAnalyzerFlag) {
@@ -160,35 +161,34 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
   }
   
-   // Take the track containers
-   Handle<reco::TrackCollection> glbTracks;
-   iEvent.getByLabel(theGlbMuTrackCollectionLabel,glbTracks);
-   Handle<reco::TrackCollection> staTracks;
-   iEvent.getByLabel(theStaMuTrackCollectionLabel,staTracks);
-
-   if(glbTracks.isValid()){
-     for (reco::TrackCollection::const_iterator recoTrack = glbTracks->begin(); recoTrack!=glbTracks->end(); ++recoTrack){
-       if(theMuonSegmentsAnalyzerFlag){
-	 LogTrace(metname)<<"[SegmentsAnalyzer] Call to the track segments analyzer for glb muons";
+  // Take the track containers
+  Handle<reco::TrackCollection> glbTracks;
+  iEvent.getByToken(theGlbMuTrackCollectionLabel_,glbTracks);
+  Handle<reco::TrackCollection> staTracks;
+  iEvent.getByToken(theStaMuTrackCollectionLabel_,staTracks);
+  
+  if(glbTracks.isValid()){
+    for (reco::TrackCollection::const_iterator recoTrack = glbTracks->begin(); recoTrack!=glbTracks->end(); ++recoTrack){
+      if(theMuonSegmentsAnalyzerFlag){
+	LogTrace(metname)<<"[SegmentsAnalyzer] Call to the track segments analyzer for glb muons";
 	 theGlbMuonSegmentsAnalyzer->analyze(iEvent, iSetup, *recoTrack);
-       }
-     }
-   }
-   if(staTracks.isValid()){
-     for (reco::TrackCollection::const_iterator recoTrack = staTracks->begin(); recoTrack!=staTracks->end(); ++recoTrack){
-       if(theMuonSegmentsAnalyzerFlag){
-	 LogTrace(metname)<<"[SegmentsAnalyzer] Call to the track segments analyzer for sta muons";
-	 theStaMuonSegmentsAnalyzer->analyze(iEvent, iSetup, *recoTrack);
-       }
-     }
-   }
+      }
+    }
+  }
+  if(staTracks.isValid()){
+    for (reco::TrackCollection::const_iterator recoTrack = staTracks->begin(); recoTrack!=staTracks->end(); ++recoTrack){
+      if(theMuonSegmentsAnalyzerFlag){
+	LogTrace(metname)<<"[SegmentsAnalyzer] Call to the track segments analyzer for sta muons";
+	theStaMuonSegmentsAnalyzer->analyze(iEvent, iSetup, *recoTrack);
+      }
+    }
+  }
+  
    
-   
-     
-
+        
    // Take the seeds container
    edm::Handle<TrajectorySeedCollection> seeds;
-   iEvent.getByLabel(theSeedsCollectionLabel, seeds);
+   iEvent.getByToken(theSeedsCollectionLabel_, seeds);
    if(seeds.isValid()){
      for(TrajectorySeedCollection::const_iterator seed = seeds->begin(); seed != seeds->end(); ++seed){
        if(theSeedsAnalyzerFlag){
@@ -197,7 +197,6 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        }
      }
    }
-
 }
 
 

@@ -23,7 +23,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-class MuonAnalyzerBase {
+class MuonAnalyzerBase : public edm::EDAnalyzer {
  public:
 
   /// Constructor
@@ -40,7 +40,7 @@ class MuonAnalyzerBase {
 
   /// Get the analysis of the muon track properties
   void analyze(const edm::Event&, const edm::EventSetup&, reco::Track& recoTrack){}
-
+  
   MuonServiceProxy* service() {return theService;}
 
  private:

@@ -8,29 +8,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
-
-using namespace edm;
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "TLorentzVector.h"
 #include "TFile.h"
 #include <vector>
 #include "math.h"
-
-
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
-
-
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 
 /* C++ Headers */
 #include <iostream>
@@ -39,24 +26,30 @@ using namespace edm;
 using namespace std;
 using namespace edm;
 
-DiMuonHistograms::DiMuonHistograms(const edm::ParameterSet& pSet, MuonServiceProxy *theService):MuonAnalyzerBase(theService){ 
+DiMuonHistograms::DiMuonHistograms(const edm::ParameterSet& pSet){
+  
+  // initialise parameters:
   parameters = pSet;
+  
+  // declare consumes:
+  theMuonCollectionLabel_ = consumes<reco::MuonCollection>  (parameters.getParameter<edm::InputTag>("MuonCollection"));
+  theBeamSpotLabel_       = mayConsume<reco::BeamSpot>      (parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
+  theVertexLabel_         = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
 }
 
 DiMuonHistograms::~DiMuonHistograms() { }
 
 void DiMuonHistograms::beginJob(DQMStore * dbe) {
-  
   metname = "DiMuonhistograms";
-  LogTrace(metname)<<"[DiMuonHistograms] Parameters initialization";
+  LogTrace(metname)<<"[DiMuonHistograms] beginJob()";
+  
   dbe->setCurrentFolder("Muons/DiMuonHistograms");  
 }
-void DiMuonHistograms::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  
-  theMuonCollectionLabel = parameters.getParameter<edm::InputTag>("MuonCollection");
-  bsTag  = parameters.getParameter<edm::InputTag>("bsLabel");
-  vertexTag  = parameters.getParameter<edm::InputTag>("vertexLabel");
 
+void DiMuonHistograms::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  LogTrace(metname)<<"[DiMuonHistograms] beginRun()";
+  LogTrace(metname)<<"[DiMuonHistograms] beginRun() Parameter initialization";
+  
   etaBin = parameters.getParameter<int>("etaBin");
   etaBBin = parameters.getParameter<int>("etaBBin");
   etaEBin = parameters.getParameter<int>("etaEBin");
@@ -92,36 +85,37 @@ void DiMuonHistograms::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::
     SoftSoftMuon.push_back(dbe->book1D("SoftSoftMuon"+EtaName,"InvMass_{Soft,Soft}"+EtaName,nBin, 5.0, 55.0));
   }
 }
-void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& iSetup) {
 
+void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& iSetup) {
 
   // ==========================================================
   // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
-
+  
   reco::Vertex::Point posVtx;
   reco::Vertex::Error errVtx;
  
   unsigned int theIndexOfThePrimaryVertex = 999.;
- 
+  
   edm::Handle<reco::VertexCollection> vertex;
-  iEvent.getByLabel(vertexTag, vertex);
-
- if ( vertex.isValid() ){
-  for (unsigned int ind=0; ind<vertex->size(); ++ind) {
-    if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
-      theIndexOfThePrimaryVertex = ind;
-      break;
+  iEvent.getByToken(theVertexLabel_, vertex);
+  
+  if ( vertex.isValid() ){
+    for (unsigned int ind=0; ind<vertex->size(); ++ind) {
+      if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
+	theIndexOfThePrimaryVertex = ind;
+	break;
+      }
     }
   }
- }
   if (theIndexOfThePrimaryVertex<100) {
     posVtx = ((*vertex)[theIndexOfThePrimaryVertex]).position();
     errVtx = ((*vertex)[theIndexOfThePrimaryVertex]).error();
-  }   else {
+  } 
+  else {
     LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
-  
+    
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    iEvent.getByLabel(bsTag,recoBeamSpotHandle);
+    iEvent.getByToken(theBeamSpotLabel_,recoBeamSpotHandle);
     
     reco::BeamSpot bs = *recoBeamSpotHandle;
     
@@ -130,21 +124,14 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
     errVtx(1,1) = bs.BeamWidthY();
     errVtx(2,2) = bs.sigmaZ();
   }
+
   const reco::Vertex thePrimaryVertex(posVtx,errVtx);
+  
   // ==========================================================
-
-
-
-
   LogTrace(metname)<<"[DiMuonHistograms] Analyze the mu in different eta regions";
   edm::Handle<reco::MuonCollection> muons;
-  iEvent.getByLabel(theMuonCollectionLabel, muons);
-
-  reco::BeamSpot beamSpot;
-  Handle<reco::BeamSpot> beamSpotHandle;
-  iEvent.getByLabel("offlineBeamSpot", beamSpotHandle);
-  beamSpot = *beamSpotHandle;
-
+  iEvent.getByToken(theMuonCollectionLabel_, muons);
+  
   if(!muons.isValid()) return;
 
   // Loop on muon collection

@@ -40,6 +40,10 @@ method, even the simple types.
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 //----------------------------------------
 
@@ -87,18 +91,13 @@ private:
   //----------Static Variables---------------
   
   //Collection labels
-  edm::InputTag Muon_Tag;
-  edm::InputTag tkIsoDeposit_Tag;
-  edm::InputTag hcalIsoDeposit_Tag;
-  edm::InputTag ecalIsoDeposit_Tag;
-  edm::InputTag hoIsoDeposit_Tag;
-  edm::InputTag theVertexCollectionLabel;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionLabel_;
+  edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
 
   //root file name
   std::string rootfilename;
   // Directories within the rootfile
   std::string dirName;
-  //  std::string subDirName;
 
   //Histogram parameters
   static const int NUM_VARS      = 48; // looking at R03 and R05.  Total of 54 histos.

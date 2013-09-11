@@ -1,27 +1,5 @@
 #include "DQMOffline/Muon/interface/MuonRecoOneHLT.h"
 
-
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
-#include "DataFormats/MuonReco/interface/MuonEnergy.h"
-
-#include "FWCore/Common/interface/TriggerNames.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
-
-
 #include <string>
 #include "TMath.h"
 using namespace std;
@@ -30,7 +8,7 @@ using namespace edm;
 // Uncomment to DEBUG
 //#define DEBUG
 
-MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet, MuonServiceProxy *theService):MuonAnalyzerBase(theService) {
+MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet) { //, MuonServiceProxy *theService) :MuonAnalyzerBase(theService) {
   parameters = pSet;
   
   ParameterSet muonparms   = parameters.getParameter<edm::ParameterSet>("SingleMuonTrigger");
@@ -41,6 +19,10 @@ MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet, MuonServiceProxy *
   // Trigger Expresions in case de connection to the DB fails
   singlemuonExpr_          = muonparms.getParameter<std::vector<std::string> >("hltPaths");
   doublemuonExpr_          = dimuonparms.getParameter<std::vector<std::string> >("hltPaths");
+
+  theMuonCollectionLabel_  = consumes<reco::MuonCollection>(parameters.getParameter<edm::InputTag>("MuonCollection"));
+  theVertexLabel_          = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("vertexLabel"));
+  theBeamSpotLabel_        = mayConsume<reco::BeamSpot>(parameters.getParameter<edm::InputTag>("bsLabel"));
 }
 
 
@@ -60,12 +42,7 @@ void MuonRecoOneHLT::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::Ev
 #ifdef DEBUG
   cout << "[MuonRecoOneHLT]  beginRun " << endl;
   cout << "[MuonRecoOneHLT]  Is MuonEventFlag On? "<< _SignleMuonEventFlag->on() << endl;
-#endif
-
-theMuonCollectionLabel = parameters.getParameter<edm::InputTag>("MuonCollection");
-  vertexTag  = parameters.getParameter<edm::InputTag>("vertexLabel");
-  bsTag  = parameters.getParameter<edm::InputTag>("bsLabel");
-
+#endif  
   
   muReco = dbe->book1D("Muon_Reco", "Muon Reconstructed Tracks", 6, 1, 7);
   muReco->setBinLabel(1,"glb+tk+sta"); 
@@ -157,7 +134,7 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   unsigned int theIndexOfThePrimaryVertex = 999.;
  
   edm::Handle<reco::VertexCollection> vertex;
-  iEvent.getByLabel(vertexTag, vertex);
+  iEvent.getByToken(theVertexLabel_, vertex);
 
   if ( vertex.isValid() ){
   for (unsigned int ind=0; ind<vertex->size(); ++ind) {
@@ -174,7 +151,7 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
   
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    iEvent.getByLabel(bsTag,recoBeamSpotHandle);
+    iEvent.getByToken(theBeamSpotLabel_,recoBeamSpotHandle);
     
     reco::BeamSpot bs = *recoBeamSpotHandle;
     
@@ -192,7 +169,7 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   //  TEST FOR ONLY TAKE HIGHEST PT MUON
   edm::Handle<reco::MuonCollection> muons;
-  iEvent.getByLabel(theMuonCollectionLabel,muons);
+  iEvent.getByToken(theMuonCollectionLabel_,muons);
 
 
   std::map<float,reco::Muon> muonMap;
@@ -204,11 +181,6 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     LeadingMuon.push_back( (*rit).second );
   }
 
-  reco::BeamSpot beamSpot;
-  Handle<reco::BeamSpot> beamSpotHandle;
-  iEvent.getByLabel("offlineBeamSpot", beamSpotHandle);
-  beamSpot = *beamSpotHandle;
-  
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(triggerResults);
   const unsigned int nTrig(triggerNames.size());
   bool _trig_SingleMu = false;

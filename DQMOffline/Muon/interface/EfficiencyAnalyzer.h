@@ -22,42 +22,38 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-
-class EfficiencyAnalyzer : public MuonAnalyzerBase {
+class EfficiencyAnalyzer : public edm::EDAnalyzer {
   
  public:
   /* Constructor */ 
-  EfficiencyAnalyzer(const edm::ParameterSet& pset, MuonServiceProxy *theService);
+  EfficiencyAnalyzer(const edm::ParameterSet& pset);
   
   /* Destructor */ 
   virtual ~EfficiencyAnalyzer() ;
 
   /* Operations */ 
-  void beginJob (DQMStore *dbe);
+  void beginJob(DQMStore *dbe);
   void beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup);
 
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
   //  void endJob ();
 
- protected:
+ private:
   edm::ParameterSet parameters;
   
   // Switch for verbosity
   std::string metname;
   
-  // STA Label
-  edm::InputTag theSTACollectionLabel;
-  edm::InputTag theMuonCollectionLabel;
-  edm::InputTag theTrackCollectionLabel;
-
-  //Vertex requirements
-  bool _doPVCheck;
-  edm::InputTag  vertexTag;
-  edm::InputTag  bsTag;
-
   //histo binning parameters
   int etaBin_;
   int phiBin_;
@@ -126,6 +122,15 @@ class EfficiencyAnalyzer : public MuonAnalyzerBase {
 
   int _numPV;
 
+
+  // STA Label
+  edm::EDGetTokenT<reco::MuonCollection>  theMuonCollectionLabel_;
+  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionLabel_;
+
+  //Vertex requirements
+  bool doPVCheck_;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
+  edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
 };
 #endif 
 

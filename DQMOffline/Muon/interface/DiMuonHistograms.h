@@ -23,33 +23,34 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-class DiMuonHistograms : public MuonAnalyzerBase {
-  
+#include "DQMOffline/Muon/interface/MuonAnalyzerBase.h"
+
+class DiMuonHistograms : public edm::EDAnalyzer {
+ 
  public:
   /* Constructor */ 
-  DiMuonHistograms(const edm::ParameterSet& pset, MuonServiceProxy *theService);
+  DiMuonHistograms(const edm::ParameterSet& pset);
   
   /* Destructor */ 
   virtual ~DiMuonHistograms() ;
-
+  
   /* Operations */ 
   void beginJob (DQMStore *dbe);
   void beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup);
   void analyze (const edm::Event & event, const edm::EventSetup& eventSetup);
-
-   protected:
+  
+ private:
   edm::ParameterSet parameters;
   
   // Switch for verbosity
   std::string metname;
   
-  // STA Label
-  edm::InputTag theSTACollectionLabel;
-  edm::InputTag theMuonCollectionLabel;
-  edm::InputTag bsTag;
-  edm::InputTag vertexTag;
-
   //histo binning parameters
   int etaBin;
   int etaBBin;
@@ -81,6 +82,12 @@ class DiMuonHistograms : public MuonAnalyzerBase {
 
   std::vector<MonitorElement*> TightTightMuon;
   std::vector<MonitorElement*> SoftSoftMuon;
+  
+  // Labels used
+  edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
+  edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
+
   
 };
 #endif 
