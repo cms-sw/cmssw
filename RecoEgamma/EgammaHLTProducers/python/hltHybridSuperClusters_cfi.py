@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 hltHybridSuperClusters = cms.EDProducer("EgammaHLTHybridClusterProducer",
     regionEtaMargin = cms.double(0.14),
     regionPhiMargin = cms.double(0.4),
-	ecalhitcollection = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
+    ecalhitcollection = cms.string('EcalRecHitsEB'),
     # position calculation parameters
     doIsolated = cms.bool(True),
     # output collections
@@ -41,6 +41,7 @@ hltHybridSuperClusters = cms.EDProducer("EgammaHLTHybridClusterProducer",
     dynamicEThresh = cms.bool(False),
     dynamicPhiRoad = cms.bool(False),
     # input collection
+    ecalhitproducer = cms.InputTag("ecalRecHit"),
     posCalcParameters = cms.PSet( T0_barl      = cms.double(7.4),
                                   T0_endc      = cms.double(6.3),        
                                   T0_endcPresh = cms.double(3.6),
