@@ -1,5 +1,4 @@
 //
-// $Id: CandidateSummaryTable.cc,v 1.4 2010/02/20 21:00:15 wmtan Exp $
 //
 
 /**

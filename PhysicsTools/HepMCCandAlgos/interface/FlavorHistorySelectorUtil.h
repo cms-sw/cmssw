@@ -17,7 +17,6 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Sat Jun 28 00:41:21 CDT 2008
-// $Id: FlavorHistorySelectorUtil.h,v 1.1.4.2 2009/06/16 20:17:39 srappocc Exp $
 //
 //
 

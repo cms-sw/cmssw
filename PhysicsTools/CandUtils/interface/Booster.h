@@ -6,9 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.10 $
  *
- * $Id: Booster.h,v 1.10 2006/07/26 08:48:05 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/CandidateFwd.h"

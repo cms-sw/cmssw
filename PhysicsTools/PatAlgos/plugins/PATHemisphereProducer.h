@@ -13,7 +13,6 @@
 //
 // Original Author:  Christian AUTERMANN
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PATHemisphereProducer.h,v 1.7 2010/01/11 13:36:48 hegner Exp $
 //
 //
 

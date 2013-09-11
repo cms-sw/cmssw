@@ -46,7 +46,6 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Sat Jun 28 00:41:21 CDT 2008
-// $Id: FlavorHistoryFilter.h,v 1.9 2010/01/11 13:26:22 hegner Exp $
 //
 //
 

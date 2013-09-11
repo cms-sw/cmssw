@@ -1,5 +1,4 @@
 //
-// $Id: PATPFParticleProducer.h,v 1.8 2012/05/26 10:42:53 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPFParticleProducer_h

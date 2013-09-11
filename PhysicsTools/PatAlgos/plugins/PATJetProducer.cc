@@ -1,5 +1,4 @@
 //
-// $Id: PATJetProducer.cc,v 1.57 2012/11/28 19:30:02 vadler Exp $
 
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"

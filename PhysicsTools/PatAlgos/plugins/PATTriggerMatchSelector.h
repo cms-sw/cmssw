@@ -17,7 +17,6 @@
   \version  $Id: PATTriggerMatchSelector.h,v 1.5 2010/06/16 15:40:58 vadler Exp $
 */
 //
-// $Id: PATTriggerMatchSelector.h,v 1.5 2010/06/16 15:40:58 vadler Exp $
 //
 
 

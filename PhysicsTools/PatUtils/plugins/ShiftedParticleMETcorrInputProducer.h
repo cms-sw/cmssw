@@ -7,9 +7,7 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
  *
- * $Id: ShiftedParticleMETcorrInputProducer.h,v 1.1 2011/09/13 14:35:34 veelken Exp $
  *
  */
 

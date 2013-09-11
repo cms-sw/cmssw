@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  9 17:00:53 CST 2009
-// $Id: RecordWriter.h,v 1.2 2010/02/19 20:59:01 chrjones Exp $
 //
 
 // system include files

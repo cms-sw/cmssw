@@ -11,9 +11,7 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.8 $
  *
- * $Id: SmearedJetProducerT.h,v 1.8 2012/05/04 08:57:58 veelken Exp $
  *
  */
 
