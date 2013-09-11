@@ -53,7 +53,9 @@
 // Created:     Mon Aug  9 12:42:17 EDT 2010
 //
 
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 #include <set>
 #include <memory>
@@ -147,6 +149,9 @@ namespace edm {
 
       std::auto_ptr<ScheduleInfo> scheduleInfo_;
       ModuleChanger const* moduleChanger_;
+
+      ModuleDescription moduleDescription_;
+      ModuleCallingContext moduleCallingContext_;
   };
 }
 
