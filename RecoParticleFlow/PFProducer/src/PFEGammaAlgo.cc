@@ -362,6 +362,13 @@ namespace {
   
   bool isROLinkedByClusterOrTrack(const PFEGammaAlgo::ProtoEGObject& RO1,
 				  const PFEGammaAlgo::ProtoEGObject& RO2 ) {
+    // don't allow EB/EE to mix (11 Sept 2013)
+    if( RO1.ecalclusters.size() && RO2.ecalclusters.size() ) {
+      if(RO1.ecalclusters.front().first->clusterRef()->layer() !=
+	 RO2.ecalclusters.front().first->clusterRef()->layer() ) {
+	return false;
+      }
+    }
     const reco::PFBlockRef& blk = RO1.parentBlock;    
     bool not_closer;
     // check links track -> cluster
@@ -1943,12 +1950,12 @@ linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject& RO) {
     auto notmatched = std::partition(ECALbegin,ECALend,TracksToECALwithCut);
     for( auto ecal = ECALbegin; ecal != notmatched; ++ecal ) {
       const reco::PFBlockElementCluster* elemascluster =
-	docast(const reco::PFBlockElementCluster*,ecal->first);
-      RO.ecalclusters.push_back( std::make_pair(elemascluster,true) );
+	docast(const reco::PFBlockElementCluster*,ecal->first);      
+      RO.ecalclusters.push_back(std::make_pair(elemascluster,true));
       attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);
-      RO.localMap.push_back( ElementMap::value_type(skf.first,elemascluster) );
-      RO.localMap.push_back( ElementMap::value_type(elemascluster,skf.first) );
-      ecal->second = false;
+      RO.localMap.push_back(ElementMap::value_type(skf.first,elemascluster));
+      RO.localMap.push_back(ElementMap::value_type(elemascluster,skf.first));
+      ecal->second = false;      
     }
   }
 }
