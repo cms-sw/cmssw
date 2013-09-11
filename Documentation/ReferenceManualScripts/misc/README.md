@@ -1,3 +1,3 @@
-PAI - Publication / Author / Institute
+PAI - Publication / Author / Institute (http://cmsdoxy.web.cern.ch/cmsdoxy/pai/)
 
 used to gather information about publications written by authors/institutes/countries/etc...
