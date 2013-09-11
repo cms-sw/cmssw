@@ -1,20 +1,7 @@
-#include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
-#include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
-#include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
-#include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
+#include "CondFormats/PhysicsToolsObjects/src/headers.h"
 
-#include "CondFormats/PhysicsToolsObjects/interface/PhysicsPerformancePayload.h"
+namespace { // anonymous
 
-#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTable.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"   
-
-#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"
-#include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
-
-
-namespace CondFormats_PhysicsToolsObjects { // anonymous
 struct dictionary {
 
 #ifdef STD_DICTIONARIES_STUFF_MISSING
@@ -68,3 +55,4 @@ PerformancePayloadFromBinnedTFormula p12;
 
 }; // struct dictionary
 } // anonymous namespace
+

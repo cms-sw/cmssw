@@ -1,6 +1,8 @@
 #ifndef Cond_Summary_h
 #define Cond_Summary_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -21,7 +23,9 @@ namespace cond {
     virtual void longMessage(std::ostream & os) const=0;
     
     
-  };
+  
+  COND_SERIALIZABLE;
+};
   
 }
 

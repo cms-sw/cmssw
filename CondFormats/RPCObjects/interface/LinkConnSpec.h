@@ -1,6 +1,8 @@
 #ifndef CondFormatsRPCObjectsLinkConnSpec_H
 #define CondFormatsRPCObjectsLinkConnSpec_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
 #include <vector>
 #include <string>
@@ -32,5 +34,7 @@ public:
 private:
   int theTriggerBoardInputNumber;
   std::vector<LinkBoardSpec> theLBs;
+
+  COND_SERIALIZABLE;
 };
 #endif

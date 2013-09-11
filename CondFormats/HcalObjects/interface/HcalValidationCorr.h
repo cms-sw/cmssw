@@ -1,6 +1,8 @@
 #ifndef HcalValidationCorr_h
 #define HcalValidationCorr_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 /*
 \class HcalValidationCorr
 \author Gena Kukartsev kukarzev@fnal.gov
@@ -20,6 +22,8 @@ class HcalValidationCorr
  private:
   uint32_t mId;
   float mValue;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

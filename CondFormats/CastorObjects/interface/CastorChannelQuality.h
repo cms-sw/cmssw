@@ -7,6 +7,8 @@
 POOL object to store CastorChannelStatus
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/CastorObjects/interface/CastorCondObjectContainer.h"
 #include "CondFormats/CastorObjects/interface/CastorChannelStatus.h"
 
@@ -20,6 +22,8 @@ class CastorChannelQuality: public CastorCondObjectContainer<CastorChannelStatus
   std::string myname() const {return (std::string)"CastorChannelQuality";}
 
  private:
+
+ COND_SERIALIZABLE;
 };
 
 

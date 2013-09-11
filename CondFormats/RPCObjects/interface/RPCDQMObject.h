@@ -1,6 +1,8 @@
 #ifndef RPCDQMObject_h
 #define RPCDQMObject_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -24,7 +26,9 @@ class RPCDQMObject {
     float numcluster;
     int status;
     float weight;
-  };
+  
+  COND_SERIALIZABLE;
+};
   
   RPCDQMObject(){}
   ~RPCDQMObject(){}
@@ -36,6 +40,8 @@ class RPCDQMObject {
 
  private:
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif  //RPCDQMObject_h

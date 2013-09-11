@@ -1,6 +1,8 @@
 #ifndef SiStripNoises_h
 #define SiStripNoises_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -28,7 +30,9 @@ class SiStripNoises
     uint32_t detid;
     uint32_t ibegin;
     uint32_t iend;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   class StrictWeakOrdering
   {
@@ -88,6 +92,8 @@ class SiStripNoises
     std::string print_char_as_binary(const unsigned char ch) const;
     std::string print_short_as_binary(const short ch) const;
   */
+
+ COND_SERIALIZABLE;
 };
 
 /// Get 9 bit words from a bit stream, starting from the right, skipping the first 'skip' bits (0 < skip < 8).

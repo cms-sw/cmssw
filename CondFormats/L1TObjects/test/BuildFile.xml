@@ -1,2 +1,6 @@
 <use name="CondFormats/L1TObjects"/>
 <bin file="test_L1GtDefinitions.cc"></bin>
+
+<bin file="testSerializationL1TObjects.cpp">
+    <use   name="CondFormats/External"/>
+</bin>

@@ -19,6 +19,8 @@
 // C++ Headers --
 //---------------
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 
 //----------------------
@@ -75,6 +77,8 @@ class L1MuDTEtaPatternLut {
 
     LUT m_lut;
     
+
+  COND_SERIALIZABLE;
 };
 
 #endif

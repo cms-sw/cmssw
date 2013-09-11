@@ -1,6 +1,8 @@
 #ifndef EcalTPGSlidingWindow_h
 #define EcalTPGSlidingWindow_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <boost/cstdint.hpp>
 
@@ -16,6 +18,8 @@ class EcalTPGSlidingWindow
  private:
   std::map<uint32_t, uint32_t> map_ ;
 
+
+ COND_SERIALIZABLE;
 };
 
 typedef std::map<uint32_t, uint32_t>                 EcalTPGSlidingWindowMap;

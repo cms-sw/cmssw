@@ -15,6 +15,8 @@
 #ifndef L1MUDTTF_PARAMETERS_H
 #define L1MUDTTF_PARAMETERS_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 //---------------
 // C++ Headers --
 //---------------
@@ -115,6 +117,8 @@ class L1MuDTTFParameters {
     bool soc_csc_etacanc[6][12];
     bool soc_openlut_extr[6][12];
 
+
+  COND_SERIALIZABLE;
 };
 
 #endif

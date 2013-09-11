@@ -20,6 +20,8 @@
 // $Id: 
 //
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 #include <vector>
 #include <ostream>
@@ -79,6 +81,8 @@ class L1CaloEtScale {
   /// thresholds associated with rank scale in GeV
   std::vector<double> m_thresholds;
 
+
+ COND_SERIALIZABLE;
 };
 
 std::ostream& operator << (std::ostream& os, const L1CaloEtScale onj);

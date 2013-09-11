@@ -4,6 +4,8 @@
  * Examples of configurations identified by a key
  */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/Common/interface/BaseKeyed.h"
 #include <string>
 
@@ -14,14 +16,18 @@ namespace condex {
     ConfI(std::string k, int i) : v(i), key(k) {}
     int v;
     std::string key; // just for test
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   struct ConfF : public cond::BaseKeyed {
     ConfF() : v(0), key(" ") {}
     ConfF(std::string k, float i) : v(i), key(k) {}
     float v;
     std::string key; // just for test
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 }
 

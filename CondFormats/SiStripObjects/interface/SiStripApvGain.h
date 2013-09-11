@@ -1,6 +1,8 @@
 #ifndef SiStripApvGain_h
 #define SiStripApvGain_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -77,6 +79,8 @@ class SiStripApvGain {
   std::vector<unsigned int>   v_detids;
   std::vector<unsigned int>   v_ibegin;
   std::vector<unsigned int>   v_iend;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

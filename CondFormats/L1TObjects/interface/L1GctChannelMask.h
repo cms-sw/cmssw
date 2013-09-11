@@ -1,6 +1,8 @@
 #ifndef L1TObjects_L1GctChannelMask_h
 #define L1TObjects_L1GctChannelMask_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <ostream>
 
 class L1GctChannelMask {
@@ -54,6 +56,8 @@ class L1GctChannelMask {
   bool htMask_[22];
   bool mhtMask_[22];
 
+
+ COND_SERIALIZABLE;
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctChannelMask obj);

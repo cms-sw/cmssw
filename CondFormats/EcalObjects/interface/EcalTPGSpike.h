@@ -1,6 +1,8 @@
 #ifndef EcalTPGSpike_h
 #define EcalTPGSpike_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <boost/cstdint.hpp>
 
@@ -20,6 +22,8 @@ class EcalTPGSpike
  private:
   std::map<uint32_t, uint16_t> map_ ;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

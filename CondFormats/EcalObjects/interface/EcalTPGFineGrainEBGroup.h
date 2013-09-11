@@ -1,6 +1,8 @@
 #ifndef EcalTPGFineGrainEBGroup_h
 #define EcalTPGFineGrainEBGroup_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/EcalObjects/interface/EcalTPGGroups.h"
 
 /*
@@ -17,6 +19,8 @@ class EcalTPGFineGrainEBGroup : public EcalTPGGroups
   EcalTPGFineGrainEBGroup() ;
   ~EcalTPGFineGrainEBGroup() ;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

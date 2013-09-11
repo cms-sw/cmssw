@@ -1,6 +1,8 @@
 #ifndef EventFilter_SiPixelRawToDigi_SiPixelFedCablingMap_H
 #define EventFilter_SiPixelRawToDigi_SiPixelFedCablingMap_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 
@@ -30,12 +32,16 @@ public:
 
   std::vector<unsigned int> fedIds() const;
 
-  struct Key { unsigned int fed, link, roc; bool operator < (const Key & other) const; };
+  struct Key { unsigned int fed, link, roc; bool operator < (const Key & other) const; 
+  COND_SERIALIZABLE;
+};
 
 private:
   std::string theVersion;
   typedef std::map<Key, sipixelobjects::PixelROC> Map;
   Map theMap; 
+
+  COND_SERIALIZABLE;
 };
 
 #endif

@@ -20,6 +20,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
@@ -47,6 +49,8 @@ class DTStatusFlagId {
   int   layerId;
   int    cellId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -64,6 +68,8 @@ class DTStatusFlagData {
   bool  deadFlag;
   bool  nohvFlag;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -262,12 +268,14 @@ class DTStatusFlag {
 
   std::vector< std::pair<DTStatusFlagId,DTStatusFlagData> > dataList;
 
-  DTBufferTree<int,int>* dBuf;
+  DTBufferTree<int,int>* dBuf COND_TRANSIENT;
 
   /// read and store full content
   void cacheMap() const;
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
 
 

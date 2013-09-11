@@ -19,6 +19,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
 #include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -44,6 +46,8 @@ class DTTPGParametersId   {
   int stationId;
   int  sectorId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -57,6 +61,8 @@ class DTTPGParametersData {
   int   nClock;
   float tPhase;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -131,12 +137,14 @@ class DTTPGParameters {
 
   std::vector< std::pair<DTTPGParametersId,DTTPGParametersData> > dataList;
 
-  DTBufferTree<int,int>* dBuf;
+  DTBufferTree<int,int>* dBuf COND_TRANSIENT;
 
   /// read and store full content
   void cacheMap() const;
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
 
 

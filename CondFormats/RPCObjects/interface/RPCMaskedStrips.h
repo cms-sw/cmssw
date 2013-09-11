@@ -1,6 +1,8 @@
 #ifndef RPCMaskedStrips_h
 #define RPCMaskedStrips_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<iostream>
 #include<boost/cstdint.hpp>
@@ -13,7 +15,9 @@ class RPCMaskedStrips {
   struct MaskItem {
     int rawId;
     int strip;
-  };
+  
+  COND_SERIALIZABLE;
+};
   
   RPCMaskedStrips(){}
 
@@ -23,6 +27,8 @@ class RPCMaskedStrips {
 
   std::vector<MaskItem> MaskVec;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

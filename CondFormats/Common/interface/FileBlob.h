@@ -1,6 +1,8 @@
 #ifndef CondFormats_FileBlob_h
 #define CondFormats_FileBlob_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -40,6 +42,8 @@ class FileBlob{
   std::vector<unsigned char> blob;
   bool compressed;
   unsigned int isize;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

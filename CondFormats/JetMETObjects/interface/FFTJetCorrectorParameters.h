@@ -7,6 +7,8 @@
 #ifndef CondFormats_JetMETObjects_FFTJetCorrectorParameters_h
 #define CondFormats_JetMETObjects_FFTJetCorrectorParameters_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 
 class FFTJetCorrectorParameters
@@ -35,6 +37,8 @@ public:
 
 private:
     std::string m_buffer;
+
+    COND_SERIALIZABLE;
 };
 
 #endif // CondFormats_JetMETObjects_FFTJetCorrectorParameters_h

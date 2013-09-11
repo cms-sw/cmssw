@@ -1,6 +1,8 @@
 #ifndef HcalLUTCorr_h
 #define HcalLUTCorr_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 /*
 \class HcalLUTCorr
 \author Radek Ofierzynski
@@ -20,6 +22,8 @@ class HcalLUTCorr
  private:
   uint32_t mId;
   float mValue;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

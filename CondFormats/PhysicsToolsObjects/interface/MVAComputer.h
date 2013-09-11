@@ -12,6 +12,8 @@
 // $Id: MVAComputer.h,v 1.15 2010/01/26 19:40:03 saout Exp $
 //
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <vector>
 #include <map>
@@ -31,6 +33,8 @@ class BitSet {
 
 	std::vector<unsigned char>	store;
 	unsigned int			bitsInLast;
+
+  COND_SERIALIZABLE;
 };
 
 class Matrix {
@@ -38,6 +42,8 @@ class Matrix {
 	std::vector<double>		elements;
 	unsigned int			rows;
 	unsigned int			columns;
+
+  COND_SERIALIZABLE;
 };
 
 // configuration base classes
@@ -48,6 +54,8 @@ class VarProcessor {
 
 	virtual ~VarProcessor() {}
 	virtual std::string getInstanceName() const;
+
+  COND_SERIALIZABLE;
 };
 
 class Variable {
@@ -57,6 +65,8 @@ class Variable {
 	inline ~Variable() {}
 
 	std::string			name;
+
+  COND_SERIALIZABLE;
 };
 
 // variable processors
@@ -64,29 +74,41 @@ class Variable {
 class ProcOptional : public VarProcessor {
     public:
 	std::vector<double>		neutralPos;
+
+  COND_SERIALIZABLE;
 };
 
-class ProcCount : public VarProcessor {};
+class ProcCount : public VarProcessor {
+  COND_SERIALIZABLE;
+};
 
 class ProcClassed : public VarProcessor {
     public:
 	unsigned int			nClasses;
+
+  COND_SERIALIZABLE;
 };
 
 class ProcSplitter : public VarProcessor {
     public:
 	unsigned int			nFirst;
+
+  COND_SERIALIZABLE;
 };
 
 class ProcForeach : public VarProcessor {
     public:
 	unsigned int			nProcs;
+
+  COND_SERIALIZABLE;
 };
 
 class ProcSort : public VarProcessor {
     public:
 	unsigned int			sortByIndex;
 	bool				descending;
+
+  COND_SERIALIZABLE;
 };
 
 class ProcCategory : public VarProcessor {
@@ -95,12 +117,16 @@ class ProcCategory : public VarProcessor {
 
 	std::vector<BinLimits>		variableBinLimits;
 	std::vector<int>		categoryMapping;
+
+  COND_SERIALIZABLE;
 };
 
 class ProcNormalize : public VarProcessor {
     public:
 	std::vector<HistogramF>		distr;
 	int				categoryIdx;
+
+  COND_SERIALIZABLE;
 };
 
 class ProcLikelihood : public VarProcessor {
@@ -110,7 +136,9 @@ class ProcLikelihood : public VarProcessor {
 		HistogramF		background;
 		HistogramF		signal;
 		bool			useSplines;
-	};
+	
+  COND_SERIALIZABLE;
+};
 
 	std::vector<SigBkg>		pdfs;
 	std::vector<double>		bias;
@@ -119,12 +147,16 @@ class ProcLikelihood : public VarProcessor {
 	bool				individual;
 	bool				neverUndefined;
 	bool				keepEmpty;
+
+  COND_SERIALIZABLE;
 };
 
 class ProcLinear : public VarProcessor {
     public:
 	std::vector<double>		coeffs;
 	double				offset;
+
+  COND_SERIALIZABLE;
 };
 
 class ProcMultiply : public VarProcessor {
@@ -133,11 +165,15 @@ class ProcMultiply : public VarProcessor {
 
 	unsigned int			in;
 	std::vector<Config>		out;
+
+  COND_SERIALIZABLE;
 };
 
 class ProcMatrix : public VarProcessor {
     public:
 	Matrix				matrix;
+
+  COND_SERIALIZABLE;
 };
 
 class ProcExternal : public VarProcessor {
@@ -146,6 +182,8 @@ class ProcExternal : public VarProcessor {
 
 	std::string			method;
 	std::vector<unsigned char>	store;
+
+  COND_SERIALIZABLE;
 };
 
 class ProcMLP : public VarProcessor {
@@ -154,6 +192,8 @@ class ProcMLP : public VarProcessor {
 	typedef std::pair<std::vector<Neuron>, bool>	Layer;
 
 	std::vector<Layer>		layers;
+
+  COND_SERIALIZABLE;
 };
 
 // the discriminator computer
@@ -180,7 +220,9 @@ class MVAComputer {
     private:
 	std::vector<VarProcessor*>	processors;
 
-	CacheId				cacheId;	// transient
+	CacheId				cacheId COND_TRANSIENT;	// transient
+
+  COND_SERIALIZABLE;
 };
 
 // a collection of computers identified by name
@@ -203,7 +245,9 @@ class MVAComputerContainer {
     private:
 	std::vector<Entry>	entries;
 
-	CacheId			cacheId;	// transient
+	CacheId			cacheId COND_TRANSIENT;	// transient
+
+  COND_SERIALIZABLE;
 };
 
 } // namespace Calibration

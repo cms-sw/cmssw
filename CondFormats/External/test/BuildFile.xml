@@ -1,0 +1,4 @@
+<use   name="CondFormats/External"/>
+
+<bin file="testSerializationExternal.cpp">
+</bin>

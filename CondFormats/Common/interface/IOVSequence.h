@@ -1,5 +1,6 @@
 #ifndef Cond_IOVSequence_h
 #define Cond_IOVSequence_h
+
 #include "CondFormats/Common/interface/UpdateStamp.h"
 #include "CondFormats/Common/interface/IOVElement.h"
 #include "CondFormats/Common/interface/Time.h"
@@ -118,7 +119,7 @@ namespace cond {
     
     mutable Container * m_sorted;
 
-  };
+};
 
 }//ns cond
 #endif

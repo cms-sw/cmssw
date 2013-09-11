@@ -14,3 +14,7 @@
     <flags   EDM_PLUGIN="1"/>
   </library>
 </environment>
+
+<bin file="testSerializationEcalObjects.cpp">
+  <use   name="CondFormats/External"/>
+</bin>

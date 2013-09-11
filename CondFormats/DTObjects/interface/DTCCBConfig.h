@@ -19,6 +19,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "CondFormats/DTObjects/interface/DTBufferTree.h"
 
@@ -44,6 +46,8 @@ class DTCCBId {
   int stationId;
   int  sectorId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -57,6 +61,8 @@ class DTConfigKey {
   int confType;
   int confKey;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -126,13 +132,15 @@ class DTCCBConfig {
   std::vector<DTConfigKey> fullConfigKey;
   std::vector< std::pair<DTCCBId,int> > dataList;
 
-  DTBufferTree< int,std::vector<int>* >* dBuf;
+  DTBufferTree< int,std::vector<int>* >* dBuf COND_TRANSIENT;
 
   /// read and store full content
   void cacheMap() const;
   void resetMap() const;
 //  std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
 
 

@@ -1,6 +1,8 @@
 #ifndef AlignmentSurfaceDeformations_H
 #define AlignmentSurfaceDeformations_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 
 #include "CondFormats/Alignment/interface/Definitions.h"
@@ -22,7 +24,9 @@ public:
     align::ID m_rawId;
     int m_parametrizationType;
     int m_index;
-  };
+  
+  COND_SERIALIZABLE;
+};
   
   typedef std::vector<Item> ItemVector;
   typedef std::vector<align::Scalar>::const_iterator ParametersConstIterator;
@@ -69,6 +73,8 @@ public:
 
   std::vector<align::Scalar> m_parameters;
   ItemVector m_items;
+
+ COND_SERIALIZABLE;
 };
 
 #endif // AlignmentSurfaceDeformations_H

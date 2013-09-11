@@ -7,6 +7,8 @@
 #ifndef JetCorrectorParameters_h
 #define JetCorrectorParameters_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -44,7 +46,9 @@ class JetCorrectorParameters
         std::string              mFormula;
         std::vector<std::string> mParVar;
         std::vector<std::string> mBinVar;
-    };
+    
+    COND_SERIALIZABLE;
+};
     //---------------- Record class --------------------------------
     //-- Each Record holds the properties of a bin ----------------- 
     class Record 
@@ -68,7 +72,9 @@ class JetCorrectorParameters
         std::vector<float> mMin;
         std::vector<float> mMax;
         std::vector<float> mParameters;
-    };
+    
+    COND_SERIALIZABLE;
+};
      
     //-------- Constructors --------------
     JetCorrectorParameters() { valid_ = false;}
@@ -93,6 +99,8 @@ class JetCorrectorParameters
     JetCorrectorParameters::Definitions         mDefinitions;
     std::vector<JetCorrectorParameters::Record> mRecords;
     bool                                        valid_; /// is this a valid set?
+
+  COND_SERIALIZABLE;
 };
 
 
@@ -204,6 +212,9 @@ class JetCorrectorParametersCollection {
   collection_type                        corrections_;
   collection_type                        correctionsL5_;
   collection_type                        correctionsL7_;
+
+ COND_SERIALIZABLE;
+
 };
 
 

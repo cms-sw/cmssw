@@ -1,10 +1,5 @@
-#include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
-#include "CondFormats/EgammaObjects/interface/ElectronLikelihoodCategoryData.h"
-#include "CondFormats/EgammaObjects/interface/ElectronLikelihoodCalibration.h"
-#include "CondFormats/EgammaObjects/interface/GBRTree.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
-#include "CondFormats/EgammaObjects/interface/GBRTree2D.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest2D.h"
+#include "CondFormats/EgammaObjects/src/headers.h"
+
 
 namespace CondFormats_EgammaObjects {
   struct dictionary {
@@ -22,3 +17,4 @@ namespace CondFormats_EgammaObjects {
     
   };
 }
+

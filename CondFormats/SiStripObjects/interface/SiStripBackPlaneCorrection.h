@@ -1,6 +1,8 @@
 #ifndef SiStripBackPlaneCorrection_h
 #define SiStripBackPlaneCorrection_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <map>
 #include <iostream>
@@ -41,6 +43,8 @@ public:
 
 private:
   std::map<unsigned int,float> m_BPC; 
+
+  COND_SERIALIZABLE;
 };
 
 #endif

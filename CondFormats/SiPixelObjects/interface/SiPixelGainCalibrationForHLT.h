@@ -19,6 +19,8 @@
 // $Id: SiPixelGainCalibrationForHLT.h,v 1.5 2009/02/10 17:25:58 rougny Exp $
 //
 //
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -38,7 +40,9 @@ class SiPixelGainCalibrationForHLT {
     uint32_t ibegin;
     uint32_t iend;
     int      ncols;
-  };
+  
+  COND_SERIALIZABLE;
+};
   
   class StrictWeakOrdering{
   public:
@@ -97,6 +101,8 @@ class SiPixelGainCalibrationForHLT {
   unsigned int nBinsToUseForEncoding_;
   unsigned int deadFlag_;
   unsigned int noisyFlag_;
+
+ COND_SERIALIZABLE;
 };
     
 #endif

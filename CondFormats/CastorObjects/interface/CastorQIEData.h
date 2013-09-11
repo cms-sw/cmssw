@@ -12,6 +12,8 @@ $Date: 2008/07/15 13:00:16 $
 $Revision: 1.9 $
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <algorithm>
 
@@ -49,6 +51,8 @@ class CastorQIEData: public CastorCondObjectContainer<CastorQIECoder>
 
   //not needed/not used  CastorQIEData(const CastorQIEData&);
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

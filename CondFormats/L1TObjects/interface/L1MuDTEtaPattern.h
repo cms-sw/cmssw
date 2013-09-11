@@ -26,6 +26,8 @@
 // C++ Headers --
 //---------------
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iosfwd>
 #include <string>
 
@@ -99,6 +101,8 @@ class L1MuDTEtaPattern {
     short m_eta;                  // eta code: [-32, +32]
     short m_qual;                 // quality code: [0,26] 
   
+
+ COND_SERIALIZABLE;
 };
   
 #endif

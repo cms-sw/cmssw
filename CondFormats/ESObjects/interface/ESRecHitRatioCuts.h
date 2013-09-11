@@ -1,5 +1,7 @@
 #ifndef CondFormats_ESObjects_ESRecHitRatioCuts_H
 #define CondFormats_ESObjects_ESRecHitRatioCuts_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 
 class ESRecHitRatioCuts {
@@ -31,6 +33,8 @@ class ESRecHitRatioCuts {
     float r23Low_;
     float r12High_;
     float r23High_;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

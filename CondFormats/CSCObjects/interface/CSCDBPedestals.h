@@ -1,6 +1,8 @@
 #ifndef CSCDBPedestals_h
 #define CSCDBPedestals_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iosfwd>
 #include <vector>
 
@@ -12,7 +14,9 @@ class CSCDBPedestals{
   struct Item{
     short int ped;
     short int rms;
-  };
+  
+  COND_SERIALIZABLE;
+};
   int factor_ped;
   int factor_rms;
 
@@ -26,6 +30,8 @@ class CSCDBPedestals{
   int scale_ped() const { return factor_ped; }
   short int pedestal_rms( int index ) const { return pedestals[index].rms; }
   int scale_rms() const { return factor_rms; }
+
+ COND_SERIALIZABLE;
 };
 
 std::ostream & operator<<(std::ostream & os, const CSCDBPedestals & cscdb);

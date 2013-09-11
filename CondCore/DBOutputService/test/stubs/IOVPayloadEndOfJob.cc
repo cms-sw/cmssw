@@ -4,6 +4,8 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/Calibration/interface/Serialization.h"
 
 #include "IOVPayloadEndOfJob.h"
 #include <cstdlib>

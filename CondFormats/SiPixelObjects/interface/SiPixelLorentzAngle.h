@@ -1,6 +1,8 @@
 #ifndef SiPixelLorentzAngle_h
 #define SiPixelLorentzAngle_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -23,6 +25,8 @@ class SiPixelLorentzAngle {
 
  private:
   std::map<unsigned int,float> m_LA; 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

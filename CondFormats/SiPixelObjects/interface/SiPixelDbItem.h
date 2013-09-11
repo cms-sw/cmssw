@@ -15,6 +15,8 @@
 //! bits   [7:0] - noise    (upper 6 bits integer part, 2 bits fractional part)
 //-----------------------------------------------------------------------------
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 
 class SiPixelDbItem 
@@ -65,6 +67,8 @@ class SiPixelDbItem
   };
   static Packing packing_;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

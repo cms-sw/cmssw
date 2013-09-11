@@ -1,6 +1,8 @@
 #ifndef PhysicsTFormulaPayload_h
 #define PhysicsTFormulaPayload_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <vector>
 
@@ -17,6 +19,8 @@ const std::vector<std::string>& formulas() const {return formulas_;}
   std::vector< std::pair<float, float> > limits_;
   std::vector<std::string> formulas_;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

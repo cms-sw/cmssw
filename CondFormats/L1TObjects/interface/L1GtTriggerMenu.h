@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <vector>
 #include <map>
@@ -270,7 +272,7 @@ public:
 private:
 
     /// map containing the conditions (per condition chip) - transient
-    mutable std::vector<ConditionMap> m_conditionMap;
+    mutable std::vector<ConditionMap> m_conditionMap COND_TRANSIENT;
 
 private:
 
@@ -309,6 +311,8 @@ private:
     AlgorithmMap m_technicalTriggerMap;
 
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif /*CondFormats_L1TObjects_L1GtTriggerMenu_h*/

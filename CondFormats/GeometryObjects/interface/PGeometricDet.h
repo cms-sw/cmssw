@@ -1,6 +1,8 @@
 #ifndef CondFormats_PGeometricDet_h
 #define CondFormats_PGeometricDet_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <string>
 
@@ -41,10 +43,14 @@ class PGeometricDet{
     
     int _geographicalID; // to be converted to DetId
     bool _stereo;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   std::vector<Item> pgeomdets_;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

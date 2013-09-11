@@ -1,0 +1,3 @@
+<bin file="testSerializationRecoMuonObjects.cpp">
+    <use   name="CondFormats/External"/>
+</bin>

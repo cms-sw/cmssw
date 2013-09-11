@@ -1,6 +1,8 @@
 #ifndef CondFormats_CSCRSensors_H
 #define CondFormats_CSCRSensors_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 //#include <iostream>
 #include <string>
@@ -22,6 +24,8 @@ class CSCRSensorData {
   float normIntercept_;
   float normInterceptError_;
   float shifts_;
+
+ COND_SERIALIZABLE;
 };
 
 /**
@@ -32,6 +36,8 @@ class CSCRSensors {
   CSCRSensors() {}
   virtual ~CSCRSensors() {}
   std::vector<CSCRSensorData> cscRSens_;
+
+ COND_SERIALIZABLE;
 };
 
 #endif // CondFormats_CSCRSensors_H

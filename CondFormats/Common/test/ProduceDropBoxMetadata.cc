@@ -20,6 +20,9 @@
 #include "CondFormats/DataRecord/interface/DropBoxMetadataRcd.h"
 #include "CondFormats/Common/interface/DropBoxMetadata.h"
 
+#include "CondFormats/Common/src/headers.h"
+#include "CondFormats/Common/interface/Serialization.h"
+
 
 #include <iostream>
 

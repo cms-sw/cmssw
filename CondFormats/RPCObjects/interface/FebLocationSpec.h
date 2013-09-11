@@ -1,6 +1,8 @@
 #ifndef CondFormatsRPCObjectsFebLocationSpec_H
 #define CondFormatsRPCObjectsFebLocationSpec_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 
 /** \class FebLocationSpec 
@@ -17,5 +19,7 @@ struct FebLocationSpec {
   /// debug printout
   std::string localEtaPartitionName() const;
   std::string print(int depth = 0) const;
+
+  COND_SERIALIZABLE;
 };
 #endif

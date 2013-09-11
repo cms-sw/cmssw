@@ -10,3 +10,7 @@
 <library   name="CondFormatsPhysicsToolsObjectsTest" file="*.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<bin file="testSerializationPhysicsToolsObjects.cpp">
+    <use   name="CondFormats/External"/>
+</bin>

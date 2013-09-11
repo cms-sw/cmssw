@@ -8,6 +8,8 @@
 
 #ifndef RPCObGasHum_h
 #define RPCObGasHum_h
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 
 class RPCObGasHum {
@@ -16,11 +18,15 @@ class RPCObGasHum {
         int unixtime;
         float value;
         int dpid;
-      };
+      
+      COND_SERIALIZABLE;
+};
     RPCObGasHum(){}
     virtual ~RPCObGasHum(){}
     std::vector<Item>  ObGasHum_rpc;
-   };
+   
+   COND_SERIALIZABLE;
+};
 
 #endif
 

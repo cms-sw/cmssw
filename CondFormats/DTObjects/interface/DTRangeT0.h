@@ -20,6 +20,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 
@@ -45,6 +47,8 @@ class DTRangeT0Id {
   int  sectorId;
   int      slId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -58,6 +62,8 @@ class DTRangeT0Data {
   int t0min;
   int t0max;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -141,12 +147,14 @@ class DTRangeT0 {
 
   std::vector< std::pair<DTRangeT0Id,DTRangeT0Data> > dataList;
 
-  DTBufferTree<int,int>* dBuf;
+  DTBufferTree<int,int>* dBuf COND_TRANSIENT;
 
   /// read and store full content
   void cacheMap() const;
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
 
 

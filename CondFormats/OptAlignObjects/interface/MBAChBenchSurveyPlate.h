@@ -1,6 +1,8 @@
 #ifndef MBAChBenchSurveyPlate_H
 #define MBAChBenchSurveyPlate_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 /* #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h" */
 
 #include <vector>
@@ -26,6 +28,8 @@ class MBAChBenchSurveyPlateData {
   float posY_;
   float posZ_;
   long long measDateTime_;
+
+ COND_SERIALIZABLE;
 };
 
 /**
@@ -36,6 +40,8 @@ class MBAChBenchSurveyPlate {
   MBAChBenchSurveyPlate() {}
   virtual ~MBAChBenchSurveyPlate() {}
   std::vector<MBAChBenchSurveyPlateData> mbaChBenchSurveyPlate_;
+
+ COND_SERIALIZABLE;
 };
 
 #endif // MBAChBenchSurveyPlate_H

@@ -20,6 +20,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
 #include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -52,6 +54,8 @@ class DTTtrigId   {
   int   layerId;
   int    cellId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -66,6 +70,8 @@ class DTTtrigData {
   float tTrms;
   float kFact;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -199,15 +205,17 @@ class DTTtrig {
   std::vector< std::pair<DTTtrigId,DTTtrigData> > dataList;
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-  mutable std::atomic<DTBufferTree<int,int>*> dBuf;
+  mutable std::atomic<DTBufferTree<int,int>*> dBuf COND_TRANSIENT;
 #else
-  mutable DTBufferTree<int,int>* dBuf;
+  mutable DTBufferTree<int,int>* dBuf COND_TRANSIENT;
 #endif
 
   /// read and store full content
   void cacheMap() const;
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
 
 

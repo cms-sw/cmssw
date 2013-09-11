@@ -696,7 +696,7 @@ DQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     reco::SuperClusterRef sclRef = gsfIter->superCluster() ;
     // ALREADY DONE IN GSF ELECTRON CORE
     //    if (!gsfIter->ecalDrivenSeed()&&gsfIter->trackerDrivenSeed())
-    //      sclRef = gsfIter->pflowSuperCluster() ;
+    //      sclRef = gsfIter->parentSuperCluster() ;
     histSclEn_->Fill(sclRef->energy());
     double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
     double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());

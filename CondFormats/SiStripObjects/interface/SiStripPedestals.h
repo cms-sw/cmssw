@@ -1,6 +1,8 @@
 #ifndef SiStripPedestals_h
 #define SiStripPedestals_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -36,7 +38,9 @@ public:
     uint32_t detid;
     uint32_t ibegin;
     uint32_t iend;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   class StrictWeakOrdering{
   public:
@@ -80,6 +84,8 @@ public:
 
   Container v_pedestals; //@@@ blob streaming doesn't work with uint16_t and with SiStripData::Data
   Registry indexes;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

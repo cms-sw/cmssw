@@ -95,6 +95,11 @@ namespace cond {
       return q.retrievedRows();
     }
     
+    bool GLOBAL_TAG_MAP::Table::select( const std::string& gtName, const std::string&, const std::string&,
+					std::vector<std::tuple<std::string,std::string,std::string> >& tags ){
+      return select( gtName, tags );
+    }
+
     void GLOBAL_TAG_MAP::Table::insert( const std::string& gtName, 
 					const std::vector<std::tuple<std::string,std::string,std::string> >& tags ){
       BulkInserter<GLOBAL_TAG_NAME, RECORD, LABEL, TAG_NAME > inserter( m_schema, tname );

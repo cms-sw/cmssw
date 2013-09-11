@@ -1,6 +1,8 @@
 #ifndef HcalTimingParam_h
 #define HcalTimingParam_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 
 class HcalTimingParam{
@@ -17,5 +19,7 @@ class HcalTimingParam{
   uint32_t m_nhits;
   float m_phase;
   float m_rms;
+
+ COND_SERIALIZABLE;
 };
 #endif

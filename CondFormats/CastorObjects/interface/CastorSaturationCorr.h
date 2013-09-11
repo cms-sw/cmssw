@@ -7,6 +7,8 @@
 POOL object to store saturation correction values
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 
 class CastorSaturationCorr {
@@ -23,6 +25,8 @@ class CastorSaturationCorr {
  private:
   uint32_t mId;
   float mSatCorr;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

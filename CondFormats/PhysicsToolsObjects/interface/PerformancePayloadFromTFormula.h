@@ -1,6 +1,8 @@
 #ifndef PerformancePayloadFromTFormula_h
 #define PerformancePayloadFromTFormula_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
 
@@ -73,7 +75,9 @@ class PerformancePayloadFromTFormula : public PerformancePayload {
   //
   // the transient part
   //
-  mutable   std::vector<TFormula *> compiledFormulas_;
+  mutable   std::vector<TFormula *> compiledFormulas_ COND_TRANSIENT;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -23,6 +23,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -71,6 +73,8 @@ private:
     /// copy function for copy constructor and operator=
     void copy(const L1GtExternalTemplate& cp);
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

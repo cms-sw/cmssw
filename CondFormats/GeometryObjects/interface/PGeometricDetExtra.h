@@ -1,6 +1,8 @@
 #ifndef CondFormats_PGeometricDetExtra_h
 #define CondFormats_PGeometricDetExtra_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <string>
 
@@ -19,10 +21,14 @@ class PGeometricDetExtra{
     double _weight;
     int    _copy;
     std::string _material;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   std::vector<Item> pgdes_;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

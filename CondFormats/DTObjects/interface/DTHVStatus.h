@@ -20,6 +20,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/DTObjects/interface/DTBufferTree.h"
 class DTWireId;
 class DTLayerId;
@@ -49,6 +51,8 @@ class DTHVStatusId {
   int   layerId;
   int    partId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -65,6 +69,8 @@ class DTHVStatusData {
   int flagC;
   int flagS;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -180,12 +186,14 @@ class DTHVStatus {
 
   std::vector< std::pair<DTHVStatusId,DTHVStatusData> > dataList;
 
-  DTBufferTree<int,int>* dBuf;
+  DTBufferTree<int,int>* dBuf COND_TRANSIENT;
 
   /// read and store full content
   void cacheMap() const;
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif // DTHVStatus_H

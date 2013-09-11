@@ -15,6 +15,14 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "TVector2.h"
 
@@ -73,6 +81,10 @@ class PFECALSuperClusterAlgo {
 
   void setUseDynamicDPhi(bool useit) { _useDynamicDPhi = useit; } 
 
+  void setUseRegression(bool useRegression) { useRegression_ = useRegression; }
+  
+  void setThreshSuperClusterEt(double thresh) { threshSuperClusterEt_ = thresh; }
+  
   void setThreshPFClusterSeedBarrel(double thresh){ threshPFClusterSeedBarrel_ = thresh;}
   void setThreshPFClusterBarrel(double thresh){ threshPFClusterBarrel_ = thresh;}
   void setThreshPFClusterSeedEndcap(double thresh){ threshPFClusterSeedEndcap_ = thresh;}
@@ -95,19 +107,28 @@ class PFECALSuperClusterAlgo {
   //void setThreshPFClusterMustacheOutEndcap(double thresh){ threshPFClusterMustacheOutEndcap_ = thresh;}
 
   void setCrackCorrections( bool applyCrackCorrections) { applyCrackCorrections_ = applyCrackCorrections;}
-
+  
+  void setTokens(const edm::ParameterSet&, edm::ConsumesCollector&&);
+  void update(const edm::EventSetup&);
+  
+  
   std::auto_ptr<reco::SuperClusterCollection>&
     getEBOutputSCCollection() { return superClustersEB_; }
   std::auto_ptr<reco::SuperClusterCollection>&
     getEEOutputSCCollection() { return superClustersEE_; }
 
-  void loadAndSortPFClusters(const edm::View<reco::PFCluster>& ecalclusters,
-			     const reco::PFCluster::EEtoPSAssociation& psclusters);
+  void loadAndSortPFClusters(const edm::Event &evt);
   
   void run();
 
  private:  
 
+  edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClusters_;
+  edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation>   inputTagPFClustersES_;   
+  edm::EDGetTokenT<reco::BeamSpot>   inputTagBeamSpot_;
+   
+  const reco::BeamSpot *beamSpot_;
+  
   CalibratedClusterPtrVector _clustersEB;
   CalibratedClusterPtrVector _clustersEE;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEB_;
@@ -122,6 +143,12 @@ class PFECALSuperClusterAlgo {
 			 CalibratedClusterPtrVector&); 
 
   bool verbose_;
+  
+  // regression
+  bool useRegression_;
+  std::unique_ptr<PFSCRegressionCalc> regr_;  
+  
+  double threshSuperClusterEt_;  
 
   double threshPFClusterSeed_;
   double threshPFCluster_;

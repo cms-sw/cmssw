@@ -7,6 +7,8 @@
 POOL object to store LUT Corrections
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalLUTCorr.h"
 
@@ -23,6 +25,8 @@ class HcalLUTCorrs: public HcalCondObjectContainer<HcalLUTCorr>
   std::string myname() const {return (std::string)"HcalLUTCorrs";}
 
  private:
+
+ COND_SERIALIZABLE;
 };
 
 #endif

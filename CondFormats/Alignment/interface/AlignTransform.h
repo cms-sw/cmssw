@@ -1,5 +1,7 @@
 #ifndef AlignTransform_H
 #define AlignTransform_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CLHEP/Vector/EulerAngles.h"
 #include "CLHEP/Vector/Rotation.h"
 #include "CLHEP/Vector/ThreeVector.h"
@@ -56,5 +58,7 @@ public:
   align::ID   m_rawId;
 
 
+
+ COND_SERIALIZABLE;
 };
 #endif //AlignTransform_H

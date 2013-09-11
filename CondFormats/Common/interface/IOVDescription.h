@@ -1,6 +1,8 @@
 #ifndef Cond_IOVDescription_h
 #define Cond_IOVDescription_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 namespace cond {
 
   class IOVDescription {
@@ -10,7 +12,9 @@ namespace cond {
     virtual IOVDescription * clone() const { return new  IOVDescription(*this);}
 
   private:
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 
 }

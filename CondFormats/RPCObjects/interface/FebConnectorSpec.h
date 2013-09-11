@@ -1,6 +1,8 @@
 #ifndef CondFormatsRPCObjectsFebConnectorSpec_H
 #define CondFormatsRPCObjectsFebConnectorSpec_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
@@ -58,7 +60,9 @@ private:
   FebLocationSpec     theFeb; 
 
   int theAlgo;
-  mutable uint32_t theRawId;
+  mutable uint32_t theRawId COND_TRANSIENT;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

@@ -8,6 +8,8 @@
 #ifndef ECALSRSETTINGS_H
 #define ECALSRSETTINGS_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <string>
 #include <ostream>
@@ -216,6 +218,8 @@ public:
   ///When enabled, if all the FEDs corresponding to a given SRP is excluded from the run,
   ///Then the corresponding SRP card is automatically excluded.
   int automaticSrpSelect_;
+
+  COND_SERIALIZABLE;
 };
 
 std::ostream& operator<< (std::ostream& o, const EcalSRSettings& val);

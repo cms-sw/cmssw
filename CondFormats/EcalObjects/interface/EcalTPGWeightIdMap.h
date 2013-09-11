@@ -1,6 +1,8 @@
 #ifndef EcalTPGWeightIdMap_h
 #define EcalTPGWeightIdMap_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <boost/cstdint.hpp>
 #include "CondFormats/EcalObjects/interface/EcalTPGWeights.h"
@@ -20,6 +22,8 @@ class EcalTPGWeightIdMap
  private:
   EcalTPGWeightMap map_ ;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef SiStripDetVOff_h
 #define SiStripDetVOff_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -79,6 +81,8 @@ class SiStripDetVOff
  private:
 
   std::vector<uint32_t> v_Voff; 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

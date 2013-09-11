@@ -1,6 +1,8 @@
 #ifndef SiStripConfObject_h
 #define SiStripConfObject_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 #include <vector>
 #include <map>
@@ -86,6 +88,8 @@ class SiStripConfObject
   typedef std::map<std::string, std::string> parMap;
 
   parMap parameters;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

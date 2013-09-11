@@ -1,6 +1,8 @@
 #ifndef EcalTPGLut_h
 #define EcalTPGLut_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 class EcalTPGLut 
 {
  public:
@@ -17,6 +19,8 @@ class EcalTPGLut
  private:
   unsigned int lut_[1024] ;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <iosfwd>
 
@@ -152,6 +154,8 @@ private:
     /// chip number (redundant with bit number)
     int m_algoChipNumber;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif /*CondFormats_L1TObjects_L1GtAlgorithm_h*/

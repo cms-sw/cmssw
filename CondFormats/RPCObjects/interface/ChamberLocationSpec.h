@@ -1,5 +1,7 @@
 #ifndef CondFormatsRPCObjectsChamberLocationSpec_H
 #define CondFormatsRPCObjectsChamberLocationSpec_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<string>
 
 /* \class ChamberLocationSpec
@@ -20,6 +22,8 @@ struct ChamberLocationSpec {
 
   std::string chamberLocationName() const;
 
+
+  COND_SERIALIZABLE;
 };
 
 

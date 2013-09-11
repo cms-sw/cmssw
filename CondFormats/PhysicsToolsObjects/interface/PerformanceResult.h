@@ -1,6 +1,8 @@
 #ifndef PerformanceResult_h
 #define PerformanceResult_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 class PerformanceResult {
  public:
   enum ResultType {
@@ -31,6 +33,8 @@ class PerformanceResult {
     
 };
   
+
+ COND_SERIALIZABLE;
 };
 
 #endif

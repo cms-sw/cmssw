@@ -1,6 +1,8 @@
 #ifndef CondFormatsRPCObjectsLinkBoardSpec_H
 #define CondFormatsRPCObjectsLinkBoardSpec_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
 #include <string>
 
@@ -41,5 +43,7 @@ private:
   int theLinkBoardNumInLink; 
   int theCode; 
   std::vector<FebConnectorSpec> theFebs;
+
+  COND_SERIALIZABLE;
 };
 #endif

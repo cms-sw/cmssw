@@ -1,6 +1,8 @@
 #ifndef ECAL_COND_OBJECT_CONTAINER_HH
 #define ECAL_COND_OBJECT_CONTAINER_HH
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/EcalDetId/interface/EcalContainer.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -156,6 +158,8 @@ class EcalCondObjectContainer {
                 
                 EcalContainer< EBDetId, Item > eb_;
                 EcalContainer< EEDetId, Item > ee_;
+
+        COND_SERIALIZABLE;
 };
 
 typedef EcalCondObjectContainer<float> EcalFloatCondObjectContainer;

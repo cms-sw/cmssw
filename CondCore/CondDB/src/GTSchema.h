@@ -54,6 +54,8 @@ namespace cond {
 	virtual ~Table(){}
 	bool exists();
 	bool select( const std::string& gtName, std::vector<std::tuple<std::string,std::string,std::string> >& tags );
+	bool select( const std::string& gtName, const std::string& preFix, const std::string& postFix,
+		     std::vector<std::tuple<std::string,std::string,std::string> >& tags );
 	void insert( const std::string& gtName, const std::vector<std::tuple<std::string,std::string,std::string> >& tags );
       private:
 	coral::ISchema& m_schema;

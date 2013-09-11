@@ -1,0 +1,5 @@
+<use   name="CondFormats/ESObjects"/>
+
+<bin file="testSerializationESObjects.cpp">
+    <use   name="CondFormats/External"/>
+</bin>

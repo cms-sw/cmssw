@@ -1,6 +1,8 @@
 #ifndef PerformancePayload_h
 #define PerformancePayload_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 //#include "CondFormats/PerformanceDBObjects/interface/PhysicsPerformancePayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/BinningPointByMap.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformanceResult.h"
@@ -25,6 +27,8 @@ class PerformancePayload
   virtual bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const = 0;
  protected:
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

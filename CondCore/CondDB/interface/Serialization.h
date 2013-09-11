@@ -22,9 +22,19 @@
 // temporarely
 #include <boost/shared_ptr.hpp>
 
+#include "CondFormats/Serialization/interface/Archive.h"
+
 class TBufferFile;
 
 namespace cond {
+
+  // default payload factory
+  template <typename T> T* createPayload( const std::string& payloadTypeName ){
+    if( demangledName( typeid(T) )!= payloadTypeName ) 
+      throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
+		     "createPayload" );
+    return new T;
+  }
 
   // Archives for the streaming based on ROOT.
 
@@ -71,17 +81,18 @@ namespace cond {
     return *this;
   }
 
-  typedef RootInputArchive CondInputArchive;
-  typedef RootOutputArchive CondOutputArchive;
+  typedef cond::serialization::InputArchive InputArchive;
+  typedef cond::serialization::OutputArchive OutputArchive;
 
   // call for the serialization. Setting packingOnly = TRUE the data will stay in the original memory layout 
   // ( no serialization in this case ). This option is used by the ORA backend - will be dropped after the changeover
   template <typename T> Binary serialize( const T& payload, bool packingOnly = false ){
+
     Binary ret;
     if( !packingOnly ){
       // save data to buffer
       std::ostringstream buffer;
-      CondOutputArchive oa( buffer );
+      OutputArchive oa( buffer );
       oa << payload;
       //TODO: avoid (2!!) copies
       ret.copy( buffer.str() );
@@ -95,8 +106,6 @@ namespace cond {
   // format. Only a cast is required in this case - Used by the ORA backed, will be dropped in the future.
   template <typename T> boost::shared_ptr<T> deserialize( const std::string& payloadType, const Binary& payloadData, bool unpackingOnly = false){
     // for the moment we fail if types don't match... later we will check for base types...
-    if( demangledName( typeid(T) )!= payloadType ) throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"",
-								  "deserialize" );
     boost::shared_ptr<T> payload;
     if( !unpackingOnly ){
       std::stringbuf sbuf;
@@ -104,11 +113,12 @@ namespace cond {
 
       std::istream buffer( &sbuf );
       CondInputArchive ia(buffer);
-      payload.reset( new T );
+      payload.reset( createPayload<T>(payloadType) );
       ia >> (*payload);
     } else {
       payload = boost::static_pointer_cast<T>(payloadData.share());
     }
+
     return payload;
   }
 

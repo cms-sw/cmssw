@@ -10,6 +10,8 @@ $Date: 2009/03/24 16:05:27 $
 $Revision: 1.8 $
 Adapted for CASTOR by L. Mundim (26/03/2009)
 */
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 
 class CastorPedestal {
@@ -45,6 +47,8 @@ class CastorPedestal {
   float mWidth1;
   float mWidth2;
   float mWidth3;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -11,3 +11,7 @@
 <library   file="stubs/*.cc" name="CondFormatsDTObjectsTest">
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<bin file="testSerializationDTObjects.cpp">
+    <use   name="CondFormats/External"/>
+</bin>

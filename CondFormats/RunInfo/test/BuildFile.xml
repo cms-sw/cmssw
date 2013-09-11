@@ -1,0 +1,5 @@
+<use   name="CondFormats/RunInfo"/>
+
+<bin file="testSerializationRunInfo.cpp">
+    <use   name="CondFormats/External"/>
+</bin>

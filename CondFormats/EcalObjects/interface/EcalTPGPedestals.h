@@ -1,6 +1,8 @@
 #ifndef EcalTPGPedestals_h
 #define EcalTPGPedestals_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 
 struct EcalTPGPedestal
@@ -9,6 +11,8 @@ struct EcalTPGPedestal
    uint32_t mean_x12 ;
    uint32_t mean_x6 ;
    uint32_t mean_x1 ;
+
+   COND_SERIALIZABLE;
 };
 
 typedef EcalCondObjectContainer<EcalTPGPedestal> EcalTPGPedestalsMap;

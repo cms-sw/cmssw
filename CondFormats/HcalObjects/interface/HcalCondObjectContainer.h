@@ -1,6 +1,8 @@
 #ifndef HcalCondObjectContainer_h
 #define HcalCondObjectContainer_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
@@ -22,11 +24,13 @@ protected:
   HcalCondObjectContainerBase(const HcalTopology*);
   unsigned int indexFor(DetId) const;
   unsigned int sizeFor(DetId) const;
-  int packedIndexVersion_;
+  int packedIndexVersion_ COND_TRANSIENT;
   inline HcalOtherSubdetector extractOther(const DetId& id) const { return HcalOtherSubdetector((id.rawId()>>20)&0x1F); }
   std::string textForId(const DetId& id) const;
 private:
-  mutable const HcalTopology* topo_;
+  mutable const HcalTopology* topo_ COND_TRANSIENT;
+
+  COND_SERIALIZABLE;
 };
 
 template<class Item>
@@ -84,6 +88,8 @@ public:
   //volatile const HcalTopology* topo_; // This needs to not be in the DB
 
 
+
+ COND_SERIALIZABLE;
 };
 
 

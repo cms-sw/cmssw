@@ -2,7 +2,7 @@
 #include "CondTools/DT/interface/DTKeyedConfigHandler.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CondCore/IOVService/interface/KeyList.h"
+#include "CondCore/CondDB/interface/KeyList.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
@@ -20,15 +20,16 @@ class DTKeyedConfigPopConAnalyzer: public popcon::PopConAnalyzer<DTKeyedConfigHa
 
     if ( !copyData ) return;
 
-    edm::ESHandle<cond::KeyList> klh;
+    edm::ESHandle<cond::persistency::KeyList> klh;
     std::cout<<"got eshandle"<<std::endl;
     s.get<DTKeyedConfigListRcd>().get(klh);
     std::cout<<"got context"<<std::endl;
-    cond::KeyList const &  kl= *klh.product();
-    cond::KeyList* list = const_cast<cond::KeyList*>( &kl );
+    cond::persistency::KeyList const &  kl= *klh.product();
+    cond::persistency::KeyList* list = const_cast<cond::persistency::KeyList*>( &kl );
     for ( int i = 0; i < list->size(); i++ ) {
-      if ( list->elem( i ) )
-           std::cout << list->get<DTKeyedConfig>( i )->getId() << std::endl;
+      boost::shared_ptr<DTKeyedConfig> kelem = list->get<DTKeyedConfig>( i );
+      if ( kelem.get() )
+           std::cout << kelem->getId() << std::endl;
     }
     DTKeyedConfigHandler::setList( list );
 

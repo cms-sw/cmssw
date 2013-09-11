@@ -19,6 +19,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
@@ -51,6 +53,8 @@ class DTReadOutGeometryLink {
   int   layerId;
   int    cellId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -151,24 +155,26 @@ class DTReadOutMapping {
 
   std::vector<DTReadOutGeometryLink> readOutChannelDriftTubeMap;
 
-  DTBufferTree<int,int>* mType;
-  DTBufferTree<int,int>* rgBuf;
-  DTBufferTree<int,int>* rgROB;
-  DTBufferTree<int,int>* rgROS;
-  DTBufferTree<int,int>* rgDDU;
-  DTBufferTree<int,int>* grBuf;
+  DTBufferTree<int,int>* mType COND_TRANSIENT;
+  DTBufferTree<int,int>* rgBuf COND_TRANSIENT;
+  DTBufferTree<int,int>* rgROB COND_TRANSIENT;
+  DTBufferTree<int,int>* rgROS COND_TRANSIENT;
+  DTBufferTree<int,int>* rgDDU COND_TRANSIENT;
+  DTBufferTree<int,int>* grBuf COND_TRANSIENT;
   DTBufferTree<int,
-     std::vector<int>*>* grROB;
+     std::vector<int>*>* grROB COND_TRANSIENT;
   DTBufferTree<int,
-     std::vector<int>*>* grROS;
+     std::vector<int>*>* grROS COND_TRANSIENT;
   DTBufferTree<int,
-     std::vector<int>*>* grDDU;
+     std::vector<int>*>* grDDU COND_TRANSIENT;
 
   /// read and store full content
   void cacheMap() const;
   std::string mapNameRG() const;
   std::string mapNameGR() const;
 
+
+ COND_SERIALIZABLE;
 };
 
 

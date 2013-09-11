@@ -387,7 +387,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
     reco::SuperClusterRef sclRef = gsfIter->superCluster() ;
     // ALREADY DONE IN GSF ELECTRON CORE
     //    if (!gsfIter->ecalDrivenSeed()&&gsfIter->trackerDrivenSeed())
-    //      sclRef = gsfIter->pflowSuperCluster() ;
+    //      sclRef = gsfIter->parentSuperCluster() ;
 //    h1_sclEn->Fill(sclRef->energy());
 //    h1_sclEta->Fill(sclRef->eta());
 //    h1_sclPhi->Fill(sclRef->phi());

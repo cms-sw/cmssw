@@ -1,6 +1,8 @@
 #ifndef CondFormats_ESObjects_ESStripGroupId_H
 #define CondFormats_ESObjects_ESStripGroupId_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 class ESStripGroupId {
 public:
   ESStripGroupId()  : id_(0){}
@@ -17,5 +19,7 @@ public:
 private:
   unsigned int id_;
   
+
+  COND_SERIALIZABLE;
 };
 #endif

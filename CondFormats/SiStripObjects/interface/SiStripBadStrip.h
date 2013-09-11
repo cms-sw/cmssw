@@ -1,6 +1,8 @@
 #ifndef SiStripBadStrip_h
 #define SiStripBadStrip_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -38,7 +40,9 @@ class SiStripBadStrip {
     uint32_t detid;
     uint32_t ibegin;
     uint32_t iend;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   class StrictWeakOrdering{
   public:
@@ -87,6 +91,8 @@ class SiStripBadStrip {
 protected:
   Container v_badstrips; 
   Registry indexes;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

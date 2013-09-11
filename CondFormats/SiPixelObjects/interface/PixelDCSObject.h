@@ -13,6 +13,8 @@
  *  \author Chung Khim Lae
  */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <vector>
 
@@ -26,9 +28,13 @@ struct PixelDCSObject
     std::string name; // name of detector element
 
     Type value;
+
+    COND_SERIALIZABLE_MANUAL;
   };
 
   std::vector<Item> items;
+
+  COND_SERIALIZABLE;
 };
 
 struct CaenChannel
@@ -36,6 +42,8 @@ struct CaenChannel
   bool isOn;  // true if channel is on
   float iMon; // current value
   float vMon; // voltage value
+
+  COND_SERIALIZABLE;
 };
 
 #endif

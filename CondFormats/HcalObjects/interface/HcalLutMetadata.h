@@ -7,6 +7,8 @@
 POOL object to store Hcal trigger LUT channel metadata
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalLutMetadatum.h"
 
@@ -36,10 +38,14 @@ class HcalLutMetadata: public HcalCondObjectContainer<HcalLutMetadatum>
   protected:
     float mRctLsb;
     float mNominalGain;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
  protected:
   NonChannelData mNonChannelData;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

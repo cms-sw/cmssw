@@ -1,6 +1,8 @@
 #ifndef CondFormats_SiStripObjects_SiStripFedCabling_H
 #define CondFormats_SiStripObjects_SiStripFedCabling_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <boost/range/iterator_range.hpp>
 #include <boost/cstdint.hpp>
@@ -157,6 +159,8 @@ class SiStripFedCabling {
   /// FE devices that are detected
   Conns undetected_;
 
+
+ COND_SERIALIZABLE;
 };
 
 std::ostream& operator<<( std::ostream&, const SiStripFedCabling::ConnsRange& );
