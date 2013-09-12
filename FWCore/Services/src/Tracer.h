@@ -31,8 +31,6 @@
 
 namespace edm {
    class ConfigurationDescriptions;
-   class Event;
-   class EventSetup;
    class GlobalContext;
    class HLTPathStatus;
    class LuminosityBlock;
@@ -77,28 +75,28 @@ public:
          void postGlobalBeginRun(GlobalContext const&);
 
          void preGlobalEndRun(GlobalContext const&);
-         void postGlobalEndRun(GlobalContext const&, Run const&, EventSetup const&);
+         void postGlobalEndRun(GlobalContext const&);
 
          void preStreamBeginRun(StreamContext const&);
          void postStreamBeginRun(StreamContext const&);
 
          void preStreamEndRun(StreamContext const&);
-         void postStreamEndRun(StreamContext const&, Run const&, EventSetup const&);
+         void postStreamEndRun(StreamContext const&);
 
          void preGlobalBeginLumi(GlobalContext const&);
          void postGlobalBeginLumi(GlobalContext const&);
 
          void preGlobalEndLumi(GlobalContext const&);
-         void postGlobalEndLumi(GlobalContext const&, LuminosityBlock const&, EventSetup const&);
+         void postGlobalEndLumi(GlobalContext const&);
 
          void preStreamBeginLumi(StreamContext const&);
          void postStreamBeginLumi(StreamContext const&);
 
          void preStreamEndLumi(StreamContext const&);
-         void postStreamEndLumi(StreamContext const&, LuminosityBlock const&, EventSetup const&);
+         void postStreamEndLumi(StreamContext const&);
 
          void preEvent(StreamContext const&);
-         void postEvent(StreamContext const&, Event const&, EventSetup const&);
+         void postEvent(StreamContext const&);
 
          void prePathEvent(StreamContext const&, PathContext const&);
          void postPathEvent(StreamContext const&, PathContext const&, HLTPathStatus const&);
