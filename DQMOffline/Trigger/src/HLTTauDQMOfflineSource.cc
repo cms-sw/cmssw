@@ -1,5 +1,7 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMOfflineSource.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 using namespace std;
@@ -12,24 +14,21 @@ using namespace trigger;
 // constructors and destructor
 //
 HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
-  moduleName_(ps.getParameter<std::string>("@module_label")),
   hltProcessName_(ps.getUntrackedParameter<std::string>("HLTProcessName","HLT")),
   triggerResultsSrc_(ps.getUntrackedParameter<edm::InputTag>("TriggerResultsSrc")),
   triggerResultsToken_(consumes<edm::TriggerResults>(triggerResultsSrc_)),
   triggerEventSrc_(ps.getUntrackedParameter<edm::InputTag>("TriggerEventSrc")),
   triggerEventToken_(consumes<trigger::TriggerEvent>(triggerEventSrc_)),
-  ps_(ps),
-  dqmBaseFolder_(ps.getUntrackedParameter<std::string>("DQMBaseFolder")),
-  hltMenuChanged_(true),
-  verbose_(ps.getUntrackedParameter<bool>("Verbose",false)),
-  L1MatchDr_(ps.getUntrackedParameter<double>("L1MatchDeltaR",0.5)),
-  HLTMatchDr_(ps.getUntrackedParameter<double>("HLTMatchDeltaR",0.2)),
-  counterEvt_(0)
+  counterEvt_(0),
+  prescaleEvt_(ps.getUntrackedParameter<int>("prescaleEvt", -1))
 {
   int nPtBins  = ps.getUntrackedParameter<int>("PtHistoBins", 20);
   int nEtaBins = ps.getUntrackedParameter<int>("EtaHistoBins",25);
   int nPhiBins = ps.getUntrackedParameter<int>("PhiHistoBins",32);
   double etMax = ps.getUntrackedParameter<double>("EtHistoMax",100);
+  double l1MatchDr = ps.getUntrackedParameter<double>("L1MatchDeltaR", 0.5);
+  double hltMatchDr = ps.getUntrackedParameter<double>("HLTMatchDeltaR", 0.2);
+  std::string dqmBaseFolder = ps.getUntrackedParameter<std::string>("DQMBaseFolder");
 
   edm::ParameterSet matching = ps.getParameter<edm::ParameterSet>("Matching");
   doRefAnalysis_ = matching.getUntrackedParameter<bool>("doMatching");
@@ -37,33 +36,38 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   using VPSet = std::vector<edm::ParameterSet>;
   VPSet monitorSetup = ps.getParameter<VPSet>("MonitorSetup");
 
+  /*
+  l1Plotters_.reserve(monitorSetup.size());
+  pathPlotters_.reserve(monitorSetup.size());
+  pathSummaryPlotters_.reserve(monitorSetup.size());
+  */
   for(const edm::ParameterSet& pset: monitorSetup) {
     std::string configtype;
     try {
       configtype = pset.getUntrackedParameter<std::string>("ConfigType");
     } catch(cms::Exception& e) {
-      edm::LogWarning("HLTTauDQMOfflineSource") << e.what() << std::endl;
+      edm::LogWarning("HLTTauDQMOffline") << e.what() << std::endl;
       continue;
     }
     if(configtype == "L1") {
       try {
-        l1Plotters_.emplace_back(new HLTTauDQML1Plotter(pset, consumesCollector(), nPtBins, nEtaBins, nPhiBins, etMax, doRefAnalysis_, L1MatchDr_, dqmBaseFolder_));
+        l1Plotters_.emplace_back(pset, consumesCollector(), nPtBins, nEtaBins, nPhiBins, etMax, doRefAnalysis_, l1MatchDr, dqmBaseFolder);
       } catch(cms::Exception& e) {
-        edm::LogWarning("HLTTauDQMOfflineSource") << e.what() << std::endl;
+        edm::LogWarning("HLTTauDQMOffline") << e.what() << std::endl;
         continue;
       }
     } else if (configtype == "Path") {
       try {
-        pathPlotters2_.emplace_back(new HLTTauDQMPathPlotter(pset, doRefAnalysis_, dqmBaseFolder_, hltProcessName_, nPtBins, nEtaBins, nPhiBins, L1MatchDr_, HLTMatchDr_));
+        pathPlotters2_.emplace_back(pset, doRefAnalysis_, dqmBaseFolder, hltProcessName_, nPtBins, nEtaBins, nPhiBins, l1MatchDr, hltMatchDr);
       } catch ( cms::Exception &e ) {
-        edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
+        edm::LogWarning("HLTTauDQMOffline") << e.what() << std::endl;
         continue;
       }
     } else if (configtype == "PathSummary") {
       try {
-        pathSummaryPlotters_.emplace_back(new HLTTauDQMPathSummaryPlotter(pset, doRefAnalysis_, dqmBaseFolder_, HLTMatchDr_));
+        pathSummaryPlotters_.emplace_back(pset, doRefAnalysis_, dqmBaseFolder, hltMatchDr);
       } catch ( cms::Exception &e ) {
-        edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
+        edm::LogWarning("HLTTauDQMOffline") << e.what() << std::endl;
         continue;
       }
     }
@@ -88,60 +92,26 @@ void HLTTauDQMOfflineSource::beginJob() {
 //--------------------------------------------------------
 void HLTTauDQMOfflineSource::beginRun( const edm::Run& iRun, const EventSetup& iSetup ) {
     //Evaluate configuration for every new trigger menu
-    if ( HLTCP_.init(iRun, iSetup, hltProcessName_, hltMenuChanged_) ) {
-        if ( hltMenuChanged_ ) {
+  bool hltMenuChanged = false;
+  if(HLTCP_.init(iRun, iSetup, hltProcessName_, hltMenuChanged)) {
+        if(hltMenuChanged) {
           for(auto& l1Plotter: l1Plotters_) {
-            l1Plotter->beginRun();
+            l1Plotter.beginRun();
           }
           std::vector<const HLTTauDQMPath *> pathObjects;
           pathObjects.reserve(pathPlotters2_.size());
           for(auto& pathPlotter: pathPlotters2_) {
-            pathPlotter->beginRun(HLTCP_);
-            if(pathPlotter->isValid())
-              pathObjects.push_back(pathPlotter->getPathObject());
+            pathPlotter.beginRun(HLTCP_);
+            if(pathPlotter.isValid())
+              pathObjects.push_back(pathPlotter.getPathObject());
           }
           for(auto& pathSummaryPlotter: pathSummaryPlotters_) {
-            pathSummaryPlotter->beginRun(pathObjects);
+            pathSummaryPlotter.beginRun(pathObjects);
           }
-
-            processPSet(ps_);
-            if (verbose_) {
-                std::cout << "Trigger menu '" << HLTCP_.tableName() << "'" << std::endl;
-                HLTCP_.dump("Triggers");
-                
-                std::cout << std::endl << "Configuration of '" << moduleName_ << "' for trigger menu '" << HLTCP_.tableName() << "'" << std::endl;
-                for ( unsigned int i = 0; i < config_.size(); ++i ) {
-                    std::cout << config_[i].dump() << std::endl;
-                }
-                std::cout << matching_.dump() << std::endl << std::endl;
-                
-                unsigned int npars = 14;
-                npars += countParameters(matching_);
-                for ( unsigned int i = 0; i < config_.size(); ++i ) {
-                    npars += countParameters(config_[i]);
-                }
-                
-                std::cout << "--> Number of parameters: " << npars << std::endl;
-                std::cout << std::endl << "Event content need by this module: " << std::endl;
-                
-                std::vector<edm::InputTag> evtcontent;
-                for ( unsigned int i = 0; i < config_.size(); ++i ) {
-                    searchEventContent(evtcontent, config_[i]);
-                }
-                searchEventContent(evtcontent, matching_);
-                
-                for (std::vector<edm::InputTag>::const_iterator iter = evtcontent.begin(); iter != evtcontent.end(); ++iter) {
-                    std::cout << " " << iter->encode() << std::endl;
-                }
-            }
         }
-    } else {
-        edm::LogWarning("HLTTauDQMOfflineSource") << "HLT config extraction failure with process name '" << hltProcessName_ << "'";
-    }
-}
-
-//--------------------------------------------------------
-void HLTTauDQMOfflineSource::beginLuminosityBlock( const LuminosityBlock& lumiSeg, const EventSetup& context ) {
+  } else {
+    edm::LogWarning("HLTTauDQMOffline") << "HLT config extraction failure with process name '" << hltProcessName_ << "'";
+  }
 }
 
 // ----------------------------------------------------------
@@ -155,6 +125,7 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         iEvent.getByToken(triggerResultsToken_, triggerResultsHandle);
         if(!triggerResultsHandle.isValid()) {
           edm::LogWarning("HLTTauDQMOffline") << "Unable to read edm::TriggerResults with label " << triggerResultsSrc_;
+          return;
         }
 
         edm::Handle<trigger::TriggerEvent> triggerEventHandle;
@@ -163,8 +134,6 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
           edm::LogWarning("HLTTauDQMOffline") << "Unable to read trigger::TriggerEvent with label " << triggerEventSrc_;
           return;
         }
-
-
 
         //Create match collections
         HLTTauDQMOfflineObjects refC;
@@ -189,77 +158,21 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         
         //Path Plotters
         for(auto& pathPlotter: pathPlotters2_) {
-          if(pathPlotter->isValid())
-            pathPlotter->analyze(*triggerResultsHandle, *triggerEventHandle, refC);
+          if(pathPlotter.isValid())
+            pathPlotter.analyze(*triggerResultsHandle, *triggerEventHandle, refC);
         }
         
         for(auto& pathSummaryPlotter: pathSummaryPlotters_) {
-          if(pathSummaryPlotter->isValid())
-            pathSummaryPlotter->analyze(*triggerResultsHandle, *triggerEventHandle, refC);
+          if(pathSummaryPlotter.isValid())
+            pathSummaryPlotter.analyze(*triggerResultsHandle, *triggerEventHandle, refC);
         }
         
         //L1 Plotters
         for(auto& l1Plotter: l1Plotters_) {
-          if(l1Plotter->isValid())
-            l1Plotter->analyze(iEvent, iSetup, refC);
+          if(l1Plotter.isValid())
+            l1Plotter.analyze(iEvent, iSetup, refC);
         }
     } else {
         counterEvt_++;
-    }
-}
-
-//--------------------------------------------------------
-void HLTTauDQMOfflineSource::endLuminosityBlock( const LuminosityBlock& lumiSeg, const EventSetup& context ) {
-}
-
-//--------------------------------------------------------
-void HLTTauDQMOfflineSource::endRun( const Run& r, const EventSetup& context ) {
-}
-
-//--------------------------------------------------------
-void HLTTauDQMOfflineSource::endJob() {
-    return;
-}
-
-void HLTTauDQMOfflineSource::processPSet( const edm::ParameterSet& pset ) {
-    //Get General Monitoring Parameters
-    config_        = pset.getParameter<std::vector<edm::ParameterSet> >("MonitorSetup");
-    prescaleEvt_   = pset.getUntrackedParameter<int>("prescaleEvt", -1);
-}
-
-unsigned int HLTTauDQMOfflineSource::countParameters( const edm::ParameterSet& pset ) {
-    unsigned int num = 0;
-    const std::map<std::string,edm::ParameterSetEntry>& tmppset = pset.psetTable();
-    for ( std::map<std::string,edm::ParameterSetEntry>::const_iterator iter = tmppset.begin(); iter != tmppset.end(); ++iter ) {
-        num += countParameters(iter->second.pset());
-    }
-    const std::map<std::string,edm::VParameterSetEntry>& tmpvpset = pset.vpsetTable();
-    for ( std::map<std::string,edm::VParameterSetEntry>::const_iterator iter = tmpvpset.begin(); iter != tmpvpset.end(); ++iter ) {
-        const std::vector<edm::ParameterSet>& tmpvec = iter->second.vpset();
-        for ( std::vector<edm::ParameterSet>::const_iterator iter2 = tmpvec.begin(); iter2 != tmpvec.end(); ++iter2 ) {
-            num += countParameters(*iter2);
-        }
-    }
-    num += pset.tbl().size();
-    return num;
-}
-
-void HLTTauDQMOfflineSource::searchEventContent(std::vector<edm::InputTag>& eventContent, const edm::ParameterSet& pset) {
-    for (std::map< std::string, edm::Entry >::const_iterator i = pset.tbl().begin(), e = pset.tbl().end(); i != e; ++i) {
-        if (std::string(1,i->second.typeCode()) == "t") {
-            std::vector<edm::InputTag>::iterator iter = std::find(eventContent.begin(), eventContent.end(), i->second.getInputTag());
-            if (iter == eventContent.end()) {
-                eventContent.push_back(i->second.getInputTag());
-            }
-        }
-    }
-    for (std::map< std::string, edm::ParameterSetEntry >::const_iterator i = pset.psetTable().begin(), e = pset.psetTable().end(); i != e; ++i) {
-        searchEventContent(eventContent, i->second.pset());
-    }
-    for (std::map< std::string, edm::VParameterSetEntry >::const_iterator i = pset.vpsetTable().begin(), e = pset.vpsetTable().end(); i != e; ++i) {
-        std::vector<edm::ParameterSet> vpset = i->second.vpset();
-        for (std::vector<edm::ParameterSet>::const_iterator iter = vpset.begin(); iter != vpset.end(); ++iter) {
-            searchEventContent(eventContent, *iter);
-        }
     }
 }

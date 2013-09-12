@@ -63,11 +63,6 @@ void HLTTauDQMSummaryPlotter::bookPlots() {
             bookEfficiencyHisto(triggerTag(), "L3TrigTauPhiEff", "helpers/L3TrigTauPhiEffNum");
         }
         
-        //Lite Path Summary 
-        else if ( type_ == "LitePath" ) {
-            bookEfficiencyHisto(triggerTag(),"PathEfficiency","MatchedPathTriggerBits");
-        }
-        
         //L1 Summary
         else if ( type_ == "L1" ) {
             bookEfficiencyHisto(triggerTag(),"L1TauEtEff","EfficiencyHelpers/L1TauEtEffNum");
@@ -101,11 +96,6 @@ void HLTTauDQMSummaryPlotter::plot() {
             plotEfficiencyHisto(triggerTag(), "L3TrigTauEtEff",  "helpers/L3TrigTauEtEffNum",  "helpers/L3TrigTauEtEffDenom");
             plotEfficiencyHisto(triggerTag(), "L3TrigTauEtaEff", "helpers/L3TrigTauEtaEffNum", "helpers/L3TrigTauEtaEffDenom");
             plotEfficiencyHisto(triggerTag(), "L3TrigTauPhiEff", "helpers/L3TrigTauPhiEffNum", "helpers/L3TrigTauPhiEffDenom");
-        }
-        
-        //Lite Path Summary 
-        else if ( type_ == "LitePath" ) {
-            plotEfficiencyHisto(triggerTag(),"PathEfficiency","MatchedPathTriggerBits","RefEvents");
         }
         
         //L1 Summary
