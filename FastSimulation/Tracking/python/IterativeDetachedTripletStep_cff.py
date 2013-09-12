@@ -23,6 +23,13 @@ iterativeDetachedTripletSeeds.originHalfLength = [17.5] # ?
 iterativeDetachedTripletSeeds.originpTMin = [0.2] # was 0.075 GeV
 iterativeDetachedTripletSeeds.zVertexConstraint = [-1.0]
 iterativeDetachedTripletSeeds.primaryVertices = ['none']
+# new (AG)
+iterativeDetachedTripletSeeds.newSyntax = False
+iterativeDetachedTripletSeeds.layerList = ['BPix1+BPix2+BPix3',
+                                   'BPix1+BPix2+FPix1_pos',
+                                   'BPix1+BPix2+FPix1_neg',
+                                   'BPix1+FPix1_pos+FPix2_pos',
+                                   'BPix1+FPix1_neg+FPix2_neg']
 
 # candidate producer
 #from FastSimulation.Tracking.IterativeSecondCandidateProducer_cff import *
