@@ -33,7 +33,7 @@ class EcalChannelStatusCode {
       kFixedG0,
       kNonRespondingIsolated,
       kDeadVFE,
-      kNoData,
+      kDeadFE,
       kNoDataNoTP      
     };
 

@@ -27,11 +27,13 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
                             
     # reco flags association to DB flag
     flagsMapDBReco = cms.PSet(
-        kGood = cms.vstring('kOk','kDAC','kNoLaser','kNoisy'),
+        kGood  = cms.vstring('kOk','kDAC','kNoLaser','kNoisy'),
         kNoisy = cms.vstring('kNNoisy','kFixedG6','kFixedG1'),
-        kLeadingEdgeRecovered = cms.vstring('kFixedG0','kNonRespondingIsolated','kDeadVFE'),
-        kNeighboursRecovered = cms.vstring('kNoData'),
-        kTowerRecovered = cms.vstring('kNoDataNoTP')
+        kNeighboursRecovered = cms.vstring('kFixedG0',
+										   'kNonRespondingIsolated',
+										   'kDeadVFE'),
+        kTowerRecovered = cms.vstring('kDeadFE'),
+        kDead           = cms.vstring('kNoDataNoTP')
         ),                        
                             
     # for channel recovery
