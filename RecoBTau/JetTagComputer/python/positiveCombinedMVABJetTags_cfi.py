@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-combinedMVABJetTags = cms.EDProducer("JetTagProducer",
-	jetTagComputer = cms.string('combinedMVA'),
+positiveCombinedMVABJetTags = cms.EDProducer("JetTagProducer",
+	jetTagComputer = cms.string('positiveCombinedMVA'),
 	tagInfos = cms.VInputTag(
 		cms.InputTag("impactParameterTagInfos"),
 		cms.InputTag("secondaryVertexTagInfos"),
@@ -10,8 +10,8 @@ combinedMVABJetTags = cms.EDProducer("JetTagProducer",
 	)
 )
 
-combinedSecondaryVertexSoftPFLeptonV1BJetTags = cms.EDProducer("JetTagProducer",
-	jetTagComputer = cms.string('combinedSecondaryVertexSoftPFLeptonV1'),
+positiveCombinedSecondaryVertexSoftPFLeptonV1BJetTags = cms.EDProducer("JetTagProducer",
+	jetTagComputer = cms.string('positiveCombinedSecondaryVertexSoftPFLeptonV1'),
 	tagInfos = cms.VInputTag(
 		cms.InputTag("impactParameterTagInfos"),
 		cms.InputTag("secondaryVertexTagInfos"),
