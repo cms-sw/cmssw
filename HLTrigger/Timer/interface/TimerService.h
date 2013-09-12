@@ -19,6 +19,10 @@ Original Author:  Christos Leonidopoulos, March 2007
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 #include <string>
 
 #ifdef __linux
@@ -81,6 +85,7 @@ class TimerService {
  public:
   TimerService(const edm::ParameterSet&, edm::ActivityRegistry& iAR);
   ~TimerService();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   // signal with module-description and processing time (in secs)
   sigc::signal<void, const edm::ModuleDescription&, double> newMeasurementSignal;

@@ -19,6 +19,7 @@
 
 
 #include "HLTrigger/Timer/interface/Timer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include <iostream>
 
@@ -61,6 +62,18 @@ Timer::~Timer()
     cout << longLine << endl << endl;
   }
 
+}
+
+void Timer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // # Make sure to enable the "TimerService" service at your top-level cfg!
+  // # by including something like the following:
+  // # service = TimerService {
+  // #  untracked bool useCPUtime = true // set to false for wall-clock-time
+  // # }
+  // # This EDProducer is the module that stores in the Event the timing info
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("includeSelf",false);
+  descriptions.add("timer", desc);
 }
 
 // fwk calls this method when new module measurement arrives
