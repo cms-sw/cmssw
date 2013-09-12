@@ -113,7 +113,7 @@ bool HcalDetDiagLEDClient::validHtmlOutput(){
   if(n<100) return false;
   return true;
 }
-static void printTableHeader(ofstream& file,std::string header){
+static void printTableHeader(std::ofstream& file,std::string header){
      file << "</html><html xmlns=\"http://www.w3.org/1999/xhtml\">"<< std::endl;
      file << "<head>"<< std::endl;
      file << "<meta http-equiv=\"Content-Type\" content=\"text/html\"/>"<< std::endl;
@@ -129,7 +129,7 @@ static void printTableHeader(ofstream& file,std::string header){
      file << "<body>"<< std::endl;
      file << "<table>"<< std::endl;
 }
-static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry, std::string comment=""){
+static void printTableLine(std::ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry, std::string comment=""){
    if(ind==0){
      file << "<tr>";
      file << "<td class=\"s4\" align=\"center\">#</td>"    << std::endl;
@@ -178,7 +178,7 @@ static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndI
    file << raw_class<< emap_entry.htrTopBottom()<<"</td>"<< std::endl;
    if(comment[0]!=0) file << raw_class<< comment<<"</td>"<< std::endl;
 }
-static void printTableTail(ofstream& file){
+static void printTableTail(std::ofstream& file){
      file << "</table>"<< std::endl;
      file << "</body>"<< std::endl;
      file << "</html>"<< std::endl;
@@ -315,19 +315,19 @@ std::string subdet[4]={"HB","HE","HO","HF"};
      }
   }
   // missing channels list
-  ofstream Missing;
+  std::ofstream Missing;
   Missing.open((htmlDir + "Missing.html").c_str());
   printTableHeader(Missing,"Missing Channels list");
   // Bad timing channels list
-  ofstream BadTiming;
+  std::ofstream BadTiming;
   BadTiming.open((htmlDir + "BadTiming.html").c_str());
   printTableHeader(BadTiming,"Bad Timing Channels list");
   // unstable channels list
-  ofstream Unstable;
+  std::ofstream Unstable;
   Unstable.open((htmlDir + "Unstable.html").c_str());
   printTableHeader(Unstable,"Low LED signal Channels list");
   // unstable LED signal list
-  ofstream BadLED;
+  std::ofstream BadLED;
   BadLED.open((htmlDir + "UnstableLED.html").c_str());
   printTableHeader(BadLED,"Unstable LED signal channels list");
 
@@ -555,7 +555,7 @@ std::string subdet[4]={"HB","HE","HO","HF"};
   can->SetGridx(); 
   can->cd();
 
-  ofstream htmlFile;
+  std::ofstream htmlFile;
   std::string outfile=htmlDir+name_+".html";
   htmlFile.open(outfile.c_str());
   // html page header
