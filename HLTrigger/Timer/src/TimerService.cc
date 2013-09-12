@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sched.h>
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HLTrigger/Timer/interface/TimerService.h"
 #include "HLTrigger/Timer/interface/CPUAffinity.h"
@@ -34,6 +35,12 @@ TimerService::~TimerService()
   std::cout << " Used " << (useCPUtime ? "CPU" : "wall-clock") << "time for timing information\n";
   std::cout << "==========================================================\n";
   std::cout << std::flush;
+}
+
+void TimerService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("useCPUtime",true);
+  descriptions.add("TimerService", desc);
 }
 
 // fwk calls this method before a module is processed
