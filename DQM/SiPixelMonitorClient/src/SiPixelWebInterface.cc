@@ -176,7 +176,7 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
   } else if (requestID == "GetTkMap") { 
     theActionFlag = NoAction;	 
     
-    ifstream fin("dqmtmapviewer.xhtml");
+    std::ifstream fin("dqmtmapviewer.xhtml");
     char buf[BUF_SIZE];
     std::ostringstream html_out;
     if (!fin) {

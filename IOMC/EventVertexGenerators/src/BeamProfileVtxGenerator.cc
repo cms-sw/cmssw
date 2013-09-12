@@ -39,7 +39,7 @@ BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet & p) :
   
   if (ffile) {
     std::string file = p.getParameter<std::string>("File");
-    ifstream is(file.c_str(), std::ios::in);
+    std::ifstream is(file.c_str(), std::ios::in);
     if (is) {
       double elem,sum=0;
       while (!is.eof()) {

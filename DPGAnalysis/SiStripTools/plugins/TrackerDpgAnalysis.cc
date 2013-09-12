@@ -1001,7 +1001,7 @@ TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
    if(delayMap.size()) tmap.save(true, 0, 0, "delaymap.png");
 
    // cabling II (DCU map)
-   ifstream cablingFile(cablingFileName_.c_str());
+   std::ifstream cablingFile(cablingFileName_.c_str());
    if(cablingFile.is_open()) {
      char buffer[1024];
      cablingFile.getline(buffer,1024);

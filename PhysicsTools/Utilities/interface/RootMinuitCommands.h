@@ -136,7 +136,7 @@ namespace fit {
       path += (cmssw_base + "/src");
     }
     FileInPath fileInPath(path, fileName);
-    ifstream * file = fileInPath();
+    std::ifstream * file = fileInPath();
     if(file==0 || !file->is_open())
       throw edm::Exception(edm::errors::Configuration)
 	<< "RootMinuitCommands: can't open file: " << fileName 

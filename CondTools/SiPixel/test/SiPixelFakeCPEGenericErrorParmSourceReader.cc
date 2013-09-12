@@ -4,6 +4,7 @@
 #include "CondTools/SiPixel/test/SiPixelFakeCPEGenericErrorParmSourceReader.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
 #include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
+#include <iostream>
 
 SiPixelFakeCPEGenericErrorParmSourceReader::SiPixelFakeCPEGenericErrorParmSourceReader(const edm::ParameterSet& iConfig)
 {

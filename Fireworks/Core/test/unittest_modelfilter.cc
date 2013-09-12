@@ -15,7 +15,6 @@
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/test_tools.hpp>
 #include "TClass.h"
-#include "Cintex/Cintex.h"
 
 // user include files
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -60,7 +59,6 @@ namespace  {
 
 BOOST_AUTO_TEST_CASE( itemfilter )
 {
-   ROOT::Cintex::Cintex::Enable();
    FWModelChangeManager cm;
    
    FWSelectionManager sm(&cm);

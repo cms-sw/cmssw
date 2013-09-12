@@ -28,7 +28,6 @@
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "Cintex/Cintex.h"
 #include "TClass.h"
 
 // We cannot use the MessageLogger here because this is also used by standalones that do not have the logger.
@@ -303,7 +302,6 @@ namespace edm {
 #endif
       AssertHandler h;
       gROOT->AddClassGenerator(this);
-      ROOT::Cintex::Cintex::Enable();
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,6)
       isInitializingCintex_ =false;
 #endif

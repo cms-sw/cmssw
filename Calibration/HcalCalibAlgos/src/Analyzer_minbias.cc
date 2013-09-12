@@ -192,7 +192,7 @@ void Analyzer_minbias::beginJob()
 
    std::string ccc = "noise_0.dat";
 
-   myout_hcal = new ofstream(ccc.c_str());
+   myout_hcal = new std::ofstream(ccc.c_str());
    if(!myout_hcal) cout << " Output file not open!!! "<<endl;
 
 //

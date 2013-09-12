@@ -478,7 +478,7 @@ void HcalMonitorClient::writeHtml()
 
   ++htmlcounter_;
 
-  ofstream htmlFile;
+  std::ofstream htmlFile;
   htmlFile.open((htmlDir + "index.html").c_str());
 
   // html page header

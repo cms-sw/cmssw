@@ -77,7 +77,7 @@ private:
   bool verbose_;
   bool monitorDaemon_;
   std::vector<int> l1feds_;
-  ofstream logFile_;
+  std::ofstream logFile_;
   edm::InputTag fedSource_;  
   edm::InputTag rawl_;
   std::string directory_;

@@ -13,6 +13,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
+#include <iostream>
 #include <memory>
 
 #include <stdio.h>
@@ -775,7 +776,7 @@ MatacqProducer::~MatacqProducer(){
 }
 
 void MatacqProducer::loadOrbitOffset(){
-  ifstream f(orbitOffsetFile_.c_str());
+  std::ifstream f(orbitOffsetFile_.c_str());
   if(f.bad()){
     throw cms::Exception("Matacq")
       << "Failed to open orbit ID correction file '"

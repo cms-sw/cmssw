@@ -198,7 +198,7 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   std::string TextFileName;
   std::string FolderName;
 
-  ofstream* out;
+  std::ofstream* out;
   double DumpMET;
 
   //Muon-Segment Matching

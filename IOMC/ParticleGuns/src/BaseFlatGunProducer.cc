@@ -73,7 +73,7 @@ BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
   fPDGTableName = "PDG_mass_width_2004.mc"; // should it be 2004 table ?
 
   string TableFullName = fPDGTablePath + fPDGTableName ;
-  ifstream PDFile( TableFullName.c_str() ) ;
+  std::ifstream PDFile( TableFullName.c_str() ) ;
   if( !PDFile ) 
   {
       throw cms::Exception("FileNotFound", "BaseFlatGunProducer::BaseFlatGunProducer()")

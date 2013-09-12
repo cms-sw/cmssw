@@ -19,7 +19,6 @@ to the actual calibration code in "endJob()".
 //
 // Original Author:  "Anton Anastassov"
 //         Created:  Tue Sept 24 09:13:48 CDT 2008
-// $Id: HcalCalibrator.cc,v 1.6 2010/11/04 14:09:07 muzaffar Exp $
 //
 //
 //_________________________________________________________________________________
@@ -29,6 +28,7 @@ to the actual calibration code in "endJob()".
 // system include files
 #include <memory>
 #include <fstream>
+#include <iostream>
 
 // user include files
 
@@ -150,25 +150,25 @@ HcalCalibrator::endJob() {
  
 
   if (mCalibType!="DI_JET" && mCalibType!="ISO_TRACK") {
-    cout << "\n\nUnknown calibration type " << mCalibType << endl;
-    cout << "Please select ISO_TRACK or DI_JET in the python file." << endl;
+    std::cout << "\n\nUnknown calibration type " << mCalibType << std::endl;
+    std::cout << "Please select ISO_TRACK or DI_JET in the python file." << std::endl;
     return;
   }
 
   if (mCalibMethod != "L3" && mCalibMethod != "MATRIX_INV_OF_ETA_AVE" && mCalibMethod != "L3_AND_MTRX_INV") {
-    cout << "\n\nUnknown calibration method " << mCalibMethod << endl;
-    cout << "Supported methods for IsoTrack calibration are: L3, MATRIX_INV_OF_ETA_AVE, L3_AND_MTRX_INV" << endl;
-    cout << "For DiJets the supported method is L3" << endl;
+    std::cout << "\n\nUnknown calibration method " << mCalibMethod << std::endl;
+    std::cout << "Supported methods for IsoTrack calibration are: L3, MATRIX_INV_OF_ETA_AVE, L3_AND_MTRX_INV" << std::endl;
+    std::cout << "For DiJets the supported method is L3" << std::endl;
     return;
   }
 
   if (mCalibType=="DI_JET" && mCalibMethod!="L3") {
-    cout << "\n\nDiJet calibration can use only the L3 method. Please change the python file." << endl;
+    std::cout << "\n\nDiJet calibration can use only the L3 method. Please change the python file." << std::endl;
     return;
   }
 
   if (mCalibAbsIEtaMin<1 || mCalibAbsIEtaMax>41 || mCalibAbsIEtaMin>mCalibAbsIEtaMax) {
-    cout << "\n\nInvalid ABS(iEta) calibration range. Check calibAbsIEtaMin and calibAbsIEtaMax in the python file." << endl;
+    std::cout << "\n\nInvalid ABS(iEta) calibration range. Check calibAbsIEtaMin and calibAbsIEtaMax in the python file." << std::endl;
     return;
   }
 
@@ -215,7 +215,7 @@ HcalCalibrator::endJob() {
   calibrator->SetCaloGeometry(mTheCaloGeometry,mTheHcalTopology);
 
  
-  ifstream inputFileList;  // contains list of input root files
+  std::ifstream inputFileList;  // contains list of input root files
 
   TString files = mInputFileList;
   inputFileList.open(files.Data());

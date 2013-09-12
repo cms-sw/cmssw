@@ -17,8 +17,6 @@
 #include <sstream>
 #include <string.h>
 
-#include "Cintex/Cintex.h"
-#include "G__ci.h"
 #include "TROOT.h"
 #include "TError.h"
 #include "TFile.h"
@@ -228,13 +226,9 @@ namespace edm {
         RootAutoLibraryLoader::enable();
       }
 
-      // Enable Cintex.
-      ROOT::Cintex::Cintex::Enable();
-
       // Set ROOT parameters.
       TTree::SetMaxTreeSize(kMaxLong64);
       TH1::AddDirectory(kFALSE);
-      G__SetCatchException(0);
 
       // Set custom streamers
       setRefCoreStreamer();

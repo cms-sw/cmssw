@@ -23,6 +23,7 @@
 #include "TStopwatch.h"
 #include "TH1.h"
 #include "TFile.h"
+#include <iostream>
 #include <string>
 #include <algorithm>
 #include <boost/shared_ptr.hpp>

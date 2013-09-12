@@ -26,7 +26,7 @@ ESDigisReferenceDistrib::ESDigisReferenceDistrib(const edm::ParameterSet& ps):
 ESDigisReferenceDistrib::~ESDigisReferenceDistrib(){ 
 
   // preparing the txt file with the histo infos
-   ofstream *outFile_ = new ofstream(outputTxtFile_.c_str(),std::ios::out);
+   std::ofstream *outFile_ = new std::ofstream(outputTxtFile_.c_str(),std::ios::out);
   *outFile_ << "# number of bin"                         << std::endl;
   *outFile_ << "# axis inf (common to the three axes"    << std::endl;
   *outFile_ << "# axis sup (common to the three axes"    << std::endl;

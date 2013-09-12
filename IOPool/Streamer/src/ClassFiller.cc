@@ -4,16 +4,15 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "Cintex/Cintex.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 
 
 #include "TClass.h"
-#include "G__ci.h"
 
 #include <string>
 #include <set>
 #include <algorithm>
+#include <iostream>
 
 namespace edm {
   void loadCap(std::string const& name) {
@@ -48,8 +47,6 @@ namespace edm {
 	loadCap(std::string("std::vector<edm::BranchDescription>"));
 	loadCap(std::string("edm::SendJobHeader"));
     }
-    G__SetCatchException(0);
-    ROOT::Cintex::Cintex::Enable();
     done=true;
   }
 

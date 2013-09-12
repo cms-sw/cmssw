@@ -22,7 +22,7 @@ class ParamSetWalker {
       boost::shared_ptr<ParameterSet> procPset = pdesc.getProcessPSet();
       std::cout<< "Process PSet:" << procPset->toString() << std::endl;           
       
-      //cout << "Module Label: " << procPset->getParameter<string>("@module_label")
+      //std::cout << "Module Label: " << procPset->getParameter<string>("@module_label")
       //     << std::endl;
       
      edm::ParameterSet const& allTrigPaths = procPset->getParameterSet("@trigger_paths");

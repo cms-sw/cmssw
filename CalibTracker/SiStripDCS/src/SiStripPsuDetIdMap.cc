@@ -34,7 +34,7 @@ void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, std::vector<std:
   //This is not currently used, but I think we could slim this down to just a vector with 
   //the detIDs since the PSUChannel part of the excludedlist (if it ever is in a file) is never used!
   edm::FileInPath file(mapFile.c_str());
-  ifstream ifs( file.fullPath().c_str() );
+  std::ifstream ifs( file.fullPath().c_str() );
   string line;
   while( getline( ifs, line ) ) {
     if( line != "" ) {
@@ -61,7 +61,7 @@ void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, const bool debug
   //These maps are accessed, based on the LV/HV case, to extract the detIDs connected to a given PSUChannel... 
   //see the getDetIDs method...
   edm::FileInPath file(mapFile.c_str());
-  ifstream ifs( file.fullPath().c_str() );
+  std::ifstream ifs( file.fullPath().c_str() );
   string line;
   while( getline( ifs, line ) ) {
     if( line != "" ) {

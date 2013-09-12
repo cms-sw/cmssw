@@ -178,7 +178,7 @@ class SiPixelInformationExtractor {
   int errcount;
   bool gotDigis;
   
-  ofstream myfile_;  
+  std::ofstream myfile_;  
   int nevents_;
   std::map< uint32_t , std::vector< std::pair< std::pair<int,int> , float > > >  noisyDetIds_;
   bool endOfModules_;

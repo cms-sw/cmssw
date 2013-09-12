@@ -309,8 +309,8 @@ void PhiSymmetryCalibration_step2::endJob(){
   outResidHistos();
  
   // finally output global etsums
-  fstream ebf("etsummary_barl.dat",ios::out);
-  fstream eef("etsummary_endc.dat",ios::out);
+  std::fstream ebf("etsummary_barl.dat",ios::out);
+  std::fstream eef("etsummary_endc.dat",ios::out);
   
   for (int ieta=0; ieta<kBarlRings; ieta++) {
     for (int iphi=0; iphi<kBarlWedges; iphi++) {

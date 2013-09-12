@@ -1,5 +1,6 @@
 
 #include "Reflex/Object.h"
+#include "Reflex/Member.h"
 #include "Reflex/Type.h"
 
 #include "FWCore/Utilities/interface/FunctionWithDict.h"
@@ -8,88 +9,95 @@
 
 namespace edm {
 
-  FunctionWithDict::FunctionWithDict(Reflex::Member const& function) : function_(function) {}
+  FunctionWithDict::FunctionWithDict()(new Reflex::Member) {}
+
+  FunctionWithDict::FunctionWithDict(Reflex::Member const& func) : function()(new Reflex::Member(func)) {}
+
+  Reflex Member const&
+  FunctionWithDict function() const {
+    return *function_;
+  } 
 
   std::string
   FunctionWithDict::name() const {
-    return function_.Name();
+    return function().Name();
   }
 
   std::string
-  FunctionWithDict::typeName() const {return function_.TypeOf().Name();}
+  FunctionWithDict::typeName() const {return function().TypeOf().Name();}
 
   TypeWithDict
   FunctionWithDict::typeOf() const {
-    return (TypeWithDict(function_.TypeOf()));
+    return (TypeWithDict(function().TypeOf()));
   }
 
   TypeWithDict
   FunctionWithDict::returnType() const {
-    return (TypeWithDict(function_.TypeOf().ReturnType()));
+    return (TypeWithDict(function().TypeOf().ReturnType()));
   }
 
   TypeWithDict
   FunctionWithDict::finalReturnType() const {
-    return (TypeWithDict(function_.TypeOf().ReturnType().FinalType()));
+    return (TypeWithDict(function().TypeOf().ReturnType().FinalType()));
   }
 
   TypeWithDict
   FunctionWithDict::declaringType() const {
-    return (TypeWithDict(function_.DeclaringType()));
+    return (TypeWithDict(function().DeclaringType()));
   }
 
   bool
   FunctionWithDict::isConst() const {
-    return function_.IsConst();
+    return function().IsConst();
   }
 
   bool
   FunctionWithDict::isConstructor() const {
-    return function_.IsConstructor();
+    return function().IsConstructor();
   }
 
   bool
   FunctionWithDict::isDestructor() const {
-    return function_.IsDestructor();
+    return function().IsDestructor();
   }
 
   bool
   FunctionWithDict::isOperator() const {
-    return function_.IsOperator();
+    return function().IsOperator();
   }
 
   bool
   FunctionWithDict::isPublic() const {
-    return function_.IsPublic();
+    return function().IsPublic();
   }
 
   bool FunctionWithDict::isStatic() const {
-    return function_.IsStatic();
+    return function().IsStatic();
   }
 
   size_t
   FunctionWithDict::functionParameterSize(bool required) const {
-    return function_.FunctionParameterSize(required);
+    return function().FunctionParameterSize(required);
   }
 
   void
   FunctionWithDict::invoke(ObjectWithDict const& obj, ObjectWithDict* ret, std::vector<void*> const& values) const {
     Reflex::Object reflexReturn(ret->typeOf().type_, ret->address());
-    function_.Invoke(Reflex::Object(obj.typeOf().type_, obj.address()), &reflexReturn, values);
+    function().Invoke(Reflex::Object(obj.typeOf().type_, obj.address()), &reflexReturn, values);
   }
 
   Reflex::Type_Iterator
   FunctionWithDict::begin() const {
-    return function_.TypeOf().FunctionParameter_Begin();
+    return function().TypeOf().FunctionParameter_Begin();
   }
 
   Reflex::Type_Iterator
   FunctionWithDict::end() const {
-    return function_.TypeOf().FunctionParameter_End();
+    return function().TypeOf().FunctionParameter_End();
   }
 
   FunctionWithDict::operator bool() const {
-    return bool(function_);
+    return bool(function());
   }
 
 }

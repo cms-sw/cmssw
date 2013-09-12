@@ -14,6 +14,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <climits>
+#include <iostream>
 
 class TrackerTopologyAnalyzer : public edm::EDAnalyzer {
 public:

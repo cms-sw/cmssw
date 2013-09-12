@@ -4,6 +4,7 @@
 
 
 // system include files
+#include <iostream>
 #include <memory>
 
 // user include files
@@ -72,12 +73,12 @@ bool BxNumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
        result = true;
        
        if (debug) {
-	 cout << "Event # " << evf::evtn::get(data.data(),true) << endl;
-	 cout << "LS # " << evf::evtn::getlbn(data.data()) << endl;
-	 cout << "ORBIT # " << evf::evtn::getorbit(data.data()) << endl;
-	 cout << "GPS LOW # " << evf::evtn::getgpslow(data.data()) << endl;
-	 cout << "GPS HI # " << evf::evtn::getgpshigh(data.data()) << endl;
-	 cout << "BX FROM FDL 0-xing # " << evf::evtn::getfdlbx(data.data()) << endl;
+	 std::cout << "Event # " << evf::evtn::get(data.data(),true) << std::endl;
+	 std::cout << "LS # " << evf::evtn::getlbn(data.data()) << std::endl;
+	 std::cout << "ORBIT # " << evf::evtn::getorbit(data.data()) << std::endl;
+	 std::cout << "GPS LOW # " << evf::evtn::getgpslow(data.data()) << std::endl;
+	 std::cout << "GPS HI # " << evf::evtn::getgpshigh(data.data()) << std::endl;
+	 std::cout << "BX FROM FDL 0-xing # " << evf::evtn::getfdlbx(data.data()) << std::endl;
        }
        
      } 

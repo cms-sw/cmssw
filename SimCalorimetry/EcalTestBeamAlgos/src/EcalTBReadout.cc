@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iostream>
 
 #include "SimCalorimetry/EcalTestBeamAlgos/interface/EcalTBReadout.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

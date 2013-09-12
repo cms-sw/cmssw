@@ -317,7 +317,7 @@ void SiPixelHistoPlotter::createDummyImage(const string & name) {
   string          line;
   ostringstream   local_str;
   // Read back the file line by line and temporarily store it in a stringstream
-  ifstream * imagefile = new ifstream("images/EmptyPlot.png",ios::in);
+  std::ifstream * imagefile = new std::ifstream("images/EmptyPlot.png",ios::in);
   if(imagefile->is_open()) {
     while (getline( *imagefile, line )) {
       local_str << line << endl ;

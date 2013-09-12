@@ -19,6 +19,7 @@
 
 
 // system include files
+#include <iostream>
 #include <memory>
 
 // user include files

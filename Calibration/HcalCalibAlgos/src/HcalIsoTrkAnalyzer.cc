@@ -161,7 +161,7 @@ private:
   Float_t tagJetEmFrac; // dijet
   Float_t probeJetEmFrac; // dijet
   
-  ofstream input_to_L3;
+  std::ofstream input_to_L3;
   
 };
 

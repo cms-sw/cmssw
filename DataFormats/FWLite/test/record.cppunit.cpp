@@ -8,7 +8,6 @@
 #include <vector>
 #include <iostream>
 
-#include "Cintex/Cintex.h"
 #include "TFile.h"
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -44,7 +43,6 @@ bool testRecord::s_firstSetup =true;
 void testRecord::setUp()
 { 
    if( s_firstSetup) {
-      ROOT::Cintex::Cintex::Enable();
       s_firstSetup = false;
       
       //create the test file

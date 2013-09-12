@@ -302,9 +302,9 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
   TF1 *fitfunc= new TF1("fitfunc","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
   TF1 *fitfunc2IT= new TF1("fitfunc2IT","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
  
-  ofstream NoEntries;
+  std::ofstream NoEntries;
   NoEntries.open(NoEntriesHisto_.c_str());
-  ofstream Rep;
+  std::ofstream Rep;
   Rep.open(LAreport_.c_str());
   
   gStyle->SetOptStat(1110);

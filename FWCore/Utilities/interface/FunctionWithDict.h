@@ -7,9 +7,14 @@ FunctionWithDict:  A holder for a class member function
 
 ----------------------------------------------------------------------*/
 
+#include <memory>
 #include <string>
+#include <vector>
 
-#include "Reflex/Member.h"
+namespace Reflex {
+  class Member;
+  class Type_Iterator;
+}
 
 namespace edm {
 
@@ -18,7 +23,7 @@ namespace edm {
 
   class FunctionWithDict {
   public:
-    FunctionWithDict() : function_() {}
+    FunctionWithDict();
 
     explicit FunctionWithDict(Reflex::Member const& function);
 
@@ -56,13 +61,13 @@ namespace edm {
       return functionParameterSize();
     }
 
-#ifndef __GCCXML__
     explicit operator bool() const;
-#endif
+
+    Reflex::Member const& function() const;
 
   private:
 
-    Reflex::Member function_;
+    std::unique_ptr<Reflex::Member> function_;
   };
 
 }

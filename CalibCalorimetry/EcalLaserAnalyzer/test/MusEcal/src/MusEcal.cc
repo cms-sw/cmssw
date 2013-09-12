@@ -637,7 +637,7 @@ MusEcal::histConfig()
       char c;
       if( test )
 	{
-	  ifstream fin(filename);
+	  std::ifstream fin(filename);
 	  fclose( test );
 	  while( (c=fin.peek()) != EOF )
 	    {
