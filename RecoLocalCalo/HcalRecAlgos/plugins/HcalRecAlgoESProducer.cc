@@ -13,7 +13,6 @@
 //
 // Original Author:  Radek Ofierzynski
 //         Created:  Mon Feb  9 10:59:46 CET 2009
-// $Id$
 //
 //
 

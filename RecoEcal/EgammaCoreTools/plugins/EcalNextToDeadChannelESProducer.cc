@@ -17,7 +17,6 @@
    
 
    \author Stefano Argiro
-   \version $Id$
    \date 18 May 2011
 */
 

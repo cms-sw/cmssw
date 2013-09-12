@@ -8,7 +8,6 @@
 //
 // Author:      
 // Created:     Mon Feb  9 11:02:08 CET 2009
-// $Id$
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"

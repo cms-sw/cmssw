@@ -13,7 +13,6 @@
  *
  * Author: Evan K. Friis, UC Davis
  *
- * $Id $
  */
 
 #include "DataFormats/TauReco/interface/PFTau.h"

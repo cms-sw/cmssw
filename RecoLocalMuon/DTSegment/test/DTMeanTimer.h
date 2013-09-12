@@ -7,7 +7,6 @@
  *  Class to compute mean timer (also known as Tmax) for a triplet of DT layers.
  *
  * \author : Stefano Lacaprara - INFN LNL <stefano.lacaprara@pd.infn.it>
- * $date   : 22/11/2006 12:50:29 CET $
  *
  * Modification:
  *
