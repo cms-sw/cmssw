@@ -16,7 +16,7 @@ CSCOfflineMonitor::CSCOfflineMonitor(const edm::ParameterSet& pset){
 
   param = pset;
 
-  rd_token = consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("rawDataTag") );
+  rd_token = consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("FEDRawDataCollectionTag") );
   sd_token = consumes<CSCStripDigiCollection>( pset.getParameter<edm::InputTag>("stripDigiTag") );
   wd_token = consumes<CSCWireDigiCollection>( pset.getParameter<edm::InputTag>("wireDigiTag") );
   al_token = consumes<CSCALCTDigiCollection>( pset.getParameter<edm::InputTag>("alctDigiTag") );
