@@ -15,10 +15,8 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 using namespace std;
-using namespace edm;
 
-//---- The Analysis  (main)
-bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
+bool CSCEfficiency::filter(edm::Event & event, const edm::EventSetup& eventSetup){
   passTheEvent = false;
   DataFlow->Fill(0.);  
   MuonPatternRecoDumper debug;
@@ -50,25 +48,22 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
   edm::Handle<CSCStripDigiCollection> strips;
   edm::Handle<CSCRecHit2DCollection> rechits; 
   edm::Handle<CSCSegmentCollection> segments;
-  //edm::Handle<reco::TrackCollection> saMuons;
   edm::Handle<edm::View<reco::Track> > trackCollectionH;
   edm::Handle<edm::PSimHitContainer> simhits;
 
   if(useDigis){
-    event.getByLabel(alctDigiTag_, alcts);
-    event.getByLabel(clctDigiTag_, clcts);
-    event.getByLabel(corrlctDigiTag_, correlatedlcts);
-
-    event.getByLabel( stripDigiTag_, strips);
-    event.getByLabel( wireDigiTag_,  wires);
+    event.getByToken( wd_token, wires );
+    event.getByToken( sd_token, strips );
+    event.getByToken( al_token, alcts );
+    event.getByToken( cl_token, clcts );
+    event.getByToken( co_token, correlatedlcts );
   }
   if(!isData){
-    event.getByLabel(simHitTag, simhits);
+    event.getByToken( sh_token, simhits );
   }
-  event.getByLabel(rechitDigiTag_,rechits); 
-  event.getByLabel(segmentDigiTag_, segments);
-  //event.getByLabel(saMuonTag,saMuons);
-  event.getByLabel(tracksTag,trackCollectionH);
+  event.getByToken( rh_token, rechits );
+  event.getByToken( se_token, segments );
+  event.getByToken( tk_token, trackCollectionH );
   const edm::View<reco::Track>  trackCollection = *(trackCollectionH.product());
 
   //---- Get the CSC Geometry :
@@ -77,7 +72,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
   eventSetup.get<MuonGeometryRecord>().get(cscGeom);
 
   // use theTrackingGeometry instead of cscGeom?
-  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
   bool triggerPassed = true;
@@ -86,7 +81,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
     // trigger names can be find in HLTrigger/Configuration/python/HLT_2E30_cff.py (or?)
    // get hold of TriggerResults
     edm::Handle<edm::TriggerResults> hltR;
-    event.getByLabel(hlTriggerResults_,hltR);
+    event.getByToken( ht_token, hltR );
     const edm::TriggerNames & triggerNames = event.triggerNames(*hltR);
     triggerPassed = applyTrigger(hltR, triggerNames);
   }
@@ -105,7 +100,7 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
   //---- store info from digis
   fillDigiInfo(alcts, clcts, correlatedlcts, wires, strips, simhits, rechits, segments, cscGeom);
   //
-  Handle<reco::MuonCollection> muons;
+  edm::Handle<reco::MuonCollection> muons;
   edm::InputTag muonTag_("muons");
   event.getByLabel(muonTag_,muons);
 
@@ -1624,7 +1619,7 @@ bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR,
 //
 
 // Constructor
-CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
+CSCEfficiency::CSCEfficiency(const edm::ParameterSet& pset){
 
   // const float Xmin = -70;
   //const float Xmax = 70;
@@ -1657,23 +1652,26 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
       local_DY_DZ_Min = pset.getUntrackedParameter<double>("local_DY_DZ_Min",-0.8);//
         local_DX_DZ_Max = pset.getUntrackedParameter<double>("local_DX_DZ_Max",0.2);//
 
-  alctDigiTag_  = pset.getParameter<edm::InputTag>("alctDigiTag") ;
-  clctDigiTag_  = pset.getParameter<edm::InputTag>("clctDigiTag") ;
-  corrlctDigiTag_  = pset.getParameter<edm::InputTag>("corrlctDigiTag") ;
-  stripDigiTag_  = pset.getParameter<edm::InputTag>("stripDigiTag") ;
-  wireDigiTag_ = pset.getParameter<edm::InputTag>("wireDigiTag") ;
-  rechitDigiTag_ = pset.getParameter<edm::InputTag>("rechitDigiTag") ;
-  segmentDigiTag_ = pset.getParameter<edm::InputTag>("segmentDigiTag") ;
-  simHitTag     = pset.getParameter<edm::InputTag>("simHitTag");
-  tracksTag = pset.getParameter< edm::InputTag >("tracksTag");
+  sd_token = consumes<CSCStripDigiCollection>( pset.getParameter<edm::InputTag>("stripDigiTag") );
+  wd_token = consumes<CSCWireDigiCollection>( pset.getParameter<edm::InputTag>("wireDigiTag") );
+  al_token = consumes<CSCALCTDigiCollection>( pset.getParameter<edm::InputTag>("alctDigiTag") );
+  cl_token = consumes<CSCCLCTDigiCollection>( pset.getParameter<edm::InputTag>("clctDigiTag") );
+  co_token = consumes<CSCCorrelatedLCTDigiCollection>( pset.getParameter<edm::InputTag>("corrlctDigiTag") );
+  rh_token = consumes<CSCRecHit2DCollection>( pset.getParameter<edm::InputTag>("rechitTag") );
+  se_token = consumes<CSCSegmentCollection>( pset.getParameter<edm::InputTag>("segmentTag") );
+  tk_token = consumes<edm::View<reco::Track> >( pset.getParameter<edm::InputTag>("tracksTag") );
+  sh_token = consumes<edm::PSimHitContainer>( pset.getParameter<edm::InputTag>("simHitTag") );
 
-  ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
+
+  edm::ParameterSet serviceParameters = pset.getParameter<edm::ParameterSet>("ServiceParameters");
   // maybe use the service for getting magnetic field, propagators, etc. ...
   theService        = new MuonServiceProxy(serviceParameters);
 
   // Trigger
   useTrigger =  pset.getUntrackedParameter<bool>("useTrigger", false);
-  hlTriggerResults_ = pset.getParameter<edm::InputTag> ("HLTriggerResults");
+
+  ht_token = consumes<edm::TriggerResults>( pset.getParameter<edm::InputTag>("HLTriggerResults") );
+
   myTriggers = pset.getParameter<std::vector <std::string> >("myTriggers");
   andOr =  pset.getUntrackedParameter<bool>("andOr");
   pointToTriggers.clear();
