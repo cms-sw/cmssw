@@ -1,41 +1,85 @@
+
+# Test of CSCDigitizer
+# Updated for 700pre3 - Tim Cox - 12.09.2013
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CSCDigitizerTest")
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
-process.load("SimGeneral.MixingModule.mixNoPU_cfi")
+
 process.load("Configuration.StandardSequences.GeometryPilot2_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
-#include "SimMuon/CSCDigitizer/data/muonCSCDbConditions.cfi"
-#replace muonCSCDigis.stripConditions = "Database"
-#replace muonCSCDigis.strips.ampGainSigma = 0.
-#replace muonCSCDigis.strips.peakTimeSigma = 0.
-#replace muonCSCDigis.strips.doNoise = false
-#replace muonCSCDigis.wires.doNoise = false
-#replace muonCSCDigis.strips.doCrosstalk = false
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_38Y_V9::All"
+
+## process.GlobalTag.globaltag = "MC_38Y_V9::All"
+## Non-standard, non-MC, tag because 700pre3 is under development
+process.GlobalTag.globaltag = "PRE_62_V8::All"
 
 process.load("Validation.MuonCSCDigis.cscDigiValidation_cfi")
 
 process.load("SimMuon.CSCDigitizer.muonCSCDigis_cfi")
+process.load("CalibMuon.CSCCalibration.CSCChannelMapper_cfi")
+process.load("CalibMuon.CSCCalibration.CSCIndexer_cfi")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_3_8_0/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V7-v1/0005/62065D40-3D95-DF11-83FA-002618943976.root',
-       '/store/relval/CMSSW_3_8_0/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V7-v1/0004/F0D135F1-0995-DF11-9B08-0018F3D096A2.root',
-       '/store/relval/CMSSW_3_8_0/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V7-v1/0004/CEC41BA0-0895-DF11-B5E9-0018F3D096DA.root',
-       '/store/relval/CMSSW_3_8_0/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V7-v1/0004/521C57A2-0895-DF11-9E35-001BFCDBD160.root' )
+      '/store/relval/CMSSW_7_0_0_pre3/RelValSingleMuPt100/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/5E813E19-8414-E311-A5CB-0025905964B4.root'
+)
+)
+
+# attempt minimal mixing module w/o pu
+
+from SimGeneral.MixingModule.aliases_cfi import * 
+from SimGeneral.MixingModule.mixObjects_cfi import * 
+from SimGeneral.MixingModule.trackingTruthProducer_cfi import *
+
+
+process.mix = cms.EDProducer("MixingModule",
+    digitizers = cms.PSet(
+      mergedtruth = cms.PSet(
+            trackingParticles
+      )
+    ),
+    LabelPlayback = cms.string(' '),
+    maxBunch = cms.int32(3),
+    minBunch = cms.int32(-5), ## in terms of 25 ns
+
+    bunchspace = cms.int32(25),
+    mixProdStep1 = cms.bool(False),
+    mixProdStep2 = cms.bool(False),
+
+    playback = cms.untracked.bool(False),
+    useCurrentProcessOnly = cms.bool(False),
+    mixObjects = cms.PSet(
+        mixTracks = cms.PSet(
+            mixSimTracks
+        ),
+        mixVertices = cms.PSet(
+            mixSimVertices
+        ),
+        mixSH = cms.PSet(
+            mixSimHits
+        ),
+        mixHepMC = cms.PSet(
+            mixHepMCProducts
+        )
+    )
 )
 
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        simMuonCSCDigis = cms.untracked.uint32(468)
-    )
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService", 
+     simMuonCSCDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+     mix = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('TRandom3')
+   )
 )
 
 process.DQMStore = cms.Service("DQMStore")
