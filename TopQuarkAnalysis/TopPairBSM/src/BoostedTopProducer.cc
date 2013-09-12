@@ -382,7 +382,7 @@ BoostedTopProducer::endJob() {
 }
 
 double
-BoostedTopProducer::Psi(TLorentzVector p1, TLorentzVector p2, double mass) {
+BoostedTopProducer::Psi(const TLorentzVector& p1, const TLorentzVector& p2, double mass) {
 
 	TLorentzVector ptot = p1 + p2;
 	Double_t theta1 = TMath::ACos( (p1.Vect().Dot(ptot.Vect()))/(p1.P()*ptot.P()) );

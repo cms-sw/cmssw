@@ -14,7 +14,7 @@ class VolumeMaterialEffectsEstimate
 public:
   /** Constructor with explicit mass hypothesis
    */
-  VolumeMaterialEffectsEstimate ( float deltaP, AlgebraicSymMatrix55 covariance ) :
+  VolumeMaterialEffectsEstimate ( float deltaP, const AlgebraicSymMatrix55& covariance ) :
     theDeltaP(deltaP),
     theDeltaCov(covariance) {}
 

@@ -112,7 +112,7 @@ private:
   void gatherFromRange(Region &r, std::vector<Module>::const_iterator, std::vector<Module>::const_iterator);
 
   // addRegion for a local (BPIX or +-FPIX) container
-  void addRegionLocal(Region &r, std::vector<Module> &container, Module lo, Module hi);
+  void addRegionLocal(Region &r, std::vector<Module> &container, const Module& lo,const Module& hi);
 
   // local containers of barrel and endcaps Modules sorted by phi
   std::vector<Module> phiBPIX_;

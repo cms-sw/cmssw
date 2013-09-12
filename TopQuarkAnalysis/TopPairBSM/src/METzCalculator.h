@@ -28,13 +28,13 @@ class METzCalculator {
 	virtual ~METzCalculator();
 	/// Set MET
 	void SetMET(const pat::MET &MET) { MET_ = MET; } ;
-	void SetMET(TLorentzVector MET) {
+	void SetMET(const TLorentzVector& MET) {
 		pat::Particle::LorentzVector p(MET.Px(),MET.Py(),MET.Pz(),MET.E());
 		MET_.setP4(p);
 	}
     /// Set Muon
 	void SetMuon(const pat::Particle &lepton) { lepton_ = lepton; };
-	void SetMuon(TLorentzVector lepton) {
+	void SetMuon(const TLorentzVector& lepton) {
 		pat::Particle::LorentzVector p(lepton.Px(), lepton.Py(), lepton.Pz(), lepton.E() );
 		lepton_.setP4(p);
 	}

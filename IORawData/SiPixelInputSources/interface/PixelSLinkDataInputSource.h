@@ -59,7 +59,7 @@ private:
   uint32_t m_currenttriggernumber;
   uint32_t m_globaleventnumber;
   int32_t m_eventnumber_shift;
-  int getEventNumberFromFillWords(std::vector<uint64_t> data, uint32_t &totword);
+  int getEventNumberFromFillWords(const std::vector<uint64_t>& data, uint32_t &totword);
   std::auto_ptr<FEDRawDataCollection> buffers;
 };
 #endif

@@ -212,8 +212,8 @@ namespace gen
     bool readSettings( int ) { return true; }
     bool initializeForExternalPartons() { return true; }
     bool initializeForInternalPartons();
-    bool declareStableParticles( const std::vector<int> );
-    bool declareSpecialSettings( const std::vector<std::string> ) { return true; }
+    bool declareStableParticles( const std::vector<int>& );
+    bool declareSpecialSettings( const std::vector<std::string>& ) { return true; }
     bool initializeTablePaths();
 
     void finalizeEvent();

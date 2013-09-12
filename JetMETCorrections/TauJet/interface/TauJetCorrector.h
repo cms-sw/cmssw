@@ -27,7 +27,7 @@ private:
 
   class ParametrizationTauJet{
       public:
-	ParametrizationTauJet(int ptype, std::vector<double> x, double u) {
+	ParametrizationTauJet(int ptype,const std::vector<double>& x, double u) {
     		type=ptype;
     		theParam[type] = x;
     		theEtabound[type] = u;
