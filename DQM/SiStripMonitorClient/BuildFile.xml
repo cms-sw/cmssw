@@ -14,4 +14,6 @@
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="boost"/>
 <use   name="root"/>
+<use   name="xdaq"/>
+<use   name="xdaqheader"/>
 <flags EDM_PLUGIN="1"/>
