@@ -161,6 +161,7 @@ void SiStripInformationExtractor::printAlarmList(DQMStore * dqm_store, std::ostr
 //
 // -- Select Histograms for a given module
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::getSingleModuleHistos(DQMStore * dqm_store, 
     const std::multimap<std::string, std::string>& req_map, xgi::Output * out){
 
@@ -200,9 +201,11 @@ void SiStripInformationExtractor::getSingleModuleHistos(DQMStore * dqm_store,
   }
   *out << "</HPathAndHNameList>" << std::endl;
 }
+*/
 //
 // -- Select Histograms from Global folder
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::getGlobalHistos(DQMStore* dqm_store, const std::multimap<std::string, std::string>& req_map, xgi::Output * out) {
  
   std::vector<std::string> hlist;  
@@ -238,9 +241,11 @@ void SiStripInformationExtractor::getGlobalHistos(DQMStore* dqm_store, const std
   }
   *out << "</HPathAndHNameList>" << std::endl;
 }
+*/
 //
 // -- Get All histograms from a Path
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::getHistosFromPath(DQMStore * dqm_store, const std::multimap<std::string, std::string>& req_map, xgi::Output * out){
 
   std::string path = getItemValue(req_map,"Path");
@@ -267,6 +272,7 @@ void SiStripInformationExtractor::getHistosFromPath(DQMStore * dqm_store, const 
   }
   *out << "</HPathAndHNameList>" << std::endl;
 }
+*/
 //
 // plot Histograms from Layout
 //
@@ -307,6 +313,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
 //
 // -- Plot Tracker Map MEs
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::getTrackerMapHistos(DQMStore* dqm_store, const std::multimap<std::string, std::string>& req_map, xgi::Output * out) {
 
   uint32_t detId = atoi(getItemValue(req_map,"ModId").c_str());
@@ -337,9 +344,11 @@ void SiStripInformationExtractor::getTrackerMapHistos(DQMStore* dqm_store, const
   *out << "</HPathAndHNameList>" << std::endl;   
 
 }
+*/
 //
 // -- Select Histograms for a given module
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::getCondDBHistos(DQMStore * dqm_store, bool& plot_flag, const std::multimap<std::string, std::string>& req_map,xgi::Output * out){
 
   plot_flag = true;
@@ -399,9 +408,11 @@ void SiStripInformationExtractor::getCondDBHistos(DQMStore * dqm_store, bool& pl
   }
   *out << "</HPathAndHNameList>" << std::endl;
 }
+*/
 //
 // -- Get a tagged image 
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::getImage(const std::multimap<std::string, std::string>& req_map, xgi::Output * out){
   
   std::string path = getItemValue(req_map,"Path");
@@ -414,9 +425,11 @@ void SiStripInformationExtractor::getImage(const std::multimap<std::string, std:
   *out << image;
 
 }
+*/
 //
 // -- Read Layout Group names
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::readLayoutNames(DQMStore* dqm_store, xgi::Output * out){
   setXMLHeader(out);
   *out << "<LayoutAndTKMapList>" << std::endl;
@@ -460,9 +473,11 @@ void SiStripInformationExtractor::readLayoutNames(DQMStore* dqm_store, xgi::Outp
   *out << "</LayoutAndTKMapList>" << std::endl;
    dqm_store->cd();
 }
+*/
 //
 // read the Module And HistoList
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, std::string& sname, const edm::ESHandle<SiStripDetCabling>& detcabling,xgi::Output * out) {
 
   std::string dname = "SiStrip/" + sname;
@@ -502,9 +517,11 @@ void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, st
   *out << "</HistoList>" << std::endl;
   *out << "</ModuleAndHistoList>" << std::endl;
 }
+*/
 //
 // Global Histogram List
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::readGlobalHistoList(DQMStore* dqm_store, std::string& str_name,xgi::Output * out) {
    std::vector<std::string> hnames;
    std::string dname = str_name;
@@ -526,9 +543,11 @@ void SiStripInformationExtractor::readGlobalHistoList(DQMStore* dqm_store, std::
    }
    *out << "</GlobalHistoList>" << std::endl;
 }
+*/
 //
 // read the Structure And SummaryHistogram List
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::readSummaryHistoTree(DQMStore* dqm_store, std::string& str_name, xgi::Output * out) {
   std::ostringstream sumtree;
   std::string dname = "SiStrip/" + str_name;
@@ -546,9 +565,11 @@ void SiStripInformationExtractor::readSummaryHistoTree(DQMStore* dqm_store, std:
   *out << sumtree.str();
   dqm_store->cd();
 }
+*/
 //
 // read the Structure And Alarm Tree
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::readAlarmTree(DQMStore* dqm_store, 
                   std::string& str_name, xgi::Output * out){
   std::ostringstream alarmtree;
@@ -567,6 +588,7 @@ void SiStripInformationExtractor::readAlarmTree(DQMStore* dqm_store,
   *out << alarmtree.str();
   dqm_store->cd();
 }
+*/
 //
 // Get elements from multi map
 //
@@ -650,6 +672,7 @@ void SiStripInformationExtractor::selectImage(std::string& name, std::vector<QRe
 //
 // -- Get Warning/Error Messages
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::readStatusMessage(DQMStore* dqm_store, std::multimap<std::string, std::string>& req_map, xgi::Output * out){
 
   std::string path = getItemValue(req_map,"Path");
@@ -708,9 +731,11 @@ void SiStripInformationExtractor::readStatusMessage(DQMStore* dqm_store, std::mu
   *out << "</StatusList>" << std::endl;
   *out << "</StatusAndPath>" << std::endl;
 }
+*/
 //
 // -- Read the text Summary of QTest result
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, std::string type, xgi::Output * out) {
 
   int nDetsWithError = 0;
@@ -771,6 +796,7 @@ void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, std::str
   }
   dqm_store->cd();
 }
+*/
 //
 // -- Create Images 
 //
@@ -781,15 +807,18 @@ void SiStripInformationExtractor::createImages(DQMStore* dqm_store){
 //
 // -- Set HTML Header in xgi output
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::setHTMLHeader(xgi::Output * out) {
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/html");
   out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
   out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
   out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
 }
+*/
 //
 // -- Set XML Header in xgi output
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::setXMLHeader(xgi::Output * out) {
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
@@ -798,9 +827,11 @@ void SiStripInformationExtractor::setXMLHeader(xgi::Output * out) {
   *out << "<?xml version=\"1.0\" ?>" << std::endl;
 
 }
+*/
 //
 // -- Set Plain Header in xgi output
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::setPlainHeader(xgi::Output * out) {
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
   out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
@@ -808,9 +839,11 @@ void SiStripInformationExtractor::setPlainHeader(xgi::Output * out) {
   out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
 
 }
+*/
 //
 // read the Structure And Readout/Control Histogram List
 //
+/* removing xdaq dep
 void SiStripInformationExtractor::readNonGeomHistoTree(DQMStore* dqm_store, std::string& fld_name, xgi::Output * out) {
   std::ostringstream sumtree;
   std::string dname = "SiStrip/" + fld_name;
@@ -828,6 +861,7 @@ void SiStripInformationExtractor::readNonGeomHistoTree(DQMStore* dqm_store, std:
   *out << sumtree.str();
   dqm_store->cd();
 }
+*/
 //
 // --  Fill Readout/Control Histo List
 // 

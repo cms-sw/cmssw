@@ -37,17 +37,9 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorSummary/interface/SiStripClassToMonitorCondData.h"
-
-#include "xgi/Method.h"
-#include "xgi/Utils.h"
-
-#include "cgicc/Cgicc.h"
-#include "cgicc/FormEntry.h"
-#include "cgicc/HTMLClasses.h"
 
 #include <iostream>
 #include <iomanip>
@@ -61,8 +53,7 @@
 //
 // -- Constructor
 //
-SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
-  ModuleWeb("SiStripAnalyser") {
+SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) {
   
   // Get TkMap ParameterSet 
   tkMapPSet_ = ps.getParameter<edm::ParameterSet>("TkmapParameters");
@@ -98,7 +89,6 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
 
 
   // instantiate web interface
-  sistripWebInterface_ = new SiStripWebInterface(dqmStore_);
   actionExecutor_ = new SiStripActionExecutor(ps);
   condDataMon_    = new SiStripClassToMonitorCondData(ps);
   trackerFEDsFound_ = false;
@@ -177,7 +167,7 @@ void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup
       if (shiftReportFrequency_ != -1) actionExecutor_->createShiftReport(dqmStore_);
     }
   }
-
+  /* removing xdaq deps
   unsigned int nval = sistripWebInterface_->getNumberOfConDBPlotRequest();
   if (nval > 0) {
     for (unsigned int ival = 0; ival < nval; ival++) {
@@ -195,6 +185,7 @@ void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   }
   sistripWebInterface_->setActionFlag(SiStripWebInterface::CreatePlots);
   sistripWebInterface_->performAction();
+  */
 }
 //
 // -- End Luminosity Block
@@ -217,11 +208,13 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
 	    << lumiSeg.luminosityBlock() << std::endl;
   std::cout << "====================================================== " << std::endl;
   // Create predefined plots
+  /*removing xdaq dep
   if (staticUpdateFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%staticUpdateFrequency_  == 0) {
     std::cout << " Creating predefined plots " << std::endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
   }
+  */
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
     actionExecutor_->fillStatus(dqmStore_, detCabling_, eSetup);
@@ -232,11 +225,13 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
     actionExecutor_->createSummary(dqmStore_);
   }
   // -- Create TrackerMap  according to the frequency
+  /* removing xdaq deps
   if (tkMapFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%tkMapFrequency_ == 0) {
     std::cout << " Creating Tracker Map " << std::endl;
     std::string tkmap_type =  sistripWebInterface_->getTkMapType();
     actionExecutor_->createTkMap(tkMapPSet_, dqmStore_, tkmap_type, eSetup);
   }
+  */
   // Create Shift Report
   //  if (shiftReportFrequency_ != -1 && trackerFEDsFound_ && nLumiSecs_%shiftReportFrequency_  == 0) {
   //    actionExecutor_->createShiftReport(dqmStore_);
@@ -285,6 +280,7 @@ void SiStripAnalyser::checkTrackerFEDs(edm::Event const& e) {
 //
 // -- Create default web page
 //
+/* removing xdaq deps
 void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
 {
   bool isRequest = false;
@@ -308,6 +304,6 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
     } 
   }
 }
-
+*/
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripAnalyser);

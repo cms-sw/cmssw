@@ -7,8 +7,6 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 
-#include "EventFilter/Utilities/interface/ModuleWeb.h"
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -22,16 +20,16 @@ class SiPixelInformationExtractor;
 class SiPixelDataQuality;
 class SiPixelActionExecutor;
  
-class SiPixelEDAClient: public edm::EDAnalyzer, public evf::ModuleWeb{
+class SiPixelEDAClient: public edm::EDAnalyzer{
 
 public:
 
   SiPixelEDAClient(const edm::ParameterSet& ps);
   virtual ~SiPixelEDAClient();
   
-  void defaultWebPage(xgi::Input *in, 
-                      xgi::Output *out); 
-  void publish(xdata::InfoSpace *){};
+  //void defaultWebPage(xgi::Input *in, 
+  //xgi::Output *out); 
+  //void publish(xdata::InfoSpace *){};
 
 protected:
 
