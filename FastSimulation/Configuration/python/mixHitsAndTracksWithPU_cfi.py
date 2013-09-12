@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-simEcalUnsuppressedDigis = cms.EDAlias(
+simEcalUnsuppressedDigis = cms.EDAlias( #remove?
     mixSimCaloHits = cms.VPSet(
     cms.PSet(type = cms.string('EBDigiCollection')),
     cms.PSet(type = cms.string('EEDigiCollection')),
@@ -16,7 +16,7 @@ simEcalUnsuppressedDigis = cms.EDAlias(
     )
     )
 
-simHcalUnsuppressedDigis = cms.EDAlias(
+simHcalUnsuppressedDigis = cms.EDAlias(#remove?
     mixSimCaloHits = cms.VPSet(
     cms.PSet(type = cms.string('HBHEDataFramesSorted')),
     cms.PSet(type = cms.string('HFDataFramesSorted')),
@@ -36,6 +36,9 @@ simHcalUnsuppressedDigis = cms.EDAlias(
     )
     )
 
+generalTracks = cms.EDAlias(
+    mix = cms.VPSet( cms.PSet(type=cms.string('recoTracks') ) )
+    )
 
 from SimGeneral.MixingModule.ecalDigitizer_cfi import *
 from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
@@ -52,7 +55,7 @@ from FastSimulation.Tracking.recoTrackAccumulator_cfi import *
 
 from FastSimulation.Configuration.mixFastSimObjects_cfi import *
 
-mixSimCaloHits = cms.EDProducer("MixingModule",
+mixSimCaloHits = cms.EDProducer("MixingModule", #remove?
                                 digitizers = cms.PSet(ecal = cms.PSet(ecalDigitizer),
                                                       hcal = cms.PSet(hcalDigitizer)),
                                 LabelPlayback = cms.string(''),
