@@ -7,7 +7,6 @@
  * RecoTauPiZeros.  Each PiZero is composed of only one photon from
  * the jet.
  *
- * $Id $
  *
  */
 

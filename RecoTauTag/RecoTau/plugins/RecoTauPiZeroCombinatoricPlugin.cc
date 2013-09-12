@@ -7,7 +7,6 @@
  * contained in the input PFJet.  Optionally, the pi zero candidates are
  * filtered by a min and max selection on their invariant mass.
  *
- * $Id $
  */
 
 #include <algorithm>

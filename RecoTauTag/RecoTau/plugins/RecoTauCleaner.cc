@@ -12,7 +12,6 @@
  * lexicographically by these cleaners, and the best one is placed in the
  * output collection.
  *
- * $Id $
  */
 
 #include <boost/ptr_container/ptr_vector.hpp>
