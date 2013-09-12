@@ -152,17 +152,18 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   unsigned int prescaleFactor_;
 
-  std::string photonProducer_;       
-  std::string photonCollection_;
+  edm::EDGetTokenT<std::vector<reco::Photon> > photon_token_;
 
-  std::string barrelRecHitProducer_;
-  std::string barrelRecHitCollection_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > PhotonIDLoose_token_;
 
-  std::string endcapRecHitProducer_;
-  std::string endcapRecHitCollection_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > PhotonIDTight_token_;
+  
+  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > barrelRecHit_token_;
 
-  edm::InputTag triggerEvent_;
-
+  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > endcapRecHit_token_;
+  
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_token_;
+  
   double minPhoEtCut_;
   double invMassEtCut_;
 

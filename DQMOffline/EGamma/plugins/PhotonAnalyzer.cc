@@ -27,16 +27,22 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
 
     prescaleFactor_         = pset.getUntrackedParameter<int>("prescaleFactor",1);
 
-    photonProducer_         = pset.getParameter<string>("phoProducer");
-    photonCollection_       = pset.getParameter<string>("photonCollection");
+    photon_token_           = consumes<vector<reco::Photon> >(pset.getParameter<edm::InputTag>("phoProducer"));
+    //photonProducer_         = pset.getParameter<string>("phoProducer");
+    //photonCollection_       = pset.getParameter<string>("photonCollection");
 
-    barrelRecHitProducer_   = pset.getParameter<string>("barrelRecHitProducer");
-    barrelRecHitCollection_ = pset.getParameter<string>("barrelRecHitCollection");
+    barrelRecHit_token_     = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("barrelRecHitProducer"));
+    //barrelRecHitProducer_   = pset.getParameter<string>("barrelRecHitProducer");
+    //barrelRecHitCollection_ = pset.getParameter<string>("barrelRecHitCollection");
 
-    endcapRecHitProducer_   = pset.getParameter<string>("endcapRecHitProducer");
-    endcapRecHitCollection_ = pset.getParameter<string>("endcapRecHitCollection");
+    PhotonIDLoose_token_    = consumes<edm::ValueMap<bool> >(pset.getParameter<edm::InputTag>("photonIDLoose"));
+    PhotonIDTight_token_    = consumes<edm::ValueMap<bool> >(pset.getParameter<edm::InputTag>("photonIDTight"));
 
-    triggerEvent_           = pset.getParameter<edm::InputTag>("triggerEvent");
+    endcapRecHit_token_     = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("endcapRecHitProducer"));
+    //endcapRecHitProducer_   = pset.getParameter<string>("endcapRecHitProducer");
+    //endcapRecHitCollection_ = pset.getParameter<string>("endcapRecHitCollection");
+
+    triggerEvent_token_     = consumes<trigger::TriggerEvent>(pset.getParameter<edm::InputTag>("triggerEvent"));
 
     minPhoEtCut_            = pset.getParameter<double>("minPhoEtCut");
     invMassEtCut_           = pset.getParameter<double>("invMassEtCut");
@@ -47,7 +53,7 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
     useBinning_             = pset.getParameter<bool>("useBinning");
     useTriggerFiltering_    = pset.getParameter<bool>("useTriggerFiltering");
 
-    minimalSetOfHistos_ = pset.getParameter<bool>("minimalSetOfHistos");
+    minimalSetOfHistos_     = pset.getParameter<bool>("minimalSetOfHistos");
     excludeBkgHistos_       = pset.getParameter<bool>("excludeBkgHistos");
 
     standAlone_             = pset.getParameter<bool>("standAlone");
@@ -447,9 +453,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   bool validTriggerEvent=true;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
   trigger::TriggerEvent triggerEvent;
-  e.getByLabel(triggerEvent_,triggerEventHandle);
+  e.getByToken(triggerEvent_token_,triggerEventHandle);
   if(!triggerEventHandle.isValid()) {
-    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product "<< triggerEvent_.label() << endl;
+    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product: triggerEvent_" << endl;
     validTriggerEvent=false;
   }
   if(validTriggerEvent) triggerEvent = *(triggerEventHandle.product());
@@ -458,9 +464,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   bool validPhotons=true;
   Handle<reco::PhotonCollection> photonHandle;
   reco::PhotonCollection photonCollection;
-  e.getByLabel(photonProducer_, photonCollection_ , photonHandle);
+  e.getByToken(photon_token_ , photonHandle);
   if ( !photonHandle.isValid()) {
-    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product "<< photonCollection_ << endl;
+    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product: photon_token_" << endl;
     validPhotons=false;
   }
   if(validPhotons) photonCollection = *(photonHandle.product());
@@ -469,9 +475,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   bool validloosePhotonID=true;
   Handle<edm::ValueMap<bool> > loosePhotonFlag;
   edm::ValueMap<bool> loosePhotonID;
-  e.getByLabel("PhotonIDProd", "PhotonCutBasedIDLoose", loosePhotonFlag);
+  e.getByToken(PhotonIDLoose_token_, loosePhotonFlag);
   if ( !loosePhotonFlag.isValid()) {
-    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product "<< "PhotonCutBasedIDLoose" << endl;
+    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product: PhotonIDLoose_token_" << endl;
     validloosePhotonID=false;
   }
   if (validloosePhotonID) loosePhotonID = *(loosePhotonFlag.product());
@@ -479,9 +485,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   bool validtightPhotonID=true;
   Handle<edm::ValueMap<bool> > tightPhotonFlag;
   edm::ValueMap<bool> tightPhotonID;
-  e.getByLabel("PhotonIDProd", "PhotonCutBasedIDTight", tightPhotonFlag);
+  e.getByToken(PhotonIDTight_token_, tightPhotonFlag);
   if ( !tightPhotonFlag.isValid()) {
-    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product "<< "PhotonCutBasedIDTight" << endl;
+    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product: PhotonIDTight_token_" << endl;
     validtightPhotonID=false;
   }
   if (validtightPhotonID) tightPhotonID = *(tightPhotonFlag.product());
@@ -623,17 +629,17 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     EcalRecHitCollection ecalRecHitCollection;
     if ( phoIsInBarrel ) {
       // Get handle to barrel rec hits
-      e.getByLabel(barrelRecHitProducer_, barrelRecHitCollection_, ecalRecHitHandle);
+      e.getByToken(barrelRecHit_token_, ecalRecHitHandle);
       if (!ecalRecHitHandle.isValid()) {
-	edm::LogError("PhotonAnalyzer") << "Error! Can't get the product "<<barrelRecHitProducer_;
+	edm::LogError("PhotonAnalyzer") << "Error! Can't get the product: barrelRecHit_token_";
 	validEcalRecHits=false;
       }
     }
     else if ( phoIsInEndcap ) {
       // Get handle to endcap rec hits
-      e.getByLabel(endcapRecHitProducer_, endcapRecHitCollection_, ecalRecHitHandle);
+      e.getByToken(endcapRecHit_token_, ecalRecHitHandle);
       if (!ecalRecHitHandle.isValid()) {
-	edm::LogError("PhotonAnalyzer") << "Error! Can't get the product "<<endcapRecHitProducer_;
+	edm::LogError("PhotonAnalyzer") << "Error! Can't get the product: endcapRecHit_token";
 	validEcalRecHits=false;
       }
     }

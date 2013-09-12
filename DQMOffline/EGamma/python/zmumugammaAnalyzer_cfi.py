@@ -6,19 +6,21 @@ zmumugammaAnalysis = cms.EDAnalyzer("ZToMuMuGammaAnalyzer",
 
     Name = cms.untracked.string('zmumugammaAnalysis'),
 
-    phoProducer = cms.string('photons'),
-    photonCollection = cms.string(''),
+    phoProducer = cms.InputTag('photons'),
 
-    muonProducer = cms.string('muons'),
-    muonCollection = cms.string(''),
+    photonIDLoose = cms.InputTag('PhotonIDProd:PhotonCutBasedIDLoose'),
+    photonIDTight = cms.InputTag('PhotonIDProd:PhotonCutBasedIDTight'),
+									
+    muonProducer = cms.InputTag('muons'),
 
-    barrelRecHitProducer = cms.string('reducedEcalRecHitsEB'),
-    barrelRecHitCollection = cms.string(''),
+    barrelRecHitProducer = cms.InputTag('reducedEcalRecHitsEB'),
 
-    endcapRecHitProducer = cms.string('reducedEcalRecHitsEE'),
-    endcapRecHitCollection = cms.string(''),
+    endcapRecHitProducer = cms.InputTag('reducedEcalRecHitsEE'),
 
-    triggerEvent = cms.InputTag("hltTriggerSummaryAOD",""),                            
+    triggerEvent = cms.InputTag("hltTriggerSummaryAOD",""),
+									
+    beamSpot = cms.InputTag("offlineBeamSpot"),
+									
     prescaleFactor = cms.untracked.int32(1),
 #
     standAlone = cms.bool(False),

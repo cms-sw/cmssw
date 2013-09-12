@@ -29,22 +29,26 @@ ZToMuMuGammaAnalyzer::ZToMuMuGammaAnalyzer( const edm::ParameterSet& pset )
     standAlone_             = pset.getParameter<bool>("standAlone");
     outputFileName_         = pset.getParameter<string>("OutputFileName");
     isHeavyIon_             = pset.getUntrackedParameter<bool>("isHeavyIon",false);
-    triggerEvent_           = pset.getParameter<edm::InputTag>("triggerEvent");
+    
+    //    triggerEvent_           = pset.getParameter<edm::InputTag>("triggerEvent");
+    triggerEvent_token_     = consumes<trigger::TriggerEvent>(pset.getParameter<edm::InputTag>("triggerEvent"));
+    
     useTriggerFiltering_    = pset.getParameter<bool>("useTriggerFiltering");
     splitHistosEBEE_        = pset.getParameter<bool>("splitHistosEBEE");
     use2DHistos_            = pset.getParameter<bool>("use2DHistos");
+
+    photon_token_           = consumes<vector<reco::Photon> >(pset.getParameter<edm::InputTag>("phoProducer"));
+    muon_token_             = consumes<vector<reco::Muon> >(pset.getParameter<edm::InputTag>("muonProducer"));
     
-    photonProducer_         = pset.getParameter<string>("phoProducer");
-    photonCollection_       = pset.getParameter<string>("photonCollection");
+    barrelRecHit_token_     = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("barrelRecHitProducer"));
 
-    barrelRecHitProducer_   = pset.getParameter<string>("barrelRecHitProducer");
-    barrelRecHitCollection_ = pset.getParameter<string>("barrelRecHitCollection");
+    endcapRecHit_token_     = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("endcapRecHitProducer"));
 
-    endcapRecHitProducer_   = pset.getParameter<string>("endcapRecHitProducer");
-    endcapRecHitCollection_ = pset.getParameter<string>("endcapRecHitCollection");
-
-    muonProducer_         = pset.getParameter<string>("muonProducer");
-    muonCollection_       = pset.getParameter<string>("muonCollection");
+    PhotonIDLoose_token_    = consumes<edm::ValueMap<bool> >(pset.getParameter<edm::InputTag>("photonIDLoose"));
+    PhotonIDTight_token_    = consumes<edm::ValueMap<bool> >(pset.getParameter<edm::InputTag>("photonIDTight"));
+    
+    beamSpot_token_         = consumes<reco::BeamSpot>(pset.getParameter<edm::InputTag>("beamSpot"));
+    
     // Muon selection
     muonMinPt_             = pset.getParameter<double>("muonMinPt");
     minPixStripHits_       = pset.getParameter<int>("minPixStripHits");
@@ -558,9 +562,9 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   bool validTriggerEvent=true;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
   trigger::TriggerEvent triggerEvent;
-  e.getByLabel(triggerEvent_,triggerEventHandle);
+  e.getByToken(triggerEvent_token_,triggerEventHandle);
   if(!triggerEventHandle.isValid()) {
-    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product "<< triggerEvent_.label() << endl;
+    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product: triggerEvent_token_" << endl;
     validTriggerEvent=false;
   }
   if(validTriggerEvent) triggerEvent = *(triggerEventHandle.product());
@@ -569,9 +573,9 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   bool validPhotons=true;
   Handle<reco::PhotonCollection> photonHandle;
   reco::PhotonCollection photonCollection;
-  e.getByLabel(photonProducer_, photonCollection_ , photonHandle);
+  e.getByToken(photon_token_ , photonHandle);
   if ( !photonHandle.isValid()) {
-    edm::LogInfo("ZToMuMuGammaAnalyzer") << "Error! Can't get the product "<< photonCollection_ << endl;
+    edm::LogInfo("ZToMuMuGammaAnalyzer") << "Error! Can't get the product: photon_token_" << endl;
     validPhotons=false;
   }
   if(validPhotons) photonCollection = *(photonHandle.product());
@@ -580,9 +584,9 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   bool validloosePhotonID=true;
   Handle<edm::ValueMap<bool> > loosePhotonFlag;
   edm::ValueMap<bool> loosePhotonID;
-  e.getByLabel("PhotonIDProd", "PhotonCutBasedIDLoose", loosePhotonFlag);
+  e.getByToken(PhotonIDLoose_token_, loosePhotonFlag);
   if ( !loosePhotonFlag.isValid()) {
-    edm::LogInfo("ZToMuMuGammaAnalyzer") << "Error! Can't get the product "<< "PhotonCutBasedIDLoose" << endl;
+    edm::LogInfo("ZToMuMuGammaAnalyzer") << "Error! Can't get the product: PhotonIDLoose_token_" << endl;
     validloosePhotonID=false;
   }
   if (validloosePhotonID) loosePhotonID = *(loosePhotonFlag.product());
@@ -590,9 +594,9 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   bool validtightPhotonID=true;
   Handle<edm::ValueMap<bool> > tightPhotonFlag;
   edm::ValueMap<bool> tightPhotonID;
-  e.getByLabel("PhotonIDProd", "PhotonCutBasedIDTight", tightPhotonFlag);
+  e.getByToken(PhotonIDTight_token_, tightPhotonFlag);
   if ( !tightPhotonFlag.isValid()) {
-    edm::LogInfo("ZToMuMuGammaAnalyzer") << "Error! Can't get the product "<< "PhotonCutBasedIDTight" << endl;
+    edm::LogInfo("ZToMuMuGammaAnalyzer") << "Error! Can't get the product: PhotonIDTight_token_" << endl;
     validtightPhotonID=false;
   }
   if (validtightPhotonID) tightPhotonID = *(tightPhotonFlag.product());
@@ -601,16 +605,16 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   bool validMuons=true;
   Handle<reco::MuonCollection> muonHandle;
   reco::MuonCollection muonCollection;
-  e.getByLabel(muonProducer_, muonCollection_ , muonHandle);
+  e.getByToken(muon_token_, muonHandle);
   if ( !muonHandle.isValid()) {
-    edm::LogInfo("ZToMuMuGammaAnalyzer") << "Error! Can't get the product "<< muonCollection_ << endl;
+    edm::LogInfo("ZToMuMuGammaAnalyzer") << "Error! Can't get the product: muon_token_" << endl;
     validMuons=false;
   }
   if(validMuons) muonCollection = *(muonHandle.product());
 
   // Get the beam spot
   edm::Handle<reco::BeamSpot> bsHandle;
-  e.getByLabel("offlineBeamSpot", bsHandle);
+  e.getByToken(beamSpot_token_, bsHandle);
   if (!bsHandle.isValid()) {
       edm::LogError("TrackerOnlyConversionProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
       return;

@@ -122,18 +122,18 @@ class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
   
       
  private:
-  std::string photonProducer_;       
-  std::string photonCollection_;
-  std::string barrelRecHitProducer_;
-  std::string barrelRecHitCollection_;
-  std::string endcapRecHitProducer_;
-  std::string endcapRecHitCollection_;
-  std::string muonProducer_;       
-  std::string muonCollection_;
+  edm::EDGetTokenT<std::vector<reco::Photon> > photon_token_;
+  edm::EDGetTokenT<std::vector<reco::Muon> > muon_token_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > PhotonIDLoose_token_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > PhotonIDTight_token_;
+  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > barrelRecHit_token_;
+  edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > endcapRecHit_token_;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_token_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpot_token_;
   //
   std::string fName_;
   int verbosity_;
-  edm::InputTag triggerEvent_;
+
   bool useTriggerFiltering_;
   bool splitHistosEBEE_;
   bool use2DHistos_;
