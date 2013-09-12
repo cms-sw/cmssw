@@ -87,7 +87,7 @@ FastL1Region::~FastL1Region()
 
 
 void
-FastL1Region::SetParameters(L1Config iconfig) 
+FastL1Region::SetParameters(const L1Config& iconfig) 
 { 
   Config = iconfig;
 }

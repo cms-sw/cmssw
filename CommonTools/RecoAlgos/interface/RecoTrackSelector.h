@@ -41,7 +41,7 @@ class RecoTrackSelector {
   
   RecoTrackSelector ( double ptMin, double minRapidity, double maxRapidity,
 		      double tip, double lip, int minHit, int min3DHit, double maxChi2, 
-    		      std::vector<std::string> quality , std::vector<std::string> algorithm ) :
+    		      const std::vector<std::string>& quality , const std::vector<std::string>& algorithm ) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
     tip_( tip ), lip_( lip ), minHit_( minHit ), min3DHit_( min3DHit), maxChi2_( maxChi2 ), bs(0)
     { 

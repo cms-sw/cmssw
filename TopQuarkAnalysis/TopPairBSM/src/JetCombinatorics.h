@@ -44,11 +44,11 @@ class Combo {
 	}
 	~Combo(){};
 
-	void SetWp(TLorentzVector Wp) { Wp_ = Wp; }
-	void SetWq(TLorentzVector Wq) { Wq_ = Wq; }
-	void SetHadb(TLorentzVector Hadb) { Hadb_ = Hadb; }
-	void SetLepW(TLorentzVector LepW) { LepW_ = LepW; }
-	void SetLepb(TLorentzVector Lepb) { Lepb_ = Lepb; }
+	void SetWp(const TLorentzVector& Wp) { Wp_ = Wp; }
+	void SetWq(const TLorentzVector& Wq) { Wq_ = Wq; }
+	void SetHadb(const TLorentzVector& Hadb) { Hadb_ = Hadb; }
+	void SetLepW(const TLorentzVector& LepW) { LepW_ = LepW; }
+	void SetLepb(const TLorentzVector& Lepb) { Lepb_ = Lepb; }
 	// flavor corrections
 	void ApplyFlavorCorrections(bool option=true){ useFlv_ = option;}
 	void SetFlvCorrWp( double corr ) { Wp_flv_ = corr; }
@@ -60,7 +60,7 @@ class Combo {
 	void SetWq_disc(double disc) { Wq_disc_= disc;}
 	void SetHadb_disc(double disc) { Hadb_disc_= disc;}
 	void SetLepb_disc(double disc) { Lepb_disc_= disc;}
-	void SetbDiscPdf(TString filename) { 
+	void SetbDiscPdf(const TString& filename) { 
 	  pdffile_ = TFile::Open(filename);
 	  hdisc_b_ = (TH1F*) gDirectory->Get("hdiscNorm_b");
 	  hdisc_cl_ = (TH1F*) gDirectory->Get("hdiscNorm_cl");
@@ -172,9 +172,9 @@ class Combo {
 	TLorentzVector GetHadTop() { return HadTop_; }
 	TLorentzVector GetLepTop() { return LepTop_; }
 	TLorentzVector GetTopPair() { return TopPair_; }
-	double GetChi2() { return chi2_; }
+	double GetChi2() const { return chi2_; }
 	double GetNdof() { return Ndof_; }
-	double GetSumEt() { return SumEt_; }
+	double GetSumEt() const { return SumEt_; }
 	int GetIdHadb() { return IdHadb_;}
 	int GetIdWp() { return IdWp_; }
 	int GetIdWq() { return IdWq_; }
@@ -254,7 +254,7 @@ class Combo {
 
 struct minChi2
 {
-  bool operator()(Combo s1, Combo s2) const
+  bool operator()(const Combo& s1, const Combo& s2) const
   {
     return s1.GetChi2() <= s2.GetChi2();
   }
@@ -262,7 +262,7 @@ struct minChi2
 
 struct maxSumEt
 {
-  bool operator()(Combo s1, Combo s2) const
+  bool operator()(const Combo& s1,const Combo& s2) const
   {
     return s1.GetSumEt() >= s2.GetSumEt();
   }
@@ -283,8 +283,8 @@ class JetCombinatorics {
 	std::map< int, std::string > Combinatorics(int k, int max = 6);
 	std::map< int, std::string > NestedCombinatorics();
 
-	void FourJetsCombinations(std::vector<TLorentzVector> jets, std::vector<double> bdiscriminators );
-	void SetFlavorCorrections(std::vector<double > vector ) { flavorCorrections_ = vector; }
+	void FourJetsCombinations(const std::vector<TLorentzVector>& jets, const std::vector<double>& bdiscriminators );
+	void SetFlavorCorrections(const std::vector<double >& vector ) { flavorCorrections_ = vector; }
 	void SetMaxNJets(int n) { maxNJets_ = n; }
 	Combo GetCombination(int n=0);
 	Combo GetCombinationSumEt(int n=0);
@@ -294,7 +294,7 @@ class JetCombinatorics {
 	void SetSigmas(int type = 0) {
 	  SigmasTypef = type;
 	}
-	void SetLeptonicW( TLorentzVector LepW ) { theLepW_ = LepW; }
+	void SetLeptonicW( const TLorentzVector& LepW ) { theLepW_ = LepW; }
 
 	void SetMinMassLepW( double mass ) { minMassLepW_ = mass; }
 	void SetMaxMassLepW( double mass ) { maxMassLepW_ = mass; }
@@ -306,7 +306,7 @@ class JetCombinatorics {
 	void UsebTagging( bool option = true ) { UsebTagging_ = option; }
 	void ApplyFlavorCorrection( bool option = true ) { UseFlv_ = option; }
 	void UseMtopConstraint( bool option = true) { UseMtop_ = option; }
-	void SetbTagPdf( TString name ) { bTagPdffilename_ = name; }
+	void SetbTagPdf(const TString& name ) { bTagPdffilename_ = name; }
 	void Clear();
 
 	std::vector< TLorentzVector > TwoCombos();

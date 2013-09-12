@@ -113,7 +113,7 @@ class FastL1Region {
   FastL1Region();
   ~FastL1Region();
 
-  void SetParameters(L1Config);
+  void SetParameters(const L1Config&);
   void FillTower(const CaloTower& t,int& tid,edm::ESHandle<CaloGeometry> &cGeom); 
   void FillTowerZero(const CaloTower& t,int& tid); 
   void FillTower_Scaled(const CaloTower& t,int& tid,bool doRCTTrunc,edm::ESHandle<CaloGeometry> &cGeom); 

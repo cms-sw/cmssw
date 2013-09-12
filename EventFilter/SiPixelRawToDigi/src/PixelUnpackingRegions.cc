@@ -168,8 +168,10 @@ void PixelUnpackingRegions::addRegion(Region &r)
 }
 
 
-void PixelUnpackingRegions::addRegionLocal(Region &r, std::vector<Module> &container, Module lo, Module hi)
+void PixelUnpackingRegions::addRegionLocal(Region &r, std::vector<Module> &container,const  Module& _lo,const Module& _hi)
 {
+  Module lo = _lo;
+  Module hi = _hi;
   Module pi_m(-M_PI);
   Module pi_p( M_PI);
 
