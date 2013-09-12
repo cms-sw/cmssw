@@ -61,7 +61,7 @@ public:
 private:
   
   string m_outputFileName;
-  ofstream m_outTextFile;
+  std::ofstream m_outTextFile;
 
   const HcalElectronicsMap* readoutMap_;
   edm::ESHandle<HcalDbService> conditions_;

@@ -216,7 +216,7 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
       gROOT->cd();
       edm::FileInPath myTPGFilePath("CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat");
       TPGFactor_.resize(87,1.2);
-      std::ifstream  myTPGFile(myTPGFilePath.fullPath().c_str(),ifstream::in);
+      std::ifstream  myTPGFile(myTPGFilePath.fullPath().c_str(),std::ifstream::in);
       if(myTPGFile)
   	    {
   	      float gain;
