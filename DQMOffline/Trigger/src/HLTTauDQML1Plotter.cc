@@ -2,11 +2,12 @@
 
 #include "FWCore/Framework/interface/Event.h"
 
-HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps, edm::ConsumesCollector&& cc, int etbins, int etabins, int phibins, double maxpt, bool ref, double dr, const std::string& dqmBaseFolder):
+HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps, edm::ConsumesCollector&& cc, int etbins, int etabins, int phibins, double maxpt, double maxhighpt, bool ref, double dr, const std::string& dqmBaseFolder):
   HLTTauDQMPlotter(ps, dqmBaseFolder),
   doRefAnalysis_(ref),
   matchDeltaR_(dr),
-  maxEt_(maxpt),
+  maxPt_(maxpt),
+  maxHighPt_(maxhighpt),
   binsEt_(etbins),
   binsEta_(etabins),
   binsPhi_(phibins)
@@ -39,20 +40,20 @@ void HLTTauDQML1Plotter::beginRun() {
         store->setCurrentFolder(triggerTag());
         store->removeContents();
         
-        l1tauEt_ = store->book1D("L1TauEt","L1 #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxEt_);
+        l1tauEt_ = store->book1D("L1TauEt","L1 #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxPt_);
         l1tauEta_ = store->book1D("L1TauEta","L1 #tau #eta;L1 #tau #eta;entries",binsEta_,-2.5,2.5);
         l1tauPhi_ = store->book1D("L1TauPhi","L1 #tau #phi;L1 #tau #phi;entries",binsPhi_,-3.2,3.2);
         
-        l1jetEt_ = store->book1D("L1JetEt","L1 jet E_{T};L1 Central Jet E_{T};entries",binsEt_,0,maxEt_);
+        l1jetEt_ = store->book1D("L1JetEt","L1 jet E_{T};L1 Central Jet E_{T};entries",binsEt_,0,maxPt_);
         l1jetEta_ = store->book1D("L1JetEta","L1 jet #eta;L1 Central Jet #eta;entries",binsEta_,-2.5,2.5);
         l1jetPhi_ = store->book1D("L1JetPhi","L1 jet #phi;L1 Central Jet #phi;entries",binsPhi_,-3.2,3.2);
         
-        firstTauEt_ = store->book1D("L1LeadTauEt","L1 lead #tau E_{T};entries",binsEt_,0,maxEt_);
+        firstTauEt_ = store->book1D("L1LeadTauEt","L1 lead #tau E_{T};entries",binsEt_,0,maxPt_);
         firstTauEta_ = store->book1D("L1LeadTauEta","L1 lead #tau #eta;entries",binsEta_,-2.5,2.5);
         firstTauPhi_ = store->book1D("L1LeadTauPhi","L1 lead #tau #phi;entries",binsPhi_,-3.2,3.2);
         // firstTauEt_->getTH1F()->Sumw2(); // why? because of L1(Double|Single)TauEff (now removed)
         
-        secondTauEt_ = store->book1D("L1SecondTauEt","L1 second #tau E_{T}",binsEt_,0,maxEt_);
+        secondTauEt_ = store->book1D("L1SecondTauEt","L1 second #tau E_{T}",binsEt_,0,maxPt_);
         secondTauEta_ = store->book1D("L1SecondTauEta","L1 second #tau E_{T}",binsEta_,-2.5,2.5);
         secondTauPhi_ = store->book1D("L1SecondTauPhi","L1 second #tau E_{T}",binsPhi_,-3.2,3.2);
         // secondTauEt_->getTH1F()->Sumw2(); // why? because of L1(Double|Single)TauEff (now removed)
@@ -64,11 +65,15 @@ void HLTTauDQML1Plotter::beginRun() {
             store->setCurrentFolder(triggerTag()+"/EfficiencyHelpers");
             store->removeContents();
             
-            l1tauEtEffNum_ = store->book1D("L1TauEtEffNum","L1 #tau E_{T} Efficiency Numerator;Ref #tau E_{T};entries",binsEt_,0,maxEt_);
+            l1tauEtEffNum_ = store->book1D("L1TauEtEffNum","L1 #tau E_{T} Efficiency Numerator;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
             l1tauEtEffNum_->getTH1F()->Sumw2();
+            l1tauHighEtEffNum_ = store->book1D("L1TauHighEtEffNum","L1 #tau E_{T} Efficiency Numerator;Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
+            l1tauHighEtEffNum_->getTH1F()->Sumw2();
             
-            l1tauEtEffDenom_ = store->book1D("L1TauEtEffDenom","L1 #tau E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxEt_);
+            l1tauEtEffDenom_ = store->book1D("L1TauEtEffDenom","L1 #tau E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
             l1tauEtEffDenom_->getTH1F()->Sumw2();
+            l1tauHighEtEffDenom_ = store->book1D("L1TauHighEtEffDenom","L1 #tau E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
+            l1tauHighEtEffDenom_->getTH1F()->Sumw2();
             
             l1tauEtaEffNum_ = store->book1D("L1TauEtaEffNum","L1 #tau #eta Efficiency;Ref #tau E_{T};entries",binsEta_,-2.5,2.5);
             l1tauEtaEffNum_->getTH1F()->Sumw2();
@@ -82,11 +87,15 @@ void HLTTauDQML1Plotter::beginRun() {
             l1tauPhiEffDenom_ = store->book1D("L1TauPhiEffDenom","L1 #tau #phi Denominator;Ref #tau E_{T};entries",binsPhi_,-3.2,3.2);
             l1tauPhiEffDenom_->getTH1F()->Sumw2();
             
-            l1jetEtEffNum_ = store->book1D("L1JetEtEffNum","L1 jet E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxEt_);
+            l1jetEtEffNum_ = store->book1D("L1JetEtEffNum","L1 jet E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
             l1jetEtEffNum_->getTH1F()->Sumw2();
+            l1jetHighEtEffNum_ = store->book1D("L1JetHighEtEffNum","L1 jet E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
+            l1jetHighEtEffNum_->getTH1F()->Sumw2();
             
-            l1jetEtEffDenom_ = store->book1D("L1JetEtEffDenom","L1 jet E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxEt_);
+            l1jetEtEffDenom_ = store->book1D("L1JetEtEffDenom","L1 jet E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
             l1jetEtEffDenom_->getTH1F()->Sumw2();
+            l1jetHighEtEffDenom_ = store->book1D("L1JetHighEtEffDenom","L1 jet E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
+            l1jetHighEtEffDenom_->getTH1F()->Sumw2();
             
             l1jetEtaEffNum_ = store->book1D("L1JetEtaEffNum","L1 jet #eta Efficiency;Ref #tau E_{T};entries",binsEta_,-2.5,2.5);
             l1jetEtaEffNum_->getTH1F()->Sumw2();
@@ -121,6 +130,8 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
         for ( LVColl::const_iterator iter = refC.taus.begin(); iter != refC.taus.end(); ++iter ) {
             l1tauEtEffDenom_->Fill(iter->pt());
             l1jetEtEffDenom_->Fill(iter->pt());
+            l1tauHighEtEffDenom_->Fill(iter->pt());
+            l1jetHighEtEffDenom_->Fill(iter->pt());
             
             l1tauEtaEffDenom_->Fill(iter->eta());
             l1jetEtaEffDenom_->Fill(iter->eta());
@@ -184,6 +195,7 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
                 l1tauPhi_->Fill(m.second.phi());
 
                 l1tauEtEffNum_->Fill(i->pt());
+                l1tauHighEtEffNum_->Fill(i->pt());
                 l1tauEtaEffNum_->Fill(i->eta());
                 l1tauPhiEffNum_->Fill(i->phi());
 
@@ -202,6 +214,7 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
                   l1jetPhi_->Fill(m.second.phi());
 
                   l1jetEtEffNum_->Fill(i->pt());
+                  l1jetHighEtEffNum_->Fill(i->pt());
                   l1jetEtaEffNum_->Fill(i->eta());
                   l1jetPhiEffNum_->Fill(i->phi());
 

@@ -25,7 +25,8 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   int nPtBins  = ps.getUntrackedParameter<int>("PtHistoBins", 20);
   int nEtaBins = ps.getUntrackedParameter<int>("EtaHistoBins",25);
   int nPhiBins = ps.getUntrackedParameter<int>("PhiHistoBins",32);
-  double etMax = ps.getUntrackedParameter<double>("EtHistoMax",100);
+  double ptMax = ps.getUntrackedParameter<double>("PtHistoMax",100);
+  double highPtMax = ps.getUntrackedParameter<double>("HighPtHistoMax",1000);
   double l1MatchDr = ps.getUntrackedParameter<double>("L1MatchDeltaR", 0.5);
   double hltMatchDr = ps.getUntrackedParameter<double>("HLTMatchDeltaR", 0.2);
   std::string dqmBaseFolder = ps.getUntrackedParameter<std::string>("DQMBaseFolder");
@@ -51,14 +52,14 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
     }
     if(configtype == "L1") {
       try {
-        l1Plotters_.emplace_back(pset, consumesCollector(), nPtBins, nEtaBins, nPhiBins, etMax, doRefAnalysis_, l1MatchDr, dqmBaseFolder);
+        l1Plotters_.emplace_back(pset, consumesCollector(), nPtBins, nEtaBins, nPhiBins, ptMax, highPtMax, doRefAnalysis_, l1MatchDr, dqmBaseFolder);
       } catch(cms::Exception& e) {
         edm::LogWarning("HLTTauDQMOffline") << e.what() << std::endl;
         continue;
       }
     } else if (configtype == "Path") {
       try {
-        pathPlotters2_.emplace_back(pset, doRefAnalysis_, dqmBaseFolder, hltProcessName_, nPtBins, nEtaBins, nPhiBins, l1MatchDr, hltMatchDr);
+        pathPlotters2_.emplace_back(pset, doRefAnalysis_, dqmBaseFolder, hltProcessName_, nPtBins, nEtaBins, nPhiBins, ptMax, highPtMax, l1MatchDr, hltMatchDr);
       } catch ( cms::Exception &e ) {
         edm::LogWarning("HLTTauDQMOffline") << e.what() << std::endl;
         continue;

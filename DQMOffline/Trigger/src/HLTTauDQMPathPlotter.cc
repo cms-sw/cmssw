@@ -4,12 +4,15 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
 HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder,
-                                             const std::string& hltProcess, int ptbins, int etabins, int phibins,
-                                             double l1MatchDr, double hltMatchDr):
+                                           const std::string& hltProcess, int ptbins, int etabins, int phibins,
+                                           double ptmax, double highptmax,
+                                           double l1MatchDr, double hltMatchDr):
   HLTTauDQMPlotter(pset, dqmBaseFolder),
   ptbins_(ptbins),
   etabins_(etabins),
   phibins_(phibins),
+  ptmax_(ptmax),
+  highptmax_(highptmax),
   l1MatchDr_(l1MatchDr),
   hltMatchDr_(hltMatchDr),
   doRefAnalysis_(doRefAnalysis),
@@ -56,7 +59,7 @@ void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
       hAcceptedEvents_->setBinLabel(i+1, hltPath_.getFilterName(i));
     }
 
-    hTrigTauEt_ = store->book1D("TrigTauEt",   "#tau E_{t}", ptbins_,     0, 100);
+    hTrigTauEt_ = store->book1D("TrigTauEt",   "#tau E_{t}", ptbins_,     0, ptmax_);
     hTrigTauEta_ = store->book1D("TrigTauEta", "#tau #eta",  etabins_, -2.5, 2.5);
     hTrigTauPhi_ = store->book1D("TrigTauPhi", "#tau #phi",  phibins_, -3.2, 3.2);
 
@@ -65,21 +68,25 @@ void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
       store->setCurrentFolder(triggerTag()+"/helpers");
       store->removeContents();
       if(hltPath_.hasL2Taus()) {
-        hL2TrigTauEtEffNum_    = store->book1D("L2TrigTauEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, 100);
-        hL2TrigTauEtEffDenom_  = store->book1D("L2TrigTauEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, 100);
+        hL2TrigTauEtEffNum_    = store->book1D("L2TrigTauEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, ptmax_);
+        hL2TrigTauEtEffDenom_  = store->book1D("L2TrigTauEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, ptmax_);
         hL2TrigTauEtaEffNum_   = store->book1D("L2TrigTauEtaEffNum",   "Offline #tau #eta", etabins_, -2.5, 2.5);
         hL2TrigTauEtaEffDenom_ = store->book1D("L2TrigTauEtaEffDenom", "Offline #tau #eta", etabins_, -2.5, 2.5);
         hL2TrigTauPhiEffNum_   = store->book1D("L2TrigTauPhiEffNum",   "Offline #tau #phi", phibins_, -3.2, 3.2);
         hL2TrigTauPhiEffDenom_ = store->book1D("L2TrigTauPhiEffDenom", "Offline #tau #phi", phibins_, -3.2, 3.2);
+        hL2TrigTauHighEtEffNum_   = store->book1D("L2TrigTauHighEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, highptmax_);
+        hL2TrigTauHighEtEffDenom_ = store->book1D("L2TrigTauHighEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, highptmax_);
       }
 
       if(hltPath_.hasL3Taus()) {
-        hL3TrigTauEtEffNum_    = store->book1D("L3TrigTauEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, 100);
-        hL3TrigTauEtEffDenom_  = store->book1D("L3TrigTauEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, 100);
+        hL3TrigTauEtEffNum_    = store->book1D("L3TrigTauEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, ptmax_);
+        hL3TrigTauEtEffDenom_  = store->book1D("L3TrigTauEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, ptmax_);
         hL3TrigTauEtaEffNum_   = store->book1D("L3TrigTauEtaEffNum",   "Offline #tau #eta", etabins_, -2.5, 2.5);
         hL3TrigTauEtaEffDenom_ = store->book1D("L3TrigTauEtaEffDenom", "Offline #tau #eta", etabins_, -2.5, 2.5);
         hL3TrigTauPhiEffNum_   = store->book1D("L3TrigTauPhiEffNum",   "Offline #tau #phi", phibins_, -3.2, 3.2);
         hL3TrigTauPhiEffDenom_ = store->book1D("L3TrigTauPhiEffDenom", "Offline #tau #phi", phibins_, -3.2, 3.2);
+        hL3TrigTauHighEtEffNum_    = store->book1D("L3TrigTauHighEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, highptmax_);
+        hL3TrigTauHighEtEffDenom_  = store->book1D("L3TrigTauHighEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, highptmax_);
       }
       store->setCurrentFolder(triggerTag());
     }
@@ -146,6 +153,7 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
       if(static_cast<size_t>(lastMatchedFilter) >= hltPath_.getLastFilterBeforeL2TauIndex()) {
         for(const LV& tau: refCollection.taus) {
           hL2TrigTauEtEffDenom_->Fill(tau.pt());
+          hL2TrigTauHighEtEffDenom_->Fill(tau.pt());
           hL2TrigTauEtaEffDenom_->Fill(tau.eta());
           hL2TrigTauPhiEffDenom_->Fill(tau.phi());
         }
@@ -161,6 +169,7 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
         if(matched) {
           for(const LV& tau: matchedOfflineObjs.taus) {
             hL2TrigTauEtEffNum_->Fill(tau.pt());
+            hL2TrigTauHighEtEffNum_->Fill(tau.pt());
             hL2TrigTauEtaEffNum_->Fill(tau.eta());
             hL2TrigTauPhiEffNum_->Fill(tau.phi());
           }
@@ -174,6 +183,7 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
       if(static_cast<size_t>(lastMatchedFilter) >= hltPath_.getLastFilterBeforeL3TauIndex()) {
         for(const LV& tau: refCollection.taus) {
           hL3TrigTauEtEffDenom_->Fill(tau.pt());
+          hL3TrigTauHighEtEffDenom_->Fill(tau.pt());
           hL3TrigTauEtaEffDenom_->Fill(tau.eta());
           hL3TrigTauPhiEffDenom_->Fill(tau.phi());
         }
@@ -189,6 +199,7 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
         if(matched) {
           for(const LV& tau: matchedOfflineObjs.taus) {
             hL3TrigTauEtEffNum_->Fill(tau.pt());
+            hL3TrigTauHighEtEffNum_->Fill(tau.pt());
             hL3TrigTauEtaEffNum_->Fill(tau.eta());
             hL3TrigTauPhiEffNum_->Fill(tau.phi());
           }

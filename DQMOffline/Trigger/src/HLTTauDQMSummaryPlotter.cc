@@ -54,11 +54,13 @@ void HLTTauDQMSummaryPlotter::bookPlots() {
         if ( type_ == "Path" ) {
             bookTriggerBitEfficiencyHistos(triggerTag(), "EventsPerFilter");
 
-            bookEfficiencyHisto(triggerTag(), "L2TrigTauEtEff",  "helpers/L2TrigTauEtEffNum");
+            bookEfficiencyHisto(triggerTag(), "L2TrigTauEtEff",  "helpers/L2TrigTauEtEffNum"); 
+            bookEfficiencyHisto(triggerTag(), "L2TrigTauHighEtEff",  "helpers/L2TrigTauHighEtEffNum");
             bookEfficiencyHisto(triggerTag(), "L2TrigTauEtaEff", "helpers/L2TrigTauEtaEffNum");
             bookEfficiencyHisto(triggerTag(), "L2TrigTauPhiEff", "helpers/L2TrigTauPhiEffNum");
 
             bookEfficiencyHisto(triggerTag(), "L3TrigTauEtEff",  "helpers/L3TrigTauEtEffNum");
+            bookEfficiencyHisto(triggerTag(), "L3TrigTauHighEtEff",  "helpers/L3TrigTauHighEtEffNum");
             bookEfficiencyHisto(triggerTag(), "L3TrigTauEtaEff", "helpers/L3TrigTauEtaEffNum");
             bookEfficiencyHisto(triggerTag(), "L3TrigTauPhiEff", "helpers/L3TrigTauPhiEffNum");
         }
@@ -66,10 +68,12 @@ void HLTTauDQMSummaryPlotter::bookPlots() {
         //L1 Summary
         else if ( type_ == "L1" ) {
             bookEfficiencyHisto(triggerTag(),"L1TauEtEff","EfficiencyHelpers/L1TauEtEffNum");
+            bookEfficiencyHisto(triggerTag(),"L1TauHighEtEff","EfficiencyHelpers/L1TauHighEtEffNum");
             bookEfficiencyHisto(triggerTag(),"L1TauEtaEff","EfficiencyHelpers/L1TauEtaEffNum");
             bookEfficiencyHisto(triggerTag(),"L1TauPhiEff","EfficiencyHelpers/L1TauPhiEffNum");
             
             bookEfficiencyHisto(triggerTag(),"L1JetEtEff","EfficiencyHelpers/L1JetEtEffNum");
+            bookEfficiencyHisto(triggerTag(),"L1JetHighEtEff","EfficiencyHelpers/L1JetHighEtEffNum");
             bookEfficiencyHisto(triggerTag(),"L1JetEtaEff","EfficiencyHelpers/L1JetEtaEffNum");
             bookEfficiencyHisto(triggerTag(),"L1JetPhiEff","EfficiencyHelpers/L1JetPhiEffNum");
         }
@@ -90,10 +94,12 @@ void HLTTauDQMSummaryPlotter::plot() {
             plotTriggerBitEfficiencyHistos(triggerTag(), "EventsPerFilter");
 
             plotEfficiencyHisto(triggerTag(), "L2TrigTauEtEff",  "helpers/L2TrigTauEtEffNum",  "helpers/L2TrigTauEtEffDenom");
+            plotEfficiencyHisto(triggerTag(), "L2TrigTauHighEtEff",  "helpers/L2TrigTauHighEtEffNum",  "helpers/L2TrigTauHighEtEffDenom");
             plotEfficiencyHisto(triggerTag(), "L2TrigTauEtaEff", "helpers/L2TrigTauEtaEffNum", "helpers/L2TrigTauEtaEffDenom");
             plotEfficiencyHisto(triggerTag(), "L2TrigTauPhiEff", "helpers/L2TrigTauPhiEffNum", "helpers/L2TrigTauPhiEffDenom");
 
             plotEfficiencyHisto(triggerTag(), "L3TrigTauEtEff",  "helpers/L3TrigTauEtEffNum",  "helpers/L3TrigTauEtEffDenom");
+            plotEfficiencyHisto(triggerTag(), "L3TrigTauHighEtEff",  "helpers/L3TrigTauHighEtEffNum",  "helpers/L3TrigTauHighEtEffDenom");
             plotEfficiencyHisto(triggerTag(), "L3TrigTauEtaEff", "helpers/L3TrigTauEtaEffNum", "helpers/L3TrigTauEtaEffDenom");
             plotEfficiencyHisto(triggerTag(), "L3TrigTauPhiEff", "helpers/L3TrigTauPhiEffNum", "helpers/L3TrigTauPhiEffDenom");
         }
@@ -101,10 +107,12 @@ void HLTTauDQMSummaryPlotter::plot() {
         //L1 Summary
         else if ( type_ == "L1" ) {
             plotEfficiencyHisto(triggerTag(),"L1TauEtEff","EfficiencyHelpers/L1TauEtEffNum","EfficiencyHelpers/L1TauEtEffDenom");
+            plotEfficiencyHisto(triggerTag(),"L1TauHighEtEff","EfficiencyHelpers/L1TauHighEtEffNum","EfficiencyHelpers/L1TauHighEtEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1TauEtaEff","EfficiencyHelpers/L1TauEtaEffNum","EfficiencyHelpers/L1TauEtaEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1TauPhiEff","EfficiencyHelpers/L1TauPhiEffNum","EfficiencyHelpers/L1TauPhiEffDenom");
             
             plotEfficiencyHisto(triggerTag(),"L1JetEtEff","EfficiencyHelpers/L1JetEtEffNum","EfficiencyHelpers/L1JetEtEffDenom");
+            plotEfficiencyHisto(triggerTag(),"L1JetHighEtEff","EfficiencyHelpers/L1JetHighEtEffNum","EfficiencyHelpers/L1JetHighEtEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1JetEtaEff","EfficiencyHelpers/L1JetEtaEffNum","EfficiencyHelpers/L1JetEtaEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1JetPhiEff","EfficiencyHelpers/L1JetPhiEffNum","EfficiencyHelpers/L1JetPhiEffDenom");
             

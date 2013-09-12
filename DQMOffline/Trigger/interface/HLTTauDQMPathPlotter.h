@@ -21,8 +21,9 @@ class HLTConfigProvider;
 class HLTTauDQMPathPlotter: private HLTTauDQMPlotter {
 public:
   HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder,
-                        const std::string& hltProcess, int ptbins, int etabins, int phibins,
-                        double l1MatchDr, double hltMatchDr);
+                       const std::string& hltProcess, int ptbins, int etabins, int phibins,
+                       double ptmax, double highptmax,
+                       double l1MatchDr, double hltMatchDr);
   ~HLTTauDQMPathPlotter();
 
   using HLTTauDQMPlotter::isValid;
@@ -38,6 +39,8 @@ private:
   const int ptbins_;
   const int etabins_;
   const int phibins_;
+  const double ptmax_;
+  const double highptmax_;
   const double l1MatchDr_;
   const double hltMatchDr_;
   const bool doRefAnalysis_;
@@ -52,6 +55,8 @@ private:
 
   MonitorElement *hL2TrigTauEtEffNum_;
   MonitorElement *hL2TrigTauEtEffDenom_;
+  MonitorElement *hL2TrigTauHighEtEffNum_;
+  MonitorElement *hL2TrigTauHighEtEffDenom_;
   MonitorElement *hL2TrigTauEtaEffNum_;
   MonitorElement *hL2TrigTauEtaEffDenom_;
   MonitorElement *hL2TrigTauPhiEffNum_;
@@ -59,6 +64,8 @@ private:
 
   MonitorElement *hL3TrigTauEtEffNum_;
   MonitorElement *hL3TrigTauEtEffDenom_;
+  MonitorElement *hL3TrigTauHighEtEffNum_;
+  MonitorElement *hL3TrigTauHighEtEffDenom_;
   MonitorElement *hL3TrigTauEtaEffNum_;
   MonitorElement *hL3TrigTauEtaEffDenom_;
   MonitorElement *hL3TrigTauPhiEffNum_;
