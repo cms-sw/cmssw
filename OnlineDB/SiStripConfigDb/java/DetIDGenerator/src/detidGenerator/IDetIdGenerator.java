@@ -7,9 +7,7 @@ import java.util.ArrayList;
  **/
 
 /*
-  $Date: 2006/06/28 11:42:24 $
   
-  $Log: IDetIdGenerator.java,v $
   Revision 1.1  2006/06/28 11:42:24  gbaulieu
   First import of the sources
 

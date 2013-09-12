@@ -1,6 +1,3 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.11 2011/09/19 08:32:24 demattia Exp $
-// Latest tag:  $Name: V05-01-05 $
-// Location:    $Source: /local/reps/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H

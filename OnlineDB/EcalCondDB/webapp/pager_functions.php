@@ -6,7 +6,6 @@
  * Credit:  Inspired by Harry Fuecks article
  * http://www.oracle.com/technology/pub/articles/oracle_php_cookbook/fuecks_paged.html
  *
- * $Id$
  */
 
 include('Net/URL.php');
