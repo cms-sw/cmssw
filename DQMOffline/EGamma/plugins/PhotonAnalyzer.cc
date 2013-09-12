@@ -28,19 +28,13 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
     prescaleFactor_         = pset.getUntrackedParameter<int>("prescaleFactor",1);
 
     photon_token_           = consumes<vector<reco::Photon> >(pset.getParameter<edm::InputTag>("phoProducer"));
-    //photonProducer_         = pset.getParameter<string>("phoProducer");
-    //photonCollection_       = pset.getParameter<string>("photonCollection");
 
     barrelRecHit_token_     = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("barrelRecHitProducer"));
-    //barrelRecHitProducer_   = pset.getParameter<string>("barrelRecHitProducer");
-    //barrelRecHitCollection_ = pset.getParameter<string>("barrelRecHitCollection");
 
     PhotonIDLoose_token_    = consumes<edm::ValueMap<bool> >(pset.getParameter<edm::InputTag>("photonIDLoose"));
     PhotonIDTight_token_    = consumes<edm::ValueMap<bool> >(pset.getParameter<edm::InputTag>("photonIDTight"));
 
     endcapRecHit_token_     = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("endcapRecHitProducer"));
-    //endcapRecHitProducer_   = pset.getParameter<string>("endcapRecHitProducer");
-    //endcapRecHitCollection_ = pset.getParameter<string>("endcapRecHitCollection");
 
     triggerEvent_token_     = consumes<trigger::TriggerEvent>(pset.getParameter<edm::InputTag>("triggerEvent"));
 

@@ -130,7 +130,7 @@ class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
   edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > endcapRecHit_token_;
   edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_token_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpot_token_;
-  //
+  
   std::string fName_;
   int verbosity_;
 
