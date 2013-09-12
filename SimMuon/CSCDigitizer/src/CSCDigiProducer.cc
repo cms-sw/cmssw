@@ -20,6 +20,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <string>
+
 CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) 
 :  theDigitizer(ps),
    theStripConditions(0)
@@ -61,7 +63,9 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps)
   theDigitizer.setRandomEngine(engine);
   theStripConditions->setRandomEngine(engine);
 
-  cf_token = consumes<CrossingFrame<PSimHit> >(ps.getParameter<edm::InputTag>("simHitTag"));
+  std::string mix_ = ps.getParameter<std::string>("mixLabel");
+  std::string collection_ = ps.getParameter<std::string>("InputCollection");
+  cf_token = consumes<CrossingFrame<PSimHit> >( edm::InputTag(mix_, collection_) );
 }
 
 
