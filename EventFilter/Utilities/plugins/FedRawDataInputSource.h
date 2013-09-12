@@ -34,7 +34,7 @@ public:
 
 protected:
 	virtual bool checkNextEvent();
-	virtual edm::EventPrincipal * read(edm::EventPrincipal& eventPrincipal);
+	virtual void read(edm::EventPrincipal& eventPrincipal);
 
 private:
 	virtual void preForkReleaseResources();

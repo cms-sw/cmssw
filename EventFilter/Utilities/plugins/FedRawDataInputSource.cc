@@ -60,7 +60,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
 	buRunDirectory_ = boost::filesystem::path(
 			pset.getUntrackedParameter<std::string> ("rootBUDirectory"));
 	findRunDir();
-	daqProvenanceHelper_.daqInit(productRegistryUpdate());
+	daqProvenanceHelper_.daqInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
 	setNewRun();
 	setRunAuxiliary(
 			new edm::RunAuxiliary(runNumber_, edm::Timestamp::beginOfTime(),
@@ -145,7 +145,7 @@ bool FedRawDataInputSource::checkNextEvent() {
 
 }
 
-edm::EventPrincipal* FedRawDataInputSource::read(
+void FedRawDataInputSource::read(
 		edm::EventPrincipal& eventPrincipal) {
 	//std::cout << ">>>>>>>>>>>>>>>> Reading next event" << std::endl;
 	std::auto_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
@@ -154,14 +154,14 @@ edm::EventPrincipal* FedRawDataInputSource::read(
 	edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true,
 			edm::EventAuxiliary::PhysicsTrigger);
 
-	edm::EventPrincipal * e = makeEvent(eventPrincipal, aux);
+	makeEvent(eventPrincipal, aux);
 
 	edm::WrapperOwningHolder edp(
 			new edm::Wrapper<FEDRawDataCollection>(rawData),
 			edm::Wrapper<FEDRawDataCollection>::getInterface());
-	e->put(daqProvenanceHelper_.constBranchDescription_, edp,
-			daqProvenanceHelper_.dummyProvenance_);
-	return e;
+	eventPrincipal.put(daqProvenanceHelper_.constBranchDescription_, edp,
+		           daqProvenanceHelper_.dummyProvenance_);
+	return;
 }
 
 bool FedRawDataInputSource::eofReached() const {
