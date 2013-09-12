@@ -6,7 +6,6 @@
  * EDAalyzer which compare reconstructed tracks to simulated tracks parameter in bins of pt, eta, (phi)
  * to give an empirical parametrization of the track parameters errors.
  *
- * $Dates: 2007/09/04 13:28 $
  *
  * \author Jean-Roch Vlimant  UCSB
  * \author Finn Rebassoo      UCSB

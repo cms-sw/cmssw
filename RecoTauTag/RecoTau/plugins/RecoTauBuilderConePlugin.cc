@@ -6,7 +6,6 @@
  * Original Authors: Ludovic Houchu, Simone Gennai
  * Modifications: Evan K. Friis
  *
- * $Id $
  */
 
 #include <vector>

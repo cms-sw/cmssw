@@ -8,7 +8,6 @@
  *
  * Code modifications: Evan Friis (UC Davis)
  *
- * $Id $
  */
 #include <algorithm>
 #include <memory>

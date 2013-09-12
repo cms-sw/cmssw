@@ -16,7 +16,6 @@
 //
 // Author:      
 // Created:     Mon Feb  9 11:02:08 CET 2009
-// $Id$
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

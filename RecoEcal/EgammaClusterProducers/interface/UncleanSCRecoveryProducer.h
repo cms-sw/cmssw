@@ -12,7 +12,6 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-// $Id$
 
 class UncleanSCRecoveryProducer : public edm::EDProducer 
 {
