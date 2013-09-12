@@ -1,6 +1,3 @@
-// Last commit: $Id: SiStripNoiseBuilderFromDb.h,v 1.6 2008/07/17 10:27:58 giordano Exp $
-// Latest tag:  $Name: V05-01-05 $
-// Location:    $Source: /local/reps/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripNoiseBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripNoiseBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripNoiseBuilderFromDb_H

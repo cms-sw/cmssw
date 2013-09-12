@@ -1,4 +1,3 @@
-// $Id: EcalLogicID.h,v 1.2 2007/11/19 11:12:06 fra Exp $
 
 #ifndef ECALLOGICID_HH
 #define ECALLOGICID_HH

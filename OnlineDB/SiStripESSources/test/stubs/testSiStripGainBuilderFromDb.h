@@ -1,4 +1,3 @@
-// Last commit: $Id: $
 
 #ifndef OnlineDB_SiStripESSources_testSiStripGainBuilderFromDb_H
 #define OnlineDB_SiStripESSources_testSiStripGainBuilderFromDb_H
