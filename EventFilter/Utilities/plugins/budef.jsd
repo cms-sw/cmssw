@@ -1,0 +1,8 @@
+{
+   "legend" : [
+      {
+         "name" : "NEvents",
+         "operation" : "sum"
+      }  
+   ]
+}

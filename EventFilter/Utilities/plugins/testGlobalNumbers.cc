@@ -32,7 +32,7 @@ namespace test{
     }
 
  
-    void analyze(const Event & e, const EventSetup& c) override{
+    void analyze(const Event & e, const EventSetup& c){
       cout << "--- Run: " << e.id().run()
 	   << " LS: " << e.luminosityBlock() 
 	   << " Event: " << e.id().event() 
