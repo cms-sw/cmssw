@@ -79,11 +79,15 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
         ) #end of clone
 
 
+
 # Final sequence
 iterativeInitialStep = cms.Sequence(iterativeInitialSeeds
                                     +iterativeInitialTrackCandidates
                                     +iterativeInitialTracks
                                     +initialStepTracks
                                     +initialStepSelector)
+
+
+
 
 
