@@ -1,4 +1,3 @@
-// $Id: Tm.h,v 1.5 2011/03/25 09:06:48 organtin Exp $
 
 #ifndef TM_HH
 #define TM_HH

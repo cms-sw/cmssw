@@ -1,4 +1,4 @@
-/* $id$ 
+/*  
  * 
  * Procedure to validate an subrun IoV to be inserted and update a previous
  * IoV so that there are no overlaps.

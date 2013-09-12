@@ -4,7 +4,7 @@ PROCEDURE update_online_pvss_tb_sm_iov
   new_since IN DATE,
   new_till IN DATE,
   dp_name IN VARCHAR2 ) IS
-/* $id$
+/*
  *
  * Procedure to validate an IoV to be inserted and update a previous
  * IoV so that there are no overlaps.
