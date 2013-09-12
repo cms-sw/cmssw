@@ -4,10 +4,15 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "log4cplus/logger.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/PluginManager.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabase.hh"
+
+#ifdef HAVE_XDAQ
+#include "log4cplus/logger.h"
+#else
+#include "CaloOnlineTools/HcalOnlineDb/interface/xdaq_compat.h"  // Includes typedef for log4cplus::Logger
+#endif
 
 //OCCI include
 #include "OnlineDB/Oracle/interface/Oracle.h"
