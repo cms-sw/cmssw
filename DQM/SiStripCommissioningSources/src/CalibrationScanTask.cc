@@ -202,7 +202,7 @@ void CalibrationScanTask::checkAndSave(const uint16_t& isha, const uint16_t& vfs
     ss << "_000"; // Add FU instance number (fake)
     ss << ".root"; // Append ".root" extension
     if ( !filename_.empty() ) {
-      if(ifstream(ss.str().c_str(),ifstream::in).fail()) { //save only once. Skip if the file already exist
+      if(std::ifstream(ss.str().c_str(),std::ifstream::in).fail()) { //save only once. Skip if the file already exist
         dqm()->save( ss.str() ); 
         LogTrace("DQMsource")
           << "[SiStripCommissioningSource::" << __func__ << "]"

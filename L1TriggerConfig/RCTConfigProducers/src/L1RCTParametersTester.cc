@@ -32,6 +32,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include <iostream>
 
 
 using std::cout;

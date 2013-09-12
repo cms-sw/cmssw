@@ -302,7 +302,7 @@ void HcalDetDiagPedestalClient::updateChannelStatus(std::map<HcalDetId, unsigned
 
 } //void HcalDetDiagPedestalClient::updateChannelStatus
 
-static void printTableHeader(ofstream& file,std::string  header){
+static void printTableHeader(std::ofstream& file,std::string  header){
   file << "</html><html xmlns=\"http://www.w3.org/1999/xhtml\">"<< std::endl;
      file << "<head>"<< std::endl;
      file << "<meta http-equiv=\"Content-Type\" content=\"text/html\"/>"<< std::endl;
@@ -319,7 +319,7 @@ static void printTableHeader(ofstream& file,std::string  header){
      file << "<table>"<< std::endl;
 }
 
-static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,std::string comment=""){
+static void printTableLine(std::ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,std::string comment=""){
    if(ind==0){
      file << "<tr>";
      file << "<td class=\"s4\" align=\"center\">#</td>"    << std::endl;
@@ -368,7 +368,7 @@ static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndI
    file << raw_class<< emap_entry.htrTopBottom()<<"</td>"<< std::endl;
    if(comment[0]!=0) file << raw_class<< comment<<"</td>"<< std::endl;
 }
-static void printTableTail(ofstream& file){
+static void printTableTail(std::ofstream& file){
      file << "</table>"<< std::endl;
      file << "</body>"<< std::endl;
      file << "</html>"<< std::endl;
@@ -590,13 +590,13 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   } 
 
 
-  ofstream badMissing; 
+  std::ofstream badMissing; 
   badMissing.open((htmlDir+"bad_missing_table.html").c_str());
   printTableHeader(badMissing,"Missing Channels list");
-  ofstream badUnstable; 
+  std::ofstream badUnstable; 
   badUnstable.open((htmlDir+"bad_unstable_table.html").c_str());
   printTableHeader(badUnstable,"Unstable Channels list");
-  ofstream badPedRMS; 
+  std::ofstream badPedRMS; 
   badPedRMS.open((htmlDir+"bad_badpedrms_table.html").c_str());
   printTableHeader(badPedRMS,"Missing Channels list");
 
@@ -918,7 +918,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   TCanvas *can=new TCanvas("HcalDetDiagPedestalClient","HcalDetDiagPedestalClient",0,0,500,350);
   can->cd();
 
-  ofstream htmlFile;
+  std::ofstream htmlFile;
   std::string outfile=htmlDir+name_+".html";
   htmlFile.open(outfile.c_str());
   // html page header
