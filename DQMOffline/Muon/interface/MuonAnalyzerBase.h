@@ -17,6 +17,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -40,6 +42,7 @@ class MuonAnalyzerBase : public edm::EDAnalyzer {
 
   /// Get the analysis of the muon track properties
   void analyze(const edm::Event&, const edm::EventSetup&, reco::Track& recoTrack){}
+  void analyze(const edm::Event&, const edm::EventSetup&){};
   
   MuonServiceProxy* service() {return theService;}
 

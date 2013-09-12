@@ -1,7 +1,6 @@
 #ifndef MuonRecoAnalyzer_H
 #define MuonRecoAnalyzer_H
 
-
 /** \class MuRecoAnalyzer
  *
  *  DQM monitoring source for muon reco track
@@ -9,11 +8,9 @@
  *  \author G. Mila - INFN Torino
  */
 
-
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMOffline/Muon/src/MuonAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -21,6 +18,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
+#include "DQMOffline/Muon/interface/MuonAnalyzerBase.h"
 
 
 class MuonRecoAnalyzer : public MuonAnalyzerBase {
@@ -38,12 +37,9 @@ class MuonRecoAnalyzer : public MuonAnalyzerBase {
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon& recoMu);
-
+  
   //calculate residual & pull:
   void GetRes( reco::TrackRef t1, reco::TrackRef t2, std::string par, float &res, float &pull);
-
-  
-
 
  private:
   // ----------member data ---------------------------
