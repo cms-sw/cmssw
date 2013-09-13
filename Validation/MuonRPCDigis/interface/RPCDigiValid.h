@@ -41,6 +41,8 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   void beginJob();
   void endJob(void);
+  void beginRun(edm::Run const&, edm::EventSetup const&);
+  void endRun(edm::Run const&, edm::EventSetup const&);
 
 private:
 
@@ -139,3 +141,4 @@ private:
 };
 
 #endif
+
