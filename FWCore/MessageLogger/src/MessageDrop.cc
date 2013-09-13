@@ -180,6 +180,10 @@ class StringProducerSinglet : public StringProducer{
 
 MessageDrop::MessageDrop()
   : runEvent("pre-events")
+  , debugEnabled(true)
+  , infoEnabled(true)
+  , warningEnabled(true)
+  , errorEnabled(true)
   , spWithPhase(new  messagedrop::StringProducerWithPhase)
   , spPath (new messagedrop::StringProducerPath)
   , spSinglet (new messagedrop::StringProducerSinglet)

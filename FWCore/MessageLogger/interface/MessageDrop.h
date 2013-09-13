@@ -100,10 +100,10 @@ public:
   void clear();
 
   std::string runEvent;
-  bool debugEnabled=true;                             // change log 8
-  bool infoEnabled=true;                              // change log 8
-  bool warningEnabled=true;                           // change log 8
-  bool errorEnabled=true;                             // change log 8, 12
+  bool debugEnabled;                             // change log 8
+  bool infoEnabled;                              // change log 8
+  bool warningEnabled;                           // change log 8
+  bool errorEnabled;                             // change log 8, 12
 
   static std::string jobMode;					// change log 6
   static unsigned char messageLoggerScribeIsRunning;	// change log 7
