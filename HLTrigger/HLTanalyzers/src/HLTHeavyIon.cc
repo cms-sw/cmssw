@@ -169,7 +169,7 @@ void HLTHeavyIon::analyze(const edm::Handle<edm::TriggerResults>                
    }
 
    edm::Handle<int> binHandle;
-   if (centralityBin_Token.isUnitialized()) iEvent.getByToken(centralityBin_Token,binHandle);
+   if (!centralityBin_Token.isUnitialized()) iEvent.getByToken(centralityBin_Token,binHandle);
    else iEvent.getByLabel(centralityBin_Label,binHandle);
    hiBin = *binHandle;
 

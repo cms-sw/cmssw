@@ -62,7 +62,7 @@ void EventHeader::analyze(edm::Event const& iEvent, TTree* HltTree) {
   const edm::LuminosityBlock& iLumi = iEvent.getLuminosityBlock(); 
   edm::Handle<LumiSummary> lumiSummary; 
   try{
-    if (lumi_Token.isUnitialized() ) iLumi.getByToken(lumi_Token, lumiSummary);
+    if (!lumi_Token.isUnitialized() ) iLumi.getByToken(lumi_Token, lumiSummary);
     else iLumi.getByLabel(edm::InputTag("lumiProducer"), lumiSummary);
     lumiSummary->isValid();
   }
