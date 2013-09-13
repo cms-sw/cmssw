@@ -57,7 +57,7 @@ namespace edm {
       ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext, nullptr);
       Event ev(*ep, ModuleDescription(), &moduleCallingContext);
       a->postProcessEventSignal_(ev, *es);
-      a->postEventSignal_(*streamContext, ev, *es);
+      a->postEventSignal_(*streamContext);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s, PathContext const* pathContext) {
       a->preProcessPathSignal_(s);
@@ -183,8 +183,7 @@ namespace edm {
       edm::ModuleDescription modDesc("postScheduledSignal", "");
       ParentContext parentContext(streamContext);
       ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext, nullptr);
-      Run run(*ep, ModuleDescription(), &moduleCallingContext);
-      a->postStreamEndRunSignal_(*streamContext, run, *es);
+      a->postStreamEndRunSignal_(*streamContext);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s, PathContext const* pathContext) {
     }
@@ -226,7 +225,7 @@ namespace edm {
       ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext, nullptr);
       Run run(*ep, ModuleDescription(), &moduleCallingContext);
       a->postEndRunSignal_(run, *es);
-      a->postGlobalEndRunSignal_(*globalContext, run, *es);
+      a->postGlobalEndRunSignal_(*globalContext);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s, PathContext const* pathContext) {
       a->prePathEndRunSignal_(s);
@@ -353,7 +352,7 @@ namespace edm {
       ParentContext parentContext(streamContext);
       ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext, nullptr);
       LuminosityBlock lumi(*ep, ModuleDescription(), &moduleCallingContext);
-      a->postStreamEndLumiSignal_(*streamContext, lumi, *es);
+      a->postStreamEndLumiSignal_(*streamContext);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s, PathContext const* pathContext) {
     }
@@ -395,7 +394,7 @@ namespace edm {
       ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext, nullptr);
       LuminosityBlock lumi(*ep, ModuleDescription(), &moduleCallingContext);
       a->postEndLumiSignal_(lumi, *es);
-      a->postGlobalEndLumiSignal_(*globalContext, lumi, *es); 
+      a->postGlobalEndLumiSignal_(*globalContext); 
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s, PathContext const* pathContext) {
       a->prePathEndLumiSignal_(s); 
