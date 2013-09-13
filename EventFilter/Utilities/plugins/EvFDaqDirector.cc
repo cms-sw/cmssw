@@ -11,6 +11,17 @@ using std::stringstream;
 
 namespace evf {
 
+namespace {
+  flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid)
+  {
+#ifdef __APPLE__
+    return {start, len, pid, type, whence};
+#else
+    return {type, whence, start, len, pid};
+#endif
+  }
+}
+
 EvFDaqDirector::EvFDaqDirector(const edm::ParameterSet &pset,
 		edm::ActivityRegistry& reg) :
 			testModeNoBuilderUnit_(
@@ -31,14 +42,14 @@ EvFDaqDirector::EvFDaqDirector(const edm::ParameterSet &pset,
 					pset.getUntrackedParameter<bool> ("directorIsBu", false)),
 			copyRunDirToFUs_(
 					pset.getUntrackedParameter<bool> ("copyRunDir", false)),
-			bu_w_flk( { F_WRLCK, SEEK_SET, 0, 0, 0 }),
-			bu_r_flk( { F_RDLCK, SEEK_SET, 0, 0, 0 }),
-			bu_w_fulk( { F_UNLCK, SEEK_SET, 0, 0, 0 }),
-			bu_r_fulk( { F_UNLCK, SEEK_SET, 0, 0, 0 })
+			bu_w_flk( make_flock( F_WRLCK, SEEK_SET, 0, 0, 0 )),
+			bu_r_flk( make_flock( F_RDLCK, SEEK_SET, 0, 0, 0 )),
+			bu_w_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, 0 )),
+			bu_r_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, 0 ))
 			//, fu_rw_flk({F_RDLCK,SEEK_SET,0,0,0})
 			,
-			fu_rw_flk( { F_WRLCK, SEEK_SET, 0, 0, getpid() }),
-			fu_rw_fulk( { F_UNLCK, SEEK_SET, 0, 0, getpid() }),
+			fu_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
+			fu_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
 			bu_w_lock_stream(0),
 			bu_r_lock_stream(0),
 			fu_rw_lock_stream(0),
