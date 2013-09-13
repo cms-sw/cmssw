@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 impactParameterTagInfos = cms.EDProducer("TrackIPProducer",
-    jetTracks = cms.InputTag("ak5JetTracksAssociatorAtVertex"),
+    jetTracks = cms.InputTag("ak5JetTracksAssociatorAtVertexPF"),
     primaryVertex = cms.InputTag("offlinePrimaryVertices"),
     computeProbabilities = cms.bool(True),
     computeGhostTrack = cms.bool(True),

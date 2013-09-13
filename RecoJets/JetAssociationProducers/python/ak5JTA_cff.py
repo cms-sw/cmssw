@@ -8,7 +8,16 @@ from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
 ak5JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
     j2tParametersVX,
     jets = cms.InputTag("ak5CaloJets")
+<<<<<<< HEAD
+=======
 )
+
+ak5JetTracksAssociatorAtVertexPF = cms.EDProducer("JetTracksAssociatorAtVertex",
+    j2tParametersVX,
+    jets = cms.InputTag("ak5PFJetsCHS")
+>>>>>>> 9f8f426... Adding a JTA for PFJets
+)
+
 
 ak5JetTracksAssociatorExplicit = cms.EDProducer("JetTracksAssociatorExplicit",
     j2tParametersVX,
@@ -27,6 +36,8 @@ ak5JetExtender = cms.EDProducer("JetExtender",
     coneSize = cms.double(0.5)
 )
 
-ak5JTA = cms.Sequence(ak5JetTracksAssociatorAtVertex*ak5JetTracksAssociatorAtCaloFace*ak5JetExtender)
+ak5JTA = cms.Sequence(ak5JetTracksAssociatorAtVertexPF*
+                      ak5JetTracksAssociatorAtVertex*
+                      ak5JetTracksAssociatorAtCaloFace*ak5JetExtender)
 
 ak5JTAExplicit = cms.Sequence(ak5JetTracksAssociatorExplicit)
