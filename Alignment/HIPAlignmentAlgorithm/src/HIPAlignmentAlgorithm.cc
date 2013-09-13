@@ -1008,16 +1008,16 @@ HIPAlignmentAlgorithm::calcAPE(double* par, int iter, double function)
   // into 0.9999999999998 in the HIPAlignmentAlgorithm::initialize is
   // also used here.  If I'm wrong, you'll get an assertion.
   if (function == 0.) {
-    return max(par[1],par[0]+((par[1]-par[0])/par[2])*diter);
+    return std::max(par[1],par[0]+((par[1]-par[0])/par[2])*diter);
   }
   else if (function == 1.) {
-    return max(0.,par[0]*(exp(-pow(diter,par[1])/par[2])));
+    return std::max(0.,par[0]*(exp(-pow(diter,par[1])/par[2])));
   }
   else if (function == 2.) {
     int ipar2 = (int) par[2];
     int step = iter/ipar2;
     double dstep = (double) step;
-    return max(0.0, par[0] - par[1]*dstep);
+    return std::max(0.0, par[0] - par[1]*dstep);
   }
   else assert(false);  // should have been caught in the constructor
 }
@@ -1148,7 +1148,7 @@ void HIPAlignmentAlgorithm::fillRoot(const edm::EventSetup& iSetup)
 	  << " id: "    << setw(4) << m2_Id
 	  << " objId: " << setw(4) << m2_ObjId
 	  << '\n'
-	  << fixed << setprecision(5)
+	  << std::fixed << std::setprecision(5)
 	  << "x,y,z: "
 	  << setw(12) << m2_Xpos
 	  << setw(12) << m2_Ypos 

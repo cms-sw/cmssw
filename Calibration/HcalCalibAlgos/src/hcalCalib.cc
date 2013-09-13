@@ -613,7 +613,7 @@ void hcalCalib::GetCoefFromMtrxInvOfAve() {
 
 Bool_t hcalCalib::ReadPhiSymCor() {
 
-  ifstream phiSymFile(PHI_SYM_COR_FILENAME.Data());
+  std::ifstream phiSymFile(PHI_SYM_COR_FILENAME.Data());
 
   if (!phiSymFile) {
     cout << "\nERROR: Can not find file with phi symmetry constants \"" <<  PHI_SYM_COR_FILENAME.Data() << "\"" << endl;

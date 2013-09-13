@@ -249,7 +249,7 @@ public:
   std::vector<HcalGenericDetId> listEMap; //electronics Emap
 
 
-  ofstream m_logFile;
+  std::ofstream m_logFile;
 
   ////---- decide whether the Castor status should be checked
   bool checkCASTOR_;

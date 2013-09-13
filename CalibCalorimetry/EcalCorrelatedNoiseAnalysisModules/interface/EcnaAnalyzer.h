@@ -148,11 +148,11 @@ class EcnaAnalyzer : public edm::EDAnalyzer {
   unsigned int verbosity_;
   Int_t  nChannels_;
   Int_t  iEvent_; // should be removed when we can access class EventID
-  string eventHeaderProducer_;
-  string digiProducer_;
-  string eventHeaderCollection_;
-  string EBdigiCollection_;
-  string EEdigiCollection_;
+  std::string eventHeaderProducer_;
+  std::string digiProducer_;
+  std::string eventHeaderCollection_;
+  std::string EBdigiCollection_;
+  std::string EEdigiCollection_;
 
   TString  sAnalysisName_;
   TString  sNbOfSamples_;
@@ -175,7 +175,7 @@ class EcnaAnalyzer : public edm::EDAnalyzer {
 
   TString  fCfgAnalyzerParametersFilePath;  // absolute path for the analyzer parameters files (/afs/etc...)
   TString  fCfgAnalyzerParametersFileName;  // name of the analyzer parameters file 
-  ifstream fFcin_f;
+  std::ifstream fFcin_f;
 
   TString fAnalysisName;
   Int_t   fChozenGainNumber;     // determined from fAnalysisName

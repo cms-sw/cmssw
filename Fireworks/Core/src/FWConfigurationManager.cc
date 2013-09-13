@@ -106,7 +106,7 @@ FWConfigurationManager::writeToFile(const std::string& iName) const
 {
    try
    {
-      ofstream file(iName.c_str());
+      std::ofstream file(iName.c_str());
       if(not file) {
          std::string message("unable to open file %s ", iName.c_str());
          fflush(stdout);

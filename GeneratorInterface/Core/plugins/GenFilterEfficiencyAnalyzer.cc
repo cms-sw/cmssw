@@ -1,4 +1,5 @@
 #include "GeneratorInterface/Core/interface/GenFilterEfficiencyAnalyzer.h"
+#include <iostream>
 
 GenFilterEfficiencyAnalyzer::GenFilterEfficiencyAnalyzer(const edm::ParameterSet& pset):
   nTota_(0),nPass_(0),

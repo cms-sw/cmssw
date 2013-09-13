@@ -279,7 +279,7 @@ void SiStripInformationExtractor::getHistosFromPath(DQMStore * dqm_store, const 
 void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
   if (layoutMap.size() == 0) return;
 
-  ofstream image_file;
+  std::ofstream image_file;
   
   for (std::map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
     unsigned int ival = 0;

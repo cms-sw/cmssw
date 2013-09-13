@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
     std::cout << "Error: the size of pairVector and genPairVector is different" << std::endl;
   }
 
-  ofstream outputFile;
+  std::ofstream outputFile;
   outputFile.open("TreeDump.txt");
 
   MuonPairVector::const_iterator it = pairVector.begin();

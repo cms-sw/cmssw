@@ -743,7 +743,7 @@ CmsShowMainFrame::showFWorksInfo()
          TString infoFileName("/data/version.txt");
          fireworks::setPath(infoFileName);
          std::string line;
-         ifstream infoFile(infoFileName);
+         std::ifstream infoFile(infoFileName);
          while (std::getline(infoFile, line))
          {
             ++number_of_lines;

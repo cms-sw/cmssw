@@ -99,7 +99,7 @@ private:
   bool verbose_;
   bool verbose() const { return verbose_; };
   bool monitorDaemon_;
-  ofstream logFile_;
+  std::ofstream logFile_;
 
   edm::InputTag rctSource_;
   edm::InputTag gctSource_;

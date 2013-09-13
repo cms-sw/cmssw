@@ -215,7 +215,7 @@ void SiStripHistoPlotter::getDummyImage(std::string & image) {
   std::ostringstream   local_str;
   // Read back the file line by line and temporarily store it in a stringstream
   std::string localPath = std::string("DQM/TrackerCommon/test/images/EmptyPlot.png");
-  ifstream * imagefile = new ifstream((edm::FileInPath(localPath).fullPath()).c_str(),std::ios::in);
+  std::ifstream * imagefile = new std::ifstream((edm::FileInPath(localPath).fullPath()).c_str(),std::ios::in);
   if(imagefile->is_open()) {
     while (getline( *imagefile, line )) {
       local_str << line << std::endl ;

@@ -82,7 +82,7 @@ class HLTMonElectron : public edm::EDAnalyzer {
       
       std::string dirname_;
       bool monitorDaemon_;
-      ofstream logFile_;
+      std::ofstream logFile_;
       int theHLTOutputType;
       std::string outputFile_;
       

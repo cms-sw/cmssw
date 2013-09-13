@@ -118,7 +118,7 @@ int main(int argc, char *argv[] )
   if (vmap.count("infile")) {
     infileName = vmap["infile"].as<std::string>() ;
     /*
-    ifstream inFile(infileName.c_str()) ;
+    std::ifstream inFile(infileName.c_str()) ;
     if (inFile.is_open()) { //--- input files listed in a file ---//
       while ( !inFile.eof() ) {
 	std::string skipped ;
@@ -140,7 +140,7 @@ int main(int argc, char *argv[] )
     }
   }
   else {
-    cout << " *** No input file given: please define one " << endl;
+    std::cout << " *** No input file given: please define one " << std::endl;
     return 0;
   }
 
@@ -151,7 +151,7 @@ int main(int argc, char *argv[] )
   
   TList *sourcelist = new TList();  
   for (std::vector<std::string>::size_type i = 0; i < inFileVector.size(); i++) {
-    cout << inFileVector[i] << " " << endl;
+    std::cout << inFileVector[i] << " " << std::endl;
     sourcelist->Add(TFile::Open(TString(inFileVector[i])));
   }
 
@@ -328,10 +328,10 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
       }
     }
     else if ( obj->IsA()->InheritsFrom( "TTree" ) ) {
-      cout << "I don't draw trees" << endl;
+      std::cout << "I don't draw trees" << std::endl;
     } else if ( obj->IsA()->InheritsFrom( "TDirectory" ) ) {
       // it's a subdirectory
-      cout << "Found subdirectory " << obj->GetName() << endl;
+      std::cout << "Found subdirectory " << obj->GetName() << std::endl;
 
       // create a new subdir of same name and title in the target file
       target->cd();
@@ -348,8 +348,8 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
 
     } else {
       // object is of no type that we know or can handle
-      cout << "Unknown object type, name: " 
-           << obj->GetName() << " title: " << obj->GetTitle() << endl;
+      std::cout << "Unknown object type, name: " 
+           << obj->GetName() << " title: " << obj->GetTitle() << std::endl;
     }
  
     // now write the merged TCanvas (which is "in" obj) to the target file

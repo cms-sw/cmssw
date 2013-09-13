@@ -41,7 +41,7 @@ class TkAlCaSkimTreeMerger : public edm::EDAnalyzer{
   std::string outfilename_;//name of the file where you want to save the output
  
   //Hit Population
-  typedef map<uint32_t,uint32_t>DetHitMap;
+  typedef std::map<uint32_t,uint32_t>DetHitMap;
   DetHitMap hitmap_;
   DetHitMap overlapmap_;
   int maxhits_;//above this number, the hit population is prescaled. Configurable for each subdet 
@@ -60,9 +60,9 @@ class TkAlCaSkimTreeMerger : public edm::EDAnalyzer{
 
 
 TkAlCaSkimTreeMerger::TkAlCaSkimTreeMerger(const edm::ParameterSet &iConfig) :
-    filelist_(iConfig.getParameter<string>("FileList")), 
-    treename_(iConfig.getParameter<string>("TreeName")),
-    outfilename_(iConfig.getParameter<string>("OutputFile")),
+    filelist_(iConfig.getParameter<std::string>("FileList")), 
+    treename_(iConfig.getParameter<std::string>("TreeName")),
+    outfilename_(iConfig.getParameter<std::string>("OutputFile")),
     // maxhits_(iConfig.getParameter<vint>("NhitsMaxLimit"))
     maxhits_(iConfig.getParameter<int32_t>("NhitsMaxLimit")),
     maxhitsSet_(iConfig.getParameter<edm::ParameterSet>("NhitsMaxSet"))
@@ -74,7 +74,7 @@ TkAlCaSkimTreeMerger::TkAlCaSkimTreeMerger(const edm::ParameterSet &iConfig) :
   maxTOBhits_=maxhitsSet_.getParameter<int32_t>("TOBmaxhits");
   maxTEChits_=maxhitsSet_.getParameter<int32_t>("TECmaxhits");
   //anything you want to do for initializing
-  cout<<"\n\n*** MAX N HITS = "<<maxhits_<<endl<<endl;
+  std::cout<<"\n\n*** MAX N HITS = "<<maxhits_<<std::endl<<std::endl;
   out_=0;
   firsttree_=0;
   ch_=0;
@@ -87,7 +87,7 @@ TkAlCaSkimTreeMerger::~TkAlCaSkimTreeMerger(){
   // delete firsttree_;
 
   delete ch_;
-  cout<<"finished."<<endl;
+  std::cout<<"finished."<<std::endl;
 }
 
 // ------------ method called before analyzing the first event  ------------
@@ -97,10 +97,10 @@ void TkAlCaSkimTreeMerger::beginJob(){
 
   //prepare the chain
   ch_=new TChain(treename_.c_str());
-  cout<<"The chain contains "<<ch_->GetNtrees()<<" trees"<<endl;
+  std::cout<<"The chain contains "<<ch_->GetNtrees()<<" trees"<<std::endl;
   
   //load the trees into the chain
-  ifstream flist(filelist_.c_str(),ios::in);
+  std::ifstream flist(filelist_.c_str(),std::ios::in);
   std::string filename;
   std::string firstfilename;
   bool first=true;
@@ -108,7 +108,7 @@ void TkAlCaSkimTreeMerger::beginJob(){
     filename="";
     flist>>filename;
     if(filename.empty())continue;
-    //cout<<"Adding "<<filename<<endl;
+    //std::cout<<"Adding "<<filename<<std::endl;
     ch_->Add(filename.c_str());
     if(first){
       firstfilename_=filename;
@@ -116,7 +116,7 @@ void TkAlCaSkimTreeMerger::beginJob(){
     }
    
   }
-  cout<<"Now the chain contains "<<ch_->GetNtrees()<<" trees ("<<ch_->GetEntries()<<" entries)"<<endl;
+  std::cout<<"Now the chain contains "<<ch_->GetNtrees()<<" trees ("<<ch_->GetEntries()<<" entries)"<<std::endl;
 
  
   unsigned int id_ch=0;
@@ -155,7 +155,7 @@ void TkAlCaSkimTreeMerger::beginJob(){
       hitmap_[id_ch]=hitmap_[id_ch]+nhits_ch;
     }
     else{//not present, let's add this key to the map with value=1
-      hitmap_.insert(pair<uint32_t, uint32_t>(id_ch, nhits_ch));
+      hitmap_.insert(std::pair<uint32_t, uint32_t>(id_ch, nhits_ch));
     }
     //do the same for overlaps
     overlapiter= overlapmap_.find(id_ch);
@@ -163,25 +163,25 @@ void TkAlCaSkimTreeMerger::beginJob(){
       overlapmap_[id_ch]=overlapmap_[id_ch]+noverlaps_ch;
     }
     else{
-      overlapmap_.insert(pair<uint32_t, uint32_t>(id_ch, noverlaps_ch));
+      overlapmap_.insert(std::pair<uint32_t, uint32_t>(id_ch, noverlaps_ch));
     }
     
   }//end loop on ent - entries in the chain
 
 
-  cout<<"Nhits in the chain: "<<totnhits<<endl;
-  cout<<"NOverlaps in the chain: "<<totnoverlaps<<endl;
+  std::cout<<"Nhits in the chain: "<<totnhits<<std::endl;
+  std::cout<<"NOverlaps in the chain: "<<totnoverlaps<<std::endl;
 
 
   myclock.Stop();
-  cout<<"Finished beginJob after "<<myclock.RealTime()<<" s (real time) / "<<myclock.CpuTime()<<" s (cpu time)"<<endl;
+  std::cout<<"Finished beginJob after "<<myclock.RealTime()<<" s (real time) / "<<myclock.CpuTime()<<" s (cpu time)"<<std::endl;
   myclock.Continue();
 }//end beginJob
 
 
 // ------------ method called to for each event  ------------
 void TkAlCaSkimTreeMerger::analyze(const edm::Event&, const edm::EventSetup&){
-    // cout<<firsttree_->GetEntries()<<endl;
+    // std::cout<<firsttree_->GetEntries()<<std::endl;
 }//end analyze
 
 // ------------ method called after having analyzed all the events  ------------
@@ -191,7 +191,7 @@ void TkAlCaSkimTreeMerger::endJob(){
   //address variables in the first tree and in the chain
   TFile *firstfile=new TFile(firstfilename_.c_str(),"READ");
   firsttree_=(TTree*)firstfile->Get(treename_.c_str());
-  cout<<"the first tree has "<<firsttree_->GetEntries() <<" entries"<<endl; 
+  std::cout<<"the first tree has "<<firsttree_->GetEntries() <<" entries"<<std::endl; 
   unsigned int id=0;
   uint32_t nhits=0,noverlaps=0;
   float posX(-99999.0),posY(-77777.0),posZ(-88888.0);
@@ -257,7 +257,7 @@ void TkAlCaSkimTreeMerger::endJob(){
     firsttree_->GetEntry(mod);
     nhits_out=hitmap_[id];
     noverlaps_out=overlapmap_[id];
-    // if(mod<25)cout<<"Nhits 1st tree: "<<nhits<<"\tTotal nhits chain: "<<nhits_out<<endl;
+    // if(mod<25)std::cout<<"Nhits 1st tree: "<<nhits<<"\tTotal nhits chain: "<<nhits_out<<std::endl;
     id_out=id;
     subdet_out=subdet;
     layer_out=layer;
@@ -304,10 +304,10 @@ void TkAlCaSkimTreeMerger::endJob(){
 
 
   myclock.Stop();
-  cout<<"Finished endJob after "<<myclock.RealTime()<<" s (real time) / "<<myclock.CpuTime()<<" s (cpu time)"<<endl;
-  cout<<"Ending the tree merging."<<endl;
+  std::cout<<"Finished endJob after "<<myclock.RealTime()<<" s (real time) / "<<myclock.CpuTime()<<" s (cpu time)"<<std::endl;
+  std::cout<<"Ending the tree merging."<<std::endl;
   out_->Write();
-  cout<<"Deleting..."<<flush;
+  std::cout<<"Deleting..."<<std::flush;
   delete firstfile;
   delete outfile;
  

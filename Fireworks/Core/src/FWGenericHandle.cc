@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <iostream>
 
 // user include files
 #include "Fireworks/Core/src/FWGenericHandle.h"

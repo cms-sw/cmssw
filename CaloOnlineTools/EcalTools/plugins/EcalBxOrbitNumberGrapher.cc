@@ -22,6 +22,8 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
+#include <iostream>
+
 //
 // constants, enums and typedefs
 //
