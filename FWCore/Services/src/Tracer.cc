@@ -14,8 +14,6 @@
 #include "FWCore/Services/src/Tracer.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -313,7 +311,7 @@ Tracer::preGlobalEndRun(GlobalContext const& gc) {
 }
 
 void
-Tracer::postGlobalEndRun(GlobalContext const& gc, Run const&, EventSetup const&) {
+Tracer::postGlobalEndRun(GlobalContext const& gc) {
   std::cout << indention_ << indention_ << " GlobalEndRun finished\n"; 
   if(dumpNonModuleContext_) {
     std::cout << gc;
@@ -351,7 +349,7 @@ Tracer::preStreamEndRun(StreamContext const& sc) {
 }
 
 void
-Tracer::postStreamEndRun(StreamContext const& sc, Run const& run, EventSetup const& es) {
+Tracer::postStreamEndRun(StreamContext const& sc) {
   std::cout << indention_ << indention_ << " StreamEndRun finished\n"; 
   if(dumpNonModuleContext_) {
     std::cout << sc;
@@ -389,7 +387,7 @@ Tracer::preGlobalEndLumi(GlobalContext const& gc) {
 }
 
 void
-Tracer::postGlobalEndLumi(GlobalContext const& gc, LuminosityBlock const& lumi, EventSetup const& es) {
+Tracer::postGlobalEndLumi(GlobalContext const& gc) {
   std::cout << indention_ << indention_ << " GlobalEndLumi finished\n";
   if(dumpNonModuleContext_) {
     std::cout << gc;
@@ -427,7 +425,7 @@ Tracer::preStreamEndLumi(StreamContext const& sc) {
 }
 
 void
-Tracer::postStreamEndLumi(StreamContext const& sc, LuminosityBlock const&, EventSetup const&) {
+Tracer::postStreamEndLumi(StreamContext const& sc) {
   std::cout << indention_ << indention_ << " StreamEndLumi finished\n"; 
   if(dumpNonModuleContext_) {
     std::cout << sc;
@@ -445,7 +443,7 @@ Tracer::preEvent(StreamContext const& sc) {
 }
 
 void
-Tracer::postEvent(StreamContext const& sc, Event const&, EventSetup const&) {
+Tracer::postEvent(StreamContext const& sc) {
   std::cout << indention_ << indention_ << " event finished\n";
   if(dumpNonModuleContext_) {
     std::cout << sc;
