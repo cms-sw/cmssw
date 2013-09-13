@@ -84,7 +84,12 @@ private:
   void  postModuleBeginJob ( ModuleDescription const & );
   void  preModuleEndJob  ( ModuleDescription const & );
   void  postModuleEndJob ( ModuleDescription const & );
-  
+
+  void  preModuleBeginStream  ( StreamContext const&, ModuleDescription const & );
+  void  postModuleBeginStream ( StreamContext const&, ModuleDescription const & );
+  void  preModuleEndStream  ( StreamContext const&, ModuleDescription const & );
+  void  postModuleEndStream ( StreamContext const&, ModuleDescription const & );
+
   void  preModuleStreamBeginRun  ( StreamContext const&, ModuleCallingContext const& );
   void  postModuleStreamBeginRun ( StreamContext const&, ModuleCallingContext const& );
   void  preModuleStreamEndRun  ( StreamContext const&, ModuleCallingContext const& );
@@ -96,12 +101,12 @@ private:
   void  postModuleStreamEndLumi ( StreamContext const&, ModuleCallingContext const& );
   
   void  preEvent ( StreamContext const& );
-  void  postEvent( StreamContext const&);
+  void  postEvent( StreamContext const& );
   
   void  preStreamBeginRun    ( StreamContext const& );
   void  postStreamBeginRun   ( StreamContext const& );
   void  preStreamEndRun      ( StreamContext const& );
-  void  postStreamEndRun     ( StreamContext const&);
+  void  postStreamEndRun     ( StreamContext const& );
   void  preStreamBeginLumi   ( StreamContext const& );
   void  postStreamBeginLumi  ( StreamContext const& );
   void  preStreamEndLumi     ( StreamContext const& );
