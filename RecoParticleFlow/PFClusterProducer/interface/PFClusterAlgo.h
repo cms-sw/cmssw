@@ -1,11 +1,16 @@
 #ifndef RecoParticleFlow_PFClusterProducer_PFClusterAlgo_h
 #define RecoParticleFlow_PFClusterProducer_PFClusterAlgo_h
 
+
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
+
+// for E/gamma position calc
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
 #include <string>
 #include <vector>
@@ -31,6 +36,10 @@ class TH2F;
 class PFClusterAlgo {
 
  public:
+
+  enum PositionCalcType { EGPositionCalc,
+			  EGPositionFormula,			  
+			  PFPositionCalc };
 
   /// constructor
   PFClusterAlgo();
@@ -95,6 +104,26 @@ class PFClusterAlgo {
   /// set number of neighbours for  
   void setNNeighbours(int n) { nNeighbours_ = n;}
 
+  // set position calculation variant
+  void setPositionCalcType( const PositionCalcType& t ) {which_pos_calc_ = t;}
+
+  // setup E/gamma position calc
+  void setEGammaPosCalc( const edm::ParameterSet& conf ) { 
+    eg_pos_calc.reset(new PositionCalc(conf));
+  }
+  void setEBGeom(const CaloSubdetectorGeometry* esh) {
+    eb_geom = esh;
+  }
+  void setEEGeom(const CaloSubdetectorGeometry* esh) {
+    ee_geom = esh;
+  }
+  void setPreshowerGeom(const CaloSubdetectorGeometry* esh) {
+    preshower_geom = esh;
+  }
+
+  // set W0 parameter for EG-type position formula
+  void setPosCalcW0( double w0 ) { param_W0_ = w0; }
+
   /// set p1 for position calculation
   void setPosCalcP1( double p1 ) { posCalcP1_ = p1; }
 
@@ -137,7 +166,7 @@ class PFClusterAlgo {
 
   /// get shower sigma
   double showerSigma() const { return showerSigma_ ;}
-
+  
   /// write histos
   void write();
   /// ----------------------------------------------------------------
@@ -184,7 +213,6 @@ class PFClusterAlgo {
                    DOUBLESPIKE_S6S2
   };
   
-
   /// \return the value of a parameter of a given type, see enum Parameter,
   /// in a given layer. 
     double parameter( Parameter paramtype, PFLayer::Layer layer, unsigned iCoeff = 0, int iring0=0) const; 
@@ -318,7 +346,11 @@ class PFClusterAlgo {
   int    posCalcNCrystal_;
 
   /// parameter for position calculation  
+  PositionCalcType which_pos_calc_;
   double posCalcP1_;
+  double param_W0_; // for EG position calc variant
+  std::auto_ptr<PositionCalc> eg_pos_calc; //directly use E/gamma pos calc
+  const CaloSubdetectorGeometry *eb_geom, *ee_geom, *preshower_geom;
 
   /// sigma of shower (cm)
   double showerSigma_;

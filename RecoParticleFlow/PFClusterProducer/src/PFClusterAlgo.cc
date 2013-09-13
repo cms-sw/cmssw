@@ -1,4 +1,5 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterAlgo.h"
+#include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Math/GenVector/VectorUtil.h"
@@ -18,6 +19,28 @@ unsigned PFClusterAlgo::prodNum_ = 1;
 
 //for debug only 
 //#define PFLOW_DEBUG
+
+namespace edm {
+  template<> 
+  struct StrictWeakOrdering<reco::PFRecHit> {   
+    typedef unsigned key_type;
+    bool operator()(unsigned a, reco::PFRecHit const& b) const { 
+      return a < b.detId(); 
+    }
+    bool operator()(reco::PFRecHit const& a, unsigned b) const { 
+      return a.detId() < b; 
+    }
+    bool operator()(reco::PFRecHit const& a, reco::PFRecHit const& b) const { 
+      return ( a.detId() < b.detId()  ); 
+    }
+  };
+}
+
+// for directly interfacing to the position calc routine
+namespace{     
+  typedef edm::StrictWeakOrdering<reco::PFRecHit> PFStrictWeakOrdering;
+  typedef edm::SortedCollection<reco::PFRecHit> SortedPFRecHitCollection;
+}
 
 PFClusterAlgo::PFClusterAlgo() :
   pfClusters_( new vector<reco::PFCluster> ),
@@ -1469,8 +1492,8 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
     double fraction =  cluster.rechits_[ic].fraction();
     double recHitEnergy = rh.energy() * fraction;
 
-    double norm = fraction < 1E-9 ? 0. : max(0., log(recHitEnergy/p1 ));
-    
+    double norm = fraction < 1E-9 ? 0. : max(0., log(recHitEnergy/p1));
+        
     const math::XYZPoint& rechitposxyz = rh.position();
     
     if( recHitEnergy > maxe ) {
@@ -1521,139 +1544,190 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
   if( depcor &&   // correction requested and ECAL
       ( cluster.layer() == PFLayer::ECAL_BARREL ||       
 	cluster.layer() == PFLayer::ECAL_ENDCAP ) ) {
-
-
-    double corra = reco::PFCluster::depthCorA_;
-    double corrb = reco::PFCluster::depthCorB_;
-    if( abs(clusterpos.Eta() ) < 2.6 && 
-	abs(clusterpos.Eta() ) > 1.65   ) { 
-      // if crystals under preshower, correction is not the same  
-      // (shower depth smaller)
-      corra = reco::PFCluster::depthCorAp_;
-      corrb = reco::PFCluster::depthCorBp_;
-    }
-
-    double depth = 0;
-
-    switch( reco::PFCluster::depthCorMode_ ) {
-    case 1: // for e/gamma 
-      depth = corra * ( corrb + log(cluster.energy_) ); 
-      break;
-    case 2: // for hadrons
-      depth = corra;
-      break;
-    default:
-      cerr<<"PFClusterAlgo::calculateClusterPosition : unknown function for depth correction! "<<endl;
-      assert(0);
-    }
-
-
-    // calculate depth vector:
-    // its mag is depth
-    // its direction is the cluster direction (uncorrected)
-
-//     double xdepthv = clusterposxyz.X();
-//     double ydepthv = clusterposxyz.Y();
-//     double zdepthv = clusterposxyz.Z();
-//     double mag = sqrt( xdepthv*xdepthv + 
-// 		       ydepthv*ydepthv + 
-// 		       zdepthv*zdepthv );
-    
-
-//     math::XYZPoint depthv(clusterposxyz); 
-//     depthv.SetMag(depth);
-    
-    
-    math::XYZVector depthv( clusterposxyz.X(), 
-			    clusterposxyz.Y(),
-			    clusterposxyz.Z() );
-    depthv /= sqrt(depthv.Mag2() );
-    depthv *= depth;
-
-
-    // now calculate corrected cluster position:    
-    math::XYZPoint clusterposxyzcor;
-
-    maxe = -9999;
-    x = 0;
-    y = 0;
-    z = 0;
-    cluster.posrep_.SetXYZ(0,0,0);
-    normalize = 0;
-    for (unsigned ic=0; ic<cluster.rechits_.size(); ic++ ) {
-
-      unsigned rhi = cluster.rechits_[ic].recHitRef().index();
-//       const reco::PFRecHit& rh = rechit( rhi, rechits );
-      
-      const reco::PFRecHit& rh = *(cluster.rechits_[ic].recHitRef());
-
-      if(rhi != seedIndex) {
-	if( posCalcNCrystal == 5 ) {
-	  if(!rh.isNeighbour4(seedIndex) ) {
-	    continue;
-	  }
-	}
-	if( posCalcNCrystal == 9 ) {
-	  if(!rh.isNeighbour8(seedIndex) ) {
-	    continue;
-	  }
-	}
+    if( which_pos_calc_ == EGPositionCalc ) {
+      // calculate using EG position calc directly
+      SortedPFRecHitCollection temp;
+      std::vector< std::pair< DetId, float > > h_and_f;
+      for (unsigned ic=0; ic<cluster.rechits_.size(); ic++ ) {	
+	const reco::PFRecHitRef& rh = cluster.rechits_[ic].recHitRef();
+	temp.push_back(*rh);
+	h_and_f.push_back(std::make_pair(DetId(rh->detId()),
+					 cluster.rechits_[ic].fraction()));
+	
       }
-
-      double fraction =  cluster.rechits_[ic].fraction();
-      double recHitEnergy = rh.energy() * fraction;
-      
-      const math::XYZPoint&  rechitposxyz = rh.position();
-
-      // rechit axis not correct ! 
-      math::XYZVector rechitaxis = rh.getAxisXYZ();
-      // rechitaxis -= math::XYZVector( rechitposxyz.X(), rechitposxyz.Y(), rechitposxyz.Z() );
-      
-      math::XYZVector rechitaxisu( rechitaxis );
-      rechitaxisu /= sqrt( rechitaxis.Mag2() );
-
-      math::XYZVector displacement( rechitaxisu );
-      // displacement /= sqrt( displacement.Mag2() );    
-      displacement *= rechitaxisu.Dot( depthv );
-      
-      math::XYZPoint rechitposxyzcor( rechitposxyz );
-      rechitposxyzcor += displacement;
-
-      if( recHitEnergy > maxe ) {
-	firstrechitposxyz = rechitposxyzcor;
-	maxe = recHitEnergy;
-      }
-
-      double norm = fraction < 1E-9 ? 0. : max(0., log(recHitEnergy/p1 ));
-      
-      x += rechitposxyzcor.X() * norm;
-      y += rechitposxyzcor.Y() * norm;
-      z += rechitposxyzcor.Z() * norm;
-      
-      // clusterposxyzcor += rechitposxyzcor * norm;
-      normalize += norm;
-    }
-
-    // normalize
-    if(normalize < 1e-9) {
-      cerr<<"--------------------"<<endl;
-      cerr<< cluster <<endl;
-      assert(0);
-    }
-    else {
-      x /= normalize;
-      y /= normalize;
-      z /= normalize;
-      
-
-      clusterposxyzcor.SetCoordinates(x,y,z);
+      temp.sort();
+      math::XYZPoint clusterposxyzcor(0,0,0);
+      switch(cluster.layer()) {
+      case PFLayer::ECAL_BARREL:
+	clusterposxyzcor = eg_pos_calc->Calculate_Location(h_and_f,
+							   &temp,
+							   eb_geom,
+							   NULL);
+	break;
+      case PFLayer::ECAL_ENDCAP:
+	clusterposxyzcor = eg_pos_calc->Calculate_Location(h_and_f,
+							   &temp,
+							   ee_geom,
+							   preshower_geom);
+	break;
+      default:
+	break;
+      }      
       cluster.posrep_.SetCoordinates( clusterposxyzcor.Rho(), 
 				      clusterposxyzcor.Eta(), 
 				      clusterposxyzcor.Phi() );
       cluster.position_  = clusterposxyzcor;
       clusterposxyz = clusterposxyzcor;
-    }
 
+    } else { // allow position formula or PF formula
+      
+      double corra = reco::PFCluster::depthCorA_;
+      double corrb = reco::PFCluster::depthCorB_;
+      if( abs(clusterpos.Eta() ) < 2.6 && 
+	  abs(clusterpos.Eta() ) > 1.65   ) { 
+	// if crystals under preshower, correction is not the same  
+	// (shower depth smaller)
+	corra = reco::PFCluster::depthCorAp_;
+	corrb = reco::PFCluster::depthCorBp_;
+      }
+      
+      double depth = 0;
+      
+      switch( reco::PFCluster::depthCorMode_ ) {
+      case 1: // for e/gamma 
+	depth = corra * ( corrb + log(cluster.energy_) ); 
+	break;
+      case 2: // for hadrons
+	depth = corra;
+	break;
+      default:
+	throw cms::Exception("InvalidOption")
+	  <<"PFClusterAlgo::calculateClusterPosition : unknown function"
+	  <<" for depth correction! "<<endl;
+      }
+      
+      
+      // calculate depth vector:
+      // its mag is depth
+      // its direction is the cluster direction (uncorrected)
+      
+      //     double xdepthv = clusterposxyz.X();
+      //     double ydepthv = clusterposxyz.Y();
+      //     double zdepthv = clusterposxyz.Z();
+      //     double mag = sqrt( xdepthv*xdepthv + 
+      // 		       ydepthv*ydepthv + 
+      // 		       zdepthv*zdepthv );
+      
+      
+      //     math::XYZPoint depthv(clusterposxyz); 
+      //     depthv.SetMag(depth);
+      
+      
+      math::XYZVector depthv( clusterposxyz.X(), 
+			      clusterposxyz.Y(),
+			      clusterposxyz.Z() );
+      depthv /= sqrt(depthv.Mag2() );
+      depthv *= depth;
+      
+      
+      // now calculate corrected cluster position:    
+      math::XYZPoint clusterposxyzcor;
+      
+      maxe = -9999;
+      x = 0;
+      y = 0;
+      z = 0;
+      cluster.posrep_.SetXYZ(0,0,0);
+      normalize = 0;
+      
+      for (unsigned ic=0; ic<cluster.rechits_.size(); ic++ ) {
+	
+	unsigned rhi = cluster.rechits_[ic].recHitRef().index();
+	//       const reco::PFRecHit& rh = rechit( rhi, rechits );
+	
+	const reco::PFRecHit& rh = *(cluster.rechits_[ic].recHitRef());
+	
+	if(rhi != seedIndex) {
+	  if( posCalcNCrystal == 5 ) {
+	    if(!rh.isNeighbour4(seedIndex) ) {
+	      continue;
+	    }
+	  }
+	  if( posCalcNCrystal == 9 ) {
+	    if(!rh.isNeighbour8(seedIndex) ) {
+	      continue;
+	    }
+	  }
+	}
+	
+	double fraction =  cluster.rechits_[ic].fraction();
+	double recHitEnergy = rh.energy() * fraction;
+	
+	const math::XYZPoint&  rechitposxyz = rh.position();
+	
+	// rechit axis not correct ! 
+	math::XYZVector rechitaxis = rh.getAxisXYZ();
+	// rechitaxis -= math::XYZVector( rechitposxyz.X(), rechitposxyz.Y(), rechitposxyz.Z() );
+	
+	math::XYZVector rechitaxisu( rechitaxis );
+	rechitaxisu /= sqrt( rechitaxis.Mag2() );
+	
+	math::XYZVector displacement( rechitaxisu );
+	// displacement /= sqrt( displacement.Mag2() );    
+	displacement *= rechitaxisu.Dot( depthv );
+	
+	math::XYZPoint rechitposxyzcor( rechitposxyz );
+	rechitposxyzcor += displacement;
+	
+	if( recHitEnergy > maxe ) {
+	  firstrechitposxyz = rechitposxyzcor;
+	  maxe = recHitEnergy;
+	}
+	
+	double norm = -1;
+	double log_efrac = -1.0;
+	switch(which_pos_calc_) {
+	case EGPositionCalc: // in case strange things are happening
+	case EGPositionFormula:
+	  if( recHitEnergy > 0 ) {
+	    log_efrac = std::log(recHitEnergy/cluster.energy());
+	  }
+	  norm = (log_efrac != -1.0)*std::max(0.0, param_W0_ + log_efrac);
+	  break;
+	case PFPositionCalc:
+	  norm = fraction < 1E-9 ? 0. : max(0., log(recHitEnergy/p1));
+	  break;
+	default:
+	  throw cms::Exception("InvalidOption")
+	    << "Invalid position calc type chosen: " << which_pos_calc_ << "!";
+	}
+	
+	x += rechitposxyzcor.X() * norm;
+	y += rechitposxyzcor.Y() * norm;
+	z += rechitposxyzcor.Z() * norm;
+	
+	// clusterposxyzcor += rechitposxyzcor * norm;
+	normalize += norm;
+      }
+      // normalize
+      if(normalize < 1e-9) {
+	cerr<<"--------------------"<<endl;
+	cerr<< cluster <<endl;
+	assert(0);
+      } else {
+	x /= normalize;
+	y /= normalize;
+	z /= normalize;
+	
+	
+	clusterposxyzcor.SetCoordinates(x,y,z);
+	cluster.posrep_.SetCoordinates( clusterposxyzcor.Rho(), 
+					clusterposxyzcor.Eta(), 
+					clusterposxyzcor.Phi() );
+	cluster.position_  = clusterposxyzcor;
+	clusterposxyz = clusterposxyzcor;
+      }
+    }
   }
 }
 

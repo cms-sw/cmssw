@@ -32,6 +32,7 @@ for particle flow clusters.
 class CaloSubdetectorTopology;
 class CaloSubdetectorGeometry;
 class DetId;
+class CaloGeometryRecord;
 
 namespace reco {
   class PFRecHit;
@@ -44,6 +45,8 @@ class PFClusterProducer : public edm::EDProducer {
   ~PFClusterProducer();
 
   
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const& iL, 
+				    edm::EventSetup const& iE);
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
 
@@ -53,7 +56,7 @@ class PFClusterProducer : public edm::EDProducer {
 
   /// clustering algorithm 
   PFClusterAlgo    clusterAlgo_;
-
+  const CaloGeometryRecord* geom;
 
   /// verbose ?
   bool   verbose_;
