@@ -100,8 +100,8 @@ TkVoltageMapCreator::beginRun(const edm::Run& iRun, const edm::EventSetup&)
   TkHistoMap lvhisto("LV_Status","LV_Status",-1);
   TkHistoMap hvhisto("HV_Status","HV_Status",-1);
   
-  ifstream lvdata(_lvfile.c_str());
-  ifstream hvdata(_hvfile.c_str());
+  std::ifstream lvdata(_lvfile.c_str());
+  std::ifstream hvdata(_hvfile.c_str());
 
   // HV channel map filling
 

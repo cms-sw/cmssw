@@ -89,8 +89,8 @@ void EvtGenTestAnalyzer::beginJob()
    hPhi2 = new TH1D( "hPhi2","#phi_{2}",  50, -3.14, 3.14) ;
    hCosThetaLambda = new TH1D( "hCosThetaLambda","cos#theta_{#Lambda}",  50, -1., 1.) ;
 
-   decayed = new ofstream("decayed.txt") ;
-   undecayed = new ofstream("undecayed.txt") ;
+   decayed = new std::ofstream("decayed.txt") ;
+   undecayed = new std::ofstream("undecayed.txt") ;
    return ;
 }
  

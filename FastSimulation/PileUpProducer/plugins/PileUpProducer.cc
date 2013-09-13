@@ -415,7 +415,7 @@ PileUpProducer::save() {
 bool
 PileUpProducer::read(std::string inputFile) {
 
-  ifstream myInputFile;
+  std::ifstream myInputFile;
   struct stat results;
   unsigned size1 = theCurrentEntry.size()*sizeof(unsigned);
   unsigned size2 = theCurrentMinBiasEvt.size()*sizeof(unsigned);

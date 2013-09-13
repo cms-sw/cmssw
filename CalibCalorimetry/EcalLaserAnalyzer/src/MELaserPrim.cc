@@ -1002,7 +1002,7 @@ MELaserPrim::~MELaserPrim()
 }
 
 void 
-MELaserPrim::print( ostream& o )
+MELaserPrim::print( std::ostream& o )
 {
   o << "DCC/SM/side/type/color/run/ts " << _dcc << "/" << _sm << "/" << _side << "/" 
     << _type << "/" << _color << "/" << _run << "/" << _ts << std::endl;

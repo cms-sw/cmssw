@@ -15,6 +15,7 @@
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
 //
 //
+#include <iostream>
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"

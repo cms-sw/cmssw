@@ -130,7 +130,7 @@ PickEvents::beginJob()
   nEventsSelected = 0;
 
   // open file listevent file
-  ifstream listfile;
+  std::ifstream listfile;
   listfile.open(listrunevents_.c_str());
   if (listfile.is_open())
     {

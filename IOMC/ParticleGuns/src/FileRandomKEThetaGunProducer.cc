@@ -26,7 +26,7 @@ FileRandomKEThetaGunProducer::FileRandomKEThetaGunProducer(const edm::ParameterS
   edm::LogInfo("FlatThetaGun") << "Internal FileRandomKEThetaGun is initialzed"
 			       << " with data read from " << file << " and "
 			       << particleN << " particles created/event";
-  ifstream is(file.c_str(), std::ios::in);
+  std::ifstream is(file.c_str(), std::ios::in);
   if (is) {
     double energy, elem, sum=0;
     while (!is.eof()) {

@@ -18,6 +18,7 @@
 
 
 // system include files
+#include <iostream>
 #include <memory>
 #include <map>
 #include <vector>
@@ -112,22 +113,22 @@ DumpBtagTable::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::ESHandle<BtagPerformance> perfH;
   if( measureName.size() != measureType.size() )
   {
-      cout << "measureName, measureType size mismatch!" << endl;
+      std::cout << "measureName, measureType size mismatch!" << std::endl;
       exit(-1);
   }
 
 
   for( size_t iMeasure = 0; iMeasure < measureName.size(); iMeasure++ )
   {
-      cout << "# Dump table: " << measureName[ iMeasure ] << " of type " << measureType[ iMeasure ] << endl;
+      std::cout << "# Dump table: " << measureName[ iMeasure ] << " of type " << measureType[ iMeasure ] << std::endl;
 
 //Setup our measurement
       iSetup.get<BTagPerformanceRecord>().get( measureName[ iMeasure ],perfH);
       const BtagPerformance & perf = *(perfH.product());
 
 //Working point
-      cout << "# Working point: " << perf.workingPoint().cut() << endl;
-      cout << "# [pt] [eta] [SF]" << endl;
+      std::cout << "# Working point: " << perf.workingPoint().cut() << std::endl;
+      std::cout << "# [pt] [eta] [SF]" << std::endl;
 
 //Setup the point we wish to test!
 
@@ -148,15 +149,15 @@ DumpBtagTable::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  measurePoint.insert(BinningVariables::JetEt, pt);
 	  measurePoint.insert(BinningVariables::JetAbsEta, eta);
 	
-	  //cout << " From performance DB: " << perf.isResultOk( measureMap[ measureType[ iMeasure] ], measurePoint)
+	  //std::cout << " From performance DB: " << perf.isResultOk( measureMap[ measureType[ iMeasure] ], measurePoint)
 	  //<< " result at Jet pT " << pt << " GeV, |eta| < 2.39 " << perf.getResult( measureMap[ measureType[ iMeasure] ], measurePoint)
-	  //<< endl;
-	  cout << pt << sep 
+	  //<< std::endl;
+	  std::cout << pt << sep 
 	       << pt+bin_pt << sep 
 	       << eta << sep 
 	       << eta+bin_eta << sep
 	       << perf.getResult( measureMap[ measureType[ iMeasure] ], measurePoint) 
-	       << endl;
+	       << std::endl;
 
 	  measurePoint.reset();
 
@@ -167,28 +168,28 @@ DumpBtagTable::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //measurePoint.insert(BinningVariables::JetEt,30);
       //measurePoint.insert(BinningVariables::JetAbsEta,2.39);
 
-      //cout << "Is it OK? " << perf.isResultOk( measureMap[ measureType[ iMeasure] ], measurePoint)
+      //std::cout << "Is it OK? " << perf.isResultOk( measureMap[ measureType[ iMeasure] ], measurePoint)
       //		<< " result at 30 GeV, |eta| < 2.39 " << perf.getResult( measureMap[ measureType[ iMeasure] ], measurePoint)
-      //	<< endl;
+      //	<< std::endl;
 
       /*
       BinningPointByMap measurePoint;
       measurePoint.insert(BinningVariables::JetEt,50);
       measurePoint.insert(BinningVariables::JetAbsEta,0.6);
 
-      cout << "Is it OK? " << perf.isResultOk( measureMap[ measureType[ iMeasure] ], measurePoint)
+      std::cout << "Is it OK? " << perf.isResultOk( measureMap[ measureType[ iMeasure] ], measurePoint)
 		<< " result at 50 GeV, 0,6 |eta| " << perf.getResult( measureMap[ measureType[ iMeasure] ], measurePoint)
-		<< endl;
+		<< std::endl;
 
-      cout << "Error checking!" << endl;
+      std::cout << "Error checking!" << std::endl;
       measurePoint.reset();
       measurePoint.insert(BinningVariables::JetEt,0);
       measurePoint.insert(BinningVariables::JetAbsEta,10);
 
-      cout << "Is it OK? " << perf.isResultOk( measureMap[ measureType[ iMeasure] ], measurePoint)
+      std::cout << "Is it OK? " << perf.isResultOk( measureMap[ measureType[ iMeasure] ], measurePoint)
 		<< " result at 0 GeV, 10 |eta| " << perf.getResult( measureMap[ measureType[ iMeasure] ], measurePoint)
-		<< endl;
-      cout << endl;
+		<< std::endl;
+      std::cout << std::endl;
       */
   }
 

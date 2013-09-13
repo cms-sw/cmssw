@@ -115,6 +115,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <algorithm>
+#include <iostream>
 #include <ostream>
 
 
