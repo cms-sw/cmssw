@@ -680,7 +680,7 @@ MessageLogger::preEvent( StreamContext const& iContext)
 }
 
 void
-MessageLogger::postEvent(StreamContext const&,const Event&, const EventSetup&)
+MessageLogger::postEvent(StreamContext const&)
 {
   edm::MessageDrop::instance()->runEvent = "PostProcessEvent";  
 }
@@ -711,7 +711,7 @@ MessageLogger::postEvent(StreamContext const&,const Event&, const EventSetup&)
     edm::MessageDrop::instance()->setSinglet("PreEndRun");	// changelog 17
   }
   
-  void MessageLogger::postStreamEndRun(StreamContext const&, const Run&, const EventSetup&)
+  void MessageLogger::postStreamEndRun(StreamContext const&)
   {
     edm::MessageDrop::instance()->runEvent = "PostEndRun";
     edm::MessageDrop::instance()->setSinglet("PostEndRun");	// changelog 17
@@ -744,7 +744,7 @@ MessageLogger::postEvent(StreamContext const&,const Event&, const EventSetup&)
     edm::MessageDrop::instance()->runEvent = ost.str();
     edm::MessageDrop::instance()->setSinglet("PreEndLumi");	// changelog 17
   }
-  void MessageLogger::postStreamEndLumi(StreamContext const&, const LuminosityBlock&, const EventSetup&)
+  void MessageLogger::postStreamEndLumi(StreamContext const&)
   {
     edm::MessageDrop::instance()->runEvent = "PostEndLumi";
     edm::MessageDrop::instance()->setSinglet("PostEndLumi");	// changelog 17
@@ -789,7 +789,7 @@ MessageLogger::preGlobalEndRun( GlobalContext const& iContext)
   edm::MessageDrop::instance()->setSinglet("PreEndRun");	// changelog 17
 }
 
-void MessageLogger::postGlobalEndRun(GlobalContext const&, const Run&, const EventSetup&)
+void MessageLogger::postGlobalEndRun(GlobalContext const&)
 { 
   edm::MessageDrop::instance()->runEvent = "PostEndRun"; 
   edm::MessageDrop::instance()->setSinglet("PostEndRun");	// changelog 17
@@ -822,7 +822,7 @@ MessageLogger::preGlobalEndLumi( GlobalContext const& iContext)
   edm::MessageDrop::instance()->runEvent = ost.str();
   edm::MessageDrop::instance()->setSinglet("PreEndLumi");	// changelog 17
 }
-void MessageLogger::postGlobalEndLumi(GlobalContext const&, const LuminosityBlock&, const EventSetup&)
+void MessageLogger::postGlobalEndLumi(GlobalContext const&)
 { 
   edm::MessageDrop::instance()->runEvent = "PostEndLumi"; 
   edm::MessageDrop::instance()->setSinglet("PostEndLumi");	// changelog 17

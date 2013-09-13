@@ -96,16 +96,16 @@ private:
   void  postModuleStreamEndLumi ( StreamContext const&, ModuleCallingContext const& );
   
   void  preEvent ( StreamContext const& );
-  void  postEvent( StreamContext const&, Event const &, EventSetup const & );
+  void  postEvent( StreamContext const&);
   
   void  preStreamBeginRun    ( StreamContext const& );
   void  postStreamBeginRun   ( StreamContext const& );
   void  preStreamEndRun      ( StreamContext const& );
-  void  postStreamEndRun     ( StreamContext const&, const edm::Run&, EventSetup const & );
+  void  postStreamEndRun     ( StreamContext const&);
   void  preStreamBeginLumi   ( StreamContext const& );
   void  postStreamBeginLumi  ( StreamContext const& );
   void  preStreamEndLumi     ( StreamContext const& );
-  void  postStreamEndLumi    ( StreamContext const&, const edm::LuminosityBlock&, EventSetup const & );
+  void  postStreamEndLumi    ( StreamContext const& );
 
   void  preModuleGlobalBeginRun  ( GlobalContext const&, ModuleCallingContext const& );
   void  postModuleGlobalBeginRun ( GlobalContext const&, ModuleCallingContext const& );
@@ -120,11 +120,11 @@ private:
   void  preGlobalBeginRun    ( GlobalContext const& );
   void  postGlobalBeginRun   ( GlobalContext const& );
   void  preGlobalEndRun      ( GlobalContext const& );
-  void  postGlobalEndRun     ( GlobalContext const&, const edm::Run&, EventSetup const & );
+  void  postGlobalEndRun     ( GlobalContext const& );
   void  preGlobalBeginLumi   ( GlobalContext const& );
   void  postGlobalBeginLumi  ( GlobalContext const& );
   void  preGlobalEndLumi     ( GlobalContext const& );
-  void  postGlobalEndLumi    ( GlobalContext const&, const edm::LuminosityBlock&, EventSetup const & );
+  void  postGlobalEndLumi    ( GlobalContext const& );
   
   void  prePathEvent    ( StreamContext const&, PathContext const& );
   void  postPathEvent   ( StreamContext const&, PathContext const&, HLTPathStatus const&);
