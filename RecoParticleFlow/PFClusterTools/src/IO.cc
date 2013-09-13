@@ -32,7 +32,7 @@ IO::IO(const char* filepattern) :  fCurline(0) {
 bool IO::ParseFile(const char* filename) {
   cout<<"file : "<<filename<<"\t\t";
 
-  ifstream in(filename);
+  std::ifstream in(filename);
   if( !in.good() ) {
     cout<<"unreadable"<<endl;
     return false;

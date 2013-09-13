@@ -1026,7 +1026,7 @@ char   Subdet[10],str[500];
       }
       printf("%s\n",str);
       std::string xmlName=str;
-      ofstream xmlFile;
+      std::ofstream xmlFile;
       xmlFile.open(xmlName.c_str());
 
       xmlFile<<"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";

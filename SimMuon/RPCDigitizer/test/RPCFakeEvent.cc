@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include <iostream>
 
 RPCFakeEvent::RPCFakeEvent(const edm::ParameterSet& config) {
 

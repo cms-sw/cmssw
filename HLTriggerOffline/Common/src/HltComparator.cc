@@ -11,6 +11,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include <TH1.h>
+#include <iostream>
 #include <vector>
 #include <string>
 

@@ -53,7 +53,7 @@ void HcalConstantsASCIIWriter::beginJob()
     edm::FileInPath f1(file_output);
     std::string fDataFile = f1.fullPath();
 
-  myout_hcal = new ofstream(fDataFile.c_str());
+  myout_hcal = new std::ofstream(fDataFile.c_str());
   if(!myout_hcal) std::cout << " Output file not open!!! "<<std::endl;
     
 }

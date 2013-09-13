@@ -55,7 +55,7 @@ int* supportedDataFormatsVersion()
       {
          TString versionFileName = gSystem->Getenv("CMSSW_BASE");
          versionFileName += "/src/Fireworks/Core/data/version.txt";
-         ifstream fs(versionFileName);
+         std::ifstream fs(versionFileName);
          TString infoText;
          infoText.ReadLine(fs); infoText.ReadLine(fs);
          fs.close();

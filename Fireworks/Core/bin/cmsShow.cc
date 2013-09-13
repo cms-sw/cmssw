@@ -142,7 +142,7 @@ int main (int argc, char **argv)
    {
       TString infoFileName("data/version.txt");
       fireworks::setPath(infoFileName);
-      ifstream infoFile(infoFileName);
+      std::ifstream infoFile(infoFileName);
       infoText.ReadLine(infoFile);
       infoFile.close();
    }

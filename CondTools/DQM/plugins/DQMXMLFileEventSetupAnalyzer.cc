@@ -71,7 +71,7 @@ namespace edmtest {
 	boost::scoped_ptr<std::vector<unsigned char> > tb1( (*rootgeo).getUncompressedBlob() );
 	//here you can implement the stream for putting the TFile on disk...
 	std::string outfile1("XML1_retrieved.xml") ;
-	ofstream output1(outfile1.c_str()) ;
+	std::ofstream output1(outfile1.c_str()) ;
 	output1.write((const char *)&(*tb1)[0], tb1->size());
 	output1.close() ;
 	
@@ -80,7 +80,7 @@ namespace edmtest {
 // 	boost::scoped_ptr<std::vector<unsigned char> > tb2( (*rootgeo).getUncompressedBlob() );
 // 	//here you can implement the stream for putting the TFile on disk...
 // 	std::string outfile2("XML2_retrieved.xml") ;
-// 	ofstream output2(outfile2.c_str()) ;
+// 	std::ofstream output2(outfile2.c_str()) ;
 // 	output2.write((const char *)&(*tb2)[0], tb2->size());
 // 	output2.close() ;
 	//	boost::scoped_ptr<std::vector<unsigned char> > tb( (*rootgeo).getUncompressedBlob() );

@@ -12,6 +12,7 @@
 
 // system include files
 #include <cassert>
+#include <iostream>
 #include "TGMenu.h"
 #include "KeySymbols.h"
 

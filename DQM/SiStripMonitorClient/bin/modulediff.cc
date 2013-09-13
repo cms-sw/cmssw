@@ -83,7 +83,7 @@ void modulediff ( int run_2 , string repro_run2 )
   get_difference ( badmodlist_run2 , badmodlist_run1 , modules_malformed );  
 
   //save into file
-  ofstream outfile;
+  std::ofstream outfile;
   string namefile = "modulediff_emailbody.txt";
   outfile.open(namefile.c_str());
 
@@ -109,7 +109,7 @@ void modulediff ( int run_2 , string repro_run2 )
   
   if ( modules_recovered.size() > 0 )
     {
-      ofstream outfile_good;
+      std::ofstream outfile_good;
       outfile_good.open("modulediff_good.txt");
       for ( unsigned int i = 0; i < modules_recovered.size() ; i++ )
 	outfile_good << " " << modules_recovered[ i ] << endl;
@@ -118,7 +118,7 @@ void modulediff ( int run_2 , string repro_run2 )
 
   if ( modules_malformed.size() > 0 )
     {
-      ofstream outfile_bad;
+      std::ofstream outfile_bad;
       outfile_bad.open("modulediff_bad.txt");
       for ( unsigned int i = 0; i < modules_malformed.size() ; i++ )
 	outfile_bad << " " << modules_malformed[ i ] << endl;

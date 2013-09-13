@@ -108,7 +108,7 @@ class L1TCSCTF : public edm::EDAnalyzer {
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
-  ofstream logFile_;
+  std::ofstream logFile_;
   edm::InputTag gmtProducer, lctProducer, trackProducer, statusProducer, mbProducer;
 
   CSCSectorReceiverLUT *srLUTs_[5];

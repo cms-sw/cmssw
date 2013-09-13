@@ -88,7 +88,7 @@ bool PFResolutionMap::WriteMapFile(const char* mapfile) {
 
   // open the file
 
-  ofstream outf(mapfile);
+  std::ofstream outf(mapfile);
   if( !outf.good() ) {
     cout<<"PFResolutionMap::Write : cannot open file "<<mapfile<<endl;
     return false;
@@ -111,7 +111,7 @@ bool PFResolutionMap::ReadMapFile(const char* mapfile) {
   
   // open the file
 
-  ifstream inf(mapfile);
+  std::ifstream inf(mapfile);
   if( !inf.good() ) {
     // cout<<"PFResolutionMap::Read : cannot open file "<<mapfile<<endl;
     return false;

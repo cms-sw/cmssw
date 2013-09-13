@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include <iostream>
 
 SiPixelFakeTemplateDBSourceReader::SiPixelFakeTemplateDBSourceReader(const edm::ParameterSet& iConfig)
 {

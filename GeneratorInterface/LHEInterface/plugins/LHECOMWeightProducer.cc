@@ -1,3 +1,4 @@
+#include <iostream>
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

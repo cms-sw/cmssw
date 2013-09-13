@@ -119,7 +119,7 @@ std::string TkHistoMap::folderDefinition(std::string& path, std::string& MapName
 
 #include "iostream"
 void TkHistoMap::fillFromAscii(std::string filename){
-  ifstream file;
+  std::ifstream file;
   file.open(filename.c_str());
   float value;
   uint32_t detid;

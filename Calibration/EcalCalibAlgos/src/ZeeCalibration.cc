@@ -2379,7 +2379,7 @@ void ZeeCalibration::printStatistics(){
   
   
   
-  ofstream fout("ZeeStatistics.txt");
+  std::ofstream fout("ZeeStatistics.txt");
   
   if(!fout) {
     std::cout << "Cannot open output file.\n";

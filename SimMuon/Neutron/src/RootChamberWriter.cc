@@ -1,6 +1,9 @@
 #include "SimMuon/Neutron/src/RootChamberWriter.h"
 #include "SimMuon/Neutron/src/RootSimHit.h"
+
+#include <iostream>
 using namespace std;
+
 
 RootChamberWriter::RootChamberWriter(const std::string & treeName)
 {

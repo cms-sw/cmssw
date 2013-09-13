@@ -74,7 +74,7 @@ namespace edmtest {
 	
 	//here you can implement the stream for putting the TFile on disk...
 	std::string outfile("dqmreference.root") ;
-	ofstream output(outfile.c_str()) ;
+	std::ofstream output(outfile.c_str()) ;
 	output.write((const char *)&(*tb)[0], tb->size());
 	output.close() ;
 	

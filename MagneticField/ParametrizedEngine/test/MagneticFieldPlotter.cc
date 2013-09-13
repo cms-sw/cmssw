@@ -86,12 +86,12 @@ MagneticFieldPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	 GlobalVector myFieldVector = theMGField->inTesla(gp);
 	 float Br   = myFieldVector.x()*cos(gp.phi()) + myFieldVector.y()*sin(gp.phi());
 	 float Bphi = - myFieldVector.x()*sin(gp.phi()) + myFieldVector.y()*cos(gp.phi());
-	 cout << "Radius  = " << rCoordinate       ;
-	 cout << ", Z     = " << zCoordinate      ;
-	 cout << ", Phi    = " << phiCoordinate     <<endl;
-	 cout << "Bz     = " << myFieldVector.z() ;
-	 cout << ", Br     = " << Br                ;
-	 cout << ", Bphi   = " << Bphi              << endl;
+	 std::cout << "Radius  = " << rCoordinate       ;
+	 std::cout << ", Z     = " << zCoordinate      ;
+	 std::cout << ", Phi    = " << phiCoordinate     <<std::endl;
+	 std::cout << "Bz     = " << myFieldVector.z() ;
+	 std::cout << ", Br     = " << Br                ;
+	 std::cout << ", Bphi   = " << Bphi              << std::endl;
 	 gBz[iR]  ->Fill(phiCoordinate,zCoordinate,myFieldVector.z());
 	 gBr[iR]  ->Fill(phiCoordinate,zCoordinate,Br               );
 	 gBphi[iR]->Fill(phiCoordinate,zCoordinate,Bphi             );

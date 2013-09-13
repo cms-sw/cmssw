@@ -624,7 +624,7 @@ void LASBarrelAlgorithm::Dump( void ) {
 
 
   // det parameters once again without leading column (for easy read-in), into a file
-  ofstream file( "/afs/cern.ch/user/o/olzem/public/parameters_det.txt" );
+  std::ofstream file( "/afs/cern.ch/user/o/olzem/public/parameters_det.txt" );
   for( int subdet = 0; subdet < 6; ++subdet ) {
     for( int par = subdetParMap[subdet]; par <= subdetParMap[subdet] + 4; par += 2 ) {
       minuit->GetParameter( par, value, error );
@@ -672,7 +672,7 @@ void LASBarrelAlgorithm::ReadMisalignmentFromFile( const char* filename,
 						   LASGlobalData<LASCoordinateSet>& measuredCoordinates,
 						   LASGlobalData<LASCoordinateSet>& nominalCoordinates  ) {
 
-  ifstream file( filename );
+  std::ifstream file( filename );
   if( file.bad() ) {
     std::cerr << " [LASBarrelAlgorithm::ReadMisalignmentFromFile] ** ERROR: cannot open file \"" << filename << "\"." << std::endl;
     return;
@@ -757,7 +757,7 @@ void LASBarrelAlgorithm::ReadMisalignmentFromFile( const char* filename,
 ///
 void LASBarrelAlgorithm::ReadStartParametersFromFile( const char* filename, float values[52] ) {
   
-  ifstream file( filename );
+  std::ifstream file( filename );
   if( file.bad() ) {
     std::cerr << " [LASBarrelAlgorithm::ReadStartParametersFromFile] ** ERROR: cannot open file \"" << filename << "\"." << std::endl;
     return;

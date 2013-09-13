@@ -740,7 +740,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
   //Check here if there is a file already, otherwise initialize to OFF all channels in these PSU!
   if (FileExists("HVUnmappedChannelState.dat")) {
     std::cout<<"File HVUnmappedChannelState.dat exists!"<<std::endl;
-    ifstream ifs("HVUnmappedChannelState.dat");
+    std::ifstream ifs("HVUnmappedChannelState.dat");
     string line;
     while( getline( ifs, line ) ) {
       if( line != "" ) {
@@ -801,7 +801,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
   //Check here if there is a file already, otherwise initialize to OFF all channels in these PSU!
   if (FileExists("HVCrosstalkingChannelState.dat")) {
     std::cout<<"File HVCrosstalkingChannelState.dat exists!"<<std::endl;
-    ifstream ifs("HVCrosstalkingChannelState.dat");
+    std::ifstream ifs("HVCrosstalkingChannelState.dat");
     string line;
     while( getline( ifs, line ) ) {
       if( line != "" ) {
@@ -1135,11 +1135,11 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
     }
   }//End of the loop over all PSUChannels reported by the DB query.
   //At this point we need to (over)write the 2 files that will keep the HVUnmapped and HVCrosstalking channels status:
-  ofstream ofsUnmapped("HVUnmappedChannelState.dat");
+  std::ofstream ofsUnmapped("HVUnmappedChannelState.dat");
   for (std::map<std::string,bool>::iterator it=UnmappedState.begin(); it!=UnmappedState.end(); it++) {
     ofsUnmapped<<it->first<<"\t"<<it->second<<std::endl;
   }
-  ofstream ofsCrosstalking("HVCrosstalkingChannelState.dat");
+  std::ofstream ofsCrosstalking("HVCrosstalkingChannelState.dat");
   for (std::map<std::string,bool>::iterator it=CrosstalkingState.begin(); it!=CrosstalkingState.end(); it++) {
     ofsCrosstalking<<it->first<<"\t"<<it->second<<std::endl;
   }
