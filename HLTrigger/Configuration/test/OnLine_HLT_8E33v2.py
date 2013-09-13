@@ -1,11 +1,11 @@
-# /online/collisions/2012/8e33/v2.2/HLT/V6 (CMSSW_6_2_0_pre6_HLT2)
+# /online/collisions/2012/8e33/v2.3/HLT/V2 (CMSSW_6_2_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT8E33v2" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v2.2/HLT/V6')
+  tableName = cms.string('/online/collisions/2012/8e33/v2.3/HLT/V2')
 )
 
 process.streams = cms.PSet( 
@@ -5421,10 +5421,6 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltPFJetCtfWithMaterialTracks',
       'hltL3TkTracksFromL2IOHit',
       'hltL3TkTracksFromL2OIHit' )
-)
-process.MicroStateService = cms.Service( "MicroStateService",
-)
-process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
     forceDefault = cms.bool( False ),
