@@ -8,4 +8,4 @@ from RecoJets.Configuration.RecoPFJets_cff import *
 from RecoJets.Configuration.RecoJPTJets_cff import *
 
 jetGlobalReco = cms.Sequence(recoJets*recoJetIds*recoTrackJets)
-jetHighLevelReco = cms.Sequence(recoJetAssociations*recoPFJets*recoJetAssociationsExplicit*recoJPTJets)
+jetHighLevelReco = cms.Sequence(recoPFJets*recoJetAssociations*recoJetAssociationsExplicit*recoJPTJets)

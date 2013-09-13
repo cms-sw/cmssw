@@ -17,12 +17,12 @@ RecoJetsFEVT = cms.PSet(
                                            'keep *_kt4JetTracksAssociatorAtVertex_*_*', 
                                            'keep *_kt4JetTracksAssociatorAtCaloFace_*_*', 
                                            'keep *_kt4JetExtender_*_*',
-                                           'keep *_ak5JetTracksAssociatorAtVertex_*_*', 
-                                           'keep *_ak5JetTracksAssociatorAtCaloFace_*_*', 
+                                           'keep *_ak5JetTracksAssociatorAtVertex*_*_*', 
+                                           'keep *_ak5JetTracksAssociatorAtCaloFace*_*_*', 
                                            'keep *_ak5JetExtender_*_*',
                                            'keep *_ak5JetTracksAssociatorExplicit_*_*',
-                                           'keep *_ak7JetTracksAssociatorAtVertex_*_*', 
-                                           'keep *_ak7JetTracksAssociatorAtCaloFace_*_*', 
+                                           'keep *_ak7JetTracksAssociatorAtVertex*_*_*', 
+                                           'keep *_ak7JetTracksAssociatorAtCaloFace*_*_*', 
                                            'keep *_ak7JetExtender_*_*',
                                            'keep *_ak5JetID_*_*','keep *_ak7JetID_*_*',
                                            'keep *_sc5JetID_*_*','keep *_sc7JetID_*_*',
@@ -81,6 +81,7 @@ RecoJetsRECO = cms.PSet(
                                            'keep *_kt4JetTracksAssociatorAtCaloFace_*_*', 
                                            'keep *_kt4JetExtender_*_*',
 <<<<<<< HEAD
+<<<<<<< HEAD
                                            'keep *_ak5JetTracksAssociatorAtVertex_*_*', 
                                            'keep *_ak5JetTracksAssociatorAtCaloFace_*_*', 
 =======
@@ -88,10 +89,14 @@ RecoJetsRECO = cms.PSet(
                                            'keep *_ak5JetTracksAssociatorAtVertexPF_*_*',
                                            'keep *_ak5JetTracksAssociatorAtCaloFace_*_*',
 >>>>>>> 0ca6e99... Forgot to add JTA at calo face to event content
+=======
+                                           'keep *_ak5JetTracksAssociatorAtVertex_*_*',
+                                           'keep *_ak5JetTracksAssociatorAtVertexPF_*_*', 
+>>>>>>> 9f8f426... Adding a JTA for PFJets
                                            'keep *_ak5JetTracksAssociatorExplicit_*_*',
                                            'keep *_ak5JetExtender_*_*',
-                                           'keep *_ak7JetTracksAssociatorAtVertex_*_*', 
-                                           'keep *_ak7JetTracksAssociatorAtCaloFace_*_*', 
+                                           'keep *_ak7JetTracksAssociatorAtVertex*_*_*', 
+                                           'keep *_ak7JetTracksAssociatorAtCaloFace*_*_*', 
                                            'keep *_ak7JetExtender_*_*',        
                                            'keep *_ak5JetID_*_*','keep *_ak7JetID_*_*',
                                            'keep *_ic5JetID_*_*',
@@ -144,7 +149,8 @@ RecoJetsAOD = cms.PSet(
                                            #        'keep *_towerMaker_*_*',
                                            'keep *_CastorTowerReco_*_*',                                           
                                            #        'keep *_ic5JetTracksAssociatorAtVertex_*_*',
-                                           'keep *_ak5JetTracksAssociatorAtVertex_*_*', 
+                                           'keep *_ak5JetTracksAssociatorAtVertex_*_*',
+                                           'keep *_ak5JetTracksAssociatorAtVertexPF_*_*', 
                                            'keep *_ak5JetTracksAssociatorExplicit_*_*',
                                            #'keep *_ak7JetTracksAssociatorAtVertex_*_*', 
                                            #        'keep *_iterativeCone5JetExtender_*_*', 
