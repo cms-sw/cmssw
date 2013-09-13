@@ -49,65 +49,6 @@ class MessageLogger {
 public:
   MessageLogger( ParameterSet const &, ActivityRegistry & );
 
-  void  postBeginJob();
-  void  postEndJob();
-  void  jobFailure();
-  
-  void  preSource  ();
-  void  postSource ();
-
-  void  preFile       ( std::string const &, bool );
-  void  preFileClose  ( std::string const&, bool );
-  void  postFile      ( std::string const &, bool );
-
-  void  preModuleConstruction ( ModuleDescription const & );
-  void  postModuleConstruction( ModuleDescription const & );
-
-  void  preSourceConstruction ( ModuleDescription const & );
-  void  postSourceConstruction( ModuleDescription const & );
-
-  void  preModule ( ModuleDescription const & );
-  void  postModule( ModuleDescription const & );
-
-  void  preModuleBeginJob  ( ModuleDescription const & );
-  void  postModuleBeginJob ( ModuleDescription const & );
-  void  preModuleEndJob  ( ModuleDescription const & );
-  void  postModuleEndJob ( ModuleDescription const & );
-
-  void  preModuleBeginRun  ( ModuleDescription const & );
-  void  postModuleBeginRun ( ModuleDescription const & );
-  void  preModuleEndRun  ( ModuleDescription const & );
-  void  postModuleEndRun ( ModuleDescription const & );
-
-  void  preModuleBeginLumi  ( ModuleDescription const & );
-  void  postModuleBeginLumi ( ModuleDescription const & );
-  void  preModuleEndLumi  ( ModuleDescription const & );
-  void  postModuleEndLumi ( ModuleDescription const & );
-
-  void  preEventProcessing ( edm::EventID const &, edm::Timestamp const & );
-  void  postEventProcessing( Event const &, EventSetup const & );
-
-  void  preBeginRun    ( const edm::RunID&, const edm::Timestamp& );
-  void  postBeginRun   ( const edm::Run&, EventSetup const & );
-  void  preEndRun      ( const edm::RunID&, const edm::Timestamp& );
-  void  postEndRun     ( const edm::Run&, EventSetup const & );
-  void  preBeginLumi   ( const edm::LuminosityBlockID&, const edm::Timestamp& );
-  void  postBeginLumi  ( const edm::LuminosityBlock&, EventSetup const & );
-  void  preEndLumi     ( const edm::LuminosityBlockID&, const edm::Timestamp& );
-  void  postEndLumi    ( const edm::LuminosityBlock&, EventSetup const & );
-
-  void  prePathBeginRun   ( const std::string& pathname );
-  void  postPathBeginRun  ( const std::string& pathname, HLTPathStatus const&);
-  void  prePathEndRun     ( const std::string& pathname );
-  void  postPathEndRun    ( const std::string& pathname, HLTPathStatus const&);
-  void  prePathBeginLumi  ( const std::string& pathname );
-  void  postPathBeginLumi ( const std::string& pathname, HLTPathStatus const&);
-  void  prePathEndLumi    ( const std::string& pathname );
-  void  postPathEndLumi   ( const std::string& pathname, HLTPathStatus const&);
-  void  preProcessPath    ( const std::string& pathname );
-  void  postProcessPath   ( const std::string& pathname, HLTPathStatus const&);
-
-
   void  fillErrorObj(edm::ErrorObj& obj) const;
   bool  debugEnabled() const { return debugEnabled_; }
 
@@ -119,21 +60,99 @@ public:
   
 private:
 
+  void  postBeginJob();
+  void  postEndJob();
+  void  jobFailure();
+  
+  void  preSource  ();
+  void  postSource ();
+  
+  void  preFile       ( std::string const &, bool );
+  void  preFileClose  ( std::string const&, bool );
+  void  postFile      ( std::string const &, bool );
+  
+  void  preModuleConstruction ( ModuleDescription const & );
+  void  postModuleConstruction( ModuleDescription const & );
+  
+  void  preSourceConstruction ( ModuleDescription const & );
+  void  postSourceConstruction( ModuleDescription const & );
+  
+  void  preModuleEvent ( StreamContext const&, ModuleCallingContext const& );
+  void  postModuleEvent( StreamContext const&, ModuleCallingContext const& );
+  
+  void  preModuleBeginJob  ( ModuleDescription const & );
+  void  postModuleBeginJob ( ModuleDescription const & );
+  void  preModuleEndJob  ( ModuleDescription const & );
+  void  postModuleEndJob ( ModuleDescription const & );
+  
+  void  preModuleStreamBeginRun  ( StreamContext const&, ModuleCallingContext const& );
+  void  postModuleStreamBeginRun ( StreamContext const&, ModuleCallingContext const& );
+  void  preModuleStreamEndRun  ( StreamContext const&, ModuleCallingContext const& );
+  void  postModuleStreamEndRun ( StreamContext const&, ModuleCallingContext const& );
+  
+  void  preModuleStreamBeginLumi  ( StreamContext const&, ModuleCallingContext const& );
+  void  postModuleStreamBeginLumi ( StreamContext const&, ModuleCallingContext const& );
+  void  preModuleStreamEndLumi  ( StreamContext const&, ModuleCallingContext const& );
+  void  postModuleStreamEndLumi ( StreamContext const&, ModuleCallingContext const& );
+  
+  void  preEvent ( StreamContext const& );
+  void  postEvent( StreamContext const&, Event const &, EventSetup const & );
+  
+  void  preStreamBeginRun    ( StreamContext const& );
+  void  postStreamBeginRun   ( StreamContext const& );
+  void  preStreamEndRun      ( StreamContext const& );
+  void  postStreamEndRun     ( StreamContext const&, const edm::Run&, EventSetup const & );
+  void  preStreamBeginLumi   ( StreamContext const& );
+  void  postStreamBeginLumi  ( StreamContext const& );
+  void  preStreamEndLumi     ( StreamContext const& );
+  void  postStreamEndLumi    ( StreamContext const&, const edm::LuminosityBlock&, EventSetup const & );
+
+  void  preModuleGlobalBeginRun  ( GlobalContext const&, ModuleCallingContext const& );
+  void  postModuleGlobalBeginRun ( GlobalContext const&, ModuleCallingContext const& );
+  void  preModuleGlobalEndRun    ( GlobalContext const&, ModuleCallingContext const& );
+  void  postModuleGlobalEndRun   ( GlobalContext const&, ModuleCallingContext const& );
+  
+  void  preModuleGlobalBeginLumi  ( GlobalContext const&, ModuleCallingContext const& );
+  void  postModuleGlobalBeginLumi ( GlobalContext const&, ModuleCallingContext const& );
+  void  preModuleGlobalEndLumi    ( GlobalContext const&, ModuleCallingContext const& );
+  void  postModuleGlobalEndLumi   ( GlobalContext const&, ModuleCallingContext const& );
+
+  void  preGlobalBeginRun    ( GlobalContext const& );
+  void  postGlobalBeginRun   ( GlobalContext const& );
+  void  preGlobalEndRun      ( GlobalContext const& );
+  void  postGlobalEndRun     ( GlobalContext const&, const edm::Run&, EventSetup const & );
+  void  preGlobalBeginLumi   ( GlobalContext const& );
+  void  postGlobalBeginLumi  ( GlobalContext const& );
+  void  preGlobalEndLumi     ( GlobalContext const& );
+  void  postGlobalEndLumi    ( GlobalContext const&, const edm::LuminosityBlock&, EventSetup const & );
+  
+  void  prePathEvent    ( StreamContext const&, PathContext const& );
+  void  postPathEvent   ( StreamContext const&, PathContext const&, HLTPathStatus const&);
+
   // set up the module name in the message drop, and the enable/suppress info
   void  establishModule       ( const ModuleDescription& desc,
   		                const char* whichPhase );
   void  unEstablishModule     ( const ModuleDescription& desc,
   		                const char*  whichPhase );
-  void  establish             ( const char*  whichPhase ); 
+  void  establishModule       (unsigned int transitionIndex,
+                               const ModuleCallingContext& context,
+                               const char* whichPhase );
+  void  unEstablishModule     (const ModuleCallingContext& desc,
+                               const char*  whichPhase );
+  void  establish             ( const char*  whichPhase );
   void  unEstablish           ( const char*  whichPhase ); 
   
-  edm::EventID curr_event_;
+  //Cache string description for each active transition
+  // stream info is first in the container
+  // concurrent lumi info is next
+  // concurrent run info is last
+  std::vector<std::string> transitionInfoCache_;
+  unsigned int lumiInfoBegin_=0;
+  unsigned int runInfoBegin_=0;
 
   std::set<std::string> debugEnabledModules_;
   std::map<std::string,ELseverityLevel> suppression_levels_;
   bool debugEnabled_;
-  //this is a cache which profiling has shown to be helpful
-  std::map<const ModuleDescription*, std::string> descToCalcName_;
   static bool   anyDebugEnabled_;
   static bool everyDebugEnabled_;
 
@@ -145,8 +164,6 @@ private:
   bool nonModule_infoEnabled;
   bool nonModule_warningEnabled;  
   bool nonModule_errorEnabled;  
-
-  std::vector<ModuleDescription const*> moduleStack_;
 
 };  // MessageLogger
 

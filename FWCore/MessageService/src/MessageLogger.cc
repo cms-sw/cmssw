@@ -17,7 +17,7 @@
 //			LogDebug messages are not immediately discarded
 //			(though they might be filtered at the server side).
 //
-// 2  mf  5/27/06	In preEventProcessing, change the syntax for 
+// 2  mf  5/27/06	In preEventProcessing, change the syntax for
 //			runEvent from 1/23 to Run: 1 Event: 23
 //
 // 3 mf   6/27/06	PreModuleConstruction and PreSourceConstruction get
@@ -88,11 +88,41 @@
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/ServiceRegistry/interface/PathContext.h"
+
 
 #include <sstream>
 
 using namespace edm;
 using namespace edm::service;
+
+namespace {
+  char const* const s_globalTransitionNames[] = {
+    "@beginJob",
+    "@beginRun",
+    "@beginLumi",
+    "@endLumi",
+    "@endRun",
+    "@endJob",
+    "@writeRun",
+    "@writeLumi"
+  };
+  
+  char const* const s_streamTransitionNames[] = {
+    "@beginStream",
+    "@streamBeginRun",
+    "@streamBeginLumi",
+    "",//event
+    "@streamEndLumi",
+    "@streamEndRun",
+    "@endStream",
+  };
+}
 
 namespace edm {
 namespace service {
@@ -203,6 +233,15 @@ MessageLogger( ParameterSet const & iPS
   
   MessageLoggerQ::MLqCFG( new ParameterSet(iPS) );		// change log 9
 
+  iRegistry.watchPreallocate([this](edm::service::SystemBounds const& iBounds){
+    //reserve the proper amount of space to record the transition info
+    this->transitionInfoCache_.resize(iBounds.maxNumberOfStreams()
+                                  +iBounds.maxNumberOfConcurrentLuminosityBlocks()
+                                  +iBounds.maxNumberOfConcurrentRuns());
+    lumiInfoBegin_ = iBounds.maxNumberOfStreams();
+    runInfoBegin_= lumiInfoBegin_+iBounds.maxNumberOfConcurrentLuminosityBlocks();
+  });
+  
   iRegistry.watchPostBeginJob(this,&MessageLogger::postBeginJob);
   iRegistry.watchPostEndJob(this,&MessageLogger::postEndJob);
   iRegistry.watchJobFailure(this,&MessageLogger::jobFailure);	// change log 14
@@ -215,8 +254,8 @@ MessageLogger( ParameterSet const & iPS
   iRegistry.watchPostSourceConstruction(this,&MessageLogger::postSourceConstruction);
 								// change log 3
 
-  iRegistry.watchPreModule(this,&MessageLogger::preModule);
-  iRegistry.watchPostModule(this,&MessageLogger::postModule);
+  iRegistry.watchPreModuleEvent(this,&MessageLogger::preModuleEvent);
+  iRegistry.watchPostModuleEvent(this,&MessageLogger::postModuleEvent);
 
   iRegistry.watchPreSource(this,&MessageLogger::preSource);
   iRegistry.watchPostSource(this,&MessageLogger::postSource);
@@ -236,37 +275,48 @@ MessageLogger( ParameterSet const & iPS
   iRegistry.watchPostModuleBeginJob(this,&MessageLogger::postModuleBeginJob);
   iRegistry.watchPreModuleEndJob(this,&MessageLogger::preModuleEndJob);
   iRegistry.watchPostModuleEndJob(this,&MessageLogger::postModuleEndJob);
-  iRegistry.watchPreModuleBeginRun(this,&MessageLogger::preModuleBeginRun);
-  iRegistry.watchPostModuleBeginRun(this,&MessageLogger::postModuleBeginRun);
-  iRegistry.watchPreModuleEndRun(this,&MessageLogger::preModuleEndRun);
-  iRegistry.watchPostModuleEndRun(this,&MessageLogger::postModuleEndRun);
-  iRegistry.watchPreModuleBeginLumi(this,&MessageLogger::preModuleBeginLumi);
-  iRegistry.watchPostModuleBeginLumi(this,&MessageLogger::postModuleBeginLumi);
-  iRegistry.watchPreModuleEndLumi(this,&MessageLogger::preModuleEndLumi);
-  iRegistry.watchPostModuleEndLumi(this,&MessageLogger::postModuleEndLumi);
+  
+  iRegistry.watchPreModuleStreamBeginRun(this,&MessageLogger::preModuleStreamBeginRun);
+  iRegistry.watchPostModuleStreamBeginRun(this,&MessageLogger::postModuleStreamBeginRun);
+  iRegistry.watchPreModuleStreamEndRun(this,&MessageLogger::preModuleStreamEndRun);
+  iRegistry.watchPostModuleStreamEndRun(this,&MessageLogger::postModuleStreamEndRun);
+  iRegistry.watchPreModuleStreamBeginLumi(this,&MessageLogger::preModuleStreamBeginLumi);
+  iRegistry.watchPostModuleStreamBeginLumi(this,&MessageLogger::postModuleStreamBeginLumi);
+  iRegistry.watchPreModuleStreamEndLumi(this,&MessageLogger::preModuleStreamEndLumi);
+  iRegistry.watchPostModuleStreamEndLumi(this,&MessageLogger::postModuleStreamEndLumi);
 
-  iRegistry.watchPreProcessEvent(this,&MessageLogger::preEventProcessing);
-  iRegistry.watchPostProcessEvent(this,&MessageLogger::postEventProcessing);
-							// change log 14:
-  iRegistry.watchPreBeginRun(this,&MessageLogger::preBeginRun);
-  iRegistry.watchPostBeginRun(this,&MessageLogger::postBeginRun);
-  iRegistry.watchPreEndRun(this,&MessageLogger::preEndRun); // change log 15
-  iRegistry.watchPostEndRun(this,&MessageLogger::postEndRun);
-  iRegistry.watchPreBeginLumi(this,&MessageLogger::preBeginLumi);
-  iRegistry.watchPostBeginLumi(this,&MessageLogger::postBeginLumi);
-  iRegistry.watchPreEndLumi(this,&MessageLogger::preEndLumi);
-  iRegistry.watchPostEndLumi(this,&MessageLogger::postEndLumi);
+  iRegistry.watchPreModuleGlobalBeginRun(this,&MessageLogger::preModuleGlobalBeginRun);
+  iRegistry.watchPostModuleGlobalBeginRun(this,&MessageLogger::postModuleGlobalBeginRun);
+  iRegistry.watchPreModuleGlobalEndRun(this,&MessageLogger::preModuleGlobalEndRun);
+  iRegistry.watchPostModuleGlobalEndRun(this,&MessageLogger::postModuleGlobalEndRun);
+  iRegistry.watchPreModuleGlobalBeginLumi(this,&MessageLogger::preModuleGlobalBeginLumi);
+  iRegistry.watchPostModuleGlobalBeginLumi(this,&MessageLogger::postModuleGlobalBeginLumi);
+  iRegistry.watchPreModuleGlobalEndLumi(this,&MessageLogger::preModuleGlobalEndLumi);
+  iRegistry.watchPostModuleGlobalEndLumi(this,&MessageLogger::postModuleGlobalEndLumi);
 
-  iRegistry.watchPrePathBeginRun(this,&MessageLogger::prePathBeginRun);
-  iRegistry.watchPostPathBeginRun(this,&MessageLogger::postPathBeginRun);
-  iRegistry.watchPrePathEndRun(this,&MessageLogger::prePathEndRun);
-  iRegistry.watchPostPathEndRun(this,&MessageLogger::postPathEndRun);
-  iRegistry.watchPrePathBeginLumi(this,&MessageLogger::prePathBeginLumi);
-  iRegistry.watchPostPathBeginLumi(this,&MessageLogger::postPathBeginLumi);
-  iRegistry.watchPrePathEndLumi(this,&MessageLogger::prePathEndLumi);
-  iRegistry.watchPostPathEndLumi(this,&MessageLogger::postPathEndLumi);
-  iRegistry.watchPreProcessPath(this,&MessageLogger::preProcessPath);
-  iRegistry.watchPostProcessPath(this,&MessageLogger::postProcessPath);
+  iRegistry.watchPreEvent(this,&MessageLogger::preEvent);
+  iRegistry.watchPostEvent(this,&MessageLogger::postEvent);
+
+  iRegistry.watchPreStreamBeginRun(this,&MessageLogger::preStreamBeginRun);
+  iRegistry.watchPostStreamBeginRun(this,&MessageLogger::postStreamBeginRun);
+  iRegistry.watchPreStreamEndRun(this,&MessageLogger::preStreamEndRun);
+  iRegistry.watchPostStreamEndRun(this,&MessageLogger::postStreamEndRun);
+  iRegistry.watchPreStreamBeginLumi(this,&MessageLogger::preStreamBeginLumi);
+  iRegistry.watchPostStreamBeginLumi(this,&MessageLogger::postStreamBeginLumi);
+  iRegistry.watchPreStreamEndLumi(this,&MessageLogger::preStreamEndLumi);
+  iRegistry.watchPostStreamEndLumi(this,&MessageLogger::postStreamEndLumi);
+
+  iRegistry.watchPreGlobalBeginRun(this,&MessageLogger::preGlobalBeginRun);
+  iRegistry.watchPostGlobalBeginRun(this,&MessageLogger::postGlobalBeginRun);
+  iRegistry.watchPreGlobalEndRun(this,&MessageLogger::preGlobalEndRun);
+  iRegistry.watchPostGlobalEndRun(this,&MessageLogger::postGlobalEndRun);
+  iRegistry.watchPreGlobalBeginLumi(this,&MessageLogger::preGlobalBeginLumi);
+  iRegistry.watchPostGlobalBeginLumi(this,&MessageLogger::postGlobalBeginLumi);
+  iRegistry.watchPreGlobalEndLumi(this,&MessageLogger::preGlobalEndLumi);
+  iRegistry.watchPostGlobalEndLumi(this,&MessageLogger::postGlobalEndLumi);
+
+  iRegistry.watchPrePathEvent(this,&MessageLogger::prePathEvent);
+  iRegistry.watchPostPathEvent(this,&MessageLogger::postPathEvent);
 
 } // ctor
 
@@ -314,6 +364,50 @@ MessageLogger::establishModule(ModuleDescription const & desc,
   }
 } // establishModule
 
+  void
+  MessageLogger::establishModule(unsigned int transitionIndex,
+                                 ModuleCallingContext const & mod,
+                                 const char * whichPhase)	// ChangeLog 13, 17
+  {
+    MessageDrop* messageDrop = MessageDrop::instance();
+    nonModule_debugEnabled   = messageDrop->debugEnabled;
+    nonModule_infoEnabled    = messageDrop->infoEnabled;
+    nonModule_warningEnabled = messageDrop->warningEnabled;
+    nonModule_errorEnabled   = messageDrop->errorEnabled;         // change log 20
+    
+    // std::cerr << "establishModule( " << desc.moduleName() << ")\n";
+    // Change Log 17
+    auto const desc = mod.moduleDescription();
+    messageDrop->runEvent = transitionInfoCache_[transitionIndex];
+    messageDrop->setModuleWithPhase(desc->moduleName(), desc->moduleLabel(),
+                                    desc->id(), whichPhase );
+    // Removed caching per change 17 - caching is now done in MessageDrop.cc
+    // in theContext() method, and only happens if a message is actually issued.
+    
+    if (!anyDebugEnabled_) {
+      messageDrop->debugEnabled = false;
+    } else if (everyDebugEnabled_) {
+      messageDrop->debugEnabled = true;
+    } else {
+      messageDrop->debugEnabled =
+      debugEnabledModules_.count(desc->moduleLabel());
+    }
+    
+    auto it = suppression_levels_.find(desc->moduleLabel());
+    if ( it != suppression_levels_.end() ) {
+      messageDrop->debugEnabled  = messageDrop->debugEnabled
+      && (it->second < ELseverityLevel::ELsev_success );
+      messageDrop->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
+      messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning );
+      messageDrop->errorEnabled   = (it->second < ELseverityLevel::ELsev_error );
+    } else {
+      messageDrop->infoEnabled    = true;
+      messageDrop->warningEnabled = true;
+      messageDrop->errorEnabled   = true;
+    }
+  } // establishModule
+
+  
 void
 MessageLogger::unEstablishModule(ModuleDescription const & /*unused*/, 
 			         const char*  state)
@@ -328,6 +422,46 @@ MessageLogger::unEstablishModule(ModuleDescription const & /*unused*/,
   messageDrop->warningEnabled = nonModule_warningEnabled;
   messageDrop->errorEnabled   = nonModule_errorEnabled; // change log 20
 }
+
+  void
+  MessageLogger::unEstablishModule(ModuleCallingContext const & mod,
+                                   const char*  state)
+  {
+    //Need to reset to what was previously being used on this thread
+    auto previous = mod.previousModuleOnThread();
+    if(previous) {
+      //need to know if we are in a global or stream context
+      auto top = previous->getTopModuleCallingContext();
+      assert(nullptr != top);
+      if (ParentContext::Type::kGlobal == top->type()) {
+        auto globalContext = top->globalContext();
+        assert(nullptr != globalContext);
+        auto tran = globalContext->transition();
+        if(tran == GlobalContext::Transition::kBeginLuminosityBlock or
+           tran == GlobalContext::Transition::kEndLuminosityBlock) {
+          establishModule(lumiInfoBegin_+globalContext->luminosityBlockIndex(),
+                          *previous,s_globalTransitionNames[static_cast<int>(tran)]);
+        } else {
+          establishModule(runInfoBegin_+globalContext->runIndex(),
+                          *previous,s_globalTransitionNames[static_cast<int>(tran)]);
+        }
+      } else {
+        auto stream = previous->getStreamContext();
+        establishModule(stream->streamID().value(),*previous,s_streamTransitionNames[static_cast<int>(stream->transition())]);
+      }
+    } else {
+      MessageDrop* messageDrop = MessageDrop::instance();
+      messageDrop->setSinglet( state ); 			// Change Log 17
+      messageDrop->debugEnabled   = nonModule_debugEnabled;
+      messageDrop->infoEnabled    = nonModule_infoEnabled;
+      messageDrop->warningEnabled = nonModule_warningEnabled;
+      messageDrop->errorEnabled   = nonModule_errorEnabled; // change log 20
+    }
+
+    // std::cerr << "unestablishModule( " << desc.moduleName() << ") "
+    //           << "state = " << *state << "\n";
+    
+  }
 
 void
 MessageLogger::establish(const char* state)
@@ -411,59 +545,90 @@ void MessageLogger::postSourceConstruction(const ModuleDescription& iDescription
 { unEstablishModule (iDescription, "AfterSourceConstruction"); }
 
 void
-MessageLogger::preModuleBeginRun(const ModuleDescription& desc)
+MessageLogger::preModuleStreamBeginRun(StreamContext const& stream, ModuleCallingContext const& mod)
 {
-  establishModule (desc,"@beginRun");				// ChangeLog 13
+  establishModule (stream.streamID().value(),mod,
+                   s_streamTransitionNames[static_cast<int>(StreamContext::Transition::kBeginRun)]);
 }
-void MessageLogger::postModuleBeginRun(const ModuleDescription& iDescription)
-{ unEstablishModule (iDescription, "AfterModBeginRun"); }
+void MessageLogger::postModuleStreamBeginRun(StreamContext const& stream, ModuleCallingContext const& mod)
+{ unEstablishModule (mod, "AfterModStreamBeginRun"); }
 
 void
-MessageLogger::preModuleBeginLumi(const ModuleDescription& desc)
+MessageLogger::preModuleStreamBeginLumi(StreamContext const& stream, ModuleCallingContext const& mod)
 {
-  establishModule (desc,"@beginLumi");				// ChangeLog 13
+  establishModule (stream.streamID().value(),mod,
+                   s_streamTransitionNames[static_cast<int>(StreamContext::Transition::kBeginLuminosityBlock)]);
 }
-void MessageLogger::postModuleBeginLumi(const ModuleDescription& iDescription)
-{ unEstablishModule (iDescription, "AfterModBeginLumi"); }
+void MessageLogger::postModuleStreamBeginLumi(StreamContext const& stream, ModuleCallingContext const& mod)
+{ unEstablishModule (mod, "AfterModStreamBeginLumi"); }
 
 void
-MessageLogger::preModule(const ModuleDescription& desc)
+MessageLogger::preModuleEvent(StreamContext const& stream, ModuleCallingContext const& mod)
 {
-  establishModule (desc,"");					// ChangeLog 13
-  moduleStack_.emplace_back(&desc);
+  establishModule (stream.streamID().value(),mod,
+                   s_streamTransitionNames[static_cast<int>(StreamContext::Transition::kEvent)]);
 }
 
-void MessageLogger::postModule(const ModuleDescription& iDescription)
-{ 
-  // The moduleStack_ should never be empty, but lets check to be safe ...
-  if(moduleStack_.empty()) {
-    unEstablishModule (iDescription, "PostModule");
-  } else {
-    moduleStack_.pop_back();
-    if(moduleStack_.empty()) {
-      unEstablishModule (iDescription, "PostModule");
-    } else {
-      establishModule(*moduleStack_.back(), "");
-    }
-  }
+void MessageLogger::postModuleEvent(StreamContext const& stream, ModuleCallingContext const& mod)
+{
+  unEstablishModule(mod,"PostModuleEvent");
 }
 
 void
-MessageLogger::preModuleEndLumi(const ModuleDescription& desc)
+MessageLogger::preModuleStreamEndLumi(StreamContext const& stream, ModuleCallingContext const& mod)
 {
-  establishModule (desc,"@endLumi");				// ChangeLog 13
+  establishModule (stream.streamID().value(),mod,
+                   s_streamTransitionNames[static_cast<int>(StreamContext::Transition::kEndLuminosityBlock)]);
 }
-void MessageLogger::postModuleEndLumi(const ModuleDescription& iDescription)
-{ unEstablishModule (iDescription, "AfterModEndLumi"); }
+void MessageLogger::postModuleStreamEndLumi(StreamContext const& stream, ModuleCallingContext const& mod)
+{ unEstablishModule (mod, "AfterModStreamEndLumi"); }
 
 void
-MessageLogger::preModuleEndRun(const ModuleDescription& desc)
+MessageLogger::preModuleStreamEndRun(StreamContext const& stream, ModuleCallingContext const& mod)
 {
-  establishModule (desc,"@endRun");				// ChangeLog 13
+  establishModule (stream.streamID().value(),mod,
+                   s_streamTransitionNames[static_cast<int>(StreamContext::Transition::kEndRun)]);				// ChangeLog 13
 }
-void MessageLogger::postModuleEndRun(const ModuleDescription& iDescription)
-{ unEstablishModule (iDescription, "AfterModEndRun"); }
+void MessageLogger::postModuleStreamEndRun(StreamContext const& stream, ModuleCallingContext const& mod)
+{ unEstablishModule (mod, "AfterModStreamEndRun"); }
 
+  //Global
+void
+MessageLogger::preModuleGlobalBeginRun(GlobalContext const& context, ModuleCallingContext const& mod)
+{
+  establishModule (runInfoBegin_+ context.runIndex().value(),mod,
+                   s_globalTransitionNames[static_cast<int>(GlobalContext::Transition::kBeginRun)]);
+}
+void MessageLogger::postModuleGlobalBeginRun(GlobalContext const& context, ModuleCallingContext const& mod)
+{ unEstablishModule (mod, "AfterModGlobalBeginRun"); }
+
+void
+MessageLogger::preModuleGlobalBeginLumi(GlobalContext const& context, ModuleCallingContext const& mod)
+{
+  establishModule (lumiInfoBegin_+ context.luminosityBlockIndex().value(),mod,
+                   s_globalTransitionNames[static_cast<int>(GlobalContext::Transition::kBeginLuminosityBlock)]);
+}
+void MessageLogger::postModuleGlobalBeginLumi(GlobalContext const& stream, ModuleCallingContext const& mod)
+{ unEstablishModule (mod, "AfterModGlobalBeginLumi"); }
+
+void
+MessageLogger::preModuleGlobalEndLumi(GlobalContext const& context, ModuleCallingContext const& mod)
+{
+  establishModule (lumiInfoBegin_+ context.luminosityBlockIndex().value(),mod,
+                   s_globalTransitionNames[static_cast<int>(GlobalContext::Transition::kEndLuminosityBlock)]);
+}
+void MessageLogger::postModuleGlobalEndLumi(GlobalContext const& stream, ModuleCallingContext const& mod)
+{ unEstablishModule (mod, "AfterModGlobalEndLumi"); }
+
+void
+MessageLogger::preModuleGlobalEndRun(GlobalContext const& context, ModuleCallingContext const& mod)
+{
+  establishModule (runInfoBegin_+ context.runIndex().value(), mod,
+                   s_globalTransitionNames[static_cast<int>(GlobalContext::Transition::kEndRun)]);				// ChangeLog 13
+}
+void MessageLogger::postModuleGlobalEndRun(GlobalContext const& stream, ModuleCallingContext const& mod)
+{ unEstablishModule (mod, "AfterModGlobalEndRun"); }
+  
 void
 MessageLogger::preModuleEndJob(const ModuleDescription& desc)
 {
@@ -500,13 +665,14 @@ void MessageLogger::postFile( std::string const &, bool )
 
 
 void
-MessageLogger::preEventProcessing( const edm::EventID& iID
-                                 , const edm::Timestamp& /*unused*/ )
+MessageLogger::preEvent( StreamContext const& iContext)
 {
   std::ostringstream ost;
-  curr_event_ = iID;
-  ost << "Run: " << curr_event_.run() 
-      << " Event: " << curr_event_.event();    			// change log 2
+  auto const& id = iContext.eventID();
+  ost << "Run: " << id.run()
+      << " Event: " << id.event();    			// change log 2
+  assert(iContext.streamID().value()<transitionInfoCache_.size());
+  transitionInfoCache_[iContext.streamID().value()]=ost.str();
   edm::MessageDrop::instance()->runEvent = ost.str();  
   edm::MessageDrop::instance()->setSinglet("PreEventProcessing");// changelog 17
   // Note - module name had not been set here  Similarly in other places where
@@ -514,21 +680,87 @@ MessageLogger::preEventProcessing( const edm::EventID& iID
 }
 
 void
-MessageLogger::postEventProcessing(const Event&, const EventSetup&)
+MessageLogger::postEvent(StreamContext const&,const Event&, const EventSetup&)
 {
   edm::MessageDrop::instance()->runEvent = "PostProcessEvent";  
 }
 
+  void
+  MessageLogger::preStreamBeginRun( StreamContext const& iContext)	// change log 14
+  {
+    std::ostringstream ost;
+    ost << "Run: " << iContext.eventID().run();
+    transitionInfoCache_[iContext.streamID().value()]=ost.str();
+    edm::MessageDrop::instance()->runEvent = ost.str();
+    edm::MessageDrop::instance()->setSinglet("PreBeginRun");	// changelog 17
+  }
+  void MessageLogger::postStreamBeginRun(StreamContext const&)
+  {
+    edm::MessageDrop::instance()->runEvent = "PostBeginRun";
+    edm::MessageDrop::instance()->setSinglet("PostBeginRun");	// changelog 17
+                                                              // Note - module name had not been set here
+  }
+
+  void
+  MessageLogger::preStreamEndRun( StreamContext const& iContext)
+  {
+    std::ostringstream ost;
+    ost << "End Run: " << iContext.eventID().run();
+    transitionInfoCache_[iContext.streamID().value()]=ost.str();
+    edm::MessageDrop::instance()->runEvent = ost.str();
+    edm::MessageDrop::instance()->setSinglet("PreEndRun");	// changelog 17
+  }
+  
+  void MessageLogger::postStreamEndRun(StreamContext const&, const Run&, const EventSetup&)
+  {
+    edm::MessageDrop::instance()->runEvent = "PostEndRun";
+    edm::MessageDrop::instance()->setSinglet("PostEndRun");	// changelog 17
+  }
+  
+  void
+  MessageLogger::preStreamBeginLumi( StreamContext const& iContext)
+  {
+    std::ostringstream ost;
+    auto const& id = iContext.eventID();
+    ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock();
+    transitionInfoCache_[iContext.streamID().value()]=ost.str();
+    edm::MessageDrop::instance()->runEvent = ost.str();
+    edm::MessageDrop::instance()->setSinglet("PreBeginLumi");	// changelog 17
+  }
+  
+  void MessageLogger::postStreamBeginLumi(StreamContext const&)
+  {
+    edm::MessageDrop::instance()->runEvent = "PostBeginLumi";
+    edm::MessageDrop::instance()->setSinglet("PostBeginLumi");	// changelog 17
+  }
+  
+  void
+  MessageLogger::preStreamEndLumi( StreamContext const& iContext)
+  {
+    std::ostringstream ost;
+    auto const& id = iContext.eventID();
+    ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock();
+    transitionInfoCache_[iContext.streamID().value()]=ost.str();
+    edm::MessageDrop::instance()->runEvent = ost.str();
+    edm::MessageDrop::instance()->setSinglet("PreEndLumi");	// changelog 17
+  }
+  void MessageLogger::postStreamEndLumi(StreamContext const&, const LuminosityBlock&, const EventSetup&)
+  {
+    edm::MessageDrop::instance()->runEvent = "PostEndLumi";
+    edm::MessageDrop::instance()->setSinglet("PostEndLumi");	// changelog 17
+  }
+
+  
 void
-MessageLogger::preBeginRun( const edm::RunID& iID
-                          , const edm::Timestamp& /*unused*/)	// change log 14
+MessageLogger::preGlobalBeginRun( GlobalContext const& iContext)	// change log 14
 {
   std::ostringstream ost;
-  ost << "Run: " << iID.run();
+  ost << "Run: " << iContext.luminosityBlockID().run();
+  transitionInfoCache_[runInfoBegin_+iContext.runIndex()]=ost.str();
   edm::MessageDrop::instance()->runEvent = ost.str();  
   edm::MessageDrop::instance()->setSinglet("PreBeginRun");	// changelog 17
 }
-void MessageLogger::postBeginRun(const Run&, const EventSetup&)
+void MessageLogger::postGlobalBeginRun(GlobalContext const&)
 { 
   edm::MessageDrop::instance()->runEvent = "PostBeginRun"; 
   edm::MessageDrop::instance()->setSinglet("PostBeginRun");	// changelog 17
@@ -536,105 +768,61 @@ void MessageLogger::postBeginRun(const Run&, const EventSetup&)
 }
 
 void
-MessageLogger::prePathBeginRun( const std::string & pathname )	// change log 14
+MessageLogger::prePathEvent( StreamContext const&, PathContext const& iPath)	// change log 14
 {
-  edm::MessageDrop::instance()->setPath( "RPath: ", pathname);	// change log 17
-}
-
-void MessageLogger::postPathBeginRun(std::string const&,HLTPathStatus const&)
-{ 
-  edm::MessageDrop::instance()->setSinglet("PostPathBeginRun");	// changelog 17
-}
-
-void
-MessageLogger::prePathEndRun( const std::string & pathname )	// change log 14
-{
-  edm::MessageDrop::instance()->setPath( "RPathEnd: ", pathname);
+  edm::MessageDrop::instance()->setPath( "PreProcPath ", iPath.pathName());
   								// change log 17
 }
 
-void MessageLogger::postPathEndRun(std::string const&,HLTPathStatus const&)
-{ 
-  edm::MessageDrop::instance()->setSinglet("PostPathEndRun");	// changelog 17
-}
-
-void
-MessageLogger::prePathBeginLumi( const std::string & pathname )	// change log 14
-{
-  edm::MessageDrop::instance()->setPath( "LPath: ", pathname);	// change log 17
-}
-
-void MessageLogger::postPathBeginLumi(std::string const&,HLTPathStatus const&)
-{ 
-  edm::MessageDrop::instance()->setSinglet("PostPathBeginLumi"); // changelog 17
-}
-
-void
-MessageLogger::prePathEndLumi( const std::string & pathname )	// change log 14
-{
-  edm::MessageDrop::instance()->setPath( "LPathEnd: ", pathname);
-  								// change log 17
-}
-
-void MessageLogger::postPathEndLumi(std::string const&,HLTPathStatus const&)
-{ 
-  edm::MessageDrop::instance()->setSinglet("PostPathEndLumi"); // changelog 17
-}
-
-void
-MessageLogger::preProcessPath( const std::string & pathname )	// change log 14
-{
-  edm::MessageDrop::instance()->setPath( "PreProcPath ", pathname);
-  								// change log 17
-}
-
-void MessageLogger::postProcessPath(std::string const&,HLTPathStatus const&)
+void MessageLogger::postPathEvent(StreamContext const&, PathContext const&, HLTPathStatus const&)
 { 
   edm::MessageDrop::instance()->setSinglet("PostProcessPath");	// changelog 17
 }
 
 void
-MessageLogger::preEndRun( const edm::RunID& iID
-                        , const edm::Timestamp& /*unused*/)
+MessageLogger::preGlobalEndRun( GlobalContext const& iContext)
 {
   std::ostringstream ost;
-  ost << "End Run: " << iID.run();
-  edm::MessageDrop::instance()->runEvent = ost.str();  
+  ost << "End Run: " << iContext.luminosityBlockID().run();
+  transitionInfoCache_[runInfoBegin_+iContext.runIndex()]=ost.str();
+  edm::MessageDrop::instance()->runEvent = ost.str();
   edm::MessageDrop::instance()->setSinglet("PreEndRun");	// changelog 17
 }
 
-void MessageLogger::postEndRun(const Run&, const EventSetup&)
+void MessageLogger::postGlobalEndRun(GlobalContext const&, const Run&, const EventSetup&)
 { 
   edm::MessageDrop::instance()->runEvent = "PostEndRun"; 
   edm::MessageDrop::instance()->setSinglet("PostEndRun");	// changelog 17
 }
 
 void
-MessageLogger::preBeginLumi( const edm::LuminosityBlockID& iID
-                          , const edm::Timestamp& /*unused*/)
+MessageLogger::preGlobalBeginLumi( GlobalContext const& iContext)
 {
   std::ostringstream ost;
-  ost << "Run: " << iID.run() << " Lumi: " << iID.luminosityBlock();
-  edm::MessageDrop::instance()->runEvent = ost.str();  
+  auto const& id = iContext.luminosityBlockID();
+  ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock();
+  transitionInfoCache_[lumiInfoBegin_+iContext.luminosityBlockIndex()]=ost.str();
+  edm::MessageDrop::instance()->runEvent = ost.str();
   edm::MessageDrop::instance()->setSinglet("PreBeginLumi");	// changelog 17
 }
 
-void MessageLogger::postBeginLumi(const LuminosityBlock&, const EventSetup&)
+void MessageLogger::postGlobalBeginLumi(GlobalContext const&)
 { 
   edm::MessageDrop::instance()->runEvent = "PostBeginLumi"; 
   edm::MessageDrop::instance()->setSinglet("PostBeginLumi");	// changelog 17
 }
 
 void
-MessageLogger::preEndLumi( const edm::LuminosityBlockID& iID
-                        , const edm::Timestamp& /*unused*/)
+MessageLogger::preGlobalEndLumi( GlobalContext const& iContext)
 {
   std::ostringstream ost;
-  ost << "Run: " << iID.run() << " Lumi: " << iID.luminosityBlock();
-  edm::MessageDrop::instance()->runEvent = ost.str();  
+  auto const& id = iContext.luminosityBlockID();
+  ost << "Run: " << id.run() << " Lumi: " << id.luminosityBlock();
+  transitionInfoCache_[lumiInfoBegin_+iContext.luminosityBlockIndex()]=ost.str();
+  edm::MessageDrop::instance()->runEvent = ost.str();
   edm::MessageDrop::instance()->setSinglet("PreEndLumi");	// changelog 17
 }
-void MessageLogger::postEndLumi(const LuminosityBlock&, const EventSetup&)
+void MessageLogger::postGlobalEndLumi(GlobalContext const&, const LuminosityBlock&, const EventSetup&)
 { 
   edm::MessageDrop::instance()->runEvent = "PostEndLumi"; 
   edm::MessageDrop::instance()->setSinglet("PostEndLumi");	// changelog 17
