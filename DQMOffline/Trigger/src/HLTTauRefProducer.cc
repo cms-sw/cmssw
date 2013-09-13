@@ -124,20 +124,26 @@ HLTTauRefProducer::doPFTaus(edm::Event& iEvent,const edm::EventSetup& iES)
       //Retrieve the collection
       edm::Handle<PFTauCollection> pftaus;
       if(iEvent.getByToken(PFTaus_,pftaus)) {
-	  for(unsigned int i=0;i<pftaus->size();++i)
+        for(unsigned int i=0; i<pftaus->size(); ++i) {
 	    if((*pftaus)[i].pt()>ptMinPFTau_&&fabs((*pftaus)[i].eta())<etaMax)
 	      {
 		reco::PFTauRef thePFTau(pftaus,i);
+                bool passAll = true;
                 for(edm::EDGetTokenT<reco::PFTauDiscriminator>& token: PFTauDis_) {
 		  edm::Handle<reco::PFTauDiscriminator> pftaudis;
 		  if(iEvent.getByToken(token, pftaudis)) {
-                    if((*pftaudis)[thePFTau]>0.5) {
-                      LorentzVector vec((*pftaus)[i].px(),(*pftaus)[i].py(),(*pftaus)[i].pz(),(*pftaus)[i].energy());
-                      product_PFTaus->push_back(vec);
+                    if((*pftaudis)[thePFTau] < 0.5) {
+                      passAll = false;
+                      break;
                     }
                   }
                 }
+                if(passAll) {
+                  LorentzVector vec((*pftaus)[i].px(),(*pftaus)[i].py(),(*pftaus)[i].pz(),(*pftaus)[i].energy());
+                  product_PFTaus->push_back(vec);
+                }
               }
+        }
       }
       iEvent.put(product_PFTaus,"PFTaus");
 }
