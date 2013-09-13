@@ -446,7 +446,7 @@ TH1D* setHistoRatio(TH1D* num, TH1D* denom, TString title = "", double ymin=0.4,
 
   ratio->GetYaxis()->SetRangeUser(ymin, ymax);
   ratio->GetYaxis()->SetTitle("ratio: (with GEM)/default");
-  ratio->GetYaxis()->SetTitle("ratio");
+  ratio->GetYaxis()->SetTitle("Ratio");
   // ratio->GetYaxis()->SetTitle("(ME1/b + GEM) / ME1/b");
   ratio->GetYaxis()->SetTitleSize(.14);
   // ratio->GetYaxis()->SetTitleSize(.1);

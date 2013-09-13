@@ -280,7 +280,7 @@ for (int b = 1; b <= hh_2s1b->GetNbinsX(); ++b) if (hh_2s1b->GetBinContent(b)==0
 //TString the_ttl = "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]";
 
 //  TString the_ttl = "         L1 Single Muon Trigger                             CMS Simulation Preliminary;L1 candidate muon p_{T}^{cut} [GeV/c];rate [kHz]";
-  TString the_ttl = "                                                    CMS Simulation Preliminary;L1 muon candidate p_{T}^{cut} [GeV/c];rate [kHz]";
+  TString the_ttl = "                                                    CMS Simulation Preliminary;L1 muon candidate p_{T}^{cut} [GeV/c];Trigger rate [kHz]";
 
 
 
@@ -1209,7 +1209,7 @@ gPad->Print(gem_dir + "rates__164-214_PU100__sequential__2s3s__Frankenstein_pat2
   Color_t col3 = kGreen-2;
 
   TString plots = "plots/rate_vs_pt_shiftX/";
-  TString ext = ".pdf";
+  TString ext = ".png";
 
 
 

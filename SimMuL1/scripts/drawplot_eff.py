@@ -81,7 +81,7 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     c.SetGridx(1)
     c.SetGridy(1)
     c.cd()
-    h = TH1F("","          GEM-CSC bending Angle                         CMS Simulation Preliminary;Generated muon p_{T} [GeV/c];",50,0.,50.)
+    h = TH1F("","          GEM-CSC bending Angle                       CMS Simulation Preliminary;Generated muon p_{T} [GeV/c];",50,0.,50.)
     superscript = "p_{T}>p_{T}^{min}"
     subscript = "0"
     h.GetYaxis().SetTitle("    |#Delta#phi_{{}^{(GEM,CSC)}}|<|#Delta#phi_{0}^{WP}| Cut Efficiency");
@@ -864,11 +864,6 @@ if __name__ == "__main__":
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".eps")
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".png")
     """
-    gemTurnOn("files/", "plots/efficiency/", "98", "even", ".pdf")
-    gemTurnOn("files/", "plots/efficiency/", "98", "odd", ".pdf")
-    gemTurnOn("files/", "plots/efficiency/", "98", "even", ".png")
-    gemTurnOn("files/", "plots/efficiency/", "98", "odd", ".png")
+    gemTurnOn("files/", "plots/efficiency/", "98", "even", ".eps")
+    gemTurnOn("files/", "plots/efficiency/", "98", "odd", ".eps")
 
-
-#    efficiency_1("files/", "plots/efficiency/", "20", False, ".pdf") 
-    

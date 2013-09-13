@@ -94,7 +94,7 @@ TH1D* setHistoRatio(TH1D* num, TH1D* denom, TString title = "", double ymin=0.4,
   ratio->SetTitle(title);
   ratio->GetYaxis()->SetRangeUser(ymin, ymax);
   ratio->GetYaxis()->SetTitle("ratio: (with GEM)/default");
-  ratio->GetYaxis()->SetTitle("ratio");
+  ratio->GetYaxis()->SetTitle("Ratio");
   //ratio->GetYaxis()->SetTitle("(ME1/b + GEM) / ME1/b");
   ratio->GetYaxis()->SetTitleSize(.14);
   //ratio->GetYaxis()->SetTitleSize(.1);
@@ -290,7 +290,7 @@ void produceRateVsEtaPlotsForApproval(TString ext, TString plots)
   // Declaration of histograms
   TString vs_eta_minpt = "10";
   //  TString ttl = "        L1 Single Muon Trigger                   CMS Simulation Preliminary;L1 muon candidate #eta;rate [kHz]";
-  TString ttl = "                                              CMS Simulation Preliminary;L1 muon candidate #eta;rate [kHz]";
+  TString ttl = "                                              CMS Simulation Preliminary;L1 muon candidate #eta;Trigger rate [kHz]";
   TH1D* h_rt_tf10_2s   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s", "_hAll100", ttl, col1, 1, 2);
   TH1D* h_rt_tf10_2s1b   = setHistoEta(f_def, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col2, 1, 2);
   TH1D* h_rt_tf10_gpt10_2s1b   = setHistoEta(f_g98_pt10, "h_rt_gmt_csc_ptmax" + vs_eta_minpt + "_eta_2s_2s1b", "_hAll100", ttl, col3, 1, 2);
@@ -354,7 +354,7 @@ void produceRateVsEtaPlotsForApproval()
 {
   //  produceRateVsEtaPlotsForApproval(".C", "plots/rate_vs_eta/");
   //produceRateVsEtaPlotsForApproval(".png", "plots/rate_vs_eta/");
-  produceRateVsEtaPlotsForApproval(".pdf", "plots/rate_vs_eta/");
+  produceRateVsEtaPlotsForApproval(".png", "plots/rate_vs_eta/");
   //produceRateVsEtaPlotsForApproval(".C", "plots/rate_vs_eta/");
 }
 /*
