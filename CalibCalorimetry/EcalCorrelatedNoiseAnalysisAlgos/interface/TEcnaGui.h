@@ -877,7 +877,7 @@ class TEcnaGui : public TGMainFrame {
 
   //==================================================== Miscellaneous parameters
 
-  //ofstream fFcout_f;
+  //std::ofstream fFcout_f;
 
   TString  fKeyAnaType;           // Type of analysis
 

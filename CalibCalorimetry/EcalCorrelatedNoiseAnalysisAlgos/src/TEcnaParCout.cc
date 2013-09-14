@@ -3,6 +3,7 @@
 //----------Modified: 24/03/2010
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParCout.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaParCout.cc

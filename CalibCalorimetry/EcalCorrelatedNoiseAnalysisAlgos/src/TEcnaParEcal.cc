@@ -4,6 +4,7 @@
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParEcal.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaParEcal.cc
