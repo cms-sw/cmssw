@@ -4,7 +4,6 @@
 #include "FWCore/Utilities/interface/value_ptr.h"
 
 #include "FWCore/MessageService/interface/ELdestControl.h"
-#include "FWCore/MessageService/interface/MsgContext.h"
 #include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
