@@ -8,7 +8,8 @@
  *  \author N. Amapane - CERN
  */
 
-#include "interface/shared/fed_trailer.h"
+#include "EventFilter/FEDInterface/interface/fed_header.h"
+#include "EventFilter/FEDInterface/interface/fed_trailer.h"
 
 
 class FEDTrailer {
