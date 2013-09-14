@@ -7,7 +7,6 @@
   <use   name="IOPool/Streamer"/>
   <use   name="EventFilter/Utilities"/>
   <use   name="DataFormats/FEDRawData"/>
-  <use   name="xdaq"/>
   <use   name="root"/>
   <use   name="boost"/>
   <flags   EDM_PLUGIN="1"/>

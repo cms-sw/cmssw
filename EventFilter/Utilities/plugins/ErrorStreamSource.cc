@@ -27,8 +27,8 @@
 #include <vector>
 #include <fstream>
 #include <cstring>
-#include "interface/shared/fed_header.h"
-#include "interface/shared/fed_trailer.h"
+#include "EventFilter/FEDInterface/interface/fed_header.h"
+#include "EventFilter/FEDInterface/interface/fed_trailer.h"
 
 
 namespace errorstreamsource{
