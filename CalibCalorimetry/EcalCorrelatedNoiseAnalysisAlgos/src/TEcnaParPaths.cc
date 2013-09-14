@@ -4,6 +4,7 @@
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParPaths.h"
 #include <cstdlib>
+using namespace std;
 
 //--------------------------------------
 //  TEcnaParPaths.cc

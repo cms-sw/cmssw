@@ -3,6 +3,7 @@
 //----------Modified:24/03/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaHeader.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaHeader.cc

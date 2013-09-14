@@ -3,6 +3,7 @@
 //---------Modified: 04/07/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaHistos.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaHistos.cc
