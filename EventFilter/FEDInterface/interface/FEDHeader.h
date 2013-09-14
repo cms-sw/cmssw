@@ -7,7 +7,7 @@
  *  \author N. Amapane - CERN
  */
 
-#include "interface/shared/fed_header.h"
+#include "EventFilter/FEDInterface/interface/fed_header.h"
 
 class FEDHeader {
 public:

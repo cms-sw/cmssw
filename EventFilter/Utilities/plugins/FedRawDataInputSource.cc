@@ -26,10 +26,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "interface/shared/fed_header.h"
-#include "interface/shared/fed_trailer.h"
+#include "EventFilter/FEDInterface/interface/fed_header.h"
+#include "EventFilter/FEDInterface/interface/fed_trailer.h"
 
-#include "../interface/FileIO.h"
+#include "EventFilter/Utilities/interface/FileIO.h"
 #include "FastMonitoringService.h"
 
 FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
