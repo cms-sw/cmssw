@@ -1,6 +1,5 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="CondCore/DBCommon"/>
-<use   name="rootcintex"/>
 <use   name="zlib"/>
 <library   file="SQLiteProxy.cc" name="CondCoreDBCommonSQLiteProxy">
   <flags   EDM_PLUGIN="1"/>
@@ -23,6 +22,6 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="BlobStreamingService.cc TBufferBlobStreamingService.cc" name="CondCoreDBCommonTBufferBlobStreamingService">
-  <use   name="rootrflx"/>
+  
   <flags   EDM_PLUGIN="1"/>
 </library>

@@ -6,6 +6,6 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="Geometry/EcalMapping"/>
-<use   name="rootrflx"/>
+
 <flags   EDM_PLUGIN="1"/>
 

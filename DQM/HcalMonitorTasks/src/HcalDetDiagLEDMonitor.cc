@@ -813,7 +813,7 @@ char   Subdet[10],str[500];
 
       sprintf(str,"HcalDetDiagLED_%i_%i.xml",run_number,dataset_seq_number);
       std::string xmlName=str;
-      ofstream xmlFile;
+      std::ofstream xmlFile;
       xmlFile.open(xmlName.c_str());
 
       xmlFile<<"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";
@@ -925,7 +925,7 @@ char   Subdet[10],str[500];
       //create CALIB XML file 
       sprintf(str,"HcalDetDiagLEDCalib_%i_%i.xml",run_number,dataset_seq_number);
       std::string xmlNameCalib=str;
-      ofstream xmlFileCalib;
+      std::ofstream xmlFileCalib;
       xmlFileCalib.open(xmlNameCalib.c_str());
 
       xmlFileCalib<<"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";

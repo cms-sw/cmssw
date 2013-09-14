@@ -1,6 +1,7 @@
 #include "CondTools/SiPixel/test/SiPixelTemplateDBObjectReader.h"
 #include <iomanip>
 #include <fstream>
+#include <iostream>
 #include <cmath>
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 

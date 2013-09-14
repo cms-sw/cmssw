@@ -292,7 +292,7 @@ void HcalDetDiagLaserClient::updateChannelStatus(std::map<HcalDetId, unsigned in
   // see dead or hot cell code for an example
 
 } //void HcalDetDiagLaserClient::updateChannelStatus
-static void printTableHeader(ofstream& file,std::string  header){
+static void printTableHeader(std::ofstream& file,std::string  header){
      file << "</html><html xmlns=\"http://www.w3.org/1999/xhtml\">"<< endl;
      file << "<head>"<< endl;
      file << "<meta http-equiv=\"Content-Type\" content=\"text/html\"/>"<< endl;
@@ -308,7 +308,7 @@ static void printTableHeader(ofstream& file,std::string  header){
      file << "<body>"<< endl;
      file << "<table>"<< endl;
 }
-static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,std::string comment=""){
+static void printTableLine(std::ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,std::string comment=""){
    if(ind==0){
      file << "<tr>";
      file << "<td class=\"s4\" align=\"center\">#</td>"    << endl;
@@ -357,7 +357,7 @@ static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndI
    file << raw_class<< emap_entry.htrTopBottom()<<"</td>"<< endl;
    if(comment[0]!=0) file << raw_class<< comment<<"</td>"<< endl;
 }
-static void printTableTail(ofstream& file){
+static void printTableTail(std::ofstream& file){
      file << "</table>"<< endl;
      file << "</body>"<< endl;
      file << "</html>"<< endl;
@@ -538,10 +538,10 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
   }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ofstream badTiming; 
+  std::ofstream badTiming; 
   badTiming.open((htmlDir+"bad_timing_table.html").c_str());
   printTableHeader(badTiming,"Bad Timing Channels list");
-  ofstream badEnergy; 
+  std::ofstream badEnergy; 
   badEnergy.open((htmlDir+"bad_energy_table.html").c_str());
   printTableHeader(badEnergy,"Bad Energy Channels list");
 
@@ -767,7 +767,7 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
   badEnergy.close();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ofstream htmlFile;
+  std::ofstream htmlFile;
   string outfile=htmlDir+name_+".html";
   htmlFile.open(outfile.c_str());
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -780,7 +780,7 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
   can->cd();
   
   if(Raddam[0]->GetEntries()>0){
-     ofstream RADDAM;
+     std::ofstream RADDAM;
      RADDAM.open((htmlDir + "RADDAM_"+name_).c_str());
      RADDAM << "</html><html xmlns=\"http://www.w3.org/1999/xhtml\">"<< endl;
      RADDAM << "<head>"<< endl;

@@ -8,7 +8,7 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="boost"/>
-<use   name="rootrflx"/>
+
 <use   name="root"/>
 <use   name="rootminuit"/>
 <use   name="RecoVertex/BeamSpotProducer"/>

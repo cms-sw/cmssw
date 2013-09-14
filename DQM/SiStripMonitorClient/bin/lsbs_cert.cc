@@ -195,7 +195,7 @@ void    lsbs_cert( string filename )
       ls_good.push_back( i );
     }
 
-  ofstream outfile;
+  std::ofstream outfile;
   string namefile = "Certification_BS_run_" + runnum_str( filename ) + ".txt";
   outfile.open(namefile.c_str());
   outfile << "Lumibased BeamSpot Calibration Certification for run " << runnum_str( filename ) << ":" << endl << endl;

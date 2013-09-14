@@ -14,6 +14,6 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="RelationalAccess"/>
-<use   name="rootrflx"/>
+
 <use   name="L1TriggerConfig/DTTPGConfig"/>
 <flags   EDM_PLUGIN="1"/>

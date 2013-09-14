@@ -1,7 +1,7 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="SimDataFormats/EncodedEventId"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

@@ -3,6 +3,7 @@
 //----------Modified: 30/06/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaWrite.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaWrite.cc

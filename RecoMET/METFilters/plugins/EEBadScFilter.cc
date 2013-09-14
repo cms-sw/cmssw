@@ -14,6 +14,7 @@
 
 
 // include files
+#include <iostream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"

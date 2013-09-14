@@ -15,15 +15,11 @@
 // are *not* atomic, as an object of type T must be copied or moved.
 // ----------------------------------------------------------------------
 
-#ifndef __GCCXML__
 #include <atomic>
-#endif
 
 #include <memory>
 
-#ifdef __GCCXML__
 #define nullptr 0
-#endif
 
 namespace edm {
 
@@ -76,7 +72,6 @@ namespace edm {
       return *this;
     }
 
-#ifndef __GCCXML__
     atomic_value_ptr(atomic_value_ptr&& orig) :
       myP(orig.myP) { orig.myP.store(nullptr); }
 
@@ -85,7 +80,6 @@ namespace edm {
       exchangeWithLocal(local);
       return *this;
     }
-#endif
 
     // --------------------------------------------------
     // Access mechanisms:
@@ -124,7 +118,6 @@ namespace edm {
       return *this;
     }
 
-#ifndef __GCCXML__
     // --------------------------------------------------
     // move-like construct/assign from unique_ptr<>:
     // --------------------------------------------------
@@ -139,7 +132,6 @@ namespace edm {
       exchangeWithLocal(local);
       return *this;
     }
-#endif
 
   T* load() const {
     return myP.load();
@@ -194,11 +186,7 @@ namespace edm {
     // Member data:
     // --------------------------------------------------
 
-#ifndef __GCCXML__
     mutable std::atomic<T*> myP;
-#else
-    T* myP;
-#endif
 
   }; // atomic_value_ptr
 

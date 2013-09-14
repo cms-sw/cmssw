@@ -46,7 +46,7 @@ void EnsembleCalibrationLA::
 write_ensembles_text(const Book& book) {
   std::pair<std::string, std::vector<LA_Filler_Fitter::EnsembleSummary> > ensemble;
   BOOST_FOREACH(ensemble, LA_Filler_Fitter::ensemble_summary(book)) {
-    fstream file((Prefix+ensemble.first+".dat").c_str(),std::ios::out);
+    std::fstream file((Prefix+ensemble.first+".dat").c_str(),std::ios::out);
     BOOST_FOREACH(LA_Filler_Fitter::EnsembleSummary summary, ensemble.second)
       file << summary << std::endl;
 
@@ -101,7 +101,7 @@ write_samples_plots(const Book& book) const {
 
 void EnsembleCalibrationLA::
 write_calibrations() const {
-  fstream file((Prefix+"calibrations.dat").c_str(),std::ios::out);
+  std::fstream file((Prefix+"calibrations.dat").c_str(),std::ios::out);
   std::pair<std::string,MethodCalibrations> cal;
   BOOST_FOREACH(cal,calibrations) {
     file << cal.first << std::endl

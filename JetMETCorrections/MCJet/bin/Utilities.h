@@ -310,7 +310,7 @@ void CommandLine::print()
 //______________________________________________________________________________
 bool CommandLine::parse_file(const std::string& file_name)
 {
-  ifstream fin(file_name.c_str());
+  std::ifstream fin(file_name.c_str());
   if (!fin.is_open()) {
     std::cout<<"Can't open configuration file "<<file_name<<std::endl;
     return false;

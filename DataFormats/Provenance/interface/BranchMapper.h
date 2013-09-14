@@ -28,9 +28,7 @@ namespace edm {
   class BranchMapper : private boost::noncopyable {
   public:
     BranchMapper();
-#ifndef __GCCXML__
     explicit BranchMapper(std::unique_ptr<ProvenanceReaderBase> reader);
-#endif
 
     ~BranchMapper();
 

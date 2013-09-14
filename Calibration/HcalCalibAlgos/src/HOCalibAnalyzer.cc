@@ -1767,7 +1767,7 @@ HOCalibAnalyzer::endJob() {
     int iiter = 0;
 
 
-    ofstream file_out(theoutputtxtFile.c_str());
+    std::ofstream file_out(theoutputtxtFile.c_str());
     //    TPostScript* ps=0;
     int ips=111;
     TPostScript ps(theoutputpsFile.c_str(),ips);

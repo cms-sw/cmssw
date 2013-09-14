@@ -93,7 +93,7 @@ class SiPixelDataQuality {
   bool DONE_;
   
   
-  ofstream myfile_;  
+  std::ofstream myfile_;  
   int nevents_;
   bool endOfModules_;
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap;

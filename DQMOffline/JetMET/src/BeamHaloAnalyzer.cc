@@ -23,7 +23,7 @@ BeamHaloAnalyzer::BeamHaloAnalyzer( const edm::ParameterSet& iConfig)
   TextFileName   = iConfig.getParameter<std::string>("TextFile");
 
   if(TextFileName.size())
-    out = new ofstream(TextFileName.c_str() );
+    out = new std::ofstream(TextFileName.c_str() );
 
 
   if( iConfig.exists("StandardDQM") )  // If StandardDQM == true , coarse binning is used on selected (important) histograms   

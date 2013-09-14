@@ -50,7 +50,7 @@ int main(int argc, char**argv)
  TGraphErrors *g_Resp;
  TVirtualFitter *fitter;
  TMatrixD *COV_Cor, *COV_Resp;
- ofstream L3CorrectionFile,L3ResponseFile;
+ std::ofstream L3CorrectionFile,L3ResponseFile;
  L3CorrectionFile.open(L3CorrectionTxtFilename.c_str());
  L3ResponseFile.open(L3ResponseTxtFilename.c_str());
  TKey *key;

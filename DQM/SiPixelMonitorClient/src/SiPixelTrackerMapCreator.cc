@@ -77,7 +77,7 @@ void SiPixelTrackerMapCreator::create(DQMStore * bei)
 
   trackerMap->print(true, TKType);  
 //cout<<"Going to create inner frame now! Still in TMC::create"<<endl;
-  ofstream innerFrame ;
+  std::ofstream innerFrame ;
 
   innerFrame.open( "rightEmbedded.html", ios::out );
   

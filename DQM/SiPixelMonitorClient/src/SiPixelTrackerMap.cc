@@ -231,8 +231,8 @@ void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, flo
 //cout<<"Entering SiPixelTrackerMap::print: "<<endl;
 
  minvalue=minval; maxvalue=maxval;
- svgfile = new ofstream("svgmap.xml",ios::out);
- jsfile = new ifstream("TrackerMapHeader.txt",ios::in);
+ svgfile = new std::ofstream("svgmap.xml",ios::out);
+ jsfile = new std::ifstream("TrackerMapHeader.txt",ios::in);
  
  //copy javascript interface from trackermap.txt file
  string line;
@@ -402,7 +402,7 @@ void SiPixelTrackerMap::print(bool print_total, string TKType, float minval, flo
           << "</svg:text>"
           << endl;
  delete jsfile ;					 
- jsfile = new ifstream("TrackerMapTrailer.txt",ios::in); 
+ jsfile = new std::ifstream("TrackerMapTrailer.txt",ios::in); 
  while (getline( *jsfile, line ))			 
        {						 
  	   *svgfile << line << endl;			 

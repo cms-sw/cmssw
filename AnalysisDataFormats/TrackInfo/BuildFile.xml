@@ -8,7 +8,7 @@
 <use   name="SimDataFormats/TrackingAnalysis"/>
 <use   name="TrackingTools/PatternTools"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

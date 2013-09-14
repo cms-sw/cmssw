@@ -2,7 +2,7 @@
 <use   name="heppdt"/>
 <use   name="clhep"/>
 <use   name="rootminuit"/>
-<use   name="rootrflx"/>
+
 <use   name="roothistmatrix"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>

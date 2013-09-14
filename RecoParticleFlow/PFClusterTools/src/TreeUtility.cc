@@ -50,7 +50,7 @@ void TreeUtility::dumpCaloDataToCSV(TChain& tree, std::string csvFilename, doubl
 	CalibratablePtr calib_ptr(new Calibratable());
 
 	tree.SetBranchAddress("Calibratable", &calib_ptr);
-	ofstream csvFile;
+	std::ofstream csvFile;
 	csvFile.open(csvFilename.c_str());
 
 	std::cout << "Looping over tree's "<< tree.GetEntries() << " entries...\n";

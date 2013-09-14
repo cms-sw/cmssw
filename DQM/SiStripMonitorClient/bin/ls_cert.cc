@@ -86,7 +86,7 @@ void    ls_cert( float threshold_pixel , float threshold , string filename )
   ls_cert_type( "Tracking" , threshold       , filename , cert_track , gLS_track , bLS_track , mLS_track );
   ls_cert_type( "Pixel"    , threshold_pixel , filename , cert_pixel , gLS_pixel , bLS_pixel , mLS_pixel );
 
-  ofstream outfile;
+  std::ofstream outfile;
   string namefile = "Certification_run_" + runnum_str( filename ) + ".txt";
   outfile.open(namefile.c_str());
   outfile << "Lumisection Certification (GOOD: >= " << threshold_pixel << " [Pixel]; >= " << threshold << " [SiStrip,Tracking] " 

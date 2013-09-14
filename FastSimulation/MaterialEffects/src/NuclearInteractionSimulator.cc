@@ -623,7 +623,7 @@ NuclearInteractionSimulator::save() {
 bool
 NuclearInteractionSimulator::read(std::string inputFile) {
 
-  ifstream myInputFile;
+  std::ifstream myInputFile;
   struct stat results;
   //
   unsigned size1 = 

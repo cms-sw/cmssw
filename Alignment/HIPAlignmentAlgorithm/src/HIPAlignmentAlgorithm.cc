@@ -42,16 +42,16 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
   
   verbose = cfg.getParameter<bool>("verbosity");
   
-  outpath = cfg.getParameter<string>("outpath");
-  outfile = cfg.getParameter<string>("outfile");
-  outfile2 = cfg.getParameter<string>("outfile2");
-  struefile = cfg.getParameter<string>("trueFile");
-  smisalignedfile = cfg.getParameter<string>("misalignedFile");
-  salignedfile = cfg.getParameter<string>("alignedFile");
-  siterationfile = cfg.getParameter<string>("iterationFile");
-  suvarfile = cfg.getParameter<string>("uvarFile");
-  sparameterfile = cfg.getParameter<string>("parameterFile");
-  ssurveyfile = cfg.getParameter<string>("surveyFile");
+  outpath = cfg.getParameter<std::string>("outpath");
+  outfile = cfg.getParameter<std::string>("outfile");
+  outfile2 = cfg.getParameter<std::string>("outfile2");
+  struefile = cfg.getParameter<std::string>("trueFile");
+  smisalignedfile = cfg.getParameter<std::string>("misalignedFile");
+  salignedfile = cfg.getParameter<std::string>("alignedFile");
+  siterationfile = cfg.getParameter<std::string>("iterationFile");
+  suvarfile = cfg.getParameter<std::string>("uvarFile");
+  sparameterfile = cfg.getParameter<std::string>("parameterFile");
+  ssurveyfile = cfg.getParameter<std::string>("surveyFile");
 	
   outfile        =outpath+outfile;//Eventwise tree
   outfile2       =outpath+outfile2;//Alignablewise tree
@@ -74,7 +74,7 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
   // for collector mode (parallel processing)
   isCollector=cfg.getParameter<bool>("collectorActive");
   theCollectorNJobs=cfg.getParameter<int>("collectorNJobs");
-  theCollectorPath=cfg.getParameter<string>("collectorPath");
+  theCollectorPath=cfg.getParameter<std::string>("collectorPath");
   theFillTrackMonitoring=cfg.getUntrackedParameter<bool>("fillTrackMonitoring");
 	
   if (isCollector) edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Collector mode";
@@ -169,7 +169,7 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
 {
 	
   // iterate over all alignables and attach user variables
-  for( vector<Alignable*>::const_iterator it=theAlignables.begin(); 
+  for( std::vector<Alignable*>::const_iterator it=theAlignables.begin(); 
        it!=theAlignables.end(); it++ )
     {
       AlignmentParameters* ap = (*it)->alignmentParameters();
@@ -371,7 +371,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
   // now calculate alignment corrections ...
   int ialigned=0;
   // iterate over alignment parameters
-  for(vector<Alignable*>::const_iterator
+  for(std::vector<Alignable*>::const_iterator
 	it=theAlignables.begin(); it!=theAlignables.end(); it++) {
     Alignable* ali=(*it);
     // Alignment parameters
@@ -507,7 +507,7 @@ bool HIPAlignmentAlgorithm::processHit1D(const AlignableDetOrUnitPtr alidet,
   // std::cout << "Preparing ThisJtVJ" << std::flush;
   // thisjtvj = covmat.similarity(derivs);
   thisjtvj.assign(jtvjtmp);
-  // cout<<" ThisJtVE"<<std::endl;
+  // std::cout<<" ThisJtVE"<<std::endl;
   thisjtve=derivs * covmat * (pos-coor);
   
   AlgebraicVector hitresidual(hitDim);
@@ -631,7 +631,7 @@ bool HIPAlignmentAlgorithm::processHit2D(const AlignableDetOrUnitPtr alidet,
   // std::cout << "Preparing ThisJtVJ" << std::flush;
   // thisjtvj = covmat.similarity(derivs);
   thisjtvj.assign(jtvjtmp);
-  // cout<<" ThisJtVE"<<std::endl;
+  // std::cout<<" ThisJtVE"<<std::endl;
   thisjtve=derivs * covmat * (pos-coor);
   
   AlgebraicVector hitresidual(hitDim);
@@ -754,12 +754,12 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
     }
     // AM: Can be simplified
 		
-    vector<const TransientTrackingRecHit*> hitvec;
-    vector<TrajectoryStateOnSurface> tsosvec;
+    std::vector<const TransientTrackingRecHit*> hitvec;
+    std::vector<TrajectoryStateOnSurface> tsosvec;
 		
     // loop over measurements	
-    vector<TrajectoryMeasurement> measurements = traj->measurements();
-    for (vector<TrajectoryMeasurement>::iterator im=measurements.begin();
+    std::vector<TrajectoryMeasurement> measurements = traj->measurements();
+    for (std::vector<TrajectoryMeasurement>::iterator im=measurements.begin();
 	 im!=measurements.end();
 	 ++im) {
    
@@ -800,7 +800,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	      } else { 	 
 		edm::LogError("HIPAlignmentAlgorithm") 
 		  << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed! "
-		  << "TypeId of the RecHit: " << className(*hit) <<endl; 	 
+		  << "TypeId of the RecHit: " << className(*hit) <<std::endl; 	 
 	      } 	 
 	      
 	    }//end if type = SiStripRecHit1D 	 
@@ -814,8 +814,8 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	      } else { 	 
 		edm::LogError("HIPAlignmentAlgorithm") 
 		  << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed! "
-		  // << "TypeId of the TTRH: " << className(*ttrhit) << endl; 	 
-		  << "TypeId of the TTRH: " << className(*hit) << endl; 	 
+		  // << "TypeId of the TTRH: " << className(*ttrhit) << std::endl; 	 
+		  << "TypeId of the TTRH: " << className(*hit) << std::endl; 	 
 	      } 
 	    } //end if type == SiStripRecHit2D 	 
 	  } //end if hit from strips 	 
@@ -829,14 +829,14 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	    else { 	 
 	      edm::LogError("HIPAlignmentAlgorithm")
 		<< "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Pixel RecHit failed! "
-		// << "TypeId of the TTRH: " << className(*ttrhit) << endl; 	 
-		<< "TypeId of the TTRH: " << className(*hit) << endl; 	 
+		// << "TypeId of the TTRH: " << className(*ttrhit) << std::endl; 	 
+		<< "TypeId of the TTRH: " << className(*hit) << std::endl; 	 
 	    }
 	  } //end 'else' it is a pixel hit 	 
 	    // bool hitTaken=myflag.isTaken(); 	 
 	  if (!myflag.isTaken()) { 	 
 	    skiphit=true;
-	    //cout<<"Hit from subdet "<<rechit->geographicalId().subdetId()<<" prescaled out."<<endl;
+	    //std::cout<<"Hit from subdet "<<rechit->geographicalId().subdetId()<<" prescaled out."<<std::endl;
 	    continue;
 	  }
 	}//end if Prescaled Hits 	 
@@ -844,7 +844,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	if (skiphit) { 	 
 	  throw cms::Exception("LogicError")
 	    << "ERROR  in <HIPAlignmentAlgorithm::run>: this hit should have been skipped!"
-	    << endl;	 
+	    << std::endl;	 
 	}
 	
 	TrajectoryStateOnSurface tsos = tsoscomb.combine(meas.forwardPredictedState(),
@@ -860,13 +860,13 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
     }
     
     // transform RecHit vector to AlignableDet vector
-    vector <AlignableDetOrUnitPtr> alidetvec = theAlignableDetAccessor->alignablesFromHits(hitvec);
+    std::vector <AlignableDetOrUnitPtr> alidetvec = theAlignableDetAccessor->alignablesFromHits(hitvec);
 		
     // get concatenated alignment parameters for list of alignables
     CompositeAlignmentParameters aap = theAlignmentParameterStore->selectParameters(alidetvec);
 		
-    vector<TrajectoryStateOnSurface>::const_iterator itsos=tsosvec.begin();
-    vector<const TransientTrackingRecHit*>::const_iterator ihit=hitvec.begin();
+    std::vector<TrajectoryStateOnSurface>::const_iterator itsos=tsosvec.begin();
+    std::vector<const TransientTrackingRecHit*>::const_iterator ihit=hitvec.begin();
     
     // loop over vectors(hit,tsos)
     while (itsos != tsosvec.end()) {
@@ -906,11 +906,11 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 
 // ----------------------------------------------------------------------------
 
-int HIPAlignmentAlgorithm::readIterationFile(string filename)
+int HIPAlignmentAlgorithm::readIterationFile(std::string filename)
 {
   int result;
   
-  ifstream inIterFile(filename.c_str(), ios::in);
+  std::ifstream inIterFile(filename.c_str(), std::ios::in);
   if (!inIterFile) {
     edm::LogError("Alignment") << "[HIPAlignmentAlgorithm::readIterationFile] ERROR! "
 			       << "Unable to open Iteration file";
@@ -928,9 +928,9 @@ int HIPAlignmentAlgorithm::readIterationFile(string filename)
 
 // ----------------------------------------------------------------------------
 
-void HIPAlignmentAlgorithm::writeIterationFile(string filename,int iter)
+void HIPAlignmentAlgorithm::writeIterationFile(std::string filename,int iter)
 {
-  ofstream outIterFile((filename.c_str()), ios::out);
+  std::ofstream outIterFile((filename.c_str()), std::ios::out);
   if (!outIterFile) {
     edm::LogError("Alignment") << "[HIPAlignmentAlgorithm::writeIterationFile] ERROR: Unable to write Iteration file";
   }
@@ -1008,16 +1008,16 @@ HIPAlignmentAlgorithm::calcAPE(double* par, int iter, double function)
   // into 0.9999999999998 in the HIPAlignmentAlgorithm::initialize is
   // also used here.  If I'm wrong, you'll get an assertion.
   if (function == 0.) {
-    return max(par[1],par[0]+((par[1]-par[0])/par[2])*diter);
+    return std::max(par[1],par[0]+((par[1]-par[0])/par[2])*diter);
   }
   else if (function == 1.) {
-    return max(0.,par[0]*(exp(-pow(diter,par[1])/par[2])));
+    return std::max(0.,par[0]*(exp(-pow(diter,par[1])/par[2])));
   }
   else if (function == 2.) {
     int ipar2 = (int) par[2];
     int step = iter/ipar2;
     double dstep = (double) step;
-    return max(0.0, par[0] - par[1]*dstep);
+    return std::max(0.0, par[0] - par[1]*dstep);
   }
   else assert(false);  // should have been caught in the constructor
 }
@@ -1095,6 +1095,7 @@ void HIPAlignmentAlgorithm::bookRoot(void)
 
 void HIPAlignmentAlgorithm::fillRoot(const edm::EventSetup& iSetup)
 {
+  using std::setw;
   theFile2->cd();
 	
   int naligned=0;
@@ -1104,7 +1105,7 @@ void HIPAlignmentAlgorithm::fillRoot(const edm::EventSetup& iSetup)
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 	
-  for (vector<Alignable*>::const_iterator it=theAlignables.begin();
+  for (std::vector<Alignable*>::const_iterator it=theAlignables.begin();
        it!=theAlignables.end();
        ++it) {
     Alignable* ali = (*it);
@@ -1147,7 +1148,7 @@ void HIPAlignmentAlgorithm::fillRoot(const edm::EventSetup& iSetup)
 	  << " id: "    << setw(4) << m2_Id
 	  << " objId: " << setw(4) << m2_ObjId
 	  << '\n'
-	  << fixed << setprecision(5)
+	  << std::fixed << std::setprecision(5)
 	  << "x,y,z: "
 	  << setw(12) << m2_Xpos
 	  << setw(12) << m2_Ypos 
@@ -1301,13 +1302,13 @@ void HIPAlignmentAlgorithm::collector(void)
 		
     edm::LogWarning("Alignment") << "reading uservar for job " << ijob;
     
-    stringstream ss;
-    string str;
+    std::stringstream ss;
+    std::string str;
     ss << ijob;
     ss >> str;
-    string uvfile = theCollectorPath+"/job"+str+"/IOUserVariables.root";
+    std::string uvfile = theCollectorPath+"/job"+str+"/IOUserVariables.root";
 		
-    vector<AlignmentUserVariables*> uvarvec = 
+    std::vector<AlignmentUserVariables*> uvarvec = 
       HIPIO.readHIPUserVariables(theAlignables, uvfile.c_str(),
 				 theIteration, ioerr);
     
@@ -1318,9 +1319,9 @@ void HIPAlignmentAlgorithm::collector(void)
     }
 		
     // add
-    vector<AlignmentUserVariables*> uvarvecadd;
-    vector<AlignmentUserVariables*>::const_iterator iuvarnew=uvarvec.begin(); 
-    for (vector<Alignable*>::const_iterator it=theAlignables.begin(); 
+    std::vector<AlignmentUserVariables*> uvarvecadd;
+    std::vector<AlignmentUserVariables*>::const_iterator iuvarnew=uvarvec.begin(); 
+    for (std::vector<Alignable*>::const_iterator it=theAlignables.begin(); 
 	 it!=theAlignables.end();
 	 ++it) {
       Alignable* ali = *it;

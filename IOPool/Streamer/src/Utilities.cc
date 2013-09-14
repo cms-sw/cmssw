@@ -162,7 +162,7 @@ namespace edm
     return rc;
   }
 
-  std::auto_ptr<SendJobHeader> readHeaderFromStream(ifstream& ist)
+  std::auto_ptr<SendJobHeader> readHeaderFromStream(std::ifstream& ist)
   {
     JobHeaderDecoder decoder;
     std::vector<char> regdata(1000*1000);
@@ -208,7 +208,7 @@ namespace edm
   {
     edm::ProductRegistry pr;
     edm::BranchIDListHelper bidlh;
-    ifstream ist(filename.c_str(), std::ios_base::binary | std::ios_base::in);
+    std::ifstream ist(filename.c_str(), std::ios_base::binary | std::ios_base::in);
 
     if(!ist)
       {

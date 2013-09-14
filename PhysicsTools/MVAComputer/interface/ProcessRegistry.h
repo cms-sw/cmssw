@@ -47,13 +47,11 @@ namespace PhysicsTools
     public:
     
 
-#ifndef __GCCXML__
 
     // template alias to replace the former Registry class
     template<class Instance_t, class Calibration_t>
       using Registry = ProcessRegistryImpl<Base_t,CalibBase_t,Parent_t,Instance_t,Calibration_t>;
     
-#endif  
 
     
     /** \class Factory

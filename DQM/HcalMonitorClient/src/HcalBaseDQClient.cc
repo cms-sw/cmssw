@@ -99,7 +99,7 @@ void HcalBaseDQClient::htmlOutput(std::string htmlDir)
       pcol_error[i]=901+i;
     } // for (int i=0;i<105;++i)
 
-  ofstream htmlFile;
+  std::ofstream htmlFile;
   std::string outfile=htmlDir+name_+".html";
   htmlFile.open(outfile.c_str());
 

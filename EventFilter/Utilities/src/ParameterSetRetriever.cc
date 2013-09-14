@@ -34,7 +34,7 @@ namespace evf{
 	edm::LogInfo("psetRetriever")<<"filename is --> "<<filename<<" <--";
       
 	string   line;
-	ifstream configFile(filename.c_str());
+	std::ifstream configFile(filename.c_str());
 	while(std::getline(configFile,line)) {
 	  pset+=line;
 	  pset+="\n";

@@ -43,7 +43,7 @@
  *
  * void htmlAnyHisto(int runNo, myHist *hist, 
 		     const char* xlab, const char* ylab, 
-		     int width, ofstream& htmlFile, 
+		     int width, std::ofstream& htmlFile, 
 		     std::string htmlDir, bool setLogy, bool setLogx)
  
  *
@@ -485,7 +485,7 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
 template <class myHist>
 void htmlAnyHisto(int runNo, myHist *hist, 
 		  const char* xlab, const char* ylab, 
-		  int width, ofstream& htmlFile, 
+		  int width, std::ofstream& htmlFile, 
 		  std::string htmlDir,
 		  int debug=0)
 {

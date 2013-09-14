@@ -80,7 +80,7 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   
   if(!Tier0Flag_){
     string localPath = string("DQM/SiPixelMonitorClient/test/loader.html");
-    ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), ios::in);
+    std::ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), ios::in);
     char buf[BUF_SIZE];
   
     if (!fin) {

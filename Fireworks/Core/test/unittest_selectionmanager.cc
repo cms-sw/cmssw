@@ -18,7 +18,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "TClass.h"
-#include "Cintex/Cintex.h"
 
 // user include files
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -79,7 +78,6 @@ namespace {
 
 BOOST_AUTO_TEST_CASE( selectionmanager )
 {
-   ROOT::Cintex::Cintex::Enable();
    FWModelChangeManager cm;
    
    FWSelectionManager sm(&cm);

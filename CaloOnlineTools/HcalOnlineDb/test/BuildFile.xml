@@ -1,6 +1,6 @@
 <bin   file="xmlTools.cc" name="xmlToolsRun">
   <use   name="DataFormats/Common"/>
-  <use   name="rootrflx"/>
+  
   <use   name="xdaq"/>
   <use   name="DataFormats/HcalDetId"/>
   <use   name="CondTools/Hcal"/>
@@ -11,7 +11,7 @@
 </bin>
 <bin   file="channelQualityTools.cc" name="channelQualityRun">
   <use   name="DataFormats/Common"/>
-  <use   name="rootrflx"/>
+  
   <use   name="xdaq"/>
   <use   name="DataFormats/HcalDetId"/>
   <use   name="CondTools/Hcal"/>

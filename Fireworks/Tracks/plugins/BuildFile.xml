@@ -14,7 +14,6 @@
  <use name="Fireworks/Tracks"/>
  <use name="rootinteractive"/>
  <use name="rootphysics"/>
- <use name="rootrflx"/>
  <lib name="Eve"/>
  <lib name="RGL"/>
  <flags EDM_PLUGIN="1"/>
