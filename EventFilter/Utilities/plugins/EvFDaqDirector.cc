@@ -12,7 +12,7 @@ using std::stringstream;
 namespace evf {
 
 namespace {
-  flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid)
+  struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid)
   {
 #ifdef __APPLE__
     return {start, len, pid, type, whence};
