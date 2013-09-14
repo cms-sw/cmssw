@@ -50,7 +50,6 @@ namespace {
             delete errorobj_p;
             break;
          }
-         case edm::MessageLoggerQ::JOBREPORT:
          case edm::MessageLoggerQ::JOBMODE:
          case edm::MessageLoggerQ::GROUP_STATS:
          {
