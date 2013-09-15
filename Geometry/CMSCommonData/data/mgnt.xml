@@ -4,7 +4,7 @@
 		<Constant name="MGNT_rmin" value="2.97*m"/>
 		<Constant name="MGNT_rmax1" value="3.77*m"/>
 		<Constant name="MGNT_rmax2" value="3.80*m"/>
-		<Constant name="ChimHole_height" value="([MGNT_rmax2]-[MGNT_rmin])/2."/>
+		<Constant name="ChimHole_height" value="([MGNT_rmax2]-[MGNT_rmin])/2.0*1.2"/>
 		<Constant name="ChimHole_posR" value="([MGNT_rmin]+[MGNT_rmax2])/2."/>
 		<Constant name="ChimHole_posZ_P" value="1.471*m"/>
 		<Constant name="ChimHole_posZ_N" value="-1.560*m"/>
