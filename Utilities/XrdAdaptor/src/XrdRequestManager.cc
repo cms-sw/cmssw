@@ -122,7 +122,7 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
     {
         edm::LogWarning("XrdAdaptorInternal") << "Removing "
           << m_activeSources[0]->ID() << " from active sources due to poor quality ("
-          << m_activeSources[0]->getQuality() << ")" << std::endl;
+          << m_activeSources[0]->getQuality() << " vs " << m_activeSources[1]->getQuality() << ")" << std::endl;
         if (m_activeSources[0]->getLastDowngrade().tv_sec != 0) findNewSource = true;
         m_activeSources[0]->setLastDowngrade(now);
         m_inactiveSources.emplace_back(m_activeSources[0]);
@@ -133,7 +133,7 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
     {
         edm::LogWarning("XrdAdaptorInternal") << "Removing "
           << m_activeSources[1]->ID() << " from active sources due to poor quality ("
-          << m_activeSources[1]->getQuality() << ")" << std::endl;
+          << m_activeSources[1]->getQuality() << " vs " <<m_activeSources[0]->getQuality() << ")" << std::endl;
         if (m_activeSources[1]->getLastDowngrade().tv_sec != 0) findNewSource = true;
         m_activeSources[1]->setLastDowngrade(now);
         m_inactiveSources.emplace_back(m_activeSources[1]);
@@ -278,7 +278,7 @@ RequestManager::prepareOpaqueString()
 {
     std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
     std::stringstream ss;
-    ss << "?tried=";
+    ss << "tried=";
     size_t count = 0;
     for ( const auto & it : m_activeSources )
     {
@@ -387,11 +387,13 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
         //edm::LogVerbatim("XrdAdaptorInternal") << "Total time to create requests " << static_cast<int>(1000*timer.realTime()) << std::endl;
         return task;
     }
-    if (req1->size()) return future1;
-    if (req2->size()) return future2;
-
-    std::promise<IOSize> p; p.set_value(0);
-    return p.get_future();
+    else if (req1->size()) { return future1; }
+    else if (req2->size()) { return future2; }
+    else
+    {   // Degenerate case - no bytes to read.
+        std::promise<IOSize> p; p.set_value(0);
+        return p.get_future();
+    }
 }
 
 void
@@ -429,13 +431,14 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr)
         if (status == std::future_status::timeout)
         {
             edm::Exception ex(edm::errors::FileOpenError);
-            ex << "XrdCl::File::Open(name='" << m_name
+            ex << "XrdAdaptor::RequestManager::requestFailure Open(name='" << m_name
                << "', flags=0x" << std::hex << m_flags
                << ", permissions=0" << std::oct << m_perms << std::dec
                << ", old source=" << source_ptr->ID()
                << ") => timeout when waiting for file open";
             ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
             addConnections(ex);
+            throw ex;
         }
         else
         {
@@ -450,6 +453,19 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr)
             }
         }
         sentry.lock();
+        
+        if (std::find(m_disabledSourceStrings.begin(), m_disabledSourceStrings.end(), new_source->ID()) != m_disabledSourceStrings.end())
+        {
+            // The server gave us back a data node we requested excluded.  Fatal!
+            edm::Exception ex(edm::errors::FileOpenError);
+            ex << "XrdAdaptor::RequestManager::requestFailure Open(name='" << m_name
+               << "', flags=0x" << std::hex << m_flags
+               << ", permissions=0" << std::oct << m_perms << std::dec
+               << ", old source=" << source_ptr->ID()
+               << ", new source=" << new_source->ID() << ") => Xrootd server returned an excluded source";
+            ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
+            throw ex;
+        }
     }
     else
     {
@@ -464,16 +480,39 @@ consumeChunkFront(size_t &front, std::vector<IOPosBuffer> &input, std::vector<IO
     while ((chunksize > 0) && (front < input.size()))
     {
         IOPosBuffer &io = input[front];
+        IOPosBuffer &outio = output.back();
         if (io.size() > chunksize)
         {
-            IOSize newsize = io.size() - chunksize;
-            IOOffset newoffset = io.offset() + chunksize;
-            void* newdata = static_cast<char*>(io.data()) + chunksize;
-            output.emplace_back(IOPosBuffer(io.offset(), io.data(), chunksize));
+            IOSize consumed;
+            if (output.size() && (outio.size() < XRD_CL_MAX_CHUNK) && (outio.offset() + static_cast<IOOffset>(outio.size()) == io.offset()))
+            {
+                if (outio.size() + chunksize > XRD_CL_MAX_CHUNK)
+                {
+                    consumed = (XRD_CL_MAX_CHUNK - outio.size());
+                    outio.set_size(XRD_CL_MAX_CHUNK);
+                }
+                else
+                {
+                    consumed = chunksize;
+                    outio.set_size(outio.size() + consumed);
+                }
+            }
+            else
+            {
+                consumed = chunksize;
+                output.emplace_back(IOPosBuffer(io.offset(), io.data(), chunksize));
+            }
+            chunksize -= consumed;
+            IOSize newsize = io.size() - consumed;
+            IOOffset newoffset = io.offset() + consumed;
+            void* newdata = static_cast<char*>(io.data()) + consumed;
             io.set_offset(newoffset);
             io.set_data(newdata);
             io.set_size(newsize);
-            chunksize = 0;
+        }
+        else if (io.size() == 0)
+        {
+            front++;
         }
         else
         {
@@ -490,16 +529,39 @@ consumeChunkBack(size_t front, std::vector<IOPosBuffer> &input, std::vector<IOPo
     while ((chunksize > 0) && (front < input.size()))
     {
         IOPosBuffer &io = input.back();
+        IOPosBuffer &outio = output.back();
         if (io.size() > chunksize)
         {
-            IOSize newsize = io.size() - chunksize;
-            IOOffset newoffset = io.offset() + chunksize;
-            void* newdata = static_cast<char*>(io.data()) + chunksize;
-            output.emplace_back(IOPosBuffer(io.offset(), io.data(), chunksize));
+            IOSize consumed;
+            if (output.size() && (outio.size() < XRD_CL_MAX_CHUNK) && (outio.offset() + static_cast<IOOffset>(outio.size()) == io.offset()))
+            {
+                if (outio.size() + chunksize > XRD_CL_MAX_CHUNK)
+                {
+                    consumed = (XRD_CL_MAX_CHUNK - outio.size());
+                    outio.set_size(XRD_CL_MAX_CHUNK);
+                }
+                else
+                {
+                    consumed = chunksize;
+                    outio.set_size(outio.size() + consumed);
+                }
+            }
+            else
+            {
+                consumed = chunksize;
+                output.emplace_back(IOPosBuffer(io.offset(), io.data(), chunksize));
+            }
+            chunksize -= consumed;
+            IOSize newsize = io.size() - consumed;
+            IOOffset newoffset = io.offset() + consumed;
+            void* newdata = static_cast<char*>(io.data()) + consumed;
             io.set_offset(newoffset);
             io.set_data(newdata);
             io.set_size(newsize);
-            chunksize = 0;
+        }
+        else if (io.size() == 0)
+        {
+            input.pop_back();
         }
         else
         {
@@ -592,7 +654,7 @@ XrdAdaptor::RequestManager::OpenHandler::open()
     m_shared_future = m_promise.get_future().share();
 
     auto opaque = m_manager.prepareOpaqueString();
-    std::string new_name = m_manager.m_name + opaque;
+    std::string new_name = m_manager.m_name + ((m_manager.m_name.find("?") == m_manager.m_name.npos) ? "?" : "&") + opaque;
     edm::LogVerbatim("XrdAdaptorInternal") << "Trying to open URL: " << new_name;
     m_file.reset(new XrdCl::File());
     XrdCl::XRootDStatus status;
