@@ -4,14 +4,6 @@
 gROOT->SetBatch(1);
 
 
-/*
-
-  .L 
-
-  "gem_csc_eff_pt2pt50_pad4.root"
-
-*/
-
 TString filesDir = "files/";
 TString plotDir = "plots/efficiency/";
 TString ext = ".pdf";
@@ -62,6 +54,11 @@ TCut ok_dphi2 = "dphi_pad_even < 10.";
 enum {GEM_EFF95 = 0, GEM_EFF98, GEM_EFF99};
 enum {DPHI_PT10 = 0, DPHI_PT15, DPHI_PT20, DPHI_PT30, DPHI_PT40};
 
+double mymod(double x, double y) 
+{
+  return fmod(x,y);
+}
+
 void setDPhi(int label_pt, int label_eff = GEM_EFF98)
 {
   float dphi_odd[3][20]  = {
@@ -91,94 +88,6 @@ TTree* getTree(TString f_name)
   return gt;
 }
 
-
-void gemTurnOns(int label_eff = GEM_EFF98)
-{
-  //  gROOT->ProcessLine(".L effFunctions.C");
-
-  TCut ok_eta = "TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.14";
-
-  const int N = 5;
-
-  int pt_lbl[N] = {DPHI_PT10, DPHI_PT15, DPHI_PT20, DPHI_PT30, DPHI_PT40};
-  TString pt[N] = {"pt10","pt15","pt20","pt30","pt40"};
-  int marker_styles[5] = {24, 28, 22 , 21, 20};
-
-  TCanvas* gEff = new TCanvas("gEff","gEff",700,500);
-  gEff->SetGridx(1);  gEff->SetGridy(1);
-  TCanvas* gEff_odd = new TCanvas("gEff_odd","gEff_odd",700,500);
-  gEff_odd->SetGridx(1);  gEff_odd->SetGridy(1);
-  TCanvas* gEff_even = new TCanvas("gEff_even","gEff_even",700,500);
-  gEff_even->SetGridx(1);  gEff_even->SetGridy(1);
-
-  TTree *t = getTree(filesDir + "gem_csc_eff_pt2pt50_pad4.root");
-  TH1F *ho[N], *he[N];
-  for (int n=0; n<N; ++n) {
-    if (n==1) continue;
-    TString opt = "p";
-    if (n>0) opt = "same p";
-    setDPhi(n, label_eff);
-    gEff->cd();
-    ho[n] = draw_eff(gt, "Eff. for track with LCT to have matched GEM pad;p_{T}, GeV/c;Eff.", Form("h_odd%d",n), "(50,0.,50.)", "pt", ok_lct1 && ok_eta && ok_pad1, ok_dphi1, opt, kRed, marker_styles[n]);
-    he[n] = draw_eff(gt, "Eff. for track with LCT to have matched GEM pad;p_{T}, GeV/c;Eff.", Form("h_evn%d",n), "(50,0.,50.)", "pt", ok_lct2 && ok_eta && ok_pad2, ok_dphi2, "same p", kBlue, marker_styles[n]);
-    gEff_odd->cd();
-    ho[n]->Draw(opt);
-    gEff_even->cd();
-    he[n]->Draw(opt);
-  }
-
-  TString pts[N] = {"10","15","20","30","40"};
-  TString efs[5] = {"95", "98", "99"};
-  TString leg_header =  "    #Delta#phi(LCT,GEM) is " + efs[label_eff] + "% efficient for";
-
-  gEff->cd();
-  TLegend *leg = new TLegend(0.50,0.17,.99,0.57, NULL, "brNDC");
-  leg->SetNColumns(2);
-  leg->SetBorderSize(0);
-  leg->SetFillStyle(0);
-  leg->SetHeader(leg_header);
-  leg->AddEntry(ho[0], "odd chambers", "");
-  leg->AddEntry(he[0], "even chambers", "");
-  leg->AddEntry(ho[0], "at pt", "");
-  leg->AddEntry(he[0], "at pt", "");
-  for (int n=0; n<N; ++n) {
-    if (n==1) continue;
-    leg->AddEntry(ho[n], pts[n], "p");
-    leg->AddEntry(he[n], pts[n], "p");
-  }
-  leg->Draw();
-  gEff->Print(plotDir + "gem_pad_eff_for_LCT_gemEff" + efs[label_eff] +"" + ext);
-
-  gEff_odd->cd();
-  TLegend *leg = new TLegend(0.50,0.17,.99,0.57, NULL, "brNDC");
-  leg->SetBorderSize(0);
-  leg->SetFillStyle(0);
-  leg->SetHeader(leg_header);
-  leg->AddEntry(ho[0], "odd chambers at pt", "");
-  for (int n=0; n<N; ++n) {
-    if (n==1) continue;
-    leg->AddEntry(ho[n], pts[n], "p");
-  }
-  leg->Draw();
-  gEff_odd->Print(plotDir + "gem_pad_eff_for_LCT_gemEff" + efs[label_eff] +"_odd" + ext);
-
-  gEff_even->cd();
-  TLegend *leg = new TLegend(0.50,0.17,.99,0.57, NULL, "brNDC");
-  leg->SetBorderSize(0);
-  leg->SetFillStyle(0);
-  leg->SetHeader(leg_header);
-  leg->AddEntry(ho[0], "even chambers at pt", "");
-  for (int n=0; n<N; ++n) {
-    if (n==1) continue;
-    leg->AddEntry(he[n], pts[n], "p");
-  }
-  leg->Draw();
-  gEff_even->Print(plotDir + "gem_pad_eff_for_LCT_gemEff" + efs[label_eff] +"_even" + ext);
-}
-
-
-double mymod(double x, double y) {return fmod(x,y);}
-
 void eff_hs_dphi(TString f_name, TString p_name)
 {
   // efficiency vs half-strip  - separate odd-even
@@ -189,8 +98,8 @@ void eff_hs_dphi(TString f_name, TString p_name)
   TTree *t = getTree(f_name);
   setDPhi(DPHI_PT40, GEM_EFF98);
 
-  TH1F* ho = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip;Eff.", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta && ok_gsh1 , ok_pad1, "", kRed);
-  TH1F* he = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip;Eff.", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta && ok_gsh2, ok_pad2, "same");
+  //  TH1F* ho = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip;Eff.", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta && ok_gsh1 , ok_pad1, "", kRed);
+  //  TH1F* he = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip;Eff.", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta && ok_gsh2, ok_pad2, "same");
 
   //TH1F* ho = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip;Eff.", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta, ok_gsh1, "", kRed);
   //TH1F* he = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;LCT half-strip;Eff.", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta, ok_gsh2, "same");
@@ -218,7 +127,7 @@ void eff_hs_dphi(TString f_name, TString p_name)
 }
 
 
-void eff_hs(TString f_name, TString p_name, TString pt)
+void efficiency_1(TString f_name, TString p_name, TString pt, bool overlap)
 {
   
   gStyle->SetTitleStyle(0);
@@ -238,10 +147,25 @@ void eff_hs(TString f_name, TString p_name, TString pt)
 
   // efficiency vs half-strip  - separate odd-even
   TCut ok_eta = "TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12";
+  TCut cut1;
+  TCut cut2;
+  if (overlap)
+  {
+    cut1 = ok_pad1_overlap;
+    cut2 = ok_pad2_overlap;
+  }
+  else
+  {
+    cut1 = ok_pad1;
+    cut2 = ok_pad2;
+  }
 
   TTree *t = getTree(f_name);
-  TH1F* ho = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;LCT half-strip number;Efficiency", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta , ok_pad1, "", kRed);
-  TH1F* he = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;LCT half-strip number;Efficiency", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , ok_pad2, "same");
+  TH1F* ho = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation Preliminary;LCT half-strip number;Efficiency", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta , cut1, "", kRed);
+  TH1F* he = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation Preliminary;LCT half-strip number;Efficiency", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , cut2, "same");
+  ho->SetMinimum(0.9);
+  ho->GetXaxis()->SetLabelSize(0.05);
+  ho->GetYaxis()->SetLabelSize(0.05);
 
   TLegend *leg = new TLegend(0.25,0.23,.75,0.5, NULL, "brNDC");
   leg->SetBorderSize(0);
@@ -251,19 +175,11 @@ void eff_hs(TString f_name, TString p_name, TString pt)
   leg->AddEntry(he, "\"Close\" chamber pairs","l");
   leg->AddEntry(ho, "\"Far\" chamber pairs","l");
   leg->Draw();
-  // TLegend *leg = new TLegend(0.35,0.2,.65,0.4, NULL, "brNDC");
-  // leg->SetBorderSize(0);
-  // leg->SetTextSize(0.06);
-  // leg->SetFillStyle(0);
-  // leg->AddEntry((TObject*)0,"muon p_{T} = " + pt + " GeV/c",""); 
-  // leg->AddEntry(ho,"odd chambers","l");
-  // leg->AddEntry(he,"even chambers","l");
-  // leg->Draw();
 
-  TLatex* tex2 = new TLatex(.67,.8,"   L1 Trigger");
-  tex2->SetTextSize(0.05);
-  tex2->SetNDC();
-  tex2->Draw();
+  // TLatex* tex2 = new TLatex(.67,.8,"   L1 Trigger");
+  // tex2->SetTextSize(0.05);
+  // tex2->SetNDC();
+  // tex2->Draw();
     
   TLatex *  tex = new TLatex(.66,.73,"1.64<|#eta|<2.12");
   tex->SetTextSize(0.05);
@@ -274,44 +190,83 @@ void eff_hs(TString f_name, TString p_name, TString pt)
 }
 
 
-void eff_hs_overlap(TString f_name, TString p_name, TString pt)
+void efficiency_2(TString f_name, TString p_name, TString pt, bool overlap)
 {
   // efficiency vs half-strip  - including overlaps in odd&even
   TCut ok_eta = "TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12";
-  
+  TCut cut1;
+  TCut cut2;
+  if (overlap)
+  {
+    cut1 = ok_pad1_overlap;
+    cut2 = ok_pad2_overlap;
+  }
+  else
+  {
+    cut1 = ok_pad1;
+    cut2 = ok_pad2;
+  }
   
   TTree *t = getTree(f_name);
-  TH1F* ho = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;LCT half-strip number;Efficiency", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta , ok_pad1_overlap, "", kRed);
-  TH1F* he = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;LCT half-strip number;Efficiency", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , ok_pad2_overlap, "same");
 
-  TF1 fo("fo", "pol0", 6., 123.);
-  ho->Fit("fo","RN");
-  TF1 fe("fe", "pol0", 6., 123.);
-  he->Fit("fe","RN");
+  // latest instructions by Vadim: 21-08-2013
+
+  TGraphAsymmErrors* hgn = draw_geff(t, "         GEM pad matching             CMS Simulation Preliminary;Generated muon phi #phi [deg];Efficiency", "h_odd", "(100,-10,10)", "mymod(phi*180./TMath::Pi(), 360/18.)", ok_eta&&Qn, ok_pad1 || ok_pad2,"", kRed);
+  TGraphAsymmErrors* hgp = draw_geff(t, "         GEM pad matching             CMS Simulation Preliminary;Generated muon phi #phi [deg];Effciency", "h_odd", "(100,-10,10)", "mymod(phi*180./TMath::Pi(), 360/18.)", ok_eta&&Qp, ok_pad1 || ok_pad2,"same", kBlue);
+  double maxi = 1.0;
+  double mini = 0.9;
+  hgn->SetMinimum(mini);
+  hgn->SetMaximum(maxi);
+  TLine *l1 = new TLine(-5,mini,-5,maxi);
+  l1->SetLineStyle(2);
+  l1->Draw();
+  TLine *l1 = new TLine(5,mini,5,maxi);
+  l1->SetLineStyle(2);
+  l1->Draw();
+
+  hgn->Fit("pol0","R0","",-10,10);
+  hgp->Fit("pol0","R0","",-10,10);
+  double eff_neg = (hgn->GetFunction("pol0"))->GetParameter(0);
+  double eff_pos = (hgp->GetFunction("pol0"))->GetParameter(0);
+  std::cout << "negative efficiency" << eff_neg << " " 
+	    << "positive efficiency" << eff_pos << std::endl;
+
+  // ho = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;local #phi [deg];Efficiency", "h_odd", "(150,-10,10)", "mymod(phi+TMath::Pi()/36., TMath::Pi()/18.) * 180./TMath::Pi()", ok_eta&&Qn, ok_pad1 || ok_pad2, "", kRed);
+  // he = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;local #phi [deg];Efficiency", "h_odd", "(150,-10,10)", "mymod(phi+TMath::Pi()/36., TMath::Pi()/18.) * 180./TMath::Pi()", ok_eta&&Qp, ok_pad1 || ok_pad2, "same",kBlue);
+
+  // TH1F* ho = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;local #phi [deg];Efficiency", "h_odd", "(130,-5,5)", "fmod(180*phi/TMath::Pi(),5)", ok_lct1 && ok_eta , cut1, "", kRed);
+  // TH1F* he = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;local #phi [deg];Efficiency", "h_evn", "(130,-5,5)", "fmod(180*phi/TMath::Pi(),5)", ok_lct2 && ok_eta , cut2, "same");
+  //  ho->SetMinimum(0.);
+  hgn->GetXaxis()->SetLabelSize(0.05);
+  hgn->GetYaxis()->SetLabelSize(0.05);
+
+
 
   TLegend *leg = new TLegend(0.25,0.23,.75,0.5, NULL, "brNDC");
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->SetTextSize(0.06);
   leg->AddEntry((TObject*)0,"muon p_{T} = " + pt + " GeV/c",""); 
-  leg->AddEntry(he, "\"Close\" chamber pairs","l");
-  leg->AddEntry(ho, "\"Far\" chamber pairs","l");
+  leg->AddEntry(hgp, "Postive muons","l");
+  leg->AddEntry(hgn, "Negative muons","l");
   leg->Draw();
 
   // Print additional information
+  /*
   TLatex* tex2 = new TLatex(.67,.8,"   L1 Trigger");
   tex2->SetTextSize(0.05);
   tex2->SetNDC();
   tex2->Draw();
-    
-  TLatex *  tex = new TLatex(.66,.73,"1.64<|#eta|<2.12");
+  */
+  
+  //  TLatex *  tex = new TLatex(.66,.73,"1.64<|#eta|<2.12");
+  TLatex *  tex = new TLatex(.7,.2,"1.64<|#eta|<2.12");
   tex->SetTextSize(0.05);
   tex->SetNDC();
   tex->Draw();
 
   gPad->Print(p_name);
 }
-
 
 void drawplot_eff_eta()
 {
@@ -418,7 +373,6 @@ void drawplot_eff_eta()
 
 }
 
-
 void drawplot_eff()
 {
   gROOT->ProcessLine(".L effFunctions.C");
@@ -433,33 +387,41 @@ void drawplot_eff()
   gStyle->SetTitleH(0.058);
   gStyle->SetTitleBorderSize(0);
   
-  gf_name = "";
-
   TCanvas* cEff = new TCanvas("cEff","cEff",700,500);
 
-  eff_hs(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vsHS_pt05" + ext,"5");
-  eff_hs(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt10" + ext,"10");
-  eff_hs(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt15" + ext,"15");
-  eff_hs(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt20" + ext,"20");
-  eff_hs(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt30" + ext,"30");
-  eff_hs(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt40" + ext,"40");
+  efficiency_1(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vs_HS_pt05" + ext, "5", false);
+  efficiency_1(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt10" + ext, "10", false);
+  efficiency_1(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt15" + ext, "15", false);
+  efficiency_1(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt20" + ext, "20", false);
+  efficiency_1(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt30" + ext, "30", false);
+  efficiency_1(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt40" + ext, "40", false);
 
-  eff_hs_overlap(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vsHS_pt05_overlap" + ext,"5");
-  eff_hs_overlap(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt10_overlap" + ext,"10");
-  eff_hs_overlap(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt15_overlap" + ext,"15");
-  eff_hs_overlap(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt20_overlap" + ext,"20");
-  eff_hs_overlap(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt30_overlap" + ext,"30");
-  eff_hs_overlap(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vsHS_pt40_overlap" + ext,"40");
+  efficiency_1(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vs_HS_pt05_overlap" + ext, "5", true);
+  efficiency_1(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt10_overlap" + ext, "10", true);
+  efficiency_1(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt15_overlap" + ext, "15", true);
+  efficiency_1(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt20_overlap" + ext, "20", true);
+  efficiency_1(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt30_overlap" + ext, "30", true);
+  efficiency_1(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt40_overlap" + ext, "40", true);
 
-  //gemTurnOns();
+  efficiency_2(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vs_phi_pt05" + ext, "5", false);
+  efficiency_2(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt10" + ext, "10", false);
+  efficiency_2(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt15" + ext, "15", false);
+  efficiency_2(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt20" + ext, "20", false);
+  efficiency_2(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt30" + ext, "30", false);
+  efficiency_2(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt40" + ext, "40", false);
 
-  //drawplot_eff_eta();
+  efficiency_2(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vs_phi_pt05_overlap" + ext, "5", true);
+  efficiency_2(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt10_overlap" + ext, "10", true);
+  efficiency_2(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt15_overlap" + ext, "15", true);
+  efficiency_2(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt20_overlap" + ext, "20", true);
+  efficiency_2(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt30_overlap" + ext, "30", true);
+  efficiency_2(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt40_overlap" + ext, "40", true);
+
+  //  drawplot_eff_eta();
 }
 
 
 /*
-
-
   TTree *gt = getTree("gem_csc_delta_pt40_pad4.root");
 
 
@@ -599,302 +561,4 @@ void drawplot_eff()
 
   nm->Draw()
   nmlct->Draw("same")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  --------------------------- 2012  Oct 30 -----------------------
-
-  .L shFunctions.C
-
-  //fname="shtree_std_pt100.root";  suff = "std_pt100";
-  fname="shtree_POSTLS161_pt100.root";  suff = "postls1_pt100";
-
-
-  TFile *f = TFile::Open(fname)
-  tree = (TTree *) f->Get("neutronAna/CSCSimHitsTree");
-
-  TCanvas c1("c1","c1",1200,600);
-  c1->SetBorderSize(0);
-  c1->SetLeftMargin(0.084);
-  c1->SetRightMargin(0.033);
-  c1->SetTopMargin(0.089);
-  c1->SetBottomMargin(0.086);
-  c1->SetGridy();
-  c1->SetTickx(1);
-  c1->SetTicky(1);
-  gStyle->SetOptStat(0);
-
-
-
-
-  TH2D *hc = new TH2D("hc","Strip readout channels closest to SimHit",21,-10.5,10.5,82,0,82);
-  hc->Draw()
-  setupH2DType(hc);
-  hc->GetYaxis()->SetTitle("readout channel #");
-
-  tree->Draw("sh.chan:(3-2*id.e)*id.t","","same", 10000000, 0);
-  g = (TGraph*)gPad->FindObject("Graph");
-  g->SetMarkerColor(kBlue);
-  g->SetMarkerStyle(2);
-  g->SetMarkerSize(0.4);
-  gPad->Modified()
-
-  c1.Print((string("chan_")+suff+"" + ext).c_str())
-
-
-
-
-  TH2D *hc = new TH2D("hc","Strips closest to SimHit",21,-10.5,10.5,82,0,82)
-  for(int b=1; b<=hc->GetXaxis()->GetNbins(); ++b) hc->GetXaxis()->SetBinLabel(b, types2[b].c_str())
-  hc->Draw()
-  setupH2DType(hc);
-  hc->GetYaxis()->SetTitle("strip #");
-
-  tree->Draw("sh.s:(3-2*id.e)*id.t","","same", 10000000, 0);
-  g = (TGraph*)gPad->FindObject("Graph");
-  g->SetMarkerColor(kBlue);
-  g->SetMarkerStyle(2);
-  g->SetMarkerSize(0.4);
-  gPad->Modified()
-
-  c1.Print((string("strip_")+suff+"" + ext).c_str())
-
-
-
-  TH2D *hc = new TH2D("hc","Wire groups closest to SimHit",21,-10.5,10.5,115,-1,114)
-  for(int b=1; b<=hc->GetXaxis()->GetNbins(); ++b) hc->GetXaxis()->SetBinLabel(b, types2[b].c_str())
-  hc->Draw()
-  setupH2DType(hc);
-  hc->GetYaxis()->SetTitle("wiregroup #");
-  hc->GetYaxis()->SetNdivisions(1020);
-
-
-  tree->Draw("sh.w:(3-2*id.e)*id.t","","same", 10000000, 0);
-  g = (TGraph*)gPad->FindObject("Graph");
-  g->SetMarkerColor(kBlue);
-  g->SetMarkerStyle(2);
-  g->SetMarkerSize(0.4);
-  gPad->Modified()
-
-  c1.Print((string("wg_")+suff+"" + ext).c_str())
-
-
-
-
-
-  .L shFunctions.C
-  //fname="shtree_POSTLS161_pt100.root";  suff = "postls1_pt100";
-  //fname="shtree_POSTLS161_pt10.root";  suff = "postls1_pt10";
-  fname="shtree_POSTLS161_pt1000.root";  suff = "postls1_pt1000";
-  TFile *f = TFile::Open(fname)
-
-  globalPosfromTree("+ME1", f, 1, 1, "rphi_+ME1_postls1" + ext)
-  globalPosfromTree("+ME2", f, 1, 2, "rphi_+ME2_postls1" + ext)
-  globalPosfromTree("+ME3", f, 1, 3, "rphi_+ME3_postls1" + ext)
-  globalPosfromTree("+ME4", f, 1, 4, "rphi_+ME4_postls1" + ext)
-  globalPosfromTree("-ME1", f, 2, 1, "rphi_-ME1_postls1" + ext)
-  globalPosfromTree("-ME2", f, 2, 2, "rphi_-ME2_postls1" + ext)
-  globalPosfromTree("-ME3", f, 2, 3, "rphi_-ME3_postls1" + ext)
-  globalPosfromTree("-ME4", f, 2, 4, "rphi_-ME4_postls1" + ext)
-
-  .L shFunctions.C
-  fname="shtree_std_pt100.root";  suff = "std_pt100";
-  TFile *f = TFile::Open(fname)
-  globalPosfromTree("+ME1", f, 1, 1, "rphi_+ME1_std" + ext)
-  globalPosfromTree("+ME2", f, 1, 2, "rphi_+ME2_std" + ext)
-  globalPosfromTree("+ME3", f, 1, 3, "rphi_+ME3_std" + ext)
-  globalPosfromTree("+ME4", f, 1, 4, "rphi_+ME4_std" + ext)
-  globalPosfromTree("-ME1", f, 2, 1, "rphi_-ME1_std" + ext)
-  globalPosfromTree("-ME2", f, 2, 2, "rphi_-ME2_std" + ext)
-  globalPosfromTree("-ME3", f, 2, 3, "rphi_-ME3_std" + ext)
-  globalPosfromTree("-ME4", f, 2, 4, "rphi_-ME4_std" + ext)
-
-
-
-
-
-
-  fname="shtree_std_pt100.root";  suff = "std_pt100";
-  //fname="shtree_POSTLS161_pt100.root";  suff = "postls1_pt100";
-
-
-  TFile *f = TFile::Open(fname)
-  tree = (TTree *) f->Get("neutronAna/CSCSimHitsTree");
-
-  TCanvas c1("c1","c1",900,900);
-  c1->SetBorderSize(0);
-  c1->SetLeftMargin(0.13);
-  c1->SetRightMargin(0.012);
-  c1->SetTopMargin(0.022);
-  c1->SetBottomMargin(0.111);
-  c1->SetGridy();
-  c1->SetTickx(1);
-  c1->SetTicky(1);
-  gStyle->SetOptStat(0);
-
-
-
-  TH2D *hc = new TH2D("hc",";z, cm;r, cm",2,560,1070,82,70,710);
-  hc->Draw()
-  h->GetXaxis()->SetTickLength(0.02);
-  h->GetYaxis()->SetTickLength(0.02);
-
-  tree->Draw("sh.r:sh.gz","","same", 10000000, 0);
-  g = (TGraph*)gPad->FindObject("Graph");
-  g->SetMarkerColor(kBlue);
-  g->SetMarkerStyle(1);
-  g->SetMarkerSize(0.1);
-  gPad->Modified()
-
-  c1.Print((string("rz_+ME_")+suff+"" + ext).c_str())
-
-
-
-  TH2D *hc = new TH2D("hc",";z, cm;r, cm",2,-1070,-560,82,70,710);
-  hc->Draw()
-  h->GetXaxis()->SetTickLength(0.02);
-  h->GetYaxis()->SetTickLength(0.02);
-
-  tree->Draw("sh.r:sh.gz","","same", 10000000, 0);
-  g = (TGraph*)gPad->FindObject("Graph");
-  g->SetMarkerColor(kBlue);
-  g->SetMarkerStyle(1);
-  g->SetMarkerSize(0.1);
-  gPad->Modified()
-
-  c1.Print((string("rz_-ME_")+suff+"" + ext).c_str())
-
-
-
-
-
-
-
-  TFile *f1 = TFile::Open("shtree_std_pt100.root")
-  t1 = (TTree *) f1->Get("neutronAna/CSCSimHitsTree");
-  TFile *f2 = TFile::Open("shtree_POSTLS161_pt100.root")
-  t2 = (TTree *) f2->Get("neutronAna/CSCSimHitsTree");
-
-  TCanvas c1("c1","c1",900,900);
-  c1->SetBorderSize(0);
-  c1->SetLeftMargin(0.13);
-  c1->SetRightMargin(0.023);
-  c1->SetTopMargin(0.081);
-  c1->SetBottomMargin(0.13);
-  c1->SetGridy();
-  c1->SetTickx(1);
-  c1->SetTicky(1);
-  c1->SetLogy(1);
-  gStyle->SetOptStat(0);
-
-  t1->Draw("TMath::Log10(sh.e*1000000)>>htmp(100,-2.5,2.5)","","", 10000000, 0);
-  htmp->SetTitle("SimHit energy loss");
-  htmp->SetXTitle("log_{10}E_{loss}, eV");
-  htmp->SetYTitle("entries");
-  htmp->SetLineWidth(2);
-  htmp->GetXaxis()->SetNdivisions(509);
-  t2->Draw("TMath::Log10(sh.e*1000000)>>htmp2(100,-2.5,2.5)","","same", 10000000, 0);
-  htmp2->SetLineWidth(2);
-  htmp2->SetLineStyle(7);
-  htmp2->SetLineColor(kRed);
-  scale = htmp->GetEntries()/(1.*htmp2->GetEntries());
-  htmp2->Scale(scale);
-  gPad->Modified();
-
-  TLegend *leg1 = new TLegend(0.17,0.7,0.47,0.85,NULL,"brNDC");
-  leg1->SetBorderSize(0);
-  leg1->SetFillStyle(0);
-  leg1->AddEntry(htmp,"6_0_0_patch1","l");
-  leg1->AddEntry(htmp2,"POSTLS161","l");
-  leg1->Draw();
-
-  c1.Print("sh_eloss" + ext)
-
-
-
-
-
-  TFile *f1 = TFile::Open("shtree_std_pt100.root")
-  t1 = (TTree *) f1->Get("neutronAna/CSCSimHitsTree");
-  TFile *f2 = TFile::Open("shtree_POSTLS161_pt100.root")
-  t2 = (TTree *) f2->Get("neutronAna/CSCSimHitsTree");
-
-  TCanvas c1("c1","c1",900,900);
-  c1->SetBorderSize(0);
-  c1->SetLeftMargin(0.13);
-  c1->SetRightMargin(0.023);
-  c1->SetTopMargin(0.081);
-  c1->SetBottomMargin(0.13);
-  c1->SetGridy();
-  c1->SetTickx(1);
-  c1->SetTicky(1);
-  //c1->SetLogy(1);
-  gStyle->SetOptStat(0);
-
-  t1->Draw("sh.t>>htmp(200,0,50.)","","", 10000000, 0);
-  htmp->SetTitle("SimHit TOF");
-  htmp->SetXTitle("TOF, ns");
-  htmp->SetYTitle("entries");
-  htmp->SetLineWidth(2);
-  t2->Draw("sh.t>>htmp2(200,0,50)","","same", 10000000, 0);
-  htmp2->SetLineWidth(2);
-  htmp2->SetLineStyle(7);
-  htmp2->SetLineColor(kRed);
-  scale = htmp->GetEntries()/(1.*htmp2->GetEntries());
-  htmp2->Scale(scale);
-  gPad->Modified();
-
-  TLegend *leg1 = new TLegend(0.17,0.7,0.47,0.85,NULL,"brNDC");
-  leg1->SetBorderSize(0);
-  leg1->SetFillStyle(0);
-  leg1->AddEntry(htmp,"6_0_0_patch1","l");
-  leg1->AddEntry(htmp2,"POSTLS161","l");
-  leg1->Draw();
-
-  c1.Print("sh_tof" + ext)
-
-
-
-
-
-
-
-
-
-
-
-  cvs co -r V50-00-00      CondFormats/CSCObjects
-  V01-21-03-03   Configuration/StandardSequences
-  V50-00-00      DataFormats/MuonDetId
-  V50-00-00      L1Trigger/CSCTrackFinder
-  V50-00-00      L1Trigger/CSCTriggerPrimitives
-  V00-00-02      SLHCUpgradeSimulations/Configuration
-  V00-00-04      SLHCUpgradeSimulations/Geometry
-
-
 */

@@ -76,8 +76,6 @@ process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscT
 process.simCsctfTrackDigis.SectorProcessor.isCoreVerbose = cms.bool(True)
 
 process.options = cms.untracked.PSet(
-#     Rethrow = cms.untracked.vstring('ProductNotFound'),
-#     FailPath = cms.untracked.vstring('ProductNotFound'),
     makeTriggerResults = cms.untracked.bool(False),
     wantSummary = cms.untracked.bool(True)
 )
@@ -101,21 +99,7 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string(outputFileName)
 )
 
-from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
-#SimTrackMatching.verboseSimHit = 1
-#SimTrackMatching.verboseGEMDigi = 1
-#SimTrackMatching.verboseCSCDigi = 1
-#SimTrackMatching.verboseCSCStub = 1
-#SimTrackMatching.simMuOnlyGEM = False
-#SimTrackMatching.simMuOnlyCSC = False
-#SimTrackMatching.discardEleHitsCSC = False
-#SimTrackMatching.discardEleHitsGEM = False
-
 process.load('GEMCode.SimMuL1.GEMCSCTriggerRate_cfi')
-process.GEMCSCTriggerRate.minDeltaWire = -1*deltaMatch
-process.GEMCSCTriggerRate.maxDeltaWire = deltaMatch
-process.GEMCSCTriggerRate.minDeltaStrip = -1*deltaMatch
-process.GEMCSCTriggerRate.simTrackGEMMatching = SimTrackMatching
 process.GEMCSCTriggerRate.minBxALCT = readout_windows[0][0]
 process.GEMCSCTriggerRate.maxBxALCT = readout_windows[0][1]
 process.GEMCSCTriggerRate.minBxCLCT = readout_windows[1][0]

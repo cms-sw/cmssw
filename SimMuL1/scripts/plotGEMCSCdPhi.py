@@ -34,13 +34,13 @@ def getTree(fileName):
 def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     """Plot the GEM-CSC bending angles"""
     
-    t = getTree("%sgem_csc_delta_pt5_pad4.root"%(filesDir));
-    t1 = getTree("%sgem_csc_delta_pt20_pad4.root"%(filesDir));
+    t = getTree("%sgem_csc_delta_pt5_pad4.root"%(filesDir))
+    t1 = getTree("%sgem_csc_delta_pt20_pad4.root"%(filesDir))
     
-    dphi_pt5 = TH1F("dphi_pt5","",600,0.0,0.03);
-    dphi_pt20 = TH1F("dphi_pt20","",600,0.0,0.03);
+    dphi_pt5 = TH1F("dphi_pt5","",600,0.0,0.03)
+    dphi_pt20 = TH1F("dphi_pt20","",600,0.0,0.03)
     
-    c = TCanvas("c","c",700,450);
+    c = TCanvas("c","c",700,450)
     c.Clear()
     ##    c.SetGridx(1)
     ##    c.SetGridy(1)
@@ -71,42 +71,47 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
         var = "dphi_pad_odd"
         closeFar = "Far"
         
-    t.Draw("TMath::Abs(%s)>>dphi_pt5"%(var) , ok_pad_lct);
-    t1.Draw("TMath::Abs(%s)>>dphi_pt20"%(var) , ok_pad_lct);
+    t.Draw("TMath::Abs(%s)>>dphi_pt5"%(var) , ok_pad_lct)
+    t1.Draw("TMath::Abs(%s)>>dphi_pt20"%(var) , ok_pad_lct)
     
-    dphi_pt5.Scale(1/dphi_pt5.Integral());
-    dphi_pt20.Scale(1/dphi_pt20.Integral());
+    dphi_pt5.Scale(1/dphi_pt5.Integral())
+    dphi_pt20.Scale(1/dphi_pt20.Integral())
     
-    dphi_pt5.SetLineColor(kRed);
-    dphi_pt20.SetLineColor(kBlue);
-    dphi_pt5.SetLineWidth(2);
-    dphi_pt20.SetLineWidth(2);
+    dphi_pt5.SetLineColor(kRed)
+    dphi_pt20.SetLineColor(kBlue)
+    dphi_pt5.SetLineWidth(2)
+    dphi_pt20.SetLineWidth(2)
 
-    dphi_pt20.GetXaxis().SetTitle("#Delta#Phi(GEM,CSC) [rad]");
-    dphi_pt20.GetYaxis().SetTitle("A.U.");
-    dphi_pt20.SetTitle("           GEM-CSC Bending Angle                                           CMS Simulation");
+    dphi_pt20.GetXaxis().SetTitle("#Delta#phi(GEM,CSC) [rad]")
+    dphi_pt20.GetYaxis().SetTitle("Arbitray units")
+    dphi_pt20.SetTitle("           GEM-CSC Bending Angle                        CMS Simulation Preliminary")
 
-    dphi_pt20.Draw();
-    dphi_pt5.Draw("same");
+    dphi_pt20.GetXaxis().SetLabelSize(0.05)
+    dphi_pt20.GetYaxis().SetLabelSize(0.05)
 
-    legend = TLegend(.4,.45,.7,.6);
-    legend.SetFillColor(kWhite);
-    legend.SetFillStyle(0);
-    legend.SetBorderSize(0);
-    legend.SetTextSize(0.06);
-    legend.SetMargin(0.13);
-    ##    legend.AddEntry(0,"1.64<|#eta|<2.14:","");
-    legend.AddEntry(dphi_pt5,"muon p_{T} = 5 GeV/c","L");
-    legend.AddEntry(dphi_pt20,"muon p_{T} = 20 GeV/c","L");
-    legend.Draw("same");
+    dphi_pt20.Draw()
+    dphi_pt5.Draw("same")
+
+    legend = TLegend(.4,.45,.7,.6)
+    legend.SetFillColor(kWhite)
+    legend.SetFillStyle(0)
+    legend.SetBorderSize(0)
+    legend.SetTextSize(0.06)
+    legend.SetMargin(0.13)
+    ##    legend.AddEntry(0,"1.64<|#eta|<2.14:","")
+    legend.AddEntry(dphi_pt5,"muon p_{T} = 5 GeV/c","L")
+    legend.AddEntry(dphi_pt20,"muon p_{T} = 20 GeV/c","L")
+    legend.Draw("same") 
 
     ## Adding additional information - top right
+    """
     tex2 = TLatex(.73,.85,'   L1 Trigger')
     tex2.SetTextSize(0.06)
     tex2.SetNDC()
     tex2.Draw("same")
+    """
 
-    tex3 = TLatex(.72,.75,'1.64<|#eta|<2.14')
+    tex3 = TLatex(.72,.85,'1.64<|#eta|<2.14')
     tex3.SetTextSize(0.06)
     tex3.SetNDC()
     tex3.Draw("same")
@@ -125,11 +130,16 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     c.SaveAs("%sGEMCSCdPhi_%s_chambers%s"%(plotDir, oddEven, ext))
 
 if __name__ == "__main__":  
-    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".png")
-    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".png")
-    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".pdf")
-    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".pdf")
+#    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".png")
+#    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".png")
+#    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".pdf")
+#    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".pdf")
     plotGEMCSCdPhi("files/", "plots/bending/", "even", ".eps")
     plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".eps")
+    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".pdf")
+    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".pdf")
+    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".png")
+    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".png")
+
 
 

@@ -68,8 +68,8 @@ void produceRatePlot(TH1D* h, TH1D* i, TH1D* j, TH1D* m, Color_t col0, Color_t c
   leg->SetFillColor(kWhite);
   leg->AddEntry(h, "GMT (2012 configuration)","f");
   leg->AddEntry((TObject*)0,          "L1 selections (#geq " + k + " stations):","");
-  leg->AddEntry(i,  "CSC, loose","f");
-  leg->AddEntry(j,"CSC, tight","f");
+  leg->AddEntry(i,"CSC #geq" + k + " stubs (anywhere)","f");
+  leg->AddEntry(j,"CSC #geq" + k + " stubs (one in ME1/b)","f");
   leg->AddEntry(m,"GEM+CSC integrated trigger","f");
   leg->Draw();
   
@@ -113,7 +113,7 @@ void produceRatePlots(TString ext)
   gem_dir = "files/"; 
   gem_label = "gem98";
 
-  TString the_ttl = "         L1 Single Muon Trigger                             CMS Simulation;L1 candidate muon p_{T}^{cut} [GeV/c];rate [kHz]";
+  TString the_ttl = "         L1 Single Muon Trigger                             CMS Simulation Preliminary;L1 candidate muon p_{T}^{cut} [GeV/c];rate [kHz]";
   TString plots = "plots/rate/";
 
   //gStyle->SetStatW(0.13);
@@ -140,7 +140,6 @@ void produceRatePlots(TString ext)
   // ********** PAT2 **********
 
   getPTHistos("minbias_pt06_pat2");
-
   hh = (TH1D*)result_def_3s1b->Clone("gem_new");
   for (int b = hh->FindBin(6.01); b <= hh->GetNbinsX(); ++b) hh->SetBinContent(b, 0);
 
@@ -483,4 +482,6 @@ void produceRateVsPtPlotsForApproval()
   gROOT->SetBatch(true);
 
   produceRatePlots(".pdf");
+  produceRatePlots(".eps");
+  produceRatePlots(".png");
 }
