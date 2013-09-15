@@ -104,7 +104,7 @@ struct MyTFCand
   Char_t hasGEM;
 };
 
-struct MyGMTRegional
+struct MyGMTReg
 {
   Int_t event, bx;
   Float_t pt, eta, phi;
