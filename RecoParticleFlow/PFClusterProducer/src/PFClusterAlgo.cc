@@ -20,28 +20,6 @@ unsigned PFClusterAlgo::prodNum_ = 1;
 //for debug only 
 //#define PFLOW_DEBUG
 
-namespace edm {
-  template<> 
-  struct StrictWeakOrdering<reco::PFRecHit> {   
-    typedef unsigned key_type;
-    bool operator()(unsigned a, reco::PFRecHit const& b) const { 
-      return a < b.detId(); 
-    }
-    bool operator()(reco::PFRecHit const& a, unsigned b) const { 
-      return a.detId() < b; 
-    }
-    bool operator()(reco::PFRecHit const& a, reco::PFRecHit const& b) const { 
-      return ( a.detId() < b.detId()  ); 
-    }
-  };
-}
-
-// for directly interfacing to the position calc routine
-namespace{     
-  typedef edm::StrictWeakOrdering<reco::PFRecHit> PFStrictWeakOrdering;
-  typedef edm::SortedCollection<reco::PFRecHit> SortedPFRecHitCollection;
-}
-
 PFClusterAlgo::PFClusterAlgo() :
   pfClusters_( new vector<reco::PFCluster> ),
   pfRecHitsCleaned_( new vector<reco::PFRecHit> ),
@@ -63,6 +41,7 @@ PFClusterAlgo::PFClusterAlgo() :
   minS6S2DoubleSpikeEndcap_(-1.),
   nNeighbours_(4),
   posCalcNCrystal_(-1),
+  which_pos_calc_(PFClusterAlgo::kNotDefined),
   posCalcP1_(-1),
   showerSigma_(5),
   useCornerCells_(false),
@@ -91,6 +70,10 @@ void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle ) {
 
   // cache the Handle to the rechits
   rechitsHandle_ = rechitsHandle;
+  if( which_pos_calc_ != kNotDefined ) {
+    sortedRecHits_.reset(new SortedPFRecHitCollection(*rechitsHandle_));
+    sortedRecHits_->sort();
+  }
 
   // clear rechits mask
   mask_.clear();
@@ -106,6 +89,11 @@ void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle, const std
 
   // cache the Handle to the rechits
   rechitsHandle_ = rechitsHandle;
+  if( which_pos_calc_ != kNotDefined ) {
+    sortedRecHits_.reset(new SortedPFRecHitCollection(*rechitsHandle_));
+    sortedRecHits_->sort();
+  }
+
 
   // use the specified mask, unless it doesn't match with the rechits
   mask_.clear();
@@ -126,6 +114,10 @@ void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits ) {
 
   // using rechits without a Handle, clear to avoid a stale member
   rechitsHandle_.clear();
+  if( which_pos_calc_ != kNotDefined ) {
+    sortedRecHits_.reset(new SortedPFRecHitCollection(rechits));
+    sortedRecHits_->sort();
+  }
 
   // clear rechits mask
   mask_.clear();
@@ -140,7 +132,11 @@ void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits, const
   // using rechits without a Handle, clear to avoid a stale member
 
   rechitsHandle_.clear();
-
+  if( which_pos_calc_ != kNotDefined ) {
+    sortedRecHits_.reset(new SortedPFRecHitCollection(rechits));
+    sortedRecHits_->sort();
+  }
+  
   // use the specified mask, unless it doesn't match with the rechits
   mask_.clear();
 
@@ -1325,6 +1321,7 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
     throw "PFCluster::calculatePosition : posCalcNCrystal_ must be -1, 5, or 9.";
   }  
 
+  std::vector< std::pair< DetId, float > > hits_and_fracts;
 
   if(!posCalcNCrystal) posCalcNCrystal = posCalcNCrystal_; 
 
@@ -1489,8 +1486,12 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
 	}
       }
     }
-    double fraction =  cluster.rechits_[ic].fraction();
+    hits_and_fracts.push_back(std::make_pair(DetId(rh.detId()),
+					    cluster.rechits_[ic].fraction()));
+    double fraction = hits_and_fracts.back().second;
     double recHitEnergy = rh.energy() * fraction;
+  
+    
 
     double norm = fraction < 1E-9 ? 0. : max(0., log(recHitEnergy/p1));
         
@@ -1545,28 +1546,18 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
       ( cluster.layer() == PFLayer::ECAL_BARREL ||       
 	cluster.layer() == PFLayer::ECAL_ENDCAP ) ) {
     if( which_pos_calc_ == EGPositionCalc ) {
-      // calculate using EG position calc directly
-      SortedPFRecHitCollection temp;
-      std::vector< std::pair< DetId, float > > h_and_f;
-      for (unsigned ic=0; ic<cluster.rechits_.size(); ic++ ) {	
-	const reco::PFRecHitRef& rh = cluster.rechits_[ic].recHitRef();
-	temp.push_back(*rh);
-	h_and_f.push_back(std::make_pair(DetId(rh->detId()),
-					 cluster.rechits_[ic].fraction()));
-	
-      }
-      temp.sort();
+      // calculate using EG position calc directly      
       math::XYZPoint clusterposxyzcor(0,0,0);
       switch(cluster.layer()) {
       case PFLayer::ECAL_BARREL:
-	clusterposxyzcor = eg_pos_calc->Calculate_Location(h_and_f,
-							   &temp,
+	clusterposxyzcor = eg_pos_calc->Calculate_Location(hits_and_fracts,
+							 sortedRecHits_.get(),
 							   eb_geom,
 							   NULL);
 	break;
       case PFLayer::ECAL_ENDCAP:
-	clusterposxyzcor = eg_pos_calc->Calculate_Location(h_and_f,
-							   &temp,
+	clusterposxyzcor = eg_pos_calc->Calculate_Location(hits_and_fracts,
+							 sortedRecHits_.get(),
 							   ee_geom,
 							   preshower_geom);
 	break;

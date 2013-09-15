@@ -33,13 +33,34 @@ class TH2F;
   \author Colin Bernet, Patrick Janot
   \date July 2006
 */
+
+namespace edm {
+  template<> 
+  struct StrictWeakOrdering<reco::PFRecHit> {   
+    typedef unsigned key_type;
+    bool operator()(unsigned a, reco::PFRecHit const& b) const { 
+      return a < b.detId(); 
+    }
+    bool operator()(reco::PFRecHit const& a, unsigned b) const { 
+      return a.detId() < b; 
+    }
+    bool operator()(reco::PFRecHit const& a, reco::PFRecHit const& b) const { 
+      return ( a.detId() < b.detId()  ); 
+    }
+  };
+}
+
 class PFClusterAlgo {
 
  public:
 
+  typedef edm::StrictWeakOrdering<reco::PFRecHit> PFStrictWeakOrdering;
+  typedef edm::SortedCollection<reco::PFRecHit> SortedPFRecHitCollection;
+
   enum PositionCalcType { EGPositionCalc,
 			  EGPositionFormula,			  
-			  PFPositionCalc };
+			  PFPositionCalc,
+			  kNotDefined };
 
   /// constructor
   PFClusterAlgo();
@@ -272,6 +293,8 @@ class PFClusterAlgo {
   
 
   PFRecHitHandle           rechitsHandle_;   
+  // for E\gamma Position calc
+  std::auto_ptr<SortedPFRecHitCollection> sortedRecHits_; 
 
   /// ids of rechits used in seed search
   std::set<unsigned>       idUsedRecHits_;
