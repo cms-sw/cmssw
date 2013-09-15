@@ -46,7 +46,7 @@
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
-#include "GEMCode/SimMuL1/interface/EtaRangeHelpers.h"
+#include "GEMCode/SimMuL1/interface/MuGeometryHelpers.h"
 #include "GEMCode/SimMuL1/interface/MatchCSCMuL1.h"
 
 // ROOT

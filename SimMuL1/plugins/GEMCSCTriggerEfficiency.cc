@@ -36,7 +36,7 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 #include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
-#include "GEMCode/SimMuL1/interface/EtaRangeHelpers.h"
+#include "GEMCode/SimMuL1/interface/MuGeometryHelpers.h"
 
 // ================================================================================================
 namespace 

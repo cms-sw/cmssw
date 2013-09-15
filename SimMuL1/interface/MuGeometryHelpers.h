@@ -14,6 +14,7 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include <vector>
+#include <cmath>
 
 class CSCGeometry;
 class GEMGeometry;
@@ -22,6 +23,13 @@ class DTGeometry;
 
 
 namespace mugeo {
+
+// check valid region
+inline bool isME1bEtaRegion(float eta, float eta_min = 1.64, float eta_max = 2.14){return fabs(eta) >= eta_min && fabs(eta) <= eta_max;}
+inline bool isME1abEtaRegion(float eta, float eta_min = 1.64){return fabs(eta) >= eta_min;}
+inline bool isME1aEtaRegion(float eta, float eta_min = 2.14){return fabs(eta) >= eta_min;}
+inline bool isME42EtaRegion(float eta){return fabs(eta)>=1.2499 && fabs(eta)<=1.8;}
+inline bool isME42RPCEtaRegion(float eta){return fabs(eta)>=1.2499 && fabs(eta)<=1.6;}
 
 // constants
 enum ETrigCSC {MAX_CSC_STATIONS = 4, CSC_TYPES = 10};
@@ -65,6 +73,11 @@ const std::string rpcb_type[RPCB_TYPES+1] =
   { "all", "RB1/0", "RB1/1", "RB1/2", "RB2/0", "RB2/1", "RB2/2", "RB3/0", "RB3/1", "RB3/2", "RB4/0", "RB4/1", "RB4/2",};
 const std::string rpcb_type_[RPCB_TYPES+1] =
   { "all", "RB10", "RB11", "RB12", "RB20", "RB21", "RB22", "RB30", "RB31", "RB32", "RB40", "RB41", "RB42",};
+
+const std::string csc_type_a[CSC_TYPES+2] =
+   { "N/A", "ME1/a", "ME1/b", "ME1/2", "ME1/3", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2", "ME1/T"};
+const std::string csc_type_a_[CSC_TYPES+2] =
+   { "NA", "ME1A", "ME1B", "ME12", "ME13", "ME21", "ME22", "ME31", "ME32", "ME41", "ME42", "ME1T"};
 
 // chamber radial segmentation numbers (including factor of 2 for non-zero wheels in barrel):
 const double csc_radial_segm[CSC_TYPES+1] = {1, 36, 36, 36, 36, 18, 36, 18, 36, 18, 36};

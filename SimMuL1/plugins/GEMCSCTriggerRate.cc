@@ -1,19 +1,9 @@
 #include "GEMCode/SimMuL1/plugins/GEMCSCTriggerRate.h"
 
-// ================================================================================================
-const std::string GEMCSCTriggerRate::csc_type[CSC_TYPES+1] = 
-  { "ME1/1", "ME1/2", "ME1/3", "ME1/a", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2", "ME1/T"};
-const std::string GEMCSCTriggerRate::csc_type_[CSC_TYPES+1] = 
-  { "ME11", "ME12", "ME13", "ME1A", "ME21", "ME22", "ME31", "ME32", "ME41", "ME42", "ME1T"};
-const std::string GEMCSCTriggerRate::csc_type_a[CSC_TYPES+2] =
-  { "N/A", "ME1/a", "ME1/b", "ME1/2", "ME1/3", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2", "ME1/T"};
-const std::string GEMCSCTriggerRate::csc_type_a_[CSC_TYPES+2] =
-  { "NA", "ME1A", "ME1B", "ME12", "ME13", "ME21", "ME22", "ME31", "ME32", "ME41", "ME42", "ME1T"};
 const int GEMCSCTriggerRate::pbend[CSCConstants::NUM_CLCT_PATTERNS]= 
-  { -999,  -5,  4, -4,  3, -3,  2, -2,  1, -1,  0}; // "signed" pattern (== phiBend)
+   { -999,  -5,  4, -4,  3, -3,  2, -2,  1, -1,  0}; // "signed" pattern (== phiBend)
 const double GEMCSCTriggerRate::PT_THRESHOLDS[N_PT_THRESHOLDS] = {0,10,20,30,40,50};
 const double GEMCSCTriggerRate::PT_THRESHOLDS_FOR_ETA[N_PT_THRESHOLDS] = {10,15,30,40,55,70};
-
 
 // ================================================================================================
 GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
@@ -180,10 +170,10 @@ GEMCSCTriggerRate::beginJob()
   h_rt_csctype_lct_bx567 = fs->make<TH1D>("h_rt_csctype_lct_bx567", "CSC type vs LCT rate", 10, 0.5,  10.5);
   h_rt_csctype_mplct_bx567 = fs->make<TH1D>("h_rt_csctype_mplct_bx567", "CSC type vs MPC LCT rate", 10, 0.5,  10.5);
   for (int i=1; i<=CSC_TYPES;i++) {
-    h_rt_csctype_alct_bx567->GetXaxis()->SetBinLabel(i,csc_type_a[i].c_str());
-    h_rt_csctype_clct_bx567->GetXaxis()->SetBinLabel(i,csc_type_a[i].c_str());
-    h_rt_csctype_lct_bx567->GetXaxis()->SetBinLabel(i,csc_type_a[i].c_str());
-    h_rt_csctype_mplct_bx567->GetXaxis()->SetBinLabel(i,csc_type_a[i].c_str());
+    h_rt_csctype_alct_bx567->GetXaxis()->SetBinLabel(i,mugeo::csc_type_a[i].c_str());
+    h_rt_csctype_clct_bx567->GetXaxis()->SetBinLabel(i,mugeo::csc_type_a[i].c_str());
+    h_rt_csctype_lct_bx567->GetXaxis()->SetBinLabel(i,mugeo::csc_type_a[i].c_str());
+    h_rt_csctype_mplct_bx567->GetXaxis()->SetBinLabel(i,mugeo::csc_type_a[i].c_str());
   }
   
   h_rt_lct_qu_vs_bx = fs->make<TH2D>("h_rt_lct_qu_vs_bx","h_rt_lct_qu_vs_bx",20,0., 20.,13,-6.5, 6.5);
@@ -477,37 +467,37 @@ GEMCSCTriggerRate::beginJob()
   {
     if (me==3 && !doME1a_) continue; // ME1/a
 
-    sprintf(label,"h_rt_n_per_ch_alct_vs_bx_cscdet_%s",csc_type_[me].c_str());
+    sprintf(label,"h_rt_n_per_ch_alct_vs_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
     h_rt_n_per_ch_alct_vs_bx_cscdet[me] = fs->make<TH2D>(label, label, 5,0,5, 16,-.5, 15.5);
 
-    sprintf(label,"h_rt_n_per_ch_clct_vs_bx_cscdet_%s",csc_type_[me].c_str());
+    sprintf(label,"h_rt_n_per_ch_clct_vs_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
     h_rt_n_per_ch_clct_vs_bx_cscdet[me] = fs->make<TH2D>(label, label, 5,0,5, 16,-.5, 15.5);
 
-    sprintf(label,"h_rt_n_per_ch_lct_vs_bx_cscdet_%s",csc_type_[me].c_str());
+    sprintf(label,"h_rt_n_per_ch_lct_vs_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
     h_rt_n_per_ch_lct_vs_bx_cscdet[me] = fs->make<TH2D>(label, label, 5,0,5, 16,-.5, 15.5);
 
 
-    sprintf(label,"h_rt_n_ch_alct_per_bx_cscdet_%s",csc_type_[me].c_str());
+    sprintf(label,"h_rt_n_ch_alct_per_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
     h_rt_n_ch_alct_per_bx_cscdet[me] = fs->make<TH1D>(label, label, 51,-0.5, 50.5);
 
-    sprintf(label,"h_rt_n_ch_clct_per_bx_cscdet_%s",csc_type_[me].c_str());
+    sprintf(label,"h_rt_n_ch_clct_per_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
     h_rt_n_ch_clct_per_bx_cscdet[me] = fs->make<TH1D>(label, label, 51,-0.5, 50.5);
 
-    sprintf(label,"h_rt_n_ch_lct_per_bx_cscdet_%s",csc_type_[me].c_str());
+    sprintf(label,"h_rt_n_ch_lct_per_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
     h_rt_n_ch_lct_per_bx_cscdet[me] = fs->make<TH1D>(label, label, 51,-0.5, 50.5);
 
 
-    sprintf(label,"h_rt_mplct_pattern_cscdet_%s",csc_type_[me].c_str());
+    sprintf(label,"h_rt_mplct_pattern_cscdet_%s",mugeo::csc_type_[me].c_str());
     h_rt_mplct_pattern_cscdet[me] = fs->make<TH1D>(label, label, 13,-0.5, 12.5);
 
 
-    sprintf(label,"h_rt_alct_bx_cscdet_%s",csc_type_[me].c_str());
+    sprintf(label,"h_rt_alct_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
     h_rt_alct_bx_cscdet[me] = fs->make<TH1D>(label, label,13,-6.5, 6.5);
-    sprintf(label,"h_rt_clct_bx_cscdet_%s",csc_type_[me].c_str());
+    sprintf(label,"h_rt_clct_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
     h_rt_clct_bx_cscdet[me] = fs->make<TH1D>(label, label,13,-6.5, 6.5);
-    sprintf(label,"h_rt_lct_bx_cscdet_%s",csc_type_[me].c_str());
+    sprintf(label,"h_rt_lct_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
     h_rt_lct_bx_cscdet[me] = fs->make<TH1D>(label, label,13,-6.5, 6.5);
-    sprintf(label,"h_rt_mplct_bx_cscdet_%s",csc_type_[me].c_str());
+    sprintf(label,"h_rt_mplct_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
     h_rt_mplct_bx_cscdet[me] = fs->make<TH1D>(label, label,13,-6.5, 6.5);
 
   }//for (int me=0; me<CSC_TYPES; me++) 
@@ -1249,7 +1239,7 @@ GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   	//std::cout<<"\n nnntf: "<<ntrg_stubs<<" "<<myTFCand.tftrack->nStubs(0,1,1,1,1)<<std::endl;
   	//if (ntrg_stubs != myTFCand.tftrack->nStubs()) myTFCand.tftrack->print("non-equal nstubs!");
   	//if (fabs(myTFCand.eta)>1.25 && fabs(myTFCand.eta)<1.9) {
-  	if (etaRangeHelpers::isME42EtaRegion(myTFCand.eta)) {
+  	if (mugeo::isME42EtaRegion(myTFCand.eta)) {
   	  if (ntrg_stubs>=2) h_rt_tfcand_pt_h42_2st->Fill(tfpt);
   	  if (ntrg_stubs>=3) h_rt_tfcand_pt_h42_3st->Fill(tfpt);
   	}
@@ -1356,8 +1346,8 @@ GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       float geta = fabs(myGMTREGCand.eta);
       float gpt = myGMTREGCand.pt;
 
-      bool eta_me42 = etaRangeHelpers::isME42EtaRegion(myGMTREGCand.eta);
-      bool eta_me42r = etaRangeHelpers::isME42RPCEtaRegion(myGMTREGCand.eta);
+      bool eta_me42 = mugeo::isME42EtaRegion(myGMTREGCand.eta);
+      bool eta_me42r = mugeo::isME42RPCEtaRegion(myGMTREGCand.eta);
       //if (geta>=1.2 && geta<=1.8) eta_me42 = 1;
       bool eta_q = (geta > 1.2);
 
@@ -1385,10 +1375,10 @@ GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   	      continue;
   	    }
 
-  	  bool eta_me1b = etaRangeHelpers::isME1bEtaRegion(myGMTREGCand.eta);
-  	  bool eta_me1ab = etaRangeHelpers::isME1abEtaRegion(myGMTREGCand.eta);
-  	  bool eta_me1a = etaRangeHelpers::isME1aEtaRegion(myGMTREGCand.eta);
-  	  bool eta_me1b_whole = etaRangeHelpers::isME1bEtaRegion(myGMTREGCand.eta, 1.6, 2.14);
+  	  bool eta_me1b = mugeo::isME1bEtaRegion(myGMTREGCand.eta);
+  	  bool eta_me1ab = mugeo::isME1abEtaRegion(myGMTREGCand.eta);
+  	  bool eta_me1a = mugeo::isME1aEtaRegion(myGMTREGCand.eta);
+  	  bool eta_me1b_whole = mugeo::isME1bEtaRegion(myGMTREGCand.eta, 1.6, 2.14);
   	  bool eta_no1a = (geta >= 1.2 && geta < 2.14);
 	  
   	  n_stubs = myGMTREGCand.nTFStubs;
@@ -1514,7 +1504,7 @@ GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       //  else std::cout<<"null tftrack!"<<std::endl;
       //}
 
-      //    if (trk->quality()>=3 && gpt >=40. && etaRangeHelpers::isME1bEtaRegion(myGMTREGCand.eta) ) {
+      //    if (trk->quality()>=3 && gpt >=40. && mugeo::isME1bEtaRegion(myGMTREGCand.eta) ) {
       //      std::cout<<"highpt csctf in ME1b "<<std::endl;
       //      myGMTREGCand.tfcand->tftrack->print("");
       //    }
@@ -1687,7 +1677,7 @@ GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       h_rt_gmt_rpcf_eta->Fill(fabs(myGMTREGCand.eta));
       h_rt_gmt_rpcf_bx->Fill(trk->bx());
 
-      bool eta_me42 = etaRangeHelpers::isME42RPCEtaRegion(myGMTREGCand.eta);
+      bool eta_me42 = mugeo::isME42RPCEtaRegion(myGMTREGCand.eta);
       //if (fabs(myGMTREGCand.eta)>=1.2 && fabs(myGMTREGCand.eta)<=1.8) eta_me42 = 1;
 
       if(eta_me42) h_rt_gmt_rpcf_pt_42->Fill(myGMTREGCand.pt);
@@ -1916,13 +1906,13 @@ GEMCSCTriggerRate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       
       if ( (gmt_csc != NULL && gmt_rpcf != NULL) && !muItr->isMatchedCand() ) std::cout<<"csc&rpcf but not matched!"<<std::endl;
       
-      bool eta_me42 = etaRangeHelpers::isME42EtaRegion(myGMTCand.eta);
-      bool eta_me42r = etaRangeHelpers::isME42RPCEtaRegion(myGMTCand.eta);
+      bool eta_me42 = mugeo::isME42EtaRegion(myGMTCand.eta);
+      bool eta_me42r = mugeo::isME42RPCEtaRegion(myGMTCand.eta);
       //if (geta>=1.2 && geta<=1.8) eta_me42 = 1;
       bool eta_q = (geta > 1.2);
       
-      bool eta_me1b = etaRangeHelpers::isME1bEtaRegion(myGMTCand.eta);
-      //bool eta_me1b_whole = etaRangeHelpers::isME1bEtaRegion(myGMTCand.eta, 1.6, 2.14);
+      bool eta_me1b = mugeo::isME1bEtaRegion(myGMTCand.eta);
+      //bool eta_me1b_whole = mugeo::isME1bEtaRegion(myGMTCand.eta, 1.6, 2.14);
       bool eta_no1a = (geta >= 1.2 && geta < 2.14);
       //bool eta_csc = (geta > 0.9);
       //
