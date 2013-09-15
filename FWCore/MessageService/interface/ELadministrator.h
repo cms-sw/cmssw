@@ -78,6 +78,7 @@ class MessageLoggerScribe;
 class ELadministrator  {	// *** Destructable Singleton Pattern ***
 
   friend class MessageLoggerScribe;	// proper ELadministrator cleanup
+  friend class ThreadSafeLogMessageLoggerScribe;	// proper ELadministrator cleanup
   friend class ELcout;			// ELcout behavior
 
 // *** Error Logger Functionality ***
