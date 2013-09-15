@@ -18,7 +18,6 @@
 //
 
 #include "FWCore/MessageLogger/interface/JobReport.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Map.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -124,21 +123,6 @@ namespace edm {
   std::ostream& operator<< (std::ostream& os, JobReport::RunReport const& f) {
     return print(os,f);
   }
-
-  //To talk to MessageLogger directly
-  edm::MessageSender& operator<< (edm::MessageSender& os, JobReport::InputFile const& f) {
-    return print(os,f);
-  }
-  edm::MessageSender& operator<< (edm::MessageSender& os, JobReport::OutputFile const& f) {
-    return print(os,f);
-  }
-  edm::MessageSender& operator<< (edm::MessageSender& os, JobReport::RunReport const& f) {
-    return print(os,f);
-  }
-//  edm::MessageSender& operator<< (edm::MessageSender& os, JobReport::LumiSectionReport const& rep) {
-//    return print(os,rep);
-//  }
-//
 
     JobReport::InputFile& JobReport::JobReportImpl::getInputFileForToken(JobReport::Token t) {
         if(t >= inputFiles_.size()) {

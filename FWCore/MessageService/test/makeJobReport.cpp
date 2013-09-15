@@ -11,45 +11,6 @@
 void work()
 {
 
-  /*
-  // We must initialize the plug-in manager first
-  try {
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
-  } catch(cms::Exception& e) {
-    std::cerr << e.what() << std::endl;
-    return;
-  }
-  
-  // Load the message service plug-in
-  boost::shared_ptr<edm::Presence> theMessageServicePresence;
-  try {
-    theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
-  } catch(cms::Exception& e) {
-    std::cerr << e.what() << std::endl;
-    return;
-  }
-
-  
-
-  //
-  // Make JobReport Service up front
-  // 
-  std::string jobReportFile = "FrameworkJobReport.xml";
-  std::auto_ptr<edm::JobReport> jobRep(new edm::JobReport());  
-  edm::ServiceToken jobReportToken = 
-    edm::ServiceRegistry::createContaining(jobRep);
-  
-  std::string * jr_name_p = new std::string("FJR.xml");
-  edm::MessageLoggerQ::MLqJOB( jr_name_p );
-
-  std::string * jm_p = new std::string("");
-  edm::MessageLoggerQ::MLqMOD( jm_p );
-
-  edm::ParameterSet * params_p = new edm::ParameterSet();
-  edm::MessageLoggerQ::MLqCFG(params_p);
-   */
-  
-  
   std::cout << "Testing JobReport" << std::endl;
   std::ostringstream ost;
   {
@@ -98,7 +59,6 @@ void work()
   theReport->inputFileClosed(inpFile);
   theReport->outputFileClosed(outFile);
   
-  //edm::LogInfo("FwkJob") << "Is anybody out there?";
   }
   std::cout << ost.str()<<std::endl;
 

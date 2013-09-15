@@ -51,7 +51,6 @@ namespace service {
 
 class ELdestination;
 class ELoutput;
-class ELfwkJobReport;
 
 
 // ----------------------------------------------------------------------
@@ -62,7 +61,6 @@ class ELlimitsTable  {
 
   friend class ELdestination;
   friend class ELoutput;
-  friend class ELfwkJobReport;
 
 public:
 

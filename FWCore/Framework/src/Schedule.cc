@@ -62,10 +62,11 @@ namespace edm {
                            ModuleDescription::getUniqueID());
       
       areg->preModuleConstructionSignal_(md);
+      //even if we have an exception, send signal
+      std::shared_ptr<int> sentry(nullptr,[areg,&md](void*) { areg->postModuleConstructionSignal_(md);});
       maker::ModuleHolderT<TriggerResultInserter> holder(new TriggerResultInserter(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
       holder.setModuleDescription(md);
       holder.registerProductsAndCallbacks(&preg);
-      areg->postModuleConstructionSignal_(md);
       return std::shared_ptr<TriggerResultInserter>{holder.release()};
     }
 
