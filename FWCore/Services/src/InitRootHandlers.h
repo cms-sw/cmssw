@@ -17,9 +17,8 @@ namespace edm {
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
     private:
-      virtual void disableErrorHandler_();
-      virtual void enableErrorHandler_();
-      virtual void enableErrorHandlerWithoutWarnings_();
+      virtual void enableWarnings_() override;
+      virtual void ignoreWarnings_() override;
       bool unloadSigHandler_;
       bool resetErrHandler_;
       bool autoLibraryLoader_;
