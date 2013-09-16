@@ -8,6 +8,7 @@ import FWCore.ParameterSet.SequenceTypes as seq
 class unscheduled:
   def __init__(self,cfgFile,html,quiet,helperDir,fullDir):
     self._html = html
+    self._serverName = os.path.join(os.path.split(html)[0],"EditingServer.py")
     self._quiet = quiet
     self._theDir= fullDir
     self._helperDir = helperDir
@@ -27,12 +28,13 @@ class unscheduled:
       x["cfile"] = self._filenames(x["creator"])
     self._type = "%stypes.js"%(fullDir)
     self._allJSFiles =["types.js"]
+    self.debug = False
     self._config= ConfigDataAccessor.ConfigDataAccessor()
     self._config.open(cfgFile)
     self._proceed()
 
   def _proceed(self):
-    self._filename= ""
+    #self._filename= ""
     self._getData(self._config.topLevelObjects())
     ty = "genericTypes"
     with open(self._type, 'w') as f:
@@ -43,12 +45,16 @@ class unscheduled:
     self._writeProdConsum()
     JS = ["%s%s"%(self._helperDir,x)for x in self._allJSFiles]
     html(self._html,JS,self._data, self._theDir, self._helperDir)
+    server(self._serverName)
 
   def _getData(self,objs):
     # i will loop around objs and keep adding things which are configFodlers
     calc =[]
     for each in objs:
       name = self._config.label(each)
+      if(name =="esprefers"): self.debug = False
+      else:
+        self.debug = False
       kids = self._config.children(each)
       if(not kids):
         if(not self._quiet):print name, "is empty."
@@ -92,7 +98,7 @@ class unscheduled:
         key = self._config.label(item)
         item.visit(v)
         bl[key]= getParamSeqDict(v._finalExit(),
-                    self._config.filename(item), "")
+                    self._config.fullFilename(item), "")
       data.write("}")
       with open(fullTopLevel, 'w') as other:
         other.write(JSONFormat(bl))
@@ -138,8 +144,12 @@ class unscheduled:
         out = getParameters(item.parameters_())
       elif(isinstance(item,cms._ValidatingListBase)):
         out = listBase(item)
+      if(self.debug):
+        print item, "file", self._config.fullFilename(item)
+        print self._config.type(item)
+        print item._filename
       everything[name] = getParamSeqDict(out,
-                           self._config.filename(item),
+                           self._config.fullFilename(item),
                            self._config.type(item))
     with open(fullDataFile,'w') as dataFile:
       dataFile.write(JSONFormat(everything))
@@ -161,7 +171,8 @@ class unscheduled:
     for name,theDict in {"producer":self._mother, 
                          "consumer":self._daughter}.iteritems():
       thedataFile , fulldataFile = self._calcFilenames(name)
-      self._saveData(name.capitalize(),self._parents[self._prodConsP]["creator"],
+      self._saveData(name.capitalize(),
+                      self._parents[self._prodConsP]["creator"],
                       [thedataFile,self._calcFilenames("modules")[0]]) 
       with open(fulldataFile,'w') as moth:
         moth.write(JSONFormat(theDict))
@@ -293,6 +304,9 @@ function %(name)s(data){
   if(temp) return temp[feature];
   else return 0;
 }
+DictParent.prototype.getData = function(){
+  return [this.data];
+}
 %(getterFunctions)s
 
 /**
@@ -302,7 +316,8 @@ function %(name)s(data){
 %(name)s.prototype.getKeys = function(){
   return Object.keys(this.data);
 }
-%(name)s.prototype.generalSearch = function(reg,term,repl,feature, d=this.data){
+%(name)s.prototype.generalSearch = function(reg,term,repl,feature, d){
+  d = d || this.data;
   var matches ={}
   for (var key in d){
     var x= d[key][feature]
@@ -338,6 +353,9 @@ function getGenericType(type){
 %(name)s.prototype.getTopFile = function(key){
   return this.topLevelData[key][this.FileKey];
 }
+%(name)s.prototype.getData = function(){
+  return [this.topLevelData, this.data];
+}
 %(name)s.prototype.searchType = function(reg,term,replce){
   return this.generalSearch(reg,term,replce,this.TypeKey, this.topLevelData);
 }
@@ -360,6 +378,9 @@ function getGenericType(type){
 }
 %(name)s.prototype.getTopFile = function(key){
   return this.getFile(key);
+}
+%(name)s.prototype.getData = function(){
+  return [this.topLevelData, this.data];
 }
 // Producer and consumer have different structure to rest.
 // Dont have file and type with them..
@@ -617,15 +638,15 @@ class html:
     return "\n".join([x%(i) for i in js])
 
   def _items(self, items):
-    l = """<input type="radio" id="%(n)s" name="docType" value="%(n)s"
-    data-base="%(d)s"data-files="%(f)s"/>
-    <span name="Info" value="%(n)s">%(n)s </span>"""
+    l= """<option value=%(n)s data-base="%(d)s" 
+    data-files="%(f)s"> %(n)s</option>"""
     s= [l%({"n":x,"f":y["data-files"],"d":y["data-base"]})
         for x,y in items.iteritems()]
     return " ".join(s)
 
   def _searchitems(self,items):
-    b= """<option name="searchTerm1" value="%(name)s">%(name)s</option>"""
+    # readded in name, for chrome.
+    b = """<option name ="searchTerm1" value="%(name)s">%(name)s</option> """
     options = " ".join([b%({"name": x})for x in items])
     return """<form name="searchInput" onsubmit="return false;">
       <input type="text" id="searchWord"/>
@@ -633,10 +654,10 @@ class html:
        %s
       </select> 
       <span id="addSearch"> </span>
+      <br/><br/>
        <input type="submit" value="Search" id="search"/></form> 
-     <script>
-       document.getElementById("searchType").selectedIndex = -1;
-     </script>""" %(options)
+       """ %(options)
+
 
   def _printHtml(self,name,scrip,css,items, search):
     with open(name,'w') as htmlFile:
@@ -653,35 +674,65 @@ class html:
     %(css)s
   </head>
   <body>
-    %(search)s
-    <div style="position: absolute; top: 0px; 
-       right:0px; width: 100px; text-align:right;">
-      <a href="javascript:void(0)" id="helpMouse"data-help="#help">help</a>
-      <a href="mailto:susie.murphy@cern.ch?Subject=CfgBrowserhelp"
-      target="_top">Contact</a>
+    <a id="topOfPage"></a>
+    <input type="submit" value="Edit " id="editMode"/>
+    
+    <br/> <br/>
+    <div style="height: 2px; background-color: #A9A9A9; text-align: center">
+      <span id="line" style="
+  background-color: white; position: relative; top: -0.5em; color:#A9A9A9;">
+    Normal Mode
+     </span>
+    </div>
+    <br/>
+    <div style="width: 100%%; overflow: hidden;">
+      <div style ="float: left;margin-left: 10px;color:#A9A9A9;"> Pick
+        <div style="width:400px;height:65px;border:2px dashed #A9A9A9;
+          padding:10px;">
+          <form onsubmit="return false;">
+            <select id="showType">
+             %(items)s
+            </select>
+            <input type="checkbox" id="ShowFiles" value="File"/>
+            <span style="color:black">Show file names</span>
+            <br/><br/>
+            <input type="submit" id="docSubmit" value="submit">
+          </form>
+        </div>
+      </div>
+      <div style ="float: left;margin-left: 10px; color:#A9A9A9;"> Search
+        <div style="width:400px;height:65px;border:2px dashed #A9A9A9;
+          padding:10px;">
+        %(search)s
+        </div>
+      </div>
+    </div> 
+    <script>
+      document.getElementById("searchType").selectedIndex = -1;
+    </script>
+    <div id="posty"> </div>
+    <div style="position: absolute; top: 0px; right:0px; width: 100px;
+      text-align:right;">
+       <a href="javascript:void(0)" id="helpMouse" data-help="#help">help</a>
+       <a href="mailto:susie.murphy@cern.ch?Subject=CfgBrowserhelp"
+        target="_top">Contact</a>
     </div>
     <div id="help"> </div>
     <br/>
-  <br/>
-   <form>
-     <table border="1" cellpadding="3" cellspacing="1">Choose one:
-       <tr>
-         <td>%(items)s</td>
-       </tr>
-     </table>
-   </form>
-   <input type="checkbox" id="ShowFiles" value="File"/>Show file names
-   <br/><br/>
-   <input type="submit" id="docSubmit" value="submit">
-   <br/><br/>
-   <div id="current"></div><br/>
-   <div id="searchCount"></div>
-   <a id="hide" style="cursor:default; color:#CCCCCC;" 
-      href="javascript:;" >Hide All</a><br/>
-   <div id="attachParams"></div>
+    <div id="current"></div><br/>
+    <div id="searchCount"></div>
+    <div id="attachParams"></div>
+    <div style="position: fixed; bottom: 50%%; right:0px; 
+      width: 100px; text-align:right; border:2px solid #A9A9A9;
+      opacity:0.4;background-color: #F0FFF0;">
+      <a href="#topOfPage">Back to Top</a>
+      <p>
+        <a id="hide" style="cursor:default; color:#CCCCCC;" 
+        href="javascript:;" >Hide All</a>
+      </p>
+    </div>
   </body>
-</html>
-      """%{"s":scrip,"css":css,"items":items, "search":search})
+</html> """%{"s":scrip,"css":css,"items":items, "search":search})
 
   def _css(self, css, cssLocal):
     with open(css, 'w') as cssfile:
@@ -760,6 +811,9 @@ h6 {
 em{
   color:#FFA500;
 }
+.cellEdit{
+  border:2px dotted #A9A9A9;
+}
       """)
     return """<link href="%s" rel="stylesheet" \
            type="text/css"/>"""%(cssLocal)
@@ -808,7 +862,7 @@ $(document).on('click','#search', function(e){
    var doc = first.text()
    var next = $('#searchType2 :selected').text()
    var searchTerm = $('#searchWord').val()
-   var $elem = $("#"+doc)
+   var $elem = $('option[value="'+doc+'"]')
    setCURRENT_OBJ($elem)
    var reg = new RegExp(searchTerm, 'g')
    var fin = "<em>"+searchTerm+"</em>"
@@ -866,12 +920,12 @@ function fileTypeSearch(doc,items,file){
   else baseType = backup
   return matches.length
 }
+
 /*
   Show something new!
 */
-
 $(document).on('click', '#docSubmit', function(e){
-  var $elem = $("[name='docType']:checked")
+  var $elem =  $('#showType :selected')
   var docType =  $elem.attr("value");
  //get the function we want and the lists
  setCURRENT_OBJ($elem)
@@ -879,6 +933,7 @@ $(document).on('click', '#docSubmit', function(e){
 });
 
 $(document).on('click', "[name='searchTerm1']", function(e){
+//$(document).on('click', "#searchType option", function(e){
   $("#addSearch").empty()
   var name= $(this).text().toLowerCase();
   var sel= jQuery('<select/>', {
@@ -891,12 +946,336 @@ $(document).on('click', "[name='searchTerm1']", function(e){
   for(var i in li){
     var x = li[i]
   jQuery('<option/>', {
-      name:"searchTerm2",
       value:x,
       text:x
     }).appendTo(sel)
    }
-  sel.appendTo("#addSearch")
+  sel.appendTo("#addSearch");
+});
+$(document).on('click', '#normalMode', function(e){
+  //remove all cell edit Divs
+  goNormal($(this));
+});
+
+function goNormal(it){
+  expandDisable = false;
+  $(".cellEdit").replaceWith(function() { return $(this).contents(); });
+  $("#save").remove()
+  $("#line")[0].textContent = "Normal Mode"
+  it.attr("value", "Edit mode");
+  it.attr("id", "editMode")
+}
+var expandDisable = false;
+
+$(document).on('click', '#editMode', function(e){
+  // this is editing mode, turn off expanison
+  var dataType = $('#showType :selected').attr("data-base")
+  /*if(dataType != "dictCreate"){
+    alert(
+      "Right now, paths,endpaths,consumers and producers are non-editable.")
+    return
+  }*/
+  expandDisable = true;
+  $("#line")[0].textContent = "Edit Mode"
+  $(this).after(jQuery('<input>', {
+      type:"submit",
+      value:"Save",
+      id:"save"
+    }))
+  $(this).attr("value", "Finished Editing");
+  $(this).attr("id", "normalMode")
+  findAndAdd()
+});
+
+function findAndAdd(){
+  // add editable div to everything showing.
+  var todo = jQuery.makeArray($(".Top"));
+  while(todo.length){
+    var e = $(todo.pop())
+    // we have the item.. lets get children
+    var kids = jQuery.makeArray(e.children());
+    // add divs to all children.
+    while(kids.length){
+      var k = $(kids.pop())
+      var tag = k.prop("tagName")
+      if(tag == "SPAN"){
+         k.html( '<div class="cellEdit" contenteditable>'+k.html()+'</div>')
+         continue
+      }
+      if(tag =="LI"){
+        // add the div but dont get children
+        $(k.contents()[0]).wrap('<div class="cellEdit" contenteditable />');
+      }
+      // check if have any children
+      var moreKids = jQuery.makeArray(k.children());
+      if(moreKids.length){
+         kids = kids.concat(moreKids)
+      }
+    }
+    // now do current one
+    $(e.contents()[0]).wrap('<div class="cellEdit" contenteditable />');
+  }
+}
+var $potential=[]
+var parChildNames={}
+$(document).on('click', '.cellEdit', function(e){
+  // we're in edit so things have a div parent over the text.
+  var $p = $(this).parent()
+  var kidName = $p.attr("data-name");
+  // now go up until greatest parent
+  var classes = $p.attr("class")
+  var parent = $p
+  while(classes.indexOf("Top")==-1){
+    parent = parent.parent()
+    classes = parent.attr("class") || ""
+  }
+  var parentName = parent.attr("data-name");
+  // doesnt matter if parent and child are the same.
+  var parents = Object.keys(parChildNames)
+  if(parents.indexOf(parentName)>-1){
+    var kids = parChildNames[parentName] 
+    if(kids.indexOf(kidName)==-1)kids.push($p)
+  }
+  else{
+    parChildNames[parentName]=[$p]
+  }
+  $potential.push(parent)
+  
+});
+function save(data, restData){
+  var allChanged={}
+  for(var i in $potential){
+    var parent = $potential[i];
+    // we have the parent.
+    var oldParentName = $(parent).attr("data-name");
+    if(data== restData){
+      var allOldData= data[oldParentName]["Parameters"]
+    }
+    else{
+      // we have one data for the parents and one for rest
+     var allKids = data[oldParentName]["Parameters"]
+     var tem ={}
+     var childChanged = parChildNames[oldParentName];
+     var oldToNew = chil(childChanged,parent, false);
+     for (var y in allKids){
+       var n = allKids[y]
+       var allOldData = restData[n]
+       var newpar = blah(oldToNew, n, allOldData, parent, true)
+       tem[newpar] = allOldData
+      }
+      //change this TODO
+      allChanged[oldParentName]= tem
+      continue
+    }
+     var childChanged = parChildNames[oldParentName]
+    var oldToNew= chil(childChanged,parent, true)
+    var newpar = blah(oldToNew, oldParentName, allOldData, parent, false)
+    allChanged[newpar] = allOldData
+    
+  }
+  return allChanged
+}
+
+function blah(oldToNew, oldParentName, allOldData, parent){
+    // pretend childChanged are kidsObjects
+    // now we have all the children that were changed.
+    var newpar = oldParentName
+    if(Object.keys(oldToNew).indexOf(oldParentName)>-1){
+      // parent is in
+      var tData = oldToNew[oldParentName];
+      if(tData["i"]==0 && tData["p"].length ==0){
+        var newpar = tData["new"];
+        delete oldToNew[oldParentName];
+      }
+    }
+    // okay so here we have everything for this parent.
+    // now need to loop through the old data and changed for new.
+    if(Object.keys(oldToNew).length >0){
+      loopData(allOldData,oldToNew,[oldParentName], [0]);
+    }
+  return newpar
+
+}
+//need to remember that current format is [name, parameters,type,optionalType]
+function loopData(thelist, items, parents, pIndex){
+  for(var x in thelist){
+    var y = thelist[x]
+    if(y instanceof Array){
+      // okay if array, we have full line
+      if(typeof y[0] == "string" && y[1] instanceof Array){
+        // this is what we want.
+       var theName = y[0]
+       var rest = y[1]
+       var types = [y[2]]
+       if(y.length == 4)
+         types.push(y[3])
+       // okay, name of this is theName == parent
+       // the index of this is x
+       parents.unshift(theName)  
+       pIndex.unshift(x)
+       loopData(rest, items, parents, pIndex);
+       parents.shift()
+       pIndex.shift()
+       rightOne(thelist,x,theName,items,parents,pIndex)
+       for(var index in types){
+         var item = types[index]
+         rightOne(thelist,x,item,items,parents,pIndex)
+       }
+       continue
+      }
+      if(y[0] instanceof Array && y[1] instanceof Array){
+        // y1 is a parameter
+        // y2 is a parameter
+        for(var e in y){
+          loopData(y[e],items,parents,pIndex);
+        }
+       continue;
+      }
+      // we are here,
+      //so we have something that does not have parameters in a list
+      var theName = y[0]
+      for(var index in y){
+        if(index >0){
+          parents.unshift(theName)  
+          pIndex.unshift(x)
+        }
+        var item = y[index]
+        rightOne(thelist,x,item,items,parents,pIndex)
+        if(index >0){
+          parents.shift()
+          pIndex.shift()
+        }
+      }
+      continue;
+    }
+    else {
+      rightOne(thelist,x,y,items,parents,pIndex)
+    }
+  }
+}
+function rightOne(thelist,x,y,items,parents,pIndex){
+  if(Object.keys(items).indexOf(y)>-1){
+    // okay we know that we have a match, but are indexes the same?
+    // index will be in the same list so we can use x
+    if(x == items[y]["i"]){
+     if(arrayCompare(parents, pIndex,items[y]["p"],items[y]["pIndex"] )){
+        //okay we can be sure we are changing the right thing.
+        if(thelist[x] instanceof Array){
+          for(var ind in thelist[x]){
+             var z = thelist[x][ind]
+             if(y == z){
+               thelist[x][ind] = items[y]["new"]
+               break;
+             } 
+          }
+        }
+        else{
+          thelist[x] = items[y]["new"]
+        }
+        delete items[y]
+      }
+    }
+  }
+}
+
+function arrayCompare(a1, a1Index, a2, a2Index) {
+    if (a1.length != a2.length)
+        return false;
+    for (var i = 0; i < a1.length; i++) {
+        if (a1[i] != a2[i] || a1Index[i] != a2Index[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function chil (childChanged, parent, addParent){
+  var oldToNew={}
+  for (var x in childChanged){
+      var child = childChanged[x]
+      // we need to check if the child has been changed.
+      var oldval = child.attr("data-name");
+      if(child.prop("tagName")=="SPAN"){
+           var newval = child.contents().text();
+      }
+      else{
+         var newval = child.contents()[0].nodeValue;
+      }
+      //remove any enclosing brackets
+      newval = newval.trim().replace(/^\((.+)\)$/, "$1");
+      oldval = oldval.trim().replace(/^\((.+)\)$/, "$1");
+      if(oldval==newval)continue
+      else{
+        //child has been changed.
+        // we want to keep three pieces of data.
+        //1. old name, new name
+        //2. data-index
+        //3. list of direct parents.
+        var inner ={}
+        inner["new"] = newval;
+        inner["i"] = child.attr("data-index") || 0
+        var allP = child.parents()
+        var pNames =[]
+        var pIndex =[]
+        for(var y=0; y < allP.length; y++){
+          var p = $(allP[y])
+          var tag = p.prop("tagName")
+          if(p.attr("data-name") == parent.attr("data-name")){
+            if(addParent){
+              pNames.push(parent.attr("data-name"))
+              pIndex.push(parent.attr("data-index") || 0);
+            }
+            break;
+          }
+          else if(tag == "LI"){
+            pNames.push(p.attr("data-name"));
+            pIndex.push(p.attr("data-index") || 0);
+          }
+        }
+        inner["p"] = pNames
+        inner["pIndex"] = pIndex
+        oldToNew[oldval]= inner
+      }
+    } // end of childchanged loop
+ return oldToNew
+}
+
+
+$(document).on('click', '#save', function(e){
+   var dataType = $('#showType :selected').attr("data-base")
+  var allData = CURRENT_OBJ.getData();
+  var oldData = allData[0]
+  var changed={}
+  // to save, if not in normal mode, change to normal mode.
+  goNormal($("#normalMode"));
+  if(allData.length >1){
+    var top = allData[0];
+    var rest = allData[1];
+    var changed = save(top,rest)
+  }
+  else{
+   var changed = save(allData[0], allData[0]);
+  }
+  var writeThis = changed
+  var g = JSON.stringify(writeThis)
+  //$('#svg_export_form > input[name=svg]').val("jhgjhg");
+  $("#posty").empty()
+  var form = jQuery('<form/>', {
+      id:"edited_write",
+      method:"POST",
+      enctype: 'text/plain',
+      style:"display:none;visibility:hidden",
+    })
+   jQuery('<input/>', {
+      type:"hidden",
+      name:"changed",
+      value:g,
+    }).appendTo(form)
+    form.appendTo("#posty")
+$('#edited_write').submit();
+$potential=[]
+parChildNames={}
+ 
 });
 
 function setCURRENT_OBJ($element){
@@ -910,7 +1289,8 @@ function setCURRENT_OBJ($element){
     CURRENT_OBJ = window[thefunction](first)
   }
 }
-function addData(docType, data, dataNames=data){
+function addData(docType, data, dataNames){
+  var dataNames = dataNames || data;
   if(alreadyShowing){
     if(!searching)$("#searchCount").html("")
     $('#hide').css('color','#CCCCCC');
@@ -949,10 +1329,12 @@ function addData(docType, data, dataNames=data){
   alreadyShowing = true;
   $UL.appendTo('#attachParams');
 }
+
 /*
  Used to add the top level data to html.
 */
-function addTopData(data,$LI,types,dataName=data){
+function addTopData(data,$LI,types,dataName){
+  var dataName = dataName || data;
   var $UL = $(document.createElement('ul'));
   var doNormalFile = false;
   var files = document.getElementById("ShowFiles").checked
@@ -998,17 +1380,27 @@ function paramOptions(bool){
 lb.appendTo("#attachParams")
 }
 /*
+  Used when in edit mode to stop any items being added to the webpage.
+  More items added after edit mode- they wont be editable, and when you
+  click to edit something it loads its children.
+*/
+$(document).on('click','.expand, .expanded', function(event){
+    if(expandDisable){
+     event.stopImmediatePropagation();
+    }
+});
+/*
   Retrieves and expands elements whose objects have multiple lists
   (i.e. onese who's data-base !=simpleData)
 */
 $(document).on('click', '.Consumer.expand,.Producer.expand,'
 +'.Path.expand,.EndPath.expand ',function(event){
-  var LI = $(document.createElement('li')).addClass("expand");
-  var allModules = CURRENT_OBJ.getModules($(this).attr('data-name'));
-  var UL = addKids($(document.createElement("ul")), LI, allModules);
-  $(this).append(UL); 
-  $('#hide').css('color','');
-  $('#hide').css('cursor','');
+    var LI = $(document.createElement('li')).addClass("expand");
+    var allModules = CURRENT_OBJ.getModules($(this).attr('data-name'));
+    var UL = addKids($(document.createElement("ul")), LI, allModules);
+    $(this).append(UL); 
+    $('#hide').css('color','');
+    $('#hide').css('cursor','');
   event.stopPropagation();
 });
 
@@ -1120,14 +1512,18 @@ function addParams(obj, results){
       if(all.length)
         var value = all.shift()
       // formating so lots of strings look nicer
+      var valDataName = value
       if(value.indexOf(",")>-1){
-         value = "<ul><li>"+value.replace(/,/g, "</li><li>")+"</li></ul>"
+         value = "<ul><li>"+value.replace(/,/g, ",</li><li>")+"</li></ul>"
       }
       var add = " ("+typ+")"
-      cloLI.append($span.clone().addClass("value").html(": "+value))  
-      cloLI.append($span.clone().addClass("type").text(add))
+      cloLI.append($span.clone().addClass("value").attr("data-name",
+        valDataName).html(value))  
+      cloLI.append($span.clone().addClass("type").attr("data-name",
+        add).text(add))
       for(var p=0; p < all.length; p++){       
-        cloLI.append($span.clone().addClass("type").text(" ("+all[p]+")"))
+        cloLI.append($span.clone().addClass("type").attr("data-name",
+          " ("+all[p]+")").text(" ("+all[p]+")"))
       } 
     } 
     $UL.append(cloLI);
@@ -1172,6 +1568,25 @@ $(document).on('click', '#hide', function(e){
 /*
  Small info about each option.
 */
+$('#showType option').mouseover(function(){
+  var docType = $(this).attr("value").toLowerCase();
+  var info;
+  switch(docType){
+    case "producer":
+      info="What's produced by each module."
+      break;
+    case "consumer":
+      info="What's consumed by each module."
+      break;
+    default:
+      info ="List of "+ docType+"s."
+  }
+  $(this).attr("title", info);
+});
+
+/*
+ Small info about each option.
+*/
 $('span[name="Info"]').mouseover(function(){
   var docType = $(this).attr("value").toLowerCase();
   var info;
@@ -1197,23 +1612,31 @@ $("#helpMouse").hover(function(e) {
         width: 300
     }).stop().show(100);
     var title = "<h6>(Read the README file!)</h6><h4>Info:</h4> "
-     var expl = "<h5>Colour codes:</h5> <h6><ul><li class='Path'>pathName \
-</li></ul><ul><li class='Modules'>Modules (e.g. EDProducer, EDFilter etc)\
-</li></ul><ul><li class='Types'>Types (e.g. PSet)</li></ul><ul>\
-<li class='param'>ParameterName:<span class='value'> value</span>\
-<span class='type'>(type)</span></li></ul></h6>"
-   var info ="<h5>The data</h5><h6>The headings you can choose from are what\
- was collected from the config file.<br/><br/> Any change to the config file\
- means having to run the script again and then refresh this page (if same \
-output file was used).</h6><br/>"
+    var expl = "<h5>Colour codes:</h5> <h6><ul><li class='Path'>pathName \
+    </li></ul><ul><li class='Modules'>Modules \
+    (e.g. EDProducer, EDFilter etc)</li></ul><ul><li class='Types'>\
+    Types (e.g. PSet)</li></ul><ul><li class='param'>ParameterName:\
+    <span class='value'> value</span><span class='type'>(type)</span>\
+    </li></ul></h6>"
+   var info ="<h5>The data</h5>\
+   <h6>The headings you can choose from are what was collected from\
+   the config file.<br/><br/> Any change to the config file means having\
+   to run the script again and then refresh this page (if same output file\
+   was used).</h6><br/>"
    var tSearch="<h5>Search</h5><h6>Currently can only search by listing \
-what items you would like to be searched, and then what part of each item.\
-<br/><br/> I.e. search the producers for certain names.</h6><br/>"
-   var problems = "<h5>HTML/JSON/JS issues</h5><h6>If content isn't loading,\
-or json files cannot be loaded due to browser security issues, try runing a \
-local server. Go to the dir that the html file is stored in and type: <br/>\
-<span class='Types'>'python -m SimpleHTTPServer'</span></h6><br/>"
-   $($(this).data("help")).html(title+expl+info+tSearch+ problems);
+   what items you would like to be searched, and then what part of \
+   each item.<br/><br/> I.e. search the producers for certain names.\
+   </h6><br/>"
+   var problems = "<h5>HTML/JSON/JS issues</h5><h6>If content isn't \
+   loading,or json files cannot be loaded due to browser security issues,\
+   try runing a local server. Go to the dir that the html file is stored \
+   in and type: <br/><span class='Types'>'python -m SimpleHTTPServer'\
+   </span></h6><br/>"
+   var editing = "<h5>Editing</h5><h6>In order to use the edit mode, \
+   you need to run the EditingServer.py file, this will be in the same \
+   directory as this html file.Then go to <span class='Types'>\
+   http://localhost:8000/cfg-viewer.html.</span></h6><br/>"
+   $($(this).data("help")).html(title+expl+info+tSearch+ problems+editing);
 }, function() {
     $($(this).data("help")).hide();
 });
@@ -1225,9 +1648,10 @@ $('a#help').bind('click', function() {
   If parameter value is a list, hide/show the list on click.
 */
 $(document).on('click', '.param',function(event){
+    if(!expandDisable){
   if($(this).find('ul').length >0){
     $(this).find('ul').toggle();
-  }
+    }}
   event.stopPropagation();
 });
 /*
@@ -1248,7 +1672,7 @@ $(document).on('click','.expand, .expanded', function(event){
   Helper function toggles class type.
 */
 function toggleExpand(me,event){
-  $(me).toggleClass("expanded expand");
+    $(me).toggleClass("expanded expand");
   event.stopPropagation();
 }
 });
@@ -1281,6 +1705,61 @@ def JSONFormat(d):
   import json
   return json.dumps(d)
 
+class server:
+  def __init__(self, name):
+    self.printServer(name)
+
+  def printServer(self, name):
+    with open(name, 'w') as f:
+      f.write("""
+#!/usr/bin/env python
+import SimpleHTTPServer
+import SocketServer
+import logging
+import cgi
+import ast
+import shutil
+import os
+
+PORT = 8000
+
+class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+
+  def do_POST(self):
+    clen = self.headers.getheader('content-length')
+    rec = self.rfile.read(int(clen))
+    # find the name and take it off.
+    rec = rec[rec.find("{"):]
+    self.writeFile(self.conversion(rec))
+    print "finished writing"
+    
+  def conversion(self, json):
+    # Need to convert my json into config
+    # first thing = cms.{TheType}(_type, parameters)
+    changed = json
+    return changed
+
+  def writeFile(self,changed):
+    with open("edited.json", 'w') as f:
+      f.write(changed)
+    with open("edited.json", 'rb') as f:
+      self.send_response(200)
+      self.send_header("Content-Type", 'application/octet-stream')
+      self.send_header("Content-Disposition", 
+                       'attachment; filename="edited.json"')
+      fs = os.fstat(f.fileno())
+      self.send_header("Content-Length", str(fs.st_size))
+      self.end_headers()
+      shutil.copyfileobj(f, self.wfile)
+
+Handler = ServerHandler
+
+httpd = SocketServer.TCPServer(("", PORT), Handler)
+
+print "using port", PORT
+httpd.serve_forever()
+      """)
+
 if __name__ == "__main__":
   import sys, os, imp
   from optparse import OptionParser
@@ -1290,9 +1769,6 @@ if __name__ == "__main__":
                   help="print minimal messages to stdout")
   parser.add_option("-o", "--html_file", dest="_htmlfile",
                     help="The output html file.", default="cfg-viewer.html")
-  #parser.add_option("-d", "--store_helper", dest="_helper_dir",
-  # default="cfgViewerJS",
-  #                  help="Name of folder to store js,json and css files.")
   _helper_dir = "cfgViewerJS"
   opts, args = parser.parse_args()
   if len(args)!=1:
