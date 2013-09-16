@@ -59,34 +59,34 @@ void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
       hAcceptedEvents_->setBinLabel(i+1, hltPath_.getFilterName(i));
     }
 
-    hTrigTauEt_ = store->book1D("TrigTauEt",   "#tau E_{t}", ptbins_,     0, ptmax_);
-    hTrigTauEta_ = store->book1D("TrigTauEta", "#tau #eta",  etabins_, -2.5, 2.5);
-    hTrigTauPhi_ = store->book1D("TrigTauPhi", "#tau #phi",  phibins_, -3.2, 3.2);
+    hTrigTauEt_ = store->book1D("TrigTauEt",   "Triggered #tau p_{T};#tau p_{T};entries", ptbins_,     0, ptmax_);
+    hTrigTauEta_ = store->book1D("TrigTauEta", "Triggered #tau #eta;#tau #eta;entries",  etabins_, -2.5, 2.5);
+    hTrigTauPhi_ = store->book1D("TrigTauPhi", "Triggered #tau #phi;#tau #phi;entries",  phibins_, -3.2, 3.2);
 
     // Efficiency helpers
     if(doRefAnalysis_) {
       store->setCurrentFolder(triggerTag()+"/helpers");
       store->removeContents();
       if(hltPath_.hasL2Taus()) {
-        hL2TrigTauEtEffNum_    = store->book1D("L2TrigTauEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, ptmax_);
-        hL2TrigTauEtEffDenom_  = store->book1D("L2TrigTauEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, ptmax_);
-        hL2TrigTauEtaEffNum_   = store->book1D("L2TrigTauEtaEffNum",   "Offline #tau #eta", etabins_, -2.5, 2.5);
-        hL2TrigTauEtaEffDenom_ = store->book1D("L2TrigTauEtaEffDenom", "Offline #tau #eta", etabins_, -2.5, 2.5);
-        hL2TrigTauPhiEffNum_   = store->book1D("L2TrigTauPhiEffNum",   "Offline #tau #phi", phibins_, -3.2, 3.2);
-        hL2TrigTauPhiEffDenom_ = store->book1D("L2TrigTauPhiEffDenom", "Offline #tau #phi", phibins_, -3.2, 3.2);
-        hL2TrigTauHighEtEffNum_   = store->book1D("L2TrigTauHighEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, highptmax_);
-        hL2TrigTauHighEtEffDenom_ = store->book1D("L2TrigTauHighEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, highptmax_);
+        hL2TrigTauEtEffNum_    = store->book1D("L2TrigTauEtEffNum",    "L2 #tau p_{T} efficiency;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+        hL2TrigTauEtEffDenom_  = store->book1D("L2TrigTauEtEffDenom",  "L2 #tau p_{T} denominator;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+        hL2TrigTauEtaEffNum_   = store->book1D("L2TrigTauEtaEffNum",   "L2 #tau #eta efficiency;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+        hL2TrigTauEtaEffDenom_ = store->book1D("L2TrigTauEtaEffDenom", "L2 #tau #eta denominator;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+        hL2TrigTauPhiEffNum_   = store->book1D("L2TrigTauPhiEffNum",   "L2 #tau #phi efficiency;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+        hL2TrigTauPhiEffDenom_ = store->book1D("L2TrigTauPhiEffDenom", "L2 #tau #phi denominator;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+        hL2TrigTauHighEtEffNum_   = store->book1D("L2TrigTauHighEtEffNum",    "L2 #tau p_{T} efficiency (high p_{T})Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+        hL2TrigTauHighEtEffDenom_ = store->book1D("L2TrigTauHighEtEffDenom",  "L2 #tau p_{T} denominator (high p_{T})Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
       }
 
       if(hltPath_.hasL3Taus()) {
-        hL3TrigTauEtEffNum_    = store->book1D("L3TrigTauEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, ptmax_);
-        hL3TrigTauEtEffDenom_  = store->book1D("L3TrigTauEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, ptmax_);
-        hL3TrigTauEtaEffNum_   = store->book1D("L3TrigTauEtaEffNum",   "Offline #tau #eta", etabins_, -2.5, 2.5);
-        hL3TrigTauEtaEffDenom_ = store->book1D("L3TrigTauEtaEffDenom", "Offline #tau #eta", etabins_, -2.5, 2.5);
-        hL3TrigTauPhiEffNum_   = store->book1D("L3TrigTauPhiEffNum",   "Offline #tau #phi", phibins_, -3.2, 3.2);
-        hL3TrigTauPhiEffDenom_ = store->book1D("L3TrigTauPhiEffDenom", "Offline #tau #phi", phibins_, -3.2, 3.2);
-        hL3TrigTauHighEtEffNum_    = store->book1D("L3TrigTauHighEtEffNum",    "Offline #tau E_{T}", ptbins_, 0, highptmax_);
-        hL3TrigTauHighEtEffDenom_  = store->book1D("L3TrigTauHighEtEffDenom",  "Offline #tau E_{T}", ptbins_, 0, highptmax_);
+        hL3TrigTauEtEffNum_    = store->book1D("L3TrigTauEtEffNum",    "L3 #tau p_{T} efficiency;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+        hL3TrigTauEtEffDenom_  = store->book1D("L3TrigTauEtEffDenom",  "L3 #tau p_{T} denominator;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+        hL3TrigTauEtaEffNum_   = store->book1D("L3TrigTauEtaEffNum",   "L3 #tau #eta efficiency;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+        hL3TrigTauEtaEffDenom_ = store->book1D("L3TrigTauEtaEffDenom", "L3 #tau #eta denominator;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+        hL3TrigTauPhiEffNum_   = store->book1D("L3TrigTauPhiEffNum",   "L3 #tau #phi efficiency;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+        hL3TrigTauPhiEffDenom_ = store->book1D("L3TrigTauPhiEffDenom", "L3 #tau #phi denominator;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+        hL3TrigTauHighEtEffNum_    = store->book1D("L3TrigTauHighEtEffNum",    "L3 #tau p_{T} efficiency (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+        hL3TrigTauHighEtEffDenom_  = store->book1D("L3TrigTauHighEtEffDenom",  "L3 #tau p_{T} denominator (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
       }
       store->setCurrentFolder(triggerTag());
     }
@@ -99,7 +99,7 @@ void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
       const int neles = hltPath_.getFilterNElectrons(lastFilter);
       const int nmus = hltPath_.getFilterNMuons(lastFilter);
       if(ntaus+neles+nmus == 2) {
-        hMass_ = store->book1D("OfflineMass", "Invariant mass of offline "+dqmFolder_, 100, 0, 500);
+        hMass_ = store->book1D("ReferenceMass", "Invariant mass of reference "+dqmFolder_+";Reference invariant mass;entries", 100, 0, 500);
       }
     }
     runValid_ = true;

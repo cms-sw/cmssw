@@ -15,7 +15,7 @@ public:
     void plot();
 
 private:
-    void bookEfficiencyHisto( std::string folder, std::string name, std::string hist1 );
+    void bookEfficiencyHisto(const std::string& folder, const std::string& name, const std::string& hist1, bool copyLabels=false);
     void plotEfficiencyHisto( std::string folder, std::string name, std::string hist1, std::string hist2 );
     void plotIntegratedEffHisto( std::string folder, std::string name, std::string refHisto, std::string evCount, int bin );
     void bookTriggerBitEfficiencyHistos( std::string folder, std::string histo );

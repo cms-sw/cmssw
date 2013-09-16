@@ -79,7 +79,7 @@ void HLTTauDQMSummaryPlotter::bookPlots() {
         }
 
         else if(type_ == "PathSummary") {
-          bookEfficiencyHisto(triggerTag(), "PathEfficiency", "helpers/PathTriggerBits");
+          bookEfficiencyHisto(triggerTag(), "PathEfficiency", "helpers/PathTriggerBits", true);
         }
   }
   store_ = nullptr;
@@ -132,7 +132,7 @@ void HLTTauDQMSummaryPlotter::plot() {
   store_ = nullptr;
 }      
 
-void HLTTauDQMSummaryPlotter::bookEfficiencyHisto( std::string folder, std::string name, std::string hist1 ) {
+void HLTTauDQMSummaryPlotter::bookEfficiencyHisto(const std::string& folder, const std::string& name, const std::string& hist1, bool copyLabels) {
     if ( store_->dirExists(folder) ) {
         store_->setCurrentFolder(folder);
         
@@ -141,9 +141,15 @@ void HLTTauDQMSummaryPlotter::bookEfficiencyHisto( std::string folder, std::stri
         if ( effnum ) {            
             MonitorElement *tmp = store_->bookProfile(name,name,effnum->getTH1F()->GetNbinsX(),effnum->getTH1F()->GetXaxis()->GetXmin(),effnum->getTH1F()->GetXaxis()->GetXmax(),105,0,1.05);
             
-            tmp->setTitle(name);
+            tmp->setTitle(effnum->getTitle());
             tmp->setAxisTitle(effnum->getAxisTitle(), 1); // X
             tmp->setAxisTitle("Efficiency", 2);
+            if(copyLabels) {
+              const TAxis *xaxis = effnum->getTH1F()->GetXaxis();
+              for(int bin=1; bin <= effnum->getNbinsX(); ++bin) {
+                tmp->setBinLabel(bin, xaxis->GetBinLabel(bin));
+              }
+            }
         }
     }
 }
@@ -220,6 +226,7 @@ void HLTTauDQMSummaryPlotter::bookTriggerBitEfficiencyHistos( std::string folder
           //store_->bookProfile("EfficiencyRefInput","Efficiency with Matching",eff->getNbinsX()-1,0,eff->getNbinsX()-1,100,0,1);
           //store_->bookProfile("EfficiencyRefL1","Efficiency with Matching Ref to L1",eff->getNbinsX()-2,0,eff->getNbinsX()-2,100,0,1);
           MonitorElement *me_prev = store_->bookProfile("EfficiencyRefPrevious","Efficiency to Previous",eff->getNbinsX()-1,0,eff->getNbinsX()-1,100,0,1);
+          me_prev->setAxisTitle("Efficiency", 2);
           const TAxis *xaxis = eff->getTH1F()->GetXaxis();
           for(int bin=1; bin < eff->getNbinsX(); ++bin) {
             me_prev->setBinLabel(bin, xaxis->GetBinLabel(bin));

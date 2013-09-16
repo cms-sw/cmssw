@@ -2,6 +2,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 
+#include<cstring>
+
 HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps, edm::ConsumesCollector&& cc, int etbins, int etabins, int phibins, double maxpt, double maxhighpt, bool ref, double dr, const std::string& dqmBaseFolder):
   HLTTauDQMPlotter(ps, dqmBaseFolder),
   doRefAnalysis_(ref),
@@ -36,77 +38,93 @@ void HLTTauDQML1Plotter::beginRun() {
 
   edm::Service<DQMStore> store;
   if (store.isAvailable()) {
+        // The L1 phi plot is asymmetric around 0 because of the discrete nature of L1 phi
+        constexpr float pi = 3.1416;
+        constexpr float phiShift = pi/18; // half of 2pi/18 bin
+        constexpr float minPhi = -pi+phiShift;
+        constexpr float maxPhi = pi+phiShift;
+
+        constexpr int BUFMAX = 256;
+        char buffer[BUFMAX] = "";
+
         //Create the histograms
         store->setCurrentFolder(triggerTag());
         store->removeContents();
         
         l1tauEt_ = store->book1D("L1TauEt","L1 #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxPt_);
         l1tauEta_ = store->book1D("L1TauEta","L1 #tau #eta;L1 #tau #eta;entries",binsEta_,-2.5,2.5);
-        l1tauPhi_ = store->book1D("L1TauPhi","L1 #tau #phi;L1 #tau #phi;entries",binsPhi_,-3.2,3.2);
+        l1tauPhi_ = store->book1D("L1TauPhi","L1 #tau #phi;L1 #tau #phi;entries",binsPhi_,minPhi,maxPhi);
         
-        l1jetEt_ = store->book1D("L1JetEt","L1 jet E_{T};L1 Central Jet E_{T};entries",binsEt_,0,maxPt_);
-        l1jetEta_ = store->book1D("L1JetEta","L1 jet #eta;L1 Central Jet #eta;entries",binsEta_,-2.5,2.5);
-        l1jetPhi_ = store->book1D("L1JetPhi","L1 jet #phi;L1 Central Jet #phi;entries",binsPhi_,-3.2,3.2);
+        l1jetEt_ = store->book1D("L1JetEt","L1 central jet E_{T};L1 jet E_{T};entries",binsEt_,0,maxPt_);
+        snprintf(buffer, BUFMAX, "L1 central jet #eta (E_{T} > %.1f);L1 jet #eta;entries", l1JetMinEt_);
+        l1jetEta_ = store->book1D("L1JetEta", buffer, binsEta_, -2.5, 2.5);
+        snprintf(buffer, BUFMAX, "L1 central jet #phi (E_{T} > %.1f);L1 jet #phi;entries", l1JetMinEt_);
+        l1jetPhi_ = store->book1D("L1JetPhi", buffer, binsPhi_, minPhi, maxPhi);
         
-        firstTauEt_ = store->book1D("L1LeadTauEt","L1 lead #tau E_{T};entries",binsEt_,0,maxPt_);
-        firstTauEta_ = store->book1D("L1LeadTauEta","L1 lead #tau #eta;entries",binsEta_,-2.5,2.5);
-        firstTauPhi_ = store->book1D("L1LeadTauPhi","L1 lead #tau #phi;entries",binsPhi_,-3.2,3.2);
+        firstTauEt_ = store->book1D("L1LeadTauEt","L1 leading #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxPt_);
+        firstTauEta_ = store->book1D("L1LeadTauEta", "L1 leading #tau #eta;L1 #tau #eta;entries",binsEta_,-2.5,2.5);
+        firstTauPhi_ = store->book1D("L1LeadTauPhi","L1 leading #tau #phi;L1 #tau #phi;entries",binsPhi_,minPhi,maxPhi);
         // firstTauEt_->getTH1F()->Sumw2(); // why? because of L1(Double|Single)TauEff (now removed)
         
-        secondTauEt_ = store->book1D("L1SecondTauEt","L1 second #tau E_{T}",binsEt_,0,maxPt_);
-        secondTauEta_ = store->book1D("L1SecondTauEta","L1 second #tau E_{T}",binsEta_,-2.5,2.5);
-        secondTauPhi_ = store->book1D("L1SecondTauPhi","L1 second #tau E_{T}",binsPhi_,-3.2,3.2);
+        secondTauEt_ = store->book1D("L1SecondTauEt","L1 second-leading #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxPt_);
+        secondTauEta_ = store->book1D("L1SecondTauEta","L1 second-leading #tau #eta;L1 #tau #eta;entries",binsEta_,-2.5,2.5);
+        secondTauPhi_ = store->book1D("L1SecondTauPhi","L1 second-leading #tau #phi;L1 #tau #phi;entries",binsPhi_,minPhi,maxPhi);
         // secondTauEt_->getTH1F()->Sumw2(); // why? because of L1(Double|Single)TauEff (now removed)
         
         if (doRefAnalysis_) {
             l1tauEtRes_ = store->book1D("L1TauEtResol","L1 #tau E_{T} resolution;[L1 #tau E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries",60,-1,4);
-            l1jetEtRes_ = store->book1D("L1JetEtResol","L1 central jet E_{T} resolution;[L1 #jet E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries",60,-1,4);
+            snprintf(buffer, BUFMAX, "L1 central jet E_{T} resolution (E_{T} > %.1f);[L1 jet E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries", l1JetMinEt_);
+            l1jetEtRes_ = store->book1D("L1JetEtResol", buffer, 60, -1, 4);
             
             store->setCurrentFolder(triggerTag()+"/EfficiencyHelpers");
             store->removeContents();
             
-            l1tauEtEffNum_ = store->book1D("L1TauEtEffNum","L1 #tau E_{T} Efficiency Numerator;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
+            l1tauEtEffNum_ = store->book1D("L1TauEtEffNum","L1 #tau E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
             l1tauEtEffNum_->getTH1F()->Sumw2();
-            l1tauHighEtEffNum_ = store->book1D("L1TauHighEtEffNum","L1 #tau E_{T} Efficiency Numerator;Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
+            l1tauHighEtEffNum_ = store->book1D("L1TauHighEtEffNum","L1 #tau E_{T} Efficiency (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
             l1tauHighEtEffNum_->getTH1F()->Sumw2();
             
             l1tauEtEffDenom_ = store->book1D("L1TauEtEffDenom","L1 #tau E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
             l1tauEtEffDenom_->getTH1F()->Sumw2();
-            l1tauHighEtEffDenom_ = store->book1D("L1TauHighEtEffDenom","L1 #tau E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
+            l1tauHighEtEffDenom_ = store->book1D("L1TauHighEtEffDenom","L1 #tau E_{T} Denominator (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
             l1tauHighEtEffDenom_->getTH1F()->Sumw2();
             
-            l1tauEtaEffNum_ = store->book1D("L1TauEtaEffNum","L1 #tau #eta Efficiency;Ref #tau E_{T};entries",binsEta_,-2.5,2.5);
+            l1tauEtaEffNum_ = store->book1D("L1TauEtaEffNum","L1 #tau #eta Efficiency;Ref #tau #eta;entries",binsEta_,-2.5,2.5);
             l1tauEtaEffNum_->getTH1F()->Sumw2();
             
-            l1tauEtaEffDenom_ = store->book1D("L1TauEtaEffDenom","L1 #tau #eta Denominator;Ref #tau E_{T};entries",binsEta_,-2.5,2.5);
+            l1tauEtaEffDenom_ = store->book1D("L1TauEtaEffDenom","L1 #tau #eta Denominator;Ref #tau #eta;entries",binsEta_,-2.5,2.5);
             l1tauEtaEffDenom_->getTH1F()->Sumw2();
             
-            l1tauPhiEffNum_ = store->book1D("L1TauPhiEffNum","L1 #tau #phi Efficiency;Ref #tau E_{T};entries",binsPhi_,-3.2,3.2);
+            l1tauPhiEffNum_ = store->book1D("L1TauPhiEffNum","L1 #tau #phi Efficiency;Ref #tau #phi;entries",binsPhi_,minPhi,maxPhi);
             l1tauPhiEffNum_->getTH1F()->Sumw2();
             
-            l1tauPhiEffDenom_ = store->book1D("L1TauPhiEffDenom","L1 #tau #phi Denominator;Ref #tau E_{T};entries",binsPhi_,-3.2,3.2);
+            l1tauPhiEffDenom_ = store->book1D("L1TauPhiEffDenom","L1 #tau #phi Denominator;Ref #tau #phi;entries",binsPhi_,minPhi,maxPhi);
             l1tauPhiEffDenom_->getTH1F()->Sumw2();
             
-            l1jetEtEffNum_ = store->book1D("L1JetEtEffNum","L1 jet E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
+            l1jetEtEffNum_ = store->book1D("L1JetEtEffNum","L1 central jet E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
             l1jetEtEffNum_->getTH1F()->Sumw2();
-            l1jetHighEtEffNum_ = store->book1D("L1JetHighEtEffNum","L1 jet E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
+            l1jetHighEtEffNum_ = store->book1D("L1JetHighEtEffNum","L1 central jet E_{T} Efficiency (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
             l1jetHighEtEffNum_->getTH1F()->Sumw2();
             
-            l1jetEtEffDenom_ = store->book1D("L1JetEtEffDenom","L1 jet E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
+            l1jetEtEffDenom_ = store->book1D("L1JetEtEffDenom","L1 central jet E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
             l1jetEtEffDenom_->getTH1F()->Sumw2();
-            l1jetHighEtEffDenom_ = store->book1D("L1JetHighEtEffDenom","L1 jet E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
+            l1jetHighEtEffDenom_ = store->book1D("L1JetHighEtEffDenom","L1 central jet E_{T} Denominator (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
             l1jetHighEtEffDenom_->getTH1F()->Sumw2();
             
-            l1jetEtaEffNum_ = store->book1D("L1JetEtaEffNum","L1 jet #eta Efficiency;Ref #tau E_{T};entries",binsEta_,-2.5,2.5);
+            snprintf(buffer, BUFMAX, "L1 central jet #eta Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
+            l1jetEtaEffNum_ = store->book1D("L1JetEtaEffNum", buffer, binsEta_, -2.5, 2.5);
             l1jetEtaEffNum_->getTH1F()->Sumw2();
             
-            l1jetEtaEffDenom_ = store->book1D("L1JetEtaEffDenom","L1 jet #eta Denominator;Ref #tau E_{T};entries",binsEta_,-2.5,2.5);
+            snprintf(buffer, BUFMAX, "L1 central jet #eta Denominator (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
+            l1jetEtaEffDenom_ = store->book1D("L1JetEtaEffDenom", buffer, binsEta_, -2.5, 2.5);
             l1jetEtaEffDenom_->getTH1F()->Sumw2();
             
-            l1jetPhiEffNum_ = store->book1D("L1JetPhiEffNum","L1 jet #phi Efficiency;Ref #tau E_{T};entries",binsPhi_,-3.2,3.2);
+            snprintf(buffer, BUFMAX, "L1 central jet #phi Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
+            l1jetPhiEffNum_ = store->book1D("L1JetPhiEffNum", buffer, binsPhi_, minPhi, maxPhi);
             l1jetPhiEffNum_->getTH1F()->Sumw2();
             
-            l1jetPhiEffDenom_ = store->book1D("L1JetPhiEffDenom","L1 jet #phi Denominator;Ref #tau E_{T};entries",binsPhi_,-3.2,3.2);
+            snprintf(buffer, BUFMAX, "L1 central jet #phi Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
+            l1jetPhiEffDenom_ = store->book1D("L1JetPhiEffDenom", buffer, binsPhi_, minPhi, maxPhi);
             l1jetPhiEffDenom_->getTH1F()->Sumw2();
         }
         runValid_ = true;

@@ -23,9 +23,9 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   prescaleEvt_(ps.getUntrackedParameter<int>("prescaleEvt", -1))
 {
   int nPtBins  = ps.getUntrackedParameter<int>("PtHistoBins", 20);
-  int nEtaBins = ps.getUntrackedParameter<int>("EtaHistoBins",25);
-  int nPhiBins = ps.getUntrackedParameter<int>("PhiHistoBins",32);
-  double ptMax = ps.getUntrackedParameter<double>("PtHistoMax",100);
+  int nEtaBins = ps.getUntrackedParameter<int>("EtaHistoBins",12);
+  int nPhiBins = ps.getUntrackedParameter<int>("PhiHistoBins",18);
+  double ptMax = ps.getUntrackedParameter<double>("PtHistoMax",200);
   double highPtMax = ps.getUntrackedParameter<double>("HighPtHistoMax",1000);
   double l1MatchDr = ps.getUntrackedParameter<double>("L1MatchDeltaR", 0.5);
   double hltMatchDr = ps.getUntrackedParameter<double>("HLTMatchDeltaR", 0.2);
