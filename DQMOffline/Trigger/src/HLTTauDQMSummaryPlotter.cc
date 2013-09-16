@@ -161,6 +161,10 @@ void HLTTauDQMSummaryPlotter::plotEfficiencyHisto( std::string folder, std::stri
           const TH1F *denom = effdenom->getTH1F();
           TProfile *prof = eff->getTProfile();
           for (int i = 1; i <= num->GetNbinsX(); ++i) {
+            if(denom->GetBinContent(i) < num->GetBinContent(i)) {
+              edm::LogError("HLTTauDQMOffline") << "Encountered denominator < numerator with efficiency plot " << name << " in folder " << folder << ", bin " << i << " numerator " << num->GetBinContent(i) << " denominator " << denom->GetBinContent(i);
+              continue;
+            }
             std::tuple<float, float> effErr = calcEfficiency(num->GetBinContent(i), denom->GetBinContent(i));
             const float efficiency = std::get<0>(effErr);
             const float err = std::get<1>(effErr);
@@ -261,6 +265,10 @@ void HLTTauDQMSummaryPlotter::plotTriggerBitEfficiencyHistos( std::string folder
           */
             //Calculate efficiencies with ref to previous
             for ( int i = 2; i <= eff->getNbinsX(); ++i ) {
+              if(eff->getBinContent(i-1) < eff->getBinContent(i)) {
+                edm::LogError("HLTTauDQMOffline") << "Encountered denominator < numerator with efficiency plot EfficiencyRefPrevious in folder " << folder << ", bin " << i << " numerator " << eff->getBinContent(i) << " denominator " << eff->getBinContent(i-1);
+                continue;
+              }
               const std::tuple<float, float> effErr = calcEfficiency(eff->getBinContent(i), eff->getBinContent(i-1));
               const float efficiency = std::get<0>(effErr);
               const float err = std::get<1>(effErr);
