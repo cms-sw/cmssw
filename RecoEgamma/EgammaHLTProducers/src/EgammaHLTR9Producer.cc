@@ -7,51 +7,37 @@
  */
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTR9Producer.h"
-
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 EgammaHLTR9Producer::EgammaHLTR9Producer(const edm::ParameterSet& config) : conf_(config)
 {
  // use configuration file to setup input/output collection names
-  recoEcalCandidateProducer_ = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
+  recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
   ecalRechitEBTag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEB");
   ecalRechitEETag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEE");
+  ecalRechitEBToken_ = consumes<EcalRecHitCollection>(ecalRechitEBTag_);
+  ecalRechitEEToken_ = consumes<EcalRecHitCollection>(ecalRechitEETag_);
+
   useSwissCross_   = conf_.getParameter< bool > ("useSwissCross");
+
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
 }
 
-
-EgammaHLTR9Producer::~EgammaHLTR9Producer(){}
-
-
-//
-// member functions
-//
+EgammaHLTR9Producer::~EgammaHLTR9Producer()
+{}
 
 // ------------ method called to produce the data  ------------
-void
-EgammaHLTR9Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void EgammaHLTR9Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
-  iEvent.getByLabel(recoEcalCandidateProducer_,recoecalcandHandle);
+  iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
 
-  EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag_, ecalRechitEETag_ );
+  EcalClusterLazyTools lazyTools(iEvent, iSetup, ecalRechitEBTag_, ecalRechitEETag_);
   
   reco::RecoEcalCandidateIsolationMap r9Map;
    
@@ -62,12 +48,9 @@ EgammaHLTR9Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float r9 = -1;
 
     if (useSwissCross_){
-      // I guess this can be removed completely
-      //DetId maxEId = (lazyTools.getMaximum(*(recoecalcandref->superCluster()->seed()) )).first;
-      //float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollection & recHits, float recHitEtThreshold )
       edm::Handle< EcalRecHitCollection > pEBRecHits;
-      iEvent.getByLabel( ecalRechitEBTag_, pEBRecHits );
-      r9 = -1;//EcalSeverityLevelAlgo::swissCross( maxEId, *(pEBRecHits.product()), 0. );
+      iEvent.getByToken(ecalRechitEBToken_, pEBRecHits);
+      r9 = -1;
     }
     else{
     float e9 = lazyTools.e3x3( *(recoecalcandref->superCluster()->seed()) );
@@ -82,6 +65,3 @@ EgammaHLTR9Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(R9Map);
 
 }
-
-//define this as a plug-in
-//DEFINE_FWK_MODULE(EgammaHLTR9Producer);
