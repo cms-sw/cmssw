@@ -7,6 +7,7 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 using namespace std;
+using namespace matching;
 
 GEMRecHitMatcher::GEMRecHitMatcher(SimHitMatcher& sh)
   : BaseMatcher(sh.trk(), sh.vtx(), sh.conf(), sh.event(), sh.eventSetup())
@@ -48,7 +49,7 @@ GEMRecHitMatcher::init()
 void
 GEMRecHitMatcher::matchRecHitsToSimTrack(const GEMRecHitCollection& rechits)
 {
-  /*
+  
   auto det_ids = simhit_matcher_->detIdsGEM();
   for (auto id: det_ids)
   {
@@ -63,27 +64,25 @@ GEMRecHitMatcher::matchRecHitsToSimTrack(const GEMRecHitCollection& rechits)
       cout<<endl;
     }
 
-    auto digis_in_det = digis.get(GEMDetId(id));
+    auto rechits_in_det = rechits.get(GEMDetId(id));
 
-    for (auto d = digis_in_det.first; d != digis_in_det.second; ++d)
+    for (auto d = rechits_in_det.first; d != rechits_in_det.second; ++d)
     {
-      if (verbose()) cout<<"gdigi "<<p_id<<" "<<*d<<endl;
-      // check that the digi is within BX range
-      if (d->bx() < minBXGEM_ || d->bx() > maxBXGEM_) continue;
+      if (verbose()) cout<<"recHit "<<p_id<<" "<<*d<<endl;
+      // check that the rechit is within BX range
+      if (d->BunchX() < minBXGEM_ || d->BunchX() > maxBXGEM_) continue;
       // check that it matches a strip that was hit by SimHits from our track
-      if (hit_strips.find(d->strip()) == hit_strips.end()) continue;
+      if (hit_strips.find(d->firstClusterStrip()) == hit_strips.end()) continue;
       if (verbose()) cout<<"oki"<<endl;
 
-      auto mydigi = make_digi(id, d->strip(), d->bx(), GEM_STRIP);
-      detid_to_digis_[id].push_back(mydigi);
-      chamber_to_digis_[ p_id.chamberId().rawId() ].push_back(mydigi);
-      superchamber_to_digis_[ superch_id() ].push_back(mydigi);
+      auto myrechit = make_digi(id, d->firstClusterStrip(), d->BunchX(), GEM_STRIP);
+      detid_to_recHits_[id].push_back(myrechit);
+      chamber_to_recHits_[ p_id.chamberId().rawId() ].push_back(myrechit);
+      superchamber_to_recHits_[ superch_id() ].push_back(myrechit);
 
-      //int pad_num = 1 + static_cast<int>( roll->padOfStrip(d->strip()) ); // d->strip() is int
-      //digi_map[ make_pair(pad_num, d->bx()) ].push_back( d->strip() );
     }
   }
-  */
+  
 }
 
 
@@ -113,21 +112,21 @@ GEMRecHitMatcher::superChamberIds() const
 }
 
 
-const GEMRecHitCollection&
+const GEMRecHitMatcher::RecHitContainer&
 GEMRecHitMatcher::recHitsInDetId(unsigned int detid) const
 {
   if (detid_to_recHits_.find(detid) == detid_to_recHits_.end()) return no_recHits_;
   return detid_to_recHits_.at(detid);
 }
 
-const GEMRecHitCollection&
+const GEMRecHitMatcher::RecHitContainer&
 GEMRecHitMatcher::recHitsInChamber(unsigned int detid) const
 {
   if (chamber_to_recHits_.find(detid) == chamber_to_recHits_.end()) return no_recHits_;
   return chamber_to_recHits_.at(detid);
 }
 
-const GEMRecHitCollection&
+const GEMRecHitMatcher::RecHitContainer&
 GEMRecHitMatcher::recHitsInSuperChamber(unsigned int detid) const
 {
   if (superchamber_to_recHits_.find(detid) == superchamber_to_recHits_.end()) return no_recHits_;
@@ -176,5 +175,47 @@ GEMRecHitMatcher::partitionNumbers() const
     result.insert( idd.roll() );
   }
   return result;
+}
+
+GlobalPoint
+GEMRecHitMatcher::recHitPosition(const RecHit& rechit) const
+{
+  unsigned int id = digi_id(rechit);
+  int strip = digi_channel(rechit);
+  DigiType t = digi_type(rechit);
+
+  GlobalPoint gp;
+  if ( t == GEM_STRIP )
+  {
+    GEMDetId idd(id);
+    LocalPoint lp = gem_geo_->etaPartition(idd)->centreOfStrip(strip);
+    gp = gem_geo_->idToDet(id)->surface().toGlobal(lp);
+  }
+
+  return gp;
+}
+
+
+GlobalPoint
+GEMRecHitMatcher::recHitMeanPosition(const RecHitContainer& rechit) const
+{
+  GlobalPoint point_zero;
+  if (rechit.empty()) return point_zero; // point "zero"
+
+  float sumx, sumy, sumz;
+  sumx = sumy = sumz = 0.f;
+  size_t n = 0;
+  for (auto& d: rechit)
+  {
+    GlobalPoint gp = recHitPosition(d);
+    if (gp == point_zero) continue;
+
+    sumx += gp.x();
+    sumy += gp.y();
+    sumz += gp.z();
+    ++n;
+  }
+  if (n == 0) return GlobalPoint();
+  return GlobalPoint(sumx/n, sumy/n, sumz/n);
 }
 
