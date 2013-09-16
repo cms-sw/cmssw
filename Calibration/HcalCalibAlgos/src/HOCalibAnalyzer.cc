@@ -1780,8 +1780,8 @@ HOCalibAnalyzer::endJob() {
     float rms_eta[nphimx];
     float rms_phi[netamx];
 
-    for (int ij=0; ij<nphimx; ij++) {mean_phi[ij] = rms_phi[ij] =0;}
-    for (int ij=0; ij<netamx; ij++) {mean_eta[ij] = rms_eta[ij] =0;}
+    for (int ij=0; ij<nphimx; ++ij) {mean_phi[ij] = 0; rms_phi[ij] = 0;}
+    for (int ij=0; ij<netamx; ++ij) {mean_eta[ij] = 0; rms_eta[ij] = 0;}
 
     int mxeta = 0;
     int mxphi = 0;
