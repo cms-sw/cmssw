@@ -132,7 +132,9 @@ namespace edm {
       //theFunction.Invoke(obj);
     }
 
+#ifndef __GCCXML__
     explicit operator bool() const;
+#endif
     
     std::type_info const& typeInfo() const;
 

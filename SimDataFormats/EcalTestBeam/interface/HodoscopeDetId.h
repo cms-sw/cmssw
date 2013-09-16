@@ -11,7 +11,6 @@
  *  Hodoscope fiber identifier class for the ECAL TBH4 setup
  *
  *
- *  $Id: HodoscopeDetId.h,v 1.1 2007/03/16 19:33:23 fabiocos Exp $
  */
 
 // bkh June 2011: must be a calo detid type that is recognized by

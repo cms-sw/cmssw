@@ -61,7 +61,9 @@ namespace edm {
       return functionParameterSize();
     }
 
+#ifndef __GCCXML__
     explicit operator bool() const;
+#endif
 
     Reflex::Member const& function() const;
 

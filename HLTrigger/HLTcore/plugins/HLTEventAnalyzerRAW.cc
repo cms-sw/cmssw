@@ -2,8 +2,6 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/01/23 10:27:33 $
- *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -11,6 +9,7 @@
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "HLTrigger/HLTcore/interface/HLTEventAnalyzerRAW.h"
 
 // need access to class objects being referenced to get their content!
@@ -39,7 +38,9 @@ HLTEventAnalyzerRAW::HLTEventAnalyzerRAW(const edm::ParameterSet& ps) :
   processName_(ps.getParameter<std::string>("processName")),
   triggerName_(ps.getParameter<std::string>("triggerName")),
   triggerResultsTag_(ps.getParameter<edm::InputTag>("triggerResults")),
-  triggerEventWithRefsTag_(ps.getParameter<edm::InputTag>("triggerEventWithRefs"))
+  triggerResultsToken_(consumes<edm::TriggerResults>(triggerResultsTag_)),
+  triggerEventWithRefsTag_(ps.getParameter<edm::InputTag>("triggerEventWithRefs")),
+  triggerEventWithRefsToken_(consumes<trigger::TriggerEventWithRefs>(triggerEventWithRefsTag_))
 {
   using namespace std;
   using namespace edm;
@@ -59,6 +60,16 @@ HLTEventAnalyzerRAW::~HLTEventAnalyzerRAW()
 //
 // member functions
 //
+void
+HLTEventAnalyzerRAW::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("processName","HLT");
+  desc.add<std::string>("triggerName","@");
+  desc.add<edm::InputTag>("triggerResults",edm::InputTag("TriggerResults","","HLT"));
+  desc.add<edm::InputTag>("triggerEventWithRefs",edm::InputTag("hltTriggerSummaryRAW","","HLT"));
+  descriptions.add("hltEventAnalyzerRAW", desc);
+}
+
 void
 HLTEventAnalyzerRAW::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
@@ -99,12 +110,12 @@ HLTEventAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   cout << endl;
 
   // get event products
-  iEvent.getByLabel(triggerResultsTag_,triggerResultsHandle_);
+  iEvent.getByToken(triggerResultsToken_,triggerResultsHandle_);
   if (!triggerResultsHandle_.isValid()) {
     cout << "HLTEventAnalyzerRAW::analyze: Error in getting TriggerResults product from Event!" << endl;
     return;
   }
-  iEvent.getByLabel(triggerEventWithRefsTag_,triggerEventWithRefsHandle_);
+  iEvent.getByToken(triggerEventWithRefsToken_,triggerEventWithRefsHandle_);
   if (!triggerEventWithRefsHandle_.isValid()) {
     cout << "HLTEventAnalyzerRAW::analyze: Error in getting TriggerEventWithRefs product from Event!" << endl;
     return;

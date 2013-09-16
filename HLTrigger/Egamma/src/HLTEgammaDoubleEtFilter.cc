@@ -1,6 +1,5 @@
 /** \class HLTEgammaDoubleEtFilter
  *
- * $Id: HLTEgammaDoubleEtFilter.cc,v 1.9 2012/01/21 14:56:56 fwyzard Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -12,6 +11,8 @@
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
@@ -35,9 +36,24 @@ HLTEgammaDoubleEtFilter::HLTEgammaDoubleEtFilter(const edm::ParameterSet& iConfi
   relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
 }
 
 HLTEgammaDoubleEtFilter::~HLTEgammaDoubleEtFilter(){}
+
+void 
+HLTEgammaDoubleEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+   edm::ParameterSetDescription desc;
+   makeHLTFilterDescription(desc);
+   desc.add<edm::InputTag>("candTag",edm::InputTag("hltTrackIsolFilter"));
+   desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
+   desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
+   desc.addUntracked<bool>("relaxed",true);
+   desc.add<double>("etcut1", 30.0);
+   desc.add<double>("etcut2", 20.0);
+   desc.add<int>("npaircut", 1);
+   descriptions.add("hltEgammaDoubleEtFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -51,13 +67,12 @@ HLTEgammaDoubleEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     if (relaxed_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
   }
   // Ref to Candidate object to be recorded in filter object
-   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-
-  iEvent.getByLabel (candTag_,PrevFilterOutput);
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
+  iEvent.getByToken (candToken_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> >  mysortedrecoecalcands;
   PrevFilterOutput->getObjects(TriggerPhoton,  mysortedrecoecalcands);
- if(mysortedrecoecalcands.empty()) PrevFilterOutput->getObjects(TriggerCluster,mysortedrecoecalcands);  //we dont know if its type trigger cluster or trigger photon
+  if(mysortedrecoecalcands.empty()) PrevFilterOutput->getObjects(TriggerCluster,mysortedrecoecalcands);  //we dont know if its type trigger cluster or trigger photon
 
   // look at all candidates,  check cuts and add to filter object
   int n(0);

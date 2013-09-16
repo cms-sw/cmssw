@@ -7,7 +7,6 @@
  * The implementation uses TProfile3D with pt, eta, phi axis.
  * Error/Scale factor matrix is obtained using get(GlobalVector momentum)
  *
- * $Dates: 2007/09/04 13:28 $
  *
  * \author Jean-Roch Vlimant  UCSB
  * \author Finn Rebassoo      UCSB

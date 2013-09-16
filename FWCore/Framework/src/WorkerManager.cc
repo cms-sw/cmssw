@@ -27,23 +27,25 @@ namespace edm {
 
   Worker* WorkerManager::getWorker(ParameterSet& pset,
                                    ProductRegistry& preg,
+                                   PreallocationConfiguration const* prealloc,
                                    boost::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    std::string const & label) {
-    WorkerParams params(&pset, preg, processConfiguration, *actionTable_);
+    WorkerParams params(&pset, preg, prealloc, processConfiguration, *actionTable_);
     return workerReg_.getWorker(params, label);
   }
 
   void WorkerManager::addToUnscheduledWorkers(ParameterSet& pset,
-                                   ProductRegistry& preg,
-                                   boost::shared_ptr<ProcessConfiguration> processConfiguration,
-                                   std::string label,
-                                   bool useStopwatch,
-                                   std::set<std::string>& unscheduledLabels,
-                                   std::vector<std::string>& shouldBeUsedLabels) {
+                                              ProductRegistry& preg,
+                                              PreallocationConfiguration const* prealloc,
+                                              boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                                              std::string label,
+                                              bool useStopwatch,
+                                              std::set<std::string>& unscheduledLabels,
+                                              std::vector<std::string>& shouldBeUsedLabels) {
     //Need to
     // 1) create worker
     // 2) if it is a WorkerT<EDProducer>, add it to our list
-    Worker* newWorker = getWorker(pset, preg, processConfiguration, label);
+    Worker* newWorker = getWorker(pset, preg, prealloc, processConfiguration, label);
     if(newWorker->moduleType() == Worker::kProducer || newWorker->moduleType() == Worker::kFilter) {
       unscheduledLabels.insert(label);
       unscheduled_->addWorker(newWorker);

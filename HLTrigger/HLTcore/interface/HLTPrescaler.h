@@ -7,8 +7,6 @@
  *  This class is an EDFilter implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2012/01/23 10:15:21 $
- *  $Revision: 1.23 $
  *
  *  \author Martin Grunewald
  *  \author Philipp Schieferdecker
@@ -19,6 +17,10 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 
 class HLTPrescaler : public edm::EDFilter
@@ -34,6 +36,7 @@ public:
   //
   // member functions
   //
+  static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&lb,
 				    edm::EventSetup const& iSetup) override;
   virtual bool filter(edm::Event& iEvent,edm::EventSetup const& iSetup) override;
@@ -68,7 +71,8 @@ private:
   bool newLumi_;
 
   /// GT payload, to extract the prescale column index
-  edm::InputTag gtDigi_;
+  edm::InputTag                                  gtDigiTag_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigiToken_;
 
   /// "seed" used to initialize the prescale counter
   static const

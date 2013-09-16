@@ -42,7 +42,9 @@ namespace edm {
 
     size_t offset() const;
 
+#ifndef __GCCXML__
     explicit operator bool() const;
+#endif
 
   private:
 

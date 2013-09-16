@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:26 CDT 2008
-// $Id: FWLongParameterSetter.h,v 1.5.4.1 2012/02/18 01:58:28 matevz Exp $
 //
 
 // system include files

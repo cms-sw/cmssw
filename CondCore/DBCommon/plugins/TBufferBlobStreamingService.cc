@@ -9,7 +9,6 @@
 //
 #include "TBufferFile.h"
 #include "Reflex/Reflex.h"
-#include "Cintex/Cintex.h"
 
 typedef void (TBuffer::*WriteArrayFn_t)(const void *obj, Int_t n);
 typedef void (TBuffer::*ReadArrayFn_t)(void *obj, Int_t n);
@@ -56,7 +55,6 @@ cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo( Reflex::Type const & type_)
   static bool cintexInitialized = false;
   if (!cintexInitialized) {
     cintexInitialized = true;
-    ROOT::Cintex::Cintex::Enable();
   }
 
   Reflex::Type type = type_;

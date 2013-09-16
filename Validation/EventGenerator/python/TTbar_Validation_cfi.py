@@ -16,7 +16,8 @@ decaySubset.addRadiation = False
 ## get lorentzvectors
 analyzeTopKinematics = cms.EDAnalyzer('TTbar_Kinematics',
                                       SaveTree = cms.untracked.bool(False),
-                                      genEventInfoProductTag = cms.InputTag("generator")
+                                      genEventInfoProductTag = cms.InputTag("generator"),
+                                      genEvt = cms.InputTag("genEvt")
                                       )
 
 ## analyze genjets

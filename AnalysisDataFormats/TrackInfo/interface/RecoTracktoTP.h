@@ -28,7 +28,7 @@ class RecoTracktoTP
     void SetTrackingParticle(TrackingParticleRef tp)    {trackingParticle_ = tp;}
     void SetRecoTrack(reco::TrackBaseRef track)         {recoTrack = track;}
     void SetRecoVertex(reco::VertexRef vertex)          {recoVertex = vertex;}
-    void SetBeamSpot(math::XYZPoint bs)                 {beamSpot_ = bs;}
+    void SetBeamSpot(const math::XYZPoint& bs)                 {beamSpot_ = bs;}
     void SetShared(const float &m)                      {shared_= m;}
   
     // Interogation Functions

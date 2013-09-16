@@ -1,8 +1,5 @@
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.5 $
-///  $Date: 2012/01/24 13:53:21 $
-///  (last update by $Author: innocent $)
 
 #include "Geometry/CommonTopologies/interface/TwoBowedSurfacesDeformation.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"

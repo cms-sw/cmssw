@@ -4,12 +4,10 @@
 /** \class FEDHeader
  *  TEMPORARY helper class to interpret/create FED header words.
  *
- *  $Date: 2007/10/08 12:45:27 $
- *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
-#include "interface/shared/fed_header.h"
+#include "EventFilter/FEDInterface/interface/fed_header.h"
 
 class FEDHeader {
 public:

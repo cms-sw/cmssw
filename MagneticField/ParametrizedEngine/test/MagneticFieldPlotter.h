@@ -14,7 +14,6 @@
 //
 // Original Author:  Massimiliano Chiorboli
 //         Created:  Mon Jun 11 17:20:15 CEST 2007
-// $Id: MagneticFieldPlotter.h,v 1.1 2007/07/02 11:49:34 chiorbo Exp $
 //
 //
 // system include files

@@ -1,6 +1,5 @@
 /** \class HLTEgammaEtFilterPairs
  *
- * $Id: HLTEgammaEtFilterPairs.cc,v 1.3 2011/05/01 08:14:08 gruen Exp $
  *
  *  \author Alessio Ghezzi
  *
@@ -10,8 +9,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
@@ -29,6 +28,22 @@ HLTEgammaEtFilterPairs::HLTEgammaEtFilterPairs(const edm::ParameterSet& iConfig)
    relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
    L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
    L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+   inputToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputTag_);
+}
+
+void 
+HLTEgammaEtFilterPairs::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+   edm::ParameterSetDescription desc;
+   makeHLTFilterDescription(desc);
+   desc.add<edm::InputTag>("inputTag",edm::InputTag("HLTEgammaL1MatchFilter"));
+   desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
+   desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
+   desc.addUntracked<bool>("relaxed",true);
+   desc.add<double>("etcut1EB", 1.0);
+   desc.add<double>("etcut1EE", 1.0);
+   desc.add<double>("etcut2EB", 1.0);
+   desc.add<double>("etcut2EE", 1.0);
+   descriptions.add("hltEgammaEtFilterPairs",desc);
 }
 
 HLTEgammaEtFilterPairs::~HLTEgammaEtFilterPairs(){}
@@ -46,7 +61,7 @@ HLTEgammaEtFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByLabel (inputTag_,PrevFilterOutput);
+  iEvent.getByToken (inputToken_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;                // vref with your specific C++ collection type
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);

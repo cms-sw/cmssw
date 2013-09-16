@@ -296,7 +296,7 @@ double HcalQie::getShape(double time) {
 }
 
 
-std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
+std::vector<int> HcalQie::getCode(int nht, const std::vector<CaloHit>& hitbuf) {
 
   const double  bunchSpace=25.;
   int nmax = (bmax_ > numOfBuckets ? bmax_ : numOfBuckets);
@@ -328,8 +328,8 @@ std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
   if (nht>0) {
   
     // Sort the hits
-    std::vector<CaloHit*> hits(nht);
-    std::vector<CaloHit*>::iterator k1, k2;
+    std::vector<const CaloHit*> hits(nht);
+    std::vector<const CaloHit*>::iterator k1, k2;
     int kk;
     for (kk = 0; kk < nht; kk++) {
       hits[kk] = &hitbuf[kk];
@@ -400,7 +400,7 @@ std::vector<int> HcalQie::getCode(int nht, std::vector<CaloHit> hitbuf) {
 }
 
 
-double HcalQie::getEnergy(std::vector<int> code) {
+double HcalQie::getEnergy(const std::vector<int>& code) {
 
   std::vector<double> work(numOfBuckets);
   double sum=0;

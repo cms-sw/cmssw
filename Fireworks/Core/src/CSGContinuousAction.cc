@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 29 10:21:18 EDT 2008
-// $Id: CSGContinuousAction.cc,v 1.5 2009/08/14 15:35:04 chrjones Exp $
 //
 
 // system include files

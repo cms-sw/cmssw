@@ -8,7 +8,6 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: TotemSD.cc,v 1.3 2007/05/08 21:27:30 sunanda Exp $
 //
 
 // system include files
@@ -191,7 +190,7 @@ void TotemSD::clearHits(){
   slave->Initialize();
 }
 
-G4ThreeVector TotemSD::SetToLocal(G4ThreeVector global) {
+G4ThreeVector TotemSD::SetToLocal(const G4ThreeVector& global) {
 
   G4ThreeVector       localPoint;
   const G4VTouchable* touch= preStepPoint->GetTouchable();
@@ -374,7 +373,7 @@ void TotemSD::CreateNewHitEvo() {
   // LogDebug("ForwardSim") << "STORED HIT IN: " << unitID;
 }	 
  
-G4ThreeVector TotemSD::PosizioEvo(G4ThreeVector Pos, double vx, double vy,
+G4ThreeVector TotemSD::PosizioEvo(const G4ThreeVector& Pos, double vx, double vy,
 				  double vz, double pabs, int& accettanza) {
   accettanza=0;
   //Pos.xyz() in mm

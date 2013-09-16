@@ -6,6 +6,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+
 class MonitorElement;
 class DQMStore;
 
@@ -54,9 +57,8 @@ class ESFEDIntegrityTask : public edm::EDAnalyzer {
   bool mergeRuns_;
   bool debug_;
 
-  edm::InputTag dccCollections_;
-  edm::InputTag kchipCollections_;
-  edm::InputTag FEDRawDataCollection_; 
+  edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
+  edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_; 
   
   MonitorElement* meESFedsEntries_;
   MonitorElement* meESFedsFatal_;

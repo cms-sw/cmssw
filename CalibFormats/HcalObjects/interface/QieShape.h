@@ -5,8 +5,6 @@
     
     basic linearization function for HCAL QIE
    $Author: ratnikov
-   $Date: 2005/08/02 01:31:24 $
-   $Revision: 1.2 $
 */
 class QieShape {
  public:

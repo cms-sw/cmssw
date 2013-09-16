@@ -26,13 +26,13 @@ namespace edm {
   }
 
   class ModuleCallingContext;
+  class PreallocationConfiguration;
 
   class EDFilter : public ProducerBase, public EDConsumerBase {
   public:
     template <typename T> friend class maker::ModuleHolderT;
     template <typename T> friend class WorkerT;
     typedef EDFilter ModuleType;
-    typedef WorkerT<EDFilter> WorkerType;
     
      EDFilter() : ProducerBase() , moduleDescription_(),
      previousParentage_(), previousParentageId_() {
@@ -50,6 +50,7 @@ namespace edm {
   private:    
     bool doEvent(EventPrincipal& ep, EventSetup const& c,
                  ModuleCallingContext const* mcc);
+    void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
     void doEndJob();    
     void doBeginRun(RunPrincipal& rp, EventSetup const& c,

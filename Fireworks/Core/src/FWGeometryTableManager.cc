@@ -8,7 +8,6 @@
 //
 // Original Author:
 //         Created:  Wed Jan  4 20:31:25 CET 2012
-// $Id: FWGeometryTableManager.cc,v 1.53 2012/05/04 03:00:38 amraktad Exp $
 //
 
 // system include files

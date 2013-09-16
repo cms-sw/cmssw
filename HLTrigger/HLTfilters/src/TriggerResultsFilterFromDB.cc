@@ -2,8 +2,6 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/07/12 12:26:06 $
- *  $Revision: 1.1 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -36,7 +34,7 @@ TriggerResultsFilterFromDB::TriggerResultsFilterFromDB(const edm::ParameterSet &
   m_eventSetupPathsKey(config.getParameter<std::string>("eventSetupPathsKey")),
   m_eventSetupWatcher(),
   m_expression(0),
-  m_eventCache(config)
+  m_eventCache(config,consumesCollector())
 {
 }
 

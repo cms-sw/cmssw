@@ -348,9 +348,9 @@ class DQMRootSource : public edm::InputSource
       //NOTE: the following is really read next run auxiliary
       virtual boost::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override ;
       virtual boost::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override ;
-      virtual boost::shared_ptr<edm::RunPrincipal> readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache) override;
-      virtual boost::shared_ptr<edm::LuminosityBlockPrincipal> readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrincipal> lbCache) override;
-      virtual edm::EventPrincipal* readEvent_(edm::EventPrincipal&) override ;
+      virtual void readRun_(edm::RunPrincipal& rpCache) override;
+      virtual void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache) override;
+      virtual void readEvent_(edm::EventPrincipal&) override ;
       
       virtual std::unique_ptr<edm::FileBlock> readFile_() override;
       virtual void closeFile_() override;
@@ -482,9 +482,8 @@ DQMRootSource::~DQMRootSource()
 //
 // member functions
 //
-edm::EventPrincipal* DQMRootSource::readEvent_(edm::EventPrincipal&)
+void DQMRootSource::readEvent_(edm::EventPrincipal&)
 {
-  return 0;
 }
 
 edm::InputSource::ItemType DQMRootSource::getNextItemType()
@@ -524,14 +523,14 @@ DQMRootSource::readLuminosityBlockAuxiliary_()
   return boost::shared_ptr<edm::LuminosityBlockAuxiliary>(new edm::LuminosityBlockAuxiliary(m_lumiAux));
 }
 
-boost::shared_ptr<edm::RunPrincipal>
-DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
+void
+DQMRootSource::readRun_(edm::RunPrincipal& rpCache)
 {
   assert(m_presentIndexItr != m_orderedIndices.end());
   RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
 
   m_justOpenedFileSoNeedToGenerateRunTransition = false;
-  unsigned int runID =rpCache->id().run();
+  unsigned int runID =rpCache.id().run();
   assert(runID == runLumiRange.m_run);
 
   m_shouldReadMEs = (m_filterOnRun == 0 ||
@@ -575,19 +574,18 @@ DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
   }
 
   edm::Service<edm::JobReport> jr;
-  jr->reportInputRunNumber(rpCache->id().run());
+  jr->reportInputRunNumber(rpCache.id().run());
 
-  rpCache->fillRunPrincipal();
-  return rpCache;
+  rpCache.fillRunPrincipal(processHistoryRegistryForUpdate());
 }
 
-boost::shared_ptr<edm::LuminosityBlockPrincipal>
-DQMRootSource::readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrincipal> lbCache)
+void
+DQMRootSource::readLuminosityBlock_( edm::LuminosityBlockPrincipal& lbCache)
 {
   assert(m_presentIndexItr != m_orderedIndices.end());
   RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
-  assert(runLumiRange.m_run == lbCache->id().run());
-  assert(runLumiRange.m_lumi == lbCache->id().luminosityBlock());
+  assert(runLumiRange.m_run == lbCache.id().run());
+  assert(runLumiRange.m_lumi == lbCache.id().luminosityBlock());
 
   //NOTE: need to reset all lumi block elements at this point
   if( ( m_lastSeenLumi2 != runLumiRange.m_lumi ||
@@ -613,10 +611,9 @@ DQMRootSource::readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrinc
   readElements();
 
   edm::Service<edm::JobReport> jr;
-  jr->reportInputLumiSection(lbCache->id().run(),lbCache->id().luminosityBlock());
+  jr->reportInputLumiSection(lbCache.id().run(),lbCache.id().luminosityBlock());
 
-  lbCache->fillLuminosityBlockPrincipal();
-  return lbCache;
+  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
 }
 
 std::unique_ptr<edm::FileBlock>
@@ -821,8 +818,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
     std::string* pPassID = &passID;
     processHistoryTree->SetBranchAddress(kProcessConfigurationPassID,&pPassID);
 
-    edm::ProcessHistoryRegistry* phr = edm::ProcessHistoryRegistry::instance();
-    assert(nullptr != phr);
+    edm::ProcessHistoryRegistry& phr = processHistoryRegistryUpdate();
     std::vector<edm::ProcessConfiguration> configs;
     configs.reserve(5);
     m_historyIDs.clear();
@@ -833,8 +829,8 @@ DQMRootSource::setupFile(unsigned int iIndex)
         if(not configs.empty()) {
           edm::ProcessHistory ph(configs);
           m_historyIDs.push_back(ph.id());
-          phr->insertMapped(ph);
-          m_reducedHistoryIDs.push_back(phr->extraForUpdate().reduceProcessHistoryID(ph.id()));
+          phr.registerProcessHistory(ph);
+          m_reducedHistoryIDs.push_back(phr.reducedProcessHistoryID(ph.id()));
         }
         configs.clear();
       }
@@ -845,8 +841,8 @@ DQMRootSource::setupFile(unsigned int iIndex)
     if(not configs.empty()) {
       edm::ProcessHistory ph(configs);
       m_historyIDs.push_back(ph.id());
-      phr->insertMapped( ph);
-      m_reducedHistoryIDs.push_back(phr->extraForUpdate().reduceProcessHistoryID(ph.id()));
+      phr.registerProcessHistory(ph);
+      m_reducedHistoryIDs.push_back(phr.reducedProcessHistoryID(ph.id()));
       //std::cout <<"inserted "<<ph.id()<<std::endl;
     }
   }

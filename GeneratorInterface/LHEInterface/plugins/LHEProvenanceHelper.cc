@@ -99,7 +99,7 @@ namespace edm {
   }
 
   ProcessHistoryID
-  LHEProvenanceHelper::lheInit(ProductRegistry& productRegistry) {
+  LHEProvenanceHelper::lheInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry) {
     // Now we register the process parameter set.
     processParameterSet_.registerIt();
     //std::cerr << processParameterSet_.dump() << std::endl;
@@ -111,7 +111,7 @@ namespace edm {
     // Insert an entry for this process in the process history registry
     ProcessHistory ph;
     ph.emplace_back(eventProductBranchDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
-    ProcessHistoryRegistry::instance()->insertMapped(ph);
+    processHistoryRegistry.registerProcessHistory(ph);
 
     // Save the process history ID for use every event.
     return ph.id();

@@ -39,7 +39,7 @@ public:
   void run();
 
   coral::TimeStamp UTtoT(long long utime);
-  unsigned long long TtoUT(coral::TimeStamp time);
+  unsigned long long TtoUT(const coral::TimeStamp& time);
 
   coral::TimeStamp tMIN;
   coral::TimeStamp tMAX;
@@ -54,7 +54,7 @@ public:
   std::vector<RPCObFebmap::Feb_Item> createFEB(long long since, long long till);	
   std::vector<RPCObUXC::Item> createUXC(long long since, long long till);
   std::vector<RPCObGasMix::Item> createMix(long long since, long long till);
-  bool isMajor(coral::TimeStamp fir, coral::TimeStamp sec);
+  bool isMajor(const coral::TimeStamp& fir, const coral::TimeStamp& sec);
   
 private:
   std::string m_connectionString;

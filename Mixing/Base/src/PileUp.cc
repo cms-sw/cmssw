@@ -42,7 +42,8 @@ namespace edm {
                                                                    *productRegistry_,
                                                                    boost::shared_ptr<BranchIDListHelper>(new BranchIDListHelper),
                                                                    boost::shared_ptr<ActivityRegistry>(new ActivityRegistry),
-                                                                   -1, -1
+                                                                   -1, -1,
+                                                                   PreallocationConfiguration()
                                                                    )).release()),
     processConfiguration_(new ProcessConfiguration(std::string("@MIXING"), getReleaseVersion(), getPassID())),
     eventPrincipal_(),

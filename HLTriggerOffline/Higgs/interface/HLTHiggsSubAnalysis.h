@@ -6,8 +6,6 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsWGHLTValidate
  *
- *  $Date: 2012/03/16 01:55:32 $
- *  $Revision: 1.2 $
  *  \author  J. Duarte Campderros (based and adapted on J. Klukas,
  *           M. Vander Donckt and J. Alcaraz code from the 
  *           HLTriggerOffline/Muon package)

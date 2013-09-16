@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/23 11:36:14 $
- *  $Revision: 1.81 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */

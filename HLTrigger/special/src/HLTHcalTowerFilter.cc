@@ -3,14 +3,16 @@
  *  This class is an EDFilter implementing the following requirement:
  *  the number of caltowers with hadEnergy>E_Thr less than N_Thr for HB/HE/HF sperately.
  *
- *  $Date: 2012/01/21 15:00:21 $
- *  $Revision: 1.7 $
  *
  *  \author Li Wenbo (PKU)
  *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //
 // class declaration
@@ -20,10 +22,12 @@ class HLTHcalTowerFilter : public HLTFilter
 public:
   explicit HLTHcalTowerFilter(const edm::ParameterSet &);
   ~HLTHcalTowerFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
   virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
   
+  edm::EDGetTokenT<CaloTowerCollection> inputToken_;
   edm::InputTag inputTag_;    // input tag identifying product
   double min_E_HB_;           // energy threshold for HB in GeV
   double min_E_HE_;           // energy threshold for HE in GeV
@@ -38,7 +42,6 @@ private:
 
 #include <memory>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -71,10 +74,28 @@ HLTHcalTowerFilter::HLTHcalTowerFilter(const edm::ParameterSet& config) : HLTFil
     min_N_HFP_=config.getParameter<int>("MinN_HFP");
   }
 
+  inputToken_ = consumes<CaloTowerCollection>(inputTag_);
 }
 
 HLTHcalTowerFilter::~HLTHcalTowerFilter()
 {
+}
+
+void
+HLTHcalTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltTowerMakerForHcal"));
+  desc.add<double>("MinE_HB",1.5);
+  desc.add<double>("MinE_HE",2.5);
+  desc.add<double>("MinE_HF",9.0);
+  desc.add<int>("MaxN_HB",2);
+  desc.add<int>("MaxN_HE",2);
+  desc.add<int>("MaxN_HF",8);
+  desc.add<int>("MinN_HF",-1);
+  desc.add<int>("MinN_HFM",-1);
+  desc.add<int>("MinN_HFP",-1);
+  descriptions.add("hltHcalTowerFilter",desc);
 }
 
 //
@@ -95,7 +116,7 @@ HLTHcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
 
   // get hold of collection of objects
   Handle<CaloTowerCollection> towers;
-  event.getByLabel(inputTag_, towers);
+  event.getByToken(inputToken_, towers);
 
   // look at all objects, check cuts and add to filter object
   int n_HB = 0;

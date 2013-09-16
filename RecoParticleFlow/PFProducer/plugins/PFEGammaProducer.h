@@ -123,7 +123,6 @@ class PFEGammaProducer : public edm::EDProducer {
   unsigned int nTrackIsoForEgammaSC_;  
   
   reco::Vertex       primaryVertex_;
-  bool               useVertices_;   
   
   std::auto_ptr< reco::PFCandidateCollection >          egCandidates_;
   std::auto_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;

@@ -20,9 +20,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 
-#include "xgi/Utils.h"
-#include "xgi/Method.h"
-
 #include "TCanvas.h"
 #include "TPaveText.h"
 #include "TF1.h"

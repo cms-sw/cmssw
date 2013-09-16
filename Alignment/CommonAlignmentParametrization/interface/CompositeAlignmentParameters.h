@@ -108,7 +108,7 @@ public:
 					     const std::vector<AlignableDet*>& alidetvec ) const;
 
   /// Get relevant Alignable from AlignableDet 
-  Alignable* alignableFromAlignableDet( AlignableDetOrUnitPtr adet ) const;
+  Alignable* alignableFromAlignableDet( const AlignableDetOrUnitPtr& adet ) const;
 
 
   /// Extract parameters for subset of alignables

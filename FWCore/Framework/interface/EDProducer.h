@@ -21,6 +21,8 @@ EDProducts into an Event.
 namespace edm {
 
   class ModuleCallingContext;
+  class PreallocationConfiguration;
+  
   namespace maker {
     template<typename T> class ModuleHolderT;
   }
@@ -30,7 +32,6 @@ namespace edm {
     template <typename T> friend class maker::ModuleHolderT;
     template <typename T> friend class WorkerT;
     typedef EDProducer ModuleType;
-    typedef WorkerT<EDProducer> WorkerType;
 
     EDProducer ();
     virtual ~EDProducer();
@@ -45,6 +46,7 @@ namespace edm {
   private:
     bool doEvent(EventPrincipal& ep, EventSetup const& c,
                  ModuleCallingContext const* mcc);
+    void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
     void doEndJob();
     void doBeginRun(RunPrincipal& rp, EventSetup const& c,

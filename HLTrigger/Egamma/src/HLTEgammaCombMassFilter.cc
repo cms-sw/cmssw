@@ -10,9 +10,9 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -25,10 +25,21 @@ HLTEgammaCombMassFilter::HLTEgammaCombMassFilter(const edm::ParameterSet& iConfi
   firstLegLastFilterTag_ = iConfig.getParameter<edm::InputTag>("firstLegLastFilter");
   secondLegLastFilterTag_= iConfig.getParameter<edm::InputTag>("secondLegLastFilter");
   minMass_ = iConfig.getParameter<double> ("minMass");
+  firstLegLastFilterToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(firstLegLastFilterTag_);
+  secondLegLastFilterToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(secondLegLastFilterTag_);
 }
 
 HLTEgammaCombMassFilter::~HLTEgammaCombMassFilter(){}
 
+void
+HLTEgammaCombMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("firstLegLastFilter",edm::InputTag("firstFilter"));
+  desc.add<edm::InputTag>("secondLegLastFilter",edm::InputTag("secondFilter"));
+  desc.add<double>("minMass",-1.0);
+  descriptions.add("hltEgammaCombMassFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool HLTEgammaCombMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
@@ -43,8 +54,8 @@ bool HLTEgammaCombMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
 
   math::XYZTLorentzVector pairP4;
 
-  getP4OfLegCands(iEvent,firstLegLastFilterTag_,firstLegP4s);
-  getP4OfLegCands(iEvent,secondLegLastFilterTag_,secondLegP4s);
+  getP4OfLegCands(iEvent,firstLegLastFilterToken_,firstLegP4s);
+  getP4OfLegCands(iEvent,secondLegLastFilterToken_,secondLegP4s);
 
   bool accept=false;
   for(size_t firstLegNr=0;firstLegNr<firstLegP4s.size();firstLegNr++){ 
@@ -58,10 +69,10 @@ bool HLTEgammaCombMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   return accept;
 }
 
-void  HLTEgammaCombMassFilter::getP4OfLegCands(const edm::Event& iEvent,edm::InputTag filterTag,std::vector<math::XYZTLorentzVector>& p4s)
+void  HLTEgammaCombMassFilter::getP4OfLegCands(const edm::Event& iEvent, const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>& filterToken, std::vector<math::XYZTLorentzVector>& p4s)
 { 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> filterOutput;
-  iEvent.getByLabel(filterTag,filterOutput);
+  iEvent.getByToken(filterToken,filterOutput);
   
   //its easier on the if statement flow if I try everything at once, shouldnt add to timing
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > phoCands;

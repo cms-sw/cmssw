@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <cassert>
 #include <iostream>
 
 // user include files

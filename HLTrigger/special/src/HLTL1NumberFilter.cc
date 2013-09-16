@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Martin Grunewald
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTL1NumberFilter.cc,v 1.2 2012/01/21 15:00:21 fwyzard Exp $
 //
 //
 
@@ -26,7 +25,6 @@ Implementation:
 // user include files
 #include "HLTrigger/special/interface/HLTL1NumberFilter.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
@@ -39,6 +37,7 @@ HLTL1NumberFilter::HLTL1NumberFilter(const edm::ParameterSet& iConfig)
   input_  = iConfig.getParameter<edm::InputTag>("rawInput") ;   
   period_ = iConfig.getParameter<unsigned int>("period") ;
   invert_ = iConfig.getParameter<bool>("invert") ;
+  inputToken_ = consumes<FEDRawDataCollection>(input_);
 }
 
 
@@ -51,6 +50,14 @@ HLTL1NumberFilter::~HLTL1NumberFilter()
 }
 
 
+void
+HLTL1NumberFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("rawInput",edm::InputTag("source"));
+  desc.add<unsigned int>("period",4096);
+  desc.add<bool>("invert",true);
+  descriptions.add("hltL1NumberFilter",desc);
+}
 //
 // member functions
 //
@@ -64,7 +71,7 @@ HLTL1NumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (iEvent.isRealData()) {
     bool accept(false);
     edm::Handle<FEDRawDataCollection> theRaw ;
-    iEvent.getByLabel(input_,theRaw) ;
+    iEvent.getByToken(inputToken_,theRaw) ;
     const FEDRawData& data = theRaw->FEDData(FEDNumbering::MINTriggerGTPFEDID) ;
     FEDHeader header(data.data()) ;
     if (period_!=0) accept = ( ( (header.lvl1ID())%period_ ) == 0 );

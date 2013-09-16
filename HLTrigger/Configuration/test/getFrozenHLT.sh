@@ -2,9 +2,7 @@
 
 # ConfDB configurations to use
 TABLES="8E33v2 8E33v2"
-#HLT_8E33v2="/online/collisions/2012/8e33/v2.1/HLT/V4"
-HLT_8E33v2="/online/collisions/2012/8e33/v2.2/HLT/V5"
-#HLT_8E33v2="/dev/CMSSW_6_2_0/GRun/V11"
+HLT_8E33v2="/online/collisions/2012/8e33/v2.3/HLT/V2"
 
 # print extra messages ?
 VERBOSE=false

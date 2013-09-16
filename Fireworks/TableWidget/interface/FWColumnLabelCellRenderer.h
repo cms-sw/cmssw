@@ -17,7 +17,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:44:11 EST 2009
-// $Id: FWColumnLabelCellRenderer.h,v 1.2 2009/03/04 15:33:02 chrjones Exp $
 //
 
 // system include files

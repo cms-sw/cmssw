@@ -1,5 +1,4 @@
 //
-// $Id: PATUserDataHelper.h,v 1.8 2010/02/20 21:00:13 wmtan Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataHelper_h

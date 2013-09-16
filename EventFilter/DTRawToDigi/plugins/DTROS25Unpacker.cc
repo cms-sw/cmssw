@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2009/05/20 17:51:13 $
- *  $Revision: 1.15 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */

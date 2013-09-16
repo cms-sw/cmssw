@@ -10,8 +10,6 @@
  *  It is a modifed version of TriggerResultsFilter that reads the 
  *  trigger expression from the database.
  *
- *  $Date: 2010/07/12 12:26:06 $
- *  $Revision: 1.1 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *

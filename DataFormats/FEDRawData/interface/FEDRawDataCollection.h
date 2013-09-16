@@ -6,8 +6,6 @@
  *  
  *  Reference: DaqPrototype/DaqPersistentData/interface/DaqFEDOpaqueData.h
  *
- *  $Date: 2006/11/10 19:47:19 $
- *  $Revision: 1.7 $
  *  \author N. Amapane - S. Argiro'
  */
 

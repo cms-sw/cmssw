@@ -27,9 +27,9 @@ public:
   ~BxNumberFilter();
   
 private:
-  virtual void beginJob() override ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  virtual void beginJob() ;
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
   
   edm::InputTag inputLabel;
   std::vector<int> goldenBXIds;

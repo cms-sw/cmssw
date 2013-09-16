@@ -209,7 +209,7 @@ std::map< int, std::string > JetCombinatorics::NestedCombinatorics() {
 }
 
 //______________________________________________________________
-void JetCombinatorics::FourJetsCombinations(std::vector<TLorentzVector> jets, std::vector<double> bdiscriminators ) {
+void JetCombinatorics::FourJetsCombinations(const std::vector<TLorentzVector>& jets, const std::vector<double>& bdiscriminators ) {
 
 
 	int n = 0; // total number of combos

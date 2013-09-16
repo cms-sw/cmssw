@@ -15,8 +15,6 @@
 */
 //
 // Original Author:  Luca Malgeri
-//         Created:  $Date: 2006/11/21 16:47:46 $
-// $Id: EcalRecHitRecalib.h,v 1.3 2006/11/21 16:47:46 malgeri Exp $
 //
 //
 

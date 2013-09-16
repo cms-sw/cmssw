@@ -13,7 +13,6 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: L1RCTParametersTester.cc,v 1.2 2009/05/06 13:40:46 efron Exp $
 //
 //
 // user include files
@@ -35,6 +34,7 @@
 
 #include <iostream>
 
+#include <iostream>
 
 using std::cout;
 using std::endl;

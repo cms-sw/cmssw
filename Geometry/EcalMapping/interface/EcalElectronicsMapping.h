@@ -25,7 +25,6 @@
 
 /** \class EcalElectronicsMapping
   *  
-  * $Id: EcalElectronicsMapping.h,v 1.6 2007/12/07 19:08:12 eperez Exp $
   * \author P.Meridiani (INFN Roma1),  E. Perez (CERN)  
   */
 
@@ -131,8 +130,8 @@ class EcalElectronicsMapping {
   bool rightTower(int tower) const;
 
   // methods used for regional unpacking :
-  std::vector<int> GetListofFEDs(const EcalEtaPhiRegion region) const ;
-  void GetListofFEDs(const EcalEtaPhiRegion region, std::vector<int> & FEDs) const ;
+  std::vector<int> GetListofFEDs(const EcalEtaPhiRegion& region) const ;
+  void GetListofFEDs(const EcalEtaPhiRegion& region, std::vector<int> & FEDs) const ;
   int GetFED(double eta, double phi) const ;
   int DCCBoundary(int FED) const;
 

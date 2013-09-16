@@ -14,7 +14,7 @@
 
 
 /// The constructor simply copies the vector of wheels and computes the surface from them
-AlignableDTBarrel::AlignableDTBarrel( const std::vector<AlignableDTWheel*> dtWheels ) 
+AlignableDTBarrel::AlignableDTBarrel( const std::vector<AlignableDTWheel*>& dtWheels ) 
    : AlignableComposite(dtWheels[0]->id(), align::AlignableDTBarrel)
 {
 

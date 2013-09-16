@@ -5,7 +5,6 @@
 // Original Author:  Fedor Ratnikov
 //         Created:  Feb. 13, 2008
 //         (originally named JetCorrectionServiceChain, renamed in 2011)
-// $Id: JetCorrectionESChain.h,v 1.1.2.1 2011/10/17 20:54:17 wdd Exp $
 //
 //
 

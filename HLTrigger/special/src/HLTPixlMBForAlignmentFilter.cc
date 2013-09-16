@@ -2,8 +2,6 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/11/07 11:50:49 $
- *  $Revision: 1.4 $
  *
  *  \author Mika Huhtinen
  *
@@ -14,11 +12,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
@@ -39,6 +36,7 @@ HLTPixlMBForAlignmentFilter::HLTPixlMBForAlignmentFilter(const edm::ParameterSet
     min_isol_  (iConfig.getParameter<double>("MinIsol"))
 
 {
+  pixlToken_ = consumes<reco::RecoChargedCandidateCollection>(pixlTag_);
   LogDebug("") << "MinPt cut " << min_Pt_   << "pixl: " << pixlTag_.encode();
   LogDebug("") << "Requesting : " << min_trks_ << " tracks from same vertex ";
   LogDebug("") << "Requesting tracks from same vertex eta-phi separation by " << min_sep_;
@@ -47,6 +45,18 @@ HLTPixlMBForAlignmentFilter::HLTPixlMBForAlignmentFilter(const edm::ParameterSet
 
 HLTPixlMBForAlignmentFilter::~HLTPixlMBForAlignmentFilter()
 {
+}
+
+void
+HLTPixlMBForAlignmentFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("pixlTag",edm::InputTag("hltPixelCands"));
+  desc.add<double>("MinPt",5.0);
+  desc.add<unsigned int>("MinTrks",2);
+  desc.add<double>("MinSep",1.0);
+  desc.add<double>("MinIsol",0.05);
+  descriptions.add("hltPixlMBFilt",desc);
 }
 
 //
@@ -72,9 +82,7 @@ bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::Event
    // get hold of products from Event
 
    Handle<RecoChargedCandidateCollection> tracks;
-
-   iEvent.getByLabel(pixlTag_,tracks);
-
+   iEvent.getByToken(pixlToken_,tracks);
 
    // pixel tracks
    vector<double> etastore;

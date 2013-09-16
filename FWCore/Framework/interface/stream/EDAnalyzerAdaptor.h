@@ -28,12 +28,13 @@
 #include "FWCore/Framework/interface/stream/EDAnalyzerAdaptorBase.h"
 #include "FWCore/Framework/interface/stream/callAbilities.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
-#include "FWCore/Framework/interface/stream/StreamWorker.h"
+#include "FWCore/Framework/src/MakeModuleHelper.h"
 
 // forward declarations
 
 namespace edm {
   namespace stream {
+
     namespace impl {
       template<typename T, typename G>
       std::unique_ptr<G> makeGlobal(edm::ParameterSet const& iPSet, G const*) {
@@ -57,7 +58,8 @@ namespace edm {
       }
     }
 
-    //Needed for StreamWorker<T>
+    template<typename ABase, typename ModType> struct BaseToAdaptor;
+
     template<typename T> class EDAnalyzerAdaptor;
     template<typename ModType> struct BaseToAdaptor<EDAnalyzerAdaptorBase,ModType> {
       typedef EDAnalyzerAdaptor<ModType> Type;
@@ -68,7 +70,8 @@ namespace edm {
     {
       
     public:
-      EDAnalyzerAdaptor( edm::ParameterSet const& iPSet)
+      EDAnalyzerAdaptor( edm::ParameterSet const& iPSet):
+      m_pset(&iPSet)
       {
         m_runs.resize(1);
         m_lumis.resize(1);
@@ -76,7 +79,6 @@ namespace edm {
         m_lumiSummaries.resize(1);
         typename T::GlobalCache const* dummy=nullptr;
         m_global.reset( impl::makeGlobal<T>(iPSet,dummy).release());
-        this->createStreamModules([this,&iPSet] () -> EDAnalyzerBase* {return impl::makeStreamModule<T>(iPSet,m_global.get());});
       }
       ~EDAnalyzerAdaptor() {
       }
@@ -96,6 +98,11 @@ namespace edm {
       typedef CallGlobalLuminosityBlock<T> MyGlobalLuminosityBlock;
       typedef CallGlobalLuminosityBlockSummary<T> MyGlobalLuminosityBlockSummary;
       
+      void setupStreamModules() override final {
+        this->createStreamModules([this] () -> EDAnalyzerBase* {return impl::makeStreamModule<T>(*m_pset,m_global.get());});
+        m_pset= nullptr;
+      }
+
       void doEndJob() override final {
         MyGlobal::endJob(m_global.get());
       }
@@ -122,9 +129,10 @@ namespace edm {
       }
 
       void doBeginRun(RunPrincipal& rp,
-                      EventSetup const& c) override final {
+                      EventSetup const& c,
+                      ModuleCallingContext const* mcc) override final {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache) {
-          Run r(rp, moduleDescription());
+          Run r(rp, moduleDescription(), mcc);
           r.setConsumer(consumer());
           Run const& cnstR = r;
           RunIndex ri = rp.index();
@@ -134,11 +142,12 @@ namespace edm {
         }
       }
       void doEndRun(RunPrincipal& rp,
-                    EventSetup const& c) override final
+                    EventSetup const& c,
+                    ModuleCallingContext const* mcc) override final
       {
         if(T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache) {
           
-          Run r(rp, moduleDescription());
+          Run r(rp, moduleDescription(), mcc);
           r.setConsumer(consumer());
 
           RunIndex ri = rp.index();
@@ -148,10 +157,12 @@ namespace edm {
         }
       }
 
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c) override final
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp,
+                                  EventSetup const& c,
+                                  ModuleCallingContext const* mcc) override final
       {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache) {
-          LuminosityBlock lb(lbp, moduleDescription());
+          LuminosityBlock lb(lbp, moduleDescription(), mcc);
           lb.setConsumer(consumer());
           LuminosityBlock const& cnstLb = lb;
           LuminosityBlockIndex li = lbp.index();
@@ -164,10 +175,11 @@ namespace edm {
         
       }
       void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp,
-                                EventSetup const& c) override final {
+                                EventSetup const& c,
+                                ModuleCallingContext const* mcc) override final {
         if(T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache) {
           
-          LuminosityBlock lb(lbp, moduleDescription());
+          LuminosityBlock lb(lbp, moduleDescription(), mcc);
           lb.setConsumer(consumer());
           
           LuminosityBlockIndex li = lbp.index();
@@ -188,8 +200,23 @@ namespace edm {
       typename impl::choose_shared_vec<typename T::LuminosityBlockCache const>::type m_lumis;
       typename impl::choose_shared_vec<typename T::RunSummaryCache>::type m_runSummaries;
       typename impl::choose_shared_vec<typename T::LuminosityBlockSummaryCache>::type m_lumiSummaries;
+      ParameterSet const* m_pset;
     };
   }
+  
+  template<>
+  class MakeModuleHelper<edm::stream::EDAnalyzerAdaptorBase>
+  {
+    typedef edm::stream::EDAnalyzerAdaptorBase Base;
+  public:
+    template<typename ModType>
+    static std::unique_ptr<Base> makeModule(ParameterSet const& pset) {
+      typedef typename stream::BaseToAdaptor<Base,ModType>::Type Adaptor;
+      std::unique_ptr<Adaptor> module = std::unique_ptr<Adaptor>(new Adaptor(pset));
+      return std::unique_ptr<Base>(module.release());
+    }
+  };
+
 }
 
 #endif

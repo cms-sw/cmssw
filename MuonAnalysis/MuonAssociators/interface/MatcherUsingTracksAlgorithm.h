@@ -1,7 +1,6 @@
 #ifndef MuonAnalysis_MuonAssociators_MatcherUsingTracksAlgorithm_h
 #define MuonAnalysis_MuonAssociators_MatcherUsingTracksAlgorithm_h
 //
-// $Id: MatcherUsingTracksAlgorithm.h,v 1.7 2010/07/12 20:56:10 gpetrucc Exp $
 //
 
 /**

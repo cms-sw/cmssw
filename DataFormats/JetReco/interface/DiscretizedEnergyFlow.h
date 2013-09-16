@@ -8,7 +8,6 @@
  * is written out.
  *
  * \author Igor Volobouev, TTU, June 28, 2010
- * \version  $Id: DiscretizedEnergyFlow.h,v 1.1 2010/12/05 19:41:20 igv Exp $
  ************************************************************/
 
 #ifndef DataFormats_FFTJetAlgorithms_DiscretizedEnergyFlow_h

@@ -4,7 +4,7 @@ namespace Gflash {
 
 //beginning of the Gflash name space
 
-CalorimeterNumber getCalorimeterNumber(const Gflash3Vector position)
+CalorimeterNumber getCalorimeterNumber(const Gflash3Vector& position)
 {
   //return the calorimeter number of sensitive detectors (coarse)
 
@@ -41,7 +41,7 @@ CalorimeterNumber getCalorimeterNumber(const Gflash3Vector position)
   return index;
 }
   
-int findShowerType(const Gflash3Vector position) 
+int findShowerType(const Gflash3Vector& position) 
 {
   // type of hadron showers subject to the shower starting point (ssp)
   // showerType = -1 : default (invalid)
@@ -79,14 +79,14 @@ int findShowerType(const Gflash3Vector position)
   return showerType;
 }
 
-double rhoBackEB(const Gflash3Vector position) 
+double rhoBackEB(const Gflash3Vector& position) 
 {
   //return (Gflash::RFrontCrystalEB + Gflash::LengthCrystalEB*std::sin(position.getTheta()));
   return (Gflash::RFrontCrystalEB + Gflash::LengthCrystalEB );
 
 }
 
-double zBackEE(const Gflash3Vector position) 
+double zBackEE(const Gflash3Vector& position) 
 {
   //return (Gflash::ZFrontCrystalEE + Gflash::LengthCrystalEE*std::fabs(std::cos(position.getTheta())));
   return (Gflash::ZFrontCrystalEE + Gflash::LengthCrystalEE);

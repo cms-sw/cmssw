@@ -13,8 +13,6 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Sat Jul  7 09:51:31 CEST 2007
-// $Id: HOCalibAnalyzer.cc,v 1.11 2010/08/11 13:37:54 elmer Exp $
-// $Id: HOCalibAnalyzer.cc,v 1.11 2010/08/11 13:37:54 elmer Exp $
 //
 //
 

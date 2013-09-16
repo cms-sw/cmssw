@@ -5,8 +5,6 @@
  * *
  *  DQM Source for phi symmetry stream
  *
- *  $Date: 2009/02/09 17:47:40 $
- *  $Revision: 1.2 $
  *  \author Stefano Argiro'
  *          Andrea Gozzelino - Universita  e INFN Torino
  *   

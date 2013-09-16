@@ -9,8 +9,6 @@ using namespace std;
 
   /** \class CaloTowersDump
       
-  $Date: 2007/07/31 15:19:58 $
-  $Revision: 1.5 $
   \author J. Mans - Minnesota
   */
   class CaloTowersDump : public edm::EDAnalyzer {

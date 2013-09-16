@@ -1,4 +1,3 @@
-//$Id$
 
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"

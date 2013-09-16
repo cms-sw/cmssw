@@ -13,6 +13,12 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
 // class decleration
 //
@@ -23,9 +29,11 @@ class HLTEgammaDoubleEtFilter : public HLTFilter {
   explicit HLTEgammaDoubleEtFilter(const edm::ParameterSet&);
   ~HLTEgammaDoubleEtFilter();
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
   edm::InputTag candTag_; // input tag identifying product contains filtered candidates
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>  candToken_;
   double etcut1_;           // Et threshold in GeV 
   double etcut2_;           // Et threshold in GeV 
   int    npaircut_;        // number of egammas required

@@ -67,12 +67,17 @@ Description: Producer for EcalRecHits to be used for pi0/eta ECAL calibration.
 #include "TLorentzVector.h"
 #include <vector>
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class HLTEcalResonanceFilter : public edm::EDFilter {
    public:
       explicit HLTEcalResonanceFilter(const edm::ParameterSet&);
       ~HLTEcalResonanceFilter();
 
       virtual bool filter(edm::Event &, const edm::EventSetup&);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
    private:
       // ----------member data ---------------------------
       void doSelection(int detector, const reco::BasicClusterCollection *clusterCollection,
@@ -105,10 +110,15 @@ class HLTEcalResonanceFilter : public edm::EDFilter {
       // Input hits & clusters
       edm::InputTag barrelHits_;
       edm::InputTag endcapHits_;
-      
       edm::InputTag barrelClusters_;
       edm::InputTag endcapClusters_;
-      
+
+      edm::EDGetTokenT<EBRecHitCollection> barrelHitsToken_;
+      edm::EDGetTokenT<EERecHitCollection> endcapHitsToken_;
+      edm::EDGetTokenT<ESRecHitCollection> preshHitsToken_;
+      edm::EDGetTokenT<reco::BasicClusterCollection> barrelClustersToken_;
+      edm::EDGetTokenT<reco::BasicClusterCollection> endcapClustersToken_;
+     
       ///output hits 
       std::string BarrelHits_;
       std::string EndcapHits_;

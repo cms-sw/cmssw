@@ -13,7 +13,6 @@
 //
 // Original Author:  Ingo Bloch
 //         Created:  Mon Mar 15 11:39:08 CDT 2010
-// $Id: HLTCSCAcceptBusyFilter.cc,v 1.2 2010/03/18 19:53:28 gruen Exp $
 //
 //
 
@@ -31,11 +30,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
 #include <string>
 
@@ -45,16 +46,17 @@
 
 class HLTCSCAcceptBusyFilter : public HLTFilter {
 
-   public:
-      explicit HLTCSCAcceptBusyFilter(const edm::ParameterSet&);
-      virtual ~HLTCSCAcceptBusyFilter();
+public:
+  explicit HLTCSCAcceptBusyFilter(const edm::ParameterSet&);
+  virtual ~HLTCSCAcceptBusyFilter();
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
 
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
-  
-   private:
-      bool AcceptManyHitsInChamber(unsigned int maxRecHitsPerChamber, const edm::Handle<CSCRecHit2DCollection>& recHits);
+private:
+  bool AcceptManyHitsInChamber(unsigned int maxRecHitsPerChamber, const edm::Handle<CSCRecHit2DCollection>& recHits);
   
   // ----------member data ---------------------------
+  edm::EDGetTokenT<CSCRecHit2DCollection> cscrechitsToken;
   edm::InputTag cscrechitsTag;
   bool          invert;
   unsigned int  maxRecHitsPerChamber;
@@ -78,7 +80,7 @@ HLTCSCAcceptBusyFilter::HLTCSCAcceptBusyFilter(const edm::ParameterSet& iConfig)
    cscrechitsTag        = iConfig.getParameter<edm::InputTag>("cscrechitsTag");
    invert               = iConfig.getParameter<bool>("invert");
    maxRecHitsPerChamber = iConfig.getParameter<unsigned int>("maxRecHitsPerChamber");
-
+   cscrechitsToken      = consumes<CSCRecHit2DCollection>(cscrechitsTag);
 }
 
 
@@ -91,6 +93,16 @@ HLTCSCAcceptBusyFilter::~HLTCSCAcceptBusyFilter()
 }
 
 
+void
+HLTCSCAcceptBusyFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("cscrechitsTag",edm::InputTag("hltCsc2DRecHits"));
+  desc.add<bool>("invert",true);
+  desc.add<unsigned int>("maxRecHitsPerChamber",200);
+  descriptions.add("hltCSCAcceptBusyFilter",desc);
+}
+
 //
 // member functions
 //
@@ -102,7 +114,7 @@ bool HLTCSCAcceptBusyFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 
   // Get the RecHits collection :
   Handle<CSCRecHit2DCollection> recHits; 
-  iEvent.getByLabel(cscrechitsTag,recHits);  
+  iEvent.getByToken(cscrechitsToken,recHits);  
   
   if(  AcceptManyHitsInChamber(maxRecHitsPerChamber, recHits) ) {
     return (!invert);

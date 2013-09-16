@@ -1,4 +1,3 @@
-// $Id: TTUTrackingAlg.cc,v 1.9 2009/09/27 14:59:35 aosorio Exp $
 // Include files 
 
 

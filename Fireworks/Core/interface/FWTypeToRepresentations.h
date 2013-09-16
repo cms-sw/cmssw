@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 11:25:04 EST 2008
-// $Id: FWTypeToRepresentations.h,v 1.1 2008/11/14 16:29:31 chrjones Exp $
 //
 
 // system include files

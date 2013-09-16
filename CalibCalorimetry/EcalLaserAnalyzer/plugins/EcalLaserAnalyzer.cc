@@ -1,7 +1,6 @@
 /* 
  *  \class EcalLaserAnalyzer
  *
- *  $Date: 2012/02/09 10:07:36 $
  *  primary author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */

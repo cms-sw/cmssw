@@ -8,7 +8,6 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.13 2010/09/06 15:49:55 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"

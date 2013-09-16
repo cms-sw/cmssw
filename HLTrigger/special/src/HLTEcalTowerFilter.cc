@@ -4,14 +4,24 @@
  *  This class is an HLTFilter (-> EDFilter) implementing a
  *  single CaloTower requirement with an emEnergy threshold (not Et!)
  *
- *  $Date: 2011/05/01 14:38:24 $
- *  $Revision: 1.5 $
  *
  *  \author Seth Cooper
  *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+
+#include <memory>
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+
 
 //
 // class declaration
@@ -21,25 +31,18 @@ class HLTEcalTowerFilter : public HLTFilter {
 public:
   explicit HLTEcalTowerFilter(const edm::ParameterSet &);
   ~HLTEcalTowerFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
   virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
+  edm::EDGetTokenT<CaloTowerCollection> inputToken_;
   edm::InputTag inputTag_; // input tag identifying product
   double min_E_;           // energy threshold in GeV 
   double max_Eta_;         // maximum eta
   int min_N_;              // minimum number
 
 };
-
-#include <memory>
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
 //
 // constructors and destructor
@@ -50,6 +53,7 @@ HLTEcalTowerFilter::HLTEcalTowerFilter(const edm::ParameterSet& config) : HLTFil
   max_Eta_  (config.getParameter<double>       ("MaxEta"   )),
   min_N_    (config.getParameter<int>          ("MinN"   ))
 {
+  inputToken_ = consumes<CaloTowerCollection>(inputTag_);
   LogDebug("") << "Input/ecut/etacut/ncut : "
                << inputTag_.encode() << " "
                << min_E_ << " "
@@ -59,6 +63,17 @@ HLTEcalTowerFilter::HLTEcalTowerFilter(const edm::ParameterSet& config) : HLTFil
 
 HLTEcalTowerFilter::~HLTEcalTowerFilter()
 {
+}
+
+void
+HLTEcalTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltTowerMakerForEcal"));
+  desc.add<double>("MinE",10.);
+  desc.add<double>("MaxEta",3.);
+  desc.add<int>("MinN",1);
+  descriptions.add("hltEcalTowerFilter",desc);
 }
 
 //
@@ -83,7 +98,7 @@ HLTEcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
 
   // get hold of collection of objects
   Handle<CaloTowerCollection> towers;
-  event.getByLabel(inputTag_, towers);
+  event.getByToken(inputToken_, towers);
 
   LogDebug("HLTEcalTowerFilter") << "Number of towers: " << towers->size();
 

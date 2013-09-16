@@ -3,7 +3,6 @@
 // Package:     Muons
 // Class  :     FWPhotonLegoProxyBuilder
 //
-// $Id: FWPhotonLegoProxyBuilder.cc,v 1.3 2010/06/18 12:42:18 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"

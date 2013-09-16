@@ -14,7 +14,7 @@
 MuonChamberResidual::MuonChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
                                          AlignableNavigator *navigator, 
                                          DetId chamberId,
-                                         AlignableDetOrUnitPtr chamberAlignable):
+                                         const AlignableDetOrUnitPtr& chamberAlignable):
     m_globalGeometry(globalGeometry)
   , m_navigator(navigator)
   , m_chamberId(chamberId)

@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalNZSFilter.cc,v 1.9 2009/10/06 14:05:56 fwyzard Exp $
 //
 //
 
@@ -32,8 +31,6 @@ Implementation:
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
@@ -50,6 +47,7 @@ HLTHcalNZSFilter::HLTHcalNZSFilter(const edm::ParameterSet& iConfig) : HLTFilter
 
   dataInputTag_ = iConfig.getParameter<edm::InputTag>("InputTag") ;
   summary_      = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
+  dataInputToken_ = consumes<FEDRawDataCollection>(dataInputTag_);
 }
 
 
@@ -61,6 +59,14 @@ HLTHcalNZSFilter::~HLTHcalNZSFilter()
 
 }
 
+void
+HLTHcalNZSFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("InputTag",edm::InputTag("source"));
+  desc.addUntracked<bool>("FilterSummary",false);
+  descriptions.add("hltHcalNZSFilter",desc);
+}
 
 //
 // member functions
@@ -76,7 +82,7 @@ HLTHcalNZSFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
   if (!iEvent.isRealData()) return false;
 
   edm::Handle<FEDRawDataCollection> rawdata;  
-  iEvent.getByLabel(dataInputTag_,rawdata);
+  iEvent.getByToken(dataInputToken_,rawdata);
 
   int nFEDs = 0 ; int nNZSfed = 0 ; int nZSfed = 0 ; 
   for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) {

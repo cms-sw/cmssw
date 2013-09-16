@@ -6,8 +6,6 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2010/11/09 13:58:42 $
- *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -55,6 +53,10 @@ namespace edm {
   class EventSetup;
 }
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -64,6 +66,7 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
  public:
   explicit TriggerSummaryProducerAOD(const edm::ParameterSet&);
   ~TriggerSummaryProducerAOD();
+  static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 

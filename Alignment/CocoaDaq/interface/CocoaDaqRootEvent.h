@@ -56,7 +56,7 @@ public:
   Float_t  GetYerror()    const { return fY_error; }
   TString  GetID() { return fID; }
   Int_t    GetTimeStamp() const { return fTimeStamp; }
-  void     DumpIt(TString Name);
+  void     DumpIt(const TString& Name);
 
   ClassDef(AliDaqPosition2D,1)  
 };
@@ -94,7 +94,7 @@ public:
   Float_t  GetRightError() const { return fDCOPS_right_error; }
   TString  GetID() { return fID; }
   Int_t    GetTimeStamp()  const { return fTimeStamp; }
-  void     DumpIt(TString Name);
+  void     DumpIt(const TString& Name);
 
   ClassDef(AliDaqPositionCOPS,1)  
 };
@@ -116,7 +116,7 @@ public:
   Float_t  GetTiltError() const { return fTilt_error; }
   TString  GetID() { return fID; }
   Int_t    GetTimeStamp() const { return fTimeStamp; }
-  void     DumpIt(TString Name);
+  void     DumpIt(const TString& Name);
 
   ClassDef(AliDaqTilt,1)
 };
@@ -138,7 +138,7 @@ public:
   Float_t  GetDistanceError() const { return fDistance_error; }
   TString  GetID() { return fID; }
   Int_t    GetTimeStamp() const { return fTimeStamp; }
-  void     DumpIt(TString Name);
+  void     DumpIt(const TString& Name);
 
   ClassDef(AliDaqDistance,1)
 };
@@ -161,7 +161,7 @@ public:
   Float_t  GetTemperatureError() const { return fTemperature_error; }
   TString  GetID()  { return fID; }
   Int_t    GetTimeStamp() const { return fTimeStamp; }
-  void     DumpIt(TString Name);
+  void     DumpIt(const TString& Name);
 
   ClassDef(AliDaqTemperature,1)
 };

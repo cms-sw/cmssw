@@ -9,8 +9,15 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 //
 // class decleration
@@ -22,14 +29,18 @@ class HLTEgammaL1MatchFilterRegional : public HLTFilter {
       explicit HLTEgammaL1MatchFilterRegional(const edm::ParameterSet&);
       ~HLTEgammaL1MatchFilterRegional();
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       edm::InputTag candIsolatedTag_; // input tag identifying product contains egammas
       edm::InputTag l1IsolatedTag_; // input tag identifying product contains egammas
       edm::InputTag candNonIsolatedTag_; // input tag identifying product contains egammas
       edm::InputTag l1NonIsolatedTag_; // input tag identifying product contains egammas
+      edm::EDGetTokenT<reco::RecoEcalCandidateCollection> candIsolatedToken_;
+      edm::EDGetTokenT<reco::RecoEcalCandidateCollection> candNonIsolatedToken_;
 
       edm::InputTag L1SeedFilterTag_;
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> L1SeedFilterToken_;
       bool doIsolated_;
 
       int    ncandcut_;        // number of egammas required

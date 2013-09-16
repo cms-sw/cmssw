@@ -5,7 +5,6 @@
  * Generate event vertices according to a Flat distribution. 
  * Attention: All values are assumed to be cm!
  *
- * $Id: FlatEvtVtxGenerator.h,v 1.4 2007/04/27 14:25:34 yumiceva Exp $
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"

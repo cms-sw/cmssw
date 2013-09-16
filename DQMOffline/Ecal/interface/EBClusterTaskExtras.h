@@ -4,8 +4,6 @@
 /*
  * \file EBClusterTaskExtras.h
  *
- * $Date: 2009/03/26 12:01:56 $
- * $Revision: 1.4 $
  * \author G. Della Ricca
  *
  */
@@ -13,6 +11,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #define EBCLUSTERTASKEXTRAS_DQMOFFLINE
 
@@ -80,10 +83,10 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
-edm::InputTag SuperClusterCollection_;
-edm::InputTag EcalRecHitCollection_;
-edm::InputTag l1GMTReadoutRecTag_;
-edm::InputTag l1GTReadoutRecTag_;
+edm::EDGetTokenT<reco::SuperClusterCollection> SuperClusterCollection_;
+edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
+edm::EDGetTokenT<L1MuGMTReadoutCollection> l1GMTReadoutRecToken_;
+edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> l1GTReadoutRecToken_;
 std::vector<std::string> meList_;
 
 #ifndef EBCLUSTERTASKEXTRAS_DQMOFFLINE

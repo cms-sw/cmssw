@@ -23,6 +23,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -37,11 +39,13 @@ class HLTVertexFilter : public HLTFilter {
 public:
   explicit HLTVertexFilter(const edm::ParameterSet & config);
   ~HLTVertexFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     
 private:
   virtual 
   bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
+  edm::EDGetTokenT<reco::VertexCollection> m_inputToken;
   edm::InputTag m_inputTag;     // input vertex collection
   double        m_minNDoF;      // minimum vertex NDoF
   double        m_maxChi2;      // maximum vertex chi2
@@ -62,11 +66,25 @@ HLTVertexFilter::HLTVertexFilter(const edm::ParameterSet& config) : HLTFilter(co
   m_maxZ(config.getParameter<double>("maxZ")),
   m_minVertices(config.getParameter<unsigned int>("minVertices"))
 {
+  m_inputToken = consumes<reco::VertexCollection>(m_inputTag);
 }
 
 
 HLTVertexFilter::~HLTVertexFilter()
 {
+}
+
+void
+HLTVertexFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltPixelVertices"));
+  desc.add<double>("minNDoF",0.);
+  desc.add<double>("maxChi2",99999.);
+  desc.add<double>("maxD0",1.);
+  desc.add<double>("maxZ",15.);
+  desc.add<unsigned int>("minVertices",1);
+  descriptions.add("hltVertexFilter",desc);
 }
 
 
@@ -80,7 +98,7 @@ HLTVertexFilter::hltFilter(edm::Event &  event, edm::EventSetup const & setup, t
 
   // get hold of collection of objects
   edm::Handle<reco::VertexCollection> vertices;
-  event.getByLabel(m_inputTag, vertices);
+  event.getByToken(m_inputToken, vertices);
 
   unsigned int n = 0;
   if (vertices.isValid()) {

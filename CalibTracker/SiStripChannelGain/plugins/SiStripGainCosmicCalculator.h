@@ -9,7 +9,6 @@
 */
 // Original Author:  Dorian Kcira, Pierre Rodeghiero
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiStripGainCosmicCalculator.h,v 1.2 2007/09/13 20:02:52 dkcira Exp $
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include <vector>

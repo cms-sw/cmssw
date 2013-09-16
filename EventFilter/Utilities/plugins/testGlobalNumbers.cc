@@ -1,8 +1,6 @@
 /** \file
  * 
  * 
- * $Date: 2009/04/09 21:17:51 $
- * $Revision: 1.4 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -34,7 +32,7 @@ namespace test{
     }
 
  
-    void analyze(const Event & e, const EventSetup& c) override{
+    void analyze(const Event & e, const EventSetup& c){
       cout << "--- Run: " << e.id().run()
 	   << " LS: " << e.luminosityBlock() 
 	   << " Event: " << e.id().event() 

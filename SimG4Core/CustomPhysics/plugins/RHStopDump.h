@@ -3,7 +3,6 @@
 //
 // Dump stopping points from the Event into ASCII file
 // F.Ratnikov, Apr. 8, 2010
-// $Id: $
 //
 
 #include <fstream>

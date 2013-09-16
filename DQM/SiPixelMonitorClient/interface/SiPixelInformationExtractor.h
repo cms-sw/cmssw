@@ -20,9 +20,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 
-#include "xgi/Utils.h"
-#include "xgi/Method.h"
-
 #include "TCanvas.h"
 #include "TPaveText.h"
 #include "TF1.h"
@@ -48,31 +45,33 @@ class SiPixelInformationExtractor {
   SiPixelInformationExtractor(  bool                                      offlineXMLfile);
  ~SiPixelInformationExtractor();
 
-  void getSingleModuleHistos(   DQMStore                                * bei, 
-                                const std::multimap<std::string, std::string>& req_map, 
-				xgi::Output                             * out);
-  void getHistosFromPath(       DQMStore                                * bei, 
-                                const std::multimap<std::string, std::string>& req_map, 
-				xgi::Output                             * out);
-  void getTrackerMapHistos(     DQMStore                                * bei, 
-                                const std::multimap<std::string, std::string>& req_map, 
-				xgi::Output                             * out);
+ //
+ //  void getSingleModuleHistos(   DQMStore                                * bei, 
+ //                                const std::multimap<std::string, std::string>& req_map, 
+ //				xgi::Output                             * out);
+ //  void getHistosFromPath(       DQMStore                                * bei, 
+ //                                const std::multimap<std::string, std::string>& req_map, 
+ //				xgi::Output                             * out);
+ //  void getTrackerMapHistos(     DQMStore                                * bei, 
+ //                                const std::multimap<std::string, std::string>& req_map, 
+ //				xgi::Output                             * out);
 				
 				
-  void readModuleAndHistoList(	DQMStore				* bei,
-                              	xgi::Output				* out);
-  void readModuleHistoTree(   	DQMStore				* bei, 
-                              	std::string				& str_name, 
-			      	xgi::Output				* out);
-  void readSummaryHistoTree(  	DQMStore				* bei, 
-                              	std::string				& str_name, 
-			      	xgi::Output				* out);
-  void readAlarmTree(         	DQMStore				* bei, 
-                              	std::string				& str_name, 
-                              	xgi::Output				* out);
-  void readStatusMessage(       DQMStore                                * bei, 
-                                std::multimap<std::string, std::string>& req_map, 
-				xgi::Output * out);
+ //  void readModuleAndHistoList(	DQMStore				* bei,
+ //                              	xgi::Output				* out);
+ //  void readModuleHistoTree(   	DQMStore				* bei, 
+ //                              	std::string				& str_name, 
+ //			      	xgi::Output				* out);
+ //  void readSummaryHistoTree(  	DQMStore				* bei, 
+ //                              	std::string				& str_name, 
+ //			      	xgi::Output				* out);
+ //  void readAlarmTree(         	DQMStore				* bei, 
+ //                              	std::string				& str_name, 
+ //                              	xgi::Output				* out);
+ //  void readStatusMessage(       DQMStore                                * bei, 
+ //                                std::multimap<std::string, std::string>& req_map, 
+ //				xgi::Output * out);
+
   void computeStatus(           MonitorElement                          * mE,
                                 double                                  & colorValue,
 				std::pair<double,double>                & norm) ;
@@ -83,20 +82,21 @@ class SiPixelInformationExtractor {
                                 std::pair<double,double>                & normX,
                                 std::pair<double,double>                & normY,
 				std::string                               theMEType) ;
-  void sendTkUpdatedStatus(     DQMStore				* bei,
-                              	xgi::Output                             * out,
-				std::string                             & meName,
-				std::string                             & theTKType) ;
+
+ //  void sendTkUpdatedStatus(     DQMStore				* bei,
+ //                              	xgi::Output                             * out,
+ //				std::string                             & meName,
+  //				std::string                             & theTKType) ;
   void selectMEList(            DQMStore                                * bei,  
                                 std::string                             & name, 
 				std::vector<MonitorElement*>            & mes);
   void getMEList(               DQMStore                                * bei,  
 				std::map<std::string, int>              & mEHash);
   int getDetId(                 MonitorElement                          * mE) ;				
-  void getIMGCImage(            const std::multimap<std::string, std::string>& req_map, 
-                                xgi::Output                             * out);
-  void getIMGCImage(            std::multimap<std::string, std::string>& req_map, 
-                                xgi::Output                             * out);
+  //  void getIMGCImage(            const std::multimap<std::string, std::string>& req_map, 
+  //                                xgi::Output                             * out);
+  //  void getIMGCImage(            std::multimap<std::string, std::string>& req_map, 
+  //                                xgi::Output                             * out);
   std::string getMEType(        MonitorElement                          * mE) ;
     
   void readConfiguration();
@@ -148,9 +148,9 @@ class SiPixelInformationExtractor {
   void selectColor(            std::string                              & col, 
                                std::vector<QReport*>                    & reports);
   
-  void setHTMLHeader(          xgi::Output                              * out);
-  void setXMLHeader(           xgi::Output                              * out);
-  void setPlainHeader(         xgi::Output                              * out);
+  //  void setHTMLHeader(          xgi::Output                              * out);
+  //  void setXMLHeader(           xgi::Output                              * out);
+  //  void setPlainHeader(         xgi::Output                              * out);
  
   int                                    alarmCounter_;
 

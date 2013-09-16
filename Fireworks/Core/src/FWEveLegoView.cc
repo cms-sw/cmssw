@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:09:53 CEST 2010
-// $Id: FWEveLegoView.cc,v 1.88 2010/11/21 11:18:13 amraktad Exp $
 //
 
 // system include files

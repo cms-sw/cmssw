@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Fri Sep 21 15:56:27 CEST 2007
-// $Id: XMLProcessor.cc,v 1.2 2009/07/24 06:57:38 kukartse Exp $
 //
 
 // system include files

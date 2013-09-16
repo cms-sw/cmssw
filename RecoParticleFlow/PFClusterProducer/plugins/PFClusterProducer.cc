@@ -11,16 +11,28 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+// Geometry
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+
 using namespace std;
 using namespace edm;
+
+namespace {
+  const std::string PositionCalcType__EGPositionCalc("EGPositionCalc");
+  const std::string PositionCalcType__EGPositionFormula("EGPositionFormula");
+  const std::string PositionCalcType__PFPositionCalc("PFPositionCalc");
+}
 
 PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
 {
     
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
-
-
 
   // parameters for clustering
   
@@ -108,6 +120,33 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
 
   clusterAlgo_.setNNeighbours( nNeighbours );
 
+  // setup the position calculation (only affects ECAL position correction)
+  std::string poscalctype = PositionCalcType__PFPositionCalc;
+  if( iConfig.existsAs<std::string>("PositionCalcType") ) {
+    poscalctype = iConfig.getParameter<std::string>("PositionCalcType");
+  }
+  if( poscalctype == PositionCalcType__EGPositionCalc ) {
+    clusterAlgo_.setPositionCalcType(PFClusterAlgo::EGPositionCalc);    
+    edm::ParameterSet pc_config = 
+      iConfig.getParameterSet("PositionCalcConfig");
+    clusterAlgo_.setEGammaPosCalc(pc_config);
+  } else if( poscalctype == PositionCalcType__EGPositionFormula) {
+    clusterAlgo_.setPositionCalcType(PFClusterAlgo::EGPositionFormula);
+    edm::ParameterSet pc_config = 
+      iConfig.getParameterSet("PositionCalcConfig");
+    double w0 = pc_config.getParameter<double>("W0");
+    clusterAlgo_.setPosCalcW0(w0);
+  } else if( poscalctype == PositionCalcType__PFPositionCalc) {
+    clusterAlgo_.setPositionCalcType(PFClusterAlgo::PFPositionCalc);
+  } else {
+    throw cms::Exception("InvalidClusteringType")
+      << "You have not chosen a valid position calculation type,"
+      << " please choose from \""
+      << PositionCalcType__EGPositionCalc << "\", \""
+      << PositionCalcType__EGPositionFormula << "\", or \""
+      << PositionCalcType__PFPositionCalc << "\"!";
+  }
+
   // p1 set to the minimum rechit threshold:
   double posCalcP1 = threshBarrel<threshEndcap ? threshBarrel:threshEndcap;
   clusterAlgo_.setPosCalcP1( posCalcP1 );
@@ -135,6 +174,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
 					    dcorap, dcorbp );
 
 
+  geom = NULL;
   // access to the collections of rechits from the various detectors:
 
   
@@ -156,7 +196,21 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
 PFClusterProducer::~PFClusterProducer() {}
 
 
-
+void PFClusterProducer::beginLuminosityBlock(edm::LuminosityBlock const& iL, 
+					     edm::EventSetup const& iE) {
+  const CaloGeometryRecord& temp = iE.get<CaloGeometryRecord>();
+  if( geom == NULL || (geom->cacheIdentifier() != temp.cacheIdentifier()) ) {
+    geom = &temp;    
+    edm::ESHandle<CaloGeometry> cgeom;
+    geom->get(cgeom);
+    clusterAlgo_.setEBGeom(cgeom->getSubdetectorGeometry(DetId::Ecal,
+							 EcalBarrel));
+    clusterAlgo_.setEEGeom(cgeom->getSubdetectorGeometry(DetId::Ecal,
+							 EcalEndcap));
+    clusterAlgo_.setPreshowerGeom(cgeom->getSubdetectorGeometry(DetId::Ecal,
+							       EcalPreshower));
+  }
+}
 
 void PFClusterProducer::produce(edm::Event& iEvent, 
 				const edm::EventSetup& iSetup) {

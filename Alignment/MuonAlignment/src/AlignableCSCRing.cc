@@ -12,7 +12,7 @@
 
 
 /// The constructor simply copies the vector of CSC Chambers and computes the surface from them
-AlignableCSCRing::AlignableCSCRing( const std::vector<AlignableCSCChamber*> cscChambers ) 
+AlignableCSCRing::AlignableCSCRing( const std::vector<AlignableCSCChamber*>& cscChambers ) 
    : AlignableComposite(cscChambers[0]->id(), align::AlignableCSCRing)
 {
 

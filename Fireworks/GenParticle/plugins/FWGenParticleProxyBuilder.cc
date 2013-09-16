@@ -14,7 +14,6 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWGenParticleProxyBuilder.cc,v 1.7 2010/11/11 20:25:28 amraktad Exp $
 // 
 
 #include "TEveTrack.h"

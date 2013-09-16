@@ -1,6 +1,5 @@
 /** \class HLTEgammaGenericQuadraticEtaFilter
  *
- * $Id: HLTEgammaGenericQuadraticEtaFilter.cc,v 1.3 2012/02/01 16:47:56 gruen Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *  modified by Chris Tully (Princeton)
@@ -10,14 +9,13 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
@@ -52,8 +50,42 @@ HLTEgammaGenericQuadraticEtaFilter::HLTEgammaGenericQuadraticEtaFilter(const edm
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 	  
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 
+  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
+  isoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(isoTag_);
+  if(!doIsolated_) nonIsoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(nonIsoTag_);
+
 //register your products
-produces<trigger::TriggerFilterObjectWithRefs>();
+  produces<trigger::TriggerFilterObjectWithRefs>();
+}
+
+void
+HLTEgammaGenericQuadraticEtaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("candTag",edm::InputTag("hltEGIsolFilter"));
+  desc.add<edm::InputTag>("isoTag",edm::InputTag("hltEGIsol"));
+  desc.add<edm::InputTag>("nonIsoTag",edm::InputTag("hltEGNonIsol"));
+  desc.add<bool>("lessThan",true);
+  desc.add<bool>("useEt",true);
+  desc.add<double>("etaBoundaryEB12",1.0);
+  desc.add<double>("etaBoundaryEE12",2.0);
+  desc.add<double>("thrRegularEB1",4.0);
+  desc.add<double>("thrRegularEE1",6.0);
+  desc.add<double>("thrOverEEB1",0.0020);
+  desc.add<double>("thrOverEEE1",0.0020);
+  desc.add<double>("thrOverE2EB1",0.0);
+  desc.add<double>("thrOverE2EE1",0.0);
+  desc.add<double>("thrRegularEB2",6.0);
+  desc.add<double>("thrRegularEE2",4.0);
+  desc.add<double>("thrOverEEB2",0.0020);
+  desc.add<double>("thrOverEEE2",0.0020);
+  desc.add<double>("thrOverE2EB2",0.0);
+  desc.add<double>("thrOverE2EE2",0.0);
+  desc.add<int>("ncandcut",1);
+  desc.add<bool>("doIsolated",false);
+  desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
+  desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
+  descriptions.add("hltEgammaGenericQuadraticEtaFilter",desc);
 }
 
 HLTEgammaGenericQuadraticEtaFilter::~HLTEgammaGenericQuadraticEtaFilter(){}
@@ -79,7 +111,7 @@ HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent, const edm::Eve
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
 
-  iEvent.getByLabel (candTag_,PrevFilterOutput);
+  iEvent.getByToken (candToken_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
@@ -87,11 +119,11 @@ HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent, const edm::Eve
 
   //get hold of isolated association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
-  iEvent.getByLabel (isoTag_,depMap);
+  iEvent.getByToken (isoToken_,depMap);
   
   //get hold of non-isolated association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depNonIsoMap;
-  if(!doIsolated_) iEvent.getByLabel (nonIsoTag_,depNonIsoMap);
+  if(!doIsolated_) iEvent.getByToken (nonIsoToken_,depNonIsoMap);
   
   // look at all photons, check cuts and add to filter object
   int n = 0;

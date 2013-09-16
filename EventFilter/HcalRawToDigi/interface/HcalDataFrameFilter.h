@@ -13,8 +13,6 @@
     As these are applied in units proportional to energy, rather than
     transverse energy, and no calibration is applied, care should be used.
    
-   $Date: 2008/08/26 09:33:44 $
-   $Revision: 1.4 $
    \author J. Mans - Minnesota
 */
 class HcalDataFrameFilter {

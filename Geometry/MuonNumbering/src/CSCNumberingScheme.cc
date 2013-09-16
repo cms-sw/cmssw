@@ -37,7 +37,7 @@ void CSCNumberingScheme::initMe (  const MuonDDDConstants& muonConstants ) {
 #endif
 }
 
-int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num){
+int CSCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num){
 
 #ifdef LOCAL_DEBUG
   std::cout << "CSCNumbering "<<num.getLevels()<<std::endl;

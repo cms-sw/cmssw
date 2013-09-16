@@ -63,9 +63,9 @@ namespace edm {
 
   void SecondaryProducer::beginJob() {
     eventPrincipal_.reset(new EventPrincipal(secInput_->productRegistry(),
-                                            secInput_->branchIDListHelper(),
-                                            *processConfiguration_,
-                                             nullptr, StreamID::invalidStreamID()));
+                                             secInput_->branchIDListHelper(),
+                                             *processConfiguration_,
+                                             nullptr));
 
   }
 
@@ -151,11 +151,12 @@ namespace edm {
 
   boost::shared_ptr<VectorInputSource> SecondaryProducer::makeSecInput(ParameterSet const& ps) {
     ParameterSet const& sec_input = ps.getParameterSet("input");
+    PreallocationConfiguration dummy;
     InputSourceDescription desc(ModuleDescription(),
                                 *productRegistry_,
 				boost::shared_ptr<BranchIDListHelper>(new BranchIDListHelper),
 				boost::shared_ptr<ActivityRegistry>(new ActivityRegistry),
-				-1, -1);
+				-1, -1, dummy);
     boost::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>
       (VectorInputSourceFactory::get()->makeVectorInputSource(sec_input,
       desc).release()));

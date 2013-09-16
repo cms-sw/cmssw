@@ -1,11 +1,11 @@
-# /dev/CMSSW_6_2_0/PIon/V19 (CMSSW_6_2_0_pre6_HLT2)
+# /dev/CMSSW_7_0_0/PIon/V2 (CMSSW_6_2_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_6_2_0/PIon/V19')
+  tableName = cms.string('/dev/CMSSW_7_0_0/PIon/V2')
 )
 
 process.streams = cms.PSet( 
@@ -4646,10 +4646,6 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltPFJetCtfWithMaterialTracks',
       'hltL3TkTracksFromL2IOHit',
       'hltL3TkTracksFromL2OIHit' )
-)
-process.MicroStateService = cms.Service( "MicroStateService",
-)
-process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
     forceDefault = cms.bool( False ),

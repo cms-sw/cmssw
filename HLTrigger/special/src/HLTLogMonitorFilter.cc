@@ -13,7 +13,6 @@
 //
 // Original Author:  Andrea Bocci
 //         Created:  Thu Nov  5 15:16:46 CET 2009
-// $Id: HLTLogMonitorFilter.cc,v 1.9 2012/01/21 15:00:21 fwyzard Exp $
 //
 
 
@@ -37,9 +36,6 @@ class HLTLogMonitorFilter : public edm::EDFilter {
 public:
     explicit HLTLogMonitorFilter(const edm::ParameterSet &);
     ~HLTLogMonitorFilter();
-
-private:
-    // ---------- private data types --------------------
 
     struct CategoryEntry {
       uint32_t threshold;       // configurable threshold, after which messages in this Category start to be logarithmically prescaled
@@ -143,7 +139,6 @@ HLTLogMonitorFilter::HLTLogMonitorFilter(const edm::ParameterSet & config) :
 HLTLogMonitorFilter::~HLTLogMonitorFilter()
 {
 }
-
 
 //
 // member functions

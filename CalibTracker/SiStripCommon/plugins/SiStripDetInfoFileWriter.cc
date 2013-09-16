@@ -3,7 +3,6 @@
 // Class:      SiStripDetInfoFileWriter
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripDetInfoFileWriter.cc,v 1.2 2008/01/22 19:16:28 muzaffar Exp $
 
 #include "CalibTracker/SiStripCommon/plugins/SiStripDetInfoFileWriter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

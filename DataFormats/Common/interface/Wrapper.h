@@ -62,6 +62,7 @@ namespace edm {
 
     bool isPresent() const {return present;}
     std::type_info const& dynamicTypeInfo_() const {return typeid(T);}
+#ifndef __GCCXML__
     bool isMergeable() const;
 
     bool mergeProduct(Wrapper<T> const* wrappedNewProduct);
@@ -69,6 +70,7 @@ namespace edm {
     bool hasIsProductEqual() const;
 
     bool isProductEqual(Wrapper<T> const* wrappedNewProduct) const;
+#endif
 
   private:
     // We wish to disallow copy construction and assignment.
@@ -195,6 +197,7 @@ namespace edm {
     void operator()(T& a, T& b) { a = b; }
   };
 
+#ifndef __GCCXML__
   template <typename T>
   struct IsMergeable {
     bool operator()(T const&) const { return true; }
@@ -234,6 +237,7 @@ namespace edm {
   struct DoNotIsProductEqual {
     bool operator()(T const&, T const&) const { return true; }
   };
+#endif
 
   //------------------------------------------------------------
   // Metafunction support for compile-time selection of code used in
@@ -256,6 +260,7 @@ namespace edm {
         sizeof(has_swap_helper<T>(0)) == sizeof(yes_tag);
     };
 
+#ifndef __GCCXML__
     template <typename T, bool (T::*)(T const&)>  struct mergeProduct_function;
     template <typename T> no_tag  has_mergeProduct_helper(...);
     template <typename T> yes_tag has_mergeProduct_helper(mergeProduct_function<T, &T::mergeProduct> * dummy);
@@ -275,6 +280,7 @@ namespace edm {
       static bool const value =
         sizeof(has_isProductEqual_helper<T>(0)) == sizeof(yes_tag);
     };
+#endif
   }
 
   template <typename T>
@@ -307,6 +313,7 @@ namespace edm {
 
   }
 
+#ifndef __GCCXML__
   template <typename T>
   bool Wrapper<T>::isMergeable() const {
     typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value,
@@ -338,6 +345,7 @@ namespace edm {
       DoNotIsProductEqual<T> >::type is_equal;
     return is_equal(obj, wrappedNewProduct->obj);
   }
+#endif
 }
 
 #include "DataFormats/Common/interface/RefVector.h"
@@ -452,6 +460,7 @@ namespace edm {
 #include "DataFormats/Common/interface/setPtr.h"
 #include "DataFormats/Common/interface/fillPtrVector.h"
 
+#ifndef __GCCXML__
 #include "DataFormats/Common/interface/WrapperInterface.h"
 namespace edm {
   template <typename T>
@@ -462,4 +471,5 @@ namespace edm {
   }
 }
 
+#endif
 #endif

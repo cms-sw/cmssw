@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_modelfilter.cc,v 1.5 2010/07/26 15:13:13 matevz Exp $
 //
 
 // system include files

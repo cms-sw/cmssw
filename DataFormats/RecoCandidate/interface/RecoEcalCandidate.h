@@ -6,7 +6,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoEcalCandidate.h,v 1.6 2007/10/15 13:03:34 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"

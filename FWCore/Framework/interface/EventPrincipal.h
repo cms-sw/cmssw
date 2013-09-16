@@ -36,6 +36,7 @@ namespace edm {
   class HistoryAppender;
   class LuminosityBlockPrincipal;
   class ModuleCallingContext;
+  class ProcessHistoryRegistry;
   class RunPrincipal;
   class UnscheduledHandler;
 
@@ -52,10 +53,11 @@ namespace edm {
         boost::shared_ptr<BranchIDListHelper const> branchIDListHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        StreamID const& streamID = StreamID::invalidStreamID());
+        unsigned int streamIndex = 0);
     ~EventPrincipal() {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
+        ProcessHistoryRegistry& processHistoryRegistry,
         boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs = boost::shared_ptr<EventSelectionIDVector>(),
         boost::shared_ptr<BranchListIndexes> branchListIndexes = boost::shared_ptr<BranchListIndexes>(),
         boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
@@ -108,10 +110,7 @@ namespace edm {
     }
 
     StreamID streamID() const { return streamID_;}
-    void setStreamID(StreamID const& iID) {
-      streamID_ = iID;
-    }
-    
+
     LuminosityBlockNumber_t luminosityBlock() const {
       return id().luminosityBlock();
     }
@@ -168,6 +167,8 @@ namespace edm {
                                  bool fillOnDemand,
                                  ModuleCallingContext const* mcc) const override;
 
+    virtual unsigned int transitionIndex_() const override;
+    
   private:
 
     class UnscheduledSentry {

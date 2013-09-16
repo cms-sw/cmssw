@@ -1,5 +1,4 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-// $Id: MatacqDataFormatter.cc,v 1.6 2007/10/20 10:58:01 franzoni Exp $
 
 #include "EventFilter/EcalTBRawToDigi/src/MatacqDataFormatter.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"

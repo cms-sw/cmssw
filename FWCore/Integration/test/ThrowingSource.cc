@@ -22,7 +22,7 @@ namespace edm {
     virtual void closeFile_();
     virtual boost::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_();
     virtual boost::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
-    virtual edm::EventPrincipal* readEvent_(edm::EventPrincipal&);
+    virtual void readEvent_(edm::EventPrincipal&);
   private:
     enum {
       kDoNotThrow  = 0,
@@ -126,14 +126,13 @@ namespace edm {
     return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(eventID().run(), eventID().luminosityBlock(), ts, Timestamp::invalidTimestamp()));
   }
 
-  EventPrincipal*
+  void
   ThrowingSource::readEvent_(EventPrincipal& eventPrincipal) {
     if (whenToThrow_ == kReadEvent) throw cms::Exception("TestThrow") << "ThrowingSource::readEvent_";
     assert(eventCached() || processingMode() != RunsLumisAndEvents);
     EventSourceSentry sentry(*this);
     EventAuxiliary aux(eventID(), processGUID(), Timestamp(presentTime()), false, EventAuxiliary::Undefined);
-    eventPrincipal.fillEventPrincipal(aux);
-    return &eventPrincipal;
+    eventPrincipal.fillEventPrincipal(aux, processHistoryRegistryForUpdate());
   }
 }
 

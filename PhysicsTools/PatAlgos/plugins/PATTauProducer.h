@@ -1,5 +1,4 @@
 //
-// $Id: PATTauProducer.h,v 1.23 2011/09/26 12:36:30 veelken Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h

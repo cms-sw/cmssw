@@ -77,7 +77,7 @@ class PFAlgo {
 				  double dptRel_PrimaryTrack, 
 				  double dptRel_MergedTrack, 
 				  double ptErrorSecondary, 
-				  std::vector<double> nuclCalibFactors){
+				  const std::vector<double>& nuclCalibFactors){
     connector_.setParameters(bCorrect, bCalibPrimary, dptRel_PrimaryTrack, dptRel_MergedTrack, ptErrorSecondary, nuclCalibFactors);
   }
 

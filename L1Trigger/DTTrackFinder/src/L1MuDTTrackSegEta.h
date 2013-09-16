@@ -5,8 +5,6 @@
  *   ETA Track Segment
  *
  *
- *   $Date: 2006/06/26 16:11:13 $
- *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
  */

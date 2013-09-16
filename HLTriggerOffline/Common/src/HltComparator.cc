@@ -1,6 +1,5 @@
 // Originally written by James Jackson
 // modified by Peter Wittich
-// $Id: HltComparator.cc,v 1.7 2010/01/12 06:33:18 hegner Exp $
 
 // user include files
 #include "HLTriggerOffline/Common/interface/HltComparator.h"

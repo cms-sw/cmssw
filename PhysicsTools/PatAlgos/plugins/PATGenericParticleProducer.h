@@ -1,5 +1,4 @@
 //
-// $Id: PATGenericParticleProducer.h,v 1.9 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATGenericParticleProducer_h

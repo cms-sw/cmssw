@@ -2,8 +2,6 @@
 #define EcalTBDaqFormatter_H
 /** \class EcalTBDaqFormatter
  *
- *  $Date: 2007/10/23 15:30:05 $
- *  $Revision: 1.17 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni

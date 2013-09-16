@@ -12,7 +12,6 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Thu Oct 29 11:04:22 CET 2009
-// $Id: HLTRPCTrigNoSyncFilter.cc,v 1.3 2010/02/23 14:43:03 carrillo Exp $
 //
 //
 
@@ -48,7 +47,10 @@ HLTRPCTrigNoSyncFilter::HLTRPCTrigNoSyncFilter(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
   m_GMTInputTag =iConfig.getParameter< edm::InputTag >("GMTInputTag");
-  rpcRecHitsLabel = iConfig.getParameter<edm::InputTag>("rpcRecHits");  
+  rpcRecHitsLabel = iConfig.getParameter<edm::InputTag>("rpcRecHits");
+  m_GMTInputToken = consumes<L1MuGMTReadoutCollection>(m_GMTInputTag);
+  rpcRecHitsToken = consumes<RPCRecHitCollection>(rpcRecHitsLabel);
+    
 }
 
 
@@ -58,6 +60,14 @@ HLTRPCTrigNoSyncFilter::~HLTRPCTrigNoSyncFilter()
    // (e.g. close files, deallocate resources etc.)
 }
 
+void
+HLTRPCTrigNoSyncFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("GMTInputTag",edm::InputTag("hltGtDigis"));
+  desc.add<edm::InputTag>("rpcRecHits",edm::InputTag("hltRpcRecHits"));
+  descriptions.add("hltRPCTrigNoSyncFilter",desc);
+}
 
 //
 // member functions
@@ -73,7 +83,7 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
   
   //std::cout <<"\t Getting the RPC RecHits"<<std::endl;
 
-  iEvent.getByLabel(rpcRecHitsLabel,rpcRecHits);
+  iEvent.getByToken(rpcRecHitsToken,rpcRecHits);
   
   if(!rpcRecHits.isValid()){
     //std::cout<<"no valid RPC Collection"<<std::endl;
@@ -125,7 +135,7 @@ bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
   }
    
   edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle;
-  iEvent.getByLabel(m_GMTInputTag,gmtrc_handle);
+  iEvent.getByToken(m_GMTInputToken,gmtrc_handle);
   
   std::vector<L1MuGMTExtendedCand> gmt_candidates = (*gmtrc_handle).getRecord().getGMTCands();
   

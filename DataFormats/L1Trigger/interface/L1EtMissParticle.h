@@ -12,7 +12,6 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EtMissParticle.h,v 1.14 2009/03/20 15:51:07 wsun Exp $
 //
 
 // system include files

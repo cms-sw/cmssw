@@ -27,8 +27,8 @@ class TrackCleaner : public PixelTrackCleaner
     bool isCompatible(const DetId & i1,
                       const DetId & i2,
 		      const TrackerTopology *tTopo);
-    bool canBeMerged(std::vector<const TrackingRecHit *> recHitsA,
-                     std::vector<const TrackingRecHit *> recHitsB,
+    bool canBeMerged(const std::vector<const TrackingRecHit *>& recHitsA,
+                     const std::vector<const TrackingRecHit *>& recHitsB,
 		     const TrackerTopology *tTopo);
 
     std::vector<const TrackingRecHit*> ttrhs(const SeedingHitSet & h) const;

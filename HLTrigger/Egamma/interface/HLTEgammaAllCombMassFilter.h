@@ -7,8 +7,13 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class HLTEgammaAllCombMassFilter : public HLTFilter {
 
@@ -16,11 +21,14 @@ class HLTEgammaAllCombMassFilter : public HLTFilter {
   explicit HLTEgammaAllCombMassFilter(const edm::ParameterSet&);
   ~HLTEgammaAllCombMassFilter();
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-  static void getP4OfLegCands(const edm::Event& iEvent,edm::InputTag filterTag,std::vector<math::XYZTLorentzVector>& p4s);
+  static void getP4OfLegCands(const edm::Event& iEvent, const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>& filterToken, std::vector<math::XYZTLorentzVector>& p4s);
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
  private:
   edm::InputTag firstLegLastFilterTag_;
   edm::InputTag secondLegLastFilterTag_;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> firstLegLastFilterToken_;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> secondLegLastFilterToken_;
   double minMass_;
 };
 

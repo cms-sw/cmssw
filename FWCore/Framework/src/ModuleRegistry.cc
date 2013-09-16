@@ -37,7 +37,8 @@ namespace edm {
   
   maker::ModuleHolder*
   ModuleRegistry::replaceModule(std::string const& iModuleLabel,
-                                edm::ParameterSet const& iPSet) {
+                                edm::ParameterSet const& iPSet,
+                                edm::PreallocationConfiguration const& iPrealloc) {
     auto modItr = labelToModule_.find(iModuleLabel);
     if (modItr == labelToModule_.end()) {
       return nullptr;
@@ -46,7 +47,8 @@ namespace edm {
     auto modPtr=
     Factory::get()->makeReplacementModule(iPSet);
     modPtr->setModuleDescription(modItr->second->moduleDescription());
-    
+    modPtr->preallocate(iPrealloc);
+
     // Transfer ownership of worker to the registry
     modItr->second = modPtr;
     return modItr->second.get();

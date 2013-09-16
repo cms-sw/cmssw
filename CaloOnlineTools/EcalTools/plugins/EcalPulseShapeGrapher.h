@@ -13,7 +13,6 @@
 //
 // Original Author:  Seth Cooper
 //         Created:  Tue Feb  5 11:35:45 CST 2008
-// $Id: EcalPulseShapeGrapher.h,v 1.1 2008/06/04 19:44:49 scooper Exp $
 //
 //
 

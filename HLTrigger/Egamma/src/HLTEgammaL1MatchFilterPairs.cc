@@ -1,6 +1,5 @@
 /** \class HLTEgammaL1MatchFilterPairs
  *
- * $Id: HLTEgammaL1MatchFilterPairs.cc,v 1.1 2008/10/14 14:52:56 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -16,11 +15,11 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -45,10 +44,34 @@ HLTEgammaL1MatchFilterPairs::HLTEgammaL1MatchFilterPairs(const edm::ParameterSet
    region_eta_size_ecap_ = iConfig.getParameter<double> ("region_eta_size_ecap");
    region_phi_size_      = iConfig.getParameter<double> ("region_phi_size");
    barrel_end_           = iConfig.getParameter<double> ("barrel_end");   
-   endcap_end_           = iConfig.getParameter<double> ("endcap_end");   
+   endcap_end_           = iConfig.getParameter<double> ("endcap_end");
+
+   candIsolatedToken_ = consumes<reco::RecoEcalCandidateCollection>(candIsolatedTag_);
+   candNonIsolatedToken_ = consumes<reco::RecoEcalCandidateCollection>(candNonIsolatedTag_);
+   L1SeedFilterToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(L1SeedFilterTag_);
 }
 
 HLTEgammaL1MatchFilterPairs::~HLTEgammaL1MatchFilterPairs(){}
+
+void
+HLTEgammaL1MatchFilterPairs::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("candIsolatedTag",edm::InputTag("hltRecoIsolatedEcalCandidate"));
+  desc.add<edm::InputTag>("l1IsolatedTag",edm::InputTag("l1extraParticles","Isolated"));
+  desc.add<edm::InputTag>("candNonIsolatedTag",edm::InputTag("hltRecoNonIsolatedEcalCandidate"));
+  desc.add<edm::InputTag>("l1NonIsolatedTag",edm::InputTag("l1extraParticles","NonIsolated"));
+  desc.add<edm::InputTag>("L1SeedFilterTag",edm::InputTag("theL1SeedFilter"));
+  desc.add<bool>("AlsoNonIsolatedFirst",false);
+  desc.add<bool>("AlsoNonIsolatedSecond",false);
+  desc.add<double>("region_eta_size",0.522);
+  desc.add<double>("region_eta_size_ecap",1.0);
+  desc.add<double>("region_phi_size",1.044);
+  desc.add<double>("barrel_end",1.4791);
+  desc.add<double>("endcap_end",2.65);
+  descriptions.add("hltEgammaL1MatchFilterPairs",desc);  
+}
+
 
 
 // ------------ method called to produce the data  ------------
@@ -61,9 +84,9 @@ HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup
   std::vector < std::pair< edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> > > thePairs;
   
   edm::Handle<reco::RecoEcalCandidateCollection> recoIsolecalcands;
-  iEvent.getByLabel(candIsolatedTag_,recoIsolecalcands);
+  iEvent.getByToken(candIsolatedToken_,recoIsolecalcands);
   edm::Handle<reco::RecoEcalCandidateCollection> recoNonIsolecalcands;
-  iEvent.getByLabel(candNonIsolatedTag_,recoNonIsolecalcands);
+  iEvent.getByToken(candNonIsolatedToken_,recoNonIsolecalcands);
 
   // create pairs <L1Iso,L1Iso> and optionally <L1Iso, L1NonIso>
    for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand1= recoIsolecalcands->begin(); recoecalcand1!=recoIsolecalcands->end(); recoecalcand1++) {
@@ -108,7 +131,7 @@ HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup
   int n(0);
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> L1SeedOutput;
-  iEvent.getByLabel (L1SeedFilterTag_,L1SeedOutput);
+  iEvent.getByToken (L1SeedFilterToken_,L1SeedOutput);
 
   std::vector<l1extra::L1EmParticleRef > l1EGIso;       
   L1SeedOutput->getObjects(TriggerL1IsoEG, l1EGIso);

@@ -49,7 +49,7 @@ namespace edm {
     virtual void endRun(Run&) override;
     virtual void beginLuminosityBlock(LuminosityBlock&) override;
     virtual void endLuminosityBlock(LuminosityBlock&) override;
-    virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal) override;
+    virtual void readEvent_(EventPrincipal& eventPrincipal) override;
     virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
     virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
     virtual void skip(int offset) override;

@@ -31,7 +31,9 @@ namespace edm {
 
     ObjectWithDict get(std::string const& memberName) const;
 
+#ifndef __GCCXML__
     explicit operator bool() const;
+#endif
 
     template <typename T> T objectCast() {
       return *reinterpret_cast<T*>(address_);

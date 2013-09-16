@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 10:54:22 EST 2008
-// $Id: FWSimpleRepresentationChecker.h,v 1.4 2010/06/02 22:37:42 chrjones Exp $
 //
 
 // system include files

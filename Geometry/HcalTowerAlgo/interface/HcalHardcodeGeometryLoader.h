@@ -12,8 +12,6 @@ class HcalDetId;
  *
  * \note The HE geometry is not currently correct.  The z positions must be corrected.
  *   
- * $Date: 2011/06/04 19:07:18 $
- * $Revision: 1.8 $
  * \author R. Wilkinson - Caltech
 */
 class HcalHardcodeGeometryLoader 

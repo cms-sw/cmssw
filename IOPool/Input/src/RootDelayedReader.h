@@ -39,7 +39,9 @@ namespace edm {
     RootDelayedReader& operator=(RootDelayedReader const&) = delete; // Disallow copying and moving
 
   private:
-    virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const;
+    virtual WrapperOwningHolder getProduct_(BranchKey const& k, 
+                                            WrapperInterfaceBase const* interface,
+                                            EDProductGetter const* ep) const override;
     virtual void mergeReaders_(DelayedReader* other) {nextReader_ = other;}
     virtual void reset_() {nextReader_ = 0;}
     BranchMap const& branches() const {return tree_.branches();}

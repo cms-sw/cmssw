@@ -8,7 +8,6 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Thu Jul 16 11:39:22 CEST 2009
-// $Id: HcalAssistant.cc,v 1.8 2009/11/18 23:02:26 lsexton Exp $
 //
 
 
@@ -19,10 +18,14 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalAssistant.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConnectionManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
-#include "xgi/Utils.h"
-#include "toolbox/string.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
+#ifdef HAVE_XDAQ
+#include <toolbox/string.h>
+#else
+#include "CaloOnlineTools/HcalOnlineDb/interface/xdaq_compat.h"  // Includes typedef for log4cplus::Logger
+#endif
 
 using namespace std;
 using namespace oracle::occi;

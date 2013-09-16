@@ -26,6 +26,7 @@ namespace edm {
 
   class HistoryAppender;
   class ModuleCallingContext;
+  class ProcessHistoryRegistry;
   class RunPrincipal;
   class UnscheduledHandler;
 
@@ -42,7 +43,7 @@ namespace edm {
 
     ~LuminosityBlockPrincipal() {}
 
-    void fillLuminosityBlockPrincipal(DelayedReader* reader = 0);
+    void fillLuminosityBlockPrincipal(ProcessHistoryRegistry& processHistoryRegistry, DelayedReader* reader = 0);
 
     RunPrincipal const& runPrincipal() const {
       return *runPrincipal_;
@@ -110,6 +111,8 @@ namespace edm {
 
     virtual bool unscheduledFill(std::string const&,
                                  ModuleCallingContext const* mcc) const override {return false;}
+
+    virtual unsigned int transitionIndex_() const override;
 
     void resolveProductImmediate(ProductHolderBase const& phb) const;
 

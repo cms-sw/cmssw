@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2007/10/08 12:45:28 $
- *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 

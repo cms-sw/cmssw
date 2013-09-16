@@ -4,12 +4,14 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 HLTCSCOverlapFilter::HLTCSCOverlapFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
      , m_input(iConfig.getParameter<edm::InputTag>("input"))
@@ -24,6 +26,7 @@ HLTCSCOverlapFilter::HLTCSCOverlapFilter(const edm::ParameterSet& iConfig) : HLT
      , m_ydiff(0)
      , m_pairsWithWindowCut(0)
 {
+   cscrechitsToken = consumes<CSCRecHit2DCollection>(m_input);
    if (m_fillHists) {
       edm::Service<TFileService> tfile;
       m_nhitsNoWindowCut = tfile->make<TH1F>("nhitsNoWindowCut", "nhitsNoWindowCut", 16, -0.5, 15.5);
@@ -35,9 +38,23 @@ HLTCSCOverlapFilter::HLTCSCOverlapFilter(const edm::ParameterSet& iConfig) : HLT
 
 HLTCSCOverlapFilter::~HLTCSCOverlapFilter() { }
 
+void
+HLTCSCOverlapFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("input",edm::InputTag("hltCsc2DRecHits"));
+  desc.add<unsigned int>("minHits",4);
+  desc.add<double>("xWindow",1000.);
+  desc.add<double>("yWindow",1000.);
+  desc.add<bool>("ring1",true);
+  desc.add<bool>("ring2",false);
+  desc.add<bool>("fillHists",false);
+  descriptions.add("hltCSCOverlapFilter",desc);
+}
+
 bool HLTCSCOverlapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
    edm::Handle<CSCRecHit2DCollection> hits;
-   iEvent.getByLabel(m_input, hits);
+   iEvent.getByToken(cscrechitsToken, hits);
 
    edm::ESHandle<CSCGeometry> cscGeometry;
    bool got_cscGeometry = false;

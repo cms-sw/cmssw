@@ -4,8 +4,6 @@
 /** \class ProduceFakeDB
  *  Class which produce fake DB of ttrig,t0,vdrift
  *
- *  $Date: 2007/03/28 17:05:12 $
- *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 

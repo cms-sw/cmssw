@@ -30,6 +30,7 @@
 namespace edm {
 
   class ModuleCallingContext;
+  class PreallocationConfiguration;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -45,7 +46,6 @@ namespace edm {
       template <typename T> friend class edm::maker::ModuleHolderT;
       
       typedef EDAnalyzerBase ModuleType;
-      typedef WorkerT<EDAnalyzerBase> WorkerType;
 
       
       EDAnalyzerBase();
@@ -65,6 +65,7 @@ namespace edm {
     private:
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
                    ModuleCallingContext const*);
+      void doPreallocate(PreallocationConfiguration const&) {}
       void doBeginJob();
       void doEndJob();
       

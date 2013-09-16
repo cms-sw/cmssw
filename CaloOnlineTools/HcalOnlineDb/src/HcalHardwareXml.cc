@@ -8,7 +8,6 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Feb 25 14:30:20 CDT 2008
-// $Id: HcalHardwareXml.cc,v 1.5 2009/08/16 21:21:21 kukartse Exp $
 
 #include <sstream>
 

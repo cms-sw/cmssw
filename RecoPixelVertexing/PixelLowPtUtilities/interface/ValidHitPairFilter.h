@@ -23,7 +23,7 @@ public:
   ValidHitPairFilter(const edm::ParameterSet& ps, const edm::EventSetup& es);
   virtual ~ValidHitPairFilter();
   virtual bool operator()(const reco::Track * track,
-                          std::vector<const TrackingRecHit *> recHits,
+                          const std::vector<const TrackingRecHit *>& recHits,
 			  const TrackerTopology *tTopo) const;
 
 private:

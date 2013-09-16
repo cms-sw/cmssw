@@ -7,7 +7,6 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: ZeeAnalyzer.cc,v 1.9 2009/12/14 22:22:53 wmtan Exp $
 //
 //
 

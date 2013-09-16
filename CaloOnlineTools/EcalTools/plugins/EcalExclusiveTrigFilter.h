@@ -13,7 +13,6 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Thu May 22 11:40:12 CEST 2008
-// $Id: EcalExclusiveTrigFilter.h,v 1.1 2008/06/04 19:43:52 scooper Exp $
 //
 //
 

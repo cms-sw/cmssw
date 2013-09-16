@@ -8,6 +8,7 @@
  */
 
 // how many of the headers below are not needed?...
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -74,7 +75,6 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 
-//#include "CLHEP/Matrix/DiagMatrix.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Vector/ThreeVector.h"
@@ -131,16 +131,22 @@ public:
   //---- (input) parameters
   //---- Root file name
   std::string rootFileName;
-  //---- digi/object tags
-  edm::InputTag alctDigiTag_;
-  edm::InputTag clctDigiTag_;
-  edm::InputTag corrlctDigiTag_;
-  edm::InputTag stripDigiTag_;
-  edm::InputTag wireDigiTag_;
-  edm::InputTag rechitDigiTag_;
-  edm::InputTag simHitTag;
-  edm::InputTag segmentDigiTag_;
-  edm::InputTag tracksTag;
+
+  //---- digi/object tokens
+
+  edm::EDGetTokenT<CSCWireDigiCollection>          wd_token;
+  edm::EDGetTokenT<CSCStripDigiCollection>         sd_token;
+  edm::EDGetTokenT<CSCALCTDigiCollection>          al_token;
+  edm::EDGetTokenT<CSCCLCTDigiCollection>          cl_token;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> co_token;
+  edm::EDGetTokenT<CSCRecHit2DCollection>          rh_token;
+  edm::EDGetTokenT<CSCSegmentCollection>           se_token;
+
+  edm::EDGetTokenT<edm::View<reco::Track> >        tk_token;
+  edm::EDGetTokenT<edm::PSimHitContainer>               sh_token;
+
+  edm::EDGetTokenT<edm::TriggerResults>            ht_token;
+
   //
   unsigned int printout_NEvents;
   bool isData;
@@ -161,8 +167,6 @@ public:
 
   // trigger
   bool useTrigger;
-  //edm::Handle<edm::TriggerResults> hltR
-  edm::InputTag hlTriggerResults_;  // Input tag for TriggerResults
   std::vector<std::string> myTriggers;
   std::vector <int> pointToTriggers;
   bool andOr; 

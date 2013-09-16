@@ -13,7 +13,6 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Fri May 16 16:09:43 CEST 2008
-// $Id: L1CaloInputScalesProducer.cc,v 1.1 2008/05/30 19:29:27 wsun Exp $
 //
 //
 

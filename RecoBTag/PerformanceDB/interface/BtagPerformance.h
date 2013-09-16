@@ -14,9 +14,9 @@ class BtagPerformance {
 public:
   BtagPerformance(const PerformancePayload& p, const PerformanceWorkingPoint& w) : pl(p), wp(w) {}
 
-  virtual float getResult(PerformanceResult::ResultType, BinningPointByMap) const ;
+  virtual float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const ;
 
-  virtual bool isResultOk(PerformanceResult::ResultType, BinningPointByMap) const ;
+  virtual bool isResultOk(PerformanceResult::ResultType,const BinningPointByMap&) const ;
 
   virtual const PerformancePayload & payload() const { return pl; }
   

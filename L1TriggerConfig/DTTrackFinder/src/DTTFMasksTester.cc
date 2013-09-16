@@ -5,8 +5,6 @@
 //   L1 DT Track Finder Parameters Tester
 //
 //
-//   $Date: 2009/05/04 09:26:10 $
-//   $Revision: 1.1 $
 //
 //   Author :
 //   J. Troconiz              UAM Madrid

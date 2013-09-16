@@ -1,6 +1,5 @@
 /** \class EgammaHLTCaloIsolFilterPairs
  *
- * $Id: HLTEgammaCaloIsolFilterPairs.cc,v 1.1 2008/10/14 14:52:57 ghezzi Exp $
  * 
  *  \author Alessio Ghezzi
  *
@@ -10,8 +9,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
@@ -37,13 +36,39 @@ HLTEgammaCaloIsolFilterPairs::HLTEgammaCaloIsolFilterPairs(const edm::ParameterS
   FracCut_EE2 = iConfig.getParameter<double> ("IsoOverEtCutEE2");
   IsoloEt2_EE2 = iConfig.getParameter<double> ("IsoOverEt2CutEE2");
 
-
   AlsoNonIso_1 = iConfig.getParameter<bool> ("AlsoNonIso1");
   AlsoNonIso_2 = iConfig.getParameter<bool> ("AlsoNonIso2");
+
+  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
+  isoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(isoTag_);
+  if(AlsoNonIso_1 || AlsoNonIso_2) nonIsoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(nonIsoTag_);
 }
 
 HLTEgammaCaloIsolFilterPairs::~HLTEgammaCaloIsolFilterPairs(){}
 
+void 
+HLTEgammaCaloIsolFilterPairs::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+   edm::ParameterSetDescription desc;
+   makeHLTFilterDescription(desc);
+   desc.add<edm::InputTag>("candTag",edm::InputTag(""));
+   desc.add<edm::InputTag>("isoTag",edm::InputTag(""));
+   desc.add<edm::InputTag>("nonIsoTag",edm::InputTag(""));
+   desc.add<double>("isolcutEB1",0.0);
+   desc.add<double>("IsoOverEtCutEB1",0.0);
+   desc.add<double>("IsoOverEt2CutEB1",0.0);
+   desc.add<double>("isolcutEE1",0.0);
+   desc.add<double>("IsoOverEtCutEE1",0.0);
+   desc.add<double>("IsoOverEt2CutEE1",0.0);
+   desc.add<double>("isolcutEB2",0.0);
+   desc.add<double>("IsoOverEtCutEB2",0.0);
+   desc.add<double>("IsoOverEt2CutEB2",0.0);
+   desc.add<double>("isolcutEE2",0.0);
+   desc.add<double>("IsoOverEtCutEE2",0.0);
+   desc.add<double>("IsoOverEt2CutEE2",0.0);
+   desc.add<bool>("AlsoNonIso1",false);
+   desc.add<bool>("AlsoNonIso2",false);
+   descriptions.add("hltEgammaCaloIsolFilterPairs",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -52,18 +77,18 @@ HLTEgammaCaloIsolFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetu
   using namespace trigger;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByLabel (candTag_,PrevFilterOutput);
+  iEvent.getByToken (candToken_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
 
   //get hold of ecal isolation association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
-  iEvent.getByLabel (isoTag_,depMap);
+  iEvent.getByToken (isoToken_,depMap);
   
   //get hold of ecal isolation association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depNonIsoMap;
-  if(AlsoNonIso_1 || AlsoNonIso_2) iEvent.getByLabel (nonIsoTag_,depNonIsoMap);
+  if(AlsoNonIso_1 || AlsoNonIso_2) iEvent.getByToken (nonIsoToken_,depNonIsoMap);
   
 
   int n = 0;
@@ -94,7 +119,7 @@ HLTEgammaCaloIsolFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetu
   return accept;
 }
 
-bool HLTEgammaCaloIsolFilterPairs::PassCaloIsolation(edm::Ref<reco::RecoEcalCandidateCollection> ref,reco::RecoEcalCandidateIsolationMap IsoMap,reco::RecoEcalCandidateIsolationMap NonIsoMap, int which, bool ChekAlsoNonIso){
+bool HLTEgammaCaloIsolFilterPairs::PassCaloIsolation(edm::Ref<reco::RecoEcalCandidateCollection> ref,const reco::RecoEcalCandidateIsolationMap& IsoMap,const reco::RecoEcalCandidateIsolationMap& NonIsoMap, int which, bool ChekAlsoNonIso){
 
   
   reco::RecoEcalCandidateIsolationMap::const_iterator mapi = IsoMap.find( ref );

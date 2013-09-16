@@ -15,7 +15,6 @@ Description: Filter to select events with activity in the muon barrel system
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTDTActivityFilter.cc,v 1.6 2010/07/30 16:41:11 goys Exp $
 //
 //
 
@@ -30,12 +29,8 @@ Description: Filter to select events with activity in the muon barrel system
 #include <memory>
 
 // Fwk header files
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
-#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -91,6 +86,10 @@ HLTDTActivityFilter::HLTDTActivityFilter(const edm::ParameterSet& iConfig) : HLT
   for (;iSec!=eSec;++iSec) 
     if ((*iSec)>0 && (*iSec<15)) activeSecs_.set((*iSec)); 
 
+  inputDCCToken_  = consumes<L1MuDTChambPhContainer>(inputTag_[DCC]);
+  inputDDUToken_  = consumes<DTLocalTriggerCollection>(inputTag_[DDU]);
+  inputRPCToken_  = consumes<L1MuGMTReadoutCollection>(inputTag_[RPC]);
+  inputDigiToken_ = consumes<DTDigiCollection>(inputTag_[DIGI]);
 }
 
 
@@ -98,6 +97,39 @@ HLTDTActivityFilter::~HLTDTActivityFilter() {
 
 }
 
+void
+HLTDTActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputDCC",edm::InputTag("hltDTTFUnpacker"));
+  desc.add<edm::InputTag>("inputDDU",edm::InputTag("hltMuonDTDigis"));
+  desc.add<edm::InputTag>("inputRPC",edm::InputTag("hltGtDigis"));
+  desc.add<edm::InputTag>("inputDigis",edm::InputTag("hltMuonDTDigis"));
+  desc.add<bool>("processDCC",true);
+  desc.add<bool>("processDDU",true);
+  desc.add<bool>("processRPC",true);
+  desc.add<bool>("processDigis",true);
+  desc.add<bool>("orTPG",true);
+  desc.add<bool>("orRPC",true);
+  desc.add<bool>("orDigi",false)->
+    setComment(" # && of trig & digi info");  
+  desc.add<int>("minDCCBX",-1);
+  desc.add<int>("maxDCCBX",1);
+  desc.add<int>("minDDUBX",8);
+  desc.add<int>("maxDDUBX",13);
+  desc.add<int>("minRPCBX",-1);
+  desc.add<int>("maxRPCBX",1);
+  desc.add<int>("minTPGQual",2.)->
+    setComment(" # 0-1=L 2-3=H 4=LL 5=HL 6=HH");
+  desc.add<int>("maxStation",3.);
+  desc.add<int>("minChamberLayers",5);
+  desc.add<int>("minActiveChambs",1);
+  desc.add<double>("MaxDeltaPhi",1.0);
+  desc.add<double>("MaxDeltaEta",0.3);
+  std::vector<int> temp; for (int i=1; i<=12; i++) temp.push_back(i);
+  desc.add<std::vector<int> >("activeSectors", temp);
+  descriptions.add("hltDTActivityFilter",desc);
+}
 
 //
 // member functions
@@ -122,7 +154,7 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   if (process_[DCC]) {
 
     edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
-    iEvent.getByLabel(inputTag_[DCC],l1DTTPGPh);
+    iEvent.getByToken(inputDCCToken_,l1DTTPGPh);
     vector<L1MuDTChambPhDigi>*  phTrigs = l1DTTPGPh->getContainer();
     vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();
     vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();
@@ -149,7 +181,7 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   if (process_[DDU]) {
     
     Handle<DTLocalTriggerCollection> trigsDDU;
-    iEvent.getByLabel(inputTag_[DDU],trigsDDU);
+    iEvent.getByToken(inputDDUToken_,trigsDDU);
     DTLocalTriggerCollection::DigiRangeIterator detUnitIt;
     
     for (detUnitIt=trigsDDU->begin();detUnitIt!=trigsDDU->end();++detUnitIt){
@@ -176,7 +208,7 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   if (process_[DIGI]) {
     
     edm::Handle<DTDigiCollection> dtdigis;
-    iEvent.getByLabel(inputTag_[DIGI], dtdigis);
+    iEvent.getByToken(inputDigiToken_, dtdigis);
     std::map<uint32_t,int> hitMap;
     DTDigiCollection::DigiRangeIterator dtLayerIdIt;
     
@@ -205,7 +237,7 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   if (process_[RPC]) {
 
     edm::Handle<L1MuGMTReadoutCollection> gmtrc; 
-    iEvent.getByLabel(inputTag_[RPC],gmtrc);
+    iEvent.getByToken(inputRPCToken_,gmtrc);
 
     std::vector<L1MuGMTReadoutRecord> gmtrr = gmtrc->getRecords();
     std::vector<L1MuGMTReadoutRecord>::const_iterator recIt  = gmtrr.begin();

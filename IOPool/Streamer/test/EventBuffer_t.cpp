@@ -50,7 +50,7 @@ void Producer::operator()()
       EventBuffer::ProducerBuffer ib(*b_);
       int* v = (int*)ib.buffer();
       *v = i;
-      //cout << "P" << i << std::endl;
+      //std::cout << "P" << i << std::endl;
       ib.commit(sizeof(int));
   }
 

@@ -1,5 +1,6 @@
 #include "FWCore/Framework/src/GlobalSchedule.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Framework/src/TriggerResultInserter.h"
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -15,10 +16,12 @@
 #include <map>
 
 namespace edm {
-  GlobalSchedule::GlobalSchedule(boost::shared_ptr<ModuleRegistry> modReg,
+  GlobalSchedule::GlobalSchedule(TriggerResultInserter* inserter,
+                                 boost::shared_ptr<ModuleRegistry> modReg,
                                  std::vector<std::string> const& iModulesToUse,
                                  ParameterSet& proc_pset,
                                  ProductRegistry& pregistry,
+                                 PreallocationConfiguration const& prealloc,
                                  ExceptionToActionTable const& actions,
                                  boost::shared_ptr<ActivityRegistry> areg,
                                  boost::shared_ptr<ProcessConfiguration> processConfiguration,
@@ -38,7 +41,13 @@ namespace edm {
       assert(isTracked);
       
       //side effect keeps this module around
-      addToAllWorkers(workerManager_.getWorker(*modpset, pregistry, processConfiguration, moduleLabel));
+      addToAllWorkers(workerManager_.getWorker(*modpset, pregistry, &prealloc,processConfiguration, moduleLabel));
+
+    }
+    if(inserter) {
+      results_inserter_.reset(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
+      results_inserter_->setActivityRegistry(actReg_);
+      addToAllWorkers(results_inserter_.get());
     }
 
   } // GlobalSchedule::GlobalSchedule

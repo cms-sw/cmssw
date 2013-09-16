@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Wed Jun  2 17:30:49 CEST 2010
-// $Id: FWFromSliceSelector.cc,v 1.3 2010/06/07 17:54:00 amraktad Exp $
 //
 
 // system include files

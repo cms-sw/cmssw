@@ -8,7 +8,6 @@
 <use   name="DataFormats/Common"/>
 
 <use   name="xerces-c"/>
-<use   name="xdaq"/>
 <use   name="zlib"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="CalibCalorimetry/CaloTPG"/>

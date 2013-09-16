@@ -45,6 +45,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -85,157 +86,6 @@
 
 namespace edm {
 
-  namespace event_processor {
-
-    class StateSentry {
-    public:
-      StateSentry(EventProcessor* ep) : ep_(ep), success_(false) { }
-      ~StateSentry() {if(!success_) ep_->changeState(mException);}
-      void succeeded() {success_ = true;}
-
-    private:
-      EventProcessor* ep_;
-      bool success_;
-    };
-  }
-
-  using namespace event_processor;
-
-  namespace {
-
-    // the next two tables must be kept in sync with the state and
-    // message enums from the header
-
-    char const* stateNames[] = {
-      "Init",
-      "JobReady",
-      "RunGiven",
-      "Running",
-      "Stopping",
-      "ShuttingDown",
-      "Done",
-      "JobEnded",
-      "Error",
-      "ErrorEnded",
-      "End",
-      "Invalid"
-    };
-
-    char const* msgNames[] = {
-      "SetRun",
-      "Skip",
-      "RunAsync",
-      "Run(ID)",
-      "Run(count)",
-      "BeginJob",
-      "StopAsync",
-      "ShutdownAsync",
-      "EndJob",
-      "CountComplete",
-      "InputExhausted",
-      "StopSignal",
-      "ShutdownSignal",
-      "Finished",
-      "Any",
-      "dtor",
-      "Exception",
-      "Rewind"
-    };
-  }
-    // IMPORTANT NOTE:
-    // the mAny messages are special, they must appear last in the
-    // table if multiple entries for a CurrentState are present.
-    // the changeState function does not use the mAny yet!!!
-
-    struct TransEntry {
-      State current;
-      Msg   message;
-      State final;
-    };
-
-    // we should use this information to initialize a two dimensional
-    // table of t[CurrentState][Message] = FinalState
-
-    /*
-      the way this is current written, the async run can thread function
-      can return in the "JobReady" state - but not yet cleaned up.  The
-      problem is that only when stop/shutdown async is called is the
-      thread cleaned up. But the stop/shudown async functions attempt
-      first to change the state using messages that are not valid in
-      "JobReady" state.
-
-      I think most of the problems can be solved by using two states
-      for "running": RunningS and RunningA (sync/async). The problems
-      seems to be the all the transitions out of running for both
-      modes of operation.  The other solution might be to only go to
-      "Stopping" from Running, and use the return code from "run_p" to
-      set the final state.  If this is used, then in the sync mode the
-      "Stopping" state would be momentary.
-
-     */
-
-    TransEntry table[] = {
-    // CurrentState   Message         FinalState
-    // -----------------------------------------
-      { sInit,          mException,      sError },
-      { sInit,          mBeginJob,       sJobReady },
-      { sJobReady,      mException,      sError },
-      { sJobReady,      mSetRun,         sRunGiven },
-      { sJobReady,      mInputRewind,    sRunning },
-      { sJobReady,      mSkip,           sRunning },
-      { sJobReady,      mRunID,          sRunning },
-      { sJobReady,      mRunCount,       sRunning },
-      { sJobReady,      mEndJob,         sJobEnded },
-      { sJobReady,      mBeginJob,       sJobReady },
-      { sJobReady,      mDtor,           sEnd },    // should this be allowed?
-
-      { sJobReady,      mStopAsync,      sJobReady },
-      { sJobReady,      mCountComplete,  sJobReady },
-      { sJobReady,      mFinished,       sJobReady },
-
-      { sRunGiven,      mException,      sError },
-      { sRunGiven,      mRunAsync,       sRunning },
-      { sRunGiven,      mBeginJob,       sRunGiven },
-      { sRunGiven,      mShutdownAsync,  sShuttingDown },
-      { sRunGiven,      mStopAsync,      sStopping },
-      { sRunning,       mException,      sError },
-      { sRunning,       mStopAsync,      sStopping },
-      { sRunning,       mShutdownAsync,  sShuttingDown },
-      { sRunning,       mShutdownSignal, sShuttingDown },
-      { sRunning,       mCountComplete,  sStopping }, // sJobReady
-      { sRunning,       mInputExhausted, sStopping }, // sJobReady
-
-      { sStopping,      mInputRewind,    sRunning }, // The looper needs this
-      { sStopping,      mException,      sError },
-      { sStopping,      mFinished,       sJobReady },
-      { sStopping,      mCountComplete,  sJobReady },
-      { sStopping,      mShutdownSignal, sShuttingDown },
-      { sStopping,      mStopAsync,      sStopping },     // stay
-      { sStopping,      mInputExhausted, sStopping },     // stay
-      //{ sStopping,      mAny,            sJobReady },     // <- ??????
-      { sShuttingDown,  mException,      sError },
-      { sShuttingDown,  mShutdownSignal, sShuttingDown },
-      { sShuttingDown,  mCountComplete,  sDone }, // needed?
-      { sShuttingDown,  mInputExhausted, sDone }, // needed?
-      { sShuttingDown,  mFinished,       sDone },
-      //{ sShuttingDown,  mShutdownAsync,  sShuttingDown }, // only one at
-      //{ sShuttingDown,  mStopAsync,      sShuttingDown }, // a time
-      //{ sShuttingDown,  mAny,            sDone },         // <- ??????
-      { sDone,          mEndJob,         sJobEnded },
-      { sDone,          mException,      sError },
-      { sJobEnded,      mDtor,           sEnd },
-      { sJobEnded,      mException,      sError },
-      { sError,         mEndJob,         sError },   // funny one here
-      { sError,         mDtor,           sError },   // funny one here
-      { sInit,          mDtor,           sEnd },     // for StorM dummy EP
-      { sStopping,      mShutdownAsync,  sShuttingDown }, // For FUEP tests
-      { sInvalid,       mAny,            sInvalid }
-    };
-
-
-    // Note: many of the messages generate the mBeginJob message first
-    //  mRunID, mRunCount, mSetRun
-
   // ---------------------------------------------------------------
   std::unique_ptr<InputSource>
   makeInput(ParameterSet& params,
@@ -243,7 +93,8 @@ namespace edm {
             ProductRegistry& preg,
             boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
             boost::shared_ptr<ActivityRegistry> areg,
-            boost::shared_ptr<ProcessConfiguration const> processConfiguration) {
+            boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+            PreallocationConfiguration const& allocations) {
     ParameterSet* main_input = params.getPSetForUpdate("@main_input");
     if(main_input == 0) {
       throw Exception(errors::Configuration)
@@ -290,7 +141,7 @@ namespace edm {
                          processConfiguration.get(),
                          ModuleDescription::getUniqueID());
 
-    InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_);
+    InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_, allocations);
     areg->preSourceConstructionSignal_(md);
     std::unique_ptr<InputSource> input;
     try {
@@ -362,21 +213,10 @@ namespace edm {
     schedule_(),
     subProcess_(),
     historyAppender_(new HistoryAppender),
-    state_(sInit),
-    event_loop_(),
-    state_lock_(),
-    stop_lock_(),
-    stopper_(),
-    starter_(),
-    stop_count_(-1),
-    last_rc_(epSuccess),
-    last_error_text_(),
-    id_set_(false),
-    event_loop_id_(),
-    my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
     principalCache_(),
+    beginJobCalled_(false),
     shouldWeStop_(false),
     stateMachineWasInErrorState_(false),
     fileMode_(),
@@ -413,21 +253,10 @@ namespace edm {
     schedule_(),
     subProcess_(),
     historyAppender_(new HistoryAppender),
-    state_(sInit),
-    event_loop_(),
-    state_lock_(),
-    stop_lock_(),
-    stopper_(),
-    starter_(),
-    stop_count_(-1),
-    last_rc_(epSuccess),
-    last_error_text_(),
-    id_set_(false),
-    event_loop_id_(),
-    my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
     principalCache_(),
+    beginJobCalled_(false),
     shouldWeStop_(false),
     stateMachineWasInErrorState_(false),
     fileMode_(),
@@ -442,7 +271,10 @@ namespace edm {
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1),
     setCpuAffinity_(false),
-    eventSetupDataToExcludeFromPrefetching_() {
+  asyncStopRequestedWhileProcessingEvents_(false),
+  nextItemTypeFromProcessingEvents_(InputSource::IsEvent),
+    eventSetupDataToExcludeFromPrefetching_()
+  {
     boost::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
     boost::shared_ptr<ProcessDesc> processDesc(new ProcessDesc(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
@@ -464,21 +296,10 @@ namespace edm {
     schedule_(),
     subProcess_(),
     historyAppender_(new HistoryAppender),
-    state_(sInit),
-    event_loop_(),
-    state_lock_(),
-    stop_lock_(),
-    stopper_(),
-    starter_(),
-    stop_count_(-1),
-    last_rc_(epSuccess),
-    last_error_text_(),
-    id_set_(false),
-    event_loop_id_(),
-    my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
     principalCache_(),
+    beginJobCalled_(false),
     shouldWeStop_(false),
     stateMachineWasInErrorState_(false),
     fileMode_(),
@@ -493,7 +314,10 @@ namespace edm {
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1),
     setCpuAffinity_(false),
-    eventSetupDataToExcludeFromPrefetching_() {
+    asyncStopRequestedWhileProcessingEvents_(false),
+    nextItemTypeFromProcessingEvents_(InputSource::IsEvent),
+    eventSetupDataToExcludeFromPrefetching_()
+  {
     init(processDesc, token, legacy);
   }
 
@@ -511,21 +335,10 @@ namespace edm {
     schedule_(),
     subProcess_(),
     historyAppender_(new HistoryAppender),
-    state_(sInit),
-    event_loop_(),
-    state_lock_(),
-    stop_lock_(),
-    stopper_(),
-    starter_(),
-    stop_count_(-1),
-    last_rc_(epSuccess),
-    last_error_text_(),
-    id_set_(false),
-    event_loop_id_(),
-    my_sig_num_(getSigNum()),
     fb_(),
     looper_(),
     principalCache_(),
+    beginJobCalled_(false),
     shouldWeStop_(false),
     stateMachineWasInErrorState_(false),
     fileMode_(),
@@ -540,7 +353,10 @@ namespace edm {
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1),
     setCpuAffinity_(false),
-    eventSetupDataToExcludeFromPrefetching_() {
+    asyncStopRequestedWhileProcessingEvents_(false),
+    nextItemTypeFromProcessingEvents_(InputSource::IsEvent),
+    eventSetupDataToExcludeFromPrefetching_()
+{
     if(isPython) {
       boost::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
       boost::shared_ptr<ProcessDesc> processDesc(new ProcessDesc(parameterSet));
@@ -580,24 +396,33 @@ namespace edm {
     unsigned int nThreads=1;
     if(optionsPset.existsAs<unsigned int>("numberOfThreads",false)) {
       nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfThreads");
+      if(nThreads == 0) {
+        nThreads = 1;
+      }
     }
+    /* TODO: when we support having each stream run in a different thread use this default
+    unsigned int nStreams =nThreads;
+     */
     unsigned int nStreams =1;
-    /*
     if(optionsPset.existsAs<unsigned int>("numberOfStreams",false)) {
-      nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfStreams");
+      nStreams = optionsPset.getUntrackedParameter<unsigned int>("numberOfStreams");
+      if(nStreams==0) {
+        nStreams = nThreads;
+      }
     }
+    /*
     bool nRunsSet = false;
      */
     unsigned int nConcurrentRuns =1;
     /*
     if(nRunsSet = optionsPset.existsAs<unsigned int>("numberOfConcurrentRuns",false)) {
-    nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
+    nConcurrentRuns = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
     }
      */
     unsigned int nConcurrentLumis =1;
     /*
     if(optionsPset.existsAs<unsigned int>("numberOfConcurrentLuminosityBlocks",false)) {
-    nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
+    nConcurrentLumis = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
     } else {
       nConcurrentLumis = nConcurrentRuns;
     }
@@ -614,8 +439,6 @@ namespace edm {
       //bad
     }
      */
-    preallocations_ = PreallocationConfiguration(nThreads,nStreams,nConcurrentLumis,nConcurrentRuns);
-    
     //forking
     ParameterSet const& forking = optionsPset.getUntrackedParameterSet("multiProcesses", ParameterSet());
     numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
@@ -654,10 +477,17 @@ namespace edm {
     if(looper_) {
       looper_->setActionTable(items.act_table_.get());
       looper_->attachTo(*items.actReg_);
+
+      //For now loopers make us run only 1 transition at a time
+      nStreams=1;
+      nConcurrentLumis=1;
+      nConcurrentRuns=1;
     }
+    
+    preallocations_ = PreallocationConfiguration{nThreads,nStreams,nConcurrentLumis,nConcurrentRuns};
 
     // initialize the input source
-    input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_);
+    input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_, preallocations_);
 
     // intialize the Schedule
     schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get(),preallocations_,&processContext_);
@@ -669,20 +499,33 @@ namespace edm {
     branchIDListHelper_ = items.branchIDListHelper_;
     processConfiguration_ = items.processConfiguration_;
     processContext_.setProcessConfiguration(processConfiguration_.get());
+    principalCache_.setProcessHistoryRegistry(input_->processHistoryRegistry());
 
     FDEBUG(2) << parameterSet << std::endl;
 
-    // Reusable event principal
-    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_,
-                                                            branchIDListHelper_,
-                                                            *processConfiguration_,
-                                                            historyAppender_.get(),
-                                                            StreamID{0}));
-    principalCache_.insert(ep);
-      
+    principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
+    for(unsigned int index = 0; index<preallocations_.numberOfStreams(); ++index ) {
+      // Reusable event principal
+      boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_,
+                                                              branchIDListHelper_,
+                                                              *processConfiguration_,
+                                                              historyAppender_.get(),
+                                                              index));
+      principalCache_.insert(ep);
+    }
     // initialize the subprocess, if there is one
     if(subProcessParameterSet) {
-      subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, branchIDListHelper_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides, preallocations_, &processContext_));
+      subProcess_.reset(new SubProcess(*subProcessParameterSet,
+                                       *parameterSet,
+                                       preg_,
+                                       input_->processHistoryRegistryForUpdate(),
+                                       branchIDListHelper_,
+                                       *espController_,
+                                       *actReg_,
+                                       token,
+                                       serviceregistry::kConfigurationOverrides,
+                                       preallocations_,
+                                       &processContext_));
     }
   }
 
@@ -690,13 +533,6 @@ namespace edm {
     // Make the services available while everything is being deleted.
     ServiceToken token = getToken();
     ServiceRegistry::Operate op(token);
-    try {
-      changeState(mDtor);
-    }
-    catch(cms::Exception& e) {
-      LogError("System")
-        << e.explainSelf() << "\n";
-    }
 
     // manually destroy all these thing that may need the services around
     espController_.reset();
@@ -712,20 +548,22 @@ namespace edm {
     psetRegistry->extraForUpdate().setID(ParameterSetID());
 
     ParentageRegistry::instance()->dataForUpdate().clear();
-    ProcessHistoryRegistry::instance()->dataForUpdate().clear();
   }
 
   void
   EventProcessor::beginJob() {
-    if(state_ != sInit) return;
+    if(beginJobCalled_) return;
+    beginJobCalled_=true;
     bk::beginJob();
-    // can only be run if in the initial state
-    changeState(mBeginJob);
 
     // StateSentry toerror(this); // should we add this ?
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
+    service::SystemBounds bounds(preallocations_.numberOfStreams(),
+                                 preallocations_.numberOfLuminosityBlocks(),
+                                 preallocations_.numberOfRuns());
+    actReg_->preallocateSignal_(bounds);
     //NOTE:  This implementation assumes 'Job' means one call
     // the EventProcessor::run
     // If it really means once per 'application' then this code will
@@ -770,9 +608,6 @@ namespace edm {
   EventProcessor::endJob() {
     // Collects exceptions, so we don't throw before all operations are performed.
     ExceptionCollector c("Multiple exceptions were thrown while executing endJob. An exception message follows for each.\n");
-
-    // only allowed to run if state is sIdle, sJobReady, sRunGiven
-    c.call(boost::bind(&EventProcessor::changeState, this, mEndJob));
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -1369,266 +1204,6 @@ namespace edm {
     schedule_->clearCounters();
   }
 
-  char const* EventProcessor::currentStateName() const {
-    return stateName(getState());
-  }
-
-  char const* EventProcessor::stateName(State s) const {
-    return stateNames[s];
-  }
-
-  char const* EventProcessor::msgName(Msg m) const {
-    return msgNames[m];
-  }
-
-  State EventProcessor::getState() const {
-    return state_;
-  }
-
-  EventProcessor::StatusCode EventProcessor::statusAsync() const {
-    // the thread will record exception/error status in the event processor
-    // for us to look at and report here
-    return last_rc_;
-  }
-
-  void
-  EventProcessor::setRunNumber(RunNumber_t runNumber) {
-    if(runNumber == 0) {
-      runNumber = 1;
-      LogWarning("Invalid Run")
-        << "EventProcessor::setRunNumber was called with an invalid run number (nullptr)\n"
-        << "Run number was set to 1 instead\n";
-    }
-
-    // inside of beginJob there is a check to see if it has been called before
-    beginJob();
-    changeState(mSetRun);
-
-    // interface not correct yet
-    input_->setRunNumber(runNumber);
-  }
-
-  void
-  EventProcessor::declareRunNumber(RunNumber_t /*runNumber*/) {
-    // inside of beginJob there is a check to see if it has been called before
-    beginJob();
-    changeState(mSetRun);
-
-    // interface not correct yet - wait for Bill to be done with run/lumi loop stuff 21-Jun-2007
-    //input_->declareRunNumber(runNumber);
-  }
-
-  EventProcessor::StatusCode
-  EventProcessor::waitForAsyncCompletion(unsigned int timeout_seconds) {
-    bool rc = true;
-    boost::xtime timeout;
-
-#if BOOST_VERSION >= 105000
-    boost::xtime_get(&timeout, boost::TIME_UTC_);
-#else
-    boost::xtime_get(&timeout, boost::TIME_UTC);
-#endif
-    timeout.sec += timeout_seconds;
-
-    // make sure to include a timeout here so we don't wait forever
-    // I suspect there are still timing issues with thread startup
-    // and the setting of the various control variables (stop_count, id_set)
-    {
-      boost::mutex::scoped_lock sl(stop_lock_);
-
-      // look here - if runAsync not active, just return the last return code
-      if(stop_count_ < 0) return last_rc_;
-
-      if(timeout_seconds == 0) {
-        while(stop_count_ == 0) stopper_.wait(sl);
-      } else {
-        while(stop_count_ == 0 && (rc = stopper_.timed_wait(sl, timeout)) == true);
-      }
-
-      if(rc == false) {
-          // timeout occurred
-          // if(id_set_) pthread_kill(event_loop_id_, my_sig_num_);
-          // this is a temporary hack until we get the input source
-          // upgraded to allow blocking input sources to be unblocked
-
-          // the next line is dangerous and causes all sorts of trouble
-          if(id_set_) pthread_cancel(event_loop_id_);
-
-          // we will not do anything yet
-          LogWarning("timeout")
-            << "An asynchronous request was made to shut down "
-            << "the event loop "
-            << "and the event loop did not shutdown after "
-            << timeout_seconds << " seconds\n";
-      } else {
-          event_loop_->join();
-          event_loop_.reset();
-          id_set_ = false;
-          stop_count_ = -1;
-      }
-    }
-    return rc == false ? epTimedOut : last_rc_;
-  }
-
-  EventProcessor::StatusCode
-  EventProcessor::waitTillDoneAsync(unsigned int timeout_value_secs) {
-    StatusCode rc = waitForAsyncCompletion(timeout_value_secs);
-    if(rc != epTimedOut) changeState(mCountComplete);
-    else errorState();
-    return rc;
-  }
-
-
-  EventProcessor::StatusCode EventProcessor::stopAsync(unsigned int secs) {
-    changeState(mStopAsync);
-    StatusCode rc = waitForAsyncCompletion(secs);
-    if(rc != epTimedOut) changeState(mFinished);
-    else errorState();
-    return rc;
-  }
-
-  EventProcessor::StatusCode EventProcessor::shutdownAsync(unsigned int secs) {
-    changeState(mShutdownAsync);
-    StatusCode rc = waitForAsyncCompletion(secs);
-    if(rc != epTimedOut) changeState(mFinished);
-    else errorState();
-    return rc;
-  }
-
-  void EventProcessor::errorState() {
-    state_ = sError;
-  }
-
-  // next function irrelevant now
-  EventProcessor::StatusCode EventProcessor::doneAsync(Msg m) {
-    // make sure to include a timeout here so we don't wait forever
-    // I suspect there are still timing issues with thread startup
-    // and the setting of the various control variables (stop_count, id_set)
-    changeState(m);
-    return waitForAsyncCompletion(60*2);
-  }
-
-  void EventProcessor::changeState(Msg msg) {
-    // most likely need to serialize access to this routine
-
-    boost::mutex::scoped_lock sl(state_lock_);
-    State curr = state_;
-    int rc;
-    // found if(not end of table) and
-    // (state == table.state && (msg == table.message || msg == any))
-    for(rc = 0;
-        table[rc].current != sInvalid &&
-          (curr != table[rc].current ||
-           (curr == table[rc].current &&
-             msg != table[rc].message && table[rc].message != mAny));
-        ++rc);
-
-    if(table[rc].current == sInvalid)
-      throw cms::Exception("BadState")
-        << "A member function of EventProcessor has been called in an"
-        << " inappropriate order.\n"
-        << "Bad transition from " << stateName(curr) << " "
-        << "using message " << msgName(msg) << "\n"
-        << "No where to go from here.\n";
-
-    FDEBUG(1) << "changeState: current=" << stateName(curr)
-              << ", message=" << msgName(msg)
-              << " -> new=" << stateName(table[rc].final) << "\n";
-
-    state_ = table[rc].final;
-  }
-
-  void EventProcessor::runAsync() {
-    beginJob();
-    {
-      boost::mutex::scoped_lock sl(stop_lock_);
-      if(id_set_ == true) {
-          std::string err("runAsync called while async event loop already running\n");
-          LogError("FwkJob") << err;
-          throw cms::Exception("BadState") << err;
-      }
-
-      changeState(mRunAsync);
-
-      stop_count_ = 0;
-      last_rc_ = epSuccess; // forget the last value!
-      event_loop_.reset(new boost::thread(boost::bind(EventProcessor::asyncRun, this)));
-      boost::xtime timeout;
-#if BOOST_VERSION >= 105000
-      boost::xtime_get(&timeout, boost::TIME_UTC_);
-#else
-      boost::xtime_get(&timeout, boost::TIME_UTC);
-#endif
-      timeout.sec += 60; // 60 seconds to start!!!!
-      if(starter_.timed_wait(sl, timeout) == false) {
-          // yikes - the thread did not start
-          throw cms::Exception("BadState")
-            << "Async run thread did not start in 60 seconds\n";
-      }
-    }
-  }
-
-  void EventProcessor::asyncRun(EventProcessor* me) {
-    // set up signals to allow for interruptions
-    // ignore all other signals
-    // make sure no exceptions escape out
-
-    // temporary hack until we modify the input source to allow
-    // wakeup calls from other threads.  This mimics the solution
-    // in EventFilter/Processor, which I do not like.
-    // allowing cancels means that the thread just disappears at
-    // certain points.  This is bad for C++ stack variables.
-    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
-    //pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, 0);
-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
-
-    {
-      boost::mutex::scoped_lock sl(me->stop_lock_);
-      me->event_loop_id_ = pthread_self();
-      me->id_set_ = true;
-      me->starter_.notify_all();
-    }
-
-    Status rc = epException;
-    FDEBUG(2) << "asyncRun starting ......................\n";
-
-    try {
-      bool onlineStateTransitions = true;
-      rc = me->runToCompletion(onlineStateTransitions);
-    }
-    catch (cms::Exception& e) {
-      LogError("FwkJob") << "cms::Exception caught in "
-                         << "EventProcessor::asyncRun"
-                         << "\n"
-                         << e.explainSelf();
-      me->last_error_text_ = e.explainSelf();
-    }
-    catch (std::exception& e) {
-      LogError("FwkJob") << "Standard library exception caught in "
-                         << "EventProcessor::asyncRun"
-                         << "\n"
-                         << e.what();
-      me->last_error_text_ = e.what();
-    }
-    catch (...) {
-      LogError("FwkJob") << "Unknown exception caught in "
-                         << "EventProcessor::asyncRun"
-                         << "\n";
-      me->last_error_text_ = "Unknown exception caught";
-      rc = epOther;
-    }
-
-    me->last_rc_ = rc;
-
-    {
-      // notify anyone waiting for exit that we are doing so now
-      boost::mutex::scoped_lock sl(me->stop_lock_);
-      ++me->stop_count_;
-      me->stopper_.notify_all();
-    }
-    FDEBUG(2) << "asyncRun ending ......................\n";
-  }
 
   std::auto_ptr<statemachine::Machine>
   EventProcessor::createStateMachine() {
@@ -1661,18 +1236,27 @@ namespace edm {
     return machine;
   }
 
+  bool
+  EventProcessor::checkForAsyncStopRequest(StatusCode& returnCode) {
+    bool returnValue = false;
+    
+    // Look for a shutdown signal
+    if(shutdown_flag.load(std::memory_order_relaxed)) {
+      returnValue = true;
+      returnCode = epSignal;
+    }
+    return returnValue;
+  }
+
 
   EventProcessor::StatusCode
-  EventProcessor::runToCompletion(bool onlineStateTransitions) {
-
-    StateSentry toerror(this);
+  EventProcessor::runToCompletion() {
 
     StatusCode returnCode=epSuccess;
+    asyncStopStatusCodeFromProcessingEvents_=epSuccess;
     std::auto_ptr<statemachine::Machine> machine;
     {
       beginJob(); //make sure this was called
-      
-      if(!onlineStateTransitions) changeState(mRunCount);
       
       //StatusCode returnCode = epSuccess;
       stateMachineWasInErrorState_ = false;
@@ -1681,6 +1265,8 @@ namespace edm {
       ServiceRegistry::Operate operate(serviceToken_);
 
       machine = createStateMachine();
+      nextItemTypeFromProcessingEvents_=InputSource::IsEvent;
+      asyncStopRequestedWhileProcessingEvents_=false;
       try {
         try {
           
@@ -1696,49 +1282,35 @@ namespace edm {
                 if(size < preg_->size()) {
                   principalCache_.adjustIndexesAfterProductRegistryAddition();
                 }
-                principalCache_.adjustEventToNewProductRegistry(preg_);
+                principalCache_.adjustEventsToNewProductRegistry(preg_);
               }
             } 
             itemType = (more ? input_->nextItemType() : InputSource::IsStop);
             
             FDEBUG(1) << "itemType = " << itemType << "\n";
             
-            // These are used for asynchronous running only and
-            // and are checking to see if stopAsync or shutdownAsync
-            // were called from another thread.  In the future, we
-            // may need to do something better than polling the state.
-            // With the current code this is the simplest thing and
-            // it should always work.  If the interaction between
-            // threads becomes more complex this may cause problems.
-            if(state_ == sStopping) {
-              FDEBUG(1) << "In main processing loop, encountered sStopping state\n";
-              forceLooperToEnd_ = true;
-              machine->process_event(statemachine::Stop());
-              forceLooperToEnd_ = false;
-              break;
-            }
-            else if(state_ == sShuttingDown) {
-              FDEBUG(1) << "In main processing loop, encountered sShuttingDown state\n";
+            if(checkForAsyncStopRequest(returnCode)) {
               forceLooperToEnd_ = true;
               machine->process_event(statemachine::Stop());
               forceLooperToEnd_ = false;
               break;
             }
             
-            // Look for a shutdown signal
-            {
-              boost::mutex::scoped_lock sl(usr2_lock);
-              if(shutdown_flag) {
-                changeState(mShutdownSignal);
-                returnCode = epSignal;
+            if(itemType == InputSource::IsEvent) {
+              machine->process_event(statemachine::Event());
+              if(asyncStopRequestedWhileProcessingEvents_) {
                 forceLooperToEnd_ = true;
                 machine->process_event(statemachine::Stop());
                 forceLooperToEnd_ = false;
+                returnCode = asyncStopStatusCodeFromProcessingEvents_;
                 break;
               }
+              itemType = nextItemTypeFromProcessingEvents_;
             }
             
-            if(itemType == InputSource::IsStop) {
+            if(itemType == InputSource::IsEvent) {
+            }
+            else if(itemType == InputSource::IsStop) {
               machine->process_event(statemachine::Stop());
             }
             else if(itemType == InputSource::IsFile) {
@@ -1750,8 +1322,8 @@ namespace edm {
             else if(itemType == InputSource::IsLumi) {
               machine->process_event(statemachine::Lumi(input_->luminosityBlock()));
             }
-            else if(itemType == InputSource::IsEvent) {
-              machine->process_event(statemachine::Event());
+            else if(itemType == InputSource::IsSynchronize) {
+              //For now, we don't have to do anything
             }
             // This should be impossible
             else {
@@ -1759,9 +1331,7 @@ namespace edm {
               << "Unknown next item type passed to EventProcessor\n"
               << "Please report this error to the Framework group\n";
             }
-            
             if(machine->terminated()) {
-              changeState(mInputExhausted);
               break;
             }
           }  // End of loop over state machine events
@@ -1848,8 +1418,6 @@ namespace edm {
         machine.reset();
       }
       
-      if(!onlineStateTransitions) changeState(mFinished);
-      
       if(stateMachineWasInErrorState_) {
         throw cms::Exception("BadState")
         << "The boost state machine in the EventProcessor exited after\n"
@@ -1864,8 +1432,6 @@ namespace edm {
         << "Please report this error to the Framework group\n";
     }
 
-    toerror.succeeded();
-
     return returnCode;
   }
 
@@ -1876,7 +1442,7 @@ namespace edm {
     if(size < preg_->size()) {
       principalCache_.adjustIndexesAfterProductRegistryAddition();
     }
-    principalCache_.adjustEventToNewProductRegistry(preg_);
+    principalCache_.adjustEventsToNewProductRegistry(preg_);
     if(numberOfForkedChildren_ > 0) {
         fb_->setNotFastClonable(FileBlock::ParallelProcesses);
     }
@@ -2122,45 +1688,57 @@ namespace edm {
     }
   }
 
-  statemachine::Run EventProcessor::readAndCacheRun() {
+  statemachine::Run EventProcessor::readRun() {
     if (principalCache_.hasRunPrincipal()) {
       throw edm::Exception(edm::errors::LogicError)
-        << "EventProcessor::readAndCacheRun\n"
+        << "EventProcessor::readRun\n"
         << "Illegal attempt to insert run into cache\n"
         << "Contact a Framework Developer\n";
     }
-    principalCache_.insert(input_->readAndCacheRun(*historyAppender_));
+    boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(input_->runAuxiliary(),
+                                                        preg_,
+                                                        *processConfiguration_,
+                                                        historyAppender_.get(),
+                                                        0));
+    input_->readRun(*rp, *historyAppender_);
+    principalCache_.insert(rp);
     return statemachine::Run(input_->reducedProcessHistoryID(), input_->run());
   }
 
   statemachine::Run EventProcessor::readAndMergeRun() {
     principalCache_.merge(input_->runAuxiliary(), preg_);
-    input_->readAndMergeRun(principalCache_.runPrincipalPtr());
+    input_->readAndMergeRun(*principalCache_.runPrincipalPtr());
     return statemachine::Run(input_->reducedProcessHistoryID(), input_->run());
   }
 
-  int EventProcessor::readAndCacheLumi() {
+  int EventProcessor::readLuminosityBlock() {
     if (principalCache_.hasLumiPrincipal()) {
       throw edm::Exception(edm::errors::LogicError)
-        << "EventProcessor::readAndCacheRun\n"
+        << "EventProcessor::readRun\n"
         << "Illegal attempt to insert lumi into cache\n"
         << "Contact a Framework Developer\n";
     }
     if (!principalCache_.hasRunPrincipal()) {
       throw edm::Exception(edm::errors::LogicError)
-        << "EventProcessor::readAndCacheRun\n"
+        << "EventProcessor::readRun\n"
         << "Illegal attempt to insert lumi into cache\n"
         << "Run is invalid\n"
         << "Contact a Framework Developer\n";
     }
-    principalCache_.insert(input_->readAndCacheLumi(*historyAppender_));
-    principalCache_.lumiPrincipalPtr()->setRunPrincipal(principalCache_.runPrincipalPtr());
+    boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(input_->luminosityBlockAuxiliary(),
+                                                                                 preg_,
+                                                                                 *processConfiguration_,
+                                                                                 historyAppender_.get(),
+                                                                                 0));
+    input_->readLuminosityBlock(*lbp, *historyAppender_);
+    lbp->setRunPrincipal(principalCache_.runPrincipalPtr());
+    principalCache_.insert(lbp);
     return input_->luminosityBlock();
   }
 
   int EventProcessor::readAndMergeLumi() {
     principalCache_.merge(input_->luminosityBlockAuxiliary(), preg_);
-    input_->readAndMergeLumi(principalCache_.lumiPrincipalPtr());
+    input_->readAndMergeLumi(*principalCache_.lumiPrincipalPtr());
     return input_->luminosityBlock();
   }
 
@@ -2189,27 +1767,61 @@ namespace edm {
   }
 
   void EventProcessor::readAndProcessEvent() {
+    if(numberOfForkedChildren_>0) {
+      readEvent(0);
+      processEvent(0);
+      return;
+    }
+    InputSource::ItemType itemType = InputSource::IsEvent;
+
+    //While all the following item types are isEvent, process them right here
+    asyncStopRequestedWhileProcessingEvents_ = false;
+    
+    //We will round-robin which stream to use
+    unsigned int nextStreamIndex=0;
+    const unsigned int kNumStreams = preallocations_.numberOfStreams();
+    do {
+      readEvent(nextStreamIndex);
+      processEvent(nextStreamIndex);
+      nextStreamIndex = (nextStreamIndex+1) % kNumStreams;
+      
+      if(shouldWeStop()) {
+        break;
+      }
+      itemType = input_->nextItemType();
+      if((asyncStopRequestedWhileProcessingEvents_=checkForAsyncStopRequest(asyncStopStatusCodeFromProcessingEvents_))) {
+        break;
+      }
+    } while (itemType == InputSource::IsEvent);
+    nextItemTypeFromProcessingEvents_ = itemType;
+  }
+  void EventProcessor::readEvent(unsigned int iStreamIndex) {
     //TODO this will have to become per stream
-    StreamContext streamContext(StreamID{0}, &processContext_);
-    EventPrincipal *pep = input_->readEvent(principalCache_.eventPrincipal(), &streamContext);
+    auto& event = principalCache_.eventPrincipal(iStreamIndex);
+    StreamContext streamContext(event.streamID(), &processContext_);
+    input_->readEvent(event, &streamContext);
     FDEBUG(1) << "\treadEvent\n";
-    assert(pep != 0);
+  }
+  void EventProcessor::processEvent(unsigned int iStreamIndex) {
+    auto pep = &(principalCache_.eventPrincipal(iStreamIndex));
     pep->setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     assert(pep->luminosityBlockPrincipalPtrValid());
     assert(principalCache_.lumiPrincipalPtr()->run() == pep->run());
     assert(principalCache_.lumiPrincipalPtr()->luminosityBlock() == pep->luminosityBlock());
 
-    IOVSyncValue ts(pep->id(), pep->time());
-    espController_->eventSetupForInstance(ts);
+    //We can only update IOVs on Lumi boundaries
+    //IOVSyncValue ts(pep->id(), pep->time());
+    //espController_->eventSetupForInstance(ts);
     EventSetup const& es = esp_->eventSetup();
     {
       typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
-      schedule_->processOneEvent<Traits>(0,*pep, es);
+      schedule_->processOneEvent<Traits>(iStreamIndex,*pep, es);
       if(hasSubProcess()) {
-        subProcess_->doEvent(*pep, ts);
+        subProcess_->doEvent(*pep);
       }
     }
 
+    //NOTE: If we have a looper we only have one Stream
     if(looper_) {
       bool randomAccess = input_->randomAccess();
       ProcessingController::ForwardState forwardState = input_->forwardState();
@@ -2219,7 +1831,7 @@ namespace edm {
       EDLooperBase::Status status = EDLooperBase::kContinue;
       do {
 
-        StreamContext streamContext(StreamID{0}, &processContext_);
+        StreamContext streamContext(pep->streamID(), &processContext_);
         status = looper_->doDuringLoop(*pep, esp_->eventSetup(), pc, &streamContext);
 
         bool succeeded = true;

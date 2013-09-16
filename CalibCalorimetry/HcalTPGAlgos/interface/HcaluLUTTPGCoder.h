@@ -23,8 +23,6 @@ class HcalDbService;
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2012/08/28 13:47:23 $
-  * $Revision: 1.22 $
   * \author M. Weinberger -- TAMU
   * \author Tulika Bose and Greg Landsberg -- Brown
   */

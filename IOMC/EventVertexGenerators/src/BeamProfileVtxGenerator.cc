@@ -1,5 +1,4 @@
 
-// $Id: BeamProfileVtxGenerator.cc,v 1.11 2009/08/29 00:12:38 sunanda Exp $
 
 #include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"

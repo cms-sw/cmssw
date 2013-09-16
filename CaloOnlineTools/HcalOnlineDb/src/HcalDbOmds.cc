@@ -2,7 +2,6 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.20 2010/08/06 20:24:12 wmtan Exp $
 //
 #include <vector>
 #include <string>
@@ -17,6 +16,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalDbOmds.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
+
+#ifdef HAVE_XDAQ
+#include "toolbox/string.h"
+#else
+#include "CaloOnlineTools/HcalOnlineDb/interface/xdaq_compat.h"  // Replaces toolbox::toString
+#endif
 
 typedef oracle::occi::ResultSet ResultSet;
 typedef oracle::occi::SQLException SQLException;

@@ -13,7 +13,6 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: HcalTPGCoderULUT.cc,v 1.11 2012/08/28 13:49:26 yana Exp $
 //
 //
 

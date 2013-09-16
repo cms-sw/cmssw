@@ -28,15 +28,15 @@ class TxCalculator
 {
   public:
   
-   TxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel) ;
+   TxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::InputTag& trackLabel) ;
   
-   double getTx(const reco::Photon clus, double i,double threshold, double innerDR=0,double effRatio=2);
-   double getCTx(const reco::Photon clus, double i,double threshold, double innerDR=0, double effRatio=2);
+   double getTx(const reco::Photon& clus, double i,double threshold, double innerDR=0,double effRatio=2);
+   double getCTx(const reco::Photon& clus, double i,double threshold, double innerDR=0, double effRatio=2);
    double getMPT(double ptCut=0, double etaCut=1000);
 
    double getJurassicArea( double r1, double r2, double width) ;
-   double getJt(const reco::Photon cluster, double r1=0.4, double r2=0.04, double jWidth=0.015, double threshold=2);
-   double getJct(const reco::Photon cluster, double r1=0.4, double r2=0.04, double jWidth=0.015, double threshold=2);
+   double getJt(const reco::Photon& cluster, double r1=0.4, double r2=0.04, double jWidth=0.015, double threshold=2);
+   double getJct(const reco::Photon& cluster, double r1=0.4, double r2=0.04, double jWidth=0.015, double threshold=2);
    
  private:
    

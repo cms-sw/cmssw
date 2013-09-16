@@ -29,6 +29,7 @@ class CSC01;				typedef CSC01 RuleCSC01; typedef CSC01 CSC01ROOT;
 class AllContentAlongDiagonal;		typedef AllContentAlongDiagonal RuleAllContentAlongDiagonal; typedef AllContentAlongDiagonal AllContentAlongDiagonalROOT;
 class CompareToMedian;                  typedef CompareToMedian CompareToMedianROOT;
 class CompareLastFilledBin;             typedef CompareLastFilledBin CompareLastFilledBinROOT;
+class CheckVariance;                    typedef CheckVariance CheckVarianceROOT;
 
 /** Base class for quality tests run on Monitoring Elements;
 
@@ -708,5 +709,17 @@ protected:
   int result;
 };
 #endif
-
+//==================== CheckVariance =========================//
+//== Check the variance of a TProfile//
+class CheckVariance : public SimpleTest
+{
+ public:
+  CheckVariance(const std::string &name) : SimpleTest(name)
+    {
+      setAlgoName(getAlgoName());
+    }
+    /// get algorithm name
+    static std::string getAlgoName(void) { return "CheckVariance"; }
+    float runTest(const MonitorElement *me) ;
+};
 #endif // DQMSERVICES_CORE_Q_CRITERION_H

@@ -1,4 +1,3 @@
-// Last commit: $Id: ConstantsForGranularity.h,v 1.4 2007/06/29 10:12:42 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForGranularity_H
 #define DataFormats_SiStripCommon_ConstantsForGranularity_H

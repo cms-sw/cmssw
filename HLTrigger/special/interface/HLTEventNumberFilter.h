@@ -15,7 +15,6 @@ Implementation:
 //
 // Original Author:  Martin Grunewald
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTEventNumberFilter.h,v 1.1 2009/06/24 14:30:01 gruen Exp $
 //
 //
 
@@ -24,21 +23,26 @@ Implementation:
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 
 #include <string>
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 //
 // class declaration
 //
 
-class HLTEventNumberFilter : public HLTFilter {
+class HLTEventNumberFilter : public edm::EDFilter {
 public:
   explicit HLTEventNumberFilter(const edm::ParameterSet&);
-  virtual ~HLTEventNumberFilter();
+  ~HLTEventNumberFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
   
   // ----------member data ---------------------------
 

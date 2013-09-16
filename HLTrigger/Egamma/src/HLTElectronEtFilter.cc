@@ -9,8 +9,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
@@ -34,11 +34,24 @@ HLTElectronEtFilter::HLTElectronEtFilter(const edm::ParameterSet& iConfig) : HLT
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
+
+  candToken_ =  consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
 }
 
 HLTElectronEtFilter::~HLTElectronEtFilter(){}
 
+void
+HLTElectronEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("candTag",edm::InputTag("hltElectronPixelMatchFilter"));
+  desc.add<double>("EtCutEB",0.0);
+  desc.add<double>("EtCutEE",0.0);
+  desc.add<int>("ncandcut",1);
+  desc.add<bool>("doIsolated",true);
+  descriptions.add("hltElectronEtFilter",desc);  
+}
 
 // ------------ method called to produce the data  ------------
 bool HLTElectronEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
@@ -53,8 +66,7 @@ bool HLTElectronEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   reco::ElectronRef ref;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-
-  iEvent.getByLabel (candTag_,PrevFilterOutput);
+  iEvent.getByToken (candToken_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::ElectronCollection> > elecands;
   PrevFilterOutput->getObjects(TriggerElectron, elecands);

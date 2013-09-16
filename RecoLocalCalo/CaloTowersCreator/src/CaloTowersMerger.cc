@@ -48,7 +48,7 @@ class CaloTowersMerger : public edm::EDProducer {
       explicit CaloTowersMerger(const edm::ParameterSet&);
       ~CaloTowersMerger();
 
-  CaloTower mergedTower(CaloTower t1, CaloTower t2);
+  CaloTower mergedTower(const CaloTower& t1, const CaloTower& t2);
 
    private:
       virtual void beginJob() override ;
@@ -185,7 +185,7 @@ CaloTowersMerger::endJob() {
 // This functionlaity it to be used only for testing the effects 
 // of rejected bad hits.
 
-CaloTower CaloTowersMerger::mergedTower(const CaloTower rt, const CaloTower et) {
+CaloTower CaloTowersMerger::mergedTower(const CaloTower& rt, const CaloTower& et) {
 
   double newOuterE = 0;
 

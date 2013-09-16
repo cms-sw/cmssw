@@ -8,7 +8,6 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Jun  2 17:39:44 CEST 2010
-// $Id: FWHFTowerSliceSelector.cc,v 1.8 2010/08/23 15:26:23 yana Exp $
 //
 
 // system include files

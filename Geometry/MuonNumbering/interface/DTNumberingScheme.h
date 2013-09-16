@@ -6,8 +6,6 @@
  * implementation of MuonNumberingScheme for muon barrel,
  * converts the MuonBaseNumber to a unit id
  *  
- *  $Date: 2007/09/13 12:33:10 $
- *  $Revision: 1.6 $
  * \author Arno Straessner, CERN <arno.straessner@cern.ch>
  *
  */
@@ -26,9 +24,9 @@ class DTNumberingScheme : public MuonNumberingScheme {
   DTNumberingScheme( const MuonDDDConstants& muonConstants );
   ~DTNumberingScheme(){}
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber num);
+  virtual int baseNumberToUnitNumber(const MuonBaseNumber& num);
 
-  int getDetId(const MuonBaseNumber num) const;
+  int getDetId(const MuonBaseNumber& num) const;
   
  private:
 

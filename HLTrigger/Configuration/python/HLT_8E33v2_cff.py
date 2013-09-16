@@ -1,10 +1,10 @@
-# /online/collisions/2012/8e33/v2.2/HLT/V5 (CMSSW_6_2_0_pre6_HLT2)
+# /online/collisions/2012/8e33/v2.3/HLT/V2 (CMSSW_6_2_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v2.2/HLT/V5')
+  tableName = cms.string('/online/collisions/2012/8e33/v2.3/HLT/V2')
 )
 
 streams = cms.PSet( 
@@ -15463,8 +15463,8 @@ hltJpsiTkPixelSeedFromL3Candidate = cms.EDProducer( "SeedGeneratorFromRegionHits
         deltaEtaRegion = cms.double( 0.5 ),
         deltaPhiRegion = cms.double( 0.5 ),
         TrkSrc = cms.InputTag( "hltL3Muons" ),
-        vertexSrc = cms.string( "hltDisplacedmumuVtxProducerDoubleMu4Jpsi" ),
-        UseVtxTks = cms.bool( True )
+        UseVtxTks = cms.bool( True ),
+        vertexSrc = cms.InputTag( "hltDisplacedmumuVtxProducerDoubleMu4Jpsi" )
       )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -16917,10 +16917,10 @@ hltRegionalPixelTracks = cms.EDProducer( "PixelTrackProducer",
         originHalfLength = cms.double( 15.0 ),
         ptMin = cms.double( 0.5 ),
         deltaEtaRegion = cms.double( 0.5 ),
-        vertexSrc = cms.string( "hltDisplacedmumuVtxProducerDoubleMuTau2Mu" ),
         UseVtxTks = cms.bool( False ),
         originRadius = cms.double( 1.0 ),
-        vertexZDefault = cms.double( 0.0 )
+        vertexZDefault = cms.double( 0.0 ),
+        vertexSrc = cms.InputTag( "hltDisplacedmumuVtxProducerDoubleMuTau2Mu" )
       )
     ),
     CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
@@ -17059,7 +17059,7 @@ hltIter1Tau3MuPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProduce
         searchOpt = cms.bool( True ),
         UseVtxTks = cms.bool( True ),
         originRadius = cms.double( 1.0 ),
-        vertexSrc = cms.string( "hltDisplacedmumuVtxProducerDoubleMuTau2Mu" )
+        vertexSrc = cms.InputTag( "hltDisplacedmumuVtxProducerDoubleMuTau2Mu" )
       )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -17246,7 +17246,6 @@ hltIter2Tau3MuPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProduce
       ComponentName = cms.string( "L3MumuTrackingRegion" ),
       RegionPSet = cms.PSet( 
         deltaPhiRegion = cms.double( 0.5 ),
-        vertexSrc = cms.string( "hltDisplacedmumuVtxProducerDoubleMuTau2Mu" ),
         TrkSrc = cms.InputTag( "hltL3Muons" ),
         originHalfLength = cms.double( 1.0 ),
         measurementTrackerName = cms.string( "hltIter2Tau3MuESPMeasurementTracker" ),
@@ -17255,7 +17254,8 @@ hltIter2Tau3MuPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProduce
         searchOpt = cms.bool( True ),
         UseVtxTks = cms.bool( True ),
         originRadius = cms.double( 15.0 ),
-        ptMin = cms.double( 0.5 )
+        ptMin = cms.double( 0.5 ),
+        vertexSrc = cms.InputTag( "hltDisplacedmumuVtxProducerDoubleMuTau2Mu" )
       )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -17383,7 +17383,6 @@ hltIter3Tau3MuMixedSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProduce
       ComponentName = cms.string( "L3MumuTrackingRegion" ),
       RegionPSet = cms.PSet( 
         deltaPhiRegion = cms.double( 0.5 ),
-        vertexSrc = cms.string( "hltDisplacedmumuVtxProducerDoubleMuTau2Mu" ),
         TrkSrc = cms.InputTag( "hltL3Muons" ),
         originHalfLength = cms.double( 15.0 ),
         measurementTrackerName = cms.string( "hltIter3Tau3MuESPMeasurementTracker" ),
@@ -17392,7 +17391,8 @@ hltIter3Tau3MuMixedSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProduce
         searchOpt = cms.bool( True ),
         UseVtxTks = cms.bool( True ),
         originRadius = cms.double( 1.0 ),
-        ptMin = cms.double( 0.5 )
+        ptMin = cms.double( 0.5 ),
+        vertexSrc = cms.InputTag( "hltDisplacedmumuVtxProducerDoubleMuTau2Mu" )
       )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -17579,7 +17579,6 @@ hltIter4Tau3MuPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDPro
       ComponentName = cms.string( "L3MumuTrackingRegion" ),
       RegionPSet = cms.PSet( 
         deltaPhiRegion = cms.double( 0.5 ),
-        vertexSrc = cms.string( "hltDisplacedmumuVtxProducerDoubleMuTau2Mu" ),
         TrkSrc = cms.InputTag( "hltL3Muons" ),
         originHalfLength = cms.double( 1.0 ),
         measurementTrackerName = cms.string( "hltIter4Tau3MuESPMeasurementTracker" ),
@@ -17588,7 +17587,8 @@ hltIter4Tau3MuPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDPro
         searchOpt = cms.bool( True ),
         UseVtxTks = cms.bool( True ),
         originRadius = cms.double( 15.0 ),
-        ptMin = cms.double( 0.5 )
+        ptMin = cms.double( 0.5 ),
+        vertexSrc = cms.InputTag( "hltDisplacedmumuVtxProducerDoubleMuTau2Mu" )
       )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),

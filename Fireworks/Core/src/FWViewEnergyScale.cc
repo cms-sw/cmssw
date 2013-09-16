@@ -8,7 +8,6 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jun 18 20:37:44 CEST 2010
-// $Id: FWViewEnergyScale.cc,v 1.9 2010/11/26 20:24:48 amraktad Exp $
 //
 
 #include <stdexcept>

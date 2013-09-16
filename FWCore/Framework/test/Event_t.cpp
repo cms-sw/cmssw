@@ -157,6 +157,7 @@ class testEvent: public CppUnit::TestFixture {
   typedef modCache_t::iterator iterator_t;
 
   modCache_t moduleDescriptions_;
+  ProcessHistoryRegistry processHistoryRegistry_;
   std::vector<boost::shared_ptr<ProcessConfiguration> > processConfigurations_;
   HistoryAppender historyAppender_;
 };
@@ -237,6 +238,7 @@ testEvent::testEvent() :
   currentEvent_(),
   currentModuleDescription_(),
   moduleDescriptions_(),
+  processHistoryRegistry_(),
   processConfigurations_() {
 
   typedef edmtest::IntProduct prod_t;
@@ -338,7 +340,7 @@ void testEvent::setUp() {
   processHistory->push_back(processEarly);
   processHistory->push_back(processLate);
 
-  ProcessHistoryRegistry::instance()->insertMapped(ph);
+  processHistoryRegistry_.registerProcessHistory(ph);
 
   ProcessHistoryID processHistoryID = ph.id();
 
@@ -370,7 +372,7 @@ void testEvent::setUp() {
   EventAuxiliary eventAux(id, uuid, time, true);
   const_cast<ProcessHistoryID &>(eventAux.processHistoryID()) = processHistoryID;
   principal_.reset(new edm::EventPrincipal(preg, branchIDListHelper_, pc, &historyAppender_,edm::StreamID::invalidStreamID()));
-  principal_->fillEventPrincipal(eventAux);
+  principal_->fillEventPrincipal(eventAux, processHistoryRegistry_);
   principal_->setLuminosityBlockPrincipal(lbp);
   ModuleCallingContext mcc(currentModuleDescription_.get());
   currentEvent_.reset(new Event(*principal_, *currentModuleDescription_, &mcc));

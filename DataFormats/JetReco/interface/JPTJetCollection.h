@@ -1,5 +1,4 @@
 // F.R.
-// $Id: JPTJetCollection.h,v 1.7 2007/08/24 17:35:23 fedor Exp $
 #ifndef JetReco_JPTJetCollection_h
 #define JetReco_JPTJetCollection_h
 

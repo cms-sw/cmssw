@@ -13,7 +13,6 @@
 //
 // Author:      
 // Created:     Sun Jun 24 16:53:34 CEST 2007
-// $Id: KinematicResolutionRcd.h,v 1.1.2.1 2009/04/30 09:11:45 gpetrucc Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

@@ -5,17 +5,17 @@
 #include <sstream>
 #include <iostream>
 
-#include "DataFormats/MuonReco/interface/Muon.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
-
-CSCSharesInputTest::CSCSharesInputTest(const edm::ParameterSet &myConfig):
-cscRecHitTag_(myConfig.getParameter<edm::InputTag>("CSCRecHitCollection")),
-muonTag_(myConfig.getParameter<edm::InputTag>("MuonCollection"))
+CSCSharesInputTest::CSCSharesInputTest(const edm::ParameterSet &myConfig)
 {
+
+  rh_token = consumes<CSCRecHit2DCollection>(myConfig.getParameter<edm::InputTag>("CSCRecHitCollection"));
+  mu_token = consumes<edm::View<reco::Muon> >(myConfig.getParameter<edm::InputTag>("MuonCollection"));
 
 	// Set up plots, ntuples
 	edm::Service<TFileService> rootFile;
@@ -40,11 +40,12 @@ void CSCSharesInputTest::analyze(const edm::Event &myEvent, const edm::EventSetu
   ++counts_["Events"]; // presuming default init of int elem to zero
 	
 	edm::Handle< edm::View<reco::Muon> > muonHandle;
-	myEvent.getByLabel(muonTag_, muonHandle);
+	myEvent.getByToken(mu_token, muonHandle);
+
 	edm::View<reco::Muon> muons = *muonHandle;
 	
 	edm::Handle<CSCRecHit2DCollection> recHits;
-	myEvent.getByLabel(cscRecHitTag_, recHits);
+	myEvent.getByToken(rh_token, recHits);
 	
 	// Muons:RecHits:TrackingRecHits:AllMatchedRecHits:SomeMatchedRecHits:AllWiresMatchedRecHits:SomeWiresMatchedRecHits:AllStripsMatchedRecHits:SomeStripsMatchedRecHits:NotMatchedRecHits
 	float perEventData[10] = {0,0,0,0,0,0,0,0,0,0};

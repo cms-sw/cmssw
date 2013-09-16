@@ -58,18 +58,21 @@ namespace edm {
   class ProcessContext;
   class PreallocationConfiguration;
   class ModuleRegistry;
+  class TriggerResultInserter;
   
   class GlobalSchedule {
   public:
     typedef std::vector<std::string> vstring;
     typedef std::vector<Worker*> AllWorkers;
-
+    typedef boost::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> Workers;
 
-    GlobalSchedule(boost::shared_ptr<ModuleRegistry> modReg,
+    GlobalSchedule(TriggerResultInserter* inserter,
+                   boost::shared_ptr<ModuleRegistry> modReg,
                    std::vector<std::string> const& modulesToUse,
                    ParameterSet& proc_pset,
                    ProductRegistry& pregistry,
+                   PreallocationConfiguration const& prealloc,
                    ExceptionToActionTable const& actions,
                    boost::shared_ptr<ActivityRegistry> areg,
                    boost::shared_ptr<ProcessConfiguration> processConfiguration,
@@ -120,10 +123,12 @@ namespace edm {
     
     void addToAllWorkers(Worker* w);
     
-    WorkerManager            workerManager_;
-    boost::shared_ptr<ActivityRegistry>           actReg_;
+    WorkerManager                         workerManager_;
+    boost::shared_ptr<ActivityRegistry>   actReg_;
+    WorkerPtr                             results_inserter_;
 
-    ProcessContext const*          processContext_;
+
+    ProcessContext const*                 processContext_;
   };
 
 

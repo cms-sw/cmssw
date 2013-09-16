@@ -42,7 +42,7 @@ class CFWriter : public edm::EDProducer
   virtual void put(edm::Event &e) {;}
 
  private:
-  inline PCrossingFrame<SimTrack> fctTest (PCrossingFrame<SimTrack> p){ return p; std::cout << " call PCrossingFrame object" << std::endl;};
+  inline PCrossingFrame<SimTrack> fctTest (const PCrossingFrame<SimTrack>& p){ return p; std::cout << " call PCrossingFrame object" << std::endl;};
 
   virtual void branchesActivate(const std::string &friendlyName, std::string subdet,InputTag &tag,std::string &label);
   std::vector<std::string> wantedBranches_;

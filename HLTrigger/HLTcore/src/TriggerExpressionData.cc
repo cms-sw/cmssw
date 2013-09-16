@@ -32,6 +32,20 @@ const T * get(const edm::Event & event, const edm::InputTag & tag) {
   }
 }
 
+template <typename T>
+static 
+const T * get(const edm::Event & event, const edm::EDGetTokenT<T> & token) {
+  edm::Handle<T> handle;
+  event.getByToken(token, handle);
+  if (not handle.isValid()) {
+    boost::shared_ptr<cms::Exception> const & error = handle.whyFailed();
+    edm::LogWarning(error->category()) << error->what();
+    return 0;
+  } else {
+    return handle.product();
+  }
+}
+
 template <typename R, typename T>
 static
 const T * get(const edm::EventSetup & setup) {
@@ -48,7 +62,11 @@ bool Data::setEvent(const edm::Event & event, const edm::EventSetup & setup) {
   // access L1 objects only if L1 is used
   if (not m_l1tResultsTag.label().empty()) {
     // cache the L1 GT results objects
-    m_l1tResults = get<L1GlobalTriggerReadoutRecord>(event, m_l1tResultsTag);
+    if (m_l1tResultsToken.isUnitialized()) {
+      m_l1tResults = get<L1GlobalTriggerReadoutRecord>(event, m_l1tResultsTag);
+    } else {
+      m_l1tResults = get<L1GlobalTriggerReadoutRecord>(event, m_l1tResultsToken);
+    }
     if (not m_l1tResults)
       return false;
 
@@ -71,7 +89,11 @@ bool Data::setEvent(const edm::Event & event, const edm::EventSetup & setup) {
   // access HLT objects only if HLT is used
   if (not m_hltResultsTag.label().empty()) {
     // cache the HLT TriggerResults
-    m_hltResults = get<edm::TriggerResults>(event, m_hltResultsTag);
+    if (m_hltResultsToken.isUnitialized()) {
+      m_hltResults = get<edm::TriggerResults>(event, m_hltResultsTag);
+    } else {
+      m_hltResults = get<edm::TriggerResults>(event, m_hltResultsToken);
+    }
     if (not m_hltResults)
       return false;
 

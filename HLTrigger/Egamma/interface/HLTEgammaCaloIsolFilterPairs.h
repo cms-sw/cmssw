@@ -9,6 +9,8 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
@@ -19,17 +21,25 @@
 // class decleration
 //
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class HLTEgammaCaloIsolFilterPairs : public HLTFilter {
 
    public:
       explicit HLTEgammaCaloIsolFilterPairs(const edm::ParameterSet&);
       ~HLTEgammaCaloIsolFilterPairs();
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       edm::InputTag candTag_; // input tag identifying product contains filtered egammas
       edm::InputTag isoTag_; // input tag identifying product contains ecal isolation map
       edm::InputTag nonIsoTag_; // input tag identifying product contains ecal isolation map
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
+      edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> isoToken_;
+      edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> nonIsoToken_;
 
       double isolcut_EB1; 
       double FracCut_EB1;
@@ -47,7 +57,7 @@ class HLTEgammaCaloIsolFilterPairs : public HLTFilter {
 
    
       bool AlsoNonIso_1,AlsoNonIso_2;
-    bool PassCaloIsolation(edm::Ref<reco::RecoEcalCandidateCollection> ref,reco::RecoEcalCandidateIsolationMap IsoMap,reco::RecoEcalCandidateIsolationMap NonIsoMap, int which, bool ChekAlsoNonIso);
+    bool PassCaloIsolation(edm::Ref<reco::RecoEcalCandidateCollection> ref,const reco::RecoEcalCandidateIsolationMap& IsoMap,const reco::RecoEcalCandidateIsolationMap& NonIsoMap, int which, bool ChekAlsoNonIso);
 };
 
 #endif //HLTEgammaCaloIsolFilterPairs_h

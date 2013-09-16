@@ -41,7 +41,6 @@
  * ...
  * 3 4 5
  *
- * $Id $
  *
  */
 
@@ -100,7 +99,7 @@ template <typename T>
     public:
 
     Combinatoric(const value_iter& begin, const indices_collection& indices,
-        indices_collection combo, bool done):
+        const indices_collection& combo, bool done):
       begin_(begin), combo_(combo.begin(), combo.end()),
       comboSet_(combo.begin(), combo.end()),
       indices_(indices),

@@ -2,8 +2,6 @@
  *
  * See header file for documentation
  *
- *  $Date: 2013/02/28 09:07:08 $
- *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -18,6 +16,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
@@ -42,6 +41,7 @@ HLTPrescaleRecorder::HLTPrescaleRecorder(const edm::ParameterSet& ps) :
   condDB_(ps.getParameter<bool>("condDB")),
   psetName_(ps.getParameter<string>("psetName")),
   hltInputTag_(ps.getParameter<InputTag>("hltInputTag")),
+  hltInputToken_(),
   hltDBTag_(ps.getParameter<string>("hltDBTag")),
   ps_(0),
   db_(0),
@@ -49,6 +49,16 @@ HLTPrescaleRecorder::HLTPrescaleRecorder(const edm::ParameterSet& ps) :
   hltESHandle_(),
   hlt_()
 {
+  if (src_==1) {
+    // Run
+    hltInputToken_=consumes<trigger::HLTPrescaleTable,edm::InRun>(hltInputTag_);
+  } else if (src_==2) {
+    // Lumi
+    hltInputToken_=consumes<trigger::HLTPrescaleTable,edm::InLumi>(hltInputTag_);
+  } else if (src_==3) {
+    // Event
+    hltInputToken_=consumes<trigger::HLTPrescaleTable>(hltInputTag_);
+  }
 
   LogInfo("HLTPrescaleRecorder")
     << "src:run-lumi-event-condDB+psetName+tags: "
@@ -81,6 +91,27 @@ HLTPrescaleRecorder::~HLTPrescaleRecorder()
 //
 // member functions
 //
+
+void HLTPrescaleRecorder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  //  # (single) source:
+  //  # -1:PrescaleServicePSet, 0:PrescaleService,
+  //  #  1:Run, 2:Lumi, 3:Event, 4:CondDB    
+  desc.add<int>("src",0);
+  //  # (multiple) destinations
+  desc.add<bool>("run",true);
+  desc.add<bool>("lumi",true);
+  desc.add<bool>("event",true);
+  desc.add<bool>("condDB",true);
+  //  # src=-1
+  desc.add<std::string>("psetName","");
+  //  # src= 1,2,3
+  desc.add<edm::InputTag>("hltInputTag",edm::InputTag("","",""));
+  //  # src= 4
+  desc.add<std::string>("hltDBTag","");
+  //
+  descriptions.add("hltPrescaleRecorder", desc);
+}
 
 void HLTPrescaleRecorder::beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup) {
 
@@ -120,7 +151,7 @@ void HLTPrescaleRecorder::beginRun(edm::Run const& iRun, const edm::EventSetup& 
     }
   } else if (src_==1) {
     /// From Run Block
-    if (iRun.getByLabel(hltInputTag_,hltHandle_)) {
+    if (iRun.getByToken(hltInputToken_,hltHandle_)) {
       hlt_=*hltHandle_;
     } else {
       LogError("HLTPrescaleRecorder")<<"HLTPrescaleTable not found in Run!";
@@ -148,7 +179,7 @@ void HLTPrescaleRecorder::beginLuminosityBlock(edm::LuminosityBlock const& iLumi
     }
   } else if (src_==2) {
     /// From Lumi Block
-    if (iLumi.getByLabel(hltInputTag_,hltHandle_)) {
+    if (iLumi.getByToken(hltInputToken_,hltHandle_)) {
       hlt_=*hltHandle_;
     } else {
       hlt_=HLTPrescaleTable();
@@ -163,7 +194,7 @@ void HLTPrescaleRecorder::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   if (src_==3) {
     /// From Event Block
-    if (iEvent.getByLabel(hltInputTag_,hltHandle_)) {
+    if (iEvent.getByToken(hltInputToken_,hltHandle_)) {
       hlt_=*hltHandle_;
     } else {
       hlt_=HLTPrescaleTable();

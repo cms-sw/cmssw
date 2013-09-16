@@ -1,6 +1,5 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalTextCalibrations.h,v 1.14 2011/06/24 22:15:53 temple Exp $
 //
 //
 #include <map>

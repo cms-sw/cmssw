@@ -14,7 +14,6 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalBxOrbitNumberGrapher.h,v 1.1 2008/12/12 02:34:36 scooper Exp $
 //
 //
 

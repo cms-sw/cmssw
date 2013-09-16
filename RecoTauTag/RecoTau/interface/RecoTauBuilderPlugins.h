@@ -27,7 +27,6 @@
  *
  * to retrieve the current event if necessary.
  *
- * $Id $
  *
  */
 

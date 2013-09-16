@@ -17,7 +17,7 @@ public:
   TrackingParticleSelector(){}
   TrackingParticleSelector ( double ptMin,double minRapidity,double maxRapidity,
 			     double tip,double lip,int minHit, bool signalOnly, bool chargedOnly, bool stableOnly,
-			     std::vector<int> pdgId = std::vector<int>()) :
+			     const std::vector<int>& pdgId = std::vector<int>()) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
     tip_( tip ), lip_( lip ), minHit_( minHit ), signalOnly_(signalOnly), chargedOnly_(chargedOnly), stableOnly_(stableOnly), pdgId_( pdgId ) { }
   

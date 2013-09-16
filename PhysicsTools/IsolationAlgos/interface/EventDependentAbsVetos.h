@@ -9,7 +9,7 @@ namespace reco {
     class OtherCandidatesDeltaRVeto : public EventDependentAbsVeto {
       public:
           //! Create a veto specifying the input collection of the candidates, and the deltaR
-          OtherCandidatesDeltaRVeto(const edm::InputTag candidates, double deltaR) :
+          OtherCandidatesDeltaRVeto(const edm::InputTag& candidates, double deltaR) :
             src_(candidates), deltaR2_(deltaR*deltaR) { }
    
           // Virtual destructor (should always be there) 
@@ -34,7 +34,7 @@ namespace reco {
     class OtherCandVeto : public EventDependentAbsVeto {
       public:
           //! Create a veto specifying the input collection of the candidates, and the deltaR
-          OtherCandVeto(const edm::InputTag candidates, AbsVeto *veto) :
+          OtherCandVeto(const edm::InputTag& candidates, AbsVeto *veto) :
             src_(candidates), veto_(veto) { }
    
           // Virtual destructor (should always be there) 

@@ -16,7 +16,6 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 15:43:14 EDT 2006
-// $Id: SiStripElectron.h,v 1.14 2008/11/03 17:33:44 nancy Exp $
 //
 
 // system include files

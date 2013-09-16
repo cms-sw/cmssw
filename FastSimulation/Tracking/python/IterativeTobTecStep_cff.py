@@ -26,6 +26,16 @@ iterativeTobTecSeeds.originHalfLength = [30.0] # was 10.0
 iterativeTobTecSeeds.originpTMin = [0.6] # was 0.5
 iterativeTobTecSeeds.zVertexConstraint = [-1.0]
 iterativeTobTecSeeds.primaryVertices = ['none']
+# new (AG)
+iterativeTobTecSeeds.newSyntax = False
+iterativeTobTecSeeds.layerList = ['TOB1+TOB2', 
+                                  'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
+                                  'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 
+                                  'TEC3_pos+TEC4_pos', 'TEC4_pos+TEC5_pos', 
+                                  'TEC5_pos+TEC6_pos', 'TEC6_pos+TEC7_pos', 
+                                  'TEC1_neg+TEC2_neg', 'TEC2_neg+TEC3_neg', 
+                                  'TEC3_neg+TEC4_neg', 'TEC4_neg+TEC5_neg', 
+                                  'TEC5_neg+TEC6_neg', 'TEC6_neg+TEC7_neg']
 
 # candidate producer
 #from FastSimulation.Tracking.IterativeFifthCandidateProducer_cff import *

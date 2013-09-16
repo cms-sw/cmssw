@@ -16,7 +16,6 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Jun  2 19:21:13 CEST 2010
-// $Id: FWHFTowerSliceSelector.h,v 1.2 2010/06/03 14:48:22 amraktad Exp $
 //
 
 // system include files

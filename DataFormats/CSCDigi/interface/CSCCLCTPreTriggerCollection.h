@@ -4,8 +4,6 @@
 /** \class CSCCLCTPreTriggerCollection
  *  ED
  *
- *  $Date: 2005/11/17 13:04:59 $
- *  $Revision: 1.1 $
  *  \author Rick Wilkinson
  */
 

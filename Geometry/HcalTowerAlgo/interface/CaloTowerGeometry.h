@@ -4,15 +4,12 @@
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-//#include "CondFormats/AlignmentRecord/interface/CaloTowerAlignmentRcd.h"
 #include "Geometry/Records/interface/CaloTowerGeometryRecord.h"
 
 /** \class CaloTowerGeometry
   *  
   * Only DetId::Calo, subdet=1 DetIds are handled by this class.
   *
-  * $Date: 2011/05/29 18:40:09 $
-  * $Revision: 1.6 $
   * \author J. Mans - Minnesota
   */
 class CaloTowerGeometry : public CaloSubdetectorGeometry 

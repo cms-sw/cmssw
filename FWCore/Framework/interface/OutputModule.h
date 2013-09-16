@@ -13,7 +13,7 @@ output stream.
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/Selections.h"
+#include "DataFormats/Provenance/interface/SelectedProducts.h"
 
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -31,6 +31,7 @@ output stream.
 namespace edm {
 
   class ModuleCallingContext;
+  class PreallocationConfiguration;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -44,7 +45,6 @@ namespace edm {
     template <typename T> friend class WorkerT;
     template <typename T> friend class OutputModuleCommunicatorT;
     typedef OutputModule ModuleType;
-    typedef WorkerT<OutputModule> WorkerType;
 
     explicit OutputModule(ParameterSet const& pset);
     virtual ~OutputModule();
@@ -64,7 +64,7 @@ namespace edm {
 
     void selectProducts(ProductRegistry const& preg);
     std::string const& processName() const {return process_name_;}
-    SelectionsArray const& keptProducts() const {return keptProducts_;}
+    SelectedProductsForBranchType const& keptProducts() const {return keptProducts_;}
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
     static void fillDescription(ParameterSetDescription & desc);
@@ -91,6 +91,8 @@ namespace edm {
     }
 
     ParameterSetID selectorConfig() const { return selector_config_id_; }
+
+    void doPreallocate(PreallocationConfiguration const&) {}
 
     void doBeginJob();
     void doEndJob();
@@ -138,7 +140,7 @@ namespace edm {
     // the branches we are to write.
     //
     // We do not own the BranchDescriptions to which we point.
-    SelectionsArray keptProducts_;
+    SelectedProductsForBranchType keptProducts_;
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
     std::string process_name_;

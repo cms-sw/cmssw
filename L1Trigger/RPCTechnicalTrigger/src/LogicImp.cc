@@ -1,4 +1,3 @@
-// $Id: LogicImp.cc,v 1.3 2009/06/17 15:27:24 aosorio Exp $
 // Include files 
 
 // local

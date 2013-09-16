@@ -7,8 +7,6 @@
  *   studies
  *
  *
- *   $Date: 2008/09/06 11:59:42 $
- *   $Revision: 1.12 $
  *
  *   \author C. Battilana
  */

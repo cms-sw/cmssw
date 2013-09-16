@@ -2,8 +2,6 @@
  *
  *  DQM monitoring source for PF muons
  *
- *  $Date: 2013/06/17 09:17:17 $
- *  $Revision: 1.2 $
  *  \author C. Battilana - CIEMAT
  */
 //Base class

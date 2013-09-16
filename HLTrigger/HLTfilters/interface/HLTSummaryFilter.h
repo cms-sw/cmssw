@@ -9,8 +9,6 @@
  *  for objects in the TriggerSummaryAOD product, allowing to cut on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2009/09/25 13:04:00 $
- *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *

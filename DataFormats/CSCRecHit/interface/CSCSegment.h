@@ -6,7 +6,6 @@
  *  This is 4-dimensional since it has an origin (x,y) and a direction (x,y)
  *  in the local coordinate system of the chamber.
  *
- *  $Date: 2012/04/30 08:32:35 $
  *  \author Matteo Sani
  *  \author Rick Wilkinson
  *  \author Tim Cox

@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripFecCabling.h,v 1.17 2007/05/24 15:16:56 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_SiStripFecCabling_H
 #define CalibFormats_SiStripObjects_SiStripFecCabling_H

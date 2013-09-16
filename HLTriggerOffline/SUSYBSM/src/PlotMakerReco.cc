@@ -22,7 +22,7 @@ using namespace reco;
 using namespace std;
 using namespace l1extra;
 
-PlotMakerReco::PlotMakerReco(edm::ParameterSet PlotMakerRecoInput)
+PlotMakerReco::PlotMakerReco(const edm::ParameterSet& PlotMakerRecoInput)
 {
   m_electronSrc  	 = PlotMakerRecoInput.getParameter<string>("electrons");
   m_muonSrc    	 	 = PlotMakerRecoInput.getParameter<string>("muons");

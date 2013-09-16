@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:14:58 EST 2008
-// $Id: FWItemValueGetter.h,v 1.7 2012/08/03 18:20:27 wmtan Exp $
 //
 
 #include <string>

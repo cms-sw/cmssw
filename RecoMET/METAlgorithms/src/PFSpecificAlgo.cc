@@ -16,7 +16,7 @@
 using namespace reco;
 
 //____________________________________________________________________________||
-reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandidates, CommonMETData met)
+reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandidates, const CommonMETData& met)
 {
   SpecificPFMETData specific = mkSpecificPFMETData(PFCandidates);
 

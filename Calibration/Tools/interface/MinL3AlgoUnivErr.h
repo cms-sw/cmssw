@@ -5,8 +5,6 @@
 
 /** class MinL3AlgoUnivErr
 
- * $Date: 2007/08/23 12:38:02 $
- * $Revision: 1.2 $
  * \author R.Ofierzynski, CERN, 2007/08/23
  *                              under class name MinL3AlgoUniv
  *  Modified by A.Fedotov :

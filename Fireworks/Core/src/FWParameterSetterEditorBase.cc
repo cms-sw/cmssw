@@ -8,7 +8,6 @@
 //
 // Original Author:
 //         Created:  Thu Jun 26 11:18:08 EDT 2008
-// $Id: FWParameterSetterEditorBase.cc,v 1.2.42.1 2012/02/18 01:58:29 matevz Exp $
 //
 
 // system include files

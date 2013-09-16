@@ -8,7 +8,6 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: LMap.cc,v 1.15 2010/03/07 22:55:37 kukartse Exp $
 //
 
 // system include files

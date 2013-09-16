@@ -8,7 +8,6 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Wed Apr  7 14:40:31 CEST 2010
-// $Id: FWISpyView.cc,v 1.2 2010/04/16 13:44:07 amraktad Exp $
 //
 
 // system include files

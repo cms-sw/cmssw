@@ -2,6 +2,11 @@
 #define HLTEcalIsolationFilter_h
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class HLTEcalIsolationFilter : public HLTFilter {
 
@@ -9,9 +14,11 @@ class HLTEcalIsolationFilter : public HLTFilter {
       explicit HLTEcalIsolationFilter(const edm::ParameterSet&);
       ~HLTEcalIsolationFilter();
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
-      edm::InputTag candTag_; 
+      edm::InputTag candTag_;
+      edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> candToken_;
       double maxennearby; 
       double minen;        
       int maxhitout;

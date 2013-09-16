@@ -8,8 +8,6 @@
  *  for one bunch crossing.
 */
 //
-//   $Date: 2007/07/31 15:20:14 $
-//   $Revision: 1.7 $
 //
 //   Author :
 //   H. Sakulin                  HEPHY Vienna

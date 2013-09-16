@@ -1,5 +1,4 @@
 //
-// $Id: StGenEvent.cc,v 1.10 2009/10/09 12:59:25 llista Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"

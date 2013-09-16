@@ -2,7 +2,6 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.19 2012/11/03 12:30:48 innocent Exp $
 
    \note This test is not exaustive     
 */

@@ -80,5 +80,9 @@ class TTbar_GenJetAnalyzer : public edm::EDAnalyzer {
       std::map<std::string, MonitorElement*> hists_;
 
       double weight ;
+
+  edm::EDGetTokenT<GenEventInfoProduct> genEventInfoProductTagToken_;
+  edm::EDGetTokenT<std::vector<reco::GenJet> > jetsToken_;
+
 };
 

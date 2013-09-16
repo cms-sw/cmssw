@@ -119,7 +119,7 @@ void CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate( const Transient
 }
 
 
-AlignmentParameters* CurrentAlignmentKFUpdator::getAlignmentParameters( const AlignableDetOrUnitPtr alignableDet ) const
+AlignmentParameters* CurrentAlignmentKFUpdator::getAlignmentParameters( const AlignableDetOrUnitPtr& alignableDet ) const
 {
   // Get alignment parameters from AlignableDet ...
   AlignmentParameters* alignmentParameters = alignableDet->alignmentParameters();

@@ -27,8 +27,9 @@
 namespace edm {
   RootInputFileSequence::RootInputFileSequence(
                 ParameterSet const& pset,
-                PoolSource const& input,
+                PoolSource& input,
                 InputFileCatalog const& catalog,
+                unsigned int nStreams,
                 InputType::InputType inputType) :
     input_(input),
     inputType_(inputType),
@@ -44,6 +45,7 @@ namespace edm {
     flatDistribution_(),
     indexesIntoFiles_(fileCatalogItems().size()),
     orderedProcessHistoryIDs_(),
+    nStreams_(nStreams),
     eventSkipperByID_(inputType == InputType::Primary ? EventSkipperByID::create(pset).release() : 0),
     eventsRemainingInFile_(0),
     // The default value provided as the second argument to the getUntrackedParameter function call
@@ -240,10 +242,18 @@ namespace edm {
     }
     if(filePtr) {
       std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile = fileIter_ - fileIterBegin_;
-      rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(),
-          processConfiguration(), fileIter_->logicalFileName(), filePtr,
-          eventSkipperByID_, initialNumberOfEventsToSkip_ != 0,
-          remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
+      rootFile_ = RootFileSharedPtr(new RootFile(
+          fileIter_->fileName(),
+          processConfiguration(),
+          fileIter_->logicalFileName(),
+          filePtr,
+          eventSkipperByID_,
+          initialNumberOfEventsToSkip_ != 0,
+          remainingEvents(),
+          remainingLuminosityBlocks(),
+	  nStreams_,
+          treeCacheSize_,
+          treeMaxVirtualSize_,
           input_.processingMode(),
           setRun_,
           noEventSort_,
@@ -252,6 +262,7 @@ namespace edm {
           (inputType_ == InputType::SecondarySource ?  boost::shared_ptr<BranchIDListHelper>(new BranchIDListHelper()) :  input_.branchIDListHelper()),
           duplicateChecker_,
           dropDescendants_,
+          processHistoryRegistryForUpdate(),
           indexesIntoFiles_,
           currentIndexIntoFile,
           orderedProcessHistoryIDs_,
@@ -352,14 +363,14 @@ namespace edm {
     return rootFile_->readLuminosityBlockAuxiliary_();
   }
 
-  boost::shared_ptr<RunPrincipal>
-  RootInputFileSequence::readRun_(boost::shared_ptr<RunPrincipal> runPrincipal) {
-    return rootFile_->readRun_(runPrincipal);
+  void
+  RootInputFileSequence::readRun_(RunPrincipal& runPrincipal) {
+    rootFile_->readRun_(runPrincipal);
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  RootInputFileSequence::readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal) {
-    return rootFile_->readLumi(lumiPrincipal);
+  void
+  RootInputFileSequence::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
+    rootFile_->readLuminosityBlock_(lumiPrincipal);
   }
 
   // readEvent() is responsible for setting up the EventPrincipal.
@@ -375,9 +386,9 @@ namespace edm {
   //  when it is asked to do so.
   //
 
-  EventPrincipal*
+  void
   RootInputFileSequence::readEvent(EventPrincipal& eventPrincipal) {
-    return rootFile_->readEvent(eventPrincipal);
+    rootFile_->readEvent(eventPrincipal);
   }
 
   InputSource::ItemType
@@ -472,7 +483,7 @@ namespace edm {
           initFile(false);
           // Now get the item from the correct file.
           bool found = rootFile_->goToEvent(eventID);
-          assert (found);
+          assert(found);
           return true;
         }
       }
@@ -537,7 +548,7 @@ namespace edm {
           }
           // Now get the item from the correct file.
           found = rootFile_->setEntryAtItem(run, lumi, event);
-          assert (found);
+          assert(found);
           return true;
         }
       }
@@ -586,7 +597,7 @@ namespace edm {
     productSelectorRules_ = ProductSelectorRules(pset, "inputCommands", "InputSource");
   }
 
-  EventPrincipal*
+  bool
   RootInputFileSequence::readOneSequential(EventPrincipal& cache) {
     skipBadFiles_ = false;
     if(fileIter_ == fileIterEnd_ || !rootFile_) {
@@ -598,20 +609,20 @@ namespace edm {
       rootFile_->setAtEventEntry(-1);
     }
     rootFile_->nextEventEntry();
-    EventPrincipal* ep = rootFile_->readCurrentEvent(cache);
-    if(ep == 0) {
+    bool found = rootFile_->readCurrentEvent(cache);
+    if(!found) {
       ++fileIter_;
       if(fileIter_ == fileIterEnd_) {
-        return 0;
+        return false;
       }
       initFile(false);
       rootFile_->setAtEventEntry(-1);
       return readOneSequential(cache);
     }
-    return ep;
+    return true;
   }
 
-  EventPrincipal*
+  bool
   RootInputFileSequence::readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id) {
     if(fileIterEnd_ == fileIterBegin_) {
       throw Exception(errors::Configuration) << "RootInputFileSequence::readOneSequentialWithID(): no input files specified.\n";
@@ -622,21 +633,24 @@ namespace edm {
         rootFile_->indexIntoFileIter().lumi() != id.luminosityBlock()) {
       bool found = skipToItem(id.run(), id.luminosityBlock(), 0, false);
       if(!found) {
-        return 0;
+        return false;
       }
     }
-    bool nextFound = rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
-    EventPrincipal* ep = (nextFound ? rootFile_->readCurrentEvent(cache) : 0);
-    if(ep == 0) {
-      bool found = skipToItemInNewFile(id.run(), id.luminosityBlock(), 0);
-      if(found) {
-        return readOneSequentialWithID(cache, id);
-      }
+    bool found = rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
+    if(found) {
+      found = rootFile_->readCurrentEvent(cache);
     }
-    return ep;
+    if(!found) {
+      found = skipToItemInNewFile(id.run(), id.luminosityBlock(), 0);
+      if(!found) {
+        return false; 
+      }
+      return readOneSequentialWithID(cache, id);
+    }
+    return true;
   }
 
-  EventPrincipal*
+  void
   RootInputFileSequence::readOneSpecified(EventPrincipal& cache, EventID const& id) {
     skipBadFiles_ = false;
     bool found = skipToItem(id.run(), id.luminosityBlock(), id.event());
@@ -646,12 +660,11 @@ namespace edm {
          fileIter_->fileName() <<
          " does not contain specified event:\n" << id << "\n";
     }
-    EventPrincipal* ep = rootFile_->readCurrentEvent(cache);
-    assert(ep != 0);
-    return ep;
+    found = rootFile_->readCurrentEvent(cache);
+    assert(found);
   }
 
-  EventPrincipal*
+  void
   RootInputFileSequence::readOneRandom(EventPrincipal& cache) {
     if(fileIterEnd_ == fileIterBegin_) {
       throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandom(): no input files specified.\n";
@@ -679,19 +692,18 @@ namespace edm {
     }
     rootFile_->nextEventEntry();
 
-    EventPrincipal* ep = rootFile_->readCurrentEvent(cache);
-    if(ep == 0) {
+    bool found = rootFile_->readCurrentEvent(cache);
+    if(!found) {
       rootFile_->setAtEventEntry(0);
-      ep = rootFile_->readCurrentEvent(cache);
-      assert(ep != 0);
+      bool found = rootFile_->readCurrentEvent(cache);
+      assert(found);
     }
     --eventsRemainingInFile_;
-    return ep;
   }
 
   // bool RootFile::setEntryAtNextEventInLumi(RunNumber_t run, LuminosityBlockNumber_t lumi) {
 
-  EventPrincipal*
+  bool
   RootInputFileSequence::readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id) {
     if(fileIterEnd_ == fileIterBegin_) {
       throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandomWithID(): no input files specified.\n";
@@ -707,7 +719,7 @@ namespace edm {
         rootFile_->indexIntoFileIter().lumi() != id.luminosityBlock()) {
       bool found = skipToItem(id.run(), id.luminosityBlock(), 0);
       if(!found) {
-        return 0;
+        return false;
       }
       int eventsInLumi = 0;
       while(rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock())) ++eventsInLumi;
@@ -719,15 +731,18 @@ namespace edm {
         assert(found);
       }
     }
-    bool nextFound = rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
-    EventPrincipal* ep = (nextFound ? rootFile_->readCurrentEvent(cache) : 0);
-    if(ep == 0) {
-      bool found = rootFile_->setEntryAtItem(id.run(), id.luminosityBlock(), 0);
-      if(found) {
-        return readOneRandomWithID(cache, id);
-      }
+    bool found = rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
+    if(found) {
+      found = rootFile_->readCurrentEvent(cache);
     }
-    return ep;
+    if(!found) {
+      bool found = rootFile_->setEntryAtItem(id.run(), id.luminosityBlock(), 0);
+      if(!found) {
+        return false;
+      }
+      return readOneRandomWithID(cache, id);
+    }
+    return true;
   }
 
   void

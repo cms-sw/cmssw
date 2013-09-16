@@ -12,7 +12,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -30,7 +29,7 @@ ESPedestalTask::ESPedestalTask(const edm::ParameterSet& ps) {
 
   dqmStore_	= Service<DQMStore>().operator->();
   
-  digilabel_ 	= ps.getParameter<InputTag>("DigiLabel");
+  digitoken_ 	= consumes<ESDigiCollection>(ps.getParameter<InputTag>("DigiLabel"));
   lookup_     	= ps.getUntrackedParameter<FileInPath>("LookupTable");
   outputFile_ 	= ps.getUntrackedParameter<string>("OutputFile","");
   prefixME_	= ps.getUntrackedParameter<string>("prefixME", "EcalPreshower"); 
@@ -131,7 +130,7 @@ void ESPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
   runNum_ = e.id().run();
   
   Handle<ESDigiCollection> digis;
-  e.getByLabel(digilabel_, digis);
+  e.getByToken(digitoken_, digis);
   
   runtype_ = 1; // Let runtype_ = 1
   

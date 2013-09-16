@@ -14,7 +14,6 @@
 //
 // Original Author:  Evan Klose Friis
 //         Created:  Tue Nov 13 13:59:09 CET 2007
-// $Id: SiPixelSCurveCalibrationAnalysis.h,v 1.17 2008/07/29 11:20:11 fblekman Exp $
 //
 //
 

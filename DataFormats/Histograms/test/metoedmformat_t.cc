@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Tue Jul 21 11:00:06 CDT 2009
-// $Id: metoedmformat_t.cc,v 1.6 2009/11/04 09:06:25 dellaric Exp $
 //
 
 // system include files

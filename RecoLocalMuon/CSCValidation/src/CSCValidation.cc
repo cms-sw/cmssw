@@ -1269,7 +1269,7 @@ int CSCValidation::ringSerial( CSCDetId id ) {
 // and removes hit in layer 3.  It then returns the expected position value in layer 3
 // based on the fit.
 //-------------------------------------------------------------------------------------
-float CSCValidation::fitX(CLHEP::HepMatrix points, CLHEP::HepMatrix errors){
+float CSCValidation::fitX(const CLHEP::HepMatrix& points, const CLHEP::HepMatrix& errors){
 
   float S   = 0;
   float Sx  = 0;

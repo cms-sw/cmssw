@@ -27,8 +27,8 @@
 #include <vector>
 #include <fstream>
 #include <cstring>
-#include "interface/shared/fed_header.h"
-#include "interface/shared/fed_trailer.h"
+#include "EventFilter/FEDInterface/interface/fed_header.h"
+#include "EventFilter/FEDInterface/interface/fed_trailer.h"
 
 
 namespace errorstreamsource{
@@ -47,13 +47,13 @@ public:
   
 private:
   // member functions
-  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& theTime) override;
-  virtual void produce(edm::Event& e) override;
+  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& theTime);
+  virtual void produce(edm::Event& e);
   
-  void beginRun(edm::Run& r) override {;}
-  void endRun(edm::Run& r) override {;} 
-  void beginLuminosityBlock(edm::LuminosityBlock& lb) override {;}
-  void endLuminosityBlock(edm::LuminosityBlock& lb) override {;}
+  void beginRun(edm::Run& r) {;}
+  void endRun(edm::Run& r) {;} 
+  void beginLuminosityBlock(edm::LuminosityBlock& lb) {;}
+  void endLuminosityBlock(edm::LuminosityBlock& lb) {;}
   
   bool openFile(const std::string& fileName);
   

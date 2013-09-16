@@ -5,8 +5,6 @@
  *  Class which read a ttrig DB and correct it with
  *  the near SL (or the global average)
  *
- *  $Date: 2010/11/17 17:54:23 $
- *  $Revision: 1.8 $
  *  \author S. Maselli - INFN Torino
  */
 

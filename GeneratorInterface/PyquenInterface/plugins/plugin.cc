@@ -1,5 +1,4 @@
 //
-// $Id: plugin.cc,v 1.5 2009/05/28 18:54:16 yilmaz Exp $
 //
 
 #include "FWCore/Framework/interface/MakerMacros.h"

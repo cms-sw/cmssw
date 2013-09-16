@@ -23,6 +23,13 @@ iterativeLowPtTripletSeeds.originpTMin = [0.35]
 iterativeLowPtTripletSeeds.zVertexConstraint = [-1.0]
 iterativeLowPtTripletSeeds.primaryVertices = ['none']
 
+# new (AG)
+iterativeLowPtTripletSeeds.newSyntax = False
+iterativeLowPtTripletSeeds.layerList = ['BPix1+BPix2+BPix3',
+                                   'BPix1+BPix2+FPix1_pos',
+                                   'BPix1+BPix2+FPix1_neg',
+                                   'BPix1+FPix1_pos+FPix2_pos',
+                                   'BPix1+FPix1_neg+FPix2_neg']
 # candidate producer
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeLowPtTripletTrackCandidatesWithTriplets = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()

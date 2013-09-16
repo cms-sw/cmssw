@@ -1,5 +1,4 @@
 //
-// $Id: LeptonJetIsolationAngle.cc,v 1.4 2008/11/28 22:06:31 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/LeptonJetIsolationAngle.h"

@@ -11,6 +11,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "Validation/RPCRecHits/interface/RPCValidHistograms.h"
 
 #include <string>
@@ -26,7 +27,7 @@ public:
   void endJob();
 
 private:
-  edm::InputTag refHitLabel_, recHitLabel_;
+  edm::EDGetTokenT<RPCRecHitCollection> refHitToken_, recHitToken_;
 
   DQMStore* dbe_;
 

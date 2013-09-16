@@ -5,8 +5,6 @@
 //   Description: Extrapolation Unit
 //
 //
-//   $Date: 2008/10/13 07:44:43 $
-//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister            CERN EP

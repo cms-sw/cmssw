@@ -8,7 +8,6 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelQualityXml.cc,v 1.11 2009/11/18 23:02:26 lsexton Exp $
 //
 
 #include <iostream>
@@ -19,9 +18,13 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelIterator.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConnectionManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseException.hh"
-#include "xgi/Utils.h"
-#include "toolbox/string.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
+
+#ifdef HAVE_XDAQ
+#include <toolbox/string.h>
+#else
+#include "CaloOnlineTools/HcalOnlineDb/interface/xdaq_compat.h"  // Replaces toolbox::toString
+#endif
 
 using namespace std;
 using namespace oracle::occi;

@@ -2,8 +2,6 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/01/21 14:56:59 $
- *  $Revision: 1.15 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -32,7 +30,7 @@
 //
 TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet & config) :
   m_expression(0),
-  m_eventCache(config)
+  m_eventCache(config, consumesCollector())
 {
   const std::vector<std::string> & expressions = config.getParameter<std::vector<std::string> >("triggerConditions");
   parse( expressions );

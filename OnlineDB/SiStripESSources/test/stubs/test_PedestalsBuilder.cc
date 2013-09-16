@@ -1,6 +1,3 @@
-// Last commit: $Id: test_PedestalsBuilder.cc,v 1.4 2010/01/08 10:19:55 alinn Exp $
-// Latest tag:  $Name: V05-01-05 $
-// Location:    $Source: /local/reps/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.cc,v $
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.h"
 #include "FWCore/Framework/interface/ESHandle.h"

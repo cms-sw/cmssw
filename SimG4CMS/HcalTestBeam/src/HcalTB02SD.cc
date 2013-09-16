@@ -8,7 +8,6 @@
 //
 // Original Author:
 //         Created:  Sun 21 10:14:34 CEST 2006
-// $Id: HcalTB02SD.cc,v 1.4 2008/05/13 07:18:37 sunanda Exp $
 //
   
 // system include files

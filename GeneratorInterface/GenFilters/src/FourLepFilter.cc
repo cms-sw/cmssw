@@ -13,7 +13,6 @@
 //
 // Original Author:  bian jianguo
 //         Created:  Tue Nov 22 20:39:54 CST 2011
-// $Id: FourLepFilter.cc,v 1.1 2012/03/16 14:37:33 lenzip Exp $
 //
 //
 

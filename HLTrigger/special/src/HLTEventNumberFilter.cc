@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Martin Grunewald
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTEventNumberFilter.cc,v 1.2 2009/06/24 14:49:57 gruen Exp $
 //
 //
 
@@ -25,11 +24,13 @@ Implementation:
 
 // user include files
 #include "HLTrigger/special/interface/HLTEventNumberFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //
 // constructors and destructor
 //
-HLTEventNumberFilter::HLTEventNumberFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTEventNumberFilter::HLTEventNumberFilter(const edm::ParameterSet& iConfig) 
 {
   //now do what ever initialization is needed
 
@@ -46,6 +47,13 @@ HLTEventNumberFilter::~HLTEventNumberFilter()
 
 }
 
+void
+HLTEventNumberFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<int>("period",4096);
+  desc.add<bool>("invert",true);
+  descriptions.add("hltEventNumberFilter",desc);
+}
 
 //
 // member functions
@@ -53,7 +61,7 @@ HLTEventNumberFilter::~HLTEventNumberFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-HLTEventNumberFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEventNumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 

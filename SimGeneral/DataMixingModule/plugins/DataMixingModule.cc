@@ -10,6 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
@@ -335,7 +336,8 @@ namespace edm
 
     InternalContext internalContext(ep.id(), mcc);
     ParentContext parentContext(&internalContext);
-    ModuleCallingContext moduleCallingContext(&moduleDescription(), ModuleCallingContext::State::kRunning, parentContext);
+    ModuleCallingContext moduleCallingContext(&moduleDescription());
+    ModuleContextSentry moduleContextSentry(&moduleCallingContext, parentContext);
 
     LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
 

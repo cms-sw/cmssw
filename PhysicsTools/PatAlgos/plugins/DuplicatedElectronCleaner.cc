@@ -1,5 +1,4 @@
 //
-// $Id: DuplicatedElectronCleaner.cc,v 1.4 2010/02/20 21:00:16 wmtan Exp $
 //
 
 /**

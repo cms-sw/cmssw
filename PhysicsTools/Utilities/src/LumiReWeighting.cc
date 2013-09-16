@@ -81,7 +81,7 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	OldLumiSection_ = -1;
 }
 
-LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr) {
+LumiReWeighting::LumiReWeighting(const std::vector< float >& MC_distr,const std::vector< float >& Lumi_distr) {
   // no histograms for input: use vectors
   
   // now, make histograms out of them:

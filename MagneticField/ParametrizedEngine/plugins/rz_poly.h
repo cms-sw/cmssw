@@ -4,8 +4,6 @@
 /** \class magfieldparam::rz_poly
  *
  *
- *  $Date: 2008/04/23 14:39:16 $
- *  $Revision: 1.1 $
  *  \author V. Maroussov
  */
 

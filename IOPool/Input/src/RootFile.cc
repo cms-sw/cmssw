@@ -12,7 +12,6 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
-#include "DataFormats/Provenance/interface/FullHistoryToReducedHistoryMap.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
@@ -142,6 +141,7 @@ namespace edm {
                      bool skipAnyEvents,
                      int remainingEvents,
                      int remainingLumis,
+                     unsigned int nStreams,
                      unsigned int treeCacheSize,
                      int treeMaxVirtualSize,
                      InputSource::ProcessingMode processingMode,
@@ -152,6 +152,7 @@ namespace edm {
                      boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
                      boost::shared_ptr<DuplicateChecker> duplicateChecker,
                      bool dropDescendants,
+                     ProcessHistoryRegistry& processHistoryRegistry,
                      std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
                      std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
                      std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
@@ -161,6 +162,7 @@ namespace edm {
       file_(fileName),
       logicalFile_(logicalFileName),
       processConfiguration_(processConfiguration),
+      processHistoryRegistry_(&processHistoryRegistry),
       filePtr_(filePtr),
       eventSkipperByID_(eventSkipperByID),
       fileFormatVersion_(),
@@ -180,9 +182,9 @@ namespace edm {
       hasNewlyDroppedBranch_(),
       branchListIndexesUnchanged_(false),
       eventAux_(),
-      eventTree_(filePtr_, InEvent, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries, enablePrefetching),
-      lumiTree_(filePtr_, InLumi, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching),
-      runTree_(filePtr_, InRun, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching),
+      eventTree_(filePtr_, InEvent, nStreams, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries, enablePrefetching),
+      lumiTree_(filePtr_, InLumi, 1, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching),
+      runTree_(filePtr_, InRun, 1, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching),
       treePointers_(),
       lastEventEntryNumberRead_(-1LL),
       productRegistry_(),
@@ -394,7 +396,9 @@ namespace edm {
       }
     }
 
-    ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
+    for(auto const& history : pHistVector) {
+      processHistoryRegistry.registerProcessHistory(history);
+    }
 
     eventTree_.trainCache(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
 
@@ -865,7 +869,7 @@ namespace edm {
       // are not actually used in this function, but could be needed elsewhere.
       indexIntoFile_.unsortedEventNumbers().push_back(eventAux().event());
 
-      ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(eventAux().processHistoryID());
+      ProcessHistoryID reducedPHID = processHistoryRegistry_->reducedProcessHistoryID(eventAux().processHistoryID());
 
       if(iFirst || prevPhid != reducedPHID || prevRun != eventAux().run()) {
         iFirst = false;
@@ -913,7 +917,7 @@ namespace edm {
         // Note: adjacent duplicates will be skipped without an explicit check.
 
         boost::shared_ptr<RunAuxiliary> runAux = fillRunAuxiliary();
-        ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(runAux->processHistoryID());
+        ProcessHistoryID reducedPHID = processHistoryRegistry_->reducedProcessHistoryID(runAux->processHistoryID());
 
         if(runSet.insert(runAux->run()).second) { // (check 4, insert 4)
           // This run was not associated with any events.
@@ -1063,7 +1067,7 @@ namespace edm {
             phid = daqProvenanceHelper_->mapProcessHistoryID(phid);
           }
         }
-        indexIntoFile_.reduceProcessHistoryIDs();
+        indexIntoFile_.reduceProcessHistoryIDs(*processHistoryRegistry_);
       }
     }
     else {
@@ -1340,40 +1344,36 @@ namespace edm {
   //   1. create an EventPrincipal with a unique EventID
   //   2. For each entry in the provenance, put in one ProductHolder,
   //      holding the Provenance for the corresponding EDProduct.
-  //   3. set up the caches in the EventPrincipal to know about this
-  //      ProductHolder.
+  //   3. set up the the EventPrincipal to know about this ProductHolder.
   //
   // We do *not* create the EDProduct instance (the equivalent of reading
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
   //  when it is asked to do so.
   //
-  EventPrincipal*
-  RootFile::readEvent(EventPrincipal& cache) {
+  void
+  RootFile::readEvent(EventPrincipal& principal) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent);
     // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(indexIntoFileIter_.entry());
-    EventPrincipal* ep = readCurrentEvent(cache);
-
-    assert(ep != nullptr);
+    assert(readCurrentEvent(principal));
     assert(eventAux().run() == indexIntoFileIter_.run() + forcedRunOffset_);
     assert(eventAux().luminosityBlock() == indexIntoFileIter_.lumi());
 
     // If this next assert shows up in performance profiling or significantly affects memory, then these three lines should be deleted.
     // The IndexIntoFile should guarantee that it never fails.
     ProcessHistoryID idToCheck = (daqProvenanceHelper_ && fileFormatVersion().useReducedProcessHistoryID() ? *daqProvenanceHelper_->oldProcessHistoryID_ : eventAux().processHistoryID());
-    ProcessHistoryID const& reducedPHID = ProcessHistoryRegistry::instance()->extraForUpdate().reduceProcessHistoryID(idToCheck);
+    ProcessHistoryID const& reducedPHID = processHistoryRegistry_->reducedProcessHistoryID(idToCheck);
     assert(reducedPHID == indexIntoFile_.processHistoryID(indexIntoFileIter_.processHistoryIDIndex()));
 
     ++indexIntoFileIter_;
-    return ep;
   }
 
   // Reads event at the current entry in the event tree
-  EventPrincipal*
-  RootFile::readCurrentEvent(EventPrincipal& cache) {
+  bool
+  RootFile::readCurrentEvent(EventPrincipal& principal) {
     if(!eventTree_.current()) {
-      return nullptr;
+      return false;
     }
     fillThisEventAuxiliary();
     if(!fileFormatVersion().lumiInEventID()) {
@@ -1385,7 +1385,9 @@ namespace edm {
     overrideRunNumber(eventAux_.id(), eventAux().isRealData());
 
     // We're not done ... so prepare the EventPrincipal
-    cache.fillEventPrincipal(eventAux(),
+    eventTree_.insertEntryForIndex(principal.transitionIndex());
+    principal.fillEventPrincipal(eventAux(),
+                             *processHistoryRegistry_,
                              eventSelectionIDs_,
                              branchListIndexes_,
                              makeBranchMapper(),
@@ -1393,7 +1395,7 @@ namespace edm {
 
     // report event read from file
     filePtr_->eventReadFromFile(eventID().run(), eventID().event());
-    return &cache;
+    return true;
   }
 
   void
@@ -1471,21 +1473,21 @@ namespace edm {
     return runAuxiliary;
   }
 
-  boost::shared_ptr<RunPrincipal>
-  RootFile::readRun_(boost::shared_ptr<RunPrincipal> runPrincipal) {
+  void
+  RootFile::readRun_(RunPrincipal& runPrincipal) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun);
     // Begin code for backward compatibility before the existence of run trees.
     if(!runTree_.isValid()) {
       ++indexIntoFileIter_;
-      return runPrincipal;
+      return;
     }
     // End code for backward compatibility before the existence of run trees.
-    runPrincipal->fillRunPrincipal(runTree_.rootDelayedReader());
+    runTree_.insertEntryForIndex(runPrincipal.transitionIndex());
+    runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.rootDelayedReader());
     // Read in all the products now.
-    runPrincipal->readImmediate();
+    runPrincipal.readImmediate();
     ++indexIntoFileIter_;
-    return runPrincipal;
   }
 
   boost::shared_ptr<LuminosityBlockAuxiliary>
@@ -1532,22 +1534,22 @@ namespace edm {
     return lumiAuxiliary;
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  RootFile::readLumi(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal) {
+  void
+  RootFile::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kLumi);
     // Begin code for backward compatibility before the existence of lumi trees.
     if(!lumiTree_.isValid()) {
       ++indexIntoFileIter_;
-      return lumiPrincipal;
+      return;
     }
     // End code for backward compatibility before the existence of lumi trees.
     lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
-    lumiPrincipal->fillLuminosityBlockPrincipal(lumiTree_.rootDelayedReader());
+    lumiTree_.insertEntryForIndex(lumiPrincipal.transitionIndex());
+    lumiPrincipal.fillLuminosityBlockPrincipal(*processHistoryRegistry_, lumiTree_.rootDelayedReader());
     // Read in all the products now.
-    lumiPrincipal->readImmediate();
+    lumiPrincipal.readImmediate();
     ++indexIntoFileIter_;
-    return lumiPrincipal;
   }
 
   bool

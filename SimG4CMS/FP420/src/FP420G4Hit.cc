@@ -113,13 +113,13 @@ void FP420G4Hit::Print() {
 }
 
 G4ThreeVector   FP420G4Hit::getEntry() const           {return entry;}
-void         FP420G4Hit::setEntry(G4ThreeVector xyz)   { entry    = xyz; }
+void         FP420G4Hit::setEntry(const G4ThreeVector& xyz)   { entry    = xyz; }
 
 G4ThreeVector    FP420G4Hit::getEntryLocalP() const           {return entrylp;}
-void         FP420G4Hit::setEntryLocalP(G4ThreeVector xyz1)   { entrylp    = xyz1; }
+void         FP420G4Hit::setEntryLocalP(const G4ThreeVector& xyz1)   { entrylp    = xyz1; }
 
 G4ThreeVector     FP420G4Hit::getExitLocalP() const           {return exitlp;}
-void         FP420G4Hit::setExitLocalP(G4ThreeVector xyz1)   { exitlp    = xyz1; }
+void         FP420G4Hit::setExitLocalP(const G4ThreeVector& xyz1)   { exitlp    = xyz1; }
 
 double       FP420G4Hit::getEM() const              {return elem; }
 void         FP420G4Hit::setEM (double e)           { elem     = e; }

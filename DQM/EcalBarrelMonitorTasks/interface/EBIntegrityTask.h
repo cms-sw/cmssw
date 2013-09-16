@@ -13,6 +13,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
+
 class MonitorElement;
 class DQMStore;
 
@@ -72,17 +74,16 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
-edm::InputTag EBDetIdCollection0_;
-edm::InputTag EBDetIdCollection1_;
-edm::InputTag EBDetIdCollection2_;
-edm::InputTag EBDetIdCollection3_;
-edm::InputTag EBDetIdCollection4_;
-edm::InputTag EcalElectronicsIdCollection1_;
-edm::InputTag EcalElectronicsIdCollection2_;
-edm::InputTag EcalElectronicsIdCollection3_;
-edm::InputTag EcalElectronicsIdCollection4_;
-edm::InputTag EcalElectronicsIdCollection5_;
-edm::InputTag EcalElectronicsIdCollection6_;
+edm::EDGetTokenT<EBDetIdCollection> EBDetIdCollection1_;
+edm::EDGetTokenT<EBDetIdCollection> EBDetIdCollection2_;
+edm::EDGetTokenT<EBDetIdCollection> EBDetIdCollection3_;
+edm::EDGetTokenT<EBDetIdCollection> EBDetIdCollection4_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection1_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection2_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection3_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection4_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection5_;
+edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection6_;
 
 MonitorElement* meIntegrityChId[36];
 MonitorElement* meIntegrityGain[36];

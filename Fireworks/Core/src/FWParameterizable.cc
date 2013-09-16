@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 23 13:36:27 EST 2008
-// $Id: FWParameterizable.cc,v 1.2 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files

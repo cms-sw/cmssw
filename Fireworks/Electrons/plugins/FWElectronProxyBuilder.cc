@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.18 2010/10/21 17:50:37 amraktad Exp $
 //
 #include "TEveCompound.h"
 #include "TEveTrack.h"

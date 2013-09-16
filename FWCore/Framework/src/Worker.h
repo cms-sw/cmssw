@@ -25,6 +25,7 @@ the worker is reset().
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
+#include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -56,6 +57,7 @@ namespace edm {
   namespace workerhelper {
     template< typename O> class CallImpl;
   }
+
   class Worker {
   public:
     enum State { Ready, Pass, Fail, Exception };
@@ -88,8 +90,8 @@ namespace edm {
     void pathFinished(EventPrincipal&);
     void postDoEvent(EventPrincipal&);
 
-    ModuleDescription const& description() const {return md_;}
-    ModuleDescription const* descPtr() const {return &md_; }
+    ModuleDescription const& description() const {return *(moduleCallingContext_.moduleDescription());}
+    ModuleDescription const* descPtr() const {return moduleCallingContext_.moduleDescription(); }
     ///The signals are required to live longer than the last call to 'doWork'
     /// this was done to improve performance based on profiling
     void setActivityRegistry(boost::shared_ptr<ActivityRegistry> areg);
@@ -148,7 +150,10 @@ namespace edm {
     virtual void implBeginStream(StreamID) = 0;
     virtual void implEndStream(StreamID) = 0;
     
+    void resetModuleDescription(ModuleDescription const*);
+
   private:
+
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
 
@@ -164,7 +169,6 @@ namespace edm {
     int timesExcept_;
     State state_;
 
-    ModuleDescription md_;
     ModuleCallingContext moduleCallingContext_;
 
     ExceptionToActionTable const* actions_; // memory assumed to be managed elsewhere
@@ -180,7 +184,7 @@ namespace edm {
     class ModuleSignalSentry {
     public:
       ModuleSignalSentry(ActivityRegistry *a,
-                         ModuleDescription& md,
+                         ModuleDescription const& md,
                          typename T::Context const* context,
                          ModuleCallingContext* moduleCallingContext) :
         a_(a), md_(&md), context_(context), moduleCallingContext_(moduleCallingContext) {
@@ -194,22 +198,8 @@ namespace edm {
 
     private:
       ActivityRegistry* a_;
-      ModuleDescription* md_;
+      ModuleDescription const* md_;
       typename T::Context const* context_;
-      ModuleCallingContext* moduleCallingContext_;
-    };
-
-    class ModuleContextSentry {
-    public:
-      ModuleContextSentry(ModuleCallingContext* moduleCallingContext,
-                          ParentContext const& parentContext) :
-        moduleCallingContext_(moduleCallingContext) {
-        moduleCallingContext_->setContext(ModuleCallingContext::State::kRunning, parentContext);
-      }
-      ~ModuleContextSentry() {
-        moduleCallingContext_->setContext(ModuleCallingContext::State::kInvalid, ParentContext());
-      }
-    private:
       ModuleCallingContext* moduleCallingContext_;
     };
 
@@ -379,7 +369,7 @@ namespace edm {
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     try {
       try {
-        ModuleSignalSentry<T> cpp(actReg_.get(), md_, context, &moduleCallingContext_);
+        ModuleSignalSentry<T> cpp(actReg_.get(), description(), context, &moduleCallingContext_);
         rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es, &moduleCallingContext_);
 
         if (rc) {

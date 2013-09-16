@@ -6,8 +6,6 @@
  *  
  *  This class is an EDProducer making the HLT summary object for RAW
  *
- *  $Date: 2007/12/06 08:27:31 $
- *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -25,6 +23,10 @@ namespace edm {
   class EventSetup;
 }
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -33,6 +35,7 @@ class TriggerSummaryProducerRAW : public edm::EDProducer {
  public:
   explicit TriggerSummaryProducerRAW(const edm::ParameterSet&);
   ~TriggerSummaryProducerRAW();
+  static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:

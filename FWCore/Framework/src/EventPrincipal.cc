@@ -23,7 +23,7 @@ namespace edm {
         boost::shared_ptr<BranchIDListHelper const> branchIDListHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        StreamID const& streamID) :
+        unsigned int streamIndex) :
     Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender),
           aux_(),
           luminosityBlockPrincipal_(),
@@ -34,7 +34,7 @@ namespace edm {
           branchIDListHelper_(branchIDListHelper),
           branchListIndexes_(new BranchListIndexes),
           branchListIndexToProcessIndex_(),
-          streamID_(streamID){}
+          streamID_(streamIndex){}
 
   void
   EventPrincipal::clearEventPrincipal() {
@@ -51,11 +51,12 @@ namespace edm {
 
   void
   EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
+        ProcessHistoryRegistry& processHistoryRegistry,
         boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs,
         boost::shared_ptr<BranchListIndexes> branchListIndexes,
         boost::shared_ptr<BranchMapper> mapper,
         DelayedReader* reader) {
-    fillPrincipal(aux.processHistoryID(), reader);
+    fillPrincipal(aux.processHistoryID(), processHistoryRegistry, reader);
     aux_ = aux;
     if(eventSelectionIDs) {
       eventSelectionIDs_ = eventSelectionIDs;
@@ -83,7 +84,7 @@ namespace edm {
     // Fill in the product ID's in the product holders.
     for(auto const& prod : *this) {
       if (prod->singleProduct()) {
-        prod->setProvenance(branchMapperPtr(), processHistoryID(), branchIDToProductID(prod->branchDescription().branchID()));
+        prod->setProvenance(branchMapperPtr(), processHistory(), branchIDToProductID(prod->branchDescription().branchID()));
       }
     }
   }
@@ -200,6 +201,11 @@ namespace edm {
     }
     // cannot throw, because some products may legitimately not have product ID's (e.g. pile-up).
     return ProductID();
+  }
+
+  unsigned int
+  EventPrincipal::transitionIndex_() const {
+    return streamID_.value();
   }
 
   static void throwProductDeletedException(ProductID const& pid, edm::EventPrincipal::ConstProductPtr const phb) {

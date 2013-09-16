@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun  6 13:51:44 EDT 2008
-// $Id: FWProxyBuilderFactory.cc,v 1.1 2008/12/01 12:27:37 dmytro Exp $
 //
 
 // system include files

@@ -4,7 +4,6 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.h,v 1.8 2011/01/26 14:08:24 amraktad Exp $
 //
 
 // system include files

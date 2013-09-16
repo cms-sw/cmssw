@@ -1,6 +1,5 @@
 // BasicJet.cc
 // Fedor Ratnikov, UMd
-// $Id: BasicJet.cc,v 1.3 2006/12/08 21:15:11 fedor Exp $
 
 #include <sstream>
 

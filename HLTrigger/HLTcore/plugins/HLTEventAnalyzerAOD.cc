@@ -2,8 +2,6 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/03/21 12:08:38 $
- *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -11,6 +9,7 @@
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "HLTrigger/HLTcore/interface/HLTEventAnalyzerAOD.h"
 #include <cassert>
 
@@ -21,7 +20,9 @@ HLTEventAnalyzerAOD::HLTEventAnalyzerAOD(const edm::ParameterSet& ps) :
   processName_(ps.getParameter<std::string>("processName")),
   triggerName_(ps.getParameter<std::string>("triggerName")),
   triggerResultsTag_(ps.getParameter<edm::InputTag>("triggerResults")),
-  triggerEventTag_(ps.getParameter<edm::InputTag>("triggerEvent"))
+  triggerResultsToken_(consumes<edm::TriggerResults>(triggerResultsTag_)),
+  triggerEventTag_(ps.getParameter<edm::InputTag>("triggerEvent")),
+  triggerEventToken_(consumes<trigger::TriggerEvent>(triggerEventTag_))
 {
   using namespace std;
   using namespace edm;
@@ -41,6 +42,16 @@ HLTEventAnalyzerAOD::~HLTEventAnalyzerAOD()
 //
 // member functions
 //
+void
+HLTEventAnalyzerAOD::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("processName","HLT");
+  desc.add<std::string>("triggerName","@");
+  desc.add<edm::InputTag>("triggerResults",edm::InputTag("TriggerResults","","HLT"));
+  desc.add<edm::InputTag>("triggerEvent",edm::InputTag("hltTriggerSummaryAOD","","HLT"));
+  descriptions.add("hltEventAnalyzerAOD", desc);
+}
+
 void
 HLTEventAnalyzerAOD::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
@@ -87,12 +98,12 @@ HLTEventAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   cout << endl;
 
   // get event products
-  iEvent.getByLabel(triggerResultsTag_,triggerResultsHandle_);
+  iEvent.getByToken(triggerResultsToken_,triggerResultsHandle_);
   if (!triggerResultsHandle_.isValid()) {
     cout << "HLTEventAnalyzerAOD::analyze: Error in getting TriggerResults product from Event!" << endl;
     return;
   }
-  iEvent.getByLabel(triggerEventTag_,triggerEventHandle_);
+  iEvent.getByToken(triggerEventToken_,triggerEventHandle_);
   if (!triggerEventHandle_.isValid()) {
     cout << "HLTEventAnalyzerAOD::analyze: Error in getting TriggerEvent product from Event!" << endl;
     return;

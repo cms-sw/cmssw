@@ -16,7 +16,6 @@
  * \modified by Davide Piccolo, INFN Naples to include gerarchyc selection of Z and histos as a finction of eta pt phi
  * 
  *
- * \id $Id: ZMuMuAnalyzer_cynematics.cc,v 1.5 2010/01/10 19:08:08 hegner Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"

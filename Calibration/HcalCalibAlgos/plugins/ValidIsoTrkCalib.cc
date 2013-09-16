@@ -15,7 +15,6 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 //
 // Original Author:  Andrey Pozdnyakov
 //         Created:  Tue Nov  4 01:16:05 CET 2008
-// $Id: ValidIsoTrkCalib.cc,v 1.13 2010/03/09 01:14:48 andrey Exp $
 //
 
 // system include files

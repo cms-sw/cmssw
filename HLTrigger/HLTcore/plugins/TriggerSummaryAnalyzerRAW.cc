@@ -2,21 +2,20 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/01/23 10:27:33 $
- *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/TriggerSummaryAnalyzerRAW.h"
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 //
 // constructors and destructor
 //
 TriggerSummaryAnalyzerRAW::TriggerSummaryAnalyzerRAW(const edm::ParameterSet& ps) : 
-  inputTag_(ps.getParameter<edm::InputTag>("inputTag"))
+  inputTag_(ps.getParameter<edm::InputTag>("inputTag")),
+  inputToken_(consumes<trigger::TriggerEventWithRefs>(inputTag_))
 { }
 
 TriggerSummaryAnalyzerRAW::~TriggerSummaryAnalyzerRAW()
@@ -26,6 +25,12 @@ TriggerSummaryAnalyzerRAW::~TriggerSummaryAnalyzerRAW()
 //
 // member functions
 //
+
+void TriggerSummaryAnalyzerRAW::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltTriggerSummaryRAW"));
+  descriptions.add("triggerSummaryAnalyzerRAW", desc);
+}
 
 // ------------ method called to produce the data  ------------
 void
@@ -41,7 +46,7 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
    cout << "TriggerSummaryAnalyzerRAW: content of TriggerEventWithRefs: " << inputTag_.encode();
 
    Handle<TriggerEventWithRefs> handle;
-   iEvent.getByLabel(inputTag_,handle);
+   iEvent.getByToken(inputToken_,handle);
    if (handle.isValid()) {
      cout << "Used Processname: " << handle->usedProcessName() << endl;
      const size_type nFO(handle->size());

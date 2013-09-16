@@ -96,7 +96,7 @@ public:
 
   bool similarQuadExist(Quad & thisQuad, std::vector<Quad>& quadV);
 
-  double DeltaPhiManual(math::XYZVector v1, math::XYZVector v2);
+  double DeltaPhiManual(const math::XYZVector& v1, const math::XYZVector& v2);
   
 
 protected:

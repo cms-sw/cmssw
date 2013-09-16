@@ -1,7 +1,6 @@
 /* 
  *  \class TPNFit
  *
- *  $Date: 2009/06/02 12:55:21 $
  *  \author: Patrice Verrecchia - CEA/Saclay
  */
 

@@ -1,5 +1,4 @@
 //
-// $Id: ObjectResolutionCalc.cc,v 1.4 2008/03/03 16:45:29 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
@@ -9,7 +8,7 @@ using namespace pat;
 
 
 // constructor with path; default should not be used
-ObjectResolutionCalc::ObjectResolutionCalc(TString resopath, bool useNN = false): useNN_(useNN) {
+ObjectResolutionCalc::ObjectResolutionCalc(const TString& resopath, bool useNN = false): useNN_(useNN) {
   edm::LogVerbatim("ObjectResolutionCalc") << ("ObjectResolutionCalc") << "=== Constructing a TopObjectResolutionCalc...";
   resoFile_ = new TFile(resopath);
   if (!resoFile_) edm::LogError("ObjectResolutionCalc") << "No resolutions fits for this file available: "<<resopath<<"...";

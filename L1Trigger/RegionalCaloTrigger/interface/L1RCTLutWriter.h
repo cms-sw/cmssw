@@ -16,7 +16,6 @@
 //
 // Original Author:  jleonard
 //         Created:  Fri Apr 11 16:27:07 CEST 2008
-// $Id: L1RCTLutWriter.h,v 1.4 2010/01/07 11:10:03 bachtis Exp $
 //
 //
 

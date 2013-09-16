@@ -14,11 +14,15 @@
 #include <vector>
 #include <map>
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
+//DataFormats
+#include "DataFormats/Luminosity/interface/LumiSummary.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 //
 // class declaration
@@ -46,8 +50,8 @@ private:
 
   std::string moduleName_;
   std::string folderName_;
-  edm::InputTag pixelClusterInputTag_;
-  std::string lumiRecordName_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusterInputTag_;
+  edm::EDGetTokenT<LumiSummary> lumiRecordName_;
   
   DQMStore * dbe_;
  

@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Tue Jan 25 16:02:03 CET 2011
-// $Id: FWHLTTriggerTableView.cc,v 1.2 2011/01/26 14:08:24 amraktad Exp $
 //
 #include <boost/regex.hpp>
 

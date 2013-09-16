@@ -1,6 +1,7 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="DataFormats/HcalDetId"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="rootmath"/>
 <use   name="root"/>
 <export>

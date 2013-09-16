@@ -6,8 +6,6 @@
  *  
  *  This class is an EDProducer making the HLTPrescaleTable object
  *
- *  $Date: 2013/02/28 09:07:06 $
- *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -34,6 +32,10 @@
 #include<string>
 #include<vector>
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -46,6 +48,7 @@ class HLTPrescaleRecorder : public edm::one::EDProducer<edm::EndRunProducer,
  public:
   explicit HLTPrescaleRecorder(const edm::ParameterSet&);
   virtual ~HLTPrescaleRecorder();
+  static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual void beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup)override final;
   virtual void endRun(edm::Run const& iRun, const edm::EventSetup& iSetup)override final;
   virtual void endRunProduce(edm::Run & iRun, const edm::EventSetup& iSetup)override final;
@@ -69,8 +72,10 @@ class HLTPrescaleRecorder : public edm::one::EDProducer<edm::EndRunProducer,
   /// Source configs
   /// name of PrescaleServicePSet (src=-1)
   std::string psetName_;
-  /// InputTag of HLTPrescaleTable product (src=1,2,3)
-  edm::InputTag hltInputTag_;
+  /// InputTag   of HLTPrescaleTable product (src=1,2,3)
+  edm::InputTag                               hltInputTag_;
+  /// InputToken of HLTPrescaleTable product (src=1,2,3)
+  edm::EDGetTokenT<trigger::HLTPrescaleTable> hltInputToken_;
   /// Tag of DB entry (HLT Key Name) (src=4)
   std::string hltDBTag_;
 

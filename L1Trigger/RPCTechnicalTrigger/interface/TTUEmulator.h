@@ -1,4 +1,3 @@
-// $Id: TTUEmulator.h,v 1.6 2009/08/09 11:11:36 aosorio Exp $
 #ifndef TTUEMULATOR_H 
 #define TTUEMULATOR_H 1
 

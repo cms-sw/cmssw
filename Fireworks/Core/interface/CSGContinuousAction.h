@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 29 10:19:42 EDT 2008
-// $Id: CSGContinuousAction.h,v 1.6 2009/08/18 19:03:28 amraktad Exp $
 //
 
 // system include files

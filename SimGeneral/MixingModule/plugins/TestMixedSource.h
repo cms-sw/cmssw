@@ -13,7 +13,6 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed May 20 16:46:58 CEST 2009
-// $Id: TestMixedSource.h,v 1.2 2009/07/02 17:11:20 ebecheva Exp $
 //
 //
 

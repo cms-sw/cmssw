@@ -5,6 +5,7 @@
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 #include "PhysicsTools/MVAComputer/interface/TreeReader.h"
 
+#ifdef __GCCXML__
 namespace { // anonymous
 struct dictionary {
 
@@ -28,3 +29,4 @@ static void dummy(PhysicsTools::MVAComputer *mva)
 
 } // anonymous namespace
 
+#endif

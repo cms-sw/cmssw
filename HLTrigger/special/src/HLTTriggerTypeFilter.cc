@@ -2,8 +2,6 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/01/21 15:00:22 $
- *  $Revision: 1.3 $
  *
  *  \author:  Giovanni FRANZONI
  *
@@ -22,6 +20,13 @@ HLTTriggerTypeFilter::HLTTriggerTypeFilter(const edm::ParameterSet& iConfig) :
 
 HLTTriggerTypeFilter::~HLTTriggerTypeFilter()
 {
+}
+
+void
+HLTTriggerTypeFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<int>("SelectedTriggerType",2);
+  descriptions.add("hltTriggerTypeFilter",desc);
 }
 
 //

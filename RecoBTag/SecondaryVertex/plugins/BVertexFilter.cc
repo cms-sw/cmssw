@@ -2,7 +2,7 @@
 //
 // Package:    BVertexFilter
 // Class:      BVertexFilter
-// 
+//
 /**\class BVertexFilter BVertexFilter.cc DPGAnalysis/BVertexFilter/src/BVertexFilter.cc
 
  Description: <one line class summary>
@@ -58,9 +58,9 @@ BVertexFilter::BVertexFilter(const edm::ParameterSet& params):
       minVertices(params.getParameter<int>("minVertices"))
 
 {
-	token_primaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"));
-	token_secondaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("secondaryVertices"));
-        produces<reco::VertexCollection>();
+      token_primaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"));
+      token_secondaryVertex = consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("secondaryVertices"));
+      produces<reco::VertexCollection>();
 
 }
 
@@ -72,30 +72,35 @@ BVertexFilter::~BVertexFilter()
 bool
 BVertexFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
- int count = 0; 
- edm::Handle<reco::VertexCollection> pvHandle; 
+ int count = 0;
+ edm::Handle<reco::VertexCollection> pvHandle;
  iEvent.getByToken(token_primaryVertex, pvHandle);
- edm::Handle<reco::VertexCollection> svHandle; 
+ edm::Handle<reco::VertexCollection> svHandle;
  iEvent.getByToken(token_secondaryVertex, svHandle);
- const reco::Vertex & primary = (*pvHandle.product())[0];
- const reco::VertexCollection & vertices = *svHandle.product();
+
  std::auto_ptr<reco::VertexCollection> recoVertices(new reco::VertexCollection);
 
- if(! primary.isFake()) 
- {
-   for(reco::VertexCollection::const_iterator it=vertices.begin() ; it!=vertices.end() ; ++it)
-    {
-          GlobalVector axis(0,0,0);
-          if(useVertexKinematicAsJetAxis) axis = GlobalVector(it->p4().X(),it->p4().Y(),it->p4().Z());
-          if(svFilter(primary,reco::SecondaryVertex(primary,*it,axis,true),axis))  {
-                count++;
-                recoVertices->push_back(*it);
-           }
+ if(pvHandle->size()!=0) {
+   const reco::Vertex & primary = (*pvHandle.product())[0];
+   const reco::VertexCollection & vertices = *svHandle.product();
+
+
+   if(! primary.isFake())
+   {
+     for(reco::VertexCollection::const_iterator it=vertices.begin() ; it!=vertices.end() ; ++it)
+      {
+            GlobalVector axis(0,0,0);
+            if(useVertexKinematicAsJetAxis) axis = GlobalVector(it->p4().X(),it->p4().Y(),it->p4().Z());
+            if(svFilter(primary,reco::SecondaryVertex(primary,*it,axis,true),axis))  {
+                  count++;
+                  recoVertices->push_back(*it);
+             }
+     }
    }
  }
-   iEvent.put(recoVertices);
+ iEvent.put(recoVertices);
 
-   return(count >= minVertices);
+ return(count >= minVertices);
 }
 
 

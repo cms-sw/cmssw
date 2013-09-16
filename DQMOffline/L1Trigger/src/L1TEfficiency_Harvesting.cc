@@ -1,8 +1,6 @@
 /*
  * \file L1TEfficiency_Harvesting.cc
  *
- * $Date: 2012/11/22 17:10:19 $
- * $Revision: 1.1 $
  * \author J. Pela, C. Battilana
  *
  */

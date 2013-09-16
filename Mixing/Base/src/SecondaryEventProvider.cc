@@ -1,5 +1,5 @@
 #include "Mixing/Base/src/SecondaryEventProvider.h"
-
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
@@ -11,10 +11,12 @@ namespace edm {
     workerManager_(boost::shared_ptr<ActivityRegistry>(new ActivityRegistry), actions) {
     std::vector<std::string> shouldBeUsedLabels;
     std::set<std::string> unscheduledLabels;
+    const PreallocationConfiguration preallocConfig;
     for(auto& pset : psets) {
         std::string label = pset.getParameter<std::string>("@module_label");
         workerManager_.addToUnscheduledWorkers(pset,
                                                preg,
+                                               &preallocConfig,
                                                processConfiguration,
                                                label,
                                                false,

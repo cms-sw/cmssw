@@ -1,4 +1,3 @@
-// $Id: RBCLinkBoardGLSignal.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
 #ifndef RBCLINKBOARDGLSIGNAL_H 
 #define RBCLINKBOARDGLSIGNAL_H 1
 

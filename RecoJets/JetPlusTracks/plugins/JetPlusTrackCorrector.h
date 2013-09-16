@@ -346,27 +346,27 @@ class JetPlusTrackCorrector {
 		     edm::Handle<RecoElectronIds>& ) const;
   
   /// Matches tracks to RECO muons
-  bool matchMuons( TrackRefs::const_iterator,
+  bool matchMuons( TrackRefs::const_iterator&,
 		   const edm::Handle<RecoMuons>& ) const;
   
   /// Matches tracks to RECO electrons
-  bool matchElectrons( TrackRefs::const_iterator,
+  bool matchElectrons( TrackRefs::const_iterator&,
 		       const edm::Handle<RecoElectrons>&, 
 		       const edm::Handle<RecoElectronIds>& ) const;
   
   /// Check on track quality
-  bool failTrackQuality( TrackRefs::const_iterator ) const;
+  bool failTrackQuality( TrackRefs::const_iterator& ) const;
 
   /// Find track in JetTracks collection
   bool findTrack( const jpt::JetTracks&, 
-		  TrackRefs::const_iterator,
+		  TrackRefs::const_iterator&,
 		  TrackRefs::iterator& ) const;
 
   /// Find track in MatchedTracks collections
   bool findTrack( const jpt::MatchedTracks& pions, 
 		  const jpt::MatchedTracks& muons,
 		  const jpt::MatchedTracks& electrons,
-		  TrackRefs::const_iterator ) const;
+		  TrackRefs::const_iterator& ) const;
 
   /// Determines if any tracks in cone at CaloFace
   bool tracksInCalo( const jpt::MatchedTracks& pions, 

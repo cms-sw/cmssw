@@ -7,7 +7,6 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObjectStandAlone
 //
-// $Id: TriggerObjectStandAlone.h,v 1.15 2011/05/25 07:14:27 vadler Exp $
 //
 /**
   \class    pat::TriggerObjectStandAlone TriggerObjectStandAlone.h "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -20,7 +19,6 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObjectStandAlone
 
   \author   Volker Adler
-  \version  $Id: TriggerObjectStandAlone.h,v 1.15 2011/05/25 07:14:27 vadler Exp $
 */
 
 

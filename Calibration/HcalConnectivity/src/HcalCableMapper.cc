@@ -8,8 +8,7 @@
 
 using namespace std;
 
-/*$Date: 2012/01/11 16:20:48 $
-version 3.1 02-13-07 
+/*version 3.1 02-13-07 
 
 author Kevin Klapoetke - Minnesota*/
 

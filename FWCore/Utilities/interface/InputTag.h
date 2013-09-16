@@ -1,7 +1,9 @@
 #ifndef FWCore_Utilities_InputTag_h
 #define FWCore_Utilities_InputTag_h
 
+#ifndef __GCCXML__
 #include <atomic>
+#endif
 
 #include <iosfwd>
 #include <string>
@@ -26,10 +28,14 @@ namespace edm {
 
     InputTag(InputTag const& other);
 
+#ifndef __GCCXML__
     InputTag(InputTag&& other);
+#endif
     InputTag& operator=(InputTag const& other);
 
+#ifndef __GCCXML__
     InputTag& operator=(InputTag&& other);
+#endif
 
     std::string encode() const;
 
@@ -60,7 +66,11 @@ namespace edm {
     mutable TypeID typeID_;
     mutable void const* productRegistry_;
 
+#ifndef __GCCXML__
     mutable std::atomic<unsigned int> index_;
+#else
+    unsigned int index_;
+#endif
 
     mutable char branchType_;
 

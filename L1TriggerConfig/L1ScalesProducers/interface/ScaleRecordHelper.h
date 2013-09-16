@@ -3,8 +3,6 @@
 //
 //   Description:  A helper class to extract L1 trigger scales from the database
 //
-//   $Date: 2008/04/17 23:33:09 $
-//   $Revision: 1.1 $
 //
 //   Author :
 //   Thomas Themel

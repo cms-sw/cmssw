@@ -5,7 +5,6 @@
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/Utilities/interface/CondPyInterface.h"
 #include "TFile.h"
-#include "Cintex/Cintex.h"
 #include <sstream>
 #include <iostream>
 //#include <fstream>
@@ -75,7 +74,6 @@ namespace cond {
     }
     
     PayLoadInspector(cond::CondDB const & conddb): m_session(conddb.session()), m_since(cond::invalidTime), m_token("") {
-      ROOT::Cintex::Cintex::Enable();
     } 
 
     std::string dumpXML(std::string filename) const {

@@ -13,7 +13,6 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed Apr 22 16:54:31 CEST 2009
-// $Id: SecSourceAnalyzer.cc,v 1.7 2011/08/09 13:39:10 mikeh Exp $
 //
 //
 
@@ -28,6 +27,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleContextSentry.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -128,7 +128,8 @@ void  SecSourceAnalyzer::getBranches(EventPrincipal const &ep,
   { 
     InternalContext internalContext(ep.id(), mcc);
     ParentContext parentContext(&internalContext);
-    ModuleCallingContext moduleCallingContext(&moduleDescription(), ModuleCallingContext::State::kRunning, parentContext);
+    ModuleCallingContext moduleCallingContext(&moduleDescription());
+    ModuleContextSentry moduleContextSentry(&moduleCallingContext, parentContext);
 
     std::cout <<"-> Get the event:  id " << ep.id() << std::endl;
     std::cout << "-> dataStep2_ = " << dataStep2_ << std::endl;

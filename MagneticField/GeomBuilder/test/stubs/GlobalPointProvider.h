@@ -5,8 +5,6 @@
  *
  *  No description available.
  *
- *  $Date: 2008/04/23 14:09:10 $
- *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 

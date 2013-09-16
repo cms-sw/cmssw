@@ -5,7 +5,7 @@
 #include<map>
 
 
-void FastStripCPE::enterLocalParameters(uint32_t id, uint16_t firstStrip, std::pair<LocalPoint, LocalError> pos_err_info ) const {
+void FastStripCPE::enterLocalParameters(uint32_t id, uint16_t firstStrip, const std::pair<LocalPoint, LocalError>& pos_err_info ) const {
   //Filling the map.
   pos_err_map.insert(std::make_pair(std::make_pair(id, firstStrip), pos_err_info));
 }

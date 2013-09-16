@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_fwmodelid.cc,v 1.1 2008/01/21 01:17:47 chrjones Exp $
 //
 
 // system include files

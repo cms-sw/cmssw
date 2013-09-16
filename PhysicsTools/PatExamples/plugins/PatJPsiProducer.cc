@@ -13,7 +13,6 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Mon Sep 28 12:53:57 CDT 2009
-// $Id: PatJPsiProducer.cc,v 1.1 2009/09/29 01:10:49 srappocc Exp $
 //
 //
 

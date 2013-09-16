@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.53 2010/11/26 20:24:48 amraktad Exp $
 //
 
 // system include files

@@ -41,15 +41,24 @@ namespace edm {
         StreamCacheHolder() = default;
         StreamCacheHolder( StreamCacheHolder<T,C> const&) = delete;
         StreamCacheHolder<T,C>& operator=(StreamCacheHolder<T,C> const&) = delete;
+        ~StreamCacheHolder() {
+          for(auto c: caches_){
+            delete c;
+          }
+        }
       protected:
-        T * streamCache(edm::StreamID iID) const { return cache_.get(); }
+        T * streamCache(edm::StreamID iID) const { return caches_[iID.value()]; }
       private:
+        virtual void preallocStreams(unsigned int iNStreams) override final {
+          caches_.resize(iNStreams,static_cast<C*>(nullptr));
+        }
         virtual void doBeginStream_(StreamID id) override final {
-          cache_ = beginStream(id);
+          caches_[id.value()] = beginStream(id).release();
         }
         virtual void doEndStream_(StreamID id) override final {
           endStream(id);
-          cache_.reset();
+          delete caches_[id.value()];
+          caches_[id.value()]=nullptr;
         }
         virtual void doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c) override final {
           streamBeginRun(id,rp,c);
@@ -72,7 +81,7 @@ namespace edm {
         virtual void endStream(edm::StreamID) const {}
 
         //When threaded we will have a container for N items whre N is # of streams
-        std::unique_ptr<C> cache_;
+        std::vector<C*> caches_;
       };
       
       template <typename T, typename C>

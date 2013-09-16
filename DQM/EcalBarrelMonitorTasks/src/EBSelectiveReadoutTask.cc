@@ -23,10 +23,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
@@ -52,11 +48,11 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const edm::ParameterSet& ps){
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   // parameters...
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
-  EBUnsuppressedDigiCollection_ = ps.getParameter<edm::InputTag>("EBUsuppressedDigiCollection");
-  EBSRFlagCollection_ = ps.getParameter<edm::InputTag>("EBSRFlagCollection");
-  EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
-  FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
+  EBDigiCollection_ = consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBDigiCollection"));
+  EBSRFlagCollection_ = consumes<EBSrFlagCollection>(ps.getParameter<edm::InputTag>("EBSRFlagCollection"));
+  EcalTrigPrimDigiCollection_ = consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection"));
+  FEDRawDataCollection_ = consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("FEDRawDataCollection"));
+
   firstFIRSample_ = ps.getParameter<int>("ecalDccZs1stSample");
 
   useCondDb_ = ps.getParameter<bool>("configFromCondDB");
@@ -418,7 +414,7 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
   ievt_++;
 
   edm::Handle<FEDRawDataCollection> raw;
-  if ( e.getByLabel(FEDRawDataCollection_, raw) ) {
+  if ( e.getByToken(FEDRawDataCollection_, raw) ) {
 
     for ( int iDcc = 0; iDcc < nEBDcc; ++iDcc ) {
 
@@ -428,7 +424,7 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
     }
 
   } else {
-    edm::LogWarning("EBSelectiveReadoutTask") << FEDRawDataCollection_ << " not available";
+    edm::LogWarning("EBSelectiveReadoutTask") << "FEDRawDataCollection not available";
   }
 
   // Selective Readout Flags
@@ -437,7 +433,7 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
   nCompleteZS = 0;
   nDroppedFRO = 0;
   edm::Handle<EBSrFlagCollection> ebSrFlags;
-  if ( e.getByLabel(EBSRFlagCollection_,ebSrFlags) ) {
+  if ( e.getByToken(EBSRFlagCollection_,ebSrFlags) ) {
 
     // Data Volume
     double aLowInterest=0;
@@ -445,7 +441,7 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
     double aAnyInterest=0;
 
     edm::Handle<EBDigiCollection> ebDigis;
-    if ( e.getByLabel(EBDigiCollection_ , ebDigis) ) {
+    if ( e.getByToken(EBDigiCollection_ , ebDigis) ) {
 
       anaDigiInit();
 
@@ -492,14 +488,14 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
         }
       }
     } else {
-      edm::LogWarning("EBSelectiveReadoutTask") << EBDigiCollection_ << " not available";
+      edm::LogWarning("EBSelectiveReadoutTask") << "EBDigiCollection not available";
     }
 
     // initialize dcchs_ to mask disabled towers
     std::map< int, std::vector<short> > towersStatus;
     edm::Handle<EcalRawDataCollection> dcchs;
 
-    if( e.getByLabel(FEDRawDataCollection_, dcchs) ) {
+    if( e.getByToken(FEDRawDataCollection_, dcchs) ) {
       for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
         if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
         int ism = Numbers::iSM( *dcchItr, EcalBarrel );
@@ -553,7 +549,7 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
     }
   } else {
-    edm::LogWarning("EBSelectiveReadoutTask") << EBSRFlagCollection_ << " not available";
+    edm::LogWarning("EBSelectiveReadoutTask") << "EBSRFlagCollection not available";
   }
 
   for(int ietindex = 0; ietindex < 34; ietindex++ ) {
@@ -646,7 +642,7 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
   EBDroppedFRCount_->Fill( nDroppedFRO );
 
   edm::Handle<EcalTrigPrimDigiCollection> TPCollection;
-  if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
+  if ( e.getByToken(EcalTrigPrimDigiCollection_, TPCollection) ) {
 
     // Trigger Primitives
     EcalTrigPrimDigiCollection::const_iterator TPdigi;
@@ -680,7 +676,7 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
     }
   } else {
-    edm::LogWarning("EBSelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
+    edm::LogWarning("EBSelectiveReadoutTask") << "EcalTrigPrimDigiCollection not available";
   }
 
   for(int ietindex = 0; ietindex < 34; ietindex++ ) {

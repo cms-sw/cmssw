@@ -12,7 +12,6 @@
 
 see also EcalTrigPrimCompactColl.
 
-$Id : $
 */
 
 class EcalTriggerPrimitiveDigi {

@@ -14,7 +14,6 @@
 */
 //
 // Original Author:  Paolo Meridiani
-// $Id: MCZll.h,v 1.1 2007/03/28 14:04:44 fabstoec Exp $
 //
 //
 

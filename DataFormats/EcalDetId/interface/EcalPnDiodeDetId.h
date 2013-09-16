@@ -18,7 +18,6 @@
    [9:4]   DCCId (relative to SubDetector. In barrel it is the SupermoduleId from 1-36)
    [3:0]   PnId (In barrel from 1-10 according CMS IN-2005/021)
 
-   $Id: EcalPnDiodeDetId.h,v 1.3 2007/07/31 15:20:00 ratnik Exp $
 */
 
 

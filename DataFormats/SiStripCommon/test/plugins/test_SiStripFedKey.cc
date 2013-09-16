@@ -1,4 +1,3 @@
-// Last commit: $Id: test_SiStripFedKey.cc,v 1.4 2008/02/22 09:53:15 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFedKey.h"
 #include "FWCore/Framework/interface/Event.h" 

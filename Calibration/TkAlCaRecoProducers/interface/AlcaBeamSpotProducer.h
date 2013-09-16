@@ -9,7 +9,6 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: AlcaBeamSpotProducer.h,v 1.1 2010/06/21 18:02:19 yumiceva Exp $
 
 ________________________________________________________________**/
 

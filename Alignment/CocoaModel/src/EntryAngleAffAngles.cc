@@ -151,8 +151,10 @@ ALIdouble EntryAngleAffAngles::valueDisplaced() const
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-ALIdouble EntryAngleAffAngles::checkDiff( CLHEP::Hep3Vector axis, CLHEP::Hep3Vector axisOrig, std::vector<double> localrot, std::vector<double> localrotorig ) const
+ALIdouble EntryAngleAffAngles::checkDiff( const CLHEP::Hep3Vector& _axis, const CLHEP::Hep3Vector& _axisOrig, const std::vector<double>& localrot, const std::vector<double>& localrotorig ) const
 {
+  CLHEP::Hep3Vector axis = _axis;
+  CLHEP::Hep3Vector axisOrig = _axisOrig;
   int inam = 0;
   if( name() == "angles_X" ) {
     inam = 1;

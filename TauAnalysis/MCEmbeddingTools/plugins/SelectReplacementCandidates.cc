@@ -180,7 +180,7 @@ void SelectReplacementCandidates::getRawIDsAdvanced(const edm::Event& iEvent, co
 }
 
 
-template < typename T > void SelectReplacementCandidates::ProductNotFound(const edm::Event& iEvent, edm::InputTag inputTag)
+template < typename T > void SelectReplacementCandidates::ProductNotFound(const edm::Event& iEvent, const edm::InputTag& inputTag)
 {
     std::cout << "--- TauHitSelector ------------------------------------\n";
     std::cout << "Could not find product with:\n"<< inputTag << "\n";

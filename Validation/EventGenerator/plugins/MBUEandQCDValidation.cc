@@ -17,7 +17,7 @@
 using namespace edm;
 
 MBUEandQCDValidation::MBUEandQCDValidation(const edm::ParameterSet& iPSet): 
-  _wmanager(iPSet),
+  wmanager_(iPSet,consumesCollector()),
   hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")),
   genchjetCollection_(iPSet.getParameter<edm::InputTag>("genChjetsCollection")),
   genjetCollection_(iPSet.getParameter<edm::InputTag>("genjetsCollection")),
@@ -32,6 +32,10 @@ MBUEandQCDValidation::MBUEandQCDValidation(const edm::ParameterSet& iPSet):
   theCalo= new CaloCellManager(verbosity_);
 
   eneInCell.resize(CaloCellManager::nCaloCell);
+
+  hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
+  genjetCollectionToken_=consumes<reco::GenJetCollection>(genjetCollection_);
+  genchjetCollectionToken_=consumes<reco::GenJetCollection>(genchjetCollection_);
 
 }
 
@@ -230,12 +234,12 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
 
   ///Gathering the HepMCProduct information
   edm::Handle<HepMCProduct> evt;
-  iEvent.getByLabel(hepmcCollection_, evt);
+  iEvent.getByToken(hepmcCollectionToken_, evt);
 
   //Get HepMC EVENT
   HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
 
-  double weight = _wmanager.weight(iEvent);
+  double weight = wmanager_.weight(iEvent);
 
 
   if ( verbosity_ > 0 ) { myGenEvent->print(); }
@@ -514,7 +518,7 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   
   // Gather information in the charged GenJet collection
   edm::Handle<reco::GenJetCollection> genChJets;
-  iEvent.getByLabel(genchjetCollection_, genChJets );
+  iEvent.getByToken(genchjetCollectionToken_, genChJets );
   
   unsigned int nJets = 0;
   double pt1 = 0.; 
@@ -554,7 +558,7 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   
   // Gather information in the GenJet collection
   edm::Handle<reco::GenJetCollection> genJets;
-  iEvent.getByLabel(genjetCollection_, genJets );
+  iEvent.getByToken(genjetCollectionToken_, genJets );
   
   nJets = 0;
   pt1 = 0.; 

@@ -6,7 +6,7 @@ int PerformancePayloadFromBinnedTFormula::InvalidPos=-1;
 using namespace std;
 
 
-TFormula * PerformancePayloadFromBinnedTFormula::getFormula(PerformanceResult::ResultType r ,BinningPointByMap p ) const {
+TFormula * PerformancePayloadFromBinnedTFormula::getFormula(PerformanceResult::ResultType r ,const BinningPointByMap& p ) const {
   //
   // chooses the correct rectangular region
   //
@@ -19,8 +19,9 @@ TFormula * PerformancePayloadFromBinnedTFormula::getFormula(PerformanceResult::R
 
 }
 
-float PerformancePayloadFromBinnedTFormula::getResult(PerformanceResult::ResultType r ,BinningPointByMap p) const {
+float PerformancePayloadFromBinnedTFormula::getResult(PerformanceResult::ResultType r ,const BinningPointByMap& _p) const {
   check();
+  BinningPointByMap p = _p;
   //
   // which formula to use?
   //
@@ -47,8 +48,9 @@ float PerformancePayloadFromBinnedTFormula::getResult(PerformanceResult::ResultT
   return formula->EvalPar(values);
 }
 
-bool PerformancePayloadFromBinnedTFormula::isOk(BinningPointByMap p,unsigned int& whichone) const {
+bool PerformancePayloadFromBinnedTFormula::isOk(const BinningPointByMap& _p,unsigned int& whichone) const {
   
+  BinningPointByMap p = _p;
   //
   // change: look on whether a single rectangularr region matches
   //
@@ -74,7 +76,7 @@ bool PerformancePayloadFromBinnedTFormula::isOk(BinningPointByMap p,unsigned int
   return false;
 }
 
-bool PerformancePayloadFromBinnedTFormula::isInPayload(PerformanceResult::ResultType res,BinningPointByMap point) const {
+bool PerformancePayloadFromBinnedTFormula::isInPayload(PerformanceResult::ResultType res,const BinningPointByMap& point) const {
   check();
   // first, let's see if it is available at all
   if (resultPos(res) == PerformancePayloadFromBinnedTFormula::InvalidPos) return false;
@@ -105,7 +107,7 @@ void PerformancePayloadFromBinnedTFormula::check() const {
 
 
 
-void PerformancePayloadFromBinnedTFormula::printFormula(PerformanceResult::ResultType res,BinningPointByMap point) const {
+void PerformancePayloadFromBinnedTFormula::printFormula(PerformanceResult::ResultType res,const BinningPointByMap& point) const {
   check();
   //
   // which formula to use?

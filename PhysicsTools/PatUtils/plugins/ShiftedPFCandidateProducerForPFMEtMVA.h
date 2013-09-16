@@ -12,9 +12,7 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
  *
- * $Id: ShiftedPFCandidateProducerForPFMEtMVA.h,v 1.2 2011/11/02 14:03:07 veelken Exp $
  *
  */
 

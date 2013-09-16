@@ -41,10 +41,10 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps){
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
-  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
-  EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
-  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+  EcalRawDataCollection_ = consumes<EcalRawDataCollection>(ps.getParameter<edm::InputTag>("EcalRawDataCollection"));
+  EBDigiCollection_ = consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBDigiCollection"));
+  EcalPnDiodeDigiCollection_ = consumes<EcalPnDiodeDigiCollection>(ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection"));
+  EcalUncalibratedRecHitCollection_ = consumes<EcalUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection"));
 
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
@@ -357,7 +357,7 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalRawDataCollection> dcchs;
 
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+  if ( e.getByToken(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -375,7 +375,7 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBTestPulseTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBTestPulseTask") << "EcalRawDataCollection not available";
 
   }
 
@@ -387,7 +387,7 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EBDigiCollection> digis;
 
-  if ( e.getByLabel(EBDigiCollection_, digis) ) {
+  if ( e.getByToken(EBDigiCollection_, digis) ) {
 
     int nebd = digis->size();
     LogDebug("EBTestPulseTask") << "event " << ievt_ << " digi collection size " << nebd;
@@ -425,13 +425,13 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBTestPulseTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EBTestPulseTask") << "EBDigiCollection not available";
 
   }
 
   edm::Handle<EcalUncalibratedRecHitCollection> hits;
 
-  if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
+  if ( e.getByToken(EcalUncalibratedRecHitCollection_, hits) ) {
 
     int neh = hits->size();
     LogDebug("EBTestPulseTask") << "event " << ievt_ << " hits collection size " << neh;
@@ -471,13 +471,13 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBTestPulseTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    edm::LogWarning("EBTestPulseTask") << "EcalUncalibratedRecHitCollection not available";
 
   }
 
   edm::Handle<EcalPnDiodeDigiCollection> pns;
 
-  if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
+  if ( e.getByToken(EcalPnDiodeDigiCollection_, pns) ) {
 
     int nep = pns->size();
     LogDebug("EBTestPulseTask") << "event " << ievt_ << " pns collection size " << nep;
@@ -539,7 +539,7 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EBTestPulseTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EBTestPulseTask") << "EcalPnDiodeDigiCollection not available";
 
   }
 

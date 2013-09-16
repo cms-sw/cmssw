@@ -30,8 +30,10 @@ namespace edm {
     explicit ProcessHistory(size_type n) : data_(n), transient_() {}
     explicit ProcessHistory(collection_type const& vec) : data_(vec), transient_() {}
 
+#ifndef __GCCXML__
     template<typename... Args>
     void emplace_back(Args&&... args) {data_.emplace_back(std::forward<Args>(args)...); phid() = ProcessHistoryID();}
+#endif
 
     void push_front(const_reference t) {data_.insert(data_.begin(), t); phid() = ProcessHistoryID();}
     void push_back(const_reference t) {data_.push_back(t); phid() = ProcessHistoryID();}
@@ -74,7 +76,7 @@ namespace edm {
       phid() = ProcessHistoryID();
     }
 
-    void reduce();
+    ProcessHistory& reduce();
 
     void initializeTransients() {transient_.reset();}
 

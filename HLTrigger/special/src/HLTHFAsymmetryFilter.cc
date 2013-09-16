@@ -1,5 +1,4 @@
 #include "HLTrigger/special/interface/HLTHFAsymmetryFilter.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -9,6 +8,7 @@ HLTHFAsymmetryFilter::HLTHFAsymmetryFilter(const edm::ParameterSet& iConfig)
   eCut_HF_  = iConfig.getParameter<double>("ECut_HF");
   os_asym_ = iConfig.getParameter<double>("OS_Asym_max");
   ss_asym_ = iConfig.getParameter<double>("SS_Asym_min");
+  HFHitsToken_ = consumes<HFRecHitCollection>(HFHits_); 
 }
 
 
@@ -16,14 +16,25 @@ HLTHFAsymmetryFilter::~HLTHFAsymmetryFilter()
 {
 }
 
+void
+HLTHFAsymmetryFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("HFHitCollection",edm::InputTag("hltHfreco"));
+  desc.add<double>("ECut_HF",3.0)->
+    setComment(" # minimum energy for a cluster to be selected");
+  desc.add<double>("OS_Asym_max",0.2)->
+    setComment(" # Opposite side asymmetry maximum value");
+  desc.add<double>("SS_Asym_min",0.8)->
+    setComment(" # Same side asymmetry minimum value");
+  descriptions.add("hltHFAsymmetryFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
 HLTHFAsymmetryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<HFRecHitCollection> HFRecHitsH;
-  
-  iEvent.getByLabel(HFHits_,HFRecHitsH);
+  iEvent.getByToken(HFHitsToken_,HFRecHitsH);
 
   double asym_hf_1  = -1;
   double asym_hf_2  = -1;

@@ -5,7 +5,7 @@ int PerformancePayloadFromTable::InvalidPos=-1;
 #include <iostream>
 
 
-float PerformancePayloadFromTable::getResult(PerformanceResult::ResultType r ,BinningPointByMap p) const {
+float PerformancePayloadFromTable::getResult(PerformanceResult::ResultType r ,const BinningPointByMap& p) const {
 
   if (! isInPayload(r,p)) return  PerformancePayload::InvalidResult;
 
@@ -21,13 +21,13 @@ float PerformancePayloadFromTable::getResult(PerformanceResult::ResultType r ,Bi
   return PerformancePayload::InvalidResult;
 }
 
-bool PerformancePayloadFromTable::matches(BinningPointByMap p, PhysicsPerformancePayload::Row & row) const {
+bool PerformancePayloadFromTable::matches(const BinningPointByMap& _p, PhysicsPerformancePayload::Row & row) const {
   //
   // this is the smart function which does not take into account the fields not present 
   //
 
   // I can do it via a loop!
-  
+    BinningPointByMap p = _p;
     std::vector<BinningVariables::BinningVariablesType> t = myBinning();
 
 
@@ -42,7 +42,8 @@ bool PerformancePayloadFromTable::matches(BinningPointByMap p, PhysicsPerformanc
   return true;
 }
 
-bool PerformancePayloadFromTable::isInPayload(PerformanceResult::ResultType res,BinningPointByMap point) const {
+bool PerformancePayloadFromTable::isInPayload(PerformanceResult::ResultType res,const BinningPointByMap& _point) const {
+  BinningPointByMap point = _point;
   // first, let's see if it is available at all
   if (resultPos(res) == PerformancePayloadFromTable::InvalidPos) return false;
   // now look whther the binning point contains all the info

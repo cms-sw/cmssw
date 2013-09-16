@@ -189,7 +189,7 @@ void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::
 }
 
 
-unsigned int reco::helper::JetIDHelper::nCarrying( double fraction, vector< double > descending_energies )
+unsigned int reco::helper::JetIDHelper::nCarrying( double fraction, const std::vector< double >& descending_energies )
 {
   double totalE = 0;
   for( unsigned int i = 0; i < descending_energies.size(); ++i ) totalE += descending_energies[ i ];
@@ -206,7 +206,7 @@ unsigned int reco::helper::JetIDHelper::nCarrying( double fraction, vector< doub
 }
 
 
-unsigned int reco::helper::JetIDHelper::hitsInNCarrying( double fraction, vector< subtower > descending_towers )
+unsigned int reco::helper::JetIDHelper::hitsInNCarrying( double fraction, const std::vector< subtower >& descending_towers )
 {
   double totalE = 0;
   for( unsigned int i = 0; i < descending_towers.size(); ++i ) totalE += descending_towers[ i ].E;

@@ -712,7 +712,7 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
 
 //////////////////////////////////////////////////
 
-void MuonGeometryArrange::fillTree(Alignable *refAli, AlgebraicVector diff){
+void MuonGeometryArrange::fillTree(Alignable *refAli, const AlgebraicVector& diff){
 	
 	
 	_id = refAli->id();

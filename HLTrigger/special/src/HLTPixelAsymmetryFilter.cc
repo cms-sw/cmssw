@@ -21,6 +21,7 @@ HLTPixelAsymmetryFilter::HLTPixelAsymmetryFilter(const edm::ParameterSet& config
   clus_thresh_ (config.getParameter<double>("MinCharge")),
   bmincharge_ (config.getParameter<double>("MinBarrel"))
 {
+  inputToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(inputTag_);
   LogDebug("") << "Using the " << inputTag_ << " input collection";
   LogDebug("") << "Requesting events with a charge repartition asymmetry between " << min_asym_ << " and " << max_asym_;
   LogDebug("") << "Mean cluster charge in the barrel should be higher than" << bmincharge_ << " electrons ";
@@ -29,6 +30,18 @@ HLTPixelAsymmetryFilter::HLTPixelAsymmetryFilter(const edm::ParameterSet& config
 
 HLTPixelAsymmetryFilter::~HLTPixelAsymmetryFilter()
 {
+}
+
+void
+HLTPixelAsymmetryFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltSiPixelClusters"));
+  desc.add<double>("MinAsym",0.);        // minimum asymmetry 
+  desc.add<double>("MaxAsym",1.);        // maximum asymmetry
+  desc.add<double>("MinCharge",4000.);   // minimum charge for a cluster to be selected (in e-)
+  desc.add<double>("MinBarrel",10000.);  // minimum average charge in the barrel (bpix, in e-)
+  descriptions.add("hltPixelAsymmetryFilter",desc);
 }
 
 //
@@ -47,7 +60,7 @@ bool HLTPixelAsymmetryFilter::hltFilter(edm::Event& event, const edm::EventSetup
 
   // get hold of products from Event
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusterColl;
-  event.getByLabel(inputTag_, clusterColl);
+  event.getByToken(inputToken_, clusterColl);
 
   unsigned int clusterSize = clusterColl->dataSize();
   LogDebug("") << "Number of clusters accepted: " << clusterSize;

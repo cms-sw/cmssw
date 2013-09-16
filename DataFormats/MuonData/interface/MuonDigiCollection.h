@@ -6,7 +6,6 @@
  * Declaration of class MuonDigiCollection
  *
  * \author Stefano ARGIRO
- * \version $Id: MuonDigiCollection.h,v 1.3 2005/12/02 09:27:32 argiro Exp $
  * \date 05 Aug 2005
  */
 

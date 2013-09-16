@@ -10,8 +10,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
@@ -31,6 +31,21 @@ HLTEgammaDoubleLegCombFilter::HLTEgammaDoubleLegCombFilter(const edm::ParameterS
   nrRequiredSecondLeg_ = iConfig.getParameter<int> ("nrRequiredSecondLeg");
   nrRequiredUniqueLeg_ = iConfig.getParameter<int> ("nrRequiredUniqueLeg");
   maxMatchDR_ = iConfig.getParameter<double> ("maxMatchDR");
+  firstLegLastFilterToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(firstLegLastFilterTag_);
+  secondLegLastFilterToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(secondLegLastFilterTag_);
+}
+
+void
+HLTEgammaDoubleLegCombFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("firstLegLastFilter",edm::InputTag("firstFilter"));
+  desc.add<edm::InputTag>("secondLegLastFilter",edm::InputTag("secondFilter"));
+  desc.add<int>("nrRequiredFirstLeg",0);
+  desc.add<int>("nrRequiredSecondLeg",0);
+  desc.add<int>("nrRequiredUniqueLeg",0);
+  desc.add<double>("maxMatchDR",0.01);
+  descriptions.add("hltEgammaDoubleLegCombFilter",desc);
 }
 
 HLTEgammaDoubleLegCombFilter::~HLTEgammaDoubleLegCombFilter(){}
@@ -47,8 +62,8 @@ bool HLTEgammaDoubleLegCombFilter::hltFilter(edm::Event& iEvent, const edm::Even
   //trigger::TriggerObjectType secondLegTrigType;
   std::vector<math::XYZPoint> secondLegP3s;
 
-  getP3OfLegCands(iEvent,firstLegLastFilterTag_,firstLegP3s);
-  getP3OfLegCands(iEvent,secondLegLastFilterTag_,secondLegP3s);
+  getP3OfLegCands(iEvent,firstLegLastFilterToken_,firstLegP3s);
+  getP3OfLegCands(iEvent,secondLegLastFilterToken_,secondLegP3s);
 
   std::vector<std::pair<int,int> > matchedCands; 
   matchCands(firstLegP3s,secondLegP3s,matchedCands);
@@ -102,10 +117,10 @@ void  HLTEgammaDoubleLegCombFilter::matchCands(const std::vector<math::XYZPoint>
 }
 
 //we use position and p3 interchangably here, we only use eta/phi so its alright
-void  HLTEgammaDoubleLegCombFilter::getP3OfLegCands(const edm::Event& iEvent,edm::InputTag filterTag,std::vector<math::XYZPoint>& p3s)
+void  HLTEgammaDoubleLegCombFilter::getP3OfLegCands(const edm::Event& iEvent,const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>& filterToken,std::vector<math::XYZPoint>& p3s)
 { 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> filterOutput;
-  iEvent.getByLabel(filterTag,filterOutput);
+  iEvent.getByToken(filterToken,filterOutput);
   
   //its easier on the if statement flow if I try everything at once, shouldnt add to timing
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > phoCands;

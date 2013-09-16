@@ -2,8 +2,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/12/02 19:43:40 $
- *  $Revision: 1.11 $
  *  \author M. Giunta
  */
 

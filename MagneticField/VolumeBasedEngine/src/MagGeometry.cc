@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2013/03/12 13:44:05 $
- *  $Revision: 1.22 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -23,10 +21,10 @@
 using namespace std;
 using namespace edm;
 
-MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer *> tbl,
-			 std::vector<MagESector *> tes,
-			 std::vector<MagVolume6Faces*> tbv,
-			 std::vector<MagVolume6Faces*> tev) : 
+MagGeometry::MagGeometry(const edm::ParameterSet& config, const std::vector<MagBLayer *>& tbl,
+			 const std::vector<MagESector *>& tes,
+			 const std::vector<MagVolume6Faces*>& tbv,
+			 const std::vector<MagVolume6Faces*>& tev) : 
   lastVolume(0), theBLayers(tbl), theESectors(tes), theBVolumes(tbv), theEVolumes(tev), geometryVersion(0)
 {
   

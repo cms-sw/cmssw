@@ -1,8 +1,6 @@
 /*
  * \file EEClusterTaskExtras.cc
  *
- * $Date: 2012/02/28 16:39:18 $
- * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -23,15 +21,12 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -65,10 +60,10 @@ EEClusterTaskExtras::EEClusterTaskExtras(const ParameterSet& ps){
    mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
    // parameters...
-   SuperClusterCollection_ = ps.getParameter<edm::InputTag>("SuperClusterCollection");
-   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
-   l1GTReadoutRecTag_ = ps.getParameter<edm::InputTag>("l1GlobalReadoutRecord");
-   l1GMTReadoutRecTag_ = ps.getParameter<edm::InputTag>("l1GlobalMuonReadoutRecord");
+   SuperClusterCollection_ = consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("SuperClusterCollection"));
+   EcalRecHitCollection_ = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollection"));
+   l1GTReadoutRecToken_ = consumes<L1GlobalTriggerReadoutRecord>(ps.getParameter<edm::InputTag>("l1GlobalReadoutRecord"));
+   l1GMTReadoutRecToken_ = consumes<L1MuGMTReadoutCollection>(ps.getParameter<edm::InputTag>("l1GlobalMuonReadoutRecord"));
 
    // histograms...
 #ifndef EECLUSTERTASKEXTRAS_DQMOFFLINE
@@ -684,7 +679,7 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 
    Handle<SuperClusterCollection> pSuperClusters;
 
-   if ( e.getByLabel(SuperClusterCollection_, pSuperClusters) ) {
+   if ( e.getByToken(SuperClusterCollection_, pSuperClusters) ) {
 
       //int nscc = pSuperClusters->size();
 
@@ -695,7 +690,7 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 
 	 // seed and shapes
 	 edm::Handle< EcalRecHitCollection > pEERecHits;
-	 e.getByLabel( EcalRecHitCollection_, pEERecHits );
+	 e.getByToken( EcalRecHitCollection_, pEERecHits );
 	 if ( pEERecHits.isValid() ) {
 	    const EcalRecHitCollection *eeRecHits = pEERecHits.product();
 
@@ -829,7 +824,7 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 
    } else {
 
-      LogWarning("EEClusterTaskExtras") << SuperClusterCollection_ << " not available";
+      LogWarning("EEClusterTaskExtras") << "SuperClusterCollection not available";
 
    }
 
@@ -846,7 +841,7 @@ EEClusterTaskExtras::determineTriggers(const edm::Event& iEvent, const edm::Even
 
    // get the GMTReadoutCollection
    edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle;
-   iEvent.getByLabel(l1GMTReadoutRecTag_,gmtrc_handle);
+   iEvent.getByToken(l1GMTReadoutRecToken_,gmtrc_handle);
    L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
    if (!(gmtrc_handle.isValid()))  
    {
@@ -855,16 +850,14 @@ EEClusterTaskExtras::determineTriggers(const edm::Event& iEvent, const edm::Even
    }  
    // get hold of L1GlobalReadoutRecord
    edm::Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
-   iEvent.getByLabel(l1GTReadoutRecTag_,L1GTRR);
+   iEvent.getByToken(l1GTReadoutRecToken_,L1GTRR);
 
    //Ecal
    edm::ESHandle<L1GtTriggerMenu> menuRcd;
    eventSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
    const L1GtTriggerMenu* menu = menuRcd.product();
-   edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
-   iEvent.getByLabel( edm::InputTag("gtDigis"), gtRecord);
    // Get dWord after masking disabled bits
-   const DecisionWord dWord = gtRecord->decisionWord();
+   const DecisionWord dWord = L1GTRR->decisionWord();
 
    bool l1SingleEG2 = menu->gtAlgorithmResult("L1_SingleEG2", dWord);
    bool l1SingleEG5 = menu->gtAlgorithmResult("L1_SingleEG5", dWord);

@@ -164,7 +164,7 @@ FP420Test::~FP420Test() {
 // Histoes:
 //-----------------------------------------------------------------------------
 
-Fp420AnalysisHistManager::Fp420AnalysisHistManager(TString managername)
+Fp420AnalysisHistManager::Fp420AnalysisHistManager(const TString& managername)
 {
         // The Constructor
 
@@ -224,7 +224,7 @@ void Fp420AnalysisHistManager::BookHistos()
 
 //-----------------------------------------------------------------------------
 
-void Fp420AnalysisHistManager::WriteToFile(TString fOutputFile,TString fRecreateFile)
+void Fp420AnalysisHistManager::WriteToFile(const TString& fOutputFile,const TString& fRecreateFile)
 {
 
         //Write to file = fOutputFile
@@ -308,7 +308,7 @@ TH2F* Fp420AnalysisHistManager::GetHisto2(Int_t Number)
 }
 //-----------------------------------------------------------------------------
 
-TH1F* Fp420AnalysisHistManager::GetHisto(const TObjString histname)
+TH1F* Fp420AnalysisHistManager::GetHisto(const TObjString& histname)
 {
         // Get a histogram from the array with name = histname
 
@@ -317,7 +317,7 @@ TH1F* Fp420AnalysisHistManager::GetHisto(const TObjString histname)
 }
 //-----------------------------------------------------------------------------
 
-TH2F* Fp420AnalysisHistManager::GetHisto2(const TObjString histname)
+TH2F* Fp420AnalysisHistManager::GetHisto2(const TObjString& histname)
 {
         // Get a histogram from the array with name = histname
 

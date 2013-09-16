@@ -112,7 +112,7 @@ class MuonAssociatorByHits : public TrackAssociatorBase {
 
   int LayerFromDetid(const DetId&) const;
   const TrackingRecHit* getHitPtr(edm::OwnVector<TrackingRecHit>::const_iterator iter) const {return &*iter;}
-  const TrackingRecHit* getHitPtr(trackingRecHit_iterator iter) const {return &**iter;}
+  const TrackingRecHit* getHitPtr(const trackingRecHit_iterator& iter) const {return &**iter;}
 
   std::string write_matched_simtracks(const std::vector<SimHitIdpr>&) const;
 

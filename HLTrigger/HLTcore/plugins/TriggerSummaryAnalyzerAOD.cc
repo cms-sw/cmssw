@@ -2,21 +2,20 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/05/02 12:13:28 $
- *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/TriggerSummaryAnalyzerAOD.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 //
 // constructors and destructor
 //
 TriggerSummaryAnalyzerAOD::TriggerSummaryAnalyzerAOD(const edm::ParameterSet& ps) : 
-  inputTag_(ps.getParameter<edm::InputTag>("inputTag"))
+  inputTag_(ps.getParameter<edm::InputTag>("inputTag")),
+  inputToken_(consumes<trigger::TriggerEvent>(inputTag_))
 { }
 
 TriggerSummaryAnalyzerAOD::~TriggerSummaryAnalyzerAOD()
@@ -26,6 +25,12 @@ TriggerSummaryAnalyzerAOD::~TriggerSummaryAnalyzerAOD()
 //
 // member functions
 //
+
+void TriggerSummaryAnalyzerAOD::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltTriggerSummaryAOD"));
+  descriptions.add("triggerSummaryAnalyzerAOD", desc);
+}
 
 // ------------ method called to produce the data  ------------
 void
@@ -41,7 +46,7 @@ TriggerSummaryAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSet
    cout << "TriggerSummaryAnalyzerAOD: content of TriggerEvent: " << inputTag_.encode() << endl;
 
    Handle<TriggerEvent> handle;
-   iEvent.getByLabel(inputTag_,handle);
+   iEvent.getByToken(inputToken_,handle);
    if (handle.isValid()) {
      cout << "Used Processname: " << handle->usedProcessName() << endl;
      const size_type nC(handle->sizeCollections());

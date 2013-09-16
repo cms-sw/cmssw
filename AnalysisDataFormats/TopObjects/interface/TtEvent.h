@@ -118,7 +118,7 @@ class TtEvent {
   /// set TtGenEvent
   void setGenEvent(const edm::Handle<TtGenEvent>& evt) { genEvt_=edm::RefProd<TtGenEvent>(evt); };
   /// add new hypotheses
-  void addEventHypo(const HypoClassKey& key, const HypoCombPair hyp) { evtHyp_[key].push_back(hyp); };
+  void addEventHypo(const HypoClassKey& key, const HypoCombPair& hyp) { evtHyp_[key].push_back(hyp); };
   /// set number of jets considered when building a given hypothesis
   void setNumberOfConsideredJets(const HypoClassKey& key, const unsigned int nJets) { nJetsConsidered_[key]=nJets; };
   /// set sum pt of kGenMatch hypothesis

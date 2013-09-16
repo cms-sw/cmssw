@@ -15,8 +15,6 @@ class HcalDetId;
  *
  * \note The Geometry as loaded from DDD
  *   
- * $Date: 2011/06/04 19:07:17 $
- * $Revision: 1.6 $
  * \author S. Banerjee
 */
 
@@ -41,7 +39,7 @@ private:
   void fill(HcalSubdetector, HcalDDDGeometry*, CaloSubdetectorGeometry*);
   
   void makeCell( const HcalDetId &, 
-		 HcalCellType, double, 
+		 const HcalCellType&, double, 
 		 double, CaloSubdetectorGeometry* geom) const;
   
   HcalNumberingFromDDD* numberingFromDDD;

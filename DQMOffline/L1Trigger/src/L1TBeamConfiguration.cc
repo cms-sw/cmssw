@@ -14,8 +14,6 @@
  *
  * Todo: see header file
  *
- * $Date: 2012/11/27 14:56:17 $
- * $Revision: 1.1 $
  *
  */
 

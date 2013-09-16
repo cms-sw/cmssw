@@ -23,6 +23,10 @@
 
 #include "HLTrigger/Timer/interface/TimerService.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 /*
   Description: EDProducer that uses the EventTime structure to store in the Event 
   the names and processing times (per event) for all modules.
@@ -33,7 +37,6 @@
 //
 // Original Author:  Christos Leonidopoulos
 //         Created:  Mon Jul 10 14:13:58 CEST 2006
-// $Id: Timer.h,v 1.10 2007/03/27 19:10:58 cleonido Exp $
 //
 //
 //
@@ -44,6 +47,8 @@ class Timer : public edm::EDProducer {
  public:
   explicit Timer(const edm::ParameterSet&);
   ~Timer();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
   // fwk calls this method when new module measurement arrives;
   void newTimingMeasurement(const edm::ModuleDescription& iMod, double iTime);
   // put output into Event

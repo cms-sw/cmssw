@@ -4,8 +4,6 @@
 /** \class HLTDTROMonitorFilter.h
  *  No description available.
  *
- *  $Date: 2012/01/21 15:00:13 $
- *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -14,6 +12,14 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class HLTDTROMonitorFilter : public edm::EDFilter {
 public:
@@ -25,11 +31,13 @@ public:
 
   // Operations
   virtual bool filter(edm::Event& event, const edm::EventSetup& setup);
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
   
 protected:
 
 private:
   edm::InputTag inputLabel;
+  edm::EDGetTokenT<FEDRawDataCollection> inputToken;
 };
 #endif
 

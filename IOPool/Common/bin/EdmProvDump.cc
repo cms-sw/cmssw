@@ -4,7 +4,6 @@
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"

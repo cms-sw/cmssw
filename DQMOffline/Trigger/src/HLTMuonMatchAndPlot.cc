@@ -1,8 +1,5 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
- *  $Author: pablom $
- *  $Date: 2012/08/09 07:30:10 $
- *  $Revision: 1.33 $
  */
 
 

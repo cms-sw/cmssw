@@ -7,6 +7,9 @@
 <use   name="Geometry/Records"/>
 <bin   file="HcalGeometryTest.cpp">
 </bin>
+<library   file="CaloTowerGeometryAnalyzer.cc" name="testCaloTowerGeometryESProducer">
+ <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="HcalGeometryAnalyzer.cc" name="testHcalGeometryESProducer">
  <flags   EDM_PLUGIN="1"/>
 </library>

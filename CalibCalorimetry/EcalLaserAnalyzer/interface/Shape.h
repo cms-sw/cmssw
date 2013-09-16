@@ -3,8 +3,6 @@
 /*! \class Shape
  * \brief Abstract Class of shape
  * 
- * last change : $Date: 2007/07/10 08:29:38 $
- * by          : $Author: ghm $
  *
 */
 

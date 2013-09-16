@@ -17,42 +17,19 @@
 
 namespace edm {
 
-    boost::mutex usr2_lock;
-
 //--------------------------------------------------------------
 
-    volatile bool shutdown_flag = false;
+    volatile std::atomic<bool> shutdown_flag{false};
 
     extern "C" {
       void ep_sigusr2(int,siginfo_t*,void*)
       {
 	FDEBUG(1) << "in sigusr2 handler\n";
-	shutdown_flag = true;
+	shutdown_flag.store(true);
       }
     }
-
-//--------------------------------------------------------------
-
-    boost::mutex signum_lock;
-    volatile int signum_value = 
-#if defined(__linux__)
-      SIGRTMIN;
-#else
-    0;
-#endif
-
-//--------------------------------------------------------------
-
-    int getSigNum()
-    {
-      boost::mutex::scoped_lock sl(signum_lock);
-      int rc = signum_value;
-      ++signum_value;
-      return rc;
-    }
-
 #define MUST_BE_ZERO(fun) if((fun) != 0)					\
-      { perror("UnixSignalHandlers::setupSignal: sig function failed"); abort(); }
+{ perror("UnixSignalHandlers::setupSignal: sig function failed"); abort(); }
 
 //--------------------------------------------------------------
 

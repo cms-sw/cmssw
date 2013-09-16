@@ -6,7 +6,6 @@
 //
 // Project: HPD ion feedback
 // Author: T.Yetkin University of Iowa, Feb. 16, 2010
-// $Id: HPDIonFeedbackSim.cc,v 1.5 2011/02/23 19:52:01 rpw Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"

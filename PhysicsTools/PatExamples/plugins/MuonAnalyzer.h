@@ -4,8 +4,6 @@
 /** \class ExampleMuonAnalyzer
  *  Analyzer of the muon objects
  *
- *  $Date: 2009/09/29 19:46:13 $
- *  $Revision: 1.3 $
  *  \author R. Bellan - CERN <riccardo.bellan@cern.ch>
  */
 

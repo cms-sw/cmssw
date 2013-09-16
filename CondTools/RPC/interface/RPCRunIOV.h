@@ -50,8 +50,8 @@ class  RPCRunIOV {
   unsigned long long toDAQ(unsigned long long);
   unsigned long long toUNIX(int, int);
   unsigned long long DAQtoUNIX(unsigned long long*);
-  std::vector<RPCObImon::I_Item> filterIMON(std::vector<RPCObImon::I_Item>, unsigned long long, unsigned long long);
-  std::string chamberName(chRAW);
+  std::vector<RPCObImon::I_Item> filterIMON(const std::vector<RPCObImon::I_Item>&, unsigned long long, unsigned long long);
+  std::string chamberName(const chRAW&);
   unsigned long long min_I;
   unsigned long long max_I;
   unsigned long long min_V;

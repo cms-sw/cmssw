@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:05:02 EST 2008
-// $Id: FWPhysicsObjectDesc.cc,v 1.6 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files

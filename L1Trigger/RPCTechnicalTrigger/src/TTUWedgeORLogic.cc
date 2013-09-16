@@ -1,4 +1,3 @@
-// $Id: TTUWedgeORLogic.cc,v 1.5 2009/10/26 12:52:16 aosorio Exp $
 // Include files 
 
 

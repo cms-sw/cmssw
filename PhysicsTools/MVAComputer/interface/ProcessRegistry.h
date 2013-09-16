@@ -9,7 +9,6 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcessRegistry.h,v 1.9 2011/04/15 17:07:13 wmtan Exp $
 //
 // Refactoring for gcc 4.7.0 and higher
 // by Gena Kukartsev following design and advice from Chris Jones
@@ -47,11 +46,13 @@ namespace PhysicsTools
     public:
     
 
+#ifndef __GCCXML__
 
     // template alias to replace the former Registry class
     template<class Instance_t, class Calibration_t>
       using Registry = ProcessRegistryImpl<Base_t,CalibBase_t,Parent_t,Instance_t,Calibration_t>;
     
+#endif  
 
     
     /** \class Factory

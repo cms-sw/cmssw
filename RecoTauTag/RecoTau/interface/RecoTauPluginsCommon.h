@@ -19,7 +19,6 @@
  *
  * Author: Evan K. Friis, UC Davis
  *
- * $Id $
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

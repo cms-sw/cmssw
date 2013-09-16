@@ -2,8 +2,6 @@
     
     coder which uses DB services to convert to fC
     $Author: ratnikov
-    $Date: 2008/01/22 18:58:53 $
-    $Revision: 1.6 $
 */
 
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
