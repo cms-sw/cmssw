@@ -122,7 +122,8 @@
   <class name="edm::reftobase::Holder<reco::ElectronSeed,edm::Ref<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> > >"/>
 
 
-  <class name="reco::PreshowerCluster" ClassVersion="10">
+  <class name="reco::PreshowerCluster" ClassVersion="11">
+   <version ClassVersion="11" checksum="469230288"/>
    <version ClassVersion="10" checksum="469230288"/>
   </class>
   <class name="std::vector<reco::PreshowerCluster>"/>
