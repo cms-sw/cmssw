@@ -242,11 +242,14 @@ namespace {
   }
 
   template <typename T1, typename T2>
-  bool deltaRmatch(const T1& obj, const std::vector<T2>& refColl, double dR, std::vector<T2>& matchedRefs) {
+  bool deltaRmatch(const T1& obj, const std::vector<T2>& refColl, double dR, std::vector<bool>& refMask, std::vector<T2>& matchedRefs) {
     double minDr = 2*dR;
     size_t found = refColl.size();
     //std::cout << "Matching with DR " << dR << ", obj eta " << obj.eta() << " phi " << obj.phi() << std::endl;
     for(size_t i=0; i<refColl.size(); ++i) {
+      if(!refMask[i])
+        continue;
+
       double dr = reco::deltaR(obj, refColl[i]);
       //std::cout << "  " << i << " ref eta " << refColl[i].eta() << " phi " << refColl[i].phi() << " dr " << dr << std::endl;
       if(dr < minDr) {
@@ -255,15 +258,8 @@ namespace {
       }
     }
     if(found < refColl.size()) {
-      bool matchedAlreadyIn = false;
-      for(const T2& mobj: matchedRefs) {
-        if(reco::deltaR(refColl[found], mobj) < 0.0001) {
-          matchedAlreadyIn = true;
-          break;
-        }
-      }
-      if(!matchedAlreadyIn)
-        matchedRefs.emplace_back(refColl[found]);
+      matchedRefs.emplace_back(refColl[found]);
+      refMask[found] = false;
       return true;
     }
     return false;
@@ -453,14 +449,17 @@ void HLTTauDQMPath::getFilterObjects(const trigger::TriggerEvent& triggerEvent, 
 
 bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const HLTTauDQMOfflineObjects& offlineObjects, double dR, std::vector<Object>& matchedTriggerObjects, HLTTauDQMOfflineObjects& matchedOfflineObjects) const {
   bool isL1 = (i==0 && isFirstL1Seed_);
+  std::vector<bool> offlineMask;
   if(filterTauN_[i] > 0) {
     int matchedObjects = 0;
+    offlineMask.resize(offlineObjects.taus.size());
+    std::fill(offlineMask.begin(), offlineMask.end(), true);
     for(const Object& trgObj: triggerObjects) {
       //std::cout << "trigger object id " << trgObj.id << std::endl;
       if(! ((isL1 && (trgObj.id == trigger::TriggerL1TauJet || trgObj.id == trigger::TriggerL1CenJet))
             || trgObj.id == trigger::TriggerTau) )
         continue;
-      if(deltaRmatch(trgObj.object, offlineObjects.taus, dR, matchedOfflineObjects.taus)) {
+      if(deltaRmatch(trgObj.object, offlineObjects.taus, dR, offlineMask, matchedOfflineObjects.taus)) {
         ++matchedObjects;
         matchedTriggerObjects.emplace_back(trgObj);
       }
@@ -470,12 +469,14 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
   }
   if(filterElectronN_[i] > 0) {
     int matchedObjects = 0;
+    offlineMask.resize(offlineObjects.electrons.size());
+    std::fill(offlineMask.begin(), offlineMask.end(), true);
     for(const Object& trgObj: triggerObjects) {
       //std::cout << "trigger object id " << trgObj.id << std::endl;
       if(! ((isL1 && (trgObj.id == trigger::TriggerL1NoIsoEG || trgObj.id == trigger::TriggerL1IsoEG))
             || trgObj.id == trigger::TriggerElectron) )
         continue;
-      if(deltaRmatch(trgObj.object, offlineObjects.electrons, dR, matchedOfflineObjects.electrons)) {
+      if(deltaRmatch(trgObj.object, offlineObjects.electrons, dR, offlineMask, matchedOfflineObjects.electrons)) {
         ++matchedObjects;
         matchedTriggerObjects.emplace_back(trgObj);
       }
@@ -485,12 +486,14 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
   }
   if(filterMuonN_[i] > 0) {
     int matchedObjects = 0;
+    offlineMask.resize(offlineObjects.muons.size());
+    std::fill(offlineMask.begin(), offlineMask.end(), true);
     for(const Object& trgObj: triggerObjects) {
       //std::cout << "trigger object id " << trgObj.id << std::endl;
       if(! ((isL1 && trgObj.id == trigger::TriggerL1Mu)
             || trgObj.id == trigger::TriggerMuon) )
         continue;
-      if(deltaRmatch(trgObj.object, offlineObjects.muons, dR, matchedOfflineObjects.muons)) {
+      if(deltaRmatch(trgObj.object, offlineObjects.muons, dR, offlineMask, matchedOfflineObjects.muons)) {
         ++matchedObjects;
         matchedTriggerObjects.emplace_back(trgObj);
       }
