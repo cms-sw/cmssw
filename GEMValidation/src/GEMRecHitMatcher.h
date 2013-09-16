@@ -16,6 +16,8 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "GEMCode/GEMValidation/src/GenericDigi.h"
+#include "GEMCode/GEMValidation/src/DigiMatcher.h"
 
 #include <vector>
 #include <map>
@@ -27,6 +29,9 @@ class GEMGeometry;
 class GEMRecHitMatcher : BaseMatcher
 {
 public:
+
+  typedef matching::Digi RecHit;
+  typedef matching::DigiContainer RecHitContainer;
 
   GEMRecHitMatcher(SimHitMatcher& sh);
   
@@ -42,9 +47,9 @@ public:
   std::set<unsigned int> superChamberIds() const;
 
   // GEM recHits from a particular partition, chamber or superchamber
-  const GEMRecHitCollection& recHitsInDetId(unsigned int) const;
-  const GEMRecHitCollection& recHitsInChamber(unsigned int) const;
-  const GEMRecHitCollection& recHitsInSuperChamber(unsigned int) const;
+  const RecHitContainer& recHitsInDetId(unsigned int) const;
+  const RecHitContainer& recHitsInChamber(unsigned int) const;
+  const RecHitContainer& recHitsInSuperChamber(unsigned int) const;
 
   // #layers with recHits from this simtrack
   int nLayersWithRecHitsInSuperChamber(unsigned int) const;
@@ -56,6 +61,9 @@ public:
 
   // what unique partitions numbers with recHits from this simtrack?
   std::set<int> partitionNumbers() const;
+
+  GlobalPoint recHitPosition(const RecHit& rechit) const;
+  GlobalPoint recHitMeanPosition(const RecHitContainer& rechits) const;
 
 private:
 
@@ -72,11 +80,11 @@ private:
 
   int matchDeltaStrip_;
 
-  std::map<unsigned int, GEMRecHitCollection> detid_to_recHits_;
-  std::map<unsigned int, GEMRecHitCollection> chamber_to_recHits_;
-  std::map<unsigned int, GEMRecHitCollection> superchamber_to_recHits_;
+  std::map<unsigned int, RecHitContainer> detid_to_recHits_;
+  std::map<unsigned int, RecHitContainer> chamber_to_recHits_;
+  std::map<unsigned int, RecHitContainer> superchamber_to_recHits_;
 
-  const GEMRecHitCollection no_recHits_;
+  const RecHitContainer no_recHits_;
 };
 
 #endif
