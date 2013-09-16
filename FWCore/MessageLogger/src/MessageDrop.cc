@@ -13,6 +13,7 @@
 // system include files
 #include "boost/thread/tss.hpp"
 #include <cstring>
+#include <limits>
 
 // user include files
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -47,11 +48,6 @@
 
 using namespace edm;
 
-edm::Exception * MessageDrop::ex_p = 0;
-bool MessageDrop::debugEnabled=true;
-bool MessageDrop::infoEnabled=true;
-bool MessageDrop::warningEnabled=true;
-bool MessageDrop::errorEnabled=true;
 // The following are false at initialization (in case configure is not done)
 // and are set true at the start of configure_ordinary_destinations, 
 // but are set false once a destination is thresholded to react to the 
@@ -59,10 +55,15 @@ bool MessageDrop::errorEnabled=true;
 bool MessageDrop::debugAlwaysSuppressed=false;		// change log 2
 bool MessageDrop::infoAlwaysSuppressed=false;	 	// change log 2
 bool MessageDrop::warningAlwaysSuppressed=false; 	// change log 2
+std::string MessageDrop::jobMode{};
 
 MessageDrop *
 MessageDrop::instance()
 {
+  //needs gcc4.8.1
+  //thread_local static s_drop{};
+  //return &s_drop;
+  
   static boost::thread_specific_ptr<MessageDrop> drops;
   MessageDrop* drop = drops.get();
   if(drop==0) { 
@@ -70,6 +71,10 @@ MessageDrop::instance()
     drop=drops.get(); 
   }
   return drop;
+  
+}
+namespace  {
+  const std::string kBlankString{" "};
 }
 
 namespace edm {
@@ -79,81 +84,56 @@ class StringProducer {
   public:
     virtual ~StringProducer() {}
     virtual std::string theContext() const = 0;
-    virtual void snapshot() = 0;
 };
   
 class StringProducerWithPhase : public StringProducer
 {
-  typedef std::map<const void*, std::string>::const_iterator NLMiter;
   public:
     StringProducerWithPhase() 
-    : name_initial_value_  (" ")			// change log 4
-    , label_initial_value_ (" ")			
-    , name_                (&name_initial_value_)
-    , label_               (&label_initial_value_)
+    : name_                (&kBlankString)
+    , label_               (&kBlankString)
     , phasePtr_            ("(Startup)")
-    , moduleID_            (0)
+    , moduleID_            (std::numeric_limits<unsigned int>::max())
     , cache_               ()
-    , nameLabelMap_        ()
-    , snapshot_name_       ()
-    , snapshot_label_      ()
-    , snapshot_phase_      () {
-      memset(snapshot_phase_, '\0', sizeof(snapshot_phase_));
+    , idLabelMap_        ()
+    {
     }
 
     virtual std::string theContext() const override {
       if (cache_.empty()) {
-	if (moduleID_ != 0) {
-	  NLMiter nameLableIter = nameLabelMap_.find(moduleID_);
-	  if  (nameLableIter != nameLabelMap_.end()) {
-	    cache_.assign(nameLableIter->second);
-	    cache_.append(phasePtr_);
-	    return cache_; 
-	  }
-	}
-	cache_.assign(*name_);
-	cache_.append(":");
-	cache_.append(*label_);
-	nameLabelMap_[moduleID_] = cache_;
-	cache_.append(phasePtr_);	
+        if (moduleID_ != std::numeric_limits<unsigned int>::max()) {
+          auto nameLableIter = idLabelMap_.find(moduleID_);
+          if  (nameLableIter != idLabelMap_.end()) {
+            cache_.assign(nameLableIter->second);
+            cache_.append(phasePtr_);
+            return cache_;
+          }
+        }
+        cache_.assign(*name_);
+        cache_.append(":");
+        cache_.append(*label_);
+        idLabelMap_[moduleID_] = cache_;
+        cache_.append(phasePtr_);	
       }
-        return cache_;
+      return cache_;
     }
     void set(std::string const & name,
-  	     std::string const & label,
-	     const void * moduleID,
-	     const char* phase)  {
+             std::string const & label,
+             unsigned int moduleID,
+             const char* phase)  {
       name_ = &name;
       label_ = &label;     
       moduleID_ = moduleID;
       phasePtr_ = phase;
       cache_.clear();	     
     } 
-    virtual void snapshot() override 				// change log 5
-    {
-      snapshot_name_ = *name_;
-      name_ = &snapshot_name_;
-      snapshot_label_ = *label_;
-      label_ = &snapshot_label_;
-      if ( snapshot_phase_ != phasePtr_ ) {		// change log 6
-        std::strncpy (snapshot_phase_,phasePtr_,PHASE_MAX_LENGTH);
-      }
-      snapshot_phase_[PHASE_MAX_LENGTH] = 0;
-      phasePtr_ = snapshot_phase_;
-    }
   private:
-    static const int PHASE_MAX_LENGTH = 32;
-    std::string const name_initial_value_;
-    std::string const label_initial_value_;
     std::string const * name_;
     std::string const * label_;
     const char* phasePtr_;
-    const void * moduleID_;
+    unsigned int moduleID_;
     mutable std::string cache_;
-    mutable std::map<const void*, std::string> nameLabelMap_;
-    std::string snapshot_name_;
-    std::string snapshot_label_;
-    char snapshot_phase_[PHASE_MAX_LENGTH+1];
+    mutable std::map<unsigned int, std::string> idLabelMap_;
 };
 
 class StringProducerPath : public StringProducer{
@@ -162,13 +142,12 @@ class StringProducerPath : public StringProducer{
     : typePtr_("PathNotYetEstablished") 		// change log 4
     , path_ (" ")
     , cache_()
-    , snapshot_type_() {
-      memset(snapshot_type_, '\0', sizeof(snapshot_type_));
+    {
     }
      virtual std::string theContext() const override {
       if ( cache_.empty() ) {
-	cache_.assign(typePtr_);
-	cache_.append(path_);
+        cache_.assign(typePtr_);
+        cache_.append(path_);
       }
       return cache_; 
     }
@@ -177,54 +156,34 @@ class StringProducerPath : public StringProducer{
       path_ = pathname;
       cache_.clear();	     
     } 
-    virtual void snapshot() override 				// change log 5
-    {
-      if ( snapshot_type_ != typePtr_ ) {		// change log 6
-        std::strncpy (snapshot_type_,typePtr_,TYPE_MAX_LENGTH);
-      }
-      snapshot_type_[TYPE_MAX_LENGTH] = 0;
-      typePtr_ = snapshot_type_;
-    }
   private:
-    static const int TYPE_MAX_LENGTH = 32;
     const char* typePtr_;
     std::string path_;
     mutable std::string cache_;
-    char snapshot_type_[TYPE_MAX_LENGTH+1];
 };
   
 class StringProducerSinglet : public StringProducer{
   public:
     StringProducerSinglet()
     : singlet_("(NoModuleName)")
-    , snapshot_singlet_() {
-      memset(snapshot_singlet_, '\0', sizeof(snapshot_singlet_));
+    {
     }
     virtual std::string theContext() const override {
       return singlet_;
     }
     void set(const char * sing) {singlet_ = sing; } 
-    virtual void snapshot() override 
-    {
-      if ( snapshot_singlet_ != singlet_ ) {		// change log 6
-        std::strncpy (snapshot_singlet_,singlet_,SINGLET_MAX_LENGTH);
-      }
-      snapshot_singlet_[SINGLET_MAX_LENGTH] = 0;
-      singlet_ = snapshot_singlet_;
-    }
   private:
-    static const int SINGLET_MAX_LENGTH = 32;
     const char * singlet_;
-    char snapshot_singlet_[SINGLET_MAX_LENGTH+1];
 };
 
 } // namespace messagedrop
 
 MessageDrop::MessageDrop()
-  : moduleName ("")
-  , runEvent("pre-events")
-  , jobreport_name()					
-  , jobMode("")						
+  : runEvent("pre-events")
+  , debugEnabled(true)
+  , infoEnabled(true)
+  , warningEnabled(true)
+  , errorEnabled(true)
   , spWithPhase(new  messagedrop::StringProducerWithPhase)
   , spPath (new messagedrop::StringProducerPath)
   , spSinglet (new messagedrop::StringProducerSinglet)
@@ -240,9 +199,9 @@ MessageDrop::~MessageDrop()
 }
 
 void MessageDrop::setModuleWithPhase(std::string const & name,
-  			  	     std::string const & label,
-				     const void * moduleID,
-			  	     const char* phase) {
+                                     std::string const & label,
+                                     unsigned int moduleID,
+                                     const char* phase) {
   spWithPhase->set(name, label, moduleID, phase);
   moduleNameProducer = spWithPhase;
 }				     
@@ -260,11 +219,9 @@ void MessageDrop::setSinglet(const char * sing) {
 std::string MessageDrop::moduleContext() {
   return moduleNameProducer->theContext();
 }
-
-void MessageDrop::snapshot() {
-  const_cast<messagedrop::StringProducer *>(moduleNameProducer)->snapshot();
+void MessageDrop::clear() {
+  setSinglet("");
 }
-
 } // namespace edm
 
 

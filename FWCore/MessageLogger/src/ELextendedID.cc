@@ -24,10 +24,7 @@ namespace edm
 bool ELextendedID::operator<( const ELextendedID & xid ) const  {
 
   return
-          ( process    < xid.process    )  ?  true
-        : ( process    > xid.process    )  ?  false
-
-        : ( severity   < xid.severity   )  ?  true
+          ( severity   < xid.severity   )  ?  true
         : ( severity   > xid.severity   )  ?  false
 
         : ( id         < xid.id         )  ?  true
@@ -51,7 +48,6 @@ bool ELextendedID::operator<( const ELextendedID & xid ) const  {
 
 void ELextendedID::clear()  {
 
-  process    = "";
   id         = "";
   severity   = ELunspecified;
   module     = "";
