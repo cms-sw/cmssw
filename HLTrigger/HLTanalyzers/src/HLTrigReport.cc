@@ -122,7 +122,7 @@ HLTrigReport::~HLTrigReport() { }
 void
 HLTrigReport::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("LTriggerResults",edm::InputTag("TriggerResults","","HLT"));
+  desc.add<edm::InputTag>("HLTriggerResults",edm::InputTag("TriggerResults","","HLT"));
   desc.addUntracked<std::string>("reportBy","job");
   desc.addUntracked<std::string>("resetBy","never");
   desc.addUntracked<std::string>("serviceBy","never");
