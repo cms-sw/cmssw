@@ -28,6 +28,7 @@ HLTDynamicPrescaler::~HLTDynamicPrescaler() {
 void
 HLTDynamicPrescaler::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<bool>("saveTags",false);
   descriptions.add("hltDynamicPrescaler",desc);
 }
 
