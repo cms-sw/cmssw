@@ -45,8 +45,10 @@ http://cms-sw.github.io/cmssw/index.html
 
 ###CMSSW environment setup
 
-<pre><code>cmsrel CMSSW_6_1_2_SLHC6_patch1
-cd CMSSW_6_1_2_SLHC6_patch1/src
+!!! Use CMSSW_6_1_2_SLHC8_patch1 !!!
+
+<pre><code>cmsrel CMSSW_6_1_2_SLHC8_patch1
+cd CMSSW_6_1_2_SLHC8_patch1/src
 cmsenv
 git init
 </code></pre>

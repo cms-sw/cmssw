@@ -36,7 +36,7 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 #include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
-#include "GEMCode/SimMuL1/interface/EtaRangeHelpers.h"
+#include "GEMCode/SimMuL1/interface/MuGeometryHelpers.h"
 
 // ================================================================================================
 namespace 
@@ -1428,8 +1428,8 @@ GEMCSCTriggerEfficiency::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       bool eta_ok = ( fabs(steta) >= 1.2 &&  fabs(steta) <= 2.14 );
       bool etapt_ok = eta_ok && pt_ok;
 
-      bool eta_1b = etaRangeHelpers::isME1bEtaRegion(steta, 1.6, 2.12);
-      bool eta_gem_1b = etaRangeHelpers::isME1bEtaRegion(steta, 1.64, 2.05);
+      bool eta_1b = mugeo::isME1bEtaRegion(steta, 1.6, 2.12);
+      bool eta_gem_1b = mugeo::isME1bEtaRegion(steta, 1.64, 2.05);
 
 
       unsigned nst_with_hits = match->nStationsWithHits();
@@ -2259,7 +2259,7 @@ GEMCSCTriggerEfficiency::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       	  // wor weight calculation
       	  //if (fabs(steta)>1.25 && fabs(steta)<1.9) {
-      	  if (etaRangeHelpers::isME42EtaRegion(steta)) {
+      	  if (mugeo::isME42EtaRegion(steta)) {
 	    //      	    double weight = rateWeight(stpt);
       	    if (tfc->tftrack->nStubs()>=2) {
       	      h_tf_pt_h42_2st->Fill(tfc_pt);

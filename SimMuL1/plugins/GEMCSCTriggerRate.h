@@ -46,7 +46,7 @@
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
-#include "GEMCode/SimMuL1/interface/EtaRangeHelpers.h"
+#include "GEMCode/SimMuL1/interface/MuGeometryHelpers.h"
 #include "GEMCode/SimMuL1/interface/MatchCSCMuL1.h"
 
 // ROOT
@@ -104,7 +104,7 @@ struct MyTFCand
   Char_t hasGEM;
 };
 
-struct MyGMTRegional
+struct MyGMTReg
 {
   Int_t event, bx;
   Float_t pt, eta, phi;
