@@ -158,7 +158,6 @@ result_gem_eta_all = getPTHisto(f_gem, dir, "h_rt_gmt_csc_ptmax_3s_3s1b", "_gem"
 result_gem_eta_no1a = getPTHisto(f_gem, dir, "h_rt_gmt_csc_ptmax_3s_3s1b_no1a", "_gem");
 //result_gmtsing = getPTHisto(f_gem, dir, "h_rt_gmt_ptmax_sing_1b", "_def");
 }
-"""
 
 
 void drawplot_frankenstein_ptshiftX()
@@ -465,4 +464,4 @@ result_gmtsing__pat8.GetYaxis().SetRangeUser(.1, 5000.);
 		  col0, col1, col2, col3, 0.01, 10000, "3", "loose", plots, ext);
   ## produceRatePlot(result_gmtsing, result_def_3s, result_def_3s1b, result_gem_3s1b, 
   ##  		  col0, col1, col2, col3, 0.01, 10000, "3", "tight", plots, ext);
-
+"""
