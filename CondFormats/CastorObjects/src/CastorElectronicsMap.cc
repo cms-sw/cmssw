@@ -16,9 +16,7 @@ Adapted for CASTOR by L. Mundim
 
 CastorElectronicsMap::CastorElectronicsMap() : 
   mPItems(CastorElectronicsId::maxLinearIndex+1),
-  mTItems(CastorElectronicsId::maxLinearIndex+1),
-  sortedByPId(false),
-  sortedByTId(false)
+  mTItems(CastorElectronicsId::maxLinearIndex+1)
 {}
 
 namespace castor_impl {
@@ -26,16 +24,48 @@ namespace castor_impl {
   class LessByTrigId {public: bool operator () (const CastorElectronicsMap::TriggerItem* a, const CastorElectronicsMap::TriggerItem* b) {return a->mTrigId < b->mTrigId;}};
 }
 
-CastorElectronicsMap::~CastorElectronicsMap(){}
+CastorElectronicsMap::~CastorElectronicsMap() {
+    if (mPItemsById) {
+        delete mPItemsById;
+        mPItemsById = nullptr;
+    }
+    if (mTItemsByTrigId) {
+        delete mTItemsByTrigId;
+        mTItemsByTrigId = nullptr;
+    }
+}
+// copy-ctor
+CastorElectronicsMap::CastorElectronicsMap(const CastorElectronicsMap& src)
+    : mPItems(src.mPItems), mTItems(src.mTItems),
+      mPItemsById(nullptr), mTItemsByTrigId(nullptr) {}
+// copy assignment operator
+CastorElectronicsMap&
+CastorElectronicsMap::operator=(const CastorElectronicsMap& rhs) {
+    CastorElectronicsMap temp(rhs);
+    temp.swap(*this);
+    return *this;
+}
+// public swap function
+void CastorElectronicsMap::swap(CastorElectronicsMap& other) {
+    std::swap(mPItems, other.mPItems);
+    std::swap(mTItems, other.mTItems);
+    other.mTItemsByTrigId.exchange(mTItemsByTrigId.exchange(other.mTItemsByTrigId));
+    other.mPItemsById.exchange(mPItemsById.exchange(other.mPItemsById));
+}
+// move constructor
+CastorElectronicsMap::CastorElectronicsMap(CastorElectronicsMap&& other)
+    : CastorElectronicsMap() {
+    other.swap(*this);
+}
 
 const CastorElectronicsMap::PrecisionItem* CastorElectronicsMap::findById (unsigned long fId) const {
   PrecisionItem target (fId, 0);
   std::vector<const CastorElectronicsMap::PrecisionItem*>::const_iterator item;
 
-  if (!sortedByPId) sortById();
+  sortById();
   
-  item = std::lower_bound (mPItemsById.begin(), mPItemsById.end(), &target, castor_impl::LessById());
-  if (item == mPItemsById.end() || (*item)->mId != fId) 
+  item = std::lower_bound ((*mPItemsById).begin(), (*mPItemsById).end(), &target, castor_impl::LessById());
+  if (item == (*mPItemsById).end() || (*item)->mId != fId) 
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
     return 0;
   return *item;
@@ -62,10 +92,10 @@ const CastorElectronicsMap::TriggerItem* CastorElectronicsMap::findByTrigId (uns
   TriggerItem target (fTrigId,0);
   std::vector<const CastorElectronicsMap::TriggerItem*>::const_iterator item;
 
-  if (!sortedByTId) sortByTriggerId();
+  sortByTriggerId();
   
-  item = std::lower_bound (mTItemsByTrigId.begin(), mTItemsByTrigId.end(), &target, castor_impl::LessByTrigId());
-  if (item == mTItemsByTrigId.end() || (*item)->mTrigId != fTrigId) 
+  item = std::lower_bound ((*mTItemsByTrigId).begin(), (*mTItemsByTrigId).end(), &target, castor_impl::LessByTrigId());
+  if (item == (*mTItemsByTrigId).end() || (*item)->mTrigId != fTrigId) 
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
     return 0;
   return *item;
@@ -158,7 +188,6 @@ std::vector <HcalTrigTowerDetId> CastorElectronicsMap::allTriggerId () const {
 
 bool CastorElectronicsMap::mapEId2tId (CastorElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId) {
   TriggerItem& item = mTItems[fElectronicsId.linearIndex()];
-  sortedByTId=false;
   if (item.mElId==0) item.mElId=fElectronicsId.rawId();
   if (item.mTrigId == 0) {
     item.mTrigId = fTriggerId.rawId (); // just cast avoiding long machinery
@@ -174,7 +203,6 @@ bool CastorElectronicsMap::mapEId2tId (CastorElectronicsId fElectronicsId, HcalT
 bool CastorElectronicsMap::mapEId2chId (CastorElectronicsId fElectronicsId, DetId fId) {
   PrecisionItem& item = mPItems[fElectronicsId.linearIndex()];
 
-  sortedByPId=false;
   if (item.mElId==0) item.mElId=fElectronicsId.rawId();
   if (item.mId == 0) {
     item.mId = fId.rawId ();
@@ -188,25 +216,34 @@ bool CastorElectronicsMap::mapEId2chId (CastorElectronicsId fElectronicsId, DetI
 }
 
 void CastorElectronicsMap::sortById () const {
-  if (!sortedByPId) {
-    mPItemsById.clear();
-    for (std::vector<PrecisionItem>::const_iterator i=mPItems.begin(); i!=mPItems.end(); ++i) {
-      if (i->mElId) mPItemsById.push_back(&(*i));
-    }
-    
-    std::sort (mPItemsById.begin(), mPItemsById.end(), castor_impl::LessById ());
-    sortedByPId=true;
+  if (!mPItemsById) {
+      auto ptr = new std::vector<const PrecisionItem*>;
+      for (auto i=mPItems.begin(); i!=mPItems.end(); ++i) {
+          if (i->mElId) (*ptr).push_back(&(*i));
+      }
+      std::sort ((*ptr).begin(), (*ptr).end(), castor_impl::LessById ());
+      //atomically try to swap this to become mPItemsById
+      std::vector<const PrecisionItem*>* expect = nullptr;
+      bool exchanged = mPItemsById.compare_exchange_strong(expect, ptr);
+      if(!exchanged) {
+          delete ptr;
+      }
   }
 }
 
 void CastorElectronicsMap::sortByTriggerId () const {
-  if (!sortedByTId) {
-    mTItemsByTrigId.clear();
-    for (std::vector<TriggerItem>::const_iterator i=mTItems.begin(); i!=mTItems.end(); ++i) {
-      if (i->mElId) mTItemsByTrigId.push_back(&(*i));
-    }
-    
-    std::sort (mTItemsByTrigId.begin(), mTItemsByTrigId.end(), castor_impl::LessByTrigId ());
-    sortedByTId=true;
+  if (!mTItemsByTrigId) {
+      auto ptr = new std::vector<const TriggerItem*>;
+      for (auto i=mTItems.begin(); i!=mTItems.end(); ++i) {
+          if (i->mElId) (*ptr).push_back(&(*i));
+      }
+
+      std::sort ((*ptr).begin(), (*ptr).end(), castor_impl::LessByTrigId ());
+      //atomically try to swap this to become mTItemsByTrigId
+      std::vector<const TriggerItem*>* expect = nullptr;
+      bool exchanged = mTItemsByTrigId.compare_exchange_strong(expect, ptr);
+      if(!exchanged) {
+          delete ptr;
+      }
   }
 }
