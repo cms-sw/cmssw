@@ -214,7 +214,7 @@ void efficiency_2(TString f_name, TString p_name, TString pt, bool overlap)
   TGraphAsymmErrors* hgn = draw_geff(t, "         GEM pad matching             CMS Simulation Preliminary;Generated muon phi #phi [deg];Efficiency", "h_odd", "(100,-10,10)", "mymod(phi*180./TMath::Pi(), 360/18.)", ok_eta&&Qn, ok_pad1 || ok_pad2,"", kRed);
   TGraphAsymmErrors* hgp = draw_geff(t, "         GEM pad matching             CMS Simulation Preliminary;Generated muon phi #phi [deg];Effciency", "h_odd", "(100,-10,10)", "mymod(phi*180./TMath::Pi(), 360/18.)", ok_eta&&Qp, ok_pad1 || ok_pad2,"same", kBlue);
   double maxi = 1.0;
-  double mini = 0.9;
+  double mini = 0.0;
   hgn->SetMinimum(mini);
   hgn->SetMaximum(maxi);
   TLine *l1 = new TLine(-5,mini,-5,maxi);
