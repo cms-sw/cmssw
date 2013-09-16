@@ -164,8 +164,9 @@ void efficiency_1(TString f_name, TString p_name, TString pt, bool overlap)
   TH1F* ho = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation Preliminary;LCT half-strip number;Efficiency", "h_odd", "(130,0.5,130.5)", "hs_lct_odd", ok_lct1 && ok_eta , cut1, "", kRed);
   TH1F* he = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation Preliminary;LCT half-strip number;Efficiency", "h_evn", "(130,0.5,130.5)", "hs_lct_even", ok_lct2 && ok_eta , cut2, "same");
   ho->SetMinimum(0.9);
-  ho->GetXaxis()->SetLabelSize(0.05);
-  ho->GetYaxis()->SetLabelSize(0.05);
+  ho->GetXaxis()->SetLabelSize(0.06);
+  ho->GetYaxis()->SetLabelSize(0.06);
+
 
   TLegend *leg = new TLegend(0.25,0.23,.75,0.5, NULL, "brNDC");
   leg->SetBorderSize(0);
@@ -214,9 +215,12 @@ void efficiency_2(TString f_name, TString p_name, TString pt, bool overlap)
   TGraphAsymmErrors* hgn = draw_geff(t, "         GEM pad matching             CMS Simulation Preliminary;Generated muon phi #phi [deg];Efficiency", "h_odd", "(100,-10,10)", "mymod(phi*180./TMath::Pi(), 360/18.)", ok_eta&&Qn, ok_pad1 || ok_pad2,"", kRed);
   TGraphAsymmErrors* hgp = draw_geff(t, "         GEM pad matching             CMS Simulation Preliminary;Generated muon phi #phi [deg];Effciency", "h_odd", "(100,-10,10)", "mymod(phi*180./TMath::Pi(), 360/18.)", ok_eta&&Qp, ok_pad1 || ok_pad2,"same", kBlue);
   double maxi = 1.0;
-  double mini = 0.9;
+  double mini = 0.0;
   hgn->SetMinimum(mini);
   hgn->SetMaximum(maxi);
+  hgn->GetXaxis()->SetLabelSize(0.06);
+  hgn->GetYaxis()->SetLabelSize(0.06);
+
   TLine *l1 = new TLine(-5,mini,-5,maxi);
   l1->SetLineStyle(2);
   l1->Draw();
@@ -237,10 +241,6 @@ void efficiency_2(TString f_name, TString p_name, TString pt, bool overlap)
   // TH1F* ho = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;local #phi [deg];Efficiency", "h_odd", "(130,-5,5)", "fmod(180*phi/TMath::Pi(),5)", ok_lct1 && ok_eta , cut1, "", kRed);
   // TH1F* he = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;local #phi [deg];Efficiency", "h_evn", "(130,-5,5)", "fmod(180*phi/TMath::Pi(),5)", ok_lct2 && ok_eta , cut2, "same");
   //  ho->SetMinimum(0.);
-  hgn->GetXaxis()->SetLabelSize(0.05);
-  hgn->GetYaxis()->SetLabelSize(0.05);
-
-
 
   TLegend *leg = new TLegend(0.25,0.23,.75,0.5, NULL, "brNDC");
   leg->SetBorderSize(0);

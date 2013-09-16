@@ -1,3 +1,10 @@
+from ROOT import *
+
+def getPTHisto(f_name, dir_name, h_name, clone_suffix = "_cln"):
+  f = TFile.Open(f_name)
+  h0 = f.Get("%s/%s"%(dir_name,h_name)).Clone(h_name + clone_suffix)
+  return h0
+
 def getPtHistos(f_def, f_gem, dname):
 
   if "_pat8" in dname: f_def += "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_def_pat8.root"
@@ -35,4 +42,5 @@ def getPtHistos(f_def, f_gem, dname):
   ##result_gmtsing = getPTHisto(f_gem, dir, "h_rt_gmt_ptmax_sing_1b", "_def") 
 
 if __name__ == "__main__":
-    getPtHistos("f_def", "f_gem", "test")
+  #print confirmation message - not supposed to work in standalone mode
+  print "It works!"

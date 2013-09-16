@@ -34,7 +34,7 @@ TGraphAsymmErrors* draw_geff(TTree *t, TString title, TString h_name, TString h_
   
   if (!opt.Contains("same")) {
   num->Reset();
-  num->GetYaxis()->SetRangeUser(0.9,1.0);
+  num->GetYaxis()->SetRangeUser(0.0,1.0);
   num->SetStats(0);
   num->SetTitle(title);
   num->Draw();
