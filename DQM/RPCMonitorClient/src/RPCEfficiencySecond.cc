@@ -21,6 +21,8 @@ camilo.carrilloATcern.ch
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+
 RPCEfficiencySecond::RPCEfficiencySecond(const edm::ParameterSet& iConfig){
   SaveFile  = iConfig.getUntrackedParameter<bool>("SaveFile", false); 
   NameFile  = iConfig.getUntrackedParameter<std::string>("NameFile","RPCEfficiency.root"); 
@@ -230,7 +232,7 @@ void RPCEfficiencySecond::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
   
-  if(debug) std::cout <<"\t Getting the RPC Geometry"<<std::endl;
+  LogDebug("rpcefficiencysecond")<<"Getting the RPC Geometry";
 
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
@@ -239,7 +241,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   //Setting Labels in Summary Label.
   std::stringstream binLabel;
  
-  if(debug) std::cout<<"Default -1 for Barrel GUI"<<std::endl;
+  LogDebug("rpcefficiencysecond")<<"Default -1 for Barrel GUI";
   
   for(int x = 1;x<=12;x++){
     for(int y = 1;y<=21;y++){
@@ -251,7 +253,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
     }
   }
  
-  if(debug) std::cout<<"Default -1 for EndCap GUI"<<std::endl;
+  LogDebug("rpcefficiencysecond")<<"Default -1 for EndCap GUI";
  
   for(int x = 1;x<=36;x++){
     for(int y = 1;y<=6;y++){
@@ -271,20 +273,20 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
     indexWheel[j]=0;
   }
    
-  int indexWheelf[5];
-  for(int j=0;j<5;j++){
-    indexWheelf[j]=0;
-  }
+  //  int indexWheelf[5];
+  //  for(int j=0;j<5;j++){
+  //   indexWheelf[j]=0;
+  //  }
  
   int indexDisk[6];
   for(int j=0;j<6;j++){
     indexDisk[j]=0;
   }
    
-  int indexDiskf[6];
-  for(int j=0;j<6;j++){
-    indexDiskf[j]=0;
-  }
+  //  int indexDiskf[6];
+  //  for(int j=0;j<6;j++){
+  //    indexDiskf[j]=0;
+  //  }
 
 
   for(TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
@@ -298,33 +300,33 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	std::string nameRoll = rpcsrv.name();
  
 
-	if(debug){
-	  if(meCollection.find(rpcId.rawId())==meCollection.end()){
-	    std::cout<<"WARNING!!! Empty RecHit collection map"<<std::endl;
-	  }
- 	  std::cout<<rpcId<<std::endl;
-	  //printing indexes
-	  std::cout<<"indexWheel=";
-	  for(int j=0;j<5;j++){
-	    std::cout<<indexWheel[j]<<" ";
-	  }
-	  std::cout<<std::endl;
-	  std::cout<<"indexWheelf=";
-	  for(int j=0;j<5;j++){
-	    std::cout<<indexWheelf[j]<<" ";
-	  }
-	  std::cout<<std::endl;
-	  std::cout<<"indexDisk=";
-	  for(int j=0;j<6;j++){
-	    std::cout<<indexDisk[j]<<" ";
-	  }
-	  std::cout<<std::endl;
-	  std::cout<<"indexDiskf=";
-	  for(int j=0;j<6;j++){
-	    std::cout<<indexDiskf[j]<<" ";
-	  }
-	  std::cout<<std::endl;
-	}
+//	if(debug){
+	//	  if(meCollection.find(rpcId.rawId())==meCollection.end()){
+	//	    std::cout<<"WARNING!!! Empty RecHit collection map"<<std::endl;
+	//	  }
+	// 	  std::cout<<rpcId<<std::endl;
+	//	  //printing indexes
+// std::cout<<"indexWheel=";
+//	  for(int j=0;j<5;j++){
+//	    std::cout<<indexWheel[j]<<" ";
+//	  }
+//	  std::cout<<std::endl;
+//	  std::cout<<"indexWheelf=";
+//	  for(int j=0;j<5;j++){
+//	    std::cout<<indexWheelf[j]<<" ";
+//	  }
+//	  std::cout<<std::endl;
+//	  std::cout<<"indexDisk=";
+//	  for(int j=0;j<6;j++){
+//	    std::cout<<indexDisk[j]<<" ";
+//	  }
+//	  std::cout<<std::endl;
+//	  std::cout<<"indexDiskf=";
+//	  for(int j=0;j<6;j++){
+//	    std::cout<<indexDiskf[j]<<" ";
+//	  }
+//	  std::cout<<std::endl;
+//	}
   	
 	if(rpcId.region()==0){
 	  std::stringstream meIdRPC,  meIdDT; //,  bxDistroId;
@@ -354,12 +356,12 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	 
 	  
 	  if(histoRPC && histoDT){ // && BXDistribution){
-	    if(debug) std::cout <<rpcsrv.name()<<std::endl;
+	    LogDebug("rpcefficiencysecond")<<rpcsrv.name();
 	    
 	    for(int i=1;i<=int((*r)->nstrips());++i){
 	  
 	      if(histoDT->getBinContent(i)!=0){
-		if(debug) std::cout<<"Inside the If"<<std::endl;
+		LogDebug("rpcefficiencysecond")<<"Inside the If";
 		buffef = float(histoRPC->getBinContent(i))/float(histoDT->getBinContent(i));
 		//	meMap[meIdPRO]->setBinContent(i,buffef); 
 		buffer = sqrt(buffef*(1.-buffef)/float(histoDT->getBinContent(i)));
@@ -370,7 +372,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      }else{
 		NumberWithOutPrediction++;
 	      }
-	      if(debug) std::cout<<"\t Strip="<<i<<" RPC="<<histoRPC->getBinContent(i)<<" DT="<<histoDT->getBinContent(i)<<" buffef="<<buffef<<" buffer="<<buffer<<" sumbuffef="<<sumbuffef<<" sumbuffer="<<sumbuffer<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction<<std::endl;
+	      LogDebug("rpcefficiencysecond")<<"Strip="<<i<<" RPC="<<histoRPC->getBinContent(i)<<" DT="<<histoDT->getBinContent(i)<<" buffef="<<buffef<<" buffer="<<buffer<<" sumbuffef="<<sumbuffef<<" sumbuffer="<<sumbuffer<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction;
 	    }
 	    
 	    p=histoDT->getTH1F()->Integral();
@@ -426,8 +428,8 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 
 	  //Efficiency for Pigis Histos
 
-	  if(debug) std::cout<<"Pigi "<<camera<<" "<<rpcsrv.shortname()<<" "
-			     <<(*r)->id()<<std::endl;
+	  LogDebug("rpcefficiencysecond")<<"Pigi "<<camera<<" "<<rpcsrv.shortname()<<" "
+			     <<(*r)->id();
 	  
 	  if(p > 100){//We need at least 100 predictions to fill the summary plot
 
@@ -517,11 +519,11 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 
 
 	  if(histoRPC && histoCSC) {// && BXDistribution){
-	    if(debug) std::cout <<rpcsrv.name()<<std::endl;
+	    LogDebug("rpcefficiencysecond")<<rpcsrv.name();
 	    
 	    for(int i=1;i<=int((*r)->nstrips());++i){
 	      if(histoCSC->getBinContent(i)!=0){
-		if(debug) std::cout<<"Inside the If"<<std::endl;
+		LogDebug("rpcefficiencysecond")<<"Inside the If";
 		buffef = float(histoRPC->getBinContent(i))/float(histoCSC->getBinContent(i));
 		//	meMap[meIdPRO]->setBinContent(i,buffef); 
 		buffer = sqrt(buffef*(1.-buffef)/float(histoCSC->getBinContent(i)));
@@ -533,7 +535,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 		NumberWithOutPrediction++;
 	      }
 	      
-	      if(debug) std::cout<<"\t Strip="<<i<<" RPC="<<histoRPC->getBinContent(i)<<" CSC="<<histoCSC->getBinContent(i)<<" buffef="<<buffef<<" buffer="<<buffer<<" sumbuffef="<<sumbuffef<<" sumbuffer="<<sumbuffer<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction<<std::endl;
+	      LogDebug("rpcefficiencysecond")<<"Strip="<<i<<" RPC="<<histoRPC->getBinContent(i)<<" CSC="<<histoCSC->getBinContent(i)<<" buffef="<<buffef<<" buffer="<<buffer<<" sumbuffef="<<sumbuffef<<" sumbuffer="<<sumbuffer<<" NumberStripsPointed="<<NumberStripsPointed<<" NumberWithOutPrediction"<<NumberWithOutPrediction;
 	    }
 	    p=histoCSC->getTH1F()->Integral();
 	    o=histoRPC->getTH1F()->Integral();
@@ -582,8 +584,8 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 
 	  //Efficiency for Pigis Histos
 
-	  if(debug) std::cout<<"Pigi "<<camera<<" "<<rpcsrv.shortname()<<" "
-			     <<(*r)->id()<<std::endl;
+	  LogDebug("rpcefficiencysecond")<<"Pigi "<<camera<<" "<<rpcsrv.shortname()<<" "
+			     <<(*r)->id();
 
 
 
