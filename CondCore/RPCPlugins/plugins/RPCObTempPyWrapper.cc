@@ -241,7 +241,7 @@ namespace cond {
 						std::string const &, std::vector<int> const&, std::vector<float> const& ) const {
 
     std::map<std::string,std::pair<float,float> > geoMap;
-    std::ifstream mapFile("/afs/cern.ch/user/s/stupputi/public/barDetPositions.txt",ifstream::in);
+    std::ifstream mapFile("/afs/cern.ch/user/s/stupputi/public/barDetPositions.txt",std::ifstream::in);
     std::string chamb;
     float xPos,yPos;
     while(mapFile >> chamb >> xPos >> yPos)
