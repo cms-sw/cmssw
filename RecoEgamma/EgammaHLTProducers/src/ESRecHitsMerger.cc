@@ -26,11 +26,10 @@ ESRecHitsMerger::ESRecHitsMerger(const edm::ParameterSet& pset) {
  Pi0SourceES_   = pset.getUntrackedParameter<edm::InputTag>("Pi0Source_ES",edm::InputTag("dummyPi0"));
  EtaSourceES_   = pset.getUntrackedParameter<edm::InputTag>("EtaSource_ES",edm::InputTag("dummyEta"));
   
-
  OutputLabelES_ = pset.getUntrackedParameter<std::string>("OutputLabel_ES");
- 
  InputRecHitES_ = pset.getUntrackedParameter<std::string>("EcalRecHitCollectionES");
  
+ consumesMany<ESRecHitCollection>();
  produces<EcalRecHitCollection>(OutputLabelES_);
  
 }
