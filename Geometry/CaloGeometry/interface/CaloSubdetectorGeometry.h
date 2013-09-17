@@ -117,7 +117,7 @@ class CaloSubdetectorGeometry {
 			      const GlobalPoint& p2  ) 
       { return reco::deltaR( p1, p2 ) ; }
 
-      mutable std::vector<DetId> m_validIds ;
+      void addValidID(const DetId& id);
 
    private:
 
@@ -129,7 +129,7 @@ class CaloSubdetectorGeometry {
       CaloSubdetectorGeometry(            const CaloSubdetectorGeometry& ) ;
       CaloSubdetectorGeometry& operator=( const CaloSubdetectorGeometry& ) ;
 
-      mutable std::atomic<bool> m_sortedIds ;
+      std::vector<DetId> m_validIds ;
 
       mutable std::atomic<std::vector<CCGFloat>*>  m_deltaPhi ;
       mutable std::atomic<std::vector<CCGFloat>*>  m_deltaEta ;
