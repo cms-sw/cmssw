@@ -25,7 +25,7 @@
 		<Tubs name="CHIMNEY_HOLE_P" rMin="0.*m" rMax="0.48*m" dz="[ChimHole_height]" startPhi="0*deg" deltaPhi="360*deg"/>
 		<Tubs name="CHIMNEY_HOLE_N_a" rMin="0.*m" rMax="0.725*m" dz="[ChimHole_height]" startPhi="90*deg" deltaPhi="180*deg"/>
 		<Tubs name="CHIMNEY_HOLE_N_b" rMin="0.*m" rMax="0.725*m" dz="[ChimHole_height]" startPhi="270*deg" deltaPhi="180*deg"/>
-		<Box name="CHIMNEY_HOLE_N_c" dx="0.3/2.*m" dy="0.5/2*m" dz="[ChimHole_height]"/>
+		<Box name="CHIMNEY_HOLE_N_c" dx="0.16*m" dy="0.725*m" dz="[ChimHole_height]"/>
 		<!-- %%%%%%%% Build the oval chimney hole  -->
 		<UnionSolid name="CHIMNEY_HOLE_N_ca">
 			<rSolid name="CHIMNEY_HOLE_N_c"/>

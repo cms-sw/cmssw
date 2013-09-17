@@ -2447,7 +2447,7 @@
 		<Rotation name="MM412" thetaX="90*deg" phiX="60*deg" thetaY="180*deg" phiY="0*deg" thetaZ="90*deg" phiZ="150*deg"/>
 		<!--- Rotations for Chimney Holes in magnet -->
 		<Rotation name="RMCHIMHOLEP" thetaX="90*deg" phiX="00*deg" thetaY="180*deg" phiY="90*deg" thetaZ="90*deg" phiZ="90*deg"/>
-		<Rotation name="RMCHIMHOLEN" thetaX="90*deg" phiX="30*deg" thetaY="180*deg" phiY="90*deg" thetaZ="90*deg" phiZ="120*deg"/>
+		<Rotation name="RMCHIMHOLEN" thetaX="90*deg" phiX="330*deg" thetaY="180*deg" phiY="90*deg" thetaZ="90*deg" phiZ="60*deg"/>
 		<Rotation name="RN090" thetaX="90*deg" phiX="270*deg" thetaY="90*deg" phiY="0*deg" thetaZ="0*deg" phiZ="0*deg"/>
 		<!--%%%%%%%%%%%  CASTOR rotations -->
 		<Rotation name="CARM" thetaX="135.0*deg" phiX="22.5*deg" thetaY="90.0*deg" phiY="112.5*deg" thetaZ="45.0*deg" phiZ="22.5*deg"/>
