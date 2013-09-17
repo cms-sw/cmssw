@@ -14,6 +14,7 @@
 #include <string>
 #include <set>
 #include <algorithm>
+#include <iostream>
 
 namespace edm {
   void loadCap(std::string const& name) {

@@ -107,7 +107,7 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
 		
 	// if want to use, make id cut list
 	if (_detIdFlag){
-        ifstream fin;
+        std::ifstream fin;
         fin.open( _detIdFlagFile.c_str() );
         
         while (!fin.eof() && fin.good() ){

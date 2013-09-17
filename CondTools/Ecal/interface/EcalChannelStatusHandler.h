@@ -130,12 +130,12 @@ namespace popcon {
 
       EcalElectronicsMapping ecalElectronicsMap_;
 
-      ofstream *ResFileEB;
-      ofstream *ResFileEE;
-      ofstream *ResFileNewEB;
-      ofstream *ResFileNewEE;
-      ofstream *daqFile;
-      ofstream *daqFile2;
+      std::ofstream *ResFileEB;
+      std::ofstream *ResFileEE;
+      std::ofstream *ResFileNewEB;
+      std::ofstream *ResFileNewEE;
+      std::ofstream *daqFile;
+      std::ofstream *daqFile2;
 
       std::map<DetId, float> maskedOnlinePedEB, maskedOnlinePedEE;
       std::map<DetId, float> maskedPedEB, maskedPedEE;
