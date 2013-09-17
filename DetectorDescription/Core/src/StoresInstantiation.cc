@@ -19,7 +19,6 @@
 #include <map>
 #include <vector>
 
-template class DDI::Singleton<AxesNames>;
 template class DDI::Singleton<ClhepEvaluator>;
 template class DDI::Singleton<DDRoot>;
 template class DDI::Singleton<DDCompactViewImpl>;

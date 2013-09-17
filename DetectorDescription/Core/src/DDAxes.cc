@@ -2,45 +2,52 @@
 
 namespace DDI { } using namespace DDI;
 
-AxesNames::AxesNames() {
-  axesmap_["x"] = x;
-  axesmap_["y"] = y;
-  axesmap_["z"] = z;
-  axesmap_["rho"] = rho;
-  axesmap_["radial3D"] = radial3D;
-  axesmap_["phi"] = phi;
-  axesmap_["undefined"] = undefined;
-}
+namespace {
+  template <class T>
+  struct entry {                                                                                                                                                    
+     char const* label;
+     T           value;
+  };
 
-AxesNames::~AxesNames() { }
-
-const std::string
-AxesNames::name(const DDAxes& s) 
-{
-  std::map<std::string, DDAxes>::const_iterator it;
-
-  for(it = axesmap_.begin(); it != axesmap_.end(); ++it)
-  {
-    if(it->second == s)
-      break;
+  constexpr bool same(char const *x, char const *y) {
+    return !*x && !*y     ? true                                                                                                                                
+           : /* default */    (*x == *y && same(x+1, y+1));                                                                                                       
   }
-  return it->first;
+
+  template <class T>
+  constexpr T keyToValue(char const *label, entry<T> const *entries) {                                                                                  
+     return !entries->label ? entries->value                         
+            : same(entries->label, label) ? entries->value
+            : /*default*/                   keyToValue(label, entries+1);                                                                                 
+  }
+
+  template <class T>
+  constexpr char const*valueToKey(T value, entry<T> const *entries) {
+     return !entries->label ? entries->label
+            : entries->value == value ? entries->label
+            : /*default*/       valueToKey(value, entries+1);
+  }
+
+  entry<DDAxes> axesNames[] = {
+    {"x", x},
+    {"y", y},
+    {"z", z},
+    {"rho", rho},
+    {"radial3D", radial3D},
+    {"phi", phi},
+    {"undefined", undefined},
+    {0, undefined},
+  };
 }
 
-DDAxes
-AxesNames::index(const std::string & s)
-{
-  return axesmap_[s];
-}
-
-const std::string
+char const*
 DDAxesNames::name(const DDAxes& s) 
 {
-  return instance().name(s);
+  return valueToKey(s, axesNames);
 }
 
 DDAxes
-DDAxesNames::index(const std::string & s) 
+DDAxesNames::index(const std::string & s)
 {
-  return instance().index(s);
+  return keyToValue(s.c_str(), axesNames);
 }
