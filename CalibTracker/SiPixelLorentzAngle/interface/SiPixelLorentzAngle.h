@@ -26,6 +26,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include <Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h>
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include <TROOT.h>
 #include <TTree.h>
 #include <TFile.h>
@@ -194,6 +195,7 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
   const TrackerGeometry * tracker;
   const MagneticField * magfield;
   TrajectoryStateTransform tsTransform;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> t_trajTrack;
   
 };
 
