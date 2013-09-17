@@ -12,7 +12,7 @@
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMOffline/Muon/src/MuonAnalyzerBase.h"
+#include "DQMOffline/Muon/interface/MuonAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

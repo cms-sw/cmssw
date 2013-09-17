@@ -5,10 +5,10 @@
 #include "DQMOffline/Muon/interface/DTSegmentsTask.h"
 
 // the clients
-#include "DQMOffline/Muon/src/MuonTrackResidualsTest.h"
-#include "DQMOffline/Muon/src/MuonRecoTest.h"
-#include "DQMOffline/Muon/src/EfficiencyPlotter.h"
-#include "DQMOffline/Muon/src/MuonTestSummary.h"
+#include "DQMOffline/Muon/interface/MuonTrackResidualsTest.h"
+#include "DQMOffline/Muon/interface/MuonRecoTest.h"
+#include "DQMOffline/Muon/interface/EfficiencyPlotter.h"
+#include "DQMOffline/Muon/interface/MuonTestSummary.h"
 
 
 DEFINE_FWK_MODULE(MuonAnalyzer);
