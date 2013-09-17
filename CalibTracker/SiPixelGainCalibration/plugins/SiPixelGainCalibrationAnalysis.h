@@ -116,7 +116,7 @@ private:
   double scalarVcalHigh_VcalLow_;
   
   //Summary
-  ofstream summary_;
+  std::ofstream summary_;
   uint32_t currentDetID_;
   int* statusNumbers_;
   
