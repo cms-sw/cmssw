@@ -28,15 +28,19 @@ namespace { // hide when instantiated in -O0 debug mode
 
 template<typename Value_t, typename Axis_t>
 Histogram<Value_t, Axis_t>::Histogram() :
-	limits(Axis_t(), Axis_t()), total(Value_t()), totalValid(false)
+	limits(Axis_t(), Axis_t())
 {
+    total.store(Value_t());
+    totalValid.store(false);
 }
 
 template<typename Value_t, typename Axis_t>
 Histogram<Value_t, Axis_t>::Histogram(const Histogram &orig) :
 	binULimits(orig.binULimits), binValues(orig.binValues),
-	limits(orig.limits), total(orig.total), totalValid(orig.totalValid)
+	limits(orig.limits)
 {
+    total.store(orig.total);
+    totalValid.store(orig.totalValid);
 }
 
 template<typename Value_t, typename Axis_t>
@@ -44,15 +48,19 @@ template<typename OValue_t, typename OAxis_t>
 Histogram<Value_t, Axis_t>::Histogram(const Histogram<OValue_t, OAxis_t> &orig) :
 	binULimits(orig.binULimits.begin(), orig.binULimits.end()),
 	binValues(orig.binValues.begin(), orig.binValues.end()),
-	limits(orig.limits), total(Value_t()), totalValid(false)
+	limits(orig.limits)
 {
+    total.store(Value_t());
+    totalValid.store(false);
 }
 
 template<typename Value_t, typename Axis_t>
 Histogram<Value_t, Axis_t>::Histogram(const std::vector<Axis_t> &binULimits) :
 	binULimits(binULimits), binValues(binULimits.size() + 1),
-	limits(Axis_t(), Axis_t()), total(Value_t()), totalValid(true)
+	limits(Axis_t(), Axis_t())
 {
+    total.store(Value_t());
+    totalValid.store(true);
 	if (binULimits.size() < 2)
 		throw cms::Exception("TooFewBinsError")
 			<< "Trying to generate degenerate histogram: "
@@ -67,8 +75,10 @@ template<typename OAxis_t>
 Histogram<Value_t, Axis_t>::Histogram(const std::vector<OAxis_t> &binULimits) :
 	binULimits(binULimits.begin(), binULimits.end()),
 	binValues(binULimits.size() + 1),
-	limits(Axis_t(), Axis_t()), total(Value_t()), totalValid(true)
+	limits(Axis_t(), Axis_t())
 {
+    total.store(Value_t());
+    totalValid.store(true);
 	if (binULimits.size() < 2)
 		throw cms::Exception("TooFewBinsError")
 			<< "Trying to generate degenerate histogram: "
@@ -82,8 +92,10 @@ template<typename Value_t, typename Axis_t>
 template<typename OAxis_t>
 Histogram<Value_t, Axis_t>::Histogram(unsigned int nBins,
 		const PhysicsTools::Calibration::Range<OAxis_t> &range) :
-	binValues(nBins + 2), limits(range), total(Value_t()), totalValid(true)
+	binValues(nBins + 2), limits(range)
 {
+    total.store(Value_t());
+    totalValid.store(true);
 	if (!nBins)
 		throw cms::Exception("TooFewBinsError")
 			<< "Trying to generate degenerate histogram: "
@@ -92,9 +104,10 @@ Histogram<Value_t, Axis_t>::Histogram(unsigned int nBins,
 
 template<typename Value_t, typename Axis_t>
 Histogram<Value_t, Axis_t>::Histogram(unsigned int nBins, Axis_t min, Axis_t max) :
-	binValues(nBins + 2), limits(min, max),
-	total(Value_t()), totalValid(true)
+	binValues(nBins + 2), limits(min, max)
 {
+    total.store(Value_t());
+    totalValid.store(true);
 	if (!nBins)
 		throw cms::Exception("TooFewBinsError")
 			<< "Trying to generate degenerate histogram: "
@@ -113,8 +126,8 @@ Histogram<Value_t, Axis_t> &Histogram<Value_t, Axis_t>::operator = (
 	binULimits = orig.binULimits;
 	binValues = orig.binValues;
 	limits = orig.limits;
-	total = orig.total;
-	totalValid = orig.totalValid;
+    total.store(orig.total);
+    totalValid.store(orig.totalValid);
 	return *this;
 }
 
@@ -128,8 +141,8 @@ Histogram<Value_t, Axis_t> &Histogram<Value_t, Axis_t>::operator = (
 	binValues = std::vector<Value_t>(orig.binValues.begin(),
 	                                 orig.binValues.end());
 	limits = orig.limits;
-	total = orig.total;
-	totalValid = orig.totalValid;
+    total.store(orig.total);
+    totalValid.store(orig.totalValid);
 	return *this;
 }
 
@@ -137,8 +150,8 @@ template<typename Value_t, typename Axis_t>
 void Histogram<Value_t, Axis_t>::reset()
 {
 	std::fill(binValues.begin(), binValues.end(), Value_t());
-	total = Value_t();
-	totalValid = true;
+    total.store(Value_t());
+    totalValid.store(true);
 }
 
 template<typename Value_t, typename Axis_t>
@@ -150,7 +163,7 @@ void Histogram<Value_t, Axis_t>::setBinContent(int bin, Value_t value)
 			   "[0, " << (binValues.size() - 1) << "]." << std::endl;
 
 	binValues[bin] = value;
-	totalValid = false;
+    totalValid.store(false);
 }
 
 template<typename Value_t, typename Axis_t>
@@ -158,7 +171,7 @@ void Histogram<Value_t, Axis_t>::fill(Axis_t x, Value_t weight)
 {
 	int bin = findBin(x);
 	binValues[bin] += weight;
-	totalValid = false;
+    totalValid.store(false);
 }
 
 template<typename Value_t, typename Axis_t>
@@ -170,7 +183,7 @@ void Histogram<Value_t, Axis_t>::setValues(const std::vector<Value_t> &values)
 			   "histogram values" << std::endl;
 
 	binValues = values;
-	totalValid = false;
+    totalValid.store(false);
 }
 
 template<typename Value_t, typename Axis_t>
@@ -183,7 +196,7 @@ void Histogram<Value_t, Axis_t>::setValues(const std::vector<OValue_t> &values)
 			   "histogram values" << std::endl;
 
 	std::copy(values.begin(), values.end(), binValues.begin());
-	totalValid = false;
+    totalValid.store(false);
 }
 
 template<typename Value_t, typename Axis_t>
@@ -227,9 +240,8 @@ template<typename Value_t, typename Axis_t>
 Value_t Histogram<Value_t, Axis_t>::normalization() const
 {
 	if (!totalValid) {
-		total = std::accumulate(binValues.begin() + 1,
-		                        binValues.end() - 1, Value_t()); 
-		totalValid = true;
+        total.store(std::accumulate(binValues.begin() + 1, binValues.end() - 1, Value_t()));
+        totalValid.store(true);
 	}
 
 	return total;

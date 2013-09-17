@@ -1,6 +1,9 @@
 #ifndef CondFormats_PhysicsToolsObjects_Histogram2D_h
 #define CondFormats_PhysicsToolsObjects_Histogram2D_h
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
 #include <utility>
 #include <vector>
 #include <cmath>
@@ -132,8 +135,14 @@ class Histogram2D {
 	RangeY				limitsY;
 
 	// transient cache variables
-	mutable Value_t			total;
-	mutable bool			totalValid;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+	mutable std::atomic<Value_t>	total;
+    mutable std::atomic<bool>       totalValid;
+#else
+	mutable Value_t			        total;
+    mutable bool			        totalValid;
+#endif
+
 	mutable std::vector<Value_t>	rowTotal;
 	mutable std::vector<Value_t>	columnTotal;
 };
@@ -151,6 +160,8 @@ struct VHistogramD2D {
 } // namespace Calibration
 } // namespace PhysicsTools
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.icc"
+#endif
 
 #endif // CondFormats_PhysicsToolsObjects_Histogram2D_h

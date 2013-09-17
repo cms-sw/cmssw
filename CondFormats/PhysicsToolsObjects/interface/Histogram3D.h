@@ -1,6 +1,9 @@
 #ifndef CondFormats_PhysicsToolsObjects_Histogram3D_h
 #define CondFormats_PhysicsToolsObjects_Histogram3D_h
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
 #include <utility>
 #include <vector>
 #include <cmath>
@@ -164,9 +167,14 @@ class Histogram3D {
         RangeY                          limitsZ;
 
 	// transient cache variables
-	mutable Value_t			total;
-	mutable bool			totalValid;
-        mutable std::vector<Value_t>    sliceTotal;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+	mutable std::atomic<Value_t>	total;
+    mutable std::atomic<bool>       totalValid;
+#else
+	mutable Value_t			        total;
+    mutable bool			        totalValid;
+#endif
+    mutable std::vector<Value_t>    sliceTotal;
 	mutable std::vector<Value_t>	rowTotal;
 	mutable std::vector<Value_t>	columnTotal;
 };
@@ -178,6 +186,8 @@ typedef Histogram3D<double> HistogramD3D;
 } // namespace Calibration
 } // namespace PhysicsTools
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.icc"
+#endif
 
 #endif // CondFormats_PhysicsToolsObjects_Histogram3D_h
