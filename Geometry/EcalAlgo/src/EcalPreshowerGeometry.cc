@@ -253,7 +253,7 @@ EcalPreshowerGeometry::newCell( const GlobalPoint& f1 ,
 {
    const unsigned int cellIndex ( ESDetId( detId ).denseIndex() ) ;
    m_cellVec[ cellIndex ] = PreshowerStrip( f1, cornersMgr(), parm ) ;
-   m_validIds.push_back( detId ) ;
+   addValidID( detId ) ;
 }
 
 const CaloCellGeometry* 

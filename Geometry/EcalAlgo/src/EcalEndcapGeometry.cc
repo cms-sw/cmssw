@@ -481,7 +481,7 @@ EcalEndcapGeometry::newCell( const GlobalPoint& f1 ,
    const unsigned int cellIndex ( EEDetId( detId ).denseIndex() ) ;
    m_cellVec[ cellIndex ] =
       TruncatedPyramid( cornersMgr(), f1, f2, f3, parm ) ;
-   m_validIds.push_back( detId ) ;
+   addValidID( detId ) ;
 }
 
 

@@ -485,7 +485,7 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
     m_hfCellVec[ index ] = IdealZPrism( f1, cornersMgr(), parm ) ;
   }
 
-  m_validIds.push_back( detId ) ; 
+  addValidID( detId ) ;
   m_dins.push_back( din );
 }
 
