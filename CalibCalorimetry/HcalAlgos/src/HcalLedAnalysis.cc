@@ -524,7 +524,7 @@ void HcalLedAnalysis::LedDone()
 void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
 					const HODigiCollection& ho,
 					const HFDigiCollection& hf,
-                                        const HcalCalibDigiCollection calib,
+                                        const HcalCalibDigiCollection& calib,
 					const HcalDbService& cond)
 {
   evt++;
@@ -890,7 +890,7 @@ float HcalLedAnalysis::BinsizeCorr(float time) {
 
 
 //-----------------------------------------------------------------------------
-void HcalLedAnalysis::ProcessCalibEvent(int fiberChan, HcalCalibDetId calibId, const HcalCalibDataFrame digi){
+void HcalLedAnalysis::ProcessCalibEvent(int fiberChan, HcalCalibDetId calibId, const HcalCalibDataFrame& digi){
 
   _meca = calibHists.find(calibId);
   if (_meca==calibHists.end()){
