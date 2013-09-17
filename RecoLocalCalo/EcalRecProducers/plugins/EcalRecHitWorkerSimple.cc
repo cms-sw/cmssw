@@ -12,8 +12,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
-EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
-        EcalRecHitWorkerBaseClass(ps)
+EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps, edm::ConsumesCollector& c) :
+  EcalRecHitWorkerBaseClass(ps,c)
 {
         rechitMaker_ = new EcalRecHitSimpleAlgo();
         v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
@@ -27,6 +27,21 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
 
 }
 
+
+EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
+  EcalRecHitWorkerBaseClass(ps)
+{
+        rechitMaker_ = new EcalRecHitSimpleAlgo();
+        v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
+	v_DB_reco_flags_ = ps.getParameter<std::vector<int> >("flagsMapDBReco");
+        killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
+        laserCorrection_ = ps.getParameter<bool>("laserCorrection");
+	EBLaserMIN_ = ps.getParameter<double>("EBLaserMIN");
+	EELaserMIN_ = ps.getParameter<double>("EELaserMIN");
+	EBLaserMAX_ = ps.getParameter<double>("EBLaserMAX");
+	EELaserMAX_ = ps.getParameter<double>("EELaserMAX");
+
+}
 
 
 void EcalRecHitWorkerSimple::set(const edm::EventSetup& es)

@@ -26,7 +26,7 @@ namespace edm {
 class EcalUncalibRecHitWorkerAnalFit : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
-                EcalUncalibRecHitWorkerAnalFit(const edm::ParameterSet& ps);
+                EcalUncalibRecHitWorkerAnalFit(const edm::ParameterSet& ps,edm::ConsumesCollector& c);
                 ~EcalUncalibRecHitWorkerAnalFit() {};
 
                 void set(const edm::EventSetup& es);

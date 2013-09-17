@@ -36,8 +36,8 @@ class PreshowerClusterProducer : public edm::EDProducer {
   int nEvt_;         // internal counter of events
 
   //clustering parameters:
-  edm::InputTag preshHitProducer_;         // name of module/plugin/producer producing hits
-  edm::InputTag endcapSClusterProducer_;   // ditto SuperClusters
+  edm::EDGetTokenT<EcalRecHitCollection> preshHitsToken_;         // name of module/plugin/producer producing hits
+  edm::EDGetTokenT<reco::SuperClusterCollection> endcapSClusterToken_;   // ditto SuperClusters
 
   // name out output collections
   std::string preshClusterCollectionX_;  
