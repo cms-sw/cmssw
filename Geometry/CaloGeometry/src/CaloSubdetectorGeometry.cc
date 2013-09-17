@@ -29,8 +29,8 @@ CaloSubdetectorGeometry::~CaloSubdetectorGeometry()
 void
 CaloSubdetectorGeometry::addValidID(const DetId& id)
 {
-    m_validIds.push_back(id);
-    std::sort( m_validIds.begin(), m_validIds.end() ) ;
+    auto pos = std::lower_bound(m_validIds.begin(), m_validIds.end(), id);
+    m_validIds.insert(pos, id);
 }
 
 const std::vector<DetId>& 
