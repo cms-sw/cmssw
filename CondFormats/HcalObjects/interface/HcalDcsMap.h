@@ -14,6 +14,9 @@ $Revision: 1.1 $
 #include <vector>
 #include <algorithm>
 #include <boost/cstdint.hpp>
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -25,6 +28,17 @@ class HcalDcsMap {
   HcalDcsMap();
   ~HcalDcsMap();
   
+  // swap function
+  void swap(HcalDcsMap& other);
+  // copy-ctor
+  HcalDcsMap(const HcalDcsMap& src);
+  // copy assignment operator
+  HcalDcsMap& operator=(const HcalDcsMap& rhs);
+  // move constructor
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  HcalDcsMap(HcalDcsMap&& other);
+#endif
+
   // lookup the logical detid associated with the given DCS id
   // return Null item if no such mapping.
   //
@@ -101,12 +115,17 @@ class HcalDcsMap {
   std::vector <HcalGenericDetId> allHcalDetId () const;
 
   std::vector<Item> mItems;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  mutable std::atomic<std::vector<const Item*>*> mItemsById;
+  mutable std::atomic<std::vector<const Item*>*> mItemsByDcsId;
+  const std::vector<const Item*>* getItemsById(void){return mItemsById.load();}
+  const std::vector<const Item*>* getItemsByDcsId(void){return mItemsByDcsId.load();}
+#else
   mutable std::vector<const Item*> mItemsById;
-  mutable bool sortedById;
-  const std::vector<const Item *> * getItemsById(void){return &mItemsById;}  
   mutable std::vector<const Item*> mItemsByDcsId;
-  mutable bool sortedByDcsId;
-  const std::vector<const Item *> * getItemsByDcsId(void){return &mItemsByDcsId;}  
+  const std::vector<const Item*>* getItemsById(void){return &mItemsById;}
+  const std::vector<const Item*>* getItemsByDcsId(void){return &mItemsByDcsId;}
+#endif
 };
 
 #endif

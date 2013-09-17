@@ -15,9 +15,7 @@ $Revision: 1.23 $
 
 HcalElectronicsMap::HcalElectronicsMap() : 
   mPItems(HcalElectronicsId::maxLinearIndex+1),
-  mTItems(HcalElectronicsId::maxLinearIndex+1),
-  sortedByPId(false),
-  sortedByTId(false)
+  mTItems(HcalElectronicsId::maxLinearIndex+1)
 {}
 
 namespace hcal_impl {
@@ -25,16 +23,48 @@ namespace hcal_impl {
   class LessByTrigId {public: bool operator () (const HcalElectronicsMap::TriggerItem* a, const HcalElectronicsMap::TriggerItem* b) {return a->mTrigId < b->mTrigId;}};
 }
 
-HcalElectronicsMap::~HcalElectronicsMap(){}
+HcalElectronicsMap::~HcalElectronicsMap() {
+    if (mPItemsById) {
+        delete mPItemsById;
+        mPItemsById = nullptr;
+    }
+    if (mTItemsByTrigId) {
+        delete mTItemsByTrigId;
+        mTItemsByTrigId = nullptr;
+    }
+}
+// copy-ctor
+HcalElectronicsMap::HcalElectronicsMap(const HcalElectronicsMap& src)
+    : mPItems(src.mPItems), mTItems(src.mTItems),
+      mPItemsById(nullptr), mTItemsByTrigId(nullptr) {}
+// copy assignment operator
+HcalElectronicsMap&
+HcalElectronicsMap::operator=(const HcalElectronicsMap& rhs) {
+    HcalElectronicsMap temp(rhs);
+    temp.swap(*this);
+    return *this;
+}
+// public swap function
+void HcalElectronicsMap::swap(HcalElectronicsMap& other) {
+    std::swap(mPItems, other.mPItems);
+    std::swap(mTItems, other.mTItems);
+    other.mTItemsByTrigId.exchange(mTItemsByTrigId.exchange(other.mTItemsByTrigId));
+    other.mPItemsById.exchange(mPItemsById.exchange(other.mPItemsById));
+}
+// move constructor
+HcalElectronicsMap::HcalElectronicsMap(HcalElectronicsMap&& other) 
+    : HcalElectronicsMap() {
+    other.swap(*this);
+}
 
 const HcalElectronicsMap::PrecisionItem* HcalElectronicsMap::findById (unsigned long fId) const {
   PrecisionItem target (fId, 0);
   std::vector<const HcalElectronicsMap::PrecisionItem*>::const_iterator item;
 
-  if (!sortedByPId) sortById();
+  sortById();
   
-  item = std::lower_bound (mPItemsById.begin(), mPItemsById.end(), &target, hcal_impl::LessById());
-  if (item == mPItemsById.end() || (*item)->mId != fId) 
+  item = std::lower_bound ((*mPItemsById).begin(), (*mPItemsById).end(), &target, hcal_impl::LessById());
+  if (item == (*mPItemsById).end() || (*item)->mId != fId)
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
     return 0;
   return *item;
@@ -61,10 +91,10 @@ const HcalElectronicsMap::TriggerItem* HcalElectronicsMap::findByTrigId (unsigne
   TriggerItem target (fTrigId,0);
   std::vector<const HcalElectronicsMap::TriggerItem*>::const_iterator item;
 
-  if (!sortedByTId) sortByTriggerId();
+  sortByTriggerId();
   
-  item = std::lower_bound (mTItemsByTrigId.begin(), mTItemsByTrigId.end(), &target, hcal_impl::LessByTrigId());
-  if (item == mTItemsByTrigId.end() || (*item)->mTrigId != fTrigId) 
+  item = std::lower_bound ((*mTItemsByTrigId).begin(), (*mTItemsByTrigId).end(), &target, hcal_impl::LessByTrigId());
+  if (item == (*mTItemsByTrigId).end() || (*item)->mTrigId != fTrigId)
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
     return 0;
   return *item;
@@ -157,7 +187,12 @@ std::vector <HcalTrigTowerDetId> HcalElectronicsMap::allTriggerId () const {
 
 bool HcalElectronicsMap::mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId) {
   TriggerItem& item = mTItems[fElectronicsId.linearIndex()];
-  sortedByTId=false;
+
+  if (mTItemsByTrigId) {
+      delete mTItemsByTrigId;
+      mTItemsByTrigId = nullptr;
+  }
+
   if (item.mElId==0) item.mElId=fElectronicsId.rawId();
   if (item.mTrigId == 0) {
     item.mTrigId = fTriggerId.rawId (); // just cast avoiding long machinery
@@ -173,7 +208,11 @@ bool HcalElectronicsMap::mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigT
 bool HcalElectronicsMap::mapEId2chId (HcalElectronicsId fElectronicsId, DetId fId) {
   PrecisionItem& item = mPItems[fElectronicsId.linearIndex()];
 
-  sortedByPId=false;
+  if (mPItemsById) {
+      delete mPItemsById;
+      mPItemsById = nullptr;
+  }
+
   if (item.mElId==0) item.mElId=fElectronicsId.rawId();
   if (item.mId == 0) {
     item.mId = fId.rawId ();
@@ -187,25 +226,35 @@ bool HcalElectronicsMap::mapEId2chId (HcalElectronicsId fElectronicsId, DetId fI
 }
 
 void HcalElectronicsMap::sortById () const {
-  if (!sortedByPId) {
-    mPItemsById.clear();
-    for (std::vector<PrecisionItem>::const_iterator i=mPItems.begin(); i!=mPItems.end(); ++i) {
-      if (i->mElId) mPItemsById.push_back(&(*i));
-    }
+  if (!mPItemsById) {
+      auto ptr = new std::vector<const PrecisionItem*>;
+      for (auto i=mPItems.begin(); i!=mPItems.end(); ++i) {
+          if (i->mElId) (*ptr).push_back(&(*i));
+      }
     
-    std::sort (mPItemsById.begin(), mPItemsById.end(), hcal_impl::LessById ());
-    sortedByPId=true;
+      std::sort ((*ptr).begin(), (*ptr).end(), hcal_impl::LessById ());
+      //atomically try to swap this to become mPItemsById
+      std::vector<const PrecisionItem*>* expect = nullptr;
+      bool exchanged = mPItemsById.compare_exchange_strong(expect, ptr);
+      if(!exchanged) {
+          delete ptr;
+      }
   }
 }
 
 void HcalElectronicsMap::sortByTriggerId () const {
-  if (!sortedByTId) {
-    mTItemsByTrigId.clear();
-    for (std::vector<TriggerItem>::const_iterator i=mTItems.begin(); i!=mTItems.end(); ++i) {
-      if (i->mElId) mTItemsByTrigId.push_back(&(*i));
-    }
+  if (!mTItemsByTrigId) {
+      auto ptr = new std::vector<const TriggerItem*>;
+      for (auto i=mTItems.begin(); i!=mTItems.end(); ++i) {
+          if (i->mElId) (*ptr).push_back(&(*i));
+      }
     
-    std::sort (mTItemsByTrigId.begin(), mTItemsByTrigId.end(), hcal_impl::LessByTrigId ());
-    sortedByTId=true;
+      std::sort ((*ptr).begin(), (*ptr).end(), hcal_impl::LessByTrigId ());
+      //atomically try to swap this to become mTItemsByTrigId
+      std::vector<const TriggerItem*>* expect = nullptr;
+      bool exchanged = mTItemsByTrigId.compare_exchange_strong(expect, ptr);
+      if(!exchanged) {
+          delete ptr;
+      }
   }
 }

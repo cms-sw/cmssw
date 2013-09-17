@@ -13,6 +13,9 @@ $Revision: 1.17 $
 #include <vector>
 #include <algorithm>
 #include <boost/cstdint.hpp>
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -25,6 +28,17 @@ class HcalElectronicsMap {
  public:
   HcalElectronicsMap();
   ~HcalElectronicsMap();
+
+  // swap function
+  void swap(HcalElectronicsMap& other);
+  // copy-ctor
+  HcalElectronicsMap(const HcalElectronicsMap& src);
+  // copy assignment operator
+  HcalElectronicsMap& operator=(const HcalElectronicsMap& rhs);
+  // move constructor
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  HcalElectronicsMap(HcalElectronicsMap&& other);
+#endif
 
   /// lookup the logical detid associated with the given electronics id
   //return Null item if no such mapping
@@ -85,10 +99,13 @@ class HcalElectronicsMap {
   
   std::vector<PrecisionItem> mPItems;
   std::vector<TriggerItem> mTItems;
-  mutable std::vector<const PrecisionItem*> mPItemsById;
-  mutable bool sortedByPId;
-  mutable std::vector<const TriggerItem*> mTItemsByTrigId;
-  mutable bool sortedByTId;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  mutable std::atomic<std::vector<const PrecisionItem*>*> mPItemsById;
+  mutable std::atomic<std::vector<const TriggerItem*>*> mTItemsByTrigId;
+#else
+  mutable std::vector<const PrecisionItem*>* mPItemsById;
+  mutable std::vector<const TriggerItem*>* mTItemsByTrigId;
+#endif
 };
 
 #endif

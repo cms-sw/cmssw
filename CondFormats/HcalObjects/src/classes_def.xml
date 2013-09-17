@@ -109,9 +109,7 @@
 
  <class name="HcalElectronicsMap">
   <field name="mPItemsById" transient="true"/>
-  <field name="sortedByPId" transient="true"/>
   <field name="mTItemsByTrigId" transient="true"/>
-  <field name="sortedByTId" transient="true"/>
  </class>
  <class name="HcalElectronicsMap::PrecisionItem"/>
  <class name="HcalElectronicsMap::TriggerItem"/>
@@ -293,9 +291,7 @@
 
  <class name="HcalDcsMap">
   <field name="mItemsById" transient="true"/>
-  <field name="sortedById" transient="true"/>
   <field name="mItemsByDcsId" transient="true"/>
-  <field name="sortedByDcsId" transient="true"/>
  </class>
  <class name="HcalDcsMap::Item"/>
  <class name="std::vector<HcalDcsMap::Item>"/>
