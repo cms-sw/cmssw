@@ -4,16 +4,12 @@
 /** \class CSCOfflineMonitor
  *
  * Simple package for offline CSC DQM based on RecoLocalMuon/CSCValidation:
- *    DIGIS
- *    recHits
- *    segments
- *
+ *    digis, rechits, segments
  *
  * Andrew Kubik, Northwestern University, Oct 2008
  */
 
-
-// user include files
+#include <FWCore/Framework/interface/ConsumesCollector.h>
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -73,46 +69,37 @@
 
 class CSCOfflineMonitor : public edm::EDAnalyzer {
 public:
-  /// Constructor
+
   CSCOfflineMonitor(const edm::ParameterSet& pset);
 
-  /// Destructor
   virtual ~CSCOfflineMonitor();
 
-  // Operations
   void beginJob(void);
   void finalize(); 
   virtual void beginRun( edm::Run const &, edm::EventSetup const & ) {finalizedHistograms_ = false;};
   virtual void endRun( edm::Run const &, edm::EventSetup const & ) ; // call finialize() 
   virtual void endJob() ; // call finalize()
-
-
   
-  /// Perform the real analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
   enum LabelType {SMALL, EXTENDED};
   enum AxisType  {X=1, Y=2, Z=3};
   
-  
-protected:
-
 private: 
 
   bool finalizedHistograms_;
 
   edm::ParameterSet param;
-  edm::InputTag stripDigiTag_;
-  edm::InputTag wireDigiTag_;
-  edm::InputTag alctDigiTag_;
-  edm::InputTag clctDigiTag_;
-  edm::InputTag cscRecHitTag_;
-  edm::InputTag cscSegTag_; 
-  edm::InputTag FEDRawDataCollectionTag_; 
 
-  // some useful functions
+  edm::EDGetTokenT<FEDRawDataCollection>           rd_token;
+  edm::EDGetTokenT<CSCWireDigiCollection>          wd_token;
+  edm::EDGetTokenT<CSCStripDigiCollection>         sd_token;
+  edm::EDGetTokenT<CSCALCTDigiCollection>          al_token;
+  edm::EDGetTokenT<CSCCLCTDigiCollection>          cl_token;
+  edm::EDGetTokenT<CSCRecHit2DCollection>          rh_token;
+  edm::EDGetTokenT<CSCSegmentCollection>           se_token;
 
-  // modules:
+  // modules
   void  doOccupancies(edm::Handle<CSCStripDigiCollection> strips, edm::Handle<CSCWireDigiCollection> wires,
                       edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
 		      edm::Handle<CSCCLCTDigiCollection> clcts);
@@ -135,6 +122,7 @@ private:
   int        typeIndex(CSCDetId id, int flag = 1);
   int        chamberSerial(CSCDetId id);
   void       applyCSClabels(MonitorElement *meHisto, LabelType t, AxisType a);
+
   // for efficiency calculation
   // these functions handle Stoyan's efficiency code
   void  fillEfficiencyHistos(int bin, int flag);
