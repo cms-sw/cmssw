@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <iostream>
 
 // user include files
 #include "DataFormats/FWLite/interface/MultiChainEvent.h"

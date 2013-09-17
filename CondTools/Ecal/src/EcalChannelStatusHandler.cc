@@ -1649,17 +1649,17 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
   // preparing the output files
   char outfile[800];
   sprintf(outfile,"BadChannelsEB_run%d.txt",min_run);
-  ResFileEB    = new ofstream(outfile,std::ios::out);
+  ResFileEB    = new std::ofstream(outfile,std::ios::out);
   sprintf(outfile,"BadChannelsEE_run%d.txt",min_run);
-  ResFileEE    = new ofstream(outfile,std::ios::out);
+  ResFileEE    = new std::ofstream(outfile,std::ios::out);
   sprintf(outfile,"BadNewChannelsEB_run%d.txt",min_run);
-  ResFileNewEB = new ofstream(outfile,std::ios::out);
+  ResFileNewEB = new std::ofstream(outfile,std::ios::out);
   sprintf(outfile,"BadNewChannelsEE_run%d.txt",min_run);
-  ResFileNewEE = new ofstream(outfile,std::ios::out);
+  ResFileNewEE = new std::ofstream(outfile,std::ios::out);
   sprintf(outfile,"DaqConfig_run%d.txt",min_run);
-  daqFile = new ofstream(outfile,std::ios::out);
+  daqFile = new std::ofstream(outfile,std::ios::out);
   sprintf(outfile,"DaqConfig_channels_run%d.txt",min_run);
-  daqFile2 = new ofstream(outfile,std::ios::out);
+  daqFile2 = new std::ofstream(outfile,std::ios::out);
 
   *daqFile  << "fed" << "\t\t" << "tower" << std::endl; 
 

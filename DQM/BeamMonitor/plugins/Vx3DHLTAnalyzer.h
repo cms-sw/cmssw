@@ -146,8 +146,8 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       // ######################
       // # Internal variables #
       // ######################
-      ofstream outputFile;
-      ofstream outputDebugFile;
+      std::ofstream outputFile;
+      std::ofstream outputDebugFile;
       edm::TimeValue_t beginTimeOfFit;
       edm::TimeValue_t endTimeOfFit;
       unsigned int nBinsHistoricalPlot;
