@@ -13,7 +13,6 @@ typedef CaloSubdetectorGeometry::CCGFloat CCGFloat ;
 CaloSubdetectorGeometry::CaloSubdetectorGeometry() : 
    m_parMgr ( 0 ) ,
    m_cmgr   ( 0 ) ,
-   m_sortedIds (false) ,
    m_deltaPhi  (nullptr) ,
    m_deltaEta  (nullptr)
 {}
@@ -27,15 +26,17 @@ CaloSubdetectorGeometry::~CaloSubdetectorGeometry()
    if (m_deltaEta) delete m_deltaEta ;
 }
 
+void
+CaloSubdetectorGeometry::addValidID(const DetId& id)
+{
+    m_validIds.push_back(id);
+    std::sort( m_validIds.begin(), m_validIds.end() ) ;
+}
+
 const std::vector<DetId>& 
 CaloSubdetectorGeometry::getValidDetIds( DetId::Detector /*det*/    , 
 					 int             /*subdet*/   ) const 
 {
-   if( !m_sortedIds )
-   {
-      std::sort( m_validIds.begin(), m_validIds.end() ) ;
-      m_sortedIds.store(true);
-   }
    return m_validIds ;
 }
 
