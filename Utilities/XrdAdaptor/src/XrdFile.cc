@@ -276,19 +276,6 @@ XrdFile::readv (IOBuffer *into, IOSize n)
 IOSize
 XrdFile::readv (IOPosBuffer *into, IOSize n)
 {
-  // CMSSW may issue large readv's; Xrootd is only able to handle
-  // 1024.  Further, the splitting algorithm may slightly increase
-  // the number of buffers.
-  // Note we ignore return values as we always throw exceptions on
-  // errors.
-  IOSize adjust = XRD_CL_MAX_SIZE - 2;
-  IOSize addl = 0;
-  if (n + 1 > adjust) 
-  {
-    addl = readv(into+adjust, n-adjust);
-    n = adjust;
-  }
-
   // A trivial vector read - unlikely, considering ROOT data format.
   if (unlikely(n == 0)) {
     return 0;
@@ -298,46 +285,91 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
   }
 
   std::shared_ptr<std::vector<IOPosBuffer> >cl(new std::vector<IOPosBuffer>);
-  cl->reserve(n);
 
-  IOSize size = 0;
-  for (IOSize i=0; i<n; i++) {
-    IOOffset offset = into[i].offset();
-    IOSize length = into[i].size();
-    size += length;
-    char * buffer = static_cast<char *>(into[i].data());
-    while (length > XRD_CL_MAX_CHUNK) {
+  // CMSSW may issue large readv's; Xrootd is only able to handle
+  // 1024.  Further, the splitting algorithm may slightly increase
+  // the number of buffers.
+  IOSize adjust = XRD_CL_MAX_SIZE - 2;
+  cl->reserve(n > adjust ? adjust : n);
+  IOSize idx = 0, last_idx = 0;
+  IOSize final_result = 0;
+  while (idx < n)
+  {
+    cl->clear();
+    IOSize size = 0;
+    while (idx < n) {
+      unsigned rollback_count = 1;
+      IOSize current_size = size;
+      IOOffset offset = into[idx].offset();
+      IOSize length = into[idx].size();
+      size += length;
+      char * buffer = static_cast<char *>(into[idx].data());
+      while (length > XRD_CL_MAX_CHUNK) {
+        IOPosBuffer ci;
+        ci.set_size(XRD_CL_MAX_CHUNK);
+        length -= XRD_CL_MAX_CHUNK;
+        ci.set_offset(offset);
+        offset += XRD_CL_MAX_CHUNK;
+        ci.set_data(buffer);
+        buffer += XRD_CL_MAX_CHUNK;
+        cl->emplace_back(ci);
+        rollback_count ++;
+      }
       IOPosBuffer ci;
-      ci.set_size(XRD_CL_MAX_CHUNK);
-      length -= XRD_CL_MAX_CHUNK;
+      ci.set_size(length);
       ci.set_offset(offset);
-      offset += XRD_CL_MAX_CHUNK;
       ci.set_data(buffer);
-      buffer += XRD_CL_MAX_CHUNK;
       cl->emplace_back(ci);
+
+      if (cl->size() > adjust)
+      {
+        while (rollback_count--) cl->pop_back();
+        size = current_size;
+        break;
+      }
+      else
+      {
+        idx++;
+      }
     }
-    IOPosBuffer ci;
-    ci.set_size(length);
-    ci.set_offset(offset);
-    ci.set_data(buffer);
-    cl->emplace_back(ci);
+    edm::CPUTimer timer;
+    timer.start();
+    IOSize result;
+    try
+    {
+      try
+      {
+        result = m_requestmanager->handle(cl).get();
+      }
+      catch (XrootdException& ex)
+      {
+        if (ex.getCode() == XrdCl::errInvalidResponse)
+        {
+          edm::LogWarning("XrdAdaptorInternal") << "Got an invalid response from Xrootd server; retrying once" << std::endl;
+          result = m_requestmanager->handle(cl).get();
+        }
+        else
+        {
+          throw;
+        }
+      }
+    }
+    catch (edm::Exception& ex)
+    {
+      ex.addContext("Calling XrdFile::readv()");
+      throw;
+    }
+    timer.stop();
+    assert(result == size);
+    edm::LogVerbatim("XrdAdaptorInternal") << "[" << m_op_count.fetch_add(1) << "] Time for readv: " << static_cast<int>(1000*timer.realTime()) << std::endl;
+
+    // Assure that we have made some progress.
+    assert(last_idx < idx);
+    last_idx = idx;
+
+    final_result += result;
   }
-  edm::CPUTimer timer;
-  timer.start();
-  IOSize result;
-  try
-  {
-    result = m_requestmanager->handle(cl).get();
-  }
-  catch (edm::Exception& ex)
-  {
-    ex.addContext("Calling XrdFile::readv()");
-    throw;
-  }
-  timer.stop();
-  assert(result == size);
-  edm::LogVerbatim("XrdAdaptorInternal") << "[" << m_op_count.fetch_add(1) << "] Time for readv: " << static_cast<int>(1000*timer.realTime()) << std::endl;
-  return result + addl;
+  return final_result;
 }
 
 IOSize

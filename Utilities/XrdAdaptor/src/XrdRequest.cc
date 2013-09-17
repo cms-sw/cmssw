@@ -46,16 +46,29 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
     else
     {
         Source *source = m_source.get();
+        {std::unique_lock<std::mutex> sentry(g_ml_mutex);
         edm::LogWarning("XrdAdaptorInternal") << "XrdRequestManager::handle(name='"
           << m_manager.getFilename() << ") failure when reading from "
           << (source ? source->ID() : "(unknown source)")
           << "; failed with error '" << status->ToStr() << "' (errno="
           << status->errNo << ", code=" << status->code << ").";
+        }
         m_failure_count++;
         try
         {
-            m_manager.requestFailure(m_self_reference);
-            return;
+            try
+            {
+                m_manager.requestFailure(m_self_reference, *status);
+                return;
+            }
+            catch (XrootdException& ex)
+            {
+                if (ex.getCode() == XrdCl::errInvalidResponse)
+                {
+                    m_promise.set_exception(std::current_exception());
+                }
+                else throw;
+            }
         }
         catch (edm::Exception& ex)
         {
@@ -65,7 +78,9 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
               << status->errNo << ", code=" << status->code << ").";
             ex.addAdditionalInfo(ss.str());
             m_promise.set_exception(std::current_exception());
+            {std::unique_lock<std::mutex> sentry(g_ml_mutex);
             edm::LogWarning("XrdAdaptorInternal") << "Caught a CMSSW exception when running connection recovery.";
+            }
         }
         catch (...)
         {
@@ -78,7 +93,9 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
             ex.addContext("Calling XrdRequestManager::handle()");
             m_manager.addConnections(ex);
             m_promise.set_exception(std::make_exception_ptr(ex));
+            {std::unique_lock<std::mutex> sentry(g_ml_mutex);
             edm::LogWarning("XrdAdaptorInternal") << "Caught a new exception when running connection recovery.";
+            }
         }
     }
     m_self_reference = nullptr;

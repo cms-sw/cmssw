@@ -46,8 +46,6 @@ private:
 
     std::unique_ptr<QualityMetricSource> m_qm;
 
-    std::vector<char> m_buffer;
-
 #ifdef XRD_FAKE_SLOW
     bool m_slow;
 #endif

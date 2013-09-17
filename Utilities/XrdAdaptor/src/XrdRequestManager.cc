@@ -96,10 +96,12 @@ RequestManager::~RequestManager()
 void
 RequestManager::checkSources(timespec &now, IOSize requestSize)
 {
+  {std::unique_lock<std::mutex> sentry(g_ml_mutex);
   edm::LogVerbatim("XrdAdaptorInternal") << "Time since last check "
     << timeDiffMS(now, m_lastSourceCheck) << "; last check "
     << m_lastSourceCheck.tv_sec << "; now " <<now.tv_sec
     << "; next check " << m_nextActiveSourceCheck.tv_sec << std::endl;  
+  }
   if (timeDiffMS(now, m_lastSourceCheck) > 1000 && timeDiffMS(now, m_nextActiveSourceCheck) > 0)
   {   
     checkSourcesImpl(now, requestSize);
@@ -116,13 +118,17 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
     findNewSource = true;
   else if (m_activeSources.size() > 1)
   {
+    {std::unique_lock<std::mutex> sentry(g_ml_mutex);
     edm::LogVerbatim("XrdAdaptorInternal") << "Source 0 quality " << m_activeSources[0]->getQuality() << ", source 1 quality " << m_activeSources[1]->getQuality() << std::endl;
+    }
     if ((m_activeSources[0]->getQuality() > 5130) ||
         ((m_activeSources[0]->getQuality() > 260) && (m_activeSources[1]->getQuality()*4 < m_activeSources[0]->getQuality())))
     {
+        {std::unique_lock<std::mutex> sentry(g_ml_mutex);
         edm::LogWarning("XrdAdaptorInternal") << "Removing "
           << m_activeSources[0]->ID() << " from active sources due to poor quality ("
           << m_activeSources[0]->getQuality() << " vs " << m_activeSources[1]->getQuality() << ")" << std::endl;
+        }
         if (m_activeSources[0]->getLastDowngrade().tv_sec != 0) findNewSource = true;
         m_activeSources[0]->setLastDowngrade(now);
         m_inactiveSources.emplace_back(m_activeSources[0]);
@@ -130,10 +136,12 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
     }
     else if ((m_activeSources[1]->getQuality() > 5130) ||
         ((m_activeSources[1]->getQuality() > 260) && (m_activeSources[0]->getQuality()*4 < m_activeSources[1]->getQuality())))
-    {
+    { 
+        {std::unique_lock<std::mutex> sentry(g_ml_mutex);
         edm::LogWarning("XrdAdaptorInternal") << "Removing "
           << m_activeSources[1]->ID() << " from active sources due to poor quality ("
           << m_activeSources[1]->getQuality() << " vs " <<m_activeSources[0]->getQuality() << ")" << std::endl;
+        }
         if (m_activeSources[1]->getLastDowngrade().tv_sec != 0) findNewSource = true;
         m_activeSources[1]->setLastDowngrade(now);
         m_inactiveSources.emplace_back(m_activeSources[1]);
@@ -149,11 +157,14 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
         [](const std::shared_ptr<Source> &s1, const std::shared_ptr<Source> &s2) {return s1->getQuality() < s2->getQuality();});
     if (bestInactiveSource != eligibleInactiveSources.end() && bestInactiveSource->get())
     {
+        std::unique_lock<std::mutex> sentry(g_ml_mutex);
         edm::LogVerbatim("XrdAdaptorInternal") << "Best inactive source: " <<(*bestInactiveSource)->ID()
             << ", quality " << (*bestInactiveSource)->getQuality();
     }
+    {std::unique_lock<std::mutex> sentry(g_ml_mutex);
     edm::LogVerbatim("XrdAdaptorInternal") << "Worst active source: " <<(*worstActiveSource)->ID() 
         << ", quality " << (*worstActiveSource)->getQuality();
+    }
     if ((bestInactiveSource != eligibleInactiveSources.end()) && m_activeSources.size() == 1)
     {
         m_activeSources.push_back(*bestInactiveSource);
@@ -161,10 +172,12 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
     }
     else while ((bestInactiveSource != eligibleInactiveSources.end()) && (*worstActiveSource)->getQuality() > (*bestInactiveSource)->getQuality()+XRD_ADAPTOR_SOURCE_QUALITY_FUDGE)
     {
+        {std::unique_lock<std::mutex> sentry(g_ml_mutex);
         edm::LogVerbatim("XrdAdaptorInternal") << "Removing " << (*worstActiveSource)->ID()
             << " from active sources due to quality (" << (*worstActiveSource)->getQuality()
             << ") and promoting " << (*bestInactiveSource)->ID() << " (quality: "
             << (*bestInactiveSource)->getQuality() << ")" << std::endl;
+        }
         (*worstActiveSource)->setLastDowngrade(now);
         for (auto it = m_inactiveSources.begin(); it != m_inactiveSources.end(); it++) if (it->get() == bestInactiveSource->get()) {m_inactiveSources.erase(it); break;}
         m_inactiveSources.emplace_back(std::move(*worstActiveSource));
@@ -309,8 +322,31 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
     std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
     if (status.IsOK())
     {
+        {std::unique_lock<std::mutex> sentry(g_ml_mutex);
         edm::LogVerbatim("XrdAdaptorInternal") << "Successfully opened new source: " << source->ID() << std::endl;
-
+        }
+        for (const auto & s : m_activeSources)
+        {
+            if (source->ID() == s->ID())
+            {
+                std::unique_lock<std::mutex> sentry(g_ml_mutex);
+                edm::LogVerbatim("XrdAdaptorInternal") << "Xrootd server returned excluded source " << source->ID()
+                    << "; ignoring" << std::endl;
+                m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
+                return;
+            }
+        }
+        for (const auto & s : m_inactiveSources)
+        {
+            if (source->ID() == s->ID())
+            {
+                std::unique_lock<std::mutex> sentry(g_ml_mutex);
+                edm::LogVerbatim("XrdAdaptorInternal") << "Xrootd server returned excluded inactive source " << source->ID() 
+                    << "; ignoring" << std::endl;
+                m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
+                return;
+            }
+        }
         if (m_activeSources.size() < 2)
         {
             m_activeSources.push_back(source);
@@ -322,6 +358,7 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
     }
     else
     {   // File-open failure - wait at least 120s before next attempt.
+        std::unique_lock<std::mutex> sentry(g_ml_mutex);
         edm::LogVerbatim("XrdAdaptorInternal") << "Got failure when trying to open a new source" << std::endl;
         m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
     }
@@ -397,10 +434,24 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
 }
 
 void
-RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr)
+RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr, XrdCl::Status &c_status)
 {
     std::unique_lock<std::recursive_mutex> sentry(m_source_mutex);
     std::shared_ptr<Source> source_ptr = c_ptr->getCurrentSource();
+
+    // Fail early for invalid responses - XrdFile has a separate path for handling this.
+    if (c_status.code == XrdCl::errInvalidResponse)
+    {
+        XrootdException ex(c_status, edm::errors::FileReadError);
+        ex << "XrdAdaptor::RequestManager::requestFailure readv(name='" << m_name
+               << "', flags=0x" << std::hex << m_flags
+               << ", permissions=0" << std::oct << m_perms << std::dec
+               << ", old source=" << source_ptr->ID()
+               << ") => Invalid ReadV response from server";
+        ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
+        addConnections(ex);
+        throw ex;
+    }
 
     // Note that we do not delete the Source itself.  That is because this
     // function may be called from within XrdCl::ResponseHandler::HandleResponseWithHosts
@@ -430,7 +481,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr)
         std::future_status status = future.wait_for(std::chrono::seconds(60));
         if (status == std::future_status::timeout)
         {
-            edm::Exception ex(edm::errors::FileOpenError);
+            XrootdException ex(c_status, edm::errors::FileOpenError);
             ex << "XrdAdaptor::RequestManager::requestFailure Open(name='" << m_name
                << "', flags=0x" << std::hex << m_flags
                << ", permissions=0" << std::oct << m_perms << std::dec
@@ -457,7 +508,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr)
         if (std::find(m_disabledSourceStrings.begin(), m_disabledSourceStrings.end(), new_source->ID()) != m_disabledSourceStrings.end())
         {
             // The server gave us back a data node we requested excluded.  Fatal!
-            edm::Exception ex(edm::errors::FileOpenError);
+            XrootdException ex(c_status, edm::errors::FileOpenError);
             ex << "XrdAdaptor::RequestManager::requestFailure Open(name='" << m_name
                << "', flags=0x" << std::hex << m_flags
                << ", permissions=0" << std::oct << m_perms << std::dec
@@ -572,6 +623,21 @@ consumeChunkBack(size_t front, std::vector<IOPosBuffer> &input, std::vector<IOPo
     }
 }
 
+static IOSize validateList(const std::vector<IOPosBuffer> req)
+{
+    IOSize total = 0;
+    off_t last_offset = -1;
+    for (const auto & it : req)
+    {
+        total += it.size();
+        assert(it.offset() > last_offset);
+        last_offset = it.offset();
+        assert(it.size() <= XRD_CL_MAX_CHUNK);
+        assert(it.offset() < 0x1ffffffffff);
+    }
+    return total;
+}
+
 void
 XrdAdaptor::RequestManager::splitClientRequest(const std::vector<IOPosBuffer> &iolist, std::vector<IOPosBuffer> &req1, std::vector<IOPosBuffer> &req2)
 {
@@ -592,15 +658,19 @@ XrdAdaptor::RequestManager::splitClientRequest(const std::vector<IOPosBuffer> &i
         consumeChunkFront(front, tmp_iolist, req1, chunk1);
         consumeChunkBack(front, tmp_iolist, req2, chunk2);
     }
+    std::sort(req1.begin(), req1.end(), [](const IOPosBuffer & left, const IOPosBuffer & right){return left.offset() < right.offset();});
+    std::sort(req2.begin(), req2.end(), [](const IOPosBuffer & left, const IOPosBuffer & right){return left.offset() < right.offset();});
 
-    IOSize size1 = 0, size2 = 0, size_orig = 0;
+    IOSize size1 = validateList(req1);
+    IOSize size2 = validateList(req2);
+    IOSize size_orig = 0;
     for (const auto & it : iolist) size_orig += it.size();
-    for (const auto & it : req1) size1 += it.size();
-    for (const auto & it : req2) size2 += it.size();
 
     assert(size_orig == size1 + size2);
 
+    {std::unique_lock<std::mutex> sentry(g_ml_mutex);
     edm::LogVerbatim("XrdAdaptorInternal") << "Original request size " << iolist.size() << " (" << size_orig << " bytes) split into requests size " << req1.size() << " (" << size1 << " bytes) and " << req2.size() << " (" << size2 << " bytes)" << std::endl;
+    }
 }
 
 XrdAdaptor::RequestManager::OpenHandler::OpenHandler(RequestManager & manager)
@@ -618,6 +688,7 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
         GET_CLOCK_MONOTONIC(now);
         std::shared_ptr<Source> source(new Source(now, std::move(m_file)));
         m_promise.set_value(source);
+        sentry.~lock_guard();
         m_manager.handleOpen(*status, source);
     }
     else
@@ -634,6 +705,7 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
         m_manager.addConnections(ex);
 
         m_promise.set_exception(std::make_exception_ptr(ex));
+        sentry.~lock_guard();
         m_manager.handleOpen(*status, emptySource);
     }
     delete status;
@@ -655,7 +727,9 @@ XrdAdaptor::RequestManager::OpenHandler::open()
 
     auto opaque = m_manager.prepareOpaqueString();
     std::string new_name = m_manager.m_name + ((m_manager.m_name.find("?") == m_manager.m_name.npos) ? "?" : "&") + opaque;
+    {std::unique_lock<std::mutex> sentry(g_ml_mutex);
     edm::LogVerbatim("XrdAdaptorInternal") << "Trying to open URL: " << new_name;
+    }
     m_file.reset(new XrdCl::File());
     XrdCl::XRootDStatus status;
     if (!(status = m_file->Open(new_name, m_manager.m_flags, m_manager.m_perms, this)).IsOK())

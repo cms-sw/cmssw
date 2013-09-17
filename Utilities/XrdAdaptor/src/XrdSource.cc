@@ -15,6 +15,7 @@
 #include "QualityMetric.h"
 
 #define MAX_REQUEST 256*1024
+#define XRD_CL_MAX_CHUNK 512*1024
 
 #ifdef XRD_FAKE_SLOW
 //#define XRD_DELAY 5140
@@ -40,16 +41,18 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh)
 {
     assert(m_qm.get());
     assert(m_fh.get());
-    m_buffer.reserve(MAX_REQUEST);
 }
 
 Source::~Source()
 {
   XrdCl::XRootDStatus status;
   if (! (status = m_fh->Close()).IsOK())
+  {
+    std::unique_lock<std::mutex> sentry(g_ml_mutex);
     edm::LogWarning("XrdFileWarning")
       << "Source::~Source() failed with error '" << status.ToStr()
       << "' (errno=" << status.errNo << ", code=" << status.code << ")";
+  }
   m_fh.reset();
 }
 
@@ -59,10 +62,27 @@ Source::getFileHandle()
     return m_fh;
 }
 
+static void
+validateList(const XrdCl::ChunkList& cl)
+{
+    off_t last_offset = -1;
+    for (const auto & ci : cl)
+    {
+        assert(static_cast<off_t>(ci.offset) > last_offset);
+        last_offset = ci.offset;
+        assert(ci.length <= XRD_CL_MAX_CHUNK);
+        assert(ci.offset < 0x1ffffffffff);
+        assert(ci.offset > 0);
+    }
+    assert(cl.size() <= 1024);
+}
+
 void
 Source::handle(std::shared_ptr<ClientRequest> c)
 {
+    {std::unique_lock<std::mutex> sentry(g_ml_mutex);
     edm::LogVerbatim("XrdAdaptorInternal") << "Reading from " << ID() << ", quality " << m_qm->get() << std::endl;
+    }
     c->m_source = shared_from_this();
     c->m_self_reference = c;
     m_qm->startWatch(c->m_qmw);
@@ -80,9 +100,9 @@ Source::handle(std::shared_ptr<ClientRequest> c)
         cl.reserve(c->m_iolist->size());
         for (const auto & it : *c->m_iolist)
         {
-            XrdCl::ChunkInfo ci(it.offset(), it.size(), it.data());
-            cl.emplace_back(ci);
+            cl.emplace_back(it.offset(), it.size(), it.data());
         }
+        validateList(cl);
         m_fh->VectorRead(cl, nullptr, c.get());
     }
 }

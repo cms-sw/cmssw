@@ -3,12 +3,15 @@
 
 #include <time.h>
 
+#include <mutex>
 #include <memory>
 #include <unordered_map>
 
 #include <boost/utility.hpp>
 
 namespace XrdAdaptor {
+
+extern std::mutex g_ml_mutex;
 
 class QualityMetric;
 class QualityMetricSource;
@@ -52,6 +55,7 @@ private:
     int m_interval3_val;
     int m_interval4_val;
 
+    std::mutex m_mutex;
 };
 
 class QualityMetricFactory {

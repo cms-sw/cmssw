@@ -23,6 +23,23 @@ namespace XrdCl {
 
 namespace XrdAdaptor {
 
+class XrootdException : public edm::Exception {
+
+public:
+
+    XrootdException(XrdCl::Status & xrootd_status, edm::Exception::Code code)
+      : Exception(code), m_code(xrootd_status.code)
+    {}
+
+    virtual ~XrootdException() throw() {};
+
+    uint16_t getCode() { return m_code; }
+
+private:
+
+    uint16_t m_code;
+};
+
 class RequestManager : boost::noncopyable {
 
 public:
@@ -52,7 +69,7 @@ public:
     /**
      * Handle a failed client request.
      */
-    void requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr);
+    void requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr, XrdCl::Status &c_status);
 
     /**
      * Retrieve the names of the active sources
