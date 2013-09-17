@@ -44,7 +44,7 @@ public:
   void processLedEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
-                    const HcalCalibDigiCollection calib,
+                    const HcalCalibDigiCollection& calib,
 		    const HcalDbService& cond);
 
 protected:
@@ -78,7 +78,7 @@ private:
   void SetupLEDHists(int id, const HcalDetId detid, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT);
   void GetLedConst(std::map<HcalDetId,std::map<int, LEDBUNCH > > &toolT);
   void LedTrendings(std::map<HcalDetId,std::map<int, LEDBUNCH > > &toolT);
-  void ProcessCalibEvent(int fiberChan,HcalCalibDetId calibId, const HcalCalibDataFrame digi);
+  void ProcessCalibEvent(int fiberChan,HcalCalibDetId calibId, const HcalCalibDataFrame& digi);
   float BinsizeCorr(float time);
   
   std::string m_outputFileROOT;
