@@ -12,7 +12,7 @@
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMOffline/Muon/src/MuonAnalyzerBase.h"
+#include "DQMOffline/Muon/interface/MuonAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,7 +35,8 @@ class DiMuonHistograms : public MuonAnalyzerBase {
 
   /* Operations */ 
   void beginJob (DQMStore *dbe);
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void analyze (const edm::Event & event, const edm::EventSetup& eventSetup);
 
    protected:
   edm::ParameterSet parameters;

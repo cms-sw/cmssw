@@ -13,7 +13,7 @@
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMOffline/Muon/src/MuonAnalyzerBase.h"
+#include "DQMOffline/Muon/interface/MuonAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,11 +34,11 @@ class MuonEnergyDepositAnalyzer : public MuonAnalyzerBase {
   
   /// Inizialize parameters for histo binning
   void beginJob(DQMStore *dbe);
+  void beginRun(DQMStore *dbe, const edm::Run& run, const edm::EventSetup& iSetup);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon& recoMu);
-
-
+    
  private:
   // ----------member data ---------------------------
   

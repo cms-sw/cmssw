@@ -4,7 +4,7 @@
  *  \author S. Goy Lopez, CIEMAT 
  */
 
-#include "DQMOffline/Muon/src/MuonKinVsEtaAnalyzer.h"
+#include "DQMOffline/Muon/interface/MuonKinVsEtaAnalyzer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -41,7 +41,10 @@ void MuonKinVsEtaAnalyzer::beginJob(DQMStore * dbe) {
 
   LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/MuonKinVsEtaAnalyzer");
+}
 
+void MuonKinVsEtaAnalyzer::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup){
+  metname = "muonKinVsEta";                                                                                                   
   vertexTag  = parameters.getParameter<edm::InputTag>("vertexLabel");
   bsTag  = parameters.getParameter<edm::InputTag>("bsLabel");
 

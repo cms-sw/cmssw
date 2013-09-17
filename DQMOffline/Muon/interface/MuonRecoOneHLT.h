@@ -5,7 +5,7 @@
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMOffline/Muon/src/MuonAnalyzerBase.h"
+#include "DQMOffline/Muon/interface/MuonAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,7 +33,7 @@ class MuonRecoOneHLT : public MuonAnalyzerBase {
 
   /// Inizialize parameters for histo binning
   void beginJob(DQMStore *dbe);
-  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup);
   
   /// Get the analysis
   //  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon&, const edm::TriggerResults&);

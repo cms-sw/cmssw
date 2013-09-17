@@ -5,7 +5,7 @@
  *  \author G. Mila - INFN Torino
  */
 
-#include "DQMOffline/Muon/src/MuonEnergyDepositAnalyzer.h"
+#include "DQMOffline/Muon/interface/MuonEnergyDepositAnalyzer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -40,23 +40,48 @@ void MuonEnergyDepositAnalyzer::beginJob( DQMStore * dbe) {
 
   metname = "muEnergyDepositAnalyzer";
 
-  LogTrace(metname)<<"[MuonEnergyDepositAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/MuonEnergyDepositAnalyzer");
+
+}
+void MuonEnergyDepositAnalyzer::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup){
+  
   std::string AlgoName = parameters.getParameter<std::string>("AlgoName");
+  
+  LogTrace(metname)<<"[MuonEnergyDepositAnalyzer] Parameters initialization";
+  LogTrace(metname)<<"[MuonEnergyDepositAnalyzer] Run, Event" << iRun << " , "<< iSetup; 
 
   emNoBin = parameters.getParameter<int>("emSizeBin");
   emNoMin = parameters.getParameter<double>("emSizeMin");
   emNoMax = parameters.getParameter<double>("emSizeMax");
+
+  hadNoBin = parameters.getParameter<int>("hadSizeBin");
+  hadNoMin = parameters.getParameter<double>("hadSizeMin");
+  hadNoMax = parameters.getParameter<double>("hadSizeMax");
+  
+  emS9NoBin = parameters.getParameter<int>("emS9SizeBin");
+  emS9NoMin = parameters.getParameter<double>("emS9SizeMin");
+  emS9NoMax = parameters.getParameter<double>("emS9SizeMax");
+  
+  hadS9NoBin = parameters.getParameter<int>("hadS9SizeBin");
+  hadS9NoMin = parameters.getParameter<double>("hadS9SizeMin");
+  hadS9NoMax = parameters.getParameter<double>("hadS9SizeMax");
+
+  hoNoBin = parameters.getParameter<int>("hoSizeBin");
+  hoNoMin = parameters.getParameter<double>("hoSizeMin");
+  hoNoMax = parameters.getParameter<double>("hoSizeMax");
+  
+  hoS9NoBin = parameters.getParameter<int>("hoS9SizeBin");
+  hoS9NoMin = parameters.getParameter<double>("hoS9SizeMin");
+  hoS9NoMax = parameters.getParameter<double>("hoS9SizeMax");
+
   std::string histname = "ecalDepositedEnergyBarrel_";
   ecalDepEnergyBarrel = dbe->book1D(histname+AlgoName, "Energy deposited in the ECAL barrel cells", emNoBin, emNoMin, emNoMax);
   ecalDepEnergyBarrel->setAxisTitle("GeV");
+  
   histname = "ecalDepositedEnergyEndcap_";
   ecalDepEnergyEndcap = dbe->book1D(histname+AlgoName, "Energy deposited in the ECAL endcap cells", emNoBin, emNoMin, emNoMax);
   ecalDepEnergyEndcap->setAxisTitle("GeV");
 
-  emS9NoBin = parameters.getParameter<int>("emS9SizeBin");
-  emS9NoMin = parameters.getParameter<double>("emS9SizeMin");
-  emS9NoMax = parameters.getParameter<double>("emS9SizeMax");
   histname = "ecalS9DepositedEnergyBarrel_";
   ecalS9DepEnergyBarrel = dbe->book1D(histname+AlgoName, "Energy deposited in the ECAL barrel 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
   ecalS9DepEnergyBarrel->setAxisTitle("GeV");
@@ -73,19 +98,13 @@ void MuonEnergyDepositAnalyzer::beginJob( DQMStore * dbe) {
   ecalS9PointingMuDepEnergy_Sta = dbe->book1D(histname+AlgoName, "Pointing sta muons energy deposited in the ECAL 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
   ecalS9PointingMuDepEnergy_Sta->setAxisTitle("GeV"); 
   
-  hadNoBin = parameters.getParameter<int>("hadSizeBin");
-  hadNoMin = parameters.getParameter<double>("hadSizeMin");
-  hadNoMax = parameters.getParameter<double>("hadSizeMax");
   histname = "hadDepositedEnergyBarrel_";
   hcalDepEnergyBarrel = dbe->book1D(histname+AlgoName, "Energy deposited in the HCAL barrel cells", hadNoBin, hadNoMin, hadNoMax);
   hcalDepEnergyBarrel->setAxisTitle("GeV");
   histname = "hadDepositedEnergyEndcap_";
   hcalDepEnergyEndcap = dbe->book1D(histname+AlgoName, "Energy deposited in the HCAL endcap cells", hadNoBin, hadNoMin, hadNoMax);
   hcalDepEnergyEndcap->setAxisTitle("GeV");
- 
-  hadS9NoBin = parameters.getParameter<int>("hadS9SizeBin");
-  hadS9NoMin = parameters.getParameter<double>("hadS9SizeMin");
-  hadS9NoMax = parameters.getParameter<double>("hadS9SizeMax");
+  
   histname = "hadS9DepositedEnergyBarrel_";
   hcalS9DepEnergyBarrel = dbe->book1D(histname+AlgoName, "Energy deposited in the HCAL barrel 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
   hcalS9DepEnergyBarrel->setAxisTitle("GeV");
@@ -102,16 +121,10 @@ void MuonEnergyDepositAnalyzer::beginJob( DQMStore * dbe) {
   hcalS9PointingMuDepEnergy_Sta = dbe->book1D(histname+AlgoName, "Pointing sta muons energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
   hcalS9PointingMuDepEnergy_Sta->setAxisTitle("GeV");
 
-  hoNoBin = parameters.getParameter<int>("hoSizeBin");
-  hoNoMin = parameters.getParameter<double>("hoSizeMin");
-  hoNoMax = parameters.getParameter<double>("hoSizeMax");
   histname = "hoDepositedEnergy_";
   hoDepEnergy = dbe->book1D(histname+AlgoName, "Energy deposited in the HO cells", hoNoBin, hoNoMin, hoNoMax);
   hoDepEnergy->setAxisTitle("GeV");
 
-  hoS9NoBin = parameters.getParameter<int>("hoS9SizeBin");
-  hoS9NoMin = parameters.getParameter<double>("hoS9SizeMin");
-  hoS9NoMax = parameters.getParameter<double>("hoS9SizeMax");
   histname = "hoS9DepositedEnergy_";
   hoS9DepEnergy = dbe->book1D(histname+AlgoName, "Energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
   hoS9DepEnergy->setAxisTitle("GeV");
@@ -126,9 +139,6 @@ void MuonEnergyDepositAnalyzer::beginJob( DQMStore * dbe) {
   hoS9PointingMuDepEnergy_Sta->setAxisTitle("GeV");
 
 }
-
-
-
 void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Muon& recoMu) {
 
   LogTrace(metname)<<"[MuonEnergyDepositAnalyzer] Filling the histos";

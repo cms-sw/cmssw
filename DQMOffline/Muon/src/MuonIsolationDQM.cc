@@ -648,7 +648,6 @@ void MuonIsolationDQM::RecordData(MuonIterator muon){
   theData[46] = muon->pfMeanDRIsoProfileR04().sumNeutralHadronEt;
   theData[47] = muon->pfMeanDRIsoProfileR04().sumPhotonEt;
   
-
   //--------------Filling the 2D Histos Data -------- //
   theData2D[0] = muon->isolationR03().sumPt; 
   theData2D[1] = muon->isolationR03().emEt;
@@ -662,7 +661,6 @@ void MuonIsolationDQM::RecordData(MuonIterator muon){
   
   theData2D[8] = theData2D[0] + theData2D[1] + theData2D[2] + theData2D[3] / MuPt; //Det RelIso;
   theData2D[9] = theData2D[4] + theData2D[5] + theData2D[6]                / MuPt; //PF  RelIso;
-
 
   //-----------Filling the NVTX 1D HISTOS DATA ------------- // 
   theDataNVtx[0] = muon->pfIsolationR04().sumNeutralHadronEt;
@@ -682,6 +680,11 @@ void MuonIsolationDQM::beginJob(void) {
   dbe->setCurrentFolder(dirName.c_str());
   InitHistos();
   dbe->cd();
+}
+
+// ------------ method called once each run just before starting the event loop ----------
+void MuonIsolationDQM::beginRun(void) {
+  
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

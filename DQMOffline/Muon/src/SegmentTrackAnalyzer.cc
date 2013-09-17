@@ -5,7 +5,7 @@
  *  \author G. Mila - INFN Torino
  */
 
-#include "DQMOffline/Muon/src/SegmentTrackAnalyzer.h"
+#include "DQMOffline/Muon/interface/SegmentTrackAnalyzer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -44,10 +44,14 @@ void SegmentTrackAnalyzer::beginJob(DQMStore * dbe) {
 
 
   metname = "segmTrackAnalyzer";
-  string trackCollection = parameters.getParameter<edm::InputTag>("MuTrackCollection").label() + parameters.getParameter<edm::InputTag>("MuTrackCollection").instance();
   LogTrace(metname)<<"[SegmentTrackAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/SegmentTrackAnalyzer");
-  
+}
+
+void SegmentTrackAnalyzer::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup){
+  metname = "segmTrackAnalyzer";
+  string trackCollection = parameters.getParameter<edm::InputTag>("MuTrackCollection").label() + parameters.getParameter<edm::InputTag>("MuTrackCollection").instance();
+
   // histograms initalization
   hitsNotUsed = dbe->book1D("HitsNotUsedForGlobalTracking_"+trackCollection, "recHits not used for GLB    ["+trackCollection+"]", 50, -0.5, 49.5);
   hitsNotUsedPercentual = dbe->book1D("HitsNotUsedForGlobalTrackingDvHitUsed_"+trackCollection, "(recHits_{notUsedForGLB}) / (recHits_{GLB})    ["+trackCollection+"]", 100, 0, 1.);
