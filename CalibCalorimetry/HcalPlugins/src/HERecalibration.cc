@@ -13,7 +13,7 @@ iLumi(integrated_lumi),cutoff_(cutoff),darkening()
    
 HERecalibration::~HERecalibration() { }
 
-void HERecalibration::setDsegm( std::vector<std::vector<int>> m_segmentation) 
+void HERecalibration::setDsegm( const std::vector<std::vector<int>>& m_segmentation) 
 {
 
   //  std::cout << std::endl << " HERecalibration->setDsegm" << std::endl;

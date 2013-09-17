@@ -5,6 +5,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 #include "TProfile.h"
 
 class MonitorElement;
@@ -67,8 +70,8 @@ class ESTrendTask: public edm::EDAnalyzer{
 
   bool mergeRuns_;
 
-  edm::InputTag rechitlabel_;
-  edm::InputTag dccCollections_;
+  edm::EDGetTokenT<ESRecHitCollection> rechittoken_;
+  edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
 
   MonitorElement* hESRecHitTrend_[2][2];
   MonitorElement* hESSLinkErrTrend_;

@@ -1,5 +1,4 @@
 /*
- * $Id$
  */
 
 #ifndef MAJORITY_H

@@ -16,8 +16,6 @@
   *  region = subdetname ieta1 ieta2 iphi1 iphi2 [depth1 depth2]
   *  subdetector = subdetname
   *  subdetname = "HB" | "HE" | "HO" | "HF"
-  * $Date: $
-  * $Revision: $
   * \author J. Mans - Minnesota
   */
 class HcalTopologyRestrictionParser {

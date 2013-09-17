@@ -1,5 +1,4 @@
 //
-// $Id: PATJetProducer.h,v 1.26 2010/08/09 18:13:54 srappocc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h

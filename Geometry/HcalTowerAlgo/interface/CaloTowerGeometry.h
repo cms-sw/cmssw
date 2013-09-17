@@ -10,8 +10,6 @@
   *  
   * Only DetId::Calo, subdet=1 DetIds are handled by this class.
   *
-  * $Date: 2011/05/29 18:40:09 $
-  * $Revision: 1.6 $
   * \author J. Mans - Minnesota
   */
 class CaloTowerGeometry : public CaloSubdetectorGeometry 

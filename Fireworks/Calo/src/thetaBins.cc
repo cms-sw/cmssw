@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 11 22:59:38 EST 2008
-// $Id: thetaBins.cc,v 1.3 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files

@@ -2,19 +2,14 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include <iostream>
-using std::endl;
-using std::cout;
-using std::string;
 
 CSCDigiDump::CSCDigiDump(edm::ParameterSet const& conf)
-: wireDigiTag_(conf.getParameter<edm::InputTag>("wireDigiTag")),
-  stripDigiTag_(conf.getParameter<edm::InputTag>("stripDigiTag")),
-  comparatorDigiTag_(conf.getParameter<edm::InputTag>("comparatorDigiTag"))
-{
+{  
+  wd_token = consumes<CSCWireDigiCollection>(conf.getParameter<edm::InputTag>("wireDigiTag"));
+  sd_token = consumes<CSCStripDigiCollection>(conf.getParameter<edm::InputTag>("stripDigiTag"));
+  cd_token = consumes<CSCComparatorDigiCollection>(conf.getParameter<edm::InputTag>("comparatorDigiTag"));
 }
 
 
@@ -25,7 +20,8 @@ void CSCDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
 
   std::cout << "Event " << e.id() << std::endl;
 
-  e.getByLabel(wireDigiTag_, wires);
+  e.getByToken(wd_token, wires);
+
   for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
     std::cout << "Wire digis from "<< CSCDetId((*j).first) << std::endl;
     std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
@@ -35,7 +31,7 @@ void CSCDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
     }
   }
 
-  e.getByLabel(stripDigiTag_, strips);
+  e.getByToken(sd_token, strips);
 
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     std::cout << "Strip digis from "<< CSCDetId((*j).first) << std::endl;
@@ -46,7 +42,7 @@ void CSCDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
     }
   }
 
-  e.getByLabel(comparatorDigiTag_, comparators);
+  e.getByToken(cd_token, comparators);
 
   for (CSCComparatorDigiCollection::DigiRangeIterator j=comparators->begin(); 
        j!=comparators->end(); j++) 

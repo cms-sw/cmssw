@@ -44,7 +44,7 @@ void listbadmodule(std::string filename, std::string pclfilename) {
 
   std::set<unsigned int> pclbadmods;
 
-  ifstream pclfile(pclfilename);
+  std::ifstream pclfile(pclfilename);
 
   char line[400];
   unsigned int pcldetid;
@@ -53,10 +53,10 @@ void listbadmodule(std::string filename, std::string pclfilename) {
 
   while(pclfile.getline(line,400)) {
     if(strstr(line,sixapvs) || strstr(line,fourapvs)) {
-      stringstream linestream;
+      std::stringstream linestream;
       linestream << line;
       linestream >> pcldetid;
-      //      std::cout << pcldetid << endl;
+      //      std::cout << pcldetid << std::endl;
       pclbadmods.insert(pcldetid);
     }
   }
@@ -71,9 +71,9 @@ void listbadmodule(std::string filename, std::string pclfilename) {
 
   std::string nrun = filename.substr(filename.find("_R000")+5, 6);
   int fileNum = atoi(nrun.c_str()); 
-  cout << " ------   Run " << fileNum << endl;
+  std::cout << " ------   Run " << fileNum << std::endl;
   
-  ofstream outfile;
+  std::ofstream outfile;
   std::string namefile;
   namefile = "QualityTestOBSOLETE_run" + nrun + ".txt";
   outfile.open(namefile.c_str());
@@ -87,15 +87,15 @@ void listbadmodule(std::string filename, std::string pclfilename) {
   TDirectory* mec1 = gDirectory;
 
   //get the summary first                                                                                                                                    
-  vector <int> nbadmod;
+  std::vector <int> nbadmod;
   for (unsigned int i=0; i < subdet.size(); i++){
     int nbad = 0;
-    string badmodule_dir = subdet[i] + "/BadModuleList";
+    std::string badmodule_dir = subdet[i] + "/BadModuleList";
     if (gDirectory->cd(badmodule_dir.c_str())){
       TIter next(gDirectory->GetListOfKeys());
       TKey *key;
       while  ( (key = dynamic_cast<TKey*>(next())) ) {
-        string sflag = key->GetName();
+        std::string sflag = key->GetName();
         if (sflag.size() == 0) continue;
         nbad++;
       }
@@ -122,10 +122,10 @@ void listbadmodule(std::string filename, std::string pclfilename) {
 
   for (unsigned int i=0; i < subdet.size(); i++){
     std::string badmodule_dir = subdet[i] + "/BadModuleList";
-    outfile << " " << endl;
-    outfile << "SubDetector " << subdet[i] << endl;
-    outfile << " " << endl;
-    cout << badmodule_dir.c_str() << endl;
+    outfile << " " << std::endl;
+    outfile << "SubDetector " << subdet[i] << std::endl;
+    outfile << " " << std::endl;
+    std::cout << badmodule_dir.c_str() << std::endl;
     if (gDirectory->cd(badmodule_dir.c_str())){
     //
     // Loop to find bad module for each partition

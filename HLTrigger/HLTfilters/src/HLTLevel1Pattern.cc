@@ -5,8 +5,6 @@
  *  that checks for a specific pattern of L1 accept/reject in 5 BX's for a given L1 bit
  *  It can be configured to use or ignore the L1 trigger mask
  *
- *  $Date: 2012/01/21 14:56:59 $
- *  $Revision: 1.8 $
  *
  *  \author Andrea Bocci
  *

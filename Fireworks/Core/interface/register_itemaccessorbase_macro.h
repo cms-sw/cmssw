@@ -16,7 +16,6 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 11:31:20 EDT 2010
-// $Id: register_itemaccessorbase_macro.h,v 1.3 2012/06/26 22:13:03 wmtan Exp $
 //
 
 // system include files

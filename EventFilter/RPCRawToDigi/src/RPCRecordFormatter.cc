@@ -1,8 +1,6 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2009/03/24 23:11:38 $
- *  $Revision: 1.42 $
  *
  * \author Ilaria Segoni
  */

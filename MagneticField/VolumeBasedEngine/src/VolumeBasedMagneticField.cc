@@ -3,10 +3,10 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 VolumeBasedMagneticField::VolumeBasedMagneticField( const edm::ParameterSet& config,
-						    std::vector<MagBLayer *> theBLayers,
-						    std::vector<MagESector *> theESectors,
-						    std::vector<MagVolume6Faces*> theBVolumes,
-						    std::vector<MagVolume6Faces*> theEVolumes, 
+						    const std::vector<MagBLayer *>& theBLayers,
+						    const std::vector<MagESector *>& theESectors,
+						    const std::vector<MagVolume6Faces*>& theBVolumes,
+						    const std::vector<MagVolume6Faces*>& theEVolumes, 
 						    float rMax, float zMax, 
 						    const MagneticField* param,
 						    bool isParamFieldOwned) : 

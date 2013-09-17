@@ -8,7 +8,6 @@
 // Jordi Duarte Campderros (based on the Jason Slaunwhite 
 // and Jeff Klukas coded from the HLTriggerOffline/Muon package
 //
-// $Id: HLTHiggsValidator.cc,v 1.5 2012/03/19 11:59:50 duarte Exp $
 //
 //
 

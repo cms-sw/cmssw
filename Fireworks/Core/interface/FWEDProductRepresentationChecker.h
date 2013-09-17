@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 15:20:05 EST 2008
-// $Id: FWEDProductRepresentationChecker.h,v 1.3 2009/04/27 16:19:16 chrjones Exp $
 //
 
 // system include files

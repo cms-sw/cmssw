@@ -1,7 +1,5 @@
 /** See header file for a class description
  *
- *  $Date: 2012/12/19 10:59:25 $
- *  $Revision: 1.57 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -1128,7 +1126,7 @@ void MuScleFitUtils::minimizeLikelihood()
 {
   // Output file with fit parameters resulting from minimization
   // -----------------------------------------------------------
-  ofstream FitParametersFile;
+  std::ofstream FitParametersFile;
   FitParametersFile.open ("FitParameters.txt", std::ios::app);
   FitParametersFile << "Fitting with resolution, scale, bgr function # "
 		    << ResolFitType << " " << ScaleFitType << " " << BgrFitType

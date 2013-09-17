@@ -15,7 +15,6 @@ class CaloCellGeometry;
 Interface class to the geometry information for all calorimetry 
 subdetectors.
 
-$Date: 2010/04/27 15:00:03 $
 $Revision: 1.7 $
 \author J. Mans and P. Meridiani
 */

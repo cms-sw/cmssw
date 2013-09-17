@@ -5,6 +5,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
@@ -48,7 +49,8 @@ namespace edm {
                                 rp.endTime(),
                                 processContext);
     ParentContext parentContext(&globalContext);
-    ModuleCallingContext mcc(&description(), ModuleCallingContext::State::kRunning, parentContext);
+    ModuleCallingContext mcc(&description());
+    ModuleContextSentry moduleContextSentry(&mcc, parentContext);
     module().doWriteRun(rp, &mcc);
   }
 
@@ -62,7 +64,8 @@ namespace edm {
                                 lbp.beginTime(),
                                 processContext);
     ParentContext parentContext(&globalContext);
-    ModuleCallingContext mcc(&description(), ModuleCallingContext::State::kRunning, parentContext);
+    ModuleCallingContext mcc(&description());
+    ModuleContextSentry moduleContextSentry(&mcc, parentContext);
     module().doWriteLuminosityBlock(lbp, &mcc);
   }
 

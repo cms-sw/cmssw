@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 20:42:39 EDT 2008
-// $Id: FWValidatorBase.h,v 1.2 2008/11/06 22:05:26 amraktad Exp $
 //
 
 // system include files

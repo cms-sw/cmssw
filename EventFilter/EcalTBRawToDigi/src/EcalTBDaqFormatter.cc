@@ -1,7 +1,5 @@
 /*
  *
- *  $Date: 2009/12/28 23:14:52 $
- *  $Revision: 1.74 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni

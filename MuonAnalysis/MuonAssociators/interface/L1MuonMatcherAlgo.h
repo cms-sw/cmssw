@@ -1,7 +1,6 @@
 #ifndef MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 #define MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 //
-// $Id: L1MuonMatcherAlgo.h,v 1.8 2010/07/01 07:40:52 gpetrucc Exp $
 //
 
 /**

@@ -8,6 +8,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/ESObjects/interface/ESGain.h"
 
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
 #include "TF1.h"
 #include "TH1F.h"
 
@@ -31,8 +33,7 @@ class ESTimingTask : public edm::EDAnalyzer {
   void set(const edm::EventSetup& es);
 
   // ----------member data ---------------------------
-  edm::InputTag rechitlabel_;
-  edm::InputTag digilabel_;
+  edm::EDGetTokenT<ESDigiCollection> digilabel_;
   std::string prefixME_;
   
   DQMStore* dqmStore_;

@@ -349,7 +349,7 @@ void BscSD::UpdateHit() {
 }
 
 
-G4ThreeVector BscSD::SetToLocal(G4ThreeVector global){
+G4ThreeVector BscSD::SetToLocal(const G4ThreeVector& global){
 
   const G4VTouchable* touch= preStepPoint->GetTouchable();
   theEntryPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);
@@ -357,7 +357,7 @@ G4ThreeVector BscSD::SetToLocal(G4ThreeVector global){
 }
      
 
-G4ThreeVector BscSD::SetToLocalExit(G4ThreeVector globalPoint){
+G4ThreeVector BscSD::SetToLocalExit(const G4ThreeVector& globalPoint){
 
   const G4VTouchable* touch= postStepPoint->GetTouchable();
   theExitPoint = touch->GetHistory()->GetTopTransform().TransformPoint(globalPoint);

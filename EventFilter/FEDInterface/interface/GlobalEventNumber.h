@@ -3,7 +3,7 @@
 
 
 #include <stddef.h>
-#include "interface/shared/fed_header.h" // from xdaq
+#include "EventFilter/FEDInterface/interface/fed_header.h"
 
 #include "EventFilter/FEDInterface/interface/FEDConstants.h"
 

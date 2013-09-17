@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:02 CDT 2009
-// $Id: FWModelContextMenuHandler.h,v 1.7 2010/06/16 14:04:40 matevz Exp $
 //
 
 // system include files

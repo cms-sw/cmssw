@@ -73,7 +73,7 @@ private:
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
-  ofstream logFile_;
+  std::ofstream logFile_;
   edm::InputTag csctpgSource_;
 };
 

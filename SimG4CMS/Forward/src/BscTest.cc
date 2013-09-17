@@ -115,7 +115,7 @@ BscTest::~BscTest() {
 // Histoes:
 //-----------------------------------------------------------------------------
 
-BscAnalysisHistManager::BscAnalysisHistManager(TString managername)
+BscAnalysisHistManager::BscAnalysisHistManager(const TString& managername)
 {
   // The Constructor
 
@@ -161,7 +161,7 @@ void BscAnalysisHistManager::BookHistos()
 
 //-----------------------------------------------------------------------------
 
-void BscAnalysisHistManager::WriteToFile(TString fOutputFile,TString fRecreateFile)
+void BscAnalysisHistManager::WriteToFile(const TString& fOutputFile,const TString& fRecreateFile)
 {
 
   //Write to file = fOutputFile
@@ -245,7 +245,7 @@ TH2F* BscAnalysisHistManager::GetHisto2(Int_t Number)
 }
 //-----------------------------------------------------------------------------
 
-TH1F* BscAnalysisHistManager::GetHisto(const TObjString histname)
+TH1F* BscAnalysisHistManager::GetHisto(const TObjString& histname)
 {
   // Get a histogram from the array with name = histname
 
@@ -254,7 +254,7 @@ TH1F* BscAnalysisHistManager::GetHisto(const TObjString histname)
 }
 //-----------------------------------------------------------------------------
 
-TH2F* BscAnalysisHistManager::GetHisto2(const TObjString histname)
+TH2F* BscAnalysisHistManager::GetHisto2(const TObjString& histname)
 {
   // Get a histogram from the array with name = histname
 

@@ -2,7 +2,6 @@
 //
 // Package:     Core
 // Class  :     FWHLTValidator
-// $Id: FWHLTValidator.cc,v 1.7 2010/07/26 15:13:59 matevz Exp $
 //
 
 // system include files

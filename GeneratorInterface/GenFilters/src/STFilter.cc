@@ -16,7 +16,6 @@
 */
 // Original Author:  Julia Weinelt
 //         Created:  Wed Jan 23 15:12:46 CET 2008
-// $Id: STFilter.cc,v 1.3 2009/12/15 10:29:32 fabiocos Exp $
 
 #include <memory>
 

@@ -11,6 +11,7 @@
 #include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
 
+#include <iostream>
 
 using std::cout;
 using std::endl;

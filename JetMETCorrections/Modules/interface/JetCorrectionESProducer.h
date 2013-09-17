@@ -4,7 +4,6 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Dec. 28, 2006 (originally JetCorrectionService, renamed in 2011)
-// $Id: JetCorrectionESProducer.h,v 1.1.2.1 2011/10/17 20:54:17 wdd Exp $
 //
 
 #include <string>

@@ -21,7 +21,6 @@
  *
  * Author: Evan K. Friis, UC Davis
  *
- * $Id $
  */
 
 #include "DataFormats/Common/interface/Handle.h"

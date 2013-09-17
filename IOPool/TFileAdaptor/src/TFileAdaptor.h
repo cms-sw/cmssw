@@ -20,14 +20,16 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+  friend class TFileAdaptorUI;
+private:
   // Write current Storage statistics on a ostream
   void termination(void) const;
-
+  
+  //Called by TFileAdaptorUI
   void stats(std::ostream &o) const;
-
+  
   void statsXML(std::map<std::string, std::string> &data) const;
-
-private:
+  
   static void addType(TPluginManager* mgr, char const* type, int altType=0);
   bool native(char const* proto) const;
 

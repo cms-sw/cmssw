@@ -111,7 +111,7 @@ class BoostedTopProducer : public edm::EDProducer {
       double        mTop_;           // input top mass
  
       // Rapidity-invariant deltaR
-      double Psi(TLorentzVector p1, TLorentzVector p2, double mass);
+      double Psi(const TLorentzVector& p1, const TLorentzVector& p2, double mass);
 };
 
 #endif

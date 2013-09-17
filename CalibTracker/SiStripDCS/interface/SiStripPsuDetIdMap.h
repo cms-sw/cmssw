@@ -125,7 +125,7 @@ class SiStripPsuDetIdMap
   void clone(DcuPsuVector &input, DcuPsuVector &output);
   /** Produces a detailed debug of the input values. */
   // for debugging
-  void checkMapInputValues(SiStripConfigDb::DcuDetIdsV dcuDetIds_, DcuPsuVector dcuPsus_);
+  void checkMapInputValues(const SiStripConfigDb::DcuDetIdsV& dcuDetIds_, const DcuPsuVector& dcuPsus_);
   
   // member variables
   edm::Service<SiStripConfigDb> db_;

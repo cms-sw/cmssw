@@ -16,7 +16,7 @@ class MixCollection {
   MixCollection();
   MixCollection(const CrossingFrame<T> *cf, 
   		const range bunchRange =range(-999,999));
-  MixCollection(std::vector<const CrossingFrame<T> *> cfs, 
+  MixCollection(const std::vector<const CrossingFrame<T> *>& cfs, 
 		const range bunchRange =range(-999,999));
 
   range bunchrange() const {return bunchRange_;}
@@ -152,7 +152,7 @@ MixCollection<T>::MixCollection(const CrossingFrame<T> *cf,const std::pair<int,i
 } 
 
 template <class T> 
-MixCollection<T>::MixCollection(std::vector<const CrossingFrame<T> *> cfs, const std::pair<int,int> bunchRange) :  inRegistry_(false) , nrDets_(0)
+MixCollection<T>::MixCollection(const std::vector<const CrossingFrame<T> *>& cfs, const std::pair<int,int> bunchRange) :  inRegistry_(false) , nrDets_(0)
 {
   // first, verify that all CrossingFrames have the same bunchrange
   range bR=cfs[0]->getBunchRange();

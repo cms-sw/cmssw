@@ -326,7 +326,7 @@ private:
   bool verbose_;
   bool singlechannelhistos_;
   bool monitorDaemon_;
-  ofstream logFile_;
+  std::ofstream logFile_;
 
   edm::InputTag rctSourceEmul_;
   edm::InputTag rctSourceData_;

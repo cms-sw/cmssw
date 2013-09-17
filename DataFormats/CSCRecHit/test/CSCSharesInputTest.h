@@ -1,25 +1,25 @@
-//
-// Package:    SharesInputTest
-// Class:      SharesInputTest
-// 
-
-//
-// Original Author:  Phillip Killewald
-//         Created:  Thu Jan 29 17:33:51 CET 2009
-//
-
+/**
+ *  Test analyser: SharesInputTest
+ *
+ * Original Author:  Phillip Killewald
+ *         Created:  Thu Jan 29 17:33:51 CET 2009
+ */
 
 #include <map>
 #include <string>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+
 #include "TNtuple.h"
 
 
@@ -36,8 +36,9 @@ class CSCSharesInputTest : public edm::EDAnalyzer {
 		
 		virtual void endJob();
 		
-		edm::InputTag cscRecHitTag_;
-		edm::InputTag muonTag_;
+
+		edm::EDGetTokenT<CSCRecHit2DCollection> rh_token;
+		edm::EDGetTokenT<edm::View<reco::Muon> > mu_token;
 		
 		std::map<std::string, uint64_t> counts_;
 		

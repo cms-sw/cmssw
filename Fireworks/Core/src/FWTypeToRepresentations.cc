@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 14:09:01 EST 2008
-// $Id: FWTypeToRepresentations.cc,v 1.1 2008/11/14 16:29:31 chrjones Exp $
 //
 
 // system include files

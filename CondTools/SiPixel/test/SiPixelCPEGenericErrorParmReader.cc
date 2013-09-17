@@ -3,6 +3,7 @@
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include <iostream>
 
 SiPixelCPEGenericErrorParmReader::SiPixelCPEGenericErrorParmReader(const edm::ParameterSet& iConfig)
 {

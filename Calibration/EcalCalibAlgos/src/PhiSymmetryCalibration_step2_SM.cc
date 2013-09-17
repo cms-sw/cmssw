@@ -272,7 +272,7 @@ void PhiSymmetryCalibration_step2_SM::endJob(){
 
 
   // output sc calibration
-  fstream scfile("sccalibration.dat",ios::out);
+  std::fstream scfile("sccalibration.dat",std::ios::out);
   for (int ieta =0; ieta< kBarlRings; ++ieta){
     for (int iphi_r =0; iphi_r< int(kBarlWedges/nscx);++iphi_r){
       for (int sign=0; sign<kSides; sign++) {

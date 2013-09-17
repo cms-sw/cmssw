@@ -13,7 +13,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQM/TrackerCommon/interface/CgiReader.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -94,6 +93,7 @@ void SiPixelInformationExtractor::readConfiguration() { }
 //
 // -- Select Histograms for a given module
 //
+/*Removing xdaq deps
 void SiPixelInformationExtractor::getSingleModuleHistos(DQMStore * bei, 
                                                         const multimap<string, string>& req_map, 
 							xgi::Output * out){
@@ -141,10 +141,11 @@ void SiPixelInformationExtractor::getSingleModuleHistos(DQMStore * bei,
     }
   }
 }
-
+*/
 //
 // -- Plot Tracker Map MEs
 //
+/* removing xdaq deps
 void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei, 
                                                       const std::multimap<std::string, std::string>& req_map, 
 						      xgi::Output * out) {
@@ -195,7 +196,7 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
   string currDir = bei->pwd();   
 //  cout<<"detId= "<<detId<<" , path= "<<path<<" , and now I am in "<<currDir<<endl;
   
-/*
+
   if((bei->pwd()).find("Module_") == string::npos &&
      (bei->pwd()).find("FED_") == string::npos){
     cout<<"This is not a pixel module or FED!"<<endl;
@@ -206,17 +207,17 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
         << ACPlain << endl ; assert(0) ;
     return;
   }
-*/ 
+
   vector<MonitorElement*> all_mes = bei->getContents(path);
   setXMLHeader(out);
 
-/*  cout << __LINE__ << ACCyan << ACBold 
+  cout << __LINE__ << ACCyan << ACBold 
        << " [SiPixelInformationExtractor::getTrackerMapHistos()] path "
        << ACPlain << path << endl ; 
   cout << __LINE__ << ACCyan << ACBold 
        << " [SiPixelInformationExtractor::getTrackerMapHistos()] all_mes.size() "
        << ACPlain << all_mes.size() << endl ; 
-*/
+
   string theME ;
   *out << "<pathList>" << endl ;
   for (vector<string>::iterator ih = hlist.begin();
@@ -252,7 +253,7 @@ void SiPixelInformationExtractor::getTrackerMapHistos(DQMStore* bei,
   *out << "</pathList>" << endl ;
 //cout << __LINE__ << " [SiPixelInformationExtractor::getTrackerMapHistos()] endlist: " << endl ;
 }
-
+*/
 //============================================================================================================
 // --  Return type of ME
 //
@@ -275,6 +276,7 @@ std::string  SiPixelInformationExtractor::getMEType(MonitorElement * theMe)
  *
  *  This method 
  */
+/*removing xdaq deps
 void SiPixelInformationExtractor::readModuleAndHistoList(DQMStore* bei, 
                                                          xgi::Output * out) {
 //cout<<"entering SiPixelInformationExtractor::readModuleAndHistoList"<<endl;
@@ -306,6 +308,7 @@ void SiPixelInformationExtractor::readModuleAndHistoList(DQMStore* bei,
    *out << "</ModuleAndHistoList>" << endl;
 //cout<<"leaving SiPixelInformationExtractor::readModuleAndHistoList"<<endl;
 }
+*/
 
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
@@ -363,6 +366,7 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(DQMStore * bei,
  *
  *  This method 
  */
+/* removing xdaq deps
 void SiPixelInformationExtractor::readModuleHistoTree(DQMStore* bei, 
                                                       string& str_name, 
 						      xgi::Output * out) {
@@ -393,6 +397,7 @@ void SiPixelInformationExtractor::readModuleHistoTree(DQMStore* bei,
    bei->cd();
 //cout<<"leaving  SiPixelInformationExtractor::readModuleHistoTree"<<endl;
 }
+*/
 
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
@@ -458,6 +463,7 @@ void SiPixelInformationExtractor::printModuleHistoList(DQMStore * bei,
  *
  *  This method 
  */
+/* removing xdaq deps
 void SiPixelInformationExtractor::readSummaryHistoTree(DQMStore* bei, 
                                                        string& str_name, 
 						       xgi::Output * out) {
@@ -484,6 +490,8 @@ void SiPixelInformationExtractor::readSummaryHistoTree(DQMStore* bei,
    bei->cd();
 //cout<<"leaving  SiPixelInformationExtractor::readSummaryHistoTree"<<endl;
 }
+*/
+
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
  *
@@ -548,6 +556,7 @@ void SiPixelInformationExtractor::printSummaryHistoList(DQMStore * bei,
  *
  *  This method 
  */
+/* removing xdaq deps
 void SiPixelInformationExtractor::readAlarmTree(DQMStore* bei, 
                                                 string& str_name, 
 						xgi::Output * out){
@@ -581,6 +590,7 @@ void SiPixelInformationExtractor::readAlarmTree(DQMStore* bei,
        << endl ;
 //cout<<"leaving SiPixelInformationExtractor::readAlarmTree"<<endl;
 }
+*/
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
  *  
@@ -781,6 +791,7 @@ void SiPixelInformationExtractor::selectImage(string& name, vector<QReport*>& re
 //
 // -- Get a tagged image 
 //
+/* removing xdaq deps
 void SiPixelInformationExtractor::getIMGCImage(const multimap<string, string>& req_map, 
                                                xgi::Output * out){
   string path = getItemValue(req_map,"Path");
@@ -793,7 +804,8 @@ void SiPixelInformationExtractor::getIMGCImage(const multimap<string, string>& r
   out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
   *out << image;
 }
-
+*/
+/* removing xdaq deps
 void SiPixelInformationExtractor::getIMGCImage(multimap<string, string>& req_map, 
                                                xgi::Output * out){
   
@@ -808,7 +820,7 @@ void SiPixelInformationExtractor::getIMGCImage(multimap<string, string>& req_map
   *out << image;
 
 }
-
+*/
 
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
@@ -830,6 +842,7 @@ bool SiPixelInformationExtractor::goToDir(DQMStore* bei,
 //
 // -- Get Warning/Error Messages
 //
+/* removing xdaq deps
 void SiPixelInformationExtractor::readStatusMessage(DQMStore* bei, 
                                                     std::multimap<std::string, std::string>& req_map, 
 						    xgi::Output * out){
@@ -890,6 +903,7 @@ void SiPixelInformationExtractor::readStatusMessage(DQMStore* bei,
   *out << "</StatusList>" << endl;
   *out << "</StatusAndPath>" << endl;
 }
+*/
 
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
@@ -1065,6 +1079,7 @@ void SiPixelInformationExtractor::selectMEList(DQMStore   * bei,
 /*! \brief (Documentation under construction).
  *  
  */
+/* removing xdaq dependencies
 void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei, 
                                                       xgi::Output            * out,
 						      std::string            & theMEName,
@@ -1083,7 +1098,7 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
 
   string detId = "undefined";
 
-/*   cout << ACYellow << ACBold
+   cout << ACYellow << ACBold
 	<< "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
 	<< ACPlain
 	<< "Preparing color map update for " 
@@ -1093,7 +1108,7 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
 	<< " - List size: "
 	<< me_list.size() 
 	<< endl ;
-*/  
+  
   int maxEntries = 0 ;
   if( theTKType == "Entries") // In this case find the ME with the highest number of entries
   {			      // first and use that as a vertical scale normalization
@@ -1164,14 +1179,14 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
 
 //  delete random ;
   
-/*   cout << ACYellow << ACBold
+   cout << ACYellow << ACBold
 	<< "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
 	<< ACPlain
 	<< "Color map consists of "
 	<< colorMap.size()
 	<< " snippets: start shipping back"
 	<< endl ;
-*/
+
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   *out << "<?xml version=\"1.0\" ?>" << endl;
   *out << "<TrackerMapUpdate>"       << endl;
@@ -1190,7 +1205,7 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
   *out << "</TrackerMapUpdate>"              
        << endl;
 
-/*   cout << ACYellow << ACBold
+   cout << ACYellow << ACBold
 	<< "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
 	<< ACPlain
 	<< "Color map updated within range " 
@@ -1198,9 +1213,9 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(DQMStore  * bei,
 	<< "-"
 	<< norm.second
 	<< endl ;
-*/
-}
 
+}
+*/
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
  *  
@@ -1296,6 +1311,7 @@ void SiPixelInformationExtractor::getMEList(DQMStore    * bei,
 //
 // -- Get All histograms from a Path
 //
+/* removing xdaq deps
 void SiPixelInformationExtractor::getHistosFromPath(DQMStore * bei, 
                                                     const std::multimap<std::string, std::string>& req_map, 
 						    xgi::Output * out){
@@ -1324,7 +1340,7 @@ void SiPixelInformationExtractor::getHistosFromPath(DQMStore * bei,
   }
 //  cout<<"... leaving SiPixelInformationExtractor::getHistosFromPath!"<<endl;
 }
-
+*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SiPixelInformationExtractor::bookNoisyPixels(DQMStore * bei, float noiseRate_,bool Tier0Flag) {
@@ -1592,15 +1608,18 @@ void SiPixelInformationExtractor::createImages(DQMStore* bei){
 //
 // -- Set HTML Header in xgi output
 //
+/* removing xdaq deps
 void SiPixelInformationExtractor::setHTMLHeader(xgi::Output * out) {
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/html");
   out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
   out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
   out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
 }
+*/
 //
 // -- Set XML Header in xgi output
 //
+/* removing xdaq deps
 void SiPixelInformationExtractor::setXMLHeader(xgi::Output * out) {
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
@@ -1609,9 +1628,11 @@ void SiPixelInformationExtractor::setXMLHeader(xgi::Output * out) {
   *out << "<?xml version=\"1.0\" ?>" << std::endl;
 
 }
+*/
 //
 // -- Set Plain Header in xgi output
 //
+/* removing xdaq deps
 void SiPixelInformationExtractor::setPlainHeader(xgi::Output * out) {
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
   out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
@@ -1619,3 +1640,4 @@ void SiPixelInformationExtractor::setPlainHeader(xgi::Output * out) {
   out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
 
 }
+*/

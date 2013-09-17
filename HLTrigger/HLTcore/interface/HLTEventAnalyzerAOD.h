@@ -6,8 +6,6 @@
  *  
  *  This class is an EDAnalyzer analyzing the combined HLT information for AOD
  *
- *  $Date: 2010/02/19 14:26:53 $
- *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *

@@ -5,7 +5,6 @@
  *  detailed description
  *
  * \author : Stefano Lacaprara - INFN LNL <stefano.lacaprara@pd.infn.it>
- * $date   : 06/05/2008 16:29:29 CEST $
  *
  * Modification:
  *

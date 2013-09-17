@@ -64,7 +64,7 @@ public:
 private:
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override; 
-  bool electronSelection( const GsfElectron* eleRef , math::XYZPoint bspotPosition);  
+  bool electronSelection( const GsfElectron* eleRef , const math::XYZPoint& bspotPosition);  
   // ----------member data ---------------------------
 
   //std::vector<event> interestingEvents_;  
@@ -179,7 +179,7 @@ void WZInterestingEventSelector::endJob() {
   
 }
 
-bool WZInterestingEventSelector::electronSelection( const GsfElectron* eleRef , math::XYZPoint bspotPosition )
+bool WZInterestingEventSelector::electronSelection( const GsfElectron* eleRef , const math::XYZPoint& bspotPosition )
 {
 
 

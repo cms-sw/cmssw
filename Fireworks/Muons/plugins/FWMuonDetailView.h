@@ -5,7 +5,6 @@
 //
 // Package:     Electrons
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.h,v 1.4 2009/11/27 22:10:40 dmytro Exp $
 //
 
 // user include files

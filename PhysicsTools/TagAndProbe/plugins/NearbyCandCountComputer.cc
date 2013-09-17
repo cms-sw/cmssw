@@ -1,5 +1,4 @@
 //
-// $Id: NearbyCandCountComputer.cc,v 1.2 2010/07/09 14:03:51 gpetrucc Exp $
 //
 
 /**

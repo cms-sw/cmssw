@@ -1,4 +1,3 @@
-// @(#)root/hist:$Id: LEPBandPlot.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"

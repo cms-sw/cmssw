@@ -9,6 +9,12 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -19,11 +25,11 @@ class HLTElectronEtFilter : public HLTFilter {
       explicit HLTElectronEtFilter(const edm::ParameterSet&);
       ~HLTElectronEtFilter();
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       edm::InputTag candTag_; // input tag identifying product that contains filtered electrons
-      edm::InputTag isoTag_; // input tag identifying product that contains isolated map
-      edm::InputTag nonIsoTag_; // input tag identifying product that contains non-isolated map
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
       
       double EtEB_;     // threshold for regular cut (x < thr) - ECAL barrel 
       double EtEE_;     // threshold for regular cut (x < thr) - ECAL endcap

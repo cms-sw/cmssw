@@ -44,9 +44,9 @@ public:
   inline void setEnergy(G4double edep)         {theEdep  = edep;}
   inline void updateEnergy(G4double edep)      {theEdep += edep;}
   inline void setTime(G4double t)              {theTime  = t;}
-  inline void setLocalPos(G4ThreeVector xyz)   {localPos  = xyz;}
-  inline void setGlobalPos(G4ThreeVector xyz)  {globalPos = xyz;}
-  inline void setPrimMomDir(G4ThreeVector xyz) {momDir    = xyz;}
+  inline void setLocalPos(const G4ThreeVector& xyz)   {localPos  = xyz;}
+  inline void setGlobalPos(const G4ThreeVector& xyz)  {globalPos = xyz;}
+  inline void setPrimMomDir(const G4ThreeVector& xyz) {momDir    = xyz;}
       
   inline G4int hitId()                  const {return theHitId;}
   inline G4int trackId()                const {return theTrackId;}

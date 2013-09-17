@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWTableView.h,v 1.8 2010/09/02 18:10:10 amraktad Exp $
 //
 
 // system include files

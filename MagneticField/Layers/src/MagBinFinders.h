@@ -15,8 +15,6 @@ namespace MagBinFinders {
 /** \class MagBinFinders::GeneralBinFinderInR
  *  A R binfinder for a non-periodic group of detectors.
  *
- *  $Date: 2007/02/03 16:15:59 $
- *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 

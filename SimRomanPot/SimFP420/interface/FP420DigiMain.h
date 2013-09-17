@@ -46,7 +46,7 @@ public:
 
   // Runs the algorithm
   //  void run(const std::vector<PSimHit*> &input, DigiCollectionFP420 &output,StripGeomDetUnit *det,GlobalVector);
-  std::vector <HDigiFP420>  run(const std::vector<PSimHit> &input, G4ThreeVector, unsigned int);
+  std::vector <HDigiFP420>  run(const std::vector<PSimHit> &input, const G4ThreeVector&, unsigned int);
   //vector <HDigiFP420>  run(const std::vector<PSimHit> &input, G4ThreeVector, unsigned int, int);
 
  private:

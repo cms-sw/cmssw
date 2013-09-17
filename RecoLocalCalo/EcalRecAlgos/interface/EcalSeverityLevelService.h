@@ -3,7 +3,6 @@
    Implementation of class EcalSeverityLevelService
 
    \author Stefano Argiro
-   \version $Id$
    \date 11 Jan 2011
 */
 

@@ -16,6 +16,7 @@
 //
 //
 
+#include <iostream>
 #include "MEtoMEComparitor.h"
 
 #include "classlib/utils/StringList.h"

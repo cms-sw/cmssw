@@ -5,8 +5,6 @@
  *
  *  Producer for the UniformMagneticField.
  *
- *  $Date: 2006/05/31 13:43:26 $
- *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 

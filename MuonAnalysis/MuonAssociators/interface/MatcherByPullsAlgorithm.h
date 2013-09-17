@@ -15,7 +15,6 @@
 //
 // Original Author:  Giovanni Petrucciani (SNS Pisa and CERN PH-CMG)
 //         Created:  Sun Nov 16 16:14:09 CET 2008
-// $Id: MatcherByPullsAlgorithm.h,v 1.1 2009/05/29 09:44:13 gpetrucc Exp $
 //
 //
 

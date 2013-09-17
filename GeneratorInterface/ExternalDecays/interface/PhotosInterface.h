@@ -38,7 +38,7 @@ namespace gen {
       struct Scaling {
          HepMC::ThreeVector weights;
 	 int                flag;
-	 Scaling( HepMC::ThreeVector vec, int flg ) 
+	 Scaling( const HepMC::ThreeVector& vec, int flg ) 
 	    : weights(HepMC::ThreeVector(1.,1.,1)), flag(1) { weights=vec; flag=flg; }
       };
 

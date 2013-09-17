@@ -12,7 +12,7 @@ class HFFibreFiducial {
 public:
   HFFibreFiducial() {}
   virtual ~HFFibreFiducial() {}
-  static int PMTNumber(G4ThreeVector pe_effect); // M.K. HF acceptance
+  static int PMTNumber(const G4ThreeVector& pe_effect); // M.K. HF acceptance
 };
 
 #endif

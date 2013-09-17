@@ -7,8 +7,6 @@
  *  This class is an EDAnalyzer implementing a "get data into RAM"
  *  functionality for DIGIs, to simulate online FF running/timimg.
  *
- *  $Date: 2007/11/05 17:01:31 $
- *  $Revision: 1.4 $
  *
  *  \author various
  *

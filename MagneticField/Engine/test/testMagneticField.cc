@@ -13,8 +13,6 @@
  *  TOSCAFileList = file with a list of TOSCA tables
  *  TOSCASecorComparison: compare each if the listed TOSCA txt tables with those of the other sectors
  * 
- *  $Date: 2013/03/19 16:44:27 $
- *  $Revision: 1.19 $
  *  \author N. Amapane - CERN
  */
 

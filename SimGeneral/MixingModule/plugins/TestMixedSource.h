@@ -54,7 +54,7 @@ class TestMixedSource : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       // ----------member data ---------------------------
-      ofstream outputFile;
+      std::ofstream outputFile;
       std::string fileName_;
       int bunchcr_;
       int minbunch_;

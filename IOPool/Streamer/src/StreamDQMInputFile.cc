@@ -12,7 +12,7 @@ StreamDQMInputFile::~StreamDQMInputFile()
 
 StreamDQMInputFile::StreamDQMInputFile(const std::string& name):
   currentEvMsg_(),
-  ist_(new ifstream(name.c_str())),
+  ist_(new std::ifstream(name.c_str())),
   eventBuf_(1000*1000*7)
 {
 

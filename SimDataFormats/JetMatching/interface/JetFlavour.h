@@ -31,9 +31,9 @@ class JetFlavour
     };
 
     JetFlavour(void) { }
-    JetFlavour(LorentzVector lv, const Point &pt, int fl, const Leptons &le)
+    JetFlavour(const LorentzVector& lv, const Point &pt, int fl, const Leptons &le)
     : m_partonMomentum(lv), m_partonVertex(pt), m_flavour(fl), m_leptons(le) {}
-    JetFlavour(LorentzVector lv, Point pt, int fl)
+    JetFlavour(const LorentzVector& lv, const Point& pt, int fl)
     : m_partonMomentum(lv), m_partonVertex(pt), m_flavour(fl) {}
 
     const LorentzVector getLorentzVector() const {return m_partonMomentum;}

@@ -53,6 +53,7 @@ class DQMMessageLogger : public edm::EDAnalyzer {
   // from parameters
   std::vector<std::string> categories_vector;
   std::string directoryName;
+  edm::EDGetTokenT<std::vector<edm::ErrorSummaryEntry> > errorSummary_;
 
   //The histos
   MonitorElement *categories_errors;

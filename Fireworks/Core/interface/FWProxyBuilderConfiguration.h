@@ -16,7 +16,6 @@
 //
 // Original Author:  
 //         Created:  Wed Jul 27 00:58:35 CEST 2011
-// $Id: FWProxyBuilderConfiguration.h,v 1.3 2011/08/11 03:53:09 amraktad Exp $
 //
 
 #include <string>

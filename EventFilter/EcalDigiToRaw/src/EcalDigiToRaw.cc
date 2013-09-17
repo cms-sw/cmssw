@@ -13,7 +13,6 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.cc,v 1.17 2010/01/04 17:36:21 ferriff Exp $
 //
 //
 

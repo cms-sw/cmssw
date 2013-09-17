@@ -141,6 +141,7 @@ namespace edm {
                      bool skipAnyEvents,
                      int remainingEvents,
                      int remainingLumis,
+                     unsigned int nStreams,
                      unsigned int treeCacheSize,
                      int treeMaxVirtualSize,
                      InputSource::ProcessingMode processingMode,
@@ -181,9 +182,9 @@ namespace edm {
       hasNewlyDroppedBranch_(),
       branchListIndexesUnchanged_(false),
       eventAux_(),
-      eventTree_(filePtr_, InEvent, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries, enablePrefetching),
-      lumiTree_(filePtr_, InLumi, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching),
-      runTree_(filePtr_, InRun, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching),
+      eventTree_(filePtr_, InEvent, nStreams, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries, enablePrefetching),
+      lumiTree_(filePtr_, InLumi, 1, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching),
+      runTree_(filePtr_, InRun, 1, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching),
       treePointers_(),
       lastEventEntryNumberRead_(-1LL),
       productRegistry_(),
@@ -1343,20 +1344,19 @@ namespace edm {
   //   1. create an EventPrincipal with a unique EventID
   //   2. For each entry in the provenance, put in one ProductHolder,
   //      holding the Provenance for the corresponding EDProduct.
-  //   3. set up the caches in the EventPrincipal to know about this
-  //      ProductHolder.
+  //   3. set up the the EventPrincipal to know about this ProductHolder.
   //
   // We do *not* create the EDProduct instance (the equivalent of reading
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
   //  when it is asked to do so.
   //
   void
-  RootFile::readEvent(EventPrincipal& cache) {
+  RootFile::readEvent(EventPrincipal& principal) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent);
     // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(indexIntoFileIter_.entry());
-    assert(readCurrentEvent(cache));
+    assert(readCurrentEvent(principal));
     assert(eventAux().run() == indexIntoFileIter_.run() + forcedRunOffset_);
     assert(eventAux().luminosityBlock() == indexIntoFileIter_.lumi());
 
@@ -1371,7 +1371,7 @@ namespace edm {
 
   // Reads event at the current entry in the event tree
   bool
-  RootFile::readCurrentEvent(EventPrincipal& cache) {
+  RootFile::readCurrentEvent(EventPrincipal& principal) {
     if(!eventTree_.current()) {
       return false;
     }
@@ -1385,7 +1385,8 @@ namespace edm {
     overrideRunNumber(eventAux_.id(), eventAux().isRealData());
 
     // We're not done ... so prepare the EventPrincipal
-    cache.fillEventPrincipal(eventAux(),
+    eventTree_.insertEntryForIndex(principal.transitionIndex());
+    principal.fillEventPrincipal(eventAux(),
                              *processHistoryRegistry_,
                              eventSelectionIDs_,
                              branchListIndexes_,
@@ -1482,6 +1483,7 @@ namespace edm {
       return;
     }
     // End code for backward compatibility before the existence of run trees.
+    runTree_.insertEntryForIndex(runPrincipal.transitionIndex());
     runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.rootDelayedReader());
     // Read in all the products now.
     runPrincipal.readImmediate();
@@ -1543,6 +1545,7 @@ namespace edm {
     }
     // End code for backward compatibility before the existence of lumi trees.
     lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
+    lumiTree_.insertEntryForIndex(lumiPrincipal.transitionIndex());
     lumiPrincipal.fillLuminosityBlockPrincipal(*processHistoryRegistry_, lumiTree_.rootDelayedReader());
     // Read in all the products now.
     lumiPrincipal.readImmediate();

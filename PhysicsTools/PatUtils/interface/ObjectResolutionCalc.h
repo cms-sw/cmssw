@@ -1,5 +1,4 @@
 //
-// $Id: ObjectResolutionCalc.h,v 1.5 2008/10/08 19:19:25 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_ObjectResolutionCalc_h

@@ -2,6 +2,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <stdlib.h>
@@ -43,12 +44,12 @@ bool ModelFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
          if(parameters.size() - 1 != parameterMins_.size())
          {
-            cout<<"Error: number of modeParameters does not match number of parameters in file"<<endl;
+            std::cout<<"Error: number of modeParameters does not match number of parameters in file"<<std::endl;
             return false;
          }
          else if(parameterMins_.size() != parameterMaxs_.size())
          {
-            cout<<"Error: umber of parameter mins != number parameter maxes"<<endl;
+            std::cout<<"Error: umber of parameter mins != number parameter maxes"<<std::endl;
          }
          else
          {
@@ -65,7 +66,7 @@ bool ModelFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       }
    }
-   cout<<"FAILED: "<<*comment<<endl; 
+   std::cout<<"FAILED: "<<*comment<<std::endl; 
    return false;
 
 }
@@ -89,7 +90,7 @@ vector<string> ModelFilter::split(string fstring, string splitter)
    string afterSplitter = fstring;
    if(fstring.find(splitter) == string::npos)
    {
-      cout<<"No "<<splitter<<" found"<<endl;
+      std::cout<<"No "<<splitter<<" found"<<std::endl;
       returnVector.push_back(fstring);      
       return returnVector;
    }

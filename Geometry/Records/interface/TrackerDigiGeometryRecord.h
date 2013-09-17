@@ -16,7 +16,6 @@
 //
 // Author:      
 // Created:     Mon Jul 25 11:05:09 EDT 2005
-// $Id: TrackerDigiGeometryRecord.h,v 1.9 2009/03/10 17:36:30 fambrogl Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

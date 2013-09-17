@@ -15,11 +15,11 @@
 //
 // Original Author:  Alexandre Sakharov
 //         Created:  Sun May 10 15:43:28 CEST 2009
-// $Id: CSCViewDigi.cc,v 1.2 2009/11/11 19:55:20 rpw Exp $
 //
 //
 
 #include "EventFilter/CSCRawToDigi/interface/CSCViewDigi.h"
+#include <iostream>
 //#include "CSCViewDigi.h"
 
 //

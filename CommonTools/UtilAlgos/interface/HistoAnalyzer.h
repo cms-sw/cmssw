@@ -57,7 +57,7 @@ HistoAnalyzer<C>::HistoAnalyzer( const edm::ParameterSet& par ) :
    for (; it!=end; ++it)
    {
       ExpressionHisto<typename C::value_type>* hist = new ExpressionHisto<typename C::value_type>(*it);
-      hist->initialize(*fs);
+      hist->initialize(fs->tFileDirectory());
       vhistograms.push_back(hist);
    }   
 

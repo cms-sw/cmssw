@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 09:56:09 EST 2008
-// $Id: FWCandidateProxyBuilder.cc,v 1.8 2010/06/18 12:47:32 yana Exp $
 //
 
 #include "TEveTrack.h"

@@ -2,8 +2,6 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/11/07 11:50:49 $
- *  $Revision: 1.4 $
  *
  *  \author Mika Huhtinen
  *

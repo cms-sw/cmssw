@@ -36,7 +36,7 @@ class TPtoRecoTrack
     void SetRecoVertex_AlgoA(reco::VertexRef vertex)  {recoVertex_AlgoA_ = vertex;}
     void SetRecoVertex_AlgoB(reco::VertexRef vertex)  {recoVertex_AlgoB_ = vertex;}
 
-    void SetBeamSpot(math::XYZPoint bs)           {beamSpot_ = bs;}
+    void SetBeamSpot(const math::XYZPoint& bs)           {beamSpot_ = bs;}
   
     // Interogation Functions
     reco::Track       RTA()         const {return recoTrack_AlgoA_.isNonnull()  ? *recoTrack_AlgoA_  : reco::Track();}

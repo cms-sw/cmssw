@@ -73,16 +73,16 @@ ESRecoSummary::ESRecoSummary(const edm::ParameterSet& ps)
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   //now do what ever initialization is needed
-  esRecHitCollection_        = ps.getParameter<edm::InputTag>("recHitCollection_ES");
-  esClusterCollectionX_      = ps.getParameter<edm::InputTag>("ClusterCollectionX_ES");
-  esClusterCollectionY_      = ps.getParameter<edm::InputTag>("ClusterCollectionY_ES");
+  esRecHitCollection_        = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("recHitCollection_ES"));
+  esClusterCollectionX_      = consumes<reco::PreshowerClusterCollection>(ps.getParameter<edm::InputTag>("ClusterCollectionX_ES"));
+  esClusterCollectionY_      = consumes<reco::PreshowerClusterCollection>(ps.getParameter<edm::InputTag>("ClusterCollectionY_ES"));
 
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
   // Monitor Elements (ex THXD)
   dqmStore_->setCurrentFolder(prefixME_ + "/ESRecoSummary"); // to organise the histos in folders
 
-  superClusterCollection_EE_ = ps.getParameter<edm::InputTag>("superClusterCollection_EE");
+  superClusterCollection_EE_ = consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("superClusterCollection_EE"));
      
   // Preshower ----------------------------------------------
   h_recHits_ES_energyMax      = dqmStore_->book1D("recHits_ES_energyMax","recHits_ES_energyMax",200,0.,0.01);
@@ -117,7 +117,7 @@ void ESRecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 
   //Preshower RecHits
   edm::Handle<ESRecHitCollection> recHitsES;
-  ev.getByLabel (esRecHitCollection_, recHitsES) ;
+  ev.getByToken (esRecHitCollection_, recHitsES) ;
   const ESRecHitCollection* thePreShowerRecHits = recHitsES.product () ;
 
   if ( ! recHitsES.isValid() ) {
@@ -138,18 +138,18 @@ void ESRecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 
   // ES clusters in X plane
   edm::Handle<reco::PreshowerClusterCollection> esClustersX;
-  ev.getByLabel( esClusterCollectionX_, esClustersX);
+  ev.getByToken( esClusterCollectionX_, esClustersX);
   const reco::PreshowerClusterCollection *ESclustersX = esClustersX.product();
 
   // ES clusters in Y plane
   edm::Handle<reco::PreshowerClusterCollection> esClustersY;
-  ev.getByLabel( esClusterCollectionY_, esClustersY);
+  ev.getByToken( esClusterCollectionY_, esClustersY);
   const reco::PreshowerClusterCollection *ESclustersY = esClustersY.product(); 
   
 
   // ... endcap
   edm::Handle<reco::SuperClusterCollection> superClusters_EE_h;
-  ev.getByLabel( superClusterCollection_EE_, superClusters_EE_h );
+  ev.getByToken( superClusterCollection_EE_, superClusters_EE_h );
   const reco::SuperClusterCollection* theEndcapSuperClusters = superClusters_EE_h.product () ;
   if ( ! superClusters_EE_h.isValid() ) {
     std::cerr << "EcalRecHitSummary::analyze --> superClusters_EE_h not found" << std::endl; 

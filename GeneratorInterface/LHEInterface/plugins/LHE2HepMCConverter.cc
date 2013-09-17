@@ -13,7 +13,6 @@
 //
 // Original Author:  Piergiulio Lenzi,40 1-B01,+41227671638,
 //         Created:  Wed Aug 31 19:02:24 CEST 2011
-// $Id: LHE2HepMCConverter.cc,v 1.1 2011/09/06 12:58:42 fabiocos Exp $
 //
 //
 

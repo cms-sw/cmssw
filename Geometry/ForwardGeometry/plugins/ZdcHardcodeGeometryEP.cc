@@ -13,7 +13,6 @@
 //
 // Original Author:  Edmundo Garcia
 //         Created:  Mon Aug  6 12:33:33 CDT 2007
-// $Id: ZdcHardcodeGeometryEP.cc,v 1.3 2008/05/19 20:12:41 heltsley Exp $
 //
 #include "Geometry/Records/interface/ZDCGeometryRecord.h"
 #include "Geometry/ForwardGeometry/plugins/ZdcHardcodeGeometryEP.h"

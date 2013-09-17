@@ -9,7 +9,6 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcOptional.cc,v 1.3 2007/07/15 22:31:46 saout Exp $
 //
 
 #include "FWCore/Utilities/interface/Exception.h"

@@ -384,7 +384,7 @@ void FP420SD::UpdateHit() {
 }
 
 
-G4ThreeVector FP420SD::SetToLocal(G4ThreeVector global){
+G4ThreeVector FP420SD::SetToLocal(const G4ThreeVector& global){
 
   const G4VTouchable* touch= preStepPoint->GetTouchable();
   theEntryPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);
@@ -392,7 +392,7 @@ G4ThreeVector FP420SD::SetToLocal(G4ThreeVector global){
 }
      
 
-G4ThreeVector FP420SD::SetToLocalExit(G4ThreeVector globalPoint){
+G4ThreeVector FP420SD::SetToLocalExit(const G4ThreeVector& globalPoint){
 
   const G4VTouchable* touch= postStepPoint->GetTouchable();
   theExitPoint = touch->GetHistory()->GetTopTransform().TransformPoint(globalPoint);

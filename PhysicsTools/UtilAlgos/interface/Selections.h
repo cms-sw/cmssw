@@ -4,6 +4,7 @@
 #include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
 #include <cstdlib>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 
 class Filter {

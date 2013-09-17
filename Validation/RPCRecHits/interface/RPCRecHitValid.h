@@ -13,6 +13,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 #include "Validation/RPCRecHits/interface/RPCValidHistograms.h"
 
 #include <string>
@@ -30,11 +35,17 @@ public:
   void endJob();
 
 private:
+  typedef edm::PSimHitContainer SimHits;
+  typedef RPCRecHitCollection RecHits;
+  typedef TrackingParticleCollection SimParticles;
+  typedef SimHitTPAssociationProducer::SimHitTPAssociationList SimHitAssoc;
+
   std::string subDir_;
-  edm::InputTag simHitLabel_, recHitLabel_;
-  edm::InputTag simParticleLabel_;
-  edm::InputTag simHitAssocLabel_;
-  edm::InputTag muonLabel_;
+  edm::EDGetTokenT<SimHits> simHitToken_;
+  edm::EDGetTokenT<RecHits> recHitToken_;
+  edm::EDGetTokenT<SimParticles> simParticleToken_;
+  edm::EDGetTokenT<SimHitAssoc>  simHitAssocToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
 
   DQMStore* dbe_;
 

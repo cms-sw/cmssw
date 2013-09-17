@@ -1,5 +1,4 @@
 //
-// $Id: CaloIsolationEnergy.h,v 1.2 2008/02/28 14:54:24 llista Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_CaloIsolationEnergy_h

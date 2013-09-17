@@ -81,7 +81,7 @@ class HLTMonElectronConsumer : public edm::EDAnalyzer {
       std::string pixeldirname_;
       std::string isodirname_;
       bool monitorDaemon_;
-      ofstream logFile_;
+      std::ofstream logFile_;
       std::string outputFile_;
       
 };

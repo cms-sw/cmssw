@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 11 12:09:47 EDT 2008
-// $Id: CmsShowTaskExecutor.cc,v 1.1 2008/07/12 00:32:58 chrjones Exp $
 //
 
 // system include files

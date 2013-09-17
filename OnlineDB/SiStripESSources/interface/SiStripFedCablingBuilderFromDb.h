@@ -1,4 +1,3 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.16 2008/04/30 08:15:33 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H

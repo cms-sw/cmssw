@@ -8,7 +8,6 @@
  *  detailed description
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
- * $date   : 20/11/2006 16:51:04 CET $
  *
  * Modification:
  *

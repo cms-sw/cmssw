@@ -298,7 +298,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
   }
 }
 
-int SiStripDetVOffBuilder::findSetting(uint32_t id, coral::TimeStamp changeDate, std::vector<uint32_t> settingID, std::vector<coral::TimeStamp> settingDate) {
+int SiStripDetVOffBuilder::findSetting(uint32_t id, const coral::TimeStamp& changeDate, const std::vector<uint32_t>& settingID, const std::vector<coral::TimeStamp>& settingDate) {
   int setting = -1;
   // find out how many channel entries there are
   std::vector<int> locations;
@@ -324,7 +324,7 @@ int SiStripDetVOffBuilder::findSetting(uint32_t id, coral::TimeStamp changeDate,
   return setting;
 }
 
-int SiStripDetVOffBuilder::findSetting(std::string dpname, coral::TimeStamp changeDate, std::vector<std::string> settingDpname, std::vector<coral::TimeStamp> settingDate) {
+int SiStripDetVOffBuilder::findSetting(std::string dpname, const coral::TimeStamp& changeDate, const std::vector<std::string>& settingDpname, const std::vector<coral::TimeStamp>& settingDate) {
   int setting = -1;
   // find out how many channel entries there are
   std::vector<int> locations;
@@ -412,7 +412,7 @@ void SiStripDetVOffBuilder::readLastValueFromFile(std::vector<uint32_t> &dpIDs, 
   if (changeDates.size() != dateChange.size()) {edm::LogError("SiStripDetVOffBuilder") << "[SiStripDetVOffBuilder::" << __func__ << "]: date conversion failed!!";}
 }
 
-cond::Time_t SiStripDetVOffBuilder::getCondTime(coral::TimeStamp coralTime) {
+cond::Time_t SiStripDetVOffBuilder::getCondTime(const coral::TimeStamp& coralTime) {
 
   // const boost::posix_time::ptime& t = coralTime.time();
   cond::Time_t condTime = cond::time::from_boost(coralTime.time());
@@ -454,7 +454,7 @@ void SiStripDetVOffBuilder::setLastSiStripDetVOff( SiStripDetVOff * lastPayload,
   lastStoredCondObj.second = lastTimeStamp;
 }
 
-cond::Time_t SiStripDetVOffBuilder::findMostRecentTimeStamp( std::vector<coral::TimeStamp> coralDate ) {
+cond::Time_t SiStripDetVOffBuilder::findMostRecentTimeStamp( const std::vector<coral::TimeStamp>& coralDate ) {
   cond::Time_t latestDate = getCondTime(coralDate[0]);
   
   if( debug_ ) {
@@ -740,7 +740,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
   //Check here if there is a file already, otherwise initialize to OFF all channels in these PSU!
   if (FileExists("HVUnmappedChannelState.dat")) {
     std::cout<<"File HVUnmappedChannelState.dat exists!"<<std::endl;
-    ifstream ifs("HVUnmappedChannelState.dat");
+    std::ifstream ifs("HVUnmappedChannelState.dat");
     string line;
     while( getline( ifs, line ) ) {
       if( line != "" ) {
@@ -801,7 +801,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
   //Check here if there is a file already, otherwise initialize to OFF all channels in these PSU!
   if (FileExists("HVCrosstalkingChannelState.dat")) {
     std::cout<<"File HVCrosstalkingChannelState.dat exists!"<<std::endl;
-    ifstream ifs("HVCrosstalkingChannelState.dat");
+    std::ifstream ifs("HVCrosstalkingChannelState.dat");
     string line;
     while( getline( ifs, line ) ) {
       if( line != "" ) {
@@ -1135,11 +1135,11 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
     }
   }//End of the loop over all PSUChannels reported by the DB query.
   //At this point we need to (over)write the 2 files that will keep the HVUnmapped and HVCrosstalking channels status:
-  ofstream ofsUnmapped("HVUnmappedChannelState.dat");
+  std::ofstream ofsUnmapped("HVUnmappedChannelState.dat");
   for (std::map<std::string,bool>::iterator it=UnmappedState.begin(); it!=UnmappedState.end(); it++) {
     ofsUnmapped<<it->first<<"\t"<<it->second<<std::endl;
   }
-  ofstream ofsCrosstalking("HVCrosstalkingChannelState.dat");
+  std::ofstream ofsCrosstalking("HVCrosstalkingChannelState.dat");
   for (std::map<std::string,bool>::iterator it=CrosstalkingState.begin(); it!=CrosstalkingState.end(); it++) {
     ofsCrosstalking<<it->first<<"\t"<<it->second<<std::endl;
   }

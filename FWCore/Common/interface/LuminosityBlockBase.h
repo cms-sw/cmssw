@@ -131,7 +131,6 @@ namespace edm {
     // public interface is asking for trouble
     friend class ConfigurableInputSource;
     friend class InputSource;
-    friend class DaqSource;
     friend class RawInputSource;
     friend class EDFilter;
     friend class EDProducer;

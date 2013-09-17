@@ -13,7 +13,6 @@
 //
 // Original Author:  Juliette Marie Alimena,40 3-A02,+41227671577,
 //         Created:  Fri Apr 22 15:46:58 CEST 2011
-// $Id: HLTOfflineReproducibility.cc,v 1.9 2012/01/13 17:45:06 fwyzard Exp $
 //
 //
 

@@ -8,7 +8,6 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.48 2012/09/21 09:26:26 eulisse Exp $
 //
 
 // system include files

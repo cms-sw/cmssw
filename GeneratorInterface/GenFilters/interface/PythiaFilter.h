@@ -15,7 +15,6 @@
 //
 // Original Author:  Filip Moortgat
 //         Created:  Mon Jan 23 14:57:54 CET 2006
-// $Id: PythiaFilter.h,v 1.2 2009/12/04 22:19:25 yarba Exp $
 //
 //
 

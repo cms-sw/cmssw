@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:30 CST 2009
-// $Id: FWCollectionSummaryWidget.h,v 1.7 2010/03/16 20:19:36 matevz Exp $
 //
 
 // system include files

@@ -8,7 +8,6 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Tue Oct 19 12:00:50 CEST 2010
-// $Id: FWDigitSetProxyBuilder.cc,v 1.3 2010/12/03 20:38:57 amraktad Exp $
 //
 
 // system include files

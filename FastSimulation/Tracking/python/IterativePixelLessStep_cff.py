@@ -29,6 +29,15 @@ iterativePixelLessSeeds.originHalfLength = [10.0]
 iterativePixelLessSeeds.originpTMin = [0.6] # was 0.5
 iterativePixelLessSeeds.zVertexConstraint = [-1.0]
 iterativePixelLessSeeds.primaryVertices = ['none']
+# new (AG)
+iterativePixelLessSeeds.newSyntax = False
+iterativePixelLessSeeds.layerList = ['TIB1+TIB2',
+                                     'TIB1+TID1_pos','TIB1+TID1_neg',
+                                     'TID3_pos+TEC1_pos','TID3_neg+TEC1_neg',
+                                     'TID1_pos+TID2_pos','TID2_pos+TID3_pos',
+                                     'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos','TEC4_pos+TEC5_pos',
+                                     'TID1_neg+TID2_neg','TID2_neg+TID3_neg',
+                                     'TEC1_neg+TEC2_neg','TEC2_neg+TEC3_neg','TEC3_neg+TEC4_neg','TEC3_neg+TEC5_neg','TEC4_neg+TEC5_neg']
 
 # candidate producer
 #from FastSimulation.Tracking.IterativeFourthCandidateProducer_cff import *

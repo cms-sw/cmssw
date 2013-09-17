@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 13:12:28 EST 2008
-// $Id: FWRepresentationInfo.h,v 1.3 2010/06/02 22:37:42 chrjones Exp $
 //
 
 // system include files

@@ -4,8 +4,6 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2009/03/19 11:02:07 $
- *  $Revision: 1.10 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -29,10 +27,10 @@ public:
   typedef Surface::GlobalPoint    GlobalPoint;
 
   /// Constructor
-  MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer *> ,
-			     std::vector<MagESector *> ,
-			     std::vector<MagVolume6Faces*> ,
-			     std::vector<MagVolume6Faces*> );
+  MagGeometry(const edm::ParameterSet& config, const std::vector<MagBLayer *>& ,
+			     const std::vector<MagESector *>& ,
+			     const std::vector<MagVolume6Faces*>& ,
+			     const std::vector<MagVolume6Faces*>& );
 
   /// Destructor
   ~MagGeometry();

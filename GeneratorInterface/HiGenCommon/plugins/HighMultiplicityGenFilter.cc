@@ -13,7 +13,6 @@
 //
 // Original Author:  Wei Li
 //         Created:  Tue Dec  8 23:51:37 EST 2009
-// $Id: HighMultiplicityGenFilter.cc,v 1.1 2010/08/31 21:39:08 edwenger Exp $
 //
 //
 

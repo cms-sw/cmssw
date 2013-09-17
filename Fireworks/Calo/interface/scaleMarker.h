@@ -16,7 +16,6 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Oct 22 15:53:19 CEST 2010
-// $Id$
 //
 
 class TEveScalableStraightLineSet;

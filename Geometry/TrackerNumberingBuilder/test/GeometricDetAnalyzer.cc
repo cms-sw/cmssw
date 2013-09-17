@@ -13,7 +13,6 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: GeometricDetAnalyzer.cc,v 1.5 2009/05/25 11:00:29 fabiocos Exp $
 //
 //
 

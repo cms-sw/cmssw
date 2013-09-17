@@ -4,8 +4,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: anorkus $
-# $Date: 2012/10/23 15:10:14 $
-# $Revision: 1.7 $
+# $Date: 2013/07/10 14:37:45 $
+# $Revision: 1.11 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -79,10 +79,12 @@ def guess_params(ref_filenames,test_filenames):
     ref_version=name2version(ref)
     test_sample=name2sample(test)
     test_version=name2version(test)
+
+    print "  ## sample 1: %s vs sample 2: %s"%(ref_sample, test_sample)
           
     if ref_sample!=test_sample:
       print "Files %s and %s do not seem to be relative to the same sample." %(ref, test)
-      exit(2)
+    #  exit(2)
 
     # Slightly modify for data
     if search("20[01]",ref_version)!=None:
@@ -147,7 +149,7 @@ def guess_blacklists(samples,ver1,ver2,hlt):
   """
   blacklists={}
   for sample in samples:
-    blacklists[sample]="FED@1,AlcaBeamMonitor@1,Physics@1,Info@-1,HLT@1,AlCaReco@1"
+    blacklists[sample]="FED@1,AlcaBeamMonitor@1,HLT@1,AlCaReco@1"
     
     # HLT
     if hlt: #HLT
@@ -156,9 +158,6 @@ def guess_blacklists(samples,ver1,ver2,hlt):
         print "We are treating MC files for the HLT"
         for pattern,blist in definitions.hlt_mc_pattern_blist_pairs:
           blacklists[sample]=add_to_blacklist(blacklists[sample],pattern,sample,blist)
-#          print 'HLT '+pattern
-#          print 'HLT '+sample
-#          print 'HLT '+blacklists[sample]   
       else:
         print "We are treating Data files for the HLT"    
         # at the moment it does not make sense since hlt is ran already
@@ -295,6 +294,8 @@ def call_compare_using_files(args):
   if options.blacklist_file:
     command += " --use_black_file "
 
+  if options.standalone:
+    command += " --standalone "
   if len(blacklists[sample]) >0:
     command+= '-B %s ' %blacklists[sample]
   print "\nExecuting --  %s" %command
@@ -411,7 +412,7 @@ def do_reports(indir):
   os.chdir("..")
   
 #-------------------------------------------------------------------------------
-def do_html(options, hashing_flag):
+def do_html(options, hashing_flag, standalone):
 
   if options.reports:
     print "Preparing reports for the single files..."
@@ -427,7 +428,7 @@ def do_html(options, hashing_flag):
   else:
     aggregation_rules=definitions.aggr_pairs_dict['reco']
     aggregation_rules_twiki=definitions.aggr_pairs_twiki_dict['reco']
-  table_html = make_summary_table(options.input_dir,aggregation_rules,aggregation_rules_twiki, hashing_flag)
+  table_html = make_summary_table(options.input_dir,aggregation_rules,aggregation_rules_twiki, hashing_flag, standalone)
 
   # create summary html file
   ofile = open("RelMonSummary.html","w")
@@ -532,12 +533,18 @@ if __name__ == "__main__":
                     dest="hash_name",
                     default=False,
                     help="Set if you want to minimize & hash the output HTML files.")
-##--Blacklist File --##                  
+##--Blacklist File --##
   parser.add_option("--use_black_file",
                     action="store_true",
                     dest="blacklist_file",
                     default=False,
                     help="Use a black list file of histograms located @ /RelMon/data")
+##-- USE CSS files in web access, for stand-alone usage --##
+  parser.add_option("--standalone",
+                  action="store_true",
+                  dest="standalone",
+                  default=False,
+                  help="Define that using RelMon in standalone method. Makes CSS files accessible over HTTP")
 
   (options, args) = parser.parse_args()
 
@@ -549,7 +556,7 @@ if __name__ == "__main__":
   if len(options.all_samples)>0 or (len(options.ref_samples)*len(options.test_samples)>0):
     do_comparisons_threaded(options)
   if len(options.input_dir)>0:
-    do_html(options, options.hash_name)
+    do_html(options, options.hash_name, options.standalone)
 
 
 

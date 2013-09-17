@@ -1,5 +1,4 @@
 //
-// $Id: PATCompositeCandidateProducer.h,v 1.3 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATCompositeCandidateProducer_h

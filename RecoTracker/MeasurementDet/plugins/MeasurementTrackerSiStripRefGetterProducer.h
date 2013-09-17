@@ -8,7 +8,6 @@
  * retrieves a MeasurementTrackerOD from the event 
  * produces a SiStripRefGetter, defined by MeasurementTrackerOD::define(...)
  * 
- * $Dates: 2007/09/21 13:28 $
  *
  * \author Jean-Roch Vlimant  UCSB
  *

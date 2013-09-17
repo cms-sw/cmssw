@@ -16,6 +16,13 @@ from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoTau_cfi import *
 
 
+# b-tagging
+from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
+from RecoBTag.ImpactParameter.impactParameter_cfi import impactParameterTagInfos
+from RecoBTag.SecondaryVertex.secondaryVertexTagInfos_cfi import secondaryVertexTagInfos
+from RecoBTag.SecondaryVertex.combinedSecondaryVertexBJetTags_cfi import combinedSecondaryVertexBJetTags
+
+
 #### PU Again... need to do this twice because the "linking" stage of PF reco ####
 #### condenses information into the new "particleFlow" collection.            ####
 
@@ -44,14 +51,17 @@ pfMuonsFromVertexEI = pfMuonsFromVertex.clone( src = cms.InputTag('pfAllMuonsEI'
 pfIsolatedMuonsEI = cms.EDFilter(
     "PFCandidateFwdPtrCollectionStringFilter",
     src = cms.InputTag("pfMuonsFromVertexEI"),
-    cut = cms.string("pt > 5 & muonRef.isAvailable() & "\
-                     "muonRef.pfIsolationR04().sumChargedHadronPt + "\
-                     "muonRef.pfIsolationR04().sumNeutralHadronEt + "\
-                     "muonRef.pfIsolationR04().sumPhotonEt "\
-                     " < 0.15 * pt "
-        ),
+    cut = cms.string('''abs(eta)<2.5 && pt>10. && muonRef.isAvailable() &&
+    (muonRef.pfIsolationR04().sumChargedHadronPt+
+    max(0.,muonRef.pfIsolationR04().sumNeutralHadronEt+
+    muonRef.pfIsolationR04().sumPhotonEt-
+    0.50*muonRef.pfIsolationR04().sumPUPt))/pt < 0.20 && 
+    (muonRef.isPFMuon && (muonRef.isGlobalMuon || muonRef.isTrackerMuon) )'''
+    ),
     makeClones = cms.bool(True)
 )
+
+
 
 pfNoMuon.topCollection    = 'pfIsolatedMuonsEI'
 pfNoMuon.bottomCollection = 'pfNoPileUpEI'
@@ -74,18 +84,20 @@ pfAllElectronsEI = cms.EDFilter(
 
 pfElectronsFromVertexEI = pfElectronsFromVertex.clone( src = cms.InputTag('pfAllElectronsEI') )
 
-
 pfIsolatedElectronsEI = cms.EDFilter(
     "PFCandidateFwdPtrCollectionStringFilter",
     src = cms.InputTag("pfElectronsFromVertexEI"),
-    cut = cms.string(" pt > 5 & gsfElectronRef.isAvailable() & gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits<2 & "\
-                     "gsfElectronRef.pfIsolationVariables().chargedHadronIso + "\
-                     "gsfElectronRef.pfIsolationVariables().neutralHadronIso + "\
-                     "gsfElectronRef.pfIsolationVariables().photonIso "\
-                     " < 0.2 * pt "
-        ),
+    cut = cms.string('''abs(eta)<2.5 && pt>20. &&
+    gsfTrackRef.isAvailable() &&
+    gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits<2 &&
+    (gsfElectronRef.pfIsolationVariables().sumChargedHadronPt+
+    max(0.,gsfElectronRef.pfIsolationVariables().sumNeutralHadronEt+
+    gsfElectronRef.pfIsolationVariables().sumPhotonEt-
+    0.5*gsfElectronRef.pfIsolationVariables().sumPUPt))/pt < 0.15
+    '''),
     makeClones = cms.bool(True)
 )
+
 
 
 pfNoElectron.topCollection    = 'pfIsolatedElectronsEI'
@@ -122,6 +134,23 @@ pfTauEISequence = cms.Sequence(
     pfTausPtrsEI
     )
 
+#### B-tagging ####
+pfJetTrackAssociatorEI = ak5JetTracksAssociatorAtVertex.clone (
+    src = cms.InputTag("pfJetsEI")
+    )
+impactParameterTagInfosEI = impactParameterTagInfos.clone(
+    jetTracks = cms.InputTag( 'pfJetTrackAssociatorEI' )
+    )
+secondaryVertexTagInfosEI = secondaryVertexTagInfos.clone(
+    trackIPTagInfos = cms.InputTag( 'impactParameterTagInfosEI' )
+    )
+combinedSecondaryVertexBJetTagsEI = combinedSecondaryVertexBJetTags.clone(
+    tagInfos = cms.VInputTag(cms.InputTag("impactParameterTagInfosEI"),
+                             cms.InputTag("secondaryVertexTagInfosEI"))    
+    )
+
+
+
 #### MET ####
 pfMetEI = pfMET.clone(jets=cms.InputTag("pfJetsEI"))
 
@@ -145,6 +174,10 @@ EIsequence = cms.Sequence(
     pfNoJetEI + 
     pfTauEISequence +
     pfNoTauEI +
-    pfMetEI
+    pfMetEI+
+    pfJetTrackAssociatorEI+
+    impactParameterTagInfosEI+
+    secondaryVertexTagInfosEI+
+    combinedSecondaryVertexBJetTagsEI    
     )
 

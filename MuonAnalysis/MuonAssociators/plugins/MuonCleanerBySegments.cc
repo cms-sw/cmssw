@@ -1,6 +1,5 @@
 
 //
-// $Id: MuonCleanerBySegments.cc,v 1.1 2012/08/11 13:00:50 gpetrucc Exp $
 //
 
 /**

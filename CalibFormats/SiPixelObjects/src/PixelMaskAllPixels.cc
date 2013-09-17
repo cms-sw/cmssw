@@ -86,7 +86,7 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& 
 PixelMaskAllPixels::PixelMaskAllPixels():PixelMaskBase("","",""){;}
 
 //================================================================================================================
-void PixelMaskAllPixels::addROCMaskBits(PixelROCMaskBits bits)
+void PixelMaskAllPixels::addROCMaskBits(const PixelROCMaskBits& bits)
 {
   maskbits_.push_back(bits);
 }

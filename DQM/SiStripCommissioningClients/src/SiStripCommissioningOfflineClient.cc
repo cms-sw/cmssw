@@ -86,7 +86,7 @@ void SiStripCommissioningOfflineClient::beginRun( const edm::Run& run, const edm
   // Check if .root file can be opened
   std::vector<std::string>::const_iterator ifile = inputFiles_.begin();
   for ( ; ifile != inputFiles_.end(); ifile++ ) {
-    ifstream root_file;
+    std::ifstream root_file;
     root_file.open( ifile->c_str() );
     if( !root_file.is_open() ) {
       edm::LogError(mlDqmClient_)
@@ -124,7 +124,7 @@ void SiStripCommissioningOfflineClient::beginRun( const edm::Run& run, const edm
   
   // Check if .xml file can be opened
   if ( !xmlFile_.empty() ) {
-    ifstream xml_file;
+    std::ifstream xml_file;
     xml_file.open( xmlFile_.c_str() );
     if( !xml_file.is_open() ) {
       edm::LogError(mlDqmClient_)

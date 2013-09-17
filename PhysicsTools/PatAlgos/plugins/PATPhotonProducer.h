@@ -1,5 +1,4 @@
 //
-// $Id: PATPhotonProducer.h,v 1.19 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h

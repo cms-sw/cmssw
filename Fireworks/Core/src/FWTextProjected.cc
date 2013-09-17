@@ -8,7 +8,6 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Aug 12 01:12:18 CEST 2011
-// $Id: FWTextProjected.cc,v 1.2 2011/08/16 01:40:35 amraktad Exp $
 //
 
 // system include files

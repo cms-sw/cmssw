@@ -134,7 +134,6 @@ namespace edm {
     // alternative is not great either.  Putting it into the
     // public interface is asking for trouble
     friend class InputSource;
-    friend class DaqSource;
     friend class RawInputSource;
     friend class ProducerBase;
     template<typename T> friend class stream::ProducingModuleAdaptorBase;

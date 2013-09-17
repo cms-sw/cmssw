@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
   // Create the RootTreeHandler to save the events in the root tree
   RootTreeHandler treeHandler;
 
-  ifstream inputFile;
+  std::ifstream inputFile;
   inputFile.open(fileName.c_str());
 
   std::string line;

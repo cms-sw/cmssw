@@ -531,7 +531,7 @@ CmsShowMainBase::sendVersionInfo()
   // get OSX version
    TString osx_version;
    try {
-     ifstream infoFile("/System/Library/CoreServices/SystemVersion.plist");
+     std::ifstream infoFile("/System/Library/CoreServices/SystemVersion.plist");
      osx_version.ReadFile(infoFile);
      TPMERegexp re("ProductVersion\\</key\\>\\n\\t\\<string\\>(10.*)\\</string\\>");
      re.Match(osx_version);
@@ -552,7 +552,7 @@ CmsShowMainBase::sendVersionInfo()
    {
       TString versionFileName("data/version.txt");
       fireworks::setPath(versionFileName);
-      ifstream fs(versionFileName);
+      std::ifstream fs(versionFileName);
       TString infoText;
       infoText.ReadLine(fs);
       fs.close();

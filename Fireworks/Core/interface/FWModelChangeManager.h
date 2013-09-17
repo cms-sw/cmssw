@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 17:37:49 EST 2008
-// $Id: FWModelChangeManager.h,v 1.5 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files

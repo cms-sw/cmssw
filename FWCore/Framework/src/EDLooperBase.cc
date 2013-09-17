@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -22,6 +23,7 @@
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
 #include "boost/bind.hpp"
@@ -29,7 +31,10 @@
 
 namespace edm {
 
-  EDLooperBase::EDLooperBase() : iCounter_(0), act_table_(nullptr), moduleChanger_(nullptr) { }
+  EDLooperBase::EDLooperBase() : iCounter_(0), act_table_(nullptr), moduleChanger_(nullptr),
+                                 moduleDescription_("Looper", "looper"),
+                                 moduleCallingContext_(&moduleDescription_)
+ { }
   EDLooperBase::~EDLooperBase() { }
 
   void
@@ -41,15 +46,14 @@ namespace edm {
   EDLooperBase::doDuringLoop(edm::EventPrincipal& eventPrincipal, const edm::EventSetup& es,
                              edm::ProcessingController& ioController, StreamContext* streamContext) {
 
-    edm::ModuleDescription modDesc("Looper", "looper");
     streamContext->setTransition(StreamContext::Transition::kEvent);
     streamContext->setEventID(eventPrincipal.id());
     streamContext->setRunIndex(eventPrincipal.luminosityBlockPrincipal().runPrincipal().index());
     streamContext->setLuminosityBlockIndex(eventPrincipal.luminosityBlockPrincipal().index());
     streamContext->setTimestamp(eventPrincipal.time());
     ParentContext parentContext(streamContext);
-    ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
-    Event event(eventPrincipal, modDesc, &moduleCallingContext);
+    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+    Event event(eventPrincipal, moduleDescription_, &moduleCallingContext_);
 
     Status status = kContinue;
     try {
@@ -89,7 +93,6 @@ namespace edm {
   void EDLooperBase::endOfJob() { }
 
   void EDLooperBase::doBeginRun(RunPrincipal& iRP, EventSetup const& iES, ProcessContext* processContext) {
-        edm::ModuleDescription modDesc("Looper", "looper");
         GlobalContext globalContext(GlobalContext::Transition::kBeginRun,
                                     LuminosityBlockID(iRP.run(), 0),
                                     iRP.index(),
@@ -97,13 +100,12 @@ namespace edm {
                                     iRP.beginTime(),
                                     processContext);
         ParentContext parentContext(&globalContext);
-        ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
-	Run run(iRP, modDesc, &moduleCallingContext);
-	beginRun(run,iES);
+        ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+        Run run(iRP, moduleDescription_, &moduleCallingContext_);
+        beginRun(run,iES);
   }
 
   void EDLooperBase::doEndRun(RunPrincipal& iRP, EventSetup const& iES, ProcessContext* processContext){
-        edm::ModuleDescription modDesc("Looper", "looper");
         GlobalContext globalContext(GlobalContext::Transition::kEndRun,
                                     LuminosityBlockID(iRP.run(), 0),
                                     iRP.index(),
@@ -111,12 +113,11 @@ namespace edm {
                                     iRP.endTime(),
                                     processContext);
         ParentContext parentContext(&globalContext);
-        ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
-	Run run(iRP, modDesc, &moduleCallingContext);
-	endRun(run,iES);
+        ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+        Run run(iRP, moduleDescription_, &moduleCallingContext_);
+        endRun(run,iES);
   }
   void EDLooperBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES, ProcessContext* processContext){
-    edm::ModuleDescription modDesc("Looper", "looper");
     GlobalContext globalContext(GlobalContext::Transition::kBeginLuminosityBlock,
                                 iLB.id(),
                                 iLB.runPrincipal().index(),
@@ -124,12 +125,11 @@ namespace edm {
                                 iLB.beginTime(),
                                 processContext);
     ParentContext parentContext(&globalContext);
-    ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
-    LuminosityBlock luminosityBlock(iLB, modDesc, &moduleCallingContext);
+    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+    LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_);
     beginLuminosityBlock(luminosityBlock,iES);
   }
   void EDLooperBase::doEndLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES, ProcessContext* processContext){
-    edm::ModuleDescription modDesc("Looper", "looper");
     GlobalContext globalContext(GlobalContext::Transition::kEndLuminosityBlock,
                                 iLB.id(),
                                 iLB.runPrincipal().index(),
@@ -137,8 +137,8 @@ namespace edm {
                                 iLB.beginTime(),
                                 processContext);
     ParentContext parentContext(&globalContext);
-    ModuleCallingContext moduleCallingContext(&modDesc, ModuleCallingContext::State::kRunning, parentContext);
-    LuminosityBlock luminosityBlock(iLB, modDesc, &moduleCallingContext);
+    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+    LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_);
     endLuminosityBlock(luminosityBlock,iES);
   }
 

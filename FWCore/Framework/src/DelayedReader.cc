@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 
+#include <cassert>
 /*----------------------------------------------------------------------
   
 

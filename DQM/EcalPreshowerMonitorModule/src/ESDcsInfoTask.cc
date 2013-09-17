@@ -11,8 +11,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/Scalers/interface/DcsStatus.h"
-
 #include "DQM/EcalPreshowerMonitorModule/interface/ESDcsInfoTask.h"
 
 using namespace cms;
@@ -29,7 +27,7 @@ ESDcsInfoTask::ESDcsInfoTask(const ParameterSet& ps) {
 
    mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-   dcsStatuslabel_ 	= ps.getParameter<InputTag>("DcsStatusLabel");
+   dcsStatustoken_ = consumes<DcsStatusCollection>(ps.getParameter<InputTag>("DcsStatusLabel"));
 
    meESDcsFraction_ = 0;
    meESDcsActiveMap_ = 0;
@@ -112,7 +110,7 @@ void ESDcsInfoTask::analyze(const Event& e, const EventSetup& c){
    float ESmDcsStatus = 0;
 
    Handle<DcsStatusCollection> dcsStatus;
-   e.getByLabel(dcsStatuslabel_, dcsStatus);
+   e.getByToken(dcsStatustoken_, dcsStatus);
    if (dcsStatus.isValid()) {
      for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
        ESpDcsStatus = dcsStatusItr->ready(DcsStatus::ESp);

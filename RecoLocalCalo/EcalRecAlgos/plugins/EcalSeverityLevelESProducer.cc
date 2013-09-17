@@ -14,7 +14,6 @@
   Appartently there is no smarter way to do it in CMSSW
 
   Author: Stefano Argiro
-  $Id$
  */
 
 class EcalSeverityLevelESProducer : public edm::ESProducer {

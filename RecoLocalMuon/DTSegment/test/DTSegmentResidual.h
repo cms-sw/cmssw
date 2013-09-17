@@ -6,7 +6,6 @@
  * Compute the residual of the hits wrt their segments
  *  
  * \author : Stefano Lacaprara - INFN LNL <stefano.lacaprara@pd.infn.it>
- * $date   : 06/12/2006 14:28:13 CET $
  *
  * Modification:
  *

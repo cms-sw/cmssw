@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include <vector>
 
@@ -127,16 +128,16 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   bool mergeRuns_;
 
   /// to find the input collection of real digis 
-  edm::InputTag realCollection_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> realCollection_;
 
   /// to find the input collection of emulated digis
-  edm::InputTag emulCollection_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> emulCollection_;
 
   /// to find the input collection of crystal digis
-  edm::InputTag EBDigiCollection_;
+  edm::EDGetTokenT<EBDigiCollection> EBDigiCollection_;
 
   /// to find the input collection of HLT bits
-  edm::InputTag HLTResultsCollection_;
+  edm::EDGetTokenT<edm::TriggerResults> HLTResultsCollection_;
   std::string HLTCaloHLTBit_;
   std::string HLTMuonHLTBit_;
 

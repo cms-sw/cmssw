@@ -43,7 +43,7 @@ class PFJetAlgorithm {
     const TLorentzVector& GetMomentum() const {return fMomentum;}
     const std::vector<int>&    GetIndexes() const {return fVecIndexes;}
 
-    friend ostream& operator<<(ostream& out, const PFJetAlgorithm::Jet& jet);
+    friend std::ostream& operator<<(std::ostream& out, const PFJetAlgorithm::Jet& jet);
   };
 
 

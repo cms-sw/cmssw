@@ -4,7 +4,6 @@
 //
 // Package:     Core
 // Class  :     FWFileEntry
-// $Id: FWFileEntry.h,v 1.12 2010/11/22 21:35:06 matevz Exp $
 //
 
 // system include files

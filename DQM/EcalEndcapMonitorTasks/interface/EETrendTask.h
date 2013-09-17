@@ -13,6 +13,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 class MonitorElement;
 class DQMStore;
 
@@ -71,25 +79,25 @@ class EETrendTask: public edm::EDAnalyzer{
 
   bool verbose_;
 
-  edm::InputTag EEDigiCollection_;
-  edm::InputTag EcalPnDiodeDigiCollection_;
-  edm::InputTag EcalRecHitCollection_;
-  edm::InputTag EcalTrigPrimDigiCollection_;
-  edm::InputTag BasicClusterCollection_;
-  edm::InputTag SuperClusterCollection_;
-  edm::InputTag EEDetIdCollection0_;
-  edm::InputTag EEDetIdCollection1_;
-  edm::InputTag EEDetIdCollection2_;
-  edm::InputTag EEDetIdCollection3_;
-  edm::InputTag EEDetIdCollection4_;
-  edm::InputTag EcalElectronicsIdCollection1_;
-  edm::InputTag EcalElectronicsIdCollection2_;
-  edm::InputTag EcalElectronicsIdCollection3_;
-  edm::InputTag EcalElectronicsIdCollection4_;
-  edm::InputTag EcalElectronicsIdCollection5_;
-  edm::InputTag EcalElectronicsIdCollection6_;
-  edm::InputTag FEDRawDataCollection_;
-  edm::InputTag EESRFlagCollection_;
+  edm::EDGetTokenT<EEDigiCollection> EEDigiCollection_;
+  edm::EDGetTokenT<EcalPnDiodeDigiCollection> EcalPnDiodeDigiCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> EcalTrigPrimDigiCollection_;
+  edm::EDGetTokenT<reco::BasicClusterCollection> BasicClusterCollection_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> SuperClusterCollection_;
+  edm::EDGetTokenT<EEDetIdCollection> EEDetIdCollection0_;
+  edm::EDGetTokenT<EEDetIdCollection> EEDetIdCollection1_;
+  edm::EDGetTokenT<EEDetIdCollection> EEDetIdCollection2_;
+  edm::EDGetTokenT<EEDetIdCollection> EEDetIdCollection3_;
+  edm::EDGetTokenT<EEDetIdCollection> EEDetIdCollection4_;
+  edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection1_;
+  edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection2_;
+  edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection3_;
+  edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection4_;
+  edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection5_;
+  edm::EDGetTokenT<EcalElectronicsIdCollection> EcalElectronicsIdCollection6_;
+  edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollection_;
+  edm::EDGetTokenT<EESrFlagCollection> EESRFlagCollection_;
 
   MonitorElement* nEEDigiMinutely_;
   MonitorElement* nEcalPnDiodeDigiMinutely_;

@@ -1,0 +1,16 @@
+{
+   "legend" : [
+      {
+         "name" : "Processed",
+         "operation" : "sum"
+      },
+      {
+      	 "name" : "Accepted",
+         "operation" : "sum"
+      },
+      {
+      	 "name" : "Filelist",
+         "operation" : "cat"
+      }
+   ]
+}

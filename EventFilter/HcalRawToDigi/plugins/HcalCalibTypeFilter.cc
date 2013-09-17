@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HcalCalibTypeFilter.cc,v 1.4 2009/07/08 15:30:53 mansj Exp $
 //
 //
 

@@ -17,7 +17,7 @@
 #include <CLHEP/Random/Randomize.h>
 #include <CLHEP/Random/RandGaussQ.h>
 
-GflashEMShowerProfile::GflashEMShowerProfile(edm::ParameterSet parSet) : theParSet(parSet)
+GflashEMShowerProfile::GflashEMShowerProfile(const edm::ParameterSet& parSet) : theParSet(parSet)
 {
   theBField = parSet.getParameter<double>("bField");
   theEnergyScaleEB = parSet.getParameter<double>("energyScaleEB");

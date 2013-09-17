@@ -6,7 +6,6 @@
 
 //
 // Jason Slaunwhite and Jeff Klukas
-// $Id: HLTMuonValidator.cc,v 1.30 2011/09/07 16:34:41 klukas Exp $
 //
 //
 

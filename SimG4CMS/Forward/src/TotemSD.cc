@@ -190,7 +190,7 @@ void TotemSD::clearHits(){
   slave->Initialize();
 }
 
-G4ThreeVector TotemSD::SetToLocal(G4ThreeVector global) {
+G4ThreeVector TotemSD::SetToLocal(const G4ThreeVector& global) {
 
   G4ThreeVector       localPoint;
   const G4VTouchable* touch= preStepPoint->GetTouchable();
@@ -373,7 +373,7 @@ void TotemSD::CreateNewHitEvo() {
   // LogDebug("ForwardSim") << "STORED HIT IN: " << unitID;
 }	 
  
-G4ThreeVector TotemSD::PosizioEvo(G4ThreeVector Pos, double vx, double vy,
+G4ThreeVector TotemSD::PosizioEvo(const G4ThreeVector& Pos, double vx, double vy,
 				  double vz, double pabs, int& accettanza) {
   accettanza=0;
   //Pos.xyz() in mm

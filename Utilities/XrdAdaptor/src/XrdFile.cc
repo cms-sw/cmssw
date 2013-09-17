@@ -1,51 +1,48 @@
+#include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
-#include "Utilities/XrdAdaptor/src/XrdRequestManager.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Likely.h"
-#include "FWCore/Utilities/interface/CPUTimer.h"
 #include <vector>
 #include <sstream>
-#include <iostream>
-#include <assert.h>
-
-using namespace XrdAdaptor;
-
-// To be re-enabled when the monitoring interface is back.
-//static const char *kCrabJobIdEnv = "CRAB_UNIQUE_JOB_ID";
-
-#define XRD_CL_MAX_CHUNK 512*1024
 
 XrdFile::XrdFile (void)
-  :  m_offset (0),
-    m_size(-1),
+  : m_client (0),
+    m_offset (0),
+    m_stat(),
     m_close (false),
-    m_name(),
-    m_op_count(0)
+    m_name()
 {
+  memset(&m_stat, 0, sizeof (m_stat));
+  pthread_mutex_init(&m_readv_mutex, 0);
 }
 
 XrdFile::XrdFile (const char *name,
     	          int flags /* = IOFlags::OpenRead */,
     	          int perms /* = 066 */)
-  : m_offset (0),
-    m_size(-1),
+  : m_client (0),
+    m_offset (0),
+    m_stat(),
     m_close (false),
-    m_name(),
-    m_op_count(0)
+    m_name()
 {
+  memset(&m_stat, 0, sizeof (m_stat));
+  pthread_mutex_init(&m_readv_mutex, 0);
   open (name, flags, perms);
 }
 
 XrdFile::XrdFile (const std::string &name,
     	          int flags /* = IOFlags::OpenRead */,
     	          int perms /* = 066 */)
-  : m_offset (0),
-    m_size(-1),
+  : m_client (0),
+    m_offset (0),
+    m_stat(),
     m_close (false),
-    m_name(),
-    m_op_count(0)
+    m_name()
 {
+  memset(&m_stat, 0, sizeof (m_stat));
+  pthread_mutex_init(&m_readv_mutex, 0);
   open (name.c_str (), flags, perms);
 }
 
@@ -55,6 +52,7 @@ XrdFile::~XrdFile (void)
     edm::LogError("XrdFileError")
       << "Destructor called on XROOTD file '" << m_name
       << "' but the file is still open";
+  pthread_mutex_destroy(&m_readv_mutex);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -104,14 +102,19 @@ XrdFile::open (const char *name,
     ex.addContext("Calling XrdFile::open()");
     throw ex;
   }
+  // If I am already open, close old file first
+  if (m_client && m_close)
+    close();
+  else
+    abort();
 
   // Translate our flags to system flags
-  XrdCl::OpenFlags::Flags openflags = XrdCl::OpenFlags::None;
+  int openflags = 0;
 
   if (flags & IOFlags::OpenWrite)
-    openflags |= XrdCl::OpenFlags::Update;
+    openflags |= kXR_open_updt;
   else if (flags & IOFlags::OpenRead)
-    openflags |= XrdCl::OpenFlags::Read;
+    openflags |= kXR_open_read;
 
   if (flags & IOFlags::OpenAppend) {
     edm::Exception ex(edm::errors::FileOpenError);
@@ -123,76 +126,65 @@ XrdFile::open (const char *name,
   if (flags & IOFlags::OpenCreate)
   {
     if (! (flags & IOFlags::OpenExclusive))
-      openflags |= XrdCl::OpenFlags::Delete;
-    openflags |= XrdCl::OpenFlags::New;
-    openflags |= XrdCl::OpenFlags::MakePath;
+      openflags |= kXR_delete;
+    openflags |= kXR_new;
+    openflags |= kXR_mkpath;
   }
 
   if ((flags & IOFlags::OpenTruncate) && (flags & IOFlags::OpenWrite))
-    openflags |= XrdCl::OpenFlags::Delete;
+    openflags |= kXR_delete;
 
-  // Translate mode flags
-  XrdCl::Access::Mode modeflags = XrdCl::Access::None;
-  modeflags |= (perms & S_IRUSR) ? XrdCl::Access::UR : XrdCl::Access::None;
-  modeflags |= (perms & S_IWUSR) ? XrdCl::Access::UW : XrdCl::Access::None;
-  modeflags |= (perms & S_IXUSR) ? XrdCl::Access::UX : XrdCl::Access::None;
-  modeflags |= (perms & S_IRGRP) ? XrdCl::Access::GR : XrdCl::Access::None;
-  modeflags |= (perms & S_IWGRP) ? XrdCl::Access::GW : XrdCl::Access::None;
-  modeflags |= (perms & S_IXGRP) ? XrdCl::Access::GX : XrdCl::Access::None;
-  modeflags |= (perms & S_IROTH) ? XrdCl::Access::GR : XrdCl::Access::None;
-  modeflags |= (perms & S_IWOTH) ? XrdCl::Access::GW : XrdCl::Access::None;
-  modeflags |= (perms & S_IXOTH) ? XrdCl::Access::GX : XrdCl::Access::None;
-
-  m_requestmanager.reset(new RequestManager(name, openflags, modeflags));
   m_name = name;
-
-  // Stat the file so we can keep track of the offset better.
-  auto file = getActiveFile();
-  XrdCl::XRootDStatus status;
-  XrdCl::StatInfo *statInfo = NULL;
-  if (! (status = file->Stat(false, statInfo)).IsOK()) {
+  m_client = new XrdClient(name);
+  if (! m_client->Open(perms, openflags)
+      || m_client->LastServerResp()->status != kXR_ok) {
     edm::Exception ex(edm::errors::FileOpenError);
-    ex << "XrdCl::File::Stat(name='" << name
-       << ") => error '" << status.ToStr()
-       << "' (errno=" << status.errNo << ", code=" << status.code << ")";
+    ex << "XrdClient::Open(name='" << name
+       << "', flags=0x" << std::hex << openflags
+       << ", permissions=0" << std::oct << perms << std::dec
+       << ") => error '" << m_client->LastServerError()->errmsg
+       << "' (errno=" << m_client->LastServerError()->errnum << ")";
     ex.addContext("Calling XrdFile::open()");
     addConnection(ex);
     throw ex;
   }
-  assert(statInfo);
-  m_size = statInfo->GetSize();
-  delete(statInfo);
-
+  if (! m_client->Stat(&m_stat)) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "XrdClient::Stat(name='" << name
+      << ") => error '" << m_client->LastServerError()->errmsg
+      << "' (errno=" << m_client->LastServerError()->errnum << ")";
+    ex.addContext("Calling XrdFile::open()");
+    addConnection(ex);
+    throw ex;
+  }
   m_offset = 0;
   m_close = true;
 
   // Send the monitoring info, if available.
   // Note: getenv is not reentrant.
-  // Commenting out until this is available in the new client.
-/*
-  char * crabJobId = getenv(kCrabJobIdEnv);
+  const char * crabJobId = edm::storage::StatisticsSenderService::getJobID();
   if (crabJobId) {
     kXR_unt32 dictId;
-    m_file->SendMonitoringInfo(crabJobId, &dictId);
+    m_client->SendMonitoringInfo(crabJobId, &dictId);
     edm::LogInfo("XrdFileInfo") << "Set monitoring ID to " << crabJobId << " with resulting dictId " << dictId << ".";
   }
-*/
 
   edm::LogInfo("XrdFileInfo") << "Opened " << m_name;
 
-  std::vector<std::string> sources;
-  m_requestmanager->getActiveSourceNames(sources);
-  std::stringstream ss;
-  ss << "Active sources: ";
-  for (auto const& it : sources)
-    ss << it << ", ";
-  edm::LogInfo("XrdFileInfo") << ss.str();
+  XrdClientConn *conn = m_client->GetClientConn();
+  edm::LogInfo("XrdFileInfo") << "Connection URL " << conn->GetCurrentUrl().GetUrl().c_str();
+
+  std::string host = std::string(conn->GetCurrentUrl().Host.c_str());
+  edm::Service<edm::storage::StatisticsSenderService> statsService;
+  if (statsService.isAvailable()) {
+    statsService->setCurrentServer(host);
+  }
 }
 
 void
 XrdFile::close (void)
 {
-  if (! m_requestmanager.get())
+  if (! m_client)
   {
     edm::LogError("XrdFileError")
       << "XrdFile::close(name='" << m_name
@@ -201,21 +193,28 @@ XrdFile::close (void)
     return;
   }
 
-  m_requestmanager.reset();
+  if (! m_client->Close())
+    edm::LogWarning("XrdFileWarning")
+      << "XrdFile::close(name='" << m_name
+      << "') failed with error '" << m_client->LastServerError()->errmsg
+      << "' (errno=" << m_client->LastServerError()->errnum << ")";
+  delete m_client;
+  m_client = 0;
 
   m_close = false;
   m_offset = 0;
-  m_size = -1;
+  memset(&m_stat, 0, sizeof (m_stat));
   edm::LogInfo("XrdFileInfo") << "Closed " << m_name;
 }
 
 void
 XrdFile::abort (void)
 {
-  m_requestmanager.reset(nullptr);
+  delete m_client;
+  m_client = 0;
   m_close = false;
   m_offset = 0;
-  m_size = -1;
+  memset(&m_stat, 0, sizeof (m_stat));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -230,10 +229,19 @@ XrdFile::read (void *into, IOSize n)
     addConnection(ex);
     throw ex;
   }
-
-  uint32_t bytesRead = m_requestmanager->handle(into, n, m_offset).get();
-  m_offset += bytesRead;
-  return bytesRead;
+  int s = m_client->Read(into, m_offset, n);
+  if (s < 0) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "XrdClient::Read(name='" << m_name
+       << "', offset=" << m_offset << ", n=" << n
+       << ") failed with error '" << m_client->LastServerError()->errmsg
+       << "' (errno=" << m_client->LastServerError()->errnum << ")";
+    ex.addContext("Calling XrdFile::read()");
+    addConnection(ex);
+    throw ex;
+  }
+  m_offset += s;
+  return s;
 }
 
 IOSize
@@ -247,83 +255,18 @@ XrdFile::read (void *into, IOSize n, IOOffset pos)
     addConnection(ex);
     throw ex;
   }
-
-  uint32_t bytesRead = m_requestmanager->handle(into, n, pos).get();
-
-  return bytesRead;
-}
-
-// This method is rarely used by CMS; hence, it is a small wrapper and not efficient.
-IOSize
-XrdFile::readv (IOBuffer *into, IOSize n)
-{
-  std::vector<IOPosBuffer> new_buf;
-  new_buf.reserve(n);
-  IOOffset off = 0;
-  for (IOSize i=0; i<n; i++) {
-    IOSize size = into[i].size();
-    new_buf[i] = IOPosBuffer(off, into[i].data(), size);
-    off += size;
+  int s = m_client->Read(into, pos, n);
+  if (s < 0) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "XrdClient::Read(name='" << m_name
+       << "', offset=" << m_offset << ", n=" << n
+       << ") failed with error '" << m_client->LastServerError()->errmsg
+       << "' (errno=" << m_client->LastServerError()->errnum << ")";
+    ex.addContext("Calling XrdFile::read()");
+    addConnection(ex);
+    throw ex;
   }
-  return readv(&(new_buf[0]), n);
-}
-
-/*
- * A vectored scatter-gather read.
- * Returns the total number of bytes successfully read.
- */
-IOSize
-XrdFile::readv (IOPosBuffer *into, IOSize n)
-{
-  // A trivial vector read - unlikely, considering ROOT data format.
-  if (unlikely(n == 0)) {
-    return 0;
-  }
-  if (unlikely(n == 1)) {
-    return read(into[0].data(), into[0].size(), into[0].offset());
-  }
-
-  std::shared_ptr<std::vector<IOPosBuffer> >cl(new std::vector<IOPosBuffer>);
-  cl->reserve(n);
-
-  IOSize size = 0;
-  for (IOSize i=0; i<n; i++) {
-    IOOffset offset = into[i].offset();
-    IOSize length = into[i].size();
-    size += length;
-    char * buffer = static_cast<char *>(into[i].data());
-    while (length > XRD_CL_MAX_CHUNK) {
-      IOPosBuffer ci;
-      ci.set_size(XRD_CL_MAX_CHUNK);
-      length -= XRD_CL_MAX_CHUNK;
-      ci.set_offset(offset);
-      offset += XRD_CL_MAX_CHUNK;
-      ci.set_data(buffer);
-      buffer += XRD_CL_MAX_CHUNK;
-      cl->emplace_back(ci);
-    }
-    IOPosBuffer ci;
-    ci.set_size(length);
-    ci.set_offset(offset);
-    ci.set_data(buffer);
-    cl->emplace_back(ci);
-  }
-  edm::CPUTimer timer;
-  timer.start();
-  IOSize result;
-  try
-  {
-    result = m_requestmanager->handle(cl).get();
-  }
-  catch (edm::Exception& ex)
-  {
-    ex.addContext("Calling XrdFile::readv()");
-    throw;
-  }
-  timer.stop();
-  assert(result == size);
-  edm::LogVerbatim("XrdAdaptorInternal") << "[" << m_op_count.fetch_add(1) << "] Time for readv: " << static_cast<int>(1000*timer.realTime()) << std::endl;
-  return result;
+  return s;
 }
 
 IOSize
@@ -337,24 +280,21 @@ XrdFile::write (const void *from, IOSize n)
     addConnection(ex);
     throw ex;
   }
-  auto file = getActiveFile();
-
-  XrdCl::XRootDStatus s = file->Write(m_offset, n, from);
-  if (!s.IsOK()) {
+  ssize_t s = m_client->Write(from, m_offset, n);
+  if (s < 0) {
     cms::Exception ex("FileWriteError");
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
-       << ") failed with error '" << s.ToStr()
-       << "' (errno=" << s.errNo << ", code=" << s.code << ")";
+       << ") failed with error '" << m_client->LastServerError()->errmsg
+       << "' (errno=" << m_client->LastServerError()->errnum << ")";
     ex.addContext("Calling XrdFile::write()");
     addConnection(ex);
     throw ex;
   }
-  m_offset += n;
-  assert(m_size != -1);
-  if (m_offset > m_size)
-    m_size = m_offset;
+  m_offset += s;
+  if (m_offset > m_stat.size)
+    m_stat.size = m_offset;
 
-  return n;
+  return s;
 }
 
 IOSize
@@ -368,31 +308,42 @@ XrdFile::write (const void *from, IOSize n, IOOffset pos)
     addConnection(ex);
     throw ex;
   }
-  auto file = getActiveFile();
-
-  XrdCl::XRootDStatus s = file->Write(pos, n, from);
-  if (!s.IsOK()) {
+  ssize_t s = m_client->Write(from, pos, n);
+  if (s < 0) {
     cms::Exception ex("FileWriteError");
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
-       << ") failed with error '" << s.ToStr()
-       << "' (errno=" << s.errNo << ", code=" << s.code << ")";
+       << ") failed with error '" << m_client->LastServerError()->errmsg
+       << "' (errno=" << m_client->LastServerError()->errnum << ")";
     ex.addContext("Calling XrdFile::write()");
     addConnection(ex);
     throw ex;
   }
-  assert (m_size != -1);
-  if (static_cast<IOOffset>(pos + n) > m_size)
-    m_size = pos + n;
+  if (pos + s > m_stat.size)
+    m_stat.size = pos + s;
 
-  return n;
+  return s;
 }
 
 bool
 XrdFile::prefetch (const IOPosBuffer *what, IOSize n)
 {
-  // The new Xrootd client does not contain any internal buffers.
-  // Hence, prefetching is disabled completely.
-  return false;
+  // Detect a prefetch support probe, and claim we don't support it.
+  // This will make the default application-only mode, but allows us to still
+  // effectively support storage-only mode.
+  if (unlikely((n == 1) && (what[0].offset() == 0) && (what[0].size() == PREFETCH_PROBE_LENGTH))) {
+    return false;
+  }
+  std::vector<long long> offsets; offsets.resize(n);
+  std::vector<int> lens; lens.resize(n);
+  kXR_int64 total = 0;
+  for (IOSize i = 0; i < n; ++i) {
+    offsets[i] = what[i].offset();
+    lens[i] = what[i].size();
+    total += what[i].size();
+  }
+
+  kXR_int64 r = m_client->ReadV(NULL, &offsets[0], &lens[0], n);
+  return r == total;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -401,7 +352,7 @@ XrdFile::prefetch (const IOPosBuffer *what, IOSize n)
 IOOffset
 XrdFile::position (IOOffset offset, Relative whence /* = SET */)
 {
-  if (! m_requestmanager.get()) {
+  if (! m_client) {
     cms::Exception ex("FilePositionError");
     ex << "XrdFile::position() called on a closed file";
     ex.addContext("Calling XrdFile::position()");
@@ -418,10 +369,8 @@ XrdFile::position (IOOffset offset, Relative whence /* = SET */)
     m_offset += offset;
     break;
 
-  // TODO: None of this works with concurrent writers to the file.
   case END:
-    assert(m_size != -1);
-    m_offset = m_size + offset;
+    m_offset = m_stat.size + offset;
     break;
 
   default:
@@ -434,9 +383,8 @@ XrdFile::position (IOOffset offset, Relative whence /* = SET */)
 
   if (m_offset < 0)
     m_offset = 0;
-  assert(m_size != -1);
-  if (m_offset > m_size)
-    m_size = m_offset;
+  if (m_offset > m_stat.size)
+    m_stat.size = m_offset;
 
   return m_offset;
 }
@@ -451,27 +399,14 @@ XrdFile::resize (IOOffset /* size */)
   throw ex;
 }
 
-std::shared_ptr<XrdCl::File>
-XrdFile::getActiveFile (void) 
-{ 
-  if (!m_requestmanager.get())
-  { 
-    cms::Exception ex("XrdFileLogicError");
-    ex << "Xrd::getActiveFile(name='" << m_name << "') no active request manager";
-    ex.addContext("Calling XrdFile::getActiveFile()");
-    m_requestmanager->addConnections(ex);
-    m_close = false;
-    throw ex;
-  }
-  return m_requestmanager->getActiveFile();
-}
-
 void
 XrdFile::addConnection (cms::Exception &ex)
 {
-  if (m_requestmanager.get())
-  {
-    m_requestmanager->addConnections(ex);
+  XrdClientConn *conn = m_client->GetClientConn();
+  if (conn) {
+    std::stringstream ss;
+    ss << "Current server connection: " << conn->GetCurrentUrl().GetUrl().c_str();
+    ex.addAdditionalInfo(ss.str());
   }
 }
 

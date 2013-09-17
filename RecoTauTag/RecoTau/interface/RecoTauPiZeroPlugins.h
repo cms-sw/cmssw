@@ -15,7 +15,6 @@
  * to a RecoTauPiZero and returns a double indicating the quality of
  * the candidate.  Lower numbers are better.
  *
- * $Id $
  */
 
 #include <vector>

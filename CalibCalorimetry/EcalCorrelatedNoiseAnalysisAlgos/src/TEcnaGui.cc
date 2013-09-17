@@ -4,6 +4,7 @@
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
 #include <cstdlib>
+using namespace std;
 
 //--------------------------------------
 //  TEcnaGui.cc

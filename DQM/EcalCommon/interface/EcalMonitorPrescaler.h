@@ -12,6 +12,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+
 class EcalMonitorPrescaler: public edm::EDFilter {
 
 public:
@@ -23,7 +25,7 @@ bool filter(edm::Event& e, const edm::EventSetup& c);
 
 private:
 
-edm::InputTag EcalRawDataCollection_;
+edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
 
 int count_;
 
