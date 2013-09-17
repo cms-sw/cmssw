@@ -18,6 +18,7 @@
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
@@ -69,7 +70,8 @@ class EgammaHLTGsfTrackVarProducer : public edm::EDProducer {
 
  private:
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandTag_;
-  edm::EDGetTokenT<reco::ElectronCollection> inputCollectionTag_;
+  edm::EDGetTokenT<reco::ElectronCollection> inputCollectionTag1_;
+  edm::EDGetTokenT<reco::GsfTrackCollection> inputCollectionTag2_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
   
   TrackExtrapolator trackExtrapolator_;

@@ -1,10 +1,10 @@
-# /online/collisions/2012/8e33/v2.3/HLT/V3 (CMSSW_7_0_0_pre4_HLT3)
+# /online/collisions/2012/8e33/v2.3/HLT/V6 (CMSSW_7_0_0_pre4_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v2.3/HLT/V3')
+  tableName = cms.string('/online/collisions/2012/8e33/v2.3/HLT/V6')
 )
 
 streams = cms.PSet( 
@@ -1581,7 +1581,7 @@ ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProduc
 EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
   CalibRHAlgo = cms.PSet( 
     flagsMapDBReco = cms.vint32( 0, 0, 0, 0, 4, -1, -1, -1, 4, 4, 7, 7, 7, 8, 9 ),
-    Type = cms.string( "EcalRecHitWorkerSimple" ),
+    Type = cms.string( "EcalRecHitWorkerSimpleOld" ),
     killDeadChannels = cms.bool( True ),
     ChannelStatusToBeExcluded = cms.vint32( 10, 11, 12, 13, 14 ),
     laserCorrection = cms.bool( True ),
@@ -1591,7 +1591,7 @@ EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
     EELaserMAX = cms.double( 3.0 )
   ),
   ComponentName = cms.string( "" ),
-  UncalibRHAlgo = cms.PSet(  Type = cms.string( "EcalUncalibRecHitWorkerWeights" ) ),
+  UncalibRHAlgo = cms.PSet(  Type = cms.string( "EcalUncalibRecHitWorkerWeightsOld" ) ),
   DCCDataUnpacker = cms.PSet( 
     orderedDCCIdList = cms.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 ),
     tccUnpacking = cms.bool( False ),
@@ -19664,7 +19664,7 @@ hltMulti5x5BasicClustersL1Seeded = cms.EDProducer( "EgammaHLTMulti5x5ClusterProd
     regionPhiMargin = cms.double( 0.4 ),
     RecHitFlagToBeExcluded = cms.vstring(  ),
     l1TagNonIsolated = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
-    endcapHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
+    endcapHitProducer = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
     posCalcParameters = cms.PSet( 
       T0_barl = cms.double( 7.4 ),
       LogWeighted = cms.bool( True ),
@@ -19675,7 +19675,7 @@ hltMulti5x5BasicClustersL1Seeded = cms.EDProducer( "EgammaHLTMulti5x5ClusterProd
     ),
     VerbosityLevel = cms.string( "ERROR" ),
     doIsolated = cms.bool( True ),
-    barrelHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
+    barrelHitProducer = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
     l1LowerThrIgnoreIsolation = cms.double( 0.0 ),
     l1TagIsolated = cms.InputTag( 'hltL1extraParticles','Isolated' ),
     barrelHitCollection = cms.string( "EcalRecHitsEB" ),
@@ -19849,7 +19849,7 @@ hltL1SeededPhotonEcalIso = cms.EDProducer( "EgammaHLTEcalRecIsolationProducer",
     eMinEndcap = cms.double( -9999.0 ),
     intRadiusEndcap = cms.double( 3.0 ),
     eMinBarrel = cms.double( 0.095 ),
-    ecalEndcapRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
+    ecalEndcapRecHitProducer = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
     jurassicWidth = cms.double( 3.0 ),
     intRadiusBarrel = cms.double( 3.0 ),
     etMinEndcap = cms.double( 0.11 ),
@@ -19857,7 +19857,7 @@ hltL1SeededPhotonEcalIso = cms.EDProducer( "EgammaHLTEcalRecIsolationProducer",
     doRhoCorrection = cms.bool( False ),
     rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
     useIsolEt = cms.bool( True ),
-    ecalBarrelRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
+    ecalBarrelRecHitProducer = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
     recoEcalCandidateProducer = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
     rhoMax = cms.double( 9.9999999E7 ),
     subtract = cms.bool( False ),
@@ -20481,7 +20481,7 @@ hltActivityPhotonEcalIso = cms.EDProducer( "EgammaHLTEcalRecIsolationProducer",
     eMinEndcap = cms.double( -9999.0 ),
     intRadiusEndcap = cms.double( 3.0 ),
     eMinBarrel = cms.double( 0.095 ),
-    ecalEndcapRecHitProducer = cms.InputTag( "hltEcalRecHitAll" ),
+    ecalEndcapRecHitProducer = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' ),
     jurassicWidth = cms.double( 3.0 ),
     intRadiusBarrel = cms.double( 3.0 ),
     etMinEndcap = cms.double( 0.11 ),
@@ -20489,7 +20489,7 @@ hltActivityPhotonEcalIso = cms.EDProducer( "EgammaHLTEcalRecIsolationProducer",
     doRhoCorrection = cms.bool( False ),
     rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
     useIsolEt = cms.bool( True ),
-    ecalBarrelRecHitProducer = cms.InputTag( "hltEcalRecHitAll" ),
+    ecalBarrelRecHitProducer = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEB' ),
     recoEcalCandidateProducer = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
     rhoMax = cms.double( 9.9999999E7 ),
     subtract = cms.bool( False ),
@@ -29114,7 +29114,7 @@ hltL1SeededPhotonEcalIsoRhoCorr = cms.EDProducer( "EgammaHLTEcalRecIsolationProd
     eMinEndcap = cms.double( -9999.0 ),
     intRadiusEndcap = cms.double( 3.0 ),
     eMinBarrel = cms.double( 0.095 ),
-    ecalEndcapRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
+    ecalEndcapRecHitProducer = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
     jurassicWidth = cms.double( 3.0 ),
     intRadiusBarrel = cms.double( 3.0 ),
     etMinEndcap = cms.double( 0.11 ),
@@ -29122,7 +29122,7 @@ hltL1SeededPhotonEcalIsoRhoCorr = cms.EDProducer( "EgammaHLTEcalRecIsolationProd
     doRhoCorrection = cms.bool( True ),
     rhoProducer = cms.InputTag( 'hltKT6CaloJets','rho' ),
     useIsolEt = cms.bool( True ),
-    ecalBarrelRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
+    ecalBarrelRecHitProducer = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
     recoEcalCandidateProducer = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
     rhoMax = cms.double( 9.9999999E7 ),
     subtract = cms.bool( False ),

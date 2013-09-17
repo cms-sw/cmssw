@@ -31,7 +31,8 @@
 EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterSet& config)
 {
   recoEcalCandTag_         = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
-  inputCollectionTag_      = consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("inputCollection"));
+  inputCollectionTag1_     = consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("inputCollection"));
+  inputCollectionTag2_     = consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("inputCollection"));
   beamSpotTag_             = consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("beamSpotProducer"));
   upperTrackNrToRemoveCut_ = config.getParameter<int>("upperTrackNrToRemoveCut"); 
   lowerTrackNrToRemoveCut_ = config.getParameter<int>("lowerTrackNrToRemoveCut");
@@ -53,11 +54,11 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
   iEvent.getByToken(recoEcalCandTag_,recoEcalCandHandle);
 
   edm::Handle<reco::ElectronCollection> electronHandle;
-  iEvent.getByToken(inputCollectionTag_,electronHandle);
+  iEvent.getByToken(inputCollectionTag1_,electronHandle);
 
   edm::Handle<reco::GsfTrackCollection> gsfTracksHandle;
   if(!electronHandle.isValid()) 
-    iEvent.getByToken(inputCollectionTag_, gsfTracksHandle);
+    iEvent.getByToken(inputCollectionTag2_, gsfTracksHandle);
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByToken(beamSpotTag_,recoBeamSpotHandle);

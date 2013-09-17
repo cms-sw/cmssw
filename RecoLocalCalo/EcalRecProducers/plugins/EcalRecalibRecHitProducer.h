@@ -26,6 +26,8 @@ class EcalRecalibRecHitProducer : public edm::EDProducer {
 
         private:
 
+		edm::InputTag EBRecHitCollection_;
+		edm::InputTag EERecHitCollection_;
 		edm::EDGetTokenT<EBRecHitCollection> EBRecHitToken_;
 		edm::EDGetTokenT<EERecHitCollection> EERecHitToken_;
 		  

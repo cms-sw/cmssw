@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_0_0/HIon/V3 (CMSSW_7_0_0_pre4_HLT3)
+# /dev/CMSSW_7_0_0/HIon/V7 (CMSSW_7_0_0_pre4_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_0_0/HIon/V3')
+  tableName = cms.string('/dev/CMSSW_7_0_0/HIon/V7')
 )
 
 streams = cms.PSet( 
@@ -366,7 +366,7 @@ ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProduc
 EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
   CalibRHAlgo = cms.PSet( 
     flagsMapDBReco = cms.vint32( 0, 0, 0, 0, 4, -1, -1, -1, 4, 4, 7, 7, 7, 8, 9 ),
-    Type = cms.string( "EcalRecHitWorkerSimple" ),
+    Type = cms.string( "EcalRecHitWorkerSimpleOld" ),
     killDeadChannels = cms.bool( True ),
     ChannelStatusToBeExcluded = cms.vint32( 10, 11, 12, 13, 14 ),
     laserCorrection = cms.bool( True ),
@@ -376,7 +376,7 @@ EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
     EELaserMAX = cms.double( 3.0 )
   ),
   ComponentName = cms.string( "" ),
-  UncalibRHAlgo = cms.PSet(  Type = cms.string( "EcalUncalibRecHitWorkerWeights" ) ),
+  UncalibRHAlgo = cms.PSet(  Type = cms.string( "EcalUncalibRecHitWorkerWeightsOld" ) ),
   DCCDataUnpacker = cms.PSet( 
     orderedDCCIdList = cms.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 ),
     tccUnpacking = cms.bool( False ),

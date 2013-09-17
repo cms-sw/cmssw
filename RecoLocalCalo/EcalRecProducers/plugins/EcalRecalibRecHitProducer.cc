@@ -33,8 +33,10 @@
 
 EcalRecalibRecHitProducer::EcalRecalibRecHitProducer(const edm::ParameterSet& ps) {
 
-   EBRecHitToken_ = consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("EBRecHitCollection"));
-   EERecHitToken_ = consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("EERecHitCollection"));
+   EBRecHitCollection_ = ps.getParameter<edm::InputTag>("EBRecHitCollection");
+   EERecHitCollection_ = ps.getParameter<edm::InputTag>("EERecHitCollection");
+   EBRecHitToken_ = consumes<EBRecHitCollection>(EBRecHitCollection_);
+   EERecHitToken_ = consumes<EBRecHitCollection>(EERecHitCollection_);
    EBRecalibRecHitCollection_        = ps.getParameter<std::string>("EBRecalibRecHitCollection");
    EERecalibRecHitCollection_        = ps.getParameter<std::string>("EERecalibRecHitCollection");
    doEnergyScale_             = ps.getParameter<bool>("doEnergyScale");
@@ -68,12 +70,14 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
         const EBRecHitCollection*  EBRecHits = 0;
         const EERecHitCollection*  EERecHits = 0; 
 
-
-	evt.getByToken( EBRecHitToken_, pEBRecHits);
-	EBRecHits = pEBRecHits.product(); // get a ptr to the product
-
-	evt.getByToken( EERecHitToken_, pEERecHits);
-	EERecHits = pEERecHits.product(); // get a ptr to the product
+	if ( EBRecHitCollection_.label() != "" ) {
+	  evt.getByToken( EBRecHitToken_, pEBRecHits);
+	  EBRecHits = pEBRecHits.product(); // get a ptr to the product
+	}
+	if ( EERecHitCollection_.label() != "" ) { 
+	  evt.getByToken( EERecHitToken_, pEERecHits);
+	  EERecHits = pEERecHits.product(); // get a ptr to the product
+	}
 
         // collection of rechits to put in the event
         std::auto_ptr< EBRecHitCollection > EBRecalibRecHits( new EBRecHitCollection );
