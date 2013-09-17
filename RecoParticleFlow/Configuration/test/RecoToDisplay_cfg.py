@@ -12,7 +12,7 @@ process.GlobalTag.globaltag = autoCond['startup']
 
 #process.Timing =cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(200)
 )
 
 process.source = cms.Source(
@@ -20,8 +20,8 @@ process.source = cms.Source(
     fileNames = cms.untracked.vstring(    
     #'root://eoscms//eos/cms/store/relval/CMSSW_5_2_0_pre5/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START52_V1-v1/0105/2AAA5F86-8D57-E111-B6E8-003048678B84.root',
     #'root://eoscms//eos/cms/store/relval/CMSSW_5_2_0_pre5/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START52_V1-v1/0105/38D32839-8A57-E111-849D-0026189438E4.root'
-    'root://cms-xrd-global.cern.ch//store/relval/CMSSW_6_1_0/SingleGammaPt300ExtRelVal610/GEN-SIM-RECO/START61_V8_NoPuCustomEvC-v1/00000/00110DD9-9390-E211-88AB-5404A63886E6.root'
-    #'root://cms-xrd-global.cern.ch//store/relval/CMSSW_7_0_0_pre2/RelValTTbar/GEN-SIM-RECO/PU_PRE_ST62_V8-v1/00000/EEC27D47-2F0C-E311-B9F2-003048FFD75C.root'
+    #'root://cms-xrd-global.cern.ch//store/relval/CMSSW_6_1_0/SingleGammaPt300ExtRelVal610/GEN-SIM-RECO/START61_V8_NoPuCustomEvC-v1/00000/00110DD9-9390-E211-88AB-5404A63886E6.root'
+    'root://cms-xrd-global.cern.ch//store/relval/CMSSW_7_0_0_pre2/RelValTTbar/GEN-SIM-RECO/PU_PRE_ST62_V8-v1/00000/EEC27D47-2F0C-E311-B9F2-003048FFD75C.root'
     ),
     eventsToProcess = cms.untracked.VEventRange(),
     #eventsToProcess = cms.untracked.VEventRange('1:1217421-1:1217421'),
