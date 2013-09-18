@@ -16,7 +16,7 @@
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 #include <iostream>
 #include <vector>
@@ -68,7 +68,7 @@ DDLSAX2ExpressionHandler::startElement( const XMLCh* const uri,
     }
     //      DDLParser* beingParsed = DDLParser::instance();
     //      std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
-    ClhepEvaluator & ev = ExprEvalSingleton::instance();
+    ClhepEvaluator & ev = DDLGlobalRegistry::instance().evaluator();
     ev.set(nmspace_, varName, varValue);
   }
 }

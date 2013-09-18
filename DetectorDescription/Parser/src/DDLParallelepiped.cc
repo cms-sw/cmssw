@@ -17,7 +17,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLParallelepiped::DDLParallelepiped( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
@@ -31,7 +31,7 @@ void
 DDLParallelepiped::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {  
   DCOUT_V('P', "DDLParallelepiped::processElement started");
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
   DDSolid ddp = DDSolidFactory::parallelepiped( getDDName(nmspace),
 						ev.eval(nmspace, atts.find("xHalf")->second),

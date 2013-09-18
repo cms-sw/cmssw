@@ -18,7 +18,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLTorus::DDLTorus( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
@@ -33,7 +33,7 @@ DDLTorus::processElement( const std::string& name, const std::string& nmspace, D
 {
   DCOUT_V('P', "DDLTorus::processElement started");
 
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
   DDSolid myTorus = 

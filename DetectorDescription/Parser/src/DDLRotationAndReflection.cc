@@ -17,7 +17,7 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 //CLHEP dependency
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -61,7 +61,7 @@ DDLRotationAndReflection::processElement( const std::string& name, const std::st
   }
   else if (name == "ReflectionRotation" && isLeftHanded(x, y, z, nmspace) == 1) 
   {
-    ClhepEvaluator & ev = ExprEvalSingleton::instance();
+    ClhepEvaluator & ev = myRegistry_->evaluator();
     DDRotation ddrot = 
       DDrotReflect(getDDName(nmspace)
 		   , ev.eval(nmspace, atts.find("thetaX")->second)
@@ -159,7 +159,7 @@ DDLRotationAndReflection::isLeftHanded (DD3Vector x, DD3Vector y, DD3Vector z, c
   
   double check = (x.Cross(y)).Dot(z);
   double tol = 1.0e-3;
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
   
   if (1.0-std::abs(check)>tol) {
@@ -198,7 +198,7 @@ DDLRotationAndReflection::makeX(std::string nmspace)
   DDXMLAttribute atts = getAttributeSet();
   if (atts.find("thetaX") != atts.end())
   {
-    ClhepEvaluator & ev = ExprEvalSingleton::instance(); 
+    ClhepEvaluator & ev = myRegistry_->evaluator(); 
     double thetaX = ev.eval(nmspace, atts.find("thetaX")->second.c_str());
     double phiX = ev.eval(nmspace, atts.find("phiX")->second.c_str());
     // colx
@@ -216,7 +216,7 @@ DDLRotationAndReflection::makeY(std::string nmspace)
   DDXMLAttribute atts = getAttributeSet();
   if (atts.find("thetaY") != atts.end())
   {
-    ClhepEvaluator & ev = ExprEvalSingleton::instance(); 
+    ClhepEvaluator & ev = myRegistry_->evaluator(); 
     double thetaY = ev.eval(nmspace, atts.find("thetaY")->second.c_str());
     double phiY = ev.eval(nmspace, atts.find("phiY")->second.c_str());
       
@@ -234,7 +234,7 @@ DD3Vector DDLRotationAndReflection::makeZ(std::string nmspace)
   DDXMLAttribute atts = getAttributeSet();
   if (atts.find("thetaZ") != atts.end())
   {
-    ClhepEvaluator & ev = ExprEvalSingleton::instance(); 
+    ClhepEvaluator & ev = myRegistry_->evaluator(); 
     double thetaZ = ev.eval(nmspace, atts.find("thetaZ")->second.c_str());
     double phiZ = ev.eval(nmspace, atts.find("phiZ")->second.c_str());
       

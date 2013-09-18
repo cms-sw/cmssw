@@ -17,7 +17,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLPolyGenerator::DDLPolyGenerator( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
@@ -44,7 +44,7 @@ DDLPolyGenerator::processElement( const std::string& name, const std::string& nm
   DDXMLElement* myRZPoints = myRegistry_->getElement("RZPoint");
   DDXMLElement* myZSection = myRegistry_->getElement("ZSection");
 
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts;
 
   // get z and r

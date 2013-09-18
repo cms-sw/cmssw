@@ -17,7 +17,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLBox::DDLBox( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
@@ -32,7 +32,7 @@ DDLBox::processElement( const std::string& name, const std::string& nmspace, DDC
 {
   DCOUT_V( 'P', "DDLBox::processElement started" );
   
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
   
   DDName ddname = getDDName( nmspace );

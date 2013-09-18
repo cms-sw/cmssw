@@ -17,7 +17,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLSphere::DDLSphere( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
@@ -31,7 +31,7 @@ void
 DDLSphere::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {  
   DCOUT_V('P', "DDLSphere::processElement started");
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
   DDSolid ddsphere = DDSolidFactory::sphere( getDDName(nmspace),
 					     ev.eval(nmspace, atts.find("innerRadius")->second),

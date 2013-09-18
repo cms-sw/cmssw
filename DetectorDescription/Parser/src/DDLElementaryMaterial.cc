@@ -17,7 +17,7 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 #include <iostream>
 
@@ -34,7 +34,7 @@ DDLElementaryMaterial::processElement( const std::string& name, const std::strin
 {
   DCOUT_V( 'P', "DDLElementaryMaterial::processElement started" );
 
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
   DDMaterial mat = DDMaterial( getDDName( nmspace ),

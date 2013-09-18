@@ -19,7 +19,7 @@
 #include "DetectorDescription/Base/interface/DDAlgoPar.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 #include <iostream>
 
@@ -43,7 +43,7 @@ DDLAlgoPosPart::processElement( const std::string& name, const std::string& nmsp
   DDXMLElement* myParS    = myRegistry_->getElement("ParS");
   DDXMLElement* myParE    = myRegistry_->getElement("ParE");
 
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   
   DDXMLAttribute atts = getAttributeSet();
 

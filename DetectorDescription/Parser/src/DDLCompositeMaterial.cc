@@ -18,7 +18,7 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLCompositeMaterial::DDLCompositeMaterial( DDLElementRegistry* myreg )
   : DDLMaterial( myreg )
@@ -42,7 +42,7 @@ DDLCompositeMaterial::processElement( const std::string& name, const std::string
 {
   DCOUT_V('P', "DDLCompositeMaterial::processElement started");
 
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
   DDName ddn = getDDName( nmspace );

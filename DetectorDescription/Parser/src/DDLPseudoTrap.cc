@@ -17,7 +17,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLPseudoTrap::DDLPseudoTrap( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
@@ -32,7 +32,7 @@ DDLPseudoTrap::processElement( const std::string& name, const std::string& nmspa
 {
   DCOUT_V('P', "DDLPseudoTrap::processElement started");
 
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
   DDSolid myTrap = DDSolidFactory::pseudoTrap( getDDName(nmspace),

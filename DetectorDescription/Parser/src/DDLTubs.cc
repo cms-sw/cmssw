@@ -16,7 +16,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDLTubs::DDLTubs( DDLElementRegistry* myreg )
@@ -32,7 +32,7 @@ DDLTubs::processElement( const std::string& name, const std::string& nmspace, DD
 {
   DCOUT_V('P', "DDLTubs::processElement started");
 
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
   bool cutInside(false);
 

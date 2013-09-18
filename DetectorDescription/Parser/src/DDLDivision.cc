@@ -26,7 +26,7 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLDivision::DDLDivision( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )
@@ -47,7 +47,7 @@ DDLDivision::processElement( const std::string& name, const std::string& nmspace
   DDXMLAttribute atts = getAttributeSet();
 
   DDName parent = getDDName(nmspace, "parent");
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   size_t ax = 0;
   while (DDAxesNames::name(DDAxes(ax)) != atts.find("axis")->second &&
 	 DDAxesNames::name(DDAxes(ax)) != "undefined")

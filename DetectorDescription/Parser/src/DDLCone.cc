@@ -17,7 +17,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLCone::DDLCone( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
@@ -31,7 +31,7 @@ void
 DDLCone::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {  
   DCOUT_V( 'P', "DDLCone::processElement started" );
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
   DDSolid ddcone = DDSolidFactory::cons( getDDName( nmspace ),
