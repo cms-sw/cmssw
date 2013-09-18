@@ -13,6 +13,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class SiPixelFedCabling;
 class SiPixelQuality;
@@ -43,6 +45,7 @@ private:
   const SiPixelQuality* badPixelInfo_;
   bool  useCablingTree_;
   PixelUnpackingRegions* regions_;
+  edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection; 
 
   TH1D *hCPU, *hDigi;
   R2DTimerObserver * theTimer;
