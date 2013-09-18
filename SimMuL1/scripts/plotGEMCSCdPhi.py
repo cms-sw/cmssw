@@ -1,3 +1,7 @@
+##
+## This script overlays the histograms of bending angles for even and odd chambers
+##
+
 from cuts import *
 from tdrStyle import *
 
@@ -76,19 +80,15 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     
     dphi_pt5.Scale(1/dphi_pt5.Integral())
     dphi_pt20.Scale(1/dphi_pt20.Integral())
-    
     dphi_pt5.SetLineColor(kRed)
     dphi_pt20.SetLineColor(kBlue)
     dphi_pt5.SetLineWidth(2)
     dphi_pt20.SetLineWidth(2)
-
     dphi_pt20.GetXaxis().SetTitle("#Delta#phi(GEM,CSC) [rad]")
     dphi_pt20.GetYaxis().SetTitle("Arbitray units")
     dphi_pt20.SetTitle("           GEM-CSC Bending Angle                        CMS Simulation Preliminary")
-
     dphi_pt20.GetXaxis().SetLabelSize(0.05)
     dphi_pt20.GetYaxis().SetLabelSize(0.05)
-
     dphi_pt20.Draw()
     dphi_pt5.Draw("same")
 
@@ -130,16 +130,9 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     c.SaveAs("%sGEMCSCdPhi_%s_chambers%s"%(plotDir, oddEven, ext))
 
 if __name__ == "__main__":  
-#    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".png")
-#    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".png")
-#    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".pdf")
-#    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".pdf")
     plotGEMCSCdPhi("files/", "plots/bending/", "even", ".eps")
     plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".eps")
     plotGEMCSCdPhi("files/", "plots/bending/", "even", ".pdf")
     plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".pdf")
     plotGEMCSCdPhi("files/", "plots/bending/", "even", ".png")
     plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".png")
-
-
-
