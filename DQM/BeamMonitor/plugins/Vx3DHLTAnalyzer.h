@@ -34,6 +34,10 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
 #include <TF3.h>
 
 #include <iostream>
@@ -96,7 +100,8 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       // #######################
       // # cfg file parameters #
       // #######################
-      edm::InputTag vertexCollection;
+      edm::EDGetTokenT<reco::VertexCollection> vertexCollection;
+      edm::EDGetTokenT<SiPixelRecHitCollection> pixelHitCollection;
       bool debugMode;
       unsigned int nLumiReset;
       bool dataFromFit;
