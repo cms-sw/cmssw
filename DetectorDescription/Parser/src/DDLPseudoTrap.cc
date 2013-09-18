@@ -32,7 +32,7 @@ DDLPseudoTrap::processElement( const std::string& name, const std::string& nmspa
 {
   DCOUT_V('P', "DDLPseudoTrap::processElement started");
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
 
   DDSolid myTrap = DDSolidFactory::pseudoTrap( getDDName(nmspace),

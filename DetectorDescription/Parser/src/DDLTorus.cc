@@ -33,7 +33,7 @@ DDLTorus::processElement( const std::string& name, const std::string& nmspace, D
 {
   DCOUT_V('P', "DDLTorus::processElement started");
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
 
   DDSolid myTorus = 

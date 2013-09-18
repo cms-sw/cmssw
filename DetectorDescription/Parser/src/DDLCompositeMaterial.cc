@@ -42,7 +42,7 @@ DDLCompositeMaterial::processElement( const std::string& name, const std::string
 {
   DCOUT_V('P', "DDLCompositeMaterial::processElement started");
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
 
   DDName ddn = getDDName( nmspace );

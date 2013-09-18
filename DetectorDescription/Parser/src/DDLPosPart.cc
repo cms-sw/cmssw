@@ -95,7 +95,7 @@ DDLPosPart::processElement( const std::string& name, const std::string& nmspace,
 
   DCOUT_V('P', "DDLPosPart::processElement:  Final Rotation info: " << rotn);
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
 
   double x = 0.0, y = 0.0, z = 0.0;
   if (myTranslation->size() > 0)

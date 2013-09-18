@@ -32,7 +32,7 @@ DDLTubs::processElement( const std::string& name, const std::string& nmspace, DD
 {
   DCOUT_V('P', "DDLTubs::processElement started");
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
   bool cutInside(false);
 

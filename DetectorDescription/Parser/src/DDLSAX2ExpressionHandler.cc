@@ -68,7 +68,7 @@ DDLSAX2ExpressionHandler::startElement( const XMLCh* const uri,
     }
     //      DDLParser* beingParsed = DDLParser::instance();
     //      std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
-    ExprEvalInterface & ev = ExprEvalSingleton::instance();
+    ClhepEvaluator & ev = ExprEvalSingleton::instance();
     ev.set(nmspace_, varName, varValue);
   }
 }

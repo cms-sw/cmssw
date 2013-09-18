@@ -43,7 +43,7 @@ DDLAlgoPosPart::processElement( const std::string& name, const std::string& nmsp
   DDXMLElement* myParS    = myRegistry_->getElement("ParS");
   DDXMLElement* myParE    = myRegistry_->getElement("ParE");
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   
   DDXMLAttribute atts = getAttributeSet();
 

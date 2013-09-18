@@ -50,7 +50,7 @@ DDLBooleanSolid::processElement( const std::string& name, const std::string& nms
   DDXMLElement* myTranslation = myRegistry_->getElement( "Translation" ); // get Translation child
   DDXMLElement* myrRotation  = myRegistry_->getElement( "rRotation" ); // get rRotation child
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
 
   DDName ddn1, ddn2;

@@ -44,7 +44,7 @@ DDLPolyGenerator::processElement( const std::string& name, const std::string& nm
   DDXMLElement* myRZPoints = myRegistry_->getElement("RZPoint");
   DDXMLElement* myZSection = myRegistry_->getElement("ZSection");
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts;
 
   // get z and r

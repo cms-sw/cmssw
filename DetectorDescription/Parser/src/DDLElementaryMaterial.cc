@@ -34,7 +34,7 @@ DDLElementaryMaterial::processElement( const std::string& name, const std::strin
 {
   DCOUT_V( 'P', "DDLElementaryMaterial::processElement started" );
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
 
   DDMaterial mat = DDMaterial( getDDName( nmspace ),

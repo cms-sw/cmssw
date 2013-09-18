@@ -47,7 +47,7 @@ DDLDivision::processElement( const std::string& name, const std::string& nmspace
   DDXMLAttribute atts = getAttributeSet();
 
   DDName parent = getDDName(nmspace, "parent");
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   size_t ax = 0;
   while (DDAxesNames::name(DDAxes(ax)) != atts.find("axis")->second &&
 	 DDAxesNames::name(DDAxes(ax)) != "undefined")

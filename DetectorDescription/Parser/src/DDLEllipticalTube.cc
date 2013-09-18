@@ -31,7 +31,7 @@ void
 DDLEllipticalTube::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {  
   DCOUT_V( 'P', "DDLEllipticalTube::processElement started" );
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
 
   DDSolid ddet = DDSolidFactory::ellipticalTube( getDDName( nmspace ),

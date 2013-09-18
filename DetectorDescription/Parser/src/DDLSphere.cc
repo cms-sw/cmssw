@@ -31,7 +31,7 @@ void
 DDLSphere::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {  
   DCOUT_V('P', "DDLSphere::processElement started");
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
   DDSolid ddsphere = DDSolidFactory::sphere( getDDName(nmspace),
 					     ev.eval(nmspace, atts.find("innerRadius")->second),

@@ -32,7 +32,7 @@ DDLTrapezoid::processElement( const std::string& name, const std::string& nmspac
 {
   DCOUT_V('P', "DDLTrapezoid::processElement started");
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
 
   DDXMLAttribute atts = getAttributeSet();
 

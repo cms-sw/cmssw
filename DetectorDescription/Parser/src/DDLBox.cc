@@ -32,7 +32,7 @@ DDLBox::processElement( const std::string& name, const std::string& nmspace, DDC
 {
   DCOUT_V( 'P', "DDLBox::processElement started" );
   
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
   
   DDName ddname = getDDName( nmspace );

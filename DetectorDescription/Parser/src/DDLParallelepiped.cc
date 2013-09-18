@@ -31,7 +31,7 @@ void
 DDLParallelepiped::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {  
   DCOUT_V('P', "DDLParallelepiped::processElement started");
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
   DDSolid ddp = DDSolidFactory::parallelepiped( getDDName(nmspace),
 						ev.eval(nmspace, atts.find("xHalf")->second),

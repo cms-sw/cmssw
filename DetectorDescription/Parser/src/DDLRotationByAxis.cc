@@ -85,7 +85,7 @@ DDLRotationByAxis::processOne( DDRotationMatrix R, std::string& axis, std::strin
   /** Get the name, axis and angle of the RotationByAxis and do it. 
    */
   
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   double dAngle = ev.eval(pNameSpace, angle);
   //  CLHEP::HepRotation R;
 

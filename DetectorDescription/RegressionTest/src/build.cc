@@ -35,7 +35,7 @@ File elements.xml:
   Material(elem) Oxygen  
 */
 void regressionTest_setup() {
-   ExprEvalInterface & eval = ExprEval::instance();
+   ClhepEvaluator & eval = ExprEval::instance();
    
    string ns = "setup"; // current namespace faking the filename 'setup.xml'
    
@@ -117,7 +117,7 @@ void regressionTest_first( ) {
   
   cout << "main::about to set configuration" << endl;
   
-  ExprEvalInterface & eval = ExprEval::instance();
+  ClhepEvaluator & eval = ExprEval::instance();
   string ns("first");
   DDSolid support = DDSolidFactory::box(DDName("support",ns),
 					eval.eval(ns,"[setup:corner]/4."),
@@ -280,7 +280,6 @@ void printRot(const DDRotationMatrix & rot) {
 
 void testrot()
 {
-  //  ExprEvalInterface & eval = ExprEval::instance();
   {
     ROOT::Math::AxisAngle aa(DD3Vector(1.,1.,1.), 20.*deg);
     DDRotationMatrix rm(aa); 

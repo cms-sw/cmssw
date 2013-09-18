@@ -31,7 +31,7 @@ void
 DDLEllipsoid::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 { 
   DCOUT_V( 'P', "DDLEllipsoid::processElement started" );
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
   double zbot(0.), ztop(0.);
   if( atts.find( "zBottomCut" ) != atts.end() )
