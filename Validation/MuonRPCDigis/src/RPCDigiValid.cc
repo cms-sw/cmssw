@@ -26,8 +26,6 @@ RPCDigiValid::RPCDigiValid(const ParameterSet& ps) :
   simHitToken = consumes<PSimHitContainer>(ps.getUntrackedParameter<edm::InputTag >("simHitTag", edm::InputTag("g4SimHits:MuonRPCHits")));
   rpcDigiToken    = consumes<RPCDigiCollection>(ps.getUntrackedParameter<edm::InputTag>("rpcDigiTag", edm::InputTag("simMuonRPCDigis")));
 
-//  Obsolete code - not used
-//  digiLabel = ps.getUntrackedParameter<std::string> ("digiLabel");
   outputFile_ = ps.getUntrackedParameter<string> ("outputFile", "rpcDigiValidPlots.root");
   dbe_ = Service<DQMStore> ().operator->();
 }
@@ -50,9 +48,6 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
 
   edm::Handle<PSimHitContainer> simHit;
   edm::Handle<RPCDigiCollection> rpcDigis;
-//  Obsolete code commented and replaced with getByToken invokes (labels and proccesses are specified on variable init) - stanislav
-//  event.getByLabel("g4SimHits", "MuonRPCHits", simHit);
-//  event.getByLabel(digiLabel, rpcDigis);
   event.getByToken(simHitToken, simHit);
   event.getByToken(rpcDigiToken, rpcDigis);
 
@@ -448,4 +443,3 @@ void RPCDigiValid::beginRun(edm::Run const& run, edm::EventSetup const& eSetup)
 void RPCDigiValid::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 {
 }
-
