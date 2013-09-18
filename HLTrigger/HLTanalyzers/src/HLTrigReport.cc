@@ -10,7 +10,6 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTrigReport.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -82,6 +81,8 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   serviceBy_(decode(iConfig.getUntrackedParameter<std::string>("serviceBy", "never")) ),
   hltConfig_()
 {
+  hlTriggerResultsToken_ = consumes<edm::TriggerResults>(hlTriggerResults_);
+
   const edm::ParameterSet customDatasets(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomDatasets", edm::ParameterSet()));
   isCustomDatasets_ = (customDatasets != edm::ParameterSet());
   if (isCustomDatasets_) {
@@ -115,6 +116,24 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
 }
 
 HLTrigReport::~HLTrigReport() { }
+
+void
+HLTrigReport::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("HLTriggerResults",edm::InputTag("TriggerResults","","HLT"));
+  desc.addUntracked<std::string>("reportBy","job");
+  desc.addUntracked<std::string>("resetBy","never");
+  desc.addUntracked<std::string>("serviceBy","never");
+
+  edm::ParameterSetDescription customDatasetsParameters;
+  desc.addUntracked<edm::ParameterSetDescription>("CustomDatasets" ,customDatasetsParameters);
+  edm::ParameterSetDescription customStreamsParameters;
+  desc.addUntracked<edm::ParameterSetDescription>("CustomStreams" ,customStreamsParameters);
+  desc.addUntracked<std::string>("ReferencePath","HLTriggerFinalPath");
+  desc.addUntracked<double>("ReferenceRate",100.0);
+
+  descriptions.add("hltTrigReport",desc);
+}
 
 //
 // member functions
@@ -379,7 +398,7 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get hold of TriggerResults
   Handle<TriggerResults> HLTR;
-  iEvent.getByLabel(hlTriggerResults_, HLTR);
+  iEvent.getByToken(hlTriggerResultsToken_, HLTR);
   if (HLTR.isValid()) {
     if (HLTR->wasrun()) nWasRun_++;
     const bool accept(HLTR->accept());
