@@ -7,17 +7,15 @@
 //
 //   Author List: Vadim Khotilovich 12 May 2009
 //
-//   $Date: 2012/12/05 21:14:22 $
-//   $Revision: 1.2 $
-//
 //-----------------------------------------------------------------------------
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h>
 //#include <Utilities/Timing/interface/TimingReport.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-
-
+#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
+#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
+#include <DataFormats/Math/interface/deltaPhi.h>
 
 // LUT for which ME1/1 wire group can cross which ME1/a halfstrip
 // 1st index: WG number
@@ -109,6 +107,20 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
     pref[m-1] = pref[0] - m/2;
     pref[m]   = pref[0] + m/2;
   }
+
+  /// GEM matching dphi and deta
+  gem_match_delta_phi_odd = tmbParams.getUntrackedParameter<double>("gemMatchDeltaPhiOdd", 0.0055);
+  gem_match_delta_phi_even = tmbParams.getUntrackedParameter<double>("gemMatchDeltaPhiEven", 0.0031);
+  gem_match_delta_eta = tmbParams.getUntrackedParameter<double>("gemMatchDeltaEta", 0.08);
+
+  /// delta BX for GEM pads matching
+  gem_match_delta_bx = tmbParams.getUntrackedParameter<int>("gemMatchDeltaBX", 1);
+
+  /// min eta of LCT for which we require GEM match (we don't throw out LCTs below this min eta)
+  gem_match_min_eta = tmbParams.getUntrackedParameter<double>("gemMatchMinEta", 1.62);
+
+  /// whether to throw out GEM-fiducial LCTs that have no gem match
+  gem_clear_nomatch_lcts = tmbParams.getUntrackedParameter<bool>("gemClearNomatchLCTs", true);
 }
 
 
@@ -162,7 +174,8 @@ void CSCMotherboardME11::setConfigParameters(const CSCDBL1TPParameters* conf)
 
 
 void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
-                             const CSCComparatorDigiCollection* compdc)
+                             const CSCComparatorDigiCollection* compdc,
+                             const GEMCSCPadDigiCollection* gemPads)
 {
   clear();
   
@@ -303,6 +316,10 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       }
     }
   } // end of ALCT-centric matching
+
+  // possibly use some discrimination from GEMs
+  if (gemPads != nullptr) matchGEMPads(gemPads);
+
 
   // reduction of nLCTs per each BX
   for (int bx = 0; bx < MAX_LCT_BINS; bx++)
@@ -652,3 +669,171 @@ void CSCMotherboardME11::correlateLCTs(CSCALCTDigi bestALCT,
   return;
 }
 
+void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
+{
+  using namespace std;
+
+  // check if we have any LCTs at all
+  int nlct = 0;
+  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
+      for (int i=0;i<2;i++)
+      {
+        CSCCorrelatedLCTDigi& lct = allLCTs1b[bx][mbx][i];
+        if (lct.isValid()) nlct++;
+      }
+  if (nlct == 0) return;
+
+  // retrieve CSCChamber geometry
+  CSCTriggerGeomManager* geo_manager = CSCTriggerGeometry::get();
+  CSCChamber* cscChamber = geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber);
+
+  auto csc_id = cscChamber->id();
+  int chamber = csc_id.chamber();
+  bool is_odd = chamber & 1;
+
+  cout<<"++++++++  matchGEMPads "<< csc_id <<" +++++++++ "<<endl;
+
+  // "key" layer id is used to calculate global position of stub
+  CSCDetId key_id(csc_id.endcap(), csc_id.station(), csc_id.ring(), csc_id.chamber(), CSCConstants::KEY_CLCT_LAYER);
+
+
+  // retrieve GEM pad digis from a corresponding GEM superchamber and pack them into
+  // map< bx , vector<gemid, pad> >
+  // smearing the bx if necessary according to the value of gem_match_delta_bx
+  std::map<int , std::vector<std::pair<unsigned int, const GEMCSCPadDigi*> > > pads;
+  // TODO: "magic" numbers galore!!! FIXME it's only for 6 partitions geometry right now
+  int npads = 0;
+  for (int gem_layer = 1; gem_layer <= 2; ++gem_layer)
+  {
+    for (int gem_roll = 1; gem_roll <= 6; ++gem_roll)
+    {
+      int region = (theEndcap == 1) ? 1: -1;
+      GEMDetId gem_id(region, 1, 1, gem_layer, chamber, gem_roll);
+
+      auto pads_in_det = gemPads->get(gem_id);
+
+      for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad)
+      {
+        cout<<" gem pad "<<gem_id<<" "<<pad->pad()<<" "<<pad->bx() + 1<<endl;
+        npads++;
+        auto id_pad = std::make_pair(gem_id(), &(*pad));
+        int bx_shifted = 6 + pad->bx(); // central LCT bx is 6 for simulation - FIXME: need a parameter!
+        for (int bx = bx_shifted - gem_match_delta_bx;
+                 bx <= bx_shifted + gem_match_delta_bx; ++bx)
+        {
+          pads[bx].push_back(id_pad);
+        }
+      }
+    }
+  }
+  cout<<" nlct "<<nlct<<"  npads "<<npads<<endl;
+  if (pads.empty()) {
+    cout<<"igotnopads"<<endl;
+    //return;
+  }
+
+  // walk over BXs
+  for (int bx = 0; bx < MAX_LCT_BINS; ++bx)
+  {
+    auto in_pads = pads.find(bx);
+
+    // walk over potential LCTs in this BX
+    for (unsigned int mbx = 0; mbx < match_trig_window_size; ++mbx)
+      for (int i=0; i<2; ++i)
+      {
+        CSCCorrelatedLCTDigi& lct = allLCTs1b[bx][mbx][i];
+        if (!lct.isValid()) continue;
+        cout<<"LCTbefore "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
+
+        // use -99 as default value whe we don't know if there could have been a gem match
+        lct.setGEMDPhi(-99.);
+
+        // "strip" here is actually a half-strip in geometry's terms
+        // note that LCT::getStrip() starts from 0
+        float fractional_strip = 0.5 * (lct.getStrip() + 1) - 0.25;
+        auto layer_geo = cscChamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
+        // LCT::getKeyWG() also starts from 0
+        float wire = layer_geo->middleWireOfGroup(lct.getKeyWG() + 1);
+
+        LocalPoint csc_intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
+        GlobalPoint csc_gp = csc_g->idToDet(key_id)->surface().toGlobal(csc_intersect);
+
+        // is LCT located in the high efficiency GEM eta range?
+        bool gem_fid = ( std::abs(csc_gp.eta()) >= gem_match_min_eta );
+
+        cout<<" lct eta "<<csc_gp.eta()<<" phi "<<csc_gp.phi()<<endl;
+
+        if (!gem_fid)
+        {
+          cout<<"    -- lct pass no gem req"<<endl;
+          continue;
+        }
+
+        if (in_pads == pads.end()) // has no potential GEM hits with similar BX -> zap it
+        {
+          if (gem_clear_nomatch_lcts) lct.clear();
+          cout<<"    -- no gem"<<endl;
+          continue;
+        }
+        cout<<"    -- gem possible"<<endl;
+
+        // use 99 ad default value whe we expect there to be a gem match
+        lct.setGEMDPhi(99.);
+         
+        // to consider a GEM pad as "matched" it has to be 
+        // within specified delta_eta and delta_phi ranges
+        // and if there are multiple ones, only the min|delta_phi| is considered as matched
+        bool gem_matched = false;
+        //int gem_bx = 99;
+        float min_dphi = 99.;
+        for (auto& id_pad: in_pads->second)
+        {
+          GEMDetId gem_id(id_pad.first);
+          LocalPoint gem_lp = gem_g->etaPartition(gem_id)->centreOfPad(id_pad.second->pad());
+          GlobalPoint gem_gp = gem_g->idToDet(gem_id)->surface().toGlobal(gem_lp);
+          float dphi = deltaPhi(csc_gp.phi(), gem_gp.phi());
+          float deta = csc_gp.eta() - gem_gp.eta();
+          cout<<"    gem with dphi "<< std::abs(dphi) <<" deta "<< std::abs(deta) <<endl;
+
+          if( (              std::abs(deta) <= gem_match_delta_eta        ) && // within delta_eta
+              ( (  is_odd && std::abs(dphi) <= gem_match_delta_phi_odd ) ||
+                ( !is_odd && std::abs(dphi) <= gem_match_delta_phi_even ) ) && // within delta_phi
+              ( std::abs(dphi) < std::abs(min_dphi) )                          // minimal delta phi
+            )
+          {
+            gem_matched = true;
+            min_dphi = dphi;
+            //gem_bx = id_pad.second->bx();
+          }
+        }
+        if (gem_matched)
+        {
+          cout<<" GOT MATCHED GEM!"<<endl;
+          //lct.setGEMBX(gem_bx);
+          lct.setGEMDPhi(min_dphi);
+        }
+        else
+        {
+          cout<<" no gem match";
+          if (gem_clear_nomatch_lcts)
+          {
+            lct.clear();
+            cout<<" - cleared lct";
+          }
+          cout<<endl;
+        }
+        cout<<"LCTafter "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
+      }
+  }
+
+  // final count
+  int nlct_after = 0;
+  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
+      for (int i=0;i<2;i++)
+      {
+        if (allLCTs1b[bx][mbx][i].isValid()) nlct_after++;
+      }
+  cout<<"before "<<nlct<<"  after "<<nlct_after<<endl;
+}
