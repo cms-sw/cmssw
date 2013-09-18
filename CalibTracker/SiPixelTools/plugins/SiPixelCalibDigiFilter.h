@@ -47,4 +47,5 @@ class SiPixelCalibDigiFilter : public edm::EDFilter {
       virtual void endJob() ;
       
       // ----------member data ---------------------------
+      edm::EDGetTokenT<edm::DetSetVector<SiPixelCalibDigi>> tPixelCalibDigi;
 };

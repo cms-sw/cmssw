@@ -41,6 +41,7 @@ SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase(const edm::Para
    outputFileName_ = iConfig.getParameter<std::string>("outputFileName");
    daqBE_ = &*edm::Service<DQMStore>();
    folderMaker_ = new SiPixelFolderOrganizer();
+   tPixelCalibDigi = consumes <edm::DetSetVector<SiPixelCalibDigi> > (siPixelCalibDigiProducer_);
    
 }
 
@@ -91,7 +92,7 @@ SiPixelOfflineCalibAnalysisBase::analyze(const edm::Event& iEvent, const edm::Ev
    }
     
    Handle<DetSetVector<SiPixelCalibDigi> > thePlaquettes;
-   iEvent.getByLabel(siPixelCalibDigiProducer_, thePlaquettes);
+   iEvent.getByToken( tPixelCalibDigi, thePlaquettes);
 
    DetSetVector<SiPixelCalibDigi>::const_iterator digiIter;
 

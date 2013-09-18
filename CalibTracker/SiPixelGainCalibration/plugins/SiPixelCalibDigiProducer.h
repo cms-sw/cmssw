@@ -71,6 +71,7 @@ class SiPixelCalibDigiProducer : public edm::EDProducer {
       typedef std::pair<uint32_t,std::pair<short,short> >  pixelstruct;
       // ----------member data ---------------------------
       edm::InputTag src_;
+      edm::EDGetTokenT <edm::DetSetVector<PixelDigi>>  tPixelDigi;
       uint32_t iEventCounter_;
       
       bool ignore_non_pattern_;
