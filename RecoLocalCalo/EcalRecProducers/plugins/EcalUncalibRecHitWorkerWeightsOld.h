@@ -27,11 +27,17 @@ namespace edm {
         class ParameterSet;
 }
 
-class EcalUncalibRecHitWorkerWeights : public EcalUncalibRecHitWorkerBaseClass {
+//
+// This is a temporary copy of EcalUncalibRecHitWorkerWeights associated to 
+// EcalUncalibRecHitWorkerFactoryOld for compatibility - To be removed when
+// consumes migration is completed 
+//
+
+class EcalUncalibRecHitWorkerWeightsOld : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
-                EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&, edm::ConsumesCollector& c);
-                virtual ~EcalUncalibRecHitWorkerWeights() {};
+                EcalUncalibRecHitWorkerWeightsOld(const edm::ParameterSet&);
+                virtual ~EcalUncalibRecHitWorkerWeightsOld() {};
 
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);

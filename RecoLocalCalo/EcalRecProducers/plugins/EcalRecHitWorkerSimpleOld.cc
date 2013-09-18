@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/EcalRecProducers/plugins/EcalRecHitWorkerSimple.h"
+#include "RecoLocalCalo/EcalRecProducers/plugins/EcalRecHitWorkerSimpleOld.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -12,23 +12,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
-EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps, edm::ConsumesCollector& c) :
-  EcalRecHitWorkerBaseClass(ps,c)
-{
-        rechitMaker_ = new EcalRecHitSimpleAlgo();
-        v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
-	v_DB_reco_flags_ = ps.getParameter<std::vector<int> >("flagsMapDBReco");
-        killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
-        laserCorrection_ = ps.getParameter<bool>("laserCorrection");
-	EBLaserMIN_ = ps.getParameter<double>("EBLaserMIN");
-	EELaserMIN_ = ps.getParameter<double>("EELaserMIN");
-	EBLaserMAX_ = ps.getParameter<double>("EBLaserMAX");
-	EELaserMAX_ = ps.getParameter<double>("EELaserMAX");
-
-}
 
 
-EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
+EcalRecHitWorkerSimpleOld::EcalRecHitWorkerSimpleOld(const edm::ParameterSet&ps) :
   EcalRecHitWorkerBaseClass(ps)
 {
         rechitMaker_ = new EcalRecHitSimpleAlgo();
@@ -44,7 +30,7 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
 }
 
 
-void EcalRecHitWorkerSimple::set(const edm::EventSetup& es)
+void EcalRecHitWorkerSimpleOld::set(const edm::EventSetup& es)
 {
         es.get<EcalIntercalibConstantsRcd>().get(ical);
         es.get<EcalTimeCalibConstantsRcd>().get(itime);
@@ -56,7 +42,7 @@ void EcalRecHitWorkerSimple::set(const edm::EventSetup& es)
 
 
 bool
-EcalRecHitWorkerSimple::run( const edm::Event & evt,
+EcalRecHitWorkerSimpleOld::run( const edm::Event & evt,
                 const EcalUncalibratedRecHit& uncalibRH,
                 EcalRecHitCollection & result )
 {
@@ -142,12 +128,12 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         return true;
 }
 
-EcalRecHitWorkerSimple::~EcalRecHitWorkerSimple(){
+EcalRecHitWorkerSimpleOld::~EcalRecHitWorkerSimpleOld(){
 
   delete rechitMaker_;
 }
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerFactory.h"
-DEFINE_EDM_PLUGIN( EcalRecHitWorkerFactory, EcalRecHitWorkerSimple, "EcalRecHitWorkerSimple" );
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerFactoryOld.h"
+DEFINE_EDM_PLUGIN( EcalRecHitWorkerFactoryOld, EcalRecHitWorkerSimpleOld, "EcalRecHitWorkerSimpleOld" );

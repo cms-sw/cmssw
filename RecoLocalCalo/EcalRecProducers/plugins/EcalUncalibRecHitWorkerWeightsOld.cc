@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerWeights.h"
+#include "RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitWorkerWeightsOld.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -9,13 +9,13 @@
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
 
-EcalUncalibRecHitWorkerWeights::EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&ps, edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerBaseClass(ps,c)
+EcalUncalibRecHitWorkerWeightsOld::EcalUncalibRecHitWorkerWeightsOld(const edm::ParameterSet&ps) :
+  EcalUncalibRecHitWorkerBaseClass(ps)
 {
 }
 
 void
-EcalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es)
+EcalUncalibRecHitWorkerWeightsOld::set(const edm::EventSetup& es)
 {
         es.get<EcalGainRatiosRcd>().get(gains);
         es.get<EcalPedestalsRcd>().get(peds);
@@ -25,7 +25,7 @@ EcalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es)
 
 
 bool
-EcalUncalibRecHitWorkerWeights::run( const edm::Event & evt,
+EcalUncalibRecHitWorkerWeightsOld::run( const edm::Event & evt,
                 const EcalDigiCollection::const_iterator & itdg,
                 EcalUncalibratedRecHitCollection & result )
 {
@@ -97,5 +97,5 @@ EcalUncalibRecHitWorkerWeights::run( const edm::Event & evt,
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
-DEFINE_EDM_PLUGIN( EcalUncalibRecHitWorkerFactory, EcalUncalibRecHitWorkerWeights, "EcalUncalibRecHitWorkerWeights" );
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactoryOld.h"
+DEFINE_EDM_PLUGIN( EcalUncalibRecHitWorkerFactoryOld, EcalUncalibRecHitWorkerWeightsOld, "EcalUncalibRecHitWorkerWeightsOld" );
