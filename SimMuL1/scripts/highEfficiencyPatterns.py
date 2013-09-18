@@ -1,3 +1,9 @@
+##
+## This script plots the high efficiency patterns for 4 different working points 
+## Todo: Integrate the draf_eff() function in effFunctions.py
+## Note: use TEfficiency class for these plots
+## 
+
 ## custom modules
 from cuts import *
 from tdrStyle import *
