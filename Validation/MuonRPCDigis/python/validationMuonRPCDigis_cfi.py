@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 validationMuonRPCDigis = cms.EDAnalyzer("RPCDigiValid",
-    # Label to retrieve Digis from the event - not used anymore, switched to tags
-    # digiLabel = cms.untracked.string('simMuonRPCDigis'),
 
     # Tag for Digis event data retrieval
     rpcDigiTag = cms.untracked.InputTag("simMuonRPCDigis"),
