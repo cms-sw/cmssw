@@ -20,11 +20,8 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include <TFitterMinuit.h>
 
@@ -36,7 +33,6 @@ using namespace edm;
 
 Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
 {
-  vertexCollection = edm::InputTag("pixelVertices");
   debugMode        = true;
   nLumiReset       = 1;
   dataFromFit      = true;
@@ -50,19 +46,20 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
   VxErrCorr        = 1.5;
   fileName         = "BeamPixelResults.txt";
 
-  vertexCollection = iConfig.getParameter<InputTag>("vertexCollection");
-  debugMode        = iConfig.getParameter<bool>("debugMode");
-  nLumiReset       = iConfig.getParameter<unsigned int>("nLumiReset");
-  dataFromFit      = iConfig.getParameter<bool>("dataFromFit");
-  minNentries      = iConfig.getParameter<unsigned int>("minNentries");
-  xRange           = iConfig.getParameter<double>("xRange");
-  xStep            = iConfig.getParameter<double>("xStep");
-  yRange           = iConfig.getParameter<double>("yRange");
-  yStep            = iConfig.getParameter<double>("yStep");
-  zRange           = iConfig.getParameter<double>("zRange");
-  zStep            = iConfig.getParameter<double>("zStep");
-  VxErrCorr        = iConfig.getParameter<double>("VxErrCorr");
-  fileName         = iConfig.getParameter<string>("fileName");
+  vertexCollection   = consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexCollection", edm::InputTag("pixelVertices")));
+  pixelHitCollection = consumes<SiPixelRecHitCollection>(iConfig.getUntrackedParameter<edm::InputTag>("pixelHitCollection", edm::InputTag("siPixelRecHits")));
+  debugMode          = iConfig.getParameter<bool>("debugMode");
+  nLumiReset         = iConfig.getParameter<unsigned int>("nLumiReset");
+  dataFromFit        = iConfig.getParameter<bool>("dataFromFit");
+  minNentries        = iConfig.getParameter<unsigned int>("minNentries");
+  xRange             = iConfig.getParameter<double>("xRange");
+  xStep              = iConfig.getParameter<double>("xStep");
+  yRange             = iConfig.getParameter<double>("yRange");
+  yStep              = iConfig.getParameter<double>("yStep");
+  zRange             = iConfig.getParameter<double>("zRange");
+  zStep              = iConfig.getParameter<double>("zStep");
+  VxErrCorr          = iConfig.getParameter<double>("VxErrCorr");
+  fileName           = iConfig.getParameter<string>("fileName");
 }
 
 
@@ -73,8 +70,8 @@ Vx3DHLTAnalyzer::~Vx3DHLTAnalyzer()
 
 void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
-  Handle<VertexCollection> Vx3DCollection;
-  iEvent.getByLabel(vertexCollection,Vx3DCollection);
+  edm::Handle<reco::VertexCollection> Vx3DCollection;
+  iEvent.getByToken(vertexCollection, Vx3DCollection);
 
   unsigned int i,j;
   double det;
@@ -153,7 +150,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
 {
   edm::Handle<SiPixelRecHitCollection> rechitspixel;
-  iEvent.getByLabel("siPixelRecHits",rechitspixel);
+  iEvent.getByToken(pixelHitCollection, rechitspixel);
 
   unsigned int counter = 0;
   
