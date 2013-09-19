@@ -61,7 +61,8 @@ XMLIdealGeometryESSource::produce() {
   DDLogicalPart rootNode(ddName);
   DDRootDef::instance().set(rootNode);
   std::auto_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
-  DDLParser parser(*returnValue); //* parser = DDLParser::instance();
+  DDLElementRegistry registry;
+  DDLParser parser(*returnValue, registry);
   parser.getDDLSAX2FileHandler()->setUserNS(userNS_);
   int result2 = parser.parse(geoConfig_);
   if (result2 != 0) throw cms::Exception("DDException") << "DDD-Parser: parsing failed!";

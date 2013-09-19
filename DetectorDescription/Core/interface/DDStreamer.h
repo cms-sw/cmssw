@@ -1,7 +1,8 @@
 #ifndef DD_DDStreamer_h
 #define DD_DDStreamer_h
 
-#include <iostream>
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include <iosfwd>
 class DDCompactView;
 
 //! Streaming the DDD transient store from/into a std::istream/std::ostream */
@@ -42,13 +43,13 @@ class DDStreamer
 {
 public:
   //! constructs a streamer object with yet undefined std::istream and std::ostream
-  DDStreamer();
+  DDStreamer(ClhepEvaluator &evaluator);
   
   //! creates a streamer object for reading
-  DDStreamer(std::istream & readFrom);
+  DDStreamer(ClhepEvaluator &evaluator, std::istream & readFrom);
   
   //! creates a streamer object for writing
-  DDStreamer(std::ostream & writeTo);
+  DDStreamer(ClhepEvaluator &evaluator, std::ostream & writeTo);
   
   //! does nothing; usefull only if another streamer derives from DDStreamer
   virtual ~DDStreamer(); 
@@ -121,8 +122,10 @@ protected:
   void vars_read();  
 
 private:  
+  DDStreamer(); // Needs at least the evaluator.
   const DDCompactView * cpv_;/**< not used */
   std::ostream * o_; /**< std::ostream target for writing DDD objects */
   std::istream * i_; /**< istream target for reading DDD objects */
+  ClhepEvaluator &evaluator_;
 };
 #endif

@@ -7,6 +7,7 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 
 // Xerces C++ dependencies
 #include <xercesc/util/XercesDefs.hpp>
@@ -69,10 +70,10 @@ class DDLParser
 
   typedef std::map< int, std::pair<std::string, std::string> > FileNameHolder;
   
-  DDLParser ( DDCompactView& cpv );
+  DDLParser (DDCompactView& cpv, DDLElementRegistry& registry);
 
  protected:
-  DDLParser( );
+  DDLParser();
   
  public:
   ~DDLParser();

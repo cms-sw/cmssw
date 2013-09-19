@@ -27,7 +27,8 @@ int main(int argc, char *argv[])
 
     std::cout << "Get a hold of aDDLParser." << std::endl;
     DDCompactView cpv;
-    DDLParser myP(cpv);// = DDLParser::instance();
+    DDLElementRegistry registry;
+    DDLParser myP(cpv, registry);
 
     std::cout << "main:: initialize" << std::endl;
     //  DDInit();

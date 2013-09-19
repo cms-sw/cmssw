@@ -27,8 +27,8 @@ template <typename ScannerT> struct Mapper::definition
   definition(Mapper const& self)
     {
       mapSet
-	=   ppair[MapPair()]
-	>> *((',' >> ppair)[MapPair()])
+	=   ppair[MapPair(self.registry_)]
+	>> *((',' >> ppair)[MapPair(self.registry_)])
 	;
       
       ppair
@@ -37,11 +37,11 @@ template <typename ScannerT> struct Mapper::definition
 	;
       
       name
-	=   (alpha_p >> *alnum_p)[MapMakeName()]
+	=   (alpha_p >> *alnum_p)[MapMakeName(self.registry_)]
 	;
       
       value
-	=   (+(anychar_p - ','))[MapMakeDouble()]
+	=   (+(anychar_p - ','))[MapMakeDouble(self.registry_)]
 	;     
     }
 
@@ -54,21 +54,21 @@ template <typename ScannerT> struct Mapper::definition
 void
 MapPair::operator() (char const* str, char const* end) const
 { 
-  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLGlobalRegistry::instance().getElement("Map"));
+  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (registry_->getElement("Map"));
   myDDLMap->do_pair(str, end);
 }
 
 void
 MapMakeName::operator() (char const* str, char const* end) const
 {
-  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLGlobalRegistry::instance().getElement("Map"));
+  DDLMap* myDDLMap = dynamic_cast < DDLMap* >(registry_->getElement("Map"));
   myDDLMap->do_makeName(str, end);
 }
 
 void
 MapMakeDouble::operator() (char const* str, char const* end)const
 {
-  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLGlobalRegistry::instance().getElement("Map"));
+  DDLMap* myDDLMap = dynamic_cast < DDLMap* >(registry_->getElement("Map"));
   myDDLMap->do_makeDouble(str, end);
 }
 
@@ -102,7 +102,7 @@ DDLMap::processElement( const std::string& name, const std::string& nmspace, DDC
     errorOut("Map of type std::string is not supported yet.");
   }
 
-  Mapper mapGrammar;
+  Mapper mapGrammar(myRegistry_);
   
   pMap.clear();
 

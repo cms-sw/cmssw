@@ -23,9 +23,9 @@
 
 // XERCES_CPP_NAMESPACE_USE 
 
-DDLSAX2FileHandler::DDLSAX2FileHandler( DDCompactView & cpv )
+DDLSAX2FileHandler::DDLSAX2FileHandler( DDCompactView & cpv , DDLElementRegistry &registry)
   : cpv_(cpv),
-    xmlelems_()
+    xmlelems_(registry)
 {
   init();
 }
@@ -33,7 +33,7 @@ DDLSAX2FileHandler::DDLSAX2FileHandler( DDCompactView & cpv )
 void
 DDLSAX2FileHandler::init( void )
 {
-  createDDConstants();
+  DDConstant::createConstantsFromEvaluator(xmlelems_.evaluator());
   namesMap_.push_back("*** root ***");
   names_.push_back(namesMap_.size() - 1);
 }
@@ -66,10 +66,7 @@ DDLSAX2FileHandler::startElement(const XMLCh* const uri
   }
 
   ++elementTypeCounter_[myElementName];
-  //final way
-  //  DDXMLElement* myElement = xmlelems_.getElement(myElementName); //myRegistry_->getElement(myElementName);
-  //temporary way:
-  DDXMLElement* myElement = DDLGlobalRegistry::instance().getElement(myElementName);
+  DDXMLElement* myElement = xmlelems_.getElement(myElementName);
 
   unsigned int numAtts = attrs.getLength();
   std::vector<std::string> attrNames, attrValues;
@@ -99,10 +96,7 @@ DDLSAX2FileHandler::endElement( const XMLCh* const uri,
   const std::string&  myElementName = self();
   DCOUT_V('P', "DDLSAX2FileHandler::endElement started");
   DCOUT_V('P', "    " + myElementName);
-  //final way
-  //  DDXMLElement* myElement = xmlelems_.getElement(myElementName); //myRegistry_->getElement(myElementName);
-  //temporary way:
-  DDXMLElement* myElement = DDLGlobalRegistry::instance().getElement(myElementName);
+  DDXMLElement* myElement = xmlelems_.getElement(myElementName);
 
   //   DDLParser* beingParsed = DDLParser::instance();
   //   std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
@@ -133,13 +127,7 @@ DDLSAX2FileHandler::characters( const XMLCh* const chars,
 				const unsigned int length )
 {
   DCOUT_V('P', "DDLSAX2FileHandler::characters started");
-  //  std::cout << "character handler started" << std::endl;
-  //DDXMLElement* myElement = NULL;
-  // final way
-  //  myElement = xmlelems_.getElement(namesMap_[names_.back()]);
-  //temporary way:
-  //  const std::string&  myElementName = namesMap_[names_.back()];
-  DDXMLElement* myElement = DDLGlobalRegistry::instance().getElement(self());//myElementName); //namesMap_[names_.back()]);
+  DDXMLElement* myElement = xmlelems_.getElement(self());
   std::string inString = "";
   for (unsigned int i = 0; i < length; ++i)
   {
@@ -164,12 +152,6 @@ DDLSAX2FileHandler::comment( const   XMLCh* const    chars
 void
 DDLSAX2FileHandler::dumpElementTypeCounter( void )
 {}
-
-void
-DDLSAX2FileHandler::createDDConstants( void ) const
-{
-  DDConstant::createConstantsFromEvaluator();
-}
 
 const std::string&
 DDLSAX2FileHandler::parent( void ) const

@@ -13,14 +13,12 @@
 #include <DetectorDescription/Core/src/Solid.h>
 #include <DetectorDescription/Core/src/Specific.h>
 #include <DetectorDescription/ExprAlgo/interface/AlgoPos.h>
-#include <DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h>
 
 #include <string>
 #include <map>
 #include <vector>
 
 template class DDI::Singleton<AxesNames>;
-template class DDI::Singleton<ClhepEvaluator>;
 template class DDI::Singleton<DDRoot>;
 template class DDI::Singleton<DDCompactViewImpl>;
 template class DDI::Singleton<DDI::Store<DDName, std::vector<std::string>* > >;

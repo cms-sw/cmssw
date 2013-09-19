@@ -25,8 +25,8 @@
 // ---------------------------------------------------------------------------
 //  DDLSAX2Handler: Constructors and Destructor
 // ---------------------------------------------------------------------------
-DDLSAX2ExpressionHandler::DDLSAX2ExpressionHandler( DDCompactView& cpv )
-  : DDLSAX2FileHandler::DDLSAX2FileHandler( cpv )
+DDLSAX2ExpressionHandler::DDLSAX2ExpressionHandler( DDCompactView& cpv, DDLElementRegistry &registry)
+  : DDLSAX2FileHandler::DDLSAX2FileHandler( cpv, registry)
 {}
 
 DDLSAX2ExpressionHandler::~DDLSAX2ExpressionHandler( void )
@@ -68,7 +68,7 @@ DDLSAX2ExpressionHandler::startElement( const XMLCh* const uri,
     }
     //      DDLParser* beingParsed = DDLParser::instance();
     //      std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
-    ClhepEvaluator & ev = DDLGlobalRegistry::instance().evaluator();
+    ClhepEvaluator & ev = registry().evaluator();
     ev.set(nmspace_, varName, varValue);
   }
 }

@@ -26,8 +26,8 @@ struct VectorMakeDouble
       ddlVector_->do_makeDouble(str, end);
     }
   
-  VectorMakeDouble() {
-    ddlVector_ = dynamic_cast < DDLVector* > (DDLGlobalRegistry::instance().getElement("Vector"));
+  VectorMakeDouble(DDLElementRegistry *registry) {
+    ddlVector_ = dynamic_cast < DDLVector* > (registry->getElement("Vector"));
   }
   
   DDLVector * ddlVector_;
@@ -40,31 +40,29 @@ struct VectorMakeString
       ddlVector_->do_makeString(str, end);
     }
   
-  VectorMakeString() {
-    ddlVector_ = dynamic_cast < DDLVector* > (DDLGlobalRegistry::instance().getElement("Vector"));
+  VectorMakeString(DDLElementRegistry *registry) {
+    ddlVector_ = dynamic_cast < DDLVector* > (registry->getElement("Vector"));
   }
   
   DDLVector * ddlVector_;
 };
 
 bool
-DDLVector::parse_numbers(char const* str) const
+DDLVector::parse_numbers(char const* str, VectorMakeDouble &maker) const
 {
-  static VectorMakeDouble makeDouble;
   return parse(str,
-	       ((+(anychar_p - ','))[makeDouble] 
-		>> *(',' >> (+(anychar_p - ','))[makeDouble]))
+	       ((+(anychar_p - ','))[maker] 
+		>> *(',' >> (+(anychar_p - ','))[maker]))
 	       >> end_p
 	       , space_p).full;
 }
 
 bool
-DDLVector::parse_strings(char const* str) const
+DDLVector::parse_strings(char const* str, VectorMakeString &maker) const
 {
-  static VectorMakeString makeString;
   return parse(str,
-	       ((+(anychar_p - ','))[makeString] 
-		>> *(',' >> (+(anychar_p - ','))[makeString])) 
+	       ((+(anychar_p - ','))[maker] 
+		>> *(',' >> (+(anychar_p - ','))[maker])) 
 	       >> end_p
 	       , space_p).full;
 }
@@ -102,13 +100,15 @@ DDLVector::processElement( const std::string& name, const std::string& nmspace, 
     errorOut(" EMPTY STRING ");
   }
   
+  static VectorMakeDouble doubleMaker(myRegistry_);
+  static VectorMakeString stringMaker(myRegistry_);
   if (isNumVec) {//(atts.find("type") == atts.end() || atts.find("type")->second == "numeric") {
-    if (!parse_numbers(tTextToParse.c_str())) {
+    if (!parse_numbers(tTextToParse.c_str(), doubleMaker)) {
       errorOut(tTextToParse.c_str());
     }
   }
   else if (isStringVec) { //(atts.find("type")->second == "string") {
-    if (!parse_strings(tTextToParse.c_str())) {
+    if (!parse_strings(tTextToParse.c_str(), stringMaker)) {
       errorOut(tTextToParse.c_str());
     }
   }

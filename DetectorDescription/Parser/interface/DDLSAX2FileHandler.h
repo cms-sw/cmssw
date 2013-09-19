@@ -47,7 +47,7 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
   // -----------------------------------------------------------------------
   
   //  DDLSAX2FileHandler();
-  DDLSAX2FileHandler( DDCompactView& cpv );
+  DDLSAX2FileHandler(DDCompactView& cpv, DDLElementRegistry &registry);
   ~DDLSAX2FileHandler();
 
   void init() ;
@@ -76,14 +76,14 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
   void dumpElementTypeCounter();
 
  protected:
-  //! creates all DDConstant from the evaluator which has been already 'filled' in the first scan of the documents
-  void createDDConstants() const; 
+  // Expose registry to derived classes.
+  DDLElementRegistry &registry() { return xmlelems_; }
   //  Map that holds name and number of elements processed.
   std::map < std::string, int> elementTypeCounter_;
   std::vector<std::string> namesMap_;
   std::vector < size_t > names_;
   DDCompactView& cpv_;
-  DDLElementRegistry xmlelems_;
+  DDLElementRegistry &xmlelems_;
 };
 
 #endif

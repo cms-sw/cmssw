@@ -9,13 +9,12 @@
 
 #include <DetectorDescription/Base/interface/Singleton.h>
 #include <DetectorDescription/Base/interface/Singleton.icc>
-//#include <DetectorDescription/interface/DDXMLElement.h>
 
 class DDXMLElement;
 
 // CLHEP Dependencies
 #include <CLHEP/Evaluator/Evaluator.h>
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 // -------------------------------------------------------------------------
 // Class declaration
@@ -39,7 +38,7 @@ class DDXMLElement;
  *
  */
 
-class DDLElementRegistry //: public DDXMLElementRegistry
+class DDLElementRegistry
 {
 
  public:
@@ -64,13 +63,11 @@ class DDLElementRegistry //: public DDXMLElementRegistry
 
   /// Get the name given a pointer.  This may not be needed...
   const std::string& getElementName(DDXMLElement* theElement) const;
-  ClhepEvaluator &evaluator() { return ExprEval::instance(); }
+  ClhepEvaluator &evaluator() { return evaluator_; }
 
  private:
-  RegistryMap registry_;
+  RegistryMap     registry_;
+  ClhepEvaluator  evaluator_;
 };
-
-///This is only here because of the boost::spirit::parser stuff of DDLMap needing to be re-designed.
-typedef DDI::Singleton<DDLElementRegistry> DDLGlobalRegistry;
 
 #endif

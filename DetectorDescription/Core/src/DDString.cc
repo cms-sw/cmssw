@@ -1,10 +1,4 @@
 #include "DetectorDescription/Core/interface/DDString.h"
-//#include "DetectorDescription/Base/interface/DDException.h"
-
-// Evaluator 
-//#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-
-
 
 DDString::DDString() : DDBase<DDName,std::string*>() { }
 
