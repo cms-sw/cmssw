@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-# $Id: valgrindMemcheckParser.pl,v 1.10 2013/01/29 08:29:58 muzaffar Exp $
 # Created: June 2007
 # Author: Giovanni Petrucciani, INFN Pisa
 #

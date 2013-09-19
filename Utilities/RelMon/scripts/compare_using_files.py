@@ -2,9 +2,6 @@
 ################################################################################
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: dpiparo $
-# $Date: 2013/04/22 13:30:05 $
-# $Revision: 1.8 $
 #
 #
 # Danilo Piparo CERN - danilo.piparo@cern.ch
