@@ -13,8 +13,9 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 #------------------------------------------------
 # Input Source (EDM file(s) created at step #1
 #-----------------------------------------------
+dataset = 'DATA' # to be used with RunPFVal.sh
 process.source = cms.Source("PoolSource",
-                   fileNames = cms.untracked.vstring('file:MEtoEDM_PFlow.root'),
+                   fileNames = cms.untracked.vstring('file:MEtoEDM_'+dataset+'_PFlow.root'),
                    processingMode = cms.untracked.string('RunsAndLumis')
                  )
 #-----------------------
@@ -29,7 +30,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.dqmSaver.producer = 'DQM'
 process.dqmSaver.convention = 'Offline'
 # specify part of your output file name
-process.dqmSaver.workflow = '/PFlow/Validation/QCD'
+process.dqmSaver.workflow = '/PFlow/Validation/'+dataset
 process.dqmEnv.subSystemFolder = 'ParticleFlow'
 process.dqmSaver.saveAtJobEnd = True
 process.dqmSaver.forceRunNumber = 1
@@ -46,6 +47,6 @@ process.options = cms.untracked.PSet(
 #--------------
 process.load("Validation.RecoParticleFlow.PFValidationClient_cff")
 
-process.pfClientSequence = cms.Sequence(process.pfJetClient*process.pfMETClient*process.pfElectronClient)
-process.p = cms.Path(process.EDMtoME*process.pfClientSequence*process.dqmEnv*process.dqmSaver)
+process.pfClientSequence = cms.Sequence(process.pfJetClient * process.pfMETClient * process.pfJetResClient * process.pfElectronClient)
+process.p = cms.Path(process.EDMtoME * process.pfClientSequence * process.dqmEnv * process.dqmSaver)
 

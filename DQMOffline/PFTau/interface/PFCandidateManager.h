@@ -24,7 +24,7 @@
 class PFCandidateManager : public Benchmark {
 
  public:
-
+  
   PFCandidateManager( float dRMax = 0.3,
 		      bool matchCharge = true, 
 		      Benchmark::Mode mode=Benchmark::DEFAULT) 

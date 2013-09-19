@@ -14,6 +14,7 @@ class MatchCandidateBenchmark : public Benchmark {
 
  public:
 
+  //MatchCandidateBenchmark(Mode mode);
   MatchCandidateBenchmark(Mode mode);
 
   virtual ~MatchCandidateBenchmark();
@@ -25,15 +26,24 @@ class MatchCandidateBenchmark : public Benchmark {
   
   /// fill histograms with a given particle
   void fillOne( const reco::Candidate& candidate,
-		const reco::Candidate& matchedCandidate ); 
-
-
+    const reco::Candidate& matchedCandidate ); 
+  
+  void fillOne( const reco::Candidate& candidate,
+		const reco::Candidate& matchedCandidate,
+		const edm::ParameterSet& parameterSet );
+  
  protected:
   
-  TH2F*   delta_et_Over_et_VS_et_; 
-  TH2F*   delta_et_VS_et_; 
-  TH2F*   delta_eta_VS_et_; 
-  TH2F*   delta_phi_VS_et_;
+  TH2F* delta_et_Over_et_VS_et_;
+  TH2F* delta_et_VS_et_; 
+  TH2F* delta_eta_VS_et_; 
+  TH2F* delta_phi_VS_et_;
+  ///LEONARDO add these histos
+  TH2F* BRdelta_et_Over_et_VS_et_; 
+  TH2F* ERdelta_et_Over_et_VS_et_;
+  std::vector<TH1F*> pTRes_ ;
+  std::vector<TH1F*> BRpTRes_ ;
+  std::vector<TH1F*> ERpTRes_ ;
 
   bool  histogramBooked_;
 

@@ -65,8 +65,7 @@ TH2F* Benchmark::book2D(const char* histname, const char* title,
   if(DQM_) {
     edm::LogInfo("Benchmark") << " Benchmark::book2D " << " booked "<<histname;
     
-    // need to build the y bin array manually, due to a missing 
-    // function in DQMStore
+    // need to build the y bin array manually, due to a missing function in DQMStore
     vector<float> ybins( nbinsy+1 );
     double binsize = (ymax - ymin) / nbinsy;
     for(int i=0; i<=nbinsy; ++i) {
@@ -79,15 +78,58 @@ TH2F* Benchmark::book2D(const char* histname, const char* title,
     TDirectory *oldpwd = gDirectory; 
     dir_->cd();
 
-    // need to convert the float bin array into a double bin array,
-    // because the DQMStore functions take floats, while the ROOT functions
-    // take double. 
+    // need to convert the float bin array into a double bin array, because the DQMStore functions take floats, while the ROOT functions take double. 
     vector<double> xbinsd(nbinsx+1); 
     for(int i=0; i<=nbinsx; ++i) {
       xbinsd[i] = xbins[i];
     }
 
     TH2F *hist = new TH2F(histname, title, nbinsx, &xbinsd[0], nbinsy, ymin, ymax);
+    cout<<"booked (ROOT mode) "<<histname<<" in "<<dir_->GetName()<<endl;
+    oldpwd->cd();
+    return hist;
+  }
+  else assert(0);
+}
+
+TProfile* Benchmark::bookProfile(const char* histname, const char* title,
+				 int nbinsx, float xmin, float xmax,
+				 float ymin, float ymax, const char* option ) {
+  // DQM_ has to be initialized in a child analyzer.
+  if(DQM_) {
+    edm::LogInfo("Benchmark") << " Benchmark::bookProfile "<<"booked "<<histname;
+    return DQM_->bookProfile(histname, title, nbinsx, xmin, xmax, 0.0, 0.0, option )->getTProfile();
+  }
+  else if(dir_) {
+    TDirectory *oldpwd = gDirectory;
+    dir_->cd();
+    TProfile *hist = new TProfile(histname, title, nbinsx, xmin, xmax, ymin, ymax, option);
+    cout<<"booked (ROOT mode) "<<histname<<" in "<<dir_->GetName()<<endl;
+    oldpwd->cd();
+    return hist;
+  }
+  else assert(0);
+}
+
+TProfile* Benchmark::bookProfile(const char* histname, const char* title,
+				 int nbinsx, float* xbins,
+				 float ymin, float ymax, const char* option ) {
+
+  // need to convert the float bin array into a double bin array, because the DQMStore TProfile functions take floats, while the  DQMStore TH2 functions take double. 
+  vector<double> xbinsd(nbinsx+1); 
+  for(int i=0; i<=nbinsx; ++i) {
+    xbinsd[i] = xbins[i];
+  }
+
+  // DQM_ has to be initialized in a child analyzer.
+  if(DQM_) {
+    edm::LogInfo("Benchmark") << " Benchmark::bookProfile "<<"booked "<<histname;
+    return DQM_->bookProfile(histname, title, nbinsx, &xbinsd[0], ymin, ymax, option)->getTProfile();
+  }
+  else if(dir_) {
+    TDirectory *oldpwd = gDirectory;
+    dir_->cd();
+    TProfile *hist = new TProfile(histname, title, nbinsx, &xbinsd[0], ymin, ymax, option);
     cout<<"booked (ROOT mode) "<<histname<<" in "<<dir_->GetName()<<endl;
     oldpwd->cd();
     return hist;

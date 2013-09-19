@@ -27,7 +27,7 @@ PFJetDQMAnalyzer::PFJetDQMAnalyzer(const edm::ParameterSet& parameterSet)
   matchLabel_          = pSet_.getParameter<edm::InputTag>("MatchCollection");
   benchmarkLabel_      = pSet_.getParameter<std::string>("BenchmarkLabel"); 
 
-  pfJetMonitor_.setParameters(parameterSet);  
+  pfJetMonitor_.setParameters(parameterSet);  // set parameters for booking histograms and validating jet 
   
 }
 //
@@ -40,7 +40,7 @@ void PFJetDQMAnalyzer::beginJob() {
   std::string path = "ParticleFlow/" + benchmarkLabel_;
   Benchmark::DQM_->setCurrentFolder(path.c_str());
   edm::LogInfo("PFJetDQMAnalyzer") << " PFJetDQMAnalyzer::beginJob " << "Histogram Folder path set to "<< path;
-  pfJetMonitor_.setup(pSet_);  
+  pfJetMonitor_.setup(pSet_);  // booking histograms of type delta_frac_VS_frac from PFJetMonitor, pt_ eta_ phi_ and charge_ from CandidateBenchmark,  delta_x_VS_y from MatchCandidateBenchmark
   nBadEvents_ = 0;
 }
 //
@@ -57,11 +57,11 @@ void PFJetDQMAnalyzer::analyze(edm::Event const& iEvent,
   float maxRes = 0.0;
   float minRes = 99.99;
   if (jetCollection.isValid() && matchedJetCollection.isValid()) {
-    pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes);
-    
+    //pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes);  // match collections and fill pt eta phi and charge histos for candidate jet, fill delta_x_VS_y histos for matched couples, book and fill delta_frac_VS_frac histos for matched couples
+    pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes, pSet_);  // match collections and fill pt eta phi and charge histos for candidate jet, fill delta_x_VS_y histos for matched couples, book and fill delta_frac_VS_frac histos for matched couples
     edm::ParameterSet skimPS = pSet_.getParameter<edm::ParameterSet>("SkimParameter");
     if ( (skimPS.getParameter<bool>("switchOn")) &&  
-         (nBadEvents_ <= skimPS.getParameter<int32_t>("maximumNumberToBeStored")) ){
+         (nBadEvents_ <= skimPS.getParameter<int32_t>("maximumNumberToBeStored")) ) {
       if ( minRes < skimPS.getParameter<double>("lowerCutOffOnResolution")) {
 	storeBadEvents(iEvent,minRes);
         nBadEvents_++;

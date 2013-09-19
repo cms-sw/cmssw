@@ -29,12 +29,12 @@ class CandidateBenchmark : public Benchmark {
  protected:
   
 
-  TH1F*   pt_; 
-  TH1F*   eta_; 
-  TH1F*   phi_; 
-  TH1F*   charge_;
+  TH1F* pt_; 
+  TH1F* eta_; 
+  TH1F* phi_; 
+  TH1F* charge_;
   ///COLIN add this histo
-  TH1F*   pdgId_; 
+  TH1F* pdgId_; 
 
   bool histogramBooked_;
 };
