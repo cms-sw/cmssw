@@ -13,7 +13,6 @@
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -43,8 +42,8 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
 
   basicclusterCollection_ = ps.getParameter<std::string>("basicclusterCollection");
   superclusterCollection_ = ps.getParameter<std::string>("superclusterCollection");
-  hitproducer_ = ps.getParameter<std::string>("ecalhitproducer");
-  hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
+  hitsToken_              = 
+    consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("recHitsCollection"));
    
   //Setup for core tools objects. 
   edm::ParameterSet posCalcParameters = 
@@ -104,8 +103,8 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   // get the hit collection from the event:
   edm::Handle<EcalRecHitCollection> rhcHandle;
-  //  evt.getByType(rhcHandle);
-  evt.getByLabel(hitproducer_, hitcollection_, rhcHandle);
+ 
+  evt.getByToken(hitsToken_, rhcHandle);
   if (!(rhcHandle.isValid())){
     edm::LogError("MissingProduct") << "could not get a handle on the EcalRecHitCollection!";
     return;
@@ -122,20 +121,10 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   edm::ESHandle<EcalSeverityLevelAlgo> sevLv;
   es.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
+ 
+  geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  topology.reset(new EcalBarrelTopology(geoHandle));
 
-  LogTrace("EcalClusters") << "\n\n\n" << hitcollection_ << "\n\n";
-
-  if(hitcollection_ == "EcalRecHitsEB") {
-    geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-    topology.reset(new EcalBarrelTopology(geoHandle));
-  } else if(hitcollection_ == "EcalRecHitsEE") {
-    geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-    topology.reset(new EcalEndcapTopology(geoHandle));
-  } else if(hitcollection_ == "EcalRecHitsPS") {
-    geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-    topology.reset(new EcalPreshowerTopology (geoHandle));
-  } else throw(std::runtime_error("\n\nHybrid Cluster Producer encountered invalied ecalhitcollection type.\n\n"));
-    
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;
   hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, sevLv.product(),false,
@@ -154,8 +143,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   
   //Weird though it is, get the BasicClusters back out of the event.  We need the
   //edm::Ref to these guys to make our superclusters for Hybrid.
-  //edm::Handle<reco::BasicClusterCollection> bccHandle;
-  // evt.getByLabel("clusterproducer",basicclusterCollection_, bccHandle);
+
   if (!(bccHandle.isValid())) {
     edm::LogError("Missing Product") << "could not get a handle on the BasicClusterCollection!" ;
     return;

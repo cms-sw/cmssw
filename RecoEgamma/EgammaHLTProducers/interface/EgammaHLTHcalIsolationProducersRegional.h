@@ -18,37 +18,33 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
+ #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class EgammaHLTHcalIsolation;
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
-//
-// class declaration
-//
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
+class EgammaHLTHcalIsolation;
 
 class EgammaHLTHcalIsolationProducersRegional : public edm::EDProducer {
 public:
   explicit EgammaHLTHcalIsolationProducersRegional(const edm::ParameterSet&);
   ~EgammaHLTHcalIsolationProducersRegional();
+
+  virtual void produce(edm::Event&, const edm::EventSetup&);
   
-  //now we need to disable (or even define) copy, assignment operators as we own a pointer
 private:
   EgammaHLTHcalIsolationProducersRegional(const EgammaHLTHcalIsolationProducersRegional& rhs){}
   EgammaHLTHcalIsolationProducersRegional& operator=(const EgammaHLTHcalIsolationProducersRegional& rhs){return *this;}
   
-public:
-virtual void produce(edm::Event&, const edm::EventSetup&);
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitProducer_;
+  edm::EDGetTokenT<double> rhoProducer_;
 
-private:
-      // ----------member data ---------------------------
-
-  edm::InputTag recoEcalCandidateProducer_;
-  edm::InputTag hbheRecHitProducer_;
-  edm::InputTag rhoProducer_;
   bool doRhoCorrection_;
   float rhoScale_;
   float rhoMax_;

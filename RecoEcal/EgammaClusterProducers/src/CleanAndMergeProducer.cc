@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -56,8 +55,10 @@ CleanAndMergeProducer::CleanAndMergeProducer(const edm::ParameterSet& ps)
 
         // get the parameters
         // the cleaned collection:
-        cleanScInputTag_   = ps.getParameter<edm::InputTag>("cleanScInputTag");
-	uncleanScInputTag_ = ps.getParameter<edm::InputTag>("uncleanScInputTag");          
+        cleanScToken_   = 
+            consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("cleanScInputTag"));
+	uncleanScToken_ = 
+	    consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("uncleanScInputTag"));          
 
         // the names of the products to be produced:
         bcCollection_ = ps.getParameter<std::string>("bcCollection");
@@ -70,8 +71,6 @@ CleanAndMergeProducer::CleanAndMergeProducer(const edm::ParameterSet& ps)
         providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("posCalc_w0")));
         providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("posCalc_x0")));
 
-        hitproducer_ = ps.getParameter<std::string>("ecalhitproducer");
-        hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
 
         // the products:
         produces< reco::BasicClusterCollection >(bcCollection_);
@@ -93,21 +92,9 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
         edm::Handle<reco::SuperClusterCollection> pCleanSC;
         edm::Handle<reco::SuperClusterCollection> pUncleanSC;
 
-        evt.getByLabel(cleanScInputTag_, pCleanSC);
-        if (!(pCleanSC.isValid())) 
-        {
-	  edm::LogWarning("MissingInput")<< "could not get a handle on the clean Super Clusters!";
-	  return;
-        }
-
-        evt.getByLabel(uncleanScInputTag_, pUncleanSC);
-        if (!(pUncleanSC.isValid())) 
-        {
-	  
-	  edm::LogWarning("MissingInput")<< "could not get a handle on the unclean Super Clusters!";
-	  return;
-        }
-
+        evt.getByToken(cleanScToken_, pCleanSC);
+        evt.getByToken(uncleanScToken_, pUncleanSC);
+    
         //
         // collections are all taken now _____________________________________________________
         //

@@ -12,8 +12,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
-EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
-        EcalRecHitWorkerBaseClass(ps)
+EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps, edm::ConsumesCollector& c) :
+  EcalRecHitWorkerBaseClass(ps,c)
 {
         rechitMaker_ = new EcalRecHitSimpleAlgo();
         v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");

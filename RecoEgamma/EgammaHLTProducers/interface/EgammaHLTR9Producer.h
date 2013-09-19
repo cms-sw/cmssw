@@ -24,9 +24,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//
-// class declaration
-//
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 class EgammaHLTR9Producer : public edm::EDProducer {
    public:
@@ -38,9 +40,11 @@ class EgammaHLTR9Producer : public edm::EDProducer {
    private:
       // ----------member data ---------------------------
 
-  edm::InputTag recoEcalCandidateProducer_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::InputTag ecalRechitEBTag_;
   edm::InputTag ecalRechitEETag_;
+  edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEBToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEEToken_;
   bool useSwissCross_;
   
   edm::ParameterSet conf_;
