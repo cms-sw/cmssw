@@ -1,5 +1,8 @@
-from cuts import *
+##
+## This script produces the dictionary of bending angles
+##
 
+from cuts import *
 
 ## run quiet mode
 import sys
@@ -29,7 +32,7 @@ def getTree(fileName):
     return tree
 
 def dphiCut(h, fractionToKeep):
-    """Get the dPhi cut corresponding to the fracionToKeep [95,98,99]"""
+    """Get the dPhi cut corresponding to the fractionToKeep [95,98,99]"""
 
     ax = h.GetXaxis()
     total = h.Integral()
