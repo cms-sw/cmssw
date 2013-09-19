@@ -4,8 +4,6 @@
 /** \class TrackTransformerBase
  *  Base class for Track transformer classes
  *
- *  $Date: $
- *  $Revision: $
  *  \author R. Bellan - CERN <riccardo.bellan@cern.ch>
  */
 

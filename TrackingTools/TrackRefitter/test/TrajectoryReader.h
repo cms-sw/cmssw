@@ -4,8 +4,6 @@
 /** \class TrajectoryReader
  *  No description available.
  *
- *  $Date: 2009/10/31 05:19:46 $
- *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 // Base Class Headers

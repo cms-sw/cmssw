@@ -4,8 +4,6 @@
 /** \class FlexibleKFFittingSmootherESProducer
  *  ESProducer for the FlexibleKFFittingSmoother
  *
- *  $Date: 2012/03/06$
- *  $Revision: 1.1 $
  *  \author mangano
  */
 

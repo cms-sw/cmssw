@@ -8,8 +8,6 @@
  *
  * \author  Stefano Lacaprara - INFN Padova 
  * \porting author Chang Liu - Purdue University 
- * $Date $
- * $Revision $
  *
  * Modification:
  *    26-Jun-2002 SL: theTkVolume is now a static

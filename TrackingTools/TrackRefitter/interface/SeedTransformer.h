@@ -6,8 +6,6 @@
  *  fits its RecHits and returns a vector of Trajectories.
  *  If the fit fails, the returned vector is empty.
  *
- *  $Date: 2008/08/11 14:30:39 $
- *  $Revision: 1.3 $
  *  \author D. Trocino - University and INFN Torino
  */
 
