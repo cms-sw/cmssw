@@ -3,6 +3,7 @@ from effFunctions import *
 from cuts import *
 from tdrStyle import *
 from GEMCSCdPhiDict import *
+from math import *
 
 ## ROOT modules
 from ROOT import *
@@ -58,14 +59,14 @@ def getTree(fileName):
 
 #_______________________________________________________________________________
 def getDphi(eff,pt,evenOdd):
-    """Return the delta Phi cut value"""
+    """Return the delta phi cut value given: (1) an efficiency, (2) a pt value and (3) choice for even/odd chambers"""
 
     return dphi_lct_pad["%s"%(eff)]["%s"%(pt)]["%s"%(evenOdd)]
 
 
 #_______________________________________________________________________________
 def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
-    """Produce GEM turn-on curve"""
+    """Produce plot with GEM high efficiency patterns"""
     
     pt = ["pt10","pt20","pt30","pt40"]    
     pt_labels = ["10","20","30","40"]
@@ -84,8 +85,9 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     h = TH1F("","          GEM-CSC bending Angle                       CMS Simulation Preliminary;Generated muon p_{T} [GeV/c];",50,0.,50.)
     superscript = "p_{T}>p_{T}^{min}"
     subscript = "0"
-    h.GetYaxis().SetTitle("    |#Delta#phi_{{}^{(GEM,CSC)}}|<|#Delta#phi_{0}^{WP}| Cut Efficiency");
+##    h.GetYaxis().SetTitle("    |#Delta#phi_{{}^{(GEM,CSC)}}|<|#Delta#phi_{0}^{WP}| Cut Efficiency");
 ##    h.GetYaxis().SetTitle("    |#Delta#phi_{{}^{(GEM,CSC)}}|<|#Delta#phi_{%s}^{%s}| Cut Efficiency"%(subscript,superscript));
+    h.GetYaxis().SetTitle("    |#Delta#phi_{{}^{(GEM,CSC)}}|<#Delta#phi_{%s} Cut Efficiency"%(subscript));
     h.GetYaxis().SetTitleOffset(.9)
     h.SetStats(0)
 
@@ -110,7 +112,7 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
             closeFar = "Far"
 
         h2 = draw_eff(t, "", "h2", "(50,0.,50.)", "pt", 
-                         denom_cut, ok_dphi, marker_colors[i], marker_styles[i])
+                      denom_cut, ok_dphi, marker_colors[i], marker_styles[i])
         histoList.append(h2)
         h2.SetMarkerSize(1)
         h2.Draw("same")
@@ -118,11 +120,12 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
     ## add legend
     leg = TLegend(0.52,0.17,.93,0.57, "High efficiency patterns:", "brNDC")
     for n in range(len(pt)):
-#        superscript = "p_{T}>%s"%(pt_labels[n])
         superscript = "\"%s\""%(pt_labels[n])
+        superscript = "p_{T}>%s"%(pt_labels[n])
         subscript = "0"
         #leg.AddEntry(histoList[n], "#Delta#phi_{%s}^{%s} = %.1f mrad"%(subscript,superscript,dphis[n]*1000), "p")
-        leg.AddEntry(histoList[n], "WP = %s"%(pt_labels[n]), "p")
+        leg.AddEntry(histoList[n], "#Delta#phi_{%s} = %.1f mrad"%(subscript,dphis[n]*1000), "p")
+        #leg.AddEntry(histoList[n], "WP = %s"%(pt_labels[n]), "p")
 
 
     leg.SetBorderSize(0)
@@ -162,6 +165,102 @@ def gemTurnOn(filesDir, plotDir, eff, oddEven, ext):
 
 
 #_______________________________________________________________________________
+def padMatchingEffVsGenMuonPhiForPosAndNegMuons(
+    filesDir, plotDir, pt, doOverlaps, ext):
+
+    """
+    This functions makes the matching effciency vs generated muon phi
+    for positive and negative muons. These plots were used in the approval round of 
+    September 9th 2013.
+    """
+
+    ok_eta = TCut("abs(eta)>1.64 && abs(eta)<2.12")
+    if (doOverlaps):
+        cut1 = ok_pad1_overlap
+        cut2 = ok_pad2_overlap
+        overlapStr = "_overlap"
+    else:
+        cut1 = ok_pad1
+        cut2 = ok_pad2
+        overlapStr = ""
+        
+    t = getTree("%sgem_csc_delta_pt%d_pad4.root"%(filesDir,pt));
+
+    ## latest instructions by Vadim on 21-08-2013
+    ok_pad1_or_pad2 = TCut("%s || %s" %(ok_pad1.GetTitle(),ok_pad2.GetTitle()))
+    ok_eta_and_Qn = TCut("%s && %s" %(ok_eta.GetTitle(),ok_Qn.GetTitle()))
+    ok_eta_and_Qp = TCut("%s && %s" %(ok_eta.GetTitle(),ok_Qp.GetTitle()))
+
+    ## variables for the plot
+    title = " " * 9 + "GEM pad matching" + " " * 16 + "CMS Simulation Preliminary"
+    xTitle = "Generated muon #phi [deg]"
+    yTitle = "Efficiency"
+    toPlot = "fmod(phi*180./TMath::Pi(), 360/18.)"
+    h_bins = "(40,-10,10)"
+    nBins = int(h_bins[1:-1].split(',')[0])
+    minBin = int(h_bins[1:-1].split(',')[1])
+    maxBin = int(h_bins[1:-1].split(',')[2])
+
+    c = TCanvas("c","c",800,600)
+    c.cd()
+    base  = TH1F("base","",nBins,minBin,maxBin)
+    base.SetMinimum(0.0)
+    base.SetMaximum(1.1)
+    base.Draw("")
+    base.GetXaxis().SetLabelSize(0.05)
+    base.GetYaxis().SetLabelSize(0.05)
+    base.SetTitle("%s;%s;%s"%(title,xTitle,yTitle))
+    hgn = draw_geff(t, "%s;%s;%s"%(title,xTitle,yTitle), h_bins, 
+                    toPlot, ok_eta_and_Qn, ok_pad1_or_pad2,"same",     kRed)
+    hgp = draw_geff(t, "%s;%s;%s"%(title,xTitle,yTitle), h_bins, 
+                    toPlot, ok_eta_and_Qp, ok_pad1_or_pad2,"same", kBlue)
+      
+    maxi = 1.1
+    mini = 0.0
+    """
+    hgn.SetMinimum(mini)
+    hgn.SetMaximum(maxi)
+    hgn.GetXaxis().SetLabelSize(0.05)
+    hgn.GetYaxis().SetLabelSize(0.05)
+    hgp.GetXaxis().SetLabelSize(0.05)
+    hgp.GetYaxis().SetLabelSize(0.05)
+    """
+    
+    l1 = TLine(-5,mini,-5,maxi)
+    l1.SetLineStyle(2)
+    l1.Draw()
+    l2 = TLine(5,mini,5,maxi)
+    l2.SetLineStyle(2)
+    l2.Draw()
+    
+    leg = TLegend(0.25,0.23,.75,0.5, "", "brNDC")
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetTextSize(0.06)
+    leg.AddEntry(0,"muon p_{T} = %d GeV/c"%(pt),"") 
+    leg.AddEntry(hgp, "Postive muons","l")
+    leg.AddEntry(hgn, "Negative muons","l")
+    leg.Draw()
+
+    ## Print additional information
+    """
+    tex2 = TLatex(.67,.8,"   L1 Trigger")
+    tex2.SetTextSize(0.05)
+    tex2.SetNDC()
+    tex2.Draw()
+    """
+  
+    tex = TLatex(.7,.2,"1.64<|#eta|<2.12")
+    tex.SetTextSize(0.05)
+    tex.SetNDC()
+    tex.Draw()
+
+#    gPad.Print("%sgem_pad_eff_for_LCT_vs_phi_pt20%s%s"%(plotDir,overlapStr,ext))
+    c.Print("%sgem_pad_eff_for_LCT_vs_phi_pt20%s%s"%(plotDir,overlapStr,ext))
+
+
+
+#_______________________________________________________________________________
 def efficiency_1(f_name, p_name, pt, overlap):
     """efficiency vs half-strip  - separate odd-even""" 
  
@@ -180,7 +279,7 @@ def efficiency_1(f_name, p_name, pt, overlap):
     gStyle->SetPadBottomMargin(0.13);
     gStyle->SetOptStat(0);
     gStyle->SetMarkerStyle(1);
-    """
+    
 
     ok_eta = "TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12"
     if (overlap):
@@ -218,8 +317,9 @@ def efficiency_1(f_name, p_name, pt, overlap):
     tex.SetNDC()
     tex.Draw()
     
-## this has to be fixed
+    ## this has to be fixed
     gPad.Print(p_name)
+    """
 
 
 """
@@ -854,7 +954,11 @@ def eff_hs(filesDir, plotDir, ext):
 ## nm.Draw()
 ## nmlct.Draw("same")
 
-if __name__ == "__main__":  
+if __name__ == "__main__":
+    """
+    We don't always need all plots, hence lots of comments. 
+    """
+  
     """
     halfStripEfficiencies("files/", "plots/efficiency/", ".pdf")
     halfStripEfficiencies("files/", "plots/efficiency/", ".eps")
@@ -864,6 +968,23 @@ if __name__ == "__main__":
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".eps")
     etaMatchingEfficiencies("files/", "plots/efficiency/", ".png")
     """
+
+    """
+    gemTurnOn("files/", "plots/efficiency/", "98", "even", ".pdf")
+    gemTurnOn("files/", "plots/efficiency/", "98", "odd", ".pdf")
+    gemTurnOn("files/", "plots/efficiency/", "98", "even", ".png")
+    gemTurnOn("files/", "plots/efficiency/", "98", "odd", ".png")
     gemTurnOn("files/", "plots/efficiency/", "98", "even", ".eps")
     gemTurnOn("files/", "plots/efficiency/", "98", "odd", ".eps")
+    """
+
+#  efficiency_2(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt20_overlap" + ext, "20", true);
+
+    padMatchingEffVsGenMuonPhiForPosAndNegMuons(
+        "files/","plots/tempDir/", 20, True, '.pdf')    
+    padMatchingEffVsGenMuonPhiForPosAndNegMuons(
+        "files/","plots/tempDir/", 20, True, '.eps')    
+    padMatchingEffVsGenMuonPhiForPosAndNegMuons(
+        "files/","plots/tempDir/", 20, True, '.png')    
+
 
