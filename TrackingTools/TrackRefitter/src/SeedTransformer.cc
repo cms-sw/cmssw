@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/12/22 18:45:08 $
- *  $Revision: 1.9 $
  *  \author D. Trocino - University and INFN Torino
  */
 

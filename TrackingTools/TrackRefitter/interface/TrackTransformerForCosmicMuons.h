@@ -15,7 +15,6 @@
  *
  *
  *  $Date: 2009/01/15
- *  $Revision: 1.4 $
  *  \original author R. Bellan - CERN <riccardo.bellan@cern.ch>
  *  modified for zed ordering by N. Kypreos - UF <nicholas.theodore.kypreos@cern.ch> 
  */

@@ -24,8 +24,6 @@
  * Initial author: P.Vanlaer 25.02.1999
  * Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:50:25 $
- *  $Revision: 1.3 $
  *  \author vanlaer, cerati
  */
 
