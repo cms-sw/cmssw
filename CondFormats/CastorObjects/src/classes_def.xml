@@ -25,9 +25,7 @@
 
  <class name="CastorElectronicsMap">
   <field name="mPItemsById" transient="true"/>
-  <field name="sortedByPId" transient="true"/>
   <field name="mTItemsByTrigId" transient="true"/>
-  <field name="sortedByTId" transient="true"/>
  </class>
  <class name="CastorElectronicsMap::PrecisionItem"/>
  <class name="CastorElectronicsMap::TriggerItem"/>
