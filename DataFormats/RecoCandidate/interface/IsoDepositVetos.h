@@ -63,7 +63,7 @@ namespace reco {
 
         class AngleConeVeto : public AbsVeto { 
             public:
-                AngleConeVeto(math::XYZVectorD dir, double angle) ;
+                AngleConeVeto(const math::XYZVectorD& dir, double angle) ;
                 AngleConeVeto(Direction dir, double angle) ;
                 virtual bool veto(double eta, double phi, float value) const ;
                 virtual void centerOn(double eta, double phi) ;
@@ -73,7 +73,7 @@ namespace reco {
 
         class AngleCone : public AbsVeto { 
             public:
-                AngleCone(math::XYZVectorD dir, double angle) ;
+                AngleCone(const math::XYZVectorD& dir, double angle) ;
                 AngleCone(Direction dir, double angle) ;
                 virtual bool veto(double eta, double phi, float value) const ;
                 virtual void centerOn(double eta, double phi) ;
@@ -83,7 +83,7 @@ namespace reco {
 
         class RectangularEtaPhiVeto : public AbsVeto { 
             public:
-                RectangularEtaPhiVeto(math::XYZVectorD dir, double etaMin, double etaMax, double phiMin, double phiMax) ;
+                RectangularEtaPhiVeto(const math::XYZVectorD& dir, double etaMin, double etaMax, double phiMin, double phiMax) ;
                 RectangularEtaPhiVeto(Direction dir, double etaMin, double etaMax, double phiMin, double phiMax) ;
                 virtual bool veto(double eta, double phi, float value) const ;
                 virtual void centerOn(double eta, double phi) ;

@@ -6,7 +6,7 @@
 using namespace reco;
 
 
-Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
+Conversion::Conversion(  const reco::CaloClusterPtrVector& sc, 
 			 const std::vector<reco::TrackRef>& tr, 
 			 const std::vector<math::XYZPointF>& trackPositionAtEcal, 
 			 const reco::Vertex  & convVtx,
@@ -38,7 +38,7 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 
 
 
-Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
+Conversion::Conversion(  const reco::CaloClusterPtrVector& sc, 
 			 const std::vector<edm::RefToBase<reco::Track> >& tr, 
 			 const std::vector<math::XYZPointF>& trackPositionAtEcal, 
 			 const reco::Vertex  & convVtx,
@@ -75,7 +75,7 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 
 
 
-Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
+Conversion::Conversion(  const reco::CaloClusterPtrVector& sc, 
 			 const std::vector<reco::TrackRef>& tr, 
 			 const reco::Vertex  & convVtx,
 			 ConversionAlgorithm algo):  
@@ -102,7 +102,7 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
  }
 
 
-Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
+Conversion::Conversion(  const reco::CaloClusterPtrVector& sc, 
 			 const std::vector<edm::RefToBase<reco::Track> >&  tr, 
 			 const reco::Vertex  & convVtx,
 			 ConversionAlgorithm algo):  
