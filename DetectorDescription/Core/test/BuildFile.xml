@@ -5,6 +5,8 @@
 <bin   name="testCore" file="testRunner.cpp,DDIsValid.cppunit.cc">
 </bin>
 <bin   name="testShapes" file="testShapes.cpp">
+<bin   file="test_DDAxesNames.cpp">
+</bin>
 </bin>
 <bin   file="clhepToROOTMath.cpp">
 </bin>

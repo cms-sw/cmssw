@@ -48,10 +48,7 @@ DDLDivision::processElement( const std::string& name, const std::string& nmspace
 
   DDName parent = getDDName(nmspace, "parent");
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
-  size_t ax = 0;
-  while (DDAxesNames::name(DDAxes(ax)) != atts.find("axis")->second &&
-	 DDAxesNames::name(DDAxes(ax)) != "undefined")
-    ++ax;
+  size_t ax = DDAxesNames::index(atts.find("axis")->second);
 
   DDLogicalPart lp(parent);
   if ( !lp.isDefined().second || !lp.solid().isDefined().second ) {
@@ -127,7 +124,8 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     else {
       std::string s = "DDLDivision can not divide a ";
       s += DDSolidShapesName::name(div.parent().solid().shape());
-      s += " along axis " + DDAxesNames::name(div.axis());
+      s += " along axis ";
+      s += DDAxesNames::name(div.axis());
       s += ".";
       s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
       s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
@@ -145,7 +143,8 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     else {
       std::string s = "DDLDivision can not divide a ";
       s += DDSolidShapesName::name(div.parent().solid().shape());
-      s += " along axis " + DDAxesNames::name(div.axis());
+      s += " along axis ";
+      s += DDAxesNames::name(div.axis());
       s += ".";
       s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
       s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
@@ -182,7 +181,8 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     else {
       std::string s = "DDLDivision can not divide a ";
       s += DDSolidShapesName::name(div.parent().solid().shape());
-      s += " along axis " + DDAxesNames::name(div.axis());
+      s += " along axis ";
+      s += DDAxesNames::name(div.axis());
       s += ".";
       s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
       s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
