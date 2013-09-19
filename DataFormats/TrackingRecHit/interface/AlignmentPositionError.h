@@ -15,7 +15,7 @@ class AlignmentPositionError {
   
   AlignmentPositionError(float dx, float dy, float dz);
   
-  AlignmentPositionError(GlobalError ge) : theGlobalError(ge) {};
+  AlignmentPositionError(const GlobalError& ge) : theGlobalError(ge) {};
 
   ~AlignmentPositionError(){};
   
