@@ -14,6 +14,7 @@
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
 
+
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -33,21 +34,23 @@ using namespace edm;
 
 Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
 {
-  debugMode        = true;
-  nLumiReset       = 1;
-  dataFromFit      = true;
-  minNentries      = 35;
-  xRange           = 2.;    // [cm]
-  xStep            = 0.001; // [cm]
-  yRange           = 2.;    // [cm]
-  yStep            = 0.001; // [cm]
-  zRange           = 30.;   // [cm]
-  zStep            = 0.05;  // [cm]
-  VxErrCorr        = 1.5;
-  fileName         = "BeamPixelResults.txt";
+  debugMode   = true;
+  nLumiReset  = 1;     // Number of integrated lumis to perform the fit
+  dataFromFit = true;  // The Beam Spot data can be either taken from the histograms or from the fit results
+  minNentries = 35;    // Minimum number of good vertices to perform the fit
+  xRange      = 2.;    // [cm]
+  xStep       = 0.001; // [cm]
+  yRange      = 2.;    // [cm]
+  yStep       = 0.001; // [cm]
+  zRange      = 30.;   // [cm]
+  zStep       = 0.05;  // [cm]
+  VxErrCorr   = 1.5;
+  fileName    = "BeamPixelResults.txt";
+
 
   vertexCollection   = consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexCollection", edm::InputTag("pixelVertices")));
   pixelHitCollection = consumes<SiPixelRecHitCollection>(iConfig.getUntrackedParameter<edm::InputTag>("pixelHitCollection", edm::InputTag("siPixelRecHits")));
+
   debugMode          = iConfig.getParameter<bool>("debugMode");
   nLumiReset         = iConfig.getParameter<unsigned int>("nLumiReset");
   dataFromFit        = iConfig.getParameter<bool>("dataFromFit");
@@ -177,15 +180,15 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
   double det;
   double sumlog = 0.;
 
-//   par[0] = K(0,0) --> Var[X]
-//   par[1] = K(1,1) --> Var[Y]
-//   par[2] = K(2,2) --> Var[Z]
-//   par[3] = K(0,1) = K(1,0) --> Cov[X,Y]
-//   par[4] = K(1,2) = K(2,1) --> Cov[Y,Z] --> dy/dz
-//   par[5] = K(0,2) = K(2,0) --> Cov[X,Z] --> dx/dz
-//   par[6] = mean x
-//   par[7] = mean y
-//   par[8] = mean z
+//  par[0] = K(0,0) --> Var[X]
+//  par[1] = K(1,1) --> Var[Y]
+//  par[2] = K(2,2) --> Var[Z]
+//  par[3] = K(0,1) = K(1,0) --> Cov[X,Y]
+//  par[4] = K(1,2) = K(2,1) --> Cov[Y,Z] --> dy/dz
+//  par[5] = K(0,2) = K(2,0) --> Cov[X,Z] --> dx/dz
+//  par[6] = mean x
+//  par[7] = mean y
+//  par[8] = mean z
 
   counterVx = 0;
   for (unsigned int i = 0; i < Vertices.size(); i++)
@@ -486,7 +489,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  if (det < 0.) { goodData = -1; if (internalDebug == true) cout << "Negative determinant !" << endl; }
 	}
 
-      // @@@ FIT WITH DIFFERENT PARAMETER DISTANCES@@@
+      // @@@ FIT WITH DIFFERENT PARAMETER DISTANCES @@@
       // arg3 - first guess of parameter value
       // arg4 - step of the parameter
       for (unsigned int i = 0; i < trials; i++)
@@ -554,10 +557,10 @@ void Vx3DHLTAnalyzer::reset(string ResetType)
 {
   if (ResetType.compare("scratch") == 0)
     {
-      runNumber        = 0;
-      numberGoodFits   = 0;
-      numberFits       = 0;
-      lastLumiOfFit    = 0;
+      runNumber      = 0;
+      numberGoodFits = 0;
+      numberFits     = 0;
+      lastLumiOfFit  = 0;
       
       Vx_X->Reset();
       Vx_Y->Reset();
@@ -1063,13 +1066,13 @@ void Vx3DHLTAnalyzer::beginJob()
 {
   // ### Set internal variables ###
   reset("scratch");
-  prescaleHistory      = 1;
-  maxLumiIntegration   = 15;
-  minVxDoF             = 10.;
+  prescaleHistory      = 1;    // Set the number of lumis to update historical plot
+  maxLumiIntegration   = 15;   // If failing fits, this is the maximum number of integrated lumis after which a reset is issued
+  minVxDoF             = 10.;  // Good vertex selection cut
   // For vertex fitter without track-weight: d.o.f. = 2*NTracks - 3
   // For vertex fitter with track-weight:    d.o.f. = sum_NTracks(2*track_weight) - 3
   internalDebug        = false;
-  considerVxCovariance = true;
+  considerVxCovariance = true; // Deconvolute vertex covariance matrix
   pi = 3.141592653589793238;
   // ##############################
 }
@@ -1085,7 +1088,7 @@ void Vx3DHLTAnalyzer::beginRun()
  
   // ### Set internal variables ###
   nBinsHistoricalPlot = 80;
-  nBinsWholeHistory   = 3000; // Corresponds to about 20h of data taking: 20h * 60min * 60s / 23s per lumi-block = 3130
+  nBinsWholeHistory   = 3000; // Correspond to about 20h of data taking: 20h * 60min * 60s / 23s per lumi-block = 3130
   // ##############################
 
   if ( dbe ) 
