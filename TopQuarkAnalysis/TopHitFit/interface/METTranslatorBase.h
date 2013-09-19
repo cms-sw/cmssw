@@ -1,5 +1,4 @@
 //
-//     $Id: METTranslatorBase.h,v 1.6 2010/08/05 02:22:37 haryo Exp $
 //
 // File   : interface/METTranslatorBase.h
 // Author : Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>

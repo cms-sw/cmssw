@@ -1,5 +1,4 @@
 //
-// $Id: Resolution.cc,v 1.5 2011/02/02 23:22:38 haryo Exp $
 //
 // File: src/Resolution.cc
 // Purpose: Calculate resolutions for a quantity.

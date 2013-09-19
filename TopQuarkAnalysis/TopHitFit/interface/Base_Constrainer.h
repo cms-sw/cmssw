@@ -1,5 +1,4 @@
 //
-//   $Id: Base_Constrainer.h,v 1.13 2011/04/29 15:04:48 haryo Exp $
 //
 // File: hitfit/Base_Constrainer.h
 // Purpose: Abstract base for the chisq fitter classes.

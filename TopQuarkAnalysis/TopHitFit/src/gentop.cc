@@ -1,5 +1,4 @@
 //
-// $Id: gentop.cc,v 1.5 2009/11/20 10:48:17 haryo Exp $
 //
 // File: src/gentop.cc
 // Purpose: Toy ttbar event generator for testing.

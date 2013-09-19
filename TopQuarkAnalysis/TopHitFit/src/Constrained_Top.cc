@@ -1,5 +1,4 @@
 //
-// $Id: Constrained_Top.cc,v 1.7 2009/11/18 11:15:17 haryo Exp $
 //
 // File: src/Constrained_Top.cc
 // Purpose: Do kinematic fitting for a ttbar -> ljets event.

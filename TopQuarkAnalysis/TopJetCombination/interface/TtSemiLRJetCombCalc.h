@@ -2,7 +2,6 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombCalc.h,v 1.4 2008/02/17 11:27:11 rwolf Exp $
 //
 
 #ifndef TtSemiLRJetCombCalc_h

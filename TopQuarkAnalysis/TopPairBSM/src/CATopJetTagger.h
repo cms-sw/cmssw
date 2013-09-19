@@ -23,7 +23,6 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Thu Jul  3 00:19:30 CDT 2008
-// $Id: CATopJetTagger.h,v 1.5 2011/09/20 20:15:11 srappocc Exp $
 //
 //
 

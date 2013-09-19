@@ -1,5 +1,4 @@
 //
-// $Id: Pair_Table.cc,v 1.5 2011/04/26 13:35:49 haryo Exp $
 //
 // File: src/Pair_Table.cc
 // Purpose: Helper for Fourvec_Constrainer.
