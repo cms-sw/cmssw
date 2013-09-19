@@ -41,7 +41,6 @@ HLTJetTag<T>::HLTJetTag(const edm::ParameterSet & config) : HLTFilter(config),
   m_MinJets(config.getParameter<int>           ("MinJets") ),
   m_TriggerType(config.getParameter<int>       ("TriggerType") )
 {
-
   edm::LogInfo("") << " (HLTJetTag) trigger cuts: " << std::endl
                    << "\ttype of        jets used: " << m_Jets.encode() << std::endl
                    << "\ttype of tagged jets used: " << m_JetTags.encode() << std::endl
@@ -87,11 +86,11 @@ HLTJetTag<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger
   typedef Ref<TCollection> TRef;
 
   edm::Handle<TCollection> h_Jets;
-  event.getByLabel(m_Jets, h_Jets);
+  event.getByToken(m_JetsToken, h_Jets);
   if (saveTags()) filterproduct.addCollectionTag(m_Jets);
 
   edm::Handle<JetTagCollection> h_JetTags;
-  event.getByLabel(m_JetTags, h_JetTags);
+  event.getByToken(m_JetTagsToken, h_JetTags);
 
   // check if the product this one depends on is available
   auto const & handle = h_JetTags;

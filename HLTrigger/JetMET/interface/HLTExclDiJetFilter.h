@@ -11,6 +11,8 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+
 namespace edm {
    class ConfigurationDescriptions;
 }
@@ -29,6 +31,7 @@ class HLTExclDiJetFilter : public HLTFilter {
 
    private:
       edm::EDGetTokenT<std::vector<T>> m_theJetToken;
+      edm::EDGetTokenT<CaloTowerCollection> m_theCaloTowerCollectionToken;
       edm::InputTag inputJetTag_; // input tag identifying jets
       double minPtJet_;
       double minHFe_;
