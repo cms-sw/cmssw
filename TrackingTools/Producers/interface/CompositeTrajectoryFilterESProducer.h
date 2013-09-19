@@ -17,7 +17,6 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Sep 28 18:07:52 CEST 2007
-// $Id: CompositeTrajectoryFilterESProducer.h,v 1.1 2007/10/18 01:50:55 vlimant Exp $
 //
 //
 

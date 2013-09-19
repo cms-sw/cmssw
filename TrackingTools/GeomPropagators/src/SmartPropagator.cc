@@ -6,8 +6,6 @@
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  * \porting author: Chang Liu - Purdue University 
- * $Date: 2009/07/05 19:56:54 $
- * $Revision: 1.7 $
  *
  * Modification:
  *

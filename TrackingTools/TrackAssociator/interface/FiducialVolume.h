@@ -13,7 +13,6 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: FiducialVolume.h,v 1.3 2009/10/09 12:47:40 dmytro Exp $
 //
 /// The detector active volume is determined estimated as a non-zero thickness 
 /// cylinder with outter dimensions maxZ and maxR. The inner dimensions are
