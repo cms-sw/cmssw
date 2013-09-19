@@ -33,14 +33,15 @@
 template<typename T>
 HLTJetTag<T>::HLTJetTag(const edm::ParameterSet & config) : HLTFilter(config),
   m_Jets   (config.getParameter<edm::InputTag>("Jets") ),
-  m_JetsToken(consumes<std::vector<T> >(m_Jets)),
   m_JetTags(config.getParameter<edm::InputTag>("JetTags") ),
-  m_JetTagsToken(consumes<reco::JetTagCollection>(m_JetTags)),
   m_MinTag (config.getParameter<double>        ("MinTag") ),
   m_MaxTag (config.getParameter<double>        ("MaxTag") ),
   m_MinJets(config.getParameter<int>           ("MinJets") ),
   m_TriggerType(config.getParameter<int>       ("TriggerType") )
 {
+  m_JetsToken = consumes<std::vector<T> >(m_Jets),
+  m_JetTagsToken = consumes<reco::JetTagCollection>(m_JetTags),
+  
   edm::LogInfo("") << " (HLTJetTag) trigger cuts: " << std::endl
                    << "\ttype of        jets used: " << m_Jets.encode() << std::endl
                    << "\ttype of tagged jets used: " << m_JetTags.encode() << std::endl

@@ -24,6 +24,7 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 //
 // class declaration
@@ -38,7 +39,7 @@ public:
 
 private:
   edm::InputTag     m_gtReadoutRecord;
-  edm::EDGetTokenT<L1GtTriggerMenuRcd> m_gtReadoutRecordToken;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_gtReadoutRecordToken;
   std::string       m_triggerBit;
   std::vector<int>  m_bunchCrossings;
   std::vector<int>  m_triggerPattern;
@@ -62,7 +63,6 @@ private:
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 //
 // constructors and destructor
@@ -80,7 +80,7 @@ HLTLevel1Pattern::HLTLevel1Pattern(const edm::ParameterSet & config) :
   m_invert(          config.getParameter<bool>              ("invert") ),
   m_throw (          config.getParameter<bool>              ("throw" ) )
 {
-  m_gtReadoutRecordToken = consumes<L1GtTriggerMenuRcd>(m_gtReadoutRecord);
+  m_gtReadoutRecordToken = consumes<L1GlobalTriggerReadoutRecord>(m_gtReadoutRecord);
   std::vector<int> pattern( config.getParameter<std::vector<int> > ("triggerPattern") );
   if (pattern.size() != m_bunchCrossings.size())
     throw cms::Exception("Configuration") << "\"bunchCrossings\" and \"triggerPattern\" parameters do not match";
