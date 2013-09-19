@@ -86,6 +86,7 @@ private:
   
   //Collection labels
   edm::InputTag Muon_Tag;
+  edm::EDGetTokenT<edm::View<reco::Muon> > Muon_Token;
   edm::InputTag tkIsoDeposit_Tag;
   edm::InputTag hcalIsoDeposit_Tag;
   edm::InputTag ecalIsoDeposit_Tag;
