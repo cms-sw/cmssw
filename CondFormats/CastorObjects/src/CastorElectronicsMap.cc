@@ -16,7 +16,8 @@ Adapted for CASTOR by L. Mundim
 
 CastorElectronicsMap::CastorElectronicsMap() : 
   mPItems(CastorElectronicsId::maxLinearIndex+1),
-  mTItems(CastorElectronicsId::maxLinearIndex+1)
+  mTItems(CastorElectronicsId::maxLinearIndex+1),
+  mPItemsById(nullptr), mTItemsByTrigId(nullptr)
 {}
 
 namespace castor_impl {
