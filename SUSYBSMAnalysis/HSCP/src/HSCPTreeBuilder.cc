@@ -13,7 +13,6 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Thu Mar 11 12:19:07 CEST 2010
-// $Id: HSCPTreeBuilder.cc,v 1.7 2010/12/16 17:08:25 querten Exp $
 //
 
 
