@@ -48,30 +48,30 @@ TCut ok_pt = "pt > 20";
 
 
 
-TCut ok_dphi1 = "dphi_pad_odd < 10.";
-TCut ok_dphi2 = "dphi_pad_even < 10.";
+// TCut ok_dphi1 = "dphi_pad_odd < 10.";
+// TCut ok_dphi2 = "dphi_pad_even < 10.";
 
-enum {GEM_EFF95 = 0, GEM_EFF98, GEM_EFF99};
-enum {DPHI_PT10 = 0, DPHI_PT15, DPHI_PT20, DPHI_PT30, DPHI_PT40};
+// enum {GEM_EFF95 = 0, GEM_EFF98, GEM_EFF99};
+// enum {DPHI_PT10 = 0, DPHI_PT15, DPHI_PT20, DPHI_PT30, DPHI_PT40};
 
 double mymod(double x, double y) 
 {
   return fmod(x,y);
 }
 
-void setDPhi(int label_pt, int label_eff = GEM_EFF98)
-{
-  float dphi_odd[3][20]  = {
-    {0.009887, 0.006685, 0.005194, 0.003849, 0.003133},
-    {0.01076 , 0.007313, 0.005713, 0.004263, 0.003513},
-    {0.011434, 0.007860, 0.006162, 0.004615, 0.003891} };
-  float dphi_even[3][20] = {
-    {0.004418, 0.003274, 0.002751, 0.002259, 0.002008},
-    {0.004863, 0.003638, 0.003063, 0.002563, 0.002313},
-    {0.005238, 0.003931, 0.003354, 0.002809, 0.002574} };
-  ok_dphi1 = Form("TMath::Abs(dphi_pad_odd) < %f", dphi_odd[label_eff][label_pt]);
-  ok_dphi2 = Form("TMath::Abs(dphi_pad_even) < %f", dphi_even[label_eff][label_pt]);
-}
+// void setDPhi(int label_pt, int label_eff = GEM_EFF98)
+// {
+//   float dphi_odd[3][20]  = {
+//     {0.009887, 0.006685, 0.005194, 0.003849, 0.003133},
+//     {0.01076 , 0.007313, 0.005713, 0.004263, 0.003513},
+//     {0.011434, 0.007860, 0.006162, 0.004615, 0.003891} };
+//   float dphi_even[3][20] = {
+//     {0.004418, 0.003274, 0.002751, 0.002259, 0.002008},
+//     {0.004863, 0.003638, 0.003063, 0.002563, 0.002313},
+//     {0.005238, 0.003931, 0.003354, 0.002809, 0.002574} };
+//   ok_dphi1 = Form("TMath::Abs(dphi_pad_odd) < %f", dphi_odd[label_eff][label_pt]);
+//   ok_dphi2 = Form("TMath::Abs(dphi_pad_even) < %f", dphi_even[label_eff][label_pt]);
+// }
 
 
 TFile* gf = 0;
@@ -211,15 +211,16 @@ void efficiency_2(TString f_name, TString p_name, TString pt, bool overlap)
   TTree *t = getTree(f_name);
 
   // latest instructions by Vadim: 21-08-2013
-
-  TGraphAsymmErrors* hgn = draw_geff(t, "         GEM pad matching             CMS Simulation Preliminary;Generated muon phi #phi [deg];Efficiency", "h_odd", "(100,-10,10)", "mymod(phi*180./TMath::Pi(), 360/18.)", ok_eta&&Qn, ok_pad1 || ok_pad2,"", kRed);
-  TGraphAsymmErrors* hgp = draw_geff(t, "         GEM pad matching             CMS Simulation Preliminary;Generated muon phi #phi [deg];Effciency", "h_odd", "(100,-10,10)", "mymod(phi*180./TMath::Pi(), 360/18.)", ok_eta&&Qp, ok_pad1 || ok_pad2,"same", kBlue);
-  double maxi = 1.0;
+  TGraphAsymmErrors* hgn = draw_geff(t, "         GEM pad matching             CMS Simulation Preliminary;Generated muon #phi [deg];Efficiency", "h_odd", "(40,-10,10)", "mymod(phi*180./TMath::Pi(), 360/18.)", ok_eta&&Qn, ok_pad1 || ok_pad2,"", kRed);
+  TGraphAsymmErrors* hgp = draw_geff(t, "         GEM pad matching             CMS Simulation Preliminary;Generated muon #phi [deg];Effciency", "h_odd", "(40,-10,10)", "mymod(phi*180./TMath::Pi(), 360/18.)", ok_eta&&Qp, ok_pad1 || ok_pad2,"same", kBlue);
+  double maxi = 1.1;
   double mini = 0.0;
   hgn->SetMinimum(mini);
   hgn->SetMaximum(maxi);
-  hgn->GetXaxis()->SetLabelSize(0.06);
-  hgn->GetYaxis()->SetLabelSize(0.06);
+  hgn->GetXaxis()->SetLabelSize(0.05);
+  hgn->GetYaxis()->SetLabelSize(0.05);
+  hgp->GetXaxis()->SetLabelSize(0.05);
+  hgp->GetYaxis()->SetLabelSize(0.05);
 
   TLine *l1 = new TLine(-5,mini,-5,maxi);
   l1->SetLineStyle(2);
@@ -228,12 +229,12 @@ void efficiency_2(TString f_name, TString p_name, TString pt, bool overlap)
   l1->SetLineStyle(2);
   l1->Draw();
 
-  hgn->Fit("pol0","R0","",-10,10);
-  hgp->Fit("pol0","R0","",-10,10);
-  double eff_neg = (hgn->GetFunction("pol0"))->GetParameter(0);
-  double eff_pos = (hgp->GetFunction("pol0"))->GetParameter(0);
-  std::cout << "negative efficiency" << eff_neg << " " 
-	    << "positive efficiency" << eff_pos << std::endl;
+  // hgn->Fit("pol0","R0","",-10,10);
+  // hgp->Fit("pol0","R0","",-10,10);
+  // double eff_neg = (hgn->GetFunction("pol0"))->GetParameter(0);
+  // double eff_pos = (hgp->GetFunction("pol0"))->GetParameter(0);
+  // std::cout << "negative efficiency" << eff_neg << " " 
+  // 	    << "positive efficiency" << eff_pos << std::endl;
 
   // ho = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;local #phi [deg];Efficiency", "h_odd", "(150,-10,10)", "mymod(phi+TMath::Pi()/36., TMath::Pi()/18.) * 180./TMath::Pi()", ok_eta&&Qn, ok_pad1 || ok_pad2, "", kRed);
   // he = draw_eff(t, "         GEM reconstruction efficiency               CMS Simulation;local #phi [deg];Efficiency", "h_odd", "(150,-10,10)", "mymod(phi+TMath::Pi()/36., TMath::Pi()/18.) * 180./TMath::Pi()", ok_eta&&Qp, ok_pad1 || ok_pad2, "same",kBlue);
@@ -389,33 +390,36 @@ void drawplot_eff()
   
   TCanvas* cEff = new TCanvas("cEff","cEff",700,500);
 
-  efficiency_1(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vs_HS_pt05" + ext, "5", false);
-  efficiency_1(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt10" + ext, "10", false);
-  efficiency_1(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt15" + ext, "15", false);
-  efficiency_1(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt20" + ext, "20", false);
-  efficiency_1(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt30" + ext, "30", false);
-  efficiency_1(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt40" + ext, "40", false);
+  // efficiency_1(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vs_HS_pt05" + ext, "5", false);
+  // efficiency_1(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt10" + ext, "10", false);
+  // efficiency_1(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt15" + ext, "15", false);
+  // efficiency_1(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt20" + ext, "20", false);
+  // efficiency_1(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt30" + ext, "30", false);
+  // efficiency_1(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt40" + ext, "40", false);
 
-  efficiency_1(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vs_HS_pt05_overlap" + ext, "5", true);
-  efficiency_1(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt10_overlap" + ext, "10", true);
-  efficiency_1(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt15_overlap" + ext, "15", true);
-  efficiency_1(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt20_overlap" + ext, "20", true);
-  efficiency_1(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt30_overlap" + ext, "30", true);
-  efficiency_1(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt40_overlap" + ext, "40", true);
+  // efficiency_1(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vs_HS_pt05_overlap" + ext, "5", true);
+  // efficiency_1(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt10_overlap" + ext, "10", true);
+  // efficiency_1(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt15_overlap" + ext, "15", true);
+  // efficiency_1(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt20_overlap" + ext, "20", true);
+  // efficiency_1(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt30_overlap" + ext, "30", true);
+  // efficiency_1(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_HS_pt40_overlap" + ext, "40", true);
 
-  efficiency_2(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vs_phi_pt05" + ext, "5", false);
-  efficiency_2(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt10" + ext, "10", false);
-  efficiency_2(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt15" + ext, "15", false);
-  efficiency_2(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt20" + ext, "20", false);
-  efficiency_2(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt30" + ext, "30", false);
-  efficiency_2(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt40" + ext, "40", false);
+  // efficiency_2(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vs_phi_pt05" + ext, "5", false);
+  // efficiency_2(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt10" + ext, "10", false);
+  // efficiency_2(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt15" + ext, "15", false);
+  // efficiency_2(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt20" + ext, "20", false);
+  // efficiency_2(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt30" + ext, "30", false);
+  // efficiency_2(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt40" + ext, "40", false);
 
-  efficiency_2(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vs_phi_pt05_overlap" + ext, "5", true);
-  efficiency_2(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt10_overlap" + ext, "10", true);
-  efficiency_2(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt15_overlap" + ext, "15", true);
+  // efficiency_2(filesDir + "gem_csc_delta_pt5_pad4.root",  plotDir + "gem_pad_eff_for_LCT_vs_phi_pt05_overlap" + ext, "5", true);
+  // efficiency_2(filesDir + "gem_csc_delta_pt10_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt10_overlap" + ext, "10", true);
+  // efficiency_2(filesDir + "gem_csc_delta_pt15_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt15_overlap" + ext, "15", true);
+
   efficiency_2(filesDir + "gem_csc_delta_pt20_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt20_overlap" + ext, "20", true);
-  efficiency_2(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt30_overlap" + ext, "30", true);
-  efficiency_2(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt40_overlap" + ext, "40", true);
+
+
+  // efficiency_2(filesDir + "gem_csc_delta_pt30_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt30_overlap" + ext, "30", true);
+  // efficiency_2(filesDir + "gem_csc_delta_pt40_pad4.root", plotDir + "gem_pad_eff_for_LCT_vs_phi_pt40_overlap" + ext, "40", true);
 
   //  drawplot_eff_eta();
 }

@@ -62,7 +62,7 @@ TH1D* result_gem_3s1b__pat8 = 0;
 int interactive = 1;
 bool do_not_print = false;
 
-TString gem_dir = "gem/";
+TString gem_dir = "files/";
 TString gem_label = "gem98";
 
 int gNPU=100;
@@ -489,16 +489,6 @@ TH1D* setHistoRatio2(TH1D* num, TH1D* denom, TString title = "", double ymin=0.4
   //ratio->Draw("e3");
 
   return ratio;
-}
-
-
-
-TH1D* getEnrichRate()
-{
-  f = TFile::Open("meb1_genpt4_EnrichMu_st.root");
-  TTree *tr = (TTree*) f->Get("SimTrackAna/trk");
-  tr->Draw("pt>>pppt()");
-
 }
 
 
@@ -1014,32 +1004,6 @@ void drawplot_gmtrt(TString dname = "", TString vs_eta_minpt = "")
   char label[200];
 
   //  = (TH1D*)f->Get("SimMuL1/;1");
-
-  char f_pu050_me42_re4[200]="hp_minbias_3_6_2_pu050_me42_me1a_2pi_step_40_pre3_w3_rpc.root";
-  char f_pu050_re4[200]     ="hp_minbias_3_6_2_pu050_me42_me1a_2pi_step_40_pre3_w3_nome42_rpc.root";
-  char f_pu050[200]         ="hp_minbias_3_6_2_pu050_me42_me1a_2pi_step_40_pre3_w3_nome42_nore4_rpc.root";
-  char f_pu050_me42_rev1[200]="hp_minbias_3_6_2_pu050_me42_me1a_2pi_step_40_pre3_w3_rev1_rpc.root";
-  char f_pu050_me42_rev2[200]="hp_minbias_3_6_2_pu050_me42_me1a_2pi_step_40_pre3_w3_rev2_rpc.root";
-
-
-  char f_pu050_hneu_me42_re4[200]="hp_minbias_3_6_2_hnpu050_me42_me1a_2pi_step_40_pre3_w3_rpc.root";
-  char f_pu050_neu_me42_re4[200]="hp_minbias_3_6_2_npu050_me42_me1a_2pi_step_40_pre3_w3_rpc.root";
-
-
-  char f_pu200_hneu_me42_re4[200]="hp_minbias_3_6_2_hnpu200_me42_me1a_2pi_step_40_pre3_w3_rpc.root";
-  char f_pu200_rneu_me42_re4[200]="hp_minbias_3_6_2_rnpu200_me42_me1a_2pi_step_40_pre3_w3_rpc.root";
-
-  char f_pu200_neu_me42_re4[200]="hp_minbias_3_6_2_npu200_me42_me1a_2pi_step_40_pre3_w3_rpc.root";
-  char f_pu200_me42_re4[200]="hp_minbias_3_6_2_pu200_me42_me1a_2pi_step_40_pre3_w3_rpc.root";
-
-  char f_pu200_neu_re4[200]="hp_minbias_3_6_2_npu200_me42_me1a_2pi_step_40_pre3_w3_nome42_rpc.root";
-  char f_pu200_re4[200]="hp_minbias_3_6_2_pu200_me42_me1a_2pi_step_40_pre3_w3_nome42_rpc.root";
-  hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem_pat8.root
-    char f_pu200_neu[200]="hp_minbias_3_6_2_npu200_me42_me1a_2pi_step_40_pre3_w3_nome42_nore4_rpc.root";
-  char f_pu200[200]="hp_minbias_3_6_2_pu200_me42_me1a_2pi_step_40_pre3_w3_nome42_nore4_rpc.root";
-
-
-
 
   TString  f_pu100_pat8 = gem_dir;
   TString  f_pu100_pat8_gem = gem_dir;

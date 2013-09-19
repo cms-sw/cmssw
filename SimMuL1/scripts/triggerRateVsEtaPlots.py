@@ -14,14 +14,18 @@ gem_dir = "files/"
 gem_label = "gem98"
 dir = "SimMuL1StrictAll"
 
+#_______________________________________________________________________________
 def drawLumiLabel2(x=0.2, y=0.4):
+  """Label for the luminosity"""
   tex = TLatex(x, y,"L = 4*10^{34} cm^{-2} s^{-1}")
   tex.SetTextSize(0.05)
   tex.SetNDC()
   tex.Draw("same")
   return tex
 
+#_______________________________________________________________________________
 def drawPULabel(x=0.17, y=0.15, font_size=0.):
+  """Label for luminosity, pile-up and bx"""
   tex = TLatex(x, y,"L=4*10^{34} (25ns PU100)")
   if (font_size > 0.):
       tex.SetFontSize(font_size)
@@ -29,7 +33,9 @@ def drawPULabel(x=0.17, y=0.15, font_size=0.):
   tex.Draw("same")
   return tex
 
+#_______________________________________________________________________________
 def setHistoEta(f_name, name, cname, title, lcolor, lstyle, lwidth):
+  """Style for rate plot"""
   f = TFile.Open(f_name)
 ##  print "opening ",f
   h0 = GetH(f,dir,name)
@@ -59,7 +65,9 @@ def setHistoEta(f_name, name, cname, title, lcolor, lstyle, lwidth):
   ##h.GetYaxis().SetLabelOffset(0.015)
   return h
 
+#_______________________________________________________________________________
 def setHistoRatio(num, denom, title = "", ymin=0.4, ymax=1.6, color = kRed+3):
+  """Style for ratio plot"""
   ratio = num.Clone("%s--%s_ratio"%(num.GetName(),denom.GetName()))
   ratio.Divide(num, denom, 1., 1.)
   ratio.SetTitle(title)
@@ -84,32 +92,42 @@ def setHistoRatio(num, denom, title = "", ymin=0.4, ymax=1.6, color = kRed+3):
   ##ratio.Draw("e3")
   return ratio
 
-def addRatioPlotLegend(h,k):
-  leg = TLegend(0.17,0.35,.47,0.5,"","brNDC")
-  leg.SetMargin(0.1)
-  leg.SetBorderSize(0)
-  leg.SetTextSize(0.1)
-  leg.SetFillStyle(1001)
-  leg.SetFillColor(kWhite)
-  leg.AddEntry(h, "(GEM+CSC)/CSC #geq%d stubs (one in ME1/b)"%(k),"P");
-  leg.Draw("same")
-  return leg
-
+#_______________________________________________________________________________
 def addRatePlotLegend(h, i, j, k, l):
-  leg = TLegend(0.16,0.67,.8,0.9,"L1 Selections (#geq%d stubs, L1 candidate p_{T}#geq%d GeV/c):"%(k,l),"brNDC");
-  leg.SetMargin(0.20)
+  """Add legend to the trigger rate plot"""
+  leg = TLegend(0.16,0.67,.8,0.9,
+                "L1 Selections (L1 muon candidate p_{T}#geq%d GeV/c):"%(l),"brNDC");
+  leg.SetMargin(0.15)
   leg.SetBorderSize(0)
   leg.SetTextSize(0.04)
   leg.SetFillStyle(1001)
   leg.SetFillColor(kWhite)
   leg.AddEntry(h,"CSC #geq%d stubs (anywhere)"%(k),"l");
   leg.AddEntry(i,"CSC #geq%d stubs (one in ME1/b)"%(k),"l");
-  leg.AddEntry(j,"GEM+CSC integrated trigger","l");
+  leg.AddEntry(j,"GEM+CSC integrated trigger with #geq%d stubs"%(k),"l");
+#  leg.AddEntry(0,"with #geq%d stubs"%(k),"");
   leg.Draw("same")
-  ## carbage collection in PyROOT is something to pay attention to!
+  ## carbage collection in PyROOT is something to pay attention to
+  ## if you leave out this line, no legend will be drawn!
   SetOwnership(leg, False)
   return leg
 
+#_______________________________________________________________________________
+def addRatioPlotLegend(h,k):
+  """Add legend to the ratio plot"""
+  leg = TLegend(0.15,0.09,.45,0.65,"","brNDC");
+  #leg = TLegend(0.17,0.35,.47,0.5,"","brNDC")
+  leg.SetMargin(0.1)
+  leg.SetBorderSize(0)
+  leg.SetTextSize(0.1)
+  leg.SetFillStyle(0);
+  ##  leg.SetFillStyle(1001)
+  ##  leg.SetFillColor(kWhite)
+  leg.AddEntry(h, "(GEM+CSC)/CSC #geq%d stubs (one in ME1/b)"%(k),"P");
+  leg.Draw("same")
+  return leg
+
+#_______________________________________________________________________________
 def addRatePlot(h, i, j, col1, col2, col3, sty1, sty2, sty3, sty4, miny, maxy):
   h.SetFillColor(col1);
   i.SetFillColor(col2);
@@ -125,8 +143,8 @@ def addRatePlot(h, i, j, col1, col2, col3, sty1, sty2, sty3, sty4, miny, maxy):
   j.SetFillStyle(0);
   
   h.SetLineStyle(1);
-  i.SetLineStyle(4);
-  j.SetLineStyle(2);
+  i.SetLineStyle(1);
+  j.SetLineStyle(1);
   
   h.SetLineWidth(2);
   i.SetLineWidth(2);
@@ -140,7 +158,9 @@ def addRatePlot(h, i, j, col1, col2, col3, sty1, sty2, sty3, sty4, miny, maxy):
   j.Draw("same hist e1");
   h.Draw("same hist e1");
 
+#_______________________________________________________________________________
 def setPad1Attributes(pad1):
+  """Attributes for the top pad"""
   pad1.SetGridx(1)
   pad1.SetGridy(1)
   pad1.SetFrameBorderMode(0)
@@ -148,7 +168,9 @@ def setPad1Attributes(pad1):
   pad1.SetTopMargin(0.06)
   pad1.SetBottomMargin(0.13)
 
+#_______________________________________________________________________________
 def setPad2Attributes(pad2):
+  """Attributes for the bottom pad"""
   pad2.SetLogy(1)
   pad2.SetGridx(1)
   pad2.SetGridy(1)
@@ -157,8 +179,10 @@ def setPad2Attributes(pad2):
   pad2.SetTopMargin(0.06)
   pad2.SetBottomMargin(0.3)
 
+#_______________________________________________________________________________
 def produceRateVsEtaPlot(h, i, j, col1, col2, col3, sty1, sty2, sty3, sty4, 
                          miny, maxy, k, l, plots, ext):
+  """Build the rate and ratio plot on a canvas"""
   c = TCanvas("c","c",800,800)
   c.Clear()
 
@@ -182,7 +206,9 @@ def produceRateVsEtaPlot(h, i, j, col1, col2, col3, sty1, sty2, sty3, sty4,
 
   c.SaveAs(plots + "rates_vs_eta__minpt%d__PU100__def_%ds_%ds1b_%ds1bgem%s"%(l,k,k,k,ext))
 
+#_______________________________________________________________________________
 def produceRateVsEtaPlotsForApproval(ext, plots):
+  """Produce the (6) rate & ratio vs eta plots"""
   gStyle.SetOptStat(0)
   gStyle.SetTitleStyle(0)
   ## ##gStyle.SetPadTopMargin(0.08)
@@ -207,7 +233,7 @@ def produceRateVsEtaPlotsForApproval(ext, plots):
   ## styles
   sty1 = 3345
   sty2 = 3003
-  sty3 = 2002
+  sty3 = 1001
 
   ## Declaration of histograms
   ttl = "                                              CMS Simulation Preliminary;L1 muon candidate #eta;Trigger rate [kHz]";
@@ -248,27 +274,38 @@ def produceRateVsEtaPlotsForApproval(ext, plots):
   gStyle.SetTitleH(0.058)
   gStyle.SetTitleBorderSize(0)
 
+  """
   ## ------------ +2 stubs, L1 candidate muon pt=10GeV ----------------##
   produceRateVsEtaPlot(h_rt_tf10_2s,h_rt_tf10_2s1b,h_rt_tf10_gpt10_2s1b,
 		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,80,2,10,plots,ext)
-  ## ------------ +2 stubs, L1 candidate muon pt=20GeV ----------------##
-  produceRateVsEtaPlot(h_rt_tf20_2s,h_rt_tf20_2s1b,h_rt_tf20_gpt20_2s1b,
-		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,40,2,20,plots,ext)
-  ## ------------ +2 stubs, L1 candidate muon pt=30GeV ----------------##
-  produceRateVsEtaPlot(h_rt_tf30_2s,h_rt_tf30_2s1b,h_rt_tf30_gpt30_2s1b,
-		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,30,2,30,plots,ext)
+
   ## ------------ +3 stubs, L1 candidate muon pt=10GeV ----------------##
   produceRateVsEtaPlot(h_rt_tf10_3s,h_rt_tf10_3s1b,h_rt_tf10_gpt10_3s1b,
 		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,25,3,10,plots,ext)
+  """
+
+  ## ------------ +2 stubs, L1 candidate muon pt=20GeV ----------------##
+  produceRateVsEtaPlot(h_rt_tf20_2s,h_rt_tf20_2s1b,h_rt_tf20_gpt20_2s1b,
+		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,33,2,20,plots,ext)
   ## ------------ +3 stubs, L1 candidate muon pt=20GeV ----------------##
   produceRateVsEtaPlot(h_rt_tf20_3s,h_rt_tf20_3s1b,h_rt_tf20_gpt20_3s1b,
-		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,10,3,20,plots,ext)
+		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,8,3,20,plots,ext)
+
+  """
+  ## ------------ +2 stubs, L1 candidate muon pt=30GeV ----------------##
+  produceRateVsEtaPlot(h_rt_tf30_2s,h_rt_tf30_2s1b,h_rt_tf30_gpt30_2s1b,
+		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,30,2,30,plots,ext)
   ## ------------ +3 stubs, L1 candidate muon pt=30GeV ----------------##
   produceRateVsEtaPlot(h_rt_tf30_3s,h_rt_tf30_3s1b,h_rt_tf30_gpt30_3s1b,
                        col1,col2,col3,sty1,sty2,sty3,3355,0.01, 6,3,30,plots,ext)
+  """
   
+#_______________________________________________________________________________
 if __name__ == "__main__":
   produceRateVsEtaPlotsForApproval(".pdf", "plots/rate_vs_eta/")
+  produceRateVsEtaPlotsForApproval(".png", "plots/rate_vs_eta/")
+  produceRateVsEtaPlotsForApproval(".eps", "plots/rate_vs_eta/")
+
 
 """
 void gem_rate_draw()
