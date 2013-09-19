@@ -21,7 +21,6 @@
 //
 // Original Author:  
 //         Created:  Sat Dec  1 10:17:20 EST 2007
-// $Id$
 //
 
 // system include files
