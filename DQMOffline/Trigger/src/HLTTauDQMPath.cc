@@ -267,8 +267,9 @@ namespace {
 }
 
 
-HLTTauDQMPath::HLTTauDQMPath(const std::string& hltProcess, bool doRefAnalysis):
+HLTTauDQMPath::HLTTauDQMPath(const std::string& hltProcess, const std::string& dqmFolder, bool doRefAnalysis):
   hltProcess_(hltProcess),
+  dqmFolder_(dqmFolder),
   doRefAnalysis_(doRefAnalysis),
   pathIndex_(0),
   lastFilterBeforeL2TauIndex_(0), lastL2TauFilterIndex_(0),
@@ -335,7 +336,7 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
       thePath = iPath;
   }
   std::stringstream ss;
-  ss << "HLTTauDQMPath::beginRun(): Chose path " << thePath->name() << "\n";
+  ss << "HLTTauDQMPath::beginRun(): " << dqmFolder_ << ": chose path " << thePath->name() << "\n";
 
   // Get the filters
   filterIndices_ = thePath->interestingFilters(HLTCP, doRefAnalysis_, ignoreFilterTypes_, ignoreFilterNames_);
@@ -395,7 +396,7 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
     if(getFilterNTaus(i) > 0 && getFilterNElectrons(i) == 0 && getFilterNMuons(i) == 0)
       lastL3TauFilterIndex_ = i;
   }
-  edm::LogInfo("HLTTauDQMOffline") << "lastFilterBeforeL2 " << lastFilterBeforeL2TauIndex_
+  LogDebug("HLTTauDQMOffline") << "lastFilterBeforeL2 " << lastFilterBeforeL2TauIndex_
                                    << " lastL2TauFilter " << lastL2TauFilterIndex_
                                    << " lastFilterBeforeL3 " << lastFilterBeforeL3TauIndex_
                                    << " lastL3TauFilter " << lastL3TauFilterIndex_;

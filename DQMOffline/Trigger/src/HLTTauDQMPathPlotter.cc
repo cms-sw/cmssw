@@ -16,7 +16,7 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool d
   l1MatchDr_(l1MatchDr),
   hltMatchDr_(hltMatchDr),
   doRefAnalysis_(doRefAnalysis),
-  hltPath_(hltProcess, doRefAnalysis_)
+  hltPath_(hltProcess, dqmFolder_, doRefAnalysis_)
 {
   if(!configValid_)
     return;

@@ -31,7 +31,7 @@ public:
     const int id; // from TriggerTypeDefs.h
   };
 
-  HLTTauDQMPath(const std::string& hltProcess, bool doRefAnalysis);
+  HLTTauDQMPath(const std::string& hltProcess, const std::string& dqmFolder, bool doRefAnalysis);
   ~HLTTauDQMPath();
 
   void initialize(const edm::ParameterSet& pset);
@@ -77,6 +77,7 @@ public:
   typedef std::tuple<std::string, size_t> FilterIndex;
 private:
   const std::string hltProcess_;
+  const std::string dqmFolder_;
   const bool doRefAnalysis_;
 
   std::vector<boost::regex> pathRegexs_;
