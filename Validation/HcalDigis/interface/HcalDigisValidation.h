@@ -78,15 +78,15 @@ private:
 
     void book1D(std::string name, int n, double min, double max);
 
-    void book1D(std::string name, HistLim limX);
+    void book1D(std::string name, const HistLim& limX);
 
     void fill1D(std::string name, double X, double weight = 1);
 
-    void book2D(std::string name, HistLim limX, HistLim limY);
+    void book2D(std::string name, const HistLim& limX, const HistLim& limY);
 
     void fill2D(std::string name, double X, double Y, double weight = 1);
 
-    void bookPf(std::string name, HistLim limX, HistLim limY);
+    void bookPf(std::string name, const HistLim& limX, const HistLim& limY);
 
     void fillPf(std::string name, double X, double Y);
 

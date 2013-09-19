@@ -311,8 +311,8 @@ private:
   void history(const edm::Handle<edm::View<reco::Track> > & tracks,const size_t trackindex=10000);
   std::string particleString(int) const;
   std::string vertexString(
-    TrackingParticleRefVector,
-    TrackingParticleRefVector
+    const TrackingParticleRefVector&,
+    const TrackingParticleRefVector&
   ) const;
   std::string vertexString(
     HepMC::GenVertex::particles_in_const_iterator,

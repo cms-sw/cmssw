@@ -72,7 +72,7 @@ typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCom
   //  reco::JetFlavour getJetFlavour(
   //	edm::RefToBase<reco::Jet> caloRef, FlavourMap flavours);
   bool getJetWithFlavour( edm::RefToBase<reco::Jet> caloRef,
-                         FlavourMap flavours, JetWithFlavour &jetWithFlavour,
+                         const FlavourMap& _flavours, JetWithFlavour &jetWithFlavour,
                          const edm::EventSetup & es);
 
   std::vector<std::string> tiDataFormatType;
