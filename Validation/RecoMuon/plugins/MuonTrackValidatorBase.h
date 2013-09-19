@@ -11,9 +11,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h" 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 
@@ -34,6 +39,16 @@
 class MuonTrackValidatorBase {
  public:
   /// Constructor
+  MuonTrackValidatorBase(const edm::ParameterSet& pset, edm::ConsumesCollector iC) : MuonTrackValidatorBase(pset)
+    {
+      bsSrc_Token = iC.consumes<reco::BeamSpot>(bsSrc);
+      tp_effic_Token = iC.consumes<TrackingParticleCollection>(label_tp_effic);
+      tp_fake_Token = iC.consumes<TrackingParticleCollection>(label_tp_fake);
+      for (unsigned int www=0;www<label.size();www++){
+	track_Collection_Token[www] = iC.consumes<edm::View<reco::Track> >(label[www]);
+      }
+    }
+
   MuonTrackValidatorBase(const edm::ParameterSet& pset):
     label(pset.getParameter< std::vector<edm::InputTag> >("label")),
     usetracker(pset.getParameter<bool>("usetracker")),
@@ -341,6 +356,10 @@ class MuonTrackValidatorBase {
   std::vector<std::string> associators;
   std::string out;
   std::string parametersDefiner;
+  std::vector<edm::EDGetTokenT<edm::View<reco::Track> > > track_Collection_Token;
+  edm::EDGetTokenT<reco::BeamSpot> bsSrc_Token;
+  edm::EDGetTokenT<TrackingParticleCollection> tp_effic_Token;
+  edm::EDGetTokenT<TrackingParticleCollection> tp_fake_Token;
        
   double  min, max;
   int nint;
