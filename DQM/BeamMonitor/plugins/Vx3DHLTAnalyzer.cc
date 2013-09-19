@@ -37,12 +37,12 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
   nLumiReset       = 1;
   dataFromFit      = true;
   minNentries      = 35;
-  xRange           = 2.;
-  xStep            = 0.001;
-  yRange           = 2.;
-  yStep            = 0.001;
-  zRange           = 30.;
-  zStep            = 0.05;
+  xRange           = 2.;    // [cm]
+  xStep            = 0.001; // [cm]
+  yRange           = 2.;    // [cm]
+  yStep            = 0.001; // [cm]
+  zRange           = 30.;   // [cm]
+  zStep            = 0.05;  // [cm]
   VxErrCorr        = 1.5;
   fileName         = "BeamPixelResults.txt";
 
