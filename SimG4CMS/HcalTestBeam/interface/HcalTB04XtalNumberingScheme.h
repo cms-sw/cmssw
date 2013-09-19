@@ -14,7 +14,6 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu May 18 10:14:34 CEST 2006
-// $Id$
 //
   
 // system include files
