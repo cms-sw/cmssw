@@ -1,5 +1,4 @@
 //
-// $Id: Lepjets_Event_Lep.h,v 1.6 2009/11/20 10:38:49 haryo Exp $
 //
 // File: hitfit/Lepjets_Event_Lep.h
 // Purpose: Represent a `lepton' in a Lepjets_Event class.

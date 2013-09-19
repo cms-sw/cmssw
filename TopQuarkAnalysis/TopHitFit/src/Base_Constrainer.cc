@@ -1,5 +1,4 @@
 //
-// $Id: Base_Constrainer.cc,v 1.8 2009/11/18 11:15:00 haryo Exp $
 //
 // File: src/Base_Constrainer.cc
 // Purpose: Abstract base for the chisq fitter classes.

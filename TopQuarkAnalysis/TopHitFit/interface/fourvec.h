@@ -1,5 +1,4 @@
 //
-// $Id: fourvec.h,v 1.6 2009/11/20 10:39:11 haryo Exp $
 //
 // File: hitfit/fourvec.h
 // Purpose: Define 3- and 4-vector types for the hitfit package, and
