@@ -1,5 +1,4 @@
  //
-// $Id: PatElectronHitFitTranslator.cc,v 1.8 2010/08/06 22:02:52 haryo Exp $
 //
 
 /**

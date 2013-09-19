@@ -1,5 +1,4 @@
 //
-// $Id: Fit_Results.h,v 1.6 2009/11/18 12:37:17 haryo Exp $
 //
 // File: hitfit/Fit_Results.h
 // Purpose: Hold the results from kinematic fitting.

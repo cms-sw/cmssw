@@ -1,5 +1,4 @@
 //
-// $Id: Lepjets_Event_Jet.h,v 1.7 2010/07/19 13:59:36 haryo Exp $
 //
 // File: hitfit/Lepjets_Event_Jet.h
 // Purpose: Represent a `jet' in a Lepjets_Event.

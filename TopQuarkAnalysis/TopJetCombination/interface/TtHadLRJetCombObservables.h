@@ -1,7 +1,6 @@
 #ifndef TtHadLRJetCombObservables_h
 #define TtHadLRJetCombObservables_h
 
-// $Id: TtHadLRJetCombObservables.h,v 1.1 2007/10/07 15:33:37 mfhansen Exp $
 // copied TtSemiLRJetCombObservables.h,v 1.4 2007/06/15 08:53:52 by heyninck 
 /**
   \class    TtHadLRJetCombObservables is based on TtSemiLRJetCombObservables.h 

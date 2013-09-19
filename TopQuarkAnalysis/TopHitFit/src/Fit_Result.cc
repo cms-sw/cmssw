@@ -1,5 +1,4 @@
 //
-// $Id: Fit_Result.cc,v 1.11 2009/11/18 12:39:15 haryo Exp $
 //
 // File: src/Fit_Result.cc
 // Purpose: Hold the result from a single kinematic fit.

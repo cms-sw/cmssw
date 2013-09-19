@@ -1,5 +1,4 @@
 //
-//     $Id: EtaDepResolution.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
 //
 // File   : src/EtaDepResolution.cc
 // Author : Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>

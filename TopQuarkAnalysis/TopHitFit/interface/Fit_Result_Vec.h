@@ -1,5 +1,4 @@
 //
-// $Id: Fit_Result_Vec.h,v 1.5 2009/11/18 12:37:35 haryo Exp $
 //
 // File: hitfit/Fit_Result_Vec.h
 // Purpose: Hold a set of Fit_Result structures.
