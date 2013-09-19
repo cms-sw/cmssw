@@ -17,7 +17,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLTrapezoid::DDLTrapezoid( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
@@ -32,7 +32,7 @@ DDLTrapezoid::processElement( const std::string& name, const std::string& nmspac
 {
   DCOUT_V('P', "DDLTrapezoid::processElement started");
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
 
   DDXMLAttribute atts = getAttributeSet();
 

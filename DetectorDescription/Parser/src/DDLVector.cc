@@ -10,7 +10,7 @@
 #include "DetectorDescription/Core/interface/DDStrVector.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 // Boost parser, spirit, for parsing the std::vector elements.
 #include "boost/spirit/include/classic.hpp"
@@ -133,7 +133,7 @@ DDLVector::processElement( const std::string& name, const std::string& nmspace, 
     size_t expNEntries = 0;
     if (atts.find("nEntries") != atts.end()) {
       std::string nEntries = atts.find("nEntries")->second;
-      expNEntries = size_t (ExprEvalSingleton::instance().eval(pNameSpace, nEntries));
+      expNEntries = size_t (myRegistry_->evaluator().eval(pNameSpace, nEntries));
     }
     if ( (isNumVec && pVector.size() != expNEntries)
 	 || (isStringVec && pStrVector.size() != expNEntries) )
@@ -175,7 +175,7 @@ void
 DDLVector::do_makeDouble( char const* str, char const* end )
 {
   std::string ts(str, end);
-  double td = ExprEvalSingleton::instance().eval(pNameSpace, ts);
+  double td = myRegistry_->evaluator().eval(pNameSpace, ts);
   pVector.push_back(td);
 }
 

@@ -15,7 +15,7 @@
 
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 #include <Math/RotationX.h>
 #include <Math/RotationY.h>
@@ -85,7 +85,7 @@ DDLRotationByAxis::processOne( DDRotationMatrix R, std::string& axis, std::strin
   /** Get the name, axis and angle of the RotationByAxis and do it. 
    */
   
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   double dAngle = ev.eval(pNameSpace, angle);
   //  CLHEP::HepRotation R;
 
