@@ -26,8 +26,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
- 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HLTrigger/Muon/test/MuEnrichType1Filter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -47,6 +45,7 @@
 MuEnrichType1Filter::MuEnrichType1Filter(const edm::ParameterSet& iConfig)
 {
   type = iConfig.getParameter<int>("type");
+  theGenToken = consumes<edm::HepMCProduct>(edm::InputTag("VtxSmeared"));
    //now do what ever initialization is needed
   nrejected=0;
   naccepted=0;
@@ -75,7 +74,7 @@ MuEnrichType1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace HepMC;
 
    Handle< HepMCProduct > EvtHandle ;
-   iEvent.getByLabel( "VtxSmeared", EvtHandle ) ;
+   iEvent.getByToken(theGenToken, EvtHandle) ;
    const GenEvent* Evt = EvtHandle->GetEvent() ;
    if (Evt != 0 ) {   
      edm::LogVerbatim ("MuEnrichFltr")  << "------------------------------";
