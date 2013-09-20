@@ -72,15 +72,19 @@ void HLTTauDQML1Plotter::beginRun() {
         snprintf(buffer, BUFMAX, "L1 central jet #phi (E_{T} > %.1f);L1 jet #phi;entries", l1JetMinEt_);
         l1jetPhi_ = store->book1D("L1JetPhi", buffer, binsPhi_, minPhi, maxPhi);
         
-        firstTauEt_ = store->book1D("L1LeadTauEt","L1 leading #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxPt_);
-        firstTauEta_ = store->book1D("L1LeadTauEta", "L1 leading #tau #eta;L1 #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
-        firstTauPhi_ = store->book1D("L1LeadTauPhi","L1 leading #tau #phi;L1 #tau #phi;entries",binsPhi_,minPhi,maxPhi);
-        // firstTauEt_->getTH1F()->Sumw2(); // why? because of L1(Double|Single)TauEff (now removed)
+        snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) E_{T};L1 (#tau or central jet) E_{T};entries", l1JetMinEt_);
+        firstTauEt_ = store->book1D("L1LeadTauEt", buffer, binsEt_, 0, maxPt_);
+        snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) #eta;L1 (#tau or central jet) #eta;entries", l1JetMinEt_);
+        firstTauEta_ = store->book1D("L1LeadTauEta", buffer, binsEta_, -maxEta_, maxEta_);
+        snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) #phi;L1 (#tau or central jet) #phi;entries", l1JetMinEt_);
+        firstTauPhi_ = store->book1D("L1LeadTauPhi", buffer, binsPhi_, minPhi, maxPhi);
         
-        secondTauEt_ = store->book1D("L1SecondTauEt","L1 second-leading #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxPt_);
-        secondTauEta_ = store->book1D("L1SecondTauEta","L1 second-leading #tau #eta;L1 #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
-        secondTauPhi_ = store->book1D("L1SecondTauPhi","L1 second-leading #tau #phi;L1 #tau #phi;entries",binsPhi_,minPhi,maxPhi);
-        // secondTauEt_->getTH1F()->Sumw2(); // why? because of L1(Double|Single)TauEff (now removed)
+        snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) E_{T};L1 (#tau or central jet) E_{T};entries", l1JetMinEt_);
+        secondTauEt_ = store->book1D("L1SecondTauEt", buffer, binsEt_, 0, maxPt_);
+        snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) #eta;L1 (#tau or central jet) #eta;entries", l1JetMinEt_);
+        secondTauEta_ = store->book1D("L1SecondTauEta", buffer, binsEta_, -maxEta_, maxEta_);
+        snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) #phi;L1 (#tau or central jet) #phi;entries", l1JetMinEt_);
+        secondTauPhi_ = store->book1D("L1SecondTauPhi", buffer, binsPhi_, minPhi, maxPhi);
         
         if (doRefAnalysis_) {
             l1tauEtRes_ = store->book1D("L1TauEtResol","L1 #tau E_{T} resolution;[L1 #tau E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries",60,-1,4);
@@ -205,8 +209,8 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
           if(i->et() >= l1JetMinEt_) {
             l1jetEta_->Fill(i->eta());
             l1jetPhi_->Fill(i->phi());
+            pathTaus.push_back(i->p4());
           }
-          pathTaus.push_back(i->p4());
         }
       }
     }
