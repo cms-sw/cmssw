@@ -12,8 +12,10 @@ pixelTripletSeeds.thirdHitSubDetectors = [1, 2]
 pixelTripletSeeds.seedingAlgo = ['PixelTriplet']
 
 pixelTripletSeeds.newSyntax = False
-pixelTripletSeeds.layerList = ['BPix1+BPix2+BPix3',
-                               'BPix1+BPix2+FPix1_pos',
-                               'BPix1+BPix2+FPix1_neg',
-                               'BPix1+FPix1_pos+FPix2_pos',
-                               'BPix1+FPix1_neg+FPix2_neg']
+#pixelTripletSeeds.layerList = ['BPix1+BPix2+BPix3',
+#                               'BPix1+BPix2+FPix1_pos',
+#                               'BPix1+BPix2+FPix1_neg',
+#                               'BPix1+FPix1_pos+FPix2_pos',
+#                               'BPix1+FPix1_neg+FPix2_neg']
+from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import pixellayertriplets
+pixelTripletSeeds.layerList = pixellayertriplets.layerList
