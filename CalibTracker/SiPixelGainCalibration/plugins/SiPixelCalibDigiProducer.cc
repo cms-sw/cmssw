@@ -63,6 +63,7 @@ SiPixelCalibDigiProducer::SiPixelCalibDigiProducer(const edm::ParameterSet& iCon
   use_realeventnumber_(iConfig.getParameter<bool>("useRealEventNumber"))
 
 {
+  tPixelDigi = consumes<edm::DetSetVector<PixelDigi>> (src_);
    //register your products
   produces< edm::DetSetVector<SiPixelCalibDigi> >();
   if(includeErrors_)
@@ -111,7 +112,7 @@ SiPixelCalibDigiProducer::fill(edm::Event& iEvent, const edm::EventSetup& iSetup
   // figure out which calibration point we're on now..
   short icalibpoint = calib_->vcalIndexForEvent(iEventCounter_);
   edm::Handle< edm::DetSetVector<PixelDigi> > pixelDigis;
-  iEvent.getByLabel( src_, pixelDigis );
+  iEvent.getByToken( tPixelDigi, pixelDigis );
   
   edm::LogInfo("SiPixelCalibProducer") << "in fill(), calibpoint " << icalibpoint <<" ndigis " << pixelDigis->size() <<  std::endl;
     // loop over the data and store things

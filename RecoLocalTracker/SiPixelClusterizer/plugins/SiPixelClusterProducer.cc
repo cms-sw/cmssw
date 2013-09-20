@@ -58,6 +58,7 @@ namespace cms
     src_( conf.getParameter<edm::InputTag>( "src" ) ),
     maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) )
   {
+    tPixelDigi = consumes<edm::DetSetVector<PixelDigi>>(src_);
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelClusterCollectionNew>(); 
 
@@ -101,7 +102,7 @@ namespace cms
    // Step A.1: get input data
     //edm::Handle<PixelDigiCollection> pixDigis;
     edm::Handle< edm::DetSetVector<PixelDigi> >  input;
-    e.getByLabel( src_, input);
+    e.getByToken(tPixelDigi, input);
 
     // Step A.2: get event setup
     edm::ESHandle<TrackerGeometry> geom;

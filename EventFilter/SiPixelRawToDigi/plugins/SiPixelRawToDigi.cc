@@ -29,6 +29,7 @@
 
 #include "EventFilter/SiPixelRawToDigi/interface/R2DTimerObserver.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "TH1D.h"
 #include "TFile.h"
@@ -53,6 +54,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   if (config_.exists("UserErrorList")) {
     usererrorlist = config_.getParameter<std::vector<int> > ("UserErrorList");
   }
+  tFEDRawDataCollection = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("InputLabel"));
 
   //start counters
   ndigis = 0;
@@ -70,7 +72,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   if (config_.exists("Regions")) {
     if(config_.getParameter<edm::ParameterSet>("Regions").getParameterNames().size() > 0)
     {
-      regions_ = new PixelUnpackingRegions(config_);
+      regions_ = new PixelUnpackingRegions(config_, consumesCollector());
     }
   }
 
@@ -143,7 +145,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
   edm::Handle<FEDRawDataCollection> buffers;
   label = config_.getParameter<edm::InputTag>("InputLabel");
-  ev.getByLabel( label, buffers);
+  ev.getByToken(tFEDRawDataCollection, buffers);
 
 // create product (digis & errors)
   std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );

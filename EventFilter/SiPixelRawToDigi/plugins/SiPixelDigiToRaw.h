@@ -12,6 +12,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 
 class SiPixelFedCablingTree;
 class SiPixelFrameReverter;
@@ -48,6 +50,6 @@ private:
   std::vector<unsigned int> fedIds;
   edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
   bool debug;
- 
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi; 
 };
 #endif
