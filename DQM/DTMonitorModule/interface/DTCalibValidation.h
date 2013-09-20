@@ -115,7 +115,7 @@ class DTCalibValidation: public edm::EDAnalyzer{
   template  <typename type>
     void compute(const DTGeometry *dtGeom,
 		 const DTRecSegment4D& segment,
-	       std::map<DTWireId, std::vector<type> > recHitsPerWire,
+	       const std::map<DTWireId, std::vector<type> >& recHitsPerWire,
 		 int step);
 
   // Book a set of histograms for a give chamber
