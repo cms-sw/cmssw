@@ -9,8 +9,8 @@
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
 
-EcalUncalibRecHitWorkerWeights::EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&ps) :
-        EcalUncalibRecHitWorkerBaseClass(ps)
+EcalUncalibRecHitWorkerWeights::EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&ps, edm::ConsumesCollector& c) :
+  EcalUncalibRecHitWorkerBaseClass(ps,c)
 {
 }
 

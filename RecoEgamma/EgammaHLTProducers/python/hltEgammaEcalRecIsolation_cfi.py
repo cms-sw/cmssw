@@ -2,10 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 hltEgammaEcalRecIsolationProducer= cms.EDProducer( "EgammaHLTEcalRecIsolationProducer",
                                                    recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
-                                                   ecalBarrelRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
-                                                   ecalBarrelRecHitCollection = cms.InputTag( "EcalRecHitsEB" ),
-                                                   ecalEndcapRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit" ),
-                                                   ecalEndcapRecHitCollection = cms.InputTag( "EcalRecHitsEE" ),
+                                                   ecalBarrelRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit", "EcalRecHitsEB" ),
+                                                   ecalEndcapRecHitProducer = cms.InputTag( "hltEcalRegionalEgammaRecHit", "EcalRecHitsEE" ),
                                                    rhoProducer = cms.InputTag("hltKT6CaloJets", "rho"),
                                                    doRhoCorrection           = cms.bool(False),
                                                    rhoScale                  = cms.double(1.),

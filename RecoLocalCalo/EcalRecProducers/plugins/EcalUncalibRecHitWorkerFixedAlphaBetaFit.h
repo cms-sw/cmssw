@@ -22,7 +22,7 @@ namespace edm {
 class EcalUncalibRecHitWorkerFixedAlphaBetaFit : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
-                EcalUncalibRecHitWorkerFixedAlphaBetaFit(const edm::ParameterSet& ps);
+                EcalUncalibRecHitWorkerFixedAlphaBetaFit(const edm::ParameterSet& ps, edm::ConsumesCollector& );
                 virtual ~EcalUncalibRecHitWorkerFixedAlphaBetaFit() {};
 
                 void set(const edm::EventSetup& es);

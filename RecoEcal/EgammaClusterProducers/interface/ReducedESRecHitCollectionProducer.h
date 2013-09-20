@@ -11,7 +11,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
+#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -37,10 +38,10 @@ class ReducedESRecHitCollectionProducer : public edm::EDProducer {
 
   double scEtThresh_;
 
-  edm::InputTag InputRecHitES_;  
-  edm::InputTag InputSpuerClusterEE_;
+  edm::EDGetTokenT<ESRecHitCollection>           InputRecHitES_;  
+  edm::EDGetTokenT<reco::SuperClusterCollection> InputSuperClusterEE_;
   std::string OutputLabelES_;
-  std::vector<edm::InputTag> interestingDetIdCollections_;
+  std::vector<edm::EDGetTokenT<DetIdCollection>> interestingDetIdCollections_;
 
   std::set<DetId> collectedIds_;
   

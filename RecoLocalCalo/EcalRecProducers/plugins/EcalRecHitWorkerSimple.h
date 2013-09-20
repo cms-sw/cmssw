@@ -22,7 +22,8 @@
 
 class EcalRecHitWorkerSimple : public EcalRecHitWorkerBaseClass {
         public:
-                EcalRecHitWorkerSimple(const edm::ParameterSet&);
+                EcalRecHitWorkerSimple(const edm::ParameterSet&, edm::ConsumesCollector& c);
+				EcalRecHitWorkerSimple(const edm::ParameterSet&);
                 virtual ~EcalRecHitWorkerSimple();                       
         
                 void set(const edm::EventSetup& es);

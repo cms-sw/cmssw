@@ -5,14 +5,13 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
 #include "RecoEcal/EgammaClusterProducers/interface/ReducedESRecHitCollectionProducer.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 using namespace edm;
 using namespace std;
@@ -25,13 +24,21 @@ ReducedESRecHitCollectionProducer::ReducedESRecHitCollectionProducer(const edm::
 
  scEtThresh_          = ps.getParameter<double>("scEtThreshold");
 
- InputRecHitES_       = ps.getParameter<edm::InputTag>("EcalRecHitCollectionES");
- InputSpuerClusterEE_ = ps.getParameter<edm::InputTag>("EndcapSuperClusterCollection"); 
+ InputRecHitES_       = 
+	 consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("EcalRecHitCollectionES"));
+ InputSuperClusterEE_ = 
+	 consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("EndcapSuperClusterCollection")); 
 
  OutputLabelES_       = ps.getParameter<std::string>("OutputLabel_ES");
  
- interestingDetIdCollections_         = ps.getParameter<std::vector< edm::InputTag> >("interestingDetIds");
- 
+ interestingDetIdCollections_  = 
+	 edm::vector_transform(
+		   ps.getParameter<std::vector<edm::InputTag>>("interestingDetIds"),
+           [this](edm::InputTag const & tag) { 
+			   return consumes<DetIdCollection>(tag); 
+		   }
+		   );
+
  produces< EcalRecHitCollection > (OutputLabelES_);
  
 }
@@ -58,12 +65,12 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
 
 
   edm::Handle<ESRecHitCollection> ESRecHits_;
-  e.getByLabel(InputRecHitES_, ESRecHits_);
+  e.getByToken(InputRecHitES_, ESRecHits_);
   
   std::auto_ptr<EcalRecHitCollection> output(new EcalRecHitCollection);
 
   edm::Handle<reco::SuperClusterCollection> pEndcapSuperClusters;
-  e.getByLabel(InputSpuerClusterEE_, pEndcapSuperClusters);
+  e.getByToken(InputSuperClusterEE_, pEndcapSuperClusters);
   {
     const reco::SuperClusterCollection* eeSuperClusters = pEndcapSuperClusters.product();
     
@@ -99,11 +106,7 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
   edm::Handle<DetIdCollection > detId;
   for( unsigned int t = 0; t < interestingDetIdCollections_.size(); ++t )
     {
-      e.getByLabel(interestingDetIdCollections_[t],detId);
-      if (!detId.isValid()){
-	edm::LogError("MissingInput")<<"the collection of interesting detIds:"<<interestingDetIdCollections_[t]<<" is not found.";
-        continue;
-      }
+      e.getByToken(interestingDetIdCollections_[t],detId);    
       collectedIds_.insert(detId->begin(),detId->end());
     }
 
