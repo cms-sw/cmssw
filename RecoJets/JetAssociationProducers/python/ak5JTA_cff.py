@@ -7,19 +7,12 @@ from RecoJets.JetAssociationProducers.j2tParametersCALO_cfi import *
 from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
 ak5JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
     j2tParametersVX,
-<<<<<<< HEAD
     jets = cms.InputTag("ak5CaloJets")
-<<<<<<< HEAD
-=======
-=======
-    jets = cms.InputTag("ak5PFJetsCHS")
->>>>>>> 56cbdee... Switching calo jets to AK5PFchs jets for JTA at the request of the BTV pog
 )
 
 ak5JetTracksAssociatorAtVertexPF = cms.EDProducer("JetTracksAssociatorAtVertex",
     j2tParametersVX,
     jets = cms.InputTag("ak5PFJetsCHS")
->>>>>>> 9f8f426... Adding a JTA for PFJets
 )
 
 
@@ -30,11 +23,11 @@ ak5JetTracksAssociatorExplicit = cms.EDProducer("JetTracksAssociatorExplicit",
 
 ak5JetTracksAssociatorAtCaloFace = cms.EDProducer("JetTracksAssociatorAtCaloFace",
     j2tParametersCALO,
-    jets = cms.InputTag("ak5PFJetsCHS")
+    jets = cms.InputTag("ak5CaloJets")
 )
 
 ak5JetExtender = cms.EDProducer("JetExtender",
-    jets = cms.InputTag("ak5PFJetsCHS"),
+    jets = cms.InputTag("ak5CaloJets"),
     jet2TracksAtCALO = cms.InputTag("ak5JetTracksAssociatorAtCaloFace"),
     jet2TracksAtVX = cms.InputTag("ak5JetTracksAssociatorAtVertex"),
     coneSize = cms.double(0.5)

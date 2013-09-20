@@ -419,18 +419,11 @@ if(CaloMode==3):
         muonshighlevelreco+
         particleFlowLinks+
         caloJetMetGen+
-<<<<<<< HEAD
-        caloJetMet+
-        PFJetMet+
-        ic5JetTracksAssociatorAtVertex+
-        ak5JetTracksAssociatorAtVertex+
-=======
         caloJets+
         PFJetMet+
         jetTrackAssoc+
         recoJPTJets+
         metreco+
->>>>>>> 053d365... Fixing Fastsim sequence with btagging, and putting in the soft lepton b-tagging to AK5PFCHS jets per request of BTV
         reducedRecHits+
         famosBTaggingSequence+
         famosPFTauTaggingSequence

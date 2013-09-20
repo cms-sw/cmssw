@@ -17,7 +17,8 @@ RecoJetsFEVT = cms.PSet(
                                            'keep *_kt4JetTracksAssociatorAtVertex_*_*', 
                                            'keep *_kt4JetTracksAssociatorAtCaloFace_*_*', 
                                            'keep *_kt4JetExtender_*_*',
-                                           'keep *_ak5JetTracksAssociatorAtVertex*_*_*', 
+                                           'keep *_ak5JetTracksAssociatorAtVertex*_*_*',
+                                           'keep *_ak5JetTracksAssociatorAtVertexPF*_*_*', 
                                            'keep *_ak5JetTracksAssociatorAtCaloFace*_*_*', 
                                            'keep *_ak5JetExtender_*_*',
                                            'keep *_ak5JetTracksAssociatorExplicit_*_*',
@@ -80,19 +81,9 @@ RecoJetsRECO = cms.PSet(
                                            'keep *_kt4JetTracksAssociatorAtVertex_*_*', 
                                            'keep *_kt4JetTracksAssociatorAtCaloFace_*_*', 
                                            'keep *_kt4JetExtender_*_*',
-<<<<<<< HEAD
-<<<<<<< HEAD
-                                           'keep *_ak5JetTracksAssociatorAtVertex_*_*', 
-                                           'keep *_ak5JetTracksAssociatorAtCaloFace_*_*', 
-=======
                                            'keep *_ak5JetTracksAssociatorAtVertex_*_*',
                                            'keep *_ak5JetTracksAssociatorAtVertexPF_*_*',
                                            'keep *_ak5JetTracksAssociatorAtCaloFace_*_*',
->>>>>>> 0ca6e99... Forgot to add JTA at calo face to event content
-=======
-                                           'keep *_ak5JetTracksAssociatorAtVertex_*_*',
-                                           'keep *_ak5JetTracksAssociatorAtVertexPF_*_*', 
->>>>>>> 9f8f426... Adding a JTA for PFJets
                                            'keep *_ak5JetTracksAssociatorExplicit_*_*',
                                            'keep *_ak5JetExtender_*_*',
                                            'keep *_ak7JetTracksAssociatorAtVertex*_*_*', 
