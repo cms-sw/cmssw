@@ -281,10 +281,10 @@ int SiPixelUtility::computeHistoBin(string & module_path){
 
 
 void SiPixelUtility::fillPaveText(TPaveText                 * pave,
-				  map<string,pair<int,double> >  messages){
+				  const map<string,pair<int,double> >&  messages){
 
   TText* sourceCodeOnCanvas;
-  for(map<string, pair<int,double> >::iterator it =  messages.begin();
+  for(map<string, pair<int,double> >::const_iterator it =  messages.begin();
                                             it != messages.end();
                                             it++){
     string message = it->first;

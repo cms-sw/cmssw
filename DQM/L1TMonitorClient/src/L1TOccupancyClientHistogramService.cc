@@ -27,7 +27,7 @@ L1TOccupancyClientHistogramService::L1TOccupancyClientHistogramService(){}
 // * DQMStore*    iDBE        = Pointer to the DQMStore
 // * bool         iVerbose    = Verbose control
 //____________________________________________________________________________
-L1TOccupancyClientHistogramService::L1TOccupancyClientHistogramService(ParameterSet iParameters, DQMStore* iDBE, bool iVerbose) {
+L1TOccupancyClientHistogramService::L1TOccupancyClientHistogramService(const ParameterSet& iParameters, DQMStore* iDBE, bool iVerbose) {
   mDBE        = iDBE;
   mVerbose    = iVerbose;
   mParameters = iParameters;
@@ -62,7 +62,7 @@ unsigned int L1TOccupancyClientHistogramService::getNBinsHistogram(string iHistN
 //   * string               iHistName    = Name of the histogram
 //   * vector<ParameterSet> iMaskedAreas = Vector areas to be masked
 //____________________________________________________________________________
-void L1TOccupancyClientHistogramService::setMaskedBins(string iHistName, vector<ParameterSet> iMaskedAreas) {
+void L1TOccupancyClientHistogramService::setMaskedBins(string iHistName, const vector<ParameterSet>& iMaskedAreas) {
 
   TH2F* histo = mHistograms[iHistName].first;
   vector<pair<int,int> >* m = new vector<pair<int,int> >();

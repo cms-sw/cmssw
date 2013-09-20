@@ -103,10 +103,10 @@ class SiStripMonitorMuonHLT : public edm::EDAnalyzer {
       //methods needed for normalisation
       float GetEtaWeight(std::string label, GlobalPoint gp);
       float GetPhiWeight(std::string label, GlobalPoint gp);
-      void GeometryFromTrackGeom (std::vector<DetId> Dets,const TrackerGeometry & theTracker, const edm::EventSetup& iSetup,
+      void GeometryFromTrackGeom (const std::vector<DetId>& Dets,const TrackerGeometry & theTracker, const edm::EventSetup& iSetup,
                                   std::map<std::string,std::vector<float> > & m_PhiStripMod_Eta,std::map<std::string,std::vector<float> > & m_PhiStripMod_Nb);
-      void Normalizer (std::vector<DetId> Dets,const TrackerGeometry & theTracker);
-      void PrintNormalization (std::vector<std::string> v_LabelHisto);
+      void Normalizer (const std::vector<DetId>& Dets,const TrackerGeometry & theTracker);
+      void PrintNormalization (const std::vector<std::string>& v_LabelHisto);
 
       // ----------member data ---------------------------
 

@@ -17,7 +17,7 @@ class RazorVarProducer : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
   double CalcMR(TLorentzVector ja,TLorentzVector jb);
-  double CalcR(double MR, TLorentzVector ja,TLorentzVector jb, edm::Handle<reco::CaloMETCollection> met, std::vector<math::XYZTLorentzVector> muons);
+  double CalcR(double MR, const TLorentzVector& ja, const TLorentzVector& jb, edm::Handle<reco::CaloMETCollection> met, const std::vector<math::XYZTLorentzVector>& muons);
 
  private:
 

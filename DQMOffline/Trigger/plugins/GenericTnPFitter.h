@@ -74,7 +74,7 @@ class AbstractFitter{
   double getEfficiency(){ return efficiency.getVal(); }
   double getEfficiencyError(){ return efficiency.getError(); }
   double getChi2(){ return chi2; }
-  void savePlot(TString name){
+  void savePlot(const TString& name){
     using namespace RooFit;
     RooPlot* frame = mass.frame(Name(name), Title("Failing and Passing Probe Distributions"));
     data->plotOn(frame,Cut("category==category::pass"),LineColor(kGreen),MarkerColor(kGreen));
