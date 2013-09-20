@@ -2,8 +2,6 @@
 #include "SessionImpl.h"
 #include "IOVSchema.h"
 //
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/shared_ptr.hpp>
 
 namespace new_impl {
 
@@ -36,12 +34,12 @@ IOVEditor::IOVEditor():
   m_session(){
 }
 
-IOVEditor::IOVEditor( const boost::shared_ptr<conddb::SessionImpl>& session ):
+IOVEditor::IOVEditor( const std::shared_ptr<conddb::SessionImpl>& session ):
   m_data( new IOVEditorData ),
   m_session( session ){
 }
 
-IOVEditor::IOVEditor( const boost::shared_ptr<conddb::SessionImpl>& session, 
+IOVEditor::IOVEditor( const std::shared_ptr<conddb::SessionImpl>& session, 
 		      const std::string& tag, 
 		      conddb::TimeType timeType, 
 		      const std::string& payloadObjectType,
@@ -134,7 +132,7 @@ void IOVEditor::insert( conddb::Time_t since, const conddb::Hash& payloadHash, b
 
 void IOVEditor::insert( conddb::Time_t since, const conddb::Hash& payloadHash, const boost::posix_time::ptime& insertionTime, bool ){
   if( m_data.get() ){
-    // here the type check could be added                                                                                                                                             
+    // here the type check could be added
     m_data->iovBuffer.push_back( std::tie( since, payloadHash, insertionTime ) );
   }
 }

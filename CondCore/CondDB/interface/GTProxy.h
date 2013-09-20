@@ -15,7 +15,6 @@
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/CondDB/interface/Types.h"
 //
-#include <boost/shared_ptr.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace conddb {
@@ -60,7 +59,7 @@ namespace new_impl {
   public:
     GTProxy();
     // the only way to construct it from scratch...
-    explicit GTProxy( const boost::shared_ptr<conddb::SessionImpl>& session );
+    explicit GTProxy( const std::shared_ptr<conddb::SessionImpl>& session );
 
     //
     GTProxy( const GTProxy& rhs );
@@ -96,8 +95,8 @@ namespace new_impl {
     void checkSession( const std::string& ctx );
 
   private:
-    boost::shared_ptr<GTProxyData> m_data;
-    boost::shared_ptr<conddb::SessionImpl> m_session;
+    std::shared_ptr<GTProxyData> m_data;
+    std::shared_ptr<conddb::SessionImpl> m_session;
   };
 
 }

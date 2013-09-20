@@ -68,7 +68,7 @@ GTProxy::GTProxy():
   m_session(){
 }
 
-GTProxy::GTProxy( const boost::shared_ptr<conddb::SessionImpl>& session ):
+GTProxy::GTProxy( const std::shared_ptr<conddb::SessionImpl>& session ):
   m_data( new GTProxyData ),
   m_session( session ){
 }

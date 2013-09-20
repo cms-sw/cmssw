@@ -10,9 +10,13 @@ SessionImpl::SessionImpl():
   connectionService(),
   coralSession(){
 }
+
+SessionImpl::~SessionImpl(){
+}
     
 void SessionImpl::connect( const std::string& connectionString, 
 			   bool readOnly ){
+  disconnect();
   configuration.configure( connectionService.configuration() );
   coralSession.reset( connectionService.connect( connectionString, readOnly?coral::ReadOnly:coral::Update ) );
 }
@@ -23,7 +27,8 @@ void SessionImpl::connect( const std::string& connectionString,
 }
 
 void SessionImpl::connect( boost::shared_ptr<coral::ISessionProxy>& csession ){
-  configuration.configure( connectionService.configuration() );  
+  disconnect();
+  if( !configuration.isConfigured() ) configuration.configure( connectionService.configuration() );  
   coralSession = csession;
 }
 

@@ -4,8 +4,6 @@
 #include "CondCore/CondDB/interface/Types.h"
 #include "CondCore/CondDB/interface/Session.h"
 //
-#include <boost/shared_ptr.hpp>
-//
 
 namespace conddb {
 

@@ -25,6 +25,7 @@
 #include "CoralBase/TimeStamp.h"
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/ISchema.h"
+#include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/TableDescription.h"
 #include "RelationalAccess/ITable.h"

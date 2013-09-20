@@ -98,7 +98,7 @@ IOVProxy::IOVProxy():
   m_session(){
 }
 
-IOVProxy::IOVProxy( const boost::shared_ptr<conddb::SessionImpl>& session ):
+IOVProxy::IOVProxy( const std::shared_ptr<conddb::SessionImpl>& session ):
   m_data( new IOVProxyData ),
   m_session( session ){
 }
@@ -228,38 +228,27 @@ IOVProxy::Iterator IOVProxy::find(conddb::Time_t time) {
     // first determine the groups
     auto iGLow = search( time, m_data->sinceGroups );
     if( iGLow == m_data->sinceGroups.end() ){
+      // so suitable group=no iov at all! exiting...
       return end();
     }
     auto iGHigh = iGLow;
     conddb::Time_t lowG = 0;
+    // unless the low group is the first one available, move the previous one to fully cover the interval
     if( iGLow != m_data->sinceGroups.begin() ){
       iGLow--;
       lowG = *iGLow;
     }
+    // the upper group will be also extended to the next (covering in total up to three groups )
     iGHigh++;
     conddb::Time_t highG = conddb::time::MAX;
     if( iGHigh != m_data->sinceGroups.end() ) {
       iGHigh++;
       if( iGHigh != m_data->sinceGroups.end() ) highG = *iGHigh;
     }
+    // finally, get the iovs for the selected group interval!!
     fetchSequence( lowG, highG );
   }
   
-  /**
-  bool load = false;
-  if( !m_data->iovSequence.empty() ){
-    conddb::Time_t front=std::get<0>(m_data->iovSequence.front() );
-    if( time < front || time > front+2*conddb::time::SINCE_GROUP_SIZE ) load = true;
-  } else {
-    load = true;
-  }
-  if( load ){
-    // a (new) query required...
-    // fetch the iov sequence subset for the two groups
-    fetchSequence( time );    
-  }
-  **/
-
   // the current iov set is a good one...
   auto iIov = search( time, m_data->iovSequence );
   return Iterator( iIov, m_data->iovSequence.end(), m_data->timeType );

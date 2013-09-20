@@ -4,11 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 //
-//#include "CondCore/CondDB/interface/Session.h"
-//#include "CondCore/CondDB/interface/PayloadProxy.h"
-//#include "CondCore/CondDB/interface/Configuration.h"
 #include "CondCore/CondDB/interface/CondDB.h"
-//#include "CondCore/DBCommon/interface/Time.h"
 //
 #include "MyTestData.h"
 //
@@ -109,10 +105,6 @@ int main (int argc, char** argv)
       boost::shared_ptr<std::string> pay4 = session.fetchPayload<std::string>( val.payloadId );
       std::cout <<" ## pay4="<<*pay4<<std::endl;
     }
-    conddb::PayloadProxy<std::string> payproxy( session );
-    payproxy.load( "StringData" );
-    boost::shared_ptr<std::string> pay5 = payproxy.get( 1000022 );
-    std::cout <<" ## pay5="<<*pay5<<std::endl;
     session.transaction().commit();
   } catch (const std::exception& e){
     std::cout << "ERROR: " << e.what() << std::endl;

@@ -2,12 +2,12 @@
 #define CondCore_CondDB_SessionImpl_h
 
 #include "CondCore/CondDB/interface/Configuration.h"
-//#include "CondCore/CondDB/interface/Session.h"
 //
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
 //
 #include <memory>
+// temporarely
 #include <boost/shared_ptr.hpp>
 
 namespace coral {
@@ -27,6 +27,7 @@ namespace conddb {
   class SessionImpl {
   public:
     SessionImpl();
+    ~SessionImpl();
 
     // session operation
     void connect( const std::string& connectionString, bool readOnly=true );
@@ -46,6 +47,7 @@ namespace conddb {
   public:
     conddb::Configuration configuration;
     coral::ConnectionService connectionService;   
+    // allows for session shared among more services. To be changed to unique_ptr when we stop needing this feature.
     boost::shared_ptr<coral::ISessionProxy> coralSession;
     std::unique_ptr<TransactionCache> transactionCache;
   };

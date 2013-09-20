@@ -15,7 +15,6 @@
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/CondDB/interface/Types.h"
 //
-#include <boost/shared_ptr.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace conddb {
@@ -63,7 +62,7 @@ namespace new_impl {
     IOVProxy();
 
     // the only way to construct it from scratch...
-    explicit IOVProxy( const boost::shared_ptr<conddb::SessionImpl>& session );
+    explicit IOVProxy( const std::shared_ptr<conddb::SessionImpl>& session );
 
     //
     IOVProxy( const IOVProxy& rhs );
@@ -124,8 +123,8 @@ namespace new_impl {
     void fetchSequence( conddb::Time_t lowerGroup, conddb::Time_t higherGroup );
 
   private:
-    boost::shared_ptr<IOVProxyData> m_data;
-    boost::shared_ptr<conddb::SessionImpl> m_session;
+    std::shared_ptr<IOVProxyData> m_data;
+    std::shared_ptr<conddb::SessionImpl> m_session;
   };
 
 }

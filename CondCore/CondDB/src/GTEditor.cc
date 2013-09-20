@@ -2,8 +2,6 @@
 #include "SessionImpl.h"
 #include "GTSchema.h"
 //
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/shared_ptr.hpp>
 
 namespace new_impl {
 
@@ -29,12 +27,12 @@ namespace new_impl {
     std::vector<std::tuple<std::string,std::string,std::string> > tagListBuffer;
   };
 
-  GTEditor::GTEditor( const boost::shared_ptr<conddb::SessionImpl>& session ):
+  GTEditor::GTEditor( const std::shared_ptr<conddb::SessionImpl>& session ):
   m_data( new GTEditorData ),
   m_session( session ){
 }
 
-GTEditor::GTEditor( const boost::shared_ptr<conddb::SessionImpl>& session, 
+GTEditor::GTEditor( const std::shared_ptr<conddb::SessionImpl>& session, 
 		    const std::string& gtName ):
   m_data( new GTEditorData ),
   m_session( session ){

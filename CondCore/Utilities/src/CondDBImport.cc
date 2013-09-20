@@ -1,8 +1,4 @@
-//#include "CondCore/CondDB/interface/Session.h"
-//#include "CondCore/CondDB/interface/CondDB.h"
 //
-
-//#include <boost/serialization/export.hpp>
 
 #define IMPORT_PAYLOAD_CASE( TYPENAME )  \
   if( inputTypeName == #TYPENAME ){ \
@@ -21,7 +17,7 @@
 
 #define FETCH_PAYLOAD_CASE( TYPENAME ) \
   if( payloadTypeName == #TYPENAME ){ \
-    boost::shared_ptr<TYPENAME> payload = streamer.read<TYPENAME>(); \
+    boost::shared_ptr<TYPENAME> payload = streamer.read<TYPENAME>();	\
     payloadPtr = payload; \
     match = true; \
   }

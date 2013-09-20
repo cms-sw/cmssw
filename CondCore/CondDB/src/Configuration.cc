@@ -1,6 +1,7 @@
 #include "CondCore/CondDB/interface/Configuration.h"
 //
 #include "CondCore/DBCommon/interface/CoralServiceManager.h"
+#include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/Auth.h"
 // CMSSW includes
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,18 +28,22 @@ conddb::Configuration::~Configuration(){
 
 void conddb::Configuration::setMessageVerbosity( coral::MsgLevel level ){
   m_messageLevel = level;
+  m_configured = false;
 }
     
 void conddb::Configuration::setAuthenticationPath( const std::string& p ){
   m_authPath = p;
+  m_configured = false;
 }
     
 void conddb::Configuration::setAuthenticationSystem( int authSysCode ){
   m_authSys = authSysCode;
+  m_configured = false;
 }
     
 void conddb::Configuration::setLogging( bool flag ){
   m_logging = flag;
+  m_configured = false;
 }
     
 void conddb::Configuration::setParameters( const edm::ParameterSet& connectionPset ){
@@ -64,13 +69,14 @@ void conddb::Configuration::setParameters( const edm::ParameterSet& connectionPs
   }
   setMessageVerbosity(level);
   setLogging( connectionPset.getUntrackedParameter<bool>("logging",false) );
+  m_configured = false;
 }
 
 bool conddb::Configuration::isLoggingEnabled() const {
   return m_logging;
 }
     
-void conddb::Configuration::configure( coral::IConnectionServiceConfiguration& coralConfig) const {
+void conddb::Configuration::configure( coral::IConnectionServiceConfiguration& coralConfig){
 
   coralConfig.disablePoolAutomaticCleanUp();
   coralConfig.disableConnectionSharing();
@@ -119,4 +125,18 @@ void conddb::Configuration::configure( coral::IConnectionServiceConfiguration& c
     coral::Context::instance().loadComponent( authServiceName, m_pluginManager );
   }
   coralConfig.setAuthenticationService( authServiceName );
+  m_configured = true;
+}
+
+void conddb::Configuration::configure(  cond::DbConnectionConfiguration& oraConfiguration ) {
+  oraConfiguration.setPoolAutomaticCleanUp( false );
+  oraConfiguration.setConnectionSharing( false );
+  oraConfiguration.setMessageLevel( m_messageLevel );
+  oraConfiguration.setAuthenticationPath( m_authPath );
+  oraConfiguration.setAuthenticationSystem( m_authSys );
+  m_configured = true;
+}
+
+bool conddb::Configuration::isConfigured() const {
+  return m_configured;
 }

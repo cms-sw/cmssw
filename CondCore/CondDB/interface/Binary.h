@@ -1,8 +1,9 @@
 #ifndef CondCore_CondDB_Binary_h
 #define CondCore_CondDB_Binary_h
 
+#include <string>
+#include <memory>
 // 
-#include <boost/shared_ptr.hpp>
 
 namespace coral {
   class Blob;
@@ -34,7 +35,7 @@ namespace conddb {
     std::string hash() const;
 
   private:
-    boost::shared_ptr<coral::Blob> m_data;
+    std::shared_ptr<coral::Blob> m_data;
   };
 }
 

@@ -4,10 +4,6 @@
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 //
 #include <sstream>
-// boost includes
-#include <boost/iostreams/filtering_streambuf.hpp>
-//#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
 // root includes 
 #include "TBufferFile.h"
 #include "TClass.h"
@@ -33,8 +29,8 @@ namespace conddb {
   }
 }
 
-conddb::RootOutputArchive::RootOutputArchive( boost::iostreams::filtering_streambuf<boost::iostreams::output>& inputData ):
-  m_buffer( inputData ){
+conddb::RootOutputArchive::RootOutputArchive( std::ostream& dest ):
+  m_buffer( dest ){
 } 
 
 void conddb::RootOutputArchive::write( const std::type_info& sourceType, const void* sourceInstance){
@@ -44,26 +40,23 @@ void conddb::RootOutputArchive::write( const std::type_info& sourceType, const v
   buffer.InitMap();
   buffer.StreamObject(const_cast<void*>(sourceInstance), r_class);
   // copy the stream into the target buffer
-  m_buffer.sputn( static_cast<const char*>(buffer.Buffer()), buffer.Length() ); 
+  m_buffer.write( static_cast<const char*>(buffer.Buffer()), buffer.Length() ); 
 }
 
-conddb::RootInputArchive::RootInputArchive( boost::iostreams::filtering_streambuf<boost::iostreams::input>& inputData ){
-  // many copies... we shpould do better than this...
-  std::stringstream tmp;
-  boost::iostreams::copy( inputData, tmp );
-  m_copy = tmp.str();
-  m_buffer =  new TBufferFile( TBufferFile::kRead, m_copy.size(), const_cast<char*>(m_copy.c_str()), kFALSE );
-  m_buffer->InitMap();
+conddb::RootInputArchive::RootInputArchive( const std::stringbuf& source ):
+  m_buffer( source.str() ),
+  m_streamer( new TBufferFile( TBufferFile::kRead, m_buffer.size(), const_cast<char*>(m_buffer.c_str()), kFALSE ) ){
+  m_streamer->InitMap();
 }
 
 conddb::RootInputArchive::~RootInputArchive(){
-  delete m_buffer;
+  delete m_streamer;
 }
 
 void conddb::RootInputArchive::read( const std::type_info& destinationType, void* destinationInstance){
   TClass* r_class = lookUpDictionary( destinationType );
   if (!r_class) throwException( "No ROOT class registered for \"" + demangledName(destinationType) +"\"","RootInputArchive::read");
-  m_buffer->StreamObject(destinationInstance, r_class);   
+  m_streamer->StreamObject(destinationInstance, r_class);   
 }
 
 conddb::OutputStreamer::OutputStreamer():
@@ -76,7 +69,8 @@ const conddb::Binary& conddb::OutputStreamer::data() const{
 
 conddb::InputStreamer::InputStreamer( const std::string& payloadType, const Binary& payloadData ):
   m_objectType( payloadType ),
-  m_outBuf(){
-  m_outBuf.write( static_cast<const char*>(payloadData.data()), payloadData.size() );
+  m_buffer(){
+  std::ostream s(&m_buffer);
+  s.write( static_cast<const char*>(payloadData.data()), payloadData.size() );
 }
 

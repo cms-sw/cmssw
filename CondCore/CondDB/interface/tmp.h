@@ -2,6 +2,7 @@
 #define CondCore_CondDB_tmp_h
 
 #include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/TagMetadata.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
@@ -12,10 +13,17 @@ namespace tmp {
 
     class Switch {
     public:
+      typedef std::map<std::string,cond::DbSession> OraPool;
+    public:
+      Switch();
+      Switch( const Switch& rhs );
+      Switch& operator=( const Switch& rhs );
       bool open( const std::string& connectionString, bool readOnly=false  );
+      void close();
+      bool isOra() const;
       
-      bool isORA = false;
-      cond::DbSession ORAImpl;
+      std::shared_ptr<OraPool> oraImpl;
+      cond::DbSession oraCurrent;
       new_impl::Session impl;
     };
 
@@ -62,14 +70,16 @@ namespace tmp {
 
       private:
         new_impl::IOVProxy::Iterator m_impl;
-        cond::IOVProxy::const_iterator m_ORAImpl;
-        bool m_isORA = false;
+        cond::IOVProxy::const_iterator m_oraImpl;
+        bool m_isOra = false;
       };
 
     public:
       explicit IOVProxy( const new_impl::IOVProxy& impl );
       explicit IOVProxy( cond::DbSession& ORASession );
 
+      //
+      IOVProxy();
       //
       IOVProxy( const IOVProxy& rhs );
 
@@ -104,14 +114,14 @@ namespace tmp {
 
     private:
       new_impl::IOVProxy m_impl;
-      cond::IOVProxy m_ORAImpl;
-      std::string m_ORATag;
-      bool m_isORA = false;
+      cond::IOVProxy m_oraImpl;
+      std::shared_ptr<std::string> m_oraTag;
     };
 
     class IOVEditor {
     public:
 
+      IOVEditor();
       explicit IOVEditor( const new_impl::IOVEditor& impl );
       explicit IOVEditor( const cond::IOVEditor& ORAImpl );
 
@@ -144,19 +154,20 @@ namespace tmp {
 
     private:
       new_impl::IOVEditor m_impl;
-      cond::IOVEditor m_ORAImpl;
-      std::string m_ORATag;
-      bool m_isORA = false;
+      cond::IOVEditor m_oraImpl;
+      std::shared_ptr<std::string> m_oraTag;
     };
 
     class GTProxy {
+    public: 
+      typedef std::map<std::string,cond::TagMetadata> OraTagMap;
     public:
       class Iterator  : public std::iterator<std::input_iterator_tag, conddb::GTEntry_t> {
       public:
 	//
 	Iterator();
 	explicit Iterator( new_impl::GTProxy::Iterator impl );
-	explicit Iterator( std::set<cond::TagMetadata>::const_iterator impl );
+	explicit Iterator( OraTagMap::const_iterator impl );
 	Iterator( const Iterator& rhs );
 
 	Iterator& operator=( const Iterator& rhs );
@@ -171,13 +182,15 @@ namespace tmp {
 
       private:
         new_impl::GTProxy::Iterator m_impl;
-        std::set<cond::TagMetadata>::const_iterator m_ORAImpl;
-        bool m_isORA = false;
+        OraTagMap::const_iterator m_oraImpl;
+        bool m_isOra = false;
       };
     
     public:
+
+      GTProxy();
       explicit GTProxy( const new_impl::GTProxy& impl );
-      explicit GTProxy( const cond::DbSession& ORASession );
+      explicit GTProxy( const cond::DbSession& oraSession );
 
       GTProxy( const GTProxy& rhs );
 
@@ -203,10 +216,12 @@ namespace tmp {
 
     private:
       new_impl::GTProxy m_impl;
-      cond::DbSession m_ORASession;
-      std::set<cond::TagMetadata> m_ORAGTData;
-      std::string m_ORAGTName;
-      bool m_isORA = false;
+      cond::DbSession m_oraSession;
+      struct OraData {
+	std::string gt;
+	OraTagMap gtData;
+      };
+      std::shared_ptr<OraData> m_oraData;
     };
 
 
@@ -222,11 +237,15 @@ namespace tmp {
 
       void open( const std::string& connectionString, bool readOnly=false );
 
+      //Session switchSchema( const std::string& connectionString );
+
       void close();
 
       conddb::Configuration& configuration();
 
       Transaction& transaction();
+
+      bool existsDatabase();
 
       IOVProxy readIov( const std::string& tag, bool full=false );//,const boost::posix_time::ptime& snapshottime )  
 
@@ -259,8 +278,8 @@ namespace tmp {
 
     template <typename T> inline conddb::Hash Session::storePayload( const T& payload, const boost::posix_time::ptime& creationTime ){
       conddb::Hash hashOrToken("");
-      if( m_switch.isORA ){
-	hashOrToken = m_switch.ORAImpl.storeObject( &payload, conddb::demangledName(typeid(payload)) );
+      if( m_switch.isOra() ){
+	hashOrToken = m_switch.oraCurrent.storeObject( &payload, conddb::demangledName(typeid(payload)) );
       } else {
 	hashOrToken = m_switch.impl.storePayload( payload, creationTime );
       }
@@ -269,102 +288,13 @@ namespace tmp {
 
     template <typename T> inline boost::shared_ptr<T> Session::fetchPayload( const conddb::Hash& payloadHash ){
       boost::shared_ptr<T> obj;
-      if( m_switch.isORA ) {
-	obj = m_switch.ORAImpl.getTypedObject<T>( payloadHash );
+      if( m_switch.isOra() ) {
+	obj = m_switch.oraCurrent.getTypedObject<T>( payloadHash );
       } else {
 	obj = m_switch.impl.fetchPayload<T>( payloadHash );
       }
       return obj;
     }
-
-  /**
-  template <typename T> class PayloadProxy {
-  public:
-    explicit PayloadProxy( Session& session );
-
-    PayloadProxy( const PayloadProxy& rhs );
-
-    PayloadProxy& operator=( const PayloadProxy& rhs );
-
-    void load( const std::string& tag );
-
-    void reload();
-
-    void reset();
-
-    boost::shared_ptr<T> get( conddb::Time_t targetTime );
-
-  private:
-    
-    Session m_session;
-    IOVProxy m_iov;
-    conddb::Iov_t m_current;
-    boost::shared_ptr<T> m_cache;
-  };
-
-  template <typename T> inline PayloadProxy<T>::PayloadProxy( Session& session ):
-    m_session( session ),
-    m_iov( session.iovProxy() ),
-    m_current(),
-    m_cache(){
-    m_current.clear();
-  }
-
-  template <typename T> inline PayloadProxy<T>::PayloadProxy( const PayloadProxy& rhs ):
-    m_session( rhs.session ),
-    m_iov( rhs.m_iov ),
-    m_current( rhs.m_current ),
-    m_cache( rhs.m_cache ){
-  }
-
-  template <typename T> inline PayloadProxy<T>& PayloadProxy<T>::operator=( const PayloadProxy& rhs ){
-    m_session = rhs.session;
-    m_iov = rhs.m_iov;
-    m_current = rhs.m_current;
-    m_cache = rhs.m_cache;
-    return *this;
-  }
-
-  template <typename T> inline void PayloadProxy<T>::load( const std::string& tag ){
-    m_current.clear();
-    m_cache.reset();
-    m_iov.load( tag );
-    std::string payloadType = m_iov.payloadObjectType();
-    if( m_iov.payloadObjectType() != conddb::demangledName( typeid(T) ) ) {
-      reset();      
-      conddb::throwException("Type mismatch: type "+payloadType+
-			     "defined for tag "+tag+" is different from the target type.",
-			     "PayloadProxy::load");
-    }
-  }
-
-  template <typename T> inline void PayloadProxy<T>::reload(){
-    m_current.clear();
-    m_cache.reset();
-    m_iov.reload();
-  }
-
-  template <typename T> inline void PayloadProxy<T>::reset(){
-    m_iov.reset();
-    m_current.clear();
-    m_cache.reset();
-  }
-
-  template <typename T> inline boost::shared_ptr<T> PayloadProxy<T>::get( conddb::Time_t targetTime ){
-    //  check if the current iov loaded is the good one...
-    if( targetTime < m_current.since || targetTime > m_current.till ){
-
-      // a new payload is required!
-      auto iIov = m_iov.find( targetTime );
-      if(iIov == m_iov.end() ) conddb::throwException("No iov available for the specified target time.","PayloadProxy::get");
-      m_current = *iIov;
-
-      // finally load the new payload into the cache
-      m_cache = m_session.fetchPayload<T>( m_current.payloadId );
-    } 
-    return m_cache;
-  }
-  **/
 
 }
 

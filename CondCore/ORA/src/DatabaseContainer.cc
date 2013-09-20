@@ -14,6 +14,8 @@
 #include "MappingRules.h"
 // externals
 #include "CoralBase/Attribute.h"
+//
+#include <boost/lexical_cast.hpp>
 
 namespace ora {
 
@@ -174,7 +176,10 @@ namespace ora {
         if( m_topLevelQuery.nextCursorRow() ){
           destination = ClassUtils::constructObject( m_type );
           m_reader->read( destination );
-        }
+        } else {
+	  throwException("Object with item id "+boost::lexical_cast<std::string>(oid)+" has not been found in the database.",
+			 "ReadBuffer::read");
+	}
         m_reader->clear();
         m_topLevelQuery.clear();
         return destination;

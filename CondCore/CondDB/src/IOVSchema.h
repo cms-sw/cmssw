@@ -72,13 +72,12 @@ namespace conddb {
       } 
     };
     struct SINCE_GROUP {					 
-      //static constexpr char const* name = "SINCE-MOD(SINCE,1000)";   
       typedef conddb::Time_t type;				   
       static constexpr size_t size = 0;
       static std::string tableName(){ return SINCE::tableName(); }	
       static std::string fullyQualifiedName(){ 
-	return SINCE::fullyQualifiedName()+"-MOD("+SINCE::fullyQualifiedName()+
-	  ","+boost::lexical_cast<std::string>(conddb::time::SINCE_GROUP_SIZE)+")";
+	std::string sgroupSize = boost::lexical_cast<std::string>(conddb::time::SINCE_GROUP_SIZE);
+        return "("+SINCE::fullyQualifiedName()+"/"+sgroupSize+")*"+sgroupSize;	  
       } 
     };
 

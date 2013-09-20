@@ -19,13 +19,9 @@
 //
 #include <sstream>
 #include <iostream>
-#include <boost/iostreams/filtering_streambuf.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
-#include <boost/shared_ptr.hpp>
-//#include <boost/archive/text_oarchive.hpp>
-//#include <boost/archive/text_iarchive.hpp>
 //
+// temporarely
+#include <boost/shared_ptr.hpp>
 
 class TBufferFile;
 
@@ -36,7 +32,7 @@ namespace conddb {
   // output
   class RootOutputArchive {
   public:
-    explicit RootOutputArchive( boost::iostreams::filtering_streambuf<boost::iostreams::output>& outputData );
+    explicit RootOutputArchive( std::ostream& destination );
 
     template <typename T>
     RootOutputArchive& operator<<( const T& instance );
@@ -45,7 +41,7 @@ namespace conddb {
     void write( const std::type_info& sourceType, const void* sourceInstance);
   private:
     // here is where the write function will write on...
-    boost::iostreams::filtering_streambuf<boost::iostreams::output>& m_buffer;
+    std::ostream& m_buffer;
   };
 
   template <typename T> inline RootOutputArchive& RootOutputArchive::operator<<( const T& instance ){
@@ -56,8 +52,9 @@ namespace conddb {
   // input
   class RootInputArchive {
   public:
-    explicit RootInputArchive( boost::iostreams::filtering_streambuf<boost::iostreams::input>& inputData );
-    ~RootInputArchive();
+    explicit RootInputArchive( const std::stringbuf& source );
+
+    virtual ~RootInputArchive();
 
     template <typename T>
     RootInputArchive& operator>>( T& instance );
@@ -66,8 +63,8 @@ namespace conddb {
     void read( const std::type_info& destinationType, void* destinationInstance);
   private:
     // copy of the input stream. is referenced by the TBufferFile.
-    std::string m_copy;
-    TBufferFile* m_buffer = nullptr;
+    std::string m_buffer;
+    TBufferFile* m_streamer = nullptr;
   };
 
   template <typename T> inline RootInputArchive& RootInputArchive::operator>>( T& instance ){
@@ -90,17 +87,13 @@ namespace conddb {
 
   template <typename T> inline void OutputStreamer::write( const T& payload ){
     // save data to buffer
-    std::ostringstream outBuf;
-    outBuf.precision( 20 );
+    std::stringbuf buffer;
     { 
-      boost::iostreams::filtering_streambuf<boost::iostreams::output> f;
-      f.push(boost::iostreams::gzip_compressor());
-      f.push(outBuf);
-      //boost::archive::text_oarchive oa(outBuf);
-      RootOutputArchive oa(f);
+      std::ostream s(&buffer);
+      RootOutputArchive oa(s);
       oa << payload;
-    } // gzip_compressor flushes when f goes out of scope
-    m_data.copy( outBuf.str() );
+    } 
+    m_data.copy( buffer.str() );
   }
 
   class InputStreamer {
@@ -111,7 +104,7 @@ namespace conddb {
 
   private:
     std::string m_objectType;
-    std::ostringstream m_outBuf;
+    std::stringbuf  m_buffer;
   }; 
 
   template <typename T> inline boost::shared_ptr<T> InputStreamer::read(){
@@ -120,12 +113,7 @@ namespace conddb {
 								   "OutputStreamer::read" );
     boost::shared_ptr<T> payload( new T );
     {
-      std::istringstream iss( m_outBuf.str() ); 
-      boost::iostreams::filtering_streambuf<boost::iostreams::input> f;
-      f.push(boost::iostreams::gzip_decompressor());
-      f.push(iss);
-      //boost::archive::text_iarchive ia(iss);
-      RootInputArchive ia(f);
+      RootInputArchive ia(m_buffer);
       ia >> (*payload);
     }
     return payload;

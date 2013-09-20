@@ -4,9 +4,6 @@
 <use   name="CondCore/TagCollection"/>
 <use   name="CondCore/ORA"/>
 <use   name="FWCore/Framework"/>
-<use   name="boost"/>
-<use   name="boost_serialization"/>
-<use   name="boost_iostreams"/>
 <use   name="openssl"/>
 <use   name="CoralCommon"/>
 <use   name="CoralKernel"/>

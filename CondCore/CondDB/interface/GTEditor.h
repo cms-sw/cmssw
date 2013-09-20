@@ -15,7 +15,6 @@
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/CondDB/interface/Types.h"
 //
-#include <boost/shared_ptr.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace conddb {
@@ -31,10 +30,10 @@ namespace new_impl {
   public:
 
     // ctor
-    explicit GTEditor( const boost::shared_ptr<conddb::SessionImpl>& session );
+    explicit GTEditor( const std::shared_ptr<conddb::SessionImpl>& session );
 
     // ctor used after new tag creation. the specified params are assumed and passed directly to the object.
-    GTEditor( const boost::shared_ptr<conddb::SessionImpl>& session, const std::string& gtName );
+    GTEditor( const std::shared_ptr<conddb::SessionImpl>& session, const std::string& gtName );
 
     //
     GTEditor( const GTEditor& rhs );
@@ -74,8 +73,8 @@ namespace new_impl {
     void checkSession( const std::string& ctx );
 
   private:
-    boost::shared_ptr<GTEditorData> m_data;
-    boost::shared_ptr<conddb::SessionImpl> m_session;
+    std::shared_ptr<GTEditorData> m_data;
+    std::shared_ptr<conddb::SessionImpl> m_session;
 
   };
 }

@@ -21,6 +21,7 @@
 #include "CondCore/CondDB/interface/Types.h"
 #include "CondCore/CondDB/interface/Utils.h"
 // 
+// temporarely
 #include <boost/shared_ptr.hpp>
 
 // TO BE REMOVED AFTER THE TRANSITION
@@ -140,7 +141,7 @@ namespace new_impl {
 
   private:
 
-    boost::shared_ptr<conddb::SessionImpl> m_session;
+    std::shared_ptr<conddb::SessionImpl> m_session;
     Transaction m_transaction;
   };
 
