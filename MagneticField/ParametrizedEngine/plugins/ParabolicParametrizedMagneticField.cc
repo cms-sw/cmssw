@@ -30,14 +30,10 @@ ParabolicParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
   }
 }
 
-namespace {
-  constexpr float ooh = 1./100;
-}
-
 GlobalVector
 ParabolicParametrizedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) const {
-  float x[3] = {gp.x()*ooh, gp.y()*ooh, gp.z()*ooh};
-  float B=B0Z(x[2])*Kr(x[0]*x[0]+x[0]*x[1]);
+  float x[3] = {gp.x(), gp.y(), gp.z()};
+  float B=B0Z(x[2])*Kr(x[0]*x[0]+x[1]*x[1]);
   return GlobalVector(0, 0, B);
 }
 
