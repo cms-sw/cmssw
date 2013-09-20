@@ -46,6 +46,7 @@
 SiPixelCalibDigiFilter::SiPixelCalibDigiFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
+   tPixelCalibDigi = consumes <edm::DetSetVector<SiPixelCalibDigi>>(edm::InputTag("SiPixelCalibDigiProducer"));
 
 }
 
@@ -69,7 +70,7 @@ SiPixelCalibDigiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 {
    using namespace edm;
    Handle<DetSetVector<SiPixelCalibDigi> > listOfDetIds;
-   iEvent.getByLabel("SiPixelCalibDigiProducer", listOfDetIds);
+   iEvent.getByToken(tPixelCalibDigi, listOfDetIds);
 
    if (listOfDetIds->size() == 0)
       return false;
