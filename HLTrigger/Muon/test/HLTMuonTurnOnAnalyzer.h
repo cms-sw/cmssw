@@ -10,6 +10,11 @@
 // Base Class Headers
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
+
 #include <vector>
 
 class TFile;
@@ -36,6 +41,9 @@ private:
   bool useMuonFromGenerator;
   edm::InputTag theL1CollectionLabel;
   std::vector<edm::InputTag> theHLTCollectionLabels;
+  edm::EDGetTokenT<edm::HepMCProduct> theGenToken;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> theL1CollectionToken;
+  std::vector<edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> >  theHLTCollectionTokens;
   double theReferenceThreshold;
   double thePtMin;
   double thePtMax;
