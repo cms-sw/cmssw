@@ -1,25 +1,13 @@
 // C/C++ headers
-#include <iostream>
-#include <vector>
-#include <memory>
-
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
+//#include <iostream>
+//#include <vector>
 
 // Reconstruction Classes
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 
-// Geometry
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -29,39 +17,24 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
-
-// EgammaCoreTools
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-
-
-// Class header file
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTNxNClusterProducer.h"
+#include "TVector3.h"
 
-
-
-using namespace edm;
-using namespace std;
-
-EgammaHLTNxNClusterProducer::EgammaHLTNxNClusterProducer(const edm::ParameterSet& ps)
-{
-  
+EgammaHLTNxNClusterProducer::EgammaHLTNxNClusterProducer(const edm::ParameterSet& ps) {
   
   doBarrel_   = ps.getParameter<bool>("doBarrel");
   doEndcaps_   = ps.getParameter<bool>("doEndcaps");
-    
-  barrelHitProducer_ = ps.getParameter< edm::InputTag > ("barrelHitProducer");
-  endcapHitProducer_ = ps.getParameter< edm::InputTag > ("endcapHitProducer");
+  
+  barrelHitProducer_ = consumes<EcalRecHitCollection>(ps.getParameter< edm::InputTag > ("barrelHitProducer"));
+  endcapHitProducer_ = consumes<EcalRecHitCollection>(ps.getParameter< edm::InputTag > ("endcapHitProducer"));
   
   clusEtaSize_ = ps.getParameter<int> ("clusEtaSize");
   clusPhiSize_ = ps.getParameter<int> ("clusPhiSize");
   
-  
-  
   // The names of the produced cluster collections
   barrelClusterCollection_  = ps.getParameter<std::string>("barrelClusterCollection");
   endcapClusterCollection_  = ps.getParameter<std::string>("endcapClusterCollection");
-  
-  
+    
   clusSeedThr_ = ps.getParameter<double> ("clusSeedThr");
   clusSeedThrEndCap_ = ps.getParameter<double> ("clusSeedThrEndCap");
   
@@ -78,62 +51,52 @@ EgammaHLTNxNClusterProducer::EgammaHLTNxNClusterProducer(const edm::ParameterSet
   maxNumberofSeeds_    = ps.getParameter<int> ("maxNumberofSeeds");
   maxNumberofClusters_ = ps.getParameter<int> ("maxNumberofClusters");
   
-
   debug_ = ps.getParameter<int> ("debugLevel");
   
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
   produces< reco::BasicClusterCollection >(endcapClusterCollection_);
-  
-  
-
 }
 
 
 EgammaHLTNxNClusterProducer::~EgammaHLTNxNClusterProducer()
-{
-  //delete island_p;
-}
+{}
 
-
-void EgammaHLTNxNClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
-{
-  
-  
-  if(doBarrel_){
-    Handle<EcalRecHitCollection> barrelRecHitsHandle;
-    evt.getByLabel(barrelHitProducer_,barrelRecHitsHandle);
+void EgammaHLTNxNClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+    
+  if(doBarrel_) {
+    edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
+    evt.getByToken(barrelHitProducer_, barrelRecHitsHandle);
     if (!barrelRecHitsHandle.isValid()) {
       LogDebug("") << "EgammaHLTNxNClusterProducer Error! can't get product eb hit!" << std::endl;
     }
     
     const EcalRecHitCollection *hits_eb = barrelRecHitsHandle.product();
-    if( debug_>=2 ) LogDebug("")<<"EgammaHLTNxNClusterProducer nEBrechits: "<< evt.id().run()<<" event "<<evt.id().event() <<" "<< hits_eb->size()<<std::endl;
+    if( debug_>=2 )
+      LogDebug("")<<"EgammaHLTNxNClusterProducer nEBrechits: "<< evt.id().run()<<" event "<<evt.id().event() <<" "<< hits_eb->size()<<std::endl;
     
     makeNxNClusters(evt,es,hits_eb, reco::CaloID::DET_ECAL_BARREL);
     
   }
   
   
-  if(doEndcaps_){
-    Handle<EcalRecHitCollection> endcapRecHitsHandle;
-    evt.getByLabel(endcapHitProducer_,endcapRecHitsHandle);
+  if(doEndcaps_) {
+    edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
+    evt.getByToken(endcapHitProducer_, endcapRecHitsHandle);
     if (!endcapRecHitsHandle.isValid()) {
       LogDebug("") << "EgammaHLTNxNClusterProducer Error! can't get product ee hit!" << std::endl;
     }
     
     const EcalRecHitCollection *hits_ee = endcapRecHitsHandle.product();
-    if( debug_>=2 ) LogDebug("")<<"EgammaHLTNxNClusterProducer nEErechits: "<< evt.id().run()<<" event "<<evt.id().event() <<" "<< hits_ee->size()<<std::endl;
+    if( debug_>=2 ) 
+      LogDebug("")<<"EgammaHLTNxNClusterProducer nEErechits: "<< evt.id().run()<<" event "<<evt.id().event() <<" "<< hits_ee->size()<<std::endl;
     makeNxNClusters(evt,es,hits_ee, reco::CaloID::DET_ECAL_ENDCAP);
   }
-  
-  
-  
 }
 
 
 
 bool EgammaHLTNxNClusterProducer::checkStatusOfEcalRecHit(const EcalChannelStatus &channelStatus,const EcalRecHit &rh){
-  
+
   if(useRecoFlag_ ){ ///from recoFlag()
     int flag = rh.recoFlag();
     if( flagLevelRecHitsToUse_ ==0){ ///good 

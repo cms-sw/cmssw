@@ -19,8 +19,14 @@
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-//#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 //this class is designed to calculate dEtaIn,dPhiIn gsf track - supercluster pairs
 //it can take as input std::vector<Electron> which the gsf track-sc is already done
@@ -28,14 +34,9 @@
 //the dEta, dPhi do not have to be from the same track
 //it can optionally set dEta, dPhi to 0 based on the number of tracks found
 
-
 class EgammaHLTGsfTrackVarProducer : public edm::EDProducer {
-private:
-  //this is a helper class which performs the necessary track to ecal and track to vertex extrapolations
-  //based on the GsfElectronAlgo class
+ private:
   class TrackExtrapolator {
-    
-    
     unsigned long long cacheIDTDGeom_;
     unsigned long long cacheIDMagField_;
     
@@ -44,15 +45,14 @@ private:
     
     MultiTrajectoryStateMode mtsMode_; 
     const MultiTrajectoryStateTransform * mtsTransform_; //we own it
-  
-
+    
   public:
-    TrackExtrapolator():cacheIDTDGeom_(0),cacheIDMagField_(0),mtsTransform_(0){}
+  TrackExtrapolator():cacheIDTDGeom_(0),cacheIDMagField_(0),mtsTransform_(0){}
     TrackExtrapolator(const TrackExtrapolator& rhs);
     ~TrackExtrapolator(){delete mtsTransform_;}
     TrackExtrapolator* operator=(const TrackExtrapolator& rhs);
     
- 
+    
     void setup(const edm::EventSetup& iSetup);
     
     GlobalPoint extrapolateTrackPosToPoint(const reco::GsfTrack& gsfTrack,const GlobalPoint& pointToExtrapTo);
@@ -62,25 +62,21 @@ private:
     const MultiTrajectoryStateTransform * mtsTransform()const{return mtsTransform_;}
     const MultiTrajectoryStateMode* mtsMode()const{return &mtsMode_;}
   };
-
-public:
+  
+ public:
   explicit EgammaHLTGsfTrackVarProducer(const edm::ParameterSet&);
   ~EgammaHLTGsfTrackVarProducer();
-  
-  
   virtual void produce(edm::Event&, const edm::EventSetup&); 
 
-private:
+ private:
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandTag_;
+  edm::EDGetTokenT<reco::ElectronCollection> inputCollectionTag1_;
+  edm::EDGetTokenT<reco::GsfTrackCollection> inputCollectionTag2_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
   
-private:
-  // ----------member data ---------------------------
-  edm::InputTag recoEcalCandTag_;
-  edm::InputTag inputCollectionTag_;
-  edm::InputTag beamSpotTag_;
   TrackExtrapolator trackExtrapolator_;
   int upperTrackNrToRemoveCut_;
   int lowerTrackNrToRemoveCut_;
- 
 };
 
 #endif

@@ -8,15 +8,6 @@
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTCombinedIsolationProducer.h"
 
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -25,35 +16,31 @@
 EgammaHLTCombinedIsolationProducer::EgammaHLTCombinedIsolationProducer(const edm::ParameterSet& config) : conf_(config)
 {
  // use configuration file to setup input/output collection names
-  recoEcalCandidateProducer_ = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
-
-  IsolTag_ = conf_.getParameter< std::vector<edm::InputTag> > ("IsolationMapTags");
+  recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
+  
+  std::vector<edm::InputTag> tempIsolTag = conf_.getParameter< std::vector<edm::InputTag> > ("IsolationMapTags");
+  for (unsigned int i=0; i<tempIsolTag.size(); i++)
+    IsolTag_.push_back(consumes<reco::RecoEcalCandidateIsolationMap>(tempIsolTag[i]));
+		       
   IsolWeight_ = conf_.getParameter< std::vector<double> > ("IsolationWeight");
 
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
 
-  if ( IsolTag_.size() != IsolWeight_.size()){ 
+  if (IsolTag_.size() != IsolWeight_.size()){ 
     throw cms::Exception("BadConfig") << "vectors IsolationMapTags and IsolationWeight need to have the same size";
   }
-
 }
 
-
-EgammaHLTCombinedIsolationProducer::~EgammaHLTCombinedIsolationProducer(){}
-
-
-//
-// member functions
-//
+EgammaHLTCombinedIsolationProducer::~EgammaHLTCombinedIsolationProducer()
+{}
 
 // ------------ method called to produce the data  ------------
 void
-EgammaHLTCombinedIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+EgammaHLTCombinedIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
-  iEvent.getByLabel(recoEcalCandidateProducer_,recoecalcandHandle);
+  iEvent.getByToken(recoEcalCandidateProducer_, recoecalcandHandle);
 
   reco::RecoEcalCandidateIsolationMap TotalIsolMap;
   double TotalIso=0;
@@ -61,7 +48,9 @@ EgammaHLTCombinedIsolationProducer::produce(edm::Event& iEvent, const edm::Event
   std::vector< edm::Handle<reco::RecoEcalCandidateIsolationMap> > IsoMap;
   for( unsigned int u=0; u < IsolWeight_.size(); u++){
     edm::Handle<reco::RecoEcalCandidateIsolationMap> depMapTemp;
-    if(IsolWeight_[u] != 0){ iEvent.getByLabel (IsolTag_[u],depMapTemp);}
+    if(IsolWeight_[u] != 0)
+      iEvent.getByToken(IsolTag_[u], depMapTemp);
+    
     IsoMap.push_back(depMapTemp);
   }
   
