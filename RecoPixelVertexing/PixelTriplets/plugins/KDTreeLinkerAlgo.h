@@ -189,7 +189,7 @@ KDTreeLinkerAlgo<DATA>::recSearch(int	current,
       float median = nodePool_.median[current];
 
       bool goLeft = (dimCurrMin <= median);
-      bool goRight = (dimCurrMax > median);
+      bool goRight = (dimCurrMax >= median);
 
       // Swap dimension for the next search level
       std::swap(dimCurrMin, dimOtherMin);
