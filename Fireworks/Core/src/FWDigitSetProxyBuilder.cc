@@ -70,8 +70,7 @@ private:
 //==============================================================================
 //==============================================================================
 
-FWDigitSetProxyBuilder::FWDigitSetProxyBuilder():
-   m_boxSet(0)
+FWDigitSetProxyBuilder::FWDigitSetProxyBuilder()
 {
 }
 
@@ -90,17 +89,17 @@ TEveBoxSet* FWDigitSetProxyBuilder::addBoxSetToProduct(TEveElementList* product)
 {
    assert(!product->HasChildren());
    
-   m_boxSet = new TEveBoxSet();
-   m_boxSet->SetTooltipCBFoo(getTooltip);
-   m_boxSet->Reset(TEveBoxSet::kBT_FreeBox, true, 256);
-   FWSecondarySelectableSelector* sel = new FWSecondarySelectableSelector(m_boxSet->RefSelectedSet(), item());
-   m_boxSet->SetUserData(sel);
-   m_boxSet->SetPickable(1);
-   m_boxSet->SetAlwaysSecSelect(1);
+   TEveBoxSet* boxSet = new TEveBoxSet();
+   boxSet->SetTooltipCBFoo(getTooltip);
+   boxSet->Reset(TEveBoxSet::kBT_FreeBox, true, 256);
+   FWSecondarySelectableSelector* sel = new FWSecondarySelectableSelector(boxSet->RefSelectedSet(), item());
+   boxSet->SetUserData(sel);
+   boxSet->SetPickable(1);
+   boxSet->SetAlwaysSecSelect(1);
 
-   product->AddElement(m_boxSet);
+   product->AddElement(boxSet);
 
-   return m_boxSet;
+   return boxSet;
 }
 
 TEveDigitSet* FWDigitSetProxyBuilder::digitSet(TEveElement* product)
