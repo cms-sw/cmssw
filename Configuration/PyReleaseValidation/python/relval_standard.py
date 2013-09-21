@@ -134,7 +134,7 @@ workflows[24] = ['', ['TTbarLepton','DIGI','RECO','HARVEST']]
 workflows[35] = ['', ['Wjet_Pt_80_120','DIGI','RECO','HARVEST']]
 workflows[36] = ['', ['Wjet_Pt_3000_3500','DIGI','RECO','HARVEST']]
 workflows[37] = ['', ['LM1_sfts','DIGI','RECO','HARVEST']]
-# the input for the following worrkflow when recycling is not valid dbs datasets
+# the input for the following worrkflow is high statistics
 workflows[38] = ['', ['QCD_FlatPt_15_3000HS','DIGI','RECO','HARVEST']]
 
 workflows[9]  = ['', ['Higgs200ChargedTaus','DIGI','RECO','HARVEST']]
@@ -165,7 +165,6 @@ workflows[44] = ['', ['ZpEE_2250_8TeV_Tauola','DIGI','RECO','HARVEST']]
 workflows[45] = ['', ['ZpTT_1500_8TeV_Tauola','DIGI','RECO','HARVEST']]
 
 ## 13 TeV and postLS1 geometry
-#workflows[132499] = ['', ['TTbarLepton_13_OS','DIGI','RECO','HARVEST']]  ## debugging : this is old style => BAD
 workflows[1324] = ['', ['TTbarLepton_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1335] = ['', ['Wjet_Pt_80_120_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1336] = ['', ['Wjet_Pt_3000_3500_13','DIGIUP15','RECOUP15','HARVESTUP15']]
@@ -184,8 +183,8 @@ workflows[1332] = ['', ['H130GGgluonfusion_13','DIGIUP15','RECOUP15','HARVESTUP1
 workflows[1333] = ['', ['PhotonJets_Pt_10_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1334] = ['', ['QQH1352T_Tauola_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
-workflows[1308]  = ['', ['BeamHalo_13','DIGICOS','RECOCOS','ALCABH','HARVESTCOS']]
-workflows[1311] = ['', ['MinBias_13','DIGIUP15','RECOMIN','HARVESTUP15','ALCAMIN']]
+workflows[1308]  = ['', ['BeamHalo_13','DIGIHAL','RECOHAL','ALCAHAL','HARVESTHAL']]
+workflows[1311] = ['', ['MinBias_13','DIGIUP15','RECOMINUP15','HARVESTUP15','ALCAMIN']]
 workflows[1328] = ['', ['QCD_Pt_80_120_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1327] = ['', ['WM_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1330] = ['', ['ZMM_13','DIGIUP15','RECOUP15','HARVESTUP15']]
