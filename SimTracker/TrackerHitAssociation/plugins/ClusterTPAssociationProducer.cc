@@ -74,6 +74,7 @@ void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventS
     for (std::vector<SimTrack>::const_iterator itrk  = trackingParticle->g4Track_begin(); 
                                                itrk != trackingParticle->g4Track_end(); ++itrk) {
       std::pair<uint32_t, EncodedEventId> trkid(itrk->trackId(), eid);
+      //std::cout << "creating map for id: " << trkid.first << " with tp: " << trackingParticle.key() << std::endl;
       mapping.insert(std::make_pair(trkid, trackingParticle));
     }
   }
@@ -96,15 +97,16 @@ void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventS
       for (int irow = cluster.minPixelRow(); irow <= cluster.maxPixelRow(); ++irow) {
 	for (int icol = cluster.minPixelCol(); icol <= cluster.maxPixelCol(); ++icol) {
 	  uint32_t channel = PixelChannelIdentifier::pixelToChannel(irow, icol);
-          std::pair<uint32_t, EncodedEventId> trkid(getSimTrackId<PixelDigiSimLink>(sipixelSimLinks, detId, channel));
-          if (!trkid.first) continue; 
-          simTkIds.insert(trkid);
+	  std::vector<std::pair<uint32_t, EncodedEventId> > trkid(getSimTrackId<PixelDigiSimLink>(sipixelSimLinks, detId, channel));
+	  if (trkid.size()==0) continue; 
+	  simTkIds.insert(trkid.begin(),trkid.end());
 	}
       }
       for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset  = simTkIds.begin(); 
                                                                           iset != simTkIds.end(); iset++) {
 	auto ipos = mapping.find(*iset);
         if (ipos != mapping.end()) {
+	  //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
           clusterTPList->push_back(std::make_pair(OmniClusterRef(c_ref), ipos->second));
         }
       }
@@ -127,15 +129,16 @@ void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventS
       int first  = cluster.firstStrip();     
       int last   = first + cluster.amplitudes().size();
    
-      for (int istr = first; istr <= last; ++istr) {
-        std::pair<uint32_t, EncodedEventId> trkid(getSimTrackId<StripDigiSimLink>(sistripSimLinks, detId, istr));
-        if (!trkid.first) continue; 
-        simTkIds.insert(trkid);
+      for (int istr = first; istr < last; ++istr) {
+	std::vector<std::pair<uint32_t, EncodedEventId> > trkid(getSimTrackId<StripDigiSimLink>(sistripSimLinks, detId, istr));
+        if (trkid.size()==0) continue; 
+        simTkIds.insert(trkid.begin(),trkid.end());
       }
       for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset  = simTkIds.begin(); 
                                                                           iset != simTkIds.end(); iset++) {
 	auto ipos = mapping.find(*iset);
         if (ipos != mapping.end()) {
+	  //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
           clusterTPList->push_back(std::make_pair(OmniClusterRef(c_ref), ipos->second));
         } 
       }
@@ -144,11 +147,13 @@ void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventS
   iEvent.put(clusterTPList);
 }
 template <typename T>
-std::pair<uint32_t, EncodedEventId> 
+std::vector<std::pair<uint32_t, EncodedEventId> >
+//std::pair<uint32_t, EncodedEventId>
 ClusterTPAssociationProducer::getSimTrackId(const edm::Handle<edm::DetSetVector<T> >& simLinks,
                                             const DetId& detId, uint32_t channel) const 
 {
-  std::pair<uint32_t, EncodedEventId> simTrkId;
+  //std::pair<uint32_t, EncodedEventId> simTrkId;
+  std::vector<std::pair<uint32_t, EncodedEventId> > simTrkId;
   auto isearch = simLinks->find(detId);
   if (isearch != simLinks->end()) {
     // Loop over DigiSimLink in this det unit
@@ -156,8 +161,7 @@ ClusterTPAssociationProducer::getSimTrackId(const edm::Handle<edm::DetSetVector<
     for (typename edm::DetSet<T>::const_iterator it  = link_detset.data.begin(); 
                                                  it != link_detset.data.end(); ++it) {
       if (channel == it->channel()) {
-        simTrkId = std::make_pair(it->SimTrackId(), it->eventId());
-        break;        
+        simTrkId.push_back(std::make_pair(it->SimTrackId(), it->eventId()));
       } 
     }
   }
