@@ -144,6 +144,9 @@ namespace {
       const std::vector<std::string>& moduleLabels = HLTCP.moduleLabels(name_);
       for(std::vector<std::string>::const_iterator iLabel = moduleLabels.begin(); iLabel != moduleLabels.end(); ++iLabel) {
         const std::string type = HLTCP.moduleType(*iLabel);
+        // FIXME: this will not work in unscheduled mode, where
+        // producers are not in paths. Try looking first filter using
+        // the PFRecoTauProducer output instead.
         if(type == "PFRecoTauProducer") {
           //edm::LogInfo("HLTTauDQMOffline") << "Found PFTauProducer " << *iLabel << " index " << (iLabel-moduleLabels.begin());
           return iLabel-moduleLabels.begin();
