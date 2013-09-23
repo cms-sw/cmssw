@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "FWCore/MessageLogger/interface/JobReport.h"
-
+#include "FWCore/Utilities/interface/InputType.h"
 
 
 void work()
@@ -52,11 +52,11 @@ void work()
 
   
   for (int i=0; i < 1000; i++){
-    theReport->eventReadFromFile(inpFile, 1000001, i);
+    theReport->eventReadFromFile(edm::InputType::Primary, inpFile);
     theReport->eventWrittenToFile(outFile, 1000001, i);
   }
 
-  theReport->inputFileClosed(inpFile);
+  theReport->inputFileClosed(edm::InputType::Primary, inpFile);
   theReport->outputFileClosed(outFile);
   
   }

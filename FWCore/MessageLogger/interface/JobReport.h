@@ -5,15 +5,72 @@
 // Package:     MessageLogger
 // Class  :     JobReport
 //
-/**\class JobReport JobReport.h FWCore/MessageLogger/interface/JobReport.h
+/**\class edm::JobReport
 
 Description: A service that collections job handling information.
 
 Usage:
 The JobReport service collects 'job handling' information (currently
 file handling) from several sources, collates the information, and
-at appropriate intervales, reports the information to the job report,
+at appropriate intervals, reports the information to the job report,
 through the MessageLogger.
+
+CMS-THREADING Some notes about thread safety:
+
+1. It is assumed non-experts will turn the job report on
+and look at the XML output and NOT call the available public
+functions. Many of the available service functions can be
+called at times that are not thread safe (causing data
+races or interleaved output). The following notes are for
+Framework experts and detail the assumptions made when
+modifying JobReport to run in the multithreaded Framework.
+
+2. We assume the primary input source performs its activity
+serially, with the exception of delayed reading. We assume
+the secondary input source performs its activities serially.
+The two sources may be running concurrently with each other
+but individually their tasks run serially.
+
+3. We assume the following sequence of activities where the lines
+of asterisks indicate synchronization points:
+
+****************
+open primary input file
+nothing else running concurrently
+Also respondToOpenInputFiles serially
+****************
+open output files serially
+nothing else running concurrently
+****************
+The primary source runs its other tasks concurrently
+with the secondary source running its tasks and
+modules running their tasks.
+****************
+close primary input file
+nothing else running concurrently
+****************
+close output files serially
+nothing else running concurrently
+****************
+repeat the above (the output file opens and closes
+are optional except for the first and last)
+***********************
+All endJob and postEndJob activities occur serially
+not concurrently
+************************
+
+4. We assume that a single instance of an OutputModule
+will only be running on one thread at a time.
+Other instances of that type of OutputModule may be running
+concurrently. There are several functions where this is
+an issue. We have discussed that in the future we might
+decide to run the OutputModule for multiple events
+concurrently. That would require further modifications
+of either the JobReport or the OutputModule.
+
+5. For each type of input file (Primary, SecondaryFile,
+SecondarySource) the calls to reportBranchName from the
+delayed reader need to be serialized.
 
 */
 //
@@ -26,11 +83,14 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
         and /proc/meminfo files and Memory statistics
 */
 
+#include "FWCore/Utilities/interface/InputType.h"
+
 #include <cstddef>
-#include <string>
-#include <ostream>
-#include <set>
+#include <iosfwd>
 #include <map>
+#include <mutex>
+#include <set>
+#include <string>
 #include <vector>
 
 #include "boost/scoped_ptr.hpp"
@@ -39,28 +99,9 @@ namespace edm {
 
     class JobReport {
     public:
+
       typedef unsigned int RunNumber;
       typedef std::size_t Token;
-
-      /**\struct LumiSectionReport
-
-      Description: Holds information about a Lumi section associated to a
-      file
-
-      Usage: struct contains parameters describing a Lumi Section, OutputFile
-             object stores a vector of these for each file
-      */
-
-      struct LumiSectionReport {
-        unsigned int  runNumber;
-        unsigned int lumiSectionId;
-        /// So far we are proceeding without extra information, but
-        /// this may be added in the future...
-        ///unsigned int startEvent;
-        ///unsigned int lastEvent;
-        ///std::string lumiStartTime;
-        ///std::string lumiEndTime;
-      };
 
       struct RunReport {
         RunNumber runNumber;
@@ -86,7 +127,7 @@ namespace edm {
         std::string     inputSourceClassName; // class which created the file
         std::string     moduleLabel;   // name of class instance
         std::string     guid;
-        size_t          numEventsRead;
+        std::size_t     numEventsRead;
         StringVector    branchNames;
         std::map<RunNumber, RunReport> runReports;
         bool            fileHasBeenClosed;
@@ -114,68 +155,48 @@ namespace edm {
         std::string     guid;
         std::string     dataType;
         std::string     branchHash;
-        size_t          numEventsWritten;
+        std::size_t     numEventsWritten;
         StringVector    branchNames;
         std::vector<Token> contributingInputs;
+        std::vector<Token> contributingInputsSecSource;
         std::map<std::string, bool> fastCopyingInputs;
         std::map<RunNumber, RunReport> runReports;
         bool            fileHasBeenClosed;
       };
 
       struct JobReportImpl {
-        // Helper functions to be called from the xFileClosed functions,
-        // after the appropriate logging is done.
-        /*
-         * Note: We want to keep input files, so we can resolve tokens
-         * when we close output files
-         *
-         * Note2: Erasing the Output files on close invalidates the Tokens
-         * for existing output files since they are based on position in
-         * the vector, so I have left off implementing these methods for now
-         */
-        void removeInputFileRecord_(Token t);
-        void removeOutputFileRecord_(Token t);
 
-        InputFile& getInputFileForToken(Token t);
+        JobReportImpl& operator=(JobReportImpl const&) = delete;
+        JobReportImpl(JobReportImpl const&) = delete;
+
+        InputFile& getInputFileForToken(InputType inputType, Token t);
         OutputFile& getOutputFileForToken(Token t);
+
         /*
          * Add the input file token provided to every output
          * file currently available.
          * Used whenever a new input file is opened, it's token
          * is added to all open output files as a contributor
          */
-        void insertInputForOutputs(Token t);
-
-        /*
-         * get a vector of Tokens for all currently open
-         * input files.
-         * Used when a new output file is opened, all currently open
-         * input file tokens are used to initialise its list of contributors
-         */
-        void openInputFiles(std::vector<Token>& tokens);
-
-        /*
-         * Get a vector of Tokens for all currently open output files
-         * Used to add lumi sections to open files
-         */
-        void openOutputFiles(std::vector<Token>& tokens);
+        void insertInputForOutputs(InputType inputType, Token t);
 
         /*
          * Associate a Lumi Section to all open output files
          *
          */
-        void associateLumiSection(unsigned int runNumber, unsigned int lumiSection);
-
+        void associateLumiSection(JobReport::Token token, unsigned int runNumber, unsigned int lumiSection);
 
         /*
          * Associate a Lumi Section to all open input files
          *
          */
         void associateInputLumiSection(unsigned int runNumber, unsigned int lumiSection);
+
         /*
          * Associate a run to all open output files
          */
-        void associateRun(unsigned int runNumber);
+        void associateRun(JobReport::Token token, unsigned int runNumber);
+
         /*
          * Associate a run to all open output files
          */
@@ -187,6 +208,7 @@ namespace edm {
          * job report via MessageLogger
          */
         void writeInputFile(InputFile const& f);
+
         /*
          * Write an OutputFile object to the Logger
          * Generate an XML string for the OutputFile provided and
@@ -204,28 +226,19 @@ namespace edm {
         void writeOutputFile(OutputFile const& f);
 
         /*
-         * Add Generator info to the map of gen info stored in this
-         * instance.
-         */
-        void addGeneratorInfo(std::string const& name, std::string const& value);
-
-        /*
-         * Write out generator info to the job report
-         */
-        void writeGeneratorInfo(void);
-
-
-        /*
          *  Flush all open files to logger in event of a problem.
          */
         void flushFiles(void);
 
-        JobReportImpl(std::ostream* iOst): ost_(iOst) {}
+        JobReportImpl(std::ostream* iOst): printedReadBranches_(false), ost_(iOst) {}
 
         std::vector<InputFile> inputFiles_;
+        std::vector<InputFile> inputFilesSecSource_;
         std::vector<OutputFile> outputFiles_;
-        std::map<std::string, std::string> generatorInfo_;
         std::map<std::string, long long> readBranches_;
+        std::map<std::string, long long> readBranchesSecFile_;
+        std::map<std::string, long long> readBranchesSecSource_;
+        bool printedReadBranches_;
         std::set<std::string>* fastClonedBranches_;
         std::ostream* ost_;
       };
@@ -233,6 +246,9 @@ namespace edm {
       JobReport();
       //Does not take ownership of pointer
       JobReport(std::ostream* outputStream);
+
+      JobReport& operator=(JobReport const&) = delete;
+      JobReport(JobReport const&) = delete;
 
       ~JobReport();
 
@@ -257,19 +273,21 @@ namespace edm {
 
       /// Report that the event with the given id has been read from
       /// the file identified by the given Token.
-      void eventReadFromFile(Token fileToken, unsigned int run, unsigned int event);
+      void eventReadFromFile(InputType inputType, Token fileToken);
 
       ///
       /// Report the data type of a file after it has been opened
       /// Needed since the data type isn't known until an event has been
       /// read
+      // CMS-THREADING Current implementation requires an instance of an
+      // OuputModule run on only one thread at a time.
       void reportDataType(Token fileToken, std::string const& dataType);
 
 
       /// Report that the input file identified by the given Token has
       /// been closed. An exception will be thrown if the given Token
       /// was not obtained from inputFileOpened.
-      void inputFileClosed(Token fileToken);
+      void inputFileClosed(InputType inputType, Token fileToken);
 
       /// Report that an output file has been opened.
       /// The returned Token should be used for later identification
@@ -286,6 +304,8 @@ namespace edm {
 
       /// Report that the event with the given id has been written to
       /// the file identified by the given Token.
+      // CMS-THREADING Current implementation requires an instance of an
+      // OuputModule run on only one thread at a time.
       void eventWrittenToFile(Token fileToken, unsigned int run, unsigned int event);
 
       /// Report that the output file identified by the given Token has
@@ -293,27 +313,20 @@ namespace edm {
       /// was not obtained from outputFileOpened.
       void outputFileClosed(Token fileToken);
 
-      ///
-      /// For use by fast merge: Since the event by event counter cant
-      /// be used for fast merges, use this method to forcibly set the
-      /// events written count for an output file before reporting it
-      /// closed
-      void overrideEventsWritten(Token fileToken, int const eventsWritten);
-      ///
-      /// For use by fast merge: Since the event by event counter cant
-      /// be used for fast merges, use this method to forcibly set the
-      /// events read count for an input file before reporting it
-      /// closed
-      void overrideEventsRead(Token fileToken, int const eventsRead);
-
       void reportSkippedEvent(unsigned int run, unsigned int event);
 
+      /// API for reporting a Run to the job report.
+      /// for output files, call only if Run is written to
+      /// the output file
       ///
+      void reportRunNumber(JobReport::Token token, unsigned int run);
+
       /// API for reporting a Lumi Section to the job report.
       /// for output files, call only if lumi section is written to
       /// the output file
       ///
-      void reportLumiSection(unsigned int run, unsigned int lumiSectId);
+      void reportLumiSection(JobReport::Token token, unsigned int run, unsigned int lumiSectId);
+
       ///
       /// API for reporting a Lumi Section to the job report.
       /// for input files, call only if lumi section is physically read
@@ -321,10 +334,6 @@ namespace edm {
       ///
       void reportInputLumiSection(unsigned int run, unsigned int lumiSectId);
 
-      ///
-      /// API to report the a run written to output
-      ///
-      void reportRunNumber(unsigned int run);
       ///
       /// API to report a run read from input
       ///
@@ -335,9 +344,6 @@ namespace edm {
       /// a short description (Eg "XXXError") and a long description
       /// (Eg "XXX crashed because...")
       /// Also overload this method to accept an optional standard exit code
-      void  reportError(std::string const& shortDesc,
-                        std::string const& longDesc);
-
       void reportError(std::string const& shortDesc,
                        std::string const& longDesc,
                        int const& exitCode);
@@ -379,30 +385,15 @@ namespace edm {
       void reportReadBranches();
 
       ///  Inform the job report that a branch has been read.
-      void reportReadBranch(std::string const& branchName);
+      void reportReadBranch(InputType inputType, std::string const& branchName);
 
       ///  Inform the job report that branches have been fast Cloned.
       void reportFastClonedBranches(std::set<std::string> const& fastClonedBranches, long long nEvents);
-
-      /// Override the list of input files seen by an output file
-      /// for use with EdmFastMerge
-      void overrideContributingInputs(Token outputToken, std::vector<Token> const& inputTokens);
-
-      /// Report key/value style generator/lumi information
-      /// Eg:  reportGeneratorInfo("CrossSection" , "ValueHere")
-      /// No special chars in the value string.
-      void reportGeneratorInfo(std::string const&  name, std::string const&  value);
 
       ///
       /// Report the name of the random engine persistency file
       ///
       void reportRandomStateFile(std::string const& name);
-
-      ///
-      /// Report PSetHash
-      ///
-      ///
-      void reportPSetHash(std::string const& hashValue);
 
       /*
        * Report information about fast copying. Called for each open output file
@@ -432,13 +423,10 @@ namespace edm {
 
    private:
       boost::scoped_ptr<JobReportImpl> impl_;
-
+      std::mutex write_mutex;
    };
 
    std::ostream& operator<< (std::ostream& os, JobReport::InputFile const& f);
    std::ostream& operator<< (std::ostream& os, JobReport::OutputFile const& f);
-   std::ostream& operator<< (std::ostream& os, JobReport::LumiSectionReport const& rep);
-
 }
-
 #endif

@@ -3,6 +3,7 @@
 
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
+
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Version/interface/GetFileFormatVersion.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
@@ -13,6 +14,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/OutputHandle.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
@@ -436,6 +438,9 @@ namespace edm {
     ++lumiEntryNumber_;
     fillBranches(InLumi, lb, nullptr, mcc);
     lumiTree_.optimizeBaskets(10ULL*1024*1024);
+
+    Service<JobReport> reportSvc;
+    reportSvc->reportLumiSection(reportToken_, lb.id().run(), lb.id().luminosityBlock());
   }
 
   void RootOutputFile::writeRun(RunPrincipal const& r, ModuleCallingContext const* mcc) {
@@ -453,6 +458,9 @@ namespace edm {
     ++runEntryNumber_;
     fillBranches(InRun, r, nullptr, mcc);
     runTree_.optimizeBaskets(10ULL*1024*1024);
+
+    Service<JobReport> reportSvc;
+    reportSvc->reportRunNumber(reportToken_, r.run());
   }
 
   void RootOutputFile::writeParentageRegistry() {

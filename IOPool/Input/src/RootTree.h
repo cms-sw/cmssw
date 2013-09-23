@@ -10,6 +10,7 @@ RootTree.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/InputType.h"
 
 #include "Rtypes.h"
 #include "TBranch.h"
@@ -64,7 +65,8 @@ namespace edm {
              unsigned int maxVirtualSize,
              unsigned int cacheSize,
              unsigned int learningEntries,
-             bool enablePrefetching);
+             bool enablePrefetching,
+             InputType inputType);
     ~RootTree();
 
     RootTree(RootTree const&) = delete; // Disallow copying and moving

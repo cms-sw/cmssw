@@ -7,7 +7,6 @@ RootFile.h // used by ROOT input sources
 
 ----------------------------------------------------------------------*/
 
-#include "InputType.h"
 #include "RootTree.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
@@ -23,6 +22,7 @@ RootFile.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Utilities/interface/InputType.h"
 
 #include <array>
 #include <map>
@@ -70,7 +70,7 @@ namespace edm {
              RunNumber_t const& forcedRunNumber,
              bool noEventSort,
              ProductSelectorRules const& productSelectorRules,
-             InputType::InputType inputType,
+             InputType inputType,
              boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
              boost::shared_ptr<DuplicateChecker> duplicateChecker,
              bool dropDescendantsOfDroppedProducts,
@@ -149,7 +149,7 @@ namespace edm {
     bool skipThisEntry();
     IndexIntoFile::EntryType getEntryTypeWithSkipping();
     void setIfFastClonable(int remainingEvents, int remainingLumis);
-    void validateFile(InputType::InputType inputType, bool usingGoToEvent);
+    void validateFile(InputType inputType, bool usingGoToEvent);
     void fillIndexIntoFile();
     void fillEventAuxiliary();
     void fillThisEventAuxiliary();
@@ -160,7 +160,7 @@ namespace edm {
     void overrideRunNumber(LuminosityBlockID& id);
     void overrideRunNumber(EventID& id, bool isRealData);
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
-    void dropOnInput(ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType::InputType inputType);
+    void dropOnInput(ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType inputType);
     void readParentageTree();
     void readEntryDescriptionTree(EntryDescriptionMap&); // backward compatibility
     void readEventHistoryTree();

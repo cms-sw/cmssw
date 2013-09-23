@@ -10,7 +10,9 @@ Holder for an input TFile.
 #include <iomanip>
 
 namespace edm {
-  InputFile::InputFile(char const* fileName, char const* msg) : file_(), fileName_(fileName), reportToken_(0) {
+  InputFile::InputFile(char const* fileName, char const* msg, InputType inputType) :
+    file_(), fileName_(fileName), reportToken_(0), inputType_(inputType) {
+
     logFileAction(msg, fileName);
     file_.reset(TFile::Open(fileName));
     if(!file_) {
@@ -46,9 +48,9 @@ namespace edm {
   }
 
   void
-  InputFile::eventReadFromFile(unsigned int run, unsigned int event) const {
+  InputFile::eventReadFromFile() const {
     Service<JobReport> reportSvc;
-    reportSvc->eventReadFromFile(reportToken_, run, event);
+    reportSvc->eventReadFromFile(inputType_, reportToken_);
   }
 
   void
@@ -82,7 +84,7 @@ namespace edm {
       try {
         logFileAction("  Closed file ", fileName_.c_str());
         Service<JobReport> reportSvc;
-        reportSvc->inputFileClosed(reportToken_);
+        reportSvc->inputFileClosed(inputType_, reportToken_);
       } catch(std::exception) {
         // If Close() called in a destructor after an exception throw, the services may no longer be active.
         // Therefore, we catch any reasonable new exception.
@@ -103,8 +105,8 @@ namespace edm {
   }
 
   void
-  InputFile::reportReadBranch(std::string const& branchName) {
+  InputFile::reportReadBranch(InputType inputType, std::string const& branchName) {
     Service<JobReport> reportSvc;
-    reportSvc->reportReadBranch(branchName);
+    reportSvc->reportReadBranch(inputType, branchName);
   }
 }
