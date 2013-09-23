@@ -333,11 +333,16 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
 
   // If more than one, find the best match
   std::vector<HLTPath>::const_iterator thePath = foundPaths.begin();
-  std::vector<HLTPath>::const_iterator iPath = thePath;
-  ++iPath;
-  for(; iPath != foundPaths.end(); ++iPath) {
-    if(!thePath->isBetterThan(*iPath, HLTCP))
-      thePath = iPath;
+  try {
+    std::vector<HLTPath>::const_iterator iPath = thePath;
+    ++iPath;
+    for(; iPath != foundPaths.end(); ++iPath) {
+      if(!thePath->isBetterThan(*iPath, HLTCP))
+        thePath = iPath;
+    }
+  } catch(cms::Exception& e) {
+    edm::LogError("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): " << e.what();
+    return false;
   }
   std::stringstream ss;
   ss << "HLTTauDQMPath::beginRun(): " << dqmFolder_ << ": chose path " << thePath->name() << "\n";
