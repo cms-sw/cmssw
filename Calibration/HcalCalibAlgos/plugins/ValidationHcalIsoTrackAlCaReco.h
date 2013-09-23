@@ -87,11 +87,13 @@ private:
   std::string folderName_;
   bool saveToFile_;
   std::string outRootFileName_;
-  edm::InputTag hltEventTag_;
   edm::InputTag hltFilterTag_;
-  edm::InputTag arITrLabel_;
   edm::InputTag recoTrLabel_;
-  edm::InputTag simTracksTag_;
+
+  edm::EDGetTokenT<trigger::TriggerEvent> tok_hlt_;
+  edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> tok_arITr_;
+  edm::EDGetTokenT<edm::SimTrackContainer> tok_simTrack_;
+
   double pThr_;
   double heLow_;
   double heUp_;

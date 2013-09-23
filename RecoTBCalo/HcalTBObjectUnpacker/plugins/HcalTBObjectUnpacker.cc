@@ -1,6 +1,5 @@
 using namespace std;
 
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBEventPosition.h"
@@ -21,9 +20,10 @@ using namespace std;
     qadcFed_(conf.getUntrackedParameter<int>("HcalQADCFED",-1)),
     calibFile_(conf.getUntrackedParameter<string>("ConfigurationFile","")),
     tdcUnpacker_(conf.getUntrackedParameter<bool>("IncludeUnmatchedHits",false)),
-    doRunData_(false),doTriggerData_(false),doEventPosition_(false),doTiming_(false),doSourcePos_(false),doBeamADC_(false),
-    fedRawDataCollectionTag_(conf.getParameter<edm::InputTag>("fedRawDataCollectionTag")) 
+    doRunData_(false),doTriggerData_(false),doEventPosition_(false),doTiming_(false),doSourcePos_(false),doBeamADC_(false)
   {
+
+    tok_raw_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("fedRawDataCollectionTag"));
 
     if (triggerFed_ >=0) {
       std::cout << "HcalTBObjectUnpacker will unpack Trigger FED ";
@@ -93,7 +93,7 @@ using namespace std;
   {
     // Step A: Get Inputs 
     edm::Handle<FEDRawDataCollection> rawraw;  
-    e.getByLabel(fedRawDataCollectionTag_, rawraw);           
+    e.getByToken(tok_raw_, rawraw);           
 
     // Step B: Create empty output    
     std::auto_ptr<HcalTBTriggerData>

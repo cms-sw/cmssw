@@ -6,6 +6,9 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"  // need for emap
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
 
 class HcalNoiseMonitor;
 struct TriangleFitResult;
@@ -42,11 +45,12 @@ private:
 
 private:
    // Monitoring elements
-   edm::InputTag rawdataLabel_;
-   edm::InputTag hltresultsLabel_;
-   edm::InputTag hbheDigiLabel_;
-   edm::InputTag hbheRechitLabel_;
-   edm::InputTag noiseLabel_;
+   edm::InputTag rawdataLabel_;  // no data access associated - 
+   edm::InputTag hltresultsLabel_; // no data access associated
+
+   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+   edm::EDGetTokenT<HBHERecHitCollection> tok_hbherec_;
+   edm::EDGetTokenT<reco::HcalNoiseRBXCollection> tok_noise_;
 
    // Double-chi2 related stuff
    MonitorElement *hNominalChi2;

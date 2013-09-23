@@ -43,6 +43,7 @@ protected:
 private:
   
   std::string    g4Label, hcalHits;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
   bool           verbose_;
   DQMStore       *dbe_;
 

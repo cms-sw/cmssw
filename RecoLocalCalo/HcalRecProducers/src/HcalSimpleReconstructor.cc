@@ -1,6 +1,4 @@
 #include "HcalSimpleReconstructor.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -27,6 +25,10 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   paramTS(0),
   theTopology(0)
 {
+
+  // register for data access
+  tok_hbhe_ = consumes<HBHEUpgradeDigiCollection>(inputLabel_);
+  tok_hf_ = consumes<HFUpgradeDigiCollection>(inputLabel_);
 
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if(!strcasecmp(subd.c_str(),"upgradeHBHE")) {
@@ -139,7 +141,7 @@ void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetu
   if(upgradeHBHE_){
    
     edm::Handle<HBHEUpgradeDigiCollection> digi;
-    e.getByLabel(inputLabel_, digi);
+    e.getByToken(tok_hbhe_, digi);
 
     // create empty output
     std::auto_ptr<HBHERecHitCollection> rec(new HBHERecHitCollection);
@@ -177,7 +179,7 @@ void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetu
   if(upgradeHF_){
 
     edm::Handle<HFUpgradeDigiCollection> digi;
-    e.getByLabel(inputLabel_, digi);
+    e.getByToken(tok_hf_, digi);
 
     // create empty output
     std::auto_ptr<HFRecHitCollection> rec(new HFRecHitCollection);

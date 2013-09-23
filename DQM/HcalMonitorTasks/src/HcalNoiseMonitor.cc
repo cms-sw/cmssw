@@ -10,16 +10,13 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
-#include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 
@@ -48,9 +45,9 @@ HcalNoiseMonitor::HcalNoiseMonitor(const edm::ParameterSet& ps)
    period_=ps.getUntrackedParameter<int>("NoiseeventPeriod",4096); //4096
    rawdataLabel_          = ps.getUntrackedParameter<edm::InputTag>("RawDataLabel");
    hltresultsLabel_       = ps.getUntrackedParameter<edm::InputTag>("HLTResultsLabel");
-   hbheDigiLabel_         = ps.getUntrackedParameter<edm::InputTag>("hbheDigiLabel");
-   hbheRechitLabel_       = ps.getUntrackedParameter<edm::InputTag>("hbheRechitLabel");
-   noiseLabel_            = ps.getUntrackedParameter<edm::InputTag>("noiseLabel");
+   tok_hbhe_ = consumes<HBHEDigiCollection>(ps.getUntrackedParameter<edm::InputTag>("hbheDigiLabel"));
+   tok_hbherec_ = consumes<HBHERecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("hbheRechitLabel"));
+   tok_noise_  = consumes<reco::HcalNoiseRBXCollection>(ps.getUntrackedParameter<edm::InputTag>("noiseLabel"));
 
    mTrianglePeakTS        = 4;   // for now...
 
@@ -211,16 +208,16 @@ void HcalNoiseMonitor::setup()
 void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup)
 {
    edm::Handle<HBHEDigiCollection> hHBHEDigis;
-   iEvent.getByLabel(edm::InputTag(hbheDigiLabel_),hHBHEDigis);
+   iEvent.getByToken(tok_hbhe_,hHBHEDigis);
 
    edm::ESHandle<HcalDbService> hConditions;
    iSetup.get<HcalDbRecord>().get(hConditions);
 
    edm::Handle<HBHERecHitCollection> hRecHits;
-   iEvent.getByLabel(edm::InputTag(hbheRechitLabel_), hRecHits);
+   iEvent.getByToken(tok_hbherec_, hRecHits);
 
    edm::Handle<reco::HcalNoiseRBXCollection> hRBXCollection;
-   iEvent.getByLabel(edm::InputTag(noiseLabel_),hRBXCollection);
+   iEvent.getByToken(tok_noise_,hRBXCollection);
 
    HcalBaseDQMonitor::analyze(iEvent, iSetup);
 

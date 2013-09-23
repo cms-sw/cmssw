@@ -13,6 +13,7 @@
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include <string>
 
 
@@ -28,8 +29,8 @@ class CaloTowerCandidateCreator : public edm::EDProducer {
   void produce( edm::Event& e, const edm::EventSetup& );
   /// verbosity
   int mVerbose;
-  /// label of source collection
-  edm::InputTag mSource;
+  /// token of source collection
+  edm::EDGetTokenT<CaloTowerCollection> tok_src_;
   /// ET threshold
   double mEtThreshold;
   /// E threshold

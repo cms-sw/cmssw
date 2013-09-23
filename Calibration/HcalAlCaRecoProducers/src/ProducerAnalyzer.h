@@ -15,6 +15,17 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+// collections
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/HcalCalibObjects/interface/HOCalibVariableCollection.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+
 namespace edm {
   class ParameterSet;
   class Event;
@@ -47,6 +58,22 @@ class ProducerAnalyzer : public edm::EDAnalyzer {
   std::string hoInput_;
   std::string hfInput_;
   std::string Tracks_;
+
+  edm::EDGetTokenT<HOCalibVariableCollection> tok_hovar_;
+  edm::EDGetTokenT<HORecHitCollection> tok_horeco_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HORecHitCollection> tok_hoProd_; 
+
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+
+  edm::EDGetTokenT<reco::CaloJetCollection> tok_jets_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> tok_gamma_;
+  edm::EDGetTokenT<EcalRecHitCollection> tok_ecal_;
+  edm::EDGetTokenT<reco::TrackCollection> tok_tracks_;
+
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbheProd_;
+
 };
 }// end namespace cms
 #endif

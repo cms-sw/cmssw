@@ -18,8 +18,6 @@
 
 #include "CalibCalorimetry/HcalStandardModules/interface/HFLightCal.h"
 
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
@@ -41,9 +39,11 @@ namespace {
   bool verbose = false;
 }
 
-HFLightCal::HFLightCal (const edm::ParameterSet& fConfiguration) :
-  hfDigiCollectionTag_(fConfiguration.getParameter<edm::InputTag>("hfDigiCollectionTag")),
-  hcalCalibDigiCollectionTag_(fConfiguration.getParameter<edm::InputTag>("hcalCalibDigiCollectionTag")) {
+HFLightCal::HFLightCal (const edm::ParameterSet& fConfiguration) {
+
+
+  tok_hfDigiCollection_ = consumes<HFDigiCollection>(fConfiguration.getParameter<edm::InputTag>("hfDigiCollectionTag"));
+  tok_hcalCalibDigiCollection_ = consumes<HcalCalibDigiCollection>(fConfiguration.getParameter<edm::InputTag>("hcalCalibDigiCollectionTag")) ;
 
   //std::string histfile = fConfiguration.getUntrackedParameter<string>("rootFile");
   histfile = fConfiguration.getUntrackedParameter<string>("rootFile");
@@ -428,7 +428,7 @@ void HFLightCal::analyze(const edm::Event& fEvent, const edm::EventSetup& fSetup
 
   // HF PIN-diodes
   edm::Handle<HcalCalibDigiCollection> calib;  
-  fEvent.getByLabel(hcalCalibDigiCollectionTag_, calib);
+  fEvent.getByToken(tok_hcalCalibDigiCollection_, calib);
   if (verbose) std::cout<<"Analysis-> total CAL digis= "<<calib->size()<<std::endl;
 
   /* COMMENTED OUT by J. Mans (7-28-2008) as major changes needed with new Calib DetId 
@@ -484,7 +484,7 @@ void HFLightCal::analyze(const edm::Event& fEvent, const edm::EventSetup& fSetup
 
   // HF
   edm::Handle<HFDigiCollection> hf_digi;
-  fEvent.getByLabel(hfDigiCollectionTag_, hf_digi);
+  fEvent.getByToken(tok_hfDigiCollection_, hf_digi);
   if (verbose) std::cout<<"Analysis-> total HF digis= "<<hf_digi->size()<<std::endl;
 
   for (unsigned ihit = 0; ihit < hf_digi->size (); ++ihit) {

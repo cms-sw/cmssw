@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "HcalZSAlgoEnergy.h"
 
 #include <string>
@@ -24,6 +25,11 @@ public:
 private:
   std::auto_ptr<HcalZSAlgoEnergy> hbhe_,ho_,hf_,hbheUpgrade_,hfUpgrade_;
   std::string inputLabel_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  edm::EDGetTokenT<HODigiCollection> tok_ho_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+  edm::EDGetTokenT<HBHEUpgradeDigiCollection> tok_hbheUpgrade_;
+  edm::EDGetTokenT<HFUpgradeDigiCollection> tok_hfUpgrade_;
 };
 
 #endif

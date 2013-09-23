@@ -1,6 +1,4 @@
 #include "ZdcSimpleReconstructor.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -20,9 +18,10 @@ ZdcSimpleReconstructor::ZdcSimpleReconstructor(edm::ParameterSet const& conf):
 	conf.getParameter<int>("lowGainOffset"),
 	conf.getParameter<double>("lowGainFrac")),
   det_(DetId::Hcal),
-  inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed"))
 {
+  tok_input_ = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabel"));
+
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if (!strcasecmp(subd.c_str(),"ZDC")) {
     det_=DetId::Calo;
@@ -61,7 +60,7 @@ void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& event
   
   if (det_==DetId::Calo && subdet_==HcalZDCDetId::SubdetectorId) {
     edm::Handle<ZDCDigiCollection> digi;
-    e.getByLabel(inputLabel_,digi);
+    e.getByToken(tok_input_,digi);
     
     // create empty output
     std::auto_ptr<ZDCRecHitCollection> rec(new ZDCRecHitCollection);

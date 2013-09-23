@@ -13,7 +13,6 @@
 //
 #include "DataFormats/Common/interface/TriggerResults.h"
 ///
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
@@ -21,8 +20,8 @@
 
 IPTCorrector::IPTCorrector(const edm::ParameterSet& config){
   
-  corSource_=config.getParameter<edm::InputTag>("corTracksLabel");
-  uncorSource_=config.getParameter<edm::InputTag>("filterLabel");
+  tok_cor_ = consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("corTracksLabel"));
+  tok_uncor_ = consumes<trigger::TriggerFilterObjectWithRefs>(config.getParameter<edm::InputTag>("filterLabel"));
   assocCone_=config.getParameter<double>("associationCone");
 
   // Register the product
@@ -38,10 +37,10 @@ void IPTCorrector::produce(edm::Event& theEvent, const edm::EventSetup& theEvent
   reco::IsolatedPixelTrackCandidateCollection * trackCollection=new reco::IsolatedPixelTrackCandidateCollection;
 
   edm::Handle<reco::TrackCollection> corTracks;
-  theEvent.getByLabel(corSource_,corTracks);
+  theEvent.getByToken(tok_cor_,corTracks);
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> fiCand;
-  theEvent.getByLabel(uncorSource_,fiCand);
+  theEvent.getByToken(tok_uncor_,fiCand);
 
   std::vector< edm::Ref<reco::IsolatedPixelTrackCandidateCollection> > isoPixTrackRefs;
 

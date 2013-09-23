@@ -22,6 +22,8 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
 #include <TH1F.h>
 
 #include <memory>
@@ -58,6 +60,12 @@ private:
 private:
 
   std::string    sourceLabel, g4Label, hitLabEB, hitLabEE, hitLabES, hitLabHC;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_eb_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_ee_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_es_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hc_;
+  edm::EDGetTokenT<edm::SimTrackContainer> tok_tk_;
+  edm::EDGetTokenT<edm::SimVertexContainer> tok_vtx_;
 
   /** error and other counters */
   unsigned int                         total_num_apd_hits_seen[2];

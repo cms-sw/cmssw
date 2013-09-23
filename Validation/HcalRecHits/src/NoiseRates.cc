@@ -8,7 +8,6 @@
 //
 
 #include "Validation/HcalRecHits/interface/NoiseRates.h"
-#include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 //
@@ -35,6 +34,8 @@ NoiseRates::NoiseRates(const edm::ParameterSet& iConfig)
   rbxCollName_   = iConfig.getUntrackedParameter<edm::InputTag>("rbxCollName");
   minRBXEnergy_  = iConfig.getUntrackedParameter<double>("minRBXEnergy");
   minHitEnergy_  = iConfig.getUntrackedParameter<double>("minHitEnergy");
+
+  tok_rbx_ = consumes<reco::HcalNoiseRBXCollection>(rbxCollName_);
 
   useAllHistos_  = iConfig.getUntrackedParameter<bool>("useAllHistos", false);
 
@@ -84,7 +85,7 @@ NoiseRates::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 
   // get the RBX Noise collection
   edm::Handle<reco::HcalNoiseRBXCollection> handle;
-  iEvent.getByLabel(rbxCollName_,handle);
+  iEvent.getByToken(tok_rbx_,handle);
   if(!handle.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
       << " could not find HcalNoiseRBXCollection named " << rbxCollName_ << ".\n";

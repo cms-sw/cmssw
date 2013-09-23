@@ -127,15 +127,16 @@ std::pair<int,int> ValidationHcalIsoTrackAlCaReco::towerIndex(double eta, double
 }
 
 
-ValidationHcalIsoTrackAlCaReco::ValidationHcalIsoTrackAlCaReco(const edm::ParameterSet& iConfig) :
-  simTracksTag_(iConfig.getParameter<edm::InputTag>("simTracksTag"))
-{
+ValidationHcalIsoTrackAlCaReco::ValidationHcalIsoTrackAlCaReco(const edm::ParameterSet& iConfig) {
+
+  tok_simTrack_ = consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("simTracksTag"));
+
   folderName_ = iConfig.getParameter<std::string>("folderName");
   saveToFile_=iConfig.getParameter<bool>("saveToFile");
   outRootFileName_=iConfig.getParameter<std::string>("outputRootFileName");
-  hltEventTag_=iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel");
+  tok_hlt_ = consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel"));
   hltFilterTag_=iConfig.getParameter<edm::InputTag>("hltL3FilterLabel");
-  arITrLabel_=iConfig.getParameter<edm::InputTag>("alcarecoIsoTracksLabel");
+  tok_arITr_ = consumes<reco::IsolatedPixelTrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("alcarecoIsoTracksLabel"));
   recoTrLabel_=iConfig.getParameter<edm::InputTag>("recoTracksLabel");
   pThr_=iConfig.getUntrackedParameter<double>("pThrL3",0);
   heLow_=iConfig.getUntrackedParameter<double>("lowerHighEnergyCut",40);
@@ -153,10 +154,10 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
   nTotal++;
 
   edm::Handle<trigger::TriggerEvent> trEv;
-  iEvent.getByLabel(hltEventTag_,trEv);
+  iEvent.getByToken(tok_hlt_,trEv);
   
   edm::Handle<reco::IsolatedPixelTrackCandidateCollection> recoIsoTracks;
-  iEvent.getByLabel(arITrLabel_,recoIsoTracks);
+  iEvent.getByToken(tok_arITr_,recoIsoTracks);
 
   const trigger::TriggerObjectCollection& TOCol(trEv->getObjects());
   
@@ -250,7 +251,7 @@ void ValidationHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm
    std::cout <<  std::endl << "  End / Start " << std::endl;
 
    edm::Handle<edm::SimTrackContainer> simTracks;
-   iEvent.getByLabel<edm::SimTrackContainer>(simTracksTag_, simTracks);
+   iEvent.getByToken<edm::SimTrackContainer>(tok_simTrack_, simTracks);
 
   for (reco::IsolatedPixelTrackCandidateCollection::const_iterator bll=recoIsoTracks->begin(); bll!=recoIsoTracks->end(); bll++)
     {         

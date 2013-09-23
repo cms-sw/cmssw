@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 //#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "TFile.h"
 #include "TH1.h"
@@ -123,14 +124,18 @@ class Analyzer_minbias : public edm::EDAnalyzer {
      double theDFFillDetMapMin1[5][5][73][43]; 
      double theDFFillDetMapMin2[5][5][73][43];
      
-     edm::InputTag  hbherecoMB;
-     edm::InputTag  horecoMB;
-     edm::InputTag  hfrecoMB;
+
+    edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+    edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+    edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
   
-     edm::InputTag  hbherecoNoise;
-     edm::InputTag  horecoNoise;
-     edm::InputTag  hfrecoNoise;
-  
+    edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNoise_; 
+    edm::EDGetTokenT<HORecHitCollection> tok_hoNoise_;
+    edm::EDGetTokenT<HFRecHitCollection> tok_hfNoise_;
+
+  // 
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_gtRec_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNorm_;
   
      bool theRecalib;
 

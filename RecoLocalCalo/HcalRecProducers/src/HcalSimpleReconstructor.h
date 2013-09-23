@@ -11,6 +11,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 
     /** \class HcalSimpleReconstructor
@@ -34,6 +36,9 @@ class HcalTopology;
       int subdet_;
       HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
+
+      edm::EDGetTokenT<HBHEUpgradeDigiCollection> tok_hbhe_;
+      edm::EDGetTokenT<HFUpgradeDigiCollection> tok_hf_;
 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
 

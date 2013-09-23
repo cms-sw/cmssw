@@ -44,6 +44,10 @@
 IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
 
   genSrc_    = iConfig.getUntrackedParameter("GenSrc",std::string("generator"));
+
+  tok_hepmc_ = consumes<edm::HepMCProduct>(edm::InputTag(genSrc_));
+  tok_genParticles_ = consumes<reco::GenParticleCollection>(edm::InputTag(genSrc_));
+
   useHepMC   = iConfig.getUntrackedParameter<bool>("UseHepMC", false );
   pSeed      = iConfig.getUntrackedParameter<double>("ChargedHadronSeedP", 1.0);
   ptMin      = iConfig.getUntrackedParameter<double>("PTMin", 1.0);
@@ -63,8 +67,19 @@ IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
   L1extraMuonSource_     = iConfig.getParameter<edm::InputTag>("L1extraMuonSource");
   L1extraIsoEmSource_    = iConfig.getParameter<edm::InputTag>("L1extraIsoEmSource");
   L1extraNonIsoEmSource_ = iConfig.getParameter<edm::InputTag>("L1extraNonIsoEmSource");
-  L1GTReadoutRcdSource_  = iConfig.getParameter<edm::InputTag>("L1GTReadoutRcdSource");
+  L1GTReadoutRcdSource_ = iConfig.getParameter<edm::InputTag>("L1GTReadoutRcdSource");
   L1GTObjectMapRcdSource_= iConfig.getParameter<edm::InputTag>("L1GTObjectMapRcdSource");
+
+   tok_L1GTrorsrc_ =  consumes<L1GlobalTriggerReadoutRecord>(  L1GTReadoutRcdSource_   );
+   tok_L1GTobjmap_ =   consumes<L1GlobalTriggerObjectMapRecord>( L1GTObjectMapRcdSource_  );
+   tok_L1extMusrc_  =  consumes<l1extra::L1MuonParticleCollection>(L1extraMuonSource_);
+   tok_L1Em_        =  consumes<l1extra::L1EmParticleCollection>( L1extraIsoEmSource_ );
+   tok_L1extNonIsoEm_= consumes<l1extra::L1EmParticleCollection>( L1extraNonIsoEmSource_ );
+    tok_L1extTauJet_ = consumes<l1extra::L1JetParticleCollection>(L1extraTauJetSource_ );
+    tok_L1extCenJet_ = consumes<l1extra::L1JetParticleCollection>(L1extraCenJetSource_ );
+    tok_L1extFwdJet_ = consumes<l1extra::L1JetParticleCollection>(L1extraFwdJetSource_ );
+
+  
 
   if (!strcmp("Dummy", genSrc_.c_str())) {
     if (useHepMC) genSrc_ = "generator";
@@ -109,8 +124,8 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   // get handle to HEPMCProduct
   edm::Handle<edm::HepMCProduct> hepmc;
   edm::Handle<reco::GenParticleCollection> genParticles;
-  if (useHepMC) iEvent.getByLabel(genSrc_, hepmc);
-  else          iEvent.getByLabel(genSrc_, genParticles);
+  if (useHepMC) iEvent.getByToken(tok_hepmc_, hepmc);
+  else          iEvent.getByToken(tok_genParticles_, genParticles);
 
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
@@ -127,10 +142,10 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   //===================== save L1 Trigger information =======================
   // get L1TriggerReadout records
   edm::Handle<L1GlobalTriggerReadoutRecord>   gtRecord;
-  iEvent.getByLabel(L1GTReadoutRcdSource_,   gtRecord);
+  iEvent.getByToken(tok_L1GTrorsrc_,   gtRecord);
   
   edm::Handle<L1GlobalTriggerObjectMapRecord> gtOMRec;
-  iEvent.getByLabel(L1GTObjectMapRcdSource_, gtOMRec);
+  iEvent.getByToken(tok_L1GTobjmap_, gtOMRec);
   
   // sanity check on L1 Trigger Records
   if (!gtRecord.isValid()) {
@@ -184,7 +199,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   //===================
   // L1Taus 
   edm::Handle<l1extra::L1JetParticleCollection> l1TauHandle;
-  iEvent.getByLabel(L1extraTauJetSource_,l1TauHandle);
+  iEvent.getByToken(tok_L1extTauJet_,l1TauHandle);
   l1extra::L1JetParticleCollection::const_iterator itr;
   for(itr = l1TauHandle->begin(); itr != l1TauHandle->end(); ++itr ) {
     t_L1TauJetPt      ->push_back( itr->pt() );
@@ -199,7 +214,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
 
   // L1 Central Jets
   edm::Handle<l1extra::L1JetParticleCollection> l1CenJetHandle;
-  iEvent.getByLabel(L1extraCenJetSource_,l1CenJetHandle);
+  iEvent.getByToken(tok_L1extCenJet_,l1CenJetHandle);
   for( itr = l1CenJetHandle->begin();  itr != l1CenJetHandle->end(); ++itr ) {
     t_L1CenJetPt    ->push_back( itr->pt() );
     t_L1CenJetEta   ->push_back( itr->eta() );
@@ -212,7 +227,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   }
   // L1 Forward Jets
   edm::Handle<l1extra::L1JetParticleCollection> l1FwdJetHandle;
-  iEvent.getByLabel(L1extraFwdJetSource_,l1FwdJetHandle);
+  iEvent.getByToken(tok_L1extFwdJet_,l1FwdJetHandle);
   for( itr = l1FwdJetHandle->begin();  itr != l1FwdJetHandle->end(); ++itr ) {
     t_L1FwdJetPt    ->push_back( itr->pt() );
     t_L1FwdJetEta   ->push_back( itr->eta() );
@@ -226,7 +241,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   // L1 Isolated EM onjects
   l1extra::L1EmParticleCollection::const_iterator itrEm;
   edm::Handle<l1extra::L1EmParticleCollection> l1IsoEmHandle ;
-  iEvent.getByLabel(L1extraIsoEmSource_, l1IsoEmHandle);
+  iEvent.getByToken(tok_L1Em_, l1IsoEmHandle);
   for( itrEm = l1IsoEmHandle->begin();  itrEm != l1IsoEmHandle->end(); ++itrEm ) {
     t_L1IsoEMPt     ->push_back(  itrEm->pt() );
     t_L1IsoEMEta    ->push_back(  itrEm->eta() );
@@ -239,7 +254,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   }
   // L1 Non-Isolated EM onjects
   edm::Handle<l1extra::L1EmParticleCollection> l1NonIsoEmHandle ;
-  iEvent.getByLabel(L1extraNonIsoEmSource_, l1NonIsoEmHandle);
+  iEvent.getByToken(tok_L1extNonIsoEm_, l1NonIsoEmHandle);
   for( itrEm = l1NonIsoEmHandle->begin();  itrEm != l1NonIsoEmHandle->end(); ++itrEm ) {
     t_L1NonIsoEMPt  ->push_back( itrEm->pt() );
     t_L1NonIsoEMEta ->push_back( itrEm->eta() );
@@ -254,7 +269,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   // L1 Muons
   l1extra::L1MuonParticleCollection::const_iterator itrMu;
   edm::Handle<l1extra::L1MuonParticleCollection> l1MuHandle ;
-  iEvent.getByLabel(L1extraMuonSource_, l1MuHandle);
+  iEvent.getByToken(tok_L1extMusrc_, l1MuHandle);
   for( itrMu = l1MuHandle->begin();  itrMu != l1MuHandle->end(); ++itrMu ) {
     t_L1MuonPt      ->push_back( itrMu->pt() );
     t_L1MuonEta     ->push_back( itrMu->eta() );

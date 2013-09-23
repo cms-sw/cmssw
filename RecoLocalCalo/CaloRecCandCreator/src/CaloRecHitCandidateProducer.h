@@ -5,6 +5,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 class CaloGeometry;
 class CaloRecHit;
@@ -19,8 +21,11 @@ public:
   
 private:
   /// source collection tag
-  edm::InputTag mHBHELabel, mHOLabel, mHFLabel;
   std::vector<edm::InputTag> mEcalLabels;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+  std::vector<edm::EDGetTokenT<EcalRecHitCollection> > toks_ecal_;
   bool mAllowMissingInputs;
   bool mUseHO;
   double mEBthreshold, mEEthreshold;
