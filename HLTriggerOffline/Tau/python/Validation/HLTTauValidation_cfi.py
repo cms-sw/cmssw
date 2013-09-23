@@ -18,7 +18,7 @@ hltTauValIdealMonitorMC = cms.EDAnalyzer("HLTTauDQMOfflineSource",
         cms.PSet(
             ConfigType            = cms.untracked.string("Path"),
             DQMFolder             = cms.untracked.string('MuLooseTau'),
-            Path                  = cms.untracked.vstring('HLT_IsoMu(?<tr1>[[:digit:]]+)_eta2p1_LooseIsoPFTau(?<tr0>[[:digit:]]+)_v.*'),
+            Path                  = cms.untracked.vstring('HLT_IsoMu(?<tr1>1[[:digit:]]+)_eta2p1_LooseIsoPFTau(?<tr0>[[:digit:]]+)_v.*'),
             IgnoreFilterNames     = cms.untracked.vstring(),
             IgnoreFilterTypes     = cms.untracked.vstring(),
         ),

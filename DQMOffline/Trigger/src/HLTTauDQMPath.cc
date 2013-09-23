@@ -42,6 +42,7 @@ namespace {
       // If other is disabled (prescale = 0), pick the enabled one
       // If prescales are different, pick the one with smaller
       // If prescales are same, continue to compare thresholds
+      // FIXME: try to include L1 prescale to the comparison
       for(unsigned int iSet = 0; iSet < HLTCP.prescaleSize(); ++iSet) {
         unsigned int prescale = HLTCP.prescaleValue(iSet, name_);
         unsigned int prescaleOther = HLTCP.prescaleValue(iSet, other.name_);
