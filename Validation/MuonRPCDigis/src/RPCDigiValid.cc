@@ -368,8 +368,8 @@ void RPCDigiValid::beginRun(edm::Run const& run, edm::EventSetup const& eSetup)
 
     xyview = dbe_->book2D("X_Vs_Y_View", "X_Vs_Y_View", 155, -775., 775., 155, -775., 775.);
 
-    xyvDplu4 = dbe_->book2D("Dplu4_XvsY", "Dplu4_XvsY", 1550, -775., 775., 1550, -775., 775.);
-    xyvDmin4 = dbe_->book2D("Dmin4_XvsY", "Dmin4_XvsY", 1550, -775., 775., 1550, -775., 775.);
+    xyvDplu4 = dbe_->book2D("Dplu4_XvsY", "Dplu4_XvsY", 155, -775., 775., 155, -775., 775.);
+    xyvDmin4 = dbe_->book2D("Dmin4_XvsY", "Dmin4_XvsY", 155, -775., 775., 155, -775., 775.);
 
     rzview = dbe_->book2D("R_Vs_Z_View", "R_Vs_Z_View", 216, -1080., 1080., 52, 260., 780.);
     Res = dbe_->book1D("Digi_SimHit_difference", "Digi_SimHit_difference", 300, -8, 8);
