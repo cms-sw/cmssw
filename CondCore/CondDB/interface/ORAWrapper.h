@@ -9,7 +9,7 @@
 #include "CondCore/CondDB/interface/Session.h"
 #include "CondCore/CondDB/interface/Configuration.h"
 
-namespace tmp {
+namespace ora_wrapper {
 
     class Switch {
     public:

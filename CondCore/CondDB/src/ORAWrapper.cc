@@ -1,4 +1,4 @@
-#include "CondCore/CondDB/interface/tmp.h"
+#include "CondCore/CondDB/interface/ORAWrapper.h"
 
 #include "DbCore.h"
 
@@ -11,7 +11,7 @@
 #include "CondCore/TagCollection/interface/TagCollectionRetriever.h"
 #include "CondCore/TagCollection/interface/TagDBNames.h"
 
-namespace tmp {
+namespace ora_wrapper {
 
   Switch::Switch():
     oraImpl(),
