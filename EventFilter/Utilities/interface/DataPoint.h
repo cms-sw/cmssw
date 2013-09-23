@@ -19,7 +19,7 @@ class DataPoint: public JsonSerializable {
 public:
 	DataPoint();
 	DataPoint(std::string source, std::string definition,
-			std::vector<std::string> data);
+			const std::vector<std::string>& data);
 	virtual ~DataPoint();
 
 	/**

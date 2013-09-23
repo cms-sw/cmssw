@@ -21,7 +21,7 @@ using std::ofstream;
 using std::fstream;
 using std::endl;
 
-FastMonitor::FastMonitor(vector<JsonMonitorable*> monitorableVariables,
+FastMonitor::FastMonitor(const vector<JsonMonitorable*>& monitorableVariables,
 		string defPath) :
 	snappedOnce_(false), monitorableVars_(monitorableVariables),
 			defPath_(defPath) {

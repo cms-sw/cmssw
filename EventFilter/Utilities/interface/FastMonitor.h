@@ -17,7 +17,7 @@ namespace jsoncollector {
 class FastMonitor {
 
 public:
-	FastMonitor(std::vector<JsonMonitorable*> monitorableVariables,
+	FastMonitor(const std::vector<JsonMonitorable*>& monitorableVariables,
 			std::string defPath);
 	virtual ~FastMonitor();
 

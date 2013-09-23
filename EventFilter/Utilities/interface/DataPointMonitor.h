@@ -23,7 +23,7 @@ namespace jsoncollector {
 class DataPointMonitor {
 
 public:
-	DataPointMonitor(vector<JsonMonitorable*> monitorableVariables,
+	DataPointMonitor(const std::vector<JsonMonitorable*>& monitorableVariables,
 			string defPath);
 	virtual ~DataPointMonitor();
 

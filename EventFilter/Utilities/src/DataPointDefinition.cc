@@ -19,7 +19,7 @@ DataPointDefinition::DataPointDefinition() {
 
 }
 
-DataPointDefinition::DataPointDefinition(vector<LegendItem> legend) :
+DataPointDefinition::DataPointDefinition(const vector<LegendItem>& legend) :
 	legend_(legend) {
 }
 

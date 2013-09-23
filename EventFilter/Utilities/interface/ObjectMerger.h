@@ -21,7 +21,7 @@ public:
 	 * If the onlyHistos arg is set to true, only histograms will be merged, will for other params the latest value
 	 * (@ objectsToMerge.size() - 1) will be taken
 	 */
-	static DataPoint* merge(std::vector<DataPoint*> objectsToMerge,
+	static DataPoint* merge(const std::vector<DataPoint*>& objectsToMerge,
 			std::string& outcomeMessage, bool onlyHistos);
 
 	/**
@@ -37,9 +37,9 @@ public:
 			std::string defPath);
 
 private:
-	static std::string applyOperation(std::vector<std::string> dataVector,
+	static std::string applyOperation(const std::vector<std::string>& dataVector,
 			std::string operationName);
-	static bool checkConsistency(std::vector<DataPoint*> objectsToMerge,
+	static bool checkConsistency(const std::vector<DataPoint*>& objectsToMerge,
 			std::string& outcomeMessage);
 
 };

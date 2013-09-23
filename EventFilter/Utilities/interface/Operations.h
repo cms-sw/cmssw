@@ -21,9 +21,9 @@ public:
 	 */
 	static double sum(std::vector<double>);
 	static double avg(std::vector<double>);
-	static std::string same(std::vector<std::string>);
-	static std::string histo(std::vector<std::string>);
-	static std::string cat(std::vector<std::string>);
+	static std::string same(const std::vector<std::string>&);
+	static std::string histo(const std::vector<std::string>&);
+	static std::string cat(const std::vector<std::string>&);
 
 	/*
 	 * KNOWN OPERATION NAMES

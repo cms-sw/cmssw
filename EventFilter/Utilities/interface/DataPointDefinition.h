@@ -18,7 +18,7 @@ class DataPointDefinition: public JsonSerializable {
 
 public:
 	DataPointDefinition();
-	DataPointDefinition(std::vector<LegendItem> legend);
+	DataPointDefinition(const std::vector<LegendItem>& legend);
 	virtual ~DataPointDefinition();
 
 	/**

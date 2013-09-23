@@ -11,7 +11,7 @@
 using namespace jsoncollector;
 
 DataPointMonitor::DataPointMonitor(
-		vector<JsonMonitorable*> monitorableVariables, string defPath) :
+		const vector<JsonMonitorable*>& monitorableVariables, string defPath) :
 	monitorableVars_(monitorableVariables) {
 	defPath_ = defPath;
 	ObjectMerger::getDataPointDefinitionFor(defPath_, dpd_);
