@@ -1,19 +1,9 @@
-// -*- C++ -*-
-//
-//
-
-//
-// This class is a "Hadronizer" template (see GeneratorInterface/Core)
-// 
-
 #ifndef gen_Py8GunBase_h
 #define gen_Py8GunBase_h
 
 #include <memory>
 
 #include <boost/shared_ptr.hpp>
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -77,4 +67,4 @@ namespace gen {
 
 } // namespace gen
 
-#endif // gen_BaseHadronizer_h
+#endif // gen_Py8GunBase_h
