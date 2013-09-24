@@ -18,9 +18,8 @@ namespace Calibration {
 template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
 Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D() :
 	strideX(0), strideY(0), limitsX(AxisX_t(), AxisX_t()),
-	limitsY(AxisY_t(), AxisY_t()), limitsZ(AxisZ_t(), AxisZ_t())
+	limitsY(AxisY_t(), AxisY_t()), limitsZ(AxisZ_t(), AxisZ_t()), total(Value_t())
 {
-    total.store(Value_t());
     totalValid.store(false);
 }
 
@@ -29,9 +28,9 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(const Histogram3D &
 	strideX(orig.strideX), strideY(orig.strideY), binULimitsX(orig.binULimitsX),
 	binULimitsY(orig.binULimitsY), binULimitsZ(orig.binULimitsZ), binValues(orig.binValues),
 	limitsX(orig.limitsX), limitsY(orig.limitsY), limitsZ(orig.limitsZ),
+    total(orig.total),
 	rowTotal(orig.rowTotal), columnTotal(orig.columnTotal)
 {
-    total.store(orig.total);
     totalValid.store(orig.totalValid);
 }
 
@@ -45,10 +44,10 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
         binULimitsZ(orig.binULimitsZ.begin(), orig.binULimitsZ.end()),
 	binValues(orig.binValues.begin(), orig.binValues.end()),
 	limitsX(orig.limitsX), limitsY(orig.limitsY), limitsZ(orig.limitsZ),
+    total(orig.total),
 	rowTotal(orig.rowTotal.begin(), orig.rowTotal.end()),
 	columnTotal(orig.columnTotal.begin(), orig.columnTotal.end())
 {
-    total.store(orig.total);
     totalValid.store(orig.totalValid);
 }
 
@@ -62,9 +61,9 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
 	binULimitsX(binULimitsX), binULimitsY(binULimitsY), binULimitsZ(binULimitsZ),
 	binValues((binULimitsY.size() + 1) * strideX * strideY),
 	limitsX(AxisX_t(), AxisX_t()), limitsY(AxisY_t(), AxisY_t()), limitsZ(AxisZ_t(), AxisZ_t()),
+    total(Value_t()),
 	sliceTotal(binULimitsZ.size() + 1), rowTotal(binULimitsY.size() + 1), columnTotal(binULimitsX.size() + 1)
 {
-    total.store(Value_t());
     totalValid.store(true);
 	if (binULimitsX.size() < 2)
 		throw cms::Exception("TooFewBinsError")
@@ -103,9 +102,9 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
         binULimitsZ(binULimitsZ.begin(), binULimitsZ.end()),
 	binValues((binULimitsZ.size() + 1) * strideX * strideY),
 	limitsX(AxisX_t(), AxisX_t()), limitsY(AxisY_t(), AxisY_t()), limitsZ(AxisZ_t(), AxisZ_t()),
+    total(Value_t()),
 	sliceTotal(binULimitsY.size() + 1), rowTotal(binULimitsY.size() + 1), columnTotal(binULimitsX.size() + 1)
 {
-    total.store(Value_t());
     totalValid.store(true);
 	if (binULimitsX.size() < 2)
 		throw cms::Exception("TooFewBinsError")
@@ -219,9 +218,9 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
                         unsigned int nBinsZ, AxisZ_t minZ, AxisZ_t maxZ) :
 	strideX(nBinsX + 2), strideY(nBinsY + 2), binValues((nBinsZ + 2) * strideX * strideY),
 	limitsX(minX, maxX), limitsY(minY, maxY), limitsZ(minZ, maxZ),
+    total(Value_t()),
 	sliceTotal(nBinsZ + 2), rowTotal(nBinsY + 2), columnTotal(nBinsX + 2)
 {
-    total.store(Value_t());
     totalValid.store(true);
 	if (!nBinsX)
 		throw cms::Exception("TooFewBinsError")
@@ -257,7 +256,7 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::operator = (const Histogram3D &
 	limitsX = orig.limitsX;
 	limitsY = orig.limitsY;
         limitsZ = orig.limitsZ;
-    total.store(orig.total);
+    total = orig.total;
     totalValid.store(orig.totalValid);
 	rowTotal = orig.rowTotal;
 	columnTotal = orig.columnTotal;
@@ -283,7 +282,7 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t> &Histogram3D<Value_t, AxisX_t, A
 	limitsX = orig.limitsX;
 	limitsY = orig.limitsY;
         limitsZ = orig.limitsZ;
-    total.store(orig.total);
+    total = orig.total;
     totalValid.store(orig.totalValid);
 	rowTotal = std::vector<Value_t>(orig.rowTotal.begin(),
 	                                orig.rowTotal.end());
@@ -299,7 +298,7 @@ template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
 void Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::reset()
 {
 	std::fill(binValues.begin(), binValues.end(), Value_t());
-    total.store(Value_t());
+    total = Value_t();
     totalValid.store(true);
         sliceTotal.clear();
 	rowTotal.clear();
@@ -544,7 +543,7 @@ template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
 Value_t Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::normalization() const
 {
 	if (!totalValid) {
-        total.store(std::accumulate(binValues.begin() + 1, binValues.end() - 1, Value_t()));
+        total = std::accumulate(binValues.begin() + 1, binValues.end() - 1, Value_t());
         totalValid.store(true);
 	}
 
