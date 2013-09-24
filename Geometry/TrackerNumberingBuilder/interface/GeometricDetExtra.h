@@ -10,7 +10,7 @@
 /* #include "DataFormats/GeometrySurface/interface/Surface.h" */
 /* #include "DataFormats/GeometrySurface/interface/Bounds.h" */
 #include "DataFormats/DetId/interface/DetId.h"
-
+#include <atomic>
 #include <vector>
 #include "FWCore/ParameterSet/interface/types.h"
 
@@ -42,12 +42,13 @@ class GeometricDetExtra {
    *
    */
   ~GeometricDetExtra();
+  // swap function
+  void swap(GeometricDetExtra& other);
+  // copy-ctor
+  GeometricDetExtra(const GeometricDetExtra& src);
+  // copy assignment operator
+  GeometricDetExtra& operator=(const GeometricDetExtra& rhs);
   
-  /*
-    GeometricDetExtra(const GeometricDetExtra &);
-  
-  GeometricDetExtra & operator=( const GeometricDetExtra & );
-  */
   /**
    * get and set associated GeometricDet 
    * DOES NO CHECKING!
@@ -59,10 +60,14 @@ class GeometricDetExtra {
    * set or add or clear components
    */
   void setGeographicalId(DetId id) const {
-    _geographicalId = id; 
-    //std::cout <<"setGeographicalId " << int(id) << std::endl;
+      if(!_geographicalId) {
+          auto ptr = new DetId(id);
+          DetId* expect = nullptr;
+          bool exchanged = _geographicalId.compare_exchange_strong(expect, ptr);
+          if(!exchanged) delete ptr;
+      }
   }
-  DetId geographicalId() const { return _geographicalId; }
+  DetId geographicalId() const { return (*_geographicalId); }
   //rr
   /** parents() retuns the geometrical history
    * mec: only works if this is built from DD and not from reco DB.
@@ -108,8 +113,6 @@ class GeometricDetExtra {
   /** Data members **/
 
   GeometricDet const* _mygd;  
-  //FIXME WHY? FROM GeometricDet comment 
-  mutable DetId _geographicalId;
   GeoHistory _parents;
   double _volume;
   double _density;
@@ -118,6 +121,7 @@ class GeometricDetExtra {
   std::string _material;
   std::string _name;
   bool _fromDD; // may not need this, keep an eye on it.
+  mutable std::atomic<DetId*> _geographicalId;
 };
 
 #undef PoolAlloc

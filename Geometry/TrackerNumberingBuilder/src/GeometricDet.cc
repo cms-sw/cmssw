@@ -80,6 +80,7 @@ GeometricDet::~GeometricDet(){
 #ifdef GEOMETRICDETDEBUG
 // for use outside CMSSW framework only since it asks for a default DDCompactView...
 GeometricDet::GeometricDet(DDnav_type const & navtype, GeometricEnumType type) :
+  _geographicalID(nullptr),
   _ddd(navtype.begin(),navtype.end()), _type(type){ 
   //
   // I need to find the params by myself :(
@@ -114,7 +115,8 @@ GeometricDet::GeometricDet(DDnav_type const & navtype, GeometricEnumType type) :
 
 }
 
-GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) :  _type(type) {
+GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) :
+  _geographicalID(nullptr), _type(type) {
   //
   // Set by hand the _ddd
   //
@@ -159,6 +161,7 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) :
   _ddname(((fv->logicalPart()).ddname()).name()),
   _type(type),
   _params(((fv->logicalPart()).solid()).parameters()),
+  _geographicalID(nullptr),
   //  want this :) _ddd(fv->navPos().begin(),fv->navPos().end()),
 #ifdef GEOMTRICDETDEBUG
   _parents(fv->geoHistory().begin(),fv->geoHistory().end()),
@@ -202,7 +205,6 @@ GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumTyp
   _ddname(onePGD._name, onePGD._ns),//, "fromdb");
   _type(type),
   _params(),
-  _geographicalID(onePGD._geographicalID),
 #ifdef GEOMTRICDETDEBUG
   _parents(), // will remain empty... hate wasting the space but want all methods to work.
   _volume(onePGD._volume),
@@ -224,6 +226,7 @@ GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumTyp
   _fromDD(false)
 #endif
 {
+  setGeographicalID(onePGD._geographicalID);
   //std::cout << "GeometricDet4" << std::endl;
   
   if(onePGD._shape==1||onePGD._shape==3){ //The parms vector is neede only in the case of box or trap shape
