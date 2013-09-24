@@ -13,6 +13,14 @@ namespace conddb {
     payloadId.clear();
   }
 
+  bool Iov_t::isValid() const {
+    return since != time::MAX && till != time::MIN && !payloadId.empty();
+  }
+
+  bool Iov_t::isValidFor( Time_t target ) const {
+    return target >= since && target <= till;
+  }
+
   void Tag_t::clear(){
     tag.clear();
     payloadType.clear();

@@ -38,6 +38,7 @@ void SessionImpl::disconnect(){
   if( coralSession.get() ){
     if( coralSession->transaction().isActive() ){
       coralSession->transaction().rollback();
+      transactionClients = 0;
     }
     coralSession.reset();
   }
@@ -49,18 +50,30 @@ bool SessionImpl::isActive() const {
 }
 
 void SessionImpl::startTransaction( bool readOnly ){
-  coralSession->transaction().start( readOnly );
-  transactionCache.reset( new TransactionCache );
+  if( !transactionClients ){ 
+    coralSession->transaction().start( readOnly );
+    transactionCache.reset( new TransactionCache );
+  } else {
+    if(!readOnly ) throwException( "An update transaction is already active.",
+				   "SessionImpl::startTransaction" );
+  }
+  transactionClients++;
 }
     
 void SessionImpl::commitTransaction(){
-  coralSession->transaction().commit();
-  transactionCache.reset();
+  if( transactionClients ) {
+    transactionClients--;
+    if( !transactionClients ){
+      coralSession->transaction().commit();
+      transactionCache.reset();
+    }
+  }
 }
     
 void SessionImpl::rollbackTransaction(){
   coralSession->transaction().rollback();
   transactionCache.reset();
+  transactionClients = 0;
 }
    
 bool SessionImpl::isTransactionActive() const {

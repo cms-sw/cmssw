@@ -50,6 +50,7 @@ namespace conddb {
     // allows for session shared among more services. To be changed to unique_ptr when we stop needing this feature.
     boost::shared_ptr<coral::ISessionProxy> coralSession;
     std::unique_ptr<TransactionCache> transactionCache;
+    size_t transactionClients = 0;
   };
 }
 

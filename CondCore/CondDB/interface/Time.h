@@ -16,6 +16,7 @@ namespace conddb {
     // Time_t
     typedef unsigned long long Time_t;
 
+
     const Time_t MAX(std::numeric_limits<Time_t>::max());
 
     const Time_t MIN(0);
@@ -37,6 +38,7 @@ namespace conddb {
   typedef time::Time_t Time_t;
   typedef time::UnpackedTime UnpackedTime;
   typedef time::TimeType TimeType;
+  typedef std::pair<Time_t, Time_t> ValidityInterval;
   
 }
 #endif

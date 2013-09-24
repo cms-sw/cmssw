@@ -1,5 +1,5 @@
-#ifndef CondCore_CondDB_tmp_h
-#define CondCore_CondDB_tmp_h
+#ifndef CondCore_CondDB_ORAWrapper_h
+#define CondCore_CondDB_ORAWrapper_h
 
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbConnection.h"
