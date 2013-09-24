@@ -31,14 +31,10 @@ public:
   typedef typename HCALDIGITIZERTRAITS::Digi DIGI;
   typedef typename HCALDIGITIZERTRAITS::DigiCollection COLLECTION;
 
-  HcalSignalGenerator():HcalBaseSignalGenerator() { }
-
-  HcalSignalGenerator(const edm::InputTag & inputTag, const edm::EDGetTokenT<COLLECTION> &t)
-  : HcalBaseSignalGenerator(), theEvent(0), theEventPrincipal(0), theInputTag(inputTag), tok_(t) 
-  { }
+  HcalSignalGenerator(const edm::InputTag & inputTag)
+  : HcalBaseSignalGenerator(), theEvent(0), theEventPrincipal(0), theInputTag(inputTag) {}
 
   virtual ~HcalSignalGenerator() {}
-
 
   void initializeEvent(const edm::Event * event, const edm::EventSetup * eventSetup)
   {
@@ -63,7 +59,7 @@ public:
     // try accessing by whatever is set, Event or EventPrincipal
     if(theEvent) 
      {
-      if( theEvent->getByToken(tok_, pDigis) ) {
+      if( theEvent->getByLabel(theInputTag, pDigis) ) {
         digis = pDigis.product(); // get a ptr to the product
         LogTrace("HcalSignalGenerator") << "total # digis  for "  << theInputTag << " " <<  digis->size();
       }
@@ -127,7 +123,6 @@ private:
   edm::ESHandle<HcalDbService> theConditions;
   /// these come from the ParameterSet
   edm::InputTag theInputTag;
-  edm::EDGetTokenT<COLLECTION> tok_;
 };
 
 typedef HcalSignalGenerator<HBHEDigitizerTraits> HBHESignalGenerator;
