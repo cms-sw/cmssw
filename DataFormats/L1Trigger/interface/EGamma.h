@@ -1,0 +1,38 @@
+#ifndef DataFormats_L1Trigger_EGamma_h
+#define DataFormats_L1Trigger_EGamma_h
+
+
+#include "DataFormats/L1Trigger/interface/L1Candidate.h"
+
+namespace l1t {
+
+  class EGamma : public L1Candidate {
+    
+  public:
+    EGamma( const LorentzVector& p4,
+	    int pt=0,
+	    int eta=0,
+	    int phi=0,
+	    int qual=0,
+	    int iso=0);
+    
+    ~EGamma();		
+
+    // set integer values
+    void setHwIso(int iso);
+
+    // methods to retrieve integer values
+    int hwIso();
+    
+  private:
+    
+    // additional hardware quantities common to L1 global jet
+    // there are currently none
+    
+    int hwIso_;
+    
+  };
+  
+}
+
+#endif
