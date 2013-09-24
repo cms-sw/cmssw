@@ -116,10 +116,6 @@ namespace edm {
       return droppedBranchIDToKeptBranchID_;
     }
 
-    std::map<BranchID::value_type, BranchID::value_type> const& keptBranchIDToDroppedBranchID() {
-      return keptBranchIDToDroppedBranchID_;
-    }
-
   private:
 
     int maxEvents_;
@@ -157,7 +153,6 @@ namespace edm {
     // needed because of possible EDAliases.
     // filled in only if key and value are different.
     std::map<BranchID::value_type, BranchID::value_type> droppedBranchIDToKeptBranchID_;
-    std::map<BranchID::value_type, BranchID::value_type> keptBranchIDToDroppedBranchID_;
     std::unique_ptr<BranchIDLists> branchIDLists_;
     BranchIDLists const* origBranchIDLists_;
 

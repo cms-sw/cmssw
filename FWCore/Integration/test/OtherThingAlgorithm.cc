@@ -5,19 +5,13 @@
 #include "DataFormats/Common/interface/RefToPtr.h"
 
 namespace edmtest {
-  void OtherThingAlgorithm::run(edm::Event const& event, 
+  void OtherThingAlgorithm::run(edm::Handle<ThingCollection> const& parentHandle,
 				OtherThingCollection& result,
-        edm::EDGetToken token,
 				bool useRefs,
 				bool refsAreTransient) {
 
     const size_t numToMake = 20;
     result.reserve(numToMake);
-    edm::Handle<ThingCollection> parentHandle;
-    if(useRefs) {
-      assert(event.getByToken(token, parentHandle));
-      assert(parentHandle.isValid());
-    }
     ThingCollection const* parent = parentHandle.product();
     ThingCollection const* null = 0;
 
