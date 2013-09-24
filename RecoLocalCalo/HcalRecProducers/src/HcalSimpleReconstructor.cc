@@ -27,8 +27,13 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
 {
 
   // register for data access
-  tok_hbhe_ = consumes<HBHEUpgradeDigiCollection>(inputLabel_);
-  tok_hf_ = consumes<HFUpgradeDigiCollection>(inputLabel_);
+  tok_hbheUp_ = consumes<HBHEUpgradeDigiCollection>(inputLabel_);
+  tok_hfUp_ = consumes<HFUpgradeDigiCollection>(inputLabel_);
+
+  tok_hbhe_ = consumes<HBHEDigiCollection>(inputLabel_);
+  tok_hf_ = consumes<HFDigiCollection>(inputLabel_);
+  tok_ho_ = consumes<HODigiCollection>(inputLabel_);
+  tok_calib_ = consumes<HcalCalibDigiCollection>(inputLabel_);
 
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if(!strcasecmp(subd.c_str(),"upgradeHBHE")) {
@@ -91,14 +96,14 @@ void HcalSimpleReconstructor::endRun(edm::Run const&r, edm::EventSetup const & e
 
 
 template<class DIGICOLL, class RECHITCOLL> 
-void HcalSimpleReconstructor::process(edm::Event& e, const edm::EventSetup& eventSetup)
+void HcalSimpleReconstructor::process(edm::Event& e, const edm::EventSetup& eventSetup, const edm::EDGetTokenT<DIGICOLL> &tok)
 {
   // get conditions
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
 
   edm::Handle<DIGICOLL> digi;
-  e.getByLabel(inputLabel_,digi);
+  e.getByToken(tok,digi);
 
   // create empty output
   std::auto_ptr<RECHITCOLL> rec(new RECHITCOLL);
@@ -141,7 +146,7 @@ void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetu
   if(upgradeHBHE_){
    
     edm::Handle<HBHEUpgradeDigiCollection> digi;
-    e.getByToken(tok_hbhe_, digi);
+    e.getByToken(tok_hbheUp_, digi);
 
     // create empty output
     std::auto_ptr<HBHERecHitCollection> rec(new HBHERecHitCollection);
@@ -179,7 +184,7 @@ void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetu
   if(upgradeHF_){
 
     edm::Handle<HFUpgradeDigiCollection> digi;
-    e.getByToken(tok_hf_, digi);
+    e.getByToken(tok_hfUp_, digi);
 
     // create empty output
     std::auto_ptr<HFRecHitCollection> rec(new HFRecHitCollection);
@@ -228,13 +233,13 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       processUpgrade(e, eventSetup);
   } else if (det_==DetId::Hcal) {
     if ((subdet_==HcalBarrel || subdet_==HcalEndcap) && !upgradeHBHE_) {
-      process<HBHEDigiCollection, HBHERecHitCollection>(e, eventSetup);
+      process<HBHEDigiCollection, HBHERecHitCollection>(e, eventSetup, tok_hbhe_);
     } else if (subdet_==HcalForward && !upgradeHF_) {
-      process<HFDigiCollection, HFRecHitCollection>(e, eventSetup);
+      process<HFDigiCollection, HFRecHitCollection>(e, eventSetup, tok_hf_);
     } else if (subdet_==HcalOuter) {
-      process<HODigiCollection, HORecHitCollection>(e, eventSetup);
+      process<HODigiCollection, HORecHitCollection>(e, eventSetup, tok_ho_);
     } else if (subdet_==HcalOther && subdetOther_==HcalCalibration) {
-      process<HcalCalibDigiCollection, HcalCalibRecHitCollection>(e, eventSetup);
+      process<HcalCalibDigiCollection, HcalCalibRecHitCollection>(e, eventSetup, tok_calib_);
     }
   } 
 }
