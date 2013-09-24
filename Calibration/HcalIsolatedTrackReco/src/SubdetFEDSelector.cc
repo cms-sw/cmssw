@@ -10,7 +10,7 @@ SubdetFEDSelector::SubdetFEDSelector(const edm::ParameterSet& iConfig)
   getMuon_=iConfig.getParameter<bool>("getMuon");
   getTrigger_=iConfig.getParameter<bool>("getTrigger");
   
-  tok_raw_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInputLabel"));
+  rawInLabel_=iConfig.getParameter<edm::InputTag>("rawInputLabel");
 
   produces<FEDRawDataCollection>();
   
@@ -27,7 +27,7 @@ SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<FEDRawDataCollection> producedData(new FEDRawDataCollection);
 
   edm::Handle<FEDRawDataCollection> rawIn;
-  iEvent.getByToken(tok_raw_,rawIn);
+  iEvent.getByLabel(rawInLabel_,rawIn);
  
   std::vector<int> selFEDs;
 

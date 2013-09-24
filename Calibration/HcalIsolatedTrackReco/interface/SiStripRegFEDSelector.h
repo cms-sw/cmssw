@@ -14,7 +14,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -28,10 +27,10 @@ public:
 
   edm::ESHandle<SiStripRegionCabling> strip_cabling;
 
+  edm::InputTag seedLabel_;
   double delta_;
   
-  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_seed_;
+  edm::InputTag rawInLabel_;
 
 private:
   virtual void beginJob() ;

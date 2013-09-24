@@ -79,9 +79,9 @@ class HITSiStripRawToClustersRoI : public edm::EDProducer {
   bool ptrack_;
 
   /** reco module labels to define regions of interest */
-  edm::EDGetTokenT<LazyGetter> tok_siStrip_;
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_tauL1_;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_ptrack_;
+  edm::InputTag siStripLazyGetter_;
+  edm::InputTag taujetL1_;
+  edm::InputTag ptrackLabel_;
   
 
   /** deta/dphi to define regions of interest around physics objects */
