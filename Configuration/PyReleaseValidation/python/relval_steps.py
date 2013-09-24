@@ -1039,9 +1039,9 @@ step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
 step3Up2015Hal = {'-s'           :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--conditions'  :'auto:upgradePLS1', 
                  '--magField'    : '38T_PostLS1',
-                 '--eventcontent':'RECOSIM,AODSIM,DQM',
-                 '-n'            :'10',
-                 '--datatier'    : 'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQM',
+                  '--eventcontent':'FEVTDEBUGHLT,DQM',
+                  '-n'            :'10',
                  '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                  '--geometry'    : 'Extended2015'
                  }
