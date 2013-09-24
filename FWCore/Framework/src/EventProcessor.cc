@@ -552,7 +552,7 @@ namespace edm {
     psetRegistry->dataForUpdate().clear();
     psetRegistry->extraForUpdate().setID(ParameterSetID());
 
-    ParentageRegistry::instance()->dataForUpdate().clear();
+    ParentageRegistry::instance()->clear();
   }
 
   void
