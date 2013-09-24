@@ -9,10 +9,11 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-HcalPedestalMCWidths::HcalPedestalMCWidths(const edm::ParameterSet& ps) :
-   hbheDigiCollectionTag_(ps.getParameter<edm::InputTag>("hbheDigiCollectionTag")),
-   hoDigiCollectionTag_(ps.getParameter<edm::InputTag>("hoDigiCollectionTag")),
-   hfDigiCollectionTag_(ps.getParameter<edm::InputTag>("hfDigiCollectionTag")) {
+HcalPedestalMCWidths::HcalPedestalMCWidths(const edm::ParameterSet& ps) {
+
+   tok_hbheDigiCollection_ = consumes<HBHEDigiCollection>(ps.getParameter<edm::InputTag>("hbheDigiCollectionTag"));
+   tok_hoDigiCollection_ = consumes<HODigiCollection>(ps.getParameter<edm::InputTag>("hoDigiCollectionTag"));
+   tok_hfDigiCollection_ = consumes<HFDigiCollection>(ps.getParameter<edm::InputTag>("hfDigiCollectionTag"));
 
    firsttime = true;
    histflag = ps.getUntrackedParameter<bool>("saveHists",true);
@@ -107,9 +108,9 @@ HcalPedestalMCWidths::analyze(const edm::Event& e, const edm::EventSetup& iSetup
    using namespace edm;
    using namespace std;
 
-   edm::Handle<HBHEDigiCollection> hbhe;              e.getByLabel(hbheDigiCollectionTag_, hbhe);
-   edm::Handle<HODigiCollection> ho;                  e.getByLabel(hoDigiCollectionTag_, ho);
-   edm::Handle<HFDigiCollection> hf;                  e.getByLabel(hfDigiCollectionTag_, hf);
+   edm::Handle<HBHEDigiCollection> hbhe;              e.getByToken(tok_hbheDigiCollection_, hbhe);
+   edm::Handle<HODigiCollection> ho;                  e.getByToken(tok_hoDigiCollection_, ho);
+   edm::Handle<HFDigiCollection> hf;                  e.getByToken(tok_hfDigiCollection_, hf);
    edm::ESHandle<HcalDbService> conditions;
    iSetup.get<HcalDbRecord>().get(conditions);
 

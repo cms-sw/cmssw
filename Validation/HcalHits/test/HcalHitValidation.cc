@@ -18,6 +18,12 @@ HcalHitValidation::HcalHitValidation(const edm::ParameterSet& ps) {
   checkNxN_= ps.getUntrackedParameter<bool>("CheckNxN",   true);
   checkJet_= ps.getUntrackedParameter<bool>("CheckJets",  true);
 
+  // register for data access
+  tok_hh_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hcalHits));
+  tok_iL_ = consumes<PHcalValidInfoLayer>(edm::InputTag(g4Label,layerInfo));
+  tok_iN_ = consumes<PHcalValidInfoNxN>(edm::InputTag(g4Label,nxNInfo));
+  tok_iJ_ = consumes<PHcalValidInfoJets>(edm::InputTag(g4Label,jetsInfo));
+
   edm::LogInfo("HcalHitValid") << "Module Label: " << g4Label << "   Hits: "
 			       << hcalHits << " / "<< checkHit_ 
 			       << "   LayerInfo: " << layerInfo << " / "
@@ -184,25 +190,25 @@ void HcalHitValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
 
   bool getHits = false;
   if (checkHit_) {
-    e.getByLabel(g4Label,hcalHits,hitsHcal); 
+    e.getByToken(tok_hh_,hitsHcal); 
     if (hitsHcal.isValid()) getHits = true;
   }
 
   bool getLayer = false;
   if (checkLay_) {
-    e.getByLabel(g4Label,layerInfo,infoLayer);
+    e.getByToken(tok_iL_,infoLayer);
     if (infoLayer.isValid()) getLayer = true;
   }
 
   bool getNxN = false;
   if (checkNxN_) {
-    e.getByLabel(g4Label,nxNInfo,infoNxN);
+    e.getByToken(tok_iN_,infoNxN);
     if (infoNxN.isValid()) getNxN = true;
   }
 
   bool getJets = false;
   if (checkJet_) {
-    e.getByLabel(g4Label,jetsInfo,infoJets);
+    e.getByToken(tok_iJ_,infoJets);
     if (infoJets.isValid()) getJets = true;
   }
 

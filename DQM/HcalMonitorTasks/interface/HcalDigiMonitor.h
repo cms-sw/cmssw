@@ -13,6 +13,8 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 #define DIGI_BQ_FRAC_NBINS 101
 #define DIGI_NUM 9072
@@ -215,13 +217,20 @@ private:  ///Methods, variables accessible only within class code
 
   edm::InputTag digiLabel_;
   edm::InputTag FEDRawDataCollection_;
+  
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  edm::EDGetTokenT<HODigiCollection> tok_ho_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+  edm::EDGetTokenT<HcalUnpackerReport> tok_unpack_;
+  edm::EDGetTokenT<edm::TriggerResults> tok_trigger_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hfrec_;
 
   edm::ESHandle<HcalDbService> conditions_;
 
   edm::InputTag hltresultsLabel_;
   std::vector <std::string> MinBiasHLTBits_;
 
-  edm::InputTag hfRechitLabel_; // used for calculating HF total ET
   double HT_HFP_, HT_HFM_;
 
   // Should be able to make this a vector of ints, right?

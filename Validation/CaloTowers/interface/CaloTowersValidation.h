@@ -19,6 +19,9 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
 #include <vector>
 #include <utility>
 #include <ostream>
@@ -49,7 +52,8 @@ class CaloTowersValidation : public edm::EDAnalyzer {
 
   typedef math::RhoEtaPhiVector Vector;
 
-  edm::InputTag theCaloTowerCollectionLabel;
+  edm::EDGetTokenT<CaloTowerCollection> tok_calo_;
+  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
 
   int isub;
   int nevent;

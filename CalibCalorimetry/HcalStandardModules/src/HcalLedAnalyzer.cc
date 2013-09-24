@@ -49,11 +49,12 @@ namespace {
   
 }
 
-HcalLedAnalyzer::HcalLedAnalyzer(const edm::ParameterSet& ps) :
-  hbheDigiCollectionTag_(ps.getParameter<edm::InputTag>("hbheDigiCollectionTag")),
-  hoDigiCollectionTag_(ps.getParameter<edm::InputTag>("hoDigiCollectionTag")),
-  hfDigiCollectionTag_(ps.getParameter<edm::InputTag>("hfDigiCollectionTag")),
-  hcalCalibDigiCollectionTag_ (ps.getParameter<edm::InputTag>("hcalCalibDigiCollectionTag")) {
+HcalLedAnalyzer::HcalLedAnalyzer(const edm::ParameterSet& ps) {
+
+  tok_hbheDigiCollection_ = consumes<HBHEDigiCollection>(ps.getParameter<edm::InputTag>("hbheDigiCollectionTag"));
+  tok_hoDigiCollection_ = consumes<HODigiCollection>(ps.getParameter<edm::InputTag>("hoDigiCollectionTag"));
+  tok_hfDigiCollection_ = consumes<HFDigiCollection>(ps.getParameter<edm::InputTag>("hfDigiCollectionTag"));
+  tok_hcalCalibDigiCollection_ = consumes<HcalCalibDigiCollection>(ps.getParameter<edm::InputTag>("hcalCalibDigiCollectionTag")); 
 
   m_ledAnal = new HcalLedAnalysis(ps);
   m_ledAnal->LedSetup(ps.getUntrackedParameter<std::string>("outputFileHist", "HcalLedAnalyzer.root"));
@@ -89,12 +90,12 @@ void HcalLedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& eventS
   m_ievt++;
 
   ///get digis
-  edm::Handle<HBHEDigiCollection> hbhe; e.getByLabel(hbheDigiCollectionTag_, hbhe);
-  edm::Handle<HODigiCollection> ho;     e.getByLabel(hoDigiCollectionTag_, ho);
-  edm::Handle<HFDigiCollection> hf;     e.getByLabel(hfDigiCollectionTag_, hf);
+  edm::Handle<HBHEDigiCollection> hbhe; e.getByToken(tok_hbheDigiCollection_, hbhe);
+  edm::Handle<HODigiCollection> ho;     e.getByToken(tok_hoDigiCollection_, ho);
+  edm::Handle<HFDigiCollection> hf;     e.getByToken(tok_hfDigiCollection_, hf);
 
   // get calib digis
-  edm::Handle<HcalCalibDigiCollection> calib;  e.getByLabel(hcalCalibDigiCollectionTag_, calib);
+  edm::Handle<HcalCalibDigiCollection> calib;  e.getByToken(tok_hcalCalibDigiCollection_, calib);
 
   // get testbeam specific laser info from the TDC.  This probably will not work
   // outside of the testbeam, but it should be easy to modify the Handle/getByType

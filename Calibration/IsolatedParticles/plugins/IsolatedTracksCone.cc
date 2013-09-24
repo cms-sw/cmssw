@@ -65,12 +65,25 @@ IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig) {
   applyEcalIsolation_ = 
     iConfig.getUntrackedParameter<bool>("ApplyEcalIsolation");
 
-  _L1extraTauJetSource = 
-    iConfig.getParameter<edm::InputTag>("L1extraTauJetSource");
-  _L1extraCenJetSource = 
-    iConfig.getParameter<edm::InputTag>("L1extraCenJetSource");
-  _L1extraFwdJetSource = 
-    iConfig.getParameter<edm::InputTag>("L1extraFwdJetSource");
+  tok_L1extTauJet_ = 
+    consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraTauJetSource"));
+  tok_L1extCenJet_ = 
+    consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraCenJetSource"));
+  tok_L1extFwdJet_ = 
+    consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraFwdJetSource"));
+
+  // hard coded collection access
+  tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  tok_EE_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  tok_hbhe_ = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
+  tok_genTrack_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
+  tok_simTk_ = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
+  tok_simVtx_ = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
+  tok_caloEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"));
+  tok_caloEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"));
+  tok_caloHH_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
+  tok_trigger_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","","HLT"));
+
 
   edm::ParameterSet parameters = 
     iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -112,7 +125,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
     L1Pass = true;
   } else {
     edm::Handle<l1extra::L1JetParticleCollection> l1TauHandle;
-    iEvent.getByLabel(_L1extraTauJetSource,l1TauHandle);
+    iEvent.getByToken(tok_L1extTauJet_,l1TauHandle);
     l1extra::L1JetParticleCollection::const_iterator itr;
     for(itr = l1TauHandle->begin(); itr != l1TauHandle->end(); ++itr ) 
     {
@@ -123,7 +136,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
       }
     }
     edm::Handle<l1extra::L1JetParticleCollection> l1CenJetHandle;
-    iEvent.getByLabel(_L1extraCenJetSource,l1CenJetHandle);
+    iEvent.getByToken(tok_L1extCenJet_,l1CenJetHandle);
     for( itr = l1CenJetHandle->begin();  itr != l1CenJetHandle->end(); ++itr ) 
     {
       if( itr->pt()>leadL1JetPT ) {
@@ -133,7 +146,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
       }
     }
     edm::Handle<l1extra::L1JetParticleCollection> l1FwdJetHandle;
-    iEvent.getByLabel(_L1extraFwdJetSource,l1FwdJetHandle);
+    iEvent.getByToken(tok_L1extFwdJet_,l1FwdJetHandle);
     for( itr = l1FwdJetHandle->begin();  itr != l1FwdJetHandle->end(); ++itr ) 
     {
       if( itr->pt()>leadL1JetPT ) {
@@ -188,8 +201,8 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-  iEvent.getByLabel("ecalRecHit","EcalRecHitsEB",barrelRecHitsHandle);
-  iEvent.getByLabel("ecalRecHit","EcalRecHitsEE",endcapRecHitsHandle);
+  iEvent.getByToken(tok_EB_,barrelRecHitsHandle);
+  iEvent.getByToken(tok_EE_,endcapRecHitsHandle);
 
   // Retrieve the good/bad ECAL channels from the DB
   edm::ESHandle<EcalChannelStatus> ecalChStatus;
@@ -197,11 +210,11 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   const EcalChannelStatus* theEcalChStatus = ecalChStatus.product();
   
   edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByLabel("hbhereco",hbhe);
+  iEvent.getByToken(tok_hbhe_,hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
   edm::Handle<reco::TrackCollection> trkCollection;
-  iEvent.getByLabel("generalTracks", trkCollection);
+  iEvent.getByToken(tok_genTrack_, trkCollection);
   reco::TrackCollection::const_iterator trkItr;
   if(debugTrks_>1){
     std::cout << "Track Collection: " << std::endl;
@@ -213,21 +226,21 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   
   //get Handles to SimTracks and SimHits
   edm::Handle<edm::SimTrackContainer> SimTk;
-  if (doMC) iEvent.getByLabel("g4SimHits",SimTk);
+  if (doMC) iEvent.getByToken(tok_simTk_,SimTk);
   edm::SimTrackContainer::const_iterator simTrkItr;
 
   edm::Handle<edm::SimVertexContainer> SimVtx;
-  if (doMC) iEvent.getByLabel("g4SimHits",SimVtx);
+  if (doMC) iEvent.getByToken(tok_simVtx_,SimVtx);
 
   //get Handles to PCaloHitContainers of eb/ee/hbhe
   edm::Handle<edm::PCaloHitContainer> pcaloeb;
-  if (doMC) iEvent.getByLabel("g4SimHits", "EcalHitsEB", pcaloeb);
+  if (doMC) iEvent.getByToken(tok_caloEB_, pcaloeb);
 
   edm::Handle<edm::PCaloHitContainer> pcaloee;
-  if (doMC) iEvent.getByLabel("g4SimHits", "EcalHitsEE", pcaloee);
+  if (doMC) iEvent.getByToken(tok_caloEE_, pcaloee);
 
   edm::Handle<edm::PCaloHitContainer> pcalohh;
-  if (doMC) iEvent.getByLabel("g4SimHits", "HcalHits", pcalohh);
+  if (doMC) iEvent.getByToken(tok_caloHH_, pcalohh);
   
   
   
@@ -235,9 +248,8 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   // Get HLT_IsoTrackHB/HE Information
   /////////////////////////////////////////////////////////
     
-  edm::InputTag theTriggerResultsLabel ("TriggerResults","","HLT");
   edm::Handle<edm::TriggerResults> triggerResults;
-  iEvent.getByLabel( theTriggerResultsLabel, triggerResults);
+  iEvent.getByToken( tok_trigger_, triggerResults);
 
   
 

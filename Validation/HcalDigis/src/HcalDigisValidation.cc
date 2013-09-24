@@ -30,6 +30,12 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
     mode_ = iConfig.getUntrackedParameter<std::string > ("mode", "multi");
     dirName_ = iConfig.getUntrackedParameter<std::string > ("dirName", "HcalDigisV/HcalDigiTask");
 
+    // register for data access
+    tok_mc_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
+    tok_hbhe_ = consumes<edm::SortedCollection<HBHEDataFrame> >(inputTag_);
+    tok_ho_ = consumes<edm::SortedCollection<HODataFrame> >(inputTag_);
+    tok_hf_ = consumes<edm::SortedCollection<HFDataFrame> >(inputTag_);
+
     dbe_ = edm::Service<DQMStore > ().operator->();
     msm_ = new std::map<std::string, MonitorElement*>();
 
@@ -426,23 +432,23 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     if (subdet_ != "all") {
        noise_ = 0;
-       if (subdet_ == "HB") reco<HBHEDataFrame > (iEvent, iSetup);
-       if (subdet_ == "HE") reco<HBHEDataFrame > (iEvent, iSetup);
-       if (subdet_ == "HO") reco<HODataFrame > (iEvent, iSetup);
-       if (subdet_ == "HF") reco<HFDataFrame > (iEvent, iSetup);
+       if (subdet_ == "HB") reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
+       if (subdet_ == "HE") reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
+       if (subdet_ == "HO") reco<HODataFrame > (iEvent, iSetup, tok_ho_);
+       if (subdet_ == "HF") reco<HFDataFrame > (iEvent, iSetup, tok_hf_);
 
         if (subdet_ == "noise") {
             noise_ = 1;
             //      std::cout << " >>>>> HcalDigiTester::analyze  entering noise "
             //	    << std::endl;
     	    subdet_ = "HB";
-            reco<HBHEDataFrame > (iEvent, iSetup);
+            reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
             subdet_ = "HE";
-            reco<HBHEDataFrame > (iEvent, iSetup);
+            reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
             subdet_ = "HO";
-            reco<HODataFrame > (iEvent, iSetup);
+            reco<HODataFrame > (iEvent, iSetup, tok_ho_);
             subdet_ = "HF";
-            reco<HFDataFrame > (iEvent, iSetup);
+            reco<HFDataFrame > (iEvent, iSetup, tok_hf_);
             subdet_ = "noise";
             }
         }// all subdetectors
@@ -450,13 +456,13 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         noise_ = 0;
 
         subdet_ = "HB";
-        reco<HBHEDataFrame > (iEvent, iSetup);
+        reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
         subdet_ = "HE";
-        reco<HBHEDataFrame > (iEvent, iSetup);
+        reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
         subdet_ = "HO";
-        reco<HODataFrame > (iEvent, iSetup);
+        reco<HODataFrame > (iEvent, iSetup, tok_ho_);
         subdet_ = "HF";
-        reco<HFDataFrame > (iEvent, iSetup);
+        reco<HFDataFrame > (iEvent, iSetup, tok_hf_);
         subdet_ = "all";
     }
 
@@ -464,7 +470,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     nevtot++;
 }
 
-template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, const edm::EventSetup& iSetup, const edm::EDGetTokenT<edm::SortedCollection<Digi> > & tok) {
 
 
     // HistLim =============================================================
@@ -479,7 +485,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
     // ADC2fC
     HcalCalibrations calibrations;
     CaloSamples tool;
-    iEvent.getByLabel(inputTag_, digiCollection);
+    iEvent.getByToken(tok, digiCollection);
 //    std::cout << "***************RECO*****************" << std::endl;
     int isubdet = 0;
     if (subdet_ == "HB") isubdet = 1;
@@ -514,7 +520,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
     // SimHits MC only
     if (mc_ == "yes") {
         edm::Handle<edm::PCaloHitContainer> hcalHits;
-        iEvent.getByLabel("g4SimHits", "HcalHits", hcalHits);
+        iEvent.getByToken(tok_mc_, hcalHits);
         const edm::PCaloHitContainer * simhitResult = hcalHits.product();
 
         if (isubdet != 0 && noise_ == 0) { // signal only SimHits
@@ -771,7 +777,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 
         if (mc_ == "yes") {
             edm::Handle<edm::PCaloHitContainer> hcalHits;
-            iEvent.getByLabel("g4SimHits", "HcalHits", hcalHits);
+            iEvent.getByToken(tok_mc_, hcalHits);
             const edm::PCaloHitContainer * simhitResult = hcalHits.product();
             for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
 

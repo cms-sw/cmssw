@@ -9,12 +9,9 @@
 
 //SimHits
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 //propagation
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 //other stuff
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,9 +27,12 @@
 
 HFPMTHitAnalyzer::HFPMTHitAnalyzer(const edm::ParameterSet& iConfig) {
 
-  sourceLabel = iConfig.getUntrackedParameter<std::string>("SourceLabel","generator");
+  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter<std::string>("SourceLabel","generator")));
   g4Label     = iConfig.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
   hcalHits    = iConfig.getUntrackedParameter<std::string>("HitCollection","HcalHits");
+
+  tok_calo_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hcalHits));
+  tok_track_ = consumes<edm::SimTrackContainer>(edm::InputTag(g4Label));
 }
 
 
@@ -136,13 +136,13 @@ void HFPMTHitAnalyzer::analyze(const edm::Event& iEvent,
  
   std::vector<PCaloHit> caloHits;
   edm::Handle<edm::PCaloHitContainer> hitsHcal;
-  iEvent.getByLabel(g4Label,hcalHits,hitsHcal);
+  iEvent.getByToken(tok_calo_,hitsHcal);
   std::vector<SimTrack> simTracks;
   edm::Handle<edm::SimTrackContainer> Tracks;
-  iEvent.getByLabel (g4Label, Tracks);
+  iEvent.getByToken (tok_track_, Tracks);
 
   edm::Handle<edm::HepMCProduct > EvtHandle;
-  iEvent.getByLabel(sourceLabel, EvtHandle);
+  iEvent.getByToken(tok_evt_, EvtHandle);
   const  HepMC::GenEvent* myGenEvent = EvtHandle->GetEvent();
 
   float orig_energy=0;

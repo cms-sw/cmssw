@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include <vector>
 
 class HcalTrigPrimDigiProducer : public edm::EDProducer
@@ -23,9 +25,13 @@ private:
 
   /// input tags for HCAL digis
   std::vector<edm::InputTag> inputLabel_;
+  // this seems a strange way of doing things
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
 
   /// input tag for FEDRawDataCollection
   edm::InputTag inputTagFEDRaw_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
 
   bool runZS_;
 

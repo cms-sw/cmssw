@@ -104,16 +104,28 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
   Int_t nTracks;
   Float_t genEta,genPhi, trackEta[50],trackPhi[50], trackP[50] , delRmc[50];
 
-  edm::InputTag hbheRecHitCollectionTag_;
-  edm::InputTag hfRecHitCollectionTag_;
-  edm::InputTag hoRecHitCollectionTag_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+
+  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  edm::EDGetTokenT<reco::TrackCollection> tok_tracks_;
+  edm::EDGetTokenT<edm::HepMCProduct> tok_gen_;
 };
 
 
-HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) :
-  hbheRecHitCollectionTag_(iConfig.getParameter<edm::InputTag>("hbheRecHitCollectionTag")),
-  hfRecHitCollectionTag_(iConfig.getParameter<edm::InputTag>("hfRecHitCollectionTag")),
-  hoRecHitCollectionTag_(iConfig.getParameter<edm::InputTag>("hoRecHitCollectionTag")) {
+HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) {
+
+  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheRecHitCollectionTag"));
+  tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfRecHitCollectionTag"));
+  tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoRecHitCollectionTag")); 
+
+  // should maybe add these options to configuration - cowden
+  tok_EE_ = consumes<EcalRecHitCollection>( edm::InputTag("ecalRecHit","EcalRecHitsEE") );
+  tok_EB_ = consumes<EcalRecHitCollection>( edm::InputTag("ecalRecHit","EcalRecHitsEB") );
+  tok_tracks_ = consumes<reco::TrackCollection>( edm::InputTag("generalTracks") );
+  tok_gen_ = consumes<edm::HepMCProduct>( edm::InputTag("generator") ); 
 
   //  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   
@@ -174,23 +186,23 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   }
 
   edm::Handle<HBHERecHitCollection> hbhe;
-  ev.getByLabel(hbheRecHitCollectionTag_, hbhe);
+  ev.getByToken(tok_hbhe_, hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
   
   edm::Handle<HFRecHitCollection> hfcoll;
-  ev.getByLabel(hfRecHitCollectionTag_, hfcoll);
+  ev.getByToken(tok_hf_, hfcoll);
   const HFRecHitCollection Hithf = *(hfcoll.product());
     
   edm::Handle<HORecHitCollection> hocoll;
-  ev.getByLabel(hoRecHitCollectionTag_, hocoll);
+  ev.getByToken(tok_ho_, hocoll);
   const HORecHitCollection Hitho = *(hocoll.product());
   
   edm::Handle<EERecHitCollection> ecalEE;
-  ev.getByLabel("ecalRecHit","EcalRecHitsEE",ecalEE);
+  ev.getByToken(tok_EE_,ecalEE);
   const EERecHitCollection HitecalEE = *(ecalEE.product());
   
   edm::Handle<EBRecHitCollection> ecalEB;
-  ev.getByLabel("ecalRecHit","EcalRecHitsEB",ecalEB);
+  ev.getByToken(tok_EB_,ecalEB);
   const EBRecHitCollection HitecalEB = *(ecalEB.product());
   
   // temporary collection of EB+EE recHits
@@ -203,7 +215,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
 
   edm::Handle<reco::TrackCollection> generalTracks;
-  ev.getByLabel("generalTracks", generalTracks);
+  ev.getByToken(tok_tracks_, generalTracks);
    
     edm::ESHandle<CaloGeometry> pG;
     c.get<CaloGeometryRecord>().get(pG);
@@ -250,7 +262,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     
   edm::Handle<edm::HepMCProduct> evtMC;
   //  ev.getByLabel("VtxSmeared",evtMC);
-  ev.getByLabel("generator",evtMC);
+  ev.getByToken(tok_gen_,evtMC);
   if (!evtMC.isValid()) 
     {
       std::cout << "no HepMCProduct found" << std::endl;    

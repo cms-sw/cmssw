@@ -120,7 +120,22 @@ private:
   int    myverbose_;
   bool   useJetTrigger_;
   double drLeadJetVeto_, ptMinLeadJet_;
-  edm::InputTag _L1extraTauJetSource, _L1extraCenJetSource, _L1extraFwdJetSource;
+
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extTauJet_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extCenJet_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extFwdJet_;
+
+  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
+  edm::EDGetTokenT<edm::SimTrackContainer> tok_simTk_;
+  edm::EDGetTokenT<edm::SimVertexContainer> tok_simVtx_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEB_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEE_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloHH_;
+  edm::EDGetTokenT<edm::TriggerResults> tok_trigger_;
 
   double minTrackP_, maxTrackEta_, maxNearTrackP_;
   

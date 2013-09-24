@@ -5,6 +5,10 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
+
 class TFile;
 class TH1F;
 class TH2F;
@@ -32,8 +36,8 @@ class HFPreLightCal : public edm::EDAnalyzer {
   TH1F *htsmax,*htspinmax;
   TH1F* htspin[8][3];
 
-  edm::InputTag hfDigiCollectionTag_;
-  edm::InputTag hcalCalibDigiCollectionTag_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hfDigiCollection_;
+  edm::EDGetTokenT<HcalCalibDigiCollection> tok_hcalCalibDigiCollection_;
 };
 
 #endif

@@ -29,7 +29,7 @@ public:
   bool getMuon_;
   bool getTrigger_;
 
-  edm::InputTag rawInLabel_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
 
 private:
   virtual void beginJob() ;

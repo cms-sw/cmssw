@@ -61,6 +61,18 @@ HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps)
 
   needLogicalMap_=true;
   setupDone_=false;
+
+  // register for data access
+  tok_dcs_ = consumes<DcsStatusCollection>(edm::InputTag("scalersRawToDigi"));
+  tok_hbhedigi_ = consumes<HBHEDigiCollection>(digiLabel_);
+  tok_hodigi_ = consumes<HODigiCollection>(digiLabel_);
+  tok_hfdigi_ = consumes<HFDigiCollection>(digiLabel_);
+  tok_hbhe_ = consumes<HBHERecHitCollection>(hbheRechitLabel_);
+  tok_ho_ = consumes<HORecHitCollection>(hoRechitLabel_);
+  tok_hf_ = consumes<HFRecHitCollection>(hfRechitLabel_);
+  tok_gtEvm_ = consumes<L1GlobalTriggerEvmReadoutRecord>(edm::InputTag("gtEvmDigis"));
+
+
 } //constructor
 
 HcalDeadCellMonitor::~HcalDeadCellMonitor()
@@ -642,7 +654,7 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   /////////////////////////////////////////////////////////////////
   // check if detectors whether they were ON
   edm::Handle<DcsStatusCollection> dcsStatus;
-  e.getByLabel("scalersRawToDigi", dcsStatus);
+  e.getByToken(tok_dcs_, dcsStatus);
   
   if (dcsStatus.isValid() && dcsStatus->size() != 0) 
     {      
@@ -671,39 +683,39 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
     }
   ///////////////////////////////////////////////////////////////
 
-  if (!(e.getByLabel(digiLabel_,hbhe_digi)))
+  if (!(e.getByToken(tok_hbhedigi_,hbhe_digi)))
     {
       edm::LogWarning("HcalDeadCellMonitor")<< digiLabel_<<" hbhe_digi not available";
       return;
     }
-  if (!(e.getByLabel(digiLabel_,ho_digi)))
+  if (!(e.getByToken(tok_hodigi_,ho_digi)))
     {
       edm::LogWarning("HcalDeadCellMonitor")<< digiLabel_<<" ho_digi not available";
       return;
     }
-  if (!(e.getByLabel(digiLabel_,hf_digi)))
+  if (!(e.getByToken(tok_hfdigi_,hf_digi)))
     {
       edm::LogWarning("HcalDeadCellMonitor")<< digiLabel_<<" hf_digi not available";
       return;
     }
 
-  if (!(e.getByLabel(hbheRechitLabel_,hbhe_rechit)))
+  if (!(e.getByToken(tok_hbhe_,hbhe_rechit)))
     {
       edm::LogWarning("HcalDeadCellMonitor")<< hbheRechitLabel_<<" hbhe_rechit not available";
       return;
     }
 
-  if (!(e.getByLabel(hfRechitLabel_,hf_rechit)))
+  if (!(e.getByToken(tok_hf_,hf_rechit)))
     {
       edm::LogWarning("HcalDeadCellMonitor")<< hfRechitLabel_<<" hf_rechit not available";
       return;
     }
-  if (!(e.getByLabel(hoRechitLabel_,ho_rechit)))
+  if (!(e.getByToken(tok_ho_,ho_rechit)))
     {
       edm::LogWarning("HcalDeadCellMonitor")<< hoRechitLabel_<<" ho_rechit not available";
       return;
     }
-  if (!(e.getByLabel("gtEvmDigis", gtEvm_handle)))
+  if (!(e.getByToken(tok_gtEvm_, gtEvm_handle)))
     {
       edm::LogWarning("HcalDeadCellMonitor")<< "gtEvmDigis"<<" gtEvmDigis not available";
       return;

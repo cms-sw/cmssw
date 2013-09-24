@@ -1,13 +1,14 @@
 #include "Validation/CaloTowers/interface/CaloTowersValidation.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
-  theCaloTowerCollectionLabel(conf.getUntrackedParameter<edm::InputTag>("CaloTowerCollectionLabel"))
+CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf)
 {
+
+  tok_calo_ = consumes<CaloTowerCollection>(conf.getUntrackedParameter<edm::InputTag>("CaloTowerCollectionLabel"));
+    tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
+
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
@@ -488,7 +489,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
   if (imc != 0){
     edm::Handle<edm::HepMCProduct> evtMC;
     //  ev.getByLabel("VtxSmeared",evtMC);
-    event.getByLabel("generator",evtMC);  // generator in late 310_preX
+    event.getByToken(tok_evt_,evtMC);  // generator in late 310_preX
     if (!evtMC.isValid()) {
       std::cout << "no HepMCProduct found" << std::endl;    
     } else {
@@ -513,7 +514,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
   }    
 
   edm::Handle<CaloTowerCollection> towers;
-  event.getByLabel(theCaloTowerCollectionLabel,towers);
+  event.getByToken(tok_calo_,towers);
   CaloTowerCollection::const_iterator cal;
 
   double met;
