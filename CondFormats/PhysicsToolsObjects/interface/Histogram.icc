@@ -38,7 +38,7 @@ Histogram<Value_t, Axis_t>::Histogram(const Histogram &orig) :
 	binULimits(orig.binULimits), binValues(orig.binValues),
 	limits(orig.limits), total(orig.total)
 {
-	totalValid.store(orig.totalValid, std::memory_order_release);
+	totalValid.store(orig.totalValid.load(std::memory_order_acquire), std::memory_order_release);
 }
 
 template<typename Value_t, typename Axis_t>
@@ -121,7 +121,7 @@ Histogram<Value_t, Axis_t> &Histogram<Value_t, Axis_t>::operator = (
 	binValues = orig.binValues;
 	limits = orig.limits;
 	total = orig.total;
-	totalValid.store(orig.totalValid, std::memory_order_release);
+	totalValid.store(orig.totalValid.load(std::memory_order_acquire), std::memory_order_release);
 	return *this;
 }
 
@@ -136,7 +136,7 @@ Histogram<Value_t, Axis_t> &Histogram<Value_t, Axis_t>::operator = (
 	                                 orig.binValues.end());
 	limits = orig.limits;
 	total = orig.total;
-	totalValid.store(orig.totalValid, std::memory_order_release);
+	totalValid.store(orig.totalValid.load(std::memory_order_acquire), std::memory_order_release);
 	return *this;
 }
 
@@ -233,7 +233,7 @@ int Histogram<Value_t, Axis_t>::findBin(Axis_t x) const
 template<typename Value_t, typename Axis_t>
 Value_t Histogram<Value_t, Axis_t>::normalization() const
 {
-	if (!totalValid) {
+	if (!totalValid.load(std::memory_order_acquire)) {
 		total = std::accumulate(binValues.begin() + 1, binValues.end() - 1, Value_t());
 		totalValid.store(true, std::memory_order_release);
 	}

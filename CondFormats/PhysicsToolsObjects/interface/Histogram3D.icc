@@ -31,7 +31,7 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(const Histogram3D &
 	total(orig.total),
 	rowTotal(orig.rowTotal), columnTotal(orig.columnTotal)
 {
-	totalValid.store(orig.totalValid, std::memory_order_release);
+	totalValid.store(orig.totalValid.load(std::memory_order_acquire), std::memory_order_release);
 }
 
 template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
@@ -48,7 +48,7 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
 	rowTotal(orig.rowTotal.begin(), orig.rowTotal.end()),
 	columnTotal(orig.columnTotal.begin(), orig.columnTotal.end())
 {
-	totalValid.store(orig.totalValid, std::memory_order_release);
+	totalValid.store(orig.totalValid.load(std::memory_order_acquire), std::memory_order_release);
 }
 
 template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
@@ -257,7 +257,7 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::operator = (const Histogram3D &
 	limitsY = orig.limitsY;
         limitsZ = orig.limitsZ;
 	total = orig.total;
-	totalValid.store(orig.totalValid, std::memory_order_release);
+	totalValid.store(orig.totalValid.load(std::memory_order_acquire), std::memory_order_release);
 	rowTotal = orig.rowTotal;
 	columnTotal = orig.columnTotal;
         sliceTotal = orig.sliceTotal;
@@ -283,7 +283,7 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t> &Histogram3D<Value_t, AxisX_t, A
 	limitsY = orig.limitsY;
         limitsZ = orig.limitsZ;
 	total = orig.total;
-	totalValid.store(orig.totalValid, std::memory_order_release);
+	totalValid.store(orig.totalValid.load(std::memory_order_acquire), std::memory_order_release);
 	rowTotal = std::vector<Value_t>(orig.rowTotal.begin(),
 	                                orig.rowTotal.end());
 	columnTotal = std::vector<Value_t>(orig.columnTotal.begin(),
@@ -542,7 +542,7 @@ int Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::findBinZ(AxisZ_t z) const
 template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
 Value_t Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::normalization() const
 {
-	if (!totalValid) {
+	if (!totalValid.load(std::memory_order_acquire)) {
 		total = std::accumulate(binValues.begin() + 1, binValues.end() - 1, Value_t());
 		totalValid.store(true, std::memory_order_release);
 	}
