@@ -62,8 +62,34 @@ TCMETAlgo::TCMETAlgo() {
 }
 
 
-void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFunctionType) {
-     // get configuration parameters
+void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFunctionType,
+			  edm::EDGetTokenT<reco::MuonCollection>* muonToken,
+			  edm::EDGetTokenT<reco::GsfElectronCollection>* electronToken,
+			  edm::EDGetTokenT<edm::View<reco::MET> >* metToken,
+			  edm::EDGetTokenT<reco::TrackCollection>* trackToken,
+			  edm::EDGetTokenT<reco::BeamSpot>* beamSpotToken,
+			  edm::EDGetTokenT<reco::VertexCollection>* vertexToken,
+			  edm::EDGetTokenT<reco::PFClusterCollection>* clustersECALToken,
+			  edm::EDGetTokenT<reco::PFClusterCollection>* clustersHCALToken,
+			  edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFEMToken,
+			  edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFHADToken,
+			  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* muonDepValueMapToken,
+			  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* tcmetDepValueMapToken
+			  )
+{
+
+  muonToken_ = muonToken;
+  electronToken_ = electronToken;
+  metToken_ = metToken;
+  trackToken_ = trackToken;
+  beamSpotToken_ = beamSpotToken;
+  vertexToken_ = vertexToken;
+  clustersECALToken_ = clustersECALToken;
+  clustersHCALToken_ = clustersHCALToken;
+  clustersHFEMToken_ = clustersHFEMToken;
+  clustersHFHADToken_  = clustersHFHADToken;
+  muonDepValueMapToken_ = muonDepValueMapToken;
+  tcmetDepValueMapToken_ = tcmetDepValueMapToken;
 
      usePFClusters_           = iConfig.getParameter<bool>  ("usePFClusters");
      inputTagPFClustersECAL_  = iConfig.getParameter<edm::InputTag>("PFClustersECAL");
@@ -144,8 +170,6 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFuncti
      else if( myResponseFunctionType == 2 )
        response_function = getResponseFunction_mode();
      
-
-
 }
 //------------------------------------------------------------------------
 
@@ -162,16 +186,16 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
 { 
 
      // get input collections
-     event.getByLabel( muonInputTag_    , MuonHandle    );
-     event.getByLabel( electronInputTag_, ElectronHandle);
-     event.getByLabel( metInputTag_     , metHandle     );
-     event.getByLabel( trackInputTag_   , TrackHandle   );
-     event.getByLabel( beamSpotInputTag_, beamSpotHandle);
+     event.getByToken(*muonToken_ , MuonHandle);
+     event.getByToken(*electronToken_, ElectronHandle);
+     event.getByToken(*metToken_ , metHandle);
+     event.getByToken(*trackToken_, TrackHandle);
+     event.getByToken(*beamSpotToken_, beamSpotHandle);
 
      //get vertex collection
      hasValidVertex = false;
      if( usePvtxd0_ ){
-       event.getByLabel( vertexInputTag_  , VertexHandle  );
+       event.getByToken(*vertexToken_, VertexHandle);
        if( VertexHandle.isValid() ) {
          vertexColl = VertexHandle.product();
          hasValidVertex = isValidVertex();
@@ -194,25 +218,25 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      float pfcsumet = 0.;
 
      if( usePFClusters_ ){
-       bool found = event.getByLabel(inputTagPFClustersECAL_, clustersECAL);      
+       bool found = event.getByToken(*clustersECALToken_, clustersECAL);      
        
        if(!found )
          edm::LogError("RecoMET")<<" cannot get ECAL clusters: "
                                          <<inputTagPFClustersECAL_<<std::endl;
        
-       found = event.getByLabel(inputTagPFClustersHCAL_, clustersHCAL);
+       found = event.getByToken(*clustersHCALToken_, clustersHCAL);
        
        if(!found )
          edm::LogError("RecoMET")<<" cannot get HCAL clusters: "
                                          <<inputTagPFClustersHCAL_<<std::endl;
        
-       found = event.getByLabel(inputTagPFClustersHFEM_, clustersHFEM);      
+       found = event.getByToken(*clustersHFEMToken_, clustersHFEM);      
        
        if(!found )
          edm::LogError("RecoMET")<<" cannot get HFEM clusters: "
                                          <<inputTagPFClustersHFEM_<<std::endl;
        
-       found = event.getByLabel(inputTagPFClustersHFHAD_, clustersHFHAD);      
+       found = event.getByToken(*clustersHFHADToken_, clustersHFHAD);      
        
        if(!found )
          edm::LogError("RecoMET")<<" cannot get HFHAD clusters: "
@@ -261,8 +285,8 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      }
 
      // get input value maps
-     event.getByLabel( muonDepValueMap_ , muon_data_h );
-     event.getByLabel( tcmetDepValueMap_, tcmet_data_h );
+     event.getByToken(*muonDepValueMapToken_, muon_data_h);
+     event.getByToken(*tcmetDepValueMapToken_, tcmet_data_h );
 
      muon_data  = *muon_data_h;
      tcmet_data = *tcmet_data_h;
