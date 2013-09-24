@@ -27,38 +27,16 @@ private:
   HFSignalGenerator theHFSignalGenerator;
   ZDCSignalGenerator theZDCSignalGenerator;
 
-  edm::EDGetTokenT<HBHEDigitizerTraits::DigiCollection> tok_hbhe_;
-  edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok_ho_;
-  edm::EDGetTokenT<HFDigitizerTraits::DigiCollection> tok_hf_;
-  edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
-
-  edm::InputTag theHBHETag_, theHOTag_, theHFTag_, theZDCTag_;
-
 };
 
 
 HcalSignalGeneratorTest::HcalSignalGeneratorTest(const edm::ParameterSet& iConfig)
 : theMap(),
-  /*theHBHESignalGenerator(iConfig.getParameter<edm::InputTag>("HBHEdigiCollectionPile")),
+  theHBHESignalGenerator(iConfig.getParameter<edm::InputTag>("HBHEdigiCollectionPile")),
   theHOSignalGenerator(iConfig.getParameter<edm::InputTag>("HOdigiCollectionPile")),
   theHFSignalGenerator(iConfig.getParameter<edm::InputTag>("HFdigiCollectionPile")),
-  theZDCSignalGenerator(iConfig.getParameter<edm::InputTag>("ZDCdigiCollectionPile"))*/
-  theHBHETag_(iConfig.getParameter<edm::InputTag>("HBHEdigiCollectionPile")),
-  theHOTag_(iConfig.getParameter<edm::InputTag>("HOdigiCollectionPile")),
-  theHFTag_(iConfig.getParameter<edm::InputTag>("HFdigiCollectionPile")),
-  theZDCTag_(iConfig.getParameter<edm::InputTag>("ZDCdigiCollectionPile"))
+  theZDCSignalGenerator(iConfig.getParameter<edm::InputTag>("ZDCdigiCollectionPile"))
 {
-
-  tok_hbhe_ = consumes<HBHEDigitizerTraits::DigiCollection>(theHBHETag_);
-  tok_ho_ = consumes<HODigitizerTraits::DigiCollection>(theHOTag_);
-  tok_hf_ = consumes<HFDigitizerTraits::DigiCollection>(theHFTag_);
-  tok_zdc_ = consumes<ZDCDigitizerTraits::DigiCollection>(theZDCTag_);
-
-  theHBHESignalGenerator = HBHESignalGenerator(theHBHETag_,tok_hbhe_);
-  theHOSignalGenerator = HOSignalGenerator(theHOTag_,tok_ho_);
-  theHFSignalGenerator = HFSignalGenerator(theHFTag_,tok_hf_);
-  theZDCSignalGenerator = ZDCSignalGenerator(theZDCTag_,tok_zdc_);
-
   theHBHESignalGenerator.setParameterMap(&theMap);
   theHOSignalGenerator.setParameterMap(&theMap);
   theHFSignalGenerator.setParameterMap(&theMap);

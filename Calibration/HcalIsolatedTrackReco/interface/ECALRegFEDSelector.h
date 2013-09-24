@@ -20,8 +20,6 @@
 
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
@@ -34,11 +32,11 @@ class ECALRegFEDSelector : public edm::EDProducer {
   ~ECALRegFEDSelector();
   const EcalElectronicsMapping* ec_mapping;
 
+  edm::InputTag seedLabel_;
   double delta_;
   bool fedSaved[1200];
   
-  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_seed_;
+  edm::InputTag rawInLabel_;
   
  private:
   virtual void beginJob() ;

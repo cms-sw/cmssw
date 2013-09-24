@@ -30,9 +30,11 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "Calibration/HcalIsolatedTrackReco/interface/EcalIsolatedParticleCandidateProducer.h"
 
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 
 
@@ -42,10 +44,10 @@ EcalIsolatedParticleCandidateProducer::EcalIsolatedParticleCandidateProducer(con
   OutConeSize_= conf.getParameter<double>("EcalOuterConeSize");
   hitCountEthr_= conf.getParameter<double>("ECHitCountEnergyThreshold");
   hitEthr_=conf.getParameter<double>("ECHitEnergyThreshold");
-  tok_l1tau_ = consumes<l1extra::L1JetParticleCollection>(conf.getParameter<edm::InputTag>("L1eTauJetsSource"));
-  tok_hlt_ = consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("L1GTSeedLabel"));
-  tok_EB_ = consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBrecHitCollectionLabel"));
-  tok_EE_ = consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EErecHitCollectionLabel"));
+  l1tausource_=conf.getParameter<edm::InputTag>("L1eTauJetsSource");
+  hltGTseedlabel_=conf.getParameter<edm::InputTag>("L1GTSeedLabel");
+  EBrecHitCollectionLabel_=conf.getParameter<edm::InputTag>("EBrecHitCollectionLabel");
+  EErecHitCollectionLabel_=conf.getParameter<edm::InputTag>("EErecHitCollectionLabel");
 
    //register your products
   produces< reco::IsolatedPixelTrackCandidateCollection >();
@@ -76,7 +78,7 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
 //  std::cout<<"get tau"<<std::endl;
 
   Handle<l1extra::L1JetParticleCollection> l1Taus;
-  iEvent.getByToken(tok_l1tau_,l1Taus);
+  iEvent.getByLabel(l1tausource_,l1Taus);
 
 //  std::cout<<"get geom"<<std::endl;
 
@@ -87,15 +89,15 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
 //  std::cout<<" get ec rechit"<<std::endl;
 
   Handle<EcalRecHitCollection> ecalEB;
-  iEvent.getByToken(tok_EB_,ecalEB);
+  iEvent.getByLabel(EBrecHitCollectionLabel_,ecalEB);
 
   Handle<EcalRecHitCollection> ecalEE;
-  iEvent.getByToken(tok_EE_,ecalEE);
+  iEvent.getByLabel(EErecHitCollectionLabel_,ecalEE);
 
 //  std::cout<<"get l1 trig obj"<<std::endl;
 
   Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
-  iEvent.getByToken(tok_hlt_, l1trigobj);
+  iEvent.getByLabel(hltGTseedlabel_, l1trigobj);
 
   std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
   std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;
