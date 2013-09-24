@@ -884,8 +884,7 @@ steps['TTbarFSPU2']=merge([PUFS2,Kby(100,500),steps['TTbarFS']])
 
 
 # step2 
-step2Defaults = { 
-                  '-s'            : 'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+step2Defaults = { '-s'            : 'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
                   '--datatier'    : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
                   '--eventcontent': 'FEVTDEBUGHLT',
                   '--conditions'  : 'auto:startup',
@@ -893,12 +892,12 @@ step2Defaults = {
 #for 2015
 step2Upg2015Defaults = {'-s'     :'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
                  '--conditions'  :'auto:upgradePLS1', 
-                 '--magField'    : '38T_PostLS1',
-                 '--datatier'    :'GEN-SIM-DIGI-RAW',
-                 '-n'            :'10',
+                 '--magField'    :'38T_PostLS1',
+                 '--datatier'    :'GEN-SIM-DIGI-RAW-HLTDEBUG',
                  '--eventcontent':'FEVTDEBUGHLT',
-                 '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                 '--geometry'    : 'Extended2015'
+                 '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                 '--geometry'    :'Extended2015',
+                 '-n'            :'10'
                   }
 steps['DIGIUP15']=merge([step2Upg2015Defaults]) # todo: remove UP from label
 
@@ -906,7 +905,7 @@ steps['DIGIPROD1']=merge([{'--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'}
 steps['DIGI']=merge([step2Defaults])
 #steps['DIGI2']=merge([stCond,step2Defaults])
 steps['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
-steps['DIGIHAL']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW','--magField':'38T_PostLS1'},step2Upg2015Defaults])
+steps['DIGIHAL']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},step2Upg2015Defaults])
 
 steps['DIGIPU1']=merge([PU,step2Defaults])
 steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco'},steps['DIGIPU1']])
@@ -1030,20 +1029,20 @@ steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--conditions':'auto:upgradePLS1', 
                  '--magField'    : '38T_PostLS1',
-                 '--datatier':'GEN-SIM-RECO,DQM',
                  '-n':'10',
+                 '--datatier':'GEN-SIM-RECO,DQM',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                  '--geometry' : 'Extended2015'
                  }
-step3Up2015Hal = {'-s'           :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
-                 '--conditions'  :'auto:upgradePLS1', 
-                 '--magField'    : '38T_PostLS1',
-                 '--datatier':'GEN-SIM-RECO,DQM',
-                  '--eventcontent':'FEVTDEBUGHLT,DQM',
+step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
+                 '--conditions'   :'auto:upgradePLS1', 
+                 '--magField'     :'38T_PostLS1',
+                 '--datatier'     :'GEN-SIM-RECO,DQM',
+                  '--eventcontent':'RECOSIM,DQM',
                   '-n'            :'10',
-                 '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                 '--geometry'    : 'Extended2015'
+                 '--customise'    :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                 '--geometry'     :'Extended2015'
                  }
                              
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
@@ -1205,10 +1204,13 @@ steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting',
                    '--scenario':'cosmics'}
 steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvesting',
                      '--conditions':'auto:upgradePLS1',
-                     '--magField'  : '38T_PostLS1',
+                     '--magField'  :'38T_PostLS1',
                      '--mc'        :'',
                      '--filein'    :'file:step3_inDQM.root',
-                   '--scenario'    :'cosmics'}
+                     '--scenario'    :'cosmics',
+                     '--filein':'file:step3_inDQM.root',
+                     '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                     }
 steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
                    '--conditions':'auto:startup',
                    '--mc':'',
