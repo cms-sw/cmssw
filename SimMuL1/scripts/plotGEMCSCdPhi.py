@@ -35,7 +35,7 @@ def getTree(fileName):
 
     return tree
 
-def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
+def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png", useReverseOrdering = False):
     """Plot the GEM-CSC bending angles"""
     
     t = getTree("%sgem_csc_delta_pt5_pad4.root"%(filesDir))
@@ -65,16 +65,22 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     gStyle.SetMarkerStyle(1)
 
     #setTDRStyle()
-
+    
     if oddEven == "even":
         ok_pad_lct = ok_pad2_lct2       
         var = "dphi_pad_even"
-        closeFar = "Close"
+        if useReverseOrdering:
+            closeFar = 'Even ("close")'
+        else:
+            closeFar = '"Close" (even)'
     else:
         ok_pad_lct = ok_pad1_lct1
         var = "dphi_pad_odd"
-        closeFar = "Far"
-        
+        if useReverseOrdering:
+            closeFar = 'Odd ("far")'
+        else:
+            closeFar = '"Far" (odd)'
+            
     t.Draw("TMath::Abs(%s)>>dphi_pt5"%(var) , ok_pad_lct)
     t1.Draw("TMath::Abs(%s)>>dphi_pt20"%(var) , ok_pad_lct)
     
@@ -86,7 +92,7 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     dphi_pt20.SetLineWidth(2)
     dphi_pt20.GetXaxis().SetTitle("#Delta#phi(GEM,CSC) [rad]")
     dphi_pt20.GetYaxis().SetTitle("Arbitray units")
-    dphi_pt20.SetTitle("           GEM-CSC Bending Angle                        CMS Simulation Preliminary")
+    dphi_pt20.SetTitle("           GEM-CSC Bending Angle                CMS Phase-2 Simulation Preliminary")
     dphi_pt20.GetXaxis().SetLabelSize(0.05)
     dphi_pt20.GetYaxis().SetLabelSize(0.05)
     dphi_pt20.Draw()
@@ -117,25 +123,35 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png"):
     tex3.Draw("same")
 
     ## hardcore nitpicking over here!
-    if closeFar == "Close":
-        xpos = 0.22##0.61
+    if oddEven == "even":
+        xpos = 0.2##0.61
     else:
         xpos = 0.25##0.64
 
-    tex = TLatex(xpos,.85,'"%s" chamber pairs'%(closeFar))
+    tex = TLatex(xpos,.85,"%s chamber pairs"%(closeFar))
     tex.Draw("same")
     tex.SetTextSize(0.06)
     tex.SetNDC()
 
-    c.SaveAs("%sGEMCSCdPhi_%s_chambers%s"%(plotDir, oddEven, ext))
+    if useReverseOrdering:
+        c.SaveAs("%sGEMCSCdPhi_%s_chambers_reverse%s"%(plotDir, oddEven, ext))
+    else:
+        c.SaveAs("%sGEMCSCdPhi_%s_chambers%s"%(plotDir, oddEven, ext))
+
 
 if __name__ == "__main__":  
-    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".eps")
-    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".eps")
-    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".pdf")
-    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".pdf")
-    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".png")
-    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".png")
+    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".eps", False)
+    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".eps", False)
+    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".pdf", False)
+    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".pdf", False)
+    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".png", False)
+    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".png", False)
 
+    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".eps", True)
+    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".eps", True)
+    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".pdf", True)
+    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".pdf", True)
+    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".png", True)
+    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".png", True)
 
 
