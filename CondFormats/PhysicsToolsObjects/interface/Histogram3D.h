@@ -167,11 +167,11 @@ class Histogram3D {
         RangeY                          limitsZ;
 
 	// transient cache variables
-	mutable Value_t			        total; //CMS-THREADING protected by totalValid
+	mutable Value_t total; //CMS-THREADING protected by totalValid
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-    mutable std::atomic<bool>       totalValid;
+	mutable std::atomic<bool> totalValid;
 #else
-    mutable bool			        totalValid;
+	mutable bool totalValid;
 #endif
     mutable std::vector<Value_t>    sliceTotal;
 	mutable std::vector<Value_t>	rowTotal;

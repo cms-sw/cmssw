@@ -20,7 +20,7 @@ Histogram2D<Value_t, AxisX_t, AxisY_t>::Histogram2D() :
 	stride(0), limitsX(AxisX_t(), AxisX_t()),
 	limitsY(AxisY_t(), AxisY_t()), total(Value_t())
 {
-    totalValid.store(false);
+	totalValid.store(false, std::memory_order_release);
 }
 
 template<typename Value_t, typename AxisX_t, typename AxisY_t>
@@ -28,10 +28,10 @@ Histogram2D<Value_t, AxisX_t, AxisY_t>::Histogram2D(const Histogram2D &orig) :
 	stride(orig.stride), binULimitsX(orig.binULimitsX),
 	binULimitsY(orig.binULimitsY), binValues(orig.binValues),
 	limitsX(orig.limitsX), limitsY(orig.limitsY),
-    total(orig.total),
+	total(orig.total),
 	rowTotal(orig.rowTotal), columnTotal(orig.columnTotal)
 {
-    totalValid.store(orig.totalValid);
+	totalValid.store(orig.totalValid, std::memory_order_release);
 }
 
 template<typename Value_t, typename AxisX_t, typename AxisY_t>
@@ -43,11 +43,11 @@ Histogram2D<Value_t, AxisX_t, AxisY_t>::Histogram2D(
 	binULimitsY(orig.binULimitsY.begin(), orig.binULimitsY.end()),
 	binValues(orig.binValues.begin(), orig.binValues.end()),
 	limitsX(orig.limitsX), limitsY(orig.limitsY),
-    total(orig.total),
+	total(orig.total),
 	rowTotal(orig.rowTotal.begin(), orig.rowTotal.end()),
 	columnTotal(orig.columnTotal.begin(), orig.columnTotal.end())
 {
-    totalValid.store(orig.totalValid);
+	totalValid.store(orig.totalValid, std::memory_order_release);
 }
 
 template<typename Value_t, typename AxisX_t, typename AxisY_t>
@@ -58,10 +58,10 @@ Histogram2D<Value_t, AxisX_t, AxisY_t>::Histogram2D(
 	binULimitsX(binULimitsX), binULimitsY(binULimitsY),
 	binValues((binULimitsY.size() + 1) * stride),
 	limitsX(AxisX_t(), AxisX_t()), limitsY(AxisY_t(), AxisY_t()),
-    total(Value_t()),
+	total(Value_t()),
 	rowTotal(binULimitsY.size() + 1), columnTotal(binULimitsX.size() + 1)
 {
-    totalValid.store(true);
+	totalValid.store(true, std::memory_order_release);
 	if (binULimitsX.size() < 2)
 		throw cms::Exception("TooFewBinsError")
 			<< "Trying to generate degenerate 2D histogram: "
@@ -89,10 +89,10 @@ Histogram2D<Value_t, AxisX_t, AxisY_t>::Histogram2D(
 	binULimitsY(binULimitsY.begin(), binULimitsY.end()),
 	binValues((binULimitsY.size() + 1) * stride),
 	limitsX(AxisX_t(), AxisX_t()), limitsY(AxisY_t(), AxisY_t()),
-    total(Value_t()),
+	total(Value_t()),
 	rowTotal(binULimitsY.size() + 1), columnTotal(binULimitsX.size() + 1)
 {
-    totalValid.store(true);
+	totalValid.store(true, std::memory_order_release);
 	if (binULimitsX.size() < 2)
 		throw cms::Exception("TooFewBinsError")
 			<< "Trying to generate degenerate 2D histogram: "
@@ -120,10 +120,10 @@ Histogram2D<Value_t, AxisX_t, AxisY_t>::Histogram2D(
 	binULimitsX(binULimitsX.begin(), binULimitsX.end()),
 	binValues((nBinsY + 2) * stride),
 	limitsX(AxisX_t(), AxisX_t()), limitsY(rangeY),
-    total(Value_t()),
+	total(Value_t()),
 	rowTotal(nBinsY + 2), columnTotal(binULimitsX.size() + 1)
 {
-    totalValid.store(true);
+	totalValid.store(true, std::memory_order_release);
 	if (binULimitsX.size() < 2)
 		throw cms::Exception("TooFewBinsError")
 			<< "Trying to generate degenerate 2D histogram: "
@@ -148,10 +148,10 @@ Histogram2D<Value_t, AxisX_t, AxisY_t>::Histogram2D(
 	binULimitsY(binULimitsY.begin(), binULimitsY.end()),
 	binValues((binULimitsY.size() + 1) * stride),
 	limitsX(rangeX), limitsY(AxisY_t(), AxisY_t()),
-    total(Value_t()),
+	total(Value_t()),
 	rowTotal(binULimitsY.size() + 1), columnTotal(nBinsX + 2)
 {
-    totalValid.store(true);
+	totalValid.store(true, std::memory_order_release);
 	if (!nBinsX)
 		throw cms::Exception("TooFewBinsError")
 			<< "Trying to generate degenerate 2D histogram: "
@@ -177,7 +177,7 @@ Histogram2D<Value_t, AxisX_t, AxisY_t>::Histogram2D(
 	limitsX(rangeX), limitsY(rangeY), total(Value_t()),
 	rowTotal(nBinsY + 2), columnTotal(nBinsX + 2)
 {
-    totalValid.store(true);
+	totalValid.store(true, std::memory_order_release);
 	if (!nBinsX)
 		throw cms::Exception("TooFewBinsError")
 			<< "Trying to generate degenerate 2D histogram: "
@@ -195,10 +195,10 @@ Histogram2D<Value_t, AxisX_t, AxisY_t>::Histogram2D(
 			unsigned int nBinsY, AxisY_t minY, AxisY_t maxY) :
 	stride(nBinsX + 2), binValues((nBinsY + 2) * stride),
 	limitsX(minX, maxX), limitsY(minY, maxY),
-    total(Value_t()),
+	total(Value_t()),
 	rowTotal(nBinsY + 2), columnTotal(nBinsX + 2)
 {
-    totalValid.store(true);
+	totalValid.store(true, std::memory_order_release);
 	if (!nBinsX)
 		throw cms::Exception("TooFewBinsError")
 			<< "Trying to generate degenerate 2D histogram: "
@@ -225,8 +225,8 @@ Histogram2D<Value_t, AxisX_t, AxisY_t>::operator = (const Histogram2D &orig)
 	binValues = orig.binValues;
 	limitsX = orig.limitsX;
 	limitsY = orig.limitsY;
-    total = orig.total;
-    totalValid.store(orig.totalValid);
+	total = orig.total;
+	totalValid.store(orig.totalValid, std::memory_order_release);
 	rowTotal = orig.rowTotal;
 	columnTotal = orig.columnTotal;
 	return *this;
@@ -246,8 +246,8 @@ Histogram2D<Value_t, AxisX_t, AxisY_t> &Histogram2D<Value_t, AxisX_t, AxisY_t>::
 	                                 orig.binValues.end());
 	limitsX = orig.limitsX;
 	limitsY = orig.limitsY;
-    total = orig.total;
-    totalValid.store(orig.totalValid);
+	total = orig.total;
+	totalValid.store(orig.totalValid, std::memory_order_release);
 	rowTotal = std::vector<Value_t>(orig.rowTotal.begin(),
 	                                orig.rowTotal.end());
 	columnTotal = std::vector<Value_t>(orig.columnTotal.begin(),
@@ -259,8 +259,8 @@ template<typename Value_t, typename AxisX_t, typename AxisY_t>
 void Histogram2D<Value_t, AxisX_t, AxisY_t>::reset()
 {
 	std::fill(binValues.begin(), binValues.end(), Value_t());
-    total = Value_t();
-    totalValid.store(true);
+	total = Value_t();
+	totalValid.store(true, std::memory_order_release);
 	rowTotal.clear();
 	columnTotal.clear();
 }
@@ -275,7 +275,7 @@ void Histogram2D<Value_t, AxisX_t, AxisY_t>::setBinContent(
 			   "[0, " << (binValues.size() - 1) << "]." << std::endl;
 
 	binValues[bin] = value;
-    totalValid.store(false);
+	totalValid.store(false, std::memory_order_release);
 	rowTotal.clear();
 	columnTotal.clear();
 }
@@ -322,7 +322,7 @@ void Histogram2D<Value_t, AxisX_t, AxisY_t>::fill(
 {
 	int bin = findBin(x, y);
 	binValues[bin] += weight;
-    totalValid.store(false);
+	totalValid.store(false, std::memory_order_release);
 	rowTotal.clear();
 	columnTotal.clear();
 }
@@ -337,7 +337,7 @@ void Histogram2D<Value_t, AxisX_t, AxisY_t>::setValues(
 			   "2D histogram values" << std::endl;
 
 	binValues = values;
-    totalValid.store(false);
+	totalValid.store(false, std::memory_order_release);
 	rowTotal.clear();
 	columnTotal.clear();
 }
@@ -353,7 +353,7 @@ void Histogram2D<Value_t, AxisX_t, AxisY_t>::setValues(
 			   "2D histogram values" << std::endl;
 
 	std::copy(values.begin(), values.end(), binValues.begin());
-    totalValid.store(false);
+	totalValid.store(false, std::memory_order_release);
 	rowTotal.clear();
 	columnTotal.clear();
 }
@@ -450,8 +450,8 @@ template<typename Value_t, typename AxisX_t, typename AxisY_t>
 Value_t Histogram2D<Value_t, AxisX_t, AxisY_t>::normalization() const
 {
 	if (!totalValid) {
-        total = std::accumulate(binValues.begin() + 1, binValues.end() - 1, Value_t());
-        totalValid.store(true);
+		total = std::accumulate(binValues.begin() + 1, binValues.end() - 1, Value_t());
+		totalValid.store(true, std::memory_order_release);
 	}
 
 	return total;

@@ -20,7 +20,7 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D() :
 	strideX(0), strideY(0), limitsX(AxisX_t(), AxisX_t()),
 	limitsY(AxisY_t(), AxisY_t()), limitsZ(AxisZ_t(), AxisZ_t()), total(Value_t())
 {
-    totalValid.store(false);
+	totalValid.store(false, std::memory_order_release);
 }
 
 template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
@@ -28,10 +28,10 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(const Histogram3D &
 	strideX(orig.strideX), strideY(orig.strideY), binULimitsX(orig.binULimitsX),
 	binULimitsY(orig.binULimitsY), binULimitsZ(orig.binULimitsZ), binValues(orig.binValues),
 	limitsX(orig.limitsX), limitsY(orig.limitsY), limitsZ(orig.limitsZ),
-    total(orig.total),
+	total(orig.total),
 	rowTotal(orig.rowTotal), columnTotal(orig.columnTotal)
 {
-    totalValid.store(orig.totalValid);
+	totalValid.store(orig.totalValid, std::memory_order_release);
 }
 
 template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
@@ -44,11 +44,11 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
         binULimitsZ(orig.binULimitsZ.begin(), orig.binULimitsZ.end()),
 	binValues(orig.binValues.begin(), orig.binValues.end()),
 	limitsX(orig.limitsX), limitsY(orig.limitsY), limitsZ(orig.limitsZ),
-    total(orig.total),
+	total(orig.total),
 	rowTotal(orig.rowTotal.begin(), orig.rowTotal.end()),
 	columnTotal(orig.columnTotal.begin(), orig.columnTotal.end())
 {
-    totalValid.store(orig.totalValid);
+	totalValid.store(orig.totalValid, std::memory_order_release);
 }
 
 template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
@@ -61,10 +61,10 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
 	binULimitsX(binULimitsX), binULimitsY(binULimitsY), binULimitsZ(binULimitsZ),
 	binValues((binULimitsY.size() + 1) * strideX * strideY),
 	limitsX(AxisX_t(), AxisX_t()), limitsY(AxisY_t(), AxisY_t()), limitsZ(AxisZ_t(), AxisZ_t()),
-    total(Value_t()),
+	total(Value_t()),
 	sliceTotal(binULimitsZ.size() + 1), rowTotal(binULimitsY.size() + 1), columnTotal(binULimitsX.size() + 1)
 {
-    totalValid.store(true);
+	totalValid.store(true, std::memory_order_release);
 	if (binULimitsX.size() < 2)
 		throw cms::Exception("TooFewBinsError")
 			<< "Trying to generate degenerate 3D histogram: "
@@ -105,7 +105,7 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
     total(Value_t()),
 	sliceTotal(binULimitsY.size() + 1), rowTotal(binULimitsY.size() + 1), columnTotal(binULimitsX.size() + 1)
 {
-    totalValid.store(true);
+	totalValid.store(true, std::memory_order_release);
 	if (binULimitsX.size() < 2)
 		throw cms::Exception("TooFewBinsError")
 			<< "Trying to generate degenerate 3D histogram: "
@@ -218,10 +218,10 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
                         unsigned int nBinsZ, AxisZ_t minZ, AxisZ_t maxZ) :
 	strideX(nBinsX + 2), strideY(nBinsY + 2), binValues((nBinsZ + 2) * strideX * strideY),
 	limitsX(minX, maxX), limitsY(minY, maxY), limitsZ(minZ, maxZ),
-    total(Value_t()),
+	total(Value_t()),
 	sliceTotal(nBinsZ + 2), rowTotal(nBinsY + 2), columnTotal(nBinsX + 2)
 {
-    totalValid.store(true);
+	totalValid.store(true, std::memory_order_release);
 	if (!nBinsX)
 		throw cms::Exception("TooFewBinsError")
 			<< "Trying to generate degenerate 3D histogram: "
@@ -256,8 +256,8 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::operator = (const Histogram3D &
 	limitsX = orig.limitsX;
 	limitsY = orig.limitsY;
         limitsZ = orig.limitsZ;
-    total = orig.total;
-    totalValid.store(orig.totalValid);
+	total = orig.total;
+	totalValid.store(orig.totalValid, std::memory_order_release);
 	rowTotal = orig.rowTotal;
 	columnTotal = orig.columnTotal;
         sliceTotal = orig.sliceTotal;
@@ -282,8 +282,8 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t> &Histogram3D<Value_t, AxisX_t, A
 	limitsX = orig.limitsX;
 	limitsY = orig.limitsY;
         limitsZ = orig.limitsZ;
-    total = orig.total;
-    totalValid.store(orig.totalValid);
+	total = orig.total;
+	totalValid.store(orig.totalValid, std::memory_order_release);
 	rowTotal = std::vector<Value_t>(orig.rowTotal.begin(),
 	                                orig.rowTotal.end());
 	columnTotal = std::vector<Value_t>(orig.columnTotal.begin(),
@@ -298,8 +298,8 @@ template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
 void Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::reset()
 {
 	std::fill(binValues.begin(), binValues.end(), Value_t());
-    total = Value_t();
-    totalValid.store(true);
+	total = Value_t();
+	totalValid.store(true, std::memory_order_release);
         sliceTotal.clear();
 	rowTotal.clear();
 	columnTotal.clear();
@@ -315,7 +315,7 @@ void Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::setBinContent(
 			   "[0, " << (binValues.size() - 1) << "]." << std::endl;
 
 	binValues[bin] = value;
-    totalValid.store(false);
+	totalValid.store(false, std::memory_order_release);
 	rowTotal.clear();
 	columnTotal.clear();
         sliceTotal.clear();
@@ -368,7 +368,7 @@ void Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::fill(
 {
 	int bin = findBin(x, y, z);
 	binValues[bin] += weight;
-    totalValid.store(false);
+	totalValid.store(false, std::memory_order_release);
 	rowTotal.clear();
 	columnTotal.clear();
         sliceTotal.clear();
@@ -384,7 +384,7 @@ void Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::setValues(
 			   "3D histogram values" << std::endl;
 
 	binValues = values;
-    totalValid.store(false);
+	totalValid.store(false, std::memory_order_release);
 	rowTotal.clear();
 	columnTotal.clear();
         sliceTotal.clear();
@@ -401,7 +401,7 @@ void Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::setValues(
 			   "3D histogram values" << std::endl;
 
 	std::copy(values.begin(), values.end(), binValues.begin());
-    totalValid.store(false);
+	totalValid.store(false, std::memory_order_release);
 	rowTotal.clear();
 	columnTotal.clear();
         sliceTotal.clear();
@@ -543,8 +543,8 @@ template<typename Value_t, typename AxisX_t, typename AxisY_t, typename AxisZ_t>
 Value_t Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::normalization() const
 {
 	if (!totalValid) {
-        total = std::accumulate(binValues.begin() + 1, binValues.end() - 1, Value_t());
-        totalValid.store(true);
+		total = std::accumulate(binValues.begin() + 1, binValues.end() - 1, Value_t());
+		totalValid.store(true, std::memory_order_release);
 	}
 
 	return total;
