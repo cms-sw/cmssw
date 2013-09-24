@@ -98,8 +98,8 @@ Histogram<Value_t, Axis_t>::Histogram(unsigned int nBins,
 
 template<typename Value_t, typename Axis_t>
 Histogram<Value_t, Axis_t>::Histogram(unsigned int nBins, Axis_t min, Axis_t max) :
-    total(Value_t(),
-	binValues(nBins + 2), limits(min, max)
+	binValues(nBins + 2), limits(min, max),
+	total(Value_t())
 {
     totalValid.store(true);
 	if (!nBins)
