@@ -43,6 +43,8 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+
 #include "TH2D.h"
 #include "TVector3.h"
 
@@ -57,7 +59,20 @@ class TCMETAlgo
   TH2D* getResponseFunction_mode ( );
   TH2D* getResponseFunction_shower ( );
   TH2D* getResponseFunction_noshower ( );
-  void configure(const edm::ParameterSet &iConfig, int myResponseFunctionType);
+  void configure(const edm::ParameterSet &iConfig, int myResponseFunctionType,
+		 edm::EDGetTokenT<reco::MuonCollection>* muonToken,
+		 edm::EDGetTokenT<reco::GsfElectronCollection>* electronToken,
+		 edm::EDGetTokenT<edm::View<reco::MET> >* metToken,
+		 edm::EDGetTokenT<reco::TrackCollection>* trackToken,
+		 edm::EDGetTokenT<reco::BeamSpot>* beamSpotToken,
+		 edm::EDGetTokenT<reco::VertexCollection>* vertexToken_,
+		 edm::EDGetTokenT<reco::PFClusterCollection>* clustersECALToken,
+		 edm::EDGetTokenT<reco::PFClusterCollection>* clustersHCALToken,
+		 edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFEMToken,
+		 edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFHADToken,
+		 edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* muonDepValueMapToken,
+		 edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* tcmetDepValueMapToken
+		 );
  private:
   double met_x;
   double met_y;
@@ -87,6 +102,19 @@ class TCMETAlgo
   edm::InputTag inputTagPFClustersHCAL_;
   edm::InputTag inputTagPFClustersHFEM_;
   edm::InputTag inputTagPFClustersHFHAD_;   
+
+  edm::EDGetTokenT<reco::MuonCollection>* muonToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection>* electronToken_;
+  edm::EDGetTokenT<edm::View<reco::MET> >* metToken_;
+  edm::EDGetTokenT<reco::TrackCollection>* trackToken_;
+  edm::EDGetTokenT<reco::BeamSpot>* beamSpotToken_;
+  edm::EDGetTokenT<reco::VertexCollection>* vertexToken_;
+  edm::EDGetTokenT<reco::PFClusterCollection>* clustersECALToken_;
+  edm::EDGetTokenT<reco::PFClusterCollection>* clustersHCALToken_;
+  edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFEMToken_;
+  edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFHADToken_;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* muonDepValueMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* tcmetDepValueMapToken_;
 
   bool    usePFClusters_;
   int     nLayers_;

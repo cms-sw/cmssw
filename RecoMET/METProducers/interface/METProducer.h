@@ -21,8 +21,13 @@
 
 #include <string.h>
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
 namespace edm {
   class ParameterSet;
@@ -60,6 +65,8 @@ namespace cms
       std::string METtype;
       std::string alias;
 
+      edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;
+
       //Calculate MET Significance (not necessary at HLT)
       bool calculateSignificance_;
       metsig::SignAlgoResolutions *resolutions_;
@@ -80,7 +87,26 @@ namespace cms
       //Use Pt instaed of Et
       bool usePt;
 
+      // for pfMET
+      edm::EDGetTokenT<edm::View<reco::PFJet> > jetToken_;
+
+
       TCMETAlgo tcMetAlgo_;
+
+      // for tcMET
+      edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+      edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
+      edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
+      edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+      edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+      edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+      edm::EDGetTokenT<reco::PFClusterCollection> clustersECALToken_;
+      edm::EDGetTokenT<reco::PFClusterCollection> clustersHCALToken_;
+      edm::EDGetTokenT<reco::PFClusterCollection> clustersHFEMToken_;
+      edm::EDGetTokenT<reco::PFClusterCollection> clustersHFHADToken_;
+      edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > muonDepValueMapToken_;
+      edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > tcmetDepValueMapToken_;
+
     };
 }
 
