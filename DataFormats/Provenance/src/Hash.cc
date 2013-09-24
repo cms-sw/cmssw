@@ -3,6 +3,8 @@
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include <functional>
+
 namespace edm {
   namespace detail {
     // This string is the 16-byte, non-printable version.
@@ -49,6 +51,16 @@ namespace edm {
             << "\nPlease report this to the core framework developers";
         }
       }
+    }
+    
+    size_t
+    smallHash_(value_type const& hash) {
+      //NOTE: In future we could try to xor the first 8bytes into the second 8bytes of the string to make the hash
+      std::hash<std::string> h;
+      if (hash.size()==16) {
+        return h(hash);
+      }
+      return h(compactForm_(hash));
     }
 
     bool
