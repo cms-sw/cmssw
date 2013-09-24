@@ -423,7 +423,7 @@ int Histogram2D<Value_t, AxisX_t, AxisY_t>::findBinX(AxisX_t x) const
 		x -= limitsX.min;
 		x *= stride - 2;
 		x /= limitsX.width();
-        unsigned int iStride = stride;
+		unsigned int iStride = stride;
 		return clamp(0, (int)(std::floor(x)) + 1, (int)iStride - 1);
 	} else
 		return std::upper_bound(binULimitsX.begin(),

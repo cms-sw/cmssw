@@ -102,7 +102,7 @@ Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::Histogram3D(
         binULimitsZ(binULimitsZ.begin(), binULimitsZ.end()),
 	binValues((binULimitsZ.size() + 1) * strideX * strideY),
 	limitsX(AxisX_t(), AxisX_t()), limitsY(AxisY_t(), AxisY_t()), limitsZ(AxisZ_t(), AxisZ_t()),
-    total(Value_t()),
+	total(Value_t()),
 	sliceTotal(binULimitsY.size() + 1), rowTotal(binULimitsY.size() + 1), columnTotal(binULimitsX.size() + 1)
 {
 	totalValid.store(true, std::memory_order_release);
@@ -500,7 +500,7 @@ int Histogram3D<Value_t, AxisX_t, AxisY_t, AxisZ_t>::findBinX(AxisX_t x) const
 		x -= limitsX.min;
 		x *= strideX - 2;
 		x /= limitsX.width();
-        unsigned int iStrideX = strideX;
+		unsigned int iStrideX = strideX;
 		return clamp(0, (int)(std::floor(x)) + 1, (int)iStrideX - 1);
 	} else
 		return std::upper_bound(binULimitsX.begin(),

@@ -173,7 +173,7 @@ class Histogram3D {
 #else
 	mutable bool totalValid;
 #endif
-    mutable std::vector<Value_t>    sliceTotal;
+	mutable std::vector<Value_t>    sliceTotal;
 	mutable std::vector<Value_t>	rowTotal;
 	mutable std::vector<Value_t>	columnTotal;
 };
