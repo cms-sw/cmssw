@@ -21,7 +21,7 @@ namespace edm {
     void fixBranchListIndexes(BranchListIndexes& indexes);
 
     BranchIDLists const& branchIDLists() const {return branchIDLists_;}
-    BranchIDLists& branchIDLists() {return branchIDLists_;}
+    BranchIDLists& mutableBranchIDLists() {return branchIDLists_;}
     BranchIDToIndexMap const& branchIDToIndexMap() const {return branchIDToIndexMap_;}
 
   private:

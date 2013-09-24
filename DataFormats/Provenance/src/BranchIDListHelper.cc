@@ -12,6 +12,10 @@ namespace edm {
 
   bool
   BranchIDListHelper:: updateFromInput(BranchIDLists const& bidlists) {
+    //The BranchIDLists is a list of lists
+    // this routine compares bidlists to branchIDLists_ to see if a list
+    // in branchIDLists_ is already in bidlist and if it isn't we insert
+    // that new list into branchIDLists_
     bool unchanged = true;
     branchListIndexMapper_.clear();
     typedef BranchIDLists::const_iterator Iter;
