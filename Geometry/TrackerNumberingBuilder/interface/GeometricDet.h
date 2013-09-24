@@ -9,6 +9,7 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include <atomic>
 #include <vector>
 #include <memory>
 #include "FWCore/ParameterSet/interface/types.h"
@@ -91,8 +92,13 @@ class GeometricDet {
   /**
    * set or add or clear components
    */
-  void setGeographicalID(DetId id) {
-      _geographicalID = id;
+  void setGeographicalID(DetId id) const {
+      if(!_geographicalID) {
+          auto ptr = new DetId(id);
+          DetId* expect = nullptr;
+          bool exchanged = _geographicalID.compare_exchange_strong(expect, ptr);
+          if(!exchanged) delete ptr;
+      }
   }
 #ifdef GEOMETRICDETDEBUG
   void setComponents(GeometricDetContainer const & cont) {
@@ -213,11 +219,11 @@ class GeometricDet {
    */
   DetId geographicalID() const  { 
     //std::cout<<"geographicalID"<<std::endl;
-    return _geographicalID;
+    return (*_geographicalID);
   }
   DetId geographicalId() const  { 
     //std::cout<<"geographicalId"<<std::endl; 
-    return _geographicalID;
+    return (*_geographicalID);
   }
 
   /**
@@ -319,7 +325,7 @@ class GeometricDet {
   GeometricEnumType _type;
   std::vector<double> _params;
   //FIXME
-  DetId _geographicalID;
+  mutable std::atomic<DetId*> _geographicalID;
 #ifdef GEOMETRICDETDEBUG
   GeoHistory _parents;
   double _volume;
