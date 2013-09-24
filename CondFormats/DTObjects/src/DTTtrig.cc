@@ -396,11 +396,7 @@ void DTTtrig::cacheMap() const {
 //  DTBufferTree<int,int>* dBuf =
 //  DTDataBuffer<int,int>::openBuffer( mName );
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   auto pBuf = new DTBufferTree<int,int>;
-#else
-  dBuf = new DTBufferTree<int,int>;
-#endif
 
   int entryNum = 0;
   int entryMax = dataList.size();
@@ -417,14 +413,9 @@ void DTTtrig::cacheMap() const {
     chanKey.push_back( chan.     slId );
     chanKey.push_back( chan.  layerId );
     chanKey.push_back( chan.   cellId );
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     pBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
-#else
-    dBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
-#endif
   }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   //atomically try to swap this to become dBuf
   DTBufferTree<int,int>* expect = nullptr;
   bool exchanged = dBuf.compare_exchange_strong(expect, pBuf);
@@ -432,7 +423,6 @@ void DTTtrig::cacheMap() const {
       //some other thread beat us to this so need to get rid of the work we did
       delete pBuf;
   }
-#endif
 
   return;
 
