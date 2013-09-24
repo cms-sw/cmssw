@@ -18,7 +18,6 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 ///
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -35,7 +34,6 @@
 
 //vertices
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -56,21 +54,25 @@
 
 IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const edm::ParameterSet& config){
    
-  l1eTauJetsSource_           = config.getParameter<edm::InputTag>("L1eTauJetsSource");
+  tok_l1jet_ = consumes<l1extra::L1JetParticleCollection>(config.getParameter<edm::InputTag>("L1eTauJetsSource"));
   tauAssocCone_               = config.getParameter<double>("tauAssociationCone"); 
   tauUnbiasCone_              = config.getParameter<double>("tauUnbiasCone");
   pixelTracksSources_         = config.getParameter<std::vector<edm::InputTag> >("PixelTracksSources");
   prelimCone_                 = config.getParameter<double>("ExtrapolationConeSize");
   pixelIsolationConeSizeAtEC_ = config.getParameter<double>("PixelIsolationConeSizeAtEC");
-  hltGTseedlabel_             = config.getParameter<edm::InputTag>("L1GTSeedLabel");
+  tok_trigObj_  = consumes<trigger::TriggerFilterObjectWithRefs>(config.getParameter<edm::InputTag>("L1GTSeedLabel"));
   vtxCutSeed_                 = config.getParameter<double>("MaxVtxDXYSeed");
   vtxCutIsol_                 = config.getParameter<double>("MaxVtxDXYIsol");
-  vertexLabel_                = config.getParameter<edm::InputTag>("VertexLabel");
+  tok_vtx_ = consumes<reco::VertexCollection>(config.getParameter<edm::InputTag>("VertexLabel"));
   bfield_                     = config.getParameter<std::string>("MagFieldRecordName");
   minPTrackValue_             = config.getParameter<double>("minPTrack");
   maxPForIsolationValue_      = config.getParameter<double>("maxPTrackForIsolation");
   ebEtaBoundary_              = config.getParameter<double>("EBEtaBoundary");
   rEB_ = zEE_ = -1;
+
+  const unsigned nLabels = pixelTracksSources_.size();
+  for ( unsigned i=0; i != nLabels; i++ ) 
+    toks_track_.push_back( consumes<reco::TrackCollection>(pixelTracksSources_[i]));
 
   // Register the product
   produces< reco::IsolatedPixelTrackCandidateCollection >();
@@ -102,10 +104,10 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
   //create vector of refs from input collections
   std::vector<reco::TrackRef> pixelTrackRefs;
 
-  for (unsigned int iPix=0; iPix<pixelTracksSources_.size(); iPix++)
+  for (unsigned int iPix=0; iPix<toks_track_.size(); iPix++)
     {
       edm::Handle<reco::TrackCollection> iPixCol;
-      theEvent.getByLabel(pixelTracksSources_[iPix],iPixCol);
+      theEvent.getByToken(toks_track_[iPix],iPixCol);
       for (reco::TrackCollection::const_iterator pit=iPixCol->begin(); pit!=iPixCol->end(); pit++)
         {
           pixelTrackRefs.push_back(reco::TrackRef(iPixCol,pit-iPixCol->begin()));
@@ -113,17 +115,17 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
     }
 
   edm::Handle<l1extra::L1JetParticleCollection> l1eTauJets;
-  theEvent.getByLabel(l1eTauJetsSource_,l1eTauJets);
+  theEvent.getByToken(tok_l1jet_,l1eTauJets);
 
   edm::Handle<reco::VertexCollection> pVert;
-  theEvent.getByLabel(vertexLabel_,pVert);
+  theEvent.getByToken(tok_vtx_,pVert);
 
   double ptTriggered  = -10;
   double etaTriggered = -100;
   double phiTriggered = -100;
   
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
-  theEvent.getByLabel(hltGTseedlabel_, l1trigobj);
+  theEvent.getByToken(tok_trigObj_, l1trigobj);
   
   std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
   std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;

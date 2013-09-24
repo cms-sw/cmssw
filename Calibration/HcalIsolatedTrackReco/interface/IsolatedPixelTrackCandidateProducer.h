@@ -20,6 +20,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
 
@@ -37,11 +39,14 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
 
  private:
 	
-  edm::InputTag hltGTseedlabel_;
-  edm::InputTag l1eTauJetsSource_;
   std::vector<edm::InputTag> pixelTracksSources_;
-  edm::InputTag vertexLabel_;
   edm::ParameterSet parameters;
+
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_l1jet_;
+  edm::EDGetTokenT<reco::VertexCollection> tok_vtx_;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_trigObj_;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection> > toks_track_;
+  
 
   double prelimCone_;
   double pixelIsolationConeSizeAtEC_;
