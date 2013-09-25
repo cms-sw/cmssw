@@ -15,14 +15,14 @@ process.Analysis = cms.EDAnalyzer("OtherThingAnalyzer")
 
 process.source = cms.Source("PoolSource",
     setRunNumber = cms.untracked.uint32(621),
-    fileNames = cms.untracked.vstring('file:step1.root')
+    fileNames = cms.untracked.vstring('file:aliastest_step1_diffOrder.root')
 )
 
 process.p = cms.Path(process.Analysis)
 
 #Also test creating a Ref from the alias branch
 process.OtherThing2 = cms.EDProducer("OtherThingProducer",
-                                    thingTag = cms.InputTag("AltThing")
+                                    thingTag = cms.InputTag("ZThing")
                                     )
 
 process.Analysis2 = cms.EDAnalyzer("OtherThingAnalyzer",

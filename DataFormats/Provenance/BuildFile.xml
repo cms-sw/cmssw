@@ -1,6 +1,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="boost"/>
 <use   name="rootcore"/>
+<use   name="tbb"/>
 <use   name="FWCore/MessageLogger"/>
 <export>
   <lib   name="1"/>
