@@ -12,6 +12,7 @@
 
 class LHERunInfoProduct {
     public:
+    typedef std::vector<std::pair<std::string,std::string> > weights_defs;
 	class Header {
 	    public:
 		typedef std::vector<std::string>::const_iterator const_iterator;
@@ -110,10 +111,16 @@ class LHERunInfoProduct {
 	const_iterator init() const;
 	inline const_iterator end() const { return const_iterator(); }
 
+
+	void addWeightDefinition(const weights_defs::value_type& wd) {
+	  wgtdefs_.push_back(wd);
+	}
+	const weights_defs& getWeightDefinitions() const { return wgtdefs_; }
+
 	static const std::string &endOfFile();
 
 	bool operator == (const LHERunInfoProduct &other) const
-	{ return heprup_ == other.heprup_ && headers_ == other.headers_ && comments_ == other.comments_; }
+	{ return heprup_ == other.heprup_ && headers_ == other.headers_ && comments_ == other.comments_ && wgtdefs_ == other.wgtdefs_; }
 	inline bool operator != (const LHERunInfoProduct &other) const
 	{ return !(*this == other); }
 
@@ -126,6 +133,7 @@ class LHERunInfoProduct {
 	lhef::HEPRUP			heprup_;
 	std::vector<Header>		headers_;
 	std::vector<std::string>	comments_;
+	weights_defs                    wgtdefs_;
 };
 
 #endif // GeneratorRunInfo_LHEInterface_LHERunInfoProduct_h

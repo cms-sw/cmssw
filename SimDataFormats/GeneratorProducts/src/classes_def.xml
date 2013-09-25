@@ -130,11 +130,13 @@
  </class> 
  <class name="edm::Wrapper&lt;LHEXMLStringProduct&gt;"/>
 	<class name="std::vector&lt;LHERunInfoProduct::Header&gt;"/>
-	<class name="LHERunInfoProduct" ClassVersion="10">
+	<class name="LHERunInfoProduct" ClassVersion="11">
   <version ClassVersion="10" checksum="2098560362"/>
+  <version ClassVersion="11" checksum="699293988"/>
  </class>
-	<class name="LHEEventProduct" ClassVersion="10">
+	<class name="LHEEventProduct" ClassVersion="11">
   <version ClassVersion="10" checksum="1026978494"/>
+  <version ClassVersion="11" checksum="619154414"/>
  </class>
 	<class name="edm::Wrapper&lt;LHERunInfoProduct&gt;"/>
 	<class name="edm::Wrapper&lt;LHEEventProduct&gt;"/>
