@@ -13,7 +13,6 @@
 //
 // Original Author:  Michael Schmitt
 //         Created:  Sat Jul 12 17:43:33 CEST 2008
-// $Id: CSCSkim.cc,v 1.11 2011/12/22 08:39:44 eulisse Exp $
 //
 //
 //======================================================================
@@ -52,13 +51,27 @@ using namespace edm;
 //===================
 CSCSkim::CSCSkim(const edm::ParameterSet& pset)
 {
+  // tokens from tags
 
-  // input tags
-  cscRecHitTag  = pset.getParameter<edm::InputTag>("cscRecHitTag");
-  cscSegmentTag = pset.getParameter<edm::InputTag>("cscSegmentTag");
-  SAMuonTag     = pset.getParameter<edm::InputTag>("SAMuonTag");
-  GLBMuonTag    = pset.getParameter<edm::InputTag>("GLBMuonTag");
-  trackTag      = pset.getParameter<edm::InputTag>("trackTag");
+  // Really should define the wire and digi tags in config, but for now, to avoid having to modify
+  // multiple config files, just hard-code those tags, to be equivalent to the pre-consumes code
+  
+    //  wds_token = consumes<CSCWireDigiCollection>(pset.getParameter<InputTag>("simWireDigiTag"));
+    //  sds_token = consumes<CSCStripDigiCollection>(pset.getParameter<InputTag>("simStripDigiTag"));
+    //  wdr_token = consumes<CSCWireDigiCollection>(pset.getParameter<InputTag>("wireDigiTag"));
+    //  sdr_token = consumes<CSCStripDigiCollection>(pset.getParameter<InputTag>("stripDigiTag"));
+
+  wds_token = consumes<CSCWireDigiCollection>(edm::InputTag("simMuonCSCDigis","MuonCSCWireDigi") );
+  sds_token = consumes<CSCStripDigiCollection>(edm::InputTag("simMuonCSCDigis","MuonCSCStripDigi") );
+  wdr_token = consumes<CSCWireDigiCollection>(edm::InputTag("muonCSCDigis","MuonCSCWireDigi") );
+  sdr_token = consumes<CSCStripDigiCollection>(edm::InputTag("muonCSCDigis","MuonCSCStripDigi") );
+
+   rh_token = consumes<CSCRecHit2DCollection>(pset.getParameter<InputTag>("cscRecHitTag"));
+  seg_token = consumes<CSCSegmentCollection>(pset.getParameter<InputTag>("cscSegmentTag"));
+
+  sam_token = consumes<reco::TrackCollection>(pset.getParameter<InputTag>("SAMuonTag"));
+  trk_token = consumes<reco::TrackCollection>(pset.getParameter<InputTag>("trackTag"));
+  glm_token = consumes<reco::MuonCollection>(pset.getParameter<InputTag>("GLBMuonTag"));
 
   // Get the various input parameters
   outputFileName     = pset.getUntrackedParameter<std::string>("outputFileName","outputSkim.root");
@@ -233,35 +246,35 @@ CSCSkim::filter(edm::Event& event, const edm::EventSetup& eventSetup)
   edm::Handle<CSCStripDigiCollection> strips;
 
   if (event.eventAuxiliary().isRealData()){
-    event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
-    event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
+    event.getByToken(wdr_token,wires);
+    event.getByToken(sdr_token,strips);
   }
   else {
-    event.getByLabel("simMuonCSCDigis","MuonCSCWireDigi",wires);
-    event.getByLabel("simMuonCSCDigis","MuonCSCStripDigi",strips);
+    event.getByToken(wds_token,wires);
+    event.getByToken(sds_token,strips);
   }
 
   // Get the RecHits collection :
   Handle<CSCRecHit2DCollection> cscRecHits;
-  event.getByLabel(cscRecHitTag,cscRecHits);
+  event.getByToken(rh_token,cscRecHits);
 
   // get CSC segment collection
   Handle<CSCSegmentCollection> cscSegments;
-  event.getByLabel(cscSegmentTag, cscSegments);
+  event.getByToken(seg_token,cscSegments);
 
   // get the cosmic muons collection
   Handle<reco::TrackCollection> saMuons;
   if (typeOfSkim == 8) {
-    event.getByLabel(SAMuonTag,saMuons);
+    event.getByToken(sam_token,saMuons);
   }
 
   // get the stand-alone muons collection
   Handle<reco::TrackCollection> tracks;
   Handle<reco::MuonCollection> gMuons;
   if (typeOfSkim == 9) {
-    event.getByLabel(SAMuonTag,saMuons);
-    event.getByLabel(trackTag,tracks);
-    event.getByLabel(GLBMuonTag,gMuons);
+    event.getByToken(sam_token,saMuons);
+    event.getByToken(trk_token,tracks);
+    event.getByToken(glm_token,gMuons);
   }
 
 
