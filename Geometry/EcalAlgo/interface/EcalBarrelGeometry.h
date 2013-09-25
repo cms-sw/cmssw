@@ -126,7 +126,8 @@ class EcalBarrelGeometry GCC11_FINAL : public CaloSubdetectorGeometry
 
       mutable std::atomic<VecOrdListEEDetIdPtr*> m_borderPtrVec ;
 
-      mutable std::atomic<CCGFloat> m_radius ;
+      mutable CCGFloat m_radius ; // CMS-THREADING protected by m_check
+      mutable std::atomic<bool> m_check;
 
       CellVec m_cellVec ;
 };

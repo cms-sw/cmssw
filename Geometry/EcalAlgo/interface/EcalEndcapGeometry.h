@@ -126,7 +126,8 @@ class EcalEndcapGeometry GCC11_FINAL: public CaloSubdetectorGeometry
 
       mutable std::atomic<VecOrdListEBDetIdPtr*> m_borderPtrVec ;
 
-      mutable std::atomic<CCGFloat> m_avgZ ;
+      mutable CCGFloat m_avgZ ; // CMS-THREADING protected by m_check
+      mutable std::atomic<bool> m_check;
 
       CellVec m_cellVec ;
 } ;

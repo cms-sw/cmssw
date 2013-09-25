@@ -24,6 +24,7 @@ EcalBarrelGeometry::EcalBarrelGeometry() :
    m_borderMgr    ( nullptr ),
    m_borderPtrVec ( nullptr ) ,
    m_radius       ( -1. ),
+   m_check        ( nullptr ),
    m_cellVec      ( k_NumberOfCellsForCorners )
 {
    const int neba[] = {25,45,65,85} ;
@@ -33,7 +34,7 @@ EcalBarrelGeometry::EcalBarrelGeometry() :
 
 EcalBarrelGeometry::~EcalBarrelGeometry() 
 {
-    auto ptr = m_borderPtrVec.load();
+    auto ptr = m_borderPtrVec.load(std::memory_order_acquire);
     for(auto& v: (*ptr)) {
         if(v) delete v;
         v = nullptr;
@@ -377,60 +378,60 @@ EcalBarrelGeometry::getCells( const GlobalPoint& r,
 const EcalBarrelGeometry::OrderedListOfEEDetId* 
 EcalBarrelGeometry::getClosestEndcapCells( EBDetId id ) const
 {
-    OrderedListOfEEDetId* ptr ( nullptr ) ;
-    if( 0 != id.rawId() ) {
-        const int iPhi     ( id.iphi() ) ;
-        const int iz       ( id.ieta()>0 ? 1 : -1 ) ;
-        const EEDetId eeid ( EEDetId::idOuterRing( iPhi, iz ) ) ;
-        const int iq ( eeid.iquadrant() ) ;
-        const int xout ( 1==iq || 4==iq ? 1 : -1 ) ;
-        const int yout ( 1==iq || 2==iq ? 1 : -1 ) ;
-        if (!m_borderMgr) {
-            EZMgrFL<EEDetId>* expect = nullptr;
-            auto ptrMgr = new EZMgrFL<EEDetId>( 720*9, 9 ) ;
-            bool exchanged = m_borderMgr.compare_exchange_strong(expect, ptrMgr);
-            if(!exchanged) delete ptrMgr;
-        }
-        if (!m_borderPtrVec) {
-            VecOrdListEEDetIdPtr* expect = nullptr;
-            auto ptrVec = new VecOrdListEEDetIdPtr();
-            ptrVec->reserve(720);
-            for( unsigned int i ( 0 ) ; i != 720 ; ++i )
-            {
-                const int kz ( 360>i ? -1 : 1 ) ;
-                const EEDetId eeid ( EEDetId::idOuterRing( i%360+1, kz ) ) ;
+   OrderedListOfEEDetId* ptr ( nullptr ) ;
+   if( 0 != id.rawId() ) {
+       const int iPhi     ( id.iphi() ) ;
+       const int iz       ( id.ieta()>0 ? 1 : -1 ) ;
+       const EEDetId eeid ( EEDetId::idOuterRing( iPhi, iz ) ) ;
+       const int iq ( eeid.iquadrant() ) ;
+       const int xout ( 1==iq || 4==iq ? 1 : -1 ) ;
+       const int yout ( 1==iq || 2==iq ? 1 : -1 ) ;
+       if (!m_borderMgr.load(std::memory_order_acquire)) {
+           EZMgrFL<EEDetId>* expect = nullptr;
+           auto ptrMgr = new EZMgrFL<EEDetId>( 720*9, 9 ) ;
+           bool exchanged = m_borderMgr.compare_exchange_strong(expect, ptrMgr, std::memory_order_acq_rel);
+           if(!exchanged) delete ptrMgr;
+       }
+       if (!m_borderPtrVec.load(std::memory_order_acquire)) {
+           VecOrdListEEDetIdPtr* expect = nullptr;
+           auto ptrVec = new VecOrdListEEDetIdPtr();
+           ptrVec->reserve(720);
+           for( unsigned int i ( 0 ) ; i != 720 ; ++i )
+           {
+               const int kz ( 360>i ? -1 : 1 ) ;
+               const EEDetId eeid ( EEDetId::idOuterRing( i%360+1, kz ) ) ;
 
-                const int jx ( eeid.ix() ) ;
-                const int jy ( eeid.iy() ) ;
+               const int jx ( eeid.ix() ) ;
+               const int jy ( eeid.iy() ) ;
 
-                OrderedListOfEEDetId& olist ( *new OrderedListOfEEDetId( m_borderMgr ) );
-                int il ( 0 ) ;
+               OrderedListOfEEDetId& olist ( *new OrderedListOfEEDetId( m_borderMgr.load(std::memory_order_acquire) ) );
+               int il ( 0 ) ;
 
-                for( unsigned int k ( 1 ) ; k <= 25 ; ++k )
-                {
-                   const int kx ( 1==k || 2==k || 3==k || 12==k || 13==k ? 0 :
-                          ( 4==k || 6==k || 8==k || 15==k || 20==k ? 1 :
-                        ( 5==k || 7==k || 9==k || 16==k || 19==k ? -1 :
-                          ( 10==k || 14==k || 21==k || 22==k || 25==k ? 2 : -2 )))) ;
-                   const int ky ( 1==k || 4==k || 5==k || 10==k || 11==k ? 0 :
-                          ( 2==k || 6==k || 7==k || 14==k || 17==k ? 1 :
-                        ( 3==k || 8==k || 9==k || 18==k || 21==k ? -1 :
-                          ( 12==k || 15==k || 16==k || 22==k || 23==k ? 2 : -2 )))) ;
+               for( unsigned int k ( 1 ) ; k <= 25 ; ++k )
+               {
+                  const int kx ( 1==k || 2==k || 3==k || 12==k || 13==k ? 0 :
+                         ( 4==k || 6==k || 8==k || 15==k || 20==k ? 1 :
+                       ( 5==k || 7==k || 9==k || 16==k || 19==k ? -1 :
+                         ( 10==k || 14==k || 21==k || 22==k || 25==k ? 2 : -2 )))) ;
+                  const int ky ( 1==k || 4==k || 5==k || 10==k || 11==k ? 0 :
+                         ( 2==k || 6==k || 7==k || 14==k || 17==k ? 1 :
+                       ( 3==k || 8==k || 9==k || 18==k || 21==k ? -1 :
+                         ( 12==k || 15==k || 16==k || 22==k || 23==k ? 2 : -2 )))) ;
 
-                   if( 8>=il && EEDetId::validDetId( jx + kx*xout ,
-                                 jy + ky*yout , kz ) )
-                   {
-                      olist[il++]=EEDetId( jx + kx*xout, jy + ky*yout, kz ) ;
-                   }
-                }
-                ptrVec->push_back( &olist ) ;
-            }
-            bool exchanged = m_borderPtrVec.compare_exchange_strong(expect, ptrVec);
-            if(!exchanged) delete ptrVec;
-        }
-        ptr = (*m_borderPtrVec)[ iPhi - 1 + ( 0>iz ? 0 : 360 ) ] ;
-    }
-    return ptr;
+                  if( 8>=il && EEDetId::validDetId( jx + kx*xout ,
+                                jy + ky*yout , kz ) )
+                  {
+                     olist[il++]=EEDetId( jx + kx*xout, jy + ky*yout, kz ) ;
+                  }
+               }
+               ptrVec->push_back( &olist ) ;
+           }
+           bool exchanged = m_borderPtrVec.compare_exchange_strong(expect, ptrVec, std::memory_order_acq_rel);
+           if(!exchanged) delete ptrVec;
+       }
+       ptr = (*m_borderPtrVec.load(std::memory_order_acquire))[ iPhi - 1 + ( 0>iz ? 0 : 360 ) ] ;
+   }
+   return ptr;
 }
 
 void
@@ -469,7 +470,7 @@ EcalBarrelGeometry::newCell( const GlobalPoint& f1 ,
 CCGFloat 
 EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const 
 {
-   if( 0 > m_radius )
+   if(!m_check.load(std::memory_order_acquire))
    {
       CCGFloat sum ( 0 ) ;
       for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
@@ -482,6 +483,7 @@ EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const
 	 }
       }
       m_radius = sum/m_cellVec.size() ;
+      m_check.store(true, std::memory_order_release);
    }
    return m_radius ;
 }
