@@ -121,7 +121,7 @@ int DTTtrig::get( int   wheelId,
 //    dBuf =
 //    DTDataBuffer<int,int>::findBuffer( mName );
 //  }
-  if ( dBuf == 0 ) cacheMap();
+  if (!dBuf.load(std::memory_order_acquire)) cacheMap();
 
   std::vector<int> chanKey;
   chanKey.reserve(6);
@@ -132,7 +132,7 @@ int DTTtrig::get( int   wheelId,
   chanKey.push_back(   layerId );
   chanKey.push_back(    cellId );
   int ientry;
-  int searchStatus = (*dBuf).find( chanKey.begin(), chanKey.end(), ientry );
+  int searchStatus = (*dBuf.load(std::memory_order_acquire)).find( chanKey.begin(), chanKey.end(), ientry );
   if ( !searchStatus ) {
     const DTTtrigData& data( dataList[ientry].second );
     tTrig = data.tTrig;
@@ -297,7 +297,7 @@ int DTTtrig::set( int   wheelId,
 //    dBuf =
 //    DTDataBuffer<int,int>::findBuffer( mName );
 //  }
-  if ( dBuf == 0 ) cacheMap();
+  if (!dBuf.load(std::memory_order_acquire)) cacheMap();
   std::vector<int> chanKey;
   chanKey.reserve(6);
   chanKey.push_back(   wheelId );
@@ -307,7 +307,7 @@ int DTTtrig::set( int   wheelId,
   chanKey.push_back(   layerId );
   chanKey.push_back(    cellId );
   int ientry;
-  int searchStatus = (*dBuf).find( chanKey.begin(), chanKey.end(), ientry );
+  int searchStatus = (*dBuf.load(std::memory_order_acquire)).find( chanKey.begin(), chanKey.end(), ientry );
 
   if ( !searchStatus ) {
     DTTtrigData& data( dataList[ientry].second );
@@ -330,7 +330,7 @@ int DTTtrig::set( int   wheelId,
     data.kFact = kFact;
     ientry = dataList.size();
     dataList.push_back( std::pair<DTTtrigId,DTTtrigData>( key, data ) );
-    (*dBuf).insert( chanKey.begin(), chanKey.end(), ientry );
+    (*dBuf.load(std::memory_order_acquire)).insert( chanKey.begin(), chanKey.end(), ientry );
     return 0;
   }
 
@@ -418,7 +418,7 @@ void DTTtrig::cacheMap() const {
 
   //atomically try to swap this to become dBuf
   DTBufferTree<int,int>* expect = nullptr;
-  bool exchanged = dBuf.compare_exchange_strong(expect, pBuf);
+  bool exchanged = dBuf.compare_exchange_strong(expect, pBuf, std::memory_order_acq_rel);
   if(!exchanged) {
       //some other thread beat us to this so need to get rid of the work we did
       delete pBuf;
