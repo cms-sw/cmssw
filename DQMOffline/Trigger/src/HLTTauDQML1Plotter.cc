@@ -4,15 +4,26 @@
 
 #include<cstring>
 
-HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps, edm::ConsumesCollector&& cc, int etbins, int etabins, int phibins, double maxpt, double maxhighpt, bool ref, double dr, const std::string& dqmBaseFolder):
+namespace {
+  double getMaxEta(int binsEta, double widthEta) {
+    if(widthEta <= 0.0) {
+      edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::HLTTauDQML1Plotter: EtaHistoBinWidth = " << widthEta << " <= 0, using default value 0.348 instead";
+      widthEta = 0.348;
+    }
+    return binsEta/2*widthEta;
+  }
+}
+
+HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps, edm::ConsumesCollector&& cc, int phibins, double maxpt, double maxhighpt, bool ref, double dr, const std::string& dqmBaseFolder):
   HLTTauDQMPlotter(ps, dqmBaseFolder),
   doRefAnalysis_(ref),
   matchDeltaR_(dr),
   maxPt_(maxpt),
   maxHighPt_(maxhighpt),
-  binsEt_(etbins),
-  binsEta_(etabins),
-  binsPhi_(phibins)
+  binsEt_(ps.getUntrackedParameter<int>("EtHistoBins", 25)),
+  binsEta_(ps.getUntrackedParameter<int>("EtaHistoBins", 14)),
+  binsPhi_(phibins),
+  maxEta_(getMaxEta(binsEta_, ps.getUntrackedParameter<double>("EtaHistoBinWidth", 0.348)))
 {
   if(!configValid_)
     return;
@@ -39,7 +50,7 @@ void HLTTauDQML1Plotter::beginRun() {
   edm::Service<DQMStore> store;
   if (store.isAvailable()) {
         // The L1 phi plot is asymmetric around 0 because of the discrete nature of L1 phi
-        constexpr float pi = 3.1416;
+        constexpr float pi = 3.1416f;
         constexpr float phiShift = pi/18; // half of 2pi/18 bin
         constexpr float minPhi = -pi+phiShift;
         constexpr float maxPhi = pi+phiShift;
@@ -52,22 +63,22 @@ void HLTTauDQML1Plotter::beginRun() {
         store->removeContents();
         
         l1tauEt_ = store->book1D("L1TauEt","L1 #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxPt_);
-        l1tauEta_ = store->book1D("L1TauEta","L1 #tau #eta;L1 #tau #eta;entries",binsEta_,-2.5,2.5);
+        l1tauEta_ = store->book1D("L1TauEta","L1 #tau #eta;L1 #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
         l1tauPhi_ = store->book1D("L1TauPhi","L1 #tau #phi;L1 #tau #phi;entries",binsPhi_,minPhi,maxPhi);
         
         l1jetEt_ = store->book1D("L1JetEt","L1 central jet E_{T};L1 jet E_{T};entries",binsEt_,0,maxPt_);
         snprintf(buffer, BUFMAX, "L1 central jet #eta (E_{T} > %.1f);L1 jet #eta;entries", l1JetMinEt_);
-        l1jetEta_ = store->book1D("L1JetEta", buffer, binsEta_, -2.5, 2.5);
+        l1jetEta_ = store->book1D("L1JetEta", buffer, binsEta_, -maxEta_, maxEta_);
         snprintf(buffer, BUFMAX, "L1 central jet #phi (E_{T} > %.1f);L1 jet #phi;entries", l1JetMinEt_);
         l1jetPhi_ = store->book1D("L1JetPhi", buffer, binsPhi_, minPhi, maxPhi);
         
         firstTauEt_ = store->book1D("L1LeadTauEt","L1 leading #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxPt_);
-        firstTauEta_ = store->book1D("L1LeadTauEta", "L1 leading #tau #eta;L1 #tau #eta;entries",binsEta_,-2.5,2.5);
+        firstTauEta_ = store->book1D("L1LeadTauEta", "L1 leading #tau #eta;L1 #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
         firstTauPhi_ = store->book1D("L1LeadTauPhi","L1 leading #tau #phi;L1 #tau #phi;entries",binsPhi_,minPhi,maxPhi);
         // firstTauEt_->getTH1F()->Sumw2(); // why? because of L1(Double|Single)TauEff (now removed)
         
         secondTauEt_ = store->book1D("L1SecondTauEt","L1 second-leading #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxPt_);
-        secondTauEta_ = store->book1D("L1SecondTauEta","L1 second-leading #tau #eta;L1 #tau #eta;entries",binsEta_,-2.5,2.5);
+        secondTauEta_ = store->book1D("L1SecondTauEta","L1 second-leading #tau #eta;L1 #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
         secondTauPhi_ = store->book1D("L1SecondTauPhi","L1 second-leading #tau #phi;L1 #tau #phi;entries",binsPhi_,minPhi,maxPhi);
         // secondTauEt_->getTH1F()->Sumw2(); // why? because of L1(Double|Single)TauEff (now removed)
         
@@ -89,10 +100,10 @@ void HLTTauDQML1Plotter::beginRun() {
             l1tauHighEtEffDenom_ = store->book1D("L1TauHighEtEffDenom","L1 #tau E_{T} Denominator (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
             l1tauHighEtEffDenom_->getTH1F()->Sumw2();
             
-            l1tauEtaEffNum_ = store->book1D("L1TauEtaEffNum","L1 #tau #eta Efficiency;Ref #tau #eta;entries",binsEta_,-2.5,2.5);
+            l1tauEtaEffNum_ = store->book1D("L1TauEtaEffNum","L1 #tau #eta Efficiency;Ref #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
             l1tauEtaEffNum_->getTH1F()->Sumw2();
             
-            l1tauEtaEffDenom_ = store->book1D("L1TauEtaEffDenom","L1 #tau #eta Denominator;Ref #tau #eta;entries",binsEta_,-2.5,2.5);
+            l1tauEtaEffDenom_ = store->book1D("L1TauEtaEffDenom","L1 #tau #eta Denominator;Ref #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
             l1tauEtaEffDenom_->getTH1F()->Sumw2();
             
             l1tauPhiEffNum_ = store->book1D("L1TauPhiEffNum","L1 #tau #phi Efficiency;Ref #tau #phi;entries",binsPhi_,minPhi,maxPhi);
@@ -112,11 +123,11 @@ void HLTTauDQML1Plotter::beginRun() {
             l1jetHighEtEffDenom_->getTH1F()->Sumw2();
             
             snprintf(buffer, BUFMAX, "L1 central jet #eta Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
-            l1jetEtaEffNum_ = store->book1D("L1JetEtaEffNum", buffer, binsEta_, -2.5, 2.5);
+            l1jetEtaEffNum_ = store->book1D("L1JetEtaEffNum", buffer, binsEta_, -maxEta_, maxEta_);
             l1jetEtaEffNum_->getTH1F()->Sumw2();
             
             snprintf(buffer, BUFMAX, "L1 central jet #eta Denominator (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
-            l1jetEtaEffDenom_ = store->book1D("L1JetEtaEffDenom", buffer, binsEta_, -2.5, 2.5);
+            l1jetEtaEffDenom_ = store->book1D("L1JetEtaEffDenom", buffer, binsEta_, -maxEta_, maxEta_);
             l1jetEtaEffDenom_->getTH1F()->Sumw2();
             
             snprintf(buffer, BUFMAX, "L1 central jet #phi Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);

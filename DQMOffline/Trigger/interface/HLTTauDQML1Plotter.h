@@ -13,7 +13,7 @@
 
 class HLTTauDQML1Plotter: private HLTTauDQMPlotter {
 public:
-    HLTTauDQML1Plotter(const edm::ParameterSet&, edm::ConsumesCollector&& cc, int ptbins, int etabins, int phibins, double maxpt, double maxhighpt, bool ref, double dr, const std::string& dqmBaseFolder);
+    HLTTauDQML1Plotter(const edm::ParameterSet&, edm::ConsumesCollector&& cc, int phibins, double maxpt, double maxhighpt, bool ref, double dr, const std::string& dqmBaseFolder);
     ~HLTTauDQML1Plotter();
 
     using HLTTauDQMPlotter::isValid;
@@ -37,6 +37,7 @@ private:
     const int binsEt_;
     const int binsEta_;
     const int binsPhi_;
+    const double maxEta_;
 
     //MonitorElements general
     MonitorElement* l1tauEt_;

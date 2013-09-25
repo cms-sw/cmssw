@@ -52,7 +52,7 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
     }
     if(configtype == "L1") {
       try {
-        l1Plotters_.emplace_back(pset, consumesCollector(), nPtBins, nEtaBins, nPhiBins, ptMax, highPtMax, doRefAnalysis_, l1MatchDr, dqmBaseFolder);
+        l1Plotters_.emplace_back(pset, consumesCollector(), nPhiBins, ptMax, highPtMax, doRefAnalysis_, l1MatchDr, dqmBaseFolder);
       } catch(cms::Exception& e) {
         edm::LogWarning("HLTTauDQMOffline") << e.what() << std::endl;
         continue;
