@@ -21,14 +21,10 @@ HcalDcsMap::HcalDcsMap()
 }
 
 HcalDcsMap::~HcalDcsMap(){
-    if (mItemsById) {
-        delete mItemsById;
-        mItemsById = nullptr;
-    }
-    if (mItemsByDcsId) {
-        delete mItemsByDcsId;
-        mItemsByDcsId = nullptr;
-    }
+    delete mItemsById;
+    mItemsById = nullptr;
+    delete mItemsByDcsId;
+    mItemsByDcsId = nullptr;
 }
 // copy-ctor
 HcalDcsMap::HcalDcsMap(const HcalDcsMap& src)
@@ -44,8 +40,12 @@ HcalDcsMap::operator=(const HcalDcsMap& rhs) {
 // public swap function
 void HcalDcsMap::swap(HcalDcsMap& other) {
     std::swap(mItems, other.mItems);
-    other.mItemsByDcsId.exchange(mItemsByDcsId.exchange(other.mItemsByDcsId));
-    other.mItemsById.exchange(mItemsById.exchange(other.mItemsById));
+    other.mItemsByDcsId.exchange(
+            mItemsByDcsId.exchange(other.mItemsByDcsId, std::memory_order_acq_rel),
+            std::memory_order_acq_rel);
+    other.mItemsById.exchange(
+            mItemsById.exchange(other.mItemsById, std::memory_order_acq_rel),
+            std::memory_order_acq_rel);
 }
 // move constructor
 HcalDcsMap::HcalDcsMap(HcalDcsMap&& other) 
@@ -252,7 +252,9 @@ bool HcalDcsMap::mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcsId) {
   }
   Item _item(fId, fDcsId_notype);
   mItems.push_back(_item);
+  delete mItemsById;
   mItemsById = nullptr;
+  delete mItemsByDcsId;
   mItemsByDcsId = nullptr;
   return true;
 }
@@ -268,7 +270,7 @@ void HcalDcsMap::sortById () const {
       std::sort (ptr->begin(), ptr->end(), hcal_impl::LessById ());
       //atomically try to swap this to become mItemsById
       std::vector<const Item*>* expect = nullptr;
-      bool exchanged = mItemsById.compare_exchange_strong(expect, ptr);
+      bool exchanged = mItemsById.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
       if(!exchanged) {
           delete ptr;
       }
@@ -285,7 +287,7 @@ void HcalDcsMap::sortByDcsId () const {
       std::sort (ptr->begin(), ptr->end(), hcal_impl::LessByDcsId ());
       //atomically try to swap this to become mItemsByDcsId
       std::vector<const Item*>* expect = nullptr;
-      bool exchanged = mItemsByDcsId.compare_exchange_strong(expect, ptr);
+      bool exchanged = mItemsByDcsId.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
       if(!exchanged) {
           delete ptr;
       }

@@ -118,8 +118,8 @@ class HcalDcsMap {
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   mutable std::atomic<std::vector<const Item*>*> mItemsById;
   mutable std::atomic<std::vector<const Item*>*> mItemsByDcsId;
-  const std::vector<const Item*>* getItemsById(void){return mItemsById.load();}
-  const std::vector<const Item*>* getItemsByDcsId(void){return mItemsByDcsId.load();}
+  const std::vector<const Item*>* getItemsById(void){return mItemsById.load(std::memory_order_acquire);}
+  const std::vector<const Item*>* getItemsByDcsId(void){return mItemsByDcsId.load(std::memory_order_acquire);}
 #else
   mutable std::vector<const Item*> mItemsById;
   mutable std::vector<const Item*> mItemsByDcsId;

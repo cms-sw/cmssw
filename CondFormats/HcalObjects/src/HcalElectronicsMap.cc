@@ -48,8 +48,12 @@ HcalElectronicsMap::operator=(const HcalElectronicsMap& rhs) {
 void HcalElectronicsMap::swap(HcalElectronicsMap& other) {
     std::swap(mPItems, other.mPItems);
     std::swap(mTItems, other.mTItems);
-    other.mTItemsByTrigId.exchange(mTItemsByTrigId.exchange(other.mTItemsByTrigId));
-    other.mPItemsById.exchange(mPItemsById.exchange(other.mPItemsById));
+    other.mTItemsByTrigId.exchange(
+            mTItemsByTrigId.exchange(other.mTItemsByTrigId, std::memory_order_acq_rel),
+            std::memory_order_acq_rel);
+    other.mPItemsById.exchange(
+            mPItemsById.exchange(other.mPItemsById, std::memory_order_acq_rel),
+            std::memory_order_acq_rel);
 }
 // move constructor
 HcalElectronicsMap::HcalElectronicsMap(HcalElectronicsMap&& other) 
@@ -235,7 +239,7 @@ void HcalElectronicsMap::sortById () const {
       std::sort ((*ptr).begin(), (*ptr).end(), hcal_impl::LessById ());
       //atomically try to swap this to become mPItemsById
       std::vector<const PrecisionItem*>* expect = nullptr;
-      bool exchanged = mPItemsById.compare_exchange_strong(expect, ptr);
+      bool exchanged = mPItemsById.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
       if(!exchanged) {
           delete ptr;
       }
@@ -252,7 +256,7 @@ void HcalElectronicsMap::sortByTriggerId () const {
       std::sort ((*ptr).begin(), (*ptr).end(), hcal_impl::LessByTrigId ());
       //atomically try to swap this to become mTItemsByTrigId
       std::vector<const TriggerItem*>* expect = nullptr;
-      bool exchanged = mTItemsByTrigId.compare_exchange_strong(expect, ptr);
+      bool exchanged = mTItemsByTrigId.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
       if(!exchanged) {
           delete ptr;
       }
