@@ -58,7 +58,7 @@ namespace edm {
     br->SetAddress(&p);
     tree_.getEntry(br, tree_.entryNumberForIndex(ep->transitionIndex()));
     if(tree_.branchType() == InEvent) {
-      // CMS-THREADING For each inputType, calls to this function need to be serialized
+      // CMS-THREADING For the primary input source calls to this function need to be serialized
       InputFile::reportReadBranch(inputType_, std::string(br->GetName()));
     }
     setRefCoreStreamer(false);
