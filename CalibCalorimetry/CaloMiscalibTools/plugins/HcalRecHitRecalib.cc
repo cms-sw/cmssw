@@ -5,16 +5,15 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLHcal.h"
 
 HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig)
 {
 
-  hbheLabel_ = iConfig.getParameter<edm::InputTag>("hbheInput");
-  hoLabel_ = iConfig.getParameter<edm::InputTag>("hoInput");
-  hfLabel_ = iConfig.getParameter<edm::InputTag>("hfInput");
+  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
+  tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
+  tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
 
 //   HBHEHitsProducer_ = iConfig.getParameter< std::string > ("HBHERecHitsProducer");
 //   HOHitsProducer_ = iConfig.getParameter< std::string > ("HERecHitsProducer");
@@ -78,21 +77,21 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const HFRecHitCollection*  HFRecHits = 0;
   const HORecHitCollection*  HORecHits = 0;
 
-  iEvent.getByLabel(hbheLabel_,HBHERecHitsHandle);
+  iEvent.getByToken(tok_hbhe_,HBHERecHitsHandle);
   if (!HBHERecHitsHandle.isValid()) {
     LogDebug("") << "HcalREcHitRecalib: Error! can't get product!" << std::endl;
   } else {
     HBHERecHits = HBHERecHitsHandle.product(); // get a ptr to the product
   }
 
-  iEvent.getByLabel(hoLabel_,HORecHitsHandle);
+  iEvent.getByToken(tok_ho_,HORecHitsHandle);
   if (!HORecHitsHandle.isValid()) {
     LogDebug("") << "HcalREcHitRecalib: Error! can't get product!" << std::endl;
   } else {
     HORecHits = HORecHitsHandle.product(); // get a ptr to the product
   }
 
-  iEvent.getByLabel(hfLabel_,HFRecHitsHandle);
+  iEvent.getByToken(tok_hf_,HFRecHitsHandle);
   if (!HFRecHitsHandle.isValid()) {
     LogDebug("") << "HcalREcHitRecalib: Error! can't get product!" << std::endl;
   } else {

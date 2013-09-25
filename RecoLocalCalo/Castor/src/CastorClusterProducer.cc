@@ -65,6 +65,9 @@ class CastorClusterProducer : public edm::EDProducer {
       typedef std::vector<reco::CastorTower> CastorTowerCollection;
       typedef std::vector<reco::CastorCluster> CastorClusterCollection;
       std::string input_, basicjets_;
+      edm::EDGetTokenT<CastorTowerCollection> tok_input_;
+      edm::EDGetTokenT<reco::BasicJetCollection> tok_jets_;
+    edm::EDGetTokenT<CastorTowerCollection> tok_tower_;
       bool clusteralgo_;
 };
 
@@ -87,6 +90,10 @@ CastorClusterProducer::CastorClusterProducer(const edm::ParameterSet& iConfig) :
   basicjets_(iConfig.getUntrackedParameter<std::string>("basicjets","")),
   clusteralgo_(iConfig.getUntrackedParameter<bool>("ClusterAlgo",false))
 {
+  // register for data access
+  tok_input_ = consumes<CastorTowerCollection>(edm::InputTag(input_));
+  tok_jets_ = consumes<reco::BasicJetCollection>(edm::InputTag(basicjets_));
+    tok_tower_ = consumes<CastorTowerCollection>(edm::InputTag("CastorTowerReco"));
   // register your products
   produces<CastorClusterCollection>();
   // now do what ever other initialization is needed
@@ -119,7 +126,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   // Produce CastorClusters from CastorTowers
   
   edm::Handle<CastorTowerCollection> InputTowers;
-  iEvent.getByLabel(input_, InputTowers);
+  iEvent.getByToken(tok_input_, InputTowers);
 
   std::auto_ptr<CastorClusterCollection> OutputClustersfromClusterAlgo (new CastorClusterCollection);
   
@@ -147,10 +154,10 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   if ( basicjets_ != "") {
   
   	Handle<BasicJetCollection> bjCollection;
-   	iEvent.getByLabel(basicjets_,bjCollection);
+   	iEvent.getByToken(tok_jets_,bjCollection);
 	
 	Handle<CastorTowerCollection> ctCollection;
-	iEvent.getByLabel("CastorTowerReco",ctCollection);
+	iEvent.getByToken(tok_tower_,ctCollection);
 	
 	std::auto_ptr<CastorClusterCollection> OutputClustersfromBasicJets (new CastorClusterCollection);
 	

@@ -1,6 +1,5 @@
 using namespace std;
 #include "EventFilter/HcalRawToDigi/plugins/HcalRawToDigi.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -10,7 +9,6 @@ using namespace std;
 #include <iostream>
 
 HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
-  dataTag_(conf.getParameter<edm::InputTag>("InputLabel")),
   unpacker_(conf.getUntrackedParameter<int>("HcalFirstFED",int(FEDNumbering::MINHCALFEDID)),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
   filter_(conf.getParameter<bool>("FilterDataQuality"),conf.getParameter<bool>("FilterDataQuality"),
 	  false,
@@ -26,6 +24,8 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   unpackerMode_(conf.getUntrackedParameter<int>("UnpackerMode",0)),
   expectedOrbitMessageTime_(conf.getUntrackedParameter<int>("ExpectedOrbitMessageTime",-1))
 {
+  tok_data_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("InputLabel"));
+
   if (fedUnpackList_.empty()) {
     for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++)
       fedUnpackList_.push_back(i);
@@ -64,7 +64,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 {
   // Step A: Get Inputs 
   edm::Handle<FEDRawDataCollection> rawraw;  
-  e.getByLabel(dataTag_,rawraw);
+  e.getByToken(tok_data_,rawraw);
   // get the mapping
   edm::ESHandle<HcalDbService> pSetup;
   es.get<HcalDbRecord>().get( pSetup );

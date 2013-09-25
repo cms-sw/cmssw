@@ -102,6 +102,9 @@ class HcalDataIntegrityTask: public HcalBaseDQMonitor
   edm::InputTag inputLabelRawData_;
   edm::InputTag inputLabelReport_;
 
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  edm::EDGetTokenT<HcalUnpackerReport> tok_report_;
+
 };
 
 // For crate numbers:

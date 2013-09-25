@@ -134,6 +134,11 @@ class HcalBeamMonitor:  public HcalBaseDQMonitor {
   int minBadCells_;  // number of channels that must be bad to be included in problem summary
   edm::InputTag digiLabel_;
   edm::InputTag hbheRechitLabel_, hfRechitLabel_, hoRechitLabel_;
+
+  edm::EDGetTokenT<HFDigiCollection> tok_hfdigi_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
 }; // class HcalBeamMonitor
 
 #endif  

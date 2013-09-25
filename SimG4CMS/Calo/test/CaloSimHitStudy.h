@@ -21,6 +21,8 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
 #include <TH1F.h>
 
 #include <memory>
@@ -48,7 +50,12 @@ protected:
 
 private:
 
-  std::string    sourceLabel, g4Label, hitLab[4];
+  std::string    g4Label, hitLab[4];
+  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> toks_calo_[4];
+  edm::EDGetTokenT<edm::PSimHitContainer> toks_track_[3];
+  edm::EDGetTokenT<edm::PSimHitContainer> toks_tkHigh_[6];
+  edm::EDGetTokenT<edm::PSimHitContainer> toks_tkLow_[6];
   std::string    muonLab[3], tkHighLab[6], tkLowLab[6];
   double         tmax_, eMIP_;
 

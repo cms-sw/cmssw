@@ -34,8 +34,11 @@ private:
   static const std::vector<double>& getGridValues();
 
   CaloTowersCreationAlgo algo_;
-  edm::InputTag hbheLabel_,hoLabel_,hfLabel_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
   std::vector<edm::InputTag> ecalLabels_;
+  std::vector<edm::EDGetTokenT<EcalRecHitCollection> > toks_ecal_;
   bool allowMissingInputs_;
 
 

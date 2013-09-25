@@ -16,6 +16,9 @@
 
 #include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
+#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 // forward declarations
 
 class DQMStore;
@@ -106,6 +109,9 @@ public:
   edm::InputTag inputLabelReport_;
   std::string prefixME_;
   int NLumiBlocks_;
+
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  edm::EDGetTokenT<HcalUnpackerReport> tok_report_;
 
   int HBpresent_, HEpresent_, HOpresent_, HFpresent_;
   DQMStore* dbe_;

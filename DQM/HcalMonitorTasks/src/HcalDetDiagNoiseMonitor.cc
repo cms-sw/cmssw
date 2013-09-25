@@ -1,6 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDetDiagNoiseMonitor.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
@@ -31,12 +30,10 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h" 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 // #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
@@ -58,8 +55,6 @@
 
 // this is to retrieve HCAL LogicalMap
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
-// to retrive trigger information (local runs only)
-#include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 
 
 #include <math.h>
@@ -157,9 +152,10 @@ public:
   HcalDetDiagNoiseRMData rm[HcalFrontEndId::maxRmIndex];
 };
 
-HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps) :
-  hcalTBTriggerDataTag_(ps.getParameter<edm::InputTag>("hcalTBTriggerDataTag"))
-{
+HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps) {
+
+  tok_tb_ = consumes<HcalTBTriggerData>(ps.getParameter<edm::InputTag>("hcalTBTriggerDataTag"));
+
   ievt_=0;
   run_number=-1;
   NoisyEvents=0;
@@ -191,9 +187,13 @@ HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps) :
   SpikeThreshold   = ps.getUntrackedParameter<double>("NoiseSpikeThreshold",0.5);
   Overwrite        = ps.getUntrackedParameter<bool>  ("Overwrite",true);
 
-  rawDataLabel_ =  ps.getUntrackedParameter<edm::InputTag>("RawDataLabel",edm::InputTag("source",""));
+  tok_raw_ =  consumes<FEDRawDataCollection>(ps.getUntrackedParameter<edm::InputTag>("RawDataLabel",edm::InputTag("source","")));
   digiLabel_     = ps.getUntrackedParameter<edm::InputTag>("digiLabel",edm::InputTag("hcalDigis"));
-  L1ADataLabel_  = ps.getUntrackedParameter<edm::InputTag>("gtLabel");
+  tok_l1_  = consumes<L1GlobalTriggerReadoutRecord>(ps.getUntrackedParameter<edm::InputTag>("gtLabel"));
+
+  
+  tok_hbhe_ = consumes<HBHEDigiCollection>(digiLabel_);
+  tok_ho_ = consumes<HODigiCollection>(digiLabel_);
   
   RMSummary = 0;
   needLogicalMap_=true;
@@ -298,7 +298,7 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
 
   // for local runs 
   edm::Handle<HcalTBTriggerData> trigger_data;
-  iEvent.getByLabel(hcalTBTriggerDataTag_, trigger_data);
+  iEvent.getByToken(tok_tb_, trigger_data);
   if(trigger_data.isValid()){
       if(trigger_data->triggerWord()>1000) isNoiseEvent=true;
       LocalRun=true;
@@ -306,7 +306,7 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
 
   // We do not want to look at Abort Gap events
   edm::Handle<FEDRawDataCollection> rawdata;
-  iEvent.getByLabel(rawDataLabel_,rawdata);
+  iEvent.getByToken(tok_raw_,rawdata);
   //checking FEDs for calibration information
   for(int i=FEDNumbering::MINHCALFEDID;i<=FEDNumbering::MAXHCALFEDID; i++) {
       const FEDRawData& fedData = rawdata->FEDData(i) ;
@@ -318,7 +318,7 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
 
   // Check GCT trigger bits
   edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
-  iEvent.getByLabel(L1ADataLabel_, gtRecord);
+  iEvent.getByToken(tok_l1_, gtRecord);
   if(gtRecord.isValid()){
     const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
     if(tWord.at(11) || tWord.at(12)) isNoiseEvent=true;
@@ -354,7 +354,7 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
   HcalDetDiagNoiseRMEvent RMs[HcalFrontEndId::maxRmIndex];
    
    edm::Handle<HBHEDigiCollection> hbhe; 
-   iEvent.getByLabel(digiLabel_,hbhe);
+   iEvent.getByToken(tok_hbhe_,hbhe);
    for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
      double max=-100/*,sum*/,energy=0; int n_zero=0;
      for(int i=0;i<digi->size();i++){
@@ -374,7 +374,7 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
    }
 
    edm::Handle<HODigiCollection> ho; 
-   iEvent.getByLabel(digiLabel_,ho);
+   iEvent.getByToken(tok_ho_,ho);
    for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
      double max=-100,energy=0; int Eta=digi->id().ieta(); int Phi=digi->id().iphi(); int n_zero=0;
      for(int i=0;i<digi->size()-1;i++){

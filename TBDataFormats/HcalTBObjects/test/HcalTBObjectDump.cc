@@ -25,19 +25,19 @@ namespace cms {
     explicit HcalTBObjectDump(edm::ParameterSet const& conf);
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
   private:
-    edm::InputTag hcalTBTriggerDataTag_;
-    edm::InputTag hcalTBRunDataTag_;
-    edm::InputTag hcalTBEventPositionTag_;
-    edm::InputTag hcalTBTimingTag_;
+    edm::EDGetTokenT<HcalTBTriggerData> tok_tb_;
+    edm::EDGetTokenT<HcalTBRunData> tok_run_;
+    edm::EDGetTokenT<HcalTBEventPosition> tok_pos_;
+    edm::EDGetTokenT<HcalTBTiming> tok_timing_;
   };
 
 
-  HcalTBObjectDump::HcalTBObjectDump(edm::ParameterSet const& conf) :
-    hcalTBTriggerDataTag_(conf.getParameter<edm::InputTag>("hcalTBTriggerDataTag")),
-    hcalTBRunDataTag_(conf.getParameter<edm::InputTag>("hcalTBRunDataTag")),
-    hcalTBEventPositionTag_(conf.getParameter<edm::InputTag>("hcalTBEventPositionTag")),
-    hcalTBTimingTag_(conf.getParameter<edm::InputTag>("hcalTBTimingTag"))
+  HcalTBObjectDump::HcalTBObjectDump(edm::ParameterSet const& conf) 
  {
+    tok_tb_ = consumes<HcalTBTriggerData>(conf.getParameter<edm::InputTag>("hcalTBTriggerDataTag"));
+    tok_run_ = consumes<HcalTBRunData>(conf.getParameter<edm::InputTag>("hcalTBRunDataTag"));
+    tok_pos_ = consumes<HcalTBEventPosition>(conf.getParameter<edm::InputTag>("hcalTBEventPositionTag"));
+    tok_timing_ = consumes<HcalTBTiming>(conf.getParameter<edm::InputTag>("hcalTBTimingTag"));
   }
   
   void HcalTBObjectDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
@@ -45,7 +45,7 @@ namespace cms {
     try {
       edm::Handle<HcalTBTriggerData> td;
 
-      e.getByLabel(hcalTBTriggerDataTag_, td);
+      e.getByToken(tok_tb_, td);
       const HcalTBTriggerData& info=*(td);
 
       cout << "TRIGGER DATA: ";
@@ -57,7 +57,7 @@ namespace cms {
     try {
       edm::Handle<HcalTBRunData> td;
 
-      e.getByLabel(hcalTBRunDataTag_, td);
+      e.getByToken(tok_run_, td);
       const HcalTBRunData& info=*(td);
 
       cout << "RUN DATA: ";
@@ -69,7 +69,7 @@ namespace cms {
     try {
       edm::Handle<HcalTBEventPosition> td;
 
-      e.getByLabel(hcalTBEventPositionTag_, td);
+      e.getByToken(tok_pos_, td);
       const HcalTBEventPosition& info=*td;
 
       cout << "Event position info: ";
@@ -82,7 +82,7 @@ namespace cms {
       
       edm::Handle<HcalTBTiming>td;
 
-      e.getByLabel(hcalTBTimingTag_, td);
+      e.getByToken(tok_timing_, td);
       const HcalTBTiming& info=*(td);
 
       cout << "Timing: ";

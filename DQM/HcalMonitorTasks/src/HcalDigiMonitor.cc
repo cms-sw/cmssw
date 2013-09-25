@@ -4,9 +4,7 @@
 
 #include "FWCore/Common/interface/TriggerNames.h" 
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
@@ -30,7 +28,6 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
   makeDiagnostics_       = ps.getUntrackedParameter<bool>("makeDiagnostics",false);
   digiLabel_             = ps.getUntrackedParameter<edm::InputTag>("digiLabel");
   FEDRawDataCollection_  = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection");
-  hfRechitLabel_        = ps.getUntrackedParameter<edm::InputTag>("hfRechitLabel");
   shapeThresh_           = ps.getUntrackedParameter<int>("shapeThresh",20);
   //shapeThresh_ is used for plotting pulse shapes for all digis with pedestal-subtracted ADC sum > shapeThresh_;
   shapeThreshHB_ = ps.getUntrackedParameter<int>("shapeThreshHB",shapeThresh_);
@@ -87,6 +84,16 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
   HFP_shape=0;
   HFM_shape=0;
   setupDone_=false;
+
+  // register for data access
+  tok_raw_ = consumes<FEDRawDataCollection>(FEDRawDataCollection_);
+  tok_hbhe_ = consumes<HBHEDigiCollection>(digiLabel_);
+  tok_ho_ = consumes<HODigiCollection>(digiLabel_);
+  tok_hf_ = consumes<HFDigiCollection>(digiLabel_);
+  tok_unpack_ = consumes<HcalUnpackerReport>(digiLabel_);
+  tok_trigger_ = consumes<edm::TriggerResults>(hltresultsLabel_);
+  tok_hfrec_   = consumes<HFRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("hfRechitLabel"));
+
 }
 
 // destructor
@@ -474,7 +481,7 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   ///////////////////////////////////////////////////////////////
 
   edm::Handle<edm::TriggerResults> hltRes;
-  if (!(e.getByLabel(hltresultsLabel_,hltRes)))
+  if (!(e.getByToken(tok_trigger_,hltRes)))
     {
       if (debug_>0) edm::LogWarning("HcalDigiMonitor")<<" Could not get HLT results with tag "<<hltresultsLabel_<<std::endl;
     }
@@ -501,7 +508,7 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   HT_HFM_=0;
   //  bool rechitsFound=false;
   edm::Handle<HFRecHitCollection> hf_rechit;
-  if (e.getByLabel(hfRechitLabel_,hf_rechit))
+  if (e.getByToken(tok_hfrec_,hf_rechit))
     {
       //      rechitsFound=true;
       for (HFRecHitCollection::const_iterator HF=hf_rechit->begin();HF!=hf_rechit->end();++HF)
@@ -525,24 +532,24 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   edm::Handle<HODigiCollection> ho_digi;
   edm::Handle<HFDigiCollection> hf_digi;
 
-  if (!(e.getByLabel(digiLabel_,hbhe_digi)))
+  if (!(e.getByToken(tok_hbhe_,hbhe_digi)))
     {
       edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" hbhe_digi not available";
       return;
     }
   
-  if (!(e.getByLabel(digiLabel_,hf_digi)))
+  if (!(e.getByToken(tok_hf_,hf_digi)))
     {
       edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" hf_digi not available";
       return;
     }
-  if (!(e.getByLabel(digiLabel_,ho_digi)))
+  if (!(e.getByToken(tok_ho_,ho_digi)))
     {
       edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" ho_digi not available";
       return;
     }
   edm::Handle<HcalUnpackerReport> report;  
-  if (!(e.getByLabel(digiLabel_,report)))
+  if (!(e.getByToken(tok_unpack_,report)))
     {
       edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" unpacker report not available";
       return;

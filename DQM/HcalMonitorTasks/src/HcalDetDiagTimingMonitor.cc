@@ -1,19 +1,14 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDetDiagTimingMonitor.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 
 #include <math.h>
 
-// this is to retrieve HCAL digi's
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 // this is to retrieve GT digi's 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 
@@ -69,7 +64,14 @@ HcalDetDiagTimingMonitor::HcalDetDiagTimingMonitor(const edm::ParameterSet& ps)
   
   L1ADataLabel_  = ps.getUntrackedParameter<edm::InputTag>("gtLabel");
   inputLabelDigi_= ps.getUntrackedParameter<edm::InputTag>("digiLabel");
-  FEDRawDataCollection_ = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection",edm::InputTag("source",""));
+
+  // register for data access
+  tok_raw_ = consumes<FEDRawDataCollection>(ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection",edm::InputTag("source","")));
+  tok_l1_ = consumes<L1GlobalTriggerReadoutRecord>(L1ADataLabel_);
+  tok_l1mu_ = consumes<L1MuGMTReadoutCollection>(L1ADataLabel_);
+  tok_hbhe_ = consumes<HBHEDigiCollection>(inputLabelDigi_);
+  tok_ho_ = consumes<HODigiCollection>(inputLabelDigi_);
+  tok_hf_ = consumes<HFDigiCollection>(inputLabelDigi_);
 }
 
 HcalDetDiagTimingMonitor::~HcalDetDiagTimingMonitor(){}
@@ -152,7 +154,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
   if(!dbe_) return;
   // We do not want to look at Abort Gap events
   edm::Handle<FEDRawDataCollection> rawdata;
-  iEvent.getByLabel(FEDRawDataCollection_,rawdata);
+  iEvent.getByToken(tok_raw_,rawdata);
   //checking FEDs for calibration information
   if(!rawdata.isValid()) return;
   for(int i=FEDNumbering::MINHCALFEDID;i<=FEDNumbering::MAXHCALFEDID; i++) {
@@ -165,7 +167,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
   bool GCTTrigger1=false,GCTTrigger2=false,GCTTrigger3=false,GCTTrigger4=false,GCTTrigger5=false,HOselfTrigger=false;
   // Check GCT trigger bits
   edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
-  iEvent.getByLabel(L1ADataLabel_, gtRecord);
+  iEvent.getByToken(tok_l1_, gtRecord);
   if(gtRecord.isValid()){
 
     const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
@@ -184,7 +186,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
 
     // define trigger trigger source (example from GMT group)
     edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle; 
-    iEvent.getByLabel(L1ADataLabel_,gmtrc_handle);
+    iEvent.getByToken(tok_l1mu_,gmtrc_handle);
     if(!gmtrc_handle.isValid()) return;
     L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
    
@@ -254,7 +256,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
   /////////////////////////////////////////////////////////////////////////////////////////   
   if(ievt_<100){
     edm::Handle<HBHEDigiCollection> hbhe; 
-    iEvent.getByLabel(inputLabelDigi_,hbhe);
+    iEvent.getByToken(tok_hbhe_,hbhe);
     if(hbhe.isValid()){   
       for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
 	eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
@@ -262,7 +264,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
       }   
     }    
     edm::Handle<HODigiCollection> ho; 
-    iEvent.getByLabel(inputLabelDigi_,ho);
+    iEvent.getByToken(tok_ho_,ho);
     if(ho.isValid()){
       for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
 	eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
@@ -270,7 +272,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
       }   
     }
     edm::Handle<HFDigiCollection> hf;
-    iEvent.getByLabel(inputLabelDigi_,hf);
+    iEvent.getByToken(tok_hf_,hf);
     if(hf.isValid()){
       for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
 	eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
@@ -283,7 +285,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
   /////////////////////////////////////////////////////////////////////////////////////////   
   double data[20];
   edm::Handle<HBHEDigiCollection> hbhe; 
-  iEvent.getByLabel(inputLabelDigi_,hbhe);
+  iEvent.getByToken(tok_hbhe_,hbhe);
   if(hbhe.isValid()){ 
     for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
       eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
@@ -312,7 +314,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
     }    
   }
   edm::Handle<HODigiCollection> ho; 
-  iEvent.getByLabel(inputLabelDigi_,ho);
+  iEvent.getByToken(tok_ho_,ho);
   if(ho.isValid()){ 
     for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
       eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
@@ -331,7 +333,7 @@ void HcalDetDiagTimingMonitor::analyze(const edm::Event& iEvent, const edm::Even
     }   
   }
   edm::Handle<HFDigiCollection> hf; 
-  iEvent.getByLabel(inputLabelDigi_,hf);
+  iEvent.getByToken(tok_hf_,hf);
   if(hf.isValid()){ 
     for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
       eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
