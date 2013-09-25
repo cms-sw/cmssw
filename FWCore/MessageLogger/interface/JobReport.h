@@ -26,10 +26,8 @@ Framework experts and detail the assumptions made when
 modifying JobReport to run in the multithreaded Framework.
 
 2. We assume the primary input source performs its activity
-serially, with the exception of delayed reading. We assume
-the secondary input source performs its activities serially.
-The two sources may be running concurrently with each other
-but individually their tasks run serially.
+serially. There can be multiple secondary input sources running
+concurrently.
 
 3. We assume the following sequence of activities where the lines
 of asterisks indicate synchronization points:
@@ -43,7 +41,7 @@ open output files serially
 nothing else running concurrently
 ****************
 The primary source runs its other tasks concurrently
-with the secondary source running its tasks and
+with the secondary sources running their tasks and
 modules running their tasks.
 ****************
 close primary input file
@@ -68,7 +66,7 @@ decide to run the OutputModule for multiple events
 concurrently. That would require further modifications
 of either the JobReport or the OutputModule.
 
-5. For each type of input file (Primary, SecondaryFile,
+5. For Primary and SecondaryFile input sources (not
 SecondarySource) the calls to reportBranchName from the
 delayed reader need to be serialized.
 
