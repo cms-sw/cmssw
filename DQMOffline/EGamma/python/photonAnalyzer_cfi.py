@@ -11,16 +11,8 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     photonIDLoose = cms.InputTag('PhotonIDProd:PhotonCutBasedIDLoose'),
     photonIDTight = cms.InputTag('PhotonIDProd:PhotonCutBasedIDTight'),																
 
-    barrelRecHitProducer_token = cms.InputTag('reducedEcalRecHitsEB'),								
-    endcapRecHitProducer_token = cms.InputTag('reducedEcalRecHitsEE'),
-
-##### needed for DQMOfflineHeavyIons_cff.py
-    barrelRecHitProducer = cms.string('reducedEcalRecHitsEB'),
-    barrelRecHitCollection = cms.string(''),
-
-    endcapRecHitProducer = cms.string('reducedEcalRecHitsEE'),
-    endcapRecHitCollection = cms.string(''),
-#####
+    barrelRecHitProducer = cms.InputTag('reducedEcalRecHitsEB'),								
+    endcapRecHitProducer = cms.InputTag('reducedEcalRecHitsEE'),
 
     triggerEvent = cms.InputTag("hltTriggerSummaryAOD",""),                            
     prescaleFactor = cms.untracked.int32(1),
