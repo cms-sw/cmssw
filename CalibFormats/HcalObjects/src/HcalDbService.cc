@@ -40,20 +40,20 @@ const HcalTopology* HcalDbService::getTopologyUsed() const {
 const HcalCalibrations& HcalDbService::getHcalCalibrations(const HcalGenericDetId& fId) const 
 { 
   buildCalibrations();
-  return (*mCalibSet).getCalibrations(fId);
+  return (*mCalibSet.load(std::memory_order_acquire)).getCalibrations(fId);
 }
 
 const HcalCalibrationWidths& HcalDbService::getHcalCalibrationWidths(const HcalGenericDetId& fId) const 
 { 
   buildCalibWidths();
-  return (*mCalibWidthSet).getCalibrationWidths(fId);
+  return (*mCalibWidthSet.load(std::memory_order_acquire)).getCalibrationWidths(fId);
 }
 
 void HcalDbService::buildCalibrations() const {
   // we use the set of ids for pedestals as the master list
   if ((!mPedestals) || (!mGains) || (!mQIEData) || (!mRespCorrs) || (!mTimeCorrs) || (!mLUTCorrs) ) return;
 
-  if (!mCalibSet) {
+  if (!mCalibSet.load(std::memory_order_acquire)) {
 
       auto ptr = new HcalCalibrationsSet();
 
@@ -73,7 +73,7 @@ void HcalDbService::buildCalibrations() const {
       ptr->sort();
 
       HcalCalibrationsSet* expect = nullptr;
-      bool exchanged = mCalibSet.compare_exchange_strong(expect, ptr);
+      bool exchanged = mCalibSet.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
       if(!exchanged) {
           delete ptr;
       }
@@ -84,11 +84,11 @@ void HcalDbService::buildCalibWidths() const {
   // we use the set of ids for pedestal widths as the master list
   if ((!mPedestalWidths) || (!mGainWidths) || (!mQIEData) ) return;
 
-  if (!mCalibWidthSet) {
+  if (!mCalibWidthSet.load(std::memory_order_acquire)) {
 
       auto ptr = new HcalCalibrationWidthsSet();
 
-      std::vector<DetId> ids=mPedestalWidths->getAllChannels();
+      const std::vector<DetId>& ids=mPedestalWidths->getAllChannels();
       bool pedsInADC = mPedestalWidths->isADC();
       // loop!
       HcalCalibrationWidths tool;
@@ -104,7 +104,7 @@ void HcalDbService::buildCalibWidths() const {
       ptr->sort();
 
       HcalCalibrationWidthsSet* expect = nullptr;
-      bool exchanged = mCalibWidthSet.compare_exchange_strong(expect, ptr);
+      bool exchanged = mCalibWidthSet.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
       if(!exchanged) {
           delete ptr;
       }
