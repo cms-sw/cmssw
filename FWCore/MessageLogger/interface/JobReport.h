@@ -85,6 +85,7 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
 
 #include "FWCore/Utilities/interface/InputType.h"
 
+#include <atomic>
 #include <cstddef>
 #include <iosfwd>
 #include <map>
@@ -94,6 +95,8 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
 #include <vector>
 
 #include "boost/scoped_ptr.hpp"
+#include "tbb/concurrent_unordered_map.h"
+#include "tbb/concurrent_vector.h"
 
 namespace edm {
 
@@ -158,10 +161,20 @@ namespace edm {
         std::size_t     numEventsWritten;
         StringVector    branchNames;
         std::vector<Token> contributingInputs;
-        std::vector<Token> contributingInputsSecSource;
+        tbb::concurrent_vector<Token> contributingInputsSecSource;
         std::map<std::string, bool> fastCopyingInputs;
         std::map<RunNumber, RunReport> runReports;
         bool            fileHasBeenClosed;
+      };
+
+      class AtomicLongLong {
+      public:
+        AtomicLongLong() : value_(0) {}
+        AtomicLongLong(AtomicLongLong const& r) : value_(r.value_.load()) {}
+        std::atomic<long long>& value() { return value_; }
+        std::atomic<long long> const& value() const { return value_; }
+      private:
+        std::atomic<long long> value_;
       };
 
       struct JobReportImpl {
@@ -233,11 +246,11 @@ namespace edm {
         JobReportImpl(std::ostream* iOst): printedReadBranches_(false), ost_(iOst) {}
 
         std::vector<InputFile> inputFiles_;
-        std::vector<InputFile> inputFilesSecSource_;
+        tbb::concurrent_vector<InputFile> inputFilesSecSource_;
         std::vector<OutputFile> outputFiles_;
         std::map<std::string, long long> readBranches_;
         std::map<std::string, long long> readBranchesSecFile_;
-        std::map<std::string, long long> readBranchesSecSource_;
+        tbb::concurrent_unordered_map<std::string, AtomicLongLong> readBranchesSecSource_;
         bool printedReadBranches_;
         std::set<std::string>* fastClonedBranches_;
         std::ostream* ost_;
@@ -271,7 +284,7 @@ namespace edm {
                             std::string const& guid,
                             std::vector<std::string> const& branchNames);
 
-      /// Report that the event with the given id has been read from
+      /// Report that an event has been read from
       /// the file identified by the given Token.
       void eventReadFromFile(InputType inputType, Token fileToken);
 

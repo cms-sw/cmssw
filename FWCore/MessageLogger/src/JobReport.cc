@@ -118,28 +118,34 @@ namespace edm {
 
   JobReport::InputFile& JobReport::JobReportImpl::getInputFileForToken(InputType inputType, JobReport::Token t) {
 
-    std::vector<InputFile>* inputFiles = &inputFiles_;
+    InputFile* inputFile = nullptr;
     if(inputType == InputType::SecondarySource) {
-      inputFiles = &inputFilesSecSource_;
+      if(t >= inputFilesSecSource_.size()) {
+        throw edm::Exception(edm::errors::LogicError)
+          << "Access reported for secondary source input file with token "
+          << t
+          << " but no matching input file is found\n";
+      }
+      inputFile = &inputFilesSecSource_[t];
+    } else {
+      if(t >= inputFiles_.size()) {
+        throw edm::Exception(edm::errors::LogicError)
+          << "Access reported for input file with token "
+          << t
+          << " but no matching input file is found\n";
+      }
+      inputFile = &inputFiles_[t];
     }
-
-    if(t >= inputFiles->size()) {
-      throw edm::Exception(edm::errors::LogicError)
-        << "Access reported for input file with token "
-        << t
-        << " but no matching input file is found\n";
-    }
-    InputFile & inputFile = (*inputFiles)[t];
-    if(inputFile.fileHasBeenClosed) {
+    if(inputFile->fileHasBeenClosed) {
       throw edm::Exception(edm::errors::LogicError)
         << "Access reported for input file with token "
         << t
         << " after this file has been closed.\n"
         << "File record follows:\n"
-        << inputFile
+        << *inputFile
         << '\n';
     }
-    return inputFile;
+    return *inputFile;
   }
 
   JobReport::OutputFile& JobReport::JobReportImpl::getOutputFileForToken(JobReport::Token t) {
@@ -224,7 +230,7 @@ namespace edm {
 
       *ost_ << "\n<Inputs>";
       for(auto token : f.contributingInputs) {
-        JobReport::InputFile inpFile = inputFiles_[token];
+        JobReport::InputFile inpFile = inputFiles_.at(token);
         *ost_ << "\n<Input>";
         *ost_ << "\n  <LFN>" << TiXmlText(inpFile.logicalFileName) << "</LFN>";
         *ost_ << "\n  <PFN>" << TiXmlText(inpFile.physicalFileName) << "</PFN>";
@@ -232,7 +238,7 @@ namespace edm {
         *ost_ << "\n</Input>";
       }
       for(auto token : f.contributingInputsSecSource) {
-        JobReport::InputFile inpFile = inputFilesSecSource_[token];
+        JobReport::InputFile inpFile = inputFilesSecSource_.at(token);
         *ost_ << "\n<Input>";
         *ost_ << "\n  <LFN>" << TiXmlText(inpFile.logicalFileName) << "</LFN>";
         *ost_ << "\n  <PFN>" << TiXmlText(inpFile.physicalFileName) << "</PFN>";
@@ -394,33 +400,38 @@ namespace edm {
                              std::vector<std::string> const& branchNames) {
 
     InputType theInputType = InputType::Primary;
-    std::vector<InputFile>* theInputFiles = &impl_->inputFiles_;
-    if (inputType == "secondaryFiles") {
-      theInputType = InputType::SecondaryFile;
-    } else if (inputType == "mixingFiles") {
+    InputFile* newFile = nullptr;
+    JobReport::Token newToken = 0;
+
+    if (inputType == "mixingFiles") {
       theInputType = InputType::SecondarySource;
-      theInputFiles = &impl_->inputFilesSecSource_;
+      impl_->inputFilesSecSource_.push_back(InputFile());
+      newFile = &impl_->inputFilesSecSource_.back();
+      newToken = impl_->inputFilesSecSource_.size() - 1;
+    } else {
+      if (inputType == "secondaryFiles") {
+        theInputType = InputType::SecondaryFile;
+      }
+      impl_->inputFiles_.emplace_back();
+      newFile = &impl_->inputFiles_.back();
+      newToken = impl_->inputFiles_.size() - 1;
     }
     
-    theInputFiles->emplace_back();
-    JobReport::InputFile& r = theInputFiles->back();
     if(theInputType == InputType::Primary) {
-      impl_->fastClonedBranches_ = &r.fastClonedBranches;
+      impl_->fastClonedBranches_ = &newFile->fastClonedBranches;
     }
-    r.logicalFileName      = logicalFileName;
-    r.physicalFileName     = physicalFileName;
-    r.catalog              = catalog;
-    r.inputType            = inputType;
-    r.inputSourceClassName = inputSourceClassName;
-    r.moduleLabel          = moduleLabel;
-    r.guid                 = guid;
-    r.numEventsRead        = 0;
-    r.branchNames          = branchNames;
-    r.fileHasBeenClosed    = false;
+    newFile->logicalFileName      = logicalFileName;
+    newFile->physicalFileName     = physicalFileName;
+    newFile->catalog              = catalog;
+    newFile->inputType            = inputType;
+    newFile->inputSourceClassName = inputSourceClassName;
+    newFile->moduleLabel          = moduleLabel;
+    newFile->guid                 = guid;
+    newFile->numEventsRead        = 0;
+    newFile->branchNames          = branchNames;
+    newFile->fileHasBeenClosed    = false;
 
-    JobReport::Token newToken = theInputFiles->size()-1;
-      //
-     // Add the new input file token to all output files
+    // Add the new input file token to all output files
     //  currently open.
     impl_->insertInputForOutputs(theInputType, newToken);
     return newToken;
@@ -445,8 +456,10 @@ namespace edm {
     if(inputType == InputType::Primary) {
       impl_->writeInputFile(f);
     } else {
-      std::lock_guard<std::mutex> lock(write_mutex);
-      impl_->writeInputFile(f);
+      {
+        std::lock_guard<std::mutex> lock(write_mutex);
+        impl_->writeInputFile(f);
+      }
     }
   }
 
@@ -482,7 +495,7 @@ namespace edm {
         r.contributingInputs.push_back(i);
       }
     }
-    for(std::vector<Token>::size_type i = 0, iEnd = impl_->inputFilesSecSource_.size(); i < iEnd; ++i) {
+    for(tbb::concurrent_vector<Token>::size_type i = 0, iEnd = impl_->inputFilesSecSource_.size(); i < iEnd; ++i) {
       if(!impl_->inputFilesSecSource_[i].fileHasBeenClosed) {
         r.contributingInputsSecSource.push_back(i);
       }
@@ -507,10 +520,12 @@ namespace edm {
   JobReport::reportSkippedEvent(unsigned int run, unsigned int event) {
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
-      std::lock_guard<std::mutex> lock(write_mutex);
-      msg << "<SkippedEvent Run=\"" << run << "\"";
-      msg << " Event=\"" << event << "\" />\n";
-      msg << std::flush;
+      {
+        std::lock_guard<std::mutex> lock(write_mutex);
+        msg << "<SkippedEvent Run=\"" << run << "\"";
+        msg << " Event=\"" << event << "\" />\n";
+        msg << std::flush;
+      }
     }
   }
 
@@ -544,18 +559,20 @@ namespace edm {
   JobReport::reportAnalysisFile(std::string const& fileName, std::map<std::string, std::string> const& fileData) {
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
-      std::lock_guard<std::mutex> lock(write_mutex);
-      msg << "<AnalysisFile>\n"
-          << "  <FileName>" << TiXmlText(fileName) << "</FileName>\n";
+      {
+        std::lock_guard<std::mutex> lock(write_mutex);
+        msg << "<AnalysisFile>\n"
+            << "  <FileName>" << TiXmlText(fileName) << "</FileName>\n";
 
-      typedef std::map<std::string, std::string>::const_iterator const_iterator;
-      for(const_iterator pos = fileData.begin(), posEnd = fileData.end(); pos != posEnd; ++pos) {
-        msg <<  "  <" << pos->first
-            <<  "  Value=\"" << pos->second  << "\" />"
-            <<  "\n";
+        typedef std::map<std::string, std::string>::const_iterator const_iterator;
+        for(const_iterator pos = fileData.begin(), posEnd = fileData.end(); pos != posEnd; ++pos) {
+          msg <<  "  <" << pos->first
+              <<  "  Value=\"" << pos->second  << "\" />"
+              <<  "\n";
+        }
+        msg << "</AnalysisFile>\n";
+        msg << std::flush;
       }
-      msg << "</AnalysisFile>\n";
-      msg << std::flush;
     }
   }
 
@@ -564,13 +581,15 @@ namespace edm {
                          std::string const& longDesc,
                          int const& exitCode) {
     if(impl_->ost_) {
-      std::lock_guard<std::mutex> lock(write_mutex);
-      std::ostream& msg = *(impl_->ost_);
-      msg << "<FrameworkError ExitStatus=\""<< exitCode
+      {
+        std::lock_guard<std::mutex> lock(write_mutex);
+        std::ostream& msg = *(impl_->ost_);
+        msg << "<FrameworkError ExitStatus=\""<< exitCode
             << "\" Type=\"" << shortDesc << "\" >\n";
-      msg << "<![CDATA[\n" << longDesc << "\n]]>\n";
-      msg << "</FrameworkError>\n";
-      msg << std::flush;
+        msg << "<![CDATA[\n" << longDesc << "\n]]>\n";
+        msg << "</FrameworkError>\n";
+        msg << std::flush;
+      }
     }
   }
 
@@ -582,9 +601,11 @@ namespace edm {
       TiXmlElement skipped("SkippedFile");
       skipped.SetAttribute("Pfn", pfn);
       skipped.SetAttribute("Lfn", lfn);
-      std::lock_guard<std::mutex> lock(write_mutex);
-      msg << skipped << "\n";
-      msg << std::flush;
+      {
+        std::lock_guard<std::mutex> lock(write_mutex);
+        msg << skipped << "\n";
+        msg << std::flush;
+      }
     }
   }
 
@@ -595,10 +616,12 @@ namespace edm {
       TiXmlElement fallback("FallbackAttempt");
       fallback.SetAttribute("Pfn", pfn);
       fallback.SetAttribute("Lfn", lfn);
-      std::lock_guard<std::mutex> lock(write_mutex);
-      msg << fallback << "\n";
-      msg << "<![CDATA[\n" << err << "\n]]>\n";
-      msg << std::flush;
+      {
+        std::lock_guard<std::mutex> lock(write_mutex);
+        msg << fallback << "\n";
+        msg << "<![CDATA[\n" << err << "\n]]>\n";
+        msg << std::flush;
+      }
     }
   }
 
@@ -658,7 +681,7 @@ namespace edm {
         for(auto const& iBranch : impl_->readBranchesSecSource_) {
           TiXmlElement branch("Branch");
           branch.SetAttribute("Name", iBranch.first);
-          branch.SetAttribute("ReadCount", iBranch.second);
+          branch.SetAttribute("ReadCount", iBranch.second.value().load());
           ost << branch << "\n";
         }
         ost << "</SecondarySourceReadBranches>\n";
@@ -677,7 +700,7 @@ namespace edm {
     } else if (inputType == InputType::SecondaryFile) {
       ++impl_->readBranchesSecFile_[branchName];
     } else if (inputType == InputType::SecondarySource) {
-      ++impl_->readBranchesSecSource_[branchName];
+      ++impl_->readBranchesSecSource_[branchName].value();
     }
   }
 
@@ -694,11 +717,13 @@ namespace edm {
   void JobReport::reportRandomStateFile(std::string const& name) {
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
-      std::lock_guard<std::mutex> lock(write_mutex);
-      msg << "<RandomServiceStateFile>\n"
-        << TiXmlText(name) << "\n"
-        <<  "</RandomServiceStateFile>\n";
-      msg << std::flush;
+      {
+        std::lock_guard<std::mutex> lock(write_mutex);
+        msg << "<RandomServiceStateFile>\n"
+            << TiXmlText(name) << "\n"
+            <<  "</RandomServiceStateFile>\n";
+        msg << std::flush;
+      }
     }
   }
 
