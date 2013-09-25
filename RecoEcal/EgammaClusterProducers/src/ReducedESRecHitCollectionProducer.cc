@@ -107,6 +107,15 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
   for( unsigned int t = 0; t < interestingDetIdCollections_.size(); ++t )
     {
       e.getByToken(interestingDetIdCollections_[t],detId);    
+      if(!detId.isValid())
+      {
+          Labels labels;
+          labelsForToken(interestingDetIdCollections_[t], labels);
+          edm::LogError("MissingInput")<<"no reason to skip detid from : (" << labels.module << ", "
+                                                                            << labels.productInstance << ", "
+                                                                            << labels.process << ")" << std::endl;
+          continue;
+      }
       collectedIds_.insert(detId->begin(),detId->end());
     }
 
