@@ -131,7 +131,8 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	Object				gotObject;
 	Object				mode;
 	DOMDocument			*xmlHeader;
-	std::vector<DOMElement*>	xmlNodes;
+        DOMDocument			*xmlEvent;
+        std::vector<DOMElement*>	xmlNodes,xmlEventNodes;
 	bool				headerOk;
 	std::vector<LHERunInfo::Header>	headers;
 };
@@ -168,110 +169,180 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
                                          const XMLCh *const qname,
                                          const Attributes &attributes)
 {
-	std::string name((const char*)XMLSimpleStr(qname));
+  std::string name((const char*)XMLSimpleStr(qname));
+  std::cout << name << std::endl;
 
-	if (!headerOk) {
-		if (name != "LesHouchesEvents")
-			throw cms::Exception("InvalidFormat")
-				<< "LHE file has invalid header" << std::endl;
-		headerOk = true;
-		return;
-	}
-
-	if (mode == kHeader) {
-		DOMElement *elem = xmlHeader->createElement(qname);
-		attributesToDom(elem, attributes);
-		xmlNodes.back()->appendChild(elem);
-		xmlNodes.push_back(elem);
-		return;
-	} else if (mode != kNone)
-		throw cms::Exception("InvalidFormat")
-			<< "LHE file has invalid format" << std::endl;
-
-	if (name == "header") {
-		if (!impl)
-			impl = DOMImplementationRegistry::getDOMImplementation(
-							XMLUniStr("Core"));
-		xmlHeader = impl->createDocument(0, qname, 0);
-		xmlNodes.resize(1);
-		xmlNodes[0] = xmlHeader->getDocumentElement();
-		mode = kHeader;
-	} if (name == "init")
-		mode = kInit;
-	else if (name == "event")
-		mode = kEvent;
-
-	if (mode == kNone)
-		throw cms::Exception("InvalidFormat")
-			<< "LHE file has invalid format" << std::endl;
-
-	buffer.clear();
+  if (!headerOk) {
+    if (name != "LesHouchesEvents")
+      throw cms::Exception("InvalidFormat")
+	<< "LHE file has invalid header" << std::endl;
+    headerOk = true;
+    return;
+  }
+  
+  if (mode == kHeader) {	  
+    DOMElement *elem = xmlHeader->createElement(qname);
+    attributesToDom(elem, attributes);
+    xmlNodes.back()->appendChild(elem);
+    std::cout << "Got header tag: " 
+	      << (const char*)XMLSimpleStr(elem->getTagName()) 
+	      << std::endl;
+    xmlNodes.push_back(elem);
+    return;
+  } else if ( mode == kEvent ) {
+    DOMElement *elem = xmlEvent->createElement(qname);    
+    attributesToDom(elem, attributes);
+    xmlEventNodes.back()->appendChild(elem);
+    std::cout << "Got event tag: " 
+	      << (const char*)XMLSimpleStr(elem->getTagName()) 
+	      << std::endl;
+    xmlEventNodes.push_back(elem);
+    return;
+  } else if (mode != kNone) {
+    throw cms::Exception("InvalidFormat")
+      << "LHE file has invalid format" << std::endl;
+  }
+  
+  if (name == "header") {
+    if (!impl)
+      impl = DOMImplementationRegistry::getDOMImplementation(
+							  XMLUniStr("Core"));
+    xmlHeader = impl->createDocument(0, qname, 0);
+    xmlNodes.resize(1);
+    xmlNodes[0] = xmlHeader->getDocumentElement();
+    mode = kHeader;
+  } if (name == "init")
+      mode = kInit;
+  else if (name == "event") {
+    if (!impl)
+      impl = DOMImplementationRegistry::getDOMImplementation(
+							  XMLUniStr("Core"));
+    xmlEvent = impl->createDocument(0, qname, 0);
+    xmlEventNodes.clear();
+    xmlEventNodes.resize(1);
+    xmlEventNodes[0] = xmlEvent->getDocumentElement();
+    mode = kEvent;
+  }
+  
+  if (mode == kNone)
+    throw cms::Exception("InvalidFormat")
+      << "LHE file has invalid format" << std::endl;
+  
+  buffer.clear();
 }
 
 void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
                                        const XMLCh *const localname,
                                        const XMLCh *const qname)
 {
-	if (mode) {
-		if (mode == kHeader && xmlNodes.size() > 1) {
-			xmlNodes.resize(xmlNodes.size() - 1);
-			return;
-		} else if (mode == kHeader) {
-			std::auto_ptr<DOMWriter> writer(
-				static_cast<DOMImplementationLS*>(
+  if (mode) {
+    if (mode == kHeader && xmlNodes.size() > 1) {
+      xmlNodes.resize(xmlNodes.size() - 1);
+      return;
+    } else if (mode == kHeader) {
+      std::auto_ptr<DOMWriter> writer(
+				      static_cast<DOMImplementationLS*>(
                                                 impl)->createDOMWriter());
-			writer->setEncoding(XMLUniStr("UTF-8"));
-
-			for(DOMNode *node = xmlNodes[0]->getFirstChild();
-			    node; node = node->getNextSibling()) {
-				XMLSimpleStr buffer(
-					writer->writeToString(*node));
-
-				std::string type;
-				const char *p, *q;
-				DOMElement *elem;
-
-				switch(node->getNodeType()) {
-				    case DOMNode::ELEMENT_NODE:
-					elem = static_cast<DOMElement*>(node);
-					type = (const char*)XMLSimpleStr(
-							elem->getTagName());
-					p = std::strchr((const char*)buffer,
-					                '>') + 1;
-					q = std::strrchr(p, '<');
-				    	break;
-				    case DOMNode::COMMENT_NODE:
-					type = "";
-					p = buffer + 4;
-					q = buffer + strlen(buffer) - 3;
-					break;
-				    default:
-					type = "<>";
-					p = buffer +
-					    std::strspn(buffer, " \t\r\n");
-					if (!*p)
-						continue;
-					q = p + strlen(p);
-				}
-
-				LHERunInfo::Header header(type);
-				fillHeader(header, p, q - p);
-				headers.push_back(header);
-			}
-
-			xmlHeader->release();
-			xmlHeader = 0;
-		}
-
-		if (gotObject != kNone)
-			throw cms::Exception("InvalidState")
-				<< "Unexpected pileup in"
-				    " LHEReader::XMLHandler::endElement"
-				<< std::endl;
-
-		gotObject = mode;
-		mode = kNone;
+      writer->setEncoding(XMLUniStr("UTF-8"));
+      
+      for(DOMNode *node = xmlNodes[0]->getFirstChild();
+	  node; node = node->getNextSibling()) {
+	XMLSimpleStr buffer(writer->writeToString(*node));
+	
+	std::string type;
+	const char *p, *q;
+	DOMElement *elem;
+	
+	switch(node->getNodeType()) {
+	case DOMNode::ELEMENT_NODE:
+	  elem = static_cast<DOMElement*>(node);
+	  type = (const char*)XMLSimpleStr(
+					   elem->getTagName());
+	  p = std::strchr((const char*)buffer,
+			  '>') + 1;
+	  q = std::strrchr(p, '<');
+	  break;
+	case DOMNode::COMMENT_NODE:
+	  type = "";
+	  p = buffer + 4;
+	  q = buffer + strlen(buffer) - 3;
+	  break;
+	default:
+	  type = "<>";
+	  p = buffer +
+	    std::strspn(buffer, " \t\r\n");
+	  if (!*p)
+	    continue;
+	  q = p + strlen(p);
 	}
+	
+	LHERunInfo::Header header(type);
+	fillHeader(header, p, q - p);
+	headers.push_back(header);
+      }
+      
+      xmlHeader->release();
+      xmlHeader = 0;
+    }
+    
+    if (mode == kEvent && xmlEventNodes.size() > 1) {
+      xmlEventNodes.resize(xmlEventNodes.size() - 1);
+      return;
+    } else if (mode == kEvent) {
+      std::auto_ptr<DOMWriter> writer(
+				      static_cast<DOMImplementationLS*>(
+                                                impl)->createDOMWriter());
+      writer->setEncoding(XMLUniStr("UTF-8"));
+      
+      for(DOMNode *node = xmlEventNodes[0]->getFirstChild();
+	  node; node = node->getNextSibling()) {
+	XMLSimpleStr buffer(writer->writeToString(*node));
+	
+	std::string type;
+	const char *p, *q;
+	DOMElement *elem;
+	
+	switch(node->getNodeType()) {
+	case DOMNode::ELEMENT_NODE:
+	  elem = static_cast<DOMElement*>(node);
+	  type = (const char*)XMLSimpleStr(
+					   elem->getTagName());
+	  p = std::strchr((const char*)buffer,
+			  '>') + 1;
+	  q = std::strrchr(p, '<');
+	  break;
+	case DOMNode::COMMENT_NODE:
+	  type = "";
+	  p = buffer + 4;
+	  q = buffer + strlen(buffer) - 3;
+	  break;
+	default:
+	  type = "<>";
+	  p = buffer +
+	    std::strspn(buffer, " \t\r\n");
+	  if (!*p)
+	    continue;
+	  q = p + strlen(p);
+	}
+	
+	//LHERunInfo::Header header(type);
+	//fillHeader(header, p, q - p);
+	//headers.push_back(header);
+      }
+      
+      xmlHeader->release();
+      xmlHeader = 0;
+    }
+
+    if (gotObject != kNone)
+      throw cms::Exception("InvalidState")
+	<< "Unexpected pileup in"
+	" LHEReader::XMLHandler::endElement"
+	<< std::endl;
+    
+    gotObject = mode;
+    mode = kNone;
+  }
 }
 
 void LHEReader::XMLHandler::characters(const XMLCh *const data_,
@@ -410,6 +481,8 @@ LHEReader::~LHEReader()
         else if (maxEvents > 0)
           maxEvents--;
         
+	std::cout << "dumping event data" << std::endl;
+	std::cout << data.str() << std::endl;
         return boost::shared_ptr<LHEEvent>(
                                            new LHEEvent(curRunInfo, data));
       }
