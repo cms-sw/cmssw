@@ -4,7 +4,6 @@
 
 #include "Calibration/HcalAlCaRecoProducers/src/ProducerAnalyzer.h"
 #include "FWCore/Common/interface/Provenance.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h" 
@@ -48,6 +47,7 @@ ProducerAnalyzer::ProducerAnalyzer(const edm::ParameterSet& iConfig)
 
    tok_jets_ = consumes<reco::CaloJetCollection>( edm::InputTag(nameProd_,jetCalo_) );
    tok_gamma_ = consumes<reco::SuperClusterCollection>( edm::InputTag(nameProd_,gammaClus_) );
+   tok_muons_ = consumes<reco::MuonCollection>(edm::InputTag(nameProd_,"SelectedMuons"));
    tok_ecal_ = consumes<EcalRecHitCollection>( edm::InputTag(nameProd_,ecalInput_) );
    tok_tracks_ = consumes<reco::TrackCollection>( edm::InputTag(nameProd_,Tracks_) );
 
@@ -116,7 +116,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    const HORecHitCollection Hitho = *(ho.product());
    std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
    edm::Handle<MuonCollection> mucand;
-   iEvent.getByLabel(nameProd_,"SelectedMuons", mucand);
+   iEvent.getByToken(tok_muons_, mucand);
    std::cout<<" Size of muon collection "<<mucand->size()<<std::endl;
    for(MuonCollection::const_iterator it =  mucand->begin(); it != mucand->end(); it++)
    {

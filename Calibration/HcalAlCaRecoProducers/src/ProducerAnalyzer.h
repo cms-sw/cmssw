@@ -24,6 +24,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 
 namespace edm {
@@ -68,6 +69,7 @@ class ProducerAnalyzer : public edm::EDAnalyzer {
 
   edm::EDGetTokenT<reco::CaloJetCollection> tok_jets_;
   edm::EDGetTokenT<reco::SuperClusterCollection> tok_gamma_;
+  edm::EDGetTokenT<reco::MuonCollection> tok_muons_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_ecal_;
   edm::EDGetTokenT<reco::TrackCollection> tok_tracks_;
 

@@ -16,12 +16,15 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 //#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
 
@@ -42,11 +45,11 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
   std::vector<edm::InputTag> pixelTracksSources_;
   edm::ParameterSet parameters;
 
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_l1jet_;
-  edm::EDGetTokenT<reco::VertexCollection> tok_vtx_;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_trigObj_;
-  std::vector<edm::EDGetTokenT<reco::TrackCollection> > toks_track_;
-  
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_hlt_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_l1_;
+  edm::EDGetTokenT<reco::VertexCollection> tok_vert_;
+
+  std::vector<edm::EDGetTokenT<reco::TrackRef> > toks_pix_;
 
   double prelimCone_;
   double pixelIsolationConeSizeAtEC_;
