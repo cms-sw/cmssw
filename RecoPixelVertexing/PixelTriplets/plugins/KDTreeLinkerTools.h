@@ -1,7 +1,6 @@
 #ifndef KDTreeLinkerToolsTemplated_h
 #define KDTreeLinkerToolsTemplated_h
 
-#include <assert.h>
 #include <algorithm>
 
 // Box structure used to define 2D field.
@@ -75,9 +74,6 @@ struct KDTreeNodes {
 
   int getNextNode() {
     ++poolPos;
-    // The tree size is exactly 2 * nbrElts - 1 and this is the total allocated memory.
-    // If we have used more than that....there is a big problem.
-    //assert(poolPos < poolSize);
     return poolPos;
   }
 

@@ -94,9 +94,6 @@ KDTreeLinkerAlgo<DATA>::medianSearch(int	low,
 				     int	high,
 				     int	treeDepth)
 {
-  //We should have at least 1 element to calculate the median...
-  //assert(low < high);
-
   int nbrElts = high - low;
   int median = (nbrElts & 1)	? nbrElts / 2 
 				: nbrElts / 2 - 1;
@@ -155,14 +152,6 @@ KDTreeLinkerAlgo<DATA>::recSearch(int	current,
                                   float dimCurrMin, float dimCurrMax,
                                   float dimOtherMin, float dimOtherMax)
 {
-  /*
-  // By construction, current can't be null
-  assert(current >= 0);
-
-  // By Construction, a node can't have just 1 son.
-  assert (!(((nodePool_.left[current] < 0) && (nodePool_.right[current] >= 0)) ||
-            ((nodePool_.left[current] >= 0) && (nodePool_.right[current] < 0))));
-  */
   // Iterate until leaf is found, or there are no children in the
   // search window. If search has to proceed on both children, proceed
   // the search to left child via recursion. Swap search window
@@ -248,9 +237,6 @@ KDTreeLinkerAlgo<DATA>::recBuild(int					low,
 {
   int portionSize = high - low;
   int dimIndex = depth&1;
-
-  // By construction, portionSize > 0 can't happend.
-  // assert(portionSize > 0);
 
   if (portionSize == 1) { // Leaf case
     int leaf = nodePool_.getNextNode();
