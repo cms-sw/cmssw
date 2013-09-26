@@ -86,7 +86,7 @@ namespace edm {
 
     void addAliasedProduct(boost::shared_ptr<BranchDescription const> bd);
 
-    void fillPrincipal(ProcessHistoryID const& hist, ProcessHistoryRegistry& phr, DelayedReader* reader);
+    void fillPrincipal(ProcessHistoryID const& hist, ProcessHistoryRegistry const& phr, DelayedReader* reader);
 
     void clearPrincipal();
 
@@ -235,9 +235,7 @@ namespace edm {
 
     virtual bool isComplete_() const {return true;}
 
-    ProcessHistoryRegistry* processHistoryRegistry_; 
-
-    ProcessHistory const* processHistoryPtr_;
+    boost::shared_ptr<ProcessHistory const> processHistoryPtr_;
 
     ProcessHistoryID processHistoryID_;
 
@@ -268,7 +266,6 @@ namespace edm {
     // The Principal does not own this object.
     HistoryAppender* historyAppender_;
 
-    static const ProcessHistory emptyProcessHistory_;
   };
 
   template <typename PROD>
