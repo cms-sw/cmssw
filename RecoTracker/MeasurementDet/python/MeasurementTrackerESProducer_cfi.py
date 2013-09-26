@@ -29,8 +29,6 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     DebugPixelModuleQualityDB = cms.untracked.bool(False), ## dump out info om module status
     UsePixelROCQualityDB      = cms.bool(True),            ## Use DB info at the ROC level
     DebugPixelROCQualityDB    = cms.untracked.bool(False), ## dump out info om module status
-
-    switchOffPixelsIfEmpty = cms.bool(True), # let's keep it like this, for cosmics                                    
 )
 
 
