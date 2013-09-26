@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 measurementTrackerSiStripRefGetterProducer = cms.EDProducer("MeasurementTrackerSiStripRefGetterProducer",
     InputModuleLabel = cms.InputTag("SiStripRawToClustersFacility"),
-    measurementTracker = cms.string('MeasurementTrackerOnDemand')
+    measurementTracker = cms.string('MeasurementTrackerOnDemand'),
 
     pixelClusterProducer = cms.string('siPixelClusters'),
     stripClusterProducer = cms.string('measurementTrackerSiStripRefGetterProducer'),
