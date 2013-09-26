@@ -3,10 +3,20 @@
 
 /** \class DTSegment4DQuality
  *  Basic analyzer class which accesses 4D DTSegments
- *  and plot resolution comparing reconstructed and simulated quantities
+ *  and plots resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2010/09/13 09:49:18 $
- *  $Revision: 1.7 $
+ *  Only true 4D segments are considered.  
+ *  Station 4 segments are not looked at.
+ *  FIXME: Add flag to consider also
+ *  segments with only phi view? Possible bias?
+ * 
+ *  Residual/pull plots are filled for the reco segment with alpha closest
+ *  to the simulated muon direction (defined from muon simhits in the chamber).
+ *  
+ *  Efficiencies are defined as reconstructed 4D segments with alpha, beta, x, y,
+ *  within 5 sigma relative to the sim muon, with sigmas specified in the config.
+ *  Note that loss of even only one of the two views is considered as inefficiency!
+ *
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -28,6 +38,7 @@ namespace edm {
 }
 
 class TFile;
+class MonitorElement;
 
 class DTSegment4DQuality : public edm::EDAnalyzer {
 public:
@@ -70,11 +81,17 @@ private:
   HRes4DHit *h4DHit_W0;
   HRes4DHit *h4DHit_W1;
   HRes4DHit *h4DHit_W2;
+  HRes4DHit *h4DHitWS[3][4];
 
   HEff4DHit *hEff_All;
   HEff4DHit *hEff_W0;
   HEff4DHit *hEff_W1;
   HEff4DHit *hEff_W2;
+  HEff4DHit *hEffWS[3][4];
+
+  MonitorElement* hHitMult[3][4];
+  MonitorElement* ht0[3][4];
+
   DQMStore* dbe_;
   bool doall;
   bool local;

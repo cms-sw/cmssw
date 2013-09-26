@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/04 17:22:32 $
- *  $Revision: 1.9 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -88,6 +86,22 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
     hEff_W1= new HEff4DHit ("W1",dbe_);
     hEff_W2= new HEff4DHit ("W2",dbe_);
   }
+
+  if (local) {
+    // Plots with finer granularity, not to be included in DQM
+    TString name="W";
+    for (long w=0;w<=2;++w) {
+      for (long s=1;s<=4;++s){
+	// FIXME station 4 is not filled
+	TString nameWS=(name+w+"_St"+s);
+	h4DHitWS[w][s-1] = new HRes4DHit(nameWS.Data(),dbe_,doall,local);
+	hEffWS[w][s-1]   = new HEff4DHit (nameWS.Data(),dbe_);
+	dbe_->setCurrentFolder("DT/4DSegments/");
+	hHitMult[w][s-1] = dbe_->book2D("4D_" +nameWS+ "_hNHits", "NHits",12,0,12, 6,0,6);
+	ht0[w][s-1] = dbe_->book2D("4D_" +nameWS+ "_ht0", "t0",200,-25,25,200,-25,25);
+      }
+    }
+  }
 }
 
 // Destructor
@@ -163,7 +177,7 @@ void DTSegment4DQuality::endJob() {
          ++chamberId){
 
       if((*chamberId).station() == 4)
-        continue; //use DTSegment2DQuality to analyze MB4 performaces
+        continue; //use DTSegment2DSLPhiQuality to analyze MB4 performaces
 
       //------------------------- simHits ---------------------------//
       //Get simHits of each chamber
@@ -233,6 +247,32 @@ void DTSegment4DQuality::endJob() {
         for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
              segment4D!=range.second;
              ++segment4D){
+
+	  if (local) {
+	    const DTChamberRecSegment2D*  phiSeg = (*segment4D).phiSegment();
+	    const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();
+
+	    float t0phi = -999;
+	    float t0z   = -999;
+	    int nHitPhi=0;
+	    int nHitZ=0;
+	    if (phiSeg) {
+	      t0phi = phiSeg->t0();
+	      nHitPhi = phiSeg->recHits().size();
+	    }
+	  
+	    if (zSeg) {  
+	      t0z = zSeg->t0();
+	      nHitZ   = zSeg->recHits().size();
+	    }
+	  
+	    hHitMult[abs((*chamberId).wheel())][(*chamberId).station()-1]->Fill(nHitPhi,nHitZ);
+	    ht0[abs((*chamberId).wheel())][(*chamberId).station()-1]->Fill(t0phi,t0z);
+
+	    // Uncomment to skip segments w/o t0 computed
+	    //	  if (!(t0phi>-998&&t0z>-998)) continue
+	  }
+
           // Check the dimension
           if((*segment4D).dimension() != 4) {
             if(debug)cout << "[DTSegment4DQuality]***Error: This is not 4D segment!!!" << endl;
@@ -359,7 +399,32 @@ void DTSegment4DQuality::endJob() {
                        sqrt(bestRecHitLocalDirErrRZ.xx()),
                        sqrt(bestRecHitLocalPosErrRZ.xx())
                       );
-        }
+
+	  if (local) h4DHitWS[abs((*chamberId).wheel())][(*chamberId).station()-1]->Fill(alphaSimSeg,
+			   alphaBestRHit,
+			   betaSimSeg,
+			   betaBestRHit,
+			   xSimSeg, 
+			   bestRecHitLocalPos.x(),
+			   ySimSeg,
+			   bestRecHitLocalPos.y(),
+			   etaSimSeg, 
+			   phiSimSeg,
+			   bestRecHitLocalPosRZ.x(),
+			   simSegLocalPosRZ.x(),
+			   alphaBestRHitRZ,
+			   alphaSimSegRZ,
+			   sqrt(bestRecHitLocalDirErr.xx()),
+			   sqrt(bestRecHitLocalDirErr.yy()),
+			   sqrt(bestRecHitLocalPosErr.xx()),
+			   sqrt(bestRecHitLocalPosErr.yy()),
+			   sqrt(bestRecHitLocalDirErrRZ.xx()),
+			   sqrt(bestRecHitLocalPosErrRZ.xx())
+			   );
+
+
+        } //end of if(bestRecHitFound)
+
       } //end of if(nsegm!=0)
 
       // Fill Efficiency plot
@@ -374,6 +439,8 @@ void DTSegment4DQuality::endJob() {
 	  heff = hEff_W2;
 	heff->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
 	hEff_All->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
+	if (local) hEffWS[abs((*chamberId).wheel())][(*chamberId).station()-1]->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
+
       }
     } // End of loop over chambers
   }
