@@ -73,6 +73,15 @@ ReducedRecHitCollectionProducer::produce (edm::Event& iEvent,
      {
        Handle< DetIdCollection > detId;
        iEvent.getByToken(interestingDetIdCollections_[t],detId);
+       if(!detId.isValid())
+       {
+           Labels labels;
+           labelsForToken(interestingDetIdCollections_[t], labels);
+           edm::LogError("MissingInput")<<"no reason to skip detid from : (" << labels.module << ", "
+                                                                             << labels.productInstance << ", "
+                                                                             << labels.process << ")" << std::endl;
+           continue;
+       }
      
        
        for (unsigned int ii=0;ii<(*detId).size();ii++)
