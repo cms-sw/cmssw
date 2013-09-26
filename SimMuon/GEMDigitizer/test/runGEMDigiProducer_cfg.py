@@ -77,7 +77,7 @@ process.source = cms.Source("PoolSource",
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(
-        'file:out_digi.test.root'
+        'file:out_digi.root'
     ),
     outputCommands = cms.untracked.vstring(
         'keep  *_*_*_*',
