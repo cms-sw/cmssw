@@ -23,12 +23,12 @@ echo geometry = ${geometry}
 set condlabel = `(echo $geometry | sed '{s/Geometry//g}')`
 echo ${condlabel} " geometry label from db"
 echo "Check out and compile the needed packages"
-addpkg DetectorDescription/Schema
-addpkg GeometryReaders/XMLIdealGeometryESSource  
-addpkg Geometry/CaloEventSetup
+git cms-addpkg DetectorDescription/Schema
+git cms-addpkg GeometryReaders/XMLIdealGeometryESSource  
+git cms-addpkg Geometry/CaloEventSetup
 
 if ($loctag != '') then 
-    addpkg Configuration/StandardSequences
+    git cms-addpkg Configuration/StandardSequences
     cd Configuration/StandardSequences/python
     set escloctag = `(echo $loctag | sed '{s/\//\\\//g}')`
     sed -i "{s/frontier:\/\/FrontierProd\/CMS_COND_31X_GLOBALTAG/${escloctag}/g}" FrontierConditions_GlobalTag_cfi.py 
