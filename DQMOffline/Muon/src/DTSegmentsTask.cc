@@ -32,6 +32,7 @@ DTSegmentsTask::DTSegmentsTask(const edm::ParameterSet& pset) {
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
   theDbe->setVerbose(1);
+  theDbe->setCurrentFolder("Muons/DTSegmentsMonitor");
   
   parameters = pset;
   
@@ -45,7 +46,6 @@ DTSegmentsTask::~DTSegmentsTask(){
 
 
 void DTSegmentsTask::beginJob(void){
-  theDbe->setCurrentFolder("Muons/DTSegmentsMonitor");
 }
 
 void DTSegmentsTask::beginRun(const edm::Run& irun, const edm::EventSetup& isetup){

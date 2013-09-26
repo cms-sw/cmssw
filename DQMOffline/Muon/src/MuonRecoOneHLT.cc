@@ -15,6 +15,9 @@ MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet) { //, MuonServiceP
 
   // the services
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
+  
+  dbe = edm::Service<DQMStore>().operator->();
+  dbe->setCurrentFolder("Muons/MuonRecoOneHLT");
 
   ParameterSet muonparms   = parameters.getParameter<edm::ParameterSet>("SingleMuonTrigger");
   ParameterSet dimuonparms = parameters.getParameter<edm::ParameterSet>("DoubleMuonTrigger");
@@ -36,15 +39,14 @@ MuonRecoOneHLT::~MuonRecoOneHLT() {
   delete _SingleMuonEventFlag;
   delete _DoubleMuonEventFlag;
 }
-void MuonRecoOneHLT::beginJob(DQMStore * dbe) {
+void MuonRecoOneHLT::beginJob() {
 #ifdef DEBUG
   cout << "[MuonRecoOneHLT]  beginJob " << endl;
 #endif
-  dbe->setCurrentFolder("Muons/MuonRecoOneHLT");
   
   }
 
-void MuonRecoOneHLT::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup){
+void MuonRecoOneHLT::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
 #ifdef DEBUG
   cout << "[MuonRecoOneHLT]  beginRun " << endl;
   cout << "[MuonRecoOneHLT]  Is MuonEventFlag On? "<< _SingleMuonEventFlag->on() << endl;

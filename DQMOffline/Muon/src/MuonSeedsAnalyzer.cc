@@ -38,6 +38,9 @@ MuonSeedsAnalyzer::MuonSeedsAnalyzer(const edm::ParameterSet& pSet) {
   parameters = pSet;
 
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
+  theDbe = edm::Service<DQMStore>().operator->();
+  theDbe->setCurrentFolder("Muons/MuonSeedsAnalyzer");
+
 
   theSeedsCollectionLabel_ = consumes<TrajectorySeedCollection>(parameters.getParameter<InputTag>("SeedCollection"));
 }
@@ -52,8 +55,6 @@ void MuonSeedsAnalyzer::beginJob(){
   metname = "seedsAnalyzer";
   LogTrace(metname)<<"[MuonSeedsAnalyzer] Parameters initialization";
   
-  theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("Muons/MuonSeedsAnalyzer");
 }
 
 void MuonSeedsAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){

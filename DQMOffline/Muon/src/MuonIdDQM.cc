@@ -12,12 +12,12 @@ MuonIdDQM::MuonIdDQM(const edm::ParameterSet& iConfig){
   
   dbe_ = 0;
   dbe_ = edm::Service<DQMStore>().operator->();
+  dbe_->setCurrentFolder(baseFolder_);
 }
 
 MuonIdDQM::~MuonIdDQM() {}
 
 void MuonIdDQM::beginJob() {
-  dbe_->setCurrentFolder(baseFolder_);
 }
 
 void MuonIdDQM::beginRun(const edm::Run& irun, const edm::EventSetup& isetup){

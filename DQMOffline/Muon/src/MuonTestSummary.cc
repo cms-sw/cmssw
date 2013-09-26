@@ -28,6 +28,7 @@ using namespace std;
 MuonTestSummary::MuonTestSummary(const edm::ParameterSet& ps){
 
   dbe = Service<DQMStore>().operator->();
+  dbe->setCurrentFolder("Muons/TestSummary"); 
 
   // parameter initialization for kinematics test
   etaExpected = ps.getParameter<double>("etaExpected");
@@ -77,7 +78,6 @@ void MuonTestSummary::beginJob(void){
   LogTrace(metname)<<"[MuonTestSummary] beginJob: Histo booking";
 
   // book the summary histos
-  dbe->setCurrentFolder("Muons/TestSummary"); 
 }
 void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
 

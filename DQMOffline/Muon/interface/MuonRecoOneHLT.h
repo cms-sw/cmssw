@@ -54,8 +54,8 @@ class MuonRecoOneHLT : public edm::EDAnalyzer { //MuonAnalyzerBase {
   ~MuonRecoOneHLT();
 
   /// Inizialize parameters for histo binning
-  void beginJob(DQMStore *dbe);
-  void beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void beginJob();
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   
   /// Get the analysis
   //  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon&, const edm::TriggerResults&);
@@ -64,7 +64,7 @@ class MuonRecoOneHLT : public edm::EDAnalyzer { //MuonAnalyzerBase {
 
  private:
   // ----------member data ---------------------------
-  DQMStore* theDbe;
+  DQMStore* dbe;
   edm::ParameterSet parameters;
   MuonServiceProxy *theService;
 

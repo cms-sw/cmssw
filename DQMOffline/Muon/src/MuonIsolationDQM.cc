@@ -51,6 +51,9 @@ using namespace std;
 //
 //-----------------Constructors---------------------
 //
+
+#define DEBUG
+
 MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
 #ifdef DEBUG
   cout << " Initialise Constructor " << endl;
@@ -75,6 +78,8 @@ MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
   //Set up DAQ
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
+  dbe->setCurrentFolder(dirName.c_str());
+  dbe->cd();
   
   //------"allocate" space for the data vectors-------
   
@@ -520,13 +525,23 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   
   ++nEvents;
   edm::LogInfo("Tutorial") << "\nInvestigating event #" << nEvents<<"\n";
-  
+#ifdef DEBUG
+  cout << "[MuonIsolationDQM]: analyze()"<<endl;
+#endif
+
   // Get Muon Collection 
   edm::Handle<reco::MuonCollection> muons;
   iEvent.getByToken(theMuonCollectionLabel_,muons);
 
+#ifdef DEBUG
+  cout << "[MuonIsolationDQM]: Number of muons -> " << muons->size() << endl;
+#endif
+  
   int theMuonData = muons->size();
   h_nMuons->Fill(theMuonData);
+#ifdef DEBUG
+  cout << "[MuonIsolationDQM]: Vertex is Valid" << endl;
+#endif
   
   //Get Vertex Information
   int _numPV = 0;
@@ -543,10 +558,14 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
   }
 
+#ifdef DEBUG
+  cout << "[MuonIsolationDQM]: Vertex is Valid" << endl;
+#endif
+  // Get Muon Collection 
+
   //Fill historgams concerning muon isolation 
   dbe->setCurrentFolder(dirName.c_str());
   for (reco::MuonCollection::const_iterator muon = muons->begin(); muon!=muons->end(); ++muon){
-    //    ++nMuons;
     if (requireSTAMuon && muon->isStandAloneMuon()) {
       ++nSTAMuons;
       RecordData(*muon);
@@ -670,6 +689,9 @@ void MuonIsolationDQM::beginJob(void) {
   edm::LogInfo("Tutorial") << "\n#########################################\n\n"
 			   << "Lets get started! " 
 			   << "\n\n#########################################\n";
+#ifdef DEBUG
+  cout << "[MuonIsolationDQM]: beginJob" << endl;
+#endif
   dbe->setCurrentFolder(dirName.c_str());
   InitHistos();
   dbe->cd();
@@ -677,7 +699,10 @@ void MuonIsolationDQM::beginJob(void) {
 
 // ------------ method called once each run just before starting the event loop ----------
 void MuonIsolationDQM::beginRun(void) {
-  
+#ifdef DEBUG
+  cout << "[MuonIsolationDQM]: beginRun" << endl;
+#endif
+  //  InitHistos();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

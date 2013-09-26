@@ -29,6 +29,8 @@ SegmentTrackAnalyzer::SegmentTrackAnalyzer(const edm::ParameterSet& pSet) {
   
   // MuonService
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
+  theDbe = edm::Service<DQMStore>().operator->();
+  theDbe->setCurrentFolder("Muons/SegmentTrackAnalyzer");
   
   // Read Data:
   theMuTrackCollectionLabel_ = consumes<reco::TrackCollection>(parameters.getParameter<edm::InputTag>("MuTrackCollection"));
@@ -44,8 +46,6 @@ void SegmentTrackAnalyzer::beginJob() {
   metname = "segmTrackAnalyzer";
   LogTrace(metname)<<"[SegmentTrackAnalyzer] Parameters initialization";
   
-  theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("Muons/SegmentTrackAnalyzer");
 }
 void SegmentTrackAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
   metname = "segmTrackAnalyzer";

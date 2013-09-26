@@ -22,6 +22,8 @@ MuonRecoAnalyzer::MuonRecoAnalyzer(const edm::ParameterSet& pSet) {
   
   // the services:
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
+  theDbe = edm::Service<DQMStore>().operator->();
+  theDbe->setCurrentFolder("Muons/MuonRecoAnalyzer");
   
   theMuonCollectionLabel_ = consumes<reco::MuonCollection>(parameters.getParameter<InputTag>("MuonCollection"));
 }
@@ -37,8 +39,6 @@ void MuonRecoAnalyzer::beginJob(){
   
   LogTrace(metname)<<"[MuonRecoAnalyzer] Parameters initialization";
 
-  theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("Muons/MuonRecoAnalyzer");
 }
 void MuonRecoAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
   

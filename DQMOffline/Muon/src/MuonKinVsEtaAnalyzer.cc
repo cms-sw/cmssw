@@ -24,7 +24,9 @@ MuonKinVsEtaAnalyzer::MuonKinVsEtaAnalyzer(const edm::ParameterSet& pSet) {
 
   // the services
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
-  
+  theDbe = edm::Service<DQMStore>().operator->();
+  theDbe->setCurrentFolder("Muons/MuonKinVsEtaAnalyzer");
+
   theMuonCollectionLabel_  = consumes<reco::MuonCollection>(parameters.getParameter<InputTag>("MuonCollection"));
   theVertexLabel_          = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
   theBeamSpotLabel_        = mayConsume<reco::BeamSpot>      (parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
@@ -35,10 +37,6 @@ MuonKinVsEtaAnalyzer::~MuonKinVsEtaAnalyzer() {
 
 void MuonKinVsEtaAnalyzer::beginJob(){
   metname = "muonKinVsEta";
-
-  theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("Muons/MuonKinVsEtaAnalyzer");
-
 }
 
 void MuonKinVsEtaAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){

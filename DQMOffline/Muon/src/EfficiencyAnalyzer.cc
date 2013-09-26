@@ -30,12 +30,15 @@ EfficiencyAnalyzer::EfficiencyAnalyzer(const edm::ParameterSet& pSet){
   parameters = pSet;
   
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
+  theDbe = edm::Service<DQMStore>().operator->();
+  theDbe->setCurrentFolder("Muons/EfficiencyAnalyzer");  
 
   // DATA 
   theMuonCollectionLabel_  = consumes<reco::MuonCollection>  (parameters.getParameter<edm::InputTag>("MuonCollection"));
   theTrackCollectionLabel_ = consumes<reco::TrackCollection> (parameters.getParameter<edm::InputTag>("TrackCollection"));
   theVertexLabel_          = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
   theBeamSpotLabel_        = mayConsume<reco::BeamSpot>      (parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
+
 }
 
 EfficiencyAnalyzer::~EfficiencyAnalyzer() {
@@ -43,14 +46,8 @@ EfficiencyAnalyzer::~EfficiencyAnalyzer() {
 }
 
 void EfficiencyAnalyzer::beginJob(){
-#ifdef DEBUG
-  cout << "[EfficiencyAnalyzer] Parameters initialization" <<endl;
-#endif
   metname = "EfficiencyAnalyzer";
   LogTrace(metname)<<"[EfficiencyAnalyzer] Parameters initialization";
-  
-  theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("Muons/EfficiencyAnalyzer");  
 }
 
 void EfficiencyAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){ 
