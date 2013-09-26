@@ -29,6 +29,10 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 class EfficiencyAnalyzer : public edm::EDAnalyzer {
   
@@ -40,8 +44,8 @@ class EfficiencyAnalyzer : public edm::EDAnalyzer {
   virtual ~EfficiencyAnalyzer() ;
 
   /* Operations */ 
-  void beginJob(DQMStore *dbe);
-  void beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void beginJob();
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
 
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
@@ -49,7 +53,9 @@ class EfficiencyAnalyzer : public edm::EDAnalyzer {
 
  private:
   edm::ParameterSet parameters;
-  
+  DQMStore* theDbe;
+  MuonServiceProxy *theService;
+    
   // Switch for verbosity
   std::string metname;
   
@@ -120,7 +126,6 @@ class EfficiencyAnalyzer : public edm::EDAnalyzer {
 
 
   int _numPV;
-
 
   // STA Label
   edm::EDGetTokenT<reco::MuonCollection>  theMuonCollectionLabel_;

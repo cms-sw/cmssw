@@ -30,7 +30,6 @@
 
 
 class DiMuonHistograms : public edm::EDAnalyzer {
- 
  public:
   /* Constructor */ 
   DiMuonHistograms(const edm::ParameterSet& pset);
@@ -39,11 +38,13 @@ class DiMuonHistograms : public edm::EDAnalyzer {
   virtual ~DiMuonHistograms() ;
   
   /* Operations */ 
-  void beginJob (DQMStore *dbe);
-  void beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup);
-  void analyze (const edm::Event & event, const edm::EventSetup& eventSetup);
+  void beginJob();
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void analyze (const edm::Event &, const edm::EventSetup&);
   
  private:
+  MuonServiceProxy* theService;
+  DQMStore* theDbe;
   edm::ParameterSet parameters;
   
   // Switch for verbosity
@@ -83,10 +84,8 @@ class DiMuonHistograms : public edm::EDAnalyzer {
   
   // Labels used
   edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
-  edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
-
-  
+  edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
 };
 #endif 
 

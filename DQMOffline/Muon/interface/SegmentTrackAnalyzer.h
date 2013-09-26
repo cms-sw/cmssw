@@ -22,7 +22,12 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/SegmentsTrackAssociator.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
+class MuonServiceProxy;
 
 class SegmentTrackAnalyzer : public edm::EDAnalyzer {
  public:
@@ -34,17 +39,19 @@ class SegmentTrackAnalyzer : public edm::EDAnalyzer {
   virtual ~SegmentTrackAnalyzer() {};
   
   /// Inizialize parameters for histo binning
-  void beginJob(DQMStore *dbe);
-  void beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void beginJob();
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
 
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Track& recoTrack);
-  void analyze(const edm::Event&, const edm::EventSetup&) {};
+  void analyze(const edm::Event&, const edm::EventSetup&);
 
  private:
   // ----------member data ---------------------------
-  
+  DQMStore *theDbe;
+  MuonServiceProxy *theService;
   edm::ParameterSet parameters;
+  edm::EDGetTokenT<reco::TrackCollection> theMuTrackCollectionLabel_;
+  
   // Switch for verbosity
   std::string metname;
   // Find the segments associated to the track

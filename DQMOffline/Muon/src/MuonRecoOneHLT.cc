@@ -1,5 +1,7 @@
 #include "DQMOffline/Muon/interface/MuonRecoOneHLT.h"
 
+#include "FWCore/Common/interface/TriggerNames.h"
+
 #include <string>
 #include "TMath.h"
 using namespace std;
@@ -10,7 +12,10 @@ using namespace edm;
 
 MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet) { //, MuonServiceProxy *theService) :MuonAnalyzerBase(theService) {
   parameters = pSet;
-  
+
+  // the services
+  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
+
   ParameterSet muonparms   = parameters.getParameter<edm::ParameterSet>("SingleMuonTrigger");
   ParameterSet dimuonparms = parameters.getParameter<edm::ParameterSet>("DoubleMuonTrigger");
   _SingleMuonEventFlag     = new GenericTriggerEventFlag( muonparms );
@@ -21,8 +26,9 @@ MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet) { //, MuonServiceP
   doublemuonExpr_          = dimuonparms.getParameter<std::vector<std::string> >("hltPaths");
 
   theMuonCollectionLabel_  = consumes<reco::MuonCollection>(parameters.getParameter<edm::InputTag>("MuonCollection"));
-  theVertexLabel_          = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("vertexLabel"));
-  theBeamSpotLabel_        = mayConsume<reco::BeamSpot>(parameters.getParameter<edm::InputTag>("bsLabel"));
+  theVertexLabel_          = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
+  theBeamSpotLabel_        = mayConsume<reco::BeamSpot>(parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
+  theTriggerResultsLabel_  = consumes<TriggerResults>(parameters.getParameter<InputTag>("TriggerResultsLabel"));
 }
 
 
@@ -41,7 +47,7 @@ void MuonRecoOneHLT::beginJob(DQMStore * dbe) {
 void MuonRecoOneHLT::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup){
 #ifdef DEBUG
   cout << "[MuonRecoOneHLT]  beginRun " << endl;
-  cout << "[MuonRecoOneHLT]  Is MuonEventFlag On? "<< _SignleMuonEventFlag->on() << endl;
+  cout << "[MuonRecoOneHLT]  Is MuonEventFlag On? "<< _SingleMuonEventFlag->on() << endl;
 #endif  
   
   muReco = dbe->book1D("Muon_Reco", "Muon Reconstructed Tracks", 6, 1, 7);
@@ -117,42 +123,35 @@ void MuonRecoOneHLT::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::Ev
   if (_DoubleMuonEventFlag->on() && _DoubleMuonEventFlag->expressionsFromDB(_DoubleMuonEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
     singlemuonExpr_ = _DoubleMuonEventFlag->expressionsFromDB(_DoubleMuonEventFlag->hltDBKey(),iSetup);
 }
-void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
-			     //			     const reco::Muon& recoMu, 
-			     const edm::TriggerResults& triggerResults) {
-#ifdef DEBUG
-  cout << "[MuonRecoOneHLT]  analyze "<< endl;
-#endif
-
-
-  // ==========================================================
+void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){ 
+  theService->update(iSetup);
+  
+  // =================================================================================
   // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
-
   reco::Vertex::Point posVtx;
   reco::Vertex::Error errVtx;
- 
   unsigned int theIndexOfThePrimaryVertex = 999.;
- 
+  
   edm::Handle<reco::VertexCollection> vertex;
   iEvent.getByToken(theVertexLabel_, vertex);
-
-  if ( vertex.isValid() ){
-  for (unsigned int ind=0; ind<vertex->size(); ++ind) {
-    if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
-      theIndexOfThePrimaryVertex = ind;
-      break;
+  if (vertex.isValid()){
+    for (unsigned int ind=0; ind<vertex->size(); ++ind) {
+      if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
+	theIndexOfThePrimaryVertex = ind;
+	break;
+      }
     }
   }
-  }
+
   if (theIndexOfThePrimaryVertex<100) {
     posVtx = ((*vertex)[theIndexOfThePrimaryVertex]).position();
     errVtx = ((*vertex)[theIndexOfThePrimaryVertex]).error();
-  }   else {
+  }   
+  else {
     LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
-  
+    
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
     iEvent.getByToken(theBeamSpotLabel_,recoBeamSpotHandle);
-    
     reco::BeamSpot bs = *recoBeamSpotHandle;
     
     posVtx = bs.position();
@@ -160,18 +159,22 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     errVtx(1,1) = bs.BeamWidthY();
     errVtx(2,2) = bs.sigmaZ();
   }
-  const reco::Vertex thePrimaryVertex(posVtx,errVtx);
-
-  // ==========================================================
-
-
+  
+  const reco::Vertex vtx(posVtx,errVtx);
 
   
-  //  TEST FOR ONLY TAKE HIGHEST PT MUON
+  // ==========================================================
+  //  READ DATA:
   edm::Handle<reco::MuonCollection> muons;
   iEvent.getByToken(theMuonCollectionLabel_,muons);
 
+  edm::Handle<TriggerResults> triggerResults;
+  iEvent.getByToken(theTriggerResultsLabel_, triggerResults);
+  
+  // check if muon collection is valid
+  if(!muons.isValid()) return;
 
+  //  Pick the leading lepton. 
   std::map<float,reco::Muon> muonMap;
   for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu!=muons->end(); ++recoMu){
     muonMap[recoMu->pt()] = *recoMu;
@@ -180,19 +183,20 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   for( std::map<float,reco::Muon>::reverse_iterator rit=muonMap.rbegin(); rit!=muonMap.rend(); ++rit){
     LeadingMuon.push_back( (*rit).second );
   }
-
-  const edm::TriggerNames& triggerNames = iEvent.triggerNames(triggerResults);
+  
+  // Pick Trigger information.
+  const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
   const unsigned int nTrig(triggerNames.size());
   bool _trig_SingleMu = false;
   bool _trig_DoubleMu = false;
   for (unsigned int i=0;i<nTrig;++i){
-    if (triggerNames.triggerName(i).find(singlemuonExpr_[0].substr(0,singlemuonExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
+    if (triggerNames.triggerName(i).find(singlemuonExpr_[0].substr(0,singlemuonExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults->accept(i))
       _trig_SingleMu = true;
-    if (triggerNames.triggerName(i).find(doublemuonExpr_[0].substr(0,doublemuonExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
+    if (triggerNames.triggerName(i).find(doublemuonExpr_[0].substr(0,doublemuonExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults->accept(i))
       _trig_DoubleMu = true;
   }
 #ifdef DEBUG
-  cout << "[MuonRecoOneHLT]  Trigger Fired ? "<< _trig_SingleMu << endl;
+  cout << "[MuonRecoOneHLT]  Trigger Fired ? "<< (_trig_SingleMu || _trig_DoubleMu) << endl;
 #endif
 
   if (!_trig_SingleMu && !_trig_DoubleMu) return;
@@ -231,7 +235,7 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     ptGlbTrack[2]->Fill(recoStaGlbTrack->pt());
   }
   // Check if Muon is Tight
-  if (muon::isTightMuon(LeadingMuon[0], thePrimaryVertex) ) { 
+  if (muon::isTightMuon(LeadingMuon[0], vtx) ) { 
     
     LogTrace(metname)<<"[MuonRecoOneHLT] The mu is tracker only - filling the histos";
     

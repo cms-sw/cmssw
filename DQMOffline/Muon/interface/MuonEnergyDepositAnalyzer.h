@@ -13,41 +13,48 @@
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMOffline/Muon/interface/MuonAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/MuonEnergy.h"
 
-class MuonEnergyDepositAnalyzer : public MuonAnalyzerBase {
+class MuonEnergyDepositAnalyzer : public edm::EDAnalyzer{
  public:
 
   /// Constructor
-  MuonEnergyDepositAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService);
+  MuonEnergyDepositAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
   virtual ~MuonEnergyDepositAnalyzer();
   
   /// Inizialize parameters for histo binning
-  void beginJob(DQMStore *dbe);
-  void beginRun(DQMStore *dbe, const edm::Run& run, const edm::EventSetup& iSetup);
+  void beginJob();
+  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
 
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon& recoMu);
+  void analyze(const edm::Event&, const edm::EventSetup&);
     
  private:
   // ----------member data ---------------------------
-  
+  DQMStore* theDbe;
   edm::ParameterSet parameters;
+  MuonServiceProxy *theService;
+  edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionLabel_;
+  
   // Switch for verbosity
   std::string metname;
-  // STA Label
-  edm::InputTag theSTACollectionLabel;
-
+  
   //histo binning parameters
   int emNoBin;
   double emNoMin;

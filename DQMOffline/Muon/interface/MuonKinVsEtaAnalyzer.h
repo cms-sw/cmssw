@@ -23,12 +23,13 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 class MuonKinVsEtaAnalyzer : public edm::EDAnalyzer {
  public:
@@ -40,21 +41,24 @@ class MuonKinVsEtaAnalyzer : public edm::EDAnalyzer {
   ~MuonKinVsEtaAnalyzer();
 
   /// Initialize parameters for histo binning
-  void beginJob(DQMStore *dbe);
-  void beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void beginJob(void);
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon&);
-  void analyze(const edm::Event&, const edm::EventSetup&) {};
+  void analyze(const edm::Event&, const edm::EventSetup&);
   
  private:
+  
   // ----------member data ---------------------------
+  MuonServiceProxy *theService;
+  DQMStore* theDbe;
   edm::ParameterSet parameters;
  
   // Switch for verbosity
   std::string metname;
 
   //Vertex requirements
+  edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
   edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
   

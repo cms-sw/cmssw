@@ -28,26 +28,32 @@ using namespace edm;
 
 EfficiencyAnalyzer::EfficiencyAnalyzer(const edm::ParameterSet& pSet){
   parameters = pSet;
+  
+  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
 
+  // DATA 
   theMuonCollectionLabel_  = consumes<reco::MuonCollection>  (parameters.getParameter<edm::InputTag>("MuonCollection"));
   theTrackCollectionLabel_ = consumes<reco::TrackCollection> (parameters.getParameter<edm::InputTag>("TrackCollection"));
   theVertexLabel_          = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
-  theBeamSpotLabel_        = mayConsume<reco::BeamSpot>      (parameters.getParameter<edm::InputTag>("BSLabel"));
-  
+  theBeamSpotLabel_        = mayConsume<reco::BeamSpot>      (parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
 }
 
-EfficiencyAnalyzer::~EfficiencyAnalyzer() { }
+EfficiencyAnalyzer::~EfficiencyAnalyzer() {
+  delete theService;
+}
 
-void EfficiencyAnalyzer::beginJob(DQMStore * dbe) {
+void EfficiencyAnalyzer::beginJob(){
 #ifdef DEBUG
   cout << "[EfficiencyAnalyzer] Parameters initialization" <<endl;
 #endif
   metname = "EfficiencyAnalyzer";
   LogTrace(metname)<<"[EfficiencyAnalyzer] Parameters initialization";
-  dbe->setCurrentFolder("Muons/EfficiencyAnalyzer");  
+  
+  theDbe = edm::Service<DQMStore>().operator->();
+  theDbe->setCurrentFolder("Muons/EfficiencyAnalyzer");  
 }
 
-void EfficiencyAnalyzer::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup){ 
+void EfficiencyAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){ 
   metname = "EfficiencyAnalyzer";
 
   //Vertex requirements
@@ -69,53 +75,53 @@ void EfficiencyAnalyzer::beginRun(DQMStore *dbe, const edm::Run& iRun, const edm
   vtxMin_ = parameters.getParameter<double>("vtxMin");
   vtxMax_ = parameters.getParameter<double>("vtxMax");
 
-  test_TightMu_Minv  = dbe->book1D("test_TightMu_Minv"  ,"Minv",50,70,110);
+  test_TightMu_Minv  = theDbe->book1D("test_TightMu_Minv"  ,"Minv",50,70,110);
 
-  h_allProbes_pt = dbe->book1D("allProbes_pt","All Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_allProbes_EB_pt = dbe->book1D("allProbes_EB_pt","Barrel: all Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_allProbes_EE_pt = dbe->book1D("allProbes_EE_pt","Endcap: all Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_allProbes_eta = dbe->book1D("allProbes_eta","All Probes Eta", etaBin_, etaMin_, etaMax_);
-  h_allProbes_hp_eta = dbe->book1D("allProbes_hp_eta","High Pt all Probes Eta", etaBin_, etaMin_, etaMax_);
-  h_allProbes_phi = dbe->book1D("allProbes_phi","All Probes Phi", phiBin_, phiMin_, phiMax_);
+  h_allProbes_pt = theDbe->book1D("allProbes_pt","All Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_allProbes_EB_pt = theDbe->book1D("allProbes_EB_pt","Barrel: all Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_allProbes_EE_pt = theDbe->book1D("allProbes_EE_pt","Endcap: all Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_allProbes_eta = theDbe->book1D("allProbes_eta","All Probes Eta", etaBin_, etaMin_, etaMax_);
+  h_allProbes_hp_eta = theDbe->book1D("allProbes_hp_eta","High Pt all Probes Eta", etaBin_, etaMin_, etaMax_);
+  h_allProbes_phi = theDbe->book1D("allProbes_phi","All Probes Phi", phiBin_, phiMin_, phiMax_);
 
-  h_allProbes_TightMu_pt = dbe->book1D("allProbes_TightMu_pt","All TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_allProbes_EB_TightMu_pt = dbe->book1D("allProbes_EB_TightMu_pt","Barrel: all TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_allProbes_EE_TightMu_pt = dbe->book1D("allProbes_EE_TightMu_pt","Endcap: all TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_allProbes_TightMu_nVtx = dbe->book1D("allProbes_TightMu_nVtx","All Probes (TightMu) nVtx", vtxBin_, vtxMin_, vtxMax_);
-  h_allProbes_EB_TightMu_nVtx = dbe->book1D("allProbes_EB_TightMu_nVtx","Barrel: All Probes (TightMu) nVtx", vtxBin_, vtxMin_, vtxMax_);
-  h_allProbes_EE_TightMu_nVtx = dbe->book1D("allProbes_EE_TightMu_nVtx","Endcap: All Probes (TightMu) nVtx", vtxBin_, vtxMin_, vtxMax_);
+  h_allProbes_TightMu_pt = theDbe->book1D("allProbes_TightMu_pt","All TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_allProbes_EB_TightMu_pt = theDbe->book1D("allProbes_EB_TightMu_pt","Barrel: all TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_allProbes_EE_TightMu_pt = theDbe->book1D("allProbes_EE_TightMu_pt","Endcap: all TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_allProbes_TightMu_nVtx = theDbe->book1D("allProbes_TightMu_nVtx","All Probes (TightMu) nVtx", vtxBin_, vtxMin_, vtxMax_);
+  h_allProbes_EB_TightMu_nVtx = theDbe->book1D("allProbes_EB_TightMu_nVtx","Barrel: All Probes (TightMu) nVtx", vtxBin_, vtxMin_, vtxMax_);
+  h_allProbes_EE_TightMu_nVtx = theDbe->book1D("allProbes_EE_TightMu_nVtx","Endcap: All Probes (TightMu) nVtx", vtxBin_, vtxMin_, vtxMax_);
 
-  h_passProbes_TightMu_pt = dbe->book1D("passProbes_TightMu_pt","TightMu Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
-  h_passProbes_TightMu_EB_pt = dbe->book1D("passProbes_TightMu_EB_pt","Barrel: TightMu Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
-  h_passProbes_TightMu_EE_pt = dbe->book1D("passProbes_TightMu_EE_pt","Endcap: TightMu Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
-  h_passProbes_TightMu_eta = dbe->book1D("passProbes_TightMu_eta","TightMu Passing Probes #eta", etaBin_, etaMin_, etaMax_);
-  h_passProbes_TightMu_hp_eta = dbe->book1D("passProbes_TightMu_hp_eta","High Pt TightMu Passing Probes #eta", etaBin_, etaMin_, etaMax_);
-  h_passProbes_TightMu_phi = dbe->book1D("passProbes_TightMu_phi","TightMu Passing Probes #phi", phiBin_, phiMin_, phiMax_);
+  h_passProbes_TightMu_pt = theDbe->book1D("passProbes_TightMu_pt","TightMu Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
+  h_passProbes_TightMu_EB_pt = theDbe->book1D("passProbes_TightMu_EB_pt","Barrel: TightMu Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
+  h_passProbes_TightMu_EE_pt = theDbe->book1D("passProbes_TightMu_EE_pt","Endcap: TightMu Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
+  h_passProbes_TightMu_eta = theDbe->book1D("passProbes_TightMu_eta","TightMu Passing Probes #eta", etaBin_, etaMin_, etaMax_);
+  h_passProbes_TightMu_hp_eta = theDbe->book1D("passProbes_TightMu_hp_eta","High Pt TightMu Passing Probes #eta", etaBin_, etaMin_, etaMax_);
+  h_passProbes_TightMu_phi = theDbe->book1D("passProbes_TightMu_phi","TightMu Passing Probes #phi", phiBin_, phiMin_, phiMax_);
 
-  h_passProbes_detIsoTightMu_pt = dbe->book1D("passProbes_detIsoTightMu_pt","detIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_passProbes_EB_detIsoTightMu_pt = dbe->book1D("passProbes_EB_detIsoTightMu_pt","Barrel: detIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_passProbes_EE_detIsoTightMu_pt = dbe->book1D("passProbes_EE_detIsoTightMu_pt","Endcap: detIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_passProbes_detIsoTightMu_pt = theDbe->book1D("passProbes_detIsoTightMu_pt","detIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EB_detIsoTightMu_pt = theDbe->book1D("passProbes_EB_detIsoTightMu_pt","Barrel: detIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EE_detIsoTightMu_pt = theDbe->book1D("passProbes_EE_detIsoTightMu_pt","Endcap: detIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
 
-  h_passProbes_pfIsoTightMu_pt = dbe->book1D("passProbes_pfIsoTightMu_pt","pfIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_passProbes_EB_pfIsoTightMu_pt = dbe->book1D("passProbes_EB_pfIsoTightMu_pt","Barrel: pfIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_passProbes_EE_pfIsoTightMu_pt = dbe->book1D("passProbes_EE_pfIsoTightMu_pt","Endcap: pfIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_passProbes_pfIsoTightMu_pt = theDbe->book1D("passProbes_pfIsoTightMu_pt","pfIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EB_pfIsoTightMu_pt = theDbe->book1D("passProbes_EB_pfIsoTightMu_pt","Barrel: pfIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EE_pfIsoTightMu_pt = theDbe->book1D("passProbes_EE_pfIsoTightMu_pt","Endcap: pfIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
 
-  h_passProbes_detIsoTightMu_nVtx    = dbe->book1D("passProbes_detIsoTightMu_nVtx",    "detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_pfIsoTightMu_nVtx     = dbe->book1D("passProbes_pfIsoTightMu_nVtx",    "pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_EB_detIsoTightMu_nVtx = dbe->book1D("passProbes_EB_detIsoTightMu_nVtx","Barrel: detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_EE_detIsoTightMu_nVtx = dbe->book1D("passProbes_EE_detIsoTightMu_nVtx","Endcap: detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_EB_pfIsoTightMu_nVtx  = dbe->book1D("passProbes_EB_pfIsoTightMu_nVtx", "Barrel: pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_EE_pfIsoTightMu_nVtx  = dbe->book1D("passProbes_EE_pfIsoTightMu_nVtx", "Endcap: pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_detIsoTightMu_nVtx    = theDbe->book1D("passProbes_detIsoTightMu_nVtx",    "detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_pfIsoTightMu_nVtx     = theDbe->book1D("passProbes_pfIsoTightMu_nVtx",    "pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EB_detIsoTightMu_nVtx = theDbe->book1D("passProbes_EB_detIsoTightMu_nVtx","Barrel: detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EE_detIsoTightMu_nVtx = theDbe->book1D("passProbes_EE_detIsoTightMu_nVtx","Endcap: detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EB_pfIsoTightMu_nVtx  = theDbe->book1D("passProbes_EB_pfIsoTightMu_nVtx", "Barrel: pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EE_pfIsoTightMu_nVtx  = theDbe->book1D("passProbes_EE_pfIsoTightMu_nVtx", "Endcap: pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
 
   
   // Apply deltaBeta PU corrections to the PF isolation eficiencies.
   
-  h_passProbes_pfIsodBTightMu_pt = dbe->book1D("passProbes_pfIsodBTightMu_pt","pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
-  h_passProbes_EB_pfIsodBTightMu_pt = dbe->book1D("passProbes_EB_pfIsodBTightMu_pt","Barrel: pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
-  h_passProbes_EE_pfIsodBTightMu_pt = dbe->book1D("passProbes_EE_pfIsodBTightMu_pt","Endcap: pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
-  h_passProbes_pfIsodBTightMu_nVtx     = dbe->book1D("passProbes_pfIsodBTightMu_nVtx",    "pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
-h_passProbes_EB_pfIsodBTightMu_nVtx  = dbe->book1D("passProbes_EB_pfIsodBTightMu_nVtx", "Barrel: pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_EE_pfIsodBTightMu_nVtx  = dbe->book1D("passProbes_EE_pfIsodBTightMu_nVtx", "Endcap: pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_pfIsodBTightMu_pt = theDbe->book1D("passProbes_pfIsodBTightMu_pt","pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EB_pfIsodBTightMu_pt = theDbe->book1D("passProbes_EB_pfIsodBTightMu_pt","Barrel: pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EE_pfIsodBTightMu_pt = theDbe->book1D("passProbes_EE_pfIsodBTightMu_pt","Endcap: pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
+  h_passProbes_pfIsodBTightMu_nVtx     = theDbe->book1D("passProbes_pfIsodBTightMu_nVtx",    "pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
+h_passProbes_EB_pfIsodBTightMu_nVtx  = theDbe->book1D("passProbes_EB_pfIsodBTightMu_nVtx", "Barrel: pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EE_pfIsodBTightMu_nVtx  = theDbe->book1D("passProbes_EE_pfIsodBTightMu_nVtx", "Endcap: pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
 
 
 
@@ -124,10 +130,10 @@ h_passProbes_EB_pfIsodBTightMu_nVtx  = dbe->book1D("passProbes_EB_pfIsodBTightMu
 #endif
 }
 
-void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup& iSetup) {
+void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup& iSetup){
 
   LogTrace(metname)<<"[EfficiencyAnalyzer] Analyze the mu in different eta regions";
-  
+  theService->update(iSetup);
   // ==========================================================
   // BEGIN READ DATA:
   // Muon information
@@ -143,7 +149,8 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
   iEvent.getByToken(theVertexLabel_, vertex);  
   // END READ DATA
   // ==========================================================
- 
+  
+
   _numPV = 0;
   bool bPrimaryVertex = true;
   if(doPVCheck_){ 
@@ -175,17 +182,15 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
 	}
       }
     }
+  
   }
-  // ==========================================================
-
-
-  // ==========================================================
+  
+  // =================================================================================
   // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
   reco::Vertex::Point posVtx;
   reco::Vertex::Error errVtx;
-
   unsigned int theIndexOfThePrimaryVertex = 999.;
-  if ( vertex.isValid() ){
+  if (vertex.isValid()){
     for (unsigned int ind=0; ind<vertex->size(); ++ind) {
       if ( (*vertex)[ind].isValid() && !((*vertex)[ind].isFake()) ) {
 	theIndexOfThePrimaryVertex = ind;
@@ -197,23 +202,23 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
   if (theIndexOfThePrimaryVertex<100) {
     posVtx = ((*vertex)[theIndexOfThePrimaryVertex]).position();
     errVtx = ((*vertex)[theIndexOfThePrimaryVertex]).error();
-  } 
+  }   
   else {
-    LogInfo("EfficiencyAnalyzer") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
-
-    // BeamSpot information
-    edm::Handle<reco::BeamSpot> BeamSpotHandle;
-    iEvent.getByToken(theBeamSpotLabel_,BeamSpotHandle);
-    reco::BeamSpot bs = *BeamSpotHandle;
+    LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
+    
+    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+    iEvent.getByToken(theBeamSpotLabel_,recoBeamSpotHandle);
+    reco::BeamSpot bs = *recoBeamSpotHandle;
     
     posVtx = bs.position();
     errVtx(0,0) = bs.BeamWidthX();
     errVtx(1,1) = bs.BeamWidthY();
     errVtx(2,2) = bs.sigmaZ();
   }
-  
+    
   const reco::Vertex thePrimaryVertex(posVtx,errVtx);
   // ==========================================================
+  
   if(!muons.isValid()) return;
   
   // Loop on muon collection

@@ -38,6 +38,11 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 class MuonRecoOneHLT : public edm::EDAnalyzer { //MuonAnalyzerBase {
  public:
@@ -54,12 +59,15 @@ class MuonRecoOneHLT : public edm::EDAnalyzer { //MuonAnalyzerBase {
   
   /// Get the analysis
   //  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon&, const edm::TriggerResults&);
-  void analyze(const edm::Event&, const edm::EventSetup&, const edm::TriggerResults&);
-  void analyze(const edm::Event&, const edm::EventSetup&) {};
+  //  void analyze(const edm::Event&, const edm::EventSetup&, const edm::TriggerResults&, const reco::Vertex&);
+  void analyze(const edm::Event&, const edm::EventSetup&);
 
  private:
   // ----------member data ---------------------------
+  DQMStore* theDbe;
   edm::ParameterSet parameters;
+  MuonServiceProxy *theService;
+
   // Switch for verbosity
   std::string metname;
 
@@ -67,7 +75,8 @@ class MuonRecoOneHLT : public edm::EDAnalyzer { //MuonAnalyzerBase {
   edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
   edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
-  
+  edm::EDGetTokenT<edm::TriggerResults>    theTriggerResultsLabel_;
+    
   std::vector<std::string> singlemuonExpr_;
   std::vector<std::string> doublemuonExpr_;
   GenericTriggerEventFlag *_SingleMuonEventFlag;

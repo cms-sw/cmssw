@@ -77,7 +77,7 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   void InitStatics();
-  void RecordData(MuonIterator muon);//Fills Histograms with info from single muo
+  void RecordData(const reco::Muon& muon);//Fills Histograms with info from single muo
   //  void doPFIsoPlots(MuonIterator muon); //Fills Histograms with PF info from single muo (only for GLB)
   void InitHistos();//adds title, bin information to member histograms
   void FillHistos(int);//Fills histograms with data
@@ -135,7 +135,6 @@ private:
   DQMStore* dbe;
   
   //The Data
-  int theMuonData;//[number of muons]
   double theData[NUM_VARS];
   double theData2D[NUM_VARS_2D];
   double theDataNVtx[NUM_VARS_NVTX];

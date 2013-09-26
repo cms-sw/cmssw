@@ -13,42 +13,51 @@
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMOffline/Muon/interface/MuonAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 class TrajectoryStateOnSurface;
 class TrajectorySeed;
 class MuonServiceProxy;
 
-class MuonSeedsAnalyzer : public MuonAnalyzerBase {
+class MuonSeedsAnalyzer : public  edm::EDAnalyzer {
  public:
 
   /// Constructor
-  MuonSeedsAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService);
+  MuonSeedsAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
   virtual ~MuonSeedsAnalyzer();
 
   /// Inizialize parameters for histo binning
-  void beginJob(DQMStore * dbe);
-  void beginRun(DQMStore *dbe, const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void beginJob();
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
 
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&, const TrajectorySeed& seed);
+  void analyze(const edm::Event&, const edm::EventSetup&);
   
   /// Get the TrajectoryStateOnSurface
-  TrajectoryStateOnSurface getSeedTSOS(const TrajectorySeed& seed);
+  ///  TrajectoryStateOnSurface getSeedTSOS(const TrajectorySeed& seed);
   
 
   private:
   // ----------member data ---------------------------
-  
+  DQMStore *theDbe;
+  MuonServiceProxy *theService;
   edm::ParameterSet parameters;
+
+  // ------- Data ----
+  edm::EDGetTokenT<TrajectorySeedCollection> theSeedsCollectionLabel_;
+
   // Switch for verbosity
   std::string metname;
   
