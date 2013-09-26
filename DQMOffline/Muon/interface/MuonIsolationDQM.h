@@ -40,6 +40,10 @@ method, even the simple types.
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 //----------------------------------------
 
@@ -69,10 +73,11 @@ public:
 private:
   //---------methods----------------------------
   virtual void beginJob(void) ;
+  virtual void beginRun(void) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   void InitStatics();
-  void RecordData(MuonIterator muon);//Fills Histograms with info from single muo
+  void RecordData(const reco::Muon& muon);//Fills Histograms with info from single muo
   //  void doPFIsoPlots(MuonIterator muon); //Fills Histograms with PF info from single muo (only for GLB)
   void InitHistos();//adds title, bin information to member histograms
   void FillHistos(int);//Fills histograms with data
@@ -86,18 +91,13 @@ private:
   //----------Static Variables---------------
   
   //Collection labels
-  edm::InputTag Muon_Tag;
-  edm::InputTag tkIsoDeposit_Tag;
-  edm::InputTag hcalIsoDeposit_Tag;
-  edm::InputTag ecalIsoDeposit_Tag;
-  edm::InputTag hoIsoDeposit_Tag;
-  edm::InputTag theVertexCollectionLabel;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionLabel_;
+  edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
 
   //root file name
   std::string rootfilename;
   // Directories within the rootfile
   std::string dirName;
-  //  std::string subDirName;
 
   //Histogram parameters
   static const int NUM_VARS      = 48; // looking at R03 and R05.  Total of 54 histos.
@@ -135,7 +135,6 @@ private:
   DQMStore* dbe;
   
   //The Data
-  int theMuonData;//[number of muons]
   double theData[NUM_VARS];
   double theData2D[NUM_VARS_2D];
   double theDataNVtx[NUM_VARS_NVTX];

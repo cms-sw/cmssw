@@ -1,25 +1,27 @@
 #include "DQMOffline/Muon/interface/MuonIdDQM.h"
 
-MuonIdDQM::MuonIdDQM(const edm::ParameterSet& iConfig)
-{
-   inputMuonCollection_ = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
-   inputDTRecSegment4DCollection_ = iConfig.getParameter<edm::InputTag>("inputDTRecSegment4DCollection");
-   inputCSCSegmentCollection_ = iConfig.getParameter<edm::InputTag>("inputCSCSegmentCollection");
-   useTrackerMuons_ = iConfig.getUntrackedParameter<bool>("useTrackerMuons");
-   useGlobalMuons_ = iConfig.getUntrackedParameter<bool>("useGlobalMuons");
-   useTrackerMuonsNotGlobalMuons_ = iConfig.getUntrackedParameter<bool>("useTrackerMuonsNotGlobalMuons");
-   useGlobalMuonsNotTrackerMuons_ = iConfig.getUntrackedParameter<bool>("useGlobalMuonsNotTrackerMuons");
-   baseFolder_ = iConfig.getUntrackedParameter<std::string>("baseFolder");
-
-   dbe_ = 0;
-   dbe_ = edm::Service<DQMStore>().operator->();
+MuonIdDQM::MuonIdDQM(const edm::ParameterSet& iConfig){
+  inputMuonCollection_           = consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("inputMuonCollection"));
+  inputDTRecSegment4DCollection_ = consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("inputDTRecSegment4DCollection"));
+  inputCSCSegmentCollection_     = consumes<CSCSegmentCollection>(iConfig.getParameter<edm::InputTag>("inputCSCSegmentCollection"));
+  useTrackerMuons_               = iConfig.getUntrackedParameter<bool>("useTrackerMuons");
+  useGlobalMuons_                = iConfig.getUntrackedParameter<bool>("useGlobalMuons");
+  useTrackerMuonsNotGlobalMuons_ = iConfig.getUntrackedParameter<bool>("useTrackerMuonsNotGlobalMuons");
+  useGlobalMuonsNotTrackerMuons_ = iConfig.getUntrackedParameter<bool>("useGlobalMuonsNotTrackerMuons");
+  baseFolder_                    = iConfig.getUntrackedParameter<std::string>("baseFolder");
+  
+  dbe_ = 0;
+  dbe_ = edm::Service<DQMStore>().operator->();
 }
 
 MuonIdDQM::~MuonIdDQM() {}
 
-void 
-MuonIdDQM::beginJob()
-{
+void MuonIdDQM::beginJob() {
+  dbe_->setCurrentFolder(baseFolder_);
+}
+
+void MuonIdDQM::beginRun(const edm::Run& irun, const edm::EventSetup& isetup){
+
    char name[100], title[200];
 
    // trackerMuon == 0; globalMuon == 1; trackerMuon && !globalMuon == 2; globalMuon && !trackerMuon == 3
@@ -114,19 +116,16 @@ MuonIdDQM::beginJob()
       }// station
    }
 
-   dbe_->setCurrentFolder(baseFolder_);
    hSegmentIsAssociatedBool = dbe_->book1D("hSegmentIsAssociatedBool", "Segment Is Associated Boolean", 2, -0.5, 1.5);
 }
 
-void
-MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
    using namespace edm;
    using namespace reco;
 
-   iEvent.getByLabel(inputMuonCollection_, muonCollectionH_);
-   iEvent.getByLabel(inputDTRecSegment4DCollection_, dtSegmentCollectionH_);
-   iEvent.getByLabel(inputCSCSegmentCollection_, cscSegmentCollectionH_);
+   iEvent.getByToken(inputMuonCollection_, muonCollectionH_);
+   iEvent.getByToken(inputDTRecSegment4DCollection_, dtSegmentCollectionH_);
+   iEvent.getByToken(inputCSCSegmentCollection_, cscSegmentCollectionH_);
    iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
 
    for(MuonCollection::const_iterator muon = muonCollectionH_->begin();

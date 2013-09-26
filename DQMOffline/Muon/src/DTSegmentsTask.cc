@@ -1,4 +1,3 @@
-
 /*
  *  See header file for a description of this class.
  *
@@ -21,11 +20,6 @@
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
-//RecHit
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
-#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
-
 #include <iterator>
 
 using namespace edm;
@@ -38,9 +32,11 @@ DTSegmentsTask::DTSegmentsTask(const edm::ParameterSet& pset) {
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
   theDbe->setVerbose(1);
-
+  
   parameters = pset;
-
+  
+  // the name of the 4D rec hits collection
+  theRecHits4DLabel_ = consumes<DTRecSegment4DCollection>(parameters.getParameter<std::string>("recHits4DLabel")); 
 }
 
 
@@ -49,12 +45,11 @@ DTSegmentsTask::~DTSegmentsTask(){
 
 
 void DTSegmentsTask::beginJob(void){
- 
- // the name of the 4D rec hits collection
-  theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");
-
   theDbe->setCurrentFolder("Muons/DTSegmentsMonitor");
+}
 
+void DTSegmentsTask::beginRun(const edm::Run& irun, const edm::EventSetup& isetup){
+  
   // histos for phi segments
   phiHistos.push_back(theDbe->book2D("phiSegments_numHitsVsWheel", "phiSegments_numHitsVsWheel", 5, -2.5, 2.5, 20, 0, 20));
   phiHistos[0]->setBinLabel(1,"W-2",1);
@@ -113,7 +108,13 @@ void DTSegmentsTask::beginJob(void){
 
 }
 
-
+void DTSegmentsTask::endRun(const edm::Run& irun, const edm::EventSetup& isetup){
+  bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
+  std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
+  if(outputMEsInRootFile){
+    theDbe->save(outputFileName);
+  }
+}
 void DTSegmentsTask::endJob(){
   bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
@@ -126,13 +127,6 @@ void DTSegmentsTask::endJob(){
   
 void DTSegmentsTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
-//  if(!(event.id().event()%1000) && debug)
-//    {
-//      cout << "[DTSegmentsTask] Analyze #Run: " << event.id().run()
-//	   << " #Event: " << event.id().event() << endl;
-//    }
-
-
   // Get the map of noisy channels
   bool checkNoisyChannels = parameters.getUntrackedParameter<bool>("checkNoisyChannels",false);
   ESHandle<DTStatusFlag> statusMap;
@@ -142,63 +136,57 @@ void DTSegmentsTask::analyze(const edm::Event& event, const edm::EventSetup& set
 
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(theRecHits4DLabel, all4DSegments);
+  event.getByToken(theRecHits4DLabel_, all4DSegments);
 
   // Loop over all chambers containing a segment
   DTRecSegment4DCollection::id_iterator chamberId;
-  for (chamberId = all4DSegments->id_begin();
-       chamberId != all4DSegments->id_end();
-       ++chamberId){
+  for (chamberId = all4DSegments->id_begin(); chamberId != all4DSegments->id_end(); ++chamberId){
     // Get the range for the corresponding ChamerId
     DTRecSegment4DCollection::range  range = all4DSegments->get(*chamberId);
     int nsegm = distance(range.first, range.second);
     if(debug)
       cout << "   Chamber: " << *chamberId << " has " << nsegm
 	   << " 4D segments" << endl;
-   
     
-     // Loop over the rechits of this ChamerId
-    for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
-	 segment4D!=range.second;
-	   ++segment4D){
+        // Loop over the rechits of this ChamerId
+    for (DTRecSegment4DCollection::const_iterator segment4D = range.first; segment4D!=range.second; ++segment4D){
 
       //FOR NOISY CHANNELS////////////////////////////////
-     bool segmNoisy = false;
-     if((*segment4D).hasPhi()){
-       const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
-       vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
-       map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
-       for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
-	   hit != phiHits.end(); ++hit) {
-	 DTWireId wireId = (*hit).wireId();
-	 
-	 // Check for noisy channels to skip them
-	 if(checkNoisyChannels) {
-	   bool isNoisy = false;
-	   bool isFEMasked = false;
-	   bool isTDCMasked = false;
-	   bool isTrigMask = false;
-	   bool isDead = false;
-	   bool isNohv = false;
-	   statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
-	   if(isNoisy) {
-	     if(debug)
-	       cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
-	     segmNoisy = true;
-	  }      
-	 }
-       }
-     }
-
-     if((*segment4D).hasZed()) {
-       const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();  // zSeg lives in the SL RF
-       // Check for noisy channels to skip them
-       vector<DTRecHit1D> zHits = zSeg->specificRecHits();
-       for(vector<DTRecHit1D>::const_iterator hit = zHits.begin();
-	   hit != zHits.end(); ++hit) {
-	 DTWireId wireId = (*hit).wireId();
-	 if(checkNoisyChannels) {
-	   bool isNoisy = false;
+      bool segmNoisy = false;
+      if((*segment4D).hasPhi()){
+	const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
+	vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
+	map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
+	for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin(); hit != phiHits.end(); ++hit) {
+	  DTWireId wireId = (*hit).wireId();
+	  
+	  // Check for noisy channels to skip them
+	  if(checkNoisyChannels) {
+	    bool isNoisy = false;
+	    bool isFEMasked = false;
+	    bool isTDCMasked = false;
+	    bool isTrigMask = false;
+	    bool isDead = false;
+	    bool isNohv = false;
+	    statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+	    if(isNoisy) {
+	      if(debug)
+		cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
+	      segmNoisy = true;
+	    }      
+	  }
+	}
+      }
+      
+      if((*segment4D).hasZed()) {
+	const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();  // zSeg lives in the SL RF
+	// Check for noisy channels to skip them
+	vector<DTRecHit1D> zHits = zSeg->specificRecHits();
+	for(vector<DTRecHit1D>::const_iterator hit = zHits.begin();
+	    hit != zHits.end(); ++hit) {
+	  DTWireId wireId = (*hit).wireId();
+	  if(checkNoisyChannels) {
+	    bool isNoisy = false;
 	    bool isFEMasked = false;
 	    bool isTDCMasked = false;
 	    bool isTrigMask = false;
@@ -211,38 +199,37 @@ void DTSegmentsTask::analyze(const edm::Event& event, const edm::EventSetup& set
 		cout << "Wire: " << wireId << " is noisy, skipping!" << endl;
 	      segmNoisy = true;
 	    }      
-	 }
-       }
-     } 
-     
-     if (segmNoisy) {
-       if(debug)
+	  }
+	}
+      } 
+      
+      if (segmNoisy) {
+	if(debug)
 	 cout<<"skipping the segment: it contains noisy cells"<<endl;
-       continue;
-     }
-     //END FOR NOISY CHANNELS////////////////////////////////
-
-     // Fill the histos
-     int nHits=0;
-     if((*segment4D).hasPhi()){
-       nHits = (((*segment4D).phiSegment())->specificRecHits()).size();
-       if(debug)
-	 cout<<"Phi segment with number of hits: "<<nHits<<endl;
-       phiHistos[0]->Fill((*chamberId).wheel(), nHits);
-       phiHistos[1]->Fill((*chamberId).sector(), nHits);
-       phiHistos[2]->Fill((*chamberId).station(), nHits);
-     }
-     if((*segment4D).hasZed()) {
-       nHits = (((*segment4D).zSegment())->specificRecHits()).size();
-       if(debug)
-	 cout<<"Zed segment with number of hits: "<<nHits<<endl;
-       thetaHistos[0]->Fill((*chamberId).wheel(), nHits);
-       thetaHistos[1]->Fill((*chamberId).sector(), nHits);
-       thetaHistos[2]->Fill((*chamberId).station(), nHits);
-     }
-
+	continue;
+      }
+      //END FOR NOISY CHANNELS////////////////////////////////
+      
+      // Fill the histos
+      int nHits=0;
+      if((*segment4D).hasPhi()){
+	nHits = (((*segment4D).phiSegment())->specificRecHits()).size();
+	if(debug)
+	  cout<<"Phi segment with number of hits: "<<nHits<<endl;
+	phiHistos[0]->Fill((*chamberId).wheel(), nHits);
+	phiHistos[1]->Fill((*chamberId).sector(), nHits);
+	phiHistos[2]->Fill((*chamberId).station(), nHits);
+      }
+      if((*segment4D).hasZed()) {
+	nHits = (((*segment4D).zSegment())->specificRecHits()).size();
+	if(debug)
+	  cout<<"Zed segment with number of hits: "<<nHits<<endl;
+	thetaHistos[0]->Fill((*chamberId).wheel(), nHits);
+	thetaHistos[1]->Fill((*chamberId).sector(), nHits);
+	thetaHistos[2]->Fill((*chamberId).station(), nHits);
+      }
+      
     } //loop over segments
   } // loop over chambers
-
 }
 
