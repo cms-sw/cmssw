@@ -54,6 +54,12 @@ namespace edm
       void addHcalPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId,
                           const edm::EventSetup& ES, edm::ModuleCallingContext const*);
 
+    // set tokens for data access
+    void setHBHEAccess( edm::EDGetTokenT<HBHEDigitizerTraits::DigiCollection> tok) { tok_hbhe_ = tok; }
+    void setHOAccess( edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok) { tok_ho_ = tok; }
+    void setHFAccess( edm::EDGetTokenT<HFDigitizerTraits::DigiCollection> tok) { tok_hf_ = tok; }
+    void setZDCAccess( edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok) { tok_zdc_ = tok; }
+
 
     private:
       // data specifiers
@@ -71,6 +77,12 @@ namespace edm
       std::string HODigiCollectionDM_  ; // secondary name to be given to collection of digis
       std::string HFDigiCollectionDM_  ; // secondary name to be given to collection of digis
       std::string ZDCDigiCollectionDM_ ; // secondary name to be given to collection of digis
+
+     edm::EDGetTokenT<HBHEDigitizerTraits::DigiCollection> tok_hbhe_;
+     edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok_ho_;
+     edm::EDGetTokenT<HFDigitizerTraits::DigiCollection> tok_hf_;
+     edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
+  
 
       HcalDigitizer* myHcalDigitizer_;
       HBHESignalGenerator theHBHESignalGenerator;
