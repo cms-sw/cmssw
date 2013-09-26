@@ -86,9 +86,6 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
         conf.getParameter<double>("MomEEDepth")
 	),
 
-  hbheLabel_(conf.getParameter<edm::InputTag>("hbheInput")),
-  hoLabel_(conf.getParameter<edm::InputTag>("hoInput")),
-  hfLabel_(conf.getParameter<edm::InputTag>("hfInput")),
   ecalLabels_(conf.getParameter<std::vector<edm::InputTag> >("ecalInputs")),
   allowMissingInputs_(conf.getParameter<bool>("AllowMissingInputs")),
 
@@ -110,6 +107,17 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 
 
 {
+
+  // register for data access
+  tok_hbhe_ = consumes<HBHERecHitCollection>(conf.getParameter<edm::InputTag>("hbheInput"));
+  tok_ho_ = consumes<HORecHitCollection>(conf.getParameter<edm::InputTag>("hoInput"));
+  tok_hf_ = consumes<HFRecHitCollection>(conf.getParameter<edm::InputTag>("hfInput"));
+
+  const unsigned nLabels = ecalLabels_.size();
+  for ( unsigned i=0; i != nLabels; i++ ) 
+    toks_ecal_.push_back(consumes<EcalRecHitCollection>(ecalLabels_[i]));
+
+
   EBEScale=EScales.EBScale; 
   EEEScale=EScales.EEScale; 
   HBEScale=EScales.HBScale; 
@@ -221,12 +229,12 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<EcalRecHitCollection> ebHandle;
   edm::Handle<EcalRecHitCollection> eeHandle;
 
-  for (std::vector<edm::InputTag>::const_iterator i=ecalLabels_.begin(); 
-       i!=ecalLabels_.end(); i++) {
+  for (std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i=toks_ecal_.begin(); 
+       i!=toks_ecal_.end(); i++) {
     
     edm::Handle<EcalRecHitCollection> ec_tmp;
     
-    if (! e.getByLabel(*i,ec_tmp) ) continue;
+    if (! e.getByToken(*i,ec_tmp) ) continue;
     if (ec_tmp->size()==0) continue;
 
     // check if this is EB or EE
@@ -250,21 +258,21 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   // Step A/C: Get Inputs and process (repeatedly)
   edm::Handle<HBHERecHitCollection> hbhe;
-  present=e.getByLabel(hbheLabel_,hbhe);
+  present=e.getByToken(tok_hbhe_,hbhe);
   if (present || !allowMissingInputs_)  algo_.process(*hbhe);
 
   edm::Handle<HORecHitCollection> ho;
-  present=e.getByLabel(hoLabel_,ho);
+  present=e.getByToken(tok_ho_,ho);
   if (present || !allowMissingInputs_) algo_.process(*ho);
 
   edm::Handle<HFRecHitCollection> hf;
-  present=e.getByLabel(hfLabel_,hf);
+  present=e.getByToken(tok_hf_,hf);
   if (present || !allowMissingInputs_) algo_.process(*hf);
 
-  std::vector<edm::InputTag>::const_iterator i;
-  for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
+  std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i;
+  for (i=toks_ecal_.begin(); i!=toks_ecal_.end(); i++) {
     edm::Handle<EcalRecHitCollection> ec;
-    present=e.getByLabel(*i,ec);
+    present=e.getByToken(*i,ec);
     if (present || !allowMissingInputs_) algo_.process(*ec);
   }
 

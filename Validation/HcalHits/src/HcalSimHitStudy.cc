@@ -11,6 +11,8 @@ HcalSimHitStudy::HcalSimHitStudy(const edm::ParameterSet& ps) {
   verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
   checkHit_= true;
 
+  tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hcalHits));
+
   edm::LogInfo("HcalSim") << "Module Label: " << g4Label << "   Hits: "
 			  << hcalHits << " / "<< checkHit_ 
 			  << "   Output: " << outFile_;
@@ -102,7 +104,7 @@ void HcalSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
 
   bool getHits = false;
   if (checkHit_) {
-    e.getByLabel(g4Label,hcalHits,hitsHcal); 
+    e.getByToken(tok_hits_,hitsHcal); 
     if (hitsHcal.isValid()) getHits = true;
   }
 

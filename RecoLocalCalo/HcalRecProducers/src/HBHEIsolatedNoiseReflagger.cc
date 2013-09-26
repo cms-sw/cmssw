@@ -21,10 +21,6 @@ Original Author: John Paul Chou (Brown University)
 #include "RecoMET/METAlgorithms/interface/HcalHPDRBXMap.h"
 
 HBHEIsolatedNoiseReflagger::HBHEIsolatedNoiseReflagger(const edm::ParameterSet& iConfig) :
-  hbheLabel_(iConfig.getParameter<edm::InputTag>("hbheInput")),
-  ebLabel_(iConfig.getParameter<edm::InputTag>("ebInput")),
-  eeLabel_(iConfig.getParameter<edm::InputTag>("eeInput")),
-  trackExtrapolationLabel_(iConfig.getParameter<edm::InputTag>("trackExtrapolationInput")),
   
   LooseHcalIsol_(iConfig.getParameter<double>("LooseHcalIsol")),
   LooseEcalIsol_(iConfig.getParameter<double>("LooseEcalIsol")),
@@ -59,6 +55,12 @@ HBHEIsolatedNoiseReflagger::HBHEIsolatedNoiseReflagger(const edm::ParameterSet& 
   debug_(iConfig.getUntrackedParameter<bool>("debug",true)),
   objvalidator_(iConfig)
 {
+
+  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
+  tok_EB_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebInput"));
+  tok_EE_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeInput"));
+  tok_trackExt_ = consumes<std::vector<reco::TrackExtrapolation> >(iConfig.getParameter<edm::InputTag>("trackExtrapolationInput"));
+
   produces<HBHERecHitCollection>();
 }
 
@@ -95,17 +97,17 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
   
   // get the HB/HE hits
   edm::Handle<HBHERecHitCollection> hbhehits_h;
-  iEvent.getByLabel(hbheLabel_, hbhehits_h);
+  iEvent.getByToken(tok_hbhe_, hbhehits_h);
 
   // get the ECAL hits
   edm::Handle<EcalRecHitCollection> ebhits_h;
-  iEvent.getByLabel(ebLabel_, ebhits_h);
+  iEvent.getByToken(tok_EB_, ebhits_h);
   edm::Handle<EcalRecHitCollection> eehits_h;
-  iEvent.getByLabel(eeLabel_, eehits_h);
+  iEvent.getByToken(tok_EE_, eehits_h);
 
   // get the tracks
   edm::Handle<std::vector<reco::TrackExtrapolation> > trackextraps_h;
-  iEvent.getByLabel(trackExtrapolationLabel_, trackextraps_h);
+  iEvent.getByToken(tok_trackExt_, trackextraps_h);
 
   // set the status maps and severity level computers for the hit validator
   objvalidator_.setHcalChannelQuality(dbHcalChStatus);

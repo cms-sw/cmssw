@@ -40,6 +40,6 @@ private:
   std::map<int,int> chunkMap_;
   CDFChunk* chunkList_[1024];
   int trigChunk_;
-  edm::InputTag fedRawDataCollectionTag_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
 };
 #endif

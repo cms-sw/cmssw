@@ -55,10 +55,10 @@ private:
   std::string m_inputPedestals_tag;
   int m_inputPedestals_run;
 
-  edm::InputTag hbheDigiCollectionTag_;
-  edm::InputTag hoDigiCollectionTag_;
-  edm::InputTag hfDigiCollectionTag_;
-  edm::InputTag hcalCalibDigiCollectionTag_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbheDigiCollection_;
+  edm::EDGetTokenT<HODigiCollection> tok_hoDigiCollection_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hfDigiCollection_;
+  edm::EDGetTokenT<HcalCalibDigiCollection> tok_hcalCalibDigiCollection_;
 };
 
 #endif

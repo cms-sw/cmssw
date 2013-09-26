@@ -17,12 +17,13 @@ namespace edm {
     HOPileInputTag_(ps.getParameter<edm::InputTag>("HOPileInputTag")),
     HFPileInputTag_(ps.getParameter<edm::InputTag>("HFPileInputTag")),
     ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
-    theHBHESignalGenerator(HBHEPileInputTag_),
-    theHOSignalGenerator(HOPileInputTag_),
-    theHFSignalGenerator(HFPileInputTag_),
-    theZDCSignalGenerator(ZDCPileInputTag_),
     label_(ps.getParameter<std::string>("Label"))
-  {                                                         
+  {  
+
+    theHBHESignalGenerator = HBHESignalGenerator(HBHEPileInputTag_,tok_hbhe_);
+    theHOSignalGenerator = HOSignalGenerator(HOPileInputTag_,tok_ho_);
+    theHFSignalGenerator = HFSignalGenerator(HFPileInputTag_,tok_hf_);
+    theZDCSignalGenerator = ZDCSignalGenerator(ZDCPileInputTag_,tok_zdc_);
 
     // get the subdetector names
     //    this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...

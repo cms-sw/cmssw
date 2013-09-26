@@ -31,7 +31,9 @@ private:
 
   std::map<HcalDetId,std::vector<SampleSet> > fullHistory_;
   IdMap IdSet;
-  edm::InputTag hbheLabel_,hoLabel_,hfLabel_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  edm::EDGetTokenT<HODigiCollection> tok_ho_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
 
   template <class DigiCollection>
   void record(const DigiCollection& digis) {
@@ -53,10 +55,10 @@ private:
 };
 
 
-HcalCableMapper::HcalCableMapper(edm::ParameterSet const& conf) :
-  hbheLabel_(conf.getParameter<edm::InputTag>("hbheLabel")),
-  hoLabel_(conf.getParameter<edm::InputTag>("hoLabel")),
-  hfLabel_(conf.getParameter<edm::InputTag>("hfLabel")){
+HcalCableMapper::HcalCableMapper(edm::ParameterSet const& conf) {
+  tok_hbhe_ = consumes<HBHEDigiCollection>(conf.getParameter<edm::InputTag>("hbheLabel"));
+  tok_ho_ = consumes<HODigiCollection>(conf.getParameter<edm::InputTag>("hoLabel"));
+  tok_hf_ = consumes<HFDigiCollection>(conf.getParameter<edm::InputTag>("hfLabel"));
   
 }
 
@@ -159,12 +161,12 @@ void HcalCableMapper::process(const PathSet& ps, const IdMap& im){
 void HcalCableMapper::analyze(edm::Event const& e, edm::EventSetup const& c) {
    
   edm::Handle<HBHEDigiCollection> hbhe;
-  e.getByLabel(hbheLabel_,hbhe);
+  e.getByToken(tok_hbhe_,hbhe);
 
   edm::Handle<HFDigiCollection> hf;
-  e.getByLabel(hfLabel_,hf);
+  e.getByToken(tok_hf_,hf);
   edm::Handle<HODigiCollection> ho;
-  e.getByLabel(hoLabel_,ho);
+  e.getByToken(tok_ho_,ho);
   
    
   record(*hbhe);

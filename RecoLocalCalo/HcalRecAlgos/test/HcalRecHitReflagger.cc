@@ -74,6 +74,7 @@ private:
 
   // ----------member data ---------------------------
   edm::InputTag hfInputLabel_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
   int  hfFlagBit_;
 
   // Select the test you wish to run
@@ -120,6 +121,7 @@ HcalRecHitReflagger::HcalRecHitReflagger(const edm::ParameterSet& ps)
    produces<HFRecHitCollection>();
 
    hfInputLabel_        = ps.getUntrackedParameter<InputTag>("hfInputLabel",edm::InputTag("hfreco"));
+  tok_hf_ = consumes<HFRecHitCollection>(hfInputLabel_);
    hfFlagBit_           = ps.getUntrackedParameter<int>("hfFlagBit",HcalCaloFlagLabels::UserDefinedBit0); 
    debug_               = ps.getUntrackedParameter<int>("debug",0);
    
@@ -186,7 +188,7 @@ void
 HcalRecHitReflagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    // read HF RecHits
-   if (!iEvent.getByLabel(hfInputLabel_,hfRecHits))
+   if (!iEvent.getByToken(tok_hf_,hfRecHits))
      {
        if (debug_>0) std::cout <<"Unable to find HFRecHitCollection with label '"<<hfInputLabel_<<"'"<<std::endl;
        return;

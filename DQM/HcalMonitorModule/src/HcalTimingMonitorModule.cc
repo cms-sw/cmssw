@@ -195,17 +195,19 @@ class HcalTimingMonitorModule : public edm::EDAnalyzer {
     MonitorElement *HFTimeCSCp; 
     MonitorElement *HFTimeCSCm;
     
-    std::string L1ADataLabel;
+   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_gtro_;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> tok_L1mu_;
 
-    edm::InputTag hbheDigiCollectionTag_;
-    edm::InputTag hoDigiCollectionTag_;
-    edm::InputTag hfDigiCollectionTag_;
+    edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+    edm::EDGetTokenT<HODigiCollection> tok_ho_;
+    edm::EDGetTokenT<HFDigiCollection> tok_hf_;
 };
 
-HcalTimingMonitorModule::HcalTimingMonitorModule(const edm::ParameterSet& iConfig) :
-   hbheDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("hbheDigiCollectionTag")),
-   hoDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("hoDigiCollectionTag")),
-   hfDigiCollectionTag_(iConfig.getParameter<edm::InputTag>("hfDigiCollectionTag")) {
+HcalTimingMonitorModule::HcalTimingMonitorModule(const edm::ParameterSet& iConfig) {
+
+   tok_hbhe_ = consumes<HBHEDigiCollection>(iConfig.getParameter<edm::InputTag>("hbheDigiCollectionTag"));
+   tok_ho_ = consumes<HODigiCollection>(iConfig.getParameter<edm::InputTag>("hoDigiCollectionTag"));
+   tok_hf_ = consumes<HFDigiCollection>(iConfig.getParameter<edm::InputTag>("hfDigiCollectionTag"));
 
   std::string str;   
    parameters_ = iConfig;
@@ -241,7 +243,11 @@ HcalTimingMonitorModule::HcalTimingMonitorModule(const edm::ParameterSet& iConfi
      
    run_number=0;
    TrigCSC=TrigDT=TrigRPC=TrigGCT=0;
-   L1ADataLabel   = iConfig.getUntrackedParameter<std::string>("L1ADataLabel" , "l1GtUnpack");
+   std::string sLabel = iConfig.getUntrackedParameter<std::string>("L1ADataLabel" , "l1GtUnpack");
+
+   tok_gtro_   = consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag(sLabel));
+   tok_L1mu_ = consumes<L1MuGMTReadoutCollection>(edm::InputTag(sLabel));
+
    prescaleLS_    = parameters_.getUntrackedParameter<int>("prescaleLS",  1);
    prescaleEvt_   = parameters_.getUntrackedParameter<int>("prescaleEvt", 1);
    GCTTriggerBit1_= parameters_.getUntrackedParameter<int>("GCTTriggerBit1", -1);         
@@ -310,8 +316,8 @@ int TRIGGER=0;
    run_number=iEvent.id().run();
    // Check GCT trigger bits
    edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
-   
-   if (!iEvent.getByLabel( L1ADataLabel, gtRecord))
+  
+   if (!iEvent.getByToken( tok_gtro_, gtRecord))
      return;
    const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
    const DecisionWord         dWord = gtRecord->decisionWord();
@@ -328,7 +334,7 @@ int TRIGGER=0;
    /////////////////////////////////////////////////////////////////////////////////////////
    // define trigger trigger source (example from GMT group)
    edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle; 
-   if (!iEvent.getByLabel(L1ADataLabel,gmtrc_handle)) return;
+   if (!iEvent.getByToken(tok_L1mu_,gmtrc_handle)) return;
    L1MuGMTReadoutCollection const* gmtrc = gmtrc_handle.product();
    
   	int idt   =0;
@@ -419,7 +425,7 @@ int TRIGGER=0;
    /////////////////////////////////////////////////////////////////////////////////////////   
    if(counterEvt_<100){
      edm::Handle<HBHEDigiCollection> hbhe; 
-     iEvent.getByLabel(hbheDigiCollectionTag_, hbhe);
+     iEvent.getByToken(tok_hbhe_, hbhe);
      if (hbhe.isValid())
        {
 	 for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
@@ -431,7 +437,7 @@ int TRIGGER=0;
 	 } 
        }  
      edm::Handle<HODigiCollection> ho; 
-     iEvent.getByLabel(hoDigiCollectionTag_, ho);
+     iEvent.getByToken(tok_ho_, ho);
      if (ho.isValid())
      {
        for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
@@ -443,7 +449,7 @@ int TRIGGER=0;
      } // if
 
      edm::Handle<HFDigiCollection> hf;
-     iEvent.getByLabel(hfDigiCollectionTag_, hf);
+     iEvent.getByToken(tok_hf_, hf);
      if (hf.isValid())
        {
          for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
@@ -459,7 +465,7 @@ int TRIGGER=0;
       double data[10];
       
       edm::Handle<HBHEDigiCollection> hbhe; 
-      iEvent.getByLabel(hbheDigiCollectionTag_, hbhe);
+      iEvent.getByToken(tok_hbhe_, hbhe);
       if (hbhe.isValid())
 	{
 	  for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
@@ -499,7 +505,7 @@ int TRIGGER=0;
 	} // if (...)
 
       edm::Handle<HODigiCollection> ho; 
-      iEvent.getByLabel(hoDigiCollectionTag_, ho);
+      iEvent.getByToken(tok_ho_, ho);
       if (ho.isValid())
 	{
 	  for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
@@ -529,7 +535,7 @@ int TRIGGER=0;
 	}// if (ho)
 
       edm::Handle<HFDigiCollection> hf; 
-      iEvent.getByLabel(hfDigiCollectionTag_, hf);
+      iEvent.getByToken(tok_hf_, hf);
       if (hf.isValid())
 	{
 	  for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){

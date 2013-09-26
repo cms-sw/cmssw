@@ -4,17 +4,16 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Validation/HcalDigis/interface/Digi2Raw2Digi.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
@@ -37,7 +36,7 @@
 template<class Digi>
 
 
-void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSetup, const edm::EDGetTokenT<edm::SortedCollection<Digi> > &tok1, const edm::EDGetTokenT<edm::SortedCollection<Digi> > &tok2) {
 
   typename edm::Handle<edm::SortedCollection<Digi> > digiCollection1;
   typename edm::SortedCollection<Digi>::const_iterator digiItr1;
@@ -45,11 +44,11 @@ void Digi2Raw2Digi::compare(const edm::Event& iEvent, const edm::EventSetup& iSe
   typename edm::SortedCollection<Digi>::const_iterator digiItr2;
   
   if(unsuppressed) {  // ZDC
-     iEvent.getByLabel ("simHcalUnsuppressedDigis", digiCollection1); 
+     iEvent.getByToken (tok1, digiCollection1); 
   }
-  else iEvent.getByLabel (inputTag1_, digiCollection1);
+  else iEvent.getByToken (tok1, digiCollection1);
   
-  iEvent.getByLabel (inputTag2_, digiCollection2);
+  iEvent.getByToken (tok2, digiCollection2);
   
   int size1 = 0;
   int size2 = 0;
@@ -222,7 +221,18 @@ Digi2Raw2Digi::Digi2Raw2Digi(const edm::ParameterSet& iConfig)
     inputTag2_(iConfig.getParameter<edm::InputTag>("digiLabel2")),
     outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile")),
     dbe_(0)
-{ 
+{
+
+  // register for data access
+  tok_hbhe1_ = consumes<edm::SortedCollection<HBHEDataFrame> >(inputTag1_);
+  tok_hbhe2_ = consumes<edm::SortedCollection<HBHEDataFrame> >(inputTag2_);
+  tok_ho1_ = consumes<edm::SortedCollection<HODataFrame> >(inputTag1_);
+  tok_ho2_ = consumes<edm::SortedCollection<HODataFrame> >(inputTag2_);
+  tok_hf1_ = consumes<edm::SortedCollection<HFDataFrame> >(inputTag1_);
+  tok_hf2_ = consumes<edm::SortedCollection<HFDataFrame> >(inputTag2_);
+  tok_zdc1_ = consumes<edm::SortedCollection<ZDCDataFrame> >(edm::InputTag("simHcalUnsuppressedDigis"));
+  tok_zdc2_ = consumes<edm::SortedCollection<ZDCDataFrame> >(inputTag2_);
+  
 
   // DQM ROOT output
   if ( outputFile_.size() != 0 ) {
@@ -263,18 +273,18 @@ void Digi2Raw2Digi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   unsuppressed = 0;
   
   //  std::cout << "=== HBHE ==================" << std::endl; 
-  compare<HBHEDataFrame>(iEvent,iSetup);
+  compare<HBHEDataFrame>(iEvent,iSetup,tok_hbhe1_,tok_hbhe2_);
 
   //  std::cout << "=== HO ====================" << std::endl; 
-  compare<HODataFrame>(iEvent,iSetup);
+  compare<HODataFrame>(iEvent,iSetup,tok_ho1_,tok_ho2_);
 
   //  std::cout << "=== HF ====================" << std::endl; 
-  compare<HFDataFrame>(iEvent,iSetup);  
+  compare<HFDataFrame>(iEvent,iSetup,tok_hf1_,tok_hf2_);  
 
 
   //  std::cout << "=== ZDC ===================" << std::endl; 
   unsuppressed = 1;
-  compare<ZDCDataFrame>(iEvent,iSetup);
+  compare<ZDCDataFrame>(iEvent,iSetup,tok_zdc1_,tok_zdc2_);
   
   
   //  std::cout << "=== CASTOR ================" << std::endl; 

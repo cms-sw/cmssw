@@ -2,9 +2,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace edm;
@@ -16,12 +13,17 @@ namespace cms
 
 AlCaDiJetsProducer::AlCaDiJetsProducer(const edm::ParameterSet& iConfig)
 {
-   jetsInput_ = iConfig.getParameter<edm::InputTag>("jetsInput");
+   tok_jets_ = consumes<CaloJetCollection>(iConfig.getParameter<edm::InputTag>("jetsInput"));
    ecalLabels_=iConfig.getParameter<std::vector<edm::InputTag> >("ecalInputs");
-   hbheInput_ = iConfig.getParameter<edm::InputTag>("hbheInput");
-   hoInput_ = iConfig.getParameter<edm::InputTag>("hoInput");
-   hfInput_ = iConfig.getParameter<edm::InputTag>("hfInput"); 
+   tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
+   tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
+   tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput")); 
    allowMissingInputs_ = true;
+
+  // fill ecal tokens from input labels
+   const unsigned nLabels = ecalLabels_.size();
+   for ( unsigned i=0; i != nLabels; i++ ) 
+     toks_ecal_.push_back(consumes<EcalRecHitCollection>(ecalLabels_[i]));
 
 //register your products
    produces<CaloJetCollection>("DiJetsBackToBackCollection");
@@ -65,7 +67,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    CaloJet fJet1, fJet2, fJet3;
    edm::Handle<CaloJetCollection> jets;                
-   iEvent.getByLabel(jetsInput_, jets);    
+   iEvent.getByToken(tok_jets_, jets);    
    int iflag_select = 0; 
    if(jets->size()>1){
     fJet1 = (*jets)[0];
@@ -96,10 +98,10 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // Ecal Collections 
 
-   std::vector<edm::InputTag>::const_iterator i;
-   for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
+   std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i;
+   for (i=toks_ecal_.begin(); i!=toks_ecal_.end(); i++) {
    edm::Handle<EcalRecHitCollection> ec;
-   iEvent.getByLabel(*i,ec);
+   iEvent.getByToken(*i,ec);
    for(EcalRecHitCollection::const_iterator ecItr = (*ec).begin();
                                                  ecItr != (*ec).end(); ++ecItr)
         {
@@ -123,7 +125,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // HB & HE Collections 
    
    edm::Handle<HBHERecHitCollection> hbhe;
-   iEvent.getByLabel(hbheInput_,hbhe);
+   iEvent.getByToken(tok_hbhe_,hbhe);
    for(HBHERecHitCollection::const_iterator hbheItr=hbhe->begin(); 
                                                   hbheItr!=hbhe->end(); hbheItr++)
         {
@@ -146,7 +148,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    edm::Handle<HORecHitCollection> ho;
-   iEvent.getByLabel(hoInput_,ho);
+   iEvent.getByToken(tok_ho_,ho);
    for(HORecHitCollection::const_iterator hoItr=ho->begin(); 
                                                 hoItr!=ho->end(); hoItr++)
      {
@@ -168,7 +170,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
  
    edm::Handle<HFRecHitCollection> hf;
-   iEvent.getByLabel(hfInput_,hf);
+   iEvent.getByToken(tok_hf_,hf);
    for(HFRecHitCollection::const_iterator hfItr=hf->begin(); 
                                                 hfItr!=hf->end(); hfItr++)
        {

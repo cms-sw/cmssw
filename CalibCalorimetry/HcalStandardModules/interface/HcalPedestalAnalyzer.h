@@ -87,9 +87,9 @@ private:
   std::string m_outputPedestalWidths_tag;
   int m_outputPedestalWidths_run;
 
-  edm::InputTag hbheDigiCollectionTag_;
-  edm::InputTag hoDigiCollectionTag_;
-  edm::InputTag hfDigiCollectionTag_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbheDigiCollection_;
+  edm::EDGetTokenT<HODigiCollection> tok_hoDigiCollection_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hfDigiCollection_;
 };
 
 #endif

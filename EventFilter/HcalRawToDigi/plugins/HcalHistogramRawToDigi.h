@@ -22,6 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 class HcalHistogramRawToDigi : public edm::EDProducer
 {
@@ -30,7 +31,7 @@ public:
   virtual ~HcalHistogramRawToDigi();
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
-  edm::InputTag dataTag_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
   HcalUnpacker unpacker_;
   std::vector<int> fedUnpackList_;
   int firstFED_;

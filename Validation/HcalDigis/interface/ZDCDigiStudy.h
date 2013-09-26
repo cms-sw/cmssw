@@ -75,6 +75,8 @@ private:
   bool           verbose_, checkHit_;
   DQMStore       *dbe_;
 
+  edm::EDGetTokenT<ZDCDigiCollection> tok_zdc_;
+
 /////////////////
 
 
