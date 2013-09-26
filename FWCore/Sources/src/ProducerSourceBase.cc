@@ -61,7 +61,7 @@ namespace edm {
     assert(eventCached() || processingMode() != RunsLumisAndEvents);
     EventSourceSentry sentry(*this);
     EventAuxiliary aux(eventID_, processGUID(), Timestamp(presentTime_), isRealData_, eType_);
-    eventPrincipal.fillEventPrincipal(aux, processHistoryRegistryForUpdate());
+    eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry());
     Event e(eventPrincipal, moduleDescription(), nullptr);
     produce(e);
     e.commit_();

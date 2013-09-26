@@ -270,7 +270,7 @@ namespace edm {
     boost::shared_ptr<EventSelectionIDVector> ids(new EventSelectionIDVector(sendEvent_->eventSelectionIDs()));
     boost::shared_ptr<BranchListIndexes> indexes(new BranchListIndexes(sendEvent_->branchListIndexes()));
     branchIDListHelper()->fixBranchListIndexes(*indexes);
-    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), processHistoryRegistryForUpdate(), ids, indexes);
+    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), processHistoryRegistry(), ids, indexes);
     eventPrincipalHolder_.setEventPrincipal(&eventPrincipal);
 
     // no process name list handling
