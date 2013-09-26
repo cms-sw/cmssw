@@ -53,8 +53,8 @@ int main(int argc, char**argv)
   TF1 *Correction[MAX_NETA]; 
   TF1 *L2Correction[MAX_NETA];
   TF1 *L3Response;
-  ifstream L3ResponseFile;
-  ofstream L2File;
+  std::ifstream L3ResponseFile;
+  std::ofstream L2File;
   TGraph *g_L2Correction[MAX_NETA];
   TGraphErrors *g_EtaCorrection[MAX_NETA];
   double aux_CaloPt[NCaloPtValues] = {10,15,20,30,40,50,75,100,150,200,300,400,500,750,1000,1500,2000,3000};

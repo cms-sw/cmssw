@@ -39,7 +39,7 @@ TPNCor::TPNCor(string filename)
   char c;
   int gain;
   double aa, bb, cc;
-  ifstream fin;
+  std::ifstream fin;
   
   if( test ) {
     fclose( test );

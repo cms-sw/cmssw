@@ -203,6 +203,11 @@ namespace edm {
     return ProductID();
   }
 
+  unsigned int
+  EventPrincipal::transitionIndex_() const {
+    return streamID_.value();
+  }
+
   static void throwProductDeletedException(ProductID const& pid, edm::EventPrincipal::ConstProductPtr const phb) {
     ProductDeletedException exception;
     exception<<"get by product ID: The product with given id: "<<pid

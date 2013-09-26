@@ -1,6 +1,8 @@
 #ifndef KDTreeLinkerToolsTemplated_h
 #define KDTreeLinkerToolsTemplated_h
 
+#include <algorithm>
+
 // Box structure used to define 2D field.
 // It's used in KDTree building step to divide the detector
 // space (ECAL, HCAL...) and in searching step to create a bounding
@@ -32,8 +34,8 @@ template <typename DATA>
 struct KDTreeNodeInfo 
 {
   DATA data;
-  float dim1;
-  float dim2;
+  float dim[2];
+  enum {kDim1=0, kDim2=1};
 
   public:
   KDTreeNodeInfo()
@@ -42,38 +44,57 @@ struct KDTreeNodeInfo
   KDTreeNodeInfo(const DATA&	d,
 		 float		dim_1,
 		 float		dim_2)
-    : data(d), dim1(dim_1), dim2(dim_2)
+    : data(d), dim{dim_1, dim_2}
   {}
 };
 
-// KDTree node.
 template <typename DATA>
-struct KDTreeNode
-{
-  // Data
-  KDTreeNodeInfo<DATA> info;
-  
-  // Right/left sons.
-  KDTreeNode *left, *right;
-  
-  // Region bounding box.
-  KDTreeBox region;
-  
-  public:
-  KDTreeNode()
-    : left(0), right(0)
-  {}
-  
-  void setAttributs(const KDTreeBox&		regionBox,
-		    const KDTreeNodeInfo<DATA>&	infoToStore) 
-  {
-    info = infoToStore;
-    region = regionBox;
+struct KDTreeNodes {
+  std::vector<float> median; // or dimCurrent;
+  std::vector<int> right;
+  std::vector<float> dimOther;
+  std::vector<DATA> data;
+
+  int poolSize;
+  int poolPos;
+
+  constexpr KDTreeNodes(): poolSize(-1), poolPos(-1) {}
+
+  bool empty() const { return poolPos == -1; }
+  int size() const { return poolPos + 1; }
+
+  void clear() {
+    median.clear();
+    right.clear();
+    dimOther.clear();
+    data.clear();
+    poolSize = -1;
+    poolPos = -1;
   }
-  
-  void setAttributs(const KDTreeBox&   regionBox) 
-  {
-    region = regionBox;
+
+  int getNextNode() {
+    ++poolPos;
+    return poolPos;
+  }
+
+  void build(int sizeData) {
+    poolSize = sizeData*2-1;
+    median.resize(poolSize);
+    right.resize(poolSize);
+    dimOther.resize(poolSize);
+    data.resize(poolSize);
+  };
+
+  constexpr bool isLeaf(int right) const {
+    // Valid values of right are always >= 2
+    // index 0 is the root, and 1 is the first left node
+    // Exploit index values 0 and 1 to mark which of dim1/dim2 is the
+    // current one in recSearch() at the depth of the leaf.
+    return right < 2;
+  }
+
+  bool isLeafIndex(int index) const {
+    return isLeaf(right[index]);
   }
 };
 

@@ -1,3 +1,4 @@
+<flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable -ftemplate-depth=600 -O0"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/MessageLogger"/>
@@ -9,6 +10,29 @@
 <use   name="CondCore/IOVService"/>
 <use   name="CondCore/MetaDataService"/>
 <use   name="CondCore/TagCollection"/>
+<use   name="CondCore/CondDB"/>
+<use   name="CondFormats/HLTObjects"/>
+<use   name="CondFormats/Alignment"/>
+<use   name="CondFormats/BeamSpotObjects"/>
+<use   name="CondFormats/CastorObjects"/>
+<use   name="CondFormats/HIObjects"/>
+<use   name="CondFormats/CSCObjects"/>
+<use   name="CondFormats/DTObjects"/>
+<use   name="CondFormats/ESObjects"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/EgammaObjects"/>
+<use   name="CondFormats/Luminosity"/>
+<use   name="CondFormats/HcalObjects"/>
+<use   name="CondFormats/JetMETObjects"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="CondFormats/PhysicsToolsObjects"/>
+<use   name="CondFormats/GeometryObjects"/>
+<use   name="CondFormats/RPCObjects"/>
+<use   name="CondFormats/RunInfo"/>
+<use   name="CondFormats/SiPixelObjects"/>
+<use   name="CondFormats/SiStripObjects"/>
+<use   name="CondFormats/Common"/>
+<use   name="CondFormats/BTauObjects"/>
 <use   name="rootcintex"/>
 <export>
   <lib   name="1"/>

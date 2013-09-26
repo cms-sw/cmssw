@@ -45,8 +45,10 @@ DQMMessageLogger::DQMMessageLogger(const ParameterSet& parameters) {
 
   //Get from cfg file
   categories_vector = parameters.getParameter< vector<string> >("Categories");
-  directoryName = parameters.getParameter<string>("Directory");
-  
+  directoryName     = parameters.getParameter<string>("Directory");
+  errorSummary_     = consumes<std::vector<edm::ErrorSummaryEntry> >(parameters.getUntrackedParameter<std::string>("errorSummary","logErrorHarvester"));
+
+
 }
 
 DQMMessageLogger::~DQMMessageLogger() { 
@@ -146,7 +148,7 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
   
   // Take the ErrorSummaryEntry container
   Handle<std::vector<edm::ErrorSummaryEntry> >  errors;
-  iEvent.getByLabel("logErrorHarvester",errors);
+  iEvent.getByToken(errorSummary_,errors);
   // Check that errors is valid
   if(!errors.isValid()){   return; }
   // Compare severity level of error with ELseveritylevel instance el : "-e" should be the lowest error

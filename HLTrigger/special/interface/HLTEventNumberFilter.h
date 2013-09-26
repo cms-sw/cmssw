@@ -15,7 +15,6 @@ Implementation:
 //
 // Original Author:  Martin Grunewald
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTEventNumberFilter.h,v 1.1 2009/06/24 14:30:01 gruen Exp $
 //
 //
 

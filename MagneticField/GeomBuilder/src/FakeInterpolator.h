@@ -5,8 +5,6 @@
  *
  *  Fake field interpolator, that always return B=0.
  *
- *  $Date: $
- *  $Revision: $
  *  \author N. Amapane - CERN
  */
 

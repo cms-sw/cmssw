@@ -16,7 +16,6 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:51:07 CEST 2010
-// $Id: CmsShowCommon.h,v 1.10 2011/03/07 20:57:03 amraktad Exp $
 //
 
 #include <sigc++/signal.h>

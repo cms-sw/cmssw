@@ -19,6 +19,10 @@
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
 
+//DataFormats
+#include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
 class DQMDcsInfo: public edm::EDAnalyzer{
 
 public:
@@ -46,6 +50,8 @@ private:
   edm::ParameterSet parameters_;
   std::string subsystemname_;
   std::string dcsinfofolder_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtCollection_;
+  edm::EDGetTokenT<DcsStatusCollection> dcsStatusCollection_;
   
   bool dcs[25];
    // histograms

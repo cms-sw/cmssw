@@ -6,9 +6,12 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <cmath>
 #include <vector>
@@ -47,7 +50,7 @@ public:
   };
 
 
-  PixelUnpackingRegions(const edm::ParameterSet&);
+  PixelUnpackingRegions(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
 
   ~PixelUnpackingRegions() {}
 
@@ -98,6 +101,9 @@ private:
   std::vector<double> maxZ_;
   edm::InputTag beamSpotTag_;
 
+  edm::EDGetTokenT<reco::BeamSpot> tBeamSpot;
+  std::vector<edm::EDGetTokenT<reco::CandidateView>> tCandidateView;
+
   std::set<unsigned int> feds_;
   std::set<unsigned int> modules_;
   unsigned int nreg_;
@@ -112,7 +118,7 @@ private:
   void gatherFromRange(Region &r, std::vector<Module>::const_iterator, std::vector<Module>::const_iterator);
 
   // addRegion for a local (BPIX or +-FPIX) container
-  void addRegionLocal(Region &r, std::vector<Module> &container, Module lo, Module hi);
+  void addRegionLocal(Region &r, std::vector<Module> &container, const Module& lo,const Module& hi);
 
   // local containers of barrel and endcaps Modules sorted by phi
   std::vector<Module> phiBPIX_;

@@ -18,7 +18,7 @@ public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  GflashEMShowerProfile (edm::ParameterSet parSet);
+  GflashEMShowerProfile (const edm::ParameterSet& parSet);
   ~GflashEMShowerProfile ();
 
   void initialize(int showerType, double energy, 

@@ -1,4 +1,5 @@
 #include "RecoLocalCalo/EcalRecProducers/plugins/EcalUncalibRecHitProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -11,15 +12,18 @@
 
 EcalUncalibRecHitProducer::EcalUncalibRecHitProducer(const edm::ParameterSet& ps)
 {
-        ebDigiCollection_ = ps.getParameter<edm::InputTag>("EBdigiCollection");
-        eeDigiCollection_ = ps.getParameter<edm::InputTag>("EEdigiCollection");
         ebHitCollection_  = ps.getParameter<std::string>("EBhitCollection");
         eeHitCollection_  = ps.getParameter<std::string>("EEhitCollection");
         produces< EBUncalibratedRecHitCollection >(ebHitCollection_);
         produces< EEUncalibratedRecHitCollection >(eeHitCollection_);
 
+	ebDigiCollectionToken_ = consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EBdigiCollection"));
+	
+	eeDigiCollectionToken_ = consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EEdigiCollection"));
+
         std::string componentType = ps.getParameter<std::string>("algo");
-        worker_ = EcalUncalibRecHitWorkerFactory::get()->create(componentType, ps);
+	edm::ConsumesCollector c{consumesCollector()};
+        worker_ = EcalUncalibRecHitWorkerFactory::get()->create(componentType, ps, c);
 }
 
 EcalUncalibRecHitProducer::~EcalUncalibRecHitProducer()
@@ -38,27 +42,15 @@ EcalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         const EBDigiCollection* ebDigis =0;
         const EEDigiCollection* eeDigis =0;
 
-        if ( ebDigiCollection_.label() != "" && ebDigiCollection_.instance() != "" ) {
-                evt.getByLabel( ebDigiCollection_, pEBDigis);
-                //evt.getByLabel( digiProducer_, pEBDigis);
-                if ( pEBDigis.isValid() ) {
-                        ebDigis = pEBDigis.product(); // get a ptr to the produc
-                        edm::LogInfo("EcalUncalibRecHitInfo") << "total # ebDigis: " << ebDigis->size() ;
-                } else {
-                        edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << ebDigiCollection_;
-                }
-        }
 
-        if ( eeDigiCollection_.label() != "" && eeDigiCollection_.instance() != "" ) {
-                evt.getByLabel( eeDigiCollection_, pEEDigis);
-                //evt.getByLabel( digiProducer_, pEEDigis);
-                if ( pEEDigis.isValid() ) {
-                        eeDigis = pEEDigis.product(); // get a ptr to the product
-                        edm::LogInfo("EcalUncalibRecHitInfo") << "total # eeDigis: " << eeDigis->size() ;
-                } else {
-                        edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << eeDigiCollection_;
-                }
-        }
+	evt.getByToken( ebDigiCollectionToken_, pEBDigis);		
+	ebDigis = pEBDigis.product(); // get a ptr to the produc
+	edm::LogInfo("EcalUncalibRecHitInfo") << "total # ebDigis: " << ebDigis->size() ;
+                    
+	evt.getByToken( eeDigiCollectionToken_, pEEDigis);            
+	eeDigis = pEEDigis.product(); // get a ptr to the product
+	edm::LogInfo("EcalUncalibRecHitInfo") << "total # eeDigis: " << eeDigis->size() ;
+        
 
         // tranparently get things from event setup
         worker_->set(es);

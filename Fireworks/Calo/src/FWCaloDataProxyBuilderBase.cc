@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 15:09:39 CEST 2010
-// $Id: FWCaloDataProxyBuilderBase.cc,v 1.4 2010/10/22 15:34:16 amraktad Exp $
 //
 
 // system include files

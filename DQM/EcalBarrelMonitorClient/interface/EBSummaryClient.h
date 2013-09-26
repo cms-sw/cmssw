@@ -67,7 +67,7 @@ inline int getEvtPerJob() { return ievt_; }
 inline int getEvtPerRun() { return jevt_; }
 
 /// Set Clients
-inline void setFriends(std::vector<EBClient*> clients) { clients_ = clients; }
+inline void setFriends(const std::vector<EBClient*>& clients) { clients_ = clients; }
 
 private:
 

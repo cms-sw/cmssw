@@ -29,6 +29,7 @@ namespace edm {
                 ParameterSet const& pset,
                 PoolSource& input,
                 InputFileCatalog const& catalog,
+                unsigned int nStreams,
                 InputType::InputType inputType) :
     input_(input),
     inputType_(inputType),
@@ -44,6 +45,7 @@ namespace edm {
     flatDistribution_(),
     indexesIntoFiles_(fileCatalogItems().size()),
     orderedProcessHistoryIDs_(),
+    nStreams_(nStreams),
     eventSkipperByID_(inputType == InputType::Primary ? EventSkipperByID::create(pset).release() : 0),
     eventsRemainingInFile_(0),
     // The default value provided as the second argument to the getUntrackedParameter function call
@@ -195,7 +197,6 @@ namespace edm {
     bool hasFallbackUrl = !fallbackName.empty() && fallbackName != fileIter_->fileName();
 
     boost::shared_ptr<InputFile> filePtr;
-    std::list<std::string> originalInfo;
     try {
       std::unique_ptr<InputSource::FileOpenSentry>
         sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_, lfn_, usedFallback_) : 0);
@@ -208,7 +209,6 @@ namespace edm {
           out << e.explainSelf();
           std::string pfn(gSystem->ExpandPathName(fallbackName.c_str()));
           InputFile::reportFallbackAttempt(pfn, fileIter_->logicalFileName(), out.str());
-          originalInfo = e.additionalInfo();
         } else {
           InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
           Exception ex(errors::FileOpenError, "", e);
@@ -235,25 +235,25 @@ namespace edm {
           std::ostringstream out;
           out << "Input file " << fileIter_->fileName() << " could not be opened.\n";
           out << "Fallback Input file " << fallbackName << " also could not be opened.";
-          if (originalInfo.size()) {
-            out << std::endl << "Original exception info is above; fallback exception info is below.";
-            ex.addAdditionalInfo(out.str());
-            for (auto const & s : originalInfo) {
-              ex.addAdditionalInfo(s);
-            }
-          } else {
-            ex.addAdditionalInfo(out.str());
-          }
+          ex.addAdditionalInfo(out.str());
           throw ex;
         }
       }
     }
     if(filePtr) {
       std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile = fileIter_ - fileIterBegin_;
-      rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(),
-          processConfiguration(), fileIter_->logicalFileName(), filePtr,
-          eventSkipperByID_, initialNumberOfEventsToSkip_ != 0,
-          remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
+      rootFile_ = RootFileSharedPtr(new RootFile(
+          fileIter_->fileName(),
+          processConfiguration(),
+          fileIter_->logicalFileName(),
+          filePtr,
+          eventSkipperByID_,
+          initialNumberOfEventsToSkip_ != 0,
+          remainingEvents(),
+          remainingLuminosityBlocks(),
+	  nStreams_,
+          treeCacheSize_,
+          treeMaxVirtualSize_,
           input_.processingMode(),
           setRun_,
           noEventSort_,

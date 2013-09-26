@@ -15,7 +15,6 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Sun Oct  7 00:37:06 CEST 2007
-// $Id$
 //
 //
 

@@ -3,6 +3,7 @@
 //----------Modified: 24/03/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaRun.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaRun.cc

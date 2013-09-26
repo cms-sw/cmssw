@@ -23,7 +23,7 @@ namespace reco
     public:
       /* Constructors*/
       GenMET() ;
-      GenMET( SpecificGenMETData gen_data_, double sumet_, 
+      GenMET( const SpecificGenMETData& gen_data_, double sumet_, 
 	       const LorentzVector& fP4, const Point& fVertex ) 
 	: MET( sumet_, fP4, fVertex ), gen_data( gen_data_ ) {}
       /* Default destructor*/

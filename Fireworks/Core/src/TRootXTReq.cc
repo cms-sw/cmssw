@@ -1,4 +1,3 @@
-// $Id: TRootXTReq.cc,v 1.2 2010/07/01 18:50:02 chrjones Exp $
 
 #include "Fireworks/Core/interface/TRootXTReq.h"
 

@@ -8,7 +8,6 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Fri Jul 25 11:49:12 EDT 2008
-// $Id: CmsShowTaskTimer.cc,v 1.3 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files

@@ -52,7 +52,7 @@ MERunManager::updateRunList()
 {
   TString runlistfile = ME::runListName( _lmr, _type, _color );
 
-  ifstream fin;
+  std::ifstream fin;
   fin.open(runlistfile);
 
   MERun* aRun(0);

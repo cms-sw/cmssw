@@ -1,4 +1,3 @@
-// $Id: testMakeCompositeCandidate.cc,v 1.2 2008/03/13 13:13:27 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "PhysicsTools/CandUtils/interface/makeCompositeCandidate.h"

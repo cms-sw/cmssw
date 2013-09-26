@@ -1,16 +1,10 @@
-
-#include "FWCore/Utilities/interface/EDMException.h"
-
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
-
-// These are to be removed once the new client supports prepare requests.
 #include "XrdClient/XrdClientAdmin.hh"
 #include "XrdClient/XrdClientUrlSet.hh"
-#include "XrdCl/XrdClDefaultEnv.hh"
-
+#include "XrdClient/XrdClientEnv.hh"
 
 class XrdStorageMaker : public StorageMaker
 {
@@ -21,6 +15,11 @@ public:
 			 const std::string &path,
 			 int mode) override
   {
+    // The important part here is not the cache size (which will get
+    // auto-adjusted), but the fact the cache is set to something non-zero.
+    // If we don't do this before creating the XrdFile object, caching will be
+    // completely disabled, resulting in poor performance.
+    EnvPutInt(NAME_READCACHESIZE, 20*1024*1024);
 
     StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
@@ -75,29 +74,7 @@ public:
 
   virtual void setDebugLevel (unsigned int level) override
   {
-    switch (level)
-    {
-      case 0:
-        XrdCl::DefaultEnv::SetLogLevel("Error");
-        break;
-      case 1:
-        XrdCl::DefaultEnv::SetLogLevel("Warning");
-        break;
-      case 2:
-        XrdCl::DefaultEnv::SetLogLevel("Info");
-        break;
-      case 3:
-        XrdCl::DefaultEnv::SetLogLevel("Debug");
-        break;
-      case 4:
-        XrdCl::DefaultEnv::SetLogLevel("Dump");
-        break;
-      default:
-        edm::Exception ex(edm::errors::Configuration);
-        ex << "Invalid log level specified " << level;
-        ex.addContext("Calling XrdStorageMaker::setDebugLevel()");
-        throw ex;
-    }
+    EnvPutInt("DebugLevel", level);
   }
 };
 

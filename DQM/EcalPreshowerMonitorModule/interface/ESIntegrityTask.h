@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+
 class MonitorElement;
 class DQMStore;
 
@@ -61,8 +63,8 @@ class ESIntegrityTask : public edm::EDAnalyzer {
       bool enableCleanup_;
       bool mergeRuns_;
 
-      edm::InputTag dccCollections_;
-      edm::InputTag kchipCollections_;
+      edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
+      edm::EDGetTokenT<ESLocalRawDataCollection> kchipCollections_;
 
       MonitorElement* meGain_;
       MonitorElement* meFED_;

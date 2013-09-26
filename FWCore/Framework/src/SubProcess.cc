@@ -149,7 +149,7 @@ namespace edm {
                                                               *processConfiguration_,
                                                               historyAppender_.get(),
                                                               index));
-      principalCache_.insert(ep,index);
+      principalCache_.insert(ep);
     }
     if(subProcessParameterSet) {
       subProcess_.reset(new SubProcess(*subProcessParameterSet,
@@ -259,7 +259,7 @@ namespace edm {
   SubProcess::fixBranchIDListsForEDAliases(std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID) {
     // Check for branches dropped while an EDAlias was kept.
     // Replace BranchID of each dropped branch with that of the kept alias.
-    for(BranchIDList& branchIDList : branchIDListHelper_->branchIDLists()) {
+    for(BranchIDList& branchIDList : branchIDListHelper_->mutableBranchIDLists()) {
       for(BranchID::value_type& branchID : branchIDList) {
         std::map<BranchID::value_type, BranchID::value_type>::const_iterator iter = droppedBranchIDToKeptBranchID.find(branchID);
         if(iter != droppedBranchIDToKeptBranchID.end()) {
@@ -300,7 +300,6 @@ namespace edm {
     }
 
     EventPrincipal& ep = principalCache_.eventPrincipal(principal.streamID().value());
-    ep.setStreamID(principal.streamID());
     ep.fillEventPrincipal(aux,
                           processHistoryRegistry_,
                           esids,

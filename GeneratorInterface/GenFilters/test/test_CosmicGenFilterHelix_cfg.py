@@ -1,7 +1,6 @@
 #
 # Original Author:  Gero Flucke
 #         Created:  15.8.2008
-#             $Id$
 #
 
 import FWCore.ParameterSet.Config as cms

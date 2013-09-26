@@ -4,8 +4,6 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2010/02/16 17:04:47 $
- *  $Revision: 1.24 $
  * \author Alex Tumanov 
  */
 

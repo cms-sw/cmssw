@@ -8,7 +8,6 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoFromDddService.cc,v 1.4 2010/08/24 07:12:00 yana Exp $
 //
 
 // system include files

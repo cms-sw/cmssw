@@ -76,7 +76,8 @@ namespace sistrip {
                                             *productRegistry_,
                                             boost::shared_ptr<edm::BranchIDListHelper>(new edm::BranchIDListHelper),
                                             boost::shared_ptr<edm::ActivityRegistry>(new edm::ActivityRegistry),
-                                            -1, -1);
+                                            -1, -1,
+                                            edm::PreallocationConfiguration());
     return sourceFactory->makeVectorInputSource(sourceConfig, description);
   }
 

@@ -148,7 +148,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
    SiStripFecCabling* fecCabling_;
    fecCabling_ = new SiStripFecCabling( *tkFed );
    std::string Ccufilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"cculist.txt";
-   ifstream Ccufile(edm::FileInPath(Ccufilename).fullPath().c_str(),std::ios::in);
+   std::ifstream Ccufile(edm::FileInPath(Ccufilename).fullPath().c_str(),std::ios::in);
    std::string dummys;
    while(!Ccufile.eof()) {
      Ccufile >> crate >> slot >> ring >> addr >> pos;
@@ -242,21 +242,21 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
                          20,0,21,0,22,0,
                          23,0,24,25,0,26,
                          27,0,28,0,29};
- //  ifstream *LVfile;
- //  ifstream *HVfile;
+ //  std::ifstream *LVfile;
+ //  std::ifstream *HVfile;
    
   
  
   std::string LVfilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","CommonTools/TrackerMap/data/")+"psdcumap.dat";
   //std::string HVfilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"hvmap.dat";
   
-  ifstream LVfile(edm::FileInPath(LVfilename).fullPath().c_str(),std::ios::in);
+  std::ifstream LVfile(edm::FileInPath(LVfilename).fullPath().c_str(),std::ios::in);
   
   std::cout<<LVfilename<<std::endl;
   
  /* 
    if(enableHVProcessing){
-	    ifstream HVfile(edm::FileInPath(HVfilename).fullPath().c_str(),std::ios::in);
+	    std::ifstream HVfile(edm::FileInPath(HVfilename).fullPath().c_str(),std::ios::in);
 	    while(!HVfile.eof()) {
 	    HVfile >> modId2 >> channelstr1;
 	    std::string channelstr2 = channelstr1.substr(9,1);
@@ -794,7 +794,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
   if (temporary_file){ // create root trackermap image
     int red,green,blue,npoints,colindex,ncolor;
     double x[4],y[4];
-    ifstream tempfile(tempfilename.c_str(),std::ios::in);
+    std::ifstream tempfile(tempfilename.c_str(),std::ios::in);
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
@@ -1440,7 +1440,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
   std::string tempfilename = outputfilename + ".coor";
     int red,green,blue,npoints,colindex,ncolor;
     double x[4],y[4];
-    ifstream tempfile(tempfilename.c_str(),std::ios::in);
+    std::ifstream tempfile(tempfilename.c_str(),std::ios::in);
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
 
@@ -1721,7 +1721,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
   std::string tempfilename = outputfilename + ".coor";
     int red,green,blue,npoints,colindex,ncolor;
     double x[4],y[4];
-    ifstream tempfile(tempfilename.c_str(),std::ios::in);
+    std::ifstream tempfile(tempfilename.c_str(),std::ios::in);
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
@@ -2003,7 +2003,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   std::string tempfilename = outputfilename + ".coor";
     int red,green,blue,npoints,colindex,ncolor;
     double x[4],y[4];
-    ifstream tempfile(tempfilename.c_str(),std::ios::in);
+    std::ifstream tempfile(tempfilename.c_str(),std::ios::in);
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
@@ -2274,7 +2274,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
   std::string tempfilename = outputfilename + ".coor";
     int red,green,blue,npoints,colindex,ncolor;
     double x[4],y[4];
-    ifstream tempfile(tempfilename.c_str(),std::ios::in);
+    std::ifstream tempfile(tempfilename.c_str(),std::ios::in);
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
 
@@ -2375,7 +2375,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 }
 
 void TrackerMap::load(std::string inputfilename){
-  inputfile = new ifstream(inputfilename.c_str(),std::ios::in);
+  inputfile = new std::ifstream(inputfilename.c_str(),std::ios::in);
   std::string line,value;
   int ipos,ipos1,ipos2,id=0,val=0;
   int nline=0;
@@ -2415,7 +2415,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, std::string
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".xml";
   svgfile = new std::ofstream(outs.str().c_str(),std::ios::out);
-  jsfile = new ifstream(edm::FileInPath(jsfilename).fullPath().c_str(),std::ios::in);
+  jsfile = new std::ifstream(edm::FileInPath(jsfilename).fullPath().c_str(),std::ios::in);
 
   //copy javascript interface from trackermap.txt file
   std::string line;
@@ -2785,14 +2785,14 @@ void TrackerMap::setText(int layer, int ring, int nmod, std::string s){
 } 
 
 void TrackerMap::build(){
-  //  ifstream* infile;
+  //  std::ifstream* infile;
 
   int nmods, pix_sil, fow_bar, ring, nmod, layer;
   unsigned int idex;
   float posx, posy, posz, length, width, thickness, widthAtHalfLength;
   int iModule=0,old_layer=0, ntotMod =0;
   std::string name,dummys;
-  ifstream infile(edm::FileInPath(infilename).fullPath().c_str(),std::ios::in);
+  std::ifstream infile(edm::FileInPath(infilename).fullPath().c_str(),std::ios::in);
   while(!infile.eof()) {
     infile >> nmods >> pix_sil >> fow_bar >> layer >> ring >> nmod >> posx >> posy
 	   >> posz>> length >> width >> thickness
@@ -3491,14 +3491,14 @@ std::ifstream * TrackerMap::findfile(std::string filename) {
   std::string ifname;
   if(jsPath!=""){
   ifname=jsPath+filename;
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),std::ios::in);
+  ifilename = new std::ifstream(edm::FileInPath(ifname).fullPath().c_str(),std::ios::in);
   if(!ifilename){
   ifname="CommonTools/TrackerMap/data/"+filename;
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),std::ios::in);
+  ifilename = new std::ifstream(edm::FileInPath(ifname).fullPath().c_str(),std::ios::in);
   }
   }else {
   ifname="CommonTools/TrackerMap/data/"+filename;
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),std::ios::in);
+  ifilename = new std::ifstream(edm::FileInPath(ifname).fullPath().c_str(),std::ios::in);
  }
   if(!ifilename)std::cout << "File " << filename << " missing" << std::endl;
   return ifilename;

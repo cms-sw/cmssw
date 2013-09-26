@@ -9,7 +9,6 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Feb 23 15:38 CEST 2007
-// $Id: MVAComputerCache.h,v 1.1 2007/12/08 16:11:11 saout Exp $
 //
 
 #include <memory>

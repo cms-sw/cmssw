@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+# Not actually functioning at the moment, use primaryChgSimTracks - Matt Nguyen, 24/7/2013
 findableSimTracks = cms.EDFilter("HitPixelLayersTPSelection",
     src = cms.InputTag("mix","MergedTrackTruth"),
 	tripletSeedOnly = cms.bool(True),

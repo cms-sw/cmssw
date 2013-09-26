@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 class MonitorElement;
 class DQMStore;
 
@@ -22,8 +24,7 @@ class ESOccupancyTask : public edm::EDAnalyzer {
   virtual void endJob(void) ;
   
   // ----------member data ---------------------------
-  edm::InputTag rechitlabel_;
-  edm::InputTag digilabel_;
+  edm::EDGetTokenT<ESRecHitCollection> rechittoken_;
   std::string prefixME_;
   
   DQMStore* dqmStore_;

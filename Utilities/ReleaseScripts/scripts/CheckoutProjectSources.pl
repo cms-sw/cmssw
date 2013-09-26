@@ -6,7 +6,6 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2005-10-28 12:12:08+0200
-# Revision: $Id: CheckoutProjectSources.pl,v 1.3 2006/03/30 12:54:12 sashby Exp $ 
 #
 #  Shaun ASHBY
 #

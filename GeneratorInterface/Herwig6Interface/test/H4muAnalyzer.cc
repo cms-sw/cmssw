@@ -6,7 +6,6 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: H4muAnalyzer.cc,v 1.7 2009/12/23 17:01:35 yarba Exp $
 //
 //
 

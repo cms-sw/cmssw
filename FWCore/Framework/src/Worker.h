@@ -25,6 +25,7 @@ the worker is reset().
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
+#include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -56,6 +57,7 @@ namespace edm {
   namespace workerhelper {
     template< typename O> class CallImpl;
   }
+
   class Worker {
   public:
     enum State { Ready, Pass, Fail, Exception };
@@ -149,7 +151,9 @@ namespace edm {
     virtual void implEndStream(StreamID) = 0;
     
     void resetModuleDescription(ModuleDescription const*);
+
   private:
+
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
 
@@ -196,20 +200,6 @@ namespace edm {
       ActivityRegistry* a_;
       ModuleDescription const* md_;
       typename T::Context const* context_;
-      ModuleCallingContext* moduleCallingContext_;
-    };
-
-    class ModuleContextSentry {
-    public:
-      ModuleContextSentry(ModuleCallingContext* moduleCallingContext,
-                          ParentContext const& parentContext) :
-        moduleCallingContext_(moduleCallingContext) {
-        moduleCallingContext_->setContext(ModuleCallingContext::State::kRunning, parentContext);
-      }
-      ~ModuleContextSentry() {
-        moduleCallingContext_->setContext(ModuleCallingContext::State::kInvalid, ParentContext());
-      }
-    private:
       ModuleCallingContext* moduleCallingContext_;
     };
 

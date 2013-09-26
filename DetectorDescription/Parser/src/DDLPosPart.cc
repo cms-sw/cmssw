@@ -17,7 +17,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLPosPart::DDLPosPart( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )
@@ -95,7 +95,7 @@ DDLPosPart::processElement( const std::string& name, const std::string& nmspace,
 
   DCOUT_V('P', "DDLPosPart::processElement:  Final Rotation info: " << rotn);
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
 
   double x = 0.0, y = 0.0, z = 0.0;
   if (myTranslation->size() > 0)

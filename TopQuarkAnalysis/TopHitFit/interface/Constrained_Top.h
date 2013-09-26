@@ -1,5 +1,4 @@
 //
-// $Id: Constrained_Top.h,v 1.8 2011/04/29 15:04:48 haryo Exp $
 //
 // File: hitfit/Constrained_Top.h
 // Purpose: Do kinematic fitting for a ttbar -> ljets event.

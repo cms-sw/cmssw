@@ -9,7 +9,6 @@
  * By requiring the return value to be zero one can select reco taus
  * that have the decay mode correctly reconstructed.
  *
- * $Id. $
  */
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"

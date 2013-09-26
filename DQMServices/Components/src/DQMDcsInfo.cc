@@ -22,9 +22,11 @@ DQMDcsInfo::DQMDcsInfo(const edm::ParameterSet& ps)
 
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "Info") ;
-  dcsinfofolder_ = parameters_.getUntrackedParameter<std::string>("dcsInfoFolder", "DcsInfo") ;
-  
+  subsystemname_       = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "Info") ;
+  dcsinfofolder_       = parameters_.getUntrackedParameter<std::string>("dcsInfoFolder", "DcsInfo") ;
+  gtCollection_        = consumes<L1GlobalTriggerReadoutRecord>(parameters_.getUntrackedParameter<std::string>("gtCollection","gtDigis"));
+  dcsStatusCollection_ = consumes<DcsStatusCollection>(parameters_.getUntrackedParameter<std::string>("dcsStatusCollection","scalersRawToDigi"));
+
   // initialize
   for (int i=0;i<25;i++) dcs[i]=true;
 }
@@ -87,7 +89,7 @@ DQMDcsInfo::makeDcsInfo(const edm::Event& e)
 {
 
   edm::Handle<DcsStatusCollection> dcsStatus;
-  if ( ! e.getByLabel("scalersRawToDigi", dcsStatus) )
+  if ( ! e.getByToken(dcsStatusCollection_, dcsStatus) )
   {
     for (int i=0;i<24;i++) dcs[i]=false;
     return;
@@ -137,7 +139,7 @@ DQMDcsInfo::makeGtInfo(const edm::Event& e)
 {
 
   edm::Handle<L1GlobalTriggerReadoutRecord> gtrr_handle;
-  if ( ! e.getByLabel("gtDigis", gtrr_handle) ) 
+  if ( ! e.getByToken(gtCollection_, gtrr_handle) ) 
   {
     dcs[24]=false; // info not available: set to false
     return;

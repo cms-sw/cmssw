@@ -25,9 +25,6 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
@@ -52,6 +49,11 @@ GlobalMuonMatchAnalyzer::GlobalMuonMatchAnalyzer(const edm::ParameterSet& iConfi
 
   out = iConfig.getUntrackedParameter<std::string>("out");
   dbe_ = edm::Service<DQMStore>().operator->();
+
+  tpToken_ = consumes<edm::View<reco::Track> >(tpName_);
+  tkToken_ = consumes<edm::View<reco::Track> >(tkName_);
+  staToken_ = consumes<edm::View<reco::Track> >(staName_);
+  glbToken_ = consumes<edm::View<reco::Track> >(glbName_);
 }
 
 
@@ -76,23 +78,23 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
    using namespace reco;
 
    Handle<TrackingParticleCollection> tpHandle;
-   iEvent.getByLabel(tpName_,tpHandle);
+   iEvent.getByToken(tpToken_,tpHandle);
    const TrackingParticleCollection tpColl = *(tpHandle.product());
 
    Handle<reco::MuonTrackLinksCollection> muHandle;
-   iEvent.getByLabel(glbName_,muHandle);
+   iEvent.getByToken(glbToken_,muHandle);
    const reco::MuonTrackLinksCollection muColl = *(muHandle.product());
 
    Handle<View<Track> > staHandle;
-   iEvent.getByLabel(staName_,staHandle);
+   iEvent.getByToken(staToken_,staHandle);
    //   const reco::TrackCollection staColl = *(staHandle.product());
 
    Handle<View<Track> > glbHandle;
-   iEvent.getByLabel(glbName_,glbHandle);
+   iEvent.getByToken(glbToken_,glbHandle);
    //   const reco::TrackCollection glbColl = *(glbHandle.product());
 
    Handle<View<Track> > tkHandle;
-   iEvent.getByLabel(tkName_,tkHandle);
+   iEvent.getByToken(tkToken_,tkHandle);
    //   const reco::TrackCollection mtkColl = *(tkHandle.product());
 
    reco::RecoToSimCollection tkrecoToSimCollection;

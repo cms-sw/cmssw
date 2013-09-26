@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWBoolParameterSetter.cc,v 1.6.8.1 2011/02/11 19:42:16 amraktad Exp $
 //
 
 // system include files

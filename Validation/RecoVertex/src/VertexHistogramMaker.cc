@@ -45,7 +45,7 @@ VertexHistogramMaker::~VertexHistogramMaker() {
 void VertexHistogramMaker::book(const std::string dirname) {
 
   edm::Service<TFileService> tfserv;
-  TFileDirectory* currdir = &(*tfserv);
+  TFileDirectory* currdir = &(tfserv->tFileDirectory());
 
   if(dirname!="") {
     currdir = new TFileDirectory(tfserv->mkdir(dirname));
@@ -200,7 +200,7 @@ void VertexHistogramMaker::beginRun(const edm::Run& iRun) {
   TFileDirectory* currdir = m_currdir;
   if(currdir==0) {
     edm::Service<TFileService> tfserv;
-    currdir = &(*tfserv);
+    currdir = &(tfserv->tFileDirectory());
   }
 
   m_rhm.beginRun(iRun,*currdir);
@@ -351,13 +351,6 @@ void VertexHistogramMaker::fill(const unsigned int orbit, const int bx, const fl
 }
 
 void VertexHistogramMaker::fill(const edm::Event& iEvent, const reco::VertexCollection& vertices, const double weight) {
-
-  TFileDirectory* currdir = m_currdir;
-  if(currdir==0) {
-    edm::Service<TFileService> tfserv;
-    currdir = &(*tfserv);
-  }
-
 
   // get luminosity
 

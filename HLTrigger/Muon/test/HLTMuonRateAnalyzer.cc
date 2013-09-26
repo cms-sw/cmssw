@@ -14,11 +14,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -41,6 +37,11 @@ HLTMuonRateAnalyzer::HLTMuonRateAnalyzer(const ParameterSet& pset)
   theGenLabel = pset.getUntrackedParameter<InputTag>("GenLabel");
   theL1CollectionLabel = pset.getUntrackedParameter<InputTag>("L1CollectionLabel");
   theHLTCollectionLabels = pset.getUntrackedParameter<std::vector<InputTag> >("HLTCollectionLabels");
+  theGenToken = consumes<edm::HepMCProduct>(theGenLabel);
+  theL1CollectionToken = consumes<trigger::TriggerFilterObjectWithRefs>(theL1CollectionLabel);
+  for (unsigned int i=0; i<theHLTCollectionLabels.size(); ++i) {
+    theHLTCollectionTokens.push_back(consumes<trigger::TriggerFilterObjectWithRefs>(theHLTCollectionLabels[i]));
+  }
   theL1ReferenceThreshold = pset.getUntrackedParameter<double>("L1ReferenceThreshold");
   theNSigmas = pset.getUntrackedParameter<std::vector<double> >("NSigmas90");
 
@@ -146,7 +147,7 @@ void HLTMuonRateAnalyzer::analyze(const Event & event, const EventSetup& eventSe
   double this_event_weight=1.;
   try {
       Handle<HepMCProduct> genProduct;
-      event.getByLabel(theGenLabel,genProduct);
+      event.getByToken(theGenToken,genProduct);
       const HepMC::GenEvent* evt = genProduct->GetEvent();
       HepMC::WeightContainer weights = evt->weights();
       if ( weights.size() > 0 )  this_event_weight=weights[0];
@@ -158,14 +159,14 @@ void HLTMuonRateAnalyzer::analyze(const Event & event, const EventSetup& eventSe
 
   // Get the L1 collection
   Handle<TriggerFilterObjectWithRefs> l1cands;
-  event.getByLabel(theL1CollectionLabel, l1cands);
+  event.getByToken(theL1CollectionToken, l1cands);
   if (l1cands.failedToGet()) return;
 
   // Get the HLT collections
   std::vector<Handle<TriggerFilterObjectWithRefs> > hltcands(theHLTCollectionLabels.size());
   unsigned int modules_in_this_event = 0;
   for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-    event.getByLabel(theHLTCollectionLabels[i], hltcands[i]);
+    event.getByToken(theHLTCollectionTokens[i], hltcands[i]);
     if (hltcands[i].failedToGet())break;
     modules_in_this_event++;
   }

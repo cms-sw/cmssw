@@ -107,7 +107,7 @@ HitDigitizerFP420::~HitDigitizerFP420(){
 
 
 //HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit, G4ThreeVector bfield, int xytype,int numStrips, double pitch){
-HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit, G4ThreeVector bfield, int xytype,int numStrips, double pitch, int numStripsW, double pitchW, double moduleThickness, int verbosity){
+HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit, const G4ThreeVector& bfield, int xytype,int numStrips, double pitch, int numStripsW, double pitchW, double moduleThickness, int verbosity){
   
   // use chargePosition just for cross-check in "induce" method
   // hit center in 3D-detector r.f.
@@ -189,7 +189,7 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const PSimHit& hit
 
 
 
-G4ThreeVector HitDigitizerFP420::DriftDirection(G4ThreeVector _bfield, int xytype, int verbosity){
+G4ThreeVector HitDigitizerFP420::DriftDirection(const G4ThreeVector& _bfield, int xytype, int verbosity){
   
   // LOCAL hit: exchange xytype:  1 <-> 2
   

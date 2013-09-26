@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.34 2011/08/20 03:50:05 amraktad Exp $
 //
 
 #include "TEveJetCone.h"

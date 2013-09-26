@@ -12,7 +12,6 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Thu Oct 29 11:04:22 CET 2009
-// $Id: HLTRPCFilter.cc,v 1.3 2012/01/21 15:00:22 fwyzard Exp $
 //
 //
 

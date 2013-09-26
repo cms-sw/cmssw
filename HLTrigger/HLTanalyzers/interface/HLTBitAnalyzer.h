@@ -62,6 +62,18 @@ private:
   edm::InputTag gtReadoutRecord_,gtObjectMap_; 
   edm::InputTag gctBitCounts_,gctRingSums_;
 
+  edm::EDGetTokenT<edm::TriggerResults>                  hltresultsToken_;
+  edm::EDGetTokenT<GenEventInfoProduct>                  genEventInfoToken_;
+  edm::EDGetTokenT<l1extra::L1MuonParticleCollection>    l1extramuToken_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection>      l1extraemiToken_, l1extraemnToken_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>     l1extrajetcToken_, l1extrajetfToken_, l1extrajetToken_, l1extrataujetToken_;
+  edm::EDGetTokenT<l1extra::L1EtMissParticleCollection>  l1extrametToken_,l1extramhtToken_;
+
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>         gtReadoutRecordToken_;
+  edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord>       gtObjectMapToken_;
+  edm::EDGetTokenT< L1GctHFBitCountsCollection >         gctBitCountsToken_;
+  edm::EDGetTokenT< L1GctHFRingEtSumsCollection >        gctRingSumsToken_;
+
   int errCnt;
   static int errMax() { return 5; }
 

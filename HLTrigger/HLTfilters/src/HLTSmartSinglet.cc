@@ -2,8 +2,6 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/23 12:21:51 $
- *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -86,7 +84,7 @@ HLTSmartSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
 
    // get hold of collection of objects
    Handle<TCollection> objects;
-   iEvent.getByLabel (inputToken_,objects);
+   iEvent.getByToken (inputToken_,objects);
 
    // look at all objects, check cuts and add to filter object
    int n(0);

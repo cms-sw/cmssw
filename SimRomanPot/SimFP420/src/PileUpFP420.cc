@@ -10,7 +10,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 //#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-void PileUpFP420::add(HitDigitizerFP420::hit_map_type in, const PSimHit& hit, int verbosity){
+void PileUpFP420::add(const HitDigitizerFP420::hit_map_type& in, const PSimHit& hit, int verbosity){
   
   
   if(verbosity>0) {

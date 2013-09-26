@@ -1,5 +1,4 @@
 //
-// $Id: matutil.h,v 1.5 2009/11/20 10:39:28 haryo Exp $
 //
 // File: hitfit/matutil.h
 // Purpose: Define matrix types for the hitfit package, and supply a few

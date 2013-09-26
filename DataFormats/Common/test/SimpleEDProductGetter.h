@@ -27,7 +27,7 @@ public:
     return database.size();
   }
 
-  virtual edm::WrapperHolder getIt(edm::ProductID const& id) const {
+  virtual edm::WrapperHolder getIt(edm::ProductID const& id) const override {
     map_t::const_iterator i = database.find(id);
     if (i == database.end()) {
       edm::Exception e(edm::errors::ProductNotFound, "InvalidID");
@@ -40,6 +40,10 @@ public:
   }
 
 private:
+  virtual unsigned int transitionIndex_() const override {
+    return 0U;
+  }
+
   map_t database;
 };
 #endif

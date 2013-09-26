@@ -46,7 +46,7 @@ void Tutils::setStyle(TH2 *histo) {
   histo->GetYaxis()->SetLabelSize(mystyle->GetLabelSize());
 }
 
-TStyle * Tutils::getStyle(TString name)
+TStyle * Tutils::getStyle(const TString& name)
 {
   TStyle *theStyle;
   if ( name == "mstyle" ) {

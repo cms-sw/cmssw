@@ -11,12 +11,12 @@ void printCharBits(unsigned char c){
 }
 
 void packIntoString(std::vector<unsigned char> const& source,
-                    vector<unsigned char>& package)
+                    std::vector<unsigned char>& package)
 {   
 unsigned int packInOneByte = 4;
 
 unsigned int sizeOfPackage = 1+((source.size()-1)/packInOneByte); //Two bits per HLT
-cout << "sizeOfPackage: "<<sizeOfPackage<< std::endl;
+std::cout << "sizeOfPackage: "<<sizeOfPackage<< std::endl;
 
 package.resize(sizeOfPackage);
 memset(&package[0], 0x00, sizeOfPackage);
@@ -29,15 +29,19 @@ memset(&package[0], 0x00, sizeOfPackage);
       std::cout <<"indxWithinByte: "<<indxWithinByte<< std::endl;
 
       std::cout <<"source["<<i<<"] B4: ";
-      printCharBits(source.at(i));cout<< std::endl;
+      printCharBits(source.at(i));
+      std::cout<< std::endl;
       std::cout<<"Shiffted by "<<indxWithinByte*2<<" source["<<i<<"] ";
-             printCharBits(source[i] << (indxWithinByte*2));cout<< std::endl;
+      printCharBits(source[i] << (indxWithinByte*2));
+      std::cout<< std::endl;
 
       std::cout << "package["<<whichByte<<"] B4: ";
-      printCharBits(package[whichByte]);cout<< std::endl;
+      printCharBits(package[whichByte]);
+      std::cout<< std::endl;
       package[whichByte] = package[whichByte] | (source[i] << (indxWithinByte*2));
       std::cout << "package["<<whichByte<<"] After: ";
-      printCharBits(package[whichByte]);cout<< std::endl;
+      printCharBits(package[whichByte]);
+      std::cout<< std::endl;
       std::cout<<"\n\n\n************"<< std::endl;
   }
   std::cout<<"Packaged Bits"<< std::endl;
@@ -50,7 +54,7 @@ int main()
 
 {
 //printCharBits(0xFF);
-vector<unsigned char> source;
+std::vector<unsigned char> source;
 
 //Mind that Only 2 LSBs are Important
 source.push_back(0);
@@ -59,9 +63,9 @@ source.push_back(2);
 source.push_back(3);
 //source.push_back(5);
 
-vector<unsigned char> hltbits;
+std::vector<unsigned char> hltbits;
 packIntoString(source, hltbits);
-cout<<"\nSource Was: \n";
+std::cout<<"\nSource Was: \n";
 string space="    ";
 for (unsigned int i=source.size()-1;i!=-1;--i) {
      space=+"    ";

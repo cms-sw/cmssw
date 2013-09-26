@@ -20,4 +20,12 @@ process.source = cms.Source("PoolSource",
 
 process.p = cms.Path(process.Analysis)
 
+#Also test creating a Ref from the alias branch
+process.OtherThing2 = cms.EDProducer("OtherThingProducer",
+                                    thingTag = cms.InputTag("AltThing")
+                                    )
 
+process.Analysis2 = cms.EDAnalyzer("OtherThingAnalyzer",
+                                   other=cms.untracked.InputTag("OtherThing2","testUserTag"))
+
+process.p2 = cms.Path(process.OtherThing2+process.Analysis2)

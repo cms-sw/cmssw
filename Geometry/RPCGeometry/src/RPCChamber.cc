@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2010/04/09 12:17:27 $
- *  $Revision: 1.5 $
  *  Author: Raffaello Trentadue - Universit? Bari 
  *  Mail:     <raffaello.trentadue@ba.infn.it>
  */

@@ -3,7 +3,6 @@
 // Package:     Muons
 // Class  :     FWMuonLegoProxyBuilder
 //
-// $Id: FWMuonLegoProxyBuilder.cc,v 1.1 2010/07/30 08:36:01 yana Exp $
 //
 
 #include "TEvePointSet.h"

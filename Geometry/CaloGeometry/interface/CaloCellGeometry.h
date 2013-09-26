@@ -44,7 +44,6 @@ a default that the derived class author has to call deliberately if he wants it:
     };
 @endcode
 
-$Date: 2012/11/01 10:36:32 $
 $Revision: 1.21 $
 \author J. Mans, P. Meridiani
 */

@@ -49,7 +49,7 @@ protected:
 
 private:    
 
-  uint32_t                      setDetUnitId(int, G4ThreeVector, int, int);
+  uint32_t                      setDetUnitId(int, const G4ThreeVector&, int, int);
   std::vector<double>           getDDDArray(const std::string&, 
                                             const DDsvalues_type&);
   std::vector<G4String>         getNames(DDFilteredView&);
@@ -69,8 +69,8 @@ private:
   void                          getHitFibreBundle(G4Step * step, bool type);
   int                           setTrackID(G4Step * step);
   void                          readWeightFromFile(std::string);
-  double                        layerWeight(int, G4ThreeVector, int, int);
-  void                          plotProfile(G4Step* step, G4ThreeVector pos, 
+  double                        layerWeight(int, const G4ThreeVector&, int, int);
+  void                          plotProfile(G4Step* step, const G4ThreeVector& pos, 
                                             double edep, double time, int id);
   void                          plotHF(G4ThreeVector& pos, bool emType);
 

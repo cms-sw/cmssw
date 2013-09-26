@@ -119,8 +119,7 @@ void DigiInvestigatorHistogramMaker::beginRun(const unsigned int nrun) {
   //  currdir = &(*tfserv);
   //  _rhm.beginRun(nrun,*currdir);
 
-  _rhm.beginRun(nrun,*tfserv);
-
+  _rhm.beginRun(nrun, tfserv->tFileDirectory());
 
   for(std::map<unsigned int,std::string>::const_iterator lab=_labels.begin();lab!=_labels.end();++lab) {
 

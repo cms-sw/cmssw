@@ -52,7 +52,7 @@ namespace edmtest_thing
     ProdList::iterator i(prod.begin()),end(prod.end());
     for(; i != end; ++i)
       total_ = accumulate((*i)->data_.begin(),(*i)->data_.end(),total_);
-    //cout << tot << std::endl;
+    //std::cout << tot << std::endl;
 
 #if 0
     for(i = prod.begin();i != end; ++i) {

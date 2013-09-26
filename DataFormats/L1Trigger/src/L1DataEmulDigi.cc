@@ -37,7 +37,7 @@ L1DataEmulDigi::L1DataEmulDigi( int sid, int cid, double x1, double x2, double x
 
 L1DataEmulDigi::L1DataEmulDigi( int sid, int cid, double x1, double x2, double x3, int n,
 				unsigned int dw, unsigned int ew, float dr, float er, 
-				L1MonitorDigi dm, L1MonitorDigi em) {
+				const L1MonitorDigi& dm, const L1MonitorDigi& em) {
   reset();
   m_sid = sid; m_cid = cid;
   m_location[0]=x1; m_location[1]=x2; m_location[2]=x3;

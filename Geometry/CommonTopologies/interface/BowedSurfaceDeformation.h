@@ -11,9 +11,6 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.2 $
-///  $Date: 2010/11/17 15:55:08 $
-///  (last update by $Author: flucke $)
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 

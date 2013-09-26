@@ -34,7 +34,7 @@ void RPCBxTest::beginJob(DQMStore *  dbe){
 }
 
 //Qui puoi definitre gli istogrammi nuovi che vuoi riempire
-void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c, std::vector<MonitorElement *> meVector, std::vector<RPCDetId> detIdVector){
+void RPCBxTest::beginRun(const edm::Run& r, const edm::EventSetup& c, const std::vector<MonitorElement *>& meVector, const std::vector<RPCDetId>& detIdVector){
   edm::LogVerbatim ("rpcbxtest") << "[RPCBxTest]: Begin run";
   
   MonitorElement* me;

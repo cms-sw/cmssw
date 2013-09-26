@@ -11,9 +11,7 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
  *
- * $Id: PATJetCorrExtractor.h,v 1.4 2011/11/20 10:26:47 veelken Exp $
  *
  */
 

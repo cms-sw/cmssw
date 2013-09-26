@@ -11,16 +11,20 @@ typedef std::pair<const char *, const edm::InputTag *> MissingCollectionInfo;
 
 template <class T>
 static inline
-bool getCollection(const edm::Event & event, std::vector<MissingCollectionInfo> & missing, edm::Handle<T> & handle, const edm::InputTag & name, const char * description) 
+bool getCollection(const edm::Event & event, std::vector<MissingCollectionInfo> & missing, edm::Handle<T> & handle, const edm::InputTag & name, const edm::EDGetTokenT<T> token, const char * description) 
 {
+  if (token.isUnitialized()) {
     event.getByLabel(name, handle);
-    bool valid = handle.isValid();
-    if (not valid) {
-        missing.push_back( std::make_pair(description, & name) );
-        handle.clear();
-	//	std::cout << "not valid "<< description << " " << name << std::endl;
+    std::cout << "*** HLTAnalyzer/getCollection: Token corresponding to label " << name << "is not initialized" << std::endl;
     }
-    return valid;
+  else  event.getByToken(token, handle);
+  bool valid = handle.isValid();
+  if (not valid) {
+    missing.push_back( std::make_pair(description, & name) );
+    handle.clear();
+    //	std::cout << "not valid "<< description << " " << name << std::endl;
+  }
+  return valid;
 }
 
 // Boiler-plate constructor definition of an analyzer module:
@@ -202,6 +206,155 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     _EtaMin   = runParameters.getUntrackedParameter<double>("EtaMin", -5.2);
     _EtaMax   = runParameters.getUntrackedParameter<double>("EtaMax",  5.2);
     
+
+    // Define all consumed products  
+
+    BSProducer_ =  edm::InputTag("hltOnlineBeamSpot");
+    BSProducerToken_ = consumes<reco::BeamSpot>(BSProducer_);
+    hltjetsToken_ = consumes<reco::CaloJetCollection>(hltjets_);
+    hltcorjetsToken_ = consumes<reco::CaloJetCollection>(hltcorjets_);
+    hltcorL1L2L3jetsToken_ = consumes<reco::CaloJetCollection>(hltcorL1L2L3jets_);
+    rhoToken_ = consumes<double>(rho_);
+    recjetsToken_ = consumes<reco::CaloJetCollection>(recjets_);
+    reccorjetsToken_ = consumes<reco::CaloJetCollection>(reccorjets_);
+    genjetsToken_ = consumes<reco::GenJetCollection>(genjets_);
+    recmetToken_ = consumes<reco::CaloMETCollection>(recmet_);
+    recoPFMetToken_ = consumes<reco::PFMETCollection>(recoPFMet_);
+    genmetToken_ = consumes<reco::GenMETCollection>(genmet_);
+    calotowersToken_ = consumes<CaloTowerCollection>(calotowers_);
+    calotowersUpperR45Token_ = consumes<CaloTowerCollection>(calotowersUpperR45_);
+    calotowersLowerR45Token_ = consumes<CaloTowerCollection>(calotowersLowerR45_);
+    calotowersNoR45Token_ = consumes<CaloTowerCollection>(calotowersNoR45_);
+    htToken_ = consumes<reco::METCollection>(ht_);
+    recoPFJetsToken_ = consumes<reco::PFJetCollection>(recoPFJets_);
+
+    muonToken_ = consumes<reco::MuonCollection>(muon_);
+    pfmuonToken_ = consumes<reco::PFCandidateCollection>(pfmuon_);
+
+    L2TauToken_ = consumes<reco::CaloJetCollection>(L2Tau_);
+    HLTTauToken_ = consumes<reco::HLTTauCollection>(HLTTau_);
+    PFTauToken_ = consumes<reco::PFTauCollection>(PFTau_);
+    PFTauTightConeToken_ = consumes<reco::PFTauCollection>(PFTauTightCone_);
+    PFJetsToken_ = consumes<reco::PFJetCollection>(PFJets_);
+
+    RecoPFTauToken_ = consumes<reco::PFTauCollection>(RecoPFTau_);
+    RecoPFTauDiscrByTanCOnePercentToken_ = consumes<reco::PFTauDiscriminator>(RecoPFTauDiscrByTanCOnePercent_);
+    RecoPFTauDiscrByTanCHalfPercentToken_ = consumes<reco::PFTauDiscriminator>(RecoPFTauDiscrByTanCHalfPercent_); 
+    RecoPFTauDiscrByTanCQuarterPercentToken_ = consumes<reco::PFTauDiscriminator>(RecoPFTauDiscrByTanCQuarterPercent_);
+    RecoPFTauDiscrByTanCTenthPercentToken_ = consumes<reco::PFTauDiscriminator>(RecoPFTauDiscrByTanCTenthPercent_);
+    RecoPFTauDiscrByIsoToken_ = consumes<reco::PFTauDiscriminator>(RecoPFTauDiscrByIso_);
+    RecoPFTauAgainstMuonToken_ = consumes<reco::PFTauDiscriminator>(RecoPFTauAgainstMuon_);
+    RecoPFTauAgainstElecToken_ = consumes<reco::PFTauDiscriminator>(RecoPFTauAgainstElec_);
+
+    hltresultsToken_ = consumes<edm::TriggerResults>(hltresults_);
+    l1extraemiToken_ = consumes<l1extra::L1EmParticleCollection>(m_l1extraemi);
+    l1extraemnToken_ = consumes<l1extra::L1EmParticleCollection>(m_l1extraemn);
+    l1extramuToken_ = consumes<l1extra::L1MuonParticleCollection>(m_l1extramu);
+    
+    l1extrajetcToken_ = consumes<l1extra::L1JetParticleCollection>(m_l1extrajetc);
+    l1extrajetfToken_ = consumes<l1extra::L1JetParticleCollection>(m_l1extrajetf);
+    l1extrajetToken_ = consumes<l1extra::L1JetParticleCollection>(m_l1extrajet);
+    l1extrataujetToken_ = consumes<l1extra::L1JetParticleCollection>(m_l1extrataujet);
+    l1extrametToken_ = consumes<l1extra::L1EtMissParticleCollection>(m_l1extramet);
+    l1extramhtToken_ = consumes<l1extra::L1EtMissParticleCollection>(m_l1extramht);
+    gtReadoutRecordToken_ = consumes<L1GlobalTriggerReadoutRecord>(gtReadoutRecord_);
+    gctBitCountsToken_ = consumes<L1GctHFBitCountsCollection>(gctBitCounts_);
+    gctRingSumsToken_ = consumes<L1GctHFRingEtSumsCollection>(gctRingSums_);
+    
+    mctruthToken_ = consumes<reco::CandidateView>(mctruth_);
+    simTracksToken_ = consumes<std::vector<SimTrack> >(simhits_);
+    simVerticesToken_ = consumes<std::vector<SimVertex> >(simhits_);
+    genEventInfoToken_ = consumes<GenEventInfoProduct>(genEventInfo_);
+
+    MuCandTag2Token_ = consumes<reco::RecoChargedCandidateCollection>(MuCandTag2_);
+    MuNoVtxCandTag2Token_ = consumes<reco::RecoChargedCandidateCollection>(MuNoVtxCandTag2_);
+    MuCandTag3Token_ = consumes<reco::RecoChargedCandidateCollection>(MuCandTag3_);
+    oniaPixelTagToken_ = consumes<reco::RecoChargedCandidateCollection>(oniaPixelTag_);
+    oniaTrackTagToken_ = consumes<reco::RecoChargedCandidateCollection>(oniaTrackTag_);
+    TrackerMuonTagToken_ = consumes<reco::MuonCollection>(TrackerMuonTag_);
+    DiMuVtxToken_ = consumes<reco::VertexCollection>(DiMuVtx_);
+    MuIsolTag2Token_ = consumes<edm::ValueMap<bool> >(MuIsolTag2_);
+    MuIsolTag3Token_ = consumes<edm::ValueMap<bool> >(MuIsolTag3_);
+    MuTrkIsolTag3Token_ = consumes<edm::ValueMap<bool> >(MuTrkIsolTag3_);
+    
+    rawBJetsToken_ = consumes<edm::View<reco::Jet> >(m_rawBJets);
+    correctedBJetsToken_ = consumes<edm::View<reco::Jet> >(m_correctedBJets);
+    correctedBJetsL1FastJetToken_ = consumes<edm::View<reco::Jet> >(m_correctedBJetsL1FastJet);
+    pfBJetsToken_ = consumes<edm::View<reco::Jet> >(m_pfBJets);
+    lifetimeBJetsL25Token_ = consumes<reco::JetTagCollection>(m_lifetimeBJetsL25);
+    lifetimeBJetsL3Token_ = consumes<reco::JetTagCollection>(m_lifetimeBJetsL3);
+    lifetimeBJetsL3L1FastJetToken_ = consumes<reco::JetTagCollection>(m_lifetimeBJetsL25L1FastJet);
+    lifetimeBJetsL25L1FastJetToken_ = consumes<reco::JetTagCollection>(m_lifetimeBJetsL3L1FastJet);
+    lifetimePFBJetsL3Token_ = consumes<reco::JetTagCollection>(m_lifetimePFBJetsL3);
+    lifetimeBJetsL25SingleTrackToken_ = consumes<reco::JetTagCollection>(m_lifetimeBJetsL25SingleTrack);
+    lifetimeBJetsL3SingleTrackToken_ = consumes<reco::JetTagCollection>(m_lifetimeBJetsL3SingleTrack);
+    lifetimeBJetsL25SingleTrackL1FastJetToken_ = consumes<reco::JetTagCollection>(m_lifetimeBJetsL25SingleTrackL1FastJet);
+    lifetimeBJetsL3SingleTrackL1FastJetToken_ = consumes<reco::JetTagCollection>(m_lifetimeBJetsL3SingleTrackL1FastJet);
+    performanceBJetsL25Token_ = consumes<reco::JetTagCollection>(m_performanceBJetsL25);
+    performanceBJetsL3Token_ = consumes<reco::JetTagCollection>(m_performanceBJetsL3);
+    performanceBJetsL25L1FastJetToken_ = consumes<reco::JetTagCollection>(m_performanceBJetsL25L1FastJet);
+    performanceBJetsL3L1FastJetToken_ = consumes<reco::JetTagCollection>(m_performanceBJetsL3L1FastJet);
+    
+    ElectronToken_ = consumes<reco::GsfElectronCollection>(Electron_);
+    PhotonToken_ = consumes<reco::PhotonCollection>(Photon_);
+    ECALActivityToken_ = consumes<reco::RecoEcalCandidateCollection>(ECALActivity_);
+    ActivityEcalIsoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(ActivityEcalIso_);
+    ActivityHcalIsoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(ActivityHcalIso_);
+    ActivityTrackIsoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(ActivityTrackIso_);
+    ActivityR9Token_ = consumes<reco::RecoEcalCandidateIsolationMap>(ActivityR9_);
+    ActivityR9IDToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(ActivityR9ID_);
+    ActivityHoverEHToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(ActivityHoverEH_);
+
+    CandIsoToken_ = consumes<reco::RecoEcalCandidateCollection>(CandIso_);
+    CandNonIsoToken_ = consumes<reco::RecoEcalCandidateCollection>(CandNonIso_);
+    EcalIsoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(EcalIso_);
+    EcalNonIsoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(EcalNonIso_);
+    HcalIsoPhoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(HcalIsoPho_);
+    HcalNonIsoPhoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(HcalNonIsoPho_);
+    IsoPhoR9Token_ = consumes<reco::RecoEcalCandidateIsolationMap>(IsoR9_); 
+    NonIsoPhoR9Token_ = consumes<reco::RecoEcalCandidateIsolationMap>(NonIsoR9_);
+    IsoPhoR9IDToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(IsoR9ID_);
+    NonIsoPhoR9IDToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(NonIsoR9ID_);
+    IsoPhoHoverEHToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(IsoHoverEH_);   
+    NonIsoPhoHoverEHToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(NonIsoHoverEH_);    
+    IsoElectronToken_ = consumes<reco::ElectronCollection>(IsoElectron_);
+    IsoEleTrackIsolToken_ = consumes<reco::ElectronIsolationMap>(IsoEleTrackIsol_);
+    L1IsoPixelSeedsToken_ = consumes<reco::ElectronSeedCollection>(L1IsoPixelSeeds_);
+    L1NonIsoPixelSeedsToken_ = consumes<reco::ElectronSeedCollection>(L1NonIsoPixelSeeds_);
+    NonIsoElectronToken_ = consumes<reco::ElectronCollection>(NonIsoElectron_);
+    IsoEleHcalToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(IsoEleHcal_);
+    NonIsoEleHcalToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(NonIsoEleHcal_);
+    NonIsoEleTrackIsolToken_ = consumes<reco::ElectronIsolationMap>(NonIsoEleTrackIsol_);
+    NonIsoPhoTrackIsolToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(NonIsoPhoTrackIsol_);
+    IsoPhoTrackIsolToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(IsoPhoTrackIsol_);
+    IsoEleR9Token_ = consumes<reco::RecoEcalCandidateIsolationMap>(IsoR9_); 
+    NonIsoEleR9Token_ = consumes<reco::RecoEcalCandidateIsolationMap>(NonIsoR9_);  
+    IsoEleR9IDToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(IsoR9ID_);
+    NonIsoEleR9IDToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(NonIsoR9ID_);
+    HFECALClustersToken_ = consumes<reco::SuperClusterCollection>(HFECALClusters_);
+    HFElectronsToken_ = consumes<reco::RecoEcalCandidateCollection>(HFElectrons_);
+    
+    /* 
+    EBRecHitToken_ = consumes<EBRecHitCollection>(EERecHitTag_);
+    EERecHitToken_ = consumes<EERecHitCollection>(EBRecHitTag_);
+    pi0EBRecHitToken_ = consumes<EBRecHitCollection>(pi0EERecHitTag_);
+    pi0EERecHitToken_ = consumes<EERecHitCollection>(pi0EBRecHitTag_);
+    HBHERecHitToken_ = consumes<HBHERecHitCollection>>(HBHERecHitTag_);
+    HORecHitToken_ = consumes<HORecHitCollection>(HORecHitTag_);
+    HFRecHitToken_ = consumes<HFRecHitCollection>(HFRecHitTag_);
+    */
+    
+    IsoPixelTrackL3Token_ = consumes<reco::IsolatedPixelTrackCandidateCollection>(IsoPixelTrackTagL3_); 
+    IsoPixelTrackL2Token_ = consumes<reco::IsolatedPixelTrackCandidateCollection>(IsoPixelTrackTagL2_);	
+    IsoPixelTrackVerticesToken_ = consumes<reco::VertexCollection>(IsoPixelTrackVerticesTag_);
+    PixelTracksL3Token_ = consumes<reco::RecoChargedCandidateCollection>(PixelTracksTagL3_); 
+    PixelFEDSizeToken_ = consumes<FEDRawDataCollection>(PixelFEDSizeTag_);
+    PixelClustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(PixelClustersTag_);
+    
+    VertexHLTToken_ = consumes<reco::VertexCollection>(VertexTagHLT_);
+    VertexOffline0Token_ = consumes<reco::VertexCollection>(VertexTagOffline0_);
+
+    HFEMClusterShapeAssociationToken_ = consumes<reco::HFEMClusterShapeAssociationCollection>(edm::InputTag("hltHFEMClusters"));
     
     
     // open the tree file
@@ -291,7 +444,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::PFJetCollection>                pfjets;
     
     // offline reco tau collection and discriminators
-    edm::Handle<reco::PFTauCollection>  recoPftaus;
+    edm::Handle<reco::PFTauCollection>    recoPftaus;
     edm::Handle<reco::PFTauDiscriminator> theRecoPFTauDiscrByTanCOnePercent;
     edm::Handle<reco::PFTauDiscriminator> theRecoPFTauDiscrByTanCHalfPercent; 
     edm::Handle<reco::PFTauDiscriminator> theRecoPFTauDiscrByTanCQuarterPercent;
@@ -323,18 +476,18 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     // egamma OpenHLT input collections
     edm::Handle<reco::GsfElectronCollection>          electrons;
     edm::Handle<reco::PhotonCollection>               photons;
-    edm::Handle<reco::RecoEcalCandidateIsolationMap>    photonR9IsoHandle; 
-    edm::Handle<reco::RecoEcalCandidateIsolationMap>    photonR9NonIsoHandle;
-    edm::Handle<reco::RecoEcalCandidateIsolationMap>    photonR9IDIsoHandle;
-    edm::Handle<reco::RecoEcalCandidateIsolationMap>    photonR9IDNonIsoHandle;
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  photonR9IsoHandle; 
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  photonR9NonIsoHandle;
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  photonR9IDIsoHandle;
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  photonR9IDNonIsoHandle;
     edm::Handle<reco::RecoEcalCandidateIsolationMap>  photonHoverEHIsoHandle;   
     edm::Handle<reco::RecoEcalCandidateIsolationMap>  photonHoverEHNonIsoHandle;    
     edm::Handle<reco::ElectronCollection>             electronIsoHandle;
     edm::Handle<reco::ElectronCollection>             electronNonIsoHandle;
-    edm::Handle<reco::RecoEcalCandidateIsolationMap>    electronR9IsoHandle; 
-    edm::Handle<reco::RecoEcalCandidateIsolationMap>    electronR9NonIsoHandle;  
-    edm::Handle<reco::RecoEcalCandidateIsolationMap>    electronR9IDIsoHandle;
-    edm::Handle<reco::RecoEcalCandidateIsolationMap>    electronR9IDNonIsoHandle;
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  electronR9IsoHandle; 
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  electronR9NonIsoHandle;  
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  electronR9IDIsoHandle;
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  electronR9IDNonIsoHandle;
     edm::Handle<reco::ElectronIsolationMap>           NonIsoTrackEleIsolMap;
     edm::Handle<reco::ElectronIsolationMap>           TrackEleIsolMap;
     edm::Handle<reco::ElectronSeedCollection>         L1IsoPixelSeedsMap;
@@ -388,14 +541,13 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::InputTag ecalRechitEETag (std::string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
     EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag, ecalRechitEETag);
     
-    edm::Handle<reco::HFEMClusterShapeAssociationCollection> electronHFClusterAssociation;   
-    iEvent.getByLabel(edm::InputTag("hltHFEMClusters"),electronHFClusterAssociation);
+    edm::Handle<reco::HFEMClusterShapeAssociationCollection> electronHFClusterAssociation;  
+    iEvent.getByToken(HFEMClusterShapeAssociationToken_,electronHFClusterAssociation);
 
     edm::ESHandle<MagneticField>                theMagField;
     iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
     
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    edm::InputTag BSProducer_(std::string("hltOnlineBeamSpot"));
     
     // get EventSetup stuff needed for the AlCa pi0 path
     //    edm::ESHandle< EcalElectronicsMapping > ecalmapping;
@@ -415,95 +567,95 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     std::vector<MissingCollectionInfo> missing;
     
     //get the BeamSpot
-    getCollection( iEvent, missing, recoBeamSpotHandle,       BSProducer_ ,          "Beam Spot handle");
+    getCollection( iEvent, missing, recoBeamSpotHandle,   BSProducer_ ,   BSProducerToken_ ,   "Beam Spot handle");
     // gets its position
     reco::BeamSpot::Point BSPosition(0,0,0);
     BSPosition = recoBeamSpotHandle->position();
     
-    getCollection( iEvent, missing, hltjets,         hltjets_,           kHLTjets );
-    getCollection( iEvent, missing, hltcorjets,      hltcorjets_,        kHLTCorjets );
-    getCollection( iEvent, missing, hltcorL1L2L3jets,hltcorL1L2L3jets_,  kHLTCorL1L2L3jets );
-    getCollection( iEvent, missing, rho,             rho_,               kRho );
-    getCollection( iEvent, missing, recjets,         recjets_,           kRecjets );
-    getCollection( iEvent, missing, reccorjets,      reccorjets_,        kRecCorjets );
-    getCollection( iEvent, missing, genjets,         genjets_,           kGenjets );
-    getCollection( iEvent, missing, recmet,          recmet_,            kRecmet );
-    getCollection( iEvent, missing, recoPFMet,       recoPFMet_,         kPFMet );
-    getCollection( iEvent, missing, genmet,          genmet_,            kGenmet );
-    getCollection( iEvent, missing, caloTowers,      calotowers_,        kCaloTowers );
-    getCollection( iEvent, missing, caloTowersCleanerUpperR45, calotowersUpperR45_,        kCaloTowersUpperR45 );
-    getCollection( iEvent, missing, caloTowersCleanerLowerR45, calotowersLowerR45_,        kCaloTowersLowerR45 );
-    getCollection( iEvent, missing, caloTowersCleanerNoR45,    calotowersNoR45_,           kCaloTowersNoR45 );
-    getCollection( iEvent, missing, ht,              ht_,                kHt );
-    getCollection( iEvent, missing, recoPFJets,      recoPFJets_,        kRecoPFJets );   
-    getCollection( iEvent, missing, muon,            muon_,              kMuon );
-    getCollection( iEvent, missing, pfmuon,          pfmuon_,            kpfMuon );
-    getCollection( iEvent, missing, l2taus,          L2Tau_,             kTaus );
-    getCollection( iEvent, missing, taus,            HLTTau_,            kTaus );
-    getCollection( iEvent, missing, pftaus,          PFTau_,		 kPFTaus );
-    getCollection( iEvent, missing, pftausTightCone, PFTauTightCone_,    kPFTausTightCone );
-    getCollection( iEvent, missing, pfjets,          PFJets_,		 kPFJets );  
-    getCollection( iEvent, missing, recoPftaus,                            RecoPFTau_,                          kRecoPFTaus );
-    getCollection( iEvent, missing, theRecoPFTauDiscrByTanCOnePercent,     RecoPFTauDiscrByTanCOnePercent_,     ktheRecoPFTauDiscrByTanCOnePercent); 
-    getCollection( iEvent, missing, theRecoPFTauDiscrByTanCHalfPercent,    RecoPFTauDiscrByTanCHalfPercent_,    ktheRecoPFTauDiscrByTanCHalfPercent); 
-    getCollection( iEvent, missing, theRecoPFTauDiscrByTanCQuarterPercent, RecoPFTauDiscrByTanCQuarterPercent_, ktheRecoPFTauDiscrByTanCQuarterPercent); 
-    getCollection( iEvent, missing, theRecoPFTauDiscrByTanCTenthPercent,   RecoPFTauDiscrByTanCTenthPercent_,   ktheRecoPFTauDiscrByTanCTenthPercent);     
-    getCollection( iEvent, missing, theRecoPFTauDiscrByIsolation,          RecoPFTauDiscrByIso_,                ktheRecoPFTauDiscrByIsolation); 
-    getCollection( iEvent, missing, theRecoPFTauDiscrAgainstMuon,          RecoPFTauAgainstMuon_,               ktheRecoPFTauDiscrAgainstMuon); 
-    getCollection( iEvent, missing, theRecoPFTauDiscrAgainstElec,          RecoPFTauAgainstElec_,               ktheRecoPFTauDiscrAgainstElec); 
-    getCollection( iEvent, missing, hltresults,      hltresults_,        kHltresults );
-    getCollection( iEvent, missing, l1extemi,        m_l1extraemi,       kL1extemi );
-    getCollection( iEvent, missing, l1extemn,        m_l1extraemn,       kL1extemn );
-    getCollection( iEvent, missing, l1extmu,         m_l1extramu,        kL1extmu );
-    getCollection( iEvent, missing, l1extjetc,       m_l1extrajetc,      kL1extjetc );
-    getCollection( iEvent, missing, l1extjetf,       m_l1extrajetf,      kL1extjetf );
-    getCollection( iEvent, missing, l1extjet,        m_l1extrajet,       kL1extjet );
-    getCollection( iEvent, missing, l1exttaujet,     m_l1extrataujet,    kL1exttaujet );
-    getCollection( iEvent, missing, l1extmet,        m_l1extramet,       kL1extmet );
-    getCollection( iEvent, missing, l1extmht,        m_l1extramht,       kL1extmht );
-    getCollection( iEvent, missing, l1GtRR,          gtReadoutRecord_,   kL1GtRR );
-    getCollection( iEvent, missing, gctBitCounts,     gctBitCounts_,      kL1GctBitCounts );
-    getCollection( iEvent, missing, gctRingSums,      gctRingSums_,       kL1GctRingSums );
-    getCollection( iEvent, missing, mctruth,         mctruth_,           kMctruth );
-    getCollection( iEvent, missing, simTracks,       simhits_,           kSimhit );
-    getCollection( iEvent, missing, simVertices,     simhits_,           kSimhit );
-    getCollection( iEvent, missing, genEventInfo,    genEventInfo_,      kGenEventInfo );
-    getCollection( iEvent, missing, mucands2,        MuCandTag2_,        kMucands2 );
-    getCollection( iEvent, missing, munovtxcands2,   MuNoVtxCandTag2_,   kMunovtxcands2 ); 
-    getCollection( iEvent, missing, mucands3,        MuCandTag3_,        kMucands3 );
-    getCollection( iEvent, missing, oniaPixelCands,  oniaPixelTag_,      kOniaPixelCands );
-    getCollection( iEvent, missing, oniaTrackCands,  oniaTrackTag_,      kOniaTrackCands );
-    getCollection( iEvent, missing, trkmucands,      TrackerMuonTag_,    kTrkMucands );
-    getCollection( iEvent, missing, dimuvtxcands3,   DiMuVtx_,           kDimuvtxcands3 );
-    getCollection( iEvent, missing, isoMap2,         MuIsolTag2_,        kIsoMap2 );
-    getCollection( iEvent, missing, isoMap3,         MuIsolTag3_,        kIsoMap3 );
-    getCollection( iEvent, missing, isoTrk10Map3,    MuTrkIsolTag3_,     kIsoTrk10Map3 ); 
-    getCollection( iEvent, missing, hRawBJets,                    m_rawBJets,                     kBTagJets );
-    getCollection( iEvent, missing, hCorrectedBJets,              m_correctedBJets,               kBTagCorrectedJets );
-    getCollection( iEvent, missing, hCorrectedBJetsL1FastJet,     m_correctedBJetsL1FastJet,      kBTagCorrectedJetsL1FastJet );
-    getCollection( iEvent, missing, hPFBJets,                     m_pfBJets,                      kBTagPFJets );
-    getCollection( iEvent, missing, hLifetimeBJetsL25,            m_lifetimeBJetsL25,             kBTagLifetimeBJetsL25 );
-    getCollection( iEvent, missing, hLifetimeBJetsL3,             m_lifetimeBJetsL3,              kBTagLifetimeBJetsL3 );
-    getCollection( iEvent, missing, hLifetimeBJetsL25L1FastJet,   m_lifetimeBJetsL25L1FastJet,    kBTagLifetimeBJetsL25L1FastJet );
-    getCollection( iEvent, missing, hLifetimeBJetsL3L1FastJet,    m_lifetimeBJetsL3L1FastJet,     kBTagLifetimeBJetsL3L1FastJet );
-    getCollection( iEvent, missing, hLifetimePFBJetsL3,           m_lifetimePFBJetsL3,            kBTagLifetimePFBJetsL3 );
-    getCollection( iEvent, missing, hLifetimeBJetsL25SingleTrack, m_lifetimeBJetsL25SingleTrack,  kBTagLifetimeBJetsL25SingleTrack );
-    getCollection( iEvent, missing, hLifetimeBJetsL3SingleTrack,  m_lifetimeBJetsL3SingleTrack,   kBTagLifetimeBJetsL3SingleTrack );
-    getCollection( iEvent, missing, hLifetimeBJetsL25SingleTrackL1FastJet, m_lifetimeBJetsL25SingleTrackL1FastJet,  kBTagLifetimeBJetsL25SingleTrackL1FastJet );
-    getCollection( iEvent, missing, hLifetimeBJetsL3SingleTrackL1FastJet,  m_lifetimeBJetsL3SingleTrackL1FastJet,   kBTagLifetimeBJetsL3SingleTrackL1FastJet );
-    getCollection( iEvent, missing, hPerformanceBJetsL25,         m_performanceBJetsL25,          kBTagPerformanceBJetsL25 );
-    getCollection( iEvent, missing, hPerformanceBJetsL3,          m_performanceBJetsL3,           kBTagPerformanceBJetsL3 );
-    getCollection( iEvent, missing, hPerformanceBJetsL25L1FastJet,m_performanceBJetsL25L1FastJet, kBTagPerformanceBJetsL25L1FastJet );
-    getCollection( iEvent, missing, hPerformanceBJetsL3L1FastJet, m_performanceBJetsL3L1FastJet,  kBTagPerformanceBJetsL3L1FastJet );
-    getCollection( iEvent, missing, electrons,                Electron_,                  kElectrons );
-    getCollection( iEvent, missing, photons,                  Photon_,                    kPhotons );
-    getCollection( iEvent, missing, ActivityCandsHandle, ECALActivity_,                    kECALActivity);       
-    getCollection( iEvent, missing, ActivityEcalIsoHandle, ActivityEcalIso_,               kECALActivityEcalIso); 
-    getCollection( iEvent, missing, ActivityHcalIsoHandle, ActivityHcalIso_,               kECALActivityHcalIso); 
-    getCollection( iEvent, missing, ActivityTrackIsoHandle, ActivityTrackIso_,             kECALActivityTrackIso); 
-    getCollection( iEvent, missing, ActivityR9Handle, ActivityR9_,                     kECALActivityR9); 
-    getCollection( iEvent, missing, ActivityR9IDHandle, ActivityR9ID_,                     kECALActivityR9ID); 
-    getCollection( iEvent, missing, ActivityHoverEHHandle, ActivityHoverEH_,               kECALActivityHoverEH);
+    getCollection( iEvent, missing, hltjets,         hltjets_,           hltjetsToken_,           kHLTjets );
+    getCollection( iEvent, missing, hltcorjets,      hltcorjets_,        hltcorjetsToken_,        kHLTCorjets );
+    getCollection( iEvent, missing, hltcorL1L2L3jets,hltcorL1L2L3jets_,  hltcorL1L2L3jetsToken_,  kHLTCorL1L2L3jets );
+    getCollection( iEvent, missing, rho,             rho_,               rhoToken_,               kRho );
+    getCollection( iEvent, missing, recjets,         recjets_,           recjetsToken_,           kRecjets );
+    getCollection( iEvent, missing, reccorjets,      reccorjets_,        reccorjetsToken_,        kRecCorjets );
+    getCollection( iEvent, missing, genjets,         genjets_,           genjetsToken_,           kGenjets );
+    getCollection( iEvent, missing, recmet,          recmet_,            recmetToken_,            kRecmet );
+    getCollection( iEvent, missing, recoPFMet,       recoPFMet_,         recoPFMetToken_,         kPFMet );
+    getCollection( iEvent, missing, genmet,          genmet_,            genmetToken_,            kGenmet );
+    getCollection( iEvent, missing, caloTowers,      calotowers_,        calotowersToken_,        kCaloTowers );
+    getCollection( iEvent, missing, caloTowersCleanerUpperR45, calotowersUpperR45_,        calotowersUpperR45Token_,        kCaloTowersUpperR45 );
+    getCollection( iEvent, missing, caloTowersCleanerLowerR45, calotowersLowerR45_,        calotowersLowerR45Token_,        kCaloTowersLowerR45 );
+    getCollection( iEvent, missing, caloTowersCleanerNoR45,    calotowersNoR45_,           calotowersNoR45Token_,           kCaloTowersNoR45 );
+    getCollection( iEvent, missing, ht,              ht_,                htToken_,                kHt );
+    getCollection( iEvent, missing, recoPFJets,      recoPFJets_,        recoPFJetsToken_,        kRecoPFJets );
+    getCollection( iEvent, missing, muon,            muon_,              muonToken_,              kMuon );
+    getCollection( iEvent, missing, pfmuon,          pfmuon_,            pfmuonToken_,            kpfMuon );
+    getCollection( iEvent, missing, l2taus,          L2Tau_,             L2TauToken_,             kTaus );
+    getCollection( iEvent, missing, taus,            HLTTau_,            HLTTauToken_,            kTaus );
+    getCollection( iEvent, missing, pftaus,          PFTau_,		 PFTauToken_,		  kPFTaus );
+    getCollection( iEvent, missing, pftausTightCone, PFTauTightCone_,    PFTauTightConeToken_,    kPFTausTightCone );
+    getCollection( iEvent, missing, pfjets,          PFJets_,		 PFJetsToken_,		  kPFJets );
+    getCollection( iEvent, missing, recoPftaus,                            RecoPFTau_,                          RecoPFTauToken_,                          kRecoPFTaus );
+    getCollection( iEvent, missing, theRecoPFTauDiscrByTanCOnePercent,     RecoPFTauDiscrByTanCOnePercent_,     RecoPFTauDiscrByTanCOnePercentToken_,     ktheRecoPFTauDiscrByTanCOnePercent);
+    getCollection( iEvent, missing, theRecoPFTauDiscrByTanCHalfPercent,    RecoPFTauDiscrByTanCHalfPercent_,    RecoPFTauDiscrByTanCHalfPercentToken_,    ktheRecoPFTauDiscrByTanCHalfPercent);
+    getCollection( iEvent, missing, theRecoPFTauDiscrByTanCQuarterPercent, RecoPFTauDiscrByTanCQuarterPercent_, RecoPFTauDiscrByTanCQuarterPercentToken_, ktheRecoPFTauDiscrByTanCQuarterPercent);
+    getCollection( iEvent, missing, theRecoPFTauDiscrByTanCTenthPercent,   RecoPFTauDiscrByTanCTenthPercent_,   RecoPFTauDiscrByTanCTenthPercentToken_,   ktheRecoPFTauDiscrByTanCTenthPercent);
+    getCollection( iEvent, missing, theRecoPFTauDiscrByIsolation,          RecoPFTauDiscrByIso_,                RecoPFTauDiscrByIsoToken_,                ktheRecoPFTauDiscrByIsolation);
+    getCollection( iEvent, missing, theRecoPFTauDiscrAgainstMuon,          RecoPFTauAgainstMuon_,               RecoPFTauAgainstMuonToken_,               ktheRecoPFTauDiscrAgainstMuon);
+    getCollection( iEvent, missing, theRecoPFTauDiscrAgainstElec,          RecoPFTauAgainstElec_,               RecoPFTauAgainstElecToken_,               ktheRecoPFTauDiscrAgainstElec);
+    getCollection( iEvent, missing, hltresults,      hltresults_,        hltresultsToken_,        kHltresults );
+    getCollection( iEvent, missing, l1extemi,        m_l1extraemi,       l1extraemiToken_,        kL1extemi );
+    getCollection( iEvent, missing, l1extemn,        m_l1extraemn,       l1extraemnToken_,        kL1extemn );
+    getCollection( iEvent, missing, l1extmu,         m_l1extramu,        l1extramuToken_,         kL1extmu );
+    getCollection( iEvent, missing, l1extjetc,       m_l1extrajetc,      l1extrajetcToken_,       kL1extjetc );
+    getCollection( iEvent, missing, l1extjetf,       m_l1extrajetf,      l1extrajetfToken_,       kL1extjetf );
+    getCollection( iEvent, missing, l1extjet,        m_l1extrajet,       l1extrajetToken_,        kL1extjet );
+    getCollection( iEvent, missing, l1exttaujet,     m_l1extrataujet,    l1extrataujetToken_,     kL1exttaujet );
+    getCollection( iEvent, missing, l1extmet,        m_l1extramet,       l1extrametToken_,        kL1extmet );
+    getCollection( iEvent, missing, l1extmht,        m_l1extramht,       l1extramhtToken_,        kL1extmht );
+    getCollection( iEvent, missing, l1GtRR,          gtReadoutRecord_,   gtReadoutRecordToken_,   kL1GtRR );
+    getCollection( iEvent, missing, gctBitCounts,    gctBitCounts_,      gctBitCountsToken_,      kL1GctBitCounts );
+    getCollection( iEvent, missing, gctRingSums,     gctRingSums_,       gctRingSumsToken_,       kL1GctRingSums );
+    getCollection( iEvent, missing, mctruth,         mctruth_,           mctruthToken_,           kMctruth );
+    getCollection( iEvent, missing, simTracks,       simhits_,           simTracksToken_,         kSimhit );
+    getCollection( iEvent, missing, simVertices,     simhits_,           simVerticesToken_,       kSimhit );
+    getCollection( iEvent, missing, genEventInfo,    genEventInfo_,      genEventInfoToken_,      kGenEventInfo );
+    getCollection( iEvent, missing, mucands2,        MuCandTag2_,        MuCandTag2Token_,        kMucands2 );
+    getCollection( iEvent, missing, munovtxcands2,   MuNoVtxCandTag2_,   MuNoVtxCandTag2Token_,   kMunovtxcands2 );
+    getCollection( iEvent, missing, mucands3,        MuCandTag3_,        MuCandTag3Token_,        kMucands3 );
+    getCollection( iEvent, missing, oniaPixelCands,  oniaPixelTag_,      oniaPixelTagToken_,      kOniaPixelCands );
+    getCollection( iEvent, missing, oniaTrackCands,  oniaTrackTag_,      oniaTrackTagToken_,      kOniaTrackCands );
+    getCollection( iEvent, missing, trkmucands,      TrackerMuonTag_,    TrackerMuonTagToken_,    kTrkMucands );
+    getCollection( iEvent, missing, dimuvtxcands3,   DiMuVtx_,           DiMuVtxToken_,           kDimuvtxcands3 );
+    getCollection( iEvent, missing, isoMap2,         MuIsolTag2_,        MuIsolTag2Token_,        kIsoMap2 );
+    getCollection( iEvent, missing, isoMap3,         MuIsolTag3_,        MuIsolTag3Token_,        kIsoMap3 );
+    getCollection( iEvent, missing, isoTrk10Map3,    MuTrkIsolTag3_,     MuTrkIsolTag3Token_,     kIsoTrk10Map3 );
+    getCollection( iEvent, missing, hRawBJets,                    m_rawBJets,                     rawBJetsToken_,                     kBTagJets );
+    getCollection( iEvent, missing, hCorrectedBJets,              m_correctedBJets,               correctedBJetsToken_,               kBTagCorrectedJets );
+    getCollection( iEvent, missing, hCorrectedBJetsL1FastJet,     m_correctedBJetsL1FastJet,      correctedBJetsL1FastJetToken_,      kBTagCorrectedJetsL1FastJet );
+    getCollection( iEvent, missing, hPFBJets,                     m_pfBJets,                      pfBJetsToken_,                      kBTagPFJets );
+    getCollection( iEvent, missing, hLifetimeBJetsL25,            m_lifetimeBJetsL25,             lifetimeBJetsL25Token_,             kBTagLifetimeBJetsL25 );
+    getCollection( iEvent, missing, hLifetimeBJetsL3,             m_lifetimeBJetsL3,              lifetimeBJetsL3Token_,              kBTagLifetimeBJetsL3 );
+    getCollection( iEvent, missing, hLifetimeBJetsL25L1FastJet,   m_lifetimeBJetsL25L1FastJet,    lifetimeBJetsL25L1FastJetToken_,    kBTagLifetimeBJetsL25L1FastJet );
+    getCollection( iEvent, missing, hLifetimeBJetsL3L1FastJet,    m_lifetimeBJetsL3L1FastJet,     lifetimeBJetsL3L1FastJetToken_,     kBTagLifetimeBJetsL3L1FastJet );
+    getCollection( iEvent, missing, hLifetimePFBJetsL3,           m_lifetimePFBJetsL3,            lifetimePFBJetsL3Token_,            kBTagLifetimePFBJetsL3 );
+    getCollection( iEvent, missing, hLifetimeBJetsL25SingleTrack, m_lifetimeBJetsL25SingleTrack,  lifetimeBJetsL25SingleTrackToken_,  kBTagLifetimeBJetsL25SingleTrack );
+    getCollection( iEvent, missing, hLifetimeBJetsL3SingleTrack,  m_lifetimeBJetsL3SingleTrack,   lifetimeBJetsL3SingleTrackToken_,   kBTagLifetimeBJetsL3SingleTrack );
+    getCollection( iEvent, missing, hLifetimeBJetsL25SingleTrackL1FastJet, m_lifetimeBJetsL25SingleTrackL1FastJet, lifetimeBJetsL25SingleTrackL1FastJetToken_, kBTagLifetimeBJetsL25SingleTrackL1FastJet );
+    getCollection( iEvent, missing, hLifetimeBJetsL3SingleTrackL1FastJet,  m_lifetimeBJetsL3SingleTrackL1FastJet,  lifetimeBJetsL3SingleTrackL1FastJetToken_,  kBTagLifetimeBJetsL3SingleTrackL1FastJet );
+    getCollection( iEvent, missing, hPerformanceBJetsL25,         m_performanceBJetsL25,          performanceBJetsL25Token_,          kBTagPerformanceBJetsL25 );
+    getCollection( iEvent, missing, hPerformanceBJetsL3,          m_performanceBJetsL3,           performanceBJetsL3Token_,           kBTagPerformanceBJetsL3 );
+    getCollection( iEvent, missing, hPerformanceBJetsL25L1FastJet,m_performanceBJetsL25L1FastJet, performanceBJetsL25L1FastJetToken_, kBTagPerformanceBJetsL25L1FastJet );
+    getCollection( iEvent, missing, hPerformanceBJetsL3L1FastJet, m_performanceBJetsL3L1FastJet,  performanceBJetsL3L1FastJetToken_,  kBTagPerformanceBJetsL3L1FastJet );
+    getCollection( iEvent, missing, electrons,              Electron_,                  ElectronToken_,                  kElectrons );
+    getCollection( iEvent, missing, photons,                Photon_,                    PhotonToken_,                    kPhotons );
+    getCollection( iEvent, missing, ActivityCandsHandle,    ECALActivity_,              ECALActivityToken_,              kECALActivity);
+    getCollection( iEvent, missing, ActivityEcalIsoHandle,  ActivityEcalIso_,           ActivityEcalIsoToken_,           kECALActivityEcalIso);
+    getCollection( iEvent, missing, ActivityHcalIsoHandle,  ActivityHcalIso_,           ActivityHcalIsoToken_,           kECALActivityHcalIso);
+    getCollection( iEvent, missing, ActivityTrackIsoHandle, ActivityTrackIso_,          ActivityTrackIsoToken_,          kECALActivityTrackIso);
+    getCollection( iEvent, missing, ActivityR9Handle,       ActivityR9_,                ActivityR9Token_,                kECALActivityR9);
+    getCollection( iEvent, missing, ActivityR9IDHandle,     ActivityR9ID_,              ActivityR9IDToken_,              kECALActivityR9ID);
+    getCollection( iEvent, missing, ActivityHoverEHHandle,  ActivityHoverEH_,           ActivityHoverEHToken_,           kECALActivityHoverEH);
     
     //Read offline eleID results
     std::vector<edm::Handle<edm::ValueMap<float> > > eIDValueMap(4); 
@@ -517,51 +669,51 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     //   getCollection( iEvent, missing, eIDValueMap[3],   electronLabelTight_      ,       "EleId Tight");
     
     //read all the OpenHLT egamma collections
-    getCollection( iEvent, missing, recoIsolecalcands,        CandIso_,                   kCandIso);
-    getCollection( iEvent, missing, recoNonIsolecalcands,     CandNonIso_,                kCandNonIso);
-    getCollection( iEvent, missing, EcalIsolMap,              EcalIso_,                   kEcalIso);
-    getCollection( iEvent, missing, EcalNonIsolMap,           EcalNonIso_,                kEcalNonIso);
-    getCollection( iEvent, missing, HcalIsolMap,              HcalIsoPho_,                kHcalIsoPho);
-    getCollection( iEvent, missing, HcalNonIsolMap,           HcalNonIsoPho_,             kHcalNonIsoPho);
-    getCollection( iEvent, missing, photonR9IsoHandle,        IsoR9_,                     kIsoR9); 
-    getCollection( iEvent, missing, photonR9NonIsoHandle,     NonIsoR9_,                  kNonIsoR9);  
-    getCollection( iEvent, missing, photonR9IDIsoHandle,      IsoR9ID_,                   kIsoR9ID);
-    getCollection( iEvent, missing, photonR9IDNonIsoHandle,   NonIsoR9ID_,                kNonIsoR9ID);
-    getCollection( iEvent, missing, photonHoverEHIsoHandle,   IsoHoverEH_,                kIsoHoverEH);    
-    getCollection( iEvent, missing, photonHoverEHNonIsoHandle,NonIsoHoverEH_,             kNonIsoHoverEH);   
-    getCollection( iEvent, missing, electronIsoHandle,        IsoElectron_,               kIsoElectron);
-    getCollection( iEvent, missing, HcalEleIsolMap,           IsoEleHcal_,                kIsoEleHcal);
-    getCollection( iEvent, missing, TrackEleIsolMap,          IsoEleTrackIsol_,           kIsoEleTrackIsol);
-    getCollection( iEvent, missing, L1IsoPixelSeedsMap,       L1IsoPixelSeeds_,           kL1IsoPixelSeeds);
-    getCollection( iEvent, missing, L1NonIsoPixelSeedsMap,    L1NonIsoPixelSeeds_,        kL1NonIsoPixelSeeds);
-    getCollection( iEvent, missing, electronNonIsoHandle,     NonIsoElectron_,            kNonIsoElectron);
-    getCollection( iEvent, missing, HcalEleNonIsolMap,        NonIsoEleHcal_,             kIsoEleHcal);
-    getCollection( iEvent, missing, NonIsoTrackEleIsolMap,    NonIsoEleTrackIsol_,        kNonIsoEleTrackIsol);
-    getCollection( iEvent, missing, TrackNonIsolMap,          NonIsoPhoTrackIsol_,        kNonIsoPhoTrackIsol);
-    getCollection( iEvent, missing, TrackIsolMap,             IsoPhoTrackIsol_,           kIsoPhoTrackIsol);
-    getCollection( iEvent, missing, electronR9IsoHandle,      IsoR9_,                     kIsoR9);  
-    getCollection( iEvent, missing, electronR9NonIsoHandle,   NonIsoR9_,                  kNonIsoR9);   
-    getCollection( iEvent, missing, electronR9IDIsoHandle,    IsoR9ID_,                   kIsoR9ID);
-    getCollection( iEvent, missing, electronR9IDNonIsoHandle, NonIsoR9ID_,                kNonIsoR9ID);
-    getCollection( iEvent, missing, electronHFClusterHandle,  HFECALClusters_,            kHFECALClusters); 
-    getCollection( iEvent, missing, electronHFElectronHandle, HFElectrons_,               kHFElectrons); 
+    getCollection( iEvent, missing, recoIsolecalcands,        CandIso_,                   CandIsoToken_,                kCandIso);
+    getCollection( iEvent, missing, recoNonIsolecalcands,     CandNonIso_,                CandNonIsoToken_,             kCandNonIso);
+    getCollection( iEvent, missing, EcalIsolMap,              EcalIso_,                   EcalIsoToken_,                kEcalIso);
+    getCollection( iEvent, missing, EcalNonIsolMap,           EcalNonIso_,                EcalNonIsoToken_,             kEcalNonIso);
+    getCollection( iEvent, missing, HcalIsolMap,              HcalIsoPho_,                HcalIsoPhoToken_,             kHcalIsoPho);
+    getCollection( iEvent, missing, HcalNonIsolMap,           HcalNonIsoPho_,             HcalNonIsoPhoToken_,          kHcalNonIsoPho);
+    getCollection( iEvent, missing, photonR9IsoHandle,        IsoR9_,                     IsoPhoR9Token_,               kIsoR9);
+    getCollection( iEvent, missing, photonR9NonIsoHandle,     NonIsoR9_,                  NonIsoPhoR9Token_,            kNonIsoR9);
+    getCollection( iEvent, missing, photonR9IDIsoHandle,      IsoR9ID_,                   IsoPhoR9IDToken_,             kIsoR9ID);
+    getCollection( iEvent, missing, photonR9IDNonIsoHandle,   NonIsoR9ID_,                NonIsoPhoR9IDToken_,          kNonIsoR9ID);
+    getCollection( iEvent, missing, photonHoverEHIsoHandle,   IsoHoverEH_,                IsoPhoHoverEHToken_,          kIsoHoverEH);
+    getCollection( iEvent, missing, photonHoverEHNonIsoHandle,NonIsoHoverEH_,             NonIsoPhoHoverEHToken_,       kNonIsoHoverEH);
+    getCollection( iEvent, missing, electronIsoHandle,        IsoElectron_,               IsoElectronToken_,            kIsoElectron);
+    getCollection( iEvent, missing, TrackEleIsolMap,          IsoEleTrackIsol_,           IsoEleTrackIsolToken_,        kIsoEleTrackIsol);
+    getCollection( iEvent, missing, L1IsoPixelSeedsMap,       L1IsoPixelSeeds_,           L1IsoPixelSeedsToken_,        kL1IsoPixelSeeds);
+    getCollection( iEvent, missing, L1NonIsoPixelSeedsMap,    L1NonIsoPixelSeeds_,        L1NonIsoPixelSeedsToken_,     kL1NonIsoPixelSeeds);
+    getCollection( iEvent, missing, electronNonIsoHandle,     NonIsoElectron_,            NonIsoElectronToken_,         kNonIsoElectron);
+    getCollection( iEvent, missing, HcalEleIsolMap,           IsoEleHcal_,                IsoEleHcalToken_,             kIsoEleHcal);
+    getCollection( iEvent, missing, HcalEleNonIsolMap,        NonIsoEleHcal_,             NonIsoEleHcalToken_,          kIsoEleHcal);
+    getCollection( iEvent, missing, NonIsoTrackEleIsolMap,    NonIsoEleTrackIsol_,        NonIsoEleTrackIsolToken_,     kNonIsoEleTrackIsol);
+    getCollection( iEvent, missing, TrackNonIsolMap,          NonIsoPhoTrackIsol_,        NonIsoPhoTrackIsolToken_,     kNonIsoPhoTrackIsol);
+    getCollection( iEvent, missing, TrackIsolMap,             IsoPhoTrackIsol_,           IsoPhoTrackIsolToken_,        kIsoPhoTrackIsol);
+    getCollection( iEvent, missing, electronR9IsoHandle,      IsoR9_,                     IsoEleR9Token_,               kIsoR9);
+    getCollection( iEvent, missing, electronR9NonIsoHandle,   NonIsoR9_,                  NonIsoEleR9Token_,            kNonIsoR9);
+    getCollection( iEvent, missing, electronR9IDIsoHandle,    IsoR9ID_,                   IsoEleR9IDToken_,             kIsoR9ID);
+    getCollection( iEvent, missing, electronR9IDNonIsoHandle, NonIsoR9ID_,                NonIsoEleR9IDToken_,          kNonIsoR9ID);
+    getCollection( iEvent, missing, electronHFClusterHandle,  HFECALClusters_,            HFECALClustersToken_,         kHFECALClusters);
+    getCollection( iEvent, missing, electronHFElectronHandle, HFElectrons_,               HFElectronsToken_,            kHFElectrons);
     /*
-    getCollection( iEvent, missing, eerechits,                EERecHitTag_,               kEErechits ); 
-    getCollection( iEvent, missing, ebrechits,                EBRecHitTag_,               kEBrechits );  
-    getCollection( iEvent, missing, pi0eerechits,             pi0EERecHitTag_,            kpi0EErechits );  
-    getCollection( iEvent, missing, pi0ebrechits,             pi0EBRecHitTag_,            kpi0EBrechits );   
-    getCollection( iEvent, missing, hbherechits,              HBHERecHitTag_,             kHBHErechits );   
-    getCollection( iEvent, missing, horechits,                HORecHitTag_,               kHOrechits );   
-    getCollection( iEvent, missing, hfrechits,                HFRecHitTag_,               kHFrechits );   
+    getCollection( iEvent, missing, eerechits,                EERecHitTag_,               EERecHitToken_,               kEErechits );
+    getCollection( iEvent, missing, ebrechits,                EBRecHitTag_,               EBRecHitToken_,               kEBrechits );
+    getCollection( iEvent, missing, pi0eerechits,             pi0EERecHitTag_,            pi0EERecHitToken_,            kpi0EErechits );  
+    getCollection( iEvent, missing, pi0ebrechits,             pi0EBRecHitTag_,            pi0EBRecHitToken_,            kpi0EBrechits );
+    getCollection( iEvent, missing, hbherechits,              HBHERecHitTag_,             HBHERecHitToken_,             kHBHErechits );
+    getCollection( iEvent, missing, horechits,                HORecHitTag_,               HORecHitToken_,               kHOrechits );
+    getCollection( iEvent, missing, hfrechits,                HFRecHitTag_,               HFRecHitToken_,               kHFrechits );
     */
-    getCollection( iEvent, missing, isopixeltracksL3,         IsoPixelTrackTagL3_,        kIsoPixelTracksL3 ); 
-    getCollection( iEvent, missing, isopixeltracksL2,         IsoPixelTrackTagL2_,        kIsoPixelTracksL2 );
-    getCollection( iEvent, missing, isopixeltrackPixVertices, IsoPixelTrackVerticesTag_,  kIsoPixelTrackVertices );
-    getCollection( iEvent, missing, pixeltracksL3,            PixelTracksTagL3_,          kPixelTracksL3 ); 
-    getCollection( iEvent, missing, pixelfedsize,             PixelFEDSizeTag_,           kPixelFEDSize );
-    getCollection( iEvent, missing, pixelclusters,            PixelClustersTag_,          kPixelClusters );  
-    getCollection( iEvent, missing, recoVertexsHLT,           VertexTagHLT_,              kRecoVerticesHLT ); 
-    getCollection( iEvent, missing, recoVertexsOffline0,      VertexTagOffline0_,         kRecoVerticesOffline0 );
+    getCollection( iEvent, missing, isopixeltracksL3,         IsoPixelTrackTagL3_,        IsoPixelTrackL3Token_,        kIsoPixelTracksL3 );
+    getCollection( iEvent, missing, isopixeltracksL2,         IsoPixelTrackTagL2_,        IsoPixelTrackL2Token_,        kIsoPixelTracksL2 );
+    getCollection( iEvent, missing, isopixeltrackPixVertices, IsoPixelTrackVerticesTag_,  IsoPixelTrackVerticesToken_,  kIsoPixelTrackVertices );
+    getCollection( iEvent, missing, pixeltracksL3,            PixelTracksTagL3_,          PixelTracksL3Token_,          kPixelTracksL3 );
+    getCollection( iEvent, missing, pixelfedsize,             PixelFEDSizeTag_,           PixelFEDSizeToken_,           kPixelFEDSize );
+    getCollection( iEvent, missing, pixelclusters,            PixelClustersTag_,          PixelClustersToken_,          kPixelClusters );
+    getCollection( iEvent, missing, recoVertexsHLT,           VertexTagHLT_,              VertexHLTToken_,              kRecoVerticesHLT );
+    getCollection( iEvent, missing, recoVertexsOffline0,      VertexTagOffline0_,         VertexOffline0Token_,         kRecoVerticesOffline0 );
     
     double ptHat=-1.;
     if (genEventInfo.isValid()) {ptHat=genEventInfo->qScale();}

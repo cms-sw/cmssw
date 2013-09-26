@@ -5,7 +5,6 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-28 09:50:38+0200
-# Revision: $Id: CreateCVSPackage.pl,v 1.13 2009/02/06 08:05:48 andreasp Exp $ 
 #
 #  Shaun ASHBY
 #

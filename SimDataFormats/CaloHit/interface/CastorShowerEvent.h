@@ -39,7 +39,7 @@
     // Setters
     void setNhit(unsigned int i)   { nhit = i; };
     void setDetID(unsigned int id) { detID.push_back(id); };
-    void setHitPosition(Point p)   { hitPosition.push_back(p); };
+    void setHitPosition(const Point& p)   { hitPosition.push_back(p); };
     void setNphotons(float np)     { nphotons.push_back(np); };
     void setTime(float t)          { time.push_back(t); };
     void setPrimE(float e)         { primaryEnergy = e; };
@@ -57,7 +57,7 @@
     float getTime(int i)         { return time[i]; };
     float getPrimE()             { return primaryEnergy; };
     float getPrimEta()           { return primEta; };
-    float getPrimPhi()           { return primPhi; };
+    float getPrimPhi() const     { return primPhi; };
     float getPrimX()             { return primX; };
     float getPrimY()             { return primY; };
     float getPrimZ()             { return primZ; };

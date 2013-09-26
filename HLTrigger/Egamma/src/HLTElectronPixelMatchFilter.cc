@@ -1,6 +1,5 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.14 2012/01/21 14:56:58 fwyzard Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -10,8 +9,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"
@@ -21,8 +20,6 @@
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
@@ -42,12 +39,29 @@ HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet
   ncandcut_           = iConfig.getParameter<int> ("ncandcut");
   doIsolated_    = iConfig.getParameter<bool> ("doIsolated");
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
-}
+  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
 
+  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
+  L1IsoPixelSeedsToken_ = consumes<reco::ElectronSeedCollection>(L1IsoPixelSeedsTag_);
+  L1NonIsoPixelSeedsToken_= consumes<reco::ElectronSeedCollection>(L1NonIsoPixelSeedsTag_);
+}
 
 HLTElectronPixelMatchFilter::~HLTElectronPixelMatchFilter(){}
 
+void
+HLTElectronPixelMatchFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("candTag",edm::InputTag("hltEgammaHcalIsolFilter"));
+  desc.add<edm::InputTag>("L1IsoPixelSeedsTag",edm::InputTag("electronPixelSeeds"));
+  desc.add<edm::InputTag>("L1NonIsoPixelSeedsTag",edm::InputTag("electronPixelSeeds"));
+  desc.add<double>("npixelmatchcut",1.0);
+  desc.add<int>("ncandcut",1);
+  desc.add<bool>("doIsolated",true);
+  desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
+  desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
+  descriptions.add("hltElectronPixelMatchFilter",desc);  
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -64,8 +78,7 @@ HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-
-  iEvent.getByLabel (candTag_,PrevFilterOutput);
+  iEvent.getByToken (candToken_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
@@ -73,11 +86,11 @@ HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
   
   //get hold of the pixel seed - supercluster association map
   edm::Handle<reco::ElectronSeedCollection> L1IsoSeeds;
-  iEvent.getByLabel (L1IsoPixelSeedsTag_,L1IsoSeeds);
+  iEvent.getByToken (L1IsoPixelSeedsToken_,L1IsoSeeds);
 
   edm::Handle<reco::ElectronSeedCollection> L1NonIsoSeeds;
   if(!doIsolated_){
-    iEvent.getByLabel (L1NonIsoPixelSeedsTag_,L1NonIsoSeeds);
+    iEvent.getByToken (L1NonIsoPixelSeedsToken_,L1NonIsoSeeds);
   }
   
   // look at all egammas,  check cuts and add to filter object

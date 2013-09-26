@@ -55,67 +55,67 @@ class ELdestControl  {
 public:
   ELdestControl( boost::shared_ptr<ELdestination> dest );
   ELdestControl();
-  virtual ~ELdestControl();
+  ~ELdestControl();
 
   // -----  Behavior control methods invoked by the framework:
   //
-  virtual ELdestControl & setThreshold( const ELseverityLevel & sv );
-  virtual ELdestControl & setTraceThreshold( const ELseverityLevel & sv );
-  virtual ELdestControl & setLimit( const ELstring & s, int n );
-  virtual ELdestControl & setLimit( const ELseverityLevel & sv, int n );
-  virtual ELdestControl & setInterval( const ELstring & s, int interval );
-  virtual ELdestControl & setInterval( const ELseverityLevel& sv, int interval);
-  virtual ELdestControl & setTimespan( const ELstring& s, int n );
-  virtual ELdestControl & setTimespan( const ELseverityLevel & sv, int n );
+  ELdestControl & setThreshold( const ELseverityLevel & sv );
+  ELdestControl & setTraceThreshold( const ELseverityLevel & sv );
+  ELdestControl & setLimit( const ELstring & s, int n );
+  ELdestControl & setLimit( const ELseverityLevel & sv, int n );
+  ELdestControl & setInterval( const ELstring & s, int interval );
+  ELdestControl & setInterval( const ELseverityLevel& sv, int interval);
+  ELdestControl & setTimespan( const ELstring& s, int n );
+  ELdestControl & setTimespan( const ELseverityLevel & sv, int n );
 
-  virtual ELdestControl & setTableLimit( int n );
+  ELdestControl & setTableLimit( int n );
 
   // -----  Select output format options:
   //
-  virtual void suppressText();           virtual void includeText();  // $$ jvr
-  virtual void suppressModule();         virtual void includeModule();
-  virtual void suppressSubroutine();     virtual void includeSubroutine();
-  virtual void suppressTime();           virtual void includeTime();
-  virtual void suppressContext();        virtual void includeContext();
-  virtual void suppressSerial();         virtual void includeSerial();
-  virtual void useFullContext();         virtual void useContext();
-  virtual void separateTime();           virtual void attachTime();
-  virtual void separateEpilogue();       virtual void attachEpilogue();
-  virtual void noTerminationSummary();
-  virtual int  setLineLength(int len);	 virtual int  getLineLength() const;
+  void suppressText();           void includeText();  // $$ jvr
+  void suppressModule();         void includeModule();
+  void suppressSubroutine();     void includeSubroutine();
+  void suppressTime();           void includeTime();
+  void suppressContext();        void includeContext();
+  void suppressSerial();         void includeSerial();
+  void useFullContext();         void useContext();
+  void separateTime();           void attachTime();
+  void separateEpilogue();       void attachEpilogue();
+  void noTerminationSummary();
+  int  setLineLength(int len);	 int  getLineLength() const;
 
-  virtual void filterModule    ( ELstring const & moduleName );
-  virtual void excludeModule   ( ELstring const & moduleName );
-  virtual void respondToModule ( ELstring const & moduleName );
-  virtual void ignoreModule    ( ELstring const & moduleName );
+  void filterModule    ( ELstring const & moduleName );
+  void excludeModule   ( ELstring const & moduleName );
+  void respondToModule ( ELstring const & moduleName );
+  void ignoreModule    ( ELstring const & moduleName );
 
-  virtual ELdestControl & clearSummary();
-  virtual ELdestControl & wipe();
-  virtual ELdestControl & zero();
+  ELdestControl & clearSummary();
+  ELdestControl & wipe();
+  ELdestControl & zero();
 
-  virtual ELdestControl & setPreamble( const ELstring & preamble );
-  virtual ELdestControl & setNewline( const ELstring & newline );
+  ELdestControl & setPreamble( const ELstring & preamble );
+  ELdestControl & setNewline( const ELstring & newline );
 
   // -----  Active methods invoked by the framework:
   //
-  virtual void summary( ELdestControl & dest, const char * title="" );
-  virtual void summary( std::ostream  & os  , const char * title="" );
-  virtual void summary( ELstring      & s   , const char * title="" );
-  virtual void summary( );
-  virtual void summaryForJobReport( std::map<std::string, double> & sm);
+  void summary( ELdestControl & dest, const char * title="" );
+  void summary( std::ostream  & os  , const char * title="" );
+  void summary( ELstring      & s   , const char * title="" );
+  void summary( );
+  void summaryForJobReport( std::map<std::string, double> & sm);
 
-  virtual std::map<ELextendedID , StatsCount> statisticsMap() const;
+  std::map<ELextendedID , StatsCount> statisticsMap() const;
 
-  virtual bool log( edm::ErrorObj & msg );  // Backdoor to log a formed message
+  bool log( edm::ErrorObj & msg );  // Backdoor to log a formed message
                                             // to only this destination.
 				       
-  virtual void changeFile (std::ostream & os);
-  virtual void changeFile (const ELstring & filename);
-  virtual void flush(); 				       
+  void changeFile (std::ostream & os);
+  void changeFile (const ELstring & filename);
+  void flush(); 				       
   
   // -----  Helper methods invoked by other ErrorLogger classes
 
-  virtual void summarization( const ELstring & title
+  void summarization( const ELstring & title
                             , const ELstring & sumLines
                             );
 
@@ -123,7 +123,7 @@ public:
 
   // -----  Data implementing the trivial handle pattern:
   //
-protected:
+private:
   boost::shared_ptr<ELdestination> d;
 
 };  // ELdestControl

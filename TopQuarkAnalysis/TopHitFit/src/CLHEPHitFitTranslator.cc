@@ -1,5 +1,4 @@
 //
-//  $Id: CLHEPHitFitTranslator.cc,v 1.4 2010/08/06 22:00:44 haryo Exp $
 //
 
 /**

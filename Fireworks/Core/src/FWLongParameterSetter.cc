@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWLongParameterSetter.cc,v 1.7.4.1 2012/02/18 01:58:27 matevz Exp $
 //
 
 // system include files

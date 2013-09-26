@@ -23,7 +23,7 @@ class FastStripCPE : public StripClusterParameterEstimator
   StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl)const; 
   
   //Put information into the map.
-  void enterLocalParameters(uint32_t id, uint16_t firstStrip, std::pair<LocalPoint,LocalError> pos_err_info) const;
+  void enterLocalParameters(uint32_t id, uint16_t firstStrip, const std::pair<LocalPoint,LocalError>& pos_err_info) const;
   
   //Clear the map.
   void clearParameters() const {

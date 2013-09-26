@@ -1,4 +1,3 @@
-// $Id: FWTSelectorToEventList.cc,v 1.3 2010/07/02 13:07:19 matevz Exp $
 
 #include "Fireworks/Core/interface/FWTSelectorToEventList.h"
 

@@ -1,5 +1,4 @@
 //
-// $Id: PATMETProducer.cc,v 1.13 2009/06/08 17:32:26 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"

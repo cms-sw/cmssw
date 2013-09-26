@@ -24,7 +24,7 @@ findableSimTracks.ptMin = 2.0
 # setup multi-track validator
 from Validation.RecoTrack.MultiTrackValidator_cff import *
 hiTrackValidator = multiTrackValidator.clone(
-    label_tp_effic = cms.InputTag("findableSimTracks"),
+    label_tp_effic = cms.InputTag("primaryChgSimTracks"),
     label_tp_fake  = cms.InputTag("cutsTPFake"),
     signalOnlyTP = cms.bool(False),
     skipHistoFit = cms.untracked.bool(True), # done in post-processing
@@ -40,11 +40,11 @@ hiTrackValidator.label = cms.VInputTag(cms.InputTag('cutsRecoTracks'),
 
 # track prevalidation
 hiTrackPrevalidation = cms.Sequence(
-    findableSimTracks
-  * cutsTPFake
-  * cutsRecoTracks
-  * cutsRecoTracksHP
-)
+    primaryChgSimTracks
+    * cutsTPFake
+    * cutsRecoTracks
+    * cutsRecoTracksHP
+    )
 
 # track validation sequence
 hiTrackValidation = cms.Sequence( hiTrackValidator )

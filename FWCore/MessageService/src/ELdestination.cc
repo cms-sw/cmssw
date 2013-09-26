@@ -97,7 +97,7 @@ static ELstring notELoutputMsg = "This destination is not an ELoutput";
 
 void ELdestination::clearSummary()  {
 
-  edm::ErrorObj msg( ELwarning2, noClearSummaryMsg );
+  edm::ErrorObj msg( ELwarning, noClearSummaryMsg );
   msg << hereMsg;
   log( msg );
 
@@ -147,7 +147,7 @@ void ELdestination::summary( )  { }
 
 void ELdestination::summary( ELdestControl & dest, const ELstring & title )  {
 
-  edm::ErrorObj msg( ELwarning2, noSummaryMsg );
+  edm::ErrorObj msg( ELwarning, noSummaryMsg );
   msg << noSummaryMsg << " " << hereMsg << dest.getNewline() << title;
   dest.log( msg );
 
@@ -156,7 +156,7 @@ void ELdestination::summary( ELdestControl & dest, const ELstring & title )  {
 
 void ELdestination::summary( std::ostream & os, const ELstring & title )  {
 
-  os << "%MSG" << ELwarning2.getSymbol() << " "
+  os << "%MSG" << ELwarning.getSymbol() << " "
        << noSummaryMsg << " " << hereMsg << std::endl
      << title << std::endl;
 
@@ -165,7 +165,7 @@ void ELdestination::summary( std::ostream & os, const ELstring & title )  {
 
 void ELdestination::summary( ELstring & s, const ELstring & title )  {
 
-  s = ELstring("%MSG") + ELwarning2.getSymbol() + " "
+  s = ELstring("%MSG") + ELwarning.getSymbol() + " "
       + noSummaryMsg + " " + hereMsg + "\n"
     + title + "\n";
 
@@ -182,7 +182,7 @@ void ELdestination::summarization(
   const ELstring & title
 , const ELstring & /*sumLines*/ )  {
 
-  edm::ErrorObj  msg( ELwarning2, noSummarizationMsg );
+  edm::ErrorObj  msg( ELwarning, noSummarizationMsg );
   msg << hereMsg << newline << title;
   log( msg );
 
@@ -193,19 +193,19 @@ std::map<ELextendedID , StatsCount> ELdestination::statisticsMap() const {
 }
 
 void ELdestination::changeFile (std::ostream & /*unused*/) {
-  edm::ErrorObj  msg( ELwarning2, noosMsg );
+  edm::ErrorObj  msg( ELwarning, noosMsg );
   msg << notELoutputMsg;
   log( msg );
 }
 
 void ELdestination::changeFile (const ELstring & filename) {
-  edm::ErrorObj  msg( ELwarning2, noosMsg );
+  edm::ErrorObj  msg( ELwarning, noosMsg );
   msg << notELoutputMsg << newline << "file requested is" << filename;
   log( msg );
 }
 
 void ELdestination::flush () {
-  edm::ErrorObj  msg( ELwarning2, noosMsg );
+  edm::ErrorObj  msg( ELwarning, noosMsg );
   msg << "cannot flush()";
   log( msg );
 }

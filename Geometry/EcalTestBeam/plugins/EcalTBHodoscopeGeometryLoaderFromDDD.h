@@ -8,7 +8,6 @@
  *
  *
  *   
- * $Id: EcalTBHodoscopeGeometryLoaderFromDDD.h,v 1.2 2010/08/07 14:56:04 wmtan Exp $
  * \author P. Meridiani - INFN Roma 1
 */
 

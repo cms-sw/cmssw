@@ -159,7 +159,7 @@ void HcalNZSMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 
 
 void HcalNZSMonitor::processEvent(const FEDRawDataCollection& rawraw, 
-				  edm::TriggerResults trigRes, 
+				  const edm::TriggerResults& trigRes, 
 				  int bxNum, 
 				  const edm::TriggerNames& triggerNames)
 {

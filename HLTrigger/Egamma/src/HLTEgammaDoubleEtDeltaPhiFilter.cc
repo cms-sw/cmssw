@@ -10,8 +10,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
@@ -27,9 +27,23 @@ HLTEgammaDoubleEtDeltaPhiFilter::HLTEgammaDoubleEtDeltaPhiFilter(const edm::Para
    relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
    L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
    L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
+   inputToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputTag_);
 }
 
 HLTEgammaDoubleEtDeltaPhiFilter::~HLTEgammaDoubleEtDeltaPhiFilter(){}
+
+void 
+HLTEgammaDoubleEtDeltaPhiFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+   edm::ParameterSetDescription desc;
+   makeHLTFilterDescription(desc);
+   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltDoublePhotonEt5L1MatchFilterRegional"));
+   desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
+   desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
+   desc.addUntracked<bool>("relaxed",false);
+   desc.add<double>("etcut", 5.0);
+   desc.add<double>("minDeltaPhi", 2.5);
+   descriptions.add("hltEgammaDoubleEtDeltaPhiFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -44,7 +58,7 @@ HLTEgammaDoubleEtDeltaPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventS
 
    // get hold of filtered candidates
    edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-   iEvent.getByLabel (inputTag_,PrevFilterOutput);
+   iEvent.getByToken (inputToken_,PrevFilterOutput);
   
    std::vector<edm::Ref<reco::RecoEcalCandidateCollection> >  recoecalcands;
    PrevFilterOutput->getObjects(TriggerCluster,  recoecalcands);

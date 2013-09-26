@@ -9,7 +9,7 @@ public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  GflashKaonPlusShowerProfile (edm::ParameterSet parSet) : 
+  GflashKaonPlusShowerProfile (const edm::ParameterSet& parSet) : 
     GflashHadronShowerProfile (parSet) {}; 
   ~GflashKaonPlusShowerProfile () {};
 

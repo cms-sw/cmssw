@@ -90,7 +90,7 @@ TProfile2D** RunHistogramManager::makeTProfile2D(const char* name, const char* t
 void  RunHistogramManager::beginRun(const edm::Run&  iRun) {
 
   edm::Service<TFileService> tfserv;
-  beginRun(iRun,*tfserv);
+  beginRun(iRun, tfserv->tFileDirectory());
 
 }
 
@@ -110,7 +110,7 @@ void  RunHistogramManager::beginRun(const edm::Run& iRun, TFileDirectory& subdir
 void  RunHistogramManager::beginRun(const unsigned int irun) {
 
   edm::Service<TFileService> tfserv;
-  beginRun(irun,*tfserv);
+  beginRun(irun, tfserv->tFileDirectory());
 
 }
 

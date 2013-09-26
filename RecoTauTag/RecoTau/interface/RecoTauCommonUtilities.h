@@ -7,7 +7,6 @@
  *
  * Author: Evan K. Friis (UC Davis)
  *
- * $Id $
  */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"

@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+# IMPORTANT: THIS IS A PLACEHOLDER, IT MUST BE FIXED EVENTUALLY
+
 # seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 muonSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
@@ -33,7 +35,6 @@ muonSeededTracks.Propagator = 'PropagatorWithMaterial'
 
 
 # track merger
-#from FastSimulation.Tracking.IterativeFifthTrackMerger_cfi import *
 muonSeededTracksOutIn = cms.EDProducer("FastTrackMerger",
                                   TrackProducers = cms.VInputTag(cms.InputTag("muonSeededCandidates"),
                                                                  cms.InputTag("muonSeededTracks")),

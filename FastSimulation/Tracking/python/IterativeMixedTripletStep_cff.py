@@ -25,6 +25,15 @@ iterativeMixedTripletStepSeeds.originpTMin = [0.35] # we need to add another see
 iterativeMixedTripletStepSeeds.zVertexConstraint = [-1.0]
 iterativeMixedTripletStepSeeds.primaryVertices = ['none']
 
+iterativeMixedTripletStepSeeds.newSyntax = False
+#iterativeMixedTripletStepSeeds.layerList = ['BPix1+BPix2+BPix3',
+#                                            'BPix1+BPix2+FPix1_pos',
+#                                            'BPix1+BPix2+FPix1_neg',
+#                                            'BPix1+FPix1_pos+FPix2_pos',
+#                                            'BPix1+FPix1_neg+FPix2_neg']
+from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepSeedLayersA
+iterativeMixedTripletStepSeeds.layerList = mixedTripletStepSeedLayersA.layerList
+# NOTE: what about mixedTripletStepSeedLayersB ? Have to think a way to include that as well.
 
 # candidate producer
 #from FastSimulation.Tracking.IterativeThirdCandidateProducer_cff import *

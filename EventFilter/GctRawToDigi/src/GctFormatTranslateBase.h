@@ -21,8 +21,6 @@
 * concrete classes that can translate to/from specific RAW formats.
 *
 * \author Robert Frazier
-* $Revision: 1.3 $
-* $Date: 2009/04/21 15:44:41 $
 */ 
 
 

@@ -1,5 +1,4 @@
 //
-// $Id: HLTL1MuonMatcher.cc,v 1.3 2010/07/12 20:56:11 gpetrucc Exp $
 //
 
 /**

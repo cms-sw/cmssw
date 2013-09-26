@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWExpressionEvaluator.cc,v 1.4 2012/06/26 22:13:03 wmtan Exp $
 //
 
 // system include files

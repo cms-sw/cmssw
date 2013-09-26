@@ -1,7 +1,5 @@
 /** \file CSCDCCEventData.cc
  *
- *  $Date: 2009/05/27 11:46:09 $
- *  $Revision: 1.30 $
  *  \author A. Tumanov - Rice - But long, long ago...
  *
  */

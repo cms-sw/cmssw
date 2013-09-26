@@ -195,9 +195,7 @@ namespace edm {
       }
       tree_->SetEntries(tree_->GetEntries() + in->GetEntries());
       Service<RootHandlers> rootHandler;
-      rootHandler->enableErrorHandlerWithoutWarnings();
-      cloner.Exec();
-      rootHandler->enableErrorHandler();
+      rootHandler->ignoreWarningsWhileDoing([&cloner] { cloner.Exec(); });
       if(mustRemoveSomeAuxs) {
         for(std::map<Int_t, TBranch *>::const_iterator it = auxIndexes.begin(), itEnd = auxIndexes.end();
              it != itEnd; ++it) {

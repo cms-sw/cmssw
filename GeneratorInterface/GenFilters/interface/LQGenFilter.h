@@ -13,7 +13,6 @@
 //
 // Original Author:  Alexey Ferapontov,8 R-021,+41227676332,
 //         Created:  Mon Mar  8 15:28:06 CET 2010
-// $Id$
 //
 //
 

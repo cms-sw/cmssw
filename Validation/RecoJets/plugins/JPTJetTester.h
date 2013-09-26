@@ -32,7 +32,7 @@ public:
  
 private:
   
-  void fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJet& fJPTJet, std::vector<reco::Vertex> goodVertices);
+  void fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJet& fJPTJet, const std::vector<reco::Vertex>& goodVertices);
   double getSumPt (const reco::TrackRefVector& tracks);
 
   edm::InputTag mInputCollection;

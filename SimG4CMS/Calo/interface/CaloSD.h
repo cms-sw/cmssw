@@ -70,13 +70,13 @@ public:
 protected:
 
   virtual G4bool   getStepInfo(G4Step* aStep);
-  G4ThreeVector    setToLocal(G4ThreeVector, const G4VTouchable*);
-  G4ThreeVector    setToGlobal(G4ThreeVector, const G4VTouchable*);
+  G4ThreeVector    setToLocal(const G4ThreeVector&, const G4VTouchable*);
+  G4ThreeVector    setToGlobal(const G4ThreeVector&, const G4VTouchable*);
   G4bool           hitExists();
   G4bool           checkHit();
   CaloG4Hit*       createNewHit();
   void             updateHit(CaloG4Hit*);
-  void             resetForNewPrimary(G4ThreeVector, double);
+  void             resetForNewPrimary(const G4ThreeVector&, double);
   double           getAttenuation(G4Step* aStep, double birk1, double birk2,
                                   double birk3);
 

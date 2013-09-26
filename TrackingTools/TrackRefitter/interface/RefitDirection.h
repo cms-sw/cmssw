@@ -4,8 +4,6 @@
 /** \class RefitDirection
  *  Help class in order to handle the different refit possibilities
  *
- *  $Date: 2008/11/03 18:38:19 $
- *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

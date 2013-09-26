@@ -40,7 +40,7 @@ int main(int /*argc*/,char** /*argv*/)
   reference->GetYaxis()->SetTitle("Y [cm]");
   reference->Draw();
 
-  ifstream endcapDump;
+  std::ifstream endcapDump;
   endcapDump.open("ee.C");
   if (!endcapDump)
     {

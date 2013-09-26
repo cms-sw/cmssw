@@ -100,6 +100,8 @@ namespace edm {
     virtual bool unscheduledFill(std::string const&,
                                  ModuleCallingContext const* mcc) const override {return false;}
 
+    virtual unsigned int transitionIndex_() const override;
+
     void resolveProductImmediate(ProductHolderBase const& phb) const;
 
     // A vector of product holders.

@@ -17,7 +17,6 @@
 //
 // Original Author:  R. Capra
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id$
 //
  
 // system include files

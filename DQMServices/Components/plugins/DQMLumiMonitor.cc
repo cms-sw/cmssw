@@ -27,8 +27,8 @@ DQMLumiMonitor::DQMLumiMonitor( const edm::ParameterSet& ps ) : parameters_(ps) 
 
   moduleName_          = parameters_.getParameter<std::string>("ModuleName");
   folderName_          = parameters_.getParameter<std::string>("FolderName");
-  pixelClusterInputTag_= parameters_.getParameter<edm::InputTag>("PixelClusterInputTag");
-  lumiRecordName_      = parameters_.getParameter<std::string>("LumiRecordName");
+  pixelClusterInputTag_= consumes<edmNew::DetSetVector<SiPixelCluster> >(parameters_.getParameter<edm::InputTag>("PixelClusterInputTag"));
+  lumiRecordName_      = consumes<LumiSummary,edm::InLumi>(parameters_.getParameter<std::string>("LumiRecordName"));
 
   nClusME_ = 0;
   nClusVsLSME_ = 0;
@@ -91,11 +91,10 @@ void DQMLumiMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
 
   //Access Pixel Clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> > siPixelClusters;
-  //  edm::Handle< SiPixelClusterCollectionNew > siPixelClusters;
-  iEvent.getByLabel(pixelClusterInputTag_, siPixelClusters);
+  iEvent.getByToken(pixelClusterInputTag_, siPixelClusters);
   
   if(!siPixelClusters.isValid()) {
-    edm::LogError("PixelLumiMonotor") << "Could not find Cluster Collection " << pixelClusterInputTag_;
+    edm::LogError("PixelLumiMonotor") << "Could not find Cluster Collection ";
     return;
   }
   unsigned int nClusterPix   = (*siPixelClusters).dataSize(); 
@@ -111,7 +110,7 @@ void DQMLumiMonitor::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, e
 
   // Access Lumi Summary
   edm::Handle<LumiSummary> lumiSummary_;
-  lumiBlock.getByLabel(lumiRecordName_, lumiSummary_);
+  lumiBlock.getByToken(lumiRecordName_, lumiSummary_);
   if(lumiSummary_->isValid()){
     intLumi_ = lumiSummary_->intgDelLumi();
     edm::LogInfo("PixelLumiMonotor") <<" Luminosity in this Lumi Section " << intLumi_ ;

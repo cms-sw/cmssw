@@ -2,7 +2,6 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronEoverpFilterRegional.cc,v 1.10 2011/05/01 08:14:08 gruen Exp $
  *
  */
 
@@ -10,15 +9,12 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
@@ -34,10 +30,26 @@ HLTElectronEoverpFilterRegional::HLTElectronEoverpFilterRegional(const edm::Para
    eoverpendcapcut_  = iConfig.getParameter<double> ("eoverpendcapcut");
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
    doIsolated_  = iConfig.getParameter<bool> ("doIsolated");
+   candToken_ =  consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
+   electronIsolatedToken_ = consumes<reco::ElectronCollection>(electronIsolatedProducer_);
+   if(!doIsolated_) electronNonIsolatedToken_ = consumes<reco::ElectronCollection>(electronNonIsolatedProducer_);
 }
 
 HLTElectronEoverpFilterRegional::~HLTElectronEoverpFilterRegional(){}
 
+void
+HLTElectronEoverpFilterRegional::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("candTag",edm::InputTag("hltElectronPixelMatchFilter"));
+  desc.add<edm::InputTag>("electronIsolatedProducer",edm::InputTag("pixelMatchElectronsForHLT"));
+  desc.add<edm::InputTag>("electronNonIsolatedProducer",edm::InputTag("pixelMatchElectronsForHLT"));
+  desc.add<double>("eoverpbarrelcut",1.5);
+  desc.add<double>("eoverpendcapcut",2.45);
+  desc.add<int>("ncandcut",1);
+  desc.add<bool>("doIsolated",true);
+  descriptions.add("hltElectronEoverpFilter",desc);  
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -52,18 +64,18 @@ HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
   }
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByLabel (candTag_,PrevFilterOutput);
+  iEvent.getByToken (candToken_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
 
    // Get the HLT electrons from EgammaHLTPixelMatchElectronProducers
   edm::Handle<reco::ElectronCollection> electronIsolatedHandle;
-  iEvent.getByLabel(electronIsolatedProducer_,electronIsolatedHandle);
+  iEvent.getByToken(electronIsolatedToken_,electronIsolatedHandle);
 
   edm::Handle<reco::ElectronCollection> electronNonIsolatedHandle;
   if(!doIsolated_) {
-    iEvent.getByLabel(electronNonIsolatedProducer_,electronNonIsolatedHandle);
+    iEvent.getByToken(electronNonIsolatedToken_,electronNonIsolatedHandle);
   }
 
  // look at all candidates,  check cuts and add to filter object

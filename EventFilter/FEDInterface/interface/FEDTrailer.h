@@ -5,12 +5,11 @@
  *  TEMPORARY helper class to interpret/create FED trailer words.
  *  FIXME: will be replaced by the xdaq implementation
  *
- *  $Date: 2007/10/08 12:45:27 $
- *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
-#include "interface/shared/fed_trailer.h"
+#include "EventFilter/FEDInterface/interface/fed_header.h"
+#include "EventFilter/FEDInterface/interface/fed_trailer.h"
 
 
 class FEDTrailer {

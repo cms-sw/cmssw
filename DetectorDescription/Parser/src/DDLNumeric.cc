@@ -8,7 +8,7 @@
 #include "DetectorDescription/Parser/src/DDLNumeric.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLNumeric::DDLNumeric( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )
@@ -28,7 +28,7 @@ DDLNumeric::processElement( const std::string& name, const std::string& nmspace,
 
   if( parent() == "ConstantsSection" || parent() == "DDDefinition" )
   {
-    DDNumeric ddnum( getDDName( nmspace ), new double( ExprEvalSingleton::instance().eval( nmspace, getAttributeSet().find( "value" )->second )));
+    DDNumeric ddnum( getDDName( nmspace ), new double( myRegistry_->evaluator().eval( nmspace, getAttributeSet().find( "value" )->second )));
     clear();
   } // else, save it, don't clear it, because some other element (parent node) will use it.
 

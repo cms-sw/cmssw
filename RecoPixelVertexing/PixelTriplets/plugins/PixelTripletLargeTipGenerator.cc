@@ -103,6 +103,8 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 
   using NodeInfo = KDTreeNodeInfo<unsigned int>;
   std::vector<NodeInfo > layerTree; // re-used throughout
+  std::vector<unsigned int> foundNodes; // re-used throughout
+  foundNodes.reserve(100);
   KDTreeLinkerAlgo<unsigned int> hitTree[size];
 
   float rzError[size]; //save maximum errors
@@ -267,7 +269,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
         phiRange = mergePhiRanges(rPhi1, rPhi2);
       }
       
-      layerTree.clear(); // Now recover hits in bounding box...
+      foundNodes.clear(); // Now recover hits in bounding box...
       float prmin=phiRange.min(), prmax=phiRange.max(); //get contiguous range
       if ((prmax-prmin) > Geom::ftwoPi())
 	{ prmax=Geom::fpi(); prmin = -Geom::fpi();}
@@ -286,13 +288,13 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 	KDTreeBox phiZ(prmin, prmax,
 		       regMin.min()-fnSigmaRZ*rzError[il],
 		       regMax.max()+fnSigmaRZ*rzError[il]);
-	hitTree[il].search(phiZ, layerTree);
+	hitTree[il].search(phiZ, foundNodes);
       }
       else {
 	KDTreeBox phiZ(prmin, prmax,
 		       rzRange.min()-fnSigmaRZ*rzError[il],
 		       rzRange.max()+fnSigmaRZ*rzError[il]);
-	hitTree[il].search(phiZ, layerTree);
+	hitTree[il].search(phiZ, foundNodes);
       }
       
       MatchedHitRZCorrectionFromBending l2rzFixup(doublets.hit(ip,HitDoublets::outer)->det()->geographicalId(), tTopo);
@@ -300,8 +302,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 
       thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
       auto const & hits = *thirdHitMap[il];
-      for (auto const & ih : layerTree) {
-	auto KDdata = ih.data;
+      for (auto KDdata : foundNodes) {
 	GlobalPoint p3 = hits.gp(KDdata); 
 	double p3_r = p3.perp();
 	double p3_z = p3.z();

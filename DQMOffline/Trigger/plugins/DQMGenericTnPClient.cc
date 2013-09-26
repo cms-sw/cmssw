@@ -185,7 +185,6 @@ DQMGenericTnPClient::~DQMGenericTnPClient(){
 }
 
 void DQMGenericTnPClient::findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern = "") {
-
   if (!dqmStore->dirExists(dir)) {
     LogError("DQMGenericTnPClient") << " DQMGenericTnPClient::findAllSubdirectories ==> Missing folder " << dir << " !!!";
     return;

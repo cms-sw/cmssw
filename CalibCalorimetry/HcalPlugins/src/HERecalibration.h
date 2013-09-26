@@ -24,7 +24,7 @@ public:
   ~HERecalibration();
 
   double getCorr(int ieta, int idepth);
-  void  setDsegm(std::vector<std::vector<int> > m_segmentation);
+  void  setDsegm(const std::vector<std::vector<int> >& m_segmentation);
 
 private:
 

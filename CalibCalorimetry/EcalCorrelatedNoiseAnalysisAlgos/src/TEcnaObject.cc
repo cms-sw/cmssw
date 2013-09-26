@@ -2,6 +2,7 @@
 //----------Copyright: Those valid for CEA sofware
 //----------Modified: 24/03/2011
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaObject.cc

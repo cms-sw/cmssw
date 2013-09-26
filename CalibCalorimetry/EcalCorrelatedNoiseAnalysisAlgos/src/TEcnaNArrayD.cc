@@ -4,6 +4,7 @@
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNArrayD.h"
 #include "Riostream.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaNArrayD.cc

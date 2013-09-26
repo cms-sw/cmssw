@@ -2,8 +2,6 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/17 17:50:07 $
- *  $Revision: 1.3 $
  *
  *  \author various
  *
@@ -22,10 +20,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-
 // using namespace edm;
 // using namespace std;
 
@@ -35,10 +29,18 @@
 HLTGetRaw::HLTGetRaw(const edm::ParameterSet& ps)
 {
   RawDataCollection_ = ps.getParameter<edm::InputTag>("RawDataCollection");
+  RawDataToken_ = consumes<FEDRawDataCollection>(RawDataCollection_);
 }
 
 HLTGetRaw::~HLTGetRaw()
 { }
+
+void
+HLTGetRaw::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("RawDataCollection",edm::InputTag("rawDataCollector"));
+  descriptions.add("hltgetRaw",desc);
+}
 
 //
 // member functions
@@ -51,7 +53,7 @@ HLTGetRaw::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //    using namespace edm;
 
     edm::Handle<FEDRawDataCollection> RawDataHandle ; 
-    iEvent.getByLabel(RawDataCollection_, RawDataHandle );
+    iEvent.getByToken(RawDataToken_, RawDataHandle );
 
     LogDebug("DigiInfo") << "Loaded Raw Data Collection: " << RawDataCollection_ ; 
 

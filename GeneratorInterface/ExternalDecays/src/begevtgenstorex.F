@@ -1,5 +1,4 @@
 C--------------------------------------------------------------------------
-C $Id: begevtgenstorex.F,v 1.5 2008/07/04 14:45:57 covarell Exp $
 C
 C Environment:
 C      This software is part of the EvtGen package developed jointly

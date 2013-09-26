@@ -31,21 +31,21 @@ int main()
   edmtest::sampleStandAlone();
 
   edm::LogImportant ("note") << "threshold DEBUG";
-  edm::setStandAloneMessageThreshold("DEBUG");
+  edm::setStandAloneMessageThreshold(edm::ELdebug);
   edmtest::sampleStandAlone();
 
   edm::LogImportant ("note") << "threshold INFO";
-  edm::setStandAloneMessageThreshold("INFO");
+  edm::setStandAloneMessageThreshold(edm::ELinfo);
   edmtest::sampleStandAlone();
 
   edm::LogImportant ("note") << "threshold WARNING";
-  edm::setStandAloneMessageThreshold("WARNING");
+  edm::setStandAloneMessageThreshold(edm::ELwarning);
   edmtest::sampleStandAlone();
 
   edm::LogImportant ("note") << "threshold ELerror"; // ERROR would confuse 
   						     // the grep checking that
 						     // the runtests worked
-  edm::setStandAloneMessageThreshold("ERROR");
+  edm::setStandAloneMessageThreshold(edm::ELerror);
   edmtest::sampleStandAlone();
 
   edm::LogImportant ("note") << "squelch cat_A";

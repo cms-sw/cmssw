@@ -4,16 +4,11 @@
 #include <memory>
 
 // Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
@@ -27,8 +22,6 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
 // Level 1 Trigger
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
@@ -49,14 +42,14 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
   else                                   verbosity = IslandClusterAlgo::pERROR;
 
   doBarrel_   = ps.getParameter<bool>("doBarrel");
-  doEndcaps_   = ps.getParameter<bool>("doEndcaps");
-  doIsolated_   = ps.getParameter<bool>("doIsolated");
+  doEndcaps_  = ps.getParameter<bool>("doEndcaps");
+  doIsolated_ = ps.getParameter<bool>("doIsolated");
 
   // Parameters to identify the hit collections
-  barrelHitProducer_   = ps.getParameter<edm::InputTag>("barrelHitProducer");
-  endcapHitProducer_   = ps.getParameter<edm::InputTag>("endcapHitProducer");
-  barrelHitCollection_ = ps.getParameter<std::string>("barrelHitCollection");
-  endcapHitCollection_ = ps.getParameter<std::string>("endcapHitCollection");
+  barrelHitCollection_   = ps.getParameter<edm::InputTag>("barrelHitProducer");
+  endcapHitCollection_   = ps.getParameter<edm::InputTag>("endcapHitProducer");
+  barrelHitToken_   = consumes<EcalRecHitCollection>(barrelHitCollection_);
+  endcapHitToken_   = consumes<EcalRecHitCollection>(endcapHitCollection_);
 
   // The names of the produced cluster collections
   barrelClusterCollection_  = ps.getParameter<std::string>("barrelClusterCollection");
@@ -67,8 +60,8 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
   double endcapSeedThreshold = ps.getParameter<double>("IslandEndcapSeedThr");
 
   // L1 matching parameters
-  l1TagIsolated_ = ps.getParameter< edm::InputTag > ("l1TagIsolated");
-  l1TagNonIsolated_ = ps.getParameter< edm::InputTag > ("l1TagNonIsolated");
+  l1TagIsolated_    = consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagIsolated"));
+  l1TagNonIsolated_ = consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagNonIsolated"));
   l1LowerThr_ = ps.getParameter<double> ("l1LowerThr");
   l1UpperThr_ = ps.getParameter<double> ("l1UpperThr");
   l1LowerThrIgnoreIsolation_ = ps.getParameter<double> ("l1LowerThrIgnoreIsolation");
@@ -89,22 +82,21 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
   nEvt_ = 0;
 }
 
-
-EgammaHLTIslandClusterProducer::~EgammaHLTIslandClusterProducer()
-{
+EgammaHLTIslandClusterProducer::~EgammaHLTIslandClusterProducer() {
   delete island_p;
 }
 
+void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
-void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
-{
   //Get the L1 EM Particle Collection
   edm::Handle< l1extra::L1EmParticleCollection > emIsolColl ;
   if(doIsolated_)
-    evt.getByLabel(l1TagIsolated_, emIsolColl);
+    evt.getByToken(l1TagIsolated_, emIsolColl);
+  
   //Get the L1 EM Particle Collection
   edm::Handle< l1extra::L1EmParticleCollection > emNonIsolColl ;
-  evt.getByLabel(l1TagNonIsolated_, emNonIsolColl);
+  evt.getByToken(l1TagNonIsolated_, emNonIsolColl);
+
   // Get the CaloGeometry
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   es.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
@@ -119,7 +111,6 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 	
 	// Access the GCT hardware object corresponding to the L1Extra EM object.
 	int etaIndex = emItr->gctEmCand()->etaIndex() ;
-	
 	
 	int phiIndex = emItr->gctEmCand()->phiIndex() ;
 	// Use the L1CaloGeometry to find the eta, phi bin boundaries.
@@ -216,28 +207,26 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
       //&&endcapRegions.size()!=0
       ) {
 
-    clusterizeECALPart(evt, es, endcapHitProducer_.label(), endcapHitCollection_, endcapClusterCollection_, endcapRegions, IslandClusterAlgo::endcap);
+    clusterizeECALPart(evt, es, endcapHitToken_, endcapClusterCollection_, endcapRegions, IslandClusterAlgo::endcap);
   }
   if (doBarrel_ 
       //&& barrelRegions.size()!=0
       ) {
-    clusterizeECALPart(evt, es, barrelHitProducer_.label(), barrelHitCollection_, barrelClusterCollection_, barrelRegions, IslandClusterAlgo::barrel);
+    clusterizeECALPart(evt, es, barrelHitToken_, barrelClusterCollection_, barrelRegions, IslandClusterAlgo::barrel);
   }
   nEvt_++;
 }
 
 
 const EcalRecHitCollection * EgammaHLTIslandClusterProducer::getCollection(edm::Event& evt,
-                                                                  const std::string& hitProducer_,
-                                                                  const std::string& hitCollection_)
+									   edm::EDGetTokenT<EcalRecHitCollection>& hitToken_)
 {
   edm::Handle<EcalRecHitCollection> rhcHandle;
-
-  evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
+  evt.getByToken(hitToken_, rhcHandle);
   if (!(rhcHandle.isValid())) 
     {
       std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
-      edm::LogError("EgammaHLTIslandClusterProducerError") << "Error! can't get the product " << hitCollection_.c_str() ;
+      edm::LogError("EgammaHLTIslandClusterProducerError") << "Error! can't get the product ";
       return 0;
     } 
   return rhcHandle.product();
@@ -245,14 +234,13 @@ const EcalRecHitCollection * EgammaHLTIslandClusterProducer::getCollection(edm::
 
 
 void EgammaHLTIslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-                                               const std::string& hitProducer,
-                                               const std::string& hitCollection,
-                                               const std::string& clusterCollection,
-                                               const std::vector<EcalEtaPhiRegion>& regions,
-                                               const IslandClusterAlgo::EcalPart& ecalPart)
+							edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
+							const std::string& clusterCollection,
+							const std::vector<EcalEtaPhiRegion>& regions,
+							const IslandClusterAlgo::EcalPart& ecalPart)
 {
   // get the hit collection from the event:
-  const EcalRecHitCollection *hitCollection_p = getCollection(evt, hitProducer, hitCollection);
+  const EcalRecHitCollection *hitCollection_p = getCollection(evt, hitToken);
 
   // get the geometry and topology from the event setup:
   edm::ESHandle<CaloGeometry> geoHandle;

@@ -1,7 +1,5 @@
 /** \file
  *
- *  $Date: 2009/08/17 09:16:31 $
- *  $Revision: 1.7 $
  *  \author T. Todorov - updated N. Amapane (2008)
  */
 

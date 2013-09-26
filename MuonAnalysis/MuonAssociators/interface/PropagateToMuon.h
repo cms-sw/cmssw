@@ -1,7 +1,6 @@
 #ifndef MuonAnalysis_MuonAssociators_interface_PropagateToMuon_h
 #define MuonAnalysis_MuonAssociators_interface_PropagateToMuon_h
 //
-// $Id: PropagateToMuon.h,v 1.3 2010/07/01 07:41:09 gpetrucc Exp $
 //
 
 /**

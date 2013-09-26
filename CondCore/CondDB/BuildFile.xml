@@ -1,0 +1,14 @@
+<use   name="CondCore/DBCommon"/>
+<use   name="CondCore/IOVService"/>
+<use   name="CondCore/MetaDataService"/>
+<use   name="CondCore/TagCollection"/>
+<use   name="CondCore/ORA"/>
+<use   name="FWCore/Framework"/>
+<use   name="boost"/>
+<use   name="openssl"/>
+<use   name="CoralCommon"/>
+<use   name="CoralKernel"/>
+<use   name="RelationalAccess"/>
+<export>
+  <lib   name="1"/>
+</export>

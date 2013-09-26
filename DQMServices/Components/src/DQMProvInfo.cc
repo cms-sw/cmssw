@@ -24,10 +24,13 @@ DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps){
   parameters_ = ps;
   
   dbe_ = edm::Service<DQMStore>().operator->();
-  globalTag_ = "MODULE::DEFAULT"; 
-  runType_ = parameters_.getUntrackedParameter<std::string>("runType", "No run type selected") ;
-  provinfofolder_ = parameters_.getUntrackedParameter<std::string>("provInfoFolder", "ProvInfo") ;
-  subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "Info") ;
+  globalTag_           = "MODULE::DEFAULT"; 
+  runType_             = parameters_.getUntrackedParameter<std::string>("runType", "No run type selected") ;
+  provinfofolder_      = parameters_.getUntrackedParameter<std::string>("provInfoFolder", "ProvInfo") ;
+  subsystemname_       = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "Info") ;
+  L1gt_                = consumes<L1GlobalTriggerReadoutRecord>(parameters_.getUntrackedParameter<std::string>("L1gt","gtDigis"));
+  L1gtEvm_             = consumes<L1GlobalTriggerEvmReadoutRecord>(parameters_.getUntrackedParameter<std::string>("L1gtEvm","gtEvmDigis"));
+  dcsStatusCollection_ = consumes<DcsStatusCollection>(parameters_.getUntrackedParameter<std::string>("dcsStatusCollection","scalersRawToDigi"));
   
   // initialize
   nameProcess_ = "HLT"; // the process name is not contained in this ps
@@ -353,7 +356,7 @@ DQMProvInfo::makeDcsInfo(const edm::Event& e)
 {
 
   edm::Handle<DcsStatusCollection> dcsStatus;
-  e.getByLabel("scalersRawToDigi", dcsStatus);
+  e.getByToken(dcsStatusCollection_, dcsStatus);
   for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
                             dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
   {
@@ -422,7 +425,7 @@ DQMProvInfo::makeGtInfo(const edm::Event& e)
 {
 
   edm::Handle<L1GlobalTriggerReadoutRecord> gtrr_handle;
-  e.getByLabel("gtDigis", gtrr_handle);
+  e.getByToken(L1gt_, gtrr_handle);
   L1GlobalTriggerReadoutRecord const* gtrr = gtrr_handle.product();
   L1GtFdlWord fdlWord ; 
   if (gtrr)
@@ -439,7 +442,7 @@ DQMProvInfo::makeGtInfo(const edm::Event& e)
 
   //
   edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvm_handle;
-  e.getByLabel("gtEvmDigis", gtEvm_handle);
+  e.getByToken(L1gtEvm_, gtEvm_handle);
   L1GlobalTriggerEvmReadoutRecord const* gtevm = gtEvm_handle.product();
 
   L1GtfeWord gtfeEvmWord;

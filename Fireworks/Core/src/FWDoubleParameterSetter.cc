@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWDoubleParameterSetter.cc,v 1.6 2010/09/24 18:51:18 amraktad Exp $
 //
 
 // system include files

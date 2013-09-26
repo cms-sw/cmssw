@@ -20,9 +20,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 
-#include "xgi/Utils.h"
-#include "xgi/Method.h"
-
 #include "TCanvas.h"
 #include "TPaveText.h"
 #include "TF1.h"
@@ -93,7 +90,7 @@ class SiPixelDataQuality {
   bool DONE_;
   
   
-  ofstream myfile_;  
+  std::ofstream myfile_;  
   int nevents_;
   bool endOfModules_;
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap;

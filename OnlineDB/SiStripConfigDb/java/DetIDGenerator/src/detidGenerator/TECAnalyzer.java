@@ -11,9 +11,7 @@ import java.util.ArrayList;
  */
 
 /*
-  $Date: 2007/01/18 17:04:45 $
   
-  $Log: TECAnalyzer.java,v $
   Revision 1.2  2007/01/18 17:04:45  gbaulieu
   Use an external library for database connections
   Use preparedStatements to speed up the queries

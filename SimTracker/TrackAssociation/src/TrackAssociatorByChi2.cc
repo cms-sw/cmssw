@@ -13,9 +13,9 @@ using namespace std;
 
 double TrackAssociatorByChi2::compareTracksParam ( TrackCollection::const_iterator rt, 
 						   SimTrackContainer::const_iterator st, 
-						   const math::XYZTLorentzVectorD vertexPosition, 
-						   GlobalVector magField,
-						   TrackBase::CovarianceMatrix invertedCovariance,
+						   const math::XYZTLorentzVectorD& vertexPosition, 
+						   const GlobalVector& magField,
+						   const TrackBase::CovarianceMatrix& invertedCovariance,
 						   const reco::BeamSpot& bs) const{
   
   Basic3DVector<double> momAtVtx(st->momentum().x(),st->momentum().y(),st->momentum().z());
@@ -142,8 +142,8 @@ double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterato
 }
 
 pair<bool,TrackBase::ParameterVector> 
-TrackAssociatorByChi2::parametersAtClosestApproach(Basic3DVector<double> vertex,
-						   Basic3DVector<double> momAtVtx,
+TrackAssociatorByChi2::parametersAtClosestApproach(const Basic3DVector<double>& vertex,
+						   const Basic3DVector<double>& momAtVtx,
 						   float charge,
 						   const BeamSpot& bs) const{
   

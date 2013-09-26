@@ -1,5 +1,4 @@
 //
-//     $Id: EtaDepResElement.cc,v 1.7 2009/11/17 13:47:28 haryo Exp $
 //
 //
 // File   : src/EtaDepResolution.cc

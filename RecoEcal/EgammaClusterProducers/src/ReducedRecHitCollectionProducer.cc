@@ -4,12 +4,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include "DataFormats/DetId/interface/DetIdCollection.h"
+
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
@@ -18,14 +18,24 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
+#include "FWCore/Utilities/interface/transform.h"
+
 #include <iostream>
 
 ReducedRecHitCollectionProducer::ReducedRecHitCollectionProducer(const edm::ParameterSet& iConfig) 
 {
 
-  recHitsLabel_ = iConfig.getParameter< edm::InputTag > ("recHitsLabel");
-  interestingDetIdCollections_ = iConfig.getParameter< std::vector<edm::InputTag> > ("interestingDetIdCollections");
+  recHitsToken_ = 
+	  consumes<EcalRecHitCollection>(iConfig.getParameter< edm::InputTag > ("recHitsLabel"));
 
+  interestingDetIdCollections_ = 
+	  edm::vector_transform(
+		   iConfig.getParameter<std::vector<edm::InputTag>>("interestingDetIdCollections"),
+           [this](edm::InputTag const & tag) { 
+			   return consumes<DetIdCollection>(tag); 
+		   }
+		   );
+	  
   reducedHitsCollection_ = iConfig.getParameter<std::string>("reducedHitsCollection");
   
    //register your products
@@ -54,7 +64,7 @@ ReducedRecHitCollectionProducer::produce (edm::Event& iEvent,
    
 
    Handle< DetIdCollection > detIds;
-   iEvent.getByLabel(interestingDetIdCollections_[0],detIds);
+   iEvent.getByToken(interestingDetIdCollections_[0],detIds);
    std::vector<DetId> xtalsToStore((*detIds).size());
    std::copy( (*detIds).begin() , (*detIds).end() , xtalsToStore.begin() );   
    
@@ -62,11 +72,17 @@ ReducedRecHitCollectionProducer::produce (edm::Event& iEvent,
    for( unsigned int t = 1; t < interestingDetIdCollections_.size(); ++t )
      {
        Handle< DetIdCollection > detId;
-       iEvent.getByLabel(interestingDetIdCollections_[t],detId);
-       if( !detId.isValid() ){
-	 edm::LogError("MissingInput")<<"no reason to skip detid from :"<<interestingDetIdCollections_[t];
-	 continue;
+       iEvent.getByToken(interestingDetIdCollections_[t],detId);
+       if(!detId.isValid())
+       {
+           Labels labels;
+           labelsForToken(interestingDetIdCollections_[t], labels);
+           edm::LogError("MissingInput")<<"no reason to skip detid from : (" << labels.module << ", "
+                                                                             << labels.productInstance << ", "
+                                                                             << labels.process << ")" << std::endl;
+           continue;
        }
+     
        
        for (unsigned int ii=0;ii<(*detId).size();ii++)
 	 {
@@ -76,7 +92,7 @@ ReducedRecHitCollectionProducer::produce (edm::Event& iEvent,
      }
    
    Handle<EcalRecHitCollection> recHitsHandle;
-   iEvent.getByLabel(recHitsLabel_,recHitsHandle);
+   iEvent.getByToken(recHitsToken_,recHitsHandle);
    if( !recHitsHandle.isValid() ) 
      {
        edm::LogError("ReducedRecHitCollectionProducer") << "RecHit collection not found";

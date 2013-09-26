@@ -151,7 +151,7 @@ double EwkMuLumiMonitorDQM::muIso( const reco::Muon & mu )  {
     return isovar;
 }
 
-double EwkMuLumiMonitorDQM::tkIso( const reco::Track tk,  Handle< TrackCollection > tracks , Handle<CaloTowerCollection> calotower  )  {        
+double EwkMuLumiMonitorDQM::tkIso( const reco::Track& tk,  Handle< TrackCollection > tracks , Handle<CaloTowerCollection> calotower  )  {        
       double ptSum = 0;
       for (size_t i=0; i< tracks->size(); ++i){ 
 	const reco::Track & elem = tracks->at(i);
@@ -186,7 +186,7 @@ double EwkMuLumiMonitorDQM::tkIso( const reco::Track tk,  Handle< TrackCollectio
 
 
 
-bool EwkMuLumiMonitorDQM::IsMuMatchedToHLTMu ( const reco::Muon & mu, std::vector<reco::Particle> HLTMu , double DR, double DPtRel ) {
+bool EwkMuLumiMonitorDQM::IsMuMatchedToHLTMu ( const reco::Muon & mu, const std::vector<reco::Particle>& HLTMu , double DR, double DPtRel ) {
   size_t dim =  HLTMu.size();
   size_t nPass=0;
   if (dim==0) return false;

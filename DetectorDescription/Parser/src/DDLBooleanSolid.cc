@@ -18,7 +18,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLBooleanSolid::DDLBooleanSolid( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
@@ -50,7 +50,7 @@ DDLBooleanSolid::processElement( const std::string& name, const std::string& nms
   DDXMLElement* myTranslation = myRegistry_->getElement( "Translation" ); // get Translation child
   DDXMLElement* myrRotation  = myRegistry_->getElement( "rRotation" ); // get rRotation child
 
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
   DDName ddn1, ddn2;

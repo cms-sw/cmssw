@@ -16,7 +16,6 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Mon Nov 22 11:05:41 CET 2010
-// $Id$
 //
 
 // system include files

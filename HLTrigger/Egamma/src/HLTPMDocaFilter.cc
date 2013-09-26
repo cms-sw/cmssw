@@ -3,7 +3,6 @@
  *  Original Author: Jeremy Werner                          
  *  Institution: Princeton University, USA                                                                 *  Contact: Jeremy.Werner@cern.ch 
  *  Date: February 21, 2007     
- * $Id: HLTPMDocaFilter.cc,v 1.8 2011/10/12 09:00:40 fwyzard Exp $
  *
  */
 
@@ -11,8 +10,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -23,14 +22,25 @@
 //
 HLTPMDocaFilter::HLTPMDocaFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
 {
-  candTag_            = iConfig.getParameter< edm::InputTag > ("candTag");
-  docaDiffPerpCutHigh_     = iConfig.getParameter<double> ("docaDiffPerpCutHigh");
-  docaDiffPerpCutLow_     = iConfig.getParameter<double> ("docaDiffPerpCutLow");
+  candTag_             = iConfig.getParameter< edm::InputTag > ("candTag");
+  docaDiffPerpCutHigh_ = iConfig.getParameter<double> ("docaDiffPerpCutHigh");
+  docaDiffPerpCutLow_  = iConfig.getParameter<double> ("docaDiffPerpCutLow");
   nZcandcut_           = iConfig.getParameter<int> ("nZcandcut");
+  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
 }
 
 HLTPMDocaFilter::~HLTPMDocaFilter(){}
 
+void
+HLTPMDocaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("candTag",edm::InputTag("HltZeePMMassFilter"));
+  desc.add<double>("docaDiffPerpCutHigh",0.055691);
+  desc.add<double>("docaDiffPerpCutLow",0.0);
+  desc.add<int>("nZcandcut",1);
+  descriptions.add("hltPMDocaFilter",desc);  
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -45,7 +55,7 @@ HLTPMDocaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
   edm::Ref<reco::ElectronCollection> ref;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByLabel (candTag_,PrevFilterOutput);
+  iEvent.getByToken (candToken_,PrevFilterOutput);
   
   std::vector<edm::Ref<reco::ElectronCollection> > electrons;
   PrevFilterOutput->getObjects(TriggerElectron, electrons);

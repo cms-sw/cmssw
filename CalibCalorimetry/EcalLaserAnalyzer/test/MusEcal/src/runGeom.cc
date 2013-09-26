@@ -626,7 +626,7 @@ void writeGeom()
 int main(int argc, char **argv)
 {
 
-  //  ofstream o("eenum.txt");
+  //  std::ofstream o("eenum.txt");
 
   //
   // Test that the geometry corresponds to that of EEDetId

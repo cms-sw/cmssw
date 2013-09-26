@@ -1,5 +1,4 @@
 # Original Author: James Jackson
-# $Id: HltComparatorWorkflowTemplate.py,v 1.1 2009/06/22 20:11:40 wittich Exp $
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HltRerun")

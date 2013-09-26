@@ -72,7 +72,7 @@ void CaloHitResponse::initHBHEScale() {
 
 void CaloHitResponse::setHBHEScale(std::string & fileIn) {
   
-  ifstream infile(fileIn.c_str());
+  std::ifstream infile(fileIn.c_str());
   LogDebug("CaloHitResponse") << "Reading from " << fileIn;
 #ifdef ChangeHcalEnergyScale
   if (!infile.is_open()) {

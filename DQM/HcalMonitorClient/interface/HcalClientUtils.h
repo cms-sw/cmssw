@@ -78,8 +78,8 @@ TH1F* getHisto(const MonitorElement* me, bool verb=false, bool clone=false);
 std::string getIMG(int runNo,TH1F* hist, int size, std::string htmlDir, const char* xlab, const char* ylab);
 std::string getIMG2(int runNo,TH2F* hist, int size, std::string htmlDir, const char* xlab, const char* ylab, bool color=false);
   
-void histoHTML(int runNo,TH1F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, std::string htmlDir);
-void histoHTML2(int runNo,TH2F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, std::string htmlDir, bool color=false);
+void histoHTML(int runNo,TH1F* hist, const char* xlab, const char* ylab, int width, std::ofstream& htmlFile, std::string htmlDir);
+void histoHTML2(int runNo,TH2F* hist, const char* xlab, const char* ylab, int width, std::ofstream& htmlFile, std::string htmlDir, bool color=false);
 
 void htmlErrors(int runNo,std::string htmlDir, std::string client, std::string process, DQMStore* dbe, std::map<std::string, std::vector<QReport*> > mapE, std::map<std::string, std::vector<QReport*> > mapW, std::map<std::string, std::vector<QReport*> > mapO);
 
@@ -104,7 +104,7 @@ TProfile* getHistoTProfile(const MonitorElement* me, bool verb=false, bool clone
 //getIMG, histoHTML are now deprecated by tools in HcalHistoUtils.h
 // Eventually, the getHisto algorithms will become deprecated as well
 std::string getIMGTProfile(int runNo,TProfile* hist, int size, std::string htmlDir, const char* xlab, const char* ylab,std::string opts="NONE");
-void histoHTMLTProfile(int runNo,TProfile* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, std::string htmlDir, std::string opts="NONE");
+void histoHTMLTProfile(int runNo,TProfile* hist, const char* xlab, const char* ylab, int width, std::ofstream& htmlFile, std::string htmlDir, std::string opts="NONE");
 
 
 

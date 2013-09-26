@@ -1,3 +1,4 @@
+#include <iostream>
 #include "L1Trigger/GlobalCaloTrigger/test/L1GctTest.h"
 
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestFunctions.h"

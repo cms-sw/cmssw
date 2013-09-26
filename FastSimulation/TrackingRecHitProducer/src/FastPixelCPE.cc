@@ -30,6 +30,6 @@ PixelClusterParameterEstimator::LocalValues FastPixelCPE::localParameters(const 
   throw cms::Exception("FastPixelCPE") << "Cluster not filled.";
 }
 
-void FastPixelCPE::enterLocalParameters(unsigned int id, std::pair<int,int> &row_col, std::pair<LocalPoint,LocalError> pos_err_info) const {
+void FastPixelCPE::enterLocalParameters(unsigned int id, std::pair<int,int> &row_col, const std::pair<LocalPoint,LocalError>& pos_err_info) const {
   pos_err_map.insert(std::make_pair(std::make_pair(id,row_col), pos_err_info));
 }

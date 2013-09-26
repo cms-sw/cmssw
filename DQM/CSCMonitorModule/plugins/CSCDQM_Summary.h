@@ -97,7 +97,7 @@ class Summary {
     void WriteChamberState(TH2*& h2, const int mask, const int value = 1, const bool reset = true, const bool op_any = false) const;
 
     void ReSetValue(const HWStatusBit bit);
-    void ReSetValue(Address adr, const HWStatusBit bit);
+    void ReSetValue(const Address& adr, const HWStatusBit bit);
     void SetValue(const HWStatusBit bit, const int value = 1);
     void SetValue(Address adr, const HWStatusBit bit, const int value = 1);
 
@@ -109,7 +109,7 @@ class Summary {
     const double GetEfficiencyHW(const unsigned int station) const;
     const double GetEfficiencyHW(Address adr) const; 
     const double GetEfficiencyArea(const unsigned int station) const; 
-    const double GetEfficiencyArea(Address adr) const; 
+    const double GetEfficiencyArea(const Address& adr) const; 
 
     bool isChamberStandby(unsigned int side, unsigned int station, unsigned int ring, unsigned int chamber) const;
     bool isChamberStandby(CSCDetId cid) const;

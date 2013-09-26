@@ -12,6 +12,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+
 class MonitorElement;
 class DQMStore;
 
@@ -63,10 +68,10 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
-edm::InputTag EcalRawDataCollection_;
-edm::InputTag BasicClusterCollection_;
-edm::InputTag SuperClusterCollection_;
-edm::InputTag EcalRecHitCollection_;
+edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
+edm::EDGetTokenT<reco::BasicClusterCollection> BasicClusterCollection_;
+edm::EDGetTokenT<reco::SuperClusterCollection> SuperClusterCollection_;
+edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
 
 MonitorElement* meBCEne_;
 MonitorElement* meBCNum_;

@@ -157,7 +157,7 @@ FP420DigiMain::~FP420DigiMain(){
 //  ------------------
 
 vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
-				       G4ThreeVector bfield, unsigned int iu )  {
+				       const G4ThreeVector& bfield, unsigned int iu )  {
 
   /*  
   int det, zside, sector, zmodule;

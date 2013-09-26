@@ -1,5 +1,4 @@
 //
-// $Id: PATConversionProducer.cc,v 1.55 2012/03/29 16:43:55 tjkim Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATConversionProducer.h"
 

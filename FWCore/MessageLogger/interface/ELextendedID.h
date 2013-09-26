@@ -31,7 +31,6 @@ public:
 
   // -----  Publicly accessible data members:
   //
-  ELstring        process;
   ELstring        id;
   ELseverityLevel severity;
   ELstring        module;

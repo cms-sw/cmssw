@@ -85,7 +85,8 @@ namespace {
     const CalibClusterPtr the_seed;
     const double _threshold, _majority;
     const double _maxSatelliteDEta, _maxSatelliteDPhi;
-    double x_rechits_tot, x_rechits_match;
+	double x_rechits_tot=0;
+    double x_rechits_match=0;
     IsLinkedByRecHit(const CalibClusterPtr& s, const double threshold,
 		     const double majority, const double maxDEta,
 		     const double maxDPhi) : 

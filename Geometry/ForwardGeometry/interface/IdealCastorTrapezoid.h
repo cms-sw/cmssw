@@ -26,7 +26,6 @@
   
   Total: 6+3 parameters 
   
-  $Date: 2011/05/29 18:41:47 $
   $Revision: 1.12 $
   \author P. Katsas - UoA
   */

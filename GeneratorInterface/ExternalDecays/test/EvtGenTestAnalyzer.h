@@ -66,8 +66,8 @@ class EvtGenTestAnalyzer : public edm::EDAnalyzer
      TH1D*       hPhi2 ;
      TH1D*       hCosThetaLambda ;
     
-     ofstream*   decayed; 
-     ofstream*   undecayed; 
+     std::ofstream*   decayed; 
+     std::ofstream*   undecayed; 
      int         nevent, nbs;
      
 };

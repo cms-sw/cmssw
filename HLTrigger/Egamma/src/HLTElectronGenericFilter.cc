@@ -1,6 +1,5 @@
 /** \class HLTElectronGenericFilter
  *
- * $Id: HLTElectronGenericFilter.cc,v 1.3 2011/05/01 08:14:08 gruen Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *
@@ -10,13 +9,12 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
@@ -41,10 +39,34 @@ HLTElectronGenericFilter::HLTElectronGenericFilter(const edm::ParameterSet& iCon
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+
+  candToken_ =  consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
+  isoToken_ = consumes<reco::ElectronIsolationMap>(isoTag_);
+  if(!doIsolated_) nonIsoToken_ = consumes<reco::ElectronIsolationMap>(nonIsoTag_);
 }
 
 HLTElectronGenericFilter::~HLTElectronGenericFilter(){}
 
+void
+HLTElectronGenericFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("candTag",edm::InputTag("hltSingleElectronOneOEMinusOneOPFilter"));
+  desc.add<edm::InputTag>("isoTag",edm::InputTag("hltSingleElectronTrackIsol"));
+  desc.add<edm::InputTag>("nonIsoTag",edm::InputTag("hltSingleElectronHcalTrackIsol"));
+  desc.add<bool>("lessThan",true);
+  desc.add<double>("thrRegularEB",0.0);
+  desc.add<double>("thrRegularEE",0.0);
+  desc.add<double>("thrOverPtEB",-1.0);
+  desc.add<double>("thrOverPtEE",-1.0);
+  desc.add<double>("thrTimesPtEB",-1.0);
+  desc.add<double>("thrTimesPtEE",-1.0);
+  desc.add<int>("ncandcut",1);
+  desc.add<bool>("doIsolated",true);
+  desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltPixelMatchElectronsL1Iso"));
+  desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltPixelMatchElectronsL1NonIso"));
+  descriptions.add("hltElectronGenericFilter",desc);  
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -61,8 +83,7 @@ HLTElectronGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   reco::ElectronRef ref;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-
-  iEvent.getByLabel (candTag_,PrevFilterOutput);
+  iEvent.getByToken (candToken_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::ElectronCollection> > elecands;
   PrevFilterOutput->getObjects(TriggerElectron, elecands);
@@ -70,11 +91,11 @@ HLTElectronGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   
   //get hold of isolated association map
   edm::Handle<reco::ElectronIsolationMap> depMap;
-  iEvent.getByLabel (isoTag_,depMap);
+  iEvent.getByToken (isoToken_,depMap);
   
   //get hold of non-isolated association map
   edm::Handle<reco::ElectronIsolationMap> depNonIsoMap;
-  if(!doIsolated_) iEvent.getByLabel (nonIsoTag_,depNonIsoMap);
+  if(!doIsolated_) iEvent.getByToken (nonIsoToken_,depNonIsoMap);
   
   // look at all photons, check cuts and add to filter object
   int n = 0;

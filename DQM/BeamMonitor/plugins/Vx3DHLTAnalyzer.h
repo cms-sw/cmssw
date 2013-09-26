@@ -16,8 +16,6 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-//
-//
 
 
 // system include files
@@ -33,6 +31,10 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include <TF3.h>
 
@@ -96,7 +98,8 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       // #######################
       // # cfg file parameters #
       // #######################
-      edm::InputTag vertexCollection;
+      edm::EDGetTokenT<reco::VertexCollection> vertexCollection;
+      edm::EDGetTokenT<SiPixelRecHitCollection> pixelHitCollection;
       bool debugMode;
       unsigned int nLumiReset;
       bool dataFromFit;
@@ -146,8 +149,8 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       // ######################
       // # Internal variables #
       // ######################
-      ofstream outputFile;
-      ofstream outputDebugFile;
+      std::ofstream outputFile;
+      std::ofstream outputDebugFile;
       edm::TimeValue_t beginTimeOfFit;
       edm::TimeValue_t endTimeOfFit;
       unsigned int nBinsHistoricalPlot;

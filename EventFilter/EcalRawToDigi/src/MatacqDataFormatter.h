@@ -12,7 +12,6 @@ class FEDRawData;
 /** Class to interpret ECAL MATACQ raw data and produce the MATACQ digis.
  * This class is used by the MatacqProducer module.
  *  @author: Ph. Gras (CEA/Saclay)
- *  $Id: MatacqDataFormatter.h,v 1.4 2006/09/21 12:22:36 pgras Exp $
  */
 class MatacqDataFormatter{
 public:

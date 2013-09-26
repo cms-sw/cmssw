@@ -1,7 +1,43 @@
-2013-03-07 Emilio Meschi <emilio.meschi@cern.ch>
+2013-08-29 Emilio Meschi <emilio.meschi@cern.ch>
 
-	* tag V02-19-39
-	* minimal fixes for 62X
+	* commit first compiling F3 branch to git
+	* many changes, documented elsewhere
+	
+2012-11-28 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* updated fake BU writer
+
+2012-12-05 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-20-00-06 
+	* updated fake BU writer, updated how directory looks
+	* detection of lumi directories (if used) by source
+	* handling of empty lumisections (empty directory) by source
+	* shutdown_flag recognized by FRD source
+	* Remi's new FRD format (v3) reading
+
+2012-11-05 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-20-00-05 (fixed compilation)
+	* tag V02-20-00-04
+	* removed setLumiBlock for event principal as it is now fixed upstream
+
+2012-11-02 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-20-00-03
+	* get FRD Input source working with new RawInputSource
+
+2012-11-01 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-20-00-01
+	* fixed non-linux compilation in multi-threaded fakeBU output module
+
+2012-11-01 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-20-00-00
+	* forkFBEvF branch (61X only)
+	* adapted FedRawData input source to latest upstream input source
+	changes
 
 2012-09-02 Srecko Morovic <srecko.morovic@cern.ch>
 

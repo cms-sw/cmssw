@@ -1,4 +1,3 @@
-// $Id: FWTriggerTableViewTableManager.cc,v 1.4 2011/01/26 11:47:07 amraktad Exp $
 
 #include <cassert>
 #include "TGClient.h"

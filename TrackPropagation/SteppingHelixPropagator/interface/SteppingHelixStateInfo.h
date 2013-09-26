@@ -6,15 +6,12 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2009/09/08 19:20:24 $
- *  $Revision: 1.15.2.2 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.15.2.2 2009/09/08 19:20:24 slava77 Exp $
 //
 //
 

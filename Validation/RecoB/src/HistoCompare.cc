@@ -18,7 +18,7 @@ HistoCompare::HistoCompare() {
   do_nothing_ = false;
 }
 
-HistoCompare::HistoCompare(TString refFilename) {
+HistoCompare::HistoCompare(const TString& refFilename) {
 
 	result_ = 0;
 	do_nothing_ = false;
@@ -40,7 +40,7 @@ HistoCompare::~HistoCompare() {
 }
 
 
-TH1* HistoCompare::Compare(TH1 *h, TString hname) {
+TH1* HistoCompare::Compare(TH1 *h, const TString& hname) {
 
 	if (do_nothing_) return 0;
 	

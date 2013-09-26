@@ -28,13 +28,15 @@ iterativeInitialSeeds.originHalfLength = [15.9]
 iterativeInitialSeeds.originpTMin = [0.6] 
 iterativeInitialSeeds.zVertexConstraint = [-1.0]
 iterativeInitialSeeds.primaryVertices = ['none']
-# new (AG)
+
 iterativeInitialSeeds.newSyntax = False
-iterativeInitialSeeds.layerList = ['BPix1+BPix2+BPix3',
-                                   'BPix1+BPix2+FPix1_pos',
-                                   'BPix1+BPix2+FPix1_neg',
-                                   'BPix1+FPix1_pos+FPix2_pos',
-                                   'BPix1+FPix1_neg+FPix2_neg']
+#iterativeInitialSeeds.layerList = ['BPix1+BPix2+BPix3',
+#                                   'BPix1+BPix2+FPix1_pos',
+#                                   'BPix1+BPix2+FPix1_neg',
+#                                   'BPix1+FPix1_pos+FPix2_pos',
+#                                   'BPix1+FPix1_neg+FPix2_neg']
+from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import pixellayertriplets
+iterativeInitialSeeds.layerList = pixellayertriplets.layerList
 
 # candidate producer
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
@@ -79,11 +81,15 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
         ) #end of clone
 
 
+
 # Final sequence
 iterativeInitialStep = cms.Sequence(iterativeInitialSeeds
                                     +iterativeInitialTrackCandidates
                                     +iterativeInitialTracks
                                     +initialStepTracks
                                     +initialStepSelector)
+
+
+
 
 

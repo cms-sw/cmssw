@@ -23,11 +23,30 @@ HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(i
   isElectron2_ = iConfig.getUntrackedParameter<bool> ("isElectron2",true) ;
   relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
+  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
+  beamSpotToken_ = consumes<reco::BeamSpot>(beamSpot_);
 }
 
 HLTPMMassFilter::~HLTPMMassFilter(){}
 
+void
+HLTPMMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("candTag",edm::InputTag("hltL1NonIsoDoublePhotonEt5UpsHcalIsolFilter"));
+  desc.add<edm::InputTag>("beamSpot",edm::InputTag("hltOfflineBeamSpot"));
+  desc.add<double>("lowerMassCut",8.0);
+  desc.add<double>("upperMassCut",11.0);
+  desc.add<int>("nZcandcut",1);
+  desc.addUntracked<bool>("reqOppCharge",true);
+  desc.addUntracked<bool>("isElectron1",false);
+  desc.addUntracked<bool>("isElectron2",false);
+  desc.addUntracked<bool>("relaxed",true);
+  desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
+  desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
+  descriptions.add("hltPMMassFilter",desc);  
+}
 
 // ------------ method called to produce the data  ------------
 bool
@@ -47,11 +66,11 @@ HLTPMMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByLabel (candTag_,PrevFilterOutput); 
+  iEvent.getByToken (candToken_,PrevFilterOutput); 
 
   // beam spot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel(beamSpot_,recoBeamSpotHandle);
+  iEvent.getByToken(beamSpotToken_,recoBeamSpotHandle);
   // gets its position 
   const GlobalPoint vertexPos(recoBeamSpotHandle->position().x(),
 			      recoBeamSpotHandle->position().y(),

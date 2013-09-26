@@ -1765,7 +1765,7 @@ HOCalibAnalyzer::endJob() {
     int iiter = 0;
 
 
-    ofstream file_out(theoutputtxtFile.c_str());
+    std::ofstream file_out(theoutputtxtFile.c_str());
     //    TPostScript* ps=0;
     int ips=111;
     TPostScript ps(theoutputpsFile.c_str(),ips);
@@ -1775,13 +1775,15 @@ HOCalibAnalyzer::endJob() {
     ysiz = 1200; //600;
     TCanvas *c0 = new TCanvas("c0", " Pedestal vs signal", xsiz, ysiz);
 
-    float mean_eta[nphimx];
-    float mean_phi[netamx];
-    float rms_eta[nphimx];
-    float rms_phi[netamx];
+// Fix is done for eta-phi
 
-    for (int ij=0; ij<nphimx; ij++) {mean_phi[ij] = rms_phi[ij] =0;}
-    for (int ij=0; ij<netamx; ij++) {mean_eta[ij] = rms_eta[ij] =0;}
+    float mean_eta[netamx];
+    float mean_phi[nphimx];
+    float rms_eta[netamx];
+    float rms_phi[nphimx];
+
+    for (int ij=0; ij<nphimx; ++ij) {mean_phi[ij] = 0; rms_phi[ij] = 0;}
+    for (int ij=0; ij<netamx; ++ij) {mean_eta[ij] = 0; rms_eta[ij] = 0;}
 
     int mxeta = 0;
     int mxphi = 0;

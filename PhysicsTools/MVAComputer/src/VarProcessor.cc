@@ -10,7 +10,6 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.cc,v 1.12 2013/01/22 16:46:08 chrjones Exp $
 //
 
 #include "FWCore/Utilities/interface/Exception.h"

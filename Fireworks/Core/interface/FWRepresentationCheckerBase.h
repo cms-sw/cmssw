@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 13:12:35 EST 2008
-// $Id: FWRepresentationCheckerBase.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files

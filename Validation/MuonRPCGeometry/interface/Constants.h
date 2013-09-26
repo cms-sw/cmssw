@@ -16,7 +16,6 @@
 //
 // Original Author:  TMF
 //         Created:  Wed Oct  3 10:28:12 CEST 2007
-// $Id$
 //
 #include <cmath>
 namespace RPCpg {

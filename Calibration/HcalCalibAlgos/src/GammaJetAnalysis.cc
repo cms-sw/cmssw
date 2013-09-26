@@ -125,16 +125,16 @@ void GammaJetAnalysis::beginJob()
 //   iSetup.get<CaloGeometryRecord>().get(pG);
 //   geo = pG.product();
 
-  myout_part = new ofstream((myName+"_part.dat").c_str()); 
+  myout_part = new std::ofstream((myName+"_part.dat").c_str()); 
   if(!myout_part) cout << " Output file not open!!! "<<endl;
-  myout_hcal = new ofstream((myName+"_hcal.dat").c_str()); 
+  myout_hcal = new std::ofstream((myName+"_hcal.dat").c_str()); 
   if(!myout_hcal) cout << " Output file not open!!! "<<endl;
-  myout_ecal = new ofstream((myName+"_ecal.dat").c_str()); 
+  myout_ecal = new std::ofstream((myName+"_ecal.dat").c_str()); 
   if(!myout_ecal) cout << " Output file not open!!! "<<endl;
   
-  myout_jet = new ofstream((myName+"_jet.dat").c_str()); 
+  myout_jet = new std::ofstream((myName+"_jet.dat").c_str()); 
   if(!myout_jet) cout << " Output file not open!!! "<<endl;
-  myout_photon = new ofstream((myName+"_photon.dat").c_str()); 
+  myout_photon = new std::ofstream((myName+"_photon.dat").c_str()); 
   if(!myout_photon) cout << " Output file not open!!! "<<endl;
    
    

@@ -45,6 +45,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -95,7 +96,8 @@ namespace edm {
             ProductRegistry& preg,
             boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
             boost::shared_ptr<ActivityRegistry> areg,
-            boost::shared_ptr<ProcessConfiguration const> processConfiguration) {
+            boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+            PreallocationConfiguration const& allocations) {
     ParameterSet* main_input = params.getPSetForUpdate("@main_input");
     if(main_input == 0) {
       throw Exception(errors::Configuration)
@@ -142,10 +144,12 @@ namespace edm {
                          processConfiguration.get(),
                          ModuleDescription::getUniqueID());
 
-    InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_);
+    InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_, allocations);
     areg->preSourceConstructionSignal_(md);
     std::unique_ptr<InputSource> input;
     try {
+      //even if we have an exception, send the signal
+      std::shared_ptr<int> sentry(nullptr,[areg,&md](void*){areg->postSourceConstructionSignal_(md);});
       try {
         input = std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
       }
@@ -157,13 +161,11 @@ namespace edm {
       catch (...) { convertException::unknownToEDM(); }
     }
     catch (cms::Exception& iException) {
-      areg->postSourceConstructionSignal_(md);
       std::ostringstream ost;
       ost << "Constructing input source of type " << modtype;
       iException.addContext(ost.str());
       throw;
     }
-    areg->postSourceConstructionSignal_(md);
     return input;
   }
 
@@ -490,7 +492,7 @@ namespace edm {
     preallocations_ = PreallocationConfiguration{nThreads,nStreams,nConcurrentLumis,nConcurrentRuns};
 
     // initialize the input source
-    input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_);
+    input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_, preallocations_);
 
     // intialize the Schedule
     schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get(),preallocations_,&processContext_);
@@ -514,7 +516,7 @@ namespace edm {
                                                               *processConfiguration_,
                                                               historyAppender_.get(),
                                                               index));
-      principalCache_.insert(ep,index);
+      principalCache_.insert(ep);
     }
     // initialize the subprocess, if there is one
     if(subProcessParameterSet) {
@@ -550,7 +552,7 @@ namespace edm {
     psetRegistry->dataForUpdate().clear();
     psetRegistry->extraForUpdate().setID(ParameterSetID());
 
-    ParentageRegistry::instance()->dataForUpdate().clear();
+    ParentageRegistry::instance()->clear();
   }
 
   void
@@ -563,6 +565,10 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
+    service::SystemBounds bounds(preallocations_.numberOfStreams(),
+                                 preallocations_.numberOfLuminosityBlocks(),
+                                 preallocations_.numberOfRuns());
+    actReg_->preallocateSignal_(bounds);
     //NOTE:  This implementation assumes 'Job' means one call
     // the EventProcessor::run
     // If it really means once per 'application' then this code will

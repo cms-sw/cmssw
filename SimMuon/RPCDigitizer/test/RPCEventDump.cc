@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include <iostream>
 
 RPCEventDump::RPCEventDump(const edm::ParameterSet& config) {
   std::cout <<"Initialize the Event Dump"<<std::endl;

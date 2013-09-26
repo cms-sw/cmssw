@@ -8,9 +8,7 @@
  *
  * \authors Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
  *
- * $Id: SysShiftMETcorrInputProducer.h,v 1.1 2012/04/03 11:51:22 veelken Exp $
  *
  */
 

@@ -1,5 +1,4 @@
 //
-// $Id: PATMuonProducer.h,v 1.29 2012/08/22 15:02:52 bellan Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h

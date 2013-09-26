@@ -1,6 +1,5 @@
 /** \class HLTDisplacedEgammaFilter
  *
- * $Id: HLTDisplacedEgammaFilter.cc,v 1.9 2012/04/11 08:54:12 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -10,17 +9,11 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoTracker/TrackProducer/plugins/TrackProducer.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 //
@@ -50,13 +43,17 @@ HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iCon
   seedTimeMin  = iConfig.getParameter<double> ("seedTimeMin");
   seedTimeMax  = iConfig.getParameter<double> ("seedTimeMax");
 
+  inputToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputTag_);
+  rechitsEBToken_ = consumes<EcalRecHitCollection>(rechitsEB);
+  rechitsEEToken_ = consumes<EcalRecHitCollection>(rechitsEE);
+  inputTrkToken_ = consumes<reco::TrackCollection>(inputTrk);
+
 }
 
 HLTDisplacedEgammaFilter::~HLTDisplacedEgammaFilter(){}
 
-
-// ------------ method called to produce the data  ------------
-void HLTDisplacedEgammaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void 
+HLTDisplacedEgammaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
    edm::ParameterSetDescription desc;
    makeHLTFilterDescription(desc);
    desc.add<edm::InputTag>("inputTag",edm::InputTag("hltEGRegionalL1SingleEG22"));
@@ -80,6 +77,8 @@ void HLTDisplacedEgammaFilter::fillDescriptions(edm::ConfigurationDescriptions& 
    descriptions.add("hltDisplacedEgammaFilter",desc);
 }
 
+// ------------ method called to produce the data  ------------
+
 bool
 HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
@@ -97,17 +96,17 @@ HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   // get hold of filtered candidates
   //edm::Handle<reco::HLTFilterObjectWithRefs> recoecalcands;
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByLabel (inputTag_,PrevFilterOutput);
+  iEvent.getByToken (inputToken_,PrevFilterOutput);
 
   // get hold of collection of objects
   edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByLabel( inputTrk , tracks);
+  iEvent.getByToken( inputTrkToken_ , tracks);
 
   // get the EcalRecHit
   edm::Handle<EcalRecHitCollection>      rechitsEB_ ;
   edm::Handle<EcalRecHitCollection>      rechitsEE_ ;
-  iEvent.getByLabel( rechitsEB,     rechitsEB_ );
-  iEvent.getByLabel( rechitsEE,     rechitsEE_ );
+  iEvent.getByToken( rechitsEBToken_, rechitsEB_ );
+  iEvent.getByToken( rechitsEEToken_, rechitsEE_ );
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;   
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);

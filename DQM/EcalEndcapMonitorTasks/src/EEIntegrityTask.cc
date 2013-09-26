@@ -18,8 +18,6 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalEndcapMonitorTasks/interface/EEIntegrityTask.h"
@@ -38,16 +36,15 @@ EEIntegrityTask::EEIntegrityTask(const edm::ParameterSet& ps){
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  EEDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection0");
-  EEDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection1");
-  EEDetIdCollection2_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection2");
-  EEDetIdCollection3_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection3");
-  EcalElectronicsIdCollection1_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1");
-  EcalElectronicsIdCollection2_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2");
-  EcalElectronicsIdCollection3_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection3");
-  EcalElectronicsIdCollection4_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection4");
-  EcalElectronicsIdCollection5_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection5");
-  EcalElectronicsIdCollection6_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection6");
+  EEDetIdCollection1_ =  consumes<EEDetIdCollection>(ps.getParameter<edm::InputTag>("EEDetIdCollection1"));
+  EEDetIdCollection2_ =  consumes<EEDetIdCollection>(ps.getParameter<edm::InputTag>("EEDetIdCollection2"));
+  EEDetIdCollection3_ =  consumes<EEDetIdCollection>(ps.getParameter<edm::InputTag>("EEDetIdCollection3"));
+  EcalElectronicsIdCollection1_ = consumes<EcalElectronicsIdCollection>(ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1"));
+  EcalElectronicsIdCollection2_ = consumes<EcalElectronicsIdCollection>(ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2"));
+  EcalElectronicsIdCollection3_ = consumes<EcalElectronicsIdCollection>(ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection3"));
+  EcalElectronicsIdCollection4_ = consumes<EcalElectronicsIdCollection>(ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection4"));
+  EcalElectronicsIdCollection5_ = consumes<EcalElectronicsIdCollection>(ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection5"));
+  EcalElectronicsIdCollection6_ = consumes<EcalElectronicsIdCollection>(ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection6"));
 
   meIntegrityDCCSize = 0;
   for (int i = 0; i < 18; i++) {
@@ -352,29 +349,9 @@ void EEIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   // fill bin 0 with number of events in the lumi
   if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(0.);
 
-  edm::Handle<EEDetIdCollection> ids0;
-
-  if ( e.getByLabel(EEDetIdCollection0_, ids0) ) {
-
-    for ( EEDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++idItr ) {
-
-      int ism = Numbers::iSM( *idItr );
-
-      float xism = ism + 0.5;
-
-      if ( meIntegrityDCCSize ) meIntegrityDCCSize->Fill(xism);
-
-    }
-
-  } else {
-
-//    edm::LogWarning("EEIntegrityTask") << EEDetIdCollection0_ << " not available";
-
-  }
-
   edm::Handle<EEDetIdCollection> ids1;
 
-  if ( e.getByLabel(EEDetIdCollection1_, ids1) ) {
+  if ( e.getByToken(EEDetIdCollection1_, ids1) ) {
 
     for ( EEDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++idItr ) {
 
@@ -398,13 +375,13 @@ void EEIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EEIntegrityTask") << EEDetIdCollection1_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << "EEDetIdCollection1 not available";
 
   }
 
   edm::Handle<EEDetIdCollection> ids2;
 
-  if ( e.getByLabel(EEDetIdCollection2_, ids2) ) {
+  if ( e.getByToken(EEDetIdCollection2_, ids2) ) {
 
     for ( EEDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++idItr ) {
 
@@ -428,13 +405,13 @@ void EEIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EEIntegrityTask") << EEDetIdCollection2_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << "EEDetIdCollection2 not available";
 
   }
 
   edm::Handle<EEDetIdCollection> ids3;
 
-  if ( e.getByLabel(EEDetIdCollection3_, ids3) ) {
+  if ( e.getByToken(EEDetIdCollection3_, ids3) ) {
 
     for ( EEDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++idItr ) {
 
@@ -458,13 +435,13 @@ void EEIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EEIntegrityTask") << EEDetIdCollection3_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << "EEDetIdCollection3 not available";
 
   }
 
   edm::Handle<EcalElectronicsIdCollection> ids4;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection1_, ids4) ) {
+  if ( e.getByToken(EcalElectronicsIdCollection1_, ids4) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++idItr ) {
 
@@ -496,13 +473,13 @@ void EEIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << "EcalElectronicsIdCollection1 not available";
 
   }
 
   edm::Handle<EcalElectronicsIdCollection> ids5;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection2_, ids5) ) {
+  if ( e.getByToken(EcalElectronicsIdCollection2_, ids5) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++idItr ) {
 
@@ -534,13 +511,13 @@ void EEIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << "EcalElectronicsIdCollection2 not available";
 
   }
 
   edm::Handle<EcalElectronicsIdCollection> ids6;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection3_, ids6) ) {
+  if ( e.getByToken(EcalElectronicsIdCollection3_, ids6) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++idItr ) {
 
@@ -557,13 +534,13 @@ void EEIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << "EcalElectronicsIdCollection3 not available";
 
   }
 
   edm::Handle<EcalElectronicsIdCollection> ids7;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection4_, ids7) ) {
+  if ( e.getByToken(EcalElectronicsIdCollection4_, ids7) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++idItr ) {
 
@@ -580,13 +557,13 @@ void EEIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << "EcalElectronicsIdCollection4 not available";
 
   }
 
   edm::Handle<EcalElectronicsIdCollection> ids8;
 
-  if (  e.getByLabel(EcalElectronicsIdCollection5_, ids8) ) {
+  if (  e.getByToken(EcalElectronicsIdCollection5_, ids8) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++idItr ) {
 
@@ -610,13 +587,13 @@ void EEIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection5_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << "EcalElectronicsIdCollection5 not available";
 
   }
 
   edm::Handle<EcalElectronicsIdCollection> ids9;
 
-  if ( e.getByLabel(EcalElectronicsIdCollection6_, ids9) ) {
+  if ( e.getByToken(EcalElectronicsIdCollection6_, ids9) ) {
 
     for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++idItr ) {
 
@@ -640,7 +617,7 @@ void EEIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   } else {
 
-    edm::LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection6_ << " not available";
+    edm::LogWarning("EEIntegrityTask") << "EcalElectronicsIdCollection6 not available";
 
   }
 

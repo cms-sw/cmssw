@@ -13,7 +13,6 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Apr  9 12:15:56 CEST 2010
-// $Id: RecoTracksMixer.cc,v 1.2 2010/09/06 11:21:38 fruboes Exp $
 //
 //
 

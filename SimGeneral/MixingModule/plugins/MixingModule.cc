@@ -13,6 +13,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
@@ -274,7 +275,8 @@ dropUnwantedBranches(wantedBranches_);
 
     InternalContext internalContext(eventPrincipal.id(), mcc);
     ParentContext parentContext(&internalContext);
-    ModuleCallingContext moduleCallingContext(&moduleDescription(), ModuleCallingContext::State::kRunning, parentContext);
+    ModuleCallingContext moduleCallingContext(&moduleDescription());
+    ModuleContextSentry moduleContextSentry(&moduleCallingContext, parentContext);
 
     PileUpEventPrincipal pep(eventPrincipal, &moduleCallingContext, bunchCrossing, bunchSpace_, eventId, vertexOffset);
     accumulateEvent(pep, setup);

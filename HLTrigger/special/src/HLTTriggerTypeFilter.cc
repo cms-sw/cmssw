@@ -2,8 +2,6 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/01/21 15:00:22 $
- *  $Revision: 1.3 $
  *
  *  \author:  Giovanni FRANZONI
  *

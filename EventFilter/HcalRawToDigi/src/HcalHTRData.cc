@@ -1,7 +1,5 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2011/11/02 03:47:49 $
- *  $Revision: 1.19 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -419,8 +417,8 @@ void HcalHTRData::getHistogramFibers(int& a, int& b) const {
     a=((m_rawConst[2]&0x0F00)>>8);
     b=((m_rawConst[2]&0xF000)>>12);
   } else {
-    a=((m_rawConst[5]&0x0F00)>>8);
-    b=((m_rawConst[5]&0xF000)>>12);
+    a=((m_rawConst[5]&0x0F00)>>8)+1;
+    b=((m_rawConst[5]&0xF000)>>12)+1;
   }
 }
 

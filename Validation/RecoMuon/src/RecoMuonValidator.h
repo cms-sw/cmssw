@@ -10,7 +10,14 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 
@@ -40,12 +47,17 @@ class RecoMuonValidator : public edm::EDAnalyzer
   edm::InputTag simLabel_;
   edm::InputTag muonLabel_;
   std::string muonSelection_;
+  edm::EDGetTokenT<TrackingParticleCollection> simToken_;
+  edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
 
   edm::InputTag muAssocLabel_;
   const MuonAssociatorByHits * assoByHits;
+  //  edm::EDGetTokenT<> muAssocToken_;
   
   edm::InputTag beamspotLabel_;
   edm::InputTag primvertexLabel_;
+  edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
+  edm::EDGetTokenT<reco::VertexCollection> primvertexToken_;
 
   std::string outputFileName_;
   std::string subDir_;

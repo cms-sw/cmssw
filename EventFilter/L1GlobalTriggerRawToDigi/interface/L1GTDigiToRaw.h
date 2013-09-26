@@ -13,8 +13,6 @@
  * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT
  * \author: Ivan Mikulec       - HEPHY Vienna - GMT
  *
- * $Date$
- * $Revision$
  *
  */
 

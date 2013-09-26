@@ -9,7 +9,6 @@
  * Code modifications: Evan Friis (UC Davis),
  *                     Christian Veelken (LLR)
  *
- * $Id $
  */
 #include <algorithm>
 #include <memory>

@@ -637,7 +637,7 @@ bool HCalSD::filterHit(CaloG4Hit* aHit, double time) {
 }
 
 
-uint32_t HCalSD::setDetUnitId (int det, G4ThreeVector pos, int depth, int lay=1) { 
+uint32_t HCalSD::setDetUnitId (int det, const G4ThreeVector& pos, int depth, int lay=1) { 
   uint32_t id = 0;
   if (numberingFromDDD) {
     //get the ID's as eta, phi, depth, ... indices
@@ -1094,7 +1094,7 @@ void HCalSD::readWeightFromFile(std::string fName) {
   if (entry <= 0) useLayerWt = false;
 }
 
-double HCalSD::layerWeight(int det, G4ThreeVector pos, int depth, int lay) { 
+double HCalSD::layerWeight(int det, const G4ThreeVector& pos, int depth, int lay) { 
 
   double wt = 1.;
   if (numberingFromDDD) {
@@ -1115,7 +1115,7 @@ double HCalSD::layerWeight(int det, G4ThreeVector pos, int depth, int lay) {
   return wt;
 }
 
-void HCalSD::plotProfile(G4Step* aStep, G4ThreeVector global, double edep,
+void HCalSD::plotProfile(G4Step* aStep,const G4ThreeVector& global, double edep,
                          double time, int id) { 
 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();

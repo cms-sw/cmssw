@@ -1,4 +1,3 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.37 2010/04/20 09:27:45 dstrom Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"

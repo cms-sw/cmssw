@@ -1,4 +1,3 @@
-// $Id: PyquenAnalyzer.cc,v 1.9 2009/12/15 12:25:55 fabiocos Exp $
 
 #include <iostream>
 

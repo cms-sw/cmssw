@@ -8,8 +8,6 @@
 
 #include <iostream>
 
-#include "xgi/Utils.h"
-#include "toolbox/string.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"

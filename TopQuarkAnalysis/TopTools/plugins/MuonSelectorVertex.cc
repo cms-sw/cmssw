@@ -1,5 +1,4 @@
 //
-// $Id: MuonSelectorVertex.cc,v 1.1 2012/05/25 09:52:27 vadler Exp $
 //
 
 

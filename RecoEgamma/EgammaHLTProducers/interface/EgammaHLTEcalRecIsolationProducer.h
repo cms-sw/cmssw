@@ -19,33 +19,27 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 
-//
-// class declaration
-//
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 class EgammaHLTEcalRecIsolationProducer : public edm::EDProducer {
-   public:
-      explicit EgammaHLTEcalRecIsolationProducer(const edm::ParameterSet&);
-      ~EgammaHLTEcalRecIsolationProducer();
-
-
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-  // ----------member data ---------------------------
-
-  edm::InputTag recoEcalCandidateProducer_;
-  edm::InputTag ecalBarrelRecHitProducer_;
-  edm::InputTag ecalBarrelRecHitCollection_;
-  edm::InputTag ecalEndcapRecHitProducer_;
-  edm::InputTag ecalEndcapRecHitCollection_;
-  edm::InputTag rhoProducer_;
+ public:
+  explicit EgammaHLTEcalRecIsolationProducer(const edm::ParameterSet&);
+  ~EgammaHLTEcalRecIsolationProducer();
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  
+ private:
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  edm::EDGetTokenT<EcalRecHitCollection> ecalBarrelRecHitProducer_;
+  edm::EDGetTokenT<EcalRecHitCollection> ecalEndcapRecHitProducer_;
+  //edm::InputTag ecalBarrelRecHitCollection_;
+  //edm::InputTag ecalEndcapRecHitCollection_;
+  edm::EDGetTokenT<double> rhoProducer_;
 
   double egIsoPtMinBarrel_; //minimum Et noise cut
   double egIsoEMinBarrel_;  //minimum E noise cut
@@ -69,5 +63,4 @@ class EgammaHLTEcalRecIsolationProducer : public edm::EDProducer {
 
   edm::ParameterSet conf_;
 };
-
 #endif

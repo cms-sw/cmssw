@@ -294,7 +294,7 @@ TH1F* getHisto(const MonitorElement* me, bool verb,bool clone){
 }
 
 
-void histoHTML(int runNo, TH1F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, std::string htmlDir){
+void histoHTML(int runNo, TH1F* hist, const char* xlab, const char* ylab, int width, std::ofstream& htmlFile, std::string htmlDir){
   
   if(hist!=NULL){    
     std::string imgNameTMB = "";   
@@ -311,7 +311,7 @@ void histoHTML(int runNo, TH1F* hist, const char* xlab, const char* ylab, int wi
   return;
 }
 
-void histoHTML2(int runNo, TH2F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, std::string htmlDir, bool color){
+void histoHTML2(int runNo, TH2F* hist, const char* xlab, const char* ylab, int width, std::ofstream& htmlFile, std::string htmlDir, bool color){
   if(hist!=NULL){
     std::string imgNameTMB = "";
     imgNameTMB = getIMG2(runNo,hist,1,htmlDir,xlab,ylab,color);  
@@ -450,7 +450,7 @@ void htmlErrors(int runNo, std::string htmlDir, std::string client, std::string 
 
   std::map<std::string, std::vector<QReport*> >::iterator mapIter;
 
-  ofstream errorFile;
+  std::ofstream errorFile;
   errorFile.open((htmlDir + client+ "Errors.html").c_str());
   errorFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << std::endl;
   errorFile << "<html>  " << std::endl;
@@ -661,7 +661,7 @@ std::string getIMGTProfile(int runNo,TProfile* hist, int size, std::string htmlD
   return outName;
 }
 
-void histoHTMLTProfile(int runNo, TProfile* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, std::string htmlDir, std::string opts){
+void histoHTMLTProfile(int runNo, TProfile* hist, const char* xlab, const char* ylab, int width, std::ofstream& htmlFile, std::string htmlDir, std::string opts){
   
   if(hist!=NULL){    
     std::string imgNameTMB = "";   

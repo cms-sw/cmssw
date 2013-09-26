@@ -1,5 +1,4 @@
 //
-// $Id: Objpair.h,v 1.3 2009/11/18 14:29:11 haryo Exp $
 //
 // File: hitfit/private/Objpair.h
 // Purpose: Helper class for Pair_Table.

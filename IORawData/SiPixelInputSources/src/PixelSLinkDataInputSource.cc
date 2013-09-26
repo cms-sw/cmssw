@@ -13,7 +13,6 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id: PixelSLinkDataInputSource.cc,v 1.20 2011/10/24 07:04:17 eulisse Exp $
 //
 //
 
@@ -31,7 +30,7 @@ Implementation:
 using namespace edm;
 
 // function to get the trigger number from fill words
-int PixelSLinkDataInputSource::getEventNumberFromFillWords(std::vector<uint64_t> buffer, uint32_t & totword ){
+int PixelSLinkDataInputSource::getEventNumberFromFillWords(const std::vector<uint64_t>& buffer, uint32_t & totword ){
   // buffer validity, should already be pretty clean as this is exactly what goes into the FEDRawDataobject.
   
   // code copied directly from A. Ryd's fill word checker in PixelFEDInterface::PwordSlink64

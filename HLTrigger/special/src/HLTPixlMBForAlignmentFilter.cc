@@ -2,8 +2,6 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/11/07 11:50:49 $
- *  $Revision: 1.4 $
  *
  *  \author Mika Huhtinen
  *
@@ -58,7 +56,7 @@ HLTPixlMBForAlignmentFilter::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<unsigned int>("MinTrks",2);
   desc.add<double>("MinSep",1.0);
   desc.add<double>("MinIsol",0.05);
-  descriptions.add("hltPixlMBFilt",desc);
+  descriptions.add("hltPixlMBForAlignmentFilter",desc);
 }
 
 //

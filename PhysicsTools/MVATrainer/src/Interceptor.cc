@@ -10,7 +10,6 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat May 05 09:05 CEST 2007
-// $Id: Interceptor.cc,v 1.2 2007/05/17 15:04:10 saout Exp $
 //
 
 #include <vector>

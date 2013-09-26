@@ -380,7 +380,7 @@ class TEcnaHistos : public TObject {
   TVectorD        fReadHistoDummy;
   TMatrixD        fReadMatrixDummy;
 
-  ifstream fFcin_f;
+  std::ifstream fFcin_f;
 
   TString fFapAnaType;             // Type of analysis
   Int_t   fFapNbOfSamples;         // Nb of required samples

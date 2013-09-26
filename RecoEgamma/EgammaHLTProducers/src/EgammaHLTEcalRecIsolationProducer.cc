@@ -12,42 +12,30 @@
 
 
 // Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+//#include "FWCore/Framework/interface/ESHandle.h"
+//#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+//nclude "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::ParameterSet& config) : conf_(config)
-{
+EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
   // use configuration file to setup input/output collection names
   //inputs
-  recoEcalCandidateProducer_      = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
-  ecalBarrelRecHitProducer_       = conf_.getParameter<edm::InputTag>("ecalBarrelRecHitProducer");
-  ecalBarrelRecHitCollection_     = conf_.getParameter<edm::InputTag>("ecalBarrelRecHitCollection");
-  ecalEndcapRecHitProducer_       = conf_.getParameter<edm::InputTag>("ecalEndcapRecHitProducer");
-  ecalEndcapRecHitCollection_     = conf_.getParameter<edm::InputTag>("ecalEndcapRecHitCollection");
-  rhoProducer_                    = config.getParameter<edm::InputTag>("rhoProducer");
+  recoEcalCandidateProducer_      = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
+  ecalBarrelRecHitProducer_       = consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("ecalBarrelRecHitProducer"));
+  ecalEndcapRecHitProducer_       = consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("ecalEndcapRecHitProducer"));
+  //ecalBarrelRecHitCollection_     = conf_.getParameter<edm::InputTag>("ecalBarrelRecHitCollection");
+  //ecalEndcapRecHitCollection_     = conf_.getParameter<edm::InputTag>("ecalEndcapRecHitCollection");
+  rhoProducer_                    = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
+
   doRhoCorrection_                = config.getParameter<bool>("doRhoCorrection");
   rhoMax_                         = config.getParameter<double>("rhoMax"); 
   rhoScale_                       = config.getParameter<double>("rhoScale"); 
@@ -69,28 +57,27 @@ EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::
   tryBoth_   = conf_.getParameter<bool>("tryBoth");
   subtract_  = conf_.getParameter<bool>("subtract");
   useNumCrystals_ = conf_.getParameter<bool>("useNumCrystals");
-
+  
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();  
 }
 
-EgammaHLTEcalRecIsolationProducer::~EgammaHLTEcalRecIsolationProducer(){}
+EgammaHLTEcalRecIsolationProducer::~EgammaHLTEcalRecIsolationProducer()
+{}
 
-// ------------ method called to produce the data  ------------
-
-void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
-
+void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  
   // Get the RecoEcalCandidate Collection
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
-  iEvent.getByLabel(recoEcalCandidateProducer_,recoecalcandHandle);
-
+  iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
+  
   // Next get Ecal hits barrel
   edm::Handle<EcalRecHitCollection> ecalBarrelRecHitHandle; //EcalRecHitCollection is a typedef to
-  iEvent.getByLabel(ecalBarrelRecHitProducer_.label(),ecalBarrelRecHitCollection_.label(), ecalBarrelRecHitHandle);
-
+  iEvent.getByToken(ecalBarrelRecHitProducer_, ecalBarrelRecHitHandle);
+  
   // Next get Ecal hits endcap
   edm::Handle<EcalRecHitCollection> ecalEndcapRecHitHandle;
-  iEvent.getByLabel(ecalEndcapRecHitProducer_.label(), ecalEndcapRecHitCollection_.label(),ecalEndcapRecHitHandle);
+  iEvent.getByToken(ecalEndcapRecHitProducer_, ecalEndcapRecHitHandle);
 
   //create the meta hit collections inorder that we can pass them into the isolation objects
 
@@ -109,7 +96,7 @@ void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::E
   edm::Handle<double> rhoHandle;
   double rho = 0.0;
   if (doRhoCorrection_) {
-    iEvent.getByLabel(rhoProducer_, rhoHandle);
+    iEvent.getByToken(rhoProducer_, rhoHandle);
     rho = *(rhoHandle.product());
   }
 

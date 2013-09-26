@@ -7,7 +7,7 @@
 <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="rootgraphics"/>
-<use   name="xdaq"/>
+
 <export>
   <lib   name="1"/>
 </export>

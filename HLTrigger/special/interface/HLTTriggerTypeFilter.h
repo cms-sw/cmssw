@@ -15,7 +15,6 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTTriggerTypeFilter.h,v 1.3 2012/01/21 15:00:14 fwyzard Exp $
 //
 //
 

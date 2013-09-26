@@ -15,7 +15,7 @@ namespace edm {
   namespace {
     TBranch* getAuxiliaryBranch(TTree* tree, BranchType const& branchType) {
       TBranch* branch = tree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
-      if (branch == 0) {
+      if (branch == nullptr) {
         branch = tree->GetBranch(BranchTypeToAuxBranchName(branchType).c_str());
       }
       return branch;
@@ -27,15 +27,16 @@ namespace edm {
   }
   RootTree::RootTree(boost::shared_ptr<InputFile> filePtr,
                      BranchType const& branchType,
+                     unsigned int nIndexes,
                      unsigned int maxVirtualSize,
                      unsigned int cacheSize,
                      unsigned int learningEntries,
                      bool enablePrefetching) :
     filePtr_(filePtr),
-    tree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr_->Get(BranchTypeToProductTreeName(branchType).c_str()) : 0)),
-    metaTree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr_->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
+    tree_(dynamic_cast<TTree*>(filePtr_.get() != nullptr ? filePtr_->Get(BranchTypeToProductTreeName(branchType).c_str()) : nullptr)),
+    metaTree_(dynamic_cast<TTree*>(filePtr_.get() != nullptr ? filePtr_->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : nullptr)),
     branchType_(branchType),
-    auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
+    auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : nullptr),
     treeCache_(),
     rawTreeCache_(),
     triggerTreeCache_(),
@@ -44,6 +45,7 @@ namespace edm {
     triggerSet_(),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
+    entryNumberForIndex_(new std::vector<EntryNumber>(nIndexes, -1LL)),
     branchNames_(),
     branches_(new BranchMap),
     trainNow_(false),
@@ -56,7 +58,7 @@ namespace edm {
     enableTriggerCache_(branchType_ == InEvent),
     rootDelayedReader_(new RootDelayedReader(*this, filePtr)),
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : 0)),
-    infoTree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)) // backward compatibility
+    infoTree_(dynamic_cast<TTree*>(filePtr_.get() != nullptr ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : nullptr)) // backward compatibility
     {
       assert(tree_);
       // On merged files in older releases of ROOT, the autoFlush setting is always negative; we must guess.
@@ -84,13 +86,25 @@ namespace edm {
   RootTree::~RootTree() {
   }
 
+  RootTree::EntryNumber const&
+  RootTree::entryNumberForIndex(unsigned int index) const {
+    assert(index < entryNumberForIndex_->size());
+    return (*entryNumberForIndex_)[index];
+  }
+
+  void
+  RootTree::insertEntryForIndex(unsigned int index) {
+    assert(index < entryNumberForIndex_->size());
+    (*entryNumberForIndex_)[index] = entryNumber();
+  }
+
   bool
   RootTree::isValid() const {
-    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) {
-      return tree_ != 0 && auxBranch_ != 0;
+    if (metaTree_ == nullptr || metaTree_->GetNbranches() == 0) {
+      return tree_ != nullptr && auxBranch_ != nullptr;
     }
-    if (tree_ != 0 && auxBranch_ != 0 && metaTree_ != 0) { // backward compatibility
-      if (branchEntryInfoBranch_ != 0 || infoTree_ != 0) return true; // backward compatibility
+    if (tree_ != nullptr && auxBranch_ != nullptr && metaTree_ != nullptr) { // backward compatibility
+      if (branchEntryInfoBranch_ != nullptr || infoTree_ != nullptr) return true; // backward compatibility
       return (entries_ == metaTree_->GetEntries() && tree_->GetNbranches() <= metaTree_->GetNbranches() + 1);  // backward compatibility
     } // backward compatibility
     return false;
@@ -105,7 +119,7 @@ namespace edm {
   void
   RootTree::setPresence(BranchDescription& prod, std::string const& oldBranchName) {
       assert(isValid());
-      if(tree_->GetBranch(oldBranchName.c_str()) == 0){
+      if(tree_->GetBranch(oldBranchName.c_str()) == nullptr){
         prod.setDropped(true);
       }
   }
@@ -118,13 +132,13 @@ namespace edm {
       //use the translated branch name
       TBranch* branch = tree_->GetBranch(oldBranchName.c_str());
       roottree::BranchInfo info = roottree::BranchInfo(BranchDescription(prod));
-      info.productBranch_ = 0;
+      info.productBranch_ = nullptr;
       if (prod.present()) {
         info.productBranch_ = branch;
         //we want the new branch name for the JobReport
         branchNames_.push_back(prod.branchName());
       }
-      TTree* provTree = (metaTree_ != 0 ? metaTree_ : tree_);
+      TTree* provTree = (metaTree_ != nullptr ? metaTree_ : tree_);
       info.provenanceBranch_ = provTree->GetBranch(oldBranchName.c_str());
       branches_->insert(std::make_pair(key, info));
   }
@@ -133,14 +147,14 @@ namespace edm {
   RootTree::dropBranch(std::string const& oldBranchName) {
       //use the translated branch name
       TBranch* branch = tree_->GetBranch(oldBranchName.c_str());
-      if (branch != 0) {
+      if (branch != nullptr) {
         TObjArray* leaves = tree_->GetListOfLeaves();
         int entries = leaves->GetEntries();
         for (int i = 0; i < entries; ++i) {
           TLeaf* leaf = (TLeaf*)(*leaves)[i];
-          if (leaf == 0) continue;
+          if (leaf == nullptr) continue;
           TBranch* br = leaf->GetBranch();
-          if (br == 0) continue;
+          if (br == nullptr) continue;
           if (br->GetMother() == branch) {
             leaves->Remove(leaf);
           }
@@ -392,8 +406,8 @@ namespace edm {
   RootTree::close () {
     // The TFile is about to be closed, and destructed.
     // Just to play it safe, zero all pointers to quantities that are owned by the TFile.
-    auxBranch_  = branchEntryInfoBranch_ = 0;
-    tree_ = metaTree_ = infoTree_ = 0;
+    auxBranch_  = branchEntryInfoBranch_ = nullptr;
+    tree_ = metaTree_ = infoTree_ = nullptr;
     // We own the treeCache_.
     // We make sure the treeCache_ is detached from the file,
     // so that ROOT does not also delete it.
@@ -470,7 +484,7 @@ namespace edm {
       tree->LoadTree(0);
       tree->SetCacheSize(cacheSize);
       std::unique_ptr<TTreeCache> treeCache(dynamic_cast<TTreeCache*>(file.GetCacheRead()));
-      if (0 != treeCache.get()) {
+      if (nullptr != treeCache.get()) {
         treeCache->StartLearningPhase();
         treeCache->SetEntryRange(0, tree->GetEntries());
         treeCache->AddBranch(branchNames, kTRUE);

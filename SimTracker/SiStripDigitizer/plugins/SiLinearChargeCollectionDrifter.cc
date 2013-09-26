@@ -13,7 +13,7 @@ SiLinearChargeCollectionDrifter::SiLinearChargeCollectionDrifter(double dc,
 {
 }
 
-SiChargeCollectionDrifter::collection_type SiLinearChargeCollectionDrifter::drift(const SiChargeCollectionDrifter::ionization_type ion, 
+SiChargeCollectionDrifter::collection_type SiLinearChargeCollectionDrifter::drift(const SiChargeCollectionDrifter::ionization_type& ion, 
 										  const LocalVector& driftDir,double mt, double tn) {
   // prepare output
   collection_type _temp;

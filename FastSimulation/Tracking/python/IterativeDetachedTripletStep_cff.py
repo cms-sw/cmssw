@@ -24,6 +24,15 @@ iterativeDetachedTripletSeeds.originpTMin = [0.2] # was 0.075 GeV
 iterativeDetachedTripletSeeds.zVertexConstraint = [-1.0]
 iterativeDetachedTripletSeeds.primaryVertices = ['none']
 
+iterativeDetachedTripletSeeds.newSyntax = False
+#iterativeDetachedTripletSeeds.layerList = ['BPix1+BPix2+BPix3',
+#                                   'BPix1+BPix2+FPix1_pos',
+#                                   'BPix1+BPix2+FPix1_neg',
+#                                   'BPix1+FPix1_pos+FPix2_pos',
+#                                   'BPix1+FPix1_neg+FPix2_neg']
+from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import pixellayertriplets
+iterativeDetachedTripletSeeds.layerList = pixellayertriplets.layerList
+
 # candidate producer
 #from FastSimulation.Tracking.IterativeSecondCandidateProducer_cff import *
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
