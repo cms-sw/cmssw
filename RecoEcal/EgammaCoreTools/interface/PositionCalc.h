@@ -99,8 +99,8 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
 	typename HitTypeCollection::const_iterator iHit ( iRecHits->find( dId ) ) ;
 	if( iHit != endRecHits ) {	       		   
 	  const double energy ( iHit->energy() *frac ) ;	   
-	  if( 0 < energy ) { // only save positive energies
-	    detIds.push_back( std::make_pair(dId,energy) );
+	  detIds.push_back( std::make_pair(dId,energy) );
+	  if( 0 < energy ) { // only save positive energies	    
 	    if( eMax < energy ) {
 	      eMax  = energy ;
 	      maxId = dId    ;	      
