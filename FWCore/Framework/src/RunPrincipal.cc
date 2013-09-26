@@ -19,9 +19,10 @@ namespace edm {
   }
 
   void
-  RunPrincipal::fillRunPrincipal(ProcessHistoryRegistry& processHistoryRegistry, DelayedReader* reader) {
+  RunPrincipal::fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader) {
     complete_ = false;
 
+    m_reducedHistoryID = processHistoryRegistry.reducedProcessHistoryID(aux_->processHistoryID());
     fillPrincipal(aux_->processHistoryID(), processHistoryRegistry, reader);
 
     for(auto const& prod : *this) {
