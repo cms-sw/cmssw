@@ -45,7 +45,7 @@ if runCSCforSLHC:
     process = unganged_me1a_geometry(process)
     process = digitizer_timing_pre3_median(process)
 
-addCSCstubs = False
+addCSCstubs = True
 if addCSCstubs:
     # unganged local stubs emulator:
     process.load('L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi')
