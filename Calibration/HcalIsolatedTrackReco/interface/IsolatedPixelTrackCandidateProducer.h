@@ -49,7 +49,7 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_l1_;
   edm::EDGetTokenT<reco::VertexCollection> tok_vert_;
 
-  std::vector<edm::EDGetTokenT<reco::TrackRef> > toks_pix_;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection> > toks_pix_;
 
   double prelimCone_;
   double pixelIsolationConeSizeAtEC_;

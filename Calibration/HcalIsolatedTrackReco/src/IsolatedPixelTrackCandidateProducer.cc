@@ -58,7 +58,7 @@ IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const e
 
   const unsigned nLabels = pixelTracksSources_.size();
   for ( unsigned i=0; i != nLabels; i++ ) 
-    toks_pix_.push_back(consumes<reco::TrackRef>(pixelTracksSources_[i]));
+    toks_pix_.push_back(consumes<reco::TrackCollection>(pixelTracksSources_[i]));
 
   prelimCone_                 = config.getParameter<double>("ExtrapolationConeSize");
   pixelIsolationConeSizeAtEC_ = config.getParameter<double>("PixelIsolationConeSizeAtEC");
