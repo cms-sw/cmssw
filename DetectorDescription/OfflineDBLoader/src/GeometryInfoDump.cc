@@ -12,6 +12,7 @@
 #include <map>
 #include <sstream>
 #include <set>
+#include <cassert>
 
 GeometryInfoDump::GeometryInfoDump () { }
 
@@ -33,6 +34,8 @@ void GeometryInfoDump::dumpInfo ( bool dumpHistory, bool dumpSpecs, bool dumpPos
     int id=0;
     std::ofstream dump(fname.c_str());
     bool notReachedDepth(true);
+    char buf[256];
+
     do {
       nav_type pos = epv.navPos();
       idMap[pos]=id;
@@ -41,40 +44,19 @@ void GeometryInfoDump::dumpInfo ( bool dumpHistory, bool dumpSpecs, bool dumpPos
       DD3Vector x, y, z;
       epv.rotation().GetComponents(x,y,z);
       if ( dumpPosInfo ) {
-	dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.translation().x();
-	dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.translation().y();
-	dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.translation().z();
-	//             dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().thetaX()/deg;
-	// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().phiX()/deg;
-	// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().thetaY()/deg;
-	//             dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().phiY()/deg;
-	// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().thetaZ()/deg;
-	// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().phiZ()/deg;
-	
-	//          dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().xx();
-	// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().xy();
-	// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().xz();
-	//          dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().yx();
-	// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().yy();
-	// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().yz();
-	// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().zx();
-	// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().zy();
-	// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << epv.rotation().zz();
-	
-	dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << x.X();
-	dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << y.X();
-	dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << z.X();
-	dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << x.Y();
-	dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << y.Y();
-	dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << z.Y();
-	dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << x.Z();
-	dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << y.Z();
-	dump << "," << std::setw(12) << std::fixed << std::setprecision(4) << z.Z();
+        size_t s = snprintf(buf, 256, ",%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f,%12.4f",
+                            epv.translation().x(),  epv.translation().y(),  epv.translation().z(),
+                            x.X(), y.X(), z.X(), 
+                            x.Y(), y.Y(), z.Y(),
+                            x.Z(), y.Z(), z.Z());
+        assert(s < 256);
+        dump << buf;
       }
-      dump << std::endl;;
+      dump << "\n";;
       ++id;
       if ( nVols != 0 && id > nVols ) notReachedDepth = false;
     } while (epv.next() && notReachedDepth);
+    dump << std::flush;
     dump.close();
   }
   if ( dumpSpecs ) {
