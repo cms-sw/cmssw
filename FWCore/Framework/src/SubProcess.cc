@@ -35,7 +35,6 @@ namespace edm {
   SubProcess::SubProcess(ParameterSet& parameterSet,
                          ParameterSet const& topLevelParameterSet,
                          boost::shared_ptr<ProductRegistry const> parentProductRegistry,
-                         ProcessHistoryRegistry& processHistoryRegistry,
                          boost::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
                          eventsetup::EventSetupsController& esController,
                          ActivityRegistry& parentActReg,
@@ -46,7 +45,7 @@ namespace edm {
       serviceToken_(),
       parentPreg_(parentProductRegistry),
       preg_(),
-      processHistoryRegistry_(processHistoryRegistry),
+      processHistoryRegistry_(),
       branchIDListHelper_(),
       act_table_(),
       processConfiguration_(),
@@ -155,7 +154,6 @@ namespace edm {
       subProcess_.reset(new SubProcess(*subProcessParameterSet,
                                        topLevelParameterSet,
                                        preg_,
-                                       processHistoryRegistry_,
                                        branchIDListHelper_,
                                        esController,
                                        *items.actReg_,
@@ -300,6 +298,7 @@ namespace edm {
     }
 
     EventPrincipal& ep = principalCache_.eventPrincipal(principal.streamID().value());
+    processHistoryRegistry_.registerProcessHistory(principal.processHistory());
     ep.fillEventPrincipal(aux,
                           processHistoryRegistry_,
                           esids,
@@ -325,11 +324,12 @@ namespace edm {
     boost::shared_ptr<RunAuxiliary> aux(new RunAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
     boost::shared_ptr<RunPrincipal> rpp(new RunPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get(),principal.index()));
+    processHistoryRegistry_.registerProcessHistory(principal.processHistory());
     rpp->fillRunPrincipal(processHistoryRegistry_, principal.reader());
     principalCache_.insert(rpp);
 
-    ProcessHistoryID const& parentInputReducedPHID = processHistoryRegistry_.reducedProcessHistoryID(principal.aux().processHistoryID());
-    ProcessHistoryID const& inputReducedPHID       = processHistoryRegistry_.reducedProcessHistoryID(principal.processHistoryID());
+    ProcessHistoryID const& parentInputReducedPHID = principal.reducedProcessHistoryID();
+    ProcessHistoryID const& inputReducedPHID       = rpp->reducedProcessHistoryID();
 
     parentToChildPhID_.insert(std::make_pair(parentInputReducedPHID,inputReducedPHID));
 
@@ -383,6 +383,7 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockAuxiliary> aux(new LuminosityBlockAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
     boost::shared_ptr<LuminosityBlockPrincipal> lbpp(new LuminosityBlockPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get(),principal.index()));
+    processHistoryRegistry_.registerProcessHistory(principal.processHistory());
     lbpp->fillLuminosityBlockPrincipal(processHistoryRegistry_, principal.reader());
     lbpp->setRunPrincipal(principalCache_.runPrincipalPtr());
     principalCache_.insert(lbpp);
