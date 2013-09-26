@@ -43,7 +43,7 @@ namespace edm {
 
     ~LuminosityBlockPrincipal() {}
 
-    void fillLuminosityBlockPrincipal(ProcessHistoryRegistry& processHistoryRegistry, DelayedReader* reader = 0);
+    void fillLuminosityBlockPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = 0);
 
     RunPrincipal const& runPrincipal() const {
       return *runPrincipal_;
