@@ -108,17 +108,8 @@ class DDLParser
   //old way  void parse( const std::vector<unsigned char>& ablob, unsigned int bsize ) ;
   void parse( const std::vector<unsigned char>& ablob, unsigned int bsize ) ;
 
-/*   void parse( std::iostream ) ; */
-
   /// Return list of files
   std::vector<std::string> getFileList();
-
-  /// Print out the list of files.
-  void dumpFileList();
-  void dumpFileList(std::ostream& co);
-
-  /// Report which file currently being processed (or last processed).
-  std::string getCurrFileName();
 
   /// Get the SAX2Parser from the DDLParser.  USE WITH CAUTION.  Set your own handler, etc.
   SAX2XMLReader* getXMLParser();
@@ -162,9 +153,6 @@ class DDLParser
 
   /// Number of files + 1.
   int nFiles_;
-
-  /// Configuration file name.  Only necessary until deprecated methods removed.
-  std::string configFileName_;
 
   /// Which file is currently being processed.
   std::string currFileName_;

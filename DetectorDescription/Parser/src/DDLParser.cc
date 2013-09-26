@@ -201,22 +201,6 @@ DDLParser::getFileList( void )
   return flist;
 }
 
-void
-DDLParser::dumpFileList( void )
-{
-  edm::LogInfo ("DDLParser") << "File List:" << std::endl;
-  for (FileNameHolder::const_iterator it = fileNames_.begin(); it != fileNames_.end(); ++it)
-    edm::LogInfo ("DDLParser") << it->second.second << std::endl;
-}
-
-void
-DDLParser::dumpFileList( ostream& co )
-{
-  co << "File List:" << std::endl;
-  for (FileNameHolder::const_iterator it = fileNames_.begin(); it != fileNames_.end(); ++it)
-    co << it->second.second << std::endl;
-}
-
 int
 DDLParser::parse( const DDLDocumentProvider& dp )
 {
@@ -385,13 +369,6 @@ DDLParser::parseFile( const int& numtoproc )
     DCOUT('P', "\nWARNING: File " + fileNames_[numtoproc].first 
 	  + " has already been processed as " + fileNames_[numtoproc].second);
   }
-}
-
-// Return the name of the Current file being processed by the parser.
-std::string
-DDLParser::getCurrFileName( void )
-{
-  return currFileName_;
 }
 
 void
