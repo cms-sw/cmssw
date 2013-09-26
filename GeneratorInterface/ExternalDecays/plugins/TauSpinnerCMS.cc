@@ -7,6 +7,9 @@
 #include "GeneratorInterface/ExternalDecays/interface/read_particles_from_HepMC.h"
 #include "TLorentzVector.h"
 
+using namespace edm;
+using namespace TauSpinner;
+
 bool TauSpinnerCMS::isTauSpinnerConfigure=false;
 
 TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
