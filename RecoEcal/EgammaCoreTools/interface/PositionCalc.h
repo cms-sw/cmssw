@@ -100,7 +100,7 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
 	if( iHit != endRecHits ) {	       		   
 	  const double energy ( iHit->energy() *frac ) ;	   
 	  detIds.push_back( std::make_pair(dId,energy) );
-	  if( 0 < energy ) { // only save positive energies	    
+	  if( 0.0 < energy ) { // only save positive energies	    
 	    if( eMax < energy ) {
 	      eMax  = energy ;
 	      maxId = dId    ;	      
@@ -111,7 +111,7 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
       }
     }
     
-    if( 0 >= eTot ) {
+    if( 0.0 >= eTot ) {
       LogDebug("ZeroClusterEnergy") << "cluster with 0 energy: " 
 				    << eTot << " size: " << detIds.size() 
 				    << " , returning (0,0,0)";
@@ -165,7 +165,7 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
 	
 	double weight = 0;
 	if ( param_LogWeighted_ ) {
-	  if ( e_j > 0 ) {
+	  if ( e_j > 0.0 ) {
 	    weight = std::max( 0., param_W0_ + log(e_j/eTot) );
 	  } else {
 	    weight = 0;
