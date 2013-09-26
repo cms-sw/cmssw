@@ -45,15 +45,17 @@ namespace edm {
       serviceToken_(),
       parentPreg_(parentProductRegistry),
       preg_(),
-      processHistoryRegistry_(),
       branchIDListHelper_(),
       act_table_(),
       processConfiguration_(),
+      historyLumiOffset_(preallocConfig.numberOfStreams()),
+      historyRunOffset_(historyLumiOffset_+preallocConfig.numberOfLuminosityBlocks()),
+      processHistoryRegistries_(historyRunOffset_+ preallocConfig.numberOfRuns()),
+      historyAppenders_(historyRunOffset_+preallocConfig.numberOfRuns()),
       principalCache_(),
       esp_(),
       schedule_(),
       parentToChildPhID_(),
-      historyAppender_(new HistoryAppender),
       subProcess_(),
       processParameterSet_(),
       productSelectorRules_(parameterSet, "outputCommands", "OutputModule"),
@@ -135,7 +137,10 @@ namespace edm {
     // set the items
     act_table_ = std::move(items.act_table_);
     preg_.reset(items.preg_.release());
-    principalCache_.setProcessHistoryRegistry(processHistoryRegistry_);
+    //CMS-THREADING this only works since Run/Lumis are synchronous so when principalCache asks for
+    // the reducedProcessHistoryID from a full ProcessHistoryID that registry will not be in use by
+    // another thread. We really need to change how this is done in the PrincipalCache.
+    principalCache_.setProcessHistoryRegistry(processHistoryRegistries_[historyRunOffset_]);
     branchIDListHelper_ = items.branchIDListHelper_;
     processConfiguration_ = items.processConfiguration_;
     processContext_.setProcessConfiguration(processConfiguration_.get());
@@ -146,7 +151,7 @@ namespace edm {
       boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_,
                                                               branchIDListHelper_,
                                                               *processConfiguration_,
-                                                              historyAppender_.get(),
+                                                              &(historyAppenders_[index]),
                                                               index));
       principalCache_.insert(ep);
     }
@@ -298,9 +303,10 @@ namespace edm {
     }
 
     EventPrincipal& ep = principalCache_.eventPrincipal(principal.streamID().value());
-    processHistoryRegistry_.registerProcessHistory(principal.processHistory());
+    auto & processHistoryRegistry = processHistoryRegistries_[principal.streamID().value()];
+    processHistoryRegistry.registerProcessHistory(principal.processHistory());
     ep.fillEventPrincipal(aux,
-                          processHistoryRegistry_,
+                          processHistoryRegistry,
                           esids,
                           boost::shared_ptr<BranchListIndexes>(new BranchListIndexes(principal.branchListIndexes())),
                           principal.branchMapperPtr(),
@@ -323,9 +329,10 @@ namespace edm {
   SubProcess::beginRun(RunPrincipal const& principal, IOVSyncValue const& ts) {
     boost::shared_ptr<RunAuxiliary> aux(new RunAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
-    boost::shared_ptr<RunPrincipal> rpp(new RunPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get(),principal.index()));
-    processHistoryRegistry_.registerProcessHistory(principal.processHistory());
-    rpp->fillRunPrincipal(processHistoryRegistry_, principal.reader());
+    boost::shared_ptr<RunPrincipal> rpp(new RunPrincipal(aux, preg_, *processConfiguration_, &(historyAppenders_[historyRunOffset_+principal.index()]),principal.index()));
+    auto & processHistoryRegistry = processHistoryRegistries_[historyRunOffset_+principal.index()];
+    processHistoryRegistry.registerProcessHistory(principal.processHistory());
+    rpp->fillRunPrincipal(processHistoryRegistry, principal.reader());
     principalCache_.insert(rpp);
 
     ProcessHistoryID const& parentInputReducedPHID = principal.reducedProcessHistoryID();
@@ -382,9 +389,10 @@ namespace edm {
   SubProcess::beginLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
     boost::shared_ptr<LuminosityBlockAuxiliary> aux(new LuminosityBlockAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
-    boost::shared_ptr<LuminosityBlockPrincipal> lbpp(new LuminosityBlockPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get(),principal.index()));
-    processHistoryRegistry_.registerProcessHistory(principal.processHistory());
-    lbpp->fillLuminosityBlockPrincipal(processHistoryRegistry_, principal.reader());
+    boost::shared_ptr<LuminosityBlockPrincipal> lbpp(new LuminosityBlockPrincipal(aux, preg_, *processConfiguration_, &(historyAppenders_[historyLumiOffset_+principal.index()]),principal.index()));
+    auto & processHistoryRegistry = processHistoryRegistries_[historyLumiOffset_+principal.index()];
+    processHistoryRegistry.registerProcessHistory(principal.processHistory());
+    lbpp->fillLuminosityBlockPrincipal(processHistoryRegistry, principal.reader());
     lbpp->setRunPrincipal(principalCache_.runPrincipalPtr());
     principalCache_.insert(lbpp);
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
