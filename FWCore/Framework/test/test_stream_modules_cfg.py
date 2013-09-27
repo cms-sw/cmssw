@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 nEvtLumi = 4
 nEvtRun = 2*nEvtLumi
-nStreams = 64
-nEvt = (nStreams/4)*nEvtRun*nEvtLumi
+nStreams = 16
+nEvt = nStreams*nEvtRun*nEvtLumi
 
 process = cms.Process("TESTSTREAMMODULES")
 
@@ -52,22 +52,22 @@ process.LumiSumIntProd = cms.EDProducer("edmtest::stream::LumiSummaryIntProducer
 )
 
 process.TestBeginRunProd = cms.EDProducer("edmtest::stream::TestBeginRunProducer",
-    transitions = cms.int32(nEvt+3*(nEvt/nEvtRun))
+    transitions = cms.int32((nEvt/nEvtRun))
     ,cachevalue = cms.int32(nEvt)
 )
 
 process.TestEndRunProd = cms.EDProducer("edmtest::stream::TestEndRunProducer",
-    transitions = cms.int32(nEvt+3*(nEvt/nEvtRun))
+    transitions = cms.int32((nEvt/nEvtRun))
     ,cachevalue = cms.int32(nEvt)
 )
 
 process.TestBeginLumiBlockProd = cms.EDProducer("edmtest::stream::TestBeginLumiBlockProducer",
-    transitions = cms.int32(nEvt+3*(nEvt/nEvtLumi))
+    transitions = cms.int32((nEvt/nEvtLumi))
     ,cachevalue = cms.int32(nEvt)
 )
 
 process.TestEndLumiBlockProd = cms.EDProducer("edmtest::stream::TestEndLumiBlockProducer",
-    transitions = cms.int32(nEvt+3*(nEvt/nEvtLumi))
+    transitions = cms.int32((nEvt/nEvtLumi))
     ,cachevalue = cms.int32(nEvt)
 )
 

@@ -27,6 +27,7 @@ for testing purposes only.
 namespace edmtest {
 namespace stream {
 
+namespace {
 struct Cache { 
    Cache():value(0),run(0),lumi(0) {}
    //Using mutable since we want to update the value.
@@ -34,6 +35,8 @@ struct Cache {
    mutable std::atomic<unsigned int> run;
    mutable std::atomic<unsigned int> lumi;
 };
+} //end anonymous namespace
+
 
 
 
@@ -45,7 +48,7 @@ struct Cache {
    
     static std::unique_ptr<Cache> initializeGlobalCache(edm::ParameterSet const& p) {
       ++m_count;
-      return std::unique_ptr<Cache>(new Cache());
+      return std::unique_ptr<Cache>{ new Cache };
     }
 
     GlobalIntAnalyzer(edm::ParameterSet const& p, Cache const * iGlobal)  {
@@ -103,7 +106,7 @@ struct Cache {
       ++m_count;
       gbr = true;
       ger = false;
-      std::shared_ptr<Cache> pCache = std::shared_ptr<Cache>{new Cache()};
+      std::shared_ptr<Cache> pCache{ new Cache };
       ++(pCache->run);
       return pCache;
     }
@@ -119,7 +122,7 @@ struct Cache {
 
     static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
       ++m_count;
-      Cache const * pCache = iContext->run();
+      auto pCache = iContext->run();
       if ( pCache->run != 1 ) {
         throw cms::Exception("end out of sequence")
           << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
@@ -178,7 +181,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache = std::shared_ptr<Cache>{new Cache()};
+      std::shared_ptr<Cache> pCache{ new Cache };
       ++(pCache->lumi);
       return pCache;
    }
@@ -195,7 +198,7 @@ struct Cache {
 
     static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, LuminosityBlockContext const* iLBContext) {
       ++m_count;
-      Cache const * pCache = iLBContext->luminosityBlock();
+      auto pCache = iLBContext->luminosityBlock();
       if ( pCache->lumi != 1 ) {
         throw cms::Exception("end out of sequence")
           << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock" << iLB.luminosityBlock();
@@ -260,7 +263,7 @@ struct Cache {
       ++m_count;
       gbr=true;
       ger=false;
-      std::shared_ptr<Cache> pCache = std::shared_ptr<Cache>{new Cache()};
+      std::shared_ptr<Cache> pCache{ new Cache };
       ++(pCache->run);
       return pCache;
    }
@@ -275,7 +278,7 @@ struct Cache {
         throw cms::Exception("begin out of sequence")
           << "globalBeginRunSummary seen before globalBeginRun";
       }
-      return std::shared_ptr<Cache>{new Cache()};
+      return std::shared_ptr<Cache>{ new Cache };
     }
 
    void endRunSummary(edm::Run const&, edm::EventSetup const&, Cache* gCache) const override {
@@ -307,7 +310,7 @@ struct Cache {
       ++m_count;
       gbr=false;
       ger=true;
-      Cache const * pCache = iContext->run();
+      auto pCache = iContext->run();
       if ( pCache->run != 1 ) {
         throw cms::Exception("end out of sequence")
           << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
@@ -364,7 +367,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache = std::shared_ptr<Cache>{new Cache()};
+      std::shared_ptr<Cache> pCache{ new Cache };
       ++(pCache->lumi);
       return pCache;
     }
@@ -380,7 +383,7 @@ struct Cache {
        throw cms::Exception("begin out of sequence")
          << "globalBeginLuminosityBlockSummary seen before globalBeginLuminosityBlock";
       }
-      return std::shared_ptr<Cache>{new Cache()};
+      return std::shared_ptr<Cache>{ new Cache };
    }
    
    
@@ -411,7 +414,7 @@ struct Cache {
 
    static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, LuminosityBlockContext const* iLBContext) {
       ++m_count;
-      Cache const * pCache = iLBContext->luminosityBlock();
+      auto pCache = iLBContext->luminosityBlock();
       if ( pCache->lumi != 1 ) {
         throw cms::Exception("end out of sequence")
           << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock" << iLB.luminosityBlock();

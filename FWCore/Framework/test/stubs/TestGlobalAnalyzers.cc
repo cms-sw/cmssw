@@ -25,69 +25,86 @@ for testing purposes only.
 namespace edmtest {
 namespace global {
 
+namespace {
 struct Cache { 
-   Cache():value(0),run(0),lumi(0),strm(0),work(0) {}
+   Cache():value(0) {}
    //Using mutable since we want to update the value.
    mutable std::atomic<unsigned int> value;
-   mutable std::atomic<unsigned int> run;
-   mutable std::atomic<unsigned int> lumi;
-   mutable std::atomic<unsigned int> strm;
-   mutable std::atomic<unsigned int> work;
 };
 
 struct UnsafeCache {
-   UnsafeCache():value(0),run(0),lumi(0),strm(0),work(0) {}
+   UnsafeCache():value(0) {}
    unsigned int value;
-   unsigned int run;
-   unsigned int lumi;
-   unsigned int strm;
-   unsigned int work;
 };
 
+} //end anonymous namespace
 
-  class StreamIntAnalyzer: public edm::global::EDAnalyzer<edm::StreamCache<Cache>> {
+  class StreamIntAnalyzer: public edm::global::EDAnalyzer<edm::StreamCache<UnsafeCache>> {
   public:
     explicit StreamIntAnalyzer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions"))
-        ,cvalue_(p.getParameter<int>("cachevalue")) 
     {}
     const unsigned int trans_;
-    const unsigned int cvalue_; 
     mutable std::atomic<unsigned int> m_count{0};
     
-    std::unique_ptr<Cache> beginStream(edm::StreamID) const override {
+    std::unique_ptr<UnsafeCache> beginStream(edm::StreamID iID) const override {
       ++m_count;
-      return std::unique_ptr<Cache>(new Cache());
+      std::unique_ptr<UnsafeCache> pCache(new UnsafeCache);
+      pCache->value = iID.value();
+      return pCache;
     }
     
-    void streamBeginRun(edm::StreamID , edm::Run const&, edm::EventSetup const&) const  override{
+    void streamBeginRun(edm::StreamID iID, edm::Run const&, edm::EventSetup const&) const  override{
       ++m_count;
+      if ( (streamCache(iID))->value != iID.value() ) {
+          throw cms::Exception("cache value")
+          << "StreamIntAnalyzer cache value "
+          << (streamCache(iID))->value << " but it was supposed to be " << iID;
+      }
     }
 
-    void streamBeginLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const override {
+    void streamBeginLuminosityBlock(edm::StreamID iID, edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
-    }
+      if ( (streamCache(iID))->value != iID.value() ) {
+          throw cms::Exception("cache value")
+          << "StreamIntAnalyzer cache value "
+          << (streamCache(iID))->value << " but it was supposed to be " << iID;
+      }
+     }
 
     void analyze(edm::StreamID iID, const edm::Event&, const edm::EventSetup&) const override {
       ++m_count;
-       
+      if ( (streamCache(iID))->value != iID.value() ) {
+          throw cms::Exception("cache value")
+          << "StreamIntAnalyzer cache value "
+          << (streamCache(iID))->value << " but it was supposed to be " << iID;
+      }       
     }
 
-    void streamEndLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const override {
+    void streamEndLuminosityBlock(edm::StreamID iID, edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
+      if ( (streamCache(iID))->value != iID.value() ) {
+          throw cms::Exception("cache value")
+          << "StreamIntAnalyzer cache value "
+          << (streamCache(iID))->value << " but it was supposed to be " << iID;
+      }
     }
 
-    void streamEndRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const override {
+    void streamEndRun(edm::StreamID iID, edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
+      if ( (streamCache(iID))->value != iID.value() ) {
+          throw cms::Exception("cache value")
+          << "StreamIntAnalyzer cache value "
+          << (streamCache(iID))->value << " but it was supposed to be " << iID;
+      }
     }
 
     void endStream(edm::StreamID iID ) const override {
       ++m_count;
-      ++((streamCache(iID))->value);
-      if ( (streamCache(iID))->value != cvalue_) {
+      if ( (streamCache(iID))->value != iID.value() ) {
           throw cms::Exception("cache value")
           << "StreamIntAnalyzer cache value "
-          << (streamCache(iID))->value << " but it was supposed to be " << cvalue_;
+          << (streamCache(iID))->value << " but it was supposed to be " << iID;
       }
     } 
 
@@ -112,7 +129,7 @@ struct UnsafeCache {
     
     std::shared_ptr<Cache> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
-      return std::shared_ptr<Cache>(new Cache());
+      return std::shared_ptr<Cache>(new Cache);
     }
 
     void analyze(edm::StreamID iID, const edm::Event& iEvent, const edm::EventSetup&) const override {
@@ -152,7 +169,7 @@ struct UnsafeCache {
    
     std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
-      return std::shared_ptr<Cache>(new Cache());
+      return std::shared_ptr<Cache>(new Cache);
     }
 
     void analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup&) const override {
@@ -179,7 +196,7 @@ struct UnsafeCache {
     }
   };
   
-  class RunSummaryIntAnalyzer: public edm::global::EDAnalyzer<edm::StreamCache<Cache>,edm::RunSummaryCache<Cache>> {
+  class RunSummaryIntAnalyzer: public edm::global::EDAnalyzer<edm::StreamCache<UnsafeCache>,edm::RunSummaryCache<UnsafeCache>> {
   public:
     explicit RunSummaryIntAnalyzer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) 
@@ -189,14 +206,14 @@ struct UnsafeCache {
     const unsigned int cvalue_; 
     mutable std::atomic<unsigned int> m_count{0};
 
-    std::unique_ptr<Cache> beginStream(edm::StreamID) const override {
+    std::unique_ptr<UnsafeCache> beginStream(edm::StreamID) const override {
       ++m_count;
-      return std::unique_ptr<Cache>(new Cache());
+      return std::unique_ptr<UnsafeCache>(new UnsafeCache);
     }
 
-    std::shared_ptr<Cache> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
+    std::shared_ptr<UnsafeCache> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
-      return std::shared_ptr<Cache>(new Cache());
+      return std::shared_ptr<UnsafeCache>(new UnsafeCache);
     }
   
     void analyze(edm::StreamID iID, const edm::Event&, const edm::EventSetup&) const override {
@@ -205,13 +222,13 @@ struct UnsafeCache {
        
     }
   
-    void streamEndRunSummary(edm::StreamID iID, edm::Run const&, edm::EventSetup const&, Cache* gCache) const override {
+    void streamEndRunSummary(edm::StreamID iID, edm::Run const&, edm::EventSetup const&, UnsafeCache* gCache) const override {
       ++m_count;
       gCache->value += (streamCache(iID))->value;
       (streamCache(iID))->value = 0;
     }
     
-    void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, Cache* gCache) const override {
+    void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, UnsafeCache* gCache) const override {
       ++m_count;
       if( gCache->value  != cvalue_) {
         throw cms::Exception("cache value")
@@ -229,7 +246,7 @@ struct UnsafeCache {
     }
   };
 
-  class LumiSummaryIntAnalyzer: public edm::global::EDAnalyzer<edm::StreamCache<Cache>,edm::LuminosityBlockSummaryCache<Cache>> {
+  class LumiSummaryIntAnalyzer: public edm::global::EDAnalyzer<edm::StreamCache<UnsafeCache>,edm::LuminosityBlockSummaryCache<UnsafeCache>> {
   public:
     explicit LumiSummaryIntAnalyzer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) 
@@ -239,14 +256,14 @@ struct UnsafeCache {
     const unsigned int cvalue_; 
     mutable std::atomic<unsigned int> m_count{0};
 
-    std::unique_ptr<Cache> beginStream(edm::StreamID) const override {
+    std::unique_ptr<UnsafeCache> beginStream(edm::StreamID) const override {
       ++m_count;
-      return std::unique_ptr<Cache>(new Cache());
+      return std::unique_ptr<UnsafeCache>(new UnsafeCache);
     }
 
-    std::shared_ptr<Cache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&) const override {
+    std::shared_ptr<UnsafeCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
-      return std::shared_ptr<Cache>(new Cache());
+      return std::shared_ptr<UnsafeCache>(new UnsafeCache);
     }
     
     void analyze(edm::StreamID iID, const edm::Event& iEvent, const edm::EventSetup&) const override {
@@ -255,13 +272,13 @@ struct UnsafeCache {
        
     }
 
-    void streamEndLuminosityBlockSummary(edm::StreamID iID, edm::LuminosityBlock const& iLumiBlock, edm::EventSetup const&, Cache* gCache) const override {
+    void streamEndLuminosityBlockSummary(edm::StreamID iID, edm::LuminosityBlock const& iLumiBlock, edm::EventSetup const&, UnsafeCache* gCache) const override {
       ++m_count;
       gCache->value += (streamCache(iID))->value;
       (streamCache(iID))->value = 0;
     }
  
-    void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, Cache* gCache) const override {
+    void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, UnsafeCache* gCache) const override {
       ++m_count;
       if( gCache->value != cvalue_) {
         throw cms::Exception("cache value")

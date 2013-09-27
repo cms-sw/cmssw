@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 nEvtLumi = 4
 nEvtRun = 2*nEvtLumi
-nStreams = 64
-nEvt = (nStreams/4)*nEvtRun*nEvtLumi
+nStreams = 16
+nEvt = nStreams*nEvtRun*nEvtLumi
 
 process = cms.Process("TESTONEMODULES")
 

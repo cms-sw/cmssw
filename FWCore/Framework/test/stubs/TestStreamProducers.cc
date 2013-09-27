@@ -27,6 +27,7 @@ for testing purposes only.
 namespace edmtest {
 namespace stream {
 
+namespace {
 struct Cache { 
    Cache():value(0),run(0),lumi(0) {}
    //Using mutable since we want to update the value.
@@ -34,6 +35,15 @@ struct Cache {
    mutable std::atomic<unsigned int> run;
    mutable std::atomic<unsigned int> lumi;
 };
+
+struct UnsafeCache {
+   UnsafeCache():value(0),run(0),lumi(0) {}
+   unsigned int value;
+   unsigned int run;
+   unsigned int lumi;
+};
+
+} //end anonymous namespace
 
 
   class GlobalIntProducer : public edm::stream::EDProducer<edm::GlobalCache<Cache>> {
@@ -44,7 +54,7 @@ struct Cache {
 
     static std::unique_ptr<Cache> initializeGlobalCache(edm::ParameterSet const&) {
       ++m_count;
-      return std::unique_ptr<Cache>{new Cache()};
+      return std::unique_ptr<Cache>{new Cache};
     }
 
     GlobalIntProducer(edm::ParameterSet const& p, const Cache* iGlobal)  {
@@ -103,7 +113,7 @@ struct Cache {
       ++m_count;
       gbr = true;
       ger = false;
-      std::shared_ptr<Cache> pCache = std::shared_ptr<Cache>{new Cache()};
+      std::shared_ptr<Cache> pCache{ new Cache };
       ++(pCache->run);
       return pCache;
     }
@@ -119,7 +129,7 @@ struct Cache {
    
     static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
       ++m_count;
-      Cache const * pCache = iContext->run();
+      auto pCache = iContext->run();
       if ( pCache->run != 1 ) {
         throw cms::Exception("end out of sequence")
           << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
@@ -178,7 +188,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache = std::shared_ptr<Cache>{new Cache()};
+      std::shared_ptr<Cache> pCache{ new Cache };
       ++(pCache->lumi);
       return pCache;
     }
@@ -195,7 +205,7 @@ struct Cache {
    
     static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, LuminosityBlockContext const* iLBContext) {
       ++m_count;
-      Cache const * pCache = iLBContext->luminosityBlock();
+      auto pCache = iLBContext->luminosityBlock();
       if ( pCache->lumi != 1 ) {
         throw cms::Exception("end out of sequence")
           << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock" << iLB.luminosityBlock();
@@ -261,7 +271,7 @@ struct Cache {
       ++m_count;
       gbr=true;
       ger=false;
-      std::shared_ptr<Cache> pCache = std::shared_ptr<Cache>{new Cache()};
+      std::shared_ptr<Cache> pCache{ new Cache };
       ++(pCache->run);
       return pCache;
  
@@ -277,13 +287,13 @@ struct Cache {
         throw cms::Exception("begin out of sequence")
           << "globalBeginRunSummary seen before globalBeginRun";
       }
-      return std::shared_ptr<Cache>{new Cache()};
+      return std::shared_ptr<Cache>{ new Cache };
     }
     
     void endRunSummary(edm::Run const&, edm::EventSetup const&, Cache* gCache) const override {
       brs=false;
       ers=true;
-      gCache->value += runCache()->value;
+      gCache->value += runCache()->value.load();
       runCache()->value = 0;
       if ( !er ) {
         throw cms::Exception("end out of sequence")
@@ -309,7 +319,7 @@ struct Cache {
       ++m_count;
       gbr=false;
       ger=true;
-      Cache const * pCache = iContext->run();
+      auto pCache = iContext->run();
       if ( pCache->run != 1 ) {
         throw cms::Exception("end out of sequence")
           << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
@@ -365,7 +375,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache = std::shared_ptr<Cache>{new Cache()};
+      std::shared_ptr<Cache> pCache{ new Cache };
       ++(pCache->lumi);
       return pCache;
     }
@@ -381,7 +391,7 @@ struct Cache {
        throw cms::Exception("begin out of sequence")
          << "globalBeginLuminosityBlockSummary seen before globalBeginLuminosityBlock";
       }
-      return std::shared_ptr<Cache>{new Cache()};
+      return std::shared_ptr<Cache>{ new Cache };
     }
     
 
@@ -389,7 +399,7 @@ struct Cache {
     void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, Cache* gCache) const override {
       bls=false;
       els=true;
-      gCache->value += luminosityBlockCache()->value;
+      gCache->value += luminosityBlockCache()->value.load();
       luminosityBlockCache()->value = 0;
       if ( el ) {
         throw cms::Exception("end out of sequence")
@@ -413,7 +423,7 @@ struct Cache {
 
    static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, LuminosityBlockContext const* iLBContext) {
       ++m_count;
-      Cache const * pCache = iLBContext->luminosityBlock();
+      auto pCache = iLBContext->luminosityBlock();
       if ( pCache->lumi != 1 ) {
         throw cms::Exception("end out of sequence")
           << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock" << iLB.luminosityBlock();
@@ -455,13 +465,10 @@ struct Cache {
     }
 
     static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
-      ++m_count;
       gbr=true;
       ger=false;
       gbrp=false;
-      std::shared_ptr<Cache> pCache = std::shared_ptr<Cache>{new Cache()};
-      ++(pCache->run);
-      return pCache;
+      return std::shared_ptr<Cache>{new Cache};
    }
 
     void produce(edm::Event&, edm::EventSetup const&) override {
@@ -469,7 +476,6 @@ struct Cache {
         throw cms::Exception("out of sequence")
           << "produce before globalBeginRunProduce";
       }
-      ++m_count;               
     }
 
     static void globalBeginRunProduce(edm::Run& iRun, edm::EventSetup const&, RunContext const*) {
@@ -482,12 +488,10 @@ struct Cache {
     }
 
     static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
-      Cache const * pCache = iContext->run();
-      if ( pCache->run != 1 ) {
+      if ( !gbr ) {
         throw cms::Exception("end out of sequence")
           << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
       } 
-      ++m_count;
       gbr=false;
       ger=true;
     }
@@ -511,13 +515,10 @@ struct Cache {
     static bool p;
 
     static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
-     ++m_count;
       gbr=true;
       ger=false;
       p =false;
-      std::shared_ptr<Cache> pCache = std::shared_ptr<Cache>{new Cache()};
-      ++(pCache->run);
-      return pCache;
+      return std::shared_ptr<Cache>{ new Cache };
    }
 
 
@@ -528,7 +529,6 @@ struct Cache {
     }
 
     void produce(edm::Event&, edm::EventSetup const&) override {
-      ++m_count;
       p = true; 
     }
 
@@ -545,9 +545,7 @@ struct Cache {
     }
 
     static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext) {
-      ++m_count;
-      Cache const * pCache = iContext->run();
-      if ( pCache->run != 1 ) {
+      if ( !gbr ) {
         throw cms::Exception("out of sequence")
           << "globalEndRun seen before globalBeginRun in Run" << iRun.run();
       } 
@@ -584,7 +582,6 @@ struct Cache {
         throw cms::Exception("begin out of sequence")
           << "produce seen before globalBeginLumiBlockProduce";
       }
-      ++m_count;
     }
 
     static void globalBeginLuminosityBlockProduce(edm::LuminosityBlock& , edm::EventSetup const&, LuminosityBlockContext const*) {
@@ -597,19 +594,14 @@ struct Cache {
     }
 
     static std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, RunContext const*) {
-      ++m_count;
       gbl = true;
       gel = false;
       gblp = false;
-      std::shared_ptr<Cache> pCache = std::shared_ptr<Cache>{new Cache()};
-      ++(pCache->lumi);
-      return pCache;
+      return std::shared_ptr<Cache>{ new Cache };
    }
 
     static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, LuminosityBlockContext const* iLBContext) {
-      ++m_count;
-      Cache const * pCache = iLBContext->luminosityBlock();
-      if ( pCache->lumi != 1 ) {
+      if ( !gbl ) {
         throw cms::Exception("end out of sequence")
           << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock" << iLB.luminosityBlock();
       }
@@ -642,7 +634,6 @@ struct Cache {
     }
 
     void produce(edm::Event&, edm::EventSetup const&) override {
-      ++m_count;
       p = true;
     }
 
@@ -655,24 +646,17 @@ struct Cache {
     }
 
     static std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, RunContext const*) {
-      ++m_count;
       gbl = true;
       gel = false;
-      p = true;
-      std::shared_ptr<Cache> pCache = std::shared_ptr<Cache>{new Cache()};
-      ++(pCache->lumi);
-      return pCache;
+      p = false;
+      return std::shared_ptr<Cache>{ new Cache };
    }
 
     static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, LuminosityBlockContext const* iLBContext) {
-      ++m_count;
-      Cache const * pCache = iLBContext->luminosityBlock();
-      if ( pCache->lumi != 1 ) {
+      if ( !gbl ) {
         throw cms::Exception("end out of sequence")
           << "globalEndLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock" << iLB.luminosityBlock();
       }
-      gel = true;
-      gbl = false;
    }
 
 

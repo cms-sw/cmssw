@@ -48,7 +48,6 @@ namespace one {
           << "SharedResourcesFilter transitions "
           << m_count<< " but it was supposed to be " << trans_;
       }
-      //std::cout << "SharedResourcesFilter transitions " << m_count<< " but it was supposed to be " << trans_ <<"\n";
     }
   };
   

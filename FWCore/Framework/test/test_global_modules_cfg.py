@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 nEvtLumi = 4
 nEvtRun = 2*nEvtLumi
-nStreams = 64
-nEvt = (nStreams/4)*nEvtRun*nEvtLumi
+nStreams = 16 
+nEvt = nStreams*nEvtRun*nEvtLumi
 
 process = cms.Process("TESTGLOBALMODULES")
 
@@ -119,19 +119,19 @@ process.LumiSumIntFil = cms.EDFilter("edmtest::global::LumiSummaryIntFilter",
 )
 
 process.TestBeginRunFil = cms.EDFilter("edmtest::global::TestBeginRunFilter",
-    transitions = cms.int32(nEvt+(nEvt/nEvtRun))
+    transitions = cms.int32((nEvt/nEvtRun))
 )
 
 process.TestEndRunFil = cms.EDFilter("edmtest::global::TestEndRunFilter",
-    transitions = cms.int32(nEvt+(nEvt/nEvtRun))
+    transitions = cms.int32((nEvt/nEvtRun))
 )
 
 process.TestBeginLumiBlockFil = cms.EDFilter("edmtest::global::TestBeginLumiBlockFilter",
-    transitions = cms.int32(nEvt+(nEvt/nEvtLumi))
+    transitions = cms.int32((nEvt/nEvtLumi))
 )
 
 process.TestEndLumiBlockFil = cms.EDFilter("edmtest::global::TestEndLumiBlockFilter",
-    transitions = cms.int32(nEvt+(nEvt/nEvtLumi))
+    transitions = cms.int32((nEvt/nEvtLumi))
 )
 
 

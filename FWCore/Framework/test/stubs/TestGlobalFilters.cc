@@ -27,6 +27,7 @@ for testing purposes only.
 namespace edmtest {
 namespace global {
 
+namespace {
 struct Cache { 
    Cache():value(0),run(0),lumi(0),strm(0),work(0) {}
    //Using mutable since we want to update the value.
@@ -45,30 +46,35 @@ struct UnsafeCache {
    unsigned int strm;
    unsigned int work;
 };
+} //end anonymous namespace
 
 
-  class StreamIntFilter : public edm::global::EDFilter<edm::StreamCache<Cache>> {
+  class StreamIntFilter : public edm::global::EDFilter<edm::StreamCache<UnsafeCache>> {
   public:
     explicit StreamIntFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) 
-        ,cvalue_(p.getParameter<int>("cachevalue")) 
     {
     produces<unsigned int>();
     }
+
     const unsigned int trans_; 
-    const unsigned int cvalue_; 
     mutable std::atomic<unsigned int> m_count{0};
    
-    std::unique_ptr<Cache> beginStream(edm::StreamID) const override {
+    std::unique_ptr<UnsafeCache> beginStream(edm::StreamID iID) const override {
       ++m_count;
-      std::unique_ptr<Cache> sCache = std::unique_ptr<Cache>(new Cache());
+      std::unique_ptr<UnsafeCache> sCache(new UnsafeCache);
       ++(sCache->strm);
+      sCache->value = iID.value();
       return sCache;
     }
     
     void streamBeginRun(edm::StreamID iID, edm::Run const&, edm::EventSetup const&) const  override{
       ++m_count;
-      Cache const* sCache = streamCache(iID);
+      auto sCache = streamCache(iID);
+      if ( sCache->value != iID.value() ) {
+          throw cms::Exception("cache value")
+          << (streamCache(iID))->value << " but it was supposed to be " << iID;
+      }
       if ( sCache->run != 0 || sCache->lumi !=0 || sCache->work !=0 || sCache->strm !=1 ) {
         throw cms::Exception("out of sequence")
           << "streamBeginRun out of sequence in Stream " << iID.value();
@@ -78,7 +84,11 @@ struct UnsafeCache {
 
     void streamBeginLuminosityBlock(edm::StreamID iID, edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
-      Cache const* sCache = streamCache(iID);
+      auto sCache = streamCache(iID);
+      if ( sCache->value != iID.value() ) {
+          throw cms::Exception("cache value")
+          << (streamCache(iID))->value << " but it was supposed to be " << iID;
+      }
       if ( sCache->lumi != 0 || sCache->work != 0 ) {
         throw cms::Exception("out of sequence")
           << "streamBeginLuminosityBlock out of sequence in Stream " << iID.value();
@@ -88,7 +98,11 @@ struct UnsafeCache {
 
     bool filter(edm::StreamID iID, edm::Event&, edm::EventSetup const&) const override {
       ++m_count;
-      Cache const* sCache = streamCache(iID);
+      auto sCache = streamCache(iID);
+      if ( sCache->value != iID.value() ) {
+          throw cms::Exception("cache value")
+          << (streamCache(iID))->value << " but it was supposed to be " << iID;
+      }
       ++(sCache->work);
       if ( sCache->lumi == 0 && sCache->run == 0) {
         throw cms::Exception("out of sequence")
@@ -100,7 +114,11 @@ struct UnsafeCache {
  
     void streamEndLuminosityBlock(edm::StreamID iID, edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
-      Cache const* sCache = streamCache(iID);
+      auto sCache = streamCache(iID);
+      if ( sCache->value != iID.value() ) {
+          throw cms::Exception("cache value")
+          << (streamCache(iID))->value << " but it was supposed to be " << iID;
+      }
       --(sCache->lumi);
       sCache->work = 0;
       if ( sCache->lumi != 0 || sCache->run == 0 ) {
@@ -111,7 +129,11 @@ struct UnsafeCache {
 
     void streamEndRun(edm::StreamID iID, edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
-      Cache const* sCache = streamCache(iID);
+      auto sCache = streamCache(iID);
+      if ( sCache->value != iID.value() ) {
+          throw cms::Exception("cache value")
+          << (streamCache(iID))->value << " but it was supposed to be " << iID;
+      }
       --(sCache->run);
       sCache->work = 0;
       if ( sCache->run != 0 || sCache->lumi != 0 ) {
@@ -122,8 +144,12 @@ struct UnsafeCache {
 
     void endStream(edm::StreamID iID) const override {
       ++m_count;
-      Cache const* sCache = streamCache(iID);
+      auto sCache = streamCache(iID);
       --(sCache->strm);
+      if ( sCache->value != iID.value() ) {
+          throw cms::Exception("cache value")
+          << (streamCache(iID))->value << " but it was supposed to be " << iID;
+      }
       if ( sCache->strm != 0 || sCache->run != 0 || sCache->lumi != 0 ) {
         throw cms::Exception("out of sequence")
           << "endStream out of sequence in Stream " << iID.value();
@@ -139,7 +165,7 @@ struct UnsafeCache {
     }
   };
   
-  class RunIntFilter : public edm::global::EDFilter<edm::StreamCache<Cache>,edm::RunCache<Cache>> {
+  class RunIntFilter : public edm::global::EDFilter<edm::StreamCache<UnsafeCache>,edm::RunCache<Cache>> {
   public:
     explicit RunIntFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) 
@@ -153,17 +179,17 @@ struct UnsafeCache {
     
     std::shared_ptr<Cache> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
-      std::shared_ptr<Cache> rCache = std::shared_ptr<Cache>{new Cache()};
+      std::shared_ptr<Cache> rCache(new Cache);
       ++(rCache->run);
       return rCache;
     }
  
-    std::unique_ptr<Cache> beginStream(edm::StreamID) const override {
-      return std::unique_ptr<Cache>(new Cache());
+    std::unique_ptr<UnsafeCache> beginStream(edm::StreamID) const override {
+      return std::unique_ptr<UnsafeCache>{new UnsafeCache};
     }
 
     void streamBeginRun(edm::StreamID iID, edm::Run const& iRun, edm::EventSetup const&) const  override {
-      Cache const * rCache = runCache(iRun.index());
+      auto rCache = runCache(iRun.index());
       if ( rCache->run == 0 ) {
         throw cms::Exception("out of sequence")
           << "streamBeginRun before globalBeginRun in Stream " << iID.value();
@@ -172,14 +198,14 @@ struct UnsafeCache {
  
     bool filter(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const override {
       ++m_count;
-      Cache const * rCache = runCache(iEvent.getRun().index());
+      auto rCache = runCache(iEvent.getRun().index());
       ++(rCache->value);
        
       return true;
     }
 
     void streamEndRun(edm::StreamID iID, edm::Run const& iRun, edm::EventSetup const&) const override {
-      Cache const * rCache = runCache(iRun.index());
+      auto rCache = runCache(iRun.index());
       if ( rCache->run == 0 ) {
         throw cms::Exception("out of sequence")
           << "streamEndRun after globalEndRun in Stream " << iID.value();
@@ -189,7 +215,7 @@ struct UnsafeCache {
 
     void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override {
       ++m_count;
-      Cache const * rCache = runCache(iRun.index());
+      auto rCache = runCache(iRun.index());
       if ( rCache->value != cvalue_ ) {
           throw cms::Exception("cache value")
           << "RunIntFilter cache value "
@@ -208,7 +234,7 @@ struct UnsafeCache {
   };
 
 
-  class LumiIntFilter : public edm::global::EDFilter<edm::StreamCache<Cache>,edm::LuminosityBlockCache<Cache>> {
+  class LumiIntFilter : public edm::global::EDFilter<edm::StreamCache<UnsafeCache>,edm::LuminosityBlockCache<Cache>> {
   public:
     explicit LumiIntFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) 
@@ -222,18 +248,17 @@ struct UnsafeCache {
     
     std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
-      std::shared_ptr<Cache> lCache = std::shared_ptr<Cache>{new Cache()};
+      std::shared_ptr<Cache> lCache(new Cache);
       ++(lCache->lumi);  
       return lCache;
     }
 
-   std::unique_ptr<Cache> beginStream(edm::StreamID iID) const override {
-      std::unique_ptr<Cache> sCache = std::unique_ptr<Cache>(new Cache());
-      return sCache;
+   std::unique_ptr<UnsafeCache> beginStream(edm::StreamID iID) const override {
+      return std::unique_ptr<UnsafeCache>{new UnsafeCache};
     }
 
    void streamBeginLuminosityBlock(edm::StreamID iID, edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
-      Cache const* lCache = luminosityBlockCache(iLB.index()); 
+      auto lCache = luminosityBlockCache(iLB.index()); 
       if ( lCache->lumi == 0) {
         throw cms::Exception("out of sequence")
           << "streamBeginLuminosityBlock seen before globalBeginLuminosityBlock in LuminosityBlock" << iLB.luminosityBlock();
@@ -244,12 +269,11 @@ struct UnsafeCache {
     bool filter(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const override {
       ++m_count;
       ++(luminosityBlockCache(iEvent.getLuminosityBlock().index())->value);
-       
       return true;
     }
  
    void streamEndLuminosityBlock(edm::StreamID iID, edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
-      Cache const* lCache = luminosityBlockCache(iLB.index()); 
+      auto lCache = luminosityBlockCache(iLB.index()); 
       if ( lCache->lumi == 0) {
         throw cms::Exception("out of sequence")
           << "streamEndLuminosityBlock seen before globalEndLuminosityBlock in LuminosityBlock" << iLB.luminosityBlock();
@@ -259,7 +283,7 @@ struct UnsafeCache {
     
     void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
       ++m_count;
-      Cache const* lCache = luminosityBlockCache(iLB.index());
+      auto lCache = luminosityBlockCache(iLB.index());
       --(lCache->lumi); 
       if ( lCache->lumi != 0 ) {
         throw cms::Exception("end out of sequence")
@@ -296,12 +320,12 @@ struct UnsafeCache {
 
     std::unique_ptr<Cache> beginStream(edm::StreamID) const override {
       ++m_count;
-      return std::unique_ptr<Cache>(new Cache());
+      return std::unique_ptr<Cache>(new Cache);
     }
     
     std::shared_ptr<UnsafeCache> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
-      std::shared_ptr<UnsafeCache> gCache = std::shared_ptr<UnsafeCache>{new UnsafeCache()};
+      std::shared_ptr<UnsafeCache> gCache(new UnsafeCache);
       ++(gCache->run);
       return gCache;
     }
@@ -319,7 +343,7 @@ struct UnsafeCache {
         throw cms::Exception("out of sequence")
           << "streamEndRunSummary after globalEndRunSummary in Stream " << iID.value();
       }      
-      Cache const* sCache = streamCache(iID);
+      auto sCache = streamCache(iID);
       gCache->value += sCache->value;
       sCache->value = 0;
     }
@@ -358,12 +382,12 @@ struct UnsafeCache {
 
     std::unique_ptr<Cache> beginStream(edm::StreamID) const override {
       ++m_count;
-      return std::unique_ptr<Cache>(new Cache());
+      return std::unique_ptr<Cache>(new Cache);
     }
   
     std::shared_ptr<UnsafeCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
-      std::shared_ptr<UnsafeCache> gCache = std::shared_ptr<UnsafeCache>{new UnsafeCache()};
+      std::shared_ptr<UnsafeCache> gCache(new UnsafeCache);
       ++(gCache->lumi);
       return gCache;
     }
@@ -380,7 +404,7 @@ struct UnsafeCache {
         throw cms::Exception("out of sequence")
           << "streamEndLuminosityBlockSummary after globalEndLuminosityBlockSummary in Stream " << iID.value();
       }
-      Cache const* sCache = streamCache(iID);
+      auto sCache = streamCache(iID);
       gCache->value += sCache->value;
       sCache->value = 0;
     }
@@ -404,27 +428,36 @@ struct UnsafeCache {
     }
   };
 
-  class TestBeginRunFilter : public edm::global::EDFilter<edm::BeginRunProducer> {
+  class TestBeginRunFilter : public edm::global::EDFilter<edm::RunCache<void>,edm::BeginRunProducer> {
   public:
     explicit TestBeginRunFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
     produces<unsigned int>();
     }
+
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
+    mutable std::atomic<bool> brp{false}; 
 
+    std::shared_ptr<void> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&) const override {
+      brp = false;
+      return std::shared_ptr<void>();
+    }
+ 
     void globalBeginRunProduce(edm::Run&, edm::EventSetup const&) const override {
       ++m_count;
-    }
+      brp = true;
+     }
 
     bool filter(edm::StreamID iID, edm::Event&, edm::EventSetup const&) const override {
-      if (m_count == 0) {
+      if ( !brp ) {
         throw cms::Exception("out of sequence")
           << "filter before globalBeginRunProduce in Stream " << iID.value();
       }
-      ++m_count;
-       
       return true;
+    }
+
+    void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override {
     }
 
     ~TestBeginRunFilter() {
@@ -436,7 +469,7 @@ struct UnsafeCache {
     }
   };
 
-  class TestEndRunFilter : public edm::global::EDFilter<edm::EndRunProducer> {
+  class TestEndRunFilter : public edm::global::EDFilter<edm::RunCache<void>,edm::EndRunProducer> {
   public:
     explicit TestEndRunFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
@@ -444,14 +477,28 @@ struct UnsafeCache {
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
+    mutable std::atomic<bool> p{false}; 
+
+    std::shared_ptr<void> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&) const override {
+      p = false;
+      return std::shared_ptr<void>();
+    }
+
 
     bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
-      ++m_count;
+      p = true;
       return true;
     }
 
     void globalEndRunProduce(edm::Run&, edm::EventSetup const&) const override {
-      ++m_count;
+      if ( !p ) {
+        throw cms::Exception("out of sequence")
+          << "endRunProduce before produce";
+      }
+       ++m_count;
+    }
+
+    void globalEndRun(edm::Run const& iRun, edm::EventSetup const&) const override {
     }
 
     ~TestEndRunFilter() {
@@ -463,7 +510,7 @@ struct UnsafeCache {
     }
   };
 
-  class TestBeginLumiBlockFilter : public edm::global::EDFilter<edm::BeginLuminosityBlockProducer> {
+  class TestBeginLumiBlockFilter : public edm::global::EDFilter<edm::LuminosityBlockCache<void>,edm::BeginLuminosityBlockProducer> {
   public:
     explicit TestBeginLumiBlockFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
@@ -471,19 +518,28 @@ struct UnsafeCache {
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
+    mutable std::atomic<bool> gblp{false}; 
+
+    std::shared_ptr<void> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
+      gblp = false;
+      return std::shared_ptr<void>();
+    }
+
 
     void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const {
       ++m_count;
+      gblp = true;
     }
 
     bool filter(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override{
-      if (m_count == 0) {
+      if ( !gblp ) {
         throw cms::Exception("out of sequence")
           << "filter before globalBeginLuminosityBlockProduce in Stream " << iID.value();
       }
-       ++m_count;
-       
       return true;
+    }
+
+    void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
     }
 
     ~TestBeginLumiBlockFilter() {
@@ -495,7 +551,7 @@ struct UnsafeCache {
     }
   };
 
-  class TestEndLumiBlockFilter : public edm::global::EDFilter<edm::EndLuminosityBlockProducer> {
+  class TestEndLumiBlockFilter : public edm::global::EDFilter<edm::LuminosityBlockCache<void>,edm::EndLuminosityBlockProducer> {
   public:
     explicit TestEndLumiBlockFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
@@ -503,14 +559,28 @@ struct UnsafeCache {
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
+    mutable std::atomic<bool> p{false}; 
+
+    std::shared_ptr<void> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
+      p = false;
+      return std::shared_ptr<void>();
+    }
+
 
     bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
-      ++m_count;
+      p = true;
       return true;
     }
 
     void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const override {
+      if ( !p ) {
+        throw cms::Exception("out of sequence")
+          << "endLumiBlockProduce before produce";
+      }
       ++m_count;
+    }
+
+    void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
     }
 
     ~TestEndLumiBlockFilter() {
