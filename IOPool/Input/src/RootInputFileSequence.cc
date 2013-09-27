@@ -30,7 +30,7 @@ namespace edm {
                 PoolSource& input,
                 InputFileCatalog const& catalog,
                 unsigned int nStreams,
-                InputType::InputType inputType) :
+                InputType inputType) :
     input_(input),
     inputType_(inputType),
     catalog_(catalog),
@@ -200,7 +200,7 @@ namespace edm {
     try {
       std::unique_ptr<InputSource::FileOpenSentry>
         sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_, lfn_, usedFallback_) : 0);
-      filePtr.reset(new InputFile(gSystem->ExpandPathName(fileIter_->fileName().c_str()), "  Initiating request to open file "));
+      filePtr.reset(new InputFile(gSystem->ExpandPathName(fileIter_->fileName().c_str()), "  Initiating request to open file ", inputType_));
     }
     catch (cms::Exception const& e) {
       if(!skipBadFiles) {
@@ -225,7 +225,7 @@ namespace edm {
         usedFallback_ = true;
         std::unique_ptr<InputSource::FileOpenSentry>
           sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_, lfn_, usedFallback_) : 0);
-        filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file "));
+        filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file ", inputType_));
       }
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {

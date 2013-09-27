@@ -1,6 +1,5 @@
 #include "IOPool/Output/interface/PoolOutputModule.h"
 
-#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "IOPool/Output/src/RootOutputFile.h"
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -250,14 +249,10 @@ namespace edm {
 
   void PoolOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const* mcc) {
     rootOutputFile_->writeLuminosityBlock(lb, mcc);
-      Service<JobReport> reportSvc;
-      reportSvc->reportLumiSection(lb.id().run(), lb.id().luminosityBlock());
   }
 
   void PoolOutputModule::writeRun(RunPrincipal const& r, ModuleCallingContext const* mcc) {
     rootOutputFile_->writeRun(r, mcc);
-      Service<JobReport> reportSvc;
-      reportSvc->reportRunNumber(r.run());
   }
 
   void PoolOutputModule::reallyCloseFile() {

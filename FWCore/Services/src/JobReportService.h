@@ -35,15 +35,8 @@ namespace edm {
     public:
       JobReportService(ParameterSet const& ps, ActivityRegistry& reg);
       ~JobReportService();
-         
-      void postBeginJob();
+
       void postEndJob();
-
-      void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
-      void postEventProcessing(const Event&, const EventSetup&);
-
-      void preModule(const ModuleDescription&);
-      void postModule(const ModuleDescription&);
 
       void frameworkShutdownOnFailure();
 
@@ -56,5 +49,4 @@ namespace edm {
     }
   }
 }
-
 #endif
