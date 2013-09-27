@@ -67,6 +67,21 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
+<library   file="stubs/TestGlobalProducers.cc,stubs/TestGlobalAnalyzers.cc,stubs/TestGlobalFilters.cc" name="TestGlobalModules">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
+<library   file="stubs/TestOneProducers.cc,stubs/TestOneAnalyzers.cc,stubs/TestOneFilters.cc" name="TestOneModules">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
+<library   file="stubs/TestStreamProducers.cc,stubs/TestStreamFilters.cc,stubs/TestStreamAnalyzers.cc" name="TestStreamModules">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+</library>
 <library   file="stubs/TestSchedulerModule1.cc" name="TestSchedulerModule1">
   <flags   EDM_PLUGIN="1"/>
   <use   name="FWCore/Framework"/>
@@ -198,6 +213,10 @@
 </bin>
 <bin   name="TestFWCoreFrameworkUnscheduled" file="TestDriver.cpp">
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_unscheduled.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkGlobalStreamOne" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_global_stream_one.sh"/>
   <use   name="FWCore/Utilities"/>
 </bin>
 <bin   name="TestFWCoreFrameworkReplace" file="TestDriver.cpp">
