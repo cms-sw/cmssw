@@ -449,7 +449,7 @@ struct UnsafeCache {
     }
   };
 
-  class TestBeginRunProducer : public edm::stream::EDProducer<edm::RunCache<Cache>,edm::BeginRunProducer> {
+  class TestBeginRunProducer : public edm::stream::EDProducer<edm::RunCache<bool>,edm::BeginRunProducer> {
     public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
@@ -464,11 +464,11 @@ struct UnsafeCache {
       produces<unsigned int>();
     }
 
-    static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
+    static std::shared_ptr<bool> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
       gbr=true;
       ger=false;
       gbrp=false;
-      return std::shared_ptr<Cache>{new Cache};
+      return std::shared_ptr<bool>{};
    }
 
     void produce(edm::Event&, edm::EventSetup const&) override {
@@ -505,7 +505,7 @@ struct UnsafeCache {
     }
   };
 
-  class TestEndRunProducer : public edm::stream::EDProducer<edm::RunCache<Cache>,edm::EndRunProducer> {
+  class TestEndRunProducer : public edm::stream::EDProducer<edm::RunCache<bool>,edm::EndRunProducer> {
     public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
@@ -514,11 +514,11 @@ struct UnsafeCache {
     static bool ger;
     static bool p;
 
-    static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
+    static std::shared_ptr<bool> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
       gbr=true;
       ger=false;
       p =false;
-      return std::shared_ptr<Cache>{ new Cache };
+      return std::shared_ptr<bool>{};
    }
 
 
@@ -562,7 +562,7 @@ struct UnsafeCache {
     }
   };
 
-  class TestBeginLumiBlockProducer : public edm::stream::EDProducer<edm::LuminosityBlockCache<Cache>,edm::BeginLuminosityBlockProducer> {
+  class TestBeginLumiBlockProducer : public edm::stream::EDProducer<edm::LuminosityBlockCache<bool>,edm::BeginLuminosityBlockProducer> {
     public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
@@ -593,11 +593,11 @@ struct UnsafeCache {
       gblp = true;
     }
 
-    static std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, RunContext const*) {
+    static std::shared_ptr<bool> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, RunContext const*) {
       gbl = true;
       gel = false;
       gblp = false;
-      return std::shared_ptr<Cache>{ new Cache };
+      return std::shared_ptr<bool>();
    }
 
     static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, LuminosityBlockContext const* iLBContext) {
@@ -618,7 +618,7 @@ struct UnsafeCache {
     }
   };
 
-  class TestEndLumiBlockProducer : public edm::stream::EDProducer<edm::LuminosityBlockCache<Cache>,edm::EndLuminosityBlockProducer> {
+  class TestEndLumiBlockProducer : public edm::stream::EDProducer<edm::LuminosityBlockCache<bool>,edm::EndLuminosityBlockProducer> {
     public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
@@ -645,11 +645,11 @@ struct UnsafeCache {
       }
     }
 
-    static std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, RunContext const*) {
+    static std::shared_ptr<bool> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, RunContext const*) {
       gbl = true;
       gel = false;
       p = false;
-      return std::shared_ptr<Cache>{ new Cache };
+      return std::shared_ptr<bool>{};
    }
 
     static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&, LuminosityBlockContext const* iLBContext) {
