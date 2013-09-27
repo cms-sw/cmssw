@@ -152,6 +152,7 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
       
       // Loop over hits and get weights
       double total_weight = 0;
+      const double eTot_inv = 1.0/eTot;
       
       double xw ( 0 ) ;
       double yw ( 0 ) ;
@@ -166,18 +167,18 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
 	double weight = 0;
 	if ( param_LogWeighted_ ) {
 	  if ( e_j > 0.0 ) {
-	    weight = std::max( 0., param_W0_ + log(e_j/eTot) );
+	    weight = std::max( 0., param_W0_ + log(e_j*eTot_inv) );
 	  } else {
 	    weight = 0;
 	  }
 	} else {
-	  weight = e_j/eTot;
+	  weight = e_j*eTot_inv;
 	}
 	
 	const CaloCellGeometry* cell ( iSubGeom->getGeometry( dId ) ) ;
 	const float depth ( maxDepth + maxToFront - cell->getPosition().mag() ) ;
 	
-	const GlobalPoint pos (reinterpret_cast<const TruncatedPyramid*>( cell )->getPosition( depth ) );
+	const GlobalPoint pos (static_cast<const TruncatedPyramid*>( cell )->getPosition( depth ) );
 	
 	xw += weight*pos.x() ;
 	yw += weight*pos.y() ;
