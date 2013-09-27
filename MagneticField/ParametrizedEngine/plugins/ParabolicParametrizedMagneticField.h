@@ -4,6 +4,7 @@
 /** \class ParabolicParametrizedMagneticField
  *
  *  A simple parametrization of the Bz component in the tracker region
+ * using the product of two parabolas
  *
  *  \author G. Ortona - Torino
  */
