@@ -153,6 +153,7 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
       // Loop over hits and get weights
       double total_weight = 0;
       const double eTot_inv = 1.0/eTot;
+      const double logETot_inv = log(eTot_inv)
       
       double xw ( 0 ) ;
       double yw ( 0 ) ;
@@ -167,7 +168,7 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
 	double weight = 0;
 	if ( param_LogWeighted_ ) {
 	  if ( e_j > 0.0 ) {
-	    weight = std::max( 0., param_W0_ + log(e_j*eTot_inv) );
+	    weight = std::max( 0., param_W0_ + log(e_j) + logETot_inv );
 	  } else {
 	    weight = 0;
 	  }
