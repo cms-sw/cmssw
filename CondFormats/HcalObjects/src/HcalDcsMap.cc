@@ -74,28 +74,28 @@ namespace hcal_impl {
 HcalDcsMap::const_iterator HcalDcsMap::beginById(void) const{
   const_iterator _iter;
   sortById();
-  _iter.fIter = (*mItemsById).begin();
+  _iter.fIter = (*mItemsById.load(std::memory_order_acquire)).begin();
   return _iter;
 }
 
 HcalDcsMap::const_iterator HcalDcsMap::beginByDcsId(void) const{
   const_iterator _iter;
   sortByDcsId();
-  _iter.fIter = (*mItemsByDcsId).begin();
+  _iter.fIter = (*mItemsByDcsId.load(std::memory_order_acquire)).begin();
   return _iter;
 }
 
 HcalDcsMap::const_iterator HcalDcsMap::endById(void) const{
   const_iterator _iter;
   sortById();
-  _iter.fIter = (*mItemsById).end();
+  _iter.fIter = (*mItemsById.load(std::memory_order_acquire)).end();
   return _iter;
 }
 
 HcalDcsMap::const_iterator HcalDcsMap::endByDcsId(void) const{
   const_iterator _iter;
   sortByDcsId();
-  _iter.fIter = (*mItemsByDcsId).end();
+  _iter.fIter = (*mItemsByDcsId.load(std::memory_order_acquire)).end();
   return _iter;
 }
 
@@ -137,13 +137,14 @@ const std::vector<const HcalDcsMap::Item *> HcalDcsMap::findById (unsigned long 
   sortById();
   
   hcal_impl::LessById lessById;
-  item = std::lower_bound ((*mItemsById).begin(), (*mItemsById).end(), &target, lessById);
-  if (item == (*mItemsById).end() || (*item)->mId != fId){
+  auto ptr = (*mItemsById.load(std::memory_order_acquire));
+  item = std::lower_bound (ptr.begin(), ptr.end(), &target, lessById);
+  if (item == ptr.end() || (*item)->mId != fId){
     //    throw cms::Exception ("Conditions not found") << "Unavailable Dcs map for cell " << fId;
     return result;
   }
   else{
-    if(item != (*mItemsById).end() && !lessById(&target, *item)){
+    if(item != ptr.end() && !lessById(&target, *item)){
       result.push_back( *item );
       ++item;
     }
@@ -159,13 +160,14 @@ const std::vector<const HcalDcsMap::Item *> HcalDcsMap::findByDcsId (unsigned lo
   sortByDcsId();
 
   hcal_impl::LessByDcsId lessByDcsId;  
-  item = std::lower_bound ((*mItemsByDcsId).begin(), (*mItemsByDcsId).end(), &target, lessByDcsId);
-  if (item == (*mItemsByDcsId).end() || (*item)->mDcsId != fDcsId) {
+  auto ptr = (*mItemsByDcsId.load(std::memory_order_acquire));
+  item = std::lower_bound (ptr.begin(), ptr.end(), &target, lessByDcsId);
+  if (item == ptr.end() || (*item)->mDcsId != fDcsId) {
     //    throw cms::Exception ("Conditions not found") << "Unavailable Dcs map for cell " << fDcsId;
     return result;
   }
   else{
-    if(item != (*mItemsByDcsId).end() && !lessByDcsId(&target, *item)){
+    if(item != ptr.end() && !lessByDcsId(&target, *item)){
       result.push_back( *item );
       ++item;
     }
@@ -261,7 +263,7 @@ bool HcalDcsMap::mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcsId) {
 
 
 void HcalDcsMap::sortById () const {
-  if (!mItemsById) {
+  if (!mItemsById.load(std::memory_order_acquire)) {
       auto ptr = new std::vector<const Item*>;
       for (auto i=mItems.begin(); i!=mItems.end(); ++i) {
           if (i->mDcsId) ptr->push_back(&(*i));
@@ -278,7 +280,7 @@ void HcalDcsMap::sortById () const {
 }
 
 void HcalDcsMap::sortByDcsId () const {
-  if (!mItemsByDcsId) {
+  if (!mItemsByDcsId.load(std::memory_order_acquire)) {
       auto ptr = new std::vector<const Item*>;
       for (auto i=mItems.begin(); i!=mItems.end(); ++i) {
           if (i->mDcsId) ptr->push_back(&(*i));

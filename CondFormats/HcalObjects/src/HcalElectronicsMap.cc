@@ -24,14 +24,10 @@ namespace hcal_impl {
 }
 
 HcalElectronicsMap::~HcalElectronicsMap() {
-    if (mPItemsById) {
-        delete mPItemsById;
-        mPItemsById = nullptr;
-    }
-    if (mTItemsByTrigId) {
-        delete mTItemsByTrigId;
-        mTItemsByTrigId = nullptr;
-    }
+    delete mPItemsById;
+    mPItemsById = nullptr;
+    delete mTItemsByTrigId;
+    mTItemsByTrigId = nullptr;
 }
 // copy-ctor
 HcalElectronicsMap::HcalElectronicsMap(const HcalElectronicsMap& src)
@@ -67,8 +63,9 @@ const HcalElectronicsMap::PrecisionItem* HcalElectronicsMap::findById (unsigned 
 
   sortById();
   
-  item = std::lower_bound ((*mPItemsById).begin(), (*mPItemsById).end(), &target, hcal_impl::LessById());
-  if (item == (*mPItemsById).end() || (*item)->mId != fId)
+  auto ptr = (*mPItemsById.load(std::memory_order_acquire));
+  item = std::lower_bound (ptr.begin(), ptr.end(), &target, hcal_impl::LessById());
+  if (item == ptr.end() || (*item)->mId != fId)
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
     return 0;
   return *item;
@@ -97,7 +94,8 @@ const HcalElectronicsMap::TriggerItem* HcalElectronicsMap::findByTrigId (unsigne
 
   sortByTriggerId();
   
-  item = std::lower_bound ((*mTItemsByTrigId).begin(), (*mTItemsByTrigId).end(), &target, hcal_impl::LessByTrigId());
+  auto ptr = (*mTItemsByTrigId.load(std::memory_order_acquire));
+  item = std::lower_bound (ptr.begin(), ptr.end(), &target, hcal_impl::LessByTrigId());
   if (item == (*mTItemsByTrigId).end() || (*item)->mTrigId != fTrigId)
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
     return 0;
@@ -212,10 +210,8 @@ bool HcalElectronicsMap::mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigT
 bool HcalElectronicsMap::mapEId2chId (HcalElectronicsId fElectronicsId, DetId fId) {
   PrecisionItem& item = mPItems[fElectronicsId.linearIndex()];
 
-  if (mPItemsById) {
-      delete mPItemsById;
-      mPItemsById = nullptr;
-  }
+  delete mPItemsById;
+  mPItemsById = nullptr;
 
   if (item.mElId==0) item.mElId=fElectronicsId.rawId();
   if (item.mId == 0) {
@@ -230,7 +226,7 @@ bool HcalElectronicsMap::mapEId2chId (HcalElectronicsId fElectronicsId, DetId fI
 }
 
 void HcalElectronicsMap::sortById () const {
-  if (!mPItemsById) {
+  if (!mPItemsById.load(std::memory_order_acquire)) {
       auto ptr = new std::vector<const PrecisionItem*>;
       for (auto i=mPItems.begin(); i!=mPItems.end(); ++i) {
           if (i->mElId) (*ptr).push_back(&(*i));
@@ -247,7 +243,7 @@ void HcalElectronicsMap::sortById () const {
 }
 
 void HcalElectronicsMap::sortByTriggerId () const {
-  if (!mTItemsByTrigId) {
+  if (!mTItemsByTrigId.load(std::memory_order_acquire)) {
       auto ptr = new std::vector<const TriggerItem*>;
       for (auto i=mTItems.begin(); i!=mTItems.end(); ++i) {
           if (i->mElId) (*ptr).push_back(&(*i));
