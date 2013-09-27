@@ -236,7 +236,7 @@ struct UnsafeCache {
     }
   };
   
-  class RunSummaryIntProducer : public edm::stream::EDProducer<edm::RunCache<Cache>,edm::RunSummaryCache<Cache>> {
+  class RunSummaryIntProducer : public edm::stream::EDProducer<edm::RunCache<Cache>,edm::RunSummaryCache<UnsafeCache>> {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
@@ -277,7 +277,7 @@ struct UnsafeCache {
  
     }
 
-    static std::shared_ptr<Cache> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&, GlobalCache const*) {
+    static std::shared_ptr<UnsafeCache> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&, GlobalCache const*) {
       ++m_count;
       gbrs = true;
       gers = false;
@@ -287,13 +287,13 @@ struct UnsafeCache {
         throw cms::Exception("begin out of sequence")
           << "globalBeginRunSummary seen before globalBeginRun";
       }
-      return std::shared_ptr<Cache>{ new Cache };
+      return std::shared_ptr<UnsafeCache>{ new UnsafeCache };
     }
     
-    void endRunSummary(edm::Run const&, edm::EventSetup const&, Cache* gCache) const override {
+    void endRunSummary(edm::Run const&, edm::EventSetup const&, UnsafeCache* gCache) const override {
       brs=false;
       ers=true;
-      gCache->value += runCache()->value.load();
+      gCache->value += runCache()->value;
       runCache()->value = 0;
       if ( !er ) {
         throw cms::Exception("end out of sequence")
@@ -301,7 +301,7 @@ struct UnsafeCache {
       }
     }
     
-    static void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, RunContext const*, Cache * gCache) {
+    static void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, RunContext const*, UnsafeCache * gCache) {
       ++m_count;
       gbrs=false;
       gers=true;
@@ -340,7 +340,7 @@ struct UnsafeCache {
     }
   };
 
-  class LumiSummaryIntProducer : public edm::stream::EDProducer<edm::LuminosityBlockCache<Cache>,edm::LuminosityBlockSummaryCache<Cache>> {
+  class LumiSummaryIntProducer : public edm::stream::EDProducer<edm::LuminosityBlockCache<Cache>,edm::LuminosityBlockSummaryCache<UnsafeCache>> {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
@@ -381,7 +381,7 @@ struct UnsafeCache {
     }
 
 
-    static std::shared_ptr<Cache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, LuminosityBlockContext const*) {
+    static std::shared_ptr<UnsafeCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, LuminosityBlockContext const*) {
       ++m_count;
       gbls = true;
       gels = false;
@@ -391,15 +391,15 @@ struct UnsafeCache {
        throw cms::Exception("begin out of sequence")
          << "globalBeginLuminosityBlockSummary seen before globalBeginLuminosityBlock";
       }
-      return std::shared_ptr<Cache>{ new Cache };
+      return std::shared_ptr<UnsafeCache>{ new UnsafeCache };
     }
     
 
 
-    void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, Cache* gCache) const override {
+    void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, UnsafeCache* gCache) const override {
       bls=false;
       els=true;
-      gCache->value += luminosityBlockCache()->value.load();
+      gCache->value += luminosityBlockCache()->value;
       luminosityBlockCache()->value = 0;
       if ( el ) {
         throw cms::Exception("end out of sequence")
@@ -407,7 +407,7 @@ struct UnsafeCache {
       }
     }
     
-   static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, LuminosityBlockContext const*, Cache* gCache) {
+   static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, LuminosityBlockContext const*, UnsafeCache* gCache) {
      ++m_count;
      gbls=false;
      gels=true;
