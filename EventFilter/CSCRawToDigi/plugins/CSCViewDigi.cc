@@ -1,69 +1,45 @@
-/// -*- C++ -*-
-//
-// Package:    CSCViewDigi
-// Class:      CSCViewDigi
-// 
-/**\class CSCViewDigi CSCViewDigi.cc 
+/**
 
  Location: EventFilter/CSCRawToDigi/plugins/CSCViewDigi.cc 
 
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
 */
-//
+
 // Original Author:  Alexandre Sakharov
 //         Created:  Sun May 10 15:43:28 CEST 2009
-//
-//
-
 #include "EventFilter/CSCRawToDigi/interface/CSCViewDigi.h"
 #include <iostream>
-//#include "CSCViewDigi.h"
 
-//
-// constructors and destructor
-//
 CSCViewDigi::CSCViewDigi(const edm::ParameterSet& conf)
-: wireDigiTag_(conf.getParameter<edm::InputTag>("wireDigiTag")),
- alctDigiTag_(conf.getParameter<edm::InputTag>("alctDigiTag")),
- clctDigiTag_(conf.getParameter<edm::InputTag>("clctDigiTag")),
- corrclctDigiTag_(conf.getParameter<edm::InputTag>("corrclctDigiTag")),
- stripDigiTag_(conf.getParameter<edm::InputTag>("stripDigiTag")),
- comparatorDigiTag_(conf.getParameter<edm::InputTag>("comparatorDigiTag")),
- rpcDigiTag_(conf.getParameter<edm::InputTag>("rpcDigiTag")),
- statusDigiTag_(conf.getParameter<edm::InputTag>("statusDigiTag")),
- DDUstatusDigiTag_(conf.getParameter<edm::InputTag>("DDUstatusDigiTag")),
- DCCstatusDigiTag_(conf.getParameter<edm::InputTag>("DCCstatusDigiTag"))
 {
-WiresDigiDump=conf.getUntrackedParameter<bool>("WiresDigiDump", false);
-StripDigiDump=conf.getUntrackedParameter<bool>("StripDigiDump", false);
-AlctDigiDump=conf.getUntrackedParameter<bool>("AlctDigiDump", false);
-ClctDigiDump=conf.getUntrackedParameter<bool>("ClctDigiDump", false);
-CorrClctDigiDump=conf.getUntrackedParameter<bool>("CorrClctDigiDump", false);
-ComparatorDigiDump=conf.getUntrackedParameter<bool>("ComparatorDigiDump", false);
-RpcDigiDump=conf.getUntrackedParameter<bool>("RpcDigiDump", false);
-StatusDigiDump=conf.getUntrackedParameter<bool>("StatusDigiDump", false);
-DDUStatusDigiDump=conf.getUntrackedParameter<bool>("DDUStatus",false);
-DCCStatusDigiDump=conf.getUntrackedParameter<bool>("DCCStatus",false);
+
+  wd_token = consumes<CSCWireDigiCollection>( conf.getParameter<edm::InputTag>("wireDigiTag") );
+  sd_token = consumes<CSCStripDigiCollection>( conf.getParameter<edm::InputTag>("stripDigiTag") );
+  cd_token = consumes<CSCComparatorDigiCollection>( conf.getParameter<edm::InputTag>("comparatorDigiTag") );
+  rd_token = consumes<CSCRPCDigiCollection>( conf.getParameter<edm::InputTag>("rpcDigiTag") );
+  al_token = consumes<CSCALCTDigiCollection>( conf.getParameter<edm::InputTag>("alctDigiTag") );
+  cl_token = consumes<CSCCLCTDigiCollection>( conf.getParameter<edm::InputTag>("clctDigiTag") );
+  co_token = consumes<CSCCorrelatedLCTDigiCollection>( conf.getParameter<edm::InputTag>("corrclctDigiTag") );
+  st_token = consumes<CSCDCCFormatStatusDigiCollection>( conf.getParameter<edm::InputTag>("statusDigiTag") );
+  dd_token = consumes<CSCDDUStatusDigiCollection>( conf.getParameter<edm::InputTag>("DDUstatusDigiTag") );
+  dc_token = consumes<CSCDCCStatusDigiCollection>( conf.getParameter<edm::InputTag>("DCCstatusDigiTag") );
+
+  WiresDigiDump=conf.getUntrackedParameter<bool>("WiresDigiDump", false);
+  StripDigiDump=conf.getUntrackedParameter<bool>("StripDigiDump", false);
+  ComparatorDigiDump=conf.getUntrackedParameter<bool>("ComparatorDigiDump", false);
+  RpcDigiDump=conf.getUntrackedParameter<bool>("RpcDigiDump", false);
+  AlctDigiDump=conf.getUntrackedParameter<bool>("AlctDigiDump", false);
+  ClctDigiDump=conf.getUntrackedParameter<bool>("ClctDigiDump", false);
+  CorrClctDigiDump=conf.getUntrackedParameter<bool>("CorrClctDigiDump", false);
+  StatusDigiDump=conf.getUntrackedParameter<bool>("StatusDigiDump", false);
+  DDUStatusDigiDump=conf.getUntrackedParameter<bool>("DDUStatus",false);
+  DCCStatusDigiDump=conf.getUntrackedParameter<bool>("DCCStatus",false);
 }
 
 
 CSCViewDigi::~CSCViewDigi()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to for each event  ------------
 void
 CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -75,34 +51,33 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<CSCRPCDigiCollection> rpcs;
    edm::Handle<CSCALCTDigiCollection> alcts;
    edm::Handle<CSCCLCTDigiCollection> clcts;
-   edm::Handle<CSCCorrelatedLCTDigiCollection> corrclcts;
+   edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
    edm::Handle<CSCDCCFormatStatusDigiCollection> statusdigis;
    edm::Handle<CSCDDUStatusDigiCollection> DDUstatusdigi;
    edm::Handle<CSCDCCStatusDigiCollection> DCCstatusdigi;
 
-   iEvent.getByLabel(wireDigiTag_,wires);
-   iEvent.getByLabel(stripDigiTag_,strips);
-   iEvent.getByLabel(comparatorDigiTag_,comparators);
-   iEvent.getByLabel(rpcDigiTag_,rpcs);
-   iEvent.getByLabel(alctDigiTag_,alcts);
-   iEvent.getByLabel(clctDigiTag_,clcts);
-   iEvent.getByLabel(corrclctDigiTag_,corrclcts);
-   
-   if(StatusDigiDump)
-    iEvent.getByLabel(statusDigiTag_,statusdigis);
-   
-   if(DDUStatusDigiDump)
-    iEvent.getByLabel(DDUstatusDigiTag_,DDUstatusdigi);
+   iEvent.getByToken( wd_token, wires );
+   iEvent.getByToken( sd_token, strips );
+   iEvent.getByToken( cd_token, comparators );
+   iEvent.getByToken( rd_token, rpcs );
+   iEvent.getByToken( al_token, alcts );
+   iEvent.getByToken( cl_token, clcts );
+   iEvent.getByToken( co_token, correlatedlcts );
 
+   if(StatusDigiDump)
+     iEvent.getByToken( st_token, statusdigis );
+     
+   if(DDUStatusDigiDump)
+     iEvent.getByToken( dd_token, DDUstatusdigi );
+  
    if(DCCStatusDigiDump)
-    iEvent.getByLabel(DCCstatusDigiTag_,DCCstatusdigi);
-  
-  
-  if(WiresDigiDump){ 
-   std::cout << std::endl;
-   std::cout << "Event " << iEvent.id() << std::endl;
-   std::cout << std::endl;
-   std::cout << "********WIRES Digis********" << std::endl;
+     iEvent.getByToken( dc_token, DCCstatusdigi );
+    
+   if(WiresDigiDump){ 
+     std::cout << std::endl;
+     std::cout << "Event " << iEvent.id() << std::endl;
+     std::cout << std::endl;
+     std::cout << "********WIRES Digis********" << std::endl;
      for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
          std::cout << "Wire digis from "<< CSCDetId((*j).first) << std::endl;
          std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
@@ -190,8 +165,8 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout << std::endl;
     std::cout << "Event " << iEvent.id() << std::endl;
     std::cout << std::endl;
-    std::cout << "********CorrelatedCLCT Digis********" << std::endl;
-    for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j=corrclcts->begin(); j!=corrclcts->end(); j++) {
+    std::cout << "********CorrelatedLCT Digis********" << std::endl;
+    for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j=correlatedlcts->begin(); j!=correlatedlcts->end(); j++) {
         std::vector<CSCCorrelatedLCTDigi>::const_iterator digiItr = (*j).second.first;
         std::vector<CSCCorrelatedLCTDigi>::const_iterator last = (*j).second.second;
         for( ; digiItr != last; ++digiItr) {
