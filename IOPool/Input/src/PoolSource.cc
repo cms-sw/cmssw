@@ -2,7 +2,6 @@
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "InputFile.h"
-#include "InputType.h"
 #include "RootInputFileSequence.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -15,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/InputType.h"
 
 #include <set>
 

@@ -148,7 +148,7 @@ namespace edm {
                      RunNumber_t const& forcedRunNumber,
                      bool noEventSort,
                      ProductSelectorRules const& productSelectorRules,
-                     InputType::InputType inputType,
+                     InputType inputType,
                      boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
                      boost::shared_ptr<DuplicateChecker> duplicateChecker,
                      bool dropDescendants,
@@ -182,9 +182,9 @@ namespace edm {
       hasNewlyDroppedBranch_(),
       branchListIndexesUnchanged_(false),
       eventAux_(),
-      eventTree_(filePtr_, InEvent, nStreams, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries, enablePrefetching),
-      lumiTree_(filePtr_, InLumi, 1, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching),
-      runTree_(filePtr_, InRun, 1, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching),
+      eventTree_(filePtr_, InEvent, nStreams, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries, enablePrefetching, inputType),
+      lumiTree_(filePtr_, InLumi, 1, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching, inputType),
+      runTree_(filePtr_, InRun, 1, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching, inputType),
       treePointers_(),
       lastEventEntryNumberRead_(-1LL),
       productRegistry_(),
@@ -1047,7 +1047,7 @@ namespace edm {
   }
 
   void
-  RootFile::validateFile(InputType::InputType inputType, bool usingGoToEvent) {
+  RootFile::validateFile(InputType inputType, bool usingGoToEvent) {
     if(!fid_.isValid()) {
       fid_ = FileID(createGlobalIdentifier());
     }
@@ -1394,7 +1394,7 @@ namespace edm {
                              eventTree_.rootDelayedReader());
 
     // report event read from file
-    filePtr_->eventReadFromFile(eventID().run(), eventID().event());
+    filePtr_->eventReadFromFile();
     return true;
   }
 
@@ -1650,7 +1650,7 @@ namespace edm {
   }
 
   void
-  RootFile::dropOnInput (ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType::InputType inputType) {
+  RootFile::dropOnInput (ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType inputType) {
     // This is the selector for drop on input.
     ProductSelector productSelector;
     productSelector.initialize(rules, reg.allBranchDescriptions());

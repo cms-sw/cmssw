@@ -17,10 +17,12 @@ namespace edm {
 
   RootDelayedReader::RootDelayedReader(
       RootTree const& tree,
-      boost::shared_ptr<InputFile> filePtr) :
+      boost::shared_ptr<InputFile> filePtr,
+      InputType inputType) :
    tree_(tree),
    filePtr_(filePtr),
-   nextReader_() {
+   nextReader_(),
+   inputType_(inputType) {
   }
 
   RootDelayedReader::~RootDelayedReader() {
@@ -56,7 +58,8 @@ namespace edm {
     br->SetAddress(&p);
     tree_.getEntry(br, tree_.entryNumberForIndex(ep->transitionIndex()));
     if(tree_.branchType() == InEvent) {
-      InputFile::reportReadBranch(std::string(br->GetName()));
+      // CMS-THREADING For the primary input source calls to this function need to be serialized
+      InputFile::reportReadBranch(inputType_, std::string(br->GetName()));
     }
     setRefCoreStreamer(false);
     WrapperOwningHolder edp(p, interface);
