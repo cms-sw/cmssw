@@ -1,95 +1,55 @@
-// -*- C++ -*-
-//
-// Package:    CSCDigiValidator
-// Class:      CSCDigiValidator
-// 
 /**\class CSCDigiValidator CSCDigiValidator.cc UserCode/CSCDigiValidator/src/CSCDigiValidator.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
 */
-//
 // Original Author:  Lindsey Gray
 //         Created:  Tue Jul 28 18:04:11 CEST 2009
-//
-//
-
-
-// system include files
-#include <iostream>
 #include <memory>
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
-// user include files
 #include "EventFilter/CSCRawToDigi/interface/CSCDigiValidator.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
-#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
-#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 #include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 
-
-//
-// constructors and destructor
-//
-CSCDigiValidator::CSCDigiValidator(const edm::ParameterSet& iConfig) :
-  wire1(iConfig.getUntrackedParameter<edm::InputTag>("inputWire")),
-  strip1(iConfig.getUntrackedParameter<edm::InputTag>("inputStrip")),
-  comp1(iConfig.getUntrackedParameter<edm::InputTag>("inputComp")),
-  clct1(iConfig.getUntrackedParameter<edm::InputTag>("inputCLCT")),
-  alct1(iConfig.getUntrackedParameter<edm::InputTag>("inputALCT")),
-  lct1(iConfig.getUntrackedParameter<edm::InputTag>("inputCorrLCT")),
-  csctf1(iConfig.getUntrackedParameter<edm::InputTag>("inputCSCTF")),
-  csctfstubs1(iConfig.getUntrackedParameter<edm::InputTag>("inputCSCTFStubs")),
-  wire2(iConfig.getUntrackedParameter<edm::InputTag>("repackWire")),
-  strip2(iConfig.getUntrackedParameter<edm::InputTag>("repackStrip")),
-  comp2(iConfig.getUntrackedParameter<edm::InputTag>("repackComp")),
-  clct2(iConfig.getUntrackedParameter<edm::InputTag>("repackCLCT")),
-  alct2(iConfig.getUntrackedParameter<edm::InputTag>("repackALCT")),
-  lct2(iConfig.getUntrackedParameter<edm::InputTag>("repackCorrLCT")),
-  csctf2(iConfig.getUntrackedParameter<edm::InputTag>("repackCSCTF")),
-  csctfstubs2(iConfig.getUntrackedParameter<edm::InputTag>("repackCSCTFStubs"))
-  //  reorderStrips(iConfig.getUntrackedParameter<bool>("applyStripReordering",true))
+CSCDigiValidator::CSCDigiValidator(const edm::ParameterSet& iConfig) 
 {
-   //now do what ever initialization is needed
-  //  produces<std::map<std::string,unsigned> >(); // # of errors enumerated by error type
-}
+  wd1_token = consumes<CSCWireDigiCollection>( iConfig.getParameter<edm::InputTag>("inputWire") );
+  wd2_token = consumes<CSCWireDigiCollection>( iConfig.getParameter<edm::InputTag>("repackWire") );
+  sd1_token = consumes<CSCStripDigiCollection>( iConfig.getParameter<edm::InputTag>("inputStrip") );
+  sd2_token = consumes<CSCStripDigiCollection>( iConfig.getParameter<edm::InputTag>("inputStrip") );
+  cd1_token = consumes<CSCComparatorDigiCollection>( iConfig.getParameter<edm::InputTag>("inputComp") );
+  cd2_token = consumes<CSCComparatorDigiCollection>( iConfig.getParameter<edm::InputTag>("RepackComp") );
+  al1_token = consumes<CSCALCTDigiCollection>( iConfig.getParameter<edm::InputTag>("inputALCT") );
+  al2_token = consumes<CSCALCTDigiCollection>( iConfig.getParameter<edm::InputTag>("repackALCT") );
+  cl1_token = consumes<CSCCLCTDigiCollection>( iConfig.getParameter<edm::InputTag>("inputCLCT") );
+  cl2_token = consumes<CSCCLCTDigiCollection>( iConfig.getParameter<edm::InputTag>("repackCLCT") );
+  co1_token = consumes<CSCCorrelatedLCTDigiCollection>( iConfig.getParameter<edm::InputTag>("inputCorrLCT") );
+  co2_token = consumes<CSCCorrelatedLCTDigiCollection>( iConfig.getParameter<edm::InputTag>("repackCorrLCT") );
+  tr1_token = consumes<L1CSCTrackCollection>( iConfig.getParameter<edm::InputTag>("inputCSCTF") );
+  tr2_token = consumes<L1CSCTrackCollection>( iConfig.getParameter<edm::InputTag>("repackCSCTF") );
+  ts1_token = consumes<CSCTriggerContainer<csctf::TrackStub> >( iConfig.getParameter<edm::InputTag>("inputCSCTFStubs") );
+  ts2_token = consumes<CSCTriggerContainer<csctf::TrackStub> >( iConfig.getParameter<edm::InputTag>("repackCSCTFStubs") );
 
+  //  reorderStrips(iConfig.getUntrackedParameter<bool>("applyStripReordering",true))
+
+}
 
 CSCDigiValidator::~CSCDigiValidator()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to for each event  ------------
 bool
 CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -115,9 +75,6 @@ CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::pair<std::vector<CSCCorrelatedLCTDigi>,std::vector<CSCCorrelatedLCTDigi> > > 
     matchingDetLCTCollection;
 
-  // std::auto_ptr<std::map<std::string,unsigned> >
-  //    errors(new std::map<std::string,unsigned>);
-
   edm::ESHandle<CSCChamberMap> hcham;
   iSetup.get<CSCChamberMapRcd>().get(hcham); 
   const CSCChamberMap* theMapping = hcham.product();
@@ -132,36 +89,37 @@ CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<CSCTriggerContainer<csctf::TrackStub> > _dt, _sdt;
 
    // get wire digis before and after unpacking
-   iEvent.getByLabel(wire1,_swi);
-   iEvent.getByLabel(wire2,_wi);
-   
+   iEvent.getByToken( wd1_token, _swi );
+   iEvent.getByToken( wd2_token, _wi );
+
    //get strip digis before and after unpacking
-   iEvent.getByLabel(strip1,_sst);
-   iEvent.getByLabel(strip2,_st);
+   iEvent.getByToken( sd1_token, _sst );
+   iEvent.getByToken( sd2_token, _st );
 
    //get comparator digis before and after unpacking
-   iEvent.getByLabel(comp1,_scmp);
-   iEvent.getByLabel(comp2,_cmp);
+   iEvent.getByToken( co1_token, _scmp );
+   iEvent.getByToken( co2_token, _cmp );
 
    //get clcts
-   iEvent.getByLabel(clct1,_sclct);
-   iEvent.getByLabel(clct2,_clct);
+   iEvent.getByToken( cl1_token, _sclct );
+   iEvent.getByToken( cl2_token, _clct );
 
    //get alcts
-   iEvent.getByLabel(alct1,_salct);
-   iEvent.getByLabel(alct2,_alct);
+   iEvent.getByToken( al1_token, _salct );
+   iEvent.getByToken( al2_token, _alct );
 
-   //get lcts
-   iEvent.getByLabel(lct1,_slct);
-   iEvent.getByLabel(lct2,_lct);
+   //get corr lcts
+   iEvent.getByToken( co1_token, _slct );
+   iEvent.getByToken( co2_token, _lct );
 
    //get l1 tracks
-   iEvent.getByLabel(csctf1,_strk);
-   iEvent.getByLabel(csctfstubs1,_sdt);
-   iEvent.getByLabel(csctf2,_trk);
-   iEvent.getByLabel(csctfstubs2,_dt);
-   
+   iEvent.getByToken( tr1_token, _strk );
+   iEvent.getByToken( tr2_token, _trk );
+
    //get DT stubs for L1 Tracks
+   iEvent.getByToken( ts1_token, _sdt );
+   iEvent.getByToken( ts2_token, _dt );
+
 
    CSCWireDigiCollection::DigiRangeIterator 
      wi = _wi->begin(), swi= _swi->begin();
@@ -890,7 +848,6 @@ CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    
 
-   //   iEvent.put(errors);
    return _err;
 }
 
@@ -1027,13 +984,11 @@ CSCDigiValidator::zeroSupCompDigis(std::vector<CSCComparatorDigi>::const_iterato
   return _r;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
 void 
 CSCDigiValidator::beginJob()
 {
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
 void 
 CSCDigiValidator::endJob() 
 {

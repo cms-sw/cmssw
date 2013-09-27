@@ -1,14 +1,12 @@
+#include <FWCore/Utilities/interface/InputTag.h>
 #include "EventFilter/CSCRawToDigi/src/CSCDigiToPattern.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 CSCDigiToPattern::CSCDigiToPattern(edm::ParameterSet const& conf) {
 
-  // If your module takes parameters, here is where you would define
-  // their names and types, and access them to initialize internal
-  // variables. Example as follows:
-  //
+  d_token = consumes<CSCCorrelatedLCTDigiCollection>( conf.getParameter<edm::InputTag>("corrlctDigiTag") );
+
 }
 
 void CSCDigiToPattern::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
@@ -17,7 +15,8 @@ void CSCDigiToPattern::analyze(edm::Event const& e, edm::EventSetup const& iSetu
   // to retrieve from event "e".
   //
   edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
-  e.getByLabel("muonCSCDigis","MuonCSCCorrelatedLCTDigi",correlatedlcts);  
+  e.getByToken( d_token, correlatedlcts);
+
   for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j=correlatedlcts->begin(); j!=correlatedlcts->end(); j++) { 
     CSCDetId id=(*j).first;
     std::cout<<id<<std::endl;

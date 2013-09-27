@@ -1,38 +1,35 @@
 /** 
  * Demo analyzer for reading digis
  * author A.Tumanov 2/22/06 
- * ripped from Jeremy's and Rick's analyzers
+ * Code updated but not tested - needs updated config file - 10.09.2013 Tim Cox
  *   
  */
-#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+
 #include "EventFilter/CSCRawToDigi/interface/DigiAnalyzer.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDDUHeader.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCDDUStatusDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DigiAnalyzer::DigiAnalyzer(edm::ParameterSet const& conf) {
 
-  // If your module takes parameters, here is where you would define
-  // their names and types, and access them to initialize internal
-  // variables. Example as follows:
-  //
   eventNumber = 0;
+
+  wd_token = consumes<CSCWireDigiCollection>( conf.getParameter<edm::InputTag>("wireDigiTag") );
+  sd_token = consumes<CSCStripDigiCollection>( conf.getParameter<edm::InputTag>("stripDigiTag") );
+  cd_token = consumes<CSCComparatorDigiCollection>( conf.getParameter<edm::InputTag>("compDigiTag") );
+  al_token = consumes<CSCALCTDigiCollection>( conf.getParameter<edm::InputTag>("alctDigiTag") );
+  cl_token = consumes<CSCCLCTDigiCollection>( conf.getParameter<edm::InputTag>("clctDigiTag") );
+  rd_token = consumes<CSCRPCDigiCollection>( conf.getParameter<edm::InputTag>("rpcDigiTag") );
+  co_token = consumes<CSCCorrelatedLCTDigiCollection>( conf.getParameter<edm::InputTag>("corrlctDigiTag") );
+  dd_token = consumes<CSCDDUStatusDigiCollection>( conf.getParameter<edm::InputTag>("ddusDigiTag") );
+  dc_token = consumes<CSCDCCFormatStatusDigiCollection>( conf.getParameter<edm::InputTag>("dccfDigiTag") );
+
 }
 
 void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
 
-  // These declarations create handles to the types of records that you want
-  // to retrieve from event "e".
-  //
   edm::Handle<CSCWireDigiCollection> wires;
   edm::Handle<CSCStripDigiCollection> strips;
   edm::Handle<CSCComparatorDigiCollection> comparators;
@@ -43,25 +40,16 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   edm::Handle<CSCDDUStatusDigiCollection> dduStatusDigi;
   edm::Handle<CSCDCCFormatStatusDigiCollection> formatStatusDigi;
 
-  // Pass the handle to the method "getByType", which is used to retrieve
-  // one and only one instance of the type in question out of event "e". If
-  // zero or more than one instance exists in the event an exception is thrown.
-  //
+  e.getByToken( dd_token, dduStatusDigi );
+  e.getByToken( wd_token, wires );
+  e.getByToken( sd_token, strips );
+  e.getByToken( cd_token, comparators );
+  e.getByToken( al_token, alcts );
+  e.getByToken( cl_token, clcts );
+  e.getByToken( rd_token, rpcs );
+  e.getByToken( co_token, correlatedlcts );
+  e.getByToken( dc_token, formatStatusDigi );
 
-  // e.getByLabel("muonCSCDigis","MuonCSCDDUStatusDigi", dduStatusDigi);
-  // e.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
-  // e.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
-  //   e.getByLabel("muonCSCDigis","MuonCSCComparatorDigi",comparators);
-  //e.getByLabel("muonCSCDigis","MuonCSCALCTDigi",alcts);
-  //  e.getByLabel("muonCSCDigis","MuonCSCCLCTDigi",clcts);
-  // e.getByLabel("muonCSCDigis","MuonCSCRPCDigi",rpcs);
-  //e.getByLabel("muonCSCDigis","MuonCSCCorrelatedLCTDigi",correlatedlcts);
-  e.getByLabel("muonCSCDigis","MuonCSCDCCFormatStatusDigi",formatStatusDigi);
-  
-   
-  // read digi collections and print digis
-  //
-  
   for (CSCDCCFormatStatusDigiCollection::DigiRangeIterator j=formatStatusDigi->begin(); j!=formatStatusDigi->end(); j++) {
     std::vector<CSCDCCFormatStatusDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCDCCFormatStatusDigi>::const_iterator last = (*j).second.second;
@@ -71,7 +59,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   }
 
 
-  /*for (CSCDDUStatusDigiCollection::DigiRangeIterator j=dduStatusDigi->begin(); j!=dduStatusDigi->end(); j++) {
+  for (CSCDDUStatusDigiCollection::DigiRangeIterator j=dduStatusDigi->begin(); j!=dduStatusDigi->end(); j++) {
     std::vector<CSCDDUStatusDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCDDUStatusDigi>::const_iterator last = (*j).second.second;
     for( ; digiItr != last; ++digiItr) {
@@ -80,8 +68,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
       std::cout <<"DDU number = " << header.source_id() << std::endl;
     }
   }
-  */
- /*
+
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
     CSCDetId const cscDetId=(*j).first;
@@ -92,7 +79,6 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
     }
   }
 
-
   for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
     CSCDetId const cscDetId=(*j).first;
     std::cout<<cscDetId<<std::endl;
@@ -102,10 +88,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
       digiItr->print();
     }
   }
-*/
 
-
-  /*
   for (CSCComparatorDigiCollection::DigiRangeIterator j=comparators->begin(); j!=comparators->end(); j++) {
  
     std::vector<CSCComparatorDigi>::const_iterator digiItr = (*j).second.first;
@@ -115,8 +98,6 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
     }
   }
 
-
- 
   for (CSCALCTDigiCollection::DigiRangeIterator j=alcts->begin(); j!=alcts->end(); j++) {
  
     std::vector<CSCALCTDigi>::const_iterator digiItr = (*j).second.first;
@@ -125,7 +106,6 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
       digiItr->print();
     }
   }
-
 
   for (CSCCLCTDigiCollection::DigiRangeIterator j=clcts->begin(); j!=clcts->end(); j++) {
  
@@ -136,8 +116,6 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
     }
   }
 
-
-
   for (CSCRPCDigiCollection::DigiRangeIterator j=rpcs->begin(); j!=rpcs->end(); j++) {
  
     std::vector<CSCRPCDigi>::const_iterator digiItr = (*j).second.first;
@@ -146,7 +124,6 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
       digiItr->print();
     }
   }
-
 
   for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j=correlatedlcts->begin(); j!=correlatedlcts->end(); j++) {
  
@@ -157,12 +134,8 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
     }
   }
 
-  */
-
   eventNumber++;
   edm::LogInfo ("DigiAnalyzer")  << "end of event number " << eventNumber;
-  
-  
 
 }
 

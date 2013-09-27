@@ -7,10 +7,11 @@
  * \author Alex Tumanov 
  */
 
+#include <FWCore/Framework/interface/ConsumesCollector.h>
 #include <FWCore/Framework/interface/EDProducer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 class CSCMonitorInterface;
 
@@ -42,8 +43,9 @@ class CSCDCCUnpacker: public edm::EDProducer {
   unsigned int errorMask, examinerMask;
   bool instantiateDQM;
   CSCMonitorInterface * monitor;
-  edm::InputTag inputObjectsTag; // input tag labelling raw data for input
 
+  /// Token for consumes interface & access to data
+  edm::EDGetTokenT<FEDRawDataCollection> i_token;
 
 
 };
