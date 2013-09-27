@@ -6,7 +6,6 @@ using namespace std;
 #include <vector>
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
-#include "DetectorDescription/Algorithm/src/AlgoInit.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
@@ -110,7 +109,6 @@ void regressionTest_setup() {
 */ 
 void regressionTest_first( ) {
   ///load the new cpv
-  AlgoInit();
   DDCompactView cpv;
   cout << "main::initialize DDL parser" << endl;
   DDLParser myP(cpv);// = DDLParser::instance();
@@ -184,7 +182,6 @@ void output(string filename)
 
   os << "Starting Regressiontest Output" << endl;
   ///load the new cpv
-  AlgoInit();
   DDCompactView cpv;
   cout << "main::initialize DDL parser" << endl;
   DDLParser myP(cpv);// = DDLParser::instance();
@@ -226,7 +223,6 @@ void testParser()
 {
   try {
     cout << "main:: initialize" << endl;
-    AlgoInit();
     DDCompactView cpv;
     cout << "main::initialize DDL parser" << endl;
     DDLParser myP(cpv);// = DDLParser::instance();

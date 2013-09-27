@@ -15,7 +15,6 @@
 using namespace std;
 int main(int argc, char *argv[])
 {
-  //DDAlgoInit();
 try { // DDD Prototype can throw DDException defined in DetectorDescription/Core/interface/DDException.h
   
   // Initialize a DDL Schema aware parser for DDL-documents

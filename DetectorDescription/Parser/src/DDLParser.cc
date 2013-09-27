@@ -15,7 +15,6 @@
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Algorithm/src/AlgoInit.h"
 
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -32,7 +31,6 @@ DDLParser::DDLParser( DDCompactView& cpv )
     nFiles_( 0 )
 {
   XMLPlatformUtils::Initialize();
-  AlgoInit();
   SAX2Parser_  = XMLReaderFactory::createXMLReader();
   
   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, false);   // optional
