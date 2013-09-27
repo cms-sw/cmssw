@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="L1TYellowOutput" ClassVersion="10">
+   <version ClassVersion="10" checksum="202252217"/>
+  </class>
+  <class name="std::vector<L1TYellowOutput>"/>
+  <class name="edm::Wrapper<std::vector<L1TYellowOutput>>" splitLevel="0"/>
+</lcgdict>
