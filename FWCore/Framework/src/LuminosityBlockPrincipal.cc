@@ -23,7 +23,7 @@ namespace edm {
 
   void
   LuminosityBlockPrincipal::fillLuminosityBlockPrincipal(
-      ProcessHistoryRegistry& processHistoryRegistry,
+      ProcessHistoryRegistry const& processHistoryRegistry,
       DelayedReader* reader) {
 
     complete_ = false;
