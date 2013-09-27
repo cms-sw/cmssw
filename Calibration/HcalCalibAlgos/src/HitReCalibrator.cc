@@ -2,7 +2,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -21,9 +20,9 @@ namespace cms
 
 HitReCalibrator::HitReCalibrator(const edm::ParameterSet& iConfig)
 {
-   hbheInput_ = iConfig.getParameter<edm::InputTag>("hbheInput");
-   hoInput_ = iConfig.getParameter<edm::InputTag>("hoInput");
-   hfInput_ = iConfig.getParameter<edm::InputTag>("hfInput"); 
+   tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
+   tok_ho_  = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
+   tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput")); 
    allowMissingInputs_ = true;
 //register your products
 
@@ -59,7 +58,7 @@ HitReCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
   try {
   edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByLabel(hbheInput_,hbhe);
+  iEvent.getByToken(tok_hbhe_,hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
   for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
         {
@@ -79,7 +78,7 @@ HitReCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   try{  
   edm::Handle<HORecHitCollection> ho;
-  iEvent.getByLabel(hoInput_,ho);
+  iEvent.getByToken(tok_ho_,ho);
   const HORecHitCollection Hitho = *(ho.product());
   for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
         {
@@ -99,7 +98,7 @@ HitReCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   try {
   edm::Handle<HFRecHitCollection> hf;
-  iEvent.getByLabel(hfInput_,hf);
+  iEvent.getByToken(tok_hf_,hf);
   const HFRecHitCollection Hithf = *(hf.product());
   for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
       {

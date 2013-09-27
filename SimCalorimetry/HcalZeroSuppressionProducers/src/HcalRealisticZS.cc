@@ -1,5 +1,4 @@
 #include "HcalRealisticZS.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -14,6 +13,13 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
   inputLabel_(conf.getParameter<std::string>("digiLabel")) {
 
   bool markAndPass=conf.getParameter<bool>("markAndPass");
+
+  // register for data access
+  tok_hbhe_ = consumes<HBHEDigiCollection>(edm::InputTag(inputLabel_));
+  tok_ho_ = consumes<HODigiCollection>(edm::InputTag(inputLabel_));
+  tok_hf_ = consumes<HFDigiCollection>(edm::InputTag(inputLabel_));
+  tok_hbheUpgrade_ = consumes<HBHEUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HBHEUpgradeDigiCollection"));
+  tok_hfUpgrade_ = consumes<HFUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HFUpgradeDigiCollection"));
 
 
   std::vector<int> tmp = conf.getParameter<std::vector<int> >("HBregion");
@@ -103,25 +109,23 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   eventSetup.get<HcalDbRecord>().get(conditions);
   algo_->setDbService(conditions.product());
 
-  e.getByLabel(inputLabel_,hbhe);
+  e.getByToken(tok_hbhe_,hbhe);
   
   // create empty output
   std::auto_ptr<HBHEDigiCollection> zs_hbhe(new HBHEDigiCollection);
   
-  e.getByLabel(inputLabel_,ho);
+  e.getByToken(tok_ho_,ho);
   
   // create empty output
   std::auto_ptr<HODigiCollection> zs_ho(new HODigiCollection);
   
-  e.getByLabel(inputLabel_,hf);
+  e.getByToken(tok_hf_,hf);
   
   // create empty output
   std::auto_ptr<HFDigiCollection> zs_hf(new HFDigiCollection);
   
-  edm::InputTag hbheUpgradeTag(inputLabel_, "HBHEUpgradeDigiCollection");
-  e.getByLabel(hbheUpgradeTag,hbheUpgrade);
-  edm::InputTag hfUpgradeTag(inputLabel_, "HFUpgradeDigiCollection");
-  e.getByLabel(hfUpgradeTag,hfUpgrade);
+  e.getByToken(tok_hbheUpgrade_,hbheUpgrade);
+  e.getByToken(tok_hfUpgrade_,hfUpgrade);
   
   // create empty output
   std::auto_ptr<HBHEUpgradeDigiCollection> zs_hbheUpgrade(new HBHEUpgradeDigiCollection);

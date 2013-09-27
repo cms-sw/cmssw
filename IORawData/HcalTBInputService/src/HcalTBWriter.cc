@@ -11,9 +11,10 @@
 
 
 HcalTBWriter::HcalTBWriter(const edm::ParameterSet & pset) : 
-  namePattern_(pset.getUntrackedParameter<std::string>("FilenamePattern","/tmp/HTB_%06d.root")),
-  fedRawDataCollectionTag_(pset.getParameter<edm::InputTag>("fedRawDataCollectionTag"))
+  namePattern_(pset.getUntrackedParameter<std::string>("FilenamePattern","/tmp/HTB_%06d.root"))
 {
+
+  tok_raw_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("fedRawDataCollectionTag"));
 
   std::vector<edm::ParameterSet> names=pset.getUntrackedParameter<std::vector<edm::ParameterSet> >("ChunkNames");
   std::vector<edm::ParameterSet>::iterator j;
@@ -48,7 +49,7 @@ void HcalTBWriter::endJob() {
 
 void HcalTBWriter::analyze(const edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<FEDRawDataCollection> raw;
-  e.getByLabel(fedRawDataCollectionTag_, raw);
+  e.getByToken(tok_raw_, raw);
 
   if (file_==0) {
     char fname[4096];

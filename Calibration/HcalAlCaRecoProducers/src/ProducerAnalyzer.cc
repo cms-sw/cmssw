@@ -4,21 +4,12 @@
 
 #include "Calibration/HcalAlCaRecoProducers/src/ProducerAnalyzer.h"
 #include "FWCore/Common/interface/Provenance.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h" 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 #include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
-#include "DataFormats/HcalCalibObjects/interface/HOCalibVariableCollection.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
@@ -46,6 +37,22 @@ ProducerAnalyzer::ProducerAnalyzer(const edm::ParameterSet& iConfig)
    hoInput_ = iConfig.getUntrackedParameter<std::string>("hoInput");
    hfInput_ = iConfig.getUntrackedParameter<std::string>("hfInput");
    Tracks_ = iConfig.getUntrackedParameter<std::string>("Tracks","GammaJetTracksCollection");    
+
+   tok_hovar_ = consumes<HOCalibVariableCollection>( edm::InputTag(nameProd_,hoInput_) );
+   tok_horeco_ = consumes<HORecHitCollection>( edm::InputTag("horeco") );
+   tok_ho_ = consumes<HORecHitCollection>( edm::InputTag(hoInput_) );
+   tok_hoProd_ = consumes<HORecHitCollection>( edm::InputTag(nameProd_,hoInput_) );
+
+    tok_hf_ = consumes<HFRecHitCollection>( edm::InputTag(hfInput_) );
+
+   tok_jets_ = consumes<reco::CaloJetCollection>( edm::InputTag(nameProd_,jetCalo_) );
+   tok_gamma_ = consumes<reco::SuperClusterCollection>( edm::InputTag(nameProd_,gammaClus_) );
+   tok_muons_ = consumes<reco::MuonCollection>(edm::InputTag(nameProd_,"SelectedMuons"));
+   tok_ecal_ = consumes<EcalRecHitCollection>( edm::InputTag(nameProd_,ecalInput_) );
+   tok_tracks_ = consumes<reco::TrackCollection>( edm::InputTag(nameProd_,Tracks_) );
+
+   tok_hbheProd_ = consumes<HBHERecHitCollection>( edm::InputTag(nameProd_,hbheInput_) );
+   tok_hbhe_ = consumes<HBHERecHitCollection>( edm::InputTag(hbheInput_) );
 
 }
 
@@ -96,7 +103,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if(nameProd_ == "hoCalibProducer")
   {
      edm::Handle<HOCalibVariableCollection> ho;
-     iEvent.getByLabel(nameProd_,hoInput_, ho);
+     iEvent.getByToken(tok_hovar_, ho);
      const HOCalibVariableCollection Hitho = *(ho.product());
      std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
   }
@@ -105,11 +112,11 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    {
    
    edm::Handle<HORecHitCollection> ho;
-   iEvent.getByLabel("horeco", ho);
+   iEvent.getByToken(tok_horeco_, ho);
    const HORecHitCollection Hitho = *(ho.product());
    std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
    edm::Handle<MuonCollection> mucand;
-   iEvent.getByLabel(nameProd_,"SelectedMuons", mucand);
+   iEvent.getByToken(tok_muons_, mucand);
    std::cout<<" Size of muon collection "<<mucand->size()<<std::endl;
    for(MuonCollection::const_iterator it =  mucand->begin(); it != mucand->end(); it++)
    {
@@ -122,19 +129,19 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    if(nameProd_ != "IsoProd" && nameProd_ != "ALCARECOMuAlZMuMu" && nameProd_ != "hoCalibProducer")
    {
    edm::Handle<HBHERecHitCollection> hbhe;
-   iEvent.getByLabel(hbheInput_, hbhe);
+   iEvent.getByToken(tok_hbhe_, hbhe);
    const HBHERecHitCollection Hithbhe = *(hbhe.product());
    std::cout<<" Size of HBHE "<<(Hithbhe).size()<<std::endl;
 
 
    edm::Handle<HORecHitCollection> ho;
-   iEvent.getByLabel(hoInput_, ho);
+   iEvent.getByToken(tok_ho_, ho);
    const HORecHitCollection Hitho = *(ho.product());
    std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
 
 
    edm::Handle<HFRecHitCollection> hf;
-   iEvent.getByLabel(hfInput_, hf);
+   iEvent.getByToken(tok_hf_, hf);
    const HFRecHitCollection Hithf = *(hf.product());
    std::cout<<" Size of HF "<<(Hithf).size()<<std::endl;
    }
@@ -142,7 +149,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    {
    cout<<" We are here "<<endl;
    edm::Handle<reco::TrackCollection> tracks;
-   iEvent.getByLabel(nameProd_,Tracks_,tracks);
+   iEvent.getByToken(tok_tracks_,tracks);
  
    
    std::cout<<" Tracks size "<<(*tracks).size()<<std::endl;
@@ -157,7 +164,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
          }  
 
    edm::Handle<EcalRecHitCollection> ecal;
-   iEvent.getByLabel(nameProd_,ecalInput_,ecal);
+   iEvent.getByToken(tok_ecal_,ecal);
    const EcalRecHitCollection Hitecal = *(ecal.product());
    std::cout<<" Size of Ecal "<<(Hitecal).size()<<std::endl;
    EcalRecHitCollection::const_iterator hite = (ecal.product())->begin ();
@@ -183,7 +190,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
          }
 
    edm::Handle<HBHERecHitCollection> hbhe;
-   iEvent.getByLabel(nameProd_,hbheInput_,hbhe);
+   iEvent.getByToken(tok_hbheProd_,hbhe);
    const HBHERecHitCollection Hithbhe = *(hbhe.product());
    std::cout<<" Size of HBHE "<<(Hithbhe).size()<<std::endl;
    HBHERecHitCollection::const_iterator hith = (hbhe.product())->begin ();
@@ -203,7 +210,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    cout<<" Energy ECAL "<< energyECAL<<" Energy HCAL "<< energyHCAL<<endl;
    
    edm::Handle<HORecHitCollection> ho;
-   iEvent.getByLabel(nameProd_,hoInput_,ho);
+   iEvent.getByToken(tok_hoProd_,ho);
    const HORecHitCollection Hitho = *(ho.product());
    std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
    HORecHitCollection::const_iterator hito = (ho.product())->begin ();
@@ -221,11 +228,11 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    {
     cout<<" we are in GammaJetProd area "<<endl;
    edm::Handle<EcalRecHitCollection> ecal;
-   iEvent.getByLabel(nameProd_,ecalInput_, ecal);
+   iEvent.getByToken(tok_ecal_, ecal);
    std::cout<<" Size of ECAL "<<(*ecal).size()<<std::endl;
 
    edm::Handle<reco::CaloJetCollection> jets;
-   iEvent.getByLabel(nameProd_,jetCalo_, jets);
+   iEvent.getByToken(tok_jets_, jets);
    std::cout<<" Jet size "<<(*jets).size()<<std::endl; 
    reco::CaloJetCollection::const_iterator jet = jets->begin ();
           for (; jet != jets->end (); jet++)
@@ -234,13 +241,13 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
          }  
 
    edm::Handle<reco::TrackCollection> tracks;
-   iEvent.getByLabel(nameProd_,Tracks_, tracks);
+   iEvent.getByToken(tok_tracks_, tracks);
    std::cout<<" Tracks size "<<(*tracks).size()<<std::endl; 
    }
    if( nameProd_ == "GammaJetProd")
    {
    edm::Handle<reco::SuperClusterCollection> eclus;
-   iEvent.getByLabel(nameProd_,gammaClus_, eclus);
+   iEvent.getByToken(tok_gamma_, eclus);
    std::cout<<" GammaClus size "<<(*eclus).size()<<std::endl;
       reco::SuperClusterCollection::const_iterator iclus = eclus->begin ();
           for (; iclus != eclus->end (); iclus++)

@@ -21,6 +21,10 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 //
@@ -45,11 +49,14 @@ class AlCaDiJetsProducer : public edm::EDProducer {
      virtual void produce(edm::Event &, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
-     edm::InputTag jetsInput_;
      std::vector<edm::InputTag> ecalLabels_;
-     edm::InputTag hbheInput_;
-     edm::InputTag hoInput_;
-     edm::InputTag hfInput_;
+
+     edm::EDGetTokenT<reco::CaloJetCollection> tok_jets_;
+     edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+     edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+     edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+
+     std::vector<edm::EDGetTokenT<EcalRecHitCollection> > toks_ecal_;
 
      bool allowMissingInputs_;
 

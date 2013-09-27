@@ -46,6 +46,10 @@ protected:
 private:
 
   std::string    g4Label, hcalHits, layerInfo, nxNInfo, jetsInfo;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hh_;
+  edm::EDGetTokenT<PHcalValidInfoLayer> tok_iL_;
+  edm::EDGetTokenT<PHcalValidInfoNxN> tok_iN_;
+  edm::EDGetTokenT<PHcalValidInfoJets> tok_iJ_;
   std::string    outFile_;
   bool           verbose_, scheme_;
   bool           checkHit_, checkLay_, checkNxN_, checkJet_;

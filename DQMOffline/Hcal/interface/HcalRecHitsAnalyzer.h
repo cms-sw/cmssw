@@ -78,9 +78,12 @@ class HcalRecHitsAnalyzer : public edm::EDAnalyzer {
   bool        useAllHistos_;
 
   //RecHit Collection input tags
-  edm::InputTag theHBHERecHitCollectionLabel;
-  edm::InputTag theHFRecHitCollectionLabel;
-  edm::InputTag theHORecHitCollectionLabel;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+  edm::EDGetTokenT<EBRecHitCollection> tok_EB_;
+  edm::EDGetTokenT<EERecHitCollection> tok_EE_;
+
 
   // choice of subdetector in config : noise/HB/HE/HO/HF/ALL (0/1/2/3/4/5)
   int subdet_;

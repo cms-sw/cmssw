@@ -51,6 +51,8 @@ class HcalNZSMonitor: public HcalBaseDQMonitor
 
   edm::InputTag rawdataLabel_;
   edm::InputTag hltresultsLabel_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  edm::EDGetTokenT<edm::TriggerResults> tok_res_;
 };
 
 

@@ -30,9 +30,21 @@ namespace edm
 
   // Constructor 
   DataMixingModule::DataMixingModule(const edm::ParameterSet& ps) : BMixingModule(ps),
+    HBHEPileInputTag_(ps.getParameter<edm::InputTag>("HBHEPileInputTag")),
+    HOPileInputTag_(ps.getParameter<edm::InputTag>("HOPileInputTag")),
+    HFPileInputTag_(ps.getParameter<edm::InputTag>("HFPileInputTag")),
+    ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
 							    label_(ps.getParameter<std::string>("Label"))
 
-  {                                                         // what's "label_"?
+  {  
+                                                       // what's "label_"?
+
+    // prepare for data access in DataMixingHcalDigiWorkerProd
+    tok_hbhe_ = consumes<HBHEDigitizerTraits::DigiCollection>(HBHEPileInputTag_);
+    tok_ho_ = consumes<HODigitizerTraits::DigiCollection>(HOPileInputTag_);
+    tok_hf_ = consumes<HFDigitizerTraits::DigiCollection>(HFPileInputTag_);
+    tok_zdc_ = consumes<ZDCDigitizerTraits::DigiCollection>(ZDCPileInputTag_);
+
 
     // get the subdetector names
     this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
@@ -152,6 +164,10 @@ namespace edm
 
       if(MergeHcalDigisProd_) {
 	HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps);
+	HcalDigiWorkerProd_->setHBHEAccess(tok_hbhe_);
+	HcalDigiWorkerProd_->setHOAccess(tok_ho_);
+	HcalDigiWorkerProd_->setHFAccess(tok_hf_);
+	HcalDigiWorkerProd_->setZDCAccess(tok_zdc_);
       }
       else {HcalDigiWorker_ = new DataMixingHcalDigiWorker(ps);
       }

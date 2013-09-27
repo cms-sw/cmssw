@@ -58,6 +58,11 @@ private:
   
   std::string outputFile_;
 
+  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_ecal_;
+
+
   // Hits counters
   MonitorElement* Nhb;
   MonitorElement* Nhe;

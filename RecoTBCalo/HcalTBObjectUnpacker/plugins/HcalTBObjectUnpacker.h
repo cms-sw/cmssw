@@ -28,6 +28,8 @@
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBQADCUnpacker.h"
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBSourcePositionDataUnpacker.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
   class HcalTBObjectUnpacker : public edm::EDProducer
   {
   public:
@@ -49,7 +51,7 @@
     bool doRunData_, doTriggerData_, doEventPosition_, doTiming_, doSourcePos_,doBeamADC_;
 
     std::vector<std::vector<std::string> > calibLines_;
-    edm::InputTag fedRawDataCollectionTag_;
+    edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
 
     void parseCalib();
 

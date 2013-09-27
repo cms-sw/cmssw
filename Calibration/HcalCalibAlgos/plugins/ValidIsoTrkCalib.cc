@@ -88,14 +88,16 @@ private:
   double taHCALCone_;
 
   const CaloGeometry* geo;
-  InputTag genTracksLabel_;
-  InputTag genhbheLabel_;
+  // nothing is done with these tags, so I leave it - cowden
+  InputTag genhbheLabel_;  
   InputTag genhoLabel_;
   std::vector<edm::InputTag> genecalLabel_;
-  InputTag hbheLabel_;
-  InputTag hoLabel_;
-  InputTag trackLabel_;
-  InputTag trackLabel1_;
+
+  edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> tok_track_;
+  edm::EDGetTokenT<reco::TrackCollection> tok_track1_;
   
   //std::string m_inputTrackLabel;
   //std::string m_hcalLabel;
@@ -201,18 +203,18 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
   //takeAllRecHits_=iConfig.getUntrackedParameter<bool>("takeAllRecHits");
   takeGenTracks_=iConfig.getUntrackedParameter<bool>("takeGenTracks");
 
-  genTracksLabel_ = iConfig.getParameter<edm::InputTag>("genTracksLabel");
+  tok_genTrack_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("genTracksLabel"));
   genhbheLabel_= iConfig.getParameter<edm::InputTag>("genHBHE");
   //genhoLabel_=iConfig.getParameter<edm::InputTag>("genHO");
   //genecalLabel_=iConfig.getParameter<std::vector<edm::InputTag> >("genECAL");
 
   // m_hcalLabel = iConfig.getUntrackedParameter<std::string> ("hcalRecHitsLabel","hbhereco");
 
-  hbheLabel_= iConfig.getParameter<edm::InputTag>("hbheInput");
-  hoLabel_=iConfig.getParameter<edm::InputTag>("hoInput");
+  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
+  tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
   //eLabel_=iConfig.getParameter<edm::InputTag>("eInput");
-  trackLabel_ = iConfig.getParameter<edm::InputTag>("HcalIsolTrackInput");
-  trackLabel1_ = iConfig.getParameter<edm::InputTag>("trackInput");
+  tok_track_ = consumes<reco::IsolatedPixelTrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("HcalIsolTrackInput"));
+  tok_track1_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackInput"));
 
   associationConeSize_=iConfig.getParameter<double>("associationConeSize");
   allowMissingInputs_=iConfig.getUntrackedParameter<bool>("allowMissingInputs", true);
@@ -267,15 +269,15 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
  }
 
    edm::Handle<reco::TrackCollection> generalTracks;
-   iEvent.getByLabel(genTracksLabel_, generalTracks);
+   iEvent.getByToken(tok_genTrack_, generalTracks);
 
   edm::Handle<reco::TrackCollection> isoProdTracks;
-  iEvent.getByLabel(trackLabel1_,isoProdTracks);
+  iEvent.getByToken(tok_track1_,isoProdTracks);
 
 
   edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isoPixelTracks;
   //edm::Handle<reco::TrackCollection> isoPixelTracks;
-  iEvent.getByLabel(trackLabel_,isoPixelTracks);
+  iEvent.getByToken(tok_track_,isoPixelTracks);
   
   /*
   edm::Handle<EcalRecHitCollection> ecal;
@@ -284,7 +286,7 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   */
 
   edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByLabel(hbheLabel_,hbhe);
+  iEvent.getByToken(tok_hbhe_,hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
   edm::ESHandle<CaloGeometry> pG;

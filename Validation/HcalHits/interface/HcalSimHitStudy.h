@@ -45,6 +45,8 @@ private:
   bool           verbose_, checkHit_;
   DQMStore       *dbe_;
 
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
+
   MonitorElement *meAllNHit_, *meBadDetHit_, *meBadSubHit_, *meBadIdHit_;
   MonitorElement *meHBNHit_, *meHENHit_, *meHONHit_, *meHFNHit_;
   MonitorElement *meDetectHit_, *meSubdetHit_, *meDepthHit_, *meEtaHit_;
