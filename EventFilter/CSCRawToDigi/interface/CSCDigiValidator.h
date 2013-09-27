@@ -1,30 +1,27 @@
 /**\class CSCDigiValidator CSCDigiValidator.cc UserCode/CSCDigiValidator/src/CSCDigiValidator.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
 */
-//
+
 // Original Author:  Lindsey Gray
 //         Created:  Tue Jul 28 18:04:11 CEST 2009
-//
-//
 
-
-// system include files
 #include <memory>
 #include <string>
 
-// user include files
+#include <FWCore/Framework/interface/ConsumesCollector.h>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-//
-// class decleration
-//
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
 
 class CSCWireDigi;
 class CSCStripDigi;
@@ -71,5 +68,22 @@ class CSCDigiValidator : public edm::EDFilter {
       edm::InputTag wire2,strip2,comp2,clct2,alct2,lct2,csctf2,csctfstubs2;
 
       bool reorderStrips;
-};
 
+      edm::EDGetTokenT<CSCWireDigiCollection>                   wd1_token;
+      edm::EDGetTokenT<CSCStripDigiCollection>                  sd1_token;
+      edm::EDGetTokenT<CSCComparatorDigiCollection>             cd1_token;
+      edm::EDGetTokenT<CSCALCTDigiCollection>                   al1_token;
+      edm::EDGetTokenT<CSCCLCTDigiCollection>                   cl1_token;
+      edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection>          co1_token;
+      edm::EDGetTokenT<L1CSCTrackCollection>                    tr1_token;
+      edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> >  ts1_token;
+
+      edm::EDGetTokenT<CSCWireDigiCollection>                   wd2_token;
+      edm::EDGetTokenT<CSCStripDigiCollection>                  sd2_token;
+      edm::EDGetTokenT<CSCComparatorDigiCollection>             cd2_token;
+      edm::EDGetTokenT<CSCALCTDigiCollection>                   al2_token;
+      edm::EDGetTokenT<CSCCLCTDigiCollection>                   cl2_token;
+      edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection>          co2_token;
+      edm::EDGetTokenT<L1CSCTrackCollection>                    tr2_token;
+      edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> >  ts2_token;
+};

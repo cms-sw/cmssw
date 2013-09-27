@@ -39,18 +39,19 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   useTriggerFilter     = pset.getUntrackedParameter<bool>("useTriggerFilter",false);
 
   // input tags for collections
-  stripDigiTag  = pset.getParameter<edm::InputTag>("stripDigiTag");
-  wireDigiTag   = pset.getParameter<edm::InputTag>("wireDigiTag"); 
-  compDigiTag   = pset.getParameter<edm::InputTag>("compDigiTag");
-  alctDigiTag   = pset.getParameter<edm::InputTag>("alctDigiTag") ;
-  clctDigiTag   = pset.getParameter<edm::InputTag>("clctDigiTag") ;
-  corrlctDigiTag= pset.getParameter<edm::InputTag>("corrlctDigiTag") ;
-  cscRecHitTag  = pset.getParameter<edm::InputTag>("cscRecHitTag");
-  cscSegTag     = pset.getParameter<edm::InputTag>("cscSegTag");
-  saMuonTag     = pset.getParameter<edm::InputTag>("saMuonTag");
-  l1aTag        = pset.getParameter<edm::InputTag>("l1aTag");
-  simHitTag     = pset.getParameter<edm::InputTag>("simHitTag");
-  hltTag        = pset.getParameter<edm::InputTag>("hltTag");
+  rd_token = consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("rawDataTag") );
+  sd_token = consumes<CSCStripDigiCollection>( pset.getParameter<edm::InputTag>("stripDigiTag") );
+  wd_token = consumes<CSCWireDigiCollection>( pset.getParameter<edm::InputTag>("wireDigiTag") );
+  cd_token = consumes<CSCComparatorDigiCollection>( pset.getParameter<edm::InputTag>("compDigiTag") );
+  al_token = consumes<CSCALCTDigiCollection>( pset.getParameter<edm::InputTag>("alctDigiTag") );
+  cl_token = consumes<CSCCLCTDigiCollection>( pset.getParameter<edm::InputTag>("clctDigiTag") );
+  co_token = consumes<CSCCorrelatedLCTDigiCollection>( pset.getParameter<edm::InputTag>("corrlctDigiTag") );
+  rh_token = consumes<CSCRecHit2DCollection>( pset.getParameter<edm::InputTag>("cscRecHitTag") );
+  se_token = consumes<CSCSegmentCollection>( pset.getParameter<edm::InputTag>("cscSegTag") );
+  sa_token = consumes<reco::TrackCollection>( pset.getParameter<edm::InputTag>("saMuonTag") );
+  l1_token = consumes<L1MuGMTReadoutCollection>( pset.getParameter<edm::InputTag>("l1aTag") );
+  tr_token = consumes<TriggerResults>( pset.getParameter<edm::InputTag>("hltTag") );
+  sh_token = consumes<PSimHitContainer>( pset.getParameter<edm::InputTag>("simHitTag") );
 
   // flags to switch on/off individual modules
   makeOccupancyPlots   = pset.getUntrackedParameter<bool>("makeOccupancyPlots",true);
@@ -190,21 +191,21 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   edm::Handle<CSCCLCTDigiCollection> clcts;
   edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
   if (useDigis){
-    event.getByLabel(stripDigiTag,strips);
-    event.getByLabel(wireDigiTag,wires);
-    event.getByLabel(compDigiTag,compars);
-    event.getByLabel(alctDigiTag, alcts);
-    event.getByLabel(clctDigiTag, clcts);
-    event.getByLabel(corrlctDigiTag, correlatedlcts);
+    event.getByToken( sd_token, strips );
+    event.getByToken( wd_token, wires );
+    event.getByToken( cd_token, compars );
+    event.getByToken( al_token, alcts );
+    event.getByToken( cl_token, clcts );
+    event.getByToken( co_token, correlatedlcts );
  }
 
   // Get the CSC Geometry :
-  ESHandle<CSCGeometry> cscGeom;
+  edm::ESHandle<CSCGeometry> cscGeom;
   eventSetup.get<MuonGeometryRecord>().get(cscGeom);
 
   // Get the RecHits collection :
-  Handle<CSCRecHit2DCollection> recHits;
-  event.getByLabel(cscRecHitTag,recHits);
+  edm::Handle<CSCRecHit2DCollection> recHits;
+  event.getByToken( rh_token, recHits );
 
   //CSCRecHit2DCollection::const_iterator recIt;
   //for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
@@ -213,25 +214,28 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
 
   // Get the SimHits (if applicable)
-  Handle<PSimHitContainer> simHits;
-  if (isSimulation) event.getByLabel(simHitTag, simHits);
+  edm::Handle<PSimHitContainer> simHits;
+  if ( isSimulation ) event.getByToken( sh_token, simHits );
 
   // get CSC segment collection
-  Handle<CSCSegmentCollection> cscSegments;
-  event.getByLabel(cscSegTag, cscSegments);
+  edm::Handle<CSCSegmentCollection> cscSegments;
+  event.getByToken( se_token, cscSegments );
 
   // get the trigger collection
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
   if (makeTriggerPlots || useTriggerFilter || (useDigis && makeTimeMonitorPlots)){
-    event.getByLabel(l1aTag,pCollection);
+    event.getByToken( l1_token, pCollection );
   }
   edm::Handle<TriggerResults> hlt;
-  if (makeHLTPlots) event.getByLabel(hltTag,hlt);
+  if (makeHLTPlots) {
+      event.getByToken( tr_token, hlt );
+  }
 
   // get the standalone muon collection
-  Handle<reco::TrackCollection> saMuons;
-  if (makeStandalonePlots || useQualityFilter) event.getByLabel(saMuonTag,saMuons);
-
+  edm::Handle<reco::TrackCollection> saMuons;
+  if (makeStandalonePlots || useQualityFilter) {
+     event.getByToken( sa_token, saMuons );
+  }
 
 
   /////////////////////
@@ -2856,7 +2860,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   
   /// Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
-  event.getByLabel("source", rawdata);
+  event.getByToken( rd_token, rawdata);
   bool goodEvent = false;
   // If set selective unpacking mode 
   // hardcoded examiner mask below to check for DCC and DDU level errors will be used first
