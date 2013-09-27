@@ -114,32 +114,30 @@
 		<!-- There are some subtle differences on the 0 degree and 180 degree
 		     segments so that is why only the 16 can be made with the algorithm -->
 		<!-- 16 sub-sections for the cabling ??? -->
-		<AlgoPosPart algo="global:angular">
+		<Algorithm name="global:DDAngular">
 			<rParent name="hcalalgo:HRCF"/>
-			<rChild name="hcalalgo:HEC1"/>
-			<ParE name="n" value="8"/>
-			<ParE name="startCopyNo" value="0"/>
-			<ParE name="incrCopyNo" value="1"/>
-			<ParE name="rangeAngle" value="140*deg"/>
-			<ParE name="startAngle" value="20*deg"/>
-			<ParE name="radius" value="0"/>
-			<ParE name="center" value="0"/>
-			<ParE name="center" value="0"/>
-			<ParE name="center" value="0"/>
-		</AlgoPosPart>
-		<AlgoPosPart algo="global:angular">
+			<String name="ChildName" value="hcalalgo:HEC1"/>
+			<Numeric name="N" value="8"/>
+			<Numeric name="StartCopyNo" value="0"/>
+			<Numeric name="IncrCopyNo" value="1"/>
+			<Numeric name="RangeAngle" value="140*deg"/>
+			<Numeric name="StartAngle" value="20*deg"/>
+			<Numeric name="Radius" value="0"/>
+			<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+			<Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.*deg </Vector>
+		</Algorithm>
+		<Algorithm name="global:DDAngular">
 			<rParent name="hcalalgo:HRCF"/>
-			<rChild name="hcalalgo:HEC1"/>
-			<ParE name="n" value="8"/>
-			<ParE name="startCopyNo" value="8"/>
-			<ParE name="incrCopyNo" value="1"/>
-			<ParE name="rangeAngle" value="140*deg"/>
-			<ParE name="startAngle" value="200*deg"/>
-			<ParE name="radius" value="0"/>
-			<ParE name="center" value="0"/>
-			<ParE name="center" value="0"/>
-			<ParE name="center" value="0"/>
-		</AlgoPosPart>
+			<String name="ChildName" value="hcalalgo:HEC1"/>
+			<Numeric name="N" value="8"/>
+			<Numeric name="StartCopyNo" value="8"/>
+			<Numeric name="IncrCopyNo" value="1"/>
+			<Numeric name="RangeAngle" value="140*deg"/>
+			<Numeric name="StartAngle" value="200*deg"/>
+			<Numeric name="Radius" value="0"/>
+			<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+			<Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.*deg </Vector>
+		</Algorithm>
 		<PosPart copyNumber="1">
 			<rParent name="hcalalgo:HEC1"/>
 			<rChild name="hcalalgo:HHC1"/>
