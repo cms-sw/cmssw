@@ -4,7 +4,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -33,7 +33,7 @@ int EcalTPGCrystalStatusXMLTranslator::writeXML(const std::string& filename,
 
 std::string EcalTPGCrystalStatusXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalTPGCrystalStatus& record){
 
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
   DOMImplementation*  impl =
     DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
 

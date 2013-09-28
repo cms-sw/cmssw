@@ -1,4 +1,5 @@
 <use   name="CondCore/Utilities"/>
+<use   name="FWCore/Concurrency"/>
 <flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable -ftemplate-depth=600"/>
 
 <bin   file="cmscond_list_iov.cpp" name="cmscond_list_iov">

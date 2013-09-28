@@ -14,7 +14,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <sstream>
 
@@ -214,7 +214,7 @@ void xuti::readHeader(xercesc::DOMNode* parentNode,
 
 int xuti::readHeader(const std::string& filename,EcalCondHeader& header ){
   
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
 
   XercesDOMParser* parser = new XercesDOMParser;
   parser->setValidationScheme( XercesDOMParser::Val_Never );
@@ -236,7 +236,7 @@ int xuti::readHeader(const std::string& filename,EcalCondHeader& header ){
   xuti::readHeader(elementRoot, header);
   
   delete parser;
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
 
   return 0;
 }

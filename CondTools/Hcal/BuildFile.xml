@@ -2,6 +2,7 @@
 <use   name="oracle"/>
 <use   name="oracleocci"/>
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/Concurrency"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="CalibCalorimetry/CastorCalib"/>

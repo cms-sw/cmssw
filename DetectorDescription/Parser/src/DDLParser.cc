@@ -19,6 +19,7 @@
 
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
 
 #include <iostream>
 
@@ -31,7 +32,7 @@ DDLParser::DDLParser( DDCompactView& cpv )
   : cpv_( cpv ),
     nFiles_( 0 )
 {
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
   AlgoInit();
   SAX2Parser_  = XMLReaderFactory::createXMLReader();
   
@@ -56,7 +57,7 @@ DDLParser::~DDLParser( void )
   delete expHandler_;
   delete fileHandler_;
   delete errHandler_;
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
   DCOUT_V('P', "DDLParser::~DDLParser(): destruct DDLParser"); 
 }
 
@@ -145,7 +146,7 @@ DDLParser::parseOneFile( const std::string& fullname ) //, const std::string& ur
     //         edm::LogError ("DDLParser") << "\nDDLParser::ParseOneFile, PASS1: XMLException while processing files... \n"
     //              << "Exception message is: \n"
     //              << StrX(toCatch.getMessage()) << "\n" ;
-    //         XMLPlatformUtils::Terminate();
+    //         cms::concurrency::xercesTerminate();
     //         throw (DDException("  See XMLException above. "));
     //       }
 
@@ -168,7 +169,7 @@ DDLParser::parseOneFile( const std::string& fullname ) //, const std::string& ur
     //         edm::LogError ("DDLParser") << "\nDDLParser::ParseOneFile, PASS2: XMLException while processing files... \n"
     //              << "Exception message is: \n"
     //              << StrX(toCatch.getMessage()) << "\n" ;
-    //         XMLPlatformUtils::Terminate();
+    //         cms::concurrency::xercesTerminate();
     //         throw (DDException("  See XMLException above."));
     //       }
   }
@@ -307,7 +308,7 @@ DDLParser::parse( const DDLDocumentProvider& dp )
   //     edm::LogInfo ("DDLParser") << "\nPASS1: XMLException while processing files... \n"
   // 	 << "Exception message is: \n"
   // 	 << StrX(toCatch.getMessage()) << "\n" ;
-  //     XMLPlatformUtils::Terminate();
+  //     cms::concurrency::xercesTerminate();
   //     // FIX use this after DEPRECATED stuff removed:    throw(DDException("See XML Exception above"));
   //     return -1;
   //   }
@@ -350,7 +351,7 @@ DDLParser::parse( const DDLDocumentProvider& dp )
   //     edm::LogError ("DDLParser") << "\nPASS2: XMLException while processing files... \n"
   // 	 << "Exception message is: \n"
   // 	 << StrX(toCatch.getMessage()) << "\n" ;
-  //     XMLPlatformUtils::Terminate();
+  //     cms::concurrency::xercesTerminate();
   //     return -1;
   //   }
   return 0;

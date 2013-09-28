@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <string>
 #include <iostream>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/parsers/SAXParser.hpp>
 
 // ---------------------------------------------------------------------------
