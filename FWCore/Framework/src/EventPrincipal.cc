@@ -57,9 +57,9 @@ namespace edm {
     eventSelectionIDs_ = eventSelectionIDs;
     branchMapperPtr_ = mapper;
     branchListIndexes_ = branchListIndexes;
-    if(productRegistry().productProduced(InEvent)) {
+    if(branchIDListHelper_->hasProducedProducts()) {
       // Add index into BranchIDListRegistry for products produced this process
-      branchListIndexes_.push_back(productRegistry().producedBranchListIndex());
+      branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
     }
     fillEventPrincipal(aux,processHistoryRegistry,reader);
   }
@@ -72,10 +72,10 @@ namespace edm {
     aux_ = aux;
     aux_.setProcessHistoryID(processHistoryID());
     
-    if(branchListIndexes_.empty() and productRegistry().productProduced(InEvent)) {
+    if(branchListIndexes_.empty() and branchIDListHelper_->hasProducedProducts()) {
       // Add index into BranchIDListRegistry for products produced this process
       //  if it hasn't already been filled in by the other fillEventPrincipal or by an earlier call to this function
-      branchListIndexes_.push_back(productRegistry().producedBranchListIndex());
+      branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
     }
 
     // Fill in helper map for Branch to ProductID mapping

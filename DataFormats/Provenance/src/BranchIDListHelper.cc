@@ -10,7 +10,9 @@ namespace edm {
   BranchIDListHelper::BranchIDListHelper() :
     branchIDLists_(),
     branchIDToIndexMap_(),
-    inputIndexToJobIndex_() {}
+    inputIndexToJobIndex_(),
+    producedBranchListIndex_(std::numeric_limits<BranchListIndex>::max())
+  {}
 
   bool
   BranchIDListHelper::updateFromInput(BranchIDLists const& bidlists) {
@@ -41,7 +43,7 @@ namespace edm {
   }
 
   void
-  BranchIDListHelper::updateRegistries(ProductRegistry& preg) {
+  BranchIDListHelper::updateFromRegistry(ProductRegistry const& preg) {
     BranchIDList bidlist;
     // Add entries for current process for ProductID to BranchID mapping.
     for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(), itEnd = preg.productList().end();
@@ -54,8 +56,8 @@ namespace edm {
     }
     if(!bidlist.empty()) {
       BranchListIndex blix = branchIDLists_.size();
-#error "move producedBranchListIndex to this class"
-      preg.setProducedBranchListIndex(blix);
+      producedBranchListIndex_ = blix;
+      //preg.setProducedBranchListIndex(blix);
       branchIDLists_.push_back(bidlist);
       for(BranchIDList::const_iterator i = bidlist.begin(), iEnd = bidlist.end(); i != iEnd; ++i) {
         ProductIndex pix = i - bidlist.begin();
