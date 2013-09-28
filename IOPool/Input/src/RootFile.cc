@@ -467,7 +467,7 @@ namespace edm {
     setIfFastClonable(remainingEvents, remainingLumis);
 
     // Update the branch id info.
-    if(inputType == InputType::Primary) {
+    if(inputType == InputType::Primary || inputType == InputType::SecondarySource) {
       branchListIndexesUnchanged_ = branchIDListHelper_->updateFromInput(*branchIDLists_);
     }
 
