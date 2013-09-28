@@ -194,8 +194,8 @@ namespace edm {
       forcedRunOffset_(0),
       newBranchToOldBranch_(),
       eventHistoryTree_(nullptr),
-      eventSelectionIDs_(new EventSelectionIDVector),
-      branchListIndexes_(new BranchListIndexes),
+      eventSelectionIDs_(),
+      branchListIndexes_(),
       history_(),
       branchChildren_(new BranchChildren),
       duplicateChecker_(duplicateChecker),
@@ -1171,22 +1171,22 @@ namespace edm {
       eventHistoryBranch->SetAddress(&pHistory);
       roottree::getEntry(eventHistoryTree_, eventTree_.entryNumber());
       eventAux_.setProcessHistoryID(history_->processHistoryID());
-      eventSelectionIDs_.reset(&history_->eventSelectionIDs(), do_nothing_deleter());
-      branchListIndexes_.reset(&history_->branchListIndexes(), do_nothing_deleter());
+      eventSelectionIDs_.swap(history_->eventSelectionIDs());
+      branchListIndexes_.swap(history_->branchListIndexes());
     } else if(fileFormatVersion().noMetaDataTrees()) {
       // Current format
-      EventSelectionIDVector* pESV = eventSelectionIDs_.get();
+      EventSelectionIDVector* pESV = &eventSelectionIDs_;
       TBranch* eventSelectionIDBranch = eventTree_.tree()->GetBranch(poolNames::eventSelectionsBranchName().c_str());
       assert(eventSelectionIDBranch != nullptr);
       eventTree_.fillBranchEntry(eventSelectionIDBranch, pESV);
-      BranchListIndexes* pBLI = branchListIndexes_.get();
+      BranchListIndexes* pBLI = &branchListIndexes_;
       TBranch* branchListIndexesBranch = eventTree_.tree()->GetBranch(poolNames::branchListIndexesBranchName().c_str());
       assert(branchListIndexesBranch != nullptr);
       eventTree_.fillBranchEntry(branchListIndexesBranch, pBLI);
     }
     if(provenanceAdaptor_) {
       eventAux_.setProcessHistoryID(provenanceAdaptor_->convertID(eventAux().processHistoryID()));
-      for(auto& esID : *eventSelectionIDs_) {
+      for(auto& esID : eventSelectionIDs_) {
         esID = provenanceAdaptor_->convertID(esID);
       }
     }
@@ -1195,9 +1195,9 @@ namespace edm {
     }
     if(!fileFormatVersion().splitProductIDs()) {
       // old format.  branchListIndexes_ must be filled in from the ProvenanceAdaptor.
-      provenanceAdaptor_->branchListIndexes(*branchListIndexes_);
+      provenanceAdaptor_->branchListIndexes(branchListIndexes_);
     }
-    branchIDListHelper_->fixBranchListIndexes(*branchListIndexes_);
+    branchIDListHelper_->fixBranchListIndexes(branchListIndexes_);
   }
 
   boost::shared_ptr<LuminosityBlockAuxiliary>
@@ -1387,11 +1387,11 @@ namespace edm {
     // We're not done ... so prepare the EventPrincipal
     eventTree_.insertEntryForIndex(principal.transitionIndex());
     principal.fillEventPrincipal(eventAux(),
-                             *processHistoryRegistry_,
-                             eventSelectionIDs_,
-                             branchListIndexes_,
-                             makeBranchMapper(),
-                             eventTree_.rootDelayedReader());
+                                 *processHistoryRegistry_,
+                                 std::move(eventSelectionIDs_),
+                                 std::move(branchListIndexes_),
+                                 makeBranchMapper(),
+                                 eventTree_.rootDelayedReader());
 
     // report event read from file
     filePtr_->eventReadFromFile();

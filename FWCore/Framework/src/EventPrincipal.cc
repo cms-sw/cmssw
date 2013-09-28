@@ -27,12 +27,12 @@ namespace edm {
     Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender),
           aux_(),
           luminosityBlockPrincipal_(),
-          branchMapperPtr_(),
+          branchMapperPtr_(new BranchMapper),
           unscheduledHandler_(),
           moduleLabelsRunning_(),
-          eventSelectionIDs_(new EventSelectionIDVector),
+          eventSelectionIDs_(),
           branchIDListHelper_(branchIDListHelper),
-          branchListIndexes_(new BranchListIndexes),
+          branchListIndexes_(),
           branchListIndexToProcessIndex_(),
           streamID_(streamIndex){}
 
@@ -41,42 +41,46 @@ namespace edm {
     clearPrincipal();
     aux_ = EventAuxiliary();
     luminosityBlockPrincipal_.reset();
-    branchMapperPtr_.reset();
+    branchMapperPtr_.reset(new BranchMapper);
     unscheduledHandler_.reset();
     moduleLabelsRunning_.clear();
-    eventSelectionIDs_->clear();
-    branchListIndexes_->clear();
     branchListIndexToProcessIndex_.clear();
   }
 
   void
   EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
         ProcessHistoryRegistry const& processHistoryRegistry,
-        boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs,
-        boost::shared_ptr<BranchListIndexes> branchListIndexes,
+        EventSelectionIDVector&& eventSelectionIDs,
+        BranchListIndexes&& branchListIndexes,
         boost::shared_ptr<BranchMapper> mapper,
         DelayedReader* reader) {
-    fillPrincipal(aux.processHistoryID(), processHistoryRegistry, reader);
-    aux_ = aux;
-    if(eventSelectionIDs) {
-      eventSelectionIDs_ = eventSelectionIDs;
-    }
-    aux_.setProcessHistoryID(processHistoryID());
-
+    eventSelectionIDs_ = eventSelectionIDs;
     branchMapperPtr_ = mapper;
-
-    if(branchListIndexes) {
-      branchListIndexes_ = branchListIndexes;
-    }
-
+    branchListIndexes_ = branchListIndexes;
     if(productRegistry().productProduced(InEvent)) {
       // Add index into BranchIDListRegistry for products produced this process
-      branchListIndexes_->push_back(productRegistry().producedBranchListIndex());
+      branchListIndexes_.push_back(productRegistry().producedBranchListIndex());
+    }
+    fillEventPrincipal(aux,processHistoryRegistry,reader);
+  }
+
+  void
+  EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
+                                     ProcessHistoryRegistry const& processHistoryRegistry,
+                                     DelayedReader* reader) {
+    fillPrincipal(aux.processHistoryID(), processHistoryRegistry, reader);
+    aux_ = aux;
+    aux_.setProcessHistoryID(processHistoryID());
+    
+    if(branchListIndexes_.empty() and productRegistry().productProduced(InEvent)) {
+      // Add index into BranchIDListRegistry for products produced this process
+      //  if it hasn't already been filled in by the other fillEventPrincipal or by an earlier call to this function
+      branchListIndexes_.push_back(productRegistry().producedBranchListIndex());
     }
 
     // Fill in helper map for Branch to ProductID mapping
     ProcessIndex pix = 0;
-    for(auto const& blindex : *branchListIndexes_) {
+    for(auto const& blindex : branchListIndexes_) {
       branchListIndexToProcessIndex_.insert(std::make_pair(blindex, pix));
       ++pix;
     }
@@ -176,7 +180,7 @@ namespace edm {
       throw Exception(errors::ProductNotFound, "InvalidID")
         << "get by product ID: invalid ProductID supplied\n";
     }
-    return productIDToBranchID(pid, branchIDListHelper_->branchIDLists(), *branchListIndexes_);
+    return productIDToBranchID(pid, branchIDListHelper_->branchIDLists(), branchListIndexes_);
   }
 
   ProductID
@@ -268,12 +272,12 @@ namespace edm {
 
   EventSelectionIDVector const&
   EventPrincipal::eventSelectionIDs() const {
-    return *eventSelectionIDs_;
+    return eventSelectionIDs_;
   }
 
   BranchListIndexes const&
   EventPrincipal::branchListIndexes() const {
-    return *branchListIndexes_;
+    return branchListIndexes_;
   }
 
   bool

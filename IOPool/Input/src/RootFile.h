@@ -207,8 +207,8 @@ namespace edm {
     int forcedRunOffset_;
     std::map<std::string, std::string> newBranchToOldBranch_;
     TTree* eventHistoryTree_;			// backward compatibility
-    boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs_;
-    boost::shared_ptr<BranchListIndexes> branchListIndexes_;
+    EventSelectionIDVector eventSelectionIDs_;
+    BranchListIndexes branchListIndexes_;
     std::unique_ptr<History> history_; // backward compatibility
     boost::shared_ptr<BranchChildren> branchChildren_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;

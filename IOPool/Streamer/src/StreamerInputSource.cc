@@ -267,10 +267,10 @@ namespace edm {
       assert(eventOK);
       adjustEventToNewProductRegistry_ = false;
     }
-    boost::shared_ptr<EventSelectionIDVector> ids(new EventSelectionIDVector(sendEvent_->eventSelectionIDs()));
-    boost::shared_ptr<BranchListIndexes> indexes(new BranchListIndexes(sendEvent_->branchListIndexes()));
-    branchIDListHelper()->fixBranchListIndexes(*indexes);
-    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), processHistoryRegistry(), ids, indexes);
+    EventSelectionIDVector ids(sendEvent_->eventSelectionIDs());
+    BranchListIndexes indexes(sendEvent_->branchListIndexes());
+    branchIDListHelper()->fixBranchListIndexes(indexes);
+    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), processHistoryRegistry(), std::move(ids), std::move(indexes));
     eventPrincipalHolder_.setEventPrincipal(&eventPrincipal);
 
     // no process name list handling

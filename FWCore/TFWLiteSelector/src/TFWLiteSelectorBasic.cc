@@ -262,8 +262,8 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 //         std::cout << "  " << name << std::endl;
 //     }
 
-      boost::shared_ptr<edm::EventSelectionIDVector> eventSelectionIDs_(new edm::EventSelectionIDVector);
-      edm::EventSelectionIDVector* pEventSelectionIDVector = eventSelectionIDs_.get();
+      edm::EventSelectionIDVector eventSelectionIDs;
+      edm::EventSelectionIDVector* pEventSelectionIDVector = &eventSelectionIDs;
       TBranch* eventSelectionsBranch = m_->tree_->GetBranch(edm::poolNames::eventSelectionsBranchName().c_str());
       if(!eventSelectionsBranch) {
         throw edm::Exception(edm::errors::FatalRootError)
@@ -272,8 +272,8 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       eventSelectionsBranch->SetAddress(&pEventSelectionIDVector);
       eventSelectionsBranch->GetEntry(iEntry);
 
-      boost::shared_ptr<edm::BranchListIndexes> branchListIndexes_(new edm::BranchListIndexes);
-      edm::BranchListIndexes* pBranchListIndexes = branchListIndexes_.get();
+      edm::BranchListIndexes branchListIndexes;
+      edm::BranchListIndexes* pBranchListIndexes = &branchListIndexes;
       TBranch* branchListIndexBranch = m_->tree_->GetBranch(edm::poolNames::branchListIndexesBranchName().c_str());
       if(!branchListIndexBranch) {
         throw edm::Exception(edm::errors::FatalRootError)
@@ -281,7 +281,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       }
       branchListIndexBranch->SetAddress(&pBranchListIndexes);
       branchListIndexBranch->GetEntry(iEntry);
-      m_->branchIDListHelper_->fixBranchListIndexes(*branchListIndexes_);
+      m_->branchIDListHelper_->fixBranchListIndexes(branchListIndexes);
 
       try {
          m_->reader_->setEntry(iEntry);
@@ -291,7 +291,12 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
                 new edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
          boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(
                 new edm::LuminosityBlockPrincipal(lumiAux, m_->reg_, m_->pc_, nullptr, 0));
-         m_->ep_->fillEventPrincipal(*eaux, *m_->phreg_, eventSelectionIDs_, branchListIndexes_, m_->mapper_, m_->reader_.get());
+        m_->ep_->fillEventPrincipal(*eaux,
+                                    *m_->phreg_,
+                                    std::move(eventSelectionIDs),
+                                    std::move(branchListIndexes),
+                                    m_->mapper_,
+                                    m_->reader_.get());
          lbp->setRunPrincipal(rp);
          m_->ep_->setLuminosityBlockPrincipal(lbp);
          m_->processNames_ = m_->ep_->processHistory();

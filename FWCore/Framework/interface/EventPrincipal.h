@@ -58,10 +58,14 @@ namespace edm {
 
     void fillEventPrincipal(EventAuxiliary const& aux,
         ProcessHistoryRegistry const& processHistoryRegistry,
-        boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs = boost::shared_ptr<EventSelectionIDVector>(),
-        boost::shared_ptr<BranchListIndexes> branchListIndexes = boost::shared_ptr<BranchListIndexes>(),
-        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-        DelayedReader* reader = 0);
+                            DelayedReader* reader = 0);
+
+    void fillEventPrincipal(EventAuxiliary const& aux,
+                            ProcessHistoryRegistry const& processHistoryRegistry,
+                            EventSelectionIDVector&& eventSelectionIDs,
+                            BranchListIndexes&& branchListIndexes,
+                            boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
+                            DelayedReader* reader = 0);
 
     void clearEventPrincipal();
 
@@ -196,11 +200,11 @@ namespace edm {
 
     mutable std::vector<std::string> moduleLabelsRunning_;
 
-    boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs_;
+    EventSelectionIDVector eventSelectionIDs_;
 
     boost::shared_ptr<BranchIDListHelper const> branchIDListHelper_;
 
-    boost::shared_ptr<BranchListIndexes> branchListIndexes_;
+    BranchListIndexes branchListIndexes_;
 
     std::map<BranchListIndex, ProcessIndex> branchListIndexToProcessIndex_;
     
