@@ -1,7 +1,7 @@
 #include "CondTools/Ecal/interface/EcalTBWeightsXMLTranslator.h"
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -36,7 +36,7 @@ int EcalTBWeightsXMLTranslator::readXML(const std::string& filename,
 					EcalCondHeader& header,
 					EcalTBWeights&  record){
 
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
 
   XercesDOMParser* parser = new XercesDOMParser;
   parser->setValidationScheme( XercesDOMParser::Val_Never );
@@ -354,7 +354,7 @@ std::string EcalTBWeightsXMLTranslator::dumpXML(const EcalCondHeader& header,
 						const EcalTBWeights& record){
 
 
- XMLPlatformUtils::Initialize();
+ cms::concurrency::xercesInitialize();
   
   DOMImplementation*  impl =
     DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
@@ -398,7 +398,7 @@ std::string EcalTBWeightsXMLTranslator::dumpXML(const EcalCondHeader& header,
   std::string dump= toNative(writer->writeToString(*root)); 
   doc->release();
   
-  //   XMLPlatformUtils::Terminate();
+  //   cms::concurrency::xercesTerminate();
 
   return dump;
 }

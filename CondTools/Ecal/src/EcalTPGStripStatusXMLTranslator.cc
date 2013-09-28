@@ -4,7 +4,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -27,7 +27,7 @@ int  EcalTPGStripStatusXMLTranslator::readXML(const std::string& filename,
 					  EcalTPGStripStatus& record){
 
   std::cout << " TPGStripStatus should not be filled out from an xml file ..." << std::endl;
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
 
   XercesDOMParser* parser = new XercesDOMParser;
   parser->setValidationScheme( XercesDOMParser::Val_Never );
@@ -47,7 +47,7 @@ int  EcalTPGStripStatusXMLTranslator::readXML(const std::string& filename,
   xuti::readHeader(elementRoot,header);
 
   delete parser;
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
   return 0;
  }
 
@@ -62,7 +62,7 @@ int EcalTPGStripStatusXMLTranslator::writeXML(const std::string& filename,
 
 std::string EcalTPGStripStatusXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalTPGStripStatus& record){
 
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
   DOMImplementation*  impl =
     DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
 

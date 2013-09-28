@@ -23,7 +23,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
 
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <cstdlib>
 #ifndef _STAND_ALONE
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -88,7 +88,7 @@ public:
         }
       } 
     } 
-    xercesc::XMLPlatformUtils::Terminate();
+    cms::concurrency::xercesTerminate();
   };
 
   
@@ -164,7 +164,7 @@ public:
         }
       } 
     } 
-    xercesc::XMLPlatformUtils::Terminate();
+    cms::concurrency::xercesTerminate();
   };
   
   /** Returns the pointer to m_PAC for given LogCone defined by m_tower, logSector, logSegment.

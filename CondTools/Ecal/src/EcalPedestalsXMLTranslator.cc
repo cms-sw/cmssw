@@ -4,7 +4,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -24,7 +24,7 @@ int  EcalPedestalsXMLTranslator::readXML(const std::string& filename,
 					  EcalCondHeader& header,
 					  EcalPedestals& record){
 
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
 
   XercesDOMParser* parser = new XercesDOMParser;
   parser->setValidationScheme( XercesDOMParser::Val_Never );
@@ -97,7 +97,7 @@ int  EcalPedestalsXMLTranslator::readXML(const std::string& filename,
   } 
 
   delete parser;
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
   std::cout << " nb of channels found in xml file " << chan << std::endl;
   return 0;
  }
@@ -113,7 +113,7 @@ int EcalPedestalsXMLTranslator::writeXML(const std::string& filename,
 
 std::string EcalPedestalsXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalPedestals& record){
 
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
   DOMImplementation*  impl =
     DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
 

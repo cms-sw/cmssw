@@ -5,7 +5,7 @@
   \author B. Gobbo
 */
 
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
@@ -19,7 +19,7 @@ MonitorXMLParser::MonitorXMLParser( const std::string& fromFile ) {
 
   try{
 
-    xercesc::XMLPlatformUtils::Initialize();
+    cms::concurrency::xercesInitialize();
 
   }catch( xercesc::XMLException& e ){
 
@@ -44,7 +44,7 @@ MonitorXMLParser::MonitorXMLParser( const std::string& fromFile ) {
 MonitorXMLParser::~MonitorXMLParser() throw() {
 
   try{
-    xercesc::XMLPlatformUtils::Terminate();
+    cms::concurrency::xercesTerminate();
   } catch ( xercesc::XMLException& e ){
     char* message = xercesc::XMLString::transcode( e.getMessage() );
     std::cerr << "XML toolkit teardown error: " << message << std::endl;

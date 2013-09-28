@@ -8,6 +8,7 @@
 #include <sstream>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 
 class CalibrationXML  
 {
@@ -36,8 +37,8 @@ public:
 
         void closeFile() 
         {
-          if(errHandler) delete errHandler;
-          if(parser) {  delete parser; XMLPlatformUtils::Terminate(); } 
+          delete errHandler;
+          delete parser; cms::concurrency::xercesTerminate();
           errHandler=0;
           parser=0;
         } 	

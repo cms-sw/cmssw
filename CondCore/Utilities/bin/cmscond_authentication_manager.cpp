@@ -8,6 +8,7 @@
 #include "CondCore/Utilities/interface/Utilities.h"
 //
 #include "RelationalAccess/AuthenticationCredentials.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
 //
 #include <iostream>
 #include <fstream>
@@ -405,7 +406,7 @@ bool coral_bridge::parseXMLAuthenticationFile( const std::string& inputFileName,
 					       AuthenticationCredentialSet& data){
   try
   {
-    xercesc::XMLPlatformUtils::Initialize();
+    cms::concurrency::xercesInitialize();
   }
   catch ( const xercesc::XMLException& toCatch )
   {
@@ -543,7 +544,7 @@ bool coral_bridge::parseXMLAuthenticationFile( const std::string& inputFileName,
     result = false;
   }
 
-  xercesc::XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
 
   return result;
 }

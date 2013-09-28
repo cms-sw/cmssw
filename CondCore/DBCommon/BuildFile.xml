@@ -3,6 +3,7 @@
 <use   name="CoralKernel"/>
 <use   name="RelationalAccess"/>
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/Concurrency"/>
 <use   name="CondCore/ORA"/>
 <export>
   <lib   name="1"/>

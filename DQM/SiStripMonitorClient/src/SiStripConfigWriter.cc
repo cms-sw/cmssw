@@ -18,7 +18,7 @@ SiStripConfigWriter::~SiStripConfigWriter() {
 // -- Initialize XML
 // 
 bool SiStripConfigWriter::init(std::string main) {
-  xercesc::XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
 
   xercesc::DOMImplementation* domImpl = xercesc::DOMImplementationRegistry::getDOMImplementation(qtxml::_toDOMS("Range"));
   if (!domImpl) return false;
