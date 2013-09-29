@@ -170,7 +170,7 @@ namespace edm {
                                     std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile);
 
     std::unique_ptr<MakeProvenanceReader> makeProvenanceReaderMaker();
-    boost::shared_ptr<ProductProvenanceRetriever> makeBranchMapper();
+    boost::shared_ptr<ProductProvenanceRetriever> makeProductProvenanceRetriever();
 
     std::string const file_;
     std::string const logicalFile_;
@@ -214,7 +214,7 @@ namespace edm {
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     std::unique_ptr<ProvenanceAdaptor> provenanceAdaptor_; // backward comatibility
     std::unique_ptr<MakeProvenanceReader> provenanceReaderMaker_;
-    mutable boost::shared_ptr<ProductProvenanceRetriever> eventBranchMapper_;
+    mutable boost::shared_ptr<ProductProvenanceRetriever> eventProductProvenanceRetriever_;
     std::vector<ParentageID> parentageIDLookup_;
     std::unique_ptr<DaqProvenanceHelper> daqProvenanceHelper_;
   }; // class RootFile

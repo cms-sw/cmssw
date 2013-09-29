@@ -309,7 +309,7 @@ namespace edm {
                           processHistoryRegistry,
                           std::move(esids),
                           std::move(bli),
-                          principal.branchMapperPtr(),
+                          principal.productProvenanceRetrieverPtr(),
                           principal.reader());
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);

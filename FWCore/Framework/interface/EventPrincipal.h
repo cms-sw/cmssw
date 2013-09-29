@@ -64,7 +64,7 @@ namespace edm {
                             ProcessHistoryRegistry const& processHistoryRegistry,
                             EventSelectionIDVector&& eventSelectionIDs,
                             BranchListIndexes&& branchListIndexes,
-                            boost::shared_ptr<ProductProvenanceRetriever> mapper = boost::shared_ptr<ProductProvenanceRetriever>(new ProductProvenanceRetriever),
+                            boost::shared_ptr<ProductProvenanceRetriever> provRetriever = boost::shared_ptr<ProductProvenanceRetriever>(new ProductProvenanceRetriever),
                             DelayedReader* reader = 0);
 
     void clearEventPrincipal();
@@ -125,7 +125,7 @@ namespace edm {
 
     RunPrincipal const& runPrincipal() const;
 
-    boost::shared_ptr<ProductProvenanceRetriever> branchMapperPtr() const {return branchMapperPtr_;}
+    boost::shared_ptr<ProductProvenanceRetriever> productProvenanceRetrieverPtr() const {return provRetrieverPtr_;}
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler);
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler() const;
@@ -154,8 +154,8 @@ namespace edm {
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 
-    void mergeMappers(EventPrincipal const& other) {
-      branchMapperPtr_->mergeMappers(other.branchMapperPtr());
+    void mergeProvenanceRetrievers(EventPrincipal const& other) {
+      provRetrieverPtr_->mergeProvenanceRetrievers(other.productProvenanceRetrieverPtr());
     }
 
     using Base::getProvenance;
@@ -193,7 +193,7 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
 
     // Pointer to the 'mapper' that will get provenance information from the persistent store.
-    boost::shared_ptr<ProductProvenanceRetriever> branchMapperPtr_;
+    boost::shared_ptr<ProductProvenanceRetriever> provRetrieverPtr_;
 
     // Handler for unscheduled modules
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;

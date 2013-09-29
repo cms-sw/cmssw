@@ -38,7 +38,7 @@ namespace edm {
 
     void insertIntoSet(ProductProvenance const& provenanceProduct) const;
 
-    void mergeMappers(boost::shared_ptr<ProductProvenanceRetriever> other);
+    void mergeProvenanceRetrievers(boost::shared_ptr<ProductProvenanceRetriever> other);
 
     void reset();
   private:
@@ -47,7 +47,7 @@ namespace edm {
     typedef std::set<ProductProvenance> eiSet;
 
     mutable eiSet entryInfoSet_;
-    boost::shared_ptr<ProductProvenanceRetriever> nextMapper_;
+    boost::shared_ptr<ProductProvenanceRetriever> nextRetriever_;
     mutable bool delayedRead_;
     mutable boost::scoped_ptr<ProvenanceReaderBase> provenanceReader_;
   };

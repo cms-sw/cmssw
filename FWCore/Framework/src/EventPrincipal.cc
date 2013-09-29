@@ -27,7 +27,7 @@ namespace edm {
     Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender),
           aux_(),
           luminosityBlockPrincipal_(),
-          branchMapperPtr_(new ProductProvenanceRetriever),
+          provRetrieverPtr_(new ProductProvenanceRetriever),
           unscheduledHandler_(),
           moduleLabelsRunning_(),
           eventSelectionIDs_(),
@@ -41,7 +41,7 @@ namespace edm {
     clearPrincipal();
     aux_ = EventAuxiliary();
     luminosityBlockPrincipal_.reset();
-    branchMapperPtr_.reset(new ProductProvenanceRetriever);
+    provRetrieverPtr_.reset(new ProductProvenanceRetriever);
     unscheduledHandler_.reset();
     moduleLabelsRunning_.clear();
     branchListIndexToProcessIndex_.clear();
@@ -52,10 +52,10 @@ namespace edm {
         ProcessHistoryRegistry const& processHistoryRegistry,
         EventSelectionIDVector&& eventSelectionIDs,
         BranchListIndexes&& branchListIndexes,
-        boost::shared_ptr<ProductProvenanceRetriever> mapper,
+        boost::shared_ptr<ProductProvenanceRetriever> provRetriever,
         DelayedReader* reader) {
     eventSelectionIDs_ = eventSelectionIDs;
-    branchMapperPtr_ = mapper;
+    provRetrieverPtr_ = provRetriever;
     branchListIndexes_ = branchListIndexes;
     if(branchIDListHelper_->hasProducedProducts()) {
       // Add index into BranchIDListRegistry for products produced this process
@@ -88,7 +88,7 @@ namespace edm {
     // Fill in the product ID's in the product holders.
     for(auto const& prod : *this) {
       if (prod->singleProduct()) {
-        prod->setProvenance(branchMapperPtr(), processHistory(), branchIDToProductID(prod->branchDescription().branchID()));
+        prod->setProvenance(productProvenanceRetrieverPtr(), processHistory(), branchIDToProductID(prod->branchDescription().branchID()));
       }
     }
   }
@@ -124,7 +124,7 @@ namespace edm {
         << "put: Cannot put because ptr to product is null."
         << "\n";
     }
-    branchMapperPtr()->insertIntoSet(productProvenance);
+    productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
     ProductHolderBase* phb = getExistingProduct(bd.branchID());
     assert(phb);
     checkUniquenessAndType(edp, phb);
@@ -139,7 +139,7 @@ namespace edm {
         ProductProvenance const& productProvenance) {
 
     assert(!bd.produced());
-    branchMapperPtr()->insertIntoSet(productProvenance);
+    productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
     ProductHolderBase* phb = getExistingProduct(bd.branchID());
     assert(phb);
     WrapperOwningHolder const edp(product, phb->productData().getInterface());

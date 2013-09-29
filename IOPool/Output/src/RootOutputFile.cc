@@ -649,7 +649,7 @@ namespace edm {
     assert(om_->dropMetaData() != PoolOutputModule::DropAll);
     assert(produced || om_->dropMetaData() != PoolOutputModule::DropPrior);
     if(om_->dropMetaData() == PoolOutputModule::DropDroppedPrior && !produced) return;
-    ProductProvenanceRetriever const& iMapper = *principal.branchMapperPtr();
+    ProductProvenanceRetriever const& iMapper = *principal.productProvenanceRetrieverPtr();
     std::vector<BranchID> const& parentIDs = iGetParents.parentage().parents();
     for(auto const& parentID : parentIDs) {
       branchesWithStoredHistory_.insert(parentID);
@@ -701,7 +701,7 @@ namespace edm {
         insertProductProvenance(*oh.productProvenance(),provenanceToKeep);
         //provenanceToKeep.insert(*oh.productProvenance());
         EventPrincipal const& eventPrincipal = dynamic_cast<EventPrincipal const&>(principal);
-        assert(eventPrincipal.branchMapperPtr());
+        assert(eventPrincipal.productProvenanceRetrieverPtr());
         insertAncestors(*oh.productProvenance(), eventPrincipal, produced, provenanceToKeep, mcc);
       }
       product = oh.wrapper();

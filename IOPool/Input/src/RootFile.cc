@@ -201,7 +201,7 @@ namespace edm {
       duplicateChecker_(duplicateChecker),
       provenanceAdaptor_(),
       provenanceReaderMaker_(),
-      eventBranchMapper_(),
+      eventProductProvenanceRetriever_(),
       parentageIDLookup_(),
       daqProvenanceHelper_() {
 
@@ -1390,7 +1390,7 @@ namespace edm {
                                  *processHistoryRegistry_,
                                  std::move(eventSelectionIDs_),
                                  std::move(branchListIndexes_),
-                                 makeBranchMapper(),
+                                 makeProductProvenanceRetriever(),
                                  eventTree_.rootDelayedReader());
 
     // report event read from file
@@ -1731,12 +1731,12 @@ namespace edm {
   }
 
   boost::shared_ptr<ProductProvenanceRetriever>
-  RootFile::makeBranchMapper() {
-    if(!eventBranchMapper_) {
-      eventBranchMapper_.reset(new ProductProvenanceRetriever(provenanceReaderMaker_->makeReader(eventTree_, daqProvenanceHelper_.get())));
+  RootFile::makeProductProvenanceRetriever() {
+    if(!eventProductProvenanceRetriever_) {
+      eventProductProvenanceRetriever_.reset(new ProductProvenanceRetriever(provenanceReaderMaker_->makeReader(eventTree_, daqProvenanceHelper_.get())));
     }
-    eventBranchMapper_->reset();
-    return eventBranchMapper_;
+    eventProductProvenanceRetriever_->reset();
+    return eventProductProvenanceRetriever_;
   }
 
   class ReducedProvenanceReader : public ProvenanceReaderBase {

@@ -11,14 +11,14 @@
 namespace edm {
   ProductProvenanceRetriever::ProductProvenanceRetriever() :
       entryInfoSet_(),
-      nextMapper_(),
+      nextRetriever_(),
       delayedRead_(false),
       provenanceReader_() {
   }
 
   ProductProvenanceRetriever::ProductProvenanceRetriever(std::unique_ptr<ProvenanceReaderBase> reader) :
       entryInfoSet_(),
-      nextMapper_(),
+      nextRetriever_(),
       delayedRead_(true),
       provenanceReader_(reader.release()) {
     assert(provenanceReader_);
@@ -50,8 +50,8 @@ namespace edm {
   }
  
   void
-  ProductProvenanceRetriever::mergeMappers(boost::shared_ptr<ProductProvenanceRetriever> other) {
-    nextMapper_ = other;
+  ProductProvenanceRetriever::mergeProvenanceRetrievers(boost::shared_ptr<ProductProvenanceRetriever> other) {
+    nextRetriever_ = other;
   }
 
   ProductProvenance const*
@@ -60,8 +60,8 @@ namespace edm {
     ProductProvenance ei(bid);
     eiSet::const_iterator it = entryInfoSet_.find(ei);
     if(it == entryInfoSet_.end()) {
-      if(nextMapper_) {
-        return nextMapper_->branchIDToProvenance(bid);
+      if(nextRetriever_) {
+        return nextRetriever_->branchIDToProvenance(bid);
       } else {
         return 0;
       }

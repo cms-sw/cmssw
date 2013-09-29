@@ -106,7 +106,7 @@ namespace edm {
    void
    ProvenanceCheckerOutputModule::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
       //check ProductProvenance's parents to see if they are in the ProductProvenance list
-      boost::shared_ptr<ProductProvenanceRetriever> mapperPtr = e.branchMapperPtr();
+      boost::shared_ptr<ProductProvenanceRetriever> mapperPtr = e.productProvenanceRetrieverPtr();
 
       std::map<BranchID, bool> seenParentInPrincipal;
       std::set<BranchID> missingFromMapper;
