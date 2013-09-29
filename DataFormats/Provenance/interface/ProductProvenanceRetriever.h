@@ -3,7 +3,7 @@
 
 /*----------------------------------------------------------------------
   
-BranchMapper: Manages the per event/lumi/run per product provenance.
+ProductProvenanceRetriever: Manages the per event/lumi/run per product provenance.
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Provenance/interface/BranchID.h"
@@ -19,26 +19,26 @@ BranchMapper: Manages the per event/lumi/run per product provenance.
 #include <set>
 
 /*
-  BranchMapper
+  ProductProvenanceRetriever
 */
 
 namespace edm {
   class ProvenanceReaderBase;
 
-  class BranchMapper : private boost::noncopyable {
+  class ProductProvenanceRetriever : private boost::noncopyable {
   public:
-    BranchMapper();
+    ProductProvenanceRetriever();
 #ifndef __GCCXML__
-    explicit BranchMapper(std::unique_ptr<ProvenanceReaderBase> reader);
+    explicit ProductProvenanceRetriever(std::unique_ptr<ProvenanceReaderBase> reader);
 #endif
 
-    ~BranchMapper();
+    ~ProductProvenanceRetriever();
 
     ProductProvenance const* branchIDToProvenance(BranchID const& bid) const;
 
     void insertIntoSet(ProductProvenance const& provenanceProduct) const;
 
-    void mergeMappers(boost::shared_ptr<BranchMapper> other);
+    void mergeMappers(boost::shared_ptr<ProductProvenanceRetriever> other);
 
     void reset();
   private:
@@ -47,7 +47,7 @@ namespace edm {
     typedef std::set<ProductProvenance> eiSet;
 
     mutable eiSet entryInfoSet_;
-    boost::shared_ptr<BranchMapper> nextMapper_;
+    boost::shared_ptr<ProductProvenanceRetriever> nextMapper_;
     mutable bool delayedRead_;
     mutable boost::scoped_ptr<ProvenanceReaderBase> provenanceReader_;
   };
@@ -56,7 +56,7 @@ namespace edm {
   public:
     ProvenanceReaderBase() {}
     virtual ~ProvenanceReaderBase();
-    virtual void readProvenance(BranchMapper const& mapper) const = 0;
+    virtual void readProvenance(ProductProvenanceRetriever const& mapper) const = 0;
   };
   
 }

@@ -27,7 +27,7 @@ namespace edm {
     Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender),
           aux_(),
           luminosityBlockPrincipal_(),
-          branchMapperPtr_(new BranchMapper),
+          branchMapperPtr_(new ProductProvenanceRetriever),
           unscheduledHandler_(),
           moduleLabelsRunning_(),
           eventSelectionIDs_(),
@@ -41,7 +41,7 @@ namespace edm {
     clearPrincipal();
     aux_ = EventAuxiliary();
     luminosityBlockPrincipal_.reset();
-    branchMapperPtr_.reset(new BranchMapper);
+    branchMapperPtr_.reset(new ProductProvenanceRetriever);
     unscheduledHandler_.reset();
     moduleLabelsRunning_.clear();
     branchListIndexToProcessIndex_.clear();
@@ -52,7 +52,7 @@ namespace edm {
         ProcessHistoryRegistry const& processHistoryRegistry,
         EventSelectionIDVector&& eventSelectionIDs,
         BranchListIndexes&& branchListIndexes,
-        boost::shared_ptr<BranchMapper> mapper,
+        boost::shared_ptr<ProductProvenanceRetriever> mapper,
         DelayedReader* reader) {
     eventSelectionIDs_ = eventSelectionIDs;
     branchMapperPtr_ = mapper;

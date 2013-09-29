@@ -1,22 +1,22 @@
-#include "DataFormats/Provenance/interface/BranchMapper.h"
+#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cassert>
 #include <iostream>
 
 /*
-  BranchMapper
+  ProductProvenanceRetriever
 */
 
 namespace edm {
-  BranchMapper::BranchMapper() :
+  ProductProvenanceRetriever::ProductProvenanceRetriever() :
       entryInfoSet_(),
       nextMapper_(),
       delayedRead_(false),
       provenanceReader_() {
   }
 
-  BranchMapper::BranchMapper(std::unique_ptr<ProvenanceReaderBase> reader) :
+  ProductProvenanceRetriever::ProductProvenanceRetriever(std::unique_ptr<ProvenanceReaderBase> reader) :
       entryInfoSet_(),
       nextMapper_(),
       delayedRead_(true),
@@ -24,10 +24,10 @@ namespace edm {
     assert(provenanceReader_);
   }
 
-  BranchMapper::~BranchMapper() {}
+  ProductProvenanceRetriever::~ProductProvenanceRetriever() {}
 
   void
-  BranchMapper::readProvenance() const {
+  ProductProvenanceRetriever::readProvenance() const {
     if(delayedRead_ && provenanceReader_) {
       provenanceReader_->readProvenance(*this);
       delayedRead_ = false; // only read once
@@ -35,13 +35,13 @@ namespace edm {
   }
 
   void
-  BranchMapper::reset() {
+  ProductProvenanceRetriever::reset() {
     entryInfoSet_.clear();
     delayedRead_ = true;
   }
 
   void
-  BranchMapper::insertIntoSet(ProductProvenance const& entryInfo) const {
+  ProductProvenanceRetriever::insertIntoSet(ProductProvenance const& entryInfo) const {
     //NOTE:do not read provenance here because we only need the full
     // provenance when someone tries to access it not when doing the insert
     // doing the delay saves 20% of time when doing an analysis job
@@ -50,12 +50,12 @@ namespace edm {
   }
  
   void
-  BranchMapper::mergeMappers(boost::shared_ptr<BranchMapper> other) {
+  ProductProvenanceRetriever::mergeMappers(boost::shared_ptr<ProductProvenanceRetriever> other) {
     nextMapper_ = other;
   }
 
   ProductProvenance const*
-  BranchMapper::branchIDToProvenance(BranchID const& bid) const {
+  ProductProvenanceRetriever::branchIDToProvenance(BranchID const& bid) const {
     readProvenance();
     ProductProvenance ei(bid);
     eiSet::const_iterator it = entryInfoSet_.find(ei);

@@ -239,7 +239,7 @@ namespace edm {
     productData().wrapper_ = prod.product();
   }
 
-  void InputProductHolder::setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistory const& ph, ProductID const& pid) {
+  void InputProductHolder::setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> mapper, ProcessHistory const& ph, ProductID const& pid) {
     productData().prov_.setProductID(pid);
     productData().prov_.setStore(mapper);
     productData().prov_.setProcessHistory(ph);
@@ -313,7 +313,7 @@ namespace edm {
     status() = ProductDeleted;
   }
 
-  void ProducedProductHolder::setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistory const& ph, ProductID const& pid) {
+  void ProducedProductHolder::setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> mapper, ProcessHistory const& ph, ProductID const& pid) {
     productData().prov_.setProductID(pid);
     productData().prov_.setStore(mapper);
     productData().prov_.setProcessHistory(ph);
@@ -428,7 +428,7 @@ namespace edm {
     return nullptr;
   }
 
-  void AliasProductHolder::setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistory const& ph, ProductID const& pid) {
+  void AliasProductHolder::setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> mapper, ProcessHistory const& ph, ProductID const& pid) {
     productData().prov_.setProductID(pid);
     productData().prov_.setStore(mapper);
     productData().prov_.setProcessHistory(ph);
@@ -464,7 +464,7 @@ namespace edm {
   void NoProcessProductHolder::resetStatus_() {
   }
 
-  void NoProcessProductHolder::setProvenance_(boost::shared_ptr<BranchMapper> mapper, ProcessHistory const& ph, ProductID const& pid) {
+  void NoProcessProductHolder::setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> mapper, ProcessHistory const& ph, ProductID const& pid) {
   }
 
   void NoProcessProductHolder::setProcessHistory_(ProcessHistory const& ph) {

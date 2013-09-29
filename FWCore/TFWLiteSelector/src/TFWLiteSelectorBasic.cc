@@ -20,7 +20,7 @@
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
-#include "DataFormats/Provenance/interface/BranchMapper.h"
+#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventEntryDescription.h" // kludge to allow compilation
@@ -122,7 +122,7 @@ namespace edm {
       reader_(new FWLiteDelayedReader),
       prov_(),
       pointerToBranchBuffer_(),
-      mapper_(new edm::BranchMapper) {
+      mapper_(new edm::ProductProvenanceRetriever) {
         reader_->set(reg_);
       }
       void setTree(TTree* iTree) {
@@ -139,7 +139,7 @@ namespace edm {
       std::vector<EventEntryDescription*> pointerToBranchBuffer_;
       FileFormatVersion fileFormatVersion_;
 
-      boost::shared_ptr<edm::BranchMapper> mapper_;
+      boost::shared_ptr<edm::ProductProvenanceRetriever> mapper_;
       edm::ProcessConfiguration pc_;
       boost::shared_ptr<edm::EventPrincipal> ep_;
       edm::ModuleDescription md_;

@@ -649,7 +649,7 @@ namespace edm {
     assert(om_->dropMetaData() != PoolOutputModule::DropAll);
     assert(produced || om_->dropMetaData() != PoolOutputModule::DropPrior);
     if(om_->dropMetaData() == PoolOutputModule::DropDroppedPrior && !produced) return;
-    BranchMapper const& iMapper = *principal.branchMapperPtr();
+    ProductProvenanceRetriever const& iMapper = *principal.branchMapperPtr();
     std::vector<BranchID> const& parentIDs = iGetParents.parentage().parents();
     for(auto const& parentID : parentIDs) {
       branchesWithStoredHistory_.insert(parentID);
