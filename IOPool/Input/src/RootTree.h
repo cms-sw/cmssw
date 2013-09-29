@@ -115,6 +115,23 @@ namespace edm {
       getEntry(branch, entryNumber_);
     }
 
+    template <typename T>
+    void fillBranchEntryMeta(TBranch* branch, EntryNumber entryNumber, T*& pbuf) {
+      if (metaTree_ != 0) {
+        // Metadata was in separate tree.  Not cached.
+        branch->SetAddress(&pbuf);
+        roottree::getEntry(branch, entryNumber);
+      } else {
+        fillBranchEntry<T>(branch, entryNumber, pbuf);
+      }
+    }
+    
+    template <typename T>
+    void fillBranchEntry(TBranch* branch, EntryNumber entryNumber, T*& pbuf) {
+      branch->SetAddress(&pbuf);
+      getEntry(branch, entryNumber);
+    }
+    
     TTree const* tree() const {return tree_;}
     TTree* tree() {return tree_;}
     TTree const* metaTree() const {return metaTree_;}
