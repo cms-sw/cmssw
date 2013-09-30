@@ -91,7 +91,13 @@ def produceDphiDict(filesDir, outFileName):
 
     ## close the output file
     outfile.close()
+
+    ## print some additional information
     print "dPhi library written to:", outfile.name
+    outfile = open("%s"%(outFileName),"r")
+    print outfile.read()
+    outfile.close()
+
 
 if __name__ == "__main__":  
     produceDphiDict("files/", "GEMCSCdPhiDict.py")
