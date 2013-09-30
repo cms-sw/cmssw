@@ -401,7 +401,13 @@ namespace edm {
     }
 
     eventTree_.trainCache(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
-
+        
+    // Update the branch id info. This has to be done before validateFile since
+    // depending on the file format, the branchIDListHelper_ may have its fixBranchListIndexes call made
+    if(inputType == InputType::Primary || inputType == InputType::SecondarySource) {
+      branchListIndexesUnchanged_ = branchIDListHelper_->updateFromInput(*branchIDLists_);
+    }
+        
     validateFile(inputType, usingGoToEvent);
 
     // Here, we make the class that will make the ProvenanceReader
@@ -465,11 +471,6 @@ namespace edm {
 
     // Determine if this file is fast clonable.
     setIfFastClonable(remainingEvents, remainingLumis);
-
-    // Update the branch id info.
-    if(inputType == InputType::Primary || inputType == InputType::SecondarySource) {
-      branchListIndexesUnchanged_ = branchIDListHelper_->updateFromInput(*branchIDLists_);
-    }
 
     setRefCoreStreamer(true);  // backward compatibility
 
