@@ -28,7 +28,8 @@ process.GEMSimHitAnalyzer.simTrackMatching.cscWireDigiInput = ""
 process.GEMSimHitAnalyzer.simTrackMatching.cscCLCTInput = ""
 process.GEMSimHitAnalyzer.simTrackMatching.cscALCTInput = ""
 process.GEMSimHitAnalyzer.simTrackMatching.cscLCTInput = ""
-
+process.GEMSimHitAnalyzer.simTrackMatching.gemRecHitInput = ""
+ 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )

@@ -25,6 +25,7 @@ process.GEMDigiAnalyzer.simTrackMatching.cscWireDigiInput = ""
 process.GEMDigiAnalyzer.simTrackMatching.cscCLCTInput = ""
 process.GEMDigiAnalyzer.simTrackMatching.cscALCTInput = ""
 process.GEMDigiAnalyzer.simTrackMatching.cscLCTInput = ""
+process.GEMSimHitAnalyzer.simTrackMatching.gemRecHitInput = ""
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 

@@ -138,7 +138,6 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png", useReverse
     else:
         c.SaveAs("%sGEMCSCdPhi_%s_chambers%s"%(plotDir, oddEven, ext))
 
-
 if __name__ == "__main__":  
     plotGEMCSCdPhi("files/", "plots/bending/", "even", ".eps", False)
     plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".eps", False)
@@ -153,5 +152,3 @@ if __name__ == "__main__":
     plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".pdf", True)
     plotGEMCSCdPhi("files/", "plots/bending/", "even", ".png", True)
     plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".png", True)
-
-

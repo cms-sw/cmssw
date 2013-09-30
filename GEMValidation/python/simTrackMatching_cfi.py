@@ -38,5 +38,7 @@ SimTrackMatching = cms.PSet(
     minBXALCT = cms.untracked.int32(3),
     maxBXALCT = cms.untracked.int32(8),
     minBXLCT = cms.untracked.int32(3),
-    maxBXLCT = cms.untracked.int32(8)
+    maxBXLCT = cms.untracked.int32(8),
+    ## GEM RecHit
+    gemRecHitInput = cms.untracked.InputTag("gemRecHits")
 )
