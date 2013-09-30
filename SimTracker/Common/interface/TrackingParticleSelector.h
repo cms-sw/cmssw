@@ -1,5 +1,5 @@
-#ifndef RecoSelectors_TrackingParticleSelector_h
-#define RecoSelectors_TrackingParticleSelector_h
+#ifndef SimTracker_Common_TrackingParticleSelector_h
+#define SimTracker_Common_TrackingParticleSelector_h
 /* \class TrackingParticleSelector
  *
  * \author Giuseppe Cerati, INFN
