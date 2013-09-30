@@ -3,8 +3,9 @@
 
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 
 class DDConstant;
 
@@ -25,7 +26,7 @@ public:
    DDConstant(const DDName & name, double* value);
    
    //! creates all DDConstants from the variables of the ClhepEvaluator
-   static void createConstantsFromEvaluator();
+   static void createConstantsFromEvaluator(ClhepEvaluator &evaluator);
       
    //! return the first stored value; does not check boundaries!
    double value() const { return rep(); }

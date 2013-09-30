@@ -1,4 +1,4 @@
-#include "FWCore/PluginManager/interface/PluginManager.h"
+
 #include "FWCore/PluginManager/interface/standard.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
@@ -30,7 +30,8 @@ int main(int argc, char *argv[])
     // (DDL ... Detector Description Language)
     std::cout << "initialize DDL parser" << std::endl;
     DDCompactView ddcpv;
-    DDLParser myP(ddcpv);
+    DDLElementRegistry registry;
+    DDLParser myP(ddcpv, registry);
     myP.getDDLSAX2FileHandler()->setUserNS(false);
 
     std::cout << "about to set configuration" << std::endl;

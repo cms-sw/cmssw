@@ -1,8 +1,5 @@
 #include "DetectorDescription/Core/interface/DDConstant.h"
 
-// Evaluator 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-
 DDConstant::DDConstant() : DDBase<DDName,double*>() { }
 
 
@@ -31,30 +28,21 @@ std::ostream & operator<<(std::ostream & os, const DDConstant & cons)
 }
 
 
-void DDConstant::createConstantsFromEvaluator()
+void DDConstant::createConstantsFromEvaluator(ClhepEvaluator &evaluator)
 {
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
-  ClhepEvaluator * eval = dynamic_cast<ClhepEvaluator*>(&ev);
-  if (eval){
-    const std::vector<std::string> & vars = eval->variables();
-    const std::vector<std::string> & vals = eval->values();
-    if (vars.size() != vals.size()) {
-      throw cms::Exception("DDException") << "DDConstants::createConstansFromEvaluator(): different size of variable names & values!";
-    }
-    size_t i(0), s(vars.size());
-    for (; i<s; ++i) {
-      const std::string & sr = vars[i];
-      typedef std::string::size_type ST;
-      ST i1 = sr.find("___");
-      DDName name(std::string(sr,i1+3,sr.size()-1),std::string(sr,0,i1));       
-      double* dv = new double;
-      *dv = eval->eval(sr.c_str());
-      DDConstant cst(name,dv);//(ddname); 
-    }  
+  const std::vector<std::string> & vars = evaluator.variables();
+  const std::vector<std::string> & vals = evaluator.values();
+  if (vars.size() != vals.size()) {
+    throw cms::Exception("DDException") << "DDConstants::createConstansFromEvaluator(): different size of variable names & values!";
   }
-  else {
-    throw cms::Exception("DDException") << "DDConstants::createConstansFromEvaluator(): expression-evaluator is not a ClhepEvaluator-implementation!";
+  size_t i(0), s(vars.size());
+  for (; i<s; ++i) {
+    const std::string & sr = vars[i];
+    typedef std::string::size_type ST;
+    ST i1 = sr.find("___");
+    DDName name(std::string(sr,i1+3,sr.size()-1),std::string(sr,0,i1));       
+    double* dv = new double;
+    *dv = evaluator.eval(sr.c_str());
+    DDConstant cst(name,dv);//(ddname); 
   }
 }
-
-

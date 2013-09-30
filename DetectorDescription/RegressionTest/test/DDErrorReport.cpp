@@ -71,8 +71,9 @@ int main(int argc, char *argv[])
       return 1;
     }
 
+    DDLElementRegistry registry;
     DDCompactView cpv;
-    DDLParser myP(cpv);
+    DDLParser myP(cpv, registry);
     myP.getDDLSAX2FileHandler()->setUserNS(false);
 
     /* The configuration file tells the parser what to parse.

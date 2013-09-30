@@ -126,7 +126,8 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
    DDLogicalPart rootNode(ddName);
    DDRootDef::instance().set(rootNode);
    ReturnType returnValue(new DDCompactView(rootNode));
-   DDLParser parser(*returnValue);
+   DDLElementRegistry registry;
+   DDLParser parser(*returnValue, registry);
    parser.getDDLSAX2FileHandler()->setUserNS(true);
    parser.clearFiles();
    

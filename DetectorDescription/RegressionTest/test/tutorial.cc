@@ -35,8 +35,6 @@
 #include "DetectorDescription/Core/interface/DDNumberingScheme.h"
 #include "DetectorDescription/Core/interface/DDPath.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -479,8 +477,9 @@ while(moreQueries) {
         asStringBool = true;
 	
       double dv = 0.;
+      ClhepEvaluator evaluator;
       try {
-        dv = ExprEval::instance().eval("",v);
+        dv = evaluator.eval("",v);
       }
       catch (const DDException & e) {
         dv = 0;

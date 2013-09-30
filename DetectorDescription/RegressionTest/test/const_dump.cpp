@@ -21,8 +21,9 @@ int main(int argc, char *argv[])
     // Initialize a DDL Schema aware parser for DDL-documents
     // (DDL ... Detector Description Language)
     cout << "initialize DDL parser" << endl;
+    DDLElementRegistry registry;
     DDCompactView cpv;
-    DDLParser myP(cpv);
+    DDLParser myP(cpv, registry);
 
     /* The configuration file tells the parser what to parse.
        The sequence of files to be parsed does not matter but for one exception:
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
     DDErrorDetection ed(cpv);
     ed.report( cpv, std::cout);
 
-    DDConstant::createConstantsFromEvaluator();  // DDConstants are not being created by anyone... it confuses me!
+    DDConstant::createConstantsFromEvaluator(registry.evaluator());
     DDConstant::iterator<DDConstant> cit(DDConstant::begin()), ced(DDConstant::end());
     for(; cit != ced; ++cit) {
       cout << *cit << endl;

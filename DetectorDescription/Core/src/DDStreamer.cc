@@ -11,20 +11,21 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include<iomanip>
 
-DDStreamer::DDStreamer()
- : cpv_(0), o_(0), i_(0)
+DDStreamer::DDStreamer(ClhepEvaluator &evaluator)
+ : cpv_(0), o_(0), i_(0), evaluator_(evaluator)
  {
  }
 
-DDStreamer::DDStreamer(std::ostream & os)
- :  cpv_(0), o_(0), i_(0)
+DDStreamer::DDStreamer(ClhepEvaluator &evaluator, std::ostream & os)
+ :  cpv_(0), o_(0), i_(0), evaluator_(evaluator)
 {
   if (os) {
     o_ = &os;
@@ -34,8 +35,8 @@ DDStreamer::DDStreamer(std::ostream & os)
   }
 }
 
-DDStreamer::DDStreamer(std::istream & is)
- :  cpv_(0), o_(0), i_(0)
+DDStreamer::DDStreamer(ClhepEvaluator &evaluator, std::istream & is)
+ :  cpv_(0), o_(0), i_(0), evaluator_(evaluator)
 {
   if (is) {
     i_ = &is;
@@ -887,23 +888,16 @@ void DDStreamer::specs_read()
 void DDStreamer::vars_write()
 {
   std::ostream & os = *o_;
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
-  ClhepEvaluator * eval = dynamic_cast<ClhepEvaluator*>(&ev);
-  if (eval){
-    const std::vector<std::string> & vars = eval->variables();
-    const std::vector<std::string> & vals = eval->values();
-    if (vars.size() != vals.size()) {
-      throw cms::Exception("DDException") << "DDStreamer::vars_write(): different size of variable names & values!";
-    }
-    size_t i(0), s(vars.size());
-    os << s << std::endl;
-    for (; i<s; ++i) {
-      os << '"' << vars[i] << '"' << ' ' 
-         << '"' << vals[i] << '"' << std::endl; 
-    }  
+  const std::vector<std::string> & vars = evaluator_.variables();
+  const std::vector<std::string> & vals = evaluator_.values();
+  if (vars.size() != vals.size()) {
+    throw cms::Exception("DDException") << "DDStreamer::vars_write(): different size of variable names & values!";
   }
-  else {
-    throw cms::Exception("DDException") << "DDStreamer::vars_write(): expression-evaluator is not a ClhepEvaluator-implementation!";
+  size_t i(0), s(vars.size());
+  os << s << std::endl;
+  for (; i<s; ++i) {
+    os << '"' << vars[i] << '"' << ' ' 
+       << '"' << vals[i] << '"' << std::endl; 
   }
 }
 
@@ -912,23 +906,16 @@ void DDStreamer::vars_read()
 {
   DCOUT('Y', "DDStreamer::vars_read()");
   std::istream & is = *i_;
-  ClhepEvaluator & ev = ExprEvalSingleton::instance();
-  ClhepEvaluator * eval = dynamic_cast<ClhepEvaluator*>(&ev);
-  if (eval){
-    size_t n(0);
-    is >> n;
-    size_t i(0);
+  size_t n(0);
+  is >> n;
+  size_t i(0);
   
-    for(; i<n; ++i) {
-      std::string name(dd_get_delimit(is,'"'));
-      std::string value(dd_get_delimit(is,'"'));
-      eval->set(name,value);
-    }
+  for(; i<n; ++i) {
+    std::string name(dd_get_delimit(is,'"'));
+    std::string value(dd_get_delimit(is,'"'));
+    evaluator_.set(name,value);
   }
-  else {
-    throw cms::Exception("DDException") << "DDStreamer::vars_write(): expression-evaluator is not a ClhepEvaluator-implementation!";  
-  }
-  DDConstant::createConstantsFromEvaluator();
+  DDConstant::createConstantsFromEvaluator(evaluator_);
 }
 
 

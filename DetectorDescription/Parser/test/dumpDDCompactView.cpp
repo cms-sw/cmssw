@@ -21,6 +21,7 @@
 #include <fstream>
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
@@ -88,7 +89,8 @@ int main(int argc, char *argv[])
 
     std::cout << "main::initialize DDL parser" << std::endl;
     DDCompactView cpv;
-    DDLParser myP(cpv);// = DDLParser::instance();
+    DDLElementRegistry registry;
+    DDLParser myP(cpv, registry);
 
     //   std::cout << "main:: about to start parsing field configuration..." << std::endl;
     //   FIPConfiguration dp2;

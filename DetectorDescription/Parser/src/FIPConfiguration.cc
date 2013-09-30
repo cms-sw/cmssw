@@ -87,7 +87,8 @@ FIPConfiguration::readConfig( const std::string& filename, bool fullPath )
 
   // Set the parser to use the handler for the configuration file.
   // This makes sure the Parser is initialized and gets a handle to it.
-  DDLParser ddlp(cpv_);
+  DDLElementRegistry registry;
+  DDLParser ddlp(cpv_, registry);
   ddlp.getXMLParser()->setContentHandler(&configHandler_);
   ddlp.getXMLParser()->parse(absoluteFileName.c_str());
   const std::vector<std::string>& vURLs = configHandler_.getURLs();

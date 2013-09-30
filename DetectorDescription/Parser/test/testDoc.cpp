@@ -13,6 +13,7 @@
 #include <iostream>
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -31,7 +32,7 @@ class DDLTestDoc : public DDLDocumentProvider
 {
 public:
 
-  DDLTestDoc( void );
+  DDLTestDoc( DDLElementRegistry &registry);
   virtual ~DDLTestDoc();
 
   /// Return a list of files as a vector of strings.
@@ -50,7 +51,7 @@ public:
   std::string getSchemaLocation( void ) const;
 
   /// ReadConfig
-  virtual int readConfig( const std::string& filename );
+  virtual int readConfig( const std::string& filename);
 
   void push_back( std::string fileName, std::string url = std::string( "./" ));
 
@@ -80,6 +81,7 @@ private:
   std::vector < std::string > urls_;
   std::string schemaLoc_;
   bool validate_;
+  DDLElementRegistry &registry_;
 };
 
 //--------------------------------------------------------------------------
@@ -89,8 +91,9 @@ DDLTestDoc::~DDLTestDoc( void )
 { 
 }
 
-DDLTestDoc::DDLTestDoc( void )
-  : validate_(true)
+DDLTestDoc::DDLTestDoc(DDLElementRegistry &registry)
+  : validate_(true),
+    registry_(registry)
 { 
   schemaLoc_ = "http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd";
 }
@@ -157,7 +160,7 @@ DDLTestDoc::clear( void )
 //  files.
 //-----------------------------------------------------------------------
 int
-DDLTestDoc::readConfig( const std::string& filename )
+DDLTestDoc::readConfig( const std::string& filename)
 {
 
   std::cout << "readConfig" << std::endl;
@@ -166,7 +169,7 @@ DDLTestDoc::readConfig( const std::string& filename )
   // Set the parser to use the handler for the configuration file.
   // This makes sure the Parser is initialized and gets a handle to it.
   DDCompactView cpv;
-  DDLParser parser(cpv);// = DDLParser::instance();
+  DDLParser parser(cpv, registry_);
   DDLSAX2Handler* errHandler;
   DDLSAX2ConfigHandler * sch;
 
@@ -440,12 +443,10 @@ int main(int argc, char *argv[])
       
       std::cout << "Initialize a DDL parser " << std::endl;
       DDCompactView cpv;
-      DDLParser myP(cpv);// = DDLParser::instance();
-                         //until scram b runtests (if ever) does not run it by default, we will not run without at least one argument.
-                         //    if (argc < 2) {
-                         //       std::cout << "DEFAULT test using testConfiguration.xml" << std::endl;
+      DDLElementRegistry registry;
+      DDLParser myP(cpv, registry);
       if ( argc == 2 ) {
-         DDLTestDoc dp; //DDLConfiguration dp;
+         DDLTestDoc dp(registry); //DDLConfiguration dp;
          
          dp.readConfig(argv[1]);
          dp.dumpFileList();
@@ -517,7 +518,7 @@ int main(int argc, char *argv[])
          DDRootDef::instance().set(DDName("LP1", "testNoSections"));
          
          std::string fname = std::string(argv[1]);
-         DDLTestDoc dp;
+         DDLTestDoc dp(registry);
          while (fname != "q") {
             std::cout << "about to try to process the file " << fname << std::endl;
             dp.push_back(fname);

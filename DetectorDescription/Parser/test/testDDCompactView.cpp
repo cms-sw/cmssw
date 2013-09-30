@@ -25,6 +25,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/Algorithm/src/AlgoInit.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
@@ -85,8 +86,9 @@ int main(int argc, char *argv[])
 
     std::cout << "main::initialize DDL parser" << std::endl;
     DDCompactView cpv;
+    DDLElementRegistry registry;
 
-    DDLParser myP(cpv); // = DDLParser::instance();
+    DDLParser myP(cpv, registry);
 
     FIPConfiguration dp(cpv);
 

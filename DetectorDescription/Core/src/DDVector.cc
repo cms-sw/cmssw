@@ -1,10 +1,4 @@
 #include "DetectorDescription/Core/interface/DDVector.h"
-//#include "DetectorDescription/Base/interface/DDException.h"
-
-// Evaluator 
-//#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-
-
 
 DDVector::DDVector() : DDBase<DDName,std::vector<double>*>() { }
 

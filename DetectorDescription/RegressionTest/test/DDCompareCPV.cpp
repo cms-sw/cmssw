@@ -120,7 +120,8 @@ int main(int argc, char *argv[])
     std::cout << "Attempt resyncronization of disparate graphs? " << ddco.attResync_ << std::endl;
 
     DDCompactView cpv1;
-    DDLParser myP(cpv1);
+    DDLElementRegistry registry;
+    DDLParser myP(cpv1, registry);
     myP.getDDLSAX2FileHandler()->setUserNS(usrns);
 
     /* The configuration file tells the parser what to parse.
@@ -156,7 +157,7 @@ int main(int argc, char *argv[])
     cpv1.lockdown();
 
     DDCompactView cpv2;
-    DDLParser myP2(cpv2);
+    DDLParser myP2(cpv2, registry);
     myP2.getDDLSAX2FileHandler()->setUserNS(usrns);
 
     /* The configuration file tells the parser what to parse.

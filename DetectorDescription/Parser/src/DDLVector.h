@@ -59,7 +59,7 @@ class DDLVector : public DDXMLElement
   void errorOut(const char* str) const;
   void do_makeDouble(char const* str, char const* end);
   void do_makeString(char const* str, char const* end);
-  bool parse_numbers(char const* str) const;
-  bool parse_strings(char const* str) const;
+  bool parse_numbers(char const* str, VectorMakeDouble &maker) const;
+  bool parse_strings(char const* str, VectorMakeString &maker) const;
 };
 #endif

@@ -27,7 +27,7 @@ using namespace std;
 using namespace XERCES_CPP_NAMESPACE;
 
 /// Constructor MUST associate a DDCompactView storage.
-DDLParser::DDLParser( DDCompactView& cpv )
+DDLParser::DDLParser( DDCompactView& cpv, DDLElementRegistry &registry)
   : cpv_( cpv ),
     nFiles_( 0 )
 {
@@ -40,8 +40,8 @@ DDLParser::DDLParser( DDCompactView& cpv )
   // Specify other parser features, e.g.
   //  SAX2Parser_->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
   
-  expHandler_  = new DDLSAX2ExpressionHandler(cpv);
-  fileHandler_ = new DDLSAX2FileHandler(cpv);
+  expHandler_  = new DDLSAX2ExpressionHandler(cpv, registry);
+  fileHandler_ = new DDLSAX2FileHandler(cpv, registry);
   errHandler_  = new DDLSAX2Handler();
   SAX2Parser_->setErrorHandler(errHandler_); 
   SAX2Parser_->setContentHandler(fileHandler_); 

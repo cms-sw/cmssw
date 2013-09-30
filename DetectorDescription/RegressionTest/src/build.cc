@@ -18,7 +18,7 @@ using namespace std;
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 #include <Math/RotationZ.h>
 #include <Math/AxisAngle.h>
@@ -35,7 +35,8 @@ File elements.xml:
   Material(elem) Oxygen  
 */
 void regressionTest_setup() {
-   ClhepEvaluator & eval = ExprEval::instance();
+   DDLElementRegistry registry;
+   ClhepEvaluator & eval = registry.evaluator();
    
    string ns = "setup"; // current namespace faking the filename 'setup.xml'
    
@@ -113,11 +114,12 @@ void regressionTest_first( ) {
   AlgoInit();
   DDCompactView cpv;
   cout << "main::initialize DDL parser" << endl;
-  DDLParser myP(cpv);// = DDLParser::instance();
+  DDLElementRegistry registry;
+  DDLParser myP(cpv, registry);
   
   cout << "main::about to set configuration" << endl;
   
-  ClhepEvaluator & eval = ExprEval::instance();
+  ClhepEvaluator & eval = registry.evaluator();
   string ns("first");
   DDSolid support = DDSolidFactory::box(DDName("support",ns),
 					eval.eval(ns,"[setup:corner]/4."),
@@ -187,7 +189,8 @@ void output(string filename)
   AlgoInit();
   DDCompactView cpv;
   cout << "main::initialize DDL parser" << endl;
-  DDLParser myP(cpv);// = DDLParser::instance();
+  DDLElementRegistry registry;
+  DDLParser myP(cpv, registry);
 
   cout << "main::about to set configuration" << endl;
   //    myP->SetConfig("configuration.xml");
@@ -229,7 +232,8 @@ void testParser()
     AlgoInit();
     DDCompactView cpv;
     cout << "main::initialize DDL parser" << endl;
-    DDLParser myP(cpv);// = DDLParser::instance();
+    DDLElementRegistry registry;
+    DDLParser myP(cpv, registry);
 
     cout << "main::about to set configuration" << endl;
     //    myP->SetConfig("configuration.xml");

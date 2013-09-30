@@ -15,30 +15,38 @@ namespace boost { namespace spirit { namespace classic { } } }
 
 class Mapper : public boost::spirit::classic::grammar<Mapper> {
 public:
-  Mapper() { };
+  Mapper(DDLElementRegistry *registry) : registry_(registry) { };
   ~Mapper() { };
   template <typename ScannerT> struct definition;
+private:
+  DDLElementRegistry *registry_;
 };
 
 class MapPair {
 public:
-  MapPair() { };
+  MapPair(DDLElementRegistry *registry) : registry_(registry) { };
   ~MapPair() { };
   void operator()(char const* str, char const* end) const;
+private:
+  DDLElementRegistry *registry_;
 };
 
 class MapMakeName {
 public:
-  MapMakeName() { };
+  MapMakeName(DDLElementRegistry *registry) : registry_(registry) { };
   ~MapMakeName() { };
   void operator()(char const* str, char const* end) const;
+private:
+  DDLElementRegistry *registry_;
 };
 
 class MapMakeDouble {
 public:
-  MapMakeDouble() { };
+  MapMakeDouble(DDLElementRegistry *registry) : registry_(registry) { };
   ~MapMakeDouble() { };
   void operator()(char const* str, char const* end) const;
+private:
+  DDLElementRegistry *registry_;
 };
 
 ///  DDLMap handles Map container.
