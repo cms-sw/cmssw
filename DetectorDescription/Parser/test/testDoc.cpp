@@ -16,7 +16,6 @@
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Algorithm/src/AlgoInit.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Core/src/DDCheckMaterials.cc"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
@@ -434,10 +433,6 @@ int main(int argc, char *argv[])
    }
 
    try {
-      std::cout  << "Initialize DDD (call AlgoInit)" << std::endl;
-      
-      AlgoInit();
-      
       std::cout << "Initialize a DDL parser " << std::endl;
       DDCompactView cpv;
       DDLParser myP(cpv);// = DDLParser::instance();

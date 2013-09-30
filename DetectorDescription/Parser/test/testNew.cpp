@@ -16,21 +16,18 @@
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
-#include "DetectorDescription/Algorithm/src/AlgoInit.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 int main(int argc, char *argv[])
 {
   try {
-    AlgoInit();
 
     std::cout << "Get a hold of aDDLParser." << std::endl;
     DDCompactView cpv;
-    DDLParser myP(cpv);// = DDLParser::instance();
+    DDLParser myP(cpv);
 
     std::cout << "main:: initialize" << std::endl;
-    //  DDInit();
 
     std::cout << "======================" << std::endl << std::endl;
 

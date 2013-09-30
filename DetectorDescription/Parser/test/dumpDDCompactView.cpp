@@ -37,10 +37,6 @@ int main(int argc, char *argv[])
 {
   typedef DDCompactView::graph_type::const_adj_iterator adjl_iterator;
 
-  std::cout << "main:: initialize" << std::endl;
-
-  //  AlgoInit();
-
   // Copied from example stand-alone program in Message Logger July 18, 2007
   std::string const kProgramName = argv[0];
   int rc = 0;
