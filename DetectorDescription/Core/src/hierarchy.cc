@@ -142,11 +142,10 @@ void writeMaterials(std::map<std::string,std::set<DDMaterial> > & m)
 
 }
 
-void hierarchy(const DDLogicalPart & parent)
+void hierarchy(const DDLogicalPart & parent, int count = 0)
 {
   static  DDCompactView cpv ;
   static DDCompactView::graph_type g = cpv.graph();
-  static int count=0;
   static std::vector<DDLogicalPart> history;
   static std::map<std::string,std::set<DDMaterial> > materials;
   //DDCompactView::graph_type::adj_iterator it = g.begin();
@@ -166,7 +165,7 @@ void hierarchy(const DDLogicalPart & parent)
   std::map<DDLogicalPart,int>::iterator cit = children.begin();
   for (; cit != children.end(); ++cit) {
      ++count;
-     hierarchy(cit->first);
+     hierarchy(cit->first, count);
      history.pop_back();
      --count;
   }

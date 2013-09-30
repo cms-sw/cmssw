@@ -3,14 +3,13 @@
 #include "DetectorDescription/Core/src/Material.h"
 
 // internal usage
-bool DDCheckMaterial(DDMaterial& mip, std::pair<std::string,DDName> & result)
+bool DDCheckMaterial(DDMaterial& mip, std::pair<std::string,DDName> & result, int rlevel = 0)
 {
    std::string no_composites = " NO-COMPOSITES ";
    std::string no_density    = " NO-DENSITY ";
    std::string costit_nok    = " CONSTITUENT NOK ";
    std::string no_z = " NO-Z ";
    std::string no_a = " NO-A "; 
-   static int rlevel = 0;
       
       std::string curr_err = "";
       bool err = false;
@@ -74,7 +73,7 @@ bool DDCheckMaterial(DDMaterial& mip, std::pair<std::string,DDName> & result)
 	DDMaterial mat(mp.ddname()); // bit slow but comfortable ...
 	DDMaterial mimpl = mat.constituent(loop).first;
 	++rlevel; // recursion level
-	bool c_err = DDCheckMaterial(mimpl,res);
+	bool c_err = DDCheckMaterial(mimpl,res, rlevel);
 	if (c_err) {
 	  err = err | c_err;
 	  curr_err = curr_err + std::string(" constituents have errors:\n") + std::string(4*rlevel,' ') 
