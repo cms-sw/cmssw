@@ -58,15 +58,20 @@ namespace edm {
 
     void fillEventPrincipal(EventAuxiliary const& aux,
         ProcessHistoryRegistry const& processHistoryRegistry,
-                            DelayedReader* reader = 0);
-
+                            DelayedReader* reader = nullptr);
+    void fillEventPrincipal(EventAuxiliary const& aux,
+                            ProcessHistoryRegistry const& processHistoryRegistry,
+                            EventSelectionIDVector&& eventSelectionIDs,
+                            BranchListIndexes&& branchListIndexes);
+    //provRetriever is changed via a call to ProductProvenanceRetriever::deepSwap
     void fillEventPrincipal(EventAuxiliary const& aux,
                             ProcessHistoryRegistry const& processHistoryRegistry,
                             EventSelectionIDVector&& eventSelectionIDs,
                             BranchListIndexes&& branchListIndexes,
-                            boost::shared_ptr<ProductProvenanceRetriever> provRetriever = boost::shared_ptr<ProductProvenanceRetriever>(new ProductProvenanceRetriever),
-                            DelayedReader* reader = 0);
+                            ProductProvenanceRetriever& provRetriever,
+                            DelayedReader* reader = nullptr);
 
+    
     void clearEventPrincipal();
 
     LuminosityBlockPrincipal const& luminosityBlockPrincipal() const {
@@ -192,7 +197,7 @@ namespace edm {
 
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
 
-    // Pointer to the 'mapper' that will get provenance information from the persistent store.
+    // Pointer to the 'retriever' that will get provenance information from the persistent store.
     boost::shared_ptr<ProductProvenanceRetriever> provRetrieverPtr_;
 
     // Handler for unscheduled modules

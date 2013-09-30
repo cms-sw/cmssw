@@ -27,7 +27,7 @@ namespace edm {
     Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender),
           aux_(),
           luminosityBlockPrincipal_(),
-          provRetrieverPtr_(new ProductProvenanceRetriever),
+          provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex)),
           unscheduledHandler_(),
           moduleLabelsRunning_(),
           eventSelectionIDs_(),
@@ -41,7 +41,7 @@ namespace edm {
     clearPrincipal();
     aux_ = EventAuxiliary();
     luminosityBlockPrincipal_.reset();
-    provRetrieverPtr_.reset(new ProductProvenanceRetriever);
+    provRetrieverPtr_->reset();
     unscheduledHandler_.reset();
     moduleLabelsRunning_.clear();
     branchListIndexToProcessIndex_.clear();
@@ -52,16 +52,30 @@ namespace edm {
         ProcessHistoryRegistry const& processHistoryRegistry,
         EventSelectionIDVector&& eventSelectionIDs,
         BranchListIndexes&& branchListIndexes,
-        boost::shared_ptr<ProductProvenanceRetriever> provRetriever,
+        ProductProvenanceRetriever& provRetriever,
         DelayedReader* reader) {
     eventSelectionIDs_ = eventSelectionIDs;
-    provRetrieverPtr_ = provRetriever;
+    provRetrieverPtr_->deepSwap(provRetriever);
     branchListIndexes_ = branchListIndexes;
     if(branchIDListHelper_->hasProducedProducts()) {
       // Add index into BranchIDListRegistry for products produced this process
       branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
     }
     fillEventPrincipal(aux,processHistoryRegistry,reader);
+  }
+
+  void
+  EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
+                                     ProcessHistoryRegistry const& processHistoryRegistry,
+                                     EventSelectionIDVector&& eventSelectionIDs,
+                                     BranchListIndexes&& branchListIndexes) {
+    eventSelectionIDs_ = eventSelectionIDs;
+    branchListIndexes_ = branchListIndexes;
+    if(branchIDListHelper_->hasProducedProducts()) {
+      // Add index into BranchIDListRegistry for products produced this process
+      branchListIndexes_.push_back(branchIDListHelper_->producedBranchListIndex());
+    }
+    fillEventPrincipal(aux,processHistoryRegistry,nullptr);
   }
 
   void

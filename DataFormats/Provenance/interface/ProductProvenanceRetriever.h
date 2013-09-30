@@ -27,7 +27,7 @@ namespace edm {
 
   class ProductProvenanceRetriever : private boost::noncopyable {
   public:
-    ProductProvenanceRetriever();
+    explicit ProductProvenanceRetriever(unsigned int iTransitionIndex);
 #ifndef __GCCXML__
     explicit ProductProvenanceRetriever(std::unique_ptr<ProvenanceReaderBase> reader);
 #endif
@@ -40,23 +40,29 @@ namespace edm {
 
     void mergeProvenanceRetrievers(boost::shared_ptr<ProductProvenanceRetriever> other);
 
+    void deepSwap(ProductProvenanceRetriever&);
+    
     void reset();
   private:
     void readProvenance() const;
+    void setTransitionIndex(unsigned int transitionIndex) {
+      transitionIndex_=transitionIndex;
+    }
 
     typedef std::set<ProductProvenance> eiSet;
 
     mutable eiSet entryInfoSet_;
     boost::shared_ptr<ProductProvenanceRetriever> nextRetriever_;
+    mutable boost::shared_ptr<ProvenanceReaderBase> provenanceReader_;
+    unsigned int transitionIndex_;
     mutable bool delayedRead_;
-    mutable boost::scoped_ptr<ProvenanceReaderBase> provenanceReader_;
   };
 
   class ProvenanceReaderBase {
   public:
     ProvenanceReaderBase() {}
     virtual ~ProvenanceReaderBase();
-    virtual void readProvenance(ProductProvenanceRetriever const& mapper) const = 0;
+    virtual void readProvenance(ProductProvenanceRetriever const& mapper, unsigned int transitionIndex) const = 0;
   };
   
 }

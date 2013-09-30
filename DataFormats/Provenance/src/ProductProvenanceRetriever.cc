@@ -3,24 +3,28 @@
 
 #include <cassert>
 #include <iostream>
+#include <limits>
 
 /*
   ProductProvenanceRetriever
 */
 
 namespace edm {
-  ProductProvenanceRetriever::ProductProvenanceRetriever() :
+  ProductProvenanceRetriever::ProductProvenanceRetriever(unsigned int iTransitionIndex) :
       entryInfoSet_(),
       nextRetriever_(),
-      delayedRead_(false),
-      provenanceReader_() {
+      provenanceReader_(),
+      transitionIndex_(iTransitionIndex),
+      delayedRead_(false){
   }
 
   ProductProvenanceRetriever::ProductProvenanceRetriever(std::unique_ptr<ProvenanceReaderBase> reader) :
       entryInfoSet_(),
       nextRetriever_(),
-      delayedRead_(true),
-      provenanceReader_(reader.release()) {
+      provenanceReader_(reader.release()),
+      transitionIndex_(std::numeric_limits<unsigned int>::max()),
+      delayedRead_(true)
+  {
     assert(provenanceReader_);
   }
 
@@ -29,8 +33,23 @@ namespace edm {
   void
   ProductProvenanceRetriever::readProvenance() const {
     if(delayedRead_ && provenanceReader_) {
-      provenanceReader_->readProvenance(*this);
+      provenanceReader_->readProvenance(*this,transitionIndex_);
       delayedRead_ = false; // only read once
+    }
+  }
+
+  void ProductProvenanceRetriever::deepSwap(ProductProvenanceRetriever& iFrom)
+  {
+    entryInfoSet_.swap(iFrom.entryInfoSet_);
+    provenanceReader_ = iFrom.provenanceReader_;
+    if(provenanceReader_) {
+      delayedRead_=true;
+    }
+    if(iFrom.nextRetriever_) {
+      if(not nextRetriever_) {
+        nextRetriever_.reset(new ProductProvenanceRetriever(transitionIndex_));
+      }
+      nextRetriever_->deepSwap(*(iFrom.nextRetriever_));
     }
   }
 
@@ -38,6 +57,9 @@ namespace edm {
   ProductProvenanceRetriever::reset() {
     entryInfoSet_.clear();
     delayedRead_ = true;
+    if(nextRetriever_) {
+      nextRetriever_->reset();
+    }
   }
 
   void

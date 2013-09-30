@@ -309,7 +309,7 @@ namespace edm {
                           processHistoryRegistry,
                           std::move(esids),
                           std::move(bli),
-                          principal.productProvenanceRetrieverPtr(),
+                          *(principal.productProvenanceRetrieverPtr()),//NOTE: this transfers the per product provenance
                           principal.reader());
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);

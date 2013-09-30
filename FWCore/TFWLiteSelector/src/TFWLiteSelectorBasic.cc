@@ -122,7 +122,7 @@ namespace edm {
       reader_(new FWLiteDelayedReader),
       prov_(),
       pointerToBranchBuffer_(),
-      provRetriever_(new edm::ProductProvenanceRetriever) {
+      provRetriever_(new edm::ProductProvenanceRetriever(0)) {
         reader_->set(reg_);
       }
       void setTree(TTree* iTree) {
@@ -295,7 +295,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
                                     *m_->phreg_,
                                     std::move(eventSelectionIDs),
                                     std::move(branchListIndexes),
-                                    m_->provRetriever_,
+                                    *(m_->provRetriever_),
                                     m_->reader_.get());
          lbp->setRunPrincipal(rp);
          m_->ep_->setLuminosityBlockPrincipal(lbp);

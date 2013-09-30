@@ -1390,7 +1390,7 @@ namespace edm {
                                  *processHistoryRegistry_,
                                  std::move(eventSelectionIDs_),
                                  std::move(branchListIndexes_),
-                                 makeProductProvenanceRetriever(),
+                                 *(makeProductProvenanceRetriever()),
                                  eventTree_.rootDelayedReader());
 
     // report event read from file
@@ -1743,7 +1743,7 @@ namespace edm {
   public:
     ReducedProvenanceReader(RootTree* iRootTree, std::vector<ParentageID> const& iParentageIDLookup, DaqProvenanceHelper const* daqProvenanceHelper);
   private:
-    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever) const override;
+    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int) const override;
     RootTree* rootTree_;
     TBranch* provBranch_;
     StoredProductProvenanceVector provVector_;
@@ -1765,9 +1765,9 @@ namespace edm {
   }
 
   void
-  ReducedProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever) const {
+  ReducedProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
     ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
-    me->rootTree_->fillBranchEntry(me->provBranch_, me->pProvVector_);
+    me->rootTree_->fillBranchEntry(me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
     setRefCoreStreamer(true);
     if(daqProvenanceHelper_) {
       for(auto const& prov : provVector_) {
@@ -1794,7 +1794,7 @@ namespace edm {
     explicit FullProvenanceReader(RootTree* rootTree, DaqProvenanceHelper const* daqProvenanceHelper);
     virtual ~FullProvenanceReader() {}
   private:
-    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever) const override;
+    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const override;
     RootTree* rootTree_;
     ProductProvenanceVector infoVector_;
     mutable ProductProvenanceVector* pInfoVector_;
@@ -1810,8 +1810,8 @@ namespace edm {
   }
 
   void
-  FullProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever) const {
-    rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), pInfoVector_);
+  FullProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
+    rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex), pInfoVector_);
     setRefCoreStreamer(true);
     if(daqProvenanceHelper_) {
       for(auto const& info : infoVector_) {
@@ -1830,7 +1830,7 @@ namespace edm {
     explicit OldProvenanceReader(RootTree* rootTree, EntryDescriptionMap const& theMap, DaqProvenanceHelper const* daqProvenanceHelper);
     virtual ~OldProvenanceReader() {}
   private:
-    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever) const override;
+    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const override;
     RootTree* rootTree_;
     std::vector<EventEntryInfo> infoVector_;
     mutable std::vector<EventEntryInfo> *pInfoVector_;
@@ -1848,9 +1848,9 @@ namespace edm {
   }
 
   void
-  OldProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever) const {
+  OldProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
     rootTree_->branchEntryInfoBranch()->SetAddress(&pInfoVector_);
-    roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumber());
+    roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex));
     setRefCoreStreamer(true);
     for(auto const& info : infoVector_) {
       EntryDescriptionMap::const_iterator iter = entryDescriptionMap_.find(info.entryDescriptionID());
@@ -1873,7 +1873,7 @@ namespace edm {
     DummyProvenanceReader();
     virtual ~DummyProvenanceReader() {}
   private:
-    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever) const override;
+    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever,unsigned int) const override;
   };
 
   DummyProvenanceReader::DummyProvenanceReader() :
@@ -1881,7 +1881,7 @@ namespace edm {
   }
 
   void
-  DummyProvenanceReader::readProvenance(ProductProvenanceRetriever const&) const {
+  DummyProvenanceReader::readProvenance(ProductProvenanceRetriever const&, unsigned int) const {
     // Not providing parentage!!!
   }
 
