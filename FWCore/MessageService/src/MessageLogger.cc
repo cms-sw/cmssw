@@ -550,13 +550,17 @@ namespace edm {
     { unEstablishModule (iDescription, "AfterSourceConstruction"); }
     
     void
-    MessageLogger::preModuleBeginStream(StreamContext const& stream, const ModuleDescription& desc)
+    MessageLogger::preModuleBeginStream(StreamContext const& stream, ModuleCallingContext const& mcc)
     {
+      ModuleDescription const& desc = *mcc.moduleDescription();
       establishModule (desc,"@beginStream");				// ChangeLog 13
     }
-    void MessageLogger::postModuleBeginStream(StreamContext const& stream, const ModuleDescription& iDescription)
-    { unEstablishModule (iDescription, "AfterModBeginStream"); }
-    
+    void MessageLogger::postModuleBeginStream(StreamContext const& stream, ModuleCallingContext const& mcc)
+    {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      unEstablishModule (desc, "AfterModBeginStream");
+    }
+
     void
     MessageLogger::preModuleStreamBeginRun(StreamContext const& stream, ModuleCallingContext const& mod)
     {
@@ -641,15 +645,20 @@ namespace edm {
     }
     void MessageLogger::postModuleGlobalEndRun(GlobalContext const& stream, ModuleCallingContext const& mod)
     { unEstablishModule (mod, "AfterModGlobalEndRun"); }
-    
+
     void
-    MessageLogger::preModuleEndStream(StreamContext const&, const ModuleDescription& desc)
+    MessageLogger::preModuleEndStream(StreamContext const&, ModuleCallingContext const& mcc)
     {
+      ModuleDescription const& desc = *mcc.moduleDescription();
       establishModule (desc,"@endStream");				// ChangeLog 13
     }
-    void MessageLogger::postModuleEndStream(StreamContext const&, const ModuleDescription& iDescription)
-    { unEstablishModule (iDescription, "AfterModEndStream"); }
-    
+
+    void MessageLogger::postModuleEndStream(StreamContext const&, ModuleCallingContext const& mcc)
+    {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      unEstablishModule (desc, "AfterModEndStream");
+    }
+
     void
     MessageLogger::preModuleEndJob(const ModuleDescription& desc)
     {

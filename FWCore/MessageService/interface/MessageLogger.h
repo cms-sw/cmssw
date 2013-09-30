@@ -85,10 +85,10 @@ private:
   void  preModuleEndJob  ( ModuleDescription const & );
   void  postModuleEndJob ( ModuleDescription const & );
 
-  void  preModuleBeginStream  ( StreamContext const&, ModuleDescription const & );
-  void  postModuleBeginStream ( StreamContext const&, ModuleDescription const & );
-  void  preModuleEndStream  ( StreamContext const&, ModuleDescription const & );
-  void  postModuleEndStream ( StreamContext const&, ModuleDescription const & );
+  void  preModuleBeginStream  ( StreamContext const&, ModuleCallingContext const& );
+  void  postModuleBeginStream ( StreamContext const&, ModuleCallingContext const& );
+  void  preModuleEndStream  ( StreamContext const&, ModuleCallingContext const& );
+  void  postModuleEndStream ( StreamContext const&, ModuleCallingContext const& );
 
   void  preModuleStreamBeginRun  ( StreamContext const&, ModuleCallingContext const& );
   void  postModuleStreamBeginRun ( StreamContext const&, ModuleCallingContext const& );
