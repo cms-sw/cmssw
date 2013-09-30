@@ -3,16 +3,14 @@
 // Package:    L1TYellowFakeDigiProducer
 // Class:      L1TYellowFakeDigiProducer
 // 
-/**\class L1TFakeDigiProducer L1TFakeDigiProducer.cc L1Trigger/L1TYellow/src/L1TFakeDigiProducer.cc
+/**\class L1TYellowFakeRawToDigi
 
  Description: Emulation of Fictitious Level-1 Yellow Trigger for demonstration purposes
 
  Implementation:
-     [Notes on implementation]
+     Produces L1TYellowInput
 */
 //
-
-
 
 // system include files
 #include <memory>
@@ -33,10 +31,10 @@ using namespace std;
 // class declaration
 //
 
-class L1TFakeDigiProducer : public edm::EDProducer {
+class L1TYellowFakeRawToDigi : public edm::EDProducer {
 public:
-  explicit L1TFakeDigiProducer(const edm::ParameterSet&);
-  ~L1TFakeDigiProducer();
+  explicit L1TYellowFakeRawToDigi(const edm::ParameterSet&);
+  ~L1TYellowFakeRawToDigi();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
@@ -48,8 +46,7 @@ private:
   virtual void beginRun(edm::Run&, edm::EventSetup const&);
   virtual void endRun(edm::Run&, edm::EventSetup const&);
   virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-  
+  virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);  
 };
 
 
@@ -67,14 +64,14 @@ private:
 //
 // constructors and destructor
 //
-L1TFakeDigiProducer::L1TFakeDigiProducer(const edm::ParameterSet& iConfig)
+L1TYellowFakeRawToDigi::L1TYellowFakeRawToDigi(const edm::ParameterSet& iConfig)
 {
   //register your products
   produces<L1TYellowDigiCollection>();
 }
 
 
-L1TFakeDigiProducer::~L1TFakeDigiProducer()
+L1TYellowFakeRawToDigi::~L1TYellowFakeRawToDigi()
 {
 }
 
@@ -85,9 +82,9 @@ L1TFakeDigiProducer::~L1TFakeDigiProducer()
 
 // ------------ method called to produce the data  ------------
 void
-L1TFakeDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1TYellowFakeRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  cout << "L1TFakeDigiProducer::produce function called...\n";
+  cout << "L1TYellowFakeRawToDigi::produce function called...\n";
 
   std::auto_ptr<L1TYellowDigiCollection> outColl (new L1TYellowDigiCollection);
   L1TYellowDigi iout;
@@ -100,43 +97,43 @@ L1TFakeDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1TFakeDigiProducer::beginJob()
+L1TYellowFakeRawToDigi::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-L1TFakeDigiProducer::endJob() {
+L1TYellowFakeRawToDigi::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 void 
-L1TFakeDigiProducer::beginRun(edm::Run&, edm::EventSetup const&)
+L1TYellowFakeRawToDigi::beginRun(edm::Run&, edm::EventSetup const&)
 {
 
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void 
-L1TFakeDigiProducer::endRun(edm::Run&, edm::EventSetup const&)
+L1TYellowFakeRawToDigi::endRun(edm::Run&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void 
-L1TFakeDigiProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TYellowFakeRawToDigi::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void 
-L1TFakeDigiProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TYellowFakeRawToDigi::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-L1TFakeDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+L1TYellowFakeRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -145,4 +142,4 @@ L1TFakeDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TFakeDigiProducer);
+DEFINE_FWK_MODULE(L1TYellowFakeRawToDigi);

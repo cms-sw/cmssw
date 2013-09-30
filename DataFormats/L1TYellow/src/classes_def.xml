@@ -3,5 +3,11 @@
    <version ClassVersion="10" checksum="202252217"/>
   </class>
   <class name="std::vector<L1TYellowOutput>"/>
-  <class name="edm::Wrapper<std::vector<L1TYellowOutput>>" splitLevel="0"/>
+  <class name="edm::Wrapper<std::vector<L1TYellowOutput>>"
+  splitLevel="0"/>
+  <class name="L1TYellowDigi" ClassVersion="10">
+   <version ClassVersion="10" checksum="4074347483"/>
+  </class>
+  <class name="std::vector<L1TYellowDigi>"/>
+  <class name="edm::Wrapper<std::vector<L1TYellowDigi>>" splitLevel="0"/>
 </lcgdict>

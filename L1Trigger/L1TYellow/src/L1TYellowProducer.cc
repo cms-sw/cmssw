@@ -23,10 +23,15 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CondFormats/L1TYellow/interface/L1TYellowParams.h"
+#include "DataFormats/L1TYellow/interface/L1TYellowDigi.h"
 #include "DataFormats/L1TYellow/interface/L1TYellowOutput.h"
 #include "L1Trigger/L1TYellow/interface/L1TYellowAlg.h"
-#include "L1Trigger/L1TYellow/interface/L1TYellowDBParams.h"
+
 
 using namespace std;
 //using namespace l1t;
@@ -53,13 +58,17 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
   
   // ----------member data ---------------------------
-  l1t::L1TYellowDBParams * dbpars; // Database parameters for the trigger, to be udpated each run
+  L1TYellowParams * dbpars; // Database parameters for the trigger, to be udpated each run
   l1t::L1TYellowAlg * alg; // Algorithm to run per event, depends on database parameters, updated each run.
 
+
+
+  edm::EDGetToken yellowDigisToken;
 };
 
 
 using namespace l1t;
+using namespace edm;
 
 //
 // constants, enums and typedefs
@@ -73,10 +82,15 @@ using namespace l1t;
 //
 // constructors and destructor
 //
-L1TYellowProducer::L1TYellowProducer(const edm::ParameterSet& iConfig)
+L1TYellowProducer::L1TYellowProducer(const ParameterSet& iConfig)
 {
-  //register your products
+  // register what you produce
   produces<L1TYellowOutputCollection>();
+
+  // register what you consume and keep token for later access:
+  yellowDigisToken = consumes<L1TYellowDigiCollection>(iConfig.getParameter<InputTag>("fakeRawToDigi"));
+
+    
   dbpars = NULL;
   alg = NULL;
 }
@@ -93,17 +107,24 @@ L1TYellowProducer::~L1TYellowProducer()
 
 // ------------ method called to produce the data  ------------
 void
-L1TYellowProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1TYellowProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
-  cout << "L1TYellowProducer::produce function called...\n";
 
+  LogInfo("l1t|yellow") << "L1TYellowProducer::produce function called...\n";
+  
+  Handle<L1TYellowDigiCollection> inputDigis;
+  iEvent.getByToken(yellowDigisToken,inputDigis);
+  
   std::auto_ptr<L1TYellowOutputCollection> outColl (new L1TYellowOutputCollection);
   L1TYellowOutput iout;
-  
-  if (alg) {
-    alg->processEvent(iEvent, *outColl);
-  } else {
+
+  if (inputDigis->size()){
+    if (alg) {
+      alg->processEvent(*inputDigis, *outColl);
+    } 
     // already complained in beginRun, doing nothing now will send empty collection to event, as desired.
+  } else {
+    LogError("l1t|yellow") << "L1TYellowProducer: input Digis have zero size.\n";
   }
 
   //iout.setRawData(20);  outColl->push_back(iout);
@@ -127,13 +148,12 @@ L1TYellowProducer::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void 
-L1TYellowProducer::beginRun(edm::Run&, edm::EventSetup const&)
+L1TYellowProducer::beginRun(Run&, EventSetup const&)
 {
-  // TODO:  retreive DB pars from database, just set here:
+  // TODO:  retreive DB pars from EventSetup:
   if (dbpars) delete dbpars;
-  dbpars = new L1TYellowDBParams;
-  dbpars->version = 1;
-
+  dbpars = new L1TYellowParams;  
+  dbpars->setFirmwareVersion(1);
 
   // Set the current algorithm version based on DB pars from database:
   if (alg) delete alg;
@@ -141,34 +161,35 @@ L1TYellowProducer::beginRun(edm::Run&, edm::EventSetup const&)
 
   if (! alg) {
     // we complain here once per run
+    LogError("l1t|yellow") << "L1TYellowProducer:  could not retreive DB params from Event Setup\n";
   }
 
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void 
-L1TYellowProducer::endRun(edm::Run&, edm::EventSetup const&)
+L1TYellowProducer::endRun(Run&, EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void 
-L1TYellowProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TYellowProducer::beginLuminosityBlock(LuminosityBlock&, EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void 
-L1TYellowProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TYellowProducer::endLuminosityBlock(LuminosityBlock&, EventSetup const&)
 {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-L1TYellowProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+L1TYellowProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
+  ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
