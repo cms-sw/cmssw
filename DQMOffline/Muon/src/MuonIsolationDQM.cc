@@ -52,8 +52,6 @@ using namespace std;
 //-----------------Constructors---------------------
 //
 
-#define DEBUG
-
 MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
 #ifdef DEBUG
   cout << " Initialise Constructor " << endl;
