@@ -428,17 +428,18 @@ const EcalEndcapGeometry::OrderedListOfEBDetId*
 EcalEndcapGeometry::getClosestBarrelCells( EEDetId id ) const
 {
    OrderedListOfEBDetId* ptr ( nullptr ) ;
-   if(0 != id.rawId() && 0 != getGeometry(id)) {
-       const float phi(370.+getGeometry(id)->getPosition().phi().degrees());
-       const int iPhi(1+int(phi)%360) ;
-       const int iz(id.zside()) ;
-       if (!m_borderMgr.load(std::memory_order_acquire)) {
-           EZMgrFL<EBDetId>* expect = nullptr;
-           auto ptrMgr = new EZMgrFL<EBDetId>( 720*9, 9 );
-           bool exchanged = m_borderMgr.compare_exchange_strong(expect, ptrMgr, std::memory_order_acq_rel);
-           if(!exchanged) delete ptrMgr;
-       }
-       if (!m_borderPtrVec.load(std::memory_order_acquire)) {
+   auto ptrVec = m_borderPtrVec.load(std::memory_order_acquire);
+   if(!ptrVec) {
+       if(0 != id.rawId() && 0 != getGeometry(id)) {
+           const float phi(370.+getGeometry(id)->getPosition().phi().degrees());
+           const int iPhi(1+int(phi)%360) ;
+           const int iz(id.zside()) ;
+           if (!m_borderMgr.load(std::memory_order_acquire)) {
+               EZMgrFL<EBDetId>* expect = nullptr;
+               auto ptrMgr = new EZMgrFL<EBDetId>( 720*9, 9 );
+               bool exchanged = m_borderMgr.compare_exchange_strong(expect, ptrMgr, std::memory_order_acq_rel);
+               if(!exchanged) delete ptrMgr;
+           }
            VecOrdListEBDetIdPtr* expect = nullptr;
            auto ptrVec = new VecOrdListEBDetIdPtr();
            ptrVec->reserve(720);
@@ -463,8 +464,9 @@ EcalEndcapGeometry::getClosestBarrelCells( EEDetId id ) const
            }
            bool exchanged = m_borderPtrVec.compare_exchange_strong(expect, ptrVec, std::memory_order_acq_rel);
            if(!exchanged) delete ptrVec;
+           ptrVec = m_borderPtrVec.load(std::memory_order_acquire);
+           ptr = (*ptrVec)[ ( iPhi - 1 ) + ( 0>iz ? 0 : 360 ) ] ;
        }
-       ptr = (*m_borderPtrVec.load(std::memory_order_acquire))[ ( iPhi - 1 ) + ( 0>iz ? 0 : 360 ) ] ;
    }
    return ptr;
 }
