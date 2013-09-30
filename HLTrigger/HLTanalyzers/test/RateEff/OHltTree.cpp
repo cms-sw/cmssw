@@ -108,11 +108,25 @@ void OHltTree::Loop(
    //   TFile*   theHistFile = new TFile("Histograms_Quarkonia.root", "RECREATE");
    //   cout<< "Histogram root file created: Histograms_Quarkonia.root"  << endl;
 
+   //TFile *theNPVFile = new TFile("NPVFile.root", "RECREATE");
+
    nEventsProcessed = 0;
 
    double wtPU = 1.;
    double wtMC = 1.;  
-   LumiWeights_ = reweight::LumiReWeighting("NPVtx.root", "puoutput613_25bins.root", "NPV", "pileup");
+   double MyWeight = 1.;
+   if (cfg->isMCPUreweight == true) 
+     {
+
+       TString mcfile = cfg->MCPUfile;
+       TString datafile = cfg->DataPUfile;
+       TString mchisto = cfg->MCPUhisto;
+       TString datahisto = cfg->DataPUhisto;
+
+       LumiWeights_ = reweight::LumiReWeighting(std::string(mcfile), std::string(datafile), std::string(mchisto), std::string(datahisto));
+     }
+
+   //TH1F *MCPVwithPU = new TH1F("MCPVwithPU", "MCPVwithPU", 25, 0., 50.);
 
    for (Long64_t jentry=0; jentry<nentries; jentry++)
    {
@@ -270,8 +284,11 @@ void OHltTree::Loop(
       }
 
       // Get PU weight
-      double MyWeight = LumiWeights_.weight( recoNVrt );
-
+      if (cfg->isMCPUreweight == true) 
+	{
+	  MyWeight = LumiWeights_.weight( recoNVrt );
+	  //MCPVwithPU->Fill(recoNVrt, MyWeight);
+	}
       //////////////////////////////////////////////////////////////////
       // Loop over trigger paths and do rate counting
       //////////////////////////////////////////////////////////////////
@@ -313,7 +330,7 @@ void OHltTree::Loop(
       {
          if (triggerBit[it])
          {  
-	    if (cfg->isMCPUreweight) wtPU = MyWeight;
+	    if (cfg->isMCPUreweight == true) wtPU = MyWeight;
 	    if (not MCWeight == 0) wtMC = MCWeight;
 
             rc->iCount[it] = rc->iCount[it] + (1 * wtPU * wtMC);
@@ -383,6 +400,9 @@ void OHltTree::Loop(
    //       }
    //   }
    //   theHistFile->Close();
+   //theNPVFile->cd();
+   //MCPVwithPU->Write();
+   //theNPVFile->Close();
 
 }
 
