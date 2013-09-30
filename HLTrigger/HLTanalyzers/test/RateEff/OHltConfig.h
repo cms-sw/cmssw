@@ -39,8 +39,12 @@ public:
    int nPrintStatusEvery;
    bool isRealData;
    bool isCounts;
-   bool isCondor;
+   bool useINPATH_INFILE;
    bool isMCPUreweight;
+   TString MCPUfile;
+   TString DataPUfile;
+   TString MCPUhisto;
+   TString DataPUhisto;
    TString menuTag;
    TString versionTag;
    bool doPrintAll;
