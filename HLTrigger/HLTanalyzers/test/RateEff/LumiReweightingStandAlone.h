@@ -242,11 +242,10 @@ namespace reweight {
 	  dataFile_      = new TFile( dataFileName_.c_str() );       //Data distribution
 
 	  //Data_distr_ = new TH1(  *(static_cast<TH1*>(dataFile_->Get( DataHistName_.c_str() )->Clone() )) );
-	  //MC_distr_ = new TH1(  *(static_cast<TH1*>(generatedFile_->Get( GenHistName_.c_str() )->Clone() )) );
+	  //MC_distr_ = new TH1(  *(static_cast<TH1*>(generatedFile_->Get( GenHistName_.c_str() )->Clone() ));
 
-
-	  MC_distr_ = (TH1D*)generatedFile_->Get("NPV");
-	  Data_distr_ = (TH1D*)dataFile_->Get("pileup");
+	  MC_distr_ = (TH1D*)generatedFile_->Get(GenHistName_.c_str());
+	  Data_distr_ = (TH1D*)dataFile_->Get(DataHistName_.c_str());
 
 	  MC_distr_ = (TH1D*)MC_distr_->Clone();
 	  Data_distr_ = (TH1D*)Data_distr_->Clone();
