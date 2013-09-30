@@ -41,10 +41,10 @@ HcalDcsMap::operator=(const HcalDcsMap& rhs) {
 void HcalDcsMap::swap(HcalDcsMap& other) {
     std::swap(mItems, other.mItems);
     other.mItemsByDcsId.exchange(
-            mItemsByDcsId.exchange(other.mItemsByDcsId, std::memory_order_acq_rel),
+            mItemsByDcsId.exchange(other.mItemsByDcsId.load(std::memory_order_acquire), std::memory_order_acq_rel),
             std::memory_order_acq_rel);
     other.mItemsById.exchange(
-            mItemsById.exchange(other.mItemsById, std::memory_order_acq_rel),
+            mItemsById.exchange(other.mItemsById.load(std::memory_order_acquire), std::memory_order_acq_rel),
             std::memory_order_acq_rel);
 }
 // move constructor

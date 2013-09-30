@@ -45,10 +45,10 @@ void HcalElectronicsMap::swap(HcalElectronicsMap& other) {
     std::swap(mPItems, other.mPItems);
     std::swap(mTItems, other.mTItems);
     other.mTItemsByTrigId.exchange(
-            mTItemsByTrigId.exchange(other.mTItemsByTrigId, std::memory_order_acq_rel),
+            mTItemsByTrigId.exchange(other.mTItemsByTrigId.load(std::memory_order_acquire), std::memory_order_acq_rel),
             std::memory_order_acq_rel);
     other.mPItemsById.exchange(
-            mPItemsById.exchange(other.mPItemsById, std::memory_order_acq_rel),
+            mPItemsById.exchange(other.mPItemsById.load(std::memory_order_acquire), std::memory_order_acq_rel),
             std::memory_order_acq_rel);
 }
 // move constructor
