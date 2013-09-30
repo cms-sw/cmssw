@@ -13,8 +13,12 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
    nPrintStatusEvery = 10000;
    isRealData= false;
    isCounts= false;
-   isCondor= false;
+   useINPATH_INFILE = false;
    isMCPUreweight = false;
+   MCPUfile = "";
+   DataPUfile = "";
+   MCPUhisto = "";
+   DataPUhisto = "";
    menuTag = "";
    preFilterLogicString = "";
    versionTag = "";
@@ -60,8 +64,12 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
       cfg.lookupValue("run.isRealData",isRealData);
       omenu->SetIsRealData(isRealData);
       cfg.lookupValue("run.isCounts",isCounts);
-      cfg.lookupValue("run.isCondor",isCondor);
+      cfg.lookupValue("run.useINPATH_INFILE",useINPATH_INFILE);
       cfg.lookupValue("run.isMCPUreweight",isMCPUreweight);
+      cfg.lookupValue("run.MCPUfile",stmp); MCPUfile = TString(stmp);
+      cfg.lookupValue("run.DataPUfile",stmp); DataPUfile = TString(stmp);
+      cfg.lookupValue("run.MCPUhisto",stmp); MCPUhisto = TString(stmp);
+      cfg.lookupValue("run.DataPUhisto",stmp); DataPUhisto = TString(stmp);
       cfg.lookupValue("run.menuTag",stmp); menuTag = TString(stmp);
       cfg.lookupValue("run.versionTag",stmp); versionTag = TString(stmp);
       cfg.lookupValue("run.doPrintAll",doPrintAll);
@@ -112,7 +120,8 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
          pnames.push_back(TString(stmp));
          itmp = isPS[i];
          pisPhysicsSample.push_back(itmp);
-         stmp = pa[i];
+	 if (useINPATH_INFILE == true) stmp = getenv("INPATH");
+         else stmp = pa[i];
          // LA add trailing slash to directories if missing
          string ppath = stmp;
          string lastChar=ppath.substr(ppath.size()-1);
@@ -120,7 +129,7 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
 
 
          ppaths.push_back(TString(ppath));
-	 if (isCondor) stmp = getenv("INFILE");
+	 if (useINPATH_INFILE == true) stmp = getenv("INFILE");
          else stmp = fn[i];
          pfnames.push_back(TString(stmp));
          ftmp = xs[i];
@@ -383,6 +392,12 @@ void OHltConfig::print()
       cout << "PD prescale factor: " << prescaleNormalization << endl;
    }
    cout << "isCounts: " << isCounts << endl;
+   cout << "isMCPUreweight: " << isMCPUreweight << endl;
+   if (isMCPUreweight == true) 
+     {
+       cout << "MCPUfile: " << MCPUfile << endl;
+       cout << "DataPUfile: " << DataPUfile << endl;
+     }
    cout << "doPrintAll: " << doPrintAll << endl;
    cout << "doDeterministicPrescale: " << doDeterministicPrescale << endl;
    cout << "useNonIntegerPrescales: " << useNonIntegerPrescales << endl;
