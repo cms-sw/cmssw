@@ -1474,6 +1474,8 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
 
     const reco::PFRecHit& rh = *(cluster.rechits_[ic].recHitRef());
 
+    hits_and_fracts.push_back(std::make_pair(DetId(rh.detId()),
+				     cluster.rechits_[ic].fraction()));
     if(rhi != seedIndex) { // not the seed
       if( posCalcNCrystal == 5 ) { // pos calculated from the 5 neighbours only
 	if(!rh.isNeighbour4(seedIndex) ) {
@@ -1486,13 +1488,9 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
 	}
       }
     }
-    hits_and_fracts.push_back(std::make_pair(DetId(rh.detId()),
-					    cluster.rechits_[ic].fraction()));
+    
     double fraction = hits_and_fracts.back().second;
     double recHitEnergy = rh.energy() * fraction;
-  
-    
-
     double norm = fraction < 1E-9 ? 0. : max(0., log(recHitEnergy/p1));
         
     const math::XYZPoint& rechitposxyz = rh.position();
