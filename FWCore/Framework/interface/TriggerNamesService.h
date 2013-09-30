@@ -115,13 +115,6 @@ namespace edm {
 	}
       }
 
-      void loadPosMap(PosMap& posmap, Strings const& names) {
-        size_type const n(names.size());
-	for (size_type i = 0; i != n; ++i) {
-	  posmap[names[i]] = i;
-	}
-      }
-      
       std::string const& getProcessName() const { return process_name_; }
       bool wantSummary() const { return wantSummary_; }
 
@@ -129,6 +122,13 @@ namespace edm {
       edm::ParameterSet const& getTriggerPSet() const { return trigger_pset_; }
 
     private:
+
+      void loadPosMap(PosMap& posmap, Strings const& names) {
+        size_type const n(names.size());
+	for (size_type i = 0; i != n; ++i) {
+	  posmap[names[i]] = i;
+	}
+      }
 
       edm::ParameterSet trigger_pset_;
 
