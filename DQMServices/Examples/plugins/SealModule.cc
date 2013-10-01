@@ -12,4 +12,7 @@ DEFINE_FWK_MODULE(ConverterTester);
 DEFINE_FWK_MODULE(HarvestingAnalyzer);
 #include <DQMServices/Examples/interface/HarvestingDataCertification.h>
 DEFINE_FWK_MODULE(HarvestingDataCertification);
-
+#include <DQMServices/Examples/interface/DQMExample_Step1.h>
+DEFINE_FWK_MODULE(DQMExample_Step1);
+#include <DQMServices/Examples/interface/DQMExample_Step2.h>
+DEFINE_FWK_MODULE(DQMExample_Step2);
