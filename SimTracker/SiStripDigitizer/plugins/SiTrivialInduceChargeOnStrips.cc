@@ -147,6 +147,7 @@ induceVector(const SiChargeCollectionDrifter::collection_type& collection_points
   const StripTopology& topology = dynamic_cast<const StripTopology&>(det.specificTopology());
   const int Nstrips =  topology.nstrips();
 
+  if (Nstrips == 0) return;
 
   const int NP = collection_points.size();
   if(0==NP) return;
