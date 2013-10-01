@@ -95,7 +95,6 @@ TouchableToHistory::Nav_Story TouchableToHistory::getNavStory(DDFilteredView& i)
 }
 
 TouchableToHistory::Nav_Story TouchableToHistory::touchableToNavStory(const G4VTouchable *v) {
-  static G4String tobinactive("TOBInactive");
   Nav_Story temp;
 #ifdef DEBUG    
   std::vector<int> debugint;
@@ -104,7 +103,7 @@ TouchableToHistory::Nav_Story TouchableToHistory::touchableToNavStory(const G4VT
   int levels = v->GetHistoryDepth();
   
   for (int k=0; k<=levels; k++){
-    if (v->GetVolume(k)->GetLogicalVolume()->GetName() != tobinactive) {
+    if (v->GetVolume(k)->GetLogicalVolume()->GetName() != "TOBInactive") {
       temp.push_back(
 		     std::pair<int,std::string>
 		     (v->GetVolume(k)->GetCopyNo(),
