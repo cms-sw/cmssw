@@ -6,7 +6,7 @@ GflashShowino::GflashShowino()
     thePathLengthOnEcal(0), theStepLengthToHcal(0), theStepLengthToOut(0),  
     thePathLength(0), theGlobalTime(0), thePosition(0,0,0), theEnergyDeposited(0)
 {
-  theHelix =  new GflashTrajectory;;
+  theHelix =  new GflashTrajectory;
 }
 
 GflashShowino::~GflashShowino() 
@@ -189,10 +189,10 @@ Gflash3Vector& GflashShowino::simulateFirstInteractionPoint(int fastSimShowerTyp
   }
 
   double pathLength  = thePathLengthOnEcal + depthAtShower;
-  GflashTrajectoryPoint trajectoryPoint;
-  theHelix->getGflashTrajectoryPoint(trajectoryPoint,pathLength);
+
+  theHelix->getGflashTrajectoryPoint(theTrajectoryPoint,pathLength);
 
   //return the initial showino position at the shower starting position
-  return trajectoryPoint.getPosition();
+  return theTrajectoryPoint.getPosition();
 
 }
