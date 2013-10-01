@@ -1,4 +1,46 @@
 import FWCore.ParameterSet.Config as cms
+from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
+import os
+
+def find_in_path(name, paths):
+    for path in paths.split(':'):
+        for root, dirs, files in os.walk(path):
+            if name in files:
+                return os.path.join(root, name)
+            
+the_path = [os.environ['CMSSW_BASE'],os.environ['CMSSW_RELEASE_BASE']]
+the_path = ':'.join([ '%s/src/RecoEcal/EgammaClusterProducers/data/'%a for a in the_path])
+LocalPFECALGBRESSource = cms.ESSource(
+    "PoolDBESSource",
+    CondDBCommon,
+    DumpStat=cms.untracked.bool(False),
+    toGet = cms.VPSet(
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('pfecalsc_EBCorrection'),
+    label = cms.untracked.string('pfecalsc_EBCorrection')
+    ),        
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('pfecalsc_EECorrection'),
+        label = cms.untracked.string('pfecalsc_EECorrection')
+      ),     
+    )
+)
+
+GBRPrefer = cms.ESPrefer(
+    'PoolDBESSource',
+    'GlobalTag',
+    GBRWrapperRcd = cms.vstring('GBRForest/pfecalsc_EBCorrection',
+                                'GBRForest/pfecalsc_EECorrection')
+)
+
+to_connect = find_in_path('pfecalsc_regression_weights_01092013.db',the_path)
+if to_connect is not None:
+    LocalPFECALGBRESSource.connect = 'sqlite_file:%s'%to_connect
+else:
+    del LocalPFECALGBRESSource
+    del GBRPrefer
 
 particleFlowSuperClusterECALBox = cms.EDProducer(
     "PFECALSuperClusterProducer",
@@ -28,6 +70,11 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
 
     # are the seed thresholds Et or Energy?
     seedThresholdIsET = cms.bool(True),
+
+    # regression setup
+    useRegression = cms.bool(False), #regressions are mustache only
+    regressionKeyEB = cms.string('pfecalsc_EBCorrection'),
+    regressionKeyEE = cms.string('pfecalsc_EECorrection'),
     
     # threshold in ECAL
     thresh_PFClusterSeedBarrel = cms.double(3.0),
@@ -87,7 +134,11 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
 
     # are the seed thresholds Et or Energy?
     seedThresholdIsET = cms.bool(True),
-
+    # regression setup
+    useRegression = cms.bool(True),
+    regressionKeyEB = cms.string('pfecalsc_EBCorrection'),
+    regressionKeyEE = cms.string('pfecalsc_EECorrection'),
+    
     # threshold in ECAL
     thresh_PFClusterSeedBarrel = cms.double(3.0),
     thresh_PFClusterBarrel = cms.double(0.0),
