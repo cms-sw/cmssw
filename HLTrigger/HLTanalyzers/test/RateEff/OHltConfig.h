@@ -38,6 +38,13 @@ public:
    int nEntries;
    int nPrintStatusEvery;
    bool isRealData;
+   bool isCounts;
+   bool useINPATH_INFILE;
+   bool isMCPUreweight;
+   TString MCPUfile;
+   TString DataPUfile;
+   TString MCPUhisto;
+   TString DataPUhisto;
    TString menuTag;
    TString versionTag;
    bool doPrintAll;
@@ -45,6 +52,9 @@ public:
    bool useNonIntegerPrescales; // default is integer prescales
    bool readRefPrescalesFromNtuple; // default is read prescales from config
    TString nonlinearPileupFit; // default is to do a linear extrapolation
+   TString alcaCondition; 
+   int lumiBinsForPileupFit; // default is 150 LS per bin
+
    TString dsList;
    /*************************/
 
