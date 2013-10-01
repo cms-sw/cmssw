@@ -15,6 +15,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+
 using namespace std;
 using namespace edm;
 
@@ -32,6 +35,11 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
     
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
+
+  use_regression = iConfig.getParameter<bool>("useRegression"); 
+  eb_reg_key = iConfig.getParameter<std::string>("regressionKeyEB");
+  ee_reg_key = iConfig.getParameter<std::string>("regressionKeyEE");
+  gbr_record = NULL;
 
   std::string _typename = iConfig.getParameter<std::string>("ClusteringType");
   if( _typename == ClusterType__BOX ) {
@@ -147,7 +155,17 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 
 PFECALSuperClusterProducer::~PFECALSuperClusterProducer() {}
 
-
+void PFECALSuperClusterProducer::
+beginRun(const edm::Run& iR, const edm::EventSetup& iE) {
+  if(!use_regression) return;
+  const GBRWrapperRcd& from_es = iE.get<GBRWrapperRcd>();
+  if( !gbr_record || 
+      from_es.cacheIdentifier() != gbr_record->cacheIdentifier() ) {
+    gbr_record = &from_es;
+    gbr_record->get(eb_reg_key.c_str(),eb_reg);    
+    gbr_record->get(ee_reg_key.c_str(),ee_reg);
+  }  
+}
 
 
 void PFECALSuperClusterProducer::produce(edm::Event& iEvent, 
@@ -173,6 +191,90 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
   iEvent.put(superClusterAlgo_.getEEOutputSCCollection(), 
 	     PFSuperClusterCollectionEndcapWithPreshower_);
 }
-  
+
+double PFECALSuperClusterProducer::
+calculateRegressedEnergy(const reco::SuperCluster& sc) {
+  edm::Ptr<reco::PFCluster> seed(sc.seed());
+  memset(rinputs,0,33*sizeof(float));
+  switch( seed->layer() ) {
+  case PFLayer::ECAL_BARREL:
+    /*
+      nVtx
+      scEta
+      scPhi
+      scEtaWidth
+      scPhiWidth
+      scSeedR9
+      scSeedRawEnergy/scRawEnergy
+      scSeedEmax/scRawEnergy
+      scSeedE2nd/scRawEnergy
+      scSeedLeftRightAsym
+      scSeedTopBottomAsym
+      scSeedSigmaIetaIeta
+      scSeedSigmaIetaIphi
+      scSeedSigmaIphiIphi
+      N_ECALClusters
+      clusterMaxDR
+      clusterMaxDRDPhi
+      clusterMaxDRDEta
+      clusterMaxDRRawEnergy/scRawEnergy
+      clusterRawEnergy[0]/scRawEnergy
+      clusterRawEnergy[1]/scRawEnergy
+      clusterRawEnergy[2]/scRawEnergy
+      clusterDPhiToSeed[0]
+      clusterDPhiToSeed[1]
+      clusterDPhiToSeed[2]
+      clusterDEtaToSeed[0]
+      clusterDEtaToSeed[1]
+      clusterDEtaToSeed[2]
+      scSeedCryEta
+      scSeedCryPhi
+      scSeedCryIeta
+      scSeedCryIphi
+      scCalibratedEnergy
+    */
+    return eb_reg->GetResponse(rinputs);
+    break;
+  case PFLayer::ECAL_ENDCAP:
+    break;
+    /*
+      nVtx
+      scEta
+      scPhi
+      scEtaWidth
+      scPhiWidth
+      scSeedR9
+      scSeedRawEnergy/scRawEnergy
+      scSeedEmax/scRawEnergy
+      scSeedE2nd/scRawEnergy
+      scSeedLeftRightAsym
+      scSeedTopBottomAsym
+      scSeedSigmaIetaIeta
+      scSeedSigmaIetaIphi
+      scSeedSigmaIphiIphi
+      N_ECALClusters
+      clusterMaxDR
+      clusterMaxDRDPhi
+      clusterMaxDRDEta
+      clusterMaxDRRawEnergy/scRawEnergy
+      clusterRawEnergy[0]/scRawEnergy
+      clusterRawEnergy[1]/scRawEnergy
+      clusterRawEnergy[2]/scRawEnergy
+      clusterDPhiToSeed[0]
+      clusterDPhiToSeed[1]
+      clusterDPhiToSeed[2]
+      clusterDEtaToSeed[0]
+      clusterDEtaToSeed[1]
+      clusterDEtaToSeed[2]
+      scPreshowerEnergy/scRawEnergy
+      scCalibratedEnergy
+    */
+    return ee_reg->GetResponse(rinputs);
+  default:
+   throw cms::Exception("PFECALSuperClusterProducer::calculateRegressedEnergy")
+     << "Supercluster seed is either EB nor EE!" << std::endl;
+  }
+  return -1;
+}
 
 

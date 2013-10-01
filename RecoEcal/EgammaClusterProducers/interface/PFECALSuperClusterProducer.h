@@ -8,6 +8,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,19 +32,20 @@ Additional authors for Mustache: Y. Gershtein, R. Patel, L. Gray
 class CaloSubdetectorTopology;
 class CaloSubdetectorGeometry;
 class DetId;
+class GBRForest;
+class GBRWrapperRcd;
 
 
 class PFECALSuperClusterProducer : public edm::EDProducer {
- public:
+ public:  
   explicit PFECALSuperClusterProducer(const edm::ParameterSet&);
   ~PFECALSuperClusterProducer();
 
-  
+  virtual void beginRun(const edm::Run& iR, const edm::EventSetup& iE);
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
 
- private:
-
+ private:  
   // ----------member data ---------------------------
 
   /// clustering algorithm 
@@ -55,6 +57,13 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
 
   /// verbose ?
   bool   verbose_;
+  // regression
+  bool use_regression;
+  float rinputs[33];
+  std::string eb_reg_key, ee_reg_key;
+  const GBRWrapperRcd* gbr_record;
+  edm::ESHandle<GBRForest> eb_reg, ee_reg;
+  double calculateRegressedEnergy(const reco::SuperCluster&);
   
   edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClusters_;
   edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation>   inputTagPFClustersES_;
