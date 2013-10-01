@@ -222,7 +222,7 @@ CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
 {
    const CaloGenericDetId cgId ( detId ) ;
 
-   if(!m_deltaPhi )
+   if(!m_deltaPhi.load(std::memory_order_acquire))
    {
      const uint32_t kSize ( sizeForDenseIndex(detId));
      auto ptr = new std::vector<CCGFloat>(kSize);
@@ -264,17 +264,17 @@ CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
 	 }
       }
     std::vector<CCGFloat>* expect = nullptr;
-    bool exchanged = m_deltaPhi.compare_exchange_strong(expect, ptr);
+    bool exchanged = m_deltaPhi.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
     if (!exchanged) delete ptr;
    }
-   return (*m_deltaPhi)[ indexFor(detId) ] ;
+   return (*m_deltaPhi.load(std::memory_order_acquire))[ indexFor(detId) ] ;
 }
 
 CCGFloat 
 CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const
 {
 
-   if(!m_deltaEta )
+   if(!m_deltaEta.load(std::memory_order_acquire))
    {
      const uint32_t kSize ( sizeForDenseIndex(detId));
      auto ptr = new std::vector<CCGFloat> ( kSize ) ;
@@ -314,10 +314,10 @@ CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const
 	 }
       }
     std::vector<CCGFloat>* expect = nullptr;
-    bool exchanged = m_deltaEta.compare_exchange_strong(expect, ptr);
+    bool exchanged = m_deltaEta.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
     if (!exchanged) delete ptr;
    }
-   return (*m_deltaEta)[ indexFor(detId)];
+   return (*m_deltaEta.load(std::memory_order_acquire))[ indexFor(detId)];
 }
 
 
