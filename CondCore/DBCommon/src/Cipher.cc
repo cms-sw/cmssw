@@ -5,6 +5,7 @@
 #include "blowfish.h"
 // GNU base 64 encoding
 #include "base64.h"
+#include <cassert>
 
 cond::Cipher::Cipher( const std::string& key ):
   m_ctx(new BLOWFISH_CTX){
@@ -20,6 +21,8 @@ size_t cond::Cipher::bf_process_alloc( const unsigned char* input,
 				       size_t input_size, 
 				       unsigned char*& output,
 				       bool decrypt ){
+  assert(input_size != 0);
+
   uInt32 L, R;
   unsigned int j = sizeof(uInt32);
 
