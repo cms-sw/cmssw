@@ -24,7 +24,7 @@ namespace edm {
   class RunAuxiliary;
   class RunID;
   class Timestamp;
-  class BranchMapper;
+  class ProductProvenanceRetriever;
 }
 
 namespace cms {

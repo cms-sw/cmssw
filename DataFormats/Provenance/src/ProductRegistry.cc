@@ -54,7 +54,6 @@ namespace edm {
       runNextIndexValue_(0),
 
       branchIDToIndex_(),
-      producedBranchListIndex_(std::numeric_limits<BranchListIndex>::max()),
       missingDictionaries_() {
     for(bool& isProduced : productProduced_) isProduced = false;
   }
@@ -73,7 +72,6 @@ namespace edm {
     runNextIndexValue_ = 0;
 
     branchIDToIndex_.clear();
-    producedBranchListIndex_ = std::numeric_limits<BranchListIndex>::max();
     missingDictionaries_.clear();
   }
 

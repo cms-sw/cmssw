@@ -214,7 +214,7 @@ m_ep()
 {
   //Setup the principals
   m_prodReg->setFrozen();
-  m_idHelper->updateRegistries(*m_prodReg);
+  m_idHelper->updateFromRegistry(*m_prodReg);
   edm::EventID eventID;
   
   std::string uuid = edm::createGlobalIdentifier();
