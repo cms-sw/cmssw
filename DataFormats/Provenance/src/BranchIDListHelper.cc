@@ -3,25 +3,29 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
+#include <cassert>
+
 namespace edm {
 
   BranchIDListHelper::BranchIDListHelper() :
     branchIDLists_(),
     branchIDToIndexMap_(),
-    branchListIndexMapper_() {}
+    inputIndexToJobIndex_(),
+    producedBranchListIndex_(std::numeric_limits<BranchListIndex>::max())
+  {}
 
   bool
-  BranchIDListHelper:: updateFromInput(BranchIDLists const& bidlists) {
+  BranchIDListHelper::updateFromInput(BranchIDLists const& bidlists) {
     //The BranchIDLists is a list of lists
     // this routine compares bidlists to branchIDLists_ to see if a list
     // in branchIDLists_ is already in bidlist and if it isn't we insert
     // that new list into branchIDLists_
     bool unchanged = true;
-    branchListIndexMapper_.clear();
-    typedef BranchIDLists::const_iterator Iter;
-    for(Iter it = bidlists.begin(), itEnd = bidlists.end(); it != itEnd; ++it) {
+    inputIndexToJobIndex_.clear();
+    inputIndexToJobIndex_.resize(bidlists.size());
+    for(auto it = bidlists.begin(), itEnd = bidlists.end(); it != itEnd; ++it) {
       BranchListIndex oldBlix = it - bidlists.begin();
-      Iter j = find_in_all(branchIDLists_, *it);
+      auto j = find_in_all(branchIDLists_, *it);
       BranchListIndex blix = j - branchIDLists_.begin();
       if(j == branchIDLists_.end()) {
         branchIDLists_.push_back(*it);
@@ -30,7 +34,7 @@ namespace edm {
           branchIDToIndexMap_.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
         }
       }
-      branchListIndexMapper_.insert(std::make_pair(oldBlix, blix));
+      inputIndexToJobIndex_[oldBlix]=blix;
       if(oldBlix != blix) {
         unchanged = false;
       }
@@ -39,7 +43,7 @@ namespace edm {
   }
 
   void
-  BranchIDListHelper::updateRegistries(ProductRegistry& preg) {
+  BranchIDListHelper::updateFromRegistry(ProductRegistry const& preg) {
     BranchIDList bidlist;
     // Add entries for current process for ProductID to BranchID mapping.
     for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(), itEnd = preg.productList().end();
@@ -52,7 +56,8 @@ namespace edm {
     }
     if(!bidlist.empty()) {
       BranchListIndex blix = branchIDLists_.size();
-      preg.setProducedBranchListIndex(blix);
+      producedBranchListIndex_ = blix;
+      //preg.setProducedBranchListIndex(blix);
       branchIDLists_.push_back(bidlist);
       for(BranchIDList::const_iterator i = bidlist.begin(), iEnd = bidlist.end(); i != iEnd; ++i) {
         ProductIndex pix = i - bidlist.begin();
@@ -62,9 +67,10 @@ namespace edm {
   }
 
   void
-  BranchIDListHelper::fixBranchListIndexes(BranchListIndexes& indexes) {
+  BranchIDListHelper::fixBranchListIndexes(BranchListIndexes& indexes) const {
     for(BranchListIndex& i : indexes) {
-      i = branchListIndexMapper_[i];
+      assert(i<inputIndexToJobIndex_.size());
+      i = inputIndexToJobIndex_[i];
     }
   }
 }

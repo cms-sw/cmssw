@@ -15,7 +15,7 @@ is the DataBlock.
 #include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
-#include "DataFormats/Provenance/interface/BranchMapper.h"
+#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -30,7 +30,7 @@ is the DataBlock.
 
 namespace edm {
   class BranchIDListHelper;
-  class BranchMapper;
+  class ProductProvenanceRetriever;
   class DelayedReader;
   class EventID;
   class HistoryAppender;
@@ -58,11 +58,20 @@ namespace edm {
 
     void fillEventPrincipal(EventAuxiliary const& aux,
         ProcessHistoryRegistry const& processHistoryRegistry,
-        boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs = boost::shared_ptr<EventSelectionIDVector>(),
-        boost::shared_ptr<BranchListIndexes> branchListIndexes = boost::shared_ptr<BranchListIndexes>(),
-        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-        DelayedReader* reader = 0);
+                            DelayedReader* reader = nullptr);
+    void fillEventPrincipal(EventAuxiliary const& aux,
+                            ProcessHistoryRegistry const& processHistoryRegistry,
+                            EventSelectionIDVector&& eventSelectionIDs,
+                            BranchListIndexes&& branchListIndexes);
+    //provRetriever is changed via a call to ProductProvenanceRetriever::deepSwap
+    void fillEventPrincipal(EventAuxiliary const& aux,
+                            ProcessHistoryRegistry const& processHistoryRegistry,
+                            EventSelectionIDVector&& eventSelectionIDs,
+                            BranchListIndexes&& branchListIndexes,
+                            ProductProvenanceRetriever& provRetriever,
+                            DelayedReader* reader = nullptr);
 
+    
     void clearEventPrincipal();
 
     LuminosityBlockPrincipal const& luminosityBlockPrincipal() const {
@@ -121,7 +130,7 @@ namespace edm {
 
     RunPrincipal const& runPrincipal() const;
 
-    boost::shared_ptr<BranchMapper> branchMapperPtr() const {return branchMapperPtr_;}
+    boost::shared_ptr<ProductProvenanceRetriever> productProvenanceRetrieverPtr() const {return provRetrieverPtr_;}
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler);
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler() const;
@@ -150,8 +159,8 @@ namespace edm {
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 
-    void mergeMappers(EventPrincipal const& other) {
-      branchMapperPtr_->mergeMappers(other.branchMapperPtr());
+    void mergeProvenanceRetrievers(EventPrincipal const& other) {
+      provRetrieverPtr_->mergeProvenanceRetrievers(other.productProvenanceRetrieverPtr());
     }
 
     using Base::getProvenance;
@@ -188,19 +197,19 @@ namespace edm {
 
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
 
-    // Pointer to the 'mapper' that will get provenance information from the persistent store.
-    boost::shared_ptr<BranchMapper> branchMapperPtr_;
+    // Pointer to the 'retriever' that will get provenance information from the persistent store.
+    boost::shared_ptr<ProductProvenanceRetriever> provRetrieverPtr_;
 
     // Handler for unscheduled modules
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;
 
     mutable std::vector<std::string> moduleLabelsRunning_;
 
-    boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs_;
+    EventSelectionIDVector eventSelectionIDs_;
 
     boost::shared_ptr<BranchIDListHelper const> branchIDListHelper_;
 
-    boost::shared_ptr<BranchListIndexes> branchListIndexes_;
+    BranchListIndexes branchListIndexes_;
 
     std::map<BranchListIndex, ProcessIndex> branchListIndexToProcessIndex_;
     

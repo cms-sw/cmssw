@@ -419,7 +419,7 @@ namespace edm {
     // already relied on the WorkerManager being full.
     assert (all_workers_count == allWorkers().size());
 
-    branchIDListHelper.updateRegistries(preg);
+    branchIDListHelper.updateFromRegistry(preg);
 
     preg.setFrozen();
 

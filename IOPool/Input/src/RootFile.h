@@ -36,7 +36,7 @@ namespace edm {
   // Class RootFile: supports file reading.
 
   class BranchIDListHelper;
-  class BranchMapper;
+  class ProductProvenanceRetriever;
   class DaqProvenanceHelper;
   class DuplicateChecker;
   class EventSkipperByID;
@@ -170,7 +170,7 @@ namespace edm {
                                     std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile);
 
     std::unique_ptr<MakeProvenanceReader> makeProvenanceReaderMaker();
-    boost::shared_ptr<BranchMapper> makeBranchMapper();
+    boost::shared_ptr<ProductProvenanceRetriever> makeProductProvenanceRetriever();
 
     std::string const file_;
     std::string const logicalFile_;
@@ -207,14 +207,14 @@ namespace edm {
     int forcedRunOffset_;
     std::map<std::string, std::string> newBranchToOldBranch_;
     TTree* eventHistoryTree_;			// backward compatibility
-    boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs_;
-    boost::shared_ptr<BranchListIndexes> branchListIndexes_;
+    EventSelectionIDVector eventSelectionIDs_;
+    BranchListIndexes branchListIndexes_;
     std::unique_ptr<History> history_; // backward compatibility
     boost::shared_ptr<BranchChildren> branchChildren_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     std::unique_ptr<ProvenanceAdaptor> provenanceAdaptor_; // backward comatibility
     std::unique_ptr<MakeProvenanceReader> provenanceReaderMaker_;
-    mutable boost::shared_ptr<BranchMapper> eventBranchMapper_;
+    mutable boost::shared_ptr<ProductProvenanceRetriever> eventProductProvenanceRetriever_;
     std::vector<ParentageID> parentageIDLookup_;
     std::unique_ptr<DaqProvenanceHelper> daqProvenanceHelper_;
   }; // class RootFile

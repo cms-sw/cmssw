@@ -47,7 +47,6 @@ namespace edm {
     virtual void mergeReaders_(DelayedReader* other) {nextReader_ = other;}
     virtual void reset_() {nextReader_ = 0;}
     BranchMap const& branches() const {return tree_.branches();}
-    EntryNumber const& entryNumber() const {return tree_.entryNumber();}
     iterator branchIter(BranchKey const& k) const {return branches().find(k);}
     bool found(iterator const& iter) const {return iter != branches().end();}
     BranchInfo const& getBranchInfo(iterator const& iter) const {return iter->second; }

@@ -194,14 +194,14 @@ namespace edm {
       forcedRunOffset_(0),
       newBranchToOldBranch_(),
       eventHistoryTree_(nullptr),
-      eventSelectionIDs_(new EventSelectionIDVector),
-      branchListIndexes_(new BranchListIndexes),
+      eventSelectionIDs_(),
+      branchListIndexes_(),
       history_(),
       branchChildren_(new BranchChildren),
       duplicateChecker_(duplicateChecker),
       provenanceAdaptor_(),
       provenanceReaderMaker_(),
-      eventBranchMapper_(),
+      eventProductProvenanceRetriever_(),
       parentageIDLookup_(),
       daqProvenanceHelper_() {
 
@@ -401,7 +401,13 @@ namespace edm {
     }
 
     eventTree_.trainCache(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
-
+        
+    // Update the branch id info. This has to be done before validateFile since
+    // depending on the file format, the branchIDListHelper_ may have its fixBranchListIndexes call made
+    if(inputType == InputType::Primary || inputType == InputType::SecondarySource) {
+      branchListIndexesUnchanged_ = branchIDListHelper_->updateFromInput(*branchIDLists_);
+    }
+        
     validateFile(inputType, usingGoToEvent);
 
     // Here, we make the class that will make the ProvenanceReader
@@ -465,11 +471,6 @@ namespace edm {
 
     // Determine if this file is fast clonable.
     setIfFastClonable(remainingEvents, remainingLumis);
-
-    // Update the branch id info.
-    if(inputType == InputType::Primary) {
-      branchListIndexesUnchanged_ = branchIDListHelper_->updateFromInput(*branchIDLists_);
-    }
 
     setRefCoreStreamer(true);  // backward compatibility
 
@@ -1171,22 +1172,22 @@ namespace edm {
       eventHistoryBranch->SetAddress(&pHistory);
       roottree::getEntry(eventHistoryTree_, eventTree_.entryNumber());
       eventAux_.setProcessHistoryID(history_->processHistoryID());
-      eventSelectionIDs_.reset(&history_->eventSelectionIDs(), do_nothing_deleter());
-      branchListIndexes_.reset(&history_->branchListIndexes(), do_nothing_deleter());
+      eventSelectionIDs_.swap(history_->eventSelectionIDs());
+      branchListIndexes_.swap(history_->branchListIndexes());
     } else if(fileFormatVersion().noMetaDataTrees()) {
       // Current format
-      EventSelectionIDVector* pESV = eventSelectionIDs_.get();
+      EventSelectionIDVector* pESV = &eventSelectionIDs_;
       TBranch* eventSelectionIDBranch = eventTree_.tree()->GetBranch(poolNames::eventSelectionsBranchName().c_str());
       assert(eventSelectionIDBranch != nullptr);
       eventTree_.fillBranchEntry(eventSelectionIDBranch, pESV);
-      BranchListIndexes* pBLI = branchListIndexes_.get();
+      BranchListIndexes* pBLI = &branchListIndexes_;
       TBranch* branchListIndexesBranch = eventTree_.tree()->GetBranch(poolNames::branchListIndexesBranchName().c_str());
       assert(branchListIndexesBranch != nullptr);
       eventTree_.fillBranchEntry(branchListIndexesBranch, pBLI);
     }
     if(provenanceAdaptor_) {
       eventAux_.setProcessHistoryID(provenanceAdaptor_->convertID(eventAux().processHistoryID()));
-      for(auto& esID : *eventSelectionIDs_) {
+      for(auto& esID : eventSelectionIDs_) {
         esID = provenanceAdaptor_->convertID(esID);
       }
     }
@@ -1195,9 +1196,9 @@ namespace edm {
     }
     if(!fileFormatVersion().splitProductIDs()) {
       // old format.  branchListIndexes_ must be filled in from the ProvenanceAdaptor.
-      provenanceAdaptor_->branchListIndexes(*branchListIndexes_);
+      provenanceAdaptor_->branchListIndexes(branchListIndexes_);
     }
-    branchIDListHelper_->fixBranchListIndexes(*branchListIndexes_);
+    branchIDListHelper_->fixBranchListIndexes(branchListIndexes_);
   }
 
   boost::shared_ptr<LuminosityBlockAuxiliary>
@@ -1387,11 +1388,11 @@ namespace edm {
     // We're not done ... so prepare the EventPrincipal
     eventTree_.insertEntryForIndex(principal.transitionIndex());
     principal.fillEventPrincipal(eventAux(),
-                             *processHistoryRegistry_,
-                             eventSelectionIDs_,
-                             branchListIndexes_,
-                             makeBranchMapper(),
-                             eventTree_.rootDelayedReader());
+                                 *processHistoryRegistry_,
+                                 std::move(eventSelectionIDs_),
+                                 std::move(branchListIndexes_),
+                                 *(makeProductProvenanceRetriever()),
+                                 eventTree_.rootDelayedReader());
 
     // report event read from file
     filePtr_->eventReadFromFile();
@@ -1730,20 +1731,20 @@ namespace edm {
     }
   }
 
-  boost::shared_ptr<BranchMapper>
-  RootFile::makeBranchMapper() {
-    if(!eventBranchMapper_) {
-      eventBranchMapper_.reset(new BranchMapper(provenanceReaderMaker_->makeReader(eventTree_, daqProvenanceHelper_.get())));
+  boost::shared_ptr<ProductProvenanceRetriever>
+  RootFile::makeProductProvenanceRetriever() {
+    if(!eventProductProvenanceRetriever_) {
+      eventProductProvenanceRetriever_.reset(new ProductProvenanceRetriever(provenanceReaderMaker_->makeReader(eventTree_, daqProvenanceHelper_.get())));
     }
-    eventBranchMapper_->reset();
-    return eventBranchMapper_;
+    eventProductProvenanceRetriever_->reset();
+    return eventProductProvenanceRetriever_;
   }
 
   class ReducedProvenanceReader : public ProvenanceReaderBase {
   public:
     ReducedProvenanceReader(RootTree* iRootTree, std::vector<ParentageID> const& iParentageIDLookup, DaqProvenanceHelper const* daqProvenanceHelper);
   private:
-    virtual void readProvenance(BranchMapper const& mapper) const override;
+    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int) const override;
     RootTree* rootTree_;
     TBranch* provBranch_;
     StoredProductProvenanceVector provVector_;
@@ -1765,15 +1766,15 @@ namespace edm {
   }
 
   void
-  ReducedProvenanceReader::readProvenance(BranchMapper const& mapper) const {
+  ReducedProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
     ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
-    me->rootTree_->fillBranchEntry(me->provBranch_, me->pProvVector_);
+    me->rootTree_->fillBranchEntry(me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
     setRefCoreStreamer(true);
     if(daqProvenanceHelper_) {
       for(auto const& prov : provVector_) {
         BranchID bid(prov.branchID_);
-        mapper.insertIntoSet(ProductProvenance(daqProvenanceHelper_->mapBranchID(BranchID(prov.branchID_)),
-                                               daqProvenanceHelper_->mapParentageID(parentageIDLookup_[prov.parentageIDIndex_])));
+        provRetriever.insertIntoSet(ProductProvenance(daqProvenanceHelper_->mapBranchID(BranchID(prov.branchID_)),
+                                                      daqProvenanceHelper_->mapParentageID(parentageIDLookup_[prov.parentageIDIndex_])));
       }
     } else {
       for(auto const& prov : provVector_) {
@@ -1784,7 +1785,7 @@ namespace edm {
             << "This should never happen.\n"
             << "Please report this to the framework hypernews forum 'hn-cms-edmFramework@cern.ch'.\n";
         }
-        mapper.insertIntoSet(ProductProvenance(BranchID(prov.branchID_), parentageIDLookup_[prov.parentageIDIndex_]));
+        provRetriever.insertIntoSet(ProductProvenance(BranchID(prov.branchID_), parentageIDLookup_[prov.parentageIDIndex_]));
       }
     }
   }
@@ -1794,7 +1795,7 @@ namespace edm {
     explicit FullProvenanceReader(RootTree* rootTree, DaqProvenanceHelper const* daqProvenanceHelper);
     virtual ~FullProvenanceReader() {}
   private:
-    virtual void readProvenance(BranchMapper const& mapper) const override;
+    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const override;
     RootTree* rootTree_;
     ProductProvenanceVector infoVector_;
     mutable ProductProvenanceVector* pInfoVector_;
@@ -1810,17 +1811,17 @@ namespace edm {
   }
 
   void
-  FullProvenanceReader::readProvenance(BranchMapper const& mapper) const {
-    rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), pInfoVector_);
+  FullProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
+    rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex), pInfoVector_);
     setRefCoreStreamer(true);
     if(daqProvenanceHelper_) {
       for(auto const& info : infoVector_) {
-        mapper.insertIntoSet(ProductProvenance(daqProvenanceHelper_->mapBranchID(info.branchID()),
+        provRetriever.insertIntoSet(ProductProvenance(daqProvenanceHelper_->mapBranchID(info.branchID()),
                                                daqProvenanceHelper_->mapParentageID(info.parentageID())));
       }
     } else {
       for(auto const& info : infoVector_) {
-        mapper.insertIntoSet(info);
+        provRetriever.insertIntoSet(info);
       }
     }
   }
@@ -1830,7 +1831,7 @@ namespace edm {
     explicit OldProvenanceReader(RootTree* rootTree, EntryDescriptionMap const& theMap, DaqProvenanceHelper const* daqProvenanceHelper);
     virtual ~OldProvenanceReader() {}
   private:
-    virtual void readProvenance(BranchMapper const& mapper) const override;
+    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const override;
     RootTree* rootTree_;
     std::vector<EventEntryInfo> infoVector_;
     mutable std::vector<EventEntryInfo> *pInfoVector_;
@@ -1848,9 +1849,9 @@ namespace edm {
   }
 
   void
-  OldProvenanceReader::readProvenance(BranchMapper const& mapper) const {
+  OldProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
     rootTree_->branchEntryInfoBranch()->SetAddress(&pInfoVector_);
-    roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumber());
+    roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex));
     setRefCoreStreamer(true);
     for(auto const& info : infoVector_) {
       EntryDescriptionMap::const_iterator iter = entryDescriptionMap_.find(info.entryDescriptionID());
@@ -1859,10 +1860,10 @@ namespace edm {
       if(daqProvenanceHelper_) {
         ProductProvenance entry(daqProvenanceHelper_->mapBranchID(info.branchID()),
                                 daqProvenanceHelper_->mapParentageID(parentage.id()));
-        mapper.insertIntoSet(entry);
+        provRetriever.insertIntoSet(entry);
       } else {
         ProductProvenance entry(info.branchID(), parentage.id());
-        mapper.insertIntoSet(entry);
+        provRetriever.insertIntoSet(entry);
       }
     
     }
@@ -1873,7 +1874,7 @@ namespace edm {
     DummyProvenanceReader();
     virtual ~DummyProvenanceReader() {}
   private:
-    virtual void readProvenance(BranchMapper const& mapper) const override;
+    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever,unsigned int) const override;
   };
 
   DummyProvenanceReader::DummyProvenanceReader() :
@@ -1881,7 +1882,7 @@ namespace edm {
   }
 
   void
-  DummyProvenanceReader::readProvenance(BranchMapper const&) const {
+  DummyProvenanceReader::readProvenance(ProductProvenanceRetriever const&, unsigned int) const {
     // Not providing parentage!!!
   }
 

@@ -296,20 +296,20 @@ namespace edm {
     EventAuxiliary aux(principal.aux());
     aux.setProcessHistoryID(principal.processHistoryID());
 
-    boost::shared_ptr<EventSelectionIDVector> esids(new EventSelectionIDVector);
-    *esids = principal.eventSelectionIDs();
+    EventSelectionIDVector esids{principal.eventSelectionIDs()};
     if (principal.productRegistry().anyProductProduced() || !wantAllEvents_) {
-      esids->push_back(selector_config_id_);
+      esids.push_back(selector_config_id_);
     }
 
     EventPrincipal& ep = principalCache_.eventPrincipal(principal.streamID().value());
     auto & processHistoryRegistry = processHistoryRegistries_[principal.streamID().value()];
     processHistoryRegistry.registerProcessHistory(principal.processHistory());
+    BranchListIndexes bli(principal.branchListIndexes());
     ep.fillEventPrincipal(aux,
                           processHistoryRegistry,
-                          esids,
-                          boost::shared_ptr<BranchListIndexes>(new BranchListIndexes(principal.branchListIndexes())),
-                          principal.branchMapperPtr(),
+                          std::move(esids),
+                          std::move(bli),
+                          *(principal.productProvenanceRetrieverPtr()),//NOTE: this transfers the per product provenance
                           principal.reader());
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);

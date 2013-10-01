@@ -204,7 +204,7 @@ namespace edm {
         checkConsistency(eventPrincipal, secondaryEventPrincipal);
         checkHistoryConsistency(eventPrincipal, secondaryEventPrincipal);
         eventPrincipal.recombine(secondaryEventPrincipal, branchIDsToReplace_[InEvent]);
-        eventPrincipal.mergeMappers(secondaryEventPrincipal);
+        eventPrincipal.mergeProvenanceRetrievers(secondaryEventPrincipal);
         secondaryEventPrincipal.clearPrincipal();
       } else {
         throw Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_") <<
