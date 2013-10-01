@@ -31,6 +31,6 @@ namespace cond{
     virtual ~TransactionException() throw(){}
   };
   
-  void throwException( std::string const& message, std::string const& methodName );
+  void throwException( std::string const& message, std::string const& methodName )__attribute__ ((noreturn));
 }
 #endif
