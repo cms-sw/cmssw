@@ -63,6 +63,7 @@ private:
   double theEnergyDeposited;
 
   GflashTrajectory* theHelix;
+  GflashTrajectoryPoint theTrajectoryPoint;
 };
 
 #endif
