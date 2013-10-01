@@ -62,7 +62,7 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("MCZmumu",&nzmumu,"MCZmumu/I");
   HltTree->Branch("MCptEleMax",&ptEleMax,"MCptEleMax/F");
   HltTree->Branch("MCptMuMax",&ptMuMax,"MCptMuMax/F");
-
+  HltTree->Branch("NPUTrueBX0",&npubx0, "NPUTrueBX0/I");
 }
 
 /* **Analyze the event** */
@@ -70,6 +70,7 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
 			 const double        & pthat,
 			 const edm::Handle<std::vector<SimTrack> > & simTracks,
 			 const edm::Handle<std::vector<SimVertex> > & simVertices,
+			 const edm::Handle<std::vector< PileupSummaryInfo > > & PupInfo,
 			 TTree* HltTree) {
 
   //std::cout << " Beginning HLTMCtruth " << std::endl;
@@ -88,6 +89,9 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
     ptEleMax = -999.0;
     ptMuMax  = -999.0;    
     pthatf   = pthat;
+    npubx0  = 0.0;
+
+    int npvtrue = 0; 
 
     if((simTracks.isValid())&&(simVertices.isValid())){
       for (unsigned int j=0; j<simTracks->size(); j++) {
@@ -108,6 +112,19 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
 	mu3 += 1;
 	break;
       }
+
+
+      std::vector<PileupSummaryInfo>::const_iterator PVI;  
+      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {  
+	
+	int BX = PVI->getBunchCrossing();  
+	npvtrue = PVI->getTrueNumInteractions();  
+	if(BX == 0)  
+	  {  
+	    npubx0+=npvtrue;  
+	  }  
+      }  
+      
     }
 
     if (mctruth.isValid()){
