@@ -1,6 +1,10 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+## switch to uncheduled mode
+process.options.allowUnscheduled = cms.untracked.bool(True)
+
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
 
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
@@ -10,10 +14,7 @@ switchJetCollection(process,cms.InputTag('ak5PFJets'),
 
 ## let it run
 process.p = cms.Path(
-  #process.type0PFMEtCorrection
-#* process.patPFMETtype0Corr
-#* process.patDefaultSequence
-  process.patDefaultSequence
+    process.selectedPatCandidates
 )
 
 # apply type I/type I + II PFMEt corrections to pat::MET object
