@@ -22,25 +22,18 @@ std::vector<ALIFileIn*> ALIFileIn::theInstances;
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIFileIn& ALIFileIn::getInstance( const ALIstring& filename )
 {
-  std::vector<ALIFileIn*>::const_iterator vfcite;
-  for( vfcite = theInstances.begin(); vfcite != theInstances.end(); vfcite++) {
-    if( (*vfcite)->name() == filename) {
-      return *(*vfcite);
+  for (auto vfc : theInstances) {
+    if( vfc->name() == filename) {
+      return *vfc;
     }
   }
 
-  ALIFileIn* instance = 0;
-  if( vfcite == theInstances.end() ) {
-    instance = new ALIFileIn( filename );
-    
-    instance->theCurrentFile = -1;
-    instance->openNewFile( filename.c_str() );
-
-    theInstances.push_back( instance );
-  }
-
+  ALIFileIn* instance = new ALIFileIn( filename );
+  instance->theCurrentFile = -1;
+  instance->openNewFile(filename.c_str());
+  theInstances.push_back(instance);
+  
   return *instance;
-
 }
 
 

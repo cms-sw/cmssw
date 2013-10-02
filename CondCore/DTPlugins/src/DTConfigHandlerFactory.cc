@@ -11,5 +11,5 @@ class DTConfigHandlerFactory {
 
 };
 
-static DTConfigHandlerFactory dtchf;
+static const DTConfigHandlerFactory dtchf;
 
