@@ -6,6 +6,7 @@
     <use   name="DataFormats/TrackReco"/>
     <use   name="DataFormats/StdDictionaries"/>
     <use   name="FWCore/ParameterSet"/>
+    <use   name="SimTracker/Common"/>
     <use   name="SimTracker/TrackerHitAssociation"/>
     <use   name="RecoLocalTracker/SiPixelRecHits"/>
   </library>
@@ -16,6 +17,7 @@
     <use   name="DataFormats/TrackReco"/>
     <use   name="DataFormats/StdDictionaries"/>
     <use   name="FWCore/ParameterSet"/>
+    <use   name="SimTracker/Common"/>
     <use   name="SimTracker/TrackerHitAssociation"/>
     <use   name="RecoLocalTracker/SiPixelRecHits"/>
     <use   name="SimDataFormats/TrackingAnalysis"/>
