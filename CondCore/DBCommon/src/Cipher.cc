@@ -24,6 +24,12 @@ size_t cond::Cipher::bf_process_alloc( const unsigned char* input,
   unsigned int j = sizeof(uInt32);
 
   unsigned int output_size=0;
+
+  if( !input_size ) {
+    output = 0;
+    return 0;
+  }
+
   for ( unsigned int i=0; i < input_size; i+=(j*2)){
     output_size = i+2*j;
   }
@@ -60,10 +66,15 @@ size_t cond::Cipher::bf_process_alloc( const unsigned char* input,
 }
     
 size_t cond::Cipher::encrypt( const std::string& input, unsigned char*& output ){
+  if( input.empty() ) {
+    output = 0;
+    return 0;
+  }
   return bf_process_alloc( reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), output, false );;
 }
 
 std::string cond::Cipher::decrypt( const unsigned char* input, size_t inputSize ){
+  if( !inputSize ) return ""; 
   unsigned char* out = 0;
   size_t outSize = bf_process_alloc( input, inputSize, out, true );
   size_t i = 0;
@@ -89,6 +100,7 @@ std::string cond::Cipher::decrypt( const unsigned char* input, size_t inputSize 
 }
 
 std::string cond::Cipher::b64encrypt( const std::string& input ){
+  if( input.empty() ) return "";
   unsigned char* out = 0;
   size_t outSize = bf_process_alloc( reinterpret_cast<const unsigned char*>(input.c_str()), input.size(), out, false );
   char* b64out = 0;
@@ -100,6 +112,7 @@ std::string cond::Cipher::b64encrypt( const std::string& input ){
 }
 
 std::string cond::Cipher::b64decrypt( const std::string& b64in ){
+  if( b64in.empty() ) return "";
   char* input = 0;
   size_t inputSize = 0;
   if( !base64_decode_alloc( b64in.c_str(), b64in.size(), &input, &inputSize ) ){
