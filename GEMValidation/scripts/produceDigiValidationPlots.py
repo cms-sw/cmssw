@@ -20,8 +20,9 @@ ROOT.gROOT.SetBatch(1)
 if __name__ == "__main__":  
 
   inputFile = str(sys.argv[1])
+  if len(inputFile) < 3:
+      inputFile = '/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_2_0_pre5/src/gem_digi_ana.root'
   targetDir = './'
-  
   ## extension for figures - add more?
   ext = ".png"
   
