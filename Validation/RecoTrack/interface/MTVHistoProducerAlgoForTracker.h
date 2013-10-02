@@ -130,6 +130,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   double minEta, maxEta;  int nintEta;  bool useFabsEta;
   double minPt, maxPt;  int nintPt;   bool useInvPt;   bool useLogPt;
   double minHit, maxHit;  int nintHit;
+  double minLayers, maxLayers;  int nintLayers;
   double minPhi, maxPhi;  int nintPhi;
   double minDxy, maxDxy;  int nintDxy;
   double minDz, maxDz;  int nintDz;
@@ -255,7 +256,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
   //---- second set of histograms (originally not used by the SeedGenerator)
   //1D
-  std::vector<MonitorElement*> h_nchi2, h_nchi2_prob, h_losthits;
+  std::vector<MonitorElement*> h_nchi2, h_nchi2_prob, h_losthits, h_nmisslayers_inner, h_nmisslayers_outer;
   
   //2D  
   std::vector<MonitorElement*> chi2_vs_nhits, etares_vs_eta;
