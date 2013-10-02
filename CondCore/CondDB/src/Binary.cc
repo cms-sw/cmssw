@@ -8,7 +8,7 @@
 #include <cstring>
 
 conddb::Binary::Binary():
-  m_data(){
+  m_data( new coral::Blob(0) ){
 }
 
 conddb::Binary::Binary( const void* data, size_t size  ):
@@ -60,7 +60,7 @@ std::string conddb::Binary::hash() const {
   }                                                                                                                                              
   tmp[20*2] = 0;                                                                                                                                 
   return tmp;                                                                                                                                    
-}                                                                                                                                                
+}  
 
 
 
