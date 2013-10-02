@@ -38,32 +38,32 @@ private:
     public:
       ModuleBeginStreamSignalSentry(ActivityRegistry* a,
                                     StreamContext const& sc,
-                                    ModuleDescription const& md) : a_(a), sc_(sc), md_(md) {
-        if(a_) a_->preModuleBeginStreamSignal_(sc_, md_);
+                                    ModuleCallingContext const& mcc) : a_(a), sc_(sc), mcc_(mcc) {
+        if(a_) a_->preModuleBeginStreamSignal_(sc_, mcc_);
       }
       ~ModuleBeginStreamSignalSentry() {
-        if(a_) a_->postModuleBeginStreamSignal_(sc_, md_);
+        if(a_) a_->postModuleBeginStreamSignal_(sc_, mcc_);
       }
     private:
       ActivityRegistry* a_;
       StreamContext const& sc_;
-      ModuleDescription const& md_;
+      ModuleCallingContext const& mcc_;
     };
 
     class ModuleEndStreamSignalSentry {
     public:
       ModuleEndStreamSignalSentry(ActivityRegistry* a,
                                   StreamContext const& sc,
-                                  ModuleDescription const& md) : a_(a), sc_(sc), md_(md) {
-        if(a_) a_->preModuleEndStreamSignal_(sc_, md_);
+                                  ModuleCallingContext const& mcc) : a_(a), sc_(sc), mcc_(mcc) {
+        if(a_) a_->preModuleEndStreamSignal_(sc_, mcc_);
       }
       ~ModuleEndStreamSignalSentry() {
-        if(a_) a_->postModuleEndStreamSignal_(sc_, md_);
+        if(a_) a_->postModuleEndStreamSignal_(sc_, mcc_);
       }
     private:
       ActivityRegistry* a_;
       StreamContext const& sc_;
-      ModuleDescription const& md_;
+      ModuleCallingContext const& mcc_;
     };
 
     cms::Exception& exceptionContext(ModuleDescription const& iMD,
@@ -160,7 +160,9 @@ private:
         streamContext.setRunIndex(RunIndex::invalidRunIndex());
         streamContext.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
         streamContext.setTimestamp(Timestamp());
-        ModuleBeginStreamSignalSentry beginSentry(actReg_.get(), streamContext, description());
+        ParentContext parentContext(&streamContext);
+        ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+        ModuleBeginStreamSignalSentry beginSentry(actReg_.get(), streamContext, moduleCallingContext_);
         implBeginStream(id);
       }
       catch (cms::Exception& e) { throw; }
@@ -187,7 +189,9 @@ private:
         streamContext.setRunIndex(RunIndex::invalidRunIndex());
         streamContext.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
         streamContext.setTimestamp(Timestamp());
-        ModuleEndStreamSignalSentry endSentry(actReg_.get(), streamContext, description());
+        ParentContext parentContext(&streamContext);
+        ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+        ModuleEndStreamSignalSentry endSentry(actReg_.get(), streamContext, moduleCallingContext_);
         implEndStream(id);
       }
       catch (cms::Exception& e) { throw; }

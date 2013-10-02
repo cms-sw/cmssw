@@ -242,7 +242,8 @@ Tracer::postCloseFile (std::string const& lfn, bool b) {
 }
 
 void
-Tracer::preModuleBeginStream(StreamContext const& sc, ModuleDescription const& desc) {
+Tracer::preModuleBeginStream(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  ModuleDescription const& desc = *mcc.moduleDescription();
   std::cout << indention_ << indention_ << " ModuleBeginStream: " << desc.moduleLabel(); 
   if(dumpContextForLabel_ == desc.moduleLabel()) {
     std::cout << "\n" << sc;
@@ -252,7 +253,8 @@ Tracer::preModuleBeginStream(StreamContext const& sc, ModuleDescription const& d
 }
 
 void
-Tracer::postModuleBeginStream(StreamContext const& sc, ModuleDescription const& desc) {
+Tracer::postModuleBeginStream(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  ModuleDescription const& desc = *mcc.moduleDescription();
   std::cout << indention_ << indention_ << " ModuleBeginStream finished"; 
   if(dumpContextForLabel_ == desc.moduleLabel()) {
     std::cout << "\n" << sc;
@@ -262,7 +264,8 @@ Tracer::postModuleBeginStream(StreamContext const& sc, ModuleDescription const& 
 }
 
 void
-Tracer::preModuleEndStream(StreamContext const& sc, ModuleDescription const& desc) {
+Tracer::preModuleEndStream(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  ModuleDescription const& desc = *mcc.moduleDescription();
   std::cout << indention_ << indention_ << " ModuleEndStream: "; 
   if(dumpContextForLabel_ == desc.moduleLabel()) {
     std::cout << "\n" << sc;
@@ -272,7 +275,8 @@ Tracer::preModuleEndStream(StreamContext const& sc, ModuleDescription const& des
 }
 
 void
-Tracer::postModuleEndStream(StreamContext const& sc, ModuleDescription const& desc) {
+Tracer::postModuleEndStream(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  ModuleDescription const& desc = *mcc.moduleDescription();
   std::cout << indention_ << indention_ << " ModuleEndStream finished"; 
   if(dumpContextForLabel_ == desc.moduleLabel()) {
     std::cout << "\n" << sc;
