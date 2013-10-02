@@ -41,15 +41,17 @@ bool HistoryBase::traceSimHistory(TrackingParticleRef const & trackingParticle, 
     // first stop condition: if the required depth is reached
     if ( depth == depth_ && depth_ >= 0 ) return true;
 
-    // sencond stop condition: if a gen particle is associated to the TP
+    // second stop condition: if a gen particle is associated to the TP
     if ( !trackingParticle->genParticles().empty() )
     {
-        LogDebug("TrackHistory") << "Particle " << trackingParticle->pdgId() << " has a GenParicle image." << std::endl;
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-        traceGenHistory(&(**(trackingParticle->genParticle_begin())));
-#endif
-        return true;
+        LogDebug("TrackHistory") << "Particle " << trackingParticle->pdgId() << " has a GenParicle image." 
+				 << std::endl;
+	//#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
+	// this code does not compile likely due to the wrong type of iterator
+	#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
+	traceGenHistory(&(**(trackingParticle->genParticle_begin()))); 
+	#endif
+
     }
 
     LogDebug("TrackHistory") << "No GenParticle image for " << trackingParticle->pdgId() << std::endl;

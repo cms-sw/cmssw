@@ -36,9 +36,13 @@ class SimVertex : public CoreSimVertex
   void setVertexId(unsigned int n) {vtxId = n;}
   unsigned int vertexId() const { return  vtxId; }  
 
+  void setProcessType(unsigned int ty) {procType = ty;}
+  unsigned int processType() const { return procType; }  
+
 private: 
   int itrack;
   unsigned int vtxId; 
+  unsigned int procType;
 };
 
 #include <iosfwd>
