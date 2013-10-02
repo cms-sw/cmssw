@@ -209,6 +209,33 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
 					  *psAssociationHandle);
   superClusterAlgo_.run();
 
+  if( use_regression ) {
+    edm::Handle<reco::VertexCollection> vertices;
+    edm::Handle<EcalRecHitCollection>  rechitsEB,rechitsEE;
+    iEvent.getByToken(inputTagEBReduced_,rechitsEB);
+    iEvent.getByToken(inputTagEEReduced_,rechitsEE);
+    iEvent.getByToken(inputTagVertices_,vertices);
+    double cor = 0.0;
+    for( auto& ebsc : *(superClusterAlgo_.getEBOutputSCCollection()) ) {
+      cor = calculateRegressedEnergy(ebsc,
+				     vertices,
+				     rechitsEB,
+				     rechitsEE,
+				     iSetup);
+      std::cout << "EB Cor: " << cor << std::endl;
+      ebsc.setEnergy(cor*ebsc.energy());
+    }
+    for( auto& eesc : *(superClusterAlgo_.getEEOutputSCCollection()) ) {
+      cor = calculateRegressedEnergy(eesc,
+				     vertices,
+				     rechitsEB,
+				     rechitsEE,
+				     iSetup);
+      std::cout << "EE Cor: " << cor << std::endl;
+      eesc.setEnergy(cor*eesc.energy());
+    }
+  }
+
   //store in the event
   iEvent.put(superClusterAlgo_.getEBOutputSCCollection(),
 	     PFSuperClusterCollectionBarrel_);
@@ -218,13 +245,10 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
 
 double PFECALSuperClusterProducer::
 calculateRegressedEnergy(const reco::SuperCluster& sc,
-			 const edm::Event& e,
-			 const edm::EventSetup& es) {
-  edm::Handle<EcalRecHitCollection> rechitsEB, rechitsEE;
-  e.getByToken(inputTagEBReduced_,rechitsEB);
-  e.getByToken(inputTagEEReduced_,rechitsEE);
-  edm::Handle<reco::VertexCollection> vertices;
-  e.getByToken(inputTagVertices_,vertices);
+			 const edm::Handle<reco::VertexCollection>& vertices,
+			 const edm::Handle<EcalRecHitCollection>& rechitsEB,
+			 const edm::Handle<EcalRecHitCollection>& rechitsEE,
+			 const edm::EventSetup& es) {  
   memset(rinputs,0,33*sizeof(float));
   const double rawEnergy = sc.rawEnergy(), calibEnergy = sc.energy();
   const edm::Ptr<reco::PFCluster> seed(sc.seed());
@@ -392,7 +416,7 @@ calculateRegressedEnergy(const reco::SuperCluster& sc,
       rinputs[26] = subClusDEta[1];               //clusterDEtaToSeed[1]
       rinputs[27] = subClusDEta[2];               //clusterDEtaToSeed[2]
       rinputs[28] = scPreshowerSum/rawEnergy;   //scPreshowerEnergy/scRawEnergy
-      rinputs[32] = calibEnergy;                  //scCalibratedEnergy
+      rinputs[29] = calibEnergy;                  //scCalibratedEnergy
     }
     return ee_reg->GetResponse(rinputs);
     break;    

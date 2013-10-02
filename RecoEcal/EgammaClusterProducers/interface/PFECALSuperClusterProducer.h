@@ -73,7 +73,9 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
   const CaloTopologyRecord* topo_record;
   edm::ESHandle<CaloTopology> calotopo;
   double calculateRegressedEnergy(const reco::SuperCluster&, 
-				  const edm::Event&,
+				  const edm::Handle<reco::VertexCollection>&,
+				  const edm::Handle<EcalRecHitCollection>&,
+				  const edm::Handle<EcalRecHitCollection>&,
 				  const edm::EventSetup& );
   
   edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClusters_;

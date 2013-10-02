@@ -30,7 +30,7 @@ LocalPFECALGBRESSource = cms.ESSource(
 
 GBRPrefer = cms.ESPrefer(
     'PoolDBESSource',
-    'GlobalTag',
+    'LocalPFECALGBRESSource',
     GBRWrapperRcd = cms.vstring('GBRForest/pfecalsc_EBCorrection',
                                 'GBRForest/pfecalsc_EECorrection')
 )
@@ -40,6 +40,7 @@ if to_connect is not None:
     LocalPFECALGBRESSource.connect = 'sqlite_file:%s'%to_connect
 else:
     del LocalPFECALGBRESSource
+    del GBRPrefer
 
 particleFlowSuperClusterECALBox = cms.EDProducer(
     "PFECALSuperClusterProducer",
@@ -58,8 +59,8 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     ESAssociation = cms.InputTag("particleFlowClusterECAL"),
     vertexCollection = cms.InputTag("offlinePrimaryVertices"),
     #rechit collections for lazytools
-    ebReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsEB'),
-    eeReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsEE'),
+    reducedEcalRecHitsEB = cms.InputTag('reducedEcalRecHitsEB'),
+    reducedEcalRecHitsEE = cms.InputTag('reducedEcalRecHitsEE'),
                                               
     PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),                                       
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
@@ -126,8 +127,8 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     ESAssociation = cms.InputTag("particleFlowClusterECAL"),
     vertexCollection = cms.InputTag("offlinePrimaryVertices"),
     #rechit collections for lazytools
-    ebReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsEB'),
-    eeReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsEE'),
+    reducedEcalRecHitsEB = cms.InputTag('reducedEcalRecHitsEB'),
+    reducedEcalRecHitsEE = cms.InputTag('reducedEcalRecHitsEE'),
                                               
     PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),                                       
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
