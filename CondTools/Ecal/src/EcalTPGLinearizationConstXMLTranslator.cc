@@ -23,7 +23,7 @@ int EcalTPGLinearizationConstXMLTranslator::writeXML(const std::string& filename
 std::string EcalTPGLinearizationConstXMLTranslator::dumpXML(const EcalCondHeader& header,
 							    const EcalTPGLinearizationConst& record){
 
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
 
   DOMImplementation*  impl =
     DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());

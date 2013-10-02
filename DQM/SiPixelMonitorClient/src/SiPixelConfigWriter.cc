@@ -21,7 +21,7 @@ SiPixelConfigWriter::~SiPixelConfigWriter() {
 // 
 bool SiPixelConfigWriter::init() {
   try {
-    XMLPlatformUtils::Initialize();
+    cms::concurrency::xercesInitialize();
   }
   catch (const XMLException& toCatch) {
     cout << "Problem to initialise XML !!! " << endl;
