@@ -176,7 +176,7 @@ SimHitMatcher::matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
       if (h.trackId() != track_id) continue;
       int pdgid = h.particleType();
       if (simMuOnlyCSC_ && std::abs(pdgid) != 13) continue;
-      if (discardEleHitsCSC_ && std::abs(pdgid == 11)) continue;
+      if (discardEleHitsCSC_ && std::abs(pdgid) == 11) continue;
 
       csc_detid_to_hits_[ h.detUnitId() ].push_back(h);
       csc_hits_.push_back(h);
