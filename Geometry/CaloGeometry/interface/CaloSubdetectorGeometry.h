@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <set>
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -115,7 +118,7 @@ class CaloSubdetectorGeometry {
 			      const GlobalPoint& p2  ) 
       { return reco::deltaR( p1, p2 ) ; }
 
-      mutable std::vector<DetId> m_validIds ;
+      void addValidID(const DetId& id);
 
    private:
 
@@ -127,10 +130,15 @@ class CaloSubdetectorGeometry {
       CaloSubdetectorGeometry(            const CaloSubdetectorGeometry& ) ;
       CaloSubdetectorGeometry& operator=( const CaloSubdetectorGeometry& ) ;
 
-      mutable bool m_sortedIds ;
+      std::vector<DetId> m_validIds ;
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+      mutable std::atomic<std::vector<CCGFloat>*>  m_deltaPhi ;
+      mutable std::atomic<std::vector<CCGFloat>*>  m_deltaEta ;
+#else
       mutable std::vector<CCGFloat>*  m_deltaPhi ;
       mutable std::vector<CCGFloat>*  m_deltaEta ;
+#endif
 };
 
 
