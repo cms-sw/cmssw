@@ -142,7 +142,7 @@ TrajectoryManager::~TrajectoryManager() {
   if ( theMaterialEffects ) delete theMaterialEffects;
 
   //Write the histograms
-  //myHistos->put("histos.root");
+  myHistos->put("histos.root");
   if ( myHistos ) delete myHistos;
 
 }

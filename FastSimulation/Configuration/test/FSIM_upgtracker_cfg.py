@@ -1,14 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-#GEOM="phase1"
-GEOM="phase2BE"
+GEOM="phase1"
+#GEOM="phase2BE"
+#GEOM="phase1forward"
 #GEOM="phase2BEforward"
 
 process = cms.Process("PROD")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(100)
 )
 
 # Include DQMStore, needed by the famosSimHits
@@ -77,6 +78,21 @@ elif GEOM=="phase2BE":
 
 ## this is for phase 2 geometries
     process.load('FastSimulation.Configuration.Geometriesph2_cff')
+    from Configuration.AlCa.GlobalTag import GlobalTag
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+    from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_phase2_BE,noCrossing 
+##turning off material effects (needed ONLY for phase2, waiting for tuning)
+    process.famosSimHits.MaterialEffects.PairProduction = cms.bool(False)
+    process.famosSimHits.MaterialEffects.Bremsstrahlung = cms.bool(False)
+    process.famosSimHits.MaterialEffects.MuonBremsstrahlung = cms.bool(False)
+    process.famosSimHits.MaterialEffects.EnergyLoss = cms.bool(False)
+    process.famosSimHits.MaterialEffects.MultipleScattering = cms.bool(False)
+# keep NI so to allow thickness to be properly treated in the interaction geometry
+    process.famosSimHits.MaterialEffects.NuclearInteraction = cms.bool(True)
+    process.KFFittingSmootherWithOutlierRejection.EstimateCut = cms.double(50.0)
+elif GEOM=="phase1forward":
+## this is for phase 2 geometries
+    process.load('FastSimulation.Configuration.Geometriesph1Forward_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
     from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_phase2_BE,noCrossing 
