@@ -203,13 +203,18 @@ TrajectoryManager::reconstruct()
     // if above 0.99: propagate to the last tracker cylinder where the material is concentrated!
     double ppcos2T =  PP.cos2Theta();
     double ppcos2V =  PP.cos2ThetaV();
+    
+    /*
     if ( ( ppcos2T > 0.99 && ppcos2T < 0.9998 ) && ( cyl == 0 || ( ppcos2V > 0.99 && ppcos2V < 0.9998 ) ) ){ 
       if ( cyliter != _theGeometry->cylinderEnd() ) { 
 	cyliter = _theGeometry->cylinderEnd(); 
 	--cyliter;
       }
     // if above 0.9998: don't propagate at all (only to the calorimeters directly)
-    } else if ( ppcos2T > 0.9998 && ( cyl == 0 || ppcos2V > 0.9998 ) ) { 
+    } else 
+    */
+    
+    if ( ppcos2T > 0.9998 && ( cyl == 0 || ppcos2V > 0.9998 ) ) { 
       cyliter = _theGeometry->cylinderEnd();
     }
 	
