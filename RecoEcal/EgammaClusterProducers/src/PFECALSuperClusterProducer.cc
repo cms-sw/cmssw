@@ -18,6 +18,14 @@
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+
+
+#include "TVector2.h"
+#include "DataFormats/Math/interface/deltaR.h"
+
 using namespace std;
 using namespace edm;
 
@@ -40,6 +48,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   eb_reg_key = iConfig.getParameter<std::string>("regressionKeyEB");
   ee_reg_key = iConfig.getParameter<std::string>("regressionKeyEE");
   gbr_record = NULL;
+  topo_record = NULL;
 
   std::string _typename = iConfig.getParameter<std::string>("ClusteringType");
   if( _typename == ClusterType__BOX ) {
@@ -137,6 +146,13 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
     consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<InputTag>("PFClusters"));
   inputTagPFClustersES_ = 
     consumes<reco::PFCluster::EEtoPSAssociation>(iConfig.getParameter<InputTag>("ESAssociation"));
+  inputTagEBReduced_ = 
+    mayConsume<EcalRecHitCollection>(iConfig.getParameter<InputTag>("reducedEcalRecHitsEB"));
+  inputTagEEReduced_ = 
+    mayConsume<EcalRecHitCollection>(iConfig.getParameter<InputTag>("reducedEcalRecHitsEE"));
+  inputTagVertices_ = 
+    mayConsume<reco::VertexCollection>(iConfig.getParameter<InputTag>("vertexCollection"));
+
 
   PFBasicClusterCollectionBarrel_ = iConfig.getParameter<string>("PFBasicClusterCollectionBarrel");
   PFSuperClusterCollectionBarrel_ = iConfig.getParameter<string>("PFSuperClusterCollectionBarrel");
@@ -158,13 +174,19 @@ PFECALSuperClusterProducer::~PFECALSuperClusterProducer() {}
 void PFECALSuperClusterProducer::
 beginRun(const edm::Run& iR, const edm::EventSetup& iE) {
   if(!use_regression) return;
-  const GBRWrapperRcd& from_es = iE.get<GBRWrapperRcd>();
+  const GBRWrapperRcd& gbrfrom_es = iE.get<GBRWrapperRcd>();
   if( !gbr_record || 
-      from_es.cacheIdentifier() != gbr_record->cacheIdentifier() ) {
-    gbr_record = &from_es;
+      gbrfrom_es.cacheIdentifier() != gbr_record->cacheIdentifier() ) {
+    gbr_record = &gbrfrom_es;
     gbr_record->get(eb_reg_key.c_str(),eb_reg);    
     gbr_record->get(ee_reg_key.c_str(),ee_reg);
   }  
+  const CaloTopologyRecord& topofrom_es = iE.get<CaloTopologyRecord>();
+  if( !topo_record ||
+      topofrom_es.cacheIdentifier() != topo_record->cacheIdentifier() ) {
+    topo_record = &topofrom_es;
+    topo_record->get(calotopo);
+  }      
 }
 
 
@@ -179,6 +201,8 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
   edm::Handle<reco::PFCluster::EEtoPSAssociation > psAssociationHandle;
   iEvent.getByToken( inputTagPFClustersES_,  psAssociationHandle);
 
+  edm::Handle<reco::VertexCollection> vertices;
+  edm::Handle<EcalRecHitCollection>  rechitsEB,rechitsEE;
 
   // do clustering
   superClusterAlgo_.loadAndSortPFClusters(*pfclustersHandle,
@@ -193,83 +217,185 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
 }
 
 double PFECALSuperClusterProducer::
-calculateRegressedEnergy(const reco::SuperCluster& sc) {
-  edm::Ptr<reco::PFCluster> seed(sc.seed());
+calculateRegressedEnergy(const reco::SuperCluster& sc,
+			 const edm::Event& e,
+			 const edm::EventSetup& es) {
+  edm::Handle<EcalRecHitCollection> rechitsEB, rechitsEE;
+  e.getByToken(inputTagEBReduced_,rechitsEB);
+  e.getByToken(inputTagEEReduced_,rechitsEE);
+  edm::Handle<reco::VertexCollection> vertices;
+  e.getByToken(inputTagVertices_,vertices);
   memset(rinputs,0,33*sizeof(float));
+  const double rawEnergy = sc.rawEnergy(), calibEnergy = sc.energy();
+  const edm::Ptr<reco::PFCluster> seed(sc.seed());
+  const size_t nVtx = vertices->size();
+  float maxDR=999., maxDRDPhi=999., maxDRDEta=999., maxDRRawEnergy=0.;
+  float subClusRawE[3], subClusDPhi[3], subClusDEta[3];
+  memset(subClusRawE,0,3*sizeof(float));
+  memset(subClusDPhi,0,3*sizeof(float));
+  memset(subClusDEta,0,3*sizeof(float));
+  size_t iclus=0;
+  for( auto clus = sc.clustersBegin()+1; clus != sc.clustersEnd(); ++clus ) {
+    const float this_dr = reco::deltaR(**clus, *seed);
+     if(this_dr > maxDR || maxDR == 999.0f) {
+       maxDR = this_dr;
+       maxDRDEta = (*clus)->eta() - seed->eta();
+       maxDRDPhi = TVector2::Phi_mpi_pi((*clus)->phi() - seed->phi());
+       maxDRRawEnergy = (*clus)->energy();
+     }
+     if( iclus++ < 3 ) {
+       subClusRawE[iclus] = (*clus)->energy();
+       subClusDEta[iclus] = (*clus)->eta() - seed->eta();
+       subClusDPhi[iclus] = TVector2::Phi_mpi_pi((*clus)->phi() - seed->phi());
+     }
+  }
+  float scPreshowerSum = 0.0;
+  for( auto psclus = sc.preshowerClustersBegin(); 
+       psclus != sc.preshowerClustersEnd(); ++psclus ) {
+    scPreshowerSum += (*psclus)->energy();
+  }
   switch( seed->layer() ) {
   case PFLayer::ECAL_BARREL:
-    /*
-      nVtx
-      scEta
-      scPhi
-      scEtaWidth
-      scPhiWidth
-      scSeedR9
-      scSeedRawEnergy/scRawEnergy
-      scSeedEmax/scRawEnergy
-      scSeedE2nd/scRawEnergy
-      scSeedLeftRightAsym
-      scSeedTopBottomAsym
-      scSeedSigmaIetaIeta
-      scSeedSigmaIetaIphi
-      scSeedSigmaIphiIphi
-      N_ECALClusters
-      clusterMaxDR
-      clusterMaxDRDPhi
-      clusterMaxDRDEta
-      clusterMaxDRRawEnergy/scRawEnergy
-      clusterRawEnergy[0]/scRawEnergy
-      clusterRawEnergy[1]/scRawEnergy
-      clusterRawEnergy[2]/scRawEnergy
-      clusterDPhiToSeed[0]
-      clusterDPhiToSeed[1]
-      clusterDPhiToSeed[2]
-      clusterDEtaToSeed[0]
-      clusterDEtaToSeed[1]
-      clusterDEtaToSeed[2]
-      scSeedCryEta
-      scSeedCryPhi
-      scSeedCryIeta
-      scSeedCryIphi
-      scCalibratedEnergy
-    */
+    {
+      const float eMax = EcalClusterTools::eMax( *seed, &*rechitsEB );
+      const float e2nd = EcalClusterTools::e2nd( *seed, &*rechitsEB );
+      const float e3x3 = EcalClusterTools::e3x3( *seed,
+						 &*rechitsEB, 
+						 &*calotopo  );
+      const float eTop = EcalClusterTools::eTop( *seed, 
+						 &*rechitsEB, 
+						 &*calotopo );
+      const float eBottom = EcalClusterTools::eBottom( *seed, 
+						       &*rechitsEB, 
+						       &*calotopo );
+      const float eLeft = EcalClusterTools::eLeft( *seed, 
+						   &*rechitsEB, 
+						   &*calotopo );
+      const float eRight = EcalClusterTools::eRight( *seed, 
+						     &*rechitsEB, 
+						     &*calotopo );
+      const float eLpeR = eLeft + eRight;
+      const float eTpeB = eTop + eBottom;
+      const float eLmeR = eLeft - eRight;
+      const float eTmeB = eTop - eBottom;
+      std::vector<float> vCov = 
+	EcalClusterTools::localCovariances( *seed, &*rechitsEB, &*calotopo );
+      const float see = (isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
+      const float spp = (isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
+      float sep = 0.;
+      if (see*spp > 0)
+        sep = vCov[1] / (see * spp);
+      else if (vCov[1] > 0)
+        sep = 1.0;
+      else
+        sep = -1.0;
+      float cryPhi, cryEta, thetatilt, phitilt;
+      int ieta, iphi;
+      ecl_.localCoordsEB(*seed, es, cryEta, cryPhi, 
+			 ieta, iphi, thetatilt, phitilt);
+      rinputs[0] = nVtx;                          //nVtx
+      rinputs[1] = sc.eta();                      //scEta
+      rinputs[2] = sc.phi();                      //scPhi
+      rinputs[3] = sc.etaWidth();                 //scEtaWidth
+      rinputs[4] = sc.phiWidth();                 //scPhiWidth
+      rinputs[5] = e3x3/rawEnergy;                //scSeedR9
+      rinputs[6] = sc.seed()->energy()/rawEnergy; //scSeedRawEnergy/scRawEnergy
+      rinputs[7] = eMax/rawEnergy;                //scSeedEmax/scRawEnergy
+      rinputs[8] = e2nd/rawEnergy;                //scSeedE2nd/scRawEnergy
+      rinputs[9] = (eLpeR!=0. ? eLmeR/eLpeR : 0.);//scSeedLeftRightAsym
+      rinputs[10] = (eTpeB!=0.? eTmeB/eTpeB : 0.);//scSeedTopBottomAsym
+      rinputs[11] = see;                          //scSeedSigmaIetaIeta
+      rinputs[12] = sep;                          //scSeedSigmaIetaIphi
+      rinputs[13] = spp;                          //scSeedSigmaIphiIphi
+      rinputs[14] = sc.clustersSize()-1;          //N_ECALClusters
+      rinputs[15] = maxDR;                        //clusterMaxDR
+      rinputs[16] = maxDRDPhi;                    //clusterMaxDRDPhi
+      rinputs[17] = maxDRDEta;                    //clusterMaxDRDEta
+      rinputs[18] = maxDRRawEnergy/rawEnergy; //clusMaxDRRawEnergy/scRawEnergy
+      rinputs[19] = subClusRawE[0]/rawEnergy; //clusterRawEnergy[0]/scRawEnergy
+      rinputs[20] = subClusRawE[1]/rawEnergy; //clusterRawEnergy[1]/scRawEnergy
+      rinputs[21] = subClusRawE[2]/rawEnergy; //clusterRawEnergy[2]/scRawEnergy
+      rinputs[22] = subClusDPhi[0];               //clusterDPhiToSeed[0]
+      rinputs[23] = subClusDPhi[1];               //clusterDPhiToSeed[1]
+      rinputs[24] = subClusDPhi[2];               //clusterDPhiToSeed[2]
+      rinputs[25] = subClusDEta[0];               //clusterDEtaToSeed[0]
+      rinputs[26] = subClusDEta[1];               //clusterDEtaToSeed[1]
+      rinputs[27] = subClusDEta[2];               //clusterDEtaToSeed[2]
+      rinputs[28] = cryEta;                       //scSeedCryEta
+      rinputs[29] = cryPhi;                       //scSeedCryPhi
+      rinputs[30] = ieta;                         //scSeedCryIeta
+      rinputs[31] = iphi;                         //scSeedCryIphi
+      rinputs[32] = calibEnergy;                  //scCalibratedEnergy
+    }
     return eb_reg->GetResponse(rinputs);
     break;
   case PFLayer::ECAL_ENDCAP:
-    break;
-    /*
-      nVtx
-      scEta
-      scPhi
-      scEtaWidth
-      scPhiWidth
-      scSeedR9
-      scSeedRawEnergy/scRawEnergy
-      scSeedEmax/scRawEnergy
-      scSeedE2nd/scRawEnergy
-      scSeedLeftRightAsym
-      scSeedTopBottomAsym
-      scSeedSigmaIetaIeta
-      scSeedSigmaIetaIphi
-      scSeedSigmaIphiIphi
-      N_ECALClusters
-      clusterMaxDR
-      clusterMaxDRDPhi
-      clusterMaxDRDEta
-      clusterMaxDRRawEnergy/scRawEnergy
-      clusterRawEnergy[0]/scRawEnergy
-      clusterRawEnergy[1]/scRawEnergy
-      clusterRawEnergy[2]/scRawEnergy
-      clusterDPhiToSeed[0]
-      clusterDPhiToSeed[1]
-      clusterDPhiToSeed[2]
-      clusterDEtaToSeed[0]
-      clusterDEtaToSeed[1]
-      clusterDEtaToSeed[2]
-      scPreshowerEnergy/scRawEnergy
-      scCalibratedEnergy
-    */
+    {
+      const float eMax = EcalClusterTools::eMax( *seed, &*rechitsEE );
+      const float e2nd = EcalClusterTools::e2nd( *seed, &*rechitsEE );
+      const float e3x3 = EcalClusterTools::e3x3( *seed,
+						 &*rechitsEE, 
+						 &*calotopo  );
+      const float eTop = EcalClusterTools::eTop( *seed, 
+						 &*rechitsEE, 
+						 &*calotopo );
+      const float eBottom = EcalClusterTools::eBottom( *seed, 
+						       &*rechitsEE, 
+						       &*calotopo );
+      const float eLeft = EcalClusterTools::eLeft( *seed, 
+						   &*rechitsEE, 
+						   &*calotopo );
+      const float eRight = EcalClusterTools::eRight( *seed, 
+						     &*rechitsEE, 
+						     &*calotopo );
+      const float eLpeR = eLeft + eRight;
+      const float eTpeB = eTop + eBottom;
+      const float eLmeR = eLeft - eRight;
+      const float eTmeB = eTop - eBottom;
+      std::vector<float> vCov = 
+	EcalClusterTools::localCovariances( *seed, &*rechitsEE, &*calotopo );
+      const float see = (isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
+      const float spp = (isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
+      float sep = 0.;
+      if (see*spp > 0)
+        sep = vCov[1] / (see * spp);
+      else if (vCov[1] > 0)
+        sep = 1.0;
+      else
+        sep = -1.0;      
+      rinputs[0] = nVtx;                          //nVtx
+      rinputs[1] = sc.eta();                      //scEta
+      rinputs[2] = sc.phi();                      //scPhi
+      rinputs[3] = sc.etaWidth();                 //scEtaWidth
+      rinputs[4] = sc.phiWidth();                 //scPhiWidth
+      rinputs[5] = e3x3/rawEnergy;                //scSeedR9
+      rinputs[6] = sc.seed()->energy()/rawEnergy; //scSeedRawEnergy/scRawEnergy
+      rinputs[7] = eMax/rawEnergy;                //scSeedEmax/scRawEnergy
+      rinputs[8] = e2nd/rawEnergy;                //scSeedE2nd/scRawEnergy
+      rinputs[9] = (eLpeR!=0. ? eLmeR/eLpeR : 0.);//scSeedLeftRightAsym
+      rinputs[10] = (eTpeB!=0.? eTmeB/eTpeB : 0.);//scSeedTopBottomAsym
+      rinputs[11] = see;                          //scSeedSigmaIetaIeta
+      rinputs[12] = sep;                          //scSeedSigmaIetaIphi
+      rinputs[13] = spp;                          //scSeedSigmaIphiIphi
+      rinputs[14] = sc.clustersSize()-1;          //N_ECALClusters
+      rinputs[15] = maxDR;                        //clusterMaxDR
+      rinputs[16] = maxDRDPhi;                    //clusterMaxDRDPhi
+      rinputs[17] = maxDRDEta;                    //clusterMaxDRDEta
+      rinputs[18] = maxDRRawEnergy/rawEnergy; //clusMaxDRRawEnergy/scRawEnergy
+      rinputs[19] = subClusRawE[0]/rawEnergy; //clusterRawEnergy[0]/scRawEnergy
+      rinputs[20] = subClusRawE[1]/rawEnergy; //clusterRawEnergy[1]/scRawEnergy
+      rinputs[21] = subClusRawE[2]/rawEnergy; //clusterRawEnergy[2]/scRawEnergy
+      rinputs[22] = subClusDPhi[0];               //clusterDPhiToSeed[0]
+      rinputs[23] = subClusDPhi[1];               //clusterDPhiToSeed[1]
+      rinputs[24] = subClusDPhi[2];               //clusterDPhiToSeed[2]
+      rinputs[25] = subClusDEta[0];               //clusterDEtaToSeed[0]
+      rinputs[26] = subClusDEta[1];               //clusterDEtaToSeed[1]
+      rinputs[27] = subClusDEta[2];               //clusterDEtaToSeed[2]
+      rinputs[28] = scPreshowerSum/rawEnergy;   //scPreshowerEnergy/scRawEnergy
+      rinputs[32] = calibEnergy;                  //scCalibratedEnergy
+    }
     return ee_reg->GetResponse(rinputs);
+    break;    
   default:
    throw cms::Exception("PFECALSuperClusterProducer::calculateRegressedEnergy")
      << "Supercluster seed is either EB nor EE!" << std::endl;

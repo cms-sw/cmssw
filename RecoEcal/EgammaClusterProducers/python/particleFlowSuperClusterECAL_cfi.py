@@ -40,7 +40,6 @@ if to_connect is not None:
     LocalPFECALGBRESSource.connect = 'sqlite_file:%s'%to_connect
 else:
     del LocalPFECALGBRESSource
-    del GBRPrefer
 
 particleFlowSuperClusterECALBox = cms.EDProducer(
     "PFECALSuperClusterProducer",
@@ -57,6 +56,10 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     #PFClusters collection
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
     ESAssociation = cms.InputTag("particleFlowClusterECAL"),
+    vertexCollection = cms.InputTag("offlinePrimaryVertices"),
+    #rechit collections for lazytools
+    ebReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsEB'),
+    eeReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsEE'),
                                               
     PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),                                       
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
@@ -121,6 +124,10 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     #PFClusters collection
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
     ESAssociation = cms.InputTag("particleFlowClusterECAL"),
+    vertexCollection = cms.InputTag("offlinePrimaryVertices"),
+    #rechit collections for lazytools
+    ebReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsEB'),
+    eeReducedRecHitCollection = cms.InputTag('reducedEcalRecHitsEE'),
                                               
     PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),                                       
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),

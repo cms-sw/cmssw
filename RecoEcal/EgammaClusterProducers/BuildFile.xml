@@ -13,6 +13,7 @@
 <use   name="Geometry/EcalAlgo"/>
 <use   name="DataFormats/Math"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="RecoEgamma/EgammaTools"/>
 <use   name="clhep"/>
 <use   name="TrackingTools/TrackAssociator" />
 <use   name="CommonTools/UtilAlgos"/>
