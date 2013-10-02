@@ -222,7 +222,6 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
 				     rechitsEB,
 				     rechitsEE,
 				     iSetup);
-      std::cout << "EB Cor: " << cor << std::endl;
       ebsc.setEnergy(cor*ebsc.energy());
     }
     for( auto& eesc : *(superClusterAlgo_.getEEOutputSCCollection()) ) {
@@ -231,7 +230,6 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
 				     rechitsEB,
 				     rechitsEE,
 				     iSetup);
-      std::cout << "EE Cor: " << cor << std::endl;
       eesc.setEnergy(cor*eesc.energy());
     }
   }
