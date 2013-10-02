@@ -34,9 +34,9 @@ process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
 
 # customization of the process.pdigi sequence to add the GEM digitizer
 from SimMuon.GEMDigitizer.customizeGEMDigi import *
-#process = customize_digi_addGEM(process)  # run all detectors digi
+process = customize_digi_addGEM(process)  # run all detectors digi
 #process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
-process = customize_digi_addGEM_gem_only(process)  # only GEM digi
+#process = customize_digi_addGEM_gem_only(process)  # only GEM digi
 
 runCSCforSLHC = True
 if runCSCforSLHC:
