@@ -146,7 +146,9 @@ No tags other than "release tags" will be allowed inside the _official-cmssw_
 repository, so there is not a particular need for a convention for tags.
 
 In the git model, changes are proposed via private branches 
-which are made into Pull Requests. Given a Pull Request gets automatically assigned a unique ID (like for tagsets), we will not have a particular convention, treating them as private tags in the CVS model.
+which are made into Pull Requests. Given a Pull Request gets automatically
+assigned a unique ID (like for tagsets), we will not have a particular
+convention, treating them as private tags in the CVS model.
 
 The only recommendation so far has been use "use a somewhat descriptive names of the actual content".
 
@@ -270,6 +272,17 @@ specifying which package / subsytem whose changes you would like to be notified 
 ### Do you have a nice tutorial on how to develop CMSSW on git?
 
 Yes, please have a look at the [CMSSW git tutorial pages](tutorial.html).
+
+### How do I access the old CVS repository to check what was really there?
+
+The old CVS repository is available *READ-ONLY* by setting:
+
+    export CVSROOT=":ext:<cern-user-account>@lxplus5.cern.ch:/afs/cern.ch/user/c/cvscmssw/public/CMSSW"
+    # setenv CVSROOT ":ext:<cern-user-account>@lxplus5.cern.ch:/afs/cern.ch/user/c/cvscmssw/public/CMSSW"
+
+where of course `<cern-user-account>` needs to be substituted with your CERN
+account login. Notice that starting on the 15th of October this will be the
+only way to access it.
 
 ### How do I ask a question?
 
