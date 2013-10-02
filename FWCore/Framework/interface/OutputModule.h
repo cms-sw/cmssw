@@ -27,6 +27,7 @@ output stream.
 #include <string>
 #include <vector>
 #include <map>
+#include <atomic>
 
 namespace edm {
 
@@ -119,7 +120,7 @@ namespace edm {
   private:
 
     int maxEvents_;
-    int remainingEvents_;
+    std::atomic<int> remainingEvents_;
 
     // TODO: Give OutputModule
     // an interface (protected?) that supplies client code with the
