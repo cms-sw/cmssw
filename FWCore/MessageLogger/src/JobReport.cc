@@ -418,7 +418,7 @@ namespace edm {
     }
     
     if(theInputType == InputType::Primary) {
-      impl_->fastClonedBranches_ = &newFile->fastClonedBranches;
+      impl_->lastOpenedPrimaryInputFile_ = impl_->inputFiles_.size() - 1;
     }
     newFile->logicalFileName      = logicalFileName;
     newFile->physicalFileName     = physicalFileName;
@@ -694,7 +694,8 @@ namespace edm {
   JobReport::reportReadBranch(InputType inputType, std::string const& branchName) {
     if(inputType == InputType::Primary) {
       // Fast cloned branches have already been reported.
-      if(impl_->fastClonedBranches_->find(branchName) == impl_->fastClonedBranches_->end()) {
+      std::set<std::string> const& clonedBranches = impl_->inputFiles_.at(impl_->lastOpenedPrimaryInputFile_).fastClonedBranches;
+      if(clonedBranches.find(branchName) == clonedBranches.end()) {
         ++impl_->readBranches_[branchName];
       }
     } else if (inputType == InputType::SecondaryFile) {
@@ -706,9 +707,10 @@ namespace edm {
 
   void
   JobReport::reportFastClonedBranches(std::set<std::string> const& fastClonedBranches, long long nEvents) {
+    std::set<std::string>& clonedBranches = impl_->inputFiles_.at(impl_->lastOpenedPrimaryInputFile_).fastClonedBranches;
     for(std::set<std::string>::const_iterator it = fastClonedBranches.begin(), itEnd = fastClonedBranches.end();
         it != itEnd; ++it) {
-      if(impl_->fastClonedBranches_->insert(*it).second) {
+      if(clonedBranches.insert(*it).second) {
         impl_->readBranches_[*it] += nEvents;
       }
     }

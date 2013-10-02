@@ -250,7 +250,7 @@ namespace edm {
         std::map<std::string, long long> readBranchesSecFile_;
         tbb::concurrent_unordered_map<std::string, AtomicLongLong> readBranchesSecSource_;
         bool printedReadBranches_;
-        std::set<std::string>* fastClonedBranches_;
+        std::vector<InputFile>::size_type lastOpenedPrimaryInputFile_;
         std::ostream* ost_;
       };
 
