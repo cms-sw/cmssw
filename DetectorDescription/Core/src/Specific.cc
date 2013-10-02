@@ -65,9 +65,6 @@ namespace DDI {
    void Specific::addSelectionLevel(std::vector<DDLogicalPart> & lpv, int copyno, ddselection_type st, 
                                     std::vector<DDPartSelection> & selv)
    {
-      //static int count =0;
-      //++count;
-      //edm::LogInfo ("Specific") << "count=" << count << " " << flush;
       if (!selv.size()) { // create one, no entry yet!
          selv.push_back(DDPartSelection());
       }
