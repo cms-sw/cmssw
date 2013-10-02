@@ -37,20 +37,21 @@ private:
   bool triggerInfo;
   ZdcTBAnalysis zdcTBAnalysis;
 
-  edm::InputTag zdcRecHitCollectionTag;
-  edm::InputTag hcalTBTriggerDataTag;
-  edm::InputTag hcalTBTimingTag;
-  edm::InputTag hcalTBBeamCountersTag;
-  edm::InputTag hcalTBEventPositionTag;
+  edm::EDGetTokenT<ZDCRecHitCollection> tok_zdc_;
+  edm::EDGetTokenT<HcalTBTriggerData> tok_tb_;
+  edm::EDGetTokenT<HcalTBTiming> tok_timing_;
+  edm::EDGetTokenT<HcalTBBeamCounters> tok_bc_;
+  edm::EDGetTokenT<HcalTBEventPosition> tok_pos_;
 };
 
-ZdcTBAnalyzer::ZdcTBAnalyzer(const edm::ParameterSet& iConfig) :
-  zdcRecHitCollectionTag(iConfig.getParameter<edm::InputTag>("zdcRecHitCollectionTag")),
-  hcalTBTriggerDataTag(iConfig.getParameter<edm::InputTag>("hcalTBTriggerDataTag")),
-  hcalTBTimingTag(iConfig.getParameter<edm::InputTag>("hcalTBTimingTag")),
-  hcalTBBeamCountersTag(iConfig.getParameter<edm::InputTag>("hcalTBBeamCountersTag")),
-  hcalTBEventPositionTag(iConfig.getParameter<edm::InputTag>("hcalTBEventPositionTag"))
-{
+ZdcTBAnalyzer::ZdcTBAnalyzer(const edm::ParameterSet& iConfig) {
+
+  tok_zdc_ = consumes<ZDCRecHitCollection>(iConfig.getParameter<edm::InputTag>("zdcRecHitCollectionTag"));
+  tok_tb_ = consumes<HcalTBTriggerData>(iConfig.getParameter<edm::InputTag>("hcalTBTriggerDataTag"));
+  tok_timing_ = consumes<HcalTBTiming>(iConfig.getParameter<edm::InputTag>("hcalTBTimingTag"));
+  tok_bc_ = consumes<HcalTBBeamCounters>(iConfig.getParameter<edm::InputTag>("hcalTBBeamCountersTag"));
+  tok_pos_ = consumes<HcalTBEventPosition>(iConfig.getParameter<edm::InputTag>("hcalTBEventPositionTag"));
+
   std::cout<<"**************** ZdcTBAnalizer Start**************************"<<std::endl;
   edm::ParameterSet para = iConfig.getParameter<edm::ParameterSet>("ZdcTBAnalyzer");
   
@@ -72,21 +73,21 @@ void ZdcTBAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&){
   edm::Handle<HcalTBBeamCounters> bc;
   edm::Handle<HcalTBEventPosition> chpos;
 
-  e.getByLabel(zdcRecHitCollectionTag, zdcRecHits);
+  e.getByToken(tok_zdc_, zdcRecHits);
   if(triggerInfo){
-    e.getByLabel(hcalTBTriggerDataTag, triggers);
+    e.getByToken(tok_tb_, triggers);
     zdcTBAnalysis.analyze(*triggers);
   }
   if(beamDetectorsTDCInfo){
-    e.getByLabel(hcalTBTimingTag, times);  // e.getByLabel("tbunpacker2",times);
+    e.getByToken(tok_timing_, times);  // e.getByLabel("tbunpacker2",times);
     zdcTBAnalysis.analyze(*times);
   }
   if(beamDetectorsADCInfo){
-    e.getByLabel(hcalTBBeamCountersTag, bc);
+    e.getByToken(tok_bc_, bc);
      zdcTBAnalysis.analyze(*bc);
   }
   if(wireChambersInfo){
-    e.getByLabel(hcalTBEventPositionTag, chpos);
+    e.getByToken(tok_pos_, chpos);
     zdcTBAnalysis.analyze(*chpos);
   }     
   zdcTBAnalysis.analyze(*zdcRecHits);

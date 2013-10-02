@@ -28,8 +28,6 @@
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
@@ -71,13 +69,13 @@ double getDist(double eta1, double phi1, double eta2, double phi2)
   return dr;
 }
 
-bool checkHLTMatch(edm::Event& iEvent, edm::InputTag hltEventTag_, std::vector<std::string> hltFilterTag_, double eta, double phi, double hltMatchingCone_)
+bool checkHLTMatch(edm::Event& iEvent, edm::EDGetTokenT<trigger::TriggerEvent> &hltToken, std::vector<std::string> hltFilterTag_, double eta, double phi, double hltMatchingCone_)
 {
   bool match =false;
   double minDDD=1000;
   
   edm::Handle<trigger::TriggerEvent> trEv;
-  iEvent.getByLabel(hltEventTag_,trEv);
+  iEvent.getByToken(hltToken,trEv);
   const trigger::TriggerObjectCollection& TOCol(trEv->getObjects());
   
   trigger::Keys KEYS;
@@ -105,10 +103,10 @@ bool checkHLTMatch(edm::Event& iEvent, edm::InputTag hltEventTag_, std::vector<s
   return match;
 }
 
-std::pair<double,double> getL1triggerDirection(edm::Event& iEvent, edm::InputTag hltEventTag_, std::string l1FilterTag_)
+std::pair<double,double> getL1triggerDirection(edm::Event& iEvent, edm::EDGetTokenT<trigger::TriggerEvent> &hltToken, std::string l1FilterTag_)
 {
   edm::Handle<trigger::TriggerEvent> trEv;
-  iEvent.getByLabel(hltEventTag_,trEv);
+  iEvent.getByToken(hltToken,trEv);
   const trigger::TriggerObjectCollection& TOCol(trEv->getObjects());
   
   trigger::Keys KEYS;
@@ -138,13 +136,18 @@ std::pair<double,double> getL1triggerDirection(edm::Event& iEvent, edm::InputTag
 AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
 { 
   
-  m_inputTrackLabel_ = iConfig.getParameter<edm::InputTag>("InputTracksLabel");
+  tok_track_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("InputTracksLabel"));
 
-  hoLabel_ = iConfig.getParameter<edm::InputTag>("HOInput");
+  tok_ho_  = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("HOInput"));
 
   ecalLabels_=iConfig.getParameter<std::vector<edm::InputTag> >("ECALInputs");
+  const unsigned nLabels = ecalLabels_.size();
+  for ( unsigned i=0; i != nLabels; i++ )
+	toks_ecal_.push_back( consumes<EcalRecHitCollection>(ecalLabels_[i]) );
 
-  hbheLabel_= iConfig.getParameter<edm::InputTag>("HBHEInput");
+  tok_ps_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalPreshowerRecHit","EcalRecHitsES"));
+
+  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("HBHEInput"));
   
   m_dvCut = iConfig.getParameter<double>("vtxCut");
   m_ddirCut = iConfig.getParameter<double>("RIsolAtHCALSurface");
@@ -171,7 +174,7 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   matrixSize_=iConfig.getParameter<int>("ECALMatrixFullSize");
 
   checkHLTMatch_=iConfig.getParameter<bool>("CheckHLTMatch");
-  hltEventTag_=iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel");  
+  tok_hlt_ = consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel")); 
   hltFiltTag_=iConfig.getParameter<std::vector<std::string> >("hltL3FilterLabels");
   hltMatchingCone_=iConfig.getParameter<double>("hltMatchingCone");
   l1FilterTag_=iConfig.getParameter<std::string>("l1FilterLabel");
@@ -221,17 +224,17 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   geo = pG.product();
   
   edm::Handle<reco::TrackCollection> trackCollection;
-  iEvent.getByLabel(m_inputTrackLabel_,trackCollection);
+  iEvent.getByToken(tok_track_,trackCollection);
   
   
   // temporary collection of EB+EE recHits
   std::auto_ptr<EcalRecHitCollection> tmpEcalRecHitCollection(new EcalRecHitCollection);
   
-  std::vector<edm::InputTag>::const_iterator i;
-  for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) 
+  std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i;
+  for (i=toks_ecal_.begin(); i!=toks_ecal_.end(); i++) 
     {
       edm::Handle<EcalRecHitCollection> ec;
-      iEvent.getByLabel(*i,ec);
+      iEvent.getByToken(*i,ec);
       for(EcalRecHitCollection::const_iterator recHit = (*ec).begin(); recHit != (*ec).end(); ++recHit)
 	{
 	  tmpEcalRecHitCollection->push_back(*recHit);
@@ -239,7 +242,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     }      
   
   edm::Handle<HBHERecHitCollection> hbheRHcol;
-  iEvent.getByLabel(hbheLabel_, hbheRHcol);
+  iEvent.getByToken(tok_hbhe_, hbheRHcol);
 
   const reco::TrackCollection tC = *(trackCollection.product());
   
@@ -280,7 +283,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     if (track->hitPattern().numberOfValidHits() < nHitsMinCore_) continue;
 
     // check that track is not in the region of L1 jet
-    double l1jDR=deltaR(track->eta(), track->phi(), getL1triggerDirection(iEvent,hltEventTag_,l1FilterTag_).first,getL1triggerDirection(iEvent,hltEventTag_,l1FilterTag_).second);
+    double l1jDR=deltaR(track->eta(), track->phi(), getL1triggerDirection(iEvent,tok_hlt_,l1FilterTag_).first,getL1triggerDirection(iEvent,tok_hlt_,l1FilterTag_).second);
     if (l1jDR<l1jetVetoCone_) continue;
     ///
 	    
@@ -297,7 +300,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     //check matching to HLT object (optional)
 
-    if (checkHLTMatch_&&!checkHLTMatch(iEvent, hltEventTag_, hltFiltTag_, etaecal, phiecal,hltMatchingCone_)) continue;
+    if (checkHLTMatch_&&!checkHLTMatch(iEvent, tok_hlt_, hltFiltTag_, etaecal, phiecal,hltMatchingCone_)) continue;
     
     if (fabs(track->eta())>etaMax_) continue;
     
@@ -514,7 +517,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     {
       //   Take HO collection
       edm::Handle<HORecHitCollection> ho;
-      iEvent.getByLabel(hoLabel_,ho);
+      iEvent.getByToken(tok_ho_,ho);
       
       const HORecHitCollection Hitho = *(ho.product());
       for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
@@ -533,7 +536,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       
       // process rechits
       edm::Handle<EcalRecHitCollection> pRecHits;
-      iEvent.getByLabel("ecalPreshowerRecHit","EcalRecHitsES",pRecHits);
+      iEvent.getByToken(tok_ps_,pRecHits);
       const EcalRecHitCollection& psrechits = *(pRecHits.product());
 
       typedef EcalRecHitCollection::const_iterator IT;

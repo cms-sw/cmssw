@@ -26,7 +26,7 @@ private:
   virtual void endJob() override ;
 
   // ----------member data ---------------------------
-  edm::InputTag rawInLabel_ ;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_fed_;
   std::vector<int> extraFEDs_ ; 
   
 };
@@ -36,7 +36,7 @@ private:
 
 HcalCalibFEDSelector::HcalCalibFEDSelector(const edm::ParameterSet& iConfig)
 {
-  rawInLabel_ = iConfig.getParameter<edm::InputTag>("rawInputLabel");
+  tok_fed_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInputLabel"));
   extraFEDs_  = iConfig.getParameter< std::vector<int> >("extraFEDsToKeep") ; 
   produces<FEDRawDataCollection>();  
 }
@@ -52,7 +52,7 @@ HcalCalibFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<FEDRawDataCollection> producedData(new FEDRawDataCollection);
 
   edm::Handle<FEDRawDataCollection> rawIn;
-  iEvent.getByLabel(rawInLabel_,rawIn);
+  iEvent.getByToken(tok_fed_,rawIn);
  
   std::vector<int> selFEDs;
 

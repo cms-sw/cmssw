@@ -437,7 +437,7 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
   int irunold;
 
   edm::InputTag hoCalibVariableCollectionTag;
-
+  edm::EDGetTokenT<HOCalibVariableCollection> tok_ho_; 
       // ----------member data ---------------------------
 
 };
@@ -459,11 +459,12 @@ const int HOCalibAnalyzer::neffip;
 //
 // constructors and destructor
 //
-HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig) :
-  hoCalibVariableCollectionTag(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"))
+
+HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
   // It is very likely you want the following in your configuration
   // hoCalibVariableCollectionTag = cms.InputTag('hoCalibProducer', 'HOCalibVariableCollection')
 {
+   tok_ho_ = consumes<HOCalibVariableCollection>(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"));
    //now do what ever initialization is needed
   ipass = 0;
   Nevents = 0;
@@ -1000,8 +1001,7 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle<HOCalibVariableCollection>HOCalib;
   bool isCosMu = true;
   try {
-    iEvent.getByLabel(hoCalibVariableCollectionTag, HOCalib); 
-    //    iEvent.getByLabel("hoCalibProducer","HOCalibVariableCollection",HOCalib);
+    iEvent.getByToken(tok_ho_, HOCalib);
 
   } catch ( cms::Exception &iEvent ) { isCosMu = false; } 
 

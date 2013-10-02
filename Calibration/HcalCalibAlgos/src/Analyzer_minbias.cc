@@ -11,7 +11,6 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
@@ -41,13 +40,17 @@ Analyzer_minbias::Analyzer_minbias(const edm::ParameterSet& iConfig)
   fOutputFileName = iConfig.getUntrackedParameter<string>("HistOutFile"); 
   // get names of modules, producing object collections
   
-  hbherecoMB = iConfig.getParameter<edm::InputTag>("hbheInputMB");
-  horecoMB   = iConfig.getParameter<edm::InputTag>("hoInputMB");
-  hfrecoMB   = iConfig.getParameter<edm::InputTag>("hfInputMB");
+  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"));
+  tok_ho_   = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputMB"));
+  tok_hf_   = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputMB"));
   
-  hbherecoNoise = iConfig.getParameter<edm::InputTag>("hbheInputNoise");
-  horecoNoise   = iConfig.getParameter<edm::InputTag>("hoInputNoise");
-  hfrecoNoise   = iConfig.getParameter<edm::InputTag>("hfInputNoise");
+  tok_hbheNoise_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputNoise"));
+  tok_hoNoise_   = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputNoise"));
+  tok_hfNoise_   = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputNoise"));
+
+  // this was hardcodded..
+  tok_gtRec_ = consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigisAlCaMB"));
+  tok_hbheNorm_ = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
   
   theRecalib = iConfig.getParameter<bool>("Recalib"); 
    
@@ -375,7 +378,7 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   const AlgorithmMap& bitMap = menu->gtAlgorithmMap();
 
     edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
-    iEvent.getByLabel("gtDigisAlCaMB", gtRecord);
+    iEvent.getByToken(tok_gtRec_, gtRecord);
  
    if (!gtRecord.isValid()) {
 
@@ -426,7 +429,7 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
    }    
    edm::Handle<HBHERecHitCollection> hbheNormal;
-   iEvent.getByLabel("hbhereco", hbheNormal);
+   iEvent.getByToken(tok_hbheNorm_, hbheNormal);
    if(!hbheNormal.isValid()){  
      cout<<" hbheNormal failed "<<endl;
    } else {
@@ -435,7 +438,7 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
    edm::Handle<HBHERecHitCollection> hbheNS;
-   iEvent.getByLabel(hbherecoNoise, hbheNS);
+   iEvent.getByToken(tok_hbheNoise_, hbheNS);
 
 
    if(!hbheNS.isValid()){
@@ -454,7 +457,7 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           return;
    }
    edm::Handle<HBHERecHitCollection> hbheMB;
-   iEvent.getByLabel(hbherecoMB, hbheMB);
+   iEvent.getByToken(tok_hbhe_, hbheMB);
 
    if(!hbheMB.isValid()){
      LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
@@ -470,7 +473,7 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
    edm::Handle<HFRecHitCollection> hfNS;
-   iEvent.getByLabel(hfrecoNoise, hfNS);
+   iEvent.getByToken(tok_hfNoise_, hfNS);
 
    if(!hfNS.isValid()){
      LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
@@ -487,7 +490,7 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    }
 
    edm::Handle<HFRecHitCollection> hfMB;
-   iEvent.getByLabel(hfrecoMB, hfMB);
+   iEvent.getByToken(tok_hf_, hfMB);
 
    if(!hfMB.isValid()){
      LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;

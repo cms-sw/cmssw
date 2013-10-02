@@ -31,6 +31,10 @@ HcalNZSMonitor::HcalNZSMonitor(const edm::ParameterSet& ps)
   rawdataLabel_          = ps.getUntrackedParameter<edm::InputTag>("RawDataLabel");
   hltresultsLabel_       = ps.getUntrackedParameter<edm::InputTag>("HLTResultsLabel");
 
+  // register for data access
+  tok_raw_ = consumes<FEDRawDataCollection>(rawdataLabel_);
+  tok_res_ = consumes<edm::TriggerResults>(hltresultsLabel_);
+
 } 
 
 HcalNZSMonitor::~HcalNZSMonitor() {}
@@ -136,14 +140,14 @@ void HcalNZSMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   
   edm::Handle<FEDRawDataCollection> rawraw;
 
-  if (!(e.getByLabel(rawdataLabel_,rawraw)))
+  if (!(e.getByToken(tok_raw_,rawraw)))
     {
       edm::LogWarning("HcalNZSMonitor")<<" raw data with label "<<rawdataLabel_<<" not available";
       return;
     }
 
   edm::Handle<edm::TriggerResults> hltRes;
-  if (!(e.getByLabel(hltresultsLabel_,hltRes)))
+  if (!(e.getByToken(tok_res_,hltRes)))
     {
       if (debug_>0) edm::LogWarning("HcalNZSMonitor")<<" Could not get HLT results with tag "<<hltresultsLabel_<<std::endl;
       return;

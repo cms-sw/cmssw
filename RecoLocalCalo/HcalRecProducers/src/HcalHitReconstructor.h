@@ -28,6 +28,8 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFTimingTrustFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_S9S1algorithm.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_PETalgorithm.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
     /** \class HcalHitReconstructor
 	
@@ -61,6 +63,10 @@ class HcalTopology;
       int subdet_;
       HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
+      edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+      edm::EDGetTokenT<HODigiCollection> tok_ho_;
+      edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+      edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
       //std::vector<std::string> channelStatusToDrop_;
       bool correctTiming_; // turn on/off Ken Rossato's algorithm to fix timing
       bool setNoiseFlags_; // turn on/off basic noise flags

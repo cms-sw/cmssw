@@ -55,7 +55,7 @@ class RecHitCorrector : public edm::EDProducer {
       virtual void endJob() override ;
       
       // ----------member data ---------------------------
-      edm::InputTag inputLabel_;
+      edm::EDGetTokenT<CastorRecHitCollection> tok_input_;
       double factor_;
       bool doInterCalib_;
 };
@@ -73,10 +73,10 @@ class RecHitCorrector : public edm::EDProducer {
 // constructors and destructor
 //
 RecHitCorrector::RecHitCorrector(const edm::ParameterSet& iConfig):
-inputLabel_(iConfig.getParameter<edm::InputTag>("rechitLabel")),
 factor_(iConfig.getParameter<double>("revertFactor")),
 doInterCalib_(iConfig.getParameter<bool>("doInterCalib"))
 {
+  tok_input_ = consumes<CastorRecHitCollection>(iConfig.getParameter<edm::InputTag>("rechitLabel"));
    //register your products
    produces<CastorRecHitCollection>();
    //now do what ever other initialization is needed
@@ -104,7 +104,7 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    // get original rechits
    edm::Handle<CastorRecHitCollection> rechits;
-   iEvent.getByLabel(inputLabel_,rechits);
+   iEvent.getByToken(tok_input_,rechits);
    
    // get conditions
    edm::ESHandle<CastorDbService> conditions;

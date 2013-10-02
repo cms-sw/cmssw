@@ -21,6 +21,9 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
+#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
+#include "DQM/HcalMonitorTasks/interface/HcalZDCMonitor.h"
+
 #include "FWCore/Utilities/interface/CPUTimer.h"
 
 class MonitorElement;
@@ -136,6 +139,10 @@ public:
   edm::InputTag inputLabelRecHitZDC_;
 
   edm::InputTag FEDRawDataCollection_; // not yet in use, but we still store the tag name
+
+  edm::EDGetTokenT<HcalUnpackerReport> tok_hcal_;
+  edm::EDGetTokenT<ZDCDigiCollection> tok_zdc_;
+  edm::EDGetTokenT<ZDCRecHitCollection> tok_zdcrh_;
 
   MonitorElement* meIEVTALL_;
   MonitorElement* meIEVTRAW_;

@@ -17,14 +17,13 @@
 //
 
 #include "Calibration/IsolatedParticles/plugins/IsolatedParticlesGeneratedJets.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 IsolatedParticlesGeneratedJets::IsolatedParticlesGeneratedJets(const edm::ParameterSet& iConfig) {
 
   debug   = iConfig.getUntrackedParameter<bool>  ("Debug", false);
-  jetSrc  = iConfig.getParameter<edm::InputTag>("JetSource");
-  partSrc = iConfig.getParameter<edm::InputTag>("ParticleSource");
+  tok_jets_  = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("JetSource"));
+  tok_parts_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("ParticleSource"));
 }
 
 
@@ -39,11 +38,11 @@ void IsolatedParticlesGeneratedJets::analyze(const edm::Event& iEvent, const edm
 
   //=== genJet information
   edm::Handle<reco::GenJetCollection> genJets;
-  iEvent.getByLabel(jetSrc, genJets);
+  iEvent.getByToken(tok_jets_, genJets);
 
   //=== genJet information
   edm::Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByLabel(partSrc, genParticles);
+  iEvent.getByToken(tok_parts_, genParticles);
 
   JetMatchingTools jetMatching (iEvent);
   std::vector <std::vector <const reco::GenParticle*> > genJetConstituents (genJets->size());

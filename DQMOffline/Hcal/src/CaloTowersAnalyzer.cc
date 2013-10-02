@@ -1,12 +1,12 @@
 #include "DQMOffline/Hcal/interface/CaloTowersAnalyzer.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf):
-  theCaloTowerCollectionLabel(conf.getUntrackedParameter<edm::InputTag>("CaloTowerCollectionLabel"))
-{
+CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
+
+  tok_towers_ = consumes<CaloTowerCollection>(conf.getUntrackedParameter<edm::InputTag>("CaloTowerCollectionLabel"));
+
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
@@ -410,7 +410,7 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
   nevent++;
 
   edm::Handle<CaloTowerCollection> towers;
-  event.getByLabel(theCaloTowerCollectionLabel,towers);
+  event.getByToken(tok_towers_,towers);
   CaloTowerCollection::const_iterator cal;
 
   double met;

@@ -1,7 +1,6 @@
 #include "SimG4CMS/Calo/test/HitParentTest.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -21,6 +20,13 @@ HitParentTest::HitParentTest(const edm::ParameterSet& ps) {
   edm::LogInfo("HitParentTest") << "Module Label: " << g4Label << "   Hits: "
 				<< hitLabEB << ", " << hitLabEE << ", "
 				<< hitLabES << ", " << hitLabHC;
+
+  tok_eb_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hitLabEB));
+  tok_ee_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hitLabEE));
+  tok_es_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hitLabES));
+  tok_hc_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hitLabHC));
+  tok_tk_ = consumes<edm::SimTrackContainer>(edm::InputTag(g4Label));
+  tok_vtx_ = consumes<edm::SimVertexContainer>(edm::InputTag(g4Label));
 
   for (unsigned int i=0; i<2; ++i) {
     total_num_apd_hits_seen[i]      = 0; 
@@ -71,25 +77,25 @@ void HitParentTest::analyze(const edm::Event& e, const edm::EventSetup& ) {
 
   // get PCaloHits for ecal barrel
   edm::Handle<edm::PCaloHitContainer> caloHitEB;
-  e.getByLabel(g4Label,hitLabEB,caloHitEB); 
+  e.getByToken(tok_eb_,caloHitEB); 
 
   // get PCaloHits for ecal endcap
   edm::Handle<edm::PCaloHitContainer> caloHitEE;
-  e.getByLabel(g4Label,hitLabEE,caloHitEE); 
+  e.getByToken(tok_ee_,caloHitEE); 
 
   // get PCaloHits for preshower
   edm::Handle<edm::PCaloHitContainer> caloHitES;
-  e.getByLabel(g4Label,hitLabES,caloHitES); 
+  e.getByToken(tok_es_,caloHitES); 
 
   // get PCaloHits for hcal
   edm::Handle<edm::PCaloHitContainer> caloHitHC;
-  e.getByLabel(g4Label,hitLabHC,caloHitHC); 
+  e.getByToken(tok_hc_,caloHitHC); 
 
   // get sim tracks
-  e.getByLabel(g4Label, SimTk);
+  e.getByToken(tok_tk_, SimTk);
   
   // get sim vertices
-  e.getByLabel(g4Label, SimVtx);
+  e.getByToken(tok_vtx_, SimVtx);
   
   LogDebug("HitParentTest") << "HitParentTest: hits valid[EB]: " << caloHitEB.isValid() << " valid[EE]: " << caloHitEE.isValid() << " valid[ES]: " << caloHitES.isValid() << " valid[HC]: " << caloHitHC.isValid();
   

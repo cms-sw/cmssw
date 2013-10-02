@@ -40,9 +40,10 @@ CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) :
         conf.getParameter<double>("MomEEDepth")
 
         ),
-  caloLabel_(conf.getParameter<edm::InputTag>("caloLabel")),
   allowMissingInputs_(false)
 {
+  tok_calo_ = consumes<CaloTowerCollection>(conf.getParameter<edm::InputTag>("caloLabel"));
+
   EBEScale=conf.getParameter<double>("EBEScale");
   EEEScale=conf.getParameter<double>("EEEScale");
   HBEScale=conf.getParameter<double>("HBEScale");
@@ -81,7 +82,7 @@ void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   
   // Step A/C: Get Inputs and process (repeatedly)
   edm::Handle<CaloTowerCollection> calt;
-  e.getByLabel(caloLabel_,calt);
+  e.getByToken(tok_calo_,calt);
 
 /*
   if (!calt.isValid()) {

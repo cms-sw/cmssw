@@ -1,7 +1,6 @@
 #include "SimCalorimetry/HcalTrigPrimProducers/src/HcalTTPTriggerRecord.h"
 
 #include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -9,7 +8,7 @@
 
 HcalTTPTriggerRecord::HcalTTPTriggerRecord(const edm::ParameterSet& ps) 
 {
-    ttpDigis_ = ps.getParameter<edm::InputTag>("ttpDigiCollection") ; 
+    tok_ttp_ = consumes<HcalTTPDigiCollection>(ps.getParameter<edm::InputTag>("ttpDigiCollection")); 
     ttpBits_  = ps.getParameter< std::vector<unsigned int> >("ttpBits");
     names_    = ps.getParameter< std::vector<std::string> >("ttpBitNames");
 
@@ -26,7 +25,7 @@ void HcalTTPTriggerRecord::produce(edm::Event& e, const edm::EventSetup& eventSe
 
     // Get Inputs
     edm::Handle<HcalTTPDigiCollection> ttpDigiCollection ; 
-    e.getByLabel(ttpDigis_,ttpDigiCollection) ;
+    e.getByToken(tok_ttp_,ttpDigiCollection) ;
 
     if ( !ttpDigiCollection.failedToGet() ) { 
         const HcalTTPDigiCollection* ttpDigis = ttpDigiCollection.product() ; 

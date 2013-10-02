@@ -23,6 +23,9 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalADCSaturationFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFTimingTrustFlag.h"
 
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
 class HcalTopology;
 
     /** \class ZdcHitReconstructor
@@ -50,7 +53,7 @@ class HcalTopology;
       DetId::Detector det_;
       int subdet_;
       HcalOtherSubdetector subdetOther_;
-      edm::InputTag inputLabel_;
+      edm::EDGetTokenT<ZDCDigiCollection> tok_input_;
       //std::vector<std::string> channelStatusToDrop_;
       bool correctTiming_; // turn on/off Ken Rossato's algorithm to fix timing
       bool setNoiseFlags_; // turn on/off basic noise flags

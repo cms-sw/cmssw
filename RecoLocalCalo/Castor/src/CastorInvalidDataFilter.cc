@@ -45,6 +45,7 @@ class CastorInvalidDataFilter : public edm::EDFilter {
    private:
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       
+   edm::EDGetTokenT<std::vector<edm::ErrorSummaryEntry> > tok_summary_;
 };
 
 //
@@ -61,6 +62,7 @@ class CastorInvalidDataFilter : public edm::EDFilter {
 CastorInvalidDataFilter::CastorInvalidDataFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
+   tok_summary_ = consumes<std::vector<edm::ErrorSummaryEntry> >(edm::InputTag("logErrorHarvester"));
 
 }
 
@@ -85,7 +87,7 @@ CastorInvalidDataFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
    using namespace edm;
    
    edm::Handle<std::vector<ErrorSummaryEntry> > summary;
-   iEvent.getByLabel("logErrorHarvester",summary);
+   iEvent.getByToken(tok_summary_,summary);
 
    bool invalid = false;
    //std::cout << " logError summary size = " << summary->size() << std::endl;

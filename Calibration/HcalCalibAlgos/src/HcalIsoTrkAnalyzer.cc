@@ -108,7 +108,11 @@ private:
   TrackAssociatorParameters parameters_;
 
   const CaloGeometry* geo;
-  InputTag hbheLabel_, hoLabel_, eLabel_, trackLabel_, trackLabel1_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<EcalRecHitCollection> tok_ecal_;
+  edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> tok_track_;
+  edm::EDGetTokenT<reco::TrackCollection> tok_track1_;
 
   std::string m_inputTrackLabel;
   std::string m_ecalLabel;
@@ -173,11 +177,11 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig)
   m_eeInstance = iConfig.getUntrackedParameter<std::string> ("eeRecHitsInstance","EcalRecHitsEE");
   m_hcalLabel = iConfig.getUntrackedParameter<std::string> ("hcalRecHitsLabel","hbhereco");
  
-  hbheLabel_= iConfig.getParameter<edm::InputTag>("hbheInput");
-  hoLabel_=iConfig.getParameter<edm::InputTag>("hoInput");
-  eLabel_=iConfig.getParameter<edm::InputTag>("eInput");
-  trackLabel_ = iConfig.getParameter<edm::InputTag>("HcalIsolTrackInput");
-  trackLabel1_ = iConfig.getParameter<edm::InputTag>("trackInput");
+  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
+  tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
+  tok_ecal_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eInput"));
+  tok_track_ = consumes<reco::IsolatedPixelTrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("HcalIsolTrackInput"));
+  tok_track1_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackInput"));
   associationConeSize_=iConfig.getParameter<double>("associationConeSize");
   allowMissingInputs_=iConfig.getUntrackedParameter<bool>("allowMissingInputs",true);
   outputFileName_=iConfig.getParameter<std::string>("outputFileName");
@@ -222,17 +226,17 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   float calEnergy;
 
   edm::Handle<reco::TrackCollection> isoProdTracks;
-  iEvent.getByLabel(trackLabel1_,isoProdTracks);  
+  iEvent.getByToken(tok_track1_,isoProdTracks);  
 
   edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isoPixelTracks;
-  iEvent.getByLabel(trackLabel_,isoPixelTracks);
+  iEvent.getByToken(tok_track_,isoPixelTracks);
     
   edm::Handle<EcalRecHitCollection> ecal;
-  iEvent.getByLabel(eLabel_,ecal);
+  iEvent.getByToken(tok_ecal_,ecal);
   const EcalRecHitCollection Hitecal = *(ecal.product());
     
   edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByLabel(hbheLabel_,hbhe);
+  iEvent.getByToken(tok_hbhe_,hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
   edm::ESHandle<CaloGeometry> pG;
@@ -543,7 +547,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
       try {
 	Handle<HORecHitCollection> ho;
-	iEvent.getByLabel(hoLabel_,ho);
+	iEvent.getByToken(tok_ho_,ho);
 	const HORecHitCollection Hitho = *(ho.product());
 	
 	//clear usedHits

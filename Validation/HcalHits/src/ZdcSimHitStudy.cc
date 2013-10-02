@@ -35,6 +35,9 @@ ZdcSimHitStudy::ZdcSimHitStudy(const edm::ParameterSet& ps) {
   verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
   checkHit_= true;
 
+   tok_gen_ = consumes<reco::GenParticleCollection>(edm::InputTag("genParticles")); 
+  tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,zdcHits));
+
   edm::LogInfo("ZdcSimHitStudy") 
     //std::cout
     << "Module Label: " << g4Label << "   Hits: "
@@ -476,8 +479,8 @@ void ZdcSimHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
    
  
    Handle<reco::GenParticleCollection> genhandle;
-   
-   if (!(iEvent.getByLabel("genParticles",genhandle)))
+  
+   if (!(iEvent.getByToken(tok_gen_,genhandle)))
    {
     gotGenParticles=false; //this is the same kind of boolean except for the genparticles collection
    }
@@ -579,7 +582,7 @@ void ZdcSimHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   bool getHits = false;
   if (checkHit_) {
-    iEvent.getByLabel(g4Label,zdcHits,hitsZdc);
+    iEvent.getByToken(tok_hits_,hitsZdc);
 //    e.getByLabel(g4Label,zdcHits,hitsZdc); 
     if (hitsZdc.isValid()) getHits = true;
   }

@@ -18,6 +18,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 class IPTCorrector : public edm::EDProducer {
 
@@ -30,8 +31,8 @@ class IPTCorrector : public edm::EDProducer {
 
  private:
 	
-  edm::InputTag corSource_;
-  edm::InputTag uncorSource_;
+  edm::EDGetTokenT<reco::TrackCollection> tok_cor_;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_uncor_;
   double assocCone_;
 };
 
