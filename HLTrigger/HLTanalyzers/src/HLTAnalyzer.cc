@@ -410,8 +410,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     //    edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
     //    iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
    
-    edm::ESHandle<LumiCorrectionParam> lumicorrdatahandle; //get LumiCorrectionParam object from event setup  
-    iSetup.getData(lumicorrdatahandle);  
+    //edm::ESHandle<LumiCorrectionParam> lumicorrdatahandle; //get LumiCorrectionParam object from event setup  
+    //iSetup.getData(lumicorrdatahandle);  
 
     edm::Handle<std::vector< PileupSummaryInfo > >    pupInfo;  
 
@@ -748,7 +748,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 			     recoVertexsOffline0,
 			     HltTree);
 
-    evt_header_.analyze(iEvent, lumicorrdatahandle, HltTree); 
+    //evt_header_.analyze(iEvent, lumicorrdatahandle, HltTree); 
+    evt_header_.analyze(iEvent, HltTree); 
     
     
     // std::cout << " Ending Event Analysis" << std::endl;
