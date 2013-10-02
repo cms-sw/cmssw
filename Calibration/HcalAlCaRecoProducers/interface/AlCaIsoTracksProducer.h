@@ -41,6 +41,8 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h" 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
 
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+
 #include "TH1F.h"
 class TFile;
 
@@ -63,11 +65,7 @@ private:
   
   
   const CaloGeometry* geo;
-  edm::InputTag hoLabel_;
-  edm::InputTag hbheLabel_;
   std::vector<edm::InputTag> ecalLabels_;
-
-  edm::InputTag m_inputTrackLabel_;
 
   int nHitsMinCore_;
   int nHitsMinIso_;  
@@ -83,7 +81,6 @@ private:
 
   bool skipNeutrals_;
   bool checkHLTMatch_;
-  edm::InputTag hltEventTag_;
   std::vector<std::string> hltFiltTag_;
   double hltMatchingCone_;
 
@@ -100,6 +97,14 @@ private:
   
   std::string l1FilterTag_;
   double l1jetVetoCone_;
+
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<reco::TrackCollection> tok_track_;
+  edm::EDGetTokenT<trigger::TriggerEvent> tok_hlt_;
+
+  std::vector<edm::EDGetTokenT<EcalRecHitCollection> > toks_ecal_;
+  edm::EDGetTokenT<EcalRecHitCollection> tok_ps_;
 
 };
 

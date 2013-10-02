@@ -19,6 +19,8 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
 #include <TH1F.h>
 #include <TProfile.h>
 #include <TProfile2D.h>
@@ -47,7 +49,9 @@ protected:
 
 private:
 
-  std::string           sourceLabel, g4Label, hitLab[2];
+  std::string           g4Label, hitLab[2];
+  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> toks_calo_[2];
   std::vector<PCaloHit> ecalHits, hcalHits;
   double                maxEnergy, scaleEB, scaleHB, scaleHO;
   bool                  scheme_, print_;

@@ -7,6 +7,8 @@ SimHitsValidationHcal::SimHitsValidationHcal(const edm::ParameterSet& ps) {
   hcalHits = ps.getUntrackedParameter<std::string>("HitCollection","HcalHits");
   verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
 
+  tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hcalHits));
+
   edm::LogInfo("HitsValidationHcal") << "Module Label: " << g4Label << "   Hits: "
 				     << hcalHits;
 
@@ -117,7 +119,7 @@ void SimHitsValidationHcal::analyze(const edm::Event& e, const edm::EventSetup& 
   edm::Handle<edm::PCaloHitContainer> hitsHcal;
   
   bool getHits = false;
-  e.getByLabel(g4Label,hcalHits,hitsHcal); 
+  e.getByToken(tok_hits_,hitsHcal); 
   if (hitsHcal.isValid()) getHits = true;
   
   LogDebug("SimHitsValidationHcal") << "SimHitsValidationHcal.: Input flags Hits " << getHits;

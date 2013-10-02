@@ -5,10 +5,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
-#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "DataFormats/Provenance/interface/EventID.h"  
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -65,7 +63,10 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps)
   debug_                 = ps.getUntrackedParameter<int>("debug",0);
   
   FEDRawDataCollection_  = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection");
+  tok_raw_ = consumes<FEDRawDataCollection>(FEDRawDataCollection_);
+
   inputLabelReport_      = ps.getUntrackedParameter<edm::InputTag>("UnpackerReport");
+  tok_report_ = consumes<HcalUnpackerReport>(inputLabelReport_);
   
   prefixME_              = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
   if (prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
@@ -338,7 +339,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c)
   
   // Try to get raw data
   edm::Handle<FEDRawDataCollection> rawraw;  
-  if (!(e.getByLabel(FEDRawDataCollection_,rawraw)))
+  if (!(e.getByToken(tok_raw_,rawraw)))
     {
       edm::LogWarning("HcalMonitorModule")<<" raw data with label "<<FEDRawDataCollection_ <<" not available";
       return;
@@ -397,7 +398,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c)
   
   //  Here, we do need this information each event
   edm::Handle<HcalUnpackerReport> report;  
-  if (!(e.getByLabel(inputLabelReport_,report)))
+  if (!(e.getByToken(tok_report_,report)))
     {
       edm::LogWarning("HcalMonitorModule")<<" Unpacker Report "<<inputLabelReport_<<" not available";
       return;

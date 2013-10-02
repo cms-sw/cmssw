@@ -18,6 +18,13 @@ ElectronStudy::ElectronStudy(const edm::ParameterSet& ps) {
   g4Label = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
   hitLabEB= ps.getUntrackedParameter<std::string>("EBCollection","EcalHitsEB");
   hitLabEE= ps.getUntrackedParameter<std::string>("EECollection","EcalHitsEE");
+
+
+  tok_EBhit_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hitLabEB));
+  tok_EEhit_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hitLabEE));
+  tok_simTk_ = consumes<edm::SimTrackContainer>(edm::InputTag(g4Label));
+  tok_simVtx_ = consumes<edm::SimVertexContainer>(edm::InputTag(g4Label));
+
   hotZone = ps.getUntrackedParameter<int>("HotZone",0);
   verbose = ps.getUntrackedParameter<int>("Verbosity",0);
   edm::LogInfo("ElectronStudy") << "Module Label: " << g4Label << "   Hits: "
@@ -98,19 +105,19 @@ void ElectronStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // get PCaloHits for ecal barrel
   edm::Handle<edm::PCaloHitContainer> caloHitEB;
-  iEvent.getByLabel(g4Label,hitLabEB,caloHitEB); 
+  iEvent.getByToken(tok_EBhit_,caloHitEB); 
 
   // get PCaloHits for ecal endcap
   edm::Handle<edm::PCaloHitContainer> caloHitEE;
-  iEvent.getByLabel(g4Label,hitLabEE,caloHitEE); 
+  iEvent.getByToken(tok_EEhit_,caloHitEE); 
 
   // get sim tracks
   edm::Handle<edm::SimTrackContainer>  SimTk;
-  iEvent.getByLabel(g4Label, SimTk);
+  iEvent.getByToken(tok_simTk_, SimTk);
   
   // get sim vertices
   edm::Handle<edm::SimVertexContainer> SimVtx;
-  iEvent.getByLabel(g4Label, SimVtx);
+  iEvent.getByToken(tok_simVtx_, SimVtx);
   
   if (verbose>0) 
     std::cout << "ElectronStudy: hits valid[EB]: " << caloHitEB.isValid() 

@@ -96,7 +96,7 @@ private:
 
     std::string str(int x);
 
-    template<class Digi> void reco(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+    template<class Digi> void reco(const edm::Event& iEvent, const edm::EventSetup& iSetup, const edm::EDGetTokenT<edm::SortedCollection<Digi> > &tok);
     void eval_occupancy();
 
     std::string outputFile_;
@@ -107,6 +107,11 @@ private:
     std::string mode_;
     std::string mc_;
     int noise_;
+
+    edm::EDGetTokenT<edm::PCaloHitContainer> tok_mc_;
+    edm::EDGetTokenT<edm::SortedCollection<HBHEDataFrame> > tok_hbhe_; 
+    edm::EDGetTokenT<edm::SortedCollection<HODataFrame> > tok_ho_;
+    edm::EDGetTokenT<edm::SortedCollection<HFDataFrame> > tok_hf_;
 
     edm::ESHandle<CaloGeometry> geometry;
     edm::ESHandle<HcalDbService> conditions;

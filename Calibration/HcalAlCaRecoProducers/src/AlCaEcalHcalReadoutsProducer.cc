@@ -5,9 +5,9 @@
 AlCaEcalHcalReadoutsProducer::AlCaEcalHcalReadoutsProducer(const edm::ParameterSet& iConfig)
 {
 
-   hoLabel_ = iConfig.getParameter<edm::InputTag>("hoInput");
-   hfLabel_ = iConfig.getParameter<edm::InputTag>("hfInput");
-   hbheLabel_ = iConfig.getParameter<edm::InputTag>("hbheInput");
+   tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
+   tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
+   tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
    
    //register your products
    produces<HBHERecHitCollection>("HBHERecHitCollection");
@@ -34,18 +34,18 @@ AlCaEcalHcalReadoutsProducer::produce(edm::Event& iEvent, const edm::EventSetup&
    edm::Handle<HORecHitCollection> ho;
    edm::Handle<HFRecHitCollection> hf;
 
-   iEvent.getByLabel(hbheLabel_,hbhe);
+   iEvent.getByToken(tok_hbhe_,hbhe);
    if(!hbhe.isValid()){
      LogDebug("") << "AlCaEcalHcalReadoutProducer: Error! can't get hbhe product!" << std::endl;
      return ;
    }
 
-   iEvent.getByLabel(hoLabel_,ho);
+   iEvent.getByToken(tok_ho_,ho);
     if(!ho.isValid()) {
       LogDebug("") << "AlCaEcalHcalReadoutProducer: Error! can't get ho product!" << std::endl;
     }
     
-    iEvent.getByLabel(hfLabel_,hf);
+    iEvent.getByToken(tok_hf_,hf);
     if(!hf.isValid()) {
       LogDebug("") << "AlCaEcalHcalReadoutProducer: Error! can't get hf product!" << std::endl;
     }

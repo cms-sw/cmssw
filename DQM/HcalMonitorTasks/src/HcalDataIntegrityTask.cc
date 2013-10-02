@@ -28,6 +28,11 @@ HcalDataIntegrityTask::HcalDataIntegrityTask(const edm::ParameterSet& ps)
   inputLabelRawData_     = ps.getUntrackedParameter<edm::InputTag>("RawDataLabel",edm::InputTag("source"));
   inputLabelReport_      = ps.getUntrackedParameter<edm::InputTag>("UnpackerReportLabel",edm::InputTag("hcalDigis"));
 
+
+  // register for data access
+  tok_raw_ = consumes<FEDRawDataCollection>(inputLabelRawData_);
+  tok_report_ = consumes<HcalUnpackerReport>(inputLabelReport_);
+
 } // HcalDataIntegrityTask::HcalDataIntegrityTask()
 
 HcalDataIntegrityTask::~HcalDataIntegrityTask() {}
@@ -155,14 +160,14 @@ void HcalDataIntegrityTask::analyze(edm::Event const&e, edm::EventSetup const&s)
   edm::Handle<FEDRawDataCollection> rawraw;
   
   // Trying new getByLabel
-  if (!(e.getByLabel(inputLabelRawData_,rawraw)))
+  if (!(e.getByToken(tok_raw_,rawraw)))
     {
       if (debug_>0) edm::LogWarning("HcalDataIntegrityTask")<<" raw data with label "<<inputLabelRawData_<<" not available";
       return;
     }
   
   edm::Handle<HcalUnpackerReport> report;
-  if (!(e.getByLabel(inputLabelReport_,report)))
+  if (!(e.getByToken(tok_report_,report)))
     {
       if (debug_>0) edm::LogWarning("HcalDataIntegrityTask")<<" UnpackerReport with label "<<inputLabelReport_<<" \not available";
       return;

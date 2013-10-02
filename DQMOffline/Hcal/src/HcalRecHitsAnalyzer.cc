@@ -27,9 +27,11 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
   useAllHistos_ = conf.getUntrackedParameter<bool>("useAllHistos", false);
 
   //Collections
-  theHBHERecHitCollectionLabel = conf.getUntrackedParameter<edm::InputTag>("HBHERecHitCollectionLabel");
-  theHFRecHitCollectionLabel   = conf.getUntrackedParameter<edm::InputTag>("HFRecHitCollectionLabel");
-  theHORecHitCollectionLabel   = conf.getUntrackedParameter<edm::InputTag>("HORecHitCollectionLabel");
+  tok_hbhe_ = consumes<HBHERecHitCollection>(conf.getUntrackedParameter<edm::InputTag>("HBHERecHitCollectionLabel"));
+  tok_hf_  = consumes<HFRecHitCollection>(conf.getUntrackedParameter<edm::InputTag>("HFRecHitCollectionLabel"));
+  tok_ho_ = consumes<HORecHitCollection>(conf.getUntrackedParameter<edm::InputTag>("HORecHitCollectionLabel"));
+  tok_EB_ = consumes<EBRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  tok_EE_ = consumes<EERecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
 
   subdet_ = 5;
   if (hcalselector_ == "noise") subdet_ = 0;
@@ -707,7 +709,7 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
     Handle<EBRecHitCollection> rhitEB;
 
 
-      ev.getByLabel("ecalRecHit","EcalRecHitsEB", rhitEB);
+      ev.getByToken(tok_EB_, rhitEB);
 
     EcalRecHitCollection::const_iterator RecHit = rhitEB.product()->begin();  
     EcalRecHitCollection::const_iterator RecHitEnd = rhitEB.product()->end();  
@@ -730,7 +732,7 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
     
     Handle<EERecHitCollection> rhitEE;
  
-      ev.getByLabel("ecalRecHit","EcalRecHitsEE", rhitEE);
+      ev.getByToken(tok_EE_, rhitEE);
 
     RecHit = rhitEE.product()->begin();  
     RecHitEnd = rhitEE.product()->end();  
@@ -1231,7 +1233,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
     
     //HBHE
     edm::Handle<HBHERecHitCollection> hbhecoll;
-    ev.getByLabel(theHBHERecHitCollectionLabel, hbhecoll);
+    ev.getByToken(tok_hbhe_, hbhecoll);
     
     for (HBHERecHitCollection::const_iterator j=hbhecoll->begin(); j != hbhecoll->end(); j++) {
       HcalDetId cell(j->id());
@@ -1279,7 +1281,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 
     //HF
     edm::Handle<HFRecHitCollection> hfcoll;
-    ev.getByLabel(theHFRecHitCollectionLabel, hfcoll);
+    ev.getByToken(tok_hf_, hfcoll);
 
     for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
       HcalDetId cell(j->id());
@@ -1324,7 +1326,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
   if( subdet_ == 3 || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
   
     edm::Handle<HORecHitCollection> hocoll;
-    ev.getByLabel(theHORecHitCollectionLabel, hocoll);
+    ev.getByToken(tok_ho_, hocoll);
     
     for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
       HcalDetId cell(j->id());

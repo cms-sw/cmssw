@@ -21,6 +21,12 @@
 
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 
+// collections
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+
 /*
 #include "TFile.h"
 #include "TTree.h"
@@ -56,11 +62,11 @@ class DiJetAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 
 
-      edm::InputTag jets_; 
-      edm::InputTag ec_;
-      edm::InputTag hbhe_; 
-      edm::InputTag ho_;
-      edm::InputTag hf_; 
+    edm::EDGetTokenT<reco::CaloJetCollection> tok_jets_;
+    edm::EDGetTokenT<EcalRecHitCollection> tok_ec_;
+    edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+    edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+    edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
 
 
 

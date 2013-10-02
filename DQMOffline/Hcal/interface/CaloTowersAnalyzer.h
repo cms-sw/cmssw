@@ -17,6 +17,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include <vector>
 #include <utility>
@@ -48,7 +49,7 @@ class CaloTowersAnalyzer : public edm::EDAnalyzer {
 
   typedef math::RhoEtaPhiVector Vector;
 
-  edm::InputTag theCaloTowerCollectionLabel;
+  edm::EDGetTokenT<CaloTowerCollection> tok_towers_;
 
   int isub;
   int nevent;

@@ -113,6 +113,15 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   edm::InputTag digiLabel_;
   edm::InputTag hbheRechitLabel_, hoRechitLabel_, hfRechitLabel_;
 
+  edm::EDGetTokenT<DcsStatusCollection> tok_dcs_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhedigi_;
+  edm::EDGetTokenT<HODigiCollection> tok_hodigi_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hfdigi_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+  edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> tok_gtEvm_;
+
   bool endLumiProcessed_;
 
   bool excludeHORing2_;

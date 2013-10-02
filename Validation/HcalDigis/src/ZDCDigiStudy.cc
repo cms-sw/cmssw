@@ -34,6 +34,8 @@ ZDCDigiStudy::ZDCDigiStudy(const edm::ParameterSet& ps) {
   verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
   checkHit_= true;
 
+  tok_zdc_ = consumes<ZDCDigiCollection>(edm::InputTag("simHcalUnsuppressedDigis"));
+
   edm::LogInfo("ZDCDigiStudy") 
     //std::cout
     << "   Hits: "
@@ -218,7 +220,7 @@ void ZDCDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    
 
    Handle<ZDCDigiCollection> zdchandle; 
-   if (!(iEvent.getByLabel("simHcalUnsuppressedDigis",zdchandle)))
+   if (!(iEvent.getByToken(tok_zdc_,zdchandle)))
    {
     gotZDCDigis=false; //this is a boolean set up to check if there are ZDCDigis in the input root file
    }

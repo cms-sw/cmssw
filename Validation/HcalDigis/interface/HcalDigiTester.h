@@ -13,6 +13,12 @@
 #include <map>
 #include "Validation/HcalDigis/src/HcalSubdetDigiMonitor.h"
 
+#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HFDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HODataFrame.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+
 class HcalDigiTester : public edm::EDAnalyzer {
 public:
 
@@ -20,7 +26,7 @@ public:
   ~HcalDigiTester();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob() ;
-  template<class Digi>  void reco(const edm::Event&, const edm::EventSetup&);
+  template<class Digi>  void reco(const edm::Event&, const edm::EventSetup&, const edm::EDGetTokenT<edm::SortedCollection<Digi>  >  &);
   virtual void endRun() ;  
   virtual void endJob() ; 
 
@@ -35,6 +41,11 @@ public:
   DQMStore* dbe_;
   
   edm::InputTag inputTag_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_mc_;
+  edm::EDGetTokenT<edm::SortedCollection<HBHEDataFrame> > tok_hbhe_;
+  edm::EDGetTokenT<edm::SortedCollection<HODataFrame> > tok_ho_;
+  edm::EDGetTokenT<edm::SortedCollection<HFDataFrame> > tok_hf_; 
+
   std::string outputFile_;
   std::string hcalselector_;
   std::string zside_;

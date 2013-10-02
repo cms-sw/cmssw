@@ -51,8 +51,8 @@ private:
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
-  
-  edm::InputTag DataLabel_ ;
+
+  edm::EDGetTokenT<FEDRawDataCollection> tok_data_;  
 
 };
 
@@ -64,7 +64,7 @@ HcalEmptyEventFilter::HcalEmptyEventFilter(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
 
-  DataLabel_  = iConfig.getParameter<edm::InputTag>("InputLabel") ;
+  tok_data_  = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel") );
 }
 
 
@@ -88,7 +88,7 @@ HcalEmptyEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   
   edm::Handle<FEDRawDataCollection> rawdata;  
-  iEvent.getByLabel(DataLabel_,rawdata);
+  iEvent.getByToken(tok_data_,rawdata);
 
   bool haveEmpty=false;
   

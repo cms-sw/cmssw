@@ -1,6 +1,4 @@
 #include "ZdcHitReconstructor.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -25,7 +23,6 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
 	conf.getParameter<int>("lowGainOffset"),
 	conf.getParameter<double>("lowGainFrac")),
   det_(DetId::Hcal),
-  inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
   correctTiming_(conf.getParameter<bool>("correctTiming")),
   setNoiseFlags_(conf.getParameter<bool>("setNoiseFlags")),
   setHSCPFlags_(conf.getParameter<bool>("setHSCPFlags")),
@@ -37,6 +34,8 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   theTopology(0)
   
 { 
+  tok_input_ = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabel"));
+
   std::sort(AuxTSvec_.begin(),AuxTSvec_.end()); // sort vector in ascending TS order
   std::string subd=conf.getParameter<std::string>("Subdetector");
  
@@ -98,7 +97,7 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
   
    if (det_==DetId::Calo && subdet_==HcalZDCDetId::SubdetectorId) {
      edm::Handle<ZDCDigiCollection> digi;
-     e.getByLabel(inputLabel_,digi);
+     e.getByToken(tok_input_,digi);
      
      // create empty output
      std::auto_ptr<ZDCRecHitCollection> rec(new ZDCRecHitCollection);

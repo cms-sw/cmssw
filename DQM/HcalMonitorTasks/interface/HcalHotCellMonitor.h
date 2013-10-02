@@ -126,6 +126,9 @@ class HcalHotCellMonitor: public HcalBaseDQMonitor {
   hotNeighborParams HBHENeighborParams_, HONeighborParams_, HFNeighborParams_;
 
   edm::InputTag hbheRechitLabel_, hoRechitLabel_, hfRechitLabel_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
 };
 
 #endif

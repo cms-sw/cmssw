@@ -1,5 +1,4 @@
 #include "HcalSimpleAmplitudeZS.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -17,6 +16,14 @@ using namespace std;
 HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
   inputLabel_(conf.getParameter<std::string>("digiLabel"))
 {
+
+  // register for data access
+  tok_hbhe_ = consumes<HBHEDigiCollection>(edm::InputTag(inputLabel_));
+  tok_ho_ = consumes<HODigiCollection>(edm::InputTag(inputLabel_));
+  tok_hf_ = consumes<HFDigiCollection>(edm::InputTag(inputLabel_));
+    tok_hbheUpgrade_ = consumes<HBHEUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HBHEUpgradeDigiCollection"));
+    tok_hfUpgrade_ = consumes<HFUpgradeDigiCollection>(edm::InputTag(inputLabel_, "HFUpgradeDigiCollection"));
+
   const edm::ParameterSet& psHBHE=conf.getParameter<edm::ParameterSet>("hbhe");
   bool markAndPass=psHBHE.getParameter<bool>("markAndPass");
   hbhe_=std::auto_ptr<HcalZSAlgoEnergy>(new HcalZSAlgoEnergy(markAndPass,
@@ -71,7 +78,7 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
   {
     hbhe_->prepare(&(*conditions));
     edm::Handle<HBHEDigiCollection> digi;    
-    e.getByLabel(inputLabel_,digi);
+    e.getByToken(tok_hbhe_,digi);
     
     // create empty output
     std::auto_ptr<HBHEDigiCollection> zs(new HBHEDigiCollection);
@@ -87,7 +94,7 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
   {
     ho_->prepare(&(*conditions));
     edm::Handle<HODigiCollection> digi;
-    e.getByLabel(inputLabel_,digi);
+    e.getByToken(tok_ho_,digi);
     
     // create empty output
     std::auto_ptr<HODigiCollection> zs(new HODigiCollection);
@@ -103,7 +110,7 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
   {
     hf_->prepare(&(*conditions));
     edm::Handle<HFDigiCollection> digi;
-    e.getByLabel(inputLabel_,digi);
+    e.getByToken(tok_hf_,digi);
     
     // create empty output
     std::auto_ptr<HFDigiCollection> zs(new HFDigiCollection);
@@ -119,8 +126,7 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
   {
     hbheUpgrade_->prepare(&(*conditions));
     edm::Handle<HBHEUpgradeDigiCollection> digi;    
-    edm::InputTag hbheUpgradeTag(inputLabel_, "HBHEUpgradeDigiCollection");
-    e.getByLabel(hbheUpgradeTag,digi);
+    e.getByToken(tok_hbheUpgrade_,digi);
     
     // create empty output
     std::auto_ptr<HBHEUpgradeDigiCollection> zs(new HBHEUpgradeDigiCollection);
@@ -136,8 +142,7 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
   {
     hfUpgrade_->prepare(&(*conditions));
     edm::Handle<HFUpgradeDigiCollection> digi;
-    edm::InputTag hfUpgradeTag(inputLabel_, "HFUpgradeDigiCollection");
-    e.getByLabel(hfUpgradeTag,digi);
+    e.getByToken(tok_hfUpgrade_,digi);
     
     // create empty output
     std::auto_ptr<HFUpgradeDigiCollection> zs(new HFUpgradeDigiCollection);

@@ -10,7 +10,6 @@
 #include "FWCore/Utilities/interface/CPUTimer.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"  
-#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -18,7 +17,6 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DQM/HcalMonitorTasks/interface/HcalZDCMonitor.h"
 
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
@@ -49,6 +47,11 @@ ZDCMonitorModule::ZDCMonitorModule(const edm::ParameterSet& ps){
 
   inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
   inputLabelRecHitZDC_   = ps.getParameter<edm::InputTag>("zdcRecHitLabel");
+
+  tok_hcal_ = consumes<HcalUnpackerReport>(inputLabelDigi_);
+  tok_zdc_ = consumes<ZDCDigiCollection>(inputLabelDigi_);
+  tok_zdcrh_ = consumes<ZDCRecHitCollection>(inputLabelRecHitZDC_);
+
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);         //-- show CPU time 
   dump2database_   = ps.getUntrackedParameter<bool>("dump2database",false);  //-- dumps output to database file
   // Check Online running
@@ -272,7 +275,7 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
   bool zdchitOK_ = true;
 
   edm::Handle<HcalUnpackerReport> report; 
-  e.getByLabel(inputLabelDigi_,report);
+  e.getByToken(tok_hcal_,report);
   if (!report.isValid())
     {
       rawOK_=false;
@@ -335,7 +338,7 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
   ///////////////////////////////////////////////////////////////////////////////////////////
   // try to get digis
   edm::Handle<ZDCDigiCollection> zdc_digi;
-  e.getByLabel(inputLabelDigi_,zdc_digi);
+  e.getByToken(tok_zdc_,zdc_digi);
   if (!zdc_digi.isValid())
     {
       digiOK_=false;
@@ -348,7 +351,7 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
 
   // try to get rechits
   edm::Handle<ZDCRecHitCollection> zdc_hits;
-  e.getByLabel(inputLabelRecHitZDC_,zdc_hits);
+  e.getByToken(tok_zdcrh_,zdc_hits);
   if (!zdc_hits.isValid())
     {
       zdchitOK_=false;

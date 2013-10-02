@@ -14,6 +14,11 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+// this is to retrieve HCAL digi's
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 /** \class HcalDetDiagTimingMonitor
   *  
@@ -108,7 +113,13 @@ public:
 private:
   edm::InputTag inputLabelDigi_;
   edm::InputTag L1ADataLabel_;
-  edm::InputTag FEDRawDataCollection_;
+  
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_l1_;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> tok_l1mu_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  edm::EDGetTokenT<HODigiCollection> tok_ho_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
   
   int  GCTTriggerBit1_;
   int  GCTTriggerBit2_;

@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,7 +21,7 @@ class CastorSimpleReconstructor : public edm::EDProducer {
       DetId::Detector det_;
       int subdet_;
       //      HcalOtherSubdetector subdetOther_;
-      edm::InputTag inputLabel_;
+      edm::EDGetTokenT<CastorDigiCollection> tok_input_;
       
       int firstSample_;
       int samplesToAdd_;

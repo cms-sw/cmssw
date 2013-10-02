@@ -62,6 +62,28 @@ IsolatedTracksNxN::IsolatedTracksNxN(const edm::ParameterSet& iConfig) {
   tMaxH_                 = iConfig.getUntrackedParameter<double>("TimeMaxCutHCAL",  500.);
   nbad                   = 0;
 
+  // define tokens for access
+  tok_L1extTauJet_ = consumes<l1extra::L1JetParticleCollection>(L1extraTauJetSource_);
+  tok_L1extCenJet_ = consumes<l1extra::L1JetParticleCollection>(L1extraCenJetSource_);
+  tok_L1extFwdJet_ = consumes<l1extra::L1JetParticleCollection>(L1extraFwdJetSource_);
+  tok_L1extMu_ = consumes<l1extra::L1MuonParticleCollection>(L1extraMuonSource_);
+  tok_L1extIsoEm_ = consumes<l1extra::L1EmParticleCollection>(L1extraIsoEmSource_);
+  tok_L1extNoIsoEm_ = consumes<l1extra::L1EmParticleCollection>(L1extraNonIsoEmSource_);
+  tok_jets_ = consumes<reco::CaloJetCollection>(JetSrc_);
+  tok_hbhe_ = consumes<HBHERecHitCollection>(HBHERecHitSource_);
+
+  
+  tok_genTrack_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
+  tok_recVtx_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+  tok_bs_ = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+  tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  tok_EE_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  tok_simTk_ = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
+  tok_simVtx_ = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
+  tok_caloEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"));
+  tok_caloEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"));
+  tok_caloHH_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
+
   if(myverbose_>=0) {
     std::cout <<"Parameters read from config file \n" 
 	      <<" doMC         "               << doMC
@@ -113,7 +135,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   nEventProc++;
 
   edm::Handle<reco::TrackCollection> trkCollection;
-  iEvent.getByLabel("generalTracks", trkCollection);
+  iEvent.getByToken(tok_genTrack_, trkCollection);
   reco::TrackCollection::const_iterator trkItr;
   if(debugTrks_>1){
     std::cout << "Track Collection: " << std::endl;
@@ -193,7 +215,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     // L1Taus 
     edm::Handle<l1extra::L1JetParticleCollection> l1TauHandle;
-    iEvent.getByLabel(L1extraTauJetSource_,l1TauHandle);
+    iEvent.getByToken(tok_L1extTauJet_,l1TauHandle);
     l1extra::L1JetParticleCollection::const_iterator itr;
     int iL1Obj=0;
     for(itr = l1TauHandle->begin(),iL1Obj=0; itr != l1TauHandle->end(); ++itr,iL1Obj++) {    
@@ -211,7 +233,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     // L1 Central Jets
     edm::Handle<l1extra::L1JetParticleCollection> l1CenJetHandle;
-    iEvent.getByLabel(L1extraCenJetSource_,l1CenJetHandle);
+    iEvent.getByToken(tok_L1extCenJet_,l1CenJetHandle);
     for( itr = l1CenJetHandle->begin(),iL1Obj=0;  itr != l1CenJetHandle->end(); ++itr,iL1Obj++ ) {
       if(iL1Obj<1) {
 	t_L1CenJetPt    ->push_back( itr->pt() );
@@ -227,7 +249,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
     // L1 Forward Jets
     edm::Handle<l1extra::L1JetParticleCollection> l1FwdJetHandle;
-    iEvent.getByLabel(L1extraFwdJetSource_,l1FwdJetHandle);
+    iEvent.getByToken(tok_L1extFwdJet_,l1FwdJetHandle);
     for( itr = l1FwdJetHandle->begin(),iL1Obj=0;  itr != l1FwdJetHandle->end(); ++itr,iL1Obj++ ) {
       if(iL1Obj<1) {
 	t_L1FwdJetPt    ->push_back( itr->pt() );
@@ -244,7 +266,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     // L1 Isolated EM onjects
     l1extra::L1EmParticleCollection::const_iterator itrEm;
     edm::Handle<l1extra::L1EmParticleCollection> l1IsoEmHandle ;
-    iEvent.getByLabel(L1extraIsoEmSource_, l1IsoEmHandle);
+    iEvent.getByToken(tok_L1extIsoEm_, l1IsoEmHandle);
     for( itrEm = l1IsoEmHandle->begin(),iL1Obj=0;  itrEm != l1IsoEmHandle->end(); ++itrEm,iL1Obj++ ) {
       if(iL1Obj<1) {
 	t_L1IsoEMPt     ->push_back(  itrEm->pt() );
@@ -260,7 +282,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
     // L1 Non-Isolated EM onjects
     edm::Handle<l1extra::L1EmParticleCollection> l1NonIsoEmHandle ;
-    iEvent.getByLabel(L1extraNonIsoEmSource_, l1NonIsoEmHandle);
+    iEvent.getByToken(tok_L1extNoIsoEm_, l1NonIsoEmHandle);
     for( itrEm = l1NonIsoEmHandle->begin(),iL1Obj=0;  itrEm != l1NonIsoEmHandle->end(); ++itrEm,iL1Obj++ ) {
       if(iL1Obj<1) {
 	t_L1NonIsoEMPt  ->push_back( itrEm->pt() );
@@ -277,7 +299,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     // L1 Muons
     l1extra::L1MuonParticleCollection::const_iterator itrMu;
     edm::Handle<l1extra::L1MuonParticleCollection> l1MuHandle ;
-    iEvent.getByLabel(L1extraMuonSource_, l1MuHandle);
+    iEvent.getByToken(tok_L1extMu_, l1MuHandle);
     for( itrMu = l1MuHandle->begin(),iL1Obj=0;  itrMu != l1MuHandle->end(); ++itrMu,iL1Obj++ ) {
       if(iL1Obj<1) {
 	t_L1MuonPt      ->push_back( itrMu->pt() );
@@ -295,7 +317,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //============== store the information about all the Non-Fake vertices ===============
 
   edm::Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByLabel("offlinePrimaryVertices",recVtxs);
+  iEvent.getByToken(tok_recVtx_,recVtxs);
   
   std::vector<reco::Track> svTracks;
   math::XYZPoint leadPV(0,0,0);
@@ -369,14 +391,14 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // Get the beamspot
   edm::Handle<reco::BeamSpot> beamSpotH;
-  iEvent.getByLabel("offlineBeamSpot", beamSpotH);
+  iEvent.getByToken(tok_bs_, beamSpotH);
   math::XYZPoint bspot;
   bspot = ( beamSpotH.isValid() ) ? beamSpotH->position() : math::XYZPoint(0, 0, 0);
 
   //=====================================================================
 
   edm::Handle<reco::CaloJetCollection> jets;
-  iEvent.getByLabel(JetSrc_,jets);
+  iEvent.getByToken(tok_jets_,jets);
   //  edm::Handle<reco::JetExtendedAssociation::Container> jetExtender;
   //  iEvent.getByLabel(JetExtender_,jetExtender);
 
@@ -405,8 +427,8 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-  iEvent.getByLabel("ecalRecHit","EcalRecHitsEB",barrelRecHitsHandle);
-  iEvent.getByLabel("ecalRecHit","EcalRecHitsEE",endcapRecHitsHandle);
+  iEvent.getByToken(tok_EB_,barrelRecHitsHandle);
+  iEvent.getByToken(tok_EE_,endcapRecHitsHandle);
 
   // Retrieve the good/bad ECAL channels from the DB
   edm::ESHandle<EcalChannelStatus> ecalChStatus;
@@ -419,7 +441,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   const EcalTrigTowerConstituentsMap& ttMap = *hTtmap;
 
   edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByLabel(HBHERecHitSource_, hbhe);
+  iEvent.getByToken(tok_hbhe_, hbhe);
   if (!hbhe.isValid()) {
     nbad++;
     if (nbad < 10) std::cout << "No HBHE rechit collection\n";
@@ -429,21 +451,21 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   //get Handles to SimTracks and SimHits
   edm::Handle<edm::SimTrackContainer> SimTk;
-  if (doMC) iEvent.getByLabel("g4SimHits",SimTk);
+  if (doMC) iEvent.getByToken(tok_simTk_,SimTk);
   edm::SimTrackContainer::const_iterator simTrkItr;
 
   edm::Handle<edm::SimVertexContainer> SimVtx;
-  if (doMC) iEvent.getByLabel("g4SimHits",SimVtx);
+  if (doMC) iEvent.getByToken(tok_simVtx_,SimVtx);
 
   //get Handles to PCaloHitContainers of eb/ee/hbhe
   edm::Handle<edm::PCaloHitContainer> pcaloeb;
-  if (doMC) iEvent.getByLabel("g4SimHits", "EcalHitsEB", pcaloeb);
+  if (doMC) iEvent.getByToken(tok_caloEB_, pcaloeb);
 
   edm::Handle<edm::PCaloHitContainer> pcaloee;
-  if (doMC) iEvent.getByLabel("g4SimHits", "EcalHitsEE", pcaloee);
+  if (doMC) iEvent.getByToken(tok_caloEE_, pcaloee);
 
   edm::Handle<edm::PCaloHitContainer> pcalohh;
-  if (doMC) iEvent.getByLabel("g4SimHits", "HcalHits", pcalohh);
+  if (doMC) iEvent.getByToken(tok_caloHH_, pcalohh);
   
   //associates tracker rechits/simhits to a track
   TrackerHitAssociator* associate=0;
