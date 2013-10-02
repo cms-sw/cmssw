@@ -33,8 +33,11 @@ development moved to git.
 
 ### UserCode
 
-You will be able to commit to the UserCode repository until the beginning of
-September, in order to avoid disruption for the summer conferences.
+You will be able to commit to the UserCode repository until the 15th of
+October, in order to avoid disruption for the summer conferences.
+
+This is the final date for your usercode migration, no further grace periods
+will be provided by CERN IT.
 
 Instructions on how to migrate CMSSW releases can be found
 [here](http://cms-sw.github.io/cmssw/usercode-faq.html).
