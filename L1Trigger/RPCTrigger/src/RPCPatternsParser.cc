@@ -10,7 +10,7 @@
 #include "L1Trigger/RPCTrigger/interface/RPCPatternsParser.h"
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <sstream>
 #include <fstream> 
 #include <iostream>
@@ -109,7 +109,7 @@ RPCPatternsParser::RPCPatternsParser()
 {
    if(m_InstanceCount == 0) { 
     try {
-        XMLPlatformUtils::Initialize();
+        cms::concurrency::xercesInitialize();
         //XPathEvaluator::initialize();
         m_InstanceCount++;
     }

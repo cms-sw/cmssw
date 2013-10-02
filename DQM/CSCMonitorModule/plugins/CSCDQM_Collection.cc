@@ -16,6 +16,7 @@
  */
 
 #include "CSCDQM_Collection.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <cstdio>
 
 namespace cscdqm {
@@ -43,7 +44,7 @@ namespace cscdqm {
 
     try {
 
-      XMLPlatformUtils::Initialize();
+      cms::concurrency::xercesInitialize();
 
       {
 
@@ -125,7 +126,7 @@ namespace cscdqm {
 
       }
 
-      XMLPlatformUtils::Terminate();
+      cms::concurrency::xercesTerminate();
 
     } catch (XMLException& e) {
       char* message = XMLString::transcode(e.getMessage());

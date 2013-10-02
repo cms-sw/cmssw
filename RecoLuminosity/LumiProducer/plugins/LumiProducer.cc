@@ -65,7 +65,7 @@ from the configuration file, the DB is not implemented yet)
 #include <boost/tokenizer.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 
 #include "boost/filesystem/path.hpp"
@@ -208,7 +208,7 @@ const std::string
 LumiProducer::servletTranslation(const std::string& servlet) const{
   std::string frontierConnect;
   std::string realconnect;
-  xercesc::XMLPlatformUtils::Initialize();  
+  cms::concurrency::xercesInitialize();  
   std::auto_ptr< xercesc::XercesDOMParser > parser(new xercesc::XercesDOMParser);
   try{
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);

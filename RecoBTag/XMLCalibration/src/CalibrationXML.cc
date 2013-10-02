@@ -9,7 +9,7 @@
 #include <xercesc/dom/DOMWriter.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/util/XMLString.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -30,21 +30,21 @@ CalibrationXML::~CalibrationXML()
 if(errHandler) delete errHandler;
 if(parser)  { 
               delete parser;
-              XMLPlatformUtils::Terminate();
+              cms::concurrency::xercesTerminate();
             }
 }
 
 void CalibrationXML::openFile(const std::string & xmlFileName) 
 {
 if(errHandler) delete errHandler;
-if(parser) { delete parser; XMLPlatformUtils::Terminate(); }
+if(parser) { delete parser; cms::concurrency::xercesTerminate(); }
 
  m_xmlFileName = xmlFileName;
 // std::cout << "Opening.." << std::endl;
 	// Initialize the XML4C2 system
 	try
         {
-	        XMLPlatformUtils::Initialize();
+	        cms::concurrency::xercesInitialize();
         }
 	catch(const XMLException& toCatch)
 	{

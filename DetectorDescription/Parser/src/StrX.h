@@ -10,7 +10,7 @@
 #define STRX_H
 
 #include <xercesc/util/XercesDefs.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/util/XMLString.hpp>

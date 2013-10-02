@@ -7,7 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <sstream>
 #include <memory>
@@ -329,7 +329,7 @@ namespace edm {
 
     void
     SiteLocalConfigService::parse(std::string const& url) {
-      XMLPlatformUtils::Initialize();
+      cms::concurrency::xercesInitialize();
       std::auto_ptr<XercesDOMParser> parser(new XercesDOMParser);
       try {
         parser->setValidationScheme(XercesDOMParser::Val_Auto);

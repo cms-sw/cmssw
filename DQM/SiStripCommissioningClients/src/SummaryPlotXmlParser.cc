@@ -22,7 +22,7 @@ const std::string SummaryPlotXmlParser::granularityAttr_ = "granularity";
 //
 SummaryPlotXmlParser::SummaryPlotXmlParser() {
   plots_.clear();
-  try { XMLPlatformUtils::Initialize(); }
+  try { cms::concurrency::xercesInitialize(); }
   catch ( const XMLException &f ) {
     throw( std::runtime_error("Standard pool exception : Fatal Error on pool::TrivialFileCatalog") );
   }

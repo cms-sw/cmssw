@@ -9,6 +9,7 @@
 #include "CoralKernel/Property.h"
 #include "CoralKernel/Context.h"
 #include "CondCore/DBCommon/interface/CoralServiceMacros.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include "xercesc/parsers/XercesDOMParser.hpp"
 #include "xercesc/framework/MemBufInputSource.hpp"
 #include "xercesc/dom/DOM.hpp"
@@ -345,7 +346,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::initialize()
 
   try
   {
-    xercesc::XMLPlatformUtils::Initialize();
+    cms::concurrency::xercesInitialize();
   }
   catch ( const xercesc::XMLException& toCatch )
   {
@@ -365,7 +366,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::initialize()
     }
   }
 
-  xercesc::XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
 
   m_isInitialized = result;
   if(!m_isInitialized) reset();
