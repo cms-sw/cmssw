@@ -34,13 +34,16 @@ EcalBarrelGeometry::EcalBarrelGeometry() :
 
 EcalBarrelGeometry::~EcalBarrelGeometry() 
 {
+  if(m_borderPtrVec)
+  {
     auto ptr = m_borderPtrVec.load(std::memory_order_acquire);
     for(auto& v: (*ptr)) {
         if(v) delete v;
         v = nullptr;
     }
     delete m_borderPtrVec ;
-    delete m_borderMgr ;
+  }
+  delete m_borderMgr ;
 }
 
 
