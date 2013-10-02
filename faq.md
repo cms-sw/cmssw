@@ -2,8 +2,8 @@
 title: CMS Offline Software
 layout: default
 related:
- - { name: Project page, link: 'https://github.com/cms-sw/cmssw' }
- - { name: Feedback, link: 'https://github.com/cms-sw/cmssw/issues/new' }
+ - { name: "Project page", link: "https://github.com/cms-sw/cmssw" }
+ - { name: "Feedback", link: "https://github.com/cms-sw/cmssw/issues/new" }
 ---
 # FAQs
 
