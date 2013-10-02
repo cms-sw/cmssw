@@ -37,8 +37,8 @@ std::ostream& reco::operator<<(std::ostream& out,
   out<<"CaloCluster , algoID="<<cluster.algoID()
      <<", "<<cluster.caloID()    
      <<", E="<<cluster.energy();
-  if( cluster.calibratedEnergy() != -1.0 ) {
-    out << ", E_calib="<<cluster.calibratedEnergy();
+  if( cluster.correctedEnergy() != -1.0 ) {
+    out << ", E_corr="<<cluster.correctedEnergy();
   }
   out<<", eta,phi="<<pos.eta()<<","<<pos.phi()
      <<", nhits="<<cluster.hitsAndFractions().size()<<endl;

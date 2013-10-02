@@ -4,7 +4,7 @@
   </class>
   <class name="reco::CaloCluster" ClassVersion="11">
    <version ClassVersion="10" checksum="3936140"/>
-   <version ClassVersion="11" checksum="2867259993"/>
+   <version ClassVersion="11" checksum="2938838489"/>
   </class>
 
   <class name="edm::RefToBase<CaloRecHit>"/>
