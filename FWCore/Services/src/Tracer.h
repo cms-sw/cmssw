@@ -65,11 +65,11 @@ public:
          void preCloseFile(std::string const& lfn, bool primary);
          void postCloseFile(std::string const&, bool);
 
-         void preModuleBeginStream(StreamContext const&, ModuleDescription const&);
-         void postModuleBeginStream(StreamContext const&, ModuleDescription const&);
+         void preModuleBeginStream(StreamContext const&, ModuleCallingContext const&);
+         void postModuleBeginStream(StreamContext const&, ModuleCallingContext const&);
 
-         void preModuleEndStream(StreamContext const&, ModuleDescription const&);
-         void postModuleEndStream(StreamContext const&, ModuleDescription const&);
+         void preModuleEndStream(StreamContext const&, ModuleCallingContext const&);
+         void postModuleEndStream(StreamContext const&, ModuleCallingContext const&);
 
          void preGlobalBeginRun(GlobalContext const&);
          void postGlobalBeginRun(GlobalContext const&);
