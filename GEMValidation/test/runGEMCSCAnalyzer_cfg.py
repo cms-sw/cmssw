@@ -1,24 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Demo")
+process = cms.Process("GEMCSCANA")
 
-process.load("FWCore.MessageService.MessageLogger_cfi")
+## Standard sequence
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2019_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMXML_cfi')
-#process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr08v01XML_cfi')
-#process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr10v01XML_cfi')
-process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
-process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
-process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
-process.load('Geometry.GEMGeometry.gemGeometry_cfi')
-
-process.load('Configuration.StandardSequences.MagneticField_cff')
+## TrackingComponentsRecord required for matchers
 process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi')
 process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi')
 
-
-# GEM-CSC trigger pad digi producer
-process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
+## global tag for 2019 upgrade studies
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 # the analyzer configuration
 process.load('GEMCode.GEMValidation.GEMCSCAnalyzer_cfi')
@@ -36,10 +34,6 @@ process.GEMCSCAnalyzer.minPt = 1.5
 #process.GEMCSCAnalyzer.simTrackMatching.simMuOnlyCSC = False
 #process.GEMCSCAnalyzer.simTrackMatching.discardEleHitsCSC = False
 #process.GEMCSCAnalyzer.simTrackMatching.discardEleHitsGEM = False
-
-
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'POSTLS161_V12::All'
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100000) )
 
@@ -105,5 +99,5 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string(ntupleFile)
 )
 
-process.p = cms.Path(process.simMuonGEMCSCPadDigis + process.GEMCSCAnalyzer)
+process.p = cms.Path(process.GEMCSCAnalyzer)
 
