@@ -35,19 +35,19 @@ public:
       return &d_;
     }
   
-    bool operator==(const iterator & i) {
+    bool operator==(const iterator & i) const {
       return i.it_ == it_;
     }
     
-    bool operator!=(const iterator & i) {
+    bool operator!=(const iterator & i) const {
       return i.it_ != it_;
     }
     
-    bool operator<(const iterator & i) {
+    bool operator<(const iterator & i) const {
       return it_ < i.it_;
     }
     
-    bool operator>(const iterator & i) {
+    bool operator>(const iterator & i) const {
       return it_ > i.it_;
     }
     

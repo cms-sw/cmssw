@@ -18,9 +18,9 @@ enum DDSolidShape { dd_not_init,
 		   
 struct DDSolidShapesName {
 
-  static const char * name(DDSolidShape s) 
+  static const char * const name(DDSolidShape s) 
   {
-    static const char* c[] = { 
+    static const char * const c[] = { 
       "Solid not initialized",
       "Box", "Tube(section)", "Trapezoid", "Cone(section)",
       "Polycone_rz", "Polyhedra_rz",
