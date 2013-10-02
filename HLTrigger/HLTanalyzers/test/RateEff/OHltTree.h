@@ -25,7 +25,7 @@
 #include "OHltRateCounter.h"
 
 #include "L1GtLogicParser.h"
-#include "../../../../PhysicsTools/Utilities/interface/LumiReweightingStandAlone.h"
+#include "LumiReweightingForRateEff.h"
 
 #include "TH1.h"
 #include "TH2.h"
