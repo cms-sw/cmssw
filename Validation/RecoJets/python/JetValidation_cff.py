@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+
 # File: JetValidation_cff.py
 # Author : Chiyoung Jeong
 # Date : Mar 17 2009
-# Description : cff file for DQM offline vladation.
+# Description : cff file for DQM offline vladation
 
 
 from RecoJets.Configuration.RecoJetAssociations_cff import *
@@ -22,11 +23,10 @@ from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5JPTL1Fa
 newAk5JPTL1FastL2L3 = ak5JPTL1FastL2L3.clone()
 
 JetValidation = cms.Sequence(
-#                      JetAnalyzerIC5Calo*
-#                      JetAnalyzerIC5PF*
-                      JetAnalyzerKt6PF*JetAnalyzerKt6Calo*
-                      JetAnalyzerAk5Calo*JetAnalyzerAk7Calo
-                      *JetAnalyzerAk5PF
-                      *JetAnalyzerAk5JPT
-#                      *JetAnalyzerIC5JPT
-)
+    JetAnalyzerKt6PF*
+    JetAnalyzerKt6Calo*
+    JetAnalyzerAk5Calo*
+    JetAnalyzerAk7Calo*
+    JetAnalyzerAk5PF*
+    JetAnalyzerAk5JPT
+    )
