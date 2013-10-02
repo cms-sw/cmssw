@@ -15,7 +15,8 @@ $Revision: 1.23 $
 
 HcalElectronicsMap::HcalElectronicsMap() : 
   mPItems(HcalElectronicsId::maxLinearIndex+1),
-  mTItems(HcalElectronicsId::maxLinearIndex+1)
+  mTItems(HcalElectronicsId::maxLinearIndex+1),
+  mPItemsById(nullptr), mTItemsByTrigId(nullptr)
 {}
 
 namespace hcal_impl {

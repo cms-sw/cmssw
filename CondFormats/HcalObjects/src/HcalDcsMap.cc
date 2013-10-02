@@ -17,6 +17,7 @@ $Revision: 1.2 $
 HcalDcsMap::HcalDcsMap()
   //FIXME mItems(HcalDcsDetId::maxLinearIndex+1),
   //: mItems(0x7FFF),
+    : mItemsById(nullptr), mItemsByDcsId(nullptr)
 {
 }
 
