@@ -217,19 +217,19 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
     iEvent.getByToken(inputTagVertices_,vertices);
     double cor = 0.0;
     for( auto& ebsc : *(superClusterAlgo_.getEBOutputSCCollection()) ) {
-      cor = calculateRegressedEnergy(ebsc,
-				     vertices,
-				     rechitsEB,
-				     rechitsEE,
-				     iSetup);
+      cor = getRegressionCorrection(ebsc,
+				    vertices,
+				    rechitsEB,
+				    rechitsEE,
+				    iSetup);
       ebsc.setEnergy(cor*ebsc.energy());
     }
     for( auto& eesc : *(superClusterAlgo_.getEEOutputSCCollection()) ) {
-      cor = calculateRegressedEnergy(eesc,
-				     vertices,
-				     rechitsEB,
-				     rechitsEE,
-				     iSetup);
+      cor = getRegressionCorrection(eesc,
+				    vertices,
+				    rechitsEB,
+				    rechitsEE,
+				    iSetup);
       eesc.setEnergy(cor*eesc.energy());
     }
   }
@@ -242,11 +242,11 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
 }
 
 double PFECALSuperClusterProducer::
-calculateRegressedEnergy(const reco::SuperCluster& sc,
-			 const edm::Handle<reco::VertexCollection>& vertices,
-			 const edm::Handle<EcalRecHitCollection>& rechitsEB,
-			 const edm::Handle<EcalRecHitCollection>& rechitsEE,
-			 const edm::EventSetup& es) {  
+getRegressionCorrection(const reco::SuperCluster& sc,
+			const edm::Handle<reco::VertexCollection>& vertices,
+			const edm::Handle<EcalRecHitCollection>& rechitsEB,
+			const edm::Handle<EcalRecHitCollection>& rechitsEE,
+			const edm::EventSetup& es) {  
   memset(rinputs,0,33*sizeof(float));
   const double rawEnergy = sc.rawEnergy(), calibEnergy = sc.energy();
   const edm::Ptr<reco::PFCluster> seed(sc.seed());

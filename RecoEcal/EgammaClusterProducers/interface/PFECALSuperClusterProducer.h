@@ -72,11 +72,11 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
   edm::ESHandle<GBRForest> eb_reg, ee_reg;
   const CaloTopologyRecord* topo_record;
   edm::ESHandle<CaloTopology> calotopo;
-  double calculateRegressedEnergy(const reco::SuperCluster&, 
-				  const edm::Handle<reco::VertexCollection>&,
-				  const edm::Handle<EcalRecHitCollection>&,
-				  const edm::Handle<EcalRecHitCollection>&,
-				  const edm::EventSetup& );
+  double getRegressionCorrection(const reco::SuperCluster&, 
+				 const edm::Handle<reco::VertexCollection>&,
+				 const edm::Handle<EcalRecHitCollection>&,
+				 const edm::Handle<EcalRecHitCollection>&,
+				 const edm::EventSetup& );
   
   edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClusters_;
   edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation>   inputTagPFClustersES_;
