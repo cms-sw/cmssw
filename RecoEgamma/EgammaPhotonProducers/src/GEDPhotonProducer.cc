@@ -164,30 +164,6 @@ void  GEDPhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & th
 
 void  GEDPhotonProducer::endRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
-  std::cout << " GEDPhotonProducer  endRun valueMap size " <<  valueMapPFCandPhoton_.size() << std::endl;
-
-  /*
-  edm::Handle<edm::ValueMap<reco::PhotonRef> > pfCandToPhotonMapHandle;
-  edm::ValueMap<reco::PhotonRef> pfCandToPhotonMap;
-  theEvent.getByLabel("valMapAssociationPFEgammaCandidateToPhoton",pfCandToPhotonMapHandle);
-  if ( ! pfCandToPhotonMapHandle.isValid()) {
-    edm::LogInfo("GEDPhotonProducer") << "Error! Can't get the product: valueMapPhotons " << std::endl;
-  }
-  pfCandToPhotonMap = *(pfCandToPhotonMapHandle.product());
-
-  std::cout << " GEDPhotonProducer endRun from event valueMap size" <<  pfCandToPhotonMap.size() << std::endl;
-  
-  for(unsigned int lCand=0; lCand < nObj; lCand++) {
-    reco::PFCandidateRef pfCandRef (reco::PFCandidateRef(pfCandidateHandle,lCand));
-    if(pfCandRef->particleId()!=reco::PFCandidate::gamma) continue;
-    reco::PhotonRef myPho= (pfCandToPhotonMap)[pfCandRef];   
-    std::cout << " PF SC " << pfCandRef->superClusterRef()->energy() <<  " Photon SC" << myPho->superCluster()->energy() << std::endl;
-
-  }
-  */
-
-
-
   delete thePhotonIsolationCalculator_;
   delete thePhotonMIPHaloTagger_;
   delete thePhotonEnergyCorrector_;
@@ -304,15 +280,12 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   edm::LogInfo("GEDPhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   outputPhotonCollection_p->assign(outputPhotonCollection.begin(),outputPhotonCollection.end());
   const edm::OrphanHandle<reco::PhotonCollection> photonOrphHandle = theEvent.put(outputPhotonCollection_p, PhotonCollection_);
-  
-  // theEvent.put( outputPhotonCollection_p, PhotonCollection_);
-
-
-  std::cout << " GEDPhotonProducer   valueMap size after booking " <<  valueMapPFCandPhoton_.size() << std::endl;  
+ 
   std::auto_ptr<edm::ValueMap<reco::PhotonRef> >  pfCandToPhotonMap_p(new edm::ValueMap<reco::PhotonRef>());
   edm::ValueMap<reco::PhotonRef>::Filler filler(*pfCandToPhotonMap_p);
   unsigned nObj = pfCandidateHandle->size();
   std::vector<reco::PhotonRef> values(nObj);
+
 
   unsigned pfGamma=0; 
   for(unsigned int lCand=0; lCand < nObj; lCand++) {
@@ -324,21 +297,14 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     for(unsigned int lSC=0; lSC < photonOrphHandle->size(); lSC++) {
       reco::PhotonRef photonRef(reco::PhotonRef(photonOrphHandle, lSC));
       reco::SuperClusterRef scRef=photonRef->superCluster();
-      if ( pfScRef != scRef ) return;
+      if ( pfScRef != scRef ) continue;
       values [lCand] = photonRef; 
     }
   }
 
-  std::cout << " values size " << values.size() << std::endl;
   filler.insert(pfCandidateHandle,values.begin(),values.end());
   filler.fill(); 
   theEvent.put(pfCandToPhotonMap_p,valueMapPFCandPhoton_);
-
-  // debug
-  std::cout << " GEDPhotonProducer " << " pfcand size " << nObj << " " << pfGamma << " photon size " << photonOrphHandle->size() << " direct valueMap size " <<  valueMapPFCandPhoton_.size() << std::endl;
-
-
-
 
 
 
