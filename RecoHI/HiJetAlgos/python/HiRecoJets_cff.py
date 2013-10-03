@@ -93,24 +93,26 @@ akVs5CaloJets = akPu5CaloJets.clone(
     doAreaFastjet = False
     )
 
-akVs2CaloJet = akVs5CaloJets.clone(rParam       = cms.double(0.2))
-akVs3CaloJet = akVs5CaloJets.clone(rParam       = cms.double(0.3))
-akVs4CaloJet = akVs5CaloJets.clone(rParam       = cms.double(0.4))
-akVs6CaloJet = akVs5CaloJets.clone(rParam       = cms.double(0.6))
-akVs7CaloJet = akVs5CaloJets.clone(rParam       = cms.double(0.7))
+akVs2CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.2))
+akVs3CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.3))
+akVs4CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.4))
+akVs6CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.6))
+akVs7CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.7))
 
 
 ## Default Sequence
 hiRecoJets = cms.Sequence(
     caloTowersRec*caloTowers*iterativeConePu5CaloJets
     *voronoiBackgroundCalo*akVs5CaloJets
-    *akVs2CaloJet*akVs2CaloJet*akVs4CaloJet*akVs6CaloJet*akVs7CaloJet
+    *akVs2CaloJets*akVs3CaloJets*akVs4CaloJets*akVs6CaloJets*akVs7CaloJets
     )
 
 ## Extended Sequence
 hiRecoAllJets = cms.Sequence(
-    caloTowersRec*caloTowers*iterativeConePu5CaloJets*akPu5CaloJets*akPu7CaloJets*ktPu4CaloJets*ktPu6CaloJets
+    caloTowersRec*caloTowers*iterativeConePu5CaloJets
+    *akPu5CaloJets*akPu7CaloJets*ktPu4CaloJets*ktPu6CaloJets
     *voronoiBackgroundCalo*akVs5CaloJets
+    *akVs2CaloJets*akVs3CaloJets*akVs4CaloJets*akVs6CaloJets*akVs7CaloJets    
     )
 
 

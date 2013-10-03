@@ -48,17 +48,17 @@ akVs5PFJets = ak5PFJets.clone(
     doAreaFastjet = False
     )
 
-akVs2PFJet = akVs5PFJets.clone(rParam       = cms.double(0.2))
-akVs3PFJet = akVs5PFJets.clone(rParam       = cms.double(0.3))
-akVs4PFJet = akVs5PFJets.clone(rParam       = cms.double(0.4))
-akVs6PFJet = akVs5PFJets.clone(rParam       = cms.double(0.6))
-akVs7PFJet = akVs5PFJets.clone(rParam       = cms.double(0.7))
+akVs2PFJets = akVs5PFJets.clone(rParam       = cms.double(0.2))
+akVs3PFJets = akVs5PFJets.clone(rParam       = cms.double(0.3))
+akVs4PFJets = akVs5PFJets.clone(rParam       = cms.double(0.4))
+akVs6PFJets = akVs5PFJets.clone(rParam       = cms.double(0.6))
+akVs7PFJets = akVs5PFJets.clone(rParam       = cms.double(0.7))
 
 
 hiRecoPFJets = cms.Sequence(
     particlePseudoTowers*akPu5PFJets
     *voronoiBackgroundPF*akVs5PFJets
-    *akVs2PFJet*akVs2PFJet*akVs4PFJet*akVs6PFJet*akVs7PFJet
+    *akVs2PFJets*akVs3PFJets*akVs4PFJets*akVs6PFJets*akVs7PFJets
     )
 #hiRecoAllPFJets = cms.Sequence(ic5PFJets + ak5PFJets + ak7PFJets + kt4PFJets + kt6PFJets)
 
