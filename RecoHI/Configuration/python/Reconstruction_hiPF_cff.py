@@ -2,12 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 # include  particle flow local reconstruction
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
-particleFlowClusterPS.thresh_Pt_Seed_Endcap = cms.double(99999.)
+#particleFlowClusterPS.thresh_Pt_Seed_Endcap = cms.double(99999.)
 
 from RecoParticleFlow.PFTracking.pfTrack_cfi import *
 pfTrack.UseQuality = cms.bool(True)
 pfTrack.TrackQuality = cms.string('highPurity')
-pfTrack.TkColList = cms.VInputTag("hiSelectedTracks")
+pfTrack.TkColList = cms.VInputTag("hiGeneralTracks")
 pfTrack.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
 pfTrack.MuColl = cms.InputTag("muons")
 
@@ -31,6 +31,8 @@ pfTrackElec.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
 
 mvaElectrons.vertexTag = cms.InputTag("hiSelectedVertex")
 
+from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *
+
 # local reco must run before electrons (RecoHI/HiEgammaAlgos), due to PF integration
 HiParticleFlowLocalReco = cms.Sequence(particleFlowCluster
                                        * pfTrack
@@ -41,4 +43,5 @@ HiParticleFlowLocalReco = cms.Sequence(particleFlowCluster
 HiParticleFlowReco = cms.Sequence(pfGsfElectronMVASelectionSequence
                                   * particleFlowBlock
                                   * particleFlowTmp
+                                  * hiRecoPFJets
                                   )

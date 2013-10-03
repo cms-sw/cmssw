@@ -4,17 +4,22 @@ import FWCore.ParameterSet.Config as cms
 # HIGH LEVEL RECO
 
 # Tracking
-#from RecoHI.HiTracking.HighPtTracking_PbPb_cff import *  # above 1.5 GeV
 from RecoHI.HiTracking.LowPtTracking_PbPb_cff import *    # above 0.9 GeV
+from RecoHI.HiTracking.hiIterTracking_cff import *    # two additional steps
 
 # Egamma
 from RecoHI.HiEgammaAlgos.HiEgamma_cff import *
+from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
 
 # Jet Reconstruction
 from RecoHI.HiJetAlgos.HiRecoJets_cff import *
 
 # Muon Reco
 from RecoHI.HiMuonAlgos.HiRecoMuon_cff import * 
+# keep regit seperate for the moment
+from RecoHI.HiMuonAlgos.HiReRecoMuon_cff import *
+
+from RecoHI.Configuration.Reconstruction_hiPF_cff import *
 
 # Heavy Ion Event Characterization
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import *
@@ -22,14 +27,19 @@ from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import *
 
 # HCAL noise producer
 from RecoMET.METProducers.hcalnoiseinfoproducer_cfi import *
-hcalnoise.trackCollName = 'hiSelectedTracks'
+hcalnoise.trackCollName = 'hiGeneralTracks'
 
 # Global + High-Level Reco Sequence
 globalRecoPbPb = cms.Sequence(heavyIonTracking
+                              * hiIterTracking
                               * hiEcalClusters
                               * hiRecoJets
                               * muonRecoPbPb
+                              * reMuonRecoPbPb
+                              * hiElectronSequence
+                              * HiParticleFlowLocalReco
                               * hiEgammaSequence
+                              * HiParticleFlowReco
                               * hiCentrality
                               * hiEvtPlane
                               * hcalnoise

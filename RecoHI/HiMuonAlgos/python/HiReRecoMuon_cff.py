@@ -4,11 +4,11 @@ from RecoMuon.Configuration.RecoMuonPPonly_cff import *
 from RecoHI.HiMuonAlgos.hiMuonIterativeTk_cff import *
 
 # pretty much everything is as the pp sequence
-hiTracks = 'hiRegitMuGeneralTracks'
+hiReMuTracks = "hiGeneralAndRegitMuTracks" 
 
 # global muon track
 reglobalMuons = globalMuons.clone()
-reglobalMuons.TrackerCollectionLabel                                     = hiTracks
+reglobalMuons.TrackerCollectionLabel =  hiReMuTracks
 
 # tevMuons tracks
 retevMuons    = tevMuons.clone()
@@ -23,10 +23,11 @@ reglbTrackQual.InputLinksCollection = cms.InputTag("reglobalMuons")
 
 #recoMuons
 remuons       = muons1stStep.clone()
-remuons.inputCollectionLabels                   = [hiTracks, 'reglobalMuons', 'standAloneMuons:UpdatedAtVtx','retevMuons:firstHit','retevMuons:picky','retevMuons:dyt']
+remuons.inputCollectionLabels                   = [hiReMuTracks, 'reglobalMuons', 'standAloneMuons:UpdatedAtVtx','retevMuons:firstHit','retevMuons:picky','retevMuons:dyt']
 remuons.globalTrackQualityInputTag              = cms.InputTag('reglbTrackQual')
 remuons.JetExtractorPSet.JetCollectionLabel     = cms.InputTag("iterativeConePu5CaloJets")
-remuons.TrackExtractorPSet.inputTrackCollection = hiTracks
+remuons.TrackExtractorPSet.inputTrackCollection = hiReMuTracks
+remuons.minPt = cms.double(0.8)
 
 remuonEcalDetIds = muonEcalDetIds.clone()
 remuonEcalDetIds.inputCollection                = "remuons"
@@ -34,7 +35,7 @@ remuonEcalDetIds.inputCollection                = "remuons"
 #muons.fillGlobalTrackRefits = False
 # calomuons
 recalomuons   = calomuons.clone()
-recalomuons.inputTracks          = hiTracks
+recalomuons.inputTracks          = hiReMuTracks
 recalomuons.inputCollection      = 'remuons'
 recalomuons.inputMuons           = 'remuons'
 
@@ -50,24 +51,21 @@ remuonShowerInformation                       = muonShowerInformation.clone()
 remuonShowerInformation.muonCollection        = "remuons"
 
 # replace the new names
-muonIdProducerSequence.replace(glbTrackQual,reglbTrackQual)
-muonIdProducerSequence.replace(muons1stStep,remuons)
-muonIdProducerSequence.replace(tevMuons,retevMuons)
-muonIdProducerSequence.replace(calomuons,recalomuons)
-muonIdProducerSequence.replace(muonEcalDetIds,remuonEcalDetIds)
-muonIdProducerSequence.replace(muonShowerInformation,remuonShowerInformation)
-muIsolation.replace(muIsoDepositTk,remuIsoDepositTk)
-muIsolation.replace(muIsoDepositJets,remuIsoDepositJets)
-muIsolation.replace(muIsoDepositCalByAssociatorTowers,remuIsoDepositCalByAssociatorTowers)
 
+remuonIdProducerSequence = cms.Sequence(reglbTrackQual*remuons*recalomuons*remuonEcalDetIds*remuonShowerInformation)
+remuIsoDeposits_muons    = cms.Sequence(remuIsoDepositTk+remuIsoDepositCalByAssociatorTowers+remuIsoDepositJets)
+remuIsolation_muons      = cms.Sequence(remuIsoDeposits_muons)
+remuIsolation            = cms.Sequence(remuIsolation_muons)
 #run this if there are no STA muons in events
-muontracking                        = cms.Sequence(standAloneMuonSeeds * standAloneMuons * hiRegitMuonIterTracking * globalMuons)
+muontracking                        = cms.Sequence(standAloneMuonSeeds * standAloneMuons * hiRegitMuTracking * reglobalMuons)
 
 #the default setting assumes the STA is already in the event
-muontracking_re                     = cms.Sequence(hiRegitMuonIterTracking * reglobalMuons)
+muontracking_re                     = cms.Sequence(hiRegitMuTracking * reglobalMuons)
 muontracking_with_TeVRefinement_re  = cms.Sequence(muontracking_re * retevMuons)
-muonrecowith_TeVRefinemen_re        = cms.Sequence(muontracking_with_TeVRefinement_re * muonIdProducerSequence)
-muonreco_plus_isolation_re          = cms.Sequence(muonrecowith_TeVRefinemen_re * muIsolation)
+
+muonreco_re                         = cms.Sequence(muontracking_re * remuonIdProducerSequence)
+muonrecowith_TeVRefinemen_re        = cms.Sequence(muontracking_with_TeVRefinement_re * remuonIdProducerSequence)
+muonreco_plus_isolation_re          = cms.Sequence(muonrecowith_TeVRefinemen_re * remuIsolation)
 
 reMuonTrackRecoPbPb                 = cms.Sequence(muontracking_re)
 # HI muon sequence (passed to RecoHI.Configuration.Reconstruction_HI_cff)

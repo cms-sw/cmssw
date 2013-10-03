@@ -4,6 +4,19 @@ import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 from RecoHI.HiJetAlgos.HiPFJetParameters_cff import *
 
+#pseudo towers for noise suppression background subtraction
+particlePseudoTowers = cms.EDProducer("ParticleTowerProducer",
+                                      src = cms.InputTag("particleFlowTmp"),
+                                      useHF = cms.untracked.bool(False)
+                                      )
+
+## background for HF/Voronoi-style subtraction
+voronoiBackgroundPF = cms.EDProducer('VoronoiBackgroundProducer',
+                                       src = cms.InputTag('particleFlowTmp'),
+                                       equalizeR = cms.double(0.3)
+                                       )
+
+
 
 ak5PFJets = cms.EDProducer(
     "FastjetJetProducer",
@@ -14,49 +27,39 @@ ak5PFJets = cms.EDProducer(
     rParam       = cms.double(0.5),
     )
 
-kt4PFJets = cms.EDProducer(
-    "FastjetJetProducer",
-    HiPFJetParameters,
-    AnomalousCellParameters,
-    MultipleAlgoIteratorBlock,
-    jetAlgorithm = cms.string("Kt"),
-    rParam       = cms.double(0.4),
-    )
 
-ic5PFJets = cms.EDProducer(
-    "FastjetJetProducer",
-    HiPFJetParameters,
-    AnomalousCellParameters,
-    jetAlgorithm = cms.string("IterativeCone"),
-    rParam       = cms.double(0.5),
-    subtractorName = cms.string("MultipleAlgoIterator"),
+akPu5PFJets = ak5PFJets.clone(
+    jetType = cms.string('BasicJet'),
+    doPVCorrection = False,
+    doPUOffsetCorr = True,
+    subtractorName = cms.string("MultipleAlgoIterator"),    
+    src = cms.InputTag('particlePseudoTowers'),
+    doAreaFastjet = False
     )
 
 
+akVs5PFJets = ak5PFJets.clone(
+    doPVCorrection = False,
+    doPUOffsetCorr = True,
+    subtractorName = cms.string("VoronoiSubtractor"),
+    bkg = cms.InputTag("voronoiBackgroundPF"),
+    src = cms.InputTag('particleFlowTmp'),
+    dropZeros = cms.untracked.bool(True),
+    doAreaFastjet = False
+    )
 
-ic3PFJets = ic5PFJets.clone()
-ic3PFJets.rParam       = cms.double(0.3)
-
-ic4PFJets = ic5PFJets.clone()
-ic4PFJets.rParam       = cms.double(0.4)
-
-ak3PFJets = ak5PFJets.clone()
-ak3PFJets.rParam       = cms.double(0.3)
-
-ak4PFJets = ak5PFJets.clone()
-ak4PFJets.rParam       = cms.double(0.4)
-
-ak7PFJets = ak5PFJets.clone()
-ak7PFJets.rParam       = cms.double(0.7)
-
-kt3PFJets = kt4PFJets.clone()
-kt3PFJets.rParam       = cms.double(0.3)
-
-kt6PFJets = kt4PFJets.clone()
-kt6PFJets.rParam       = cms.double(0.6)
+akVs2PFJet = akVs5PFJets.clone(rParam       = cms.double(0.2))
+akVs3PFJet = akVs5PFJets.clone(rParam       = cms.double(0.3))
+akVs4PFJet = akVs5PFJets.clone(rParam       = cms.double(0.4))
+akVs6PFJet = akVs5PFJets.clone(rParam       = cms.double(0.6))
+akVs7PFJet = akVs5PFJets.clone(rParam       = cms.double(0.7))
 
 
-#hiRecoPFJets = cms.Sequence(ic5PFJets)
+hiRecoPFJets = cms.Sequence(
+    particlePseudoTowers*akPu5PFJets
+    *voronoiBackgroundPF*akVs5PFJets
+    *akVs2PFJet*akVs2PFJet*akVs4PFJet*akVs6PFJet*akVs7PFJet
+    )
 #hiRecoAllPFJets = cms.Sequence(ic5PFJets + ak5PFJets + ak7PFJets + kt4PFJets + kt6PFJets)
 
 
