@@ -45,7 +45,8 @@ akVs5PFJets = ak5PFJets.clone(
     bkg = cms.InputTag("voronoiBackgroundPF"),
     src = cms.InputTag('particleFlowTmp'),
     dropZeros = cms.untracked.bool(True),
-    doAreaFastjet = False
+    doAreaFastjet = False,
+    puPtMin = cms.double(0)
     )
 
 akVs2PFJets = akVs5PFJets.clone(rParam       = cms.double(0.2))
