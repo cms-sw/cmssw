@@ -15,9 +15,9 @@ namespace ora {
     virtual ~Exception() throw() {}
   };
 
-  void throwException( const std::string& message, const std::string& methodName );
+  void throwException( const std::string& message, const std::string& methodName )__attribute__((noreturn));
 
-  void throwException( const std::string& message, const std::type_info& sourceType, const std::string& methodName  );
+  void throwException( const std::string& message, const std::type_info& sourceType, const std::string& methodName  )__attribute__((noreturn));
 
 }
 
