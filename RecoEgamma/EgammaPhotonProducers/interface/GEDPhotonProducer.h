@@ -66,11 +66,12 @@ class GEDPhotonProducer : public edm::EDProducer {
   edm::InputTag photonCoreProducer_;
   edm::InputTag barrelEcalHits_;
   edm::InputTag endcapEcalHits_;
-
+  edm::InputTag pfEgammaCandidates_;
   edm::InputTag hcalTowers_;
 
   std::string conversionProducer_;
   std::string conversionCollection_;
+  std::string valueMapPFCandPhoton_;
 
   //AA
   //Flags and severities to be excluded from calculations
