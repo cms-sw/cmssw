@@ -784,5 +784,9 @@ GTProxy Session::readGlobalTag( const std::string& name ){
   }  
 }
 
+  bool Session::isOra() const {
+    return m_switch.isOra();
+  }
+
 }
 

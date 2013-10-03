@@ -266,6 +266,8 @@ namespace ora_wrapper {
 
       GTProxy readGlobalTag( const std::string& name );
 
+      bool isOra() const;
+
     private:
 
       Switch m_switch;
