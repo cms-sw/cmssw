@@ -54,12 +54,21 @@ akVs4PFJets = akVs5PFJets.clone(rParam       = cms.double(0.4))
 akVs6PFJets = akVs5PFJets.clone(rParam       = cms.double(0.6))
 akVs7PFJets = akVs5PFJets.clone(rParam       = cms.double(0.7))
 
+akPu5PFJets.puPtMin = cms.double(25)
+akPu2PFJets = akPu5PFJets.clone(rParam       = cms.double(0.2), puPtMin = 10)
+akPu3PFJets = akPu5PFJets.clone(rParam       = cms.double(0.3), puPtMin = 15)
+akPu4PFJets = akPu5PFJets.clone(rParam       = cms.double(0.4), puPtMin = 20)
+akPu6PFJets = akPu5PFJets.clone(rParam       = cms.double(0.6), puPtMin = 30)
+akPu7PFJets = akPu5PFJets.clone(rParam       = cms.double(0.7), puPtMin = 35)
+
 
 hiRecoPFJets = cms.Sequence(
-    particlePseudoTowers*akPu5PFJets
+    particlePseudoTowers
+    *akPu3PFJets*akPu5PFJets
     *voronoiBackgroundPF*akVs5PFJets
     *akVs2PFJets*akVs3PFJets*akVs4PFJets*akVs6PFJets*akVs7PFJets
     )
-#hiRecoAllPFJets = cms.Sequence(ic5PFJets + ak5PFJets + ak7PFJets + kt4PFJets + kt6PFJets)
+
+hiRecoAllPFJets = cms.Sequence(hiRecoPFJets * akPu2PFJets*akPu4PFJets*akPu6PFJets*akPu7PFJets)
 
 
