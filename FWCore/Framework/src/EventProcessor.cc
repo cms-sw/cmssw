@@ -71,6 +71,8 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
+#include "tbb/task.h"
+
 //Used for forking
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -1227,7 +1229,7 @@ namespace edm {
     bool returnValue = false;
     
     // Look for a shutdown signal
-    if(shutdown_flag.load(std::memory_order_relaxed)) {
+    if(shutdown_flag.load(std::memory_order_acquire)) {
       returnValue = true;
       returnCode = epSignal;
     }
@@ -1749,34 +1751,148 @@ namespace edm {
     FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 
+  class StreamProcessingTask : public tbb::task {
+  public:
+    StreamProcessingTask(EventProcessor* iProc,
+                         unsigned int iStreamIndex,
+                         std::atomic<bool>* iFinishedProcessingEvents,
+                         tbb::task* iWaitTask):
+    m_proc(iProc),
+    m_streamID(iStreamIndex),
+    m_finishedProcessingEvents(iFinishedProcessingEvents),
+    m_waitTask(iWaitTask){}
+    
+    tbb::task* execute() {
+      m_proc->processEventsForStreamAsync(m_streamID,m_finishedProcessingEvents);
+      m_waitTask->decrement_ref_count();
+      return nullptr;
+    }
+  private:
+    EventProcessor* m_proc;
+    unsigned int m_streamID;
+    std::atomic<bool>* m_finishedProcessingEvents;
+    tbb::task* m_waitTask;
+  };
+  
+  void EventProcessor::processEventsForStreamAsync(unsigned int iStreamIndex,
+                                                   std::atomic<bool>* finishedProcessingEvents) {
+    try {
+      // make the services available
+      ServiceRegistry::Operate operate(serviceToken_);
+
+      if(iStreamIndex==0) {
+        processEvent(0);
+      }
+      do {
+        if(shouldWeStop()) {
+          break;
+        }
+        {
+          {
+            //nextItemType and readEvent need to be in same critical section
+            std::lock_guard<std::mutex> sourceGuard(nextTransitionMutex_);
+            
+            if(finishedProcessingEvents->load(std::memory_order_acquire)) {
+              std::cerr<<"finishedProcessingEvents\n";
+              break;
+            }
+            InputSource::ItemType itemType = input_->nextItemType();
+            if (InputSource::IsEvent !=itemType) {
+              nextItemTypeFromProcessingEvents_ = itemType;
+              finishedProcessingEvents->store(true,std::memory_order_release);
+              std::cerr<<"next item type "<<itemType<<"\n";
+              break;
+            }
+            if((asyncStopRequestedWhileProcessingEvents_=checkForAsyncStopRequest(asyncStopStatusCodeFromProcessingEvents_))) {
+              std::cerr<<"task told to async stop\n";
+              break;
+            }
+            readEvent(iStreamIndex);
+          }
+        }
+        processEvent(iStreamIndex);
+      }while(true);
+    } catch(edm::Exception const&e) {
+      asyncStopRequestedWhileProcessingEvents_=true;
+      finishedProcessingEvents->store(true,std::memory_order_release);
+      std::cerr<<"task caught edm::Exception\n"<<e.what()<<"\n";
+      
+    } catch (...) {
+      asyncStopRequestedWhileProcessingEvents_=true;
+      finishedProcessingEvents->store(true,std::memory_order_release);
+      std::cerr<<"task caught exception\n";
+    }
+  }
+  
   void EventProcessor::readAndProcessEvent() {
     if(numberOfForkedChildren_>0) {
       readEvent(0);
       processEvent(0);
       return;
     }
-    InputSource::ItemType itemType = InputSource::IsEvent;
+    nextItemTypeFromProcessingEvents_ = InputSource::IsEvent; //needed for looper
+    asyncStopRequestedWhileProcessingEvents_ = false;
 
+    std::atomic<bool> finishedProcessingEvents{false};
+
+    //Task assumes Stream 0 has already read the event that caused us to go here
+    readEvent(0);
+    
+    //To wait, the ref count has to b 1+#streams
+    tbb::task* eventLoopWaitTask{new (tbb::task::allocate_root()) tbb::empty_task{}};
+    eventLoopWaitTask->increment_ref_count();
+    
+    const unsigned int kNumStreams = preallocations_.numberOfStreams();
+    unsigned int iStreamIndex = 0;
+    for(; iStreamIndex<kNumStreams-1; ++iStreamIndex) {
+      eventLoopWaitTask->increment_ref_count();
+      tbb::task::enqueue( *(new (tbb::task::allocate_root()) StreamProcessingTask{this,iStreamIndex, &finishedProcessingEvents, eventLoopWaitTask}));
+
+    }
+    eventLoopWaitTask->increment_ref_count();
+    eventLoopWaitTask->spawn_and_wait_for_all(*(new (tbb::task::allocate_root()) StreamProcessingTask{this,iStreamIndex,&finishedProcessingEvents,eventLoopWaitTask}));
+    tbb::task::destroy(*eventLoopWaitTask);
+    
+    /*
+    InputSource::ItemType itemType = InputSource::IsEvent;
+    nextItemTypeFromProcessingEvents_ = itemType; //needed for looper
     //While all the following item types are isEvent, process them right here
     asyncStopRequestedWhileProcessingEvents_ = false;
     
     //We will round-robin which stream to use
     unsigned int nextStreamIndex=0;
     const unsigned int kNumStreams = preallocations_.numberOfStreams();
+
+    //we know there is something to do
+    readEvent(nextStreamIndex);
+    processEvent(nextStreamIndex);
+    bool finishedProcessingEvents = false;
     do {
-      readEvent(nextStreamIndex);
-      processEvent(nextStreamIndex);
       nextStreamIndex = (nextStreamIndex+1) % kNumStreams;
       
       if(shouldWeStop()) {
         break;
       }
-      itemType = input_->nextItemType();
+      {
+        std::lock_guard<std::mutex> sourceGuard(nextTransitionMutex_);
+        if(not finishedProcessingEvents) {
+          itemType = input_->nextItemType();
+          if (InputSource::IsEvent !=itemType) {
+            finishedProcessingEvents = true;
+            nextItemTypeFromProcessingEvents_ = itemType;
+            break;
+          }
+        } else {
+          break;
+        }
+      }
       if((asyncStopRequestedWhileProcessingEvents_=checkForAsyncStopRequest(asyncStopStatusCodeFromProcessingEvents_))) {
         break;
       }
+      readEvent(nextStreamIndex);
+      processEvent(nextStreamIndex);
     } while (itemType == InputSource::IsEvent);
-    nextItemTypeFromProcessingEvents_ = itemType;
+     */
   }
   void EventProcessor::readEvent(unsigned int iStreamIndex) {
     //TODO this will have to become per stream
