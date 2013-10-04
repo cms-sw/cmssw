@@ -16,21 +16,21 @@ using std::vector;
 using std::stringstream;
 using std::atof;
 
-vector<string> Utils::vectorDoubleToString(vector<double> doubleVector) {
+vector<string> Utils::vectorDoubleToString(const vector<double>& doubleVector) {
 	vector<string> strVector;
 	stringstream ss;
 	for (unsigned int i = 0; i < doubleVector.size(); i++) {
-		ss << doubleVector[i];
+		ss << doubleVector.at(i);
 		strVector.push_back(ss.str());
 		ss.str("");
 	}
 	return strVector;
 }
 
-vector<double> Utils::vectorStringToDouble(vector<string> stringVector) {
+vector<double> Utils::vectorStringToDouble(const vector<string>& stringVector) {
 	vector<double> dblVector;
 	for (unsigned int i = 0; i < stringVector.size(); i++)
-		dblVector.push_back(atof(stringVector[i].c_str()));
+		dblVector.push_back(atof(stringVector.at(i).c_str()));
 	return dblVector;
 }
 
