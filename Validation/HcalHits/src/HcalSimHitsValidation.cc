@@ -9,7 +9,8 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   // register for data access
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
   tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
-  tok_ecal_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEE"));
+  tok_ecalEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEB"));
+  tok_ecalEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEE"));
   
   if ( outputFile_.size() != 0 ) {    edm::LogInfo("OutputInfo") << " Hcal SimHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
@@ -294,7 +295,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
   //Ecal EB SimHits
   edm::Handle<PCaloHitContainer> ecalEBHits;
-  ev.getByToken(tok_ecal_,ecalEBHits);
+  ev.getByToken(tok_ecalEB_,ecalEBHits);
   const PCaloHitContainer * SimHitResultEB = ecalEBHits.product () ;
 
   double EcalCone = 0;
@@ -315,7 +316,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
   //Ecal EE SimHits
   edm::Handle<PCaloHitContainer> ecalEEHits;
-  ev.getByToken(tok_ecal_,ecalEEHits);
+  ev.getByToken(tok_ecalEE_,ecalEEHits);
   const PCaloHitContainer * SimHitResultEE = ecalEEHits.product () ;
 
   for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEE->begin () ; SimHits != SimHitResultEE->end(); ++SimHits) {
