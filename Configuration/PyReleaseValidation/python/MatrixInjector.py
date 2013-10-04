@@ -68,8 +68,6 @@ class MatrixInjector(object):
             
         self.defaultChain={
             "RequestType" :   "TaskChain",                    #this is how we handle relvals
-            "AcquisitionEra": {},                             #Acq Era
-            "ProcessingString": {},                           # processing string to label the dataset
             "Requestor": self.user,                           #Person responsible
             "Group": self.group,                              #group for the request
             "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
@@ -94,7 +92,7 @@ class MatrixInjector(object):
             }
 
         self.defaultHarvest={
-            "EnableDQMHarvest" : 1,
+            "EnableHarvesting" : "True",
             "DQMUploadUrl" : "https://cmsweb.cern.ch/dqm/relval",
             "DQMConfigCacheID" : None
             }
@@ -103,8 +101,8 @@ class MatrixInjector(object):
             "TaskName" : None,                            #Task Name
             "ConfigCacheID" : None,                   #Generator Config id
             "GlobalTag": None,
-            "SplittingAlgorithm"  : "EventBased",             #Splitting Algorithm
-            "SplittingArguments" : {"events_per_job" : None},  #Size of jobs in terms of splitting algorithm
+            "SplittingAlgo"  : "EventBased",             #Splitting Algorithm
+            "EventsPerJob" : None,                       #Size of jobs in terms of splitting algorithm
             "RequestNumEvents" : None,                      #Total number of events to generate
             "Seeding" : "AutomaticSeeding",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
@@ -116,8 +114,8 @@ class MatrixInjector(object):
             "ConfigCacheID" : None,                                      #Processing Config id
             "GlobalTag": None,
             "InputDataset" : None,                                       #Input Dataset to be processed
-            "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
-            "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
+            "SplittingAlgo"  : "LumiBased",                        #Splitting Algorithm
+            "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
             "KeepOutput" : False
             }
@@ -127,8 +125,8 @@ class MatrixInjector(object):
             "InputFromOutputModule" : None,                    #OutputModule name in the input task that will provide files to process
             "ConfigCacheID" : None,                            #Processing Config id
             "GlobalTag": None,
-            "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
-            "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
+            "SplittingAlgo"  : "LumiBased",                        #Splitting Algorithm
+            "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
             "KeepOutput" : False
             }
@@ -184,8 +182,8 @@ class MatrixInjector(object):
                                     arg=s[2][index].split()
                                     ns=map(int,arg[arg.index('--relval')+1].split(','))
                                     chainDict['nowmTasklist'][-1]['RequestNumEvents'] = ns[0]
-                                    chainDict['nowmTasklist'][-1]['SplittingArguments']['events_per_job'] = ns[1]
-                                if 'FASTSIM' in s[2][index]:
+                                    chainDict['nowmTasklist'][-1]['EventsPerJob'] = ns[1]
+                                if 'FASTSIM' in s[2][index] or '--fast' in s[2][index]:
                                     thisLabel+='_FastSim'
 
                             elif nextHasDSInput:
@@ -197,9 +195,9 @@ class MatrixInjector(object):
                                     return -15
                                 chainDict['nowmTasklist'][-1]['InputDataset']=nextHasDSInput.dataSet
                                 splitForThisWf=nextHasDSInput.split
-                                chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=splitForThisWf
+                                chainDict['nowmTasklist'][-1]['LumisPerJob']=splitForThisWf
                                 if step in wmsplit:
-                                    chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=wmsplit[step]
+                                    chainDict['nowmTasklist'][-1]['LumisPerJob']=wmsplit[step]
                                 # get the run numbers or #events
                                 if len(nextHasDSInput.run):
                                     chainDict['nowmTasklist'][-1]['RunWhitelist']=nextHasDSInput.run
@@ -220,9 +218,9 @@ class MatrixInjector(object):
                                     print "Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created"
                                     return -15
                                 if splitForThisWf:
-                                    chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=splitForThisWf
+                                    chainDict['nowmTasklist'][-1]['LumisPerJob']=splitForThisWf
                                 if step in wmsplit:
-                                    chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=wmsplit[step]
+                                    chainDict['nowmTasklist'][-1]['LumisPerJob']=wmsplit[step]
 
                             #print step
                             chainDict['nowmTasklist'][-1]['TaskName']=step
@@ -379,6 +377,3 @@ class MatrixInjector(object):
                 approveRequest(self.wmagent,workFlow)
                 print "...........",n,"submitted"
                 random_sleep()
-            
-
-        
