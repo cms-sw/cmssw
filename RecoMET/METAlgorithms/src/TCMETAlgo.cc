@@ -63,33 +63,26 @@ TCMETAlgo::TCMETAlgo() {
 
 
 void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFunctionType,
-			  edm::EDGetTokenT<reco::MuonCollection>* muonToken,
-			  edm::EDGetTokenT<reco::GsfElectronCollection>* electronToken,
-			  edm::EDGetTokenT<edm::View<reco::MET> >* metToken,
-			  edm::EDGetTokenT<reco::TrackCollection>* trackToken,
-			  edm::EDGetTokenT<reco::BeamSpot>* beamSpotToken,
-			  edm::EDGetTokenT<reco::VertexCollection>* vertexToken,
-			  edm::EDGetTokenT<reco::PFClusterCollection>* clustersECALToken,
-			  edm::EDGetTokenT<reco::PFClusterCollection>* clustersHCALToken,
-			  edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFEMToken,
-			  edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFHADToken,
-			  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* muonDepValueMapToken,
-			  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* tcmetDepValueMapToken
-			  )
+			  edm::ConsumesCollector && iConsumesCollector)
 {
+  muonToken_ = iConsumesCollector.consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muonInputTag"));
+  electronToken_ = iConsumesCollector.consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronInputTag"));
+  metToken_ = iConsumesCollector.consumes<edm::View<reco::MET> >(iConfig.getParameter<edm::InputTag>("metInputTag"));
+  trackToken_ = iConsumesCollector.consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackInputTag"));
+  beamSpotToken_ = iConsumesCollector.consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"));
+  vertexToken_ = iConsumesCollector.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexInputTag"));
 
-  muonToken_ = muonToken;
-  electronToken_ = electronToken;
-  metToken_ = metToken;
-  trackToken_ = trackToken;
-  beamSpotToken_ = beamSpotToken;
-  vertexToken_ = vertexToken;
-  clustersECALToken_ = clustersECALToken;
-  clustersHCALToken_ = clustersHCALToken;
-  clustersHFEMToken_ = clustersHFEMToken;
-  clustersHFHADToken_  = clustersHFHADToken;
-  muonDepValueMapToken_ = muonDepValueMapToken;
-  tcmetDepValueMapToken_ = tcmetDepValueMapToken;
+  if(iConfig.getParameter<bool> ("usePFClusters"))
+    {
+      clustersECALToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersECAL"));
+      clustersHCALToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHCAL"));
+      clustersHFEMToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHFEM"));
+      clustersHFHADToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHFHAD"));
+    }
+
+  muonDepValueMapToken_ = iConsumesCollector.consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(iConfig.getParameter<edm::InputTag>("muonDepValueMap"));
+  tcmetDepValueMapToken_ = iConsumesCollector.consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(iConfig.getParameter<edm::InputTag>("tcmetDepValueMap"));
+
 
      usePFClusters_           = iConfig.getParameter<bool>  ("usePFClusters");
      
@@ -168,16 +161,16 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
 { 
 
      // get input collections
-     event.getByToken(*muonToken_ , MuonHandle);
-     event.getByToken(*electronToken_, ElectronHandle);
-     event.getByToken(*metToken_ , metHandle);
-     event.getByToken(*trackToken_, TrackHandle);
-     event.getByToken(*beamSpotToken_, beamSpotHandle);
+     event.getByToken(muonToken_ , MuonHandle);
+     event.getByToken(electronToken_, ElectronHandle);
+     event.getByToken(metToken_ , metHandle);
+     event.getByToken(trackToken_, TrackHandle);
+     event.getByToken(beamSpotToken_, beamSpotHandle);
 
      //get vertex collection
      hasValidVertex = false;
      if( usePvtxd0_ ){
-       event.getByToken(*vertexToken_, VertexHandle);
+       event.getByToken(vertexToken_, VertexHandle);
        if( VertexHandle.isValid() ) {
          vertexColl = VertexHandle.product();
          hasValidVertex = isValidVertex();
@@ -200,10 +193,10 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      float pfcsumet = 0.;
 
      if( usePFClusters_ ){
-       event.getByToken(*clustersECALToken_, clustersECAL);
-       event.getByToken(*clustersHCALToken_, clustersHCAL);
-       event.getByToken(*clustersHFEMToken_, clustersHFEM);
-       event.getByToken(*clustersHFHADToken_, clustersHFHAD);
+       event.getByToken(clustersECALToken_, clustersECAL);
+       event.getByToken(clustersHCALToken_, clustersHCAL);
+       event.getByToken(clustersHFEMToken_, clustersHFEM);
+       event.getByToken(clustersHFHADToken_, clustersHFHAD);
        
      
        for (reco::PFClusterCollection::const_iterator it = clustersECAL->begin(); it != clustersECAL->end(); it++){
@@ -249,8 +242,8 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      }
 
      // get input value maps
-     event.getByToken(*muonDepValueMapToken_, muon_data_h);
-     event.getByToken(*tcmetDepValueMapToken_, tcmet_data_h );
+     event.getByToken(muonDepValueMapToken_, muon_data_h);
+     event.getByToken(tcmetDepValueMapToken_, tcmet_data_h );
 
      muon_data  = *muon_data_h;
      tcmet_data = *tcmet_data_h;
