@@ -1,230 +1,252 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMPathPlotter.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-HLTTauDQMPathPlotter::HLTTauDQMPathPlotter( const edm::ParameterSet& ps, bool ref, std::string dqmBaseFolder ) {
-    //Initialize Plotter
-    name_ = "HLTTauDQMPathPlotter";
-    
-    //Process PSet
-    try {
-        triggerEventObject_   = ps.getUntrackedParameter<edm::InputTag>("TriggerEventObject");
-        triggerTag_           = ps.getUntrackedParameter<std::string>("DQMFolder");
-        triggerTagAlias_      = ps.getUntrackedParameter<std::string>("Alias","");
-        filters_              = ps.getUntrackedParameter<std::vector<edm::ParameterSet> >("Filters");
-        reference_            = ps.getUntrackedParameter<edm::ParameterSet>("Reference");
-        refNTriggeredTaus_    = reference_.getUntrackedParameter<unsigned int>("NTriggeredTaus");
-        refNTriggeredLeptons_ = reference_.getUntrackedParameter<unsigned int>("NTriggeredLeptons");
-        refTauPt_             = reference_.getUntrackedParameter<double>("refTauPt",20);
-        refLeptonPt_          = reference_.getUntrackedParameter<double>("refLeptonPt",15);
-        dqmBaseFolder_        = dqmBaseFolder;
-        doRefAnalysis_        = ref;
-        validity_             = true;
-    } catch ( cms::Exception &e ) {
-        edm::LogInfo("HLTTauDQMPathPlotter::HLTTauDQMPathPlotter") << e.what() << std::endl;
-        validity_ = false;
-        return;
-    }
-    
-    for ( std::vector<edm::ParameterSet>::const_iterator iter = filters_.begin(); iter != filters_.end(); ++iter ) {
-        HLTTauDQMPlotter::FilterObject tmp(*iter);
-        if (tmp.isValid()) filterObjs_.push_back(tmp);
-    }
-    
-    if (store_) {
-        //Create the histograms
-        store_->setCurrentFolder(triggerTag());
-        store_->removeContents();
-        
-        accepted_events = store_->book1D("TriggerBits","Accepted Events per Path;;entries",filterObjs_.size(),0,filterObjs_.size());
-        for ( size_t k = 0; k < filterObjs_.size(); ++k ) {
-            accepted_events->setBinLabel(k+1,filterObjs_[k].getAlias(),1);
-        }
-        if (doRefAnalysis_) {
-            accepted_events_matched = store_->book1D("MatchedTriggerBits","Accepted+Matched Events per Path;;entries",filterObjs_.size()+1,0,filterObjs_.size()+1);
-            accepted_events_matched->setBinLabel(1,"RefEvents",1);
-            for ( size_t k = 0; k < filterObjs_.size(); ++k ) {
-                accepted_events_matched->setBinLabel(k+2,filterObjs_[k].getAlias(),1);
-            }
-        }
-    }
+HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder,
+                                           const std::string& hltProcess, int ptbins, int etabins, int phibins,
+                                           double ptmax, double highptmax,
+                                           double l1MatchDr, double hltMatchDr):
+  HLTTauDQMPlotter(pset, dqmBaseFolder),
+  ptbins_(ptbins),
+  etabins_(etabins),
+  phibins_(phibins),
+  ptmax_(ptmax),
+  highptmax_(highptmax),
+  l1MatchDr_(l1MatchDr),
+  hltMatchDr_(hltMatchDr),
+  doRefAnalysis_(doRefAnalysis),
+  hltPath_(hltProcess, dqmFolder_, doRefAnalysis_)
+{
+  if(!configValid_)
+    return;
+
+  // Parse configuration
+  try {
+    hltPath_.initialize(pset);
+  } catch(cms::Exception& e) {
+    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(): " << e.what();
+    configValid_ = false;
+    return;
+  }
+  configValid_ = true;
 }
 
-HLTTauDQMPathPlotter::~HLTTauDQMPathPlotter() {
+void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
+  if(!configValid_)
+    return;
+
+  // Identify the correct HLT path
+  if(!HLTCP.inited()) {
+    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::beginRun(): HLTConfigProvider is not initialized!";
+    runValid_ = false;
+    return;
+  }
+
+  // Search path candidates
+  runValid_ = hltPath_.beginRun(HLTCP);
+  if(!runValid_)
+    return;
+
+  // Book histograms
+  edm::Service<DQMStore> store;
+  if(store.isAvailable()) {
+    store->setCurrentFolder(triggerTag());
+    store->removeContents();
+
+    hAcceptedEvents_ = store->book1D("EventsPerFilter", "Accepted Events per filter;;entries", hltPath_.filtersSize(), 0, hltPath_.filtersSize());
+    for(size_t i=0; i<hltPath_.filtersSize(); ++i) {
+      hAcceptedEvents_->setBinLabel(i+1, hltPath_.getFilterName(i));
+    }
+
+    hTrigTauEt_ = store->book1D("TrigTauEt",   "Triggered #tau p_{T};#tau p_{T};entries", ptbins_,     0, ptmax_);
+    hTrigTauEta_ = store->book1D("TrigTauEta", "Triggered #tau #eta;#tau #eta;entries",  etabins_, -2.5, 2.5);
+    hTrigTauPhi_ = store->book1D("TrigTauPhi", "Triggered #tau #phi;#tau #phi;entries",  phibins_, -3.2, 3.2);
+
+    // Efficiency helpers
+    if(doRefAnalysis_) {
+      store->setCurrentFolder(triggerTag()+"/helpers");
+      store->removeContents();
+      if(hltPath_.hasL2Taus()) {
+        hL2TrigTauEtEffNum_    = store->book1D("L2TrigTauEtEffNum",    "L2 #tau p_{T} efficiency;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+        hL2TrigTauEtEffDenom_  = store->book1D("L2TrigTauEtEffDenom",  "L2 #tau p_{T} denominator;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+        hL2TrigTauEtaEffNum_   = store->book1D("L2TrigTauEtaEffNum",   "L2 #tau #eta efficiency;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+        hL2TrigTauEtaEffDenom_ = store->book1D("L2TrigTauEtaEffDenom", "L2 #tau #eta denominator;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+        hL2TrigTauPhiEffNum_   = store->book1D("L2TrigTauPhiEffNum",   "L2 #tau #phi efficiency;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+        hL2TrigTauPhiEffDenom_ = store->book1D("L2TrigTauPhiEffDenom", "L2 #tau #phi denominator;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+        hL2TrigTauHighEtEffNum_   = store->book1D("L2TrigTauHighEtEffNum",    "L2 #tau p_{T} efficiency (high p_{T})Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+        hL2TrigTauHighEtEffDenom_ = store->book1D("L2TrigTauHighEtEffDenom",  "L2 #tau p_{T} denominator (high p_{T})Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+      }
+
+      if(hltPath_.hasL3Taus()) {
+        hL3TrigTauEtEffNum_    = store->book1D("L3TrigTauEtEffNum",    "L3 #tau p_{T} efficiency;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+        hL3TrigTauEtEffDenom_  = store->book1D("L3TrigTauEtEffDenom",  "L3 #tau p_{T} denominator;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+        hL3TrigTauEtaEffNum_   = store->book1D("L3TrigTauEtaEffNum",   "L3 #tau #eta efficiency;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+        hL3TrigTauEtaEffDenom_ = store->book1D("L3TrigTauEtaEffDenom", "L3 #tau #eta denominator;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+        hL3TrigTauPhiEffNum_   = store->book1D("L3TrigTauPhiEffNum",   "L3 #tau #phi efficiency;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+        hL3TrigTauPhiEffDenom_ = store->book1D("L3TrigTauPhiEffDenom", "L3 #tau #phi denominator;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+        hL3TrigTauHighEtEffNum_    = store->book1D("L3TrigTauHighEtEffNum",    "L3 #tau p_{T} efficiency (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+        hL3TrigTauHighEtEffDenom_  = store->book1D("L3TrigTauHighEtEffDenom",  "L3 #tau p_{T} denominator (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+      }
+      store->setCurrentFolder(triggerTag());
+    }
+
+    // Book di-object invariant mass histogram only for mu+tau, ele+tau, and di-tau paths
+    hMass_ = nullptr;
+    if(doRefAnalysis_) {
+      const int lastFilter = hltPath_.filtersSize()-1;
+      const int ntaus = hltPath_.getFilterNTaus(lastFilter);
+      const int neles = hltPath_.getFilterNElectrons(lastFilter);
+      const int nmus = hltPath_.getFilterNMuons(lastFilter);
+      if(ntaus+neles+nmus == 2) {
+        hMass_ = store->book1D("ReferenceMass", "Invariant mass of reference "+dqmFolder_+";Reference invariant mass;entries", 100, 0, 500);
+      }
+    }
+    runValid_ = true;
+  }
+  else
+    runValid_ = false;
 }
 
-//
-// member functions
-//
 
-void HLTTauDQMPathPlotter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::map<int,LVColl>& refC ) {
-    using namespace std;
-    using namespace edm;
-    using namespace reco;
-    using namespace l1extra;
-    using namespace trigger;
-    
-    bool isGoodReferenceEvent = false;
-    LVColl refTaus, refLeptons;
-    
-    if (doRefAnalysis_) {
-        unsigned int highPtTaus = 0;
-        unsigned int highPtElectrons = 0;
-        unsigned int highPtMuons = 0;
-        
-        bool tau_ok = true;
-        bool leptons_ok = true;
-        
-        std::map<int,LVColl>::const_iterator iref;
-        
-        //Tau reference
-        iref = refC.find(15);
-        if ( iref != refC.end() ) {
-            for ( LVColl::const_iterator lvi = iref->second.begin(); lvi != iref->second.end(); ++lvi ) {
-                if ( lvi->Et() > refTauPt_ ) {
-                    highPtTaus++;
-                }
-                refTaus.push_back(*lvi);
-            }
-        }
-        if ( highPtTaus < refNTriggeredTaus_ ) tau_ok = false;
-        
-        //Electron reference
-        iref = refC.find(11);
-        if ( iref != refC.end() ) {
-            for ( LVColl::const_iterator lvi = iref->second.begin(); lvi != iref->second.end(); ++lvi ) {
-                if ( lvi->Et() > refLeptonPt_ ) {
-                    highPtElectrons++;
-                }
-                refLeptons.push_back(*lvi);
-            }
-        }
-        if ( filterObjs_.size() > 0 && filterObjs_.back().leptonId() == 11 && highPtElectrons < refNTriggeredLeptons_ ) leptons_ok = false;
-        
-        //Muon reference
-        iref = refC.find(13);
-        if ( iref != refC.end() ) {
-            for ( LVColl::const_iterator lvi = iref->second.begin(); lvi != iref->second.end(); ++lvi ) {
-                if ( lvi->Et() > refLeptonPt_ ) {
-                    highPtMuons++;
-                }
-                refLeptons.push_back(*lvi);
-            }
-        }
-        if ( filterObjs_.size() > 0 && filterObjs_.back().leptonId() == 13 && highPtMuons < refNTriggeredLeptons_ ) leptons_ok = false;
-        
-        if ( tau_ok && leptons_ok ) {
-            accepted_events_matched->Fill(0.5);
-            isGoodReferenceEvent = true;
-        }
-    }
-    
-    Handle<TriggerEventWithRefs> trigEv;
-    bool gotTEV = iEvent.getByLabel(triggerEventObject_,trigEv) && trigEv.isValid();
-    
-    if (gotTEV) {
-        //Loop through the filters
-        for ( size_t i = 0; i < filterObjs_.size(); ++i ) {		
-            size_t ID = trigEv->filterIndex(filterObjs_[i].getFilterName());
-            
-            if ( ID != trigEv->size() ) {
-                LVColl leptons = getFilterCollection(ID,filterObjs_[i].getLeptonType(),*trigEv);
-                LVColl taus = getFilterCollection(ID,filterObjs_[i].getTauType(),*trigEv);
-                //Fired
-                if ( leptons.size() >= filterObjs_[i].getNTriggeredLeptons() && taus.size() >= filterObjs_[i].getNTriggeredTaus() ) {
-                    accepted_events->Fill(i+0.5);
-                    //Now do the matching only though if we have a good reference event
-                    if ( doRefAnalysis_ && isGoodReferenceEvent ) {
-                        size_t nT = 0;
-                        for ( size_t j = 0; j < taus.size(); ++j ) {
-                            if( match(taus[j],refTaus,filterObjs_[i].getMatchDeltaR()).first ) nT++;
-                        }
-                        
-                        size_t nL = 0;
-                        for ( size_t j = 0; j < leptons.size(); ++j ) {
-                            if ( match(leptons[j],refLeptons,filterObjs_[i].getMatchDeltaR()).first ) nL++;
-                        }
-                        
-                        if ( nT >= filterObjs_[i].getNTriggeredTaus() && nL >= filterObjs_[i].getNTriggeredLeptons() ) {
-                            accepted_events_matched->Fill(i+1.5);
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+HLTTauDQMPathPlotter::~HLTTauDQMPathPlotter() {}
 
-LVColl HLTTauDQMPathPlotter::getFilterCollection( size_t filterID, int id, const trigger::TriggerEventWithRefs& trigEv ) {
-    using namespace trigger;
-    LVColl out;
-    
-    if ( id == trigger::TriggerL1IsoEG || id == trigger::TriggerL1NoIsoEG ) {
-        VRl1em obj;
-        trigEv.getObjects(filterID,id,obj);
-        for (size_t i=0;i<obj.size();++i)
-            if (obj.at(i).isAvailable())
-                out.push_back(obj[i]->p4());
+void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection) {
+
+  std::vector<HLTTauDQMPath::Object> triggerObjs;
+  std::vector<HLTTauDQMPath::Object> matchedTriggerObjs;
+  HLTTauDQMOfflineObjects matchedOfflineObjs;
+
+  // Events per filter
+  const int lastPassedFilter = hltPath_.lastPassedFilter(triggerResults);
+  int lastMatchedFilter = -1;
+  //std::cout << "Last passed filter " << lastPassedFilter << " " << (lastPassedFilter >= 0 ? hltPath_.getFilterName(lastPassedFilter) : "") << std::endl;
+  if(doRefAnalysis_) {
+    double matchDr = hltPath_.isFirstFilterL1Seed() ? l1MatchDr_ : hltMatchDr_;
+    for(int i=0; i<=lastPassedFilter; ++i) {
+      triggerObjs.clear();
+      matchedTriggerObjs.clear();
+      matchedOfflineObjs.clear();
+      hltPath_.getFilterObjects(triggerEvent, i, triggerObjs);
+      //std::cout << "Filter name " << hltPath_.getFilterName(i) << " nobjs " << triggerObjs.size() << std::endl;
+      bool matched = hltPath_.offlineMatching(i, triggerObjs, refCollection, matchDr, matchedTriggerObjs, matchedOfflineObjs);
+      //std::cout << "  offline matching: " << matched << std::endl;
+      matchDr = hltMatchDr_;
+      if(!matched)
+        break;
+
+      hAcceptedEvents_->Fill(i+0.5);
+      lastMatchedFilter = i;
     }
-    
-    if ( id == trigger::TriggerL1Mu ) {
-        VRl1muon obj;
-        trigEv.getObjects(filterID,id,obj);
-        for (size_t i=0;i<obj.size();++i)
-            if (obj.at(i).isAvailable())
-                out.push_back(obj[i]->p4());
+  }
+  else {
+    for(int i=0; i<=lastPassedFilter; ++i) {
+      hAcceptedEvents_->Fill(i+0.5);
     }
-    
-    if ( id == trigger::TriggerMuon ) {
-        VRmuon obj;
-        trigEv.getObjects(filterID,id,obj);
-        for (size_t i=0;i<obj.size();++i)
-            if (obj.at(i).isAvailable())
-                out.push_back(obj[i]->p4());
-    }
-    
-    if ( id == trigger::TriggerElectron ) {
-        VRelectron obj;
-        trigEv.getObjects(filterID,id,obj);
-        for (size_t i=0;i<obj.size();++i)
-            if (obj.at(i).isAvailable())
-                out.push_back(obj[i]->p4());
-    }
-    
-    if ( id == trigger::TriggerL1TauJet ) {
-        VRl1jet obj;
-        trigEv.getObjects(filterID,id,obj);
-        for (size_t i=0;i<obj.size();++i)
-            if (obj.at(i).isAvailable())
-                out.push_back(obj[i]->p4());
-        trigEv.getObjects(filterID,trigger::TriggerL1CenJet,obj);
-        for (size_t i=0;i<obj.size();++i)
-            if (obj.at(i).isAvailable())
-                out.push_back(obj[i]->p4());
-        
-    }
-    
-    if ( id == trigger::TriggerTau ) {
-        VRjet obj;
-        trigEv.getObjects(filterID,id,obj);
-        for (size_t i = 0; i < obj.size(); ++i) {
-            if (obj.at(i).isAvailable()) {
-                out.push_back(obj[i]->p4());
-            }
+  }
+
+  // Efficiency plots
+  if(doRefAnalysis_ && lastMatchedFilter >= 0) {
+    // L2 taus
+    if(hltPath_.hasL2Taus()) {
+      // Denominators
+      if(static_cast<size_t>(lastMatchedFilter) >= hltPath_.getLastFilterBeforeL2TauIndex()) {
+        for(const LV& tau: refCollection.taus) {
+          hL2TrigTauEtEffDenom_->Fill(tau.pt());
+          hL2TrigTauHighEtEffDenom_->Fill(tau.pt());
+          hL2TrigTauEtaEffDenom_->Fill(tau.eta());
+          hL2TrigTauPhiEffDenom_->Fill(tau.phi());
         }
-        VRpfjet pfjetobj;
-        trigEv.getObjects(filterID,id,pfjetobj);
-        for (size_t i = 0; i < pfjetobj.size(); ++i) {
-            if (pfjetobj.at(i).isAvailable()) {
-                out.push_back(pfjetobj[i]->p4());
-            }
+      }
+
+      // Numerators
+      if(static_cast<size_t>(lastMatchedFilter) >= hltPath_.getLastL2TauFilterIndex()) {
+        triggerObjs.clear();
+        matchedTriggerObjs.clear();
+        matchedOfflineObjs.clear();
+        hltPath_.getFilterObjects(triggerEvent, hltPath_.getLastL2TauFilterIndex(), triggerObjs);
+        bool matched = hltPath_.offlineMatching(hltPath_.getLastL2TauFilterIndex(), triggerObjs, refCollection, hltMatchDr_, matchedTriggerObjs, matchedOfflineObjs);
+        if(matched) {
+          for(const LV& tau: matchedOfflineObjs.taus) {
+            hL2TrigTauEtEffNum_->Fill(tau.pt());
+            hL2TrigTauHighEtEffNum_->Fill(tau.pt());
+            hL2TrigTauEtaEffNum_->Fill(tau.eta());
+            hL2TrigTauPhiEffNum_->Fill(tau.phi());
+          }
         }
-        VRpftau pftauobj;
-        trigEv.getObjects(filterID,id,pftauobj);
-        for (size_t i = 0; i < pftauobj.size(); ++i) {
-            if (pftauobj.at(i).isAvailable()) {
-                out.push_back(pftauobj[i]->p4());
-            }
-        }
+      }
     }
 
-    return out;
+    // L3 taus
+    if(hltPath_.hasL3Taus()) {
+      // Denominators
+      if(static_cast<size_t>(lastMatchedFilter) >= hltPath_.getLastFilterBeforeL3TauIndex()) {
+        for(const LV& tau: refCollection.taus) {
+          hL3TrigTauEtEffDenom_->Fill(tau.pt());
+          hL3TrigTauHighEtEffDenom_->Fill(tau.pt());
+          hL3TrigTauEtaEffDenom_->Fill(tau.eta());
+          hL3TrigTauPhiEffDenom_->Fill(tau.phi());
+        }
+      }
+
+      // Numerators
+      if(static_cast<size_t>(lastMatchedFilter) >= hltPath_.getLastL3TauFilterIndex()) {
+        triggerObjs.clear();
+        matchedTriggerObjs.clear();
+        matchedOfflineObjs.clear();
+        hltPath_.getFilterObjects(triggerEvent, hltPath_.getLastL3TauFilterIndex(), triggerObjs);
+        bool matched = hltPath_.offlineMatching(hltPath_.getLastL3TauFilterIndex(), triggerObjs, refCollection, hltMatchDr_, matchedTriggerObjs, matchedOfflineObjs);
+        if(matched) {
+          for(const LV& tau: matchedOfflineObjs.taus) {
+            hL3TrigTauEtEffNum_->Fill(tau.pt());
+            hL3TrigTauHighEtEffNum_->Fill(tau.pt());
+            hL3TrigTauEtaEffNum_->Fill(tau.eta());
+            hL3TrigTauPhiEffNum_->Fill(tau.phi());
+          }
+        }
+      }
+    }
+  }
+
+  if(hltPath_.fired(triggerResults)) {
+    triggerObjs.clear();
+    matchedTriggerObjs.clear();
+    matchedOfflineObjs.clear();
+    hltPath_.getFilterObjects(triggerEvent, lastPassedFilter, triggerObjs);
+    if(doRefAnalysis_) {
+      bool matched = hltPath_.offlineMatching(lastPassedFilter, triggerObjs, refCollection, hltMatchDr_, matchedTriggerObjs, matchedOfflineObjs);
+      if(matched) {
+        // Di-object invariant mass
+        if(hMass_) {
+          const int ntaus = hltPath_.getFilterNTaus(lastPassedFilter);
+          if(ntaus == 2) {
+            // Di-tau (matchedOfflineObjs are already sorted)
+            hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.taus[1]).M() );
+          }
+          // Electron+tau
+          else if(ntaus == 1 && hltPath_.getFilterNElectrons(lastPassedFilter) == 1) {
+            hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.electrons[0]).M() );
+          }
+          // Muon+tau
+          else if(ntaus == 1 && hltPath_.getFilterNMuons(lastPassedFilter) == 1) {
+            hMass_->Fill( (matchedOfflineObjs.taus[0]+matchedOfflineObjs.muons[0]).M() );
+          }
+        }
+      }
+
+      if(matched)
+        triggerObjs.swap(matchedTriggerObjs);
+      else
+        triggerObjs.clear();
+    }
+
+    // Triggered tau kinematics
+    for(const HLTTauDQMPath::Object& obj: triggerObjs) {
+      if(obj.id != trigger::TriggerTau)
+        continue;
+      hTrigTauEt_->Fill(obj.object.pt());
+      hTrigTauEta_->Fill(obj.object.eta());
+      hTrigTauPhi_->Fill(obj.object.phi());
+    }
+  }
 }
