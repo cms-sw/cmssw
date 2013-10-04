@@ -52,6 +52,3 @@ muonStandAloneCosmicMonitors = cms.Sequence(MonitorTrackSTACosmicMuons*
 
 muonCosmicMonitorsAndQualityTests = cms.Sequence(muonCosmicMonitors*muonQualityTests)
 
-muonStandAloneCosmicAnalyzer.DoMuonRecoAnalysis = False
-
-

@@ -7,23 +7,20 @@ from DQMOffline.Muon.segmentTrackAnalyzer_cfi import *
 from DQMOffline.Muon.muonSeedsAnalyzer_cfi import * 
 
 # Cloning the modules that need some changes...
-muonCosmicKinVsEtaAnayzer       = DQMOffline.Muon.muonKinVsEtaAnalyzer_cfi.clone()
-muonCosmicRecoAnalyzer          = DQMOffline.Muon.muonRecoAnalyzer_cfi.clone()
-muonCosmicEnergyDepositAnalyzer = DQMOffline.Muon.muonEnergyDepositAnalyzer_cfi.clone()
-muonCosmicSeedAnalyzer          = DQMOffline.Muon.muonSeedsAnalyzer.clone()
-muonCosmicGlbSegmentAnalyzer    = DQMOffline.Muon.glbMuonSegmentAnalyzer.clone()
-muonCosmicStaSegmentAnalyzer    = DQMOffline.Muon.staMuonSegmentAnalyzer.clone()
+muonCosmicSeedAnalyzer          = muonSeedsAnalyzer.clone()
+muonCosmicGlbSegmentAnalyzer    = glbMuonSegmentAnalyzer.clone()
+muonCosmicStaSegmentAnalyzer    = staMuonSegmentAnalyzer.clone()
 
 muonCosmicSeedAnalyzer.SeedCollection          = cms.InputTag('CosmicMuonSeed')
 muonCosmicGlbSegmentAnalyzer.MuTrackCollection = cms.InputTag('globalCosmicMuons')
 muonCosmicStaSegmentAnalyzer.MuTrackCollection = cms.InputTag('cosmicMuons')
 
-muonCosmicAnalyzer = cms.Sequence(muonCosmicEnergyDepositAnalyzer*
+muonCosmicAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
                                   muonCosmicSeedAnalyzer*
                                   muonCosmicGlbSegmentAnalyzer*
                                   muonCosmicStaSegmentAnalyzer*
-                                  muonCosmicRecoAnalyzer*
-                                  muonCosmicKinVsEtaAnayzer)
+                                  muonRecoAnalyzer*
+                                  muonKinVsEtaAnalyzer)
                                   
 muonSACosmicAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
                                     muonSeedsAnalyzer*
