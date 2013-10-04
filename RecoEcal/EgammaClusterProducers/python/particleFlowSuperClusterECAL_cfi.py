@@ -59,8 +59,8 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     ESAssociation = cms.InputTag("particleFlowClusterECAL"),
     vertexCollection = cms.InputTag("offlinePrimaryVertices"),
     #rechit collections for lazytools
-    reducedEcalRecHitsEB = cms.InputTag('reducedEcalRecHitsEB'),
-    reducedEcalRecHitsEE = cms.InputTag('reducedEcalRecHitsEE'),
+    reducedEcalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
+    reducedEcalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
                                               
     PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),                                       
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
@@ -127,8 +127,8 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     ESAssociation = cms.InputTag("particleFlowClusterECAL"),
     vertexCollection = cms.InputTag("offlinePrimaryVertices"),
     #rechit collections for lazytools
-    reducedEcalRecHitsEB = cms.InputTag('reducedEcalRecHitsEB'),
-    reducedEcalRecHitsEE = cms.InputTag('reducedEcalRecHitsEE'),
+    reducedEcalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
+    reducedEcalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
                                               
     PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),                                       
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
