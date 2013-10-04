@@ -25,7 +25,7 @@ namespace lhef {
 class LHEEvent {
     public:
 	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
-	         std::istream &in);
+	         std::istream &in, const int nweights = 0);
 	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	         const HEPEUP &hepeup);
 	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,

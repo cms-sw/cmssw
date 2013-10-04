@@ -34,7 +34,8 @@ static int skipWhitespace(std::istream &in)
 namespace lhef {
 
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
-                   std::istream &in) :
+                   std::istream &in,
+		   const int nweights) :
 	runInfo(runInfo), counted(false), readAttemptCounter(0)
 {
 	hepeup.NUP = 0;
