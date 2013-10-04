@@ -42,6 +42,11 @@ MuonIdVal::~MuonIdVal() {}
 void 
 MuonIdVal::beginJob()
 {
+}
+
+void 
+MuonIdVal::beginRun(const edm::Run&, const edm::EventSetup&)
+{
    char name[100], title[200];
 
    // trackerMuon == 0; globalMuon == 1; trackerMuon && !globalMuon == 2; globalMuon && !trackerMuon == 3

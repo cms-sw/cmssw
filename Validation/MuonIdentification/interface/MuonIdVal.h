@@ -62,6 +62,7 @@ class MuonIdVal : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob();
+      virtual void beginRun(const edm::Run&, const edm::EventSetup& );
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
       virtual void Fill(MonitorElement*, float);
