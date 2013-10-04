@@ -127,10 +127,19 @@ You can do it by specifying a path at the end of the git command:
 
     git diff TAG1..TAG2 <some-path>
 
+### How do you delete a branch in git?
+
+In order to delete a branch from your repository you can do:
+
+    git push my-cmssw --delete <branch-name>
+
+or you can use the [web based github interface described
+here](https://github.com/blog/1377-create-and-delete-branches).
+
 ### Will you migrate all the release tags we used to have for `CMSSW`?
 
 Yes, all release (`CMSSW_X_Y_Z`) tags currently in CVS will be available in
-git. This is not currently the case though.
+git.
 
 ### Will you migrate all the per package tags?
 
