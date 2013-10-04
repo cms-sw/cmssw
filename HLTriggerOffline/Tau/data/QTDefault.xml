@@ -90,11 +90,11 @@ https://twiki.cern.ch/twiki/bin/view/CMS/DQMQualityTests
 </LINK>
 
 
-<LINK name="HLT/TauRelVal/MC/SingleTau/EfficiencyRefPrevious">
+<LINK name="HLT/TauRelVal/MC/TauMET/EfficiencyRefPrevious">
       <TestName activate="true">efficiencyCheckSingleTauHigh</TestName>
 </LINK>
 
-<LINK name="HLT/TauRelVal/MC/SingleTau/EfficiencyRefPrevious">
+<LINK name="HLT/TauRelVal/MC/TauMET/EfficiencyRefPrevious">
       <TestName activate="true">efficiencyCheckSingleTauLow</TestName>
 </LINK>
 
