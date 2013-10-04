@@ -88,21 +88,6 @@ class TCMETAlgo
   edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > muon_data_h;
   edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > tcmet_data_h;
 
-  edm::InputTag muonInputTag_;
-  edm::InputTag electronInputTag_;
-  edm::InputTag metInputTag_;
-  edm::InputTag trackInputTag_;
-  edm::InputTag beamSpotInputTag_;
-  edm::InputTag vertexInputTag_;
-
-  edm::InputTag muonDepValueMap_;
-  edm::InputTag tcmetDepValueMap_;
-
-  edm::InputTag inputTagPFClustersECAL_;
-  edm::InputTag inputTagPFClustersHCAL_;
-  edm::InputTag inputTagPFClustersHFEM_;
-  edm::InputTag inputTagPFClustersHFHAD_;   
-
   edm::EDGetTokenT<reco::MuonCollection>* muonToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection>* electronToken_;
   edm::EDGetTokenT<edm::View<reco::MET> >* metToken_;

@@ -92,10 +92,6 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFuncti
   tcmetDepValueMapToken_ = tcmetDepValueMapToken;
 
      usePFClusters_           = iConfig.getParameter<bool>  ("usePFClusters");
-     inputTagPFClustersECAL_  = iConfig.getParameter<edm::InputTag>("PFClustersECAL");
-     inputTagPFClustersHCAL_  = iConfig.getParameter<edm::InputTag>("PFClustersHCAL");
-     inputTagPFClustersHFEM_  = iConfig.getParameter<edm::InputTag>("PFClustersHFEM");
-     inputTagPFClustersHFHAD_ = iConfig.getParameter<edm::InputTag>("PFClustersHFHAD");
      
      nLayers_                = iConfig.getParameter<int>      ("nLayers");
      nLayersTight_           = iConfig.getParameter<int>      ("nLayersTight");
@@ -144,20 +140,6 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFuncti
 
      trkQuality_ = iConfig.getParameter<std::vector<int> >("track_quality");
      trkAlgos_   = iConfig.getParameter<std::vector<int> >("track_algos"  );
-
-     // get input collection tags
-     muonInputTag_     = iConfig.getParameter<edm::InputTag>("muonInputTag"    );
-     metInputTag_      = iConfig.getParameter<edm::InputTag>("metInputTag"     );
-     trackInputTag_    = iConfig.getParameter<edm::InputTag>("trackInputTag"   );
-     beamSpotInputTag_ = iConfig.getParameter<edm::InputTag>("beamSpotInputTag");
-     vertexInputTag_   = iConfig.getParameter<edm::InputTag>("vertexInputTag");
-
-     if( !isCosmics_ )
-	  electronInputTag_ = iConfig.getParameter<edm::InputTag>("electronInputTag");
-
-     // get input value map tags
-     muonDepValueMap_  = iConfig.getParameter<edm::InputTag>("muonDepValueMap" );
-     tcmetDepValueMap_ = iConfig.getParameter<edm::InputTag>("tcmetDepValueMap");
 
      // remember response function
      showerRF          = getResponseFunction_shower();
@@ -218,29 +200,11 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      float pfcsumet = 0.;
 
      if( usePFClusters_ ){
-       bool found = event.getByToken(*clustersECALToken_, clustersECAL);      
+       event.getByToken(*clustersECALToken_, clustersECAL);
+       event.getByToken(*clustersHCALToken_, clustersHCAL);
+       event.getByToken(*clustersHFEMToken_, clustersHFEM);
+       event.getByToken(*clustersHFHADToken_, clustersHFHAD);
        
-       if(!found )
-         edm::LogError("RecoMET")<<" cannot get ECAL clusters: "
-                                         <<inputTagPFClustersECAL_<<std::endl;
-       
-       found = event.getByToken(*clustersHCALToken_, clustersHCAL);
-       
-       if(!found )
-         edm::LogError("RecoMET")<<" cannot get HCAL clusters: "
-                                         <<inputTagPFClustersHCAL_<<std::endl;
-       
-       found = event.getByToken(*clustersHFEMToken_, clustersHFEM);      
-       
-       if(!found )
-         edm::LogError("RecoMET")<<" cannot get HFEM clusters: "
-                                         <<inputTagPFClustersHFEM_<<std::endl;
-       
-       found = event.getByToken(*clustersHFHADToken_, clustersHFHAD);      
-       
-       if(!found )
-         edm::LogError("RecoMET")<<" cannot get HFHAD clusters: "
-                                         <<inputTagPFClustersHFHAD_<<std::endl;
      
        for (reco::PFClusterCollection::const_iterator it = clustersECAL->begin(); it != clustersECAL->end(); it++){
          
