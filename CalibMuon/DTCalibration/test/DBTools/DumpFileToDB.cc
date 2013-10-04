@@ -243,22 +243,22 @@ void DumpFileToDB::endJob() {
     // Create the object to be written to DB
     DTRecoUncertainties* uncert = new DTRecoUncertainties();
 
+    // FIXME: should come from the configuration
+    uncert->setType("uniform2steps");
+
     // Loop over file entries
     for(DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
 	keyAndCalibs != theCalibFile->keyAndConsts_end();
 	++keyAndCalibs) {
 
-      DTSuperLayerId slId = (*keyAndCalibs).first.superlayerId();
+      //DTSuperLayerId slId = (*keyAndCalibs).first.superlayerId();
       
       vector<float> values = (*keyAndCalibs).second;
 
-      cout << "key: " << slId;
-      int others = 8; // the first 8 positions in the map are already allocated to other DT conditions
-      for(int index = 0; index <=4; ++index) {
-	float value = values[index+others];
-	cout << " step: " << index << " value " << value << " cm ";
-	uncert->set((*keyAndCalibs).first, (DTRecoUncertainties::Type)index, value);
-      }
+      vector<float> uncerts(values.begin()+8, values.end());
+
+      uncert->set((*keyAndCalibs).first, uncerts);
+
       cout << endl;
       
 
