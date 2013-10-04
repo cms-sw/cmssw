@@ -141,12 +141,18 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   inputTagPFRecHits_ = 
     iConfig.getParameter<InputTag>("PFRecHits");
   //---ab
+  produces_eeps = iConfig.existsAs<InputTag>("PFClustersPS");
+  if( produces_eeps ) {    
+    inputTagPFClustersPS_ = 
+      iConfig.getParameter<InputTag>("PFClustersPS");
+    produces<reco::PFCluster::EEtoPSAssociation>("eetops");
+  }
 
   //inputTagClusterCollectionName_ =  iConfig.getParameter<string>("PFClusterCollectionName");    
  
   // produces<reco::PFClusterCollection>(inputTagClusterCollectionName_);
    produces<reco::PFClusterCollection>();
-   produces<reco::PFRecHitCollection>("Cleaned");
+   produces<reco::PFRecHitCollection>("Cleaned");   
 
     //---ab
 }
@@ -191,7 +197,12 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   auto_ptr< vector<reco::PFCluster> > outClusters( clusterAlgo_.clusters() ); 
   auto_ptr< vector<reco::PFRecHit> > recHitsCleaned ( clusterAlgo_.rechitsCleaned() ); 
   iEvent.put( outClusters );    
-  iEvent.put( recHitsCleaned, "Cleaned" );    
+  iEvent.put( recHitsCleaned, "Cleaned" ); 
+  if( produces_eeps ) {
+    std::auto_ptr<reco::PFCluster::EEtoPSAssociation> 
+      outEEPS(clusterAlgo_.eeToPSAssoc());
+    iEvent.put(outEEPS);
+  }
 
 }
   

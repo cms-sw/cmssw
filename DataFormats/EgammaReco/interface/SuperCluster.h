@@ -19,7 +19,6 @@
 namespace reco {
   class SuperCluster : public CaloCluster {
   public:
-    typedef std::vector<std::pair<CaloClusterPtr::key_type,CaloClusterPtr> > EEtoPSAssociation;
     typedef math::XYZPoint Point;
 
     /// default constructor

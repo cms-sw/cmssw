@@ -42,7 +42,7 @@ namespace reco {
   class PFCluster : public CaloCluster {
   public:
 
-
+    typedef std::vector<std::pair<CaloClusterPtr::key_type,edm::Ptr<PFCluster> > EEtoPSAssociation;
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
   
     PFCluster() : CaloCluster(CaloCluster::particleFlow), color_(1) {}
@@ -50,8 +50,6 @@ namespace reco {
     /// constructor
     PFCluster(PFLayer::Layer layer, double energy,
 	      double x, double y, double z );
-
-
 
     /// resets clusters parameters
     void reset();

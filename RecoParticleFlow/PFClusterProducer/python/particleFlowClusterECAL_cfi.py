@@ -5,6 +5,7 @@ particleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
     verbose = cms.untracked.bool(False),
     # PFRecHit collection          
     PFRecHits = cms.InputTag("particleFlowRecHitECAL"),
+    PFClustersPS = cms.InputTag('particleFlowClusterPS'), #for EE->PS assoc.
     #PFCluster Collection name
     #PFClusterCollectionName =  cms.string("ECAL"),                                
     #----all thresholds are in GeV

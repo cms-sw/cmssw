@@ -60,6 +60,8 @@ class PFClusterProducer : public edm::EDProducer {
   
   // ----------access to event data
   edm::InputTag    inputTagPFRecHits_;
+  bool produces_eeps;
+  edm::InputTag    inputTagPFClustersPS_;
   //---ab
   //std::string    inputTagClusterCollectionName_;
   //---ab
