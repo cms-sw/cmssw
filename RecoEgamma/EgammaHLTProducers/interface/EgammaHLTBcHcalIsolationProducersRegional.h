@@ -21,6 +21,10 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaTowerIsolation;
 
 //this class produces either Hcal isolation or H for H/E  depending if doEtSum=true or false
@@ -32,14 +36,14 @@ public:
   explicit EgammaHLTBcHcalIsolationProducersRegional(const edm::ParameterSet&);
   ~EgammaHLTBcHcalIsolationProducersRegional();
 
-
 private:
   EgammaHLTBcHcalIsolationProducersRegional(const EgammaHLTBcHcalIsolationProducersRegional& rhs){}
   EgammaHLTBcHcalIsolationProducersRegional& operator=(const EgammaHLTBcHcalIsolationProducersRegional& rhs){ return *this; }
   
 public:
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::EDGetTokenT<CaloTowerCollection> caloTowerProducer_;
