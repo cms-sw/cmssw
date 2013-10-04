@@ -1,20 +1,31 @@
+// -*- C++ -*-
+//
+// Package:    METAlgorithms
+// Class:      TCMETAlgo
+//
+//
+
+/** \class TCMETAlgo
+
+   Calculates TCMET based on detector response to charged paricles
+   using the tracker to correct for the non-linearity of the
+   calorimeter and the displacement of charged particles by the
+   B-field. Given a track pt, eta the expected energy deposited in the
+   calorimeter is obtained from a lookup table, removed from the
+   calorimeter, and replaced with the track at the vertex.
+
+*/
+//
+// Original Author:  F. Golf
+//         Created:  March 24, 2009
+//
+//
+
+//____________________________________________________________________________||
 #ifndef TCMETAlgo_h
 #define TCMETAlgo_h
 
-/** \class TCMETAlgo
- *
- * Calculates TCMET based on detector response to charged paricles
- * using the tracker to correct for the non-linearity of the calorimeter
- * and the displacement of charged particles by the B-field.  Given a 
- * track pt, eta the expected energy deposited in the calorimeter is
- * obtained from a lookup table, removed from the calorimeter, and
- * replaced with the track at the vertex.
- *
- * \author    F. Golf
- *
- * \version   2nd Version March 24, 2009
- ************************************************************/
-
+//____________________________________________________________________________||
 #include <vector>
 #include <string>
 #include "FWCore/Framework/interface/Event.h"
@@ -50,6 +61,7 @@
 #include "TH2D.h"
 #include "TVector3.h"
 
+//____________________________________________________________________________||
 class TCMETAlgo 
 {
  public:
@@ -63,19 +75,7 @@ class TCMETAlgo
   TH2D* getResponseFunction_noshower ( );
   void configure(const edm::ParameterSet &iConfig, int myResponseFunctionType,
 		 edm::ConsumesCollector && iConsumesCollector);
-//		 edm::EDGetTokenT<reco::MuonCollection>* muonToken,
-//		 edm::EDGetTokenT<reco::GsfElectronCollection>* electronToken,
-//		 edm::EDGetTokenT<edm::View<reco::MET> >* metToken,
-//		 edm::EDGetTokenT<reco::TrackCollection>* trackToken,
-//		 edm::EDGetTokenT<reco::BeamSpot>* beamSpotToken,
-//		 edm::EDGetTokenT<reco::VertexCollection>* vertexToken_,
-//		 edm::EDGetTokenT<reco::PFClusterCollection>* clustersECALToken,
-//		 edm::EDGetTokenT<reco::PFClusterCollection>* clustersHCALToken,
-//		 edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFEMToken,
-//		 edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFHADToken,
-//		 edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* muonDepValueMapToken,
-//		 edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* tcmetDepValueMapToken
-//		 );
+
  private:
   double met_x;
   double met_y;
@@ -185,5 +185,6 @@ class TCMETAlgo
   int vetoTrack( int i1 , int i2 );
 };
 
+//____________________________________________________________________________||
 #endif // TCMETAlgo_h
 

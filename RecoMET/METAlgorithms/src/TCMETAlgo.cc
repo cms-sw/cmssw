@@ -1,9 +1,14 @@
-// File: TCMETAlgo.cc
-// Description:  see TCMETAlgo.h
-// Author: F. Golf
-// Creation Date:  March 24, 2009 Initial version.
+// -*- C++ -*-
 //
-//------------------------------------------------------------------------
+// Package:    METAlgorithms
+// Class:      TCMETAlgo
+//
+// Original Author:  F. Golf
+//         Created:  March 24, 2009
+//
+//
+
+//____________________________________________________________________________||
 #include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -52,16 +57,13 @@
 typedef math::XYZPoint Point;
 typedef math::XYZTLorentzVector LorentzVector;
 
-//------------------------------------------------------------------------
-// Default Constructer
-//----------------------------------
+//____________________________________________________________________________||
 TCMETAlgo::TCMETAlgo() {
-  showerRF          = 0;
+  showerRF = 0;
   response_function = 0;
-
 }
 
-
+//____________________________________________________________________________||
 void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFunctionType,
 			  edm::ConsumesCollector && iConsumesCollector)
 {
@@ -146,17 +148,14 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFuncti
        response_function = getResponseFunction_mode();
      
 }
-//------------------------------------------------------------------------
 
-//------------------------------------------------------------------------
-// Default Destructor
-//----------------------------------
+//____________________________________________________________________________||
 TCMETAlgo::~TCMETAlgo() {
   delete response_function;
   delete showerRF;
 }
-//------------------------------------------------------------------------
 
+//____________________________________________________________________________||
 reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& setup )
 { 
 
@@ -402,8 +401,7 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      return tcmet;
 }
 
-//--------------------------------------------------------------------
-
+//____________________________________________________________________________||
 void TCMETAlgo::findDuplicateTracks(){
 
   unsigned int nTracks = TrackHandle->size();
@@ -440,8 +438,7 @@ void TCMETAlgo::findDuplicateTracks(){
   }
 }
 
-//--------------------------------------------------------------------
-
+//____________________________________________________________________________||
 int TCMETAlgo::vetoTrack( int i1 , int i2 ){
 
   //given 2 tracks, decide which one to veto
@@ -458,8 +455,7 @@ int TCMETAlgo::vetoTrack( int i1 , int i2 ){
 
 }
 
-//--------------------------------------------------------------------
-
+//____________________________________________________________________________||
 bool TCMETAlgo::isValidVertex(){
 
   if( vertexColl->begin()->isFake()                ) return false;
@@ -471,8 +467,7 @@ bool TCMETAlgo::isValidVertex(){
 
 }
 
-//--------------------------------------------------------------------
-
+//____________________________________________________________________________||
 bool TCMETAlgo::closeToElectron( const reco::TrackRef track ){
  
   float trk_eta   = track->eta();
@@ -505,8 +500,7 @@ bool TCMETAlgo::closeToElectron( const reco::TrackRef track ){
   return false;
 }
 
-//--------------------------------------------------------------------
-
+//____________________________________________________________________________||
 bool TCMETAlgo::nearGoodShowerTrack( const reco::TrackRef track , const std::vector<int>& goodShowerTracks ){
   
   //checks if 'track' is within dR < deltaRShower_ of any good shower tracks
@@ -527,8 +521,7 @@ bool TCMETAlgo::nearGoodShowerTrack( const reco::TrackRef track , const std::vec
   return false;
 }
 
-//--------------------------------------------------------------------
-
+//____________________________________________________________________________||
 void TCMETAlgo::findGoodShowerTracks(std::vector<int>& goodShowerTracks){
 
   //stores the indices of tracks which pass quality selection and
@@ -556,30 +549,25 @@ void TCMETAlgo::findGoodShowerTracks(std::vector<int>& goodShowerTracks){
   }
 }
 
-//--------------------------------------------------------------------
-
+//____________________________________________________________________________||
 int TCMETAlgo::nExpectedInnerHits(const reco::TrackRef track){
   const reco::HitPattern& p_inner = track->trackerExpectedHitsInner();
   return p_inner.numberOfHits();
 }
 
-//--------------------------------------------------------------------
-
+//____________________________________________________________________________||
 int TCMETAlgo::nExpectedOuterHits(const reco::TrackRef track){
   const reco::HitPattern& p_outer = track->trackerExpectedHitsOuter();
   return p_outer.numberOfHits();
 }
 
-//--------------------------------------------------------------------
-
+//____________________________________________________________________________||
 int TCMETAlgo::nLayers(const reco::TrackRef track){
   const reco::HitPattern& p = track->hitPattern();
   return p.trackerLayersWithMeasurement();
 }
 
-//--------------------------------------------------------------------
-
-//determines if track is matched to a muon
+//____________________________________________________________________________||
 bool TCMETAlgo::isMuon( unsigned int trk_idx ) {
 
      for(reco::MuonCollection::const_iterator muon_it = MuonHandle->begin(); muon_it != MuonHandle->end(); ++muon_it) {
@@ -594,9 +582,7 @@ bool TCMETAlgo::isMuon( unsigned int trk_idx ) {
      return false;
 }
 
-//--------------------------------------------------------------------
-
-//determines if track is matched to an "electron-like" object
+//____________________________________________________________________________||
 bool TCMETAlgo::isElectron( unsigned int trk_idx ) {
 
      for(reco::GsfElectronCollection::const_iterator electron_it = ElectronHandle->begin(); electron_it != ElectronHandle->end(); ++electron_it) {
@@ -614,9 +600,7 @@ bool TCMETAlgo::isElectron( unsigned int trk_idx ) {
      return false;
 }
 
-//--------------------------------------------------------------------
-
-//determines if track is "good" - i.e. passes quality and kinematic cuts
+//____________________________________________________________________________||
 bool TCMETAlgo::isGoodTrack( const reco::TrackRef track , int trk_idx) {
   
      double d0 = 9999.;
@@ -710,10 +694,7 @@ bool TCMETAlgo::isGoodTrack( const reco::TrackRef track , int trk_idx) {
      return true;
 }
 
-//--------------------------------------------------------------------
-
-//correct MET for muon
-
+//____________________________________________________________________________||
 void TCMETAlgo::correctMETforMuon( const reco::TrackRef track, const unsigned int index ) {
      reco::MuonRef muref( MuonHandle, index);
      reco::MuonMETCorrectionData muCorrData = (muon_data)[muref];
@@ -725,8 +706,7 @@ void TCMETAlgo::correctMETforMuon( const reco::TrackRef track, const unsigned in
      met_y -= ( track->py() - dely );
 }
 
-//--------------------------------------------------------------------
-
+//____________________________________________________________________________||
 void TCMETAlgo::correctMETforMuon( const unsigned int index ) {
      reco::MuonRef muref( MuonHandle, index);
      reco::MuonMETCorrectionData muCorrData = (muon_data)[muref];
@@ -740,10 +720,7 @@ void TCMETAlgo::correctMETforMuon( const unsigned int index ) {
      met_y -= ( muon->py() - dely );
 }
 
-//--------------------------------------------------------------------
-
-//correct sumEt for muon
-
+//____________________________________________________________________________||
 void TCMETAlgo::correctSumEtForMuon( const reco::TrackRef track, const unsigned int index ) {
      reco::MuonRef muref( MuonHandle, index);
      reco::MuonMETCorrectionData muCorrData = (muon_data)[muref];
@@ -754,8 +731,7 @@ void TCMETAlgo::correctSumEtForMuon( const reco::TrackRef track, const unsigned 
      sumEt += ( track->pt() - TMath::Sqrt( delx * delx + dely * dely ) );
 }
 
-//--------------------------------------------------------------------
-
+//____________________________________________________________________________||
 void TCMETAlgo::correctSumEtForMuon( const unsigned int index ) {
      reco::MuonRef muref( MuonHandle, index);
      reco::MuonMETCorrectionData muCorrData = (muon_data)[muref];
@@ -768,10 +744,8 @@ void TCMETAlgo::correctSumEtForMuon( const unsigned int index ) {
      sumEt += ( muon->pt() - TMath::Sqrt( delx * delx + dely * dely ) );
 }
 
-//--------------------------------------------------------------------
 
-//correct MET for track
-
+//____________________________________________________________________________||
 void TCMETAlgo::correctMETforTrack( const reco::TrackRef track , TH2D* rf , const TVector3& outerTrackPosition) {
 
      if( track->pt() < minpt_ ) {
@@ -801,10 +775,7 @@ void TCMETAlgo::correctMETforTrack( const reco::TrackRef track , TH2D* rf , cons
      
 }
 
-//--------------------------------------------------------------------
-
-//correct sumEt for track
-
+//____________________________________________________________________________||
 void TCMETAlgo::correctSumEtForTrack( const reco::TrackRef track  , TH2D* rf , const TVector3& outerTrackPosition) {
 
      if( track->pt() < minpt_ ) {
@@ -825,10 +796,7 @@ void TCMETAlgo::correctSumEtForTrack( const reco::TrackRef track  , TH2D* rf , c
      }
 }
 
-//--------------------------------------------------------------------
-
-//propagate track from vertex to calorimeter face
-
+//____________________________________________________________________________||
 TVector3 TCMETAlgo::propagateTrack( const reco::TrackRef track ) {
 
      TVector3 outerTrkPosition;
@@ -875,8 +843,7 @@ TVector3 TCMETAlgo::propagateTrack( const reco::TrackRef track ) {
      return outerTrkPosition;
 }
 
-// ------------ single pion response function from shower track-----
-
+//____________________________________________________________________________||
 TH2D* TCMETAlgo::getResponseFunction_shower() {
 
 
@@ -2250,9 +2217,9 @@ TH2D* TCMETAlgo::getResponseFunction_shower() {
 
 }
 
-// ------------ single pion response function from shower track-----
-
+//____________________________________________________________________________||
 TH2D* TCMETAlgo::getResponseFunction_noshower() {
+  // ingle pion response function from shower track 
   
   Double_t xAxis1[53] = {-2.5, -2.322, -2.172, -2.043, -1.93, -1.83, 
 			 -1.74, -1.653, -1.566, -1.479, -1.392, -1.305, 
@@ -3624,10 +3591,9 @@ TH2D* TCMETAlgo::getResponseFunction_noshower() {
 
 }
 
-
-// ------------ single pion response function from fit  ------------
-
+//____________________________________________________________________________||
 TH2D* TCMETAlgo::getResponseFunction_fit() {
+  // single pion response function from fit
      
      Double_t xAxis1[53] = {-2.5, -2.322, -2.172, -2.043, -1.93, -1.83, 
 			    -1.74, -1.653, -1.566, -1.479, -1.392, -1.305, 
@@ -5100,8 +5066,9 @@ TH2D* TCMETAlgo::getResponseFunction_fit() {
      return hrf;
 }
 
-// ------------ single pion response function from mode ------------
+//____________________________________________________________________________||
 TH2D* TCMETAlgo::getResponseFunction_mode() {
+  // single pion response function from mode
   
      Double_t xAxis2[53] = {-2.5, -2.322, -2.172, -2.043, 
 			    -1.93, -1.83, -1.74, -1.653, 
@@ -6477,5 +6444,7 @@ TH2D* TCMETAlgo::getResponseFunction_mode() {
  
      return hrf;
 }
+
+//____________________________________________________________________________||
 
 
