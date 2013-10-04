@@ -46,3 +46,10 @@ void DTRecoUncertainties::set(const DTWireId& wireid, const std::vector<float>& 
 }
 
 
+DTRecoUncertainties::const_iterator DTRecoUncertainties::begin() const {
+  return payload.begin();
+}
+
+DTRecoUncertainties::const_iterator DTRecoUncertainties::end() const {
+  return payload.end();
+}

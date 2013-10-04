@@ -40,6 +40,12 @@ public:
   void set(const DTWireId& wireid, const std::vector<float>& values);
   
 
+
+  /// Access methods to data
+  typedef std::map<uint32_t, std::vector<float> >::const_iterator const_iterator;
+  const_iterator begin() const;
+  const_iterator end() const;
+
 private:
   
   // map of uncertainties per SL Id. The position in the vector is determined by the 
