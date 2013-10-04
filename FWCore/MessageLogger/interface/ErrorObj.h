@@ -30,6 +30,7 @@
 
 #include <sstream>
 #include <string>
+#include <atomic>
 
 namespace edm {       
 
@@ -97,7 +98,7 @@ public:
 private:
   // ---  class-wide serial number stamper:
   //
-  static int     ourSerial;
+  static std::atomic<int>     ourSerial;
 
   // ---  data members:
   //

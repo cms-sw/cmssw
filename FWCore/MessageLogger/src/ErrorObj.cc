@@ -66,7 +66,7 @@ namespace edm
 // Class static and class-wide parameter:
 // ----------------------------------------------------------------------
 
-int  ErrorObj::ourSerial(  0 );
+std::atomic<int>  ErrorObj::ourSerial(  0 );
 const unsigned int  maxIDlength( 200 );		// changed 4/28/06 from 20
 
 
