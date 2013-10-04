@@ -19,7 +19,7 @@ DataPoint::DataPoint() :
 	source_(""), definition_("") {
 }
 
-DataPoint::DataPoint(string source, string definition, vector<string> data) :
+DataPoint::DataPoint(string source, string definition, const std::vector<string>& data) :
 	source_(source), definition_(definition), data_(data) {
 }
 

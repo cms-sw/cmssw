@@ -21,9 +21,9 @@ const string Operations::HISTO = "histo";
 const string Operations::CAT = "cat";
 
 double Operations::sum(vector<double> elems) {
-	double added = elems[0];
+	double added = elems.at(0);
 	for (unsigned int i = 1; i < elems.size(); i++)
-		added += elems[i];
+		added += elems.at(i);
 	return added;
 }
 
@@ -31,20 +31,20 @@ double Operations::avg(vector<double> elems) {
 	return sum(elems) / elems.size();
 }
 
-string Operations::same(vector<string> elems) {
+string Operations::same(const vector<string>& elems) {
 	for (unsigned int i = 0; i < elems.size() - 1; i++)
-		if (!Utils::matchExactly(elems[i], elems[i + 1]) || elems[i].length()
+		if (!Utils::matchExactly(elems.at(i), elems.at(i + 1)) || elems.at(i).length()
 				== 0)
 			return "N/A";
-	return elems[0];
+	return elems.at(0);
 }
 
-string Operations::histo(vector<string> elems) {
+string Operations::histo(const vector<string>& elems) {
 	vector<vector<int> > inputHistos;
 
 	for (unsigned int i = 0; i < elems.size(); i++) {
 		vector<int> currentHisto;
-		string currentHistoAsString = elems[i];
+		string currentHistoAsString = elems.at(i);
 		Utils::stringToIntArray(currentHisto, currentHistoAsString);
 		inputHistos.push_back(currentHisto);
 	}
@@ -77,10 +77,10 @@ string Operations::histo(vector<string> elems) {
 		return "Cannot load input histos";
 }
 
-string Operations::cat(vector<string> elems) {
+string Operations::cat(const vector<string>& elems) {
 	stringstream ss;
 	for (unsigned int i = 0; i < elems.size(); i++) {
-		ss << elems[i];
+		ss << elems.at(i);
 		if (i != elems.size() - 1) {
 			ss << ", ";
 		}

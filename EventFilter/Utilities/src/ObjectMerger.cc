@@ -20,7 +20,7 @@ using std::stringstream;
 using std::cout;
 using std::endl;
 
-DataPoint* ObjectMerger::merge(vector<DataPoint*> objectsToMerge,
+DataPoint* ObjectMerger::merge(const vector<DataPoint*>& objectsToMerge,
 		string& outcomeMessage, bool onlyHistos) {
 	// vector of vectors containing all data in datapoints
 	vector<vector<string> > mergedData;
@@ -31,7 +31,7 @@ DataPoint* ObjectMerger::merge(vector<DataPoint*> objectsToMerge,
 
 	// 1. Get the definition of these data points
 	DataPointDefinition dpd;
-	getDataPointDefinitionFor(objectsToMerge[0]->getDefinition(), dpd);
+	getDataPointDefinitionFor(objectsToMerge.at(0)->getDefinition(), dpd);
 
 	// 1.1 Check if definition has exact no of elements specified
 	if (objectsToMerge[0]->getData().size() != dpd.getLegend().size()) {
@@ -43,11 +43,11 @@ DataPoint* ObjectMerger::merge(vector<DataPoint*> objectsToMerge,
 
 	// 2. Assemble merged vector
 	for (unsigned int nMetric = 0; nMetric
-			< objectsToMerge[0]->getData().size(); nMetric++) {
+			< objectsToMerge.at(0)->getData().size(); nMetric++) {
 		// 2.1. assemble vector of n-th data elements
 		vector<string> metricVector;
 		for (unsigned int nObj = 0; nObj < objectsToMerge.size(); nObj++)
-			metricVector.push_back(objectsToMerge[nObj]->getData()[nMetric]);
+			metricVector.push_back(objectsToMerge.at(nObj)->getData()[nMetric]);
 		mergedData.push_back(metricVector);
 	}
 
@@ -146,7 +146,7 @@ DataPoint* ObjectMerger::csvToJson(string& olCSV, DataPointDefinition* dpd,
 	return dp;
 }
 
-string ObjectMerger::applyOperation(std::vector<string> dataVector,
+string ObjectMerger::applyOperation(const std::vector<string>& dataVector,
 		std::string operationName) {
 	string opResultString = "N/A";
 
@@ -187,19 +187,19 @@ string ObjectMerger::applyOperation(std::vector<string> dataVector,
 	return opResultString;
 }
 
-bool ObjectMerger::checkConsistency(std::vector<DataPoint*> objectsToMerge,
+bool ObjectMerger::checkConsistency(const std::vector<DataPoint*>& objectsToMerge,
 		std::string& outcomeMessage) {
 
 	for (unsigned int i = 0; i < objectsToMerge.size() - 1; i++) {
 		// 1. Check if all have the same definition
 		if (objectsToMerge[i]->getDefinition().compare(
-				objectsToMerge[i + 1]->getDefinition()) != 0) {
+				objectsToMerge.at(i + 1)->getDefinition()) != 0) {
 			outcomeMessage = "JSON files have inconsistent definitions!";
 			return false;
 		}
 		// 2. Check if objects to merge have the same number of elements in data vector
 		if (objectsToMerge[i]->getData().size()
-				!= objectsToMerge[i + 1]->getData().size()) {
+				!= objectsToMerge.at(i + 1)->getData().size()) {
 			outcomeMessage
 					= "JSON files have inconsistent number of elements in the data vector!";
 			return false;
