@@ -35,6 +35,7 @@ configured in the user's main() function, and is set running.
 #include <string>
 #include <vector>
 #include <mutex>
+#include <exception>
 
 namespace statemachine {
   class Machine;
@@ -268,6 +269,10 @@ namespace edm {
     std::unique_ptr<FileBlock>                    fb_;
     boost::shared_ptr<EDLooperBase>               looper_;
 
+    //The atomic protects concurrent access of deferredExceptionPtr_
+    std::atomic<bool>                             deferredExceptionPtrIsSet_;
+    std::exception_ptr                            deferredExceptionPtr_;
+    
     std::mutex                                    nextTransitionMutex_;
     PrincipalCache                                principalCache_;
     bool                                          beginJobCalled_;

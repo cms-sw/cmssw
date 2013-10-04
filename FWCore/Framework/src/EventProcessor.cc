@@ -208,6 +208,7 @@ namespace edm {
     historyAppender_(new HistoryAppender),
     fb_(),
     looper_(),
+    deferredExceptionPtrIsSet_(false),
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
@@ -248,6 +249,7 @@ namespace edm {
     historyAppender_(new HistoryAppender),
     fb_(),
     looper_(),
+    deferredExceptionPtrIsSet_(false),
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
@@ -291,6 +293,7 @@ namespace edm {
     historyAppender_(new HistoryAppender),
     fb_(),
     looper_(),
+    deferredExceptionPtrIsSet_(false),
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
@@ -330,6 +333,7 @@ namespace edm {
     historyAppender_(new HistoryAppender),
     fb_(),
     looper_(),
+    deferredExceptionPtrIsSet_(false),
     principalCache_(),
     beginJobCalled_(false),
     shouldWeStop_(false),
@@ -1787,39 +1791,44 @@ namespace edm {
         if(shouldWeStop()) {
           break;
         }
+        if(deferredExceptionPtrIsSet_.load(std::memory_order_acquire)) {
+          //another thread hit an exception
+          std::cerr<<"another thread saw an exception\n";
+          break;
+        }
         {
-          {
-            //nextItemType and readEvent need to be in same critical section
-            std::lock_guard<std::mutex> sourceGuard(nextTransitionMutex_);
-            
-            if(finishedProcessingEvents->load(std::memory_order_acquire)) {
-              std::cerr<<"finishedProcessingEvents\n";
-              break;
-            }
-            InputSource::ItemType itemType = input_->nextItemType();
-            if (InputSource::IsEvent !=itemType) {
-              nextItemTypeFromProcessingEvents_ = itemType;
-              finishedProcessingEvents->store(true,std::memory_order_release);
-              std::cerr<<"next item type "<<itemType<<"\n";
-              break;
-            }
-            if((asyncStopRequestedWhileProcessingEvents_=checkForAsyncStopRequest(asyncStopStatusCodeFromProcessingEvents_))) {
-              std::cerr<<"task told to async stop\n";
-              break;
-            }
-            readEvent(iStreamIndex);
+          //nextItemType and readEvent need to be in same critical section
+          std::lock_guard<std::mutex> sourceGuard(nextTransitionMutex_);
+          
+          if(finishedProcessingEvents->load(std::memory_order_acquire)) {
+            std::cerr<<"finishedProcessingEvents\n";
+            break;
           }
+          InputSource::ItemType itemType = input_->nextItemType();
+          if (InputSource::IsEvent !=itemType) {
+            nextItemTypeFromProcessingEvents_ = itemType;
+            finishedProcessingEvents->store(true,std::memory_order_release);
+            std::cerr<<"next item type "<<itemType<<"\n";
+            break;
+          }
+          if((asyncStopRequestedWhileProcessingEvents_=checkForAsyncStopRequest(asyncStopStatusCodeFromProcessingEvents_))) {
+            std::cerr<<"task told to async stop\n";
+            break;
+          }
+          readEvent(iStreamIndex);
+        }
+        if(deferredExceptionPtrIsSet_.load(std::memory_order_acquire)) {
+          //another thread hit an exception
+          std::cerr<<"another thread saw an exception\n";
+          break;
         }
         processEvent(iStreamIndex);
       }while(true);
-    } catch(edm::Exception const&e) {
-      asyncStopRequestedWhileProcessingEvents_=true;
-      finishedProcessingEvents->store(true,std::memory_order_release);
-      std::cerr<<"task caught edm::Exception\n"<<e.what()<<"\n";
-      
     } catch (...) {
-      asyncStopRequestedWhileProcessingEvents_=true;
-      finishedProcessingEvents->store(true,std::memory_order_release);
+      bool expected =false;
+      if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
+        deferredExceptionPtr_ = std::current_exception();
+      }
       std::cerr<<"task caught exception\n";
     }
   }
@@ -1853,46 +1862,10 @@ namespace edm {
     eventLoopWaitTask->spawn_and_wait_for_all(*(new (tbb::task::allocate_root()) StreamProcessingTask{this,iStreamIndex,&finishedProcessingEvents,eventLoopWaitTask}));
     tbb::task::destroy(*eventLoopWaitTask);
     
-    /*
-    InputSource::ItemType itemType = InputSource::IsEvent;
-    nextItemTypeFromProcessingEvents_ = itemType; //needed for looper
-    //While all the following item types are isEvent, process them right here
-    asyncStopRequestedWhileProcessingEvents_ = false;
-    
-    //We will round-robin which stream to use
-    unsigned int nextStreamIndex=0;
-    const unsigned int kNumStreams = preallocations_.numberOfStreams();
-
-    //we know there is something to do
-    readEvent(nextStreamIndex);
-    processEvent(nextStreamIndex);
-    bool finishedProcessingEvents = false;
-    do {
-      nextStreamIndex = (nextStreamIndex+1) % kNumStreams;
-      
-      if(shouldWeStop()) {
-        break;
-      }
-      {
-        std::lock_guard<std::mutex> sourceGuard(nextTransitionMutex_);
-        if(not finishedProcessingEvents) {
-          itemType = input_->nextItemType();
-          if (InputSource::IsEvent !=itemType) {
-            finishedProcessingEvents = true;
-            nextItemTypeFromProcessingEvents_ = itemType;
-            break;
-          }
-        } else {
-          break;
-        }
-      }
-      if((asyncStopRequestedWhileProcessingEvents_=checkForAsyncStopRequest(asyncStopStatusCodeFromProcessingEvents_))) {
-        break;
-      }
-      readEvent(nextStreamIndex);
-      processEvent(nextStreamIndex);
-    } while (itemType == InputSource::IsEvent);
-     */
+    //One of the processing threads saw an exception
+    if(deferredExceptionPtrIsSet_) {
+      std::rethrow_exception(deferredExceptionPtr_);
+    }
   }
   void EventProcessor::readEvent(unsigned int iStreamIndex) {
     //TODO this will have to become per stream
