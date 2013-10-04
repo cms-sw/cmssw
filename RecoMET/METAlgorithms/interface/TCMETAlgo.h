@@ -64,7 +64,7 @@
 //____________________________________________________________________________||
 class TCMETAlgo 
 {
- public:
+public:
   typedef std::vector<const reco::Candidate> InputCollection;
   TCMETAlgo();
   virtual ~TCMETAlgo();
@@ -76,7 +76,7 @@ class TCMETAlgo
   void configure(const edm::ParameterSet &iConfig, int myResponseFunctionType,
 		 edm::ConsumesCollector && iConsumesCollector);
 
- private:
+private:
   double met_x;
   double met_y;
   double sumEt;
