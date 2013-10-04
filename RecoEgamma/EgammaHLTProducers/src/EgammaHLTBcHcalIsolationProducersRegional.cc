@@ -34,9 +34,11 @@ EgammaHLTBcHcalIsolationProducersRegional::EgammaHLTBcHcalIsolationProducersRegi
   innerCone_                 = config.getParameter<double>("innerCone");
   outerCone_                 = config.getParameter<double>("outerCone");
   depth_                     = config.getParameter<int>("depth");
-  doEtSum_                   = config.getParameter<bool>("doEtSum"); //this variable (which I cant change the name of) switches between hcal isolation and H for H/E
+  doEtSum_                   = config.getParameter<bool>("doEtSum"); 
   effectiveAreaBarrel_       = config.getParameter<double>("effectiveAreaBarrel");
   effectiveAreaEndcap_       = config.getParameter<double>("effectiveAreaEndcap");
+
+  useSingleTower_            = config.getParameter<bool>("useSingleTower");
   
   hcalCfg_.hOverEConeSize = 0.15;
   hcalCfg_.useTowers = true;
@@ -86,11 +88,17 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::Event& iEvent, cons
     
     float isol = 0;
     
-    std::vector<CaloTowerDetId> towersBehindCluster = hcalHelper_->hcalTowersBehindClusters(*(recoEcalCandRef->superCluster()));
+    std::vector<CaloTowerDetId> towersBehindCluster;
+    
+    if (useSingleTower_)
+      towersBehindCluster = hcalHelper_->hcalTowersBehindClusters(*(recoEcalCandRef->superCluster()));
     
     if (doEtSum_) { //calculate hcal isolation excluding the towers behind the cluster which will be used for H for H/E
       EgammaTowerIsolation isolAlgo(outerCone_, innerCone_, etMin_, depth_, caloTowersHandle.product());
-      isol = isolAlgo.getTowerEtSum(&(*recoEcalCandRef), &(towersBehindCluster)); // towersBehindCluster are excluded from the isolation sum
+      if (useSingleTower_) 
+	isol = isolAlgo.getTowerEtSum(&(*recoEcalCandRef), &(towersBehindCluster)); // towersBehindCluster are excluded from the isolation sum
+      else
+	isol = isolAlgo.getTowerEtSum(&(*recoEcalCandRef));
       
       if (doRhoCorrection_) {
 	if (fabs(recoEcalCandRef->superCluster()->eta()) < 1.442) 
@@ -99,7 +107,10 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::Event& iEvent, cons
 	  isol = isol - rho*effectiveAreaEndcap_;
       }
     } else { //calcuate H for H/E
-      isol = hcalHelper_->hcalESumDepth1BehindClusters(towersBehindCluster) + hcalHelper_->hcalESumDepth2BehindClusters(towersBehindCluster); //towers beind the cluster are for H for H/E
+      if (useSingleTower_) 
+	isol = hcalHelper_->hcalESumDepth1BehindClusters(towersBehindCluster) + hcalHelper_->hcalESumDepth2BehindClusters(towersBehindCluster);
+      else
+	isol = hcalHelper_->hcalESum(*(recoEcalCandRef->superCluster()));
     }
 
     isoMap.insert(recoEcalCandRef, isol);

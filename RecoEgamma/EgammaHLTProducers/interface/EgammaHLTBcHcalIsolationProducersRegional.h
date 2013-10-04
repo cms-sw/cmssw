@@ -55,6 +55,7 @@ private:
   int depth_;
   float effectiveAreaBarrel_;
   float effectiveAreaEndcap_;
+  bool useSingleTower_;
 
   ElectronHcalHelper::Configuration hcalCfg_;
   ElectronHcalHelper *hcalHelper_;
