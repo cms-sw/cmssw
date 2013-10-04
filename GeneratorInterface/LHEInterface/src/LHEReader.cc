@@ -135,6 +135,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
         std::vector<DOMElement*>	xmlNodes,xmlEventNodes;
 	bool				headerOk;
 	std::vector<LHERunInfo::Header>	headers;
+        std::vector<std::string> weightsinevent;
 };
 
 static void attributesToDom(DOMElement *dom, const Attributes &attributes)
@@ -192,10 +193,15 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
   } else if ( mode == kEvent ) {
     DOMElement *elem = xmlEvent->createElement(qname);    
     attributesToDom(elem, attributes);
-    xmlEventNodes.back()->appendChild(elem);
+    
     std::cout << "Got event tag: " 
 	      << (const char*)XMLSimpleStr(elem->getTagName()) 
 	      << std::endl;
+    if( name == "rwgt" ) {
+      xmlEventNodes[0]->appendChild(elem);
+    } else if (name == "wgt") {
+      xmlEventNodes[1]->appendChild(elem);
+    }
     xmlEventNodes.push_back(elem);
     return;
   } else if (mode != kNone) {
@@ -211,9 +217,9 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     xmlNodes.resize(1);
     xmlNodes[0] = xmlHeader->getDocumentElement();
     mode = kHeader;
-  } if (name == "init")
+  } if (name == "init") {
       mode = kInit;
-  else if (name == "event") {
+  } else if (name == "event") {
     if (!impl)
       impl = DOMImplementationRegistry::getDOMImplementation(
 							  XMLUniStr("Core"));
@@ -235,7 +241,11 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
                                        const XMLCh *const localname,
                                        const XMLCh *const qname)
 {
+  std::string name((const char*)XMLSimpleStr(qname));
+  std::cout << name << std::endl;
+  
   if (mode) {
+
     if (mode == kHeader && xmlNodes.size() > 1) {
       xmlNodes.resize(xmlNodes.size() - 1);
       return;
@@ -276,6 +286,13 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 	  q = p + strlen(p);
 	}
 	
+	if( name == "weightgroup" ) {
+	  const char* s = p;
+	  while( s != q ) std::cout << *s;
+	  std::cout << std::endl;
+	}
+	  
+
 	LHERunInfo::Header header(type);
 	fillHeader(header, p, q - p);
 	headers.push_back(header);
@@ -284,54 +301,36 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
       xmlHeader->release();
       xmlHeader = 0;
     }
-    
-    if (mode == kEvent && xmlEventNodes.size() > 1) {
-      xmlEventNodes.resize(xmlEventNodes.size() - 1);
-      return;
-    } else if (mode == kEvent) {
+
+    if( name == "rwgt" && mode == kEvent ) return;
+    if( name == "wgt" && mode == kEvent ) return; 
+
+    if (name == "event" && 
+	mode == kEvent && 
+	xmlEventNodes.size() > 1) { // handling of weights in LHE file
+      weightsinevent.clear();
       std::auto_ptr<DOMWriter> writer(
 				      static_cast<DOMImplementationLS*>(
-                                                impl)->createDOMWriter());
+						impl)->createDOMWriter());
       writer->setEncoding(XMLUniStr("UTF-8"));
-      
+
       for(DOMNode *node = xmlEventNodes[0]->getFirstChild();
 	  node; node = node->getNextSibling()) {
-	XMLSimpleStr buffer(writer->writeToString(*node));
-	
-	std::string type;
-	const char *p, *q;
-	DOMElement *elem;
-	
-	switch(node->getNodeType()) {
-	case DOMNode::ELEMENT_NODE:
-	  elem = static_cast<DOMElement*>(node);
-	  type = (const char*)XMLSimpleStr(
-					   elem->getTagName());
-	  p = std::strchr((const char*)buffer,
-			  '>') + 1;
-	  q = std::strrchr(p, '<');
-	  break;
-	case DOMNode::COMMENT_NODE:
-	  type = "";
-	  p = buffer + 4;
-	  q = buffer + strlen(buffer) - 3;
-	  break;
-	default:
-	  type = "<>";
-	  p = buffer +
-	    std::strspn(buffer, " \t\r\n");
-	  if (!*p)
-	    continue;
-	  q = p + strlen(p);
+	for(DOMNode *rwgt = xmlEventNodes[1]->getFirstChild();
+	    rwgt; rwgt = rwgt->getNextSibling()) {
+	  DOMNode* attr = rwgt->getAttributes()->item(0);
+	  XMLSimpleStr atname(attr->getNodeValue());
+	  switch(rwgt->getNodeType()) {
+	  case DOMNode::ELEMENT_NODE:	    
+	    weightsinevent.push_back((const char*)atname);
+	    break;	  
+	  default:	    	  
+	    break;
+	  }	  
 	}
-	
-	//LHERunInfo::Header header(type);
-	//fillHeader(header, p, q - p);
-	//headers.push_back(header);
       }
-      
-      xmlHeader->release();
-      xmlHeader = 0;
+      xmlEvent->release();
+      xmlEvent = 0;
     }
 
     if (gotObject != kNone)
@@ -352,6 +351,12 @@ void LHEReader::XMLHandler::characters(const XMLCh *const data_,
 		DOMText *text = xmlHeader->createTextNode(data_);
 		xmlNodes.back()->appendChild(text);
 		return;
+	}
+
+	if( mode == kEvent ) {
+	  DOMText *text = xmlEvent->createTextNode(data_);
+	  xmlEventNodes.front()->appendChild(text);
+	  return;
 	}
 
 	if (XMLSimpleStr::isAllSpaces(data_, length))
