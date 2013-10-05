@@ -95,26 +95,15 @@ namespace cms
     else if (METtype == "TCMET" )
       {
 	produces<reco::METCollection>().setBranchAlias(alias.c_str());
-
-	int rfType_               = iConfig.getParameter<int>("rf_type");
-	bool correctShowerTracks_ = iConfig.getParameter<bool>("correctShowerTracks"); 
-
-	int responseFunctionType = 0;
-	if(! correctShowerTracks_)
-	  {
-	    if( rfType_ == 1 ) responseFunctionType = 1; // 'fit'
-	    else if( rfType_ == 2 ) responseFunctionType = 2; // 'mode'
-	    else { /* probably error */ }
-	  }
-	tcMetAlgo_.configure(iConfig, responseFunctionType, consumesCollector());
+	tcMetAlgo_.configure(iConfig, consumesCollector());
       }
     else                            
       produces<reco::METCollection>().setBranchAlias(alias.c_str()); 
 
-    if (calculateSignificance_ && ( METtype == "CaloMET" || METtype == "PFMET")){
+    if (calculateSignificance_ && ( METtype == "CaloMET" || METtype == "PFMET"))
+      {
 	resolutions_ = new metsig::SignAlgoResolutions(iConfig);
-	
-    }
+      }
   }
 
 

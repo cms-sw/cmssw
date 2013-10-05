@@ -75,8 +75,7 @@ public:
   TH2D* getResponseFunction_mode ( );
   TH2D* getResponseFunction_shower ( );
   TH2D* getResponseFunction_noshower ( );
-  void configure(const edm::ParameterSet &iConfig, int myResponseFunctionType,
-		 edm::ConsumesCollector && iConsumesCollector);
+  void configure(const edm::ParameterSet &iConfig, edm::ConsumesCollector && iConsumesCollector);
 
 private:
   double met_x_;
@@ -133,7 +132,6 @@ private:
   double  maxchi2_tight_;
   double  minhits_tight_;
   double  maxPtErr_tight_;
-  int     rfType_;
   int     nMinOuterHits_;
   int     maxTrackAlgo_;
   double  usedeltaRRejection_;
@@ -176,7 +174,6 @@ private:
   void correctMETforTrack( const reco::TrackRef , TH2D* rf, const TVector3& );
   void correctSumEtForTrack( const reco::TrackRef , TH2D* rf, const TVector3& );
   class TVector3 propagateTrack( const reco::TrackRef );
-  class TVector3 propagateTrackToHCAL( const reco::TrackRef );
   void findGoodShowerTracks(std::vector<int>& goodShowerTracks);
   bool nearGoodShowerTrack( const reco::TrackRef , const std::vector<int>& goodShowerTracks );
   int nExpectedInnerHits(const reco::TrackRef);

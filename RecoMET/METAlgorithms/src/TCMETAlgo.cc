@@ -62,9 +62,9 @@ TCMETAlgo::TCMETAlgo()
 { }
 
 //____________________________________________________________________________||
-void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFunctionType,
-			  edm::ConsumesCollector && iConsumesCollector)
+void TCMETAlgo::configure(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iConsumesCollector)
 {
+
   muonToken_ = iConsumesCollector.consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muonInputTag"));
   electronToken_ = iConsumesCollector.consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronInputTag"));
   metToken_ = iConsumesCollector.consumes<edm::View<reco::MET> >(iConfig.getParameter<edm::InputTag>("metInputTag"));
@@ -123,7 +123,6 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFuncti
   maxTrackAlgo_           = iConfig.getParameter<int>   ("maxTrackAlgo");
 
   isCosmics_ = iConfig.getParameter<bool>  ("isCosmics");
-  rfType_    = iConfig.getParameter<int>   ("rf_type"  );
   minpt_     = iConfig.getParameter<double>("pt_min"   );
   maxpt_     = iConfig.getParameter<double>("pt_max"   );
   maxeta_    = iConfig.getParameter<double>("eta_max"  );
@@ -138,13 +137,23 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFuncti
   showerRF_          = getResponseFunction_shower();
   response_function_ = 0;
 
-  if( myResponseFunctionType == 0 )
+  int rfType = iConfig.getParameter<int>("rf_type");
+
+  int responseFunctionType = 0;
+  if(! correctShowerTracks_)
+    {
+      if( rfType == 1 ) responseFunctionType = 1; // 'fit'
+      else if( rfType == 2 ) responseFunctionType = 2; // 'mode'
+      else { /* probably error */ }
+    }
+
+  if( responseFunctionType == 0 )
     response_function_ = getResponseFunction_noshower();
-  else if( myResponseFunctionType == 1 )
+  else if( responseFunctionType == 1 )
     response_function_ = getResponseFunction_fit();
-  else if( myResponseFunctionType == 2 )
+  else if( responseFunctionType == 2 )
     response_function_ = getResponseFunction_mode();
-     
+
 }
 
 //____________________________________________________________________________||
@@ -175,18 +184,11 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
   correct_MET_for_Muons();
   correct_MET_for_Tracks();
      
-  CommonMETData TCMETData;
-  TCMETData.mex = met_x_;
-  TCMETData.mey = met_y_;
-  TCMETData.mez = 0.0;
-  TCMETData.met = TMath::Sqrt(met_x_*met_x_ + met_y_*met_y_ );
-  TCMETData.sumet = sumEt_;
-  TCMETData.phi = atan2(met_y_, met_x_);
-
-  math::XYZTLorentzVector p4(TCMETData.mex, TCMETData.mey, 0, TCMETData.met);
+  math::XYZTLorentzVector p4(met_x_, met_y_, 0, TMath::Sqrt(met_x_*met_x_ + met_y_*met_y_));
   math::XYZPointD vtx(0, 0, 0);
-  reco::MET tcmet(TCMETData.sumet, p4, vtx);
-  return tcmet;
+  reco::MET met(sumEt_, p4, vtx);
+
+  return met;
 }
 
 //____________________________________________________________________________||
@@ -369,27 +371,21 @@ void TCMETAlgo::correct_MET_for_Tracks()
     {
       if(isMuon(trk_idx)) continue;
 
-      if(!isCosmics_)
-	if( isElectron(trk_idx )) continue;
+      if( (!isCosmics_) && isElectron(trk_idx)) continue;
 
       reco::TrackRef trkref(trackHandle_, trk_idx);
 
       if(!isGoodTrack( trkref , trk_idx )) continue;
 
-      if( electronVetoCone_ && closeToElectron( trkref ))
-	continue;
+      if( electronVetoCone_ && closeToElectron(trkref)) continue;
 
       const TVector3 outerTrackPosition = propagateTrack(trkref);  //propagate track from vertex to calorimeter face
 
       if(correctShowerTracks_)
 	{
 
-	  if(usedeltaRRejection_)
-	    {
-	      if(nearGoodShowerTrack(trkref, goodShowerTracks)) continue;
-	    }
+	  if(usedeltaRRejection_ && nearGoodShowerTrack(trkref, goodShowerTracks)) continue;
 
-	  //apply separate RF for showering tracks
 	  if(nExpectedOuterHits(trkref) >= nMinOuterHits_)
 	    {
 	      correctMETforTrack(trkref, showerRF_, outerTrackPosition);
@@ -2209,7 +2205,7 @@ TH2D* TCMETAlgo::getResponseFunction_shower()
 //____________________________________________________________________________||
 TH2D* TCMETAlgo::getResponseFunction_noshower()
 {
-  // ingle pion response function from shower track 
+  // single pion response function from shower track 
   
   Double_t xAxis1[53] = {-2.5, -2.322, -2.172, -2.043, -1.93, -1.83, 
 			 -1.74, -1.653, -1.566, -1.479, -1.392, -1.305, 
