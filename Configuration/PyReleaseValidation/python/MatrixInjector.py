@@ -55,6 +55,7 @@ class MatrixInjector(object):
             
         self.defaultChain={
             "RequestType" :   "TaskChain",                    #this is how we handle relvals
+            "Requestor": self.user,                           #Person responsible
             "Group": self.group,                              #group for the request
             "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
             "Campaign": os.getenv('CMSSW_VERSION'),           # only for wmstat purpose
@@ -75,7 +76,7 @@ class MatrixInjector(object):
             }
 
         self.defaultHarvest={
-            "EnableDQMHarvest" : "True",
+            "EnableHarvesting" : "True",
             "DQMUploadUrl" : "https://cmsweb.cern.ch/dqm/relval",
             "DQMConfigCacheID" : None
             }
@@ -194,17 +195,6 @@ class MatrixInjector(object):
                             chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] #set in general to the last one of the chain
                             if 'pileup' in chainDict['nowmTasklist'][-1]['nowmIO']:
                                 chainDict['nowmTasklist'][-1]['MCPileup']=chainDict['nowmTasklist'][-1]['nowmIO']['pileup']
-                                if acqEra:
-                                    chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
-                                else:
-                                    chainDict['nowmTasklist'][-1]['AcquisitionEra']=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
-                                
-                            else:
-                                if acqEra:
-                                    chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
-                                else:
-                                    chainDict['nowmTasklist'][-1]['AcquisitionEra']=(chainDict['CMSSWVersion']+'-'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
-
                         index+=1
                         
             #wrap up for this one
@@ -233,12 +223,6 @@ class MatrixInjector(object):
                                     #t_input.update(copy.deepcopy(self.defaultHarvest))
                                     #t_input['DQMConfigCacheID']=t_second['ConfigCacheID']
                                 break
-
-            ## there is in fact only one acquisition era
-            #if len(set(chainDict['AcquisitionEra'].values()))==1:
-            #    print "setting only one acq"
-            if acqEra:
-                chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0]
                 
             ## clean things up now
             itask=0
