@@ -34,7 +34,6 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
@@ -73,7 +72,9 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFuncti
   beamSpotToken_ = iConsumesCollector.consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"));
   vertexToken_ = iConsumesCollector.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexInputTag"));
 
-  if(iConfig.getParameter<bool> ("usePFClusters"))
+  usePFClusters_  = iConfig.getParameter<bool>  ("usePFClusters");
+
+  if(usePFClusters_)
     {
       clustersECALToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersECAL"));
       clustersHCALToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHCAL"));
@@ -85,7 +86,6 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, int myResponseFuncti
   tcmetDepValueMapToken_ = iConsumesCollector.consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(iConfig.getParameter<edm::InputTag>("tcmetDepValueMap"));
 
 
-  usePFClusters_           = iConfig.getParameter<bool>  ("usePFClusters");
      
   nLayers_                = iConfig.getParameter<int>      ("nLayers");
   nLayersTight_           = iConfig.getParameter<int>      ("nLayersTight");
@@ -158,21 +158,194 @@ TCMETAlgo::~TCMETAlgo()
 reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& setup)
 { 
 
-  event.getByToken(muonToken_ , muonHandle_);
-  event.getByToken(electronToken_, electronHandle_);
-  event.getByToken(metToken_ , metHandle_);
-  event.getByToken(trackToken_, trackHandle_);
-  event.getByToken(beamSpotToken_, beamSpotHandle_);
+  if(usePFClusters_)
+    initialize_MET_with_PFClusters(event);
+  else
+    initialize_MET_with_CaloMET(event);
 
-  hasValidVertex_ = false;
-  if(usePvtxd0_)
+  event.getByToken(muonToken_ , muonHandle_);
+  event.getByToken(trackToken_, trackHandle_);
+  event.getByToken(electronToken_, electronHandle_);
+  event.getByToken(vertexToken_, vertexHandle_);
+  event.getByToken(beamSpotToken_, beamSpotHandle_);
+  event.getByToken(muonDepValueMapToken_, muonDepValueMapHandle_);
+  event.getByToken(tcmetDepValueMapToken_, tcmetDepValueMapHandle_);
+  setup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle_);
+
+  correct_MET_for_Muons();
+  correct_MET_for_Tracks();
+     
+  CommonMETData TCMETData;
+  TCMETData.mex = met_x_;
+  TCMETData.mey = met_y_;
+  TCMETData.mez = 0.0;
+  TCMETData.met = TMath::Sqrt(met_x_*met_x_ + met_y_*met_y_ );
+  TCMETData.sumet = sumEt_;
+  TCMETData.phi = atan2(met_y_, met_x_);
+
+  math::XYZTLorentzVector p4(TCMETData.mex, TCMETData.mey, 0, TCMETData.met);
+  math::XYZPointD vtx(0, 0, 0);
+  reco::MET tcmet(TCMETData.sumet, p4, vtx);
+  return tcmet;
+}
+
+//____________________________________________________________________________||
+void TCMETAlgo::initialize_MET_with_PFClusters(edm::Event& event)
+{
+  float pfcmet_x = 0.;
+  float pfcmet_y = 0.;
+  float pfcsumet = 0.;
+     
+  edm::Handle< reco::PFClusterCollection > clustersECAL;
+  event.getByToken(clustersECALToken_, clustersECAL);
+  for (reco::PFClusterCollection::const_iterator it = clustersECAL->begin(); it != clustersECAL->end(); it++)
     {
-    event.getByToken(vertexToken_, vertexHandle_);
-    if(vertexHandle_.isValid())
-      {
-	vertexColl_ = vertexHandle_.product();
-	hasValidVertex_ = isValidVertex();
-      }
+      const math::XYZPoint&  cluster_pos = it->position();
+      double et = it->energy() / cosh( cluster_pos.eta() );
+      pfcmet_x -= et*cos(cluster_pos.phi());
+      pfcmet_y -= et*sin(cluster_pos.phi());
+      pfcsumet += et;
+    }
+       
+  edm::Handle< reco::PFClusterCollection > clustersHCAL;
+  event.getByToken(clustersHCALToken_, clustersHCAL);
+  for (reco::PFClusterCollection::const_iterator it = clustersHCAL->begin(); it != clustersHCAL->end(); it++)
+    {
+      if (it->layer() == PFLayer::HCAL_BARREL2) continue; //skip HO
+
+      const math::XYZPoint&  cluster_pos = it->position();
+      double et = it->energy()/cosh(cluster_pos.eta());
+      pfcmet_x -= et*cos(cluster_pos.phi());
+      pfcmet_y -= et*sin(cluster_pos.phi());
+      pfcsumet += et;
+    }
+
+  edm::Handle< reco::PFClusterCollection > clustersHFHAD;
+  event.getByToken(clustersHFHADToken_, clustersHFHAD);
+  for (reco::PFClusterCollection::const_iterator it = clustersHFHAD->begin(); it != clustersHFHAD->end(); it++)
+    {
+      const math::XYZPoint& cluster_pos = it->position();
+      double et = it->energy()/cosh(cluster_pos.eta());
+      pfcmet_x -= et*cos(cluster_pos.phi());
+      pfcmet_y -= et*sin(cluster_pos.phi());
+      pfcsumet += et;
+    }
+
+  edm::Handle< reco::PFClusterCollection > clustersHFEM;
+  event.getByToken(clustersHFEMToken_, clustersHFEM);
+  for (reco::PFClusterCollection::const_iterator it = clustersHFEM->begin(); it != clustersHFEM->end(); it++)
+    {
+      const math::XYZPoint& cluster_pos = it->position();
+      double et = it->energy()/cosh(cluster_pos.eta());
+      pfcmet_x -= et*cos(cluster_pos.phi());
+      pfcmet_y -= et*sin(cluster_pos.phi());
+      pfcsumet += et;
+    }
+
+  met_x_ = pfcmet_x;
+  met_y_ = pfcmet_y;
+  sumEt_ = pfcsumet;
+}
+
+//____________________________________________________________________________||
+void TCMETAlgo::initialize_MET_with_CaloMET(edm::Event& event)
+{
+  edm::Handle<edm::View<reco::MET> > metHandle;
+  event.getByToken(metToken_, metHandle);
+  met_x_ = (metHandle->front()).px();
+  met_y_ = (metHandle->front()).py();
+  sumEt_ = (metHandle->front()).sumEt();
+}
+
+//____________________________________________________________________________||
+void TCMETAlgo::correct_MET_for_Muons()
+{
+  for(unsigned int i = 0; i < muonHandle_->size(); ++i)
+    {
+      reco::MuonRef muonRef(muonHandle_, i);
+
+      reco::MuonMETCorrectionData muCorrData = (*tcmetDepValueMapHandle_)[muonRef];
+
+      reco::MuonMETCorrectionData::Type muCorrType = muCorrData.type();
+      if(muCorrType == reco::MuonMETCorrectionData::Type::CombinedTrackUsed || muCorrType == reco::MuonMETCorrectionData::Type::GlobalTrackUsed)
+	{
+	  if(!muonRef->isGlobalMuon())
+	    {
+	      edm::LogError("TCMETAlgo") << "This is not a global muon, but is flagged as one by the TCMET ValueMap.  "
+					 << "Not correcting for this muon.  Check your collection!!!"
+					 << std::endl;
+	      continue;
+	    }
+
+	  reco::TrackRef track = muonRef->globalTrack();
+	  correctMETforMuon(track, muonRef);
+	}
+      else if(muCorrType == reco::MuonMETCorrectionData::Type::InnerTrackUsed || muCorrType == reco::MuonMETCorrectionData::Type::TrackUsed)
+	{
+	  if(!muonRef->isTrackerMuon())
+	    {
+	      edm::LogError("TCMETAlgo") << "This is not a tracker muon, but is flagged as one by the TCMET ValueMap.  "
+					 << "Not correcting for this muon.  Check your collection!!!"
+					 << std::endl;
+	      continue;
+	    }
+	  
+	  reco::TrackRef track = muonRef->innerTrack();
+	  correctMETforMuon(track, muonRef);
+	}
+      else if(muCorrType == reco::MuonMETCorrectionData::Type::OuterTrackUsed || muCorrType == reco::MuonMETCorrectionData::Type::StandAloneTrackUsed)
+	{
+	  edm::LogVerbatim("TCMETAlgo") << "Are you sure you want to correct using the StandAlone fit??" << std::endl;
+	  if( !muonRef->isStandAloneMuon())
+	    {
+	      edm::LogError("TCMETAlgo") << "This is not a standalone muon, but is flagged as one by the TCMET ValueMap.  "
+					 << "Not correcting for this muon.  Check your collection!!!"
+					 << std::endl;
+	      continue;
+	    }
+
+	  reco::TrackRef track = muonRef->outerTrack();
+	  correctMETforMuon(track, muonRef);
+	}
+      else if(muCorrType == reco::MuonMETCorrectionData::Type::TreatedAsPion)
+	{
+	  reco::TrackRef track;
+	  if(muonRef->isGlobalMuon()) track = muonRef->innerTrack();
+	  else if(muonRef->isTrackerMuon()) track = muonRef->innerTrack();
+	  else if(muonRef->isCaloMuon()) track = muonRef->innerTrack();
+	  else
+	    {
+	      edm::LogError("TCMETAlgo") << "You are attempting to correct a muon that does not have an associated track as a pion!"
+					 << "Check your value map!"
+					 << std::endl;
+	      continue;
+	    }
+	       
+	  const TVector3 outerTrackPosition = propagateTrack(track);
+	  correctMETforTrack(track, response_function_, outerTrackPosition);
+	  correctSumEtForTrack(track, response_function_, outerTrackPosition);
+	}
+      else if(muCorrType == reco::MuonMETCorrectionData::Type::MuonP4V4QUsed || muCorrType == reco::MuonMETCorrectionData::Type::MuonCandidateValuesUsed)
+	{
+	  if( !muonRef->isGlobalMuon() && !muonRef->isTrackerMuon() && muonRef->isStandAloneMuon() )
+	    edm::LogVerbatim("TCMETAlgo") << "Are you sure you want to correct using the StandAlone fit??" << std::endl;
+
+	  correctMETforMuon(muonRef);
+	}
+      else if(muCorrType == reco::MuonMETCorrectionData::Type::NotUsed) continue;
+      else
+	edm::LogError("TCMETAlgo") << "Invalid muon flag from TCMET ValueMap.  Check your value map." << std::endl;
+    }
+}
+
+//____________________________________________________________________________||
+void TCMETAlgo::correct_MET_for_Tracks()
+{
+  hasValidVertex_ = false;
+  if(usePvtxd0_ && vertexHandle_.isValid())
+    {
+      vertexColl_ = vertexHandle_.product();
+      hasValidVertex_ = isValidVertex();
     }
      
   if(vetoDuplicates_)
@@ -181,179 +354,7 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
       findDuplicateTracks();
     }
      
-  edm::Handle< reco::PFClusterCollection > clustersECAL;
-  edm::Handle< reco::PFClusterCollection > clustersHCAL;
-  edm::Handle< reco::PFClusterCollection > clustersHFEM;
-  edm::Handle< reco::PFClusterCollection > clustersHFHAD;
-     
-  float pfcmet_x = 0.;
-  float pfcmet_y = 0.;
-  float pfcsumet = 0.;
 
-  if( usePFClusters_ )
-    {
-      event.getByToken(clustersECALToken_, clustersECAL);
-      event.getByToken(clustersHCALToken_, clustersHCAL);
-      event.getByToken(clustersHFEMToken_, clustersHFEM);
-      event.getByToken(clustersHFHADToken_, clustersHFHAD);
-       
-     
-      for (reco::PFClusterCollection::const_iterator it = clustersECAL->begin(); it != clustersECAL->end(); it++)
-	{
-         
-	  const math::XYZPoint&  cluster_pos = it->position();
-	  double et = it->energy() / cosh( cluster_pos.eta() );
-         
-	  pfcmet_x -= et*cos(cluster_pos.phi());
-	  pfcmet_y -= et*sin(cluster_pos.phi());
-	  pfcsumet += et;
-	}
-       
-      for (reco::PFClusterCollection::const_iterator it = clustersHCAL->begin(); it != clustersHCAL->end(); it++)
-	{
-	  if ( it->layer() == PFLayer::HCAL_BARREL2) continue; //skip HO
-
-	  const math::XYZPoint&  cluster_pos = it->position();
-	  double et = it->energy()/cosh(cluster_pos.eta());
-         
-	  pfcmet_x -= et*cos(cluster_pos.phi());
-	  pfcmet_y -= et*sin(cluster_pos.phi());
-	  pfcsumet += et;
-	}
-
-      for (reco::PFClusterCollection::const_iterator it = clustersHFHAD->begin(); it != clustersHFHAD->end(); it++)
-	{
-
-	  const math::XYZPoint& cluster_pos = it->position();
-	  double et = it->energy()/cosh(cluster_pos.eta());
-       
-	  pfcmet_x -= et*cos(cluster_pos.phi());
-	  pfcmet_y -= et*sin(cluster_pos.phi());
-	  pfcsumet += et;
-	}
-
-      for (reco::PFClusterCollection::const_iterator it = clustersHFEM->begin(); it != clustersHFEM->end(); it++)
-	{
-	  const math::XYZPoint& cluster_pos = it->position();
-	  double et = it->energy()/cosh(cluster_pos.eta());
-       
-	  pfcmet_x -= et*cos(cluster_pos.phi());
-	  pfcmet_y -= et*sin(cluster_pos.phi());
-	  pfcsumet += et;
-	}
-    }
-
-  event.getByToken(muonDepValueMapToken_, muon_data_h);
-  event.getByToken(tcmetDepValueMapToken_, tcmet_data_h);
-
-  muon_data_  = *muon_data_h;
-  tcmet_data_ = *tcmet_data_h;
-
-  unsigned int nMuons  = muonHandle_->size();
-  unsigned int nTracks = trackHandle_->size();
-
-  edm::ESHandle<MagneticField> theMagField;
-  setup.get<IdealMagneticFieldRecord>().get(theMagField);
-  bField_ = theMagField.product();
-
-  if(usePFClusters_)
-    {
-      //initialize MET, sumEt to PFCluster values
-      met_x_ = pfcmet_x;
-      met_y_ = pfcmet_y;
-      sumEt_ = pfcsumet;
-    }
-  else
-    {
-      //initialize MET, sumEt to caloMET values
-      met_x_ = (metHandle_->front()).px();
-      met_y_ = (metHandle_->front()).py();
-      sumEt_ = (metHandle_->front()).sumEt();
-    }
-
-  //calculate tcMET - correct for muons
-  for( unsigned int mu_idx = 0; mu_idx < nMuons; mu_idx++)
-    {
-      const reco::Muon* mu = &(*muonHandle_)[mu_idx];
-      reco::TrackRef track;
-      reco::MuonRef muref( muonHandle_, mu_idx);
-      reco::MuonMETCorrectionData muCorrData = (tcmet_data_)[muref];
-      int flag = muCorrData.type();
-
-      if( flag == 1 )
-	{
-	  if( !mu->isGlobalMuon())
-	    {
-	      edm::LogError("TCMETAlgo") << "This is not a global muon, but is flagged as one by the TCMET ValueMap.  "
-					 << "Not correcting for this muon.  Check your collection!!!"
-					 << std::endl;
-	      continue;
-	    }
-
-	  track = mu->globalTrack();
-	  correctMETforMuon(track, mu_idx);
-	  correctSumEtForMuon(track, mu_idx);
-    }
-    else if( flag == 2 )
-      {
-	if(!mu->isTrackerMuon())
-	  {
-	    edm::LogError("TCMETAlgo") << "This is not a tracker muon, but is flagged as one by the TCMET ValueMap.  "
-				       << "Not correcting for this muon.  Check your collection!!!"
-				       << std::endl;
-	    continue;
-	  }
-
-	track = mu->innerTrack();
-	correctMETforMuon(track, mu_idx );
-	correctSumEtForMuon(track, mu_idx );
-      }
-    else if(flag == 3) 
-      {
-	edm::LogVerbatim("TCMETAlgo") << "Are you sure you want to correct using the StandAlone fit??" << std::endl;
-	if( !mu->isStandAloneMuon())
-	  {
-	    edm::LogError("TCMETAlgo") << "This is not a standalone muon, but is flagged as one by the TCMET ValueMap.  "
-				       << "Not correcting for this muon.  Check your collection!!!"
-				       << std::endl;
-	    continue;
-	  }
-
-	track = mu->outerTrack();
-	correctMETforMuon( track, mu_idx );
-	correctSumEtForMuon( track, mu_idx );
-      }
-    else if(flag == 4 )
-      {
-	if( mu->isGlobalMuon() ) track = mu->innerTrack();
-	else if( mu->isTrackerMuon() ) track = mu->innerTrack();
-	else if( mu->isCaloMuon() ) track = mu->innerTrack();
-	else
-	  {
-	    edm::LogError("TCMETAlgo") << "You are attempting to correct a muon that does not have an associated track as a pion!"
-				       << "Check your value map!"
-				       << std::endl;
-	    continue;
-	  }
-	       
-	const TVector3 outerTrackPosition = propagateTrack( track );
-	correctMETforTrack( track , response_function_ , outerTrackPosition);
-	correctSumEtForTrack( track , response_function_ , outerTrackPosition);
-      }
-    else if( flag == 5 )
-      {
-	if( !mu->isGlobalMuon() && !mu->isTrackerMuon() && mu->isStandAloneMuon() )
-	  edm::LogVerbatim("TCMETAlgo") << "Are you sure you want to correct using the StandAlone fit??" << std::endl;
-
-	correctMETforMuon( mu_idx );
-	correctSumEtForMuon( mu_idx );
-      }
-    else if( flag == 0 ) continue;
-    else
-      edm::LogError("TCMETAlgo") << "Invalid muon flag from TCMET ValueMap.  Check your value map." << std::endl;
-    
-  }
-     
   //find tracks which satisfy track quality cuts and nExpectedOuterHits cut
   std::vector<int> goodShowerTracks;
   if(usedeltaRRejection_)
@@ -361,63 +362,52 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
       findGoodShowerTracks(goodShowerTracks);
     }
   
+  unsigned int nTracks = trackHandle_->size();
+
   // calculate tcMET - correct for pions
   for( unsigned int trk_idx = 0; trk_idx < nTracks; trk_idx++ )
     {
+      if(isMuon(trk_idx)) continue;
 
-      if( isMuon( trk_idx ) ) continue;
-
-      if( !isCosmics_ )
+      if(!isCosmics_)
 	if( isElectron(trk_idx )) continue;
 
-      reco::TrackRef trkref( trackHandle_, trk_idx);
+      reco::TrackRef trkref(trackHandle_, trk_idx);
 
-    if(!isGoodTrack( trkref , trk_idx )) continue;
+      if(!isGoodTrack( trkref , trk_idx )) continue;
 
-    if( electronVetoCone_ && closeToElectron( trkref ))
-      continue;
+      if( electronVetoCone_ && closeToElectron( trkref ))
+	continue;
 
-    const TVector3 outerTrackPosition = propagateTrack( trkref );  //propagate track from vertex to calorimeter face
+      const TVector3 outerTrackPosition = propagateTrack(trkref);  //propagate track from vertex to calorimeter face
 
-    if(correctShowerTracks_)
-      {
+      if(correctShowerTracks_)
+	{
 
-	if(usedeltaRRejection_)
-	  {
-	    if(nearGoodShowerTrack( trkref , goodShowerTracks)) continue;
-	  }
+	  if(usedeltaRRejection_)
+	    {
+	      if(nearGoodShowerTrack(trkref, goodShowerTracks)) continue;
+	    }
 
-	//apply separate RF for showering tracks
-	if(nExpectedOuterHits( trkref ) >= nMinOuterHits_)
-	  {
-	    correctMETforTrack( trkref , showerRF_ , outerTrackPosition);
-	    correctSumEtForTrack( trkref , showerRF_ , outerTrackPosition);
-	  }
-	else
-	  {
-	    correctMETforTrack( trkref , response_function_ , outerTrackPosition);
-	    correctSumEtForTrack( trkref , response_function_ , outerTrackPosition);
-	  }
-      }
-    else
-      {
-	correctMETforTrack( trkref , response_function_ , outerTrackPosition);
-	correctSumEtForTrack( trkref , response_function_ , outerTrackPosition);
-      }
+	  //apply separate RF for showering tracks
+	  if(nExpectedOuterHits(trkref) >= nMinOuterHits_)
+	    {
+	      correctMETforTrack(trkref, showerRF_, outerTrackPosition);
+	      correctSumEtForTrack(trkref, showerRF_, outerTrackPosition);
+	    }
+	  else
+	    {
+	      correctMETforTrack(trkref, response_function_, outerTrackPosition);
+	      correctSumEtForTrack(trkref, response_function_, outerTrackPosition);
+	    }
+	}
+      else
+	{
+	  correctMETforTrack(trkref, response_function_, outerTrackPosition);
+	  correctSumEtForTrack(trkref, response_function_, outerTrackPosition);
+	}
     }
 
-  CommonMETData TCMETData;
-  TCMETData.mex   = met_x_;
-  TCMETData.mey   = met_y_;
-  TCMETData.mez   = 0.0;
-  TCMETData.met   = TMath::Sqrt( met_x_ * met_x_ + met_y_ * met_y_ );
-  TCMETData.sumet = sumEt_;
-  TCMETData.phi   = atan2( met_y_, met_x_ );
-
-  math::XYZTLorentzVector p4( TCMETData.mex , TCMETData.mey , 0, TCMETData.met);
-  math::XYZPointD vtx(0,0,0);
-  reco::MET tcmet(TCMETData.sumet, p4, vtx);
-  return tcmet;
 }
 
 //____________________________________________________________________________||
@@ -591,8 +581,8 @@ bool TCMETAlgo::isMuon( unsigned int trk_idx )
   for(reco::MuonCollection::const_iterator muon_it = muonHandle_->begin(); muon_it != muonHandle_->end(); ++muon_it) 
     {
       reco::TrackRef mu_track = muon_it->innerTrack();
-      unsigned int mu_idx = mu_track.isNonnull() ? mu_track.key() : 99999;
-      if( mu_idx == trk_idx ) return true;
+      unsigned int idxMuon = mu_track.isNonnull() ? mu_track.key() : 99999;
+      if( idxMuon == trk_idx ) return true;
     }
   return false;
 }
@@ -715,86 +705,56 @@ bool TCMETAlgo::isGoodTrack( const reco::TrackRef track , int trk_idx)
 }
 
 //____________________________________________________________________________||
-void TCMETAlgo::correctMETforMuon( const reco::TrackRef track, const unsigned int index )
+void TCMETAlgo::correctMETforMuon(const reco::TrackRef track, reco::MuonRef& muonRef)
 {
-  reco::MuonRef muref( muonHandle_, index);
-  reco::MuonMETCorrectionData muCorrData = (muon_data_)[muref];
+  reco::MuonMETCorrectionData muCorrData = (*muonDepValueMapHandle_)[muonRef];
 
   double delx = muCorrData.corrX();
   double dely = muCorrData.corrY();
 
-  met_x_ -= ( track->px() - delx );
-  met_y_ -= ( track->py() - dely );
+  met_x_ -= (track->px() - delx);
+  met_y_ -= (track->py() - dely);
+  sumEt_ += (track->pt() - TMath::Sqrt(delx*delx + dely*dely));
 }
 
 //____________________________________________________________________________||
-void TCMETAlgo::correctMETforMuon( const unsigned int index )
+void TCMETAlgo::correctMETforMuon(reco::MuonRef& muonRef)
 {
-  reco::MuonRef muref( muonHandle_, index);
-  reco::MuonMETCorrectionData muCorrData = (muon_data_)[muref];
+  reco::MuonMETCorrectionData muCorrData = (*muonDepValueMapHandle_)[muonRef];
 
   double delx = muCorrData.corrX();
   double dely = muCorrData.corrY();
 
-  const reco::Muon* muon = &(*muonHandle_)[index];
-
-  met_x_ -= ( muon->px() - delx );
-  met_y_ -= ( muon->py() - dely );
+  met_x_ -= (muonRef->px() - delx);
+  met_y_ -= (muonRef->py() - dely);
+  sumEt_ += (muonRef->pt() - TMath::Sqrt(delx*delx + dely*dely));
 }
 
 //____________________________________________________________________________||
-void TCMETAlgo::correctSumEtForMuon( const reco::TrackRef track, const unsigned int index )
-{
-  reco::MuonRef muref( muonHandle_, index);
-  reco::MuonMETCorrectionData muCorrData = (muon_data_)[muref];
-
-  double delx = muCorrData.corrX();
-  double dely = muCorrData.corrY();
-
-  sumEt_ += ( track->pt() - TMath::Sqrt( delx * delx + dely * dely ) );
-}
-
-//____________________________________________________________________________||
-void TCMETAlgo::correctSumEtForMuon( const unsigned int index )
-{
-  reco::MuonRef muref( muonHandle_, index);
-  reco::MuonMETCorrectionData muCorrData = (muon_data_)[muref];
-
-  double delx = muCorrData.corrX();
-  double dely = muCorrData.corrY();
-
-  const reco::Muon* muon = &(*muonHandle_)[index];
-
-  sumEt_ += ( muon->pt() - TMath::Sqrt( delx * delx + dely * dely ) );
-}
-
-
-//____________________________________________________________________________||
-void TCMETAlgo::correctMETforTrack( const reco::TrackRef track , TH2D* rf , const TVector3& outerTrackPosition) 
+void TCMETAlgo::correctMETforTrack(const reco::TrackRef track, TH2D* rf, const TVector3& outerTrackPosition) 
 {
 
   if(track->pt() < minpt_)
     {
-      met_x_ -= track->pt() * cos( track->phi() );
-      met_y_ -= track->pt() * sin( track->phi() );
+      met_x_ -= track->pt()*cos(track->phi());
+      met_y_ -= track->pt()*sin(track->phi());
     }
   else
     {
-    //const TVector3 outerTrackPosition = propagateTrack( track );  //propagate track from vertex to calorimeter face
     if(checkTrackPropagation_ && outerTrackPosition.Theta() < -9.99 )
       {
 	//fail track propagation check
       }
     else
       {
-	int bin_index = rf->FindBin( track->eta(), track->pt() );
-	double fracTrackEnergy = rf->GetBinContent( bin_index );  //get correction factor from response function
+	int bin_index = rf->FindBin(track->eta(), track->pt());
+	double fracTrackEnergy = rf->GetBinContent(bin_index); //get correction factor from response function
 	 
-	met_x_ += ( fracTrackEnergy * track->p() * sin( outerTrackPosition.Theta() ) * cos( outerTrackPosition.Phi() ) //remove expected amount of energy track deposited in calorimeter
-		   - track->pt() * cos( track->phi() ) );  //add track at vertex
+	met_x_ += (fracTrackEnergy*track->p()*sin(outerTrackPosition.Theta())*cos(outerTrackPosition.Phi()) //remove expected amount of energy track deposited in calorimeter
+		   - track->pt()*cos(track->phi()));  //add track at vertex
 
-	met_y_ += ( fracTrackEnergy * track->p() * sin( outerTrackPosition.Theta() ) * sin( outerTrackPosition.Phi() ) //remove expected amount of energy track deposited in calorimeter
-		 - track->pt() * sin( track->phi() ) );  //add track at vertex
+	met_y_ += (fracTrackEnergy*track->p()*sin(outerTrackPosition.Theta() )*sin( outerTrackPosition.Phi()) //remove expected amount of energy track deposited in calorimeter
+		 - track->pt()*sin(track->phi()));  //add track at vertex
       }
     }
 }
@@ -825,6 +785,7 @@ void TCMETAlgo::correctSumEtForTrack( const reco::TrackRef track  , TH2D* rf , c
 //____________________________________________________________________________||
 TVector3 TCMETAlgo::propagateTrack( const reco::TrackRef track )
 {
+  const class MagneticField* bField = magneticFieldHandle_.product();
 
   TVector3 outerTrkPosition;
 
@@ -834,7 +795,7 @@ TVector3 TCMETAlgo::propagateTrack( const reco::TrackRef track )
   GlobalVector tpMomentum ( track->px(), track->py(), track->pz() );
   int tpCharge ( track->charge() );
 
-  FreeTrajectoryState fts ( tpVertex, tpMomentum, tpCharge, bField_);
+  FreeTrajectoryState fts ( tpVertex, tpMomentum, tpCharge, bField);
 
   const float zdist = zdist_; //314.;
 
@@ -847,7 +808,7 @@ TVector3 TCMETAlgo::propagateTrack( const reco::TrackRef track )
 
   Cylinder::CylinderPointer barrel = Cylinder::build(radius, Cylinder::PositionType (0, 0, 0), Cylinder::RotationType () );
 
-  AnalyticalPropagator myAP (bField_, alongMomentum, 2*M_PI);
+  AnalyticalPropagator myAP (bField, alongMomentum, 2*M_PI);
 
   TrajectoryStateOnSurface tsos;
 

@@ -56,6 +56,8 @@
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "TH2D.h"
@@ -81,15 +83,20 @@ private:
   double met_y_;
   double sumEt_;
 
+  void initialize_MET_with_PFClusters(edm::Event& event);
+  void initialize_MET_with_CaloMET(edm::Event& event);
+  void correct_MET_for_Muons();
+  void correct_MET_for_Tracks();
+
   edm::Handle<reco::MuonCollection> muonHandle_;
   edm::Handle<reco::GsfElectronCollection> electronHandle_;
-  edm::Handle<edm::View<reco::MET> > metHandle_;
   edm::Handle<reco::TrackCollection> trackHandle_;
   edm::Handle<reco::BeamSpot> beamSpotHandle_;
   edm::Handle<reco::VertexCollection> vertexHandle_;
+  edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > muonDepValueMapHandle_;
+  edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > tcmetDepValueMapHandle_;
 
-  edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > muon_data_h;
-  edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > tcmet_data_h;
+  edm::ESHandle<MagneticField> magneticFieldHandle_;
 
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
@@ -103,6 +110,7 @@ private:
   edm::EDGetTokenT<reco::PFClusterCollection> clustersHFHADToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > muonDepValueMapToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > tcmetDepValueMapToken_;
+
 
   bool    usePFClusters_;
   int     nLayers_;
@@ -153,24 +161,18 @@ private:
   bool usePvtxd0_;
   bool checkTrackPropagation_;
 
-  const class MagneticField* bField_;
 
   class TH2D* response_function_;
   class TH2D* showerRF_;
   bool hasValidVertex_;
   const reco::VertexCollection *vertexColl_;
 
-  edm::ValueMap<reco::MuonMETCorrectionData> muon_data_;
-  edm::ValueMap<reco::MuonMETCorrectionData> tcmet_data_;
-
   bool isMuon( unsigned int );
   bool isElectron( unsigned int ); 
   bool isGoodTrack( const reco::TrackRef , int trk_idx );
   bool closeToElectron( const reco::TrackRef );
-  void correctMETforMuon( const reco::TrackRef, const unsigned int );
-  void correctSumEtForMuon( const reco::TrackRef, const unsigned int );
-  void correctMETforMuon( const unsigned int );
-  void correctSumEtForMuon( const unsigned int );
+  void correctMETforMuon(const reco::TrackRef, reco::MuonRef& muonRef);
+  void correctMETforMuon(reco::MuonRef& muonRef);
   void correctMETforTrack( const reco::TrackRef , TH2D* rf, const TVector3& );
   void correctSumEtForTrack( const reco::TrackRef , TH2D* rf, const TVector3& );
   class TVector3 propagateTrack( const reco::TrackRef );
