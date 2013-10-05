@@ -139,20 +139,25 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, edm::ConsumesCollect
 
   int rfType = iConfig.getParameter<int>("rf_type");
 
-  int responseFunctionType = 0;
-  if(! correctShowerTracks_)
+  if( correctShowerTracks_)
     {
-      if( rfType == 1 ) responseFunctionType = 1; // 'fit'
-      else if( rfType == 2 ) responseFunctionType = 2; // 'mode'
-      else { /* probably error */ }
+      response_function_ = getResponseFunction_noshower();
     }
-
-  if( responseFunctionType == 0 )
-    response_function_ = getResponseFunction_noshower();
-  else if( responseFunctionType == 1 )
-    response_function_ = getResponseFunction_fit();
-  else if( responseFunctionType == 2 )
-    response_function_ = getResponseFunction_mode();
+  else
+    {
+      if( rfType == 1 )
+	{
+	  response_function_ = getResponseFunction_fit();
+	}
+      else if( rfType == 2 )
+	{
+	  response_function_ = getResponseFunction_mode();
+	}
+      else
+	{
+	  /* probably error */
+	}
+    }
 
 }
 
@@ -323,7 +328,7 @@ void TCMETAlgo::correct_MET_for_Muons()
 	      continue;
 	    }
 	       
-	  const TVector3 outerTrackPosition = propagateTrack(track);
+	  const TVector3 outerTrackPosition = propagateTrackToCalorimeterFace(track);
 	  correctMETforTrack(track, response_function_, outerTrackPosition);
 	  correctSumEtForTrack(track, response_function_, outerTrackPosition);
 	}
@@ -366,41 +371,40 @@ void TCMETAlgo::correct_MET_for_Tracks()
   
   unsigned int nTracks = trackHandle_->size();
 
-  // calculate tcMET - correct for pions
-  for( unsigned int trk_idx = 0; trk_idx < nTracks; trk_idx++ )
+  for(unsigned int i = 0; i < nTracks; ++i)
     {
-      if(isMuon(trk_idx)) continue;
+      reco::TrackRef trackRef(trackHandle_, i);
 
-      if( (!isCosmics_) && isElectron(trk_idx)) continue;
+      if(isMuon(trackRef)) continue;
 
-      reco::TrackRef trkref(trackHandle_, trk_idx);
+      if( (!isCosmics_) && isElectron(trackRef)) continue;
 
-      if(!isGoodTrack( trkref , trk_idx )) continue;
+      if(!isGoodTrack(trackRef)) continue;
 
-      if( electronVetoCone_ && closeToElectron(trkref)) continue;
+      if(electronVetoCone_ && closeToElectron(trackRef)) continue;
 
-      const TVector3 outerTrackPosition = propagateTrack(trkref);  //propagate track from vertex to calorimeter face
+      const TVector3 outerTrackPosition = propagateTrackToCalorimeterFace(trackRef);
 
       if(correctShowerTracks_)
 	{
 
-	  if(usedeltaRRejection_ && nearGoodShowerTrack(trkref, goodShowerTracks)) continue;
+	  if(usedeltaRRejection_ && nearGoodShowerTrack(trackRef, goodShowerTracks)) continue;
 
-	  if(nExpectedOuterHits(trkref) >= nMinOuterHits_)
+	  if(nExpectedOuterHits(trackRef) >= nMinOuterHits_)
 	    {
-	      correctMETforTrack(trkref, showerRF_, outerTrackPosition);
-	      correctSumEtForTrack(trkref, showerRF_, outerTrackPosition);
+	      correctMETforTrack(trackRef, showerRF_, outerTrackPosition);
+	      correctSumEtForTrack(trackRef, showerRF_, outerTrackPosition);
 	    }
 	  else
 	    {
-	      correctMETforTrack(trkref, response_function_, outerTrackPosition);
-	      correctSumEtForTrack(trkref, response_function_, outerTrackPosition);
+	      correctMETforTrack(trackRef, response_function_, outerTrackPosition);
+	      correctSumEtForTrack(trackRef, response_function_, outerTrackPosition);
 	    }
 	}
       else
 	{
-	  correctMETforTrack(trkref, response_function_, outerTrackPosition);
-	  correctSumEtForTrack(trkref, response_function_, outerTrackPosition);
+	  correctMETforTrack(trackRef, response_function_, outerTrackPosition);
+	  correctSumEtForTrack(trackRef, response_function_, outerTrackPosition);
 	}
     }
 
@@ -413,19 +417,20 @@ void TCMETAlgo::findDuplicateTracks()
 
   for( unsigned int trk_idx = 0; trk_idx < nTracks; trk_idx++ )
     {
-      if( isMuon( trk_idx ) ) continue;
-      if( !isCosmics_ && isElectron( trk_idx ) ) continue;
-
       reco::TrackRef trkref( trackHandle_, trk_idx );
+
+      if( isMuon(trkref)) continue;
+      if( !isCosmics_ && isElectron(trkref) ) continue;
+
       if( trkref->pt() < dupMinPt_ ) continue;
 
       for( unsigned int trk_idx2 = trk_idx + 1 ; trk_idx2 < nTracks; trk_idx2++ )
 	{
-    
-	  if( isMuon( trk_idx2 ) )                    continue;
-	  if( !isCosmics_ && isElectron( trk_idx2 ) ) continue;
-      
 	  reco::TrackRef trkref2( trackHandle_, trk_idx2 );
+    
+	  if(isMuon(trkref2)) continue;
+	  if( !isCosmics_ && isElectron(trkref2) ) continue;
+      
 	  if( trkref->charge() * trkref2->charge() < 0 ) continue;
 	  if( trkref2->pt() < dupMinPt_ )                continue;
 
@@ -535,14 +540,14 @@ void TCMETAlgo::findGoodShowerTracks(std::vector<int>& goodShowerTracks)
   //nMinOuterHits cut in goodShowerTracks vector
   for( unsigned int trk_idx = 0; trk_idx < trackHandle_->size() ; trk_idx++ )
     {
-      if(isMuon(trk_idx)) continue;
+      reco::TrackRef trkref(trackHandle_, trk_idx);
+
+      if(isMuon(trkref)) continue;
     
       if( !isCosmics_ )
-	if(isElectron( trk_idx )) continue;
+	if(isElectron(trkref)) continue;
     
-      reco::TrackRef trkref(trackHandle_, trk_idx);
-    
-      if(!isGoodTrack(trkref ,trk_idx))	continue;
+      if(!isGoodTrack(trkref))	continue;
     
       if(nExpectedOuterHits( trkref ) < nMinOuterHits_)	continue;
     
@@ -572,29 +577,27 @@ int TCMETAlgo::nLayers(const reco::TrackRef track)
 }
 
 //____________________________________________________________________________||
-bool TCMETAlgo::isMuon( unsigned int trk_idx )
+bool TCMETAlgo::isMuon(const reco::TrackRef& trackRef)
 {
   for(reco::MuonCollection::const_iterator muon_it = muonHandle_->begin(); muon_it != muonHandle_->end(); ++muon_it) 
     {
       reco::TrackRef mu_track = muon_it->innerTrack();
       unsigned int idxMuon = mu_track.isNonnull() ? mu_track.key() : 99999;
-      if( idxMuon == trk_idx ) return true;
+      if(idxMuon == trackRef.key()) return true;
     }
   return false;
 }
 
 //____________________________________________________________________________||
-bool TCMETAlgo::isElectron( unsigned int trk_idx )
+bool TCMETAlgo::isElectron(const reco::TrackRef& trackRef)
 {
-
   for(reco::GsfElectronCollection::const_iterator electron_it = electronHandle_->begin(); electron_it != electronHandle_->end(); ++electron_it) 
     {
-
       reco::TrackRef el_track = electron_it->closestCtfTrackRef();
 
       unsigned int ele_idx = el_track.isNonnull() ? el_track.key() : 99999;
 
-      if( ele_idx == trk_idx )
+      if( ele_idx == trackRef.key() )
 	{
 	  if(electron_it->hadronicOverEm() < hOverECut_) return true;
 	}
@@ -604,17 +607,15 @@ bool TCMETAlgo::isElectron( unsigned int trk_idx )
 }
 
 //____________________________________________________________________________||
-bool TCMETAlgo::isGoodTrack( const reco::TrackRef track , int trk_idx)
+bool TCMETAlgo::isGoodTrack(const reco::TrackRef track)
 {
   double d0 = 9999.;
 
   if(hasValidVertex_)
     {
       //get d0 corrected for primary vertex
-       
-      const Point pvtx = Point(vertexColl_->begin()->x(),
-			       vertexColl_->begin()->y(),
-			       vertexColl_->begin()->z());
+      const reco::Vertex& vertex = (*vertexColl_)[0];
+      const Point pvtx = Point(vertex.x(), vertex.y(), vertex.z());
        
       double dz = track->dz( pvtx );
        
@@ -691,9 +692,9 @@ bool TCMETAlgo::isGoodTrack( const reco::TrackRef track , int trk_idx)
          
   if( vetoDuplicates_ )
     {
-      for( unsigned int iDup = 0 ; iDup < duplicateTracks_.size() ; iDup++ )
+      for( unsigned int iDup = 0; iDup < duplicateTracks_.size(); ++iDup)
 	{
-	  if( trk_idx == duplicateTracks_.at( iDup ) ) return false;
+	  if((int)track.key() == duplicateTracks_.at(iDup)) return false;
 	}
     }
 
@@ -779,7 +780,7 @@ void TCMETAlgo::correctSumEtForTrack( const reco::TrackRef track  , TH2D* rf , c
 }
 
 //____________________________________________________________________________||
-TVector3 TCMETAlgo::propagateTrack( const reco::TrackRef track )
+TVector3 TCMETAlgo::propagateTrackToCalorimeterFace( const reco::TrackRef track )
 {
   const class MagneticField* bField = magneticFieldHandle_.product();
 

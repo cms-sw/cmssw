@@ -165,15 +165,15 @@ private:
   bool hasValidVertex_;
   const reco::VertexCollection *vertexColl_;
 
-  bool isMuon( unsigned int );
-  bool isElectron( unsigned int ); 
-  bool isGoodTrack( const reco::TrackRef , int trk_idx );
+  bool isMuon(const reco::TrackRef& trackRef);
+  bool isElectron(const reco::TrackRef& trackRef);
+  bool isGoodTrack(const reco::TrackRef trackRef);
   bool closeToElectron( const reco::TrackRef );
   void correctMETforMuon(const reco::TrackRef, reco::MuonRef& muonRef);
   void correctMETforMuon(reco::MuonRef& muonRef);
   void correctMETforTrack( const reco::TrackRef , TH2D* rf, const TVector3& );
   void correctSumEtForTrack( const reco::TrackRef , TH2D* rf, const TVector3& );
-  class TVector3 propagateTrack( const reco::TrackRef );
+  class TVector3 propagateTrackToCalorimeterFace(const reco::TrackRef trackRef);
   void findGoodShowerTracks(std::vector<int>& goodShowerTracks);
   bool nearGoodShowerTrack( const reco::TrackRef , const std::vector<int>& goodShowerTracks );
   int nExpectedInnerHits(const reco::TrackRef);
