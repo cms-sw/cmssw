@@ -77,16 +77,16 @@ public:
 		 edm::ConsumesCollector && iConsumesCollector);
 
 private:
-  double met_x;
-  double met_y;
-  double sumEt;
+  double met_x_;
+  double met_y_;
+  double sumEt_;
 
-  edm::Handle<reco::MuonCollection> MuonHandle;
-  edm::Handle<reco::GsfElectronCollection> ElectronHandle;
-  edm::Handle<edm::View<reco::MET> > metHandle;
-  edm::Handle<reco::TrackCollection> TrackHandle;
-  edm::Handle<reco::BeamSpot> beamSpotHandle;
-  edm::Handle<reco::VertexCollection> VertexHandle;
+  edm::Handle<reco::MuonCollection> muonHandle_;
+  edm::Handle<reco::GsfElectronCollection> electronHandle_;
+  edm::Handle<edm::View<reco::MET> > metHandle_;
+  edm::Handle<reco::TrackCollection> trackHandle_;
+  edm::Handle<reco::BeamSpot> beamSpotHandle_;
+  edm::Handle<reco::VertexCollection> vertexHandle_;
 
   edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > muon_data_h;
   edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > tcmet_data_h;
@@ -153,15 +153,15 @@ private:
   bool usePvtxd0_;
   bool checkTrackPropagation_;
 
-  const class MagneticField* bField;
+  const class MagneticField* bField_;
 
-  class TH2D* response_function;
-  class TH2D* showerRF;
-  bool hasValidVertex;
-  const reco::VertexCollection *vertexColl;
+  class TH2D* response_function_;
+  class TH2D* showerRF_;
+  bool hasValidVertex_;
+  const reco::VertexCollection *vertexColl_;
 
-  edm::ValueMap<reco::MuonMETCorrectionData> muon_data;
-  edm::ValueMap<reco::MuonMETCorrectionData> tcmet_data;
+  edm::ValueMap<reco::MuonMETCorrectionData> muon_data_;
+  edm::ValueMap<reco::MuonMETCorrectionData> tcmet_data_;
 
   bool isMuon( unsigned int );
   bool isElectron( unsigned int ); 
