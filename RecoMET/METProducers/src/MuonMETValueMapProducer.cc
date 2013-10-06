@@ -1,27 +1,47 @@
 // -*- C++ -*-
 //
-// Package:    MuonMETValueMapProducer
+// Package:    METProducers
 // Class:      MuonMETValueMapProducer
-// 
-/**\class MuonMETValueMapProducer MuonMETValueMapProducer.cc JetMETCorrections/Type1MET/src/MuonMETValueMapProducer.cc
-
-Description: <one line class summary>
-
-Implementation:
-<Notes on implementation>
-*/
+//
 //
 // Original Author:  Puneeth Kalavase
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
 //
-//
 
+/*
+   The meanings ofr reco::MuonMETCorrectionData::Type
+   NotUsed = 0:
+     The muon is not used to correct the MET by default
 
-// system include files
-#include <memory>
+   CombinedTrackUsed = 1, GlobalTrackUsed = 1:
 
-// user include files
+     The muon is used to correct the MET. The Global pt is used. For
+     backward compatibility only
+
+   InnerTrackUsed = 2, TrackUsed = 2:
+     The muon is used to correct the MET. The tracker pt is used. For
+     backward compatibility only
+
+   OuterTrackUsed = 3, StandAloneTrackUsed = 3:
+     The muon is used to correct the MET. The standalone pt is used.
+     For backward compatibility only. In general, the flag should
+     never be 3. You do not want to correct the MET using the pt
+     measurement from the standalone system (unless you really know
+     what you're doing.
+
+   TreatedAsPion = 4:
+     The muon was treated as a Pion. This is used for the tcMET
+     producer
+
+   MuonP4V4QUsed = 5, MuonCandidateValuesUsed = 5:
+     The default fit is used, i.e, we get the pt from muon->pt
+
+   (see DataFormats/MuonReco/interface/MuonMETCorrectionData.h)
+*/
+
+//____________________________________________________________________________||
 #include "RecoMET/METProducers/interface/MuonMETValueMapProducer.h"
+
 #include "RecoMET/METAlgorithms/interface/MuonMETAlgo.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -29,188 +49,121 @@ Implementation:
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-
-#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-typedef math::XYZTLorentzVector LorentzVector;
-typedef math::XYZPoint Point;
+//____________________________________________________________________________||
+namespace cms
+{
 
+MuonMETValueMapProducer::MuonMETValueMapProducer(const edm::ParameterSet& iConfig)
+  : minPt_(iConfig.getParameter<double>("minPt"))
+  , maxEta_(iConfig.getParameter<double>("maxEta"))
+  , isAlsoTkMu_(iConfig.getParameter<bool>("isAlsoTkMu"))
+  , maxNormChi2_(iConfig.getParameter<double>("maxNormChi2"))
+  , maxd0_(iConfig.getParameter<double>("maxd0"))
+  , minnHits_(iConfig.getParameter<int>("minnHits"))
+  , minnValidStaHits_(iConfig.getParameter<int>("minnValidStaHits"))
+  , useTrackAssociatorPositions_(iConfig.getParameter<bool>("useTrackAssociatorPositions"))
+  , useHO_(iConfig.getParameter<bool>("useHO"))
+  , towerEtThreshold_(iConfig.getParameter<double>("towerEtThreshold"))
+  , useRecHits_(iConfig.getParameter<bool>("useRecHits"))
+{
+  muonToken_ = consumes<edm::View<reco::Muon> >(iConfig.getParameter<edm::InputTag>("muonInputTag"));
+  beamSpotToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"));
 
-namespace cms {
-  MuonMETValueMapProducer::MuonMETValueMapProducer(const edm::ParameterSet& iConfig) {
-
-    using namespace edm;
+  edm::ParameterSet trackAssociatorParams = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+  trackAssociatorParameters_.loadParameters(trackAssociatorParams);
+  trackAssociator_.useDefaultPropagator();
   
-    produces<ValueMap<reco::MuonMETCorrectionData> >   ("muCorrData");
-
-    //get configuration parameters
-    minPt_            = iConfig.getParameter<double>("minPt"               );
-    maxEta_           = iConfig.getParameter<double>("maxEta"              );
-    isAlsoTkMu_       = iConfig.getParameter<bool>  ("isAlsoTkMu"          );
-    maxNormChi2_      = iConfig.getParameter<double>("maxNormChi2"         );
-    maxd0_            = iConfig.getParameter<double>("maxd0"               );
-    minnHits_         = iConfig.getParameter<int>   ("minnHits"            );
-    minnValidStaHits_ = iConfig.getParameter<int>   ("minnValidStaHits"    );
-  
-    beamSpotInputTag_            = iConfig.getParameter<InputTag>("beamSpotInputTag"         );
-    muonInputTag_   = iConfig.getParameter<InputTag>("muonInputTag");
-  
-    //Parameters from earlier
-    useTrackAssociatorPositions_ = iConfig.getParameter<bool>("useTrackAssociatorPositions");
-    useHO_                       = iConfig.getParameter<bool>("useHO"                      );
-  
-    ParameterSet trackAssociatorParams =
-      iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-    trackAssociatorParameters_.loadParameters(trackAssociatorParams);
-    trackAssociator_.useDefaultPropagator();
-  
-    towerEtThreshold_ = iConfig.getParameter<double>("towerEtThreshold");
-    useRecHits_     = iConfig.getParameter<bool>("useRecHits");
-
-    muonToken_ = consumes<edm::View<reco::Muon> >(iConfig.getParameter<InputTag>("muonInputTag"));
-    beamSpotToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<InputTag>("beamSpotInputTag"));
-  }
-
-
-  MuonMETValueMapProducer::~MuonMETValueMapProducer()
-  {
- 
-    // do anything here that needs to be done at desctruction time
-    // (e.g. close files, deallocate resources etc.)
-
-  }
-
-
-  //
-  // member functions
-  //
-
-  // ------------ method called to produce the data  ------------
-  void MuonMETValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
-    using namespace edm;
-    using namespace reco;
-  
-    //get the Muon collection
-    Handle<View<reco::Muon> > muons;
-    // iEvent.getByLabel(muonInputTag_,muons);
-    iEvent.getByToken(muonToken_, muons);
-
-    //use the BeamSpot
-    Handle<BeamSpot> beamSpotH;
-    // iEvent.getByLabel(beamSpotInputTag_, beamSpotH);
-    iEvent.getByToken(beamSpotToken_, beamSpotH);
-
-    //get the Bfield
-    edm::ESHandle<MagneticField> magneticField;
-    iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-    //get the B-field at the origin
-    double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
-
-    //make a ValueMap of ints => flags for 
-    //met correction. The values and meanings of the flags are :
-    // flag==0 --->    The muon is not used to correct the MET by default
-    // flag==1 --->    The muon is used to correct the MET. The Global pt is used. For backward compatibility only
-    // flag==2 --->    The muon is used to correct the MET. The tracker pt is used. For backward compatibility only
-    // flag==3 --->    The muon is used to correct the MET. The standalone pt is used. For backward compatibility only
-    // In general, the flag should never be 3. You do not want to correct the MET using
-    // the pt measurement from the standalone system (unless you really know what you're 
-    // doing
-    //flag == 4 -->    The muon was treated as a Pion. This is used for the tcMET producer
-    //flag == 5 -->    The default fit is used, i.e, we get the pt from muon->pt
-    std::auto_ptr<ValueMap<MuonMETCorrectionData> > vm_muCorrData(new ValueMap<MuonMETCorrectionData>());
-    
-    unsigned int nMuons = muons->size();
-    
-    std::vector<MuonMETCorrectionData> v_muCorrData;
-    for (unsigned int iMu=0; iMu<nMuons; iMu++) {
-
-      const reco::Muon* mu = &(*muons)[iMu];
-      double deltax = 0.0;
-      double deltay = 0.0;
-        
-      TrackRef mu_track;
-      if(mu->isGlobalMuon()) {
-	mu_track = mu->globalTrack();
-      } else if(mu->isTrackerMuon()) {
-	mu_track = mu->innerTrack();
-      } else 
-	mu_track = mu->outerTrack();
-    
-      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
-							  trackAssociator_.getFreeTrajectoryState(iSetup, *mu_track),
-							  trackAssociatorParameters_);
-      MuonMETAlgo alg;
-      alg.GetMuDepDeltas(mu, info,
-			  useTrackAssociatorPositions_, useRecHits_,
-			  useHO_, towerEtThreshold_, 
-			  deltax, deltay, bfield);
-
-    
-      //now we have to figure out the flags
-      MuonMETCorrectionData muMETCorrData(MuonMETCorrectionData::NotUsed, deltax, deltay);
-      //have to be a global muon!
-      if(!mu->isGlobalMuon()) {
-        v_muCorrData.push_back(muMETCorrData);
-	continue;
-      }
-    
-      //if we require that the muon be both a global muon and tkmuon
-      //but the muon fails the tkmuon requirement, we fail it
-      if(!mu->isTrackerMuon() && isAlsoTkMu_) {
-        v_muCorrData.push_back(muMETCorrData);
-	continue;
-      }
-
-      //if we have gotten here, we only have muons which are both global and tracker
-        
-      TrackRef globTk = mu->globalTrack();
-      TrackRef siTk   = mu->innerTrack();
-        
-      if(mu->pt() < minPt_ || fabs(mu->eta()) > maxEta_) {
-        v_muCorrData.push_back(muMETCorrData);
-	continue;
-      }
-      if(globTk->chi2()/globTk->ndof() > maxNormChi2_) {
-        v_muCorrData.push_back(muMETCorrData);
-	continue;
-      }
-      if(fabs(globTk->dxy(beamSpotH->position())) > fabs(maxd0_) ) {
-        v_muCorrData.push_back(muMETCorrData);
-	continue;
-      }
-      if(siTk->numberOfValidHits() < minnHits_) {
-        v_muCorrData.push_back(muMETCorrData);
-	continue;
-      }
-
-      if(globTk->hitPattern().numberOfValidMuonHits() < minnValidStaHits_) {
-         v_muCorrData.push_back(muMETCorrData);
-        continue;
-      }   
-      //if we've gotten here. the global muon has passed all the tests
-      v_muCorrData.push_back(MuonMETCorrectionData(MuonMETCorrectionData::MuonCandidateValuesUsed, deltax, deltay));
-    }
-    
-    ValueMap<MuonMETCorrectionData>::Filler dataFiller(*vm_muCorrData);
-     
-    dataFiller.insert(muons, v_muCorrData.begin(), v_muCorrData.end());
-    dataFiller.fill();
-
-    iEvent.put(vm_muCorrData, "muCorrData");
-    
-  }
-  
-  // ------------ method called once each job just before starting event loop  ------------
-  void MuonMETValueMapProducer::beginJob()
-  {
-  }
-
-  // ------------ method called once each job just after ending the event loop  ------------
-  void MuonMETValueMapProducer::endJob() {
-  }
+  produces<edm::ValueMap<reco::MuonMETCorrectionData> >("muCorrData");
 }
 
+//____________________________________________________________________________||
+void MuonMETValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  edm::Handle<edm::View<reco::Muon> > muons;
+  iEvent.getByToken(muonToken_, muons);
+
+  edm::Handle<reco::BeamSpot> beamSpot;
+  iEvent.getByToken(beamSpotToken_, beamSpot);
+
+  edm::ESHandle<MagneticField> magneticField;
+  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+
+  double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
+
+  std::vector<reco::MuonMETCorrectionData> muCorrDataList;
+
+  for(edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon)
+    {
+      double deltax = 0.0;
+      double deltay = 0.0;
+      determine_deltax_deltay(deltax, deltay, *muon, bfield, iEvent, iSetup);
+
+      reco::MuonMETCorrectionData::Type muCorrType = decide_correction_type(*muon, beamSpot->position());
+
+      reco::MuonMETCorrectionData muMETCorrData(muCorrType, deltax, deltay);
+      muCorrDataList.push_back(muMETCorrData);
+
+    }
+    
+  std::auto_ptr<edm::ValueMap<reco::MuonMETCorrectionData> > valueMapMuCorrData(new edm::ValueMap<reco::MuonMETCorrectionData>());
+
+  edm::ValueMap<reco::MuonMETCorrectionData>::Filler dataFiller(*valueMapMuCorrData);
+     
+  dataFiller.insert(muons, muCorrDataList.begin(), muCorrDataList.end());
+  dataFiller.fill();
+
+  iEvent.put(valueMapMuCorrData, "muCorrData");
+    
+}
+
+//____________________________________________________________________________||
+void MuonMETValueMapProducer::determine_deltax_deltay(double& deltax, double& deltay, const reco::Muon& muon, double bfield, edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  reco::TrackRef mu_track;
+  if(muon.isGlobalMuon()) mu_track = muon.globalTrack();
+  else if(muon.isTrackerMuon()) mu_track = muon.innerTrack();
+  else mu_track = muon.outerTrack();
+
+  TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
+						      trackAssociator_.getFreeTrajectoryState(iSetup, *mu_track),
+						      trackAssociatorParameters_);
+
+  MuonMETAlgo alg;
+  alg.GetMuDepDeltas(&muon, info,
+		     useTrackAssociatorPositions_, useRecHits_,
+		     useHO_, towerEtThreshold_,
+		     deltax, deltay, bfield);
+
+}
+
+//____________________________________________________________________________||
+reco::MuonMETCorrectionData::Type MuonMETValueMapProducer::decide_correction_type(const reco::Muon& muon, const math::XYZPoint &beamSpotPosition)
+{
+  if(should_type_MuonCandidateValuesUsed(muon, beamSpotPosition))
+    return reco::MuonMETCorrectionData::Type::MuonCandidateValuesUsed;
+
+  return reco::MuonMETCorrectionData::Type::NotUsed;
+}
+
+//____________________________________________________________________________||
+bool MuonMETValueMapProducer::should_type_MuonCandidateValuesUsed(const reco::Muon& muon, const math::XYZPoint &beamSpotPosition)
+{
+  if(!muon.isGlobalMuon()) return false;
+  if(!muon.isTrackerMuon() && isAlsoTkMu_) return false;
+  reco::TrackRef globTk = muon.globalTrack();
+  reco::TrackRef siTk   = muon.innerTrack();
+  if(muon.pt() < minPt_ || fabs(muon.eta()) > maxEta_) return false;
+  if(globTk->chi2()/globTk->ndof() > maxNormChi2_) return false;
+  if(fabs(globTk->dxy(beamSpotPosition)) > fabs(maxd0_)) return false;
+  if(siTk->numberOfValidHits() < minnHits_) return false;
+  if(globTk->hitPattern().numberOfValidMuonHits() < minnValidStaHits_) return false;
+  return true;
+}
+  
+//____________________________________________________________________________||
+}
+
+//____________________________________________________________________________||
 
