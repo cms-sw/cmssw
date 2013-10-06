@@ -60,7 +60,7 @@ class MatrixInjector(object):
             "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
             "Campaign": os.getenv('CMSSW_VERSION'),           # only for wmstat purpose
             "ScramArch": os.getenv('SCRAM_ARCH'),             #Scram Arch (used for all tasks in chain)
-            "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
+            "ProcessingString": {},                #Processing Version (used for all tasks in chain)
             "GlobalTag": None,                                #Global Tag (overridden per task)
             "CouchURL": self.couch,                           #URL of CouchDB containing Config Cache
             "CouchDBName": self.couchDB,                      #Name of Couch Database containing config cache
@@ -141,6 +141,7 @@ class MatrixInjector(object):
                     index=0
                     splitForThisWf=None
                     thisLabel=self.speciallabel
+                    processStrPrefix=''
                     for step in s[3]:
                         if 'INPUT' in step or (not isinstance(s[2][index],str)):
                             nextHasDSInput=s[2][index]
@@ -194,17 +195,22 @@ class MatrixInjector(object):
                             chainDict['nowmTasklist'][-1]['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] # copy to the proper parameter name
                             chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] #set in general to the last one of the chain
                             if 'pileup' in chainDict['nowmTasklist'][-1]['nowmIO']:
+                                if '--pileup' in s[2][index]:
+                                    processStrPrefix='PU_'
                                 chainDict['nowmTasklist'][-1]['MCPileup']=chainDict['nowmTasklist'][-1]['nowmIO']['pileup']
                                 if acqEra:
                                     chainDict['AcquisitionEra'][step]=chainDict['CMSSWVersion']
+                                    chainDict['ProcessingString'][step]=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All','')+thisLabel
                                 else:
                                     chainDict['nowmTasklist'][-1]['AcquisitionEra']=chainDict['CMSSWVersion']
-                                    
+                                    chainDict['nowmTasklist'][-1]['ProcessingString']=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All','')+thisLabel
                             else:
                                 if acqEra:
                                     chainDict['AcquisitionEra'][step]=chainDict['CMSSWVersion']
+                                    chainDict['ProcessingString'][step]=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All','')+thisLabel
                                 else:
                                     chainDict['nowmTasklist'][-1]['AcquisitionEra']=chainDict['CMSSWVersion']
+                                    chainDict['nowmTasklist'][-1]['ProcessingString']=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All','')+thisLabel
                         index+=1
                         
             #wrap up for this one
