@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 gtDigisExist=0  # =1 use existing gtDigis on the input file, =0 extract gtDigis from the RAW data collection
 isData=0 # =1 running on real data, =1 running on MC
 
-OUTPUT_HIST='hltbits.root'
+OUTPUT_HIST='hltbits_lumicorrTest.root'
 NEVTS=-1
 
 ##################################################################
@@ -22,8 +22,9 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'/store/data/Run2012C/MinimumBias/RAW-RECO/HLTPhysics-Tier1PromptSkim-v3/000/198/969/00000/C8575CDA-A8D1-E111-A17B-E0CB4E1A1193.root'
-#'/store/data/Run2012C/LP_Jets1/RAW/v1/000/198/449/F0CDFC81-35C8-E111-8D6C-003048678110.root'
+'/store/data/Run2012D/MinimumBias/RAW/v1/000/204/113/8CCB7FDC-280D-E211-9A6C-003048F118AA.root',
+'/store/data/Run2012D/MinimumBias/RAW/v1/000/204/113/8C9B1286-2B0D-E211-956C-5404A63886C4.root'
+
     )
 )
 
@@ -46,12 +47,22 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # * CRAFT_31X_V1P, CRAFT_31X_V1H - initial conditions for 2009 cosmic data taking - as CRAFT08_31X_V1 but with different
 #   tag names to allow append IOV, and DT cabling map corresponding to 2009 configuration (10 FEDs).
 # Meanwhile...:
-#process.GlobalTag.globaltag = 'MC_31X_V9::All'
-#process.GlobalTag.globaltag = 'START42_V9::All'
+#process.GlobalTag.globaltag = 'START53_V7A::All'
 process.GlobalTag.globaltag = 'GR_R_52_V1::All'
 process.GlobalTag.pfnPrefix=cms.untracked.string('frontier://FrontierProd/')
 
 process.load('Configuration/StandardSequences/SimL1Emulator_cff')
+
+# Uncomment to run the LumiProducer on the fly, if no RECO is available
+#from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+#process.load('RecoLuminosity.LumiProducer.lumiProducer_cff')
+
+#Lumi corrections
+process.LumiCorrectionSource=cms.ESSource("LumiCorrectionSource",
+                                          authpath=cms.untracked.string('/afs/cern.ch/cms/lumi/DB'),
+                                          connect=cms.string('oracle://cms_orcon_adg/cms_lumi_prod')
+                                          )
+
 
 # OpenHLT specificss
 # Define the HLT reco paths
@@ -65,13 +76,15 @@ process.DQMStore = cms.Service( "DQMStore",)
 
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTBitAnalyser_cfi")
-process.hltbitanalysis.hltresults = cms.InputTag( 'TriggerResults','','TEST' )
+process.hltbitanalysis.hltresults = cms.InputTag( 'TriggerResults','','HLT' )
 process.hltbitanalysis.RunParameters.HistogramFile=OUTPUT_HIST
 
 if (gtDigisExist):
     process.analyzeThis = cms.Path( process.hltbitanalysis )
 else:
     process.analyzeThis = cms.Path(process.HLTBeginSequence + process.hltbitanalysis )
+    # Uncomment to run the LumiProducer on the fly, if no RECO is available
+    # process.analyzeThis = cms.Path(process.lumiProducer + process.HLTBeginSequence + process.hltbitanalysis )
     process.hltbitanalysis.l1GtReadoutRecord = cms.InputTag( 'hltGtDigis','',process.name_() )
 
 

@@ -46,12 +46,19 @@ HLTBitAnalyzer::HLTBitAnalyzer(edm::ParameterSet const& conf) {
   m_l1extramet      = edm::InputTag(l1extramc_, "MET");
   m_l1extramht      = edm::InputTag(l1extramc_, "MHT");
 
+  mctruth_            = conf.getParameter<edm::InputTag> ("mctruth");
+  genEventInfo_       = conf.getParameter<edm::InputTag> ("genEventInfo");
+  VertexTagOffline0_  = conf.getParameter<edm::InputTag> ("OfflinePrimaryVertices0");
+  simhits_            = conf.getParameter<edm::InputTag> ("simhits");
+
   hltresults_       = conf.getParameter<edm::InputTag> ("hltresults");
   gtReadoutRecord_  = conf.getParameter<edm::InputTag> ("l1GtReadoutRecord");
   gtObjectMap_      = conf.getParameter<edm::InputTag> ("l1GtObjectMapRecord");
 
   gctBitCounts_        = edm::InputTag( conf.getParameter<edm::InputTag>("l1GctHFBitCounts").label(), "" );
   gctRingSums_         = edm::InputTag( conf.getParameter<edm::InputTag>("l1GctHFRingSums").label(), "" );
+
+  pileupInfo_         = edm::InputTag("addPileupInfo");
 
 	_UseTFileService = conf.getUntrackedParameter<bool>("UseTFileService",false);
 	
@@ -75,6 +82,8 @@ HLTBitAnalyzer::HLTBitAnalyzer(edm::ParameterSet const& conf) {
 
   // Setup the different analysis
   hlt_analysis_.setup(conf, HltTree);
+  mct_analysis_.setup(conf, HltTree);
+  vrt_analysisOffline0_.setup(conf, HltTree, "Offline0");
   evt_header_.setup(HltTree);
 }
 
@@ -91,6 +100,13 @@ void HLTBitAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
   edm::Handle<L1GlobalTriggerObjectMap>             l1GtOM;
   edm::Handle< L1GctHFBitCountsCollection >         gctBitCounts ;
   edm::Handle< L1GctHFRingEtSumsCollection >        gctRingSums ;
+
+  edm::Handle<reco::CandidateView>                  mctruth;
+  edm::Handle<GenEventInfoProduct>                  genEventInfo;
+  edm::Handle<std::vector<SimTrack> >               simTracks;
+  edm::Handle<std::vector<SimVertex> >              simVertices;
+  edm::Handle<reco::VertexCollection>               recoVertexsOffline0; 
+  edm::Handle<std::vector< PileupSummaryInfo > >    pupInfo; 
 
   // extract the collections from the event, check their validity and log which are missing
   std::vector<MissingCollectionInfo> missing;
@@ -110,6 +126,18 @@ void HLTBitAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
   getCollection( iEvent, missing, gctBitCounts,     gctBitCounts_,      kL1GctBitCounts );
   getCollection( iEvent, missing, gctRingSums,      gctRingSums_,       kL1GctRingSums );
 
+  getCollection( iEvent, missing, mctruth,         mctruth_,           kMctruth );
+  getCollection( iEvent, missing, simTracks,       simhits_,           kSimhit );
+  getCollection( iEvent, missing, simVertices,     simhits_,           kSimhit );
+  getCollection( iEvent, missing, genEventInfo,    genEventInfo_,      kGenEventInfo );
+  getCollection( iEvent, missing, pupInfo,         pileupInfo_,        kPileupInfo );
+
+  getCollection( iEvent, missing, recoVertexsOffline0,      VertexTagOffline0_,         kRecoVerticesOffline0 );
+  double ptHat=-1.;
+  if (genEventInfo.isValid()) {ptHat=genEventInfo->qScale();}
+
+  edm::ESHandle<LumiCorrectionParam> lumicorrdatahandle; //get LumiCorrectionParam object from event setup 
+  iSetup.getData(lumicorrdatahandle); 
 
   // print missing collections
   if (not missing.empty() and (errCnt < errMax())) {
@@ -142,7 +170,21 @@ void HLTBitAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
     iEvent,
     HltTree);
 
-  evt_header_.analyze(iEvent, HltTree);
+  evt_header_.analyze(iEvent, lumicorrdatahandle, HltTree);
+  //evt_header_.analyze(iEvent, HltTree);
+
+  mct_analysis_.analyze(
+			mctruth,
+			ptHat,
+			simTracks,
+			simVertices,
+			pupInfo,
+			HltTree);
+
+  vrt_analysisOffline0_.analyze(
+  				recoVertexsOffline0,
+  				HltTree);
+
 
   // std::cout << " Ending Event Analysis" << std::endl;
   // After analysis, fill the variables tree
