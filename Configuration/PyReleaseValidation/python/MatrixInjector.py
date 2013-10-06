@@ -195,6 +195,16 @@ class MatrixInjector(object):
                             chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] #set in general to the last one of the chain
                             if 'pileup' in chainDict['nowmTasklist'][-1]['nowmIO']:
                                 chainDict['nowmTasklist'][-1]['MCPileup']=chainDict['nowmTasklist'][-1]['nowmIO']['pileup']
+                                if acqEra:
+                                    chainDict['AcquisitionEra'][step]=chainDict['CMSSWVersion']
+                                else:
+                                    chainDict['nowmTasklist'][-1]['AcquisitionEra']=chainDict['CMSSWVersion']
+                                    
+                            else:
+                                if acqEra:
+                                    chainDict['AcquisitionEra'][step]=chainDict['CMSSWVersion']
+                                else:
+                                    chainDict['nowmTasklist'][-1]['AcquisitionEra']=chainDict['CMSSWVersion']
                         index+=1
                         
             #wrap up for this one
@@ -223,6 +233,13 @@ class MatrixInjector(object):
                                     #t_input.update(copy.deepcopy(self.defaultHarvest))
                                     #t_input['DQMConfigCacheID']=t_second['ConfigCacheID']
                                 break
+
+
+            ## there is in fact only one acquisition era
+            #if len(set(chainDict['AcquisitionEra'].values()))==1:
+            #    print "setting only one acq"
+            if acqEra:
+                 chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0]
                 
             ## clean things up now
             itask=0
