@@ -60,7 +60,6 @@ namespace {
     edm::View<reco::Jet>  jv;
     edm::RefToBaseProd<reco::Jet> jrtbp;
     edm::RefToBase<reco::Jet> jrtb;
-    std::pair<edm::RefToBase<reco::Jet>,edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > pjrtbt;
 
     // Ptr stuff
     edm::Ptr<reco::Jet> ptrj;

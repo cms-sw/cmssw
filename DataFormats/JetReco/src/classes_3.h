@@ -97,6 +97,7 @@ namespace {
     reco::JetTracksAssociation::Ref             jt_r;
     reco::JetTracksAssociation::RefProd         jt_rp;
     reco::JetTracksAssociation::RefVector       jt_rv;
+    reco::JetTracksAssociation::value_type      jt_vt;
 
     edm::Wrapper<reco::JetExtendedAssociation::Container>  jea_c_w;
     reco::JetExtendedAssociation::Container       jea_c;
