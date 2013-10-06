@@ -24,6 +24,10 @@
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+
 namespace cms {
 class MuonMETValueMapProducer : public edm::EDProducer {
    public:
@@ -52,6 +56,9 @@ class MuonMETValueMapProducer : public edm::EDProducer {
       int minnValidStaHits_;
       TrackDetectorAssociator   trackAssociator_;
       TrackAssociatorParameters trackAssociatorParameters_;
+
+      edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+      edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   };
 }
 #endif

@@ -23,8 +23,6 @@ Implementation:
 // user include files
 #include "RecoMET/METProducers/interface/MuonMETValueMapProducer.h"
 #include "RecoMET/METAlgorithms/interface/MuonMETAlgo.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h" 
@@ -70,7 +68,9 @@ namespace cms {
   
     towerEtThreshold_ = iConfig.getParameter<double>("towerEtThreshold");
     useRecHits_     = iConfig.getParameter<bool>("useRecHits");
-  
+
+    muonToken_ = consumes<edm::View<reco::Muon> >(iConfig.getParameter<InputTag>("muonInputTag"));
+    beamSpotToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<InputTag>("beamSpotInputTag"));
   }
 
 
@@ -95,11 +95,13 @@ namespace cms {
   
     //get the Muon collection
     Handle<View<reco::Muon> > muons;
-    iEvent.getByLabel(muonInputTag_,muons);
+    // iEvent.getByLabel(muonInputTag_,muons);
+    iEvent.getByToken(muonToken_, muons);
 
     //use the BeamSpot
     Handle<BeamSpot> beamSpotH;
-    iEvent.getByLabel(beamSpotInputTag_, beamSpotH);
+    // iEvent.getByLabel(beamSpotInputTag_, beamSpotH);
+    iEvent.getByToken(beamSpotToken_, beamSpotH);
 
     //get the Bfield
     edm::ESHandle<MagneticField> magneticField;
