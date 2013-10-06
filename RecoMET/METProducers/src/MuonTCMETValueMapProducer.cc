@@ -107,6 +107,11 @@ namespace cms {
 
     response_function = 0;
     tcmetAlgo_=new TCMETAlgo();
+
+    muonToken_ = consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muonInputTag"));
+    beamSpotToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"));
+    vertexToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexInputTag"));
+
   }
 
   MuonTCMETValueMapProducer::~MuonTCMETValueMapProducer()
@@ -125,13 +130,16 @@ namespace cms {
   void MuonTCMETValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
     //get input collections
-    iEvent.getByLabel(muonInputTag_    , muon_h    );
-    iEvent.getByLabel(beamSpotInputTag_, beamSpot_h);
+    //    iEvent.getByLabel(muonInputTag_    , muon_h    );
+    //    iEvent.getByLabel(beamSpotInputTag_, beamSpot_h);
+    iEvent.getByToken(muonToken_ , muon_h);
+    iEvent.getByToken(beamSpotToken_, beamSpot_h);
 
     //get vertex collection
     hasValidVertex = false;
     if( usePvtxd0_ ){
-      iEvent.getByLabel( vertexInputTag_  , VertexHandle  );
+      //      iEvent.getByLabel( vertexInputTag_  , VertexHandle  );
+      iEvent.getByToken(vertexToken_  ,VertexHandle);
        
       if( VertexHandle.isValid() ) {
         vertexColl = VertexHandle.product();

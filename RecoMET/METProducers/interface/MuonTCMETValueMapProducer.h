@@ -57,6 +57,10 @@ class MuonTCMETValueMapProducer : public edm::EDProducer {
       edm::InputTag beamSpotInputTag_;
       edm::InputTag vertexInputTag_;
 
+      edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+      edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+      edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+
       const class MagneticField* bField;
 
       const reco::VertexCollection *vertexColl;
