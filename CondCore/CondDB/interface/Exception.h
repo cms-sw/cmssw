@@ -2,7 +2,6 @@
 #define CondCore_CondDB_Exception_h
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include <typeinfo>
 
 namespace conddb {
 
@@ -15,7 +14,7 @@ namespace conddb {
     virtual ~Exception() throw() {}
   };
 
-  void throwException( const std::string& message, const std::string& methodName );
+  void throwException [[noreturn]] ( const std::string& message, const std::string& methodName );
 
 }
 
