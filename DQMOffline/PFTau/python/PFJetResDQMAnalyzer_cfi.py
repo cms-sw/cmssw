@@ -4,7 +4,8 @@ pfJetResDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
     InputCollection = cms.InputTag('pfAllElectrons'),
     MatchCollection = cms.InputTag('gensource'),
     BenchmarkLabel  = cms.string('PFJetResValidation/PFElecVsGenElec'),
-    deltaRMax = cms.double(0.2),
+    deltaRMax = cms.double(0.1),
+    onlyTwoJets = cms.bool(False),
     matchCharge = cms.bool(False),
     mode = cms.int32( 1 ),
     CreatePFractionHistos = cms.bool(False),
@@ -82,9 +83,10 @@ pfJetResDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
     ),
 # parameter for event skim
     SkimParameter = cms.PSet(
-      switchOn = cms.bool(False),
+      switchOn = cms.bool(True),
       maximumNumberToBeStored = cms.int32(100),
-      lowerCutOffOnResolution = cms.double(-1.5),
-      upperCutOffOnResolution = cms.double(1.5)
+      minimumJetpT = cms.double(100), 
+      lowerCutOffOnResolution = cms.double(-0.2),
+      upperCutOffOnResolution = cms.double(0.2)
     )
 )
