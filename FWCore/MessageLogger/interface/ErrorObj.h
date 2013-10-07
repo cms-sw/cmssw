@@ -30,7 +30,6 @@
 
 #include <sstream>
 #include <string>
-#include <atomic>
 
 namespace edm {       
 
@@ -96,9 +95,6 @@ public:
   virtual void  setReactedTo ( bool r );
 
 private:
-  // ---  class-wide serial number stamper:
-  //
-  static std::atomic<int>     ourSerial;
 
   // ---  data members:
   //
