@@ -1,7 +1,3 @@
-
-// There is a unit test for this run by FWCore/Integration/test/run_TestGetBy.sh
-// that tests part of this executable.
-
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/History.h"
