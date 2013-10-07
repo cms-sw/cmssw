@@ -93,20 +93,6 @@ namespace cms
 
       TCMETAlgo tcMetAlgo_;
 
-      // for tcMET
-      edm::EDGetTokenT<reco::MuonCollection> muonToken_;
-      edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
-      edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
-      edm::EDGetTokenT<reco::TrackCollection> trackToken_;
-      edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-      edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-      edm::EDGetTokenT<reco::PFClusterCollection> clustersECALToken_;
-      edm::EDGetTokenT<reco::PFClusterCollection> clustersHCALToken_;
-      edm::EDGetTokenT<reco::PFClusterCollection> clustersHFEMToken_;
-      edm::EDGetTokenT<reco::PFClusterCollection> clustersHFHADToken_;
-      edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > muonDepValueMapToken_;
-      edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > tcmetDepValueMapToken_;
-
     };
 }
 
