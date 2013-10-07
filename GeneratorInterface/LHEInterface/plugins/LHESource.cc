@@ -155,6 +155,11 @@ LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
 	if (partonLevel->getPDF()) {
 		product->setPDF(*partonLevel->getPDF());
         }
+	std::vector<LHEEventProduct::WGT>::const_iterator iwgt = 
+	  partonLevel->weights().begin();
+	for( ; iwgt != partonLevel->weights().end(); ++iwgt ) {
+	  product->addWeight(*iwgt);
+	}
 	std::for_each(partonLevel->getComments().begin(),
 	              partonLevel->getComments().end(),
 	              boost::bind(&LHEEventProduct::addComment,

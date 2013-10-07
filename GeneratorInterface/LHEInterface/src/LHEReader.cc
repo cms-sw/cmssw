@@ -492,7 +492,6 @@ LHEReader::~LHEReader()
 	lheevent.reset(new LHEEvent(curRunInfo, data));
 	const XMLHandler::wgt_info& info = handler->weightInfo();
 	for( size_t i=0; i< info.size(); ++i ) {
-	  std::cout << "adding weight: " << info[i].first << ' ' << info[i].second << std::endl;
 	  lheevent->addWeight(gen::WeightsInfo(info[i].first,info[i].second));
 	}
 

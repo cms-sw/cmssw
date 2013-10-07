@@ -137,6 +137,8 @@
   <version ClassVersion="10" checksum="1026978494"/>
   <version ClassVersion="11" checksum="619154414"/>
  </class>
+ <class name="gen::WeightsInfo"/>
+ <class name="std::vector<gen::WeightsInfo>"/>
 	<class name="edm::Wrapper&lt;LHERunInfoProduct&gt;"/>
 	<class name="edm::Wrapper&lt;LHEEventProduct&gt;"/>
 
