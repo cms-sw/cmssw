@@ -5,6 +5,7 @@ pfJetDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
     MatchCollection = cms.InputTag('ak5CaloJets'),
     BenchmarkLabel  = cms.string('ParticleFlow/PFVsCalo'),
     deltaRMax = cms.double(0.1),
+    onlyTwoJets = cms.bool(False),
     matchCharge = cms.bool(False),
     mode = cms.int32( 1 ),
     CreatePFractionHistos = cms.bool(False),
@@ -78,9 +79,10 @@ pfJetDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
     ),
 # parameter for event skim
     SkimParameter = cms.PSet(
-      switchOn = cms.bool(False),
-      maximumNumberToBeStored = cms.int32(100), 
-      lowerCutOffOnResolution = cms.double(-1.5),
-      upperCutOffOnResolution = cms.double(1.5)
+      switchOn = cms.bool(True),
+      maximumNumberToBeStored = cms.int32(100),
+      minimumJetpT = cms.double(100), 
+      lowerCutOffOnResolution = cms.double(-0.2),
+      upperCutOffOnResolution = cms.double(0.2)
     )
 )

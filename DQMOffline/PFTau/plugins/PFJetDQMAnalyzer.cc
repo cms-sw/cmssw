@@ -56,19 +56,22 @@ void PFJetDQMAnalyzer::analyze(edm::Event const& iEvent,
 
   float maxRes = 0.0;
   float minRes = 99.99;
+  float jetpT = 0.0;
   if (jetCollection.isValid() && matchedJetCollection.isValid()) {
     //pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes);  // match collections and fill pt eta phi and charge histos for candidate jet, fill delta_x_VS_y histos for matched couples, book and fill delta_frac_VS_frac histos for matched couples
-    pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes, pSet_);  // match collections and fill pt eta phi and charge histos for candidate jet, fill delta_x_VS_y histos for matched couples, book and fill delta_frac_VS_frac histos for matched couples
+    pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes, jetpT, pSet_);  // match collections and fill pt eta phi and charge histos for candidate jet, fill delta_x_VS_y histos for matched couples, book and fill delta_frac_VS_frac histos for matched couples
     edm::ParameterSet skimPS = pSet_.getParameter<edm::ParameterSet>("SkimParameter");
     if ( (skimPS.getParameter<bool>("switchOn")) &&  
          (nBadEvents_ <= skimPS.getParameter<int32_t>("maximumNumberToBeStored")) ) {
-      if ( minRes < skimPS.getParameter<double>("lowerCutOffOnResolution")) {
-	storeBadEvents(iEvent,minRes);
-        nBadEvents_++;
-      } else if (maxRes > skimPS.getParameter<double>("upperCutOffOnResolution")) {
-	storeBadEvents(iEvent,maxRes);
-        nBadEvents_++;
-      }
+      if (jetpT > skimPS.getParameter<double>("minimumJetpT")) { 
+	if ( minRes < skimPS.getParameter<double>("lowerCutOffOnResolution")) {
+	  storeBadEvents(iEvent,minRes);
+	  nBadEvents_++;
+	} else if (maxRes > skimPS.getParameter<double>("upperCutOffOnResolution")) {
+	  storeBadEvents(iEvent,maxRes);
+	  nBadEvents_++;
+	}
+      } // minimum jet pT check
     }
   }
 }
