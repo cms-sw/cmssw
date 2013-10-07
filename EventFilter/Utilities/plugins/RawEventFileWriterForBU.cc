@@ -92,7 +92,7 @@ void RawEventFileWriterForBU::doOutputEvent(FRDEventMsgView const& msg)
   //  ost_->write((const char*) msg.startAddress(), msg.size());
   //  if (ost_->fail()) {
   ssize_t retval =  write(outfd_,(void*)msg.startAddress(), msg.size());
-  if(retval!= msg.size()){
+  if((unsigned)retval!= msg.size()){
     throw cms::Exception("RawEventFileWriterForBU", "doOutputEvent")
       << "Error writing FED Raw Data event data to "
       << fileName_ << ".  Possibly the output disk "
