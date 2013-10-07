@@ -43,6 +43,7 @@ PFJetMonitor::~PFJetMonitor() {}
 void PFJetMonitor::setParameters( const edm::ParameterSet & parameterSet) {
 
   dRMax_                 = parameterSet.getParameter<double>( "deltaRMax" );
+  onlyTwoJets_           = parameterSet.getParameter<bool>( "onlyTwoJets" );
   matchCharge_           = parameterSet.getParameter<bool>( "matchCharge" );
   mode_                  = (Benchmark::Mode) parameterSet.getParameter<int>( "mode" );
   createPFractionHistos_ = parameterSet.getParameter<bool>( "CreatePFractionHistos" );
@@ -60,10 +61,11 @@ void PFJetMonitor::setParameters( const edm::ParameterSet & parameterSet) {
 //
 // -- Set Parameters 
 //
-void PFJetMonitor::setParameters(float dRMax, bool matchCharge, Benchmark::Mode mode,
+void PFJetMonitor::setParameters(float dRMax, bool onlyTwoJets, bool matchCharge, Benchmark::Mode mode,
 				 float ptmin, float ptmax, float etamin, float etamax, 
 				 float phimin, float phimax, bool fracHistoFlag) {
   dRMax_                 = dRMax;
+  onlyTwoJets_           = onlyTwoJets;
   matchCharge_           = matchCharge;
   mode_                  = mode;
   createPFractionHistos_ = fracHistoFlag;
