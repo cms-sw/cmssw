@@ -51,9 +51,9 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
       
-  edm::Handle<reco::MuonCollection>    muon_h;
-  edm::Handle<reco::BeamSpot>          beamSpot_h;
-  edm::Handle<reco::VertexCollection>  VertexHandle;
+  edm::Handle<reco::MuonCollection>    muons_;
+  edm::Handle<reco::BeamSpot>          beamSpot_;
+  edm::Handle<reco::VertexCollection>  vertexHandle_;
 
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
@@ -61,7 +61,7 @@ private:
 
   const class MagneticField* bField;
 
-  const reco::VertexCollection *vertexColl;
+  const reco::VertexCollection *vertices_;
 
   class TH2D* response_function;
 

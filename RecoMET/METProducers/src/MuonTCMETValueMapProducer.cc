@@ -109,47 +109,32 @@ MuonTCMETValueMapProducer::~MuonTCMETValueMapProducer()
 //____________________________________________________________________________||
 void MuonTCMETValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //get input collections
-  iEvent.getByToken(muonToken_ , muon_h);
-  iEvent.getByToken(beamSpotToken_, beamSpot_h);
+  iEvent.getByToken(muonToken_ , muons_);
+  iEvent.getByToken(beamSpotToken_, beamSpot_);
 
-  //get vertex collection
   hasValidVertex = false;
   if( usePvtxd0_ ){
-    iEvent.getByToken(vertexToken_  ,VertexHandle);
-       
-    if( VertexHandle.isValid() ) {
-      vertexColl = VertexHandle.product();
+    iEvent.getByToken(vertexToken_  ,vertexHandle_);
+
+    if( vertexHandle_.isValid() ) {
+      vertices_ = vertexHandle_.product();
       hasValidVertex = isValidVertex();
     }
   }
 
-  //get the Bfield
   edm::ESHandle<MagneticField> theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
   bField = theMagField.product();
-
-  //make a ValueMap of ints => flags for
-  //met correction. The values and meanings of the flags are :
-  // flag==0 --->    The muon is not used to correct the MET by default
-  // flag==1 --->    The muon is used to correct the MET. The Global pt is used.
-  // flag==2 --->    The muon is used to correct the MET. The tracker pt is used.
-  // flag==3 --->    The muon is used to correct the MET. The standalone pt is used.
-  // flag==4 --->    The muon is used to correct the MET as pion using the tcMET ZSP RF.
-  // flag==5 --->    The muon is used to correct the MET.  The default fit is used; i.e. we get the pt from muon->pt().
-  // In general, the flag should never be 3. You do not want to correct the MET using
-  // the pt measurement from the standalone system (unless you really know what you're
-  // doing
 
   std::auto_ptr<edm::ValueMap<reco::MuonMETCorrectionData> > vm_muCorrData(new edm::ValueMap<reco::MuonMETCorrectionData>());
 
   std::vector<reco::MuonMETCorrectionData> v_muCorrData;
 
-  unsigned int nMuons = muon_h->size();
+  unsigned int nMuons = muons_->size();
 
   for (unsigned int iMu = 0; iMu < nMuons; iMu++) {
 
-    const reco::Muon* mu = &(*muon_h)[iMu];
+    const reco::Muon* mu = &(*muons_)[iMu];
     double deltax = 0.0;
     double deltay = 0.0;
 
@@ -194,7 +179,7 @@ void MuonTCMETValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetu
     
   edm::ValueMap<reco::MuonMETCorrectionData>::Filler dataFiller(*vm_muCorrData);
 
-  dataFiller.insert( muon_h, v_muCorrData.begin(), v_muCorrData.end());
+  dataFiller.insert( muons_, v_muCorrData.begin(), v_muCorrData.end());
   dataFiller.fill();
     
   iEvent.put(vm_muCorrData, "muCorrData");
@@ -225,7 +210,7 @@ bool MuonTCMETValueMapProducer::isGoodMuon( const reco::Muon* muon )
 
   // get d0 corrected for beam spot
   bool haveBeamSpot = true;
-  if( !beamSpot_h.isValid() ) haveBeamSpot = false;
+  if( !beamSpot_.isValid() ) haveBeamSpot = false;
 
   if( muonGlobal_  && !muon->isGlobalMuon()  ) return false;
   if( muonTracker_ && !muon->isTrackerMuon() ) return false;
@@ -233,7 +218,7 @@ bool MuonTCMETValueMapProducer::isGoodMuon( const reco::Muon* muon )
   const reco::TrackRef siTrack     = muon->innerTrack();
   const reco::TrackRef globalTrack = muon->globalTrack();
 
-  Point bspot = haveBeamSpot ? beamSpot_h->position() : Point(0,0,0);
+  Point bspot = haveBeamSpot ? beamSpot_->position() : Point(0,0,0);
   if( siTrack.isNonnull() ) nhits = siTrack->numberOfValidHits();
   if( globalTrack.isNonnull() ) 
     {
@@ -267,13 +252,13 @@ bool MuonTCMETValueMapProducer::isGoodCaloMuon( const reco::Muon* muon, const un
   if( !inputSiliconTrack.isNonnull() ) return false;
 
   //check if it is in the vicinity of a global or tracker muon
-  unsigned int nMuons = muon_h->size();
+  unsigned int nMuons = muons_->size();
   for (unsigned int iMu = 0; iMu < nMuons; iMu++)
     {
 
       if( iMu == index ) continue;
 
-      const reco::Muon* mu = &(*muon_h)[iMu];
+      const reco::Muon* mu = &(*muons_)[iMu];
 
       const reco::TrackRef testSiliconTrack = mu->innerTrack();
       if( !testSiliconTrack.isNonnull() ) continue;
@@ -301,9 +286,9 @@ bool MuonTCMETValueMapProducer::isGoodTrack( const reco::Muon* muon )
     {
       //get d0 corrected for primary vertex
             
-      const Point pvtx = Point(vertexColl->begin()->x(),
-			       vertexColl->begin()->y(), 
-			       vertexColl->begin()->z());
+      const Point pvtx = Point(vertices_->begin()->x(),
+			       vertices_->begin()->y(), 
+			       vertices_->begin()->z());
             
       d0 = -1 * siTrack->dxy( pvtx );
             
@@ -318,9 +303,9 @@ bool MuonTCMETValueMapProducer::isGoodTrack( const reco::Muon* muon )
               
 	// get d0 corrected for beam spot
 	bool haveBeamSpot = true;
-	if( !beamSpot_h.isValid() ) haveBeamSpot = false;
+	if( !beamSpot_.isValid() ) haveBeamSpot = false;
               
-	Point bspot = haveBeamSpot ? beamSpot_h->position() : Point(0,0,0);
+	Point bspot = haveBeamSpot ? beamSpot_->position() : Point(0,0,0);
 	d0 = -1 * siTrack->dxy( bspot );
               
       }
@@ -330,9 +315,9 @@ bool MuonTCMETValueMapProducer::isGoodTrack( const reco::Muon* muon )
        
       // get d0 corrected for beam spot
       bool haveBeamSpot = true;
-      if( !beamSpot_h.isValid() ) haveBeamSpot = false;
+      if( !beamSpot_.isValid() ) haveBeamSpot = false;
        
-      Point bspot = haveBeamSpot ? beamSpot_h->position() : Point(0,0,0);
+      Point bspot = haveBeamSpot ? beamSpot_->position() : Point(0,0,0);
       d0 = -1 * siTrack->dxy( bspot );
     }
 
@@ -453,10 +438,10 @@ int MuonTCMETValueMapProducer::nLayers(const reco::TrackRef track)
 //____________________________________________________________________________||
 bool MuonTCMETValueMapProducer::isValidVertex()
 {
-  if( vertexColl->begin()->isFake()                ) return false;
-  if( vertexColl->begin()->ndof() < vertexNdof_    ) return false;
-  if( fabs( vertexColl->begin()->z() ) > vertexZ_  ) return false;
-  if( sqrt( std::pow( vertexColl->begin()->x() , 2 ) + std::pow( vertexColl->begin()->y() , 2 ) ) > vertexRho_ ) return false;
+  if( vertices_->begin()->isFake()                ) return false;
+  if( vertices_->begin()->ndof() < vertexNdof_    ) return false;
+  if( fabs( vertices_->begin()->z() ) > vertexZ_  ) return false;
+  if( sqrt( std::pow( vertices_->begin()->x() , 2 ) + std::pow( vertices_->begin()->y() , 2 ) ) > vertexRho_ ) return false;
     
   return true;
     
