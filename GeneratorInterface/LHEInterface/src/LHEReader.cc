@@ -94,6 +94,7 @@ class LHEReader::StringSource : public LHEReader::Source {
 
 class LHEReader::XMLHandler : public XMLDocument::Handler {
     public:
+  typedef std::vector<std::pair<std::string,double> > wgt_info;
 	XMLHandler() :
 		impl(0), gotObject(kNone), mode(kNone),
 		xmlHeader(0), headerOk(false) {}
@@ -109,6 +110,8 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	};
 
 	void reset() { headerOk = false; }
+
+        const wgt_info& weightInfo() const {return weightsinevent;}
 
     protected:
 	void startElement(const XMLCh *const uri,
@@ -135,7 +138,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
         std::vector<DOMElement*>	xmlNodes,xmlEventNodes;
 	bool				headerOk;
 	std::vector<LHERunInfo::Header>	headers;
-        std::vector<std::string> weightsinevent;
+        std::vector<std::pair<std::string,double> > weightsinevent;
 };
 
 static void attributesToDom(DOMElement *dom, const Attributes &attributes)
@@ -171,7 +174,6 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
                                          const Attributes &attributes)
 {
   std::string name((const char*)XMLSimpleStr(qname));
-  std::cout << name << std::endl;
 
   if (!headerOk) {
     if (name != "LesHouchesEvents")
@@ -185,18 +187,12 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     DOMElement *elem = xmlHeader->createElement(qname);
     attributesToDom(elem, attributes);
     xmlNodes.back()->appendChild(elem);
-    std::cout << "Got header tag: " 
-	      << (const char*)XMLSimpleStr(elem->getTagName()) 
-	      << std::endl;
     xmlNodes.push_back(elem);
     return;
   } else if ( mode == kEvent ) {
     DOMElement *elem = xmlEvent->createElement(qname);    
     attributesToDom(elem, attributes);
-    
-    std::cout << "Got event tag: " 
-	      << (const char*)XMLSimpleStr(elem->getTagName()) 
-	      << std::endl;
+
     if( name == "rwgt" ) {
       xmlEventNodes[0]->appendChild(elem);
     } else if (name == "wgt") {
@@ -225,9 +221,10 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
 							  XMLUniStr("Core"));
     xmlEvent = impl->createDocument(0, qname, 0);
     xmlEventNodes.clear();
+    weightsinevent.clear();
     xmlEventNodes.resize(1);
     xmlEventNodes[0] = xmlEvent->getDocumentElement();
-    mode = kEvent;
+    mode = kEvent;    
   }
   
   if (mode == kNone)
@@ -242,7 +239,6 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
                                        const XMLCh *const qname)
 {
   std::string name((const char*)XMLSimpleStr(qname));
-  std::cout << name << std::endl;
   
   if (mode) {
 
@@ -258,19 +254,19 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
       for(DOMNode *node = xmlNodes[0]->getFirstChild();
 	  node; node = node->getNextSibling()) {
 	XMLSimpleStr buffer(writer->writeToString(*node));
-	
+
 	std::string type;
 	const char *p, *q;
 	DOMElement *elem;
 	
 	switch(node->getNodeType()) {
-	case DOMNode::ELEMENT_NODE:
-	  elem = static_cast<DOMElement*>(node);
-	  type = (const char*)XMLSimpleStr(
-					   elem->getTagName());
-	  p = std::strchr((const char*)buffer,
-			  '>') + 1;
-	  q = std::strrchr(p, '<');
+	case DOMNode::ELEMENT_NODE:	  
+	    elem = static_cast<DOMElement*>(node);
+	    type = (const char*)XMLSimpleStr(
+					     elem->getTagName());
+	    p = std::strchr((const char*)buffer,
+			    '>') + 1;
+	    q = std::strrchr(p, '<');	 
 	  break;
 	case DOMNode::COMMENT_NODE:
 	  type = "";
@@ -284,18 +280,10 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 	  if (!*p)
 	    continue;
 	  q = p + strlen(p);
-	}
-	
-	if( name == "weightgroup" ) {
-	  const char* s = p;
-	  while( s != q ) std::cout << *s;
-	  std::cout << std::endl;
-	}
-	  
-
+	}	
 	LHERunInfo::Header header(type);
 	fillHeader(header, p, q - p);
-	headers.push_back(header);
+	headers.push_back(header);	
       }
       
       xmlHeader->release();
@@ -307,7 +295,7 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 
     if (name == "event" && 
 	mode == kEvent && 
-	xmlEventNodes.size() > 1) { // handling of weights in LHE file
+	xmlEventNodes.size() >= 1) { // handling of weights in LHE file
       weightsinevent.clear();
       std::auto_ptr<DOMWriter> writer(
 				      static_cast<DOMImplementationLS*>(
@@ -316,17 +304,31 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 
       for(DOMNode *node = xmlEventNodes[0]->getFirstChild();
 	  node; node = node->getNextSibling()) {
-	for(DOMNode *rwgt = xmlEventNodes[1]->getFirstChild();
-	    rwgt; rwgt = rwgt->getNextSibling()) {
-	  DOMNode* attr = rwgt->getAttributes()->item(0);
-	  XMLSimpleStr atname(attr->getNodeValue());
-	  switch(rwgt->getNodeType()) {
-	  case DOMNode::ELEMENT_NODE:	    
-	    weightsinevent.push_back((const char*)atname);
-	    break;	  
-	  default:	    	  
-	    break;
-	  }	  
+	switch( node->getNodeType() ) {
+	case DOMNode::ELEMENT_NODE: // rwgt
+	  for(DOMNode *rwgt = xmlEventNodes[1]->getFirstChild();
+	      rwgt; rwgt = rwgt->getNextSibling()) {
+	    DOMNode* attr = rwgt->getAttributes()->item(0);
+	    XMLSimpleStr atname(attr->getNodeValue());
+	    XMLSimpleStr weight(rwgt->getFirstChild()->getNodeValue());
+	    switch(rwgt->getNodeType()) {
+	    case DOMNode::ELEMENT_NODE:	 
+	      weightsinevent.push_back(std::make_pair((const char*)atname,
+						      strtod((const char*)weight,NULL)));
+	      break;	    
+	    default:	    	  
+	      break;
+	    }	  
+	  }
+	  break;
+	case DOMNode::TEXT_NODE: // event information
+	  {
+	    XMLSimpleStr data(node->getNodeValue());
+	    buffer.append(data);
+	  }
+	  break;
+	default:
+	  break;
 	}
       }
       xmlEvent->release();
@@ -351,16 +353,16 @@ void LHEReader::XMLHandler::characters(const XMLCh *const data_,
 		DOMText *text = xmlHeader->createTextNode(data_);
 		xmlNodes.back()->appendChild(text);
 		return;
-	}
-
-	if( mode == kEvent ) {
-	  DOMText *text = xmlEvent->createTextNode(data_);
-	  xmlEventNodes.front()->appendChild(text);
-	  return;
-	}
+	}	
 
 	if (XMLSimpleStr::isAllSpaces(data_, length))
 		return;
+
+	if( mode == kEvent ) {
+	  DOMText *text = xmlEvent->createTextNode(data_);
+	  xmlEventNodes.back()->appendChild(text);
+	  return;
+	}
 
 	unsigned int offset = 0;
 	while(offset < length && XMLSimpleStr::isSpace(data_[offset]))
@@ -485,15 +487,20 @@ LHEReader::~LHEReader()
           return boost::shared_ptr<LHEEvent>();
         else if (maxEvents > 0)
           maxEvents--;
-        
-	std::cout << "dumping event data" << std::endl;
-	std::cout << data.str() << std::endl;
-        return boost::shared_ptr<LHEEvent>(
-                                           new LHEEvent(curRunInfo, data));
-      }
+
+	boost::shared_ptr<LHEEvent> lheevent;
+	lheevent.reset(new LHEEvent(curRunInfo, data));
+	const XMLHandler::wgt_info& info = handler->weightInfo();
+	for( size_t i=0; i< info.size(); ++i ) {
+	  std::cout << "adding weight: " << info[i].first << ' ' << info[i].second << std::endl;
+	  lheevent->addWeight(gen::WeightsInfo(info[i].first,info[i].second));
 	}
+
+        return lheevent;
+      }
+    }
     
-	return boost::shared_ptr<LHEEvent>();
+    return boost::shared_ptr<LHEEvent>();
   }
   
 } // namespace lhef
