@@ -45,8 +45,8 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeom
   theMuonNavigationFlag = par.getUntrackedParameter<bool>("UseMuonNavigation",true);
   if(theMuonNavigationFlag) {
 	theRPCLayer = par.getParameter<bool>("RPCLayers");
-	theCSCLayer = par.getParameter<bool>("CSCLayers");
-	theGEMLayer = par.getParameter<bool>("GEMLayers");
+	theCSCLayer = par.getUntrackedParameter<bool>("CSCLayers",true);
+	theGEMLayer = par.getUntrackedParameter<bool>("GEMLayers",false);
   }
   else {
   	theRPCLayer = true;
