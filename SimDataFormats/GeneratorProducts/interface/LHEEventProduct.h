@@ -23,9 +23,8 @@ class LHEEventProduct {
 	~LHEEventProduct() {}
 
 	void setPDF(const PDF &pdf) { pdf_.reset(new PDF(pdf)); }
-	void setWeights(const std::vector<WGT>& wgts) { 
-	  weights_.clear(); 
-	  weights_.insert(weights_.begin(),wgts.begin(),wgts.end());
+	void addWeight(const WGT& wgt) { 	  
+	  weights_.push_back(wgt);
 	}
 	void addComment(const std::string &line) { comments_.push_back(line); }
 
