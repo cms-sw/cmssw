@@ -59,6 +59,17 @@ const int CSCMotherboardME11::lut_wg_vs_hs_me1b[48][2] = {
 {0, 127},{0, 127},{0, 127},{0, 127},{0, 105},
 {0, 93},{0, 78},{0, 63} };
 
+// LUT with bending angles of the GEM-CSC high efficiency patterns (98%)
+// 1st index: pt value = {5,10,15,20,30,40}
+// 2nd index: bending angle for odd numbered chambers
+// 3rd index: bending angle for even numbered chambers
+const double CSCMotherboardME11::lut_pt_vs_dphi_gemcsc[6][3] = {
+  {5.,  0.02203511, 0.00930056}, 
+  {10., 0.01066000, 0.00483286},
+  {15., 0.00722795, 0.00363230},
+  {20., 0.00562598, 0.00304878},
+  {30., 0.00416544, 0.00253782},
+  {40., 0.00342827, 0.00230833} };
 
 CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
 			       unsigned sector, unsigned subsector,
@@ -692,7 +703,7 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
   int chamber = csc_id.chamber();
   bool is_odd = chamber & 1;
 
-  cout<<"++++++++  matchGEMPads "<< csc_id <<" +++++++++ "<<endl;
+  std::cout<<"++++++++  matchGEMPads "<< csc_id <<" +++++++++ "<<std::endl;
 
   // "key" layer id is used to calculate global position of stub
   CSCDetId key_id(csc_id.endcap(), csc_id.station(), csc_id.ring(), csc_id.chamber(), CSCConstants::KEY_CLCT_LAYER);
@@ -715,7 +726,7 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
 
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad)
       {
-        cout<<" gem pad "<<gem_id<<" "<<pad->pad()<<" "<<pad->bx() + 1<<endl;
+        std::cout<<" gem pad "<<gem_id<<" "<<pad->pad()<<" "<<pad->bx() + 1<<endl;
         npads++;
         auto id_pad = std::make_pair(gem_id(), &(*pad));
         int bx_shifted = 6 + pad->bx(); // central LCT bx is 6 for simulation - FIXME: need a parameter!
@@ -727,9 +738,9 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
       }
     }
   }
-  cout<<" nlct "<<nlct<<"  npads "<<npads<<endl;
+  std::cout<<" nlct "<<nlct<<"  npads "<<npads<<std::endl;
   if (pads.empty()) {
-    cout<<"igotnopads"<<endl;
+    std::cout<<"igotnopads"<<std::endl;
     //return;
   }
 
@@ -744,7 +755,7 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
       {
         CSCCorrelatedLCTDigi& lct = allLCTs1b[bx][mbx][i];
         if (!lct.isValid()) continue;
-        cout<<"LCTbefore "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
+        std::cout<<"LCTbefore "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
 
         // use -99 as default value whe we don't know if there could have been a gem match
         lct.setGEMDPhi(-99.);
@@ -762,21 +773,21 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
         // is LCT located in the high efficiency GEM eta range?
         bool gem_fid = ( std::abs(csc_gp.eta()) >= gem_match_min_eta );
 
-        cout<<" lct eta "<<csc_gp.eta()<<" phi "<<csc_gp.phi()<<endl;
+        std::cout<<" lct eta "<<csc_gp.eta()<<" phi "<<csc_gp.phi()<<std::endl;
 
         if (!gem_fid)
         {
-          cout<<"    -- lct pass no gem req"<<endl;
+          std::cout<<"    -- lct pass no gem req"<<std::endl;
           continue;
         }
 
         if (in_pads == pads.end()) // has no potential GEM hits with similar BX -> zap it
         {
           if (gem_clear_nomatch_lcts) lct.clear();
-          cout<<"    -- no gem"<<endl;
+          std::cout<<"    -- no gem"<<std::endl;
           continue;
         }
-        cout<<"    -- gem possible"<<endl;
+        std::cout<<"    -- gem possible"<<std::endl;
 
         // use 99 ad default value whe we expect there to be a gem match
         lct.setGEMDPhi(99.);
@@ -794,7 +805,7 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
           GlobalPoint gem_gp = gem_g->idToDet(gem_id)->surface().toGlobal(gem_lp);
           float dphi = deltaPhi(csc_gp.phi(), gem_gp.phi());
           float deta = csc_gp.eta() - gem_gp.eta();
-          cout<<"    gem with dphi "<< std::abs(dphi) <<" deta "<< std::abs(deta) <<endl;
+          std::cout<<"    gem with dphi "<< std::abs(dphi) <<" deta "<< std::abs(deta) <<std::endl;
 
           if( (              std::abs(deta) <= gem_match_delta_eta        ) && // within delta_eta
               ( (  is_odd && std::abs(dphi) <= gem_match_delta_phi_odd ) ||
@@ -809,21 +820,21 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
         }
         if (gem_matched)
         {
-          cout<<" GOT MATCHED GEM!"<<endl;
+          std::cout<<" GOT MATCHED GEM!"<<std::endl;
           //lct.setGEMBX(gem_bx);
           lct.setGEMDPhi(min_dphi);
         }
         else
         {
-          cout<<" no gem match";
+          std::cout<<" no gem match";
           if (gem_clear_nomatch_lcts)
           {
             lct.clear();
-            cout<<" - cleared lct";
+            std::cout<<" - cleared lct";
           }
-          cout<<endl;
+          std::cout<<std::endl;
         }
-        cout<<"LCTafter "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
+        std::cout<<"LCTafter "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
       }
   }
 
@@ -835,5 +846,5 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
       {
         if (allLCTs1b[bx][mbx][i].isValid()) nlct_after++;
       }
-  cout<<"before "<<nlct<<"  after "<<nlct_after<<endl;
+  std::cout<<"before "<<nlct<<"  after "<<nlct_after<<std::endl;
 }
