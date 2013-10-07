@@ -110,6 +110,8 @@ namespace {
     edm::Ref<reco::GsfElectronCoreCollection> gecc_r;
     edm::RefProd<reco::GsfElectronCoreCollection> gecc_rp;
     edm::Wrapper<edm::RefVector<reco::GsfElectronCoreCollection> > gecc_rv;
+    edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::GsfElectron>,reco::GsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectron>,reco::GsfElectron> > > > gecc_wvm;
+    edm::ValueMap<edm::Ref<std::vector<reco::GsfElectron>,reco::GsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectron>,reco::GsfElectron> > > gecc_vm;
 
     reco::GsfElectron::TrackClusterMatching getcm ;
     reco::GsfElectron::TrackExtrapolations gete ;

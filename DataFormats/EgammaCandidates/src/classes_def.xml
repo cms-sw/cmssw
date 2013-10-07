@@ -110,6 +110,7 @@
   <class name="edm::RefProd<std::vector<reco::GsfElectronCore> >"/>
   <class name="edm::RefVector<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore> > >"/>
+
   
   <class name="reco::GsfElectron::TrackClusterMatching" ClassVersion="10">
    <version ClassVersion="10" checksum="1073796225"/>
@@ -199,8 +200,8 @@
   <class name="edm::Wrapper<edm::Ptr<reco::GsfElectron> >" />
   <class name="edm::PtrVector<reco::GsfElectron>" />
   <class name="edm::Wrapper<edm::PtrVector<reco::GsfElectron> >" />
-
-
+  <class name="edm::ValueMap<edm::Ref<std::vector<reco::GsfElectron>,reco::GsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectron>,reco::GsfElectron> > >"/>
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::GsfElectron>,reco::GsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectron>,reco::GsfElectron> > > >"/>
 
 
 

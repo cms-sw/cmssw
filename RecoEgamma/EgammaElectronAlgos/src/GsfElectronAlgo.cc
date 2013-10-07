@@ -654,6 +654,7 @@ void GsfElectronAlgo::checkSetup( const edm::EventSetup & es )
   }
  }
 
+
 void GsfElectronAlgo::copyElectrons( GsfElectronCollection & outEle )
  {
   GsfElectronPtrCollection::const_iterator it ;

@@ -12,8 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -388,7 +387,7 @@ void GsfElectronBaseProducer::fillEvent( edm::Event & event )
   // final filling
   std::auto_ptr<GsfElectronCollection> finalCollection( new GsfElectronCollection ) ;
   algo_->copyElectrons(*finalCollection) ;
-  event.put(finalCollection) ;
+  orphanHandle_ = event.put(finalCollection) ;
  }
 
 void GsfElectronBaseProducer::endEvent()

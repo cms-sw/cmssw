@@ -209,7 +209,6 @@ class GsfElectronAlgo {
     void copyElectrons( reco::GsfElectronCollection & ) ;
     void endEvent() ;
 
-
   private :
 
     // internal structures
