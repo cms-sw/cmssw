@@ -34,7 +34,7 @@ namespace edm {
     friend class ::testSharedResourcesRegistry;
     
     SharedResourcesAcquirer() = default;
-    explicit SharedResourcesAcquirer(std::vector<std::mutex*>&& iResources):
+    explicit SharedResourcesAcquirer(std::vector<std::recursive_mutex*>&& iResources):
     m_resources(iResources){}
     
     SharedResourcesAcquirer(SharedResourcesAcquirer&&) = default;
@@ -61,7 +61,7 @@ namespace edm {
   private:
     
     // ---------- member data --------------------------------
-    std::vector<std::mutex*> m_resources;
+    std::vector<std::recursive_mutex*> m_resources;
   };
 }
 
