@@ -62,7 +62,7 @@ namespace edm {
     const SharedResourcesRegistry& operator=(const SharedResourcesRegistry&) = delete; // stop default
     
     // ---------- member data --------------------------------
-    std::map<std::string, std::pair<std::shared_ptr<std::mutex>,unsigned int>> resourceMap_;
+    std::map<std::string, std::pair<std::shared_ptr<std::recursive_mutex>,unsigned int>> resourceMap_;
     
   };
 }

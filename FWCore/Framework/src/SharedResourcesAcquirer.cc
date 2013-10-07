@@ -13,7 +13,7 @@
 // system include files
 
 // user include files
-#include "SharedResourcesAcquirer.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
 
 namespace edm {
