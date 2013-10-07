@@ -1,0 +1,99 @@
+Event filtering information for 1 processing steps is available.
+The ParameterSets will be printed out, with the oldest printed first.
+ParameterSetID: 1c96131684e07cb22a7824bd8f619966
+{
+  EndPathPositions: vint32 tracked  = {+0}
+  EndPaths: vstring tracked  = {'e'}
+  InProcessHistory: bool tracked  = true
+  SelectEvents: vstring tracked  = {}
+ }
+     -------------------------
+Processing History:
+  PROD1 ''
+---------Producers with data in file---------
+Module: TriggerResults PROD1
+ PSet id:1d569bb732972ed5978f283a32c90565
+ products: {
+  edmTriggerResults_TriggerResults__PROD1.
+ }
+ parameters: {
+  @trigger_paths: vstring tracked  = {'p'}
+ }
+
+Module: aliasForInt PROD1
+ PSet id:6629013372178d257799a6e9fc9aa2cd
+ products: {
+  edmtestIntProduct_aliasForInt__PROD1.
+ }
+ parameters: {
+  @module_edm_type: string tracked  = 'EDAlias'
+  @module_label: string tracked  = 'aliasForInt'
+  @module_type: string tracked  = 'EDAlias'
+  intProducerA: VPSet tracked = ({
+   {
+    type: string tracked  = 'edmtestIntProduct'
+   }
+  })
+ }
+
+Module: intProducer PROD1
+ PSet id:3df1a82d54b59acbefd683a0491cddcf
+ products: {
+  edmtestIntProduct_intProducer__PROD1.
+ }
+ parameters: {
+  @module_edm_type: string tracked  = 'EDProducer'
+  @module_label: string tracked  = 'intProducer'
+  @module_type: string tracked  = 'IntProducer'
+  ivalue: int32 tracked  = 1
+ }
+
+Module: intProducerA PROD1
+ PSet id:38971365e8174cb2ccc12430661ba6d4
+ products: {
+  edmtestIntProduct_intProducerA__PROD1.
+ }
+ parameters: {
+  @module_edm_type: string tracked  = 'EDProducer'
+  @module_label: string tracked  = 'intProducerA'
+  @module_type: string tracked  = 'IntProducer'
+  ivalue: int32 tracked  = 100
+ }
+
+Module: intProducerU PROD1
+ PSet id:4af95ea04257c4d5af7a39a5d880e879
+ products: {
+  edmtestIntProduct_intProducerU__PROD1.
+ }
+ parameters: {
+  @module_edm_type: string tracked  = 'EDProducer'
+  @module_label: string tracked  = 'intProducerU'
+  @module_type: string tracked  = 'IntProducer'
+  ivalue: int32 tracked  = 10
+ }
+
+Module: intVectorProducer PROD1
+ PSet id:ba265ff620ae29cae20b80dcd626da39
+ products: {
+  ints_intVectorProducer__PROD1.
+ }
+ parameters: {
+  @module_edm_type: string tracked  = 'EDProducer'
+  @module_label: string tracked  = 'intVectorProducer'
+  @module_type: string tracked  = 'IntVectorProducer'
+  count: int32 tracked  = 9
+  ivalue: int32 tracked  = 11
+ }
+
+Module: source PROD1
+ PSet id:031810a3ee2992e7936b85708f83a8b2
+ products: {
+  edmtestIntProduct_source__PROD1.
+ }
+ parameters: {
+  @module_edm_type: string tracked  = 'Source'
+  @module_label: string tracked  = '@main_input'
+  @module_type: string tracked  = 'IntSource'
+ }
+
+---------EventSetup---------

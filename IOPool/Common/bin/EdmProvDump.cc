@@ -702,10 +702,6 @@ ProvenanceDumper::work_() {
       psm_.insert(idToBlob);
     }
   }
-  edm::ProcessConfigurationVector* pPhc = &phc_;
-  if(meta->FindBranch(edm::poolNames::processConfigurationBranchName().c_str()) != 0) {
-    meta->SetBranchAddress(edm::poolNames::processConfigurationBranchName().c_str(), &pPhc);
-  }
 
   edm::ProcessHistoryVector* pPhv = &phv_;
   if(meta->FindBranch(edm::poolNames::processHistoryBranchName().c_str()) != 0) {
@@ -737,8 +733,18 @@ ProvenanceDumper::work_() {
   }
 
 
+  if(!phv_.empty()) {
+    for(auto const& history : phv_) {
+      for(auto const& process : history) {
+        phc_.push_back(process);
+      }
+    }
+    edm::sort_all(phc_);
+    phc_.erase(std::unique(phc_.begin(), phc_.end()), phc_.end());
+    
+  }
   // backward compatibility
-  if(!phm.empty()) {
+  else if(!phm.empty()) {
     for(auto const& history : phm) {
       phv_.push_back(history.second);
       for(auto const& process : history.second) {
