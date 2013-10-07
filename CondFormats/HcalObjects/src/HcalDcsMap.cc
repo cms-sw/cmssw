@@ -14,14 +14,44 @@ $Revision: 1.1 $
 #include "CondFormats/HcalObjects/interface/HcalDcsMap.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-HcalDcsMap::HcalDcsMap() : 
+HcalDcsMap::HcalDcsMap()
   //FIXME mItems(HcalDcsDetId::maxLinearIndex+1),
-  //mItems(0x7FFF),
-  sortedById(false),
-  sortedByDcsId(false){
+  //: mItems(0x7FFF),
+    : mItemsById(nullptr), mItemsByDcsId(nullptr)
+{
 }
 
 HcalDcsMap::~HcalDcsMap(){
+    delete mItemsById;
+    mItemsById = nullptr;
+    delete mItemsByDcsId;
+    mItemsByDcsId = nullptr;
+}
+// copy-ctor
+HcalDcsMap::HcalDcsMap(const HcalDcsMap& src)
+    : mItems(src.mItems),
+      mItemsById(nullptr), mItemsByDcsId(nullptr) {}
+// copy assignment operator
+HcalDcsMap&
+HcalDcsMap::operator=(const HcalDcsMap& rhs) {
+    HcalDcsMap temp(rhs);
+    temp.swap(*this);
+    return *this;
+}
+// public swap function
+void HcalDcsMap::swap(HcalDcsMap& other) {
+    std::swap(mItems, other.mItems);
+    other.mItemsByDcsId.exchange(
+            mItemsByDcsId.exchange(other.mItemsByDcsId.load(std::memory_order_acquire), std::memory_order_acq_rel),
+            std::memory_order_acq_rel);
+    other.mItemsById.exchange(
+            mItemsById.exchange(other.mItemsById.load(std::memory_order_acquire), std::memory_order_acq_rel),
+            std::memory_order_acq_rel);
+}
+// move constructor
+HcalDcsMap::HcalDcsMap(HcalDcsMap&& other) 
+    : HcalDcsMap() {
+    other.swap(*this);
 }
 
 namespace hcal_impl {
@@ -44,29 +74,29 @@ namespace hcal_impl {
 
 HcalDcsMap::const_iterator HcalDcsMap::beginById(void) const{
   const_iterator _iter;
-  if (!sortedById) sortById();
-  _iter.fIter = mItemsById.begin();
+  sortById();
+  _iter.fIter = (*mItemsById.load(std::memory_order_acquire)).begin();
   return _iter;
 }
 
 HcalDcsMap::const_iterator HcalDcsMap::beginByDcsId(void) const{
   const_iterator _iter;
-  if (!sortedByDcsId) sortByDcsId();
-  _iter.fIter = mItemsByDcsId.begin();
+  sortByDcsId();
+  _iter.fIter = (*mItemsByDcsId.load(std::memory_order_acquire)).begin();
   return _iter;
 }
 
 HcalDcsMap::const_iterator HcalDcsMap::endById(void) const{
   const_iterator _iter;
-  if (!sortedById) sortById();
-  _iter.fIter = mItemsById.end();
+  sortById();
+  _iter.fIter = (*mItemsById.load(std::memory_order_acquire)).end();
   return _iter;
 }
 
 HcalDcsMap::const_iterator HcalDcsMap::endByDcsId(void) const{
   const_iterator _iter;
-  if (!sortedByDcsId) sortByDcsId();
-  _iter.fIter = mItemsByDcsId.end();
+  sortByDcsId();
+  _iter.fIter = (*mItemsByDcsId.load(std::memory_order_acquire)).end();
   return _iter;
 }
 
@@ -105,16 +135,17 @@ const std::vector<const HcalDcsMap::Item *> HcalDcsMap::findById (unsigned long 
   std::vector<const HcalDcsMap::Item*>::const_iterator item;
   std::vector<const HcalDcsMap::Item *> result;
 
-  if (!sortedById) sortById();
+  sortById();
   
   hcal_impl::LessById lessById;
-  item = std::lower_bound (mItemsById.begin(), mItemsById.end(), &target, lessById);
-  if (item == mItemsById.end() || (*item)->mId != fId){
+  auto ptr = (*mItemsById.load(std::memory_order_acquire));
+  item = std::lower_bound (ptr.begin(), ptr.end(), &target, lessById);
+  if (item == ptr.end() || (*item)->mId != fId){
     //    throw cms::Exception ("Conditions not found") << "Unavailable Dcs map for cell " << fId;
     return result;
   }
   else{
-    if(item != mItemsById.end() && !lessById(&target, *item)){
+    if(item != ptr.end() && !lessById(&target, *item)){
       result.push_back( *item );
       ++item;
     }
@@ -127,16 +158,17 @@ const std::vector<const HcalDcsMap::Item *> HcalDcsMap::findByDcsId (unsigned lo
   std::vector<const HcalDcsMap::Item*>::const_iterator item;
   std::vector<const HcalDcsMap::Item *> result;
 
-  if (!sortedByDcsId) sortByDcsId();
+  sortByDcsId();
 
   hcal_impl::LessByDcsId lessByDcsId;  
-  item = std::lower_bound (mItemsByDcsId.begin(), mItemsByDcsId.end(), &target, lessByDcsId);
-  if (item == mItemsByDcsId.end() || (*item)->mDcsId != fDcsId) {
+  auto ptr = (*mItemsByDcsId.load(std::memory_order_acquire));
+  item = std::lower_bound (ptr.begin(), ptr.end(), &target, lessByDcsId);
+  if (item == ptr.end() || (*item)->mDcsId != fDcsId) {
     //    throw cms::Exception ("Conditions not found") << "Unavailable Dcs map for cell " << fDcsId;
     return result;
   }
   else{
-    if(item != mItemsByDcsId.end() && !lessByDcsId(&target, *item)){
+    if(item != ptr.end() && !lessByDcsId(&target, *item)){
       result.push_back( *item );
       ++item;
     }
@@ -223,31 +255,44 @@ bool HcalDcsMap::mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcsId) {
   }
   Item _item(fId, fDcsId_notype);
   mItems.push_back(_item);
-  sortedById=false;
-  sortedByDcsId=false;
+  delete mItemsById;
+  mItemsById = nullptr;
+  delete mItemsByDcsId;
+  mItemsByDcsId = nullptr;
   return true;
 }
 
 
 void HcalDcsMap::sortById () const {
-  if (!sortedById) {
-    mItemsById.clear();
-    for (std::vector<Item>::const_iterator i=mItems.begin(); i!=mItems.end(); ++i) {
-      if (i->mDcsId) mItemsById.push_back(&(*i));
-    }
-    std::sort (mItemsById.begin(), mItemsById.end(), hcal_impl::LessById ());
-    sortedById=true;
+  if (!mItemsById.load(std::memory_order_acquire)) {
+      auto ptr = new std::vector<const Item*>;
+      for (auto i=mItems.begin(); i!=mItems.end(); ++i) {
+          if (i->mDcsId) ptr->push_back(&(*i));
+      }
+
+      std::sort (ptr->begin(), ptr->end(), hcal_impl::LessById ());
+      //atomically try to swap this to become mItemsById
+      std::vector<const Item*>* expect = nullptr;
+      bool exchanged = mItemsById.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
+      if(!exchanged) {
+          delete ptr;
+      }
   }
 }
 
 void HcalDcsMap::sortByDcsId () const {
-  if (!sortedByDcsId) {
-    mItemsByDcsId.clear();
-    for (std::vector<Item>::const_iterator i=mItems.begin(); i!=mItems.end(); ++i) {
-      if (i->mDcsId) mItemsByDcsId.push_back(&(*i));
-    }
+  if (!mItemsByDcsId.load(std::memory_order_acquire)) {
+      auto ptr = new std::vector<const Item*>;
+      for (auto i=mItems.begin(); i!=mItems.end(); ++i) {
+          if (i->mDcsId) ptr->push_back(&(*i));
+      }
     
-    std::sort (mItemsByDcsId.begin(), mItemsByDcsId.end(), hcal_impl::LessByDcsId ());
-    sortedByDcsId=true;
+      std::sort (ptr->begin(), ptr->end(), hcal_impl::LessByDcsId ());
+      //atomically try to swap this to become mItemsByDcsId
+      std::vector<const Item*>* expect = nullptr;
+      bool exchanged = mItemsByDcsId.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
+      if(!exchanged) {
+          delete ptr;
+      }
   }
 }
