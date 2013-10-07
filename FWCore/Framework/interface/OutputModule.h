@@ -21,6 +21,8 @@ output stream.
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include <array>
@@ -28,6 +30,7 @@ output stream.
 #include <vector>
 #include <map>
 #include <atomic>
+#include <mutex>
 
 namespace edm {
 
@@ -161,6 +164,9 @@ namespace edm {
     BranchParents branchParents_;
 
     BranchChildren branchChildren_;
+
+    SharedResourcesAcquirer resourceAcquirer_;
+    std::mutex mutex_;
 
     //------------------------------------------------------------------
     // private member functions
