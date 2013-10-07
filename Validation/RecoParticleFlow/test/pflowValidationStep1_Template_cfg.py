@@ -265,8 +265,14 @@ process.pfReRecoSequence = cms.Sequence(
 # PFDQM modules to book/fill actual histograms
 #----------------------------------------------
 process.load("Validation.RecoParticleFlow.PFJetValidation_cff")
+process.pfJetValidation1.SkimParameter.switchOn = cms.bool(True)
+process.pfJetValidation2.SkimParameter.switchOn = cms.bool(True)
+
 process.load("Validation.RecoParticleFlow.PFMETValidation_cff")
 process.load("Validation.RecoParticleFlow.PFJetResValidation_cff")
+process.pfJetResValidation1.SkimParameter.switchOn = cms.bool(True)
+process.pfJetResValidation2.SkimParameter.switchOn = cms.bool(True)
+
 process.load("Validation.RecoParticleFlow.PFElectronValidation_cff") 
 # needed to run Muon validation: it need tag V00-10-01 not yet in CMSSW_6_2_0
 #process.load("Validation.RecoParticleFlow.PFMuonValidation_cff")
