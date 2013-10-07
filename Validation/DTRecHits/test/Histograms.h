@@ -18,6 +18,28 @@
 #include <iostream>
 #include <math.h>
 
+
+// Retrieve standard name string for histogram sets
+TString buildName(int wheel, int station, int sl) {
+  TString name_;
+  if(sl == 0) {
+    name_+="W";    
+  } else if(sl == 2) {
+    name_+="RZ_W";
+  } else {
+    name_+="RPhi_W";
+  }
+  if (station==0) {
+    name_+=long(abs(wheel));
+  } else {
+    name_=name_+long(abs(wheel))+"_St"+long(station);
+  }
+  return name_;
+}
+  
+
+
+
 //---------------------------------------------------------------------------------------
 /// A set of histograms of residuals and pulls for 1D RecHits
 class HRes1DHit{
@@ -25,7 +47,6 @@ class HRes1DHit{
     HRes1DHit(std::string name_){
       TString N = name_.c_str();
       name=N;
-      cout << "constructor Histo"<<endl;
       // Position, sigma, residual, pull
       hDist       = new TH1F ("1D_"+N+"_hDist", "1D RHit distance from wire", 100, 0,2.5);
       hRes        = new TH1F ("1D_"+N+"_hRes", "1D RHit residual", 300, -1.5,1.5);
@@ -64,28 +85,41 @@ class HRes1DHit{
                                 
     }
 
-    HRes1DHit(TString name_, TFile* file){
-      name=name_;
-      hDist          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hDist");
-      hRes           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hRes");
-      hResSt[0]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResMB1");
-      hResSt[1]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResMB2");
-      hResSt[2]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResMB3");
-      hResSt[3]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResMB4");
-      hResVsEta      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsEta");
-      hResVsPhi      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsPhi");
-      hResVsPos      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsPos");
-      hResVsAngle    = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsAngle");
-      hResVsDistFE   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsDistFE");
-      hPull          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPull");
-      hPullSt[0]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullMB1");
-      hPullSt[1]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullMB2");
-      hPullSt[2]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullMB3");
-      hPullSt[3]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullMB4");
-      hPullVsPos     = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullVsPos");
-      hPullVsAngle   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullVsAngle");
-      hPullVsDistFE  = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullVsDistFE");
-    }
+
+  HRes1DHit(TFile* file, int wheel, int station, int sl, const TString& step){
+    TString name_=step;
+    name_+=buildName(wheel,station,sl);
+    initFromFile(name_,file);
+  }
+  
+
+  HRes1DHit(TString name_, TFile* file){
+    initFromFile(name_,file);
+  }
+  
+
+  void initFromFile(TString name_, TFile* file){
+    name=name_;
+    hDist          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hDist");
+    hRes           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hRes");
+    hResSt[0]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResMB1");
+    hResSt[1]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResMB2");
+    hResSt[2]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResMB3");
+    hResSt[3]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResMB4");
+    hResVsEta      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsEta");
+    hResVsPhi      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsPhi");
+    hResVsPos      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsPos");
+    hResVsAngle    = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsAngle");
+    hResVsDistFE   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Res/1D_"+name+"_hResVsDistFE");
+    hPull          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPull");
+    hPullSt[0]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullMB1");
+    hPullSt[1]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullMB2");
+    hPullSt[2]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullMB3");
+    hPullSt[3]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullMB4");
+    hPullVsPos     = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullVsPos");
+    hPullVsAngle   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullVsAngle");
+    hPullVsDistFE  = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullVsDistFE");
+  }
 
 
     ~HRes1DHit(){
@@ -199,10 +233,20 @@ class HEff1DHit{
 
     }
 
-    HEff1DHit (TString name_, TFile* file){
-      name=name_;
+  
+    HEff1DHit (TFile* file, int wheel, int station, int sl, const TString& step){
+      TString name_=step;
+      name_+=buildName(wheel,station,sl);
+      initFromFile(name_,file);
+    }
+  
 
-%      cout << "HEff1DHit: 1D_" << name_ << endl;
+    HEff1DHit (TString name_, TFile* file){
+      initFromFile(name_,file);
+    }
+  
+    initFromFile (TString name_, TFile* file){
+      name=name_;
 
       hEtaMuSimHit        = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hEtaMuSimHit");
       hEtaRecHit          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hEtaRecHit");
@@ -827,7 +871,19 @@ class HRes4DHit{
                                    100, -3.2, 3.2, 150, -5, 5);
     }
 
+
+  
+    HRes4DHit (TFile* file, int wheel, int station, int sl){
+      initFromFile(buildName(wheel,station,sl),file);
+    }
+  
+
     HRes4DHit (TString name_, TFile* file){
+      initFromFile(name_,file);
+    }
+  
+
+    initFromFile (TString name_, TFile* file){
       name=name_;
 
       hRecAlpha = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hRecAlpha");

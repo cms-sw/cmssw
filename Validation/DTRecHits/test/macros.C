@@ -69,33 +69,89 @@ void setStyle(TH2 *histo) {
   histo->GetYaxis()->SetLabelSize(gStyle->GetLabelSize());
 }
 
-void plotAndProfileX (TH2* h2, float min, float max, bool profile=false) {
-  setStyle(h2);
+
+// Plot a TH2 + add profiles on top of it
+// minY, maxY: Y range for plotting and for computing profile if addProfile==true.
+//             Note that the simple profile is very sensitive to the Y range used!
+
+
+bool addProfile=false;
+bool addSlice=true;
+
+void plotAndProfileX (TH2* h2, int rebinX, int rebinY, int rebinProfile, float minY, float maxY, float minX=0, float maxX=0) {
+  //  setStyle(h2);
+  if (h2==0) {
+    cout << "plotAndProfileX: null histo ptr" << endl;
+    return;
+  }
+  
   gPad->SetGrid(1,1);
   gStyle->SetGridColor(15);
-  h2->GetYaxis()->SetRangeUser(min,max);
-  h2->Draw();
-  if (profile) {
-    TProfile* prof = h2->ProfileX();
+  h2->Rebin2D(rebinX,rebinY);
+  //  h2->GetYaxis()->SetRangeUser(minY,maxY);
+
+  TLine * l = new TLine(h2->GetXaxis()->GetXmin(),0,h2->GetXaxis()->GetXmax(),0);
+  if (maxX>minX) {
+    h2->GetXaxis()->SetRangeUser(minX,maxX);  
+    l->SetX1(minX);
+    l->SetX2(maxX);
+  }
+
+  h2->SetMarkerStyle(1);
+  h2->Draw("col");
+  l->SetLineColor(3);
+  l->SetLineWidth(2);
+  l->Draw();
+  if (addProfile) {
+    TAxis* yaxis = h2->GetYaxis();
+    //Add option "s" to draw RMS as error instead than RMS/sqrt(N)
+    TProfile* prof = h2->ProfileX("_pfx", 
+				  TMath::Max(1,yaxis->FindBin(minY)), 
+				  TMath::Min(yaxis->GetNbins(),yaxis->FindBin(maxY)));
+//     cout << yaxis->FindBin(minY) << " " << yaxis->FindBin(maxY) << endl;
+//     cout << yaxis->GetNbins();
+    //TProfile* prof = h2->ProfileX("_pfx");
     prof->SetMarkerColor(2);
+    prof->SetMarkerStyle(20);
+    prof->SetMarkerSize(0.4);
     prof->SetLineColor(2);
+    prof->Rebin(rebinProfile);
     prof->Draw("same");
   }
-  TLine * l = new TLine(h2->GetXaxis()->GetXmin(),0,h2->GetXaxis()->GetXmax(),0);
-  l->SetLineColor(3);
-  l->Draw();
+
+
+  if (addSlice) {
+    TObjArray aSlices;
+    //    TF1 fff("a", "gaus", -0.1, 0.1);   
+    h2->FitSlicesY(0, 0, -1, 0, "QNR", &aSlices); // add "G2" to merge 2 consecutive bins
+    TH1F*  ht = aSlices[1]->Clone();    
+    ht->SetMarkerColor(4);
+    ht->Draw("same");    
+  }
+
+  h2->GetYaxis()->SetRangeUser(minY,maxY);
+
 }
 
-// void plotAndProfileY (TH2* h2, float min, float max) {
+
+
+// void plotAndProfileX (TH2* h2, float min, float max, bool profile=false) {
+//   setStyle(h2);
+//   gPad->SetGrid(1,1);
+//   gStyle->SetGridColor(15);
 //   h2->GetYaxis()->SetRangeUser(min,max);
 //   h2->Draw();
-//   TProfile* prof = h2->ProfileY();
-//   prof->SetMarkerStyle(8);
-//   prof->SetMarkerSize(0.7);
-//   prof->SetMarkerColor(2);
-//   prof->SetLineColor(2);
-//   prof->Draw("same");
+//   if (profile) {
+//     TProfile* prof = h2->ProfileX();
+//     prof->SetMarkerColor(2);
+//     prof->SetLineColor(2);
+//     prof->Draw("same");
+//   }
+//   TLine * l = new TLine(h2->GetXaxis()->GetXmin(),0,h2->GetXaxis()->GetXmax(),0);
+//   l->SetLineColor(3);
+//   l->Draw();
 // }
+
 
 // Draw a 2-D plot within the specified Y range and superimpose its X profile,
 // setting as sigmas that of the fit (and not the error of the mean)
@@ -128,44 +184,40 @@ void plotAndProfileXSpread (TH2* h2, float min, float max, bool profile=false, f
   l->SetLineColor(3);
   l->Draw();
 }
-/*
- * Draw and format a fitted histogram 
- *
- * 2003 NCA
- */
-// Fit a histogram with a gaussian and draw it in the range 
-// mean+-nsigmas*RMS.
-void drawGFit(TH1 * h1, float nsigmas, float min, float max){
-  float minfit = h1->GetMean() - h1->GetRMS();
-  float maxfit = h1->GetMean() + h1->GetRMS();
-  drawGFit(h1, min, max, minfit, maxfit);
-  gPad->Draw();
-}
-// Fit a histogram with a gaussian and draw it in the specified range.
-void drawGFit(TH1 * h1, float min, float max){
-  drawGFit(h1, min, max, min, max);
-  gPad->Draw();
-}
-// Fit a histogram in the range (minfit, maxfit) with a gaussian and
-// draw it in the range (min, max)
-void drawGFit(TH1 * h1, float min, float max, float minfit, float maxfit) {
-  setStyle(h1);
-  static int i = 0;
-  i++;
+
+
+
+// Fit the gaussian core of an histogram with in  the range mean+-nsigmas.
+TF1* drawGFit(TH1 * h1, float nsigmas, float min, float max){
+
   gPad->SetGrid(1,1);
   gStyle->SetGridColor(15);
   h1->GetXaxis()->SetRangeUser(min,max);
-  TString  fitName = "g";
-  fitName += i;
-    TF1* g1 = new TF1(fitName.Data(),"gaus",minfit,maxfit);
+  float minfit = h1->GetMean() - h1->GetRMS();
+  float maxfit = h1->GetMean() + h1->GetRMS();
+
+  static int i = 0;
+  TString nameF1 = TString("g") + (Long_t)i;
+  i++;
+  TF1* g1 = new TF1(nameF1,"gaus",minfit,maxfit);
+
   g1->SetLineColor(2);
   g1->SetLineWidth(2);
-  h1->Fit(g1,"R");
-  h1->Draw();
-//   TPaveStats *st = (TPaveStats*)h1->GetListOfFunctions()->FindObject("stats");
-//   st->SetX2NDC(0.905);
-//   st->SetY2NDC(0.905);
+  h1->Fit(g1,"RQ");
+  
+  minfit = g1->GetParameter("Mean") - nsigmas*g1->GetParameter("Sigma");
+  maxfit = g1->GetParameter("Mean") + nsigmas*g1->GetParameter("Sigma");
+  g1->SetRange(minfit,maxfit);
+
+  h1->Fit(g1,"RQ");
+  TF1* fh=h1->GetFunction(nameF1);
+  if (fh) fh->FixParameter(0,g1->GetParameter(0)); // so that it is not shown in legend
+
+  gPad->Draw();
+  return g1;
 }
+
+
 /*
  * Create a new TCanvas setting its properties
  *
@@ -321,6 +373,7 @@ TStyle * getStyle(TString name="myStyle")
     theStyle->SetErrorX(0.);
   
     theStyle->SetMarkerStyle(20);
+    theStyle->SetMarkerSize(0.5);
 
     //For the fit/function:
     theStyle->SetOptFit(1);
@@ -426,4 +479,37 @@ TStyle * getStyle(TString name="myStyle")
     theStyle = gStyle;
   }
   return theStyle;
+}
+
+
+
+
+// Overlay efficiency plots for S1, S2, S3
+void plotEff(TH1* h1, TH1* h2=0, TH1* h3=0) {
+  float minY=0.6;
+  float maxY=1.05;
+  h1->GetYaxis()->SetRangeUser(minY,maxY);
+  h1->GetXaxis()->SetRangeUser(0.,2.1);
+  h1->SetMarkerStyle(20);
+  h1->SetMarkerSize(0.5);
+  h1->SetStats(0);
+  h1->Draw();
+  
+  if (h2) {
+    h2->SetLineColor(kRed);
+    h2->SetMarkerColor(kRed);
+    h2->SetMarkerStyle(20);
+    h2->SetMarkerSize(0.5);
+    h2->SetStats(0);
+    h2->Draw("same");
+  }
+  
+  if (h3) {
+    h3->SetLineColor(kBlack);
+    h3->SetMarkerColor(kBlack);
+    h3->SetMarkerStyle(20);
+    h3->SetMarkerSize(0.5);
+    h3->SetStats(0);
+    h3->Draw("same");
+  }
 }
