@@ -54,7 +54,8 @@ namespace reco { namespace modules {
 			 const std::vector<Point> &points,
 			 std::vector<float> &vterr,
 			 std::vector<float> &vzerr,
-			 double mvaVal);
+			 double mvaVal,
+			 bool isHLT);
             void selectVertices ( unsigned int tsNum,
 				  const reco::VertexCollection &vtxs, 
 				  std::vector<Point> &points,
@@ -69,7 +70,8 @@ namespace reco { namespace modules {
             bool          useVertices_;
             bool          useVtxError_;
 	    bool          useAnyMVA_;
-            edm::EDGetTokenT<reco::VertexCollection> vertices_;
+            bool          isHLT_;
+	    edm::EDGetTokenT<reco::VertexCollection> vertices_;
             
             /// do I have to set a quality bit?
 	    std::vector<bool> setQualityBit_;
