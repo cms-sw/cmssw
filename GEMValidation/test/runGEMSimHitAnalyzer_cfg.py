@@ -5,10 +5,12 @@ process = cms.Process("GEMSIMANA")
 ## Standard sequence
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2019_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 ## TrackingComponentsRecord required for matchers
 process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi')
