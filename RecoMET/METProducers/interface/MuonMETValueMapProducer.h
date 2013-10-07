@@ -1,21 +1,24 @@
-#ifndef RecoMET_MuonMETValueMapProducer_h
-#define RecoMET_MuonMETValueMapProducer_h
 // -*- C++ -*-
 //
-// Package:    Test
-// Class:      Test
-// 
-/**\class MuonMETValueMapProducer MuonMETValueMapProducer.cc JetMETCorrections/MuonMETValueMapProducer/src/MuonMETValueMapProducer.cc
+// Package:    METProducers
+// Class:      MuonMETValueMapProducer
+//
+//
 
- Description: <one line class summary>
+/**\class MuonMETValueMapProducer
 
- Implementation:
-     <Notes on implementation>
 */
 //
-// Created:  Wed Aug 29 2007
+// Original Author:  Puneeth Kalavase
+//         Created:  Sun Mar 15 11:33:20 CDT 2009
 //
 //
+
+//____________________________________________________________________________||
+#ifndef RecoMET_MuonMETValueMapProducer_h
+#define RecoMET_MuonMETValueMapProducer_h
+
+//____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -24,36 +27,53 @@
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 
-namespace cms {
-class MuonMETValueMapProducer : public edm::EDProducer {
-   public:
-      explicit MuonMETValueMapProducer(const edm::ParameterSet&);
-      ~MuonMETValueMapProducer();
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 
-   private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+
+//____________________________________________________________________________||
+namespace cms
+{
+
+class MuonMETValueMapProducer : public edm::EDProducer
+{
+public:
+  explicit MuonMETValueMapProducer(const edm::ParameterSet&);
+  ~MuonMETValueMapProducer() { }
+
+private:
+  virtual void beginJob() { }
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() { }
+
+  void determine_deltax_deltay(double& deltax, double& deltay, const reco::Muon& muon, double bfield, edm::Event& iEvent, const edm::EventSetup& iSetup);
+  reco::MuonMETCorrectionData::Type decide_correction_type(const reco::Muon& muon, const math::XYZPoint &beamSpotPosition);
+  bool should_type_MuonCandidateValuesUsed(const reco::Muon& muon, const math::XYZPoint &beamSpotPosition);
       
-      // ----------member data ---------------------------
-      //list of cuts
-      edm::InputTag beamSpotInputTag_;
-      edm::InputTag muonInputTag_;
-      bool useTrackAssociatorPositions_;
-      bool useRecHits_;
-      bool useHO_;
-      bool isAlsoTkMu_;
-      double towerEtThreshold_;
-      double minPt_;
-      double maxEta_;
-      double maxNormChi2_;
-      double maxd0_;
-      int minnHits_;
-      int minnValidStaHits_;
-      TrackDetectorAssociator   trackAssociator_;
-      TrackAssociatorParameters trackAssociatorParameters_;
-  };
+  double minPt_;
+  double maxEta_;
+  bool isAlsoTkMu_;
+  double maxNormChi2_;
+  double maxd0_;
+  int minnHits_;
+  int minnValidStaHits_;
+
+  bool useTrackAssociatorPositions_;
+  bool useHO_;
+  double towerEtThreshold_;
+  bool useRecHits_;
+
+  edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+
+  TrackAssociatorParameters trackAssociatorParameters_;
+  TrackDetectorAssociator trackAssociator_;
+};
+
 }
-#endif
+
+//____________________________________________________________________________||
+#endif /* RecoMET_MuonMETValueMapProducer_h */
 
 

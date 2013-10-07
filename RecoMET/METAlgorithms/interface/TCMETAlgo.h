@@ -1,20 +1,31 @@
+// -*- C++ -*-
+//
+// Package:    METAlgorithms
+// Class:      TCMETAlgo
+//
+//
+
+/** \class TCMETAlgo
+
+   Calculates TCMET based on detector response to charged paricles
+   using the tracker to correct for the non-linearity of the
+   calorimeter and the displacement of charged particles by the
+   B-field. Given a track pt, eta the expected energy deposited in the
+   calorimeter is obtained from a lookup table, removed from the
+   calorimeter, and replaced with the track at the vertex.
+
+*/
+//
+// Original Author:  F. Golf
+//         Created:  March 24, 2009
+//
+//
+
+//____________________________________________________________________________||
 #ifndef TCMETAlgo_h
 #define TCMETAlgo_h
 
-/** \class TCMETAlgo
- *
- * Calculates TCMET based on detector response to charged paricles
- * using the tracker to correct for the non-linearity of the calorimeter
- * and the displacement of charged particles by the B-field.  Given a 
- * track pt, eta the expected energy deposited in the calorimeter is
- * obtained from a lookup table, removed from the calorimeter, and
- * replaced with the track at the vertex.
- *
- * \author    F. Golf
- *
- * \version   2nd Version March 24, 2009
- ************************************************************/
-
+//____________________________________________________________________________||
 #include <vector>
 #include <string>
 #include "FWCore/Framework/interface/Event.h"
@@ -45,12 +56,17 @@
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "TH2D.h"
 #include "TVector3.h"
 
+//____________________________________________________________________________||
 class TCMETAlgo 
 {
- public:
+public:
   typedef std::vector<const reco::Candidate> InputCollection;
   TCMETAlgo();
   virtual ~TCMETAlgo();
@@ -59,62 +75,41 @@ class TCMETAlgo
   TH2D* getResponseFunction_mode ( );
   TH2D* getResponseFunction_shower ( );
   TH2D* getResponseFunction_noshower ( );
-  void configure(const edm::ParameterSet &iConfig, int myResponseFunctionType,
-		 edm::EDGetTokenT<reco::MuonCollection>* muonToken,
-		 edm::EDGetTokenT<reco::GsfElectronCollection>* electronToken,
-		 edm::EDGetTokenT<edm::View<reco::MET> >* metToken,
-		 edm::EDGetTokenT<reco::TrackCollection>* trackToken,
-		 edm::EDGetTokenT<reco::BeamSpot>* beamSpotToken,
-		 edm::EDGetTokenT<reco::VertexCollection>* vertexToken_,
-		 edm::EDGetTokenT<reco::PFClusterCollection>* clustersECALToken,
-		 edm::EDGetTokenT<reco::PFClusterCollection>* clustersHCALToken,
-		 edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFEMToken,
-		 edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFHADToken,
-		 edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* muonDepValueMapToken,
-		 edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* tcmetDepValueMapToken
-		 );
- private:
-  double met_x;
-  double met_y;
-  double sumEt;
+  void configure(const edm::ParameterSet &iConfig, edm::ConsumesCollector && iConsumesCollector);
 
-  edm::Handle<reco::MuonCollection> MuonHandle;
-  edm::Handle<reco::GsfElectronCollection> ElectronHandle;
-  edm::Handle<edm::View<reco::MET> > metHandle;
-  edm::Handle<reco::TrackCollection> TrackHandle;
-  edm::Handle<reco::BeamSpot> beamSpotHandle;
-  edm::Handle<reco::VertexCollection> VertexHandle;
+private:
+  double met_x_;
+  double met_y_;
+  double sumEt_;
 
-  edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > muon_data_h;
-  edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > tcmet_data_h;
+  void initialize_MET_with_PFClusters(edm::Event& event);
+  void initialize_MET_with_CaloMET(edm::Event& event);
+  void correct_MET_for_Muons();
+  void correct_MET_for_Tracks();
 
-  edm::InputTag muonInputTag_;
-  edm::InputTag electronInputTag_;
-  edm::InputTag metInputTag_;
-  edm::InputTag trackInputTag_;
-  edm::InputTag beamSpotInputTag_;
-  edm::InputTag vertexInputTag_;
+  edm::Handle<reco::MuonCollection> muonHandle_;
+  edm::Handle<reco::GsfElectronCollection> electronHandle_;
+  edm::Handle<reco::TrackCollection> trackHandle_;
+  edm::Handle<reco::BeamSpot> beamSpotHandle_;
+  edm::Handle<reco::VertexCollection> vertexHandle_;
+  edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > muonDepValueMapHandle_;
+  edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > tcmetDepValueMapHandle_;
 
-  edm::InputTag muonDepValueMap_;
-  edm::InputTag tcmetDepValueMap_;
+  edm::ESHandle<MagneticField> magneticFieldHandle_;
 
-  edm::InputTag inputTagPFClustersECAL_;
-  edm::InputTag inputTagPFClustersHCAL_;
-  edm::InputTag inputTagPFClustersHFEM_;
-  edm::InputTag inputTagPFClustersHFHAD_;   
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
+  edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+  edm::EDGetTokenT<reco::PFClusterCollection> clustersECALToken_;
+  edm::EDGetTokenT<reco::PFClusterCollection> clustersHCALToken_;
+  edm::EDGetTokenT<reco::PFClusterCollection> clustersHFEMToken_;
+  edm::EDGetTokenT<reco::PFClusterCollection> clustersHFHADToken_;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > muonDepValueMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > tcmetDepValueMapToken_;
 
-  edm::EDGetTokenT<reco::MuonCollection>* muonToken_;
-  edm::EDGetTokenT<reco::GsfElectronCollection>* electronToken_;
-  edm::EDGetTokenT<edm::View<reco::MET> >* metToken_;
-  edm::EDGetTokenT<reco::TrackCollection>* trackToken_;
-  edm::EDGetTokenT<reco::BeamSpot>* beamSpotToken_;
-  edm::EDGetTokenT<reco::VertexCollection>* vertexToken_;
-  edm::EDGetTokenT<reco::PFClusterCollection>* clustersECALToken_;
-  edm::EDGetTokenT<reco::PFClusterCollection>* clustersHCALToken_;
-  edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFEMToken_;
-  edm::EDGetTokenT<reco::PFClusterCollection>* clustersHFHADToken_;
-  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* muonDepValueMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> >* tcmetDepValueMapToken_;
 
   bool    usePFClusters_;
   int     nLayers_;
@@ -137,7 +132,6 @@ class TCMETAlgo
   double  maxchi2_tight_;
   double  minhits_tight_;
   double  maxPtErr_tight_;
-  int     rfType_;
   int     nMinOuterHits_;
   int     maxTrackAlgo_;
   double  usedeltaRRejection_;
@@ -165,28 +159,21 @@ class TCMETAlgo
   bool usePvtxd0_;
   bool checkTrackPropagation_;
 
-  const class MagneticField* bField;
 
-  class TH2D* response_function;
-  class TH2D* showerRF;
-  bool hasValidVertex;
-  const reco::VertexCollection *vertexColl;
+  class TH2D* response_function_;
+  class TH2D* showerRF_;
+  bool hasValidVertex_;
+  const reco::VertexCollection *vertexColl_;
 
-  edm::ValueMap<reco::MuonMETCorrectionData> muon_data;
-  edm::ValueMap<reco::MuonMETCorrectionData> tcmet_data;
-
-  bool isMuon( unsigned int );
-  bool isElectron( unsigned int ); 
-  bool isGoodTrack( const reco::TrackRef , int trk_idx );
+  bool isMuon(const reco::TrackRef& trackRef);
+  bool isElectron(const reco::TrackRef& trackRef);
+  bool isGoodTrack(const reco::TrackRef trackRef);
   bool closeToElectron( const reco::TrackRef );
-  void correctMETforMuon( const reco::TrackRef, const unsigned int );
-  void correctSumEtForMuon( const reco::TrackRef, const unsigned int );
-  void correctMETforMuon( const unsigned int );
-  void correctSumEtForMuon( const unsigned int );
+  void correctMETforMuon(const reco::TrackRef, reco::MuonRef& muonRef);
+  void correctMETforMuon(reco::MuonRef& muonRef);
   void correctMETforTrack( const reco::TrackRef , TH2D* rf, const TVector3& );
   void correctSumEtForTrack( const reco::TrackRef , TH2D* rf, const TVector3& );
-  class TVector3 propagateTrack( const reco::TrackRef );
-  class TVector3 propagateTrackToHCAL( const reco::TrackRef );
+  class TVector3 propagateTrackToCalorimeterFace(const reco::TrackRef trackRef);
   void findGoodShowerTracks(std::vector<int>& goodShowerTracks);
   bool nearGoodShowerTrack( const reco::TrackRef , const std::vector<int>& goodShowerTracks );
   int nExpectedInnerHits(const reco::TrackRef);
@@ -197,5 +184,6 @@ class TCMETAlgo
   int vetoTrack( int i1 , int i2 );
 };
 
+//____________________________________________________________________________||
 #endif // TCMETAlgo_h
 
