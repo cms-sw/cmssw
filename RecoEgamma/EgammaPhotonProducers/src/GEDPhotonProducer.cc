@@ -290,7 +290,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   unsigned pfGamma=0; 
   for(unsigned int lCand=0; lCand < nObj; lCand++) {
     reco::PFCandidateRef pfCandRef (reco::PFCandidateRef(pfCandidateHandle,lCand));
-    if(pfCandRef->particleId()!=reco::PFCandidate::gamma) continue;
+    //    if(pfCandRef->particleId()!=reco::PFCandidate::gamma) continue;
     pfGamma++;
 
     reco::SuperClusterRef pfScRef = pfCandRef -> superClusterRef(); 
