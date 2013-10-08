@@ -7,7 +7,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:gen.root')
+    fileNames = cms.untracked.vstring('file:lhe.root')
 )
 
 process.dummy = cms.EDAnalyzer("DummyLHEAnalyzer",

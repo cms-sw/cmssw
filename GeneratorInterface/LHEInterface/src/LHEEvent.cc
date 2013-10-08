@@ -34,9 +34,10 @@ static int skipWhitespace(std::istream &in)
 namespace lhef {
 
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
-                   std::istream &in,
-		   const int nweights) :
-	runInfo(runInfo), counted(false), readAttemptCounter(0)
+                   std::istream &in) :
+  runInfo(runInfo), weights_(0), counted(false), 
+  readAttemptCounter(0)
+  
 {
 	hepeup.NUP = 0;
 	hepeup.XPDWUP.first = hepeup.XPDWUP.second = 0.0;
@@ -137,6 +138,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const LHEEventProduct &product) :
 	runInfo(runInfo), hepeup(product.hepeup()),
 	pdf(product.pdf() ? new PDF(*product.pdf()) : 0),
+	weights_(product.weights()),
 	comments(product.comments_begin(), product.comments_end()),
 	counted(false), readAttemptCounter(0)
 {
