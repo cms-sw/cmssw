@@ -171,7 +171,7 @@ namespace evf{
 	      abort();
 	      break;
 	    case 5:
-	      throw qualifier_;
+	      throw qualifier_; 
 	      break;
 	    case 6:
 	      while(1){ind+=step; if(ind>1000000) step = -1; if(ind==0) step = 1;}
@@ -218,7 +218,7 @@ namespace evf{
 	      {
 		timeval tv_now;
 	        gettimeofday(&tv_now,0);
-		if (tv_now.tv_sec-tv_start_.tv_sec>intqualifier_)
+		if ((unsigned)(tv_now.tv_sec-tv_start_.tv_sec)>intqualifier_)
 		  *pi=0;
 	      }
 	      break;
