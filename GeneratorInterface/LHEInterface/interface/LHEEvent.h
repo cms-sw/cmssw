@@ -25,7 +25,7 @@ namespace lhef {
 class LHEEvent {
     public:
 	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
-	         std::istream &in, const int nweights = 0);
+	         std::istream &in);
 	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	         const HEPEUP &hepeup);
 	LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
@@ -46,7 +46,7 @@ class LHEEvent {
 	const std::vector<std::string> &getComments() const { return comments; }
 	const int getReadAttempts() { return readAttemptCounter; }
 
-	void addWeight(const WGT& wgt) {weights_.push_back(wgt);}
+	void addWeight(const WGT& wgt) { weights_.push_back(wgt); }
 	void setPDF(std::auto_ptr<PDF> pdf) { this->pdf = pdf; }
 
 	const std::vector<WGT>& weights() const { return weights_; }

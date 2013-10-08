@@ -12,6 +12,7 @@
 <use name="libhepml"/>
 <use name="fastjet"/>
 <use name="xz"/>
+<use name="boost"/>
 <export>
 	<use name="FWCore/ParameterSet"/>
 	<use name="FWCore/PluginManager"/>

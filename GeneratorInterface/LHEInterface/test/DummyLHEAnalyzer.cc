@@ -58,10 +58,18 @@ private:
                 << std::setw(14) << std::fixed << (pup_[icount])[4] 
                 << std::endl;
     }
-
+    if( evt->weights().size() ) {
+      std::cout << "weights:" << std::endl;
+      for ( size_t iwgt = 0; iwgt < evt->weights().size(); ++iwgt ) {
+	const LHEEventProduct::WGT& wgt = evt->weights().at(iwgt);
+	std::cout << "\t" << wgt.id << ' ' 
+		  << std::scientific << wgt.wgt << std::endl;
+      }
+    }
 
   }
 
+  /*
   void beginRun(edm::Run const& iRun, edm::EventSetup const& es) override {
 
 
@@ -95,6 +103,7 @@ private:
     std::cout << " " << std::endl;
 
   }
+  */
 
   InputTag src_;
 };

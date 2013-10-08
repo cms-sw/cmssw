@@ -9,9 +9,11 @@
 namespace gen {
 	struct WeightsInfo {
 	        WeightsInfo(): id(""), wgt(0.) {}
+	        WeightsInfo(const WeightsInfo& o):
+		  id(o.id), wgt(o.wgt) {}
 	        WeightsInfo(const std::string& s, const double w): 
 		  id(s),wgt(w) {}
-		std::string	id;
+	        std::string	id;
 		double	        wgt;		
 	};
 }
