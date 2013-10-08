@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <mutex>
 
 // user include files
 #include "FWCore/Framework/interface/ProducerBase.h"
