@@ -24,7 +24,7 @@
 #include <vector>
 #include <map>
 #include <atomic>
-
+#include <mutex>
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchChildren.h"
