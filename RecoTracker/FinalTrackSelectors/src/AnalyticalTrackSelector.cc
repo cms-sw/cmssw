@@ -50,6 +50,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     beamspot_ = consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>( "beamspot" ));
     useVertices_ = cfg.getParameter<bool>( "useVertices" );
     useVtxError_ = cfg.getParameter<bool>( "useVtxError" );
+    isHLT_ = cfg.getParameter<bool>( "isHLT" );
     if (useVertices_) vertices_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>( "vertices" ));
     copyExtras_ = cfg.getUntrackedParameter<bool>("copyExtras", false);
     copyTrajectories_ = cfg.getUntrackedParameter<bool>("copyTrajectories", false);
@@ -198,7 +199,7 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 
     double mvaVal = 0;
     if(useAnyMVA_)mvaVal = mvaVals_[current];
-    bool ok = select(0,vertexBeamSpot, trk, points, vterr, vzerr,mvaVal);
+    bool ok = select(0,vertexBeamSpot, trk, points, vterr, vzerr, mvaVal, isHLT_);
     if (!ok) {
 
       LogTrace("TrackSelection") << "track with pt="<< trk.pt() << " NOT selected";
