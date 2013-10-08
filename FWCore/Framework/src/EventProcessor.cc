@@ -1793,7 +1793,7 @@ namespace edm {
         }
         if(deferredExceptionPtrIsSet_.load(std::memory_order_acquire)) {
           //another thread hit an exception
-          std::cerr<<"another thread saw an exception\n";
+          //std::cerr<<"another thread saw an exception\n";
           break;
         }
         {
@@ -1801,25 +1801,25 @@ namespace edm {
           std::lock_guard<std::mutex> sourceGuard(nextTransitionMutex_);
           
           if(finishedProcessingEvents->load(std::memory_order_acquire)) {
-            std::cerr<<"finishedProcessingEvents\n";
+            //std::cerr<<"finishedProcessingEvents\n";
             break;
           }
           InputSource::ItemType itemType = input_->nextItemType();
           if (InputSource::IsEvent !=itemType) {
             nextItemTypeFromProcessingEvents_ = itemType;
             finishedProcessingEvents->store(true,std::memory_order_release);
-            std::cerr<<"next item type "<<itemType<<"\n";
+            //std::cerr<<"next item type "<<itemType<<"\n";
             break;
           }
           if((asyncStopRequestedWhileProcessingEvents_=checkForAsyncStopRequest(asyncStopStatusCodeFromProcessingEvents_))) {
-            std::cerr<<"task told to async stop\n";
+            //std::cerr<<"task told to async stop\n";
             break;
           }
           readEvent(iStreamIndex);
         }
         if(deferredExceptionPtrIsSet_.load(std::memory_order_acquire)) {
           //another thread hit an exception
-          std::cerr<<"another thread saw an exception\n";
+          //std::cerr<<"another thread saw an exception\n";
           break;
         }
         processEvent(iStreamIndex);
@@ -1829,7 +1829,7 @@ namespace edm {
       if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
         deferredExceptionPtr_ = std::current_exception();
       }
-      std::cerr<<"task caught exception\n";
+      //std::cerr<<"task caught exception\n";
     }
   }
   
