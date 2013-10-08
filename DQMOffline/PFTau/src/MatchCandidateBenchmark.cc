@@ -126,7 +126,7 @@ void MatchCandidateBenchmark::setup(const edm::ParameterSet& parameterSet) {
 				dphiPS.getParameter<double>("xMax"));
     }
     histogramBooked_ = true;
-    delete ptBins;
+    delete[] ptBins;
   }
 }
 
