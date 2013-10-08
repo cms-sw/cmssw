@@ -66,8 +66,8 @@ void EventHeader::analyze(edm::Event const& iEvent, TTree* HltTree) {
       fAvgInstDelLumi = lumiSummary->avgInsDelLumi(); 
 
       // Now apply lumi corrections per LumiCalc#Luminosity_Objects_in_EDM_and_lu twiki
-      float instlumi = fAvgInstDelLumi;
-      float corrfac=1.;
+      //float instlumi = fAvgInstDelLumi;
+      //float corrfac=1.;
       //if(lumicorrdatahandle.isValid()){
       //const LumiCorrectionParam* mydata=lumicorrdatahandle.product();
       //corrfac=mydata->getCorrection(instlumi);
