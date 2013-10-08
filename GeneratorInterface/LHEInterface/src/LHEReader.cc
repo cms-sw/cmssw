@@ -6,6 +6,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <cstdio>
 
 #include <boost/bind.hpp>
 
@@ -26,6 +27,8 @@
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 
 #include "XMLUtils.h"
+
+#include "boost/lexical_cast.hpp"
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -94,12 +97,13 @@ class LHEReader::StringSource : public LHEReader::Source {
 
 class LHEReader::XMLHandler : public XMLDocument::Handler {
     public:
-  typedef std::vector<std::pair<std::string,double> > wgt_info;
+  typedef std::vector<std::pair<std::string,std::string> > wgt_info;
 	XMLHandler() :
 		impl(0), gotObject(kNone), mode(kNone),
-		xmlHeader(0), headerOk(false) {}
+		xmlHeader(0), xmlEvent(0), headerOk(false) {}
 	~XMLHandler()
-	{ if (xmlHeader) xmlHeader->release(); }
+	{ if (xmlHeader) xmlHeader->release(); 
+	  if (xmlEvent) xmlEvent->release();   }
 
 	enum Object {
 		kNone = 0,
@@ -109,7 +113,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 		kEvent
 	};
 
-	void reset() { headerOk = false; }
+        void reset() { headerOk = false; weightsinevent.clear();}
 
         const wgt_info& weightInfo() const {return weightsinevent;}
 
@@ -138,7 +142,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
         std::vector<DOMElement*>	xmlNodes,xmlEventNodes;
 	bool				headerOk;
 	std::vector<LHERunInfo::Header>	headers;
-        std::vector<std::pair<std::string,double> > weightsinevent;
+        wgt_info weightsinevent;
 };
 
 static void attributesToDom(DOMElement *dom, const Attributes &attributes)
@@ -219,9 +223,9 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     if (!impl)
       impl = DOMImplementationRegistry::getDOMImplementation(
 							  XMLUniStr("Core"));
+    if(xmlEvent)  xmlEvent->release();
     xmlEvent = impl->createDocument(0, qname, 0);
-    xmlEventNodes.clear();
-    weightsinevent.clear();
+    weightsinevent.resize(0);
     xmlEventNodes.resize(1);
     xmlEventNodes[0] = xmlEvent->getDocumentElement();
     mode = kEvent;    
@@ -296,12 +300,6 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
     if (name == "event" && 
 	mode == kEvent && 
 	xmlEventNodes.size() >= 1) { // handling of weights in LHE file
-      weightsinevent.clear();
-      std::auto_ptr<DOMWriter> writer(
-				      static_cast<DOMImplementationLS*>(
-						impl)->createDOMWriter());
-      writer->setEncoding(XMLUniStr("UTF-8"));
-
       for(DOMNode *node = xmlEventNodes[0]->getFirstChild();
 	  node; node = node->getNextSibling()) {
 	switch( node->getNodeType() ) {
@@ -311,10 +309,10 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 	    DOMNode* attr = rwgt->getAttributes()->item(0);
 	    XMLSimpleStr atname(attr->getNodeValue());
 	    XMLSimpleStr weight(rwgt->getFirstChild()->getNodeValue());
-	    switch(rwgt->getNodeType()) {
-	    case DOMNode::ELEMENT_NODE:	 
+	    switch( rwgt->getNodeType() ) {
+	    case DOMNode::ELEMENT_NODE:
 	      weightsinevent.push_back(std::make_pair((const char*)atname,
-						      strtod((const char*)weight,NULL)));
+						      (const char*)weight));
 	      break;	    
 	    default:	    	  
 	      break;
@@ -330,9 +328,7 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 	default:
 	  break;
 	}
-      }
-      xmlEvent->release();
-      xmlEvent = 0;
+      }      
     }
 
     if (gotObject != kNone)
@@ -358,22 +354,21 @@ void LHEReader::XMLHandler::characters(const XMLCh *const data_,
 	if (XMLSimpleStr::isAllSpaces(data_, length))
 		return;
 
-	if( mode == kEvent ) {
-	  DOMText *text = xmlEvent->createTextNode(data_);
-	  xmlEventNodes.back()->appendChild(text);
-	  return;
-	}
-
 	unsigned int offset = 0;
 	while(offset < length && XMLSimpleStr::isSpace(data_[offset]))
-		offset++;
+		offset++;	
 
-	XMLSimpleStr data(data_ + offset);
+	if( mode == kEvent ) {
+	  DOMText *text = xmlEvent->createTextNode(data_+offset);
+	  xmlEventNodes.back()->appendChild(text);
+	  return;
+	}	
 
 	if (mode == kNone)
 		throw cms::Exception("InvalidFormat")
 			<< "LHE file has invalid format" << std::endl;
 
+	XMLSimpleStr data(data_ + offset);
 	buffer.append(data);
 }
 
@@ -422,7 +417,6 @@ LHEReader::~LHEReader()
 
   boost::shared_ptr<LHEEvent> LHEReader::next(bool* newFileOpened)
   {
-
     while(curDoc.get() || curIndex < fileURLs.size() || (fileURLs.size() == 0 && strName != "" ) ) {
       if (!curDoc.get()) {
         if ( fileURLs.size() > 0 ) {
@@ -447,7 +441,7 @@ LHEReader::~LHEReader()
         data.str(handler->buffer);
         handler->buffer.clear();
       }
-      
+        
       switch(event) {
       case XMLHandler::kNone:
         if (!curDoc->parse()) {
@@ -490,11 +484,13 @@ LHEReader::~LHEReader()
 
 	boost::shared_ptr<LHEEvent> lheevent;
 	lheevent.reset(new LHEEvent(curRunInfo, data));
-	const XMLHandler::wgt_info& info = handler->weightInfo();
+	const XMLHandler::wgt_info& info = handler->weightsinevent;
 	for( size_t i=0; i< info.size(); ++i ) {
-	  lheevent->addWeight(gen::WeightsInfo(info[i].first,info[i].second));
+	  std::string snum = info[i].second.substr(0,info[i].second.size()-1);
+	  double num = -1.0;
+	  sscanf(snum.c_str(),"%le",&num);	  
+	  lheevent->addWeight(gen::WeightsInfo(info[i].first,num));
 	}
-
         return lheevent;
       }
     }
