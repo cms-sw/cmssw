@@ -6,7 +6,6 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalFlexiHardcodeGeometryLoader.h"
 #include <iostream>
 
 class HcalGeometryAnalyzer : public edm::EDAnalyzer 
