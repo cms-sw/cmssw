@@ -3,12 +3,6 @@
  *
  * N. Amapane 2002-2004
  */
-/*
- * Draw 2-D plots superimposed to their profiles
- *
- * 2003 NCA
- */
-// Draw a 2-D plot within the specified Y range and superimpose its X profile
 
 #include <sstream>
 #include <iomanip>
@@ -70,14 +64,12 @@ void setStyle(TH2 *histo) {
 }
 
 
-// Plot a TH2 + add profiles on top of it
-// minY, maxY: Y range for plotting and for computing profile if addProfile==true.
-//             Note that the simple profile is very sensitive to the Y range used!
-
-
 bool addProfile=false;
 bool addSlice=true;
 
+// Plot a TH2 + add profiles on top of it
+// minY, maxY: Y range for plotting and for computing profile if addProfile==true.
+//             Note that the simple profile is very sensitive to the Y range used!
 void plotAndProfileX (TH2* h2, int rebinX, int rebinY, int rebinProfile, float minY, float maxY, float minX=0, float maxX=0) {
   //  setStyle(h2);
   if (h2==0) {
@@ -335,8 +327,11 @@ TStyle * getStyle(TString name="myStyle")
     // For the canvas:
     theStyle->SetCanvasBorderMode(0);
     theStyle->SetCanvasColor(kWhite);
-    theStyle->SetCanvasDefH(600); //Height of canvas
-    theStyle->SetCanvasDefW(600); //Width of canvas
+//      theStyle->SetCanvasDefH(600); //Height of canvas
+//      theStyle->SetCanvasDefW(800); //Width of canvas
+      theStyle->SetCanvasDefH(750); //Height of canvas
+      theStyle->SetCanvasDefW(1000); //Width of canvas
+
     theStyle->SetCanvasDefX(0);   //POsition on screen
     theStyle->SetCanvasDefY(0);
 
@@ -368,12 +363,14 @@ TStyle * getStyle(TString name="myStyle")
     // theStyle->SetLegoInnerR(Float_t rad = 0.5);
     // theStyle->SetNumberContours(Int_t number = 20);
 
-    theStyle->SetEndErrorSize(2);
+
+     theStyle->SetEndErrorSize(2);
 //     theStyle->SetErrorMarker(20);
-    theStyle->SetErrorX(0.);
-  
+//     theStyle->SetErrorX(0.);
+
     theStyle->SetMarkerStyle(20);
     theStyle->SetMarkerSize(0.5);
+
 
     //For the fit/function:
     theStyle->SetOptFit(1);
@@ -390,28 +387,30 @@ TStyle * getStyle(TString name="myStyle")
     // For the statistics box:
     theStyle->SetOptFile(0);
 //     theStyle->SetOptStat(0); // To display the mean and RMS:   SetOptStat("mr");
-    theStyle->SetOptStat(10);
+
+    theStyle->SetOptStat("e");
     theStyle->SetStatColor(kWhite);
-    theStyle->SetStatFont(42);
-    theStyle->SetStatFontSize(0.07);
+    //    theStyle->SetStatFont(42);
+    //    theStyle->SetStatFontSize(0.05);
     theStyle->SetStatTextColor(1);
     theStyle->SetStatFormat("6.4g");
     theStyle->SetStatBorderSize(1);
-    theStyle->SetStatH(0.3);
-    theStyle->SetStatW(0.2);
+//     theStyle->SetStatH(0.02);
+//     theStyle->SetStatW(0.2);
     // theStyle->SetStatStyle(Style_t style = 1001);
-    // theStyle->SetStatX(Float_t x = 0);
-    // theStyle->SetStatY(Float_t y = 0);
+//     theStyle->SetStatX(0.82);
+//     theStyle->SetStatY(0.5);
 
     // Margins:
-    theStyle->SetPadTopMargin(0.05);
-    theStyle->SetPadBottomMargin(0.13);
-    theStyle->SetPadLeftMargin(0.16);
-    theStyle->SetPadRightMargin(0.02);
+     theStyle->SetPadTopMargin(0.1);
+     theStyle->SetPadBottomMargin(0.1);
+     theStyle->SetPadLeftMargin(0.1);
+     theStyle->SetPadRightMargin(0.05);
 
     // For the Global title:
 
-    theStyle->SetOptTitle(0);
+    // Uncomment to remove title
+    //    theStyle->SetOptTitle(0); 
     theStyle->SetTitleFont(42);
     theStyle->SetTitleColor(1);
     theStyle->SetTitleTextColor(1);
@@ -420,15 +419,15 @@ TStyle * getStyle(TString name="myStyle")
     // theStyle->SetTitleH(0); // Set the height of the title box
     // theStyle->SetTitleW(0); // Set the width of the title box
     // theStyle->SetTitleX(0); // Set the position of the title box
-    // theStyle->SetTitleY(0.985); // Set the position of the title box
-    // theStyle->SetTitleStyle(Style_t style = 1001);
+    theStyle->SetTitleY(1); // Set the position of the title box
+    theStyle->SetTitleStyle(1001);
     // theStyle->SetTitleBorderSize(2);
 
     // For the axis titles:
 
     theStyle->SetTitleColor(1, "XYZ");
     theStyle->SetTitleFont(42, "XYZ");
-    theStyle->SetTitleSize(0.06, "XYZ");
+    theStyle->SetTitleSize(0.05, "XYZ");
     // theStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
     // theStyle->SetTitleYSize(Float_t size = 0.02);
     theStyle->SetTitleXOffset(0.9);
@@ -438,8 +437,11 @@ TStyle * getStyle(TString name="myStyle")
     // For the axis labels:
 
     theStyle->SetLabelColor(1, "XYZ");
+
     theStyle->SetLabelFont(42, "XYZ");
+
     theStyle->SetLabelOffset(0.007, "XYZ");
+
     theStyle->SetLabelSize(0.045, "XYZ");
 
     // For the axis:
@@ -469,8 +471,9 @@ TStyle * getStyle(TString name="myStyle")
     // theStyle->SetPalette(Int_t ncolors = 0, Int_t* colors = 0);
     // theStyle->SetTimeOffset(Double_t toffset);
     // theStyle->SetHistMinimumZero(kTRUE);
-
-
+    theStyle->SetTextSize(0.045);
+    theStyle->SetTextFont(42);
+    
     //   style->SetOptFit(101);
     //   style->SetOptStat(1111111); 
 

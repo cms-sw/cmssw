@@ -14,10 +14,15 @@
 //------------------------------
 
 
+void plotValidation(){
+  cout << endl << "Usage: .x plotValidation.r(\"inputFile.root\",<wheel>,<station>)" << endl << endl;
+}
+
+
 void plotValidation(TString filename, int wheel, int station) {
 
-  if (! TString(gSystem->GetLibraries()).Contains("DTDetId_cc")) {
-    gROOT->LoadMacro("$CMSSW_BASE/src/Validation/DTRecHits/test/Histograms.h");
+  if (! TString(gSystem->GetLibraries()).Contains("Histograms_h")) {
+    gROOT->LoadMacro("$CMSSW_BASE/src/Validation/DTRecHits/test/Histograms.h+");
     gROOT->LoadMacro("macros.C");
   }
 
@@ -191,7 +196,7 @@ void plotValidation(TString filename, int wheel, int station) {
   if (doEff) {
     TCanvas* c1= new TCanvas;
     c1->SetTitle(canvbasename+"_EffPhiTheta");
-    c1->SetWindowSize(300,600);
+    c1->SetWindowSize(325,750);
     c1->Divide(1,2);
     c1->cd(1);
     plotEff(hEffS1RPhi->hEffVsDist, hEffS3RPhi->hEffVsDist);
