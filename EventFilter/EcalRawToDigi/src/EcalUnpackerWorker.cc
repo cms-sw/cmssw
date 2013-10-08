@@ -12,8 +12,8 @@
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
-#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactory.h"
-#include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerFactory.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerFactoryOld.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerFactoryOld.h"
 
 EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
   ///DCCDataUnpacker
@@ -90,11 +90,11 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
 
   edm::ParameterSet UncalibPSet = conf.getParameter<edm::ParameterSet>("UncalibRHAlgo");
   std::string UncaliComponentName = UncalibPSet.getParameter<std::string>("Type");
-  UncalibWorker_ = EcalUncalibRecHitWorkerFactory::get()->create(UncaliComponentName, UncalibPSet);
+  UncalibWorker_ = EcalUncalibRecHitWorkerFactoryOld::get()->create(UncaliComponentName, UncalibPSet);
 
   edm::ParameterSet CalibPSet = conf.getParameter<edm::ParameterSet>("CalibRHAlgo");
   std::string CaliComponentName = CalibPSet.getParameter<std::string>("Type");
-  CalibWorker_ = EcalRecHitWorkerFactory::get()->create(CaliComponentName, CalibPSet);
+  CalibWorker_ = EcalRecHitWorkerFactoryOld::get()->create(CaliComponentName, CalibPSet);
 
 }
 

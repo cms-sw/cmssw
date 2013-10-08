@@ -13,6 +13,7 @@
 
 // system include files
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
 
 // Xerces include files
 #include "xercesc/parsers/XercesDOMParser.hpp"
@@ -257,7 +258,7 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
    recursiveGetId(ideal_alignableNavigator, ideal_alignableMuon->CSCEndcaps());
 
    try {
-      XMLPlatformUtils::Initialize();
+      cms::concurrency::xercesInitialize();
    }
    catch (const XMLException &toCatch) {
       throw cms::Exception("XMLException") << "Xerces XML parser threw an exception on initialization." << std::endl;
@@ -431,7 +432,7 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
    delete parser;
    delete errHandler;
 
-   XMLPlatformUtils::Terminate();
+   cms::concurrency::xercesTerminate();
 
    delete ideal_alignableMuon;
    return alignableMuon;

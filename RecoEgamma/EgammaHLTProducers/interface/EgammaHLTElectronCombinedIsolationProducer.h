@@ -7,8 +7,6 @@
 */
 //
 
-
-
 // system include files
 #include <memory>
 #include <vector>
@@ -16,33 +14,33 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//
-// class declaration
-//
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+
+#include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
 class EgammaHLTElectronCombinedIsolationProducer : public edm::EDProducer {
-   public:
-      explicit EgammaHLTElectronCombinedIsolationProducer(const edm::ParameterSet&);
-      ~EgammaHLTElectronCombinedIsolationProducer();
+public:
+  explicit EgammaHLTElectronCombinedIsolationProducer(const edm::ParameterSet&);
+  ~EgammaHLTElectronCombinedIsolationProducer();
+  virtual void produce(edm::Event&, const edm::EventSetup&);
 
+private:
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
-
-  edm::InputTag recoEcalCandidateProducer_;
-  edm::InputTag electronProducer_;
-  std::vector<edm::InputTag> CaloIsolTag_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
+  std::vector<edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> > CaloIsolTag_;
+  edm::EDGetTokenT<reco::ElectronIsolationMap> TrackIsolTag_;
+  
   std::vector<double> CaloIsolWeight_;
-  edm::InputTag TrackIsolTag_;
   double TrackIsolWeight_;
   edm::ParameterSet conf_;
-
 };
 

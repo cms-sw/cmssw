@@ -37,7 +37,7 @@ class HLTMonBitSummary : public edm::EDAnalyzer {
   virtual void endJob() ;
   virtual void beginRun(const edm::Run  & r, const edm::EventSetup  &);
   //  virtual void endRun(const edm::Run &, const edm::EventSetup &);
-  virtual void configSelector(std::vector<std::string > selectTriggers, std::vector<std::string > & theSelectTriggers );
+  virtual void configSelector(const std::vector<std::string >& selectTriggers, std::vector<std::string > & theSelectTriggers );
 
   edm::InputTag inputTag_;
   DQMStore * dbe_;

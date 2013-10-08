@@ -7,6 +7,8 @@
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
 #include <map>
+#include <vector>
+#include <limits>
 
 namespace edm {
     
@@ -14,20 +16,32 @@ namespace edm {
   public:
     typedef std::pair<BranchListIndex, ProductIndex> IndexPair;
     typedef std::multimap<BranchID, IndexPair> BranchIDToIndexMap;
-    typedef std::map<BranchListIndex, BranchListIndex> BranchListIndexMapper;
-    BranchIDListHelper();
-    bool updateFromInput(BranchIDLists const& bidlists);
-    void updateRegistries(ProductRegistry& reg);
-    void fixBranchListIndexes(BranchListIndexes& indexes);
 
+    BranchIDListHelper();
+
+    //CMS-THREADING called when a new file is opened
+    bool updateFromInput(BranchIDLists const& bidlists);
+    ///Called by sources to convert their read indexes into the indexes used by the job
+    void fixBranchListIndexes(BranchListIndexes& indexes) const;
+
+    void updateFromRegistry(ProductRegistry const& reg);
+
+    //CMS-THREADING this is called in SubJob::beginJob
+    BranchIDLists& mutableBranchIDLists() {return branchIDLists_;}
+
+    //Used by the EventPrincipal
     BranchIDLists const& branchIDLists() const {return branchIDLists_;}
-    BranchIDLists& branchIDLists() {return branchIDLists_;}
     BranchIDToIndexMap const& branchIDToIndexMap() const {return branchIDToIndexMap_;}
+    BranchListIndex producedBranchListIndex() const {return producedBranchListIndex_;}
+    bool hasProducedProducts() const {
+      return producedBranchListIndex_ != std::numeric_limits<BranchListIndex>::max();
+    }
 
   private:
     BranchIDLists branchIDLists_;
     BranchIDToIndexMap branchIDToIndexMap_;
-    BranchListIndexMapper branchListIndexMapper_;
+    std::vector<BranchListIndex> inputIndexToJobIndex_;
+    BranchListIndex producedBranchListIndex_;
   };
 }
 

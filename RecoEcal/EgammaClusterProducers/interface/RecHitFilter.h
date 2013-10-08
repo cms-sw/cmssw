@@ -32,7 +32,7 @@ class RecHitFilter : public edm::EDProducer {
       double        noiseEnergyThreshold_;
       double        noiseChi2Threshold_;
       std::string   reducedHitCollection_;
-      edm::InputTag hitCollection_;
+      edm::EDGetTokenT<EcalRecHitCollection> hitCollection_;
 
 
 };

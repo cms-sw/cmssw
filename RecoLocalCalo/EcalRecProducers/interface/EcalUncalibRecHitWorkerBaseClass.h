@@ -3,6 +3,7 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
         class Event;
@@ -12,7 +13,8 @@ namespace edm {
 
 class EcalUncalibRecHitWorkerBaseClass {
         public:
-                EcalUncalibRecHitWorkerBaseClass(const edm::ParameterSet&){}
+	            EcalUncalibRecHitWorkerBaseClass(const edm::ParameterSet&, edm::ConsumesCollector& c){}
+				EcalUncalibRecHitWorkerBaseClass(const edm::ParameterSet&){}
                 virtual ~EcalUncalibRecHitWorkerBaseClass(){}
 
                 virtual void set(const edm::EventSetup& es) = 0;

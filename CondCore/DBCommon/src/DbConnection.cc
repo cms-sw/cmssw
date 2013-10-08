@@ -2,12 +2,6 @@
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-// coral includes
-//#include "CoralKernel/Context.h"
-//#include "CoralKernel/IHandle.h"
-//#include "RelationalAccess/ConnectionService.h"
-//#include "RelationalAccess/ISessionProxy.h"
-//#include "RelationalAccess/IConnectionServiceConfiguration.h"
 // ora includes
 #include "CondCore/ORA/interface/ConnectionPool.h"
 

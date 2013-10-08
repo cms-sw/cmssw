@@ -1,13 +1,6 @@
 #include "Validation/RecoMuon/src/RecoMuonValidator.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
@@ -477,6 +470,8 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
   wantTightMuon_ = pset.getParameter<bool>("wantTightMuon");
   beamspotLabel_ = pset.getParameter< edm::InputTag >("beamSpot");
   primvertexLabel_ = pset.getParameter< edm::InputTag >("primaryVertex");
+  beamspotToken_ = consumes<reco::BeamSpot>(beamspotLabel_);
+  primvertexToken_ = consumes<reco::VertexCollection>(primvertexLabel_);
 
   // Set histogram dimensions from config
   HistoDimensions hDim;
@@ -540,10 +535,13 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
   // Labels for simulation and reconstruction tracks
   simLabel_  = pset.getParameter<InputTag>("simLabel" );
   muonLabel_ = pset.getParameter<InputTag>("muonLabel");
+  simToken_ = consumes<TrackingParticleCollection>(simLabel_);
+  muonToken_ = consumes<edm::View<reco::Muon> >(muonLabel_);
 
   // Labels for sim-reco association
   doAssoc_ = pset.getUntrackedParameter<bool>("doAssoc", true);
   muAssocLabel_ = pset.getParameter<InputTag>("muAssocLabel");
+  //  muAssocToken = consumes<>(muAssocLabel_);
 
   // Different momentum assignment and additional histos in case of PF muons
   usePFMuon_ = pset.getUntrackedParameter<bool>("usePFMuon");
@@ -686,7 +684,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   reco::Vertex::Point posVtx;
   reco::Vertex::Error errVtx;
   edm::Handle<reco::VertexCollection> recVtxs;
-  event.getByLabel(primvertexLabel_,recVtxs);
+  event.getByToken(primvertexToken_,recVtxs);
   unsigned int theIndexOfThePrimaryVertex = 999.;
   for (unsigned int ind=0; ind<recVtxs->size(); ++ind) {
     if ( (*recVtxs)[ind].isValid() && !((*recVtxs)[ind].isFake()) ) {
@@ -701,7 +699,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   else {
     LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    event.getByLabel(beamspotLabel_,recoBeamSpotHandle);
+    event.getByToken(beamspotToken_,recoBeamSpotHandle);
     reco::BeamSpot bs = *recoBeamSpotHandle;
     posVtx = bs.position();
     errVtx(0,0) = bs.BeamWidthX();
@@ -713,12 +711,12 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 
   // Get TrackingParticles
   Handle<TrackingParticleCollection> simHandle;
-  event.getByLabel(simLabel_, simHandle);
+  event.getByToken(simToken_, simHandle);
   const TrackingParticleCollection simColl = *(simHandle.product());
 
   // Get Muons
-  Handle<View<Muon> > muonHandle;
-  event.getByLabel(muonLabel_, muonHandle);
+  Handle<edm::View<Muon> > muonHandle;
+  event.getByToken(muonToken_, muonHandle);
   View<Muon> muonColl = *(muonHandle.product());
 
   const TrackingParticleCollection::size_type nSim = simColl.size();

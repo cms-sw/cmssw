@@ -43,6 +43,10 @@ cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep1_cfg.py || die 'Failu
 
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep2_cfg.py || die 'Failure using PoolAliasTestStep2_cfg.py' $?
 
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep1_DifferentOrder_cfg.py || die 'Failure using PoolAliasTestStep1_DifferentOrder_cfg.py' $?
+
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep2_DifferentOrder_cfg.py || die 'Failure using PoolAliasTestStep2_DifferentOrder_cfg.py' $?
+
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep2A_cfg.py || die 'Failure using PoolAliasTestStep2A_cfg.py' $?
 
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep1C_cfg.py || die 'Failure using PoolAliasTestStep2A_cfg.py' $?

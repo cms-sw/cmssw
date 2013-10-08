@@ -26,6 +26,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 namespace reco {class Track;}
@@ -87,6 +89,7 @@ class MuonSeedTrack : public edm::EDProducer {
 
   /// the TrajectorySeed label  
   edm::InputTag theSeedsLabel;
+  edm::EDGetTokenT<TrajectorySeedCollection>  theSeedsToken;
   
   ///
   bool theAllowNoVtxFlag;      

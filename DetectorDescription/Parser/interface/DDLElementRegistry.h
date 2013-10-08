@@ -15,6 +15,7 @@ class DDXMLElement;
 
 // CLHEP Dependencies
 #include <CLHEP/Evaluator/Evaluator.h>
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 // -------------------------------------------------------------------------
 // Class declaration
@@ -63,6 +64,7 @@ class DDLElementRegistry //: public DDXMLElementRegistry
 
   /// Get the name given a pointer.  This may not be needed...
   const std::string& getElementName(DDXMLElement* theElement) const;
+  ClhepEvaluator &evaluator() { return ExprEval::instance(); }
 
  private:
   RegistryMap registry_;

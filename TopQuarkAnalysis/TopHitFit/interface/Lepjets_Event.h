@@ -1,5 +1,4 @@
 //
-// $Id: Lepjets_Event.h,v 1.13 2010/11/02 13:34:00 haryo Exp $
 //
 // File: hitfit/Lepjets_Event.h
 // Purpose: Represent a simple `event' consisting of leptons and jets.

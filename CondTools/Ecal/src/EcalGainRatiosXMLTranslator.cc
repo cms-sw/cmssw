@@ -4,7 +4,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -31,7 +31,7 @@ int  EcalGainRatiosXMLTranslator::readXML(const std::string& filename,
 
  
 
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
 
   XercesDOMParser* parser = new XercesDOMParser;
   parser->setValidationScheme( XercesDOMParser::Val_Never );
@@ -75,7 +75,7 @@ int  EcalGainRatiosXMLTranslator::readXML(const std::string& filename,
     } 
 
   delete parser;
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
   return 0;
   
   
@@ -96,7 +96,7 @@ int EcalGainRatiosXMLTranslator::writeXML(const std::string& filename,
 
 std::string EcalGainRatiosXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalGainRatios& record){
 
-    XMLPlatformUtils::Initialize();
+    cms::concurrency::xercesInitialize();
 
     DOMImplementation*  impl =
       DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());

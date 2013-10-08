@@ -32,6 +32,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapHcal.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 class HcalRecHitRecalib : public edm::EDProducer
 {
@@ -43,9 +44,9 @@ public:
     virtual void produce(edm::Event &, const edm::EventSetup&) override;
 
 private:
-    edm::InputTag hbheLabel_;
-    edm::InputTag hoLabel_;
-    edm::InputTag hfLabel_;
+    edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+    edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+    edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
     std::string RecalibHBHEHits_;
     std::string RecalibHFHits_;
     std::string RecalibHOHits_;

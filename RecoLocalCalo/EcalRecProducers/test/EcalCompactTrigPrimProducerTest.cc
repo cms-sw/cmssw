@@ -1,5 +1,4 @@
 #include "RecoLocalCalo/EcalRecProducers/test/EcalCompactTrigPrimProducerTest.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -11,12 +10,12 @@
 
 void EcalCompactTrigPrimProducerTest::analyze(edm::Event const & event, edm::EventSetup const & c){
   edm::Handle<EcalTrigPrimDigiCollection> hTpDigis;
-  event.getByLabel(tpDigiColl_, hTpDigis);
+  event.getByToken(tpDigiToken_, hTpDigis);
 
   const EcalTrigPrimDigiCollection* trigPrims =  hTpDigis.product();
   
   edm::Handle<EcalTrigPrimCompactColl> hTpRecs;
-  event.getByLabel(tpRecColl_, hTpRecs);
+  event.getByToken(tpRecToken_, hTpRecs);
 
   const EcalTrigPrimCompactColl* trigPrimRecs =  hTpRecs.product();
   
@@ -79,7 +78,7 @@ void EcalCompactTrigPrimProducerTest::analyze(edm::Event const & event, edm::Eve
 
   //test of skimmed TP collection
   edm::Handle<EcalTrigPrimDigiCollection> hSkimTpDigis;
-  event.getByLabel(tpSkimColl_, hSkimTpDigis);
+  event.getByToken(tpSkimToken_, hSkimTpDigis);
   const EcalTrigPrimDigiCollection* skimTrigPrims =  hSkimTpDigis.product();
   err_ = false;
   if(skimTrigPrims->size() == 0) err("Skimmed TP collection is empty!");

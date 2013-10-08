@@ -1,5 +1,4 @@
 //
-//     $Id: LeptonTranslatorBase.h,v 1.9 2010/08/06 22:00:21 haryo Exp $
 //
 
 /**

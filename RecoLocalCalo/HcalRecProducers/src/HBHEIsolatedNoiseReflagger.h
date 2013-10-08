@@ -27,9 +27,10 @@ class HBHEIsolatedNoiseReflagger : public edm::EDProducer {
   void DumpHBHEHitMap(std::vector<HBHEHitMap>& i) const;
 
   // parameters
-  edm::InputTag hbheLabel_;
-  edm::InputTag ebLabel_, eeLabel_;
-  edm::InputTag trackExtrapolationLabel_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+  edm::EDGetTokenT<std::vector<reco::TrackExtrapolation> > tok_trackExt_;
 
   double LooseHcalIsol_;
   double LooseEcalIsol_;

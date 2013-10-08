@@ -1,5 +1,4 @@
 //
-//     $Id: EtaDepResElement.h,v 1.10 2010/07/19 13:56:32 haryo Exp $
 //
 // CMSSW File      : interface/EtaDepResElement.h
 // Original Author : Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>

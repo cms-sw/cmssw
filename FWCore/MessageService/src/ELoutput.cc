@@ -74,8 +74,6 @@
 
 
 #include "FWCore/MessageService/interface/ELoutput.h"
-#include "FWCore/MessageService/interface/ELadministrator.h"
-#include "FWCore/MessageService/interface/ELcontextSupplier.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
@@ -443,21 +441,13 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
     if ( wantSomeContext ) {
       if (needAspace) { emitToken(ELstring(" ")); needAspace = false; }
       assert(!needAspace);
-      #ifdef ELoutputTRACE_LOG
-	std::cerr << "    =:=:=:>> context supplier is at 0x"
-                  << std::hex
-                  << &ELadministrator::instance()->getContextSupplier() << '\n';
-	std::cerr << "    =:=:=:>> context is --- "
-                  << ELadministrator::instance()->getContextSupplier().context()
-                  << '\n';
-      #endif
       if ( wantFullContext )  {
-	emitToken( ELadministrator::instance()->getContextSupplier().fullContext());
+	emitToken( msg.context());
       #ifdef ELoutputTRACE_LOG
 	std::cerr << "    =:=:=: fullContext done: \n";
       #endif
       } else  {
-	emitToken( ELadministrator::instance()->getContextSupplier().context());
+	emitToken( msg.context());
     #ifdef ELoutputTRACE_LOG
       std::cerr << "    =:=:=: Context done: \n";
     #endif
@@ -468,14 +458,13 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   // Provide traceback information:
   //
 
-  bool insertNewlineAfterHeader = ( msg.xid().severity != ELsuccess );
-  // ELsuccess is what LogDebug issues
+  bool insertNewlineAfterHeader = ( msg.xid().severity != ELdebug );
+  // ELdebug is what LogDebug issues
   
   if  ( !msg.is_verbatim() ) 
  {
     if ( msg.xid().severity >= traceThreshold )  {
       emitToken( ELstring("\n")
-            + ELadministrator::instance()->getContextSupplier().traceRoutine()
           , insertNewlineAfterHeader );
     }
     else  {                                        //else statement added JV:1

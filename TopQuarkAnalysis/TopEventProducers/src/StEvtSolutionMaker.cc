@@ -1,5 +1,4 @@
 //
-// $Id: StEvtSolutionMaker.cc,v 1.8 2007/11/24 11:14:22 lowette Exp $
 //
 
 #include <memory>

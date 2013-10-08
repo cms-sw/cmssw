@@ -1,7 +1,6 @@
 #ifndef TtHadEvtSolutionMaker_h
 #define TtHadEvtSolutionMaker_h
 //
-// $Id: TtHadEvtSolutionMaker.h,v 1.7 2009/11/16 16:29:30 eschliec Exp $
 // adapted TtSemiEvtSolutionMaker.h, v1.13 2007/07/06 02:49:42 lowette Exp $
 // for fully hadronic channel.
 

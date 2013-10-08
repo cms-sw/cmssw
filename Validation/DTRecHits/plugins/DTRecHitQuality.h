@@ -134,8 +134,8 @@ private:
   // Does the real job
   template  <typename type>
   void compute(const DTGeometry *dtGeom,
-	       std::map<DTWireId, std::vector<PSimHit> > simHitsPerWire,
-	       std::map<DTWireId, std::vector<type> > recHitsPerWire,
+	       const std::map<DTWireId, std::vector<PSimHit> >& simHitsPerWire,
+	       const std::map<DTWireId, std::vector<type> >& recHitsPerWire,
 	       int step);
   //HRes1DHit * hRes_S1RPhi;
   HRes1DHit *hRes_S1RPhi;  // RecHits, 1. step, RPh

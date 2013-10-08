@@ -56,6 +56,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "FWCore/Utilities/interface/Digest.h"
+#include "FWCore/Utilities/interface/InputType.h"
 
 #include "format.h"
 
@@ -640,7 +641,7 @@ DQMRootSource::readFile_() {
 void
 DQMRootSource::closeFile_() {
   edm::Service<edm::JobReport> jr;
-  jr->inputFileClosed(m_jrToken);
+  jr->inputFileClosed(edm::InputType::Primary, m_jrToken);
 }
 
 void DQMRootSource::readElements() {

@@ -97,7 +97,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   void bookLayer(); 
   MonitorElement* bookMETrend(const char* ParameterSetLabel, const char* HistoName);
   MonitorElement* bookME1D(const char* ParameterSetLabel, const char* HistoName);
-  void bookTrendMEs(TString name,int32_t layer,uint32_t id,std::string flag);
+  void bookTrendMEs(const TString& name,int32_t layer,uint32_t id,std::string flag);
   void fillDigiADCsMEs(int value, std::string name);
   void fillTrend(MonitorElement* me ,float value, float timeinorbit);
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}

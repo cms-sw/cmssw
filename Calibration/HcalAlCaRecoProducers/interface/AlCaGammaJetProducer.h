@@ -17,6 +17,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
@@ -41,18 +47,26 @@ class AlCaGammaJetProducer : public edm::EDProducer {
       virtual void produce(edm::Event &, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
-     edm::InputTag hbheLabel_;
-     edm::InputTag hoLabel_;
-     edm::InputTag hfLabel_;
      std::vector<edm::InputTag> ecalLabels_;
      std::vector<edm::InputTag> mInputCalo;
+
+     std::vector<edm::EDGetTokenT<EcalRecHitCollection> > toks_ecal_;
+     std::vector<edm::EDGetTokenT<reco::CaloJetCollection> > toks_calo_;
+
      std::string correctedIslandBarrelSuperClusterCollection_;
      std::string correctedIslandBarrelSuperClusterProducer_;
      std::string correctedIslandEndcapSuperClusterCollection_;
      std::string correctedIslandEndcapSuperClusterProducer_;
-     
+
+     edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+     edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+     edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+     edm::EDGetTokenT<reco::TrackCollection> tok_inputTrack_;
+     edm::EDGetTokenT<reco::SuperClusterCollection> tok_EBSC_; // token for corrected island barrel super cluster collection
+      edm::EDGetTokenT<reco::SuperClusterCollection> tok_EESC_; // token for corrected island end-cap super cluster
+      
      bool allowMissingInputs_;
-     std::string m_inputTrackLabel;
+
  // Calo geometry
   const CaloGeometry* geo;
   

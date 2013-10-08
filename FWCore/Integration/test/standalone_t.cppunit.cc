@@ -32,9 +32,6 @@ class testStandalone: public CppUnit::TestFixture
   void setUp()
   {
     m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());
-    // if (theMessageServicePresence.get() == 0) {
-    //   theMessageServicePresence = std::auto_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
-    // }
   }
 
   void tearDown(){
@@ -47,13 +44,11 @@ class testStandalone: public CppUnit::TestFixture
  private:
 
   std::auto_ptr<edm::AssertHandler> m_handler;
-  // static std::auto_ptr<edm::Presence> theMessageServicePresence;
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testStandalone);
 
-// std::auto_ptr<edm::Presence> testStandalone::theMessageServicePresence;
 
 
 void testStandalone::writeFile()
@@ -66,7 +61,6 @@ void testStandalone::writeFile()
                             "process.source = cms.Source('EmptySource')\n"
                             "process.JobReportService = cms.Service('JobReportService')\n"
                             "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
-			    // "process.MessageLogger = cms.Service('MessageLogger')\n"
                             "process.m1 = cms.EDProducer('IntProducer',\n"
                             "    ivalue = cms.int32(11)\n"
                             ")\n"
@@ -92,7 +86,6 @@ void testStandalone::readFile()
                             "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
                             "process.JobReportService = cms.Service('JobReportService')\n"
                             "process.add_(cms.Service('SiteLocalConfigService'))\n"
-			    // "process.MessageLogger = cms.Service('MessageLogger')\n"
                            );
 
   edm::EventProcessor proc(configuration, true);

@@ -1,5 +1,4 @@
 //
-// $Id: Lepjets_Event.cc,v 1.13 2011/04/26 13:35:49 haryo Exp $
 //
 // File: src/Lepjets_Event.h
 // Purpose: Represent a simple `event' consisting of leptons and jets.

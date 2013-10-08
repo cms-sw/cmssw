@@ -1,5 +1,4 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.42 2009/04/29 13:29:11 snaumann Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"

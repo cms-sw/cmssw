@@ -1,5 +1,4 @@
 //
-// $Id: TtHadSimpleBestJetComb.h,v 1.1 2007/10/06 15:14:50 mfhansen Exp $
 // adapted from TtSemiSimpleBestJetComb.h,v 1.2 2007/06/09 01:17:41 lowette Exp 
 // for fully hadronic channel
 

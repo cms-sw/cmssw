@@ -1,5 +1,4 @@
 //
-// $Id: TtSemiSimpleBestJetComb.h,v 1.3 2007/09/20 18:03:21 lowette Exp $
 //
 
 #ifndef TtSemiSimpleBestJetComb_h

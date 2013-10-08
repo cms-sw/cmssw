@@ -4,10 +4,6 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -36,11 +32,11 @@ namespace cms
 {
 DiJetAnalyzer::DiJetAnalyzer(const edm::ParameterSet& iConfig)
 {
-  jets_=iConfig.getParameter<edm::InputTag>("jetsInput");
-  ec_=iConfig.getParameter<edm::InputTag>("ecInput");
-  hbhe_=iConfig.getParameter<edm::InputTag>("hbheInput");
-  ho_=iConfig.getParameter<edm::InputTag>("hoInput");
-  hf_=iConfig.getParameter<edm::InputTag>("hfInput");
+  tok_jets_ = consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("jetsInput"));
+  tok_ec_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecInput"));
+  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
+  tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
+  tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
 
   // get name of output file with histogramms
   fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile");
@@ -79,7 +75,7 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    CaloJet jet1, jet2, jet3; 
    try {
    edm::Handle<CaloJetCollection> jets;
-   iEvent.getByLabel(jets_,jets);
+   iEvent.getByToken(tok_jets_,jets);
    if(jets->size()>1){ 
     jet1 = (*jets)[0]; 
     jet2 = (*jets)[1];
@@ -143,7 +139,7 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    double emEnergy = 0.; 
    try {
       Handle<EcalRecHitCollection> ec;
-      iEvent.getByLabel(ec_,ec);
+      iEvent.getByToken(tok_ec_,ec);
       for(EcalRecHitCollection::const_iterator ecItr = (*ec).begin();
                                                 ecItr != (*ec).end(); ++ecItr)
       {
@@ -162,7 +158,7 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    int nHits = 0; 
    try {
       Handle<HBHERecHitCollection> hbhe;
-      iEvent.getByLabel(hbhe_, hbhe);
+      iEvent.getByToken(tok_hbhe_, hbhe);
       for(HBHERecHitCollection::const_iterator hbheItr=hbhe->begin(); 
                                                  hbheItr!=hbhe->end(); hbheItr++)
       {
@@ -180,7 +176,7 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    try {
       Handle<HORecHitCollection> ho;
-      iEvent.getByLabel(ho_, ho);
+      iEvent.getByToken(tok_ho_, ho);
       for(HORecHitCollection::const_iterator hoItr=ho->begin(); 
                                                hoItr!=ho->end(); hoItr++)
       {
@@ -197,7 +193,7 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    try {
       Handle<HFRecHitCollection> hf;
-      iEvent.getByLabel(hf_, hf);
+      iEvent.getByToken(tok_hf_, hf);
       for(HFRecHitCollection::const_iterator hfItr=hf->begin(); 
                                                hfItr!=hf->end(); hfItr++)
       {

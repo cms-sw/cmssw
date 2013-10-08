@@ -22,9 +22,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+
 #include "RecoMET/METAlgorithms/interface/MuonMETAlgo.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
+
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 
 
 namespace cms 
@@ -45,6 +50,11 @@ namespace cms
     edm::InputTag uncorMETInputTag_;
     edm::InputTag muonsInputTag_;
     edm::InputTag muonDepValueMap_;
+
+    edm::EDGetTokenT<edm::View<reco::Muon> > inputMuonToken_;
+    edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > inputValueMapMuonMetCorrToken_;
+    edm::EDGetTokenT<edm::View<reco::CaloMET> > inputCaloMETToken_;
+    edm::EDGetTokenT<edm::View<reco::MET> > inputMETToken_;
     
   };
 }

@@ -149,7 +149,7 @@ void L1GctJetFinalStage::process()
   }
 }
 
-void L1GctJetFinalStage::setInputCentralJet(int i, L1GctJetCand jet)
+void L1GctJetFinalStage::setInputCentralJet(int i, const L1GctJetCand& jet)
 {
   if( ((jet.isCentral() && jet.bx() == bxAbs()) || jet.empty())
       && (i >= 0 && i < MAX_JETS_IN))
@@ -158,7 +158,7 @@ void L1GctJetFinalStage::setInputCentralJet(int i, L1GctJetCand jet)
   }
 }
 
-void L1GctJetFinalStage::setInputForwardJet(int i, L1GctJetCand jet)
+void L1GctJetFinalStage::setInputForwardJet(int i, const L1GctJetCand& jet)
 {
   if( ((jet.isForward() && jet.bx() == bxAbs()) || jet.empty())
      && (i >= 0 && i < MAX_JETS_IN))
@@ -167,7 +167,7 @@ void L1GctJetFinalStage::setInputForwardJet(int i, L1GctJetCand jet)
   }
 }
 
-void L1GctJetFinalStage::setInputTauJet(int i, L1GctJetCand jet)
+void L1GctJetFinalStage::setInputTauJet(int i, const L1GctJetCand& jet)
 {
   if( ((jet.isTau() && jet.bx() == bxAbs()) || jet.empty())
     && (i >= 0 && i < MAX_JETS_IN))
@@ -176,7 +176,7 @@ void L1GctJetFinalStage::setInputTauJet(int i, L1GctJetCand jet)
   }
 }
 
-void L1GctJetFinalStage::storeJets(JetVector& storageVector, JetVector jets, unsigned short iWheel)
+void L1GctJetFinalStage::storeJets(JetVector& storageVector, const JetVector& jets, unsigned short iWheel)
 {
   for(unsigned short iJet = 0; iJet < L1GctWheelJetFpga::MAX_JETS_OUT; ++iJet)
   {

@@ -15,10 +15,10 @@
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Algorithm/src/AlgoInit.h"
 
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
 
 #include <iostream>
 
@@ -31,8 +31,7 @@ DDLParser::DDLParser( DDCompactView& cpv )
   : cpv_( cpv ),
     nFiles_( 0 )
 {
-  XMLPlatformUtils::Initialize();
-  AlgoInit();
+  cms::concurrency::xercesInitialize();
   SAX2Parser_  = XMLReaderFactory::createXMLReader();
   
   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, false);   // optional
@@ -56,7 +55,7 @@ DDLParser::~DDLParser( void )
   delete expHandler_;
   delete fileHandler_;
   delete errHandler_;
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
   DCOUT_V('P', "DDLParser::~DDLParser(): destruct DDLParser"); 
 }
 
@@ -145,7 +144,7 @@ DDLParser::parseOneFile( const std::string& fullname ) //, const std::string& ur
     //         edm::LogError ("DDLParser") << "\nDDLParser::ParseOneFile, PASS1: XMLException while processing files... \n"
     //              << "Exception message is: \n"
     //              << StrX(toCatch.getMessage()) << "\n" ;
-    //         XMLPlatformUtils::Terminate();
+    //         cms::concurrency::xercesTerminate();
     //         throw (DDException("  See XMLException above. "));
     //       }
 
@@ -168,7 +167,7 @@ DDLParser::parseOneFile( const std::string& fullname ) //, const std::string& ur
     //         edm::LogError ("DDLParser") << "\nDDLParser::ParseOneFile, PASS2: XMLException while processing files... \n"
     //              << "Exception message is: \n"
     //              << StrX(toCatch.getMessage()) << "\n" ;
-    //         XMLPlatformUtils::Terminate();
+    //         cms::concurrency::xercesTerminate();
     //         throw (DDException("  See XMLException above."));
     //       }
   }
@@ -199,22 +198,6 @@ DDLParser::getFileList( void )
     flist.push_back(fit->second.first); // was .second (mec: 2003:02:19
   }
   return flist;
-}
-
-void
-DDLParser::dumpFileList( void )
-{
-  edm::LogInfo ("DDLParser") << "File List:" << std::endl;
-  for (FileNameHolder::const_iterator it = fileNames_.begin(); it != fileNames_.end(); ++it)
-    edm::LogInfo ("DDLParser") << it->second.second << std::endl;
-}
-
-void
-DDLParser::dumpFileList( ostream& co )
-{
-  co << "File List:" << std::endl;
-  for (FileNameHolder::const_iterator it = fileNames_.begin(); it != fileNames_.end(); ++it)
-    co << it->second.second << std::endl;
 }
 
 int
@@ -307,7 +290,7 @@ DDLParser::parse( const DDLDocumentProvider& dp )
   //     edm::LogInfo ("DDLParser") << "\nPASS1: XMLException while processing files... \n"
   // 	 << "Exception message is: \n"
   // 	 << StrX(toCatch.getMessage()) << "\n" ;
-  //     XMLPlatformUtils::Terminate();
+  //     cms::concurrency::xercesTerminate();
   //     // FIX use this after DEPRECATED stuff removed:    throw(DDException("See XML Exception above"));
   //     return -1;
   //   }
@@ -350,7 +333,7 @@ DDLParser::parse( const DDLDocumentProvider& dp )
   //     edm::LogError ("DDLParser") << "\nPASS2: XMLException while processing files... \n"
   // 	 << "Exception message is: \n"
   // 	 << StrX(toCatch.getMessage()) << "\n" ;
-  //     XMLPlatformUtils::Terminate();
+  //     cms::concurrency::xercesTerminate();
   //     return -1;
   //   }
   return 0;
@@ -385,13 +368,6 @@ DDLParser::parseFile( const int& numtoproc )
     DCOUT('P', "\nWARNING: File " + fileNames_[numtoproc].first 
 	  + " has already been processed as " + fileNames_[numtoproc].second);
   }
-}
-
-// Return the name of the Current file being processed by the parser.
-std::string
-DDLParser::getCurrFileName( void )
-{
-  return currFileName_;
 }
 
 void

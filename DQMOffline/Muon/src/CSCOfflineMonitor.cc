@@ -8,31 +8,35 @@
 #include "DQMOffline/Muon/src/CSCOfflineMonitor.h"
 
 using namespace std;
-using namespace edm;
-
 
 ///////////////////
 //  CONSTRUCTOR  //
 ///////////////////
-CSCOfflineMonitor::CSCOfflineMonitor(const ParameterSet& pset){
+CSCOfflineMonitor::CSCOfflineMonitor(const edm::ParameterSet& pset){
 
   param = pset;
 
-  stripDigiTag_  = pset.getParameter<edm::InputTag>("stripDigiTag");
-  wireDigiTag_   = pset.getParameter<edm::InputTag>("wireDigiTag"); 
-  alctDigiTag_   = pset.getParameter<edm::InputTag>("alctDigiTag");
-  clctDigiTag_   = pset.getParameter<edm::InputTag>("clctDigiTag"); 
-  cscRecHitTag_  = pset.getParameter<edm::InputTag>("cscRecHitTag");
-  cscSegTag_     = pset.getParameter<edm::InputTag>("cscSegTag");
-  FEDRawDataCollectionTag_  = pset.getParameter<edm::InputTag>("FEDRawDataCollectionTag");
+  rd_token = consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("FEDRawDataCollectionTag") );
+  sd_token = consumes<CSCStripDigiCollection>( pset.getParameter<edm::InputTag>("stripDigiTag") );
+  wd_token = consumes<CSCWireDigiCollection>( pset.getParameter<edm::InputTag>("wireDigiTag") );
+  al_token = consumes<CSCALCTDigiCollection>( pset.getParameter<edm::InputTag>("alctDigiTag") );
+  cl_token = consumes<CSCCLCTDigiCollection>( pset.getParameter<edm::InputTag>("clctDigiTag") );
+  rh_token = consumes<CSCRecHit2DCollection>( pset.getParameter<edm::InputTag>("cscRecHitTag") );
+  se_token = consumes<CSCSegmentCollection>( pset.getParameter<edm::InputTag>("cscSegTag") );
 
   finalizedHistograms_=false;
 
 }
 
-void CSCOfflineMonitor::beginJob(void){
-      dbe = Service<DQMStore>().operator->();
-  
+void CSCOfflineMonitor::beginRun( edm::Run const &, edm::EventSetup const & ) {
+  dbe = edm::Service<DQMStore>().operator->();
+  bookTheHists();
+}
+
+void CSCOfflineMonitor::bookTheHists( void ) {
+
+   finalizedHistograms_ = false;
+
       // Occupancies
       dbe->setCurrentFolder("CSC/CSCOfflineMonitor/Occupancy");
       hCSCOccupancy = dbe->book1D("hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5);
@@ -453,12 +457,6 @@ void CSCOfflineMonitor::beginJob(void){
       applyCSClabels(hCLCTL1A2Denominator,EXTENDED, Y);
 }
 
-//////////////////
-//  DESTRUCTOR  //
-//////////////////
-CSCOfflineMonitor::~CSCOfflineMonitor(){
-
-}
 
 void CSCOfflineMonitor::endRun( edm::Run const &, edm::EventSetup const & ){
   
@@ -596,29 +594,28 @@ void CSCOfflineMonitor::normalize(MonitorElement* me){
 ////////////////
 //  Analysis  //
 ////////////////
-void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetup){
+void CSCOfflineMonitor::analyze(const edm::Event & event, const edm::EventSetup& eventSetup){
 
   edm::Handle<CSCWireDigiCollection> wires;
   edm::Handle<CSCStripDigiCollection> strips;
   edm::Handle<CSCALCTDigiCollection> alcts;
   edm::Handle<CSCCLCTDigiCollection> clcts;
-  event.getByLabel(stripDigiTag_, strips);
-  event.getByLabel(wireDigiTag_, wires);
-  event.getByLabel(alctDigiTag_, alcts);
-  event.getByLabel(clctDigiTag_, clcts);
+  event.getByToken( sd_token, strips );
+  event.getByToken( wd_token, wires );
+  event.getByToken( al_token, alcts );
+  event.getByToken( cl_token, clcts );
 
   // Get the CSC Geometry :
-  ESHandle<CSCGeometry> cscGeom;
+  edm::ESHandle<CSCGeometry> cscGeom;
   eventSetup.get<MuonGeometryRecord>().get(cscGeom);
 
   // Get the RecHits collection :
-  Handle<CSCRecHit2DCollection> recHits;
-  event.getByLabel(cscRecHitTag_,recHits);
+  edm::Handle<CSCRecHit2DCollection> recHits;
+  event.getByToken( rh_token, recHits );
 
   // get CSC segment collection
-  Handle<CSCSegmentCollection> cscSegments;
-  event.getByLabel(cscSegTag_, cscSegments);
-
+  edm::Handle<CSCSegmentCollection> cscSegments;
+  event.getByToken( se_token, cscSegments );
 
   doOccupancies(strips,wires,recHits,cscSegments,clcts);
   doStripDigis(strips);
@@ -1557,7 +1554,8 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
 //
 // ==============================================
 
-void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, edm::Handle<CSCCLCTDigiCollection> clcts, const edm::Event & event, const EventSetup& eventSetup){
+void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, edm::Handle<CSCCLCTDigiCollection> clcts,
+   const edm::Event & event, const edm::EventSetup& eventSetup){
 
   // Loop over ALCTDigis
 
@@ -1585,8 +1583,8 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, ed
 
   // Try to get raw data
   edm::Handle<FEDRawDataCollection> rawdata;
-  if (!(event.getByLabel(FEDRawDataCollectionTag_,rawdata)) ){
-    edm::LogWarning("CSCOfflineMonitor")<<" raw data with label "<<FEDRawDataCollectionTag_ <<" not available";
+  if ( !( event.getByToken( rd_token, rawdata ) ) ){
+    edm::LogWarning("CSCOfflineMonitor") << " FEDRawDataColelction not available";
     return;
   }
 

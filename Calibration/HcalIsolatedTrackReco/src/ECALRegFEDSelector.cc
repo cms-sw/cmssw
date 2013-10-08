@@ -1,16 +1,15 @@
 
 #include "Calibration/HcalIsolatedTrackReco/interface/ECALRegFEDSelector.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 
 ECALRegFEDSelector::ECALRegFEDSelector(const edm::ParameterSet& iConfig)
 {
-  seedLabel_=iConfig.getParameter<edm::InputTag>("regSeedLabel");
+  tok_seed_ = consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<edm::InputTag>("regSeedLabel"));
   delta_=iConfig.getParameter<double>("delta");
   
-  rawInLabel_=iConfig.getParameter<edm::InputTag>("rawInputLabel");
+  tok_raw_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInputLabel"));
 
   ec_mapping = new EcalElectronicsMapping();
 
@@ -41,13 +40,13 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   std::auto_ptr<EcalListOfFEDS> fedList(new EcalListOfFEDS);  
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> trigSeedTrks;
-  iEvent.getByLabel(seedLabel_,trigSeedTrks);
+  iEvent.getByToken(tok_seed_,trigSeedTrks);
 
   std::vector< edm::Ref<reco::IsolatedPixelTrackCandidateCollection> > isoPixTrackRefs;
   trigSeedTrks->getObjects(trigger::TriggerTrack, isoPixTrackRefs);
 
   edm::Handle<FEDRawDataCollection> rawIn;
-  iEvent.getByLabel(rawInLabel_,rawIn);
+  iEvent.getByToken(tok_raw_,rawIn);
 
   //  std::vector<int> EC_FED_IDs;
   

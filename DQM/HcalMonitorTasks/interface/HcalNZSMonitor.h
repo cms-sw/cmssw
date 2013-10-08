@@ -17,7 +17,7 @@ class HcalNZSMonitor: public HcalBaseDQMonitor
   void setup();
   void beginRun(const edm::Run& run, const edm::EventSetup& c);
   void analyze(edm::Event const&e, edm::EventSetup const&s);
-  void processEvent(const FEDRawDataCollection& rawraw, edm::TriggerResults, int bxNum,const edm::TriggerNames & triggerNames);
+  void processEvent(const FEDRawDataCollection& rawraw, const edm::TriggerResults&, int bxNum,const edm::TriggerNames & triggerNames);
 
 
 
@@ -51,6 +51,8 @@ class HcalNZSMonitor: public HcalBaseDQMonitor
 
   edm::InputTag rawdataLabel_;
   edm::InputTag hltresultsLabel_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  edm::EDGetTokenT<edm::TriggerResults> tok_res_;
 };
 
 

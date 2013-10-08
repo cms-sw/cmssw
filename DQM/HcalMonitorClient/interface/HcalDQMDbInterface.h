@@ -62,8 +62,8 @@ class HcalHotCellDbInterface : public HcalDQMDbInterface {
   
   HcalHotCellDbInterface(){};
   
-  DOMElement* createData(DOMDocument* doc,DOMElement* parent, HcalDQMChannelQuality::Item item);
-  void createDataset(DOMDocument* doc, HcalDQMChannelQuality::Item item, const char* gmtime, const char* version);
+  DOMElement* createData(DOMDocument* doc,DOMElement* parent, const HcalDQMChannelQuality::Item& item);
+  void createDataset(DOMDocument* doc, const HcalDQMChannelQuality::Item& item, const char* gmtime, const char* version);
   void createHeader(DOMDocument* doc, unsigned int runno, const char* startTime);
 
 };
@@ -73,8 +73,8 @@ class HcalHLXMaskDbInterface : public HcalDQMDbInterface {
 
   HcalHLXMaskDbInterface(){};
 
-  void createData(DOMDocument* doc,DOMElement* parent, HcalHLXMask mask);
-  DOMElement* createDataset(DOMDocument* doc, const HcalHLXMask mask, const char* gmtime, const char* version, const char* subversion);
+  void createData(DOMDocument* doc,DOMElement* parent, const HcalHLXMask& mask);
+  DOMElement* createDataset(DOMDocument* doc, const HcalHLXMask& mask, const char* gmtime, const char* version, const char* subversion);
   void createHeader(DOMDocument* doc);
 };
 

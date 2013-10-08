@@ -25,7 +25,7 @@ class L1TOccupancyClientHistogramService {
   public:
   
     L1TOccupancyClientHistogramService(); 
-    L1TOccupancyClientHistogramService(edm::ParameterSet iParameters, DQMStore* iDBE, bool iVerbose);
+    L1TOccupancyClientHistogramService(const edm::ParameterSet& iParameters, DQMStore* iDBE, bool iVerbose);
   
     //loads the histo of test into histos_
     TH2F* loadHisto  (std::string test,std::string histo); 
@@ -43,7 +43,7 @@ class L1TOccupancyClientHistogramService {
     bool isMasked     (std::string test, int x, int y);           //checks if cells is masked
     bool isStripMasked(std::string test, int binStrip, int axis); //checks if a whole strip is masked
 
-    void setMaskedBins(std::string test, std::vector<edm::ParameterSet> mask); //set masked channels specified in python
+    void setMaskedBins(std::string test, const std::vector<edm::ParameterSet>& mask); //set masked channels specified in python
     std::vector<std::pair<int,int> > getMaskedBins(std::string test);          //returns masked channels of test
 
     unsigned int  getNBinsMasked   (std::string test);        // Get number of masked bins in test

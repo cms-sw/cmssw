@@ -1,21 +1,16 @@
 # Configuration file to run stubs/CSCGeometryAnalyser
-# I hope this reads geometry from db
-# Tim Cox 18.10.2012 for 61X
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryTest")
-process.load('Configuration.Geometry.GeometryExtended_cff')
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
-process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
+process.XMLFromDBSource.label = cms.string('Extended')
+process.GlobalTag.globaltag = 'PRE_MC62_V8::All'
 
-process.GlobalTag.globaltag = 'MC_61_V2::All'
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
-
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-
 
 process.source = cms.Source("EmptySource")
 

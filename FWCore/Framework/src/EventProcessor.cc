@@ -145,6 +145,8 @@ namespace edm {
     areg->preSourceConstructionSignal_(md);
     std::unique_ptr<InputSource> input;
     try {
+      //even if we have an exception, send the signal
+      std::shared_ptr<int> sentry(nullptr,[areg,&md](void*){areg->postSourceConstructionSignal_(md);});
       try {
         input = std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
       }
@@ -156,13 +158,11 @@ namespace edm {
       catch (...) { convertException::unknownToEDM(); }
     }
     catch (cms::Exception& iException) {
-      areg->postSourceConstructionSignal_(md);
       std::ostringstream ost;
       ost << "Constructing input source of type " << modtype;
       iException.addContext(ost.str());
       throw;
     }
-    areg->postSourceConstructionSignal_(md);
     return input;
   }
 
@@ -518,7 +518,6 @@ namespace edm {
       subProcess_.reset(new SubProcess(*subProcessParameterSet,
                                        *parameterSet,
                                        preg_,
-                                       input_->processHistoryRegistryForUpdate(),
                                        branchIDListHelper_,
                                        *espController_,
                                        *actReg_,
@@ -547,7 +546,7 @@ namespace edm {
     psetRegistry->dataForUpdate().clear();
     psetRegistry->extraForUpdate().setID(ParameterSetID());
 
-    ParentageRegistry::instance()->dataForUpdate().clear();
+    ParentageRegistry::instance()->clear();
   }
 
   void
@@ -1701,14 +1700,17 @@ namespace edm {
                                                         historyAppender_.get(),
                                                         0));
     input_->readRun(*rp, *historyAppender_);
+    assert(input_->reducedProcessHistoryID() == rp->reducedProcessHistoryID());
     principalCache_.insert(rp);
-    return statemachine::Run(input_->reducedProcessHistoryID(), input_->run());
+    return statemachine::Run(rp->reducedProcessHistoryID(), input_->run());
   }
 
   statemachine::Run EventProcessor::readAndMergeRun() {
     principalCache_.merge(input_->runAuxiliary(), preg_);
-    input_->readAndMergeRun(*principalCache_.runPrincipalPtr());
-    return statemachine::Run(input_->reducedProcessHistoryID(), input_->run());
+    auto runPrincipal =principalCache_.runPrincipalPtr();
+    input_->readAndMergeRun(*runPrincipal);
+    assert(input_->reducedProcessHistoryID() == runPrincipal->reducedProcessHistoryID());
+    return statemachine::Run(runPrincipal->reducedProcessHistoryID(), input_->run());
   }
 
   int EventProcessor::readLuminosityBlock() {

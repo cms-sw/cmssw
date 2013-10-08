@@ -33,7 +33,7 @@ std::ostream & operator<<(std::ostream & os, const DDConstant & cons)
 
 void DDConstant::createConstantsFromEvaluator()
 {
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   ClhepEvaluator * eval = dynamic_cast<ClhepEvaluator*>(&ev);
   if (eval){
     const std::vector<std::string> & vars = eval->variables();

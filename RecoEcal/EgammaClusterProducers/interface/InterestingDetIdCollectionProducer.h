@@ -38,6 +38,8 @@ The following classes of "interesting id" are considered
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 class CaloTopology;
 class EcalSeverityLevelAlgo;
@@ -46,15 +48,14 @@ class InterestingDetIdCollectionProducer : public edm::EDProducer {
    public:
       //! ctor
       explicit InterestingDetIdCollectionProducer(const edm::ParameterSet&);
-      ~InterestingDetIdCollectionProducer();
       virtual void beginRun (edm::Run const&, const edm::EventSetup&) override final;
       //! producer
       virtual void produce(edm::Event &, const edm::EventSetup&);
 
    private:
       // ----------member data ---------------------------
-      edm::InputTag recHitsLabel_;
-      edm::InputTag basicClusters_;
+      edm::EDGetTokenT<EcalRecHitCollection>         recHitsToken_;
+      edm::EDGetTokenT<reco::BasicClusterCollection> basicClustersToken_;
       std::string interestingDetIdCollection_;
       int minimalEtaSize_;
       int minimalPhiSize_;

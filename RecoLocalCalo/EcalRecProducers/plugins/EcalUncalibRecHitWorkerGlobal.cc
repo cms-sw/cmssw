@@ -13,8 +13,8 @@
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 
-EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&ps) :
-        EcalUncalibRecHitWorkerBaseClass(ps)
+EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&ps,edm::ConsumesCollector& c) :
+  EcalUncalibRecHitWorkerBaseClass(ps,c)
 {
         // ratio method parameters
         EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
@@ -68,6 +68,76 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
         EBchi2Parameters_ = ps.getParameter<std::vector<double> >("EBchi2Parameters");
         EEchi2Parameters_ = ps.getParameter<std::vector<double> >("EEchi2Parameters");
 }
+
+
+
+EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&ps) :
+  EcalUncalibRecHitWorkerBaseClass(ps)
+{
+        // ratio method parameters
+        EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
+        EEtimeFitParameters_ = ps.getParameter<std::vector<double> >("EEtimeFitParameters"); 
+        EBamplitudeFitParameters_ = ps.getParameter<std::vector<double> >("EBamplitudeFitParameters");
+        EEamplitudeFitParameters_ = ps.getParameter<std::vector<double> >("EEamplitudeFitParameters");
+        EBtimeFitLimits_.first  = ps.getParameter<double>("EBtimeFitLimits_Lower");
+        EBtimeFitLimits_.second = ps.getParameter<double>("EBtimeFitLimits_Upper");
+        EEtimeFitLimits_.first  = ps.getParameter<double>("EEtimeFitLimits_Lower");
+        EEtimeFitLimits_.second = ps.getParameter<double>("EEtimeFitLimits_Upper");
+        EBtimeConstantTerm_=ps.getParameter<double>("EBtimeConstantTerm");
+        EBtimeNconst_=ps.getParameter<double>("EBtimeNconst");
+        EEtimeConstantTerm_=ps.getParameter<double>("EEtimeConstantTerm");
+        EEtimeNconst_=ps.getParameter<double>("EEtimeNconst");
+        outOfTimeThreshG12pEB_ = ps.getParameter<double>("outOfTimeThresholdGain12pEB");
+        outOfTimeThreshG12mEB_ = ps.getParameter<double>("outOfTimeThresholdGain12mEB");
+        outOfTimeThreshG61pEB_ = ps.getParameter<double>("outOfTimeThresholdGain61pEB");
+        outOfTimeThreshG61mEB_ = ps.getParameter<double>("outOfTimeThresholdGain61mEB");
+        outOfTimeThreshG12pEE_ = ps.getParameter<double>("outOfTimeThresholdGain12pEE");
+        outOfTimeThreshG12mEE_ = ps.getParameter<double>("outOfTimeThresholdGain12mEE");
+        outOfTimeThreshG61pEE_ = ps.getParameter<double>("outOfTimeThresholdGain61pEE");
+        outOfTimeThreshG61mEE_ = ps.getParameter<double>("outOfTimeThresholdGain61mEE");
+        amplitudeThreshEB_ = ps.getParameter<double>("amplitudeThresholdEB");
+        amplitudeThreshEE_ = ps.getParameter<double>("amplitudeThresholdEE");
+	// amplitude-dependent correction of time
+        doEBtimeCorrection_      = ps.getParameter<bool>("doEBtimeCorrection");
+        doEEtimeCorrection_      = ps.getParameter<bool>("doEEtimeCorrection");
+        EBtimeCorrAmplitudeBins_ = ps.getParameter<std::vector<double> >("EBtimeCorrAmplitudeBins"); 
+        EBtimeCorrShiftBins_     = ps.getParameter<std::vector<double> >("EBtimeCorrShiftBins"); 
+        EEtimeCorrAmplitudeBins_ = ps.getParameter<std::vector<double> >("EEtimeCorrAmplitudeBins"); 
+        EEtimeCorrShiftBins_     = ps.getParameter<std::vector<double> >("EEtimeCorrShiftBins"); 
+	if(EBtimeCorrAmplitudeBins_.size() != EBtimeCorrShiftBins_.size()) {
+	  doEBtimeCorrection_ = false;
+	  edm::LogError("EcalRecHitError") << "Size of EBtimeCorrAmplitudeBins different from EBtimeCorrShiftBins. Forcing no time corrections for EB. ";
+	}
+	if(EEtimeCorrAmplitudeBins_.size() != EEtimeCorrShiftBins_.size()) {
+	  doEEtimeCorrection_ = false;
+	  edm::LogError("EcalRecHitError") << "Size of EEtimeCorrAmplitudeBins different from EEtimeCorrShiftBins. Forcing no time corrections for EE. ";
+	}
+
+	// spike threshold
+        ebSpikeThresh_ = ps.getParameter<double>("ebSpikeThreshold");
+        // leading edge parameters
+        ebPulseShape_ = ps.getParameter<std::vector<double> >("ebPulseShape");
+        eePulseShape_ = ps.getParameter<std::vector<double> >("eePulseShape");
+	// chi2 parameters
+        kPoorRecoFlagEB_ = ps.getParameter<bool>("kPoorRecoFlagEB");
+	kPoorRecoFlagEE_ = ps.getParameter<bool>("kPoorRecoFlagEE");;
+        chi2ThreshEB_=ps.getParameter<double>("chi2ThreshEB_");
+	chi2ThreshEE_=ps.getParameter<double>("chi2ThreshEE_");
+        EBchi2Parameters_ = ps.getParameter<std::vector<double> >("EBchi2Parameters");
+        EEchi2Parameters_ = ps.getParameter<std::vector<double> >("EEchi2Parameters");
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 void
 EcalUncalibRecHitWorkerGlobal::set(const edm::EventSetup& es)

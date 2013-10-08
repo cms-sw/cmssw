@@ -131,7 +131,7 @@ public:
   const_reverse_iterator  rend()   const { return histories_.rend(); }
   // here is the proper mutable interface... this is done so that the cache is
   // set by us, not the user
-  void                    push_back( value_type v ) { cached_ = false; histories_.push_back(v); }
+  void                    push_back( const value_type& v ) { cached_ = false; histories_.push_back(v); }
   void                    resize( size_t n )        { cached_ = false; histories_.resize(n); }
   void                    clear() { cached_ = false; histories_.clear(); nb_ = nc_ = 0; dR_ = 0.0; highestFlavor_ = 0; flavorSource_ = FlavorHistory::FLAVOR_NULL; }
 

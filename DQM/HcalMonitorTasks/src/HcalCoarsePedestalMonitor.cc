@@ -33,6 +33,11 @@ HcalCoarsePedestalMonitor::HcalCoarsePedestalMonitor(const edm::ParameterSet& ps
   minEvents_             = ps.getUntrackedParameter<int>("minEvents",100); // minimum number of events needed before histograms are filled
   excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
 
+  tok_hbhe_ = consumes<HBHEDigiCollection>(digiLabel_);
+  tok_ho_ = consumes<HODigiCollection>(digiLabel_);
+  tok_hf_ = consumes<HFDigiCollection>(digiLabel_);
+  tok_report_ = consumes<HcalUnpackerReport>(digiLabel_);
+
 }
 
 
@@ -129,23 +134,23 @@ void HcalCoarsePedestalMonitor::analyze(edm::Event const&e, edm::EventSetup cons
   edm::Handle<HFDigiCollection> hf_digi;
   edm::Handle<HcalUnpackerReport> report;
 
-  if (!(e.getByLabel(digiLabel_,hbhe_digi)))
+  if (!(e.getByToken(tok_hbhe_,hbhe_digi)))
     {
       edm::LogWarning("HcalCoarsePedestalMonitor")<< digiLabel_<<" hbhe_digi not available";
       return;
     }
   
-  if (!(e.getByLabel(digiLabel_,hf_digi)))
+  if (!(e.getByToken(tok_hf_,hf_digi)))
     {
       edm::LogWarning("HcalCoarsePedestalMonitor")<< digiLabel_<<" hf_digi not available";
       return;
     }
-  if (!(e.getByLabel(digiLabel_,ho_digi)))
+  if (!(e.getByToken(tok_ho_,ho_digi)))
     {
       edm::LogWarning("HcalCoarsePedestalMonitor")<< digiLabel_<<" ho_digi not available";
       return;
     }
-  if (!(e.getByLabel(digiLabel_,report)))
+  if (!(e.getByToken(tok_report_,report)))
     {
       edm::LogWarning("HcalCoarsePedestalMonitor")<< digiLabel_<<" unpacker report not available";
       return;

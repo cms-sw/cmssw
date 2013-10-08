@@ -20,6 +20,19 @@ MuonIdVal::MuonIdVal(const edm::ParameterSet& iConfig)
    makeShowerInformationPlots_ = iConfig.getUntrackedParameter<bool>("makeShowerInformationPlots");
    baseFolder_ = iConfig.getUntrackedParameter<std::string>("baseFolder");
 
+   inputMuonCollectionToken_ = consumes<reco::MuonCollection>(inputMuonCollection_);
+   inputDTRecSegment4DCollectionToken_ = consumes<DTRecSegment4DCollection>(inputDTRecSegment4DCollection_);
+   inputCSCSegmentCollectionToken_ = consumes<CSCSegmentCollection>(inputCSCSegmentCollection_);
+   inputMuonTimeExtraValueMapCombToken_ = consumes<reco::MuonTimeExtraMap>(edm::InputTag(inputMuonTimeExtraValueMap_.label(), "combined"));
+   inputMuonTimeExtraValueMapDTToken_= consumes<reco::MuonTimeExtraMap>(edm::InputTag(inputMuonTimeExtraValueMap_.label(), "csc"));
+   inputMuonTimeExtraValueMapCSCToken_ = consumes<reco::MuonTimeExtraMap>(edm::InputTag(inputMuonTimeExtraValueMap_.label(), "dt"));
+   inputMuonCosmicCompatibilityValueMapToken_ = consumes<edm::ValueMap<reco::MuonCosmicCompatibility> >(inputMuonCosmicCompatibilityValueMap_);
+   inputMuonShowerInformationValueMapToken_ = consumes<edm::ValueMap<reco::MuonShower> >(inputMuonShowerInformationValueMap_);
+
+   //   iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "combined", combinedMuonTimeExtraValueMapH_);
+   //   iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "csc", cscMuonTimeExtraValueMapH_);
+   //   iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "dt", dtMuonTimeExtraValueMapH_);
+
    dbe_ = 0;
    dbe_ = edm::Service<DQMStore>().operator->();
 }
@@ -287,14 +300,14 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace reco;
 
-   iEvent.getByLabel(inputMuonCollection_, muonCollectionH_);
-   iEvent.getByLabel(inputDTRecSegment4DCollection_, dtSegmentCollectionH_);
-   iEvent.getByLabel(inputCSCSegmentCollection_, cscSegmentCollectionH_);
-   iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "combined", combinedMuonTimeExtraValueMapH_);
-   iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "csc", cscMuonTimeExtraValueMapH_);
-   iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "dt", dtMuonTimeExtraValueMapH_);
-   iEvent.getByLabel(inputMuonCosmicCompatibilityValueMap_, muonCosmicCompatibilityValueMapH_);
-   iEvent.getByLabel(inputMuonShowerInformationValueMap_, muonShowerInformationValueMapH_);
+   iEvent.getByToken(inputMuonCollectionToken_, muonCollectionH_);
+   iEvent.getByToken(inputDTRecSegment4DCollectionToken_, dtSegmentCollectionH_);
+   iEvent.getByToken(inputCSCSegmentCollectionToken_, cscSegmentCollectionH_);
+   iEvent.getByToken(inputMuonTimeExtraValueMapCombToken_, combinedMuonTimeExtraValueMapH_);
+   iEvent.getByToken(inputMuonTimeExtraValueMapCSCToken_, cscMuonTimeExtraValueMapH_);
+   iEvent.getByToken(inputMuonTimeExtraValueMapDTToken_, dtMuonTimeExtraValueMapH_);
+   iEvent.getByToken(inputMuonShowerInformationValueMapToken_, muonShowerInformationValueMapH_);
+   iEvent.getByToken(inputMuonCosmicCompatibilityValueMapToken_, muonCosmicCompatibilityValueMapH_);
   
    iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
 

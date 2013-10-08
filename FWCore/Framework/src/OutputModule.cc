@@ -37,7 +37,6 @@ namespace edm {
     selectors_(),
     selector_config_id_(),
     droppedBranchIDToKeptBranchID_(),
-    keptBranchIDToDroppedBranchID_(),
     branchIDLists_(new BranchIDLists),
     origBranchIDLists_(nullptr),
     branchParents_(),
@@ -147,7 +146,6 @@ namespace edm {
         if(keptBranchID != branchID) {
           // An EDAlias branch was persisted.
           droppedBranchIDToKeptBranchID_.insert(std::make_pair(branchID.id(), keptBranchID.id()));
-          keptBranchIDToDroppedBranchID_.insert(std::make_pair(keptBranchID.id(), branchID.id()));
         }
       }
     }
@@ -302,11 +300,6 @@ namespace edm {
       // Check for branches dropped while an EDAlias was kept.
       for(BranchIDList& branchIDList : *branchIDLists_) {
         for(BranchID::value_type& branchID : branchIDList) {
-          // Replace BranchID of each kept alias branch with zero, so only the product ID of the original branch will be accessible.
-          std::map<BranchID::value_type, BranchID::value_type>::const_iterator kiter = keptBranchIDToDroppedBranchID_.find(branchID);
-          if(kiter != keptBranchIDToDroppedBranchID_.end()) {
-            branchID = 0;
-          }
           // Replace BranchID of each dropped branch with that of the kept alias, so the alias branch will have the product ID of the original branch.
           std::map<BranchID::value_type, BranchID::value_type>::const_iterator iter = droppedBranchIDToKeptBranchID_.find(branchID);
           if(iter != droppedBranchIDToKeptBranchID_.end()) {

@@ -6,18 +6,13 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <TMath.h>
 #include <iostream>
@@ -30,14 +25,21 @@ EcalDigiSelector::EcalDigiSelector(const edm::ParameterSet& ps)
   selectedEcalEBDigiCollection_ = ps.getParameter<std::string>("selectedEcalEBDigiCollection");
   selectedEcalEEDigiCollection_ = ps.getParameter<std::string>("selectedEcalEEDigiCollection");
 
-  barrelSuperClusterProducer_ = ps.getParameter<edm::InputTag>("barrelSuperClusterProducer");
-  endcapSuperClusterProducer_ = ps.getParameter<edm::InputTag>("endcapSuperClusterProducer");
+  barrelSuperClusterProducer_ = 
+	  consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("barrelSuperClusterProducer"));
+  endcapSuperClusterProducer_ = 
+	  consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("endcapSuperClusterProducer"));
 
-  EcalEBDigiTag_ = ps.getParameter<edm::InputTag>("EcalEBDigiTag");
-  EcalEEDigiTag_ = ps.getParameter<edm::InputTag>("EcalEEDigiTag");
+  
+  EcalEBRecHitToken_ = 
+	  consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("EcalEBRecHitTag"));
+  EcalEERecHitToken_ = 
+	  consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("EcalEERecHitTag"));
 
-  EcalEBRecHitTag_ = ps.getParameter<edm::InputTag>("EcalEBRecHitTag");
-  EcalEERecHitTag_ = ps.getParameter<edm::InputTag>("EcalEERecHitTag");
+  EcalEBDigiToken_ = 
+	  consumes<EBDigiCollection>(ps.getParameter<edm::InputTag>("EcalEBDigiTag"));
+  EcalEEDigiToken_ = 
+	  consumes<EEDigiCollection>(ps.getParameter<edm::InputTag>("EcalEEDigiTag"));
   
   cluster_pt_thresh_ = ps.getParameter<double>("cluster_pt_thresh");
   single_cluster_thresh_ = ps.getParameter<double>("single_cluster_thresh");
@@ -47,34 +49,23 @@ EcalDigiSelector::EcalDigiSelector(const edm::ParameterSet& ps)
   produces<EEDigiCollection>(selectedEcalEEDigiCollection_);
 
 }
-
-
-EcalDigiSelector::~EcalDigiSelector()
-{
-}
-
+  
 void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   
   //Get BarrelSuperClusters to start.
   edm::Handle<reco::SuperClusterCollection> pBarrelSuperClusters;
   
-  evt.getByLabel(barrelSuperClusterProducer_, pBarrelSuperClusters);
-  if (!pBarrelSuperClusters.isValid()){
-    edm::LogError("EcalDigiSelector")
-      << "can't get collection with label " << barrelSuperClusterProducer_ ;
-  }
+  evt.getByToken(barrelSuperClusterProducer_, pBarrelSuperClusters);
+
   const reco::SuperClusterCollection & BarrelSuperClusters = *pBarrelSuperClusters;
   //Got BarrelSuperClusters
 
   //Get BarrelSuperClusters to start.
   edm::Handle<reco::SuperClusterCollection> pEndcapSuperClusters;
   
-  evt.getByLabel(endcapSuperClusterProducer_, pEndcapSuperClusters);
-  if (!pEndcapSuperClusters.isValid()){
-    edm::LogError("EcalDigiSelector")
-      << "Error! can't get collection with label " << endcapSuperClusterProducer_;
-  }
+  evt.getByToken(endcapSuperClusterProducer_, pEndcapSuperClusters);
+
   const reco::SuperClusterCollection & EndcapSuperClusters = *pEndcapSuperClusters;
   //Got EndcapSuperClusters
 
@@ -113,29 +104,28 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
   std::auto_ptr<EBDigiCollection> SEBDigiCol(new EBDigiCollection);
   std::auto_ptr<EEDigiCollection> SEEDigiCol(new EEDigiCollection);
   int TotClus = saveBarrelSuperClusters.size() + saveEndcapSuperClusters.size();
-  //  std::cout << "Barrel Clusters: " << saveBarrelSuperClusters.size();
-  //  std::cout << " Endcap Clusters: " << saveEndcapSuperClusters.size();
-  //  std::cout << " Total: " << TotClus << std::endl;
+
   if (TotClus >= nclus_sel_ || meet_single_thresh){
-    EcalClusterLazyTools tooly(evt, es, EcalEBRecHitTag_, EcalEERecHitTag_);
+	
     if (saveBarrelSuperClusters.size() > 0){
       
-      //Get barrel rec hit collection
-//       edm::Handle<EcalRecHitCollection> ecalhitsCollH;
-//       evt.getByLabel(EcalEBRecHitTag_, ecalhitsCollH);
-//       const EcalRecHitCollection* rechitsCollection = ecalhitsCollH.product();
-//      std::set<DetId> saveTheseDetIds;
-      
+		
+	  edm::ESHandle<CaloTopology> pTopology;
+      es.get<CaloTopologyRecord>().get(pTopology);
+      const CaloTopology *topology = pTopology.product();	
+
       //get barrel digi collection
       edm::Handle<EBDigiCollection> pdigis;
       const EBDigiCollection* digis=0;
-      evt.getByLabel(EcalEBDigiTag_,pdigis);
-      if (!pdigis.isValid()){
-              edm::LogError("EcalDigiSelector")
-                      << "can't get collection with label " << EcalEBDigiTag_ ;
-      } else {
-              digis = pdigis.product(); // get a ptr to the product
-      }
+      evt.getByToken(EcalEBDigiToken_,pdigis);
+      digis = pdigis.product(); // get a ptr to the product
+
+	  edm::Handle<EcalRecHitCollection> prechits;
+      const EcalRecHitCollection* rechits=0;
+      evt.getByToken(EcalEBRecHitToken_,prechits);
+      rechits = prechits.product(); // get a ptr to the product
+
+
       if ( digis ) {
          std::vector<DetId> saveTheseDetIds;
          //pick out the detids for the 3x3 in each of the selected superclusters
@@ -144,24 +134,26 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
            CaloClusterPtr bcref = clus1.seed();
            const BasicCluster *bc = bcref.get();
            //Get the maximum detid
-           std::pair<DetId, float> EDetty = tooly.getMaximum(*bc);
+           std::pair<DetId, float> EDetty = 
+			   EcalClusterTools::getMaximum(*bc,rechits);
            //get the 3x3 array centered on maximum detid.
-           std::vector<DetId> detvec = tooly.matrixDetId(EDetty.first, -1, 1, -1, 1);
+           std::vector<DetId> detvec = 
+			   EcalClusterTools::matrixDetId(topology,EDetty.first, -1, 1, -1, 1);
            //Loop over the 3x3
            for (int ik = 0;ik<int(detvec.size());++ik)
              saveTheseDetIds.push_back(detvec[ik]);
-           //saveTheseDetIds.insert(detvec[ik]);
+           
          }
          for (int detloop=0; detloop < int(saveTheseDetIds.size());++detloop){
          	EBDetId detL = EBDetId(saveTheseDetIds[detloop]);
-           //      int ebcounter=0;
+           
            for (EBDigiCollection::const_iterator blah = digis->begin();
                 blah!=digis->end();blah++){
              
              if (detL == blah->id()){
                EBDataFrame myDigi = (*blah);
                SEBDigiCol->push_back(detL);
-               //SEBDigiCol->push_back(detL, myDigi);
+           
                EBDataFrame df( SEBDigiCol->back());
                for (int iq =0;iq<myDigi.size();++iq){
                  df.setSample(iq, myDigi.sample(iq).raw());
@@ -172,26 +164,29 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
            //if (ebcounter >= int(saveTheseDetIds.size())) break;
          }//loop over dets
     
-
-         //      std::cout << "size of new digi container contents: " << SEBDigiCol->size() << std::endl;
-
       }
 
     }//If barrel superclusters need saving.
     
     
     if (saveEndcapSuperClusters.size() > 0){
+ 
+      edm::ESHandle<CaloTopology> pTopology;
+      es.get<CaloTopologyRecord>().get(pTopology);
+      const CaloTopology *topology = pTopology.product();	
+
       //Get endcap rec hit collection
       //get endcap digi collection
       edm::Handle<EEDigiCollection> pdigis;
       const EEDigiCollection* digis=0;
-      evt.getByLabel(EcalEEDigiTag_,pdigis);
-      if (!pdigis.isValid()){
-              edm::LogError("EcalDigiSelector")
-                      << "can't get collection with label " << EcalEEDigiTag_ ;
-      } else {
-              digis = pdigis.product(); // get a ptr to the product
-      }
+      evt.getByToken(EcalEEDigiToken_,pdigis);
+      digis = pdigis.product(); // get a ptr to the product
+  
+      edm::Handle<EcalRecHitCollection> prechits;
+      const EcalRecHitCollection* rechits=0;
+      evt.getByToken(EcalEERecHitToken_,prechits);
+      rechits = prechits.product(); // get a ptr to the product
+
       if ( digis ) {
          //std::vector<DetId> saveTheseDetIds;
          std::set<DetId> saveTheseDetIds;
@@ -201,12 +196,12 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
            CaloClusterPtr bcref = clus1.seed();
            const BasicCluster *bc = bcref.get();
            //Get the maximum detid
-           std::pair<DetId, float> EDetty = tooly.getMaximum(*bc);
+           std::pair<DetId, float> EDetty = EcalClusterTools::getMaximum(*bc,rechits);
            //get the 3x3 array centered on maximum detid.
-           std::vector<DetId> detvec = tooly.matrixDetId(EDetty.first, -1, 1, -1, 1);
+           std::vector<DetId> detvec = 
+			   EcalClusterTools::matrixDetId(topology,EDetty.first, -1, 1, -1, 1);
            //Loop over the 3x3
            for (int ik = 0;ik<int(detvec.size());++ik)
-             //saveTheseDetIds.push_back(detvec[ik]);
              saveTheseDetIds.insert(detvec[ik]);
          }
          int eecounter=0;
@@ -229,7 +224,6 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
            }
            if (eecounter >= int(saveTheseDetIds.size())) break;
          }//loop over digis
-         //      std::cout << "Current new digi container contents: " << SEEDigiCol->size() << std::endl;
       }
     }//If endcap superclusters need saving.
     
@@ -237,7 +231,6 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
   
   //Okay, either my collections have been filled with the requisite Digis, or they haven't.
   
-  //std::cout << "Saving: " << SEBDigiCol->size() << " barrel digis and " << SEEDigiCol->size() << " endcap digis." << std::endl;
 
   //Empty collection, or full, still put in event.
   SEBDigiCol->sort();

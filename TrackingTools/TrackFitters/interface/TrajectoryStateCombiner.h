@@ -5,8 +5,6 @@
  *  Combines the information from two trajectory states via a weighted mean.
  *  The input states should not be correlated. Ported from ORCA
  *
- *  $Date: 2007/05/09 12:56:07 $
- *  $Revision: 1.1.2.1 $
  *  \author todorov, cerati
  */
 

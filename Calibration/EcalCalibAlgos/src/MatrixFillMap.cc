@@ -5,10 +5,10 @@
 
 MatrixFillMap::MatrixFillMap (int WindowX,
 	int WindowY,
-	std::map<int,int> xtalReg,
+	const std::map<int,int>& xtalReg,
 	double minE,
 	double maxE, 
-	std::map<int,int> IndexReg,
+	const std::map<int,int>& IndexReg,
 	EcalIntercalibConstantMap * barrelMap,
 	EcalIntercalibConstantMap * endcapMap): 
 

@@ -9,23 +9,22 @@
 
 #include <string>
 #include <vector>
-#include <map>
 #include <iostream>
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Algorithm/src/AlgoInit.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
-#include "DetectorDescription/Core/src/DDCheckMaterials.cc"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Parser/src/StrX.h"
-#include "DetectorDescription/Core/src/Material.h"
+
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 
 class DDLTestDoc : public DDLDocumentProvider
 {
@@ -59,21 +58,6 @@ public:
   void setValidation( bool val );
 
   void clear( void );
-
-  // test routines
-  //   void testRotations();
-
-  //    void testMaterials();
-
-  //    void testSolids();
-
-  //    void testLogicalParts();
-
-  //    void testPosParts();
-
-  //    void testAlgoPosParts();
-
-  //    void testAlgorithm();
 
 private:
   std::vector < std::string > fnames_;
@@ -159,14 +143,12 @@ DDLTestDoc::clear( void )
 int
 DDLTestDoc::readConfig( const std::string& filename )
 {
-
   std::cout << "readConfig" << std::endl;
-  //  configFileName_ = filename;
 
   // Set the parser to use the handler for the configuration file.
   // This makes sure the Parser is initialized and gets a handle to it.
   DDCompactView cpv;
-  DDLParser parser(cpv);// = DDLParser::instance();
+  DDLParser parser(cpv);
   DDLSAX2Handler* errHandler;
   DDLSAX2ConfigHandler * sch;
 
@@ -195,7 +177,6 @@ DDLTestDoc::readConfig( const std::string& filename )
   urls_ = sch->getURLs();
   std::cout << "there are " << fnames_.size() << " files." << std::endl;
   for (size_t i = 0; i < fnames_.size(); ++i)
-    //std::cout << "url=" << sch->getURLs()[i] << " file=" << sch->getFileNames()[i] << std::endl;
     std::cout << "url=" << urls_[i] << " file=" << fnames_[i] << std::endl;
   return 0;
 }
@@ -409,23 +390,8 @@ testLogicalParts( void )
   std::cout << std::endl;
 }
 
-void
-testPosParts( void )
-{}
-
-void
-testAlgoPosParts( void )
-{}
-
-void
-testAlgorithm( void )
-{}
-
 int main(int argc, char *argv[])
 {
-   // MEC: 2008-08-04 : I believe the main problem w/ this is not being framework fristd::endly.
-   // so I'm (over) using the "main" of CMSSW
-   
    std::string const kProgramName = argv[0];
    int rc = 0;
    if (argc < 2 || argc > 2 ) {
@@ -434,18 +400,12 @@ int main(int argc, char *argv[])
    }
 
    try {
-      std::cout  << "Initialize DDD (call AlgoInit)" << std::endl;
-      
-      AlgoInit();
-      
+      edmplugin::PluginManager::configure(edmplugin::standard::config());
       std::cout << "Initialize a DDL parser " << std::endl;
       DDCompactView cpv;
-      DDLParser myP(cpv);// = DDLParser::instance();
-                         //until scram b runtests (if ever) does not run it by default, we will not run without at least one argument.
-                         //    if (argc < 2) {
-                         //       std::cout << "DEFAULT test using testConfiguration.xml" << std::endl;
+      DDLParser myP(cpv);
       if ( argc == 2 ) {
-         DDLTestDoc dp; //DDLConfiguration dp;
+         DDLTestDoc dp; 
          
          dp.readConfig(argv[1]);
          dp.dumpFileList();
@@ -462,8 +422,6 @@ int main(int argc, char *argv[])
          
          std::cout << "======== Navigate a little bit  ======" << std::endl;
          try {
-            //	DDCompactView cpv;
-            // 2010::FIX Once I get rid of DDRootDef then this problem goes away!
             if (!cpv.root().isDefined().second) {
                cpv.setRoot(DDRootDef::instance().root());
             }
@@ -471,35 +429,6 @@ int main(int argc, char *argv[])
             while (ev.next()) {
                std::cout << ev.geoHistory() << std::endl;
             }
-            // 	  if (ev.firstChild()) {
-            // 	    ev.firstChild();
-            // 	    ev.nextSibling();
-            // 	    std::cout << ev.geoHistory() << std::endl;
-            // 	    ev.nextSibling();
-            // 	    std::cout << ev.geoHistory() << std::endl;
-            // 	    ev.firstChild();
-            // 	    std::cout << ev.geoHistory() << std::endl;
-            // 	    ev.nextSibling();
-            // 	    std::cout << ev.geoHistory() << std::endl;
-            // 	    ev.nextSibling();
-            // 	    std::cout << ev.geoHistory() << std::endl;
-            // 	    ev.firstChild();
-            // 	    std::cout << ev.geoHistory() << std::endl;
-            // 	    ev.nextSibling();
-            // 	    std::cout << ev.geoHistory() << std::endl;
-            // 	    ev.firstChild();
-            // 	    std::cout << ev.geoHistory() << std::endl;
-            // 	    ev.nextSibling();
-            // 	    std::cout << ev.geoHistory() << std::endl;
-            // 	    ev.firstChild();
-            // 	    std::cout << ev.geoHistory() << std::endl;
-            // 	    ev.nextSibling();
-            // 	    std::cout << ev.geoHistory() << std::endl;
-            // 	  }
-            // // 	} else {
-            // // 	  cpv.setRoot(DDRootDef::instance().root());
-            // // 	  std::cout << cpv.root() << std::endl;
-            // 	} 
          }
          catch (cms::Exception& e) {
             std::cout << e.what() << std::endl;
@@ -510,7 +439,6 @@ int main(int argc, char *argv[])
          testRotations();
          testSolids();
          testLogicalParts();
-         testPosParts();
       } else if (argc < 3) {
          // scram b runtests for now this should not work.
          // just to have something!

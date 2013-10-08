@@ -33,7 +33,7 @@ private:
 
  
 
-  void fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet, std::vector<reco::Vertex> goodVertices);
+  void fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet, const std::vector<reco::Vertex>& goodVertices);
 
   edm::InputTag mInputCollection;
   edm::InputTag mInputGenCollection;

@@ -10,7 +10,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
-#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 
 namespace reco {

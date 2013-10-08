@@ -30,7 +30,7 @@ namespace edm {
 class EcalUncalibRecHitWorkerWeights : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
-                EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&);
+                EcalUncalibRecHitWorkerWeights(const edm::ParameterSet&, edm::ConsumesCollector& c);
                 virtual ~EcalUncalibRecHitWorkerWeights() {};
 
                 void set(const edm::EventSetup& es);

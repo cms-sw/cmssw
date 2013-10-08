@@ -65,7 +65,7 @@ EcalTBHodoscopeGeometry::newCell( const GlobalPoint& f1 ,
    const unsigned int cellIndex ( hid.denseIndex() ) ;
 
    m_cellVec[ cellIndex ] = PreshowerStrip( f1, cornersMgr(), parm ) ;
-   m_validIds.push_back( detId ) ;
+   addValidID( detId ) ;
 }
 
 const EcalTBHodoscopeGeometry::fibre_pos 

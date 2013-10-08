@@ -157,7 +157,7 @@ void test_ep::setUp() {
   pProductRegistry_->addProduct(*fake_single_process_branch("rick", "USER2", "rick"));
   pProductRegistry_->setFrozen();
   boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
-  branchIDListHelper->updateRegistries(*pProductRegistry_);
+  branchIDListHelper->updateFromRegistry(*pProductRegistry_);
 
   // Put products we'll look for into the EventPrincipal.
   {

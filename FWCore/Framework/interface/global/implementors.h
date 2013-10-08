@@ -47,7 +47,7 @@ namespace edm {
           }
         }
       protected:
-        T * streamCache(edm::StreamID iID) const { return caches_[iID.value()]; }
+        C * streamCache(edm::StreamID iID) const { return caches_[iID.value()]; }
       private:
         virtual void preallocStreams(unsigned int iNStreams) override final {
           caches_.resize(iNStreams,static_cast<C*>(nullptr));

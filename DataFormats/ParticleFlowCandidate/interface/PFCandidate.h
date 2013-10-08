@@ -390,7 +390,7 @@ namespace reco {
     // and modify the vertex() method accordingly.
     void setVertexSource( PFVertexType vt) { vertexType_=vt; if (vertexType_!=kCandVertex) vertex_=Point(0.,0.,0.);}
 
-    virtual void setVertex( math::XYZPoint p) {
+    virtual void setVertex( const math::XYZPoint& p) {
       vertex_=p; vertexType_ = kCandVertex;
     }
 

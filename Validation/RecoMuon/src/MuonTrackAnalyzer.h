@@ -16,8 +16,15 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 namespace reco {class TransientTrack;}
@@ -86,11 +93,20 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
 
   EtaRange theEtaRange;
   
-  edm::InputTag theTracksLabel;
+  edm::InputTag theSimTracksLabel;
   edm::InputTag theSeedsLabel;
+  edm::InputTag theTracksLabel;
   edm::InputTag theCSCSimHitLabel;
   edm::InputTag theDTSimHitLabel; 
   edm::InputTag theRPCSimHitLabel;
+
+  edm::EDGetTokenT<edm::SimTrackContainer> theSimTracksToken;
+  edm::EDGetTokenT<TrajectorySeedCollection> theSeedsToken;
+  edm::EDGetTokenT<reco::TrackCollection> theTracksToken;
+  edm::EDGetTokenT<std::vector<PSimHit> > theCSCSimHitToken;
+  edm::EDGetTokenT<std::vector<PSimHit> > theDTSimHitToken;
+  edm::EDGetTokenT<std::vector<PSimHit> > theRPCSimHitToken;
+
 
   bool doTracksAnalysis;
   bool doSeedsAnalysis;

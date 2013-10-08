@@ -89,6 +89,8 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 
   using NodeInfo = KDTreeNodeInfo<unsigned int>;
   std::vector<NodeInfo > layerTree; // re-used throughout
+  std::vector<unsigned int> foundNodes; // re-used thoughout
+  foundNodes.reserve(100);
 
   KDTreeLinkerAlgo<unsigned int> hitTree[size];
   float rzError[size]; //save maximum errors
@@ -203,7 +205,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       constexpr float nSigmaRZ = std::sqrt(12.f); // ...and continue as before
       constexpr float nSigmaPhi = 3.f;
       
-      layerTree.clear(); // Now recover hits in bounding box...
+      foundNodes.clear(); // Now recover hits in bounding box...
       float prmin=phiRange.min(), prmax=phiRange.max();
       if ((prmax-prmin) > Geom::ftwoPi())
 	{ prmax=Geom::fpi(); prmin = -Geom::fpi();}
@@ -221,21 +223,21 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	  correction.correctRZRange(regMax);
 	  if (regMax.min() < regMin.min()) { swap(regMax, regMin);}
 	  KDTreeBox phiZ(prmin, prmax, regMin.min()-nSigmaRZ*rzError[il], regMax.max()+nSigmaRZ*rzError[il]);
-	  hitTree[il].search(phiZ, layerTree);
+	  hitTree[il].search(phiZ, foundNodes);
 	}
       else
 	{
 	  KDTreeBox phiZ(prmin, prmax,
 			 rzRange.min()-regOffset-nSigmaRZ*rzError[il],
 			 rzRange.max()+regOffset+nSigmaRZ*rzError[il]);
-	  hitTree[il].search(phiZ, layerTree);
+	  hitTree[il].search(phiZ, foundNodes);
 	}
 
-      // std::cout << ip << ": " << theLayers[il].detLayer()->seqNum() << " " << layerTree.size() << " " << prmin << " " << prmax << std::endl;
+      // std::cout << ip << ": " << theLayers[il].detLayer()->seqNum() << " " << foundNodes.size() << " " << prmin << " " << prmax << std::endl;
 
 
       // int kk=0;
-      for (auto const & ih : layerTree) {
+      for (auto KDdata : foundNodes) {
 	
 	if (theMaxElement!=0 && result.size() >= theMaxElement){
 	  result.clear();
@@ -243,7 +245,6 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	  return;
 	}
 	
-	auto KDdata = ih.data;
 	float p3_u = hits.u[KDdata]; 
 	float p3_v =  hits.v[KDdata]; 
 	float p3_phi =  hits.lphi[KDdata]; 

@@ -7,13 +7,12 @@ RootInputFileSequence: This is an InputSource
 
 ----------------------------------------------------------------------*/
 
-#include "InputType.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
+#include "FWCore/Utilities/interface/InputType.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
@@ -41,7 +40,7 @@ namespace edm {
                                    PoolSource& input,
                                    InputFileCatalog const& catalog,
                                    unsigned int nStreams,
-                                   InputType::InputType inputType);
+                                   InputType inputType);
     virtual ~RootInputFileSequence();
 
     RootInputFileSequence(RootInputFileSequence const&) = delete; // Disallow copying and moving
@@ -94,7 +93,7 @@ namespace edm {
     int remainingLuminosityBlocks() const;
 
     PoolSource& input_;
-    InputType::InputType inputType_;
+    InputType inputType_;
     InputFileCatalog const& catalog_;
     bool firstFile_;
     std::string lfn_;

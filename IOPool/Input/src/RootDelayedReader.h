@@ -9,6 +9,7 @@ RootDelayedReader.h // used by ROOT input sources
 
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
+#include "FWCore/Utilities/interface/InputType.h"
 #include "RootTree.h"
 
 #include <map>
@@ -31,7 +32,8 @@ namespace edm {
     typedef roottree::EntryNumber EntryNumber;
     RootDelayedReader(
       RootTree const& tree,
-      boost::shared_ptr<InputFile> filePtr);
+      boost::shared_ptr<InputFile> filePtr,
+      InputType inputType);
 
     virtual ~RootDelayedReader();
 
@@ -45,7 +47,6 @@ namespace edm {
     virtual void mergeReaders_(DelayedReader* other) {nextReader_ = other;}
     virtual void reset_() {nextReader_ = 0;}
     BranchMap const& branches() const {return tree_.branches();}
-    EntryNumber const& entryNumber() const {return tree_.entryNumber();}
     iterator branchIter(BranchKey const& k) const {return branches().find(k);}
     bool found(iterator const& iter) const {return iter != branches().end();}
     BranchInfo const& getBranchInfo(iterator const& iter) const {return iter->second; }
@@ -54,6 +55,7 @@ namespace edm {
     RootTree const& tree_;
     boost::shared_ptr<InputFile> filePtr_;
     DelayedReader* nextReader_;
+    InputType inputType_;
   }; // class RootDelayedReader
   //------------------------------------------------------------
 }

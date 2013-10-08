@@ -40,8 +40,10 @@ using namespace edm;
 PreshowerClusterShapeProducer::PreshowerClusterShapeProducer(const ParameterSet& ps) {
   // use configuration file to setup input/output collection names
   // Parameters to identify the hit collections
-  preshHitProducer_   = ps.getParameter<edm::InputTag>("preshRecHitProducer");
-  endcapSClusterProducer_   = ps.getParameter<edm::InputTag>("endcapSClusterProducer");
+  preshHitToken_   = 
+	  consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("preshRecHitProducer"));
+  endcapSClusterToken_   = 
+	  consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("endcapSClusterProducer"));
 
   PreshowerClusterShapeCollectionX_ = ps.getParameter<string>("PreshowerClusterShapeCollectionX");
   PreshowerClusterShapeCollectionY_ = ps.getParameter<string>("PreshowerClusterShapeCollectionY");
@@ -100,7 +102,7 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
 
   
   // fetch the Preshower product (RecHits)
-  evt.getByLabel( preshHitProducer_, pRecHits);
+  evt.getByToken( preshHitToken_, pRecHits);
   // pointer to the object in the product
   const EcalRecHitCollection* rechits = pRecHits.product(); 
   
@@ -126,7 +128,7 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
 //  const PhotonCollection corrPhoCollection = *(correctedPhotonHandle.product());
 //  cout << " Photon Collection size : " << corrPhoCollection.size() << endl;
 
-  evt.getByLabel(endcapSClusterProducer_, pSuperClusters);
+  evt.getByToken(endcapSClusterToken_, pSuperClusters);
   const reco::SuperClusterCollection* SClusts = pSuperClusters.product();
   LogTrace("EcalClusters") << "### Total # Endcap Superclusters: " << SClusts->size() ;
 

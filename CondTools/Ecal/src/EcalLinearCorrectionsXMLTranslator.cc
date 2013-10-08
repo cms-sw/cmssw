@@ -4,7 +4,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -33,7 +33,7 @@ int  EcalLinearCorrectionsXMLTranslator::readXML(const std::string& filename,
 
 
 
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
 
   XercesDOMParser* parser = new XercesDOMParser;
   parser->setValidationScheme( XercesDOMParser::Val_Never );
@@ -101,7 +101,7 @@ int  EcalLinearCorrectionsXMLTranslator::readXML(const std::string& filename,
     }  
 
   delete parser;
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
   return 0;
   
   
@@ -125,7 +125,7 @@ std::string EcalLinearCorrectionsXMLTranslator::dumpXML(
 			                     const EcalLinearCorrections& record){
  
 
-   XMLPlatformUtils::Initialize();
+   cms::concurrency::xercesInitialize();
 
     DOMImplementation*  impl =
       DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
@@ -227,7 +227,7 @@ std::string EcalLinearCorrectionsXMLTranslator::dumpXML(
 
     std::string dump= toNative(writer->writeToString(*root)); 
     doc->release();
-    //   XMLPlatformUtils::Terminate();
+    //   cms::concurrency::xercesTerminate();
 
     return dump;
 

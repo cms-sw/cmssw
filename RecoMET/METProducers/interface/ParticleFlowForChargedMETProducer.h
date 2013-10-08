@@ -12,6 +12,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <DataFormats/VertexReco/interface/VertexFwd.h>
+#include <DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h>
+
 namespace reco
 {
   class ParticleFlowForChargedMETProducer : public edm::EDProducer {
@@ -26,6 +29,9 @@ namespace reco
     
     edm::InputTag pfCollectionLabel;
     edm::InputTag pvCollectionLabel;
+
+    edm::EDGetTokenT<VertexCollection> pvCollectionToken;
+    edm::EDGetTokenT<PFCandidateCollection> pfCandidatesToken;
 
     double dzCut;
     double neutralEtThreshold;

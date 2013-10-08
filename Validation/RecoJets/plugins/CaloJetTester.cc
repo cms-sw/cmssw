@@ -888,7 +888,7 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
 
 }///// Gen close
 
-void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet, std::vector<reco::Vertex> goodVertices) {
+void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet, const std::vector<reco::Vertex>& goodVertices) {
   double logPtGen = log10 (fGenJet.pt());
   double PtGen = fGenJet.pt();
   double PtCalo = fCaloJet.pt();

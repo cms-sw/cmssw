@@ -16,16 +16,15 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h" 
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h" 
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h" 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h" 
+// #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h" 
+// #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
 #include "DataFormats/JetReco/interface/CaloJet.h" 
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 //#include "DataFormats/JetReco/interface/GenJetfwd.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+//#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
@@ -47,11 +46,31 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig)
 
   nameProd_ = iConfig.getUntrackedParameter<std::string>("nameProd");
   jetCalo_ = iConfig.getUntrackedParameter<std::string>("jetCalo","GammaJetJetBackToBackCollection");
+
+  tok_jets_ = consumes<reco::CaloJetCollection>( edm::InputTag(nameProd_,
+	jetCalo_) );
+
   gammaClus_ = iConfig.getUntrackedParameter<std::string>("gammaClus","GammaJetGammaBackToBackCollection");
+
+  tok_egamma_ = consumes<reco::SuperClusterCollection>( edm::InputTag(nameProd_,
+	gammaClus_) );
+
   ecalInput_=iConfig.getUntrackedParameter<std::string>("ecalInput","GammaJetEcalRecHitCollection");
+
+  tok_ecal_ = consumes<EcalRecHitCollection>( edm::InputTag(nameProd_, ecalInput_) );
+
   hbheInput_ = iConfig.getUntrackedParameter<std::string>("hbheInput");
+
+  tok_hbhe_ = consumes<HBHERecHitCollection>(edm::InputTag(nameProd_,hbheInput_));
+
   hoInput_ = iConfig.getUntrackedParameter<std::string>("hoInput");
+
+  tok_ho_ = consumes<HORecHitCollection>(edm::InputTag(nameProd_,hoInput_));
+
   hfInput_ = iConfig.getUntrackedParameter<std::string>("hfInput");
+
+  tok_hf_ = consumes<HFRecHitCollection>(edm::InputTag(nameProd_,hfInput_));
+
   Tracks_ = iConfig.getUntrackedParameter<std::string>("Tracks","GammaJetTracksCollection");
   CutOnEgammaEnergy_  = iConfig.getParameter<double>("CutOnEgammaEnergy");
 
@@ -197,7 +216,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      try {
        
        edm::Handle<reco::CaloJetCollection> jets;
-       iEvent.getByLabel(nameProd_, jetCalo_, jets);
+       iEvent.getByToken(tok_jets_, jets);
        reco::CaloJetCollection::const_iterator jet = jets->begin ();
        cout<<" Size of Calo jets "<<jets->size()<<endl;
        jettype++;
@@ -242,7 +261,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     try {
       
       edm::Handle<EcalRecHitCollection> ec;
-      iEvent.getByLabel(nameProd_, ecalInput_,ec);
+      iEvent.getByToken(tok_ecal_,ec);
       
        for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
                                                 recHit != (*ec).end(); ++recHit)
@@ -270,7 +289,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 // Hcal Barrel and endcap for isolation
     try {
       edm::Handle<HBHERecHitCollection> hbhe;
-      iEvent.getByLabel(nameProd_,hbheInput_,hbhe);
+      iEvent.getByToken(tok_hbhe_,hbhe);
 
 //      (*myout_hcal)<<(*hbhe).size()<<endl;
   for(HBHERecHitCollection::const_iterator hbheItr = (*hbhe).begin();
@@ -306,7 +325,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
  int ij = 0;
   // Get island super clusters after energy correction
   Handle<reco::SuperClusterCollection> eclus;
-  iEvent.getByLabel(nameProd_,gammaClus_, eclus);
+  iEvent.getByToken(tok_egamma_, eclus);
   const reco::SuperClusterCollection* correctedSuperClusters=eclus.product();
   // loop over the super clusters and fill the histogram
   for(reco::SuperClusterCollection::const_iterator aClus = correctedSuperClusters->begin();

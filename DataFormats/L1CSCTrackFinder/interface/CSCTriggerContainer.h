@@ -41,9 +41,9 @@ class CSCTriggerContainer
   std::vector<T> get(const unsigned& endcap, const unsigned& sector) const;
   std::vector<T> get(const int& BX) const;
 
-  void push_back(const T data) { _objs.push_back(data); }
+  void push_back(const T& data) { _objs.push_back(data); }
   void push_many(const std::vector<T>& data) { _objs.insert(_objs.end(), data.begin(), data.end()); }
-  void push_many(const CSCTriggerContainer<T> data) { std::vector<T> vec = data.get(); _objs.insert(_objs.end(), vec.begin(), vec.end()); }
+  void push_many(const CSCTriggerContainer<T>& data) { std::vector<T> vec = data.get(); _objs.insert(_objs.end(), vec.begin(), vec.end()); }
   void clear() { _objs.clear(); } 
 
  private:

@@ -25,13 +25,13 @@ class HistoCompare {
 
   public:
 	HistoCompare();
-	HistoCompare(TString refFilename);
+	HistoCompare(const TString& refFilename);
 
 	~HistoCompare();
 
-	TH1* Compare(TH1* h, TString hname);
+	TH1* Compare(TH1* h, const TString& hname);
 
-	void SetReferenceFilename(TString filename) {
+	void SetReferenceFilename(const TString& filename) {
 	  refFilename_ = filename;
 	  //if (refFile_) delete refFile_;
 	  refFile_ = new TFile(refFilename_);

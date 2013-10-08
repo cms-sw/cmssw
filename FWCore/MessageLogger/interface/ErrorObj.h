@@ -38,9 +38,6 @@ namespace edm {
 // Prerequisite classes:
 // ----------------------------------------------------------------------
 
-class ELcontextSupplier;
-class ErrorLog;
-class ELadministrator;
 class ELcout;
 
 
@@ -80,9 +77,6 @@ public:
   virtual void  setModule    ( const ELstring & module );
   virtual void  setSubroutine( const ELstring & subroutine );
   virtual void  setContext   ( const ELstring & context );
-  virtual void  setProcess   ( const ELstring & proc );
-		//-| process is always determined through ErrorLog or
-		//-| an ELdestControl, both of which talk to ELadministrator.
 
   // -----  Methods for ErrorLog or for physicists logging errors:
   //
@@ -124,7 +118,7 @@ private:
 // ----------------------------------------------------------------------
 
 
-// -----  Method for ErrorLog or for physicists logging errors:
+// -----  Method for physicists logging errors:
 //
 template< class T >
 inline ErrorObj &  operator<<( ErrorObj & e, const T & t );
@@ -138,8 +132,6 @@ ErrorObj &  operator<<( ErrorObj & e, const char s[] );
 // ----------------------------------------------------------------------
 // Global functions:
 // ----------------------------------------------------------------------
-
-void endmsg( ErrorLog & );
 
 inline
 void swap(ErrorObj& a, ErrorObj& b) {

@@ -108,19 +108,12 @@ public:
   enum ELsev_  {
     ELsev_noValueAssigned = 0  // default returned by map when not found
   , ELsev_zeroSeverity         // threshold use only
-  , ELsev_incidental           // flash this on a screen
   , ELsev_success              // report reaching a milestone
   , ELsev_info                 // information
   , ELsev_warning              // warning
-  , ELsev_warning2             // more serious warning
   , ELsev_error                // error detected
-  , ELsev_error2               // more serious error
-  , ELsev_next                 // advise to skip to next event
   , ELsev_unspecified          // severity was not specified
   , ELsev_severe               // future results are suspect
-  , ELsev_severe2              // more severe
-  , ELsev_abort                // suggest aborting
-  , ELsev_fatal                // strongly suggest aborting!
   , ELsev_highestSeverity      // threshold use only
   // -----
   , nLevels                    // how many levels?
@@ -170,11 +163,8 @@ private:
 extern ELslGen  ELzeroSeverityGen;
 extern ELslProxy< ELzeroSeverityGen    > const  ELzeroSeverity;
 
-extern ELslGen  ELincidentalGen;
-extern ELslProxy< ELincidentalGen      > const  ELincidental;
-
-extern ELslGen  ELsuccessGen;
-extern ELslProxy< ELsuccessGen         > const  ELsuccess;
+extern ELslGen  ELdebugGen;
+extern ELslProxy< ELdebugGen         > const  ELdebug;
 
 extern ELslGen  ELinfoGen;
 extern ELslProxy< ELinfoGen            > const  ELinfo;
@@ -182,32 +172,14 @@ extern ELslProxy< ELinfoGen            > const  ELinfo;
 extern ELslGen  ELwarningGen;
 extern ELslProxy< ELwarningGen         > const  ELwarning;
 
-extern ELslGen  ELwarning2Gen;
-extern ELslProxy< ELwarning2Gen        > const  ELwarning2;
-
 extern ELslGen  ELerrorGen;
 extern ELslProxy< ELerrorGen           > const  ELerror;
-
-extern ELslGen  ELerror2Gen;
-extern ELslProxy< ELerror2Gen          > const  ELerror2;
-
-extern ELslGen  ELnextEventGen;
-extern ELslProxy< ELnextEventGen       > const  ELnextEvent;
 
 extern ELslGen  ELunspecifiedGen;
 extern ELslProxy< ELunspecifiedGen     > const  ELunspecified;
 
 extern ELslGen  ELsevereGen;
 extern ELslProxy< ELsevereGen          > const  ELsevere;
-
-extern ELslGen  ELsevere2Gen;
-extern ELslProxy< ELsevere2Gen         > const  ELsevere2;
-
-extern ELslGen  ELabortGen;
-extern ELslProxy< ELabortGen           > const  ELabort;
-
-extern ELslGen  ELfatalGen;
-extern ELslProxy< ELfatalGen           > const  ELfatal;
 
 extern ELslGen  ELhighestSeverityGen;
 extern ELslProxy< ELhighestSeverityGen > const  ELhighestSeverity;

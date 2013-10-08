@@ -1,5 +1,4 @@
 //
-//     $Id: PatMETHitFitTranslator.cc,v 1.7 2011/01/29 22:21:38 haryo Exp $
 //
 
 /**

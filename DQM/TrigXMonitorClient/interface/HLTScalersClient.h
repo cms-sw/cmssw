@@ -93,7 +93,7 @@ public:
       std::deque<CountLS_t>(),
       targetSize_(sz)
     {}
-    unsigned int targetSize() { return targetSize_; };
+    unsigned int targetSize() const { return targetSize_; };
     double getCount(int ls)
     {
       CountLSFifo_t::iterator p = std::find(this->begin(), this->end(),
@@ -193,7 +193,7 @@ private:
   std::string processName_;
   //HLTConfigProvider hltConfig_;
   std::deque<int> ignores_;
-  std::pair<double,double> getSlope_(CountLSFifo_t points);
+  std::pair<double,double> getSlope_(const CountLSFifo_t& points);
 private:
   bool debug_;
   int maxFU_;

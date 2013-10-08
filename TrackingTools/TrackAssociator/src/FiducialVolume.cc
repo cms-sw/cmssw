@@ -10,7 +10,6 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: FiducialVolume.cc,v 1.1 2007/03/26 05:29:23 dmytro Exp $
 //
 //
 #include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"

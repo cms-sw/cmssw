@@ -24,7 +24,7 @@ public:
   double HEDEScale, HOEScale, HF1EScale, HF2EScale;
 private:
   CaloTowersCreationAlgo algo_;
-  edm::InputTag caloLabel_;
+  edm::EDGetTokenT<CaloTowerCollection> tok_calo_;
   bool allowMissingInputs_;
 };
 

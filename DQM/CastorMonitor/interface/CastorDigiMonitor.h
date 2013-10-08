@@ -26,7 +26,7 @@ public:
   void reset();
 
 private: 
-  void perChanHists(std::vector<HcalCastorDetId> detID, std::vector<int> capID, std::vector<float> peds,
+  void perChanHists(const std::vector<HcalCastorDetId>& detID, const std::vector<int>& capID, const std::vector<float>& peds,
 		    std::map<HcalCastorDetId, std::map<int, MonitorElement*> > &toolP, 
 		    ////// std::map<HcalCastorDetId, std::map<int, MonitorElement*> > &toolS,
 		    std::string baseFolder);

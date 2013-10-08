@@ -1,5 +1,4 @@
 //
-// $Id: Lepjets_Event_Jet.cc,v 1.6 2010/07/24 01:20:34 haryo Exp $
 //
 // File: src/Lepjets_Event_Jet.cc
 // Purpose: Represent a `jet' in a Lepjets_Event.

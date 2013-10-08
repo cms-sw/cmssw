@@ -15,8 +15,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/UncleanSCRecoveryProducer.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
@@ -39,13 +38,21 @@ many thanks to David Wardrope, Shahram Rahatlou and Federico Ferri
 UncleanSCRecoveryProducer::UncleanSCRecoveryProducer(const edm::ParameterSet& ps)
 {
 
+	    using  reco::BasicClusterCollection;
+	    using  reco::SuperClusterCollection;
+
         // get the parameters
         // the cleaned collection:
-        cleanBcCollection_ = ps.getParameter<edm::InputTag>("cleanBcCollection");
-        cleanScCollection_ = ps.getParameter<edm::InputTag>("cleanScCollection");
+	    cleanBcCollection_ = 
+			consumes<BasicClusterCollection>(ps.getParameter<edm::InputTag>("cleanBcCollection"));
+        cleanScCollection_ = 
+			consumes<SuperClusterCollection>(ps.getParameter<edm::InputTag>("cleanScCollection"));
+ 
         // the uncleaned collection
-        uncleanBcCollection_ = ps.getParameter<edm::InputTag>("uncleanBcCollection");
-        uncleanScCollection_ = ps.getParameter<edm::InputTag>("uncleanScCollection");
+        uncleanBcCollection_ = 
+			consumes<BasicClusterCollection>(ps.getParameter<edm::InputTag>("uncleanBcCollection"));
+        uncleanScCollection_ = 
+			consumes<SuperClusterCollection>(ps.getParameter<edm::InputTag>("uncleanScCollection"));
         // the names of the products to be produced:
         bcCollection_ = ps.getParameter<std::string>("bcCollection");
         scCollection_ = ps.getParameter<std::string>("scCollection");
@@ -56,7 +63,6 @@ UncleanSCRecoveryProducer::UncleanSCRecoveryProducer(const edm::ParameterSet& ps
 
 }
 
-UncleanSCRecoveryProducer::~UncleanSCRecoveryProducer() {;}
 
 void UncleanSCRecoveryProducer::produce(edm::Event& evt, 
                                         const edm::EventSetup& es)
@@ -70,30 +76,14 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
         edm::Handle<reco::BasicClusterCollection> pUncleanBC;
         edm::Handle<reco::SuperClusterCollection> pUncleanSC;
         // clean collections ________________________________________________________
-        evt.getByLabel(cleanScCollection_, pCleanSC);
-        if (!(pCleanSC.isValid())) 
-        {
-                edm::LogWarning("MissingInput") << "could not handle clean super clusters";
-                return;
-        }
+        evt.getByToken(cleanScCollection_, pCleanSC);      
         const  reco::SuperClusterCollection cleanSC = *(pCleanSC.product());
 
         // unclean collections ______________________________________________________
-        evt.getByLabel(uncleanBcCollection_, pUncleanBC);
-        if (!(pUncleanBC.isValid())) 
-        {
-                edm::LogWarning("MissingInput") << "could not handle unclean Basic Clusters!";
-                return;
-        }
+        evt.getByToken(uncleanBcCollection_, pUncleanBC);
         const  reco::BasicClusterCollection uncleanBC = *(pUncleanBC.product());
         //
-        evt.getByLabel(uncleanScCollection_, pUncleanSC);
-        if (!(pUncleanSC.isValid())) 
-        {
-
-                edm::LogWarning("MissingInput") << "could not handle unclean super clusters!";
-                return;
-        }
+        evt.getByToken(uncleanScCollection_, pUncleanSC);
         const  reco::SuperClusterCollection uncleanSC = *(pUncleanSC.product());
         int uncleanSize = pUncleanSC->size();
         int cleanSize =   pCleanSC->size();

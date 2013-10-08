@@ -61,6 +61,12 @@ private:  ///Methods, variables accessible only within class code
   int minEvents_;
   bool excludeHORing2_;
 
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  edm::EDGetTokenT<HODigiCollection> tok_ho_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+  edm::EDGetTokenT<HcalUnpackerReport> tok_report_;
+
+
 };
 
 #endif

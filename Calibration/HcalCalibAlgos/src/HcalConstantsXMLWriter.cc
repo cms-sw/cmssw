@@ -7,7 +7,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMCharacterData.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/util/XMLURL.hpp>
@@ -25,7 +25,7 @@ HcalConstantsXMLWriter::HcalConstantsXMLWriter()
 HcalConstantsXMLWriter::~HcalConstantsXMLWriter()
 {
 }
-void HcalConstantsXMLWriter::writeXML(string& newfile0, vector<int> detvec,vector<int> etavec,vector<int> phivec, vector<int> depthvec,vector<float> scalevec)
+void HcalConstantsXMLWriter::writeXML(string& newfile0,const vector<int>& detvec,const vector<int>& etavec,const vector<int>& phivec,const vector<int>& depthvec,const vector<float>& scalevec)
 {
    int nn = newfile0.size();
    char newfile[99]; 

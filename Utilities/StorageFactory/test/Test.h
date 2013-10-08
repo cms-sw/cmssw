@@ -2,7 +2,6 @@
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
-#include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -26,7 +25,7 @@ static void initTest(void)
   try
   {
     gobbleUpTheGoop = boost::shared_ptr<edm::Presence>
-      (edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
+      (edm::PresenceFactory::get()->makePresence("SingleThreadMSPresence").release());
   }
   catch (cms::Exception &e)
   {

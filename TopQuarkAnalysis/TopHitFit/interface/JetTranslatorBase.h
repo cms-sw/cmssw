@@ -1,5 +1,4 @@
 //
-//     $Id: JetTranslatorBase.h,v 1.2 2011/05/26 12:57:17 mseidel Exp $
 //
 
 /**

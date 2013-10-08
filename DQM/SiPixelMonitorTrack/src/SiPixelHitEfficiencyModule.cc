@@ -484,7 +484,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
 }
 
 
-void SiPixelHitEfficiencyModule::fill(LocalTrajectoryParameters ltp, bool isHitValid, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon) {  
+void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool isHitValid, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon) {  
   
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);

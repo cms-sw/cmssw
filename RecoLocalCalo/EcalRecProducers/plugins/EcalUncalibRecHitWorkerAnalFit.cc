@@ -34,8 +34,8 @@
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 
-EcalUncalibRecHitWorkerAnalFit::EcalUncalibRecHitWorkerAnalFit(const edm::ParameterSet& ps) :
-        EcalUncalibRecHitWorkerBaseClass( ps )
+EcalUncalibRecHitWorkerAnalFit::EcalUncalibRecHitWorkerAnalFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c) :
+  EcalUncalibRecHitWorkerBaseClass( ps ,c)
 {
 }
 

@@ -292,7 +292,7 @@ testEvent::testEvent() :
 
   // Freeze the product registry before we make the Event.
   availableProducts_->setFrozen();
-  branchIDListHelper_->updateRegistries(*availableProducts_);
+  branchIDListHelper_->updateFromRegistry(*availableProducts_);
 }
 
 testEvent::~testEvent() {

@@ -9,7 +9,7 @@ existence.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/BranchMapper.h"
+#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
@@ -61,7 +61,7 @@ namespace edm {
     std::string const& processName() const {return product().processName();}
     std::string const& productInstanceName() const {return product().productInstanceName();}
     std::string const& friendlyClassName() const {return product().friendlyClassName();}
-    boost::shared_ptr<BranchMapper> const& store() const {return store_;}
+    boost::shared_ptr<ProductProvenanceRetriever> const& store() const {return store_;}
     ProcessHistory const& processHistory() const {return *processHistory_;}
     bool getProcessConfiguration(ProcessConfiguration& pc) const;
     ReleaseVersion releaseVersion() const;
@@ -71,7 +71,7 @@ namespace edm {
 
     void write(std::ostream& os) const;
 
-    void setStore(boost::shared_ptr<BranchMapper> store) const {store_ = store;}
+    void setStore(boost::shared_ptr<ProductProvenanceRetriever> store) const {store_ = store;}
 
     void setProcessHistory(ProcessHistory const& ph) {processHistory_ = &ph;}
 
@@ -97,7 +97,7 @@ namespace edm {
     ProcessHistory const* processHistory_; // We don't own this
     mutable bool productProvenanceValid_;
     mutable boost::shared_ptr<ProductProvenance> productProvenancePtr_;
-    mutable boost::shared_ptr<BranchMapper> store_;
+    mutable boost::shared_ptr<ProductProvenanceRetriever> store_;
   };
 
   inline

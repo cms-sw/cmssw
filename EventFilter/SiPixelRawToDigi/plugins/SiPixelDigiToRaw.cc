@@ -17,6 +17,7 @@
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 
 #include "EventFilter/SiPixelRawToDigi/interface/R2DTimerObserver.h"
+
 #include "TH1D.h"
 #include "TFile.h"
 
@@ -29,7 +30,8 @@ SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
   hCPU(0), hDigi(0), theTimer(0)
 {
 
-  // Define EDProduct type
+  tPixelDigi = consumes<edm::DetSetVector<PixelDigi> >(config_.getParameter<edm::InputTag>("InputLabel")); 
+ // Define EDProduct type
   produces<FEDRawDataCollection>();
 
   // start the counters
@@ -72,7 +74,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
 
   edm::Handle< edm::DetSetVector<PixelDigi> > digiCollection;
   label = config_.getParameter<edm::InputTag>("InputLabel");
-  ev.getByLabel( label, digiCollection);
+  ev.getByToken( tPixelDigi, digiCollection);
 
   PixelDataFormatter::RawData rawdata;
   PixelDataFormatter::Digis digis;

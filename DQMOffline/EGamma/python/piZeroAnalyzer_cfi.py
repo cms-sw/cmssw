@@ -5,8 +5,8 @@ piZeroAnalysis = cms.EDAnalyzer("PiZeroAnalyzer",
 
     Name = cms.untracked.string('piZeroAnalysis'),
 
-    barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    barrelEcalHits = cms.InputTag("ecalRecHit:EcalRecHitsEB"),
+    endcapEcalHits = cms.InputTag("ecalRecHit:EcalRecHitsEE"),
                                 
 
 

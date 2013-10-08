@@ -31,6 +31,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 
 //
 // class declaration
@@ -52,6 +53,7 @@ class NoiseRates : public edm::EDAnalyzer {
 
   // parameters
   edm::InputTag rbxCollName_;          // label for the rbx collection
+  edm::EDGetTokenT<reco::HcalNoiseRBXCollection> tok_rbx_;
   double minRBXEnergy_;                // RBX energy threshold
   double minHitEnergy_;                // RecHit energy threshold
   bool   useAllHistos_;

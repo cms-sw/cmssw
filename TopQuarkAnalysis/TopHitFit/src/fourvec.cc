@@ -1,5 +1,4 @@
 //
-// $Id: fourvec.cc,v 1.5 2009/11/20 10:48:27 haryo Exp $
 //
 // File: src/fourvec.cc
 // Purpose: Define 3- and 4-vector types for the hitfit package, and

@@ -1,7 +1,7 @@
 #ifndef VertexAssociatorByTracks_h
 #define VertexAssociatorByTracks_h
 
-#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "SimTracker/Common/interface/TrackingParticleSelector.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 

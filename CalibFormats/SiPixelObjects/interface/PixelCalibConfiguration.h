@@ -263,16 +263,16 @@ namespace pos{
 		      unsigned int irows, unsigned int icols,
 		      pos::PixelROCMaskBits* masks,
 		      pos::PixelROCTrimBits* trims,	
-		      PixelHdwAddress theROC) const;
+		      const PixelHdwAddress& theROC) const;
 
     void disablePixels(PixelFECConfigInterface* pixelFEC,
 		       unsigned int irows, unsigned int icols,
 		       pos::PixelROCTrimBits* trims,	
-		       PixelHdwAddress theROC) const;
+		       const PixelHdwAddress& theROC) const;
 
     void disablePixels(PixelFECConfigInterface* pixelFEC,
 		       pos::PixelROCTrimBits* trims,	
-		       PixelHdwAddress theROC) const;
+		       const PixelHdwAddress& theROC) const;
 
     mutable std::vector<int> old_irows;
     mutable std::vector<int> old_icols;

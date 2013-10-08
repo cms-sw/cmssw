@@ -51,7 +51,7 @@ void ConeThresholdVeto::centerOn(double eta, double phi) {
 
 ///////////////////////////////////////////////////////////////////////////
 
-AngleConeVeto::AngleConeVeto(math::XYZVectorD dir, double angle) : vetoDir_(dir.Unit()), cosTheta_(cos(angle)) {
+AngleConeVeto::AngleConeVeto(const math::XYZVectorD& dir, double angle) : vetoDir_(dir.Unit()), cosTheta_(cos(angle)) {
 }
 AngleConeVeto::AngleConeVeto(Direction dir, double angle) : vetoDir_(0,0,1), cosTheta_(cos(angle)) {
     vetoDir_ = math::RhoEtaPhiVectorD(1, dir.eta(), dir.phi()).Unit(); 
@@ -66,7 +66,7 @@ void AngleConeVeto::centerOn(double eta, double phi) {
 
 ///////////////////////////////////////////////////////////////////////////
 
-AngleCone::AngleCone(math::XYZVectorD dir, double angle) : coneDir_(dir.Unit()), cosTheta_(cos(angle)) {
+AngleCone::AngleCone(const math::XYZVectorD& dir, double angle) : coneDir_(dir.Unit()), cosTheta_(cos(angle)) {
 }
 AngleCone::AngleCone(Direction dir, double angle) : coneDir_(0,0,1), cosTheta_(cos(angle)) {
     coneDir_ = math::RhoEtaPhiVectorD(1, dir.eta(), dir.phi()).Unit(); 
@@ -81,7 +81,7 @@ void AngleCone::centerOn(double eta, double phi) {
 
 ///////////////////////////////////////////////////////////////////////////
 		
-RectangularEtaPhiVeto::RectangularEtaPhiVeto(math::XYZVectorD dir, double etaMin, double etaMax, double phiMin, double phiMax) :
+RectangularEtaPhiVeto::RectangularEtaPhiVeto(const math::XYZVectorD& dir, double etaMin, double etaMax, double phiMin, double phiMax) :
 	vetoDir_(dir.eta(),dir.phi()), etaMin_(etaMin), etaMax_(etaMax), phiMin_(phiMin), phiMax_(phiMax) {
 }
 

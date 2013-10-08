@@ -7,21 +7,9 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTBcHcalIsolationProducersRegional.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
@@ -30,14 +18,14 @@
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 EgammaHLTBcHcalIsolationProducersRegional::EgammaHLTBcHcalIsolationProducersRegional(const edm::ParameterSet& config) {
 
-  recoEcalCandidateProducer_ = config.getParameter<edm::InputTag>("recoEcalCandidateProducer");
-  caloTowerProducer_         = config.getParameter<edm::InputTag>("caloTowerProducer");
-  rhoProducer_               = config.getParameter<edm::InputTag>("rhoProducer");
+  recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
+  caloTowerProducer_         = consumes<CaloTowerCollection>(config.getParameter<edm::InputTag>("caloTowerProducer"));
+  rhoProducer_               = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
+
   doRhoCorrection_           = config.getParameter<bool>("doRhoCorrection");
   rhoMax_                    = config.getParameter<double>("rhoMax"); 
   rhoScale_                  = config.getParameter<double>("rhoScale"); 
@@ -52,7 +40,7 @@ EgammaHLTBcHcalIsolationProducersRegional::EgammaHLTBcHcalIsolationProducersRegi
   
   hcalCfg_.hOverEConeSize = 0.15;
   hcalCfg_.useTowers = true;
-  hcalCfg_.hcalTowers = caloTowerProducer_;
+  hcalCfg_.hcalTowers = config.getParameter<edm::InputTag>("caloTowerProducer");
   hcalCfg_.hOverEPtMin = etMin_;
 
   hcalHelper_ = new ElectronHcalHelper(hcalCfg_);
@@ -69,16 +57,16 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::Event& iEvent, cons
 
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;
-  iEvent.getByLabel(recoEcalCandidateProducer_, recoEcalCandHandle);
+  iEvent.getByToken(recoEcalCandidateProducer_, recoEcalCandHandle);
 
   edm::Handle<CaloTowerCollection> caloTowersHandle;
-  iEvent.getByLabel(caloTowerProducer_, caloTowersHandle);
+  iEvent.getByToken(caloTowerProducer_, caloTowersHandle);
 
   edm::Handle<double> rhoHandle;
   double rho = 0.0;
 
   if (doRhoCorrection_) {
-    iEvent.getByLabel(rhoProducer_, rhoHandle);
+    iEvent.getByToken(rhoProducer_, rhoHandle);
     rho = *(rhoHandle.product());
   }
 

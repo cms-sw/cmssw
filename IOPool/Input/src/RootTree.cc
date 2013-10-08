@@ -31,7 +31,8 @@ namespace edm {
                      unsigned int maxVirtualSize,
                      unsigned int cacheSize,
                      unsigned int learningEntries,
-                     bool enablePrefetching) :
+                     bool enablePrefetching,
+                     InputType inputType) :
     filePtr_(filePtr),
     tree_(dynamic_cast<TTree*>(filePtr_.get() != nullptr ? filePtr_->Get(BranchTypeToProductTreeName(branchType).c_str()) : nullptr)),
     metaTree_(dynamic_cast<TTree*>(filePtr_.get() != nullptr ? filePtr_->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : nullptr)),
@@ -56,7 +57,7 @@ namespace edm {
     treeAutoFlush_(0),
     enablePrefetching_(enablePrefetching),
     enableTriggerCache_(branchType_ == InEvent),
-    rootDelayedReader_(new RootDelayedReader(*this, filePtr)),
+    rootDelayedReader_(new RootDelayedReader(*this, filePtr, inputType)),
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : 0)),
     infoTree_(dynamic_cast<TTree*>(filePtr_.get() != nullptr ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : nullptr)) // backward compatibility
     {

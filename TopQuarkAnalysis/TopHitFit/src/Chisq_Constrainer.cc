@@ -1,5 +1,4 @@
 //
-// $Id: Chisq_Constrainer.cc,v 1.1 2011/05/26 09:46:59 mseidel Exp $
 //
 // File: src/Chisq_Constrainer.cc
 // Purpose: Minimize a chisq subject to a set of constraints.

@@ -3,7 +3,6 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.h,v 1.10 2008/06/19 12:28:27 rwolf Exp $
 //
 
 #ifndef LRHelpFunctions_h

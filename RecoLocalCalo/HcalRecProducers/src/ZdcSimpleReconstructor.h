@@ -11,6 +11,9 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/ZdcSimpleRecAlgo.h"
 
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
 
     /** \class HcalSimpleReconstructor	
     \author E. Garcia - CSU
@@ -28,7 +31,7 @@
       DetId::Detector det_;
       int subdet_;
       HcalOtherSubdetector subdetOther_;
-      edm::InputTag inputLabel_;
+      edm::EDGetTokenT<ZDCDigiCollection> tok_input_;
 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
       

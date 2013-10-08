@@ -221,7 +221,7 @@ void L1GctWheelJetFpga::process()
     
 }
 
-void L1GctWheelJetFpga::setInputJet(int i, L1GctJetCand jet)
+void L1GctWheelJetFpga::setInputJet(int i, const L1GctJetCand& jet)
 {
   if(i >=0 && i < MAX_JETS_IN)
     {
@@ -253,7 +253,7 @@ std::vector< L1GctInternHtMiss > L1GctWheelJetFpga::getInternalHtMiss() const
   return result;
 }
 
-void L1GctWheelJetFpga::storeJets(JetVector jets, unsigned short iLeaf, unsigned short offset)
+void L1GctWheelJetFpga::storeJets(const JetVector& jets, unsigned short iLeaf, unsigned short offset)
 {
   for(unsigned short iJet = 0; iJet < L1GctJetFinderBase::MAX_JETS_OUT; ++iJet)
     {

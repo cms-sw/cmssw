@@ -17,7 +17,7 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 DDLEllipsoid::DDLEllipsoid( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
@@ -31,7 +31,7 @@ void
 DDLEllipsoid::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 { 
   DCOUT_V( 'P', "DDLEllipsoid::processElement started" );
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
   double zbot(0.), ztop(0.);
   if( atts.find( "zBottomCut" ) != atts.end() )

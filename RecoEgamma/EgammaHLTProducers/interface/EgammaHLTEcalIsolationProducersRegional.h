@@ -13,6 +13,7 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
+// $Id: EgammaHLTEcalIsolationProducersRegional.h,v 1.2 2008/05/12 08:48:22 ghezzi Exp $
 //
 //
 
@@ -23,33 +24,32 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTEcalIsolation.h"
 
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
-//
-// class declaration
-//
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 class EgammaHLTEcalIsolationProducersRegional : public edm::EDProducer {
-   public:
-      explicit EgammaHLTEcalIsolationProducersRegional(const edm::ParameterSet&);
-      ~EgammaHLTEcalIsolationProducersRegional();
-
-
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-  // ----------member data ---------------------------
-
-  edm::InputTag recoEcalCandidateProducer_;
-  edm::InputTag bcBarrelProducer_;
-  edm::InputTag bcEndcapProducer_;
-  edm::InputTag scIslandBarrelProducer_;
-  edm::InputTag scIslandEndcapProducer_;
+public:
+  explicit EgammaHLTEcalIsolationProducersRegional(const edm::ParameterSet&);
+  ~EgammaHLTEcalIsolationProducersRegional();
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  
+private:
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  edm::EDGetTokenT<reco::BasicClusterCollection> bcBarrelProducer_;
+  edm::EDGetTokenT<reco::BasicClusterCollection> bcEndcapProducer_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> scIslandBarrelProducer_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> scIslandEndcapProducer_;
 
   edm::ParameterSet conf_;
 

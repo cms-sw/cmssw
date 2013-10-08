@@ -3,8 +3,8 @@
   <class name="CoreSimVertex" ClassVersion="10">
    <version ClassVersion="10" checksum="4012086828"/>
   </class>
-  <class name="SimVertex" ClassVersion="10">
-   <version ClassVersion="10" checksum="586095193"/>
+  <class name="SimVertex" ClassVersion="11">
+   <version ClassVersion="11" checksum="801220081"/>
   </class>
   <class pattern="edm::Ref<std::vector<SimVertex>,*>" />
   <class name="std::vector<const SimVertex*>"/>

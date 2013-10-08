@@ -1,5 +1,4 @@
 //
-// $Id: Defaults_Text.cc,v 1.9 2011/04/28 10:47:23 haryo Exp $
 //
 // File: src/Defaults_Text.cc
 // Purpose: A lightweight implementation of the Defaults interface

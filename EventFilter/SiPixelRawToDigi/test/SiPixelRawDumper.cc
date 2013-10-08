@@ -457,7 +457,9 @@ class SiPixelRawDumper : public edm::EDAnalyzer {
 public:
 
   /// ctor
-  explicit SiPixelRawDumper( const edm::ParameterSet& cfg) : theConfig(cfg) {} 
+  explicit SiPixelRawDumper( const edm::ParameterSet& cfg) : theConfig(cfg) {
+  consumes<FEDRawDataCollection>(theConfig.getUntrackedParameter<std::string>("InputLabel","source"));
+} 
 
   /// dtor
   virtual ~SiPixelRawDumper() {}

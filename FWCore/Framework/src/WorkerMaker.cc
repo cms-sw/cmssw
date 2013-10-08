@@ -90,11 +90,12 @@ namespace edm {
     try {
       try {
         pre(md);
+        //even if we have an exception, do post
+        std::shared_ptr<int> sentry{nullptr, [&md, &post](void*) { post(md); } };
         module = makeModule(*(p.pset_));
         module->setModuleDescription(md);
         module->preallocate(*(p.preallocate_));
         module->registerProductsAndCallbacks(p.reg_);
-        post(md);
       }
       catch (cms::Exception& e) { throw; }
       catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }

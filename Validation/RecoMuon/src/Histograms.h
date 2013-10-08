@@ -331,7 +331,7 @@ class HResolution1DRecHit{
     hZPullVsPos  = dbe_->book2D (theName+"_ZPullVsPos", "Z pull vs position",10000, -1100,1100, 600, -2,2);
   }
   
-  HResolution1DRecHit(TString name_, TFile* file){}
+  HResolution1DRecHit(const TString& name_, TFile* file){}
 
   ~HResolution1DRecHit(){}
 

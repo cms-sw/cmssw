@@ -438,6 +438,9 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
   float Sxy = 0.;
 
   size_t N =  x.size();
+
+  if (N == 0)
+    return;
 	
   for(size_t i = 0; i < N;++i){
     Sx += x.at(i);

@@ -6,10 +6,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 //FEDRawData
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 //Digi stuff
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
@@ -71,8 +72,8 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   numOfEvents(0) {
 
   // Tracked
+  i_token = consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("InputObjects") );
 
-  inputObjectsTag       = pset.getParameter<edm::InputTag>("InputObjects");
   useExaminer           = pset.getParameter<bool>("UseExaminer");
   examinerMask          = pset.getParameter<unsigned int>("ExaminerMask");
   /// Selective unpacking mode will skip only troublesome CSC blocks and not whole DCC/DDU block
@@ -155,8 +156,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
   /// Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel(inputObjectsTag, rawdata);
-    
+  e.getByToken( i_token, rawdata);
+
   /// create the collections of CSC digis
   std::auto_ptr<CSCWireDigiCollection> wireProduct(new CSCWireDigiCollection);
   std::auto_ptr<CSCStripDigiCollection> stripProduct(new CSCStripDigiCollection);

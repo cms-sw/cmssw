@@ -76,6 +76,7 @@ namespace cms
 
   private:
     edm::ParameterSet conf_;
+    edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
     // TO DO: maybe allow a map of pointers?
     SiPixelGainCalibrationServiceBase * theSiPixelGainCalibration_;
     std::string clusterMode_;               // user's choice of the clusterizer

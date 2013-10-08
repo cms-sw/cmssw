@@ -98,10 +98,10 @@ ErrorSummaryFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
       } else {
 	edm::ELseverityLevel const& severity = i->severity;
         if (severityName_ == "error") {
-          if (severity.getLevel() == edm::ELseverityLevel::ELsev_error || severity.getLevel() == edm::ELseverityLevel::ELsev_error2 || 
-              severity.getLevel() == edm::ELseverityLevel::ELsev_warning || severity.getLevel() == edm::ELseverityLevel::ELsev_warning2) {return (false);}
+          if (severity.getLevel() == edm::ELseverityLevel::ELsev_error || 
+              severity.getLevel() == edm::ELseverityLevel::ELsev_warning) {return (false);}
         } else if (severityName_ == "warning") {
-  	  if (severity.getLevel() == edm::ELseverityLevel::ELsev_warning || severity.getLevel() == edm::ELseverityLevel::ELsev_warning2) {return (false);}
+  	  if (severity.getLevel() == edm::ELseverityLevel::ELsev_warning) {return (false);}
         } else { continue; }
       } 
     }

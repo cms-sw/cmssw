@@ -5,7 +5,6 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2006-04-26 17:51:03+0200
-# Revision: $Id: InstallCMSSWFromSource.pl,v 1.5 2006/05/02 16:04:02 sashby Exp $ 
 #
 # Shaun ASHBY
 #

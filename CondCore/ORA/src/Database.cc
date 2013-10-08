@@ -76,7 +76,6 @@ ora::Database::Database(boost::shared_ptr<ConnectionPool>& connectionPool):
 }
 
 ora::Database::~Database(){
-  disconnect();
 }
 
 ora::Database& ora::Database::operator=( const Database& rhs ){

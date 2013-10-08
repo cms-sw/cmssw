@@ -108,7 +108,7 @@ namespace egHLT {
     void setCutCode(int code){cutCode_=code;}
     void setLooseCutCode(int code){looseCutCode_=code;} 
     //slightly inefficient way, think I can afford it and its a lot easier to just make the sorted vector outside the class
-    void setTrigCutsCutCodes(const std::vector<std::pair<TrigCodes::TrigBitSet,int> > trigCutsCutCodes){trigCutsCutCodes_=trigCutsCutCodes;}
+    void setTrigCutsCutCodes(const std::vector<std::pair<TrigCodes::TrigBitSet,int> >& trigCutsCutCodes){trigCutsCutCodes_=trigCutsCutCodes;}
     void setTrigBits(TrigCodes::TrigBitSet bits){trigBits_=bits;}
     
     const reco::GsfElectron* gsfEle()const{return gsfEle_;}

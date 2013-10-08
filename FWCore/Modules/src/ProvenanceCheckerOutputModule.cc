@@ -81,7 +81,7 @@ namespace edm {
 
    namespace {
      void markAncestors(ProductProvenance const& iInfo,
-                             BranchMapper const& iMapper,
+                             ProductProvenanceRetriever const& iMapper,
                              std::map<BranchID, bool>& oMap,
                              std::set<BranchID>& oMapperMissing) {
        for(std::vector<BranchID>::const_iterator it = iInfo.parentage().parents().begin(),
@@ -106,7 +106,7 @@ namespace edm {
    void
    ProvenanceCheckerOutputModule::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
       //check ProductProvenance's parents to see if they are in the ProductProvenance list
-      boost::shared_ptr<BranchMapper> mapperPtr = e.branchMapperPtr();
+      boost::shared_ptr<ProductProvenanceRetriever> mapperPtr = e.productProvenanceRetrieverPtr();
 
       std::map<BranchID, bool> seenParentInPrincipal;
       std::set<BranchID> missingFromMapper;
@@ -166,7 +166,7 @@ namespace edm {
       }
 
       if(missingFromMapper.size()) {
-         LogError("ProvenanceChecker") << "Missing the following BranchIDs from BranchMapper\n";
+         LogError("ProvenanceChecker") << "Missing the following BranchIDs from ProductProvenanceRetriever\n";
          for(std::set<BranchID>::iterator it = missingFromMapper.begin(), itEnd = missingFromMapper.end();
              it != itEnd;
              ++it) {
@@ -203,7 +203,7 @@ namespace edm {
       if(missingFromMapper.size() || missingFromPrincipal.size() || missingProductProvenance.size() || missingFromReg.size()) {
          throw cms::Exception("ProvenanceError")
          << (missingFromMapper.size() || missingFromPrincipal.size() ? "Having missing ancestors" : "")
-         << (missingFromMapper.size() ? " from BranchMapper" : "")
+         << (missingFromMapper.size() ? " from ProductProvenanceRetriever" : "")
          << (missingFromMapper.size() && missingFromPrincipal.size() ? " and" : "")
          << (missingFromPrincipal.size() ? " from EventPrincipal" : "")
          << (missingFromMapper.size() || missingFromPrincipal.size() ? ".\n" : "")

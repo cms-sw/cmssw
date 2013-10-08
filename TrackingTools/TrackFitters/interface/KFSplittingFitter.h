@@ -5,8 +5,6 @@
  *  A Kalman track fit that splits matched RecHits into individual
  *  components before fitting them. Ported from ORCA
  *
- *  $Date: 2007/05/09 14:17:57 $
- *  $Revision: 1.6 $
  *  \author todorov, cerati
  */
 

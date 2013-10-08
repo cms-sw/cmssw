@@ -26,8 +26,7 @@
 
 
 #include "FWCore/MessageService/interface/ELstatistics.h"
-#include "FWCore/MessageService/interface/ELadministrator.h"
-#include "FWCore/MessageService/interface/ELcontextSupplier.h"
+#include "FWCore/MessageService/interface/ELdestControl.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
@@ -160,6 +159,25 @@ ELstatistics::clone() const  {
 
 }  // clone()
 
+static  std::string summarizeContext(const std::string& c)
+  {
+    if ( c.substr (0,4) != "Run:" ) return c;
+    std::istringstream is (c);
+    std::string runWord;
+    int run;
+    is >> runWord >> run;
+    if (!is) return c;
+    if (runWord != "Run:") return c;
+    std::string eventWord;
+    int event;
+    is >> eventWord >> event;
+    if (!is) return c;
+    if (eventWord != "Event:") return c;
+    std::ostringstream os;
+    os << run << "/" << event;
+    return os.str();
+  }
+
 
 bool  ELstatistics::log( const edm::ErrorObj & msg )  {
 
@@ -185,22 +203,7 @@ bool  ELstatistics::log( const edm::ErrorObj & msg )  {
     std::cerr << "    =:=:=: Message accounted for in stats \n";
   #endif
   if ( s != stats.end() )  {
-    #ifdef ELstatsLOG_TRACE
-        std::cerr << "    =:=:=: Message not last stats \n";
-        std::cerr << "    =:=:=: getContextSupplier \n";
-        const ELcontextSupplier & csup
-          = ELadministrator::instance()->getContextSupplier();
-        std::cerr << "    =:=:=: getContextSupplier \n";
-        ELstring sumcon;
-        std::cerr << "    =:=:=: summaryContext \n";
-        sumcon = csup.summaryContext();
-        std::cerr << "    =:=:=: summaryContext is: " << sumcon << "\n";
-        (*s).second.add( sumcon, msg.reactedTo() );
-        std::cerr << "    =:=:=: add worked. \n";
-    #else
-        (*s).second.add( ELadministrator::instance()->
-                    getContextSupplier().summaryContext(), msg.reactedTo() );
-    #endif
+        (*s).second.add( summarizeContext(msg.context()), msg.reactedTo() );
 
     updatedStats = true;
     #ifdef ELstatsLOG_TRACE
@@ -268,7 +271,6 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
 
   // -----  Summary part I:
   //
-  ELstring  lastProcess( "" );
   bool      ftnote( false );
 
   struct part3  {
@@ -289,12 +291,8 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
     							
     // -----  Emit new process and part I header, if needed:
     //
-    if ( n == 0  || ! eq(lastProcess, (*i).first.process) ) {
+    if ( n == 0 ) {
       s << "\n";
-      lastProcess = (*i).first.process;
-      if ( lastProcess.size() > 0) {
-        s << "Process " << (*i).first.process << '\n';
-      }
       s << " type     category        sev    module        "
              "subroutine        count    total\n"
         << " ---- -------------------- -- ---------------- "

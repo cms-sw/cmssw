@@ -1,5 +1,4 @@
 //
-// $Id: Constrained_Z.cc,v 1.4 2009/11/18 11:15:31 haryo Exp $
 //
 // File: Constrained_Z.cc
 // Purpose: Do kinematic fitting for a (Z->ll)+jets event.

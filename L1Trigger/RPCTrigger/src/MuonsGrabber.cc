@@ -14,7 +14,7 @@
 
 // user include files
 #include "L1Trigger/RPCTrigger/interface/MuonsGrabber.h"
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -71,7 +71,7 @@ MuonsGrabber::MuonsGrabber()
 {
 
     try {
-       XMLPlatformUtils::Initialize();
+       cms::concurrency::xercesInitialize();
     }
     catch(const XMLException &toCatch)  {
       throw std::string("Error during Xerces-c Initialization: "

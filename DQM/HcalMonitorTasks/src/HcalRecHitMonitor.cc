@@ -57,6 +57,13 @@ HcalRecHitMonitor::HcalRecHitMonitor(const edm::ParameterSet& ps)
   timediffThresh_    = ps.getUntrackedParameter<double>("collisiontimediffThresh",10.);
   setupDone_         = false;
   needLogicalMap_    = true;
+
+  // register for data access
+  tok_hbhe_ = consumes<HBHERecHitCollection>(hbheRechitLabel_);
+  tok_ho_ = consumes<HORecHitCollection>(hoRechitLabel_);
+  tok_hf_ = consumes<HFRecHitCollection>(hfRechitLabel_);
+  tok_trigger_ = consumes<edm::TriggerResults>(hltresultsLabel_);
+
 } //constructor
 
 HcalRecHitMonitor::~HcalRecHitMonitor()
@@ -593,19 +600,19 @@ void HcalRecHitMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   edm::Handle<HORecHitCollection> ho_rechit;
   edm::Handle<HFRecHitCollection> hf_rechit;
 
-  if (!(e.getByLabel(hbheRechitLabel_,hbhe_rechit)))
+  if (!(e.getByToken(tok_hbhe_,hbhe_rechit)))
     {
       edm::LogWarning("HcalHotCellMonitor")<< hbheRechitLabel_<<" hbhe_rechit not available";
       return;
     }
 
-  if (!(e.getByLabel(hfRechitLabel_,hf_rechit)))
+  if (!(e.getByToken(tok_hf_,hf_rechit)))
     {
       edm::LogWarning("HcalHotCellMonitor")<< hfRechitLabel_<<" hf_rechit not available";
       return;
     }
   
-  if (!(e.getByLabel(hoRechitLabel_,ho_rechit)))
+  if (!(e.getByToken(tok_ho_,ho_rechit)))
     {
       edm::LogWarning("HcalHotCellMonitor")<< hoRechitLabel_<<" ho_rechit not available";
       return;
@@ -636,7 +643,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   bool passedMinBiasHLT=false;
 
   edm::Handle<edm::TriggerResults> hltRes;
-  if (!(iEvent.getByLabel(hltresultsLabel_,hltRes)))
+  if (!(iEvent.getByToken(tok_trigger_,hltRes)))
     {
       if (debug_>0) edm::LogWarning("HcalRecHitMonitor")<<" Could not get HLT results with tag "<<hltresultsLabel_<<std::endl;
     }

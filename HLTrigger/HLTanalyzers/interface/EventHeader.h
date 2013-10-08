@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h" 
 #include "DataFormats/Luminosity/interface/LumiDetails.h" 
 #include "TChain.h"
@@ -16,8 +17,9 @@
   */
 class EventHeader {
 public:
+  EventHeader(edm::ConsumesCollector && iC);
   EventHeader(); 
-	~EventHeader();
+  ~EventHeader();
 
   void setup(TTree* tree);
 
@@ -36,6 +38,7 @@ private:
 
   // input variables
   bool _Debug;
+  edm::EDGetTokenT<LumiSummary> lumi_Token;
 
   // trigger names
 };

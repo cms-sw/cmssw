@@ -74,7 +74,7 @@ namespace {
             << "and we give up trying to run endJob.";
         }
       }
-      edm::snapshotMessageLog();
+      edm::clearMessageLog();
     }
     void on() {
       callEndJob_ = true;

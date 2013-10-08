@@ -53,8 +53,8 @@ private:
   virtual void endJob() override ;
   
   // ----------member data ---------------------------
-  
-  std::string DataLabel_ ;
+ 
+  edm::EDGetTokenT<FEDRawDataCollection> tok_data_; 
   bool        Summary_ ;
   std::vector<int> CalibTypes_ ;   
   std::vector<int> eventsByType ; 
@@ -69,7 +69,7 @@ HcalCalibTypeFilter::HcalCalibTypeFilter(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
 
-  DataLabel_  = iConfig.getParameter<std::string>("InputLabel") ;
+  tok_data_  = consumes<FEDRawDataCollection>(edm::InputTag(iConfig.getParameter<std::string>("InputLabel") ));
   Summary_    = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
   CalibTypes_ = iConfig.getParameter< std::vector<int> >("CalibTypes") ; 
 }
@@ -95,7 +95,7 @@ HcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   
   edm::Handle<FEDRawDataCollection> rawdata;  
-  iEvent.getByLabel(DataLabel_,rawdata);
+  iEvent.getByToken(tok_data_,rawdata);
   
   // checking FEDs for calibration information
   int calibType = -1 ; int numEmptyFEDs = 0 ; 

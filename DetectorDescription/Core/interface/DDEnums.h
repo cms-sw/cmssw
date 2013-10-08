@@ -14,9 +14,9 @@ struct DDEnums {
 		pseudotrap
 	      };
 
-  static const char * categoryName(Category s)
+  static const char * const categoryName(Category s)
   {
-    static const char * c[] = { "unspecified", "sensitive", "cable", "cooling", "support", "envelope" };
+    static const char * const c[] = { "unspecified", "sensitive", "cable", "cooling", "support", "envelope" };
     return c[s];
   }	       	      
 };

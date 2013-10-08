@@ -15,7 +15,6 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: EcalDetIdAssociator.h,v 1.9 2010/02/18 14:35:48 dmytro Exp $
 //
 //
 

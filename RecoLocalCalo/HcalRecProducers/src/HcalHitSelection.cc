@@ -54,6 +54,10 @@ class HcalHitSelection : public edm::EDProducer {
       virtual void endJob() override ;
   
   edm::InputTag hbheTag,hoTag,hfTag;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+  std::vector<edm::EDGetTokenT<DetIdCollection> > toks_did_;
   int hoSeverityLevel;
   std::vector<edm::InputTag> interestingDetIdCollections;
   
@@ -109,7 +113,16 @@ HcalHitSelection::HcalHitSelection(const edm::ParameterSet& iConfig)
   hfTag=iConfig.getParameter<edm::InputTag>("hfTag");
   hoTag=iConfig.getParameter<edm::InputTag>("hoTag");
 
+  // register for data access
+  tok_hbhe_ = consumes<HBHERecHitCollection>(hbheTag);
+  tok_hf_ = consumes<HFRecHitCollection>(hfTag);
+  tok_ho_ = consumes<HORecHitCollection>(hoTag);
+
   interestingDetIdCollections = iConfig.getParameter< std::vector<edm::InputTag> >("interestingDetIds");
+
+  const unsigned nLabels = interestingDetIdCollections.size();
+  for ( unsigned i=0; i != nLabels; i++ )
+    toks_did_.push_back(consumes<DetIdCollection>(interestingDetIdCollections[i]));
 
   hoSeverityLevel=iConfig.getParameter<int>("hoSeverityLevel");
 
@@ -144,15 +157,15 @@ HcalHitSelection::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HFRecHitCollection> hf;
   edm::Handle<HORecHitCollection> ho;
 
-  iEvent.getByLabel(hbheTag,hbhe);
-  iEvent.getByLabel(hfTag,hf);
-  iEvent.getByLabel(hoTag,ho);
+  iEvent.getByToken(tok_hbhe_,hbhe);
+  iEvent.getByToken(tok_hf_,hf);
+  iEvent.getByToken(tok_ho_,ho);
 
   toBeKept.clear();
   edm::Handle<DetIdCollection > detId;
-  for( unsigned int t = 0; t < interestingDetIdCollections.size(); ++t )
+  for( unsigned int t = 0; t < toks_did_.size(); ++t )
     {
-      iEvent.getByLabel(interestingDetIdCollections[t],detId);
+      iEvent.getByToken(toks_did_[t],detId);
       if (!detId.isValid()){
 	edm::LogError("MissingInput")<<"the collection of interesting detIds:"<<interestingDetIdCollections[t]<<" is not found.";
 	continue;

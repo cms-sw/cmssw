@@ -4,7 +4,6 @@
 #include "FWCore/Utilities/interface/value_ptr.h"
 
 #include "FWCore/MessageService/interface/ELdestControl.h"
-#include "FWCore/MessageService/interface/MsgContext.h"
 #include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
@@ -80,7 +79,6 @@ namespace service {
 // -----------------------------------------------------------------------
 
 class ThreadQueue;
-class ErrorLog;
 class ELadministrator;
 
 class MessageLoggerScribe : public AbstractMLscribe
@@ -101,9 +99,6 @@ public:
   void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand);
 		  						// changeLog 9
 
-  // --- obtain a pointer to the errorlog 
-  static ErrorLog * getErrorLog_ptr() {return static_errorlog_p;}
-  
 private:
   // --- convenience typedefs
   typedef std::string          String;
@@ -119,13 +114,11 @@ private:
   
   // --- handle details of configuring via a ParameterSet:
   void  configure_errorlog( );
-  void  configure_fwkJobReports( );				// Change Log 3
   void  configure_ordinary_destinations( );			// Change Log 3
   void  configure_statistics( );				// Change Log 3
   void  configure_dest( ELdestControl & dest_ctrl		
                       , String const &  filename
 		      );
-  void  configure_default_fwkJobReport( ELdestControl & dest_ctrl); //ChangeLog 4
   void  configure_external_dests( );
 
 #define VALIDATE_ELSEWHERE					// ChangeLog 11
@@ -222,22 +215,17 @@ private:
 
   // --- other helpers
   void parseCategories (std::string const & s, std::vector<std::string> & cats);
-  void setStaticErrorLog_ptr() {static_errorlog_p = errorlog_p.get();}
   
   // --- data:
-  ELadministrator                   * admin_p;
+  boost::shared_ptr<ELadministrator>  admin_p;
   ELdestControl                       early_dest;
-  boost::shared_ptr<ErrorLog>         errorlog_p;
   std::vector<boost::shared_ptr<std::ofstream> > file_ps;
-  MsgContext                          msg_context;
   boost::shared_ptr<PSet>             job_pset_p;
   std::vector<NamedDestination     *> extern_dests;
   std::map<String,std::ostream     *> stream_ps;
   std::vector<String> 	  	      ordinary_destination_filenames;
   std::vector<ELdestControl>          statisticsDestControls;
   std::vector<bool>                   statisticsResets;
-  std::string	  		      jobReportOption;
-  static ErrorLog		    * static_errorlog_p;
   bool				      clean_slate_configuration;
   value_ptr<MessageLoggerDefaults>    messageLoggerDefaults;
   bool				      active;

@@ -16,6 +16,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 class EgammaTowerIsolation;
 
@@ -37,9 +41,9 @@ public:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
 private:
-  edm::InputTag recoEcalCandidateProducer_;
-  edm::InputTag caloTowerProducer_;
-  edm::InputTag rhoProducer_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  edm::EDGetTokenT<CaloTowerCollection> caloTowerProducer_;
+  edm::EDGetTokenT<double> rhoProducer_;
 
   bool doRhoCorrection_;
   float rhoScale_;

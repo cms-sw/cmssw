@@ -86,7 +86,9 @@ private:
 
   edm::InputTag triggerLabelORIG_;
   edm::InputTag triggerLabelNEW_;
-  
+  edm::EDGetTokenT<edm::TriggerResults> triggerTokenORIG_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerTokenNEW_;
+
   //Trigger Stuff
   unsigned int nPaths_, nPathsORIG_, nPathsNEW_, nDatasets_;
   vector<string> triggerNames_;
@@ -165,6 +167,8 @@ HLTOfflineReproducibility::HLTOfflineReproducibility(const edm::ParameterSet& iC
   //now do what ever initialization is needed
   //define parameters
   if (dqm_) dqms_ = edm::Service<DQMStore>().operator->();
+  triggerTokenORIG_ = consumes<edm::TriggerResults>(triggerLabelORIG_);
+  triggerTokenNEW_  = consumes<edm::TriggerResults>(triggerLabelNEW_);
 }
 
 
@@ -193,12 +197,12 @@ HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSet
   //Initialize Trigger
   TriggerResults trORIG_;
   Handle<TriggerResults> h_trigResORIG_;
-  iEvent.getByLabel(triggerLabelORIG_, h_trigResORIG_);
+  iEvent.getByToken(triggerTokenORIG_, h_trigResORIG_);
   trORIG_ = *h_trigResORIG_;  
   
   TriggerResults trNEW_;
   Handle<TriggerResults> h_trigResNEW_;
-  iEvent.getByLabel(triggerLabelNEW_, h_trigResNEW_);  
+  iEvent.getByToken(triggerTokenNEW_, h_trigResNEW_);  
   trNEW_ = *h_trigResNEW_;
 
   vector<string> triggerListORIG_;

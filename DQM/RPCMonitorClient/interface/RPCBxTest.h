@@ -23,7 +23,7 @@ public:
   void beginJob(DQMStore *);
 
   //Begin Run
-   void beginRun(const edm::Run& r, const edm::EventSetup& c ,std::vector<MonitorElement *> , std::vector<RPCDetId>);
+   void beginRun(const edm::Run& r, const edm::EventSetup& c ,const std::vector<MonitorElement *>& , const std::vector<RPCDetId>&);
   
   
   /// Begin Lumi block 

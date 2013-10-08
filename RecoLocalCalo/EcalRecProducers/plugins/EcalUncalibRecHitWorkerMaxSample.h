@@ -16,7 +16,7 @@ namespace edm {
 class EcalUncalibRecHitWorkerMaxSample : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
-                EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps);
+                EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps,edm::ConsumesCollector& c);
                 virtual ~EcalUncalibRecHitWorkerMaxSample() {};
 
                 void set(const edm::EventSetup& es);

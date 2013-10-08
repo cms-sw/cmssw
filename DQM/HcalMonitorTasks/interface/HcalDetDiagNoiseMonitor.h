@@ -13,6 +13,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+// to retrive trigger information (local runs only)
+#include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
+
 // forward declarations
 class HcalDetDiagNoiseRMSummary; 
 class DQMStore;
@@ -43,10 +49,14 @@ public:
   void UpdateHistos();
   int  GetStatistics(){ return ievt_; }
 private:
-  edm::InputTag L1ADataLabel_;
   edm::InputTag digiLabel_;
-  edm::InputTag rawDataLabel_;
-  edm::InputTag hcalTBTriggerDataTag_;
+
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  edm::EDGetTokenT<HcalTBTriggerData> tok_tb_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_l1_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  edm::EDGetTokenT<HODigiCollection> tok_ho_;
+
 
   std::string OutputFilePath;
   bool Overwrite;

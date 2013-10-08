@@ -9,8 +9,8 @@
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
-EcalUncalibRecHitWorkerRatio::EcalUncalibRecHitWorkerRatio(const edm::ParameterSet&ps) :
-        EcalUncalibRecHitWorkerBaseClass(ps)
+EcalUncalibRecHitWorkerRatio::EcalUncalibRecHitWorkerRatio(const edm::ParameterSet&ps, edm::ConsumesCollector& c) :
+  EcalUncalibRecHitWorkerBaseClass(ps,c)
 {
   EBtimeFitParameters_ = ps.getParameter<std::vector<double> >("EBtimeFitParameters"); 
   EEtimeFitParameters_ = ps.getParameter<std::vector<double> >("EEtimeFitParameters"); 

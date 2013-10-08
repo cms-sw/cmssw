@@ -9,54 +9,45 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTR9IDProducer.h"
 
 // Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
+//#include "FWCore/Framework/interface/Event.h"
+//#include "FWCore/Framework/interface/EventSetup.h"
+//#include "DataFormats/Common/interface/Handle.h"
+//#include "FWCore/Framework/interface/ESHandle.h"
+//#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#include "FWCore/Utilities/interface/Exception.h"
 
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
-
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+//#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 EgammaHLTR9IDProducer::EgammaHLTR9IDProducer(const edm::ParameterSet& config) : conf_(config)
 {
  // use configuration file to setup input/output collection names
-  recoEcalCandidateProducer_ = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
+  recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
+
   ecalRechitEBTag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEB");
   ecalRechitEETag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEE");
+
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
 }
 
-
 EgammaHLTR9IDProducer::~EgammaHLTR9IDProducer(){}
 
-
-//
-// member functions
-//
-
 // ------------ method called to produce the data  ------------
-void
-EgammaHLTR9IDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void EgammaHLTR9IDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
-  iEvent.getByLabel(recoEcalCandidateProducer_,recoecalcandHandle);
+  iEvent.getByToken(recoEcalCandidateProducer_, recoecalcandHandle);
 
   EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag_, ecalRechitEETag_ );
   
   reco::RecoEcalCandidateIsolationMap r9Map;
    
-  for(reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoecalcandHandle->begin(); iRecoEcalCand != recoecalcandHandle->end(); iRecoEcalCand++){
+  for(unsigned  int iRecoEcalCand=0; iRecoEcalCand<recoecalcandHandle->size(); iRecoEcalCand++) {
     
-    reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle,iRecoEcalCand-recoecalcandHandle->begin());
+    reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle, iRecoEcalCand);//-recoecalcandHandle->begin());
 
     float r9 = -1;
 

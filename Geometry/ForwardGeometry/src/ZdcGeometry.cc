@@ -87,7 +87,7 @@ ZdcGeometry::newCell( const GlobalPoint& f1 ,
    const unsigned int di ( cgid.denseIndex() ) ;
 
    m_cellVec[ di ] = IdealZDCTrapezoid( f1, cornersMgr(), parm ) ;
-   m_validIds.push_back( detId ) ;
+   addValidID( detId ) ;
 }
 
 const CaloCellGeometry* 

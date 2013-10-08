@@ -6,7 +6,7 @@
 using namespace edm;
 using namespace reco;
 
-const RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::XYZVector myVector, const float size,  const float pt_min) const { 
+const RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::XYZVector& myVector, const float size,  const float pt_min) const { 
   
   RefVector<TrackCollection> tmp;
  
@@ -23,7 +23,7 @@ const RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::X
   return tmp;
 }
 
-const RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::XYZVector myVector, const float size,  const float pt_min, const float z_pv, const float dz_lt) const { 
+const RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::XYZVector& myVector, const float size,  const float pt_min, const float z_pv, const float dz_lt) const { 
   
   RefVector<TrackCollection> tmp;
  
@@ -73,7 +73,7 @@ const TrackRef IsolatedTauTagInfo::leadingSignalTrack(const float rm_cone, const
 }
 
 
-const TrackRef  IsolatedTauTagInfo::leadingSignalTrack(const math::XYZVector myVector, const float rm_cone, const float pt_min) const {
+const TrackRef  IsolatedTauTagInfo::leadingSignalTrack(const math::XYZVector& myVector, const float rm_cone, const float pt_min) const {
   const RefVector<TrackCollection> sTracks = tracksInCone(myVector, rm_cone, pt_min);
   TrackRef leadTk;
   float pt_cut = pt_min;
@@ -112,7 +112,7 @@ float IsolatedTauTagInfo::discriminator(float m_cone, float sig_cone, float iso_
   return myDiscriminator;
 }
 
-float IsolatedTauTagInfo::discriminator(math::XYZVector myVector, float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const
+float IsolatedTauTagInfo::discriminator(const math::XYZVector& myVector, float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const
 {
   double myDiscriminator = 0;
   //if signal cone is greater then the isolation cone and the leadTk exists, the jet is isolated.
@@ -157,7 +157,7 @@ float IsolatedTauTagInfo::discriminator(float m_cone, float sig_cone, float iso_
   return myDiscriminator;
 }
 
-float IsolatedTauTagInfo::discriminator(math::XYZVector myVector, float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const
+float IsolatedTauTagInfo::discriminator(const math::XYZVector& myVector, float m_cone, float sig_cone, float iso_cone, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const
 {
   double myDiscriminator = 0;
 

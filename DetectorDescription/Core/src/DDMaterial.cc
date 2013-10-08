@@ -122,26 +122,31 @@ double DDMaterial::density() const
 //  DCOUT_V('C',"DC: (redir) init=" << rep_ ); 
 //}   
 
+namespace {
+  std::ostream &doStream(std::ostream & os, const DDMaterial & mat, int level)
+  {
+    ++level; 
+    if (mat) {
+      os << '[' << mat.name() <<']' << " z=" << mat.z()
+                       << " a=" << mat.a()/g*mole << "*g/mole"
+                       << " d=" << mat.density()/g*cm3 << "*g/cm3";
+      std::string s(2*level,' ');
+      for (int i=0; i<mat.noOfConstituents(); ++i) {
+         DDMaterial::FractionV::value_type f = mat.constituent(i);
+         os << std::endl << s << i+1 << " : fm=" << f.second
+                    << " : ";
+         doStream(os, f.first, level);
+      }
+    }
+    else
+      os << "* material not declared * ";
+    --level;
+    return os;
+  }
+}
 
 std::ostream & operator<<(std::ostream & os, const DDMaterial & mat)
 { 
-  static int level=0;
-  ++level; 
-  if (mat) {
-    os << '[' << mat.name() <<']' << " z=" << mat.z() 
-                     << " a=" << mat.a()/g*mole << "*g/mole" 
-		     << " d=" << mat.density()/g*cm3 << "*g/cm3";
-    std::string s(2*level,' ');		     
-    for (int i=0; i<mat.noOfConstituents(); ++i) {
-       DDMaterial::FractionV::value_type f = mat.constituent(i);
-       os << std::endl << s << i+1 << " : fm=" << f.second 
-                  << " : " << f.first;
-    } 		     
-    //--level;
-  } 
-  else
-    os << "* material not declared * ";  
-  --level;   
-  return os;
+  return doStream(os, mat, 0);
 }
 

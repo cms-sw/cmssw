@@ -1,6 +1,5 @@
 using namespace std;
 #include "CastorSimpleReconstructor.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -27,7 +26,6 @@ CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& co
 reco_(conf.getParameter<int>("firstSample"),conf.getParameter<int>("samplesToAdd"),conf.getParameter<bool>("correctForTimeslew"),
       conf.getParameter<bool>("correctForPhaseContainment"),conf.getParameter<double>("correctionPhaseNS")),
 det_(DetId::Hcal),
-inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
 firstSample_(conf.getParameter<int>("firstSample")),
 samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
 maxADCvalue_(conf.getParameter<int>("maxADCvalue")),
@@ -35,6 +33,9 @@ tsFromDB_(conf.getParameter<bool>("tsFromDB")),
 setSaturationFlag_(conf.getParameter<bool>("setSaturationFlag")),
 doSaturationCorr_(conf.getParameter<bool>("doSaturationCorr"))
 {
+
+  tok_input_ = consumes<CastorDigiCollection>(conf.getParameter<edm::InputTag>("digiLabel"));
+
     std::string subd=conf.getParameter<std::string>("Subdetector");
     if (!strcasecmp(subd.c_str(),"CASTOR")) {
         det_=DetId::Calo;
@@ -81,7 +82,7 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
     
     if (det_==DetId::Calo && subdet_==HcalCastorDetId::SubdetectorId) {
         edm::Handle<CastorDigiCollection> digi;
-        e.getByLabel(inputLabel_,digi);
+        e.getByToken(tok_input_,digi);
         
         // create empty output
         std::auto_ptr<CastorRecHitCollection> rec(new CastorRecHitCollection);

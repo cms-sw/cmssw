@@ -5,7 +5,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -24,7 +24,7 @@ EcalClusterCrackCorrXMLTranslator::readXML(
 	   EcalCondHeader& header,
 	   EcalFunParams& record){
 
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
 
   XercesDOMParser* parser = new XercesDOMParser;
   parser->setValidationScheme( XercesDOMParser::Val_Never );
@@ -48,7 +48,7 @@ EcalClusterCrackCorrXMLTranslator::readXML(
   // need some extra code here
 
   delete parser;
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
   return 0;
 }
 
@@ -57,7 +57,7 @@ EcalClusterCrackCorrXMLTranslator::dumpXML(
 		       const EcalCondHeader&   header,
 		       const EcalFunParams& record){
   
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
   
   DOMImplementation*  impl =
     DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());

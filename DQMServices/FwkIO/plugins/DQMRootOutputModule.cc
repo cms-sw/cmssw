@@ -426,9 +426,8 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& i
   }
   
   edm::Service<edm::JobReport> jr;
-  jr->reportLumiSection(m_run,m_lumi);
+  jr->reportLumiSection(m_jrToken, m_run, m_lumi);
 }
-
 
 void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun, edm::ModuleCallingContext const*){
   //std::cout << "DQMRootOutputModule::writeRun"<< std::endl;
@@ -477,7 +476,7 @@ void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun, edm::ModuleCal
   }
   
   edm::Service<edm::JobReport> jr;
-  jr->reportRunNumber(m_run);  
+  jr->reportRunNumber(m_jrToken, m_run);  
 }
 
 void 

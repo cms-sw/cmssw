@@ -7,7 +7,7 @@
 // 
 
 #include "FWCore/MessageService/interface/SingleThreadMSPresence.h"
-#include "FWCore/MessageService/interface/MessageLoggerScribe.h"
+#include "FWCore/MessageService/interface/ThreadSafeLogMessageLoggerScribe.h"
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -25,8 +25,7 @@ SingleThreadMSPresence::SingleThreadMSPresence()
   //std::cout << "SingleThreadMSPresence ctor\n";
   MessageLoggerQ::setMLscribe_ptr(
      boost::shared_ptr<edm::service::AbstractMLscribe> 
-     (new MessageLoggerScribe(
-     boost::shared_ptr<ThreadQueue>())));
+     (new ThreadSafeLogMessageLoggerScribe()));
   MessageDrop::instance()->messageLoggerScribeIsRunning = 
   				MLSCRIBE_RUNNING_INDICATOR;
 }

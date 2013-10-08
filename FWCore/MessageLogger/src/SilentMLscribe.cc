@@ -67,7 +67,6 @@ namespace edm {
                delete errorobj_p;
                break;
             }
-            case MessageLoggerQ::JOBREPORT:
             case MessageLoggerQ::JOBMODE:
             case MessageLoggerQ::GROUP_STATS:
 	    {

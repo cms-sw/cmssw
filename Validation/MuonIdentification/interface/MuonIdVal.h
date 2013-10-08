@@ -75,6 +75,14 @@ class MuonIdVal : public edm::EDAnalyzer {
       edm::InputTag inputMuonTimeExtraValueMap_;
       edm::InputTag inputMuonCosmicCompatibilityValueMap_;
       edm::InputTag inputMuonShowerInformationValueMap_;
+      edm::EDGetTokenT<reco::MuonCollection> inputMuonCollectionToken_;
+      edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DCollectionToken_;
+      edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentCollectionToken_;
+      edm::EDGetTokenT<reco::MuonTimeExtraMap> inputMuonTimeExtraValueMapCombToken_;
+      edm::EDGetTokenT<reco::MuonTimeExtraMap> inputMuonTimeExtraValueMapDTToken_;
+      edm::EDGetTokenT<reco::MuonTimeExtraMap> inputMuonTimeExtraValueMapCSCToken_;
+      edm::EDGetTokenT<edm::ValueMap<reco::MuonCosmicCompatibility> > inputMuonCosmicCompatibilityValueMapToken_;
+      edm::EDGetTokenT<edm::ValueMap<reco::MuonShower> > inputMuonShowerInformationValueMapToken_;
       bool useTrackerMuons_;
       bool useGlobalMuons_;
       bool useTrackerMuonsNotGlobalMuons_;

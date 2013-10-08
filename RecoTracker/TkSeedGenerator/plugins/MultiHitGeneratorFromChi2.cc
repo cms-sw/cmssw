@@ -147,6 +147,8 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 
   //gc: initialize a KDTree per each 3rd layer
   std::vector<KDTreeNodeInfo<RecHitsSortedInPhi::HitIter> > layerTree; // re-used throughout
+  std::vector<RecHitsSortedInPhi::HitIter> foundNodes; // re-used thoughout
+  foundNodes.reserve(100);
   KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter> hitTree[size];
   float rzError[size]; //save maximum errors
   double maxphi = Geom::twoPi(), minphi = -maxphi; //increase to cater for any range
@@ -374,9 +376,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	*/
       }
       
-      //gc: this is the place where hits in the compatible region are put in the layerTree
+      //gc: this is the place where hits in the compatible region are put in the foundNodes
       typedef RecHitsSortedInPhi::Hit Hit;
-      layerTree.clear(); // Now recover hits in bounding box...
+      foundNodes.clear(); // Now recover hits in bounding box...
       float prmin=phiRange.min(), prmax=phiRange.max(); //get contiguous range
       if ((prmax-prmin) > Geom::twoPi())
 	{ prmax=Geom::pi(); prmin = -Geom::pi();}
@@ -403,13 +405,13 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 										<< " regMin: " << regMin.min() <<","<<regMin.max()
 										<< " regMax: " << regMax.min() <<","<<regMax.max()
 										<< endl;
-	hitTree[il].search(phiZ, layerTree);
+	hitTree[il].search(phiZ, foundNodes);
       }
       else {
 	KDTreeBox phiR(prmin-extraPhiKDBox, prmax+extraPhiKDBox,
 		       rzRange.min()-fnSigmaRZ*rzError[il],
 		       rzRange.max()+fnSigmaRZ*rzError[il]);
-	hitTree[il].search(phiR, layerTree);
+	hitTree[il].search(phiR, foundNodes);
 
 	if (debug && hit0->rawId()==debug_Id0 && hit1->rawId()==debug_Id1) cout << "kd tree box bounds, phi: " << prmin <<","<< prmax
 										<< " r: "<< rzRange.min()-fnSigmaRZ*rzError[il] <<","<<rzRange.max()+fnSigmaRZ*rzError[il] 
@@ -418,18 +420,18 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 
       }
 
-      if (debug && hit0->rawId()==debug_Id0 && hit1->rawId()==debug_Id1) cout << "kd tree box size: " << layerTree.size() << endl;
+      if (debug && hit0->rawId()==debug_Id0 && hit1->rawId()==debug_Id1) cout << "kd tree box size: " << foundNodes.size() << endl;
       
 
       //gc: now we loop over the hits in the box for this layer
-      for (std::vector<KDTreeNodeInfo<RecHitsSortedInPhi::HitIter> >::iterator ih = layerTree.begin();
-	   ih !=layerTree.end() && !usePair; ++ih) {
+      for (std::vector<RecHitsSortedInPhi::HitIter>::iterator ih = foundNodes.begin();
+	   ih !=foundNodes.end() && !usePair; ++ih) {
 
 
 
 	if (debug && hit0->rawId()==debug_Id0 && hit1->rawId()==debug_Id1) std::cout << "triplet candidate" << std::endl;
 
-	const RecHitsSortedInPhi::HitIter KDdata = (*ih).data;	
+	const RecHitsSortedInPhi::HitIter KDdata = *ih;
 
 	TransientTrackingRecHit::ConstRecHitPointer hit2 = KDdata->hit();
 	if (refitHits) {//fixme

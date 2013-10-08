@@ -78,15 +78,15 @@ private:
 
     void book1D(std::string name, int n, double min, double max);
 
-    void book1D(std::string name, HistLim limX);
+    void book1D(std::string name, const HistLim& limX);
 
     void fill1D(std::string name, double X, double weight = 1);
 
-    void book2D(std::string name, HistLim limX, HistLim limY);
+    void book2D(std::string name, const HistLim& limX, const HistLim& limY);
 
     void fill2D(std::string name, double X, double Y, double weight = 1);
 
-    void bookPf(std::string name, HistLim limX, HistLim limY);
+    void bookPf(std::string name, const HistLim& limX, const HistLim& limY);
 
     void fillPf(std::string name, double X, double Y);
 
@@ -96,7 +96,7 @@ private:
 
     std::string str(int x);
 
-    template<class Digi> void reco(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+    template<class Digi> void reco(const edm::Event& iEvent, const edm::EventSetup& iSetup, const edm::EDGetTokenT<edm::SortedCollection<Digi> > &tok);
     void eval_occupancy();
 
     std::string outputFile_;
@@ -107,6 +107,11 @@ private:
     std::string mode_;
     std::string mc_;
     int noise_;
+
+    edm::EDGetTokenT<edm::PCaloHitContainer> tok_mc_;
+    edm::EDGetTokenT<edm::SortedCollection<HBHEDataFrame> > tok_hbhe_; 
+    edm::EDGetTokenT<edm::SortedCollection<HODataFrame> > tok_ho_;
+    edm::EDGetTokenT<edm::SortedCollection<HFDataFrame> > tok_hf_;
 
     edm::ESHandle<CaloGeometry> geometry;
     edm::ESHandle<HcalDbService> conditions;

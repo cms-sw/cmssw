@@ -19,9 +19,9 @@ class AlphaTVarProducer : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
-  double CalcAlphaT(std::vector<TLorentzVector>);
-  static double CalcHT(const std::vector<TLorentzVector>);
-  static double CalcMHT(const std::vector<TLorentzVector>);
+  double CalcAlphaT(const std::vector<TLorentzVector>&);
+  static double CalcHT(const std::vector<TLorentzVector>&);
+  static double CalcMHT(const std::vector<TLorentzVector>&);
   static double deltaHt(const std::vector<double>&);
   static double alphaT(const double, const double, const double);
   

@@ -21,7 +21,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/util/XMLString.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -299,7 +299,7 @@ int XMLProcessor::init( void )
 {
   std::cerr << "Intializing Xerces-c...";
   try {
-    XMLPlatformUtils::Initialize();
+    cms::concurrency::xercesInitialize();
     //
     //_____ following removed as a xalan-c component_____________________
     //
@@ -324,7 +324,7 @@ int XMLProcessor::terminate( void )
   //std::cout << " done" << std::endl;
 
   std::cout << "Terminating Xerces-c...";
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
   std::cout << " done" << std::endl;
 
 

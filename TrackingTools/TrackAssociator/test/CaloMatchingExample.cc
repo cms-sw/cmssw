@@ -11,7 +11,6 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloMatchingExample.cc,v 1.10 2008/08/07 01:49:37 dmytro Exp $
 //
 //
 

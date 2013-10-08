@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
     <!-- ####### Constants common to all DTBX stations -->
     <ConstantsSection label="mbCommon.xml">
         <!--- #### Constants for all DT superlayers -->
@@ -97,7 +97,6 @@
         </SubtractionSolid>
         <!-- ####  DTBX Gas cell for chimney chambers -->
         <!--%% Effective gas volume.
-             
              This volume should not include the Ibeam horizontal bars (those that make the 'I' shape; without them it would be a '|') -->
         <Box name="MBChimSLPhiGas_a" dx="20.35*mm" dz="[MBGas_height]" dy="[MBChimSLPhiBareWire_length]"/>
         <Box name="MBChimSLPhiIBeamWing" dx="3.175*mm" dz="0.65*mm" dy="[MBChimSLPhiBareWire_length]"/>
@@ -271,16 +270,18 @@
             <rRotation name="rotations:R240"/>
             <Translation x="3.58935*m" y="-1.67306*m" z="0*fm"/>
         </PosPart>
-        <AlgoPosPart algo="global:angular">
+        <Algorithm name="global:DDAngular">
             <rParent name="muonBase:MBWheel_2P"/>
-            <rChild name="mbCommon:MBCablesBox_Int"/>
-            <ParE name="n" value="12"/>
-            <ParE name="radius" value="3.96012*m"/>
-            <ParE name="startAngle" value="5.0089*deg"/>
-            <ParE name="rotateSolid" value="0.*deg"/>
-            <ParE name="rotateSolid" value="0.*deg"/>
-            <ParE name="rotateSolid" value="264.9911*deg"/>
-        </AlgoPosPart>
+            <String name="ChildName" value="mbCommon:MBCablesBox_Int"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="12"/>
+            <Numeric name="Radius" value="3.96012*m"/>
+            <Numeric name="StartAngle" value="5.0089*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 264.9911*deg </Vector>
+        </Algorithm>
         <PosPart copyNumber="1">
             <rParent name="muonBase:MBWheel_1N"/>
             <rChild name="mbCommon:MBCablesBox_Int"/>
@@ -353,77 +354,67 @@
             <rRotation name="rotations:R240"/>
             <Translation x="3.58935*m" y="-1.67306*m" z="0*fm"/>
         </PosPart>
-        <AlgoPosPart algo="global:angular">
+        <Algorithm name="global:DDAngular">
             <rParent name="muonBase:MBWheel_2N"/>
-            <rChild name="mbCommon:MBCablesBox_Int"/>
-            <ParE name="n" value="12"/>
-            <ParE name="radius" value="3.96012*m"/>
-            <ParE name="startAngle" value="5.0089*deg"/>
-            <ParE name="rotateSolid" value="0.*deg"/>
-            <ParE name="rotateSolid" value="0.*deg"/>
-            <ParE name="rotateSolid" value="264.9911*deg"/>
-        </AlgoPosPart>
+            <String name="ChildName" value="mbCommon:MBCablesBox_Int"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="12"/>
+            <Numeric name="Radius" value="3.96012*m"/>
+            <Numeric name="StartAngle" value="5.0089*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 264.9911*deg </Vector>
+        </Algorithm>
         <!--%%%%%%%%%%%  Cables outside wheels -->
-        <AlgoPosPart algo="global:angular">
+        <Algorithm name="global:DDAngular">
             <rParent name="muonBase:MB"/>
-            <rChild name="mbCommon:MBCables_Wheels0_1"/>
-            <ParE name="n" value="6"/>
-            <ParE name="radius" value="5.85*m"/>
-            <ParE name="startAngle" value="0.*deg"/>
-            <ParE name="rotateSolid" value="0.*deg"/>
-            <ParE name="rotateSolid" value="0.*deg"/>
-            <ParE name="rotateSolid" value="0.00*deg"/>
-            <ParE name="center" value="0"/>
-            <ParE name="center" value="0"/>
-            <ParE name="center" value="-1.322*m"/>
-            <ParE name="startCopyNo" value="1"/>
-            <ParE name="incrCopyNo" value="1"/>
-        </AlgoPosPart>
-        <AlgoPosPart algo="global:angular">
+            <String name="ChildName" value="mbCommon:MBCables_Wheels0_1"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="6"/>
+            <Numeric name="Radius" value="5.85*m"/>
+            <Numeric name="StartAngle" value="0.*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.00*deg </Vector>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -1.322*m </Vector>
+        </Algorithm>
+        <Algorithm name="global:DDAngular">
             <rParent name="muonBase:MB"/>
-            <rChild name="mbCommon:MBCables_Wheels0_1"/>
-            <ParE name="n" value="6"/>
-            <ParE name="radius" value="5.85*m"/>
-            <ParE name="startAngle" value="30.*deg"/>
-            <ParE name="rotateSolid" value="0.*deg"/>
-            <ParE name="rotateSolid" value="0.*deg"/>
-            <ParE name="rotateSolid" value="0.00*deg"/>
-            <ParE name="center" value="0"/>
-            <ParE name="center" value="0"/>
-            <ParE name="center" value="1.322*m"/>
-            <ParE name="startCopyNo" value="7"/>
-            <ParE name="incrCopyNo" value="1"/>
-        </AlgoPosPart>
-        <AlgoPosPart algo="global:angular">
+            <String name="ChildName" value="mbCommon:MBCables_Wheels0_1"/>
+            <Numeric name="N" value="6"/>
+            <Numeric name="Radius" value="5.85*m"/>
+            <Numeric name="StartAngle" value="30.*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.00*deg </Vector>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 1.322*m </Vector>
+            <Numeric name="StartCopyNo" value="7"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+        </Algorithm>
+        <Algorithm name="global:DDAngular">
             <rParent name="muonBase:MB"/>
-            <rChild name="mbCommon:MBCables_Wheels1_2"/>
-            <ParE name="n" value="6"/>
-            <ParE name="radius" value="5.85*m"/>
-            <ParE name="startAngle" value="0.*deg"/>
-            <ParE name="rotateSolid" value="0.*deg"/>
-            <ParE name="rotateSolid" value="0.*deg"/>
-            <ParE name="rotateSolid" value="0.00*deg"/>
-            <ParE name="center" value="0"/>
-            <ParE name="center" value="0"/>
-            <ParE name="center" value="-3.9865*m"/>
-            <ParE name="startCopyNo" value="1"/>
-            <ParE name="incrCopyNo" value="1"/>
-        </AlgoPosPart>
-        <AlgoPosPart algo="global:angular">
+            <String name="ChildName" value="mbCommon:MBCables_Wheels1_2"/>
+            <Numeric name="N" value="6"/>
+            <Numeric name="Radius" value="5.85*m"/>
+            <Numeric name="StartAngle" value="0.*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.00*deg </Vector>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -3.9865*m </Vector>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+        </Algorithm>
+        <Algorithm name="global:DDAngular">
             <rParent name="muonBase:MB"/>
-            <rChild name="mbCommon:MBCables_Wheels1_2"/>
-            <ParE name="n" value="6"/>
-            <ParE name="radius" value="5.85*m"/>
-            <ParE name="startAngle" value="30.*deg"/>
-            <ParE name="rotateSolid" value="0.*deg"/>
-            <ParE name="rotateSolid" value="0.*deg"/>
-            <ParE name="rotateSolid" value="0.00*deg"/>
-            <ParE name="center" value="0"/>
-            <ParE name="center" value="0"/>
-            <ParE name="center" value="3.9865*m"/>
-            <ParE name="startCopyNo" value="7"/>
-            <ParE name="incrCopyNo" value="1"/>
-        </AlgoPosPart>
+            <String name="ChildName" value="mbCommon:MBCables_Wheels1_2"/>
+            <Numeric name="N" value="6"/>
+            <Numeric name="Radius" value="5.85*m"/>
+            <Numeric name="StartAngle" value="30.*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.00*deg </Vector>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 3.9865*m </Vector>
+            <Numeric name="StartCopyNo" value="7"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+        </Algorithm>
         <PosPart copyNumber="1">
             <rParent name="muonBase:MB"/>
             <rChild name="mbCommon:MBCables_Ext"/>

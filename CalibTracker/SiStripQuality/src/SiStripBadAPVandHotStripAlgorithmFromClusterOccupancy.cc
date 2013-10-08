@@ -363,7 +363,7 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::extractBadAPVSandStr
 }
 
 
-void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::CalculateMeanAndRMS(std::vector<Apv> a, std::pair<double,double>* MeanRMS, int number_iterations)
+void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::CalculateMeanAndRMS(const std::vector<Apv>& a, std::pair<double,double>* MeanRMS, int number_iterations)
 {
   Double_t tot[7], tot2[7];
   Double_t n[7];

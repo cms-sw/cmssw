@@ -6,14 +6,13 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
 
     Name = cms.untracked.string('photonAnalysis'),
 
-    phoProducer = cms.string('photons'),
-    photonCollection = cms.string(''),
+    phoProducer = cms.InputTag('photons'),
 
-    barrelRecHitProducer = cms.string('reducedEcalRecHitsEB'),
-    barrelRecHitCollection = cms.string(''),
+    photonIDLoose = cms.InputTag('PhotonIDProd:PhotonCutBasedIDLoose'),
+    photonIDTight = cms.InputTag('PhotonIDProd:PhotonCutBasedIDTight'),																
 
-    endcapRecHitProducer = cms.string('reducedEcalRecHitsEE'),
-    endcapRecHitCollection = cms.string(''),
+    barrelRecHitProducer = cms.InputTag('reducedEcalRecHitsEB'),								
+    endcapRecHitProducer = cms.InputTag('reducedEcalRecHitsEE'),
 
     triggerEvent = cms.InputTag("hltTriggerSummaryAOD",""),                            
     prescaleFactor = cms.untracked.int32(1),

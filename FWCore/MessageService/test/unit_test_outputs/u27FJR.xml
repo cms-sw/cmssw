@@ -10,7 +10,4 @@
   <LogSystem_LogAbsolute  Value="0" />
   <LogWarnng_LogPrint  Value="0" />
 </MessageSummary>
-
-<GeneratorInfo>
-</GeneratorInfo>
 </FrameworkJobReport>

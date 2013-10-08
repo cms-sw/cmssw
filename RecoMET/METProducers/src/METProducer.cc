@@ -27,8 +27,6 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -56,10 +54,13 @@ namespace cms
     , inputType(iConfig.getParameter<std::string>("InputType"))
     , METtype(iConfig.getParameter<std::string>("METType"))
     , alias(iConfig.getParameter<std::string>("alias"))
+    , inputToken_(consumes<edm::View<reco::Candidate> >(inputLabel))
     , calculateSignificance_(false)
     , resolutions_(0)
     , globalThreshold(iConfig.getParameter<double>("globalThreshold"))
   {
+
+
     if( METtype == "CaloMET" ) 
       {
 	noHF = iConfig.getParameter<bool>("noHF");
@@ -82,6 +83,7 @@ namespace cms
 	if(calculateSignificance_)
 	  {
 	    jetsLabel_ = iConfig.getParameter<edm::InputTag>("jets");
+	    jetToken_ = consumes<edm::View<reco::PFJet> >(iConfig.getParameter<edm::InputTag>("jets"));
 	  }
 
       }
@@ -91,6 +93,24 @@ namespace cms
       }
     else if (METtype == "TCMET" )
       {
+	muonToken_ = consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muonInputTag"));
+	electronToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronInputTag"));
+	metToken_ = consumes<edm::View<reco::MET> >(iConfig.getParameter<edm::InputTag>("metInputTag"));
+	trackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackInputTag"));
+	beamSpotToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"));
+	vertexToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexInputTag"));
+
+	if(iConfig.getParameter<bool> ("usePFClusters"))
+	  {
+	    clustersECALToken_ = consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersECAL"));
+	    clustersHCALToken_ = consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHCAL"));
+	    clustersHFEMToken_ = consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHFEM"));
+	    clustersHFHADToken_ = consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHFHAD"));
+	  }
+
+	muonDepValueMapToken_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(iConfig.getParameter<edm::InputTag>("muonDepValueMap"));
+	tcmetDepValueMapToken_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(iConfig.getParameter<edm::InputTag>("tcmetDepValueMap"));
+
 	produces<reco::METCollection>().setBranchAlias(alias.c_str());
 
 	int rfType_               = iConfig.getParameter<int>("rf_type");
@@ -103,7 +123,13 @@ namespace cms
 	    else if( rfType_ == 2 ) responseFunctionType = 2; // 'mode'
 	    else { /* probably error */ }
 	  }
-	tcMetAlgo_.configure(iConfig, responseFunctionType );
+	tcMetAlgo_.configure(iConfig, responseFunctionType,
+			     &muonToken_, &electronToken_, &metToken_, &trackToken_,
+			     &beamSpotToken_, &vertexToken_,
+			     &clustersECALToken_, &clustersHCALToken_,
+			     &clustersHFEMToken_, &clustersHFHADToken_,
+			     &muonDepValueMapToken_, &tcmetDepValueMapToken_
+			     );
       }
     else                            
       produces<reco::METCollection>().setBranchAlias(alias.c_str()); 
@@ -153,7 +179,7 @@ namespace cms
   void METProducer::produce_CaloMET(edm::Event& event)
   {
     edm::Handle<edm::View<reco::Candidate> > input;
-    event.getByLabel(inputLabel, input);
+    event.getByToken(inputToken_, input);
 
     METAlgo algo;
     CommonMETData commonMETdata = algo.run(input, globalThreshold);
@@ -186,7 +212,7 @@ namespace cms
   void METProducer::produce_PFMET(edm::Event& event)
   {
     edm::Handle<edm::View<reco::Candidate> > input;
-    event.getByLabel(inputLabel, input);
+    event.getByToken(inputToken_, input);
 
     METAlgo algo;
     CommonMETData commonMETdata = algo.run(input, globalThreshold);
@@ -196,7 +222,7 @@ namespace cms
     if( calculateSignificance_ )
       {
 	edm::Handle<edm::View<reco::PFJet> > jets;
-	event.getByLabel(jetsLabel_, jets);
+	event.getByToken(jetToken_, jets);
 	pf.runSignificance(*resolutions_, jets);
       }
 
@@ -209,7 +235,7 @@ namespace cms
   void METProducer::produce_PFClusterMET(edm::Event& event)
   {
     edm::Handle<edm::View<reco::Candidate> > input;
-    event.getByLabel(inputLabel, input);
+    event.getByToken(inputToken_, input);
 
     METAlgo algo;
     CommonMETData commonMETdata = algo.run(input, globalThreshold);
@@ -225,7 +251,7 @@ namespace cms
   void METProducer::produce_GenMET(edm::Event& event)
   {
     edm::Handle<edm::View<reco::Candidate> > input;
-    event.getByLabel(inputLabel, input);
+    event.getByToken(inputToken_, input);
 
     CommonMETData commonMETdata;
 
@@ -239,7 +265,7 @@ namespace cms
   void METProducer::produce_else(edm::Event& event)
   {
     edm::Handle<edm::View<reco::Candidate> > input;
-    event.getByLabel(inputLabel, input);
+    event.getByToken(inputToken_, input);
 
     CommonMETData commonMETdata;
 

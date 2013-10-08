@@ -27,8 +27,7 @@
 
 EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps)
 {
-        ebUncalibRecHitCollection_ = ps.getParameter<edm::InputTag>("EBuncalibRecHitCollection");
-        eeUncalibRecHitCollection_ = ps.getParameter<edm::InputTag>("EEuncalibRecHitCollection");
+       
         ebRechitCollection_        = ps.getParameter<std::string>("EBrechitCollection");
         eeRechitCollection_        = ps.getParameter<std::string>("EErechitCollection");
 
@@ -40,20 +39,34 @@ EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps)
         recoverEEFE_                 = ps.getParameter<bool>("recoverEEFE");
         killDeadChannels_            = ps.getParameter<bool>("killDeadChannels");
 
-        ebDetIdToBeRecovered_        = ps.getParameter<edm::InputTag>("ebDetIdToBeRecovered");
-        eeDetIdToBeRecovered_        = ps.getParameter<edm::InputTag>("eeDetIdToBeRecovered");
-        ebFEToBeRecovered_           = ps.getParameter<edm::InputTag>("ebFEToBeRecovered");
-        eeFEToBeRecovered_           = ps.getParameter<edm::InputTag>("eeFEToBeRecovered");
-
+   
         produces< EBRecHitCollection >(ebRechitCollection_);
         produces< EERecHitCollection >(eeRechitCollection_);
 
+	
+	ebUncalibRecHitToken_ = 
+	  consumes<EBUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("EBuncalibRecHitCollection"));
+	
+	eeUncalibRecHitToken_ = 
+	  consumes<EEUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("EEuncalibRecHitCollection"));
+
+        ebDetIdToBeRecoveredToken_ = 
+	  consumes<std::set<EBDetId>>(ps.getParameter<edm::InputTag>("ebDetIdToBeRecovered"));  
+	
+	eeDetIdToBeRecoveredToken_=        
+	  consumes<std::set<EEDetId>>(ps.getParameter<edm::InputTag>("eeDetIdToBeRecovered"));
+
+	ebFEToBeRecoveredToken_ = consumes<std::set<EcalTrigTowerDetId>>(ps.getParameter<edm::InputTag>("ebFEToBeRecovered"));
+
+        eeFEToBeRecoveredToken_= consumes<std::set<EcalScDetId>>( ps.getParameter<edm::InputTag>("eeFEToBeRecovered"))   ;
+
         std::string componentType = ps.getParameter<std::string>("algo");
-        worker_ = EcalRecHitWorkerFactory::get()->create(componentType, ps);
+	edm::ConsumesCollector c{consumesCollector()};
+        worker_ = EcalRecHitWorkerFactory::get()->create(componentType, ps, c);
 
         // to recover problematic channels
         componentType = ps.getParameter<std::string>("algoRecover");
-        workerRecover_ = EcalRecHitWorkerFactory::get()->create(componentType, ps);
+        workerRecover_ = EcalRecHitWorkerFactory::get()->create(componentType, ps, c);
 
 	edm::ParameterSet cleaningPs = 
 	  ps.getParameter<edm::ParameterSet>("cleaningConfig");
@@ -79,26 +92,17 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         const EEUncalibratedRecHitCollection*  eeUncalibRecHits = 0; 
 
         // get the barrel uncalib rechit collection
-        if ( ebUncalibRecHitCollection_.label() != "" && ebUncalibRecHitCollection_.instance() != "" ) {
-                evt.getByLabel( ebUncalibRecHitCollection_, pEBUncalibRecHits);
-                if ( pEBUncalibRecHits.isValid() ) {
-                        ebUncalibRecHits = pEBUncalibRecHits.product();
-                        LogDebug("EcalRecHitDebug") << "total # EB uncalibrated rechits: " << ebUncalibRecHits->size();
-                } else {
-                        edm::LogError("EcalRecHitError") << "Error! can't get the product " << ebUncalibRecHitCollection_;
-                }
-        }
+       
+	evt.getByToken( ebUncalibRecHitToken_, pEBUncalibRecHits);
+	ebUncalibRecHits = pEBUncalibRecHits.product();
+	LogDebug("EcalRecHitDebug") << "total # EB uncalibrated rechits: " << ebUncalibRecHits->size();
+        
 
-        if ( eeUncalibRecHitCollection_.label() != "" && eeUncalibRecHitCollection_.instance() != "" ) {
-                evt.getByLabel( eeUncalibRecHitCollection_, pEEUncalibRecHits);
-                if ( pEEUncalibRecHits.isValid() ) {
-                        eeUncalibRecHits = pEEUncalibRecHits.product(); // get a ptr to the product
-                        LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits: " << eeUncalibRecHits->size();
-                } else {
-                        edm::LogError("EcalRecHitError") << "Error! can't get the product " << eeUncalibRecHitCollection_;
-                }
-        }
-
+       
+	evt.getByToken( eeUncalibRecHitToken_, pEEUncalibRecHits);
+	eeUncalibRecHits = pEEUncalibRecHits.product(); // get a ptr to the product
+	LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits: " << eeUncalibRecHits->size();
+       
         // collection of rechits to put in the event
         std::auto_ptr< EBRecHitCollection > ebRecHits( new EBRecHitCollection );
         std::auto_ptr< EERecHitCollection > eeRecHits( new EERecHitCollection );
@@ -136,14 +140,10 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         {
                 edm::Handle< std::set<EBDetId> > pEBDetId;
                 const std::set<EBDetId> * detIds = 0;
-                if ( ebDetIdToBeRecovered_.label() != "" && ebDetIdToBeRecovered_.instance() != "" ) {
-                        evt.getByLabel( ebDetIdToBeRecovered_, pEBDetId);
-                        if ( pEBDetId.isValid() ) {
-                                detIds = pEBDetId.product();
-                        } else {
-                                edm::LogError("EcalRecHitError") << "Error! can't get the product " << ebDetIdToBeRecovered_;
-                        }
-                }
+		evt.getByToken( ebDetIdToBeRecoveredToken_, pEBDetId);
+		detIds = pEBDetId.product();
+                       
+
                 if ( detIds ) {
                         edm::ESHandle<EcalChannelStatus> chStatus;
                         es.get<EcalChannelStatusRcd>().get(chStatus);
@@ -177,14 +177,10 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         {
                 edm::Handle< std::set<EEDetId> > pEEDetId;
                 const std::set<EEDetId> * detIds = 0;
-                if ( eeDetIdToBeRecovered_.label() != "" && eeDetIdToBeRecovered_.instance() != "" ) {
-                        evt.getByLabel( eeDetIdToBeRecovered_, pEEDetId);
-                        if ( pEEDetId.isValid() ) {
-                                detIds = pEEDetId.product();
-                        } else {
-                                edm::LogError("EcalRecHitError") << "Error! can't get the product " << eeDetIdToBeRecovered_;
-                        }
-                }
+               
+		evt.getByToken( eeDetIdToBeRecoveredToken_, pEEDetId);
+		detIds = pEEDetId.product();
+	        
                 if ( detIds ) {
                         edm::ESHandle<EcalChannelStatus> chStatus;
                         es.get<EcalChannelStatusRcd>().get(chStatus);
@@ -217,14 +213,10 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         {
                 edm::Handle< std::set<EcalTrigTowerDetId> > pEBFEId;
                 const std::set<EcalTrigTowerDetId> * ttIds = 0;
-                if ( ebFEToBeRecovered_.label() != "" && ebFEToBeRecovered_.instance() != "" ) {
-                        evt.getByLabel( ebFEToBeRecovered_, pEBFEId);
-                        if ( pEBFEId.isValid() ) {
-                                ttIds = pEBFEId.product();
-                        } else {
-                                edm::LogError("EcalRecHitError") << "Error! can't get the product " << ebFEToBeRecovered_;
-                        }
-                }
+               
+		evt.getByToken( ebFEToBeRecoveredToken_, pEBFEId);
+		ttIds = pEBFEId.product();
+                
                 if ( ttIds ) {
                         for( std::set<EcalTrigTowerDetId>::const_iterator it = ttIds->begin(); it != ttIds->end(); ++it ) {
                                 // uses the EcalUncalibratedRecHit to pass the DetId info
@@ -241,14 +233,11 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         {
                 edm::Handle< std::set<EcalScDetId> > pEEFEId;
                 const std::set<EcalScDetId> * scIds = 0;
-                if ( eeFEToBeRecovered_.label() != "" && eeFEToBeRecovered_.instance() != "" ) {
-                        evt.getByLabel( eeFEToBeRecovered_, pEEFEId);
-                        if ( pEEFEId.isValid() ) {
-                                scIds = pEEFEId.product();
-                        } else {
-                                edm::LogError("EcalRecHitError") << "Error! can't get the product " << eeFEToBeRecovered_;
-                        }
-                }
+            
+		evt.getByToken( eeFEToBeRecoveredToken_, pEEFEId);
+		scIds = pEEFEId.product();
+	
+	        
                 if ( scIds ) {
                         for( std::set<EcalScDetId>::const_iterator it = scIds->begin(); it != scIds->end(); ++it ) {
                                 // uses the EcalUncalibratedRecHit to pass the DetId info

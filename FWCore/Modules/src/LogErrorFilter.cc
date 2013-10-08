@@ -117,12 +117,12 @@ LogErrorFilter::filter(edm::Event& iEvent, edm::EventSetup const&) {
 	  continue;
 	std::string kind= iSummary.category + ":" + iSummary.module;
 	int iSeverity = iSummary.severity.getLevel();
-	if (iSeverity == edm::ELseverityLevel::ELsev_error || iSeverity == edm::ELseverityLevel::ELsev_error2 ){
+	if (iSeverity == edm::ELseverityLevel::ELsev_error){
 	  unsigned int& iCount = errorCounts_[kind];
 	  iCount++;
 	  if (iCount <= maxErrorKindsPerLumi_) errorsBelowThreshold++;
 	}
-	if (iSeverity == edm::ELseverityLevel::ELsev_warning || iSeverity == edm::ELseverityLevel::ELsev_warning2 ){
+	if (iSeverity == edm::ELseverityLevel::ELsev_warning){
 	  unsigned int& iCount = warningCounts_[kind];
 	  iCount++;
 	  if (iCount <= maxWarningKindsPerLumi_) warningsBelowThreshold++;
@@ -160,11 +160,11 @@ LogErrorFilter::filter(edm::Event& iEvent, edm::EventSetup const&) {
 	    }
 	    edm::ELseverityLevel const& severity = ((*errorsAndWarnings)[iE]).severity;
 	    //count errors
-	    if(severity.getLevel() == edm::ELseverityLevel::ELsev_error || severity.getLevel() == edm::ELseverityLevel::ELsev_error2) {
+	    if(severity.getLevel() == edm::ELseverityLevel::ELsev_error) {
 	      ++nError;
 	    }
 	    //count warnings
-	    if(severity.getLevel() == edm::ELseverityLevel::ELsev_warning || severity.getLevel() == edm::ELseverityLevel::ELsev_warning2) {
+	    if(severity.getLevel() == edm::ELseverityLevel::ELsev_warning) {
 	      ++nWarning;
 	    }
 	  }

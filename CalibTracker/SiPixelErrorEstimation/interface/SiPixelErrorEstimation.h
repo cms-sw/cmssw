@@ -46,6 +46,9 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+
 #include <string>
 
 #include <TROOT.h>
@@ -75,6 +78,10 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
  private: 
   
   edm::ParameterSet conf_;
+  edm::EDGetTokenT<std::vector<Trajectory>> tTrajectory;
+  edm::EDGetTokenT<SiPixelRecHitCollection> tPixRecHitCollection;
+  edm::EDGetTokenT <edm::SimTrackContainer> tSimTrackContainer;
+  edm::EDGetTokenT <reco::TrackCollection> tTrackCollection; 
   std::string outputFile_;
   std::string src_;
   bool checkType_; // do we check that the simHit associated with recHit is of the expected particle type ?

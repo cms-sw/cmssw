@@ -619,7 +619,7 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
   }
 }
 
-double EgammaObjects::findRecoMass(reco::Photon pOne, reco::Photon pTwo)
+double EgammaObjects::findRecoMass(const reco::Photon& pOne,const reco::Photon& pTwo)
 {
   double cosTheta
     = (cos(pOne.superCluster()->phi() - pTwo.superCluster()->phi()) + sinh(pOne.superCluster()->eta()) * sinh(pTwo.superCluster()->eta())) /
@@ -630,7 +630,7 @@ double EgammaObjects::findRecoMass(reco::Photon pOne, reco::Photon pTwo)
   return recoMass;
 }
 
-double EgammaObjects::findRecoMass(reco::GsfElectron eOne, reco::GsfElectron eTwo)
+double EgammaObjects::findRecoMass(const reco::GsfElectron& eOne, const reco::GsfElectron& eTwo)
 {
   double cosTheta
     = (cos(eOne.caloPosition().phi() - eTwo.caloPosition().phi()) + sinh(eOne.caloPosition().eta()) * sinh(eTwo.caloPosition().eta())) /

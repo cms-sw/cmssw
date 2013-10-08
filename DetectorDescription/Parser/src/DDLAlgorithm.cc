@@ -19,7 +19,7 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 #include <sstream>
 
@@ -57,7 +57,7 @@ DDLAlgorithm::processElement( const std::string& name, const std::string& nmspac
   for( ; i < myNumeric->size(); ++i )
   {
     atts = myNumeric->getAttributeSet( i );
-    nArgs[atts.find( "name" )->second] = ExprEvalSingleton::instance().eval( nmspace, atts.find( "value" )->second );
+    nArgs[atts.find( "name" )->second] = myRegistry_->evaluator().eval( nmspace, atts.find( "value" )->second );
   }
 
   DDStringArguments sArgs;

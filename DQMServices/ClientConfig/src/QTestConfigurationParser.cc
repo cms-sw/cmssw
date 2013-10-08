@@ -20,7 +20,7 @@ QTestConfigurationParser::QTestConfigurationParser(){
 
 	try { 
 		if (s_numberOfInstances==0) 
-		XMLPlatformUtils::Initialize();  
+		cms::concurrency::xercesInitialize();  
 	}
 	catch (const XMLException& e) {
 		throw(std::runtime_error("Standard pool exception : Fatal Error on pool::TrivialFileCatalog"));

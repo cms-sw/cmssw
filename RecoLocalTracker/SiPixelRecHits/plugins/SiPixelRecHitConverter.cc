@@ -54,6 +54,7 @@ namespace cms
     src_( conf.getParameter<edm::InputTag>( "src" ) ),
     theVerboseLevel(conf.getUntrackedParameter<int>("VerboseLevel",0))
   {
+    tPixelCluster = consumes< edmNew::DetSetVector<SiPixelCluster> >( src_);
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelRecHitCollection>();
    
@@ -80,7 +81,7 @@ namespace cms
 
     // Step A.1: get input data
     edm::Handle< edmNew::DetSetVector<SiPixelCluster> > input;
-    e.getByLabel( src_, input);
+    e.getByToken( tPixelCluster, input);
     
     // Step A.2: get event setup
     edm::ESHandle<TrackerGeometry> geom;

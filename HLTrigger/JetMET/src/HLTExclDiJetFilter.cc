@@ -9,9 +9,6 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-//#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-//#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -37,6 +34,7 @@ HLTExclDiJetFilter<T>::HLTExclDiJetFilter(const edm::ParameterSet& iConfig) :
   triggerType_    (iConfig.template getParameter<int> ("triggerType"))
 {
   m_theJetToken = consumes<std::vector<T>>(inputJetTag_);
+  m_theCaloTowerCollectionToken = consumes<CaloTowerCollection>(edm::InputTag("hltTowerMakerForAll"));
   LogDebug("") << "HLTExclDiJetFilter: Input/minPtJet/minHFe/HF_OR/triggerType : "
 	       << inputJetTag_.encode() << " "
 	       << minPtJet_ << " " 
@@ -133,7 +131,7 @@ HLTExclDiJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
      double ehfm(0.);
 
      Handle<CaloTowerCollection> o;
-     iEvent.getByLabel("hltTowerMakerForAll",o);
+     iEvent.getByToken(m_theCaloTowerCollectionToken,o);
 //     if( o.isValid()) {
       for( CaloTowerCollection::const_iterator cc = o->begin(); cc != o->end(); ++cc ) {
        if(std::abs(cc->ieta())>28 && cc->energy()<4.0) continue;

@@ -89,6 +89,7 @@ class ReadPixClusters : public edm::EDAnalyzer {
  private:
   edm::ParameterSet conf_;
   edm::InputTag src_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>>tPixelCluster;
   bool printLocal;
   int countEvents, countAllEvents;
   double sumClusters;
@@ -139,7 +140,7 @@ ReadPixClusters::ReadPixClusters(edm::ParameterSet const& conf)
   printLocal = conf.getUntrackedParameter<bool>("Verbosity",false);
   //src_ =  conf.getParameter<edm::InputTag>( "src" );
   cout<<" Construct "<<printLocal<<endl;
-
+  tPixelCluster = consumes<edmNew::DetSetVector<SiPixelCluster>>( src_ );
 }
 // Virtual destructor needed.
 ReadPixClusters::~ReadPixClusters() { }  
@@ -374,7 +375,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
 
   // Get Cluster Collection from InputTag
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> > clusters;
-  e.getByLabel( src_ , clusters);
+  e.getByToken( tPixelCluster , clusters);
 
   const edmNew::DetSetVector<SiPixelCluster>& input = *clusters;     
   int numOf = input.size();

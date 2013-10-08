@@ -41,7 +41,7 @@ PixelDACScanRange::PixelDACScanRange(std::string name, unsigned int first,
 }
 
 PixelDACScanRange::PixelDACScanRange(std::string name, 
-				     std::vector<unsigned int> values,
+				     const std::vector<unsigned int>& values,
                                      unsigned int index, bool mixValuesAcrossROCs){
 
   uniformSteps_=false;

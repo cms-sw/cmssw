@@ -20,7 +20,7 @@
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
-#include "DataFormats/Provenance/interface/BranchMapper.h"
+#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventEntryDescription.h" // kludge to allow compilation
@@ -122,7 +122,7 @@ namespace edm {
       reader_(new FWLiteDelayedReader),
       prov_(),
       pointerToBranchBuffer_(),
-      mapper_(new edm::BranchMapper) {
+      provRetriever_(new edm::ProductProvenanceRetriever(0)) {
         reader_->set(reg_);
       }
       void setTree(TTree* iTree) {
@@ -139,7 +139,7 @@ namespace edm {
       std::vector<EventEntryDescription*> pointerToBranchBuffer_;
       FileFormatVersion fileFormatVersion_;
 
-      boost::shared_ptr<edm::BranchMapper> mapper_;
+      boost::shared_ptr<edm::ProductProvenanceRetriever> provRetriever_;
       edm::ProcessConfiguration pc_;
       boost::shared_ptr<edm::EventPrincipal> ep_;
       edm::ModuleDescription md_;
@@ -262,8 +262,8 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 //         std::cout << "  " << name << std::endl;
 //     }
 
-      boost::shared_ptr<edm::EventSelectionIDVector> eventSelectionIDs_(new edm::EventSelectionIDVector);
-      edm::EventSelectionIDVector* pEventSelectionIDVector = eventSelectionIDs_.get();
+      edm::EventSelectionIDVector eventSelectionIDs;
+      edm::EventSelectionIDVector* pEventSelectionIDVector = &eventSelectionIDs;
       TBranch* eventSelectionsBranch = m_->tree_->GetBranch(edm::poolNames::eventSelectionsBranchName().c_str());
       if(!eventSelectionsBranch) {
         throw edm::Exception(edm::errors::FatalRootError)
@@ -272,8 +272,8 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       eventSelectionsBranch->SetAddress(&pEventSelectionIDVector);
       eventSelectionsBranch->GetEntry(iEntry);
 
-      boost::shared_ptr<edm::BranchListIndexes> branchListIndexes_(new edm::BranchListIndexes);
-      edm::BranchListIndexes* pBranchListIndexes = branchListIndexes_.get();
+      edm::BranchListIndexes branchListIndexes;
+      edm::BranchListIndexes* pBranchListIndexes = &branchListIndexes;
       TBranch* branchListIndexBranch = m_->tree_->GetBranch(edm::poolNames::branchListIndexesBranchName().c_str());
       if(!branchListIndexBranch) {
         throw edm::Exception(edm::errors::FatalRootError)
@@ -281,7 +281,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       }
       branchListIndexBranch->SetAddress(&pBranchListIndexes);
       branchListIndexBranch->GetEntry(iEntry);
-      m_->branchIDListHelper_->fixBranchListIndexes(*branchListIndexes_);
+      m_->branchIDListHelper_->fixBranchListIndexes(branchListIndexes);
 
       try {
          m_->reader_->setEntry(iEntry);
@@ -291,7 +291,12 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
                 new edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
          boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(
                 new edm::LuminosityBlockPrincipal(lumiAux, m_->reg_, m_->pc_, nullptr, 0));
-         m_->ep_->fillEventPrincipal(*eaux, *m_->phreg_, eventSelectionIDs_, branchListIndexes_, m_->mapper_, m_->reader_.get());
+        m_->ep_->fillEventPrincipal(*eaux,
+                                    *m_->phreg_,
+                                    std::move(eventSelectionIDs),
+                                    std::move(branchListIndexes),
+                                    *(m_->provRetriever_),
+                                    m_->reader_.get());
          lbp->setRunPrincipal(rp);
          m_->ep_->setLuminosityBlockPrincipal(lbp);
          m_->processNames_ = m_->ep_->processHistory();

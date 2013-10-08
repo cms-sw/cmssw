@@ -2,7 +2,6 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRSignalSelCalc.h,v 1.2 2008/02/17 11:18:54 rwolf Exp $
 //
 
 #ifndef TtSemiLRSignalSelCalc_h

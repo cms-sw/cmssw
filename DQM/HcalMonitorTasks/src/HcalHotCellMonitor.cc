@@ -26,6 +26,11 @@ HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps)
   hoRechitLabel_         = ps.getUntrackedParameter<edm::InputTag>("hoRechitLabel");
   hfRechitLabel_         = ps.getUntrackedParameter<edm::InputTag>("hfRechitLabel");
 
+  // register for data access
+  tok_hbhe_ = consumes<HBHERecHitCollection>(hbheRechitLabel_);
+  tok_ho_ = consumes<HORecHitCollection>(hoRechitLabel_);
+  tok_hf_ = consumes<HFRecHitCollection>(hfRechitLabel_);
+
   // Hot Cell-specific tests
   minEvents_      = ps.getUntrackedParameter<int>("minEvents");
   minErrorFlag_   = ps.getUntrackedParameter<double>("minErrorFlag",1);
@@ -379,18 +384,18 @@ void HcalHotCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   edm::Handle<HORecHitCollection> ho_rechit;
   edm::Handle<HFRecHitCollection> hf_rechit;
 
-  if (!(e.getByLabel(hbheRechitLabel_,hbhe_rechit)))
+  if (!(e.getByToken(tok_hbhe_,hbhe_rechit)))
     {
       edm::LogWarning("HcalHotCellMonitor")<< hbheRechitLabel_<<" hbhe_rechit not available";
       return;
     }
 
-  if (!(e.getByLabel(hfRechitLabel_,hf_rechit)))
+  if (!(e.getByToken(tok_hf_,hf_rechit)))
     {
       edm::LogWarning("HcalHotCellMonitor")<< hfRechitLabel_<<" hf_rechit not available";
       return;
     }
-  if (!(e.getByLabel(hoRechitLabel_,ho_rechit)))
+  if (!(e.getByToken(tok_ho_,ho_rechit)))
     {
       edm::LogWarning("HcalHotCellMonitor")<< hoRechitLabel_<<" ho_rechit not available";
       return;

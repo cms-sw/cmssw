@@ -35,7 +35,8 @@ namespace edm {
 class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
-                EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&);
+                EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&, edm::ConsumesCollector& c);
+				EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&);
                 virtual ~EcalUncalibRecHitWorkerGlobal() {};
 
                 void set(const edm::EventSetup& es);

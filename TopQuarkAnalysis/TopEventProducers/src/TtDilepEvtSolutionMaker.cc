@@ -1,5 +1,4 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.25 2010/03/25 09:22:17 snaumann Exp $
 //
 
 #include "DataFormats/Math/interface/deltaR.h"

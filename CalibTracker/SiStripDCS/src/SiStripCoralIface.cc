@@ -48,7 +48,7 @@ void  SiStripCoralIface::initialize() {
 }
 
 // access the status change or lastValue tables
-void SiStripCoralIface::doQuery(std::string queryType, coral::TimeStamp startTime, coral::TimeStamp endTime, std::vector<coral::TimeStamp> &vec_changedate, 
+void SiStripCoralIface::doQuery(std::string queryType, const coral::TimeStamp& startTime, const coral::TimeStamp& endTime, std::vector<coral::TimeStamp> &vec_changedate, 
 				std::vector<float> &vec_actualValue, std::vector<std::string> &vec_dpname)
 {
   std::auto_ptr<coral::IQuery> query( m_session.schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
@@ -115,7 +115,7 @@ void SiStripCoralIface::doQuery(std::string queryType, coral::TimeStamp startTim
 }
 
 // access the channel settings in the status change table
-void SiStripCoralIface::doSettingsQuery(coral::TimeStamp startTime, coral::TimeStamp endTime, std::vector<coral::TimeStamp> &vec_changedate,
+void SiStripCoralIface::doSettingsQuery(const coral::TimeStamp& startTime, const coral::TimeStamp& endTime, std::vector<coral::TimeStamp> &vec_changedate,
 					std::vector<float> &vec_settings, std::vector<std::string> &vec_dpname, std::vector<uint32_t> &vec_dpid) 
 {
   std::auto_ptr<coral::IQuery> query( m_session.schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());

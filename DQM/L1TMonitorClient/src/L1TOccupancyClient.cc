@@ -405,7 +405,7 @@ void L1TOccupancyClient::analyze(const Event& e, const EventSetup& context){}
 // Outputs:
 // * double = fraction of bins that failed test, DeadChannels in vector, in: ParameterSet of test parameters
 //____________________________________________________________________________
-double L1TOccupancyClient::xySymmetry(ParameterSet                ps, 
+double L1TOccupancyClient::xySymmetry(const ParameterSet  &              ps, 
                                       string                      iTestName, 
                                       vector< pair<int,double> >& deadChannels, 
                                       vector< pair<int,double> >& statDev, 
@@ -672,7 +672,7 @@ double L1TOccupancyClient::getAvrg(TH2F* iHist, string iTestName, int iAxis, int
 // * vector< pair<int,double> > statDev           = ???
 // * string                     iTestName         = Name of the test
 //____________________________________________________________________________
-void L1TOccupancyClient::printDeadChannels(vector< pair<int,double> > iDeadChannels, TH2F* oHistDeadChannels, vector<std::pair<int,double> > statDev, string iTestName) {
+void L1TOccupancyClient::printDeadChannels(const vector< pair<int,double> >& iDeadChannels, TH2F* oHistDeadChannels, const vector<std::pair<int,double> >& statDev, string iTestName) {
 
   // Reset the dead channels histogram
   oHistDeadChannels->Reset();
@@ -724,7 +724,7 @@ void L1TOccupancyClient::printDeadChannels(vector< pair<int,double> > iDeadChann
 // Outputs:
 // * int = Number of dead channels
 //____________________________________________________________________________
-int L1TOccupancyClient::compareWithStrip(TH2F* iHist, string iTestName, int iBinStrip, int iNBins, int iAxis, double iAvg, ParameterSet iPS, vector<pair<int,double> >& oChannels) {
+int L1TOccupancyClient::compareWithStrip(TH2F* iHist, string iTestName, int iBinStrip, int iNBins, int iAxis, double iAvg, const ParameterSet& iPS, vector<pair<int,double> >& oChannels) {
 
   int dead = 0;
   

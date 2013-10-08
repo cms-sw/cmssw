@@ -4,8 +4,6 @@
 /** \class KFTrajectorySmootherESProducer
  *  ESProducer for the KFTrajectorySmoother.
  *
- *  $Date: 2007/05/09 14:17:58 $
- *  $Revision: 1.2 $
  *  \author cerati
  */
 
