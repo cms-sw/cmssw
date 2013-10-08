@@ -95,9 +95,6 @@ public:
   virtual void  setReactedTo ( bool r );
 
 private:
-  // ---  class-wide serial number stamper:
-  //
-  static int     ourSerial;
 
   // ---  data members:
   //

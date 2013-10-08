@@ -88,7 +88,9 @@ namespace edm {
         case MessageLoggerQ::LOG_A_MESSAGE:  {
           ErrorObj *  errorobj_p = static_cast<ErrorObj *>(operand);
           try {
-            if(active && !purge_mode) log (errorobj_p);
+            if(active && !purge_mode){
+              log (errorobj_p);
+            }
           }
           catch(cms::Exception& e)
           {
@@ -111,7 +113,6 @@ namespace edm {
             << "messages. (entering purge mode)\n";
             purge_mode = true;
           }
-          delete errorobj_p;  // dispose of the message text
           break;
         }
         case MessageLoggerQ::CONFIGURE:  {			// changelog 17
@@ -201,6 +202,7 @@ namespace edm {
     
     void ThreadSafeLogMessageLoggerScribe::log ( ErrorObj *  errorobj_p ) {
       bool expected = false;
+      std::unique_ptr<ErrorObj> obj(errorobj_p);
       if(m_messageBeingSent.compare_exchange_strong(expected,true)) {
         std::vector<std::string> categories;
         parseCategories(errorobj_p->xid().id, categories);
@@ -211,16 +213,17 @@ namespace edm {
         //process any waiting messages
         errorobj_p=nullptr;
         while(not purge_mode and m_waitingMessages.try_pop(errorobj_p)) {
+          obj.reset(errorobj_p);
           categories.clear();
           parseCategories(errorobj_p->xid().id, categories);
           for (unsigned int icat = 0; icat < categories.size(); ++icat) {
             errorobj_p->setID(categories[icat]);
             admin_p->log( *errorobj_p );  // route the message text
           }
-          delete errorobj_p;
         }
         m_messageBeingSent.store(false);
       } else {
+        obj.release();
         m_waitingMessages.push(errorobj_p);
       }
     }
