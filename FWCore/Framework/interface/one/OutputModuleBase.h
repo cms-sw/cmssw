@@ -40,6 +40,7 @@
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 // forward declarations
@@ -176,9 +177,14 @@ namespace edm {
       
       BranchChildren branchChildren_;
       
+      SharedResourcesAcquirer resourcesAcquirer_;
+      std::mutex mutex_;
       //------------------------------------------------------------------
       // private member functions
       //------------------------------------------------------------------
+      
+      virtual SharedResourcesAcquirer createAcquirer();
+      
       void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*);
       void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*);
       void doOpenFile(FileBlock const& fb);
