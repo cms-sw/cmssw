@@ -3,8 +3,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("GeometryTest")
 
 process.load("Geometry.CMSCommonData.hcalOnlyGeometryXML_cfi")
+process.load("Geometry.HcalEventSetup.HcalTopology_cfi")
 
-process.load("Configuration.StandardSequences.MagneticField_cff")
+#process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
