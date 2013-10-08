@@ -168,9 +168,6 @@ if options.library is None:
     if options.checkdict :
         print "Dictionary checks require a specific library"
 else:
-    if 0 != ROOT.gSystem.Load("libCintex"):
-        raise RuntimeError("failed to load libCintex")
-    ROOT.Cintex.Enable()
     if 0 != ROOT.gSystem.Load(options.library):
         raise RuntimeError("failed to load library '"+options.library+"'")
 
