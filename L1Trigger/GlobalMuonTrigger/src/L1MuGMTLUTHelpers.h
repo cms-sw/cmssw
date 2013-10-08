@@ -59,11 +59,6 @@ class L1MuGMTLUTHelpers {
     };
 
     static int replace(std::string& input, const std::string& gone, const std::string& it, bool multiple);
-
-    static std::string upperCase(const std::string& s);
-
-    static std::string lowerCase(const std::string& s);
-
 };
 
 #endif
