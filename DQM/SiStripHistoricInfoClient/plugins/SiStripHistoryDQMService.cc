@@ -2,10 +2,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Diagnostic/interface/HDQMfitUtilities.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 
 SiStripHistoryDQMService::SiStripHistoryDQMService(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg)
@@ -20,7 +18,7 @@ SiStripHistoryDQMService::~SiStripHistoryDQMService() {
 }
 
 
-uint32_t SiStripHistoryDQMService::returnDetComponent(const MonitorElement* ME){
+uint32_t SiStripHistoryDQMService::returnDetComponent(const MonitorElement* ME, const TrackerTopology *tTopo){
   LogTrace("SiStripHistoryDQMService") <<  "[SiStripHistoryDQMService::returnDetComponent]";
   std::string str=ME->getName();
   size_t __key_length__=7;
@@ -35,13 +33,13 @@ uint32_t SiStripHistoryDQMService::returnDetComponent(const MonitorElement* ME){
   else if(str.find("TIB")!= std::string::npos){
     if (str.find("layer")!= std::string::npos) 
       layer=atoi(str.substr(str.find("layer__")+__key_length__,1).c_str());
-    return TIBDetId(layer,0,0,0,0,0).rawId();
+    return tTopo->tibDetId(layer,0,0,0,0,0).rawId();
   }
   //TOB
   else if(str.find("TOB")!= std::string::npos){
     if (str.find("layer")!= std::string::npos) 
       layer=atoi(str.substr(str.find("layer__")+__key_length__,1).c_str());
-    return TOBDetId(layer,0,0,0,0).rawId();
+    return tTopo->tobDetId(layer,0,0,0,0).rawId();
   }
   //TID
   else if(str.find("TID")!= std::string::npos){  
@@ -51,7 +49,7 @@ uint32_t SiStripHistoryDQMService::returnDetComponent(const MonitorElement* ME){
 	layer=atoi(str.substr(str.find("wheel__")+__key_length__,1).c_str());
       }
     }
-    return TIDDetId(side,layer,0,0,0,0).rawId();
+    return tTopo->tidDetId(side,layer,0,0,0,0).rawId();
   } 
   //TEC
   else if(str.find("TEC")!= std::string::npos){  
@@ -61,7 +59,7 @@ uint32_t SiStripHistoryDQMService::returnDetComponent(const MonitorElement* ME){
 	layer=atoi(str.substr(str.find("wheel__")+__key_length__,1).c_str());
       }
     }
-    return TECDetId(side,layer,0,0,0,0,0).rawId();
+    return tTopo->tecDetId(side,layer,0,0,0,0,0).rawId();
   } 
   else 
     return SiStripDetId(DetId::Tracker,0).rawId(); //Full Tracker
