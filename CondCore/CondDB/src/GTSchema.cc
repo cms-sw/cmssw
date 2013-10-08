@@ -17,18 +17,28 @@ bool GLOBAL_TAG::select( const std::string& name, SessionImpl& session ){
 }
 
 bool GLOBAL_TAG::select( const std::string& name, conddb::Time_t& validity, boost::posix_time::ptime& snapshotTime, SessionImpl& session ){
-  Query< VALIDITY, SNAPSHOT_TIME > q( session.coralSchema() );
+  // FIXME: FronTier reads from Oracle with a Format not compatible with the parsing in Coral: required is 'YYYY-MM-DD HH24:MI:SSXFF6' 
+  // temporarely disabled to allow to work with FronTier
+  //Query< VALIDITY, SNAPSHOT_TIME > q( session.coralSchema() );
+  //q.addCondition<NAME>( name );
+  //for ( auto row : q ) std::tie( validity, snapshotTime ) = row;
+  Query< VALIDITY > q( session.coralSchema() );
   q.addCondition<NAME>( name );
-  for ( auto row : q ) std::tie( validity, snapshotTime ) = row;
+  for ( auto row : q ) std::tie( validity ) = row;
 
   return q.retrievedRows();
 }
     
 bool GLOBAL_TAG::select( const std::string& name, conddb::Time_t& validity, std::string& description, std::string& release, 
 			 boost::posix_time::ptime& snapshotTime, SessionImpl& session ){
-  Query< VALIDITY, DESCRIPTION, RELEASE, SNAPSHOT_TIME > q( session.coralSchema() );
+  // FIXME: Frontier reads from Oracle with a Format not compatible with the parsing in Coral: required is 'YYYY-MM-DD HH24:MI:SSXFF6' 
+  // temporarely disabled to allow to work with FronTier
+  //Query< VALIDITY, DESCRIPTION, RELEASE, SNAPSHOT_TIME > q( session.coralSchema() );
+  //q.addCondition<NAME>( name );
+  //for ( auto row : q ) std::tie( validity, description, release, snapshotTime ) = row;
+  Query< VALIDITY, DESCRIPTION, RELEASE > q( session.coralSchema() );
   q.addCondition<NAME>( name );
-  for ( auto row : q ) std::tie( validity, description, release, snapshotTime ) = row;
+  for ( auto row : q ) std::tie( validity, description, release ) = row;
   return q.retrievedRows();
 }
     
