@@ -176,8 +176,8 @@ int conddb::TestGTLoad::execute(){
 
   Session session;
   if( hasDebug() ) session.configuration().setMessageVerbosity( coral::Debug );
-  session.open( connect );
-  session.transaction().start( false );
+  session.open( connect, true );
+  session.transaction().start();
   
   std::cout <<"Loading Global Tag "<<gtag<<std::endl;
   GTProxy gt = session.readGlobalTag( gtag );
