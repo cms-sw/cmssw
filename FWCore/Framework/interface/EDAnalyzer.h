@@ -5,8 +5,10 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
 #include <string>
+#include <mutex>
 
 // EDAnalyzer is the base class for all analyzer "modules".
 
@@ -25,7 +27,7 @@ namespace edm {
     template <typename T> friend class WorkerT;
     typedef EDAnalyzer ModuleType;
 
-    EDAnalyzer() : moduleDescription_() {}
+    EDAnalyzer();
     virtual ~EDAnalyzer();
     
     std::string workerType() const {return "WorkerT<EDAnalyzer>";}
@@ -75,6 +77,8 @@ namespace edm {
       moduleDescription_ = md;
     }
     ModuleDescription moduleDescription_;
+    SharedResourcesAcquirer resourceAcquirer_;
+    std::mutex mutex_;
 
     std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
   };

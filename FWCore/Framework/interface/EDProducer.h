@@ -11,12 +11,14 @@ EDProducts into an Event.
 
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include <string>
 #include <vector>
+#include <mutex>
 
 namespace edm {
 
@@ -85,6 +87,8 @@ namespace edm {
     }
     ModuleDescription moduleDescription_;
     std::vector<BranchID> previousParentage_;
+    SharedResourcesAcquirer resourceAcquirer_;
+    std::mutex mutex_;
     ParentageID previousParentageId_;
   };
 }
