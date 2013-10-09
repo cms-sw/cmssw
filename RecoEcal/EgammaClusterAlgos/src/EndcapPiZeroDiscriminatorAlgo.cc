@@ -332,9 +332,9 @@ float EndcapPiZeroDiscriminatorAlgo::getNNoutput(int sel_wfile)
   LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: getNNoutput :: -> NNout = " <<  nnout ;
   
 
-  delete I_SUM;
-  delete OUT;
-  delete input_var;
+  delete[] I_SUM;
+  delete[] OUT;
+  delete[] input_var;
    
   return (nnout);
 }
