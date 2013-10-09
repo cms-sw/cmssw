@@ -20,6 +20,7 @@
 //
 
 // system include files
+#include <atomic>
 
 // user include files
 
@@ -85,12 +86,11 @@ namespace edm {
          DataProxy(DataProxy const&); // stop default
 
          DataProxy const& operator=(DataProxy const&); // stop default
-         void setCacheIsValidAndAccessType(bool iTransientAccessOnly) const;
 
          // ---------- member data --------------------------------
-         mutable void const* cache_;
-         mutable bool cacheIsValid_;
-         mutable bool nonTransientAccessRequested_;
+         mutable void const* cache_; //protected by a global mutex
+         mutable std::atomic<bool> cacheIsValid_;
+         mutable std::atomic<bool> nonTransientAccessRequested_;
          ComponentDescription const* description_;
       };
    }
