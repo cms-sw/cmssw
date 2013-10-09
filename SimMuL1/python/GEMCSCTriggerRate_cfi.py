@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-GEMCSCTriggerRate = cms.EDFilter("GEMCSCTriggerRate",
+GEMCSCTriggerRate = cms.EDAnalyzer("GEMCSCTriggerRate",
     doME1a = cms.untracked.bool(True),
     defaultME1a = cms.untracked.bool(False),
     minBxALCT = cms.untracked.int32(5),
