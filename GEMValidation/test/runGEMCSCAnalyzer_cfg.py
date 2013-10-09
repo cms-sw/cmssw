@@ -1,5 +1,3 @@
-#@ this configuration runs an analyzer on GEM and CSC stubs in input
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEMCSCANA")
@@ -7,9 +5,10 @@ process = cms.Process("GEMCSCANA")
 ## Standard sequence
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2019_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 ## TrackingComponentsRecord required for matchers
