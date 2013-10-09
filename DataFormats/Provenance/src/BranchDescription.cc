@@ -181,6 +181,7 @@ namespace edm {
     }
     wrappedType().invokeByName(wrapperInterfaceBase(), "getInterface");
     assert(wrapperInterfaceBase() != 0);
+/*
     Reflex::PropertyList wp = Reflex::Type::ByTypeInfo(wrappedType().typeInfo()).Properties();
     setTransient((wp.HasProperty("persistent") ? wp.PropertyAsString("persistent") == std::string("false") : false));
     if(transient()) {
@@ -207,6 +208,7 @@ namespace edm {
     } else {
       setBasketSize(invalidBasketSize);
     }
+*/
   }
 
   void

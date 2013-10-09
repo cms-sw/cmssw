@@ -32,8 +32,6 @@ class StringMap {
         const_iterator end() const { return entries_.end(); }
     
         size_t size() const { return entries_.size(); }
-    private:
-        std::vector< std::pair<std::string, int32_t> > entries_;
         class MatchByString {
             public:
                 MatchByString() {}
@@ -50,6 +48,8 @@ class StringMap {
             private:
                 int32_t number_;
         };
+    private:
+        std::vector< std::pair<std::string, int32_t> > entries_;
         
 } ;
 

@@ -140,7 +140,6 @@ namespace reco {
     /// Returns the number of tracks in the vertex with weight above minWeight
     unsigned int nTracks(float minWeight=0.5) const; 
 
-  private:
     class TrackEqual {
       public:
 	TrackEqual( const Track & t) : track_( t ) { }
@@ -148,6 +147,8 @@ namespace reco {
       private:
 	const Track & track_;
     };
+
+  private:
     /// chi-sqared
     float chi2_;
     /// number of degrees of freedom

@@ -59,12 +59,6 @@ class MVATrainer {
 	static const AtomicId kTargetId;
 	static const AtomicId kWeightId;
 
-    private:
-	SourceVariable *getVariable(AtomicId source, AtomicId name) const;
-
-	SourceVariable *createVariable(Source *source, AtomicId name,
-	                               Variable::Flags flags);
-
 	struct CalibratedProcessor {
 		CalibratedProcessor(TrainProcessor *processor,
 		                    Calibration::VarProcessor *calib) :
@@ -73,6 +67,12 @@ class MVATrainer {
 		TrainProcessor			*processor;
 		Calibration::VarProcessor	*calib;
 	};
+
+    private:
+	SourceVariable *getVariable(AtomicId source, AtomicId name) const;
+
+	SourceVariable *createVariable(Source *source, AtomicId name,
+	                               Variable::Flags flags);
 
 	void fillInputVars(SourceVariableSet &vars,
 	                   XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *xml);

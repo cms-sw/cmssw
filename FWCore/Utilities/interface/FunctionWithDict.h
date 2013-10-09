@@ -55,8 +55,8 @@ namespace edm {
 
     void invoke(ObjectWithDict const& obj, ObjectWithDict* ret, std::vector<void*> const& values = std::vector<void*>()) const;
 
-    Reflex::Type_Iterator begin() const;
-    Reflex::Type_Iterator end() const;
+    //Reflex::Type_Iterator begin() const;
+    //Reflex::Type_Iterator end() const;
     size_t size() const {
       return functionParameterSize();
     }
@@ -69,7 +69,7 @@ namespace edm {
 
   private:
 
-    std::unique_ptr<Reflex::Member> function_;
+    Reflex::Member* function_;
   };
 
 }

@@ -55,6 +55,13 @@ namespace edm {
   typedef Hash<ModuleDescriptionType> ModuleDescriptionID;
 }
 
+using edm::EntryDescriptionType;
+using edm::ModuleDescriptionType;
+using edm::ParameterSetType;
+using edm::ParentageType;
+using edm::ProcessConfigurationType;
+using edm::ProcessHistoryType;
+
 namespace {
   struct dictionary {
   std::pair<edm::BranchKey, edm::BranchDescription> dummyPairBranch;
