@@ -339,7 +339,10 @@ namespace edm {
       for(auto const& psetEntry : psetMap) {
         ParameterSet pset(psetEntry.second.pset());
         pset.setID(psetEntry.first);
-        psetRegistry.insertMapped(pset);
+        // For thread safety, don't update global registries when a secondary source opens a file.
+        if(inputType != InputType::SecondarySource) {
+          psetRegistry.insertMapped(pset);
+        }
       }
     }
     if(!fileFormatVersion().splitProductIDs()) {
@@ -412,7 +415,7 @@ namespace edm {
 
     // Here, we make the class that will make the ProvenanceReader
     // It reads whatever trees it needs.
-    provenanceReaderMaker_.reset(makeProvenanceReaderMaker().release());
+    provenanceReaderMaker_.reset(makeProvenanceReaderMaker(inputType).release());
 
     // Merge into the hashed registries.
     if(eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
@@ -489,7 +492,7 @@ namespace edm {
   }
 
   void
-  RootFile::readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap) {
+  RootFile::readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap, InputType inputType) {
     // Called only for old format files.
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
     std::unique_ptr<TTree> entryDescriptionTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str())));
@@ -525,14 +528,17 @@ namespace edm {
           daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));
         }
       }
-      registry.insertMapped(parents);
+      // For thread safety, don't update global registries when a secondary source opens a file.
+      if(inputType != InputType::SecondarySource) {
+        registry.insertMapped(parents);
+      }
     }
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), nullptr);
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), nullptr);
   }
 
   void
-  RootFile::readParentageTree() {
+  RootFile::readParentageTree(InputType inputType) {
     // New format file
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
     std::unique_ptr<TTree> parentageTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str())));
@@ -558,7 +564,10 @@ namespace edm {
           daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));
         }
       }
-      registry.insertMapped(parents);
+      // For thread safety, don't update global registries when a secondary source opens a file.
+      if(inputType != InputType::SecondarySource) {
+        registry.insertMapped(parents);
+      }
       parentageIDLookup_.push_back(parents.id());
     }
     parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), nullptr);
@@ -1715,16 +1724,16 @@ namespace edm {
   }
 
   std::unique_ptr<MakeProvenanceReader>
-  RootFile::makeProvenanceReaderMaker() {
+  RootFile::makeProvenanceReaderMaker(InputType inputType) {
     if(fileFormatVersion_.storedProductProvenanceUsed()) {
-      readParentageTree();
+      readParentageTree(inputType);
       return std::unique_ptr<MakeProvenanceReader>(new MakeReducedProvenanceReader(parentageIDLookup_));
     } else if(fileFormatVersion_.splitProductIDs()) {
-      readParentageTree();
+      readParentageTree(inputType);
       return std::unique_ptr<MakeProvenanceReader>(new MakeFullProvenanceReader);
     } else if(fileFormatVersion_.perEventProductIDs()) {
       std::unique_ptr<EntryDescriptionMap> entryDescriptionMap(new EntryDescriptionMap);
-      readEntryDescriptionTree(*entryDescriptionMap);
+      readEntryDescriptionTree(*entryDescriptionMap, inputType);
       return std::unique_ptr<MakeProvenanceReader>(new MakeOldProvenanceReader(std::move(entryDescriptionMap)));
     } else {
       return std::unique_ptr<MakeProvenanceReader>(new MakeDummyProvenanceReader);
