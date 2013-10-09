@@ -182,7 +182,7 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   edm::ParameterSet stripPSet = iConfig.getParameter<edm::ParameterSet>("strips");
   theStripConditions = new CSCDbStripConditions(stripPSet);
 
-  CSCTFSPset = iConfig.getParameter<edm::ParameterSet>("SectorProcessor");
+  CSCTFSPset = iConfig.getParameter<edm::ParameterSet>("sectorProcessor");
   ptLUTset = CSCTFSPset.getParameter<edm::ParameterSet>("PTLUT");
   edm::ParameterSet srLUTset = CSCTFSPset.getParameter<edm::ParameterSet>("SRLUT");
 
@@ -215,7 +215,7 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   // processed event counter
   nevt = 0;
 
-  gemMatchCfg_ = iConfig.getParameterSet("simTrackGEMMatching");
+  gemMatchCfg_ = iConfig.getParameterSet("simTrackMatching");
   gemPTs_ = iConfig.getParameter<std::vector<double> >("gemPTs");
   gemDPhisOdd_ = iConfig.getParameter<std::vector<double> >("gemDPhisOdd");
   gemDPhisEven_ = iConfig.getParameter<std::vector<double> >("gemDPhisEven");
@@ -876,8 +876,8 @@ GEMCSCTriggerEfficiency::resetDbg(DbgStruct& d)
 
 // ================================================================================================
 // ------------ method called to for each event  ------------
-bool 
-GEMCSCTriggerEfficiency::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void 
+GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   nevt++;
   
@@ -1252,7 +1252,7 @@ GEMCSCTriggerEfficiency::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   if ( primaryVert == -1 ) { 
     if (debugALLEVENT) std::cout<<" Warning: NO PRIMARY SIMVERTEX!"<<std::endl; 
-    if (simTracks.size()>0) return 0;
+    if (simTracks.size()>0) return;
   }
 
 
@@ -2595,7 +2595,6 @@ GEMCSCTriggerEfficiency::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   matches.clear ();
   
   cleanUp();
-  return true;
 }
 
 
