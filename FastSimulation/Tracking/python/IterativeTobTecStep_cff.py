@@ -27,7 +27,7 @@ iterativeTobTecSeeds.originpTMin = [0.6] # was 0.5
 iterativeTobTecSeeds.zVertexConstraint = [-1.0]
 iterativeTobTecSeeds.primaryVertices = ['none']
 
-iterativeTobTecSeeds.newSyntax = False
+iterativeTobTecSeeds.newSyntax = True
 #iterativeTobTecSeeds.layerList = ['TOB1+TOB2', 
 #                                  'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
 #                                  'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 

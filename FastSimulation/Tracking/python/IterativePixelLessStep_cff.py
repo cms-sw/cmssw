@@ -30,7 +30,7 @@ iterativePixelLessSeeds.originpTMin = [0.6] # was 0.5
 iterativePixelLessSeeds.zVertexConstraint = [-1.0]
 iterativePixelLessSeeds.primaryVertices = ['none']
 
-iterativePixelLessSeeds.newSyntax = False
+iterativePixelLessSeeds.newSyntax = True
 #iterativePixelLessSeeds.layerList = ['TIB1+TIB2',
 #                                     'TIB1+TID1_pos','TIB1+TID1_neg',
 #                                     'TID3_pos+TEC1_pos','TID3_neg+TEC1_neg',
