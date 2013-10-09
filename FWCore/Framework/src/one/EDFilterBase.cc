@@ -52,13 +52,26 @@ namespace edm {
                           ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
-      bool returnValue = this->filter(e, c);
-      commit_(e,&previousParentage_, &previousParentageId_);
+      bool returnValue =true;
+      {
+        std::lock_guard<std::mutex> guard(mutex_);
+        {
+          std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
+          returnValue = this->filter(e, c);
+        }
+        commit_(e,&previousParentage_, &previousParentageId_);
+      }
       return returnValue;
     }
     
+    SharedResourcesAcquirer EDFilterBase::createAcquirer() {
+      return SharedResourcesAcquirer{};
+    }
+
     void
     EDFilterBase::doBeginJob() {
+      resourcesAcquirer_ = createAcquirer();
+
       this->beginJob();
     }
     
