@@ -19,8 +19,8 @@ class L1CaloRegionDetId : public DetId {
 
  public:
 
-  static const unsigned N_PHI;
-  static const unsigned N_ETA;
+  static const unsigned N_PHI = 18;
+  static const unsigned N_ETA = 22;
 
   /// create null id
   L1CaloRegionDetId();
