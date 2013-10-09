@@ -1,6 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-yellowParams = cms.ESSource(
+yellowParamsSource = cms.ESSource(
+    "EmptyESSource",
+    recordName = cms.string('L1TYellowParamsRcd'),
+    iovIsRunNotTime = cms.bool(True),
+    firstValid = cms.vuint32(1)
+    )
+
+yellowParams = cms.ESProducer(
     "L1TYellowParamsESProducer",
     firmwareVersion = cms.uint32(1),
     paramA = cms.uint32(2),

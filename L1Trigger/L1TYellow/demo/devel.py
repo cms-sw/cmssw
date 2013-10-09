@@ -32,8 +32,8 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
 process.p1 = cms.Path(
     process.digiStep
-    *process.dumpED
-    *process.dumpES
+#    *process.dumpED
+#    *process.dumpES
     )
 
 process.schedule = cms.Schedule(

@@ -13,13 +13,15 @@
 //
 
 
-
 // system include files
 #include <memory>
 
 // user include files
+
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,6 +29,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CondFormats/DataRecord/interface/L1TYellowParamsRcd.h"
 #include "CondFormats/L1TYellow/interface/L1TYellowParams.h"
 #include "DataFormats/L1TYellow/interface/L1TYellowDigi.h"
 #include "DataFormats/L1TYellow/interface/L1TYellowOutput.h"
@@ -34,50 +37,38 @@
 
 
 using namespace std;
+using namespace edm;
+
 //using namespace l1t;
 
 //
 // class declaration
 //
 
-class L1TYellowProducer : public edm::EDProducer {
+class L1TYellowProducer : public EDProducer {
 public:
-  explicit L1TYellowProducer(const edm::ParameterSet&);
+  explicit L1TYellowProducer(const ParameterSet&);
   ~L1TYellowProducer();
   
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  
-  virtual void beginRun(edm::Run&, edm::EventSetup const&);
-  virtual void endRun(edm::Run&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+  virtual void produce(Event&, EventSetup const&);
+  virtual void beginJob();
+  virtual void endJob();
+  virtual void beginRun(Run const&iR, EventSetup const&iE);
+  virtual void endRun(Run const& iR, EventSetup const& iE);
   
   // ----------member data ---------------------------
-  L1TYellowParams * dbpars; // Database parameters for the trigger, to be udpated each run
+  const L1TYellowParams * dbpars; // Database parameters for the trigger, to be udpated each run
   l1t::L1TYellowAlg * alg; // Algorithm to run per event, depends on database parameters, updated each run.
 
-
-
-  edm::EDGetToken yellowDigisToken;
+  EDGetToken yellowDigisToken;
 };
 
 
 using namespace l1t;
 using namespace edm;
-
-//
-// constants, enums and typedefs
-//
-
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -89,7 +80,6 @@ L1TYellowProducer::L1TYellowProducer(const ParameterSet& iConfig)
 
   // register what you consume and keep token for later access:
   yellowDigisToken = consumes<L1TYellowDigiCollection>(iConfig.getParameter<InputTag>("fakeRawToDigi"));
-
     
   dbpars = NULL;
   alg = NULL;
@@ -111,6 +101,9 @@ L1TYellowProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
 
   LogInfo("l1t|yellow") << "L1TYellowProducer::produce function called...\n";
+
+  cout << "cout version: L1TYellowProducer::produce function called...\n";
+
   
   Handle<L1TYellowDigiCollection> inputDigis;
   iEvent.getByToken(yellowDigisToken,inputDigis);
@@ -121,7 +114,9 @@ L1TYellowProducer::produce(Event& iEvent, const EventSetup& iSetup)
   if (inputDigis->size()){
     if (alg) {
       alg->processEvent(*inputDigis, *outColl);
-    } 
+    } else {
+      cout << "alg is invalid...\n";
+    }
     // already complained in beginRun, doing nothing now will send empty collection to event, as desired.
   } else {
     LogError("l1t|yellow") << "L1TYellowProducer: input Digis have zero size.\n";
@@ -139,6 +134,8 @@ L1TYellowProducer::produce(Event& iEvent, const EventSetup& iSetup)
 void 
 L1TYellowProducer::beginJob()
 {
+  cout << "L1TYellowProducer begin JOB being called...\n";
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -147,13 +144,27 @@ L1TYellowProducer::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
-void 
-L1TYellowProducer::beginRun(Run&, EventSetup const&)
-{
+
+void L1TYellowProducer::beginRun(Run const&iR, EventSetup const&iE){
   // TODO:  retreive DB pars from EventSetup:
-  if (dbpars) delete dbpars;
-  dbpars = new L1TYellowParams;  
-  dbpars->setFirmwareVersion(1);
+  //if (dbpars) delete dbpars;
+  //dbpars = new L1TYellowParams;  
+  //dbpars->setFirmwareVersion(1);
+
+  cout << "L1TYellowProducer Begin Run Called!\n";
+
+  // Retrieve the L1T yellow parameters from the event setup:
+  ESHandle<L1TYellowParams> yParameters;
+  iE.get<L1TYellowParamsRcd>().get(yParameters);
+  //const L1TYellowParams * x = yParameters.product();
+  dbpars = yParameters.product();
+  
+  if (dbpars){
+    cout << "dbpars is non-null...\n";
+  } else {
+    cout << "dbpars is null...\n";
+  }
+  
 
   // Set the current algorithm version based on DB pars from database:
   if (alg) delete alg;
@@ -167,22 +178,10 @@ L1TYellowProducer::beginRun(Run&, EventSetup const&)
 }
 
 // ------------ method called when ending the processing of a run  ------------
-void 
-L1TYellowProducer::endRun(Run&, EventSetup const&)
-{
+void L1TYellowProducer::endRun(Run const& iR, EventSetup const& iE){
+  
 }
 
-// ------------ method called when starting to processes a luminosity block  ------------
-void 
-L1TYellowProducer::beginLuminosityBlock(LuminosityBlock&, EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-L1TYellowProducer::endLuminosityBlock(LuminosityBlock&, EventSetup const&)
-{
-}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
