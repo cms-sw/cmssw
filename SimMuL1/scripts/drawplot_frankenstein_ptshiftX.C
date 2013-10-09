@@ -59,18 +59,25 @@ void produceRatePlot(TH1D* h, TH1D* i, TH1D* j, TH1D* m, Color_t col0, Color_t c
   h->GetYaxis()->SetRangeUser(miny, maxy);
   h->GetXaxis()->SetTitle("");
   
-  TLegend *leg = new TLegend(0.45,0.65,.93,0.93,"","brNDC");
-  leg->SetMargin(0.25);
+  TLegend *leg = new TLegend(0.15,0.88,.93,0.93,"","brNDC");
+  leg->SetMargin(0.15);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->SetTextSize(0.04);
   leg->SetFillStyle(1001);
   leg->SetFillColor(kWhite);
-  leg->AddEntry(h, "L1 single muon trigger","f");
-  leg->AddEntry((TObject*)0, "(final 2012 configuration)","");
-  //  leg->AddEntry((TObject*)0,          "L1 selections (#geq " + k + " stations):","");
+  leg->AddEntry(h, "L1 Single Mu (2012 configuration) + ME1/1a unganging","f");
+  leg->Draw();
+
+  TLegend *leg = new TLegend(0.4,0.7,.93,0.88,"","brNDC");
+  leg->SetMargin(0.2);
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->SetTextSize(0.04);
+  leg->SetFillStyle(1001);
+  leg->SetFillColor(kWhite);
   leg->AddEntry(i,"CSC #geq" + k + " stubs (anywhere)","f");
-  leg->AddEntry(j,"CSC #geq" + k + " stubs (one in ME1/b)","f");
+  leg->AddEntry(j,"CSC #geq" + k + " stubs (one in Station 1)","f");
   leg->AddEntry(m,"GEM+CSC integrated trigger","f");
   leg->AddEntry((TObject*)0,"with #geq" + k + " stubs","");
   leg->Draw();
@@ -105,8 +112,8 @@ void produceRatePlot(TH1D* h, TH1D* i, TH1D* j, TH1D* m, Color_t col0, Color_t c
   leg->SetFillStyle(0);
   // leg->SetFillStyle(1001);
   // leg->SetFillColor(kWhite);
-  leg->AddEntry(hh_ratio_gmt, "(GEM+CSC)/L1 single muon trigger","p");
-  leg->AddEntry(hh_ratio,     "(GEM+CSC)/CSC #geq" + k + " stubs (one in ME1/b)","p");
+  leg->AddEntry(hh_ratio_gmt, "(GEM+CSC)/L1 Single Mu","p");
+  leg->AddEntry(hh_ratio,     "(GEM+CSC)/CSC #geq" + k + " stubs (one in Station 1)","p");
   leg->Draw("same");
   
   c->SaveAs(plots + "rates_vs_pt__PU100__def_" + k + "s_" + k + "s1b_" + k + "s1bgem__" + l + ext);
@@ -119,7 +126,7 @@ void drawplot_frankenstein_ptshiftX()
   gROOT->ProcessLine(".L drawplot_gmtrt.C");
   gROOT->ProcessLine(".L getPTHistos.C");
 
-  TString ext = ".pdf";
+  TString ext = ".eps";
   TString filesDir = "files/";
   TString plotDir = "plots/rate_vs_pt_shiftX/";
 
@@ -221,7 +228,7 @@ void drawplot_frankenstein_ptshiftX()
 
 
   //  TString the_ttl = "         L1 Single Muon Trigger                             CMS Simulation Preliminary;L1 candidate muon p_{T}^{cut} [GeV/c];rate [kHz]";
-  TString the_ttl = "                                                    CMS Simulation Preliminary;L1 muon candidate p_{T}^{cut} [GeV/c];Trigger rate [kHz]";
+  TString the_ttl = "                                                  CMS Phase-2 Simulation Preliminary;L1 muon candidate p_{T}^{cut} [GeV/c];Trigger rate [kHz]";
 
   hh = setPTHisto(hh, the_ttl, kGreen+3, 1, 1);
   hh_all = setPTHisto(hh_all, the_ttl, kGreen+3, 1, 1);
