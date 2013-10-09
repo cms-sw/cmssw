@@ -15,12 +15,9 @@ namespace {
 }
 
 TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
-					      const PixelClusterParameterEstimator* cpe) : 
+					      PxMeasurementConditionSet & conditions ) : 
     MeasurementDet (gdet),
-    theCPE(cpe),
-    skipClusters_(0),
-    empty(true),
-    activeThisEvent_(true), activeThisPeriod_(true)
+    theDetConditions(&conditions)
   {
     if ( dynamic_cast<const PixelGeomDetUnit*>(gdet) == 0) {
       throw MeasurementDetException( "TkPixelMeasurementDet constructed with a GeomDet which is not a PixelGeomDetUnit");
@@ -28,16 +25,16 @@ TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
   }
 
 bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
-					  const MeasurementEstimator& est,
+					  const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
 					  TempMeasurements & result) const {
 
-  if (!isActive()) {
+  if (!isActive(data)) {
     result.add(InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F);
     return true;
   }
   
   auto oldSize = result.size();
-  MeasurementDet::RecHitContainer && allHits = recHits(stateOnThisDet);
+  MeasurementDet::RecHitContainer && allHits = recHits(stateOnThisDet, data);
   for (auto && hit : allHits) {
     std::pair<bool,double> diffEst = est.estimate( stateOnThisDet, *hit);
     if ( diffEst.first)
@@ -47,7 +44,7 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
   if (result.size()>oldSize) return true;
 
   // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
-  bool inac = hasBadComponents(stateOnThisDet);
+  bool inac = hasBadComponents(stateOnThisDet, data);
   TrackingRecHit::Type type = inac ? TrackingRecHit::inactive : TrackingRecHit::missing;
   result.add(InvalidTransientRecHit::build(&fastGeomDet(), type), 0.F);
   return inac;
@@ -60,34 +57,35 @@ TkPixelMeasurementDet::buildRecHit( const SiPixelClusterRef & cluster,
 				    const LocalTrajectoryParameters & ltp) const
 {
   const GeomDetUnit& gdu( specificGeomDet());
-  LocalValues lv = theCPE->localParameters( * cluster, gdu, ltp );
-  return TSiPixelRecHit::build( lv.first, lv.second, &fastGeomDet(), cluster, theCPE);
+  LocalValues lv = cpe()->localParameters( * cluster, gdu, ltp );
+  return TSiPixelRecHit::build( lv.first, lv.second, &fastGeomDet(), cluster, cpe());
 }
 
 TkPixelMeasurementDet::RecHitContainer 
-TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
+TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data ) const
 {
   RecHitContainer result;
-  if (empty == true ) return result;
-  if (isActive() == false) return result;
+  if (isEmpty(data.pixelData())== true ) return result;
+  if (isActive(data) == false) return result;
   const SiPixelCluster* begin=0;
-  if(0!=handle_->data().size()) {
-     begin = &(handle_->data().front());
+  if (0 != data.pixelData().handle()->data().size()) {
+     begin = &(data.pixelData().handle()->data().front());
   }
-  result.reserve(detSet_.size());
-  for ( const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
+  const detset & detSet = data.pixelData().detSet(index());
+  result.reserve(detSet.size());
+  for ( const_iterator ci = detSet.begin(); ci != detSet.end(); ++ ci ) {
     
     if (ci < begin){
       edm::LogError("IndexMisMatch")<<"TkPixelMeasurementDet cannot create hit because of index mismatch.";
       return result;
     }
      unsigned int index = ci-begin;
-     if (skipClusters_!=0 && skipClusters_->size()!=0 &&  index>=skipClusters_->size()){
-       edm::LogError("IndexMisMatch")<<"TkPixelMeasurementDet cannot create hit because of index mismatch. i.e "<<index<<" >= "<<skipClusters_->size();
+     if (!data.pixelClustersToSkip().empty() &&  index>=data.pixelClustersToSkip().size()){
+       edm::LogError("IndexMisMatch")<<"TkPixelMeasurementDet cannot create hit because of index mismatch. i.e "<<index<<" >= "<<data.pixelClustersToSkip().size();
        return result;
      }
-     if(0==skipClusters_ or skipClusters_->empty() or (not (*skipClusters_)[index]) ) {
-       SiPixelClusterRef cluster = edmNew::makeRefTo( handle_, ci );
+     if(data.pixelClustersToSkip().empty() or (not data.pixelClustersToSkip()[index]) ) {
+       SiPixelClusterRef cluster = edmNew::makeRefTo( data.pixelData().handle(), ci );
        result.push_back( buildRecHit( cluster, ts.localParameters() ) );
      }else{   
        LogDebug("TkPixelMeasurementDet")<<"skipping this cluster from last iteration on "<<fastGeomDet().geographicalId().rawId()<<" key: "<<index;
@@ -97,7 +95,7 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
 }
 
 bool
-TkPixelMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos ) const {
+TkPixelMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {
     if (badRocPositions_.empty()) return false;
     LocalPoint lp = tsos.localPosition();
     LocalError le = tsos.localError().positionError();

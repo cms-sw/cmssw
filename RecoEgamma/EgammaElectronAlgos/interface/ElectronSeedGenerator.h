@@ -113,6 +113,8 @@ class ElectronSeedGenerator
 
   std::string theMeasurementTrackerName;
   const MeasurementTracker*     theMeasurementTracker;
+  edm::InputTag theMeasurementTrackerEventTag;
+
   const NavigationSchool*       theNavigationSchool;
 
   const edm::EventSetup *theSetup;

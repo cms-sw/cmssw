@@ -31,9 +31,10 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
 			      const Propagator*                     propagatorOpposite,
 			      const Chi2MeasurementEstimatorBase*   estimator,
 			      const TransientTrackingRecHitBuilder* RecHitBuilder,
-			      const MeasurementTracker*             measurementTracker,
 			      const TrajectoryFilter*               filter,
 			      const TrajectoryFilter*               inOutFilter);
+
+  virtual GroupedCkfTrajectoryBuilder * clone(const MeasurementTrackerEvent *data) const ;
 
   /// destructor
   virtual ~GroupedCkfTrajectoryBuilder(){}
@@ -109,11 +110,11 @@ protected:
   virtual void analyseResult( const TrajectoryContainer& result) const {}
 
 private :
-  /// no copy constructor
-  GroupedCkfTrajectoryBuilder (const GroupedCkfTrajectoryBuilder&)  dso_internal;
-
-  /// no assignment operator
-  GroupedCkfTrajectoryBuilder& operator= (const GroupedCkfTrajectoryBuilder&)  dso_internal;
+//  /// no copy constructor
+//  GroupedCkfTrajectoryBuilder (const GroupedCkfTrajectoryBuilder&)  = default;
+//
+//  /// no assignment operator
+//  GroupedCkfTrajectoryBuilder& operator= (const GroupedCkfTrajectoryBuilder&)  dso_internal;
 
   
   inline bool tkxor(bool a, bool b) const  dso_internal {return (a||b) && !(a&&b);}
