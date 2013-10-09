@@ -119,7 +119,7 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
   SingleLeg_p->assign(outputOneLegConversionCollection.begin(),outputOneLegConversionCollection.end()); 
   const edm::OrphanHandle<reco::ConversionCollection> singleLegConvOrhpHandle = theEvent.put(SingleLeg_p,PFConversionCollection_);
 
-  std::cout <<  "  GEDPhotonCoreProducer::produce orphanHandle to single legs " <<  singleLegConvOrhpHandle->size() << std::endl;
+  //std::cout <<  "  GEDPhotonCoreProducer::produce orphanHandle to single legs " <<  singleLegConvOrhpHandle->size() << std::endl;
   //std::cout <<  "  GEDPhotonCoreProducer::produce photon size " <<  outputPhotonCoreCollection.size() << std::endl;
 
   
