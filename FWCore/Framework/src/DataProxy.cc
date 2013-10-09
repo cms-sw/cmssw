@@ -72,14 +72,14 @@ DataProxy::~DataProxy()
 // member functions
 //
 void DataProxy::clearCacheIsValid() {
-   cacheIsValid_ = false;
-   nonTransientAccessRequested_ = false;
+   cacheIsValid_.store(false, std::memory_order_release);
+   nonTransientAccessRequested_.store(false, std::memory_order_release);
    cache_ = 0;
 }
       
 void 
 DataProxy::resetIfTransient() {
-   if (!nonTransientAccessRequested_) {
+   if (!nonTransientAccessRequested_.load(std::memory_order_acquire)) {
       clearCacheIsValid();
       invalidateTransientCache();
    }
@@ -106,15 +106,15 @@ DataProxy::get(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTrans
    if(!cacheIsValid()) {
       std::lock_guard<std::recursive_mutex> guard(s_esGlobalMutex);
       if(!cacheIsValid()) {
-        cache_ = const_cast<DataProxy*>(this)->getImpl(iRecord, iKey);
-        cacheIsValid_ = true;
+         cache_ = const_cast<DataProxy*>(this)->getImpl(iRecord, iKey);
+         cacheIsValid_.store(true,std::memory_order_release);
       }
    }
    //We need to set the AccessType for each request so this can't be called in the if block above.
    //This also must be before the cache_ check since we want to setCacheIsValid before a possible
    // exception throw. If we don't, 'getImpl' will be called again on a second request for the data.
    if(!iTransiently) {
-      nonTransientAccessRequested_ = true;
+      nonTransientAccessRequested_.store(true, std::memory_order_release);
    }
 
    if(0 == cache_) {

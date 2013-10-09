@@ -38,7 +38,7 @@ namespace edm {
          virtual ~DataProxy();
 
          // ---------- const member functions ---------------------
-         bool cacheIsValid() const { return cacheIsValid_; }
+         bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
 
          void doGet(EventSetupRecord const& iRecord, DataKey const& iKey, bool iTransiently) const;
          void const* get(EventSetupRecord const&, DataKey const& iKey, bool iTransiently) const;
