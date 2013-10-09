@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <mutex>
 
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
@@ -24,6 +25,7 @@
 //
 namespace edm {
    namespace eventsetup {
+     static std::recursive_mutex s_esGlobalMutex;
 //
 // static data member definitions
 //
@@ -69,23 +71,15 @@ DataProxy::~DataProxy()
 //
 // member functions
 //
-void 
-DataProxy::setCacheIsValidAndAccessType(bool iTransientAccessOnly) const { 
-   cacheIsValid_ = true;
-   if(!iTransientAccessOnly) {
-      nonTransientAccessRequested_ = true;
-   }
-}
-      
-void DataProxy::clearCacheIsValid() { 
-   cacheIsValid_ = false;
-   nonTransientAccessRequested_ = false;
+void DataProxy::clearCacheIsValid() {
+   cacheIsValid_.store(false, std::memory_order_release);
+   nonTransientAccessRequested_.store(false, std::memory_order_release);
    cache_ = 0;
 }
       
 void 
 DataProxy::resetIfTransient() {
-   if (!nonTransientAccessRequested_) {
+   if (!nonTransientAccessRequested_.load(std::memory_order_acquire)) {
       clearCacheIsValid();
       invalidateTransientCache();
    }
@@ -110,13 +104,19 @@ const void*
 DataProxy::get(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTransiently) const
 {
    if(!cacheIsValid()) {
-      cache_ = const_cast<DataProxy*>(this)->getImpl(iRecord, iKey);
+      std::lock_guard<std::recursive_mutex> guard(s_esGlobalMutex);
+      if(!cacheIsValid()) {
+         cache_ = const_cast<DataProxy*>(this)->getImpl(iRecord, iKey);
+         cacheIsValid_.store(true,std::memory_order_release);
+      }
    }
-   //It is safe to always set cache to valid.
    //We need to set the AccessType for each request so this can't be called in the if block above.
    //This also must be before the cache_ check since we want to setCacheIsValid before a possible
    // exception throw. If we don't, 'getImpl' will be called again on a second request for the data.
-   setCacheIsValidAndAccessType(iTransiently);
+   if(!iTransiently) {
+      nonTransientAccessRequested_.store(true, std::memory_order_release);
+   }
+
    if(0 == cache_) {
       throwMakeException(iRecord, iKey);
    }
