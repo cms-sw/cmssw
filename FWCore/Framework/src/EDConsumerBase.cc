@@ -71,19 +71,24 @@ EDConsumerBase::consumesCollector() {
 
 unsigned int
 EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets) {
+
+  if(frozen_) {
+    throwConsumesCallAfterFrozen(iType, iTag);
+  }
+
   unsigned int index =m_tokenInfo.size();
+
+  bool skipCurrentProcess = iTag.willSkipCurrentProcess();
 
   const size_t labelSize = iTag.label().size();
   const size_t productInstanceSize = iTag.instance().size();
   unsigned int labelStart = m_tokenLabels.size();
   unsigned short delta1 = labelSize+1;
   unsigned short delta2 = labelSize+2+productInstanceSize;
-  m_tokenInfo.emplace_back(TokenLookupInfo{iType.type(),ProductHolderIndexInvalid,iBranch},
+  m_tokenInfo.emplace_back(TokenLookupInfo{iType.type(), ProductHolderIndexInvalid, skipCurrentProcess, iBranch},
                            iAlwaysGets,
                            LabelPlacement{labelStart,delta1,delta2},
                            iType.kind());
-
-  bool skipCurrentProcess = iTag.willSkipCurrentProcess();
 
   const size_t additionalSize =
       skipCurrentProcess ?
@@ -117,6 +122,7 @@ void
 EDConsumerBase::updateLookup(BranchType iBranchType,
                              ProductHolderIndexHelper const& iHelper)
 {
+  frozen_ = true;
   {
     auto itKind = m_tokenInfo.begin<kKind>();
     auto itLabels = m_tokenInfo.begin<kLabels>();
@@ -125,22 +131,23 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
       if(itInfo->m_branchType == iBranchType) {
         const unsigned int labelStart = itLabels->m_startOfModuleLabel;
         const char* moduleLabel = &(m_tokenLabels[labelStart]);
-        itInfo->m_index = iHelper.index(*itKind,
-                                        itInfo->m_type,
-                                        moduleLabel,
-                                        moduleLabel+itLabels->m_deltaToProductInstance,
-                                        moduleLabel+itLabels->m_deltaToProcessName);
+        itInfo->m_index = ProductHolderIndexAndSkipBit(iHelper.index(*itKind,
+                                                                     itInfo->m_type,
+                                                                     moduleLabel,
+                                                                     moduleLabel+itLabels->m_deltaToProductInstance,
+                                                                     moduleLabel+itLabels->m_deltaToProcessName),
+                                                       itInfo->m_index.skipCurrentProcess());
       }
     }
   }
-  
+
   //now add resolved requests to get many to the end of our list
   // a get many will have an empty module label
   for(size_t i=0, iEnd = m_tokenInfo.size(); i!=iEnd;++i) {
     //need to copy since pointer could be invalidated by emplace_back
     auto const info = m_tokenInfo.get<kLookupInfo>(i);
     if(info.m_branchType == iBranchType &&
-       info.m_index == ProductHolderIndexInvalid &&
+       info.m_index.productHolderIndex() == ProductHolderIndexInvalid &&
        m_tokenLabels[m_tokenInfo.get<kLabels>(i).m_startOfModuleLabel]=='\0') {
       //find all matching types
       const auto kind=m_tokenInfo.get<kKind>(i);
@@ -154,7 +161,7 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
         //only keep the ones that are for a specific data item and not a collection
         if(matches.isFullyResolved(j)) {
           auto index =matches.index(j);
-          m_tokenInfo.emplace_back(TokenLookupInfo{info.m_type,index,info.m_branchType},
+          m_tokenInfo.emplace_back(TokenLookupInfo{info.m_type, index, info.m_index.skipCurrentProcess(), info.m_branchType},
                                    alwaysGet,
                                    labels,
                                    kind);
@@ -163,13 +170,16 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
     }
   }
   m_tokenInfo.shrink_to_fit();
-}
 
+  if(iBranchType == InEvent) {
+    itemsToGet(iBranchType, itemsToGetFromEvent_);
+  }
+}
 
 //
 // const member functions
 //
-ProductHolderIndex
+ProductHolderIndexAndSkipBit
 EDConsumerBase::indexFrom(EDGetToken iToken, BranchType iBranch, TypeID const& iType) const
 {
   if(unlikely(iToken.index()>=m_tokenInfo.size())) {
@@ -185,11 +195,11 @@ EDConsumerBase::indexFrom(EDGetToken iToken, BranchType iBranch, TypeID const& i
   } else {
     throwBranchMismatch(iBranch,iToken);
   }
-  return edm::ProductHolderIndexInvalid;
+  return ProductHolderIndexAndSkipBit(edm::ProductHolderIndexInvalid, false);
 }
 
 void
-EDConsumerBase::itemsToGet(BranchType iBranch, std::vector<ProductHolderIndex>& oIndices) const
+EDConsumerBase::itemsToGet(BranchType iBranch, std::vector<ProductHolderIndexAndSkipBit>& oIndices) const
 {
   //how many are we adding?
   unsigned int count=0;
@@ -199,7 +209,7 @@ EDConsumerBase::itemsToGet(BranchType iBranch, std::vector<ProductHolderIndex>& 
         itEnd = m_tokenInfo.end<kLookupInfo>();
         it != itEnd; ++it,++itAlwaysGet) {
       if(iBranch==it->m_branchType) {
-        if (it->m_index != ProductHolderIndexInvalid) {
+        if (it->m_index.productHolderIndex() != ProductHolderIndexInvalid) {
           if(*itAlwaysGet) {
             ++count;
           }
@@ -214,7 +224,7 @@ EDConsumerBase::itemsToGet(BranchType iBranch, std::vector<ProductHolderIndex>& 
         itEnd = m_tokenInfo.end<kLookupInfo>();
         it != itEnd; ++it,++itAlwaysGet) {
       if(iBranch==it->m_branchType) {
-        if (it->m_index != ProductHolderIndexInvalid) {
+        if (it->m_index.productHolderIndex() != ProductHolderIndexInvalid) {
           if(*itAlwaysGet) {
             oIndices.push_back(it->m_index);
           }
@@ -225,7 +235,7 @@ EDConsumerBase::itemsToGet(BranchType iBranch, std::vector<ProductHolderIndex>& 
 }
 
 void
-EDConsumerBase::itemsMayGet(BranchType iBranch, std::vector<ProductHolderIndex>& oIndices) const
+EDConsumerBase::itemsMayGet(BranchType iBranch, std::vector<ProductHolderIndexAndSkipBit>& oIndices) const
 {
   //how many are we adding?
   unsigned int count=0;
@@ -235,7 +245,7 @@ EDConsumerBase::itemsMayGet(BranchType iBranch, std::vector<ProductHolderIndex>&
         itEnd = m_tokenInfo.end<kLookupInfo>();
         it != itEnd; ++it,++itAlwaysGet) {
       if(iBranch==it->m_branchType) {
-        if (it->m_index != ProductHolderIndexInvalid) {
+        if (it->m_index.productHolderIndex() != ProductHolderIndexInvalid) {
           if(not *itAlwaysGet) {
             ++count;
           }
@@ -250,7 +260,7 @@ EDConsumerBase::itemsMayGet(BranchType iBranch, std::vector<ProductHolderIndex>&
         itEnd = m_tokenInfo.end<kLookupInfo>();
         it != itEnd; ++it,++itAlwaysGet) {
       if(iBranch==it->m_branchType) {
-        if (it->m_index != ProductHolderIndexInvalid) {
+        if (it->m_index.productHolderIndex() != ProductHolderIndexInvalid) {
           if(not *itAlwaysGet) {
             oIndices.push_back(it->m_index);
           }
@@ -272,12 +282,13 @@ EDConsumerBase::labelsForToken(EDGetToken iToken, Labels& oLabels) const
 }
 
 bool
-EDConsumerBase::registeredToConsume(ProductHolderIndex iIndex, BranchType iBranch) const
+EDConsumerBase::registeredToConsume(ProductHolderIndex iIndex, bool skipCurrentProcess, BranchType iBranch) const
 {
   for(auto it = m_tokenInfo.begin<kLookupInfo>(),
       itEnd = m_tokenInfo.end<kLookupInfo>();
       it != itEnd; ++it) {
-    if(it->m_index == iIndex and
+    if(it->m_index.productHolderIndex() == iIndex and
+       it->m_index.skipCurrentProcess() == skipCurrentProcess and
        it->m_branchType == iBranch) {
       return true;
     }
@@ -285,7 +296,7 @@ EDConsumerBase::registeredToConsume(ProductHolderIndex iIndex, BranchType iBranc
   //TEMPORARY: Remember so we do not have to do this again
   //non thread-safe
   EDConsumerBase* nonConstThis = const_cast<EDConsumerBase*>(this);
-  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{TypeID{},iIndex,iBranch},
+  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{TypeID{}, iIndex, skipCurrentProcess, iBranch},
                                          true,
                                          LabelPlacement{0,0,0},
                                          PRODUCT_TYPE);
@@ -300,7 +311,7 @@ EDConsumerBase::registeredToConsumeMany(TypeID const& iType, BranchType iBranch)
       itEnd = m_tokenInfo.end<kLookupInfo>();
       it != itEnd; ++it) {
     //consumesMany entries do not have their index resolved
-    if(it->m_index == ProductHolderIndexInvalid and
+    if(it->m_index.productHolderIndex() == ProductHolderIndexInvalid and
        it->m_type == iType and
        it->m_branchType == iBranch) {
       return true;
@@ -309,7 +320,7 @@ EDConsumerBase::registeredToConsumeMany(TypeID const& iType, BranchType iBranch)
   //TEMPORARY: Remember so we do not have to do this again
   //non thread-safe
   EDConsumerBase* nonConstThis = const_cast<EDConsumerBase*>(this);
-  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{iType,ProductHolderIndexInvalid,iBranch},
+  nonConstThis->m_tokenInfo.emplace_back(TokenLookupInfo{iType,ProductHolderIndexInvalid, false, iBranch},
                            true,
                            LabelPlacement{0,0,0},
                            PRODUCT_TYPE);
@@ -337,6 +348,13 @@ EDConsumerBase::throwBadToken(edm::TypeID const& iType, EDGetToken iToken) const
   throw cms::Exception("BadToken")<<"A get using a EDGetToken with the C++ type '"<<iType.className()<<"' was made using a token with a value "<<iToken.index()<<" which is beyond the range used by this module.\n Please check that the variable is being initialized from a 'consumes' call from this module.\n You can not share EDGetToken values between modules.";
 }
 
+void
+EDConsumerBase::throwConsumesCallAfterFrozen(TypeToGet const& typeToGet, InputTag const& inputTag) const {
+  throw cms::Exception("LogicError") << "A module declared it consumes a product after its constructor.\n"
+                                     << "This must be done in the contructor\n"
+                                     << "The product type was: " << typeToGet.type() << "\n"
+                                     << "and " << inputTag << "\n";
+}
 
 //
 // static member functions
