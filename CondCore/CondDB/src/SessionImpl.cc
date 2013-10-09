@@ -1,5 +1,6 @@
 #include "CondCore/CondDB/interface/Exception.h"
 #include "SessionImpl.h"
+#include "DbConnectionString.h"
 //
 #include "RelationalAccess/ITransaction.h"
 
@@ -16,14 +17,15 @@ SessionImpl::~SessionImpl(){
     
 void SessionImpl::connect( const std::string& connectionString, 
 			   bool readOnly ){
-  disconnect();
-  configuration.configure( connectionService.configuration() );
-  coralSession.reset( connectionService.connect( connectionString, readOnly?coral::ReadOnly:coral::Update ) );
+  connect( connectionString, "", readOnly );
 }
 void SessionImpl::connect( const std::string& connectionString, 
-			   const std::string&,
+			   const std::string& transactionId,
 			   bool readOnly ){
-  connect( connectionString, readOnly );
+  disconnect();
+  configuration.configure( connectionService.configuration() );
+  coralSession.reset( connectionService.connect( getRealConnectionString( connectionString, transactionId ), 
+						 readOnly?coral::ReadOnly:coral::Update ) );
 }
 
 void SessionImpl::connect( boost::shared_ptr<coral::ISessionProxy>& csession ){
