@@ -191,7 +191,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
 	inputCfg_.edIsoVals.getParameterNamesForType<edm::InputTag>();
       for(const std::string& name : isoNames) {
 	edm::InputTag tag = 
-	  inputCfg_.pfIsoVals.getParameter<edm::InputTag>(name);
+	  inputCfg_.edIsoVals.getParameter<edm::InputTag>(name);
 	mayConsume<edm::ValueMap<double> >(tag);
       }
     }
