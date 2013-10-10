@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -32,6 +31,7 @@ PFCandidateBenchmarkAnalyzer::PFCandidateBenchmarkAnalyzer(const edm::ParameterS
 	    parameterSet.getParameter<double>("phiMin"),
 	    parameterSet.getParameter<double>("phiMax") );
 
+  myColl_ = consumes< PFCandidateCollection >(inputLabel_);
 }
 
 
@@ -47,12 +47,9 @@ void
 PFCandidateBenchmarkAnalyzer::analyze(const edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup) {
   
-
   
   Handle<PFCandidateCollection> collection; 
   //iEvent.getByLabel( inputLabel_, collection); 
-  EDGetTokenT< PFCandidateCollection > myColl_;
-  myColl_ = consumes< PFCandidateCollection >(inputLabel_);
   iEvent.getByToken(myColl_, collection);
 
   fill( *collection );

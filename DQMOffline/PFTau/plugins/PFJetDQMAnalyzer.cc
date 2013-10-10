@@ -29,6 +29,8 @@ PFJetDQMAnalyzer::PFJetDQMAnalyzer(const edm::ParameterSet& parameterSet)
 
   pfJetMonitor_.setParameters(parameterSet);  // set parameters for booking histograms and validating jet 
   
+  myJet_ = consumes< edm::View<reco::Jet> >(inputLabel_);
+  myMatchedJet_ = consumes< edm::View<reco::Jet> >(matchLabel_);
 }
 //
 // -- BeginJob
@@ -51,12 +53,10 @@ void PFJetDQMAnalyzer::analyze(edm::Event const& iEvent,
 
   edm::Handle< edm::View<reco::Jet> > jetCollection;
   //iEvent.getByLabel(inputLabel_, jetCollection);   
-  myJet_ = consumes< edm::View<reco::Jet> >(inputLabel_);
   iEvent.getByToken(myJet_, jetCollection);   
   
   edm::Handle< edm::View<reco::Jet> > matchedJetCollection; 
   //iEvent.getByLabel( matchLabel_, matchedJetCollection);
-  myMatchedJet_ = consumes< edm::View<reco::Jet> >(matchLabel_);
   iEvent.getByToken(myMatchedJet_, matchedJetCollection);
 
   float maxRes = 0.0;

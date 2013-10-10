@@ -4,6 +4,8 @@
 #include "DQMOffline/PFTau/plugins/BenchmarkAnalyzer.h"
 #include "DQMOffline/PFTau/interface/MatchMETBenchmark.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
 class TH1F; 
 
 class MatchMETBenchmarkAnalyzer: public BenchmarkAnalyzer, public MatchMETBenchmark {
@@ -16,6 +18,7 @@ class MatchMETBenchmarkAnalyzer: public BenchmarkAnalyzer, public MatchMETBenchm
   void endJob();
 
  protected:
+  edm::EDGetTokenT< edm::View<reco::MET> > myColl_;
   edm::EDGetTokenT< edm::View<reco::MET> > myMatchColl_;
   edm::InputTag matchedInputLabel_;
 };

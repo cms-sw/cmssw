@@ -27,6 +27,8 @@ PFMETDQMAnalyzer::PFMETDQMAnalyzer(const edm::ParameterSet& parameterSet)
 
   pfMETMonitor_.setParameters(parameterSet);  
 
+  myMET_ = consumes< edm::View<reco::MET> >(inputLabel_);
+  myMatchedMET_ = consumes< edm::View<reco::MET> >(matchLabel_);
 }
 //
 // -- BeginJob
@@ -48,12 +50,10 @@ void PFMETDQMAnalyzer::analyze(edm::Event const& iEvent,
 				      edm::EventSetup const& iSetup) {
   edm::Handle< edm::View<reco::MET> > metCollection;
   //iEvent.getByLabel(inputLabel_, metCollection);   
-  myMET_ = consumes< edm::View<reco::MET> >(inputLabel_);
   iEvent.getByToken(myMET_, metCollection);   
   
   edm::Handle< edm::View<reco::MET> > matchedMetCollection; 
   //iEvent.getByLabel( matchLabel_, matchedMetCollection);
-  myMatchedMET_ = consumes< edm::View<reco::MET> >(matchLabel_);
   iEvent.getByToken(myMatchedMET_, matchedMetCollection);
 
   if (metCollection.isValid() && matchedMetCollection.isValid()) {

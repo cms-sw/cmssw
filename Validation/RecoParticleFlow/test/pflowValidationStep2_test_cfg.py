@@ -13,7 +13,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 #------------------------------------------------
 # Input Source (EDM file(s) created at step #1
 #-----------------------------------------------
-dataset = 'ZEE' # to be used with RunPFVal.sh
+dataset = 'QCD' # to be used with RunPFVal.sh
 process.source = cms.Source("PoolSource",
                    fileNames = cms.untracked.vstring('file:MEtoEDM_'+dataset+'_PFlow.root'),
                    processingMode = cms.untracked.string('RunsAndLumis')
