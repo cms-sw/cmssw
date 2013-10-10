@@ -7,6 +7,8 @@
 contains one threshold + corresponding DetId
 */
 
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 
 class HcalZSThreshold
@@ -22,6 +24,8 @@ class HcalZSThreshold
  private:
   uint32_t mId;
   int mLevel;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

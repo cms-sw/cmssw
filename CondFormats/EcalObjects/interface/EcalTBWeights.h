@@ -7,6 +7,8 @@
  **/
 
 
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include <map>
 #include <boost/cstdint.hpp>
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
@@ -30,5 +32,7 @@ class EcalTBWeights {
 
   private:
     EcalTBWeightMap map_;
+
+  COND_SERIALIZABLE;
 };
 #endif

@@ -2,3 +2,7 @@
 <bin   name="testEcalShowerContainmentCorrections" file="testEcalShowerContaimentCorrections.cc">
   <use   name="cppunit"/>
 </bin>
+
+<bin file="testSerializationEcalCorrections.cpp">
+    <use   name="CondFormats/External"/>
+</bin>

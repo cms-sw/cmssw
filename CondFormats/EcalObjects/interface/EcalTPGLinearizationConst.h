@@ -1,6 +1,8 @@
 #ifndef EcalTPGLinearizationConst_h
 #define EcalTPGLinearizationConst_h
 
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 
 struct EcalTPGLinearizationConstant
@@ -11,6 +13,8 @@ struct EcalTPGLinearizationConstant
    uint32_t shift_x12 ;
    uint32_t shift_x6 ;
    uint32_t shift_x1 ;
+
+   COND_SERIALIZABLE;
 };
 
 typedef EcalCondObjectContainer<EcalTPGLinearizationConstant> EcalTPGLinearizationConstMap;

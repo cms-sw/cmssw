@@ -19,6 +19,8 @@
 // $Id: SiPixelGainCalibration.h,v 1.8 2009/02/10 17:25:42 rougny Exp $
 //
 //
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -39,7 +41,9 @@ class SiPixelGainCalibration {
     uint32_t ibegin;
     uint32_t iend;
     int ncols;
-  };
+  
+  COND_SERIALIZABLE;
+};
   
   class StrictWeakOrdering{
   public:
@@ -93,6 +97,8 @@ class SiPixelGainCalibration {
   unsigned int deadFlag_;
   unsigned int noisyFlag_;
 
+
+ COND_SERIALIZABLE;
 };
     
 #endif

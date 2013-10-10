@@ -5,6 +5,8 @@
  * Created: 10 July 2007
  * $Id: EcalLaserAPDPNRatios.h,v 1.6 2009/06/24 09:42:27 fra Exp $
  **/
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include <vector>
@@ -15,12 +17,16 @@ class EcalTimeDependentCorrections {
     float p1;
     float p2;
     float p3;
-  };
+  
+  COND_SERIALIZABLE;
+};
   struct Times {
     edm::Timestamp t1;
     edm::Timestamp t2;
     edm::Timestamp t3;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   typedef EcalCondObjectContainer<Values> EcalValueMap;
   typedef std::vector<Times> EcalTimeMap;
@@ -38,6 +44,8 @@ class EcalTimeDependentCorrections {
   EcalValueMap value_map;
   EcalTimeMap time_map;
    
+
+ COND_SERIALIZABLE;
 };
 
 #endif

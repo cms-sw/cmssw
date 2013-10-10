@@ -1,0 +1,6 @@
+<use   name="CondFormats/EgammaObjects"/>
+
+<bin file="testSerializationEgammaObjects.cpp">
+    <flags CXXFLAGS="-DSKIP_REFLEX_DICT"/>
+    <use   name="CondFormats/External"/>
+</bin>

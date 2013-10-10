@@ -7,6 +7,8 @@
  **/
 
 
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include <iostream>
 #include <boost/cstdint.hpp>
 
@@ -66,5 +68,7 @@ class EcalChannelStatusCode {
         bit 12: channel next to a dead channel 
      */
     uint16_t status_;
+
+  COND_SERIALIZABLE;
 };
 #endif

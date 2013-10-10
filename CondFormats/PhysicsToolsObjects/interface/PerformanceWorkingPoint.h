@@ -2,6 +2,8 @@
 #define PerformanceWorkingPoint_h
 
 
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include "string"
 
 class PerformanceWorkingPoint {
@@ -15,6 +17,8 @@ class PerformanceWorkingPoint {
  private: 
   float cut_;
   std::string dname_;
+
+ COND_SERIALIZABLE;
 };
 
 

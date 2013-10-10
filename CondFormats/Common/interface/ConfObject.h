@@ -1,6 +1,8 @@
 #ifndef ConfObject_h
 #define ConfObject_h
 
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include <iostream>
 #include <vector>
 #include <map>
@@ -67,6 +69,8 @@ class ConfObject
   typedef std::map<std::string, std::string> parMap;
 
   parMap parameters;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

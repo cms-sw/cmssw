@@ -24,3 +24,10 @@
 <library   name="CondFormatsCommonTest" file="ProduceDropBoxMetadata.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<bin file="testSerializationCommon.cpp">
+    <use   name="CondFormats/External"/>
+</bin>
+<bin file="testSerializationEqual.cpp">
+    <use   name="CondFormats/External"/>
+</bin>
