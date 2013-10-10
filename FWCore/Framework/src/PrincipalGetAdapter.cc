@@ -159,7 +159,9 @@ namespace edm {
   BasicHandle
   PrincipalGetAdapter::getByToken_(TypeID const& id, KindOfType kindOfType, EDGetToken token,
                                    ModuleCallingContext const* mcc) const {
-    ProductHolderIndex index = consumer_->indexFrom(token,InEvent,id);
+    ProductHolderIndexAndSkipBit indexAndBit = consumer_->indexFrom(token,InEvent,id);
+    ProductHolderIndex index = indexAndBit.productHolderIndex();
+    bool skipCurrentProcess = indexAndBit.skipCurrentProcess();
     if( unlikely(index == ProductHolderIndexInvalid)) {
       return makeFailToGetException(kindOfType,id,token);
     } else if( unlikely(index == ProductHolderIndexAmbiguous)) {
@@ -167,7 +169,7 @@ namespace edm {
       throwAmbiguousException(id, token);
     }
     bool ambiguous = false;
-    BasicHandle h = principal_.getByToken(kindOfType,id,index, token.willSkipCurrentProcess(), ambiguous, mcc);
+    BasicHandle h = principal_.getByToken(kindOfType, id, index, skipCurrentProcess, ambiguous, mcc);
     if (ambiguous) {
       // This deals with ambiguities where the process is not specified
       throwAmbiguousException(id, token);
