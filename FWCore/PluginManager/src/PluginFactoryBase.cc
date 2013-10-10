@@ -72,7 +72,7 @@ PluginFactoryBase::newPlugin(const std::string& iName)
 }
 
 
-PluginFactoryBase::Plugins::const_iterator 
+void*
 PluginFactoryBase::findPMaker(const std::string& iName) const
 {
   //do we already have it?
@@ -87,11 +87,11 @@ PluginFactoryBase::findPMaker(const std::string& iName) const
   } else {
     checkProperLoadable(iName,itFound->second.front().second);
   }
-  return itFound;
+  return itFound->second.front().first;
 }
 
 
-PluginFactoryBase::Plugins::const_iterator 
+void*
 PluginFactoryBase::tryToFindPMaker(const std::string& iName) const
 {
   //do we already have it?
@@ -109,7 +109,7 @@ PluginFactoryBase::tryToFindPMaker(const std::string& iName) const
   } else {
     checkProperLoadable(iName,itFound->second.front().second);
   }
-  return itFound;
+  return itFound != m_plugins.end()? itFound->second.front().first : nullptr;
 }
 
 void 

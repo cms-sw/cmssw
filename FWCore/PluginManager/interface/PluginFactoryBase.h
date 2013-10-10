@@ -66,10 +66,10 @@ class PluginFactoryBase
       //since each inheriting class has its own Container type to hold their PMakers
       // this function allows them to share the same code when doing the lookup
       // this routine will throw an exception if iName is unknown therefore the return value is always valid
-      Plugins::const_iterator findPMaker(const std::string& iName) const;
+      void* findPMaker(const std::string& iName) const;
 
       //similar to findPMaker but will return 'end()' if iName is known
-      Plugins::const_iterator tryToFindPMaker(const std::string& iName) const;
+      void* tryToFindPMaker(const std::string& iName) const;
       
       void fillInfo(const PMakers &makers,
                     PluginInfo& iInfo,
