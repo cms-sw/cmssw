@@ -337,7 +337,7 @@ void DTCompactMapWriter::buildSteering( std::istream& jobDesc ) {
     }
 
   }
-  delete job_line;
+  delete[] job_line;
 
   // merge ROS and TDC maps
   fillReadOutMap( ros_count, tdc_idm, ros_map, rob_map );

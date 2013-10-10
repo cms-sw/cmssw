@@ -6,7 +6,6 @@
 //local includes
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/SQLReport.h"
-#include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/Utilities/interface/Utilities.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
