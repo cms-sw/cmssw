@@ -1,0 +1,6 @@
+<use   name="root"/>
+<use   name="DataFormats/RecoCandidate"/>
+<export>
+  <lib name="1"/>
+</export>
+
