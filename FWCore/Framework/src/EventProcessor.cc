@@ -1797,25 +1797,37 @@ namespace edm {
           break;
         }
         {
-          //nextItemType and readEvent need to be in same critical section
-          std::lock_guard<std::mutex> sourceGuard(nextTransitionMutex_);
           
-          if(finishedProcessingEvents->load(std::memory_order_acquire)) {
-            //std::cerr<<"finishedProcessingEvents\n";
-            break;
+          
+          {
+            //nextItemType and readEvent need to be in same critical section
+            std::lock_guard<std::mutex> sourceGuard(nextTransitionMutex_);
+            
+            if(finishedProcessingEvents->load(std::memory_order_acquire)) {
+              //std::cerr<<"finishedProcessingEvents\n";
+              break;
+            }
+
+            //If source and DelayedReader share a resource we must serialize them
+            auto sr = input_->resourceSharedWithDelayedReader();
+            std::unique_lock<SharedResourcesAcquirer> delayedReaderGuard;
+            if(sr) {
+              delayedReaderGuard = std::unique_lock<SharedResourcesAcquirer>(*sr);
+            }
+            
+            InputSource::ItemType itemType = input_->nextItemType();
+            if (InputSource::IsEvent !=itemType) {
+              nextItemTypeFromProcessingEvents_ = itemType;
+              finishedProcessingEvents->store(true,std::memory_order_release);
+              //std::cerr<<"next item type "<<itemType<<"\n";
+              break;
+            }
+            if((asyncStopRequestedWhileProcessingEvents_=checkForAsyncStopRequest(asyncStopStatusCodeFromProcessingEvents_))) {
+              //std::cerr<<"task told to async stop\n";
+              break;
+            }
+            readEvent(iStreamIndex);
           }
-          InputSource::ItemType itemType = input_->nextItemType();
-          if (InputSource::IsEvent !=itemType) {
-            nextItemTypeFromProcessingEvents_ = itemType;
-            finishedProcessingEvents->store(true,std::memory_order_release);
-            //std::cerr<<"next item type "<<itemType<<"\n";
-            break;
-          }
-          if((asyncStopRequestedWhileProcessingEvents_=checkForAsyncStopRequest(asyncStopStatusCodeFromProcessingEvents_))) {
-            //std::cerr<<"task told to async stop\n";
-            break;
-          }
-          readEvent(iStreamIndex);
         }
         if(deferredExceptionPtrIsSet_.load(std::memory_order_acquire)) {
           //another thread hit an exception

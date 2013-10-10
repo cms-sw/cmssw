@@ -67,6 +67,7 @@ namespace edm {
   class ProcessHistoryRegistry;
   class ProductRegistry;
   class StreamContext;
+  class SharedResourcesAcquirer;
   namespace multicore {
     class MessageReceiverForSource;
   }
@@ -180,6 +181,9 @@ namespace edm {
       remainingEvents_ = maxEvents_;
       remainingLumis_ = maxLumis_;
     }
+    
+    /// Returns nullptr if no resource shared between the Source and a DelayedReader
+    SharedResourcesAcquirer* resourceSharedWithDelayedReader() const;
 
     /// Accessor for maximum number of events to be read.
     /// -1 is used for unlimited.
@@ -406,6 +410,8 @@ namespace edm {
     virtual void endRun(Run&);
     virtual void beginJob();
     virtual void endJob();
+    virtual SharedResourcesAcquirer* resourceSharedWithDelayedReader_() const;
+
     virtual void preForkReleaseResources();
     virtual void postForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource>);
     virtual bool randomAccess_() const;

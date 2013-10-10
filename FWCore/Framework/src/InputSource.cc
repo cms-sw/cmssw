@@ -253,6 +253,17 @@ namespace edm {
     endJob();
   }
 
+  SharedResourcesAcquirer*
+  InputSource::resourceSharedWithDelayedReader() const {
+    return resourceSharedWithDelayedReader_();
+  }
+
+  SharedResourcesAcquirer*
+  InputSource::resourceSharedWithDelayedReader_() const {
+    return nullptr;
+  }
+
+  
   void
   InputSource::registerProducts() {
     if(!typeLabelList().empty()) {
