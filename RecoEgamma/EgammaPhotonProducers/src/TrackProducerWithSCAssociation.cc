@@ -13,7 +13,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/EgammaTrackReco/interface/TrackCandidateCaloClusterAssociation.h"
+
 #include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
