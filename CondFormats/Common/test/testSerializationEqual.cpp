@@ -59,7 +59,6 @@ void checkFloatingPoint()
     same(zero, nzero);
 
     same(first, first);
-    same(first, first);
     diff(first, second);
 
     same(inf, inf);
