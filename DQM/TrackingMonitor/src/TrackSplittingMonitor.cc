@@ -30,8 +30,14 @@
 #include <string>
 
 TrackSplittingMonitor::TrackSplittingMonitor(const edm::ParameterSet& iConfig) {
-	dqmStore_ = edm::Service<DQMStore>().operator->();
-	conf_ = iConfig;
+  dqmStore_ = edm::Service<DQMStore>().operator->();
+  conf_ = iConfig;
+
+  splitTracks_ = conf_.getParameter< edm::InputTag >("splitTrackCollection");
+  splitMuons_ = conf_.getParameter< edm::InputTag >("splitMuonCollection");
+
+  splitTracksToken_ = consumes<std::vector<reco::Track> >(splitTracks_);
+  splitMuonsToken_  = mayConsume<std::vector<reco::Muon> >(splitMuons_);
 }
 
 TrackSplittingMonitor::~TrackSplittingMonitor() { 
@@ -43,13 +49,8 @@ void TrackSplittingMonitor::beginJob(void) {
   dqmStore_->setCurrentFolder(MEFolderName);
   
   //get input tags
-  splitTracks_ = conf_.getParameter< edm::InputTag >("splitTrackCollection");
-  splitMuons_ = conf_.getParameter< edm::InputTag >("splitMuonCollection");
   plotMuons_ = conf_.getParameter<bool>("ifPlotMuons");
 
-  splitTracksToken_ = consumes<std::vector<reco::Track> >(splitTracks_);
-  splitMuonsToken_  = mayConsume<std::vector<reco::Muon> >(splitMuons_);
-  
   // cuts
   pixelHitsPerLeg_ = conf_.getParameter<int>("pixelHitsPerLeg");
   totalHitsPerLeg_ = conf_.getParameter<int>("totalHitsPerLeg");

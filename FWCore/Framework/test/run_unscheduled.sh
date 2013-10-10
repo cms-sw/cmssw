@@ -12,7 +12,9 @@ F6=${LOCAL_TEST_DIR}/test_onPath_allowUnscheduled_true_cfg.py
 F7=${LOCAL_TEST_DIR}/test_onPath_wrongOrder_allowUnscheduled_false_fail_cfg.py
 F8=${LOCAL_TEST_DIR}/test_onPath_wrongOrder_allowUnscheduled_true_fail_cfg.py
 
-(cmsRun $F1 ) || die "Failure using $F1" $?
+(cmsRun $F1 ) > test_deepCall_allowUnscheduled_true.log || die "Failure using $F1" $?
+diff test_deepCall_allowUnscheduled_true.log ${LOCAL_TEST_DIR}/unit_test_outputs/test_deepCall_allowUnscheduled_true.log || die "comparing test_deepCall_allowUnscheduled_true.log" $?
+
 !(cmsRun $F2 ) || die "Failure using $F2" $?
 !(cmsRun $F3 ) || die "Failure using $F3" $?
 (cmsRun $F4 ) || die "Failure using $F4" $?
@@ -20,5 +22,3 @@ F8=${LOCAL_TEST_DIR}/test_onPath_wrongOrder_allowUnscheduled_true_fail_cfg.py
 (cmsRun $F6 ) || die "Failure using $F6" $?
 !(cmsRun $F7 ) || die "Failure using $F7" $?
 !(cmsRun $F8 ) || die "Failure using $F8" $?
-
-
