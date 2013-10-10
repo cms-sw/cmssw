@@ -6,6 +6,7 @@ siStripSeeds = cms.EDProducer("SiStripElectronSeedProducer",
     SeedConfiguration = cms.PSet(
         beamSpot = cms.InputTag("offlineBeamSpot"),
         measurementTrackerName = cms.string(""),
+        measurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
         tibOriginZCut = cms.double(20.),
         tidOriginZCut = cms.double(20.),
         tecOriginZCut = cms.double(20.),

@@ -2,7 +2,8 @@
 #define MeasurementTrackerImpl_H
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "TkMeasurementDetSet.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+#include "RecoTracker/MeasurementDet/src/TkMeasurementDetSet.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
@@ -64,19 +65,23 @@ public:
 
   virtual ~MeasurementTrackerImpl();
  
-  virtual  void update( const edm::Event&) const;
-  void updatePixels( const edm::Event&) const;
-  void updateStrips( const edm::Event&) const;
-
   const TrackingGeometry* geomTracker() const { return theTrackerGeom;}
 
   const GeometricSearchTracker* geometricSearchTracker() const {return theGeometricSearchTracker;}
 
-  /// MeasurementDetSystem interface  (can be overloaded!)
-  virtual const MeasurementDet* 
-  idToDet(const DetId& id) const {
+  /// MeasurementDetSystem interface  (won't be overloaded anymore)
+  virtual MeasurementDetWithData 
+  idToDet(const DetId& id, const MeasurementTrackerEvent &data) const {
+    return MeasurementDetWithData(*idToDetBare(id, data), data);
+  }
+
+  /// This interface  (will be overloaded by the OnDemand one)
+  virtual const MeasurementDet * 
+  idToDetBare(const DetId& id, const MeasurementTrackerEvent &data) const {
     return findDet(id);
   }
+
+
 
   const MeasurementDet* 
   findDet(const DetId& id) const
@@ -91,49 +96,38 @@ public:
     return 0; //to avoid compile warning
   }
 
-
-  TkStripMeasurementDet * concreteDetUpdatable(DetId id) const;
-
   typedef std::unordered_map<unsigned int,MeasurementDet*>   DetContainer;
 
   /// For debug only 
   const DetContainer& allDets() const {return theDetMap;}
   const std::vector<TkStripMeasurementDet>& stripDets() const {return theStripDets;}
-  const std::vector<TkPixelMeasurementDet*>& pixelDets() const {return thePixelDets;}
+  const std::vector<TkPixelMeasurementDet>& pixelDets() const {return thePixelDets;}
   const std::vector<TkGluedMeasurementDet>& gluedDets() const {return theGluedDets;}
 
-  void setClusterToSkip(const edm::InputTag & cluster, const edm::Event& event) const;
-  void unsetClusterToSkip() const;
-  
+  virtual const StMeasurementConditionSet & stripDetConditions() const { return theStDetConditions; }
+  virtual const PxMeasurementConditionSet & pixelDetConditions() const { return thePxDetConditions; }
+
  protected:
   const edm::ParameterSet& pset_;
   const std::string name_;
 
-  mutable StMeasurementDetSet theStDets;
+  StMeasurementConditionSet theStDetConditions;
+  PxMeasurementConditionSet thePxDetConditions;
 
-  mutable DetContainer                        theDetMap;
+  DetContainer                        theDetMap;
 
+  std::vector<TkPixelMeasurementDet> thePixelDets;
+  std::vector<TkStripMeasurementDet> theStripDets;
+  std::vector<TkGluedMeasurementDet> theGluedDets;
 
-  mutable std::vector<TkPixelMeasurementDet*> thePixelDets;
-
-  mutable std::vector<TkStripMeasurementDet> theStripDets;
-  mutable std::vector<TkGluedMeasurementDet> theGluedDets;
-  
-  mutable std::vector<bool> thePixelsToSkip;
-
-  const PixelClusterParameterEstimator* thePixelCPE;
   const SiPixelFedCabling*              thePixelCabling;
 
-  const std::vector<edm::InputTag>      theInactivePixelDetectorLabels;
-  const std::vector<edm::InputTag>      theInactiveStripDetectorLabels;
-
-  bool selfUpdateSkipClusters_;
-
   void initialize();
+  void initStMeasurementConditionSet(std::vector<TkStripMeasurementDet> & stripDets);
+  void initPxMeasurementConditionSet(std::vector<TkPixelMeasurementDet> & pixelDets);
 
   void addStripDet( const GeomDet* gd);
-  void addPixelDet( const GeomDet* gd,
-		    const PixelClusterParameterEstimator* cpe);
+  void addPixelDet( const GeomDet* gd);
 
   void addGluedDet( const GluedGeomDet* gd);
   void initGluedDet( TkGluedMeasurementDet & det);
@@ -145,8 +139,6 @@ public:
   void initializeStripStatus (const SiStripQuality *stripQuality, int qualityFlags, int qualityDebugFlags);
 
   void initializePixelStatus (const SiPixelQuality *stripQuality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags);
-
-  void getInactiveStrips(const edm::Event& event,std::vector<uint32_t> & rawInactiveDetIds) const;
 };
 
 #endif

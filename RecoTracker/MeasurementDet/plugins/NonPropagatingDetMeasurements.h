@@ -5,6 +5,7 @@
 
 class TrajectoryMeasurement;
 class MeasurementDet;
+class MeasurementTrackerEvent;
 class TrajectoryStateOnSurface;
 class MeasurementEstimator;
 
@@ -13,7 +14,8 @@ public:
 
   std::vector<TrajectoryMeasurement> get( const MeasurementDet& det,
 					  const TrajectoryStateOnSurface& stateOnThisDet,
-					  const MeasurementEstimator& est) const;
+					  const MeasurementEstimator& est,
+                                          const MeasurementTrackerEvent& data) const;
 };
 
 #endif 

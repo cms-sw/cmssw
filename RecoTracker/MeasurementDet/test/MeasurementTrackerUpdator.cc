@@ -70,7 +70,7 @@ void MeasurementTrackerUpdator::analyze(const edm::Event& iEvent, const edm::Eve
   iSetup.get<CkfComponentsRecord>().get(theMeasurementTrackerName, measurementTracker);
 
   //update it to trigger the possible unpacking so that it is decoupled from the hosting module
-  measurementTracker->update(iEvent);
+  //measurementTracker->update(iEvent);
 
 }
 

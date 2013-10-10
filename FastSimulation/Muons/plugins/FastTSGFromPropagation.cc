@@ -20,6 +20,7 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 // #include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "RecoMuon/GlobalTrackingTools/interface/DirectTrackerNavigation.h"
@@ -44,17 +45,18 @@
 using namespace std;
 
 
-FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theNavigation(0), theService(0), theEstimator(0),  theSigmaZ(0), theConfig (iConfig),
+FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements(), theTracker(0), theNavigation(0), theService(0), theEstimator(0),  theSigmaZ(0), theConfig (iConfig),
   beamSpot_(iConfig.getParameter<edm::InputTag>("beamSpot"))
 {
   theCategory = "FastSimulation|Muons||FastTSGFromPropagation";
-
+  theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
 }
 
-FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theSigmaZ(0), theConfig (iConfig),
+FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements(), theTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theSigmaZ(0), theConfig (iConfig),
   beamSpot_(iConfig.getParameter<edm::InputTag>("beamSpot"))
 {
   theCategory = "FastSimulation|Muons|FastTSGFromPropagation";
+  theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
 }
 
 FastTSGFromPropagation::~FastTSGFromPropagation()
@@ -64,7 +66,6 @@ FastTSGFromPropagation::~FastTSGFromPropagation()
   if ( theNavigation ) delete theNavigation;
   if ( theUpdator ) delete theUpdator;
   if ( theEstimator ) delete theEstimator;
-  if ( theTkLayerMeasurements ) delete theTkLayerMeasurements;
   if ( theErrorMatrixAdjuster ) delete theErrorMatrixAdjuster;
 
 }
@@ -353,8 +354,6 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
 
 void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
 
-  bool measTrackerChanged = false;
-
   iEvent.getByLabel(beamSpot_, theBeamSpot);
   
   // retrieve the MC truth (SimTracks)
@@ -368,14 +367,11 @@ void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
     LogTrace(theCategory) << "Measurment Tracker Geometry changed!";
     theCacheId_MT = newCacheId_MT;
     theService->eventSetup().get<CkfComponentsRecord>().get(theMeasTracker);
-    measTrackerChanged = true;
   }
 
-  //if ( theUpdateStateFlag ) theMeasTracker->update(iEvent);
-
-  if ( measTrackerChanged && (&*theMeasTracker) ) {
-     if ( theTkLayerMeasurements ) delete theTkLayerMeasurements;
-     theTkLayerMeasurements = new LayerMeasurements(&*theMeasTracker);
+  if ( theUpdateStateFlag ) {
+     iEvent.getByLabel(theMeasurementTrackerEventTag, theMeasTrackerEvent);
+     theTkLayerMeasurements = LayerMeasurements(*theMeasTracker,*theMeasTrackerEvent);
   }
 
   bool trackerGeomChanged = false;
@@ -467,7 +463,7 @@ std::vector<TrajectoryMeasurement> FastTSGFromPropagation::findMeasurements_new(
   for (std::vector<DetLayer::DetWithState>::const_iterator idws = compatDets.begin(); idws != compatDets.end(); ++idws) {
      if ( idws->second.isValid() && (idws->first) )  {
          std::vector<TrajectoryMeasurement> tmptm = 
-           theMeasTracker->idToDet(idws->first->geographicalId())->fastMeasurements(idws->second, idws->second, *propagator(), *estimator());
+           theMeasTrackerEvent->idToDet(idws->first->geographicalId()).fastMeasurements(idws->second, idws->second, *propagator(), *estimator());
          //validMeasurements(tmptm);
 //         if ( tmptm.size() > 2 ) {
 //            std::stable_sort(tmptm.begin(),tmptm.end(),increasingEstimate());
