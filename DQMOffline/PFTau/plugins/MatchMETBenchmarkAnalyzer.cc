@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
@@ -23,6 +22,9 @@ MatchMETBenchmarkAnalyzer::MatchMETBenchmarkAnalyzer(const edm::ParameterSet& pa
 //	    -0.1, 0.1, // range in eta for MET. 
 //	    parameterSet.getParameter<double>("phiMin"),
 //	    parameterSet.getParameter<double>("phiMax") );
+
+  myColl_ = consumes< View<MET> >(inputLabel_);
+  myMatchColl_ = consumes< View<MET> >(matchedInputLabel_);
 }
 
 void 
@@ -40,13 +42,10 @@ MatchMETBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
   
   Handle< View<MET> > collection; 
   //iEvent.getByLabel( inputLabel_, collection); 
-  EDGetTokenT< View<MET> > myColl_;
-  myColl_ = consumes< View<MET> >(inputLabel_);
   iEvent.getByToken(myColl_, collection);
 
   Handle< View<MET> > matchedCollection; 
   //iEvent.getByLabel( matchedInputLabel_, matchedCollection); 
-  myMatchColl_ = consumes< View<MET> >(matchedInputLabel_);
   iEvent.getByToken(myMatchColl_, matchedCollection);
 
   fillOne( (*collection)[0] , (*matchedCollection)[0]);

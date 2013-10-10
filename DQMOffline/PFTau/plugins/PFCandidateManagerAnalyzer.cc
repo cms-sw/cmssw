@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -35,6 +34,8 @@ PFCandidateManagerAnalyzer::PFCandidateManagerAnalyzer(const edm::ParameterSet& 
 	    parameterSet.getParameter<double>("phiMin"),
 	    parameterSet.getParameter<double>("phiMax") );
 
+  myColl_ = consumes< PFCandidateCollection >(inputLabel_);
+  myMatchColl_ = consumes< View<Candidate> >(matchLabel_);
 }
 
 
@@ -54,13 +55,10 @@ PFCandidateManagerAnalyzer::analyze(const edm::Event& iEvent,
   
   Handle< PFCandidateCollection > collection; 
   //iEvent.getByLabel( inputLabel_, collection);
-  EDGetTokenT< PFCandidateCollection > myColl_;
-  myColl_ = consumes< PFCandidateCollection >(inputLabel_);
   iEvent.getByToken(myColl_, collection);
 
   Handle< View<Candidate> >  matchCollection;
   //iEvent.getByLabel( matchLabel_, matchCollection);
-  myMatchColl_ = consumes< View<Candidate> >(matchLabel_);
   iEvent.getByToken(myMatchColl_, matchCollection);
 
   fill( *collection, *matchCollection );

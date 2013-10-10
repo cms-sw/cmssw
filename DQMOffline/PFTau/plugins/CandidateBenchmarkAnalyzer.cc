@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -27,6 +26,8 @@ CandidateBenchmarkAnalyzer::CandidateBenchmarkAnalyzer(const edm::ParameterSet& 
 	    parameterSet.getParameter<double>("etaMax"),
 	    parameterSet.getParameter<double>("phiMin"),
 	    parameterSet.getParameter<double>("phiMax") );
+
+  myColl_ = consumes< View<Candidate> >(inputLabel_);
 }
 
 
@@ -42,12 +43,9 @@ void
 CandidateBenchmarkAnalyzer::analyze(const edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup) {
   
-
   
   Handle< View<Candidate> > collection; 
   //iEvent.getByLabel( inputLabel_, collection); 
-  EDGetTokenT< View<Candidate> > myColl_;
-  myColl_ = consumes< View<Candidate> >(inputLabel_);
   iEvent.getByToken(myColl_, collection);
 
   fill( *collection );

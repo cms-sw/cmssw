@@ -21,6 +21,7 @@ process.source = cms.Source("PoolSource",
                             noEventSort = cms.untracked.bool(True),
                             duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
                             skipEvents = cms.untracked.uint32(0)
+                            #,SkipEvent = cms.untracked.vstring('ProductNotFound')
                             )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -30,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 #dataset = 'TTbar'
 #dataset = 'ZEE'
 #dataset = 'SingleElPt35'
-dataset = 'ZEE' # to be used with RunPFVal.sh 
+dataset = 'QCD' # to be used with RunPFVal.sh 
 
 #---------------------------------------
 # List File names here
@@ -41,8 +42,33 @@ if dataset == 'QCD' :
         #'/store/relval/CMSSW_6_2_0_pre6_patch1/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/PRE_ST62_V6-v1/00000/36AD630A-D4BE-E211-9F2E-003048678B86.root'
         #'file:/afs/cern.ch/user/l/lecriste/muons/CMSSW_6_2_0_pre6_patch1/src/RecoParticleFlow/Configuration/test/reco.root'
         
-        '/store/relval/CMSSW_6_2_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/604E213E-49EC-E211-9D8D-003048F0E5CE.root',
-        '/store/relval/CMSSW_6_2_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/68DC246F-56EC-E211-B2E5-003048CF94A4.root'
+        #'/store/relval/CMSSW_6_2_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/604E213E-49EC-E211-9D8D-003048F0E5CE.root',
+        #'/store/relval/CMSSW_6_2_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/68DC246F-56EC-E211-B2E5-003048CF94A4.root'
+
+       # '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/0ABFBC60-0525-E311-8407-00261894397E.root' # missing pfAllElectrons
+
+        '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/EE4D1086-0F25-E311-BD19-003048678A6C.root',
+        '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/CCA45DB9-1325-E311-B521-0025905938AA.root',
+        '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/686ECB84-1025-E311-95BF-00261894387E.root',
+        '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/6666ACEF-0F25-E311-B2CE-00248C0BE01E.root',
+        '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/4E0FDB84-1025-E311-90B7-0026189438E0.root',
+        '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/483621D2-1025-E311-BB70-003048B95B30.root',
+        '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/48118597-1125-E311-8645-003048678B7C.root'
+
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/0279C975-4F25-E311-94BD-0025905964BC.root',
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/0E2EE868-4F25-E311-AD57-00261894380A.root',
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/3838CC69-4F25-E311-BC80-003048678FD6.root',
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/3C109169-4F25-E311-8F96-003048678FB4.root',
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/580CAA6A-4F25-E311-91B0-0026189438FD.root',
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/58AF6334-9725-E311-BABF-003048FFD7D4.root',
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/5C62B66D-4F25-E311-86EC-0026189438BA.root',
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/7851306B-4F25-E311-8365-002618943800.root',
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/8E4B3277-4F25-E311-9A3F-002590596486.root',
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/9051CF68-4F25-E311-8898-002618943864.root',
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/A478D26B-4F25-E311-9680-0026189438F5.root',
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/AA0F9E6C-4F25-E311-A96C-003048678BB2.root',
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/BAEAEC69-4F25-E311-8C25-003048678FD6.root',
+        #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/CE89016B-4F25-E311-9F27-003048679166.root'
         )
 elif dataset == 'TTbar' :
     sourceFiles = cms.untracked.vstring( 
@@ -52,8 +78,9 @@ elif dataset == 'TTbar' :
         )
 elif dataset == 'ZEE' :
     sourceFiles = cms.untracked.vstring( 
-        '/store/relval/CMSSW_6_2_0/RelValZEE/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/50169250-40EC-E211-964F-02163E008C2D.root',
-        '/store/relval/CMSSW_6_2_0/RelValZEE/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/D656BB27-4CEC-E211-807F-003048D4988C.root'
+        #'/store/relval/CMSSW_6_2_0/RelValZEE/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/50169250-40EC-E211-964F-02163E008C2D.root',
+        #'/store/relval/CMSSW_6_2_0/RelValZEE/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/D656BB27-4CEC-E211-807F-003048D4988C.root'
+        '/store/relval/CMSSW_7_0_0_pre4/RelValZEE/GEN-SIM-RECO/PU_PRE_ST62_V8-v1/00000/1CF2D144-6824-E311-85D5-003048678DD6.root'
         )
 elif dataset == 'SingleElPt35' :
     sourceFiles = cms.untracked.vstring( 
@@ -240,8 +267,12 @@ process.pfReRecoSequence = cms.Sequence(
 process.load("Validation.RecoParticleFlow.PFJetValidation_cff")
 process.pfJetValidation1.SkimParameter.switchOn = cms.bool(True)
 process.pfJetValidation2.SkimParameter.switchOn = cms.bool(True)
+
 process.load("Validation.RecoParticleFlow.PFMETValidation_cff")
 process.load("Validation.RecoParticleFlow.PFJetResValidation_cff")
+process.pfJetResValidation1.SkimParameter.switchOn = cms.bool(True)
+process.pfJetResValidation2.SkimParameter.switchOn = cms.bool(True)
+
 process.load("Validation.RecoParticleFlow.PFElectronValidation_cff") 
 # needed to run Muon validation: it need tag V00-10-01 not yet in CMSSW_6_2_0
 #process.load("Validation.RecoParticleFlow.PFMuonValidation_cff")
