@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
@@ -43,7 +44,10 @@ METBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
 
   
   Handle< View<MET> > collection; 
-  iEvent.getByLabel( inputLabel_, collection); 
+  //iEvent.getByLabel( inputLabel_, collection); 
+  EDGetTokenT< View<MET> > myColl_;
+  myColl_ = consumes< View<MET> >(inputLabel_);
+  iEvent.getByToken(myColl_, collection);
 
   fill( *collection );
 }

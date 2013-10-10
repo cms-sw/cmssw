@@ -18,6 +18,7 @@ class PFCandidateManagerAnalyzer: public BenchmarkAnalyzer, public PFCandidateMa
   void endJob();
 
  private:
+  edm::EDGetTokenT< edm::View<reco::Candidate> > myMatchColl_;
   edm::InputTag matchLabel_;
 };
 

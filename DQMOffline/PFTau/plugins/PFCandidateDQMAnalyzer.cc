@@ -48,13 +48,23 @@ void PFCandidateDQMAnalyzer::analyze(edm::Event const& iEvent,
 				      edm::EventSetup const& iSetup) {
   
   edm::Handle< edm::View<reco::Candidate> > candCollection;
-  if ( !createEfficiencyHistos_ ) iEvent.getByLabel( inputLabel_, candCollection);
-  else iEvent.getByLabel( matchLabel_, candCollection);
-
   edm::Handle< edm::View<reco::Candidate> > matchedCandCollection;
-  if ( !createEfficiencyHistos_ ) iEvent.getByLabel( matchLabel_, matchedCandCollection);
-  else iEvent.getByLabel( inputLabel_, matchedCandCollection);
-
+  if ( !createEfficiencyHistos_ ) {
+    //iEvent.getByLabel( inputLabel_, candCollection);
+    myCand_ = consumes< edm::View<reco::Candidate> >(inputLabel_);
+    iEvent.getByToken( myCand_, candCollection);   
+    //iEvent.getByLabel( matchLabel_, matchedCandCollection);
+    myMatchedCand_ = consumes< edm::View<reco::Candidate> >(matchLabel_);
+    iEvent.getByToken( myMatchedCand_, matchedCandCollection);
+  } else {
+    //iEvent.getByLabel( matchLabel_, candCollection);
+    myMatchedCand_ = consumes< edm::View<reco::Candidate> >(matchLabel_);
+    iEvent.getByToken( myMatchedCand_, candCollection);
+    //iEvent.getByLabel( inputLabel_, matchedCandCollection);
+    myCand_ = consumes< edm::View<reco::Candidate> >(inputLabel_);
+    iEvent.getByToken( myCand_, matchedCandCollection);
+  }
+  
   float maxRes = 0.0;
   float minRes = 99.99;
   if (candCollection.isValid() && matchedCandCollection.isValid()) {

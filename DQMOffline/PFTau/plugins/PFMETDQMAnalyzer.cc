@@ -47,10 +47,14 @@ void PFMETDQMAnalyzer::beginJob() {
 void PFMETDQMAnalyzer::analyze(edm::Event const& iEvent, 
 				      edm::EventSetup const& iSetup) {
   edm::Handle< edm::View<reco::MET> > metCollection;
-  iEvent.getByLabel(inputLabel_, metCollection);   
+  //iEvent.getByLabel(inputLabel_, metCollection);   
+  myMET_ = consumes< edm::View<reco::MET> >(inputLabel_);
+  iEvent.getByToken(myMET_, metCollection);   
   
   edm::Handle< edm::View<reco::MET> > matchedMetCollection; 
-  iEvent.getByLabel( matchLabel_, matchedMetCollection);
+  //iEvent.getByLabel( matchLabel_, matchedMetCollection);
+  myMatchedMET_ = consumes< edm::View<reco::MET> >(matchLabel_);
+  iEvent.getByToken(myMatchedMET_, matchedMetCollection);
 
   if (metCollection.isValid() && matchedMetCollection.isValid()) {
     float maxRes = 0.0;
