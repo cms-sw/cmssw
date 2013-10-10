@@ -16,7 +16,8 @@ class MatchMETBenchmarkAnalyzer: public BenchmarkAnalyzer, public MatchMETBenchm
   void endJob();
 
  protected:
-  edm::InputTag matchedinputLabel_;
+  edm::EDGetTokenT< edm::View<reco::MET> > myMatchColl_;
+  edm::InputTag matchedInputLabel_;
 };
 
 #endif 

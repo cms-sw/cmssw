@@ -47,12 +47,17 @@ void PFJetDQMAnalyzer::beginJob() {
 // -- Analyze
 //
 void PFJetDQMAnalyzer::analyze(edm::Event const& iEvent, 
-				      edm::EventSetup const& iSetup) {
+			       edm::EventSetup const& iSetup) {
+
   edm::Handle< edm::View<reco::Jet> > jetCollection;
-  iEvent.getByLabel(inputLabel_, jetCollection);   
+  //iEvent.getByLabel(inputLabel_, jetCollection);   
+  myJet_ = consumes< edm::View<reco::Jet> >(inputLabel_);
+  iEvent.getByToken(myJet_, jetCollection);   
   
   edm::Handle< edm::View<reco::Jet> > matchedJetCollection; 
-  iEvent.getByLabel( matchLabel_, matchedJetCollection);
+  //iEvent.getByLabel( matchLabel_, matchedJetCollection);
+  myMatchedJet_ = consumes< edm::View<reco::Jet> >(matchLabel_);
+  iEvent.getByToken(myMatchedJet_, matchedJetCollection);
 
   float maxRes = 0.0;
   float minRes = 99.99;
