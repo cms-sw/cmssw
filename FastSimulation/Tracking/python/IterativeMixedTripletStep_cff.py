@@ -25,7 +25,7 @@ iterativeMixedTripletStepSeeds.originpTMin = [0.35] # we need to add another see
 iterativeMixedTripletStepSeeds.zVertexConstraint = [-1.0]
 iterativeMixedTripletStepSeeds.primaryVertices = ['none']
 
-iterativeMixedTripletStepSeeds.newSyntax = False
+iterativeMixedTripletStepSeeds.newSyntax = True
 #iterativeMixedTripletStepSeeds.layerList = ['BPix1+BPix2+BPix3',
 #                                            'BPix1+BPix2+FPix1_pos',
 #                                            'BPix1+BPix2+FPix1_neg',
