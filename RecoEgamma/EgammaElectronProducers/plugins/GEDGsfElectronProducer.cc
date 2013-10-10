@@ -18,7 +18,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "RecoParticleFlow/PFProducer/interface/GsfElectronEqual.h"
@@ -31,7 +31,7 @@ using namespace reco;
 GEDGsfElectronProducer::GEDGsfElectronProducer( const edm::ParameterSet & cfg )
  : GsfElectronBaseProducer(cfg)
  {
-   egmPFCandidateCollection_ = cfg.getParameter<edm::InputTag>("egmPFCandidatesTag");
+   egmPFCandidateCollection_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("egmPFCandidatesTag"));
    outputValueMapLabel_ = cfg.getParameter<std::string>("outputEGMPFValueMap");
    
    produces<edm::ValueMap<reco::GsfElectronRef> >(outputValueMapLabel_);
@@ -63,12 +63,10 @@ void GEDGsfElectronProducer::matchWithPFCandidates(edm::Event & event, edm::Valu
   // Read the collection of PFCandidates
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
   
-  bool found = event.getByLabel(egmPFCandidateCollection_, pfCandidates);
+  bool found = event.getByToken(egmPFCandidateCollection_, pfCandidates);
   if(!found) {
-    std::ostringstream  err;
-    err<<" cannot get PFCandidates: "
-       <<egmPFCandidateCollection_<<std::endl;
-    edm::LogError("GEDGsfElectronProducer")<<err.str();
+    edm::LogError("GEDGsfElectronProducer")
+       <<" cannot get PFCandidates! ";
   }
 
   //Loop over the collection of PFFCandidates
@@ -82,7 +80,8 @@ void GEDGsfElectronProducer::matchWithPFCandidates(edm::Event & event, edm::Valu
     if( it->gsfTrackRef().isNonnull()) {
       // now look for the corresponding GsfElectron
       GsfElectronEqual myEqual(it->gsfTrackRef());
-      const reco::GsfElectronCollection::const_iterator itcheck=find_if(orphanHandle()->begin(),orphanHandle()->end(),myEqual);
+      const reco::GsfElectronCollection::const_iterator itcheck=
+	std::find_if(orphanHandle()->begin(),orphanHandle()->end(),myEqual);
       if (itcheck != orphanHandle()->end()) {
 	// Build the Ref from the handle and the index
 	myRef = reco::GsfElectronRef(orphanHandle(),itcheck-orphanHandle()->begin());

@@ -151,34 +151,50 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
  {
   produces<GsfElectronCollection>();
 
-  inputCfg_.previousGsfElectrons = cfg.getParameter<edm::InputTag>("previousGsfElectronsTag");
-  inputCfg_.pflowGsfElectronsTag = cfg.getParameter<edm::InputTag>("pflowGsfElectronsTag");
-  inputCfg_.gsfElectronCores = cfg.getParameter<edm::InputTag>("gsfElectronCoresTag");
-  inputCfg_.hcalTowersTag = cfg.getParameter<edm::InputTag>("hcalTowers") ;
+  inputCfg_.previousGsfElectrons = consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("previousGsfElectronsTag"));
+  inputCfg_.pflowGsfElectronsTag = consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("pflowGsfElectronsTag"));
+  inputCfg_.gsfElectronCores = consumes<reco::GsfElectronCoreCollection>(cfg.getParameter<edm::InputTag>("gsfElectronCoresTag"));
+  inputCfg_.hcalTowersTag = consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers"));
   //inputCfg_.tracks_ = cfg.getParameter<edm::InputTag>("tracks");
-  inputCfg_.barrelRecHitCollection = cfg.getParameter<edm::InputTag>("barrelRecHitCollectionTag") ;
-  inputCfg_.endcapRecHitCollection = cfg.getParameter<edm::InputTag>("endcapRecHitCollectionTag") ;
-  inputCfg_.pfMVA = cfg.getParameter<edm::InputTag>("pfMvaTag") ;
-  inputCfg_.ctfTracks = cfg.getParameter<edm::InputTag>("ctfTracksTag");
-  inputCfg_.seedsTag = cfg.getParameter<edm::InputTag>("seedsTag"); // used to check config consistency with seeding
-  inputCfg_.beamSpotTag = cfg.getParameter<edm::InputTag>("beamSpotTag") ;
-  inputCfg_.gsfPfRecTracksTag = cfg.getParameter<edm::InputTag>("gsfPfRecTracksTag") ;
+  inputCfg_.barrelRecHitCollection = consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("barrelRecHitCollectionTag"));
+  inputCfg_.endcapRecHitCollection = consumes<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("endcapRecHitCollectionTag"));
+  inputCfg_.pfMVA = consumes<edm::ValueMap<float> >(cfg.getParameter<edm::InputTag>("pfMvaTag"));
+  inputCfg_.ctfTracks = consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>("ctfTracksTag"));
+  inputCfg_.seedsTag = consumes<reco::ElectronSeedCollection>(cfg.getParameter<edm::InputTag>("seedsTag")); // used to check config consistency with seeding
+  inputCfg_.beamSpotTag = consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpotTag"));
+  inputCfg_.gsfPfRecTracksTag = consumes<reco::GsfPFRecTrackCollection>(cfg.getParameter<edm::InputTag>("gsfPfRecTracksTag"));
 
   bool useIsolationValues = cfg.getParameter<bool>("useIsolationValues") ;
   if ( useIsolationValues ) {
-	if( ! cfg.exists("pfIsolationValues") )
-		throw cms::Exception("GsfElectronBaseProducer|InternalError")
-			<<"Missing ParameterSet pfIsolationValues" ;
-        else
-		inputCfg_.pfIsoVals = 
-			cfg.getParameter<edm::ParameterSet> ("pfIsolationValues");
-
-	if ( ! cfg.exists("edIsolationValues") )
-		throw cms::Exception("GsfElectronBaseProducer|InternalError")
-			<<"Missing ParameterSet edIsolationValues" ;
-        else
-  		inputCfg_.edIsoVals = 
-			cfg.getParameter<edm::ParameterSet> ("edIsolationValues");
+    if( ! cfg.exists("pfIsolationValues") ) {
+      throw cms::Exception("GsfElectronBaseProducer|InternalError")
+	<<"Missing ParameterSet pfIsolationValues" ;
+    } else {
+      inputCfg_.pfIsoVals = 
+	cfg.getParameter<edm::ParameterSet> ("pfIsolationValues");
+      std::vector<std::string> isoNames = 
+	inputCfg_.pfIsoVals.getParameterNamesForType<edm::InputTag>();
+      for(const std::string& name : isoNames) {
+	edm::InputTag tag = 
+	  inputCfg_.pfIsoVals.getParameter<edm::InputTag>(name);
+	mayConsume<edm::ValueMap<double> >(tag);
+      }
+    }
+      
+    if ( ! cfg.exists("edIsolationValues") ) {
+      throw cms::Exception("GsfElectronBaseProducer|InternalError")
+	<<"Missing ParameterSet edIsolationValues" ;
+    } else {
+      inputCfg_.edIsoVals = 
+	cfg.getParameter<edm::ParameterSet> ("edIsolationValues");
+      std::vector<std::string> isoNames = 
+	inputCfg_.edIsoVals.getParameterNamesForType<edm::InputTag>();
+      for(const std::string& name : isoNames) {
+	edm::InputTag tag = 
+	  inputCfg_.pfIsoVals.getParameter<edm::InputTag>(name);
+	mayConsume<edm::ValueMap<double> >(tag);
+      }
+    }
   }
 
   strategyCfg_.useGsfPfRecTracks = cfg.getParameter<bool>("useGsfPfRecTracks") ;
@@ -259,14 +275,16 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   if (hcalCfg_.hOverEConeSize>0)
    {
     hcalCfg_.useTowers = true ;
-    hcalCfg_.hcalTowers = cfg.getParameter<edm::InputTag>("hcalTowers") ;
+    hcalCfg_.hcalTowers = 
+      consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers")) ;
     hcalCfg_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMin") ;
    }
   hcalCfgPflow_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSizePflow") ;
   if (hcalCfgPflow_.hOverEConeSize>0)
    {
     hcalCfgPflow_.useTowers = true ;
-    hcalCfgPflow_.hcalTowers = cfg.getParameter<edm::InputTag>("hcalTowers") ;
+    hcalCfgPflow_.hcalTowers = 
+      consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers")) ;
     hcalCfgPflow_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMinPflow") ;
    }
 
@@ -346,7 +364,7 @@ void GsfElectronBaseProducer::beginEvent( edm::Event & event, const edm::EventSe
    {
     ecalSeedingParametersChecked_ = true ;
     edm::Handle<reco::ElectronSeedCollection> seeds ;
-    event.getByLabel(inputCfg_.seedsTag,seeds) ;
+    event.getByToken(inputCfg_.seedsTag,seeds) ;
     if (!seeds.isValid())
      {
       edm::LogWarning("GsfElectronAlgo|UnreachableSeedsProvenance")

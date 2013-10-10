@@ -3,6 +3,7 @@
 #define GEDGsfElectronProducer_h
 
 #include "GsfElectronBaseProducer.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 class GEDGsfElectronProducer : public GsfElectronBaseProducer
  {
@@ -15,7 +16,7 @@ class GEDGsfElectronProducer : public GsfElectronBaseProducer
     virtual void produce( edm::Event &, const edm::EventSetup & ) ;
 
  private:
-    edm::InputTag egmPFCandidateCollection_;
+    edm::EDGetTokenT<reco::PFCandidateCollection> egmPFCandidateCollection_;
     std::string outputValueMapLabel_;
 
  private:

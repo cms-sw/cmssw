@@ -47,12 +47,18 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
 
   // use onfiguration file to setup input/output collection names
 
-  photonCoreProducer_   = conf_.getParameter<edm::InputTag>("photonCoreProducer");
-  barrelEcalHits_   = conf_.getParameter<edm::InputTag>("barrelEcalHits");
-  endcapEcalHits_   = conf_.getParameter<edm::InputTag>("endcapEcalHits");
-  vertexProducer_   = conf_.getParameter<std::string>("primaryVertexProducer");
-  pfEgammaCandidates_      = conf_.getParameter<edm::InputTag>("pfEgammaCandidates");
-  hcalTowers_ = conf_.getParameter<edm::InputTag>("hcalTowers");
+  photonCoreProducer_   = 
+    consumes<reco::PhotonCoreCollection>(conf_.getParameter<edm::InputTag>("photonCoreProducer"));
+  barrelEcalHits_   = 
+    consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("barrelEcalHits"));
+  endcapEcalHits_   = 
+    consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("endcapEcalHits"));
+  vertexProducer_   = 
+    consumes<reco::VertexCollection>(conf_.getParameter<edm::InputTag>("primaryVertexProducer"));
+  pfEgammaCandidates_      = 
+    consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfEgammaCandidates"));
+  hcalTowers_ = 
+    consumes<CaloTowerCollection>(conf_.getParameter<edm::InputTag>("hcalTowers"));
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
   highEt_        = conf_.getParameter<double>("highEt");
   // R9 value to decide converted/unconverted
@@ -182,9 +188,10 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   // Get the PhotonCore collection
   bool validPhotonCoreHandle=true;
   Handle<reco::PhotonCoreCollection> photonCoreHandle;
-  theEvent.getByLabel(photonCoreProducer_,photonCoreHandle);
+  theEvent.getByToken(photonCoreProducer_,photonCoreHandle);
   if (!photonCoreHandle.isValid()) {
-    edm::LogError("GEDPhotonProducer") << "Error! Can't get the product "<<photonCoreProducer_.label();
+    edm::LogError("GEDPhotonProducer") 
+      << "Error! Can't get the photonCoreProducer";
     validPhotonCoreHandle=false;
   }
 
@@ -192,19 +199,21 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   bool validEcalRecHits=true;
   Handle<EcalRecHitCollection> barrelHitHandle;
   EcalRecHitCollection barrelRecHits;
-  theEvent.getByLabel(barrelEcalHits_, barrelHitHandle);
+  theEvent.getByToken(barrelEcalHits_, barrelHitHandle);
   if (!barrelHitHandle.isValid()) {
-    edm::LogError("GEDPhotonProducer") << "Error! Can't get the product "<<barrelEcalHits_.label();
+    edm::LogError("GEDPhotonProducer") 
+      << "Error! Can't get the barrelEcalHits";
     validEcalRecHits=false; 
   }
   if (  validEcalRecHits)  barrelRecHits = *(barrelHitHandle.product());
 
   
   Handle<EcalRecHitCollection> endcapHitHandle;
-  theEvent.getByLabel(endcapEcalHits_, endcapHitHandle);
+  theEvent.getByToken(endcapEcalHits_, endcapHitHandle);
   EcalRecHitCollection endcapRecHits;
   if (!endcapHitHandle.isValid()) {
-    edm::LogError("GEDPhotonProducer") << "Error! Can't get the product "<<endcapEcalHits_.label();
+    edm::LogError("GEDPhotonProducer") 
+      << "Error! Can't get the endcapEcalHits";
     validEcalRecHits=false; 
   }
   if( validEcalRecHits) endcapRecHits = *(endcapHitHandle.product());
@@ -212,9 +221,10 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
   // Get the  PF refined cluster  collection
   Handle<reco::PFCandidateCollection> pfCandidateHandle;
-  theEvent.getByLabel(pfEgammaCandidates_,pfCandidateHandle);
+  theEvent.getByToken(pfEgammaCandidates_,pfCandidateHandle);
   if (!pfCandidateHandle.isValid()) {
-    edm::LogError("GEDPhotonProducer") << "Error! Can't get the product "<<pfEgammaCandidates_.label();
+    edm::LogError("GEDPhotonProducer") 
+      << "Error! Can't get the pfEgammaCandidates";
   }
 
 
@@ -229,7 +239,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
 // get Hcal towers collection 
   Handle<CaloTowerCollection> hcalTowersHandle;
-  theEvent.getByLabel(hcalTowers_, hcalTowersHandle);
+  theEvent.getByToken(hcalTowers_, hcalTowersHandle);
 
 
   // get the geometry from the event setup:
@@ -248,9 +258,10 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   reco::VertexCollection vertexCollection;
   bool validVertex=true;
   if ( usePrimaryVertex_ ) {
-    theEvent.getByLabel(vertexProducer_, vertexHandle);
+    theEvent.getByToken(vertexProducer_, vertexHandle);
     if (!vertexHandle.isValid()) {
-      edm::LogWarning("GEDPhotonProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
+      edm::LogWarning("GEDPhotonProducer") 
+	<< "Error! Can't get the product primary Vertex Collection";
       validVertex=false;
     }
     if (validVertex) vertexCollection = *(vertexHandle.product());

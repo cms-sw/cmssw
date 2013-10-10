@@ -11,7 +11,7 @@ allConversions = cms.EDProducer('ConversionProducer',
     scBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
     scEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
 
-    primaryVertexProducer = cms.string('offlinePrimaryVerticesWithBS'),
+    primaryVertexProducer = cms.InputTag('offlinePrimaryVerticesWithBS'),
 
     deltaEta = cms.double(0.4), #track pair search range in eta (applied even in case of preselection bypass)
 

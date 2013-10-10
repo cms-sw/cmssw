@@ -66,13 +66,19 @@ class NavigationSchool;
 class SiStripElectronSeedGenerator
 {
 public:
+  
+  struct Tokens {
+    edm::EDGetTokenT<reco::BeamSpot> token_bs;
+    edm::EDGetTokenT<MeasurementTrackerEvent> token_mte;
+  };
 
   typedef edm::OwnVector<TrackingRecHit> PRecHitContainer;
   typedef TransientTrackingRecHit::ConstRecHitPointer  ConstRecHitPointer;
   typedef TransientTrackingRecHit::RecHitPointer       RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer     RecHitContainer;
 
-  SiStripElectronSeedGenerator(const edm::ParameterSet&);
+  SiStripElectronSeedGenerator(const edm::ParameterSet&,
+			       const Tokens&);
 
   ~SiStripElectronSeedGenerator();
 
@@ -127,7 +133,7 @@ private:
   edm::ESHandle<MagneticField> theMagField;
   edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
   edm::Handle<reco::BeamSpot> theBeamSpot;
-  edm::InputTag beamSpotTag_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
 
   KFUpdator* theUpdator;
   PropagatorWithMaterial* thePropagator;
@@ -135,7 +141,7 @@ private:
 
   std::string theMeasurementTrackerName;
   const MeasurementTracker* theMeasurementTracker;
-  edm::InputTag theMeasurementTrackerEventTag;
+  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventTag;
   const edm::EventSetup *theSetup;
   
   PRecHitContainer recHits_;

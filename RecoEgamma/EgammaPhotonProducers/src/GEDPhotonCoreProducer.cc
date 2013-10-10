@@ -39,11 +39,12 @@ GEDPhotonCoreProducer::GEDPhotonCoreProducer(const edm::ParameterSet& config) :
 {
 
   // use onfiguration file to setup input/output collection names
-  pfEgammaCandidates_      = conf_.getParameter<edm::InputTag>("pfEgammaCandidates");
+  pfEgammaCandidates_ = 
+    consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfEgammaCandidates"));
   GEDPhotonCoreCollection_ = conf_.getParameter<std::string>("gedPhotonCoreCollection");
 
   // Register the product
-  produces< reco::PhotonCoreCollection >(GEDPhotonCoreCollection_);
+  produces<reco::PhotonCoreCollection>(GEDPhotonCoreCollection_);
   produces<reco::ConversionCollection>(PFConversionCollection_);
 
 }
@@ -67,9 +68,10 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
 
   // Get the  PF refined cluster  collection
   Handle<reco::PFCandidateCollection> pfCandidateHandle;
-  theEvent.getByLabel(pfEgammaCandidates_,pfCandidateHandle);
+  theEvent.getByToken(pfEgammaCandidates_,pfCandidateHandle);
   if (!pfCandidateHandle.isValid()) {
-    edm::LogError("GEDPhotonCoreProducer") << "Error! Can't get the product "<<pfEgammaCandidates_.label();
+    edm::LogError("GEDPhotonCoreProducer") 
+      << "Error! Can't get the pfEgammaCandidates";
   }
 
  
