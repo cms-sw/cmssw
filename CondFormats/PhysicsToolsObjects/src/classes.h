@@ -13,6 +13,7 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
 
+#ifndef SKIP_REFLEX_DICT
 
 namespace { // anonymous
 struct dictionary {
@@ -68,3 +69,6 @@ PerformancePayloadFromBinnedTFormula p12;
 
 }; // struct dictionary
 } // anonymous namespace
+
+#endif
+

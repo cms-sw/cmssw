@@ -1,6 +1,8 @@
 #ifndef ES_COND_OBJECT_CONTAINER_HH
 #define ES_COND_OBJECT_CONTAINER_HH
 
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include "DataFormats/EcalDetId/interface/EcalContainer.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 
@@ -113,6 +115,8 @@ class ESCondObjectContainer {
                 
         private:
                 EcalContainer< ESDetId, Item > es_;
+
+      COND_SERIALIZABLE;
 };
 
 typedef ESCondObjectContainer<float> ESFloatCondObjectContainer;

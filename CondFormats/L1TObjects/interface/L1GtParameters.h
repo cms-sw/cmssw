@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Common/interface/Serializable.h"
+
 #include <ostream>
 #include <vector>
 
@@ -123,6 +125,8 @@ private:
     unsigned int m_bstLengthBytes;
 
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif /*CondFormats_L1TObjects_L1GtParameters_h*/
