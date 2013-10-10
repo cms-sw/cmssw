@@ -9,18 +9,19 @@ cmssw = os.getenv( "CMSSW_VERSION" )
 
 ## steering
 deltaMatch = 2
-pileup = 100
-events = 1000000
-#sample = 'dimu'
-sample = 'minbias'
+pileup = '000'
+events = 100000
+sample = 'dimu'
+#sample = 'minbias'
 globalTag = 'upgrade2019'
 
 ## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
-suffix = '_gem_dphi_pat2_PU0'
-inputDir = files[suffix]
-inputDir = ['/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_1_2_SLHC6_patch1/src/tempDir/']
-inputFiles = []
+suffix = '_gem98_pt10_pat2_PU0_GEM2019'
+#inputDir = files[suffix]
+#inputDir = ['/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_1_2_SLHC6_patch1/src/tempDir/']
+inputFiles = ['file:out_SingleMuPt10Fwd_GEM2019_8PartIncRad_DIGI_L1.root']
+"""
 import os
 for d in range(len(inputDir)):
   my_dir = inputDir[d]
@@ -33,8 +34,9 @@ for d in range(len(inputDir)):
   print "Proceed to next directory"
   ls = os.listdir(my_dir)
   inputFiles.extend([my_dir[:] + 'file:' + x for x in ls if x.endswith('root')])
+"""
     
-print "inputFiles:", inputFiles
+print "InputFiles: ", inputFiles
 
 ## readout windows
 w = 3
@@ -48,7 +50,7 @@ if w==61:
     readout_windows = [ [5,10],[1,11],[1,11],[1,11] ]
 
 ## output
-outputFileName = 'hp_' + sample + "_" + cmssw + "_" + globalTag + "_pu%d"%(pileup) + '_w%d'%(w) + suffix + '.root'
+outputFileName = 'hp_' + sample + "_" + cmssw + "_" + globalTag + "_pu%s"%(pileup) + '_w%d'%(w) + suffix + '_rate.root'
 print "outputFile:", outputFileName
 
 # import of standard configurations
@@ -111,12 +113,9 @@ process.GEMCSCTriggerRate.maxBxMPLCT = readout_windows[3][1]
 process.GEMCSCTriggerRate.sectorProcessor = process.simCsctfTrackDigis.SectorProcessor
 process.GEMCSCTriggerRate.strips = process.simMuonCSCDigis.strips
 
-
 ## customization 
 from SLHCUpgradeSimulations.Configuration.muonCustoms import *
-process = customise_csc_Geometry(process)
-process = digitizer_timing_pre3_median(process)
-process = customise_csc_L1Extra_allsim(process)
+process = unganged_me1a_geometry(process)
 
 ## Sequence and schedule
 process.ana_seq = cms.Sequence(process.GEMCSCTriggerRate)

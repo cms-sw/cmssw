@@ -60,15 +60,21 @@ process.l1extraParticles.produceCaloParticles = cms.bool(False)
 process.l1extraParticles.ignoreHtMiss = cms.bool(False)
 
 ## input commands
-inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/dildick/dildick/pT5_1M_v1/DigiL1CSC-MuonGunPt5_1M/82325e40d6202e6fec2dd983c477f3ca/'
-ls = os.listdir(inputDir)
+    
 process.source = cms.Source("PoolSource",
   duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
   inputCommands = cms.untracked.vstring('keep  *_*_*_*'),
-  fileNames = cms.untracked.vstring(
-    [inputDir[16:] + x for x in ls if x.endswith('root')]
-  )
+  fileNames = cms.untracked.vstring('file:out_digi.root')
 )
+
+import os
+useInputDir = False
+if useInputDir:
+    inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/dildick/dildick/pT5_1M_v1/DigiL1CSC-MuonGunPt5_1M/82325e40d6202e6fec2dd983c477f3ca/'
+    ls = os.listdir(inputDir)
+    process.source.fileNames = cms.untracked.vstring(
+        [inputDir[16:] + x for x in ls if x.endswith('root')]
+    )
 
 physics = True
 if not physics:

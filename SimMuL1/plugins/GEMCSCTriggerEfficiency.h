@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -79,7 +79,7 @@ class CSCTFDTReceiver;
 
 class CSCStripConditions;
 
-class GEMCSCTriggerEfficiency : public edm::EDFilter 
+class GEMCSCTriggerEfficiency : public edm::EDAnalyzer 
 {
 public:
 
@@ -213,8 +213,7 @@ private:
 
 // methods
   virtual void beginJob() ;
-  //virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
 
