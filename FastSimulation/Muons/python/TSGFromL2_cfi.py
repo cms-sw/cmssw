@@ -158,6 +158,7 @@ def makeOIHitSet():
           )
         )
       ),
+      MeasurementTrackerEvent = cms.InputTag( "hltSiStripClusters" ),
       ComponentName = cms.string( "FastTSGFromPropagation" ),
       beamSpot = cms.InputTag('offlineBeamSpot'),
       Propagator = cms.string( "hltESPSmartPropagatorAnyOpposite" ),
