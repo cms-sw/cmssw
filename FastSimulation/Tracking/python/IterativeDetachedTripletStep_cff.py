@@ -24,7 +24,7 @@ iterativeDetachedTripletSeeds.originpTMin = [0.2] # was 0.075 GeV
 iterativeDetachedTripletSeeds.zVertexConstraint = [-1.0]
 iterativeDetachedTripletSeeds.primaryVertices = ['none']
 
-iterativeDetachedTripletSeeds.newSyntax = False
+iterativeDetachedTripletSeeds.newSyntax = True
 #iterativeDetachedTripletSeeds.layerList = ['BPix1+BPix2+BPix3',
 #                                   'BPix1+BPix2+FPix1_pos',
 #                                   'BPix1+BPix2+FPix1_neg',

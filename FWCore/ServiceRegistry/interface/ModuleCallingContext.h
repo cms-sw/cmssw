@@ -49,6 +49,8 @@ namespace edm {
                     ParentContext const& parent,
                     ModuleCallingContext const* previousOnThread);
 
+    void setState(State state) { state_ = state; }
+
     ModuleDescription const* moduleDescription() const { return moduleDescription_; }
     State state() const { return state_; }
     Type type() const { return parent_.type(); }

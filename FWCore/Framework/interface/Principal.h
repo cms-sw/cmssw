@@ -127,6 +127,10 @@ namespace edm {
                            bool& ambiguous,
                            ModuleCallingContext const* mcc) const;
 
+    void prefetch(ProductHolderIndex index,
+                  bool skipCurrentProcess,
+                  ModuleCallingContext const* mcc) const;
+
     void getManyByType(TypeID const& typeID,
                        BasicHandleVec& results,
                        EDConsumerBase const* consumes,
