@@ -12,7 +12,7 @@ namespace edm {
     ModuleContextSentry(ModuleCallingContext* moduleCallingContext,
                         ParentContext const& parentContext) :
       moduleCallingContext_(moduleCallingContext) {
-      moduleCallingContext_->setContext(ModuleCallingContext::State::kRunning, parentContext,
+      moduleCallingContext_->setContext(ModuleCallingContext::State::kPrefetching, parentContext,
                                         CurrentModuleOnThread::getCurrentModuleOnThread());
       CurrentModuleOnThread::setCurrentModuleOnThread(moduleCallingContext_);
     }

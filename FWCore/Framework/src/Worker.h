@@ -27,6 +27,7 @@ the worker is reset().
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/ProductHolderIndexAndSkipBit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
@@ -37,6 +38,7 @@ the worker is reset().
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include "boost/shared_ptr.hpp"
@@ -46,11 +48,13 @@ the worker is reset().
 
 #include <memory>
 #include <sstream>
+#include <vector>
 
 namespace edm {
   class EventPrincipal;
   class EarlyDeleteHelper;
   class ProductHolderIndexHelper;
+  class ProductHolderIndexAndSkipBit;
   class StreamID;
   class StreamContext;
   
@@ -153,6 +157,11 @@ namespace edm {
     void resetModuleDescription(ModuleDescription const*);
 
   private:
+
+    virtual void itemsToGet(BranchType, std::vector<ProductHolderIndexAndSkipBit>&) const = 0;
+    virtual void itemsMayGet(BranchType, std::vector<ProductHolderIndexAndSkipBit>&) const = 0;
+
+    virtual std::vector<ProductHolderIndexAndSkipBit> const& itemsToGetFromEvent() const = 0;
 
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
@@ -364,11 +373,26 @@ namespace edm {
       }
     }
 
-    if (T::isEvent_) ++timesRun_;
-
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+
     try {
       try {
+
+        if (T::isEvent_) {
+          ++timesRun_;
+
+          // Prefetch products the module declares it consumes (not including the products it maybe consumes)
+          std::vector<ProductHolderIndexAndSkipBit> const& items = itemsToGetFromEvent();
+          for(auto const& item : items) {
+            ProductHolderIndex productHolderIndex = item.productHolderIndex();
+            bool skipCurrentProcess = item.skipCurrentProcess();
+            if(productHolderIndex != ProductHolderIndexAmbiguous) {
+              ep.prefetch(productHolderIndex, skipCurrentProcess, &moduleCallingContext_);
+            }
+          }
+        }
+
+        moduleCallingContext_.setState(ModuleCallingContext::State::kRunning);
         ModuleSignalSentry<T> cpp(actReg_.get(), description(), context, &moduleCallingContext_);
         rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es, &moduleCallingContext_);
 
