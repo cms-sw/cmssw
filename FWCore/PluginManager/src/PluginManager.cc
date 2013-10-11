@@ -18,6 +18,7 @@
 
 #include <fstream>
 #include <set>
+#include <mutex>
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -136,6 +137,8 @@ namespace {
                       return iLHS.name_ < iRHS.name_;
                     }
   };
+  
+  std::mutex s_pluginLoadMutex;
 }
 
 const boost::filesystem::path& 
@@ -229,6 +232,9 @@ PluginManager::load(const std::string& iCategory,
   askedToLoadCategoryWithPlugin_(iCategory,iPlugin);
   const boost::filesystem::path& p = loadableFor(iCategory,iPlugin);
   
+  //Need to make sure we only have on SharedLibrary loading at a time
+  // plus loadables_ must be serialized
+  std::lock_guard<std::mutex> guard(s_pluginLoadMutex);
   //have we already loaded this?
   std::map<boost::filesystem::path, boost::shared_ptr<SharedLibrary> >::iterator itLoaded = 
     loadables_.find(p);
@@ -257,6 +263,10 @@ PluginManager::tryToLoad(const std::string& iCategory,
     return 0;
   }
   
+  //Need to make sure we only have on SharedLibrary loading at a time
+  // plus loadables_ must be serialized
+  std::lock_guard<std::mutex> guard(s_pluginLoadMutex);
+
   //have we already loaded this?
   std::map<boost::filesystem::path, boost::shared_ptr<SharedLibrary> >::iterator itLoaded = 
     loadables_.find(p);
@@ -306,13 +316,15 @@ PluginManager::configure(const Config& iConfig )
 const std::string& 
 PluginManager::staticallyLinkedLoadingFileName()
 {
-  static std::string s_name("static");
+  static const std::string s_name("static");
   return s_name;
 }
 
 std::string& 
 PluginManager::loadingLibraryNamed_()
 {
+  //NOTE: s_pluginLoadMutex indirectly guards this since this value
+  // is only accessible via the Sentry call which us guarded by the mutex
   static std::string s_name(staticallyLinkedLoadingFileName());
   return s_name;
 }
