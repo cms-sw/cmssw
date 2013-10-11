@@ -79,8 +79,6 @@ class PluginFactoryBase
 
       void registerPMaker(void* iPMaker, const std::string& iName);
       
-      Plugins m_plugins;
-      
    private:
       PluginFactoryBase(const PluginFactoryBase&); // stop default
 
@@ -88,6 +86,8 @@ class PluginFactoryBase
 
       void checkProperLoadable(const std::string& iName, const std::string& iLoadedFrom) const;
       // ---------- member data --------------------------------
+      Plugins m_plugins;
+  
 
 };
 
