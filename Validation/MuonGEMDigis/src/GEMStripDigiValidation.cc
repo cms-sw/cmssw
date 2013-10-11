@@ -130,7 +130,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
                 theStrip_xy_rp1_l2->Fill(g_x,g_y);
           theStrip_phistrip_rp1_l2->Fill(strip,g_phi);
                    theStrip_rp1_l2->Fill(strip);
-                theStrip_bx_rp1_l1->Fill(bx);
+                theStrip_bx_rp1_l2->Fill(bx);
 	  std::cout<<"Global x "<<g_x<<"Global y "<<g_y<<std::endl;	
 	  std::cout<<"Global strip "<<strip<<"Global phi "<<g_phi<<std::endl;	
 	  std::cout<<"Global bx "<<bx<<std::endl;	
