@@ -33,8 +33,8 @@ mix = cms.EDProducer("MixingModule",
       )
     ),
     LabelPlayback = cms.string(''),
-    maxBunch = cms.int32(3),
-    minBunch = cms.int32(-12), ## in 50ns spacing, go 150ns into past
+    maxBunch = cms.int32(0),
+    minBunch = cms.int32(0), ## in 50ns spacing, go 150ns into past
 
     bunchspace = cms.int32(50), ##ns
     mixProdStep1 = cms.bool(False),
