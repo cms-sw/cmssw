@@ -95,6 +95,10 @@ addMixingScenario("E8TeV_2012_25nsRunning_TrainBackOOTPU",{'file': 'SimGeneral.M
 addMixingScenario("E8TeV_2012_25nsRunning_TrainFrontOOTPU",{'file': 'SimGeneral.MixingModule.mix_E8TeV_2012_25nsRunning_TrainFrontOOTPU_cfi'})
 addMixingScenario("2012_Summer_50ns_PoissonOOTPU_FixedInTime0",{'file': 'SimGeneral.MixingModule.mix_2012_Summer_50ns_PoissonOOTPU_FixedInTime0_cfi'})
 addMixingScenario("2012_Summer_50ns_PoissonOOTPU_FixedInTime30",{'file': 'SimGeneral.MixingModule.mix_2012_Summer_50ns_PoissonOOTPU_FixedInTime30_cfi'})
+addMixingScenario("E8TeV_2012_run198588_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_run198588_BX_50ns_cfi'})
+addMixingScenario("E8TeV_2012_run203002_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_run203002_BX_50ns_cfi'})
+addMixingScenario("E8TeV_2012_run209148_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_run209148_BX_25ns_cfi'})
+addMixingScenario("E8TeV_2012_ZmumugSkim",{'file': 'SimGeneral.MixingModule.mix_E8TeV_zmmg_skim_BX_50ns_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 ##fastsim section
