@@ -59,7 +59,6 @@ void checkFloatingPoint()
     same(zero, nzero);
 
     same(first, first);
-    same(first, first);
     diff(first, second);
 
     same(inf, inf);
@@ -133,6 +132,18 @@ int main()
     diff(false, true);
     same('1', '1');
     diff('1', '2');
+    same(static_cast<unsigned char>('1'), static_cast<unsigned char>('1'));
+    diff(static_cast<unsigned char>('1'), static_cast<unsigned char>('2'));
+    same(L'1', L'1');
+    diff(L'1', L'2');
+    same(u'1', u'1');
+    diff(u'1', u'2');
+    same(U'1', U'1');
+    diff(U'1', U'2');
+    same(static_cast<short>(1), static_cast<short>(1));
+    diff(static_cast<short>(1), static_cast<short>(2));
+    same(static_cast<unsigned short>(1), static_cast<unsigned short>(1));
+    diff(static_cast<unsigned short>(1), static_cast<unsigned short>(2));
     same(1, 1);
     diff(1, 2);
     same(1u, 1u);
