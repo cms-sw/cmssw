@@ -8,6 +8,7 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include <vector>                                        
 
@@ -44,14 +45,12 @@ private:
 public:
   
   /// constructor from layer and helper objects
-  TrajectorySegmentBuilder (const MeasurementTracker* theInputMeasurementTracker,
-			    const LayerMeasurements*  theInputLayerMeasurements,
+  TrajectorySegmentBuilder (const LayerMeasurements*  theInputLayerMeasurements,
 			    const DetLayer& layer,
 			    const Propagator& propagator,
 			    const TrajectoryStateUpdator& updator,
 			    const MeasurementEstimator& estimator,
 			    bool lockHits, bool bestHitOnly) :
-    theMeasurementTracker(theInputMeasurementTracker),
     theLayerMeasurements(theInputLayerMeasurements),
     theLayer(layer),
     theFullPropagator(propagator),
@@ -106,7 +105,6 @@ private:
 			     TempTrajectoryContainer& candidates) const;
   
 private:
-  const MeasurementTracker*     theMeasurementTracker;
   const LayerMeasurements*      theLayerMeasurements;
   const DetLayer&               theLayer;
   const Propagator&             theFullPropagator;

@@ -21,6 +21,11 @@
 
 #include "RecoTracker/CkfPattern/interface/RedundantSeedCleaner.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/ContainerMask.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 class TransientInitialStateEstimator;
 
@@ -65,10 +70,20 @@ namespace cms
     const NavigationSchool*       theNavigationSchool;
     
     RedundantSeedCleaner*  theSeedCleaner;
-    
-    edm::EDGetTokenT<edm::View<TrajectorySeed> >  theSeedLabel;
 
     unsigned int maxSeedsBeforeCleaning_;
+    
+    edm::EDGetTokenT<edm::View<TrajectorySeed> >  theSeedLabel;
+    edm::EDGetTokenT<MeasurementTrackerEvent>     theMTELabel;
+
+    bool skipClusters_;
+    typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelClusterMask;
+    typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > StripClusterMask;
+    typedef edm::ContainerMask<edm::LazyGetter<SiStripCluster> >      StripClusterLazyMask;
+    edm::EDGetTokenT<PixelClusterMask> maskPixels_;
+    edm::EDGetTokenT<StripClusterMask> maskStrips_;
+    edm::EDGetTokenT<StripClusterLazyMask> maskStripsLazy_;
+
     // methods for debugging
     virtual TrajectorySeedCollection::const_iterator lastSeed(TrajectorySeedCollection const& theSeedColl){return theSeedColl.end();}
     virtual void printHitsDebugger(edm::Event& e){;}

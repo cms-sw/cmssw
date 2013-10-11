@@ -41,6 +41,9 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+
 
 ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::ParameterSet& config) : 
   conf_(config), 
@@ -111,6 +114,8 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   severitiesexclEE_= 
     StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEE);
 
+  // TrajectoryBuilder name
+  trajectoryBuilderName_ = conf_.getParameter<std::string>("TrajectoryBuilder");
 
   // Register the product
   produces< TrackCandidateCollection > (OutInTrackCandidateCollection_);
@@ -177,10 +182,18 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
   
   setEventSetup( theEventSetup );
+
+  // get the trajectory builder and initialize it with the data
+  theEventSetup.get<CkfComponentsRecord>().get(trajectoryBuilderName_, theTrajectoryBuilder_);
+  edm::Handle<MeasurementTrackerEvent> data;
+  theEvent.getByLabel(edm::InputTag("MeasurementTrackerEvent"), data);
+  std::auto_ptr<BaseCkfTrajectoryBuilder> trajectoryBuilder;
+  trajectoryBuilder.reset((dynamic_cast<const BaseCkfTrajectoryBuilder &>(*theTrajectoryBuilder_)).clone(&*data));  
+
   theOutInSeedFinder_->setEvent(theEvent);
   theInOutSeedFinder_->setEvent(theEvent);
-  theOutInTrackFinder_->setEvent(theEvent);
-  theInOutTrackFinder_->setEvent(theEvent);
+  theOutInTrackFinder_->setTrajectoryBuilder(*trajectoryBuilder);
+  theInOutTrackFinder_->setTrajectoryBuilder(*trajectoryBuilder);
 
 // Set the navigation school  
   NavigationSetter setter(*theNavigationSchool_);  

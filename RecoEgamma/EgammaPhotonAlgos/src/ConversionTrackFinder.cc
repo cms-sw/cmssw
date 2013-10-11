@@ -46,13 +46,6 @@ void ConversionTrackFinder::setEventSetup(const edm::EventSetup& es )   {
   es.get<CkfComponentsRecord>().get(theMeasurementTrackerName_,measurementTrackerHandle);
   theMeasurementTracker_ = measurementTrackerHandle.product();
 
- // set the TrajectoryBuilder
-  std::string trajectoryBuilderName = conf_.getParameter<std::string>("TrajectoryBuilder");
-  //  std::cout << " ConversionTrackFinderBase tbName" <<  trajectoryBuilderName << std::endl;
-  edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilderHandle;
-  es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
-  theCkfTrajectoryBuilder_ = theTrajectoryBuilderHandle.product();
-
   edm::ESHandle<TrackerGeometry> trackerHandle;
   es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
   theTrackerGeom_= trackerHandle.product();
@@ -63,9 +56,6 @@ void ConversionTrackFinder::setEventSetup(const edm::EventSetup& es )   {
   theInitialState_->setEventSetup( es );
 }
 
-void ConversionTrackFinder::setEvent(const edm::Event& e )   {
-  theMeasurementTracker_->update( e );
-
-
-
+void ConversionTrackFinder::setTrajectoryBuilder(const TrajectoryBuilder & builder)   {
+  theCkfTrajectoryBuilder_ = & builder;
 }
