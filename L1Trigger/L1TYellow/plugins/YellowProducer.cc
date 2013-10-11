@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    L1TYellowProducer
-// Class:      L1TYellowProducer
+// Package:    YellowProducer
+// Class:      YellowProducer
 // 
-/**\class L1TYellowProducer L1TYellowProducer.cc L1Trigger/L1TYellow/src/L1TYellowProducer.cc
+/**\class YellowProducer YellowProducer.cc L1Trigger/L1TYellow/src/YellowProducer.cc
 
  Description: Emulation of Fictitious Level-1 Yellow Trigger for demonstration purposes
 
@@ -30,25 +30,25 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/DataRecord/interface/L1TYellowParamsRcd.h"
-#include "CondFormats/L1TYellow/interface/L1TYellowParams.h"
-#include "DataFormats/L1TYellow/interface/L1TYellowDigi.h"
-#include "DataFormats/L1TYellow/interface/L1TYellowOutput.h"
-#include "L1Trigger/L1TYellow/interface/L1TYellowAlg.h"
+#include "CondFormats/L1TYellow/interface/YellowParams.h"
+#include "DataFormats/L1TYellow/interface/YellowDigi.h"
+#include "DataFormats/L1TYellow/interface/YellowOutput.h"
+#include "L1Trigger/L1TYellow/interface/YellowAlg.h"
 
 
 using namespace std;
 using namespace edm;
 
-//using namespace l1t;
+namespace l1t {
 
 //
 // class declaration
 //
 
-class L1TYellowProducer : public EDProducer {
-public:
-  explicit L1TYellowProducer(const ParameterSet&);
-  ~L1TYellowProducer();
+  class YellowProducer : public EDProducer {
+  public:
+    explicit YellowProducer(const ParameterSet&);
+  ~YellowProducer();
   
   static void fillDescriptions(ConfigurationDescriptions& descriptions);
   
@@ -60,8 +60,8 @@ private:
   virtual void endRun(Run const& iR, EventSetup const& iE);
   
   // ----------member data ---------------------------
-  const L1TYellowParams * dbpars; // Database parameters for the trigger, to be udpated each run
-  l1t::L1TYellowAlg * alg; // Algorithm to run per event, depends on database parameters, updated each run.
+  const YellowParams * dbpars; // Database parameters for the trigger, to be udpated each run
+  l1t::YellowAlg * alg; // Algorithm to run per event, depends on database parameters, updated each run.
 
   EDGetToken yellowDigisToken;
 };
@@ -73,20 +73,20 @@ using namespace edm;
 //
 // constructors and destructor
 //
-L1TYellowProducer::L1TYellowProducer(const ParameterSet& iConfig)
+YellowProducer::YellowProducer(const ParameterSet& iConfig)
 {
   // register what you produce
-  produces<L1TYellowOutputCollection>();
+  produces<YellowOutputCollection>();
 
   // register what you consume and keep token for later access:
-  yellowDigisToken = consumes<L1TYellowDigiCollection>(iConfig.getParameter<InputTag>("fakeRawToDigi"));
+  yellowDigisToken = consumes<YellowDigiCollection>(iConfig.getParameter<InputTag>("fakeRawToDigi"));
     
   dbpars = NULL;
   alg = NULL;
 }
 
 
-L1TYellowProducer::~L1TYellowProducer()
+YellowProducer::~YellowProducer()
 {
 }
 
@@ -97,19 +97,19 @@ L1TYellowProducer::~L1TYellowProducer()
 
 // ------------ method called to produce the data  ------------
 void
-L1TYellowProducer::produce(Event& iEvent, const EventSetup& iSetup)
+YellowProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
 
-  LogInfo("l1t|yellow") << "L1TYellowProducer::produce function called...\n";
+  LogInfo("l1t|yellow") << "YellowProducer::produce function called...\n";
 
-  cout << "cout version: L1TYellowProducer::produce function called...\n";
+  cout << "cout version: YellowProducer::produce function called...\n";
 
   
-  Handle<L1TYellowDigiCollection> inputDigis;
+  Handle<YellowDigiCollection> inputDigis;
   iEvent.getByToken(yellowDigisToken,inputDigis);
   
-  std::auto_ptr<L1TYellowOutputCollection> outColl (new L1TYellowOutputCollection);
-  L1TYellowOutput iout;
+  std::auto_ptr<YellowOutputCollection> outColl (new YellowOutputCollection);
+  YellowOutput iout;
 
   if (inputDigis->size()){
     if (alg) {
@@ -119,7 +119,7 @@ L1TYellowProducer::produce(Event& iEvent, const EventSetup& iSetup)
     }
     // already complained in beginRun, doing nothing now will send empty collection to event, as desired.
   } else {
-    LogError("l1t|yellow") << "L1TYellowProducer: input Digis have zero size.\n";
+    LogError("l1t|yellow") << "YellowProducer: input Digis have zero size.\n";
   }
 
   //iout.setRawData(20);  outColl->push_back(iout);
@@ -132,31 +132,31 @@ L1TYellowProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1TYellowProducer::beginJob()
+YellowProducer::beginJob()
 {
-  cout << "L1TYellowProducer begin JOB being called...\n";
+  cout << "YellowProducer begin JOB being called...\n";
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-L1TYellowProducer::endJob() {
+YellowProducer::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 
-void L1TYellowProducer::beginRun(Run const&iR, EventSetup const&iE){
+void YellowProducer::beginRun(Run const&iR, EventSetup const&iE){
   // TODO:  retreive DB pars from EventSetup:
   //if (dbpars) delete dbpars;
-  //dbpars = new L1TYellowParams;  
+  //dbpars = new YellowParams;  
   //dbpars->setFirmwareVersion(1);
 
-  cout << "L1TYellowProducer Begin Run Called!\n";
+  cout << "YellowProducer Begin Run Called!\n";
 
-  // Retrieve the L1T yellow parameters from the event setup:
-  ESHandle<L1TYellowParams> yParameters;
+  // Retrieve the  yellow parameters from the event setup:
+  ESHandle<YellowParams> yParameters;
   iE.get<L1TYellowParamsRcd>().get(yParameters);
-  //const L1TYellowParams * x = yParameters.product();
+  //const YellowParams * x = yParameters.product();
   dbpars = yParameters.product();
   
   if (dbpars){
@@ -168,24 +168,24 @@ void L1TYellowProducer::beginRun(Run const&iR, EventSetup const&iE){
 
   // Set the current algorithm version based on DB pars from database:
   if (alg) delete alg;
-  alg = NewL1TYellowAlg(*dbpars);
+  alg = NewYellowAlg(*dbpars);
 
   if (! alg) {
     // we complain here once per run
-    LogError("l1t|yellow") << "L1TYellowProducer:  could not retreive DB params from Event Setup\n";
+    LogError("l1t|yellow") << "YellowProducer:  could not retreive DB params from Event Setup\n";
   }
 
 }
 
 // ------------ method called when ending the processing of a run  ------------
-void L1TYellowProducer::endRun(Run const& iR, EventSetup const& iE){
+void YellowProducer::endRun(Run const& iR, EventSetup const& iE){
   
 }
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-L1TYellowProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+YellowProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
@@ -193,5 +193,14 @@ L1TYellowProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
   descriptions.addDefault(desc);
 }
 
+} // namespace
+
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TYellowProducer);
+DEFINE_FWK_MODULE(l1t::YellowProducer);
+
+
+// OR?:
+////define this as a plug-in
+//DEFINE_FWK_MODULE(YellowProducer);
+//} // namespace
+

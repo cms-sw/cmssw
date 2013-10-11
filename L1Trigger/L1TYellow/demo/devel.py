@@ -12,16 +12,19 @@ process.prefer("yellowParams")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
-)
+    )
 
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('file:test.root')
-)
+    #fileNames = cms.untracked.vstring("/store/RelVal/CMSSW_7_0_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/22610530-FC24-E311-AF35-003048FFD7C2.root")
+    fileNames = cms.untracked.vstring("file:test.root")
+    )
 
-process.options = cms.untracked.PSet(
-)
+
+
+
+process.options = cms.untracked.PSet()
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag

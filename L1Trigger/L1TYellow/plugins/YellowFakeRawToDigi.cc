@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
-// Package:    L1TYellowFakeDigiProducer
-// Class:      L1TYellowFakeDigiProducer
+// Package:    YellowFakeDigiProducer
+// Class:      YellowFakeDigiProducer
 // 
-/**\class L1TYellowFakeRawToDigi
+/**\class YellowFakeRawToDigi
 
  Description: Emulation of Fictitious Level-1 Yellow Trigger for demonstration purposes
 
  Implementation:
-     Produces L1TYellowInput
+     Produces YellowInput
 */
 //
 
@@ -22,19 +22,20 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/L1TYellow/interface/L1TYellowDigi.h"
+#include "DataFormats/L1TYellow/interface/YellowDigi.h"
 
 using namespace std;
-//using namespace l1t;
 
 //
 // class declaration
 //
 
-class L1TYellowFakeRawToDigi : public edm::EDProducer {
+namespace l1t {
+
+class YellowFakeRawToDigi : public edm::EDProducer {
 public:
-  explicit L1TYellowFakeRawToDigi(const edm::ParameterSet&);
-  ~L1TYellowFakeRawToDigi();
+  explicit YellowFakeRawToDigi(const edm::ParameterSet&);
+  ~YellowFakeRawToDigi();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
@@ -49,8 +50,9 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);  
 };
 
+}
 
-//using namespace l1t;
+using namespace l1t;
 
 //
 // constants, enums and typedefs
@@ -64,14 +66,14 @@ private:
 //
 // constructors and destructor
 //
-L1TYellowFakeRawToDigi::L1TYellowFakeRawToDigi(const edm::ParameterSet& iConfig)
+YellowFakeRawToDigi::YellowFakeRawToDigi(const edm::ParameterSet& iConfig)
 {
   //register your products
-  produces<L1TYellowDigiCollection>();
+  produces<YellowDigiCollection>();
 }
 
 
-L1TYellowFakeRawToDigi::~L1TYellowFakeRawToDigi()
+YellowFakeRawToDigi::~YellowFakeRawToDigi()
 {
 }
 
@@ -82,14 +84,14 @@ L1TYellowFakeRawToDigi::~L1TYellowFakeRawToDigi()
 
 // ------------ method called to produce the data  ------------
 void
-L1TYellowFakeRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+YellowFakeRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  cout << "L1TYellowFakeRawToDigi::produce function called...\n";
+  cout << "YellowFakeRawToDigi::produce function called...\n";
 
-  std::auto_ptr<L1TYellowDigiCollection> outColl (new L1TYellowDigiCollection);
-  L1TYellowDigi iout;
+  std::auto_ptr<YellowDigiCollection> outColl (new YellowDigiCollection);
+  YellowDigi iout;
 
-  iout.setRawData(20);
+  iout.setEt(20);
   outColl->push_back(iout);
 
   iEvent.put(outColl); 
@@ -97,43 +99,43 @@ L1TYellowFakeRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1TYellowFakeRawToDigi::beginJob()
+YellowFakeRawToDigi::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-L1TYellowFakeRawToDigi::endJob() {
+YellowFakeRawToDigi::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 void 
-L1TYellowFakeRawToDigi::beginRun(edm::Run&, edm::EventSetup const&)
+YellowFakeRawToDigi::beginRun(edm::Run&, edm::EventSetup const&)
 {
 
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void 
-L1TYellowFakeRawToDigi::endRun(edm::Run&, edm::EventSetup const&)
+YellowFakeRawToDigi::endRun(edm::Run&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void 
-L1TYellowFakeRawToDigi::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+YellowFakeRawToDigi::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void 
-L1TYellowFakeRawToDigi::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+YellowFakeRawToDigi::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-L1TYellowFakeRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+YellowFakeRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -142,4 +144,4 @@ L1TYellowFakeRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descrip
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TYellowFakeRawToDigi);
+DEFINE_FWK_MODULE(l1t::YellowFakeRawToDigi);

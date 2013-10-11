@@ -4,6 +4,7 @@
 <use name="DataFormats/L1TYellow"/>
 <use name="CondFormats/L1TYellow"/>
 <use name="CondFormats/DataRecord"/>
-<export>
-  <lib   name="1"/>
-</export>
+<use name="L1Trigger/L1TYellow"/>
+<library   file="*.cc" name="L1TriggerL1TYellowPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

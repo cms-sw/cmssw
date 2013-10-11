@@ -24,9 +24,7 @@
 
 #include "FWCore/Framework/interface/ESProducts.h"
 
-
-
-#include "CondFormats/L1TYellow/interface/L1TYellowParams.h"
+#include "CondFormats/L1TYellow/interface/YellowParams.h"
 #include "CondFormats/DataRecord/interface/L1TYellowParamsRcd.h"
 
 using namespace std;
@@ -35,17 +33,19 @@ using namespace std;
 // class declaration
 //
 
-class L1TYellowParamsESProducer : public edm::ESProducer {
+namespace l1t {
+
+class YellowParamsESProducer : public edm::ESProducer {
 public:
-  L1TYellowParamsESProducer(const edm::ParameterSet&);
-  ~L1TYellowParamsESProducer();
+  YellowParamsESProducer(const edm::ParameterSet&);
+  ~YellowParamsESProducer();
   
-  typedef boost::shared_ptr<L1TYellowParams> ReturnType;
+  typedef boost::shared_ptr<YellowParams> ReturnType;
   
   ReturnType produce(const L1TYellowParamsRcd&);
 
 private:
-  L1TYellowParams  m_params ;
+  YellowParams  m_params ;
   std::string m_label;
 };
 
@@ -60,7 +60,7 @@ private:
 //
 // constructors and destructor
 //
-L1TYellowParamsESProducer::L1TYellowParamsESProducer(const edm::ParameterSet& conf)
+YellowParamsESProducer::YellowParamsESProducer(const edm::ParameterSet& conf)
 {
 
    //the following line is needed to tell the framework what
@@ -73,11 +73,11 @@ L1TYellowParamsESProducer::L1TYellowParamsESProducer(const edm::ParameterSet& co
    m_params.setParamB(conf.getParameter<unsigned>("paramB"));
    m_params.setParamC(conf.getParameter<unsigned>("paramC"));
 
-   cout << "L1TYellowParamsESProducer constructor called.\n";
+   cout << "YellowParamsESProducer constructor called.\n";
 }
 
 
-L1TYellowParamsESProducer::~L1TYellowParamsESProducer()
+YellowParamsESProducer::~YellowParamsESProducer()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -91,18 +91,20 @@ L1TYellowParamsESProducer::~L1TYellowParamsESProducer()
 //
 
 // ------------ method called to produce the data  ------------
-L1TYellowParamsESProducer::ReturnType
-L1TYellowParamsESProducer::produce(const L1TYellowParamsRcd& iRecord)
+YellowParamsESProducer::ReturnType
+YellowParamsESProducer::produce(const L1TYellowParamsRcd& iRecord)
 {
-   cout << "L1TYellowParamsESProducer produce called!!!\n";
+   cout << "YellowParamsESProducer produce called!!!\n";
 
 
    using namespace edm::es;
-   boost::shared_ptr<L1TYellowParams> pL1TYellowParams ;
+   boost::shared_ptr<YellowParams> pYellowParams ;
 
-   pL1TYellowParams = boost::shared_ptr< L1TYellowParams >(new L1TYellowParams( m_params ));
-   return pL1TYellowParams;
+   pYellowParams = boost::shared_ptr< YellowParams >(new YellowParams( m_params ));
+   return pYellowParams;
+}
+
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(L1TYellowParamsESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(l1t::YellowParamsESProducer);

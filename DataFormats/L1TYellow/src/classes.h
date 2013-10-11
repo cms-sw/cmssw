@@ -1,14 +1,14 @@
 
 #include <vector>
-#include "DataFormats/L1TYellow/interface/L1TYellowDigi.h"
-#include "DataFormats/L1TYellow/interface/L1TYellowOutput.h"
+#include "DataFormats/L1TYellow/interface/YellowDigi.h"
+#include "DataFormats/L1TYellow/interface/YellowOutput.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
   struct dictionary {
-    L1TYellowDigiCollection dummya;
-    edm::Wrapper<L1TYellowDigiCollection> w_dummya;
-    L1TYellowOutputCollection dummyb;
-    edm::Wrapper<L1TYellowOutputCollection> w_dummyb;
+    l1t::YellowDigiCollection dummya;
+    edm::Wrapper<l1t::YellowDigiCollection> w_dummya;
+    l1t::YellowOutputCollection dummyb;
+    edm::Wrapper<l1t::YellowOutputCollection> w_dummyb;
   };
 }

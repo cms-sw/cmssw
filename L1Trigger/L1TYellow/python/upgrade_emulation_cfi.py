@@ -9,10 +9,10 @@ from Configuration.Geometry.GeometryIdeal_cff import *
 #from L1Trigger.RegionalCaloTrigger.rctDigis_cfi import *
 #from L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi import *
 
-fakeRawToDigi  = cms.EDProducer("L1TYellowFakeRawToDigi")
+fakeRawToDigi  = cms.EDProducer("l1t::YellowFakeRawToDigi")
 
 yellowDigis    = cms.EDProducer(
-    "L1TYellowProducer",
+    "l1t::YellowProducer",
     fakeRawToDigi = cms.InputTag("fakeRawToDigi")
     )
 
@@ -20,6 +20,5 @@ digiStep = cms.Sequence(
     fakeRawToDigi
     *yellowDigis
     )
-
 
 

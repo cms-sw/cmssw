@@ -1,6 +1,8 @@
 #ifndef CondFormatsDataRecord_L1TYellowParamsRcd_h
 #define CondFormatsDataRecord_L1TYellowParamsRcd_h
 
+// TODO Add Key list management:
+
 //#include "boost/mpl/vector.hpp"
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
