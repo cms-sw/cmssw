@@ -39,12 +39,12 @@ void TkGluedMeasurementDet::init(const MeasurementDet* monoDet,
 }
 
 TkGluedMeasurementDet::RecHitContainer 
-TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
+TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data) const
 {
 
   RecHitContainer result;
   HitCollectorForRecHits collector( &fastGeomDet(), theMatcher, theCPE, result );
-  collectRecHits(ts, collector);
+  collectRecHits(ts, data, collector);
   return result;
 }
 
@@ -53,19 +53,19 @@ struct take_address { template<typename T> const T * operator()(const T &val) co
 #ifdef DOUBLE_MATCH
 template<typename Collector>
 void
-TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, Collector & collector) const
+TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data, Collector & collector) const
 {
-  doubleMatch(ts,collector);
+  doubleMatch(ts,data,collector);
 }
 #else
 template<typename Collector>
 void
-TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, Collector & collector) const
+TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data, Collector & collector) const
 {
   //------ WARNING: here ts is used as it is on the mono/stereo surface.
   //-----           A further propagation is necessary.
   //-----           To limit the problem, the SimpleCPE should be used
-  RecHitContainer monoHits = theMonoDet->recHits( ts);
+  RecHitContainer monoHits = theMonoDet->recHits( ts, data );
   GlobalVector glbDir = (ts.isValid() ? ts.globalParameters().momentum() : position()-GlobalPoint(0,0,0));
 
   //edm::LogWarning("TkGluedMeasurementDet::recHits") << "Query-for-detid-" << theGeomDet->geographicalId().rawId();
@@ -74,12 +74,12 @@ TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, Colle
 
   if (monoHits.empty()) {
       // make stereo TTRHs and project them
-      projectOnGluedDet( collector, theStereoDet->recHits(ts), glbDir);
+      projectOnGluedDet( collector, theStereoDet->recHits(ts, data), glbDir);
   } else {
       // collect simple stereo hits
       static std::vector<SiStripRecHit2D> simpleSteroHitsByValue;
       simpleSteroHitsByValue.clear();
-      theStereoDet->simpleRecHits(ts, simpleSteroHitsByValue);
+      theStereoDet->simpleRecHits(ts, data, simpleSteroHitsByValue);
 
       if (simpleSteroHitsByValue.empty()) {
           projectOnGluedDet( collector, monoHits, glbDir);
@@ -160,9 +160,10 @@ namespace {
 
 bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 					  const MeasurementEstimator& est,
+                                          const MeasurementTrackerEvent & data,
 					  TempMeasurements & result) const {
 
-   if unlikely((!theMonoDet->isActive()) && (!theStereoDet->isActive())) {
+   if unlikely((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) {
        //     LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) fully inactive";
        result.add (InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive),0.F);
        return true;
@@ -171,7 +172,7 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
    auto oldSize = result.size();
 
    HitCollectorForFastMeasurements collector( &fastGeomDet(), theMatcher, theCPE, stateOnThisDet, est, result);
-   collectRecHits(stateOnThisDet, collector);
+   collectRecHits(stateOnThisDet, data, collector);
    
    
    if (result.size()>oldSize) return true;
@@ -181,12 +182,12 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
    if (  // sorry for the big IF, but I want to exploit short-circuiting of logic
        stateOnThisDet.hasError() && ( /* do this only if the state has uncertainties, otherwise it will throw 
 					 (states without uncertainties are passed to this code from seeding */
-				     (theMonoDet->isActive() && 
+				     (theMonoDet->isActive(data) && 
 				      (theMonoDet->hasAllGoodChannels() || 
 				       testStrips(stateOnThisDet,gluedPlane,*theMonoDet)
 				       )
 				      ) /*Mono OK*/ || 
-				     (theStereoDet->isActive() && 
+				     (theStereoDet->isActive(data) && 
 				      (theStereoDet->hasAllGoodChannels() || 
 				       testStrips(stateOnThisDet,gluedPlane,*theStereoDet)
 				       )

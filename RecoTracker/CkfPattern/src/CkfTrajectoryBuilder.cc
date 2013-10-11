@@ -12,6 +12,7 @@
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
 
@@ -36,12 +37,11 @@ CkfTrajectoryBuilder::
 		       const Propagator*                     propagatorOpposite,
 		       const Chi2MeasurementEstimatorBase*   estimator,
 		       const TransientTrackingRecHitBuilder* recHitBuilder,
-		       const MeasurementTracker*             measurementTracker,
 		       const TrajectoryFilter*               filter):
 
     BaseCkfTrajectoryBuilder(conf,
 			     updator, propagatorAlong,propagatorOpposite,
-			     estimator, recHitBuilder, measurementTracker,filter)
+			     estimator, recHitBuilder, filter)
 {
   theMaxCand              = conf.getParameter<int>("maxCand");
   theLostHitPenalty       = conf.getParameter<double>("lostHitPenalty");
@@ -153,7 +153,10 @@ CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed, CkfTrajectoryBuil
 TempTrajectory CkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed&seed,
 							TrajectoryContainer &result,
 							const TrajectoryFilter*) const {
-  
+  if (theMeasurementTracker == 0) {
+      throw cms::Exception("LogicError") << "Asking to create trajectories to an un-initialized CkfTrajectoryBuilder.\nYou have to call clone(const MeasurementTrackerEvent *data) and then call trajectories on it instead.\n";
+  }
+ 
   TempTrajectory startingTraj = createStartingTrajectory( seed );
   
   /// limitedCandidates( startingTraj, regionalCondition, result);
@@ -299,7 +302,8 @@ CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
 	LogDebug("CkfPattern")<<"to: "<<stateToUse;
       }
     
-    vector<TrajectoryMeasurement> tmp = theLayerMeasurements->measurements((**il),stateToUse, *theForwardPropagator, *theEstimator);
+    LayerMeasurements layerMeasurements(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
+    vector<TrajectoryMeasurement> tmp = layerMeasurements.measurements((**il),stateToUse, *theForwardPropagator, *theEstimator);
     
     if ( !tmp.empty()) {
       if ( result.empty()) result = tmp;

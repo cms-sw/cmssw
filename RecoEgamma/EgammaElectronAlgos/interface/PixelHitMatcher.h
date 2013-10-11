@@ -33,6 +33,7 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
 #include "CLHEP/Vector/ThreeVector.h"
 #include <vector>
@@ -43,9 +44,9 @@
  */
 
 class MeasurementTracker;
+class MeasurementTrackerEvent;
 class MagneticField;
 class GeometricSearchTracker;
-class LayerMeasurements;
 class TrackerGeometry;
 class TrackerTopology;
 
@@ -155,6 +156,8 @@ class PixelHitMatcher
     virtual ~PixelHitMatcher() ;
     void setES( const MagneticField *, const MeasurementTracker * theMeasurementTracker, const TrackerGeometry * trackerGeometry ) ;
 
+    void setEvent( const MeasurementTrackerEvent & event ) ;
+
     std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >
     compatibleHits(const GlobalPoint& xmeas, const GlobalPoint& vprim, 
 		   float energy, float charge,
@@ -192,7 +195,9 @@ class PixelHitMatcher
     PropagatorWithMaterial * prop1stLayer ;
     PropagatorWithMaterial * prop2ndLayer ;
     const GeometricSearchTracker * theGeometricSearchTracker ;
-    const LayerMeasurements * theLayerMeasurements ;
+    const MeasurementTrackerEvent *theTrackerEvent;
+    const MeasurementTracker      *theTracker;
+    LayerMeasurements theLayerMeasurements ;
     const MagneticField* theMagField ;
     const TrackerGeometry * theTrackerGeometry ;
 

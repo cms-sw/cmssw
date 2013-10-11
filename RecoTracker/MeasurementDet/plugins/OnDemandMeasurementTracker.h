@@ -31,19 +31,15 @@ public:
   /// destructor
   virtual ~OnDemandMeasurementTracker() {}
  
-  /// MeasurementTracker overloaded function
-  void update( const edm::Event&) const;
-  void updateStrips( const edm::Event& event) const;
-
   typedef edm::LazyGetter<SiStripCluster> LazyGetter;
   typedef edm::RefGetter<SiStripCluster> RefGetter;
 
   /// OnDemandMeasurementTracker specific function to be called to define the region in the RefGetter according to MeasurementDet content
   void define(const edm::Handle< edm::LazyGetter<SiStripCluster> > & ,
-	      std::auto_ptr< RefGetter > &  ) const;
+	      RefGetter &, StMeasurementDetSet &  ) const;
 
-  /// MeasurementDetSystem interface
-  virtual const MeasurementDet*       idToDet(const DetId& id) const;
+  /// MeasurementTrackerImpl interface
+  const MeasurementDet * idToDetBare(const DetId& id, const MeasurementTrackerEvent &data) const ;
     
  private:
   /// log category
@@ -58,27 +54,19 @@ public:
   /// the cabling region tool to update a RefGetter
   const  SiStripRegionCabling * theStripRegionCabling;
   
-  /// the handle is retrieved from the event to make reference to cluster in it
-  mutable edm::Handle< edm::RefGetter<SiStripCluster> > theRefGetterH;
-  mutable edm::Handle< edm::LazyGetter<SiStripCluster> > theLazyGetterH;
-  mutable bool theSkipClusterRefs;
-  mutable edm::Handle< edm::ContainerMask<edm::LazyGetter<SiStripCluster> > > theStripClusterMask;
-  //mutable std::vector<bool> theClustersToSkip;
-  /// a class that holds flags, region_range (in RefGetter) for a given MeasurementDet
   class DetODStatus {
   public:
-    // FIXME shall surely exits a better way to distinguish glued from single!
-    DetODStatus(MeasurementDet * m): mdet(m), region_range(0,0), defined(false),updated(false),glued(!m->fastGeomDet().components().empty()) {}
-    MeasurementDet * mdet;
-    std::pair<unsigned int, unsigned int> region_range;
-    bool defined;
-    bool updated;
-    bool glued;
+    enum Kind { Pixel, Strip, Glued };
+    DetODStatus(const MeasurementDet * m) : mdet(m), index(-1), kind(Pixel) {}
+    const MeasurementDet * mdet;
+    int index;
+    Kind kind;
   };
   
   typedef std::unordered_map<unsigned int, DetODStatus> DetODContainer;
   /// mapping of detid -> MeasurementDet+flags+region_range
-  mutable DetODContainer theDetODMap;
+  DetODContainer theDetODMap;
+  //int theNumberOfGluedDets;
   
   /// mapping of elementIndex -> iterator to the DetODMap: to know what are the regions that needs to be defined in the ref getter
   typedef std::vector<std::pair<SiStripRegionCabling::ElementIndex, std::vector<DetODContainer::const_iterator> > > RegionalMap;
@@ -86,7 +74,7 @@ public:
 
   /// assigne the cluster iterator to the TkStipMeasurementDet (const_cast in the way)
     void assign(const  TkStripMeasurementDet * csmdet,
-	      DetODContainer::iterator * alreadyFound=0) const;
+                const MeasurementTrackerEvent &data) const;
 
   /// some printouts, exclusively under LogDebug
   std::string dumpCluster(const std::vector<SiStripCluster> ::const_iterator & begin, const  std::vector<SiStripCluster> ::const_iterator& end)const;
@@ -94,7 +82,6 @@ public:
 			 const RefGetter & theGetter,
 			 bool stayUnpacked = false)const;
 
-  mutable std::vector<uint32_t> theRawInactiveStripDetIds;
       
 };
 

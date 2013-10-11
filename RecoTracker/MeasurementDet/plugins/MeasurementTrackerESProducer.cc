@@ -52,6 +52,8 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 
   bool onDemand = pset_.getParameter<bool>("OnDemand");
 
+  if (onDemand != regional) throw cms::Exception("Configuration") << "Currently OnDemand and Regional must have the same values.\n";
+
   // ========= SiPixelQuality related tasks =============
   const SiPixelQuality    *ptr_pixelQuality = 0;
   const SiPixelFedCabling *ptr_pixelCabling = 0;

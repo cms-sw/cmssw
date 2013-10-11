@@ -15,7 +15,16 @@ from FastSimulation.Tracking.IterativePixelLessStep_cff import *
 from FastSimulation.Tracking.IterativeTobTecStep_cff import *
 from FastSimulation.Tracking.MuonSeededStep_cff import *
 
+import RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi
+MeasurementTrackerEvent = RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi.MeasurementTrackerEvent.clone(
+    pixelClusterProducer = '',
+    stripClusterProducer = '',
+    inactivePixelDetectorLabels = cms.VInputTag(),
+    inactiveStripDetectorLabels = cms.VInputTag(),
+    switchOffPixelsIfEmpty = False
+)
 iterativeTracking = cms.Sequence(pixelTracking+pixelVertexing
+                                 +MeasurementTrackerEvent 
                                  +iterativeInitialStep
                                  +iterativeLowPtTripletStep
                                  +iterativePixelPairStep

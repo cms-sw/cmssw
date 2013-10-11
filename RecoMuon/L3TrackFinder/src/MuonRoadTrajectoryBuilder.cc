@@ -43,6 +43,7 @@ MuonRoadTrajectoryBuilder::MuonRoadTrajectoryBuilder(const edm::ParameterSet & i
 {
 
   theMeasurementTracker = mt;
+  theMeasurementTrackerEvent = 0; // YES this will crash, Will fix later.
   theField = f;
   thePropagator = p;
 
@@ -94,10 +95,10 @@ MuonRoadTrajectoryBuilder::~MuonRoadTrajectoryBuilder()
   if (theHitEstimator) delete theHitEstimator;
   if (theUpdator) delete theUpdator;
   if (theSmoother) delete theSmoother;
+  delete theMeasurementTrackerEvent;
 }
 
 void MuonRoadTrajectoryBuilder::setEvent(const edm::Event & iEvent) const {
-  theMeasurementTracker->update(iEvent);
 }
 
 
@@ -474,7 +475,7 @@ int  MuonRoadTrajectoryBuilder::GatherHits( const TrajectoryStateOnSurface & ste
 			     <<"(presentdetid.rawId()) "<<(presentdetid.rawId());
 
       //get the rechits on this module
-      TransientTrackingRecHit::ConstRecHitContainer  thoseHits = theMeasurementTracker->idToDet(presentdetid)->recHits(restep); 
+      TransientTrackingRecHit::ConstRecHitContainer  thoseHits = theMeasurementTrackerEvent->idToDet(presentdetid).recHits(restep); 
       int additionalHits =0;
 
       LogDebug(theCategory)<<"(thoseHits.size()) "<<(thoseHits.size());

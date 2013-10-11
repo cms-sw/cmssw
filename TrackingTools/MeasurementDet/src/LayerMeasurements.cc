@@ -42,6 +42,7 @@ namespace {
   inline
   std::vector<TrajectoryMeasurement> 
   get(const MeasurementDetSystem* theDetSystem, 
+      const MeasurementTrackerEvent* theData,
       const DetLayer& layer,
       std::vector<DetWithState> const& compatDets,
       const TrajectoryStateOnSurface& ts, 
@@ -53,12 +54,12 @@ namespace {
     tracking::TempMeasurements tmps;
 
     for ( auto const & ds : compatDets) {
-      const MeasurementDet* mdet = theDetSystem->idToDet(ds.first->geographicalId());
-      if unlikely(mdet == nullptr) {
+      MeasurementDetWithData mdet = theDetSystem->idToDet(ds.first->geographicalId(), *theData);
+      if unlikely(mdet.isNull()) {
 	throw MeasurementDetException( "MeasurementDet not found");
       }
       
-      if (mdet->measurements(ds.second, est,tmps))
+      if (mdet.measurements(ds.second, est,tmps))
 	for (std::size_t i=0; i!=tmps.size(); ++i)
 	  result.emplace_back(ds.second,std::move(tmps.hits[i]),tmps.distances[i],&layer);
       tmps.clear();
@@ -96,7 +97,7 @@ LayerMeasurements::measurements( const DetLayer& layer,
 
   vector<DetWithState>  const & compatDets = layer.compatibleDets( startingState, prop, est);
   
-  if (!compatDets.empty())  return get(theDetSystem, layer, compatDets, startingState, prop, est);
+  if (!compatDets.empty())  return get(theDetSystem, theData, layer, compatDets, startingState, prop, est);
     
   vector<TrajectoryMeasurement> result;
   pair<bool, TrajectoryStateOnSurface> compat = layer.compatible( startingState, prop, est);
@@ -130,11 +131,11 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
     
     vector<TrajectoryMeasurement> tmpVec;
     for (auto const & det : grp) {
-      const MeasurementDet* mdet = theDetSystem->idToDet(det.det()->geographicalId());
-      if (mdet == 0) {
+      MeasurementDetWithData mdet = theDetSystem->idToDet(det.det()->geographicalId(), *theData);
+      if (mdet.isNull()) {
 	throw MeasurementDetException( "MeasurementDet not found");
       }      
-      if (mdet->measurements( det.trajectoryState(), est,tmps))
+      if (mdet.measurements( det.trajectoryState(), est,tmps))
 	for (std::size_t i=0; i!=tmps.size(); ++i)
 	  tmpVec.emplace_back(det.trajectoryState(),std::move(tmps.hits[i]),tmps.distances[i],&layer);
       tmps.clear();

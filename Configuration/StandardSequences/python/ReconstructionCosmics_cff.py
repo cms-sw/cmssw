@@ -7,6 +7,7 @@ from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 # tracker
 #
 from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff import *
+from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 from RecoTracker.Configuration.RecoTrackerP5_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.Configuration.RecoTrackerBHM_cff import *
@@ -38,7 +39,7 @@ from RecoMET.Configuration.RecoMET_Cosmics_cff import *
 from RecoEgamma.Configuration.RecoEgammaCosmics_cff import *
 
 # local reco
-trackerCosmics = cms.Sequence(offlineBeamSpot*trackerlocalreco*tracksP5)
+trackerCosmics = cms.Sequence(offlineBeamSpot*trackerlocalreco*MeasurementTrackerEvent*tracksP5)
 hbhereco = hbheprereco.clone()
 calolocalreco.replace(hbheprereco,hbhereco)
 caloCosmics = cms.Sequence(calolocalreco*ecalClusters)
