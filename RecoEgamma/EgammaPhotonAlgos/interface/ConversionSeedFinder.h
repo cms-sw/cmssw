@@ -13,6 +13,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
@@ -20,6 +21,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -119,7 +121,7 @@ class ConversionSeedFinder {
   const Propagator*  thePropagatorOppositeToMomentum_;
 
   reco::BeamSpot theBeamSpot_;
-
+  edm::Handle<MeasurementTrackerEvent> theTrackerData_; 
 
 
 };

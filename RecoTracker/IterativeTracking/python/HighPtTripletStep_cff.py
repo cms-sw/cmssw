@@ -63,7 +63,6 @@ highPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectory
     ComponentName = 'highPtTripletStepTrajectoryBuilder',
     MeasurementTrackerName = '',
     trajectoryFilterName = 'highPtTripletStepTrajectoryFilter',
-    clustersToSkip = cms.InputTag('highPtTripletStepClusters'),
     maxCand = 3,
     estimator = cms.string('highPtTripletStepChi2Est')
     )
@@ -72,6 +71,7 @@ highPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectory
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 highPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('highPtTripletStepSeeds'),
+    clustersToSkip = cms.InputTag('highPtTripletStepClusters'),
     TrajectoryBuilder = 'highPtTripletStepTrajectoryBuilder',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
