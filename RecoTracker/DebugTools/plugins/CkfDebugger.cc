@@ -676,6 +676,7 @@ pair<CTTRHp, double> CkfDebugger::analyseRecHitExistance( const PSimHit& sh, con
 {
   LogTrace("CkfDebugger") << "now in analyseRecHitExistance" ;
 
+#if 0
   std::pair<CTTRHp, double> result;
   
   const MeasurementDet* simHitDet = theMeasurementTracker->idToDet( DetId( sh.detUnitId()));
@@ -879,6 +880,7 @@ pair<CTTRHp, double> CkfDebugger::analyseRecHitExistance( const PSimHit& sh, con
     return std::pair<CTTRHp, double>((CTTRHp)(0),-2);
   }
   other++;
+#endif
   return std::pair<CTTRHp, double>((CTTRHp)(0),0);//other
 }
 

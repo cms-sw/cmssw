@@ -22,7 +22,7 @@
 #include <DataFormats/GeometrySurface/interface/BoundDisk.h>
 
 #include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
-#include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
+#include <RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h>
 
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h>
 #include <TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h>
@@ -147,6 +147,7 @@ class MuonRoadTrajectoryBuilder :public TrajectoryBuilder {
    //tools and usefull pointers
    ////measurement tracke handle
    const MeasurementTracker * theMeasurementTracker;
+   const MeasurementTrackerEvent * theMeasurementTrackerEvent;
     
    //kalman tools
    ////chi2 governed in by cfg file, Nsig = sqrt(chi2)

@@ -42,6 +42,7 @@ Description: SiStrip-driven electron seed finding algorithm.
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronSeedGenerator.h"
@@ -75,6 +76,9 @@ SiStripElectronSeedGenerator::SiStripElectronSeedGenerator(const edm::ParameterS
   // use of a theMeasurementTrackerName
   if (pset.exists("measurementTrackerName"))
    { theMeasurementTrackerName = pset.getParameter<std::string>("measurementTrackerName") ; }
+  if (pset.existsAs<edm::InputTag>("measurementTrackerEvent")) {
+    theMeasurementTrackerEventTag = pset.getParameter<edm::InputTag>("measurementTrackerEvent");
+  }
 
   // new beamSpot tag
   if (pset.exists("beamSpot"))
@@ -118,13 +122,15 @@ void  SiStripElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& se
 					reco::ElectronSeedCollection & out) {
   theSetup= &setup;
   e.getByLabel(beamSpotTag_,theBeamSpot);
-  theMeasurementTracker->update(e);
+
+  edm::Handle<MeasurementTrackerEvent> data;
+  e.getByLabel(theMeasurementTrackerEventTag, data);
 
   for  (unsigned int i=0;i<clusters->size();++i) {
     edm::Ref<reco::SuperClusterCollection> theClusB(clusters,i);
     // Find the seeds
     LogDebug ("run") << "new cluster, calling findSeedsFromCluster";
-    findSeedsFromCluster(theClusB,theBeamSpot,out);
+    findSeedsFromCluster(theClusB,theBeamSpot,*data,out);
   }
 
   LogDebug ("run") << ": For event "<<e.id();
@@ -137,6 +143,7 @@ void  SiStripElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& se
 void SiStripElectronSeedGenerator::findSeedsFromCluster
  ( edm::Ref<reco::SuperClusterCollection> seedCluster,
    edm::Handle<reco::BeamSpot> bs,
+   const MeasurementTrackerEvent & trackerData,
 	 reco::ElectronSeedCollection & result )
  {
   // clear the member vectors of good hits
@@ -249,7 +256,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster
   bool hasLay2Hit = false;
   bool hasBackupHit = false;
 
-  LayerMeasurements layerMeasurements(theMeasurementTracker);
+  LayerMeasurements layerMeasurements(*theMeasurementTracker, trackerData);
 
   std::vector<TrajectoryMeasurement> tib1measurements;
   if(useDL.at(0)) tib1measurements = layerMeasurements.measurements(*tib1,initialTSOS,*thePropagator,*theEstimator);

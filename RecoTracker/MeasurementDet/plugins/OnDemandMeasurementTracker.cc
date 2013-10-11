@@ -82,25 +82,27 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
   //  flags are set to initialize the DetODMap
   
   std::map<SiStripRegionCabling::ElementIndex, std::vector< DetODContainer::const_iterator> > local_mapping;
-
   for (DetContainer::iterator it=theDetMap.begin(); it!= theDetMap.end();++it)
     {
-      DetODContainer::iterator inserted = theDetODMap.insert(make_pair(it->first,DetODStatus(const_cast<MeasurementDet*>(it->second)))).first;
+      DetODContainer::iterator inserted = theDetODMap.insert(make_pair(it->first,DetODStatus(it->second))).first;
 
 
       GeomDet::SubDetector subdet = it->second->geomDet().subDetector();
       if (subdet == GeomDetEnumerators::PixelBarrel  || subdet == GeomDetEnumerators::PixelEndcap ){
-	//special flag treatement for pixels
-	//one can never be updated and not defined. except if we don't need to care about them: pixels
-	inserted->second.defined=false;
-	inserted->second.updated=true;
+        inserted->second.index = -1;
+        inserted->second.kind  = DetODStatus::Pixel;
       }//pixel module
       else if (subdet == GeomDetEnumerators::TIB || subdet == GeomDetEnumerators::TOB ||
 	  subdet == GeomDetEnumerators::TID || subdet == GeomDetEnumerators::TEC )
 	{
 	  //set flag to false
-	  inserted->second.defined=false;
-	  inserted->second.updated=false;
+          if (typeid(*it->second) == typeid(TkStripMeasurementDet)) {
+            const TkStripMeasurementDet & sdet = static_cast<const TkStripMeasurementDet &>(*it->second);
+            inserted->second.index = sdet.index();
+            inserted->second.kind = DetODStatus::Strip;
+          } else {
+            inserted->second.kind = DetODStatus::Glued;
+          }
 
 	  //what will be the element index in the refgetter
 	  GlobalPoint center = it->second->geomDet().position();
@@ -132,9 +134,6 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
 	throw MeasurementDetException("OnDemandMeasurementTracker dealing with a non tracker GeomDet.");
       }//abort
     }//loop over DetMap
-  if (theInactiveStripDetectorLabels.size()!=0)
-    theRawInactiveStripDetIds.reserve(200);
-
   //move into a vector
   region_mapping.reserve(local_mapping.size());
   for( auto eIt= local_mapping.begin();
@@ -142,9 +141,8 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
     region_mapping.push_back(std::make_pair((*eIt).first,(*eIt).second));
 }
 
-
 void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & aLazyGetterH,
-					 std::auto_ptr< RefGetter > & aGetter ) const
+					 RefGetter & aGetter, StMeasurementDetSet &stData ) const
 {
   //  define is supposed to be call by an EDProducer module, which wil put the RefGetter in the event
   //  so that reference can be made to it.
@@ -152,102 +150,33 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & aLazyG
   //  the map is cleared, except for pixel
   //  then the known elementIndex are defined to the RefGetter. no unpacking is done at this time
   //  the defined region range is registered in the DetODMap for further use.
-
-  //clear all defined tags to start from scratch (except for pixel)
-  for (DetODContainer::iterator it=theDetODMap.begin(); it!= theDetODMap.end();++it)
-    {
-      if (it->second.updated && !it->second.defined) continue; //special treatement for pixels
-      it->second.defined= false; 
-      it->second.updated = false;
-    }
-
-  // nedeed??
-  theStDets.setLazyGetter(aLazyGetterH);
-
-
+  stData.resetOnDemandStrips();
+ 
   //define all the elementindex in the refgetter
   for(auto eIt= region_mapping.begin();
        eIt!=region_mapping.end();++eIt){
     std::pair<unsigned int, unsigned int> region_range; 
     
     //before update of the refgetter
-    region_range.first = aGetter->size();
+    region_range.first = aGetter.size();
     //update the refegetter with the elementindex
-    theStripRegionCabling->updateSiStripRefGetter<SiStripCluster> (*aGetter, aLazyGetterH, eIt->first);
+    theStripRegionCabling->updateSiStripRefGetter<SiStripCluster> (aGetter, aLazyGetterH, eIt->first);
     //after update of the refgetter
-    region_range.second = aGetter->size();
+    region_range.second = aGetter.size();
 
     LogDebug(category_)<<"between index: "<<region_range.first<<" "<<region_range.second
-		       <<"\n"<<dumpRegion(region_range,*aGetter,StayPacked_);
+		       <<"\n"<<dumpRegion(region_range,aGetter,StayPacked_);
     
     //now assign to each measurement det for that element index
     for (auto dIt=eIt->second.begin();
 	 dIt!=eIt->second.end();++dIt){
-      DetODStatus & elem = const_cast<DetODStatus &>((*dIt)->second);
-      elem.region_range = region_range;
-      elem.defined=true;
+      const DetODStatus & elem = (*dIt)->second;
+      if (elem.kind == DetODStatus::Strip) {
+          stData.defineStrip(elem.index, region_range);
+      }
       LogDebug(category_)<<"detId: "<<(*dIt)->first<<" in region range: "<<region_range.first<<" "<<region_range.second;
     }//loop over MeasurementDet attached to that elementIndex
   }//loop over know elementindex
-}
-
-void OnDemandMeasurementTracker::updateStrips( const edm::Event& event) const 
-{
-  bool oncePerEvent= edm::Service<UpdaterService>()->checkOnce("OnDemandMeasurementTracker::updateStrips::"+name_);
-  bool failedToGet = false;
-  if (!oncePerEvent)
-    failedToGet = theRefGetterH.failedToGet() || theLazyGetterH.failedToGet();
-
-  if (oncePerEvent || failedToGet)
-    {
-      LogDebug(category_)<<"Updating siStrip on event: "<< (unsigned int) event.id().run() <<" : "<<(unsigned int) event.id().event();
-      
-      //get the ref getter back from the event
-      std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
-      event.getByLabel(stripClusterProducer,theRefGetterH);
-      
-      std::string stripLazyGetter = pset_.getParameter<std::string>("stripLazyGetterProducer");
-      event.getByLabel(stripLazyGetter,theLazyGetterH);
-
-      theStDets.setLazyGetter(theLazyGetterH);
-
-
-      //get the skip clusters
-      if (selfUpdateSkipClusters_){
-        theSkipClusterRefs=true;
-        event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),theStripClusterMask);
-        theStripClusterMask->copyMaskTo(theStDets.clusterToSkip());
-      } else {
-        theStDets.clusterToSkip().clear();
-      }
-
-      //get the detid that are inactive
-      theRawInactiveStripDetIds.clear();
-      getInactiveStrips(event,theRawInactiveStripDetIds);
-    }
-}
-
-void OnDemandMeasurementTracker::update( const edm::Event& event) const
-{
-  //  update is supposed to be called by any module that is useing the MeasurementTracker
-  //  after checking the the event has not yet been seen
-  //  update the pixel using MeasurementTracekr specific function
-  //  retreive the RefGetter from the event: the very one that has been pass to define(...) and put into the event
-
-  if (!PixelOnDemand_) {
-    LogDebug(category_)<<"pixel are not OnDemand. updating them a la MeasurmentTracker.";
-    MeasurementTrackerImpl::updatePixels(event);}
-  else{
-    edm::LogError(category_)<<"trying to update siPixel as on-demand. Not Implemented yet.";
-  }
-
-  if (!StripOnDemand_) {
-    LogDebug(category_)<<"strip are not OnDemand. updating them a la MeasurmentTracker.";
-    MeasurementTrackerImpl::updateStrips(event);}
-  else{
-    LogDebug(category_)<<"strip are OnDemand. updating them a la OnDemandMeasurmentTracker."; 
-    updateStrips(event);
-  }
 }
 
 #include <sstream>
@@ -290,44 +219,40 @@ std::string OnDemandMeasurementTracker::dumpRegion(std::pair<unsigned int,unsign
   return ss.str();
 }
 
-void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
-				  DetODContainer::iterator * alreadyFound) const {
+void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * smdet,
+                                        const MeasurementTrackerEvent &data) const {
   //  assign is using the handle to the refgetter and the region index range to update the MeasurementDet with their clusters
-  
-  TkStripMeasurementDet * smdet = const_cast<TkStripMeasurementDet *>(csmdet);
+ 
+  //// --------- we don't need to const-cast the TkStripMeasurementDet 
+  ////           but we now need to const-cast the MeasurementTrackerEvent 
+  StMeasurementDetSet & rwdata = const_cast<StMeasurementDetSet &>(data.stripData());
+
   DetId id = smdet->rawId();
   
   LogDebug(category_)<<"assigning: "<<id.rawId();
 
-  // what is the iterator. do not look again if already found and provided with
-  DetODContainer::iterator elementInMap;
-  if (alreadyFound){ elementInMap=*alreadyFound;}
-  else{ elementInMap = theDetODMap.find(id);}
-  
-  if  ( elementInMap != theDetODMap.end()){
-    //flag it as updated
-    elementInMap->second.updated = true;
+    rwdata.setUpdated(smdet->index());
 
-    if (!theRawInactiveStripDetIds.empty() && std::binary_search(theRawInactiveStripDetIds.begin(), theRawInactiveStripDetIds.end(), id)) {
-      smdet->setActiveThisEvent(false); 
+    if (!data.stripData().rawInactiveStripDetIds().empty() && std::binary_search(data.stripData().rawInactiveStripDetIds().begin(), data.stripData().rawInactiveStripDetIds().end(), id)) {
+      smdet->setActiveThisEvent(rwdata, false); 
       return;
     }
 
     //retrieve the region range index for this module
-    std::pair<unsigned int,unsigned int> & indexes =elementInMap->second.region_range;
+    const std::pair<unsigned int,unsigned int> & indexes = data.stripData().regionRange(smdet->index());
 
     //this printout will trigger unpacking. no problem. it is done on the next regular line (find(id.rawId())
     LogDebug(category_)<<"between index: "<<indexes.first<<" and: "<<indexes.second
 		       <<"\nretrieved for module: "<<id.rawId()
-		       <<"\n"<<dumpRegion(indexes,*theRefGetterH);
+		       <<"\n"<<dumpRegion(indexes,data.stripData().refGetter());
     
     //look for iterator range in the regions defined for that module
     for (unsigned int iRegion = indexes.first; iRegion != indexes.second; ++iRegion){
-      RefGetter::record_pair range = (*theRefGetterH)[iRegion].find(id.rawId());
+      RefGetter::record_pair range = data.stripData().refGetter()[iRegion].find(id.rawId());
       if (range.first!=range.second){
 	//	found something not empty
 	//update the measurementDet
-	smdet->update(range.first, range.second);
+	smdet->update(rwdata, range.first, range.second);
 	LogDebug(category_)<<"Valid clusters for: "<<id.rawId()
 			   <<"\nnumber of regions defined here: "<< indexes.second-indexes.first
 			   <<"\n"<<dumpCluster(range.first,range.second);
@@ -342,63 +267,41 @@ void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
     }//loop over regions, between indexes
 
     //if reached. no cluster are found. set the TkStripMeasurementDet to be empty
-    smdet->setEmpty();
+    smdet->setEmpty(rwdata);
 
-  }//found in the map
-  else{
-    //throw excpetion
-    edm::LogError(category_)<<"failed to find the MeasurementDet for: "<<id.rawId();
-    throw MeasurementDetException("failed to find the MeasurementDet for: <see message logger>");
-  }
 }
 
 
 
-const MeasurementDet* 
-OnDemandMeasurementTracker::idToDet(const DetId& id) const
+const MeasurementDet * 
+OnDemandMeasurementTracker::idToDetBare(const DetId& id, const MeasurementTrackerEvent &data) const 
 {
   //  overloaded from MeasurementTracker
   //  find the detid. if not found throw exception
   //  if already updated: always for pixel or strip already queried. return it
-  DetODContainer::iterator it = theDetODMap.find(id);
+  DetODContainer::const_iterator it = theDetODMap.find(id);
   if ( it != theDetODMap.end()) {
-    
-    //it has already been queried. and so already updated: nothing to be done here (valid for pixels too)
-    if (it->second.updated){
-      LogDebug(category_)<<"found id: "<<id.rawId()<<" as aleardy updated."; 
-      return it->second.mdet;
-    }
-    
-    if (StripOnDemand_){
-      //check glued or single
-      if (it->second.glued){
-	//glued det
-	LogDebug(category_)<<"updating glued id: "<<id.rawId();
-	//cast to specific type
-	TkGluedMeasurementDet*  theConcreteDet = static_cast<TkGluedMeasurementDet*>(it->second.mdet);
-		
-	//	update the two components
-	//update the mono
-	assign(theConcreteDet->monoDet());
-	//update the stereo
-	assign(theConcreteDet->stereoDet());
-	      
-	//flag the glued det as updated (components are flagged in assign)
-	it->second.updated=true;
-      }//glued det
-      else{
-	//single layer 
-	LogDebug(category_)<<"updating singel id: "<<id.rawId();
-	//cast to specific type
-	TkStripMeasurementDet*  theConcreteDet = static_cast<TkStripMeasurementDet*>(it->second.mdet);
-
-	//update the single layer
-	assign(theConcreteDet,&it);
-      }//single det
-    }
-    //eventually return it
-    return it->second.mdet;
-  }//found in the DetODMap
+    switch (it->second.kind) {
+        case DetODStatus::Pixel:
+                // nothing to do
+            break;
+        case DetODStatus::Strip: {
+                const TkStripMeasurementDet*  theConcreteDet = static_cast<const TkStripMeasurementDet*>(it->second.mdet);
+                assert(data.stripData().stripDefined(theConcreteDet->index()));
+                if (!data.stripData().stripUpdated(theConcreteDet->index())) assign(theConcreteDet, data);
+            }
+            break;
+        case DetODStatus::Glued: {
+                const TkGluedMeasurementDet*  theConcreteDet = static_cast<const TkGluedMeasurementDet*>(it->second.mdet);
+                int imono = theConcreteDet->monoDet()->index(), istereo = theConcreteDet->stereoDet()->index();
+                assert(data.stripData().stripDefined(imono) && data.stripData().stripDefined(istereo));
+                if (!data.stripData().stripUpdated(imono))   assign(theConcreteDet->monoDet(), data);
+                if (!data.stripData().stripUpdated(istereo)) assign(theConcreteDet->stereoDet(), data);
+            }
+            break;
+        }
+        return it->second.mdet;
+  } 
   else{
     //throw excpetion
     edm::LogError(category_)<<"failed to find the MeasurementDet for: "<<id.rawId();

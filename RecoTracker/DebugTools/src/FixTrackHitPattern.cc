@@ -32,7 +32,7 @@ FixTrackHitPattern::Result FixTrackHitPattern::analyze(const edm::EventSetup& iS
   // Recalculate the inner and outer missing hit patterns. See header file for detailed comments.
 
   Result result;
-
+#if 0
   using namespace std;
 
   // Initialise Tracker geometry info (not sufficient to do this only on first call).
@@ -149,6 +149,6 @@ FixTrackHitPattern::Result FixTrackHitPattern::analyze(const edm::EventSetup& iS
     }
 
   }
-
+#endif
   return result;
 }

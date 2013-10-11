@@ -2,6 +2,7 @@ TRACK_PT = 20.0
 import FWCore.ParameterSet.Config as cms
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 
+from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 
 generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     src = 'generalTracks',
@@ -61,7 +62,7 @@ DedxFilter = cms.EDFilter("HSCPFilter",
 
 )
 
-dedxSeq = cms.Sequence(offlineBeamSpot + TrackRefitterSkim + dedxSkimNPHarm2+DedxFilter)
+dedxSeq = cms.Sequence(offlineBeamSpot + MeasurementTrackerEvent + TrackRefitterSkim + dedxSkimNPHarm2+DedxFilter)
 
 
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
