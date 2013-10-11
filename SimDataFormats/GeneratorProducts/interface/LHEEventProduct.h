@@ -29,6 +29,11 @@ class LHEEventProduct {
 	size_type comments_size() const { return comments_.size(); }
 	comments_const_iterator comments_begin() const { return comments_.begin(); }
 	comments_const_iterator comments_end() const { return comments_.end(); }
+  
+  const char* getComment(unsigned i) const {
+    if(comments_.size()<1 || i>=comments_.size()) return "";
+    else return (const char*) comments_[i].c_str();
+  }
 
 	class const_iterator {
 	    public:
