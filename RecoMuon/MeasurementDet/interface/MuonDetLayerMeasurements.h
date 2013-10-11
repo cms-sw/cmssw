@@ -22,6 +22,9 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+
 
 #include <vector>
 
@@ -42,9 +45,11 @@ class MuonDetLayerMeasurements {
   MuonDetLayerMeasurements(edm::InputTag dtlabel,
 			   edm::InputTag csclabel,
 			   edm::InputTag rpclabel,
+			   edm::ConsumesCollector& iC,
 			   bool enableDT = true,
 			   bool enableCSC = true,
-			   bool enableRPC = true);
+			   bool enableRPC = true
+			    );
   
   virtual ~MuonDetLayerMeasurements();
   
@@ -119,9 +124,11 @@ class MuonDetLayerMeasurements {
   /// check that the event is set, and throw otherwise
   void checkEvent() const;
 
-  edm::InputTag theDTRecHitLabel;
-  edm::InputTag theCSCRecHitLabel;
-  edm::InputTag theRPCRecHitLabel;
+
+  edm::EDGetTokenT<DTRecSegment4DCollection> dtToken_;
+  edm::EDGetTokenT<CSCSegmentCollection> cscToken_;
+  edm::EDGetTokenT<RPCRecHitCollection> rpcToken_;
+
 
   bool enableDTMeasurement;
   bool enableCSCMeasurement;
