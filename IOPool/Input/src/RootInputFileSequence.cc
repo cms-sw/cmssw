@@ -392,7 +392,7 @@ namespace edm {
   }
 
   InputSource::ItemType
-  RootInputFileSequence::getNextItemType() {
+  RootInputFileSequence::getNextItemType(RunNumber_t& run, LuminosityBlockNumber_t& lumi, EventNumber_t& event) {
     if(fileIter_ == fileIterEnd_) {
       return InputSource::IsStop;
     }
@@ -400,7 +400,7 @@ namespace edm {
       return InputSource::IsFile;
     }
     if(rootFile_) {
-      IndexIntoFile::EntryType entryType = rootFile_->getNextEntryTypeWanted();
+      IndexIntoFile::EntryType entryType = rootFile_->getNextItemType(run, lumi, event);
       if(entryType == IndexIntoFile::kEvent) {
         return InputSource::IsEvent;
       } else if(entryType == IndexIntoFile::kLumi) {
@@ -414,6 +414,12 @@ namespace edm {
       return InputSource::IsStop;
     }
     return InputSource::IsFile;
+  }
+
+  bool
+  RootInputFileSequence::containedInCurrentFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
+  if(!rootFile_) return false;
+    return rootFile_->containsItem(run, lumi, event);
   }
 
   // Rewind to before the first event that was read.
@@ -444,6 +450,10 @@ namespace edm {
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   bool
   RootInputFileSequence::skipEvents(int offset) {
+    // We never call skipEvents for secondary input files.  If we did,
+    // we would have to implement synchronization if a new file is opened.
+    // To avoid this, just assert.
+    assert(inputType_ != InputType::SecondaryFile);
     while(offset != 0) {
       bool atEnd = rootFile_->skipEvents(offset);
       if((offset > 0 || atEnd) && !nextFile()) {
@@ -558,6 +568,16 @@ namespace edm {
     return true;
   }
 
+  ProcessHistoryRegistry const&
+  RootInputFileSequence::processHistoryRegistry() const {
+    return input_.processHistoryRegistry();
+  }
+
+  ProcessHistoryRegistry&
+  RootInputFileSequence::processHistoryRegistryForUpdate() {
+    return input_.processHistoryRegistryForUpdate();
+  }
+
   ProcessConfiguration const&
   RootInputFileSequence::processConfiguration() const {
     return input_.processConfiguration();
@@ -606,7 +626,7 @@ namespace edm {
       }
       fileIter_ = fileIterBegin_;
       initFile(false);
-      rootFile_->setAtEventEntry(-1);
+      rootFile_->setAtEventEntry(IndexIntoFile::invalidEntry);
     }
     rootFile_->nextEventEntry();
     bool found = rootFile_->readCurrentEvent(cache);
@@ -616,7 +636,7 @@ namespace edm {
         return false;
       }
       initFile(false);
-      rootFile_->setAtEventEntry(-1);
+      rootFile_->setAtEventEntry(IndexIntoFile::invalidEntry);
       return readOneSequential(cache);
     }
     return true;
