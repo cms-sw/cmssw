@@ -26,7 +26,7 @@ ckfTrajectories = cms.EDProducer("CkfTrajectoryMaker",
         propagatorOppositeTISE = cms.string('PropagatorWithMaterialOpposite'),
         numberMeasurementsForFit = cms.int32(4)
     ),
-    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
+    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent")
 )
 
 
