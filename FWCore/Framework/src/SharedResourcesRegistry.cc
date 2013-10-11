@@ -39,6 +39,17 @@ namespace edm {
   }
   
   SharedResourcesAcquirer
+  SharedResourcesRegistry::createAcquirerForSourceDelayedReader() {
+    if(not resourceForDelayedReader_) {
+      resourceForDelayedReader_.reset(new std::recursive_mutex{});
+    }
+    std::vector<std::recursive_mutex*> mutexes = {resourceForDelayedReader_.get()};
+
+    return SharedResourcesAcquirer(std::move(mutexes));
+  }
+
+  
+  SharedResourcesAcquirer
   SharedResourcesRegistry::createAcquirer(std::vector<std::string> const &  iNames) const {
     //Sort by how often used and then by name
     std::map<std::pair<unsigned int, std::string>, std::recursive_mutex*> sortedResources;
