@@ -23,6 +23,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <mutex>
+
 #include "FWCore/Utilities/interface/Signal.h"
 // user include files
 #include "FWCore/PluginManager/interface/PluginInfo.h"
@@ -87,6 +89,7 @@ class PluginFactoryBase
       void checkProperLoadable(const std::string& iName, const std::string& iLoadedFrom) const;
       // ---------- member data --------------------------------
       Plugins m_plugins;
+      mutable std::recursive_mutex m_mutex;
   
 
 };
