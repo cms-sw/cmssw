@@ -20,6 +20,12 @@ extern "C" {
  #include <matrix2.h>
 }
 
+// Meschach external (matrix.h) defines C++-incompatible macros
+// which break other code (e.g. standard <limits>).
+// Since these are not used here, undef them.
+#undef max
+#undef min
+#undef catch
 
 class MatrixMeschach
 {
