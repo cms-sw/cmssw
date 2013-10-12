@@ -4,6 +4,7 @@
  *  $Date: 2009/10/31 05:19:45 $
  *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ *  \modified by C. Calabria 
  */
 
 #include "RecoMuon/StandAloneMuonProducer/test/STAMuonAnalyzer.h"
@@ -209,6 +210,7 @@ void STAMuonAnalyzer::beginJob(){
 
   hCSCorGEM = new TH1F("CSCorGEM", "CSCorGEM",4,0.,4.);
   hSimTrackMatch = new TH1F("SimTrackMatch", "SimTrackMatch",2,0.,2.);
+  hRecHitMatching = new TH1F("RecHitMatching", "RecHitMatching",2,0.,2.);
 
 }
 
@@ -298,6 +300,7 @@ void STAMuonAnalyzer::endJob(){
   hInvPtResVsPtCorr->Write();
   hCSCorGEM->Write();
   hSimTrackMatch->Write();
+  hRecHitMatching->Write();
 
   theFile->Close();
 }
@@ -344,37 +347,28 @@ GlobalPoint propagatedPositionGEM(SimTrackContainer::const_iterator simTrack, co
 
 }
 
-bool isSimMatched(SimTrackContainer::const_iterator simTrack, const Event & event, const EventSetup& eventSetup)
+bool isSimMatched(SimTrackContainer::const_iterator simTrack, edm::PSimHitContainer::const_iterator itHit)
 {
 
   bool result = false;
 
   int trackId = simTrack->trackId();
+  int trackId_sim = itHit->trackId();
+  if(trackId == trackId_sim) result = true;
 
-  edm::Handle<edm::PSimHitContainer> GEMHits;
-  event.getByLabel(edm::InputTag("g4SimHits","MuonGEMHits"), GEMHits);
-
-  for (edm::PSimHitContainer::const_iterator itHit = GEMHits->begin(); itHit != GEMHits->end(); ++itHit){
-
-	if(itHit->particleType() != (*simTrack).type()) continue;
-	DetId id = DetId(itHit->detUnitId());
-	if (!(id.subdetId() == MuonSubdetId::GEM)) continue;
-	if(itHit->particleType() != (*simTrack).type()) continue;
-
-	int trackId_sim = itHit->trackId();
-	if(trackId == trackId_sim) result = true;
-
-  }
+  //std::cout<<"ID: "<<trackId<<" "<<trackId_sim<<" "<<result<<std::endl;
 
   return result;
 
 }
 
-bool isTRackMatched(SimTrackContainer::const_iterator simTrack, const Event & event, const EventSetup& eventSetup)
+edm::PSimHitContainer isTrackMatched(SimTrackContainer::const_iterator simTrack, const Event & event, const EventSetup& eventSetup)
 {
-  //NB: Not completed yet
-  GlobalPoint gbTemp = propagatedPositionGEM(simTrack, event, eventSetup);
-  std::cout<<gbTemp.x()<<std::endl;
+
+  edm::PSimHitContainer selectedGEMHits;
+
+  //GlobalPoint gbTemp = propagatedPositionGEM(simTrack, event, eventSetup);
+  //std::cout<<gbTemp.x()<<std::endl;
 
   edm::Handle<edm::PSimHitContainer> GEMHits;
   event.getByLabel(edm::InputTag("g4SimHits","MuonGEMHits"), GEMHits);
@@ -387,43 +381,52 @@ bool isTRackMatched(SimTrackContainer::const_iterator simTrack, const Event & ev
 	if(itHit->particleType() != (*simTrack).type()) continue;
 	DetId id = DetId(itHit->detUnitId());
 	if (!(id.subdetId() == MuonSubdetId::GEM)) continue;
+  	if(itHit->particleType() != (*simTrack).type()) continue;
 
-	GlobalPoint pointSimHit = theTrackingGeometry->idToDetUnit(id)->toGlobal(itHit->localPosition());
-
-	std::cout<<pointSimHit.x()<<std::endl;
+	bool result = isSimMatched(simTrack, itHit);
+	if(result) selectedGEMHits.push_back(*itHit);
 
   }
 
-  return true;
+  //std::cout<<"Size: "<<selectedGEMHits.size()<<std::endl;
+  return selectedGEMHits;
 
 }
 
-bool isRecHitMatched(edm::PSimHitContainer::const_iterator itHit, trackingRecHit_iterator recHit, const Event & event, const EventSetup& eventSetup)
+bool isRecHitMatched(edm::PSimHitContainer selGEMSimHits, trackingRecHit_iterator recHit, edm::ESHandle<GEMGeometry> gemGeom)
 {
-  //NB: Not completed yet
-  edm::ESHandle<GEMGeometry> gemGeom;
-  eventSetup.get<MuonGeometryRecord>().get(gemGeom);
+
+  bool result = false;
 
   GEMDetId id((*recHit)->geographicalId());
-  LocalPoint lp1 = itHit->entryPoint();
+  LocalPoint lp1 = (*recHit)->localPosition();
   int region = id.region();
   int layer = id.layer();
   int chamber = id.chamber();
   int strip = gemGeom->etaPartition(id)->strip(lp1);
+ 
+  for(edm::PSimHitContainer::const_iterator itHit = selGEMSimHits.begin(); itHit != selGEMSimHits.end(); ++itHit){
 
-  GEMDetId idGem = GEMDetId(itHit->detUnitId());
-  int region_sim = idGem.region();
-  int layer_sim = idGem.layer();
-  int chamber_sim = idGem.chamber();
+      	GEMDetId idGem = GEMDetId(itHit->detUnitId());
+      	int region_sim = idGem.region();
+      	int layer_sim = idGem.layer();
+      	int chamber_sim = idGem.chamber();
 
-  unsigned int cazzo = itHit->trackId();
+      	LocalPoint lp = itHit->entryPoint();
+      	int strip_sim = gemGeom->etaPartition(idGem)->strip(lp);
 
-  LocalPoint lp = itHit->entryPoint();
-  int strip_sim = gemGeom->etaPartition(idGem)->strip(lp);
+	//std::cout<<"Strip: "<<strip<<" "<<strip_sim<<std::endl;
 
-  std::cout<<region<<region_sim<<layer<<layer_sim<<chamber<<chamber_sim<<strip<<strip_sim<<cazzo<<std::endl;
+      	if(region != region_sim) continue;
+      	if(layer != layer_sim) continue;
+      	if(chamber != chamber_sim) continue;
 
-  return true;
+      	if(abs(strip - strip_sim) < 2) result = true;
+
+  }
+
+  //std::cout<<"RecHit: "<<result<<std::endl;
+  return result;
 
 }
 
@@ -523,15 +526,17 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
   		if ((*simTrack).noVertex()) continue;
   		if ((*simTrack).noGenpart()) continue;
 
-		bool simHitTrackMatching = isSimMatched(simTrack, event, eventSetup);
-		if(!simHitTrackMatching) continue;
-		hSimTrackMatch->Fill(simHitTrackMatching);
-
 		simEta = (*simTrack).momentum().eta();
 		simPhi = (*simTrack).momentum().phi();
-		//cout<<"SimEta "<<simEta<<" SimPhi "<<simPhi<<std::endl;
 
 		if (abs(simEta) > 2.1 || abs(simEta) < 1.64) continue;
+
+		//std::cout<<"SimEta "<<simEta<<" SimPhi "<<simPhi<<std::endl;
+
+		edm::PSimHitContainer selGEMSimHits = isTrackMatched(simTrack, event, eventSetup);
+		int size = selGEMSimHits.size();
+		hSimTrackMatch->Fill(size > 0 ? 1 : 0);
+		if(size == 0) continue;
 
 	  	for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){//Inizio del loop sulle STA track
 
@@ -609,6 +614,8 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 
 				}
 
+				std::vector<bool> collectResults;
+
 		      		for(trackingRecHit_iterator recHit = staTrack->recHitsBegin(); recHit != staTrack->recHitsEnd(); ++recHit){
 
 					if ((*recHit)->geographicalId().det() == DetId::Muon){
@@ -618,6 +625,9 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 						//std::cout<<"GEM id: "<<GEMDetId((*recHit)->geographicalId().rawId())<<std::endl;
 						numGEMRecHits++;
 						hasGemRecHits = true;
+
+						bool status = isRecHitMatched(selGEMSimHits, recHit, gemGeom);
+						collectResults.push_back(status);
 
 						if(!isGlobalMuon_){
 
@@ -763,16 +773,26 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 
 				if(includeME11_) hasRecHitsFromCSCME11 = true;
 
+				bool matchingHit = true;
+				for(int i = 0; i < (int)collectResults.size(); i++){
+
+					matchingHit &= collectResults[i];
+
+				}
+				hRecHitMatching->Fill(matchingHit);
+				//std::cout<<"Result "<<matchingHit<<std::endl;
+
 				double simPtCorr = 0;
 		      		if(noGEMCase_){ 
 
 					hasGemRecHits = true;
+					matchingHit = true;
 					simPtCorr = (recPt - 0.00115)/0.9998;
 
 				}
 				else simPtCorr = (recPt - 0.0005451)/0.9999;
 
-		      		if(hasGemRecHits & (includeME11_ ? hasRecHitsFromCSCME11 : !hasRecHitsFromCSCME11)){
+		      		if(hasGemRecHits & matchingHit & (includeME11_ ? hasRecHitsFromCSCME11 : !hasRecHitsFromCSCME11)){
 
 					//TH1::StatOverflows(kTRUE);
 
