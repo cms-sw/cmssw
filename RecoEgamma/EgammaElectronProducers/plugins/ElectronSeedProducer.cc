@@ -187,33 +187,30 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   ElectronSeedCollection * seeds = new ElectronSeedCollection ;
 
   // loop over barrel + endcap
-  for (unsigned int i=0; i<2; i++)
-   {
+  for (unsigned int i=0; i<2; i++) {
     edm::Handle<SuperClusterCollection> clusters ;
-    if (e.getByToken(superClusters_[i],clusters))
-     {
-      SuperClusterRefVector clusterRefs ;
-      std::vector<float> hoe1s, hoe2s ;
-      filterClusters(*theBeamSpot,clusters,/*mhbhe_,*/clusterRefs,hoe1s,hoe2s) ;
-      if ((fromTrackerSeeds_) && (prefilteredSeeds_))
-       { filterSeeds(e,iSetup,clusterRefs) ; }
-      matcher_->run(e,iSetup,clusterRefs,hoe1s,hoe2s,theInitialSeedColl,*seeds) ;
-     }
-   }
+    e.getByToken(superClusters_[i],clusters);
+    SuperClusterRefVector clusterRefs ;
+    std::vector<float> hoe1s, hoe2s ;
+    filterClusters(*theBeamSpot,clusters,/*mhbhe_,*/clusterRefs,hoe1s,hoe2s);
+    if ((fromTrackerSeeds_) && (prefilteredSeeds_))
+      { filterSeeds(e,iSetup,clusterRefs) ; }
+    matcher_->run(e,iSetup,clusterRefs,hoe1s,hoe2s,theInitialSeedColl,*seeds);
+  }
 
   // store the accumulated result
   std::auto_ptr<ElectronSeedCollection> pSeeds(seeds) ;
   ElectronSeedCollection::iterator is ;
-  for ( is=pSeeds->begin() ; is!=pSeeds->end() ; is++ )
-   {
+  for ( is=pSeeds->begin() ; is!=pSeeds->end() ; is++ ) {
     edm::RefToBase<CaloCluster> caloCluster = is->caloCluster() ;
     SuperClusterRef superCluster = caloCluster.castTo<SuperClusterRef>() ;
-    LogDebug("ElectronSeedProducer")<< "new seed with "
+    LogDebug("ElectronSeedProducer")
+      << "new seed with "
       << (*is).nHits() << " hits"
       << ", charge " << (*is).getCharge()
       << " and cluster energy " << superCluster->energy()
       << " PID "<<superCluster.id() ;
-   }
+  }
   e.put(pSeeds) ;
   if (fromTrackerSeeds_ && prefilteredSeeds_) delete theInitialSeedColl;
  }
