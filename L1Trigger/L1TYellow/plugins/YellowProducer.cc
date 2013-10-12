@@ -14,7 +14,7 @@
 
 
 // system include files
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 // user include files
 
@@ -33,7 +33,9 @@
 #include "CondFormats/L1TYellow/interface/YellowParams.h"
 #include "DataFormats/L1TYellow/interface/YellowDigi.h"
 #include "DataFormats/L1TYellow/interface/YellowOutput.h"
-#include "L1Trigger/L1TYellow/interface/YellowAlg.h"
+#include "L1Trigger/L1TYellow/interface/YellowFirmware.h"
+#include "L1Trigger/L1TYellow/interface/YellowFirmwareFactory.h"
+
 
 
 using namespace std;
@@ -44,51 +46,50 @@ namespace l1t {
 //
 // class declaration
 //
-
+  
   class YellowProducer : public EDProducer {
   public:
     explicit YellowProducer(const ParameterSet&);
-  ~YellowProducer();
-  
-  static void fillDescriptions(ConfigurationDescriptions& descriptions);
-  
-private:
-  virtual void produce(Event&, EventSetup const&);
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void beginRun(Run const&iR, EventSetup const&iE);
-  virtual void endRun(Run const& iR, EventSetup const& iE);
-  
-  // ----------member data ---------------------------
-  const YellowParams * dbpars; // Database parameters for the trigger, to be udpated each run
-  l1t::YellowAlg * alg; // Algorithm to run per event, depends on database parameters, updated each run.
-
-  EDGetToken yellowDigisToken;
-};
-
-
-using namespace l1t;
-using namespace edm;
-
-//
-// constructors and destructor
-//
-YellowProducer::YellowProducer(const ParameterSet& iConfig)
-{
-  // register what you produce
-  produces<YellowOutputCollection>();
-
-  // register what you consume and keep token for later access:
-  yellowDigisToken = consumes<YellowDigiCollection>(iConfig.getParameter<InputTag>("fakeRawToDigi"));
+    ~YellowProducer();
     
-  dbpars = NULL;
-  alg = NULL;
-}
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
+    
+  private:
+    virtual void produce(Event&, EventSetup const&);
+    virtual void beginJob();
+    virtual void endJob();
+    virtual void beginRun(Run const&iR, EventSetup const&iE);
+    virtual void endRun(Run const& iR, EventSetup const& iE);
+  
+    // ----------member data ---------------------------
+    unsigned long long m_yellowParamsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
+    boost::shared_ptr<const YellowParams>  m_dbpars; // Database parameters for the trigger, to be updated as needed.
+    boost::shared_ptr<YellowFirmware> m_fw; // Algorithm to run per event, depends on database parameters.
+
+    YellowFirmwareFactory m_factory; // Factory to produce algorithms based on DB parameters
+
+    EDGetToken yellowDigisToken;
+  };
+  
+  //
+  // constructors and destructor
+  //
+  YellowProducer::YellowProducer(const ParameterSet& iConfig)
+  {
+    // register what you produce
+    produces<YellowOutputCollection>();
+    
+    // register what you consume and keep token for later access:
+    yellowDigisToken = consumes<YellowDigiCollection>(iConfig.getParameter<InputTag>("fakeRawToDigi"));
+    
+    // set cache id to zero, will be set at first beginRun:
+    m_yellowParamsCacheId = 0;
+  }
 
 
-YellowProducer::~YellowProducer()
-{
-}
+  YellowProducer::~YellowProducer()
+  {
+  }
 
 
 //
@@ -112,10 +113,10 @@ YellowProducer::produce(Event& iEvent, const EventSetup& iSetup)
   YellowOutput iout;
 
   if (inputDigis->size()){
-    if (alg) {
-      alg->processEvent(*inputDigis, *outColl);
+    if (m_fw) {
+      m_fw->processEvent(*inputDigis, *outColl);
     } else {
-      cout << "alg is invalid...\n";
+      cout << "firmware is invalid...\n";
     }
     // already complained in beginRun, doing nothing now will send empty collection to event, as desired.
   } else {
@@ -146,34 +147,36 @@ YellowProducer::endJob() {
 // ------------ method called when starting to processes a run  ------------
 
 void YellowProducer::beginRun(Run const&iR, EventSetup const&iE){
-  // TODO:  retreive DB pars from EventSetup:
-  //if (dbpars) delete dbpars;
-  //dbpars = new YellowParams;  
-  //dbpars->setFirmwareVersion(1);
 
   cout << "YellowProducer Begin Run Called!\n";
 
-  // Retrieve the  yellow parameters from the event setup:
-  ESHandle<YellowParams> yParameters;
-  iE.get<L1TYellowParamsRcd>().get(yParameters);
-  //const YellowParams * x = yParameters.product();
-  dbpars = yParameters.product();
-  
-  if (dbpars){
-    cout << "dbpars is non-null...\n";
-  } else {
-    cout << "dbpars is null...\n";
-  }
-  
+  unsigned long long id = iE.get<L1TYellowParamsRcd>().cacheIdentifier();
 
-  // Set the current algorithm version based on DB pars from database:
-  if (alg) delete alg;
-  alg = NewYellowAlg(*dbpars);
+  if (id != m_yellowParamsCacheId){ // Need to update:
+    m_yellowParamsCacheId = id;
 
-  if (! alg) {
-    // we complain here once per run
-    LogError("l1t|yellow") << "YellowProducer:  could not retreive DB params from Event Setup\n";
+    // Retrieve the  yellow parameters from the event setup:
+    ESHandle<YellowParams> yParameters;
+    iE.get<L1TYellowParamsRcd>().get(yParameters);
+
+    m_dbpars = boost::shared_ptr<const YellowParams>(yParameters.product());
+  
+    if (m_dbpars){
+      cout << "dbpars is non-null...\n";
+    } else {
+      cout << "dbpars is null...\n";
+    }
+
+    // Set the current algorithm version based on DB pars from database:
+    m_fw = m_factory.create(*m_dbpars);
+
+    if (! m_fw) {
+      // we complain here once per run
+      LogError("l1t|yellow") << "YellowProducer:  could not retreive DB params from Event Setup\n";
+    }
   }
+
+
 
 }
 

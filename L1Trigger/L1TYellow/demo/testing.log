@@ -1,0 +1,83 @@
+13-Oct-2013 00:32:48 CEST  Initiating request to open file file:test.root
+13-Oct-2013 00:32:49 CEST  Successfully opened file file:test.root
+%MSG-i l1t:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 1
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i yellow:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 1
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i l1t:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 2
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i yellow:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 2
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i l1t:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 3
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i yellow:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 3
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i l1t:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 4
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i yellow:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 4
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i l1t:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 5
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i yellow:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 5
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i l1t:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 6
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i yellow:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 6
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i l1t:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 7
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i yellow:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 7
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i l1t:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 8
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i yellow:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 8
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i l1t:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 9
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i yellow:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 9
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i l1t:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 10
+YellowProducer::produce function called...
+
+%MSG
+%MSG-i yellow:  l1t::YellowProducer:yellowDigis 13-Oct-2013 00:32:49 CEST  Run: 1 Event: 10
+YellowProducer::produce function called...
+
+%MSG
+13-Oct-2013 00:32:49 CEST  Closed file file:test.root

@@ -9,9 +9,7 @@
 //
 //  Fictitious output of Yellow Trigger.
 //
-//  TO DO:
-//     - Add Det ID example
-//
+
 
 namespace l1t {
 

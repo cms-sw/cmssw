@@ -8,7 +8,29 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('L1Trigger/L1TYellow/upgrade_emulation_cfi')
 process.load('L1Trigger/L1TYellow/l1tyellow_params_cfi')
 
-process.prefer("yellowParams")
+
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    destinations       =  cms.untracked.vstring('cout'),
+    categories         = cms.untracked.vstring('l1t', "yellow"),
+    
+    cout          = cms.untracked.PSet(
+       threshold  = cms.untracked.string('INFO'),
+       l1t = cms.untracked.PSet (
+          limit = cms.untracked.int32(1000000)
+       ),
+ #     yellow = cms.untracked.PSet (
+ #         limit = cms.untracked.int32(1000000)
+ #     ),
+       default = cms.untracked.PSet (
+          limit = cms.untracked.int32(0)
+       ),
+       ERROR = cms.untracked.PSet(
+          limit = cms.untracked.int32(1000000)
+       )       
+    )
+    )
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)

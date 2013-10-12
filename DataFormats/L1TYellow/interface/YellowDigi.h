@@ -5,16 +5,11 @@
 //
 //  Fictitious digitized input to the Yellow Trigger.
 //
-//  TO DO:
-//     - Add Det ID example
 //
-
 
 #include <stdint.h>
 #include <iostream>
 #include <vector>
-
-
 
 namespace l1t {
 
