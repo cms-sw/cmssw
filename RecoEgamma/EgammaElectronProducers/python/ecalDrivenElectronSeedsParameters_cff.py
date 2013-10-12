@@ -14,6 +14,7 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
 
     # specify where to get the hits from
     measurementTrackerName = cms.string(""),
+    measurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
 
     # SC filtering
     SCEtCut = cms.double(4.0),

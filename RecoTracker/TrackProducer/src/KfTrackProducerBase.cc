@@ -99,8 +99,10 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     //======= I want to set the second hitPattern here =============
     if (theSchool.isValid())
       {
+        edm::Handle<MeasurementTrackerEvent> mte;
+        evt.getByToken(mteSrc_, mte);
 	NavigationSetter setter( *theSchool );
-	setSecondHitPattern(theTraj,track,prop,measTk);
+	setSecondHitPattern(theTraj,track,prop,&*mte);
       }
     //==============================================================
     

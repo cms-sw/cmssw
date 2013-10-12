@@ -394,9 +394,9 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
 
     if(!compat.first) continue;
 
-    const MeasurementDet* mdet = theMeasurementTracker->idToDet(det.det()->geographicalId());
+    MeasurementDetWithData mdet = theLayerMeasurements->idToDet(det.det()->geographicalId());
     // verify also that first (and only!) not be inactive..
-    if (mdet->measurements(compat.second, theEstimator,tmps) && tmps.hits[0]->isValid() )
+    if (mdet.measurements(compat.second, theEstimator,tmps) && tmps.hits[0]->isValid() )
       for (std::size_t i=0; i!=tmps.size(); ++i)
 	result.emplace_back(compat.second,std::move(tmps.hits[i]),tmps.distances[i],&theLayer);
 

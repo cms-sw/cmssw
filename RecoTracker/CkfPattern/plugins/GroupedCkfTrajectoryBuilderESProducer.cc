@@ -41,7 +41,6 @@ GroupedCkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecor
   std::string propagatorOppositeName = pset_.getParameter<std::string>("propagatorOpposite");   
   std::string estimatorName          = pset_.getParameter<std::string>("estimator"); 
   std::string recHitBuilderName      = pset_.getParameter<std::string>("TTRHBuilder");     
-  std::string measurementTrackerName = pset_.getParameter<std::string>("MeasurementTrackerName");     
   std::string filterName = pset_.getParameter<std::string>("trajectoryFilterName");
   std::string inOutFilterName = pset_.getParameter<std::string>("inOutTrajectoryFilterName");
   bool useSameTrajFilter = pset_.getParameter<bool>("useSameTrajFilter");
@@ -51,7 +50,6 @@ GroupedCkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecor
   edm::ESHandle<Propagator>             propagatorOppositeHandle;
   edm::ESHandle<Chi2MeasurementEstimatorBase> estimatorHandle;
   edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
-  edm::ESHandle<MeasurementTracker>             measurementTrackerHandle;
   edm::ESHandle<TrajectoryFilter> filterHandle;
   edm::ESHandle<TrajectoryFilter> inOutFilterHandle;
 
@@ -60,7 +58,6 @@ GroupedCkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecor
   iRecord.getRecord<TrackingComponentsRecord>().get(propagatorOppositeName,propagatorOppositeHandle);
   iRecord.getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);  
   iRecord.getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);  
-  iRecord.get(measurementTrackerName, measurementTrackerHandle);  
   iRecord.get(filterName, filterHandle);
   if (useSameTrajFilter) {
     inOutFilterHandle = filterHandle;
@@ -75,7 +72,6 @@ GroupedCkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecor
 									 propagatorOppositeHandle.product(),
 									 estimatorHandle.product(),
 									 recHitBuilderHandle.product(),
-									 measurementTrackerHandle.product(),
 									 filterHandle.product(),
 									 inOutFilterHandle.product()) );  
   return _trajectoryBuilder;

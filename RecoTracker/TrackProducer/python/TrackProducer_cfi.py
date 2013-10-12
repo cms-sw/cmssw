@@ -21,7 +21,8 @@ TrackProducer = cms.EDProducer("TrackProducer",
     ### These are paremeters related to the filling of the Secondary hit-patterns                               
     #set to "", the secondary hit pattern will not be filled (backward compatible with DetLayer=0)    
     NavigationSchool = cms.string('SimpleNavigationSchool'),          
-    MeasurementTracker = cms.string('')                   
+    MeasurementTracker = cms.string(''),
+    MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent'),                   
 )
 
 
