@@ -23,7 +23,8 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
 {
   setConf(iConfig);
   setSrc( consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
-          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )));
+          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
+          consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
 
   if ( iConfig.exists("clusterRemovalInfo") ) {
@@ -324,8 +325,10 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
     //======= I want to set the second hitPattern here =============
     if (theSchool.isValid())
       {
+        edm::Handle<MeasurementTrackerEvent> mte;
+        evt.getByLabel(edm::InputTag("MeasurementTrackerEvent"), mte);
 	NavigationSetter setter( *theSchool );
-	setSecondHitPattern(theTraj,track,thePropagator,theMeasTk);
+	setSecondHitPattern(theTraj,track,thePropagator,&*mte);
       }
     //==============================================================
 

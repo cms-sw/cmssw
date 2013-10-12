@@ -66,7 +66,7 @@ trackerCosmics_TopBot = cms.Sequence((trackerlocalrecoTop*tracksP5Top)+(trackerl
 #dEdX reconstruction
 from RecoTracker.DeDx.dedxEstimators_Cosmics_cff import *
 # (SK) keep rstracks commented out in case of resurrection
-tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*trackerCosmics_TopBot*doAllCosmicdEdXEstimators)
+tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*doAllCosmicdEdXEstimators)
 tracksP5_wodEdX = tracksP5.copy()
 tracksP5_wodEdX.remove(doAllCosmicdEdXEstimators)
 

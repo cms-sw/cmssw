@@ -14,9 +14,8 @@ class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
                        const Propagator*                     propagatorAlong,
                        const Propagator*                     propagatorOpposite,
                        const Chi2MeasurementEstimatorBase*   estimator,
-                       const TransientTrackingRecHitBuilder* RecHitBuilder,
-                       const MeasurementTracker*             measurementTracker) : 
-    CkfTrajectoryBuilder( conf,updator,propagatorAlong,propagatorOpposite,estimator,RecHitBuilder,measurementTracker,0) 
+                       const TransientTrackingRecHitBuilder* RecHitBuilder) : 
+    CkfTrajectoryBuilder( conf,updator,propagatorAlong,propagatorOpposite,estimator,RecHitBuilder,0) 
     {    
       //edm::LogVerbatim("CkfDebugger") <<"CkfDebugTrajectoryBuilder::CkfDebugTrajectoryBuilder";
     }
