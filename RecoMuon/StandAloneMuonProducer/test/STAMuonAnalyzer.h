@@ -136,6 +136,7 @@ private:
   TH2F *hInvPtResVsPtCorr;
   TH1F *hCSCorGEM;
   TH1F *hSimTrackMatch;
+  TH1F *hRecHitMatching;
   // Counters
   int numberOfSimTracks;
   int numberOfRecTracks;
