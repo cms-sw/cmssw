@@ -48,7 +48,7 @@ SiStripElectronSeedProducer::SiStripElectronSeedProducer(const edm::ParameterSet
   SiStripElectronSeedGenerator::Tokens ssesg_tokens;
   ssesg_tokens.token_bs = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"));
   if (conf_.existsAs<edm::InputTag>("measurementTrackerEvent")) {
-    ssesg_tokens.token_mte = consumes<MeasurementTrackerEvent>(pset.getParameter<edm::InputTag>("measurementTrackerEvent"));
+    ssesg_tokens.token_mte = consumes<MeasurementTrackerEvent>(conf_.getParameter<edm::InputTag>("measurementTrackerEvent"));
   }
   matcher_ = new SiStripElectronSeedGenerator(conf_,ssesg_tokens);
 

@@ -122,15 +122,11 @@ void  SiStripElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& se
 					const edm::Handle<reco::SuperClusterCollection> &clusters,
 					reco::ElectronSeedCollection & out) {
   theSetup= &setup;
-<<<<<<< HEAD
-  e.getByLabel(beamSpotTag_,theBeamSpot);
 
-  edm::Handle<MeasurementTrackerEvent> data;
-  e.getByLabel(theMeasurementTrackerEventTag, data);
-=======
   e.getByToken(beamSpotTag_,theBeamSpot);
-  theMeasurementTracker->update(e);
->>>>>>> RecoEgamma Consumes migration
+  edm::Handle<MeasurementTrackerEvent> data;
+  e.getByToken(theMeasurementTrackerEventTag, data);
+
 
   for  (unsigned int i=0;i<clusters->size();++i) {
     edm::Ref<reco::SuperClusterCollection> theClusB(clusters,i);
