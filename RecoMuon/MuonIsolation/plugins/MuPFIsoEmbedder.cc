@@ -32,6 +32,7 @@
 #include "RecoMuon/MuonIsolation/interface/MuPFIsoHelper.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 //
 // class declaration
@@ -39,7 +40,7 @@
 
 class MuPFIsoEmbedder : public edm::EDProducer {
    public:
-      explicit MuPFIsoEmbedder(const edm::ParameterSet&);
+  explicit MuPFIsoEmbedder(const edm::ParameterSet&,edm::ConsumesCollector&);
       ~MuPFIsoEmbedder();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -50,7 +51,7 @@ class MuPFIsoEmbedder : public edm::EDProducer {
 
       // ----------member data ---------------------------
   edm::InputTag muons_;
-
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
   MuPFIsoHelper *helper_;
 
 };
@@ -59,7 +60,7 @@ class MuPFIsoEmbedder : public edm::EDProducer {
 
 
 //
-MuPFIsoEmbedder::MuPFIsoEmbedder(const edm::ParameterSet& iConfig):
+MuPFIsoEmbedder::MuPFIsoEmbedder(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC ):
   muons_(iConfig.getParameter<edm::InputTag>("src"))
 {
 
@@ -81,7 +82,7 @@ MuPFIsoEmbedder::MuPFIsoEmbedder(const edm::ParameterSet& iConfig):
       psetMap[*label] =iConfig.getParameter<edm::ParameterSet >(*label); 
 
     helper_ = new MuPFIsoHelper(psetMap);
-
+    muonToken_ = iC.consumes<reco::MuonCollection>(muons_);
   produces<reco::MuonCollection>();
 }
 
@@ -110,7 +111,7 @@ MuPFIsoEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    helper_->beginEvent(iEvent);
   
    edm::Handle<reco::MuonCollection > muons;
-   iEvent.getByLabel(muons_,muons);
+   iEvent.getByToken(muonToken_,muons);
 
 
    std::auto_ptr<MuonCollection> out(new MuonCollection);

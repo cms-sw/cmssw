@@ -7,15 +7,19 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 
+
 using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-ExtractorFromDeposits::ExtractorFromDeposits( const ParameterSet& par ) :
+ExtractorFromDeposits::ExtractorFromDeposits( const ParameterSet& par,edm::ConsumesCollector& iC ) :
   theCollectionTag(par.getParameter<edm::InputTag>("IsolationCollectionTag"))
-{ }
+{ 
+
+  isoToken_ = iC.consumes<reco::IsoDepositMap> (theCollectionTag );
+}
 
 void ExtractorFromDeposits::fillVetos (const edm::Event & ev, 
     const edm::EventSetup & evSetup, const reco::TrackCollection & muons) 
@@ -26,7 +30,7 @@ IsoDeposit ExtractorFromDeposits::deposit(const Event & event,
 { 
   static std::string metname = "RecoMuon|ExtractorFromDeposits";
   Handle<reco::IsoDepositMap> depMap;
-  event.getByLabel(theCollectionTag, depMap);
+  event.getByToken(isoToken_, depMap);
 
   LogWarning(metname)<<"Call this method only if the original muon track collection is lost";
 
@@ -54,7 +58,7 @@ IsoDeposit ExtractorFromDeposits::deposit(const Event & event,
 { 
   static std::string metname = "RecoMuon|ExtractorFromDeposits";
   Handle<reco::IsoDepositMap> depMap;
-  event.getByLabel(theCollectionTag, depMap);
+  event.getByToken(isoToken_,depMap);
 
   return (*depMap)[muon];
 }

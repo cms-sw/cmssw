@@ -6,6 +6,9 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+
 #include <string>
 
 namespace muonisolation {
@@ -13,9 +16,8 @@ namespace muonisolation {
 class ExtractorFromDeposits : public reco::isodeposit::IsoDepositExtractor {
 
 public:
-
   ExtractorFromDeposits(){};
-  ExtractorFromDeposits(const edm::ParameterSet& par);
+  ExtractorFromDeposits(const edm::ParameterSet& par,edm::ConsumesCollector&);
 
   virtual ~ExtractorFromDeposits(){}
 
@@ -28,6 +30,7 @@ public:
 
 private:
   edm::InputTag theCollectionTag;
+  edm::EDGetTokenT<reco::IsoDepositMap> isoToken_;
 };
 
 }

@@ -5,10 +5,7 @@
 #include "TrackSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 using namespace edm;
 using namespace std;
@@ -30,6 +27,10 @@ TrackExtractor::TrackExtractor( const ParameterSet& par ) :
   theChi2Prob_Min(par.getParameter<double>("Chi2Prob_Min")),
   thePt_Min(par.getParameter<double>("Pt_Min"))
 {
+  trackToken_ = iC.consumes<edm::View<reco::Track> >(theTrackCollectionTag);
+  beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
+
+
 }
 
 reco::IsoDeposit::Vetos TrackExtractor::vetos(const edm::Event & ev,
@@ -57,7 +58,7 @@ IsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & event
   deposit.addCandEnergy(muon.pt());
 
   Handle<View<Track> > tracksH;
-  event.getByLabel(theTrackCollectionTag, tracksH);
+  event.getByToken(trackToken_, tracksH);
   //  const TrackCollection tracks = *(tracksH.product());
   LogTrace(metname)<<"***** TRACK COLLECTION SIZE: "<<tracksH->size();
 
@@ -70,7 +71,7 @@ IsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & event
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> beamSpotH;
 
-    event.getByLabel(theBeamSpotLabel,beamSpotH);
+    event.getByToken(beamspotToken_,beamSpotH);
 
     if (beamSpotH.isValid()){
       beamPoint = beamSpotH->position();

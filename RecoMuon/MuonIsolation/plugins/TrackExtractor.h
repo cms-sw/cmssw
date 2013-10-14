@@ -9,6 +9,10 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 namespace muonisolation {
 
@@ -17,7 +21,7 @@ class TrackExtractor : public reco::isodeposit::IsoDepositExtractor {
 public:
 
   TrackExtractor(){};
-  TrackExtractor(const edm::ParameterSet& par);
+  TrackExtractor(const edm::ParameterSet& par,edm::ConsumesCollector& iC);
 
   virtual ~TrackExtractor(){}
 
@@ -46,6 +50,10 @@ private:
   double theChi2Ndof_Max;              //! trk.normalizedChi2 < theChi2Ndof_Max
   double theChi2Prob_Min;              //! ChiSquaredProbability(trk.chi2,trk.ndof) > theChi2Prob_Min
   double thePt_Min;                    //! min track pt to include into iso deposit
+  edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
+
+
 };
 
 }
