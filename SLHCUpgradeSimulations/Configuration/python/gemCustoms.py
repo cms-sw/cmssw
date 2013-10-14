@@ -50,6 +50,7 @@ def customise_L1Emulator(process):
     process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
     process.simCscTriggerPrimitiveDigis.tmbSLHC.gemMatchDeltaEta = cms.untracked.double(0.08)
     process.simCscTriggerPrimitiveDigis.tmbSLHC.gemMatchDeltaBX = cms.untracked.int32(1)
+    process.simCscTriggerPrimitiveDigis.tmbSLHC.gemClearNomatchLCTs = False
     return process
 
 def customise_DQM(process,pileup):
