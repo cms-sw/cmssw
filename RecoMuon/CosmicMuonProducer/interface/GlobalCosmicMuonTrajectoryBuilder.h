@@ -8,7 +8,7 @@
  *  $Revision: 1.14 $
  *  \author Chang Liu  -  Purdue University
  */
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -46,7 +46,7 @@ public:
   typedef std::pair<const Trajectory*,reco::TrackRef> TrackCand;
 
   /// Constructor
-  GlobalCosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service);
+  GlobalCosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service,edm::ConsumesCollector&& iC);
 
   /// Destructor
   virtual ~GlobalCosmicMuonTrajectoryBuilder();
@@ -83,7 +83,7 @@ private:
   GlobalMuonTrackMatcher* theTrackMatcher;
 
   std::string thePropagatorName;
-  edm::InputTag theTkTrackLabel;
+  edm::EDGetTokenT<reco::TrackCollection> theTkTrackToken;
 
   std::string theTrackerRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;

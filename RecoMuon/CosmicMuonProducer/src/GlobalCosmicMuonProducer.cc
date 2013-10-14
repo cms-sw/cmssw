@@ -12,6 +12,7 @@
 
 // system include files
 #include <memory>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,8 +26,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -43,7 +42,7 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
 {
 
   edm::ParameterSet tbpar = iConfig.getParameter<edm::ParameterSet>("TrajectoryBuilderParameters");
-  theTrackCollectionLabel = iConfig.getParameter<edm::InputTag>("MuonCollectionLabel");
+  theTrackCollectionToken =consumes<reco::TrackCollection>( iConfig.getParameter<edm::InputTag>("MuonCollectionLabel"));
 
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
@@ -53,8 +52,8 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
   
   // the services
   theService = new MuonServiceProxy(serviceParameters);
-  
-  theTrackFinder = new MuonTrackFinder(new GlobalCosmicMuonTrajectoryBuilder(tbpar,theService),
+
+  theTrackFinder = new MuonTrackFinder(new GlobalCosmicMuonTrajectoryBuilder(tbpar,theService,consumesCollector()),
 				       new MuonTrackLoader(trackLoaderParameters, theService));
 
   produces<reco::TrackCollection>();
@@ -83,7 +82,7 @@ GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   LogTrace(metname)<<"Global Cosmic Muon Reconstruction started";  
   
   edm::Handle<reco::TrackCollection> cosMuons;
-  iEvent.getByLabel(theTrackCollectionLabel,cosMuons);
+  iEvent.getByToken(theTrackCollectionToken,cosMuons);
   if (!cosMuons.isValid()) {
     LogTrace(metname)<< "Muon Track collection is invalid!!!";
     return;

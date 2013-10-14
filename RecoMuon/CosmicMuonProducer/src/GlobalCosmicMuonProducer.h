@@ -13,6 +13,8 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class MuonTrackFinder;
 class MuonServiceProxy;
@@ -26,7 +28,7 @@ public:
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
 private:
-  edm::InputTag theTrackCollectionLabel;
+  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;
   MuonTrackFinder* theTrackFinder;
 
   /// the event setup proxy, it takes care the services update

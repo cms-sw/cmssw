@@ -6,7 +6,6 @@
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
-
 #include "RecoMuon/CosmicMuonProducer/interface/GlobalCosmicMuonTrajectoryBuilder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -31,14 +30,15 @@ using namespace edm;
 // constructor
 //
 GlobalCosmicMuonTrajectoryBuilder::GlobalCosmicMuonTrajectoryBuilder(const edm::ParameterSet& par,
-						                     const MuonServiceProxy* service) : theService(service) {
+						                     const MuonServiceProxy* service,edm::ConsumesCollector&& iC) : theService(service) {
   ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
   theSmoother = new CosmicMuonSmoother(smootherPSet,theService);
 
   ParameterSet trackMatcherPSet = par.getParameter<ParameterSet>("GlobalMuonTrackMatcher");
   theTrackMatcher = new GlobalMuonTrackMatcher(trackMatcherPSet,theService);
 
-  theTkTrackLabel = par.getParameter<InputTag>("TkTrackCollectionLabel");
+  theTkTrackToken = iC.consumes<reco::TrackCollection>(par.getParameter<InputTag>("TkTrackCollectionLabel"));
+
   theTrackerRecHitBuilderName = par.getParameter<string>("TrackerRecHitBuilder");
   theMuonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");
   thePropagatorName = par.getParameter<string>("Propagator");
@@ -60,7 +60,7 @@ GlobalCosmicMuonTrajectoryBuilder::~GlobalCosmicMuonTrajectoryBuilder() {
 // set Event
 //
 void GlobalCosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
-  event.getByLabel(theTkTrackLabel,theTrackerTracks);
+  event.getByToken(theTkTrackToken,theTrackerTracks);
 
 //  edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
 //  if ( event.getByLabel(theTkTrackLabel,handleTrackerTrajs) && handleTrackerTrajs.isValid() ) {
