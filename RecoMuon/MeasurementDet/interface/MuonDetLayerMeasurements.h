@@ -43,7 +43,7 @@ class MuonDetLayerMeasurements {
   MuonDetLayerMeasurements(edm::InputTag dtlabel,
 			   edm::InputTag csclabel,
 			   edm::InputTag rpclabel,
-			   edm::ConsumesCollector&& iC,
+			   edm::ConsumesCollector& iC,
 			   bool enableDT = true,
 			   bool enableCSC = true,
 			   bool enableRPC = true
