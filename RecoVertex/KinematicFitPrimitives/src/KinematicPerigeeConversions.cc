@@ -16,7 +16,7 @@ KinematicPerigeeConversions::extendedPerigeeFromKinematicParameters(
  double phi = state.globalMomentum().phi();
  double pt  = state.globalMomentum().transverse();
 //  double field = MagneticField::inGeVPerCentimeter(state.globalPosition()).z();
-  double field  = state.magneticField()->inInverseGeV(state.globalPosition()).z();
+ double field  = state.magneticFieldInInverseGeV();
 // double signTC = -state.particleCharge();
 // double transverseCurvature = field/pt*signTC;
 

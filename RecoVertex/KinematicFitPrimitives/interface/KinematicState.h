@@ -65,12 +65,12 @@ public:
   GlobalTrajectoryParameters const & trajectoryParameters() const { return fts.parameters();}
 
 
-GlobalVector globalMomentum() const {return fts.momentum();}
-
-GlobalPoint  globalPosition() const {return fts.position();}
-
-TrackCharge particleCharge() const {return fts.charge();}
-
+  GlobalVector globalMomentum() const {return fts.momentum();}
+  
+  GlobalPoint  globalPosition() const {return fts.position();}
+  
+  TrackCharge particleCharge() const {return fts.charge();}
+  
 
 
 /**
@@ -79,9 +79,12 @@ TrackCharge particleCharge() const {return fts.charge();}
  */
   FreeTrajectoryState freeTrajectoryState() const { return fts;}
  
- bool isValid() const {return vl;}
+  bool isValid() const {return vl;}
 
-  const MagneticField* magneticField() const {return &fts.parameters().magneticField();}
+  GlobalVector magneticFieldInInverseGeV( const GlobalPoint& x) const { return trajectoryParameters().magneticFieldInInverseGeV(x);}
+  GlobalVector magneticFieldInInverseGeV() const { return trajectoryParameters().magneticFieldInInverseGeV();}
+
+  const MagneticField* magneticField() const {return &trajectoryParameters().magneticField();}
 
  
 private:
