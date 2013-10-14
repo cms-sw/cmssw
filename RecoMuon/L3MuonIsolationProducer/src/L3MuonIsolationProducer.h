@@ -37,6 +37,7 @@ private:
 
   // Muon track Collection Label
   edm::InputTag theMuonCollectionLabel;
+  edm::EDGetTokenT<reco::TrackCollection> muonToken_;
 
   // Isolation cuts
   muonisolation::Cuts theCuts;

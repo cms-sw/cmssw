@@ -34,7 +34,6 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -55,7 +54,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
 
   // MuonSeed Collection Label
   theSeedCollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
-
+  seedsToken = consumes<edm::View<TrajectorySeed> >(theSeedCollectionLabel);
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
 
@@ -101,7 +100,7 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
   // Take the seeds container
   LogTrace(metname)<<"Taking the seeds: "<<theSeedCollectionLabel.label()<<endl;
   Handle<View<TrajectorySeed> > seeds; 
-  event.getByLabel(theSeedCollectionLabel,seeds);
+  event.getByToken(seedsToken,seeds);
 
   // Update the services
   theService->update(eventSetup);

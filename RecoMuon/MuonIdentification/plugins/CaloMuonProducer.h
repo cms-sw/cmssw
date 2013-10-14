@@ -17,6 +17,10 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/CaloMuon.h"
+
+
 class CaloMuonProducer : public edm::EDProducer {
  public:
    explicit CaloMuonProducer(const edm::ParameterSet&);
@@ -25,4 +29,5 @@ class CaloMuonProducer : public edm::EDProducer {
  private:
    virtual void     produce( edm::Event&, const edm::EventSetup& );
    edm::InputTag inputCollection;
+  edm::EDGetTokenT<reco::CaloMuonCollection > muonToken_;
 };

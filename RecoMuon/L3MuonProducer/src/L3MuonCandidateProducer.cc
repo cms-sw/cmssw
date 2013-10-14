@@ -25,13 +25,10 @@
 
 #include "RecoMuon/L3MuonProducer/src/L3MuonCandidateProducer.h"
 
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
 #include "DataFormats/Math/interface/deltaR.h"
 
 // Input and output collections
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
@@ -50,11 +47,13 @@ L3MuonCandidateProducer::L3MuonCandidateProducer(const ParameterSet& parameterSe
 
   // StandAlone Collection Label
   theL3CollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
-
+  trackToken_ = consumes<reco::TrackCollection>(theL3CollectionLabel);
+ 
   // use links
   theUseLinks = parameterSet.existsAs<InputTag>("InputLinksObjects");
   if (theUseLinks) {
     theL3LinksLabel = parameterSet.getParameter<InputTag>("InputLinksObjects");
+    linkToken_ = consumes<reco::MuonTrackLinksCollection>(theL3LinksLabel);
     if (theL3LinksLabel.label() == "" or theL3LinksLabel.label() == "unused")
       theUseLinks = false;
   }
@@ -86,11 +85,11 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   // Take the L3 container
   LogTrace(category)<<" Taking the L3/GLB muons: "<<theL3CollectionLabel.label();
   Handle<TrackCollection> tracks;
-  event.getByLabel(theL3CollectionLabel,tracks);
+  event.getByToken(trackToken_,tracks);
 
   edm::Handle<reco::MuonTrackLinksCollection> links;
   if (theUseLinks)
-    event.getByLabel(theL3LinksLabel, links);
+    event.getByToken(linkToken_, links);
 
   // Create a RecoChargedCandidate collection
   LogTrace(category)<<" Creating the RecoChargedCandidate collection";

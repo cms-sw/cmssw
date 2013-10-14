@@ -53,6 +53,7 @@ class MuonTimingProducer : public edm::EDProducer {
       
       // ----------member data ---------------------------
       edm::InputTag m_muonCollection;
+      edm::EDGetTokenT<reco::MuonCollection> muonToken_;
 
       MuonTimingFiller* theTimingFiller_;
 

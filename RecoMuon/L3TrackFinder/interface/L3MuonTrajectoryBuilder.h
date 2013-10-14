@@ -20,6 +20,9 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -32,7 +35,7 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
   public:
 
     /// constructor with Parameter Set and MuonServiceProxy
-    L3MuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*);
+  L3MuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
           
     /// destructor
     ~L3MuonTrajectoryBuilder();
@@ -54,6 +57,7 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
     
     edm::InputTag theTkCollName;
     edm::Handle<reco::TrackCollection> allTrackerTracks;
-    
+    edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+
 };
 #endif

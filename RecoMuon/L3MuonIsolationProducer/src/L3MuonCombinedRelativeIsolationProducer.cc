@@ -10,12 +10,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
@@ -56,6 +51,10 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
     //produces<std::vector<double> >("combinedRelativeIsoDeposits");
     produces<edm::ValueMap<double> >("combinedRelativeIsoDeposits");
   }
+
+  muonToken_ = consumes<reco::TrackCollection> (theMuonCollectionLabel);
+  caloDepToken_ = consumes<edm::ValueMap<float> > (theCaloDepsLabel);
+
   produces<edm::ValueMap<bool> >();
 
 }
@@ -131,12 +130,12 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
   // Take the SA container
   if (printDebug) std::cout  <<" Taking the muons: "<<theMuonCollectionLabel << std::endl;
   Handle<TrackCollection> muons;
-  event.getByLabel(theMuonCollectionLabel,muons);
+  event.getByToken(muonToken_,muons);
 
   // Take calo deposits with rho corrections (ONLY if previously computed)
   Handle< edm::ValueMap<float> > caloDepWithCorrMap;
   if( useRhoCorrectedCaloDeps )
-    event.getByLabel(theCaloDepsLabel, caloDepWithCorrMap);
+    event.getByToken(caloDepToken_, caloDepWithCorrMap);
 
   std::auto_ptr<reco::IsoDepositMap> caloDepMap( new reco::IsoDepositMap());
   std::auto_ptr<reco::IsoDepositMap> trkDepMap( new reco::IsoDepositMap());

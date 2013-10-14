@@ -7,6 +7,11 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 #include <vector>
 
 
@@ -21,6 +26,9 @@ private:
 private:
   edm::InputTag muonTag_;          ///< tag for RecoChargedCandidateCollection
   edm::InputTag trackTag_;         ///< tag for TrackCollection
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> muonToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+
   std::vector<double> minMasses_;  ///< lower mass limits
   std::vector<double> maxMasses_;  ///< upper mass limits
   bool checkCharge_;               ///< check opposite charge?

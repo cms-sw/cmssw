@@ -12,6 +12,9 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class L3MuonCandidateProducerFromMuons : public edm::EDProducer {
@@ -31,6 +34,7 @@ class L3MuonCandidateProducerFromMuons : public edm::EDProducer {
   
   // L3/GLB Collection Label
   edm::InputTag m_L3CollectionLabel; 
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
 };
 
 #endif

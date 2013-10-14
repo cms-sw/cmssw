@@ -32,6 +32,7 @@ class MuonRefProducer : public edm::EDProducer {
 
  private:
    edm::InputTag theReferenceCollection_;
+   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
 
    muon::AlgorithmType type_;
    int    minNumberOfMatches_;
@@ -42,6 +43,5 @@ class MuonRefProducer : public edm::EDProducer {
    double maxChamberDist_;
    double maxChamberDistPull_;
    reco::Muon::ArbitrationType arbitrationType_;
-
 };
 #endif
