@@ -102,9 +102,30 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
   GlobalTrajectoryParameters fPar(nPosition, nMomentum, state.particleCharge(),
   				state.magneticField());
 					       							  
+  // check if correlation are present between mass and others
+  bool thereIsNoCorr=true;
+
+  for (auto i=0; i<6; ++i) thereIsNoCorr &= (0==state.kinematicParametersError().matrix()(i,6));
+
+  if (thereIsNoCorr) {
+    //  easy life
+    AnalyticalCurvilinearJacobian prop(inPar,nPosition,nMomentum,s);
+    AlgebraicSymMatrix55 cov2 = ROOT::Math::Similarity(prop.jacobian(), fState.curvilinearError().matrix());
+    FreeTrajectoryState fts(fPar,  CurvilinearTrajectoryError(cov2));
+
+    return  KinematicState(fts, state.mass(), std::sqrt(state.kinematicParametersError().matrix()(6,6)));
+
+    //KinematicState kRes(fts, state.mass(), std::sqrt(state.kinematicParametersError().matrix()(6,6)));
+    //std::cout << "\n\ncart from final Kstate\n" << kRes.kinematicParametersError().matrix() << std::endl;
+    // std::cout << "curv from final K\n" << kRes.freeTrajectoryState().curvilinearError().matrix() << std::endl;
+
+  } else {
+  
+
   JacobianCartesianToCurvilinear cart2curv(inPar);
   JacobianCurvilinearToCartesian curv2cart(fPar);
-  
+
+
   AlgebraicMatrix67 ca2cu;
   AlgebraicMatrix76 cu2ca;
   ca2cu.Place_at(cart2curv.jacobian(),0,0);
@@ -112,34 +133,44 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
   ca2cu(5,6) = 1;  
   cu2ca(6,5) = 1;
 
-//now both transformation jacobians: cartesian to curvilinear and back are done
-//We transform matrix to curv frame, then propagate it and translate it back to
-//cartesian frame.  
+  //now both transformation jacobians: cartesian to curvilinear and back are done
+  //We transform matrix to curv frame, then propagate it and translate it back to
+  //cartesian frame.  
   AlgebraicSymMatrix66 cov1 = ROOT::Math::Similarity(ca2cu, state.kinematicParametersError().matrix());
 
+   /*
+   std::cout << "\n\ncurv from Kstate\n" << cov1 << std::endl;
+   std::cout << "curv from fts\n" << fState.curvilinearError().matrix() << std::endl;
+   */
 
 
-//propagation jacobian
+  //propagation jacobian
   AnalyticalCurvilinearJacobian prop(inPar,nPosition,nMomentum,s);
   AlgebraicMatrix66 pr;
   pr(5,5) = 1;
   pr.Place_at(prop.jacobian(),0,0);
 
-//transportation
+  //transportation
   AlgebraicSymMatrix66 cov2 = ROOT::Math::Similarity(pr, cov1);
   
-//now geting back to 7-parametrization from curvilinear
+  //now geting back to 7-parametrization from curvilinear
   cov = ROOT::Math::Similarity(cu2ca, cov2);
-  
 
-  FreeTrajectoryState fts(fPar);
+   std::cout << "curv prop \n" << cov2 << std::endl;
+   std::cout << "cart prop\n" << cov << std::endl;
+  
 
   //return parameters as a kiematic state  
   KinematicParameters resPar(par);
   KinematicParametersError resEr(cov);
-  return KinematicState(resPar,resEr,state.particleCharge(), state.magneticField()); 
 
-  // return  KinematicState(fts,state.mass(), cov(6,6));
+
+    KinematicState resK(resPar,resEr,state.particleCharge(), state.magneticField());
+
+    std::cout << "curv from K prop\n" << resK.freeTrajectoryState().curvilinearError().matrix() << std::endl;
+
+    return resK;
+  }
 
  }
   

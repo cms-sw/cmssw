@@ -7,7 +7,7 @@ KinematicState::KinematicState(const KinematicParameters& parameters,
 	const KinematicParametersError& error, const TrackCharge& charge,
 			       const MagneticField* field) : 
   fts(GlobalTrajectoryParameters(parameters.position(),parameters.momentum(),charge,field), 
-      CartesianTrajectoryError(kinematicParametersError().matrix().Sub<AlgebraicSymMatrix66>(0,0))),
+      CartesianTrajectoryError(error.matrix().Sub<AlgebraicSymMatrix66>(0,0))),
   param(parameters),err(error),  vl(true){}
 
 
@@ -16,8 +16,6 @@ bool KinematicState::operator==(const KinematicState& other) const
   return (kinematicParameters().vector() == other.kinematicParameters().vector()) &&
     (kinematicParametersError().matrix() == other.kinematicParametersError().matrix());
 }
-
-
 
 
 /*
