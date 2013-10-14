@@ -13,7 +13,26 @@
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+// Framework
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Common/interface/Handle.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+
+#include "RecoMuon/MuonIsolation/interface/Range.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
+
+#include "RecoMuon/MuonIsolation/interface/IsolatorByDeposit.h"
+#include "RecoMuon/MuonIsolation/interface/IsolatorByDepositCount.h"
+#include "RecoMuon/MuonIsolation/interface/IsolatorByNominalEfficiency.h"
 
 #include <string>
 
@@ -47,7 +66,22 @@ struct muisorhelper {
   
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //! BT == base type
+
 template <typename BT= reco::Candidate>
   class MuIsolatorResultProducer : public edm::EDProducer {
   
@@ -110,6 +144,11 @@ template <typename BT= reco::Candidate>
   std::string theBeamlineOption;
   edm::InputTag theBeamSpotLabel;
   reco::TrackBase::Point theBeam;
+
+  edm::EDGetTokenT<reco::BeamSpot> beamspotToken;
+  std::vector<edm::EDGetTokenT<reco::IsoDepositMap> > isoTokens;
+
+
 };
 
 
@@ -157,28 +196,6 @@ inline void MuIsolatorResultProducer<BT>::callWhatProduces() {
   if (theResultType == Isolator::ISOL_BOOL_TYPE ) produces<edm::ValueMap<bool> >();      
 }
 
-// Framework
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include "RecoMuon/MuonIsolation/interface/Range.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
-
-#include "RecoMuon/MuonIsolation/interface/IsolatorByDeposit.h"
-#include "RecoMuon/MuonIsolation/interface/IsolatorByDepositCount.h"
-#include "RecoMuon/MuonIsolation/interface/IsolatorByNominalEfficiency.h"
-
-#include <string>
 
 
 //! constructor with config
@@ -198,9 +215,15 @@ MuIsolatorResultProducer<BT>::MuIsolatorResultProducer(const edm::ParameterSet& 
   std::vector<double> dWeights( depositInputs.size());
   std::vector<double> dThresholds( depositInputs.size());
 
+
+
   for (unsigned int iDep = 0; iDep < depositInputs.size(); ++iDep){
     DepositConf dConf;
+
     dConf.tag = depositInputs[iDep].getParameter<edm::InputTag>("DepositTag");
+
+    isoTokens.push_back(consumes<reco::IsoDepositMap>(dConf.tag) );
+
     dConf.weight = depositInputs[iDep].getParameter<double>("DepositWeight");
     dConf.threshold = depositInputs[iDep].getParameter<double>("DepositThreshold");
     
@@ -266,6 +289,8 @@ MuIsolatorResultProducer<BT>::MuIsolatorResultProducer(const edm::ParameterSet& 
       theVetoCuts.muD0Max      = vetoPSet.getParameter<double>("MuD0Max");    
       theBeamlineOption = par.getParameter<std::string>("BeamlineOption");
       theBeamSpotLabel = par.getParameter<edm::InputTag>("BeamSpotLabel");
+      beamspotToken = consumes<reco::BeamSpot>(theBeamSpotLabel);
+
     }
   }
 }
@@ -294,7 +319,7 @@ void MuIsolatorResultProducer<BT>::produce(edm::Event& event, const edm::EventSe
       reco::BeamSpot beamSpot; 
       edm::Handle<reco::BeamSpot> beamSpotH; 
       
-      event.getByLabel(theBeamSpotLabel,beamSpotH); 
+      event.getByToken(beamspotToken,beamSpotH); 
       
       if (beamSpotH.isValid()){ 
 	theBeam = beamSpotH->position(); 
@@ -356,7 +381,7 @@ MuIsolatorResultProducer<BT>::initAssociation(edm::Event& event, CandMap& candMa
 
   for (unsigned int iMap = 0; iMap < theDepositConfs.size(); ++iMap){
     edm::Handle<reco::IsoDepositMap> depH;
-    event.getByLabel(theDepositConfs[iMap].tag, depH);
+    event.getByToken(isoTokens[iMap], depH);
     LogDebug(metname) <<"Got Deposits of size "<<depH->size();
     if (depH->size()==0) continue;
 

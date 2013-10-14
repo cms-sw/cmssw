@@ -3,6 +3,8 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include <string>
@@ -30,6 +32,6 @@ private:
   //! for backward compatibility: take one input module and 
   std::vector<edm::InputTag> theInputTags;
   std::vector<std::string> theDepositNames;
-
+  std::vector<edm::EDGetTokenT<reco::IsoDepositMap > > isoTokens;
 };
 #endif

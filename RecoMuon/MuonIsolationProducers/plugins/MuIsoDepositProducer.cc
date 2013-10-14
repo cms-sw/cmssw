@@ -9,19 +9,10 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
-
-#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
-#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
@@ -47,9 +38,17 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
   theMuonTrackRefType = ioPSet.getParameter<std::string>("MuonTrackRefType");
   theMuonCollectionTag = ioPSet.getParameter<edm::InputTag>("inputMuonCollection");
   theMultipleDepositsFlag = ioPSet.getParameter<bool>("MultipleDepositsFlag");
+  bool readFromRecoTrack = theInputType == "TrackCollection";
+  bool readFromRecoMuon = theInputType == "MuonCollection";
+  bool readFromCandidateView = theInputType == "CandidateView";
 
-
-
+  if (readFromRecoMuon)
+    muonToken = consumes<edm::View<reco::RecoCandidate> >(theMuonCollectionTag);
+  else if (readFromRecoTrack)
+    trackToken = consumes<edm::View<reco::Track> >(theMuonCollectionTag);
+  else if (readFromCandidateView||theExtractForCandidate)
+    candToken = consumes<edm::View<reco::Candidate> >(theMuonCollectionTag);
+  
   if (theMultipleDepositsFlag){
     theDepositNames = par.getParameter<edm::ParameterSet>("ExtractorPSet")
       .getParameter<std::vector<std::string> >("DepositInstanceLabels");
@@ -101,18 +100,18 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   bool readFromCandidateView = theInputType == "CandidateView";
 
   if (readFromRecoMuon){
-    event.getByLabel(theMuonCollectionTag,muons);
+    event.getByToken(muonToken,muons);
     nMuons = muons->size();
     LogDebug(metname) <<"Got Muons of size "<<nMuons;
 
   }
   if (readFromRecoTrack){
-    event.getByLabel(theMuonCollectionTag,tracks);
+    event.getByToken(trackToken,tracks);
     nMuons = tracks->size();
     LogDebug(metname) <<"Got MuonTracks of size "<<nMuons;
   }
   if (readFromCandidateView || theExtractForCandidate){
-    event.getByLabel(theMuonCollectionTag,cands);
+    event.getByToken(candToken,cands);
     unsigned int nCands = cands->size();
     if (readFromRecoMuon && theExtractForCandidate){
       //! expect nMuons set already
