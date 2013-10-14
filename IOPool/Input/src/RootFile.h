@@ -116,6 +116,7 @@ namespace edm {
     bool setEntryAtItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) {
       return event ? setEntryAtEvent(run, lumi, event) : (lumi ? setEntryAtLumi(run, lumi) : setEntryAtRun(run));
     }
+    bool containsItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const;
     bool setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     bool setEntryAtLumi(RunNumber_t run, LuminosityBlockNumber_t lumi);
     bool setEntryAtRun(RunNumber_t run);
@@ -135,7 +136,7 @@ namespace edm {
     bool skipEvents(int& offset);
     bool goToEvent(EventID const& eventID);
     bool nextEventEntry() {return eventTree_.next();}
-    IndexIntoFile::EntryType getNextEntryTypeWanted();
+    IndexIntoFile::EntryType getNextItemType(RunNumber_t& run, LuminosityBlockNumber_t& lumi, EventNumber_t& event);
     boost::shared_ptr<IndexIntoFile> indexIntoFileSharedPtr() const {
       return indexIntoFileSharedPtr_;
     }
@@ -147,13 +148,12 @@ namespace edm {
   private:
     RootTreePtrArray& treePointers() {return treePointers_;}
     bool skipThisEntry();
-    IndexIntoFile::EntryType getEntryTypeWithSkipping();
     void setIfFastClonable(int remainingEvents, int remainingLumis);
     void validateFile(InputType inputType, bool usingGoToEvent);
     void fillIndexIntoFile();
-    void fillEventAuxiliary();
+    bool fillEventAuxiliary(IndexIntoFile::EntryNumber_t entry);
     void fillThisEventAuxiliary();
-    void fillHistory();
+    void fillEventHistory();
     boost::shared_ptr<LuminosityBlockAuxiliary> fillLumiAuxiliary();
     boost::shared_ptr<RunAuxiliary> fillRunAuxiliary();
     void overrideRunNumber(RunID& id);

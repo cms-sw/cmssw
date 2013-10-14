@@ -8,6 +8,7 @@ RootTree.h // used by ROOT input sources
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputType.h"
@@ -37,7 +38,7 @@ namespace edm {
     unsigned int const defaultNonEventCacheSize = 1U * 1024 * 1024;
     unsigned int const defaultLearningEntries = 20U;
     unsigned int const defaultNonEventLearningEntries = 1U;
-    typedef Long64_t EntryNumber;
+    typedef IndexIntoFile::EntryNumber_t EntryNumber;
     struct BranchInfo {
       BranchInfo(BranchDescription const& prod) :
         branchDescription_(prod),
@@ -84,6 +85,7 @@ namespace edm {
     bool next() {return ++entryNumber_ < entries_;}
     bool previous() {return --entryNumber_ >= 0;}
     bool current() const {return entryNumber_ < entries_ && entryNumber_ >= 0;}
+    bool current(EntryNumber entry) const {return entry < entries_ && entry >= 0;}
     void rewind() {entryNumber_ = 0;}
     void close();
     EntryNumber const& entryNumber() const {return entryNumber_;}
