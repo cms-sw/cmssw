@@ -26,7 +26,7 @@ typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel, 
 						   edm::InputTag csclabel, 
 						   edm::InputTag rpclabel,
-						   edm::ConsumesCollector&& iC,
+						   edm::ConsumesCollector& iC,
 						   bool enableDT, bool enableCSC, bool enableRPC): 
   enableDTMeasurement(enableDT),
   enableCSCMeasurement(enableCSC),
