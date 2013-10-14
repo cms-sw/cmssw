@@ -185,7 +185,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
     threshPFClusterES_ = iConfig.getParameter<double>("thresh_Preshower");
     applyCrackCorrections_ = 
       iConfig.getParameter<bool>("applyCrackCorrections");
-    produces<reco::PFCluster::EEtoPSAssociation>("eetops");
+    produces<reco::PFCluster::EEtoPSAssociation>();
   }
 
   //inputTagClusterCollectionName_ =  iConfig.getParameter<string>("PFClusterCollectionName");    
@@ -212,8 +212,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   edm::Handle< edm::View<reco::PFCluster> > psclustersHandle;
   
   // access the rechits in the event
-  bool found = iEvent.getByLabel( inputTagPFRecHits_, rechitsHandle );  
-  
+  bool found = iEvent.getByLabel( inputTagPFRecHits_, rechitsHandle );   
 
   if(!found ) {
 
@@ -223,7 +222,6 @@ void PFClusterProducer::produce(edm::Event& iEvent,
     
     throw cms::Exception( "MissingProduct", err.str());
   }
-
 
   // do clustering
   clusterAlgo_.doClustering( rechitsHandle );
@@ -260,8 +258,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       edm::Ptr<reco::PFCluster> eematch,eeclus;
       dist = min_dist = -1.0; // reset
       for( size_t ic = 0; ic < clusters->size(); ++ic ) {
-	if( eeclus->layer() != PFLayer::ECAL_ENDCAP ) continue;
 	eeclus = edm::Ptr<reco::PFCluster>(clusters.get(),ic);
+	if( eeclus->layer() != PFLayer::ECAL_ENDCAP ) continue;	
 	dist = testPreshowerDistance(eeclus,psclus);      
 	if( dist == -1.0 || (min_dist != -1.0 && dist > min_dist) ) continue;
 	if( dist < min_dist || min_dist == -1.0 ) {

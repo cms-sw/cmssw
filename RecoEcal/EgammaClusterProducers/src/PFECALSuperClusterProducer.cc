@@ -5,7 +5,7 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/PFECALSuperClusterAlgo.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -128,7 +128,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   inputTagPFClusters_ = 
     consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<InputTag>("PFClusters"));
   inputTagPFClustersES_ = 
-    consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<InputTag>("ESAssociation"));
+    consumes<reco::PFCluster::EEtoPSAssociation>(iConfig.getParameter<InputTag>("ESAssociation"));
 
   PFBasicClusterCollectionBarrel_ = iConfig.getParameter<string>("PFBasicClusterCollectionBarrel");
   PFSuperClusterCollectionBarrel_ = iConfig.getParameter<string>("PFSuperClusterCollectionBarrel");
