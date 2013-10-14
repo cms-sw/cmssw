@@ -88,6 +88,9 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
       Float_t g_x = (Float_t) gp.x();
       Float_t g_y = (Float_t) gp.y();
       Float_t g_z = (Float_t) gp.z();
+      edm::LogInfo("StripDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";	
+      edm::LogInfo("StripDIGIValidation")<<"Global strip "<<strip<<"Global phi "<<g_phi<<std::endl;	
+      edm::LogInfo("StripDIGIValidation")<<"Global bx "<<bx<<std::endl;	
 
       // fill hist
       if ( region== -1 ) {
@@ -97,18 +100,12 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
           theStrip_phistrip_rm1_l1->Fill(strip,g_phi);
                    theStrip_rm1_l1->Fill(strip);
                 theStrip_bx_rm1_l1->Fill(bx);
-	  std::cout<<"Global x "<<g_x<<"Global y "<<g_y<<std::endl;	
-	  std::cout<<"Global strip "<<strip<<"Global phi "<<g_phi<<std::endl;	
-	  std::cout<<"Global bx "<<bx<<std::endl;	
         }
         else if ( layer ==2 ) {
                 theStrip_xy_rm1_l2->Fill(g_x,g_y);
           theStrip_phistrip_rm1_l2->Fill(strip,g_phi);
                    theStrip_rm1_l2->Fill(strip);
                 theStrip_bx_rm1_l2->Fill(bx);
-	  std::cout<<"Global x "<<g_x<<"Global y "<<g_y<<std::endl;	
-	  std::cout<<"Global strip "<<strip<<"Global phi "<<g_phi<<std::endl;	
-	  std::cout<<"Global bx "<<bx<<std::endl;	
         }
         else {
           std::cout<<"layer : "<<layer<<std::endl;
@@ -122,18 +119,12 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
           theStrip_phistrip_rp1_l1->Fill(strip,g_phi);
                    theStrip_rp1_l1->Fill(strip);
                 theStrip_bx_rp1_l1->Fill(bx);
-	  std::cout<<"Global x "<<g_x<<"Global y "<<g_y<<std::endl;	
-	  std::cout<<"Global strip "<<strip<<"Global phi "<<g_phi<<std::endl;	
-	  std::cout<<"Global bx "<<bx<<std::endl;	
         }
         else if ( layer == 2 ) {
                 theStrip_xy_rp1_l2->Fill(g_x,g_y);
           theStrip_phistrip_rp1_l2->Fill(strip,g_phi);
                    theStrip_rp1_l2->Fill(strip);
                 theStrip_bx_rp1_l2->Fill(bx);
-	  std::cout<<"Global x "<<g_x<<"Global y "<<g_y<<std::endl;	
-	  std::cout<<"Global strip "<<strip<<"Global phi "<<g_phi<<std::endl;	
-	  std::cout<<"Global bx "<<bx<<std::endl;	
         }
         else {
           std::cout<<"layer : "<<layer<<std::endl;

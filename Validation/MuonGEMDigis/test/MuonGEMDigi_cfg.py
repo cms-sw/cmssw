@@ -17,6 +17,8 @@ process.load('Configuration.Geometry.GeometryExtended2019_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+
 ## TrackingComponentsRecord required for matchers
 process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi')
 process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi')
@@ -46,7 +48,7 @@ process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
-        'file:/pnfs/user/geonmo/CMSSW_6_2_0_SLHC1/src/Validation/MuonGEMDigis/data/out_digi.root'
+        'file:/pnfs/user/geonmo/CMSSW_6_2_0_SLHC1/src/Validation/MuonGEMDigis/data/out_digi_2.root'
     )
 )
 
@@ -57,7 +59,10 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 
 process.demo = cms.EDAnalyzer('MuonGEMDigis',
 	outputFile = cms.string('valid.root'),
-	stripLabel= cms.InputTag('simMuonGEMDigis')
+	stripLabel= cms.InputTag('simMuonGEMDigis'),
+	cscPadLabel = cms.InputTag('simMuonGEMCSCPadDigis'),
+	cscCopadLabel = cms.InputTag('simMuonGEMCSCPadDigis','Coincidence')
+	
 )
 
 
