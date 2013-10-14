@@ -32,11 +32,13 @@ using namespace muonisolation;
 
 /// constructor with config
 L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
-  theSACollectionLabel(par.getParameter<edm::InputTag>("StandAloneCollectionLabel")), 
   theExtractor(0),
   theDepositIsolator(0)
 {
   LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")<<" L2MuonIsolationProducer constructor called";
+
+  theSACollectionLabel = (par.getParameter<edm::InputTag>("StandAloneCollectionLabel"));
+  tracksToken = consumes<reco::TrackCollection>(theSACollectionLabel);
 
 
   //
@@ -83,7 +85,7 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   // Take the SA container
   LogDebug(metname)<<" Taking the StandAlone muons: "<<theSACollectionLabel;
   Handle<TrackCollection> tracks;
-  event.getByLabel(theSACollectionLabel,tracks);
+  event.getByToken(tracksToken,tracks);
 
   // Find deposits and load into event
   LogDebug(metname)<<" Get energy around";
