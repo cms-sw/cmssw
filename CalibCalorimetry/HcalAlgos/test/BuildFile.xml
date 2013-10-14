@@ -6,5 +6,10 @@
 <use   name="CondCore/DBCommon"/>
 <use   name="CondCore/IOVService"/>
 <use   name="CondCore/MetaDataService"/>
+<use   name="Geometry/Records"/>
+<use   name="FWCore/Framework"/>
 <bin file="HcalShapeIntegrator.cpp"/>
 <bin file="HcalPulseContainmentTest.cpp"/>
+<library name="MapTester" file="MapTester.cc">
+    <flags EDM_PLUGIN="1"/>
+</library>
