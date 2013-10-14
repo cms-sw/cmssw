@@ -17,6 +17,15 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 
+// Input and output collection
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
+
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class MuonTrackFinder;
@@ -36,9 +45,17 @@ class GlobalMuonProducer : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
  private:
-    
-  /// STA Label
-  edm::InputTag theSTACollectionLabel;
+
+
+  edm::InputTag theSTACollectionLabel    ;
+  /// STA Tokens
+  edm::EDGetTokenT<reco::TrackCollection> staMuonsToken;
+  edm::EDGetTokenT<Trajectory> staMuonsTrajToken;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> staAssoMapToken;
+  edm::EDGetTokenT<reco::TrackToTrackMap> updatedStaAssoMapToken;
+
+
+
 
   MuonTrackFinder* theTrackFinder;
     
