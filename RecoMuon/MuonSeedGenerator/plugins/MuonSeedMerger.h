@@ -12,6 +12,10 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+// Data Formats 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/Common/interface/View.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -31,6 +35,8 @@ protected:
 
 private:
   std::vector<edm::InputTag> theSeedCollectionLabels;
+  std::vector<edm::EDGetTokenT<edm::View<TrajectorySeed> > > seedTokens;
+
 };
 #endif
 

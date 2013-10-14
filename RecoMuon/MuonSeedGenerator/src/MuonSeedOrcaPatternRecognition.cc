@@ -26,7 +26,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
-#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 
@@ -45,11 +44,14 @@ using namespace std;
     const std::string metname = "Muon|RecoMuon|MuonSeedOrcaPatternRecognition";
 
 // Constructor
-MuonSeedOrcaPatternRecognition::MuonSeedOrcaPatternRecognition(const edm::ParameterSet& pset)
+MuonSeedOrcaPatternRecognition::MuonSeedOrcaPatternRecognition(const edm::ParameterSet& pset,edm::ConsumesCollector& iC)
 : MuonSeedVPatternRecognition(pset),
   theCrackEtas(pset.getParameter<std::vector<double> >("crackEtas")),
   theCrackWindow(pset.getParameter<double>("crackWindow"))
 {
+  muonMeasurements = new MuonDetLayerMeasurements (theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),
+						   iC,
+						   enableDTMeasurement,enableCSCMeasurement,false);
 }
 
 
@@ -93,15 +95,14 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   
   // instantiate the accessor
   // Don not use RPC for seeding
-  MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),
-					    enableDTMeasurement,enableCSCMeasurement,false);
+
   double barreldThetaCut = 0.2;
   // still lose good muons to a tighter cut
   double endcapdThetaCut = 1.0;
-  MuonRecHitContainer list9 = filterSegments(muonMeasurements.recHits(MB4DL,event), barreldThetaCut);
-  MuonRecHitContainer list6 = filterSegments(muonMeasurements.recHits(MB3DL,event), barreldThetaCut);
-  MuonRecHitContainer list7 = filterSegments(muonMeasurements.recHits(MB2DL,event), barreldThetaCut);
-  MuonRecHitContainer list8 = filterSegments(muonMeasurements.recHits(MB1DL,event), barreldThetaCut);
+  MuonRecHitContainer list9 = filterSegments(muonMeasurements->recHits(MB4DL,event), barreldThetaCut);
+  MuonRecHitContainer list6 = filterSegments(muonMeasurements->recHits(MB3DL,event), barreldThetaCut);
+  MuonRecHitContainer list7 = filterSegments(muonMeasurements->recHits(MB2DL,event), barreldThetaCut);
+  MuonRecHitContainer list8 = filterSegments(muonMeasurements->recHits(MB1DL,event), barreldThetaCut);
 
   dumpLayer("MB4 ", list9);
   dumpLayer("MB3 ", list6);
@@ -112,19 +113,19 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   bool* MB2 = zero(list7.size());
   bool* MB3 = zero(list6.size());
 
-  endcapPatterns(filterSegments(muonMeasurements.recHits(ME11Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements.recHits(ME12Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements.recHits(ME2Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements.recHits(ME3Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements.recHits(ME4Bwd,event), endcapdThetaCut),
+  endcapPatterns(filterSegments(muonMeasurements->recHits(ME11Bwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements->recHits(ME12Bwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements->recHits(ME2Bwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements->recHits(ME3Bwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements->recHits(ME4Bwd,event), endcapdThetaCut),
                  list8, list7, list6,
                  MB1, MB2, MB3, result);
 
-  endcapPatterns(filterSegments(muonMeasurements.recHits(ME11Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements.recHits(ME12Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements.recHits(ME2Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements.recHits(ME3Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements.recHits(ME4Fwd,event), endcapdThetaCut),
+  endcapPatterns(filterSegments(muonMeasurements->recHits(ME11Fwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements->recHits(ME12Fwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements->recHits(ME2Fwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements->recHits(ME3Fwd,event), endcapdThetaCut),
+                 filterSegments(muonMeasurements->recHits(ME4Fwd,event), endcapdThetaCut),
                  list8, list7, list6,
                  MB1, MB2, MB3, result);
 
@@ -203,44 +204,44 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
     barreldThetaCut = 0.2;
     endcapdThetaCut = 0.2;
 
-    MuonRecHitContainer all = muonMeasurements.recHits(ME4Bwd,event);
-    MuonRecHitContainer tmp = filterSegments(muonMeasurements.recHits(ME3Bwd,event), endcapdThetaCut);
+    MuonRecHitContainer all = muonMeasurements->recHits(ME4Bwd,event);
+    MuonRecHitContainer tmp = filterSegments(muonMeasurements->recHits(ME3Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = filterSegments(muonMeasurements.recHits(ME2Bwd,event), endcapdThetaCut);
+    tmp = filterSegments(muonMeasurements->recHits(ME2Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = filterSegments(muonMeasurements.recHits(ME12Bwd,event), endcapdThetaCut);
+    tmp = filterSegments(muonMeasurements->recHits(ME12Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = filterSegments(muonMeasurements.recHits(ME11Bwd,event), endcapdThetaCut);
+    tmp = filterSegments(muonMeasurements->recHits(ME11Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = filterSegments(muonMeasurements.recHits(ME11Fwd,event), endcapdThetaCut);
+    tmp = filterSegments(muonMeasurements->recHits(ME11Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = filterSegments(muonMeasurements.recHits(ME12Fwd,event), endcapdThetaCut);
+    tmp = filterSegments(muonMeasurements->recHits(ME12Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = filterSegments(muonMeasurements.recHits(ME2Fwd,event), endcapdThetaCut);
+    tmp = filterSegments(muonMeasurements->recHits(ME2Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = filterSegments(muonMeasurements.recHits(ME3Fwd,event), endcapdThetaCut);
+    tmp = filterSegments(muonMeasurements->recHits(ME3Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = filterSegments(muonMeasurements.recHits(ME4Fwd,event), endcapdThetaCut);
+    tmp = filterSegments(muonMeasurements->recHits(ME4Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = filterSegments(muonMeasurements.recHits(MB4DL,event), barreldThetaCut);
+    tmp = filterSegments(muonMeasurements->recHits(MB4DL,event), barreldThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = filterSegments(muonMeasurements.recHits(MB3DL,event), barreldThetaCut);
+    tmp = filterSegments(muonMeasurements->recHits(MB3DL,event), barreldThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = filterSegments(muonMeasurements.recHits(MB2DL,event), barreldThetaCut);
+    tmp = filterSegments(muonMeasurements->recHits(MB2DL,event), barreldThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    tmp = filterSegments(muonMeasurements.recHits(MB1DL,event), barreldThetaCut);
+    tmp = filterSegments(muonMeasurements->recHits(MB1DL,event), barreldThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
     LogTrace(metname)<<"Number of segments: "<<all.size();

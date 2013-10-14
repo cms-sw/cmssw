@@ -40,7 +40,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 
 // C++
@@ -54,12 +53,16 @@ typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
 // Constructor
 MuonSeedGenerator::MuonSeedGenerator(const edm::ParameterSet& pset)
-: thePatternRecognition(new MuonSeedOrcaPatternRecognition(pset)),
-  theSeedFinder(new MuonSeedFinder(pset)),
+: theSeedFinder(new MuonSeedFinder(pset)),
   theSeedCleaner(new MuonSeedSimpleCleaner()),
   theBeamSpotTag(pset.getParameter<edm::InputTag>("beamSpotTag"))
 {
   produces<TrajectorySeedCollection>(); 
+
+  edm::ConsumesCollector iC = consumesCollector();
+  thePatternRecognition = new MuonSeedOrcaPatternRecognition(pset,iC);
+
+  beamspotToken = consumes<reco::BeamSpot>(theBeamSpotTag);
 }
 
 // Destructor
@@ -82,7 +85,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
   reco::BeamSpot beamSpot;
   edm::Handle<reco::BeamSpot> beamSpotHandle;
-  event.getByLabel(theBeamSpotTag, beamSpotHandle);
+  event.getByToken(beamspotToken, beamSpotHandle);
   if ( beamSpotHandle.isValid() )
   {
     beamSpot = *beamSpotHandle;

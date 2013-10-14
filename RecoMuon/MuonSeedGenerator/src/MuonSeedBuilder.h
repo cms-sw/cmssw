@@ -15,6 +15,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h>
 #include <DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 //muon service
 #include <RecoMuon/TrackingTools/interface/MuonServiceProxy.h>
@@ -38,7 +39,7 @@ class MuonSeedBuilder
   typedef std::deque<bool> BoolContainer;
 
   /// Constructor
-  explicit MuonSeedBuilder(const edm::ParameterSet&);
+  explicit MuonSeedBuilder(const edm::ParameterSet&, edm::ConsumesCollector& );
   
   /// Destructor
   ~MuonSeedBuilder();
@@ -153,6 +154,8 @@ class MuonSeedBuilder
   float maxPhiResolutionDT;
   float maxPhiResolutionCSC;
   float theMinMomentum;
+
+  MuonDetLayerMeasurements * muonMeasurements;
 
 };
 #endif
