@@ -32,6 +32,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "RecoParticleFlow/PFProducer/interface/PFCandConnector.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+#include "RecoParticleFlow/PFProducer/interface/PFEGammaFilters.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 /// \brief Particle Flow Algorithm
 /*!
@@ -110,8 +112,26 @@ class PFAlgo {
 			     std::string X0_Map,
 			     const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			     double sumPtTrackIsoForPhoton,
-			     double sumPtTrackIsoSlopeForPhoton
-);  
+			     double sumPtTrackIsoSlopeForPhoton);
+
+  void setEGammaParameters(bool use_EGammaFilters,
+			   std::string ele_iso_path_mvaWeightFile,
+			   double ele_iso_pt,
+			   double ele_iso_mva_barrel,
+			   double ele_iso_mva_endcap,
+			   double ele_iso_combIso_barrel,
+			   double ele_iso_combIso_endcap,
+			   double ele_noniso_mva,
+			   unsigned int ele_missinghits,
+			   double ph_MinEt,
+			   double ph_combIso,
+			   double ph_HoE);
+  
+  void setEGammaCollections(const edm::View<reco::PFCandidate> & pfEgammaCandidates,
+			    const edm::ValueMap<reco::GsfElectronRef> & valueMapGedElectrons, 
+ 			    const edm::ValueMap<reco::PhotonRef> & valueMapGedPhotons); 
+  
+  
 
   // void setPFPhotonRegWeights(
   //		     const GBRForest *LCorrForest,
@@ -330,6 +350,15 @@ class PFAlgo {
   PFPhotonAlgo *pfpho_;
   PFMuonAlgo *pfmu_;
 
+
+  /// Variables for NEW EGAMMA selection
+  bool useEGammaFilters_;
+  PFEGammaFilters *pfegamma_;
+  const edm::View<reco::PFCandidate> * pfEgammaCandidates_;
+  const edm::ValueMap<reco::GsfElectronRef> * valueMapGedElectrons_;
+  const edm::ValueMap<reco::PhotonRef> * valueMapGedPhotons_;  
+
+
   // Option to let PF decide the muon momentum
   bool usePFMuonMomAssign_;
 
@@ -345,7 +374,7 @@ class PFAlgo {
   /// Maximal relative uncertainty on the tracks going to or incoming from the 
   /// displcaed vertex to be used in the PFAlgo
   double dptRel_DispVtx_;
-
+  int nVtx_;
 
   /// A tool used for a postprocessing of displaced vertices
   /// based on reconstructed PFCandidates

@@ -46,6 +46,7 @@
 #include "boost/graph/graph_utility.hpp" 
 
 
+
 using namespace std;
 using namespace reco;
 using namespace boost;
@@ -62,12 +63,14 @@ PFAlgo::PFAlgo()
     debug_(false),
     pfele_(0),
     pfpho_(0),
+    pfegamma_(0),
     useVertices_(false)
 {}
 
 PFAlgo::~PFAlgo() {
   if (usePFElectrons_) delete pfele_;
   if (usePFPhotons_)     delete pfpho_;
+  if (useEGammaFilters_)  delete pfegamma_;
 }
 
 
@@ -204,6 +207,67 @@ PFAlgo::setPFPhotonParameters(bool usePFPhotons,
 			    );
   return;
 }
+
+void PFAlgo::setEGammaParameters(bool use_EGammaFilters,
+				 std::string ele_iso_path_mvaWeightFile,
+				 double ele_iso_pt,
+				 double ele_iso_mva_barrel,
+				 double ele_iso_mva_endcap,
+				 double ele_iso_combIso_barrel,
+				 double ele_iso_combIso_endcap,
+				 double ele_noniso_mva,
+				 unsigned int ele_missinghits,
+				 double ph_MinEt,
+				 double ph_combIso,
+				 double ph_HoE
+				 )
+{
+  
+  useEGammaFilters_ = use_EGammaFilters;
+
+  if(!useEGammaFilters_ ) return;
+  FILE * fileEGamma_ele_iso_ID = fopen(ele_iso_path_mvaWeightFile.c_str(), "r");  
+  if (fileEGamma_ele_iso_ID) {  
+    fclose(fileEGamma_ele_iso_ID);  
+  }  
+  else {  
+    string err = "PFAlgo: cannot open weight file '";  
+    err += ele_iso_path_mvaWeightFile;  
+    err += "'";  
+    throw invalid_argument( err );  
+  }  
+
+  //  ele_iso_mvaID_ = new ElectronMVAEstimator(ele_iso_path_mvaWeightFile_);
+
+
+  pfegamma_ =  new PFEGammaFilters(ph_MinEt,
+				   ph_combIso,
+				   ph_HoE,
+				   ele_iso_pt,
+				   ele_iso_mva_barrel,
+				   ele_iso_mva_endcap,
+				   ele_iso_combIso_barrel,
+				   ele_iso_combIso_endcap,
+				   ele_noniso_mva,
+				   ele_missinghits,
+				   ele_iso_path_mvaWeightFile);
+
+
+
+  return;
+}
+void  PFAlgo::setEGammaCollections(const edm::View<reco::PFCandidate> & pfEgammaCandidates,
+				   const edm::ValueMap<reco::GsfElectronRef> & valueMapGedElectrons,
+				   const edm::ValueMap<reco::PhotonRef> & valueMapGedPhotons){
+  if(useEGammaFilters_) {
+    pfEgammaCandidates_ = & pfEgammaCandidates;
+    valueMapGedElectrons_ = & valueMapGedElectrons;
+    valueMapGedPhotons_ = & valueMapGedPhotons;
+  }
+}
+
+
+
 /*
 void PFAlgo::setPFPhotonRegWeights(
 		  const GBRForest *LCorrForest,
@@ -307,9 +371,9 @@ PFAlgo::setPFVertexParameters(bool useVertex,
 
   //Now find the primary vertex!
   bool primaryVertexFound = false;
-  int nVtx=primaryVertices->size();
+  nVtx_ = primaryVertices->size();
   if(usePFPhotons_){
-    pfpho_->setnPU(nVtx);
+    pfpho_->setnPU(nVtx_);
   }
   for (unsigned short i=0 ;i<primaryVertices->size();++i)
     {
@@ -548,6 +612,124 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     pfPhotonCandidates_->clear();
   } // end of Photon algo
   
+  if (usePFElectrons_) {
+    for ( std::vector<reco::PFCandidate>::const_iterator ec=tempElectronCandidates.begin();   ec != tempElectronCandidates.end(); ++ec ){
+      pfCandidates_->push_back(*ec);  
+    } 
+    tempElectronCandidates.clear();
+  }
+
+
+  // New EGamma Reconstruction 10/10/2013
+  if(useEGammaFilters_) {
+
+    // const edm::ValueMap<reco::GsfElectronRef> & myGedElectronValMap(*valueMapGedElectrons_);
+    bool egmLocalDebug = true;
+
+    unsigned int negmcandidates = pfEgammaCandidates_->size();
+    for(unsigned int ieg=0 ; ieg <  negmcandidates; ++ieg) {
+      //      const reco::PFCandidate & egmcand((*pfEgammaCandidates_)[ieg]);
+      reco::PFCandidateRef pfEgmRef = pfEgammaCandidates_->refAt(ieg).castTo<reco::PFCandidateRef>(); 
+
+      const PFCandidate::ElementsInBlocks& theElements = (*pfEgmRef).elementsInBlocks();
+      PFCandidate::ElementsInBlocks::const_iterator iegfirst = theElements.begin(); 
+      bool sameBlock = false;
+      bool isGoodElectron = false;
+      bool isGoodPhoton = false;
+      bool isPrimaryElectron = false;
+      if(iegfirst->first == blockref) 
+	sameBlock = true;
+      if(sameBlock) {
+
+	if(egmLocalDebug)
+	  cout << " I am in looping on EGamma Candidates: pt " << (*pfEgmRef).pt() 
+	       << " eta,phi " << (*pfEgmRef).eta() << ", " << (*pfEgmRef).phi() << endl;
+
+	if((*pfEgmRef).gsfTrackRef().isNonnull()) {
+
+	  reco::GsfElectronRef gedEleRef = (*valueMapGedElectrons_)[pfEgmRef];
+	  if(gedEleRef.isNonnull()) {
+	    isGoodElectron = pfegamma_->passElectronSelection(*gedEleRef,nVtx_);
+	    isPrimaryElectron = pfegamma_->isElectron(*gedEleRef);
+	    if(egmLocalDebug){
+	      if(isGoodElectron) 
+		cout << "** Good Electron, pt " << gedEleRef->pt()
+		     << " eta, phi " << gedEleRef->eta() << ", " << gedEleRef->phi() 
+		     << " isPrimary " << isPrimaryElectron  << endl;
+	    }
+
+	   
+	  }
+	}
+	if((*pfEgmRef).superClusterRef().isNonnull()) {
+
+	  reco::PhotonRef gedPhoRef = (*valueMapGedPhotons_)[pfEgmRef];   
+	  if(gedPhoRef.isNonnull()) {
+	    isGoodPhoton =  pfegamma_->passPhotonSelection(*gedPhoRef);
+	    if(egmLocalDebug) {
+	      if(isGoodPhoton) 
+		cout << "** Good Photon, pt " << gedPhoRef->pt()
+		     << " eta, phi " << gedPhoRef->eta() << ", " << gedPhoRef->phi() << endl;
+	    }
+	  }
+	}
+      } // end same block
+      
+      if(isGoodElectron && isGoodPhoton) {
+	if(isPrimaryElectron)
+	  isGoodPhoton = false;
+	else
+	  isGoodElectron = false;
+      }
+
+      // isElectron
+      if(isGoodElectron) {
+
+	reco::PFCandidate myPFElectron = *pfEgmRef;
+	reco::PFCandidate::ParticleType particleType = reco::PFCandidate::e;
+	myPFElectron.setParticleType(particleType);
+	
+	// *********************************************************************
+	//      Need to understand how to update the momentum and the charge
+	//	typedef PFCandidate::ElementsInBlocks::const_iterator iloc; 
+	// ********************************************************************
+	
+	// Lock all the elements
+	for (PFCandidate::ElementsInBlocks::const_iterator ieb = theElements.begin(); 
+	     ieb<theElements.end(); ++ieb) {
+	  active[ieb->second] = false;
+	}
+	pfCandidates_->push_back(myPFElectron);
+
+	if(egmLocalDebug)
+	  cout << " PFAlgo: found an electron with NEW EGamma code " << endl;
+      }
+      if(isGoodPhoton) {
+	
+	reco::PFCandidate myPFPhoton = *pfEgmRef;
+	reco::PFCandidate::ParticleType particleType = reco::PFCandidate::gamma;
+	myPFPhoton.setParticleType(particleType);
+	
+	// *********************************************************************
+	//      Need to understand how to update the momentum and the charge
+	//	typedef PFCandidate::ElementsInBlocks::const_iterator iloc; 
+	// ********************************************************************
+	
+	// Lock all the elements
+	for (PFCandidate::ElementsInBlocks::const_iterator ieb = theElements.begin(); 
+	     ieb<theElements.end(); ++ieb) {
+	  active[ieb->second] = false;
+	}
+	pfCandidates_->push_back(myPFPhoton);
+	
+	if(egmLocalDebug)
+	  cout << " PFAlgo: found a photon with NEW EGamma code " << endl;
+      }
+    } // end loop on EGM candidates
+  } // end if use EGammaFilters
+
+
+
   //Lock extra conversion tracks not used by Photon Algo
   if (usePFConversions_  )
     {
@@ -564,11 +746,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  }
       }
     }
-  for ( std::vector<reco::PFCandidate>::const_iterator ec=tempElectronCandidates.begin();   ec != tempElectronCandidates.end(); ++ec ){
-    pfCandidates_->push_back(*ec);  
-  } 
-  tempElectronCandidates.clear();
-  
+
+
+
+
   
   if(debug_) 
     cout<<endl<<"--------------- loop 1 ------------------"<<endl;
