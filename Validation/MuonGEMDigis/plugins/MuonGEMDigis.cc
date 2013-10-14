@@ -94,9 +94,9 @@ MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
    //now do what ever initialization is needed
   
 
-  theGEMStripDigiValidation = new GEMStripDigiValidation(dbe_, ps.getParameter<edm::InputTag>("stripLabel"));
-//  theCSCPadDigiValidation = new GEMCSCPadValidation(dbe_, ps.getParameter<edm::InputTag>("simMuonGEMCSCPadDigis"));
-//  theCSCCoPadDigiValidation = new GEMCSCCoPadValidation(dbe_, ps.getParameter<edm::InputTag>("simMuonGEMCSCPadDigis","Coincidence"));
+  theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, ps.getParameter<edm::InputTag>("stripLabel"));
+  theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscPadLabel"));
+  theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscCopadLabel"));
   
 
 
@@ -112,8 +112,8 @@ MuonGEMDigis::~MuonGEMDigis()
 
 
   delete theGEMStripDigiValidation;
-//  delete theCSCPadDigiValidation;
-//  delete theCSCCoPadDigiValidation;
+  delete theGEMCSCPadDigiValidation;
+  delete theGEMCSCCoPadDigiValidation;
 
 
 
@@ -133,6 +133,8 @@ MuonGEMDigis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   theGEMStripDigiValidation->analyze(iEvent,iSetup );  
+  theGEMCSCPadDigiValidation->analyze(iEvent,iSetup );  
+  theGEMCSCCoPadDigiValidation->analyze(iEvent,iSetup );  
 
 
 
@@ -164,7 +166,9 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
   iSetup.get<MuonGeometryRecord>().get(gem_geo_);
   gem_geometry_ = &*gem_geo_;
 
-  theGEMStripDigiValidation->setGeometry(gem_geometry_);
+   theGEMStripDigiValidation->setGeometry(gem_geometry_);
+  theGEMCSCPadDigiValidation->setGeometry(gem_geometry_);
+  theGEMCSCCoPadDigiValidation->setGeometry(gem_geometry_);
 
 
   const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
