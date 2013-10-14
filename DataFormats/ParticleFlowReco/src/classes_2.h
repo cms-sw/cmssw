@@ -69,6 +69,11 @@ namespace {
     std::vector<reco::PFCluster>                         dummy1;
     edm::Wrapper< std::vector<reco::PFCluster> >         dummy2;
 
+    reco::PFCluster::EEtoPSAssociation sceepsassoc;
+    edm::Wrapper<reco::PFCluster::EEtoPSAssociation> wsceepsassoc;    
+    std::pair<reco::CaloClusterPtr::key_type,reco::CaloClusterPtr> 
+      sceepsassocval;
+
     std::vector<reco::PFRecHit>                          dummy3;
     edm::Ref< std::vector<reco::PFRecHit> >              dummy4;
     edm::Wrapper< std::vector<reco::PFRecHit> >          dummy5;

@@ -128,7 +128,7 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   inputTagPFClusters_ = 
     consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<InputTag>("PFClusters"));
   inputTagPFClustersES_ = 
-    consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<InputTag>("PFClustersES"));
+    consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<InputTag>("ESAssociation"));
 
   PFBasicClusterCollectionBarrel_ = iConfig.getParameter<string>("PFBasicClusterCollectionBarrel");
   PFSuperClusterCollectionBarrel_ = iConfig.getParameter<string>("PFSuperClusterCollectionBarrel");
@@ -158,13 +158,13 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
   edm::Handle<edm::View<reco::PFCluster> > pfclustersHandle;
   iEvent.getByToken( inputTagPFClusters_, pfclustersHandle );  
 
-  edm::Handle<edm::View<reco::PFCluster> > preshowerpfclustersHandle;
-  iEvent.getByToken( inputTagPFClustersES_,  preshowerpfclustersHandle);
+  edm::Handle<reco::PFCluster::EEtoPSAssociation > psAssociationHandle;
+  iEvent.getByToken( inputTagPFClustersES_,  psAssociationHandle);
 
 
   // do clustering
   superClusterAlgo_.loadAndSortPFClusters(*pfclustersHandle,
-					  *preshowerpfclustersHandle);
+					  *psAssociationHandle);
   superClusterAlgo_.run();
 
   //store in the event

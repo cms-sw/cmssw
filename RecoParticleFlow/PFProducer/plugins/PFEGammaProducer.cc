@@ -48,7 +48,7 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig) {
   inputTagBlocks_ 
     = consumes<reco::PFBlockCollection>(iConfig.getParameter<edm::InputTag>("blocks"));
 
-  eetopsSrc_ = consumes<reco::SuperCluster::EEtoPSAssociation>(iConfig.getParameter<edm::InputTag>("EEtoPS_source"));
+  eetopsSrc_ = consumes<reco::PFCluster::EEtoPSAssociation>(iConfig.getParameter<edm::InputTag>("EEtoPS_source"));
 
   algo_config.useReg
     =  iConfig.getParameter<bool>("usePhotonReg");
@@ -250,7 +250,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   sClusters_.reset( new reco::SuperClusterCollection );      
     
   // Get the EE-PS associations
-  edm::Handle<reco::SuperCluster::EEtoPSAssociation> eetops;
+  edm::Handle<reco::PFCluster::EEtoPSAssociation> eetops;
   iEvent.getByToken(eetopsSrc_,eetops);
 
   // Get The vertices from the event

@@ -36,11 +36,7 @@ namespace {
     edm::RefProd<reco::BasicClusterCollection> rp1;
     edm::Wrapper<edm::RefVector<reco::BasicClusterCollection> > wrv1;
     std::vector<reco::BasicClusterRef> vr1;
-
-    reco::SuperCluster::EEtoPSAssociation sceepsassoc;
-    edm::Wrapper<reco::SuperCluster::EEtoPSAssociation> wsceepsassoc;
-    std::pair<unsigned long,std::vector<size_t> > sceepsassocintval;
-    std::pair<reco::CaloClusterPtr::key_type,reco::CaloClusterPtr> sceepsassocval;
+    
     std::vector<reco::SuperCluster> sv3;
     reco::SuperClusterCollection v3;
     edm::Wrapper<reco::SuperClusterCollection> w3;

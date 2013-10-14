@@ -31,7 +31,7 @@ class TH2F;
 class PFClusterAlgo {
 
  public:
-  typedef edm::Handle<std::vector<reco::PFCluster> > PFClusterHandle;
+  typedef edm::Handle<edm::View<reco::PFCluster> > PFClusterHandle;
   /// constructor
   PFClusterAlgo();
 
@@ -49,18 +49,14 @@ class PFClusterAlgo {
   
   /// perform clustering
   void doClustering( const reco::PFRecHitCollection& rechits );
-  void doClustering( const reco::PFRecHitCollection& rechits, const std::vector<bool> & mask );
+  void doClustering( const reco::PFRecHitCollection& rechits, 
+		     const std::vector<bool> & mask );
 
   /// perform clustering in full framework
-  void doClustering( const PFRecHitHandle& rechitsHandle );
-  void doClustering( const PFRecHitHandle& rechitsHandle,
-		     const PFClusterHandle& psClustersHandle );
+  void doClustering( const PFRecHitHandle& rechitsHandle );  
   void doClustering( const PFRecHitHandle& rechitsHandle, 
 		     const std::vector<bool> & mask );
-  void doClustering( const PFRecHitHandle& rechitsHandle, 
-		     const PFClusterHandle& psClustersHandle,
-		     const std::vector<bool> & mask );
-  
+    
   /// setters -------------------------------------------------------
   
   /// set barrel threshold
@@ -176,11 +172,7 @@ class PFClusterAlgo {
   /// \return cleaned rechits
   std::auto_ptr< std::vector< reco::PFRecHit > >& rechitsCleaned()  
     {return pfRecHitsCleaned_;}
-
-  /// \return EE->PS association
-  std::auto_ptr<reco::PFCluster::EEtoPSAssociation>& eeToPSAssoc()
-    {return eeToPSAssoc_;}
-
+  
   /// \return threshold, seed threshold, (gaussian width, p1 ??)
   /// for a given zone (endcap, barrel, VFCAL ??)
 
@@ -216,9 +208,7 @@ class PFClusterAlgo {
 
  private:
   /// perform clustering
-  void doClusteringWorker( const reco::PFRecHitCollection& rechits );
-  void doClusteringWorker( const reco::PFRecHitCollection& rechits,
-			   const std::vector<reco::PFCluster>& psClusters );
+  void doClusteringWorker( const reco::PFRecHitCollection& rechits );  
 
   /// Clean HCAL readout box noise and HPD discharge
   void cleanRBXAndHPD( const reco::PFRecHitCollection& rechits );
@@ -252,11 +242,9 @@ class PFClusterAlgo {
   void paint( unsigned rhi, unsigned color=1 );
 
   /// distance to a crack in the ECAL barrel in eta and phi direction
-  std::pair<double,double> dCrack(double phi, double eta);
-  
+  std::pair<double,double> dCrack(double phi, double eta);  
 
   PFRecHitHandle           rechitsHandle_;   
-  PFClusterHandle          psclustersHandle_;
 
   /// ids of rechits used in seed search
   std::set<unsigned>       idUsedRecHits_;
@@ -290,10 +278,7 @@ class PFClusterAlgo {
   std::auto_ptr< std::vector<reco::PFCluster> > pfClusters_;
   
   /// particle flow rechits cleaned
-  std::auto_ptr< std::vector<reco::PFRecHit> > pfRecHitsCleaned_;
-  
-  // ee to ps association
-  std::auto_ptr<reco::PFCluster::EEtoPSAssociation> eeToPSAssoc_;
+  std::auto_ptr< std::vector<reco::PFRecHit> > pfRecHitsCleaned_;  
 
   ///  barrel threshold
   double threshBarrel_;

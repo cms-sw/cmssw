@@ -20,7 +20,6 @@
 using namespace std;
 namespace MK = reco::MustacheKernel;
 
-
 namespace {
   typedef edm::View<reco::PFCluster> PFClusterView;
   typedef edm::Ptr<reco::PFCluster> PFClusterPtr;
@@ -154,32 +153,6 @@ namespace {
       return false;
     }
   };
-
-  double testPreshowerDistance(const edm::Ptr<reco::PFCluster>& eeclus,
-			       const edm::Ptr<reco::PFCluster>& psclus) {
-    if( psclus.isNull() || eeclus.isNull() ) return -1.0;
-    /* 
-    // commented out since PFCluster::layer() uses a lot of CPU
-    // and since 
-    if( PFLayer::ECAL_ENDCAP != eeclus->layer() ) return -1.0;
-    if( PFLayer::PS1 != psclus->layer() &&
-	PFLayer::PS2 != psclus->layer()    ) {
-      throw cms::Exception("testPreshowerDistance")
-	<< "The second argument passed to this function was "
-	<< "not a preshower cluster!" << std::endl;
-    } 
-    */
-    const reco::PFCluster::REPPoint& pspos = psclus->positionREP();
-    const reco::PFCluster::REPPoint& eepos = eeclus->positionREP();
-    // lazy continue based on geometry
-    if( eeclus->z()*psclus->z() < 0 ) return -1.0;
-    const double dphi= std::abs(TVector2::Phi_mpi_pi(eepos.phi() - 
-						     pspos.phi()));
-    if( dphi > 0.6 ) return -1.0;    
-    const double deta= std::abs(eepos.eta() - pspos.eta());    
-    if( deta > 0.3 ) return -1.0; 
-    return LinkByRecHit::testECALAndPSByRecHit(*eeclus,*psclus,false);
-  }
 }
 
 PFECALSuperClusterAlgo::PFECALSuperClusterAlgo() { }
@@ -191,25 +164,22 @@ setPFClusterCalibration(const std::shared_ptr<PFEnergyCalibration>& calib) {
 
 void PFECALSuperClusterAlgo::
 loadAndSortPFClusters(const PFClusterView& clusters,
-		      const PFClusterView& psclusters) { 
+		      const reco::PFCluster::EEtoPSAssociation& psclusters) { 
   // reset the system for running
   superClustersEB_.reset(new reco::SuperClusterCollection);
   _clustersEB.clear();
-  superClustersEE_.reset(new reco::SuperClusterCollection);  
-  EEtoPS_.reset(new reco::SuperCluster::EEtoPSAssociation);
-  _clustersEE.clear();
-  
+  superClustersEE_.reset(new reco::SuperClusterCollection);    
+  _clustersEE.clear();  
+  EEtoPS_ = &psclusters;
+
   auto clusterPtrs = clusters.ptrVector(); 
   //Select PF clusters available for the clustering
   for ( auto& cluster : clusterPtrs ){
     LogDebug("PFClustering") 
       << "Loading PFCluster i="<<cluster.key()
       <<" energy="<<cluster->energy()<<std::endl;
-    
-    double Ecorr = _pfEnergyCalibration->energyEm(*cluster,
-						  0.0,0.0,
-						  applyCrackCorrections_);
-    CalibratedClusterPtr calib_cluster(new CalibratedPFCluster(cluster,Ecorr));
+        
+    CalibratedClusterPtr calib_cluster(new CalibratedPFCluster(cluster));
     switch( cluster->layer() ) {
     case PFLayer::ECAL_BARREL:
       if( calib_cluster->energy() > threshPFClusterBarrel_ ) {
@@ -225,42 +195,11 @@ loadAndSortPFClusters(const PFClusterView& clusters,
       break;
     }
   }
-  // make the association map of ECAL clusters to preshower clusters  
-  edm::PtrVector<reco::PFCluster> clusterPtrsPS = psclusters.ptrVector();
-  double dist = -1.0, min_dist = -1.0;
-  // match PS clusters to EE clusters, minimum distance to EE is ensured
-  // since the inner loop is over the EE clusters
-  for( const auto& psclus : clusterPtrsPS ) {   
-    if( psclus->energy() < threshPFClusterES_ ) continue;        
-    switch( psclus->layer() ) { // just in case this isn't the ES...
-    case PFLayer::PS1:
-    case PFLayer::PS2:
-      break;
-    default:
-      continue;
-    }    
-    edm::Ptr<reco::PFCluster> eematch;
-    dist = min_dist = -1.0; // reset
-    for( const auto& eeclus : _clustersEE ) {
-      dist = testPreshowerDistance(eeclus->the_ptr(),psclus);      
-      if( dist == -1.0 || (min_dist != -1.0 && dist > min_dist) ) continue;
-      if( dist < min_dist || min_dist == -1.0 ) {
-	eematch = eeclus->the_ptr();
-	min_dist = dist;
-      }
-    } // loop on EE clusters      
-    if( eematch.isNonnull() ) {
-      EEtoPS_->push_back(std::make_pair(eematch.key(),psclus));
-    }
-  } // loop on PS clusters    
-
   // sort full cluster collections by their calibrated energy
   // this will put all the seeds first by construction
   GreaterByEt greater;
   std::sort(_clustersEB.begin(), _clustersEB.end(), greater);
   std::sort(_clustersEE.begin(), _clustersEE.end(), greater);  
-  //sort the ps association
-  std::sort(EEtoPS_->begin(),EEtoPS_->end(),sortByKey);
 }
 
 void PFECALSuperClusterAlgo::run() {  
@@ -354,8 +293,7 @@ buildSuperCluster(CalibClusterPtr& seed,
   std::vector<const reco::PFCluster*> bare_ptrs;
   // calculate necessary parameters and build the SC
   double posX(0), posY(0), posZ(0),
-    corrSCEnergy(0), clusterCorrEE(0), 
-    corrPS1Energy(0), corrPS2Energy(0), 
+    corrSCEnergy(0), corrPS1Energy(0), corrPS2Energy(0), 
     ePS1(0), ePS2(0), energyweight(0), energyweighttot(0);
   std::vector<double> ps1_energies, ps2_energies;
   for( auto& clus : clustered ) {    
@@ -385,12 +323,10 @@ buildSuperCluster(CalibClusterPtr& seed,
 	  break;
 	}
       }      
-      clusterCorrEE = 
-	_pfEnergyCalibration->energyEm(*(clus->the_ptr()),
-				       ps1_energies,ps2_energies,
-				       ePS1,ePS2,
-				       applyCrackCorrections_);      
-      clus->resetCalibratedEnergy(clusterCorrEE);      
+      _pfEnergyCalibration->energyEm(*(clus->the_ptr()),
+				     ps1_energies,ps2_energies,
+				     ePS1,ePS2,
+				     applyCrackCorrections_);
     }
     
     switch( _eweight ) {

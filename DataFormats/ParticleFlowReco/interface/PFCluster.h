@@ -1,6 +1,7 @@
 #ifndef DataFormats_ParticleFlowReco_PFCluster_h
 #define DataFormats_ParticleFlowReco_PFCluster_h
 
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 #include "Math/GenVector/PositionVector3D.h"
@@ -42,7 +43,7 @@ namespace reco {
   class PFCluster : public CaloCluster {
   public:
 
-    typedef std::vector<std::pair<CaloClusterPtr::key_type,edm::Ptr<PFCluster> > EEtoPSAssociation;
+    typedef std::vector<std::pair<CaloClusterPtr::key_type,edm::Ptr<PFCluster> > > EEtoPSAssociation;
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
   
     PFCluster() : CaloCluster(CaloCluster::particleFlow), color_(1) {}
