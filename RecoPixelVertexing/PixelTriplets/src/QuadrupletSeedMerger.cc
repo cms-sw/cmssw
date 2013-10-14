@@ -6,9 +6,14 @@
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
 
-#include <time.h>
-#include <cmath>
 #include <algorithm>
+
+namespace {
+  template <typename T>
+  constexpr T sqr(T x) {
+    return x*x;
+  }
+}
 
 /***
 
@@ -490,7 +495,7 @@ std::pair<double,double> QuadrupletSeedMerger::calculatePhiEta( SeedingHitSet co
   const double z2 = p2.z();
 
   const double phi = atan2( x2 - x1, y2 -y1 );
-  const double eta = acos( (z2 - z1) / sqrt( pow( x2 - x1, 2. ) + pow( y2 - y1, 2. ) + pow( z2 - z1, 2. ) ) ); // this is theta angle in reality
+  const double eta = acos( (z2 - z1) / sqrt( sqr( x2 - x1 ) + sqr( y2 - y1 ) + sqr( z2 - z1 ) ) ); // this is theta angle in reality
 
   std::pair<double,double> retVal;
   retVal=std::make_pair (phi,eta);
