@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -23,7 +23,7 @@ class SiStripElectronSeedProducer : public edm::EDProducer
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
  private:
-  edm::InputTag superClusters_[2];
+  edm::EDGetTokenT<reco::SuperClusterCollection> superClusters_[2];
   edm::ParameterSet conf_;
   SiStripElectronSeedGenerator *matcher_;
   };

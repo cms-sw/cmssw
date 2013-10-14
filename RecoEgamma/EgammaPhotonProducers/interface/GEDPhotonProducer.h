@@ -34,6 +34,9 @@
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
 
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
 // GEDPhotonProducer inherits from EDProducer, so it can be a module:
 class GEDPhotonProducer : public edm::EDProducer {
 
@@ -63,14 +66,15 @@ class GEDPhotonProducer : public edm::EDProducer {
 
   // std::string PhotonCoreCollection_;
   std::string PhotonCollection_;
-  edm::InputTag photonCoreProducer_;
-  edm::InputTag barrelEcalHits_;
-  edm::InputTag endcapEcalHits_;
-
-  edm::InputTag hcalTowers_;
+  edm::EDGetTokenT<reco::PhotonCoreCollection> photonCoreProducer_;
+  edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
+  edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
+  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
 
   std::string conversionProducer_;
   std::string conversionCollection_;
+  std::string valueMapPFCandPhoton_;
 
   //AA
   //Flags and severities to be excluded from calculations
@@ -91,7 +95,7 @@ class GEDPhotonProducer : public edm::EDProducer {
 
   bool validConversions_;
   std::string pixelSeedProducer_;
-  std::string vertexProducer_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
   bool usePrimaryVertex_;
   edm::ParameterSet conf_;
 

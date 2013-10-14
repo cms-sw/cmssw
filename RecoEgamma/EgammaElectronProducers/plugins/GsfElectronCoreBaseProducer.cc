@@ -28,9 +28,9 @@ void GsfElectronCoreBaseProducer::fillDescription( edm::ParameterSetDescription 
 GsfElectronCoreBaseProducer::GsfElectronCoreBaseProducer( const edm::ParameterSet & config )
  {
   produces<GsfElectronCoreCollection>() ;
-  gsfPfRecTracksTag_ = config.getParameter<edm::InputTag>("gsfPfRecTracks") ;
-  gsfTracksTag_ = config.getParameter<edm::InputTag>("gsfTracks") ;
-  ctfTracksTag_ = config.getParameter<edm::InputTag>("ctfTracks") ;
+  gsfPfRecTracksTag_ = mayConsume<reco::GsfPFRecTrackCollection>(config.getParameter<edm::InputTag>("gsfPfRecTracks")) ;
+  gsfTracksTag_ = consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"));
+  ctfTracksTag_ = consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("ctfTracks"));
   useGsfPfRecTracks_ = config.getParameter<bool>("useGsfPfRecTracks") ;
  }
 
@@ -46,9 +46,9 @@ GsfElectronCoreBaseProducer::~GsfElectronCoreBaseProducer()
 void GsfElectronCoreBaseProducer::initEvent( edm::Event & event, const edm::EventSetup & setup )
  {
   if (useGsfPfRecTracks_)
-   { event.getByLabel(gsfPfRecTracksTag_,gsfPfRecTracksH_) ; }
-  event.getByLabel(gsfTracksTag_,gsfTracksH_) ;
-  event.getByLabel(ctfTracksTag_,ctfTracksH_) ;
+   { event.getByToken(gsfPfRecTracksTag_,gsfPfRecTracksH_) ; }
+  event.getByToken(gsfTracksTag_,gsfTracksH_) ;
+  event.getByToken(ctfTracksTag_,ctfTracksH_) ;
  }
 
 void GsfElectronCoreBaseProducer::fillElectronCore( reco::GsfElectronCore * eleCore )
