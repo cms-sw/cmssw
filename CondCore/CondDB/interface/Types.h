@@ -16,7 +16,7 @@
 //
 #include "CondCore/CondDB/interface/Time.h"
 
-namespace conddb {
+namespace cond {
 
   typedef enum { 
     SYNCHRONIZATION_UNKNOWN = -1,

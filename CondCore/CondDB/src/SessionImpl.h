@@ -15,43 +15,48 @@ namespace coral {
   class ISchema;
 }
 
-namespace conddb {
+namespace cond {
 
-  struct TransactionCache {
-    bool iovDbExists = false;
-    bool iovDbOpen = false;
-    bool gtDbExists = false;
-    bool gtDbOpen = false;
-  };
+  namespace persistency {
 
-  class SessionImpl {
-  public:
-    SessionImpl();
-    ~SessionImpl();
-
-    // session operation
-    void connect( const std::string& connectionString, bool readOnly=true );
-    void connect( const std::string& connectionString, const std::string& transactionId, bool readOnly=true );
-    // TO BE REMOVED AFTER THE TRANSITION
-    void connect( boost::shared_ptr<coral::ISessionProxy>& coralSession );
-
-    void disconnect();
-    bool isActive() const;
-    void startTransaction( bool readOnly=true );
-    void commitTransaction();
-    void rollbackTransaction();
-    bool isTransactionActive() const;
-
-    coral::ISchema& coralSchema();
+    struct TransactionCache {
+      bool iovDbExists = false;
+      bool iovDbOpen = false;
+      bool gtDbExists = false;
+      bool gtDbOpen = false;
+    };
     
-  public:
-    conddb::Configuration configuration;
-    coral::ConnectionService connectionService;   
-    // allows for session shared among more services. To be changed to unique_ptr when we stop needing this feature.
-    boost::shared_ptr<coral::ISessionProxy> coralSession;
-    std::unique_ptr<TransactionCache> transactionCache;
-    size_t transactionClients = 0;
-  };
+    class SessionImpl {
+    public:
+      SessionImpl();
+      ~SessionImpl();
+      
+      // session operation
+      void connect( const std::string& connectionString, bool readOnly=true );
+      void connect( const std::string& connectionString, const std::string& transactionId, bool readOnly=true );
+      // TO BE REMOVED AFTER THE TRANSITION
+      void connect( boost::shared_ptr<coral::ISessionProxy>& coralSession );
+
+      void disconnect();
+      bool isActive() const;
+      void startTransaction( bool readOnly=true );
+      void commitTransaction();
+      void rollbackTransaction();
+      bool isTransactionActive() const;
+      
+      coral::ISchema& coralSchema();
+      
+    public:
+      SessionConfiguration configuration;
+      coral::ConnectionService connectionService;   
+      // allows for session shared among more services. To be changed to unique_ptr when we stop needing this feature.
+      boost::shared_ptr<coral::ISessionProxy> coralSession;
+      std::unique_ptr<TransactionCache> transactionCache;
+      size_t transactionClients = 0;
+    };
+
+  }
+
 }
 
 #endif

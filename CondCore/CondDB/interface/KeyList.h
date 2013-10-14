@@ -20,45 +20,47 @@
  *
  */
 
-namespace new_impl {
+namespace cond {
+
+  namespace persistency {
    
-  class KeyList {
-  public:
-    
-    explicit KeyList( Session& session );
-
-    void load(const std::string& tag, const std::vector<unsigned long long>& keys);
-
-    template<typename T> 
-    T const * get(size_t n) const {
-      if( n> (size()-1) ) conddb::throwException( "Index outside the bounds of the key array.",
-						  "KeyList::get");
-      if( !m_objects[n] ){
-	auto i = m_data.find( n );
-	if( i != m_data.end() ){
-	  conddb::InputStreamer streamer( i->second.first, i->second.second );
-	  m_objects[n] = streamer.read<T>();
-	  m_data.erase( n );
-	} else {
-	  conddb::throwException( "Payload for index "+boost::lexical_cast<std::string>(n)+" has not been found.",
-				  "KeyList::get");
+    class KeyList {
+    public:
+      
+      explicit KeyList( Session& session );
+      
+      void load(const std::string& tag, const std::vector<unsigned long long>& keys);
+      
+      template<typename T> 
+      T const * get(size_t n) const {
+	if( n> (size()-1) ) throwException( "Index outside the bounds of the key array.",
+					    "KeyList::get");
+	if( !m_objects[n] ){
+	  auto i = m_data.find( n );
+	  if( i != m_data.end() ){
+	    cond::InputStreamer streamer( i->second.first, i->second.second );
+	    m_objects[n] = streamer.read<T>();
+	    m_data.erase( n );
+	  } else {
+	    throwException( "Payload for index "+boost::lexical_cast<std::string>(n)+" has not been found.",
+			    "KeyList::get");
+	  }
 	}
+	return boost::static_pointer_cast<T>( m_objects[n] );
       }
-      return boost::static_pointer_cast<T>( m_objects[n] );
-    }
 
-    int size() const { return m_objects.size();}
+      int size() const { return m_objects.size();}
 
-  private:
-    // the full collection of keyed object
-    Session m_session;
-    // the current set
-    mutable std::map<size_t,std::pair<std::string,conddb::Binary> > m_data;
-    std::vector<boost::shared_ptr<void> > m_objects;
+    private:
+      // the full collection of keyed object
+      Session m_session;
+      // the current set
+      mutable std::map<size_t,std::pair<std::string,cond::Binary> > m_data;
+      std::vector<boost::shared_ptr<void> > m_objects;
+      
+    };
 
-  };
-
-
+  }
 }
 
 #endif

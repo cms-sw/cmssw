@@ -13,6 +13,8 @@
 #include <cstdlib>
 #include <iostream>
 
+using namespace cond::db;
+
 int main (int argc, char** argv)
 {
   edmplugin::PluginManager::Config config;
@@ -26,19 +28,19 @@ int main (int argc, char** argv)
   try{
 
     //*************
-    conddb::Session session;
+    Session session;
     session.configuration().setMessageVerbosity( coral::Debug );
     session.open( connectionString );
     session.transaction().start( false );
     MyTestData d0( 17 );
     MyTestData d1( 999 );
   std::cout <<"# Storing payloads..."<<std::endl;
-    conddb::Hash p0 = session.storePayload( d0, boost::posix_time::microsec_clock::universal_time() );
-    conddb::Hash p1 = session.storePayload( d1, boost::posix_time::microsec_clock::universal_time() );
+    cond::Hash p0 = session.storePayload( d0, boost::posix_time::microsec_clock::universal_time() );
+    cond::Hash p1 = session.storePayload( d1, boost::posix_time::microsec_clock::universal_time() );
     std::string d("abcd1234");
-    conddb::Hash p3 = session.storePayload( d, boost::posix_time::microsec_clock::universal_time() );
+    cond::Hash p3 = session.storePayload( d, boost::posix_time::microsec_clock::universal_time() );
 
-    conddb::IOVEditor editor = session.createIov<MyTestData>( "MyNewIOV", conddb::time::RUNNUMBER ); 
+    IOVEditor editor = session.createIov<MyTestData>( "MyNewIOV", cond::time::RUNNUMBER ); 
     editor.setDescription("Test with MyTestData class");
     editor.insert( 1, p0 );
     editor.insert( 100, p1 );
@@ -46,7 +48,7 @@ int main (int argc, char** argv)
     editor.flush();
     std::cout <<"# iov changes flushed..."<<std::endl;
 
-    editor = session.createIov<std::string>( "StringData", conddb::time::TIMESTAMP );
+    editor = session.createIov<std::string>( "StringData", cond::time::TIMESTAMP );
     editor.setDescription("Test with std::string class");
     editor.insert( 1000000, p3 );
     editor.insert( 2000000, p3 );
@@ -57,12 +59,12 @@ int main (int argc, char** argv)
     ::sleep(2);
     session.transaction().start();
 
-    conddb::IOVProxy proxy = session.readIov( "MyNewIOV" );
-    conddb::IOVProxy::Iterator iovIt = proxy.find( 57 );
+    IOVProxy proxy = session.readIov( "MyNewIOV" );
+    IOVProxy::Iterator iovIt = proxy.find( 57 );
     if( iovIt == proxy.end() ){
       std::cout <<"#0 not found!"<<std::endl;
     } else {
-      conddb::Iov_t val = *iovIt;
+      cond::Iov_t val = *iovIt;
       std::cout <<"#0 iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
       boost::shared_ptr<MyTestData> pay0 = session.fetchPayload<MyTestData>( val.payloadId );
       pay0->print();
@@ -71,7 +73,7 @@ int main (int argc, char** argv)
     if(iovIt == proxy.end() ){
       std::cout<<"#1 not found!"<<std::endl;
     } else {
-      conddb::Iov_t val =*iovIt;
+      cond::Iov_t val =*iovIt;
       std::cout <<"#1 iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
       boost::shared_ptr<MyTestData> pay1 = session.fetchPayload<MyTestData>( val.payloadId );
       pay1->print();
@@ -80,7 +82,7 @@ int main (int argc, char** argv)
     if( iovIt == proxy.end() ){
       std::cout <<"#2 not found!"<<std::endl;
     } else {
-      conddb::Iov_t val = *iovIt;
+      cond::Iov_t val = *iovIt;
       std::cout <<"#2 iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
       boost::shared_ptr<MyTestData> pay2 = session.fetchPayload<MyTestData>( val.payloadId );
       pay2->print();
@@ -89,7 +91,7 @@ int main (int argc, char** argv)
     if(iovIt == proxy.end() ){
       std::cout<<"#3 not found!"<<std::endl;
     } else {
-      conddb::Iov_t val =*iovIt;
+      cond::Iov_t val =*iovIt;
       std::cout <<"#3 iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
       boost::shared_ptr<MyTestData> pay3 = session.fetchPayload<MyTestData>( val.payloadId );
       pay3->print();
@@ -100,7 +102,7 @@ int main (int argc, char** argv)
     if(iov2It == proxy.end() ){
       std::cout<<"#4 not found!"<<std::endl;
     } else {
-      conddb::Iov_t val =*iov2It;
+      cond::Iov_t val =*iov2It;
       std::cout <<"#4 iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
       boost::shared_ptr<std::string> pay4 = session.fetchPayload<std::string>( val.payloadId );
       std::cout <<" ## pay4="<<*pay4<<std::endl;

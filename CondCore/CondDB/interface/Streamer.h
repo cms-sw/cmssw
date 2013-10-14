@@ -25,7 +25,7 @@
 
 class TBufferFile;
 
-namespace conddb {
+namespace cond {
 
   // Archives for the streaming based on ROOT.
 

@@ -6,7 +6,7 @@
 #include <vector>
 #include <map>
 
-namespace conddb {
+namespace cond {
 
   namespace time {
     static auto s_timeTypeMap = { enumPair( "Run",RUNNUMBER ),

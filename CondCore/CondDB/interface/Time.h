@@ -6,7 +6,7 @@
 #include <limits>
 
 // imported from CondFormats/Common
-namespace conddb {  
+namespace cond {  
   
   // typedef uint64_t  Time_t;
   typedef unsigned long long uint64_t; // avoid typedef to long on 64 bit

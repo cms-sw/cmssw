@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 
-namespace conddb {
+namespace cond {
 
   void Iov_t::clear(){
     since = time::MAX;
