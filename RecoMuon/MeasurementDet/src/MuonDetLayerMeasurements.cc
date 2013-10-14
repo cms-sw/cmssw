@@ -60,36 +60,6 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
 	  procInstance++;
   }
 
-MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel, 
-						   edm::InputTag csclabel, 
-						   edm::InputTag rpclabel,
-						   bool enableDT, bool enableCSC, bool enableRPC): 
-  theDTRecHitLabel(dtlabel),
-  theCSCRecHitLabel(csclabel),
-  theRPCRecHitLabel(rpclabel),
-  enableDTMeasurement(enableDT),
-  enableCSCMeasurement(enableCSC),
-  enableRPCMeasurement(enableRPC),
-  theDTRecHits(),
-  theCSCRecHits(),
-  theRPCRecHits(),
-  theDTEventID(),
-  theCSCEventID(),
-  theRPCEventID(),
-  theEvent(0){
-	  static int procInstance(0);
-	  std::ostringstream sDT;
-	  sDT<<"MuonDetLayerMeasurements::checkDTRecHits::" << procInstance;
-	  theDTCheckName = sDT.str();
-	  std::ostringstream sRPC;
-	  sRPC<<"MuonDetLayerMeasurements::checkRPCRecHits::" << procInstance;
-	  theRPCCheckName = sRPC.str();
-	  std::ostringstream sCSC;
-	  sCSC<<"MuonDetLayerMeasurements::checkCSCRecHits::" << procInstance;
-	  theCSCCheckName = sCSC.str();
-	  procInstance++;
-  }
-
 MuonDetLayerMeasurements::~MuonDetLayerMeasurements(){}
 
 MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet, 
