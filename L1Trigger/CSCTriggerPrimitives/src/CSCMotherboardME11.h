@@ -146,5 +146,14 @@ class CSCMotherboardME11 : public CSCMotherboard
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
   //CSCChamber* cscChamber;
+
+  // number of gem eta partitionsx
+  int n_gem_eta_part;
+
+  // central LCT bx number
+  int lct_central_bx;
+
+  // debug gem matching
+  bool debug_gem_matching;
 };
 #endif
