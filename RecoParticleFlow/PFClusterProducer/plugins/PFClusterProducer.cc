@@ -184,7 +184,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
       iConfig.getParameter<InputTag>("PFClustersPS");
     threshPFClusterES_ = iConfig.getParameter<double>("thresh_Preshower");
     applyCrackCorrections_ = 
-      iConfig.getParameter<bool>("applyCractionCorrections");
+      iConfig.getParameter<bool>("applyCrackCorrections");
     produces<reco::PFCluster::EEtoPSAssociation>("eetops");
   }
 

@@ -71,7 +71,7 @@ namespace {
 
     reco::PFCluster::EEtoPSAssociation sceepsassoc;
     edm::Wrapper<reco::PFCluster::EEtoPSAssociation> wsceepsassoc;    
-    std::pair<reco::CaloClusterPtr::key_type,reco::CaloClusterPtr> 
+    std::pair<reco::CaloClusterPtr::key_type,edm::Ptr<reco::PFCluster> > 
       sceepsassocval;
 
     std::vector<reco::PFRecHit>                          dummy3;

@@ -10,7 +10,7 @@
   <class name="std::vector<reco::PFCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCluster> >"/>
 
-  <class name="std::pair<edm::Ptr<reco::CaloCluster>::key_type,edm::Ptr<reco::CaloCluster> >"/>
+  <class name="std::pair<edm::Ptr<reco::CaloCluster>::key_type,edm::Ptr<reco::PFCluster> >"/>
   <class name="reco::PFCluster::EEtoPSAssociation"/>
   <class name="edm::Wrapper<reco::PFCluster::EEtoPSAssociation>"/>
 

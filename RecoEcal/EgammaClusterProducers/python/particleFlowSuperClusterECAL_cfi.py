@@ -73,7 +73,7 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
                                               
     #PFClusters collection
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
-    PFClustersES = cms.InputTag("particleFlowClusterPS"),
+    ESAssociation = cms.InputTag("particleFlowClusterPS"),
                                               
     PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),                                       
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
