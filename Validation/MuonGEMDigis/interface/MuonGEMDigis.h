@@ -11,6 +11,8 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 #include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
+#include "Validation/MuonGEMDigis/interface/GEMCSCPadDigiValidation.h"
+#include "Validation/MuonGEMDigis/interface/GEMCSCCoPadDigiValidation.h"
 
 class GEMStripDigiValidation;
 
@@ -39,8 +41,8 @@ private:
   std::string outputFile_;
 
   GEMStripDigiValidation* theGEMStripDigiValidation;
-  //GEMCSCPadDigiValidation* theGEMCSCPadDigiValidation;
-  //GEMCSCCoPadDigiValidation* theGEMCSCCoPadDigiValidation;
+  GEMCSCPadDigiValidation* theGEMCSCPadDigiValidation;
+  GEMCSCCoPadDigiValidation* theGEMCSCCoPadDigiValidation;
   
 
   void buildLUT();
