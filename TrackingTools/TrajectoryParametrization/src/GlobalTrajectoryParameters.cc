@@ -7,22 +7,13 @@ GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
 						       float transverseCurvature, int, 
 						       const MagneticField* fieldProvider) :
   theField(fieldProvider),
-  theX(aX), cachedCurvature_(transverseCurvature),  hasCurvature_(true)
+  theX(aX)
 {
-  float bza = -2.99792458e-3f * theField->inTesla(theX).z();
+  cachedMagneticField = theField->inTesla(theX);
+  float bza = -2.99792458e-3f * cachedMagneticField.z();
   float qbpi = bza/(direction.perp()*transverseCurvature);
   theP = direction*std::abs(qbpi);
   theCharge = qbpi > 0.f ? 1 : -1;
-}
-
-float GlobalTrajectoryParameters::transverseCurvature() const
-{
-  if unlikely(!hasCurvature_) {
-      float bza = -2.99792458e-3f * theField->inTesla(theX).z();
-      cachedCurvature_ = bza*signedInverseTransverseMomentum();
-      hasCurvature_ = true;
-  }
-  return cachedCurvature_;
 }
 
 GlobalVector GlobalTrajectoryParameters::magneticFieldInInverseGeV( const GlobalPoint& x) const
