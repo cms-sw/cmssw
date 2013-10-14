@@ -1,17 +1,27 @@
-// -*- C++ -*-
+///
+/// \class l1t::YellowProducer
+///
+/// Description:  Emulator for the fictitious Yellow trigger.
+///
+/// Implementation:
+///    Demonstrates how to implement an emulator for the upgrade sysetem.
+///
+/// \author: Michael Mulhearn - UC Davis
+///
+
+
 //
-// Package:    YellowProducer
-// Class:      YellowProducer
-// 
-/**\class YellowProducer YellowProducer.cc L1Trigger/L1TYellow/src/YellowProducer.cc
-
- Description: Emulation of Fictitious Level-1 Yellow Trigger for demonstration purposes
-
- Implementation:
-     [Notes on implementation]
-*/
+//  This class implements the emulator for the fictitious yellow trigger.
 //
-
+//  It receives its needed configuration parameters from the event setup,
+//  updating its local instance only when the parameters change.
+//
+//  From the configuration parameters, it uses the the firmware factory design
+//  pattern to create firmware appropriate for the current parameters.
+//
+//  For each event, it reads the YellowDigis as input.  It processes the input
+//  using the firmware to produce its output (YellowOutput).
+//
 
 // system include files
 #include <boost/shared_ptr.hpp>
@@ -92,6 +102,7 @@ namespace l1t {
   }
 
 
+
 //
 // member functions
 //
@@ -101,10 +112,7 @@ void
 YellowProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
 
-  LogInfo("l1t|yellow") << "YellowProducer::produce function called...\n";
-
-  cout << "cout version: YellowProducer::produce function called...\n";
-
+  LogDebug("l1t|yellow") << "YellowProducer::produce function called...\n";
   
   Handle<YellowDigiCollection> inputDigis;
   iEvent.getByToken(yellowDigisToken,inputDigis);
@@ -112,20 +120,9 @@ YellowProducer::produce(Event& iEvent, const EventSetup& iSetup)
   std::auto_ptr<YellowOutputCollection> outColl (new YellowOutputCollection);
   YellowOutput iout;
 
-  if (inputDigis->size()){
-    if (m_fw) {
-      m_fw->processEvent(*inputDigis, *outColl);
-    } else {
-      cout << "firmware is invalid...\n";
-    }
-    // already complained in beginRun, doing nothing now will send empty collection to event, as desired.
-  } else {
-    LogError("l1t|yellow") << "YellowProducer: input Digis have zero size.\n";
-  }
-
-  //iout.setRawData(20);  outColl->push_back(iout);
-  //iout.setRawData(18);  outColl->push_back(iout);
-  //iout.setRawData(30);  outColl->push_back(iout);
+  if (m_fw) {
+    m_fw->processEvent(*inputDigis, *outColl);
+  } 
 
   iEvent.put(outColl);
  
@@ -135,8 +132,6 @@ YellowProducer::produce(Event& iEvent, const EventSetup& iSetup)
 void 
 YellowProducer::beginJob()
 {
-  cout << "YellowProducer begin JOB being called...\n";
-
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -148,7 +143,7 @@ YellowProducer::endJob() {
 
 void YellowProducer::beginRun(Run const&iR, EventSetup const&iE){
 
-  cout << "YellowProducer Begin Run Called!\n";
+  LogDebug("l1t|yellow") << "YellowProducer::beginRun function called...\n";
 
   unsigned long long id = iE.get<L1TYellowParamsRcd>().cacheIdentifier();
 
@@ -160,11 +155,9 @@ void YellowProducer::beginRun(Run const&iR, EventSetup const&iE){
     iE.get<L1TYellowParamsRcd>().get(yParameters);
 
     m_dbpars = boost::shared_ptr<const YellowParams>(yParameters.product());
-  
-    if (m_dbpars){
-      cout << "dbpars is non-null...\n";
-    } else {
-      cout << "dbpars is null...\n";
+
+    if (! m_dbpars){
+      LogError("l1t|yellow") << "YellowProducer:  could not retreive DB params from Event Setup\n";            
     }
 
     // Set the current algorithm version based on DB pars from database:
@@ -172,10 +165,9 @@ void YellowProducer::beginRun(Run const&iR, EventSetup const&iE){
 
     if (! m_fw) {
       // we complain here once per run
-      LogError("l1t|yellow") << "YellowProducer:  could not retreive DB params from Event Setup\n";
+      LogError("l1t|yellow") << "YellowProducer:  firmware could not be configured.\n";
     }
   }
-
 
 
 }
@@ -202,8 +194,4 @@ YellowProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
 DEFINE_FWK_MODULE(l1t::YellowProducer);
 
 
-// OR?:
-////define this as a plug-in
-//DEFINE_FWK_MODULE(YellowProducer);
-//} // namespace
 

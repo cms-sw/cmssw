@@ -12,6 +12,6 @@ yellowParams = cms.ESProducer(
     firmwareVersion = cms.uint32(1),
     paramA = cms.uint32(2),
     paramB = cms.uint32(1),
-    paramC = cms.uint32(3),
+    paramC = cms.double(1.2),
     label = cms.string("l1t::YellowParamsESProducer")
     )

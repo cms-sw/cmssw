@@ -1,15 +1,33 @@
+///
+/// \class l1t::YellowOutput
+///
+/// Description: Output data from the fictitious Yellow trigger.
+///
+/// Implementation:
+///    Demonstrates how to implement a DataFormats class.
+///
+/// \author: Michael Mulhearn - UC Davis
+///
+
+//
+//  An example DataFormats class which contains only two fields:  et and yvar.
+//
+//  Note that bit packing of raw data is discouraged (what if number of bits is
+//  adjusted in firmware?)  So separate unsigned integers are used for each.
+//
+//  To see by example how the DataFormats class is implemented make sure to see:
+//
+//    DataFormats/L1TYellow/src/YellowOutput.cc  
+//    DataFormats/L1TYellow/src/classes.h
+//    DataFormats/L1TYellow/src/classes_def.xml
+//
+
 #ifndef YELLOWOUTPUT_H
 #define YELLOWOUTPUT_H
 
 #include <stdint.h>
 #include <iostream>
 #include <vector>
-
-//  YellowOutput:
-//
-//  Fictitious output of Yellow Trigger.
-//
-
 
 namespace l1t {
 

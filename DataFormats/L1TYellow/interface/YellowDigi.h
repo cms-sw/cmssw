@@ -1,10 +1,19 @@
+///
+/// \class l1t::YellowDigi
+///
+/// Description: Input digis for the fictitious Yellow trigger.
+///
+/// Implementation:
+///    Demonstrates how to implment a DataFormats Class. 
+///
+/// \author: Michael Mulhearn - UC Davis
+///
+
 #ifndef L1TYELLOWDIGI_H
 #define L1TYELLOWDIGI_H
 
-//  YellowDigi:
-//
-//  Fictitious digitized input to the Yellow Trigger.
-//
+//  
+//  See YellowOutput.h for more details on implementation.
 //
 
 #include <stdint.h>
@@ -40,13 +49,12 @@ namespace l1t {
     friend std::ostream& operator << (std::ostream& os, const YellowDigi& x);
     
   private:
-    // avoid bit packing, in case number of bits changes:
     unsigned m_et;
     unsigned m_yvar;
-
   };
   
 
 } // namespace l1t
-#endif /*L1TYELLOWOUT_H*/
+
+#endif 
 

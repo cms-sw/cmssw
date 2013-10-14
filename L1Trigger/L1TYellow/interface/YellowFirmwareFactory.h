@@ -1,3 +1,18 @@
+///
+/// \class l1t::YellowFirmware
+///
+/// Description: Firmware interface for the fictitious Yellow trigger.
+///
+/// Implementation:
+///    Demonstrates how to define the firmware interface.
+///
+/// \author: Michael Mulhearn - UC Davis
+///
+
+//
+// See YellowFirmware.h for a complete description of the recommended Firmware design pattern.
+//
+
 #ifndef YELLOWFIRMWAREFACTORY_H
 #define YELLOWFIRMWAREFACTORY_H
 
@@ -26,3 +41,13 @@ namespace l1t {
 } // namespace
 
 #endif
+///
+/// \class l1t::
+///
+/// Description: fictitious Yellow trigger.
+///
+/// Implementation:
+///    Demonstrates how to 
+///
+/// \author: Michael Mulhearn - UC Davis
+///

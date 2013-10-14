@@ -1,16 +1,14 @@
-// -*- C++ -*-
-//
-// Package:    YellowFakeDigiProducer
-// Class:      YellowFakeDigiProducer
-// 
-/**\class YellowFakeRawToDigi
+///
+/// \class l1t::YellowFakeRawToDigi
+///
+/// Description: Fake Raw-to-Digi producer for the fictitious Yellow trigger.
+///
+/// Implementation:
+///    Produces fake Digis for use by the Yellow trigger.
+///
+/// \author: Michael Mulhearn - UC Davis
+///
 
- Description: Emulation of Fictitious Level-1 Yellow Trigger for demonstration purposes
-
- Implementation:
-     Produces YellowInput
-*/
-//
 
 // system include files
 #include <memory>
@@ -32,49 +30,35 @@ using namespace std;
 
 namespace l1t {
 
-class YellowFakeRawToDigi : public edm::EDProducer {
-public:
-  explicit YellowFakeRawToDigi(const edm::ParameterSet&);
-  ~YellowFakeRawToDigi();
-  
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
-private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  
-  virtual void beginRun(edm::Run&, edm::EventSetup const&);
-  virtual void endRun(edm::Run&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);  
-};
+  class YellowFakeRawToDigi : public edm::EDProducer {
+  public:
+    explicit YellowFakeRawToDigi(const edm::ParameterSet&);
+    ~YellowFakeRawToDigi();
+    
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    
+  private:
+    virtual void beginJob() ;
+    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void endJob() ;
+    
+    virtual void beginRun(edm::Run&, edm::EventSetup const&);
+    virtual void endRun(edm::Run&, edm::EventSetup const&);
+    virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+    virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);  
+  };
 
 }
 
 using namespace l1t;
 
-//
-// constants, enums and typedefs
-//
-
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-YellowFakeRawToDigi::YellowFakeRawToDigi(const edm::ParameterSet& iConfig)
-{
+YellowFakeRawToDigi::YellowFakeRawToDigi(const edm::ParameterSet& iConfig){
   //register your products
   produces<YellowDigiCollection>();
 }
 
 
-YellowFakeRawToDigi::~YellowFakeRawToDigi()
-{
+YellowFakeRawToDigi::~YellowFakeRawToDigi(){
 }
 
 
@@ -86,12 +70,19 @@ YellowFakeRawToDigi::~YellowFakeRawToDigi()
 void
 YellowFakeRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  cout << "YellowFakeRawToDigi::produce function called...\n";
-
   std::auto_ptr<YellowDigiCollection> outColl (new YellowDigiCollection);
   YellowDigi iout;
 
   iout.setEt(20);
+  iout.setYvar(2.0);
+  outColl->push_back(iout);
+
+  iout.setEt(30);
+  iout.setYvar(1.0);
+  outColl->push_back(iout);
+
+  iout.setEt(25);
+  iout.setYvar(1.5);
   outColl->push_back(iout);
 
   iEvent.put(outColl); 

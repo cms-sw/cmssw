@@ -1,3 +1,13 @@
+///
+/// \class l1t::YellowOutput
+///
+/// Description: See header file.
+///
+/// Implementation:
+///
+/// \author: Michael Mulhearn - UC Davis
+///
+
 #include "DataFormats/L1TYellow/interface/YellowOutput.h"
 
 // within .cc files, it is OK to introduce an entire namespace:

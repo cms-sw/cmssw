@@ -1,15 +1,27 @@
-// -*- C++ -*-
+///
+/// \class l1t::
+///
+/// Description: Produces configuration parameters for the fictitious Yellow trigger.
+///
+/// Implementation:
+///    Demonstrates how to create an ESProducer to fill CondFormats class with configuration data.
+///
+/// \author: Michael Mulhearn - UC Davis
+///
+
 //
-// Package:    L1Trigger/L1TYellowParamsESProducer
-// Class:      L1TYellowParamsESProducer
-// 
-/**\class L1TYellowParamsESProducer L1TYellowParamsESProducer.h L1Trigger/L1TYellowParamsESProducer/plugins/L1TYellowParamsESProducer.cc
+//  Configuration data needed for the emulator should be received in the same
+//  way, regardless of whether it is fetched from a database or a local
+//  configuration file.
+//
+//  This ES Producer class fills the CondFormats class (YellowParams) which is
+//  needed by YellowProducer.  It fills YellowParams from settings in a config
+//  file (L1Trigger/L1TYellow/python/l1tyellow_params_cfi.py), but
+//  YellowProducer receives it exactly as it would from the database.
+//
 
- Description: [one line class summary]
 
- Implementation:
-     [Notes on implementation]
-*/
+
 
 // system include files
 #include <memory>
@@ -71,9 +83,7 @@ YellowParamsESProducer::YellowParamsESProducer(const edm::ParameterSet& conf)
    m_params.setFirmwareVersion(conf.getParameter<unsigned>("firmwareVersion"));
    m_params.setParamA(conf.getParameter<unsigned>("paramA"));
    m_params.setParamB(conf.getParameter<unsigned>("paramB"));
-   m_params.setParamC(conf.getParameter<unsigned>("paramC"));
-
-   cout << "YellowParamsESProducer constructor called.\n";
+   m_params.setParamC(conf.getParameter<double>("paramC"));
 }
 
 
@@ -94,9 +104,6 @@ YellowParamsESProducer::~YellowParamsESProducer()
 YellowParamsESProducer::ReturnType
 YellowParamsESProducer::produce(const L1TYellowParamsRcd& iRecord)
 {
-   cout << "YellowParamsESProducer produce called!!!\n";
-
-
    using namespace edm::es;
    boost::shared_ptr<YellowParams> pYellowParams ;
 
