@@ -25,7 +25,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonTrajectoryBuilder.h"
@@ -43,7 +42,8 @@ using namespace edm;
 CosmicMuonProducer::CosmicMuonProducer(const ParameterSet& iConfig)
 {
   ParameterSet tbpar = iConfig.getParameter<ParameterSet>("TrajectoryBuilderParameters");
-  theSeedCollectionLabel = iConfig.getParameter<std::string>("MuonSeedCollectionLabel");
+
+  theSeedCollectionToken =consumes<edm::View<TrajectorySeed> >( iConfig.getParameter<std::string>("MuonSeedCollectionLabel"));
 
   // service parameters
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
@@ -54,7 +54,7 @@ CosmicMuonProducer::CosmicMuonProducer(const ParameterSet& iConfig)
   // the services
   theService = new MuonServiceProxy(serviceParameters);
 
-  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar,theService),
+  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar,theService,consumesCollector()),
 				       new MuonTrackLoader(trackLoaderParameters, theService));
 
   produces<reco::TrackCollection>();
@@ -80,7 +80,7 @@ CosmicMuonProducer::produce(Event& iEvent, const EventSetup& iSetup)
   LogInfo("CosmicMuonProducer") << "Analyzing event number: " << iEvent.id();
 
   Handle<View<TrajectorySeed> > seeds; 
-  iEvent.getByLabel(theSeedCollectionLabel,seeds);
+  iEvent.getByToken(theSeedCollectionToken,seeds);
   
   // Update the services
   theService->update(iSetup);

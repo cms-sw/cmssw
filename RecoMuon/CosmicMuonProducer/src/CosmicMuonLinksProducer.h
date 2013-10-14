@@ -29,7 +29,8 @@ private:
 
   MuonServiceProxy* theService;
 
-  std::vector<std::pair<edm::InputTag, edm::InputTag> > theTrackLinks;
+  std::vector<std::pair<edm::EDGetTokenT<reco::TrackCollection>, edm::EDGetTokenT<reco::TrackCollection> > > theTrackLinks;
+  std::vector<std::pair<std::string, std::string > > theTrackLinkNames;
 
   std::string category_;
 

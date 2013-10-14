@@ -44,16 +44,21 @@ CosmicMuonLinksProducer::CosmicMuonLinksProducer(const ParameterSet& iConfig)
   std::vector<edm::ParameterSet> theMapPSets = iConfig.getParameter<std::vector<edm::ParameterSet> >("Maps");
   for (std::vector<edm::ParameterSet>::const_iterator iMPS = theMapPSets.begin();
        iMPS != theMapPSets.end(); iMPS++) {
-     edm::InputTag subTrackTag = (*iMPS).getParameter<edm::InputTag>("subTrack");
-     edm::InputTag parentTrackTag = (*iMPS).getParameter<edm::InputTag>("parentTrack");
-     theTrackLinks.push_back( make_pair(subTrackTag, parentTrackTag) );
-  }
 
-  for(std::vector<std::pair<edm::InputTag, edm::InputTag> >::const_iterator iLink = theTrackLinks.begin();
-     iLink != theTrackLinks.end(); iLink++) {
-    LogDebug(category_) << "preparing map between " << (*iLink).first<<" & "<< (*iLink).second;
-    std::string mapname = (*iLink).first.label() + "To" + (*iLink).second.label();
+    edm::InputTag sTag = (*iMPS).getParameter<edm::InputTag>("subTrack");
+    edm::InputTag pTag = (*iMPS).getParameter<edm::InputTag>("parentTrack");
+
+    edm::EDGetTokenT<reco::TrackCollection> subTrackTag = consumes<reco::TrackCollection>(sTag );
+    edm::EDGetTokenT<reco::TrackCollection> parentTrackTag = consumes<reco::TrackCollection>(pTag);
+    theTrackLinks.push_back( make_pair(subTrackTag, parentTrackTag) );
+    theTrackLinkNames.push_back( make_pair(sTag.label(), pTag.label()) );
+
+
+    LogDebug(category_) << "preparing map between " << sTag<<" & "<< pTag;
+    std::string mapname = sTag.label() + "To" + pTag.label();
     produces<reco::TrackToTrackMap>(mapname);
+
+
   }
 
 }
@@ -72,25 +77,27 @@ CosmicMuonLinksProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   theService->update(iSetup);
 
-  for(std::vector<std::pair<edm::InputTag, edm::InputTag> >::const_iterator iLink = theTrackLinks.begin();
+  unsigned int counter= 0; ///DAMN I cannot read the label of the TOKEN so I need to do this stupid thing to create the labels of the products!
+  for(std::vector<std::pair<edm::EDGetTokenT<reco::TrackCollection>,edm::EDGetTokenT<reco::TrackCollection> > >::const_iterator iLink = theTrackLinks.begin();
      iLink != theTrackLinks.end(); iLink++){
     LogDebug(category_) << "making map between " << (*iLink).first<<" and "<< (*iLink).second;
-    std::string mapname = (*iLink).first.label() + "To" + (*iLink).second.label();
+    std::string mapname = theTrackLinkNames[counter].first + "To" + theTrackLinkNames[counter].second;
     reco::TrackToTrackMap ttmap;
 
     Handle<reco::TrackCollection> subTracks;
     Handle<reco::TrackCollection> parentTracks;
 
-    if ( iEvent.getByLabel( (*iLink).first, subTracks) && iEvent.getByLabel( (*iLink).second, parentTracks) ) {
-
-	 ttmap = mapTracks(subTracks, parentTracks); 
-         LogTrace(category_) << "Mapped: "<<
-(*iLink).first.label()<<" "<<subTracks->size()<< " and "<<(*iLink).second.label()<<" "<<parentTracks->size()<<", results: "<< ttmap.size() <<endl;
-
-    }
+    iEvent.getByToken((*iLink).first, subTracks);
+    iEvent.getByToken((*iLink).second, parentTracks);
+    
+    ttmap = mapTracks(subTracks, parentTracks); 
+    LogTrace(category_) << "Mapped: "<<
+    theTrackLinkNames[counter].first  <<" "<<subTracks->size()<< " and "<<theTrackLinkNames[counter].second<<" "<<parentTracks->size()<<", results: "<< ttmap.size() <<endl;
 
     auto_ptr<reco::TrackToTrackMap> trackToTrackmap(new reco::TrackToTrackMap(ttmap));
     iEvent.put(trackToTrackmap, mapname);
+
+    counter++;
   }
 
 }
