@@ -44,21 +44,17 @@ class PFECALSuperClusterAlgo {
   // simple class for associating calibrated energies
   class CalibratedPFCluster {
   public:
-    CalibratedPFCluster(const edm::Ptr<reco::PFCluster>& p,
-			const double ce) : cluptr(p), calib_e(ce) {}
+    CalibratedPFCluster(const edm::Ptr<reco::PFCluster>& p) : cluptr(p) {}
     
-    double energy() const { return calib_e; }
+    double energy() const { return cluptr->correctedEnergy(); }
     double energy_nocalib() const { return cluptr->energy(); }
     double eta() const { return cluptr->positionREP().eta(); }
     double phi() const { return cluptr->positionREP().phi(); }
     
-    void resetCalibratedEnergy(const double ce) { calib_e = ce; }
-   
     edm::Ptr<reco::PFCluster> the_ptr() const { return cluptr; }
 
   private:
-    edm::Ptr<reco::PFCluster> cluptr;
-    double calib_e;
+    edm::Ptr<reco::PFCluster> cluptr;    
   };
   typedef std::shared_ptr<CalibratedPFCluster> CalibratedClusterPtr;
   typedef std::vector<CalibratedClusterPtr> CalibratedClusterPtrVector;
@@ -103,12 +99,10 @@ class PFECALSuperClusterAlgo {
   std::auto_ptr<reco::SuperClusterCollection>
     getEBOutputSCCollection() { return superClustersEB_; }
   std::auto_ptr<reco::SuperClusterCollection>
-    getEEOutputSCCollection() { return superClustersEE_; } 
-  std::auto_ptr<reco::SuperCluster::EEtoPSAssociation>
-    getEEtoPSAssociation() { return EEtoPS_; } 
+    getEEOutputSCCollection() { return superClustersEE_; }
 
   void loadAndSortPFClusters(const edm::View<reco::PFCluster>& ecalclusters,
-			     const edm::View<reco::PFCluster>& psclusters);
+			     const reco::PFCluster::EEtoPSAssociation& psclusters);
   
   void run();
 
@@ -118,7 +112,7 @@ class PFECALSuperClusterAlgo {
   CalibratedClusterPtrVector _clustersEE;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEB_;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEE_;
-  std::auto_ptr<reco::SuperCluster::EEtoPSAssociation> EEtoPS_;
+  const reco::PFCluster::EEtoPSAssociation* EEtoPS_;
   std::shared_ptr<PFEnergyCalibration> _pfEnergyCalibration;
   clustering_type _clustype;
   energy_weight   _eweight;
