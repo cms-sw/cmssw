@@ -27,6 +27,7 @@
 // forward declarations
 
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
+#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"

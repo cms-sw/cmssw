@@ -18,8 +18,8 @@ class GsfElectronCoreProducer : public GsfElectronCoreBaseProducer
 
   private:
 
-    edm::InputTag edCoresTag_ ;
-    edm::InputTag pfCoresTag_ ;
+    edm::EDGetTokenT<reco::GsfElectronCoreCollection> edCoresTag_ ;
+    edm::EDGetTokenT<reco::GsfElectronCoreCollection> pfCoresTag_ ;
 //    edm::InputTag pfSuperClustersTag_ ;
 //    edm::InputTag pfSuperClusterTrackMapTag_ ;
 
