@@ -4,10 +4,11 @@
 #include "RecoMuon/MuonIsolation/interface/MuIsoBaseIsolator.h"
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class CutsIsolatorWithCorrection : public muonisolation::MuIsoBaseIsolator {
  public:
-  CutsIsolatorWithCorrection(const edm::ParameterSet & par);
+  CutsIsolatorWithCorrection(const edm::ParameterSet & par,edm::ConsumesCollector& iC);
 
   virtual ResultType resultType() const {return ISOL_BOOL_TYPE;}
 
@@ -39,7 +40,7 @@ class CutsIsolatorWithCorrection : public muonisolation::MuIsoBaseIsolator {
   bool theReturnAbsoluteSum;
   bool theReturnRelativeSum;
   bool theAndOrCuts;
-
+  edm::EDGetTokenT<double> rhoToken_;
 };
 
 #endif

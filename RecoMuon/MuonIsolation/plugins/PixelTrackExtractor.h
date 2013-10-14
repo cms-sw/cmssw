@@ -12,6 +12,10 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 
 namespace muonisolation {
 
@@ -20,7 +24,8 @@ class PixelTrackExtractor : public reco::isodeposit::IsoDepositExtractor {
 public:
 
   PixelTrackExtractor(){};
-  PixelTrackExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
+  PixelTrackExtractor(const edm::ParameterSet& par,edm::ConsumesCollector& iC);
+
 
   virtual ~PixelTrackExtractor(){}
 
@@ -55,9 +60,12 @@ private:
   bool thePropagateTracksToRadius;     //! If set to true will compare track eta-phi at ...
   double theReferenceRadius;           //! ... this radius
 
-  bool theVetoLeadingTrack;             //! will veto leading track if
-  double thePtVeto_Min;		        //! .. it is above this threshold
-  double theDR_VetoPt;		        //!.. and is inside this cone
+  bool theVetoLeadingTrack;             //! will veto leading track if     
+  double thePtVeto_Min;		        //! .. it is above this threshold  
+  double theDR_VetoPt;		        //!.. and is inside this cone      
+  edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
+
 };
 
 }

@@ -22,8 +22,10 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class TrackAssociatorParameters;
 class TrackDetectorAssociator;
@@ -36,8 +38,7 @@ class JetExtractor : public reco::isodeposit::IsoDepositExtractor {
 public:
 
   JetExtractor(){};
-  JetExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
-
+  JetExtractor(const edm::ParameterSet& par,edm::ConsumesCollector &);
   virtual ~JetExtractor();
 
   virtual void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks);
@@ -64,7 +65,7 @@ private:
   TrackDetectorAssociator* theAssociator;
 
   bool thePrintTimeReport;
-
+  edm::EDGetTokenT<reco::CaloJetCollection> jetToken_;
 };
 
 }
