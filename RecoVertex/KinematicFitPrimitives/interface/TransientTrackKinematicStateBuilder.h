@@ -33,9 +33,9 @@ public:
  * Operator creating a KinematicState directly out of 
  * 7 state parameters and their covariance matrix
  */ 
-  KinematicState operator()(const KinematicParameters& par,
-	const KinematicParametersError& er, const TrackCharge& ch,
-	const MagneticField* field) const;
+//  KinematicState operator()(const KinematicParameters& par,
+//	const KinematicParametersError& er, const TrackCharge& ch,
+//	const MagneticField* field) const;
  
 /**
  * Operator creating a KinematicState out of a RecObj

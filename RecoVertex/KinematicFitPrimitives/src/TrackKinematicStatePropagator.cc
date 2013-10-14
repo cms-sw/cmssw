@@ -58,18 +58,15 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
 //in transverse plane to the given point
 
 //final parameters and covariance
-  AlgebraicVector7 par;
-  AlgebraicSymMatrix77 cov;
     
 //initial parameters as class and vectors:  
-  GlobalTrajectoryParameters inPar(state.globalPosition(),state.globalMomentum(), 
-		state.particleCharge(), state.magneticField());
+  GlobalTrajectoryParameters const & inPar = state.trajectoryParameters(); 
   ParticleMass mass = state.mass();							  
   GlobalVector inMom = state.globalMomentum();							  
   
 //making a free trajectory state and looking 
 //for helix barrel plane crossing  
-  FreeTrajectoryState fState = state.freeTrajectoryState();		
+  FreeTrajectoryState const & fState = state.freeTrajectoryState();		
   GlobalPoint iP = referencePoint;					  
   std::pair<HelixBarrelPlaneCrossingByCircle, BoundPlane::BoundPlanePointer> cros = planeCrossing(fState,iP);	   
   
@@ -88,6 +85,8 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
   HelixPlaneCrossing::DirectionType pGen = planeCrossing.direction(s);
   pGen *= inMom.mag()/pGen.mag();
   GlobalVector nMomentum(pGen.x(),pGen.y(),pGen.z()); 
+  AlgebraicVector7 par;
+  AlgebraicSymMatrix77 cov;
   par(0) = nPosition.x();
   par(1) = nPosition.y();
   par(2) = nPosition.z();
@@ -96,10 +95,10 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
   par(5) = nMomentum.z();
   par(6) = mass;
   
-//covariance matrix business  
-//elements of 7x7 covariance matrix responcible for the mass and
-//mass - momentum projections corellations do change under such a transformation:
-//special Jacobian needed  
+  //covariance matrix business  
+  //elements of 7x7 covariance matrix responcible for the mass and
+  //mass - momentum projections corellations do change under such a transformation:
+  //special Jacobian needed  
   GlobalTrajectoryParameters fPar(nPosition, nMomentum, state.particleCharge(),
   				state.magneticField());
 					       							  
@@ -118,6 +117,8 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
 //cartesian frame.  
   AlgebraicSymMatrix66 cov1 = ROOT::Math::Similarity(ca2cu, state.kinematicParametersError().matrix());
 
+
+
 //propagation jacobian
   AnalyticalCurvilinearJacobian prop(inPar,nPosition,nMomentum,s);
   AlgebraicMatrix66 pr;
@@ -130,10 +131,16 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
 //now geting back to 7-parametrization from curvilinear
   cov = ROOT::Math::Similarity(cu2ca, cov2);
   
-//return parameters as a kiematic state  
+
+  FreeTrajectoryState fts(fPar);
+
+  //return parameters as a kiematic state  
   KinematicParameters resPar(par);
   KinematicParametersError resEr(cov);
-  return  KinematicState(resPar,resEr,state.particleCharge(), state.magneticField()); 
+  return KinematicState(resPar,resEr,state.particleCharge(), state.magneticField()); 
+
+  // return  KinematicState(fts,state.mass(), cov(6,6));
+
  }
   
 KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
@@ -144,12 +151,11 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
  AlgebraicSymMatrix77 cov;
  
  //AlgebraicVector7 inStatePar = state.kinematicParameters().vector();
- GlobalTrajectoryParameters inPar(state.globalPosition(),state.globalMomentum(), 
-		state.particleCharge(), state.magneticField());
+ GlobalTrajectoryParameters const & inPar = state.trajectoryParameters(); 
  
-//first making a free trajectory state and propagating it according
-//to the algorithm provided by Thomas Speer and Wolfgang Adam 
- FreeTrajectoryState fState = state.freeTrajectoryState();
+ //first making a free trajectory state and propagating it according
+ //to the algorithm provided by Thomas Speer and Wolfgang Adam 
+ FreeTrajectoryState const &  fState = state.freeTrajectoryState();
   
  GlobalPoint xvecOrig = fState.position();
  double phi = fState.momentum().phi();
@@ -212,10 +218,15 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
 //now geting back to 7-parametrization from curvilinear
   cov = ROOT::Math::Similarity(cu2ca, cov2);
  
+  FreeTrajectoryState fts(fPar);
+
 //return parameters as a kiematic state  
- KinematicParameters resPar(par);
- KinematicParametersError resEr(cov);
- return  KinematicState(resPar,resEr,state.particleCharge(), state.magneticField());  	
+  KinematicParameters resPar(par);
+  KinematicParametersError resEr(cov);
+  return  KinematicState(resPar,resEr,state.particleCharge(), state.magneticField()); 
+
+  //return  KinematicState(fts,state.mass(), cov(6,6));
+
 }
 
 
