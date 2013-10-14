@@ -14,6 +14,8 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 namespace muonisolation {
 
@@ -22,7 +24,7 @@ class CaloExtractor : public reco::isodeposit::IsoDepositExtractor {
 public:
 
   CaloExtractor(){};
-  CaloExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
+  CaloExtractor(const edm::ParameterSet& par,edm::ConsumesCollector&);
 
   virtual ~CaloExtractor(){}
 
@@ -34,8 +36,8 @@ public:
 
 private:
   // CaloTower Collection Label
-  edm::EDGetTokenT<CaloTowerCollection> theCaloTowerCollectionToken;
-
+  edm::InputTag theCaloTowerCollectionLabel;
+  edm::EDGetTokenT<CaloTowerCollection> caloTowerToken_;
   // Label of deposit
   std::string theDepositLabel;
 

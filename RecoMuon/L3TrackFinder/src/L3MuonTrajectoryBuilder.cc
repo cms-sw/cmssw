@@ -41,7 +41,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
@@ -71,16 +70,21 @@ using namespace edm;
 //----------------
 
 L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
-							 const MuonServiceProxy* service) : GlobalTrajectoryBuilderBase(par, service) {
+						 const MuonServiceProxy* service,
+						 edm::ConsumesCollector& iC) : GlobalTrajectoryBuilderBase(par, service) {
 
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
 
   theTkCollName = par.getParameter<edm::InputTag>("tkTrajLabel");
+<<<<<<< HEAD
   theBeamSpotInputTag = par.getParameter<edm::InputTag>("tkTrajBeamSpot");
   theMaxChi2 = par.getParameter<double>("tkTrajMaxChi2");
   theDXYBeamSpot = par.getParameter<double>("tkTrajMaxDXYBeamSpot");
   theUseVertex = par.getParameter<bool>("tkTrajUseVertex");
   theVertexCollInputTag = par.getParameter<edm::InputTag>("tkTrajVertex");
+=======
+  trackToken_ = iC.consumes<reco::TrackCollection>(theTkCollName);
+>>>>>>> Adding everyhting
 
 }
 
@@ -103,7 +107,7 @@ void L3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   GlobalTrajectoryBuilderBase::setEvent(event);
       
   // get tracker TrackCollection from Event
-  event.getByLabel(theTkCollName,allTrackerTracks);
+  event.getByToken(trackToken_,allTrackerTracks);
   LogDebug(category) 
       << "Found " << allTrackerTracks->size() 
       << " tracker Tracks with label "<< theTkCollName;  

@@ -142,6 +142,15 @@ class MuonIdProducer : public edm::EDProducer {
    edm::Handle<reco::TrackToTrackMap>             tpfmsCollectionHandle_;
    edm::Handle<reco::TrackToTrackMap>             pickyCollectionHandle_;
    edm::Handle<reco::TrackToTrackMap>             dytCollectionHandle_;
+
+   edm::EDGetTokenT<reco::TrackCollection>             innerTrackCollectionToken_;
+   edm::EDGetTokenT<reco::TrackCollection>             outerTrackCollectionToken_;
+   edm::EDGetTokenT<reco::MuonCollection>              muonCollectionToken_;
+   edm::EDGetTokenT<reco::MuonTrackLinksCollection>    linkCollectionToken_;
+   edm::EDGetTokenT<reco::TrackToTrackMap>             tpfmsCollectionToken_;
+   edm::EDGetTokenT<reco::TrackToTrackMap>             pickyCollectionToken_;
+   edm::EDGetTokenT<reco::TrackToTrackMap>             dytCollectionToken_;
+
    
    MuonCaloCompatibility muonCaloCompatibility_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorCalo_;

@@ -15,9 +15,9 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -28,7 +28,8 @@ class TrajectoryCleaner;
 class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
   public:
     /// constructor with Parameter Set and MuonServiceProxy
-    L3MuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*);
+  L3MuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
+          
     /// destructor
     ~L3MuonTrajectoryBuilder();
     /// reconstruct trajectories from standalone and tracker only Tracks    
@@ -42,7 +43,6 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
     TrajectoryCleaner* theTrajectoryCleaner;
     edm::InputTag theTkCollName;
     edm::Handle<reco::TrackCollection> allTrackerTracks;
-
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> beamSpotHandle;
     edm::InputTag theBeamSpotInputTag;
@@ -54,5 +54,7 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
     bool theUseVertex;
     double theMaxChi2;
     double theDXYBeamSpot;
+    edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+
 };
 #endif

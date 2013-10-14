@@ -65,13 +65,19 @@ using namespace edm;
 //
 // Constructor
 //
-MuonShowerInformationFiller::MuonShowerInformationFiller(const edm::ParameterSet& par) :
+MuonShowerInformationFiller::MuonShowerInformationFiller(const edm::ParameterSet& par,edm::ConsumesCollector& iC) :
   theService(0),
   theDTRecHitLabel(par.getParameter<InputTag>("DTRecSegmentLabel")),
   theCSCRecHitLabel(par.getParameter<InputTag>("CSCRecSegmentLabel")),
   theCSCSegmentsLabel(par.getParameter<InputTag>("CSCSegmentLabel")),
   theDT4DRecSegmentLabel(par.getParameter<InputTag>("DT4DRecSegmentLabel"))
 {
+
+  theDTRecHitToken =iC.consumes<DTRecHitCollection>(theDTRecHitLabel) ;
+  theCSCRecHitToken =iC.consumes<CSCRecHit2DCollection>(theCSCRecHitLabel);
+  theCSCSegmentsToken=iC.consumes<CSCSegmentCollection>(theCSCSegmentsLabel);
+  theDT4DRecSegmentToken=iC.consumes<DTRecSegment4DCollection>(theDT4DRecSegmentLabel);
+
 
   edm::ParameterSet serviceParameters = par.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
@@ -133,10 +139,10 @@ reco::MuonShower MuonShowerInformationFiller::fillShowerInformation( const reco:
 void MuonShowerInformationFiller::setEvent(const edm::Event& event) {
 
   // get all the necesary products
-  event.getByLabel(theDTRecHitLabel, theDTRecHits);
-  event.getByLabel(theCSCRecHitLabel, theCSCRecHits);
-  event.getByLabel(theCSCSegmentsLabel, theCSCSegments);
-  event.getByLabel(theDT4DRecSegmentLabel, theDT4DRecSegments);
+  event.getByToken(theDTRecHitToken, theDTRecHits);
+  event.getByToken(theCSCRecHitToken, theCSCRecHits);
+  event.getByToken(theCSCSegmentsToken, theCSCSegments);
+  event.getByToken(theDT4DRecSegmentToken, theDT4DRecSegments);
 
   for (int istat = 0; istat < 4; istat++) {
       theStationShowerDeltaR.at(istat) = 0.;

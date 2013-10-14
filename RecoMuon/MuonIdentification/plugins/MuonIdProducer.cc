@@ -160,7 +160,46 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 
    //create mesh holder
    meshAlgo_ = new MuonMesh(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
+
+
+   //Consumes... UGH
+   for ( unsigned int i = 0; i < inputCollectionLabels_.size(); ++i ) {
+      if ( inputCollectionTypes_[i] == "inner tracks" ) {
+	innerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+      if ( inputCollectionTypes_[i] == "outer tracks" ) {
+	outerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+      if ( inputCollectionTypes_[i] == "links" ) {
+	linkCollectionToken_ = consumes<reco::MuonTrackLinksCollection>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+      if ( inputCollectionTypes_[i] == "muons" ) {
+	muonCollectionToken_ = consumes<reco::MuonCollection>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev firstHit" ) {
+	tpfmsCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev picky" ) {
+	pickyCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev dyt" ) {
+	dytCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+      throw cms::Exception("FatalError") << "Unknown input collection type: " << inputCollectionTypes_[i];
+   }
+
+
 }
+
 
 
 MuonIdProducer::~MuonIdProducer()
@@ -198,52 +237,52 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // timers.pop_and_push("MuonIdProducer::produce::init::getInputCollections");
    for ( unsigned int i = 0; i < inputCollectionLabels_.size(); ++i ) {
       if ( inputCollectionTypes_[i] == "inner tracks" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], innerTrackCollectionHandle_);
-	 if (! innerTrackCollectionHandle_.isValid())
+	 iEvent.getByToken(innerTrackCollectionToken_, innerTrackCollectionHandle_);
+	 if (! innerTrackCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input track collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input inner tracks: " << innerTrackCollectionHandle_->size();
 	 continue;
       }
       if ( inputCollectionTypes_[i] == "outer tracks" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], outerTrackCollectionHandle_);
-	 if (! outerTrackCollectionHandle_.isValid())
+	 iEvent.getByToken(outerTrackCollectionToken_, outerTrackCollectionHandle_);
+	 if (! outerTrackCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input track collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input outer tracks: " << outerTrackCollectionHandle_->size();
 	 continue;
       }
       if ( inputCollectionTypes_[i] == "links" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], linkCollectionHandle_);
-	 if (! linkCollectionHandle_.isValid())
+	 iEvent.getByToken(linkCollectionToken_, linkCollectionHandle_);
+	 if (! linkCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input link collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input links: " << linkCollectionHandle_->size();
 	 continue;
       }
       if ( inputCollectionTypes_[i] == "muons" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], muonCollectionHandle_);
-	 if (! muonCollectionHandle_.isValid())
+	 iEvent.getByToken(muonCollectionToken_, muonCollectionHandle_);
+	 if (! muonCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input muons: " << muonCollectionHandle_->size();
 	 continue;
       }
       if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev firstHit" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], tpfmsCollectionHandle_);
-	 if (! tpfmsCollectionHandle_.isValid())
+	 iEvent.getByToken(tpfmsCollectionToken_, tpfmsCollectionHandle_);
+	 if (! tpfmsCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input muons: " << tpfmsCollectionHandle_->size();
 	 continue;
       }
 
       if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev picky" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], pickyCollectionHandle_);
-	 if (! pickyCollectionHandle_.isValid())
+	 iEvent.getByToken(pickyCollectionToken_, pickyCollectionHandle_);
+	 if (! pickyCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input muons: " << pickyCollectionHandle_->size();
 	 continue;
       }
 
       if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev dyt" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], dytCollectionHandle_);
-	 if (! dytCollectionHandle_.isValid())
+	 iEvent.getByToken(dytCollectionToken_, dytCollectionHandle_);
+	 if (! dytCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input muons: " << dytCollectionHandle_->size();
 	 continue;

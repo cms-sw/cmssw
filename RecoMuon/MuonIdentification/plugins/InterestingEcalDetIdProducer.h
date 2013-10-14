@@ -6,6 +6,9 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
 class CaloTopology;
 class InterestingEcalDetIdProducer : public edm::EDProducer {
  public:
@@ -16,6 +19,7 @@ class InterestingEcalDetIdProducer : public edm::EDProducer {
 
  private:
   edm::InputTag inputCollection_;
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
   const CaloTopology* caloTopology_;
 };
 

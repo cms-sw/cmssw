@@ -21,6 +21,15 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 class GlobalMuonRefitter;
@@ -31,7 +40,7 @@ class MuonCosmicCompatibilityFiller {
 	
   public:
    
-  MuonCosmicCompatibilityFiller(const edm::ParameterSet&);
+  MuonCosmicCompatibilityFiller(const edm::ParameterSet&,edm::ConsumesCollector&);
   ~MuonCosmicCompatibilityFiller();
   
   /// fill cosmic compatibility variables  
@@ -72,6 +81,14 @@ class MuonCosmicCompatibilityFiller {
   std::vector<edm::InputTag> inputTrackCollections_;
   edm::InputTag inputCosmicMuonCollection_;
   edm::InputTag inputVertexCollection_;
+
+  std::vector<edm::EDGetTokenT<reco::MuonCollection> > muonTokens_;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection> > trackTokens_;
+  edm::EDGetTokenT<reco::MuonCollection> cosmicToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+
+
+
   MuonServiceProxy* service_;
   
   double maxdxyLoose_;
