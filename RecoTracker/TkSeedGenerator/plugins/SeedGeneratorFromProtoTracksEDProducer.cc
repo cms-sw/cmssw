@@ -40,7 +40,9 @@ SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(c
     originRadius(cfg.getParameter<double>("originRadius")),
     useProtoTrackKinematics(cfg.getParameter<bool>("useProtoTrackKinematics")),
     useEventsWithNoVertex(cfg.getParameter<bool>("useEventsWithNoVertex")),
-    builderName(cfg.getParameter<std::string>("TTRHBuilder"))
+    builderName(cfg.getParameter<std::string>("TTRHBuilder")),
+    usePV(cfg.getParameter<bool>("usePV"))
+
 
 {
   produces<TrajectorySeedCollection>();
@@ -69,7 +71,24 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
     bool keepTrack = false;
     if ( !foundVertices ) { 
 	  if (useEventsWithNoVertex) keepTrack = true;
-    } else { 
+    } 
+    else if (usePV){
+      GlobalPoint aPV(vertices->begin()->position().x(),vertices->begin()->position().y(),vertices->begin()->position().z());
+      double distR2 = sqr(vtx.x()-aPV.x()) +sqr(vtx.y()-aPV.y());
+      double distZ = fabs(vtx.z()-aPV.z());
+      if ( distR2 < sqr(originRadius) && distZ < originHalfLength ) {
+        keepTrack = true;
+        /*      std::cout << "track pt " << "track x" << "track y" << "track z" << std::endl;                                                                
+		std::cout <<  proto.pt() << " " <<  vtx.x() << " " <<  vtx.y() << " " << vtx.z() << std::endl;                                                       
+		std::cout <<"vtx x" << "vtx y" << "vtx z" << std::endl;                                                                                              
+		std::cout << aPV.x() << " " << aPV.y() << " " << aPV.z() << std::endl;*/
+      }
+      else {
+	//	std::cout << "track pt " << "track x" << "track y" << "track z" << std::endl;
+	//	std::cout <<  proto.pt() << " " <<  vtx.x() << " " <<  vtx.y() << " " << vtx.z() << std::endl;
+      }
+    }
+    else { 
       for (reco::VertexCollection::const_iterator iv=vertices->begin(); iv!= vertices->end(); ++iv) {
         GlobalPoint aPV(iv->position().x(),iv->position().y(),iv->position().z());
 	double distR2 = sqr(vtx.x()-aPV.x()) +sqr(vtx.y()-aPV.y());
