@@ -31,7 +31,6 @@
 
 // Input and output collection
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
@@ -90,6 +89,12 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   
   produces<std::vector<Trajectory> >().setBranchAlias(theAlias + "Trajectories");
   produces<TrajTrackAssociationCollection>().setBranchAlias(theAlias + "TrajToTrackMap");
+
+
+
+  seedToken = consumes<edm::View<TrajectorySeed> >(theSeedCollectionLabel);
+  
+
 }
   
 /// destructor
@@ -109,7 +114,7 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
   // Take the seeds container
   LogTrace(metname)<<"Taking the seeds: "<<theSeedCollectionLabel.label()<<endl;
   Handle<View<TrajectorySeed> > seeds; 
-  event.getByLabel(theSeedCollectionLabel,seeds);
+  event.getByToken(seedToken,seeds);
 
   // Update the services
   theService->update(eventSetup);
