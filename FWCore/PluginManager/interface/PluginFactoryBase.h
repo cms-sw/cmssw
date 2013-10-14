@@ -23,6 +23,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <mutex>
+
 #include "FWCore/Utilities/interface/Signal.h"
 // user include files
 #include "FWCore/PluginManager/interface/PluginInfo.h"
@@ -66,10 +68,10 @@ class PluginFactoryBase
       //since each inheriting class has its own Container type to hold their PMakers
       // this function allows them to share the same code when doing the lookup
       // this routine will throw an exception if iName is unknown therefore the return value is always valid
-      Plugins::const_iterator findPMaker(const std::string& iName) const;
+      void* findPMaker(const std::string& iName) const;
 
       //similar to findPMaker but will return 'end()' if iName is known
-      Plugins::const_iterator tryToFindPMaker(const std::string& iName) const;
+      void* tryToFindPMaker(const std::string& iName) const;
       
       void fillInfo(const PMakers &makers,
                     PluginInfo& iInfo,
@@ -79,8 +81,6 @@ class PluginFactoryBase
 
       void registerPMaker(void* iPMaker, const std::string& iName);
       
-      Plugins m_plugins;
-      
    private:
       PluginFactoryBase(const PluginFactoryBase&); // stop default
 
@@ -88,6 +88,9 @@ class PluginFactoryBase
 
       void checkProperLoadable(const std::string& iName, const std::string& iLoadedFrom) const;
       // ---------- member data --------------------------------
+      Plugins m_plugins;
+      mutable std::recursive_mutex m_mutex;
+  
 
 };
 
