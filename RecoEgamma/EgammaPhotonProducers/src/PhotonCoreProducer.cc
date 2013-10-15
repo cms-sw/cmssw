@@ -23,11 +23,15 @@ PhotonCoreProducer::PhotonCoreProducer(const edm::ParameterSet& config) :
 {
 
   // use onfiguration file to setup input/output collection names
-  scHybridBarrelProducer_       = conf_.getParameter<edm::InputTag>("scHybridBarrelProducer");
-  scIslandEndcapProducer_       = conf_.getParameter<edm::InputTag>("scIslandEndcapProducer");
-  conversionProducer_ = conf_.getParameter<edm::InputTag>("conversionProducer");
+  scHybridBarrelProducer_ = 
+    consumes<reco::SuperClusterCollection>(conf_.getParameter<edm::InputTag>("scHybridBarrelProducer"));
+  scIslandEndcapProducer_ = 
+    consumes<reco::SuperClusterCollection>(conf_.getParameter<edm::InputTag>("scIslandEndcapProducer"));
+  conversionProducer_ = 
+    consumes<reco::ConversionCollection>(conf_.getParameter<edm::InputTag>("conversionProducer"));
   PhotonCoreCollection_ = conf_.getParameter<std::string>("photonCoreCollection");
-  pixelSeedProducer_   = conf_.getParameter<std::string>("pixelSeedProducer");
+  pixelSeedProducer_   = 
+    consumes<reco::ElectronSeedCollection>(conf_.getParameter<edm::InputTag>("pixelSeedProducer"));
   minSCEt_        = conf_.getParameter<double>("minSCEt");
   risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
 
@@ -53,9 +57,10 @@ void PhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup& th
   // Get the  Barrel Super Cluster collection
   bool validBarrelSCHandle=true;
   Handle<reco::SuperClusterCollection> scBarrelHandle;
-  theEvent.getByLabel(scHybridBarrelProducer_,scBarrelHandle);
+  theEvent.getByToken(scHybridBarrelProducer_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
-    edm::LogError("PhotonCoreProducer") << "Error! Can't get the product "<<scHybridBarrelProducer_.label();
+    edm::LogError("PhotonCoreProducer") 
+      << "Error! Can't get the scHybridBarrelProducer";
     validBarrelSCHandle=false;
   }
 
@@ -63,9 +68,10 @@ void PhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup& th
  // Get the  Endcap Super Cluster collection
   bool validEndcapSCHandle=true;
   Handle<reco::SuperClusterCollection> scEndcapHandle;
-  theEvent.getByLabel(scIslandEndcapProducer_,scEndcapHandle);
+  theEvent.getByToken(scIslandEndcapProducer_,scEndcapHandle);
   if (!scEndcapHandle.isValid()) {
-    edm::LogError("PhotonCoreProducer") << "Error! Can't get the product "<<scIslandEndcapProducer_.label();
+    edm::LogError("PhotonCoreProducer") 
+      << "Error! Can't get the scIslandEndcapProducer";
     validEndcapSCHandle=false;
   }
 
@@ -73,7 +79,7 @@ void PhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup& th
   ///// Get the conversion collection
   validConversions_=true;
   edm::Handle<reco::ConversionCollection> conversionHandle; 
-  theEvent.getByLabel(conversionProducer_, conversionHandle);
+  theEvent.getByToken(conversionProducer_, conversionHandle);
   if (!conversionHandle.isValid()) {
     //edm::LogError("PhotonCoreProducer") << "Error! Can't get the product "<< conversionProducer_.label() << "\n" ;
     validConversions_=false;
@@ -86,7 +92,7 @@ void PhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup& th
   validPixelSeeds_=true;
   Handle<reco::ElectronSeedCollection> pixelSeedHandle;
   reco::ElectronSeedCollection pixelSeeds;
-  theEvent.getByLabel(pixelSeedProducer_, pixelSeedHandle);
+  theEvent.getByToken(pixelSeedProducer_, pixelSeedHandle);
   if (!pixelSeedHandle.isValid()) {
     validPixelSeeds_=false;
   }

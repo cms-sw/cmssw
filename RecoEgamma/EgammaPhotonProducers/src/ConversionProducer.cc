@@ -38,7 +38,7 @@ Implementation:
 
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
@@ -76,7 +76,8 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
 {
   algoName_ = iConfig.getParameter<std::string>( "AlgorithmName" );
 
-  src_ = iConfig.getParameter<edm::InputTag>("src");
+  src_ = 
+    consumes<edm::View<reco::ConversionTrack> >(iConfig.getParameter<edm::InputTag>("src"));
 
   maxNumOfTrackInPU_ = iConfig.getParameter<int>("maxNumOfTrackInPU");
   maxTrackRho_ = iConfig.getParameter<double>("maxTrackRho");
@@ -103,18 +104,23 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
     
   usePvtx_ = iConfig.getParameter<bool>("UsePvtx");//if use primary vertices
 
-  vertexProducer_   = iConfig.getParameter<std::string>("primaryVertexProducer");
+  vertexProducer_   = 
+    consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexProducer"));
   
 
   //Track-cluster matching eta and phi cuts
   dEtaTkBC_ = iConfig.getParameter<double>("dEtaTrackBC");//TODO research on cut endcap/barrel
   dPhiTkBC_ = iConfig.getParameter<double>("dPhiTrackBC");
   
-  bcBarrelCollection_     = iConfig.getParameter<edm::InputTag>("bcBarrelCollection");
-  bcEndcapCollection_     = iConfig.getParameter<edm::InputTag>("bcEndcapCollection");
+  bcBarrelCollection_ = 
+    consumes<edm::View<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("bcBarrelCollection"));
+  bcEndcapCollection_ = 
+    consumes<edm::View<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("bcEndcapCollection"));
   
-  scBarrelProducer_       = iConfig.getParameter<edm::InputTag>("scBarrelProducer");
-  scEndcapProducer_       = iConfig.getParameter<edm::InputTag>("scEndcapProducer");
+  scBarrelProducer_   = 
+    consumes<edm::View<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("scBarrelProducer"));
+  scEndcapProducer_   = 
+    consumes<edm::View<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("scEndcapProducer"));
   
   energyBC_               = iConfig.getParameter<double>("EnergyBC");//BC energy threshold
   energyTotalBC_          = iConfig.getParameter<double>("EnergyTotalBC");//BC energy threshold
@@ -185,7 +191,7 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Read multiple track input collections
 
   edm::Handle<edm::View<reco::ConversionTrack> > trackCollectionHandle;
-  iEvent.getByLabel(src_,trackCollectionHandle);    
+  iEvent.getByToken(src_,trackCollectionHandle);    
 
   //build map of ConversionTracks ordered in eta
   std::multimap<float, edm::Ptr<reco::ConversionTrack> > convTrackMap;
@@ -196,9 +202,10 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::VertexCollection> vertexHandle;
   reco::VertexCollection vertexCollection;
   if (usePvtx_){
-    iEvent.getByLabel(vertexProducer_, vertexHandle);
+    iEvent.getByToken(vertexProducer_, vertexHandle);
     if (!vertexHandle.isValid()) {
-      edm::LogError("ConversionProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
+      edm::LogError("ConversionProducer") 
+	<< "Error! Can't get the product primary Vertex Collection "<< "\n";
       usePvtx_ = false;
     }
     if (usePvtx_)
@@ -241,30 +248,34 @@ void ConversionProducer::buildSuperAndBasicClusterGeoMap(const edm::Event& iEven
 
   // Get the Super Cluster collection in the Barrel
   edm::Handle<edm::View<reco::CaloCluster> > scBarrelHandle;
-  iEvent.getByLabel(scBarrelProducer_,scBarrelHandle);
+  iEvent.getByToken(scBarrelProducer_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scBarrelProducer_;
+    edm::LogError("ConvertedPhotonProducer") 
+      << "Error! Can't get the barrel superclusters!";
   }
     
   // Get the Super Cluster collection in the Endcap
   edm::Handle<edm::View<reco::CaloCluster> > scEndcapHandle;
-  iEvent.getByLabel(scEndcapProducer_,scEndcapHandle);
+  iEvent.getByToken(scEndcapProducer_,scEndcapHandle);
   if (!scEndcapHandle.isValid()) {
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scEndcapProducer_;
+    edm::LogError("ConvertedPhotonProducer") 
+      << "Error! Can't get the endcap superclusters!";
   }
     
     
   edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;
   edm::Handle<edm::View<reco::CaloCluster> > bcEndcapHandle;//TODO check cluster type if BasicCluster or PFCluster
 
-  iEvent.getByLabel( bcBarrelCollection_, bcBarrelHandle);
+  iEvent.getByToken( bcBarrelCollection_, bcBarrelHandle);
   if (!bcBarrelHandle.isValid()) {
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcBarrelCollection_;
+    edm::LogError("ConvertedPhotonProducer") 
+      << "Error! Can't get the barrel basic clusters!";
   }
 
-  iEvent.getByLabel( bcEndcapCollection_, bcEndcapHandle);
+  iEvent.getByToken( bcEndcapCollection_, bcEndcapHandle);
   if (! bcEndcapHandle.isValid()) {
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcEndcapCollection_;
+    edm::LogError("ConvertedPhotonProducer") 
+      << "Error! Can't get the endcap basic clusters!";
   }
 
   edm::Handle<edm::View<reco::CaloCluster> > bcHandle = bcBarrelHandle;

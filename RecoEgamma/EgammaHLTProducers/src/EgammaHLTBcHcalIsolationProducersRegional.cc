@@ -40,7 +40,7 @@ EgammaHLTBcHcalIsolationProducersRegional::EgammaHLTBcHcalIsolationProducersRegi
   
   hcalCfg_.hOverEConeSize = 0.15;
   hcalCfg_.useTowers = true;
-  hcalCfg_.hcalTowers = config.getParameter<edm::InputTag>("caloTowerProducer");
+  hcalCfg_.hcalTowers = caloTowerProducer_;
   hcalCfg_.hOverEPtMin = etMin_;
 
   hcalHelper_ = new ElectronHcalHelper(hcalCfg_);

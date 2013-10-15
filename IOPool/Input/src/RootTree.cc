@@ -46,7 +46,7 @@ namespace edm {
     triggerSet_(),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
-    entryNumberForIndex_(new std::vector<EntryNumber>(nIndexes, -1LL)),
+    entryNumberForIndex_(new std::vector<EntryNumber>(nIndexes, IndexIntoFile::invalidEntry)),
     branchNames_(),
     branches_(new BranchMap),
     trainNow_(false),

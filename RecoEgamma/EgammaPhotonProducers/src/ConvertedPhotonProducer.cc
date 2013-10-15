@@ -15,7 +15,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 //
-#include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
+
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
@@ -57,21 +57,43 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   
   
   // use onfiguration file to setup input collection names
-  bcBarrelCollection_     = conf_.getParameter<edm::InputTag>("bcBarrelCollection");
-  bcEndcapCollection_     = conf_.getParameter<edm::InputTag>("bcEndcapCollection");
+  bcBarrelCollection_ = 
+    consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("bcBarrelCollection"));
+  bcEndcapCollection_ = 
+    consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("bcEndcapCollection"));
   
-  scHybridBarrelProducer_       = conf_.getParameter<edm::InputTag>("scHybridBarrelProducer");
-  scIslandEndcapProducer_       = conf_.getParameter<edm::InputTag>("scIslandEndcapProducer");
+  scHybridBarrelProducer_ = 
+    consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("scHybridBarrelProducer"));
+  scIslandEndcapProducer_ = 
+    consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("scIslandEndcapProducer"));
 
-  conversionOITrackProducer_ = conf_.getParameter<std::string>("conversionOITrackProducer");
-  conversionIOTrackProducer_ = conf_.getParameter<std::string>("conversionIOTrackProducer");
+  std::string oitrackprod = 
+    conf_.getParameter<std::string>("conversionOITrackProducer");
+  std::string iotrackprod = 
+    conf_.getParameter<std::string>("conversionIOTrackProducer");
   
-  outInTrackSCAssociationCollection_ = conf_.getParameter<std::string>("outInTrackSCAssociation");
-  inOutTrackSCAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackSCAssociation");
+  std::string oitrackassoc = 
+    conf_.getParameter<std::string>("outInTrackSCAssociation");
+  std::string iotrackassoc = 
+    conf_.getParameter<std::string>("inOutTrackSCAssociation");
   
+  edm::InputTag oitracks(oitrackprod),oitracksassoc(oitrackprod,oitrackassoc),
+    iotracks(iotrackprod), iotracksassoc(iotrackprod,iotrackassoc);
+
+  conversionOITrackProducer_ = consumes<reco::TrackCollection>(oitracks);
+  outInTrackSCAssociationCollection_ = 
+    consumes<reco::TrackCaloClusterPtrAssociation>(oitracksassoc);
+  conversionIOTrackProducer_ = consumes<reco::TrackCollection>(iotracks);  
+  inOutTrackSCAssociationCollection_ =
+    consumes<reco::TrackCaloClusterPtrAssociation>(iotracksassoc);
+
+  generalTrackProducer_ = 
+    consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("generalTracksSrc"));
+
   algoName_ = conf_.getParameter<std::string>( "AlgorithmName" );  
 
-  hcalTowers_ = conf_.getParameter<edm::InputTag>("hcalTowers");
+  hcalTowers_ = 
+    consumes<CaloTowerCollection>(conf_.getParameter<edm::InputTag>("hcalTowers"));
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
   maxHOverE_        = conf_.getParameter<double>("maxHOverE");
   minSCEt_        = conf_.getParameter<double>("minSCEt");
@@ -85,9 +107,9 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   likelihoodWeights_= conf_.getParameter<std::string>("MVA_weights_location");
   
  
-  // use onfiguration file to setup output collection names
-  ConvertedPhotonCollection_     = conf_.getParameter<std::string>("convertedPhotonCollection");
-  CleanedConvertedPhotonCollection_     = conf_.getParameter<std::string>("cleanedConvertedPhotonCollection");
+  // use configuration file to setup output collection names
+  ConvertedPhotonCollection_ = conf_.getParameter<std::string>("convertedPhotonCollection");
+  CleanedConvertedPhotonCollection_ = conf_.getParameter<std::string>("cleanedConvertedPhotonCollection");
   
   
   // Register the product
@@ -154,18 +176,20 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // Get the Super Cluster collection in the Barrel
   bool validBarrelSCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > scBarrelHandle;
-  theEvent.getByLabel(scHybridBarrelProducer_,scBarrelHandle);
+  theEvent.getByToken(scHybridBarrelProducer_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scHybridBarrelProducer_.label();
+    edm::LogError("ConvertedPhotonProducer") 
+      << "Error! Can't get the scHybridBarrelProducer";
     validBarrelSCHandle=false;
   }
    
   // Get the Super Cluster collection in the Endcap
   bool validEndcapSCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > scEndcapHandle;
-  theEvent.getByLabel(scIslandEndcapProducer_,scEndcapHandle);
+  theEvent.getByToken(scIslandEndcapProducer_,scEndcapHandle);
   if (!scEndcapHandle.isValid()) {
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scIslandEndcapProducer_.label();
+    edm::LogError("ConvertedPhotonProducer") 
+      << "Error! Can't get the scIslandEndcapProducer";
     validEndcapSCHandle=false;
   }
   
@@ -173,10 +197,11 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   //// Get the Out In CKF tracks from conversions 
   bool validTrackInputs=true;
   Handle<reco::TrackCollection> outInTrkHandle;
-  theEvent.getByLabel(conversionOITrackProducer_,  outInTrkHandle);
+  theEvent.getByToken(conversionOITrackProducer_,  outInTrkHandle);
   if (!outInTrkHandle.isValid()) {
     //std::cout << "Error! Can't get the conversionOITrack " << "\n";
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the conversionOITrack " << "\n";
+    edm::LogError("ConvertedPhotonProducer") 
+      << "Error! Can't get the conversionOITrack " << "\n";
     validTrackInputs=false;
   }
   //  LogDebug("ConvertedPhotonProducer")<< "ConvertedPhotonProducer  outInTrack collection size " << (*outInTrkHandle).size() << "\n";
@@ -184,19 +209,21 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
    
   //// Get the association map between CKF Out In tracks and the SC where they originated
   Handle<reco::TrackCaloClusterPtrAssociation> outInTrkSCAssocHandle;
-  theEvent.getByLabel( conversionOITrackProducer_, outInTrackSCAssociationCollection_, outInTrkSCAssocHandle);
+  theEvent.getByToken( outInTrackSCAssociationCollection_, outInTrkSCAssocHandle);
   if (!outInTrkSCAssocHandle.isValid()) {
     //  std::cout << "Error! Can't get the product " <<  outInTrackSCAssociationCollection_.c_str() <<"\n";
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product " <<  outInTrackSCAssociationCollection_.c_str() <<"\n";
+    edm::LogError("ConvertedPhotonProducer") 
+      << "Error! Can't get the outInTrackSCAssociationCollection)";
     validTrackInputs=false;
   }
 
   //// Get the In Out  CKF tracks from conversions 
   Handle<reco::TrackCollection> inOutTrkHandle;
-  theEvent.getByLabel(conversionIOTrackProducer_, inOutTrkHandle);
+  theEvent.getByToken(conversionIOTrackProducer_, inOutTrkHandle);
   if (!inOutTrkHandle.isValid()) {
     // std::cout << "Error! Can't get the conversionIOTrack " << "\n";
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the conversionIOTrack " << "\n";
+    edm::LogError("ConvertedPhotonProducer") 
+      << "Error! Can't get the conversionIOTrack " << "\n";
     validTrackInputs=false;
   }
   //  LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer inOutTrack collection size " << (*inOutTrkHandle).size() << "\n";
@@ -206,19 +233,21 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   Handle<reco::TrackCollection> generalTrkHandle;
   if (  recoverOneTrackCase_ ) {
-    theEvent.getByLabel("generalTracks", generalTrkHandle);
+    theEvent.getByToken(generalTrackProducer_, generalTrkHandle);
     if (!generalTrkHandle.isValid()) {
       //std::cout << "Error! Can't get the genralTracks " << "\n";
-      edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the genralTracks " << "\n";
+      edm::LogError("ConvertedPhotonProducer") 
+	<< "Error! Can't get the genralTracks " << "\n";
     }
   }  
   
   //// Get the association map between CKF in out tracks and the SC  where they originated
   Handle<reco::TrackCaloClusterPtrAssociation> inOutTrkSCAssocHandle;
-  theEvent.getByLabel( conversionIOTrackProducer_, inOutTrackSCAssociationCollection_, inOutTrkSCAssocHandle);
+  theEvent.getByToken( inOutTrackSCAssociationCollection_, inOutTrkSCAssocHandle);
   if (!inOutTrkSCAssocHandle.isValid()) {
     //std::cout << "Error! Can't get the product " <<  inOutTrackSCAssociationCollection_.c_str() <<"\n";
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product " <<  inOutTrackSCAssociationCollection_.c_str() <<"\n";
+    edm::LogError("ConvertedPhotonProducer") 
+      << "Error! Can't get the inOutTrackSCAssociationCollection_.c_str()";
     validTrackInputs=false;
   }
 
@@ -227,23 +256,25 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   // Get the basic cluster collection in the Barrel 
   edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;
-  theEvent.getByLabel( bcBarrelCollection_, bcBarrelHandle);
+  theEvent.getByToken( bcBarrelCollection_, bcBarrelHandle);
   if (!bcBarrelHandle.isValid()) {
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcBarrelCollection_.label();
+    edm::LogError("ConvertedPhotonProducer") 
+      << "Error! Can't get the bcBarrelCollection";
   }
 
     
   // Get the basic cluster collection in the Endcap 
   edm::Handle<edm::View<reco::CaloCluster> > bcEndcapHandle;
-  theEvent.getByLabel( bcEndcapCollection_, bcEndcapHandle);
+  theEvent.getByToken( bcEndcapCollection_, bcEndcapHandle);
   if (!bcEndcapHandle.isValid()) {
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcEndcapCollection_.label();
+    edm::LogError("ConvertedPhotonProducer") 
+      << "Error! Can't get the bcEndcapCollection";
   }
  
 
 // get Hcal towers collection 
   Handle<CaloTowerCollection> hcalTowersHandle;
-  theEvent.getByLabel(hcalTowers_, hcalTowersHandle);
+  theEvent.getByToken(hcalTowers_, hcalTowersHandle);
 
   // get the geometry from the event setup:
   theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);

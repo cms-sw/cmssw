@@ -34,6 +34,7 @@ namespace edm
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 
@@ -59,9 +60,10 @@ class ElectronSeedProducer : public edm::EDProducer
        std::vector<float> & hoe1s, std::vector<float> & hoe2s ) ;
     void filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs);
 
-    edm::InputTag superClusters_[2] ;
-    edm::InputTag initialSeeds_ ;
-    edm::InputTag beamSpotTag_ ;
+    edm::EDGetTokenT<reco::SuperClusterCollection> superClusters_[2] ;
+    edm::EDGetTokenT<TrajectorySeedCollection> initialSeeds_ ;
+    edm::EDGetTokenT<std::vector<reco::Vertex> > filterVtxTag_;
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_ ;
 
     edm::ParameterSet conf_ ;
     ElectronSeedGenerator * matcher_ ;

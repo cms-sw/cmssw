@@ -10,7 +10,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
@@ -654,6 +653,7 @@ void GsfElectronAlgo::checkSetup( const edm::EventSetup & es )
   }
  }
 
+
 void GsfElectronAlgo::copyElectrons( GsfElectronCollection & outEle )
  {
   GsfElectronPtrCollection::const_iterator it ;
@@ -672,21 +672,21 @@ void GsfElectronAlgo::beginEvent( edm::Event & event )
 
   // init the handles linked to the current event
   eventData_->event = &event ;
-  event.getByLabel(generalData_->inputCfg.previousGsfElectrons,eventData_->previousElectrons) ;
-  event.getByLabel(generalData_->inputCfg.pflowGsfElectronsTag,eventData_->pflowElectrons) ;
-  event.getByLabel(generalData_->inputCfg.gsfElectronCores,eventData_->coreElectrons) ;
-  event.getByLabel(generalData_->inputCfg.ctfTracks,eventData_->currentCtfTracks) ;
-  event.getByLabel(generalData_->inputCfg.barrelRecHitCollection,eventData_->barrelRecHits) ;
-  event.getByLabel(generalData_->inputCfg.endcapRecHitCollection,eventData_->endcapRecHits) ;
-  event.getByLabel(generalData_->inputCfg.hcalTowersTag,eventData_->towers) ;
-  event.getByLabel(generalData_->inputCfg.pfMVA,eventData_->pfMva) ;
-  event.getByLabel(generalData_->inputCfg.seedsTag,eventData_->seeds) ;
+  event.getByToken(generalData_->inputCfg.previousGsfElectrons,eventData_->previousElectrons) ;
+  event.getByToken(generalData_->inputCfg.pflowGsfElectronsTag,eventData_->pflowElectrons) ;
+  event.getByToken(generalData_->inputCfg.gsfElectronCores,eventData_->coreElectrons) ;
+  event.getByToken(generalData_->inputCfg.ctfTracks,eventData_->currentCtfTracks) ;
+  event.getByToken(generalData_->inputCfg.barrelRecHitCollection,eventData_->barrelRecHits) ;
+  event.getByToken(generalData_->inputCfg.endcapRecHitCollection,eventData_->endcapRecHits) ;
+  event.getByToken(generalData_->inputCfg.hcalTowersTag,eventData_->towers) ;
+  event.getByToken(generalData_->inputCfg.pfMVA,eventData_->pfMva) ;
+  event.getByToken(generalData_->inputCfg.seedsTag,eventData_->seeds) ;
   if (generalData_->strategyCfg.useGsfPfRecTracks)
-   { event.getByLabel(generalData_->inputCfg.gsfPfRecTracksTag,eventData_->gsfPfRecTracks) ; }
+   { event.getByToken(generalData_->inputCfg.gsfPfRecTracksTag,eventData_->gsfPfRecTracks) ; }
 
   // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle ;
-  event.getByLabel(generalData_->inputCfg.beamSpotTag,recoBeamSpotHandle) ;
+  event.getByToken(generalData_->inputCfg.beamSpotTag,recoBeamSpotHandle) ;
   eventData_->beamspot = recoBeamSpotHandle.product() ;
 
   // prepare access to hcal data

@@ -254,8 +254,8 @@ namespace edm {
 
       long long beginEventNumbers = 0;
       long long endEventNumbers = 0;
-      EntryNumber_t beginEventEntry = -1LL;
-      EntryNumber_t endEventEntry = -1LL;
+      EntryNumber_t beginEventEntry = invalidEntry;
+      EntryNumber_t endEventEntry = invalidEntry;
       runOrLumi.getRange(beginEventNumbers, endEventNumbers, beginEventEntry, endEventEntry);
 
       // This is true each time one hits a new lumi section (except if the previous lumi had
