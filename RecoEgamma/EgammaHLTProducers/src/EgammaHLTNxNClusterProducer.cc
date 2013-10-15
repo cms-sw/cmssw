@@ -7,6 +7,8 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -60,6 +62,30 @@ EgammaHLTNxNClusterProducer::EgammaHLTNxNClusterProducer(const edm::ParameterSet
 
 EgammaHLTNxNClusterProducer::~EgammaHLTNxNClusterProducer()
 {}
+
+void EgammaHLTNxNClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<bool>(("doBarrel"), true);
+  desc.add<bool>(("doEndcaps"), true);
+  desc.add<edm::InputTag>(("barrelHitProducer"), edm::InputTag(""));
+  desc.add<edm::InputTag>(("endcapHitProducer"), edm::InputTag(""));
+  desc.add<int>(("clusEtaSize"), 0);
+  desc.add<int>(("clusPhiSize"), 0);
+  desc.add<std::string>(("barrelClusterCollection"), "");
+  desc.add<std::string>(("endcapClusterCollection"), "");
+  desc.add<double>(("clusSeedThr"), 0);
+  desc.add<double>(("clusSeedThrEndCap"), 0);
+  desc.add<bool>(("useRecoFlag"), true);
+  desc.add<int>(("flagLevelRecHitsToUse"), 0); 
+  desc.add<bool>(("useDBStatus"), 0);
+  desc.add<int>(("statusLevelRecHitsToUse"), 0); 
+  //desc.add<edm::ParameterSet>(("posCalcParameters"), edm::ParameterSet());
+  desc.add<int>(("maxNumberofSeeds"), 0);
+  desc.add<int>(("maxNumberofClusters"), 0);
+  desc.add<int>(("debugLevel"), 0);
+  descriptions.add(("hltEgammaHLTNxNClusterProducer"), desc);  
+}
 
 void EgammaHLTNxNClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     

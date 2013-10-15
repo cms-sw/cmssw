@@ -8,6 +8,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -99,7 +102,6 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
      hybrid_p->setDynamicPhiRoad(bremRecoveryPset);
   }
 
-
   produces< reco::BasicClusterCollection >(basicclusterCollection_);
   produces< reco::SuperClusterCollection >(superclusterCollection_);
   nEvt_ = 0;
@@ -109,6 +111,40 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
 EgammaHLTHybridClusterProducer::~EgammaHLTHybridClusterProducer()
 {
   delete hybrid_p;
+}
+
+void EgammaHLTHybridClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("basicclusterCollection", "");
+  desc.add<std::string>("superclusterCollection", "");
+  desc.add<edm::InputTag>("ecalhitcollection", edm::InputTag(""));
+  desc.add<edm::InputTag>("l1TagIsolated", edm::InputTag(""));
+  desc.add<edm::InputTag>("l1TagNonIsolated", edm::InputTag(""));
+  desc.add<bool>("doIsolated", true);
+  desc.add<double>("l1LowerThr", 0);
+  desc.add<double>("l1UpperThr", 0);
+  desc.add<double>("l1LowerThrIgnoreIsolation", 0);
+  desc.add<double>("regionEtaMargin", 0);
+  desc.add<double>("regionPhiMargin", 0);
+  //desc.add<edm::ParameterSet>("posCalcParameters", edm::ParameterSet());
+  desc.add<std::vector<std::string>>("RecHitFlagToBeExcluded", std::vector<std::string>());
+  desc.add<std::vector<std::string> >("RecHitSeverityToBeExcluded", std::vector<std::string>());
+  desc.add<double>("HybridBarrelSeedThr", 0);
+  desc.add<int>("step", 0);
+  desc.add<double>("ethresh", 0);
+  desc.add<double>("eseed", 0);
+  desc.add<double>("xi", 0);
+  desc.add<bool>("useEtForXi", 0);
+  desc.add<double>("ewing", 0);
+  desc.add<bool>("dynamicEThresh", 0);
+  desc.add<double>("eThreshA", 0);
+  desc.add<double>("eThreshB", 0);
+  desc.add<bool>("excludeFlagged", 0);
+  desc.add<bool>("dynamicPhiRoad", 0);
+  //desc.add<edm::ParameterSet>("bremRecoveryPset", edm::ParameterSet());
+  
+  descriptions.add("hltEgammaHLTHybridClusterProducer", desc);  
 }
 
 

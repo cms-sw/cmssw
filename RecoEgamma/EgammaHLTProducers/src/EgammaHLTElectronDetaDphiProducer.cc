@@ -29,6 +29,8 @@
 #include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTElectronDetaDphiProducer::EgammaHLTElectronDetaDphiProducer(const edm::ParameterSet& config) {
 
@@ -53,6 +55,18 @@ EgammaHLTElectronDetaDphiProducer::EgammaHLTElectronDetaDphiProducer(const edm::
 EgammaHLTElectronDetaDphiProducer::~EgammaHLTElectronDetaDphiProducer()
 {}
 
+void EgammaHLTElectronDetaDphiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>(("electronProducer"), edm::InputTag());
+  desc.add<edm::InputTag>(("BSProducer"), edm::InputTag());
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag()); 
+  desc.add<bool>(("useSCRefs"), false);
+  desc.add<bool>(("useTrackProjectionToEcal"), false);
+  desc.add<bool>(("variablesAtVtx"), true);
+  
+  descriptions.add(("hltEgammaHLTElectronDetaDphiProducer"), desc);  
+}
+  
 void EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Get the HLT filtered objects
   edm::Handle<reco::ElectronCollection> electronHandle;

@@ -20,6 +20,8 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTHcalIsolationProducersRegional::EgammaHLTHcalIsolationProducersRegional(const edm::ParameterSet& config)
 {
@@ -50,6 +52,27 @@ EgammaHLTHcalIsolationProducersRegional::EgammaHLTHcalIsolationProducersRegional
 
 EgammaHLTHcalIsolationProducersRegional::~EgammaHLTHcalIsolationProducersRegional() {
   delete isolAlgo_;
+}
+
+void EgammaHLTHcalIsolationProducersRegional::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag());
+  desc.add<edm::InputTag>(("hbheRecHitProducer"), edm::InputTag());
+  desc.add<edm::InputTag>(("rhoProducer"), edm::InputTag());
+  desc.add<bool>(("doRhoCorrection"), 0);
+  desc.add<double>(("rhoMax"), 0); 
+  desc.add<double>(("rhoScale"), 0); 
+  desc.add<double>(("eMinHB"), 0);
+  desc.add<double>(("eMinHE"), 0);
+  desc.add<double>(("etMinHB"), 0);  
+  desc.add<double>(("etMinHE"), 0);
+  desc.add<double>(("innerCone"), 0);
+  desc.add<double>(("outerCone"), 0);
+  desc.add<int>(("depth"), 0);
+  desc.add<bool>(("doEtSum"), 0);
+  desc.add<double>(("effectiveAreaBarrel"), 0);
+  desc.add<double>(("effectiveAreaEndcap"), 0);
+  descriptions.add(("hltEgammaHLTHcalIsolationProducersRegional"), desc);  
 }
 
 void EgammaHLTHcalIsolationProducersRegional::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

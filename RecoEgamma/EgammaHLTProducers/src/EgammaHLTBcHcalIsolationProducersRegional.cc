@@ -7,6 +7,9 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTBcHcalIsolationProducersRegional.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -54,6 +57,26 @@ EgammaHLTBcHcalIsolationProducersRegional::~EgammaHLTBcHcalIsolationProducersReg
   delete hcalHelper_;
 }
 
+void EgammaHLTBcHcalIsolationProducersRegional::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltSingleElectronOneOEMinusOneOPFilter"));
+  desc.add<edm::InputTag>(("caloTowerProducer"), edm::InputTag("hltSingleElectronOneOEMinusOneOPFilter"));
+  desc.add<edm::InputTag>(("rhoProducer"), edm::InputTag("hltSingleElectronOneOEMinusOneOPFilter"));
+  desc.add<bool>(("doRhoCorrection"), false);
+  desc.add<double>(("rhoMax"), 0); 
+  desc.add<double>(("rhoScale"), 0); 
+  desc.add<double>(("etMin"), 0);  
+  desc.add<double>(("innerCone"), 0);
+  desc.add<double>(("outerCone"), 0);
+  desc.add<int>(("depth"), 0);
+  desc.add<bool>(("doEtSum"), false); 
+  desc.add<double>(("effectiveAreaBarrel"), 0);
+  desc.add<double>(("effectiveAreaEndcap"), 0);
+  desc.add<bool>(("useSingleTower"), false);
+  descriptions.add(("hltEgammaHLTBcHcalIsolationProducersRegional"), desc);  
+}
 
 void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 

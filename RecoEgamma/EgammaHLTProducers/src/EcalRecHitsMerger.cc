@@ -3,6 +3,8 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EcalRecHitsMerger.h"
@@ -48,6 +50,28 @@ EcalRecHitsMerger::EcalRecHitsMerger(const edm::ParameterSet& pset) {
 EcalRecHitsMerger::~EcalRecHitsMerger() {
 }
 
+void EcalRecHitsMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("debug", false);
+  desc.add<edm::InputTag>("EgammaSource_EB", edm::InputTag(""));
+  desc.add<edm::InputTag>("MuonsSource_EB", edm::InputTag(""));
+  desc.add<edm::InputTag>("TausSource_EB", edm::InputTag(""));
+  desc.add<edm::InputTag>("JetsSource_EB", edm::InputTag(""));
+  desc.add<edm::InputTag>("RestSource_EB", edm::InputTag(""));
+  desc.add<edm::InputTag>("Pi0Source_EB", edm::InputTag("dummyPi0"));
+  desc.add<edm::InputTag>("EgammaSource_EE", edm::InputTag(""));
+  desc.add<edm::InputTag>("MuonsSource_EE", edm::InputTag(""));
+  desc.add<edm::InputTag>("TausSource_EE", edm::InputTag(""));
+  desc.add<edm::InputTag>("JetsSource_EE", edm::InputTag(""));
+  desc.add<edm::InputTag>("RestSource_EE", edm::InputTag(""));
+  desc.add<edm::InputTag>("Pi0Source_EE", edm::InputTag("dummyPi0"));
+  desc.add<std::string>("OutputLabel_EB", "");
+  desc.add<std::string>("OutputLabel_EE", "");
+  desc.add<std::string>("EcalRecHitCollectionEB", "");
+  desc.add<std::string>("EcalRecHitCollectionEE", "");
+  descriptions.add("hltEcalRecHitsMerger", desc);  
+}
 
 void EcalRecHitsMerger::beginJob(){
 }

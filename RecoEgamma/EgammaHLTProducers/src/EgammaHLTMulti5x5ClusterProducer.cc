@@ -5,6 +5,8 @@
 
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -82,6 +84,30 @@ EgammaHLTMulti5x5ClusterProducer::EgammaHLTMulti5x5ClusterProducer(const edm::Pa
 
 EgammaHLTMulti5x5ClusterProducer::~EgammaHLTMulti5x5ClusterProducer() {
   delete Multi5x5_p;
+}
+
+void EgammaHLTMulti5x5ClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<bool>(("doBarrel"), true);
+  desc.add<bool>(("doEndcaps"), true);
+  desc.add<bool>(("doIsolated"), true);
+  desc.add<edm::InputTag>(("barrelHitProducer"), edm::InputTag(""));
+  desc.add<edm::InputTag>(("endcapHitProducer"), edm::InputTag(""));
+  desc.add<std::string>(("barrelClusterCollection"), "");
+  desc.add<std::string>(("endcapClusterCollection"), "");
+  desc.add<double>(("Multi5x5BarrelSeedThr"), 0);
+  desc.add<double>(("Multi5x5EndcapSeedThr"), 0);
+  desc.add<edm::InputTag>(("l1TagIsolated"), edm::InputTag(""));
+  desc.add<edm::InputTag>(("l1TagNonIsolated"), edm::InputTag(""));
+  desc.add<double>(("l1LowerThr"), 0);
+  desc.add<double>(("l1UpperThr"), 0);
+  desc.add<double>(("l1LowerThrIgnoreIsolation"), 0);
+  desc.add<double>(("regionEtaMargin"), 0);
+  desc.add<double>(("regionPhiMargin"), 0);
+  //desc.add<edm::ParameterSet>(("posCalcParameters"), edm::ParameterSet());
+  desc.add<std::vector<std::string> >(("RecHitFlagToBeExcluded"), std::vector<std::string>());
+  descriptions.add(("hltEgammaHLTMulti5x5ClusterProducer"), desc);  
 }
 
 void EgammaHLTMulti5x5ClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {

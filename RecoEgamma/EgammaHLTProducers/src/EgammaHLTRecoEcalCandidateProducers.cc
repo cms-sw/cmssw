@@ -12,6 +12,8 @@
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRecoEcalCandidateProducers.h"
 
@@ -29,6 +31,14 @@ EgammaHLTRecoEcalCandidateProducers::EgammaHLTRecoEcalCandidateProducers(const e
 }
 
 EgammaHLTRecoEcalCandidateProducers::~EgammaHLTRecoEcalCandidateProducers() {}
+
+void EgammaHLTRecoEcalCandidateProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>(("scHybridBarrelProducer"), edm::InputTag(""));
+  desc.add<edm::InputTag>(("scIslandEndcapProducer"), edm::InputTag(""));
+  desc.add<std::string>(("recoEcalCandidateCollection"), "");
+  descriptions.add(("hltEgammaHLTRecoEcalCandidateProducers"), desc);  
+}
 
 void EgammaHLTRecoEcalCandidateProducers::beginJob() {}
 

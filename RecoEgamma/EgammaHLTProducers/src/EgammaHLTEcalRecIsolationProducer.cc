@@ -25,6 +25,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
   // use configuration file to setup input/output collection names
@@ -64,6 +66,36 @@ EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::
 
 EgammaHLTEcalRecIsolationProducer::~EgammaHLTEcalRecIsolationProducer()
 {}
+
+void EgammaHLTEcalRecIsolationProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag(""));
+  desc.add<edm::InputTag>("ecalBarrelRecHitProducer", edm::InputTag(""));
+  desc.add<edm::InputTag>("ecalEndcapRecHitProducer", edm::InputTag(""));
+  desc.add<edm::InputTag>("ecalBarrelRecHitCollection", edm::InputTag(""));
+  desc.add<edm::InputTag>("ecalEndcapRecHitCollection", edm::InputTag(""));
+  desc.add<edm::InputTag>("rhoProducer", edm::InputTag(""));
+  desc.add<bool>("doRhoCorrection", false);
+  desc.add<double>("rhoMax", 1.); 
+  desc.add<double>("rhoScale", 0); 
+  desc.add<double>("etMinBarrel", 0);
+  desc.add<double>("eMinBarrel", 0);
+  desc.add<double>("etMinEndcap", 0);
+  desc.add<double>("eMinEndcap", 0);
+  desc.add<double>("intRadiusBarrel", 0);
+  desc.add<double>("intRadiusEndcap", 0);
+  desc.add<double>("extRadius", 0);
+  desc.add<double>("jurassicWidth", 0);
+  desc.add<double>("effectiveAreaBarrel", 0);
+  desc.add<double>("effectiveAreaEndcap", 0.);
+  desc.add<bool>("useIsolEt", true);
+  desc.add<bool>("tryBoth", true);
+  desc.add<bool>("subtract", false);
+  desc.add<bool>("useNumCrystals", true);
+  
+  descriptions.add(("hltEgammaHLTEcalRecIsolationProducer"), desc);  
+}
 
 void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   

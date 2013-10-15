@@ -10,6 +10,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTPhotonTrackIsolationProducersRegional::EgammaHLTPhotonTrackIsolationProducersRegional(const edm::ParameterSet& config) : conf_(config)
 {
@@ -38,6 +40,22 @@ EgammaHLTPhotonTrackIsolationProducersRegional::EgammaHLTPhotonTrackIsolationPro
 }
 
 EgammaHLTPhotonTrackIsolationProducersRegional::~EgammaHLTPhotonTrackIsolationProducersRegional(){delete test_;}
+
+void EgammaHLTPhotonTrackIsolationProducersRegional::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag(""));
+  desc.add<edm::InputTag>(("trackProducer"), edm::InputTag(""));
+  desc.add<bool>(("countTracks"), true);
+  desc.add<double>(("egTrkIsoPtMin"), 0);
+  desc.add<double>(("egTrkIsoConeSize"), 0);
+  desc.add<double>(("egTrkIsoZSpan"), 0);
+  desc.add<double>(("egTrkIsoRSpan"), 0);
+  desc.add<double>(("egTrkIsoVetoConeSize"), 0);
+  desc.add<double>(("egTrkIsoStripBarrel"), 0);
+  desc.add<double>(("egTrkIsoStripEndcap"), 0);
+  descriptions.add(("hltEgammaHLTPhotonTrackIsolationProducersRegional"), desc);  
+}
+  
 
 // ------------ method called to produce the data  ------------
 void

@@ -6,6 +6,8 @@
 // Framework
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -84,6 +86,30 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
 
 EgammaHLTIslandClusterProducer::~EgammaHLTIslandClusterProducer() {
   delete island_p;
+}
+
+void EgammaHLTIslandClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("VerbosityLevel", "");
+  desc.add<bool>("doBarrel", true);
+  desc.add<bool>("doEndcaps", true);
+  desc.add<bool>("doIsolated", true);
+  desc.add<edm::InputTag>("barrelHitProducer", edm::InputTag(""));
+  desc.add<edm::InputTag>("endcapHitProducer", edm::InputTag(""));
+  desc.add<std::string>("barrelClusterCollection", "");
+  desc.add<std::string>("endcapClusterCollection", "");
+  desc.add<double>("IslandBarrelSeedThr", 0);
+  desc.add<double>("IslandEndcapSeedThr", 0);
+  desc.add<edm::InputTag>("l1TagIsolated", edm::InputTag(""));
+  desc.add<edm::InputTag>("l1TagNonIsolated", edm::InputTag(""));
+  desc.add<double>("l1LowerThr", 0);
+  desc.add<double>("l1UpperThr", 0);
+  desc.add<double>("l1LowerThrIgnoreIsolation", 0);
+  desc.add<double>("regionEtaMargin", 0);
+  desc.add<double>("regionPhiMargin", 0);
+  //desc.add<edm::ParameterSet>("posCalcParameters"), edm::ParameterSet());
+  descriptions.add("hltEgammaHLTIslandClusterProducer", desc);  
 }
 
 void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {

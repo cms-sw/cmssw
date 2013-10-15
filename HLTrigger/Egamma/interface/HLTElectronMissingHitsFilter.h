@@ -18,7 +18,7 @@ class HLTElectronMissingHitsFilter : public HLTFilter {
       explicit HLTElectronMissingHitsFilter(const edm::ParameterSet&);
       ~HLTElectronMissingHitsFilter();
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-      void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
       edm::InputTag candTag_;            // input tag for the RecoCandidates from the previous filter

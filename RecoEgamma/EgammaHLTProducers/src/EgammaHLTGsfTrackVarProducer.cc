@@ -27,6 +27,8 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterSet& config)
 {
@@ -45,6 +47,15 @@ EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterS
 EgammaHLTGsfTrackVarProducer::~EgammaHLTGsfTrackVarProducer()
 {}
 
+void EgammaHLTGsfTrackVarProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag());
+  desc.add<edm::InputTag>(("inputCollection"), edm::InputTag());
+  desc.add<edm::InputTag>(("beamSpotProducer"), edm::InputTag());
+  desc.add<int>(("upperTrackNrToRemoveCut"), 1); 
+  desc.add<int>(("lowerTrackNrToRemoveCut"), 1);
+  descriptions.add("hltEgammaHLTGsfTrackVarProducer", desc);
+}
 void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   trackExtrapolator_.setup(iSetup);

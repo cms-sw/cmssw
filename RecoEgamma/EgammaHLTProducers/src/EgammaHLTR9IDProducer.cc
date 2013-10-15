@@ -15,6 +15,8 @@
 //#include "FWCore/Framework/interface/ESHandle.h"
 //#include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
@@ -33,6 +35,17 @@ EgammaHLTR9IDProducer::EgammaHLTR9IDProducer(const edm::ParameterSet& config) : 
 }
 
 EgammaHLTR9IDProducer::~EgammaHLTR9IDProducer(){}
+
+void EgammaHLTR9IDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag());
+  desc.add<edm::InputTag>(("ecalRechitEB"), edm::InputTag());
+  desc.add<edm::InputTag>(("ecalRechitEE"), edm::InputTag());
+
+  descriptions.add(("hltEgammaHLTR9IDProducer"), desc);  
+}
+
 
 // ------------ method called to produce the data  ------------
 void EgammaHLTR9IDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

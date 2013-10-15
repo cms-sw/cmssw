@@ -1,4 +1,6 @@
 #include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EcalListOfFEDSProducer.h"
 #include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
@@ -80,6 +82,39 @@ EcalListOfFEDSProducer::EcalListOfFEDSProducer(const edm::ParameterSet& pset) {
 
 EcalListOfFEDSProducer::~EcalListOfFEDSProducer() {
   delete TheMapping;
+}
+
+void EcalListOfFEDSProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+ desc.add<bool>("debug");
+ desc.add<edm::InputTag>("Pi0ListToIgnore", edm::InputTag(""));
+ desc.add<bool>("EGamma",false);
+ desc.add<bool>("Muon",false);
+ desc.add<bool>("Jets",false);
+ desc.add<edm::InputTag>("EM_l1TagIsolated", edm::InputTag(""));
+ desc.add<edm::InputTag>("EM_l1TagNonIsolated", edm::InputTag(""));
+ desc.add<bool>("EM_doIsolated",true);
+ desc.add<bool>("EM_doNonIsolated",true);
+ desc.add<double>("EM_regionEtaMargin",0.25);
+ desc.add<double>("EM_regionPhiMargin",0.40);
+ desc.add<double>("Ptmin_iso",0.);
+ desc.add<double>("Ptmin_noniso",0.);
+ desc.add<double>("MU_regionEtaMargin",1.0);
+ desc.add<double>("MU_regionPhiMargin",1.0);
+ desc.add<double>("Ptmin_muon",0.);
+ desc.add<edm::InputTag>("MuonSource", edm::InputTag(""));
+ desc.add<double>("JETS_regionEtaMargin",1.0);
+ desc.add<double>("JETS_regionPhiMargin",1.0);
+ desc.add<double>("Ptmin_jets",0.);
+ desc.add<edm::InputTag>("CentralSource", edm::InputTag(""));
+ desc.add<edm::InputTag>("ForwardSource", edm::InputTag(""));
+desc.add<edm::InputTag>("TauSource", edm::InputTag(""));
+ desc.add<bool>("JETS_doCentral",true);
+ desc.add<bool>("JETS_doForward",true);
+ desc.add<bool>("JETS_doTau",true);
+desc.add<std::string>("OutputLabel", "");
+  descriptions.add(("hltEcalListOfFEDSProducer"), desc);  
 }
 
 void EcalListOfFEDSProducer::beginJob()

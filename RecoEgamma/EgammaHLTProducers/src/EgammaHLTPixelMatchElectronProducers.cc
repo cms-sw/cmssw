@@ -21,6 +21,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPixelMatchElectronProducers.h"
 
@@ -40,32 +42,38 @@
 
 using namespace reco;
  
-EgammaHLTPixelMatchElectronProducers::EgammaHLTPixelMatchElectronProducers(const edm::ParameterSet& iConfig) : conf_(iConfig)
-{
+EgammaHLTPixelMatchElectronProducers::EgammaHLTPixelMatchElectronProducers(const edm::ParameterSet& iConfig) : conf_(iConfig) {
+
   //register your products
   produces<ElectronCollection>();
 
   //create algo
   algo_ = new EgammaHLTPixelMatchElectronAlgo(conf_);
-
 }
 
 
-EgammaHLTPixelMatchElectronProducers::~EgammaHLTPixelMatchElectronProducers()
-{
+EgammaHLTPixelMatchElectronProducers::~EgammaHLTPixelMatchElectronProducers() {
   delete algo_;
 }
 
-void EgammaHLTPixelMatchElectronProducers::beginJob() 
-{     
+void EgammaHLTPixelMatchElectronProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>(("TrackProducer"), edm::InputTag(""));
+  desc.add<edm::InputTag>(("GsfTrackProducer"), edm::InputTag(""));
+  desc.add<bool>(("UseGsfTracks"), false);
+  desc.add<edm::InputTag>(("BSProducer"), edm::InputTag("")); 
+  descriptions.add(("hltEgammaHLTPixelMatchElectronProducers"), desc);  
 }
 
+void EgammaHLTPixelMatchElectronProducers::beginJob() 
+{}
+
 // ------------ method called to produce the data  ------------
-void EgammaHLTPixelMatchElectronProducers::produce(edm::Event& e, const edm::EventSetup& iSetup) 
-{
+void EgammaHLTPixelMatchElectronProducers::produce(edm::Event& e, const edm::EventSetup& iSetup)  {
   // Update the algorithm conditions
   algo_->setupES(iSetup);  
-
+  
   // Create the output collections   
   std::auto_ptr<ElectronCollection> pOutEle(new ElectronCollection);
   
@@ -74,7 +82,6 @@ void EgammaHLTPixelMatchElectronProducers::produce(edm::Event& e, const edm::Eve
 
   // put result into the Event
     e.put(pOutEle);
-  
 }
 
 
