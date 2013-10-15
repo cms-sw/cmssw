@@ -624,7 +624,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
   if(useEGammaFilters_) {
 
     // const edm::ValueMap<reco::GsfElectronRef> & myGedElectronValMap(*valueMapGedElectrons_);
-    bool egmLocalDebug = true;
+    bool egmLocalDebug = false;
+    bool egmLocalBlockDebug = false;
 
     unsigned int negmcandidates = pfEgammaCandidates_->size();
     for(unsigned int ieg=0 ; ieg <  negmcandidates; ++ieg) {
@@ -643,7 +644,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	if(egmLocalDebug)
 	  cout << " I am in looping on EGamma Candidates: pt " << (*pfEgmRef).pt() 
-	       << " eta,phi " << (*pfEgmRef).eta() << ", " << (*pfEgmRef).phi() << endl;
+	       << " eta,phi " << (*pfEgmRef).eta() << ", " << (*pfEgmRef).phi() 
+	       << " charge " << (*pfEgmRef).charge() << endl;
 
 	if((*pfEgmRef).gsfTrackRef().isNonnull()) {
 
@@ -655,6 +657,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	      if(isGoodElectron) 
 		cout << "** Good Electron, pt " << gedEleRef->pt()
 		     << " eta, phi " << gedEleRef->eta() << ", " << gedEleRef->phi() 
+		     << " charge " << gedEleRef->charge() 
 		     << " isPrimary " << isPrimaryElectron  << endl;
 	    }
 
@@ -684,46 +687,59 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       // isElectron
       if(isGoodElectron) {
-
+	reco::GsfElectronRef gedEleRef = (*valueMapGedElectrons_)[pfEgmRef];
 	reco::PFCandidate myPFElectron = *pfEgmRef;
 	reco::PFCandidate::ParticleType particleType = reco::PFCandidate::e;
 	myPFElectron.setParticleType(particleType);
-	
-	// *********************************************************************
-	//      Need to understand how to update the momentum and the charge
-	//	typedef PFCandidate::ElementsInBlocks::const_iterator iloc; 
-	// ********************************************************************
-	
+	myPFElectron.setCharge(gedEleRef->charge());
+	myPFElectron.setP4(gedEleRef->p4());
+	if(egmLocalDebug) {
+	  cout << " PFAlgo: found an electron with NEW EGamma code " << endl;
+	  cout << " myPFElectron: pt " << myPFElectron.pt() 
+	       << " eta,phi " << myPFElectron.eta() << ", " <<myPFElectron.phi() 
+	       << " charge " << myPFElectron.charge() << endl;
+	}
+
+
 	// Lock all the elements
+	if(egmLocalBlockDebug)
+	  cout << " THE BLOCK " << *blockref << endl;
 	for (PFCandidate::ElementsInBlocks::const_iterator ieb = theElements.begin(); 
 	     ieb<theElements.end(); ++ieb) {
 	  active[ieb->second] = false;
+	  if(egmLocalBlockDebug)
+	    cout << " Elements used " <<  ieb->second << endl;
 	}
 	pfCandidates_->push_back(myPFElectron);
 
-	if(egmLocalDebug)
-	  cout << " PFAlgo: found an electron with NEW EGamma code " << endl;
+
       }
       if(isGoodPhoton) {
-	
+	reco::PhotonRef gedPhoRef = (*valueMapGedPhotons_)[pfEgmRef];   
 	reco::PFCandidate myPFPhoton = *pfEgmRef;
 	reco::PFCandidate::ParticleType particleType = reco::PFCandidate::gamma;
 	myPFPhoton.setParticleType(particleType);
-	
-	// *********************************************************************
-	//      Need to understand how to update the momentum and the charge
-	//	typedef PFCandidate::ElementsInBlocks::const_iterator iloc; 
-	// ********************************************************************
+	myPFPhoton.setCharge(0);
+	myPFPhoton.setP4(gedPhoRef->p4());
+	if(egmLocalDebug) {
+	  cout << " PFAlgo: found a photon with NEW EGamma code " << endl;
+	  cout << " myPFPhoton: pt " << myPFPhoton.pt() 
+	       << " eta,phi " << myPFPhoton.eta() << ", " <<myPFPhoton.phi() 
+	       << " charge " << myPFPhoton.charge() << endl;
+	}
 	
 	// Lock all the elements
+	if(egmLocalBlockDebug)
+	  cout << " THE BLOCK " << *blockref << endl;
 	for (PFCandidate::ElementsInBlocks::const_iterator ieb = theElements.begin(); 
 	     ieb<theElements.end(); ++ieb) {
 	  active[ieb->second] = false;
+	  if(egmLocalBlockDebug)
+	    cout << " Elements used " <<  ieb->second << endl;
 	}
 	pfCandidates_->push_back(myPFPhoton);
 	
-	if(egmLocalDebug)
-	  cout << " PFAlgo: found a photon with NEW EGamma code " << endl;
+
       }
     } // end loop on EGM candidates
   } // end if use EGammaFilters
