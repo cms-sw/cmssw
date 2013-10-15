@@ -47,6 +47,13 @@ namespace reco {
       MVA_LAST
     };
 
+    enum ElectronVetoes {
+      kN_EVETOS
+    };
+
+    enum PhotonVetoes {
+      kN_PHOVETOS
+    };
 
   public:
     /// constructor
@@ -187,6 +194,8 @@ namespace reco {
     float sigmaEtaEta_;
     float hadEnergy_;
     float deltaEta_;
+
+    unsigned elevetoes_,phovetos_;
   };
 
   /// print the variables
