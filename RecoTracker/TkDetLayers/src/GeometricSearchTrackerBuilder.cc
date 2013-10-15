@@ -10,7 +10,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "DataFormats/Common/interface/Trie.h"
 #include <boost/function.hpp>
@@ -20,7 +20,8 @@ using namespace std;
 
 GeometricSearchTracker*
 GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
-				     const TrackerGeometry* theGeomDetGeometry)
+				     const TrackerGeometry* theGeomDetGeometry,
+				     const TrackerTopology* tTopo)
 {
   PixelBarrelLayerBuilder aPixelBarrelLayerBuilder;
   PixelForwardLayerBuilder aPixelForwardLayerBuilder;
@@ -166,5 +167,5 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 
   return new GeometricSearchTracker(thePxlBarLayers,theTIBLayers,theTOBLayers,
 				    theNegPxlFwdLayers,theNegTIDLayers,theNegTECLayers,
-				    thePosPxlFwdLayers,thePosTIDLayers,thePosTECLayers);
+				    thePosPxlFwdLayers,thePosTIDLayers,thePosTECLayers, tTopo);
 }
