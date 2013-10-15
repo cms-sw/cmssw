@@ -13,7 +13,7 @@
  */
 
 template <unsigned int N>
-class VertexTrack : public ReferenceCounted {
+class VertexTrack GCC11_FINAL : public ReferenceCounted {
 
 public:
 
