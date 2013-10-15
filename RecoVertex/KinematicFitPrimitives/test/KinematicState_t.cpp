@@ -33,6 +33,9 @@ int main() {
   GlobalPoint gp(0,0,0);
   GlobalPoint gp2(1,1,1);
 
+  GlobalPoint stars(-1.e12,-1.e12,-1);
+
+
   GlobalVector gv(1,1,1);
   GlobalTrajectoryParameters gtp(gp,gv,1,field);
   double v[15] = {0.01,-0.01,0.  ,0.,0.,
@@ -81,7 +84,13 @@ int main() {
   cout << "ks2 cart err\n" << ks2.freeTrajectoryState().cartesianError().matrix() << std::endl;					   
 
   TrackKinematicStatePropagator p;
-  std::cout << "\npropagate ks\n" << std::endl;
+  {
+    auto ok = p.willPropagateToTheTransversePCA(ks,stars);
+    std::cout << "\npropagate ks to stars " << (ok ? "ok\n" : "nope\n") << std::endl;
+  }
+
+  auto ok = p.willPropagateToTheTransversePCA(ks,gp2);
+  std::cout << "\npropagate ks " << (ok ? "ok\n" : "nope\n") << std::endl;
   auto kst = p.propagateToTheTransversePCA(ks,gp2);
 
   std::cout << "kst Par" << kst.kinematicParameters().vector() << std::endl;
@@ -91,7 +100,8 @@ int main() {
   cout << "kst curv err\n" << kst.freeTrajectoryState().curvilinearError().matrix() << std::endl;					   
   cout << "kst cart err\n" << kst.freeTrajectoryState().cartesianError().matrix() << std::endl;					   
 
-  std::cout << "\npropagate ks2\n" << std::endl;
+  auto ok2 = p.willPropagateToTheTransversePCA(ks2,gp2);
+  std::cout << "\npropagate ks2 " << (ok2 ? "ok\n" : "nope\n" )<< std::endl;
   auto kst2 = p.propagateToTheTransversePCA(ks2,gp2);
 
   std::cout << "kst2 Par" << kst2.kinematicParameters().vector() << std::endl;

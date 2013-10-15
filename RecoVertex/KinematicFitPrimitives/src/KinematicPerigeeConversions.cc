@@ -21,6 +21,7 @@ KinematicPerigeeConversions::extendedPerigeeFromKinematicParameters(
 // double transverseCurvature = field/pt*signTC;
 
 //making a proper sign for epsilon
+// FIXME use scalar product...
  double positiveMomentumPhi  = ((phi>0) ? phi : (2*M_PI + phi));
  double positionPhi = impactDistance.phi();
  double positivePositionPhi =

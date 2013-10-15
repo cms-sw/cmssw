@@ -19,53 +19,67 @@ TrackKinematicStatePropagator::propagateToTheTransversePCA
   }
 }
 
-pair<HelixBarrelPlaneCrossingByCircle, BoundPlane::BoundPlanePointer>
-TrackKinematicStatePropagator::planeCrossing(const FreeTrajectoryState& state,
-	const GlobalPoint& point) const
-{
- GlobalPoint inPos = state.position();
- GlobalVector inMom = state.momentum();
- double kappa = state.transverseCurvature();
- double fac = 1./state.charge()/state.parameters().magneticField().inInverseGeV(point).z();
- 
- GlobalVectorDouble xOrig2Centre = GlobalVectorDouble(fac * inMom.y(), -fac * inMom.x(), 0.);
- GlobalVectorDouble xOrigProj = GlobalVectorDouble(inPos.x(), inPos.y(), 0.);
- GlobalVectorDouble xRefProj = GlobalVectorDouble(point.x(), point.y(), 0.);
- GlobalVectorDouble deltax = xRefProj-xOrigProj-xOrig2Centre;
- GlobalVectorDouble ndeltax = deltax.unit();
-  
- PropagationDirection direction = anyDirection;
- Surface::PositionType pos(point);
-  
-// Need to define plane with orientation as the ImpactPointSurface
- GlobalVector X(ndeltax.x(), ndeltax.y(), ndeltax.z());
- GlobalVector Y(0.,0.,1.);
- Surface::RotationType rot(X,Y);
- Plane::PlanePointer plane = Plane::build(pos,rot);
- HelixBarrelPlaneCrossingByCircle 
-   planeCrossing(HelixPlaneCrossing::PositionType(inPos.x(), inPos.y(), inPos.z()),
-		 HelixPlaneCrossing::DirectionType(inMom.x(), inMom.y(), inMom.z()), 
-		 kappa, direction);
- return std::pair<HelixBarrelPlaneCrossingByCircle,Plane::PlanePointer>(planeCrossing,plane);
+namespace {
+  inline
+  pair<HelixBarrelPlaneCrossingByCircle, BoundPlane::BoundPlanePointer>
+  planeCrossing(const FreeTrajectoryState& state,
+		const GlobalPoint& point) {
+    
+    typedef Point3DBase< double, GlobalTag>    GlobalPointDouble;
+    typedef Vector3DBase< double, GlobalTag>    GlobalVectorDouble;
+    
+    GlobalPoint inPos = state.position();
+    GlobalVector inMom = state.momentum();
+    double kappa = state.transverseCurvature();
+    double fac = state.charge()/state.parameters().magneticFieldInInverseGeV(point).z();
+    
+    GlobalVectorDouble xOrig2Centre(fac * inMom.y(), -fac * inMom.x(), 0.);
+    GlobalVectorDouble xOrigProj(inPos.x(), inPos.y(), 0.);
+    GlobalVectorDouble xRefProj(point.x(), point.y(), 0.);
+    GlobalVectorDouble deltax = xRefProj-xOrigProj-xOrig2Centre;
+    GlobalVectorDouble ndeltax = deltax.unit();
+    
+    PropagationDirection direction = anyDirection;
+    Surface::PositionType pos(point);
+    
+    // Need to define plane with orientation as the ImpactPointSurface
+    GlobalVector X(ndeltax.x(), ndeltax.y(), ndeltax.z());
+    GlobalVector Y(0.,0.,1.);
+    Surface::RotationType rot(X,Y);
+    Plane::PlanePointer plane = Plane::build(pos,rot);
+    HelixBarrelPlaneCrossingByCircle 
+      planeCrossing(HelixPlaneCrossing::PositionType(inPos.x(), inPos.y(), inPos.z()),
+		    HelixPlaneCrossing::DirectionType(inMom.x(), inMom.y(), inMom.z()), 
+		    kappa, direction);
+    return std::pair<HelixBarrelPlaneCrossingByCircle,Plane::PlanePointer>(planeCrossing,plane);
+  }
 }
 
+bool TrackKinematicStatePropagator::willPropagateToTheTransversePCA(const KinematicState& state, const GlobalPoint& point) const {
+  if( state.particleCharge() == 0. ) return true;
 
+  // copied from below...
+  FreeTrajectoryState const & fState = state.freeTrajectoryState();		
+  std::pair<HelixBarrelPlaneCrossingByCircle, BoundPlane::BoundPlanePointer> cros = planeCrossing(fState,point);	   
+  
+  HelixBarrelPlaneCrossingByCircle planeCrossing = cros.first; 
+  BoundPlane::BoundPlanePointer plane = cros.second;
+  std::pair<bool,double> propResult = planeCrossing.pathLength(*plane);
+  return propResult.first;
+
+}
+  
 KinematicState
 TrackKinematicStatePropagator::propagateToTheTransversePCACharged
-	(const KinematicState& state, const GlobalPoint& referencePoint) const
-{
-//first use the existing FTS propagator to obtain parameters at PCA
-//in transverse plane to the given point
-
-//final parameters and covariance
-    
-//initial parameters as class and vectors:  
-  GlobalTrajectoryParameters const & inPar = state.trajectoryParameters(); 
-  ParticleMass mass = state.mass();							  
-  GlobalVector inMom = state.globalMomentum();							  
+(const KinematicState& state, const GlobalPoint& referencePoint) const {
+  //first use the existing FTS propagator to obtain parameters at PCA
+  //in transverse plane to the given point
   
-//making a free trajectory state and looking 
-//for helix barrel plane crossing  
+  //final parameters and covariance
+  
+  //initial parameters as class and vectors:  
+  //making a free trajectory state and looking 
+  //for helix barrel plane crossing  
   FreeTrajectoryState const & fState = state.freeTrajectoryState();		
   GlobalPoint iP = referencePoint;					  
   std::pair<HelixBarrelPlaneCrossingByCircle, BoundPlane::BoundPlanePointer> cros = planeCrossing(fState,iP);	   
@@ -75,10 +89,15 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
   std::pair<bool,double> propResult = planeCrossing.pathLength(*plane);
   if ( !propResult.first ) {
     LogDebug("RecoVertex/TrackKinematicStatePropagator") 
-	 << "Propagation failed! State is invalid\n";
+	<< "Propagation failed! State is invalid\n";
     return  KinematicState();
   }
   double s = propResult.second;
+    
+  
+  GlobalTrajectoryParameters const & inPar = state.trajectoryParameters(); 
+  ParticleMass mass = state.mass();							  
+  GlobalVector inMom = state.globalMomentum();							  
   
   HelixPlaneCrossing::PositionType xGen = planeCrossing.position(s);
   GlobalPoint nPosition(xGen.x(),xGen.y(),xGen.z());
