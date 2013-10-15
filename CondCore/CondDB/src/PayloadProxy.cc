@@ -4,11 +4,11 @@ namespace cond {
 
   namespace db {
 
-    BasePayloadProxy::BasePayloadProxy( cond::Session& session ) :
+    BasePayloadProxy::BasePayloadProxy( cond::db::Session& session ) :
       m_iovProxy(),m_session(session) {
     }
 
-    BasePayloadProxy::BasePayloadProxy(cond::Session& session,
+    BasePayloadProxy::BasePayloadProxy(cond::db::Session& session,
 				       const std::string& tag ) :
       m_iovProxy(),m_session(session) {
       m_session.transaction().start(true);

@@ -34,6 +34,8 @@ namespace cond {
 
   namespace persistency {
 
+    class SessionConfiguration; 
+
     // transaction class 
     class Transaction {
     public:
@@ -79,7 +81,7 @@ namespace cond {
       void close();
       
       //
-      cond::SessionConfiguration& configuration();
+      SessionConfiguration& configuration();
       
       //
       Transaction& transaction();

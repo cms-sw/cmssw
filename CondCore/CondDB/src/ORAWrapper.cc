@@ -52,7 +52,7 @@ namespace cond {
 	oraDb.transaction().start( true );
 	exists = oraDb.exists();
 	if( !exists ){
-	  exists = cond::existsTable( oraDb.storageAccessSession().share()->nominalSchema(), cond::tagInventoryTable.c_str() );
+	  exists = cond::persistency::existsTable( oraDb.storageAccessSession().share()->nominalSchema(), cond::tagInventoryTable.c_str() );
 	}
 	oraDb.transaction().commit();
 	if( exists ){
@@ -707,7 +707,7 @@ namespace cond {
     }
     
     //
-    cond::Configuration& Session::configuration(){
+    SessionConfiguration& Session::configuration(){
       return m_switch.impl.configuration();
     }
     

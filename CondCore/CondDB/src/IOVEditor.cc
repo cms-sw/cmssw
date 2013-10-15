@@ -12,7 +12,7 @@ namespace cond {
     public:
       explicit IOVEditorData():
 	tag( "" ),
-	timeType( cond::time::INVALID ),
+	timeType( cond::invalid ),
 	payloadType(""),
 	synchronizationType( cond::OFFLINE ),
 	description(""),
@@ -83,7 +83,7 @@ namespace cond {
     
     
     cond::TimeType IOVEditor::timeType() const {
-      return m_data.get() ? m_data->timeType : cond::time::INVALID;
+      return m_data.get() ? m_data->timeType : cond::invalid;
     }
     
     std::string IOVEditor::payloadType() const {

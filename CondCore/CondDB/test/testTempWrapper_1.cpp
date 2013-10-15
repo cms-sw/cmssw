@@ -124,8 +124,10 @@ int main (int argc, char** argv)
       editor = session.editIov( tag1 );
     } catch ( cond::Exception& e ){
       std::cout <<"ERROR: "<<e.what()<<std::endl;
+    } catch ( cond::persistency::Exception& e ){
+      std::cout <<"ERROR: "<<e.what()<<std::endl;
     }
-    editor = session.createIov<std::string>( tag1, cond::time::RUNNUMBER, cond::OFFLINE );
+    editor = session.createIov<std::string>( tag1, cond::runnumber, cond::OFFLINE );
     std::cout <<"Now the database "<<connectionString1<<" does ";
     if( !session.existsDatabase() ) {
       std::cout <<"not ";

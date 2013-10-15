@@ -24,7 +24,7 @@ namespace cond {
   void Tag_t::clear(){
     tag.clear();
     payloadType.clear();
-    timeType = time::INVALID;
+    timeType = invalid;
     endOfValidity = time::MIN;
     lastValidatedTime = time::MIN;
   }

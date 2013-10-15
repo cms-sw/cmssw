@@ -92,11 +92,11 @@ namespace cond {
     void Session::openIovDb( Session::OpenFailurePolicy policy ){
       if(!m_session->transactionCache.get()) throwException( "The transaction is not active.","Session::open" );
       if( !m_session->transactionCache->iovDbOpen ){
-	m_session->transactionCache->iovDbExists = cond::iovDb::exists( *m_session );
+	m_session->transactionCache->iovDbExists = cond::persistency::iovDb::exists( *m_session );
 	m_session->transactionCache->iovDbOpen = true;
       }      if( !m_session->transactionCache->iovDbExists ){
 	if( policy==CREATE ){
-	  cond::iovDb::create( *m_session );
+	  cond::persistency::iovDb::create( *m_session );
 	  m_session->transactionCache->iovDbExists = true;
 	} else {
 	  if( policy==THROW) throwException( "IOV Database does not exist.","Session::openIovDb");
@@ -107,7 +107,7 @@ namespace cond {
     void Session::openGTDb(){
       if(!m_session->transactionCache.get()) throwException( "The transaction is not active.","Session::open" );
       if( !m_session->transactionCache->gtDbOpen ){
-	m_session->transactionCache->gtDbExists = cond::gtDb::exists( *m_session );
+	m_session->transactionCache->gtDbExists = cond::persistency::gtDb::exists( *m_session );
 	m_session->transactionCache->gtDbOpen = true;
       }
       if( !m_session->transactionCache->gtDbExists ){

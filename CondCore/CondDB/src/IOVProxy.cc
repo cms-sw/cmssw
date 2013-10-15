@@ -1,5 +1,4 @@
 #include "CondCore/CondDB/interface/IOVProxy.h"
-#include "CondCore/CondDB/interface/TimeConversions.h"
 #include "IOVSchema.h"
 #include "SessionImpl.h"
 
@@ -33,7 +32,7 @@ namespace cond {
     IOVProxy::Iterator::Iterator():
       m_current(),
       m_end(),
-      m_timeType( cond::time::INVALID ){
+      m_timeType( cond::invalid ){
     }
     
     IOVProxy::Iterator::Iterator( IOVContainer::const_iterator current, IOVContainer::const_iterator end, cond::TimeType timeType ):
@@ -68,7 +67,7 @@ namespace cond {
       if( next != m_end ){
 	
 	// the till has to be calculated according to the time type ( because of the packing for some types ) 
-	retVal.till = cond::time::getTill( std::get<0>(*next), m_timeType );
+	retVal.till = cond::time::tillTimeFromNextSince( std::get<0>(*next), m_timeType );
       }
       retVal.payloadId = std::get<1>(*m_current);
       return retVal; 
@@ -158,7 +157,7 @@ namespace cond {
     }
     
     cond::TimeType IOVProxy::timeType() const {
-      return m_data.get() ? m_data->timeType : cond::time::INVALID;
+      return m_data.get() ? m_data->timeType : cond::invalid;
     }
     
     std::string IOVProxy::payloadObjectType() const {

@@ -70,7 +70,7 @@ namespace cond {
       m_session(){
     }
     
-    GTProxy::GTProxy( const std::shared_ptr<cond::SessionImpl>& session ):
+    GTProxy::GTProxy( const std::shared_ptr<SessionImpl>& session ):
       m_data( new GTProxyData ),
       m_session( session ){
     }

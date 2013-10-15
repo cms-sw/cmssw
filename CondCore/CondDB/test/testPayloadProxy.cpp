@@ -39,7 +39,7 @@ int main (int argc, char** argv)
     std::string d3("abcd1234");
     cond::Hash p3 = session.storePayload( d3, boost::posix_time::microsec_clock::universal_time() );
 
-    IOVEditor editor = session.createIov<MyTestData>( "MyNewIOV", cond::time::RUNNUMBER ); 
+    IOVEditor editor = session.createIov<MyTestData>( "MyNewIOV", cond::runnumber ); 
     editor.setDescription("Test with MyTestData class");
     editor.insert( 1, p0 );
     editor.insert( 100, p1 );
@@ -47,7 +47,7 @@ int main (int argc, char** argv)
     editor.flush();
     std::cout <<"# iov changes flushed..."<<std::endl;
 
-    editor = session.createIov<std::string>( "StringData", cond::time::TIMESTAMP );
+    editor = session.createIov<std::string>( "StringData", cond::timestamp );
     editor.setDescription("Test with std::string class");
     editor.insert( 1000000, p2 );
     editor.insert( 2000000, p3 );

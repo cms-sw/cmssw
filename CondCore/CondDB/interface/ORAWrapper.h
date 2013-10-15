@@ -13,6 +13,8 @@ namespace cond {
 
   namespace ora_wrapper {
 
+    typedef cond::persistency::SessionConfiguration SessionConfiguration;
+
     class Switch {
     public:
       typedef std::map<std::string,cond::DbSession> OraPool;
@@ -243,7 +245,7 @@ namespace cond {
 
       void close();
 
-      cond::SessionConfiguration& configuration();
+      SessionConfiguration& configuration();
 
       Transaction& transaction();
 
