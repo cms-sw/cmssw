@@ -10,6 +10,8 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalWeight.h"
 //#include "CommonReco/CommonVertex/interface/RefCountedVertexSeed.h"
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 #include <vector>
 
 class VertexState;

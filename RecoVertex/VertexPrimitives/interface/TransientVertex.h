@@ -109,7 +109,7 @@ public:
 
   /** Access methods
    */
-  VertexState vertexState() const { return theVertexState; }
+  VertexState const & vertexState() const { return theVertexState; }
   GlobalPoint position() const { return theVertexState.position(); }
   GlobalError positionError() const { return theVertexState.error(); }
   GlobalPoint priorPosition() const { return thePriorVertexState.position(); }
@@ -137,7 +137,7 @@ public:
   /** Access to the original tracks used to make the vertex.
    *  Returns track container by value.
    */
-  std::vector<reco::TransientTrack> originalTracks() const {
+  std::vector<reco::TransientTrack> const & originalTracks() const {
     return theOriginalTracks;
   }
 
@@ -152,7 +152,7 @@ public:
   /** Access to the refitted tracks used to make the vertex.
    *  Returns track container by value.
    */
-  std::vector<reco::TransientTrack> refittedTracks() const {
+  std::vector<reco::TransientTrack> const &  refittedTracks() const {
     return theRefittedTracks;
   }
 

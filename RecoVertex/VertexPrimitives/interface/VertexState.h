@@ -2,6 +2,7 @@
 #define VertexState_H
 
 #include "RecoVertex/VertexPrimitives/interface/BasicVertexState.h"
+#include "RecoVertex/VertexPrimitives/interface/BasicSingleVertexState.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include <vector>
 
@@ -9,22 +10,42 @@
  * on demand to improve performance.
  */
 
-class VertexState : private  BasicVertexState::Proxy
-{
+class VertexState GCC11_FINAL : private  BasicVertexState::Proxy {
 
-  typedef BasicVertexState::Proxy             Base;
-
+  using Base =  BasicVertexState::Proxy;
+  using BSVS =  BasicSingleVertexState;
 public:
-  VertexState();
-  VertexState(BasicVertexState* p);
-  VertexState(const GlobalPoint & pos, const GlobalError & posErr,
-  		const double & weightInMix = 1.0);
-  VertexState(const GlobalPoint & pos, const GlobalWeight & posWeight,
-  		const double & weightInMix = 1.0);
+  VertexState(){}
+  VertexState(VertexState const&) = default; 
+  VertexState(VertexState &&) = default;
+  VertexState & operator=(const VertexState&) = default;
+  VertexState & operator=(VertexState&&) = default;
+
+  // template<typename... Args>
+  //  VertexState(Args && ...args) :
+  //  Base ( new BSVS ( std::forward<Args>(args)...)){}
+
+  explicit VertexState(BasicVertexState* p) : 
+    Base(p) {}
+  
+  explicit VertexState(const reco::BeamSpot& beamSpot) :
+    Base ( new BSVS ( GlobalPoint(Basic3DVector<float> (beamSpot.position())), 
+		      GlobalError(beamSpot.rotatedCovariance3D()), 1.0)) {}
+  
+
+  VertexState(const GlobalPoint & pos, 
+	      const GlobalError & posErr, const double & weightInMix= 1.0) :
+    Base ( new BSVS (pos, posErr, weightInMix)) {}
+  
+  VertexState(const GlobalPoint & pos, 
+	      const GlobalWeight & posWeight, const double & weightInMix= 1.0) :
+    Base ( new BSVS (pos, posWeight, weightInMix)) {}
+  
   VertexState(const AlgebraicVector3 & weightTimesPosition,
-		const GlobalWeight & posWeight,
-  		const double & weightInMix = 1.0);
-  VertexState(const reco::BeamSpot& beamSpot);
+	      const GlobalWeight & posWeight, const double & weightInMix= 1.0) :
+    Base ( new BSVS (weightTimesPosition, posWeight, weightInMix)) {}
+  
+
 
   GlobalPoint position() const
   {

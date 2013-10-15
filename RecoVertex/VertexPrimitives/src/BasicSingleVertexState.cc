@@ -2,46 +2,53 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 BasicSingleVertexState::BasicSingleVertexState()
-  : thePos(GlobalPoint(0, 0, 0)), thePosAvailable(false),
-    theErr(AlgebraicSymMatrix33()), theErrAvailable(false),
-    theWeight(AlgebraicSymMatrix33()), theWeightAvailable(false),
-    theWeightTimesPos(AlgebraicVector3()), theWeightTimesPosAvailable(false),
-    valid(false), theWeightInMix(0.)
+  : thePos(GlobalPoint(0, 0, 0)), 
+    theErr(AlgebraicSymMatrix33()),  
+    theWeight(AlgebraicSymMatrix33()), 
+    theWeightTimesPos(AlgebraicVector3()), theWeightInMix(0.) , 
+    thePosAvailable(false), theErrAvailable(false),theWeightAvailable(false), theWeightTimesPosAvailable(false),
+    valid(false)
 {}
 
 
 BasicSingleVertexState::BasicSingleVertexState(const GlobalPoint & pos,
 			     const GlobalError & posErr,
 			     const double & weightInMix)
-  : thePos(pos), thePosAvailable(true),
-    theErr(posErr), theErrAvailable(true),
-    theWeight(AlgebraicSymMatrix33()), theWeightAvailable(false),
-    theWeightTimesPos(AlgebraicVector3()), theWeightTimesPosAvailable(false),
-    valid(true), theWeightInMix(weightInMix)
+  : thePos(pos), 
+    theErr(posErr), 
+    theWeight(AlgebraicSymMatrix33()), 
+    theWeightTimesPos(AlgebraicVector3()),
+    theWeightInMix(weightInMix),
+    thePosAvailable(true), theErrAvailable(true),theWeightAvailable(false), theWeightTimesPosAvailable(false),
+    valid(true)
 {}
 
 
 BasicSingleVertexState::BasicSingleVertexState(const GlobalPoint & pos,
 			     const GlobalWeight & posWeight,
 			     const double & weightInMix)
-  : thePos(pos), thePosAvailable(true),
-    theErr(AlgebraicSymMatrix33()), theErrAvailable(false),
-    theWeight(posWeight), theWeightAvailable(true),
-    theWeightTimesPos(AlgebraicVector3()), theWeightTimesPosAvailable(false),
-    valid(true), theWeightInMix(weightInMix)
+  : thePos(pos),
+    theErr(AlgebraicSymMatrix33()),
+    theWeight(posWeight),
+    theWeightTimesPos(AlgebraicVector3()), 
+    theWeightInMix(weightInMix),
+    thePosAvailable(true), theErrAvailable(false),theWeightAvailable(true), theWeightTimesPosAvailable(false),
+    valid(true)
 {}
 
 
 BasicSingleVertexState::BasicSingleVertexState(const AlgebraicVector3 & weightTimesPosition,
 			     const GlobalWeight & posWeight,
 			     const double & weightInMix)
-  : thePos(GlobalPoint(0, 0, 0)), thePosAvailable(false),
-    theErr(AlgebraicSymMatrix33()), theErrAvailable(false),
-    theWeight(posWeight), theWeightAvailable(true),
-    theWeightTimesPos(weightTimesPosition), theWeightTimesPosAvailable(true),
-    valid(true), theWeightInMix(weightInMix)
-{//std::cout <<"BasicSingleVertexState ctor\n";
-}
+  : thePos(GlobalPoint(0, 0, 0)),
+    theErr(AlgebraicSymMatrix33()), 
+    theWeight(posWeight), 
+    theWeightTimesPos(weightTimesPosition), 
+    theWeightInMix(weightInMix),
+    thePosAvailable(false), theErrAvailable(false),theWeightAvailable(true), theWeightTimesPosAvailable(true),
+    valid(true)
+{}
+   
 
 GlobalPoint BasicSingleVertexState::position() const
 {
