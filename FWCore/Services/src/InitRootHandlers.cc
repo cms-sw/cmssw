@@ -26,6 +26,7 @@
 #include "TSystem.h"
 #include "TUnixSystem.h"
 #include "TTree.h"
+#include "TThread.h"
 
 namespace {
   enum class SeverityLevel {
@@ -116,7 +117,10 @@ namespace {
           (el_location.find("TDecompChol::Solve") != std::string::npos) ||
           (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
           (el_location.find("TUnixSystem::SetDisplay") != std::string::npos) ||
-          (el_location.find("TGClient::GetFontByName") != std::string::npos)) {
+          (el_location.find("TGClient::GetFontByName") != std::string::npos) ||
+          (level < kError and
+           (el_location.find("CINTTypedefBuilder::Setup")!= std::string::npos) and
+           (el_message.find("possible entries are in use!") != std::string::npos))) {
         el_severity = SeverityLevel::kInfo;
       }
 
@@ -197,8 +201,12 @@ namespace edm {
       : RootHandlers(),
         unloadSigHandler_(pset.getUntrackedParameter<bool> ("UnloadRootSigHandler")),
         resetErrHandler_(pset.getUntrackedParameter<bool> ("ResetRootErrHandler")),
-        autoLibraryLoader_(pset.getUntrackedParameter<bool> ("AutoLibraryLoader")) {
-
+        loadAllDictionaries_(pset.getUntrackedParameter<bool>("LoadAllDictionaries")),
+        autoLibraryLoader_(loadAllDictionaries_ or pset.getUntrackedParameter<bool> ("AutoLibraryLoader"))
+    {
+      //Tell Root we want to be multi-threaded
+      TThread::Initialize();
+      
       if(unloadSigHandler_) {
       // Deactivate all the Root signal handlers and restore the system defaults
         gSystem->ResetSignal(kSigChild);
@@ -231,6 +239,9 @@ namespace edm {
       // Enable automatic Root library loading.
       if(autoLibraryLoader_) {
         RootAutoLibraryLoader::enable();
+        if(loadAllDictionaries_) {
+          RootAutoLibraryLoader::loadAll();
+        }
       }
 
       // Enable Cintex.
@@ -271,6 +282,8 @@ namespace edm {
           ->setComment("If True, ROOT messages (e.g. errors, warnings) are handled by this service, rather than by ROOT.");
       desc.addUntracked<bool>("AutoLibraryLoader", true)
           ->setComment("If True, enables automatic loading of data dictionaries.");
+      desc.addUntracked<bool>("LoadAllDictionaries",false)
+          ->setComment("If True, loads all ROOT dictionaries.");
       desc.addUntracked<bool>("AbortOnSignal",true)
       ->setComment("If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which attempts to do a clean shutdown.");
       descriptions.add("InitRootHandlers", desc);

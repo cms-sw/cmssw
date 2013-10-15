@@ -21,6 +21,7 @@ namespace edm {
       virtual void ignoreWarnings_() override;
       bool unloadSigHandler_;
       bool resetErrHandler_;
+      bool loadAllDictionaries_;
       bool autoLibraryLoader_;
     };
 
