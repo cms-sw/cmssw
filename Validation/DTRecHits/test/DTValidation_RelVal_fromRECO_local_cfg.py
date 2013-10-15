@@ -53,6 +53,11 @@ process.rechivalidation.local = True
 process.seg4dvalidation.doall = True
 process.seg4dvalidation.local = True
 
+# Debug validation
+#process.rechivalidation.debug = True
+#process.seg4dvalidation.debug = True
+
+
 process.options = cms.untracked.PSet(
     #FailPath = cms.untracked.vstring('ProductNotFound'),
     makeTriggerResults = cms.untracked.bool(True),

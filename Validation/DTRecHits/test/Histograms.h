@@ -550,96 +550,13 @@ class HRes4DHit{
       hPullYRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullYRZ");
       hPullYVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullYVsEtaRZ");
       hPullYVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullYVsPhiRZ");
+
+      hHitMult = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hNHits");
+      ht0      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_ht0");
+	
     }
 
     ~HRes4DHit(){}
-
-    void Fill(float simDirectionAlpha,
-              float recDirectionAlpha,
-              float simDirectionBeta,
-              float recDirectionBeta,
-              float simX,
-              float recX,
-              float simY,
-              float recY,
-              float simEta,
-              float simPhi,
-              float recYRZ,
-              float simYRZ,
-              float recBetaRZ,
-              float simBetaRZ,
-              float sigmaAlpha,
-              float sigmaBeta,
-              float sigmaX,
-              float sigmaY,
-              float sigmaBetaRZ,
-              float sigmaYRZ
-             ) {
-
-      hRecAlpha->Fill(recDirectionAlpha);
-      hRecBeta->Fill(recDirectionBeta);
-      hSimAlpha->Fill(simDirectionAlpha);
-      hSimBeta->Fill(simDirectionBeta);
-
-      hRecVsSimAlpha->Fill(simDirectionAlpha, recDirectionAlpha);
-      hRecVsSimBeta->Fill(simDirectionBeta, recDirectionBeta);
-
-      float resAlpha = recDirectionAlpha - simDirectionAlpha;
-      hResAlpha->Fill(resAlpha);
-      hResAlphaVsEta->Fill(simEta, resAlpha);
-      hResAlphaVsPhi->Fill(simPhi, resAlpha);
-      hPullAlpha->Fill(resAlpha/sigmaAlpha);
-      hPullAlphaVsEta->Fill(simEta, resAlpha/sigmaAlpha);
-      hPullAlphaVsPhi->Fill(simPhi, resAlpha/sigmaAlpha);
-      float resBeta = recDirectionBeta - simDirectionBeta;
-      hResBeta->Fill(resBeta);
-      hResBetaVsEta->Fill(simEta, resBeta);
-      hResBetaVsPhi->Fill(simPhi, resBeta);
-      hPullBeta->Fill(resBeta/sigmaBeta);
-      hPullBetaVsEta->Fill(simEta, resBeta/sigmaBeta);
-      hPullBetaVsPhi->Fill(simPhi, resBeta/sigmaBeta);
-      float resX = recX - simX;
-      hResX->Fill(resX);
-      hResXVsEta->Fill(simEta, resX);
-      hResXVsPhi->Fill(simPhi, resX);
-      hPullX->Fill(resX/sigmaX);
-      hPullXVsEta->Fill(simEta, resX/sigmaX);
-      hPullXVsPhi->Fill(simPhi, resX/sigmaX);
-      float resY = recY - simY;
-      hResY->Fill(resY);
-      hResYVsEta->Fill(simEta, resY);
-      hResYVsPhi->Fill(simPhi, resY);
-      hPullY->Fill(resY/sigmaY);
-      hPullYVsEta->Fill(simEta, resY/sigmaY);
-      hPullYVsPhi->Fill(simPhi, resY/sigmaY);
-
-      hResAlphaVsResBeta->Fill(resBeta, resAlpha);   
-      hResXVsResY->Fill(resY, resX);          
-      hResAlphaVsResX->Fill(resX, resAlpha);      
-      hResAlphaVsResY->Fill(resY, resAlpha);      
-
-      // RZ SuperLayer
-      hRecBetaRZ->Fill(recBetaRZ);
-      hSimBetaRZ->Fill(simBetaRZ);
-
-      hRecVsSimBetaRZ->Fill(simBetaRZ, recBetaRZ);
-
-      float resBetaRZ = recBetaRZ - simBetaRZ;
-      hResBetaRZ->Fill(resBetaRZ);
-      hResBetaVsEtaRZ->Fill(simEta, resBetaRZ);
-      hResBetaVsPhiRZ->Fill(simPhi, resBetaRZ);
-      hPullBetaRZ->Fill(resBetaRZ/sigmaBetaRZ);
-      hPullBetaVsEtaRZ->Fill(simEta, resBetaRZ/sigmaBetaRZ);
-      hPullBetaVsPhiRZ->Fill(simPhi, resBetaRZ/sigmaBetaRZ);
-      float resYRZ = recYRZ - simYRZ;
-      hResYRZ->Fill(resYRZ);
-      hResYVsEtaRZ->Fill(simEta, resYRZ);
-      hResYVsPhiRZ->Fill(simPhi, resYRZ);
-      hPullYRZ->Fill(resYRZ/sigmaYRZ);
-      hPullYVsEtaRZ->Fill(simEta, resYRZ/sigmaYRZ);
-      hPullYVsPhiRZ->Fill(simPhi, resYRZ/sigmaYRZ);
-    }
-
 
   public:
 
@@ -711,6 +628,9 @@ class HRes4DHit{
     TH1F *hPullYRZ;
     TH2F *hPullYVsEtaRZ;
     TH2F *hPullYVsPhiRZ;
+
+    TH2F* hHitMult;
+    TH2F *ht0;
 
     TString name;
 };

@@ -43,6 +43,8 @@ public:
   static std::pair<LocalVector, LocalPoint> findMuSimSegmentDirAndPos(const std::pair<const PSimHit*, const PSimHit*>& inAndOutSimHit, 
 								      const DetId detId, const DTGeometry *muonGeom);
   /// Find the angles from a segment direction:
+  /// atan(dx/dz) = "phi"   angle in the chamber RF
+  /// atan(dy/dz) = "theta" angle in the chamber RF (note: this has opposite sign in the SLZ RF!)
   static std::pair<double, double> findSegmentAlphaAndBeta(const LocalVector& direction);
 
   // Set the verbosity level

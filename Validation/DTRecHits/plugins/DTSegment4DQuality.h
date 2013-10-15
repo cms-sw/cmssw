@@ -23,7 +23,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Histograms.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -38,7 +37,6 @@ namespace edm {
 }
 
 class TFile;
-class MonitorElement;
 
 class DTSegment4DQuality : public edm::EDAnalyzer {
 public:
@@ -88,9 +86,6 @@ private:
   HEff4DHit *hEff_W1;
   HEff4DHit *hEff_W2;
   HEff4DHit *hEffWS[3][4];
-
-  MonitorElement* hHitMult[3][4];
-  MonitorElement* ht0[3][4];
 
   DQMStore* dbe_;
   bool doall;

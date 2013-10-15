@@ -96,9 +96,6 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
 	TString nameWS=(name+w+"_St"+s);
 	h4DHitWS[w][s-1] = new HRes4DHit(nameWS.Data(),dbe_,doall,local);
 	hEffWS[w][s-1]   = new HEff4DHit (nameWS.Data(),dbe_);
-	dbe_->setCurrentFolder("DT/4DSegments/");
-	hHitMult[w][s-1] = dbe_->book2D("4D_" +nameWS+ "_hNHits", "NHits",12,0,12, 6,0,6);
-	ht0[w][s-1] = dbe_->book2D("4D_" +nameWS+ "_ht0", "t0",200,-25,25,200,-25,25);
       }
     }
   }
@@ -142,6 +139,8 @@ void DTSegment4DQuality::endJob() {
   void DTSegment4DQuality::analyze(const Event & event, const EventSetup& eventSetup){
     //theFile->cd();
 
+    const float epsilon=5e-5; // numerical accuracy on angles [rad}
+
     // Get the DT Geometry
     ESHandle<DTGeometry> dtGeom;
     eventSetup.get<MuonGeometryRecord>().get(dtGeom);
@@ -154,10 +153,14 @@ void DTSegment4DQuality::endJob() {
     map<DTChamberId, PSimHitContainer > simHitsPerCh;
     for(PSimHitContainer::const_iterator simHit = simHits->begin();
         simHit != simHits->end(); simHit++){
-      // Create the id of the chamber (the simHits in the DT known their wireId)
-      DTChamberId chamberId = (((DTWireId(simHit->detUnitId())).layerId()).superlayerId()).chamberId();
-      // Fill the map
-      simHitsPerCh[chamberId].push_back(*simHit);
+
+      // Consider only muon simhits; the others are not considered elsewhere in this class!
+      if (abs((*simHit).particleType())==13) { 
+	// Create the id of the chamber (the simHits in the DT known their wireId)
+	DTChamberId chamberId = (((DTWireId(simHit->detUnitId())).layerId()).superlayerId()).chamberId();
+	// Fill the map
+	simHitsPerCh[chamberId].push_back(*simHit);
+      }
     }
 
     // Get the 4D rechits from the event
@@ -170,41 +173,39 @@ void DTSegment4DQuality::endJob() {
       return;
     }    
 
-    // Loop over all chambers containing a segment
-    DTRecSegment4DCollection::id_iterator chamberId;
-    for (chamberId = segment4Ds->id_begin();
-         chamberId != segment4Ds->id_end();
-         ++chamberId){
+    // Loop over all chambers containing a (muon) simhit
+    for (map<DTChamberId, PSimHitContainer>::const_iterator simHitsInChamber = simHitsPerCh.begin(); simHitsInChamber != simHitsPerCh.end(); ++simHitsInChamber) {
 
-      if((*chamberId).station() == 4)
-        continue; //use DTSegment2DSLPhiQuality to analyze MB4 performaces
+      DTChamberId chamberId = simHitsInChamber->first;
+      if (chamberId.station() == 4) continue; //use DTSegment2DSLPhiQuality to analyze MB4 performaces
 
       //------------------------- simHits ---------------------------//
-      //Get simHits of each chamber
-      PSimHitContainer simHits =  simHitsPerCh[(*chamberId)];
+      //Get simHits of this chamber
+      const PSimHitContainer& simHits =  simHitsInChamber->second;
 
       // Map simhits per wire
       map<DTWireId, PSimHitContainer > simHitsPerWire = DTHitQualityUtils::mapSimHitsPerWire(simHits);
       map<DTWireId, const PSimHit*> muSimHitPerWire = DTHitQualityUtils::mapMuSimHitsPerWire(simHitsPerWire);
       int nMuSimHit = muSimHitPerWire.size();
-      if(nMuSimHit == 0 || nMuSimHit == 1) {
-        if(debug && nMuSimHit == 1)
-          cout << "[DTSegment4DQuality] Only " << nMuSimHit << " mu SimHit in this chamber, skipping!" << endl;
-        continue; // If no or only one mu SimHit is found skip this chamber
+      if(nMuSimHit <2) { // Skip chamber with less than 2 cells with mu hits
+        continue;
       } 
       if(debug)
-        cout << "=== Chamber " << (*chamberId) << " has " << nMuSimHit << " SimHits" << endl;
+        cout << "=== Chamber " << chamberId << " has " << nMuSimHit << " SimHits" << endl;
 
       //Find outer and inner mu SimHit to build a segment
-      pair<const PSimHit*, const PSimHit*> inAndOutSimHit = DTHitQualityUtils::findMuSimSegment(muSimHitPerWire); 
+      pair<const PSimHit*, const PSimHit*> inAndOutSimHit = DTHitQualityUtils::findMuSimSegment(muSimHitPerWire);
+
+      // Consider only sim segments crossing at least 2 SLs
+      if ((DTWireId(inAndOutSimHit.first->detUnitId())).superlayer() == (DTWireId(inAndOutSimHit.second->detUnitId())).superLayer()) continue;
 
       //Find direction and position of the sim Segment in Chamber RF
       pair<LocalVector, LocalPoint> dirAndPosSimSegm = DTHitQualityUtils::findMuSimSegmentDirAndPos(inAndOutSimHit,
-                                                                                                    (*chamberId),&(*dtGeom));
+                                                                                                    chamberId,&(*dtGeom));
 
       LocalVector simSegmLocalDir = dirAndPosSimSegm.first;
       LocalPoint simSegmLocalPos = dirAndPosSimSegm.second;
-      const DTChamber* chamber = dtGeom->chamber(*chamberId);
+      const DTChamber* chamber = dtGeom->chamber(chamberId);
       GlobalPoint simSegmGlobalPos = chamber->toGlobal(simSegmLocalPos);
       GlobalVector simSegmGlobalDir = chamber->toGlobal(simSegmLocalDir);
 
@@ -227,10 +228,10 @@ void DTSegment4DQuality::endJob() {
       //---------------------------- recHits --------------------------//
       // Get the range of rechit for the corresponding chamberId
       bool recHitFound = false;
-      DTRecSegment4DCollection::range range = segment4Ds->get(*chamberId);
+      DTRecSegment4DCollection::range range = segment4Ds->get(chamberId);
       int nsegm = distance(range.first, range.second);
       if(debug)
-        cout << "   Chamber: " << *chamberId << " has " << nsegm
+        cout << "   Chamber: " << chamberId << " has " << nsegm
           << " 4D segments" << endl;
 
       if (nsegm!=0) {
@@ -240,63 +241,61 @@ void DTSegment4DQuality::endJob() {
         // the residual distribution (we are looking for residuals of segments
         // usefull to the track fit) for efficency purpose
         const DTRecSegment4D* bestRecHit = 0;
-        bool bestRecHitFound = false;
         double deltaAlpha = 99999;
+        double deltaBeta  = 99999;
 
         // Loop over the recHits of this chamberId
         for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
              segment4D!=range.second;
              ++segment4D){
 
-	  if (local) {
-	    const DTChamberRecSegment2D*  phiSeg = (*segment4D).phiSegment();
-	    const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();
-
-	    float t0phi = -999;
-	    float t0z   = -999;
-	    int nHitPhi=0;
-	    int nHitZ=0;
-	    if (phiSeg) {
-	      t0phi = phiSeg->t0();
-	      nHitPhi = phiSeg->recHits().size();
-	    }
-	  
-	    if (zSeg) {  
-	      t0z = zSeg->t0();
-	      nHitZ   = zSeg->recHits().size();
-	    }
-	  
-	    hHitMult[abs((*chamberId).wheel())][(*chamberId).station()-1]->Fill(nHitPhi,nHitZ);
-	    ht0[abs((*chamberId).wheel())][(*chamberId).station()-1]->Fill(t0phi,t0z);
-
-	    // Uncomment to skip segments w/o t0 computed
-	    //	  if (!(t0phi>-998&&t0z>-998)) continue
-	  }
-
-          // Check the dimension
+          // Consider only segments with both projections
           if((*segment4D).dimension() != 4) {
-            if(debug)cout << "[DTSegment4DQuality]***Error: This is not 4D segment!!!" << endl;
             continue;
           }
           // Segment Local Direction and position (in Chamber RF)
           LocalVector recSegDirection = (*segment4D).localDirection();
-          //LocalPoint recSegPosition = (*segment4D).localPosition();
+          LocalPoint recSegPosition = (*segment4D).localPosition();
 
-          float recSegAlpha = DTHitQualityUtils::findSegmentAlphaAndBeta(recSegDirection).first;
+	  pair<double, double> ab = DTHitQualityUtils::findSegmentAlphaAndBeta(recSegDirection);
+          float recSegAlpha = ab.first;
+          float recSegBeta  = ab.second;
+
           if(debug)
-            cout << "  RecSegment direction: " << recSegDirection << endl
-              << "             position : " <<  (*segment4D).localPosition() << endl
-              << "             alpha    : " << recSegAlpha << endl
-              << "             beta     : " <<  DTHitQualityUtils::findSegmentAlphaAndBeta(recSegDirection).second << endl;
+            cout << &(*segment4D)
+		 << "  RecSegment direction: " << recSegDirection << endl
+		 << "             position : " << (*segment4D).localPosition() << endl
+		 << "             alpha    : " << recSegAlpha << endl
+		 << "             beta     : " << recSegBeta << endl
+		 << "             nhits    : " << (*segment4D).phiSegment()->recHits().size() << " " << (*segment4D).zSegment()->recHits().size()
+		 << endl;
 
-          if(fabs(recSegAlpha - alphaSimSeg) < deltaAlpha) {
-            deltaAlpha = fabs(recSegAlpha - alphaSimSeg);
-            bestRecHit = &(*segment4D);
-            bestRecHitFound = true;
-          }
+
+	  float dAlphaRecSim=fabs(recSegAlpha - alphaSimSeg);
+	  float dBetaRecSim =fabs(recSegBeta - betaSimSeg);
+	  
+	  
+          if ((fabs(recSegPosition.x()-simSegmLocalPos.x())<4)       // require rec and sim segments to be ~in the same cell in x
+	      && (fabs(recSegPosition.y()-simSegmLocalPos.y())<4)) { // ~in the same cell in y
+
+	    if (fabs(dAlphaRecSim-deltaAlpha) < epsilon) { // Numerically equivalent alphas, choose based on beta	      
+	      if (dBetaRecSim < deltaBeta) {
+		deltaAlpha = dAlphaRecSim;
+		deltaBeta  = dBetaRecSim;
+		bestRecHit = &(*segment4D);		
+	      }
+	      
+	    } else if (dAlphaRecSim < deltaAlpha) {
+	      deltaAlpha = dAlphaRecSim;
+	      deltaBeta  = dBetaRecSim;
+	      bestRecHit = &(*segment4D);
+	    }
+	  }
+	  
         }  // End of Loop over all 4D RecHits
 
-        if(bestRecHitFound) {
+        if(bestRecHit) {
+	  if (debug) cout << endl << "Chosen: " << bestRecHit << endl;
           // Best rechit direction and position in Chamber RF
           LocalPoint bestRecHitLocalPos = bestRecHit->localPosition();
           LocalVector bestRecHitLocalDir = bestRecHit->localDirection();
@@ -304,8 +303,9 @@ void DTSegment4DQuality::endJob() {
           LocalError bestRecHitLocalPosErr = bestRecHit->localPositionError();
           LocalError bestRecHitLocalDirErr = bestRecHit->localDirectionError();
 
-          float alphaBestRHit = DTHitQualityUtils::findSegmentAlphaAndBeta(bestRecHitLocalDir).first;
-          float betaBestRHit = DTHitQualityUtils::findSegmentAlphaAndBeta(bestRecHitLocalDir).second;
+	  pair<double, double> ab = DTHitQualityUtils::findSegmentAlphaAndBeta(bestRecHitLocalDir);
+          float alphaBestRHit = ab.first;
+          float betaBestRHit  = ab.second;
           // Errors on alpha and beta
 
           // Get position and direction using the rx projection (so in SL
@@ -329,6 +329,24 @@ void DTSegment4DQuality::endJob() {
             simSegLocalPosRZTmp + simSegLocalDirRZ*(-simSegLocalPosRZTmp.z()/(cos(simSegLocalDirRZ.theta())));
           float alphaSimSegRZ = DTHitQualityUtils::findSegmentAlphaAndBeta(simSegLocalDirRZ).first;
 
+	  // get nhits and t0
+	  const DTChamberRecSegment2D*  phiSeg = bestRecHit->phiSegment();
+
+	  float t0phi = -999;
+	  float t0theta   = -999;
+	  int nHitPhi=0;
+	  int nHitTheta=0;
+
+	  if (phiSeg) {
+	    t0phi = phiSeg->t0();
+	    nHitPhi = phiSeg->recHits().size();
+	  }
+	  
+	  if (zedRecSeg) {  
+	    t0theta = zedRecSeg->t0();
+	    nHitTheta   = zedRecSeg->recHits().size();
+	  }
+
           if (debug) cout <<
             "RZ SL: recPos " << bestRecHitLocalPosRZ <<
               "recDir " << bestRecHitLocalDirRZ <<
@@ -336,24 +354,25 @@ void DTSegment4DQuality::endJob() {
               "RZ SL: simPos " << simSegLocalPosRZ <<
               "simDir " << simSegLocalDirRZ <<
               "simAlpha " << alphaSimSegRZ << endl ;
-          //}
 
-
-          if(fabs(alphaBestRHit - alphaSimSeg) < 5*sigmaResAlpha &&
-             fabs(betaBestRHit - betaSimSeg) < 5*sigmaResBeta &&
-             fabs(bestRecHitLocalPos.x() - xSimSeg) < 5*sigmaResX &&
-             fabs(bestRecHitLocalPos.y() - ySimSeg) < 5*sigmaResY) {
-            recHitFound = true;
-          }
+	  // Nominal cuts for efficiency - consider all matched segments for the time being
+//           if(fabs(alphaBestRHit - alphaSimSeg) < 5*sigmaResAlpha &&
+//              fabs(betaBestRHit - betaSimSeg) < 5*sigmaResBeta &&
+//              fabs(bestRecHitLocalPos.x() - xSimSeg) < 5*sigmaResX &&
+//              fabs(bestRecHitLocalPos.y() - ySimSeg) < 5*sigmaResY) {
+//             recHitFound = true;
+//           }
+	  recHitFound = true;
+	  
 
           // Fill Residual histos
           HRes4DHit *histo=0;
 
-          if((*chamberId).wheel() == 0)
+          if(chamberId.wheel() == 0)
             histo = h4DHit_W0;
-          else if(abs((*chamberId).wheel()) == 1)
+          else if(abs(chamberId.wheel()) == 1)
             histo = h4DHit_W1;
-          else if(abs((*chamberId).wheel()) == 2)
+          else if(abs(chamberId.wheel()) == 2)
             histo = h4DHit_W2;
 
           histo->Fill(alphaSimSeg,
@@ -375,7 +394,8 @@ void DTSegment4DQuality::endJob() {
                       sqrt(bestRecHitLocalPosErr.xx()),
                       sqrt(bestRecHitLocalPosErr.yy()),
                       sqrt(bestRecHitLocalDirErrRZ.xx()),
-                      sqrt(bestRecHitLocalPosErrRZ.xx())
+                      sqrt(bestRecHitLocalPosErrRZ.xx()),
+		      nHitPhi,nHitTheta,t0phi,t0theta
                      );
 
           h4DHit->Fill(alphaSimSeg,
@@ -397,10 +417,11 @@ void DTSegment4DQuality::endJob() {
                        sqrt(bestRecHitLocalPosErr.xx()),
                        sqrt(bestRecHitLocalPosErr.yy()),
                        sqrt(bestRecHitLocalDirErrRZ.xx()),
-                       sqrt(bestRecHitLocalPosErrRZ.xx())
+                       sqrt(bestRecHitLocalPosErrRZ.xx()),
+		       nHitPhi,nHitTheta,t0phi,t0theta
                       );
 
-	  if (local) h4DHitWS[abs((*chamberId).wheel())][(*chamberId).station()-1]->Fill(alphaSimSeg,
+	  if (local) h4DHitWS[abs(chamberId.wheel())][chamberId.station()-1]->Fill(alphaSimSeg,
 			   alphaBestRHit,
 			   betaSimSeg,
 			   betaBestRHit,
@@ -419,11 +440,12 @@ void DTSegment4DQuality::endJob() {
 			   sqrt(bestRecHitLocalPosErr.xx()),
 			   sqrt(bestRecHitLocalPosErr.yy()),
 			   sqrt(bestRecHitLocalDirErrRZ.xx()),
-			   sqrt(bestRecHitLocalPosErrRZ.xx())
+			   sqrt(bestRecHitLocalPosErrRZ.xx()),
+                           nHitPhi,nHitTheta,t0phi,t0theta
 			   );
 
 
-        } //end of if(bestRecHitFound)
+        } //end of if(bestRecHit)
 
       } //end of if(nsegm!=0)
 
@@ -431,15 +453,15 @@ void DTSegment4DQuality::endJob() {
       if(doall){
 	HEff4DHit *heff = 0;
 	
-	if((*chamberId).wheel() == 0)
+	if(chamberId.wheel() == 0)
 	  heff = hEff_W0;
-	else if(abs((*chamberId).wheel()) == 1)
+	else if(abs(chamberId.wheel()) == 1)
 	  heff = hEff_W1;
-	else if(abs((*chamberId).wheel()) == 2)
+	else if(abs(chamberId.wheel()) == 2)
 	  heff = hEff_W2;
 	heff->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
 	hEff_All->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
-	if (local) hEffWS[abs((*chamberId).wheel())][(*chamberId).station()-1]->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
+	if (local) hEffWS[abs(chamberId.wheel())][chamberId.station()-1]->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
 
       }
     } // End of loop over chambers
