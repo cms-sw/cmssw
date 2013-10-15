@@ -15,7 +15,6 @@
 #include <sstream>
 
 // user include files
-#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "SiStripElectronProducer.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -60,6 +59,15 @@ SiStripElectronProducer::SiStripElectronProducer(const edm::ParameterSet& iConfi
    superClusterProducer_ = iConfig.getParameter<std::string>("superClusterProducer");
    superClusterCollection_ = iConfig.getParameter<std::string>("superClusterCollection");
    
+   rphi_sistrips2dtag_ = 
+     consumes<SiStripRecHit2DCollection>(edm::InputTag(siHitProducer_,siRphiHitCollection_));
+   stereo_sistrips2dtag_ = 
+     consumes<SiStripRecHit2DCollection>(edm::InputTag(siHitProducer_,siStereoHitCollection_));
+   matched_sistrips2dtag_ = 
+     consumes<SiStripMatchedRecHit2DCollection>(edm::InputTag(siHitProducer_,siMatchedHitCollection_));
+   superClustertag_ = 
+     consumes<reco::SuperClusterCollection>(edm::InputTag(superClusterProducer_,superClusterCollection_));
+
    algo_p = new SiStripElectronAlgo(
       iConfig.getParameter<int32_t>("maxHitsOnDetId"),
       iConfig.getParameter<double>("originUncertainty"),
@@ -110,19 +118,19 @@ SiStripElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle);
 
    edm::Handle<SiStripRecHit2DCollection> rphiHitsHandle;
-   iEvent.getByLabel(siHitProducer_, siRphiHitCollection_, rphiHitsHandle);
+   iEvent.getByToken(rphi_sistrips2dtag_, rphiHitsHandle);
 
    edm::Handle<SiStripRecHit2DCollection> stereoHitsHandle;
-   iEvent.getByLabel(siHitProducer_, siStereoHitCollection_, stereoHitsHandle);
+   iEvent.getByToken(stereo_sistrips2dtag_, stereoHitsHandle);
 
    edm::Handle<SiStripMatchedRecHit2DCollection> matchedHitsHandle;
-   iEvent.getByLabel(siHitProducer_, siMatchedHitCollection_, matchedHitsHandle);
+   iEvent.getByToken(matched_sistrips2dtag_, matchedHitsHandle);
 
    edm::ESHandle<MagneticField> magneticFieldHandle;
    iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
 
    edm::Handle<reco::SuperClusterCollection> superClusterHandle;
-   iEvent.getByLabel(superClusterProducer_, superClusterCollection_, superClusterHandle);
+   iEvent.getByToken(superClustertag_, superClusterHandle);
 
    // Set up SiStripElectronAlgo for this event
    algo_p->prepareEvent(trackerHandle, rphiHitsHandle, stereoHitsHandle, matchedHitsHandle, magneticFieldHandle);

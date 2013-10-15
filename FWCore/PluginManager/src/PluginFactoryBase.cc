@@ -72,9 +72,10 @@ PluginFactoryBase::newPlugin(const std::string& iName)
 }
 
 
-PluginFactoryBase::Plugins::const_iterator 
+void*
 PluginFactoryBase::findPMaker(const std::string& iName) const
 {
+  std::lock_guard<std::recursive_mutex> guard(m_mutex);
   //do we already have it?
   Plugins::const_iterator itFound = m_plugins.find(iName);
   if(itFound == m_plugins.end()) {
@@ -87,13 +88,14 @@ PluginFactoryBase::findPMaker(const std::string& iName) const
   } else {
     checkProperLoadable(iName,itFound->second.front().second);
   }
-  return itFound;
+  return itFound->second.front().first;
 }
 
 
-PluginFactoryBase::Plugins::const_iterator 
+void*
 PluginFactoryBase::tryToFindPMaker(const std::string& iName) const
 {
+  std::lock_guard<std::recursive_mutex> guard(m_mutex);
   //do we already have it?
   Plugins::const_iterator itFound = m_plugins.find(iName);
   if(itFound == m_plugins.end()) {
@@ -109,7 +111,7 @@ PluginFactoryBase::tryToFindPMaker(const std::string& iName) const
   } else {
     checkProperLoadable(iName,itFound->second.front().second);
   }
-  return itFound;
+  return itFound != m_plugins.end()? itFound->second.front().first : nullptr;
 }
 
 void 
@@ -127,6 +129,7 @@ PluginFactoryBase::fillInfo(const PMakers &makers,
 void 
 PluginFactoryBase::fillAvailable(std::vector<PluginInfo>& iReturn) const {
   PluginInfo info;
+  std::lock_guard<std::recursive_mutex> guard(m_mutex);
   for( Plugins::const_iterator it = m_plugins.begin();
       it != m_plugins.end();
       ++it) {
@@ -156,6 +159,7 @@ PluginFactoryBase::checkProperLoadable(const std::string& iName, const std::stri
 
 void 
 PluginFactoryBase::registerPMaker(void* iPMaker, const std::string& iName) {
+  std::lock_guard<std::recursive_mutex> guard(m_mutex);
   m_plugins[iName].push_back(std::pair<void*,std::string>(iPMaker,PluginManager::loadingFile()));
   newPlugin(iName);
 }

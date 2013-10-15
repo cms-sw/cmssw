@@ -10,7 +10,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronSeedGenerator.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include "SiStripElectronSeedProducer.h"
 
@@ -45,11 +45,18 @@ SiStripElectronSeedProducer::SiStripElectronSeedProducer(const edm::ParameterSet
     conf_.addParameter("monoMaxHits",4);
     conf_.addParameter("maxSeeds",5);
   }
-  matcher_ = new SiStripElectronSeedGenerator(conf_);
+  SiStripElectronSeedGenerator::Tokens ssesg_tokens;
+  ssesg_tokens.token_bs = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"));
+  if (conf_.existsAs<edm::InputTag>("measurementTrackerEvent")) {
+    ssesg_tokens.token_mte = consumes<MeasurementTrackerEvent>(conf_.getParameter<edm::InputTag>("measurementTrackerEvent"));
+  }
+  matcher_ = new SiStripElectronSeedGenerator(conf_,ssesg_tokens);
+
+  
 
   //  get labels from config
-  superClusters_[0]=iConfig.getParameter<edm::InputTag>("barrelSuperClusters");
-  superClusters_[1]=iConfig.getParameter<edm::InputTag>("endcapSuperClusters");
+  superClusters_[0]=consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("barrelSuperClusters"));
+  superClusters_[1]=consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("endcapSuperClusters"));
 
   //register your products
   produces<ElectronSeedCollection>();
@@ -80,7 +87,7 @@ void SiStripElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& 
 
     // get the superclusters
     edm::Handle<SuperClusterCollection> clusters;
-    if(e.getByLabel(superClusters_[i],clusters)) {
+    if(e.getByToken(superClusters_[i],clusters)) {
       // run the seed generator and put the ElectronSeeds into a collection
       matcher_->run(e,iSetup,clusters,*seeds);
     }

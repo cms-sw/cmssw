@@ -207,6 +207,8 @@ namespace edm {
       ItemType newState = nextItemType_();
       if(newState == IsStop) {
         state_ = IsStop;
+      } else if(newState == IsSynchronize) {
+        state_ = IsSynchronize;
       } else if(newState == IsFile || oldState == IsInvalid) {
         state_ = IsFile;
       } else if(newState == IsRun || oldState == IsFile) {

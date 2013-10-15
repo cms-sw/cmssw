@@ -48,21 +48,23 @@
 using namespace reco ;
 
 ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
- : beamSpotTag_("offlineBeamSpot"),
-   //conf_(iConfig),
+ : //conf_(iConfig),
    seedFilter_(0), applyHOverECut_(true), hcalHelper_(0),
    caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0)
  {
   conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
 
-  initialSeeds_ = conf_.getParameter<edm::InputTag>("initialSeeds") ;
+  initialSeeds_ = consumes<TrajectorySeedCollection>(conf_.getParameter<edm::InputTag>("initialSeeds")) ;
   SCEtCut_ = conf_.getParameter<double>("SCEtCut") ;
   fromTrackerSeeds_ = conf_.getParameter<bool>("fromTrackerSeeds") ;
   prefilteredSeeds_ = conf_.getParameter<bool>("preFilteredSeeds") ;
 
   // new beamSpot tag
-  if (conf_.exists("beamSpot"))
-   { beamSpotTag_ = conf_.getParameter<edm::InputTag>("beamSpot") ; }
+  if (conf_.exists("beamSpot")) { 
+    beamSpotTag_ = consumes<reco::BeamSpot>(conf_.getParameter<edm::InputTag>("beamSpot")); 
+  } else {
+    beamSpotTag_ = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+  }
 
   // for H/E
 //  if (conf_.exists("applyHOverECut"))
@@ -75,7 +77,8 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
     if (hcalCfg.hOverEConeSize>0)
      {
       hcalCfg.useTowers = true ;
-      hcalCfg.hcalTowers = conf_.getParameter<edm::InputTag>("hcalTowers") ;
+      hcalCfg.hcalTowers = 
+	consumes<CaloTowerCollection>(conf_.getParameter<edm::InputTag>("hcalTowers")) ;
       hcalCfg.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
      }
     hcalHelper_ = new ElectronHcalHelper(hcalCfg) ;
@@ -88,24 +91,46 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
 //    hOverEHFMinE_=conf_.getParameter<double>("hOverEHFMinE") ;
    }
 
-  matcher_ = new ElectronSeedGenerator(conf_) ;
+  if( conf_.exists("RegionPSet") ) {
+    edm::ParameterSet rpset = 
+      conf_.getParameter<edm::ParameterSet>("RegionPSet");
+    filterVtxTag_ = 
+      consumes<std::vector<reco::Vertex> >(rpset.getParameter<edm::InputTag> ("VertexProducer"));
+  }
+
+  ElectronSeedGenerator::Tokens esg_tokens;
+  esg_tokens.token_bs = beamSpotTag_;
+  if(conf_.exists("vertices")) {
+    esg_tokens.token_vtx = 
+      mayConsume<reco::VertexCollection>(conf_.getParameter<edm::InputTag>("vertices"));
+  } else {
+    esg_tokens.token_vtx = 
+      mayConsume<reco::VertexCollection>(edm::InputTag("offlinePrimaryVerticesWithBS"));
+  }
+  matcher_ = new ElectronSeedGenerator(conf_,esg_tokens) ;
 
   //  get collections from config'
-  superClusters_[0]=iConfig.getParameter<edm::InputTag>("barrelSuperClusters") ;
-  superClusters_[1]=iConfig.getParameter<edm::InputTag>("endcapSuperClusters") ;
+  superClusters_[0]=
+    consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("barrelSuperClusters")) ;
+  superClusters_[1]=
+    consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("endcapSuperClusters")) ;
 
   //register your products
   produces<ElectronSeedCollection>() ;
 }
 
 
-void ElectronSeedProducer::beginRun(edm::Run const&, edm::EventSetup const&)
- {
+void ElectronSeedProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
   // FIXME: because of a bug presumably in tracker seeding,
   // perhaps in CombinedHitPairGenerator, badly caching some EventSetup product,
   // we must redo the SeedFilter for each run.
-  if (prefilteredSeeds_) seedFilter_ = new SeedFilter(conf_) ;
- }
+  if (prefilteredSeeds_) {
+    SeedFilter::Tokens sf_tokens;
+    sf_tokens.token_bs  = beamSpotTag_;
+    sf_tokens.token_vtx = filterVtxTag_;
+    seedFilter_ = new SeedFilter(conf_,sf_tokens) ;
+  }
+}
 
 void ElectronSeedProducer::endRun(edm::Run const&, edm::EventSetup const&)
  {
@@ -124,7 +149,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   LogDebug("ElectronSeedProducer") <<"[ElectronSeedProducer::produce] entering " ;
 
   edm::Handle<reco::BeamSpot> theBeamSpot ;
-  e.getByLabel(beamSpotTag_,theBeamSpot) ;
+  e.getByToken(beamSpotTag_,theBeamSpot) ;
 
   if (hcalHelper_)
    {
@@ -150,7 +175,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
     if (!prefilteredSeeds_)
      {
       edm::Handle<TrajectorySeedCollection> hSeeds;
-      e.getByLabel(initialSeeds_, hSeeds);
+      e.getByToken(initialSeeds_, hSeeds);
       theInitialSeedColl = const_cast<TrajectorySeedCollection *> (hSeeds.product());
      }
     else
@@ -162,33 +187,30 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   ElectronSeedCollection * seeds = new ElectronSeedCollection ;
 
   // loop over barrel + endcap
-  for (unsigned int i=0; i<2; i++)
-   {
+  for (unsigned int i=0; i<2; i++) {
     edm::Handle<SuperClusterCollection> clusters ;
-    if (e.getByLabel(superClusters_[i],clusters))
-     {
-      SuperClusterRefVector clusterRefs ;
-      std::vector<float> hoe1s, hoe2s ;
-      filterClusters(*theBeamSpot,clusters,/*mhbhe_,*/clusterRefs,hoe1s,hoe2s) ;
-      if ((fromTrackerSeeds_) && (prefilteredSeeds_))
-       { filterSeeds(e,iSetup,clusterRefs) ; }
-      matcher_->run(e,iSetup,clusterRefs,hoe1s,hoe2s,theInitialSeedColl,*seeds) ;
-     }
-   }
+    e.getByToken(superClusters_[i],clusters);
+    SuperClusterRefVector clusterRefs ;
+    std::vector<float> hoe1s, hoe2s ;
+    filterClusters(*theBeamSpot,clusters,/*mhbhe_,*/clusterRefs,hoe1s,hoe2s);
+    if ((fromTrackerSeeds_) && (prefilteredSeeds_))
+      { filterSeeds(e,iSetup,clusterRefs) ; }
+    matcher_->run(e,iSetup,clusterRefs,hoe1s,hoe2s,theInitialSeedColl,*seeds);
+  }
 
   // store the accumulated result
   std::auto_ptr<ElectronSeedCollection> pSeeds(seeds) ;
   ElectronSeedCollection::iterator is ;
-  for ( is=pSeeds->begin() ; is!=pSeeds->end() ; is++ )
-   {
+  for ( is=pSeeds->begin() ; is!=pSeeds->end() ; is++ ) {
     edm::RefToBase<CaloCluster> caloCluster = is->caloCluster() ;
     SuperClusterRef superCluster = caloCluster.castTo<SuperClusterRef>() ;
-    LogDebug("ElectronSeedProducer")<< "new seed with "
+    LogDebug("ElectronSeedProducer")
+      << "new seed with "
       << (*is).nHits() << " hits"
       << ", charge " << (*is).getCharge()
       << " and cluster energy " << superCluster->energy()
       << " PID "<<superCluster.id() ;
-   }
+  }
   e.put(pSeeds) ;
   if (fromTrackerSeeds_ && prefilteredSeeds_) delete theInitialSeedColl;
  }

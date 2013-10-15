@@ -28,6 +28,8 @@
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 
 class ConversionTrackEcalImpactPoint;
 class ConversionTrackPairFinder;
@@ -66,23 +68,26 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   void getCircleCenter(const reco::TrackRef& tk, double r, double& x0, double& y0);
     
   
-  std::string conversionOITrackProducer_;
-  std::string conversionIOTrackProducer_;
+  edm::EDGetTokenT<reco::TrackCollection> conversionOITrackProducer_;
+  edm::EDGetTokenT<reco::TrackCollection> conversionIOTrackProducer_;
 
 
-  std::string outInTrackSCAssociationCollection_;
-  std::string inOutTrackSCAssociationCollection_;
+  edm::EDGetTokenT<reco::TrackCaloClusterPtrAssociation> 
+    outInTrackSCAssociationCollection_;
+  edm::EDGetTokenT<reco::TrackCaloClusterPtrAssociation>
+    inOutTrackSCAssociationCollection_;
 
-
+  edm::EDGetTokenT<reco::TrackCollection> generalTrackProducer_;
+  
   std::string ConvertedPhotonCollection_;
   std::string CleanedConvertedPhotonCollection_;
   
-  edm::InputTag bcBarrelCollection_;
-  edm::InputTag bcEndcapCollection_;
-  edm::InputTag scHybridBarrelProducer_;
-  edm::InputTag scIslandEndcapProducer_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcBarrelCollection_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > bcEndcapCollection_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > scHybridBarrelProducer_;
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > scIslandEndcapProducer_;
   edm::ParameterSet conf_;
-  edm::InputTag hcalTowers_;
+  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<MagneticField> theMF_;
