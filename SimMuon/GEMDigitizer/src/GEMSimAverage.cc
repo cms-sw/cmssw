@@ -61,7 +61,8 @@ void GEMSimAverage::simulate(const GEMEtaPartition* roll,
 
   for (const auto & hit: simHits)
   {
-    if (std::abs(hit.particleType()) != 13) continue;
+    // Switch only on for muon studies
+    //if (std::abs(hit.particleType()) != 13) continue;
     // Check GEM efficiency
     if (flatDistr1_->fire(1) > averageEfficiency_) continue;
     auto entry = hit.entryPoint();
