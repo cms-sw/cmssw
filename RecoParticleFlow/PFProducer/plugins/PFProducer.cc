@@ -58,11 +58,24 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   postMuonCleaning_
     = iConfig.getParameter<bool>("postMuonCleaning");
 
+  use_EGammaFilters_ =  iConfig.getParameter<bool>("useEGammaFilters");    
+
   usePFElectrons_
     = iConfig.getParameter<bool>("usePFElectrons");    
 
   usePFPhotons_
     = iConfig.getParameter<bool>("usePFPhotons");    
+  
+  // **************************** !! IMPORTANT !! ************************************
+  // When you code is swithed on, automatically turn off the old PFElectrons/PFPhotons. 
+  // The two algorithms can not run at the same time
+  // *********************************************************************************
+ 
+  if(use_EGammaFilters_) {
+    usePFElectrons_ = false;
+    usePFPhotons_ = false;
+  }
+
 
   usePhotonReg_
     = (usePFPhotons_) ? iConfig.getParameter<bool>("usePhotonReg") : false ;
@@ -191,7 +204,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   
 
   // Reading new EGamma selection cuts
-  use_EGammaFilters_ =  iConfig.getParameter<bool>("useEGammaFilters");    
+  
   double ele_iso_pt = iConfig.getParameter<double>("electron_iso_pt");
   double ele_iso_mva_barrel  = iConfig.getParameter<double>("electron_iso_mva_barrel");
   double ele_iso_mva_endcap = iConfig.getParameter<double>("electron_iso_mva_endcap");
