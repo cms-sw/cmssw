@@ -89,6 +89,9 @@
 //Needed for introspection
 #include "Cintex/Cintex.h"
 
+//FIXME: Threading problems with ROOT
+#include "TThread.h"
+
 namespace edm {
 
   // ---------------------------------------------------------------
@@ -1780,6 +1783,9 @@ namespace edm {
   
   void EventProcessor::processEventsForStreamAsync(unsigned int iStreamIndex,
                                                    std::atomic<bool>* finishedProcessingEvents) {
+    //FIXME: ROOT requires a dummy TThread be created on each thread which could talk to ROOT
+    static thread_local TThread guard;
+    
     try {
       // make the services available
       ServiceRegistry::Operate operate(serviceToken_);
