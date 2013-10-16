@@ -77,7 +77,7 @@ GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll,
 
   for (const auto & hit: simHits)
   {
-    if (std::abs(hit.particleType()) != 13) continue;
+    if (std::abs(hit.particleType()) != 13 && digitizeOnlyMuons_) continue;
     // Check GEM efficiency
     if (flat1_->fire(1) > averageEfficiency_) continue;
     const int bx(getSimHitBx(&hit));

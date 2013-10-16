@@ -56,6 +56,7 @@ private:
   int bxwidth_;
   int minBunch_;
   int maxBunch_;
+  bool digitizeOnlyMuons_;
 
   CLHEP::RandFlat* flat1_;
   CLHEP::RandFlat* flat2_;
