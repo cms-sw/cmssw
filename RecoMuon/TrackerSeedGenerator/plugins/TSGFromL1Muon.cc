@@ -50,6 +50,7 @@ TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
 {
   produces<L3MuonTrajectorySeedCollection>();
   theSourceTag = cfg.getParameter<edm::InputTag>("L1MuonLabel");
+  l1muonToken = consumes<L1MuonParticleCollection>(theSourceTag);
 }
 
 TSGFromL1Muon::~TSGFromL1Muon()
@@ -95,7 +96,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
   std::auto_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
 
   edm::Handle<L1MuonParticleCollection> l1muon;
-  ev.getByLabel(theSourceTag, l1muon);
+  ev.getByToken(l1muonToken, l1muon);
 
   LogDebug("TSGFromL1Muon")<<l1muon->size()<<" l1 muons to seed from.";
 

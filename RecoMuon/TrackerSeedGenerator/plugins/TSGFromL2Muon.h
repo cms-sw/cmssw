@@ -34,5 +34,9 @@ private:
   TrackerSeedGenerator* theTkSeedGenerator;
   TrackerSeedCleaner* theSeedCleaner;
 
+
+  edm::EDGetTokenT<reco::TrackCollection> l2muonToken;
+
+
 };
 #endif

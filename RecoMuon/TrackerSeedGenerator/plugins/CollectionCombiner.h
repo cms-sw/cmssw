@@ -36,12 +36,16 @@ private:
   
   // ----------member data ---------------------------
   std::vector<edm::InputTag> labels;
+  std::vector<edm::EDGetTokenT<Collection> > collectionTokens; 
+
 };
 
 template <typename Collection>
 CollectionCombiner<Collection>::CollectionCombiner(const edm::ParameterSet& iConfig){
   labels = iConfig.getParameter<std::vector<edm::InputTag> >("labels");
   produces<Collection>();
+  for (unsigned int i=0;i<labels.size();++i)
+    collectionTokens.push_back(consumes<Collection>(labels.at(i)));
 }
 template <typename Collection>
 CollectionCombiner<Collection>::~CollectionCombiner(){}
@@ -53,7 +57,7 @@ void CollectionCombiner<Collection>::produce(edm::Event& iEvent, const edm::Even
   edm::Handle<Collection> handle;
   std::auto_ptr<Collection> merged(new Collection());
   for (;i!=i_max;++i){
-    iEvent.getByLabel(labels[i], handle);
+    iEvent.getByToken(collectionTokens[i], handle);
     merged->insert(merged->end(), handle->begin(), handle->end());
   }
   iEvent.put(merged);

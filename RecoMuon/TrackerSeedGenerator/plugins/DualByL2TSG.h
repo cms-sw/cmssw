@@ -25,6 +25,7 @@ class DualByL2TSG : public SeparatingTSG{
   std::string theCategory;
   edm::InputTag theL3CollectionLabelA;
   edm::Handle<reco::TrackCollection> l3muonH;
+  edm::EDGetTokenT<reco::TrackCollection> l3muonToken;
 };
 
 #endif
