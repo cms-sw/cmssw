@@ -5,7 +5,7 @@
  *  Northwestern University
  */
 
-#include "DQMOffline/Muon/src/CSCOfflineMonitor.h"
+#include "DQMOffline/Muon/interface/CSCOfflineMonitor.h"
 
 using namespace std;
 
