@@ -12,6 +12,9 @@
 # include <list>
 # include <map>
 # include <set>
+# include <cassert>
+# include <mutex>
+# include <thread>
 # include <execinfo.h>
 # include <stdio.h>
 # include <stdlib.h>
@@ -78,6 +81,30 @@ public:
     KeepRunDirs,
     StripRunDirs
   };
+
+  class IBooker
+  {
+  public:
+    friend class DQMStore;
+    MonitorElement * book1D(const std::string &name,
+                            const std::string &title,
+                            int nchX, double lowX, double highX);
+    void cd(const std::string &dir);
+
+  private:
+    explicit IBooker(DQMStore * store):owner_(0) {
+      assert(store);
+      owner_ = store;
+    }
+
+    IBooker();
+    IBooker(const IBooker&);
+
+    // Embedded classes do not natively own a pointer to the embedding
+    // class. We therefore need to store a pointer to the main
+    // DQMStore instance (owner_).
+    DQMStore * owner_;
+  };  // IBooker
 
   //-------------------------------------------------------------------------
   // ---------------------- Constructors ------------------------------------
@@ -473,6 +500,9 @@ private:
   QCMap                         qtests_;
   QAMap                         qalgos_;
   QTestSpecs                    qtestspecs_;
+
+  std::mutex book_mutex_;
+  IBooker * ibooker_;
 
   friend class edm::DQMHttpSource;
   friend class DQMService;

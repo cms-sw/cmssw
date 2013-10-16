@@ -255,6 +255,16 @@ bool fastmatch::match(std::string const& s) const
   }
 }
 
+void DQMStore::IBooker::cd(const std::string &dir) {
+  owner_->cd(dir);
+}
+
+MonitorElement * DQMStore::IBooker::book1D(const std::string &name,
+                                           const std::string &title,
+                                           int nchX, double lowX, double highX) {
+  return owner_->book1D(name, title, nchX, lowX, highX);
+}
+
 //////////////////////////////////////////////////////////////////////
 DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
   : verbose_ (1),
@@ -267,6 +277,8 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     moduleId_(0),
     pwd_ ("")
 {
+  if (!ibooker_)
+    ibooker_ = new DQMStore::IBooker(this);
   initializeFrom(pset);
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
     ar.watchPostSourceRun(this,&DQMStore::forceReset);
@@ -285,6 +297,8 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     moduleId_(0),
     pwd_ ("")
 {
+  if (!ibooker_)
+    ibooker_ = new DQMStore::IBooker(this);
   initializeFrom(pset);
 }
 
