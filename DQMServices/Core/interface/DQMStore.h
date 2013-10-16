@@ -106,6 +106,24 @@ public:
     DQMStore * owner_;
   };  // IBooker
 
+  // Template function to be used inside each DQM Modules' lambda
+  // functions to book MonitorElements into the DQMStore. The function
+  // calls whatever user-supplied code via the function f. The latter
+  // is passed the instance of the IBooker class (owned by the *only*
+  // DQMStore instance), that is capable of booking MonitorElements
+  // into the DQMStore via a public API. The central mutex is acquired
+  // *before* invoking fand automatically released upon returns.
+  template <typename iFunc>
+  void bookTransaction(iFunc f,
+		       uint32_t run,
+		       uint32_t streamId,
+		       uint32_t moduleId) {
+    std::lock_guard<std::mutex> guard(book_mutex_);
+    run_ = run;
+    streamId_ = streamId;
+    moduleId_ = moduleId;
+    f(*ibooker_);
+  }
   //-------------------------------------------------------------------------
   // ---------------------- Constructors ------------------------------------
   DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry&);
