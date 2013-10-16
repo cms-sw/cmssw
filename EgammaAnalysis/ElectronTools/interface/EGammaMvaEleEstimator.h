@@ -81,6 +81,12 @@ class EGammaMvaEleEstimator{
     Double_t mvaValue(const pat::Electron& ele, 
 		      double rho,
 		      bool printDebug = kFALSE);
+
+    // for kTrig, kNonTrig and kTrigNoIP algorithm
+    Double_t mvaValue(const pat::Electron& ele,
+		      const reco::Vertex& vertex,
+		      double rho,
+		      bool printDebug = kFALSE);
     
     Double_t isoMvaValue(const reco::GsfElectron& ele, 
                          const reco::Vertex& vertex, 
