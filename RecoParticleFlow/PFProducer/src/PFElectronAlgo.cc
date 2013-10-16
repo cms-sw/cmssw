@@ -1697,7 +1697,6 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	if(HOverPin < 0.) HOverPin = 0.;
 	if(HOverPin > 5.) HOverPin = 5.;
 	double mvaValue = tmvaReader_->EvaluateMVA("BDT");
-	
 	// add output observables 
 	BDToutput_[cgsf] = mvaValue;
 	myExtra.setMVA(mvaValue);

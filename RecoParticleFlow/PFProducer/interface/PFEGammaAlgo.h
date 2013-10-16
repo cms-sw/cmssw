@@ -91,9 +91,7 @@ class PFEGammaAlgo {
     // for track-HCAL cluster linking
     std::vector<PFClusterFlaggedElement> hcalClusters;
     ElementMap localMap;
-    int firstBrem;
-    int lateBrem;
-    int nBremsWithClusters;
+    int firstBrem, lateBrem, nBremsWithClusters;
   };  
   
   struct PFEGConfigInfo {
@@ -262,6 +260,7 @@ private:
   void linkRefinableObjectGSFTracksToKFs(ProtoEGObject&);
   void linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject&);
   void linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject&);
+  void linkRefinableObjectPrimaryGSFTrackToHCAL(ProtoEGObject&);
   void linkRefinableObjectKFTracksToECAL(ProtoEGObject&);
   void linkRefinableObjectBremTangentsToECAL(ProtoEGObject&);
   // WARNING! this should be ONLY used after doing the ECAL->track 
@@ -297,7 +296,7 @@ private:
   // helper functions for that
 
   float calculate_ele_mva(const ProtoEGObject&,
-			  const reco::PFCandidateEGammaExra&);
+			  reco::PFCandidateEGammaExtra&);
   unsigned calculate_electron_vetoes(const PFEGammaAlgo::ProtoEGObject& RO,
 				     const reco::PFCandidateEGammaExtra& xtra);
   unsigned calculate_photon_vetoes(const PFEGammaAlgo::ProtoEGObject& RO,

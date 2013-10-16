@@ -48,6 +48,8 @@ namespace reco {
     };
 
     enum ElectronVetoes {
+      kFailsMVA,
+      kFailsClusterIso,
       kN_EVETOS
     };
 
@@ -150,6 +152,13 @@ namespace reco {
     float hadEnergy() const {return hadEnergy_;}
     float sigmaEtaEta() const {return sigmaEtaEta_;}
 
+    /// set veto bits
+    void setElectronVetoes(unsigned bits) { elevetoes_ = bits; }
+    void setPhotonVetoes(unsigned bits) { phovetoes_ = bits; }
+
+    /// access to veto bits
+    unsigned electronVetoes() const { return elevetoes_; }
+    unsigned photonVetoes() const { return phovetoes_; } 
 
  private:
     void  setVariable(MvaVariable type,float var);
@@ -195,7 +204,7 @@ namespace reco {
     float hadEnergy_;
     float deltaEta_;
 
-    unsigned elevetoes_,phovetos_;
+    unsigned elevetoes_,phovetoes_;
   };
 
   /// print the variables
