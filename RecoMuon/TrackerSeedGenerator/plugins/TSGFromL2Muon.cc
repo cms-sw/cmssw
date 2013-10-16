@@ -57,6 +57,8 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
     theSeedCleaner = new TrackerSeedCleaner(trackerSeedCleanerPSet);
   }
 
+
+  l2MuonToken = consumes<reco::TrackCollection>(theL2CollectionLabel);
 }
 
 TSGFromL2Muon::~TSGFromL2Muon()
@@ -96,7 +98,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 
   //retrieve L2 track collection
   edm::Handle<reco::TrackCollection> l2muonH;
-  ev.getByLabel(theL2CollectionLabel ,l2muonH); 
+  ev.getByToken(l2muonToken ,l2muonH); 
 
   // produce trajectoryseed collection
   unsigned int imu=0;

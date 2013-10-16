@@ -13,6 +13,8 @@ DualByL2TSG::DualByL2TSG(const edm::ParameterSet &pset) : SeparatingTSG(pset){  
   theL3CollectionLabelA = pset.getParameter<edm::InputTag>("L3TkCollectionA");
   if (nTSGs()!=2)
     {edm::LogError(theCategory)<<"not two seed generators provided";}
+
+  l3muonToken = consumes<reco::TrackCollection>(theL3CollectionLabelA); 
 }
 
 unsigned int DualByL2TSG::selectTSG(const TrackCand & muonTrackCand, const TrackingRegion& region)
@@ -25,7 +27,7 @@ unsigned int DualByL2TSG::selectTSG(const TrackCand & muonTrackCand, const Track
   
   //retrieve L3 track collection
   edm::Handle<reco::TrackCollection> l3muonH;
-  getEvent()->getByLabel(theL3CollectionLabelA ,l3muonH);
+  getEvent()->getByToken(l3muonToken ,l3muonH);
   if(l3muonH.failedToGet()) return 0;
   
   unsigned int maxI = l3muonH->size();

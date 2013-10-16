@@ -38,5 +38,6 @@ private:
   PixelTrackFilter * theFilter;
   L1MuonSeedsMerger * theMerger;
 
+  edm::EDGetTokenT<L1MuonParticleCollection> l1muonToken;
 };
 #endif
