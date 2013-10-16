@@ -162,6 +162,7 @@ private:
         streamContext.setTimestamp(Timestamp());
         ParentContext parentContext(&streamContext);
         ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+        moduleCallingContext_.setState(ModuleCallingContext::State::kRunning);
         ModuleBeginStreamSignalSentry beginSentry(actReg_.get(), streamContext, moduleCallingContext_);
         implBeginStream(id);
       }
@@ -191,6 +192,7 @@ private:
         streamContext.setTimestamp(Timestamp());
         ParentContext parentContext(&streamContext);
         ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+        moduleCallingContext_.setState(ModuleCallingContext::State::kRunning);
         ModuleEndStreamSignalSentry endSentry(actReg_.get(), streamContext, moduleCallingContext_);
         implEndStream(id);
       }
