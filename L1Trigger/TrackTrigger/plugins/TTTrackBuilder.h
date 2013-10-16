@@ -184,6 +184,19 @@ void TTTrackBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iS
       /// The seed is now a track and it is time to fit it
       theTrackFindingAlgoHandle->FitTrack( curSeed );
 
+      /// Refit tracks if needed
+      if ( curSeed.getLargestResIdx() > -1 )
+      {
+        if ( curSeed.getStubPtrs().size() > 3 && curSeed.getChi2() > 100.0 )
+        {
+          std::vector< edm::Ptr< TTStub< T > > > theseStubs = curSeed.getStubPtrs();
+          theseStubs.erase( theseStubs.begin()+curSeed.getLargestResIdx() );
+          curSeed.setStubPtrs( theseStubs );
+          curSeed.setLargestResIdx( -1 );
+          theTrackFindingAlgoHandle->FitTrack( curSeed );
+        }
+      }
+
       /// Store the fitted track in the output
       TTTracksForOutput->push_back( curSeed );
 

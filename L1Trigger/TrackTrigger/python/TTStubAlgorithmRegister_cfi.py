@@ -54,7 +54,7 @@ TTStubAlgorithm_tab2013_PixelDigi_ = cms.ESProducer("TTStubAlgorithm_tab2013_Pix
 )
 
 # CBC3 hit matching algorithm
-TTStubAlgorithm_cbc33_PixelDigi_ = cms.ESProducer("TTStubAlgorithm_cbc33_PixelDigi_",
+TTStubAlgorithm_cbc3_PixelDigi_ = cms.ESProducer("TTStubAlgorithm_cbc3_PixelDigi_",
    zMatchingPS = cms.bool(False),
    zMatching2S = cms.bool(True),
 )

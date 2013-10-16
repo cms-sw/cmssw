@@ -140,6 +140,9 @@ class ValidateL1Track : public edm::EDAnalyzer
     TH2D* hTrack_3Stubs_Chi2Red_NStubs;
     TH2D* hTrack_3Stubs_Chi2Red_TPart_Eta;
 
+    TH1D* hTPart_Eta_Normalization;
+    TH1D* hTPart_Eta_NStubs;
+
     unsigned int maxPtBin;
     unsigned int maxEtaBin;
     std::vector< double > vLimitsPt;
@@ -615,6 +618,11 @@ void ValidateL1Track::beginJob()
   hTrack_3Stubs_Chi2Red_NStubs->Sumw2();
   hTrack_3Stubs_Chi2Red_TPart_Eta->Sumw2();
 
+  hTPart_Eta_Normalization = fs->make<TH1D>("hTPart_Eta_Normalization", "TParticles vs. TPart #eta", 90, 0, M_PI );
+  hTPart_Eta_NStubs        = fs->make<TH1D>("hTPart_Eta_NStubs"       , "N Stubs vs. TPart #eta"   , 90, 0, M_PI );
+  hTPart_Eta_Normalization->Sumw2();
+  hTPart_Eta_NStubs->Sumw2();
+
   /// Prepare for 1D resolution plots
 
   for ( unsigned int iPt = 0; iPt < maxPtBin; iPt++ )
@@ -949,6 +957,10 @@ if ( hasBL1 )
 
       if ( nStubs > 2 )
       {
+
+        hTPart_Eta_Normalization->Fill( tpEta );
+        hTPart_Eta_NStubs->Fill( tpEta, nStubs );
+
         hTrack_3Stubs_Pt->Fill( trackPt );
         hTrack_3Stubs_Eta->Fill( trackEta );
         hTrack_3Stubs_Phi->Fill( trackPhi );

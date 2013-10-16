@@ -123,7 +123,7 @@
       /// Relevant angle is the one between hit and module center, with
       /// vertex at (0, 0). Take snippet from HitMatchingAlgorithm_window201*
       /// POSITION IN TERMS OF PITCH MULTIPLES:
-      ///       0 1 2 3 4 5 6 8 9 ...
+      ///       0 1 2 3 4 5 6 7 8 9 ...
       /// COORD: 0 1 2 3 4 5 6 7 8 9 ...
       /// OUT   | | | | | |x| | | | | | | | | |
       ///
@@ -225,6 +225,9 @@
   double chiSquare = 0;
   js = 0; /// re-initialize js
 
+  double largestRes = -1.0;
+  int iLargestRes = -1;
+
   for ( unsigned int is = 0; is < curStubs.size(); is++ )
   {
     /// Get the stub global position
@@ -298,7 +301,7 @@
       /// Relevant angle is the one between hit and module center, with
       /// vertex at (0, 0). Take snippet from HitMatchingAlgorithm_window201*
       /// POSITION IN TERMS OF PITCH MULTIPLES:
-      ///       0 1 2 3 4 5 5 6 8 9 ...
+      ///       0 1 2 3 4 5 6 7 8 9 ...
       /// COORD: 0 1 2 3 4 5 6 7 8 9 ...
       /// OUT   | | | | | |x| | | | | | | | | |
       ///
@@ -322,6 +325,23 @@
       /// Transverse plane
       delta[js++] = deltaRhoPhiCorr / sigmaRhoPhi;
     }
+
+    /// Update largest residual
+    if ( fabs( delta[js-2] ) > largestRes )
+    {
+      largestRes = fabs( delta[js-2] );
+      iLargestRes = is;
+    }
+    if ( fabs( delta[js-1] ) > largestRes )
+    {
+      largestRes = fabs( delta[js-1] );
+      iLargestRes = is;
+    } 
+
+    if ( largestRes > 5.0 )
+    {
+      seed.setLargestResIdx( iLargestRes );
+    }  
 
     /// Update the chiSquare
     chiSquare += ( delta[js-2]*delta[js-2] + delta[js-1]*delta[js-1] );
@@ -362,3 +382,4 @@
   double mMagneticField = this->ReturnMagneticField();
 
   double newPt = fabs( mMagneticField*0.003 / newRInv );
+
