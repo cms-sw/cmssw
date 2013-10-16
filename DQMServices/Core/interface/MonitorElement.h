@@ -76,7 +76,11 @@ private:
 
 public:
   MonitorElement(void);
-  MonitorElement(const std::string *path, const std::string &name);
+  MonitorElement(const std::string *path,
+                 const std::string &name,
+                 uint32_t run = 0,
+                 uint32_t streamId = 0,
+                 uint32_t moduleId = 0);
   MonitorElement(const MonitorElement &);
   MonitorElement &operator=(const MonitorElement &);
   ~MonitorElement(void);
