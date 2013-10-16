@@ -65,6 +65,10 @@ DEFINE_FWK_EVENTSETUP_MODULE( TTStubAlgorithm_window2013_PixelDigi_ );
 typedef ES_TTStubAlgorithm_tab2013< Ref_PixelDigi_ > TTStubAlgorithm_tab2013_PixelDigi_;
 DEFINE_FWK_EVENTSETUP_MODULE( TTStubAlgorithm_tab2013_PixelDigi_ );
 
+#include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm_cbc3.h"
+typedef ES_TTStubAlgorithm_cbc3< Ref_PixelDigi_ > TTStubAlgorithm_cbc3_PixelDigi_;
+DEFINE_FWK_EVENTSETUP_MODULE( TTStubAlgorithm_cbc3_PixelDigi_ );
+
 /// The Clustering Algorithms
 
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithm_a.h"

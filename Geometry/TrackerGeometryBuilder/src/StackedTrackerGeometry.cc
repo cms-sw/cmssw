@@ -44,7 +44,7 @@ const StackedTrackerDetUnit* StackedTrackerGeometry::idToStack( StackedTrackerDe
 }
 
 /// CBC3 stuff
-const int StackedTrackerGeometry::detUnitWindow( StackedTrackerDetId anId ) const
+const int StackedTrackerGeometry::getDetUnitWindow( StackedTrackerDetId anId ) const
 {
   const StackedTrackerDetUnit* theStack = this->idToStack( anId );
   if ( theStack == NULL )
@@ -54,7 +54,7 @@ const int StackedTrackerGeometry::detUnitWindow( StackedTrackerDetId anId ) cons
   return theStack->detUnitWindow();
 }
 
-const int StackedTrackerGeometry::asicOffset( StackedTrackerDetId anId, int asicNumber, int partitionNumber ) const
+const int StackedTrackerGeometry::getASICOffset( StackedTrackerDetId anId, int asicNumber, int partitionNumber ) const
 {
   const StackedTrackerDetUnit* theStack = this->idToStack( anId );
   if ( theStack == NULL )

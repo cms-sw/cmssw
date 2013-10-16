@@ -8,6 +8,7 @@
  *
  *  \author Andrew W. Rose
  *  \author Nicola Pozzobon
+ *  \author Ivan Reid
  *  \date   2013, Jul 18
  *
  */
@@ -22,6 +23,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm.h"
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithmRecord.h"
@@ -54,6 +58,11 @@ class TTStubBuilder : public edm::EDProducer
     virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
     virtual void endRun( const edm::Run& run, const edm::EventSetup& iSetup );
     virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+
+    /// Sorting method for stubs
+    /// NOTE: this must be static!
+    static bool SortStubBendPairs( const std::pair< unsigned int, double >& left, const std::pair< unsigned int, double >& right );
+
 
 }; /// Close class
 
@@ -113,6 +122,10 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle< std::vector< TTCluster< T > > > TTClusterHandle;
   iEvent.getByLabel( TTClustersInputTag, TTClusterHandle);   
 
+  /// Get the maximum number of stubs per ROC
+  /// (CBC3-style)
+  unsigned maxStubs = theStackedTracker->getCBC3MaxStubs();
+
   /// Map the Clusters according to detector elements
   TTClusterMap clusterMap;
   clusterMap.clear();
@@ -166,7 +179,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
     typename TTClusterMap::const_iterator innerIter = clusterMap.find( inmapkey );
     typename TTClusterMap::const_iterator outerIter = clusterMap.find( outmapkey );
 
-    if ( innerIter == clusterMap.end() || outerIter == clusterMap.end() ) continue;
+    if ( innerIter == clusterMap.end() || outerIter == clusterMap.end() )
+      continue;
 
     std::vector< edm::Ptr< TTCluster< T > > > innerClusters = innerIter->second;
     std::vector< edm::Ptr< TTCluster< T > > > outerClusters = outerIter->second;
@@ -175,51 +189,129 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
     /// If there are Clusters in both sensors
     /// you can try and make a Stub
-    if ( innerClusters.size() && outerClusters.size() )
+    if ( innerClusters.size() == 0 || outerClusters.size() == 0 )
+      continue;
+
+    /// Get chip size information
+    const GeomDetUnit* det0 = theStackedTracker->idToDetUnit( Id, 0 );
+    const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
+    const PixelTopology* top0 = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
+    const int chipSize = 2 * top0->rowsperroc();             /// Need to find ASIC size in half-strip units
+    std::map< int, std::vector< TTStub< T > > > moduleStubs; /// Temporary storage for stubs before max check
+
+    /// Loop over pairs of Clusters
+    for ( innerClusterIter = innerClusters.begin();
+          innerClusterIter != innerClusters.end();
+          ++innerClusterIter )
     {
-      /// Loop over pairs of Clusters
-      for ( innerClusterIter = innerClusters.begin();
-            innerClusterIter != innerClusters.end();
-            ++innerClusterIter )
+      for ( outerClusterIter = outerClusters.begin();
+            outerClusterIter != outerClusters.end();
+            ++outerClusterIter )
       {
-        for ( outerClusterIter = outerClusters.begin();
-              outerClusterIter != outerClusters.end();
-              ++outerClusterIter )
+        /// Build a temporary Stub
+        TTStub< T > tempTTStub( Id );
+        tempTTStub.addClusterPtr( *innerClusterIter ); /// innerClusterIter is an iterator pointing to the edm::Ptr
+        tempTTStub.addClusterPtr( *outerClusterIter );
+
+        /// Check for compatibility
+        bool thisConfirmation = false;
+        int thisDisplacement = 999999;
+        int thisOffset = 0; 
+
+        theStubFindingAlgoHandle->PatternHitCorrelation( thisConfirmation, thisDisplacement, thisOffset, tempTTStub );
+
+        /// If the Stub is above threshold
+        if ( thisConfirmation )
         {
-          /// Build a temporary Stub
-          TTStub< T > tempTTStub( Id );
-          tempTTStub.addClusterPtr( *innerClusterIter ); /// innerClusterIter is an iterator pointing to the edm::Ptr
-          tempTTStub.addClusterPtr( *outerClusterIter );
+          tempTTStub.setTriggerDisplacement( thisDisplacement );
+          tempTTStub.setTriggerOffset( thisOffset );
 
-          /// Check for compatibility
-          bool thisConfirmation = false;
-          int thisDisplacement = 999999;
-          int thisOffset = 0; 
-
-          theStubFindingAlgoHandle->PatternHitCorrelation( thisConfirmation, thisDisplacement, thisOffset, tempTTStub );
-
-          /// If the Stub is above threshold
-          if ( thisConfirmation )
+          /// Put in the output
+          if ( maxStubs == 0 )
           {
-            tempTTStub.setTriggerDisplacement( thisDisplacement );
-            tempTTStub.setTriggerOffset( thisOffset );
-
-            /// Put in the output
+            /// This means that ALL stubs go into the output
             TTStubsForOutputAccepted->push_back( tempTTStub );
-
-          } /// Stub accepted
+          }
           else
-            TTStubsForOutputRejected->push_back( tempTTStub );
+          {
+            /// This means that only some of them do
+            /// Put in the temporary output
+            int chip = tempTTStub.getTriggerPosition() / chipSize; /// Find out which ASIC
+            if ( moduleStubs.find( chip ) == moduleStubs.end() )   /// Already a stub for this ASIC?
+            {
+              /// No, so new entry
+              std::vector< TTStub<T> > tempStubs;
+              tempStubs.clear();
+              tempStubs.push_back( tempTTStub );
+              moduleStubs.insert( std::pair< int, std::vector< TTStub< T > > >( chip, tempStubs ) );
+            }
+            else
+            {
+              /// Already existing entry
+              moduleStubs[chip].push_back( tempTTStub );
+            }
+          }
+        } /// Stub accepted
+        else
+          TTStubsForOutputRejected->push_back( tempTTStub );
 
-        } /// End of nested loop
-      } /// End of loop over pairs of Clusters
-    } /// End of cross check there are Clusters in both sensors
+      } /// End of nested loop
+    } /// End of loop over pairs of Clusters
+
+    /// If we are working with max no. stub/ROC, then clean the temporary output
+    /// and store only the selected stubs
+    if ( moduleStubs.empty() ) /// NOTE: this includes "if ( maxStubs == 0 )"
+      continue;
+
+    /// Loop over ROC's
+    /// the ROC ID is not important
+    for ( auto const & is : moduleStubs )
+    {
+      /// Put the stubs into the output
+      if ( is.second.size() <= maxStubs )
+      {
+        for ( auto const & ts: is.second )
+        {
+          TTStubsForOutputAccepted->push_back( ts );
+        }
+      }
+      else
+      {
+        /// Sort them and pick up only the first N.
+        std::vector< std::pair< unsigned int, double > > bendMap;
+        for ( unsigned int i = 0; i < is.second.size(); ++i )
+        {
+          bendMap.push_back( std::pair< unsigned int, double >( i, is.second[i].getTriggerBend() ) );
+        }
+        std::sort( bendMap.begin(), bendMap.end(), TTStubBuilder< T >::SortStubBendPairs );
+
+        for ( unsigned int i = 0; i < maxStubs; ++i )
+        {
+          /// Put the highest momenta (lowest bend) stubs into the event
+          TTStubsForOutputAccepted->push_back(is.second[bendMap[i].first]);
+        }
+        for ( unsigned int i = maxStubs; i < is.second.size(); ++i )
+        {
+          /// Reject the rest
+          TTStubsForOutputRejected->push_back( is.second[bendMap[i].first] );
+        }
+      }
+    } /// End of loop over temp output
+
   } /// End of loop over detector elements
 
   /// Put output in the event
   iEvent.put( TTStubsForOutputAccepted, "StubsPass" );
   iEvent.put( TTStubsForOutputRejected, "StubsFail" );
 }
+
+/// Sort routine for stub ordering
+template< typename T >
+bool TTStubBuilder< T >::SortStubBendPairs( const std::pair< unsigned int, double >& left, const std::pair< unsigned int, double >& right )
+{
+  return left.second < right.second;
+}
+
 
 #endif
 

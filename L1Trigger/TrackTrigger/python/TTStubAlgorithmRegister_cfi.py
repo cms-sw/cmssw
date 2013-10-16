@@ -53,6 +53,13 @@ TTStubAlgorithm_tab2013_PixelDigi_ = cms.ESProducer("TTStubAlgorithm_tab2013_Pix
    )
 )
 
+# CBC3 hit matching algorithm
+TTStubAlgorithm_cbc33_PixelDigi_ = cms.ESProducer("TTStubAlgorithm_cbc33_PixelDigi_",
+   zMatchingPS = cms.bool(False),
+   zMatching2S = cms.bool(True),
+)
+
+
 # Set the preferred hit matching algorithms.
 # We prefer the global geometry algorithm for now in order not to break
 # anything. Override with process.TTStubAlgorithm_PSimHit_ = ...,

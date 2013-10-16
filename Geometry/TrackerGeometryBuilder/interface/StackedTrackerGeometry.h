@@ -58,8 +58,10 @@ public:
 
   /// Dedicated to CBC3 emulation
   /// Everything is in half-strip units
-  const int detUnitWindow( StackedTrackerDetId anId ) const;
-  const int asicOffset( StackedTrackerDetId anId, int asicNumber, int partitionNumber ) const;
+  const int getDetUnitWindow( StackedTrackerDetId anId ) const;
+  const int getASICOffset( StackedTrackerDetId anId, int asicNumber, int partitionNumber ) const;
+  int       getPartitionsPerRoc() const { return theNumPartitions; }
+  unsigned  getCBC3MaxStubs() const     { return theMaxStubs; }
 
   /// Helper functions
   Plane::PlanePointer meanPlane( StackedTrackerDetId anId ) const;
