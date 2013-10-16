@@ -39,7 +39,8 @@ using namespace edm;
 using namespace std;
 
 StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const ParameterSet& par, 
-								 const MuonServiceProxy* service):theService(service){
+								 const MuonServiceProxy* service,
+								 edm::ConsumesCollector& iC):theService(service){
   const std::string metname = "Muon|RecoMuon|StandAloneMuonTrajectoryBuilder";
   
   LogTrace(metname) << "constructor called" << endl;
@@ -51,7 +52,7 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   // The inward-outward fitter (starts from seed state)
   ParameterSet filterPSet = par.getParameter<ParameterSet>("FilterParameters");
   filterPSet.addParameter<string>("NavigationType",theNavigationType);
-  theFilter = new StandAloneMuonFilter(filterPSet,theService);
+  theFilter = new StandAloneMuonFilter(filterPSet,theService,iC);
 
   // Fit direction
   string seedPosition = par.getParameter<string>("SeedPosition");
@@ -83,7 +84,7 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
     ParameterSet bwFilterPSet = par.getParameter<ParameterSet>("BWFilterParameters");
     //  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet,theService); // FIXME
     bwFilterPSet.addParameter<string>("NavigationType",theNavigationType);
-    theBWFilter = new StandAloneMuonFilter(bwFilterPSet,theService);
+    theBWFilter = new StandAloneMuonFilter(bwFilterPSet,theService,iC);
     
     theBWSeedType = bwFilterPSet.getParameter<string>("BWSeedType");
   }

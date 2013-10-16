@@ -12,10 +12,12 @@
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/MuonSeedFromRecHits.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 class ExhaustiveMuonTrajectoryBuilder : public MuonTrajectoryBuilder
 {
 public:
-  ExhaustiveMuonTrajectoryBuilder(const edm::ParameterSet & pset, const MuonServiceProxy*);
+  ExhaustiveMuonTrajectoryBuilder(const edm::ParameterSet & pset, const MuonServiceProxy*,edm::ConsumesCollector& );
   virtual ~ExhaustiveMuonTrajectoryBuilder();
 
   /// return a container of the reconstructed trajectories compatible with a given seed

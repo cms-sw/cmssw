@@ -39,7 +39,8 @@ using namespace edm;
 using namespace std;
 
 StandAloneMuonFilter::StandAloneMuonFilter(const ParameterSet& par,
-					       const MuonServiceProxy* service)
+					   const MuonServiceProxy* service,
+					   edm::ConsumesCollector& iC)
 :theService(service),
  theOverlappingChambersFlag(true)
 {
@@ -92,6 +93,7 @@ StandAloneMuonFilter::StandAloneMuonFilter(const ParameterSet& par,
   theMeasurementExtractor = new MuonDetLayerMeasurements(par.getParameter<InputTag>("DTRecSegmentLabel"),
 							 par.getParameter<InputTag>("CSCRecSegmentLabel"),
 							 par.getParameter<InputTag>("RPCRecSegmentLabel"),
+							 iC,
 							 enableDTMeasurement,
 							 enableCSCMeasurement,
 							 enableRPCMeasurement);
