@@ -63,7 +63,15 @@ namespace edm {
     }
   }
 
-  
+  TClassStreamer*
+  RefCoreStreamer::Generate() const {
+    return new RefCoreStreamer(*this);
+  }
+
+  TClassStreamer*
+  RefCoreWithIndexStreamer::Generate() const {
+    return new RefCoreWithIndexStreamer(*this);
+  }
 
 
   void setRefCoreStreamer(bool resetAll) {
