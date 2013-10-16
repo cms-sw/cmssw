@@ -46,6 +46,12 @@ class TTStub
     double getTriggerOffset() const;         /// In FULL-STRIP units! (hence, not implemented herein)
     void   setTriggerOffset( int anOffset ); /// In HALF-STRIP units!
 
+    /// CBC3-style trigger information
+    /// for sake of simplicity, these methods are
+    /// slightly out of the getABC(...)/findABC(...) rule
+    double getTriggerPosition() const; /// In FULL-STRIP units!
+    double getTriggerBend() const;     /// In FULL-STRIP units!
+
     /// Information
     std::string print( unsigned int i = 0 ) const;
 
@@ -127,6 +133,16 @@ double TTStub< T >::getTriggerOffset() const { return 0.5*theOffset; }
 
 template< typename T >
 void TTStub< T >::setTriggerOffset( int anOffset ) { theOffset = anOffset; }
+
+/// CBC3-style trigger info
+template< typename T >
+double TTStub< T >::getTriggerPosition() const
+{
+  return this->getClusterPtr(0)->findAverageLocalCoordinates().x();
+}
+
+template< typename T >
+double TTStub< T >::getTriggerBend() const { return 0.5*( theDisplacement - theOffset ); }
 
 /// Information
 template< typename T >

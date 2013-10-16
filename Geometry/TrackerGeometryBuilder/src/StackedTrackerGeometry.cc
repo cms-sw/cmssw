@@ -11,19 +11,22 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-StackedTrackerGeometry::StackedTrackerGeometry( const TrackerGeometry *i ) : theTracker(i) {}
+StackedTrackerGeometry::StackedTrackerGeometry( const TrackerGeometry *i )
+  : theTracker(i),
+    theNumPartitions(0), theMaxStubs(0)
+{}
+
+StackedTrackerGeometry::StackedTrackerGeometry( const TrackerGeometry *i,
+                                                const int partitionsPerRoc,
+                                                const unsigned CBC3_Stubs )
+  : theTracker(i),
+    theNumPartitions(partitionsPerRoc),
+    theMaxStubs(CBC3_Stubs)
+{}
+
 StackedTrackerGeometry::~StackedTrackerGeometry() {}
 
-const StackedTrackerGeometry::StackContainer& StackedTrackerGeometry::stacks() const
-{
-  return theStacks;
-}
-
-const StackedTrackerGeometry::StackIdContainer& StackedTrackerGeometry::stackIds() const
-{
-  return theStackIds;
-}
-
+/// Methods for data members
 void StackedTrackerGeometry::addStack(StackedTrackerDetUnit* aStack)
 {
   theStacks.push_back( aStack );
@@ -38,6 +41,27 @@ const StackedTrackerDetUnit* StackedTrackerGeometry::idToStack( StackedTrackerDe
     return theMap.find(anId)->second;
   }
   return NULL;
+}
+
+/// CBC3 stuff
+const int StackedTrackerGeometry::detUnitWindow( StackedTrackerDetId anId ) const
+{
+  const StackedTrackerDetUnit* theStack = this->idToStack( anId );
+  if ( theStack == NULL )
+  {
+    return 0;
+  }
+  return theStack->detUnitWindow();
+}
+
+const int StackedTrackerGeometry::asicOffset( StackedTrackerDetId anId, int asicNumber, int partitionNumber ) const
+{
+  const StackedTrackerDetUnit* theStack = this->idToStack( anId );
+  if ( theStack == NULL )
+  {
+    return 999999;
+  }
+  return theStack->asicOffset( asicNumber, partitionNumber );
 }
 
 /// The following methods are analagous to the methods in TrackerGeomety
@@ -83,6 +107,7 @@ const bool StackedTrackerGeometry::isPSModule( StackedTrackerDetId anId ) const
 
   return true;
 }
+
 
 
 Plane::PlanePointer StackedTrackerGeometry::meanPlane( StackedTrackerDetId anId ) const

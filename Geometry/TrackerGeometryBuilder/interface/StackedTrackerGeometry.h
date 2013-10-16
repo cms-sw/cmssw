@@ -1,12 +1,13 @@
-/*********************************/
-/*********************************/
-/**                             **/
-/** Stacked Tracker Simulations **/
-/**        Andrew W. Rose       **/
-/**             2008            **/
-/**                             **/
-/*********************************/
-/*********************************/
+/*! \class   StackedTrackerGeometry
+ *  \brief   TrackerGeometry-derived class for Pt modules
+ *  \details
+ *
+ *  \author Andrew W. Rose
+ *  \author Nicola Pozzobon
+ *  \author Ivan Reid
+ *  \date   2008
+ *
+ */
 
 #ifndef STACKED_TRACKER_GEOMETRY_H
 #define STACKED_TRACKER_GEOMETRY_H
@@ -37,44 +38,52 @@ public:
   typedef std::vector<StackedTrackerDetId>::const_iterator     StackIdContainerIterator;
   typedef __gnu_cxx::hash_map< unsigned int, StackedTrackerDetUnit*> mapIdToStack;
 
-  StackedTrackerGeometry( const TrackerGeometry *i );  
+  /// Constructors
+  StackedTrackerGeometry( const TrackerGeometry *i );
+  StackedTrackerGeometry( const TrackerGeometry *i, const int partitionsPerRoc, const unsigned CBC3_Stubs );
   virtual ~StackedTrackerGeometry();  
 
-  const StackContainer&   stacks() const;
-  const StackIdContainer& stackIds() const; 
-  void  addStack(StackedTrackerDetUnit *aStack);
+  /// Methods for data members
+  const StackContainer&   stacks() const   { return theStacks; }
+  const StackIdContainer& stackIds() const { return theStackIds; } 
+  void  addStack( StackedTrackerDetUnit *aStack );
   const StackedTrackerDetUnit* idToStack( StackedTrackerDetId anId ) const;
 
-  // Analagous to the methods in TrackerGeomety except that you pass it a stack id and an identifier to a stack member
+  /// Analogous to the methods in TrackerGeomety except that you pass it a stack id and an identifier to a stack member
   const GeomDetUnit* idToDetUnit( StackedTrackerDetId anId, unsigned int stackMemberIdentifier ) const;
   const GeomDet*     idToDet( StackedTrackerDetId anId, unsigned int stackMemberIdentifier )     const;
 
+  /// Specific module properties
   const bool isPSModule( StackedTrackerDetId anId ) const;
 
-  // Helper functions
-  Plane::PlanePointer meanPlane(StackedTrackerDetId anId) const;
+  /// Dedicated to CBC3 emulation
+  /// Everything is in half-strip units
+  const int detUnitWindow( StackedTrackerDetId anId ) const;
+  const int asicOffset( StackedTrackerDetId anId, int asicNumber, int partitionNumber ) const;
 
-  // Stub functions
+  /// Helper functions
+  Plane::PlanePointer meanPlane( StackedTrackerDetId anId ) const;
+
+  /// Stub functions
+  /// OLD STYLE
   template< typename T >
     double findRoughPt( double aMagneticFieldStrength, const L1TkStub<T> *stub) const;
-
   template< typename T >
     GlobalPoint  findGlobalPosition( const L1TkStub<T> *stub ) const;
-
   template< typename T >
     GlobalVector findGlobalDirection( const L1TkStub<T> *stub ) const;
- 
+
+  /// Stub functions
+  /// NEW style
   template< typename T >
     double findRoughPt( double aMagneticFieldStrength, const TTStub<T> *stub) const;
-
   template< typename T >
     GlobalPoint  findGlobalPosition( const TTStub<T> *stub ) const;
-
   template< typename T >
     GlobalVector findGlobalDirection( const TTStub<T> *stub ) const;
  
-
-  // Cluster functions
+  /// Cluster functions
+  /// OLD STYLE
   template< typename T >
     LocalPoint       findHitLocalPosition( const L1TkCluster<T> *cluster , unsigned int hitIdx ) const;
   template< typename T >
@@ -88,6 +97,8 @@ public:
                         edm::Handle<edm::DetSetVector<PixelDigiSimLink> > thePixelDigiSimLinkHandle,
                         edm::Handle<edm::SimTrackContainer> simTrackHandle ) const;
 
+  /// Cluster functions
+  /// NEW STYLE
   template< typename T >
     LocalPoint       findHitLocalPosition( const TTCluster<T> *cluster , unsigned int hitIdx ) const;
   template< typename T >
@@ -99,95 +110,100 @@ public:
 
 private:
 
+  /// Data members
   const TrackerGeometry* theTracker;
   StackContainer         theStacks;
   StackIdContainer       theStackIds;
   mapIdToStack           theMap;
 
+  /// CBC3 dedicated stuff
+  int      theNumPartitions; // Partitions per ROC for offset calculations as per CBC3 chip
+  unsigned theMaxStubs; // Maximum number of stubs per CBC3 chip; will need rethink when PS chip designed
+
 };
 
-  // Bunch of specializations
-  template<>
-    LocalPoint StackedTrackerGeometry::findHitLocalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster, unsigned int hitIdx ) const;
+/// Bunch of specializations
 
-  template<>
-    GlobalPoint StackedTrackerGeometry::findHitGlobalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster, unsigned int hitIdx ) const;
+/// Cluster stuff
+/// OLD STYLE
+template<>
+  LocalPoint StackedTrackerGeometry::findHitLocalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster, unsigned int hitIdx ) const;
+template<>
+  GlobalPoint StackedTrackerGeometry::findHitGlobalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster, unsigned int hitIdx ) const;
+template<>
+  LocalPoint StackedTrackerGeometry::findHitLocalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster, unsigned int hitIdx ) const;
+template<>
+  void StackedTrackerGeometry::checkSimTrack( L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster,
+                                              edm::Handle<edm::DetSetVector<PixelDigiSimLink> >  thePixelDigiSimLinkHandle,
+                                              edm::Handle<edm::SimTrackContainer> simTrackHandle ) const;
 
-  template<>
-    LocalPoint StackedTrackerGeometry::findHitLocalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster, unsigned int hitIdx ) const;
-  
-  template<>
-    void StackedTrackerGeometry::checkSimTrack( L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster,
-                                                edm::Handle<edm::DetSetVector<PixelDigiSimLink> >  thePixelDigiSimLinkHandle,
-                                                edm::Handle<edm::SimTrackContainer> simTrackHandle ) const;
+/// Fit Stub as in Builder
+/// To be used for out-of-Builder Stubs
+/// OLD STYLE
+template< typename T >
+double StackedTrackerGeometry::findRoughPt( double aMagneticFieldStrength, const L1TkStub<T> *stub) const
+{
+  /// Get the magnetic field
+  /// Usually it is done like the following three lines
+  //iSetup.get<IdealMagneticFieldRecord>().get(magnet);
+  //magnet_ = magnet.product();
+  //mMagneticFieldStrength = magnet_->inTesla(GlobalPoint(0,0,0)).z();
+  /// Calculate factor for rough Pt estimate
+  /// B rounded to 4.0 or 3.8
+  /// This is B * C / 2 * appropriate power of 10
+  /// So it's B * 0.0015
+  double mPtFactor = (floor(aMagneticFieldStrength*10.0 + 0.5))/10.0*0.0015;
 
-  /// Fit Stub as in Builder
-  /// To be used for out-of-Builder Stubs
+  /// Get average position of Clusters composing the Stub
+  GlobalPoint innerHitPosition = findAverageGlobalPosition( stub->getClusterPtr(0).get() );
+  GlobalPoint outerHitPosition = findAverageGlobalPosition( stub->getClusterPtr(1).get() );
 
-  template< typename T >
-  double StackedTrackerGeometry::findRoughPt( double aMagneticFieldStrength, const L1TkStub<T> *stub) const {
-    /// Get the magnetic field
-    /// Usually it is done like the following three lines
-    //iSetup.get<IdealMagneticFieldRecord>().get(magnet);
-    //magnet_ = magnet.product();
-    //mMagneticFieldStrength = magnet_->inTesla(GlobalPoint(0,0,0)).z();
-    /// Calculate factor for rough Pt estimate
-    /// B rounded to 4.0 or 3.8
-    /// This is B * C / 2 * appropriate power of 10
-    /// So it's B * 0.0015
-    double mPtFactor = (floor(aMagneticFieldStrength*10.0 + 0.5))/10.0*0.0015;
+  /// Get useful quantities
+  double outerPointRadius = outerHitPosition.perp();
+  double innerPointRadius = innerHitPosition.perp();
+  double outerPointPhi = outerHitPosition.phi();
+  double innerPointPhi = innerHitPosition.phi();
+  double deltaRadius = outerPointRadius - innerPointRadius;
 
-    /// Get average position of Clusters composing the Stub
-    GlobalPoint innerHitPosition = findAverageGlobalPosition( stub->getClusterPtr(0).get() );
-    GlobalPoint outerHitPosition = findAverageGlobalPosition( stub->getClusterPtr(1).get() );
-
-    /// Get useful quantities
-    double outerPointRadius = outerHitPosition.perp();
-    double innerPointRadius = innerHitPosition.perp();
-    double outerPointPhi = outerHitPosition.phi();
-    double innerPointPhi = innerHitPosition.phi();
-    double deltaRadius = outerPointRadius - innerPointRadius;
-
-    /// Here a switch on Barrel/Endcap is introduced
-    StackedTrackerDetId tempDetId(stub->getDetId());
-    if (tempDetId.isBarrel())
-    {
-      /// Calculate angular displacement from hit phi locations
-      /// and renormalize it, if needed
-      double deltaPhi = outerPointPhi - innerPointPhi;
-      if (deltaPhi < 0)
-        deltaPhi = -deltaPhi;
-      if (deltaPhi > M_PI)
-        deltaPhi = 2*M_PI - deltaPhi;
-
-      /// Return the rough Pt
-      return ( deltaRadius * mPtFactor / deltaPhi );
-    }
-    else if (tempDetId.isEndcap())
-    {
-      /// Test approximated formula for Endcap stubs
-      /// Check always to be consistent with HitMatchingAlgorithm_window2012.h
-      double roughPt = innerPointRadius * innerPointRadius * mPtFactor / fabs(findAverageLocalPosition( stub->getClusterPtr(0).get() ).x()) ;
-      roughPt +=       outerPointRadius * outerPointRadius * mPtFactor / fabs(findAverageLocalPosition( stub->getClusterPtr(1).get() ).x()) ;
-      roughPt = roughPt / 2.;
-
-      /// Return the rough Pt
-      return roughPt;
-    }
-
-    /// Default
-    /// Should never get here
-    std::cerr << "W A R N I N G! L1TkStub::findRoughPt() \t we should never get here" << std::endl;
-    return 99999.9;
-  }
-
-
-  template< typename T >
-  GlobalPoint StackedTrackerGeometry::findGlobalPosition( const L1TkStub< T > *stub ) const
+  /// Here a switch on Barrel/Endcap is introduced
+  StackedTrackerDetId tempDetId(stub->getDetId());
+  if (tempDetId.isBarrel())
   {
-    /// Fast version: only inner cluster matters
-    return findAverageGlobalPosition( stub->getClusterPtr(0).get() );
+    /// Calculate angular displacement from hit phi locations
+    /// and renormalize it, if needed
+    double deltaPhi = outerPointPhi - innerPointPhi;
+    if (deltaPhi < 0)
+      deltaPhi = -deltaPhi;
+    if (deltaPhi > M_PI)
+      deltaPhi = 2*M_PI - deltaPhi;
+
+    /// Return the rough Pt
+    return ( deltaRadius * mPtFactor / deltaPhi );
   }
+  else if (tempDetId.isEndcap())
+  {
+    /// Test approximated formula for Endcap stubs
+    /// Check always to be consistent with HitMatchingAlgorithm_window2012.h
+    double roughPt = innerPointRadius * innerPointRadius * mPtFactor / fabs(findAverageLocalPosition( stub->getClusterPtr(0).get() ).x()) ;
+    roughPt +=       outerPointRadius * outerPointRadius * mPtFactor / fabs(findAverageLocalPosition( stub->getClusterPtr(1).get() ).x()) ;
+    roughPt = roughPt / 2.;
+
+    /// Return the rough Pt
+    return roughPt;
+  }
+
+  /// Default
+  /// Should never get here
+  std::cerr << "W A R N I N G! L1TkStub::findRoughPt() \t we should never get here" << std::endl;
+  return 99999.9;
+}
+
+template< typename T >
+GlobalPoint StackedTrackerGeometry::findGlobalPosition( const L1TkStub< T > *stub ) const
+{
+  /// Fast version: only inner cluster matters
+  return findAverageGlobalPosition( stub->getClusterPtr(0).get() );
+}
 
 template< typename T >
 GlobalVector StackedTrackerGeometry::findGlobalDirection( const L1TkStub< T > *stub ) const
@@ -333,67 +349,68 @@ void StackedTrackerGeometry::checkSimTrack( L1TkCluster< T > *cluster,
   } /// End of Loop over all the hits composing the L1TkCluster
 }
 
+/// Stub Pt
+/// NEW STYLE
+template< typename T >
+double StackedTrackerGeometry::findRoughPt( double aMagneticFieldStrength, const TTStub<T> *stub) const
+{
+  /// Get the magnetic field
+  /// Usually it is done like the following three lines
+  //iSetup.get<IdealMagneticFieldRecord>().get(magnet);
+  //magnet_ = magnet.product();
+  //mMagneticFieldStrength = magnet_->inTesla(GlobalPoint(0,0,0)).z();
+  /// Calculate factor for rough Pt estimate
+  /// B rounded to 4.0 or 3.8
+  /// This is B * C / 2 * appropriate power of 10
+  /// So it's B * 0.0015
+  double mPtFactor = (floor(aMagneticFieldStrength*10.0 + 0.5))/10.0*0.0015;
 
-  template< typename T >
-  double StackedTrackerGeometry::findRoughPt( double aMagneticFieldStrength, const TTStub<T> *stub) const {
-    /// Get the magnetic field
-    /// Usually it is done like the following three lines
-    //iSetup.get<IdealMagneticFieldRecord>().get(magnet);
-    //magnet_ = magnet.product();
-    //mMagneticFieldStrength = magnet_->inTesla(GlobalPoint(0,0,0)).z();
-    /// Calculate factor for rough Pt estimate
-    /// B rounded to 4.0 or 3.8
-    /// This is B * C / 2 * appropriate power of 10
-    /// So it's B * 0.0015
-    double mPtFactor = (floor(aMagneticFieldStrength*10.0 + 0.5))/10.0*0.0015;
+  /// Get average position of Clusters composing the Stub
+  GlobalPoint innerHitPosition = findAverageGlobalPosition( stub->getClusterPtr(0).get() );
+  GlobalPoint outerHitPosition = findAverageGlobalPosition( stub->getClusterPtr(1).get() );
 
-    /// Get average position of Clusters composing the Stub
-    GlobalPoint innerHitPosition = findAverageGlobalPosition( stub->getClusterPtr(0).get() );
-    GlobalPoint outerHitPosition = findAverageGlobalPosition( stub->getClusterPtr(1).get() );
+  /// Get useful quantities
+  double outerPointRadius = outerHitPosition.perp();
+  double innerPointRadius = innerHitPosition.perp();
+  double outerPointPhi = outerHitPosition.phi();
+  double innerPointPhi = innerHitPosition.phi();
+  double deltaRadius = outerPointRadius - innerPointRadius;
 
-    /// Get useful quantities
-    double outerPointRadius = outerHitPosition.perp();
-    double innerPointRadius = innerHitPosition.perp();
-    double outerPointPhi = outerHitPosition.phi();
-    double innerPointPhi = innerHitPosition.phi();
-    double deltaRadius = outerPointRadius - innerPointRadius;
+  /// Here a switch on Barrel/Endcap is introduced
+  StackedTrackerDetId tempDetId(stub->getDetId());
+  if (tempDetId.isBarrel())
+  {
+    /// Calculate angular displacement from hit phi locations
+    /// and renormalize it, if needed
+    double deltaPhi = outerPointPhi - innerPointPhi;
+    if (deltaPhi < 0)
+      deltaPhi = -deltaPhi;
+    if (deltaPhi > M_PI)
+      deltaPhi = 2*M_PI - deltaPhi;
 
-    /// Here a switch on Barrel/Endcap is introduced
-    StackedTrackerDetId tempDetId(stub->getDetId());
-    if (tempDetId.isBarrel())
-    {
-      /// Calculate angular displacement from hit phi locations
-      /// and renormalize it, if needed
-      double deltaPhi = outerPointPhi - innerPointPhi;
-      if (deltaPhi < 0)
-        deltaPhi = -deltaPhi;
-      if (deltaPhi > M_PI)
-        deltaPhi = 2*M_PI - deltaPhi;
+    /// Return the rough Pt
+    return ( deltaRadius * mPtFactor / deltaPhi );
+  }
+  else if (tempDetId.isEndcap())
+  {
+    /// Test approximated formula for Endcap stubs
+    /// Check always to be consistent with HitMatchingAlgorithm_window2012.h
+    double roughPt = innerPointRadius * innerPointRadius * mPtFactor / fabs(findAverageLocalPosition( stub->getClusterPtr(0).get() ).x()) ;
+    roughPt +=       outerPointRadius * outerPointRadius * mPtFactor / fabs(findAverageLocalPosition( stub->getClusterPtr(1).get() ).x()) ;
+    roughPt = roughPt / 2.;
 
-      /// Return the rough Pt
-      return ( deltaRadius * mPtFactor / deltaPhi );
-    }
-    else if (tempDetId.isEndcap())
-    {
-      /// Test approximated formula for Endcap stubs
-      /// Check always to be consistent with HitMatchingAlgorithm_window2012.h
-      double roughPt = innerPointRadius * innerPointRadius * mPtFactor / fabs(findAverageLocalPosition( stub->getClusterPtr(0).get() ).x()) ;
-      roughPt +=       outerPointRadius * outerPointRadius * mPtFactor / fabs(findAverageLocalPosition( stub->getClusterPtr(1).get() ).x()) ;
-      roughPt = roughPt / 2.;
-
-      /// Return the rough Pt
-      return roughPt;
-    }
-
-    /// Default
-    /// Should never get here
-    std::cerr << "W A R N I N G! TTStub::findRoughPt() \t we should never get here" << std::endl;
-    return 99999.9;
+    /// Return the rough Pt
+    return roughPt;
   }
 
+  /// Default
+  /// Should never get here
+  std::cerr << "W A R N I N G! TTStub::findRoughPt() \t we should never get here" << std::endl;
+  return 99999.9;
+}
 
-  template< typename T >
-  GlobalPoint StackedTrackerGeometry::findGlobalPosition( const TTStub< T > *stub ) const
+template< typename T >
+GlobalPoint StackedTrackerGeometry::findGlobalPosition( const TTStub< T > *stub ) const
 {
   /// Fast version: only inner cluster matters
   return findAverageGlobalPosition( stub->getClusterPtr(0).get() );
@@ -416,8 +433,8 @@ GlobalVector StackedTrackerGeometry::findGlobalDirection( const TTStub< T > *stu
 
 /// Get hit local position
 /// Default template for PixelDigis
-  template< typename T >
-  LocalPoint StackedTrackerGeometry::findHitLocalPosition( const TTCluster< T > *cluster, unsigned int hitIdx ) const
+template< typename T >
+LocalPoint StackedTrackerGeometry::findHitLocalPosition( const TTCluster< T > *cluster, unsigned int hitIdx ) const
 {
   /// Add 0.5 to get the center of the pixel
   const GeomDetUnit* geomDetUnit = idToDetUnit( cluster->getDetId(), cluster->getStackMember() );
@@ -429,8 +446,8 @@ GlobalVector StackedTrackerGeometry::findGlobalDirection( const TTStub< T > *stu
 
 /// Get hit global position
 /// Default template for PixelDigis
-  template< typename T >
-  GlobalPoint StackedTrackerGeometry::findHitGlobalPosition( const TTCluster< T > *cluster, unsigned int hitIdx ) const
+template< typename T >
+GlobalPoint StackedTrackerGeometry::findHitGlobalPosition( const TTCluster< T > *cluster, unsigned int hitIdx ) const
 {
   /// Add 0.5 to get the center of the pixel
   const GeomDetUnit* geomDetUnit = idToDetUnit( cluster->getDetId(), cluster->getStackMember() );
