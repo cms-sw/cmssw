@@ -15,6 +15,9 @@ namespace {
     edm::Wrapper<edm::ValueMap<reco::CaloCluster> > wvmv11;
     std::vector<reco::CaloClusterPtr> v12;
 //     reco::CaloClusterCollection v1; // ambiguity with std::vector<reco::CaloCluster> v11
+    edm::Wrapper<std::vector<std::pair<unsigned long,edm::Ptr<reco::CaloCluster> > > > wveepsassocold;
+    std::vector<std::pair<unsigned long,edm::Ptr<reco::CaloCluster> > > veepsassocold;
+    std::pair<unsigned long, edm::Ptr<reco::CaloCluster> > eepsassocold;
     std::pair<DetId,float>               hitAndFraction;
     std::vector<std::pair<DetId,float> > hitsAndFractions;
     edm::Ptr<reco::CaloCluster> p1;
