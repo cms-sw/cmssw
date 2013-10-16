@@ -454,9 +454,12 @@ private:
   unsigned			verbose_;
   unsigned			verboseQT_;
   bool				reset_;
-  double				scaleFlag_;
+  double			scaleFlag_;
   bool				collateHistograms_;
   std::string			readSelectedDirectory_;
+  uint32_t                      run_;
+  uint32_t                      streamId_;
+  uint32_t                      moduleId_;
 
   std::string			pwd_;
   MEMap				data_;
@@ -474,3 +477,8 @@ private:
 };
 
 #endif // DQMSERVICES_CORE_DQM_STORE_H
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

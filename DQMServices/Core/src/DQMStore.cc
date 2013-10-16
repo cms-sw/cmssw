@@ -262,6 +262,9 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     reset_ (false),
     collateHistograms_ (false),
     readSelectedDirectory_ (""),
+    run_(0),
+    streamId_(0),
+    moduleId_(0),
     pwd_ ("")
 {
   initializeFrom(pset);
@@ -277,6 +280,9 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     reset_ (false),
     collateHistograms_ (false),
     readSelectedDirectory_ (""),
+    run_(0),
+    streamId_(0),
+    moduleId_(0),
     pwd_ ("")
 {
   initializeFrom(pset);
