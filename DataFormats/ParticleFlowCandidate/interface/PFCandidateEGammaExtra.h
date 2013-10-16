@@ -184,7 +184,8 @@ namespace reco {
     /// vector of ConversionRef from PF
     reco::ConversionRefVector assoConversionsRef_;    
     
-    /// energy of individual clusters (corrected). The first cluster is the seed
+    /// energy of individual clusters (corrected). 
+    /// The first cluster is the seed
     std::vector<float> clusterEnergies_;
 
     /// mva variables  -  transient !
