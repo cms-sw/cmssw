@@ -6,7 +6,7 @@
  */
 
 
-#include <DQMOffline/Muon/src/MuonTrackResidualsTest.h>
+#include <DQMOffline/Muon/interface/MuonTrackResidualsTest.h>
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>

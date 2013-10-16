@@ -13,37 +13,45 @@
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMOffline/Muon/src/MuonAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/SegmentsTrackAssociator.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
+class MuonServiceProxy;
 
-class SegmentTrackAnalyzer : public MuonAnalyzerBase {
+class SegmentTrackAnalyzer : public edm::EDAnalyzer {
  public:
 
   /// Constructor
-  SegmentTrackAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService);
+  SegmentTrackAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~SegmentTrackAnalyzer();
+  virtual ~SegmentTrackAnalyzer() {};
   
   /// Inizialize parameters for histo binning
-  void beginJob(DQMStore *dbe);
+  void beginJob();
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
 
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Track& recoTrack);
-
+  void analyze(const edm::Event&, const edm::EventSetup&);
 
  private:
   // ----------member data ---------------------------
-  
+  DQMStore *theDbe;
+  MuonServiceProxy *theService;
   edm::ParameterSet parameters;
+  edm::EDGetTokenT<reco::TrackCollection> theMuTrackCollectionLabel_;
+  
   // Switch for verbosity
   std::string metname;
   // Find the segments associated to the track
