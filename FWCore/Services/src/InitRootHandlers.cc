@@ -210,6 +210,8 @@ namespace edm {
     {
       //Tell Root we want to be multi-threaded
       TThread::Initialize();
+      //When threading, also have to keep ROOT from logging all TObjects into a list
+      TObject::SetObjectStat(false);
       
       if(unloadSigHandler_) {
       // Deactivate all the Root signal handlers and restore the system defaults
