@@ -524,7 +524,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
   h->SetDirectory(0);
 
   // Check if the request monitor element already exists.
-  MonitorElement *me = findObject(dir, name);
+  MonitorElement *me = findObject(dir, name, run_, 0, streamId_, moduleId_);
   if (me)
   {
     if (collateHistograms_)
@@ -549,7 +549,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
   {
     // Create and initialise core object.
     assert(dirs_.count(dir));
-    MonitorElement proto(&*dirs_.find(dir), name);
+    MonitorElement proto(&*dirs_.find(dir), name, run_, streamId_, moduleId_);
     me = const_cast<MonitorElement &>(*data_.insert(proto).first)
       .initialise((MonitorElement::Kind)kind, h);
 
@@ -1607,7 +1607,12 @@ DQMStore::getContents(std::vector<std::string> &into, bool showContents /* = tru
 /// get MonitorElement <name> in directory <dir>
 /// (null if MonitorElement does not exist)
 MonitorElement *
-DQMStore::findObject(const std::string &dir, const std::string &name) const
+DQMStore::findObject(const std::string &dir,
+                     const std::string &name,
+                     const uint32_t run /* = 0 */,
+                     const uint32_t lumi /* = 0 */,
+                     const uint32_t streamId /* = 0 */,
+                     const uint32_t moduleId /* = 0 */) const
 {
   if (dir.find_first_not_of(s_safe) != std::string::npos)
     raiseDQMError("DQMStore", "Monitor element path name '%s' uses"
@@ -1617,8 +1622,12 @@ DQMStore::findObject(const std::string &dir, const std::string &name) const
 		  " unacceptable characters", name.c_str());
 
   MonitorElement proto;
-  proto.data_.dirname = &dir;
-  proto.data_.objname = name;
+  proto.data_.dirname  = &dir;
+  proto.data_.objname  = name;
+  proto.data_.run      = run;
+  proto.data_.lumi     = lumi;
+  proto.data_.streamId = streamId;
+  proto.data_.moduleId = moduleId;
 
   MEMap::const_iterator mepos = data_.find(proto);
   return (mepos == data_.end() ? 0

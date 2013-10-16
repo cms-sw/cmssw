@@ -384,7 +384,12 @@ private:
 					      const std::string &curdir,
 					      OpenRunDirs stripdirs);
 
-  MonitorElement *		findObject(const std::string &dir, const std::string &name) const;
+  MonitorElement *		findObject(const std::string &dir,
+                                           const std::string &name,
+                                           const uint32_t run = 0,
+                                           const uint32_t lumi = 0,
+                                           const uint32_t streamId = 0,
+                                           const uint32_t moduleId = 0) const;
 
 public:
   void				getAllTags(std::vector<std::string> &into) const;
