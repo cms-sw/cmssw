@@ -8,9 +8,7 @@
  *  the id of the Det defining the surface.
  */
 class PTrajectoryStateOnDet {
-private:
-  // we assume that id cannot be calo! (i.e. det<4)
-  static const unsigned int idMask = 0x3fffffff;
+public:
   // little endian...
   struct Packing {
     unsigned int rest : 30;
@@ -21,6 +19,9 @@ private:
     unsigned char sub : 3;
     unsigned char det : 4;
   };
+private:
+  // we assume that id cannot be calo! (i.e. det<4)
+  static const unsigned int idMask = 0x3fffffff;
   union Pack {
     Pack(){}
     Pack(unsigned int pack) : packed(pack){}
