@@ -72,6 +72,10 @@ namespace edm {
     // pointer to itself.
     ModuleCallingContext const* getTopModuleCallingContext() const;
 
+    // Returns the number of ModuleCallingContexts above this ModuleCallingContext
+    // in the series of linked context objects.
+    unsigned depth() const;
+
     ModuleCallingContext const* previousModuleOnThread() const { return previousModuleOnThread_; }
 
   private:

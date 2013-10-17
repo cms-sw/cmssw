@@ -5,7 +5,7 @@
 // Package:     Services
 // Class  :     Tracer
 // 
-/**\class Tracer Tracer.h FWCore/Services/interface/Tracer.h
+/**\class edm::service::Tracer
 
  Description: <one line class summary>
 
@@ -42,7 +42,7 @@ namespace edm {
 
    namespace service {
       class Tracer {
-public:
+      public:
          Tracer(const ParameterSet&,ActivityRegistry&);
          
          static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
@@ -136,9 +136,8 @@ public:
          void preSourceConstruction(ModuleDescription const& md);
          void postSourceConstruction(ModuleDescription const& md);
 
-private:
+      private:
          std::string indention_;
-         unsigned int depth_;
          std::string dumpContextForLabel_;
          bool dumpNonModuleContext_;
       };

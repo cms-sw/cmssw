@@ -41,10 +41,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Other included files
-#include "DataFormats/TrackReco/interface/Track.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 //Using declarations
 using std::vector;
@@ -55,6 +51,7 @@ using namespace std;
 //
 //-----------------Constructors---------------------
 //
+
 MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
 #ifdef DEBUG
   cout << " Initialise Constructor " << endl;
@@ -65,8 +62,8 @@ MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
   dirName = iConfig.getParameter<std::string>("directory");
   
   //--------Initialize tags-------
-  Muon_Tag                 = iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label");
-  theVertexCollectionLabel = iConfig.getUntrackedParameter<edm::InputTag>("vertexLabel");
+  theMuonCollectionLabel_   = consumes<reco::MuonCollection>(iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label"));
+  theVertexCollectionLabel_ = consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexLabel"));
   
   //-------Initialize Counterse----------------
   nEvents = 0;
@@ -79,6 +76,8 @@ MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
   //Set up DAQ
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
+  dbe->setCurrentFolder(dirName.c_str());
+  dbe->cd();
   
   //------"allocate" space for the data vectors-------
   
@@ -524,20 +523,28 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   
   ++nEvents;
   edm::LogInfo("Tutorial") << "\nInvestigating event #" << nEvents<<"\n";
-  
+#ifdef DEBUG
+  cout << "[MuonIsolationDQM]: analyze()"<<endl;
+#endif
+
   // Get Muon Collection 
-  edm::Handle<edm::View<reco::Muon> > muonsHandle; // 
-  iEvent.getByLabel(Muon_Tag, muonsHandle);
+  edm::Handle<reco::MuonCollection> muons;
+  iEvent.getByToken(theMuonCollectionLabel_,muons);
+
+#ifdef DEBUG
+  cout << "[MuonIsolationDQM]: Number of muons -> " << muons->size() << endl;
+#endif
   
-  //Fill event entry in histogram of number of muons
-  edm::LogInfo("Tutorial") << "Number of Muons: " << muonsHandle->size();
-  theMuonData = muonsHandle->size();
+  int theMuonData = muons->size();
   h_nMuons->Fill(theMuonData);
+#ifdef DEBUG
+  cout << "[MuonIsolationDQM]: Vertex is Valid" << endl;
+#endif
   
   //Get Vertex Information
   int _numPV = 0;
   edm::Handle<reco::VertexCollection> vertexHandle;
-  iEvent.getByLabel(theVertexCollectionLabel, vertexHandle);
+  iEvent.getByToken(theVertexCollectionLabel_, vertexHandle);
 
   if (vertexHandle.isValid()){
     reco::VertexCollection vertex = *(vertexHandle.product());
@@ -549,24 +556,27 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
   }
 
+#ifdef DEBUG
+  cout << "[MuonIsolationDQM]: Vertex is Valid" << endl;
+#endif
+  // Get Muon Collection 
+
   //Fill historgams concerning muon isolation 
-  uint iMuon=0;
   dbe->setCurrentFolder(dirName.c_str());
-  for (MuonIterator muon = muonsHandle->begin(); muon != muonsHandle->end(); ++muon, ++iMuon ) {
-    //    ++nMuons;
+  for (reco::MuonCollection::const_iterator muon = muons->begin(); muon!=muons->end(); ++muon){
     if (requireSTAMuon && muon->isStandAloneMuon()) {
       ++nSTAMuons;
-      RecordData(muon);
+      RecordData(*muon);
       FillHistos(_numPV);
     }
     else if (requireTRKMuon && muon->isTrackerMuon()) {
       ++nTRKMuons;
-      RecordData(muon);
+      RecordData(*muon);
       FillHistos(_numPV);
     }
     else if (requireGLBMuon && muon->isGlobalMuon()) {
       ++nGLBMuons;
-      RecordData(muon);
+      RecordData(*muon);
       FillHistos(_numPV);
       FillNVtxHistos(_numPV);
     }
@@ -576,23 +586,23 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 }
 
 //---------------Record data for a signle muon's data---------------------
-void MuonIsolationDQM::RecordData(MuonIterator muon){
+void MuonIsolationDQM::RecordData(const reco::Muon&  muon){
 #ifdef DEBUG
   std::cout << "RecordData()" << endl;
 #endif 
-  float MuPt = muon->pt();
+  float MuPt = muon.pt();
   
-  theData[0] = muon->isolationR03().sumPt;
-  theData[1] = muon->isolationR03().emEt;
-  theData[2] = muon->isolationR03().hadEt;
-  theData[3] = muon->isolationR03().hoEt;
+  theData[0] = muon.isolationR03().sumPt;
+  theData[1] = muon.isolationR03().emEt;
+  theData[2] = muon.isolationR03().hadEt;
+  theData[3] = muon.isolationR03().hoEt;
 
-  theData[4] = muon->isolationR03().nTracks;
-  theData[5] = muon->isolationR03().nJets;
-  theData[6] = muon->isolationR03().trackerVetoPt;
-  theData[7] = muon->isolationR03().emVetoEt;
-  theData[8] = muon->isolationR03().hadVetoEt;
-  theData[9] = muon->isolationR03().hoVetoEt;
+  theData[4] = muon.isolationR03().nTracks;
+  theData[5] = muon.isolationR03().nJets;
+  theData[6] = muon.isolationR03().trackerVetoPt;
+  theData[7] = muon.isolationR03().emVetoEt;
+  theData[8] = muon.isolationR03().hadVetoEt;
+  theData[9] = muon.isolationR03().hoVetoEt;
   
   // make sure nTracks != 0 before filling this one
   if (theData[4] != 0) theData[10] = (double)theData[0] / (double)theData[4];
@@ -600,17 +610,17 @@ void MuonIsolationDQM::RecordData(MuonIterator muon){
 
   theData[11] = 1.5 * theData[1] + theData[2];
 
-  theData[12] = muon->isolationR05().sumPt;
-  theData[13] = muon->isolationR05().emEt;
-  theData[14] = muon->isolationR05().hadEt;
-  theData[15] = muon->isolationR05().hoEt;
+  theData[12] = muon.isolationR05().sumPt;
+  theData[13] = muon.isolationR05().emEt;
+  theData[14] = muon.isolationR05().hadEt;
+  theData[15] = muon.isolationR05().hoEt;
 
-  theData[16] = muon->isolationR05().nTracks;
-  theData[17] = muon->isolationR05().nJets;
-  theData[18] = muon->isolationR05().trackerVetoPt;
-  theData[19] = muon->isolationR05().emVetoEt;
-  theData[20] = muon->isolationR05().hadVetoEt;
-  theData[21] = muon->isolationR05().hoVetoEt;
+  theData[16] = muon.isolationR05().nTracks;
+  theData[17] = muon.isolationR05().nJets;
+  theData[18] = muon.isolationR05().trackerVetoPt;
+  theData[19] = muon.isolationR05().emVetoEt;
+  theData[20] = muon.isolationR05().hadVetoEt;
+  theData[21] = muon.isolationR05().hoVetoEt;
 
   // make sure nTracks != 0 before filling this one
   if (theData[16] != 0) theData[22] = (double)theData[12] / (double)theData[16];
@@ -621,19 +631,19 @@ void MuonIsolationDQM::RecordData(MuonIterator muon){
   theData[24] = (theData[0]+theData[1]+theData[2]) / MuPt; 
   theData[25] = (theData[12]+theData[13]+theData[14]) / MuPt; 
 
-  theData[26] = muon->pfIsolationR03().sumChargedHadronPt;
-  theData[27] = muon->pfIsolationR03().sumNeutralHadronEt;
-  theData[28] = muon->pfIsolationR03().sumPhotonEt; 
-  theData[29] = muon->pfIsolationR03().sumNeutralHadronEtHighThreshold;
-  theData[30] = muon->pfIsolationR03().sumPhotonEtHighThreshold; 
-  theData[31] = muon->pfIsolationR03().sumPUPt;
+  theData[26] = muon.pfIsolationR03().sumChargedHadronPt;
+  theData[27] = muon.pfIsolationR03().sumNeutralHadronEt;
+  theData[28] = muon.pfIsolationR03().sumPhotonEt; 
+  theData[29] = muon.pfIsolationR03().sumNeutralHadronEtHighThreshold;
+  theData[30] = muon.pfIsolationR03().sumPhotonEtHighThreshold; 
+  theData[31] = muon.pfIsolationR03().sumPUPt;
   
-  theData[32] = muon->pfIsolationR04().sumChargedHadronPt;
-  theData[33] = muon->pfIsolationR04().sumNeutralHadronEt;
-  theData[34] = muon->pfIsolationR04().sumPhotonEt; 
-  theData[35] = muon->pfIsolationR04().sumNeutralHadronEtHighThreshold;
-  theData[36] = muon->pfIsolationR04().sumPhotonEtHighThreshold; 
-  theData[37] = muon->pfIsolationR04().sumPUPt;
+  theData[32] = muon.pfIsolationR04().sumChargedHadronPt;
+  theData[33] = muon.pfIsolationR04().sumNeutralHadronEt;
+  theData[34] = muon.pfIsolationR04().sumPhotonEt; 
+  theData[35] = muon.pfIsolationR04().sumNeutralHadronEtHighThreshold;
+  theData[36] = muon.pfIsolationR04().sumPhotonEtHighThreshold; 
+  theData[37] = muon.pfIsolationR04().sumPUPt;
 
   theData[38] = (theData[26] + theData[27] + theData[28]) / MuPt;
   theData[39] = (theData[32] + theData[33] + theData[34]) / MuPt;
@@ -641,35 +651,33 @@ void MuonIsolationDQM::RecordData(MuonIterator muon){
   theData[40] = (theData[26] + theData[29] + theData[30]) / MuPt;
   theData[41] = (theData[32] + theData[35] + theData[36]) / MuPt;
   
-  theData[42] = muon->pfSumDRIsoProfileR04().sumChargedHadronPt;
-  theData[43] = muon->pfSumDRIsoProfileR04().sumNeutralHadronEt;
-  theData[44] = muon->pfSumDRIsoProfileR04().sumPhotonEt;
-  theData[45] = muon->pfMeanDRIsoProfileR04().sumChargedHadronPt;
-  theData[46] = muon->pfMeanDRIsoProfileR04().sumNeutralHadronEt;
-  theData[47] = muon->pfMeanDRIsoProfileR04().sumPhotonEt;
+  theData[42] = muon.pfSumDRIsoProfileR04().sumChargedHadronPt;
+  theData[43] = muon.pfSumDRIsoProfileR04().sumNeutralHadronEt;
+  theData[44] = muon.pfSumDRIsoProfileR04().sumPhotonEt;
+  theData[45] = muon.pfMeanDRIsoProfileR04().sumChargedHadronPt;
+  theData[46] = muon.pfMeanDRIsoProfileR04().sumNeutralHadronEt;
+  theData[47] = muon.pfMeanDRIsoProfileR04().sumPhotonEt;
   
-
   //--------------Filling the 2D Histos Data -------- //
-  theData2D[0] = muon->isolationR03().sumPt; 
-  theData2D[1] = muon->isolationR03().emEt;
-  theData2D[2] = muon->isolationR03().hadEt;
-  theData2D[3] = muon->isolationR03().hoEt;
+  theData2D[0] = muon.isolationR03().sumPt; 
+  theData2D[1] = muon.isolationR03().emEt;
+  theData2D[2] = muon.isolationR03().hadEt;
+  theData2D[3] = muon.isolationR03().hoEt;
   
-  theData2D[4] = muon->pfIsolationR04().sumChargedHadronPt;
-  theData2D[5] = muon->pfIsolationR04().sumNeutralHadronEt;
-  theData2D[6] = muon->pfIsolationR04().sumPhotonEt;
-  theData2D[7] = muon->pfIsolationR04().sumPUPt;
+  theData2D[4] = muon.pfIsolationR04().sumChargedHadronPt;
+  theData2D[5] = muon.pfIsolationR04().sumNeutralHadronEt;
+  theData2D[6] = muon.pfIsolationR04().sumPhotonEt;
+  theData2D[7] = muon.pfIsolationR04().sumPUPt;
   
   theData2D[8] = theData2D[0] + theData2D[1] + theData2D[2] + theData2D[3] / MuPt; //Det RelIso;
   theData2D[9] = theData2D[4] + theData2D[5] + theData2D[6]                / MuPt; //PF  RelIso;
 
-
   //-----------Filling the NVTX 1D HISTOS DATA ------------- // 
-  theDataNVtx[0] = muon->pfIsolationR04().sumNeutralHadronEt;
+  theDataNVtx[0] = muon.pfIsolationR04().sumNeutralHadronEt;
   theDataNVtx[1] = theDataNVtx[0];
   theDataNVtx[2] = theDataNVtx[0];
   
-  theDataNVtx[3] = muon->pfIsolationR04().sumPhotonEt;
+  theDataNVtx[3] = muon.pfIsolationR04().sumPhotonEt;
   theDataNVtx[4] = theDataNVtx[3];
   theDataNVtx[5] = theDataNVtx[3];
 }
@@ -679,9 +687,20 @@ void MuonIsolationDQM::beginJob(void) {
   edm::LogInfo("Tutorial") << "\n#########################################\n\n"
 			   << "Lets get started! " 
 			   << "\n\n#########################################\n";
+#ifdef DEBUG
+  cout << "[MuonIsolationDQM]: beginJob" << endl;
+#endif
   dbe->setCurrentFolder(dirName.c_str());
   InitHistos();
   dbe->cd();
+}
+
+// ------------ method called once each run just before starting the event loop ----------
+void MuonIsolationDQM::beginRun(void) {
+#ifdef DEBUG
+  cout << "[MuonIsolationDQM]: beginRun" << endl;
+#endif
+  //  InitHistos();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
