@@ -1,7 +1,7 @@
 #ifndef CSCDBChipSpeedCorrection_h
 #define CSCDBChipSpeedCorrection_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iosfwd>
 #include <vector>

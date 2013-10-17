@@ -4,7 +4,7 @@
 /** \class ChamberStripSpec
  * RPC strip specification for readout decoding
  */
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
 

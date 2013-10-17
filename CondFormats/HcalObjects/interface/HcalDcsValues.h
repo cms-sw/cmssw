@@ -2,7 +2,7 @@
 #ifndef HcalDcsValues_h
 #define HcalDcsValues_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
 //#include <set>

@@ -19,7 +19,7 @@
 // $Id: L1RPCConeBuilder.h,v 1.8 2009/03/20 15:10:53 michals Exp $
 //
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include <map>

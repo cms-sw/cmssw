@@ -19,7 +19,7 @@
 // $Id: L1RPCConfig.h,v 1.3 2007/11/20 17:32:50 michals Exp $
 //
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
 #include <vector>

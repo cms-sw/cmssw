@@ -1,7 +1,7 @@
 #ifndef __CentralityTable_h__
 #define __CentralityTable_h__
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 class CentralityTable {

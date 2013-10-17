@@ -8,7 +8,7 @@
 #ifndef SiPixelCalibConfiguration_H
 #define SiPixelCalibConfiguration_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
 #include <string>

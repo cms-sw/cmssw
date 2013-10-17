@@ -1,7 +1,7 @@
 #ifndef L1TObjects_L1MuCSCTFAlignment_h
 #define L1TObjects_L1MuCSCTFAlignment_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 

@@ -1,7 +1,7 @@
 #ifndef CondFormats_L1TObjects_L1RPCConeDefinition_h
 #define CondFormats_L1TObjects_L1RPCConeDefinition_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 

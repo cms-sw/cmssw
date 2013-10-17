@@ -6,7 +6,7 @@
  * at the moment though all derived classes better sit in the same package together with the base one
  */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include<cmath>
 

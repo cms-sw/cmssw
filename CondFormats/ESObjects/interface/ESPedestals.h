@@ -2,7 +2,7 @@
 #define ESPedestals_h
 
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/ESObjects/interface/ESCondObjectContainer.h"
 

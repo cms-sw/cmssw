@@ -1,7 +1,7 @@
 #ifndef TrackProbabilityCalibration_h
 #define TrackProbabilityCalibration_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCategoryData.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"

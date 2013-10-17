@@ -1,7 +1,7 @@
 #ifndef CSCObjects_CSCDBCrosstalk_h
 #define CSCObjects_CSCDBCrosstalk_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iosfwd>
 #include <vector>

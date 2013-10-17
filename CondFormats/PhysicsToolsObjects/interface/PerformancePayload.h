@@ -1,7 +1,7 @@
 #ifndef PerformancePayload_h
 #define PerformancePayload_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 //#include "CondFormats/PerformanceDBObjects/interface/PhysicsPerformancePayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/BinningPointByMap.h"

@@ -4,7 +4,7 @@
  * Examples of configurations identified by a key
  */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/Common/interface/BaseKeyed.h"
 #include <string>

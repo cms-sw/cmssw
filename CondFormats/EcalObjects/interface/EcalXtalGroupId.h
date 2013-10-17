@@ -1,7 +1,7 @@
 #ifndef CondFormats_EcalObjects_EcalXtalGroupId_H
 #define CondFormats_EcalObjects_EcalXtalGroupId_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006

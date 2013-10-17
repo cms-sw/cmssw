@@ -1,6 +1,6 @@
 #ifndef L1TObjects_L1RCTNoisyChannelMask_h
 #define L1TObjects_L1RCTNoisyChannelMask_h
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <ostream>
 

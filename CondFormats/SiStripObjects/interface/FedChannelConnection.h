@@ -1,7 +1,7 @@
 #ifndef CondFormats_SiStripObjects_FedChannelConnection_H
 #define CondFormats_SiStripObjects_FedChannelConnection_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include <boost/cstdint.hpp>

@@ -9,7 +9,7 @@
 
 #ifndef RPCObFebmap_h
 #define RPCObFebmap_h
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 

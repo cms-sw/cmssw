@@ -1,7 +1,7 @@
 #ifndef CSCCrateMap_h
 #define CSCCrateMap_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <CondFormats/CSCObjects/interface/CSCMapItem.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>

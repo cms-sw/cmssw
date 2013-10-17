@@ -7,7 +7,7 @@
  * muon sign and ptCode, etc.
  * \author Karol Bunkowski (Warsaw)
  */
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include <string>

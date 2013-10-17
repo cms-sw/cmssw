@@ -24,7 +24,7 @@
 // user include files
 
 // forward declarations
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <set>
 #include <vector>

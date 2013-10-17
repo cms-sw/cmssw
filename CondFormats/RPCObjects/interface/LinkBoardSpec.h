@@ -1,7 +1,7 @@
 #ifndef CondFormatsRPCObjectsLinkBoardSpec_H
 #define CondFormatsRPCObjectsLinkBoardSpec_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
 #include <string>

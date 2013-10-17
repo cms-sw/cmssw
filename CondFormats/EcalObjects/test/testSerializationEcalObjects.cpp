@@ -1,4 +1,4 @@
-#include "CondFormats/Common/interface/SerializationTest.h"
+#include "CondFormats/Serialization/interface/SerializationTest.h"
 
 #include "CondFormats/EcalObjects/interface/Serialization.h"
 

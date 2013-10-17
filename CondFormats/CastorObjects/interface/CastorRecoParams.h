@@ -2,7 +2,7 @@
 #define CastorRecoParams_h
 
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/CastorObjects/interface/CastorRecoParam.h"
 #include "CondFormats/CastorObjects/interface/CastorCondObjectContainer.h"

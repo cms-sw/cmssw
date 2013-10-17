@@ -1,7 +1,7 @@
 #ifndef CSCBadStrips_h
 #define CSCBadStrips_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 

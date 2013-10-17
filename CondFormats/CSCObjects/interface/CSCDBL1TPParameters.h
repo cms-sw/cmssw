@@ -1,7 +1,7 @@
 #ifndef CSCObjects_CSCDBL1TPParameters_h
 #define CSCObjects_CSCDBL1TPParameters_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 /** \class CSCDBL1TPParameters
  *  \author Slava Valuev

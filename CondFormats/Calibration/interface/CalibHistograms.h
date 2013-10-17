@@ -1,6 +1,6 @@
 #ifndef CalibHistograms_h
 #define CalibHistograms_h
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include<vector>
 struct CalibHistogram{

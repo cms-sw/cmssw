@@ -10,7 +10,7 @@ $Date: 2008/03/05 10:38:03 $
 $Revision: 1.9 $
 Modified for CASTOR by L. Mundim
 */
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <boost/cstdint.hpp>
 

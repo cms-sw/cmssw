@@ -1,7 +1,7 @@
 #ifndef HcalTimingParam_h
 #define HcalTimingParam_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <boost/cstdint.hpp>
 

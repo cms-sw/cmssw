@@ -16,7 +16,7 @@
  *  \author Chung Khim Lae
  */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/Alignment/interface/Definitions.h"
 

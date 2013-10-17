@@ -7,7 +7,7 @@
 POOL object to store Hcal Response Corrections
 */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorr.h"

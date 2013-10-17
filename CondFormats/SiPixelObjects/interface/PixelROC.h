@@ -2,7 +2,7 @@
 #define SiPixelObjects_PixelROC_H
 
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"

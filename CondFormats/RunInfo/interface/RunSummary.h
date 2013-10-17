@@ -1,7 +1,7 @@
 #ifndef RunSummary_h
 #define RunSummary_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
 #include<vector>

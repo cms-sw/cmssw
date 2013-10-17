@@ -8,7 +8,7 @@
 
 #ifndef RPCObGasmap_h
 #define RPCObGasmap_h
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include <string>

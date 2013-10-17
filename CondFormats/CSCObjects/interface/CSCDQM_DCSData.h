@@ -19,7 +19,7 @@
 #ifndef CSCDQM_DCSDATA_H
 #define CSCDQM_DCSDATA_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 

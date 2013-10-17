@@ -15,7 +15,7 @@
 #ifndef L1MUDTTF_PARAMETERS_H
 #define L1MUDTTF_PARAMETERS_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 //---------------
 // C++ Headers --

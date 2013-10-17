@@ -1,7 +1,7 @@
 #ifndef RPCEMap_H
 #define RPCEMap_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 #include <map>

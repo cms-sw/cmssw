@@ -1,7 +1,7 @@
 #ifndef CondFormats_HLTObjects_HLTPrescaleTableCond_h
 #define CondFormats_HLTObjects_HLTPrescaleTableCond_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 

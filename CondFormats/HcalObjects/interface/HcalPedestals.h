@@ -7,7 +7,7 @@
 POOL container to store Pedestal values 4xCapId, using template
 */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"

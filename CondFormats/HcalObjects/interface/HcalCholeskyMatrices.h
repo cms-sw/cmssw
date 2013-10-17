@@ -1,7 +1,7 @@
 #ifndef HcalCholeskyMatrices_h
 #define HcalCholeskyMatrices_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 

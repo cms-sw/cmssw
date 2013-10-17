@@ -1,6 +1,6 @@
 #ifndef big_h
 #define big_h 1
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include <string>

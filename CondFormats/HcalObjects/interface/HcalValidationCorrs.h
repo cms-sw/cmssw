@@ -7,7 +7,7 @@
 POOL object to store HCAL validation corrections
 */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalValidationCorr.h"

@@ -21,7 +21,7 @@
 #ifndef CondFormatsL1TObjects_L1MuPacking_h
 #define CondFormatsL1TObjects_L1MuPacking_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

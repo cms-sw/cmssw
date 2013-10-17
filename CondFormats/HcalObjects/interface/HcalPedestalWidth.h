@@ -9,7 +9,7 @@ $Author: ratnikov
 $Date: 2008/11/07 16:05:50 $
 $Revision: 1.9 $
 */
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <boost/cstdint.hpp>
 

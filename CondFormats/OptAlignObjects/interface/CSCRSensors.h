@@ -1,7 +1,7 @@
 #ifndef CondFormats_CSCRSensors_H
 #define CondFormats_CSCRSensors_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 //#include <iostream>

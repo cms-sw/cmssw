@@ -1,7 +1,7 @@
 #ifndef CondFormats_FileBlob_h
 #define CondFormats_FileBlob_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include <string>

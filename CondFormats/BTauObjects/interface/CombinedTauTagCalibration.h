@@ -1,7 +1,7 @@
 #ifndef CombinedTauTagCalibration_h
 #define CombinedTauTagCalibration_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/BTauObjects/interface/CombinedTauTagCategoryData.h"
 #include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"

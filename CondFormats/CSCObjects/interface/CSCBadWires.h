@@ -1,7 +1,7 @@
 #ifndef CSCBadWires_h
 #define CSCBadWires_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 

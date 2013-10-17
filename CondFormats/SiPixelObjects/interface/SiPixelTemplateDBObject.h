@@ -1,7 +1,7 @@
 #ifndef CondFormats_SiPixelObjects_SiPixelTemplateDBObject_h
 #define CondFormats_SiPixelObjects_SiPixelTemplateDBObject_h 1
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include <map>

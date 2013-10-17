@@ -1,7 +1,7 @@
 #ifndef MuScleFitDBobject_h
 #define MuScleFitDBobject_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 

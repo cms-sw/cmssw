@@ -2,7 +2,7 @@
 #ifndef HcalDcsValue_h
 #define HcalDcsValue_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <stdint.h>
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"

@@ -1,7 +1,7 @@
 #ifndef SiStripNoises_h
 #define SiStripNoises_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include<vector>
 #include<map>

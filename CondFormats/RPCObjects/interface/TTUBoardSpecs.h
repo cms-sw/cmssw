@@ -3,7 +3,7 @@
 #define CONFIGCODE_TTUBOARDSPECS_H 1
 
 // Include files
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/RPCObjects/interface/RPCTechTriggerConfig.h"
 #include <vector>

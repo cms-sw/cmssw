@@ -12,7 +12,7 @@
 // $Id: MVAComputer.h,v 1.15 2010/01/26 19:40:03 saout Exp $
 //
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
 #include <vector>

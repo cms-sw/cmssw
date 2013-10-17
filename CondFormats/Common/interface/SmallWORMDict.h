@@ -1,7 +1,7 @@
 #ifndef cond_SmallWORMDict_h
 #define cond_SmallWORMDict_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include<vector>
 #include<string>

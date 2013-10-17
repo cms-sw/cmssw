@@ -1,7 +1,7 @@
 #ifndef EcalTPGStripStatus_h
 #define EcalTPGStripStatus_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <map>
 #include <boost/cstdint.hpp>

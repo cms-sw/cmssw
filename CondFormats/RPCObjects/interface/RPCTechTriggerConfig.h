@@ -3,7 +3,7 @@
 #define RPCTECHTRIGGERCONFIG_H 1
 
 // Include files
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
 

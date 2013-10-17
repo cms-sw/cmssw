@@ -6,7 +6,7 @@
 \author Panos Katsas (UoA)
 POOL object to store GainWidth values 4xCapId
 */
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <boost/cstdint.hpp>
 

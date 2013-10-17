@@ -19,7 +19,7 @@
 // $Id: SiPixelGainCalibrationOffline.h,v 1.5 2009/02/10 17:26:50 rougny Exp $
 //
 //
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include<vector>
 #include<map>

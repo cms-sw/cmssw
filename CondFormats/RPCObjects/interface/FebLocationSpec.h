@@ -1,7 +1,7 @@
 #ifndef CondFormatsRPCObjectsFebLocationSpec_H
 #define CondFormatsRPCObjectsFebLocationSpec_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
 

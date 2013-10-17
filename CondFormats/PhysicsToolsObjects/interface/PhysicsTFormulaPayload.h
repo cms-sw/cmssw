@@ -1,7 +1,7 @@
 #ifndef PhysicsTFormulaPayload_h
 #define PhysicsTFormulaPayload_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
 #include <vector>

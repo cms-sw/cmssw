@@ -7,7 +7,7 @@
 POOL object to store CastorChannelStatus
 */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/CastorObjects/interface/CastorCondObjectContainer.h"
 #include "CondFormats/CastorObjects/interface/CastorChannelStatus.h"

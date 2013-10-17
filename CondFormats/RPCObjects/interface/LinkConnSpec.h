@@ -1,7 +1,7 @@
 #ifndef CondFormatsRPCObjectsLinkConnSpec_H
 #define CondFormatsRPCObjectsLinkConnSpec_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
 #include <vector>

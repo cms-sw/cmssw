@@ -1,7 +1,7 @@
 #ifndef FIXEDARRAY_H
 #define FIXEDARRAY_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 template<typename T, unsigned int S>
 class fixedArray {
     public:

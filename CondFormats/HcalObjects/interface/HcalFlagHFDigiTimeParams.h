@@ -1,7 +1,7 @@
 #ifndef GUARD_HcalFlagHFDigiTimeParams_h
 #define GUARD_HcalFlagHFDigiTimeParams_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/HcalObjects/interface/HcalFlagHFDigiTimeParam.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"

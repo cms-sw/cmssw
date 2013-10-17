@@ -2,7 +2,7 @@
 #define HcalRecoParams_h
 
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/HcalObjects/interface/HcalRecoParam.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"

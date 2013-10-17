@@ -7,7 +7,7 @@
 POOL object to store Zero Suppression Thresholds
 */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalZSThreshold.h"

@@ -1,6 +1,6 @@
 #ifndef CondFormats_ESObjects_ESMissingEnergyCalibration_H
 #define CondFormats_ESObjects_ESMissingEnergyCalibration_H
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
 

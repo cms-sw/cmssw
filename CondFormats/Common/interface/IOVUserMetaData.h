@@ -1,7 +1,7 @@
 #ifndef Cond_IOVUserMetaData_h
 #define Cond_IOVUserMetaData_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 namespace cond {
 

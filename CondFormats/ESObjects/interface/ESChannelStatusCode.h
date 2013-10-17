@@ -1,7 +1,7 @@
 #ifndef CondFormats_ESObjects_ESChannelStatusCode_H
 #define CondFormats_ESObjects_ESChannelStatusCode_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
 #include <boost/cstdint.hpp>

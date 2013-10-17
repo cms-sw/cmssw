@@ -1,7 +1,7 @@
 #ifndef HcalPFCorr_h
 #define HcalPFCorr_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 /*
 \class HcalPFCorr

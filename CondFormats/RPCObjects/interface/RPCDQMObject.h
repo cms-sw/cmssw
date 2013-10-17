@@ -1,7 +1,7 @@
 #ifndef RPCDQMObject_h
 #define RPCDQMObject_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include<vector>
 #include<map>

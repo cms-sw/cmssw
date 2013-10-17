@@ -23,7 +23,7 @@
 // terminal nodes, which are stored simply as a vector of regression responses
 
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include <map>
