@@ -24,12 +24,6 @@ public:
   typedef pixeltrackfitting::TracksWithRecHits TracksWithRecHits;
   virtual TracksWithRecHits cleanTracks(const TracksWithRecHits & tracksWithRecHits, const TrackerTopology *tTopo);
 
-private:
-
-  void cleanTrack();
-  bool recHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2);
-
-  std::vector<bool> trackOk;
 
 };
 
