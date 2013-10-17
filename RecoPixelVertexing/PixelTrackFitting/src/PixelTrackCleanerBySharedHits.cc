@@ -46,22 +46,23 @@ TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRec
 
     for (auto iTrack2 = iTrack1 + 1; iTrack2 < size; iTrack2++)
     {
-      if (!trackOk[iTrack1] || !trackOk[iTrack2]) continue;
+      if ( !trackOk[iTrack2]) continue; 
 
       auto track2 = trackHitPairs[iTrack2].first;
       const RecHits& recHits2 = trackHitPairs[iTrack2].second;
 
       int commonRecHits = 0;
-      for (int iRecHit1 = 0; iRecHit1 < (int)recHits1.size(); iRecHit1++)
-      {
-        for (int iRecHit2 = 0; iRecHit2 < (int)recHits2.size(); iRecHit2++)
-        {
+      for (auto iRecHit1 = 0U; iRecHit1 < recHits1.size(); iRecHit1++) {
+        for (auto iRecHit2 = 0U; iRecHit2 < recHits2.size(); iRecHit2++) {
           if (recHitsAreEqual(recHits1[iRecHit1], recHits2[iRecHit2])) commonRecHits++;
+	  if (commonRecHits > 1) break;
         }
+	if (commonRecHits > 1) break;  // let's avoid a go to in the loop above...
       }
+      
       if (commonRecHits > 1) {
 	if (track1->pt() > track2->pt()) trackOk[iTrack2] = false;
-	else trackOk[iTrack1] = false;
+	else { trackOk[iTrack1] = false; break;}
       }
 
     }
