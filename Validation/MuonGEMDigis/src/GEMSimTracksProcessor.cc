@@ -6,7 +6,7 @@
  * $Id: GEMSimTracksProcessor.cc,v 1.2 2012/12/18 21:58:43 khotilov Exp $
  */
 
-#include "GEMCode/GEMValidation/interface/GEMSimTracksProcessor.h"
+#include "Validation/MuonGEMDigis/interface/GEMSimTracksProcessor.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
