@@ -30,8 +30,6 @@ private:
   bool recHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2);
 
   std::vector<bool> trackOk;
-  reco::Track *track1, *track2;
-  int iTrack1, iTrack2;
 
 };
 

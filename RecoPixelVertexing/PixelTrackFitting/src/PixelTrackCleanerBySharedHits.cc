@@ -15,28 +15,40 @@ PixelTrackCleanerBySharedHits::PixelTrackCleanerBySharedHits( const edm::Paramet
 PixelTrackCleanerBySharedHits::~PixelTrackCleanerBySharedHits()
 {}
 
+namespace {
+  inline
+  bool recHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2) {
+    if (recHit1->geographicalId() != recHit2->geographicalId()) return false;
+    LocalPoint pos1 = recHit1->localPosition();
+    LocalPoint pos2 = recHit2->localPosition();
+    return ((pos1.x() == pos2.x()) && (pos1.y() == pos2.y()));
+  }
+  
+}
+
 TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRecHits & trackHitPairs,
 							     const TrackerTopology *tTopo)
 {
   typedef std::vector<const TrackingRecHit *> RecHits;
-  trackOk.clear();
+
 
   LogDebug("PixelTrackCleanerBySharedHits") << "Cleanering tracks" << "\n";
   int size = trackHitPairs.size();
-  for (int i = 0; i < size; i++) trackOk.push_back(true);
 
-  for (iTrack1 = 0; iTrack1 < size; iTrack1++)
-  {
-    track1 = trackHitPairs[iTrack1].first;
+  bool trackOk[size];
+  for (int i = 0; i < size; i++) trackOk[i] = true;
+
+  for (auto iTrack1 = 0; iTrack1 < size; iTrack1++) {
+    auto track1 = trackHitPairs[iTrack1].first;
     const RecHits& recHits1 = trackHitPairs[iTrack1].second;
 
     if (!trackOk[iTrack1]) continue;
 
-    for (iTrack2 = iTrack1 + 1; iTrack2 < size; iTrack2++)
+    for (auto iTrack2 = iTrack1 + 1; iTrack2 < size; iTrack2++)
     {
       if (!trackOk[iTrack1] || !trackOk[iTrack2]) continue;
 
-      track2 = trackHitPairs[iTrack2].first;
+      auto track2 = trackHitPairs[iTrack2].first;
       const RecHits& recHits2 = trackHitPairs[iTrack2].second;
 
       int commonRecHits = 0;
@@ -47,7 +59,11 @@ TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRec
           if (recHitsAreEqual(recHits1[iRecHit1], recHits2[iRecHit2])) commonRecHits++;
         }
       }
-      if (commonRecHits > 1) cleanTrack();
+      if (commonRecHits > 1) {
+	if (track1->pt() > track2->pt()) trackOk[iTrack2] = false;
+	else trackOk[iTrack1] = false;
+      }
+
     }
   }
 
@@ -62,17 +78,3 @@ TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRec
 }
 
 
-void PixelTrackCleanerBySharedHits::cleanTrack()
-{
-  if (track1->pt() > track2->pt()) trackOk[iTrack2] = false;
-  else trackOk[iTrack1] = false;
-}
-
-
-bool PixelTrackCleanerBySharedHits::recHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2)
-{
-  if (recHit1->geographicalId() != recHit2->geographicalId()) return false;
-  LocalPoint pos1 = recHit1->localPosition();
-  LocalPoint pos2 = recHit2->localPosition();
-  return ((pos1.x() == pos2.x()) && (pos1.y() == pos2.y()));
-}
