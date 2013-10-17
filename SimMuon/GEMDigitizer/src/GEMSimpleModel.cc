@@ -39,6 +39,7 @@ GEMSimpleModel::GEMSimpleModel(const edm::ParameterSet& config)
   , bxwidth_(config.getParameter<int>("bxwidth"))
   , minBunch_(config.getParameter<int>("minBunch"))
   , maxBunch_(config.getParameter<int>("maxBunch"))
+  , digitizeOnlyMuons_(config.getParameter<bool>("digitizeOnlyMuons"))
 {
 }
 
