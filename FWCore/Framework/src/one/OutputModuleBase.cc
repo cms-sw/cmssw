@@ -187,10 +187,10 @@ namespace edm {
     OutputModuleBase::doEvent(EventPrincipal const& ep,
                               EventSetup const&,
                               ModuleCallingContext const* mcc) {
-      detail::TRBESSentry products_sentry(selectors_);
       
       {
         std::lock_guard<std::mutex> guard(mutex_);
+        detail::TRBESSentry products_sentry(selectors_);
         if(!wantAllEvents_) {
           if(!selectors_.wantEvent(ep, mcc)) {
             return true;
