@@ -1,58 +1,67 @@
 #ifndef MuonKinVsEtaAnalyzer_H
 #define MuonKinVsEtaAnalyzer_H
-
-
 /** \class MuRecoAnalyzer
  *
  *  DQM monitoring source for muon reco track
  *
  *  \author S. Goy Lopez, CIEMAT
+ *  \author S. Folgueras, U. Oviedo
  */
-
 
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DQMOffline/Muon/src/MuonAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/MuonEnergy.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-
-class MuonKinVsEtaAnalyzer : public MuonAnalyzerBase {
+class MuonKinVsEtaAnalyzer : public edm::EDAnalyzer {
  public:
-
+  
   /// Constructor
-  MuonKinVsEtaAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService);
+  MuonKinVsEtaAnalyzer(const edm::ParameterSet& pSet);
   
   /// Destructor
-  virtual ~MuonKinVsEtaAnalyzer();
+  ~MuonKinVsEtaAnalyzer();
 
-  /// Iniyeszialize parameters for histo binning
-  void beginJob(DQMStore *dbe);
-
-  /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon& recoMu);
-
-
- private:
-  // ----------member data ---------------------------
+  /// Initialize parameters for histo binning
+  void beginJob(void);
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   
+  /// Get the analysis
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  
+ private:
+  
+  // ----------member data ---------------------------
+  MuonServiceProxy *theService;
+  DQMStore* theDbe;
   edm::ParameterSet parameters;
+ 
   // Switch for verbosity
   std::string metname;
-  // STA Label
-  edm::InputTag theSTACollectionLabel;
 
   //Vertex requirements
-  edm::InputTag  vertexTag;
-  edm::InputTag  bsTag;
-
-
+  edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
+  edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
+  
   //histo binning parameters
   int pBin;
   double pMin;

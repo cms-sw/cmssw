@@ -35,7 +35,9 @@ namespace lhef {
 
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    std::istream &in) :
-	runInfo(runInfo), counted(false), readAttemptCounter(0)
+  runInfo(runInfo), weights_(0), counted(false), 
+  readAttemptCounter(0)
+  
 {
 	hepeup.NUP = 0;
 	hepeup.XPDWUP.first = hepeup.XPDWUP.second = 0.0;
@@ -50,7 +52,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	int idwtup = runInfo->getHEPRUP()->IDWTUP;
 	if (idwtup >= 0 && hepeup.XWGTUP < 0) {
 		edm::LogWarning("Generator|LHEInterface")
-			<< "Non-allowed egative event weight encountered."
+			<< "Non-allowed negative event weight encountered."
 			<< std::endl;
 		hepeup.XWGTUP = std::abs(hepeup.XWGTUP);
 	}
@@ -79,42 +81,42 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	}
 
 	while(skipWhitespace(in) == '#') {
-		std::string line;
-		std::getline(in, line);
-		std::istringstream ss(line);
-		std::string tag;
-		ss >> tag;
-		if (tag == "#pdf") {
-			pdf.reset(new PDF);
-			ss >> pdf->id.first >> pdf->id.second
-			   >> pdf->x.first >> pdf->x.second
-			   >> pdf->scalePDF
-			   >> pdf->xPDF.first >> pdf->xPDF.second;
-			if (ss.bad()) {
-				edm::LogWarning("Generator|LHEInterface")
-					<< "Les Houches event contained"
-					   " unparseable PDF information."
+	  std::string line;
+	  std::getline(in, line);
+	  std::istringstream ss(line);
+	  std::string tag;
+	  ss >> tag;
+	  if (tag == "#pdf") {
+	    pdf.reset(new PDF);
+	    ss >> pdf->id.first >> pdf->id.second
+	       >> pdf->x.first >> pdf->x.second
+	       >> pdf->scalePDF
+	       >> pdf->xPDF.first >> pdf->xPDF.second;
+	    if (ss.bad()) {
+	      edm::LogWarning("Generator|LHEInterface")
+		<< "Les Houches event contained"
+		" unparseable PDF information."
 					<< std::endl;
-				pdf.reset();
-			} else
-				continue;
-		}
-                size_t found = line.find("amcatnlo");
-                double NEVT = 1.0;
-                if ( found != std::string::npos) {
-                    std::string avalue = line.substr(found+1,line.size());
-                    found = avalue.find("_");
-                    avalue = avalue.substr(found+1,avalue.size());
-                    NEVT = atof(avalue.c_str());
-                }
-                hepeup.XWGTUP = hepeup.XWGTUP*NEVT; 
-		comments.push_back(line + "\n");
+	      pdf.reset();
+	    } else
+	      continue;
+	  }
+	  size_t found = line.find("amcatnlo");
+	  double NEVT = 1.0;
+	  if ( found != std::string::npos) {
+	    std::string avalue = line.substr(found+1,line.size());
+	    found = avalue.find("_");
+	    avalue = avalue.substr(found+1,avalue.size());
+	    NEVT = atof(avalue.c_str());
+	  }
+	  hepeup.XWGTUP = hepeup.XWGTUP*NEVT; 
+	  comments.push_back(line + "\n");
 	}
-
+	
 	if (!in.eof())
-		edm::LogWarning("Generator|LHEInterface")
-			<< "Les Houches file contained spurious"
-			   " content after event data." << std::endl;
+	  edm::LogWarning("Generator|LHEInterface")
+	    << "Les Houches file contained spurious"
+	    " content after event data." << std::endl;
 }
 
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
@@ -136,6 +138,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const LHEEventProduct &product) :
 	runInfo(runInfo), hepeup(product.hepeup()),
 	pdf(product.pdf() ? new PDF(*product.pdf()) : 0),
+	weights_(product.weights()),
 	comments(product.comments_begin(), product.comments_end()),
 	counted(false), readAttemptCounter(0)
 {
