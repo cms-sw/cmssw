@@ -52,22 +52,9 @@ PATH=`pwd`:${PATH}
 
 tar xzf ${name}_gridpack.tar.gz ; rm -f ${name}_gridpack.tar.gz ; cd madevent
 
-## compile according to MG version 1.3.30 or 1.4.3 
-version=`cat MGMEVersion.txt | grep -c "1.4"`
+## rename addmasses.py to addmasses.py.no
 
-if [ "$version" -eq "0" ] ; then
-#./bin/compile
-#./bin/clean4grid
-mv bin/addmasses.py bin/addmasses.py.no
-fi
-
-if [ "$version" -eq "1" ] ; then
-#./bin/change_compiler.py
-#./bin/compile
-#./bin/clean4grid
-mv bin/internal/addmasses.py bin/internal/addmasses.py.no
-fi
-
+find . -name addmasses.py -exec mv {} {}.no \;
 
 cd ..
 
