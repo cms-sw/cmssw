@@ -9,7 +9,7 @@ namespace cond {
 
   namespace persistency {
 
-    cond::Hash import( const std::string& inputTypeName, const void* inputPtr, Session& destination );
+    cond::Hash import( const std::string& inputTypeName, const void* inputPtr, Session& destination, bool checkEqual = true );
 
     std::pair<std::string,boost::shared_ptr<void> > fetch( const cond::Hash& payloadId, Session& session );
 
