@@ -221,9 +221,9 @@ namespace {
       break;
     }	        
 
-    const double dist = 
+    const float dist = 
       block->dist(key,test,block->linkData(),reco::PFBlock::LINKTEST_ALL);
-    if( dist == -1.0 ) return false; // don't associate non-linked elems
+    if( dist == -1.0f ) return false; // don't associate non-linked elems
     std::multimap<double, unsigned> dists_to_val; 
     block->associatedElements(test,block->linkData(),dists_to_val,keytype,
 			      reco::PFBlock::LINKTEST_ALL);   
@@ -1671,7 +1671,9 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	 thefront.secondaryKFs.insert(thefront.secondaryKFs.end(),
 				      roToMerge->secondaryKFs.begin(),
 				      roToMerge->secondaryKFs.end());
-	 
+	 thefront.localMap.insert(thefront.localMap.end(),
+				  roToMerge->localMap.begin(),
+				  roToMerge->localMap.end());
 	 // TO FIX -> use best (E_gsf - E_clustersum)/E_GSF
 	 if( !thefront.parentSC && roToMerge->parentSC ) {
 	   thefront.parentSC = roToMerge->parentSC;
@@ -1690,6 +1692,11 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 				 roToMerge->brems.end());
 	   thefront.firstBrem = roToMerge->firstBrem;
 	   thefront.lateBrem = roToMerge->lateBrem;
+	 } else if ( thefront.electronSeed.isNonnull() && 
+		     roToMerge->electronSeed.isNonnull()) {
+	   LOGWARN("PFEGammaAlgo::mergeROsByAnyLink")
+	     << "Need to implement proper merging of two gsf candidates!"
+	     << std::endl;
 	 }
        }      
        ROs.erase(mergestart,nomerge);
@@ -1791,37 +1798,41 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
     NotCloserToOther<reco::PFBlockElement::GSF,reco::PFBlockElement::ECAL>
       gsfTracksToECALs(_currentblock,_currentlinks,primgsf.first);
     CompatibleEoPOut eoverp_test(primgsf.first);
-    auto notmatched = std::partition(ECALbegin,ECALend,gsfTracksToECALs);
-    notmatched = std::stable_partition(ECALbegin,notmatched,eoverp_test);
-    // early termination if there's nothing matched!
-    for( auto ecal = ECALbegin; ecal != notmatched; ++ecal ) {
+    // get set of matching ecals not already in SC
+    auto notmatched_blk = std::partition(ECALbegin,ECALend,gsfTracksToECALs);
+    notmatched_blk = std::partition(ECALbegin,notmatched_blk,eoverp_test);
+    // get set of matching ecals already in the RO
+    auto notmatched_sc = std::partition(RO.ecalclusters.begin(),
+					RO.ecalclusters.end(),
+					gsfTracksToECALs);
+    notmatched_sc = std::partition(RO.ecalclusters.begin(),
+				   notmatched_sc,
+				   eoverp_test);
+    // look inside the SC for the ECAL cluster
+    for( auto ecal = RO.ecalclusters.begin(); ecal != notmatched_sc; ++ecal ) {
       const PFClusterElement* elemascluster = 
 	docast(const PFClusterElement*,ecal->first);    
       PFClusterFlaggedElement temp(elemascluster,true);
-      auto cluster = std::find(RO.ecalclusters.begin(),
-			       RO.ecalclusters.end(),
-			       temp);
-      // if the cluster isn't found push it to the front since it 
-      // should be the 'seed'
-      // if the cluster is already found in the associated clusters
-      // then we push it to the front  
-      if( cluster == RO.ecalclusters.end() ) {
-	LOGDRESSED("PFEGammaAlgo::linkGSFTracktoECAL()") 
-	  << "Found a cluster not already associated to GSF extrapolation"
-	  << " at ECAL surface!" << std::endl;
-	RO.ecalclusters.insert(RO.ecalclusters.begin(),temp);
-	attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);      
-	RO.localMap.push_back( ElementMap::value_type(primgsf.first,temp.first) );
-	RO.localMap.push_back( ElementMap::value_type(temp.first,primgsf.first) );
-	ECALbegin->second = false;
-      } else {
-	LOGDRESSED("PFEGammaAlgo::linkGSFTracktoECAL()") 
-	  << "Found a cluster already associated to GSF extrapolation"
-	  << " at ECAL surface!" << std::endl;
-	RO.localMap.push_back( ElementMap::value_type(primgsf.first,temp.first) );
-	RO.localMap.push_back( ElementMap::value_type(temp.first,primgsf.first) );
-	std::swap(*RO.ecalclusters.begin(),*cluster);
-      }
+      LOGDRESSED("PFEGammaAlgo::linkGSFTracktoECAL()") 
+	<< "Found a cluster already associated to GSF extrapolation"
+	<< " at ECAL surface!" << std::endl;
+      RO.localMap.push_back( ElementMap::value_type(primgsf.first,temp.first) );
+      RO.localMap.push_back( ElementMap::value_type(temp.first,primgsf.first) );      
+    }
+    // look outside the SC for the ecal cluster
+    for( auto ecal = ECALbegin; ecal != notmatched_blk; ++ecal ) {
+      const PFClusterElement* elemascluster = 
+	docast(const PFClusterElement*,ecal->first);    
+      PFClusterFlaggedElement temp(elemascluster,true);      
+      LOGDRESSED("PFEGammaAlgo::linkGSFTracktoECAL()") 
+	<< "Found a cluster not already associated to GSF extrapolation"
+	<< " at ECAL surface!" << std::endl;
+      RO.ecalclusters.push_back(temp);
+      attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);      
+      RO.localMap.push_back( ElementMap::value_type(primgsf.first,temp.first) );
+      RO.localMap.push_back( ElementMap::value_type(temp.first,primgsf.first) );
+      ECALbegin->second = false;
+    
     }
   }
 }
@@ -1860,7 +1871,7 @@ linkRefinableObjectKFTracksToECAL(ProtoEGObject& RO) {
 }
 
 void PFEGammaAlgo::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
-					ProtoEGObject& RO) {
+				     ProtoEGObject& RO) {
   std::vector<PFClusterFlaggedElement>& currentECAL = RO.ecalclusters;
   auto ECALbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
   auto ECALend = _splayedblock[reco::PFBlockElement::ECAL].end();
@@ -1869,20 +1880,32 @@ void PFEGammaAlgo::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
   NotCloserToOther<reco::PFBlockElement::GSF,reco::PFBlockElement::ECAL>
     kfTrackGSFToECALs(_currentblock,_currentlinks,kfflagged.first);
   //get the ECAL elements not used and not closer to another KF
-  auto notmatched = std::partition(ECALbegin,ECALend,kfTrackToECALs);
+  auto notmatched_sc = std::partition(currentECAL.begin(),
+				      currentECAL.end(),
+				      kfTrackToECALs);
   //get subset ECAL elements not used or closer to another GSF of any type
-  notmatched = std::partition(ECALbegin,notmatched,kfTrackGSFToECALs);
-  for( auto ecalitr = ECALbegin; ecalitr != notmatched; ++ecalitr ) {
+  notmatched_sc = std::partition(currentECAL.begin(),
+				 notmatched_sc,
+				 kfTrackGSFToECALs);
+  for( auto ecalitr = currentECAL.begin(); ecalitr != notmatched_sc; 
+       ++ecalitr ) {
     const PFClusterElement* elemascluster = 
       docast(const PFClusterElement*,ecalitr->first);
-    PFClusterFlaggedElement flaggedclus(elemascluster,true);
-    auto existingCluster = std::find(currentECAL.begin(),currentECAL.end(),
-				     flaggedclus);
-    if( existingCluster == currentECAL.end() ) {
-      RO.ecalclusters.push_back(flaggedclus);
-      attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);	  
-      ecalitr->second = false;
-    }
+    PFClusterFlaggedElement flaggedclus(elemascluster,true);    
+    RO.localMap.push_back( ElementMap::value_type(elemascluster,kfflagged.first) );
+    RO.localMap.push_back( ElementMap::value_type(kfflagged.first,elemascluster) );
+  }
+  //get the ECAL elements not used and not closer to another KF
+  auto notmatched_blk = std::partition(ECALbegin,ECALend,kfTrackToECALs);
+  //get subset ECAL elements not used or closer to another GSF of any type
+  notmatched_blk = std::partition(ECALbegin,notmatched_blk,kfTrackGSFToECALs);
+  for( auto ecalitr = ECALbegin; ecalitr != notmatched_blk; ++ecalitr ) {
+    const PFClusterElement* elemascluster = 
+      docast(const PFClusterElement*,ecalitr->first);
+    PFClusterFlaggedElement flaggedclus(elemascluster,true);    
+    RO.ecalclusters.push_back(flaggedclus);
+    attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);	  
+    ecalitr->second = false;
     RO.localMap.push_back( ElementMap::value_type(elemascluster,kfflagged.first) );
     RO.localMap.push_back( ElementMap::value_type(kfflagged.first,elemascluster) );
   }
@@ -1898,7 +1921,31 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
     auto ECALbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
     auto ECALend = _splayedblock[reco::PFBlockElement::ECAL].end();
     NotCloserToOther<reco::PFBlockElement::BREM,reco::PFBlockElement::ECAL>
-      BremToECALs(_currentblock,_currentlinks,bremflagged.first);           
+      BremToECALs(_currentblock,_currentlinks,bremflagged.first);
+    // check for late brem using clusters already in the SC
+    auto RSCBegin = RO.ecalclusters.begin();
+    auto RSCEnd = RO.ecalclusters.end();
+    auto notmatched_rsc = std::partition(RSCBegin,RSCEnd,BremToECALs);
+    for( auto ecal = RSCBegin; ecal != notmatched_rsc; ++ecal ) {
+      float deta = 
+	std::abs( ecal->first->clusterRef()->positionREP().eta() -
+		  bremflagged.first->positionAtECALEntrance().eta() );
+      if( deta < 0.015 ) {	
+	has_clusters = true;
+	if( FirstBrem == -1 || TrajPos < FirstBrem ) { // set brem information
+	  FirstBrem = TrajPos;
+	  RO.firstBrem = TrajPos;
+	}
+	ElementMap::value_type gsfToEcal(RO.primaryGSFs.front().first,
+					 ecal->first);
+	if( std::find(RO.localMap.begin(), RO.localMap.end(), gsfToEcal) !=
+	    RO.localMap.end() ) {
+	  RO.lateBrem = 1;	  
+	}
+	RO.localMap.push_back( ElementMap::value_type(ecal->first,bremflagged.first) );
+	RO.localMap.push_back( ElementMap::value_type(bremflagged.first,ecal->first) );
+      }
+    }
     // grab new clusters from the block (ensured to not be late brem)
     auto notmatched_block = std::partition(ECALbegin,ECALend,BremToECALs);   
     for( auto ecal = ECALbegin; ecal != notmatched_block; ++ecal ) {
@@ -1908,7 +1955,14 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
       if( deta < 0.015 ) { 
 	has_clusters = true;
 	if( FirstBrem == -1 || TrajPos < FirstBrem ) { // set brem information
+	  FirstBrem = TrajPos;
 	  RO.firstBrem = TrajPos;
+	}
+	ElementMap::value_type gsfToEcal(RO.primaryGSFs.front().first,
+					 ecal->first);
+	if( std::find(RO.localMap.begin(), RO.localMap.end(), gsfToEcal) !=
+	    RO.localMap.end() ) {
+	  RO.lateBrem = 1;	  
 	}
 	const PFClusterElement* elemasclus =
 	  docast(const PFClusterElement*,ecal->first);    
@@ -1921,29 +1975,6 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
 	  << "Found a cluster not already associated by brem extrapolation"
 	  << " at ECAL surface!" << std::endl;
 	
-      }
-    }
-    // check for late brem using clusters already in the SC
-    auto RSCBegin = RO.ecalclusters.begin();
-    auto RSCEnd = RO.ecalclusters.end();
-    auto notmatched_rsc = std::partition(RSCBegin,RSCEnd,BremToECALs);
-    for( auto ecal = RSCBegin; ecal != notmatched_rsc; ++ecal ) {
-      float deta = 
-	std::abs( ecal->first->clusterRef()->positionREP().eta() -
-		  bremflagged.first->positionAtECALEntrance().eta() );
-      if( deta < 0.015 ) {	
-	has_clusters = true;
-	if( FirstBrem == -1 || TrajPos < FirstBrem ) { // set brem information
-	  RO.firstBrem = TrajPos;
-	}
-	ElementMap::value_type gsfToEcal(RO.primaryGSFs.front().first,
-					 ecal->first);
-	if( std::find(RO.localMap.begin(), RO.localMap.end(), gsfToEcal) !=
-	    RO.localMap.end() ) {
-	  RO.lateBrem = 1;	  
-	}
-	RO.localMap.push_back( ElementMap::value_type(ecal->first,bremflagged.first) );
-	RO.localMap.push_back( ElementMap::value_type(bremflagged.first,ecal->first) );
       }
     }
     if(has_clusters) ++RO.nBremsWithClusters;
@@ -2143,6 +2174,7 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
     const float ele_mva_value = calculate_ele_mva(RO,xtra);
     const unsigned elevetoes = calculate_electron_vetoes(RO,xtra);
     const unsigned phovetoes = calculate_photon_vetoes(RO,xtra);
+    //std::cout << "PFEG ele_mva: " << ele_mva_value << std::endl;
     xtra.setMVA(ele_mva_value);    
     xtra.setElectronVetoes(elevetoes);
     xtra.setPhotonVetoes(phovetoes);
@@ -2157,6 +2189,8 @@ calculate_ele_mva(const PFEGammaAlgo::ProtoEGObject& RO,
 		  reco::PFCandidateEGammaExtra& xtra) {
   if( !RO.primaryGSFs.size() ) return -2.0f;
   const PFGSFElement* gsfElement = RO.primaryGSFs.front().first;
+  const PFKFElement* kfElement = NULL;
+  if( RO.primaryKFs.size() ) kfElement = RO.primaryKFs.front().first;
   reco::GsfTrackRef RefGSF= gsfElement->GsftrackRef();
   reco::TrackRef RefKF;
   constexpr float m_el = 0.000511;
@@ -2178,11 +2212,13 @@ calculate_ele_mva(const PFEGammaAlgo::ProtoEGObject& RO,
   double FirstEcalGsfEnergy(0.0), OtherEcalGsfEnergy(0.0), EcalBremEnergy(0.0);
   //shower shape of cluster closest to gsf track
   std::vector<const reco::PFCluster*> gsfcluster;  
-  double min_dist = 1e6;
-  const PFClusterElement* closestECAL = NULL;
+  double min_dist_gsf = 1e6, min_dist_kf = 1e6;;  
+  const PFClusterElement* closestECALGSF = NULL, 
+    *closestECALKF = NULL, *lastBREMCluster = NULL;
+  const PFBremElement*  lastBREM = NULL;
   for(auto clusassoc = RO.localMap.cbegin(); clusassoc != RO.localMap.cend(); 
       ++clusassoc) {
-    if( clusassoc->second->type() == reco::PFBlockElement::ECAL ) {
+    if( clusassoc->second->type() == reco::PFBlockElement::ECAL ) {      
       const PFClusterElement* thecluster = 
 	  docast(const PFClusterElement*,clusassoc->second);
       if( clusassoc->first == gsfElement ) {
@@ -2190,29 +2226,74 @@ calculate_ele_mva(const PFEGammaAlgo::ProtoEGObject& RO,
 						thecluster->index(),
 						_currentlinks,
 						reco::PFBlock::LINKTEST_ALL);
-	OtherEcalGsfEnergy += thecluster->clusterRef()->correctedEnergy();
-	if( cdist != -1.0f && cdist < min_dist ) {
-	  min_dist = cdist;
-	  closestECAL = thecluster;
+	if( cdist != -1.0f ) {
+	  OtherEcalGsfEnergy += thecluster->clusterRef()->correctedEnergy();
+	  if( cdist < min_dist_gsf ) {
+	    min_dist_gsf = cdist;
+	    closestECALGSF = thecluster;
+	  }
+	}
+      } else if ( clusassoc->first == kfElement ) {
+	ElementMap::value_type gsfToEcal(gsfElement,thecluster);
+	ElementMap::const_iterator hasgsf = 
+	  std::find(RO.localMap.begin(), RO.localMap.end(), gsfToEcal);
+	if( hasgsf != RO.localMap.end() ) continue;    
+	const float cdist = _currentblock->dist(kfElement->index(),
+						thecluster->index(),
+						_currentlinks,
+						reco::PFBlock::LINKTEST_ALL);
+	if( cdist != -1.0f ) {	  	  
+	  OtherEcalGsfEnergy += thecluster->clusterRef()->correctedEnergy();
+	  if( cdist < min_dist_kf ) {	    
+	    min_dist_kf = cdist;
+	    closestECALKF = thecluster;
+	  }
 	}
       } else if( clusassoc->first->type() == reco::PFBlockElement::BREM ) {
 	ElementMap::value_type gsfToEcal(gsfElement,thecluster);
 	ElementMap::const_iterator hasgsf = 
 	  std::find(RO.localMap.begin(), RO.localMap.end(), gsfToEcal);
-	if( hasgsf != RO.localMap.end() ) continue;
+	if( hasgsf != RO.localMap.end() ) continue;       	
+	ElementMap::value_type kfToEcal(kfElement,thecluster);
+	ElementMap::const_iterator haskf = 
+	  std::find(RO.localMap.begin(), RO.localMap.end(), kfToEcal);
+	if( haskf != RO.localMap.end() ) continue;       
 	EcalBremEnergy += thecluster->clusterRef()->correctedEnergy();
+	if( lastBREM == NULL || 
+	    ( docast(const PFBremElement*,clusassoc->first)->indTrajPoint() >
+	      lastBREM->indTrajPoint() ) ) {
+	  lastBREM = docast(const PFBremElement*,clusassoc->first);
+	  lastBREMCluster = thecluster;
+	}
       }
     }
   }
-  if( closestECAL ) {
-    reco::PFClusterRef cref = closestECAL->clusterRef();
+  
+  if( closestECALGSF ) {
+    reco::PFClusterRef cref = closestECALGSF->clusterRef();
     FirstEcalGsfEnergy = cref->correctedEnergy();
     OtherEcalGsfEnergy -= FirstEcalGsfEnergy;
     deta_gsfecal = cref->positionREP().eta() - Etaout_gsf;
     gsfcluster.push_back(&*cref);
     PFClusterWidthAlgo pfwidth(gsfcluster);
     sigmaEtaEta = pfwidth.pflowSigmaEtaEta();
-  } 
+  } else if ( closestECALKF ) {
+    reco::PFClusterRef cref = closestECALKF->clusterRef();
+    FirstEcalGsfEnergy = cref->correctedEnergy();
+    OtherEcalGsfEnergy -= FirstEcalGsfEnergy;
+    deta_gsfecal = cref->positionREP().eta() - Etaout_gsf;
+    gsfcluster.push_back(&*cref);
+    PFClusterWidthAlgo pfwidth(gsfcluster);
+    sigmaEtaEta = pfwidth.pflowSigmaEtaEta();
+  } else if ( lastBREMCluster ) {
+    reco::PFClusterRef cref = lastBREMCluster->clusterRef();
+    FirstEcalGsfEnergy = cref->correctedEnergy();
+    EcalBremEnergy -= FirstEcalGsfEnergy;
+    deta_gsfecal = cref->positionREP().eta() - Etaout_gsf;
+    gsfcluster.push_back(&*cref);
+    PFClusterWidthAlgo pfwidth(gsfcluster);
+    sigmaEtaEta = pfwidth.pflowSigmaEtaEta();
+  }
   // brem sequence information
   lateBrem = firstBrem = earlyBrem = -1.0f;
   if(RO.nBremsWithClusters > 0) {
@@ -2252,7 +2333,8 @@ calculate_ele_mva(const PFEGammaAlgo::ProtoEGObject& RO,
 	(FirstEcalGsfEnergy+OtherEcalGsfEnergy+EcalBremEnergy);
       EtotPinMode  = EcalETot / Ein_gsf;
       EGsfPoutMode = FirstEcalGsfEnergy / Eout_gsf;
-      EtotBremPinPoutMode = EcalBremEnergy / (Ein_gsf - Eout_gsf);
+      EtotBremPinPoutMode = ( (EcalBremEnergy + OtherEcalGsfEnergy) / 
+			      (Ein_gsf - Eout_gsf) );
       DEtaGsfEcalClust = std::abs(deta_gsfecal);
       SigmaEtaEta = std::log(sigmaEtaEta);
       xtra.setDeltaEta(DEtaGsfEcalClust);
@@ -2274,12 +2356,36 @@ calculate_ele_mva(const PFEGammaAlgo::ProtoEGObject& RO,
       EtotPinMode = std::min(EtotPinMode,5.0f);  
       EGsfPoutMode = std::max(EGsfPoutMode,0.0f);
       EGsfPoutMode = std::min(EGsfPoutMode,5.0f);  
-      EtotBremPinPoutMode = std::max(EtotBremPinPoutMode,0.01f);
+      EtotBremPinPoutMode = std::max(EtotBremPinPoutMode,0.0f);
       EtotBremPinPoutMode = std::min(EtotBremPinPoutMode,5.0f);  
       DEtaGsfEcalClust = std::min(DEtaGsfEcalClust,0.1f);  
       SigmaEtaEta = std::max(SigmaEtaEta,-14.0f);  
       HOverPin = std::max(HOverPin,0.0f);
       HOverPin = std::min(HOverPin,5.0f);
+      /*
+      std::cout << " **** BDT observables ****" << endl;
+      std::cout << " < Normalization > " << endl;
+      std::cout << " Pt_gsf " << Pt_gsf << " Pin " << Ein_gsf  
+		<< " Pout " << Eout_gsf << " Eta_gsf " << Eta_gsf << endl;
+      std::cout << " < PureTracking > " << endl;
+      std::cout << " dPtOverPt_gsf " << dPtOverPt_gsf 
+		<< " DPtOverPt_gsf " << DPtOverPt_gsf
+		<< " chi2_gsf " << chi2_gsf
+		<< " nhit_gsf " << nhit_gsf
+		<< " DPtOverPt_kf " << DPtOverPt_kf
+		<< " chi2_kf " << chi2_kf 
+		<< " nhit_kf " << nhit_kf <<  endl;
+      std::cout << " < track-ecal-hcal-ps " << endl;
+      std::cout << " EtotPinMode " << EtotPinMode 
+		<< " EGsfPoutMode " << EGsfPoutMode
+		<< " EtotBremPinPoutMode " << EtotBremPinPoutMode
+		<< " DEtaGsfEcalClust " << DEtaGsfEcalClust 
+		<< " SigmaEtaEta " << SigmaEtaEta
+		<< " HOverHE " << HOverHE << " Hcal energy " << Ene_hcalgsf
+		<< " HOverPin " << HOverPin 
+		<< " lateBrem " << lateBrem
+		<< " firstBrem " << firstBrem << endl;
+      */
       return tmvaReaderEle_->EvaluateMVA("BDT");
     }
   }
