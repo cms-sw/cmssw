@@ -56,16 +56,16 @@ class PluginFactory<R*(Args...)> : public PluginFactoryBase
       virtual const std::string& category() const ;
       
       R* create(const std::string& iName, Args... args) const {
-        return reinterpret_cast<PMakerBase*>(PluginFactoryBase::findPMaker(iName)->second.front().first)->create(std::forward<Args>(args)...);
+        return reinterpret_cast<PMakerBase*>(PluginFactoryBase::findPMaker(iName))->create(std::forward<Args>(args)...);
       }
 
       ///like above but returns 0 if iName is unknown
       R* tryToCreate(const std::string& iName, Args... args) const {
-        typename Plugins::const_iterator itFound = PluginFactoryBase::tryToFindPMaker(iName);
-        if(itFound ==m_plugins.end() ) {
-          return 0;
+        auto found = PluginFactoryBase::tryToFindPMaker(iName);
+        if(found ==nullptr) {
+          return nullptr;
         }
-        return reinterpret_cast<PMakerBase*>(itFound->second.front().first)->create(args...);
+        return reinterpret_cast<PMakerBase*>(found)->create(args...);
       }
       // ---------- static member functions --------------------
 

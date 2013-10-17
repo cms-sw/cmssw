@@ -26,8 +26,8 @@
 //
 template<typename T1, typename T2>
 HLTDoublet<T1,T2>::HLTDoublet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
-  originTag1_(iConfig.template getParameter<edm::InputTag>("originTag1")),
-  originTag2_(iConfig.template getParameter<edm::InputTag>("originTag2")),
+  originTag1_(iConfig.template getParameter<std::vector<edm::InputTag> >("originTag1")),
+  originTag2_(iConfig.template getParameter<std::vector<edm::InputTag> >("originTag2")),
   inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
   inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
   inputToken1_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag1_)),
@@ -82,8 +82,10 @@ void
 HLTDoublet<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("originTag1",edm::InputTag("hltOriginal1"));
-  desc.add<edm::InputTag>("originTag2",edm::InputTag("hltOriginal2"));
+  std::vector<edm::InputTag> originTag1(1,edm::InputTag("hltOriginal1"));
+  std::vector<edm::InputTag> originTag2(1,edm::InputTag("hltOriginal2"));
+  desc.add<std::vector<edm::InputTag> >("originTag1",originTag1);
+  desc.add<std::vector<edm::InputTag> >("originTag2",originTag2);
   desc.add<edm::InputTag>("inputTag1",edm::InputTag("hltFiltered1"));
   desc.add<edm::InputTag>("inputTag2",edm::InputTag("hltFiltered22"));
   desc.add<int>("triggerType1",0);
@@ -136,8 +138,10 @@ HLTDoublet<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
      if (saveTags()) {
        InputTag tagOld;
-       filterproduct.addCollectionTag(originTag1_);
-       LogVerbatim("HLTDoublet") << " XXX " << label_ << " 1a " << originTag1_.encode() << std::endl;
+       for (unsigned int i=0; i<originTag1_.size(); ++i) {
+	 filterproduct.addCollectionTag(originTag1_[i]);
+	 LogVerbatim("HLTDoublet") << " XXX " << label_ << " 1a/" << i << " " << originTag1_[i].encode() << std::endl;
+       }
        tagOld=InputTag();
        for (size_type i1=0; i1!=n1; ++i1) {
 	 const ProductID pid(coll1_[i1].id());
@@ -151,8 +155,10 @@ HLTDoublet<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 	   LogVerbatim("HLTDoublet") << " XXX " << label_ << " 1b " << tagNew.encode() << std::endl;
 	 }
        }
-       filterproduct.addCollectionTag(originTag2_);
-       LogVerbatim("HLTDoublet") << " XXX " << label_ << " 2a " << originTag2_.encode() << std::endl;
+       for (unsigned int i=0; i<originTag2_.size(); ++i) {
+	 filterproduct.addCollectionTag(originTag2_[i]);
+	 LogVerbatim("HLTDoublet") << " XXX " << label_ << " 2a/" << i << " " << originTag2_[i].encode() << std::endl;
+       }
        tagOld=InputTag();
        for (size_type i2=0; i2!=n2; ++i2) {
 	 const ProductID pid(coll2_[i2].id());
