@@ -1,0 +1,17 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="GeneratorInterface/Core"/>
+<use name="GeneratorInterface/PartonShowerVeto"/>
+<use name="GeneratorInterface/ExternalDecays"/>
+<use name="boost"/>
+<use name="clhep"/>
+<use name="pydata"/>
+<library file="*.cc" name="Pythia8Interface">
+  <use name="pythia8"/>
+</library>
+<library file="*.cc" name="Pythia8175Interface">
+  <use name="pythia8-175"/>
+  <flags CXXFLAGS="-DPYTHIA8175"/>
+</library>
