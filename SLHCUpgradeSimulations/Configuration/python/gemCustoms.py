@@ -53,8 +53,8 @@ def customise_L1Emulator(process):
     tmb.gemMatchDeltaBX = cms.untracked.int32(1)
     lct_store_gemdphi = True
     if lct_store_gemdphi:
-        tmb.gemClearNomatchLCTs = False
-        tmb.gemMatchDeltaPhiOdd = cms.untracked.double(2.)
+        tmb.gemClearNomatchLCTs = cms.untracked.bool(False) 
+	tmb.gemMatchDeltaPhiOdd = cms.untracked.double(2.)
         tmb.gemMatchDeltaPhiEven = cms.untracked.double(2.)
     return process
 
