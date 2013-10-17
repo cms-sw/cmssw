@@ -27,24 +27,24 @@ TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRec
 
   for (iTrack1 = 0; iTrack1 < size; iTrack1++)
   {
-    track1 = trackHitPairs.at(iTrack1).first;
-    const RecHits& recHits1 = trackHitPairs.at(iTrack1).second;
+    track1 = trackHitPairs[iTrack1].first;
+    const RecHits& recHits1 = trackHitPairs[iTrack1].second;
 
-    if (!trackOk.at(iTrack1)) continue;
+    if (!trackOk[iTrack1]) continue;
 
     for (iTrack2 = iTrack1 + 1; iTrack2 < size; iTrack2++)
     {
-      if (!trackOk.at(iTrack1) || !trackOk.at(iTrack2)) continue;
+      if (!trackOk[iTrack1] || !trackOk[iTrack2]) continue;
 
-      track2 = trackHitPairs.at(iTrack2).first;
-      const RecHits& recHits2 = trackHitPairs.at(iTrack2).second;
+      track2 = trackHitPairs[iTrack2].first;
+      const RecHits& recHits2 = trackHitPairs[iTrack2].second;
 
       int commonRecHits = 0;
       for (int iRecHit1 = 0; iRecHit1 < (int)recHits1.size(); iRecHit1++)
       {
         for (int iRecHit2 = 0; iRecHit2 < (int)recHits2.size(); iRecHit2++)
         {
-          if (recHitsAreEqual(recHits1.at(iRecHit1), recHits2.at(iRecHit2))) commonRecHits++;
+          if (recHitsAreEqual(recHits1[iRecHit1], recHits2[iRecHit2])) commonRecHits++;
         }
       }
       if (commonRecHits > 1) cleanTrack();
@@ -55,8 +55,8 @@ TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRec
 
   for (int i = 0; i < size; i++)
   {
-    if (trackOk.at(i)) cleanedTracks.push_back(trackHitPairs.at(i));
-    else delete trackHitPairs.at(i).first;
+    if (trackOk[i]) cleanedTracks.push_back(trackHitPairs[i]);
+    else delete trackHitPairs[i].first;
   }
   return cleanedTracks;
 }
@@ -64,8 +64,8 @@ TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRec
 
 void PixelTrackCleanerBySharedHits::cleanTrack()
 {
-  if (track1->pt() > track2->pt()) trackOk.at(iTrack2) = false;
-  else trackOk.at(iTrack1) = false;
+  if (track1->pt() > track2->pt()) trackOk[iTrack2] = false;
+  else trackOk[iTrack1] = false;
 }
 
 
