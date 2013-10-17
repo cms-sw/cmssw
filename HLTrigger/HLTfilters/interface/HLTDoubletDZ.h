@@ -31,8 +31,8 @@ class HLTDoubletDZ : public HLTFilter {
 
    private:
       // configuration
-      edm::InputTag originTag1_;  // input tag identifying original 1st product
-      edm::InputTag originTag2_;  // input tag identifying original 2nd product
+      std::vector<edm::InputTag> originTag1_;  // input tag identifying originals 1st product
+      std::vector<edm::InputTag> originTag2_;  // input tag identifying originals 2nd product
       edm::InputTag inputTag1_;   // input tag identifying filtered 1st product
       edm::InputTag inputTag2_;   // input tag identifying filtered 2nd product
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken1_;
