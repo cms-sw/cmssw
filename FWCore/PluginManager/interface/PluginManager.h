@@ -22,6 +22,8 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <mutex>
+
 #include <boost/filesystem/path.hpp>
 #include "boost/shared_ptr.hpp"
 #include "FWCore/Utilities/interface/Signal.h"
@@ -103,7 +105,9 @@ class PluginManager
       void newFactory(const PluginFactoryBase* );
       static std::string& loadingLibraryNamed_();
       static PluginManager*& singleton();
-      
+  
+      std::recursive_mutex& pluginLoadMutex() {return pluginLoadMutex_;}
+  
       const boost::filesystem::path& loadableFor_(const std::string& iCategory,
                                                   const std::string& iPlugin,
                                                   bool& ioThrowIfFailElseSucceedStatus);
@@ -112,6 +116,7 @@ class PluginManager
       std::map<boost::filesystem::path, boost::shared_ptr<SharedLibrary> > loadables_;
       
       CategoryToInfos categoryToInfos_;
+      std::recursive_mutex pluginLoadMutex_;
 };
 
 }
