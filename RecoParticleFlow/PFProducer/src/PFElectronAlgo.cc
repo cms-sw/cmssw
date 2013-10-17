@@ -1857,7 +1857,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	    BDToutput_[cgsf] =  mvaValue-6.;
 	  }
  	}
-
+      
 
 	if (DebugIDOutputs) {
 	  cout << " **** BDT observables ****" << endl;
