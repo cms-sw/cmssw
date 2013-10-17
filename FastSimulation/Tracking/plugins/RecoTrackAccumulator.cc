@@ -35,13 +35,14 @@ void RecoTrackAccumulator::accumulate(edm::Event const& e, edm::EventSetup const
 
 void RecoTrackAccumulator::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& iSetup) {
 
-  
-  edm::Handle<reco::TrackCollection> tracks;
-  e.getByLabel(GeneralTrackInput_, tracks);
-  
-  if (tracks.isValid()) {
-    for (reco::TrackCollection::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
-      NewTrackList_->push_back(*track);
+  if (e.bunchCrossing()==0) {
+    edm::Handle<reco::TrackCollection> tracks;
+    e.getByLabel(GeneralTrackInput_, tracks);
+    
+    if (tracks.isValid()) {
+      for (reco::TrackCollection::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
+	NewTrackList_->push_back(*track);
+      }
     }
   }
 
