@@ -17,7 +17,7 @@
 #include "CondCore/CondDB/interface/GTProxy.h"
 #include "CondCore/CondDB/interface/GTEditor.h"
 #include "CondCore/CondDB/interface/Binary.h"
-#include "CondCore/CondDB/interface/Streamer.h"
+#include "CondCore/CondDB/interface/Serialization.h"
 #include "CondCore/CondDB/interface/Types.h"
 #include "CondCore/CondDB/interface/Utils.h"
 // 
@@ -149,11 +149,8 @@ namespace cond {
     
     template <typename T> inline cond::Hash Session::storePayload( const T& payload, const boost::posix_time::ptime& creationTime ){
       
-      cond::OutputStreamer streamer;
-      streamer.write( payload );
-      const cond::Binary& payloadData = streamer.data();
       std::string payloadObjectType = cond::demangledName(typeid(payload));
-      return storePayloadData( payloadObjectType, payloadData, creationTime ); 
+      return storePayloadData( payloadObjectType, serialize( payload ), creationTime ); 
     }
     
     template <typename T> inline boost::shared_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
@@ -162,8 +159,7 @@ namespace cond {
       if(! fetchPayloadData( payloadHash, payloadType, payloadData ) ) 
 	throwException( "Payload with id="+payloadHash+" has not been found in the database.",
 			"Session::fetchPayload" );
-      cond::InputStreamer streamer( payloadType, payloadData );
-      return streamer.read<T>();
+      return deserialize<T>(  payloadType, payloadData );
     }
 
   }

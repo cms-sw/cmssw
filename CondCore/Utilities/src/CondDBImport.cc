@@ -1,5 +1,6 @@
 //
 
+//TO DO: add the comparison between stored object and input object - bool cond::serialization::equal( obj,read_back_copy )
 #define IMPORT_PAYLOAD_CASE( TYPENAME )  \
   if( inputTypeName == #TYPENAME ){ \
     match = true; \
@@ -17,23 +18,13 @@
 
 #define FETCH_PAYLOAD_CASE( TYPENAME ) \
   if( payloadTypeName == #TYPENAME ){ \
-    boost::shared_ptr<TYPENAME> payload = streamer.read<TYPENAME>();	\
-    payloadPtr = payload; \
-    match = true; \
-  }
-
-// requires the operator== in the payload class
-#define FETCH_AND_COMPARE_PAYLOAD_CASE( TYPENAME ) \
-  if( payloadTypeName == #TYPENAME ){ \
-    boost::shared_ptr<TYPENAME> payload = streamer.read<TYPENAME>(); \
-    const TYPENAME& sourceObj = *static_cast<const TYPENAME*>( sourcePtr ); \
-    comp = (sourceObj == *payload ); \
+    auto payload = deserialize<TYPENAME>( payloadTypeName, data ); \
     payloadPtr = payload; \
     match = true; \
   }
 
 #include "CondCore/Utilities/interface/CondDBImport.h"
-#include "CondCore/CondDB/interface/Streamer.h"
+#include "CondCore/CondDB/interface/Serialization.h"
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondFormats.h"
 //
@@ -302,7 +293,6 @@ namespace cond {
       bool found = session.fetchPayloadData( payloadId, payloadTypeName, data );
       if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetchAndCompare" );
       //std::cout <<"--> payload type "<<payloadTypeName<<" has blob size "<<data.size()<<std::endl;
-      cond::InputStreamer streamer( payloadTypeName, data );
       bool match = false;
     FETCH_PAYLOAD_CASE( std::string ) 
     FETCH_PAYLOAD_CASE( std::vector<unsigned long long> )
@@ -514,12 +504,12 @@ namespace cond {
 
     //   
     if( payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){    
-      boost::shared_ptr<PhysicsTools::Calibration::Histogram3D<double,double,double,double> > payload = streamer.read<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >();
+      auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data );
       payloadPtr = payload;
       match = true;
     }
     if( payloadTypeName == "PhysicsTools::Calibration::Histogram2D<double,double,double>" ){    
-      boost::shared_ptr<PhysicsTools::Calibration::Histogram2D<double,double,double> > payload = streamer.read<PhysicsTools::Calibration::Histogram2D<double,double,double> >();
+      auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data );
       payloadPtr = payload;
       match = true;
     }

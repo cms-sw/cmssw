@@ -1,15 +1,14 @@
-#ifndef CondCore_CondDB_Streamer_h
-#define CondCore_CondDB_Streamer_h
+#ifndef CondCore_CondDB_Serialization_h
+#define CondCore_CondDB_Serialization_h
 //
 // Package:     CondDB
-// Class  :     Streamer
 // 
-/**\class Streamer Streamer.h CondCore/CondDB/interface/Streamer.h
-   Description: functions for streaming the payload objects.  
+/**Serialization.h CondCore/CondDB/interface/Serialization.h
+   Description: functions for serializing the payload objects.  
 */
 //
 // Author:      Giacomo Govi
-// Created:     May 2013
+// Created:     October 2013
 //
 //
 
@@ -52,7 +51,7 @@ namespace cond {
   // input
   class RootInputArchive {
   public:
-    explicit RootInputArchive( const std::stringbuf& source );
+    explicit RootInputArchive( std::istream& source );
 
     virtual ~RootInputArchive();
 
@@ -72,50 +71,31 @@ namespace cond {
     return *this;
   }
 
-  // Generic streaming classes. Currently based on root. Could be a template class?
+  typedef RootInputArchive CondInputArchive;
+  typedef RootOutputArchive CondOutputArchive;
 
-  class OutputStreamer {
-  public:
-    OutputStreamer();
-
-    template <typename T> void write( const T& payload );
-
-    const Binary& data() const;
-  private:
-    Binary m_data;
-  };
-
-  template <typename T> inline void OutputStreamer::write( const T& payload ){
+  template <typename T> Binary serialize( const T& payload ){
     // save data to buffer
-    std::stringbuf buffer;
-    { 
-      std::ostream s(&buffer);
-      RootOutputArchive oa(s);
-      oa << payload;
-    } 
-    m_data.copy( buffer.str() );
+    std::ostringstream buffer;
+    CondOutputArchive oa( buffer );
+    oa << payload;
+    Binary ret;
+    //TODO: avoid (2!!) copies
+    ret.copy( buffer.str() );
+    return ret;
   }
 
-  class InputStreamer {
-  public:
-    InputStreamer( const std::string& payloadType, const Binary& payloadData );
-
-    template <typename T> boost::shared_ptr<T> read();
-
-  private:
-    std::string m_objectType;
-    std::stringbuf  m_buffer;
-  }; 
-
-  template <typename T> inline boost::shared_ptr<T> InputStreamer::read(){
+  template <typename T> boost::shared_ptr<T> deserialize( const std::string& payloadType, const Binary& payloadData){
     // for the moment we fail if types don't match... later we will check for base types...
-    if( demangledName( typeid(T) )!= m_objectType ) throwException(std::string("Type mismatch, target object is type \"")+m_objectType+"\"",
-								   "OutputStreamer::read" );
+    if( demangledName( typeid(T) )!= payloadType ) throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"",
+								  "deserialize" );
+    std::stringbuf sbuf;
+    sbuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
+
+    std::istream buffer( &sbuf );
+    CondInputArchive ia(buffer);
     boost::shared_ptr<T> payload( new T );
-    {
-      RootInputArchive ia(m_buffer);
-      ia >> (*payload);
-    }
+    ia >> (*payload);
     return payload;
   }
 

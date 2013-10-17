@@ -38,8 +38,7 @@ namespace cond {
 	if( !m_objects[n] ){
 	  auto i = m_data.find( n );
 	  if( i != m_data.end() ){
-	    cond::InputStreamer streamer( i->second.first, i->second.second );
-	    m_objects[n] = streamer.read<T>();
+	    m_objects[n] = deserialize<T>( i->second.first, i->second.second );
 	    m_data.erase( n );
 	  } else {
 	    throwException( "Payload for index "+boost::lexical_cast<std::string>(n)+" has not been found.",

@@ -1,4 +1,4 @@
-#include "CondCore/CondDB/interface/Streamer.h"
+#include "CondCore/CondDB/interface/Serialization.h"
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondCore/CondDB/interface/Utils.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
@@ -11,13 +11,21 @@
 
 namespace cond {
 
+  struct CintexIntializer {
+    static bool init;
+    CintexIntializer(){
+      if (!init) {
+	ROOT::Cintex::Cintex::Enable();
+	init = true;
+      }      
+    }
+  };
+
+  bool CintexIntializer::init = false;
+
   // initialize Cintex and load dictionary when required
   TClass* lookUpDictionary( const std::type_info& sourceType ){
-    static bool cintexInitialized = false;
-    if (!cintexInitialized) {
-      ROOT::Cintex::Cintex::Enable();
-      cintexInitialized = true;
-    }
+    static CintexIntializer initializer;
     TClass* rc = TClass::GetClass(sourceType);
     if( !rc ){
       static std::string const prefix("LCGReflex/");
@@ -43,8 +51,8 @@ void cond::RootOutputArchive::write( const std::type_info& sourceType, const voi
   m_buffer.write( static_cast<const char*>(buffer.Buffer()), buffer.Length() ); 
 }
 
-cond::RootInputArchive::RootInputArchive( const std::stringbuf& source ):
-  m_buffer( source.str() ),
+cond::RootInputArchive::RootInputArchive( std::istream& source ):
+  m_buffer( std::istreambuf_iterator<char>(source), std::istreambuf_iterator<char>()),
   m_streamer( new TBufferFile( TBufferFile::kRead, m_buffer.size(), const_cast<char*>(m_buffer.c_str()), kFALSE ) ){
   m_streamer->InitMap();
 }
@@ -57,20 +65,5 @@ void cond::RootInputArchive::read( const std::type_info& destinationType, void* 
   TClass* r_class = lookUpDictionary( destinationType );
   if (!r_class) throwException( "No ROOT class registered for \"" + demangledName(destinationType) +"\"","RootInputArchive::read");
   m_streamer->StreamObject(destinationInstance, r_class);   
-}
-
-cond::OutputStreamer::OutputStreamer():
-  m_data(){
-}
-
-const cond::Binary& cond::OutputStreamer::data() const{
-  return m_data;
-}
-
-cond::InputStreamer::InputStreamer( const std::string& payloadType, const Binary& payloadData ):
-  m_objectType( payloadType ),
-  m_buffer(){
-  std::ostream s(&m_buffer);
-  s.write( static_cast<const char*>(payloadData.data()), payloadData.size() );
 }
 
