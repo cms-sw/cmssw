@@ -49,7 +49,12 @@ namespace reco {
 
     enum ElectronVetoes {
       kFailsMVA,
-      kFailsClusterIso,
+      kKFTracksOnGSFCluster, // any number of additional tracks on GSF cluster
+      kFailsTrackAndHCALIso, // > 3 kfs on Gsf-cluster, bad h/e
+      kKillAdditionalKFs,    // tracks with hcal linkbut good gsf etot/p_in 
+      kItIsAPion,            // bad H/P_in, H/H+E, and E_tot/P_in
+      kCrazyEoverP,          // screwey track linking / weird GSFs
+      kTooLargeAngle,        // angle between GSF and RSC centroid too large
       kN_EVETOS
     };
 

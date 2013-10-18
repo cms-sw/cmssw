@@ -91,6 +91,9 @@ class PFEGammaAlgo {
     // for track-HCAL cluster linking
     std::vector<PFClusterFlaggedElement> hcalClusters;
     ElementMap localMap;
+    // cluster closest to the gsf track(s), primary kf if none for gsf
+    // last brem tangent cluster if neither of those work
+    std::vector<const PFClusterElement*> electronClusters; 
     int firstBrem, lateBrem, nBremsWithClusters;
   };  
   
@@ -268,7 +271,8 @@ private:
   void linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject&);
   void linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject&);
   // helper function for above
-  void linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
+  const PFClusterElement* 
+    linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
 
   // refining steps doing the ECAL -> track piece
   // this is the factorization of the old PF photon algo stuff
@@ -298,9 +302,11 @@ private:
   float calculate_ele_mva(const ProtoEGObject&,
 			  reco::PFCandidateEGammaExtra&);
   unsigned calculate_electron_vetoes(const PFEGammaAlgo::ProtoEGObject& RO,
-				     const reco::PFCandidateEGammaExtra& xtra);
+				     const reco::PFCandidateEGammaExtra& xtra,
+				     const reco::SuperCluster& rsc);
   unsigned calculate_photon_vetoes(const PFEGammaAlgo::ProtoEGObject& RO,
-				   const reco::PFCandidateEGammaExtra& xtra);  
+				   const reco::PFCandidateEGammaExtra& xtra,
+				   const reco::SuperCluster& rsc);  
   
   // ------ end of new stuff 
   

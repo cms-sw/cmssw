@@ -1859,7 +1859,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
  	}
       
 
-	if (DebugIDOutputs) {
+	//if (DebugIDOutputs) {
 	  cout << " **** BDT observables ****" << endl;
 	  cout << " < Normalization > " << endl;
 	  cout << " Pt_gsf " << Pt_gsf << " Pin " << Ein_gsf  << " Pout " << Eout_gsf
@@ -1885,7 +1885,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  cout << " !!!!!!!!!!!!!!!! the BDT output !!!!!!!!!!!!!!!!!: direct " << mvaValue 
 	       << " corrected " << BDToutput_[cgsf] <<  endl; 
 	  
-	}
+	  //}
       }
       else {
 	if (DebugIDOutputs) 
