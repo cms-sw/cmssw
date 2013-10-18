@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 namespace HepMC 
 {
@@ -19,6 +20,11 @@ namespace CLHEP
 class HepRandomEngine;
 }
 
+namespace TauolaInterfaceVar {
+  CLHEP::HepRandomEngine* decayRandomEngine;
+}
+
+
 namespace gen {
 
 /* for old tauola27 */
@@ -27,7 +33,7 @@ namespace gen {
       public:
       
       // ctor & dtor
-      TauolaInterface( const edm::ParameterSet& );
+     TauolaInterface( const edm::ParameterSet&,CLHEP::HepRandomEngine* decayRandomEngine);
       ~TauolaInterface();
       
       void enablePolarization()  { fPolarization = 1; return; }
@@ -50,56 +56,6 @@ namespace gen {
       //CLHEP::RandFlat*                         fRandomGenerator;
        
    };
-/* */
-
-/* this is the code for new Tauola++ 
-
-   extern "C" {
-      void ranmar_( float *rvec, int *lenv );
-      void rmarin_( int*, int*, int* );
-   }
-
-   class TauolaInterface
-   {
-      public:
-      
-      // ctor & dtor
-      // TauolaInterface( const edm::ParameterSet& );
-      static TauolaInterface* getInstance() ;
-      ~TauolaInterface();
-      
-      void setPSet( const edm::ParameterSet& );
-      void enablePolarization()  { fPolarization = true; return; }
-      void disablePolarization() { fPolarization = false; return; }
-      void init( const edm::EventSetup& );
-      const std::vector<int>& operatesOnParticles() { return fPDGs; }
-      HepMC::GenEvent* decay( HepMC::GenEvent* );
-      void statistics() ;
-      
-      private: 
-      
-      friend void gen::ranmar_( float *rvec, int *lenv );
-      
-      // ctor
-      TauolaInterface();
-      
-      // member function(s)
-      float flat();
-      
-      //
-      CLHEP::HepRandomEngine*                  fRandomEngine;            
-      std::vector<int>                         fPDGs;
-      bool                                     fPolarization;      
-      edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
-      edm::ParameterSet*                       fPSet;
-      bool                                     fIsInitialized;
-      
-      static TauolaInterface*                  fInstance;
-       
-   };
-
-*/
-
 }
 
 #endif

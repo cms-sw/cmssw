@@ -6,9 +6,8 @@
 #include "GeneratorInterface/ExternalDecays/interface/PhotosInterface.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-// #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
 
+#include "HepMC/SimpleVector.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/HEPEVT_Wrapper.h"
@@ -25,12 +24,12 @@ extern "C"{
 
    double phoran_(int *idummy)
    {
-      return decayRandomEngine->flat();
+      return PhotosInterfaceVar::decayRandomEngine->flat();
    }
 /*
    double phoranc_(int *idummy)
    {
-      return decayRandomEngine->flat();
+      return PhotosInterfaceVar::decayRandomEngine->flat();
    }
 */
 
@@ -42,19 +41,21 @@ extern "C"{
 }
 
 
-PhotosInterface::PhotosInterface()
+PhotosInterface::PhotosInterface(CLHEP::HepRandomEngine* decayRandomEngine)
    : fOnlyPDG(-1)
 {
-   fSpecialSettings.push_back("QED-brem-off:all");
-   fAvoidTauLeptonicDecays = false;
-   fIsInitialized = false; 
+  fSpecialSettings.push_back("QED-brem-off:all");
+  fAvoidTauLeptonicDecays = false;
+  fIsInitialized = false;
+  PhotosInterfaceVar::decayRandomEngine=decayRandomEngine;
 }
 
-PhotosInterface::PhotosInterface( const edm::ParameterSet& )
-   : fOnlyPDG(-1)
+PhotosInterface::PhotosInterface( const edm::ParameterSet&,CLHEP::HepRandomEngine* decayRandomEngine)
+  : fOnlyPDG(-1)
 {
-   fSpecialSettings.push_back("QED-brem-off:all");
-   fIsInitialized = false;
+  fSpecialSettings.push_back("QED-brem-off:all");
+  fIsInitialized = false;
+  PhotosInterfaceVar::decayRandomEngine=decayRandomEngine;
 }
 
 /*  -->

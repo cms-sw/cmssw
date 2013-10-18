@@ -42,11 +42,11 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       std::string curSet = extGenNames[ip];
       if ( curSet == "EvtGen" )
       {
-         fEvtGenInterface = new gen::EvtGenInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
+	fEvtGenInterface = new gen::EvtGenInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
       }
       else if ( curSet == "Tauola" )
       {
-         fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
+	fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet),decayRandomEngine);
 	 //
 	 // in the future, here it should be something like:
 	 //
@@ -57,7 +57,7 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       }
       else if ( curSet == "Photos" )
       {
-         if ( !fPhotosInterface ) fPhotosInterface = new gen::PhotosInterface();
+	if ( !fPhotosInterface ) fPhotosInterface = new gen::PhotosInterface(decayRandomEngine);
       }
 
     }

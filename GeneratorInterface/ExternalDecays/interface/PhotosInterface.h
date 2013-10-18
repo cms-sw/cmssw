@@ -6,14 +6,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "HepMC/SimpleVector.h"
+#include "CLHEP/Random/RandomEngine.h"
 
-namespace HepMC 
-{
-class GenEvent;
-class GenVertex;
+namespace HepMC {
+  class GenEvent;
+  class GenVertex;
+  class SimpleVector;
 }
+
+namespace PhotosInterfaceVar {
+  CLHEP::HepRandomEngine* decayRandomEngine;
+}
+
 
 namespace gen {
 
@@ -22,8 +27,8 @@ namespace gen {
       public:
       
       // ctor & dtor
-      PhotosInterface(); 
-      PhotosInterface( const edm::ParameterSet& );
+     PhotosInterface(CLHEP::HepRandomEngine* decayRandomEngine); 
+      PhotosInterface( const edm::ParameterSet&,  CLHEP::HepRandomEngine* decayRandomEngine);
       ~PhotosInterface() {}
 
       void init();
@@ -48,7 +53,7 @@ namespace gen {
       bool                     fIsInitialized;
       
       void attachParticles( HepMC::GenEvent*, HepMC::GenVertex*, int );
-             
+
    };
 
 }

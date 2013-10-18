@@ -11,26 +11,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "CLHEP/Random/RandFlat.h"
-
-#include "EvtGen/EvtGen.hh"     
-#include "EvtGenBase/EvtId.hh"
-#include "EvtGenBase/EvtPDL.hh"
-#include "EvtGenBase/EvtDecayTable.hh"
-#include "EvtGenBase/EvtSpinType.hh"
-#include "EvtGenBase/EvtVector4R.hh"
-#include "EvtGenBase/EvtParticle.hh"
-#include "EvtGenBase/EvtScalarParticle.hh"
-#include "EvtGenBase/EvtStringParticle.hh"
-#include "EvtGenBase/EvtDiracParticle.hh"
-#include "EvtGenBase/EvtVectorParticle.hh"
-#include "EvtGenBase/EvtRaritaSchwingerParticle.hh"
-#include "EvtGenBase/EvtTensorParticle.hh"
-#include "EvtGenBase/EvtHighSpinParticle.hh"
-#include "EvtGenBase/EvtStdHep.hh"
-#include "EvtGenBase/EvtSecondary.hh"
-#include "EvtGenModels/EvtPythia.hh"
-
 namespace CLHEP {
   class HepRandomEngine;
   class RandFlat;
@@ -40,6 +20,10 @@ namespace HepMC {
   class GenParticle;
   class GenEvent;
 }
+
+class EvtGen;
+class EvtId;
+class EvtParticle;
 
 namespace gen {
 
