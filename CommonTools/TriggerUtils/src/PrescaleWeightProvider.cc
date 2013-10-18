@@ -13,7 +13,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-PrescaleWeightProvider::PrescaleWeightProvider( const edm::ParameterSet & config, edm::ConsumesCollector && iC )
+PrescaleWeightProvider::PrescaleWeightProvider( const edm::ParameterSet & config, edm::ConsumesCollector & iC )
 // default values
 : verbosity_( 0 )
 , triggerResultsTag_( "TriggerResults::HLT" )

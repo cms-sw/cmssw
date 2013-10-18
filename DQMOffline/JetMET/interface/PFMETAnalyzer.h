@@ -15,8 +15,8 @@
 #include <fstream>
 #include "TMath.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DQMOffline/JetMET/interface/PFMETAnalyzerBase.h"
-#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -47,11 +47,11 @@
 #include "GlobalVariables.h"
 
 
-class PFMETAnalyzer : public PFMETAnalyzerBase, public edm::EDConsumerBase {
+class PFMETAnalyzer : public PFMETAnalyzerBase {
  public:
 
   /// Constructor
-  PFMETAnalyzer(const edm::ParameterSet&);
+  PFMETAnalyzer(const edm::ParameterSet&, edm::ConsumesCollector&&);
 
   /// Destructor
   virtual ~PFMETAnalyzer();

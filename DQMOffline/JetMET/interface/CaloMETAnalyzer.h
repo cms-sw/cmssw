@@ -12,8 +12,8 @@
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DQMOffline/JetMET/interface/CaloMETAnalyzerBase.h"
-#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -49,11 +49,11 @@
 #include "GlobalVariables.h"
 
 
-class CaloMETAnalyzer : public CaloMETAnalyzerBase, public edm::EDConsumerBase {
+class CaloMETAnalyzer : public CaloMETAnalyzerBase {
  public:
 
   /// Constructor
-  CaloMETAnalyzer(const edm::ParameterSet&);
+  CaloMETAnalyzer(const edm::ParameterSet&, edm::ConsumesCollector&&);
 
   /// Destructor
   virtual ~CaloMETAnalyzer();

@@ -169,19 +169,19 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
   // --- do the analysis on the MET
   if(theCaloMETAnalyzerFlag){
-    theCaloMETAnalyzer       = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETAnalysis"));
-    //theCaloMETNoHFAnalyzer   = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFAnalysis"));
-    //theCaloMETHOAnalyzer     = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETHOAnalysis"));
-    //theCaloMETNoHFHOAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFHOAnalysis"));
+    theCaloMETAnalyzer       = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETAnalysis"), consumesCollector());
+    //theCaloMETNoHFAnalyzer   = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFAnalysis"), consumesCollector());
+    //theCaloMETHOAnalyzer     = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETHOAnalysis"), consumesCollector());
+    //theCaloMETNoHFHOAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFHOAnalysis"), consumesCollector());
   }
   if(theTcMETAnalyzerFlag){
-    theTcMETAnalyzer = new METAnalyzer(parameters.getParameter<ParameterSet>("tcMETAnalysis"));
+    theTcMETAnalyzer = new METAnalyzer(parameters.getParameter<ParameterSet>("tcMETAnalysis"), consumesCollector());
   }
   if(theMuCorrMETAnalyzerFlag){
-    theMuCorrMETAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("mucorrMETAnalysis"));
+    theMuCorrMETAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("mucorrMETAnalysis"), consumesCollector());
   }
   if(thePfMETAnalyzerFlag){
-    thePfMETAnalyzer = new PFMETAnalyzer(parameters.getParameter<ParameterSet>("pfMETAnalysis"));
+    thePfMETAnalyzer = new PFMETAnalyzer(parameters.getParameter<ParameterSet>("pfMETAnalysis"), consumesCollector());
   }
   if(theHTMHTAnalyzerFlag){
     theHTMHTAnalyzer         = new HTMHTAnalyzer(parameters.getParameter<ParameterSet>("HTMHTAnalysis"));

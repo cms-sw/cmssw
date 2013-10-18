@@ -22,7 +22,7 @@ static const bool useL1GtTriggerMenuLite( false );
 
 
 /// To be called from the ED module's c'tor
-GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector && iC )
+GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC )
   : watchDB_( 0 )
   , hltConfigInit_( false )
   , andOr_( false )

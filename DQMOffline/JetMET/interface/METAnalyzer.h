@@ -14,8 +14,8 @@
 #include <fstream>
 #include "TMath.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DQMOffline/JetMET/interface/METAnalyzerBase.h"
-#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -50,11 +50,11 @@
 
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 
-class METAnalyzer : public METAnalyzerBase, public edm::EDConsumerBase {
+class METAnalyzer : public METAnalyzerBase {
  public:
 
   /// Constructor
-  METAnalyzer(const edm::ParameterSet&);
+  METAnalyzer(const edm::ParameterSet&, edm::ConsumesCollector&&);
 
   /// Destructor
   virtual ~METAnalyzer();

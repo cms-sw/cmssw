@@ -86,7 +86,8 @@ class GenericTriggerEventFlag {
   public:
 
     // Constructors and destructor
-    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector && iC ); // To be called from the ED module's c'tor
+    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector && iC ) : GenericTriggerEventFlag( config, iC ) {}; // To be called from the ED module's c'tor
+    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC ); // To be called from the ED module's c'tor
     ~GenericTriggerEventFlag();
 
     // Public methods

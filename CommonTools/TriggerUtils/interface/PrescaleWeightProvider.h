@@ -51,7 +51,8 @@ class PrescaleWeightProvider {
 
   public:
 
-    PrescaleWeightProvider( const edm::ParameterSet & config, edm::ConsumesCollector && iC ); // to be called from the ED module's c'tor
+    PrescaleWeightProvider( const edm::ParameterSet & config, edm::ConsumesCollector && iC ) : PrescaleWeightProvider( config, iC ) {}; // to be called from the ED module's c'tor
+    PrescaleWeightProvider( const edm::ParameterSet & config, edm::ConsumesCollector & iC ); // to be called from the ED module's c'tor
     ~PrescaleWeightProvider() {}
 
     void initRun( const edm::Run & run, const edm::EventSetup & setup );             // to be called from the ED module's beginRun() method

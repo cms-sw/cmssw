@@ -32,7 +32,7 @@ using namespace reco;
 using namespace math;
 
 // ***********************************************************
-PFMETAnalyzer::PFMETAnalyzer(const edm::ParameterSet& pSet) {
+PFMETAnalyzer::PFMETAnalyzer(const edm::ParameterSet& pSet, ConsumesCollector&& iC) {
 
   parameters = pSet;
 
@@ -44,14 +44,14 @@ PFMETAnalyzer::PFMETAnalyzer(const edm::ParameterSet& pSet) {
   edm::ParameterSet eleparms       = parameters.getParameter<edm::ParameterSet>("eleTrigger"      );
   edm::ParameterSet muonparms      = parameters.getParameter<edm::ParameterSet>("muonTrigger"     );
 
-  //genericTriggerEventFlag_( new GenericTriggerEventFlag( conf_, consumesCollector() ) );
-  _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms, consumesCollector() );
-  _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms , consumesCollector() );
-  _MinBiasEventFlag   = new GenericTriggerEventFlag( minbiasparms  , consumesCollector() );
-  _HighMETEventFlag   = new GenericTriggerEventFlag( highmetparms  , consumesCollector() );
-  //  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms   , consumesCollector() );
-  _EleEventFlag       = new GenericTriggerEventFlag( eleparms      , consumesCollector() );
-  _MuonEventFlag      = new GenericTriggerEventFlag( muonparms     , consumesCollector() );
+  //genericTriggerEventFlag_( new GenericTriggerEventFlag( conf_, iC ) );
+  _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms, iC );
+  _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms , iC );
+  _MinBiasEventFlag   = new GenericTriggerEventFlag( minbiasparms  , iC );
+  _HighMETEventFlag   = new GenericTriggerEventFlag( highmetparms  , iC );
+  //  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms   , iC );
+  _EleEventFlag       = new GenericTriggerEventFlag( eleparms      , iC );
+  _MuonEventFlag      = new GenericTriggerEventFlag( muonparms     , iC );
 
   highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
   lowPtJetExpr_  = lowptjetparms .getParameter<std::vector<std::string> >("hltPaths");
