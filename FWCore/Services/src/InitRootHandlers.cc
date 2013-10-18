@@ -208,10 +208,6 @@ namespace edm {
         loadAllDictionaries_(pset.getUntrackedParameter<bool>("LoadAllDictionaries")),
         autoLibraryLoader_(loadAllDictionaries_ or pset.getUntrackedParameter<bool> ("AutoLibraryLoader"))
     {
-      //Tell Root we want to be multi-threaded
-      TThread::Initialize();
-      //When threading, also have to keep ROOT from logging all TObjects into a list
-      TObject::SetObjectStat(false);
       
       if(unloadSigHandler_) {
       // Deactivate all the Root signal handlers and restore the system defaults
@@ -291,6 +287,23 @@ namespace edm {
         TFile* f = dynamic_cast<TFile*>(iter.Next());
         if(f) f->Close();
       }
+    }
+    
+    void InitRootHandlers::willBeUsingThreads() {
+      //Tell Root we want to be multi-threaded
+      TThread::Initialize();
+      //When threading, also have to keep ROOT from logging all TObjects into a list
+      TObject::SetObjectStat(false);
+      if(not this->autoLibraryLoader_) {
+        RootAutoLibraryLoader::enable();
+      }
+      if(not this->loadAllDictionaries_) {
+        RootAutoLibraryLoader::loadAll();
+      }
+    }
+    
+    void InitRootHandlers::initializeThisThreadForUse() {
+      static thread_local TThread guard;
     }
 
     void InitRootHandlers::fillDescriptions(ConfigurationDescriptions& descriptions) {
