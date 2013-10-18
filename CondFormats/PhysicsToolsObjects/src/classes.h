@@ -1,8 +1,5 @@
 #include "CondFormats/PhysicsToolsObjects/src/headers.h"
 
-
-#ifndef SKIP_REFLEX_DICT
-
 namespace { // anonymous
 struct dictionary {
 
@@ -57,6 +54,4 @@ PerformancePayloadFromBinnedTFormula p12;
 
 }; // struct dictionary
 } // anonymous namespace
-
-#endif
 
