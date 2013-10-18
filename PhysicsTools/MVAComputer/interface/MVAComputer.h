@@ -92,7 +92,6 @@ class MVAComputer {
 	/// construct a discriminator computer from C++ input stream
 	MVAComputer(std::istream &is);
 
-    private:
 	/** \class InputVar
 	 * \short input variable configuration object
 	 */
@@ -175,6 +174,7 @@ class MVAComputer {
 		unsigned int			n_;
 	};
 	
+    private:
 	/// construct processors from calibration and setup variables
 	void setup(const Calibration::MVAComputer *calib);
 
