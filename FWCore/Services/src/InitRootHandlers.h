@@ -19,6 +19,9 @@ namespace edm {
     private:
       virtual void enableWarnings_() override;
       virtual void ignoreWarnings_() override;
+      virtual void willBeUsingThreads() override;
+      virtual void initializeThisThreadForUse() override;
+
       bool unloadSigHandler_;
       bool resetErrHandler_;
       bool loadAllDictionaries_;
