@@ -1,5 +1,6 @@
 //
 
+//TO DO: add the comparison between stored object and input object - bool cond::serialization::equal( obj,read_back_copy )
 #define IMPORT_PAYLOAD_CASE( TYPENAME )  \
   if( inputTypeName == #TYPENAME ){ \
     match = true; \
@@ -17,33 +18,27 @@
 
 #define FETCH_PAYLOAD_CASE( TYPENAME ) \
   if( payloadTypeName == #TYPENAME ){ \
-    boost::shared_ptr<TYPENAME> payload = streamer.read<TYPENAME>();	\
-    payloadPtr = payload; \
-    match = true; \
-  }
-
-// requires the operator== in the payload class
-#define FETCH_AND_COMPARE_PAYLOAD_CASE( TYPENAME ) \
-  if( payloadTypeName == #TYPENAME ){ \
-    boost::shared_ptr<TYPENAME> payload = streamer.read<TYPENAME>(); \
-    const TYPENAME& sourceObj = *static_cast<const TYPENAME*>( sourcePtr ); \
-    comp = (sourceObj == *payload ); \
+    auto payload = deserialize<TYPENAME>( payloadTypeName, data ); \
     payloadPtr = payload; \
     match = true; \
   }
 
 #include "CondCore/Utilities/interface/CondDBImport.h"
-#include "CondCore/CondDB/interface/Streamer.h"
+#include "CondCore/CondDB/interface/Serialization.h"
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondFormats.h"
 //
 #include <sstream>
 
-conddb::Hash conddb::import( const std::string& inputTypeName, const void* inputPtr, conddb::Session& destination ){
-    conddb::Hash payloadId("");
-    bool newInsert = false;
-    bool match = false;
-    if( inputPtr ){
+namespace cond {
+
+  namespace persistency {
+
+    cond::Hash import( const std::string& inputTypeName, const void* inputPtr, Session& destination ){
+      cond::Hash payloadId("");
+      bool newInsert = false;
+      bool match = false;
+      if( inputPtr ){
       IMPORT_PAYLOAD_CASE( std::string ) 
       IMPORT_PAYLOAD_CASE( std::vector<unsigned long long> )
       IMPORT_PAYLOAD_CASE( AlCaRecoTriggerBits )
@@ -207,28 +202,28 @@ conddb::Hash conddb::import( const std::string& inputTypeName, const void* input
       IMPORT_PAYLOAD_CASE( lumi::LumiSectionData )
       IMPORT_PAYLOAD_CASE( MixingModuleConfig )
       IMPORT_PAYLOAD_CASE( MuScleFitDBobject )
-	/**
-	if( inputTypeName == "PhysicsTools::Calibration::MVAComputerContainer" ){\
-	  std::cout <<"@@@@@ MVAComputer!"<<std::endl;\
-	  match = true;\
-	  const PhysicsTools::Calibration::MVAComputerContainer& obj = *static_cast<const PhysicsTools::Calibration::MVAComputerContainer*>( inputPtr ); \
-	  PhysicsTools::Calibration::MVAComputerContainer tmp;\
-	  for( auto entry : obj.entries ) {\
-	    std::cout <<"#Adding new entry label="<<entry.first<<std::endl;\
-	    PhysicsTools::Calibration::MVAComputer& c = tmp.add( entry.first );\
-            c.inputSet = entry.second.inputSet;\
-	    c.output =  entry.second.output;\
-	    auto ps = entry.second.getProcessors();\
-            for( size_t i=0;i<ps.size();i++ ){\
-	      std::cout <<"PRocess type="<<demangledName( typeid(*ps[i] ) )<<std::endl;\
-	      c.addProcessor( ps[i] );\
-            }\
-	  }\
-	  std::pair<std::string,bool> st = destination.storePayload( tmp, boost::posix_time::microsec_clock::universal_time() ); \
-	  payloadId = st.first;\
-	  newInsert = st.second;\
-	} 
-	**/
+      /**
+      if( inputTypeName == "PhysicsTools::Calibration::MVAComputerContainer" ){ \
+      std::cout <<"@@@@@ MVAComputer!"<<std::endl;\
+      match = true;\
+      const PhysicsTools::Calibration::MVAComputerContainer& obj = *static_cast<const PhysicsTools::Calibration::MVAComputerContainer*>( inputPtr ); \
+      PhysicsTools::Calibration::MVAComputerContainer tmp;		\
+      for( auto entry : obj.entries ) {					\
+      std::cout <<"#Adding new entry label="<<entry.first<<std::endl;	\
+      PhysicsTools::Calibration::MVAComputer& c = tmp.add( entry.first ); \
+      c.inputSet = entry.second.inputSet;				\
+      c.output =  entry.second.output;					\
+      auto ps = entry.second.getProcessors();				\
+      for( size_t i=0;i<ps.size();i++ ){				\
+      std::cout <<"PRocess type="<<demangledName( typeid(*ps[i] ) )<<std::endl;	\
+      c.addProcessor( ps[i] );						\
+      }									\
+      }									\
+      std::pair<std::string,bool> st = destination.storePayload( tmp, boost::posix_time::microsec_clock::universal_time() ); \
+      payloadId = st.first;						\
+      newInsert = st.second;						\
+      } 
+      **/
 
       IMPORT_PAYLOAD_CASE( PhysicsTools::Calibration::MVAComputerContainer )
       IMPORT_PAYLOAD_CASE( PCaloGeometry )
@@ -274,33 +269,31 @@ conddb::Hash conddb::import( const std::string& inputTypeName, const void* input
       IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<EcalTPGPedestal> )
       IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<EcalXtalGroupId> )
       IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<float> )
+      if( inputTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){
+	match = true;
+	const PhysicsTools::Calibration::Histogram3D<double,double,double,double>& obj = *static_cast<const PhysicsTools::Calibration::Histogram3D<double,double,double,double>*>( inputPtr ); 
+	payloadId = destination.storePayload( obj, boost::posix_time::microsec_clock::universal_time() ); 
+      } 
+      if( inputTypeName == "PhysicsTools::Calibration::Histogram2D<double,double,double>" ){
+	match = true;
+	const PhysicsTools::Calibration::Histogram2D<double,double,double>& obj = *static_cast<const PhysicsTools::Calibration::Histogram2D<double,double,double>*>( inputPtr ); 
+	payloadId = destination.storePayload( obj, boost::posix_time::microsec_clock::universal_time() ); 
+      } 
 
-  if( inputTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){
-    match = true;
-    const PhysicsTools::Calibration::Histogram3D<double,double,double,double>& obj = *static_cast<const PhysicsTools::Calibration::Histogram3D<double,double,double,double>*>( inputPtr ); 
-    payloadId = destination.storePayload( obj, boost::posix_time::microsec_clock::universal_time() ); 
-  } 
-  if( inputTypeName == "PhysicsTools::Calibration::Histogram2D<double,double,double>" ){
-    match = true;
-    const PhysicsTools::Calibration::Histogram2D<double,double,double>& obj = *static_cast<const PhysicsTools::Calibration::Histogram2D<double,double,double>*>( inputPtr ); 
-    payloadId = destination.storePayload( obj, boost::posix_time::microsec_clock::universal_time() ); 
-  } 
-
-
+      
       if( ! match ) throwException( "Payload type \""+inputTypeName+"\" is unknown.","import" );
+      }
+      return payloadId;
     }
-    return payloadId;
-  }
 
-  std::pair<std::string,boost::shared_ptr<void> > conddb::fetch( const conddb::Hash& payloadId, conddb::Session& session ){
-    boost::shared_ptr<void> payloadPtr;
-    conddb::Binary data;
-    std::string payloadTypeName;
-    bool found = session.fetchPayloadData( payloadId, payloadTypeName, data );
-    if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetchAndCompare" );
-    //std::cout <<"--> payload type "<<payloadTypeName<<" has blob size "<<data.size()<<std::endl;
-    conddb::InputStreamer streamer( payloadTypeName, data );
-    bool match = false;
+    std::pair<std::string,boost::shared_ptr<void> > fetch( const cond::Hash& payloadId, Session& session ){
+      boost::shared_ptr<void> payloadPtr;
+      cond::Binary data;
+      std::string payloadTypeName;
+      bool found = session.fetchPayloadData( payloadId, payloadTypeName, data );
+      if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetchAndCompare" );
+      //std::cout <<"--> payload type "<<payloadTypeName<<" has blob size "<<data.size()<<std::endl;
+      bool match = false;
     FETCH_PAYLOAD_CASE( std::string ) 
     FETCH_PAYLOAD_CASE( std::vector<unsigned long long> )
     FETCH_PAYLOAD_CASE( AlCaRecoTriggerBits )
@@ -511,12 +504,12 @@ conddb::Hash conddb::import( const std::string& inputTypeName, const void* input
 
     //   
     if( payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){    
-      boost::shared_ptr<PhysicsTools::Calibration::Histogram3D<double,double,double,double> > payload = streamer.read<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >();
+      auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data );
       payloadPtr = payload;
       match = true;
     }
     if( payloadTypeName == "PhysicsTools::Calibration::Histogram2D<double,double,double>" ){    
-      boost::shared_ptr<PhysicsTools::Calibration::Histogram2D<double,double,double> > payload = streamer.read<PhysicsTools::Calibration::Histogram2D<double,double,double> >();
+      auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data );
       payloadPtr = payload;
       match = true;
     }
@@ -525,4 +518,7 @@ conddb::Hash conddb::import( const std::string& inputTypeName, const void* input
     if( ! match ) throwException( "Payload type \""+payloadTypeName+"\" is unknown.","fetch" );
     return std::make_pair( payloadTypeName, payloadPtr );
   }
+
+ }
+}
 

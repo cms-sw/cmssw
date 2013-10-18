@@ -1,5 +1,4 @@
 #include "CondCore/DBCommon/interface/DbSession.h"
-//#include "CondCore/ORA/interface/Object.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -8,7 +7,6 @@
 #include "CondCore/CondDB/interface/Session.h"
 #include "CondCore/CondDB/interface/IOVEditor.h"
 #include "CondCore/CondDB/interface/IOVProxy.h"
-//#include "CondCore/CondDB/interface/Streamer.h"
 
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
@@ -23,7 +21,7 @@
 #include "Cintex/Cintex.h"
 #include <sstream>
 
-namespace conddb {
+namespace cond {
 
   class MigrateUtilities : public cond::Utilities {
     public:
@@ -33,7 +31,7 @@ namespace conddb {
   };
 }
 
-conddb::MigrateUtilities::MigrateUtilities():Utilities("conddb_import_tag"){
+cond::MigrateUtilities::MigrateUtilities():Utilities("conddb_import_tag"){
   addConnectOption("sourceConnect","s","source connection string(required)");
   addConnectOption("destConnect","d","destionation connection string(required)");
   addAuthenticationOptions();
@@ -43,10 +41,10 @@ conddb::MigrateUtilities::MigrateUtilities():Utilities("conddb_import_tag"){
   ROOT::Cintex::Cintex::Enable();
 }
 
-conddb::MigrateUtilities::~MigrateUtilities(){
+cond::MigrateUtilities::~MigrateUtilities(){
 }
 
-int conddb::MigrateUtilities::execute(){
+int cond::MigrateUtilities::execute(){
 
   std::string newTag("");
   std::string tag("");
@@ -78,7 +76,7 @@ int conddb::MigrateUtilities::execute(){
     metadata.listAllTags( tagToProcess );
   }
 
-  new_impl::Session session;
+  persistency::Session session;
   std::cout <<"# Opening session on destination database..."<<std::endl;
   session.open( destConnect );
     
@@ -122,14 +120,14 @@ int conddb::MigrateUtilities::execute(){
     std::map<std::string,Hash> tokenToHash;
     size_t niovs = 0;
     std::set<Hash> pids;
-    new_impl::IOVEditor editor;
+    persistency::IOVEditor editor;
     std::cout <<"    Loading source tag..."<<std::endl;
     try{
       cond::IOVProxy sourceIov(sourcedb, iovTok);
       int tt = (int) sourceIov.timetype();
       std::string payloadType = *(sourceIov.payloadClasses().begin());
       std::cout <<"    Importing tag. Size:"<<sourceIov.size()<<" timeType:"<<cond::timeTypeNames(tt)<<" payloadObjectType=\""<<payloadType<<"\""<<std::endl;
-      editor = session.createIov( destTag, (conddb::TimeType)tt, payloadType );
+      editor = session.createIov( destTag, (cond::TimeType)tt, payloadType );
       editor.setDescription( "Tag "+t+" migrated from "+sourceConnect  );
       for(  auto iov : sourceIov ){
 	Time_t s = iov.since();
@@ -175,7 +173,7 @@ int conddb::MigrateUtilities::execute(){
 
 int main( int argc, char** argv ){
 
-  conddb::MigrateUtilities utilities;
+  cond::MigrateUtilities utilities;
   return utilities.run(argc,argv);
 }
 

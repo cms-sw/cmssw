@@ -6,11 +6,11 @@
 #include "CondCore/Utilities/interface/Utilities.h"
 #include <iostream>
 
-namespace conddb {
+namespace cond {
 
-  using Session = new_impl::Session;
-  using IOVProxy = new_impl::IOVProxy;
-  using GTProxy = new_impl::GTProxy;
+  using Session = persistency::Session;
+  using IOVProxy = persistency::IOVProxy;
+  using GTProxy = persistency::GTProxy;
 
   class UntypedPayloadProxy {
   public:
@@ -29,7 +29,7 @@ namespace conddb {
     TimeType timeType() const;
     std::string tag() const;
 
-    bool get( conddb::Time_t targetTime, bool debug );
+    bool get( cond::Time_t targetTime, bool debug );
 
     size_t numberOfQueries() const;
 
@@ -38,7 +38,7 @@ namespace conddb {
   private:
   
     struct pimpl {
-      conddb::Iov_t current;
+      cond::Iov_t current;
       std::vector<std::string> history;
     };
     
@@ -54,7 +54,7 @@ namespace conddb {
   };
 }
 
-conddb::UntypedPayloadProxy::UntypedPayloadProxy( Session& session ):
+cond::UntypedPayloadProxy::UntypedPayloadProxy( Session& session ):
   m_session( session ),
   m_iov( session.iovProxy() ),
   m_data(){
@@ -62,44 +62,44 @@ conddb::UntypedPayloadProxy::UntypedPayloadProxy( Session& session ):
   m_data->current.clear();
 }
 
-conddb::UntypedPayloadProxy::UntypedPayloadProxy( const UntypedPayloadProxy& rhs ):
+cond::UntypedPayloadProxy::UntypedPayloadProxy( const UntypedPayloadProxy& rhs ):
   m_session( rhs.m_session ),
   m_iov( rhs.m_iov ),
   m_data( rhs.m_data ){
 }
 
-conddb::UntypedPayloadProxy& conddb::UntypedPayloadProxy::operator=( const conddb::UntypedPayloadProxy& rhs ){
+cond::UntypedPayloadProxy& cond::UntypedPayloadProxy::operator=( const cond::UntypedPayloadProxy& rhs ){
   m_session = rhs.m_session;
   m_iov = rhs.m_iov;
   m_data = rhs.m_data;
   return *this;
 }
 
-void conddb::UntypedPayloadProxy::load( const std::string& tag ){
+void cond::UntypedPayloadProxy::load( const std::string& tag ){
   m_data->current.clear();
   m_iov.load( tag );
 }
 
-void conddb::UntypedPayloadProxy::reload(){
+void cond::UntypedPayloadProxy::reload(){
   m_data->current.clear();
   m_iov.reload();
 }
 
-void conddb::UntypedPayloadProxy::reset(){
+void cond::UntypedPayloadProxy::reset(){
   m_iov.reset();
   m_data->current.clear();
 }
 
-std::string conddb::UntypedPayloadProxy::tag() const {
+std::string cond::UntypedPayloadProxy::tag() const {
   return m_iov.tag();
 }
 
-conddb::TimeType conddb::UntypedPayloadProxy::timeType() const {
+cond::TimeType cond::UntypedPayloadProxy::timeType() const {
   return m_iov.timeType();
 }
 
 
-bool conddb::UntypedPayloadProxy::get( conddb::Time_t targetTime, bool debug ){
+bool cond::UntypedPayloadProxy::get( cond::Time_t targetTime, bool debug ){
   bool loaded = false;
   std::stringstream event;
 
@@ -109,7 +109,7 @@ bool conddb::UntypedPayloadProxy::get( conddb::Time_t targetTime, bool debug ){
     // a new payload is required!
     if( debug )std::cout <<" Searching tag "<<m_iov.tag()<<" for a valid payload for time="<<targetTime<<std::endl;
     auto iIov = m_iov.find( targetTime );
-    if(iIov == m_iov.end() ) conddb::throwException(std::string("Tag ")+m_iov.tag()+": No iov available for the target time:"+boost::lexical_cast<std::string>(targetTime),"UntypedPayloadProxy::get");
+    if(iIov == m_iov.end() ) cond::throwException(std::string("Tag ")+m_iov.tag()+": No iov available for the target time:"+boost::lexical_cast<std::string>(targetTime),"UntypedPayloadProxy::get");
     m_data->current = *iIov;
     event <<"For target time "<<targetTime<<" got a valid since:"<<m_data->current.since<<" from group ["<<m_iov.loadedGroup().first<<" - "<<m_iov.loadedGroup().second<<"]"; 
 
@@ -128,15 +128,15 @@ bool conddb::UntypedPayloadProxy::get( conddb::Time_t targetTime, bool debug ){
   return loaded;
 }
 
-size_t conddb::UntypedPayloadProxy::numberOfQueries() const {
+size_t cond::UntypedPayloadProxy::numberOfQueries() const {
   return m_iov.numberOfQueries();
 }
 
-const std::vector<std::string>& conddb::UntypedPayloadProxy::history() const {
+const std::vector<std::string>& cond::UntypedPayloadProxy::history() const {
   return m_data->history;
 }
 
-conddb::TestGTLoad::TestGTLoad():
+cond::TestGTLoad::TestGTLoad():
   Utilities("conddb_test_gt_load"){
   addConnectOption("connect","c","database connection string(required)");
   addAuthenticationOptions();
@@ -151,7 +151,7 @@ conddb::TestGTLoad::TestGTLoad():
   addOption<bool>("verbose","v","verbose print out (optional)");
 }
 
-int conddb::TestGTLoad::execute(){
+int cond::TestGTLoad::execute(){
 
   std::string gtag = getOptionValue<std::string>("globaltag");
   bool debug = hasDebug();
@@ -191,7 +191,7 @@ int conddb::TestGTLoad::execute(){
       p.load( t.tagName() );
       proxies.push_back( p );
       requests.insert( std::make_pair( t.tagName(), 0 ) );
-    } catch ( const conddb::Exception& e ){
+    } catch ( const cond::Exception& e ){
       std::cout <<"ERROR: "<<e.what()<<std::endl;
     }
   }
@@ -208,19 +208,19 @@ int conddb::TestGTLoad::execute(){
       time::TimeType ttype = p.timeType();
       auto r = requests.find( p.tag() );
       try{
-	if( ttype==time::RUNNUMBER ){
+	if( ttype==runnumber ){
 	  p.get( run, hasDebug() );	
 	  r->second++;
-	} else if( ttype==time::LUMIID ){
+	} else if( ttype==lumiid ){
 	  p.get( lumi, hasDebug() );
 	  r->second++;
-	} else if( ttype==time::TIMESTAMP){
+	} else if( ttype==timestamp){
 	  p.get( ts, hasDebug() );
 	  r->second++;
 	} else {
 	  std::cout <<"WARNING: iov request on tag "<<p.tag()<<" (timeType="<<time::timeTypeName(p.timeType())<<") has been skipped."<<std::endl;
 	}
-      } catch ( const conddb::Exception& e ){
+      } catch ( const cond::Exception& e ){
 	std::cout <<"ERROR:"<<e.what()<<std::endl;
       }
     }
@@ -246,7 +246,7 @@ int conddb::TestGTLoad::execute(){
 
 int main( int argc, char** argv ){
 
-  conddb::TestGTLoad test;
+  cond::TestGTLoad test;
   return test.run(argc,argv);
 }
 

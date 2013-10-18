@@ -68,6 +68,8 @@ namespace cond {
         headerLine << std::setw(sinceTillColumnSize)<<"";
         headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
         break; 
+      case invalid:
+	break;
       }
       return headerLine.str();
   }
@@ -98,6 +100,8 @@ namespace cond {
      case userid:
        std::cout <<std::setw(sinceTillColumnSize)<< validity;
        break; 
+     case invalid:
+       break;
      }
   }
 }

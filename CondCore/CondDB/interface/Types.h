@@ -16,7 +16,7 @@
 //
 #include "CondCore/CondDB/interface/Time.h"
 
-namespace conddb {
+namespace cond {
 
   typedef enum { 
     SYNCHRONIZATION_UNKNOWN = -1,
@@ -41,6 +41,8 @@ namespace conddb {
   // Basic element of the IOV sequence.
   struct Iov_t {
     void clear();
+    bool isValid() const;
+    bool isValidFor( Time_t target ) const;
     Time_t since;
     Time_t till;
     Hash payloadId;
