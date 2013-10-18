@@ -40,14 +40,14 @@ CaloMETAnalyzer::CaloMETAnalyzer(const edm::ParameterSet& pSet) {
   edm::ParameterSet eleparms       = parameters.getParameter<edm::ParameterSet>("eleTrigger"      );
   edm::ParameterSet muonparms      = parameters.getParameter<edm::ParameterSet>("muonTrigger"     );
 
-  //genericTriggerEventFlag_( new GenericTriggerEventFlag( conf_ ) );
-  _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms );
-  _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms  );
-  _MinBiasEventFlag   = new GenericTriggerEventFlag( minbiasparms   );
-  _HighMETEventFlag   = new GenericTriggerEventFlag( highmetparms   );
-  //  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms    );
-  _EleEventFlag       = new GenericTriggerEventFlag( eleparms       );
-  _MuonEventFlag      = new GenericTriggerEventFlag( muonparms      );
+  //genericTriggerEventFlag_( new GenericTriggerEventFlag( conf_, consumesCollector() ) );
+  _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms, consumesCollector() );
+  _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms , consumesCollector() );
+  _MinBiasEventFlag   = new GenericTriggerEventFlag( minbiasparms  , consumesCollector() );
+  _HighMETEventFlag   = new GenericTriggerEventFlag( highmetparms  , consumesCollector() );
+  //  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms , consumesCollector()   );
+  _EleEventFlag       = new GenericTriggerEventFlag( eleparms      , consumesCollector() );
+  _MuonEventFlag      = new GenericTriggerEventFlag( muonparms     , consumesCollector() );
 
   highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
   lowPtJetExpr_  = lowptjetparms .getParameter<std::vector<std::string> >("hltPaths");
@@ -60,7 +60,7 @@ CaloMETAnalyzer::CaloMETAnalyzer(const edm::ParameterSet& pSet) {
 }
 
 // ***********************************************************
-CaloMETAnalyzer::~CaloMETAnalyzer() { 
+CaloMETAnalyzer::~CaloMETAnalyzer() {
 
   delete _HighPtJetEventFlag;
   delete _LowPtJetEventFlag;
@@ -120,7 +120,7 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
   if (theCaloMETCollectionLabel.label() == "corMetGlobalMuons" ) {
     inputBeamSpotLabel      = parameters.getParameter<edm::InputTag>("InputBeamSpotLabel");
   }
-  
+
   // Other data collections
   theCaloTowersLabel          = parameters.getParameter<edm::InputTag>("CaloTowersLabel");
   theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
@@ -166,7 +166,7 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
   _FolderNames.push_back("Triggers");
   _FolderNames.push_back("PV");
 
-  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
+  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin();
        ic != _FolderNames.end(); ic++){
     if (*ic=="All")             bookMESet(DirName+"/"+*ic);
     if (_cleanupSelection){
@@ -207,7 +207,7 @@ void CaloMETAnalyzer::bookMESet(std::string DirName)
   if ( _HighPtJetEventFlag->on() ) {
     bookMonitorElementTriggered(DirName+"/"+"HighPtJet",false);
     hTriggerName_HighPtJet = _dbe->bookString("triggerName_HighPtJet", highPtJetExpr_[0]);
-  }  
+  }
 
   if ( _LowPtJetEventFlag->on() ) {
     bookMonitorElementTriggered(DirName+"/"+"LowPtJet",false);
@@ -241,7 +241,7 @@ void CaloMETAnalyzer::bookMESet(std::string DirName)
     hTriggerName_Muon = _dbe->bookString("triggerName_Muon", muonExpr_[0]);
     if (_verbose) std::cout << "_MuonEventFlag is on, folder created\n";
   }
-}  
+}
 
 // ***********************************************************
 void CaloMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=false)
@@ -288,7 +288,7 @@ void CaloMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=
     hCaloHaMEx->setAxisTitle("HA MEx [GeV]",1);
     hCaloHaMEy= _dbe->book1D("METTask_CaloHaMEy","METTask_CaloHaMEy",200,-500,500);
     hCaloHaMEy->setAxisTitle("HA MEy [GeV]",1);
-    hCaloHaMET= _dbe->book1D("METTask_CaloHaMET","METTask_CaloHaMET",200,0,1000); 
+    hCaloHaMET= _dbe->book1D("METTask_CaloHaMET","METTask_CaloHaMET",200,0,1000);
     hCaloHaMET->setAxisTitle("HA MET [GeV]",1);
     hCaloHaMETPhi= _dbe->book1D("METTask_CaloHaMETPhi","METTask_CaloHaMETPhi", 60, -3.2, 3.2);
     hCaloHaMETPhi->setAxisTitle("HA METPhi [rad]",1);
@@ -305,13 +305,13 @@ void CaloMETAnalyzer::bookMonitorElementTriggered(std::string DirName, bool bLum
 
 
   hCaloMEx        = _dbe->book1D("METTask_CaloMEx",        "METTask_CaloMEx",        200, -500,  500);
-  hCaloMEy        = _dbe->book1D("METTask_CaloMEy",        "METTask_CaloMEy",        200, -500,  500); 
-  hCaloMET        = _dbe->book1D("METTask_CaloMET",        "METTask_CaloMET",        200,    0, 1000); 
+  hCaloMEy        = _dbe->book1D("METTask_CaloMEy",        "METTask_CaloMEy",        200, -500,  500);
+  hCaloMET        = _dbe->book1D("METTask_CaloMET",        "METTask_CaloMET",        200,    0, 1000);
   hCaloMET1       = _dbe->book1D("METTask_CaloMET1",       "METTask_CaloMET1",        80,    0,  200);
-  hCaloMETNoHF    = _dbe->book1D("METTask_CaloMETNoHF",    "METTask_CaloMETNoHF",    200,    0, 1000); 
-  hCaloSumET      = _dbe->book1D("METTask_CaloSumET",      "METTask_CaloSumET",      400,    0, 4000); 
+  hCaloMETNoHF    = _dbe->book1D("METTask_CaloMETNoHF",    "METTask_CaloMETNoHF",    200,    0, 1000);
+  hCaloSumET      = _dbe->book1D("METTask_CaloSumET",      "METTask_CaloSumET",      400,    0, 4000);
   hCaloMETSig     = _dbe->book1D("METTask_CaloMETSig",     "METTask_CaloMETSig",      51,    0,   51);
-  hCaloMETPhi     = _dbe->book1D("METTask_CaloMETPhi",     "METTask_CaloMETPhi",      60, -3.2,  3.2); 
+  hCaloMETPhi     = _dbe->book1D("METTask_CaloMETPhi",     "METTask_CaloMETPhi",      60, -3.2,  3.2);
   hCaloMETPhi020  = _dbe->book1D("METTask_CaloMETPhi020",  "METTask_CaloMETPhi020",   60, -3.2,  3.2);
   hCaloMET_logx   = _dbe->book1D("METTask_CaloMET_logx",   "METTask_CaloMET_logx",    40,   -1,    7);
   hCaloSumET_logx = _dbe->book1D("METTask_CaloSumET_logx", "METTask_CaloSumET_logx",  40,   -1,    7);
@@ -332,10 +332,10 @@ void CaloMETAnalyzer::bookMonitorElementTriggered(std::string DirName, bool bLum
   // Book NPV profiles
   //----------------------------------------------------------------------------
   hCaloMEx_profile     = _dbe->bookProfile("METTask_CaloMEx_profile",     "MEx [GeV]",     nbinsPV, PVlow, PVup, 200, -500,  500);
-  hCaloMEy_profile     = _dbe->bookProfile("METTask_CaloMEy_profile",     "MEy [GeV]",     nbinsPV, PVlow, PVup, 200, -500,  500); 
-  hCaloMET_profile     = _dbe->bookProfile("METTask_CaloMET_profile",     "MET [GeV]",     nbinsPV, PVlow, PVup, 200,    0, 1000); 
-  hCaloMETNoHF_profile = _dbe->bookProfile("METTask_CaloMETNoHF_profile", "METNoHF [GeV]", nbinsPV, PVlow, PVup, 200,    0, 1000); 
-  hCaloSumET_profile   = _dbe->bookProfile("METTask_CaloSumET_profile",   "SumET [GeV]",   nbinsPV, PVlow, PVup, 400,    0, 4000); 
+  hCaloMEy_profile     = _dbe->bookProfile("METTask_CaloMEy_profile",     "MEy [GeV]",     nbinsPV, PVlow, PVup, 200, -500,  500);
+  hCaloMET_profile     = _dbe->bookProfile("METTask_CaloMET_profile",     "MET [GeV]",     nbinsPV, PVlow, PVup, 200,    0, 1000);
+  hCaloMETNoHF_profile = _dbe->bookProfile("METTask_CaloMETNoHF_profile", "METNoHF [GeV]", nbinsPV, PVlow, PVup, 200,    0, 1000);
+  hCaloSumET_profile   = _dbe->bookProfile("METTask_CaloSumET_profile",   "SumET [GeV]",   nbinsPV, PVlow, PVup, 400,    0, 4000);
 
 
   // Set NPV profiles x-axis title
@@ -373,7 +373,7 @@ void CaloMETAnalyzer::bookMonitorElementTriggered(std::string DirName, bool bLum
     hCaloEmEtFraction020    = _dbe->book1D("METTask_CaloEmEtFraction020",   "METTask_CaloEmEtFraction020"      ,100,0,1);
     hCaloEmEtFraction020->setAxisTitle("EM Et Fraction (MET>20 GeV)",1);
   }
-  
+
   if (theCaloMETCollectionLabel.label() == "corMetGlobalMuons" ) {
     hCalomuPt    = _dbe->book1D("METTask_CalomuonPt", "METTask_CalomuonPt", 50, 0, 500);
     hCalomuEta   = _dbe->book1D("METTask_CalomuonEta", "METTask_CalomuonEta", 60, -3.0, 3.0);
@@ -419,7 +419,7 @@ void CaloMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
 // ***********************************************************
 void CaloMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQMStore * dbe)
 {
-  
+
   //
   //--- Check the time length of the Run from the lumi section plots
 
@@ -441,7 +441,7 @@ void CaloMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup
     totltime = double(totlsec*90); // one lumi sec ~ 90 (sec)
   }
 
-  if (totltime==0.) totltime=1.; 
+  if (totltime==0.) totltime=1.;
 
   //
   //--- Make the integrated plots with rate (Hz)
@@ -453,19 +453,19 @@ void CaloMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup
       DirName = dirName+*ic;
 
       makeRatePlot(DirName,totltime);
-      if ( _HighPtJetEventFlag->on() ) 
+      if ( _HighPtJetEventFlag->on() )
 	makeRatePlot(DirName+"/"+"triggerName_HighJetPt",totltime);
-      if ( _LowPtJetEventFlag->on() ) 
+      if ( _LowPtJetEventFlag->on() )
 	makeRatePlot(DirName+"/"+"triggerName_LowJetPt",totltime);
-      if ( _MinBiasEventFlag->on() ) 
+      if ( _MinBiasEventFlag->on() )
 	makeRatePlot(DirName+"/"+"triggerName_MinBias",totltime);
-      if ( _HighMETEventFlag->on() ) 
+      if ( _HighMETEventFlag->on() )
 	makeRatePlot(DirName+"/"+"triggerName_HighMET",totltime);
-      //      if ( _LowMETEventFlag->on() ) 
+      //      if ( _LowMETEventFlag->on() )
       //	makeRatePlot(DirName+"/"+"triggerName_LowMET",totltime);
-      if ( _EleEventFlag->on() ) 
+      if ( _EleEventFlag->on() )
 	makeRatePlot(DirName+"/"+"triggerName_Ele",totltime);
-      if ( _MuonEventFlag->on() ) 
+      if ( _MuonEventFlag->on() )
 	makeRatePlot(DirName+"/"+"triggerName_Muon",totltime);
     }
 }
@@ -484,7 +484,7 @@ void CaloMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
   if ( meCaloMET )
     if ( meCaloMET->getRootObject() ) {
       tCaloMET     = meCaloMET->getTH1F();
-      
+
       // Integral plot & convert number of events to rate (hz)
       tCaloMETRate = (TH1F*) tCaloMET->Clone("METTask_CaloMETRate");
       for (int i = tCaloMETRate->GetNbinsX()-1; i>=0; i--){
@@ -492,7 +492,7 @@ void CaloMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
       }
       for (int i = 0; i<tCaloMETRate->GetNbinsX(); i++){
 	tCaloMETRate->SetBinContent(i+1,tCaloMETRate->GetBinContent(i+1)/double(totltime));
-      }      
+      }
 
       tCaloMETRate->SetName("METTask_CaloMETRate");
       tCaloMETRate->SetTitle("METTask_CaloMETRate");
@@ -503,7 +503,7 @@ void CaloMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
 
 
 // ***********************************************************
-void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
+void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 			      const edm::TriggerResults& triggerResults) {
 
   if (_verbose) std::cout << "CaloMETAnalyzer analyze" << std::endl;
@@ -518,8 +518,8 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   hmetME->Fill(1);
 
-  // ==========================================================  
-  // Trigger information 
+  // ==========================================================
+  // Trigger information
   //
   _trig_JetMB=0;
   _trig_HighPtJet=0;
@@ -530,16 +530,16 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   _trig_Ele=0;
   _trig_Muon=0;
   _trig_PhysDec=0;
-  if(&triggerResults) {   
-    
+  if(&triggerResults) {
+
     /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
-    
+
     //
     //
-    // Check how many HLT triggers are in triggerResults 
+    // Check how many HLT triggers are in triggerResults
     int ntrigs = triggerResults.size();
     if (_verbose) std::cout << "ntrigs=" << ntrigs << std::endl;
-    
+
     //
     //
     // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
@@ -581,42 +581,42 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     /*
       if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup) )
       _trig_HighPtJet=1;
-      
+
       if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup) )
       _trig_LowPtJet=1;
-      
+
       if ( _MinBiasEventFlag->on() && _MinBiasEventFlag->accept( iEvent, iSetup) )
       _trig_MinBias=1;
-      
+
       if ( _HighMETEventFlag->on() && _HighMETEventFlag->accept( iEvent, iSetup) )
       _trig_HighMET=1;
-      
+
       if ( _LowMETEventFlag->on() && _LowMETEventFlag->accept( iEvent, iSetup) )
       _trig_LowMET=1;
-      
+
       if ( _EleEventFlag->on() && _EleEventFlag->accept( iEvent, iSetup) )
       _trig_Ele=1;
-      
+
       if ( _MuonEventFlag->on() && _MuonEventFlag->accept( iEvent, iSetup) )
       _trig_Muon=1;
     */
-      
+
     if (triggerNames.triggerIndex(_hlt_PhysDec)   != triggerNames.size() &&
 	triggerResults.accept(triggerNames.triggerIndex(_hlt_PhysDec)))   _trig_PhysDec=1;
   } else {
 
     edm::LogInfo("CaloMetAnalyzer") << "TriggerResults::HLT not found, "
-	"automatically select events"; 
+	"automatically select events";
     //
-    // TriggerResults object not found. Look at all events.    
+    // TriggerResults object not found. Look at all events.
     _trig_JetMB=1;
-    
+
   }
-  
-  // ==========================================================  
+
+  // ==========================================================
   // CaloMET information
 
-  // **** Get the MET container  
+  // **** Get the MET container
   edm::Handle<reco::CaloMETCollection> calometcoll;
   iEvent.getByLabel(theCaloMETCollectionLabel, calometcoll);
 
@@ -628,10 +628,10 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   const reco::CaloMETCollection *calometcol = calometcoll.product();
   const reco::CaloMET *calomet;
   calomet = &(calometcol->front());
-  
+
   LogTrace(metname)<<"[CaloMETAnalyzer] Call to the CaloMET analyzer";
 
-  // **** Get the MET no HF container  
+  // **** Get the MET no HF container
   edm::Handle<reco::CaloMETCollection> calometnohfcoll;
   iEvent.getByLabel("metNoHF", calometnohfcoll);
 
@@ -643,20 +643,20 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   const reco::CaloMETCollection *calometnohfcol = calometnohfcoll.product();
   const reco::CaloMET *calometnohf;
   calometnohf = &(calometnohfcol->front());
-  
+
   //LogTrace(metname)<<"[CaloMETAnalyzer] Call to the CaloMET analyzer";
 
   //Only for corMetGlobalMuons
   if (theCaloMETCollectionLabel.label() == "corMetGlobalMuons" ) {
-    
+
     iEvent.getByLabel("muonMETValueMapProducer" , "muCorrData", corMetGlobalMuons_ValueMap_Handle);
     iEvent.getByLabel("muons", muon_h);
     iEvent.getByLabel(inputBeamSpotLabel, beamSpot_h);
-    
+
     if(!beamSpot_h.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
-    
+
     bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
-    
+
   }
 
 
@@ -668,7 +668,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       LogDebug("") << "CaloMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
       if (_verbose) std::cout << "CaloMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
   }
-  
+
 
   edm::Handle<bool> HBHENoiseFilterResultHandle;
   iEvent.getByLabel(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
@@ -692,7 +692,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     LogDebug("") << "CaloMETAnalyzer: Could not find caltower product" << std::endl;
     if (_verbose) std::cout << "CaloMETAnalyzer: Could not find caltower product" << std::endl;
   }
- 
+
   // ==========================================================
   // CaloMET sanity check
 
@@ -701,18 +701,18 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // ==========================================================
 
   if (_allhist) computeEmHaMET(towers);
-    
+
   // ==========================================================
-  // JetID 
+  // JetID
 
   if (_verbose) std::cout << "JetID starts" << std::endl;
-  
+
   //
   // --- Minimal cuts
   //
   bool bJetIDMinimal=true;
   int nj=0;
-  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
        cal!=caloJets->end(); ++cal){
     jetID->calculate(iEvent, *cal);
     if (_print && nj<=1) std::cout << "Jet pT = " << cal->pt() << " (GeV) "
@@ -721,7 +721,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 				   << " emf = " << cal->emEnergyFraction() << std::endl;
     nj++;
     if (cal->pt()>10.){
-      if (fabs(cal->eta())<=2.6 && 
+      if (fabs(cal->eta())<=2.6 &&
 	  cal->emEnergyFraction()<=0.01) bJetIDMinimal=false;
     }
   }
@@ -730,27 +730,27 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // --- Loose cuts
   //
   bool bJetIDLoose=true;
-  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
        cal!=caloJets->end(); ++cal){
     jetID->calculate(iEvent, *cal);
-    if (_verbose) std::cout << jetID->n90Hits() << " " 
+    if (_verbose) std::cout << jetID->n90Hits() << " "
 			    << jetID->restrictedEMF() << " "
 			    << cal->pt() << std::endl;
     if (cal->pt()>10.){
       //
       // for all regions
-      if (jetID->n90Hits()<2)  bJetIDLoose=false; 
-      if (jetID->fHPD()>=0.98) bJetIDLoose=false; 
+      if (jetID->n90Hits()<2)  bJetIDLoose=false;
+      if (jetID->fHPD()>=0.98) bJetIDLoose=false;
       //
       // for non-forward
       if (fabs(cal->eta())<2.55){
-	if (cal->emEnergyFraction()<=0.01) bJetIDLoose=false; 
+	if (cal->emEnergyFraction()<=0.01) bJetIDLoose=false;
       }
       // for forward
       else {
-	if (cal->emEnergyFraction()<=-0.9) bJetIDLoose=false; 
+	if (cal->emEnergyFraction()<=-0.9) bJetIDLoose=false;
 	if (cal->pt()>80.){
-	if (cal->emEnergyFraction()>= 1.0) bJetIDLoose=false; 
+	if (cal->emEnergyFraction()>= 1.0) bJetIDLoose=false;
 	}
       } // forward vs non-forward
     }   // pt>10 GeV/c
@@ -761,50 +761,50 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //
   bool bJetIDTight=true;
   bJetIDTight=bJetIDLoose;
-  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
        cal!=caloJets->end(); ++cal){
     jetID->calculate(iEvent, *cal);
     if (cal->pt()>25.){
       //
       // for all regions
-      if (jetID->fHPD()>=0.95) bJetIDTight=false; 
+      if (jetID->fHPD()>=0.95) bJetIDTight=false;
       //
       // for 1.0<|eta|<1.75
       if (fabs(cal->eta())>=1.00 && fabs(cal->eta())<1.75){
-	if (cal->pt()>80. && cal->emEnergyFraction()>=1.) bJetIDTight=false; 
+	if (cal->pt()>80. && cal->emEnergyFraction()>=1.) bJetIDTight=false;
       }
       //
       // for 1.75<|eta|<2.55
       else if (fabs(cal->eta())>=1.75 && fabs(cal->eta())<2.55){
-	if (cal->pt()>80. && cal->emEnergyFraction()>=1.) bJetIDTight=false; 
+	if (cal->pt()>80. && cal->emEnergyFraction()>=1.) bJetIDTight=false;
       }
       //
       // for 2.55<|eta|<3.25
       else if (fabs(cal->eta())>=2.55 && fabs(cal->eta())<3.25){
-	if (cal->pt()< 50.                   && cal->emEnergyFraction()<=-0.3) bJetIDTight=false; 
-	if (cal->pt()>=50. && cal->pt()< 80. && cal->emEnergyFraction()<=-0.2) bJetIDTight=false; 
-	if (cal->pt()>=80. && cal->pt()<340. && cal->emEnergyFraction()<=-0.1) bJetIDTight=false; 
-	if (cal->pt()>=340.                  && cal->emEnergyFraction()<=-0.1 
-                                             && cal->emEnergyFraction()>=0.95) bJetIDTight=false; 
+	if (cal->pt()< 50.                   && cal->emEnergyFraction()<=-0.3) bJetIDTight=false;
+	if (cal->pt()>=50. && cal->pt()< 80. && cal->emEnergyFraction()<=-0.2) bJetIDTight=false;
+	if (cal->pt()>=80. && cal->pt()<340. && cal->emEnergyFraction()<=-0.1) bJetIDTight=false;
+	if (cal->pt()>=340.                  && cal->emEnergyFraction()<=-0.1
+                                             && cal->emEnergyFraction()>=0.95) bJetIDTight=false;
       }
       //
       // for 3.25<|eta|
       else if (fabs(cal->eta())>=3.25){
 	if (cal->pt()< 50.                   && cal->emEnergyFraction()<=-0.3
-                                             && cal->emEnergyFraction()>=0.90) bJetIDTight=false; 
+                                             && cal->emEnergyFraction()>=0.90) bJetIDTight=false;
 	if (cal->pt()>=50. && cal->pt()<130. && cal->emEnergyFraction()<=-0.2
-                                             && cal->emEnergyFraction()>=0.80) bJetIDTight=false; 
-	if (cal->pt()>=130.                  && cal->emEnergyFraction()<=-0.1 
-                                             && cal->emEnergyFraction()>=0.70) bJetIDTight=false; 
+                                             && cal->emEnergyFraction()>=0.80) bJetIDTight=false;
+	if (cal->pt()>=130.                  && cal->emEnergyFraction()<=-0.1
+                                             && cal->emEnergyFraction()>=0.70) bJetIDTight=false;
       }
     }   // pt>10 GeV/c
   }     // calor-jets loop
-  
+
   if (_verbose) std::cout << "JetID ends" << std::endl;
-     
+
   // ==========================================================
   // HCAL Noise filter
-  
+
   bool bHcalNoiseFilter = HBHENoiseFilterResult;
 
   // ==========================================================
@@ -814,28 +814,28 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   bool bBeamHaloIDTightPass = true;
   bool bBeamHaloIDLoosePass = true;
-  
+
   if(TheBeamHaloSummary.isValid()) {
-    
+
     const reco::BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
-    
+
     //   std::cout << TheSummary.EcalLooseHaloId() << " "
     // 	    << TheSummary.HcalLooseHaloId() << " "
     // 	    << TheSummary.CSCLooseHaloId()  << " "
     // 	    << TheSummary.GlobalLooseHaloId() << std::endl;
-    
-    if( TheSummary.EcalLooseHaloId()  || TheSummary.HcalLooseHaloId() || 
+
+    if( TheSummary.EcalLooseHaloId()  || TheSummary.HcalLooseHaloId() ||
 	TheSummary.CSCLooseHaloId()   || TheSummary.GlobalLooseHaloId() )
       bBeamHaloIDLoosePass = false;
-    
-    if( TheSummary.EcalTightHaloId()  || TheSummary.HcalTightHaloId() || 
+
+    if( TheSummary.EcalTightHaloId()  || TheSummary.HcalTightHaloId() ||
 	TheSummary.CSCTightHaloId()   || TheSummary.GlobalTightHaloId() )
       bBeamHaloIDTightPass = false;
-    
+
   }
-  
+
   if (_verbose) std::cout << "BeamHaloSummary ends" << std::endl;
-  
+
   // ==========================================================
   //Vertex information
 
@@ -851,7 +851,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       LogDebug("") << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
       if (_verbose) std::cout << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
     }
-    
+
     if ( vertexHandle.isValid() ){
       reco::VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
@@ -861,7 +861,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	double vertex_ndof    = v->ndof();
 	bool   fakeVtx        = v->isFake();
 	double vertex_Z       = v->z();
-	
+
 	if (  !fakeVtx
 	      && vertex_number>=_nvtx_min
 	      && vertex_ndof   >_vtxndof_min
@@ -882,7 +882,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     LogDebug("") << "CaloMETAnalyzer: Could not find GT readout record" << std::endl;
     if (_verbose) std::cout << "CaloMETAnalyzer: Could not find GT readout record product" << std::endl;
   }
-  
+
   bool bTechTriggers    = true;
   bool bTechTriggersAND = true;
   bool bTechTriggersOR  = false;
@@ -897,7 +897,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
 	bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
       }
-    
+
     if (_techTrigsAND.size() == 0)
       bTechTriggersOR = true;
     else
@@ -917,19 +917,19 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       bTechTriggersOR  = true;
       bTechTriggersNOT = false;
     }
-    
+
   if (_techTrigsAND.size()==0)
     bTechTriggersAND = true;
   if (_techTrigsOR.size()==0)
     bTechTriggersOR = true;
   if (_techTrigsNOT.size()==0)
     bTechTriggersNOT = false;
-  
+
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
-    
+
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
-  
+
   bool bHcalNoise  = bHcalNoiseFilter;
   bool bBeamHaloID = bBeamHaloIDLoosePass;
   bool bJetID      = bJetIDMinimal;
@@ -948,8 +948,8 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   bool bExtraCleanup = bBasicCleanup && bHcalNoise && bJetID && bBeamHaloID;
 
   //std::string DirName = "JetMET/MET/"+_source;
-  
-  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
+
+  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin();
        ic != _FolderNames.end(); ic++){
     if (*ic=="All")                                             fillMESet(iEvent, DirName+"/"+*ic, *calomet, *calometnohf);
     if (DCSFilter->filter(iEvent, iSetup)) {
@@ -976,17 +976,17 @@ void CaloMETAnalyzer::computeEmHaMET(edm::Handle<edm::View<reco::Candidate> > to
 {
 
   edm::View<reco::Candidate>::const_iterator towerCand = towers->begin();
-  
+
   double sum_em_et = 0.0;
   double sum_em_ex = 0.0;
   double sum_em_ey = 0.0;
   double sum_em_ez = 0.0;
-  
+
   double sum_ha_et = 0.0;
   double sum_ha_ex = 0.0;
   double sum_ha_ey = 0.0;
   double sum_ha_ez = 0.0;
-  
+
   for ( ; towerCand != towers->end(); towerCand++)
     {
       const reco::Candidate* candidate = &(*towerCand);
@@ -996,7 +996,7 @@ void CaloMETAnalyzer::computeEmHaMET(edm::Handle<edm::View<reco::Candidate> > to
 	  if (calotower){
 	    double Tower_ET = calotower->et();
 	    if (Tower_ET>0.3) {
-	      
+
 	      double phi   = candidate->phi();
 	      double theta = candidate->theta();
 	      //double e     = candidate->energy();
@@ -1019,35 +1019,35 @@ void CaloMETAnalyzer::computeEmHaMET(edm::Handle<edm::View<reco::Candidate> > to
 	  }   // calotower
 	}     // candidate
     }         // loop
-  
+
   //
   _EmMEx = -sum_em_ex;
   _EmMEy = -sum_em_ey;
   _EmMET = pow(_EmMEx*_EmMEx+_EmMEy*_EmMEy,0.5);
   _EmCaloEz = sum_em_ez;
   _EmSumEt  = sum_em_et;
-  _EmMetPhi   = atan2( _EmMEy, _EmMEx ); 
+  _EmMetPhi   = atan2( _EmMEy, _EmMEx );
   //
   _HaMEx = -sum_ha_ex;
   _HaMEy = -sum_ha_ey;
   _HaMET = pow(_HaMEx*_HaMEx+_HaMEy*_HaMEy,0.5);
   _HaCaloEz = sum_ha_ez;
   _HaSumEt  = sum_ha_et;
-  _HaMetPhi   = atan2( _HaMEy, _HaMEx ); 
-  
+  _HaMetPhi   = atan2( _HaMEy, _HaMEx );
+
 }
 // ***********************************************************
-void CaloMETAnalyzer::validateMET(const reco::CaloMET& calomet, 
+void CaloMETAnalyzer::validateMET(const reco::CaloMET& calomet,
 				  edm::Handle<edm::View<reco::Candidate> > towers)
 {
 
   edm::View<reco::Candidate>::const_iterator towerCand = towers->begin();
-  
+
   double sum_et = 0.0;
   double sum_ex = 0.0;
   double sum_ey = 0.0;
   double sum_ez = 0.0;
-  
+
   for ( ; towerCand != towers->end(); towerCand++)
     {
       const reco::Candidate* candidate = &(*towerCand);
@@ -1057,7 +1057,7 @@ void CaloMETAnalyzer::validateMET(const reco::CaloMET& calomet,
 	  if (calotower){
 	    double Tower_ET = calotower->et();
 	    if (Tower_ET>0.3) {
-	      
+
 	      double phi   = candidate->phi();
 	      double theta = candidate->theta();
 	      double e     = candidate->energy();
@@ -1071,14 +1071,14 @@ void CaloMETAnalyzer::validateMET(const reco::CaloMET& calomet,
 	  }   // calotower
 	}     // candidate
     }         // loop
-  
+
   double Mex   = -sum_ex;
   double Mey   = -sum_ey;
   //double Mez   = -sum_ez;
   double Met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
   double Sumet = sum_et;
   //double MetPhi   = atan2( -sum_ey, -sum_ex ); // since MET is now a candidate,
-  
+
   if (_verbose){
     if (Sumet!=calomet.sumEt() || Mex!=calomet.px() || Mey!=calomet.py() || Met!=calomet.pt() ){
       std::cout << _source << std::endl;
@@ -1087,19 +1087,19 @@ void CaloMETAnalyzer::validateMET(const reco::CaloMET& calomet,
       std::cout << "MEY"   << Mey   << " METBlock" << calomet.py()    << std::endl;
       std::cout << "MET"   << Met   << " METBlock" << calomet.pt()    << std::endl;
     }
-  }  
+  }
 
   if (_print){
     std::cout << "SUMET = " << calomet.sumEt() << " (GeV) "
 	      << "MEX"   << calomet.px() << " (GeV) "
-	      << "MEY"   << calomet.py() << " (GeV) " 
+	      << "MEY"   << calomet.py() << " (GeV) "
 	      << "MET"   << calomet.pt() << " (GeV) " << std::endl;
   }
 
 }
 
 // ***********************************************************
-void CaloMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName, 
+void CaloMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
 				const reco::CaloMET& calomet,
 				const reco::CaloMET& calometnohf)
 {
@@ -1129,8 +1129,8 @@ void CaloMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
 }
 
 // ***********************************************************
-void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirName, 
-					 std::string TriggerTypeName, 
+void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirName,
+					 std::string TriggerTypeName,
 					 const reco::CaloMET& calomet,
 					 const reco::CaloMET& calometnohf,
 					 bool bLumiSecPlot)
@@ -1184,12 +1184,12 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
     hCaloSumET  = _dbe->get(DirName+"/"+"METTask_CaloSumET");  if (hCaloSumET   && hCaloSumET->getRootObject() )  hCaloSumET->Fill(caloSumET);
     hCaloMETSig = _dbe->get(DirName+"/"+"METTask_CaloMETSig"); if (hCaloMETSig  && hCaloMETSig->getRootObject() ) hCaloMETSig->Fill(caloMETSig);
     //hCaloEz     = _dbe->get(DirName+"/"+"METTask_CaloEz");     if (hCaloEz      && hCaloEz->getRootObject() )     hCaloEz->Fill(caloEz);
-    
+
     hCaloMETNoHF    = _dbe->get(DirName+"/"+"METTask_CaloMETNoHF");    if (hCaloMETNoHF     && hCaloMETNoHF->getRootObject() )    hCaloMETNoHF->Fill(caloMETNoHF);
-    
+
     hCaloMET_logx   = _dbe->get(DirName+"/"+"METTask_CaloMET_logx");      if (hCaloMET_logx    && hCaloMET_logx->getRootObject() )   hCaloMET_logx->Fill(log10(caloMET));
     hCaloSumET_logx = _dbe->get(DirName+"/"+"METTask_CaloSumET_logx");    if (hCaloSumET_logx  && hCaloSumET_logx->getRootObject() ) hCaloSumET_logx->Fill(log10(caloSumET));
-    
+
     //  hCaloMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_CaloMETIonFeedbck"); if (hCaloMETIonFeedbck  && hCaloMETIonFeedbck->getRootObject() ) hCaloMETIonFeedbck->Fill(caloMET);
     //  hCaloMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_CaloMETHPDNoise");   if (hCaloMETHPDNoise    && hCaloMETHPDNoise->getRootObject() )   hCaloMETHPDNoise->Fill(caloMET);
 
@@ -1197,7 +1197,7 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
     //hCaloMETPhi010 = _dbe->get(DirName+"/"+"METTask_CaloMETPhi010");    if (caloMET> 10. && hCaloMETPhi010  &&  hCaloMETPhi010->getRootObject()) { hCaloMETPhi010->Fill(caloMETPhi);}
     hCaloMETPhi020 = _dbe->get(DirName+"/"+"METTask_CaloMETPhi020");    if (caloMET> 20. && hCaloMETPhi020  &&  hCaloMETPhi020->getRootObject()) { hCaloMETPhi020->Fill(caloMETPhi);}
   */
-  
+
     if (_allhist){
       /*
       if (bLumiSecPlot){
@@ -1206,7 +1206,7 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
       }
       hCaloEtFractionHadronic = _dbe->get(DirName+"/"+"METTask_CaloEtFractionHadronic"); if (hCaloEtFractionHadronic && hCaloEtFractionHadronic->getRootObject())  hCaloEtFractionHadronic->Fill(caloEtFractionHadronic);
       hCaloEmEtFraction       = _dbe->get(DirName+"/"+"METTask_CaloEmEtFraction");       if (hCaloEmEtFraction       && hCaloEmEtFraction->getRootObject())        hCaloEmEtFraction->Fill(caloEmEtFraction);
-      
+
       //hCaloEmEtFraction002 = _dbe->get(DirName+"/"+"METTask_CaloEmEtFraction002");       if (caloMET>  2.  &&  hCaloEmEtFraction002    && hCaloEmEtFraction002->getRootObject()) hCaloEmEtFraction002->Fill(caloEmEtFraction);
       //hCaloEmEtFraction010 = _dbe->get(DirName+"/"+"METTask_CaloEmEtFraction010");       if (caloMET> 10.  &&  hCaloEmEtFraction010    && hCaloEmEtFraction010->getRootObject()) hCaloEmEtFraction010->Fill(caloEmEtFraction);
       hCaloEmEtFraction020 = _dbe->get(DirName+"/"+"METTask_CaloEmEtFraction020");       if (caloMET> 20.  &&  hCaloEmEtFraction020    && hCaloEmEtFraction020->getRootObject()) hCaloEmEtFraction020->Fill(caloEmEtFraction);
@@ -1250,8 +1250,8 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
 	double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
 	hCalomuD0    = _dbe->get(DirName+"/"+"METTask_CalomuD0");     if (hCalomuD0    && hCalomuD0->getRootObject())  hCalomuD0->Fill( d0 );
       }
-      
-      const unsigned int nMuons = muon_h->size();      
+
+      const unsigned int nMuons = muon_h->size();
       for( unsigned int mus = 0; mus < nMuons; mus++ ) {
 	reco::MuonRef muref( muon_h, mus);
 	reco::MuonMETCorrectionData muCorrData = (*corMetGlobalMuons_ValueMap_Handle)[muref];
@@ -1259,15 +1259,15 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
  	hCaloMEyCorrection      = _dbe->get(DirName+"/"+"METTask_CaloMEyCorrection");       if (hCaloMEyCorrection      && hCaloMEyCorrection->getRootObject())       hCaloMEyCorrection-> Fill(muCorrData.corrX());
  	hCaloMuonCorrectionFlag = _dbe->get(DirName+"/"+"METTask_CaloMuonCorrectionFlag");  if (hCaloMuonCorrectionFlag && hCaloMuonCorrectionFlag->getRootObject())  hCaloMuonCorrectionFlag-> Fill(muCorrData.type());
       }
-    }    
+    }
     */
   } // et threshold cut
 
 }
 
 // ***********************************************************
-void CaloMETAnalyzer::fillMonitorElementTriggered(const edm::Event& iEvent, std::string DirName, 
-						  std::string TriggerTypeName, 
+void CaloMETAnalyzer::fillMonitorElementTriggered(const edm::Event& iEvent, std::string DirName,
+						  std::string TriggerTypeName,
 						  const reco::CaloMET& calomet,
 						  const reco::CaloMET& calometnohf,
 						  bool bLumiSecPlot)
@@ -1351,7 +1351,7 @@ void CaloMETAnalyzer::fillMonitorElementTriggered(const edm::Event& iEvent, std:
     hCaloMET_profile     = _dbe->get(DirName + "/METTask_CaloMET_profile");
     hCaloMETNoHF_profile = _dbe->get(DirName + "/METTask_CaloMETNoHF_profile");
     hCaloSumET_profile   = _dbe->get(DirName + "/METTask_CaloSumET_profile");
-    
+
     if (hCaloMEx_profile     && hCaloMEx_profile    ->getRootObject()) hCaloMEx_profile    ->Fill(_numPV, caloMEx);
     if (hCaloMEy_profile     && hCaloMEy_profile    ->getRootObject()) hCaloMEy_profile    ->Fill(_numPV, caloMEy);
     if (hCaloMET_profile     && hCaloMET_profile    ->getRootObject()) hCaloMET_profile    ->Fill(_numPV, caloMET);
@@ -1372,10 +1372,10 @@ void CaloMETAnalyzer::fillMonitorElementTriggered(const edm::Event& iEvent, std:
 	hCaloMExLS = _dbe->get(DirName+"/"+"METTask_CaloMEx_LS");   if (hCaloMExLS  &&  hCaloMExLS->getRootObject())    hCaloMExLS->Fill(caloMEx,myLuminosityBlock);
 	hCaloMEyLS = _dbe->get(DirName+"/"+"METTask_CaloMEy_LS");   if (hCaloMEyLS  &&  hCaloMEyLS->getRootObject())    hCaloMEyLS->Fill(caloMEy,myLuminosityBlock);
       }
-      
+
       hCaloEtFractionHadronic = _dbe->get(DirName+"/"+"METTask_CaloEtFractionHadronic"); if (hCaloEtFractionHadronic && hCaloEtFractionHadronic->getRootObject())  hCaloEtFractionHadronic->Fill(caloEtFractionHadronic);
       hCaloEmEtFraction       = _dbe->get(DirName+"/"+"METTask_CaloEmEtFraction");       if (hCaloEmEtFraction       && hCaloEmEtFraction->getRootObject())        hCaloEmEtFraction->Fill(caloEmEtFraction);
-      
+
       //hCaloEmEtFraction002 = _dbe->get(DirName+"/"+"METTask_CaloEmEtFraction002");       if (caloMET>  2.  &&  hCaloEmEtFraction002    && hCaloEmEtFraction002->getRootObject()) hCaloEmEtFraction002->Fill(caloEmEtFraction);
       //hCaloEmEtFraction010 = _dbe->get(DirName+"/"+"METTask_CaloEmEtFraction010");       if (caloMET> 10.  &&  hCaloEmEtFraction010    && hCaloEmEtFraction010->getRootObject()) hCaloEmEtFraction010->Fill(caloEmEtFraction);
       hCaloEmEtFraction020 = _dbe->get(DirName+"/"+"METTask_CaloEmEtFraction020");       if (caloMET> 20.  &&  hCaloEmEtFraction020    && hCaloEmEtFraction020->getRootObject()) hCaloEmEtFraction020->Fill(caloEmEtFraction);
@@ -1417,8 +1417,8 @@ void CaloMETAnalyzer::fillMonitorElementTriggered(const edm::Event& iEvent, std:
 	double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
 	hCalomuD0    = _dbe->get(DirName+"/"+"METTask_CalomuD0");     if (hCalomuD0    && hCalomuD0->getRootObject())  hCalomuD0->Fill( d0 );
       }
-      
-      const unsigned int nMuons = muon_h->size();      
+
+      const unsigned int nMuons = muon_h->size();
       for( unsigned int mus = 0; mus < nMuons; mus++ ) {
 	reco::MuonRef muref( muon_h, mus);
 	reco::MuonMETCorrectionData muCorrData = (*corMetGlobalMuons_ValueMap_Handle)[muref];
@@ -1426,7 +1426,7 @@ void CaloMETAnalyzer::fillMonitorElementTriggered(const edm::Event& iEvent, std:
  	hCaloMEyCorrection      = _dbe->get(DirName+"/"+"METTask_CaloMEyCorrection");       if (hCaloMEyCorrection      && hCaloMEyCorrection->getRootObject())       hCaloMEyCorrection-> Fill(muCorrData.corrX());
  	hCaloMuonCorrectionFlag = _dbe->get(DirName+"/"+"METTask_CaloMuonCorrectionFlag");  if (hCaloMuonCorrectionFlag && hCaloMuonCorrectionFlag->getRootObject())  hCaloMuonCorrectionFlag-> Fill(muCorrData.type());
       }
-    }    
+    }
   } // et threshold cut
 
 }
@@ -1443,7 +1443,7 @@ bool CaloMETAnalyzer::selectHighPtJetEvent(const edm::Event& iEvent){
     if (_verbose) std::cout << "CaloMETAnalyzer: Could not find jet product" << std::endl;
   }
 
-  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
        cal!=caloJets->end(); ++cal){
     if (cal->pt()>_highPtJetThreshold){
       return_value=true;
@@ -1466,7 +1466,7 @@ bool CaloMETAnalyzer::selectLowPtJetEvent(const edm::Event& iEvent){
     if (_verbose) std::cout << "CaloMETAnalyzer: Could not find jet product" << std::endl;
   }
 
-  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
        cal!=caloJets->end(); ++cal){
     if (cal->pt()>_lowPtJetThreshold){
       return_value=true;

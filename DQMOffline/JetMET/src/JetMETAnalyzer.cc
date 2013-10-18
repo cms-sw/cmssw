@@ -36,8 +36,8 @@ using namespace edm;
 JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
   parameters = pSet;
-  
-  // Jet Collection Label 
+
+  // Jet Collection Label
   theAKJetCollectionLabel       = parameters.getParameter<edm::InputTag>("AKJetsCollectionLabel");
   theSCJetCollectionLabel       = parameters.getParameter<edm::InputTag>("SCJetsCollectionLabel");
   theICJetCollectionLabel       = parameters.getParameter<edm::InputTag>("ICJetsCollectionLabel");
@@ -45,7 +45,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   thePFJetCollectionLabel       = parameters.getParameter<edm::InputTag>("PFJetsCollectionLabel");
 
   theTriggerResultsLabel        = parameters.getParameter<edm::InputTag>("TriggerResultsLabel");
-  
+
   theJetAnalyzerFlag            = parameters.getUntrackedParameter<bool>("DoJetAnalysis",    true);
   theJetCleaningFlag            = parameters.getUntrackedParameter<bool>("DoJetCleaning",    true);
   theIConeJetAnalyzerFlag       = parameters.getUntrackedParameter<bool>("DoIterativeCone",  false);
@@ -77,14 +77,14 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   // --- do the analysis on the Jets
   if(theJetAnalyzerFlag) {
     theAKJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
-    theAKJetAnalyzer->setSource("AntiKtJets");    
+    theAKJetAnalyzer->setSource("AntiKtJets");
     if(theSConeJetAnalyzerFlag) {
       theSCJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
       theSCJetAnalyzer->setSource("SISConeJets");
     }
     if(theIConeJetAnalyzerFlag){
       theICJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
-      theICJetAnalyzer->setSource("IterativeConeJets");  
+      theICJetAnalyzer->setSource("IterativeConeJets");
     }
   }
 
@@ -143,7 +143,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   }
 
   // --- do the analysis on the PFJets
-  if(thePFJetAnalyzerFlag){ 
+  if(thePFJetAnalyzerFlag){
     thePFJetAnalyzer = new PFJetAnalyzer(parameters.getParameter<ParameterSet>("pfJetAnalysis"));
     thePFJetAnalyzer->setSource("uncPFJets");
   }
@@ -161,8 +161,8 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   edm::ParameterSet highptjetparms = parameters.getParameter<edm::ParameterSet>("highPtJetTrigger");
   edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
 
-  _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms );
-  _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms  );
+  _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms, consumesCollector() );
+  _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms , consumesCollector() );
 
   highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
   lowPtJetExpr_  = lowptjetparms .getParameter<std::vector<std::string> >("hltPaths");
@@ -221,11 +221,11 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 }
 
 // ***********************************************************
-JetMETAnalyzer::~JetMETAnalyzer() {   
+JetMETAnalyzer::~JetMETAnalyzer() {
 
   if(theJetAnalyzerFlag) {
     delete theAKJetAnalyzer;
-    if(theSConeJetAnalyzerFlag) delete theSCJetAnalyzer;    
+    if(theSConeJetAnalyzerFlag) delete theSCJetAnalyzer;
     if(theIConeJetAnalyzerFlag) delete theICJetAnalyzer;
   }
   if(theJetCleaningFlag) {
@@ -286,17 +286,17 @@ void JetMETAnalyzer::beginJob(void) {
 
   //
   //--- Jet
-  if(theJetAnalyzerFlag) { 
+  if(theJetAnalyzerFlag) {
     theAKJetAnalyzer->beginJob(dbe);
-    if(theSConeJetAnalyzerFlag) theSCJetAnalyzer->beginJob(dbe); 
+    if(theSConeJetAnalyzerFlag) theSCJetAnalyzer->beginJob(dbe);
     if(theIConeJetAnalyzerFlag) theICJetAnalyzer->beginJob(dbe);
   }
   if(theJetCleaningFlag) {
     theCleanedAKJetAnalyzer->beginJob(dbe);
-    if(theSConeJetAnalyzerFlag) theCleanedSCJetAnalyzer->beginJob(dbe); 
+    if(theSConeJetAnalyzerFlag) theCleanedSCJetAnalyzer->beginJob(dbe);
     if(theIConeJetAnalyzerFlag) theCleanedICJetAnalyzer->beginJob(dbe);
   }
-  if(theDiJetSelectionFlag) theDiJetAnalyzer->beginJob(dbe); 
+  if(theDiJetSelectionFlag) theDiJetAnalyzer->beginJob(dbe);
   if(theJetPtAnalyzerFlag ) {
     thePtAKJetAnalyzer->beginJob(dbe);
     if(theSConeJetAnalyzerFlag) thePtSCJetAnalyzer->beginJob(dbe);
@@ -313,7 +313,7 @@ void JetMETAnalyzer::beginJob(void) {
 
   if(thePFJetAnalyzerFlag)  thePFJetAnalyzer->beginJob(dbe);
   if(thePFJetCleaningFlag)  theCleanedPFJetAnalyzer->beginJob(dbe);
-  if(theDiJetSelectionFlag) thePFDiJetAnalyzer->beginJob(dbe); 
+  if(theDiJetSelectionFlag) thePFDiJetAnalyzer->beginJob(dbe);
 
   //
   //--- MET
@@ -327,7 +327,7 @@ void JetMETAnalyzer::beginJob(void) {
   if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->beginJob(dbe);
   if(thePfMETAnalyzerFlag) thePfMETAnalyzer->beginJob(dbe);
   if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->beginJob(dbe);
-  
+
   dbe->setCurrentFolder("JetMET");
   lumisecME = dbe->book1D("lumisec", "lumisec", 500, 0., 500.);
   cleanupME = dbe->book1D("cleanup", "cleanup", 10, 0., 10.);
@@ -371,7 +371,7 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
       LogDebug("JetMETAnalyzer") << "HLTConfigProvider failed to initialize.";
     }
   }
-  
+
   /*
   hltpathME = 0;
   if (_hlt_initialized) {
@@ -380,13 +380,13 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
       dbe->setCurrentFolder("JetMET");
       hltpathME = dbe->book1D("hltpath", "hltpath", 300, 0., 300.);
     }
-    
+
     for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
       if (hltpathME) hltpathME->setBinLabel(j+1,hltConfig_.triggerName(j));
-      // if (hltConfig_.triggerName(j)=="HLT_PhysicsDeclared") 
+      // if (hltConfig_.triggerName(j)=="HLT_PhysicsDeclared")
     }
   }
-  */ 
+  */
   //
   //--- Jet
 
@@ -451,7 +451,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   if (triggerResults.isValid()){
     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
-    
+
     if( triggerNames.triggerIndex("HLT_PhysicsDeclared") != triggerNames.size() )
       if (triggerResults->accept(triggerNames.triggerIndex("HLT_PhysicsDeclared"))) {
 	if(_doHLTPhysicsOn) bPhysicsDeclared = true;
@@ -476,19 +476,19 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         else if (triggerNames.triggerName(i).find(lowPtJetExpr_[0].substr(0,lowPtJetExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults->accept(i))
 	  JetLoPass=1;
       }
-    
+
   }
-  
+
   if (DEBUG)  std::cout << "trigger label " << theTriggerResultsLabel << std::endl;
 
   /*
     if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup) )
     JetHiPass=1;
-    
+
     if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup) )
     JetLoPass=1;
   */
-  
+
   if (DEBUG) {
     std::cout << ">>> Trigger  Lo = " <<  JetLoPass
 	      <<             " Hi = " <<  JetHiPass
@@ -510,7 +510,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       LogInfo("JetMETAnalyzer") << "JetMETAnalyzer: Could not find vertex collection" << std::endl;
       if (DEBUG) std::cout << "JetMETAnalyzer: Could not find vertex collection" << std::endl;
     }
-    
+
     if ( vertexHandle.isValid() ){
       reco::VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
@@ -520,7 +520,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	double vertex_ndof    = v->ndof();
 	bool   fakeVtx        = v->isFake();
 	double vertex_Z       = v->z();
-	
+
 	if (  !fakeVtx
 	      && vertex_number>=_nvtx_min
 	      && vertex_ndof   >_vtxndof_min
@@ -542,7 +542,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     LogInfo("JetMETAnalyzer") << "JetMETAnalyzer: Could not find GT readout record" << std::endl;
     if (DEBUG) std::cout << "JetMETAnalyzer: Could not find GT readout record product" << std::endl;
   }
-  
+
   bool bTechTriggers    = true;
   bool bTechTriggersAND = true;
   bool bTechTriggersOR  = false;
@@ -557,7 +557,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
 	bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
       }
-    
+
     if (_techTrigsAND.size() == 0)
       bTechTriggersOR = true;
     else
@@ -576,7 +576,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       bTechTriggersAND = true;
       bTechTriggersOR  = true;
       bTechTriggersNOT = false;
-    }  
+    }
 
   if (_techTrigsAND.size()==0)
     bTechTriggersAND = true;
@@ -584,11 +584,11 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     bTechTriggersOR = true;
   if (_techTrigsNOT.size()==0)
     bTechTriggersNOT = false;
-  
+
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
-    
+
   bool bJetCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;
-  
+
   DCSFilterAll->filter(iEvent, iSetup);
   if (bPrimaryVertex) cleanupME->Fill(0.5);
   if ( DCSFilterAll->passPIX      ) cleanupME->Fill(1.5);
@@ -602,10 +602,10 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // **** Get the Calo Jet container
   edm::Handle<reco::CaloJetCollection> caloJets;
-  
+
 
   // **** Get the AntiKt Jet container
-  iEvent.getByLabel(theAKJetCollectionLabel, caloJets);    
+  iEvent.getByLabel(theAKJetCollectionLabel, caloJets);
   if(caloJets.isValid()) {
 
   if(theJetAnalyzerFlag){
@@ -657,10 +657,10 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       theCleanedPtAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
     }
   } // DCS
-  } // caloJets.isValid() 
-  
+  } // caloJets.isValid()
+
   // **** Get the SISCone Jet container
-  iEvent.getByLabel(theSCJetCollectionLabel, caloJets);    
+  iEvent.getByLabel(theSCJetCollectionLabel, caloJets);
   if(theSConeJetAnalyzerFlag){
     if(caloJets.isValid()){
       if(theJetAnalyzerFlag){
@@ -673,7 +673,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	thePtSCJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
       }
     }
-    
+
     if(caloJets.isValid() && bJetCleanup){
     if(DCSFilterCalo->filter(iEvent, iSetup)){
       if(theJetCleaningFlag){
@@ -688,21 +688,21 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     } // DCS
     } // caloJets.isValid()
   }
-  // **** Get the Iterative Cone Jet container  
+  // **** Get the Iterative Cone Jet container
   iEvent.getByLabel(theICJetCollectionLabel, caloJets);
   if(theIConeJetAnalyzerFlag) {
     if(caloJets.isValid()){
       if(theJetAnalyzerFlag){
 	theICJetAnalyzer->setJetHiPass(JetHiPass);
 	theICJetAnalyzer->setJetLoPass(JetLoPass);
-	theICJetAnalyzer->analyze(iEvent, iSetup, *caloJets, _numPV);	
+	theICJetAnalyzer->analyze(iEvent, iSetup, *caloJets, _numPV);
       }
       if(theJetPtAnalyzerFlag){
 	LogTrace(metname)<<"[JetMETAnalyzer] Call to the Jet Pt ICone analyzer";
 	thePtICJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
       }
     }
-    
+
     if(caloJets.isValid() && bJetCleanup){
     if(DCSFilterCalo->filter(iEvent, iSetup)){
       if(theJetCleaningFlag){
@@ -726,7 +726,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     //theJPTJetAnalyzer->setJetLoPass(JetLoPass);
     theJPTJetAnalyzer->analyze(iEvent, iSetup, *jptJets, _numPV);
   }
-  
+
   if(jptJets.isValid() && bJetCleanup && theJPTJetCleaningFlag){
     if(DCSFilterJPT->filter(iEvent, iSetup)){
     //theCleanedJPTJetAnalyzer->setJetHiPass(JetHiPass);
@@ -734,7 +734,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       theCleanedJPTJetAnalyzer->analyze(iEvent, iSetup, *jptJets, _numPV);
     }
   }
-  
+
   // **** Get the PFlow Jet container
   edm::Handle<reco::PFJetCollection> pfJets;
   iEvent.getByLabel(thePFJetCollectionLabel, pfJets);
@@ -756,16 +756,16 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  thePFDiJetAnalyzer->analyze(iEvent, iSetup, *pfJets, _numPV);
 	}
       } // DCS
-    }  
+    }
   } else {
     if (DEBUG) LogTrace(metname)<<"[JetMETAnalyzer] pfjets NOT VALID!!";
   }
-   
+
   //
   // **** CaloMETAnalyzer **** //
   //
   if(theCaloMETAnalyzerFlag){
-     
+
     theCaloMETAnalyzer->analyze(iEvent,       iSetup, *triggerResults);
     //theCaloMETNoHFAnalyzer->analyze(iEvent,   iSetup, *triggerResults);
     //theCaloMETHOAnalyzer->analyze(iEvent,     iSetup, *triggerResults);
@@ -776,36 +776,36 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // **** TcMETAnalyzer **** //
   //
   if(theTcMETAnalyzerFlag){
-     
+
     theTcMETAnalyzer->analyze(iEvent, iSetup, *triggerResults);
-     
+
   }
 
   //
   // **** MuCorrMETAnalyzer **** //
   //
   if(theMuCorrMETAnalyzerFlag){
-     
+
     theMuCorrMETAnalyzer->analyze(iEvent, iSetup, *triggerResults);
-     
+
   }
-   
+
   //
   // **** PfMETAnalyzer **** //
   //
   if(thePfMETAnalyzerFlag){
-     
+
     thePfMETAnalyzer->analyze(iEvent, iSetup, *triggerResults);
-     
+
   }
-   
+
   //
   // **** HTMHTAnalyzer **** //
   //
   if(theHTMHTAnalyzerFlag){
-    
+
     theHTMHTAnalyzer->analyze(iEvent, iSetup, *triggerResults);
-    
+
   }
 
 }
@@ -828,17 +828,17 @@ void JetMETAnalyzer::endJob(void) {
   if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->endJob();
   if(thePfMETAnalyzerFlag)   thePfMETAnalyzer->endJob();
   //if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->endJob();
-  
+
   //--- Jet
-  if(theJetAnalyzerFlag) { 
+  if(theJetAnalyzerFlag) {
     theAKJetAnalyzer->endJob();
-    if(theSConeJetAnalyzerFlag) theSCJetAnalyzer->endJob(); 
+    if(theSConeJetAnalyzerFlag) theSCJetAnalyzer->endJob();
     if(theIConeJetAnalyzerFlag) theICJetAnalyzer->endJob();
   }
 
   if(theJetCleaningFlag) {
     theCleanedAKJetAnalyzer->endJob();
-    if(theSConeJetAnalyzerFlag) theCleanedSCJetAnalyzer->endJob(); 
+    if(theSConeJetAnalyzerFlag) theCleanedSCJetAnalyzer->endJob();
     if(theIConeJetAnalyzerFlag) theCleanedICJetAnalyzer->endJob();
   }
 
@@ -866,7 +866,7 @@ void JetMETAnalyzer::endJob(void) {
   if(outputMEsInRootFile){
     dbe->save(outputFileName);
   }
-  
+
 }
 
 

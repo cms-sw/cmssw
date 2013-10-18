@@ -8,8 +8,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
@@ -24,7 +22,7 @@ static const bool useL1GtTriggerMenuLite( false );
 
 
 /// To be called from the ED module's c'tor
-GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config )
+GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector && iC )
   : watchDB_( 0 )
   , hltConfigInit_( false )
   , andOr_( false )
@@ -69,6 +67,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
     if ( config.exists( "andOrDcs" ) ) {
       andOrDcs_      = config.getParameter< bool >( "andOrDcs" );
       dcsInputTag_   = config.getParameter< edm::InputTag >( "dcsInputTag" );
+      dcsInputToken_ = iC.mayConsume< DcsStatusCollection >( dcsInputTag_ );
       dcsPartitions_ = config.getParameter< std::vector< int > >( "dcsPartitions" );
       errorReplyDcs_ = config.getParameter< bool >( "errorReplyDcs" );
     } else {
@@ -77,10 +76,14 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
     if ( config.exists( "andOrGt" ) ) {
       andOrGt_              = config.getParameter< bool >( "andOrGt" );
       gtInputTag_           = config.getParameter< edm::InputTag >( "gtInputTag" );
+      gtInputToken_         = iC.mayConsume< L1GlobalTriggerReadoutRecord >( gtInputTag_ );
       gtLogicalExpressions_ = config.getParameter< std::vector< std::string > >( "gtStatusBits" );
       errorReplyGt_         = config.getParameter< bool >( "errorReplyGt" );
-      if ( config.exists( "gtEvmInputTag" ) ) gtEvmInputTag_ = config.getParameter< edm::InputTag >( "gtEvmInputTag" );
-      if ( config.exists( "gtDBKey" ) )       gtDBKey_       = config.getParameter< std::string >( "gtDBKey" );
+      if ( config.exists( "gtEvmInputTag" ) ) {
+        gtEvmInputTag_   = config.getParameter< edm::InputTag >( "gtEvmInputTag" );
+        gtEvmInputToken_ = iC.mayConsume< L1GlobalTriggerEvmReadoutRecord >( gtEvmInputTag_ );
+      }
+      if ( config.exists( "gtDBKey" ) ) gtDBKey_ = config.getParameter< std::string >( "gtDBKey" );
     } else {
       onGt_ = false;
     }
@@ -96,6 +99,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
     if ( config.exists( "andOrHlt" ) ) {
       andOrHlt_                   = config.getParameter< bool >( "andOrHlt" );
       hltInputTag_                = config.getParameter< edm::InputTag >( "hltInputTag" );
+      hltInputToken_              = iC.mayConsume< edm::TriggerResults >( hltInputTag_ );
       hltLogicalExpressionsCache_ = config.getParameter< std::vector< std::string > >( "hltPaths" );
       errorReplyHlt_              = config.getParameter< bool >( "errorReplyHlt" );
       if ( config.exists( "hltDBKey" ) ) hltDBKey_ = config.getParameter< std::string >( "hltDBKey" );
@@ -230,7 +234,7 @@ bool GenericTriggerEventFlag::acceptDcs( const edm::Event & event )
 
   // Accessing the DcsStatusCollection
   edm::Handle< DcsStatusCollection > dcsStatus;
-  event.getByLabel( dcsInputTag_, dcsStatus );
+  event.getByToken( dcsInputToken_, dcsStatus );
   if ( ! dcsStatus.isValid() ) {
     if ( verbose_ > 1 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode() << "\" not in event ==> decision: " << errorReplyDcs_;
     return errorReplyDcs_;
@@ -345,7 +349,7 @@ bool GenericTriggerEventFlag::acceptGtLogicalExpression( const edm::Event & even
     // Hard-coded status bits!!!
     if ( gtStatusBit == "PhysDecl" || gtStatusBit == "PhysicsDeclared" ) {
       edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
-      event.getByLabel( gtInputTag_, gtReadoutRecord );
+      event.getByToken( gtInputToken_, gtReadoutRecord );
       if ( ! gtReadoutRecord.isValid() ) {
         if ( verbose_ > 1 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "L1GlobalTriggerReadoutRecord product with InputTag \"" << gtInputTag_.encode() << "\" not in event ==> decision: " << errorReplyGt_;
         gtAlgoLogicParser.operandTokenVector().at( iStatusBit ).tokenResult = errorReplyDcs_;
@@ -355,7 +359,7 @@ bool GenericTriggerEventFlag::acceptGtLogicalExpression( const edm::Event & even
     } else if ( gtStatusBit == "Stable" || gtStatusBit == "StableBeam" || gtStatusBit == "Adjust" || gtStatusBit == "Sqeeze" || gtStatusBit == "Flat" || gtStatusBit == "FlatTop" ||
                 gtStatusBit == "7TeV" || gtStatusBit == "8TeV" || gtStatusBit == "2360GeV" || gtStatusBit == "900GeV" ) {
       edm::Handle< L1GlobalTriggerEvmReadoutRecord > gtEvmReadoutRecord;
-      event.getByLabel( gtEvmInputTag_, gtEvmReadoutRecord );
+      event.getByToken( gtEvmInputToken_, gtEvmReadoutRecord );
       if ( ! gtEvmReadoutRecord.isValid() ) {
         if ( verbose_ > 1 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "L1GlobalTriggerEvmReadoutRecord product with InputTag \"" << gtEvmInputTag_.encode() << "\" not in event ==> decision: " << errorReplyGt_;
         gtAlgoLogicParser.operandTokenVector().at( iStatusBit ).tokenResult = errorReplyDcs_;
@@ -475,7 +479,7 @@ bool GenericTriggerEventFlag::acceptHlt( const edm::Event & event )
 
   // Accessing the TriggerResults
   edm::Handle< edm::TriggerResults > hltTriggerResults;
-  event.getByLabel( hltInputTag_, hltTriggerResults );
+  event.getByToken( hltInputToken_, hltTriggerResults );
   if ( ! hltTriggerResults.isValid() ) {
     if ( verbose_ > 1 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "TriggerResults product with InputTag \"" << hltInputTag_.encode() << "\" not in event ==> decision: " << errorReplyHlt_;
     return errorReplyHlt_;
