@@ -55,6 +55,7 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/RootHandlers.h"
 
 #include "MessageForSource.h"
 #include "MessageForParent.h"
@@ -476,6 +477,11 @@ namespace edm {
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
+    
+    if(nStreams>1) {
+      edm::Service<RootHandlers> handler;
+      handler->willBeUsingThreads();
+    }
 
     // intialize miscellaneous items
     boost::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
@@ -1807,7 +1813,11 @@ namespace edm {
     try {
       // make the services available
       ServiceRegistry::Operate operate(serviceToken_);
-
+      if(preallocations_.numberOfStreams()>1) {
+        edm::Service<RootHandlers> handler;
+        handler->initializeThisThreadForUse();
+      }
+      
       if(iStreamIndex==0) {
         processEvent(0);
       }
