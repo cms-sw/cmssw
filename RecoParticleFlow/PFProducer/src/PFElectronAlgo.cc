@@ -1697,6 +1697,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	if(HOverPin < 0.) HOverPin = 0.;
 	if(HOverPin > 5.) HOverPin = 5.;
 	double mvaValue = tmvaReader_->EvaluateMVA("BDT");
+	
 	// add output observables 
 	BDToutput_[cgsf] = mvaValue;
 	myExtra.setMVA(mvaValue);
@@ -1857,9 +1858,9 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	    BDToutput_[cgsf] =  mvaValue-6.;
 	  }
  	}
-      
 
-	//if (DebugIDOutputs) {
+
+	if (DebugIDOutputs) {
 	  cout << " **** BDT observables ****" << endl;
 	  cout << " < Normalization > " << endl;
 	  cout << " Pt_gsf " << Pt_gsf << " Pin " << Ein_gsf  << " Pout " << Eout_gsf
@@ -1885,7 +1886,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  cout << " !!!!!!!!!!!!!!!! the BDT output !!!!!!!!!!!!!!!!!: direct " << mvaValue 
 	       << " corrected " << BDToutput_[cgsf] <<  endl; 
 	  
-	  //}
+	}
       }
       else {
 	if (DebugIDOutputs) 

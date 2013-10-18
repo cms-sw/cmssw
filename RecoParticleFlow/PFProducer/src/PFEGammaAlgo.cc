@@ -2238,12 +2238,9 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
       cand.setPositionAtECALEntrance(kf->positionAtECALEntrance());
     }    
     const float ele_mva_value = calculate_ele_mva(RO,xtra);
-    const unsigned elevetoes = calculate_electron_vetoes(RO,xtra,the_sc);
-    const unsigned phovetoes = calculate_photon_vetoes(RO,xtra,the_sc);
+    fill_extra_info(RO,xtra);
     //std::cout << "PFEG ele_mva: " << ele_mva_value << std::endl;
     xtra.setMVA(ele_mva_value);    
-    xtra.setElectronVetoes(elevetoes);
-    xtra.setPhotonVetoes(phovetoes);
     cand.set_mva_e_pi(ele_mva_value);
     egcands.push_back(cand);
     egxs.push_back(xtra);    
@@ -2308,6 +2305,7 @@ calculate_ele_mva(const PFEGammaAlgo::ProtoEGObject& RO,
   
   if( RO.electronClusters[0] ) {
     reco::PFClusterRef cref = RO.electronClusters[0]->clusterRef();
+    xtra.setGsfElectronClusterRef(_currentblock,*(RO.electronClusters[0]));
     FirstEcalGsfEnergy = cref->correctedEnergy();    
     deta_gsfecal = cref->positionREP().eta() - Etaout_gsf;
     gsfcluster.push_back(&*cref);
@@ -2413,10 +2411,34 @@ calculate_ele_mva(const PFEGammaAlgo::ProtoEGObject& RO,
   return -2.0f;
 }
 
+void PFEGammaAlgo::fill_extra_info( const ProtoEGObject& RO,
+				    reco::PFCandidateEGammaExtra& xtra ) {
+  // add tracks associated to clusters that are not T_FROM_GAMMACONV
+  // info about single-leg convs is already save, so just veto in loops
+  IsConversionTrack<reco::PFBlockElementTrack> isConvKf;
+  auto KFbegin = _splayedblock[reco::PFBlockElement::TRACK].begin();
+  auto KFend = _splayedblock[reco::PFBlockElement::TRACK].end();  
+  for( auto& ecal : RO.ecalclusters ) {
+    NotCloserToOther<reco::PFBlockElement::ECAL,
+                     reco::PFBlockElement::TRACK,
+                     true>
+      ECALToTracks(_currentblock,_currentlinks,ecal.first);           
+    auto notmatchedkf  = std::partition(KFbegin,KFend,ECALToTracks);
+    auto notconvkf     = std::partition(KFbegin,notmatchedkf,isConvKf);
+    // go through non-conv-identified kfs and check MVA to add conversions
+    for( auto kf = notconvkf; kf != notmatchedkf; ++kf ) {      
+      const reco::PFBlockElementTrack* elemaskf =
+	docast(const reco::PFBlockElementTrack*,kf->first);
+      xtra.addExtraNonConvTrack(_currentblock,*elemaskf);   
+    }
+  }
+}
+
+/*
 unsigned PFEGammaAlgo::
-calculate_electron_vetoes(const PFEGammaAlgo::ProtoEGObject& RO,
-			  const reco::PFCandidateEGammaExtra& xtra,
-			  const reco::SuperCluster& rsc) {
+calculate_electron_vars(const PFEGammaAlgo::ProtoEGObject& RO,
+			const reco::PFCandidateEGammaExtra& xtra,
+			const reco::SuperCluster& rsc) {
   if( !RO.primaryGSFs.size() ) { // no gsf = not an electron
     return ((1<<reco::PFCandidateEGammaExtra::kN_EVETOS) - 1);
   }
@@ -2442,13 +2464,7 @@ calculate_electron_vetoes(const PFEGammaAlgo::ProtoEGObject& RO,
 				      reco::PFBlock::LINKTEST_ALL);
     const double Ene_ecalgsf = 
       RO.electronClusters[0]->clusterRef()->correctedEnergy();
-    const double Ene_hcalgsf = std::accumulate(RO.hcalClusters.begin(),
-					     RO.hcalClusters.end(),
-					     0.0,
-					[](const double a,
-					   const PFClusterFlaggedElement& b) 
-				{ return a + b.first->clusterRef()->energy(); }
-					     );
+    const double Ene_hcalgsf = xtra.hadEnergy();
     for( const auto& distAndIdx : tracksOnEleCluster ) {
       const reco::PFBlockElement* trk = 
 	&(_currentblock->elements()[distAndIdx.second]);
@@ -2524,6 +2540,7 @@ calculate_photon_vetoes(const PFEGammaAlgo::ProtoEGObject& RO,
   unsigned vetobits = 0;
   return vetobits;
 }
+*/
 
 // currently stolen from PFECALSuperClusterAlgo, we should
 // try to factor this correctly since the operation is the same in

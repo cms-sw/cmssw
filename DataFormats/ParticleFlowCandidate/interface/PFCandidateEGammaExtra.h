@@ -6,6 +6,10 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 
 #include <iosfwd>
 
@@ -15,6 +19,9 @@ namespace reco {
  * extra information on the photon/electron particle candidate from particle flow
  *
  */
+  typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
+  typedef std::vector< ElementInBlock > ElementsInBlocks;
+
   class PFCandidateEGammaExtra { 
   public:    
     enum StatusFlag {
@@ -59,6 +66,7 @@ namespace reco {
     };
 
     enum PhotonVetoes {
+      kFailsTrackIso, // the photon fails tracker isolation
       kN_PHOVETOS
     };
 
@@ -76,11 +84,22 @@ namespace reco {
     /// set kf track reference
     void setKfTrackRef(const reco::TrackRef & ref);
 
+    /// set gsf electron cluster ref
+    void setGsfElectronClusterRef(const reco::PFBlockRef& blk,
+				  const reco::PFBlockElementCluster& ref) {
+      eleGsfCluster_ = ElementInBlock(blk,ref.index());
+    }
+
     /// return a reference to the corresponding GSF track
     reco::GsfTrackRef gsfTrackRef() const { return gsfTrackRef_; }     
 
     /// return a reference to the corresponding KF track
-    reco::TrackRef kfTrackRef() const { return kfTrackRef_; }     
+    reco::TrackRef kfTrackRef() const { return kfTrackRef_; }
+
+    /// return a reference to the electron cluster ref
+    const ElementInBlock& gsfElectronClusterRef() const { 
+      return eleGsfCluster_; 
+    }
 
     /// return a reference to the corresponding supercluster
     reco::SuperClusterRef superClusterRef() const {return scRef_ ; }
@@ -157,13 +176,16 @@ namespace reco {
     float hadEnergy() const {return hadEnergy_;}
     float sigmaEtaEta() const {return sigmaEtaEta_;}
 
-    /// set veto bits
-    void setElectronVetoes(unsigned bits) { elevetoes_ = bits; }
-    void setPhotonVetoes(unsigned bits) { phovetoes_ = bits; }
-
-    /// access to veto bits
-    unsigned electronVetoes() const { return elevetoes_; }
-    unsigned photonVetoes() const { return phovetoes_; } 
+    /// track counting for electrons and photons
+    void addExtraNonConvTrack(const reco::PFBlockRef& blk,
+			      const reco::PFBlockElementTrack& tkref) {
+      if( !tkref.trackType(reco::PFBlockElement::T_FROM_GAMMACONV) ) {
+	assoNonConvExtraTracks_.push_back(std::make_pair(blk,tkref.index()));
+      }
+    }
+    const ElementsInBlocks& extraNonConvTracks() const {
+      return assoNonConvExtraTracks_;
+    }        
 
  private:
     void  setVariable(MvaVariable type,float var);
@@ -173,6 +195,8 @@ namespace reco {
     reco::GsfTrackRef gsfTrackRef_;
     /// Ref to the KF track
     reco::TrackRef kfTrackRef_;
+    /// Ref to the electron gsf cluster;
+    ElementInBlock eleGsfCluster_;
 
     /// Ref to (refined) supercluster
     reco::SuperClusterRef scRef_;
@@ -182,6 +206,9 @@ namespace reco {
     
     ///  vector of TrackRef from Single Leg conversions
     std::vector<reco::TrackRef> assoSingleLegRefTrack_;
+    
+    // information for track matching
+    ElementsInBlocks assoNonConvExtraTracks_;    
 
     ///  vector of Mvas from Single Leg conversions
     std::vector<float> assoSingleLegMva_;
@@ -209,8 +236,6 @@ namespace reco {
     float sigmaEtaEta_;
     float hadEnergy_;
     float deltaEta_;
-
-    unsigned elevetoes_,phovetoes_;
   };
 
   /// print the variables

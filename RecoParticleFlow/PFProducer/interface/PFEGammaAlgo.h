@@ -301,12 +301,8 @@ private:
 
   float calculate_ele_mva(const ProtoEGObject&,
 			  reco::PFCandidateEGammaExtra&);
-  unsigned calculate_electron_vetoes(const PFEGammaAlgo::ProtoEGObject& RO,
-				     const reco::PFCandidateEGammaExtra& xtra,
-				     const reco::SuperCluster& rsc);
-  unsigned calculate_photon_vetoes(const PFEGammaAlgo::ProtoEGObject& RO,
-				   const reco::PFCandidateEGammaExtra& xtra,
-				   const reco::SuperCluster& rsc);  
+  void fill_extra_info(const ProtoEGObject&,
+		       reco::PFCandidateEGammaExtra&);
   
   // ------ end of new stuff 
   
