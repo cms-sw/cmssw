@@ -4,13 +4,9 @@
 #include <iostream>
 #include <string>
 
-#include <boost/serialization/access.hpp> 
-#include <boost/serialization/string.hpp> 
-#include <boost/serialization/vector.hpp> 
-#include <boost/serialization/map.hpp> 
-
 class MyTestData {
 public:
+
   MyTestData():
     a( 0 ),
     b( 0. ),
@@ -24,23 +20,19 @@ public:
   void print(){
     std::cout <<"MyTestData: a="<<a<<" b="<<b<<" s="<<s<<std::endl;
   }
+
+  bool operator==( const MyTestData& rhs ) const {
+    if( a != rhs.a ) return false;
+    if( b != rhs.b ) return false;
+    if( s != rhs.s ) return false;
+    return true;
+  }
+  bool operator!=( const MyTestData& rhs ) const {
+    return !operator==( rhs );
+  }
 private:
   int a;
   float b;
   std::string s;
-
-  // class/struct : RunInfo
-  friend class boost::serialization::access;
- private:
-   // When the class Archive corresponds to an output archive, the
-   // & operator is defined similar to <<.  Likewise, when the class Archive
-   // is a type of input archive the & operator is defined similar to >>.
-   template<class Archive>
-   void serialize(Archive & ar, const unsigned int version) {   ////
-     ar & BOOST_SERIALIZATION_NVP(a);
-     ar & BOOST_SERIALIZATION_NVP(b);
-     ar & BOOST_SERIALIZATION_NVP(s);
-   }
-
 };
 #endif

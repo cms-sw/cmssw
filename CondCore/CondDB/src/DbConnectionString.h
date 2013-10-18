@@ -4,11 +4,15 @@
 //
 #include <string>
 
-namespace conddb {
+namespace cond {
+
+  namespace persistency {
 
     std::string getRealConnectionString( const std::string& initialConnection );
 
     std::string getRealConnectionString( const std::string& initialConnection, const std::string& transId );
+
+  }
 
 }
 
