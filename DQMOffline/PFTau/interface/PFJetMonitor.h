@@ -23,10 +23,15 @@ class PFJetMonitor : public Benchmark {
   virtual ~PFJetMonitor();
   
   /// set the parameters locally
+  void setParameters(float dRMax, bool matchCharge, 
+		     Benchmark::Mode mode,float ptmin, 
+		     float ptmax, float etamin, float etamax, 
+		     float phimin, float phimax, bool fracHistoFlag=true);
+  
   void setParameters(float dRMax, bool onlyTwoJets, bool matchCharge, Benchmark::Mode mode,
 		     float ptmin, float ptmax, float etamin, float etamax,
                      float phimin, float phimax, bool fracHistoFlag=true);
-
+  
   /// set the parameters accessing them from ParameterSet
   void setParameters( const edm::ParameterSet& parameterSet);
   
@@ -38,15 +43,16 @@ class PFJetMonitor : public Benchmark {
   
   /// book histograms
   void setup(const edm::ParameterSet & parameterSet);
-
+  
   /// fill histograms with all particle
   template< class T, class C>
-    /*void fill(const T& jetCollection,
-      const C& matchedJetCollection, float& minVal, float& maxVal);*/
-
-  void fill(const T& candidateCollection,
-	    const C& matchedCandCollection, float& minVal, float& maxVal, float& jetpT,
-	    const edm::ParameterSet & parameterSet);
+    void fill(const T& jetCollection,
+	      const C& matchedJetCollection, float& minVal, float& maxVal);
+  
+  template< class T, class C>
+    void fill(const T& candidateCollection,
+	      const C& matchedCandCollection, float& minVal, float& maxVal, float& jetpT,
+	      const edm::ParameterSet & parameterSet);
 
   void fillOne(const reco::Jet& jet,
 	       const reco::Jet& matchedJet);
@@ -72,11 +78,41 @@ class PFJetMonitor : public Benchmark {
 
 #include "DQMOffline/PFTau/interface/Matchers.h"
 template< class T, class C>
-  /*void PFJetMonitor::fill(const T& jetCollection,
-    const C& matchedJetCollection, float& minVal, float& maxVal) {*/
-void PFJetMonitor::fill(const T& jetCollection,
-			const C& matchedJetCollection, float& minVal, float& maxVal, float& jetpT,
-			const edm::ParameterSet & parameterSet) {
+  void PFJetMonitor::fill(const T& jetCollection,
+			const C& matchedJetCollection, float& minVal, float& maxVal) {
+  
+  
+  std::vector<int> matchIndices;
+  PFB::match( jetCollection, matchedJetCollection, matchIndices, matchCharge_, dRMax_ );
+  
+  for (unsigned int i = 0; i < (jetCollection).size(); i++) {
+    const reco::Jet& jet = jetCollection[i];
+    
+    if( !isInRange(jet.pt(), jet.eta(), jet.phi() ) ) continue;
+    
+    int iMatch = matchIndices[i];
+    assert(iMatch< static_cast<int>(matchedJetCollection.size()));
+    
+    if( iMatch!=-1 ) {
+      const reco::Candidate& matchedJet = matchedJetCollection[ iMatch ];
+      if(!isInRange(matchedJet.pt(),matchedJet.eta(),matchedJet.phi() ) ) continue;
+      float ptRes = (jet.pt() - matchedJet.pt())/matchedJet.pt();
+      
+      if (ptRes > maxVal) maxVal = ptRes;
+      if (ptRes < minVal) minVal = ptRes;
+      
+      candBench_.fillOne(jet);
+      matchCandBench_.fillOne(jet, matchedJetCollection[ iMatch ]);
+      if (createPFractionHistos_ && histogramBooked_) fillOne(jet, matchedJetCollection[ iMatch ]);
+    }
+  }
+}
+
+
+template< class T, class C>
+  void PFJetMonitor::fill(const T& jetCollection,
+			  const C& matchedJetCollection, float& minVal, float& maxVal, float& jetpT,
+			  const edm::ParameterSet & parameterSet) {
   
   std::vector<int> matchIndices;
   PFB::match( jetCollection, matchedJetCollection, matchIndices, matchCharge_, dRMax_ );
