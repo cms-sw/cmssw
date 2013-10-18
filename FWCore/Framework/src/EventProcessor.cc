@@ -1459,7 +1459,9 @@ namespace edm {
       principalCache_.adjustIndexesAfterProductRegistryAddition();
     }
     principalCache_.adjustEventsToNewProductRegistry(preg_);
-    if(numberOfForkedChildren_ > 0) {
+    if((numberOfForkedChildren_ > 0) or
+       (preallocations_.numberOfStreams()>1 and
+        preallocations_.numberOfThreads()>1)) {
         fb_->setNotFastClonable(FileBlock::ParallelProcesses);
     }
   }
