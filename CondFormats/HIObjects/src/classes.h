@@ -1,7 +1,5 @@
-#include "CondFormats/HIObjects/interface/CentralityTable.h"
-#include "CondFormats/HIObjects/interface/RPFlatParams.h"
+#include "CondFormats/HIObjects/src/headers.h"
 
-#include <vector>
 
 namespace {  
   struct dictionary{
