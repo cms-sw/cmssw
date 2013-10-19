@@ -105,8 +105,8 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   vector<DetLayer*> cscBackwardLayers = theMuonLayers->backwardCSCLayers();
      
   MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel,theCSCRecSegmentLabel,
-					    InputTag(),
-					    theEnableDTFlag,theEnableCSCFlag,false);
+					    InputTag(),InputTag(),
+					    theEnableDTFlag,theEnableCSCFlag,false,false);
 
   muonMeasurements.setEvent(event);
 
