@@ -735,7 +735,7 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
   {
     for (auto roll : ch->etaPartitions() )
     {
-      GEMDetid gem_id(roll->id());
+      GEMDetId gem_id(roll->id());
       auto pads_in_det = gemPads->get(gem_id);
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad)
       {
