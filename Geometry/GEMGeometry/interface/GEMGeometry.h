@@ -55,6 +55,7 @@ class GEMGeometry : public TrackingGeometry {
 
   //---- Extension of the interface
 
+<<<<<<< HEAD
   /// Return a vector of all GEM regions
   const std::vector<const GEMRegion*>& regions() const;
 
@@ -84,6 +85,9 @@ class GEMGeometry : public TrackingGeometry {
 
   // Return a GEMSuperChamber given one of its layer detids
   const GEMSuperChamber* superChamber(GEMDetId id) const;
+
+  // Return a GEMSuperChamber given its id
+  //const GEMSuperChamber* superChamber(GEMDetId id) const;
 
   // Return a GEMChamber given its id
   const GEMChamber* chamber(GEMDetId id) const;

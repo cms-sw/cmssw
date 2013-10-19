@@ -176,11 +176,6 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
       GEMDetId fId(vDetId.front());
       GEMDetId chamberId(fId.chamberId());
-      // compute the overall boundplane using the first eta partition
-      const GEMEtaPartition* p(geometry->etaPartition(fId));
-      const BoundPlane& bps = p->surface();
-      BoundPlane* bp = const_cast<BoundPlane*>(&bps);
-      ReferenceCountingPointer<BoundPlane> surf(bp);
       
       GEMChamber* ch = new GEMChamber(chamberId, surf); 
       LogDebug("GEMGeometryBuilderFromDDD")  << "Creating chamber " << chamberId << " with " << vDetId.size() << " eta partitions" << std::endl;
@@ -253,5 +248,6 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
     geometry->add(region);
   }
+  
   return geometry;
 }

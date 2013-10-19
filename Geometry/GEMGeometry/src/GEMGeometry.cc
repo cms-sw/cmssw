@@ -34,6 +34,7 @@ const GeomDetUnit* GEMGeometry::idToDetUnit(DetId id) const{
   return dynamic_cast<const GeomDetUnit*>(idToDet(id));
 }
 
+
 const GeomDet* GEMGeometry::idToDet(DetId id) const{
   mapIdToDet::const_iterator i = theMap.find(id);
   return (i != theMap.end()) ? i->second : 0 ;
@@ -149,4 +150,3 @@ GEMGeometry::add(GEMChamber* chamber){
   theMap.insert(std::pair<DetId,GeomDet*>
 		(chamber->geographicalId(),chamber));
 }
-
