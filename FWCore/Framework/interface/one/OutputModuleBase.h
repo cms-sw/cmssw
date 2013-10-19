@@ -215,6 +215,8 @@ namespace edm {
       virtual bool isFileOpen() const { return true; }
       virtual void reallyOpenFile() {}
       
+      virtual void preForkReleaseResources();
+      virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/);
 
       virtual void doBeginRun_(RunPrincipal const&, ModuleCallingContext const*){}
       virtual void doEndRun_(RunPrincipal const&, ModuleCallingContext const*){}
