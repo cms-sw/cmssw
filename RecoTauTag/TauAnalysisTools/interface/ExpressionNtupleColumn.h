@@ -29,6 +29,7 @@ class ExpressionNtupleColumn {
     ExpressionNtupleColumn(const std::string& name, const std::string& func);
     /// Compute the column function and store result in branch variable
     void compute(const ObjType& obj);
+    virtual ~ExpressionNtupleColumn() {  }
   protected:
     /// Abstract function which takes the result from the compute and fills the
     /// branch

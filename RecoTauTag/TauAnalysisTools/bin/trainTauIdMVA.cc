@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
   for ( vstring::const_iterator inputVariable = inputVariables.begin();
 	inputVariable != inputVariables.end(); ++inputVariable ) {
     int idx = inputVariable->find_last_of("/");
-    if ( idx == (inputVariable->length() - 2) ) {
+    if ( idx == (int(inputVariable->length()) - 2) ) {
       std::string inputVariableName = std::string(*inputVariable, 0, idx);      
       char inputVariableType = (*inputVariable)[idx + 1];
       factory->AddVariable(inputVariableName.data(), inputVariableType);
