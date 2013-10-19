@@ -7,7 +7,7 @@ const double GEMCSCTriggerRate::PT_THRESHOLDS_FOR_ETA[N_PT_THRESHOLDS] = {10,15,
 
 // ================================================================================================
 GEMCSCTriggerRate::GEMCSCTriggerRate(const edm::ParameterSet& iConfig):
-  CSCTFSPset(iConfig.getParameter<edm::ParameterSet>("SectorProcessor")),
+  CSCTFSPset(iConfig.getParameter<edm::ParameterSet>("sectorProcessor")),
   ptLUTset(CSCTFSPset.getParameter<edm::ParameterSet>("PTLUT")),
   ptLUT(0),
   matchAllTrigPrimitivesInChamber_(iConfig.getUntrackedParameter<bool>("matchAllTrigPrimitivesInChamber", false)),

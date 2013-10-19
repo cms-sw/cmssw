@@ -115,12 +115,13 @@ def highEfficiencyPatterns(filesDir, plotDir, eff, oddEven, ext):
     c.SetGridx(1)
     c.SetGridy(1)
     c.cd()
-    h = TH1F("","          GEM-CSC bending Angle                       CMS Simulation Preliminary;Generated muon p_{T} [GeV/c];",50,0.,50.)
+    h = TH1F("","           GEM-CSC bending Angle              CMS Phase-2 Simulation Preliminary;Generated muon p_{T} [GeV/c];",50,0.,50.)
     superscript = "p_{T}>p_{T}^{min}"
     subscript = "0"
 ##    h.GetYaxis().SetTitle("    |#Delta#phi_{{}^{(GEM,CSC)}}|<|#Delta#phi_{0}^{WP}| Cut Efficiency");
 ##    h.GetYaxis().SetTitle("    |#Delta#phi_{{}^{(GEM,CSC)}}|<|#Delta#phi_{%s}^{%s}| Cut Efficiency"%(subscript,superscript));
-    h.GetYaxis().SetTitle("    |#Delta#phi_{{}^{(GEM,CSC)}}|<#Delta#phi_{%s} Cut Efficiency"%(subscript));
+#    h.GetYaxis().SetTitle("    |#Delta#phi_{{}^{(GEM,CSC)}}|<#Delta#phi_{%s} Cut Efficiency"%(subscript));
+    h.GetYaxis().SetTitle("#Delta#phi_{(GEM,CSC)} cut efficiency");
     h.GetYaxis().SetTitleOffset(.9)
     h.SetStats(0)
 
@@ -138,11 +139,11 @@ def highEfficiencyPatterns(filesDir, plotDir, eff, oddEven, ext):
         if oddEven=="even":
             ok_dphi = TCut("TMath::Abs(dphi_pad_even) < %f"%(dphi))
             denom_cut = ok_pad2_lct2_eta
-            closeFar = "Close"
+            closeFar = 'Even ("close")'
         else:
             ok_dphi = TCut("TMath::Abs(dphi_pad_odd) < %f"%(dphi))
             denom_cut = ok_pad1_lct1_eta
-            closeFar = "Far"
+            closeFar = 'Odd ("far")'
 
         h2 = draw_eff(t, "", "h2", "(50,0.,50.)", "pt", 
                       denom_cut, ok_dphi, marker_colors[i], marker_styles[i])
@@ -151,13 +152,13 @@ def highEfficiencyPatterns(filesDir, plotDir, eff, oddEven, ext):
         h2.Draw("same")
     
     ## add legend
-    leg = TLegend(0.52,0.17,.93,0.57, "High efficiency patterns:", "brNDC")
+    leg = TLegend(0.55,0.15,.93,0.57, "High efficiency patterns:", "brNDC")
     for n in range(len(pt)):
         superscript = "\"%s\""%(pt_labels[n])
         superscript = "p_{T}>%s"%(pt_labels[n])
-        subscript = "0"
+        subscript = "(GEM,CSC)"
         #leg.AddEntry(histoList[n], "#Delta#phi_{%s}^{%s} = %.1f mrad"%(subscript,superscript,dphis[n]*1000), "p")
-        leg.AddEntry(histoList[n], "#Delta#phi_{%s} = %.1f mrad"%(subscript,dphis[n]*1000), "p")
+        leg.AddEntry(histoList[n], "#Delta#phi_{%s} < %.1f mrad"%(subscript,dphis[n]*1000), "p")
         #leg.AddEntry(histoList[n], "WP = %s"%(pt_labels[n]), "p")
 
 
@@ -184,14 +185,24 @@ def highEfficiencyPatterns(filesDir, plotDir, eff, oddEven, ext):
 
     ## hardcore nitpicking over here!
     if closeFar == "Close":
-        xpos = 0.57
+        xpos = 0.735
     else:
-        xpos = 0.611
+#        xpos = 0.611
+        xpos = 0.735
 
-    tex = TLatex(xpos,.75,'"%s" chamber pairs'%(closeFar))
+    xpos = .7
+
+
+    tex = TLatex(xpos,.75,"%s"%(closeFar))
     tex.Draw("same")
     tex.SetTextSize(0.05)
     tex.SetNDC()
+
+    tex2 = TLatex(xpos,.68,"Chamber pairs")
+    tex2.Draw("same")
+    tex2.SetTextSize(0.05)
+    tex2.SetNDC()
+
 
     ## save the file
     c.SaveAs("%sGEM_highEffPatterns_%s_%s%s"%(plotDir, eff,oddEven,ext))
