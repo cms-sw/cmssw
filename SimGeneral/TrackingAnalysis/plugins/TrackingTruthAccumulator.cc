@@ -38,13 +38,10 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 
 
@@ -142,7 +139,7 @@ namespace
 		TrackingParticleFactory( const ::DecayChain& decayChain, const edm::Handle< std::vector<reco::GenParticle> >& hGenParticles,
 				const edm::Handle< std::vector<int> >& hHepMCGenParticleIndices, const std::vector<const PSimHit*>& simHits,
 				double volumeRadius, double volumeZ, bool allowDifferentProcessTypes );
-		TrackingParticle createTrackingParticle( const DecayChainTrack* pTrack ) const;
+	  TrackingParticle createTrackingParticle( const DecayChainTrack* pTrack, const TrackerTopology *tTopo ) const;
 		TrackingVertex createTrackingVertex( const DecayChainVertex* pVertex ) const;
 		bool vectorIsInsideVolume( const math::XYZTLorentzVectorD& vector ) const;
 	private:
@@ -181,10 +178,6 @@ namespace
 		std::vector<int> trackingVertexIndices_;
 	};
 
-	/** @brief Utility function copied verbatim from TrackinTruthProducer.
-	 */
-	int LayerFromDetid( const DetId& detid );
-
 	/** @brief Adds the supplied TrackingParticle and its parent TrackingVertex to the output collection. Checks to make sure they don't already exist first.
 	 * @author Mark Grimes (mark.grimes@bristol.ac.uk)
 	 * @date 12/Nov/2012
@@ -195,7 +188,7 @@ namespace
 	 * @author Mark Grimes (mark.grimes@bristol.ac.uk)
 	 * @date 05/Nov/2012
 	 */
-	void addTrack( ::DecayChainTrack* pDecayChainTrack, const TrackingParticleSelector* pSelector, ::OutputCollectionWrapper* pUnmergedOutput, ::OutputCollectionWrapper* pMergedOutput, const ::TrackingParticleFactory& objectFactory, bool addAncestors );
+  void addTrack( ::DecayChainTrack* pDecayChainTrack, const TrackingParticleSelector* pSelector, ::OutputCollectionWrapper* pUnmergedOutput, ::OutputCollectionWrapper* pMergedOutput, const ::TrackingParticleFactory& objectFactory, bool addAncestors, const TrackerTopology *tTopo );
 
 } // end of the unnamed namespace
 
@@ -375,6 +368,12 @@ template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event
 		//
 	}
 
+	//Retrieve tracker topology from geometry
+	edm::ESHandle<TrackerTopology> tTopoHandle;
+	setup.get<IdealGeometryRecord>().get(tTopoHandle);
+	const TrackerTopology* const tTopo = tTopoHandle.product();
+
+
 	// Run through the collections and work out the decay chain of each track/vertex. The
 	// information in SimTrack and SimVertex only allows traversing upwards, but this will
 	// allow traversal in both directions. This is required for things like grouping electrons
@@ -428,7 +427,7 @@ template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event
 		// This function creates the TrackinParticle and adds it to the collection if it
 		// passes the selection criteria specified in the configuration. If the config
 		// specifies adding ancestors, the function is called recursively to do that.
-		::addTrack( pDecayTrack, pSelector, pUnmergedCollectionWrapper.get(), pMergedCollectionWrapper.get(), objectFactory, addAncestors_ );
+		::addTrack( pDecayTrack, pSelector, pUnmergedCollectionWrapper.get(), pMergedCollectionWrapper.get(), objectFactory, addAncestors_, tTopo );
 	}
 }
 
@@ -511,7 +510,7 @@ namespace // Unnamed namespace for things only used in this file
 		}
 	}
 
-	TrackingParticle TrackingParticleFactory::createTrackingParticle( const ::DecayChainTrack* pChainTrack ) const
+  TrackingParticle TrackingParticleFactory::createTrackingParticle( const ::DecayChainTrack* pChainTrack, const TrackerTopology *tTopo ) const
 	{
 		typedef math::XYZTLorentzVectorD LorentzVector;
 		typedef math::XYZPoint Vector;
@@ -591,7 +590,7 @@ namespace // Unnamed namespace for things only used in this file
 				if( newDetector.det() == DetId::Tracker ) ++numberOfTrackerHits;
 
 				oldLayer=newLayer;
-				newLayer=LayerFromDetid( newDetector );
+				newLayer=tTopo->layer( newDetector );
 
 				// Count hits using layers for glued detectors
 				// newlayer !=0 excludes Muon layers set to 0 by LayerFromDetid
@@ -993,55 +992,6 @@ namespace // Unnamed namespace for things only used in this file
 	}
 
 
-
-	//---------------------------------------------------------------------------------
-	//---------------------------------------------------------------------------------
-	//----   Functions in the unnamed namespace   -------------------------------------
-	//---------------------------------------------------------------------------------
-	//---------------------------------------------------------------------------------
-
-	int LayerFromDetid( const DetId& detId )
-	{
-		if( detId.det()!=DetId::Tracker ) return 0;
-
-		int layerNumber=0;
-		unsigned int subdetId=static_cast<unsigned int>( detId.subdetId() );
-
-		if( subdetId==StripSubdetector::TIB )
-		{
-			TIBDetId tibid( detId.rawId() );
-			layerNumber=tibid.layer();
-		}
-		else if( subdetId==StripSubdetector::TOB )
-		{
-			TOBDetId tobid( detId.rawId() );
-			layerNumber=tobid.layer();
-		}
-		else if( subdetId==StripSubdetector::TID )
-		{
-			TIDDetId tidid( detId.rawId() );
-			layerNumber=tidid.wheel();
-		}
-		else if( subdetId==StripSubdetector::TEC )
-		{
-			TECDetId tecid( detId.rawId() );
-			layerNumber=tecid.wheel();
-		}
-		else if( subdetId==PixelSubdetector::PixelBarrel )
-		{
-			PXBDetId pxbid( detId.rawId() );
-			layerNumber=pxbid.layer();
-		}
-		else if( subdetId==PixelSubdetector::PixelEndcap )
-		{
-			PXFDetId pxfid( detId.rawId() );
-			layerNumber=pxfid.disk();
-		}
-		else edm::LogVerbatim( "TrackingTruthAccumulator" )<<"Unknown subdetid: "<<subdetId;
-
-		return layerNumber;
-	}
-
 	TrackingParticle* addTrackAndParentVertex( ::DecayChainTrack* pDecayTrack, const TrackingParticle& trackingParticle, ::OutputCollectionWrapper* pOutput )
 	{
 		// See if this TrackingParticle has already been created (could be if the DecayChainTracks are
@@ -1068,7 +1018,7 @@ namespace // Unnamed namespace for things only used in this file
 		return pTrackingParticle;
 	}
 
-	void addTrack( ::DecayChainTrack* pDecayChainTrack, const TrackingParticleSelector* pSelector, ::OutputCollectionWrapper* pUnmergedOutput, ::OutputCollectionWrapper* pMergedOutput, const ::TrackingParticleFactory& objectFactory, bool addAncestors )
+  void addTrack( ::DecayChainTrack* pDecayChainTrack, const TrackingParticleSelector* pSelector, ::OutputCollectionWrapper* pUnmergedOutput, ::OutputCollectionWrapper* pMergedOutput, const ::TrackingParticleFactory& objectFactory, bool addAncestors, const TrackerTopology *tTopo )
 	{
 		if( pDecayChainTrack==NULL ) return; // This is required for when the addAncestors_ recursive call reaches the top of the chain
 
@@ -1089,7 +1039,7 @@ namespace // Unnamed namespace for things only used in this file
 		}
 
 		// Create a TrackingParticle.
-		TrackingParticle newTrackingParticle=objectFactory.createTrackingParticle( pDecayChainTrack );
+		TrackingParticle newTrackingParticle=objectFactory.createTrackingParticle( pDecayChainTrack, tTopo );
 
 		// The selector checks the impact parameters from the vertex, so I need to have a valid reference
 		// to the parent vertex in the TrackingParticle before that can be called. TrackingParticle needs
@@ -1113,7 +1063,7 @@ namespace // Unnamed namespace for things only used in this file
 		// order. I don't know how important that is but other code might assume chronological order.
 		// If adding ancestors, no selection is applied. Note that I've already checked that all
 		// DecayChainTracks have a pParentVertex.
-		if( addAncestors ) addTrack( pDecayChainTrack->pParentVertex->pParentTrack, NULL, pUnmergedOutput, pMergedOutput, objectFactory, addAncestors );
+		if( addAncestors ) addTrack( pDecayChainTrack->pParentVertex->pParentTrack, NULL, pUnmergedOutput, pMergedOutput, objectFactory, addAncestors, tTopo );
 
 		// If creation of the unmerged collection has been turned off in the config this pointer
 		// will be null.

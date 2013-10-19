@@ -60,7 +60,7 @@ class MatrixInjector(object):
             self.dqmgui="https://cmsweb.cern.ch/dqm/relval"
         #couch stuff
         self.couch = 'https://'+self.wmagent+'/couchdb'
-#        self.couchDB = 'reqmgr_config_cache'
+# self.couchDB = 'reqmgr_config_cache'
         self.couchCache={} # so that we do not upload like crazy, and recyle cfgs
         self.user = os.getenv('USER')
         self.group = 'ppd'
@@ -79,24 +79,22 @@ class MatrixInjector(object):
             print '\n\tFound wmclient\n'
             
         self.defaultChain={
-            "RequestType" :   "TaskChain",                    #this is how we handle relvals
-            "AcquisitionEra": {},                             #Acq Era
-            "ProcessingString": {},                           # processing string to label the dataset
-            "Requestor": self.user,                           #Person responsible
-            "Group": self.group,                              #group for the request
-            "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
-            "Campaign": os.getenv('CMSSW_VERSION'),           # only for wmstat purpose
-            "ScramArch": os.getenv('SCRAM_ARCH'),             #Scram Arch (used for all tasks in chain)
-            "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
-            "GlobalTag": None,                                #Global Tag (overridden per task)
-            "CouchURL": self.couch,                           #URL of CouchDB containing Config Cache
-            "ConfigCacheURL": self.couch,                           #URL of CouchDB containing Config Cache
+            "RequestType" : "TaskChain", #this is how we handle relvals
+            "Requestor": self.user, #Person responsible
+            "Group": self.group, #group for the request
+            "CMSSWVersion": os.getenv('CMSSW_VERSION'), #CMSSW Version (used for all tasks in chain)
+            "Campaign": os.getenv('CMSSW_VERSION'), # only for wmstat purpose
+            "ScramArch": os.getenv('SCRAM_ARCH'), #Scram Arch (used for all tasks in chain)
+            "ProcessingVersion": self.version, #Processing Version (used for all tasks in chain)
+            "GlobalTag": None, #Global Tag (overridden per task)
+            "CouchURL": self.couch, #URL of CouchDB containing Config Cache
+            "ConfigCacheURL": self.couch, #URL of CouchDB containing Config Cache
             "DbsUrl": "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet",
-            #"CouchDBName": self.couchDB,                      #Name of Couch Database containing config cache
+            #"CouchDBName": self.couchDB, #Name of Couch Database containing config cache
             #- Will contain all configs for all Tasks
-            "SiteWhitelist" : ["T2_CH_CERN", "T1_US_FNAL"],   #Site whitelist
-            "TaskChain" : None,                                  #Define number of tasks in chain.
-            "nowmTasklist" : [],  #a list of tasks as we put them in
+            #"SiteWhitelist" : ["T2_CH_CERN", "T1_US_FNAL"], #Site whitelist
+            "TaskChain" : None, #Define number of tasks in chain.
+            "nowmTasklist" : [], #a list of tasks as we put them in
             "unmergedLFNBase" : "/store/unmerged",
             "mergedLFNBase" : "/store/relval",
             "dashboardActivity" : "relval",
@@ -106,41 +104,41 @@ class MatrixInjector(object):
             }
 
         self.defaultHarvest={
-            "EnableDQMHarvest" : 1,
+            "EnableHarvesting" : "True",
             "DQMUploadUrl" : self.dqmgui,
             "DQMConfigCacheID" : None
             }
         
         self.defaultScratch={
-            "TaskName" : None,                            #Task Name
-            "ConfigCacheID" : None,                   #Generator Config id
+            "TaskName" : None, #Task Name
+            "ConfigCacheID" : None, #Generator Config id
             "GlobalTag": None,
-            "SplittingAlgorithm"  : "EventBased",             #Splitting Algorithm
-            "SplittingArguments" : {"events_per_job" : None},  #Size of jobs in terms of splitting algorithm
-            "RequestNumEvents" : None,                      #Total number of events to generate
-            "Seeding" : "AutomaticSeeding",                          #Random seeding method
-            "PrimaryDataset" : None,                          #Primary Dataset to be created
+            "SplittingAlgo" : "EventBased", #Splitting Algorithm
+            "EventsPerJob" : None, #Size of jobs in terms of splitting algorithm
+            "RequestNumEvents" : None, #Total number of events to generate
+            "Seeding" : "AutomaticSeeding", #Random seeding method
+            "PrimaryDataset" : None, #Primary Dataset to be created
             "nowmIO": {},
             "KeepOutput" : False
             }
         self.defaultInput={
-            "TaskName" : "DigiHLT",                                      #Task Name
-            "ConfigCacheID" : None,                                      #Processing Config id
+            "TaskName" : "DigiHLT", #Task Name
+            "ConfigCacheID" : None, #Processing Config id
             "GlobalTag": None,
-            "InputDataset" : None,                                       #Input Dataset to be processed
-            "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
-            "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
+            "InputDataset" : None, #Input Dataset to be processed
+            "SplittingAlgo" : "LumiBased", #Splitting Algorithm
+            "LumisPerJob" : 10, #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
             "KeepOutput" : False
             }
         self.defaultTask={
-            "TaskName" : None,                                 #Task Name
-            "InputTask" : None,                                #Input Task Name (Task Name field of a previous Task entry)
-            "InputFromOutputModule" : None,                    #OutputModule name in the input task that will provide files to process
-            "ConfigCacheID" : None,                            #Processing Config id
+            "TaskName" : None, #Task Name
+            "InputTask" : None, #Input Task Name (Task Name field of a previous Task entry)
+            "InputFromOutputModule" : None, #OutputModule name in the input task that will provide files to process
+            "ConfigCacheID" : None, #Processing Config id
             "GlobalTag": None,
-            "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
-            "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
+            "SplittingAlgo" : "LumiBased", #Splitting Algorithm
+            "LumisPerJob" : 10, #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
             "KeepOutput" : False
             }
@@ -155,7 +153,7 @@ class MatrixInjector(object):
             wmsplit['DIGIHI']=5
             wmsplit['RECOHI']=5
             wmsplit['HLTD']=5
-            wmsplit['RECODreHLT']=2  
+            wmsplit['RECODreHLT']=2
             wmsplit['DIGIPU']=4
             wmsplit['DIGIPU1']=4
             wmsplit['RECOPU1']=1
@@ -169,7 +167,7 @@ class MatrixInjector(object):
             wmsplit['TTbarFS_ID']=1
                                     
             #import pprint
-            #pprint.pprint(wmsplit)            
+            #pprint.pprint(wmsplit)
         except:
             print "Not set up for step splitting"
             wmsplit={}
@@ -214,7 +212,7 @@ class MatrixInjector(object):
                                     arg=s[2][index].split()
                                     ns=map(int,arg[arg.index('--relval')+1].split(','))
                                     chainDict['nowmTasklist'][-1]['RequestNumEvents'] = ns[0]
-                                    chainDict['nowmTasklist'][-1]['SplittingArguments']['events_per_job'] = ns[1]
+                                    chainDict['nowmTasklist'][-1]['EventsPerJob'] = ns[1]
                                 if 'FASTSIM' in s[2][index] or '--fast' in s[2][index]:
                                     thisLabel+='_FastSim'
 
@@ -227,9 +225,9 @@ class MatrixInjector(object):
                                     return -15
                                 chainDict['nowmTasklist'][-1]['InputDataset']=nextHasDSInput.dataSet
                                 splitForThisWf=nextHasDSInput.split
-                                chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=splitForThisWf
+                                chainDict['nowmTasklist'][-1]['LumisPerJob']=splitForThisWf
                                 if step in wmsplit:
-                                    chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=wmsplit[step]
+                                    chainDict['nowmTasklist'][-1]['LumisPerJob']=wmsplit[step]
                                 # get the run numbers or #events
                                 if len(nextHasDSInput.run):
                                     chainDict['nowmTasklist'][-1]['RunWhitelist']=nextHasDSInput.run
@@ -252,9 +250,9 @@ class MatrixInjector(object):
                                     print "Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created"
                                     return -15
                                 if splitForThisWf:
-                                    chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=splitForThisWf
+                                    chainDict['nowmTasklist'][-1]['LumisPerJob']=splitForThisWf
                                 if step in wmsplit:
-                                    chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=wmsplit[step]
+                                    chainDict['nowmTasklist'][-1]['LumisPerJob']=wmsplit[step]
 
                             #print step
                             chainDict['nowmTasklist'][-1]['TaskName']=step
@@ -314,7 +312,7 @@ class MatrixInjector(object):
 
             ## there is in fact only one acquisition era
             #if len(set(chainDict['AcquisitionEra'].values()))==1:
-            #    print "setting only one acq"
+            # print "setting only one acq"
             if acqEra:
                 chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0]
                 
@@ -336,7 +334,7 @@ class MatrixInjector(object):
                 chainDict['Task%d'%(itask)]=t
 
 
-            ## 
+            ##
 
 
             ## provide the number of tasks
@@ -421,5 +419,3 @@ class MatrixInjector(object):
                 print "...........",n,"submitted"
                 random_sleep()
             
-
-        

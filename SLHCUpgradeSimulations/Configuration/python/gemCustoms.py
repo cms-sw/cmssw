@@ -7,7 +7,8 @@ def customise(process):
         process=customise_RawToDigi(process)
     if hasattr(process,'reconstruction'):
         process=customise_Reco(process)
-               
+    if hasattr(process,'L1simulation_step'):
+       process=customise_L1Emulator(process)
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'dqmoffline_step'):
@@ -41,6 +42,20 @@ def customise_Digi(process):
     process.muonDigi += process.simMuonGEMCSCPadDigis
 
     process=outputCustoms(process)
+    return process
+
+def customise_L1Emulator(process):
+    process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
+    process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
+    process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+    tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
+    tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
+    tmb.gemMatchDeltaBX = cms.untracked.int32(1)
+    lct_store_gemdphi = True
+    if lct_store_gemdphi:
+        tmb.gemClearNomatchLCTs = cms.untracked.bool(False) 
+	tmb.gemMatchDeltaPhiOdd = cms.untracked.double(2.)
+        tmb.gemMatchDeltaPhiEven = cms.untracked.double(2.)
     return process
 
 def customise_DQM(process,pileup):
