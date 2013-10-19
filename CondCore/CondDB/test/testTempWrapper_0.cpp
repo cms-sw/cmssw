@@ -11,6 +11,8 @@
 #include <cstdlib>
 #include <iostream>
 
+using namespace cond::db;
+
 int main (int argc, char** argv)
 {
   edmplugin::PluginManager::Config config;
@@ -21,16 +23,16 @@ int main (int argc, char** argv)
   std::string gtConnectionStr("oracle://cms_orcon_adg/CMS_COND_31X_GLOBALTAG");
   try{
 
-    conddb::Session session;
+    Session session;
     //session.configuration().setMessageVerbosity( coral::Debug );
     size_t i = 0;
-    conddb::IOVProxy reader;
+    IOVProxy reader;
     std::cout <<"# Connecting with db in "<<connectionString0<<std::endl;
     session.open( connectionString0, true );
     session.transaction().start( true );
     std::string tag0(  "runinfo_31X_hlt" );  
     reader = session.readIov( tag0, true );
-    std::cout <<"Tag "<<reader.tag()<<" timeType:"<<conddb::time::timeTypeName(reader.timeType())<<" size:"<<reader.size()<<
+    std::cout <<"Tag "<<reader.tag()<<" timeType:"<<cond::time::timeTypeName(reader.timeType())<<" size:"<<reader.size()<<
       " type:"<<reader.payloadObjectType()<<" endOfValidity:"<<reader.endOfValidity()<<" lastValidatedTime:"<<reader.lastValidatedTime()<<std::endl;
 
     for( auto iov: reader ){
@@ -46,7 +48,7 @@ int main (int argc, char** argv)
     session.transaction().start( true );    
     reader = session.readIov( tag0, true );
     i = 0;
-    std::cout <<"Tag "<<reader.tag()<<" timeType:"<<conddb::time::timeTypeName(reader.timeType())<<" size:"<<reader.size()<<
+    std::cout <<"Tag "<<reader.tag()<<" timeType:"<<cond::time::timeTypeName(reader.timeType())<<" size:"<<reader.size()<<
       " type:"<<reader.payloadObjectType()<<" endOfValidity:"<<reader.endOfValidity()<<" lastValidatedTime:"<<reader.lastValidatedTime()<<std::endl;
 
     for( auto iov: reader ){
@@ -60,7 +62,7 @@ int main (int argc, char** argv)
     std::cout <<"# Connecting with db in "<<gtConnectionStr<<std::endl;
     session.open( gtConnectionStr, true );
     session.transaction().start( true );
-    conddb::GTProxy gtReader = session.readGlobalTag( "FT_R_53_V6" );
+    GTProxy gtReader = session.readGlobalTag( "FT_R_53_V6" );
     i = 0;
     for( auto t: gtReader ){
       i++;

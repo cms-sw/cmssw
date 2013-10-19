@@ -5,12 +5,15 @@
 #include "CondCore/CondDB/interface/Session.h"
 //
 
-namespace conddb {
+namespace cond {
 
-  using Session = new_impl::Session;
-  Hash import( const std::string& inputTypeName, const void* inputPtr, Session& destination );
+  namespace persistency {
 
-  std::pair<std::string,boost::shared_ptr<void> > fetch( const Hash& payloadId, Session& session );
+    cond::Hash import( const std::string& inputTypeName, const void* inputPtr, Session& destination );
+
+    std::pair<std::string,boost::shared_ptr<void> > fetch( const cond::Hash& payloadId, Session& session );
+
+  }
 
 }
 

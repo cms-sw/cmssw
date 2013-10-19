@@ -1,12 +1,16 @@
-//#include "CondCore/CondDB/interface/Session.h"
-//#include "CondCore/CondDB/interface/PayloadProxy.h"
+#ifndef CondCore_CondDB_CondDB_h
+#define CondCore_CondDB_CondDB_h
+#include "CondCore/CondDB/interface/PayloadProxy.h"
 #include "CondCore/CondDB/interface/ORAWrapper.h"
 
-namespace conddb {
-  using Session = ora_wrapper::Session;
-  using IOVEditor = ora_wrapper::IOVEditor;
-  using IOVProxy = ora_wrapper::IOVProxy;
-  using GTProxy = ora_wrapper::GTProxy;
-  //template <typename T> using PayloadProxy = tmp::PayloadProxy<T>;
+namespace cond {
+
+  namespace db {
+    using Session =  cond::ora_wrapper::Session;
+    using IOVEditor =  cond::ora_wrapper::IOVEditor;
+    using IOVProxy =  cond::ora_wrapper::IOVProxy;
+    using GTProxy =  cond::ora_wrapper::GTProxy;
+  }
 }
 
+#endif // CondCore_CondDB_CondDB_h
