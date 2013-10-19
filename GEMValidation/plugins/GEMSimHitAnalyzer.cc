@@ -138,9 +138,10 @@ void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iS
   iSetup.get<MuonGeometryRecord>().get(gem_geom);
   gem_geometry_ = &*gem_geom;
 
+  // FIXME - when a geometry with different partition numbers will be released, the code will brake!
   const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
-   // TODO: it's really bad to hardcode max partition number!
-  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,6)));
+  const int nEtaPartitions(gem_geometry_->chamber(GEMDetId(1,1,1,1,1,1))->nEtaPartitions());
+  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
   const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
   const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
   const LocalPoint lp_top(0., top_half_striplength, 0.);
@@ -433,8 +434,6 @@ void GEMSimHitAnalyzer::buildLUT()
   std::vector<int> neg_ids;
   neg_ids.push_back(GEMDetId(-1,1,1,1,36,1).rawId());
 
-  // VK: I would really suggest getting phis from GEMGeometry
-  
   std::vector<float> phis;
   phis.push_back(0.);
   for(int i=1; i<37; ++i)
