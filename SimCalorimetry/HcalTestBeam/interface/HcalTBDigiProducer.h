@@ -22,10 +22,12 @@
 #include<vector>
 #include<string>
 
+class PEcalTBInfo;
+
 class HcalTBDigiProducer : public DigiAccumulatorMixMod {
 public:
 
-  explicit HcalTBDigiProducer(const edm::ParameterSet& ps, edm::EDProducer& mixMod);
+  explicit HcalTBDigiProducer(const edm::ParameterSet& ps, edm::EDProducer& mixMod, edm::ConsumesCollector& iC);
   virtual ~HcalTBDigiProducer();
 
   virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;

@@ -1,6 +1,7 @@
 #include "SimCalorimetry/HcalTestBeam/interface/HcalTBDigiProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
@@ -13,7 +14,7 @@
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
-HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::EDProducer& mixMod) :
+HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::EDProducer& mixMod, edm::ConsumesCollector& iC) :
   theParameterMap(new HcalTBSimParameterMap(ps)), 
   theHcalShape(new HcalShape()),
   theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
@@ -25,6 +26,7 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::EDProdu
   std::string const instance("simHcalDigis");
   mixMod.produces<HBHEDigiCollection>(instance);
   mixMod.produces<HODigiCollection>(instance);
+  iC.consumes<std::vector<PCaloHit> >(edm::InputTag("g4SimHits", "HcalHits"));
 
   DetId detId(DetId::Hcal, 1);
   bool syncPhase = (theParameterMap->simParameters(detId)).syncPhase();
@@ -56,6 +58,9 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::EDProdu
 			  << " and doPhaseShift = " << doPhaseShift
 			  << " tunePhasShift = " << tunePhaseShift;
 
+  if (doPhaseShift) {
+    iC.consumes<PEcalTBInfo>(edm::InputTag(ecalTBInfoLabel, ""));
+  }
 }
 
 HcalTBDigiProducer::~HcalTBDigiProducer() {
