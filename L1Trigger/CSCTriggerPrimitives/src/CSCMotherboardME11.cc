@@ -133,9 +133,6 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
   /// whether to throw out GEM-fiducial LCTs that have no gem match
   gem_clear_nomatch_lcts = tmbParams.getUntrackedParameter<bool>("gemClearNomatchLCTs", true);
 
-  // number of GEM eta partitions - only temporary -- FIXME
-  n_gem_eta_part = tmbParams.getUntrackedParameter<int>("numberOfGemEtaPart", 8);
-
   // central bx for LCT is 6 for simulation
   lct_central_bx = tmbParams.getUntrackedParameter<int>("lctCentralBX", 6);
 
@@ -724,15 +721,22 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
   std::map<int , std::vector<std::pair<unsigned int, const GEMCSCPadDigi*> > > pads;
   // TODO: "magic" numbers galore!!! FIXME it's only for 6 partitions geometry right now
   int npads = 0;
-  for (int gem_layer = 1; gem_layer <= 2; ++gem_layer)
+  
+  int region = (theEndcap == 1) ? 1: -1;
+  auto chamber1(gem_g->chamber(GEMDetId(region, 1, 1, 1, chamber, 0)));
+  auto chamber2(gem_g->chamber(GEMDetId(region, 1, 1, 2, chamber, 0))); 
+
+  std::vector<const GEMChamber*> superChamber;
+  superChamber.clear();
+  superChamber.push_back(chamber1);
+  superChamber.push_back(chamber2);
+
+  for (auto ch : superChamber)
   {
-    for (int gem_roll = 1; gem_roll <= n_gem_eta_part; ++gem_roll)
+    for (auto roll : ch->etaPartitions() )
     {
-      int region = (theEndcap == 1) ? 1: -1;
-      GEMDetId gem_id(region, 1, 1, gem_layer, chamber, gem_roll);
-
+      GEMDetid gem_id(roll->id());
       auto pads_in_det = gemPads->get(gem_id);
-
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad)
       {
         if (debug_gem_matching) std::cout<<" gem pad "<<gem_id<<" "<<pad->pad()<<" "<<pad->bx() + 1<<endl;
@@ -745,6 +749,7 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
           pads[bx].push_back(id_pad);
         }
       }
+      
     }
   }
   if (debug_gem_matching) std::cout<<" nlct "<<nlct<<"  npads "<<npads<<std::endl;
