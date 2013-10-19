@@ -8,18 +8,20 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRawInfo.h"
 
 namespace edm {
+  class ConsumesCollector;
   class EDProducer;
   class Event;
   class EventSetup;
   class ParameterSet;
 }
+class PEcalTBInfo;
 class PileUpEventPrincipal;
 
 class EcalTBDigiProducer : public EcalDigiProducer
 {
    public:
 
-      EcalTBDigiProducer( const edm::ParameterSet& params, edm::EDProducer& mixMod ) ;
+      EcalTBDigiProducer( const edm::ParameterSet& params, edm::EDProducer& mixMod, edm::ConsumesCollector& iC) ;
       virtual ~EcalTBDigiProducer() ;
 
 

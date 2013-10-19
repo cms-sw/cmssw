@@ -10,6 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
@@ -163,7 +164,8 @@ namespace edm
       produces< ZDCDigiCollection >();
 
       if(MergeHcalDigisProd_) {
-	HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps);
+        edm::ConsumesCollector iC(consumesCollector());
+	HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps, iC);
 	HcalDigiWorkerProd_->setHBHEAccess(tok_hbhe_);
 	HcalDigiWorkerProd_->setHOAccess(tok_ho_);
 	HcalDigiWorkerProd_->setHFAccess(tok_hf_);

@@ -41,6 +41,7 @@ class ESDigiCollection ;
 class PileUpEventPrincipal ;
 
 namespace edm {
+  class ConsumesCollector;
   class EDProducer;
   class Event;
   class EventSetup;
@@ -51,7 +52,7 @@ namespace edm {
 class EcalDigiProducer : public DigiAccumulatorMixMod {
    public:
 
-      EcalDigiProducer( const edm::ParameterSet& params , edm::EDProducer& mixMod);
+      EcalDigiProducer( const edm::ParameterSet& params , edm::EDProducer& mixMod, edm::ConsumesCollector& iC);
       virtual ~EcalDigiProducer();
 
       virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);

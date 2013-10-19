@@ -31,11 +31,15 @@ class HcalShapes;
 class PCaloHit;
 class PileUpEventPrincipal;
 
+namespace edm {
+  class ConsumesCollector;
+}
+
 class HcalDigitizer
 {
 public:
 
-  explicit HcalDigitizer(const edm::ParameterSet& ps);
+  explicit HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
   virtual ~HcalDigitizer();
 
   /**Produces the EDM products,*/
