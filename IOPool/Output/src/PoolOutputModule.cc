@@ -28,7 +28,8 @@
 
 namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
-    OutputModule(pset),
+  edm::one::OutputModuleBase::OutputModuleBase(pset),
+  one::OutputModule<WatchInputFiles>(pset),
     rootServiceChecker_(),
     auxItems_(),
     selectedOutputItemList_(),
