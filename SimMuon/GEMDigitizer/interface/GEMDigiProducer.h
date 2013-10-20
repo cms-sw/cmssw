@@ -23,7 +23,7 @@ public:
 
   virtual ~GEMDigiProducer();
 
-  virtual void beginRun( edm::Run&, const edm::EventSetup& );
+  virtual void beginRun( edm::Run&, const edm::EventSetup& ) {};
 
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 

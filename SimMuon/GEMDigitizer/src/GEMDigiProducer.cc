@@ -52,19 +52,14 @@ GEMDigiProducer::~GEMDigiProducer()
 }
 
 
-void GEMDigiProducer::beginRun( edm::Run& r, const edm::EventSetup& eventSetup)
-{
-  edm::ESHandle<GEMGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get( hGeom );
-  const GEMGeometry *pGeom = &*hGeom;
-
-  gemDigiModel_->setGeometry(pGeom);
-  gemDigiModel_->setup();
-}
-
-
 void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
+  // set geometry
+  edm::ESHandle<GEMGeometry> hGeom;
+  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  gemDigiModel_->setGeometry(&*hGeom);
+  gemDigiModel_->setup();
+
   edm::Handle<CrossingFrame<PSimHit> > cf;
   e.getByLabel("mix", collectionXF_, cf);
 
@@ -93,8 +88,7 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     gemDigiModel_->simulateSignal(roll, simHits);
     gemDigiModel_->simulateNoise(roll);
     gemDigiModel_->fillDigis(rawId, *digis);
-    auto koe(*stripDigiSimLinks);
-    koe.insert(gemDigiModel_->stripDigiSimLinks());
+    (*stripDigiSimLinks).insert(gemDigiModel_->stripDigiSimLinks());
   }
   
   // store them in the event
