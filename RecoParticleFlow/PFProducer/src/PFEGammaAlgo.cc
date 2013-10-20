@@ -1960,6 +1960,7 @@ PFEGammaAlgo::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
 
 void PFEGammaAlgo::
 linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
+  if( !RO.brems.size() ) return;
   int FirstBrem = -1;
   int TrajPos = -1;
   int lastBremTrajPos = -1;
@@ -1997,6 +1998,9 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
 	    RO.lateBrem = 1;	  
 	  }
 	}
+	LOGDRESSED("PFEGammaAlgo::linkBremToECAL()") 
+	  << "Found a cluster already in SC linked to brem extrapolation"
+	  << " at ECAL surface!" << std::endl;
 	RO.localMap.push_back( ElementMap::value_type(ecal->first,bremflagged.first) );
 	RO.localMap.push_back( ElementMap::value_type(bremflagged.first,ecal->first) );
       }
