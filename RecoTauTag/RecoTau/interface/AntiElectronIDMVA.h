@@ -115,6 +115,7 @@ class AntiElectronIDMVA {
     Float_t TauLeadPFChargedHadrEoP_;
     Float_t TauEmFraction_;
     
+    int verbosity_;
 };
 
 #endif

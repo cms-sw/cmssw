@@ -31,9 +31,12 @@ PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJ
   resultExtended.setpfjetRef(thePFJet);
 
   PFCandidateRefVector thePFCands;
-  for (PFCandidateRefVector::const_iterator iPFCand=thePFCandsInEvent.begin();iPFCand!=thePFCandsInEvent.end();iPFCand++){
-    double delta = ROOT::Math::VectorUtil::DeltaR((*thePFJet).p4().Vect(), (*iPFCand)->p4().Vect());
-    if (delta < ChargedHadronsAssociationCone_)  thePFCands.push_back(*iPFCand);
+  const float jetPhi = (*thePFJet).phi();
+  const float jetEta = (*thePFJet).eta();
+  auto dr2 = [jetPhi,jetEta](float phi, float eta) { return reco::deltaR2(jetEta,jetPhi,eta,phi);};
+  for (auto iPFCand : thePFCandsInEvent){
+    float delta = dr2((*iPFCand).phi(),(*iPFCand).eta());
+    if (delta < ChargedHadronsAssociationCone_*ChargedHadronsAssociationCone_)  thePFCands.push_back(iPFCand);
   }
   bool pvIsFake = (thePV.z() < -500.);
 

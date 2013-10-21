@@ -19,7 +19,8 @@ pfRecoTauDiscriminationAgainstMuon = cms.EDProducer("PFRecoTauDiscriminationAgai
     c = cms.double(0.0),
     HoPMin = cms.double(0.2),
     discriminatorOption = cms.string('noSegMatch'), ## available options are; noSegMatch, twoDCut, merePresence, combined
-
+    maxNumberOfMatches = cms.int32(0),
+    checkNumMatches = cms.bool(False)
 )
 
 

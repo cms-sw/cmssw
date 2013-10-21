@@ -30,14 +30,14 @@ class RecoTauJetRegionProducer : public edm::EDProducer {
     ~RecoTauJetRegionProducer() {}
     void produce(edm::Event& evt, const edm::EventSetup& es);
   private:
-    double deltaR_;
+    float deltaR2_;
     edm::InputTag inputJets_;
     edm::InputTag pfSrc_;
 };
 
 RecoTauJetRegionProducer::RecoTauJetRegionProducer(
     const edm::ParameterSet& pset) {
-  deltaR_ = pset.getParameter<double>("deltaR");
+  deltaR2_ = pset.getParameter<double>("deltaR"); deltaR2_*=deltaR2_;
   inputJets_ = pset.getParameter<edm::InputTag>("src");
   pfSrc_ = pset.getParameter<edm::InputTag>("pfSrc");
   produces<reco::PFJetCollection>("jets");
@@ -91,28 +91,18 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
   // Keep track of the indices of the current jet and the old (original) jet
   // -1 indicats no match.
   std::vector<int> matchInfo(nOriginalJets, -1);
-
+  newJets->reserve(nJets);
   for (size_t ijet = 0; ijet < nJets; ++ijet) {
     // Get a ref to jet
     reco::PFJetRef jetRef = jets[ijet];
     // Make an initial copy.
-    reco::PFJet newJet(*jetRef);
+    newJets->emplace_back(*jetRef);
+    reco::PFJet & newJet = newJets->back();
     // Clear out all the constituents
     newJet.clearDaughters();
-    // Build a DR cone filter about our jet
-    reco::tau::cone::DeltaRPtrFilter<PFCandPtr>
-      filter(jetRef->p4(), 0, deltaR_);
-
     // Loop over all the PFCands
-    std::for_each(
-        // filtering those that don't pass our filter
-        boost::make_filter_iterator(filter,
-          pfCands.begin(), pfCands.end()),
-        boost::make_filter_iterator(filter,
-          pfCands.end(), pfCands.end()),
-        // For the ones that do, call newJet.addDaughter(..) on them
-        boost::bind(&reco::PFJet::addDaughter, boost::ref(newJet), _1));
-    newJets->push_back(newJet);
+    for ( auto cand :  pfCands )
+      if ( reco::deltaR2(*jetRef,*cand)<deltaR2_ ) newJet.addDaughter(cand);
     // Match the index of the jet we just made to the index into the original
     // collection.
     matchInfo[jetRef.key()] = ijet;

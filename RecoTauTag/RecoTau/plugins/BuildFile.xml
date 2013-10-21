@@ -13,6 +13,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/Utilities"/>
   <use   name="DataFormats/TauReco"/>
   <use   name="DataFormats/WrappedStdDictionaries"/>
   <use   name="CommonTools/UtilAlgos"/>
@@ -24,5 +25,11 @@
   <use   name="DataFormats/ParticleFlowReco"/>
   <use   name="RecoBTag/SecondaryVertex"/>
   <use   name="DataFormats/VertexReco"/>
+  <use   name="CondFormats/EgammaObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/Records"/>
   <use   name="root"/>
 </library>
