@@ -1,9 +1,11 @@
-
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/EvtGenInterface.h"
-#include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
-#include "GeneratorInterface/ExternalDecays/interface/PhotosInterface.h"
+#include "GeneratorInterface/EvtGenInterface/interface/EvtGenFactory.h"
+#include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterfaceBase.h"
+#include "GeneratorInterface/TauolaInterface/interface/TauolaFactory.h"
+#include "GeneratorInterface/TauolaInterface/interface/TauolaInterfaceBase.h"
+#include "GeneratorInterface/PhotosInterface/interface/PhotosFactory.h"
+#include "GeneratorInterface/PhotosInterface/interface/PhotosInterfaceBase.h"
 
 #include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
 
@@ -42,22 +44,19 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       std::string curSet = extGenNames[ip];
       if ( curSet == "EvtGen" )
       {
-	fEvtGenInterface = new gen::EvtGenInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
+	fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGenFactory", pset.getUntrackedParameter< ParameterSet >(curSet)));
       }
       else if ( curSet == "Tauola" )
       {
-	fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet),decayRandomEngine);
-	 //
-	 // in the future, here it should be something like:
-	 //
-	 // fTauolaInterface = TauolaInterface::getInstance();
-	 // fTauolaInterface->setPSet( pset.getUntrackedParameter< ParameterSet >(curSet) );
-	 // fPhotosInterface = new gen::PhotosInterface();
-	 // fPhotosInterface->avoidTauLeptonicDecays();
+	fTauolaInterface = (TauolaInterfaceBase*)EvtGenFactory::get()->create("TauolaFactory", pset.getUntrackedParameter< ParameterSet >(curSet));
+	fTauolaInterface->SetDecayRandomEngine(decayRandomEngine);
       }
       else if ( curSet == "Photos" )
       {
-	if ( !fPhotosInterface ) fPhotosInterface = new gen::PhotosInterface(decayRandomEngine);
+	if ( !fPhotosInterface ){
+	  fPhotosInterface = (PhotosInterfaceBase*)EvtGenFactory::get()->create("PhotosFactory", pset.getUntrackedParameter< ParameterSet >(curSet));
+	  fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
+	}
       }
 
     }
