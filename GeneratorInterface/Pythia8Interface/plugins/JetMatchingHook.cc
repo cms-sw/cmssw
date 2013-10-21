@@ -1,4 +1,4 @@
-#include "GeneratorInterface/Pythia8Interface/interface/JetMatchingHook.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
 #include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingMadgraph.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
