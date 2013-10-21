@@ -1,4 +1,4 @@
-
+B0;95;c
 #include "GEDGsfElectronProducer.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
 
@@ -33,7 +33,7 @@ GEDGsfElectronProducer::GEDGsfElectronProducer( const edm::ParameterSet & cfg )
  {
    egmPFCandidateCollection_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("egmPFCandidatesTag"));
    outputValueMapLabel_ = cfg.getParameter<std::string>("outputEGMPFValueMap");
-   
+
    produces<edm::ValueMap<reco::GsfElectronRef> >(outputValueMapLabel_);
 }
 
