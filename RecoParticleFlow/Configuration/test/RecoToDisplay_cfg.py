@@ -21,7 +21,7 @@ process.source = cms.Source(
     #'root://eoscms//eos/cms/store/relval/CMSSW_5_2_0_pre5/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START52_V1-v1/0105/2AAA5F86-8D57-E111-B6E8-003048678B84.root',
     #'root://eoscms//eos/cms/store/relval/CMSSW_5_2_0_pre5/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START52_V1-v1/0105/38D32839-8A57-E111-849D-0026189438E4.root'
     #'root://cms-xrd-global.cern.ch//store/relval/CMSSW_6_1_0/SingleGammaPt300ExtRelVal610/GEN-SIM-RECO/START61_V8_NoPuCustomEvC-v1/00000/00110DD9-9390-E211-88AB-5404A63886E6.root'
-    'file:/tmp/lgray/EEC27D47-2F0C-E311-B9F2-003048FFD75C.root'
+    '/store/relval/CMSSW_7_0_0_pre5/RelValSingleElectronPt10/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/44F7B8AC-EA2F-E311-B022-002618943923.root'
     ),
     eventsToProcess = cms.untracked.VEventRange(),
     #eventsToProcess = cms.untracked.VEventRange('1:1217421-1:1217421'),
@@ -70,6 +70,7 @@ process.localReReco = cms.Sequence(process.siPixelRecHits+
 
 # Track re-reco
 process.globalReReco =  cms.Sequence(process.offlineBeamSpot+
+                                     process.MeasurementTrackerEvent+
                                      process.recopixelvertexing+
                                      process.ckftracks+
                                      process.caloTowersRec+
@@ -91,7 +92,32 @@ process.pfReReco = cms.Sequence(process.particleFlowReco+
                                 process.recoPFJets+
                                 process.recoPFMET+
                                 process.PFTau)
-                                
+#pfeg switch
+def switch_on_pfeg(the_process):
+    the_process.particleFlowTmp.useEGammaFilters = True
+    the_process.particleFlowTmp.usePFPhotons = False
+    the_process.particleFlowTmp.usePFElectrons = False
+    the_process.particleFlow.GsfElectrons = cms.InputTag('gedGsfElectrons')
+    the_process.particleFlow.Photons = cms.InputTag('gedPhotons')
+    the_process.particleFlowReco.remove(the_process.pfElectronTranslatorSequence)
+    the_process.particleFlowReco.remove(the_process.pfPhotonTranslatorSequence)
+    the_process.egammaHighLevelRecoPostPF.remove(the_process.gsfElectronMergingSequence)
+    the_process.interestingEleIsoDetIdEB.emObjectLabel = \
+                                              cms.InputTag('gedGsfElectrons')
+    the_process.interestingEleIsoDetIdEE.emObjectLabel = \
+                                              cms.InputTag('gedGsfElectrons')
+    the_process.interestingGamIsoDetIdEB.emObjectLabel = \
+                                              cms.InputTag('gedPhotons')
+    the_process.interestingGamIsoDetIdEE.emObjectLabel = \
+                                              cms.InputTag('gedPhotons')
+    the_process.PhotonIDProd.photonProducer = cms.string('gedPhotons')
+    the_process.eidRobustLoose.src = cms.InputTag('gedGsfElectrons')
+    the_process.eidRobustTight.src = cms.InputTag('gedGsfElectrons')
+    the_process.eidRobustHighEnergy.src = cms.InputTag('gedGsfElectrons')
+    the_process.eidLoose.src = cms.InputTag('gedGsfElectrons')
+    the_process.eidTight.src = cms.InputTag('gedGsfElectrons')
+#switch_on_pfeg(process)
+
 # Gen Info re-processing
 process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 process.load("RecoJets.Configuration.GenJetParticles_cff")
