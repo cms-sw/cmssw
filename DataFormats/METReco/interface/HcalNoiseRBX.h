@@ -93,6 +93,14 @@ namespace reco {
     double caloTowerTotalE(void) const;
     double caloTowerEmFraction(void) const;
     
+    // helper function to get the unique calotowers
+    struct twrcomp {
+      inline bool operator() ( const CaloTower & t1, const CaloTower & t2 ) {
+	return t1.id() < t2.id();
+      }
+    };
+    typedef std::set<CaloTower, twrcomp> towerset_t;
+
   private:
     
     // members
@@ -103,14 +111,6 @@ namespace reco {
 
     // the charge
     std::vector<float> allCharge_;
-
-    // helper function to get the unique calotowers
-    struct twrcomp {
-      inline bool operator() ( const CaloTower & t1, const CaloTower & t2 ) {
-	return t1.id() < t2.id();
-      }
-    };
-    typedef std::set<CaloTower, twrcomp> towerset_t;
 
     void uniqueTowers(towerset_t& twrs_) const;
   };
