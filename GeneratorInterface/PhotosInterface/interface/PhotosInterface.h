@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "HepMC/SimpleVector.h"
 #include "CLHEP/Random/RandomEngine.h"
+#include "GeneratorInterface/PhotosInterface/interface/PhotosInterfaceBase.h"
 
 namespace HepMC {
   class GenEvent;
@@ -19,7 +20,7 @@ namespace HepMC {
 
 namespace gen {
 
-   class PhotosInterface
+  class PhotosInterface : public PhotosInterfaceBase
    {
       public:
       
@@ -45,7 +46,7 @@ namespace gen {
       };
 
       int                      fOnlyPDG;
-      std::vector<std::string> fSpecialSettings; 
+      // std::vector<std::string> fSpecialSettings; 
       bool                     fAvoidTauLeptonicDecays;  
       std::vector<int>         fBarcodes;
       bool                     fIsInitialized;
