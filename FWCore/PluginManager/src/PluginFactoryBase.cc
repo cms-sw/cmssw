@@ -75,7 +75,6 @@ PluginFactoryBase::newPlugin(const std::string& iName)
 void*
 PluginFactoryBase::findPMaker(const std::string& iName) const
 {
-  std::lock_guard<std::recursive_mutex> guard(m_mutex);
   //do we already have it?
   Plugins::const_iterator itFound = m_plugins.find(iName);
   if(itFound == m_plugins.end()) {
@@ -86,16 +85,18 @@ PluginFactoryBase::findPMaker(const std::string& iName) const
       <<lib<<"'\n but was not there.  This means the plugin cache is incorrect.  Please run 'EdmPluginRefresh "<<lib<<"'";
     }
   } else {
-    checkProperLoadable(iName,itFound->second.front().second);
+    //The item in the container can still be under construction so wait until the m_ptr has been set since that is done last
+    auto const& value= itFound->second.front();
+    while(value.m_ptr.load(std::memory_order_acquire)==nullptr) {}
+    checkProperLoadable(iName,value.m_name);
   }
-  return itFound->second.front().first;
+  return itFound->second.front().m_ptr.load(std::memory_order_acquire);
 }
 
 
 void*
 PluginFactoryBase::tryToFindPMaker(const std::string& iName) const
 {
-  std::lock_guard<std::recursive_mutex> guard(m_mutex);
   //do we already have it?
   Plugins::const_iterator itFound = m_plugins.find(iName);
   if(itFound == m_plugins.end()) {
@@ -109,9 +110,12 @@ PluginFactoryBase::tryToFindPMaker(const std::string& iName) const
       }
     }
   } else {
-    checkProperLoadable(iName,itFound->second.front().second);
+    //The item in the container can still be under construction so wait until the m_ptr has been set since that is done last
+    auto const& value= itFound->second.front();
+    while(value.m_ptr.load(std::memory_order_acquire)==nullptr) {}
+    checkProperLoadable(iName,value.m_name);
   }
-  return itFound != m_plugins.end()? itFound->second.front().first : nullptr;
+  return itFound != m_plugins.end()? itFound->second.front().m_ptr.load(std::memory_order_acquire) : nullptr;
 }
 
 void 
@@ -121,7 +125,8 @@ PluginFactoryBase::fillInfo(const PMakers &makers,
   for(PMakers::const_iterator it = makers.begin();
       it != makers.end();
       ++it) {
-    iInfo.loadable_ = it->second;
+    while (nullptr ==it->m_ptr.load(std::memory_order_acquire)) ;
+    iInfo.loadable_ = it->m_name;
     iReturn.push_back(iInfo);
   }
 }
@@ -129,7 +134,6 @@ PluginFactoryBase::fillInfo(const PMakers &makers,
 void 
 PluginFactoryBase::fillAvailable(std::vector<PluginInfo>& iReturn) const {
   PluginInfo info;
-  std::lock_guard<std::recursive_mutex> guard(m_mutex);
   for( Plugins::const_iterator it = m_plugins.begin();
       it != m_plugins.end();
       ++it) {
@@ -159,8 +163,8 @@ PluginFactoryBase::checkProperLoadable(const std::string& iName, const std::stri
 
 void 
 PluginFactoryBase::registerPMaker(void* iPMaker, const std::string& iName) {
-  std::lock_guard<std::recursive_mutex> guard(m_mutex);
-  m_plugins[iName].push_back(std::pair<void*,std::string>(iPMaker,PluginManager::loadingFile()));
+  assert(0!= iPMaker);
+  m_plugins[iName].push_back(PluginMakerInfo(iPMaker,PluginManager::loadingFile()));
   newPlugin(iName);
 }
 
