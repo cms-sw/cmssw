@@ -2,14 +2,14 @@
 //
 // Package:    PatAlgos
 // Class:      PATUserDataTestModule
-// 
+//
 /**\class PATUserDataTestModule PATUserDataTestModule.cc PhysicsTools/PatAlgos/test/PATUserDataTestModule.cc
 
  Description: Test module for UserData in PAT
 
  Implementation:
- 
- this analyzer shows how to loop over PAT output. 
+
+ this analyzer shows how to loop over PAT output.
 */
 //
 // Original Author:  Freya Blekman
@@ -47,7 +47,7 @@ namespace edm { using ::std::advance; }
     1) edm::Ptr uses 'advance' free function to locate a given item within a collection
     2) 'advance' is defined in  the std::namespace for std containers (e.g. vector)
        http://www.sgi.com/tech/stl/advance.html
-    3) In edm::Ptr sources, we use 'advance'  without namespace prefix 
+    3) In edm::Ptr sources, we use 'advance'  without namespace prefix
        http://cmslxr.fnal.gov/lxr/source/DataFormats/Common/interface/Ptr.h?v=CMSSW_2_1_10#214
     4) This normally work because the container is std:: so the free function is resolved in the
        correct namespace (don't ask me why or how it works; Ask Marc, Bill or read C++ standards)
@@ -73,7 +73,7 @@ class PATUserDataTestModule : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
-      edm::InputTag muons_;
+      edm::EDGetTokenT<edm::View<pat::Muon> > muonsToken_;
       std::string   label_;
       enum TestMode { TestRead, TestWrite, TestExternal };
       TestMode mode_;
@@ -83,10 +83,10 @@ class PATUserDataTestModule : public edm::EDProducer {
 // constructors and destructor
 //
 PATUserDataTestModule::PATUserDataTestModule(const edm::ParameterSet& iConfig):
-  muons_(iConfig.getParameter<edm::InputTag>("muons")),
+  muonsToken_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muons"))),
   label_(iConfig.existsAs<std::string>("label") ? iConfig.getParameter<std::string>("label") : ""),
-  mode_( iConfig.getParameter<std::string>("mode") == "write" ? TestWrite : 
-        (iConfig.getParameter<std::string>("mode") == "read"  ? TestRead  : 
+  mode_( iConfig.getParameter<std::string>("mode") == "write" ? TestWrite :
+        (iConfig.getParameter<std::string>("mode") == "read"  ? TestRead  :
          TestExternal
         ))
 
@@ -116,12 +116,12 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    typedef std::pair<std::map<std::string,pat::Muon>, std::vector<math::XYZVector> > CrazyDataType;
 
    if (mode_ != TestExternal) {
-       edm::Handle<edm::View<pat::Muon> > muons;
-       iEvent.getByLabel(muons_,muons);
+       edm::Handle<View<pat::Muon> > muons;
+       iEvent.getByToken(muonsToken_,muons);
 
        std::auto_ptr<std::vector<pat::Muon> > output(new std::vector<pat::Muon>());
 
-       for (edm::View<pat::Muon>::const_iterator muon = muons->begin(), end = muons->end(); muon != end; ++muon) {
+       for (View<pat::Muon>::const_iterator muon = muons->begin(), end = muons->end(); muon != end; ++muon) {
            if (mode_ == TestWrite) {
                pat::Muon myMuon = *muon; // copy
                myMuon.addUserInt("answer", 42);
@@ -164,10 +164,10 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
            }
        }
        iEvent.put(output);
-   } else { 
+   } else {
        using namespace std;
        Handle<View<reco::Muon> > recoMuons;
-       iEvent.getByLabel(muons_, recoMuons);
+       iEvent.getByToken(muonsToken_, recoMuons);
        std::cout << "Got " << recoMuons->size() << " muons" << std::endl;
 
        vector<int> ints(recoMuons->size(), 42);

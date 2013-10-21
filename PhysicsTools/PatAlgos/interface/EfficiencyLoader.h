@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -18,11 +19,11 @@ class EfficiencyLoader {
         EfficiencyLoader() {}
 
         /// Constructor from a PSet
-        EfficiencyLoader(const edm::ParameterSet &iConfig) ;
+        EfficiencyLoader(const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC) ;
 
         /// 'true' if this there is at least one efficiency configured
         bool enabled() const { return !names_.empty(); }
-     
+
         /// To be called for each new event, reads in the ValueMaps for efficiencies
         void newEvent(const edm::Event &event) const ;
 
@@ -32,7 +33,7 @@ class EfficiencyLoader {
 
     private:
         std::vector<std::string>   names_;
-        std::vector<edm::InputTag> tags_;
+        std::vector<edm::EDGetTokenT<edm::ValueMap<pat::LookupTableRecord> > > tokens_;
         mutable std::vector<edm::Handle< edm::ValueMap<pat::LookupTableRecord> > > handles_;
 }; // class
 

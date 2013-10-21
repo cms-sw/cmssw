@@ -20,14 +20,15 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
 {
   // initialize the configurables
   metSrc_         = iConfig.getParameter<edm::InputTag>("metSource");
+  metToken_       = consumes<edm::View<reco::MET> >(metSrc_);
   addGenMET_      = iConfig.getParameter<bool>         ("addGenMET");
-  genMETSrc_      = iConfig.getParameter<edm::InputTag>("genMETSource");
+  genMETToken_    = mayConsume<edm::View<reco::GenMET> >(iConfig.getParameter<edm::InputTag>("genMETSource"));
   addResolutions_ = iConfig.getParameter<bool>         ("addResolutions");
 
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
-     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"), consumesCollector());
   }
 
   // Resolution configurables
@@ -38,10 +39,10 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
 
   // Check to see if the user wants to add user data
   if ( useUserData_ ) {
-    userDataHelper_ = PATUserDataHelper<MET>(iConfig.getParameter<edm::ParameterSet>("userData"));
+    userDataHelper_ = PATUserDataHelper<MET>(iConfig.getParameter<edm::ParameterSet>("userData"), consumesCollector());
   }
 
-  
+
   // produces vector of mets
   produces<std::vector<MET> >();
 }
@@ -52,10 +53,10 @@ PATMETProducer::~PATMETProducer() {
 
 
 void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
- 
+
   // Get the vector of MET's from the event
   edm::Handle<edm::View<reco::MET> > mets;
-  iEvent.getByLabel(metSrc_, mets);
+  iEvent.getByToken(metToken_, mets);
 
   if (mets->size() != 1) throw cms::Exception("Corrupt Data") << "The input MET collection " << metSrc_.encode() << " has size " << mets->size() << " instead of 1 as it should.\n";
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
@@ -64,11 +65,11 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // Get the vector of generated met from the event if needed
   edm::Handle<edm::View<reco::GenMET> > genMETs;
   if (addGenMET_) {
-    iEvent.getByLabel(genMETSrc_, genMETs);
+    iEvent.getByToken(genMETToken_, genMETs);
   }
 
   // loop over mets
-  std::vector<MET> * patMETs = new std::vector<MET>(); 
+  std::vector<MET> * patMETs = new std::vector<MET>();
   for (edm::View<reco::MET>::const_iterator itMET = mets->begin(); itMET != mets->end(); itMET++) {
     // construct the MET from the ref -> save ref to original object
     unsigned int idx = itMET - mets->begin();
@@ -90,7 +91,7 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if ( useUserData_ ) {
       userDataHelper_.add( amet, iEvent, iSetup );
     }
-    
+
 
     // correct for muons if demanded... never more: it's now done by JetMETCorrections
     // add the MET to the vector of METs
@@ -112,7 +113,7 @@ void PATMETProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
   edm::ParameterSetDescription iDesc;
   iDesc.setComment("PAT MET producer module");
 
-  // input source 
+  // input source
   iDesc.add<edm::InputTag>("metSource", edm::InputTag("no default"))->setComment("input collection");
 
   // MC configurations

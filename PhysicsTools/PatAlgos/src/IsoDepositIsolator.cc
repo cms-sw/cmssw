@@ -10,16 +10,17 @@ using pat::helper::IsoDepositIsolator;
 using pat::helper::BaseIsolator;
 using namespace reco::isodeposit;
 
-IsoDepositIsolator::IsoDepositIsolator(const edm::ParameterSet &conf, bool withCut) :
-    BaseIsolator(conf,withCut), deltaR_(conf.getParameter<double>("deltaR")), 
-    mode_(Sum), skipDefaultVeto_(false)
+IsoDepositIsolator::IsoDepositIsolator(const edm::ParameterSet &conf, edm::ConsumesCollector & iC, bool withCut) :
+    BaseIsolator(conf,iC,withCut), deltaR_(conf.getParameter<double>("deltaR")),
+    mode_(Sum), skipDefaultVeto_(false),
+    inputIsoDepositToken_(iC.consumes<Isolation>(input_))
 {
     if (conf.exists("mode")) {
         std::string mode = conf.getParameter<std::string>("mode");
         if (mode == "sum") mode_ = Sum;
         else if (mode == "sumRelative") mode_ = SumRelative;
-        else if (mode == "max") mode_ = Max;                  
-        else if (mode == "maxRelative") mode_ = MaxRelative;  
+        else if (mode == "max") mode_ = Max;
+        else if (mode == "maxRelative") mode_ = MaxRelative;
         else if (mode == "sum2") mode_ = Sum2;
         else if (mode == "sum2Relative") mode_ = Sum2Relative;
         else if (mode == "count") mode_ = Count;
@@ -29,19 +30,19 @@ IsoDepositIsolator::IsoDepositIsolator(const edm::ParameterSet &conf, bool withC
     }
 
     if (conf.exists("veto")) {
-        vetos_.push_back(new ConeVeto(Direction(), conf.getParameter<double>("veto"))); 
+        vetos_.push_back(new ConeVeto(Direction(), conf.getParameter<double>("veto")));
     }
     if (conf.exists("threshold")) {
-        vetos_.push_back(new ThresholdVeto(conf.getParameter<double>("threshold"))); 
+        vetos_.push_back(new ThresholdVeto(conf.getParameter<double>("threshold")));
     }
     if (conf.exists("skipDefaultVeto")) {
         skipDefaultVeto_ = conf.getParameter<bool>("skipDefaultVeto");
     }
 
     if (conf.exists("vetos")) { // expert configuration
-        if (!vetos_.empty()) 
+        if (!vetos_.empty())
             throw cms::Exception("Configuration") << "You can't both configure this module with 'veto'/'threshold' AND with 'vetos'!";
-        if (!conf.exists("skipDefaultVeto")) 
+        if (!conf.exists("skipDefaultVeto"))
             throw cms::Exception("Configuration") << "When using the expert configuration variable 'vetos' you must specify the value for 'skipDefaultVeto' too.";
 
         typedef std::vector<std::string> vstring;
@@ -63,7 +64,7 @@ IsoDepositIsolator::~IsoDepositIsolator() {
 
 void
 IsoDepositIsolator::beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) {
-    event.getByLabel(input_, handle_);
+    event.getByToken(inputIsoDepositToken_, handle_);
     for (EventDependentAbsVetos::iterator it = evdepVetos_.begin(), ed = evdepVetos_.end(); it != ed; ++it) {
         (*it)->setEvent(event,eventSetup);
     }
@@ -74,7 +75,7 @@ IsoDepositIsolator::endEvent() {
     handle_.clear();
 }
 
-std::string 
+std::string
 IsoDepositIsolator::description() const {
     using namespace std;
     ostringstream oss;

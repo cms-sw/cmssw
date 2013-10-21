@@ -46,7 +46,9 @@ namespace pat {
     private:
 
       // configurables
-      edm::InputTag electronSrc_;
+      edm::EDGetTokenT<edm::View<reco::GsfElectron> > electronToken_;
+      edm::EDGetTokenT<reco::BeamSpot>                bsToken_;
+      edm::EDGetTokenT<reco::ConversionCollection>    conversionsToken_;
 
   };
 

@@ -22,6 +22,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 
+#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+
 #include "CommonTools/Utils/interface/PtComparator.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -55,35 +57,37 @@ namespace pat {
     private:
 
       // configurables
-      edm::InputTag            jetsSrc_;
+      edm::EDGetTokenT<edm::View<reco::Jet> > jetsToken_;
       bool                     embedCaloTowers_;
       bool                     embedPFCandidates_;
       bool                     getJetMCFlavour_;
-      edm::InputTag            jetPartonMapSource_;
+      edm::EDGetTokenT<reco::JetFlavourMatchingCollection> jetPartonMapToken_;
       bool                     addGenPartonMatch_;
       bool                     embedGenPartonMatch_;
-      edm::InputTag            genPartonSrc_;
+      edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > genPartonToken_;
       bool                     addGenJetMatch_;
       bool                     embedGenJetMatch_;
-      edm::InputTag            genJetSrc_;
+      edm::EDGetTokenT<edm::Association<reco::GenJetCollection> > genJetToken_;
       bool                     addPartonJetMatch_;
-      edm::InputTag            partonJetSrc_;
+//       edm::EDGetTokenT<edm::View<reco::SomePartonJetType> > partonJetToken_;
       bool                     addJetCorrFactors_;
-      std::vector<edm::InputTag> jetCorrFactorsSrc_;
+      std::vector<edm::EDGetTokenT<edm::ValueMap<JetCorrFactors> > > jetCorrFactorsTokens_;
 
       bool                       addBTagInfo_;
-      bool                       addDiscriminators_; 
+      bool                       addDiscriminators_;
       std::vector<edm::InputTag> discriminatorTags_;
+      std::vector<edm::EDGetTokenT<reco::JetFloatAssociation::Container> > discriminatorTokens_;
       std::vector<std::string>   discriminatorLabels_;
-      bool                       addTagInfos_; 
+      bool                       addTagInfos_;
       std::vector<edm::InputTag> tagInfoTags_;
+      std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo> > > tagInfoTokens_;
       std::vector<std::string>   tagInfoLabels_;
       bool                       addAssociatedTracks_;
-      edm::InputTag              trackAssociation_;
+      edm::EDGetTokenT<reco::JetTracksAssociation::Container> trackAssociationToken_;
       bool                       addJetCharge_;
-      edm::InputTag              jetCharge_;
+      edm::EDGetTokenT<reco::JetFloatAssociation::Container> jetChargeToken_;
       bool                       addJetID_;
-      edm::InputTag              jetIDMapLabel_;
+      edm::EDGetTokenT<reco::JetIDValueMap> jetIDMapToken_;
       // tools
       GreaterByPt<Jet>                   pTComparator_;
       GreaterByPt<CaloTower>             caloPTComparator_;
@@ -97,7 +101,7 @@ namespace pat {
       bool useUserData_;
       pat::PATUserDataHelper<pat::Jet>      userDataHelper_;
 
-      
+
 
   };
 
