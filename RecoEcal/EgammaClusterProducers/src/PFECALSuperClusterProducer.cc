@@ -212,8 +212,8 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
   if( use_regression ) {
     edm::Handle<reco::VertexCollection> vertices;
     edm::Handle<EcalRecHitCollection>  rechitsEB,rechitsEE;
-    iEvent.getByToken(inputTagEBReduced_,rechitsEB);
-    iEvent.getByToken(inputTagEEReduced_,rechitsEE);
+    iEvent.getByToken(inputTagEBRecHits_,rechitsEB);
+    iEvent.getByToken(inputTagEERecHits_,rechitsEE);
     iEvent.getByToken(inputTagVertices_,vertices);
     double cor = 0.0;
     for( auto& ebsc : *(superClusterAlgo_.getEBOutputSCCollection()) ) {
