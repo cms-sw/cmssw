@@ -7,7 +7,7 @@
 <use name="hepmc"/>
 <use name="GeneratorInterface/EvtGenInterface"/>
 <use name="GeneratorInterface/PhotosInterface"/>
-<use name="GeneratorInterface/TauolaInterface/>
+<use name="GeneratorInterface/TauolaInterface"/>
 <export>
   <lib name="1"/>
 </export>

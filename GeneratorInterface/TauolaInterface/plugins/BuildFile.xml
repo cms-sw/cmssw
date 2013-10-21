@@ -1,4 +1,4 @@
-<library file="*.cc" name="TauolaInterfaceFactory">
+<library file="*.cc" name="TauolaFactory">
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>

@@ -48,7 +48,7 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       }
       else if ( curSet == "Tauola" )
       {
-	fTauolaInterface = (TauolaInterfaceBase*)(EvtGenFactory::get()->create("TauolaFactory", pset.getUntrackedParameter< ParameterSet >(curSet)));
+	fTauolaInterface = (TauolaInterfaceBase*)(EvtGenFactory::get()->create("Tauola27", pset.getUntrackedParameter< ParameterSet >(curSet)));
 	fTauolaInterface->SetDecayRandomEngine(decayRandomEngine);
       }
       else if ( curSet == "Photos" )

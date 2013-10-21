@@ -4,4 +4,4 @@
 #include "GeneratorInterface/TauolaInterface/interface/TauolaInterface.h"
 #include "GeneratorInterface/TauolaInterface/interface/TauolaFactory.h"
 
-DEFINE_EDM_PLUGIN(TauolaFactory, gen::TauolaInterface, "TauolaFactory");
+DEFINE_EDM_PLUGIN(TauolaFactory, gen::TauolaInterface, "Tauola27");
