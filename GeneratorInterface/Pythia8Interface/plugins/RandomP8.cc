@@ -1,4 +1,4 @@
-#include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/RandomP8.h"
 #include "CLHEP/Random/RandomEngine.h"
 
 
