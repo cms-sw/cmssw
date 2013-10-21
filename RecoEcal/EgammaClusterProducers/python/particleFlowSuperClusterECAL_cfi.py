@@ -108,10 +108,10 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     regressionKeyEE = cms.string('pfecalsc_EECorrection'),
     
     # threshold in ECAL
-    thresh_PFClusterSeedBarrel = cms.double(3.0),
+    thresh_PFClusterSeedBarrel = cms.double(1.0),
     thresh_PFClusterBarrel = cms.double(0.0),
 
-    thresh_PFClusterSeedEndcap = cms.double(5.0),
+    thresh_PFClusterSeedEndcap = cms.double(1.0),
     thresh_PFClusterEndcap = cms.double(0.0),
 
     # window width in ECAL ( these don't mean anything for Mustache )
