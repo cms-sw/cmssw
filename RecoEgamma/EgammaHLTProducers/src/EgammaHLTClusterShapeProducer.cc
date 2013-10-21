@@ -34,9 +34,9 @@ EgammaHLTClusterShapeProducer::~EgammaHLTClusterShapeProducer()
 void EgammaHLTClusterShapeProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag(""));
-  desc.add< edm::InputTag >(("ecalRechitEB"), edm::InputTag(""));
-  desc.add< edm::InputTag >(("ecalRechitEE"), edm::InputTag(""));
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltL1SeededRecoEcalCandidate"));
+  desc.add< edm::InputTag >(("ecalRechitEB"), edm::InputTag("hltEcalRegionalEgammaRecHit","EcalRecHitsEB"));
+  desc.add< edm::InputTag >(("ecalRechitEE"), edm::InputTag("hltEcalRegionalEgammaRecHit","EcalRecHitsEE"));
   desc.add< bool >(("isIeta"), true);
   descriptions.add(("hltEgammaHLTClusterShapeProducer"), desc);  
 }

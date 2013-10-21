@@ -59,10 +59,10 @@ EgammaHLTPixelMatchElectronProducers::~EgammaHLTPixelMatchElectronProducers() {
 void EgammaHLTPixelMatchElectronProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>(("TrackProducer"), edm::InputTag(""));
+  desc.add<edm::InputTag>(("TrackProducer"), edm::InputTag("hltEleAnyWP80CleanMergedTracks"));
   desc.add<edm::InputTag>(("GsfTrackProducer"), edm::InputTag(""));
   desc.add<bool>(("UseGsfTracks"), false);
-  desc.add<edm::InputTag>(("BSProducer"), edm::InputTag("")); 
+  desc.add<edm::InputTag>(("BSProducer"), edm::InputTag("hltOnlineBeamSpot")); 
   descriptions.add(("hltEgammaHLTPixelMatchElectronProducers"), desc);  
 }
 

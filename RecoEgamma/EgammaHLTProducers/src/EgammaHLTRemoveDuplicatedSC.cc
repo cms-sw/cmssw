@@ -31,10 +31,9 @@ EgammaHLTRemoveDuplicatedSC::~EgammaHLTRemoveDuplicatedSC()
 void EgammaHLTRemoveDuplicatedSC::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>(("L1NonIsoUskimmedSC"), edm::InputTag(""));
-  desc.add<edm::InputTag>(("L1IsoSC"), edm::InputTag(""));
-  desc.add<std::string>(("L1NonIsoSkimmedCollection"), "");
- 
+  desc.add<edm::InputTag>(("L1NonIsoUskimmedSC"), edm::InputTag("hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolatedTemp"));
+  desc.add<edm::InputTag>(("L1IsoSC"), edm::InputTag("hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1Isolated"));
+  desc.add<std::string>(("L1NonIsoSkimmedCollection"), ""); 
   descriptions.add(("hltEgammaHLTRemoveDuplicatedSC"), desc);  
 }
 

@@ -43,7 +43,7 @@ EgammaHLTBcHcalIsolationProducersRegional::EgammaHLTBcHcalIsolationProducersRegi
 
   useSingleTower_            = config.getParameter<bool>("useSingleTower");
   
-  hcalCfg_.hOverEConeSize = 0.15;
+  hcalCfg_.hOverEConeSize = outerCone_;
   hcalCfg_.useTowers = true;
   hcalCfg_.hcalTowers = config.getParameter<edm::InputTag>("caloTowerProducer");
   hcalCfg_.hOverEPtMin = etMin_;
@@ -61,19 +61,19 @@ void EgammaHLTBcHcalIsolationProducersRegional::fillDescriptions(edm::Configurat
 
   edm::ParameterSetDescription desc;
   
-  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltSingleElectronOneOEMinusOneOPFilter"));
-  desc.add<edm::InputTag>(("caloTowerProducer"), edm::InputTag("hltSingleElectronOneOEMinusOneOPFilter"));
-  desc.add<edm::InputTag>(("rhoProducer"), edm::InputTag("hltSingleElectronOneOEMinusOneOPFilter"));
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltRecoEcalCandidate"));
+  desc.add<edm::InputTag>(("caloTowerProducer"), edm::InputTag("hltTowerMakerForAll"));
+  desc.add<edm::InputTag>(("rhoProducer"), edm::InputTag("hltKT6CaloJets", "rho"));
   desc.add<bool>(("doRhoCorrection"), false);
-  desc.add<double>(("rhoMax"), 0); 
-  desc.add<double>(("rhoScale"), 0); 
-  desc.add<double>(("etMin"), 0);  
+  desc.add<double>(("rhoMax"), 999999.); 
+  desc.add<double>(("rhoScale"), 1.0); 
+  desc.add<double>(("etMin"), -1.0);  
   desc.add<double>(("innerCone"), 0);
-  desc.add<double>(("outerCone"), 0);
-  desc.add<int>(("depth"), 0);
+  desc.add<double>(("outerCone"), 0.15);
+  desc.add<int>(("depth"), -1);
   desc.add<bool>(("doEtSum"), false); 
-  desc.add<double>(("effectiveAreaBarrel"), 0);
-  desc.add<double>(("effectiveAreaEndcap"), 0);
+  desc.add<double>(("effectiveAreaBarrel"), 0.021);
+  desc.add<double>(("effectiveAreaEndcap"), 0.040);
   desc.add<bool>(("useSingleTower"), false);
   descriptions.add(("hltEgammaHLTBcHcalIsolationProducersRegional"), desc);  
 }

@@ -49,11 +49,11 @@ EgammaHLTGsfTrackVarProducer::~EgammaHLTGsfTrackVarProducer()
 
 void EgammaHLTGsfTrackVarProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag());
-  desc.add<edm::InputTag>(("inputCollection"), edm::InputTag());
-  desc.add<edm::InputTag>(("beamSpotProducer"), edm::InputTag());
-  desc.add<int>(("upperTrackNrToRemoveCut"), 1); 
-  desc.add<int>(("lowerTrackNrToRemoveCut"), 1);
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltRecoEcalSuperClusterActivityCandidate"));
+  desc.add<edm::InputTag>(("inputCollection"), edm::InputTag("hltActivityElectronGsfTracks"));
+  desc.add<edm::InputTag>(("beamSpotProducer"), edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<int>(("upperTrackNrToRemoveCut"), 9999); 
+  desc.add<int>(("lowerTrackNrToRemoveCut"), -1);
   descriptions.add("hltEgammaHLTGsfTrackVarProducer", desc);
 }
 void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

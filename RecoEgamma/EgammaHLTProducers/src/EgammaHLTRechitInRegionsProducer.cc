@@ -86,15 +86,15 @@ EgammaHLTRechitInRegionsProducer::~EgammaHLTRechitInRegionsProducer()
 
 void EgammaHLTRechitInRegionsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("ecalhitproducer", edm::InputTag(""));
-  desc.add<edm::InputTag>("l1TagIsolated", edm::InputTag(""));
-  desc.add<edm::InputTag>("l1TagNonIsolated", edm::InputTag(""));
+  desc.add<edm::InputTag>("ecalhitproducer", edm::InputTag("ecalRecHit"));
+  desc.add<edm::InputTag>("l1TagIsolated", edm::InputTag("l1extraParticles","Isolated"));
+  desc.add<edm::InputTag>("l1TagNonIsolated", edm::InputTag("l1extraParticles","NonIsolated"));
   desc.add<bool>("doIsolated", true);
-  desc.add<double>("l1LowerThr", 0.);
-  desc.add<double>("l1UpperThr", 0.);
-  desc.add<double>("l1LowerThrIgnoreIsolation", 0.);
-  desc.add<double>("regionEtaMargin", 0.);
-  desc.add<double>("regionPhiMargin", 0.);
+  desc.add<double>("l1LowerThr", 5.0);
+  desc.add<double>("l1UpperThr", 999.);
+  desc.add<double>("l1LowerThrIgnoreIsolation", 0.0);
+  desc.add<double>("regionEtaMargin", 0.14);
+  desc.add<double>("regionPhiMargin", 0.4);
   desc.add<std::vector<std::string> >("RecHitFlagToBeExcluded", std::vector<std::string>());
   desc.add<std::vector<std::string> >("RecHitSeverityToBeExcluded", std::vector<std::string>());
   descriptions.add(("hltEgammaHLTRechitInRegionsProducer"), desc);  

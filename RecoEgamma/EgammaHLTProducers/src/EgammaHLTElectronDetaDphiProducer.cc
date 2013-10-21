@@ -57,13 +57,12 @@ EgammaHLTElectronDetaDphiProducer::~EgammaHLTElectronDetaDphiProducer()
 
 void EgammaHLTElectronDetaDphiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>(("electronProducer"), edm::InputTag());
-  desc.add<edm::InputTag>(("BSProducer"), edm::InputTag());
+  desc.add<edm::InputTag>(("electronProducer"), edm::InputTag("hltEleAnyWP80PixelMatchElectronsL1Seeded"));
+  desc.add<edm::InputTag>(("BSProducer"), edm::InputTag("hltOnlineBeamSpot"));
   desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag()); 
   desc.add<bool>(("useSCRefs"), false);
   desc.add<bool>(("useTrackProjectionToEcal"), false);
   desc.add<bool>(("variablesAtVtx"), true);
-  
   descriptions.add(("hltEgammaHLTElectronDetaDphiProducer"), desc);  
 }
   

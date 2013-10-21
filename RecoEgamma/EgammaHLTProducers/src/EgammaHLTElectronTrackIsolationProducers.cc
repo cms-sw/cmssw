@@ -48,19 +48,19 @@ EgammaHLTElectronTrackIsolationProducers::~EgammaHLTElectronTrackIsolationProduc
 
 void EgammaHLTElectronTrackIsolationProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;  
-  desc.add<edm::InputTag>("electronProducer", edm::InputTag());
-  desc.add<edm::InputTag>("trackProducer", edm::InputTag());
+  desc.add<edm::InputTag>("electronProducer", edm::InputTag("hltEleAnyWP80PixelMatchElectronsL1Seeded"));
+  desc.add<edm::InputTag>("trackProducer", edm::InputTag("hltL1SeededEgammaRegionalCTFFinalFitWithMaterial"));
   desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag()); 
-  desc.add<edm::InputTag>("beamSpotProducer", edm::InputTag());
-  desc.add<double>("egTrkIsoPtMin", 0);
-  desc.add<double>("egTrkIsoConeSize", 0);
-  desc.add<double>("egTrkIsoZSpan", 0);
-  desc.add<double>("egTrkIsoRSpan", 0);
-  desc.add<double>("egTrkIsoVetoConeSizeBarrel", 0);
-  desc.add<double>("egTrkIsoVetoConeSizeEndcap", 0);
+  desc.add<edm::InputTag>("beamSpotProducer", edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<double>("egTrkIsoPtMin", 1.0);
+  desc.add<double>("egTrkIsoConeSize", 0.3);
+  desc.add<double>("egTrkIsoZSpan", 0.15);
+  desc.add<double>("egTrkIsoRSpan", 999999.0);
+  desc.add<double>("egTrkIsoVetoConeSizeBarrel", 0.03);
+  desc.add<double>("egTrkIsoVetoConeSizeEndcap", 0.03);
   desc.add<bool>("egCheckForOtherEleInCone", false);
-  desc.add<double>("egTrkIsoStripBarrel", 0);
-  desc.add<double>("egTrkIsoStripEndcap", 0);
+  desc.add<double>("egTrkIsoStripBarrel", 0.03);
+  desc.add<double>("egTrkIsoStripEndcap", 0.03);
   descriptions.add("hltEgammaHLTElectronTrackIsolationProducers", desc);  
 }
 void EgammaHLTElectronTrackIsolationProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

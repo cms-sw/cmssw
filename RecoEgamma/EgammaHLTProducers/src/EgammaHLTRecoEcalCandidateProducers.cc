@@ -34,8 +34,8 @@ EgammaHLTRecoEcalCandidateProducers::~EgammaHLTRecoEcalCandidateProducers() {}
 
 void EgammaHLTRecoEcalCandidateProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>(("scHybridBarrelProducer"), edm::InputTag(""));
-  desc.add<edm::InputTag>(("scIslandEndcapProducer"), edm::InputTag(""));
+  desc.add<edm::InputTag>(("scHybridBarrelProducer"), edm::InputTag("correctedHybridSuperClusters"));
+  desc.add<edm::InputTag>(("scIslandEndcapProducer"), edm::InputTag("correctedEndcapSuperClustersWithPreshower"));
   desc.add<std::string>(("recoEcalCandidateCollection"), "");
   descriptions.add(("hltEgammaHLTRecoEcalCandidateProducers"), desc);  
 }

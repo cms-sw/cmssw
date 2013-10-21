@@ -43,16 +43,16 @@ EgammaHLTPhotonTrackIsolationProducersRegional::~EgammaHLTPhotonTrackIsolationPr
 
 void EgammaHLTPhotonTrackIsolationProducersRegional::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag(""));
-  desc.add<edm::InputTag>(("trackProducer"), edm::InputTag(""));
-  desc.add<bool>(("countTracks"), true);
-  desc.add<double>(("egTrkIsoPtMin"), 0);
-  desc.add<double>(("egTrkIsoConeSize"), 0);
-  desc.add<double>(("egTrkIsoZSpan"), 0);
-  desc.add<double>(("egTrkIsoRSpan"), 0);
-  desc.add<double>(("egTrkIsoVetoConeSize"), 0);
-  desc.add<double>(("egTrkIsoStripBarrel"), 0);
-  desc.add<double>(("egTrkIsoStripEndcap"), 0);
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltL1SeededRecoEcalCandidate"));
+  desc.add<edm::InputTag>(("trackProducer"), edm::InputTag("hltL1SeededEgammaRegionalCTFFinalFitWithMaterial"));
+  desc.add<bool>(("countTracks"), false);
+  desc.add<double>(("egTrkIsoPtMin"), 1.0);
+  desc.add<double>(("egTrkIsoConeSize"), 0.29);
+  desc.add<double>(("egTrkIsoZSpan"), 999999.0);
+  desc.add<double>(("egTrkIsoRSpan"), 999999.0);
+  desc.add<double>(("egTrkIsoVetoConeSize"), 0.06);
+  desc.add<double>(("egTrkIsoStripBarrel"), 0.03);
+  desc.add<double>(("egTrkIsoStripEndcap"), 0.03);
   descriptions.add(("hltEgammaHLTPhotonTrackIsolationProducersRegional"), desc);  
 }
   

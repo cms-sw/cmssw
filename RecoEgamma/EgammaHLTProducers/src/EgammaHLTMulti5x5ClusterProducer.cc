@@ -89,22 +89,22 @@ EgammaHLTMulti5x5ClusterProducer::~EgammaHLTMulti5x5ClusterProducer() {
 void EgammaHLTMulti5x5ClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   edm::ParameterSetDescription desc;
-  desc.add<bool>(("doBarrel"), true);
+  desc.add<bool>(("doBarrel"), false);
   desc.add<bool>(("doEndcaps"), true);
   desc.add<bool>(("doIsolated"), true);
-  desc.add<edm::InputTag>(("barrelHitProducer"), edm::InputTag(""));
-  desc.add<edm::InputTag>(("endcapHitProducer"), edm::InputTag(""));
-  desc.add<std::string>(("barrelClusterCollection"), "");
-  desc.add<std::string>(("endcapClusterCollection"), "");
-  desc.add<double>(("Multi5x5BarrelSeedThr"), 0);
-  desc.add<double>(("Multi5x5EndcapSeedThr"), 0);
-  desc.add<edm::InputTag>(("l1TagIsolated"), edm::InputTag(""));
-  desc.add<edm::InputTag>(("l1TagNonIsolated"), edm::InputTag(""));
-  desc.add<double>(("l1LowerThr"), 0);
-  desc.add<double>(("l1UpperThr"), 0);
-  desc.add<double>(("l1LowerThrIgnoreIsolation"), 0);
-  desc.add<double>(("regionEtaMargin"), 0);
-  desc.add<double>(("regionPhiMargin"), 0);
+  desc.add<edm::InputTag>(("barrelHitProducer"), edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>(("endcapHitProducer"), edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEE"));
+  desc.add<std::string>(("barrelClusterCollection"), "notused");
+  desc.add<std::string>(("endcapClusterCollection"), "multi5x5EndcapBasicClusters");
+  desc.add<double>(("Multi5x5BarrelSeedThr"), 0.5);
+  desc.add<double>(("Multi5x5EndcapSeedThr"), 0.5);
+  desc.add<edm::InputTag>(("l1TagIsolated"), edm::InputTag("hltL1extraParticles","Isolated"));
+  desc.add<edm::InputTag>(("l1TagNonIsolated"), edm::InputTag("hltL1extraParticles","NonIsolated"));
+  desc.add<double>(("l1LowerThr"), 5.0);
+  desc.add<double>(("l1UpperThr"), 9999.);
+  desc.add<double>(("l1LowerThrIgnoreIsolation"), 999.0);
+  desc.add<double>(("regionEtaMargin"), 0.3);
+  desc.add<double>(("regionPhiMargin"), 0.4);
   //desc.add<edm::ParameterSet>(("posCalcParameters"), edm::ParameterSet());
   desc.add<std::vector<std::string> >(("RecHitFlagToBeExcluded"), std::vector<std::string>());
   descriptions.add(("hltEgammaHLTMulti5x5ClusterProducer"), desc);  

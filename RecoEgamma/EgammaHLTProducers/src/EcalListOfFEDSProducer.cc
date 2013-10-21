@@ -44,31 +44,31 @@ EcalListOfFEDSProducer::EcalListOfFEDSProducer(const edm::ParameterSet& pset) {
     
     EMl1TagIsolated_    = consumes<L1EmParticleCollection>(pset.getUntrackedParameter<edm::InputTag>("EM_l1TagIsolated"));
     EMl1TagNonIsolated_ = consumes<L1EmParticleCollection>(pset.getUntrackedParameter<edm::InputTag>("EM_l1TagNonIsolated"));
-    EMdoIsolated_       = pset.getUntrackedParameter<bool>("EM_doIsolated",true);
+    EMdoIsolated_       = pset.getUntrackedParameter<bool>("EM_doIsolated",  true);
     EMdoNonIsolated_    = pset.getUntrackedParameter<bool>("EM_doNonIsolated",true);
-    EMregionEtaMargin_  = pset.getUntrackedParameter<double>("EM_regionEtaMargin",0.25);
-    EMregionPhiMargin_  = pset.getUntrackedParameter<double>("EM_regionPhiMargin",0.40);
-    Ptmin_iso_          = pset.getUntrackedParameter<double>("Ptmin_iso",0.);
-    Ptmin_noniso_       = pset.getUntrackedParameter<double>("Ptmin_noniso",0.);
+    EMregionEtaMargin_  = pset.getUntrackedParameter<double>("EM_regionEtaMargin", 0.25);
+    EMregionPhiMargin_  = pset.getUntrackedParameter<double>("EM_regionPhiMargin", 0.40);
+    Ptmin_iso_          = pset.getUntrackedParameter<double>("Ptmin_iso", 0.);
+    Ptmin_noniso_       = pset.getUntrackedParameter<double>("Ptmin_noniso", 0.);
   }
   
   if (Muon_) {
-    MUregionEtaMargin_ = pset.getUntrackedParameter<double>("MU_regionEtaMargin",1.0);
-    MUregionPhiMargin_ = pset.getUntrackedParameter<double>("MU_regionPhiMargin",1.0);
-    Ptmin_muon_        = pset.getUntrackedParameter<double>("Ptmin_muon",0.);
+    MUregionEtaMargin_ = pset.getUntrackedParameter<double>("MU_regionEtaMargin", 1.0);
+    MUregionPhiMargin_ = pset.getUntrackedParameter<double>("MU_regionPhiMargin", 1.0);
+    Ptmin_muon_        = pset.getUntrackedParameter<double>("Ptmin_muon", 0.);
     MuonSource_        = consumes<L1MuonParticleCollection>(pset.getUntrackedParameter<edm::InputTag>("MuonSource"));
   }
 
  if (Jets_) {
-   JETSregionEtaMargin_ = pset.getUntrackedParameter<double>("JETS_regionEtaMargin",1.0);
-   JETSregionPhiMargin_ = pset.getUntrackedParameter<double>("JETS_regionPhiMargin",1.0);
-   Ptmin_jets_          = pset.getUntrackedParameter<double>("Ptmin_jets",0.);
+   JETSregionEtaMargin_ = pset.getUntrackedParameter<double>("JETS_regionEtaMargin", 1.0);
+   JETSregionPhiMargin_ = pset.getUntrackedParameter<double>("JETS_regionPhiMargin", 1.0);
+   Ptmin_jets_          = pset.getUntrackedParameter<double>("Ptmin_jets", 0.);
    CentralSource_       = consumes<L1JetParticleCollection>(pset.getUntrackedParameter<edm::InputTag>("CentralSource"));
    ForwardSource_       = consumes<L1JetParticleCollection>(pset.getUntrackedParameter<edm::InputTag>("ForwardSource"));
    TauSource_           = consumes<L1JetParticleCollection>(pset.getUntrackedParameter<edm::InputTag>("TauSource"));
-   JETSdoCentral_       = pset.getUntrackedParameter<bool>("JETS_doCentral",true);
-   JETSdoForward_       = pset.getUntrackedParameter<bool>("JETS_doForward",true);
-   JETSdoTau_           = pset.getUntrackedParameter<bool>("JETS_doTau",true);
+   JETSdoCentral_       = pset.getUntrackedParameter<bool>("JETS_doCentral", true);
+   JETSdoForward_       = pset.getUntrackedParameter<bool>("JETS_doForward", true);
+   JETSdoTau_           = pset.getUntrackedParameter<bool>("JETS_doTau", true);
  }
 
  OutputLabel_ = pset.getUntrackedParameter<std::string>("OutputLabel");
@@ -87,7 +87,7 @@ EcalListOfFEDSProducer::~EcalListOfFEDSProducer() {
 void EcalListOfFEDSProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   edm::ParameterSetDescription desc;
- desc.add<bool>("debug");
+  desc.add<bool>("debug", false);
  desc.add<edm::InputTag>("Pi0ListToIgnore", edm::InputTag(""));
  desc.add<bool>("EGamma",false);
  desc.add<bool>("Muon",false);

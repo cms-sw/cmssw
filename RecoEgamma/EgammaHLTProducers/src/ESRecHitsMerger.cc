@@ -47,8 +47,8 @@ void ESRecHitsMerger::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("RestSource_ES",edm::InputTag("dummyRest"));
   desc.add<edm::InputTag>("Pi0Source_ES",edm::InputTag("dummyPi0"));
   desc.add<edm::InputTag>("EtaSource_ES",edm::InputTag("dummyEta"));
-  desc.add<std::string>("OutputLabel_ES", "");
-  desc.add<std::string>("EcalRecHitCollectionES", "");
+  desc.add<std::string>("OutputLabel_ES", "EcalRecHitsES");
+  desc.add<std::string>("EcalRecHitCollectionES", "EcalRecHitsES");
   descriptions.add("hltESRecHitsMerger", desc);  
 }
 

@@ -67,16 +67,17 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::~EgammaHLTRegionalPixelSeedGenerat
 void EgammaHLTRegionalPixelSeedGeneratorProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   edm::ParameterSetDescription desc;
-  desc.add<double>("ptMin", 0);
+  desc.add<double>("ptMin", 1.5);
   desc.add<double>("vertexZ", 0);
-  desc.add<double>("originRadius", 0);
-  desc.add<double>("originHalfLength", 0);
-  desc.add<double>("deltaEtaRegion", 0);
-  desc.add<double>("deltaPhiRegion", 0);
-  desc.add<edm::InputTag>(("candTag"), edm::InputTag(""));
-  desc.add<edm::InputTag>(("candTagEle"), edm::InputTag(""));
-  desc.add<edm::InputTag>(("BSProducer"), edm::InputTag(""));
-  desc.add<bool>(("UseZInVertex"), true);
+  desc.add<double>("originRadius", 0.02);
+  desc.add<double>("originHalfLength", 15.0);
+  desc.add<double>("deltaEtaRegion", 0.3);
+  desc.add<double>("deltaPhiRegion", 0.3);
+  desc.add<edm::InputTag>(("candTag"), edm::InputTag("hltL1SeededRecoEcalCandidate"));
+  desc.add<edm::InputTag>(("candTagEle"), edm::InputTag("pixelMatchElectrons"));
+  desc.add<edm::InputTag>(("BSProducer"), edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<bool>(("UseZInVertex"), false);
+  
   descriptions.add(("hltEgammaHLTRegionalPixelSeedGeneratorProducers"), desc);  
 }
 

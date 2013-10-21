@@ -56,22 +56,22 @@ EgammaHLTHcalIsolationProducersRegional::~EgammaHLTHcalIsolationProducersRegiona
 
 void EgammaHLTHcalIsolationProducersRegional::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag());
-  desc.add<edm::InputTag>(("hbheRecHitProducer"), edm::InputTag());
-  desc.add<edm::InputTag>(("rhoProducer"), edm::InputTag());
-  desc.add<bool>(("doRhoCorrection"), 0);
-  desc.add<double>(("rhoMax"), 0); 
-  desc.add<double>(("rhoScale"), 0); 
-  desc.add<double>(("eMinHB"), 0);
-  desc.add<double>(("eMinHE"), 0);
-  desc.add<double>(("etMinHB"), 0);  
-  desc.add<double>(("etMinHE"), 0);
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltL1SeededRecoEcalCandidate"));
+  desc.add<edm::InputTag>(("hbheRecHitProducer"), edm::InputTag("hltHbhereco"));
+  desc.add<edm::InputTag>(("rhoProducer"), edm::InputTag("hltKT6CaloJets","rho"));
+  desc.add<bool>(("doRhoCorrection"), false);
+  desc.add<double>(("rhoMax"), 9.9999999E7); 
+  desc.add<double>(("rhoScale"), 1.0); 
+  desc.add<double>(("eMinHB"), 0.7);
+  desc.add<double>(("eMinHE"), 0.8);
+  desc.add<double>(("etMinHB"), -1.0);  
+  desc.add<double>(("etMinHE"), -1.0);
   desc.add<double>(("innerCone"), 0);
-  desc.add<double>(("outerCone"), 0);
-  desc.add<int>(("depth"), 0);
-  desc.add<bool>(("doEtSum"), 0);
-  desc.add<double>(("effectiveAreaBarrel"), 0);
-  desc.add<double>(("effectiveAreaEndcap"), 0);
+  desc.add<double>(("outerCone"), 0.15);
+  desc.add<int>(("depth"),  -1);
+  desc.add<bool>(("doEtSum"), false);
+  desc.add<double>(("effectiveAreaBarrel"), 0.105);
+  desc.add<double>(("effectiveAreaEndcap"), 0.170);
   descriptions.add(("hltEgammaHLTHcalIsolationProducersRegional"), desc);  
 }
 

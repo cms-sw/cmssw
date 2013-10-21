@@ -42,13 +42,12 @@ EgammaHLTHcalIsolationDoubleConeProducers::~EgammaHLTHcalIsolationDoubleConeProd
 
 void EgammaHLTHcalIsolationDoubleConeProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag());
-  desc.add<edm::InputTag>(("hbRecHitProducer"), edm::InputTag());
-  desc.add<edm::InputTag>(("hfRecHitProducer"), edm::InputTag());
-  desc.add<double>(("egHcalIsoPtMin"), 0);
-  desc.add<double>(("egHcalIsoConeSize"), 0);
-  desc.add<double>(("egHcalExclusion"), 0);
-
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltL1SeededRecoEcalCandidate"));
+  desc.add<edm::InputTag>(("hbRecHitProducer"), edm::InputTag("hltHbhereco"));
+  desc.add<edm::InputTag>(("hfRecHitProducer"), edm::InputTag("hltHfreco"));
+  desc.add<double>(("egHcalIsoPtMin"), 0.);
+  desc.add<double>(("egHcalIsoConeSize"), 0.3);
+  desc.add<double>(("egHcalExclusion"), 0.15);
   descriptions.add(("hltEgammaHLTHcalIsolationDoubleConeProducers"), desc);
 }
 

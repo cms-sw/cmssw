@@ -91,23 +91,23 @@ EgammaHLTIslandClusterProducer::~EgammaHLTIslandClusterProducer() {
 void EgammaHLTIslandClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("VerbosityLevel", "");
+  desc.add<std::string>("VerbosityLevel", "ERROR");
   desc.add<bool>("doBarrel", true);
   desc.add<bool>("doEndcaps", true);
   desc.add<bool>("doIsolated", true);
-  desc.add<edm::InputTag>("barrelHitProducer", edm::InputTag(""));
-  desc.add<edm::InputTag>("endcapHitProducer", edm::InputTag(""));
-  desc.add<std::string>("barrelClusterCollection", "");
-  desc.add<std::string>("endcapClusterCollection", "");
-  desc.add<double>("IslandBarrelSeedThr", 0);
-  desc.add<double>("IslandEndcapSeedThr", 0);
-  desc.add<edm::InputTag>("l1TagIsolated", edm::InputTag(""));
-  desc.add<edm::InputTag>("l1TagNonIsolated", edm::InputTag(""));
-  desc.add<double>("l1LowerThr", 0);
-  desc.add<double>("l1UpperThr", 0);
-  desc.add<double>("l1LowerThrIgnoreIsolation", 0);
-  desc.add<double>("regionEtaMargin", 0);
-  desc.add<double>("regionPhiMargin", 0);
+  desc.add<edm::InputTag>("barrelHitProducer", edm::InputTag("islandEndcapBasicClusters", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("endcapHitProducer", edm::InputTag("islandEndcapBasicClusters", "EcalRecHitsEB"));
+  desc.add<std::string>("barrelClusterCollection", "islandBarrelBasicClusters");
+  desc.add<std::string>("endcapClusterCollection", "islandEndcapBasicClusters");
+  desc.add<double>("IslandBarrelSeedThr", 0.5);
+  desc.add<double>("IslandEndcapSeedThr", 0.18);
+  desc.add<edm::InputTag>("l1TagIsolated", edm::InputTag("l1extraParticles","Isolated"));
+  desc.add<edm::InputTag>("l1TagNonIsolated", edm::InputTag("l1extraParticles","NonIsolated"));
+  desc.add<double>("l1LowerThr", 0.0);
+  desc.add<double>("l1UpperThr", 9999.0);
+  desc.add<double>("l1LowerThrIgnoreIsolation", 9999.0);
+  desc.add<double>("regionEtaMargin", 0.3);
+  desc.add<double>("regionPhiMargin", 0.4);
   //desc.add<edm::ParameterSet>("posCalcParameters"), edm::ParameterSet());
   descriptions.add("hltEgammaHLTIslandClusterProducer", desc);  
 }
