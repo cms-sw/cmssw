@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -82,7 +83,7 @@ namespace HcalDigitizerImpl {
 } // namespace HcaiDigitizerImpl
 
 
-HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
+HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC) :
   theGeometry(0),
   theParameterMap(new HcalSimParameterMap(ps)),
   theShapes(new HcalShapes()),
@@ -128,11 +129,15 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
   hbhegeo(true),
   hogeo(true),
   hfgeo(true),
+  hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode")),
   deliveredLumi(0.),
   m_HEDarkening(0),
   m_HFRecalibration(0)
 {
+  iC.consumes<std::vector<PCaloHit> >(edm::InputTag(hitsProducer_, "ZDCHITS"));
+  iC.consumes<std::vector<PCaloHit> >(edm::InputTag(hitsProducer_, "HcalHits"));
+
   bool doNoise = ps.getParameter<bool>("doNoise");
   bool useOldNoiseHB = ps.getParameter<bool>("useOldHB");
   bool useOldNoiseHE = ps.getParameter<bool>("useOldHE");
@@ -322,8 +327,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
   theZDCDigitizer->setRandomEngine(engine);
 
   if (theHitCorrection!=0) theHitCorrection->setRandomEngine(engine);
-
-  hitsProducer_ = ps.getParameter<std::string>("hitsProducer");
   
   if(agingFlagHE) m_HEDarkening = new HEDarkening();
   if(agingFlagHF) m_HFRecalibration = new HFRecalibration();

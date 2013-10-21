@@ -4,6 +4,7 @@
 //
 //--------------------------------------------
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataMixingHcalDigiWorkerProd.h"
@@ -12,7 +13,7 @@
 using namespace std;
 namespace edm {
   // Constructor 
-  DataMixingHcalDigiWorkerProd::DataMixingHcalDigiWorkerProd(const edm::ParameterSet& ps) : 
+  DataMixingHcalDigiWorkerProd::DataMixingHcalDigiWorkerProd(const edm::ParameterSet& ps, edm::ConsumesCollector& iC) : 
     HBHEPileInputTag_(ps.getParameter<edm::InputTag>("HBHEPileInputTag")),
     HOPileInputTag_(ps.getParameter<edm::InputTag>("HOPileInputTag")),
     HFPileInputTag_(ps.getParameter<edm::InputTag>("HFPileInputTag")),
@@ -40,7 +41,7 @@ namespace edm {
 
     // initialize HcalDigitizer here...
 
-    myHcalDigitizer_ = new HcalDigitizer( ps );
+    myHcalDigitizer_ = new HcalDigitizer( ps, iC );
 
     myHcalDigitizer_->setHBHENoiseSignalGenerator( & theHBHESignalGenerator );
     myHcalDigitizer_->setHFNoiseSignalGenerator( & theHFSignalGenerator );

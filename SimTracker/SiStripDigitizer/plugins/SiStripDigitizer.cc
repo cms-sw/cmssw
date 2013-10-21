@@ -30,6 +30,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 //needed for the geometry:
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -57,7 +58,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Random/RandomEngine.h"
 
-SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::EDProducer& mixMod) : 
+SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::EDProducer& mixMod, edm::ConsumesCollector& iC) : 
   gainLabel(conf.getParameter<std::string>("Gain")),
   hitsProducer(conf.getParameter<std::string>("hitsProducer")),
   trackerContainers(conf.getParameter<std::vector<std::string> >("ROUList")),
@@ -77,6 +78,10 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::EDProduce
   mixMod.produces<edm::DetSetVector<SiStripRawDigi> >(VRDigi).setBranchAlias(alias + VRDigi);
   mixMod.produces<edm::DetSetVector<SiStripRawDigi> >(PRDigi).setBranchAlias(alias + PRDigi);
   mixMod.produces<edm::DetSetVector<StripDigiSimLink> >().setBranchAlias(alias + "siStripDigiSimLink");
+  for(auto const& trackerContainer : trackerContainers) {
+    edm::InputTag tag(hitsProducer, trackerContainer);
+    iC.consumes<std::vector<PSimHit> >(edm::InputTag(hitsProducer, trackerContainer));  
+  }
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -130,9 +135,9 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
     const TrackerTopology *tTopo=tTopoHand.product();
 
     // Step A: Get Inputs
-    for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
+    for(auto const& trackerContainer : trackerContainers) {
       edm::Handle<std::vector<PSimHit> > simHits;
-      edm::InputTag tag(hitsProducer, *i);
+      edm::InputTag tag(hitsProducer, trackerContainer);
 
       iEvent.getByLabel(tag, simHits);
       accumulateStripHits(simHits,tTopo,crossingSimHitIndexOffset_[tag.encode()]);
@@ -152,9 +157,9 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
     const TrackerTopology *tTopo=tTopoHand.product();
 
     // Step A: Get Inputs
-    for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
+    for(auto const& trackerContainer : trackerContainers) {
       edm::Handle<std::vector<PSimHit> > simHits;
-      edm::InputTag tag(hitsProducer, *i);
+      edm::InputTag tag(hitsProducer, trackerContainer);
 
       iEvent.getByLabel(tag, simHits);
       accumulateStripHits(simHits,tTopo,crossingSimHitIndexOffset_[tag.encode()]);
