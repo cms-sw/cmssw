@@ -10,17 +10,17 @@
 #include <Pythia.h>
 #include <HepMCInterface.h>
 
-#include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/RandomP8.h"
 
-#include "GeneratorInterface/Pythia8Interface/interface/ReweightUserHooks.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
 
 // PS matchning prototype
 //
-#include "GeneratorInterface/Pythia8Interface/interface/JetMatchingHook.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
 
 // Emission Veto Hook
 //
-#include "GeneratorInterface/Pythia8Interface/interface/EmissionVetoHook.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -121,6 +121,11 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   fJetMatchingHook(0),
   fEmissionVetoHook(0)
 {
+
+#ifdef PYTHIA8175
+  setenv("PYTHIA8DATA", getenv("PYTHIA8175DATA"), true);
+#endif
+
   randomEngine = &getEngineReference();
 
   //Old code that used Pythia8 own random engine
@@ -590,10 +595,20 @@ void Pythia8Hadronizer::finalizeEvent()
   }
 }
 
+#ifdef PYTHIA8175
+
+typedef edm::GeneratorFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8175GeneratorFilter;
+DEFINE_FWK_MODULE(Pythia8175GeneratorFilter);
+
+typedef edm::HadronizerFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8175HadronizerFilter;
+DEFINE_FWK_MODULE(Pythia8175HadronizerFilter);
+
+#else
 
 typedef edm::GeneratorFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8GeneratorFilter;
 DEFINE_FWK_MODULE(Pythia8GeneratorFilter);
 
-
 typedef edm::HadronizerFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8HadronizerFilter;
 DEFINE_FWK_MODULE(Pythia8HadronizerFilter);
+
+#endif
