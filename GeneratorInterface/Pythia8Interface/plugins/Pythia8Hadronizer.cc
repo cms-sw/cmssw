@@ -35,7 +35,7 @@
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
-#include "GeneratorInterface/Pythia8Interface/interface/LHAupLesHouches.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/LHAupLesHouches.h"
 
 #include "HepPID/ParticleIDTranslations.hh"
 
