@@ -265,6 +265,118 @@ MonitorElement * DQMStore::IBooker::book1D(const std::string &name,
   return owner_->book1D(name, title, nchX, lowX, highX);
 }
 
+/** Function to transfer the local copies of histograms from each
+    stream into the global ROOT Object. Since this involves de-facto a
+    booking action in the case in which the global object is not yet
+    there, the function requires the acquisition of the central lock
+    into the DQMStore. A double 'find' is done on the internal data_
+    since we have no guarantee that a previous module holding the lock
+    have booked what we looked for before requiring the lock. In case
+    we book the global object for the first time, no Add action is
+    needed since the ROOT histograms is cloned starting from the local
+    one. */
+
+void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
+                                               uint32_t streamId,
+                                               uint32_t moduleId) {
+  std::cout << "Merging objects from run: "
+	    << run
+	    << ", stream: " << streamId
+	    << " module: " << moduleId << std::endl;
+  std::string null_str("");
+  MonitorElement proto(&null_str, null_str, run, streamId, moduleId);
+  std::set<MonitorElement>::const_iterator e = data_.end();
+  std::set<MonitorElement>::const_iterator i = data_.lower_bound(proto);
+  while (i != e) {
+    if (i->data_.run != run
+        || i->data_.streamId != streamId
+        || i->data_.moduleId != moduleId)
+      break;
+    MonitorElement global_me(*i);
+
+    // Handle Run-based histograms only.
+
+    if (global_me.getLumiFlag()) {
+      ++i;
+      continue;
+    }
+
+    global_me.globalize();
+    std::set<MonitorElement>::const_iterator me = data_.find(global_me);
+    if (me != data_.end()) {
+      std::cout << "Found global Object, using it. ";
+      me->getTH1()->Add(i->getTH1());
+    } else {
+      // Since this is equivalent to a real booking operation it must
+      // be locked.
+      std::cout << "No global Object found. ";
+      std::lock_guard<std::mutex> guard(book_mutex_);
+      me = data_.find(global_me);
+      if (me != data_.end()) {
+        me->getTH1()->Add(i->getTH1());
+      } else {
+        std::pair<std::set<MonitorElement>::const_iterator, bool> gme;
+        gme = data_.insert(global_me);
+        assert(gme.second);
+      }
+    }
+    // TODO(rovere): eventually reset the local object and mark it as reusable??
+    ++i;
+  }
+}
+
+void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
+						      uint32_t lumi,
+						      uint32_t streamId,
+						      uint32_t moduleId) {
+  std::cout << "Merging objects from run: "
+	    << run << 	" lumi: " << lumi
+	    << ", stream: " << streamId
+	    << " module: " << moduleId << std::endl;
+  std::string null_str("");
+  MonitorElement proto(&null_str, null_str, run, streamId, moduleId);
+  std::set<MonitorElement>::const_iterator e = data_.end();
+  std::set<MonitorElement>::const_iterator i = data_.lower_bound(proto);
+  while (i != e) {
+    if (i->data_.run != run
+        || i->data_.streamId != streamId
+        || i->data_.moduleId != moduleId)
+      break;
+    MonitorElement global_me(*i);
+
+    // Handle LS-based histograms only.
+
+    if (!global_me.getLumiFlag()) {
+      ++i;
+      continue;
+    }
+
+    global_me.globalize();
+    global_me.setLumi(lumi);
+    std::set<MonitorElement>::const_iterator me = data_.find(global_me);
+    if (me != data_.end()) {
+      std::cout << "Found global Object, using it --> ";
+      me->getTH1()->Add(i->getTH1());
+    } else {
+      // Since this is equivalent to a real booking operation it must
+      // be locked.
+      std::cout << "No global Object found. ";
+      std::lock_guard<std::mutex> guard(book_mutex_);
+      me = data_.find(global_me);
+      if (me != data_.end()) {
+        me->getTH1()->Add(i->getTH1());
+      } else {
+        std::pair<std::set<MonitorElement>::const_iterator, bool> gme;
+        gme = data_.insert(global_me);
+        assert(gme.second);
+      }
+    }
+    const_cast<MonitorElement*>(&*i)->Reset();
+    // TODO(rovere): eventually reset the local object and mark it as reusable??
+    ++i;
+  }
+}
+
 //////////////////////////////////////////////////////////////////////
 DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
   : verbose_ (1),

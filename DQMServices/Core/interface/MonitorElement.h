@@ -73,6 +73,11 @@ private:
   MonitorElement *initialise(Kind kind);
   MonitorElement *initialise(Kind kind, TH1 *rootobj);
   MonitorElement *initialise(Kind kind, const std::string &value);
+  void globalize() {
+    data_.streamId = 0;
+    data_.moduleId = 0;
+  }
+  void setLumi(uint32_t ls) {data_.lumi = ls;}
 
 public:
   MonitorElement(void);

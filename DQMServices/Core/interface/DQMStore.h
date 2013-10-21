@@ -440,6 +440,15 @@ public:
   void                          getAllTags(std::vector<std::string> &into) const;
   std::vector<MonitorElement*>  getAllContents(const std::string &path) const;
   std::vector<MonitorElement*>  getMatchingContents(const std::string &pattern, lat::Regexp::Syntax syntaxType = lat::Regexp::Wildcard) const;
+
+  // Multithread SummaryCache manipulations
+  void mergeAndResetMEsRunSummaryCache(uint32_t run,
+				       uint32_t streamId,
+				       uint32_t moduleId);
+  void mergeAndResetMEsLuminositySummaryCache(uint32_t run,
+					      uint32_t lumi,
+					      uint32_t streamId,
+					      uint32_t moduleId);
 private:
 
   // ---------------- Miscellaneous -----------------------------
