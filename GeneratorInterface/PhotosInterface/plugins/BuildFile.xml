@@ -1,4 +1,4 @@
-<library file="*.cc,*.f" name="PhotosInterfaceFactory">
+<library file="*.cc,*.f" name="PhotosFactory">
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>

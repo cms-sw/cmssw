@@ -1,4 +1,4 @@
-<library file="*.cc,*.cpp,*.f" name="EventGenInterfaceFactory">
+<library file="*.cc,*.cpp,*.f" name="EventGenFactory">
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
