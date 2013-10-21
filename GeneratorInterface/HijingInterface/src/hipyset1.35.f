@@ -7046,10 +7046,15 @@ C...Find largest eigenvalue to matrix (third degree equation).
       SMA=1./3.+SQRT(-SQ)*MAX(2.*SP,SQRT(3.*(1.-SP**2))-SP) 
     
 C...Find largest eigenvector by solving equation system.    
-      DO 170 J1=1,3 
-      SM(J1,J1)=SM(J1,J1)-SMA   
-      DO 170 J2=J1+1,3  
-  170 SM(J2,J1)=SM(J1,J2)   
+      DO J1=1,3 
+      SM(J1,J1)=SM(J1,J1)-SMA
+C     CMSSW change: added if to stay in array bounds
+      IF(J1<3) THEN
+      DO J2=J1+1,3  
+      SM(J2,J1)=SM(J1,J2)
+      ENDDO
+      ENDIF
+      ENDDO
       SMAX=0.   
       DO 180 J1=1,3 
       DO 180 J2=1,3 
