@@ -15,7 +15,7 @@ PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   
   double theta = originalFTS.momentum().theta();
   double phi = originalFTS.momentum().phi();
-  double field  = originalFTS.parameters().magneticField().inInverseGeV(originalFTS.position()).z();
+  double field  = originalFTS.parameters().magneticFieldInInverseGeV().z();
 //   if (field==0.) throw cms::Exception("PerigeeConversions", "Field is 0") << " at " << originalFTS.position() << "\n" ;
 
   double positiveMomentumPhi = ( (phi>0) ? phi : (2*M_PI+phi) );
@@ -166,8 +166,7 @@ PerigeeConversions::jacobianCurvilinear2Perigee(const FreeTrajectoryState& fts){
   I = I.unit();
   GlobalVector J(-I.y(), I.x(),0.); //counterclockwise rotation
   GlobalVector K(Z);
-  GlobalPoint x = fts.position();
-  GlobalVector B  = fts.parameters().magneticField().inInverseGeV(x);
+  GlobalVector B  = fts.parameters().magneticFieldInInverseGeV();
   GlobalVector H = B.unit();
   GlobalVector HxT = H.cross(T);
   GlobalVector N = HxT.unit();
@@ -233,8 +232,7 @@ PerigeeConversions::jacobianPerigee2Curvilinear(const GlobalTrajectoryParameters
   I = I.unit();
   GlobalVector J(-I.y(), I.x(),0.f); //counterclockwise rotation
   GlobalVector K(Z);
-  GlobalPoint x = gtp.position();
-  GlobalVector B  = gtp.magneticField().inInverseGeV(x);
+   GlobalVector B  = gtp.magneticFieldInInverseGeV();
   GlobalVector H = B.unit();
   GlobalVector HxT = H.cross(T);
   GlobalVector N = HxT.unit();

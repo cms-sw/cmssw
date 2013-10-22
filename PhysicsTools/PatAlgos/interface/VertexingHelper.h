@@ -5,7 +5,7 @@
   \brief    Produces and/or checks pat::VertexAssociation's
 
    The VertexingHelper produces pat::VertexAssociation, or reads them from the event,
-   and can use them to select if a candidate is good or not. 
+   and can use them to select if a candidate is good or not.
 
   \author   Giovanni Petrucciani
   \version  $Id: VertexingHelper.h,v 1.3 2008/06/06 14:13:40 gpetrucc Exp $
@@ -18,6 +18,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -27,8 +28,8 @@
 namespace reco {
     namespace modules {
         /// Helper struct to convert from ParameterSet to ElectronSelection
-        template<> 
-        struct ParameterAdapter<pat::VertexAssociationSelector> { 
+        template<>
+        struct ParameterAdapter<pat::VertexAssociationSelector> {
             static pat::VertexAssociationSelector make(const edm::ParameterSet & iConfig) {
                 pat::VertexAssociationSelector::Config assoconf;
                 if (iConfig.existsAs<double>("deltaZ"))  assoconf.dZ = iConfig.getParameter<double>("deltaZ");
@@ -45,8 +46,8 @@ namespace pat { namespace helper {
     class VertexingHelper {
         public:
             VertexingHelper() : enabled_(false) {}
-            VertexingHelper(const edm::ParameterSet &iConfig) ;
-    
+            VertexingHelper(const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC) ;
+
             /// returns true if this was given a non dummy configuration
             bool enabled() const {  return enabled_; }
 
@@ -62,31 +63,31 @@ namespace pat { namespace helper {
             template<typename AnyCandRef>
             pat::VertexAssociation  operator()(const AnyCandRef &) const ;
 
-        private: 
+        private:
             /// true if it has non null configuration
             bool enabled_;
-        
+
             /// true if it's just reading the associations from the event
             bool playback_;
-       
-            /// selector of associations 
+
+            /// selector of associations
             pat::VertexAssociationSelector assoSelector_;
 
             //-------- Tools for production of vertex associations -------
-            edm::InputTag vertices_;
-            edm::Handle<reco::VertexCollection > vertexHandle_;
+            edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
+            edm::Handle<reco::VertexCollection> vertexHandle_;
             /// use tracks inside candidates
             bool useTracks_;
             edm::ESHandle<TransientTrackBuilder> ttBuilder_;
-          
-            //--------- Tools for reading vertex associations (playback mode) ----- 
-            edm::InputTag vertexAssociations_;
+
+            //--------- Tools for reading vertex associations (playback mode) -----
+            edm::EDGetTokenT<edm::ValueMap<pat::VertexAssociation> > vertexAssociationsToken_;
             edm::Handle<edm::ValueMap<pat::VertexAssociation> > vertexAssoMap_;
 
             /// Get out the track from the Candidate / RecoCandidate / PFCandidate
             reco::TrackBaseRef  getTrack_(const reco::Candidate &c) const ;
-            
-            /// Try to associated this candidate to a vertex. 
+
+            /// Try to associated this candidate to a vertex.
             /// If no association is found passing all cuts, return a null association
             pat::VertexAssociation associate(const reco::Candidate &) const ;
 
@@ -94,7 +95,7 @@ namespace pat { namespace helper {
 
     template<typename AnyCandRef>
     pat::VertexAssociation
-    pat::helper::VertexingHelper::operator()(const AnyCandRef &cand) const 
+    pat::helper::VertexingHelper::operator()(const AnyCandRef &cand) const
     {
         if (playback_) {
             const pat::VertexAssociation &assoc = (*vertexAssoMap_)[cand];

@@ -26,9 +26,10 @@
 
 #include <boost/filesystem/path.hpp>
 #include "boost/shared_ptr.hpp"
-#include "FWCore/Utilities/interface/Signal.h"
+#include "tbb/concurrent_unordered_map.h"
 
 // user include files
+#include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "FWCore/PluginManager/interface/PluginInfo.h"
 
@@ -36,6 +37,14 @@
 namespace edmplugin {
   class DummyFriend;
   class PluginFactoryBase;
+  
+  struct PluginManagerPathHasher {
+    size_t operator()(boost::filesystem::path const& iPath) const {
+      tbb::tbb_hash<std::string> hasher;
+      return hasher( iPath.native() );
+    }
+  };
+  
 class PluginManager
 {
    friend class DummyFriend;
@@ -113,7 +122,7 @@ class PluginManager
                                                   bool& ioThrowIfFailElseSucceedStatus);
       // ---------- member data --------------------------------
       SearchPath searchPath_;
-      std::map<boost::filesystem::path, boost::shared_ptr<SharedLibrary> > loadables_;
+      tbb::concurrent_unordered_map<boost::filesystem::path, boost::shared_ptr<SharedLibrary>, PluginManagerPathHasher > loadables_;
       
       CategoryToInfos categoryToInfos_;
       std::recursive_mutex pluginLoadMutex_;

@@ -2,8 +2,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DataFormats/METReco/interface/CorrMETData.h"
-
 ShiftedMETcorrInputProducer::ShiftedMETcorrInputProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
@@ -16,7 +14,7 @@ ShiftedMETcorrInputProducer::ShiftedMETcorrInputProducer(const edm::ParameterSet
     for ( vInputTag::const_iterator src_test = src_ref;
 	  src_test != src_.end(); ++src_test ) {
       if ( src_test->label() != src_ref->label() )
-	throw cms::Exception("ShiftedMETcorrInputProducer") 
+	throw cms::Exception("ShiftedMETcorrInputProducer")
 	  << "InputTags specified by 'src' Configuration parameter must not refer to different module labels !!\n";
     }
   }
@@ -34,11 +32,12 @@ ShiftedMETcorrInputProducer::ShiftedMETcorrInputProducer(const edm::ParameterSet
     double uncertainty = cfg.getParameter<double>("uncertainty");
     binning_.push_back(new binningEntryType(uncertainty));
   }
-  
+
   for ( vInputTag::const_iterator src_i = src_.begin();
 	src_i != src_.end(); ++src_i ) {
     for ( std::vector<binningEntryType*>::const_iterator binningEntry = binning_.begin();
 	  binningEntry != binning_.end(); ++binningEntry ) {
+      srcTokens_.push_back(consumes<CorrMETData>(edm::InputTag(src_i->label(), (*binningEntry)->getInstanceLabel_full(src_i->instance()))));
       produces<CorrMETData>((*binningEntry)->getInstanceLabel_full(src_i->instance()));
     }
   }
@@ -54,22 +53,24 @@ ShiftedMETcorrInputProducer::~ShiftedMETcorrInputProducer()
 
 void ShiftedMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
+  unsigned countToken(0);
   for ( vInputTag::const_iterator src_i = src_.begin();
 	src_i != src_.end(); ++src_i ) {
     for ( std::vector<binningEntryType*>::iterator binningEntry = binning_.begin();
 	  binningEntry != binning_.end(); ++binningEntry ) {
       edm::Handle<CorrMETData> originalObject;
-      evt.getByLabel(edm::InputTag(src_i->label(), (*binningEntry)->getInstanceLabel_full(src_i->instance())), originalObject);
-  
+      evt.getByToken(srcTokens_.at(countToken), originalObject);
+      ++countToken;
+
       double shift = shiftBy_*(*binningEntry)->binUncertainty_;
-      
+
       std::auto_ptr<CorrMETData> shiftedObject(new CorrMETData(*originalObject));
 //--- MET balances momentum of reconstructed particles,
 //    hence variations of "unclustered energy" and MET are opposite in sign
       shiftedObject->mex   = -shift*originalObject->mex;
       shiftedObject->mey   = -shift*originalObject->mey;
       shiftedObject->sumet = shift*originalObject->sumet;
-      
+
       evt.put(shiftedObject, (*binningEntry)->getInstanceLabel_full(src_i->instance()));
     }
   }

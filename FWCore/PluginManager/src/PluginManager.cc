@@ -229,21 +229,23 @@ PluginManager::load(const std::string& iCategory,
   askedToLoadCategoryWithPlugin_(iCategory,iPlugin);
   const boost::filesystem::path& p = loadableFor(iCategory,iPlugin);
   
-  //Need to make sure we only have on SharedLibrary loading at a time
-  // plus loadables_ must be serialized
-  std::lock_guard<std::recursive_mutex> guard(pluginLoadMutex());
   //have we already loaded this?
-  std::map<boost::filesystem::path, boost::shared_ptr<SharedLibrary> >::iterator itLoaded = 
-    loadables_.find(p);
+  auto itLoaded = loadables_.find(p);
   if(itLoaded == loadables_.end()) {
-    //try to make one
-    goingToLoad_(p);
-    Sentry s(loadingLibraryNamed_(), p.string());
-    //boost::filesystem::path native(p.string());
-    boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
-    loadables_[p]=ptr;
-    justLoaded_(*ptr);
-    return *ptr;
+    //Need to make sure we only have on SharedLibrary loading at a time
+    std::lock_guard<std::recursive_mutex> guard(pluginLoadMutex());
+    //Another thread may have gotten this while we were waiting on the mutex
+    itLoaded = loadables_.find(p);
+    if(itLoaded == loadables_.end()){
+      //try to make one
+      goingToLoad_(p);
+      Sentry s(loadingLibraryNamed_(), p.string());
+      //boost::filesystem::path native(p.string());
+      boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
+      loadables_[p]=ptr;
+      justLoaded_(*ptr);
+      return *ptr;
+    }
   }
   return *(itLoaded->second);
 }
@@ -260,22 +262,24 @@ PluginManager::tryToLoad(const std::string& iCategory,
     return 0;
   }
   
-  //Need to make sure we only have on SharedLibrary loading at a time
-  // plus loadables_ must be serialized
-  std::lock_guard<std::recursive_mutex> guard(pluginLoadMutex());
 
   //have we already loaded this?
-  std::map<boost::filesystem::path, boost::shared_ptr<SharedLibrary> >::iterator itLoaded = 
-    loadables_.find(p);
+  auto itLoaded = loadables_.find(p);
   if(itLoaded == loadables_.end()) {
-    //try to make one
-    goingToLoad_(p);
-    Sentry s(loadingLibraryNamed_(), p.string());
-    //boost::filesystem::path native(p.string());
-    boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
-    loadables_[p]=ptr;
-    justLoaded_(*ptr);
-    return ptr.get();
+    //Need to make sure we only have on SharedLibrary loading at a time
+    std::lock_guard<std::recursive_mutex> guard(pluginLoadMutex());
+    //Another thread may have gotten this while we were waiting on the mutex
+    itLoaded = loadables_.find(p);
+    if(itLoaded == loadables_.end()){
+      //try to make one
+      goingToLoad_(p);
+      Sentry s(loadingLibraryNamed_(), p.string());
+      //boost::filesystem::path native(p.string());
+      boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
+      loadables_[p]=ptr;
+      justLoaded_(*ptr);
+      return ptr.get();
+    }
   }
   return (itLoaded->second).get();
 }

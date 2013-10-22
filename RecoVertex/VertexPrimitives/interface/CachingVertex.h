@@ -82,14 +82,14 @@ public:
 
   /** Access methods
    */      
-  VertexState vertexState() const {return theVertexState;}
-  VertexState priorVertexState() const {return thePriorVertexState;}
+  VertexState const & vertexState() const {return theVertexState;}
+  VertexState const & priorVertexState() const {return thePriorVertexState;}
   GlobalPoint position() const;
   GlobalError error() const;
   GlobalWeight weight() const;
   AlgebraicVector3 weightTimesPosition() const;
-  std::vector<RefCountedVertexTrack> tracks() const { return theTracks; }
-  const std::vector<RefCountedVertexTrack> &tracksRef() const { return theTracks; }
+  std::vector<RefCountedVertexTrack> const & tracks() const { return theTracks; }
+  std::vector<RefCountedVertexTrack> const & tracksRef() const { return theTracks; }
   GlobalPoint priorPosition() const {return priorVertexState().position();}
   GlobalError priorError() const {return priorVertexState().error();}
   bool hasPrior() const {return withPrior;}

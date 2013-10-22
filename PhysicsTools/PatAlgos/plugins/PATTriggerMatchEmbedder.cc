@@ -18,6 +18,8 @@
 
 #include <vector>
 
+#include "FWCore/Utilities/interface/transform.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,7 +42,9 @@ namespace pat {
   class PATTriggerMatchEmbedder : public edm::EDProducer {
 
       edm::InputTag src_;
+      edm::EDGetTokenT< edm::View< PATObjectType > > srcToken_;
       std::vector< edm::InputTag > matches_;
+      std::vector< edm::EDGetTokenT< TriggerObjectStandAloneMatch > > matchesTokens_;
 
     public:
 
@@ -69,7 +73,9 @@ using namespace pat;
 template< class PATObjectType >
 PATTriggerMatchEmbedder< PATObjectType >::PATTriggerMatchEmbedder( const edm::ParameterSet & iConfig ) :
   src_( iConfig.getParameter< edm::InputTag >( "src" ) ),
-  matches_( iConfig.getParameter< std::vector< edm::InputTag > >( "matches" ) )
+  srcToken_( consumes< edm::View< PATObjectType > >( src_ ) ),
+  matches_( iConfig.getParameter< std::vector< edm::InputTag > >( "matches" ) ),
+  matchesTokens_( edm::vector_transform( matches_, [this](edm::InputTag const & tag) { return consumes< TriggerObjectStandAloneMatch >( tag ); } ) )
 {
   produces< std::vector< PATObjectType > >();
 }
@@ -80,7 +86,7 @@ void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, con
   std::auto_ptr< std::vector< PATObjectType > > output( new std::vector< PATObjectType >() );
 
   edm::Handle< edm::View< PATObjectType > > candidates;
-  iEvent.getByLabel( src_, candidates );
+  iEvent.getByToken( srcToken_, candidates );
   if ( ! candidates.isValid() ) {
     edm::LogError( "missingInputSource" ) << "Input source with InputTag " << src_.encode() << " not in event.";
     return;
@@ -90,9 +96,9 @@ void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, con
     const unsigned index( iCand - candidates->begin() );
     PATObjectType cand( candidates->at( index ) );
     std::set< TriggerObjectStandAloneRef > cachedRefs;
-    for ( size_t iMatch = 0; iMatch < matches_.size(); ++iMatch ) {
+    for ( size_t iMatch = 0; iMatch < matchesTokens_.size(); ++iMatch ) {
       edm::Handle< TriggerObjectStandAloneMatch > match;
-      iEvent.getByLabel( matches_.at( iMatch ), match );
+      iEvent.getByToken( matchesTokens_.at( iMatch ), match );
       if ( ! match.isValid() ) {
         edm::LogError( "missingInputMatch" ) << "Input match with InputTag " << matches_.at( iMatch ).encode() << " not in event.";
         continue;

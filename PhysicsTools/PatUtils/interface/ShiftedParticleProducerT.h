@@ -3,7 +3,7 @@
 
 /** \class ShiftedParticleProducerT
  *
- * Vary energy of electrons/muons/tau-jets by +/- 1 standard deviation, 
+ * Vary energy of electrons/muons/tau-jets by +/- 1 standard deviation,
  * in order to estimate resulting uncertainty on MET
  *
  * NOTE: energy scale uncertainties need to be specified in python config
@@ -27,7 +27,7 @@
 #include <vector>
 
 template <typename T>
-class ShiftedParticleProducerT : public edm::EDProducer  
+class ShiftedParticleProducerT : public edm::EDProducer
 {
   typedef std::vector<T> ParticleCollection;
 
@@ -36,7 +36,7 @@ class ShiftedParticleProducerT : public edm::EDProducer
   explicit ShiftedParticleProducerT(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
   {
-    src_ = cfg.getParameter<edm::InputTag>("src");
+    srcToken_ = consumes<ParticleCollection>(cfg.getParameter<edm::InputTag>("src"));
 
     shiftBy_ = cfg.getParameter<double>("shiftBy");
 
@@ -51,7 +51,7 @@ class ShiftedParticleProducerT : public edm::EDProducer
       double uncertainty = cfg.getParameter<double>("uncertainty");
       binning_.push_back(new binningEntryType(uncertainty));
     }
-    
+
     produces<ParticleCollection>();
   }
   ~ShiftedParticleProducerT()
@@ -61,13 +61,13 @@ class ShiftedParticleProducerT : public edm::EDProducer
       delete (*it);
     }
   }
-    
+
  private:
 
   void produce(edm::Event& evt, const edm::EventSetup& es)
   {
     edm::Handle<ParticleCollection> originalParticles;
-    evt.getByLabel(src_, originalParticles);
+    evt.getByToken(srcToken_, originalParticles);
 
     std::auto_ptr<ParticleCollection> shiftedParticles(new ParticleCollection);
 
@@ -82,13 +82,13 @@ class ShiftedParticleProducerT : public edm::EDProducer
 	  break;
 	}
       }
-      
+
       double shift = shiftBy_*uncertainty;
 
       reco::Candidate::LorentzVector shiftedParticleP4 = originalParticle->p4();
       shiftedParticleP4 *= (1. + shift);
 
-      T shiftedParticle(*originalParticle);      
+      T shiftedParticle(*originalParticle);
       shiftedParticle.setP4(shiftedParticleP4);
 
       shiftedParticles->push_back(shiftedParticle);
@@ -99,7 +99,7 @@ class ShiftedParticleProducerT : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag src_; 
+  edm::EDGetTokenT<ParticleCollection> srcToken_;
 
   struct binningEntryType
   {
@@ -111,7 +111,7 @@ class ShiftedParticleProducerT : public edm::EDProducer
     : binSelection_(new StringCutObjectSelector<T>(cfg.getParameter<std::string>("binSelection"))),
       binUncertainty_(cfg.getParameter<double>("binUncertainty"))
     {}
-    ~binningEntryType() 
+    ~binningEntryType()
     {
       delete binSelection_;
     }
@@ -126,5 +126,5 @@ class ShiftedParticleProducerT : public edm::EDProducer
 #endif
 
 
- 
+
 
