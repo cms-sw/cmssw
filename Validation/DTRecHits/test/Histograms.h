@@ -638,54 +638,68 @@ class HRes4DHit{
 //---------------------------------------------------------------------------------------
 /// A set of histograms for efficiency 4D RecHits
 class HEff4DHit{
-  public:
-    HEff4DHit(std::string name_){
-      TString N = name_.c_str();
-      name=N;
-
-      hEtaSimSegm     = new TH1F("4D_"+N+"_hEtaSimSegm", "Eta of SimHit segment", 100, -1.5, 1.5);
-      hEtaRecHit      = new TH1F("4D_"+N+"_hEtaRecHit", "Eta distribution of SimHit segment with 4D RecHit",
-                                 100, -1.5, 1.5);
-      hEffVsEta       = 0;
-
-      hPhiSimSegm     = new TH1F("4D_"+N+"_hPhiSimSegm", "Phi of SimHit segment",
-                                 100, -TMath::Pi(),TMath::Pi());
-      hPhiRecHit      = new TH1F("4D_"+N+"_hPhiRecHit", "Phi distribution of SimHit segment with 4D RecHit",
-                                 100, -TMath::Pi(),TMath::Pi());
-      hEffVsPhi       = 0;
-
-
-      hXSimSegm       = new TH1F("4D_"+N+"_hXSimSegm", "X position in Chamber of SimHit segment (cm)",
-                                 100, -200, 200);
-      hXRecHit        = new TH1F("4D_"+N+"_hXRecHit", "X position in Chamber of SimHit segment with 4D RecHit (cm)",
-                                 100, -200, 200);
-      hEffVsX         = 0;
-
-      hYSimSegm       = new TH1F("4D_"+N+"_hYSimSegm", "Y position in Chamber of SimHit segment (cm)",
-                                 100, -200, 200);
-      hYRecHit        = new TH1F("4D_"+N+"_hYRecHit", "Y position in Chamber of SimHit segment with 4D RecHit (cm)",
-                                 100, -200, 200);
-      hEffVsY         = 0;
-
-      hAlphaSimSegm   = new TH1F("4D_"+N+"_hAlphaSimSegm", "Alpha of SimHit segment (rad)",
-                                 100, -1.5, 1.5);
-      hAlphaRecHit    = new TH1F("4D_"+N+"_hAlphaRecHit", "Alpha of SimHit segment with 4D RecHit (rad)",
-                                 100, -1.5, 1.5);
-      hEffVsAlpha     = 0;
-
-      hBetaSimSegm   = new TH1F("4D_"+N+"_hBetaSimSegm", "Beta of SimHit segment (rad)",
-                                100, -2, 2);
-      hBetaRecHit    = new TH1F("4D_"+N+"_hBetaRecHit", "Beta of SimHit segment with 4D RecHit (rad)",
-                                100, -2, 2);
-      hEffVsBeta     = 0;
-
-    }
-
-    HEff4DHit (TString name_, TFile* file){
-      name=name_;
-      hEtaSimSegm = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hEtaSimSegm");
-      hEtaRecHit = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hEtaRecHit");
-      hEffVsEta = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hEffVsEta");
+  
+ public: 
+  
+  HEff4DHit (TFile* file, int wheel, int station, int sl){
+    initFromFile(buildName(wheel,station,sl),file);
+  }
+  
+  
+  HEff4DHit (TString name_, TFile* file){
+    initFromFile(name_,file);
+  }
+  
+  
+  
+  HEff4DHit(std::string name_){
+    TString N = name_.c_str();
+    name=N;
+    
+    hEtaSimSegm     = new TH1F("4D_"+N+"_hEtaSimSegm", "Eta of SimHit segment", 100, -1.5, 1.5);
+    hEtaRecHit      = new TH1F("4D_"+N+"_hEtaRecHit", "Eta distribution of SimHit segment with 4D RecHit",
+			       100, -1.5, 1.5);
+    hEffVsEta       = 0;
+    
+    hPhiSimSegm     = new TH1F("4D_"+N+"_hPhiSimSegm", "Phi of SimHit segment",
+			       100, -TMath::Pi(),TMath::Pi());
+    hPhiRecHit      = new TH1F("4D_"+N+"_hPhiRecHit", "Phi distribution of SimHit segment with 4D RecHit",
+			       100, -TMath::Pi(),TMath::Pi());
+    hEffVsPhi       = 0;
+    
+    
+    hXSimSegm       = new TH1F("4D_"+N+"_hXSimSegm", "X position in Chamber of SimHit segment (cm)",
+			       100, -200, 200);
+    hXRecHit        = new TH1F("4D_"+N+"_hXRecHit", "X position in Chamber of SimHit segment with 4D RecHit (cm)",
+			       100, -200, 200);
+    hEffVsX         = 0;
+    
+    hYSimSegm       = new TH1F("4D_"+N+"_hYSimSegm", "Y position in Chamber of SimHit segment (cm)",
+			       100, -200, 200);
+    hYRecHit        = new TH1F("4D_"+N+"_hYRecHit", "Y position in Chamber of SimHit segment with 4D RecHit (cm)",
+			       100, -200, 200);
+    hEffVsY         = 0;
+    
+    hAlphaSimSegm   = new TH1F("4D_"+N+"_hAlphaSimSegm", "Alpha of SimHit segment (rad)",
+			       100, -1.5, 1.5);
+    hAlphaRecHit    = new TH1F("4D_"+N+"_hAlphaRecHit", "Alpha of SimHit segment with 4D RecHit (rad)",
+			       100, -1.5, 1.5);
+    hEffVsAlpha     = 0;
+    
+    hBetaSimSegm   = new TH1F("4D_"+N+"_hBetaSimSegm", "Beta of SimHit segment (rad)",
+			      100, -2, 2);
+    hBetaRecHit    = new TH1F("4D_"+N+"_hBetaRecHit", "Beta of SimHit segment with 4D RecHit (rad)",
+			      100, -2, 2);
+    hEffVsBeta     = 0;
+    
+  }
+  
+  void initFromFile (TString name_, TFile* file){
+  
+    name=name_;
+    hEtaSimSegm = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hEtaSimSegm");
+    hEtaRecHit = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hEtaRecHit");
+    hEffVsEta = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hEffVsEta");
 
       hPhiSimSegm = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPhiSimSegm");
       hPhiRecHit = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hPhiRecHit");
@@ -706,6 +720,9 @@ class HEff4DHit{
       hBetaSimSegm  = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hBetaSimSegm");
       hBetaRecHit  = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hBetaRecHit");
       hEffVsBeta  = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hEffVsBeta");
+
+      ComputeEfficiency();
+
     }
 
 

@@ -43,6 +43,10 @@ void plotValidation(TString filename, int wheel, int station) {
   bool doT0= true;
   bool doSegRes=true;
 
+  bool doAngularDeps = true;
+  bool doEff4D = true;
+
+
   //----------------------------------------------------------------------
  
   TStyle * style = getStyle("tdr");
@@ -72,7 +76,7 @@ void plotValidation(TString filename, int wheel, int station) {
   
 
   HRes4DHit* hRes4D= new HRes4DHit(file, wheel, station, 0);
-  
+  HEff4DHit* hEff4D = new HEff4DHit(file, wheel, station, 0);
 
 
   // Result of fits
@@ -219,7 +223,8 @@ void plotValidation(TString filename, int wheel, int station) {
     c1->Divide(2,2);
     c1->cd(1);
     
-    TH2F * hNh = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+buildName(wheel,station,0)+"_hNHits");
+    TH2F* hNh =  hRes4D->hHitMult;
+ 
     hNh->SetXTitle("#phi hits");
     hNh->SetYTitle("#theta hits");
     hNh->Draw("BOX");
@@ -228,10 +233,11 @@ void plotValidation(TString filename, int wheel, int station) {
     c1->cd(3);
     hNh->ProjectionX()->Draw();
     c1->cd(4);
-    TH2F * ht0 = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+buildName(wheel,station,0)+"_ht0");
-    ht0->SetXTitle("t0 #phi");
-    ht0->SetYTitle("t0 #theta");
-    ht0->Draw("BOX");
+   
+    TH2F* ht =  hRes4D->ht0;
+    ht->SetXTitle("t0 #phi");
+    ht->SetYTitle("t0 #theta");
+    ht->Draw("BOX");
 
 
   }
@@ -255,4 +261,65 @@ void plotValidation(TString filename, int wheel, int station) {
     drawGFit(hRes4D->hResBeta, nsigma, -0.4, 0.4);
     
   }
+
+
+ //-------------------- Angular dependencies
+  if (doAngularDeps) {
+    TCanvas* c1= new TCanvas;
+    
+    float min;
+    float max;
+
+    c1->SetName(canvbasename+" MeanVsAngles");
+    c1->SetTitle(canvbasename+" Angles");
+    
+    c1->Divide(2,2);
+
+    c1->cd(2);  
+    plotAndProfileX(hResPhi->hResVsAngle,1,1,1,-.04, .04, -1., 1.);
+       
+    c1->cd(4);
+    plotAndProfileX(hResTheta->hResVsAngle,1,1,1,-.04, .04, -1.2.,1.2);
+   
+
+  }
+
+
+
+  //------------------- Efficiencies Vs X, Y. alpha, beta
+
+  if(doEff4D){
+    // FIXME: should rebin histograms.
+    
+    TH1F* hEffX;
+    TH1F* hEffY;
+    TH1F* hEffalpha;
+    TH1F* hEffbeta;
+
+    TCanvas* c1= new TCanvas;
+    c1->SetName(canvbasename+"_Efficiencies");
+    c1->SetTitle(canvbasename+"_Efficiencies");
+    
+    c1->Divide(2,2);
+    
+    c1->cd(1);
+    hEffX = getEffPlot(hEff4D->hXRecHit, hEff4D->hXSimSegm,2);
+    hEffX->Draw();
+
+    c1->cd(2);
+    hEffalpha = getEffPlot(hEff4D->hAlphaRecHit, hEff4D->hAlphaSimSegm,2);
+    hEffalpha->Draw();
+
+    c1->cd(3);
+    hEffY = getEffPlot(hEff4D->hYRecHit, hEff4D->hYSimSegm,2);
+    hEffY->Draw();
+
+    c1->cd(4);
+    hEffbeta = getEffPlot(hEff4D->hBetaRecHit, hEff4D->hBetaSimSegm,2);
+    hEffbeta->Draw();
+
+
+
+    }
+
 } 

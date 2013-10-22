@@ -516,3 +516,13 @@ void plotEff(TH1* h1, TH1* h2=0, TH1* h3=0) {
     h3->Draw("same");
   }
 }
+
+TH1F* getEffPlot(TH1* hnum, TH1* hden, int rebin=1) {
+  hnum->Rebin(rebin);
+  hden->Rebin(rebin);
+  TH1F* h = hnum->Clone();
+  h->Sumw2();
+  h->Divide(hnum,hden,1.,1.,"B");
+  h->SetStats(0);
+  return h;
+}

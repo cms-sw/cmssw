@@ -37,11 +37,11 @@ class HRes1DHit{
       if(doall){
 	hDist=0; hDist = dbe_->book1D(pre + "_hDist" ,"1D RHit distance from wire", 100, 0,2.5);
 	//hDist       = new TH1F ("1D_"+N+"_hDist", "1D RHit distance from wire", 100, 0,2.5);
-	hResVsAngle = 0; hResVsAngle   = dbe_->book2D(pre+"_hResVsAngle", "1D RHit residual vs impact angle",100, -1.,1, 100, -0.2,0.2);    
+	hResVsAngle = 0; hResVsAngle   = dbe_->book2D(pre+"_hResVsAngle", "1D RHit residual vs impact angle",100, -1.2,1.2, 100, -0.2,0.2);    
 	hResVsDistFE = 0; hResVsDistFE = dbe_->book2D(pre+"_hResVsDistFE", "1D RHit residual vs FE distance", 100, 0.,400., 150, -0.5,0.5);    
 	dbe_->setCurrentFolder("DT/1DRecHits/Pull/");
  	hPullVsPos= 0; hPullVsPos  = dbe_->book2D (pre+"_hPullVsPos", "1D RHit pull vs position", 100, 0,2.5, 100, -5,5);
-	hPullVsAngle = 0; hPullVsAngle  = dbe_->book2D (pre+"_hPullVsAngle", "1D RHit pull vs impact angle",100, -1.,+1, 100, -5,5);
+	hPullVsAngle = 0; hPullVsAngle  = dbe_->book2D (pre+"_hPullVsAngle", "1D RHit pull vs impact angle",100, -1.2,1.2, 100, -5,5);
 	hPullVsDistFE = 0; hPullVsDistFE  = dbe_->book2D (pre+"_hPullVsDistFE", "1D RHit pull vs FE distance", 100, 0., 400., 100, -5,5);
       }
       dbe_->setCurrentFolder("DT/1DRecHits/Res/");
@@ -853,8 +853,8 @@ class HRes4DHit{
               float sigmaYRZ,
 	      int nHitsPhi,
 	      int nHitsTheta,
-	      int t0Phi,
-	      int t0Theta
+	      float t0Phi,
+	      float t0Theta
              ) {
       float resAlpha = recDirectionAlpha - simDirectionAlpha;
       hResAlpha->Fill(resAlpha);

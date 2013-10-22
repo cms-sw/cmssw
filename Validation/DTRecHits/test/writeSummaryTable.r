@@ -12,11 +12,11 @@
 
 
 void writeSummaryTable(){
-  cout << endl << "Usage: .x writeSummaryTable.r(\"inputFile.root\",doEff,doRes,doPull)" << endl << endl;
+  cout << endl << "Usage: .x writeSummaryTable.r(\"inputFile.root\",doEff,doEffab,doRes,doResab,doPull)" << endl << endl;
 }
 
 
-void writeSummaryTable(TString filename, bool doEff=true, bool doRes=true, bool doPull=true) {
+void writeSummaryTable(TString filename, bool doEff=true, bool doEffab = true, bool doRes=true, bool doResab = true, bool doPull=true) {
 
   //----------------------------------------------------------------------
   // Configurable options  
@@ -38,6 +38,7 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doRes=true, bool 
   TString table = filename.Replace(filename.Length()-5,5,"_summary.txt");
   ofstream f(table,ios_base::out);
   f << fixed;  
+  f << "# W St sec SL effS1RPhi effS3RPhi effSeg resHit pullHit meanAngle  sigmaAngle" << endl;
 
   // All sectors are collapsed together as of now
   int smin = 0;
@@ -53,11 +54,18 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doRes=true, bool 
 	double sphi = -1.;
 	double ptheta = -1.;
 	double pphi = -1.;
-	
+	double salpha = -1.;
+	double sbeta = -1.;
+	double malpha = -1.;
+	double mbeta = -1.;
+
 	float effS1RPhi=0.;
 	float effS3RPhi=0.;
 	float effS1RZ=0.;
 	float effS3RZ=0.;
+	float effSeg = 0;
+
+
 
 	HRes1DHit *hResPhi1  = new HRes1DHit(file, wheel, station, 1, "S3");
 	HRes1DHit *hResTheta = new HRes1DHit(file, wheel, station, 2, "S3");
@@ -66,6 +74,11 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doRes=true, bool 
 	HEff1DHit* hEffS3RPhi= new HEff1DHit(file, wheel, station, 1, "S3");
 	HEff1DHit* hEffS1RZ=0;
 	HEff1DHit* hEffS3RZ=0;
+
+	HRes4DHit* hRes4D= new HRes4DHit(file, wheel, station, 0);
+	HEff4DHit* hEff4D = new HEff4DHit(file, wheel, station, 0);
+
+
 	if (station!=4) {
 	  hEffS1RZ=   new HEff1DHit(file, wheel, station, 2, "S1");
 	  hEffS3RZ=   new HEff1DHit(file, wheel, station, 2, "S3");
@@ -88,6 +101,16 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doRes=true, bool 
 	  cout << endl;	  
 	}
 	
+	if (doEffab) {
+	  if (station!=4) {
+	    
+	    effSeg = hEff4D->hBetaRecHit->Integral()/hEff4D->hBetaSimSegm->Integral();
+	   	    
+	    cout << " " << wheel << " " << station << " " << sector <<  " effSeg: " << effSeg << endl;
+	   
+	    
+	  }
+	}
 	
 	if (doRes) {
 	  if (station!=4) {
@@ -102,6 +125,25 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doRes=true, bool 
 	  cout << " " << wheel << " " << station << " " << sector  <<  " sphi: " << sphi;
 	  if (station!=4) cout  << " stheta: " << stheta ;
 	  cout << endl;
+	}
+
+	if (doResab) {
+	  if (station!=4) {
+	    TH1F* tmpBeta = (TH1F*) hRes4D->hResBeta->Clone("tmpBeta");
+	    TF1* fbeta = drawGFit(tmpBeta, nsigma, -2. , 2.);
+	    sbeta = fbeta->GetParameter("Sigma");
+	    mbeta = fbeta->GetParameter("Mean");
+	    
+	    TH1F* tmpAlpha = (TH1F*) hRes4D->hResAlpha->Clone("tmpAlpha");
+	    TF1* falpha = drawGFit(tmpAlpha, nsigma, -2. , 2. );
+	    salpha = falpha->GetParameter("Sigma");
+	    malpha = falpha->GetParameter("Mean");
+
+	    cout << " " << wheel << " " << station << " " << sector  <<  " salpha: " << salpha  << " malpha: " << malpha;
+	    cout  << " sbeta: " << sbeta  << " mbeta: " << mbeta;
+	    cout << endl;
+	  }
+	 	  
 	}
 	
 
@@ -133,9 +175,9 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doRes=true, bool 
  	}
  	for (int sec = secmin; sec<=secmax; sec++) {
  	  if (station!=4 && sec>12) continue;
-	  f                 << wheel << " " << station << " " << sec << " " << 1 << " " << effS1RPhi << " " << effS3RPhi << " " << sphi   << " " << pphi << endl;
-	  if (station!=4) f << wheel << " " << station << " " << sec << " " << 2 << " " << effS1RZ   << " " << effS3RZ   << " " << stheta << " " << ptheta <<endl;
-	  f                 << wheel << " " << station << " " << sec << " " << 3 << " " << effS1RPhi << " " << effS3RPhi << " " << sphi   << " " << pphi << endl;
+	  f                 << wheel << " " << station << " " << sec << " " << 1 << " " << effS1RPhi << " " << effS3RPhi << " " << effSeg << " " << sphi   << " " << pphi << " " << malpha <<  " " <<salpha <<endl;
+	  if (station!=4) f << wheel << " " << station << " " << sec << " " << 2 << " " << effS1RZ   << " " << effS3RZ   << " " <<  effSeg <<" " << stheta << " " << ptheta << " " << mbeta <<  " " <<sbeta <<endl;
+	  f                 << wheel << " " << station << " " << sec << " " << 3 << " " << effS1RPhi << " " << effS3RPhi << " " << effSeg << " " << sphi   << " " << pphi << " " << malpha <<  " " <<salpha << endl;
  	}
       } // sector
     } //station
