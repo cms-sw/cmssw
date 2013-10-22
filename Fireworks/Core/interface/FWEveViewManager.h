@@ -42,7 +42,7 @@ typedef std::set<FWModelId> FWModelIds;
 
 class FWEveViewManager : public FWViewManagerBase
 {
-private:
+public:
    struct BuilderInfo
    {
       std::string m_name;
@@ -54,7 +54,6 @@ private:
       {}
    };
 
-public:
    FWEveViewManager(FWGUIManager*);
    virtual ~FWEveViewManager();
 

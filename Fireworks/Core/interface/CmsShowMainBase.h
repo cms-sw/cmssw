@@ -123,7 +123,6 @@ public:
 
    void setAutoSaveAllViewsFormat(const std::string& fmt) { m_autoSaveAllViewsFormat = fmt; }
 
-protected: 
    class SignalTimer : public TTimer {
    public:
       virtual Bool_t Notify() {
@@ -133,6 +132,7 @@ protected:
       sigc::signal<void> timeout_;
    };
 
+protected: 
    void eventChangedSlot();
    virtual void eventChangedImp();
    void sendVersionInfo();
