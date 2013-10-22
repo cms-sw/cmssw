@@ -7,7 +7,6 @@ int main()
     testSerialization<DetId>();
     testSerialization<EBDetId>();
     testSerialization<EcalContainer<EBDetId, float>>();
-    testSerialization<trigger::HLTPrescaleTable>();
     testSerialization<L1GtLogicParser::TokenRPN>();
     testSerialization<edm::Timestamp>();
     testSerialization<CLHEP::Hep3Vector>();

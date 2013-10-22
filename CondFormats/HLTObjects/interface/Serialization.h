@@ -14,12 +14,6 @@ void AlCaRecoTriggerBits::serialize(Archive & ar, const unsigned int)
     ar & BOOST_SERIALIZATION_NVP(m_alcarecoToTrig);
 }
 
-template <class Archive>
-void trigger::HLTPrescaleTableCond::serialize(Archive & ar, const unsigned int)
-{
-    ar & BOOST_SERIALIZATION_NVP(hltPrescaleTable_);
-}
-
 namespace cond {
 namespace serialization {
 
@@ -30,17 +24,6 @@ struct access<AlCaRecoTriggerBits>
     {
         return true
             and (equal(first.m_alcarecoToTrig, second.m_alcarecoToTrig))
-        ;
-    }
-};
-
-template <>
-struct access<trigger::HLTPrescaleTableCond>
-{
-    static bool equal_(const trigger::HLTPrescaleTableCond & first, const trigger::HLTPrescaleTableCond & second)
-    {
-        return true
-            and (equal(first.hltPrescaleTable_, second.hltPrescaleTable_))
         ;
     }
 };

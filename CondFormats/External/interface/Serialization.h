@@ -5,10 +5,12 @@
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
 
+// std::vector used in DataFormats/EcalDetId/interface/EcalContainer.h
+#include <boost/serialization/vector.hpp>
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalContainer.h"
-#include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
@@ -16,6 +18,7 @@
 #include "CLHEP/Vector/ThreeVector.h"
 
 #include <Math/SMatrix.h>
+
 
 namespace boost {
 namespace serialization {
@@ -31,51 +34,93 @@ namespace serialization {
 
 // DataFormats/DetId/interface/DetId.h
 template<class Archive>
-void serialize(Archive & ar, DetId & obj, const unsigned int)
+void save(Archive & ar, const DetId & obj, const unsigned int)
 {
     auto id_ = obj.rawId();
     ar & BOOST_SERIALIZATION_NVP(id_);
+}
+
+template<class Archive>
+void load(Archive & ar, DetId & obj, const unsigned int)
+{
+    decltype(obj.rawId()) id_;
+    ar & BOOST_SERIALIZATION_NVP(id_);
     obj = DetId(id_);
 }
+
+template<class Archive>
+void serialize(Archive & ar, DetId & obj, const unsigned int v)
+{
+    split_free(ar, obj, v);
+}
+
 
 // DataFormats/EcalDetId/interface/EBDetId.h
 template<class Archive>
 void serialize(Archive & ar, EBDetId & obj, const unsigned int)
 {
-    // TODO
+    ar & boost::serialization::make_nvp("DetId", boost::serialization::base_object<DetId>(obj));;
 }
+
 
 // DataFormats/EcalDetId/interface/EcalContainer.h
 template<class Archive, typename DetIdT, typename T>
-void serialize(Archive & ar, EcalContainer<DetIdT, T> & obj, const unsigned int)
+void save(Archive & ar, const EcalContainer<DetIdT, T> & obj, const unsigned int)
 {
-    // TODO
+    ar & boost::serialization::make_nvp("m_items", obj.items());
 }
 
-// DataFormats/HLTReco/interface/HLTPrescaleTable.h
-template<class Archive>
-void serialize(Archive & ar, trigger::HLTPrescaleTable & obj, const unsigned int)
+template<class Archive, typename DetIdT, typename T>
+void load(Archive & ar, EcalContainer<DetIdT, T> & obj, const unsigned int)
 {
-    // TODO
+    // FIXME: avoid copying if we are OK getting a non-const reference
+    typename EcalContainer<DetIdT, T>::Items m_items;
+    ar & boost::serialization::make_nvp("m_items", m_items);
+    obj.setItems(m_items);
 }
+
+template<class Archive, typename DetIdT, typename T>
+void serialize(Archive & ar, EcalContainer<DetIdT, T> & obj, const unsigned int v)
+{
+    split_free(ar, obj, v);
+}
+
 
 // DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h
 template<class Archive>
 void serialize(Archive & ar, L1GtLogicParser::TokenRPN & obj, const unsigned int)
 {
-    // TODO
+    ar & boost::serialization::make_nvp("operation", obj.operation);
+    ar & boost::serialization::make_nvp("operand", obj.operand);
 }
+
 
 // DataFormats/Provenance/interface/Timestamp.h
 template<class Archive>
-void serialize(Archive & ar, edm::Timestamp & obj, const unsigned int)
+void save(Archive & ar, const edm::Timestamp & obj, const unsigned int)
 {
-    // TODO
+    auto time_ = obj.value();
+    ar & BOOST_SERIALIZATION_NVP(time_);
 }
+
+template<class Archive>
+void load(Archive & ar, edm::Timestamp & obj, const unsigned int)
+{
+    decltype(obj.value()) time_;
+    ar & BOOST_SERIALIZATION_NVP(time_);
+    obj = edm::Timestamp(time_);
+}
+
+template<class Archive>
+void serialize(Archive & ar, edm::Timestamp & obj, const unsigned int v)
+{
+    split_free(ar, obj, v);
+}
+
 
 // CLHEP/Vector/ThreeVector.h
 template<class Archive>
-void serialize(Archive & ar, CLHEP::Hep3Vector & obj, const unsigned int)
+void save(Archive & ar, const CLHEP::Hep3Vector & obj, const unsigned int)
 {
     auto dx = obj.x();
     auto dy = obj.y();
@@ -83,14 +128,30 @@ void serialize(Archive & ar, CLHEP::Hep3Vector & obj, const unsigned int)
     ar & BOOST_SERIALIZATION_NVP(dx);
     ar & BOOST_SERIALIZATION_NVP(dy);
     ar & BOOST_SERIALIZATION_NVP(dz);
-    obj.setX(dx);
-    obj.setY(dy);
-    obj.setZ(dz);
 }
+
+template<class Archive>
+void load(Archive & ar, CLHEP::Hep3Vector & obj, const unsigned int)
+{
+    decltype(obj.x()) dx;
+    decltype(obj.y()) dy;
+    decltype(obj.z()) dz;
+    ar & BOOST_SERIALIZATION_NVP(dx);
+    ar & BOOST_SERIALIZATION_NVP(dy);
+    ar & BOOST_SERIALIZATION_NVP(dz);
+    obj.set(dx, dy, dz);
+}
+
+template<class Archive>
+void serialize(Archive & ar, CLHEP::Hep3Vector & obj, const unsigned int v)
+{
+    split_free(ar, obj, v);
+}
+
 
 // CLHEP/Vector/EulerAngles.h
 template<class Archive>
-void serialize(Archive & ar, CLHEP::HepEulerAngles & obj, const unsigned int)
+void save(Archive & ar, const CLHEP::HepEulerAngles & obj, const unsigned int)
 {
     auto phi_ = obj.phi();
     auto theta_ = obj.theta();
@@ -98,10 +159,26 @@ void serialize(Archive & ar, CLHEP::HepEulerAngles & obj, const unsigned int)
     ar & BOOST_SERIALIZATION_NVP(phi_);
     ar & BOOST_SERIALIZATION_NVP(theta_);
     ar & BOOST_SERIALIZATION_NVP(psi_);
-    obj.setPhi(phi_);
-    obj.setTheta(theta_);
-    obj.setPsi(psi_);
 }
+
+template<class Archive>
+void load(Archive & ar, CLHEP::HepEulerAngles & obj, const unsigned int)
+{
+    decltype(obj.phi()) phi_;
+    decltype(obj.theta()) theta_;
+    decltype(obj.psi()) psi_;
+    ar & BOOST_SERIALIZATION_NVP(phi_);
+    ar & BOOST_SERIALIZATION_NVP(theta_);
+    ar & BOOST_SERIALIZATION_NVP(psi_);
+    obj.set(phi_, theta_, psi_);
+}
+
+template<class Archive>
+void serialize(Archive & ar, CLHEP::HepEulerAngles & obj, const unsigned int v)
+{
+    split_free(ar, obj, v);
+}
+
 
 // Math/SMatrix.h
 template<class Archive, typename T, unsigned int D1, unsigned int D2, class R>
@@ -140,7 +217,7 @@ struct access<EBDetId>
     static bool equal_(const EBDetId & first, const EBDetId & second)
     {
         return true
-            // TODO
+            and (equal(static_cast<const DetId &>(first), static_cast<const DetId &>(second)))
         ;
     }
 };
@@ -152,20 +229,7 @@ struct access<EcalContainer<DetIdT, T>>
     static bool equal_(const EcalContainer<DetIdT, T> & first, const EcalContainer<DetIdT, T> & second)
     {
         return true
-            // TODO
-        ;
-    }
-};
-
-
-// DataFormats/HLTReco/interface/HLTPrescaleTable.h
-template <>
-struct access<trigger::HLTPrescaleTable>
-{
-    static bool equal_(const trigger::HLTPrescaleTable & first, const trigger::HLTPrescaleTable & second)
-    {
-        return true
-            // TODO
+            and (equal(first.items(), second.items()))
         ;
     }
 };
@@ -177,7 +241,8 @@ struct access<L1GtLogicParser::TokenRPN>
     static bool equal_(const L1GtLogicParser::TokenRPN & first, const L1GtLogicParser::TokenRPN & second)
     {
         return true
-            // TODO
+            and (equal(first.operation, second.operation))
+            and (equal(first.operand, second.operand))
         ;
     }
 };
@@ -189,7 +254,7 @@ struct access<edm::Timestamp>
     static bool equal_(const edm::Timestamp & first, const edm::Timestamp & second)
     {
         return true
-            // TODO
+            and (equal(first.value(), second.value()))
         ;
     }
 };
@@ -228,9 +293,11 @@ struct access<ROOT::Math::SMatrix<T, D1, D2, R>>
 {
     static bool equal_(const ROOT::Math::SMatrix<T, D1, D2, R> & first, const ROOT::Math::SMatrix<T, D1, D2, R> & second)
     {
-        return true
-            // TODO
-        ;
+        return std::equal(first.begin(), first.end(), second.begin(),
+            [](decltype(*first.begin()) a, decltype(a) b) -> bool {
+                return equal(a, b);
+            }
+        );
     }
 };
 

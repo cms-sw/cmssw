@@ -95,6 +95,9 @@ class EcalContainer {
                         return m_items.size();
                 }
 
+                void setItems(const std::vector<Item> & items) {
+                    m_items = items;
+                }
         private:
 
                 // not protected on EB <--> EE swap -- FIXME?
