@@ -25,9 +25,9 @@ particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
                                  particleFlowBlock*
                                  particleFlowEGammaFull*
                                  particleFlowTmp*
-                                 particleFlowTmpPtrs*
+                                 particleFlowTmpPtrs*                                 
                                  pfElectronTranslatorSequence*
                                  pfPhotonTranslatorSequence*
                                  pfParticleSelectionSequence )
 
-particleFlowLinks = cms.Sequence( particleFlow*particleFlowPtrs )
+particleFlowLinks = cms.Sequence( particleFlow*particleFlowPtrs*particleFlowEGammaFinal )
