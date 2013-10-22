@@ -47,6 +47,11 @@
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMaps.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+
 namespace pat {
 
   class PATTriggerProducer : public edm::EDProducer {
@@ -71,14 +76,23 @@ namespace pat {
       edm::ParameterSet * l1PSet_;
       bool                addL1Algos_;                    // configuration (optional with default)
       edm::InputTag       tagL1GlobalTriggerObjectMaps_;  // configuration (optional with default)
+      edm::EDGetTokenT< L1GlobalTriggerObjectMaps > l1GlobalTriggerObjectMapsToken_;
       edm::InputTag       tagL1ExtraMu_;                  // configuration (optional)
+//       edm::EDGetTokenT< l1extra::L1MuonParticleCollection > l1ExtraMuToken_;
       edm::InputTag       tagL1ExtraNoIsoEG_;             // configuration (optional)
+//       edm::EDGetTokenT< l1extra::L1EmParticleCollection > l1ExtraNoIsoEGToken_;
       edm::InputTag       tagL1ExtraIsoEG_;               // configuration (optional)
+//       edm::EDGetTokenT< l1extra::L1EmParticleCollection > l1ExtraIsoEGToken_;
       edm::InputTag       tagL1ExtraCenJet_;              // configuration (optional)
+//       edm::EDGetTokenT< l1extra::L1JetParticleCollection > l1ExtraCenJetToken_;
       edm::InputTag       tagL1ExtraForJet_;              // configuration (optional)
+//       edm::EDGetTokenT< l1extra::L1JetParticleCollection > l1ExtraForJetToken_;
       edm::InputTag       tagL1ExtraTauJet_;              // configuration (optional)
+//       edm::EDGetTokenT< l1extra::L1JetParticleCollection > l1ExtraTauJetToken_;
       edm::InputTag       tagL1ExtraETM_;                 // configuration (optional)
+//       edm::EDGetTokenT< l1extra::L1EtMissParticleCollection > l1ExtraETMToken_;
       edm::InputTag       tagL1ExtraHTM_;                 // configuration (optional)
+//       edm::EDGetTokenT< l1extra::L1EtMissParticleCollection > l1ExtraHTMToken_;
       bool                autoProcessNameL1ExtraMu_;
       bool                autoProcessNameL1ExtraNoIsoEG_;
       bool                autoProcessNameL1ExtraIsoEG_;
@@ -93,9 +107,14 @@ namespace pat {
       HLTConfigProvider         hltConfig_;
       bool                      hltConfigInit_;
       edm::InputTag             tagTriggerResults_;     // configuration (optional with default)
+//       edm::EDGetTokenT< edm::TriggerResults > triggerResultsToken_;
       edm::InputTag             tagTriggerEvent_;       // configuration (optional with default)
+//       edm::EDGetTokenT< trigger::TriggerEvent > triggerEventToken_;
       std::string               hltPrescaleLabel_;      // configuration (optional)
       std::string               labelHltPrescaleTable_; // configuration (optional)
+//       edm::EDGetTokenT< trigger::HLTPrescaleTable > hltPrescaleTableRunToken_;
+//       edm::EDGetTokenT< trigger::HLTPrescaleTable > hltPrescaleTableLumiToken_;
+//       edm::EDGetTokenT< trigger::HLTPrescaleTable > hltPrescaleTableEventToken_;
       trigger::HLTPrescaleTable hltPrescaleTableRun_;
       trigger::HLTPrescaleTable hltPrescaleTableLumi_;
       bool                       addPathModuleLabels_;  // configuration (optional with default)

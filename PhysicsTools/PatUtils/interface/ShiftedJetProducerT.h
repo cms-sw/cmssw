@@ -3,7 +3,7 @@
 
 /** \class ShiftedJetProducerT
  *
- * Vary energy of jets by +/- 1 standard deviation, 
+ * Vary energy of jets by +/- 1 standard deviation,
  * in order to estimate resulting uncertainty on MET
  *
  * NOTE: energy scale uncertainties are taken from the Database
@@ -35,7 +35,7 @@
 #include <string>
 
 template <typename T, typename Textractor>
-class ShiftedJetProducerT : public edm::EDProducer  
+class ShiftedJetProducerT : public edm::EDProducer
 {
   typedef std::vector<T> JetCollection;
 
@@ -44,6 +44,7 @@ class ShiftedJetProducerT : public edm::EDProducer
   explicit ShiftedJetProducerT(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       src_(cfg.getParameter<edm::InputTag>("src")),
+      srcToken_(consumes<JetCollection>(src_)),
       jetCorrPayloadName_(""),
       jetCorrParameters_(0),
       jecUncertainty_(0),
@@ -57,7 +58,7 @@ class ShiftedJetProducerT : public edm::EDProducer
 	jetCorrInputFileName_ = cfg.getParameter<edm::FileInPath>("jetCorrInputFileName");
 	if ( jetCorrInputFileName_.location() == edm::FileInPath::Unknown) throw cms::Exception("ShiftedJetProducerT")
 	  << " Failed to find JEC parameter file = " << jetCorrInputFileName_ << " !!\n";
-	std::cout << "Reading JEC parameters = " << jetCorrUncertaintyTag_  
+	std::cout << "Reading JEC parameters = " << jetCorrUncertaintyTag_
 		  << " from file = " << jetCorrInputFileName_.fullPath() << "." << std::endl;
 	jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath().data(), jetCorrUncertaintyTag_);
 	jecUncertainty_ = new JetCorrectionUncertainty(*jetCorrParameters_);
@@ -88,7 +89,7 @@ class ShiftedJetProducerT : public edm::EDProducer
     delete jetCorrParameters_;
     delete jecUncertainty_;
   }
-    
+
  private:
 
   void produce(edm::Event& evt, const edm::EventSetup& es)
@@ -100,13 +101,13 @@ class ShiftedJetProducerT : public edm::EDProducer
     }
 
     edm::Handle<JetCollection> originalJets;
-    evt.getByLabel(src_, originalJets);
+    evt.getByToken(srcToken_, originalJets);
 
     std::auto_ptr<JetCollection> shiftedJets(new JetCollection);
-    
+
     if ( jetCorrPayloadName_ != "" ) {
       edm::ESHandle<JetCorrectorParametersCollection> jetCorrParameterSet;
-      es.get<JetCorrectionsRecord>().get(jetCorrPayloadName_, jetCorrParameterSet); 
+      es.get<JetCorrectionsRecord>().get(jetCorrPayloadName_, jetCorrParameterSet);
       const JetCorrectorParameters& jetCorrParameters = (*jetCorrParameterSet)[jetCorrUncertaintyTag_];
       delete jecUncertainty_;
       jecUncertainty_ = new JetCorrectionUncertainty(jetCorrParameters);
@@ -125,7 +126,7 @@ class ShiftedJetProducerT : public edm::EDProducer
       } else {
 	jecUncertainty_->setJetEta(originalJetP4.eta());
 	jecUncertainty_->setJetPt(originalJetP4.pt());
-	
+
 	shift = jecUncertainty_->getUncertainty(true);
       }
       if ( verbosity_ ) {
@@ -136,9 +137,9 @@ class ShiftedJetProducerT : public edm::EDProducer
 	static SmearedJetProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
 	reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(*originalJet);
 	if ( rawJetP4.E() > 1.e-1 ) {
-	  reco::Candidate::LorentzVector corrJetP4upToL3 = 
+	  reco::Candidate::LorentzVector corrJetP4upToL3 =
 	    jetCorrExtractor_(*originalJet, jetCorrLabelUpToL3_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
-	  reco::Candidate::LorentzVector corrJetP4upToL3Res = 
+	  reco::Candidate::LorentzVector corrJetP4upToL3Res =
 	    jetCorrExtractor_(*originalJet, jetCorrLabelUpToL3Res_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
 	  if ( corrJetP4upToL3.E() > 1.e-1 && corrJetP4upToL3Res.E() > 1.e-1 ) {
 	    double residualJES = (corrJetP4upToL3Res.E()/corrJetP4upToL3.E()) - 1.;
@@ -157,16 +158,17 @@ class ShiftedJetProducerT : public edm::EDProducer
       if ( verbosity_ ) {
 	std::cout << "shiftedJet: Pt = " << shiftedJet.pt() << ", eta = " << shiftedJet.eta() << ", phi = " << shiftedJet.phi() << std::endl;
       }
-    
+
       shiftedJets->push_back(shiftedJet);
     }
-  
+
     evt.put(shiftedJets);
   }
 
   std::string moduleLabel_;
 
-  edm::InputTag src_; 
+  edm::InputTag src_;
+  edm::EDGetTokenT<JetCollection> srcToken_;
 
   edm::FileInPath jetCorrInputFileName_;
   std::string jetCorrPayloadName_;
@@ -182,7 +184,7 @@ class ShiftedJetProducerT : public edm::EDProducer
                          // reported in
                          //  https://hypernews.cern.ch/HyperNews/CMS/get/jes/270.html
                          //  https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
-  Textractor jetCorrExtractor_; 
+  Textractor jetCorrExtractor_;
 
   double jecUncertaintyValue_;
 
@@ -193,5 +195,5 @@ class ShiftedJetProducerT : public edm::EDProducer
 
 #endif
 
- 
+
 

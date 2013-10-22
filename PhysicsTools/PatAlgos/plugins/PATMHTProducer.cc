@@ -8,12 +8,12 @@ pat::PATMHTProducer::PATMHTProducer(const edm::ParameterSet & iConfig){
   // Initialize the configurables
   verbose_ = iConfig.getParameter<double>("verbose");
 
-  jetLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("jetTag");
-  eleLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("electronTag");
-  muoLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("muonTag");
-  tauLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("tauTag");
-  phoLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("photonTag");
-  
+  jetToken_ = consumes<edm::View<pat::Jet> >(iConfig.getUntrackedParameter<edm::InputTag>("jetTag"));
+  eleToken_ = consumes<edm::View<pat::Electron> >(iConfig.getUntrackedParameter<edm::InputTag>("electronTag"));
+  muoToken_ = consumes<edm::View<pat::Muon> >(iConfig.getUntrackedParameter<edm::InputTag>("muonTag"));
+  tauToken_ = consumes<edm::View<pat::Tau> >(iConfig.getUntrackedParameter<edm::InputTag>("tauTag"));
+  phoToken_ = consumes<edm::View<pat::Photon> >(iConfig.getUntrackedParameter<edm::InputTag>("photonTag"));
+
   uncertaintyScaleFactor_ = iConfig.getParameter<double>( "uncertaintyScaleFactor") ;
   controlledUncertainty_  = iConfig.getParameter<bool>( "controlledUncertainty") ;
 
@@ -25,24 +25,24 @@ pat::PATMHTProducer::PATMHTProducer(const edm::ParameterSet & iConfig){
   muonPtMin_    = iConfig.getParameter<double>("muonPtMin");
   muonEtaMax_   = iConfig.getParameter<double>("muonEtaMax");
 
-  jetEtUncertaintyParameter0_ =  iConfig.getParameter<double>( "jetEtUncertaintyParameter0") ; 
-  jetEtUncertaintyParameter1_ =  iConfig.getParameter<double>( "jetEtUncertaintyParameter1") ; 
-  jetEtUncertaintyParameter2_ =  iConfig.getParameter<double>( "jetEtUncertaintyParameter2") ; 
-  jetPhiUncertaintyParameter0_=  iConfig.getParameter<double>( "jetPhiUncertaintyParameter0"); 
-  jetPhiUncertaintyParameter1_=  iConfig.getParameter<double>( "jetPhiUncertaintyParameter1"); 
-  jetPhiUncertaintyParameter2_=  iConfig.getParameter<double>( "jetPhiUncertaintyParameter2"); 
-    
-  eleEtUncertaintyParameter0_  =  iConfig.getParameter<double>( "eleEtUncertaintyParameter0") ; 
-  elePhiUncertaintyParameter0_ =  iConfig.getParameter<double>( "elePhiUncertaintyParameter0") ; 
+  jetEtUncertaintyParameter0_ =  iConfig.getParameter<double>( "jetEtUncertaintyParameter0") ;
+  jetEtUncertaintyParameter1_ =  iConfig.getParameter<double>( "jetEtUncertaintyParameter1") ;
+  jetEtUncertaintyParameter2_ =  iConfig.getParameter<double>( "jetEtUncertaintyParameter2") ;
+  jetPhiUncertaintyParameter0_=  iConfig.getParameter<double>( "jetPhiUncertaintyParameter0");
+  jetPhiUncertaintyParameter1_=  iConfig.getParameter<double>( "jetPhiUncertaintyParameter1");
+  jetPhiUncertaintyParameter2_=  iConfig.getParameter<double>( "jetPhiUncertaintyParameter2");
 
-  muonEtUncertaintyParameter0_  =  iConfig.getParameter<double>( "muonEtUncertaintyParameter0") ; 
-  muonPhiUncertaintyParameter0_ =  iConfig.getParameter<double>( "muonPhiUncertaintyParameter0") ; 
+  eleEtUncertaintyParameter0_  =  iConfig.getParameter<double>( "eleEtUncertaintyParameter0") ;
+  elePhiUncertaintyParameter0_ =  iConfig.getParameter<double>( "elePhiUncertaintyParameter0") ;
+
+  muonEtUncertaintyParameter0_  =  iConfig.getParameter<double>( "muonEtUncertaintyParameter0") ;
+  muonPhiUncertaintyParameter0_ =  iConfig.getParameter<double>( "muonPhiUncertaintyParameter0") ;
 
   CaloTowerTag_  = iConfig.getParameter<edm::InputTag>("CaloTowerTag");
-  noHF_ = iConfig.getParameter<bool>( "noHF"); 
-  
+  noHF_ = iConfig.getParameter<bool>( "noHF");
+
   //  muonCalo_ = iConfig.getParameter<bool>("muonCalo");
-  towerEtThreshold_ = iConfig.getParameter<double>( "towerEtThreshold") ; 
+  towerEtThreshold_ = iConfig.getParameter<double>( "towerEtThreshold") ;
   useHO_ = iConfig.getParameter<bool>("useHO");
 
   produces<pat::MHTCollection>();
@@ -60,15 +60,15 @@ void pat::PATMHTProducer::endJob() {
 }
 
 
-void 
-pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
+void
+pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
   // make sure the SigInputObj container is empty
   while(physobjvector_.size()>0){
     physobjvector_.erase(physobjvector_.begin(),physobjvector_.end());
   }
 
-  // Clean the clustered towers 
+  // Clean the clustered towers
   s_clusteredTowers.clear();
 
   double number_of_jets = getJets(iEvent, iSetup);
@@ -88,25 +88,25 @@ pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   double met_et=0;
   double met_phi=0;
   double met_set=0;
-  
-  
+
+
   std::auto_ptr<pat::MHTCollection>  themetsigcoll (new pat::MHTCollection);
 
-  if(physobjvector_.size() >= 1) { // Only when the vector is not empty 
+  if(physobjvector_.size() >= 1) { // Only when the vector is not empty
 
     // calculate the MHT significance
 
     metsig::significanceAlgo signifAlgo;
     signifAlgo.addObjects(physobjvector_);
     double significance = signifAlgo.significance(met_et,met_phi,met_set);
-    
+
     met_x=met_et*cos(met_phi);
     met_y=met_et*sin(met_phi);
-  
+
     if (verbose_ == 1.) {
       std::cout << ">>>----> MHT Sgificance = " << significance << std::endl;
     }
- 
+
     pat::MHT themetsigobj(reco::Particle::LorentzVector(met_x,met_y,0,met_et),met_set,significance);
 
 
@@ -117,18 +117,18 @@ pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     themetsigcoll->push_back(themetsigobj);
 
-  } // If the vector is empty, just put empty product. 
+  } // If the vector is empty, just put empty product.
 
 
   iEvent.put( themetsigcoll);
 
-  
-}  
+
+}
 
 // --------------------------------------------------
 //  Fill Input Vector with Jets
 // --------------------------------------------------
-double 
+double
 pat::PATMHTProducer::getJets(edm::Event& iEvent, const edm::EventSetup & iSetup){
 
   std::string objectname="jet";
@@ -136,31 +136,31 @@ pat::PATMHTProducer::getJets(edm::Event& iEvent, const edm::EventSetup & iSetup)
   double number_of_jets_ = 0.0;
 
   edm::Handle<edm::View<pat::Jet> > jetHandle;
-  iEvent.getByLabel(jetLabel_,jetHandle);
+  iEvent.getByToken(jetToken_,jetHandle);
   edm::View<pat::Jet> jets = *jetHandle;
 
-  // Fill Input Vector with Jets 
+  // Fill Input Vector with Jets
   for(edm::View<pat::Jet>::const_iterator jet_iter = jets.begin(); jet_iter!=jets.end(); ++jet_iter){
-    
+
     if( (jet_iter->pt()  < jetPtMin_) ||
-	(TMath::Abs(jet_iter->eta()) > jetEtaMax_) || 
+	(TMath::Abs(jet_iter->eta()) > jetEtaMax_) ||
         (jet_iter->emEnergyFraction() > jetEMfracMax_ ) )
-      continue; 
-    
+      continue;
+
     double jet_et = jet_iter->et();
     double jet_phi = jet_iter->phi();
-    
+
     if (verbose_ == 3.) {
-      std::cout << "jet pt : " << jet_iter->pt() << " eta : " << jet_iter->eta() 
+      std::cout << "jet pt : " << jet_iter->pt() << " eta : " << jet_iter->eta()
 		<< " EMF: "  << jet_iter->emEnergyFraction() <<  std::endl;
     }
-    
+
     double sigma_et, sigma_phi ;
 
     if (controlledUncertainty_) {
       sigma_et  = jetUncertainty.etUncertainty->Eval(jet_et);
       sigma_phi = jetUncertainty.phiUncertainty->Eval(jet_et);
-    } 
+    }
     else {
       sigma_et = 0.0 ; // jet_iter->resolutionEt();
       sigma_phi =  0.0 ; //jet_iter->resolutionPhi();
@@ -171,27 +171,27 @@ pat::PATMHTProducer::getJets(edm::Event& iEvent, const edm::EventSetup & iSetup)
     }
 
     if(sigma_et<=0 || sigma_phi<=0)
-      edm::LogWarning("PATMHTProducer") << 
+      edm::LogWarning("PATMHTProducer") <<
 	" uncertainties for "  << objectname <<
 	" are (et, phi): " << sigma_et << "," << sigma_phi << " (et,phi): " << jet_et << "," << jet_phi;
     // try to read out the jet resolution from the root file at PatUtils
     //-- Store jet for Significance Calculation --//
-    
+
     if (uncertaintyScaleFactor_ != 1.0){
       sigma_et  = sigma_et  * uncertaintyScaleFactor_;
       sigma_phi = sigma_phi * uncertaintyScaleFactor_;
       // edm::LogWarning("PATMHTProducer") << " using uncertainty scale factor: " << uncertaintyScaleFactor_ <<
-      //" , uncertainties for " << objectname <<" changed to (et, phi): " << sigma_et << "," << sigma_phi; 
+      //" , uncertainties for " << objectname <<" changed to (et, phi): " << sigma_et << "," << sigma_phi;
     }
 
 
     if (verbose_ == 101.) { // Study the Jets behavior
 
-      std::cout << "v101> " <<  number_of_jets_ << "  " 
+      std::cout << "v101> " <<  number_of_jets_ << "  "
 		<< jet_et   << "  "  <<  sigma_et << "  "
 		<< jet_phi  << "  "  <<  sigma_phi << std::endl;
     }
-  
+
 
     metsig::SigInputObj tmp_jet(objectname,jet_et,jet_phi,sigma_et,sigma_phi);
     physobjvector_.push_back(tmp_jet);
@@ -207,11 +207,11 @@ pat::PATMHTProducer::getJets(edm::Event& iEvent, const edm::EventSetup & iSetup)
     }
 
   }
-  
+
   if (verbose_ == 101.) { // Study the Jets behavior - seperate events
     std::cout << "v101> --------------------------------------------" << std::endl;
   }
- 
+
   return number_of_jets_;
 
 }
@@ -232,19 +232,19 @@ pat::PATMHTProducer::getElectrons(edm::Event& iEvent, const edm::EventSetup & iS
   // const CaloTowerConstituentsMap* caloTowerMap = cttopo.product();
 
   edm::Handle<edm::View<pat::Electron> > electronHandle;
-  iEvent.getByLabel(eleLabel_,electronHandle);
+  iEvent.getByToken(eleToken_,electronHandle);
   edm::View<pat::Electron> electrons = *electronHandle;
   DetId nullDetId;
 
-  // Fill Input Vector with Electrons 
+  // Fill Input Vector with Electrons
   for(edm::View<pat::Electron>::const_iterator electron_iter = electrons.begin(); electron_iter!=electrons.end(); ++electron_iter){
 
     // Select electrons
-    if (electron_iter->et() < elePtMin_ || 
-	TMath::Abs(electron_iter->eta()) > eleEtaMax_  ) continue; 
+    if (electron_iter->et() < elePtMin_ ||
+	TMath::Abs(electron_iter->eta()) > eleEtaMax_  ) continue;
 
     if (verbose_ == 3.) {
-      std::cout << "electron pt = " << electron_iter->pt()  << " eta : " << electron_iter->eta() 
+      std::cout << "electron pt = " << electron_iter->pt()  << " eta : " << electron_iter->eta()
 		<<  std::endl;
     }
 
@@ -256,7 +256,7 @@ pat::PATMHTProducer::getElectrons(edm::Event& iEvent, const edm::EventSetup & iS
     if (controlledUncertainty_) {
       sigma_et  = eleUncertainty.etUncertainty->Eval(electron_et);
       sigma_phi = eleUncertainty.phiUncertainty->Eval(electron_et);
-    } 
+    }
     else {
       sigma_et = 0.0; //electron_iter->resolutionEt();
       sigma_phi = 0.0; // electron_iter->resolutionPhi();
@@ -267,11 +267,11 @@ pat::PATMHTProducer::getElectrons(edm::Event& iEvent, const edm::EventSetup & iS
 		<<  std::endl;}
 
     if(sigma_et< 0 || sigma_phi< 0)
-      edm::LogWarning("PATMHTProducer") << " uncertainties for "  << objectname 
-					<<" are (et, phi): " << sigma_et 
-					<< "," << sigma_phi <<  " (et,phi): " 
+      edm::LogWarning("PATMHTProducer") << " uncertainties for "  << objectname
+					<<" are (et, phi): " << sigma_et
+					<< "," << sigma_phi <<  " (et,phi): "
 					<< electron_et << "," << electron_phi;
-    
+
     if (uncertaintyScaleFactor_ != 1.0){
       sigma_et  = sigma_et  * uncertaintyScaleFactor_;
       sigma_phi = sigma_phi * uncertaintyScaleFactor_;
@@ -279,14 +279,14 @@ pat::PATMHTProducer::getElectrons(edm::Event& iEvent, const edm::EventSetup & iS
 
     metsig::SigInputObj tmp_electron(objectname,electron_et,electron_phi,sigma_et,sigma_phi);
     physobjvector_.push_back(tmp_electron);
-    number_of_electrons_ ++; 
-    
+    number_of_electrons_ ++;
+
     //-- Store tower DetId's to be removed from Calo Tower sum later --//
     /*
     const reco::SuperCluster& eleSC = *( electron_iter->superCluster() );
-    
+
     std::vector<DetId> v_eleDetIds = eleSC.getHitsByDetId();
-    
+
     //-- Convert cells to calo towers and add to set --//
     for( std::vector<DetId>::iterator cellId = v_eleDetIds.begin();
          cellId != v_eleDetIds.end();
@@ -305,7 +305,7 @@ pat::PATMHTProducer::getElectrons(edm::Event& iEvent, const edm::EventSetup & iS
 
   }
 
-  return number_of_electrons_; 
+  return number_of_electrons_;
 }
 
 
@@ -318,7 +318,7 @@ double pat::PATMHTProducer::getMuons(edm::Event& iEvent, const edm::EventSetup &
 
   std::string objectname="muon";
   edm::Handle<edm::View<pat::Muon> > muonHandle;
-  iEvent.getByLabel(muoLabel_,muonHandle);
+  iEvent.getByToken(muoToken_,muonHandle);
   edm::View<pat::Muon> muons = *muonHandle;
 
   if ( !muonHandle.isValid() ) {
@@ -331,7 +331,7 @@ double pat::PATMHTProducer::getMuons(edm::Event& iEvent, const edm::EventSetup &
 
   for(edm::View<pat::Muon>::const_iterator muon_iter = muons.begin(); muon_iter!=muons.end(); ++muon_iter){
 
-    if (muon_iter->pt() < muonPtMin_ || TMath::Abs(muon_iter->eta()) > muonEtaMax_  ) continue; 
+    if (muon_iter->pt() < muonPtMin_ || TMath::Abs(muon_iter->eta()) > muonEtaMax_  ) continue;
 
     if (verbose_ == 3.) {
       std::cout << "muon pt = " << muon_iter->pt() << " eta : " << muon_iter->eta() <<  std::endl;
@@ -345,7 +345,7 @@ double pat::PATMHTProducer::getMuons(edm::Event& iEvent, const edm::EventSetup &
     if (controlledUncertainty_) {
        sigma_et  = muonUncertainty.etUncertainty->Eval(muon_pt);
        sigma_phi = muonUncertainty.phiUncertainty->Eval(muon_pt);
-    } 
+    }
     else {
       sigma_et  = 0.0; //muon_iter->resolutionEt();
       sigma_phi = 0.0; // muon_iter->resolutionPhi();
@@ -357,7 +357,7 @@ double pat::PATMHTProducer::getMuons(edm::Event& iEvent, const edm::EventSetup &
 		<<  std::endl;}
 
    if(sigma_et< 0 || sigma_phi< 0)
-      edm::LogWarning("PATMHTProducer") << 
+      edm::LogWarning("PATMHTProducer") <<
 	" uncertainties for "  << objectname << " are (et, phi): " << sigma_et << "," <<
 	sigma_phi << " (pt,phi): " << muon_pt << "," << muon_phi;
 
@@ -452,13 +452,13 @@ void pat::PATMHTProducer::setUncertaintyParameters(){
   //jetUncertainty.phiUncertainty = new TF1("jetPhiFunc","[0]*x",1);
   //jetUncertainty.phiUncertainty->SetParameter(0, jetPhiUncertaintyParameter0_);
 
-  //-- phi Functions and values from 
+  //-- phi Functions and values from
   // http://indico.cern.ch/getFile.py/access?contribId=9&sessionId=0&resId=0&materialId=slides&confId=46394
   jetUncertainty.phiUncertainty = new TF1("jetPhiFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3);
   jetUncertainty.phiUncertainty->SetParameter(0, jetPhiUncertaintyParameter0_);
   jetUncertainty.phiUncertainty->SetParameter(1, jetPhiUncertaintyParameter1_);
   jetUncertainty.phiUncertainty->SetParameter(2, jetPhiUncertaintyParameter2_);
-  
+
 
 
   //-- Jet corrections are assumed not to have an error --//
@@ -473,10 +473,10 @@ void pat::PATMHTProducer::setUncertaintyParameters(){
   // the egamma group keeps track of these here:
   // https://twiki.cern.ch/twiki/bin/view/CMS/EgammaCMSSWVal
   // electron resolution in energy is around 3.4%, measured for 10 < pT < 50 at realistic events with pile-up.
-  
+
   eleUncertainty.etUncertainty = new TF1("eleEtFunc","[0] * x",1);
-  //  eleUncertainty.etUncertainty->SetParameter(0,0.034); 
-  eleUncertainty.etUncertainty->SetParameter(0, eleEtUncertaintyParameter0_); 
+  //  eleUncertainty.etUncertainty->SetParameter(0,0.034);
+  eleUncertainty.etUncertainty->SetParameter(0, eleEtUncertaintyParameter0_);
 
 
   eleUncertainty.phiUncertainty = new TF1("elePhiFunc","[0] * x",1);
@@ -485,7 +485,7 @@ void pat::PATMHTProducer::setUncertaintyParameters(){
 
   //--- Muon Uncertainty Functions ------------------------------------//
   // and ambiguious values for the muons...
-  
+
   muonUncertainty.etUncertainty = new TF1("muonEtFunc","[0] * x",1);
   //  muonUncertainty.etUncertainty->SetParameter(0,0.01);
   muonUncertainty.etUncertainty->SetParameter(0, muonEtUncertaintyParameter0_);
@@ -498,10 +498,10 @@ void pat::PATMHTProducer::setUncertaintyParameters(){
   muonCorrUncertainty.etUncertainty->SetParameter(0,0.0);
   muonCorrUncertainty.phiUncertainty = new TF1("muonCorrPhiFunc","[0] * x",1);
   muonCorrUncertainty.phiUncertainty->SetParameter(0,0.0*(3.14159/180.)); */
- 
+
 }
 
 
-using namespace pat; 
+using namespace pat;
 DEFINE_FWK_MODULE(PATMHTProducer);
 

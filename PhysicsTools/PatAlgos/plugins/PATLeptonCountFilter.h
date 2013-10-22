@@ -9,6 +9,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Common/interface/View.h"
+
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
+
 
 namespace pat {
 
@@ -26,9 +32,9 @@ namespace pat {
 
     private:
 
-      edm::InputTag electronSource_;
-      edm::InputTag muonSource_;
-      edm::InputTag tauSource_;
+      edm::EDGetTokenT<edm::View<Electron> > electronToken_;
+      edm::EDGetTokenT<edm::View<Muon> > muonToken_;
+      edm::EDGetTokenT<edm::View<Tau> > tauToken_;
       bool          countElectrons_;
       bool          countMuons_;
       bool          countTaus_;
