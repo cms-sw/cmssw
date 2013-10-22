@@ -5,14 +5,15 @@
  *      Author: aspataru
  */
 
-#include "../interface/FastMonitor.h"
-#include "../interface/ObjectMerger.h"
-#include "../interface/JSONSerializer.h"
-#include "../interface/FileIO.h"
-#include "../interface/Utils.h"
+#include "EventFilter/Utilities/interface/FastMonitor.h"
+#include "EventFilter/Utilities/interface/ObjectMerger.h"
+#include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/FileIO.h"
+#include "EventFilter/Utilities/interface/Utils.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <assert.h>
 
 using namespace jsoncollector;
 using std::string;
@@ -21,7 +22,7 @@ using std::ofstream;
 using std::fstream;
 using std::endl;
 
-FastMonitor::FastMonitor(vector<JsonMonitorable*> monitorableVariables,
+FastMonitor::FastMonitor(const vector<JsonMonitorable*>& monitorableVariables,
 		string defPath) :
 	snappedOnce_(false), monitorableVars_(monitorableVariables),
 			defPath_(defPath) {
@@ -60,10 +61,11 @@ void FastMonitor::snap(bool outputCSVFile, string path) {
 	string inputStringCSV = ss.str();
 	accumulatedCSV_.push_back(inputStringCSV);
 }
-
+//@@EM THIS IS HORRRRRRRRRIBLE: store the histo in FMS and just spit it out here
 void FastMonitor::outputFullHistoDataPoint(string path) {
 	if (accumulatedCSV_.size() > 0) {
-
+	  std::cout << "accumulatedCSV_.size()=" <<  accumulatedCSV_.size() << std::endl;
+	  assert(accumulatedCSV_.size()<100);
 		vector<DataPoint*> dpToMerge;
 
 		for (unsigned int i = 0; i < accumulatedCSV_.size(); i++) {

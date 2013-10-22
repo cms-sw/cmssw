@@ -49,14 +49,14 @@ namespace pat {
     private:
 
       // configurables
-      edm::InputTag src_;     // list of reco::CompositeCandidates
+      edm::EDGetTokenT<edm::View<reco::CompositeCandidate> > srcToken_;     // list of reco::CompositeCandidates
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::CompositeCandidate> userDataHelper_;
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
-      
+
       bool addResolutions_;
       pat::helper::KinResolutionsLoader resolutionLoader_;
   };

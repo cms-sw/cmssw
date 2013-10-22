@@ -79,6 +79,7 @@ namespace edmtest {
 
   void
   TestFindProduct::analyze(edm::Event const& e, edm::EventSetup const&) {
+
     edm::Handle<IntProduct> h;
     edm::Handle<IntProduct> hToken;
     edm::Handle<edm::View<int> > hView;

@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 
-namespace conddb {
+namespace cond {
 
   void Iov_t::clear(){
     since = time::MAX;
@@ -13,10 +13,18 @@ namespace conddb {
     payloadId.clear();
   }
 
+  bool Iov_t::isValid() const {
+    return since != time::MAX && till != time::MIN && !payloadId.empty();
+  }
+
+  bool Iov_t::isValidFor( Time_t target ) const {
+    return target >= since && target <= till;
+  }
+
   void Tag_t::clear(){
     tag.clear();
     payloadType.clear();
-    timeType = time::INVALID;
+    timeType = invalid;
     endOfValidity = time::MIN;
     lastValidatedTime = time::MIN;
   }

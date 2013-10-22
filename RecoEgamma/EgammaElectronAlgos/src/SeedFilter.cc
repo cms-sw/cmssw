@@ -19,10 +19,7 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
 
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 
@@ -34,7 +31,8 @@
 using namespace std;
 using namespace reco;
 
-SeedFilter::SeedFilter(const edm::ParameterSet& conf)
+SeedFilter::SeedFilter(const edm::ParameterSet& conf,
+		       const SeedFilter::Tokens& tokens)
  {
   edm::LogInfo("EtaPhiRegionSeedFactory") << "Enter the EtaPhiRegionSeedFactory";
   edm::ParameterSet regionPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
@@ -45,7 +43,7 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf)
   deltaEta_     = regionPSet.getParameter<double>("deltaEtaRegion");
   deltaPhi_     = regionPSet.getParameter<double>("deltaPhiRegion");
   useZvertex_   = regionPSet.getParameter<bool>("useZInVertex");
-  vertexSrc_    = regionPSet.getParameter<edm::InputTag> ("VertexProducer");
+  vertexSrc_    = tokens.token_vtx;
 
   // setup orderedhits setup (in order to tell seed generator to use pairs/triplets, which layers)
   edm::ParameterSet hitsfactoryPSet = conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
@@ -68,8 +66,9 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf)
   combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator,0,
                                     SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
 				                  	       );
-  beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot") ;
-  measurementTrackerName_ = conf.getParameter<std::string>("measurementTrackerName") ;
+  beamSpotTag_ = tokens.token_bs; ;
+  measurementTrackerName_ = conf.getParameter<edm::InputTag>("measurementTrackerEvent").encode() ;
+
  }
 
 SeedFilter::~SeedFilter() {
@@ -98,7 +97,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   // get the primary vertex (if any)
   reco::VertexCollection vertices;
   edm::Handle<reco::VertexCollection> h_vertices;
-  if (e.getByLabel(vertexSrc_, h_vertices)) {
+  if (e.getByToken(vertexSrc_, h_vertices)) {
     vertices = *(h_vertices.product());
   } else {
 	  LogDebug("SeedFilter") << "SeedFilter::seeds"
@@ -112,7 +111,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   } else {
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
     //e.getByType(recoBeamSpotHandle);
-    e.getByLabel(beamSpotTag_,recoBeamSpotHandle);
+    e.getByToken(beamSpotTag_,recoBeamSpotHandle);
     // gets its position
     const reco::BeamSpot::Point& BSPosition = recoBeamSpotHandle->position();
     double sigmaZ = recoBeamSpotHandle->sigmaZ();

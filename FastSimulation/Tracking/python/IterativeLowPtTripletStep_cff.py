@@ -23,7 +23,7 @@ iterativeLowPtTripletSeeds.originpTMin = [0.35]
 iterativeLowPtTripletSeeds.zVertexConstraint = [-1.0]
 iterativeLowPtTripletSeeds.primaryVertices = ['none']
 
-iterativeLowPtTripletSeeds.newSyntax = False
+iterativeLowPtTripletSeeds.newSyntax = True
 #iterativeLowPtTripletSeeds.layerList = ['BPix1+BPix2+BPix3',
 #                                   'BPix1+BPix2+FPix1_pos',
 #                                   'BPix1+BPix2+FPix1_neg',

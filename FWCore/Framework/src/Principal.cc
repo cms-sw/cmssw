@@ -502,6 +502,16 @@ namespace edm {
   }
 
   void
+  Principal::prefetch(ProductHolderIndex index,
+                      bool skipCurrentProcess,
+                      ModuleCallingContext const* mcc) const {
+    boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_.at(index);
+    assert(0!=productHolder.get());
+    ProductHolderBase::ResolveStatus resolveStatus;
+    productHolder->resolveProduct(resolveStatus, skipCurrentProcess, mcc);
+  }
+
+  void
   Principal::getManyByType(TypeID const& typeID,
                            BasicHandleVec& results,
                            EDConsumerBase const* consumer,
@@ -654,7 +664,7 @@ namespace edm {
       }
       inputTag.tryToCacheIndex(index, typeID, branchType(), &productRegistry());
     }
-    if(unlikely( consumer and (not consumer->registeredToConsume(index,branchType())))) {
+    if(unlikely( consumer and (not consumer->registeredToConsume(index, skipCurrentProcess, branchType())))) {
       failedToRegisterConsumes(kindOfType,typeID,inputTag.label(),inputTag.instance(),inputTag.process());
     }
 
@@ -696,7 +706,7 @@ namespace edm {
       return 0;
     }
     
-    if(unlikely( consumer and (not consumer->registeredToConsume(index,branchType())))) {
+    if(unlikely( consumer and (not consumer->registeredToConsume(index, false, branchType())))) {
       failedToRegisterConsumes(kindOfType,typeID,label,instance,process);
     }
     

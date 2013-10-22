@@ -12,7 +12,8 @@
 #include "EventFilter/Utilities/plugins/RecoEventWriterForFU.h"
 #include "EventFilter/Utilities/plugins/RecoEventOutputModuleForFU.h"
 #include "EventFilter/Utilities/plugins/RawEventOutputModuleForBU.h"
-#include "FastMonitoringService.h"
+#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
+#include "EventFilter/Utilities/plugins/DaqFakeReader.h"
 
 using namespace edm::serviceregistry;
 using namespace evf;
@@ -35,3 +36,4 @@ DEFINE_FWK_MODULE(EvFRecordUnpacker);
 DEFINE_FWK_MODULE(RawStreamFileWriterForBU);
 DEFINE_FWK_MODULE(MTRawStreamFileWriterForBU);
 DEFINE_FWK_MODULE(Stream);
+DEFINE_FWK_MODULE(DaqFakeReader);

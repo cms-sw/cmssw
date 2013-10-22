@@ -23,6 +23,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -93,51 +94,16 @@ namespace cms
       }
     else if (METtype == "TCMET" )
       {
-	muonToken_ = consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muonInputTag"));
-	electronToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronInputTag"));
-	metToken_ = consumes<edm::View<reco::MET> >(iConfig.getParameter<edm::InputTag>("metInputTag"));
-	trackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackInputTag"));
-	beamSpotToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"));
-	vertexToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexInputTag"));
-
-	if(iConfig.getParameter<bool> ("usePFClusters"))
-	  {
-	    clustersECALToken_ = consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersECAL"));
-	    clustersHCALToken_ = consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHCAL"));
-	    clustersHFEMToken_ = consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHFEM"));
-	    clustersHFHADToken_ = consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHFHAD"));
-	  }
-
-	muonDepValueMapToken_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(iConfig.getParameter<edm::InputTag>("muonDepValueMap"));
-	tcmetDepValueMapToken_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(iConfig.getParameter<edm::InputTag>("tcmetDepValueMap"));
-
 	produces<reco::METCollection>().setBranchAlias(alias.c_str());
-
-	int rfType_               = iConfig.getParameter<int>("rf_type");
-	bool correctShowerTracks_ = iConfig.getParameter<bool>("correctShowerTracks"); 
-
-	int responseFunctionType = 0;
-	if(! correctShowerTracks_)
-	  {
-	    if( rfType_ == 1 ) responseFunctionType = 1; // 'fit'
-	    else if( rfType_ == 2 ) responseFunctionType = 2; // 'mode'
-	    else { /* probably error */ }
-	  }
-	tcMetAlgo_.configure(iConfig, responseFunctionType,
-			     &muonToken_, &electronToken_, &metToken_, &trackToken_,
-			     &beamSpotToken_, &vertexToken_,
-			     &clustersECALToken_, &clustersHCALToken_,
-			     &clustersHFEMToken_, &clustersHFHADToken_,
-			     &muonDepValueMapToken_, &tcmetDepValueMapToken_
-			     );
+	tcMetAlgo_.configure(iConfig, consumesCollector());
       }
     else                            
       produces<reco::METCollection>().setBranchAlias(alias.c_str()); 
 
-    if (calculateSignificance_ && ( METtype == "CaloMET" || METtype == "PFMET")){
+    if (calculateSignificance_ && ( METtype == "CaloMET" || METtype == "PFMET"))
+      {
 	resolutions_ = new metsig::SignAlgoResolutions(iConfig);
-	
-    }
+      }
   }
 
 

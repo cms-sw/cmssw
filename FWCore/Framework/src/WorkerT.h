@@ -17,6 +17,7 @@ WorkerT: Code common to all workers.
 namespace edm {
 
   class ModuleCallingContext;
+  class ProductHolderIndexAndSkipBit;
 
   UnscheduledHandler* getUnscheduledHandler(EventPrincipal const& ep);
 
@@ -95,7 +96,17 @@ namespace edm {
     virtual void implPreForkReleaseResources() override;
     virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
                                                unsigned int iNumberOfChildren) override;
-     virtual std::string workerType() const override;
+    virtual std::string workerType() const override;
+
+    virtual void itemsToGet(BranchType branchType, std::vector<ProductHolderIndexAndSkipBit>& indexes) const {
+      module_->itemsToGet(branchType, indexes);
+    }
+
+    virtual void itemsMayGet(BranchType branchType, std::vector<ProductHolderIndexAndSkipBit>& indexes) const {
+      module_->itemsMayGet(branchType, indexes);
+    }
+
+    virtual std::vector<ProductHolderIndexAndSkipBit> const& itemsToGetFromEvent() const override { return module_->itemsToGetFromEvent(); }
 
     T* module_;
   };

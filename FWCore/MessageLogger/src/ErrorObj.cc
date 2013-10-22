@@ -39,6 +39,7 @@
 //
 // ----------------------------------------------------------------------
 
+#include <atomic>
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
@@ -66,7 +67,9 @@ namespace edm
 // Class static and class-wide parameter:
 // ----------------------------------------------------------------------
 
-int  ErrorObj::ourSerial(  0 );
+  // ---  class-wide serial number stamper:
+  //
+static std::atomic<int>  ourSerial(  0 );
 const unsigned int  maxIDlength( 200 );		// changed 4/28/06 from 20
 
 

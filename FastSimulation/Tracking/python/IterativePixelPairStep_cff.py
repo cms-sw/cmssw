@@ -23,7 +23,7 @@ iterativePixelPairSeeds.originpTMin = [0.6]
 iterativePixelPairSeeds.zVertexConstraint = [-1.0]
 iterativePixelPairSeeds.primaryVertices = ['pixelVertices']
 
-iterativePixelPairSeeds.newSyntax = False
+iterativePixelPairSeeds.newSyntax = True
 #iterativePixelPairSeeds.layerList = ['BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
 #                                     'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
 #                                     'BPix1+FPix2_pos', 'BPix1+FPix2_neg', 

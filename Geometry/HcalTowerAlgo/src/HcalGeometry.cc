@@ -189,10 +189,10 @@ int HcalGeometry::etaRing(HcalSubdetector bc, double abseta) const
   return etaring;
 }
 
-
-int HcalGeometry::phiBin(double phi, int etaring) const
+int
+HcalGeometry::phiBin(double phi, int etaring) const
 {
-   static const double twopi = M_PI+M_PI;
+  constexpr double twopi = M_PI+M_PI;
   //put phi in correct range (0->2pi)
   if(phi<0.0) phi += twopi;
   if(phi>twopi) phi -= twopi;

@@ -13,7 +13,9 @@
 #include <cstdlib>
 #include <iostream>
 
-void dumpSince( conddb::Time_t target, conddb::IOVProxy& data ){
+using namespace cond::db;
+
+void dumpSince( cond::Time_t target, IOVProxy& data ){
   auto i = data.find( target );
   if( i == data.end() ) {
     std::cout <<"No valid IOV for time="<<target<<std::endl;
@@ -60,9 +62,9 @@ int main (int argc, char** argv)
     oraSession.transaction().commit();
 
     // read the old db with the wrapper:
-    conddb::Session session;
-    conddb::IOVProxy reader;
-    conddb::IOVEditor editor;
+    Session session;
+    IOVProxy reader;
+    IOVEditor editor;
     session.open( connectionString0, true );
     session.transaction().start( true );
     std::cout <<"Database "<<connectionString0<<" does ";
@@ -88,11 +90,11 @@ int main (int argc, char** argv)
     std::string data8("X=9;Y=14;Z=19");
     std::string data9("X=10;Y=15;Z=20");
     boost::posix_time::ptime t = boost::posix_time::microsec_clock::universal_time();
-    conddb::Hash h0 = session.storePayload(data0, t ); 
-    conddb::Hash h1 = session.storePayload(data1, t ); 
-    conddb::Hash h2 = session.storePayload(data2, t ); 
-    conddb::Hash h3 = session.storePayload(data3, t ); 
-    conddb::Hash h4 = session.storePayload(data4, t ); 
+    cond::Hash h0 = session.storePayload(data0, t ); 
+    cond::Hash h1 = session.storePayload(data1, t ); 
+    cond::Hash h2 = session.storePayload(data2, t ); 
+    cond::Hash h3 = session.storePayload(data3, t ); 
+    cond::Hash h4 = session.storePayload(data4, t ); 
     editor.insert( 6000, h0 );
     editor.insert( 7000, h1 );
     editor.insert( 8000, h2 );
@@ -120,10 +122,12 @@ int main (int argc, char** argv)
     std::cout<<"exist."<<std::endl;
     try{
       editor = session.editIov( tag1 );
-    } catch ( conddb::Exception& e ){
+    } catch ( cond::Exception& e ){
+      std::cout <<"ERROR: "<<e.what()<<std::endl;
+    } catch ( cond::persistency::Exception& e ){
       std::cout <<"ERROR: "<<e.what()<<std::endl;
     }
-    editor = session.createIov<std::string>( tag1, conddb::time::RUNNUMBER, conddb::OFFLINE );
+    editor = session.createIov<std::string>( tag1, cond::runnumber, cond::OFFLINE );
     std::cout <<"Now the database "<<connectionString1<<" does ";
     if( !session.existsDatabase() ) {
       std::cout <<"not ";
@@ -134,9 +138,9 @@ int main (int argc, char** argv)
     std::string d0("Bla bla bla 0");
     std::string d1("Bla bla bla 1");
     std::string d2("Bla bla bla 2");
-    conddb::Hash p0 = session.storePayload(d0, boost::posix_time::microsec_clock::universal_time());
-    conddb::Hash p1 = session.storePayload(d1, boost::posix_time::microsec_clock::universal_time());
-    conddb::Hash p2 = session.storePayload(d2, boost::posix_time::microsec_clock::universal_time());
+    cond::Hash p0 = session.storePayload(d0, boost::posix_time::microsec_clock::universal_time());
+    cond::Hash p1 = session.storePayload(d1, boost::posix_time::microsec_clock::universal_time());
+    cond::Hash p2 = session.storePayload(d2, boost::posix_time::microsec_clock::universal_time());
     editor.insert( 100, p0 );
     editor.insert( 200, p1 );
     editor.insert( 300, p2 );
@@ -147,11 +151,11 @@ int main (int argc, char** argv)
     std::cout<<"Reading back..."<<std::endl;
     session.transaction().start( true );
     reader = session.readIov( tag1 );
-    std::cout <<"Tag "<<reader.tag()<<" timeType:"<<conddb::time::timeTypeName(reader.timeType())<<" size:"<<reader.size()<<
+    std::cout <<"Tag "<<reader.tag()<<" timeType:"<<cond::time::timeTypeName(reader.timeType())<<" size:"<<reader.size()<<
       " type:"<<reader.payloadObjectType()<<" endOfValidity:"<<reader.endOfValidity()<<" lastValidatedTime:"<<reader.lastValidatedTime()<<std::endl;
     reader.find( 12 );
     std::cout <<"Now size="<<reader.size()<<std::endl;
-    conddb::Iov_t iov = reader.getInterval( 235 );
+    cond::Iov_t iov = reader.getInterval( 235 );
     std::cout <<"Since:"<<iov.since<<" till:"<<iov.till<<" pid:"<<iov.payloadId<<std::endl;
 
     for( auto iov: reader ){

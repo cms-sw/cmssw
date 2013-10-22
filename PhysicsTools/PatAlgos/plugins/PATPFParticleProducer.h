@@ -50,30 +50,26 @@ namespace pat {
       virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
-      void 
-	fetchCandidateCollection(edm::Handle< edm::View<reco::PFCandidate> >& c, 
-				 const edm::InputTag& tag, 
-				 const edm::Event& iSetup) const;
 
       // configurables
-      edm::InputTag pfCandidateSrc_;
+      edm::EDGetTokenT<edm::View<reco::PFCandidate> > pfCandidateToken_;
       bool          embedPFCandidate_;
       bool          addGenMatch_;
       bool          embedGenMatch_;
-      std::vector<edm::InputTag> genMatchSrc_;
+      std::vector<edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > > genMatchTokens_;
       // tools
       GreaterByPt<PFParticle>      pTComparator_;
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
-      
+
       bool addResolutions_;
       pat::helper::KinResolutionsLoader resolutionLoader_;
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::PFParticle> userDataHelper_;
 
- 
+
   };
 
 

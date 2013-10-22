@@ -53,10 +53,9 @@ class ExceptionHandler ;
 class RunManager
 {
 public:
+
     RunManager(edm::ParameterSet const & p);
-    //static RunManager * instance();
-    //static RunManager * init(edm::ParameterSet const & p); 
-    virtual ~RunManager();
+    ~RunManager();
     void initG4(const edm::EventSetup & es);
     void initializeUserActions();
     void initializeRun();
@@ -80,13 +79,9 @@ protected:
     void resetGenParticleId( edm::Event& inpevt ); 
 private:
 
-    // static RunManager * me;
-    // explicit RunManager(edm::ParameterSet const & p);
-    
     G4RunManagerKernel * m_kernel;
     
     Generator * m_generator;
-    // edm::InputTag m_InTag ;
     std::string m_InTag ;
     
     bool m_nonBeam;
@@ -108,7 +103,7 @@ private:
     bool m_StorePhysicsTables;
     bool m_RestorePhysicsTables;
     int m_EvtMgrVerbosity;
-    bool m_Override;
+    //bool m_Override;
     bool m_check;
     edm::ParameterSet m_pGeometry;
     edm::ParameterSet m_pField;

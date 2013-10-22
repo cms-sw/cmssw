@@ -380,6 +380,9 @@ process = customizeHLTforMC(process)
       self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltHcalTowerNoiseCleaner', replace = 'hltTowerMakerForAll')
       self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltIter4Tau3MuMerged', replace = 'hltIter4Merged')
 
+      # MeasurementTrackerEvent
+      self._fix_parameter(                               type = 'InputTag', value = 'hltSiStripClusters', replace = 'MeasurementTrackerEvent')
+
       # fix the definition of sequences and paths
       self.data = re.sub( r'hltMuonCSCDigis', r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data )
       self.data = re.sub( r'hltMuonDTDigis',  r'cms.SequencePlaceholder( "simMuonDTDigis" )',   self.data )

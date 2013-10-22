@@ -21,7 +21,7 @@
 //---------------
 
 #include <L1Trigger/GlobalMuonTrigger/src/L1MuGMTLUT.h>
-
+#include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -328,7 +328,7 @@ void L1MuGMTLUT::MakeSubClass(const char* fname, const char* template_file_h,
 
   // prepare parts
   string ins_name (m_name);
-  string ins_name_upper = L1MuGMTLUTHelpers::upperCase (ins_name);
+  string ins_name_upper = boost::to_upper_copy(ins_name);
   string ins_instance_string;
   string ins_instances_enum;
   for (unsigned i=0; i<m_InstNames.size(); i++) {

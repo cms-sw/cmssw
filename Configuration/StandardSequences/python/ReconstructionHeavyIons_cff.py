@@ -6,6 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # Tracker
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
+from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 
 # Ecal
 from RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff import *
@@ -36,7 +37,7 @@ from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
 caloReco = cms.Sequence(ecalLocalRecoSequence*hcalLocalRecoSequence)
 hbhereco = hbheprereco.clone()
 hcalLocalRecoSequence.replace(hbheprereco,hbhereco)
-muonReco = cms.Sequence(trackerlocalreco+muonlocalreco+lumiProducer)
+muonReco = cms.Sequence(trackerlocalreco+MeasurementTrackerEvent+muonlocalreco+lumiProducer)
 localReco = cms.Sequence(offlineBeamSpot*muonReco*caloReco*castorreco)
 
 #hbherecoMB = hbheprerecoMB.clone()

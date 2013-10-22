@@ -177,7 +177,7 @@ void EcalEndcapMonitorModule::reset(void) {
   for (int i = 0; i < 2; i++) {
     if ( meEEdigis_[i] ) meEEdigis_[i]->Reset();
 
-    if ( meEEhits_[i] ) meEEdigis_[i]->Reset();
+    if ( meEEhits_[i] ) meEEhits_[i]->Reset();
 
     if ( meEEtpdigis_[i] ) meEEtpdigis_[i]->Reset();
   }

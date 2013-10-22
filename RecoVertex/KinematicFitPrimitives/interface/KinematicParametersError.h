@@ -3,6 +3,8 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "TrackingTools/TrajectoryParametrization/interface/CartesianTrajectoryError.h"
+
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToCartesian.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/Matrices.h"
@@ -26,12 +28,19 @@ public:
                              theCovMatrix(er)
  {vl = true;}
  
+  KinematicParametersError(const CartesianTrajectoryError& err, float merr) {
+    theCovMatrix.Place_at(err.matrix(),0,0);
+    theCovMatrix(6,6) = merr * merr;
+    vl = true;
+  }
+  
 /**
  * access methods
  */ 
  
- AlgebraicSymMatrix77 matrix() const
- {return theCovMatrix;}
+ AlgebraicSymMatrix77 const & matrix() const {return theCovMatrix;}
+
+  AlgebraicSymMatrix77  & matrix() {return theCovMatrix;}
  
  
  bool isValid() const

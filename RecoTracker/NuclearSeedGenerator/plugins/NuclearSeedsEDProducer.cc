@@ -49,8 +49,10 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
    std::auto_ptr<TrajectoryToSeedsMap> outAssoc(new TrajectoryToSeedsMap);
 
-   // Update the measurement
-   theNuclearInteractionFinder->setEvent(iEvent);
+   
+   edm::Handle<MeasurementTrackerEvent> data;
+   iEvent.getByLabel(edm::InputTag("MeasurementTrackerEvent"), data);
+
    NavigationSetter setter( *(theNuclearInteractionFinder->nav()) );
 
    std::vector<std::pair<int, int> > assocPair;
@@ -59,10 +61,10 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    for(std::vector<Trajectory>::const_iterator iTraj = m_TrajectoryCollection->begin(); iTraj != m_TrajectoryCollection->end(); iTraj++,i++) {
 
          // run the finder
-         theNuclearInteractionFinder->run( *iTraj );
+         theNuclearInteractionFinder->run( *iTraj, *data );
 
          // improve seeds
-         if( improveSeeds == true ) theNuclearInteractionFinder->improveSeeds();
+         if( improveSeeds == true ) theNuclearInteractionFinder->improveSeeds( *data );
 
          // push back the new persistent seeds in output
          std::auto_ptr<TrajectorySeedCollection> newSeeds(theNuclearInteractionFinder->getPersistentSeeds());

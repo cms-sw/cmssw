@@ -13,6 +13,7 @@
 #include "TrackingTools/TrajectoryFiltering/interface/RegionalTrajectoryFilter.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
@@ -113,14 +114,13 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
 			    const Propagator*                     propagatorOpposite,
 			    const Chi2MeasurementEstimatorBase*   estimator,
 			    const TransientTrackingRecHitBuilder* recHitBuilder,
-			    const MeasurementTracker*             measurementTracker,
 			    const TrajectoryFilter*               filter,
 			    const TrajectoryFilter*               inOutFilter):
 
 
   BaseCkfTrajectoryBuilder(conf,
 			   updator, propagatorAlong,propagatorOpposite,
-			   estimator, recHitBuilder, measurementTracker, filter, inOutFilter)
+			   estimator, recHitBuilder, filter, inOutFilter)
 {
   // fill data members from parameters (eventually data members could be dropped)
   //
@@ -162,6 +162,13 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
   theMeasurementTracker->update(event);
 }
 */
+
+GroupedCkfTrajectoryBuilder *
+GroupedCkfTrajectoryBuilder::clone(const MeasurementTrackerEvent *data) const {
+    GroupedCkfTrajectoryBuilder *ret = new GroupedCkfTrajectoryBuilder(*this);
+    ret->setData(data);
+    return ret;
+}
 
 GroupedCkfTrajectoryBuilder::TrajectoryContainer 
 GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed) const 
@@ -245,6 +252,10 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
                                                 GroupedCkfTrajectoryBuilder::TrajectoryContainer &result,
 						const TrajectoryFilter* regionalCondition) const
 {
+  if (theMeasurementTracker == 0) {
+      throw cms::Exception("LogicError") << "Asking to create trajectories to an un-initialized GroupedCkfTrajectoryBuilder.\nYou have to call clone(const MeasurementTrackerEvent *data) and then call trajectories on it instead.\n";
+  }
+ 
   statCount.seed();
   //
   // Build trajectory outwards from seed
@@ -526,8 +537,8 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
       } // last layer... 
     
     //unsigned int maxCandidates = theMaxCand > 21 ? theMaxCand*2 : 42; //limit the number of returned segments
-    TrajectorySegmentBuilder layerBuilder(theMeasurementTracker,
-					  theLayerMeasurements,
+    LayerMeasurements layerMeasurements(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
+    TrajectorySegmentBuilder layerBuilder(&layerMeasurements,
 					  **il,*propagator,
 					  *theUpdator,*theEstimator,
 					  theLockHits,theBestHitOnly);

@@ -4,6 +4,7 @@
 <use   name="SimCalorimetry/HcalSimAlgos"/>
 <use   name="SimGeneral/MixingModule"/>
 <use   name="SimDataFormats/CaloTest"/>
+<use   name="DataFormats/HcalCalibObjects"/>
 <export>
   <lib   name="1"/>
 </export>

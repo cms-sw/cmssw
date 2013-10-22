@@ -1,7 +1,8 @@
 <lcgdict>
 <selection>
 
-  <class name="reco::PFCluster" ClassVersion="10">
+  <class name="reco::PFCluster" ClassVersion="11">
+   <version ClassVersion="11" checksum="1793013291"/>
    <version ClassVersion="10" checksum="1793013291"/>
     <field name="posrep_" transient="true"/>
     <field name="color_" transient="true"/>

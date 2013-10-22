@@ -34,6 +34,11 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   maxHit  = pset.getParameter<double>("maxHit");
   nintHit = pset.getParameter<int>("nintHit");
   
+  //parameters for _vs_Layer plots
+  minLayers  = pset.getParameter<double>("minLayers");
+  maxLayers  = pset.getParameter<double>("maxLayers");
+  nintLayers = pset.getParameter<int>("nintLayers");
+  
   //parameters for _vs_phi plots
   minPhi  = pset.getParameter<double>("minPhi");
   maxPhi  = pset.getParameter<double>("maxPhi");
@@ -413,6 +418,9 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   h_losthits.push_back( dbe_->book1D("losthits", "number of lost hits per track", nintHit,minHit,maxHit) );
   h_nchi2.push_back( dbe_->book1D("chi2", "normalized #chi^{2}", 200, 0, 20 ) );
   h_nchi2_prob.push_back( dbe_->book1D("chi2_prob", "normalized #chi^{2} probability",100,0,1));
+
+  h_nmisslayers_inner.push_back( dbe_->book1D("missing_inner_layers", "number of missing inner layers", nintLayers,minLayers,maxLayers ) );
+  h_nmisslayers_outer.push_back( dbe_->book1D("missing_outer_layers", "number of missing outer layers", nintLayers,minLayers,maxLayers ) );
 
   h_algo.push_back( dbe_->book1D("h_algo","Tracks by algo",15,0.0,15.0) );
 
@@ -1172,6 +1180,8 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     h_losthits[count]->Fill(track.numberOfLostHits());
     chi2_vs_nhits[count]->Fill(track.numberOfValidHits(),track.normalizedChi2());
     h_charge[count]->Fill( track.charge() );
+    h_nmisslayers_inner[count]->Fill(track.trackerExpectedHitsInner().numberOfHits());
+    h_nmisslayers_outer[count]->Fill(track.trackerExpectedHitsOuter().numberOfHits());
     
     //chi2 and #hit vs eta: fill 2D histos
     chi2_vs_eta[count]->Fill(getEta(track.eta()),track.normalizedChi2());

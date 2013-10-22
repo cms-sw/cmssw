@@ -35,7 +35,7 @@ DTTtrig::DTTtrig():
   dataVersion( " " ),
   nsPerCount( 25.0 / 32.0 ) {
   dataList.reserve( 1000 );
-  dBuf = 0;
+  dBuf = nullptr;
 }
 
 
@@ -43,7 +43,7 @@ DTTtrig::DTTtrig( const std::string& version ):
   dataVersion( version ),
   nsPerCount( 25.0 / 32.0 ) {
   dataList.reserve( 1000 );
-  dBuf = 0;
+  dBuf = nullptr;
 }
 
 
@@ -79,7 +79,6 @@ DTTtrigId::~DTTtrigId() {
 
 DTTtrigData::~DTTtrigData() {
 }
-
 
 //--------------
 // Operations --
@@ -122,7 +121,7 @@ int DTTtrig::get( int   wheelId,
 //    dBuf =
 //    DTDataBuffer<int,int>::findBuffer( mName );
 //  }
-  if ( dBuf == 0 ) cacheMap();
+  if (!dBuf.load(std::memory_order_acquire)) cacheMap();
 
   std::vector<int> chanKey;
   chanKey.reserve(6);
@@ -133,7 +132,7 @@ int DTTtrig::get( int   wheelId,
   chanKey.push_back(   layerId );
   chanKey.push_back(    cellId );
   int ientry;
-  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  int searchStatus = (*dBuf.load(std::memory_order_acquire)).find( chanKey.begin(), chanKey.end(), ientry );
   if ( !searchStatus ) {
     const DTTtrigData& data( dataList[ientry].second );
     tTrig = data.tTrig;
@@ -253,7 +252,7 @@ std::string& DTTtrig::version() {
 void DTTtrig::clear() {
 //  DTDataBuffer<int,int>::dropBuffer( mapName() );
   delete dBuf;
-  dBuf = 0;
+  dBuf = nullptr;
   dataList.clear();
   return;
 }
@@ -298,7 +297,7 @@ int DTTtrig::set( int   wheelId,
 //    dBuf =
 //    DTDataBuffer<int,int>::findBuffer( mName );
 //  }
-  if ( dBuf == 0 ) cacheMap();
+  if (!dBuf.load(std::memory_order_acquire)) cacheMap();
   std::vector<int> chanKey;
   chanKey.reserve(6);
   chanKey.push_back(   wheelId );
@@ -308,7 +307,7 @@ int DTTtrig::set( int   wheelId,
   chanKey.push_back(   layerId );
   chanKey.push_back(    cellId );
   int ientry;
-  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  int searchStatus = (*dBuf.load(std::memory_order_acquire)).find( chanKey.begin(), chanKey.end(), ientry );
 
   if ( !searchStatus ) {
     DTTtrigData& data( dataList[ientry].second );
@@ -331,7 +330,7 @@ int DTTtrig::set( int   wheelId,
     data.kFact = kFact;
     ientry = dataList.size();
     dataList.push_back( std::pair<DTTtrigId,DTTtrigData>( key, data ) );
-    dBuf->insert( chanKey.begin(), chanKey.end(), ientry );
+    (*dBuf.load(std::memory_order_acquire)).insert( chanKey.begin(), chanKey.end(), ientry );
     return 0;
   }
 
@@ -396,9 +395,8 @@ void DTTtrig::cacheMap() const {
 //  std::string mName = mapName();
 //  DTBufferTree<int,int>* dBuf =
 //  DTDataBuffer<int,int>::openBuffer( mName );
-  DTBufferTree<int,int>** pBuf;
-  pBuf = const_cast<DTBufferTree<int,int>**>( &dBuf );
-  *pBuf = new DTBufferTree<int,int>;
+//
+  auto pBuf = new DTBufferTree<int,int>;
 
   int entryNum = 0;
   int entryMax = dataList.size();
@@ -415,8 +413,15 @@ void DTTtrig::cacheMap() const {
     chanKey.push_back( chan.     slId );
     chanKey.push_back( chan.  layerId );
     chanKey.push_back( chan.   cellId );
-    dBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
+    pBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
+  }
 
+  //atomically try to swap this to become dBuf
+  DTBufferTree<int,int>* expect = nullptr;
+  bool exchanged = dBuf.compare_exchange_strong(expect, pBuf, std::memory_order_acq_rel);
+  if(!exchanged) {
+      //some other thread beat us to this so need to get rid of the work we did
+      delete pBuf;
   }
 
   return;

@@ -18,15 +18,17 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/METReco/interface/CorrMETData.h"
+
 #include <string>
 
-class ShiftedMETcorrInputProducer : public edm::EDProducer  
+class ShiftedMETcorrInputProducer : public edm::EDProducer
 {
  public:
 
   explicit ShiftedMETcorrInputProducer(const edm::ParameterSet&);
   ~ShiftedMETcorrInputProducer();
-    
+
  private:
 
   void produce(edm::Event&, const edm::EventSetup&);
@@ -34,7 +36,8 @@ class ShiftedMETcorrInputProducer : public edm::EDProducer
   std::string moduleLabel_;
 
   typedef std::vector<edm::InputTag> vInputTag;
-  vInputTag src_; 
+  vInputTag src_;
+  std::vector<edm::EDGetTokenT<CorrMETData> > srcTokens_;
 
   struct binningEntryType
   {
@@ -65,5 +68,5 @@ class ShiftedMETcorrInputProducer : public edm::EDProducer
 #endif
 
 
- 
+
 

@@ -15,27 +15,27 @@
 using namespace pat;
 
 PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), false) ,
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false) ,
   useUserData_(iConfig.exists("userData"))
 {
   // initialize the configurables
-  photonSrc_ = iConfig.getParameter<edm::InputTag>("photonSource");
+  photonToken_ = consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("photonSource"));
   embedSuperCluster_ = iConfig.getParameter<bool>("embedSuperCluster");
   // MC matching configurables
   addGenMatch_ = iConfig.getParameter<bool>( "addGenMatch" );
   if (addGenMatch_) {
     embedGenMatch_ = iConfig.getParameter<bool>( "embedGenMatch" );
     if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
-      genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
-    } 
+      genMatchTokens_.push_back(consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>( "genParticleMatch" )));
+    }
     else {
-      genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
+      genMatchTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" ), [this](edm::InputTag const & tag){return consumes<edm::Association<reco::GenParticleCollection> >(tag);});
     }
   }
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
-    efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+    efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"), consumesCollector());
   }
   // photon ID configurables
   addPhotonID_ = iConfig.getParameter<bool>( "addPhotonID" );
@@ -65,6 +65,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
       "\t\tInputTag <someName> = <someTag>   // as many as you want \n " <<
       "\t}\n";
   }
+  photIDTokens_ = edm::vector_transform(photIDSrcs_, [this](NameTag const & tag){return mayConsume<edm::ValueMap<Bool_t> >(tag.second);});
   // Resolution configurables
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
@@ -72,7 +73,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   }
   // Check to see if the user wants to add user data
   if ( useUserData_ ) {
-    userDataHelper_ = PATUserDataHelper<Photon>(iConfig.getParameter<edm::ParameterSet>("userData"));
+    userDataHelper_ = PATUserDataHelper<Photon>(iConfig.getParameter<edm::ParameterSet>("userData"), consumesCollector());
   }
   // produces vector of photons
   produces<std::vector<Photon> >();
@@ -91,55 +92,56 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
         }
      }
   }
+  isoDepositTokens_ = edm::vector_transform(isoDepositLabels_, [this](std::pair<IsolationKeys,edm::InputTag> const & label){return consumes<edm::ValueMap<IsoDeposit> >(label.second);});
 }
 
 PATPhotonProducer::~PATPhotonProducer() {
 }
 
-void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
+void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
   // switch off embedding (in unschedules mode)
   if (iEvent.isRealData()){
     addGenMatch_   = false;
     embedGenMatch_ = false;
   }
- 
+
   // Get the vector of Photon's from the event
   edm::Handle<edm::View<reco::Photon> > photons;
-  iEvent.getByLabel(photonSrc_, photons);
+  iEvent.getByToken(photonToken_, photons);
 
   // prepare the MC matching
-  std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchSrc_.size());
+  std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > >genMatches(genMatchTokens_.size());
   if (addGenMatch_) {
-        for (size_t j = 0, nd = genMatchSrc_.size(); j < nd; ++j) {
-            iEvent.getByLabel(genMatchSrc_[j], genMatches[j]);
-        }
+    for (size_t j = 0, nd = genMatchTokens_.size(); j < nd; ++j) {
+      iEvent.getByToken(genMatchTokens_[j], genMatches[j]);
+    }
   }
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
-  
+
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
   if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
-  
-  std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
-  for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
-    iEvent.getByLabel(isoDepositLabels_[j].second, deposits[j]);
+
+  std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositTokens_.size());
+  for (size_t j = 0, nd = isoDepositTokens_.size(); j < nd; ++j) {
+    iEvent.getByToken(isoDepositTokens_[j], deposits[j]);
   }
-  
-  // prepare ID extraction 
+
+  // prepare ID extraction
   std::vector<edm::Handle<edm::ValueMap<Bool_t> > > idhandles;
   std::vector<pat::Photon::IdPair>               ids;
   if (addPhotonID_) {
     idhandles.resize(photIDSrcs_.size());
     ids.resize(photIDSrcs_.size());
     for (size_t i = 0; i < photIDSrcs_.size(); ++i) {
-      iEvent.getByLabel(photIDSrcs_[i].second, idhandles[i]);
+      iEvent.getByToken(photIDTokens_[i], idhandles[i]);
       ids[i].first = photIDSrcs_[i].first;
     }
   }
 
   // loop over photons
-  std::vector<Photon> * PATPhotons = new std::vector<Photon>(); 
+  std::vector<Photon> * PATPhotons = new std::vector<Photon>();
   for (edm::View<reco::Photon>::const_iterator itPhoton = photons->begin(); itPhoton != photons->end(); itPhoton++) {
     // construct the Photon from the ref -> save ref to original object
     unsigned int idx = itPhoton - photons->begin();
@@ -183,7 +185,7 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     // add photon ID info
     if (addPhotonID_) {
       for (size_t i = 0; i < photIDSrcs_.size(); ++i) {
-	ids[i].second = (*idhandles[i])[photonRef];    
+	ids[i].second = (*idhandles[i])[photonRef];
       }
       aPhoton.setPhotonIDs(ids);
     }
@@ -191,7 +193,7 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     if ( useUserData_ ) {
       userDataHelper_.add( aPhoton, iEvent, iSetup );
     }
-    
+
 
     // add the Photon to the vector of Photons
     PATPhotons->push_back(aPhoton);
@@ -213,7 +215,7 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   edm::ParameterSetDescription iDesc;
   iDesc.setComment("PAT photon producer module");
 
-  // input source 
+  // input source
   iDesc.add<edm::InputTag>("photonSource", edm::InputTag("no default"))->setComment("input collection");
 
   iDesc.add<bool>("embedSuperCluster", true)->setComment("embed external super cluster");
@@ -222,7 +224,7 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   iDesc.add<bool>("addGenMatch", true)->setComment("add MC matching");
   iDesc.add<bool>("embedGenMatch", false)->setComment("embed MC matched MC information");
   std::vector<edm::InputTag> emptySourceVector;
-  iDesc.addNode( edm::ParameterDescription<edm::InputTag>("genParticleMatch", edm::InputTag(), true) xor 
+  iDesc.addNode( edm::ParameterDescription<edm::InputTag>("genParticleMatch", edm::InputTag(), true) xor
                  edm::ParameterDescription<std::vector<edm::InputTag> >("genParticleMatch", emptySourceVector, true)
 	       )->setComment("input with MC match information");
 
@@ -231,14 +233,14 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   // photon ID configurables
   iDesc.add<bool>("addPhotonID",true)->setComment("add photon ID variables");
   edm::ParameterSetDescription photonIDSourcesPSet;
-  photonIDSourcesPSet.setAllowAnything(); 
+  photonIDSourcesPSet.setAllowAnything();
   iDesc.addNode( edm::ParameterDescription<edm::InputTag>("photonIDSource", edm::InputTag(), true) xor
                  edm::ParameterDescription<edm::ParameterSetDescription>("photonIDSources", photonIDSourcesPSet, true)
                  )->setComment("input with photon ID variables");
 
   // IsoDeposit configurables
   edm::ParameterSetDescription isoDepositsPSet;
-  isoDepositsPSet.addOptional<edm::InputTag>("tracker"); 
+  isoDepositsPSet.addOptional<edm::InputTag>("tracker");
   isoDepositsPSet.addOptional<edm::InputTag>("ecal");
   isoDepositsPSet.addOptional<edm::InputTag>("hcal");
   isoDepositsPSet.addOptional<std::vector<edm::InputTag> >("user");

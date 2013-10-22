@@ -14,6 +14,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 //#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
 //#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 //#include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
@@ -34,7 +35,7 @@ class GEDPhotonCoreProducer : public edm::EDProducer {
 
   std::string GEDPhotonCoreCollection_;
   std::string PFConversionCollection_;
-  edm::InputTag pfEgammaCandidates_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
 
   double minSCEt_;
   bool validConversions_;

@@ -12,6 +12,7 @@
 
 class LHERunInfoProduct {
     public:
+    typedef std::vector<std::pair<std::string,std::string> > weights_defs;
 	class Header {
 	    public:
 		typedef std::vector<std::string>::const_iterator const_iterator;

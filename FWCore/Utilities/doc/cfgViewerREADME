@@ -1,27 +1,37 @@
-Usage
-python cfg-viewer.py <config-file>
-options:
- -o : to set the name of the output html file.
-      .js, .json and .css files will be stored in a seperate folder in the same directory as where the html is specified to be saved.
- -q : quiet, prints minimal messages to stdout
+Usage:
+  python cfg-viewer.py <config-file/directory>
 
-default:
-  html file will be named cfg-viewer.html and stored in the dir where the script is ran from. All other files will be stored under cfgViewerJS/ directory in the same directory.
+
+Options:
+  -q : Quiet, prints minimal messages to stdout.
+  -s : Stops the server from starting. By default it starts after everything has been evaluated.
+  -r : Search provided directories recursively for .py files.
+
+
+Examples:
+To recursively search the current directory looking for configuration files:
+  python cfg-viewer.py "." -r
+Compute for three configuration files:
+  python cfg-viewer.py cfgFile1.py confgFile2.py configFile3.py
+
+
+Default:
+The html file will be named index.html, the server python file will be named cfgServer.py both will be stored in the dir where the script is ran from. All other files will be stored under <config-name>-cfghtml/ directory in the same directory.
+
 
 Problems with browsers
+The python script automatically runs a simple local server called cfgServer.py. If you do not need editing capabilities then some browsers do not require this local server. For other browsers (i.e. Chrome), the local server is always needed.
+The server file will be in the same place your ran the python script from. It will be entitled cfgServer.py. To run type "python cfgServer.py" in a terminal. It will then provide you with a link where you can view the files.
 
-In order to correctly view the html file in some browsers you need to run a simple server.
-This can be done by inputting "python -m SimpleHTTPServer" on the command line in the same directory as the html file.
-Then view the html file by going to http://localhost:8000/cfg-viewer.html .
-Some problems persist especially with browsers other than Chrome, Firefox and Internet Explorer.
+Some problems may persist especially with browsers other than Chrome, Firefox, Internet Explorer and Safari.
+Please get in touch with the browser name and version if you have any troubles with a browser. 
 
 
 Editing
-
-In order to edit data on the html, a local server is needed. A server called EditingServer.py is created by the script after it has run. This is stored in the same place as the html file. Run the server "python EditingServer.py", and then go to http://localhost:8000/cfg-viewer.html.
+In order to edit data on the html a local server is needed. Please follow the instructions in the "Problems with browsers" section to start a local server.
 When saving a json file will be provided with the changes. 
+
 
 Contact
 Some bugs still occur with editing and saving, and I am aware of problems with some browsers. If you want to report anything please contact me here:
 susie.murphy@cern.ch  
-      

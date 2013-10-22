@@ -13,7 +13,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/EgammaTrackReco/interface/TrackCandidateCaloClusterAssociation.h"
+
 #include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
@@ -23,7 +23,8 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
 {
   setConf(iConfig);
   setSrc( consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
-          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )));
+          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
+          consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
 
   if ( iConfig.exists("clusterRemovalInfo") ) {
@@ -38,6 +39,10 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
   trackSuperClusterAssociationCollection_ = iConfig.getParameter<std::string>("recoTrackSCAssociationCollection");
   myTrajectoryInEvent_ = iConfig.getParameter<bool>("TrajectoryInEvent");
 
+  assoc_token = 
+    consumes<reco::TrackCandidateCaloClusterPtrAssociation>(
+		    edm::InputTag(conversionTrackCandidateProducer_,
+				  trackCSuperClusterAssociationCollection_));
  
   //register your products
   produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
@@ -88,7 +93,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   //// Get the association map between candidate out in tracks and the SC where they originated
   validTrackCandidateSCAssociationInput_=true;
   edm::Handle<reco::TrackCandidateCaloClusterPtrAssociation> trkCandidateSCAssocHandle;
-  theEvent.getByLabel(conversionTrackCandidateProducer_, trackCSuperClusterAssociationCollection_ , trkCandidateSCAssocHandle);
+  theEvent.getByToken(assoc_token, trkCandidateSCAssocHandle);
   if ( !trkCandidateSCAssocHandle.isValid() ) {
     //    std::cout << "Error! Can't get the product  "<<trackCSuperClusterAssociationCollection_.c_str() << " but keep running. Empty collection will be produced " << "\n";
     edm::LogError("TrackProducerWithSCAssociation") << "Error! Can't get the product  "<<trackCSuperClusterAssociationCollection_.c_str() << " but keep running. Empty collection will be produced " << "\n";
@@ -324,8 +329,10 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
     //======= I want to set the second hitPattern here =============
     if (theSchool.isValid())
       {
+        edm::Handle<MeasurementTrackerEvent> mte;
+        evt.getByLabel(edm::InputTag("MeasurementTrackerEvent"), mte);
 	NavigationSetter setter( *theSchool );
-	setSecondHitPattern(theTraj,track,thePropagator,theMeasTk);
+	setSecondHitPattern(theTraj,track,thePropagator,&*mte);
       }
     //==============================================================
 

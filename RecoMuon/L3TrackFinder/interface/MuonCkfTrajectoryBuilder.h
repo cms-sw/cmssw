@@ -15,6 +15,10 @@ class MuonCkfTrajectoryBuilder : public CkfTrajectoryBuilder {
 			   const MeasurementTracker*             measurementTracker,
 			   const TrajectoryFilter*               filter);
   virtual ~MuonCkfTrajectoryBuilder();
+
+  // Return a clone of this, with the data pointer set
+  virtual MuonCkfTrajectoryBuilder * clone(const MeasurementTrackerEvent *data) const ;
+
   
  protected:
   void collectMeasurement(const DetLayer * layer, const std::vector<const DetLayer*>& nl,const TrajectoryStateOnSurface & currentState, std::vector<TM>& result,int& invalidHits,const Propagator *) const;

@@ -1,30 +1,4 @@
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias8TeV_001.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias8TeV_002.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias8TeV_003.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias8TeV_004.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias8TeV_005.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias8TeV_006.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias8TeV_007.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias8TeV_008.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias8TeV_009.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias8TeV_010.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias7TeV_001.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias7TeV_002.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias7TeV_003.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias7TeV_004.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias7TeV_005.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias7TeV_006.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias7TeV_007.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias7TeV_008.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias7TeV_009.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias7TeV_010.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias14TeV_001.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias14TeV_002.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias14TeV_003.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias14TeV_004.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias14TeV_005.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias14TeV_006.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias14TeV_007.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias14TeV_008.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias14TeV_009.root
-http://cmsdoc.cern.ch/cms/data/CMSSW/FastSimulation/PileUpProducer/data/MinBias14TeV_010.root
+This file is not used anymore to build the minimumbias data external!
+Now the correct procedure is to update the list directly in data-FastSimulation-PileUpProducer.spec (in the CMSDIST repository) and to inform the release managers to rebuild data-FastSimulation-PileUpProducer external via a pull request. 
+
+You have to fork the CMSDIST repository, clone it locally, modify the file data-FastSimulation-PileUpProducer.spec, push it in your forked repository, and make a pull request. 

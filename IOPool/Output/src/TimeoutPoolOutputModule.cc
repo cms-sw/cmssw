@@ -9,6 +9,7 @@ namespace edm {
   }
   
   TimeoutPoolOutputModule::TimeoutPoolOutputModule(ParameterSet const& ps):
+      edm::one::OutputModuleBase::OutputModuleBase(ps),
       PoolOutputModule(ps), 
       m_lastEvent(time(NULL)),
       eventsWrittenInCurrentFile(0),

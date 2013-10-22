@@ -1,98 +1,118 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMSummaryPlotter.h"
 
-HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter( const edm::ParameterSet& ps, std::string dqmBaseFolder ) {
-    //Initialize Plotter
-    name_ = "HLTTauDQMSummaryPlotter";
+#include "TEfficiency.h"
+
+#include<tuple>
+
+namespace {
+  std::tuple<float, float> calcEfficiency(float num, float denom) {
+    if(denom == 0.0f)
+      return std::make_tuple(0.0f, 0.0f);
+
+    //float eff = num/denom;
+    constexpr double cl = 0.683f; // "1-sigma"
+    const float eff = num/denom;
+    const float errDown = TEfficiency::ClopperPearson(denom, num, cl, false);
+    const float errUp = TEfficiency::ClopperPearson(denom, num, cl, true);
+
+    // Because of limitation of TProfile, just take max
+    return std::make_tuple(eff, std::max(eff-errDown, errUp-eff));
+  }
+}
+
+HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(const edm::ParameterSet& ps, const std::string& dqmBaseFolder):
+  HLTTauDQMPlotter(ps, dqmBaseFolder),
+  store_(nullptr)
+{
+  if(!configValid_)
+    return;
+
+  // no run concept in summary plotter
+  runValid_ = true;
     
-    //Process PSet
-    try {
-        triggerTag_      = ps.getUntrackedParameter<std::string>("DQMFolder");
-        triggerTagAlias_ = ps.getUntrackedParameter<std::string>("Alias","");
-        type_            = ps.getUntrackedParameter<std::string>("ConfigType");
-        dqmBaseFolder_   = dqmBaseFolder;
-        validity_        = true;
-    } catch ( cms::Exception &e ) {
-        edm::LogInfo("HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter") << e.what() << std::endl;
-        validity_ = false;
-        return;
-    }
-    
-    if (store_) {
+  //Process PSet
+  try {
+    type_ = ps.getUntrackedParameter<std::string>("ConfigType");
+  } catch ( cms::Exception &e ) {
+    edm::LogWarning("HLTTauDQMOfflineSource") << "HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(): " << e.what();
+    configValid_ = false;
+    return;
+  }
+  configValid_ = true;
+}
+
+HLTTauDQMSummaryPlotter::~HLTTauDQMSummaryPlotter() {}
+
+void HLTTauDQMSummaryPlotter::bookPlots() {
+  if(!configValid_)
+    return;
+
+  edm::Service<DQMStore> store;
+  if(store.isAvailable()) {
+    store_ = store.operator->();
         //Path Summary 
         if ( type_ == "Path" ) {
-            bookTriggerBitEfficiencyHistos(triggerTag(),"MatchedTriggerBits");
-        }
-        
-        //Lite Path Summary 
-        if ( type_ == "LitePath" ) {
-            bookEfficiencyHisto(triggerTag(),"PathEfficiency","MatchedPathTriggerBits");
-            bookEfficiencyHisto(triggerTag(),"TrigTauEtEff","EfficiencyHelpers/TrigTauEtEffNum");
-            bookEfficiencyHisto(triggerTag(),"TrigTauEtaEff","EfficiencyHelpers/TrigTauEtaEffNum");
-            bookEfficiencyHisto(triggerTag(),"TrigTauPhiEff","EfficiencyHelpers/TrigTauPhiEffNum");
+            bookTriggerBitEfficiencyHistos(triggerTag(), "EventsPerFilter");
+
+            bookEfficiencyHisto(triggerTag(), "L2TrigTauEtEff",  "helpers/L2TrigTauEtEffNum"); 
+            bookEfficiencyHisto(triggerTag(), "L2TrigTauHighEtEff",  "helpers/L2TrigTauHighEtEffNum");
+            bookEfficiencyHisto(triggerTag(), "L2TrigTauEtaEff", "helpers/L2TrigTauEtaEffNum");
+            bookEfficiencyHisto(triggerTag(), "L2TrigTauPhiEff", "helpers/L2TrigTauPhiEffNum");
+
+            bookEfficiencyHisto(triggerTag(), "L3TrigTauEtEff",  "helpers/L3TrigTauEtEffNum");
+            bookEfficiencyHisto(triggerTag(), "L3TrigTauHighEtEff",  "helpers/L3TrigTauHighEtEffNum");
+            bookEfficiencyHisto(triggerTag(), "L3TrigTauEtaEff", "helpers/L3TrigTauEtaEffNum");
+            bookEfficiencyHisto(triggerTag(), "L3TrigTauPhiEff", "helpers/L3TrigTauPhiEffNum");
         }
         
         //L1 Summary
-        if ( type_ == "L1" ) {
+        else if ( type_ == "L1" ) {
             bookEfficiencyHisto(triggerTag(),"L1TauEtEff","EfficiencyHelpers/L1TauEtEffNum");
+            bookEfficiencyHisto(triggerTag(),"L1TauHighEtEff","EfficiencyHelpers/L1TauHighEtEffNum");
             bookEfficiencyHisto(triggerTag(),"L1TauEtaEff","EfficiencyHelpers/L1TauEtaEffNum");
             bookEfficiencyHisto(triggerTag(),"L1TauPhiEff","EfficiencyHelpers/L1TauPhiEffNum");
             
             bookEfficiencyHisto(triggerTag(),"L1JetEtEff","EfficiencyHelpers/L1JetEtEffNum");
+            bookEfficiencyHisto(triggerTag(),"L1JetHighEtEff","EfficiencyHelpers/L1JetHighEtEffNum");
             bookEfficiencyHisto(triggerTag(),"L1JetEtaEff","EfficiencyHelpers/L1JetEtaEffNum");
             bookEfficiencyHisto(triggerTag(),"L1JetPhiEff","EfficiencyHelpers/L1JetPhiEffNum");
-            
-            bookEfficiencyHisto(triggerTag(),"L1SingleTauEff","L1LeadTauEt");
-            bookEfficiencyHisto(triggerTag(),"L1DoubleTauEff","L1SecondTauEt");
         }
-        
-        //L2 Summary
-        if ( type_ == "Calo" ) {
-            bookEfficiencyHisto(triggerTag(),"L2RecoTauEtEff","EfficiencyHelpers/L2RecoTauEtEffNum");
-            bookEfficiencyHisto(triggerTag(),"L2RecoTauEtaEff","EfficiencyHelpers/L2RecoTauEtaEffNum");
-            bookEfficiencyHisto(triggerTag(),"L2RecoTauPhiEff","EfficiencyHelpers/L2RecoTauPhiEffNum");
-            
-            bookEfficiencyHisto(triggerTag(),"L2IsoTauEtEff","EfficiencyHelpers/L2IsoTauEtEffNum");
-            bookEfficiencyHisto(triggerTag(),"L2IsoTauEtaEff","EfficiencyHelpers/L2IsoTauEtaEffNum");
-            bookEfficiencyHisto(triggerTag(),"L2IsoTauPhiEff","EfficiencyHelpers/L2IsoTauPhiEffNum");
-        }
-        
-        //L25/3 Summary
-        if ( type_ == "Track" ) {
-            bookEfficiencyHisto(triggerTag(),"L25TauEtEff","L25TauEtEffNum");
-            bookEfficiencyHisto(triggerTag(),"L25TauEtaEff","L25TauEtaEffNum");
-            bookEfficiencyHisto(triggerTag(),"L25TauPhiEff","L25TauPhiEffNum");
-            bookEfficiencyHisto(triggerTag(),"L3TauEtEff","L3TauEtEffNum");
-            bookEfficiencyHisto(triggerTag(),"L3TauEtaEff","L3TauEtaEffNum");
-            bookEfficiencyHisto(triggerTag(),"L3TauPhiEff","L3TauPhiEffNum");
-        }
-    }
-}
 
-HLTTauDQMSummaryPlotter::~HLTTauDQMSummaryPlotter() {
+        else if(type_ == "PathSummary") {
+          bookEfficiencyHisto(triggerTag(), "PathEfficiency", "helpers/PathTriggerBits", true);
+        }
+  }
+  store_ = nullptr;
 }
 
 void HLTTauDQMSummaryPlotter::plot() {
-    if (store_) {
+  edm::Service<DQMStore> store;
+  if(store.isAvailable()) {
+    store_ = store.operator->();
         //Path Summary 
         if ( type_ == "Path" ) {
-            plotTriggerBitEfficiencyHistos(triggerTag(),"MatchedTriggerBits");
-        }
-        
-        //Lite Path Summary 
-        if ( type_ == "LitePath" ) {
-            plotEfficiencyHisto(triggerTag(),"PathEfficiency","MatchedPathTriggerBits","RefEvents");
-            plotEfficiencyHisto(triggerTag(),"TrigTauEtEff","EfficiencyHelpers/TrigTauEtEffNum","EfficiencyHelpers/TrigTauEtEffDenom");
-            plotEfficiencyHisto(triggerTag(),"TrigTauEtaEff","EfficiencyHelpers/TrigTauEtaEffNum","EfficiencyHelpers/TrigTauEtaEffDenom");
-            plotEfficiencyHisto(triggerTag(),"TrigTauPhiEff","EfficiencyHelpers/TrigTauPhiEffNum","EfficiencyHelpers/TrigTauPhiEffDenom");
+            plotTriggerBitEfficiencyHistos(triggerTag(), "EventsPerFilter");
+
+            plotEfficiencyHisto(triggerTag(), "L2TrigTauEtEff",  "helpers/L2TrigTauEtEffNum",  "helpers/L2TrigTauEtEffDenom");
+            plotEfficiencyHisto(triggerTag(), "L2TrigTauHighEtEff",  "helpers/L2TrigTauHighEtEffNum",  "helpers/L2TrigTauHighEtEffDenom");
+            plotEfficiencyHisto(triggerTag(), "L2TrigTauEtaEff", "helpers/L2TrigTauEtaEffNum", "helpers/L2TrigTauEtaEffDenom");
+            plotEfficiencyHisto(triggerTag(), "L2TrigTauPhiEff", "helpers/L2TrigTauPhiEffNum", "helpers/L2TrigTauPhiEffDenom");
+
+            plotEfficiencyHisto(triggerTag(), "L3TrigTauEtEff",  "helpers/L3TrigTauEtEffNum",  "helpers/L3TrigTauEtEffDenom");
+            plotEfficiencyHisto(triggerTag(), "L3TrigTauHighEtEff",  "helpers/L3TrigTauHighEtEffNum",  "helpers/L3TrigTauHighEtEffDenom");
+            plotEfficiencyHisto(triggerTag(), "L3TrigTauEtaEff", "helpers/L3TrigTauEtaEffNum", "helpers/L3TrigTauEtaEffDenom");
+            plotEfficiencyHisto(triggerTag(), "L3TrigTauPhiEff", "helpers/L3TrigTauPhiEffNum", "helpers/L3TrigTauPhiEffDenom");
         }
         
         //L1 Summary
-        if ( type_ == "L1" ) {
+        else if ( type_ == "L1" ) {
             plotEfficiencyHisto(triggerTag(),"L1TauEtEff","EfficiencyHelpers/L1TauEtEffNum","EfficiencyHelpers/L1TauEtEffDenom");
+            plotEfficiencyHisto(triggerTag(),"L1TauHighEtEff","EfficiencyHelpers/L1TauHighEtEffNum","EfficiencyHelpers/L1TauHighEtEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1TauEtaEff","EfficiencyHelpers/L1TauEtaEffNum","EfficiencyHelpers/L1TauEtaEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1TauPhiEff","EfficiencyHelpers/L1TauPhiEffNum","EfficiencyHelpers/L1TauPhiEffDenom");
             
             plotEfficiencyHisto(triggerTag(),"L1JetEtEff","EfficiencyHelpers/L1JetEtEffNum","EfficiencyHelpers/L1JetEtEffDenom");
+            plotEfficiencyHisto(triggerTag(),"L1JetHighEtEff","EfficiencyHelpers/L1JetHighEtEffNum","EfficiencyHelpers/L1JetHighEtEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1JetEtaEff","EfficiencyHelpers/L1JetEtaEffNum","EfficiencyHelpers/L1JetEtaEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1JetPhiEff","EfficiencyHelpers/L1JetPhiEffNum","EfficiencyHelpers/L1JetPhiEffDenom");
             
@@ -103,35 +123,16 @@ void HLTTauDQMSummaryPlotter::plot() {
             plotEfficiencyHisto(triggerTag(),"L1MuonEtEff","EfficiencyHelpers/L1MuonEtEffNum","EfficiencyHelpers/L1MuonEtEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1MuonEtaEff","EfficiencyHelpers/L1MuonEtaEffNum","EfficiencyHelpers/L1MuonEtaEffDenom");
             plotEfficiencyHisto(triggerTag(),"L1MuonPhiEff","EfficiencyHelpers/L1MuonPhiEffNum","EfficiencyHelpers/L1MuonPhiEffDenom");
-            
-            plotIntegratedEffHisto(triggerTag(),"L1SingleTauEff","L1LeadTauEt","InputEvents",1);
-            plotIntegratedEffHisto(triggerTag(),"L1DoubleTauEff","L1SecondTauEt","InputEvents",2);
         }
-        
-        //L2 Summary
-        if ( type_ == "Calo" ) {
-            plotEfficiencyHisto(triggerTag(),"L2RecoTauEtEff","EfficiencyHelpers/L2RecoTauEtEffNum","EfficiencyHelpers/L2RecoTauEtEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L2RecoTauEtaEff","EfficiencyHelpers/L2RecoTauEtaEffNum","EfficiencyHelpers/L2RecoTauEtaEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L2RecoTauPhiEff","EfficiencyHelpers/L2RecoTauPhiEffNum","EfficiencyHelpers/L2RecoTauPhiEffDenom");
-            
-            plotEfficiencyHisto(triggerTag(),"L2IsoTauEtEff","EfficiencyHelpers/L2IsoTauEtEffNum","EfficiencyHelpers/L2IsoTauEtEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L2IsoTauEtaEff","EfficiencyHelpers/L2IsoTauEtaEffNum","EfficiencyHelpers/L2IsoTauEtaEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L2IsoTauPhiEff","EfficiencyHelpers/L2IsoTauPhiEffNum","EfficiencyHelpers/L2IsoTauPhiEffDenom");
+
+        else if(type_ == "PathSummary") {
+          plotEfficiencyHisto(triggerTag(), "PathEfficiency", "helpers/PathTriggerBits", "helpers/RefEvents");
         }
-        
-        //L25/3 Summary
-        if ( type_ == "Track" ) {
-            plotEfficiencyHisto(triggerTag(),"L25TauEtEff","L25TauEtEffNum","L25TauEtEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L25TauEtaEff","L25TauEtaEffNum","L25TauEtaEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L25TauPhiEff","L25TauPhiEffNum","L25TauPhiEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L3TauEtEff","L3TauEtEffNum","L3TauEtEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L3TauEtaEff","L3TauEtaEffNum","L3TauEtaEffDenom");
-            plotEfficiencyHisto(triggerTag(),"L3TauPhiEff","L3TauPhiEffNum","L3TauPhiEffDenom");
-        }
-    }
+  }
+  store_ = nullptr;
 }      
 
-void HLTTauDQMSummaryPlotter::bookEfficiencyHisto( std::string folder, std::string name, std::string hist1 ) {
+void HLTTauDQMSummaryPlotter::bookEfficiencyHisto(const std::string& folder, const std::string& name, const std::string& hist1, bool copyLabels) {
     if ( store_->dirExists(folder) ) {
         store_->setCurrentFolder(folder);
         
@@ -140,7 +141,15 @@ void HLTTauDQMSummaryPlotter::bookEfficiencyHisto( std::string folder, std::stri
         if ( effnum ) {            
             MonitorElement *tmp = store_->bookProfile(name,name,effnum->getTH1F()->GetNbinsX(),effnum->getTH1F()->GetXaxis()->GetXmin(),effnum->getTH1F()->GetXaxis()->GetXmax(),105,0,1.05);
             
-            tmp->setTitle(name);
+            tmp->setTitle(effnum->getTitle());
+            tmp->setAxisTitle(effnum->getAxisTitle(), 1); // X
+            tmp->setAxisTitle("Efficiency", 2);
+            if(copyLabels) {
+              const TAxis *xaxis = effnum->getTH1F()->GetXaxis();
+              for(int bin=1; bin <= effnum->getNbinsX(); ++bin) {
+                tmp->setBinLabel(bin, xaxis->GetBinLabel(bin));
+              }
+            }
         }
     }
 }
@@ -153,14 +162,22 @@ void HLTTauDQMSummaryPlotter::plotEfficiencyHisto( std::string folder, std::stri
         MonitorElement * effdenom = store_->get(folder+"/"+hist2);
         MonitorElement * eff = store_->get(folder+"/"+name);
         
-        if ( effnum && effdenom && eff ) {            
-            for ( int i = 1; i <= effnum->getTH1F()->GetNbinsX(); ++i ) {
-                double efficiency = calcEfficiency(effnum->getTH1F()->GetBinContent(i),effdenom->getTH1F()->GetBinContent(i)).first;
-                double err = calcEfficiency(effnum->getTH1F()->GetBinContent(i),effdenom->getTH1F()->GetBinContent(i)).second;
-                eff->getTProfile()->SetBinContent(i,efficiency);
-                eff->getTProfile()->SetBinEntries(i,1);
-                eff->getTProfile()->SetBinError(i,sqrt(efficiency*efficiency+err*err));
+        if(effnum && effdenom && eff) {
+          const TH1F *num = effnum->getTH1F();
+          const TH1F *denom = effdenom->getTH1F();
+          TProfile *prof = eff->getTProfile();
+          for (int i = 1; i <= num->GetNbinsX(); ++i) {
+            if(denom->GetBinContent(i) < num->GetBinContent(i)) {
+              edm::LogError("HLTTauDQMOffline") << "Encountered denominator < numerator with efficiency plot " << name << " in folder " << folder << ", bin " << i << " numerator " << num->GetBinContent(i) << " denominator " << denom->GetBinContent(i);
+              continue;
             }
+            std::tuple<float, float> effErr = calcEfficiency(num->GetBinContent(i), denom->GetBinContent(i));
+            const float efficiency = std::get<0>(effErr);
+            const float err = std::get<1>(effErr);
+            prof->SetBinContent(i, efficiency);
+            prof->SetBinEntries(i, 1);
+            prof->SetBinError(i, std::sqrt(efficiency*efficiency + err*err)); // why simple SetBinError(err) does not work?
+          }
         }
     }
 }
@@ -206,9 +223,14 @@ void HLTTauDQMSummaryPlotter::bookTriggerBitEfficiencyHistos( std::string folder
         MonitorElement * eff = store_->get(folder+"/"+histo);
         
         if ( eff ) {
-            store_->bookProfile("EfficiencyRefInput","Efficiency with Matching",eff->getNbinsX()-1,0,eff->getNbinsX()-1,100,0,1);
-            store_->bookProfile("EfficiencyRefL1","Efficiency with Matching Ref to L1",eff->getNbinsX()-2,0,eff->getNbinsX()-2,100,0,1);
-            store_->bookProfile("EfficiencyRefPrevious","Efficiency with Matching Ref to Previous",eff->getNbinsX()-1,0,eff->getNbinsX()-1,100,0,1);
+          //store_->bookProfile("EfficiencyRefInput","Efficiency with Matching",eff->getNbinsX()-1,0,eff->getNbinsX()-1,100,0,1);
+          //store_->bookProfile("EfficiencyRefL1","Efficiency with Matching Ref to L1",eff->getNbinsX()-2,0,eff->getNbinsX()-2,100,0,1);
+          MonitorElement *me_prev = store_->bookProfile("EfficiencyRefPrevious","Efficiency to Previous",eff->getNbinsX()-1,0,eff->getNbinsX()-1,100,0,1);
+          me_prev->setAxisTitle("Efficiency", 2);
+          const TAxis *xaxis = eff->getTH1F()->GetXaxis();
+          for(int bin=1; bin < eff->getNbinsX(); ++bin) {
+            me_prev->setBinLabel(bin, xaxis->GetBinLabel(bin));
+          }
         }
     }
 }
@@ -217,12 +239,16 @@ void HLTTauDQMSummaryPlotter::plotTriggerBitEfficiencyHistos( std::string folder
     if ( store_->dirExists(folder) ) {
         store_->setCurrentFolder(folder);
         MonitorElement * eff = store_->get(folder+"/"+histo);
-        MonitorElement * effRefTruth = store_->get(folder+"/EfficiencyRefInput");
-        MonitorElement * effRefL1 = store_->get(folder+"/EfficiencyRefL1");
+        //MonitorElement * effRefTruth = store_->get(folder+"/EfficiencyRefInput");
+        //MonitorElement * effRefL1 = store_->get(folder+"/EfficiencyRefL1");
         MonitorElement * effRefPrevious = store_->get(folder+"/EfficiencyRefPrevious");
         
-        if ( eff && effRefTruth && effRefL1 && effRefPrevious ) {
-            //Calculate efficiencies with ref to matched objects
+        //if ( eff && effRefTruth && effRefL1 && effRefPrevious ) {
+        if (eff && effRefPrevious) {
+          TProfile *previous = effRefPrevious->getTProfile();
+
+          //Calculate efficiencies with ref to matched objects
+          /*
             for ( int i = 2; i <= eff->getNbinsX(); ++i ) {
                 double efficiency = calcEfficiency(eff->getBinContent(i),eff->getBinContent(1)).first;
                 double err = calcEfficiency(eff->getBinContent(i),eff->getBinContent(1)).second;
@@ -243,23 +269,22 @@ void HLTTauDQMSummaryPlotter::plotTriggerBitEfficiencyHistos( std::string folder
                 effRefL1->getTProfile()->SetBinError(i-2,sqrt(efficiency*efficiency+err*err));
                 effRefL1->setBinLabel(i-2,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
             }
+          */
             //Calculate efficiencies with ref to previous
             for ( int i = 2; i <= eff->getNbinsX(); ++i ) {
-                double efficiency = calcEfficiency(eff->getBinContent(i),eff->getBinContent(i-1)).first;
-                double err = calcEfficiency(eff->getBinContent(i),eff->getBinContent(i-1)).second;
+              if(eff->getBinContent(i-1) < eff->getBinContent(i)) {
+                edm::LogError("HLTTauDQMOffline") << "Encountered denominator < numerator with efficiency plot EfficiencyRefPrevious in folder " << folder << ", bin " << i << " numerator " << eff->getBinContent(i) << " denominator " << eff->getBinContent(i-1);
+                continue;
+              }
+              const std::tuple<float, float> effErr = calcEfficiency(eff->getBinContent(i), eff->getBinContent(i-1));
+              const float efficiency = std::get<0>(effErr);
+              const float err = std::get<1>(effErr);
                 
-                effRefPrevious->getTProfile()->SetBinContent(i-1,efficiency);
-                effRefPrevious->getTProfile()->SetBinEntries(i-1,1);
-                effRefPrevious->getTProfile()->SetBinError(i-1,sqrt(efficiency*efficiency+err*err));
-                effRefPrevious->setBinLabel(i-1,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
+              previous->SetBinContent(i-1, efficiency);
+              previous->SetBinEntries(i-1, 1);
+              previous->SetBinError(i-1, std::sqrt(efficiency*efficiency + err*err)); // why simple SetBinError(err) does not work?
+              effRefPrevious->setBinLabel(i-1,eff->getTH1F()->GetXaxis()->GetBinLabel(i));
             }
         }
     }
-}
-
-std::pair<double,double> HLTTauDQMSummaryPlotter::calcEfficiency( float num, float denom ) {
-    if ( denom != 0.0 ) {
-        return std::pair<double,double>(num/denom,sqrt(num/denom*(1.0-num/denom)/denom));
-    }
-    return std::pair<double,double>(0.0,0.0);
 }

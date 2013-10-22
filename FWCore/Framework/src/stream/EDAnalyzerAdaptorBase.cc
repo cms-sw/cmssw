@@ -82,14 +82,20 @@ EDAnalyzerAdaptorBase::registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*
 }
 
 void
-EDAnalyzerAdaptorBase::itemsToGet(BranchType iType, std::vector<ProductHolderIndex>& iIndices) const {
+EDAnalyzerAdaptorBase::itemsToGet(BranchType iType, std::vector<ProductHolderIndexAndSkipBit>& iIndices) const {
   assert(not m_streamModules.empty());
   m_streamModules[0]->itemsToGet(iType,iIndices);
 }
 void
-EDAnalyzerAdaptorBase::itemsMayGet(BranchType iType, std::vector<ProductHolderIndex>& iIndices) const {
+EDAnalyzerAdaptorBase::itemsMayGet(BranchType iType, std::vector<ProductHolderIndexAndSkipBit>& iIndices) const {
   assert(not m_streamModules.empty());
-  m_streamModules[0]->itemsToGet(iType,iIndices);  
+  m_streamModules[0]->itemsMayGet(iType,iIndices);  
+}
+
+std::vector<edm::ProductHolderIndexAndSkipBit> const&
+EDAnalyzerAdaptorBase::itemsToGetFromEvent() const {
+  assert(not m_streamModules.empty());
+  return m_streamModules[0]->itemsToGetFromEvent();  
 }
 
 void

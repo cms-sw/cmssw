@@ -31,7 +31,7 @@
 
 class L1MuPacking {
  public:
-  virtual ~L1MuPacking() {} 
+  virtual ~L1MuPacking() {}
   /// get the sign from the packed notation (0=positive, 1=negative)
   virtual int signFromPacked(unsigned packed) const = 0;
   /// get the value from the packed notation

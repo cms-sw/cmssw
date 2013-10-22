@@ -8,12 +8,13 @@
 std::vector<TrajectoryMeasurement> 
 NonPropagatingDetMeasurements::get( const MeasurementDet& det,
 				    const TrajectoryStateOnSurface& stateOnThisDet,
-				    const MeasurementEstimator& est) const
+				    const MeasurementEstimator& est,
+                                    const MeasurementTrackerEvent &data) const
 {
   throw cms::Exception("THIS SHOULD NOT BE CALLED");
   std::vector<TrajectoryMeasurement> result;
 
-  MeasurementDet::RecHitContainer allHits = det.recHits( stateOnThisDet);
+  MeasurementDet::RecHitContainer allHits = det.recHits(stateOnThisDet, data);
   for (MeasurementDet::RecHitContainer::const_iterator ihit=allHits.begin();
        ihit != allHits.end(); ihit++) {
     std::pair<bool,double> diffEst = est.estimate( stateOnThisDet, **ihit);
