@@ -13,11 +13,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
-#include "../interface/JsonMonitorable.h"
-#include "../interface/DataPointMonitor.h"
-#include "../interface/JSONSerializer.h"
-
-#include "EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/JsonMonitorable.h"
+#include "EventFilter/Utilities/interface/DataPointMonitor.h"
+#include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/reader.h"
 
 using namespace jsoncollector;
 
@@ -43,17 +42,16 @@ private:
 	virtual void rewind_();
 
 	void createWorkingDirectory();
-	//void findRunDir(const std::string& rootFUDirectory);
-	void findRunDir();
+	void findAllDirectories();
 	edm::Timestamp fillFEDRawDataCollection(
 			std::auto_ptr<FEDRawDataCollection>&);
 	bool openNextFile();
 	void openFile(boost::filesystem::path const&);
 	bool searchForNextFile(boost::filesystem::path const&);
-	//bool grabNextFile(boost::filesystem::path const&,boost::filesystem::path const&);
+
 	bool grabNextFile(boost::filesystem::path&, boost::filesystem::path const&);
 	bool eofReached() const;
-	bool runEnded() const;
+  //	bool runEnded() const;
 
 	uint32_t getEventSizeFromBuffer();
 	uint32_t getPaddingSizeFromBuffer();
@@ -61,10 +59,18 @@ private:
 	bool getEventHeaderFromBuffer(FRDEventHeader_V2 *eventHeader);
 	bool checkIfBuffered();
 
+        std::string formatRawFilePath(unsigned int ls, unsigned int index);  
+        std::string formatJsnFilePath(unsigned int ls, unsigned int index);  
+
+        void renameToNextFree(); 
+
 	// get LS from filename instead of event header
 	bool getLSFromFilename_;
+        bool testModeNoBuilderUnit_;
+  
+        unsigned int eventChunkSize_; // for buffered read-ahead
 
-	bool testModeNoBuilderUnit_;
+	edm::RunNumber_t runNumber_;
 
 	edm::DaqProvenanceHelper daqProvenanceHelper_;
 
@@ -73,7 +79,7 @@ private:
 	// the OUTPUT run directory
 	boost::filesystem::path localRunBaseDirectory_;
 	boost::filesystem::path localRunDirectory_;
-	edm::RunNumber_t runNumber_;
+
 	uint32_t formatVersion_;
 
 	boost::filesystem::path workingDirectory_;
@@ -85,11 +91,17 @@ private:
 
 	unsigned int lastOpenedLumi_;
 	boost::filesystem::path currentDataDir_;
+        boost::filesystem::path currentInputJson_;
+        unsigned int currentInputEventCount_;
+
 	bool eorFileSeen_;
+
 	uint32_t buffer_left;
 	uint32_t buffer_cursor;
-	unsigned int eventChunkSize_;
 	unsigned char *data_buffer; // temporarily hold multiple event data
+
+        char thishost[256];
+        Json::Reader reader_;
 };
 
 #endif // EventFilter_Utilities_FedRawDataInputSource_h

@@ -6,9 +6,9 @@
 #include <iostream>
 #include <vector>
 
-#include "../interface/JsonMonitorable.h"
-#include "../interface/FastMonitor.h"
-#include "../interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/JsonMonitorable.h"
+#include "EventFilter/Utilities/interface/FastMonitor.h"
+#include "EventFilter/Utilities/interface/JSONSerializer.h"
 
 using namespace jsoncollector;
 using std::vector;
