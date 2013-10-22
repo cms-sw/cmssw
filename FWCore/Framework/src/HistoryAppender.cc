@@ -6,7 +6,7 @@
 #include <string>
 #include <cassert>
 
-static edm::ProcessHistory s_emptyHistory;
+static const edm::ProcessHistory s_emptyHistory;
 
 namespace edm {
 
