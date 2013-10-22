@@ -67,6 +67,7 @@ void HcalElectronicsSim::analogToDigital(CaloSamples & lf, ZDCDataFrame & result
 void HcalElectronicsSim::analogToDigital(CaloSamples & lf, 
 					 HcalUpgradeDataFrame & result) {
   convert<HcalUpgradeDataFrame>(lf, result);
+//   std::cout << HcalDetId(lf.id()) << ' ' << lf;
   theTDC.timing(lf, result);
 }
 
