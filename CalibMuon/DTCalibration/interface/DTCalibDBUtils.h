@@ -7,6 +7,7 @@
  *  \author G. Cerminara - INFN Torino
  */
 
+#include <iostream>
 #include <string>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"

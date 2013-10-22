@@ -5,6 +5,8 @@
  *  \author G. Cerminara - INFN Torino
  */
 
+#include <iostream>
+
 #include "DumpFileToDB.h"
 #include "DTCalibrationMap.h"
 
