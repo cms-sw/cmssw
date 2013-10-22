@@ -61,6 +61,9 @@ void EgammaHLTElectronTrackIsolationProducers::fillDescriptions(edm::Configurati
   desc.add<bool>("egCheckForOtherEleInCone", false);
   desc.add<double>("egTrkIsoStripBarrel", 0.03);
   desc.add<double>("egTrkIsoStripEndcap", 0.03);
+  desc.add<bool>("useGsfTrack", false);
+  desc.add<bool>("useSCRefs", false);
+
   descriptions.add("hltEgammaHLTElectronTrackIsolationProducers", desc);  
 }
 void EgammaHLTElectronTrackIsolationProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

@@ -116,6 +116,7 @@ EgammaHLTHybridClusterProducer::~EgammaHLTHybridClusterProducer()
 void EgammaHLTHybridClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   edm::ParameterSetDescription desc;
+  desc.add<std::string>("debugLevel" , "INFO");
   desc.add<std::string>("basicclusterCollection", "");
   desc.add<std::string>("superclusterCollection", "");
   desc.add<edm::InputTag>("ecalhitcollection", edm::InputTag("ecalRecHit","EcalRecHitsEB"));
@@ -127,9 +128,19 @@ void EgammaHLTHybridClusterProducer::fillDescriptions(edm::ConfigurationDescript
   desc.add<double>("l1LowerThrIgnoreIsolation", 999.0);
   desc.add<double>("regionEtaMargin", 0.14);
   desc.add<double>("regionPhiMargin", 0.4);
-  //desc.add<edm::ParameterSet>("posCalcParameters", edm::ParameterSet());
+
+  edm::ParameterSetDescription posCalcPSET;
+  posCalcPSET.add<double>("T0_barl", 7.4);
+  posCalcPSET.add<double>("T0_endc", 3.1);
+  posCalcPSET.add<double>("T0_endcPresh", 1.2);
+  posCalcPSET.add<double>("W0", 4.2);
+  posCalcPSET.add<double>("X0", 0.89);
+  posCalcPSET.add<bool>("LogWeighted", true);
+  desc.add<edm::ParameterSetDescription>("posCalcParameters", posCalcPSET);
+
   desc.add<std::vector<std::string>>("RecHitFlagToBeExcluded", std::vector<std::string>());
   desc.add<std::vector<std::string> >("RecHitSeverityToBeExcluded", std::vector<std::string>());
+  desc.add<double>("severityRecHitThreshold", 4.0);
   desc.add<double>("HybridBarrelSeedThr", 1.0);
   desc.add<int>("step", 10);
   desc.add<double>("ethresh", 0.1);
@@ -304,3 +315,4 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   nEvt_++;
 }
 
+ 

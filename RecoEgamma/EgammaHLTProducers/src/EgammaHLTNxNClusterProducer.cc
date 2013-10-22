@@ -79,8 +79,17 @@ void EgammaHLTNxNClusterProducer::fillDescriptions(edm::ConfigurationDescription
   desc.add<bool>(("useRecoFlag"), false);
   desc.add<int>(("flagLevelRecHitsToUse"), 1); 
   desc.add<bool>(("useDBStatus"), true);
-  desc.add<int>(("statusLevelRecHitsToUse"), 1); 
-  //desc.add<edm::ParameterSet>(("posCalcParameters"), edm::ParameterSet());
+  desc.add<int>(("statusLevelRecHitsToUse"), 1);
+
+  edm::ParameterSetDescription posCalcPSET;
+  posCalcPSET.add<double>("T0_barl", 7.4);
+  posCalcPSET.add<double>("T0_endc", 3.1);
+  posCalcPSET.add<double>("T0_endcPresh", 1.2);
+  posCalcPSET.add<double>("W0", 4.2);
+  posCalcPSET.add<double>("X0", 0.89);
+  posCalcPSET.add<bool>("LogWeighted", true);
+  desc.add<edm::ParameterSetDescription>("posCalcParameters", posCalcPSET);
+ 
   desc.add<int>(("maxNumberofSeeds"), 1000);
   desc.add<int>(("maxNumberofClusters"), 200);
   desc.add<int>(("debugLevel"), 0);
