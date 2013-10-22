@@ -6,6 +6,7 @@
 #include "CondFormats/Calibration/interface/Pedestals.h"
 
 #include "Timestamp.h"
+#include <iostream>
 
 Timestamp::Timestamp(const edm::ParameterSet& iConfig ):
   m_record(iConfig.getParameter< std::string >("record")){
