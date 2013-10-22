@@ -34,8 +34,6 @@ EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::
   recoEcalCandidateProducer_      = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
   ecalBarrelRecHitProducer_       = consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("ecalBarrelRecHitProducer"));
   ecalEndcapRecHitProducer_       = consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("ecalEndcapRecHitProducer"));
-  //ecalBarrelRecHitCollection_     = conf_.getParameter<edm::InputTag>("ecalBarrelRecHitCollection");
-  //ecalEndcapRecHitCollection_     = conf_.getParameter<edm::InputTag>("ecalEndcapRecHitCollection");
   rhoProducer_                    = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
 
   doRhoCorrection_                = config.getParameter<bool>("doRhoCorrection");
@@ -71,10 +69,8 @@ void EgammaHLTEcalRecIsolationProducer::fillDescriptions(edm::ConfigurationDescr
 
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag("hltL1SeededRecoEcalCandidate"));
-  desc.add<edm::InputTag>("ecalBarrelRecHitProducer", edm::InputTag("hltEcalRegionalEgammaRecHit"));
-  desc.add<edm::InputTag>("ecalEndcapRecHitProducer", edm::InputTag("hltEcalRegionalEgammaRecHit"));
-  desc.add<edm::InputTag>("ecalBarrelRecHitCollection", edm::InputTag("EcalRecHitsEB"));
-  desc.add<edm::InputTag>("ecalEndcapRecHitCollection", edm::InputTag("EcalRecHitsEE"));
+  desc.add<edm::InputTag>("ecalBarrelRecHitProducer", edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("ecalEndcapRecHitProducer", edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEE"));
   desc.add<edm::InputTag>("rhoProducer", edm::InputTag("hltKT6CaloJets", "rho"));
   desc.add<bool>("doRhoCorrection", false);
   desc.add<double>("rhoMax", 9.9999999E7); 
