@@ -121,7 +121,7 @@ namespace edm {
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::doBeginStream(StreamID id) {
-      m_streamModules[id]->beginStream();
+      m_streamModules[id]->beginStream(id);
     }
     template< typename T>
     void
