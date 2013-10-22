@@ -92,6 +92,13 @@ namespace
     reco::Candidate::LorentzVector tauP4_modified(tauPx_modified, tauPy_modified, tauPz_modified, tauEn_modified);
     tau.setP4(tauP4_modified);
   }
+
+  void killTau(PFTau& tau)
+  {
+    reco::Candidate::LorentzVector tauP4_modified(0.,0.,0.,0.);
+    tau.setP4(tauP4_modified);
+    tau.setStatus(-1);
+  }
 }
 
 void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
@@ -168,7 +175,12 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
     // to balance track momenta:
     if ( nonPFCandTracksSumP < addNeutralsSumP4.energy() ) {
       double scaleFactor = 1. - nonPFCandTracksSumP/addNeutralsSumP4.energy();
-      assert(scaleFactor >= 0. && scaleFactor <= 1.);
+      if ( !(scaleFactor >= 0. && scaleFactor <= 1.) ) {
+	edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
+	  << "Failed to compute tau energy --> killing tau candidate !!" << std::endl;
+	killTau(tau);
+	return;
+      }
       if ( verbosity_ ) {
 	std::cout << "case (2): addNeutralsSumEn > nonPFCandTracksSumP --> adjusting tau momentum." << std::endl;
       }
@@ -199,7 +211,12 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
     // plus neutral PFCandidates close to PFChargedHadrons:
     if ( nonPFCandTracksSumP < (addNeutralsSumP4.energy() + mergedNeutralsSumP4.energy()) ) {
       double scaleFactor = ((addNeutralsSumP4.energy() + mergedNeutralsSumP4.energy()) - nonPFCandTracksSumP)/mergedNeutralsSumP4.energy();
-      assert(scaleFactor >= 0. && scaleFactor <= 1.);
+      if ( !(scaleFactor >= 0. && scaleFactor <= 1.) ) {
+      	edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
+	  << "Failed to compute tau energy --> killing tau candidate !!" << std::endl;
+	killTau(tau);
+	return;
+      }
       reco::Candidate::LorentzVector diffP4;
       size_t numChargedHadrons = chargedHadrons.size();
       for ( size_t iChargedHadron = 0; iChargedHadron < numChargedHadrons; ++iChargedHadron ) {
@@ -239,7 +256,12 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
     // plus neutral PFCandidates close to PFChargedHadrons plus PFNeutralHadrons interpreted as ChargedHadrons with missing track balances track momenta
     if ( nonPFCandTracksSumP < (addNeutralsSumP4.energy() + mergedNeutralsSumP4.energy() + chargedHadronNeutralsSumP4.energy()) ) {
       double scaleFactor = ((addNeutralsSumP4.energy() + mergedNeutralsSumP4.energy() + chargedHadronNeutralsSumP4.energy()) - nonPFCandTracksSumP)/chargedHadronNeutralsSumP4.energy();
-      assert(scaleFactor >= 0. && scaleFactor <= 1.);
+      if ( !(scaleFactor >= 0. && scaleFactor <= 1.) ) {
+      	edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
+	  << "Failed to compute tau energy --> killing tau candidate !!" << std::endl;
+	killTau(tau);
+	return;
+      }
       reco::Candidate::LorentzVector diffP4;
       size_t numChargedHadrons = chargedHadrons.size();
       for ( size_t iChargedHadron = 0; iChargedHadron < numChargedHadrons; ++iChargedHadron ) {
@@ -380,7 +402,12 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 		  std::cout << "trackP (modified) = " << trackP_modified << std::endl;
 		}
 		double scaleFactor = trackP_modified/trackP;
-		assert(scaleFactor >= 0. && scaleFactor <= 1.);
+		if ( !(scaleFactor >= 0. && scaleFactor <= 1.) ) {
+		  edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
+		    << "Failed to compute tau energy --> killing tau candidate !!" << std::endl;
+		  killTau(tau);
+		  return;
+		}
 		double chargedHadronP_modified     = scaleFactor*chargedHadronTrack->p();
 		double chargedHadronTheta_modified = chargedHadronTrack->theta();
 		double chargedHadronPhi_modified   = chargedHadronTrack->phi();
@@ -409,12 +436,10 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	  // Interpretation of PFNeutralHadrons as ChargedHadrons with missing track and/or reconstruction of extra PiZeros 
 	  // is not compatible with the fact that sum of reco::Track momenta exceeds sum of energy deposits in ECAL + HCAL + HO:
 	  // kill tau candidate (by setting its four-vector to zero)
-	  reco::Candidate::LorentzVector tauP4_modified(0.,0.,0.,0.);
 	  if ( verbosity_ ) {
 	    std::cout << "case (7): allNeutralsSumEn < allTracksSumP not compatible with tau decay mode hypothesis --> killing tau candidate." << std::endl;
 	  }
-	  tau.setP4(tauP4_modified);
-	  tau.setStatus(-1);
+	  killTau(tau);
 	  return;
 	}
       }
