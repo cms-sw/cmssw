@@ -10,6 +10,7 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 
 #define private public
@@ -50,10 +51,10 @@ void FWFileEntry::openFile(bool checkVersion)
 
    // check CMSSW relese version for compatibility
    if (checkVersion) {
-      typedef std::vector<edm::ProcessConfiguration> provList;
+      typedef std::vector<edm::ProcessHistory> provList;
   
       TTree   *metaData = dynamic_cast<TTree*>(m_file->Get("MetaData"));
-      TBranch *b = metaData->GetBranch("ProcessConfiguration");
+      TBranch *b = metaData->GetBranch("ProcessHistory");
       provList *x = 0;
       b->SetAddress(&x);
       b->GetEntry(0);
@@ -61,15 +62,18 @@ void FWFileEntry::openFile(bool checkVersion)
       const edm::ProcessConfiguration* dd = 0;
       int latestVersion =0;
       int currentVersionArr[] = {0, 0, 0};
-      for (provList::iterator i = x->begin(); i != x->end(); ++i)
+      for (auto const& processHistory : *x)
       {
-         // std::cout << i->releaseVersion() << "  " << i->processName() << std::endl;
-         TString dcv = i->releaseVersion();
-         fireworks::getDecomposedVersion(dcv, currentVersionArr);
-         int nvv = currentVersionArr[0]*100 + currentVersionArr[1]*10 + currentVersionArr[2];
-         if (nvv > latestVersion) {
-            latestVersion = nvv;
-            dd = &(*i);
+         for (auto const& processConfiguration : processHistory)
+         {
+            // std::cout << processConfiguration.releaseVersion() << "  " << processConfiguration.processName() << std::endl;
+            TString dcv = processConfiguration.releaseVersion();
+            fireworks::getDecomposedVersion(dcv, currentVersionArr);
+            int nvv = currentVersionArr[0]*100 + currentVersionArr[1]*10 + currentVersionArr[2];
+            if (nvv > latestVersion) {
+               latestVersion = nvv;
+               dd = &processConfiguration;
+            }
          }
       }
    
