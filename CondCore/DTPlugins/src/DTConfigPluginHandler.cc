@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/06/06 17:23:42 $
- *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -28,8 +26,8 @@
 //---------------
 // C++ Headers --
 //---------------
-//#include <iostream>
 #include <cstdio>
+#include <iostream>
 
 //-------------------
 // Initializations --

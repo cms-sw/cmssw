@@ -12,6 +12,7 @@
 
 #include "MyDataAnalyzer.h"
 #include <cstdlib>
+#include <iostream>
 MyDataAnalyzer::MyDataAnalyzer(const edm::ParameterSet& iConfig ):
   m_record(iConfig.getParameter< std::string >("record")),
   m_LoggingOn(false){
