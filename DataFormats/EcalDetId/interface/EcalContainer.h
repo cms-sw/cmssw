@@ -43,7 +43,7 @@ class EcalContainer {
 
                 inline Item & operator[](uint32_t rawId) {
 		  checkAndResize();
-		  static Item dummy;
+		  static Item dummy{};
 		  DetId id(rawId);
 		  if ( !isValidId(id) ) return dummy;
 		  return m_items[id.hashedIndex()];
@@ -71,7 +71,7 @@ class EcalContainer {
 		  //	  std::cout << "resizing to " << DetId::kSizeForDenseIndexing << std::endl;
                   //              m_items.resize((size_t) DetId::kSizeForDenseIndexing);
                   //      }
-                        static Item dummy;
+                        static const Item dummy{};
                         DetId id(rawId);
                         if ( !isValidId(id) ) return dummy;
                         return m_items[id.hashedIndex()];
