@@ -61,7 +61,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     useEGammaFilters = cms.bool(False),
     PFEGammaCandidates = cms.InputTag("particleFlowEGamma"),
     GedElectronValueMap = cms.InputTag("gedGsfElectrons"),
-    GedPhotonValueMap = cms.InputTag("gedPhotons","valMapPFEgammaCandToPhoton"),
+    GedPhotonValueMap = cms.InputTag("tmpGedPhotons","valMapPFEgammaCandToPhoton"),
 
 
                                  
