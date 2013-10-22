@@ -1154,9 +1154,9 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
     linkRefinableObjectECALToSingleLegConv(RO);
     dumpCurrentRefinableObjects();
     // look for tracks that complement conversion legs
-    linkRefinableObjectConvSecondaryKFsToSecondaryKFs(RO);
+    //linkRefinableObjectConvSecondaryKFsToSecondaryKFs(RO);
     // look again for ECAL clusters (this time with an e/p cut)
-    linkRefinableObjectSecondaryKFsToECAL(RO);
+    //linkRefinableObjectSecondaryKFsToECAL(RO);
   } 
 
   LOGDRESSED("PFEGammaAlgo")
@@ -1797,7 +1797,10 @@ linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject& RO) {
 // try to associate the tracks to cluster elements which are not used
 void PFEGammaAlgo::
 linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
-  if( !_splayedblock[reco::PFBlockElement::ECAL].size() ) return; 
+  if( !_splayedblock[reco::PFBlockElement::ECAL].size() ) {
+    RO.electronClusters.push_back(NULL);
+    return; 
+  }
   auto ECALbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
   auto ECALend = _splayedblock[reco::PFBlockElement::ECAL].end();
   for( auto& primgsf : RO.primaryGSFs ) {
