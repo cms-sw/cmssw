@@ -59,7 +59,7 @@ namespace edm {
       
       void registerProductsAndCallbacks(EDAnalyzerBase const*, ProductRegistry* reg);
       
-      virtual void beginStream() {}
+      virtual void beginStream(StreamID) {}
       virtual void beginRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
       virtual void analyze(Event const&, EventSetup const&) = 0;
