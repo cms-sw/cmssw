@@ -46,19 +46,33 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
 {
 
   // use onfiguration file to setup input/output collection names
+  //
+  photonProducer_       = conf_.getParameter<edm::InputTag>("photonProducer");
+  if ( photonProducer_.label() == "gedPhotonCore" ) {
+    photonCoreProducerT_   = 
+      consumes<reco::PhotonCoreCollection>(photonProducer_);
+    pfEgammaCandidates_      = 
+      consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfEgammaCandidates"));
 
-  photonCoreProducer_   = 
-    consumes<reco::PhotonCoreCollection>(conf_.getParameter<edm::InputTag>("photonCoreProducer"));
+  } else {
+    photonProducerT_   = 
+      consumes<reco::PhotonCollection>(photonProducer_);
+    pfCandidates_      = 
+      consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfCandidates"));
+
+  }
+
   barrelEcalHits_   = 
     consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("barrelEcalHits"));
   endcapEcalHits_   = 
     consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("endcapEcalHits"));
   vertexProducer_   = 
     consumes<reco::VertexCollection>(conf_.getParameter<edm::InputTag>("primaryVertexProducer"));
-  pfEgammaCandidates_      = 
-    consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfEgammaCandidates"));
+
   hcalTowers_ = 
     consumes<CaloTowerCollection>(conf_.getParameter<edm::InputTag>("hcalTowers"));
+  //
+  photonCollection_     = conf_.getParameter<std::string>("outputPhotonCollection");
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
   highEt_        = conf_.getParameter<double>("highEt");
   // R9 value to decide converted/unconverted
@@ -141,7 +155,7 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
   //
 
   // Register the product
-  produces< reco::PhotonCollection >(PhotonCollection_);
+  produces< reco::PhotonCollection >(photonCollection_);
   produces< edm::ValueMap<reco::PhotonRef> > (valueMapPFCandPhoton_);
 
 
@@ -161,6 +175,13 @@ void  GEDPhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & th
     edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
     thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_);
 
+
+    thePFBasedIsolationCalculator_ = new PFPhotonIsolationCalculator();
+    thePFBasedIsolationCalculator_->initializePhotonIsolation(kTRUE);
+    thePFBasedIsolationCalculator_->setConeSize(0.3);
+    //    edm::ParameterSet pfIsolationCalculatorSet = conf_.getParameter<edm::ParameterSet>("PFIsolationCalculatorSet"); 
+    // thePFBasedIsolationCalculator_->setup(pfIsolationCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_);
+
     thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
     edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet"); 
     thePhotonMIPHaloTagger_->setup(mipVariableSet);
@@ -171,6 +192,7 @@ void  GEDPhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & th
 void  GEDPhotonProducer::endRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
   delete thePhotonIsolationCalculator_;
+  delete thePFBasedIsolationCalculator_;
   delete thePhotonMIPHaloTagger_;
   delete thePhotonEnergyCorrector_;
 }
@@ -186,14 +208,31 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
 
   // Get the PhotonCore collection
-  bool validPhotonCoreHandle=true;
+  bool validPhotonCoreHandle=false;
   Handle<reco::PhotonCoreCollection> photonCoreHandle;
-  theEvent.getByToken(photonCoreProducer_,photonCoreHandle);
-  if (!photonCoreHandle.isValid()) {
-    edm::LogError("GEDPhotonProducer") 
-      << "Error! Can't get the photonCoreProducer";
-    validPhotonCoreHandle=false;
+  bool validPhotonHandle= false;
+  Handle<reco::PhotonCollection> photonHandle;
+
+  if ( photonProducer_.label() == "gedPhotonCore" ) { 
+    
+    theEvent.getByToken(photonCoreProducerT_,photonCoreHandle);
+    if (photonCoreHandle.isValid()) {
+      validPhotonCoreHandle=true;
+    } else {
+      edm::LogError("GEDPhotonProducer") 
+	<< "Error! Can't get the photonCoreProducer" <<  photonProducer_.label() << "\n";
+    }
+  } else {
+   
+    theEvent.getByToken(photonProducerT_,photonHandle);
+    if ( photonHandle.isValid()) {
+      validPhotonHandle=true;  
+    } else {
+      edm::LogError("GEDPhotonProducer") << "Error! Can't get the product " <<   photonProducer_.label() << "\n";
+    }
+ 
   }
+
 
  // Get EcalRecHits
   bool validEcalRecHits=true;
@@ -219,13 +258,26 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   if( validEcalRecHits) endcapRecHits = *(endcapHitHandle.product());
 
 
-  // Get the  PF refined cluster  collection
+
+  Handle<reco::PFCandidateCollection> pfEGCandidateHandle;
   Handle<reco::PFCandidateCollection> pfCandidateHandle;
-  theEvent.getByToken(pfEgammaCandidates_,pfCandidateHandle);
-  if (!pfCandidateHandle.isValid()) {
-    edm::LogError("GEDPhotonProducer") 
-      << "Error! Can't get the pfEgammaCandidates";
+  if ( photonProducer_.label() == "gedPhotonCore" ) {  
+    // Get the  PF refined cluster  collection
+    theEvent.getByToken(pfEgammaCandidates_,pfEGCandidateHandle);
+    if (!pfEGCandidateHandle.isValid()) {
+      edm::LogError("GEDPhotonProducer") 
+	<< "Error! Can't get the pfEgammaCandidates";
+    }
+  } else {
+    // Get the  PF candidates collection
+    theEvent.getByToken(pfCandidates_,pfCandidateHandle);
+    if (!pfCandidateHandle.isValid()) {
+      edm::LogError("GEDPhotonProducer") 
+	<< "Error! Can't get the pfCandidates";
+    }
+    
   }
+
 
 
 
@@ -287,36 +339,47 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 			 sevLv.product());
  
 
+  if ( validPhotonHandle) 
+    fillPhotonCollection(theEvent,
+			 theEventSetup,
+			 photonHandle,
+			 pfCandidateHandle,
+			 //vtx,
+			 vertexHandle,
+			 outputPhotonCollection,
+			 iSC,
+			 sevLv.product());
+
+
+
   // put the product in the event
   edm::LogInfo("GEDPhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   outputPhotonCollection_p->assign(outputPhotonCollection.begin(),outputPhotonCollection.end());
-  const edm::OrphanHandle<reco::PhotonCollection> photonOrphHandle = theEvent.put(outputPhotonCollection_p, PhotonCollection_);
- 
-  std::auto_ptr<edm::ValueMap<reco::PhotonRef> >  pfCandToPhotonMap_p(new edm::ValueMap<reco::PhotonRef>());
-  edm::ValueMap<reco::PhotonRef>::Filler filler(*pfCandToPhotonMap_p);
-  unsigned nObj = pfCandidateHandle->size();
-  std::vector<reco::PhotonRef> values(nObj);
+  const edm::OrphanHandle<reco::PhotonCollection> photonOrphHandle = theEvent.put(outputPhotonCollection_p, photonCollection_);
 
-
-  unsigned pfGamma=0; 
-  for(unsigned int lCand=0; lCand < nObj; lCand++) {
-    reco::PFCandidateRef pfCandRef (reco::PFCandidateRef(pfCandidateHandle,lCand));
-    //    if(pfCandRef->particleId()!=reco::PFCandidate::gamma) continue;
-    pfGamma++;
-
-    reco::SuperClusterRef pfScRef = pfCandRef -> superClusterRef(); 
-    for(unsigned int lSC=0; lSC < photonOrphHandle->size(); lSC++) {
-      reco::PhotonRef photonRef(reco::PhotonRef(photonOrphHandle, lSC));
-      reco::SuperClusterRef scRef=photonRef->superCluster();
-      if ( pfScRef != scRef ) continue;
-      values [lCand] = photonRef; 
+  if ( photonProducer_.label() == "gedPhotonCore" ) { 
+    std::auto_ptr<edm::ValueMap<reco::PhotonRef> >  pfCandToPhotonMap_p(new edm::ValueMap<reco::PhotonRef>());
+    edm::ValueMap<reco::PhotonRef>::Filler filler(*pfCandToPhotonMap_p);
+    unsigned nObj = pfEGCandidateHandle->size();
+    std::vector<reco::PhotonRef> values(nObj);
+    unsigned pfGamma=0; 
+    for(unsigned int lCand=0; lCand < nObj; lCand++) {
+      reco::PFCandidateRef pfCandRef (reco::PFCandidateRef(pfEGCandidateHandle,lCand));
+      pfGamma++;
+      reco::SuperClusterRef pfScRef = pfCandRef -> superClusterRef(); 
+      for(unsigned int lSC=0; lSC < photonOrphHandle->size(); lSC++) {
+	reco::PhotonRef photonRef(reco::PhotonRef(photonOrphHandle, lSC));
+	reco::SuperClusterRef scRef=photonRef->superCluster();
+	if ( pfScRef != scRef ) continue;
+	values [lCand] = photonRef; 
+      }
     }
+    
+    
+    filler.insert(pfEGCandidateHandle,values.begin(),values.end());
+    filler.fill(); 
+    theEvent.put(pfCandToPhotonMap_p,valueMapPFCandPhoton_);
   }
-
-  filler.insert(pfCandidateHandle,values.begin(),values.end());
-  filler.fill(); 
-  theEvent.put(pfCandToPhotonMap_p,valueMapPFCandPhoton_);
-
 
 
 }
@@ -421,12 +484,6 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     newCandidate.setFiducialVolumeFlags( fiducialFlags );
     newCandidate.setIsolationVariables(isolVarR04, isolVarR03 );
 
-    // Calculate the PF isolation and ID - for the time being there is no calculation. Only the setting
-    reco::Photon::PflowIsolationVariables pfIso;
-    reco::Photon::PflowIDVariables pfID;
-    newCandidate.setPflowIsolationVariables(pfIso);
-    newCandidate.setPflowIDVariables(pfID);
-
     
     /// fill shower shape block
     reco::Photon::ShowerShape  showerShape;
@@ -447,7 +504,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     /// get ecal photon specific corrected energy 
     /// plus values from regressions     and store them in the Photon
     // Photon candidate takes by default (set in photons_cfi.py)  a 4-momentum derived from the ecal photon-specific corrections. 
-    thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, vertexCollection,es);
+    thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, vertexCollection, es);
     if ( candidateP4type_ == "fromEcalEnergy") {
       newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
       newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
@@ -478,7 +535,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 
 
     /// Pre-selection loose  isolation cuts
-    bool isLooseEM=true;
+    bool isLooseEM=true; 
     if ( newCandidate.pt() < highEt_) { 
       if ( newCandidate.hadronicOverEm()                   >= preselCutValues[1] )                                            isLooseEM=false;
       if ( newCandidate.ecalRecHitSumEtConeDR04()          > preselCutValues[2]+ preselCutValues[3]*newCandidate.pt() )       isLooseEM=false;
@@ -499,3 +556,76 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
   }
 }
 
+
+
+
+void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
+					     edm::EventSetup const & es,
+					     const edm::Handle<reco::PhotonCollection> & photonHandle,
+					     const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle,
+					     // math::XYZPoint & vtx,
+					     edm::Handle< reco::VertexCollection >  & vertexHandle,
+					     reco::PhotonCollection & outputPhotonCollection, int& iSC,
+					     const EcalSeverityLevelAlgo * sevLv) {
+  
+  //  const CaloGeometry* geometry = theCaloGeom_.product();
+  //  const EcalRecHitCollection* hits = 0 ;
+  std::vector<double> preselCutValues;
+
+  for(unsigned int lSC=0; lSC < photonHandle->size(); lSC++) {
+    reco::PhotonRef phoRef(reco::PhotonRef(photonHandle, lSC));
+    reco::SuperClusterRef scRef=phoRef->superCluster();
+   int subdet = scRef->seed()->hitsAndFractions()[0].first.subdetId();
+    if (subdet==EcalBarrel) { 
+      preselCutValues = preselCutValuesBarrel_;
+    } else if  (subdet==EcalEndcap)  { 
+      preselCutValues = preselCutValuesEndcap_;
+    } else {
+      edm::LogWarning("")<<"GEDPhotonProducer: do not know if it is a barrel or endcap SuperCluster"; 
+    }
+
+    iSC++;
+  
+    // SC energy preselection
+    if (scRef->energy()/cosh(scRef->eta()) <= preselCutValues[0] ) continue;
+
+    reco::Photon newCandidate(*phoRef);
+
+  // Calculate the PF isolation and ID - for the time being there is no calculation. Only the setting
+ 
+    reco::Photon::PflowIsolationVariables pfIso;
+    reco::Photon::PflowIDVariables pfID;
+    thePFBasedIsolationCalculator_->calculate (&newCandidate, pfCandidateHandle, vertexHandle, evt, es, pfIso );
+    newCandidate.setPflowIsolationVariables(pfIso);
+    newCandidate.setPflowIDVariables(pfID);
+
+    // std::cout << " GEDPhotonProducer  pf based isolation  chargedHadron" << newCandidate.chargedHadronIso() << " neutralHadron " <<  newCandidate.neutralHadronIso() << " Photon " <<  newCandidate.photonIso() << std::endl;
+    //std::cout << " GEDPhotonProducer from candidate HoE with towers in a cone " << newCandidate.hadronicOverEm()  << "  " <<  newCandidate.hadronicDepth1OverEm()  << " " <<  newCandidate.hadronicDepth2OverEm()  << std::endl;
+    //std::cout << " GEDPhotonProducer from candidate  of HoE with towers behind the BCs " <<  newCandidate.hadTowOverEm()  << "  " << newCandidate.hadTowDepth1OverEm() << " " << newCandidate.hadTowDepth2OverEm() << std::endl;
+    //std::cout << " standard p4 before " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
+    //std::cout << " type " <<newCandidate.getCandidateP4type() <<  " standard p4 after " << newCandidate.p4() << " energy " << newCandidate.energy() << std::endl;
+    //std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
+
+
+
+    /// Pre-selection loose  isolation cuts
+    bool isLooseEM=true;
+    if ( newCandidate.pt() < highEt_) { 
+      if ( newCandidate.hadronicOverEm()                   >= preselCutValues[1] )                                            isLooseEM=false;
+      if ( newCandidate.ecalRecHitSumEtConeDR04()          > preselCutValues[2]+ preselCutValues[3]*newCandidate.pt() )       isLooseEM=false;
+      if ( newCandidate.hcalTowerSumEtConeDR04()           > preselCutValues[4]+ preselCutValues[5]*newCandidate.pt() )       isLooseEM=false;
+      if ( newCandidate.nTrkSolidConeDR04()                > int(preselCutValues[6]) )                                        isLooseEM=false;
+      if ( newCandidate.nTrkHollowConeDR04()               > int(preselCutValues[7]) )                                        isLooseEM=false;
+      if ( newCandidate.trkSumPtSolidConeDR04()            > preselCutValues[8] )                                             isLooseEM=false;
+      if ( newCandidate.trkSumPtHollowConeDR04()           > preselCutValues[9] )                                             isLooseEM=false;
+      if ( newCandidate.sigmaIetaIeta()                    > preselCutValues[10] )                                            isLooseEM=false;
+    } 
+    
+
+        
+    if ( isLooseEM)  
+      outputPhotonCollection.push_back(newCandidate);
+      
+        
+  }
+}
