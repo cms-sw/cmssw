@@ -10,6 +10,9 @@
  * \version $Id: Particle.h,v 1.29 2011/10/27 16:29:58 wmtan Exp $
  *
  */
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -30,28 +33,20 @@ namespace reco {
     /// point in the space
     typedef math::XYZVector Vector;
     /// default constructor
-    Particle() :
-      qx3_(0), pt_(0), eta_(0), phi_(0), mass_(0), 
-      vertex_(0, 0, 0), pdgId_(0), status_(0),
-      cachePolarFixed_( false ) { }
+    Particle();
     /// constructor from values
     Particle( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
-	      int pdgId = 0, int status = 0, bool integerCharge = true ) : 
-      qx3_( q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-      vertex_( vertex ), pdgId_( pdgId ), status_( status ),
-      cachePolarFixed_( false ), cacheCartesianFixed_( false ) { 
-      if ( integerCharge ) qx3_ *= 3;
-    }
+	      int pdgId = 0, int status = 0, bool integerCharge = true );
     /// constructor from values
     Particle( Charge q, const PolarLorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
-	      int pdgId = 0, int status = 0, bool integerCharge = true ) : 
-      qx3_( q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-      vertex_( vertex ), pdgId_( pdgId ), status_( status ),
-      cachePolarFixed_( false ), cacheCartesianFixed_( false ) { 
-      if ( integerCharge ) qx3_ *= 3;
-    }
+	      int pdgId = 0, int status = 0, bool integerCharge = true );
+    void swap(Particle& other);
     /// destructor
     virtual ~Particle() { }
+    // copy ctor
+    Particle(const Particle& srv);
+    // assignment operator
+    Particle& operator=(const Particle& rhs);
     /// electric charge
     int charge() const { return qx3_ / 3; }
     /// set electric charge
@@ -102,40 +97,13 @@ namespace reco {
     /// repidity
     double y() const { return rapidity(); }
     /// set 4-momentum
-    void setP4( const LorentzVector & p4 ) { 
-      p4Cartesian_ = p4;
-      p4Polar_ = p4;
-      pt_ = p4Polar_.pt();
-      eta_ = p4Polar_.eta();
-      phi_ = p4Polar_.phi();
-      mass_ = p4Polar_.mass();
-      cachePolarFixed_ = true;
-      cacheCartesianFixed_ = true;      
-    }
+    void setP4( const LorentzVector & p4 );
     /// set 4-momentum
-    void setP4( const PolarLorentzVector & p4 ) { 
-      p4Polar_ = p4;
-      pt_ = p4Polar_.pt();
-      eta_ = p4Polar_.eta();
-      phi_ = p4Polar_.phi();
-      mass_ = p4Polar_.mass();
-      cachePolarFixed_ = true;
-      cacheCartesianFixed_ = false;            
-    }
+    void setP4( const PolarLorentzVector & p4 );
     /// set particle mass
-    void setMass( double m ) { 
-      mass_ = m; 
-      clearCache(); 
-    }
-    void setPz( double pz ) {
-      cacheCartesian();
-      p4Cartesian_.SetPz(pz);
-      p4Polar_ = p4Cartesian_;
-      pt_ = p4Polar_.pt();
-      eta_ = p4Polar_.eta();
-      phi_ = p4Polar_.phi();
-      mass_ = p4Polar_.mass();
-    }
+    void setMass( double m );
+    /// set Pz
+    void setPz( double pz );
     /// vertex position
     const Point & vertex() const { return vertex_; }
     /// x coordinate of vertex position
@@ -173,28 +141,52 @@ namespace reco {
     /// status word
     int status_;
     /// internal cache for p4
-    mutable PolarLorentzVector p4Polar_;
+    mutable PolarLorentzVector p4Polar_; // CMS-THREADING protected by cachePolarFixed_
     /// internal cache for p4
-    mutable LorentzVector p4Cartesian_;
+    mutable LorentzVector p4Cartesian_; // CMS-THREADING protected by cacheCartesianFixed_
     /// has cache been set?
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    mutable  std::atomic<bool> cachePolarFixed_, cacheCartesianFixed_;
+#else
     mutable  bool cachePolarFixed_, cacheCartesianFixed_;
+#endif
     /// set internal cache
     inline void cachePolar() const { 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+      if(!cachePolarFixed_.load(std::memory_order_acquire)) {
+          p4Polar_ = PolarLorentzVector( pt_, eta_, phi_, mass_ );
+          cachePolarFixed_.store(true, std::memory_order_release);
+      }
+#else
       if ( cachePolarFixed_ ) return;
       p4Polar_ = PolarLorentzVector( pt_, eta_, phi_, mass_ );
-      cachePolarFixed_ = true;
+      cachePolarFixed_;
+#endif
     }
     /// set internal cache
     inline void cacheCartesian() const { 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+      if(!cacheCartesianFixed_.load(std::memory_order_acquire)) {
+          cachePolar();
+          p4Cartesian_ = p4Polar_;
+          cacheCartesianFixed_.store(true, std::memory_order_release);
+      }
+#else
       if ( cacheCartesianFixed_ ) return;
       cachePolar();
       p4Cartesian_ = p4Polar_;
-      cacheCartesianFixed_ = true;
+      cacheCartesianFixed_;
+#endif
     }
     /// clear internal cache
     inline void clearCache() const { 
-      cachePolarFixed_ = false;
-      cacheCartesianFixed_ = false;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+      cachePolarFixed_.store(false, std::memory_order_release);
+      cacheCartesianFixed_.store(false, std::memory_order_release);
+#else
+      cachePolarFixed_;
+      cacheCartesianFixed_;
+#endif
     }
   };
 
