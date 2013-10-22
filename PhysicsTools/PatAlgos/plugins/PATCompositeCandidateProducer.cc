@@ -18,10 +18,10 @@ using namespace std;
 using namespace edm;
 
 PATCompositeCandidateProducer::PATCompositeCandidateProducer(const ParameterSet & iConfig) :
-  userDataHelper_( iConfig.getParameter<edm::ParameterSet>("userData") )
+  userDataHelper_( iConfig.getParameter<edm::ParameterSet>("userData"), consumesCollector() )
 {
   // initialize the configurables
-  src_ = iConfig.getParameter<InputTag>( "src" );
+  srcToken_ = consumes<edm::View<reco::CompositeCandidate> >(iConfig.getParameter<InputTag>( "src" ));
 
   useUserData_ = false;
   if ( iConfig.exists("userData") ) {
@@ -31,7 +31,7 @@ PATCompositeCandidateProducer::PATCompositeCandidateProducer(const ParameterSet 
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
-     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"), consumesCollector());
   }
 
   // Resolution configurables
@@ -52,7 +52,7 @@ PATCompositeCandidateProducer::~PATCompositeCandidateProducer() {
 void PATCompositeCandidateProducer::produce(Event & iEvent, const EventSetup & iSetup) {
   // Get the vector of CompositeCandidate's from the event
   Handle<View<reco::CompositeCandidate> > cands;
-  iEvent.getByLabel(src_, cands);
+  iEvent.getByToken(srcToken_, cands);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
   if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
@@ -66,7 +66,7 @@ void PATCompositeCandidateProducer::produce(Event & iEvent, const EventSetup & i
     for ( ; i != iend; ++i ) {
 
       pat::CompositeCandidate cand(*i);
-      
+
       if ( useUserData_ ) {
 	userDataHelper_.add( cand, iEvent, iSetup );
       }

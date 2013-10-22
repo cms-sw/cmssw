@@ -1,31 +1,25 @@
 #include "PhysicsTools/PatUtils/plugins/ShiftedParticleMETcorrInputProducer.h"
 
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-
 ShiftedParticleMETcorrInputProducer::ShiftedParticleMETcorrInputProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
+  , srcOriginalToken_(consumes<CandidateView>(cfg.getParameter<edm::InputTag>("srcOriginal")))
+  , srcShiftedToken_(consumes<CandidateView>(cfg.getParameter<edm::InputTag>("srcShifted")))
 {
-  srcOriginal_ = cfg.getParameter<edm::InputTag>("srcOriginal");
-  srcShifted_ = cfg.getParameter<edm::InputTag>("srcShifted");
-  
   produces<CorrMETData>();
 }
- 
+
 ShiftedParticleMETcorrInputProducer::~ShiftedParticleMETcorrInputProducer()
 {
 // nothing to be done yet...
 }
-    
+
 void ShiftedParticleMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  typedef edm::View<reco::Candidate> CandidateView;
-
   edm::Handle<CandidateView> originalParticles;
-  evt.getByLabel(srcOriginal_, originalParticles);
+  evt.getByToken(srcOriginalToken_, originalParticles);
 
   edm::Handle<CandidateView> shiftedParticles;
-  evt.getByLabel(srcShifted_, shiftedParticles);
+  evt.getByToken(srcShiftedToken_, shiftedParticles);
 
   std::auto_ptr<CorrMETData> metCorrection(new CorrMETData());
 
@@ -49,5 +43,5 @@ void ShiftedParticleMETcorrInputProducer::produce(edm::Event& evt, const edm::Ev
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(ShiftedParticleMETcorrInputProducer);
- 
+
 

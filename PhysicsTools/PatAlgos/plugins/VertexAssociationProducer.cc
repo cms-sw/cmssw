@@ -6,7 +6,7 @@
    The PATVertexAssociationProducer produces a set of vertex associations for one or more
    collection of Candidates, and saves them in a ValueMap in the event.
 
-   These can be retrieved in PAT Layer 1 to be embedded in PAT Objects 
+   These can be retrieved in PAT Layer 1 to be embedded in PAT Objects
 
   \author   Giovanni Petrucciani
   \version  $Id: VertexAssociationProducer.cc,v 1.2 2010/02/20 21:00:29 wmtan Exp $
@@ -41,8 +41,9 @@ namespace pat {
       typedef std::vector<edm::InputTag> VInputTag;
       // configurables
       std::vector<edm::InputTag>   particles_;
+      std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > particlesTokens_;
       pat::helper::VertexingHelper vertexing_;
-  
+
   };
 
 }
@@ -53,8 +54,11 @@ PATVertexAssociationProducer::PATVertexAssociationProducer(const edm::ParameterS
   particles_( iConfig.existsAs<VInputTag>("candidates") ?       // if it's a VInputTag
                 iConfig.getParameter<VInputTag>("candidates") :
                 VInputTag(1, iConfig.getParameter<edm::InputTag>("candidates")) ),
-  vertexing_(iConfig) 
+  vertexing_(iConfig, consumesCollector())
 {
+  for (VInputTag::const_iterator it = particles_.begin(), end = particles_.end(); it != end; ++it) {
+    particlesTokens_.push_back( consumes<edm::View<reco::Candidate> >( *it ) );
+  }
     produces<VertexAssociationMap>();
 }
 
@@ -64,7 +68,7 @@ PATVertexAssociationProducer::~PATVertexAssociationProducer() {
 
 
 void PATVertexAssociationProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
-  using namespace edm; using namespace std; 
+  using namespace edm; using namespace std;
   // read in vertices and EventSetup
   vertexing_.newEvent(iEvent, iSetup);
 
@@ -72,13 +76,13 @@ void PATVertexAssociationProducer::produce(edm::Event & iEvent, const edm::Event
   auto_ptr<VertexAssociationMap> result(new VertexAssociationMap());
   VertexAssociationMap::Filler filler(*result);
   vector<pat::VertexAssociation> assos;
- 
-  // loop on input tags  
-  for (VInputTag::const_iterator it = particles_.begin(), end = particles_.end(); it != end; ++it) {
+
+  // loop on input tags
+  for (std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator it = particlesTokens_.begin(), end = particlesTokens_.end(); it != end; ++it) {
       // read candidates
       Handle<View<reco::Candidate> > cands;
-      iEvent.getByLabel(*it, cands);
-      assos.clear(); assos.reserve(cands->size()); 
+      iEvent.getByToken(*it, cands);
+      assos.clear(); assos.reserve(cands->size());
       // loop on candidates
       for (size_t i = 0, n = cands->size(); i < n; ++i) {
         assos.push_back( vertexing_(cands->refAt(i)) );
@@ -88,7 +92,7 @@ void PATVertexAssociationProducer::produce(edm::Event & iEvent, const edm::Event
   }
 
   // do the real filling
-  filler.fill(); 
+  filler.fill();
 
   // put our produced stuff in the event
   iEvent.put(result);

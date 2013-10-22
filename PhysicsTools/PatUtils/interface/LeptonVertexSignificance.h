@@ -12,8 +12,12 @@
    of the lepton to a given vertex, as defined in CMS Note 2006/024
 
   \author   Steven Lowette
-  \version  $Id: LeptonVertexSignificance.h,v 1.2 2008/02/28 14:54:24 llista Exp $
 */
+
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class TransientTrackBuilder;
 
@@ -33,15 +37,16 @@ namespace pat {
   class LeptonVertexSignificance {
   public:
     LeptonVertexSignificance();
-    LeptonVertexSignificance(const edm::EventSetup & iSetup);
+    LeptonVertexSignificance(const edm::EventSetup & iSetup, edm::ConsumesCollector && iC);
     ~LeptonVertexSignificance();
-    
+
     float calculate(const Electron & anElectron, const edm::Event & iEvent);
     float calculate(const Muon & aMuon, const edm::Event & iEvent);
-    
+
   private:
     float calculate(const reco::Track & track, const edm::Event & iEvent);
     TransientTrackBuilder * theTrackBuilder_;
+    edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   };
 
 }

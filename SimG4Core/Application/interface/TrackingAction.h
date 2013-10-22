@@ -17,20 +17,22 @@ class TrackingAction : public G4UserTrackingAction
 public:
     TrackingAction(EventAction * ea, const edm::ParameterSet & ps);
     virtual ~TrackingAction();
+
     virtual void PreUserTrackingAction(const G4Track * aTrack);
     virtual void PostUserTrackingAction(const G4Track * aTrack);
+
     TrackWithHistory * currentTrackWithHistory() { return currentTrack_; }
     G4TrackingManager * getTrackManager();
 
     SimActivityRegistry::BeginOfTrackSignal m_beginOfTrackSignal;
     SimActivityRegistry::EndOfTrackSignal m_endOfTrackSignal;
-private:
-    bool isNewPrimary(const G4Track * aTrack);
+
 private:
     EventAction * eventAction_;
     TrackWithHistory * currentTrack_;
     G4VSolid * worldSolid;
     bool detailedTiming;
+    bool checkTrack;
     int  trackMgrVerbose;
 };
 

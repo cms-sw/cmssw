@@ -14,6 +14,7 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,7 +27,7 @@ namespace pat {
   class CandidateSummaryTable : public edm::EDAnalyzer {
     public:
       explicit CandidateSummaryTable(const edm::ParameterSet & iConfig);
-      ~CandidateSummaryTable();  
+      ~CandidateSummaryTable();
 
       virtual void analyze(const edm::Event & iEvent, const edm::EventSetup& iSetup) override;
       virtual void endJob() override;
@@ -34,15 +35,16 @@ namespace pat {
     private:
       struct Record {
         edm::InputTag src;
+        edm::EDGetTokenT<edm::View<reco::Candidate> > srcToken;
         size_t present, empty, min, max, total;
-        Record(edm::InputTag tag) : src(tag), present(0), empty(0), min(0), max(0), total(0) {}
+        Record(edm::InputTag tag, edm::ConsumesCollector && iC) : src(tag), srcToken(iC.consumes<edm::View<reco::Candidate> >(tag)), present(0), empty(0), min(0), max(0), total(0) {}
 
         void update(const edm::View<reco::Candidate> &items) {
-            present++; 
+            present++;
             size_t size = items.size();
             if (size == 0) {
                 empty++;
-            } else  { 
+            } else  {
                 if (min > size) min = size;
                 if (max < size) max = size;
             }
@@ -68,14 +70,14 @@ pat::CandidateSummaryTable::CandidateSummaryTable(const edm::ParameterSet & iCon
 {
     std::vector<edm::InputTag> inputs = iConfig.getParameter<std::vector<edm::InputTag> >("candidates");
     for (std::vector<edm::InputTag>::const_iterator it = inputs.begin(); it != inputs.end(); ++it) {
-        collections_.push_back(Record(*it));
+        collections_.push_back(Record(*it, consumesCollector()));
     }
 }
 
 pat::CandidateSummaryTable::~CandidateSummaryTable() {
 }
 
-void 
+void
 pat::CandidateSummaryTable::analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup) {
   using namespace edm;
   using std::setw; using std::left; using std::right; using std::setprecision;
@@ -87,7 +89,7 @@ pat::CandidateSummaryTable::analyze(const edm::Event & iEvent, const edm::EventS
   }
   totalEvents_++;
   for (std::vector<Record>::iterator it = collections_.begin(), ed = collections_.end(); it != ed; ++it) {
-    iEvent.getByLabel(it->src, candidates);
+    iEvent.getByToken(it->srcToken, candidates);
     if (!candidates.failedToGet()) it->update(*candidates);
     if (perEvent_) {
         LogVerbatim(logName_) << "    " << setw(30) << left  << it->src.encode() << right;
@@ -95,7 +97,7 @@ pat::CandidateSummaryTable::analyze(const edm::Event & iEvent, const edm::EventS
             size_t i = 0;
             std::ostringstream oss;
             for (View<reco::Candidate>::const_iterator cand = candidates->begin(), endc = candidates->end(); cand != endc; ++cand, ++i) {
-                oss << "      [" << setw(3) << i << "]" << 
+                oss << "      [" << setw(3) << i << "]" <<
                         "  pt "  << setw(7) << setprecision(5) << cand->pt()  <<
                         "  eta " << setw(7) << setprecision(5) << cand->eta() <<
                         "  phi " << setw(7) << setprecision(5) << cand->phi() <<
@@ -113,21 +115,21 @@ pat::CandidateSummaryTable::analyze(const edm::Event & iEvent, const edm::EventS
 }
 
 
-void 
-pat::CandidateSummaryTable::endJob() { 
+void
+pat::CandidateSummaryTable::endJob() {
     using std::setw; using std::left; using std::right; using std::setprecision;
     if (perJob_) {
         std::ostringstream oss;
         oss << "Summary Table " << logName_ << " (" << self_ << ", events total " << totalEvents_ << ")\n";
         for (std::vector<Record>::iterator it = collections_.begin(), ed = collections_.end(); it != ed; ++it) {
-            oss << "    " << setw(30) << left  << it->src.encode() << right << 
-                "  present " << setw(7) << it->present << " (" << setw(4) << setprecision(3) << (it->present*100.0/totalEvents_) << "%)" << 
-                "  empty "   << setw(7) << it->empty   << " (" << setw(4) << setprecision(3) << (it->empty*100.0/totalEvents_)   << "%)" << 
-                "  min "     << setw(7) << it->min     <<  
-                "  max "     << setw(7) << it->max     <<  
+            oss << "    " << setw(30) << left  << it->src.encode() << right <<
+                "  present " << setw(7) << it->present << " (" << setw(4) << setprecision(3) << (it->present*100.0/totalEvents_) << "%)" <<
+                "  empty "   << setw(7) << it->empty   << " (" << setw(4) << setprecision(3) << (it->empty*100.0/totalEvents_)   << "%)" <<
+                "  min "     << setw(7) << it->min     <<
+                "  max "     << setw(7) << it->max     <<
                 "  total "   << setw(7) << it->total   <<
                 "  avg "     << setw(5) << setprecision(3) << (it->total/double(totalEvents_)) << "\n";
-        } 
+        }
         oss << "\n";
         edm::LogVerbatim(logName_) << oss.str();
     }

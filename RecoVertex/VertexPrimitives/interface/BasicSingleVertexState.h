@@ -10,7 +10,7 @@
  * Some data is calculated on demand to improve performance.
  */
 
-class BasicSingleVertexState : public BasicVertexState {
+class BasicSingleVertexState GCC11_FINAL : public BasicVertexState {
 
 public:
 
@@ -51,16 +51,17 @@ private:
   void computeWeightTimesPos() const;
 
   mutable GlobalPoint thePos;
-  mutable bool thePosAvailable;
   mutable GlobalError theErr;
-  mutable bool theErrAvailable;
   mutable GlobalWeight theWeight;
-  mutable bool theWeightAvailable;
   mutable AlgebraicVector3 theWeightTimesPos;
+  double theWeightInMix;
+
+  mutable bool thePosAvailable;
+  mutable bool theErrAvailable;
+  mutable bool theWeightAvailable;
   mutable bool theWeightTimesPosAvailable;
 
   bool valid;
-  double theWeightInMix;
 };
 
 #endif

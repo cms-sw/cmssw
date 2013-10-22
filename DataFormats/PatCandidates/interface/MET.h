@@ -149,15 +149,6 @@ namespace pat {
           return pfMET_[0];
       }
 
-    protected:
-
-      // ---- GenMET holder ----
-      std::vector<reco::GenMET> genMET_;
-      // ---- holder for CaloMET specific info ---
-      std::vector<SpecificCaloMETData> caloMET_;
-      // ---- holder for pfMET specific info ---
-      std::vector<SpecificPFMETData> pfMET_;
-
       // ---- members for MET corrections ----
       struct UncorInfo {
 	UncorInfo(): corEx(0), corEy(0), corSumEt(0), pt(0), phi(0) {}
@@ -167,6 +158,16 @@ namespace pat {
 	float pt;
 	float phi;
       };
+
+    protected:
+
+      // ---- GenMET holder ----
+      std::vector<reco::GenMET> genMET_;
+      // ---- holder for CaloMET specific info ---
+      std::vector<SpecificCaloMETData> caloMET_;
+      // ---- holder for pfMET specific info ---
+      std::vector<SpecificPFMETData> pfMET_;
+
       // uncorrection transients
       mutable std::vector<UncorInfo> uncorInfo_;
       mutable unsigned int nCorrections_;

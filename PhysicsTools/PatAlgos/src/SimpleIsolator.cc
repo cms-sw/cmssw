@@ -5,14 +5,14 @@ using pat::helper::SimpleIsolator;
 using pat::helper::BaseIsolator;
 
 
-SimpleIsolator::SimpleIsolator(const edm::ParameterSet &conf, bool withCut) :
-    BaseIsolator(conf, withCut)
+SimpleIsolator::SimpleIsolator(const edm::ParameterSet &conf, edm::ConsumesCollector & iC, bool withCut) :
+    BaseIsolator(conf, iC, withCut)
 {
 }
 
 void
 SimpleIsolator::beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) {
-    event.getByLabel(input_, handle_);
+    event.getByToken(inputDoubleToken_, handle_);
 }
 
 void

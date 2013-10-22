@@ -238,7 +238,7 @@ const cms_uint16_t L1GlobalTriggerReadoutRecord::finalOR() const
 const DecisionWord &
 L1GlobalTriggerReadoutRecord::decisionWord(int bxInEventValue) const
 {
-    static DecisionWord emptyDecisionWord;
+    const static DecisionWord emptyDecisionWord;
 
     for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
             itBx != m_gtFdlWord.end(); ++itBx) {
@@ -273,7 +273,7 @@ L1GlobalTriggerReadoutRecord::decisionWord() const
 
 const TechnicalTriggerWord & 
 L1GlobalTriggerReadoutRecord::technicalTriggerWord(int bxInEventValue) const {
-    static TechnicalTriggerWord emptyTechnicalTriggerWord;
+    const static TechnicalTriggerWord emptyTechnicalTriggerWord;
 
     for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
             itBx != m_gtFdlWord.end(); ++itBx) {

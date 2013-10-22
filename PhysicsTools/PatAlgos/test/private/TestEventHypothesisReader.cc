@@ -19,13 +19,15 @@ class TestEventHypothesisReader : public edm::EDAnalyzer {
         virtual void analyze( const edm::Event &iEvent, const edm::EventSetup &iSetup) ;
         void runTests( const pat::EventHypothesis &h) ;
     private:
-        edm::InputTag events_;
+        edm::EDGetTokenT<std::vector<pat::EventHypothesis> > hypsToken_;
+        edm::EDGetTokenT<edm::ValueMap<double> >  deltaRsHToken_;
 };
 
 
 
 TestEventHypothesisReader::TestEventHypothesisReader(const edm::ParameterSet &iConfig) :
-    events_(iConfig.getParameter<edm::InputTag>("events"))
+    hypsToken_(consumes<std::vector<pat::EventHypothesis> >(iConfig.getParameter<edm::InputTag>("events"))),
+    deltaRsHToken_(consumes<edm::ValueMap<double> >(edm::InputTag((iConfig.getParameter<edm::InputTag>("events")).label(), "deltaR")))
 {
 }
 
@@ -49,7 +51,7 @@ TestEventHypothesisReader::runTests( const pat::EventHypothesis &h) {
     cout << "Test 5.3: all with regex: " << h.all(".*jet").size() << endl;
 
     cout << "Test 6.0: get as : " << h.getAs<reco::CaloJet>("nearest jet")->maxEInHadTowers() << endl;
-   
+
     cout << "Loopers" << endl;
     cout << "Test 7.0: simple looper on all" << endl;
     for (CandLooper jet = h.loop(); jet; ++jet) {
@@ -72,16 +74,16 @@ TestEventHypothesisReader::runTests( const pat::EventHypothesis &h) {
 void
 TestEventHypothesisReader::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     using namespace edm; using namespace std;
-    using reco::Candidate; 
+    using reco::Candidate;
     using reco::CandidatePtr;
 
     Handle<vector<pat::EventHypothesis> > hyps;
-    iEvent.getByLabel(events_, hyps);
+    iEvent.getByToken(hypsToken_, hyps);
 
     Handle<ValueMap<double> >  deltaRsH;
-    iEvent.getByLabel(InputTag(events_.label(), "deltaR"), deltaRsH);
+    iEvent.getByToken(deltaRsHToken_, deltaRsH);
     const ValueMap<double> & deltaRs = *deltaRsH;
-    
+
     for (size_t i = 0, n = hyps->size(); i < n; ++i) {
         const pat::EventHypothesis &h = (*hyps)[i];
 
@@ -90,7 +92,7 @@ TestEventHypothesisReader::analyze(const edm::Event &iEvent, const edm::EventSet
         std::cout << "   muon : pt = " << mu->pt() << ", eta = " << mu->eta() << ", phi = " << mu->phi() << std::endl;
         CandidatePtr jet = h["nearest jet"];
         std::cout << "   n jet: pt = " << jet->pt() << ", eta = " << jet->eta() << ", phi = " << jet->phi() << std::endl;
-   
+
         for (pat::EventHypothesis::CandLooper j2 = h.loop("other jet"); j2; ++j2) {
             std::cout << "   0 jet: pt = " << j2->pt() << ", eta = " << j2->eta() << ", phi = " << j2->phi() << std::endl;
         }
@@ -99,7 +101,7 @@ TestEventHypothesisReader::analyze(const edm::Event &iEvent, const edm::EventSet
         std::cout << "   deltaR: " << deltaRs[key] << "\n" << std::endl;
 
         runTests( h );
-        
+
     }
 
     std::cout << "Found " << hyps->size() << " possible options" << "\n\n" << std::endl;

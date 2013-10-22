@@ -48,8 +48,9 @@ namespace pat {
 
       // configurables
       edm::InputTag metSrc_;
+      edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
       bool          addGenMET_;
-      edm::InputTag genMETSrc_;
+      edm::EDGetTokenT<edm::View<reco::GenMET> > genMETToken_;
       bool          addResolutions_;
       pat::helper::KinResolutionsLoader resolutionLoader_;
       bool          addMuonCorr_;

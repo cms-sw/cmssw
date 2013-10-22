@@ -23,7 +23,9 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <mutex>
+#include <atomic>
+#include "tbb/concurrent_unordered_map.h"
+#include "tbb/concurrent_vector.h"
 
 #include "FWCore/Utilities/interface/Signal.h"
 // user include files
@@ -38,8 +40,32 @@ class PluginFactoryBase
       PluginFactoryBase() {}
       virtual ~PluginFactoryBase();
 
-      typedef std::vector<std::pair<void*, std::string> > PMakers;
-      typedef std::map<std::string, PMakers > Plugins;
+      struct PluginMakerInfo {
+        PluginMakerInfo(void* iPtr, const std::string& iName):
+        m_name(iName),
+        m_ptr() {
+          m_ptr.store(iPtr,std::memory_order_release);}
+        
+        PluginMakerInfo(const PluginMakerInfo& iOther):
+        m_name(iOther.m_name),
+        m_ptr() {
+          m_ptr.store(iOther.m_ptr.load(std::memory_order_acquire),
+                      std::memory_order_release);
+        }
+        
+        PluginMakerInfo& operator=(const PluginMakerInfo& iOther) {
+          m_name = iOther.m_name;
+          m_ptr.store(iOther.m_ptr.load(std::memory_order_acquire),std::memory_order_release);
+          return *this;
+        }
+        std::string m_name;
+        //NOTE: this has to be last since once it is non zero it signals
+        // that the construction has finished
+        std::atomic<void*> m_ptr;
+      };
+  
+      typedef tbb::concurrent_vector<PluginMakerInfo> PMakers;
+      typedef tbb::concurrent_unordered_map<std::string, PMakers > Plugins;
 
       // ---------- const member functions ---------------------
 
@@ -89,7 +115,6 @@ class PluginFactoryBase
       void checkProperLoadable(const std::string& iName, const std::string& iLoadedFrom) const;
       // ---------- member data --------------------------------
       Plugins m_plugins;
-      mutable std::recursive_mutex m_mutex;
   
 
 };
