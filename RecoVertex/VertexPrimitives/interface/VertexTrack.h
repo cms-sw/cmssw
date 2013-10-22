@@ -13,7 +13,7 @@
  */
 
 template <unsigned int N>
-class VertexTrack : public ReferenceCounted {
+class VertexTrack GCC11_FINAL : public ReferenceCounted {
 
 public:
 
@@ -28,23 +28,23 @@ public:
 
   /** Constructor with the linearized track data, vertex seed and weight
    */     
-  VertexTrack(const RefCountedLinearizedTrackState lt, 
-	      const VertexState v, 
+  VertexTrack(RefCountedLinearizedTrackState lt, 
+	      VertexState v, 
 	      float weight);
 
   /** Constructor with the linearized track data, vertex seed and weight
    *  and state at vertex, constrained by vertex
    */     
-  VertexTrack(const RefCountedLinearizedTrackState lt, 
-	      const VertexState v, 
+  VertexTrack(RefCountedLinearizedTrackState lt, 
+	      VertexState v, 
 	      float weight, const RefCountedRefittedTrackState & refittedState,
 	      float smoothedChi2);
 
   /** Constructor with the linearized track data, vertex seed and weight
    *  and state and covariance at vertex, constrained by vertex
    */     
-  VertexTrack(const RefCountedLinearizedTrackState lt, 
-	      const VertexState v, 
+  VertexTrack(RefCountedLinearizedTrackState lt, 
+	      VertexState v, 
 	      float weight, const RefCountedRefittedTrackState & refittedState,
 	      float smoothedChi2, const AlgebraicSymMatrixOO & fullCov);
 
