@@ -20,8 +20,8 @@ namespace evf{
     //07    <63-00  HLT algo bits 1					       >
     //08    <63-00  HLT algo bits 2					       >
     //09    <63-00  HLT algo bits 3     				       >
-    //0a    <63-00  Reserved						       >
-    //0b    <63-00  Reserved						       >
+    //0a    <63-00  Diagnostic word 1 for DAQ internal use (free form)         >
+    //0b    <63-00  Diagnostic word 2 for DAQ internal use (free form)         >
     //0c    <63-00  Out wallclock time from EP				       >
     //0d    <=======================FED TRAILER ===============================>
     ////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,9 @@ namespace evf{
     const unsigned int EVFFED_EPHLTA1_OFFSET  = EVFFED_EPHISTO_OFFSET + evtn::SLINK_WORD_SIZE;
     const unsigned int EVFFED_EPHLTA2_OFFSET  = EVFFED_EPHLTA1_OFFSET + evtn::SLINK_WORD_SIZE;
     const unsigned int EVFFED_EPHLTA3_OFFSET  = EVFFED_EPHLTA2_OFFSET + evtn::SLINK_WORD_SIZE;
-    const unsigned int EVFFED_EPWCTIM_OFFSET  = EVFFED_EPHLTA3_OFFSET + 3 * evtn::SLINK_WORD_SIZE;
+    const unsigned int EVFFED_DAQDIA1_OFFSET  = EVFFED_EPHLTA3_OFFSET + evtn::SLINK_WORD_SIZE;
+    const unsigned int EVFFED_DAQDIA2_OFFSET  = EVFFED_DAQDIA1_OFFSET + evtn::SLINK_WORD_SIZE;
+    const unsigned int EVFFED_EPWCTIM_OFFSET  = EVFFED_DAQDIA2_OFFSET + evtn::SLINK_WORD_SIZE;
   }
 }
 #endif
