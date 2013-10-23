@@ -11,6 +11,8 @@
 //<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
+namespace edm {class StreamID;}
+
 
 class DQMEDAnalyzer
     : public edm::stream::EDAnalyzer<edm::RunSummaryCache<int>,
@@ -21,6 +23,7 @@ class DQMEDAnalyzer
   // implicit copy constructor
   // implicit assignment operator
   // implicit destructor
+  virtual void beginStream(edm::StreamID id) final;
   static std::shared_ptr<int> globalBeginRunSummary(edm::Run const&,
                                                     edm::EventSetup const&,
                                                     RunContext const*);
@@ -41,6 +44,13 @@ class DQMEDAnalyzer
                                               edm::EventSetup const&,
                                               LuminosityBlockContext const*,
                                               int*);
+  uint32_t streamId() const {return stream_id_;}
+  virtual void bookHistograms(edm::Run const&,
+                              uint32_t streamId,
+                              uint32_t moduleId) = 0;
+
+private:
+  uint32_t stream_id_;
 };
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>

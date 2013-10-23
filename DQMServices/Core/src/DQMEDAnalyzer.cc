@@ -1,6 +1,12 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 DQMEDAnalyzer::DQMEDAnalyzer() {}
+
+void DQMEDAnalyzer::beginStream(edm::StreamID id)
+{
+  stream_id_ = id.value();
+}
 
 std::shared_ptr<int>
 DQMEDAnalyzer::globalBeginRunSummary(edm::Run const&,
