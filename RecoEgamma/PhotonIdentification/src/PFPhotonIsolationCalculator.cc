@@ -23,12 +23,65 @@ using namespace std;
 
 using namespace reco;
 
+void PFPhotonIsolationCalculator::setup(const edm::ParameterSet& conf, 
+				      std::vector<int> const & flagsEB, std::vector<int> const & flagsEE, 
+				      std::vector<int> const & severitiesEB, std::vector<int> const & severitiesEE) {
+ 
+
+  iParticleType_ = conf.getParameter<int>("particleType");
+  if (  iParticleType_ ==1 ) { 
+
+    fConeSize_     = conf.getParameter<double>("coneDR");
+    iNumberOfRings_ = conf.getParameter<int>("numberOfRings");
+    fRingSize_     = conf.getParameter<double>("ringSize");
+    //
+    bApplyVeto_    = conf.getParameter<bool>("applyVeto");
+    bApplyPFPUVeto_    = conf.getParameter<bool>("applyPFPUVeto");
+    bApplyDzDxyVeto_    = conf.getParameter<bool>("applyDzDxyVeto");
+    bApplyMissHitPhVeto_    = conf.getParameter<bool>("applyMissHitPhVeto");
+    bDeltaRVetoBarrel_    = conf.getParameter<bool>("deltaRVetoBarrel");
+    bDeltaRVetoEndcap_    = conf.getParameter<bool>("deltaRVetoEndcap");
+    bRectangleVetoBarrel_    = conf.getParameter<bool>("rectangleVetoBarrel");
+    bRectangleVetoEndcap_    = conf.getParameter<bool>("rectangleVetoEndcap");
+    bUseCrystalSize_    = conf.getParameter<bool>("useCrystalSize");
+    //
+    fDeltaRVetoBarrelPhotons_    = conf.getParameter<double>("deltaRVetoBarrelPhotons");   
+    fDeltaRVetoBarrelNeutrals_    = conf.getParameter<double>("deltaRVetoBarrelNeutrals");   
+    fDeltaRVetoBarrelCharged_    = conf.getParameter<double>("deltaRVetoBarrelCharged");   
+    fDeltaRVetoEndcapPhotons_    = conf.getParameter<double>("deltaRVetoEndcapPhotons");   
+    fDeltaRVetoEndcapNeutrals_    = conf.getParameter<double>("deltaRVetoEndcapNeutrals");   
+    fDeltaRVetoEndcapCharged_    = conf.getParameter<double>("deltaRVetoEndcapCharged");   
+    fNumberOfCrystalEndcapPhotons_ = conf.getParameter<double>("numberOfCrystalEndcapPhotons");  
+    //
+    fRectangleDeltaPhiVetoBarrelPhotons_    = conf.getParameter<double>("rectangleDeltaPhiVetoBarrelPhotons");
+    fRectangleDeltaPhiVetoBarrelNeutrals_   = conf.getParameter<double>("rectangleDeltaPhiVetoBarrelNeutrals");
+    fRectangleDeltaPhiVetoBarrelCharged_    = conf.getParameter<double>("rectangleDeltaPhiVetoBarrelCharged");
+    fRectangleDeltaPhiVetoEndcapPhotons_    = conf.getParameter<double>("rectangleDeltaPhiVetoEndcapPhotons");
+    fRectangleDeltaPhiVetoEndcapNeutrals_   = conf.getParameter<double>("rectangleDeltaPhiVetoEndcapNeutrals");
+    fRectangleDeltaPhiVetoEndcapCharged_    = conf.getParameter<double>("rectangleDeltaPhiVetoEndcapCharged");
+    //
+    fRectangleDeltaEtaVetoBarrelPhotons_    = conf.getParameter<double>("rectangleDeltaEtaVetoBarrelPhotons");
+    fRectangleDeltaEtaVetoBarrelNeutrals_   = conf.getParameter<double>("rectangleDeltaEtaVetoBarrelNeutrals");
+    fRectangleDeltaEtaVetoBarrelCharged_    = conf.getParameter<double>("rectangleDeltaEtaVetoBarrelCharged");
+    fRectangleDeltaEtaVetoEndcapPhotons_    = conf.getParameter<double>("rectangleDeltaEtaVetoEndcapPhotons");
+    fRectangleDeltaEtaVetoEndcapNeutrals_   = conf.getParameter<double>("rectangleDeltaEtaVetoEndcapNeutrals");
+    fRectangleDeltaEtaVetoEndcapCharged_    = conf.getParameter<double>("rectangleDeltaEtaVetoEndcapCharged");
+    //
+    bCheckClosestZVertex_    = conf.getParameter<bool>("checkClosestZVertex");
+    initializeRings(iNumberOfRings_, fConeSize_);
+    
+  }  
+ 
+
+
+
+}
+
 
 
 //--------------------------------------------------------------------------------------------------
-PFPhotonIsolationCalculator::PFPhotonIsolationCalculator() :
-fisInitialized(kFALSE)
-{
+
+PFPhotonIsolationCalculator::PFPhotonIsolationCalculator() {
   // Constructor.
 }
 
@@ -40,100 +93,6 @@ PFPhotonIsolationCalculator::~PFPhotonIsolationCalculator()
 
 }
 
-//--------------------------------------------------------------------------------------------------
-void PFPhotonIsolationCalculator::initialize( Bool_t bApplyVeto, int iParticleType ) {
-
-  setParticleType(iParticleType);
-
-  //By default check for an option vertex association
-  checkClosestZVertex = kTRUE;
-  
-  //Apply vetoes
-  setApplyVeto(bApplyVeto);
-  
-  setDeltaRVetoBarrelPhotons();
-  setDeltaRVetoBarrelNeutrals();
-  setDeltaRVetoBarrelCharged();
-  setDeltaRVetoEndcapPhotons();
-  setDeltaRVetoEndcapNeutrals();
-  setDeltaRVetoEndcapCharged();
-
-  
-  setRectangleDeltaPhiVetoBarrelPhotons();
-  setRectangleDeltaPhiVetoBarrelNeutrals();
-  setRectangleDeltaPhiVetoBarrelCharged();
-  setRectangleDeltaPhiVetoEndcapPhotons();
-  setRectangleDeltaPhiVetoEndcapNeutrals();
-  setRectangleDeltaPhiVetoEndcapCharged();
-  
-
-  setRectangleDeltaEtaVetoBarrelPhotons();
-  setRectangleDeltaEtaVetoBarrelNeutrals();
-  setRectangleDeltaEtaVetoBarrelCharged();
-  setRectangleDeltaEtaVetoEndcapPhotons();
-  setRectangleDeltaEtaVetoEndcapNeutrals();
-  setRectangleDeltaEtaVetoEndcapCharged();
-
-
-  if(bApplyVeto && iParticleType==kElectron){
-    
-    //Setup veto conditions for electrons
-    setDeltaRVetoBarrel(kTRUE);
-    setDeltaRVetoEndcap(kTRUE);
-    setRectangleVetoBarrel(kFALSE);
-    setRectangleVetoEndcap(kFALSE);
-    setApplyDzDxyVeto(kFALSE);
-    setApplyPFPUVeto(kTRUE);
-    setApplyMissHitPhVeto(kTRUE); //NOTE: decided to go for this on the 26May 2012
-    //Current recommended default value for the electrons
-    setUseCrystalSize(kFALSE);
-
-    // setDeltaRVetoBarrelPhotons(1E-5); //NOTE: just to be in synch with the isoDep: fixed isoDep in 26May
-    // setDeltaRVetoBarrelCharged(1E-5); //NOTE: just to be in synch with the isoDep: fixed isoDep in 26May
-    // setDeltaRVetoBarrelNeutrals(1E-5); //NOTE: just to be in synch with the isoDep: fixed isoDep in 26May
-    setDeltaRVetoEndcapPhotons(0.08);
-    setDeltaRVetoEndcapCharged(0.015);
-    // setDeltaRVetoEndcapNeutrals(1E-5); //NOTE: just to be in synch with the isoDep: fixed isoDep in 26May
-
-    setConeSize(0.4);
-
-    
-  }else{
-    //Setup veto conditions for photons
-    setApplyDzDxyVeto(kTRUE);
-    setApplyPFPUVeto(kTRUE);
-    setApplyMissHitPhVeto(kFALSE);
-    setDeltaRVetoBarrel(kTRUE);
-    setDeltaRVetoEndcap(kTRUE);
-    setRectangleVetoBarrel(kTRUE);
-    setRectangleVetoEndcap(kFALSE);
-    setUseCrystalSize(kTRUE);
-    setConeSize(0.3);
-
-    setDeltaRVetoBarrelPhotons(-1);
-    setDeltaRVetoBarrelNeutrals(-1);
-    setDeltaRVetoBarrelCharged(0.02);
-    setRectangleDeltaPhiVetoBarrelPhotons(1.);
-    setRectangleDeltaPhiVetoBarrelNeutrals(-1);
-    setRectangleDeltaPhiVetoBarrelCharged(-1);
-    setRectangleDeltaEtaVetoBarrelPhotons(0.015);
-    setRectangleDeltaEtaVetoBarrelNeutrals(-1);
-    setRectangleDeltaEtaVetoBarrelCharged(-1);
-
-    setDeltaRVetoEndcapPhotons(0.07);
-    setDeltaRVetoEndcapNeutrals(-1);
-    setDeltaRVetoEndcapCharged(0.02);
-    setRectangleDeltaPhiVetoEndcapPhotons(-1);
-    setRectangleDeltaPhiVetoEndcapNeutrals(-1);
-    setRectangleDeltaPhiVetoEndcapCharged(-1);
-    setRectangleDeltaEtaVetoEndcapPhotons(-1);
-    setRectangleDeltaEtaVetoEndcapNeutrals(-1);
-    setRectangleDeltaEtaVetoEndcapCharged(-1);
-    setNumberOfCrystalEndcapPhotons(4.);
-  }
-
-
-}
 
 void PFPhotonIsolationCalculator::calculate(const reco::Photon* aPho, 
 					    const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle,
@@ -154,79 +113,30 @@ void PFPhotonIsolationCalculator::calculate(const reco::Photon* aPho,
 
 
 
-//--------------------------------------------------------------------------------------------------
-void PFPhotonIsolationCalculator::initializeElectronIsolation( Bool_t bApplyVeto){
-  initialize(bApplyVeto,kElectron);
-  initializeRings(1, fConeSize);
-
-  // std::cout << " ********* Init Entering in kElectron setup "
-  //       << " bApplyVeto " << bApplyVeto
-  //       << " bDeltaRVetoBarrel " << bDeltaRVetoBarrel
-  //       << " bDeltaRVetoEndcap " << bDeltaRVetoEndcap
-  //       << " cone size " << fConeSize
-  //       << " fDeltaRVetoEndcapPhotons " << fDeltaRVetoEndcapPhotons
-  //       << " fDeltaRVetoEndcapNeutrals " << fDeltaRVetoEndcapNeutrals
-  //       << " fDeltaRVetoEndcapCharged " << fDeltaRVetoEndcapCharged << std::endl;
-  
-}
-
-//--------------------------------------------------------------------------------------------------
-void PFPhotonIsolationCalculator::initializePhotonIsolation( Bool_t bApplyVeto){
-  initialize(bApplyVeto,kPhoton);
-  initializeRings(1, fConeSize);
-
-  //std::cout << " ********* Init Entering in kPhoton setup "
-  //      << " bApplyVeto " << bApplyVeto
-  //      << " bDeltaRVetoBarrel " << bDeltaRVetoBarrel
-  //      << " bDeltaRVetoEndcap " << bDeltaRVetoEndcap
-  //      << " cone size " << fConeSize
-  //      << " fDeltaRVetoEndcapPhotons " << fDeltaRVetoEndcapPhotons
-  //      << " fDeltaRVetoEndcapNeutrals " << fDeltaRVetoEndcapNeutrals
-  //      << " fDeltaRVetoEndcapCharged " << fDeltaRVetoEndcapCharged << std::endl;
-
-
-}
-
-
-//--------------------------------------------------------------------------------------------------
-void PFPhotonIsolationCalculator::initializeElectronIsolationInRings( Bool_t bApplyVeto, int iNumberOfRings, float fRingSize ){
-  initialize(bApplyVeto,kElectron);
-  initializeRings(iNumberOfRings, fRingSize);
-}
-
-//--------------------------------------------------------------------------------------------------
-void PFPhotonIsolationCalculator::initializePhotonIsolationInRings( Bool_t bApplyVeto, int iNumberOfRings, float fRingSize ){
-  initialize(bApplyVeto,kPhoton);
-  initializeRings(iNumberOfRings, fRingSize);
-}
-
 
 //--------------------------------------------------------------------------------------------------
 void PFPhotonIsolationCalculator::initializeRings(int iNumberOfRings, float fRingSize){
  
-  setRingSize(fRingSize);
-  setNumbersOfRings(iNumberOfRings);
- 
-  fIsolationInRings.clear();
+  fIsolationInRings_.clear();
   for(int isoBin =0;isoBin<iNumberOfRings;isoBin++){
     float fTemp = 0.0;
-    fIsolationInRings.push_back(fTemp);
+    fIsolationInRings_.push_back(fTemp);
     
     float fTempPhoton = 0.0;
-    fIsolationInRingsPhoton.push_back(fTempPhoton);
+    fIsolationInRingsPhoton_.push_back(fTempPhoton);
 
     float fTempNeutral = 0.0;
-    fIsolationInRingsNeutral.push_back(fTempNeutral);
+    fIsolationInRingsNeutral_.push_back(fTempNeutral);
 
     float fTempCharged = 0.0;
-    fIsolationInRingsCharged.push_back(fTempCharged);
+    fIsolationInRingsCharged_.push_back(fTempCharged);
 
     float fTempChargedAll = 0.0;
-    fIsolationInRingsChargedAll.push_back(fTempChargedAll);
+    fIsolationInRingsChargedAll_.push_back(fTempChargedAll);
 
   }
 
-  fConeSize = fRingSize * (float)iNumberOfRings;
+  fConeSize_ = fRingSize * (float)iNumberOfRings;
 
 }
   
@@ -236,9 +146,9 @@ float PFPhotonIsolationCalculator::fGetIsolation(const reco::PFCandidate * pfCan
  
   fGetIsolationInRings( pfCandidate, pfParticlesColl, vtx, vertices);
   refSC = SuperClusterRef();
-  fIsolation = fIsolationInRings[0];
+  fIsolation_ = fIsolationInRings_[0];
   
-  return fIsolation;
+  return fIsolation_;
 }
 
 
@@ -246,24 +156,22 @@ float PFPhotonIsolationCalculator::fGetIsolation(const reco::PFCandidate * pfCan
 vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::PFCandidate * pfCandidate, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
 
   int isoBin;
-
-  
-  for(isoBin =0;isoBin<iNumberOfRings;isoBin++){
-    fIsolationInRings[isoBin]=0.;
-    fIsolationInRingsPhoton[isoBin]=0.;
-    fIsolationInRingsNeutral[isoBin]=0.;
-    fIsolationInRingsCharged[isoBin]=0.;
-    fIsolationInRingsChargedAll[isoBin]=0.;
+  for(isoBin =0;isoBin<iNumberOfRings_;isoBin++){
+    fIsolationInRings_[isoBin]=0.;
+    fIsolationInRingsPhoton_[isoBin]=0.;
+    fIsolationInRingsNeutral_[isoBin]=0.;
+    fIsolationInRingsCharged_[isoBin]=0.;
+    fIsolationInRingsChargedAll_[isoBin]=0.;
   }
   
  
 
-  fEta = pfCandidate->eta();
-  fPhi = pfCandidate->phi();
-  fPt = pfCandidate->pt();
-  fVx = pfCandidate->vx();
-  fVy = pfCandidate->vy();
-  fVz = pfCandidate->vz();
+  fEta_ = pfCandidate->eta();
+  fPhi_ = pfCandidate->phi();
+  fPt_ = pfCandidate->pt();
+  fVx_ = pfCandidate->vx();
+  fVy_ = pfCandidate->vy();
+  fVz_ = pfCandidate->vz();
 
   pivotInBarrel = fabs(pfCandidate->positionAtECALEntrance().eta())<1.479;
 
@@ -275,36 +183,37 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::PFC
       continue;
 
     if(pfParticle.pdgId()==22){
-      
-      if(isPhotonParticleVetoed( &pfParticle)>=0.){
-        isoBin = (int)(fDeltaR/fRingSize);
-        fIsolationInRingsPhoton[isoBin] = fIsolationInRingsPhoton[isoBin] + pfParticle.pt();
+      float fDeltaR =isPhotonParticleVetoed(&pfParticle); 
+      if( fDeltaR>=0.){
+        isoBin = (int)(fDeltaR/fRingSize_);
+        fIsolationInRingsPhoton_[isoBin] = fIsolationInRingsPhoton_[isoBin] + pfParticle.pt();
       }
       
     }else if(abs(pfParticle.pdgId())==130){
-        
-      if(isNeutralParticleVetoed( &pfParticle)>=0.){
-               isoBin = (int)(fDeltaR/fRingSize);
-        fIsolationInRingsNeutral[isoBin] = fIsolationInRingsNeutral[isoBin] + pfParticle.pt();
+      float fDeltaR =  isNeutralParticleVetoed( &pfParticle); 
+      if(fDeltaR >=0.){
+               isoBin = (int)(fDeltaR/fRingSize_);
+        fIsolationInRingsNeutral_[isoBin] = fIsolationInRingsNeutral_[isoBin] + pfParticle.pt();
       }
     
 
       //}else if(abs(pfParticle.pdgId()) == 11 ||abs(pfParticle.pdgId()) == 13 || abs(pfParticle.pdgId()) == 211){
     }else if(abs(pfParticle.pdgId()) == 211){
-      if(isChargedParticleVetoed( &pfParticle, vtx, vertices)>=0.){
-        isoBin = (int)(fDeltaR/fRingSize);
-        fIsolationInRingsCharged[isoBin] = fIsolationInRingsCharged[isoBin] + pfParticle.pt();
+      float fDeltaR = isChargedParticleVetoed( &pfParticle, vtx, vertices);
+      if( fDeltaR >=0.){
+        isoBin = (int)(fDeltaR/fRingSize_);
+        fIsolationInRingsCharged_[isoBin] = fIsolationInRingsCharged_[isoBin] + pfParticle.pt();
       }
 
     }
   }
 
  
-  for(int isoBin =0;isoBin<iNumberOfRings;isoBin++){
-    fIsolationInRings[isoBin]= fIsolationInRingsPhoton[isoBin]+ fIsolationInRingsNeutral[isoBin] + fIsolationInRingsCharged[isoBin];
+  for(int isoBin =0;isoBin<iNumberOfRings_;isoBin++){
+    fIsolationInRings_[isoBin]= fIsolationInRingsPhoton_[isoBin]+ fIsolationInRingsNeutral_[isoBin] + fIsolationInRingsCharged_[isoBin];
   }
 
-  return fIsolationInRings;
+  return fIsolationInRings_;
 }
 
 
@@ -312,9 +221,9 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::PFC
 float PFPhotonIsolationCalculator::fGetIsolation(const reco::Photon * photon, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
  
   fGetIsolationInRings( photon, pfParticlesColl, vtx, vertices);
-  fIsolation = fIsolationInRings[0];
+  fIsolation_ = fIsolationInRings_[0];
   
-  return fIsolation;
+  return fIsolation_;
 }
 
 
@@ -322,10 +231,9 @@ float PFPhotonIsolationCalculator::fGetIsolation(const reco::Photon * photon, co
 //--------------------------------------------------------------------------------------------------
 float PFPhotonIsolationCalculator::fGetIsolation(const reco::Photon * photon, const  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle ,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
  
-
   fGetIsolationInRings( photon, pfCandidateHandle, vtx, vertices);
-  fIsolation = fIsolationInRings[0];
-  return fIsolation;
+  fIsolation_ = fIsolationInRings_[0];
+  return fIsolation_;
 }
 
 
@@ -334,15 +242,15 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Pho
 
   int isoBin;
   
-  for(isoBin =0;isoBin<iNumberOfRings;isoBin++){
-    fIsolationInRings[isoBin]=0.;
-    fIsolationInRingsPhoton[isoBin]=0.;
-    fIsolationInRingsNeutral[isoBin]=0.;
-    fIsolationInRingsCharged[isoBin]=0.;
-    fIsolationInRingsChargedAll[isoBin]=0.;
+  for(isoBin =0;isoBin<iNumberOfRings_;isoBin++){
+    fIsolationInRings_[isoBin]=0.;
+    fIsolationInRingsPhoton_[isoBin]=0.;
+    fIsolationInRingsNeutral_[isoBin]=0.;
+    fIsolationInRingsCharged_[isoBin]=0.;
+    fIsolationInRingsChargedAll_[isoBin]=0.;
   }
   
-  iMissHits = 0;
+  iMissHits_ = 0;
 
   refSC = photon->superCluster();
   pivotInBarrel = fabs((refSC->position().eta()))<1.479;
@@ -363,15 +271,15 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Pho
                                              photon->superCluster()->y() - pfParticle.vy(),
                                                   photon->superCluster()->z() - pfParticle.vz());
 
-      fEta = direction.Eta();
-      fPhi = direction.Phi();
-      fVx = pfParticle.vx();
-      fVy = pfParticle.vy();
-      fVz = pfParticle.vz();
-
-      if(isPhotonParticleVetoed(&pfParticle)>=0.){
-        isoBin = (int)(fDeltaR/fRingSize);
-        fIsolationInRingsPhoton[isoBin] = fIsolationInRingsPhoton[isoBin] + pfParticle.pt();
+      fEta_ = direction.Eta();
+      fPhi_ = direction.Phi();
+      fVx_ = pfParticle.vx();
+      fVy_ = pfParticle.vy();
+      fVz_ = pfParticle.vz();
+      float fDeltaR =isPhotonParticleVetoed(&pfParticle); 
+      if( fDeltaR>=0.){
+        isoBin = (int)(fDeltaR/fRingSize_);
+        fIsolationInRingsPhoton_[isoBin] = fIsolationInRingsPhoton_[isoBin] + pfParticle.pt();
       }
       
     }else if(abs(pfParticle.pdgId())==130){
@@ -381,15 +289,15 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Pho
                                                   photon->superCluster()->y() - pfParticle.vy(),
                                                   photon->superCluster()->z() - pfParticle.vz());
 
-      fEta = direction.Eta();
-      fPhi = direction.Phi();
-      fVx = pfParticle.vx();
-      fVy = pfParticle.vy();
-      fVz = pfParticle.vz();
- 
-      if(isNeutralParticleVetoed( &pfParticle)>=0.){
-               isoBin = (int)(fDeltaR/fRingSize);
-        fIsolationInRingsNeutral[isoBin] = fIsolationInRingsNeutral[isoBin] + pfParticle.pt();
+      fEta_ = direction.Eta();
+      fPhi_ = direction.Phi();
+      fVx_ = pfParticle.vx();
+      fVy_ = pfParticle.vy();
+      fVz_ = pfParticle.vz();
+      float fDeltaR =  isNeutralParticleVetoed( &pfParticle); 
+      if(fDeltaR>=0.){
+	isoBin = (int)(fDeltaR/fRingSize_);
+        fIsolationInRingsNeutral_[isoBin] = fIsolationInRingsNeutral_[isoBin] + pfParticle.pt();
       }
 
       //}else if(abs(pfParticle.pdgId()) == 11 ||abs(pfParticle.pdgId()) == 13 || abs(pfParticle.pdgId()) == 211){
@@ -400,27 +308,27 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Pho
                                                   photon->superCluster()->y() - (*vtx).y(),
                                                   photon->superCluster()->z() - (*vtx).z());
 
-      fEta = direction.Eta();
-      fPhi = direction.Phi();
-      fVx = (*vtx).x();
-      fVy = (*vtx).y();
-      fVz = (*vtx).z();
-
-      if(isChargedParticleVetoed( &pfParticle, vtx, vertices)>=0.){
-        isoBin = (int)(fDeltaR/fRingSize);
-        fIsolationInRingsCharged[isoBin] = fIsolationInRingsCharged[isoBin] + pfParticle.pt();
+      fEta_ = direction.Eta();
+      fPhi_ = direction.Phi();
+      fVx_ = (*vtx).x();
+      fVy_ = (*vtx).y();
+      fVz_ = (*vtx).z();
+      float fDeltaR = isChargedParticleVetoed( &pfParticle, vtx, vertices);
+      if( fDeltaR >=0.){
+        isoBin = (int)(fDeltaR/fRingSize_);
+        fIsolationInRingsCharged_[isoBin] = fIsolationInRingsCharged_[isoBin] + pfParticle.pt();
       }
 
     }
   }
 
  
-  for(int isoBin =0;isoBin<iNumberOfRings;isoBin++){
-    fIsolationInRings[isoBin]= fIsolationInRingsPhoton[isoBin]+ fIsolationInRingsNeutral[isoBin] + fIsolationInRingsCharged[isoBin];
+  for(int isoBin =0;isoBin<iNumberOfRings_;isoBin++){
+    fIsolationInRings_[isoBin]= fIsolationInRingsPhoton_[isoBin]+ fIsolationInRingsNeutral_[isoBin] + fIsolationInRingsCharged_[isoBin];
     
  }
   
-  return fIsolationInRings;
+  return fIsolationInRings_;
 }
 
 
@@ -432,15 +340,15 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Pho
 
   int isoBin;
   
-  for(isoBin =0;isoBin<iNumberOfRings;isoBin++){
-    fIsolationInRings[isoBin]=0.;
-    fIsolationInRingsPhoton[isoBin]=0.;
-    fIsolationInRingsNeutral[isoBin]=0.;
-    fIsolationInRingsCharged[isoBin]=0.;
-    fIsolationInRingsChargedAll[isoBin]=0.;
+  for(isoBin =0;isoBin<iNumberOfRings_;isoBin++){
+    fIsolationInRings_[isoBin]=0.;
+    fIsolationInRingsPhoton_[isoBin]=0.;
+    fIsolationInRingsNeutral_[isoBin]=0.;
+    fIsolationInRingsCharged_[isoBin]=0.;
+    fIsolationInRingsChargedAll_[isoBin]=0.;
   }
   
-  iMissHits = 0;
+  iMissHits_ = 0;
 
   refSC = photon->superCluster();
   pivotInBarrel = fabs((refSC->position().eta()))<1.479;
@@ -462,15 +370,16 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Pho
 						  photon->superCluster()->y() - pfParticle->vy(),
                                                   photon->superCluster()->z() - pfParticle->vz());
       
-      fEta = direction.Eta();
-      fPhi = direction.Phi();
-      fVx = pfParticle->vx();
-      fVy = pfParticle->vy();
-      fVz = pfParticle->vz();
+      fEta_ = direction.Eta();
+      fPhi_ = direction.Phi();
+      fVx_ = pfParticle->vx();
+      fVy_ = pfParticle->vy();
+      fVz_ = pfParticle->vz();
 
-      if(isPhotonParticleVetoed(pfParticle)>=0.){
-        isoBin = (int)(fDeltaR/fRingSize);
-        fIsolationInRingsPhoton[isoBin] = fIsolationInRingsPhoton[isoBin] + pfParticle->pt();
+      float fDeltaR =isPhotonParticleVetoed(pfParticle); 
+      if( fDeltaR >=0.){
+        isoBin = (int)(fDeltaR/fRingSize_);
+        fIsolationInRingsPhoton_[isoBin] = fIsolationInRingsPhoton_[isoBin] + pfParticle->pt();
       }
       
     }else if(abs(pfParticle->pdgId())==130){
@@ -479,15 +388,15 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Pho
                                                   photon->superCluster()->y() - pfParticle->vy(),
                                                   photon->superCluster()->z() - pfParticle->vz());
 
-      fEta = direction.Eta();
-      fPhi = direction.Phi();
-      fVx = pfParticle->vx();
-      fVy = pfParticle->vy();
-      fVz = pfParticle->vz();
- 
-      if(isNeutralParticleVetoed( pfParticle)>=0.){
-               isoBin = (int)(fDeltaR/fRingSize);
-        fIsolationInRingsNeutral[isoBin] = fIsolationInRingsNeutral[isoBin] + pfParticle->pt();
+      fEta_ = direction.Eta();
+      fPhi_ = direction.Phi();
+      fVx_ = pfParticle->vx();
+      fVy_ = pfParticle->vy();
+      fVz_ = pfParticle->vz();
+      float fDeltaR =  isNeutralParticleVetoed( pfParticle); 
+      if( fDeltaR>=0.){
+	isoBin = (int)(fDeltaR/fRingSize_);
+        fIsolationInRingsNeutral_[isoBin] = fIsolationInRingsNeutral_[isoBin] + pfParticle->pt();
       }
 
       //}else if(abs(pfParticle.pdgId()) == 11 ||abs(pfParticle.pdgId()) == 13 || abs(pfParticle.pdgId()) == 211){
@@ -497,26 +406,26 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Pho
                                                   photon->superCluster()->y() - (*vtx).y(),
                                                   photon->superCluster()->z() - (*vtx).z());
 
-      fEta = direction.Eta();
-      fPhi = direction.Phi();
-      fVx = (*vtx).x();
-      fVy = (*vtx).y();
-      fVz = (*vtx).z();
-
-      if(isChargedParticleVetoed( pfParticle, vtx, vertices)>=0.){
-        isoBin = (int)(fDeltaR/fRingSize);
-        fIsolationInRingsCharged[isoBin] = fIsolationInRingsCharged[isoBin] + pfParticle->pt();
+      fEta_ = direction.Eta();
+      fPhi_ = direction.Phi();
+      fVx_ = (*vtx).x();
+      fVy_ = (*vtx).y();
+      fVz_ = (*vtx).z();
+      float fDeltaR = isChargedParticleVetoed( pfParticle, vtx, vertices);
+      if( fDeltaR >=0.){
+        isoBin = (int)(fDeltaR/fRingSize_);
+        fIsolationInRingsCharged_[isoBin] = fIsolationInRingsCharged_[isoBin] + pfParticle->pt();
       }
 
     }
   }
 
  
-  for(int isoBin =0;isoBin<iNumberOfRings;isoBin++){
-    fIsolationInRings[isoBin]= fIsolationInRingsPhoton[isoBin]+ fIsolationInRingsNeutral[isoBin] + fIsolationInRingsCharged[isoBin];
+  for(int isoBin =0;isoBin<iNumberOfRings_;isoBin++){
+    fIsolationInRings_[isoBin]= fIsolationInRingsPhoton_[isoBin]+ fIsolationInRingsNeutral_[isoBin] + fIsolationInRingsCharged_[isoBin];
   }
   
-  return fIsolationInRings;
+  return fIsolationInRings_;
 }
 
 
@@ -525,9 +434,9 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Pho
 float PFPhotonIsolationCalculator::fGetIsolation(const reco::GsfElectron * electron, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
  
   fGetIsolationInRings( electron, pfParticlesColl, vtx, vertices);
-  fIsolation = fIsolationInRings[0];
+  fIsolation_ = fIsolationInRings_[0];
   
-  return fIsolation;
+  return fIsolation_;
 }
 
 
@@ -536,24 +445,24 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Gsf
 
   int isoBin;
   
-  for(isoBin =0;isoBin<iNumberOfRings;isoBin++){
-    fIsolationInRings[isoBin]=0.;
-    fIsolationInRingsPhoton[isoBin]=0.;
-    fIsolationInRingsNeutral[isoBin]=0.;
-    fIsolationInRingsCharged[isoBin]=0.;
-    fIsolationInRingsChargedAll[isoBin]=0.;
+  for(isoBin =0;isoBin<iNumberOfRings_;isoBin++){
+    fIsolationInRings_[isoBin]=0.;
+    fIsolationInRingsPhoton_[isoBin]=0.;
+    fIsolationInRingsNeutral_[isoBin]=0.;
+    fIsolationInRingsCharged_[isoBin]=0.;
+    fIsolationInRingsChargedAll_[isoBin]=0.;
   }
   
   // int iMatch = matchPFObject(electron,pfParticlesColl);
 
 
-  fEta = electron->eta();
-  fPhi = electron->phi();
-  fPt = electron->pt();
-  fVx = electron->vx();
-  fVy = electron->vy();
-  fVz = electron->vz();
-  iMissHits = electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+  fEta_ = electron->eta();
+  fPhi_ = electron->phi();
+  fPt_ = electron->pt();
+  fVx_ = electron->vx();
+  fVy_ = electron->vy();
+  fVz_ = electron->vz();
+  iMissHits_ = electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
   
   // if(electron->ecalDrivenSeed())
   refSC = electron->superCluster();
@@ -566,36 +475,39 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Gsf
  
     if(pfParticle.pdgId()==22){
     
-      if(isPhotonParticleVetoed(&pfParticle)>=0.){
-        isoBin = (int)(fDeltaR/fRingSize);
-        fIsolationInRingsPhoton[isoBin] = fIsolationInRingsPhoton[isoBin] + pfParticle.pt();
+      float fDeltaR =isPhotonParticleVetoed(&pfParticle); 
+      if( fDeltaR>=0.){
+        isoBin = (int)(fDeltaR/fRingSize_);
+        fIsolationInRingsPhoton_[isoBin] = fIsolationInRingsPhoton_[isoBin] + pfParticle.pt();
 
       }
       
     }else if(abs(pfParticle.pdgId())==130){
-        
-      if(isNeutralParticleVetoed( &pfParticle)>=0.){
-               isoBin = (int)(fDeltaR/fRingSize);
-        fIsolationInRingsNeutral[isoBin] = fIsolationInRingsNeutral[isoBin] + pfParticle.pt();
+      float fDeltaR =  isNeutralParticleVetoed( &pfParticle); 
+      if( fDeltaR >=0.){
+	isoBin = (int)(fDeltaR/fRingSize_);
+        fIsolationInRingsNeutral_[isoBin] = fIsolationInRingsNeutral_[isoBin] + pfParticle.pt();
       }
 
       //}else if(abs(pfParticle.pdgId()) == 11 ||abs(pfParticle.pdgId()) == 13 || abs(pfParticle.pdgId()) == 211){
     }else if(abs(pfParticle.pdgId()) == 211){
-      if(isChargedParticleVetoed( &pfParticle, vtx, vertices)>=0.){
-        isoBin = (int)(fDeltaR/fRingSize);
+
+      float fDeltaR = isChargedParticleVetoed( &pfParticle, vtx, vertices);
+      if( fDeltaR >=0.){
+        isoBin = (int)(fDeltaR/fRingSize_);
         
-        fIsolationInRingsCharged[isoBin] = fIsolationInRingsCharged[isoBin] + pfParticle.pt();
+        fIsolationInRingsCharged_[isoBin] = fIsolationInRingsCharged_[isoBin] + pfParticle.pt();
       }
 
     }
   }
 
  
-  for(int isoBin =0;isoBin<iNumberOfRings;isoBin++){
-    fIsolationInRings[isoBin]= fIsolationInRingsPhoton[isoBin]+ fIsolationInRingsNeutral[isoBin] + fIsolationInRingsCharged[isoBin];
+  for(int isoBin =0;isoBin<iNumberOfRings_;isoBin++){
+    fIsolationInRings_[isoBin]= fIsolationInRingsPhoton_[isoBin]+ fIsolationInRingsNeutral_[isoBin] + fIsolationInRingsCharged_[isoBin];
     }
   
-  return fIsolationInRings;
+  return fIsolationInRings_;
 }
 
 
@@ -603,22 +515,22 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Gsf
 float PFPhotonIsolationCalculator::isPhotonParticleVetoed( const reco::PFCandidate* pfIsoCand ){
   
   
-  fDeltaR = deltaR(fEta,fPhi,pfIsoCand->eta(),pfIsoCand->phi());
+  float fDeltaR = deltaR(fEta_,fPhi_,pfIsoCand->eta(),pfIsoCand->phi());
 
-  if(fDeltaR > fConeSize)
+  if(fDeltaR > fConeSize_)
     return -999.;
   
-  fDeltaPhi = deltaPhi(fPhi,pfIsoCand->phi());
-  fDeltaEta = fEta-pfIsoCand->eta();
+  float fDeltaPhi = deltaPhi(fPhi_,pfIsoCand->phi());
+  float fDeltaEta = fEta_-pfIsoCand->eta();
 
-  if(!bApplyVeto)
+  if(!bApplyVeto_)
     return fDeltaR;
  
   //NOTE: get the direction for the EB/EE transition region from the deposit just to be in synch with the isoDep
   // this will be changed in the future
   
-  if(bApplyMissHitPhVeto) {
-    if(iMissHits > 0)
+  if(bApplyMissHitPhVeto_) {
+    if(iMissHits_ > 0)
       if(pfIsoCand->mva_nothing_gamma() > 0.99) {
         if(pfIsoCand->superClusterRef().isNonnull() && refSC.isNonnull()) {
          if(pfIsoCand->superClusterRef() == refSC)
@@ -628,27 +540,27 @@ float PFPhotonIsolationCalculator::isPhotonParticleVetoed( const reco::PFCandida
   }
 
   if(pivotInBarrel){
-    if(bDeltaRVetoBarrel){
-      if(fDeltaR < fDeltaRVetoBarrelPhotons)
+    if(bDeltaRVetoBarrel_){
+      if(fDeltaR < fDeltaRVetoBarrelPhotons_)
         return -999.;
     }
     
-    if(bRectangleVetoBarrel){
-      if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelPhotons && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelPhotons){
+    if(bRectangleVetoBarrel_){
+      if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelPhotons_ && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelPhotons_ ){
         return -999.;
       }
     }
   }else{
-    if (bUseCrystalSize == true) {
-      fDeltaRVetoEndcapPhotons = 0.00864*fabs(sinh(refSC->position().eta()))*fNumberOfCrystalEndcapPhotons;
+    if (bUseCrystalSize_ == true) {
+      fDeltaRVetoEndcapPhotons_ = 0.00864*fabs(sinh(refSC->position().eta()))*fNumberOfCrystalEndcapPhotons_;
     }
 
-    if(bDeltaRVetoEndcap){
-      if(fDeltaR < fDeltaRVetoEndcapPhotons)
+    if(bDeltaRVetoEndcap_){
+      if(fDeltaR < fDeltaRVetoEndcapPhotons_)
         return -999.;
     }
-    if(bRectangleVetoEndcap){
-      if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapPhotons && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapPhotons){
+    if(bRectangleVetoEndcap_){
+      if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapPhotons_ && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapPhotons_ ){
          return -999.;
       }
     }
@@ -663,22 +575,22 @@ float PFPhotonIsolationCalculator::isPhotonParticleVetoed( const reco::PFCandida
 float PFPhotonIsolationCalculator::isPhotonParticleVetoed( const reco::PFCandidateRef pfIsoCand ){
   
   
-  fDeltaR = deltaR(fEta,fPhi,pfIsoCand->eta(),pfIsoCand->phi());
+  float fDeltaR = deltaR(fEta_,fPhi_,pfIsoCand->eta(),pfIsoCand->phi());
 
-  if(fDeltaR > fConeSize)
+  if(fDeltaR > fConeSize_)
     return -999.;
   
-  fDeltaPhi = deltaPhi(fPhi,pfIsoCand->phi());
-  fDeltaEta = fEta-pfIsoCand->eta();
+  float fDeltaPhi = deltaPhi(fPhi_,pfIsoCand->phi());
+  float fDeltaEta = fEta_-pfIsoCand->eta();
 
-  if(!bApplyVeto)
+  if(!bApplyVeto_)
     return fDeltaR;
  
   //NOTE: get the direction for the EB/EE transition region from the deposit just to be in synch with the isoDep
   // this will be changed in the future
   
-  if(bApplyMissHitPhVeto) {
-    if(iMissHits > 0)
+  if(bApplyMissHitPhVeto_) {
+    if(iMissHits_ > 0)
       if(pfIsoCand->mva_nothing_gamma() > 0.99) {
         if(pfIsoCand->superClusterRef().isNonnull() && refSC.isNonnull()) {
          if(pfIsoCand->superClusterRef() == refSC)
@@ -688,27 +600,27 @@ float PFPhotonIsolationCalculator::isPhotonParticleVetoed( const reco::PFCandida
   }
 
   if(pivotInBarrel){
-    if(bDeltaRVetoBarrel){
-      if(fDeltaR < fDeltaRVetoBarrelPhotons)
+    if(bDeltaRVetoBarrel_){
+      if(fDeltaR < fDeltaRVetoBarrelPhotons_)
         return -999.;
     }
     
-    if(bRectangleVetoBarrel){
-      if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelPhotons && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelPhotons){
+    if(bRectangleVetoBarrel_){
+      if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelPhotons_ && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelPhotons_){
         return -999.;
       }
     }
   }else{
-    if (bUseCrystalSize == true) {
-      fDeltaRVetoEndcapPhotons = 0.00864*fabs(sinh(refSC->position().eta()))*fNumberOfCrystalEndcapPhotons;
+    if (bUseCrystalSize_ == true) {
+      fDeltaRVetoEndcapPhotons_ = 0.00864*fabs(sinh(refSC->position().eta()))*fNumberOfCrystalEndcapPhotons_;
     }
 
-    if(bDeltaRVetoEndcap){
-      if(fDeltaR < fDeltaRVetoEndcapPhotons)
+    if(bDeltaRVetoEndcap_){
+      if(fDeltaR < fDeltaRVetoEndcapPhotons_)
         return -999.;
     }
-    if(bRectangleVetoEndcap){
-      if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapPhotons && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapPhotons){
+    if(bRectangleVetoEndcap_){
+      if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapPhotons_ && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapPhotons_){
          return -999.;
       }
     }
@@ -721,44 +633,44 @@ float PFPhotonIsolationCalculator::isPhotonParticleVetoed( const reco::PFCandida
 //--------------------------------------------------------------------------------------------------
 float PFPhotonIsolationCalculator::isNeutralParticleVetoed( const reco::PFCandidate* pfIsoCand ){
 
-  fDeltaR = deltaR(fEta,fPhi,pfIsoCand->eta(),pfIsoCand->phi());
+  float fDeltaR = deltaR(fEta_,fPhi_,pfIsoCand->eta(),pfIsoCand->phi());
   
-  if(fDeltaR > fConeSize)
+  if(fDeltaR > fConeSize_)
     return -999;
   
-  fDeltaPhi = deltaPhi(fPhi,pfIsoCand->phi());
-  fDeltaEta = fEta-pfIsoCand->eta();
+  float fDeltaPhi = deltaPhi(fPhi_,pfIsoCand->phi());
+  float fDeltaEta = fEta_-pfIsoCand->eta();
 
-  if(!bApplyVeto)
+  if(!bApplyVeto_)
     return fDeltaR;
 
   //NOTE: get the direction for the EB/EE transition region from the deposit just to be in synch with the isoDep
   // this will be changed in the future
   if(pivotInBarrel){
-    if(!bDeltaRVetoBarrel&&!bRectangleVetoBarrel){
+    if(!bDeltaRVetoBarrel_ && !bRectangleVetoBarrel_){
       return fDeltaR;
     }
     
-    if(bDeltaRVetoBarrel){
-        if(fDeltaR < fDeltaRVetoBarrelNeutrals)
+    if(bDeltaRVetoBarrel_ ){
+        if(fDeltaR < fDeltaRVetoBarrelNeutrals_)
          return -999.;
       }
-      if(bRectangleVetoBarrel){
-        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelNeutrals && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelNeutrals){
+      if(bRectangleVetoBarrel_){
+        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelNeutrals_ && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelNeutrals_){
          return -999.;
         }
       }
       
     }else{
-     if(!bDeltaRVetoEndcap&&!bRectangleVetoEndcap){
+     if(!bDeltaRVetoEndcap_  &&!  bRectangleVetoEndcap_){
        return fDeltaR;
      }
-      if(bDeltaRVetoEndcap){
-        if(fDeltaR < fDeltaRVetoEndcapNeutrals)
+      if(bDeltaRVetoEndcap_){
+        if(fDeltaR < fDeltaRVetoEndcapNeutrals_)
          return -999.;
       }
-      if(bRectangleVetoEndcap){
-        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapNeutrals && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapNeutrals){
+      if(bRectangleVetoEndcap_){
+        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapNeutrals_ && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapNeutrals_){
          return -999.;
         }
       }
@@ -771,44 +683,44 @@ float PFPhotonIsolationCalculator::isNeutralParticleVetoed( const reco::PFCandid
 //--------------------------------------------------------------------------------------------------
 float PFPhotonIsolationCalculator::isNeutralParticleVetoed( const reco::PFCandidateRef pfIsoCand ){
 
-  fDeltaR = deltaR(fEta,fPhi,pfIsoCand->eta(),pfIsoCand->phi());
+  float fDeltaR = deltaR(fEta_,fPhi_,pfIsoCand->eta(),pfIsoCand->phi());
   
-  if(fDeltaR > fConeSize)
+  if(fDeltaR > fConeSize_)
     return -999;
   
-  fDeltaPhi = deltaPhi(fPhi,pfIsoCand->phi());
-  fDeltaEta = fEta-pfIsoCand->eta();
+  float fDeltaPhi = deltaPhi(fPhi_,pfIsoCand->phi());
+  float fDeltaEta = fEta_-pfIsoCand->eta();
 
-  if(!bApplyVeto)
+  if(!bApplyVeto_)
     return fDeltaR;
 
   //NOTE: get the direction for the EB/EE transition region from the deposit just to be in synch with the isoDep
   // this will be changed in the future
   if(pivotInBarrel){
-    if(!bDeltaRVetoBarrel&&!bRectangleVetoBarrel){
+    if(!bDeltaRVetoBarrel_  && !bRectangleVetoBarrel_ ){
       return fDeltaR;
     }
     
-    if(bDeltaRVetoBarrel){
-        if(fDeltaR < fDeltaRVetoBarrelNeutrals)
+    if(bDeltaRVetoBarrel_){
+        if(fDeltaR < fDeltaRVetoBarrelNeutrals_)
          return -999.;
       }
-      if(bRectangleVetoBarrel){
-        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelNeutrals && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelNeutrals){
+      if(bRectangleVetoBarrel_){
+        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelNeutrals_ && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelNeutrals_){
          return -999.;
         }
       }
       
     }else{
-     if(!bDeltaRVetoEndcap&&!bRectangleVetoEndcap){
+     if(!bDeltaRVetoEndcap_ && !bRectangleVetoEndcap_ ){
        return fDeltaR;
      }
-      if(bDeltaRVetoEndcap){
-        if(fDeltaR < fDeltaRVetoEndcapNeutrals)
+      if(bDeltaRVetoEndcap_ ){
+        if(fDeltaR < fDeltaRVetoEndcapNeutrals_ )
          return -999.;
       }
-      if(bRectangleVetoEndcap){
-        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapNeutrals && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapNeutrals){
+      if(bRectangleVetoEndcap_){
+        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapNeutrals_ && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapNeutrals_){
          return -999.;
         }
       }
@@ -838,14 +750,14 @@ float PFPhotonIsolationCalculator::isChargedParticleVetoed(const reco::PFCandida
 // float fVtxMainY = (*vtxMain).y();
   float fVtxMainZ = (*vtxMain).z();
 
-  if(bApplyPFPUVeto) {
+  if(bApplyPFPUVeto_) {
     if(vtx != vtxMain)
       return -999.;
   }
     
 
-  if(bApplyDzDxyVeto) {
-    if(iParticleType==kPhoton){
+  if(bApplyDzDxyVeto_) {
+    if(iParticleType_==kPhoton){
       
       float dz = fabs( pfIsoCand->trackRef()->dz( (*vtxMain).position() ) );
       if (dz > 0.2)
@@ -870,19 +782,19 @@ if(fabs(dxy) > 0.2)
       if (dz > 1.)
         return -999.;
       
-      double dxy = ( -(vtx->x() - fVx)*pfIsoCand->py() + (vtx->y() - fVy)*pfIsoCand->px()) / pfIsoCand->pt();
+      double dxy = ( -(vtx->x() - fVx_)*pfIsoCand->py() + (vtx->y() - fVy_)*pfIsoCand->px()) / pfIsoCand->pt();
       if(fabs(dxy) > 0.1)
         return -999.;
     }
   }
 
-  fDeltaR = deltaR(pfIsoCand->eta(),pfIsoCand->phi(),fEta,fPhi);
+  float fDeltaR = deltaR(pfIsoCand->eta(),pfIsoCand->phi(),fEta_,fPhi_);
 
-  if(fDeltaR > fConeSize)
+  if(fDeltaR > fConeSize_)
     return -999.;
 
-  fDeltaPhi = deltaPhi(fPhi,pfIsoCand->phi());
-  fDeltaEta = fEta-pfIsoCand->eta();
+  float fDeltaPhi = deltaPhi(fPhi_,pfIsoCand->phi());
+  float fDeltaEta = fEta_-pfIsoCand->eta();
   
 
 // std::cout << " charged hadron: DR " << fDeltaR
@@ -890,36 +802,36 @@ if(fabs(dxy) > 0.2)
 //          << " fVtxMainZ " << (*vtxMain).z() << " cand z " << vtx->z() << std::endl;
   
 
-  if(!bApplyVeto)
+  if(!bApplyVeto_)
     return fDeltaR;
   
   //NOTE: get the direction for the EB/EE transition region from the deposit just to be in synch with the isoDep
   // this will be changed in the future
   if(pivotInBarrel){
-    if(!bDeltaRVetoBarrel&&!bRectangleVetoBarrel){
+    if(!bDeltaRVetoBarrel_ &&!bRectangleVetoBarrel_ ){
       return fDeltaR;
     }
     
-    if(bDeltaRVetoBarrel){
-        if(fDeltaR < fDeltaRVetoBarrelCharged)
+    if(bDeltaRVetoBarrel_){
+        if(fDeltaR < fDeltaRVetoBarrelCharged_)
          return -999.;
       }
-      if(bRectangleVetoBarrel){
-        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelCharged && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelCharged){
+      if(bRectangleVetoBarrel_){
+        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelCharged_ && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelCharged_){
          return -999.;
         }
       }
       
     }else{
-     if(!bDeltaRVetoEndcap&&!bRectangleVetoEndcap){
+     if(!bDeltaRVetoEndcap_  && !bRectangleVetoEndcap_){
        return fDeltaR;
      }
-      if(bDeltaRVetoEndcap){
-        if(fDeltaR < fDeltaRVetoEndcapCharged)
+      if(bDeltaRVetoEndcap_){
+        if(fDeltaR < fDeltaRVetoEndcapCharged_)
          return -999.;
       }
-      if(bRectangleVetoEndcap){
-        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapCharged && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapCharged){
+      if(bRectangleVetoEndcap_){
+        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapCharged_ && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapCharged_){
          return -999.;
         }
       }
@@ -943,14 +855,14 @@ float PFPhotonIsolationCalculator::isChargedParticleVetoed(const reco::PFCandida
 // float fVtxMainY = (*vtxMain).y();
   float fVtxMainZ = (*vtxMain).z();
 
-  if(bApplyPFPUVeto) {
+  if(bApplyPFPUVeto_) {
     if(vtx != vtxMain)
       return -999.;
   }
     
 
-  if(bApplyDzDxyVeto) {
-    if(iParticleType==kPhoton){
+  if(bApplyDzDxyVeto_) {
+    if(iParticleType_==kPhoton){
       
       float dz = fabs( pfIsoCand->trackRef()->dz( (*vtxMain).position() ) );
       if (dz > 0.2)
@@ -975,19 +887,19 @@ if(fabs(dxy) > 0.2)
       if (dz > 1.)
         return -999.;
       
-      double dxy = ( -(vtx->x() - fVx)*pfIsoCand->py() + (vtx->y() - fVy)*pfIsoCand->px()) / pfIsoCand->pt();
+      double dxy = ( -(vtx->x() - fVx_)*pfIsoCand->py() + (vtx->y() - fVy_)*pfIsoCand->px()) / pfIsoCand->pt();
       if(fabs(dxy) > 0.1)
         return -999.;
     }
   }
 
-  fDeltaR = deltaR(pfIsoCand->eta(),pfIsoCand->phi(),fEta,fPhi);
+  float fDeltaR = deltaR(pfIsoCand->eta(),pfIsoCand->phi(),fEta_,fPhi_);
 
-  if(fDeltaR > fConeSize)
+  if(fDeltaR > fConeSize_)
     return -999.;
 
-  fDeltaPhi = deltaPhi(fPhi,pfIsoCand->phi());
-  fDeltaEta = fEta-pfIsoCand->eta();
+  float fDeltaPhi = deltaPhi(fPhi_,pfIsoCand->phi());
+  float fDeltaEta = fEta_-pfIsoCand->eta();
   
 
 // std::cout << " charged hadron: DR " << fDeltaR
@@ -995,36 +907,36 @@ if(fabs(dxy) > 0.2)
 //          << " fVtxMainZ " << (*vtxMain).z() << " cand z " << vtx->z() << std::endl;
   
 
-  if(!bApplyVeto)
+  if(!bApplyVeto_)
     return fDeltaR;
   
   //NOTE: get the direction for the EB/EE transition region from the deposit just to be in synch with the isoDep
   // this will be changed in the future
   if(pivotInBarrel){
-    if(!bDeltaRVetoBarrel&&!bRectangleVetoBarrel){
+    if(!bDeltaRVetoBarrel_ && !bRectangleVetoBarrel_) {
       return fDeltaR;
     }
     
-    if(bDeltaRVetoBarrel){
-        if(fDeltaR < fDeltaRVetoBarrelCharged)
+    if(bDeltaRVetoBarrel_){
+        if(fDeltaR < fDeltaRVetoBarrelCharged_)
          return -999.;
       }
-      if(bRectangleVetoBarrel){
-        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelCharged && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelCharged){
+      if(bRectangleVetoBarrel_){
+        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoBarrelCharged_ && abs(fDeltaPhi) < fRectangleDeltaPhiVetoBarrelCharged_){
          return -999.;
         }
       }
       
     }else{
-     if(!bDeltaRVetoEndcap&&!bRectangleVetoEndcap){
+     if(!bDeltaRVetoEndcap_ &&!bRectangleVetoEndcap_ ){
        return fDeltaR;
      }
-      if(bDeltaRVetoEndcap){
-        if(fDeltaR < fDeltaRVetoEndcapCharged)
+      if(bDeltaRVetoEndcap_){
+        if(fDeltaR < fDeltaRVetoEndcapCharged_)
          return -999.;
       }
-      if(bRectangleVetoEndcap){
-        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapCharged && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapCharged){
+      if(bRectangleVetoEndcap_){
+        if(abs(fDeltaEta) < fRectangleDeltaEtaVetoEndcapCharged_ && abs(fDeltaPhi) < fRectangleDeltaPhiVetoEndcapCharged_){
          return -999.;
         }
       }
@@ -1087,7 +999,7 @@ if(fabs(dxy) > 0.2)
   // no vertex found with this track.
 
   // optional: as a secondary solution, associate the closest vertex in z
-  if ( checkClosestZVertex ) {
+  if (  bCheckClosestZVertex_ ) {
 
     double dzmin = 10000.;
     double ztrack = pfcand.vertex().z();
@@ -1184,7 +1096,7 @@ int PFPhotonIsolationCalculator::matchPFObject(const reco::GsfElectron* electron
       const reco::PFCandidate& pfParticle = (*iPF);
       if((((pfParticle.pdgId()==22 ) || TMath::Abs(pfParticle.pdgId())==11) )){
         if(pfParticle.pt()>fPt){
-         fDeltaR = deltaR(pfParticle.eta(),pfParticle.phi(),electron->eta(),electron->phi());
+         float fDeltaR = deltaR(pfParticle.eta(),pfParticle.phi(),electron->eta(),electron->phi());
          if(fDeltaR<0.1){
          iMatch = i;
          fPt = pfParticle.pt();
