@@ -84,7 +84,7 @@ class RunExpressProcessing:
             msg += str(ex)
             raise RuntimeError, msg
 
-        process.source.fileNames.append(self.inputLFN)
+        process.source.fileNames = [self.inputLFN]
 
         import FWCore.ParameterSet.Config as cms
 
