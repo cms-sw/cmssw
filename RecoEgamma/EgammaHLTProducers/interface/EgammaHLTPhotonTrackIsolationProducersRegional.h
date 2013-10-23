@@ -32,14 +32,19 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTPhotonTrackIsolationProducersRegional : public edm::EDProducer {
    public:
       explicit EgammaHLTPhotonTrackIsolationProducersRegional(const edm::ParameterSet&);
       ~EgammaHLTPhotonTrackIsolationProducersRegional();
 
-
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  
+private:
       // ----------member data ---------------------------
 
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;

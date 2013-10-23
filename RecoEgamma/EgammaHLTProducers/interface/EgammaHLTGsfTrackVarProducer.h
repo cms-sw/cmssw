@@ -34,6 +34,10 @@
 //the dEta, dPhi do not have to be from the same track
 //it can optionally set dEta, dPhi to 0 based on the number of tracks found
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTGsfTrackVarProducer : public edm::EDProducer {
  private:
   class TrackExtrapolator {
@@ -67,6 +71,7 @@ class EgammaHLTGsfTrackVarProducer : public edm::EDProducer {
   explicit EgammaHLTGsfTrackVarProducer(const edm::ParameterSet&);
   ~EgammaHLTGsfTrackVarProducer();
   virtual void produce(edm::Event&, const edm::EventSetup&); 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandTag_;

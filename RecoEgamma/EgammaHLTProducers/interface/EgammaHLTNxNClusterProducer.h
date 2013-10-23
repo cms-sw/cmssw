@@ -29,6 +29,10 @@ Description: simple NxN ( 3x3 etc) clustering ,( for low energy photon reconstru
 #include <time.h>
 
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 // Less than operator for sorting EcalRecHits according to energy.
 class ecalRecHitSort : public std::binary_function<EcalRecHit, EcalRecHit, bool> 
 {
@@ -47,7 +51,8 @@ class EgammaHLTNxNClusterProducer : public edm::EDProducer {
   ~EgammaHLTNxNClusterProducer();
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
-      
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
  private:
   
   void makeNxNClusters(edm::Event &evt, const edm::EventSetup &es,const EcalRecHitCollection *hits, const reco::CaloID::Detectors detector); 
