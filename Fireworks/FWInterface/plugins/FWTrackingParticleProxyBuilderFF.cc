@@ -14,6 +14,8 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -26,6 +28,9 @@
 
 #include "TEveTrack.h"
 #include "TEveCompound.h"
+#include "TEveManager.h"
+#include "TEveBrowser.h"
+#include "TEveTrackPropagator.h"
 // #include <boost/exception.hpp>
 
 class FWTrackingParticleProxyBuilderFF : public FWProxyBuilderBase
@@ -57,10 +62,12 @@ private:
 void
 FWTrackingParticleProxyBuilderFF::getAssocList1()
 {
+
+   printf("ASSOC LIST 1 \n");
    edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc; 
    const edm::Event* event = (const edm::Event*)item()->getEvent();
    try {
-      event->getByLabel("simHitTPAssocProducer", simHitsTPAssoc);
+      event->getByLabel("xxx", simHitsTPAssoc);
    }
    catch (const std::exception& e) {
       std::cout << "===== ERROR #1 " << e.what() <<  std::endl;
@@ -69,44 +76,8 @@ FWTrackingParticleProxyBuilderFF::getAssocList1()
    if (simHitsTPAssoc.isValid()) {
       m_assocList = &*simHitsTPAssoc;
    }
-}
-//______________________________________________________________________________
-
-
-void
-FWTrackingParticleProxyBuilderFF::getAssocList2()
-{ 
-   edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc; 
-   const edm::Event* event = (const edm::Event*)item()->getEvent();
- 
-   try {
-      edm::ParameterSet confProcess;
-      bool ok = event->getProcessParameterSet("DISPLAY", confProcess);
-      printf("OK for DISPLAY process PS [%d], dump: \n", ok);
-      // confProcess.dump();
-
-     
-
-      // now try to get the simhit ParameterSet
-      const edm::ParameterSet& conf_ = confProcess.getParameterSet("xxx");
-      // conf_.dump();
-      
-      const std::vector<std::string> pnames =  conf_.getParameterNames();
-      for (std::vector<std::string>::const_iterator it = pnames.begin(); it != pnames.end(); ++it)
-         std::cout << *it << std::endl;
-
-      edm::InputTag _simHitTpMapTag(conf_.getParameter<edm::InputTag>("g4SimHits"));
-      event->getByLabel( _simHitTpMapTag, simHitsTPAssoc);
-
-   }
-   catch (const std::exception& e) {
-      std::cout << "======= ERROR #2 " << e.what() <<  std::endl;
-   }
-
-   if (simHitsTPAssoc.isValid()) {
-      m_assocList = &*simHitsTPAssoc;
-   }
-   else {
+   //else 
+   {
       printf("HAVCE LIST SIZE %d \n", (int)simHitsTPAssoc->size() );
    }
 }
@@ -116,18 +87,35 @@ FWTrackingParticleProxyBuilderFF::getAssocList2()
 void
 FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc)
 {
-   //getAssocList1();
-   if (!m_assocList)
-      getAssocList2();
-
-   
+   if (item()->getEvent() == 0 ) {
+      return;
+   }
    const TrackingParticleCollection * tracks = 0;
    iItem->get( tracks );
-   for (TrackingParticleCollection::const_iterator it = tracks->begin(); it != tracks->end(); ++it)
+
+   getAssocList1();
+   fflush(stdout);
+
+   gEve->GetBrowser()->MapWindow();
+   
+   const FWGeometry *geom = item()->getGeom();
+   float local[3];
+   float localDir[3];
+   float global[3] = { 0.0, 0.0, 0.0 };
+   float globalDir[3] = { 0.0, 0.0, 0.0 };
+
+
+   context().getTrackPropagator()->SetRnrReferences(true);
+
+   unsigned int tpIdx = 0;
+   for (TrackingParticleCollection::const_iterator it = tracks->begin(); it != tracks->end(); ++it, ++tpIdx)
    {
       TEveCompound* comp = createCompound();
       setupAddElement( comp, product );
-      continue;
+      if (iItem->modelInfo(tpIdx).displayProperties().isVisible() == false)
+      {
+         continue;
+      }
 
       const TrackingParticle& iData = *it;
       TEveRecTrack t;
@@ -135,12 +123,47 @@ FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementLis
       t.fP = TEveVector( iData.px(), iData.py(), iData.pz() );
       t.fV = TEveVector( iData.vx(), iData.vy(), iData.vz() );
       t.fSign = iData.charge();
-  
+
       TEveTrack* track = new TEveTrack(&t, context().getTrackPropagator());
+      setupAddElement( track, comp );
+
       if( t.fSign == 0 )
          track->SetLineStyle( 7 );
+
+      TEvePointSet* pointSet = new TEvePointSet;
+      setupAddElement( pointSet, comp );
+
+      //int nh = 0;
+      int alistIdx = 0;
+      for (SimHitTPAssociationProducer::SimHitTPAssociationList::const_iterator ai = m_assocList->begin(); ai != m_assocList->end(); ++ai, ++alistIdx)
+      {
+         const edm::PSimHitContainer* l = ai->second.product();
+         const TrackingParticle* tp = ai->first.get();
+         if (&iData == tp) {
+            printf("TrackingParticle[%d] matches [%d] associantion pair, the pair has %d hits\n",tpIdx, alistIdx, (int)l->size());
+            for (edm::PSimHitContainer::const_iterator hi = l->begin(); hi !=  l->end(); ++hi)
+            {
+               const PSimHit& phit = (*hi);
+
+               if (phit.trackId() != tpIdx)
+                  continue;
+
+               local[0] = phit.localPosition().x();
+               local[1] = phit.localPosition().y();
+               local[2] = phit.localPosition().z();
+               localDir[0] = phit.momentumAtEntry().x();
+               localDir[1] = phit.momentumAtEntry().y();
+               localDir[2] = phit.momentumAtEntry().z();
+               geom->localToGlobal( phit.detUnitId(), local, global );
+               geom->localToGlobal( phit.detUnitId(), localDir, globalDir );
+               pointSet->SetNextPoint( global[0], global[1], global[2] );
+               track->AddPathMark( TEvePathMark( TEvePathMark::kReference, TEveVector( global[0], global[1], global[2] ),
+                                                 TEveVector( globalDir[0], globalDir[1], globalDir[2] )));
+            }
+         }
+      }
+
       track->MakeTrack();
-      setupAddElement( track, comp );
    }
 
 }
