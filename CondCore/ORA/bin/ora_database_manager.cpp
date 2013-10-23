@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iomanip>
 #include <cstdlib>
+#include <iostream>
 
 // externals
 #include "CoralCommon/CommandLine.h"

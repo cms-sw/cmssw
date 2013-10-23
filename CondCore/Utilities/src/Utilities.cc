@@ -13,6 +13,7 @@
 #include "CondCore/ORA/interface/SharedLibraryName.h"
 #include <boost/foreach.hpp>                   
 #include <fstream>
+#include <iostream>
 
 #include "CondCore/DBCommon/interface/Auth.h"
 

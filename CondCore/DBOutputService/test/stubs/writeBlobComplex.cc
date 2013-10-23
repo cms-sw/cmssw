@@ -5,6 +5,7 @@
 #include "CondFormats/Calibration/interface/BlobComplex.h"
 #include "writeBlobComplex.h"
 
+#include <iostream>
 
 writeBlobComplex::writeBlobComplex(const edm::ParameterSet& iConfig):
   m_RecordName("BlobComplexRcd")

@@ -10,6 +10,7 @@
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
 //
 
+#include <iostream>
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalO2OManager.h"
 

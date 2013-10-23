@@ -204,8 +204,8 @@ FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(const TClass *iClass,
 bool
 FWItemAccessorFactory::hasAccessor(const TClass *iClass, std::string &result)
 {
-   const std::vector<edmplugin::PluginInfo> &available 
-      = FWItemAccessorRegistry::get()->available();
+   const std::vector<edmplugin::PluginInfo> &available
+      = edmplugin::PluginManager::get()->categoryToInfos().find("cmsShow FWItemAccessorBase")->second;
    
    for (size_t i = 0, e = available.size(); i != e; ++i)
    {
@@ -217,7 +217,7 @@ FWItemAccessorFactory::hasAccessor(const TClass *iClass, std::string &result)
          return true;
       }
    }
-   return false; 
+   return false;
 }
 
 /** Helper method which checks if the object will be treated as a collection.

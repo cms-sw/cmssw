@@ -20,6 +20,7 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include <cassert>
+#include <iostream>
 
 namespace edm {
 
