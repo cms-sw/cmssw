@@ -20,11 +20,11 @@ electronPFIsolationDepositsSequence = cms.Sequence(
 # <---- Up to here
 
 #Now prepare the iso deposits
-gedElPFIsoDepositCharged=isoDepositReplace('gedGsfElectrons','pfAllChargedHadrons')
-gedElPFIsoDepositChargedAll=isoDepositReplace('gedGsfElectrons','pfAllChargedParticles')
-gedElPFIsoDepositNeutral=isoDepositReplace('gedGsfElectrons','pfAllNeutralHadrons')
-gedElPFIsoDepositGamma=isoDepositReplace('gedGsfElectrons','pfAllPhotons')
-gedElPFIsoDepositPU=isoDepositReplace('gedGsfElectrons','pfPileUpAllChargedParticles')
+gedElPFIsoDepositCharged=isoDepositReplace('gedGsfElectronsTmp','pfAllChargedHadrons')
+gedElPFIsoDepositChargedAll=isoDepositReplace('gedGsfElectronsTmp','pfAllChargedParticles')
+gedElPFIsoDepositNeutral=isoDepositReplace('gedGsfElectronsTmp','pfAllNeutralHadrons')
+gedElPFIsoDepositGamma=isoDepositReplace('gedGsfElectronsTmp','pfAllPhotons')
+gedElPFIsoDepositPU=isoDepositReplace('gedGsfElectronsTmp','pfPileUpAllChargedParticles')
 
 gedElectronPFIsolationDepositsSequence = cms.Sequence(
     gedElPFIsoDepositCharged+

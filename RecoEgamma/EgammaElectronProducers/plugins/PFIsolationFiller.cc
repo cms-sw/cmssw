@@ -15,13 +15,13 @@ using namespace reco;
 
 PFIsolationFiller::PFIsolationFiller( const edm::ParameterSet & cfg )
  {   
-   previousGsfElectrons_ = consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("previousGedGsfElectronsTag"));
-   outputCollectionLabel_ = cfg.getParameter<std::string>("OutputCollectionLabel");
+   previousGsfElectrons_ = consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("previousGsfElectronsTag"));
+   outputCollectionLabel_ = cfg.getParameter<std::string>("outputCollectionLabel");
    edm::ParameterSet pfIsoVals(cfg.getParameter<edm::ParameterSet> ("pfIsolationValues"));
    
-   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(cfg.getParameter<edm::InputTag>("pfSumChargedHadronPt")));
-   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(cfg.getParameter<edm::InputTag>("pfSumPhotonEt")));
-   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(cfg.getParameter<edm::InputTag>("pfSumNeutralHadronEt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumPhotonEt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumNeutralHadronEt")));
 //   std::vector<std::string> isoNames = pfIsoVals.getParameterNamesForType<edm::InputTag>();
 //   for(const std::string& name : isoNames) {
 //     edm::InputTag tag = 
