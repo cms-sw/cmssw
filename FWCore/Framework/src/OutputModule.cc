@@ -22,6 +22,7 @@
 #include "SharedResourcesRegistry.h"
 
 #include <cassert>
+#include <iostream>
 
 namespace edm {
 

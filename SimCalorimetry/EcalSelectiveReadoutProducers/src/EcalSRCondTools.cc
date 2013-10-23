@@ -19,6 +19,7 @@
 
 #include <string>
 #include <fstream>
+#include <iostream>
 #include <algorithm>
 
 constexpr int tccNum[12][12] = {

@@ -1,4 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+import os
+
+output_def_location = os.path.expandvars("$CMSSW_BASE/src/EventFilter/Utilities/plugins/output.jsd")
+microstate_def_location = os.path.expandvars("$CMSSW_BASE/src/EventFilter/Utilities/plugins/microstatedef.jsd")
 
 process = cms.Process("TESTFU")
 process.maxEvents = cms.untracked.PSet(
@@ -16,15 +20,16 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.FastMonitoringService = cms.Service("FastMonitoringService",
     sleepTime = cms.untracked.int32(1),
-    microstateDefPath = cms.untracked.string( '/home/aspataru/cmssw/CMSSW_6_2_0_pre3/src/EventFilter/Utilities/plugins/microstatedef.jsd' ),
-    outputDefPath = cms.untracked.string( '/home/aspataru/cmssw/CMSSW_6_2_0_pre3/src/EventFilter/Utilities/plugins/output.jsd' ),
+    microstateDefPath = cms.untracked.string(microstate_def_location),
+    outputDefPath = cms.untracked.string(output_def_location),
     fastName = cms.untracked.string( 'fastmoni' ),
     slowName = cms.untracked.string( 'slowmoni' ))
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
-    baseDir = cms.untracked.string("hdd"),
-    buBaseDir = cms.untracked.string("/home/aspataru/cmssw/CMSSW_6_2_0_pre3/src/andrei_configs/singleMachineTest/BU/ram"),
-    smBaseDir  = cms.untracked.string("hdd"),
+    runNumber = cms.untracked.uint32(100),
+    baseDir = cms.untracked.string("/data/hdd"),
+    buBaseDir = cms.untracked.string("/dev/shm"),
+    smBaseDir  = cms.untracked.string("/data/pippo"),
     directorIsBu = cms.untracked.bool(False),
     testModeNoBuilderUnit = cms.untracked.bool(False))
 
@@ -43,18 +48,30 @@ process.PrescaleService = cms.Service( "PrescaleService",
     ))
 
 process.source = cms.Source("FedRawDataInputSource",
-    rootBUDirectory = cms.untracked.string("/home/aspataru/cmssw/CMSSW_6_2_0_pre3/src/andrei_configs/singleMachineTest/BU/ram"),
+    runNumber = cms.untracked.uint32(100),
     getLSFromFilename = cms.untracked.bool(True),
     testModeNoBuilderUnit = cms.untracked.bool(False),
     eventChunkSize = cms.untracked.uint32(16))
 
+process.PrescaleService = cms.Service( "PrescaleService",
+                                       forceDefault = cms.bool( False ),
+                                       prescaleTable = cms.VPSet( 
+    cms.PSet(  pathName = cms.string( "p1" ),
+               prescales = cms.vuint32( 10)
+               ),
+    cms.PSet(  pathName = cms.string( "p2" ),
+               prescales = cms.vuint32( 100 )
+               )
+    ),
+                                       lvl1DefaultLabel = cms.string( "Default" ),
+                                       lvl1Labels = cms.vstring( 'Default' )
+                                       
+                                       )
 
 process.filter1 = cms.EDFilter("HLTPrescaler",
-                               prescaleFactor = cms.int32(-1),
                                L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
                                )
 process.filter2 = cms.EDFilter("HLTPrescaler",
-                               prescaleFactor = cms.int32(-1),
                                L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
                                )
 

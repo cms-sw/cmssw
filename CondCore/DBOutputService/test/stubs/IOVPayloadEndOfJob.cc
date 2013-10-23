@@ -7,6 +7,7 @@
 
 #include "IOVPayloadEndOfJob.h"
 #include <cstdlib>
+#include <iostream>
 
 IOVPayloadEndOfJob::IOVPayloadEndOfJob(const edm::ParameterSet& iConfig ):
   m_record(iConfig.getParameter< std::string >("record")){

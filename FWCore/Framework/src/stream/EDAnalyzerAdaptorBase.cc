@@ -129,7 +129,7 @@ EDAnalyzerAdaptorBase::doBeginJob() {
 
 void
 EDAnalyzerAdaptorBase::doBeginStream(StreamID id) {
-  m_streamModules[id]->beginStream();
+  m_streamModules[id]->beginStream(id);
 }
 void
 EDAnalyzerAdaptorBase::doEndStream(StreamID id) {

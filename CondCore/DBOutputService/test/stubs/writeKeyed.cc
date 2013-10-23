@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <iostream>
 #include <string>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"

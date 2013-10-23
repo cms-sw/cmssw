@@ -33,13 +33,13 @@ class RawEventOutputModuleForBU : public edm::OutputModule
 
  private:
   virtual void write(edm::EventPrincipal const& e, edm::ModuleCallingContext const*);
-  virtual void beginRun(edm::RunPrincipal const&);
-  virtual void endRun(edm::RunPrincipal const&);
+  virtual void beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*);
+  virtual void endRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*);
   virtual void writeRun(const edm::RunPrincipal&, edm::ModuleCallingContext const*){}
   virtual void writeLuminosityBlock(const edm::LuminosityBlockPrincipal&, edm::ModuleCallingContext const*){}
 
-  virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&);
+  virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
+  virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
 
   std::auto_ptr<Consumer> templateConsumer_;
   std::string label_;
@@ -76,15 +76,14 @@ RawEventOutputModuleForBU<Consumer>::~RawEventOutputModuleForBU() {}
 template <class Consumer>
 void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, edm::ModuleCallingContext const *mcc)
 {
-
   unsigned int ls = e.luminosityBlock();
-  totevents++;
-  if(totevents%numEventsPerFile_==0){
+  if(totevents>0 && totevents%numEventsPerFile_==0){
 	  index_++;
-	  std::string filename = edm::Service<evf::EvFDaqDirector>()->getWorkdirFileForLumi( ls,index_);
-	    std::string destinationDir = edm::Service<evf::EvFDaqDirector>()->buBaseDir();
-	    templateConsumer_->initialize(destinationDir,filename,ls);
+	  std::string filename = edm::Service<evf::EvFDaqDirector>()->getOpenRawFilePath( ls,index_);
+	  std::string destinationDir = edm::Service<evf::EvFDaqDirector>()->buBaseDir();
+	  templateConsumer_->initialize(destinationDir,filename,ls);
   }
+  totevents++;
   // serialize the FEDRawDataCollection into the format that we expect for
   // FRDEventMsgView objects (may be better ways to do this)
   edm::Event event(const_cast<edm::EventPrincipal&>(e), description(),mcc);
@@ -134,22 +133,22 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, ed
 }
 
 template <class Consumer>
-void RawEventOutputModuleForBU<Consumer>::beginRun(edm::RunPrincipal const&)
+void RawEventOutputModuleForBU<Consumer>::beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*)
 {
   edm::Service<evf::EvFDaqDirector>()->updateBuLock(1);
   templateConsumer_->start();
 }
    
 template <class Consumer>
-void RawEventOutputModuleForBU<Consumer>::endRun(edm::RunPrincipal const&)
+void RawEventOutputModuleForBU<Consumer>::endRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*)
 {
   templateConsumer_->stop();
 }
 
 template <class Consumer>
-void RawEventOutputModuleForBU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockPrincipal const& ls){
+void RawEventOutputModuleForBU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockPrincipal const& ls, edm::ModuleCallingContext const*){
 	index_ = 0;
-	std::string filename = edm::Service<evf::EvFDaqDirector>()->getWorkdirFileForLumi( ls.id().luminosityBlock(),index_);
+	std::string filename = edm::Service<evf::EvFDaqDirector>()->getOpenRawFilePath( ls.id().luminosityBlock(),index_);
 	std::string destinationDir = edm::Service<evf::EvFDaqDirector>()->buBaseDir();
 	templateConsumer_->initialize(destinationDir,filename,ls.id().luminosityBlock());
   edm::Service<evf::EvFDaqDirector>()->updateBuLock(ls.id().luminosityBlock()+1);
@@ -157,10 +156,10 @@ void RawEventOutputModuleForBU<Consumer>::beginLuminosityBlock(edm::LuminosityBl
     timeval now;
     ::gettimeofday(&now,0);
     long long elapsedusec = (now.tv_sec - startOfLastLumi.tv_sec)*1000000+now.tv_usec-startOfLastLumi.tv_usec;
-    std::cout << "(now.tv_sec - startOfLastLumi.tv_sec) " << now.tv_sec <<"-" << startOfLastLumi.tv_sec
-	      <<" (now.tv_usec-startOfLastLumi.tv_usec) " << now.tv_usec << "-" << startOfLastLumi.tv_usec << std::endl;
-    std::cout << "elapsedusec " << elapsedusec << "  totevents " << totevents << "  size (GB)" << writtensize 
-	      << "  rate " << (writtensize-writtenSizeLast)/elapsedusec << " MB/s" <<std::endl;
+/*     std::cout << "(now.tv_sec - startOfLastLumi.tv_sec) " << now.tv_sec <<"-" << startOfLastLumi.tv_sec */
+/* 	      <<" (now.tv_usec-startOfLastLumi.tv_usec) " << now.tv_usec << "-" << startOfLastLumi.tv_usec << std::endl; */
+/*     std::cout << "elapsedusec " << elapsedusec << "  totevents " << totevents << "  size (GB)" << writtensize  */
+/* 	      << "  rate " << (writtensize-writtenSizeLast)/elapsedusec << " MB/s" <<std::endl; */
     writtenSizeLast=writtensize;
     ::gettimeofday(&startOfLastLumi,0);
     edm::Service<evf::EvFDaqDirector>()->writeLsStatisticsBU(ls.id().luminosityBlock(), totevents, totsize, elapsedusec);
@@ -172,7 +171,7 @@ void RawEventOutputModuleForBU<Consumer>::beginLuminosityBlock(edm::LuminosityBl
   firstLumi_ = false;
 }
 template <class Consumer>
-void RawEventOutputModuleForBU<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const& ls){
+void RawEventOutputModuleForBU<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const& ls, edm::ModuleCallingContext const*){
 
   //  templateConsumer_->touchlock(ls.id().luminosityBlock(),basedir);
   templateConsumer_->endOfLS(ls.id().luminosityBlock());
