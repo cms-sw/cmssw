@@ -91,7 +91,7 @@ float DTBNormParam::tcor(float xpos) const {
 
 
 
-float DTBNormParam::table_offsc[11] = {
+const float DTBNormParam::table_offsc[11] = {
     0.0,
     0.51630E-03,
     0.31628E-02,
@@ -105,7 +105,7 @@ float DTBNormParam::table_offsc[11] = {
     0.28550E-01 };
       
 
-float DTBNormParam::table_coeff[11] = {
+const float DTBNormParam::table_coeff[11] = {
     0.0,
     0.13900E-03,
    -0.16361E-02,
