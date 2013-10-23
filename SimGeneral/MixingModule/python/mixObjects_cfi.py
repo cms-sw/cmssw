@@ -77,6 +77,25 @@ mixHepMCProducts = cms.PSet(
     type = cms.string('HepMCProduct')
 )
 
+theMixObjects = cms.PSet(
+    mixCH = cms.PSet(
+        mixCaloHits
+    ),
+    mixTracks = cms.PSet(
+        mixSimTracks
+    ),
+    mixVertices = cms.PSet(
+        mixSimVertices
+    ),
+    mixSH = cms.PSet(
+        mixSimHits
+    ),
+    mixHepMC = cms.PSet(
+        mixHepMCProducts
+    )
+)
+
+
 mixPCFSimHits = cms.PSet(
     input = cms.VInputTag(cms.InputTag("CFWriter","g4SimHitsBSCHits"), cms.InputTag("CFWriter","g4SimHitsFP420SI"), cms.InputTag("CFWriter","g4SimHitsMuonCSCHits"), cms.InputTag("CFWriter","g4SimHitsMuonDTHits"), cms.InputTag("CFWriter","g4SimHitsMuonRPCHits"), 
         cms.InputTag("CFWriter","g4SimHitsTotemHitsRP"), cms.InputTag("CFWriter","g4SimHitsTotemHitsT1"), cms.InputTag("CFWriter","g4SimHitsTotemHitsT2Gem"), cms.InputTag("CFWriter","g4SimHitsTrackerHitsPixelBarrelHighTof"), cms.InputTag("CFWriter","g4SimHitsTrackerHitsPixelBarrelLowTof"), 

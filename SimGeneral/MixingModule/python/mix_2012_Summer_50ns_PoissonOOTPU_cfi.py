@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # configuration to model pileup for initial physics phase
 from SimGeneral.MixingModule.aliases_cfi import *
-from SimGeneral.MixingModule.mixObjects_cfi import *
+from SimGeneral.MixingModule.mixObjects_cfi import theMixObjects
 from SimGeneral.MixingModule.mixPoolSource_cfi import *
 from SimGeneral.MixingModule.pixelDigitizer_cfi import *
 from SimGeneral.MixingModule.stripDigitizer_cfi import *
@@ -120,23 +120,7 @@ mix = cms.EDProducer("MixingModule",
         #intFixed_OOT = cms.untracked.int32(2),
         fileNames = FileNames
     ),
-    mixObjects = cms.PSet(
-        mixCH = cms.PSet(
-            mixCaloHits
-        ),
-        mixTracks = cms.PSet(
-            mixSimTracks
-        ),
-        mixVertices = cms.PSet(
-            mixSimVertices
-        ),
-        mixSH = cms.PSet(
-            mixSimHits
-        ),
-        mixHepMC = cms.PSet(
-            mixHepMCProducts
-        )
-    )
+    mixObjects = cms.PSet(theMixObjects)
 )
 
 
