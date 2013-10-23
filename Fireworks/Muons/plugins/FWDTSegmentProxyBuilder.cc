@@ -114,21 +114,27 @@ FWDTSegmentProxyBuilder::buildViewType( const DTRecSegment4D& iData,
       std::vector<DTRecHit1D> recHits;
       const DTChamberRecSegment2D* phiSeg = iData.phiSegment();      
       const DTSLRecSegment2D* zSeg = iData.zSegment();
-      if (type == FWViewType::kRhoPhi && phiSeg) {
-	recHits = phiSeg->specificRecHits();
+      if (phiSeg) {
+	std::vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
+	copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits));
       }
-      if (type == FWViewType::kRhoZ && zSeg) {
-	recHits = zSeg->specificRecHits();
+      if (zSeg) {
+	std::vector<DTRecHit1D> zRecHits = zSeg->specificRecHits();
+	copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits));
       }
 
       for (std::vector<DTRecHit1D>::const_iterator rh=recHits.begin(); rh!=recHits.end(); ++rh){
 	DTLayerId layerId = (*rh).wireId().layerId();
 	LocalPoint hpos = (*rh).localPosition();
 	float hitLocalPos[3]= {hpos.x(), hpos.y(), hpos.z()};
-	if (layerId.superLayer()==2 && type == FWViewType::kRhoZ) {
-	  // In RhoZ view, draw theta SL hits at the middle of the chamber, otherwise they won't align with 1D rechits, 
-	  // for which only one coordinate is known.
-	  hitLocalPos[1]=0;
+	if (type == FWViewType::kRhoZ) {
+	  // In RhoZ view, draw hits at the middle of the layer in the global Z coordinate,
+	  // otherwise they won't align with 1D rechits, for which only one coordinate is known.
+	  if (layerId.superLayer()==2) {
+	    hitLocalPos[1]=0;
+	  } else {
+	    hitLocalPos[0]=0;
+	  }
 	}
 	float hitGlobalPoint[3];
 	geom->localToGlobal(layerId, hitLocalPos, hitGlobalPoint);
