@@ -171,30 +171,42 @@ GEDPhotonProducer::~GEDPhotonProducer()
 
 void  GEDPhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
+
+  if ( photonProducer_.label() == "gedPhotonCore" ) { 
     thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
     edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
     thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_);
 
-
-    thePFBasedIsolationCalculator_ = new PFPhotonIsolationCalculator();
-    thePFBasedIsolationCalculator_->initializePhotonIsolation(kTRUE);
-    thePFBasedIsolationCalculator_->setConeSize(0.3);
-    //    edm::ParameterSet pfIsolationCalculatorSet = conf_.getParameter<edm::ParameterSet>("PFIsolationCalculatorSet"); 
-    // thePFBasedIsolationCalculator_->setup(pfIsolationCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_);
 
     thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
     edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet"); 
     thePhotonMIPHaloTagger_->setup(mipVariableSet);
     thePhotonEnergyCorrector_ = new PhotonEnergyCorrector(conf_);
     thePhotonEnergyCorrector_ -> init(theEventSetup); 
+
+
+
+  } else {
+
+    thePFBasedIsolationCalculator_ = new PFPhotonIsolationCalculator();
+    edm::ParameterSet pfIsolationCalculatorSet = conf_.getParameter<edm::ParameterSet>("PFIsolationCalculatorSet"); 
+    thePFBasedIsolationCalculator_->setup(pfIsolationCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_);
+  }
+
+
 }
 
 void  GEDPhotonProducer::endRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
+if ( photonProducer_.label() == "gedPhotonCore" ) { 
+
   delete thePhotonIsolationCalculator_;
-  delete thePFBasedIsolationCalculator_;
   delete thePhotonMIPHaloTagger_;
   delete thePhotonEnergyCorrector_;
+ } else {
+  delete thePFBasedIsolationCalculator_;
+ }
+
 }
 
 
@@ -599,7 +611,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     newCandidate.setPflowIsolationVariables(pfIso);
     newCandidate.setPflowIDVariables(pfID);
 
-    // std::cout << " GEDPhotonProducer  pf based isolation  chargedHadron" << newCandidate.chargedHadronIso() << " neutralHadron " <<  newCandidate.neutralHadronIso() << " Photon " <<  newCandidate.photonIso() << std::endl;
+    std::cout << " GEDPhotonProducer  pf based isolation  chargedHadron " << newCandidate.chargedHadronIso() << " neutralHadron " <<  newCandidate.neutralHadronIso() << " Photon " <<  newCandidate.photonIso() << std::endl;
     //std::cout << " GEDPhotonProducer from candidate HoE with towers in a cone " << newCandidate.hadronicOverEm()  << "  " <<  newCandidate.hadronicDepth1OverEm()  << " " <<  newCandidate.hadronicDepth2OverEm()  << std::endl;
     //std::cout << " GEDPhotonProducer from candidate  of HoE with towers behind the BCs " <<  newCandidate.hadTowOverEm()  << "  " << newCandidate.hadTowDepth1OverEm() << " " << newCandidate.hadTowDepth2OverEm() << std::endl;
     //std::cout << " standard p4 before " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
