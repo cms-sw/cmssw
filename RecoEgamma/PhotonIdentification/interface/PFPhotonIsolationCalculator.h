@@ -57,11 +57,7 @@ class PFPhotonIsolationCalculator{
   ~PFPhotonIsolationCalculator();
 
 
-  void setup(const edm::ParameterSet& conf,
-	     std::vector<int> const & flagsEB_,
-	     std::vector<int> const & flagsEE_,
-	     std::vector<int> const & severitiesEB_,
-	     std::vector<int> const & severitiesEE_);
+  void setup(const edm::ParameterSet& conf);
   
 
 
