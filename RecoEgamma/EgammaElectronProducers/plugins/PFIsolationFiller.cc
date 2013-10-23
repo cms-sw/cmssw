@@ -22,6 +22,7 @@ PFIsolationFiller::PFIsolationFiller( const edm::ParameterSet & cfg )
    tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt")));
    tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumPhotonEt")));
    tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumNeutralHadronEt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumPUPt")));
 //   std::vector<std::string> isoNames = pfIsoVals.getParameterNamesForType<edm::InputTag>();
 //   for(const std::string& name : isoNames) {
 //     edm::InputTag tag = 
@@ -67,6 +68,7 @@ void PFIsolationFiller::produce( edm::Event & event, const edm::EventSetup & set
      isoVariables.sumChargedHadronPt = (*(isolationValueMaps)[0])[myElectronRef];
      isoVariables.sumPhotonEt = (*(isolationValueMaps)[1])[myElectronRef];
      isoVariables.sumNeutralHadronEt = (*(isolationValueMaps)[2])[myElectronRef];
+     isoVariables.sumPUPt = (*(isolationValueMaps)[3])[myElectronRef];
      newElectron.setPfIsolationVariables(isoVariables);
 
      outputElectrons_p->push_back(newElectron);
