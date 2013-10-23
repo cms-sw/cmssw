@@ -6,7 +6,7 @@
 #include <memory>
 #include <assert.h>
 
-#include "GeneratorInterface/Pythia8Interface/interface/LHAupLesHouches.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/LHAupLesHouches.h"
 
 using namespace Pythia8;
 
