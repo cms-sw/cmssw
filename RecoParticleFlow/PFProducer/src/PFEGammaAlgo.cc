@@ -1428,8 +1428,8 @@ unwrapSuperCluster(const PFSCElement* thesc,
 
 
 int PFEGammaAlgo::attachPSClusters(const PFSCElement* thesc,
-				      const ClusterElement* ecalclus,
-				      ClusterMap::mapped_type& eslist) {  
+				   const ClusterElement* ecalclus,
+				   ClusterMap::mapped_type& eslist) {  
   if( ecalclus->clusterRef()->layer() == PFLayer::ECAL_BARREL ) return 0;
   SuperClusterRef::key_type sc_key = ecalclus->clusterRef().key();
   edm::Ptr<reco::CaloCluster> clusptr = refToPtr(ecalclus->clusterRef());
@@ -1439,7 +1439,7 @@ int PFEGammaAlgo::attachPSClusters(const PFSCElement* thesc,
 				  ecalkey,
 				  comparePSMapByKey);
   for( const auto& ps1 : _splayedblock[reco::PFBlockElement::PS1] ) {
-    edm::Ptr<reco::CaloCluster> temp = refToPtr(ps1.first->clusterRef());
+    edm::Ptr<reco::PFCluster> temp = refToPtr(ps1.first->clusterRef());
     for( auto pscl = assc_ps.first; pscl != assc_ps.second; ++pscl ) {
       if( pscl->second == temp ) {
 	const ClusterElement* pstemp = 
@@ -1449,7 +1449,7 @@ int PFEGammaAlgo::attachPSClusters(const PFSCElement* thesc,
     }
   }
   for( const auto& ps2 : _splayedblock[reco::PFBlockElement::PS2] ) {
-    edm::Ptr<reco::CaloCluster> temp = refToPtr(ps2.first->clusterRef());
+    edm::Ptr<reco::PFCluster> temp = refToPtr(ps2.first->clusterRef());
     for( auto pscl = assc_ps.first; pscl != assc_ps.second; ++pscl ) {
       if( pscl->second == temp ) {
 	const ClusterElement* pstemp = 

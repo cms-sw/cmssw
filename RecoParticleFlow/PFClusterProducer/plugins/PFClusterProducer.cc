@@ -1,8 +1,10 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/PFClusterProducer.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 #include <memory>
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterAlgo.h"
+#include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
@@ -18,6 +20,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+#include "TVector2.h"
+
 
 using namespace std;
 using namespace edm;
@@ -26,6 +30,35 @@ namespace {
   const std::string PositionCalcType__EGPositionCalc("EGPositionCalc");
   const std::string PositionCalcType__EGPositionFormula("EGPositionFormula");
   const std::string PositionCalcType__PFPositionCalc("PFPositionCalc");
+  typedef reco::PFCluster::EEtoPSAssociation::value_type EEPSPair;
+  bool sortByKey(const EEPSPair& a, const EEPSPair& b) {
+    return a.first < b.first;
+  } 
+  double testPreshowerDistance(const edm::Ptr<reco::PFCluster>& eeclus,
+			       const edm::Ptr<reco::PFCluster>& psclus) {
+    if( psclus.isNull() ) return -1.0;
+    /* 
+    // commented out since PFCluster::layer() uses a lot of CPU
+    // and since 
+    if( PFLayer::ECAL_ENDCAP != eeclus->layer() ) return -1.0;
+    if( PFLayer::PS1 != psclus->layer() &&
+	PFLayer::PS2 != psclus->layer()    ) {
+      throw cms::Exception("testPreshowerDistance")
+	<< "The second argument passed to this function was "
+	<< "not a preshower cluster!" << std::endl;
+    } 
+    */
+    const reco::PFCluster::REPPoint& pspos = psclus->positionREP();
+    const reco::PFCluster::REPPoint& eepos = eeclus->positionREP();
+    // lazy continue based on geometry
+    if( eeclus->z()*psclus->z() < 0 ) return -1.0;
+    const double dphi= std::abs(TVector2::Phi_mpi_pi(eepos.phi() - 
+						     pspos.phi()));
+    if( dphi > 0.6 ) return -1.0;    
+    const double deta= std::abs(eepos.eta() - pspos.eta());    
+    if( deta > 0.3 ) return -1.0; 
+    return LinkByRecHit::testECALAndPSByRecHit(*eeclus,*psclus,false);
+  }
 }
 
 PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
@@ -33,6 +66,9 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
     
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
+  
+  pfEnergyCalibration_ = 
+    std::shared_ptr<PFEnergyCalibration>(new PFEnergyCalibration());
 
   // parameters for clustering
   
@@ -181,12 +217,21 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   inputTagPFRecHits_ = 
     iConfig.getParameter<InputTag>("PFRecHits");
   //---ab
+  produces_eeps = iConfig.existsAs<InputTag>("PFClustersPS");
+  if( produces_eeps ) {    
+    inputTagPFClustersPS_ = 
+      iConfig.getParameter<InputTag>("PFClustersPS");
+    threshPFClusterES_ = iConfig.getParameter<double>("thresh_Preshower");
+    applyCrackCorrections_ = 
+      iConfig.getParameter<bool>("applyCrackCorrections");
+    produces<reco::PFCluster::EEtoPSAssociation>();
+  }
 
   //inputTagClusterCollectionName_ =  iConfig.getParameter<string>("PFClusterCollectionName");    
  
   // produces<reco::PFClusterCollection>(inputTagClusterCollectionName_);
    produces<reco::PFClusterCollection>();
-   produces<reco::PFRecHitCollection>("Cleaned");
+   produces<reco::PFRecHitCollection>("Cleaned");   
 
     //---ab
 }
@@ -217,9 +262,10 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   
 
   edm::Handle< reco::PFRecHitCollection > rechitsHandle;
+  edm::Handle< edm::View<reco::PFCluster> > psclustersHandle;
   
   // access the rechits in the event
-  bool found = iEvent.getByLabel( inputTagPFRecHits_, rechitsHandle );  
+  bool found = iEvent.getByLabel( inputTagPFRecHits_, rechitsHandle );   
 
   if(!found ) {
 
@@ -230,7 +276,6 @@ void PFClusterProducer::produce(edm::Event& iEvent,
     throw cms::Exception( "MissingProduct", err.str());
   }
 
-
   // do clustering
   clusterAlgo_.doClustering( rechitsHandle );
   
@@ -240,13 +285,90 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       <<clusterAlgo_<<endl;
   }    
   
+  std::auto_ptr< std::vector<reco::PFCluster> > clusters = 
+    clusterAlgo_.clusters();
+
+  if( produces_eeps ) {
+    iEvent.getByLabel( inputTagPFClustersPS_, psclustersHandle );
+    // associate psclusters to ecal rechits
+    std::auto_ptr<reco::PFCluster::EEtoPSAssociation> 
+      outEEPS( new reco::PFCluster::EEtoPSAssociation );
+    // make the association map of ECAL clusters to preshower clusters  
+    edm::PtrVector<reco::PFCluster> clusterPtrsPS = 
+      psclustersHandle->ptrVector();
+    double dist = -1.0, min_dist = -1.0;
+    // match PS clusters to EE clusters, minimum distance to EE is ensured
+    // since the inner loop is over the EE clusters
+    for( const auto& psclus : clusterPtrsPS ) {   
+      if( psclus->energy() < threshPFClusterES_ ) continue;        
+      switch( psclus->layer() ) { // just in case this isn't the ES...
+      case PFLayer::PS1:
+      case PFLayer::PS2:
+	break;
+      default:
+	continue;
+      }    
+      edm::Ptr<reco::PFCluster> eematch,eeclus;
+      dist = min_dist = -1.0; // reset
+      for( size_t ic = 0; ic < clusters->size(); ++ic ) {
+	eeclus = edm::Ptr<reco::PFCluster>(clusters.get(),ic);
+	if( eeclus->layer() != PFLayer::ECAL_ENDCAP ) continue;	
+	dist = testPreshowerDistance(eeclus,psclus);      
+	if( dist == -1.0 || (min_dist != -1.0 && dist > min_dist) ) continue;
+	if( dist < min_dist || min_dist == -1.0 ) {
+	  eematch = eeclus;
+	  min_dist = dist;
+	}
+      } // loop on EE clusters      
+      if( eematch.isNonnull() ) {
+	outEEPS->push_back(std::make_pair(eematch.key(),psclus));
+      }
+    } // loop on PS clusters    
+    //sort the ps association
+    std::sort(outEEPS->begin(),outEEPS->end(),sortByKey);
+    
+    std::vector<double> ps1_energies,ps2_energies;
+    double ePS1, ePS2;
+    for( size_t ic = 0 ; ic < clusters->size(); ++ic ) {
+      ps1_energies.clear();
+      ps2_energies.clear();
+      ePS1 = ePS2 = 0;
+      auto ee_key_val = std::make_pair(ic,edm::Ptr<reco::PFCluster>());
+      const auto clustops = std::equal_range(outEEPS->begin(),
+					     outEEPS->end(),
+					     ee_key_val,
+					     sortByKey);
+      for( auto i_ps = clustops.first; i_ps != clustops.second; ++i_ps) {
+	edm::Ptr<reco::PFCluster> psclus(i_ps->second);
+	switch( psclus->layer() ) {
+	case PFLayer::PS1:
+	  ps1_energies.push_back(psclus->energy());
+	  break;
+	case PFLayer::PS2:
+	  ps2_energies.push_back(psclus->energy());
+	  break;
+	default:
+	  break;
+	}
+      }
+      const double eCorr= 
+	pfEnergyCalibration_->energyEm(clusters->at(ic),
+				       ps1_energies,ps2_energies,
+				       ePS1,ePS2,
+				       applyCrackCorrections_);
+      clusters->at(ic).setCorrectedEnergy(eCorr);
+    }
+
+    iEvent.put(outEEPS);
+  }
+
   // get clusters out of the clustering algorithm 
   // and put them in the event. There is no copy.
-  auto_ptr< vector<reco::PFCluster> > outClusters( clusterAlgo_.clusters() ); 
+  //auto_ptr< vector<reco::PFCluster> > outClusters( clusters ); 
   auto_ptr< vector<reco::PFRecHit> > recHitsCleaned ( clusterAlgo_.rechitsCleaned() ); 
-  iEvent.put( outClusters );    
-  iEvent.put( recHitsCleaned, "Cleaned" );    
-
+  edm::OrphanHandle<reco::PFClusterCollection> outHandle = 
+    iEvent.put( clusters );    
+  iEvent.put( recHitsCleaned, "Cleaned" ); 
 }
   
 
