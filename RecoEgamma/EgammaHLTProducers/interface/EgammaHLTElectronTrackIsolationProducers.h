@@ -30,11 +30,16 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTElectronTrackIsolationProducers : public edm::EDProducer {
 public:
   explicit EgammaHLTElectronTrackIsolationProducers(const edm::ParameterSet&);
   ~EgammaHLTElectronTrackIsolationProducers();
   virtual void produce(edm::Event&, const edm::EventSetup&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;

@@ -23,12 +23,16 @@
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTCombinedIsolationProducer : public edm::EDProducer {
 public:
   explicit EgammaHLTCombinedIsolationProducer(const edm::ParameterSet&);
   ~EgammaHLTCombinedIsolationProducer();
   
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   virtual void produce(edm::Event&, const edm::EventSetup&);
 private:
   // ----------member data ---------------------------

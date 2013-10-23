@@ -14,6 +14,10 @@
 #include <string>
 #include <vector>
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class ESRecHitsMerger : public edm::EDProducer {
 
 public:
@@ -22,6 +26,7 @@ public:
 	void produce(edm::Event & e, const edm::EventSetup& c);
 	void beginJob(void);
 	void endJob(void);
+	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
 	edm::InputTag EgammaSourceES_;

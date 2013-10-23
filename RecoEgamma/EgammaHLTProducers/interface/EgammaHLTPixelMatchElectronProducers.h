@@ -18,6 +18,10 @@
 
 #include <string>
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTPixelMatchElectronAlgo;
 
 class EgammaHLTPixelMatchElectronProducers : public edm::EDProducer
@@ -30,6 +34,7 @@ class EgammaHLTPixelMatchElectronProducers : public edm::EDProducer
 
   virtual void beginJob(void);
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
 
