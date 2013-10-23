@@ -27,6 +27,10 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class RecoEcalCandidateProducers;
 
 class EgammaHLTR9IDProducer : public edm::EDProducer {
@@ -34,7 +38,7 @@ public:
   explicit EgammaHLTR9IDProducer(const edm::ParameterSet&);
   ~EgammaHLTR9IDProducer();
   
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   virtual void produce(edm::Event&, const edm::EventSetup&);
 private:
   // ----------member data ---------------------------

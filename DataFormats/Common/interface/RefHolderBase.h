@@ -67,7 +67,7 @@ namespace edm {
     T const*
     RefHolderBase::getPtr() const
     {
-      static TypeWithDict s_type(typeid(T));
+      static const TypeWithDict s_type(typeid(T));
       return static_cast<T const*>(pointerToType(s_type));
     }
 

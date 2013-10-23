@@ -49,8 +49,8 @@ namespace reweight {
       // The distributions aren't quite poisson because they model luminosity decreasing during a fill. This implies that
       // they do get wider as the mean increases, so the weights are not linear with increasing mean.
 
-      static double p0_minus[20] = { 1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1. };
-      static double p1_minus[20] = {
+      static const double p0_minus[20] = { 1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1. };
+      static const double p1_minus[20] = {
 	-0.677786,
 	-0.619614,
 	-0.49465,
@@ -72,7 +72,7 @@ namespace reweight {
 	1.67275,
 	1.96008
       };
-      static double p2_minus[20] = {
+      static const double p2_minus[20] = {
 	0.526164,
 	0.251816,
 	0.11049,
@@ -95,7 +95,7 @@ namespace reweight {
 	1.02386
       };
 
-      static double p1_expoM[5] = {
+      static const double p1_expoM[5] = {
 	1.63363e-03,
 	6.79290e-04,
 	3.69900e-04,
@@ -103,7 +103,7 @@ namespace reweight {
 	9.87156e-06
       };
 
-      static double p2_expoM[5] = {
+      static const double p2_expoM[5] = {
 	2.64692,
 	3.26585,
 	3.53229,
@@ -112,8 +112,8 @@ namespace reweight {
       };
 
 
-      static double p0_plus[20] = { 1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1. };
-      static double p1_plus[20] = {
+      static const double p0_plus[20] = { 1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1. };
+      static const double p1_plus[20] = {
 	-0.739059,
 	-0.594445,
 	-0.477276,
@@ -135,7 +135,7 @@ namespace reweight {
 	1.5802,
 	0.988689
       };
-      static double p2_plus[20] = {
+      static const double p2_plus[20] = {
 	0.208068,
 	0.130033,
 	0.0850356,
@@ -158,7 +158,7 @@ namespace reweight {
 	5.48835
       };
 
-      static double p1_expoP[5] = {
+      static const double p1_expoP[5] = {
 	1.42463e-01,
 	4.18966e-02,
 	1.12697e-01,
@@ -166,7 +166,7 @@ namespace reweight {
 	1.50768e-01
       };
 
-      static double p2_expoP[5] = {
+      static const double p2_expoP[5] = {
 	1.98758,
 	2.27217,
 	2.26799,
@@ -544,7 +544,7 @@ namespace reweight {
 	// and a residual correction to fix the distortions caused by the fact that the out-of-time
 	// distribution is not flat.
 
-	static double weight_24[25] = {
+	static const double weight_24[25] = {
 	  0,
 	  0,
 	  0,
@@ -572,7 +572,7 @@ namespace reweight {
 	  1
 	};
 
-	static double weight_23[25] = {
+	static const double weight_23[25] = {
 	  0,
 	  1.20628e-06,
 	  1.20628e-06,
@@ -600,7 +600,7 @@ namespace reweight {
 	  0.957738
 	};
 
-	static double weight_22[25] = {
+	static const double weight_22[25] = {
 	  0,
 	  0,
 	  0,
@@ -628,7 +628,7 @@ namespace reweight {
 	  0.873688
 	};
 
-	static double weight_21[25] = {
+	static const double weight_21[25] = {
 	  0,
 	  0,
 	  1.15381e-06,
@@ -657,7 +657,7 @@ namespace reweight {
 	};
  
  
-	static double weight_20[25] = {
+	static const double weight_20[25] = {
 	  0,
 	  0,
 	  1.12532e-06,
@@ -684,7 +684,7 @@ namespace reweight {
 	  0.753288,
 	  0.62765
 	}; 
-	static double weight_19[25] = {
+	static const double weight_19[25] = {
 	  0,
 	  0,
 	  1.20714e-05,
@@ -712,7 +712,7 @@ namespace reweight {
 	  0.48552
 	};
 
-	static double weight_18[25] = {
+	static const double weight_18[25] = {
 	  0,
 	  3.20101e-06,
 	  2.88091e-05,
@@ -741,7 +741,7 @@ namespace reweight {
 	};
 
  
-	static double weight_17[25] = {
+	static const double weight_17[25] = {
 	  1.03634e-06,
 	  7.25437e-06,
 	  4.97443e-05,
@@ -770,7 +770,7 @@ namespace reweight {
 	};
 
  
-	static double weight_16[25] = {
+	static const double weight_16[25] = {
 	  4.03159e-06,
 	  2.41895e-05,
 	  0.000141106,
@@ -799,7 +799,7 @@ namespace reweight {
 	};
  
  
-	static double weight_15[25] = {
+	static const double weight_15[25] = {
 	  9.76084e-07,
 	  5.07564e-05,
 	  0.000303562,
@@ -828,7 +828,7 @@ namespace reweight {
 	};
  
  
-	static double weight_14[25] = {
+	static const double weight_14[25] = {
 	  1.13288e-05,
 	  0.000124617,
 	  0.000753365,
@@ -857,7 +857,7 @@ namespace reweight {
 	};
 
  
-	static double weight_13[25] = {
+	static const double weight_13[25] = {
 	  2.54296e-05,
 	  0.000261561,
 	  0.00167018,
@@ -885,7 +885,7 @@ namespace reweight {
 	  0.0180159
 	};
 
-	static double weight_12[25] = {
+	static const double weight_12[25] = {
 	  5.85742e-05,
 	  0.000627706,
 	  0.00386677,
@@ -914,7 +914,7 @@ namespace reweight {
 	};
 
  
-	static double weight_11[25] = {
+	static const double weight_11[25] = {
 	  0.00015238,
 	  0.00156064,
 	  0.00846044,
@@ -942,7 +942,7 @@ namespace reweight {
 	  0.00222458
 	};
 
-	static double weight_10[25] = {
+	static const double weight_10[25] = {
 	  0.000393044,
 	  0.00367001,
 	  0.0179474,
@@ -971,7 +971,7 @@ namespace reweight {
 	};
 
  
-	static double weight_9[25] = {
+	static const double weight_9[25] = {
 	  0.00093396,
 	  0.00854448,
 	  0.0380306,
@@ -1000,7 +1000,7 @@ namespace reweight {
 	};
 
  
-	static double weight_8[25] = {
+	static const double weight_8[25] = {
 	  0.00240233,
 	  0.0192688,
 	  0.0768653,
@@ -1028,7 +1028,7 @@ namespace reweight {
 	  1.93563e-05
 	};
 
-	static double weight_7[25] = {
+	static const double weight_7[25] = {
 	  0.00617233,
 	  0.0428714,
 	  0.150018,
@@ -1056,7 +1056,7 @@ namespace reweight {
 	  6.71271e-07
 	};
  
-	static double weight_6[25] = {
+	static const double weight_6[25] = {
 	  0.0154465,
 	  0.0923472,
 	  0.277322,
@@ -1085,7 +1085,7 @@ namespace reweight {
 	};
  
  
-	static double weight_5[25] = {
+	static const double weight_5[25] = {
 	  0.0382845,
 	  0.191122,
 	  0.478782,
@@ -1114,7 +1114,7 @@ namespace reweight {
 	};
  
  
-	static double weight_4[25] = {
+	static const double weight_4[25] = {
 	  0.0941305,
 	  0.373824,
 	  0.750094,
@@ -1143,7 +1143,7 @@ namespace reweight {
 	};
  
  
-	static double weight_3[25] = {
+	static const double weight_3[25] = {
 	  0.222714,
 	  0.667015,
 	  1,
@@ -1171,7 +1171,7 @@ namespace reweight {
 	  0
 	};
  
-	static double weight_2[25] = {
+	static const double weight_2[25] = {
 	  0.499541,
 	  0.999607,
 	  1,
@@ -1199,7 +1199,7 @@ namespace reweight {
 	  0
 	};
  
-	static double weight_1[25] = {
+	static const double weight_1[25] = {
 	  0.999165,
 	  1,
 	  0.499996,
@@ -1227,7 +1227,7 @@ namespace reweight {
 	  0
 	};
  
-	static double weight_0[25] = {
+	static const double weight_0[25] = {
 	  1,
 	  0,
 	  0,
@@ -1257,7 +1257,7 @@ namespace reweight {
 
 	//WeightOOTPU_ = {0};
 
-	double* WeightPtr = 0;
+	const double* WeightPtr = 0;
 
 	for(int iint = 0; iint<25; ++iint){
 	  if(iint ==0) WeightPtr = weight_0;
@@ -1326,7 +1326,7 @@ namespace reweight {
 
       double weightOOT( int npv_in_time, int npv_m50nsBX ){
 
-	static double Correct_Weights2011[25] = { // residual correction to match lumi spectrum
+	static const double Correct_Weights2011[25] = { // residual correction to match lumi spectrum
 	  5.30031,
 	  2.07903,
 	  1.40729,

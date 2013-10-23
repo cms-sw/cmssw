@@ -19,6 +19,8 @@
 
 #include "RecoEcal/EgammaClusterAlgos/interface/PFECALSuperClusterAlgo.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+
 /**\class PFECALSuperClusterProducer 
 
 \author Nicolas Chanon
@@ -55,7 +57,7 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
   bool   verbose_;
   
   edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClusters_;
-  edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClustersES_;
+  edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation>   inputTagPFClustersES_;
 
   std::string PFBasicClusterCollectionBarrel_;
   std::string PFSuperClusterCollectionBarrel_;

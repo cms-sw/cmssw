@@ -31,14 +31,18 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTR9Producer : public edm::EDProducer {
-   public:
-      explicit EgammaHLTR9Producer(const edm::ParameterSet&);
-      ~EgammaHLTR9Producer();
-
-
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
+public:
+  explicit EgammaHLTR9Producer(const edm::ParameterSet&);
+  ~EgammaHLTR9Producer();
+  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+private:
       // ----------member data ---------------------------
 
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
