@@ -50,14 +50,13 @@ kt6HiGenJets = kt4HiGenJets.clone(rParam=0.6)
 
 
 hiRecoGenJets = cms.Sequence(
-#    iterativeCone5HiGenJets +
-#    iterativeCone7HiGenJets +
-#    kt4HiGenJets +
-#    kt6HiGenJets +
+    iterativeCone5HiGenJets +
+    kt4HiGenJets +
+    kt6HiGenJets +
     ak2HiGenJets +
     ak3HiGenJets +
     ak4HiGenJets +
     ak5HiGenJets +
-#    ak6HiGenJets +
+    ak6HiGenJets +
     ak7HiGenJets
     )
