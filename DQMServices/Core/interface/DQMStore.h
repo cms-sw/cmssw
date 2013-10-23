@@ -90,6 +90,7 @@ public:
                             const std::string &title,
                             int nchX, double lowX, double highX);
     void cd(const std::string &dir);
+    void setCurrentFolder(const std::string &fullpath);
 
   private:
     explicit IBooker(DQMStore * store):owner_(0) {

@@ -259,6 +259,10 @@ void DQMStore::IBooker::cd(const std::string &dir) {
   owner_->cd(dir);
 }
 
+void DQMStore::IBooker::setCurrentFolder(const std::string &fullpath) {
+  owner_->setCurrentFolder(fullpath);
+}
+
 MonitorElement * DQMStore::IBooker::book1D(const std::string &name,
                                            const std::string &title,
                                            int nchX, double lowX, double highX) {
@@ -387,7 +391,8 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     run_(0),
     streamId_(0),
     moduleId_(0),
-    pwd_ ("")
+    pwd_ (""),
+    ibooker_(0)
 {
   if (!ibooker_)
     ibooker_ = new DQMStore::IBooker(this);
@@ -407,7 +412,8 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     run_(0),
     streamId_(0),
     moduleId_(0),
-    pwd_ ("")
+    pwd_ (""),
+    ibooker_(0)
 {
   if (!ibooker_)
     ibooker_ = new DQMStore::IBooker(this);
