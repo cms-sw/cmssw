@@ -23,9 +23,7 @@ using namespace std;
 
 using namespace reco;
 
-void PFPhotonIsolationCalculator::setup(const edm::ParameterSet& conf, 
-				      std::vector<int> const & flagsEB, std::vector<int> const & flagsEE, 
-				      std::vector<int> const & severitiesEB, std::vector<int> const & severitiesEE) {
+void PFPhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
  
 
   iParticleType_ = conf.getParameter<int>("particleType");
