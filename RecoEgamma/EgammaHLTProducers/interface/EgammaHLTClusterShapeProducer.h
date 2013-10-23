@@ -22,12 +22,16 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTClusterShapeProducer : public edm::EDProducer {
 public:
   explicit EgammaHLTClusterShapeProducer(const edm::ParameterSet&);
   ~EgammaHLTClusterShapeProducer();
   
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   virtual void produce(edm::Event&, const edm::EventSetup&);
 private:
   // ----------member data ---------------------------
