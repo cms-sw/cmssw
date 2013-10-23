@@ -434,10 +434,10 @@ void HcalPulseShapes::computeSiPMShape()
   }
 }
 
-double HcalPulseShapes::gexp(double t, double A, double c, double t0, double s) {
-  static double const root2(sqrt(2));
-  return -A*0.5*exp(c*t+0.5*c*c*s*s-c*s)*(erf(-0.5*root2/s*(t-t0+c*s*s))-1);
-}
+// double HcalPulseShapes::gexp(double t, double A, double c, double t0, double s) {
+//   static double const root2(sqrt(2));
+//   return -A*0.5*exp(c*t+0.5*c*c*s*s-c*s)*(erf(-0.5*root2/s*(t-t0+c*s*s))-1);
+// }
 
 
 const HcalPulseShapes::Shape &
