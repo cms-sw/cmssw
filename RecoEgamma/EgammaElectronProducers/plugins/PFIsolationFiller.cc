@@ -6,7 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 #include <iostream>
 #include <string>
@@ -17,18 +17,21 @@ PFIsolationFiller::PFIsolationFiller( const edm::ParameterSet & cfg )
  {   
    previousGsfElectrons_ = consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("previousGedGsfElectronsTag"));
    outputCollectionLabel_ = cfg.getParameter<std::string>("OutputCollectionLabel");
-   pfIsoVals = 
-     cfg.getParameter<edm::ParameterSet> ("pfIsolationValues");
+   edm::ParameterSet pfIsoVals(cfg.getParameter<edm::ParameterSet> ("pfIsolationValues"));
+   
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(cfg.getParameter<edm::InputTag>("pfSumChargedHadronPt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(cfg.getParameter<edm::InputTag>("pfSumPhotonEt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(cfg.getParameter<edm::InputTag>("pfSumNeutralHadronEt")));
+//   std::vector<std::string> isoNames = pfIsoVals.getParameterNamesForType<edm::InputTag>();
+//   for(const std::string& name : isoNames) {
+//     edm::InputTag tag = 
+//       pfIsoVals.getParameter<edm::InputTag>(name);
+//     tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(tag));   
+//   }
 
-   std::vector<std::string> isoNames = pfIsoVals.getParameterNamesForType<edm::InputTag>();
-   for(const std::string& name : isoNames) {
-     edm::InputTag tag = 
-       pfIsoVals.getParameter<edm::InputTag>(name);
-     consumes<edm::ValueMap<double> >(tag);   
-     inputTagElectronIsoDeposits_.push_back(tag);
-   }
+   nDeps_ =  tokenElectronIsoVals_.size();
 
-   produces<GsfElectronCollection> >(outputCollectionLabel_);
+   produces<reco::GsfElectronCollection> (outputCollectionLabel_);
 }
 
 PFIsolationFiller::~PFIsolationFiller()
@@ -47,19 +50,26 @@ void PFIsolationFiller::produce( edm::Event & event, const edm::EventSetup & set
    event.getByToken(previousGsfElectrons_,gedElectronHandle);
 
    // value maps
-   unsigned nDeps =  inputTagElectronIsoDeposits_.size();
 
-   typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
-   for(unsigned i=0; i < nDeps ; ++i) {
-     event.getByToken(inputTagElectronISoDeposits_[i],electronIsoDep[i]);
+   std::vector< edm::Handle< edm::ValueMap<double> > > isolationValueMaps(nDeps_);
+   
+   for(unsigned i=0; i < nDeps_ ; ++i) {
+     event.getByToken(tokenElectronIsoVals_[i],isolationValueMaps[i]);
    }
    
    // Now loop on the electrons
-   unsigned nele=gedElectronH->size();
+   unsigned nele=gedElectronHandle->size();
    for(unsigned iele=0; iele<nele;++iele) {
-     reco::GsfElectronRef myElectronRef(gedElectronH,iele);
+     reco::GsfElectronRef myElectronRef(gedElectronHandle,iele);
      
-     
+     reco::GsfElectron newElectron(*myElectronRef);
+     reco::GsfElectron::PflowIsolationVariables isoVariables;
+     isoVariables.sumChargedHadronPt = (*(isolationValueMaps)[0])[myElectronRef];
+     isoVariables.sumPhotonEt = (*(isolationValueMaps)[1])[myElectronRef];
+     isoVariables.sumNeutralHadronEt = (*(isolationValueMaps)[2])[myElectronRef];
+     newElectron.setPfIsolationVariables(isoVariables);
+
+     outputElectrons_p->push_back(newElectron);
    }
    
    event.put(outputElectrons_p,outputCollectionLabel_);

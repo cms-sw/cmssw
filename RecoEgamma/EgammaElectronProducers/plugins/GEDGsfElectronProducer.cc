@@ -1,4 +1,4 @@
-B0;95;c
+
 #include "GEDGsfElectronProducer.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
 
