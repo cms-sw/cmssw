@@ -52,11 +52,6 @@ static const std::size_t nPrimitives =
 cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo( Reflex::Type const & type_)
  : m_arraySize(0), m_class(0), m_primitive(0)
 {
-  static bool cintexInitialized = false;
-  if (!cintexInitialized) {
-    cintexInitialized = true;
-  }
-
   Reflex::Type type = type_;
   while(true) {
     type = type.FinalType();
