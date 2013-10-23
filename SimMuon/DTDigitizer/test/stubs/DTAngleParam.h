@@ -50,11 +50,11 @@ class DTAngleParam{
   private:
     // tables of function parameters 
     // 19 angle values up to 10 terms in a function
-    static int   table_num_terms[19];
-    static int   table_pow_field[190];
-    static int   table_pow_xcoor[190];
-    static float table_offsc[    19];
-    static float table_coeff[    190];
+    static const int   table_num_terms[19];
+    static const int   table_pow_field[190];
+    static const int   table_pow_xcoor[190];
+    static const float table_offsc[    19];
+    static const float table_coeff[    190];
 
     /// private class to hold parameters for an angle bin
     class ParamFunc {
@@ -82,11 +82,11 @@ class DTAngleParam{
       private:
 
         float  bin_angle;
-        int*   num_terms;
-        int*   pow_field;
-        int*   pow_xcoor;
-        float* offsc;
-        float* coeff;
+        const int*   num_terms;
+        const int*   pow_field;
+        const int*   pow_xcoor;
+        const float* offsc;
+        const float* coeff;
 
     };
 

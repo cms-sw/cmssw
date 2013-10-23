@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_0_0/HIon/V17 (CMSSW_7_0_0_pre6_HLT2)
+# /dev/CMSSW_7_0_0/HIon/V18 (CMSSW_7_0_0_pre6_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_0_0/HIon/V17')
+  tableName = cms.string('/dev/CMSSW_7_0_0/HIon/V18')
 )
 
 process.streams = cms.PSet( 
@@ -3664,40 +3664,22 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "AForHIOutput" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
       ),
-      cms.PSet(  pathName = cms.string( "ALCAP0Output" ),
-        prescales = cms.vuint32( 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
-      ),
-      cms.PSet(  pathName = cms.string( "ALCAPHISYMOutput" ),
-        prescales = cms.vuint32( 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
-      ),
       cms.PSet(  pathName = cms.string( "ALCALUMIPIXELSOutput" ),
-        prescales = cms.vuint32( 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
-      ),
-      cms.PSet(  pathName = cms.string( "CalibrationOutput" ),
-        prescales = cms.vuint32( 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
+        prescales = cms.vuint32( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "DQMOutput" ),
-        prescales = cms.vuint32( 10, 0, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 2, 20, 20, 20, 20, 33, 33, 33, 33, 33, 33, 33, 33, 33, 2, 2, 2, 1, 1 )
-      ),
-      cms.PSet(  pathName = cms.string( "EcalCalibrationOutput" ),
-        prescales = cms.vuint32( 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
+        prescales = cms.vuint32( 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 2, 20, 20, 20, 20, 33, 33, 33, 33, 33, 33, 33, 33, 33, 2, 2, 2, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "ExpressForHIOutput" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLTMONOutput" ),
-        prescales = cms.vuint32( 100, 0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 100, 100, 0, 100 )
-      ),
-      cms.PSet(  pathName = cms.string( "NanoDSTOutput" ),
-        prescales = cms.vuint32( 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
-      ),
-      cms.PSet(  pathName = cms.string( "RPCMONOutput" ),
-        prescales = cms.vuint32( 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
+        prescales = cms.vuint32( 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 100, 100, 0, 100 )
       )
     ),
     lvl1DefaultLabel = cms.string( "3e33" ),
     lvl1Labels = cms.vstring( '9e33nopark',
-      'Half Rate',
+      'HalfRate',
       '8e33nopark',
       '8e33',
       '7e33',

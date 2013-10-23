@@ -25,6 +25,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
   // use configuration file to setup input/output collection names
@@ -32,8 +34,6 @@ EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::
   recoEcalCandidateProducer_      = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
   ecalBarrelRecHitProducer_       = consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("ecalBarrelRecHitProducer"));
   ecalEndcapRecHitProducer_       = consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("ecalEndcapRecHitProducer"));
-  //ecalBarrelRecHitCollection_     = conf_.getParameter<edm::InputTag>("ecalBarrelRecHitCollection");
-  //ecalEndcapRecHitCollection_     = conf_.getParameter<edm::InputTag>("ecalEndcapRecHitCollection");
   rhoProducer_                    = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
 
   doRhoCorrection_                = config.getParameter<bool>("doRhoCorrection");
@@ -64,6 +64,34 @@ EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::
 
 EgammaHLTEcalRecIsolationProducer::~EgammaHLTEcalRecIsolationProducer()
 {}
+
+void EgammaHLTEcalRecIsolationProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag("hltL1SeededRecoEcalCandidate"));
+  desc.add<edm::InputTag>("ecalBarrelRecHitProducer", edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("ecalEndcapRecHitProducer", edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEE"));
+  desc.add<edm::InputTag>("rhoProducer", edm::InputTag("hltKT6CaloJets", "rho"));
+  desc.add<bool>("doRhoCorrection", false);
+  desc.add<double>("rhoMax", 9.9999999E7); 
+  desc.add<double>("rhoScale", 1.0); 
+  desc.add<double>("etMinBarrel", -9999.0);
+  desc.add<double>("eMinBarrel", 0.095);
+  desc.add<double>("etMinEndcap", 0.11);
+  desc.add<double>("eMinEndcap", -9999.0);
+  desc.add<double>("intRadiusBarrel", 3.0);
+  desc.add<double>("intRadiusEndcap", 3.0);
+  desc.add<double>("extRadius", 0.3);
+  desc.add<double>("jurassicWidth", 3.0);
+  desc.add<double>("effectiveAreaBarrel", 0.101);
+  desc.add<double>("effectiveAreaEndcap", 0.046);
+  desc.add<bool>("useIsolEt", true);
+  desc.add<bool>("tryBoth", true);
+  desc.add<bool>("subtract", false);
+  desc.add<bool>("useNumCrystals", true);
+  
+  descriptions.add(("hltEgammaHLTEcalRecIsolationProducer"), desc);  
+}
 
 void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   

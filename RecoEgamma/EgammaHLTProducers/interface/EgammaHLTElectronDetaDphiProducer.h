@@ -30,12 +30,17 @@
 
 class MagneticField;
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTElectronDetaDphiProducer : public edm::EDProducer {
 public:
   explicit EgammaHLTElectronDetaDphiProducer(const edm::ParameterSet&);
   ~EgammaHLTElectronDetaDphiProducer();
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
   std::pair<float,float> calDEtaDPhiSCTrk(reco::ElectronRef& eleref, const reco::BeamSpot::Point& BSPosition,const MagneticField *magField);

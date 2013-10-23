@@ -8,6 +8,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -99,7 +102,6 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
      hybrid_p->setDynamicPhiRoad(bremRecoveryPset);
   }
 
-
   produces< reco::BasicClusterCollection >(basicclusterCollection_);
   produces< reco::SuperClusterCollection >(superclusterCollection_);
   nEvt_ = 0;
@@ -109,6 +111,51 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
 EgammaHLTHybridClusterProducer::~EgammaHLTHybridClusterProducer()
 {
   delete hybrid_p;
+}
+
+void EgammaHLTHybridClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("debugLevel" , "INFO");
+  desc.add<std::string>("basicclusterCollection", "");
+  desc.add<std::string>("superclusterCollection", "");
+  desc.add<edm::InputTag>("ecalhitcollection", edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  desc.add<edm::InputTag>("l1TagIsolated", edm::InputTag("l1extraParticles","Isolated"));
+  desc.add<edm::InputTag>("l1TagNonIsolated", edm::InputTag("l1extraParticles","NonIsolated"));
+  desc.add<bool>("doIsolated", true);
+  desc.add<double>("l1LowerThr", 0);
+  desc.add<double>("l1UpperThr", 9999.0);
+  desc.add<double>("l1LowerThrIgnoreIsolation", 999.0);
+  desc.add<double>("regionEtaMargin", 0.14);
+  desc.add<double>("regionPhiMargin", 0.4);
+
+  edm::ParameterSetDescription posCalcPSET;
+  posCalcPSET.add<double>("T0_barl", 7.4);
+  posCalcPSET.add<double>("T0_endc", 3.1);
+  posCalcPSET.add<double>("T0_endcPresh", 1.2);
+  posCalcPSET.add<double>("W0", 4.2);
+  posCalcPSET.add<double>("X0", 0.89);
+  posCalcPSET.add<bool>("LogWeighted", true);
+  desc.add<edm::ParameterSetDescription>("posCalcParameters", posCalcPSET);
+
+  desc.add<std::vector<std::string>>("RecHitFlagToBeExcluded", std::vector<std::string>());
+  desc.add<std::vector<std::string> >("RecHitSeverityToBeExcluded", std::vector<std::string>());
+  desc.add<double>("severityRecHitThreshold", 4.0);
+  desc.add<double>("HybridBarrelSeedThr", 1.0);
+  desc.add<int>("step", 10);
+  desc.add<double>("ethresh", 0.1);
+  desc.add<double>("eseed", 0.35);
+  desc.add<double>("xi", 0);
+  desc.add<bool>("useEtForXi", true);
+  desc.add<double>("ewing", 1.0);
+  desc.add<bool>("dynamicEThresh", false);
+  desc.add<double>("eThreshA", 0.003);
+  desc.add<double>("eThreshB", 0.1);
+  desc.add<bool>("excludeFlagged", false);
+  desc.add<bool>("dynamicPhiRoad", false);
+  //desc.add<edm::ParameterSet>("bremRecoveryPset", edm::ParameterSet());
+  
+  descriptions.add("hltEgammaHLTHybridClusterProducer", desc);  
 }
 
 
@@ -268,3 +315,4 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   nEvt_++;
 }
 
+ 

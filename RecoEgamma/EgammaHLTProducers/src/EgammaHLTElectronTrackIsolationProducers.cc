@@ -13,6 +13,8 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTElectronTrackIsolationProducers::EgammaHLTElectronTrackIsolationProducers(const edm::ParameterSet& config) {
 
@@ -30,7 +32,6 @@ EgammaHLTElectronTrackIsolationProducers::EgammaHLTElectronTrackIsolationProduce
   egTrkIsoRSpan_                = config.getParameter<double>("egTrkIsoRSpan");
   egTrkIsoVetoConeSizeBarrel_   = config.getParameter<double>("egTrkIsoVetoConeSizeBarrel");
   egTrkIsoVetoConeSizeEndcap_   = config.getParameter<double>("egTrkIsoVetoConeSizeEndcap");
-  // egCheckForOtherEleInCone_     = config.getUntrackedParameter<bool>("egCheckForOtherEleInCone",false);
   egTrkIsoStripBarrel_          = config.getParameter<double>("egTrkIsoStripBarrel");
   egTrkIsoStripEndcap_          = config.getParameter<double>("egTrkIsoStripEndcap");
 
@@ -44,6 +45,25 @@ EgammaHLTElectronTrackIsolationProducers::EgammaHLTElectronTrackIsolationProduce
 EgammaHLTElectronTrackIsolationProducers::~EgammaHLTElectronTrackIsolationProducers()
 {}
 
+void EgammaHLTElectronTrackIsolationProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;  
+  desc.add<edm::InputTag>("electronProducer", edm::InputTag("hltEleAnyWP80PixelMatchElectronsL1Seeded"));
+  desc.add<edm::InputTag>("trackProducer", edm::InputTag("hltL1SeededEgammaRegionalCTFFinalFitWithMaterial"));
+  desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag()); 
+  desc.add<edm::InputTag>("beamSpotProducer", edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<double>("egTrkIsoPtMin", 1.0);
+  desc.add<double>("egTrkIsoConeSize", 0.3);
+  desc.add<double>("egTrkIsoZSpan", 0.15);
+  desc.add<double>("egTrkIsoRSpan", 999999.0);
+  desc.add<double>("egTrkIsoVetoConeSizeBarrel", 0.03);
+  desc.add<double>("egTrkIsoVetoConeSizeEndcap", 0.03);
+  desc.add<double>("egTrkIsoStripBarrel", 0.03);
+  desc.add<double>("egTrkIsoStripEndcap", 0.03);
+  desc.add<bool>("useGsfTrack", false);
+  desc.add<bool>("useSCRefs", false);
+
+  descriptions.add("hltEgammaHLTElectronTrackIsolationProducers", desc);  
+}
 void EgammaHLTElectronTrackIsolationProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   edm::Handle<reco::ElectronCollection> electronHandle;
@@ -62,7 +82,7 @@ void EgammaHLTElectronTrackIsolationProducers::produce(edm::Event& iEvent, const
   
   const reco::BeamSpot::Point& beamSpotPosition = recoBeamSpotHandle->position(); 
 
-  ElectronTkIsolation isoAlgo(egTrkIsoConeSize_,egTrkIsoVetoConeSizeBarrel_,egTrkIsoVetoConeSizeEndcap_,egTrkIsoStripBarrel_,egTrkIsoStripEndcap_,egTrkIsoPtMin_, egTrkIsoZSpan_ ,egTrkIsoRSpan_,trackCollection,beamSpotPosition);
+  ElectronTkIsolation isoAlgo(egTrkIsoConeSize_,egTrkIsoVetoConeSizeBarrel_,egTrkIsoVetoConeSizeEndcap_,egTrkIsoStripBarrel_,egTrkIsoStripEndcap_,egTrkIsoPtMin_,egTrkIsoZSpan_,egTrkIsoRSpan_,trackCollection,beamSpotPosition);
   
   if(useSCRefs_){
     edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;

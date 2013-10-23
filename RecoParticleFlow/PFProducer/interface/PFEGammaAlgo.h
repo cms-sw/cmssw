@@ -12,6 +12,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
@@ -49,7 +50,7 @@ class PFEnergyCalibration;
 
 class PFEGammaAlgo {
  public:
-  typedef reco::SuperCluster::EEtoPSAssociation EEtoPSAssociation;
+  typedef reco::PFCluster::EEtoPSAssociation EEtoPSAssociation;
   typedef reco::PFBlockElementSuperCluster PFSCElement;
   typedef reco::PFBlockElementBrem PFBremElement;
   typedef reco::PFBlockElementGsfTrack PFGSFElement;
@@ -199,7 +200,7 @@ private:
 
   // useful pre-cached mappings:
   // hopefully we get an enum that lets us just make an array in the future
-  edm::Handle<reco::SuperCluster::EEtoPSAssociation> eetops_;
+  edm::Handle<reco::PFCluster::EEtoPSAssociation> eetops_;
   reco::PFBlockRef _currentblock;
   reco::PFBlock::LinkData _currentlinks;  
   // keep a map of pf indices to the splayed block for convenience

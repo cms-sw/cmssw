@@ -12,6 +12,8 @@
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::ParameterSet& config) : conf_(config) {
   
@@ -28,6 +30,16 @@ EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::Paramete
 
 EgammaHLTClusterShapeProducer::~EgammaHLTClusterShapeProducer()
 {}
+
+void EgammaHLTClusterShapeProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltL1SeededRecoEcalCandidate"));
+  desc.add< edm::InputTag >(("ecalRechitEB"), edm::InputTag("hltEcalRegionalEgammaRecHit","EcalRecHitsEB"));
+  desc.add< edm::InputTag >(("ecalRechitEE"), edm::InputTag("hltEcalRegionalEgammaRecHit","EcalRecHitsEE"));
+  desc.add< bool >(("isIeta"), true);
+  descriptions.add(("hltEgammaHLTClusterShapeProducer"), desc);  
+}
 
 void EgammaHLTClusterShapeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   

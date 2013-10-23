@@ -27,12 +27,17 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTEcalRecIsolationProducer : public edm::EDProducer {
  public:
   explicit EgammaHLTEcalRecIsolationProducer(const edm::ParameterSet&);
   ~EgammaHLTEcalRecIsolationProducer();
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
  private:
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::EDGetTokenT<EcalRecHitCollection> ecalBarrelRecHitProducer_;

@@ -33,6 +33,8 @@
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 using namespace std;
 using namespace reco;
@@ -61,6 +63,30 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGenerato
 // Virtual destructor needed.
 EgammaHLTRegionalPixelSeedGeneratorProducers::~EgammaHLTRegionalPixelSeedGeneratorProducers() { 
 }  
+
+void EgammaHLTRegionalPixelSeedGeneratorProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<double>("ptMin", 1.5);
+  desc.add<double>("vertexZ", 0);
+  desc.add<double>("originRadius", 0.02);
+  desc.add<double>("originHalfLength", 15.0);
+  desc.add<double>("deltaEtaRegion", 0.3);
+  desc.add<double>("deltaPhiRegion", 0.3);
+  desc.add<edm::InputTag>(("candTag"), edm::InputTag("hltL1SeededRecoEcalCandidate"));
+  desc.add<edm::InputTag>(("candTagEle"), edm::InputTag("pixelMatchElectrons"));
+  desc.add<edm::InputTag>(("BSProducer"), edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<bool>(("UseZInVertex"), false);
+  desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
+
+  edm::ParameterSetDescription orederedHitsPSET;
+  orederedHitsPSET.add<std::string>("ComponentName", "StandardHitPairGenerator");
+  orederedHitsPSET.add<std::string>("SeedingLayers", "hltESPPixelLayerPairs");
+  orederedHitsPSET.add<unsigned int>("maxElement", 0);
+  desc.add<edm::ParameterSetDescription>("OrderedHitsFactoryPSet", orederedHitsPSET);
+
+  descriptions.add(("hltEgammaHLTRegionalPixelSeedGeneratorProducers"), desc);  
+}
 
 void EgammaHLTRegionalPixelSeedGeneratorProducers::endRun(edm::Run const&run, const edm::EventSetup& es)
 {
