@@ -190,7 +190,7 @@ void  GEDPhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & th
 
     thePFBasedIsolationCalculator_ = new PFPhotonIsolationCalculator();
     edm::ParameterSet pfIsolationCalculatorSet = conf_.getParameter<edm::ParameterSet>("PFIsolationCalculatorSet"); 
-    thePFBasedIsolationCalculator_->setup(pfIsolationCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_);
+    thePFBasedIsolationCalculator_->setup(pfIsolationCalculatorSet);
   }
 
 
