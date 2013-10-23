@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoEgamma.PhotonIdentification.pfIsolationCalculator_cfi import *
 from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
@@ -23,7 +24,7 @@ gedPhotons = cms.EDProducer("GEDPhotonProducer",
     #candidateP4type = cms.string("fromRegression"),
     candidateP4type = cms.string("fromEcalEnergy"),                     
     isolationSumsCalculatorSet = cms.PSet(isolationSumsCalculator),
-#    PFIsolationCalculatorSet = cms.PSet(pfIsolationCalculator),                        
+    PFIsolationCalculatorSet = cms.PSet(pfIsolationCalculator),                        
     mipVariableSet = cms.PSet(mipVariable), 
     usePrimaryVertex = cms.bool(True),
     primaryVertexProducer = cms.InputTag('offlinePrimaryVerticesWithBS'),
