@@ -26,11 +26,16 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTElectronCombinedIsolationProducer : public edm::EDProducer {
 public:
   explicit EgammaHLTElectronCombinedIsolationProducer(const edm::ParameterSet&);
   ~EgammaHLTElectronCombinedIsolationProducer();
   virtual void produce(edm::Event&, const edm::EventSetup&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
 

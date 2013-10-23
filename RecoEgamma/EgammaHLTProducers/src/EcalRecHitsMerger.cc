@@ -3,6 +3,8 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EcalRecHitsMerger.h"
@@ -48,6 +50,28 @@ EcalRecHitsMerger::EcalRecHitsMerger(const edm::ParameterSet& pset) {
 EcalRecHitsMerger::~EcalRecHitsMerger() {
 }
 
+void EcalRecHitsMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("debug", false);
+  desc.add<edm::InputTag>("EgammaSource_EB", edm::InputTag("ecalRegionalEgammaRecHitTmp","EcalRecHitsEB"));
+  desc.add<edm::InputTag>("MuonsSource_EB", edm::InputTag("ecalRegionalMuonsRecHitTmp","EcalRecHitsEB"));
+  desc.add<edm::InputTag>("TausSource_EB", edm::InputTag("ecalRegionalTausRecHitTmp","EcalRecHitsEB"));
+  desc.add<edm::InputTag>("JetsSource_EB", edm::InputTag("ecalRegionalJetsRecHitTmp","EcalRecHitsEB"));
+  desc.add<edm::InputTag>("RestSource_EB", edm::InputTag("ecalRegionalRestRecHitTmp","EcalRecHitsEB"));
+  desc.add<edm::InputTag>("Pi0Source_EB", edm::InputTag("dummyPi0"));
+  desc.add<edm::InputTag>("EgammaSource_EE", edm::InputTag("ecalRegionalEgammaRecHitTmp","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("MuonsSource_EE", edm::InputTag("ecalRegionalMuonsRecHitTmp","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("TausSource_EE", edm::InputTag("ecalRegionalTausRecHitTmp","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("JetsSource_EE", edm::InputTag("ecalRegionalJetsRecHitTmp","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("RestSource_EE", edm::InputTag("ecalRegionalRestRecHitTmp","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("Pi0Source_EE", edm::InputTag("dummyPi0"));
+  desc.add<std::string>("OutputLabel_EB", "EcalRecHitsEB");
+  desc.add<std::string>("OutputLabel_EE", "EcalRecHitsEE");
+  desc.add<std::string>("EcalRecHitCollectionEB", "EcalRecHitsEB");
+  desc.add<std::string>("EcalRecHitCollectionEE", "EcalRecHitsEE");
+  descriptions.add("hltEcalRecHitsMerger", desc);  
+}
 
 void EcalRecHitsMerger::beginJob(){
 }

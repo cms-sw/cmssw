@@ -33,6 +33,8 @@
 
 #include "HLTrigger/Egamma/interface/HLTDisplacedEgammaFilter.h"
 
+#include "HLTrigger/Egamma/interface/HLTElectronMissingHitsFilter.h"
+
 DEFINE_FWK_MODULE(HLTEgammaGenericFilter);
 DEFINE_FWK_MODULE(HLTEgammaGenericQuadraticFilter);
 DEFINE_FWK_MODULE(HLTEgammaGenericQuadraticEtaFilter);
@@ -61,3 +63,5 @@ DEFINE_FWK_MODULE(HLTEgammaDoubleLegCombFilter);
 DEFINE_FWK_MODULE(HLTEgammaCombMassFilter);
 DEFINE_FWK_MODULE(HLTEgammaAllCombMassFilter);
 DEFINE_FWK_MODULE(HLTDisplacedEgammaFilter);
+
+DEFINE_FWK_MODULE(HLTElectronMissingHitsFilter);

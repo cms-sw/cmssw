@@ -29,6 +29,10 @@
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTHcalIsolation;
 
 class EgammaHLTHcalIsolationProducersRegional : public edm::EDProducer {
@@ -37,7 +41,8 @@ public:
   ~EgammaHLTHcalIsolationProducersRegional();
 
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   EgammaHLTHcalIsolationProducersRegional(const EgammaHLTHcalIsolationProducersRegional& rhs){}
   EgammaHLTHcalIsolationProducersRegional& operator=(const EgammaHLTHcalIsolationProducersRegional& rhs){return *this;}

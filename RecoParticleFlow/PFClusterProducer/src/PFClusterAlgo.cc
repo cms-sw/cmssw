@@ -83,7 +83,8 @@ void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle ) {
   doClusteringWorker( rechits );
 }
 
-void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle, const std::vector<bool> & mask ) {
+void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle, 
+				  const std::vector<bool> & mask ) {
 
   const reco::PFRecHitCollection& rechits = * rechitsHandle;
 
@@ -151,7 +152,6 @@ void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits, const
   doClusteringWorker( rechits );
 
 }
-
 
 void PFClusterAlgo::doClusteringWorker( const reco::PFRecHitCollection& rechits ) {
 
