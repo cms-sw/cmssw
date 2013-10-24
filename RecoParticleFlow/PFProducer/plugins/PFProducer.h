@@ -46,6 +46,13 @@ class PFProducer : public edm::EDProducer {
   std::string electronExtraOutputCol_;
   std::string photonExtraOutputCol_;
 
+  // NEW EGamma Filters
+  edm::InputTag inputTagValueMapGedElectrons_;
+  edm::InputTag inputTagValueMapGedPhotons_;
+  edm::InputTag inputTagPFEGammaCandidates_;
+  bool use_EGammaFilters_;
+
+
   //Use of HO clusters and links in PF Reconstruction
   bool useHO_;
 

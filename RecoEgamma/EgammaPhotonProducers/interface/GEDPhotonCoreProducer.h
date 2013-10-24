@@ -36,10 +36,10 @@ class GEDPhotonCoreProducer : public edm::EDProducer {
   std::string GEDPhotonCoreCollection_;
   std::string PFConversionCollection_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
+  edm::EDGetTokenT<reco::ElectronSeedCollection> pixelSeedProducer_;
 
   double minSCEt_;
   bool validConversions_;
-  std::string pixelSeedProducer_;
   edm::ParameterSet conf_;
   bool validPixelSeeds_;
 
