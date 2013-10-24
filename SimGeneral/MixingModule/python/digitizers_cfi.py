@@ -30,5 +30,11 @@ theDigitizers = cms.PSet(
   )
 )
 
+theDigitizersValid = cms.PSet(
+  mergedtruth = cms.PSet(
+    trackingParticles
+  )
+)
+
 
 

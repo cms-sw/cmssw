@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-def customise(process):
+from SimGeneral.MixingModule.digitizers_cfi import theDigitizersValid
+
+def customize(process):
 
     process.mix.mixObjects.mixCH.crossingFrames = cms.untracked.vstring(
         'CaloHitsTk', 
@@ -41,5 +43,7 @@ def customise(process):
         'TrackerHitsTIDLowTof', 
         'TrackerHitsTOBHighTof', 
         'TrackerHitsTOBLowTof')
+
+#    process.mix.digitizers = theDigitizersValid
 
     return(process)
