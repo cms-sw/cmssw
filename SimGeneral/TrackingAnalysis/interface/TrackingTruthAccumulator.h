@@ -13,7 +13,9 @@ namespace edm
 {
 	class ParameterSet;
         class ConsumesCollector;
-	class EDProducer;
+  namespace one {
+	class EDProducerBase;
+  }
 	class Event;
 	class EventSetup;
 }
@@ -65,7 +67,7 @@ class PSimHit;
 class TrackingTruthAccumulator : public DigiAccumulatorMixMod
 {
 public:
-	explicit TrackingTruthAccumulator( const edm::ParameterSet& config, edm::EDProducer& mixMod, edm::ConsumesCollector& iC);
+	explicit TrackingTruthAccumulator( const edm::ParameterSet& config, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
 private:
 	virtual void initializeEvent( const edm::Event& event, const edm::EventSetup& setup );
 	virtual void accumulate( const edm::Event& event, const edm::EventSetup& setup );

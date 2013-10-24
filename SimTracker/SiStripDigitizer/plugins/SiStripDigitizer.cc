@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -58,7 +58,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Random/RandomEngine.h"
 
-SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::EDProducer& mixMod, edm::ConsumesCollector& iC) : 
+SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) : 
   gainLabel(conf.getParameter<std::string>("Gain")),
   hitsProducer(conf.getParameter<std::string>("hitsProducer")),
   trackerContainers(conf.getParameter<std::vector<std::string> >("ROUList")),

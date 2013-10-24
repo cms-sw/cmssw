@@ -29,7 +29,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -86,7 +86,7 @@
 
 namespace cms
 {
-  SiPixelDigitizer::SiPixelDigitizer(const edm::ParameterSet& iConfig, edm::EDProducer& mixMod, edm::ConsumesCollector& iC):
+  SiPixelDigitizer::SiPixelDigitizer(const edm::ParameterSet& iConfig, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC):
     first(true),
     _pixeldigialgo(),
     hitsProducer(iConfig.getParameter<std::string>("hitsProducer")),

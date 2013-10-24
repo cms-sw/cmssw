@@ -6,13 +6,15 @@
 
 namespace edm {
   class ConsumesCollector;
-  class EDProducer;
+  namespace one {
+    class EDProducerBase;
+  }
   class ParameterSet;
 }
 
 class HcalDigiProducer : public DigiAccumulatorMixMod {
 public:
-  HcalDigiProducer(edm::ParameterSet const& pset, edm::EDProducer& mixMod, edm::ConsumesCollector& iC);
+  HcalDigiProducer(edm::ParameterSet const& pset, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
   virtual void initializeEvent(edm::Event const&, edm::EventSetup const&) override;
   virtual void finalizeEvent(edm::Event&, edm::EventSetup const&) override;
   virtual void accumulate(edm::Event const&, edm::EventSetup const&) override;

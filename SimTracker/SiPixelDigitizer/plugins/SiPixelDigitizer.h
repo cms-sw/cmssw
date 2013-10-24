@@ -27,7 +27,9 @@ namespace CLHEP {
 
 namespace edm {
   class ConsumesCollector;
-  class EDProducer;
+  namespace one {
+    class EDProducerBase;
+  }
   class Event;
   class EventSetup;
   class ParameterSet;
@@ -45,7 +47,7 @@ namespace cms {
   class SiPixelDigitizer : public DigiAccumulatorMixMod {
   public:
 
-    explicit SiPixelDigitizer(const edm::ParameterSet& conf, edm::EDProducer& mixMod, edm::ConsumesCollector& iC);
+    explicit SiPixelDigitizer(const edm::ParameterSet& conf, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
 
     virtual ~SiPixelDigitizer();
 
