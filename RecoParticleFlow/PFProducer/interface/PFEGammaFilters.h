@@ -27,12 +27,10 @@ class PFEGammaFilters {
 		  float ele_iso_combIso_ee,
 		  float ele_noniso_mva,
 		  unsigned int ele_missinghits,
-		  std::string ele_iso_path_mvaWeightFile
 		  std::string ele_iso_path_mvaWeightFile,
 		  std::vector<double> & ele_protectionsForJetMET
 		  );
   
-
   ~PFEGammaFilters(){delete ele_iso_mvaID_;};
   
   bool passPhotonSelection(const reco::Photon &);
