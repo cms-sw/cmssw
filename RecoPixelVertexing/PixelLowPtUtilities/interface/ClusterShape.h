@@ -4,6 +4,7 @@
 #include <utility>
 
 class PixelGeomDetUnit;
+class SiPixelCluster;
 class SiPixelRecHit;
 class ClusterData;
 
@@ -14,6 +15,8 @@ class ClusterShape
   ~ClusterShape();
   void determineShape(const PixelGeomDetUnit& pixelDet,
                       const SiPixelRecHit& recHit, ClusterData& data);
+  void determineShape(const PixelGeomDetUnit& pixelDet,
+                      const SiPixelCluster& cluster, ClusterData& data);
 
  private:
   int getDirection(int low,int hig, int olow,int ohig);
