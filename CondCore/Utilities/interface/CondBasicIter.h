@@ -12,7 +12,7 @@ class CondBasicIter{
 public:
   
   CondBasicIter();    
-  ~CondBasicIter();    
+  virtual ~CondBasicIter();
   
   
   /**
