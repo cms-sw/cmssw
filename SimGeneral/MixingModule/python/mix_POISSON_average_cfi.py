@@ -8,10 +8,10 @@ from SimGeneral.MixingModule.digitizers_cfi import *
 mix = cms.EDProducer("MixingModule",
     digitizers = cms.PSet(theDigitizers),
     LabelPlayback = cms.string(''),
-    maxBunch = cms.int32(3), ## all bunches come 75 ns late
-    minBunch = cms.int32(3), ## in terms of 25 nsec
+    maxBunch = cms.int32(3),
+    minBunch = cms.int32(-5), ## in terms of 25 nsec
 
-    bunchspace = cms.int32(25), ##ns
+    bunchspace = cms.int32(450), ##ns
     mixProdStep1 = cms.bool(False),
     mixProdStep2 = cms.bool(False),
 
@@ -19,18 +19,14 @@ mix = cms.EDProducer("MixingModule",
     useCurrentProcessOnly = cms.bool(False),
 
     input = cms.SecSource("PoolSource",
-        type = cms.string('probFunction'),
         nbPileupEvents = cms.PSet(
-          probFunctionVariable = cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24),
-          probValue = cms.vdouble(0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.04593,0.01965,0.00953,0.00440,0.00196),
-          histoFileName = cms.untracked.string('histProbFunction.root'),
-          seed = cms.untracked.int32(54321)
+            averageNumber = cms.double(1.0)
         ),
+        type = cms.string('poisson'),
 	sequential = cms.untracked.bool(False),
         fileNames = FileNames
     ),
     mixObjects = cms.PSet(theMixObjects)
 )
-
 
 
