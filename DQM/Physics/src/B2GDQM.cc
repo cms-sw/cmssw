@@ -57,8 +57,8 @@
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 //Substructure
-#include "TopQuarkAnalysis/TopPairBSM/src/CATopJetHelper.h"
-#include "AnalysisDataFormats/TopObjects/interface/CATopJetTagInfo.h"
+#include "RecoJets/JetAlgorithms/src/CATopJetHelper.h"
+#include "DataFormats/JetReco/interface/CATopJetTagInfo.h"
 
 // ROOT
 #include "TLorentzVector.h"
