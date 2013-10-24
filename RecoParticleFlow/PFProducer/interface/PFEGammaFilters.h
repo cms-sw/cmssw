@@ -7,6 +7,9 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
+
 #include <iostream>
 
 class PFEGammaFilters {
@@ -16,6 +19,7 @@ class PFEGammaFilters {
   PFEGammaFilters(float ph_Et,
 		  float ph_combIso,
 		  float ph_loose_hoe,
+		  std::vector<double> & ph_protectionsForJetMET,
 		  float ele_iso_pt,
 		  float ele_iso_mva_eb,
 		  float ele_iso_mva_ee,
@@ -24,6 +28,8 @@ class PFEGammaFilters {
 		  float ele_noniso_mva,
 		  unsigned int ele_missinghits,
 		  std::string ele_iso_path_mvaWeightFile
+		  std::string ele_iso_path_mvaWeightFile,
+		  std::vector<double> & ele_protectionsForJetMET
 		  );
   
 
@@ -31,15 +37,29 @@ class PFEGammaFilters {
   
   bool passPhotonSelection(const reco::Photon &);
   bool passElectronSelection(const reco::GsfElectron &, 
+			     const reco::PFCandidate &,
 			     const int & );
-  bool isElectron(const reco::GsfElectron & );  
+  bool isElectron(const reco::GsfElectron & );
+  
+  bool isElectronSafeForJetMET(const reco::GsfElectron &, 
+			       const reco::PFCandidate &,
+			       const reco::Vertex &,
+			       bool lockTracks);
+
+  bool isPhotonSafeForJetMET(const reco::Photon &, 
+			     const reco::PFCandidate &);
+
+  
 
  private:
+
+  unsigned int whichTrackAlgo(const reco::TrackRef& trackRef);
 
   // Photon selections
   float ph_Et_;
   float ph_combIso_;
   float ph_loose_hoe_;
+  std::vector<double> ph_protectionsForJetMET_;
 
   // Electron selections 
   float ele_iso_pt_;
@@ -51,7 +71,7 @@ class PFEGammaFilters {
   ElectronMVAEstimator *ele_iso_mvaID_;
   float ele_noniso_mva_;
   unsigned int ele_missinghits_;
-
+  std::vector<double> ele_protectionsForJetMET_;
   // Event variables 
   
 
