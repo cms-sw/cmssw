@@ -57,12 +57,16 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 	fileName = cms.untracked.string('out_digi_validation.root')
 )
 
+from Validation.MuonGEMDigis.simTrackMatching_cfi import SimTrackMatching
+
 process.demo = cms.EDAnalyzer('MuonGEMDigis',
 	outputFile = cms.string('valid.root'),
 	stripLabel= cms.InputTag('simMuonGEMDigis'),
 	cscPadLabel = cms.InputTag('simMuonGEMCSCPadDigis'),
-	cscCopadLabel = cms.InputTag('simMuonGEMCSCPadDigis','Coincidence')
-	
+	cscCopadLabel = cms.InputTag('simMuonGEMCSCPadDigis','Coincidence'),
+        simInputLabel = cms.untracked.string('g4SimHits'),
+        simTrackMatching = SimTrackMatching
+       	
 )
 
 

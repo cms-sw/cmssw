@@ -13,6 +13,7 @@
 #include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
 #include "Validation/MuonGEMDigis/interface/GEMCSCPadDigiValidation.h"
 #include "Validation/MuonGEMDigis/interface/GEMCSCCoPadDigiValidation.h"
+#include "Validation/MuonGEMDigis/interface/GEMTrackMatch.h"
 
 class GEMStripDigiValidation;
 
@@ -43,6 +44,7 @@ private:
   GEMStripDigiValidation* theGEMStripDigiValidation;
   GEMCSCPadDigiValidation* theGEMCSCPadDigiValidation;
   GEMCSCCoPadDigiValidation* theGEMCSCCoPadDigiValidation;
+  GEMTrackMatch* theGEMTrackMatch;
   
 
   void buildLUT();
@@ -52,10 +54,6 @@ private:
   edm::Handle<GEMDigiCollection> gem_digis;
   edm::Handle<GEMCSCPadDigiCollection> gemcscpad_digis;
   edm::Handle<GEMCSCPadDigiCollection> gemcsccopad_digis;
-/*
-  edm::Handle<edm::SimTrackContainer> sim_tracks;
-  edm::Handle<edm::SimVertexContainer> sim_vertices;
-*/
   edm::ESHandle<GEMGeometry> gem_geo_;
 
   const GEMGeometry* gem_geometry_;
@@ -65,7 +63,7 @@ private:
   edm::InputTag input_tag_gemcsccopad_;
 
 
-//  edm::ParameterSet cfg_;
+  //edm::ParameterSet cfg_;
   float minPt_;
   float   radiusCenter_, chamberHeight_;
 

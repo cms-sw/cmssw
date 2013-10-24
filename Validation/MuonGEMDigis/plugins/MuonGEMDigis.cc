@@ -97,6 +97,7 @@ MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
   theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, ps.getParameter<edm::InputTag>("stripLabel"));
   theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscPadLabel"));
   theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscCopadLabel"));
+  theGEMTrackMatch = new GEMTrackMatch(dbe_, ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits")   ,ps.getParameterSet("simTrackMatching"));
   
 
 
@@ -114,7 +115,7 @@ MuonGEMDigis::~MuonGEMDigis()
   delete theGEMStripDigiValidation;
   delete theGEMCSCPadDigiValidation;
   delete theGEMCSCCoPadDigiValidation;
-
+  delete theGEMTrackMatch;
 
 
 }
@@ -136,6 +137,10 @@ MuonGEMDigis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   theGEMCSCPadDigiValidation->analyze(iEvent,iSetup );  
   theGEMCSCCoPadDigiValidation->analyze(iEvent,iSetup );  
 
+ 
+  
+
+  theGEMTrackMatch->analyze(iEvent,iSetup) ;
 
 
 }
@@ -169,6 +174,7 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
    theGEMStripDigiValidation->setGeometry(gem_geometry_);
   theGEMCSCPadDigiValidation->setGeometry(gem_geometry_);
   theGEMCSCCoPadDigiValidation->setGeometry(gem_geometry_);
+  theGEMTrackMatch->setGeometry(gem_geometry_);
 
 
   const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
@@ -202,6 +208,8 @@ void
 MuonGEMDigis::endRun(edm::Run const&, edm::EventSetup const&)
 {
 //    if ( theDQM && ! outputFileName_.empty() ) theDQM->save(outputFileName_);
+  dbe_->book1D( "dg_eta_l1",theGEMTrackMatch->GetDgEta()[0] );
+
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
