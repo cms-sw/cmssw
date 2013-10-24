@@ -123,9 +123,13 @@ class PFAlgo {
 			   double ele_iso_combIso_endcap,
 			   double ele_noniso_mva,
 			   unsigned int ele_missinghits,
+			   bool useProtectionsForJetMET,
+			   std::vector<double> & ele_protectionsForJetMET,
 			   double ph_MinEt,
 			   double ph_combIso,
-			   double ph_HoE);
+			   double ph_HoE,
+			   std::vector<double> & ph_protectionsForJetMET);
+
   
   void setEGammaCollections(const edm::View<reco::PFCandidate> & pfEgammaCandidates,
 			    const edm::ValueMap<reco::GsfElectronRef> & valueMapGedElectrons, 
@@ -354,6 +358,7 @@ class PFAlgo {
   /// Variables for NEW EGAMMA selection
   bool useEGammaFilters_;
   PFEGammaFilters *pfegamma_;
+  bool useProtectionsForJetMET_;
   const edm::View<reco::PFCandidate> * pfEgammaCandidates_;
   const edm::ValueMap<reco::GsfElectronRef> * valueMapGedElectrons_;
   const edm::ValueMap<reco::PhotonRef> * valueMapGedPhotons_;  
