@@ -13,6 +13,7 @@ from DQM.Physics.ewkMuLumiMonitorDQM_cfi import *
 from DQM.Physics.susyDQM_cfi import *
 from DQM.Physics.HiggsDQM_cfi import *
 from DQM.Physics.ExoticaDQM_cfi import *
+from DQM.Physics.B2GDQM_cfi import *
 from JetMETCorrections.Configuration.JetCorrectionProducersAllAlgos_cff import *
 
 ## unused
@@ -33,6 +34,7 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *susyDQM
                            *HiggsDQM
                            *ExoticaDQM
+                           *B2GDQM
 #                           *ewkDQM
 #                           *qcdHighPtDQM
 #                           *ewkTauDQM

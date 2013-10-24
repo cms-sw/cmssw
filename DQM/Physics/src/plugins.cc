@@ -16,7 +16,7 @@
 #include "DQM/Physics/src/QcdUeDQM.h"
 #include "DQM/Physics/src/HiggsDQM.h"
 #include "DQM/Physics/src/ExoticaDQM.h"
-
+#include "DQM/Physics/src/B2GDQM.h"
 
 DEFINE_FWK_MODULE(BPhysicsOniaDQM);
 DEFINE_FWK_MODULE(EwkDQM);
@@ -34,3 +34,4 @@ DEFINE_FWK_MODULE(RecoSusyDQM);
 DEFINE_FWK_MODULE(QcdUeDQM);
 DEFINE_FWK_MODULE(HiggsDQM);
 DEFINE_FWK_MODULE(ExoticaDQM);
+DEFINE_FWK_MODULE(B2GDQM);
