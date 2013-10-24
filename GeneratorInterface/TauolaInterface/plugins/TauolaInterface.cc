@@ -55,7 +55,6 @@ extern "C" {
 TauolaInterface::TauolaInterface( const ParameterSet& pset)
    : fIsInitialized(false)
 {
-  std::cout << "TauolaInterfaceVar 0" << std::endl;
   fPy6Service = new Pythia6Service;
 
    fPolarization = pset.getParameter<bool>("UseTauolaPolarization") ? 1 : 0 ;
@@ -72,7 +71,6 @@ TauolaInterface::TauolaInterface( const ParameterSet& pset)
    ki_taumod_.pjak1 = cards.getParameter< int >( "pjak1" );
    ki_taumod_.pjak2 = cards.getParameter< int >( "pjak2" );
    ki_taumod_.mdtau = cards.getParameter< int >( "mdtau" );
-   std::cout << "TauolaInterfaceVar 1" << std::endl;
 } 
 
 TauolaInterface::~TauolaInterface()
@@ -87,7 +85,6 @@ void TauolaInterface::SetDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEn
 
 void TauolaInterface::init( const edm::EventSetup& es )
 {
-  std::cout << "TauolaInterfaceVar 2" << std::endl;
    if ( fIsInitialized ) return; // do init only once
    
    if ( ki_taumod_.mdtau <= -1 ) // actually, need to throw exception !
@@ -131,13 +128,11 @@ void TauolaInterface::init( const edm::EventSetup& es )
    fPy6Service->call( tauola_srs_, &mode, &fPolarization ); 
    
    fIsInitialized = true;
-   std::cout << "TauolaInterfaceVar 3" << std::endl;
    return;
 }
 
 HepMC::GenEvent* TauolaInterface::decay( HepMC::GenEvent* evt )
 {
-  std::cout << "TauolaInterfaceVar 4" << std::endl;
    // event record convertor
    //
    HepMC::IO_HEPEVT conv;
@@ -263,7 +258,6 @@ HepMC::GenEvent* TauolaInterface::decay( HepMC::GenEvent* evt )
 	 }
       }
    }
-   std::cout << "TauolaInterfaceVar 5" << std::endl;
    return conv.read_next_event();
       
 }

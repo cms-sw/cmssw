@@ -44,17 +44,17 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       std::string curSet = extGenNames[ip];
       if ( curSet == "EvtGen" )
       {
-	fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGenFactory", pset.getUntrackedParameter< ParameterSet >(curSet)));
+	fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGenLHC-9.1", pset.getUntrackedParameter< ParameterSet >(curSet)));
       }
       else if ( curSet == "Tauola" )
       {
-	fTauolaInterface = (TauolaInterfaceBase*)(EvtGenFactory::get()->create("Tauola27", pset.getUntrackedParameter< ParameterSet >(curSet)));
+	fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauola-27.121.5", pset.getUntrackedParameter< ParameterSet >(curSet)));
 	fTauolaInterface->SetDecayRandomEngine(decayRandomEngine);
       }
       else if ( curSet == "Photos" )
       {
 	if ( !fPhotosInterface ){
-	  fPhotosInterface = (PhotosInterfaceBase*)(EvtGenFactory::get()->create("PhotosFactory", pset.getUntrackedParameter< ParameterSet >(curSet)));
+	  fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos-215.5", pset.getUntrackedParameter< ParameterSet >(curSet)));
 	  fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
 	}
       }

@@ -2,4 +2,4 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "GeneratorInterface/PhotosInterface/interface/PhotosFactory.h"
 
-DEFINE_EDM_PLUGIN(PhotosFactory, gen::PhotosInterface, "PhotosFactory");
+DEFINE_EDM_PLUGIN(PhotosFactory, gen::PhotosInterface, "Photos-215.5");
