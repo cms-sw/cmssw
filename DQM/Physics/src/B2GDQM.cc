@@ -165,19 +165,19 @@ void B2GDQM::bookHistos(DQMStore* bei){
     std::stringstream ss;
     ss << "Physics/B2G/" << jetLabels_[icoll].label();
     bei->setCurrentFolder(ss.str().c_str());
-    pfJet_pt          .push_back( bei->book1D("pfJet_pt",     "Pt of PFJet (GeV)",      50, 0.0, 4000) );
+    pfJet_pt          .push_back( bei->book1D("pfJet_pt",     "Pt of PFJet (GeV)",      50, 0.0, 1000) );
     pfJet_y           .push_back( bei->book1D("pfJet_y",      "Rapidity of PFJet",      60, -6.0, 6.0) );
     pfJet_phi         .push_back( bei->book1D("pfJet_phi",    "#phi of PFJet (radians)",60, -3.14159, 3.14159) );
-    pfJet_m           .push_back( bei->book1D("pfJet_m",      "Mass of PFJet (GeV)",    50, 0.0, 400) );
+    pfJet_m           .push_back( bei->book1D("pfJet_m",      "Mass of PFJet (GeV)",    50, 0.0, 500) );
     pfJet_chef        .push_back( bei->book1D("pfJet_pfchef", "PFJetID CHEF", 50, 0.0 , 1.0));
     pfJet_nhef        .push_back( bei->book1D("pfJet_pfnhef", "PFJetID NHEF", 50, 0.0 , 1.0));
     pfJet_cemf        .push_back( bei->book1D("pfJet_pfcemf", "PFJetID CEMF", 50, 0.0 , 1.0));
     pfJet_nemf        .push_back( bei->book1D("pfJet_pfnemf", "PFJetID NEMF", 50, 0.0 , 1.0));
 
-    boostedJet_subjetPt       .push_back( bei->book1D("boostedJet_subjetPt",  "Pt of subjets (GeV)", 50, 0.0 , 2000));
+    boostedJet_subjetPt       .push_back( bei->book1D("boostedJet_subjetPt",  "Pt of subjets (GeV)", 50, 0.0 , 500));
     boostedJet_subjetY        .push_back( bei->book1D("boostedJet_subjetY",   "Rapidity of subjets", 60, -6.0, 6.0));
     boostedJet_subjetPhi      .push_back( bei->book1D("boostedJet_subjetPhi", "#phi of subjets (radians)", 60, -3.14159, 3.14159));
-    boostedJet_subjetM        .push_back( bei->book1D("boostedJet_subjetM",   "Mass of subjets (GeV)", 50, 0.0 , 200.));
+    boostedJet_subjetM        .push_back( bei->book1D("boostedJet_subjetM",   "Mass of subjets (GeV)", 50, 0.0 , 250.));
     boostedJet_subjetN        .push_back( bei->book1D("boostedJet_subjetN",   "Number of subjets", 10, 0, 10));
     boostedJet_massDrop       .push_back( bei->book1D("boostedJet_massDrop", "Mass drop for W-like jets", 50, 0.0 , 1.0));
     boostedJet_minMass        .push_back( bei->book1D("boostedJet_minMass",   "Minimum Mass Pairing for top-like jets", 50, 0.0 , 250.0));
@@ -261,7 +261,7 @@ void B2GDQM::analyzeEventInterpretation(const Event & iEvent, const edm::EventSe
 	// Check the various tagging algorithms
 
 	// For top-tagging, check the minimum mass pairing
-	if ( jetLabels_[icoll].instance() == "cmsTopTagPFJetsCHS") {
+	if ( jetLabels_[icoll].label() == "cmsTopTagPFJetsCHS") {
 	  CATopJetHelper helper(171.2, 80.4);
 	  reco::CATopJetProperties properties = helper(*basicjet);
 	  if ( jet->numberOfDaughters() > 2 ) {
@@ -271,7 +271,7 @@ void B2GDQM::analyzeEventInterpretation(const Event & iEvent, const edm::EventSe
 	  }
 	  
 	// For W-tagging, check the mass drop
-	} else if ( jetLabels_[icoll].instance() == "ca8PFJetsCHSPruned" ) {
+	} else if ( jetLabels_[icoll].label() == "ca8PFJetsCHSPruned" ) {
 	  if ( jet->numberOfDaughters() > 1 ) {
 	    reco::Candidate const * da0 = jet->daughter(0);
 	    reco::Candidate const * da1 = jet->daughter(1);
