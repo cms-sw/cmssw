@@ -1,8 +1,8 @@
 #include "RecoTrackAccumulator.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
-RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf, edm::EDProducer& mixMod, edm::ConsumesCollector& iC) :
+RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
   GeneralTrackInput_(conf.getParameter<edm::InputTag>("GeneralTrackInput")),
   GeneralTrackOutput_(conf.getParameter<std::string>("GeneralTrackOutput"))
 {
