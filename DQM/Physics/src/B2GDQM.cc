@@ -56,6 +56,10 @@
 //JetCorrection
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
+//Substructure
+#include "TopQuarkAnalysis/TopPairBSM/src/CATopJetHelper.h"
+#include "AnalysisDataFormats/TopObjects/interface/CATopJetTagInfo.h"
+
 // ROOT
 #include "TLorentzVector.h"
 
@@ -163,12 +167,21 @@ void B2GDQM::bookHistos(DQMStore* bei){
     bei->setCurrentFolder(ss.str().c_str());
     pfJet_pt          .push_back( bei->book1D("pfJet_pt",     "Pt of PFJet (GeV)",      50, 0.0, 4000) );
     pfJet_y           .push_back( bei->book1D("pfJet_y",      "Rapidity of PFJet",      60, -6.0, 6.0) );
-    pfJet_phi         .push_back( bei->book1D("pfJet_phi",    "#phi of PFJet (radians)",50, -3.14159, 3.14159) );
+    pfJet_phi         .push_back( bei->book1D("pfJet_phi",    "#phi of PFJet (radians)",60, -3.14159, 3.14159) );
     pfJet_m           .push_back( bei->book1D("pfJet_m",      "Mass of PFJet (GeV)",    50, 0.0, 400) );
     pfJet_chef        .push_back( bei->book1D("pfJet_pfchef", "PFJetID CHEF", 50, 0.0 , 1.0));
     pfJet_nhef        .push_back( bei->book1D("pfJet_pfnhef", "PFJetID NHEF", 50, 0.0 , 1.0));
     pfJet_cemf        .push_back( bei->book1D("pfJet_pfcemf", "PFJetID CEMF", 50, 0.0 , 1.0));
     pfJet_nemf        .push_back( bei->book1D("pfJet_pfnemf", "PFJetID NEMF", 50, 0.0 , 1.0));
+
+    boostedJet_subjetPt       .push_back( bei->book1D("boostedJet_subjetPt",  "Pt of subjets (GeV)", 50, 0.0 , 2000));
+    boostedJet_subjetY        .push_back( bei->book1D("boostedJet_subjetY",   "Rapidity of subjets", 60, -6.0, 6.0));
+    boostedJet_subjetPhi      .push_back( bei->book1D("boostedJet_subjetPhi", "#phi of subjets (radians)", 60, -3.14159, 3.14159));
+    boostedJet_subjetM        .push_back( bei->book1D("boostedJet_subjetM",   "Mass of subjets (GeV)", 50, 0.0 , 200.));
+    boostedJet_subjetN        .push_back( bei->book1D("boostedJet_subjetN",   "Number of subjets", 10, 0, 10));
+    boostedJet_massDrop       .push_back( bei->book1D("boostedJet_massDrop", "Mass drop for W-like jets", 50, 0.0 , 1.0));
+    boostedJet_minMass        .push_back( bei->book1D("boostedJet_minMass",   "Minimum Mass Pairing for top-like jets", 50, 0.0 , 250.0));
+
   }
 
   bei->setCurrentFolder("Physics/B2G/MET");
@@ -193,7 +206,11 @@ void B2GDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 void B2GDQM::analyzeEventInterpretation(const Event & iEvent, const edm::EventSetup& iSetup){
 
 
-
+  // Loop over the different types of jets, 
+  //   Loop over the jets in that collection,
+  //     fill PF jet information as well as substructure
+  //     information for boosted jets. 
+  // Utilizes the CMS top-tagging algorithm and the "mass drop" W-tagger. 
   for ( unsigned int icoll = 0; icoll < jetLabels_.size(); ++icoll ) {
 
     edm::Handle<edm::View<reco::Jet> > pfJetCollection;
@@ -216,6 +233,8 @@ void B2GDQM::analyzeEventInterpretation(const Event & iEvent, const edm::EventSe
       pfJet_phi [icoll]->Fill(jet->phi());
       pfJet_m   [icoll]->Fill(jet->mass());
 
+      // Dynamic cast the base class (reco::Jet) to the derived class (PFJet)
+      // to access the PFJet information
       reco::PFJet const * pfjet = dynamic_cast<reco::PFJet const *>( &*jet);
 
       if ( pfjet != 0 ) {
@@ -224,6 +243,50 @@ void B2GDQM::analyzeEventInterpretation(const Event & iEvent, const edm::EventSe
 	pfJet_cemf[icoll]->Fill(pfjet->chargedEmEnergyFraction());
 	pfJet_nemf[icoll]->Fill(pfjet->neutralEmEnergyFraction());
       }
+
+      // Dynamic cast the base class (reco::Jet) to the derived class (BasicJet)
+      // to access the substructure information
+      reco::BasicJet const * basicjet = dynamic_cast<reco::BasicJet const *>( &*jet);
+      
+      if ( basicjet != 0 ) {
+	boostedJet_subjetN[icoll]->Fill( jet->numberOfDaughters() );
+
+	for ( unsigned int ida = 0; ida < jet->numberOfDaughters(); ++ida ) {
+	  reco::Candidate const * subjet = jet->daughter(ida);
+	  boostedJet_subjetPt [icoll]->Fill ( subjet->pt() );
+	  boostedJet_subjetY  [icoll]->Fill ( subjet->rapidity() );
+	  boostedJet_subjetPhi[icoll]->Fill ( subjet->phi() );
+	  boostedJet_subjetM  [icoll]->Fill ( subjet->mass() );
+	}
+	// Check the various tagging algorithms
+
+	// For top-tagging, check the minimum mass pairing
+	if ( jetLabels_[icoll].instance() == "cmsTopTagPFJetsCHS") {
+	  CATopJetHelper helper(171.2, 80.4);
+	  reco::CATopJetProperties properties = helper(*basicjet);
+	  if ( jet->numberOfDaughters() > 2 ) {
+	    boostedJet_minMass[icoll]->Fill ( properties.minMass );	    
+	  } else {
+	    boostedJet_minMass[icoll]->Fill ( -1.0 );	    
+	  }
+	  
+	// For W-tagging, check the mass drop
+	} else if ( jetLabels_[icoll].instance() == "ca8PFJetsCHSPruned" ) {
+	  if ( jet->numberOfDaughters() > 1 ) {
+	    reco::Candidate const * da0 = jet->daughter(0);
+	    reco::Candidate const * da1 = jet->daughter(1);
+	    if ( da0->mass() > da1->mass() ) {
+	      boostedJet_massDrop[icoll]->Fill( da0->mass() / jet->mass() );
+	    } else {
+	      boostedJet_massDrop[icoll]->Fill( da1->mass() / jet->mass() );
+	    }
+	  } else {
+	    boostedJet_massDrop[icoll]->Fill( -1.0 );
+	  }
+
+	} // end if collection is CA8 PFJets CHS Pruned
+	
+      } // end if basic jet != 0
       countJet++;
     }
   }
