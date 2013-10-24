@@ -3,6 +3,10 @@
 #include <map>
 #include <set>
 
+#define protected public
+#include "HepMC/GenVertex.h"
+#undef protected
+
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
@@ -16,7 +20,9 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-#include <HepMC/GenRanges.h>
+#include "HepMC/GenRanges.h"
+
+typedef unsigned long long size_type;
 
 namespace {
 	struct dictionary {
