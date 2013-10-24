@@ -4,78 +4,65 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "string"
 
 class DQMTestMultiThread
     : public DQMEDAnalyzer
 {
  public:
-  DQMTestMultiThread(void);
-  DQMTestMultiThread(const edm::ParameterSet&);
+  explicit DQMTestMultiThread(const edm::ParameterSet&);
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-
-  virtual void endRunSummary(edm::Run const&,
-                             edm::EventSetup const&,
-                             int*) const override;
-  virtual void endLuminosityBlockSummary(edm::LuminosityBlock const&,
-                                         edm::EventSetup const&,
-                                         int*) const override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  virtual void bookHistograms(edm::Run const&,
-                              uint32_t streamId,
-                              uint32_t moduleId) override;
+  virtual void bookHistograms(DQMStore::IBooker&) override;
+
+  void dumpMe(MonitorElement const&, bool printStat = false);
 
  private:
-  void transferMEs(edm::Run const&, edm::EventSetup const&) const;
-
+  DQMTestMultiThread(void) = delete;
   MonitorElement * myHisto;
+  std::string folder_;
 };
 
+DQMTestMultiThread::DQMTestMultiThread(const edm::ParameterSet &pset):
+    folder_(pset.getUntrackedParameter<std::string>("folder")){}
 
-DQMTestMultiThread::DQMTestMultiThread(void){}
-DQMTestMultiThread::DQMTestMultiThread(const edm::ParameterSet&){}
-
-void DQMTestMultiThread::transferMEs(edm::Run const&,
-                                     edm::EventSetup const&) const {
-  // do nothing for the moment
-}
-
-void DQMTestMultiThread::bookHistograms(edm::Run const & iRun,
-                                        uint32_t streamId,
-                                        uint32_t moduleId) {
+void DQMTestMultiThread::bookHistograms(DQMStore::IBooker &b) {
+  b.setCurrentFolder("");
+  b.setCurrentFolder(folder_);
+  myHisto = b.book1D("MyHisto",
+                     "MyHisto",
+                     100, -0.5, 99.5);
   DQMStore * store = edm::Service<DQMStore>().operator->();
-  store->bookTransaction([&](DQMStore::IBooker & b) {
-                           b.setCurrentFolder("/MyDetector");
-                           myHisto = b.book1D("MyHisto",
-                                              "MyHisto",
-                                              100, 0., 100.);
-                         }, iRun.run(),
-                         streamId,
-                         moduleId);
+  std::cout << std::endl;
+  for (auto me : store->getAllContents("")) {
+    dumpMe(*me);
+  }
 }
 
-
-void DQMTestMultiThread::beginRun(edm::Run const &iRun,
-                                 edm::EventSetup const &iSetup) {
-  bookHistograms(iRun, streamId(), iRun.moduleCallingContext()->moduleDescription()->id());
+void DQMTestMultiThread::analyze(const edm::Event &iEvent,
+                                 const edm::EventSetup&)
+{
+  myHisto->Fill(iEvent.moduleCallingContext()->moduleDescription()->id());
 }
 
-
-void DQMTestMultiThread::endRunSummary(edm::Run const &iRun,
-                                       edm::EventSetup const &iSetup,
-                                       int*) const {
-  transferMEs(iRun, iSetup);
+void DQMTestMultiThread::dumpMe(MonitorElement const& me,
+                                bool printStat /* = false */) {
+  std::cout << "Run: " << me.run()
+            << " Lumi: " << me.lumi()
+            << " LumiFlag: " << me.getLumiFlag()
+            << " streamId: " << me.streamId()
+            << " moduleId: " << me.moduleId()
+            << " fullpathname: " << me.getPathname();
+  if (printStat)
+    std::cout << " Mean: " << me.getTH1F()->GetMean()
+              << " RMS: " << me.getTH1F()->GetRMS()
+              << " Entries: "
+              << std::setprecision(9) << me.getTH1F()->GetEntries();
+  std::cout << std::endl;
 }
-
-void DQMTestMultiThread::endLuminosityBlockSummary(edm::LuminosityBlock const &iRun,
-                                                   edm::EventSetup const &iSetup,
-                                                   int*) const {
-  //  transferMEs(iRun, iSetup);
-}
-
-void DQMTestMultiThread::analyze(const edm::Event&, const edm::EventSetup&)
-{}
 
 // define this as a plug-in
 DEFINE_FWK_MODULE(DQMTestMultiThread);

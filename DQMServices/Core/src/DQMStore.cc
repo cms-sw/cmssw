@@ -2267,6 +2267,7 @@ DQMStore::save(const std::string &filename,
                const std::string &path /* = "" */,
                const std::string &pattern /* = "" */,
                const std::string &rewrite /* = "" */,
+               const uint32_t run /* = 0 */,
                SaveReferenceTag ref /* = SaveWithReference */,
                int minStatus /* = dqm::qstatus::STATUS_OK */,
                const std::string &fileupdate /* = RECREATE */)
@@ -2323,12 +2324,29 @@ DQMStore::save(const std::string &filename,
       continue;
 
     // Loop over monitor elements in this directory.
-    MonitorElement proto(&*di, std::string());
+    MonitorElement proto(&*di, std::string(), run, 0, 0);
     mi = data_.lower_bound(proto);
+    std::cout <<"DQMStore::save() " << run << " " << *di << std::endl;
     for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname); ++mi)
     {
+      if (verbose_ > 1)
+        std::cout << "Run: " << (*mi).run()
+                  << " Lumi: " << (*mi).lumi()
+                  << " LumiFlag: " << (*mi).getLumiFlag()
+                  << " streamId: " << (*mi).streamId()
+                  << " moduleId: " << (*mi).moduleId()
+                  << " fullpathname: " << (*mi).getPathname() << std::endl;
       // Skip if it isn't a direct child.
       if (*di != *mi->data_.dirname)
+        continue;
+
+      // Keep backward compatibility with the old way of
+      // booking/handlind MonitorElements into the DQMStore. If run is
+      // 0 it means that a booking happened w/ the old non-threadsafe
+      // style, and we have to ignore the streamId and moduleId as a
+      // consequence.
+
+      if (run != 0 && (mi->data_.streamId !=0 || mi->data_.moduleId !=0))
         continue;
 
       // Handle reference histograms, with three distinct cases:

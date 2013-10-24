@@ -38,6 +38,7 @@ private:
   std::string	dirName_;
   int        	version_;
   bool		runIsComplete_;
+  bool          enableMultiThread_;
 
   int		saveByLumiSection_;
   int		saveByEvent_;

@@ -4,6 +4,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzerAdaptor.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
@@ -13,41 +14,43 @@
 
 namespace edm {class StreamID;}
 
+namespace dqmDetails {struct NoCache {};}
+
 
 class DQMEDAnalyzer
-    : public edm::stream::EDAnalyzer<edm::RunSummaryCache<int>,
-                                     edm::LuminosityBlockSummaryCache<int> >
+    : public edm::stream::EDAnalyzer<edm::RunSummaryCache<dqmDetails::NoCache>,
+                                     edm::LuminosityBlockSummaryCache<dqmDetails::NoCache> >
 {
- public:
+public:
   DQMEDAnalyzer(void);
   // implicit copy constructor
   // implicit assignment operator
   // implicit destructor
   virtual void beginStream(edm::StreamID id) final;
-  static std::shared_ptr<int> globalBeginRunSummary(edm::Run const&,
-                                                    edm::EventSetup const&,
-                                                    RunContext const*);
+  virtual void beginRun(edm::Run const &, edm::EventSetup const&) final;
+  static std::shared_ptr<dqmDetails::NoCache> globalBeginRunSummary(edm::Run const&,
+                                                        edm::EventSetup const&,
+                                                        RunContext const*);
   virtual void endRunSummary(edm::Run const&,
                              edm::EventSetup const&,
-                             int*) const = 0;
+                             dqmDetails::NoCache*) const final;
   static void globalEndRunSummary(edm::Run const&,
                                   edm::EventSetup const&,
                                   RunContext const*,
-                                  int*);
-  static std::shared_ptr<int> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
-                                                                edm::EventSetup const&,
-                                                                LuminosityBlockContext const*);
+                                  dqmDetails::NoCache*);
+  static std::shared_ptr<dqmDetails::NoCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
+                                                                    edm::EventSetup const&,
+                                                                    LuminosityBlockContext const*);
   virtual void endLuminosityBlockSummary(edm::LuminosityBlock const&,
                                          edm::EventSetup const&,
-                                         int*) const = 0;
+                                         dqmDetails::NoCache*) const final;
   static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
                                               edm::EventSetup const&,
                                               LuminosityBlockContext const*,
-                                              int*);
+                                              dqmDetails::NoCache*);
   uint32_t streamId() const {return stream_id_;}
-  virtual void bookHistograms(edm::Run const&,
-                              uint32_t streamId,
-                              uint32_t moduleId) = 0;
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
+  virtual void bookHistograms(DQMStore::IBooker &) = 0;
 
 private:
   uint32_t stream_id_;

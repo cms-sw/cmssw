@@ -378,6 +378,7 @@ public:
                                      const std::string &path = "",
                                      const std::string &pattern = "",
                                      const std::string &rewrite = "",
+                                     const uint32_t run = 0,
                                      SaveReferenceTag ref = SaveWithReference,
                                      int minStatus = dqm::qstatus::STATUS_OK,
                                      const std::string &fileupdate = "RECREATE");

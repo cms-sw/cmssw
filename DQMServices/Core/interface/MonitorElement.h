@@ -367,6 +367,11 @@ public:
 
   const uint32_t getTag(void) const
     { return data_.tag; }
+
+  const uint32_t run(void) const {return data_.run;}
+  const uint32_t lumi(void) const {return data_.lumi;}
+  const uint32_t streamId(void) const {return data_.streamId;}
+  const uint32_t moduleId(void) const {return data_.moduleId;}
 };
 
 #endif // DQMSERVICES_CORE_MONITOR_ELEMENT_H
