@@ -6,6 +6,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -136,6 +137,7 @@ PFEGammaCandidateChecker::analyze(const Event& iEvent,
     }
   
   unsigned recoSize = pfReco.size();
+  unsigned reRecoSize = pfReReco.size();
   //unsigned minSize = std::min(recoSize,pfReReco.size());
   bool differentCand = false;
   bool differentSize = pfReco.size() != pfReReco.size();
@@ -146,6 +148,8 @@ PFEGammaCandidateChecker::analyze(const Event& iEvent,
 	      << " - Re-RECO size : " << pfReReco.size() << endl;
 
   unsigned npr = 0;
+
+  std::cout << "========= check pf -> ged =========" << std::endl;
   for( unsigned i=0; i<recoSize; i++ ) {
     
     const reco::PFCandidate & candReco = (rankByPt_) ? pfReco[i] : (*pfCandidatesReco)[i];
@@ -154,7 +158,9 @@ PFEGammaCandidateChecker::analyze(const Event& iEvent,
     switch( std::abs(candReco.pdgId()) ) {
     case 11:
       {
-	std::cout << "got an electron!" << std::endl;
+	std::cout << "got a pfElectron!" << std::endl;
+	std::cout << '\t' << candReco << std::endl;
+	std::cout << '\t' << candReco.gsfTrackRef()->ptMode() << std::endl;
 	gsfequals findbygsf(candReco);
 	reco::PFCandidateCollection::const_iterator found = 
 	  std::find_if(pfReReco.begin(),pfReReco.end(),findbygsf);
@@ -162,14 +168,23 @@ PFEGammaCandidateChecker::analyze(const Event& iEvent,
 	  std::cout << "Found matching electron candidate by gsf track!" 
 		    << std::endl;
 	  candReReco = &*found;
+	} else {
+	  std::cout << "NO MATCHING GED ELECTRON" << std::endl;
 	}
-	if( candReco.gsfElectronRef().isNonnull() ) {
-	  std::cout << "original pf cand has gsf" << std::endl;
-	}
-	if( candReReco && candReReco->gsfElectronRef().isNonnull() ) {
-	  std::cout << "pf eg cand has gsf" << std::endl;
-	}
-	
+	reco::GsfElectronRef oldpf = candReco.gsfElectronRef();
+	reco::GsfElectronRef pfeg;
+	if( candReReco ) pfeg = candReReco->gsfElectronRef();
+	if( oldpf.isNonnull() && pfeg.isNonnull() ) {
+	  const double oldpf_sihih = oldpf->sigmaIetaIeta();
+	  const double pfeg_sihih  = pfeg->sigmaIetaIeta();
+	  std::cout << "matched set of gsf electrons" << std::endl;
+	  if( oldpf_sihih < pfeg_sihih ) {
+	    std::cout << "pfeg sigma-ieta-ieta > oldpf sigma-ieta-ieta" << std::endl;
+	  }
+	  if( oldpf_sihih > pfeg_sihih ) {
+	    std::cout << "pfeg sigma-ieta-ieta < oldpf sigma-ieta-ieta" << std::endl;
+	  }	  
+	}	
       }
       break;
     case 22:
@@ -213,9 +228,98 @@ PFEGammaCandidateChecker::analyze(const Event& iEvent,
 	if ( ++npr == 5 ) break;
       }
     }
-    ++entry_;
   }
-  
+  std::cout << "========= check ged -> pf =========" << std::endl;
+  for( unsigned i=0; i<reRecoSize; i++ ) {
+    
+    const reco::PFCandidate * candReco = NULL;
+    const reco::PFCandidate & candReReco = (rankByPt_) ? pfReReco[i] : (*pfCandidatesReReco)[i];
+
+    switch( std::abs(candReReco.pdgId()) ) {
+    case 11:
+      {
+	std::cout << "got a ged electron!" << std::endl;
+	std::cout << '\t' << candReReco << std::endl;
+	std::cout << '\t' << candReReco.gsfTrackRef()->ptMode() << std::endl;
+	gsfequals findbygsf(candReReco);
+	reco::PFCandidateCollection::const_iterator found = 
+	  std::find_if(pfReco.begin(),pfReco.end(),findbygsf);
+	if( found != pfReco.end() ) {
+	  std::cout << "Found matching electron candidate by gsf track!" 
+		    << std::endl;
+	  candReco = &*found;
+	}
+	reco::GsfElectronRef oldpf;
+	reco::GsfElectronRef pfeg  = candReReco.gsfElectronRef();
+	if( candReco ) oldpf = candReco->gsfElectronRef();
+	if( pfeg.isNonnull() ) {
+	  const double pfeg_sihih  = pfeg->sigmaIetaIeta();
+	  if( ( std::abs(pfeg->superCluster()->eta()) < 1.479 && pfeg_sihih > 0.012 ) ||
+	      ( std::abs(pfeg->superCluster()->eta()) > 1.479 && pfeg_sihih > 0.032 )   ) {
+	    std::cout << "anomalously large sigma ieta ieta in pfeg!" << std::endl;
+	    std::cout << "\tsihih    : " << pfeg_sihih << std::endl;
+	    std::cout << "\te1x5     : " << pfeg->e1x5() << std::endl;
+	    std::cout << "\te2x5 max : " << pfeg->e2x5Max() << std::endl;
+	    std::cout << "\te5x5     : " << pfeg->e5x5() << std::endl;
+	    std::cout << "\tfBrem    : " << pfeg->trackFbrem() << std::endl;
+	  }
+	  if( oldpf.isNonnull() && pfeg.isNonnull() ) {
+	    const double oldpf_sihih = oldpf->sigmaIetaIeta();	    
+	    std::cout << "matched set of gsf electrons" << std::endl;
+	    if( oldpf_sihih < pfeg_sihih ) {
+	      std::cout << "pfeg sigma-ieta-ieta > oldpf sigma-ieta-ieta" << std::endl;
+	    }
+	    if( oldpf_sihih > pfeg_sihih ) {
+	      std::cout << "pfeg sigma-ieta-ieta < oldpf sigma-ieta-ieta" << std::endl;
+	    }
+	  }
+	}	
+      }
+      break;
+    case 22:
+      { 
+	scequals findbysc(candReReco);
+	reco::PFCandidateCollection::const_iterator found = 
+	  std::find_if(pfReco.begin(),pfReco.end(),findbysc);
+	if( candReReco.photonRef().isNonnull() && found != pfReco.end() ) {
+	  std::cout << "Found matching photon candidate by parent!" 
+		    << std::endl;
+	  candReco = &*found;
+	}
+      }
+      break;
+    default:
+      break;
+    }
+
+    if( candReco != NULL ) {
+    
+      double deltaE = (candReReco.energy()-candReco->energy())/(candReReco.energy()+candReco->energy());
+      double deltaEta = candReReco.eta()-candReco->eta();
+      double deltaPhi = candReReco.phi()-candReco->phi();
+      if ( fabs(deltaE) > deltaEMax_ ||
+	   fabs(deltaEta) > deltaEtaMax_ ||
+	   fabs(deltaPhi) > deltaPhiMax_ ) { 
+	differentCand = true;
+	std::cout << "+++WARNING+++ PFCandidate (e or gamma) " << i 
+		  << " changed  for entry " << entry_ << " ! " << std::endl 
+		  << " - RECO     : " << *candReco << std::endl
+		  << " - Re-RECO  : " << candReReco << std::endl
+		  << " DeltaE   = : " << deltaE << std::endl
+		  << " DeltaEta = : " << deltaEta << std::endl
+		  << " DeltaPhi = : " << deltaPhi << std::endl << std::endl;
+	if (printBlocks_) {
+	  std::cout << "Elements in Block for RECO: " <<std::endl;
+	  printElementsInBlocks(*candReco);
+	  std::cout << "Elements in Block for Re-RECO: " <<std::endl;
+	  printElementsInBlocks(candReReco);
+	}
+	if ( ++npr == 5 ) break;
+      }
+    }    
+  }
+
+
   if ( differentSize || differentCand ) { 
     printJets(*pfJetsReco, *pfJetsReReco);
     printMet(pfReco, pfReReco);
