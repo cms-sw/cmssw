@@ -58,7 +58,11 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   postMuonCleaning_
     = iConfig.getParameter<bool>("postMuonCleaning");
 
-  use_EGammaFilters_ =  iConfig.getParameter<bool>("useEGammaFilters");    
+  if( iConfig.existsAs<bool>("useEGammaFilters") ) {
+    use_EGammaFilters_ =  iConfig.getParameter<bool>("useEGammaFilters");    
+  } else {
+    use_EGammaFilters_ = false;
+  }
 
   usePFElectrons_
     = iConfig.getParameter<bool>("usePFElectrons");    
