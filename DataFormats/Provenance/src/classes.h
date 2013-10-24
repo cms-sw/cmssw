@@ -55,12 +55,12 @@ namespace edm {
   typedef Hash<ModuleDescriptionType> ModuleDescriptionID;
 }
 
-using edm::EntryDescriptionType;
-using edm::ModuleDescriptionType;
-using edm::ParameterSetType;
-using edm::ParentageType;
-using edm::ProcessConfigurationType;
-using edm::ProcessHistoryType;
+using edm::EntryDescriptionType;      // WORKAROUND for genreflex bug
+using edm::ModuleDescriptionType;     // WORKAROUND for genreflex bug
+using edm::ParameterSetType;          // WORKAROUND for genreflex bug
+using edm::ParentageType;             // WORKAROUND for genreflex bug
+using edm::ProcessConfigurationType;  // WORKAROUND for genreflex bug
+using edm::ProcessHistoryType;        // WORKAROUND for genreflex bug
 
 namespace {
   struct dictionary {
