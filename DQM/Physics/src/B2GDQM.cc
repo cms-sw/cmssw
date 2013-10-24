@@ -57,7 +57,7 @@
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 //Substructure
-#include "RecoJets/JetAlgorithms/src/CATopJetHelper.h"
+#include "RecoJets/JetAlgorithms/interface/CATopJetHelper.h"
 #include "DataFormats/JetReco/interface/CATopJetTagInfo.h"
 
 // ROOT
