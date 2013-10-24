@@ -4,7 +4,8 @@
 <library file="module.cc" name="PhysicsToolsMVATrainerPlugins">
    <flags EDM_PLUGIN="1"/>
 </library>
-<library file="ProcMLP.cc MLP*.cc mlp*.cc mlp_lapack.c" name="PhysicsToolsMVATrainerProcMLP">
+<library file="ProcMLP.cc MLP*.cc mlp*.cc" name="PhysicsToolsMVATrainerProcMLP">
+   <lib name="lapack"/>
    <flags EDM_PLUGIN="1"/>
 </library>
 <library file="ProcTMVA.cc" name="PhysicsToolsMVATrainerProcTMVA">
