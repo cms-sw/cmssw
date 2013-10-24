@@ -54,8 +54,9 @@
 
 // Jets
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "RecoJets/JetProducers/interface/JetIDHelper.h"
+
 
 // Photon
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -147,6 +148,13 @@ private:
   std::vector<MonitorElement*> pfJet_nhef;
   std::vector<MonitorElement*> pfJet_cemf;
   std::vector<MonitorElement*> pfJet_nemf;
+  std::vector<MonitorElement*> boostedJet_subjetPt;
+  std::vector<MonitorElement*> boostedJet_subjetY;
+  std::vector<MonitorElement*> boostedJet_subjetPhi;
+  std::vector<MonitorElement*> boostedJet_subjetM;
+  std::vector<MonitorElement*> boostedJet_subjetN;
+  std::vector<MonitorElement*> boostedJet_massDrop;
+  std::vector<MonitorElement*> boostedJet_minMass;
   MonitorElement* pfMet_pt;
   MonitorElement* pfMet_phi;
   
