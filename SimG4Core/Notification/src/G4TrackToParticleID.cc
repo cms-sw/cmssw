@@ -4,10 +4,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define DebugLog
-
-G4TrackToParticleID::G4TrackToParticleID() {}
-
 int G4TrackToParticleID::particleID(const G4Track * g4trk)
 {
     int particleID_ = g4trk->GetDefinition()->GetPDGEncoding();
@@ -20,5 +16,3 @@ int G4TrackToParticleID::particleID(const G4Track * g4trk)
     edm::LogWarning("SimG4CoreNotification") << "G4TrackToParticleID: unknown code for track Id = " << g4trk->GetTrackID();
     return -99;
 }
-
-G4TrackToParticleID::~G4TrackToParticleID() {}
