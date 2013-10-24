@@ -43,7 +43,6 @@ public:
   Digi alctInChamber(unsigned int) const;
   Digi lctInChamber(unsigned int) const;
 
-
   /// crossed chamber detIds with not necessarily matching stubs
   std::set<unsigned int> chamberIdsAllCLCT(int csc_type = CSC_ME1b) const;
   std::set<unsigned int> chamberIdsAllALCT(int csc_type = CSC_ME1b) const;
@@ -92,6 +91,8 @@ private:
 
   template<class D>
   std::set<unsigned int> selectDetIds(D &digis, int csc_type) const;
+
+  bool addGhostLCTs_;
 };
 
 
