@@ -254,7 +254,6 @@ void PFAlgo::setEGammaParameters(bool use_EGammaFilters,
 				   ele_iso_combIso_endcap,
 				   ele_noniso_mva,
 				   ele_missinghits,
-				   ele_iso_path_mvaWeightFile);
 				   ele_iso_path_mvaWeightFile,
 				   ele_protectionsForJetMET);
 

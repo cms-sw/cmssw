@@ -3,11 +3,8 @@
 //
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaFilters.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-<<<<<<< HEAD
-=======
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
->>>>>>> 2a07cce... the pfeg filters
 
 using namespace std;
 using namespace reco;
