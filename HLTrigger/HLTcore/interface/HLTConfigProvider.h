@@ -252,6 +252,8 @@ class HLTConfigProvider {
   /// Combined L1T (pair.first) and HLT (pair.second) prescales per HLT path
   std::pair<int,int> prescaleValues(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const;
   // any one negative => error in retrieving this (L1T or HLT) prescale
+
+  // In case of a complex Boolean expression as L1 seed
   std::pair<std::vector<std::pair<std::string,int> >,int> prescaleValuesInDetail(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const;
 
   /// low-level data member access 
