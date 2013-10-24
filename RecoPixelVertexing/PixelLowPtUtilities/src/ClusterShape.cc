@@ -97,6 +97,13 @@ void ClusterShape::determineShape
   (const PixelGeomDetUnit& pixelDet,
    const SiPixelRecHit& recHit, ClusterData& data)
 {
+  determineShape(pixelDet, *(recHit.cluster()), data);
+}
+
+void ClusterShape::determineShape
+  (const PixelGeomDetUnit& pixelDet,
+   const SiPixelCluster& cluster, ClusterData& data)
+{
   // Topology
   const PixelTopology * theTopology = (&(pixelDet.specificTopology())); 
  
@@ -112,7 +119,7 @@ void ClusterShape::determineShape
   pair<int,int> pos;
  
   // Get sorted pixels
-  vector<SiPixelCluster::Pixel> pixels = recHit.cluster()->pixels();
+  vector<SiPixelCluster::Pixel> pixels = cluster.pixels();
   sort(pixels.begin(),pixels.end(),lessPixel());
 
   // Look at all the pixels
@@ -149,22 +156,22 @@ void ClusterShape::determineShape
     data.isStraight = false;
 
   // Treat clusters with big pixel(s) inside
-  for(int ix = recHit.cluster()->minPixelRow() + 1;
-          ix < recHit.cluster()->maxPixelRow(); ix++)
+  for(int ix = cluster.minPixelRow() + 1;
+          ix < cluster.maxPixelRow(); ix++)
     if(theTopology->isItBigPixelInX(ix)) x[1]++;
  
-  for(int iy = recHit.cluster()->minPixelCol() + 1;
-          iy < recHit.cluster()->maxPixelCol(); iy++)
+  for(int iy = cluster.minPixelCol() + 1;
+          iy < cluster.maxPixelCol(); iy++)
     if(theTopology->isItBigPixelInY(iy)) y[1]++;
 
   // Treat clusters with bix pixel(s) outside, FIXME FIXME
   int px = 0;
-  if(theTopology->isItBigPixelInX(recHit.cluster()->minPixelRow())) px++;
-  if(theTopology->isItBigPixelInX(recHit.cluster()->maxPixelRow())) px++;
+  if(theTopology->isItBigPixelInX(cluster.minPixelRow())) px++;
+  if(theTopology->isItBigPixelInX(cluster.maxPixelRow())) px++;
 
   int py = 0;
-  if(theTopology->isItBigPixelInY(recHit.cluster()->minPixelCol())) py++;
-  if(theTopology->isItBigPixelInY(recHit.cluster()->maxPixelCol())) py++;
+  if(theTopology->isItBigPixelInY(cluster.minPixelCol())) py++;
+  if(theTopology->isItBigPixelInY(cluster.maxPixelCol())) py++;
 
   if(px > 0 || py > 0)
     data.hasBigPixelsOnlyInside = false;
