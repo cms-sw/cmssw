@@ -138,7 +138,7 @@ namespace edm {
 
       private:
          std::string indention_;
-         std::string dumpContextForLabel_;
+         std::vector<std::string> dumpContextForLabel_;
          bool dumpNonModuleContext_;
       };
    }
