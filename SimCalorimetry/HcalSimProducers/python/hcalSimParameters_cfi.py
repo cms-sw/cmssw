@@ -43,7 +43,7 @@ hcalSimParameters = cms.PSet(
         timeSmearing = cms.bool(False),
         # 0 is HPD, 1 is SiPM, 2 fetches HPD/Zecotek/Hamamatsufrom DB
         siPMCode = cms.int32(1),
-        pixels = cms.int(2500),
+        pixels = cms.int32(2500),
         doSiPMSmearing = cms.bool(False)
     ),
     hb = cms.PSet(
