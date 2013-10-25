@@ -211,9 +211,10 @@ void GEMDigiAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
   iSetup.get<MuonGeometryRecord>().get(gem_geo_);
   gem_geometry_ = &*gem_geo_;
 
+  // FIXME - when a geometry with different partition numbers will be released, the code will brake!
   const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
-   // TODO: it's really bad to hardcode max partition number!
-  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,6)));
+  const int nEtaPartitions(gem_geometry_->chamber(GEMDetId(1,1,1,1,1,1))->nEtaPartitions());
+  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
   const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
   const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
   const LocalPoint lp_top(0., top_half_striplength, 0.);
