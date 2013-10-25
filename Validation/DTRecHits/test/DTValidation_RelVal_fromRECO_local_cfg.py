@@ -6,14 +6,14 @@ import FWCore.ParameterSet.Config as cms
 #
 # Configurable options:
 
-reReco = False         # Set this to True to re-reconstruct hits
+reReco = True         # Set this to True to re-reconstruct hits
 skipDeltaSuppr = True # Skip DRR (only when reReco=True)
 
 
 doAngleCorr = False
 
-SAMPLE = "536"
-#SAMPLE = "5312"
+#SAMPLE = "536"
+SAMPLE = "5312"
 #SAMPLE = "620p6"
 #SAMPLE = "700p4"
 

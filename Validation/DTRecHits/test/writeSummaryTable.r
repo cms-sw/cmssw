@@ -115,10 +115,12 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doEffab = true, b
 	if (doRes) {
 	  if (station!=4) {
 	    TH1F* tmpTheta = (TH1F*) hResTheta->hRes->Clone("tmpTheta");
+	    tmpTheta->Rebin(2);
 	    TF1* ftheta = drawGFit(tmpTheta, nsigma, -2. , 2.);
 	    stheta = ftheta->GetParameter("Sigma");
 	  }
 	  TH1F* tmpPhi = (TH1F*) hResPhi1->hRes->Clone("tmpPhi");
+	  tmpPhi->Rebin(2);
 	  TF1* fphi = drawGFit(tmpPhi, nsigma, -2. , 2. );
 	  sphi = fphi->GetParameter("Sigma");
 
@@ -130,11 +132,13 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doEffab = true, b
 	if (doResab) {
 	  if (station!=4) {
 	    TH1F* tmpBeta = (TH1F*) hRes4D->hResBeta->Clone("tmpBeta");
+	    tmpBeta->Rebin(2);
 	    TF1* fbeta = drawGFit(tmpBeta, nsigma, -2. , 2.);
 	    sbeta = fbeta->GetParameter("Sigma");
 	    mbeta = fbeta->GetParameter("Mean");
 	    
 	    TH1F* tmpAlpha = (TH1F*) hRes4D->hResAlpha->Clone("tmpAlpha");
+	    // tmpAlpha->Rebin(2);
 	    TF1* falpha = drawGFit(tmpAlpha, nsigma, -2. , 2. );
 	    salpha = falpha->GetParameter("Sigma");
 	    malpha = falpha->GetParameter("Mean");

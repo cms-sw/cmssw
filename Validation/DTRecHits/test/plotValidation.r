@@ -107,7 +107,8 @@ void plotValidation(TString filename, int wheel, int station) {
   //-------------------- Hit Residuals at step 3 in phi and theta (full distrib and vs distance from wire)
   if (doPhiAndThetaS3) {
     TCanvas* c1= new TCanvas;
-    c1->SetTitle(canvbasename+"_ResPhiTheta");
+    c1->SetTitle(canvbasename+"_ResPhiTheta"); 
+    c1->SetName(canvbasename+"_ResPhiTheta");
     c1->Divide(2,2);
     
     c1->cd(1);
@@ -153,7 +154,8 @@ void plotValidation(TString filename, int wheel, int station) {
   //-------------------- Hit pulls
   if (doHitPull){
     TCanvas* c1= new TCanvas;
-    c1->SetTitle(canvbasename+"_PullPhiTheta");
+    c1->SetTitle(canvbasename+"_PullPhiTheta"); 
+    c1->SetName(canvbasename+"_PullPhiTheta");
     c1->Divide(2,2);
     
     c1->cd(1);
@@ -183,8 +185,8 @@ void plotValidation(TString filename, int wheel, int station) {
       c1->cd(4);  
       plotAndProfileX(hResTheta->hPullVsPos,rbx,rby,rbp,-5, 5, 0, 2.1);  
     
-      m_theta = ftheta->GetParameter("Mean")*cmToMicron;
-      s_theta = ftheta->GetParameter("Sigma")*cmToMicron;  
+      m_theta = ftheta->GetParameter("Mean");
+      s_theta = ftheta->GetParameter("Sigma");  
     }
     
 
@@ -199,7 +201,8 @@ void plotValidation(TString filename, int wheel, int station) {
   //-------------------- Hit efficiencies as a function of distance from wire
   if (doEff) {
     TCanvas* c1= new TCanvas;
-    c1->SetTitle(canvbasename+"_EffPhiTheta");
+    c1->SetTitle(canvbasename+"_EffPhiTheta");  
+    c1->SetName(canvbasename+"_EffPhiTheta");
     c1->SetWindowSize(325,750);
     c1->Divide(1,2);
     c1->cd(1);
@@ -219,7 +222,8 @@ void plotValidation(TString filename, int wheel, int station) {
   //-------------------- #hits, t0s
   if (doT0) {
     TCanvas* c1= new TCanvas;
-    c1->SetTitle(canvbasename+"_NHitsT0");
+    c1->SetTitle(canvbasename+"_NHitsT0");   
+    c1->SetName(canvbasename+"_NHitsT0");
     c1->Divide(2,2);
     c1->cd(1);
     
@@ -245,7 +249,8 @@ void plotValidation(TString filename, int wheel, int station) {
   //-------------------- Segment x, y, alpha, beta resolutions
   if (doSegRes){
     TCanvas* c1= new TCanvas;
-    c1->SetTitle(canvbasename+"_ResSeg");
+    c1->SetTitle(canvbasename+"_ResSeg"); 
+    c1->SetName(canvbasename+"_ResSeg");
     c1->Divide(2,2);
     c1->cd(1);
     //    hRes4D->hResX->Rebin(2);
@@ -259,7 +264,6 @@ void plotValidation(TString filename, int wheel, int station) {
     c1->cd(4);
     hRes4D->hResBeta->Rebin(2);
     drawGFit(hRes4D->hResBeta, nsigma, -0.4, 0.4);
-    
   }
 
 
@@ -269,8 +273,8 @@ void plotValidation(TString filename, int wheel, int station) {
     
     float min;
     float max;
-
-    c1->SetName(canvbasename+" MeanVsAngles");
+    c1->SetTitle(canvbasename+"_MeanVsAngles");
+    c1->SetName(canvbasename+"_MeanVsAngles");
     c1->SetTitle(canvbasename+" Angles");
     
     c1->Divide(2,2);
@@ -297,6 +301,7 @@ void plotValidation(TString filename, int wheel, int station) {
     TH1F* hEffbeta;
 
     TCanvas* c1= new TCanvas;
+    c1->SetTitle(canvbasename+"_Efficiencies"); 
     c1->SetName(canvbasename+"_Efficiencies");
     c1->SetTitle(canvbasename+"_Efficiencies");
     

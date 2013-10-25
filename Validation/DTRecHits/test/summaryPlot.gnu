@@ -7,7 +7,7 @@ reset
 set macro
 
 #Set the input file here
-myfile =  '"<sort -gs -k 2 True_RelValZMM536_BP7X_noDRR_summary.txt"'
+myfile =  '"<sort -gs -k 2 True_RelValZMM5312_BP7X_noDRR_summary.txt"'
 
 
 #Set this to 1 to print plots to png files
