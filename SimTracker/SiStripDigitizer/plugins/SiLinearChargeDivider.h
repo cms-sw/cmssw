@@ -67,9 +67,9 @@ class SiLinearChargeDivider : public SiChargeDivider{
   // pulse shape in deconvolution mode
   float DeconvolutionShape( const PSimHit*, const StripGeomDetUnit& det);
   // data table for pulse shape in peak mode
-  static float peakValues[921];
+  static float const peakValues[921];
   // data table for pulse shape in deconvolution mode
-  static float decoValues[651];
+  static float const decoValues[651];
 
 };
 
