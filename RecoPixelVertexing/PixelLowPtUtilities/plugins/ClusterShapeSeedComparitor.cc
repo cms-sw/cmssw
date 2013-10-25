@@ -12,6 +12,11 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 #include <cstdio>
 #include <cassert>
 
@@ -39,6 +44,8 @@ class PixelClusterShapeSeedComparitor : public SeedComparitor {
 
         std::string filterName_;
         mutable edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
+        edm::EDGetTokenT<SiPixelClusterShapeCache> pixelClusterShapeCacheToken_;
+        edm::Handle<SiPixelClusterShapeCache> pixelClusterShapeCache_;
         bool filterAtHelixStage_;
         bool filterPixelHits_, filterStripHits_;
 };
@@ -46,6 +53,7 @@ class PixelClusterShapeSeedComparitor : public SeedComparitor {
 
 PixelClusterShapeSeedComparitor::PixelClusterShapeSeedComparitor(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC) :
     filterName_(cfg.getParameter<std::string>("ClusterShapeHitFilterName")),
+    pixelClusterShapeCacheToken_(iC.consumes<SiPixelClusterShapeCache>(cfg.getParameter<edm::InputTag>("ClusterShapeCacheSrc"))),
     filterAtHelixStage_(cfg.getParameter<bool>("FilterAtHelixStage")),
     filterPixelHits_(cfg.getParameter<bool>("FilterPixelHits")),
     filterStripHits_(cfg.getParameter<bool>("FilterStripHits"))
@@ -59,6 +67,7 @@ PixelClusterShapeSeedComparitor::~PixelClusterShapeSeedComparitor()
 void
 PixelClusterShapeSeedComparitor::init(const edm::Event& ev, const edm::EventSetup& es) {
     es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
+    ev.getByToken(pixelClusterShapeCacheToken_, pixelClusterShapeCache_);
 }
 
 
@@ -126,7 +135,7 @@ PixelClusterShapeSeedComparitor::compatibleHit(const TrackingRecHit &hit, const 
         const SiPixelRecHit *pixhit = dynamic_cast<const SiPixelRecHit *>(&hit);
         if (pixhit == 0) throw cms::Exception("LogicError", "Found a valid hit on the pixel detector which is not a SiPixelRecHit\n");
         //printf("Cheching hi hit on detid %10d, local direction is x = %9.6f, y = %9.6f, z = %9.6f\n", hit.geographicalId().rawId(), direction.x(), direction.y(), direction.z());
-        return filterHandle_->isCompatible(*pixhit, direction);
+        return filterHandle_->isCompatible(*pixhit, direction, *pixelClusterShapeCache_);
     } else {
         if (!filterStripHits_) return true;
         const std::type_info &tid = typeid(*&hit);
