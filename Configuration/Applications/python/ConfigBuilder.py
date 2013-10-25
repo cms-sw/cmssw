@@ -1352,6 +1352,10 @@ class ConfigBuilder(object):
         if self._options.himix==True:
             self.loadAndRemember("SimGeneral/MixingModule/himixDIGI_cff")
 
+        if sequence == 'pdigi_valid':
+            from SimGeneral.MixingModule.digitizers_cfi import theDigitizersValid
+            self.process.mix.digitizers = cms.PSet(theDigitizersValid)
+
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
 

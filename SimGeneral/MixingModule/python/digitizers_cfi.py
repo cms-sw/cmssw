@@ -24,17 +24,31 @@ theDigitizers = cms.PSet(
   ),
   castor  = cms.PSet(
     castorDigitizer
+  )
+)
+
+theDigitizersValid = cms.PSet(
+  pixel = cms.PSet(
+    pixelDigitizer
+  ),
+  strip = cms.PSet(
+    stripDigitizer
+  ),
+  ecal = cms.PSet(
+    ecalDigitizer
+  ),
+  hcal = cms.PSet(
+    hcalDigitizer
+  ),
+  castor  = cms.PSet(
+    castorDigitizer
   ),
   mergedtruth = cms.PSet(
     trackingParticles
   )
 )
 
-theDigitizersValid = cms.PSet(
-  mergedtruth = cms.PSet(
-    trackingParticles
-  )
-)
+
 
 
 

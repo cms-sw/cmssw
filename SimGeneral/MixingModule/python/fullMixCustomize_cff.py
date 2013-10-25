@@ -44,6 +44,4 @@ def customize(process):
         'TrackerHitsTOBHighTof', 
         'TrackerHitsTOBLowTof')
 
-#    process.mix.digitizers = theDigitizersValid
-
     return(process)
