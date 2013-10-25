@@ -1,7 +1,7 @@
 #include "SimCalorimetry/HcalSimProducers/plugins/HcalDigiProducer.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
-HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::EDProducer& mixMod, edm::ConsumesCollector& iC) :
+HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
   DigiAccumulatorMixMod(),
   theDigitizer_(pset, iC) {
   mixMod.produces<HBHEDigiCollection>();
