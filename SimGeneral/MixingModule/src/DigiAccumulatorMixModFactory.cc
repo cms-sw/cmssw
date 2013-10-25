@@ -19,9 +19,9 @@ namespace edm {
   DigiAccumulatorMixModFactory::DigiAccumulatorMixModFactory() {
   }
 
-  DigiAccumulatorMixModFactory DigiAccumulatorMixModFactory::singleInstance_;
+  DigiAccumulatorMixModFactory const DigiAccumulatorMixModFactory::singleInstance_;
 
-  DigiAccumulatorMixModFactory* DigiAccumulatorMixModFactory::get() {
+  DigiAccumulatorMixModFactory const* DigiAccumulatorMixModFactory::get() {
     // will not work with plugin factories
     //static DigiAccumulatorMixModFactory f;
     //return &f;
