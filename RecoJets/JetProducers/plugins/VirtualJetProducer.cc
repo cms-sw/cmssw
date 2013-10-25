@@ -623,8 +623,9 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
   std::auto_ptr<std::vector<T> > jets(new std::vector<T>() );
   jets->reserve(fjJets_.size());
   
-  // Distance between jet centers -- for disk-based area calculation
-  std::vector<std::vector<double> >   rij(fjJets_.size());
+  // Distance between jet centers and overlap area -- for disk-based area calculation
+  using RIJ = std::pair<double,double>; 
+  std::vector<std::vector<RIJ> >   rij(fjJets_.size());
 
   float etaJ[fjJets_.size()],  phiJ[fjJets_.size()];
   auto etaFromXYZ = [](float x, float y, float z)->float { float t(z/std::sqrt(x*x+y*y)); return vdt::fast_logf(t + std::sqrt(t*t+1.f));};
@@ -657,13 +658,15 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       // which should happen in FastjetJetProducer::runAlgorithm() 
       jetArea   = M_PI;
       if (0!=ijet) {
-        std::vector<double>&  distance  = rij[ijet];
+        std::vector<RIJ>&  distance  = rij[ijet];
         distance.resize(ijet);
         for (unsigned jJet = 0; jJet < ijet; ++jJet) {
-          distance[jJet]      = std::sqrt(reco::deltaR2(etaJ[ijet],phiJ[ijet], etaJ[jJet],phiJ[jJet])) / rParam_;
-          jetArea            -= reco::helper::VirtualJetProducerHelper::intersection(distance[jJet]);
+          distance[jJet].first      = std::sqrt(reco::deltaR2(etaJ[ijet],phiJ[ijet], etaJ[jJet],phiJ[jJet])) / rParam_;
+          distance[jJet].second = reco::helper::VirtualJetProducerHelper::intersection(distance[jJet].first);
+          jetArea            -=distance[jJet].second;
           for (unsigned kJet = 0; kJet < jJet; ++kJet) {
-            jetArea          += reco::helper::VirtualJetProducerHelper::intersection(distance[jJet], distance[kJet], rij[jJet][kJet]);
+            jetArea          += reco::helper::VirtualJetProducerHelper::intersection(distance[jJet].first, distance[kJet].first, rij[jJet][kJet].first, 
+                                                                                     distance[jJet].second, distance[kJet].second, rij[jJet][kJet].second);
           } // end loop over harder jets
         } // end loop over harder jets
       }
