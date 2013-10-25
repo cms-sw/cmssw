@@ -556,11 +556,11 @@ struct Area<reco::CaloJet>{ static float get(reco::CaloJet const & jet) {
 template< typename T >
 void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& iSetup )
 {
-  std::cout << "writeJets " << typeid(T).name() 
-            << (doRhoFastjet_ ? " doRhoFastjet " : "")
-            << (doAreaFastjet_ ? " doAreaFastjet " : "")
-            << (doAreaDiskApprox_ ? " doAreaDiskApprox " : "")
-            << std::endl;
+  // std::cout << "writeJets " << typeid(T).name() 
+  //          << (doRhoFastjet_ ? " doRhoFastjet " : "")
+  //          << (doAreaFastjet_ ? " doAreaFastjet " : "")
+  //          << (doAreaDiskApprox_ ? " doAreaDiskApprox " : "")
+  //          << std::endl;
 
   if (doRhoFastjet_) {
     // declare jet collection without the two jets, 
@@ -693,7 +693,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     }
     
     
-    std::cout << "area " << ijet << " " << jetArea << " " << Area<T>::get(jet) << std::endl;
+    // std::cout << "area " << ijet << " " << jetArea << " " << Area<T>::get(jet) << std::endl;
 
     // add to the list
     jets->push_back(jet);        
