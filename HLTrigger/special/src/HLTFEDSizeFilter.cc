@@ -44,7 +44,7 @@ public:
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     
 private:
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
     
     // ----------member data ---------------------------
     edm::EDGetTokenT<FEDRawDataCollection> RawCollectionToken_;
@@ -100,7 +100,7 @@ HLTFEDSizeFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
 // ------------ method called on each new Event  ------------
 bool
-HLTFEDSizeFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+HLTFEDSizeFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
     // get the RAW data collction
     edm::Handle<FEDRawDataCollection> h_raw;

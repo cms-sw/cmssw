@@ -53,7 +53,7 @@ HLTElectronEoverpFilterRegional::fillDescriptions(edm::ConfigurationDescriptions
 
 // ------------ method called to produce the data  ------------
 bool
-HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
   // The filter object

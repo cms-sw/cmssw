@@ -44,7 +44,7 @@ HLTEgammaAllCombMassFilter::fillDescriptions(edm::ConfigurationDescriptions& des
 
 // ------------ method called to produce the data  ------------
 
-bool HLTEgammaAllCombMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTEgammaAllCombMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   //right, issue 1, we dont know if this is a TriggerElectron, TriggerPhoton, TriggerCluster (should never be a TriggerCluster btw as that implies the 4-vectors are not stored in AOD)
 

@@ -58,7 +58,7 @@ class HLTPMMassFilter : public HLTFilter {
    public:
       explicit HLTPMMassFilter(const edm::ParameterSet&);
       ~HLTPMMassFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);      
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;      
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

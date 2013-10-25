@@ -49,7 +49,7 @@ HLTHcalPhiSymFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 
 // ------------ method called to produce the data  ------------
 bool
-HLTHcalPhiSymFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTHcalPhiSymFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   edm::Handle<HBHERecHitCollection> HBHERecHitsH;
   edm::Handle<HORecHitCollection> HORecHitsH;

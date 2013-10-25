@@ -91,7 +91,7 @@ void HLTBeamModeFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   descriptions.add("hltBeamModeFilter", desc);
 }
 
-bool HLTBeamModeFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTBeamModeFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
     // for MC samples, return always true (not even checking validity of L1GlobalTriggerEvmReadoutRecord)
     // eventually, the BST information will be filled also in MC simulation to spare this check

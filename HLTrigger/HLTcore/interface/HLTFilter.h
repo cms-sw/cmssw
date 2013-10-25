@@ -33,10 +33,10 @@ public:
   virtual ~HLTFilter();
 
 private:
-  bool filter(edm::Event & event, const edm::EventSetup & setup);
+  bool filter(edm::Event & event, const edm::EventSetup & setup) override final;
 
-  // declared pue virtual to enforce inheriting classes to implement it
-  virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterobject) = 0;
+  // declared pure virtual to enforce inheriting classes to implement it
+  virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterobject) const = 0;
 
 private:
   const bool saveTags_;

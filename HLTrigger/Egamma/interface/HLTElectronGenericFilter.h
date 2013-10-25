@@ -25,7 +25,7 @@ class HLTElectronGenericFilter : public HLTFilter {
    public:
       explicit HLTElectronGenericFilter(const edm::ParameterSet&);
       ~HLTElectronGenericFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

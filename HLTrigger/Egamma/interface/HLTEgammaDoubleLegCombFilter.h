@@ -21,7 +21,7 @@ class HLTEgammaDoubleLegCombFilter : public HLTFilter {
  public:
   explicit HLTEgammaDoubleLegCombFilter(const edm::ParameterSet&);
   ~HLTEgammaDoubleLegCombFilter();
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   void matchCands(const std::vector<math::XYZPoint>& firstLegP3s,const std::vector<math::XYZPoint>& secondLegP3s,std::vector<std::pair<int,int> >&matchedCands);

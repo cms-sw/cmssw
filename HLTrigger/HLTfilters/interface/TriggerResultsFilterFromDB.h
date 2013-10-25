@@ -40,7 +40,7 @@ public:
   explicit TriggerResultsFilterFromDB(const edm::ParameterSet &);
   ~TriggerResultsFilterFromDB();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
 
 private:
   /// read the triggerConditions from the database

@@ -41,7 +41,7 @@ class HLTElectronMuonInvMassFilter : public HLTFilter {
    public:
       explicit HLTElectronMuonInvMassFilter(const edm::ParameterSet&);
       ~HLTElectronMuonInvMassFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);      
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;      
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

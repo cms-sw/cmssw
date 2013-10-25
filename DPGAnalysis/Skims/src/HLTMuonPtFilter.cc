@@ -41,7 +41,7 @@ HLTMuonPtFilter::~HLTMuonPtFilter() {
 }
 
 /* Operations */ 
-bool HLTMuonPtFilter::hltFilter(edm::Event& event, const edm::EventSetup& eventSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTMuonPtFilter::hltFilter(edm::Event& event, const edm::EventSetup& eventSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
   event.getByLabel(theSTAMuonLabel, staTracks);

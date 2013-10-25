@@ -54,7 +54,7 @@ HLTElectronEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 }
 
 // ------------ method called to produce the data  ------------
-bool HLTElectronEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTElectronEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
   if (saveTags()) {

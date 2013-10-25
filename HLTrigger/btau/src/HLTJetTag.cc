@@ -77,7 +77,7 @@ HLTJetTag<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 // ------------ method called to produce the data  ------------
 template<typename T>
 bool
-HLTJetTag<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTJetTag<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;

@@ -23,7 +23,7 @@ class HLTJetPairDzMatchFilter : public HLTFilter {
     explicit HLTJetPairDzMatchFilter(const edm::ParameterSet&);
     ~HLTJetPairDzMatchFilter();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
     
   private:
 

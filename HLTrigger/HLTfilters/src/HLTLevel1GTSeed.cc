@@ -252,7 +252,7 @@ HLTLevel1GTSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   descriptions.add("hltLevel1GTSeed", desc);
 }
 
-bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
     // all HLT filters must create and fill a HLT filter object,
     // recording any reconstructed physics objects satisfying

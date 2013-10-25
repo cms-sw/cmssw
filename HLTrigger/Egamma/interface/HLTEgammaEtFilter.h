@@ -24,7 +24,7 @@ class HLTEgammaEtFilter : public HLTFilter {
    public:
       explicit HLTEgammaEtFilter(const edm::ParameterSet&);
       ~HLTEgammaEtFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

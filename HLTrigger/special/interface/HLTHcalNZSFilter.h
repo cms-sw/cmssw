@@ -45,16 +45,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:
-  virtual void beginJob(void);
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-  virtual void endJob(void);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
   
   // ----------member data ---------------------------
   
   edm::EDGetTokenT<FEDRawDataCollection> dataInputToken_;
   edm::InputTag dataInputTag_;
-  bool          summary_;
-  int           eventsNZS_; 
 
 };
 

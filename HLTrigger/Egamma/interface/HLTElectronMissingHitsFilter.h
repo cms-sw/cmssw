@@ -17,7 +17,7 @@ class HLTElectronMissingHitsFilter : public HLTFilter {
  public:
       explicit HLTElectronMissingHitsFilter(const edm::ParameterSet&);
       ~HLTElectronMissingHitsFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:

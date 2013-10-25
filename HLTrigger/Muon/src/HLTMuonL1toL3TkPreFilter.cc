@@ -90,7 +90,7 @@ HLTMuonL1toL3TkPreFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
 
 // ------------ method called to produce the data  ------------
 bool
-HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
    // All HLT filters must create and fill an HLT filter object,
@@ -186,8 +186,9 @@ HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, tri
    
    return accept;
 }
+
 bool
-HLTMuonL1toL3TkPreFilter::triggeredAtL1(const l1extra::L1MuonParticleRef & l1mu,std::vector<l1extra::L1MuonParticleRef>& vcands)
+HLTMuonL1toL3TkPreFilter::triggeredAtL1(const l1extra::L1MuonParticleRef & l1mu,std::vector<l1extra::L1MuonParticleRef>& vcands) const
 {
   bool ok=false;
 

@@ -30,7 +30,7 @@ class HLTPixlMBForAlignmentFilter : public HLTFilter {
    public:
       explicit HLTPixlMBForAlignmentFilter(const edm::ParameterSet&);
       ~HLTPixlMBForAlignmentFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

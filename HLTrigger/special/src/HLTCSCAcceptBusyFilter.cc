@@ -49,7 +49,7 @@ class HLTCSCAcceptBusyFilter : public HLTFilter {
 public:
   explicit HLTCSCAcceptBusyFilter(const edm::ParameterSet&);
   virtual ~HLTCSCAcceptBusyFilter();
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
 
 private:
@@ -108,7 +108,7 @@ HLTCSCAcceptBusyFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 //
 
 // ------------ method called on each new Event  ------------
-bool HLTCSCAcceptBusyFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTCSCAcceptBusyFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
    using namespace edm;
 

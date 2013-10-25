@@ -53,9 +53,8 @@ HLTTrackerHaloFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
-
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
@@ -74,19 +73,11 @@ bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& i
   
 
   /// First initialize some variables
+  int SST_clus_MAP_m[5][8][9]; memset(SST_clus_MAP_m,  0x00, sizeof(SST_clus_MAP_m));
+  int SST_clus_MAP_p[5][8][9]; memset(SST_clus_MAP_p,  0x00, sizeof(SST_clus_MAP_p));
+  int SST_clus_PROJ_m[5][8];   memset(SST_clus_PROJ_m, 0x00, sizeof(SST_clus_PROJ_m));
+  int SST_clus_PROJ_p[5][8];   memset(SST_clus_PROJ_p, 0x00, sizeof(SST_clus_PROJ_p));
 
-  for (int i=0;i<5;++i)
-  {
-    for (int j=0;j<8;++j)
-    {
-      SST_clus_PROJ_m[i][j]=0;
-      SST_clus_PROJ_p[i][j]=0;
-
-      for (int k=0;k<9;++k) SST_clus_MAP_m[i][j][k]=0;
-      for (int k=0;k<9;++k) SST_clus_MAP_p[i][j][k]=0;
-    }
-  }
-  
   int n_total_clus  = 0;
   int n_total_clusp = 0;
   int n_total_clusm = 0;

@@ -36,7 +36,7 @@ HLTEcalIsolationFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   descriptions.add("hltEcalIsolationFilter",desc);
 }
 
-bool HLTEcalIsolationFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTEcalIsolationFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
   // Ref to Candidate object to be recorded in filter object

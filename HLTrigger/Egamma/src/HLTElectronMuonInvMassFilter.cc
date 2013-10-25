@@ -49,7 +49,7 @@ HLTElectronMuonInvMassFilter::fillDescriptions(edm::ConfigurationDescriptions& d
 
 // ------------ method called to produce the data  ------------
 bool
-HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;

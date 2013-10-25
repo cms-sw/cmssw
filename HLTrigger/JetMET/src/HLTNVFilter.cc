@@ -50,7 +50,7 @@ void HLTNVFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
 // ------------ method called to produce the data  ------------
 bool
-HLTNVFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTNVFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;

@@ -69,7 +69,7 @@ HLTJetVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& description
 //
 template<typename T>
 bool
-HLTJetVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTJetVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 { 
   using namespace std;
   using namespace edm;

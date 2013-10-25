@@ -109,7 +109,7 @@ void TriggerResultsFilterFromDB::pathsFromSetup(const edm::Event & event, const 
   parse( triggerBits->decompose(listIter->second) );
 }
 
-bool TriggerResultsFilterFromDB::hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool TriggerResultsFilterFromDB::hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // if the IOV has changed, re-read the triggerConditions from the database
   if (m_eventSetupWatcher.check(setup))

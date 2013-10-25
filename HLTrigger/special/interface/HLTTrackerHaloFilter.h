@@ -46,7 +46,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
 
   edm::EDGetTokenT<edm::RefGetter<SiStripCluster> > inputToken_;
   edm::InputTag inputTag_; // input tag identifying product containing pixel clusters
@@ -57,14 +57,7 @@ private:
   int max_back_;   // Max number of accumulations per side
   int fastproc_;   // fast unpacking of cluster info, based on DetIds 
  
-  int SST_clus_MAP_m[5][8][9];
-  int SST_clus_MAP_p[5][8][9];
-  int SST_clus_PROJ_m[5][8];
-  int SST_clus_PROJ_p[5][8];
-
   static const int m_TEC_cells[];
-
-
 };
 
 #endif

@@ -60,7 +60,7 @@ HLTDiJetAveFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descripti
 // ------------ method called to produce the data  ------------
 template<typename T>
 bool
-HLTDiJetAveFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTDiJetAveFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;

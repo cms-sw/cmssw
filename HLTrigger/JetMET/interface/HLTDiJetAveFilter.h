@@ -26,7 +26,7 @@ class HLTDiJetAveFilter : public HLTFilter {
       explicit HLTDiJetAveFilter(const edm::ParameterSet&);
       ~HLTDiJetAveFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
 
    private:
       edm::EDGetTokenT<std::vector<T>> m_theJetToken;

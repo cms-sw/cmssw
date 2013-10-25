@@ -27,7 +27,7 @@ class HLTMuonIsoFilter : public HLTFilter {
       explicit HLTMuonIsoFilter(const edm::ParameterSet&);
       ~HLTMuonIsoFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
       bool triggerdByPreviousLevel(const reco::RecoChargedCandidateRef &, const std::vector<reco::RecoChargedCandidateRef> &);
    private:
       edm::InputTag                                          candTag_;   // input tag identifying muon container

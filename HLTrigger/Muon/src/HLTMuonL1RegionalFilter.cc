@@ -153,7 +153,7 @@ HLTMuonL1RegionalFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.add("hltMuonL1RegionalFilter", desc);
 }
 
-bool HLTMuonL1RegionalFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct){
+bool HLTMuonL1RegionalFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const{
   using namespace std;
   using namespace edm;
   using namespace trigger;

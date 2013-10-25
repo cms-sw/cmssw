@@ -47,7 +47,7 @@ HLT2jetGapFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
 // ------------ method called to produce the data  ------------
 bool
-HLT2jetGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLT2jetGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
 

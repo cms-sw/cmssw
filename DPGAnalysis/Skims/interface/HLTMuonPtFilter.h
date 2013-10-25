@@ -35,7 +35,7 @@ class HLTMuonPtFilter : public HLTFilter {
     ~HLTMuonPtFilter() ;
 
 /* Operations */ 
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
 
   private:
     std::string theSTAMuonLabel; // label of muons 

@@ -26,7 +26,7 @@ class HLTMuonL2PreFilter : public HLTFilter {
     explicit HLTMuonL2PreFilter(const edm::ParameterSet&);
     ~HLTMuonL2PreFilter();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
 
   private:
     /// input tag of the beam spot

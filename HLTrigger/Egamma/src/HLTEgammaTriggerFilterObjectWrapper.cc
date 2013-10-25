@@ -45,7 +45,7 @@ HLTEgammaTriggerFilterObjectWrapper::~HLTEgammaTriggerFilterObjectWrapper(){}
 
 
 // ------------ method called to produce the data  ------------
-bool HLTEgammaTriggerFilterObjectWrapper::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTEgammaTriggerFilterObjectWrapper::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
   using namespace l1extra;

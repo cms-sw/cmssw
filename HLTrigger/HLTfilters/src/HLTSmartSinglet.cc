@@ -62,7 +62,7 @@ HLTSmartSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& description
 // ------------ method called to produce the data  ------------
 template<typename T> 
 bool
-HLTSmartSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTSmartSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;

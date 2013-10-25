@@ -52,7 +52,7 @@ template<typename T>
 HLTJetPairDzMatchFilter<T>::~HLTJetPairDzMatchFilter(){}
 
 template<typename T>
-bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;

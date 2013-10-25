@@ -124,7 +124,7 @@ HLTMuonTrimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
 // ------------ method called to produce the data  ------------
 bool
-HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
    double const MuMass = 0.106;

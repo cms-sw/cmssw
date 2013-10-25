@@ -48,7 +48,7 @@ public:
   ~EcalFEDErrorFilter();
   
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
   
   // ----------member data ---------------------------
   

@@ -44,7 +44,7 @@ class EcalSimpleUncalibRecHitFilter : public HLTFilter {
 
    private:
       virtual void beginJob() override ;
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       virtual void endJob() override ;
       
       // ----------member data ---------------------------
@@ -83,7 +83,7 @@ EcalSimpleUncalibRecHitFilter::~EcalSimpleUncalibRecHitFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-EcalSimpleUncalibRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+EcalSimpleUncalibRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace edm;
 

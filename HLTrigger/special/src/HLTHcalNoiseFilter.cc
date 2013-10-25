@@ -27,8 +27,6 @@ HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig) : HLTFi
     JetSourceToken_ = consumes<reco::CaloJetCollection>(JetSource_);
     TowerSourceToken_ = consumes<CaloTowerCollection>(TowerSource_);
   }
-  nAnomalousEvents=0;
-  nEvents=0;
 }
 
 HLTHcalNoiseFilter::~HLTHcalNoiseFilter() { }
@@ -52,7 +50,7 @@ HLTHcalNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 // member functions
 //
 
-bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace edm;
    using namespace reco;
@@ -83,14 +81,13 @@ bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
        TowerContainer.clear();
        JetContainer.clear();
        CaloTower seedTower;
-       nEvents++;
        for(CaloJetCollection::const_iterator calojetIter = calojetHandle->begin();calojetIter != calojetHandle->end();++calojetIter) {
-	 if( ((calojetIter->et())*cosh(calojetIter->eta()) > JetMinE_) && (calojetIter->energyFractionHadronic() > JetHCALminEnergyFraction_) ) {
+	 if( ((calojetIter->et())*cosh(calojetIter->eta()) > JetMinE_) and (calojetIter->energyFractionHadronic() > JetHCALminEnergyFraction_) ) {
 	   JetContainer.push_back(*calojetIter);
 	   double maxTowerE = 0.0;
 	   for(CaloTowerCollection::const_iterator kal = towerHandle->begin(); kal != towerHandle->end(); kal++) {
 	     double dR = deltaR((*calojetIter).eta(),(*calojetIter).phi(),(*kal).eta(),(*kal).phi());
-	     if( (dR < 0.50) && (kal->p() > maxTowerE) ) {
+	     if( (dR < 0.50) and (kal->p() > maxTowerE) ) {
 	       maxTowerE = kal->p();
 	       seedTower = *kal;
 	     }
@@ -100,10 +97,9 @@ bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 	 
        }
        if(JetContainer.size() > 0) {
-	 nAnomalousEvents++;
 	 isAnomalous_BasedOnEnergyFraction = true;
        }
      }
    
-   return ((useMet_&&isAnomalous_BasedOnMET)||(useJet_&&isAnomalous_BasedOnEnergyFraction));
+   return ((useMet_ and isAnomalous_BasedOnMET) or (useJet_ and isAnomalous_BasedOnEnergyFraction));
 }

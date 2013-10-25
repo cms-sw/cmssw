@@ -35,7 +35,7 @@ HLTCSCRing2or3Filter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descriptions.add("hltCSCRing2or3Filter",desc);
 }
 
-bool HLTCSCRing2or3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTCSCRing2or3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
    edm::Handle<CSCRecHit2DCollection> hits;
    iEvent.getByToken(cscrechitsToken, hits);
 

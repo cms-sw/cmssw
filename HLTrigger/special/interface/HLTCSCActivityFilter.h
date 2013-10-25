@@ -48,7 +48,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
   
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
 
   edm::EDGetTokenT<CSCStripDigiCollection> m_cscStripDigiToken;
   edm::InputTag m_cscStripDigiTag;

@@ -59,11 +59,11 @@ public:
 
 private:
 
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
   virtual bool beginRun(edm::Run& iRun, const edm::EventSetup& iSetup);
 
-  bool hasActivity(const std::bitset<4> &);  
-  bool matchChamber(const uint32_t &, const L1MuRegionalCand&);
+  bool hasActivity(const std::bitset<4> &) const;  
+  bool matchChamber(const uint32_t &, const L1MuRegionalCand&) const;
   
   enum activityType { DCC=0, DDU=1, RPC=2, DIGI=3 };
   

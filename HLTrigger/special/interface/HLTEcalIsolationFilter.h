@@ -13,7 +13,7 @@ class HLTEcalIsolationFilter : public HLTFilter {
    public:
       explicit HLTEcalIsolationFilter(const edm::ParameterSet&);
       ~HLTEcalIsolationFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

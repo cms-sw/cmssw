@@ -144,7 +144,7 @@ bool HLTDTActivityFilter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup
 }
 
 // ------------ method called on each new Event  ------------
-bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
   using namespace edm;
   using namespace std;
@@ -280,7 +280,7 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
 }
 
 
-bool HLTDTActivityFilter::hasActivity(const std::bitset<4>& actWord) {
+bool HLTDTActivityFilter::hasActivity(const std::bitset<4>& actWord) const {
 
   bool actTPG   = orTPG_   ? actWord[DCC] || actWord[DDU] : actWord[DCC] && actWord[DDU];
   bool actTrig  = orRPC_   ? actWord[RPC] || actTPG : actWord[RPC] && actTPG;
@@ -290,7 +290,7 @@ bool HLTDTActivityFilter::hasActivity(const std::bitset<4>& actWord) {
 
 }
 
-bool HLTDTActivityFilter::matchChamber(const uint32_t& rawId, const L1MuRegionalCand& rpcTrig) {
+bool HLTDTActivityFilter::matchChamber(const uint32_t& rawId, const L1MuRegionalCand& rpcTrig) const {
 
   const GlobalPoint chPos = dtGeom_->chamber(DTChamberId(rawId))->position();
   

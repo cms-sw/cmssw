@@ -20,7 +20,7 @@ class HLTNVFilter : public HLTFilter {
    public:
       explicit HLTNVFilter(const edm::ParameterSet&);
       ~HLTNVFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

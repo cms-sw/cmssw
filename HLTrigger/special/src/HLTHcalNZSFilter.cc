@@ -46,7 +46,6 @@ HLTHcalNZSFilter::HLTHcalNZSFilter(const edm::ParameterSet& iConfig) : HLTFilter
   //now do what ever initialization is needed
 
   dataInputTag_ = iConfig.getParameter<edm::InputTag>("InputTag") ;
-  summary_      = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
   dataInputToken_ = consumes<FEDRawDataCollection>(dataInputTag_);
 }
 
@@ -64,7 +63,6 @@ HLTHcalNZSFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("InputTag",edm::InputTag("source"));
-  desc.addUntracked<bool>("FilterSummary",false);
   descriptions.add("hltHcalNZSFilter",desc);
 }
 
@@ -74,11 +72,11 @@ HLTHcalNZSFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
 // ------------ method called on each new Event  ------------
 bool
-HLTHcalNZSFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTHcalNZSFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace edm;
 
-  // MC treatment for this hltFilter(NZS not fully emulated in HTR for MC, trigger::TriggerFilterObjectWithRefs & filterproduct)
+  // MC treatment for this hltFilter(NZS not fully emulated in HTR for MC, trigger::TriggerFilterObjectWithRefs & filterproduct) const
   if (!iEvent.isRealData()) return false;
 
   edm::Handle<FEDRawDataCollection> rawdata;  
@@ -116,7 +114,7 @@ HLTHcalNZSFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
       }
   }
   
-  if ( (nNZSfed == nFEDs) && (nFEDs > 0) ) { eventsNZS_++ ; return true ; }
+  if ( (nNZSfed == nFEDs) && (nFEDs > 0) ) { return true ; }
   else {
       if ( nNZSfed > 0 ) LogWarning("HLTHcalNZSFilter") << "Mixture of ZS(" << nZSfed
                                                         << ") and NZS(" << nNZSfed
@@ -126,15 +124,3 @@ HLTHcalNZSFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
 
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HLTHcalNZSFilter::beginJob(void)
-{
-  eventsNZS_ = 0 ; 
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HLTHcalNZSFilter::endJob(void) {
-  if ( summary_ ) edm::LogWarning("HLTHcalNZSFilter") << "Kept " << eventsNZS_ << " non-ZS events" ;  
-}

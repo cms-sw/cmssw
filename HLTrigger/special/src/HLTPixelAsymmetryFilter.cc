@@ -49,7 +49,7 @@ HLTPixelAsymmetryFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixelAsymmetryFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTPixelAsymmetryFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)

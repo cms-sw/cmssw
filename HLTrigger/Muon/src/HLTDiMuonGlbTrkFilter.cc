@@ -62,7 +62,7 @@ HLTDiMuonGlbTrkFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
 }
 
 bool
-HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   edm::Handle<reco::MuonCollection> muons;
   iEvent.getByToken(m_muonsToken,muons);

@@ -74,7 +74,7 @@ HLTEgammaGenericQuadraticFilter::~HLTEgammaGenericQuadraticFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaGenericQuadraticFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEgammaGenericQuadraticFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
   if (saveTags()) {

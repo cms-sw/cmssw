@@ -57,7 +57,7 @@ HLTEgammaDoubleEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaDoubleEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEgammaDoubleEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
 
