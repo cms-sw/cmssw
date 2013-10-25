@@ -1,5 +1,5 @@
 <flags   GENREFLEX_ARGS="--"/>
-<use   name="rootrflx"/>
+
 <use   name="CondCore/DBCommon"/>
 <use   name="CondFormats/Common"/>
 <use   name="DataFormats/StdDictionaries"/>
@@ -40,6 +40,5 @@
 <bin   file="testCipher.cc" name="testCipher">
 </bin>
 <bin   file="testBlobStreaming.cpp" name="testBlobStreaming">
-  <use   name="rootcintex"/>
   <use   name="zlib"/>
 </bin>

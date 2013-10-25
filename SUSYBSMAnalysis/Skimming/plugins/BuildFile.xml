@@ -15,7 +15,7 @@
   <use   name="CommonTools/CandUtils"/>
   <use   name="DataFormats/PatCandidates"/>
   <use   name="CommonTools/UtilAlgos"/>
-  <use   name="rootrflx"/>
+  
   <use   name="RecoMuon/Records"/>
   <use   name="CondFormats/RecoMuonObjects"/>
   <use   name="MuonAnalysis/MomentumScaleCalibration"/>

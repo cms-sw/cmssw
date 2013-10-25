@@ -1,5 +1,5 @@
 <flags   GENREFLEX_ARGS="--"/>
-<use   name="rootrflx"/>
+
 <use   name="CondCore/ORA"/>
 <use   name="CondFormats/Common"/>
 <use   name="DataFormats/StdDictionaries"/>

@@ -5,8 +5,6 @@
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
-#include "Api.h" // for G__ClassInfo
-
 #include "TROOT.h"
 
 #include "boost/algorithm/string.hpp"
@@ -96,13 +94,6 @@ namespace edm {
       "multimap"
     };
 
-
-    bool
-    hasCintDictionary(std::string const& name) {
-      std::auto_ptr<G__ClassInfo> ci(new G__ClassInfo(name.c_str()));
-        return(ci.get() && ci->IsLoaded());
-    }
-
     // Checks if there is a dictionary for the Type t.
     // If noComponents is false, checks members and base classes recursively.
     // If noComponents is true, checks Type t only.
@@ -128,11 +119,7 @@ namespace edm {
       }
 
       if(!bool(t)) {
-        if(hasCintDictionary(name)) {
-          foundTypes().insert(name);
-        } else {
-          missingTypes().insert(name);
-        }
+        missingTypes().insert(name);
         return;
       }
 

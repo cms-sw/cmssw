@@ -15,20 +15,14 @@
 #include "TClass.h"
 #include "TDataType.h"
 #include "TMethodArg.h"
-#include "Cintex/Cintex.h"
-#include "Reflex/Member.h"
-#include "Reflex/Object.h"
+//#include "Reflex/Member.h"
+//#include "Reflex/Object.h"
 #include "boost/thread/tss.hpp"
-
-namespace ROOT {
-  namespace Cintex {
-    std::string CintName(std::string const&);
-  }
-}
 
 namespace {
   int
   toReflex(Long_t property) {
+/*
     int prop = 0;
     if(property&(Long_t)kIsConstant) {
       prop |= Reflex::CONST;
@@ -37,12 +31,15 @@ namespace {
       prop |= Reflex::REFERENCE;
     }
     return prop;
+*/
+    return 0;
   }
 }
 
 namespace edm {
   void
   TypeWithDict::setProperty() {
+/*
     if(type_.IsClass()) {
        property_ |= (Long_t)kIsClass;
     }
@@ -70,6 +67,7 @@ namespace edm {
     if(type_.IsVirtual()) {
        property_ |= (Long_t)kIsVirtual;
     }
+*/
   }
 
   TypeWithDict::TypeWithDict() :
@@ -81,10 +79,11 @@ namespace edm {
   }
 
   TypeWithDict::TypeWithDict(Reflex::Type const& type) :
-    typeInfo_(&type.TypeInfo()),
-    type_(type),
+    typeInfo_(nullptr),
+    type_(),
     class_(nullptr),
-    dataType_(TDataType::GetDataType(TDataType::GetType(*typeInfo_))),
+    //dataType_(TDataType::GetDataType(TDataType::GetType(*typeInfo_))),
+    dataType_(nullptr),
     property_(0L) {
       setProperty();
       if(!isFundamental() && !isEnum()) { 
@@ -98,7 +97,8 @@ namespace edm {
 
   TypeWithDict::TypeWithDict(std::type_info const& t, Long_t property) :
     typeInfo_(&t),
-    type_(Reflex::Type::ByTypeInfo(t), toReflex(property)),
+    //type_(Reflex::Type::ByTypeInfo(t), toReflex(property)),
+    type_(),
     class_(nullptr),
     dataType_(TDataType::GetDataType(TDataType::GetType(t))),
     property_(property) {
@@ -110,7 +110,7 @@ namespace edm {
 
   TypeWithDict::TypeWithDict(TClass* cl, Long_t property) :
     typeInfo_(cl->GetTypeInfo()),
-    type_(Reflex::Type::ByTypeInfo(*cl->GetTypeInfo()), toReflex(property)),
+    type_(),
     class_(cl),
     dataType_(nullptr),
     property_(property) {
@@ -130,7 +130,7 @@ namespace edm {
   TypeWithDict::TypeWithDict(TypeWithDict const& type, Long_t property) :
     // Only modifies const and reference.
     typeInfo_(type.typeInfo_),
-    type_(type.type_, toReflex(property|type.property_)),
+    type_(),
     class_(type.class_),
     dataType_(type.dataType_),
     property_(type.property_) {
@@ -184,7 +184,8 @@ namespace edm {
       typeMap.insert(std::make_pair(std::string("void"), TypeWithDict(typeid(void))));
     }
     
-    std::string cintName = ROOT::Cintex::CintName(name);
+    //std::string cintName = ROOT::Cintex::CintName(name);
+    std::string cintName = name;
     char last = *cintName.rbegin();
     if(last == '*') {
      cintName = cintName.substr(0, cintName.size() - 1);
@@ -206,8 +207,9 @@ namespace edm {
       return TypeWithDict(cl, property);
     }
     // This is an enum, or a class without a CINT dictionary.  We need Reflex to handle it.
-    Reflex::Type t = Reflex::Type::ByName(name);
-    return(bool(t) ? TypeWithDict(t) : TypeWithDict());
+    //Reflex::Type t = Reflex::Type::ByName(name);
+    //return(bool(t) ? TypeWithDict(t) : TypeWithDict());
+    return TypeWithDict();
   }
 
   std::string
@@ -311,17 +313,12 @@ namespace edm {
       }
       return MemberWithDict();
     }
-    return MemberWithDict(class_->GetDataMember(ROOT::Cintex::CintName(member).c_str()));
+    return MemberWithDict(class_->GetDataMember(member.c_str()));
   }
 
   FunctionWithDict
   TypeWithDict::functionMemberByName(std::string const& member) const {
-    return FunctionWithDict(type_.FunctionMemberByName(member));
-  }
-
-  FunctionWithDict
-  TypeWithDict::functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const {
-    return FunctionWithDict(type_.FunctionMemberByName(member, signature.type_, mods, static_cast<Reflex::EMEMBERQUERY>(memberQuery)));
+    return FunctionWithDict();
   }
 
 /*
@@ -391,36 +388,12 @@ namespace edm {
 
   TypeWithDict
   TypeWithDict::toType() const{
-    return TypeWithDict(type_.ToType());
+    return TypeWithDict();
   }
 
   std::string
   TypeWithDict::templateName() const {
-    if (!isTemplateInstance()) {
-      return std::string();
-    }
-    std::string templateName = name();
-    size_t begin = templateName.find('<');
-    assert(begin != std::string::npos);
-    size_t end = templateName.rfind('<');
-    assert(end != std::string::npos);
-    assert(begin <= end);
-    if(begin < end) {
-      int depth = 1;
-      for(size_t inx = begin + 1 ; inx <= end; ++inx) {
-        char c = templateName[inx];
-        if(c == '<') {
-          if(depth == 0) {
-            begin = inx;
-          }
-          ++depth;
-        } else if(c == '>') {
-          --depth;
-          assert(depth >= 0);
-        }
-      }
-    }
-    return templateName.substr(0, begin);
+    return std::string();
   }
 
   TypeWithDict
@@ -474,56 +447,29 @@ namespace edm {
   TypeWithDict::getBaseClassOffset(TypeWithDict const& baseClass) const {
     assert(class_ != nullptr);
     assert(baseClass.class_ != nullptr);
-    int offset = class_->GetBaseClassOffset(baseClass.class_);
-    return offset;
+    //int offset = class_->GetBaseClassOffset(baseClass.class_);
+    //return offset;
+    return 0;
   }
 
   int
   TypeWithDict::stringToEnumValue(std::string const& enumMemberName) const {
-    assert(isEnum());
-    Reflex::Member member = type_.MemberByName(enumMemberName);
-    if (!member) {
-      std::ostringstream err;
-      err<<"StringToEnumValue Failure trying to convert " << enumMemberName << " to int value";
-      throw cms::Exception("ConversionError",err.str());
-    }
-    if (member.TypeOf().TypeInfo() != typeid(int)) {
-      std::ostringstream err;
-      err << "Type "<<  member.TypeOf().Name() << " is not Enum";
-      throw cms::Exception("ConversionError",err.str());
-    }
-    return Reflex::Object_Cast<int>(member.Get());
+    return 0;
   }
 
   size_t
   TypeWithDict::dataMemberSize() const {
-    if(class_ == nullptr) {
-      if(isEnum()) {
-        return type_.DataMemberSize();
-      }
-      return 0U;
-    }
-    return class_->GetListOfDataMembers()->GetSize();
+    return 0U;
   }
 
   size_t
   TypeWithDict::functionMemberSize() const {
-    if(class_ == nullptr) {
-      return 0U;
-    }
-    return class_->GetListOfMethods()->GetSize();
+    return 0U;
   }
 
   size_t
   TypeWithDict::size() const {
-    if(isEnum() || isTypedef() || isPointer()) {
-      return type_.SizeOf();
-    }
-    if(class_ != nullptr) {
-      return class_->Size();
-    }
-    assert(dataType_ != nullptr);
-    return dataType_->Size();
+    return 0U;
   }
 
   bool
@@ -552,10 +498,7 @@ namespace edm {
 
   size_t
   TypeBases::size() const {
-    if(class_ == nullptr) {
-      return type_.BaseSize();
-    }
-    return class_->GetListOfBases()->GetSize();
+    return 0U;
   }
 
   IterWithDict<TDataMember>
@@ -573,10 +516,7 @@ namespace edm {
 
   size_t
   TypeDataMembers::size() const {
-    if(class_ == nullptr) {
-      return type_.DataMemberSize();
-    }
-    return class_->GetListOfDataMembers()->GetSize();
+    return 0U;
   }
 
 /*
@@ -592,7 +532,6 @@ namespace edm {
   TypeFunctionMembers::end() const {
     return IterWithDict<TMethod>();
   }
-*/
 
   Reflex::Member_Iterator
   TypeFunctionMembers::begin() const {
@@ -604,7 +543,6 @@ namespace edm {
     return type_.FunctionMember_End();
   }
 
-/*
   size_t
   TypeFunctionMembers::size() const {
     if(class_ == nullptr) {
@@ -616,7 +554,7 @@ namespace edm {
 
   size_t
   TypeFunctionMembers::size() const {
-    return type_.FunctionMemberSize();
+    return 0U;
   }
 
 }

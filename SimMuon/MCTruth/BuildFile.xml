@@ -27,7 +27,7 @@
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="root"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

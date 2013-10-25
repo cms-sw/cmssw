@@ -6,7 +6,7 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/RPCObjects"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="rootrflx"/>
+
 <use   name="boost"/>
 <use   name="root"/>
 <export>

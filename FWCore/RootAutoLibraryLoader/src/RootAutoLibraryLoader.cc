@@ -16,7 +16,7 @@
 #include <map>
 #include "TROOT.h"
 #include "TInterpreter.h"
-#include "G__ci.h"
+//#include "G__ci.h"
 
 // user include files
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
@@ -28,7 +28,6 @@
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "Cintex/Cintex.h"
 #include "TClass.h"
 
 // We cannot use the MessageLogger here because this is also used by standalones that do not have the logger.
@@ -43,18 +42,18 @@ namespace {
   class RootLoadFileSentry {
   public:
     RootLoadFileSentry() {
-       G__setfilecontext("{CMS auto library loader}", &oldIFile_);
+       //G__setfilecontext("{CMS auto library loader}", &oldIFile_);
     }
 
     ~RootLoadFileSentry() {
-      G__input_file* ifile = G__get_ifile();
-      if (ifile) {
-        *ifile = oldIFile_;
-      }
+      //G__input_file* ifile = G__get_ifile();
+      //if (ifile) {
+      //  *ifile = oldIFile_;
+     // }
     }
 
   private:
-      G__input_file oldIFile_;
+      //G__input_file oldIFile_;
   };
 }
 
@@ -68,7 +67,7 @@ static char const* kDummyLibName = "*dummy";
 
 //This is actually defined within ROOT's v6_struct.cxx file but is not declared static
 // I want to use it so that if the autoloading is already turned on, I can call the previously declared routine
-extern CallbackPtr G__p_class_autoloading;
+//extern CallbackPtr G__p_class_autoloading;
 
 namespace ROOT {
   namespace Cintex {
@@ -103,7 +102,8 @@ namespace edm {
       std::string
       classNameForRoot(std::string const& classname) {
         // Converts the name to the name known by CINT (e.g. strips out "std::")
-        return ROOT::Cintex::CintName(classname);
+        //return ROOT::Cintex::CintName(classname);
+        return classname;
       }
 
       bool
@@ -163,10 +163,10 @@ namespace edm {
         if(nullptr == c || nullptr == l || l[0] == 0) {
           return 0;
         }
-        ULong_t varp = G__getgvp();
-        G__setgvp((long)G__PVOID);
+        //ULong_t varp = G__getgvp();
+        //G__setgvp((long)G__PVOID);
         int result = loadLibraryForClass(c) ? 1:0;
-        G__setgvp(varp);
+        //G__setgvp(varp);
         //NOTE: the check for the library is done since we can have a failure
         // if a CMS library has an incomplete set of reflex dictionaries where
         // the remaining dictionaries can be found by Cint.  If the library with
@@ -241,7 +241,7 @@ namespace edm {
             ++itClass) {
 
           std::string const& className = itClass->first;
-          std::string const& libraryName = itClass->second;
+          //std::string const& libraryName = itClass->second;
           //need to register namespaces and figure out if we have an embedded class
           static std::string const toFind(":<");
           std::string::size_type pos = 0;
@@ -249,11 +249,11 @@ namespace edm {
             if (className[pos] == '<') {break;}
             if (className.size() <= pos + 1 || className[pos + 1] != ':') {break;}
             //should check to see if this is a class or not
-            G__set_class_autoloading_table(const_cast<char*>(className.substr(0, pos).c_str()), const_cast<char*>(""));
+            //G__set_class_autoloading_table(const_cast<char*>(className.substr(0, pos).c_str()), const_cast<char*>(""));
             //std::cout << "namespace " << className.substr(0, pos).c_str() << std::endl;
             pos += 2;
           }
-          G__set_class_autoloading_table(const_cast<char*>(className.c_str()), const_cast<char*>(libraryName.c_str()));
+          //G__set_class_autoloading_table(const_cast<char*>(className.c_str()), const_cast<char*>(libraryName.c_str()));
           //std::cout << "class " << className.c_str() << std::endl;
         }
 
@@ -303,7 +303,6 @@ namespace edm {
 #endif
       AssertHandler h;
       gROOT->AddClassGenerator(this);
-      ROOT::Cintex::Cintex::Enable();
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,6)
       isInitializingCintex_ =false;
 #endif
@@ -329,8 +328,8 @@ namespace edm {
       }
       //std::cout << "my loader" << std::endl;
       //remember if the callback was already set so we can chain together our results
-      gPrevious = G__p_class_autoloading;
-      G__set_class_autoloading_callback(&ALL_AutoLoadCallback);
+      //gPrevious = G__p_class_autoloading;
+      //G__set_class_autoloading_callback(&ALL_AutoLoadCallback);
       registerTypes();
    }
 

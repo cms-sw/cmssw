@@ -10,8 +10,8 @@ persisted across invocations of the program.
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
-#include <typeinfo>
 #include <string>
+#include <typeinfo>
 #include <vector>
 
 #include "TBaseClass.h"
@@ -21,14 +21,18 @@ persisted across invocations of the program.
 #include "TMethod.h"
 
 #include "FWCore/Utilities/interface/IterWithDict.h"
-#include "Reflex/Member.h"
-#include "Reflex/Type.h"
-#include "Reflex/TypeTemplate.h"
+//#include "Reflex/Member.h"
+//#include "Reflex/Type.h"
 
 class TBaseClass;
 class TDataMember;
 class TMethod;
 class TMethodArg;
+
+namespace Reflex {
+  class Member;
+  class Type;
+}
 
 namespace edm {
 
@@ -36,11 +40,13 @@ namespace edm {
   class MemberWithDict;
   class ObjectWithDict;
 
+/*
   enum TypeMemberQuery {
     InheritedDefault = Reflex::INHERITEDMEMBERS_DEFAULT,
     InheritedNo = Reflex::INHERITEDMEMBERS_NO,
     InheritedAlso = Reflex::INHERITEDMEMBERS_ALSO
   };
+*/
 
   class TypeWithDict {
   public:
@@ -122,8 +128,8 @@ namespace edm {
 
     template <typename T>
     void invokeByName(T& obj, std::string const& name) const {
-      Reflex::Member theFunction = type_.FunctionMemberByName(name);
-      theFunction.Invoke(obj);
+      //Reflex::Member theFunction = type_.FunctionMemberByName(name);
+      //theFunction.Invoke(obj);
     }
 
 #ifndef __GCCXML__
@@ -138,7 +144,7 @@ namespace edm {
 
     FunctionWithDict functionMemberByName(std::string const& member) const;
 
-    FunctionWithDict functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const;
+    //FunctionWithDict functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const;
 
     size_t dataMemberSize() const;
 
@@ -168,7 +174,7 @@ namespace edm {
     void setProperty();
 
     std::type_info const* typeInfo_;
-    Reflex::Type type_;
+    Reflex::Type* type_; // Ignore leak, as this goes away aith Reflex
     TClass* class_;
     TDataType* dataType_;
     Long_t property_;
@@ -188,7 +194,7 @@ namespace edm {
 
   class TypeBases {
   public:
-    explicit TypeBases(TypeWithDict const& type) : type_(type.type_), class_(type.class_) {}
+    explicit TypeBases(TypeWithDict const& type) : type_(*type.type_), class_(type.class_) {}
     IterWithDict<TBaseClass> begin() const;
     IterWithDict<TBaseClass> end() const;
     size_t size() const;
@@ -199,7 +205,7 @@ namespace edm {
 
   class TypeDataMembers {
   public:
-    explicit TypeDataMembers(TypeWithDict const& type) : type_(type.type_), class_(type.class_) {}
+    explicit TypeDataMembers(TypeWithDict const& type) : type_(*type.type_), class_(type.class_) {}
     IterWithDict<TDataMember> begin() const;
     IterWithDict<TDataMember> end() const;
     size_t size() const;
@@ -210,13 +216,13 @@ namespace edm {
 
   class TypeFunctionMembers {
   public:
-    explicit TypeFunctionMembers(TypeWithDict const& type) : type_(type.type_), class_(type.class_) {}
+    explicit TypeFunctionMembers(TypeWithDict const& type) : type_(*type.type_), class_(type.class_) {}
 /*
     IterWithDict<TMethod> begin() const;
     IterWithDict<TMethod> end() const;
 */
-    Reflex::Member_Iterator begin() const;
-    Reflex::Member_Iterator end() const;
+    //Reflex::Member_Iterator begin() const;
+    //Reflex::Member_Iterator end() const;
     size_t size() const;
   private:
     Reflex::Type const& type_;

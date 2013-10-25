@@ -15,7 +15,6 @@
 #include <boost/bind.hpp>
 #include <boost/test/test_tools.hpp>
 #include "TClass.h"
-#include "Cintex/Cintex.h"
 
 // user include files
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -53,7 +52,6 @@ namespace {
 
 BOOST_AUTO_TEST_CASE( eventitemmanager )
 {
-   ROOT::Cintex::Cintex::Enable();
    FWModelChangeManager cm;
   
    FWSelectionManager sm(&cm);

@@ -2,7 +2,7 @@
  <use name="DataFormats/TrackReco"/>
  <use name="Fireworks/Core"/>
  <use name="boost"/>
- <use name="rootcintex"/>
+ 
  <use name="rootcore"/>
  <lib name="boost_unit_test_framework"/>
 </bin>

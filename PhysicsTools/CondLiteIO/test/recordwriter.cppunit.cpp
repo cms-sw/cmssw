@@ -8,7 +8,6 @@
 #include <vector>
 #include <iostream>
 
-#include "Cintex/Cintex.h"
 #include "TFile.h"
 #include "TTree.h"
 
@@ -27,7 +26,7 @@ class testRecordWriter: public CppUnit::TestFixture
    
    CPPUNIT_TEST_SUITE_END();
 public:
-   void setUp(){ ROOT::Cintex::Cintex::Enable(); }
+   void setUp(){ }
    void tearDown(){}
    
    void testNoInheritance();

@@ -1,6 +1,6 @@
 <use   name="DataFormats/Common"/>
 <use   name="rootcore"/>
-<use   name="rootrflx"/>
+
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

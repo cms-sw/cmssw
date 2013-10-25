@@ -23,7 +23,6 @@
 <use   name="TrackingTools/KalmanUpdators"/>
 <use   name="TrackingTools/MaterialEffects"/>
 <use   name="TrackingTools/Records"/>
-<use   name="rootcintex"/>
 <use   name="root"/>
 <use   name="rootmath"/>
 <use   name="clhep"/>

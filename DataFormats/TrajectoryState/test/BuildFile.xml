@@ -1,4 +1,5 @@
 <use name="DataFormats/TrajectoryState"/>
+<use name="rootmath"/>
 <bin   file="PTraj_t.cpp">
 </bin>
 

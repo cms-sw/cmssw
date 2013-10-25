@@ -10,7 +10,6 @@
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/VolumeBasedEngine"/>
-<use   name="rootcintex"/>
 <use   name="root"/>
 <use   name="clhep"/>
 <use   name="boost"/>

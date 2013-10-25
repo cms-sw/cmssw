@@ -9,7 +9,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Version"/>
 <use   name="boost"/>
-<use   name="rootcintex"/>
 <use   name="rootcore"/>
 <flags ADD_SUBDIR="1"/>
 <export>

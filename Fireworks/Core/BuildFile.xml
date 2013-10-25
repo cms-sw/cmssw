@@ -21,7 +21,6 @@
 <use name="boost_regex"/>
 <use name="boost_system"/>
 <use name="opengl"/>
-<use name="rootcintex"/>
 <use name="rootinteractive"/>
 <use name="rootgraphics"/>
 <use name="sigcpp"/>

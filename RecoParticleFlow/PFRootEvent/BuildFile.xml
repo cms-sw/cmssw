@@ -29,7 +29,7 @@
 <use   name="DQMOffline/PFTau"/>
 <use   name="fastjet"/>
 <use   name="rootinteractive"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>
