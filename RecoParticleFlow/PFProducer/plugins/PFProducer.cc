@@ -58,7 +58,11 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   postMuonCleaning_
     = iConfig.getParameter<bool>("postMuonCleaning");
 
-  use_EGammaFilters_ =  iConfig.getParameter<bool>("useEGammaFilters");    
+  if( iConfig.existsAs<bool>("useEGammaFilters") ) {
+    use_EGammaFilters_ =  iConfig.getParameter<bool>("useEGammaFilters");    
+  } else {
+    use_EGammaFilters_ = false;
+  }
 
   usePFElectrons_
     = iConfig.getParameter<bool>("usePFElectrons");    
@@ -204,38 +208,34 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   
 
   // Reading new EGamma selection cuts
-  
-  double ele_iso_pt = iConfig.getParameter<double>("electron_iso_pt");
-  double ele_iso_mva_barrel  = iConfig.getParameter<double>("electron_iso_mva_barrel");
-  double ele_iso_mva_endcap = iConfig.getParameter<double>("electron_iso_mva_endcap");
-  double ele_iso_combIso_barrel = iConfig.getParameter<double>("electron_iso_combIso_barrel");
-  double ele_iso_combIso_endcap = iConfig.getParameter<double>("electron_iso_combIso_endcap");
-  double ele_noniso_mva = iConfig.getParameter<double>("electron_noniso_mvaCut");
-
-  unsigned int ele_missinghits = iConfig.getParameter<unsigned int>("electron_missinghits");
-  bool useProtectionsForJetMET = iConfig.getParameter<bool>("useProtectionsForJetMET");      
-  std::vector<double>  ele_protectionsForJetMET = 
-    iConfig.getParameter<std::vector<double> >("electron_protectionsForJetMET");; 
-  
-
-  double ph_MinEt  = iConfig.getParameter<double>("photon_MinEt");
-  double ph_combIso  = iConfig.getParameter<double>("photon_combIso");
-  double ph_HoE = iConfig.getParameter<double>("photon_HoE");
-  std::vector<double>  ph_protectionsForJetMET = 
-    iConfig.getParameter<std::vector<double> >("photon_protectionsForJetMET");; 
+  double ele_iso_pt(0.0), ele_iso_mva_barrel(0.0), ele_iso_mva_endcap(0.0), 
+    ele_iso_combIso_barrel(0.0), ele_iso_combIso_endcap(0.0), 
+    ele_noniso_mva(0.0);
+  unsigned int ele_missinghits(0);
+  double ph_MinEt(0.0), ph_combIso(0.0), ph_HoE(0.0);
 
 
-  string ele_iso_mvaWeightFile = iConfig.getParameter<string>("isolatedElectronID_mvaWeightFile");
-  string ele_iso_path_mvaWeightFile;
-  
+  string ele_iso_mvaWeightFile(""), ele_iso_path_mvaWeightFile("");
+
  // Reading new EGamma ubiased collections and value maps
-  if(use_EGammaFilters_) {
-    ele_iso_path_mvaWeightFile  = edm::FileInPath ( ele_iso_mvaWeightFile.c_str() ).fullPath();
-    inputTagPFEGammaCandidates_ = iConfig.getParameter<edm::InputTag>("PFEGammaCandidates");
-    inputTagValueMapGedElectrons_ = iConfig.getParameter<edm::InputTag>("GedElectronValueMap"); 
-    inputTagValueMapGedPhotons_ = iConfig.getParameter<edm::InputTag>("GedPhotonValueMap"); 
-  }
-
+ if(use_EGammaFilters_) {
+   ele_iso_mvaWeightFile = iConfig.getParameter<string>("isolatedElectronID_mvaWeightFile");
+   ele_iso_path_mvaWeightFile  = edm::FileInPath ( ele_iso_mvaWeightFile.c_str() ).fullPath();
+   inputTagPFEGammaCandidates_ = iConfig.getParameter<edm::InputTag>("PFEGammaCandidates");
+   inputTagValueMapGedElectrons_ = iConfig.getParameter<edm::InputTag>("GedElectronValueMap"); 
+   inputTagValueMapGedPhotons_ = iConfig.getParameter<edm::InputTag>("GedPhotonValueMap"); 
+   ele_iso_pt = iConfig.getParameter<double>("electron_iso_pt");
+   ele_iso_mva_barrel  = iConfig.getParameter<double>("electron_iso_mva_barrel");
+   ele_iso_mva_endcap = iConfig.getParameter<double>("electron_iso_mva_endcap");
+   ele_iso_combIso_barrel = iConfig.getParameter<double>("electron_iso_combIso_barrel");
+   ele_iso_combIso_endcap = iConfig.getParameter<double>("electron_iso_combIso_endcap");
+   ele_noniso_mva = iConfig.getParameter<double>("electron_noniso_mvaCut");
+   ele_missinghits = iConfig.getParameter<unsigned int>("electron_missinghits"); 
+   ph_MinEt  = iConfig.getParameter<double>("photon_MinEt");
+   ph_combIso  = iConfig.getParameter<double>("photon_combIso");
+   ph_HoE = iConfig.getParameter<double>("photon_HoE");
+ }
+ 
   //Secondary tracks and displaced vertices parameters
 
   bool rejectTracks_Bad

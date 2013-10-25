@@ -8,5 +8,5 @@ from RecoParticleFlow.PFProducer.particleFlowEGamma_cfi import *
 from RecoEgamma.EgammaPhotonProducers.gedPhotonSequence_cff import *
 from RecoEgamma.EgammaElectronProducers.gedGsfElectronSequence_cff import *
 
-particleFlowEGammaFull = cms.Sequence(particleFlowEGamma*gedGsfElectronSequence*gedPhotonSequence)
-
+particleFlowEGammaFull = cms.Sequence(particleFlowEGamma*gedGsfElectronSequence*gedPhotonSequenceTmp)
+particleFlowEGammaFinal = cms.Sequence(gedPhotonSequence)
