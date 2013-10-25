@@ -13,6 +13,9 @@ using namespace std;
 
 namespace Rivet {
 
+  /// @brief Measurement of underlying event activity 
+  /// @using leading tracks
+  /// @author Mohammed Zakaria 
 
   class CMS_FSQ_12_020 : public Analysis {
   public:
@@ -40,9 +43,9 @@ namespace Rivet {
     void init() {
 // MSG_DEBUG("test...test");
 
-      const ChargedFinalState cfs(-0.8, 0.8, 500*MeV);
-      addProjection(cfs, "CFS500");
-      addProjection(Beam(), "Beam");
+       const ChargedFinalState cfs(-0.8, 0.8, 500*MeV);
+       addProjection(cfs, "CFS500");
+       addProjection(Beam(), "Beam");
        const ChargedFinalState cfslead(-0.8, 0.8, 500*MeV);
        addProjection(cfslead, "CFSlead");
 
@@ -163,11 +166,6 @@ _hist_profile_SumpT_pT_09TeV->fill(pTlead/GeV, ptSum500[1] / (GeV * (dEtadPhi)),
   private:
 
     /// @name Histograms
-    
-    double _j;
-    double _jj;
-    double _jjj;
-
     AIDA::IProfile1D * _hist_profile_Nch_pT_7TeV;
     AIDA::IProfile1D * _hist_profile_SumpT_pT_7TeV;
     AIDA::IProfile1D * _hist_profile_Nch_pT_09TeV;
