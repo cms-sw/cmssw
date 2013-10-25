@@ -542,6 +542,17 @@ void VirtualJetProducer::output(edm::Event & iEvent, edm::EventSetup const& iSet
   
 }
 
+namespace {
+template< typename T >
+struct Area { static float get(T const &) {return 0;}};
+
+template<>
+struct Area<reco::CaloJet>{ static float get(reco::CaloJet const & jet) {
+   return jet.getSpecific().mTowersArea;
+}
+};
+}
+
 template< typename T >
 void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& iSetup )
 {
@@ -678,7 +689,8 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       jet.setPileup (0.0);
     }
     
-    std::cout << "area " << ijet << " " << jetArea << std::endl;
+    
+    std::cout << "area " << ijet << " " << jetArea << " " << Area<T>::get(jet) << std::endl;
 
     // add to the list
     jets->push_back(jet);        
