@@ -14,19 +14,16 @@ G4Allocator<TrackWithHistory> TrackWithHistoryAllocator;
 
 //#define DEBUG
 
-G4TrackToParticleID * TrackWithHistory::theG4TrackToParticleID(0);
-
 TrackWithHistory::TrackWithHistory(const G4Track * g4trk) : 
   trackID_(0),particleID_(0),parentID_(0),momentum_(math::XYZVectorD(0.,0.,0.)),
   totalEnergy_(0),vertexPosition_(math::XYZVectorD(0.,0.,0.)),globalTime_(0),
   localTime_(0),properTime_(0),creatorProcess_(0),weight_(0),
   storeTrack_(false),saved_(false) {
   
-  if (theG4TrackToParticleID == 0) theG4TrackToParticleID = new G4TrackToParticleID;  
   if (g4trk!=0) {
     TrackInformationExtractor extractor;
     trackID_ = g4trk->GetTrackID();
-    particleID_ = theG4TrackToParticleID->particleID(g4trk);
+    particleID_ = G4TrackToParticleID::particleID(g4trk);
     parentID_ = g4trk->GetParentID();
     momentum_ = math::XYZVectorD(g4trk->GetMomentum().x(),g4trk->GetMomentum().y(),g4trk->GetMomentum().z());
     totalEnergy_ = g4trk->GetTotalEnergy();
