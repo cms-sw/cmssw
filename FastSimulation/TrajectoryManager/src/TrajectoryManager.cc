@@ -59,12 +59,9 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   theLayerMap(56, static_cast<const DetLayer*>(0)), // reserve space for layers here
   theNegLayerOffset(27),
   //  myHistos(0),
-  random(engine),
-  use_hardcoded(1)
-
+  random(engine)
 {  
   //std::cout << "TrajectoryManager.cc 1 use_hardcoded = " << use_hardcoded << std::endl;
-  use_hardcoded = matEff.getParameter<bool>("use_hardcoded_geometry");
 
   // Initialize Bthe stable particle decay engine 
   if ( decays.getParameter<bool>("ActivateDecays") && ( decays.getParameter<std::string>("Decayer") == "pythia6" || decays.getParameter<std::string>("Decayer") == "pythia8" ) ) { 
@@ -197,24 +194,11 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo)
     // if above 0.99: propagate to the last tracker cylinder where the material is concentrated!
     double ppcos2T =  PP.cos2Theta();
     double ppcos2V =  PP.cos2ThetaV();
+    
+    if ( ppcos2T > 0.9998 && ( cyl == 0 || ppcos2V > 0.9998 ) ) { 
+      cyliter = _theGeometry->cylinderEnd();
+    }
 
-    if(use_hardcoded){
-      if ( ( ppcos2T > 0.99 && ppcos2T < 0.9998 ) && ( cyl == 0 || ( ppcos2V > 0.99 && ppcos2V < 0.9998 ) ) ){ 
-	if ( cyliter != _theGeometry->cylinderEnd() ) { 
-	  cyliter = _theGeometry->cylinderEnd(); 
-	  --cyliter;
-	}
-	// if above 0.9998: don't propagate at all (only to the calorimeters directly)
-      } else if ( ppcos2T > 0.9998 && ( cyl == 0 || ppcos2V > 0.9998 ) ) { 
-	cyliter = _theGeometry->cylinderEnd();
-      } 
-    }
-    else {
-      if ( ppcos2T > 0.9998 && ( cyl == 0 || ppcos2V > 0.9998 ) ) { 
-	cyliter = _theGeometry->cylinderEnd();
-      }
-    }
-	
     // Loop over the cylinders
     while ( cyliter != _theGeometry->cylinderEnd() &&
 	    loop<100 &&                            // No more than 100 loops
