@@ -404,7 +404,7 @@ ecalHcal={
     '--datatier':'GEN-SIM-DIGI-RAW-RECO',
     #'--geometry':'ECALHCAL',
     '--eventcontent':'FEVTDEBUG',
-    '--customise':'Validation/Configuration/ECALHCAL.customise',
+    '--customise':'Validation/Configuration/ECALHCAL.customise,SimGeneral/MixingModule/fullMixCustomize_cff.customize',
     '--beamspot':'NoSmear'}
 
 steps['SingleElectronE120EHCAL']=merge([{'cfg':'SingleElectronE120EHCAL_cfi'},ecalHcal,Kby(25,250),step1Defaults])
