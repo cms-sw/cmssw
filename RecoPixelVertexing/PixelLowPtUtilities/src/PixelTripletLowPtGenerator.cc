@@ -8,14 +8,24 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
 #undef Debug
 
 using namespace std;
 using namespace ctfseeding;
+
+/*****************************************************************************/
+PixelTripletLowPtGenerator::PixelTripletLowPtGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC):
+  theTracker(nullptr), theFilter(nullptr), ps(cfg), thePairGenerator(nullptr), theLayerCache(nullptr),
+  theClusterShapeCacheToken(iC.consumes<SiPixelClusterShapeCache>(cfg.getParameter<edm::InputTag>("clusterShapeCacheSrc")))
+{}
 
 /*****************************************************************************/
 void PixelTripletLowPtGenerator::init(const HitPairGenerator & pairs,
@@ -80,6 +90,9 @@ void PixelTripletLowPtGenerator::hitTriplets(
   edm::ESHandle<TrackerTopology> tTopoHand;
   es.get<IdealGeometryRecord>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
+
+  edm::Handle<SiPixelClusterShapeCache> clusterShapeCache;
+  ev.getByToken(theClusterShapeCacheToken, clusterShapeCache);
 
   // Generate pairs
   OrderedHitPairs pairs; pairs.reserve(30000);
@@ -182,7 +195,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
         // Check if the cluster shapes are compatible with thrusts
         if(checkClusterShape)
         {
-          if(! theFilter->checkTrack(recHits,globalDirs,tTopo))
+          if(! theFilter->checkTrack(recHits,globalDirs,tTopo, *clusterShapeCache))
           {
 #ifdef Debug
             cerr << "  not compatible: cluster shape" << endl;

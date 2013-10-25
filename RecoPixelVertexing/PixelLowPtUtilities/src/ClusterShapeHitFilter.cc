@@ -5,10 +5,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/HitInfo.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShape.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
-
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -253,6 +249,7 @@ bool ClusterShapeHitFilter::isNormalOriented
 
 bool ClusterShapeHitFilter::getSizes
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
+   const SiPixelClusterShapeCache& clusterShapeCache,
    int & part, vector<pair<int,int> > & meas, pair<float,float> & pred,
    PixelData const * ipd) const
 {
@@ -260,10 +257,8 @@ bool ClusterShapeHitFilter::getSizes
   const PixelData & pd = getpd(recHit,ipd);
 
   // Get shape information
-  ClusterData data;
-  ClusterShape theClusterShape;
-  theClusterShape.determineShape(*pd.det, recHit, data);
-  bool usable = (data.isStraight && data.isComplete);
+  const SiPixelClusterShapeData& data = clusterShapeCache.get(recHit.cluster());
+  bool usable = (data.isStraight() && data.isComplete());
  
   // Usable?
   //if(usable)
@@ -274,16 +269,16 @@ bool ClusterShapeHitFilter::getSizes
     pred.first  = ldir.x() / ldir.z();
     pred.second = ldir.y() / ldir.z();
 
-    if(data.size.front().second < 0)
+    if(data.size().front().second < 0)
       pred.second = - pred.second;
 
-    meas.reserve(data.size.size());
-    for(vector<pair<int,int> >::const_iterator s = data.size.begin();
-	s!= data.size.end(); s++)
+    meas.reserve(data.size().size());
+    for(vector<pair<int,int> >::const_iterator s = data.size().begin();
+	s!= data.size().end(); s++)
       {
 	meas.push_back(*s);
 	
-	if(data.size.front().second < 0)
+	if(data.size().front().second < 0)
 	  meas.back().second = - meas.back().second;
       }
 
@@ -304,6 +299,7 @@ bool ClusterShapeHitFilter::getSizes
 
 bool ClusterShapeHitFilter::isCompatible
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
+   const SiPixelClusterShapeCache& clusterShapeCache,
 		    PixelData const * ipd) const
 {
  // Get detector
@@ -313,7 +309,7 @@ bool ClusterShapeHitFilter::isCompatible
   vector<pair<int,int> > meas;
   pair<float,float> pred;
 
-  if(getSizes(recHit, ldir, part,meas, pred,&pd))
+  if(getSizes(recHit, ldir, clusterShapeCache, part,meas, pred,&pd))
   {
     for(vector<pair<int,int> >::const_iterator m = meas.begin();
                                                m!= meas.end(); m++)
@@ -331,6 +327,7 @@ bool ClusterShapeHitFilter::isCompatible
 
 bool ClusterShapeHitFilter::isCompatible
   (const SiPixelRecHit & recHit, const GlobalVector & gdir,
+   const SiPixelClusterShapeCache& clusterShapeCache,
 		    PixelData const * ipd) const
 {
  // Get detector
@@ -338,7 +335,7 @@ bool ClusterShapeHitFilter::isCompatible
 
   LocalVector ldir =pd.det->toLocal(gdir);
 
-  return isCompatible(recHit, ldir,&pd);
+  return isCompatible(recHit, ldir, clusterShapeCache, &pd);
 }
 
 

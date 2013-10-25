@@ -2,6 +2,7 @@
 #define _ClusterShapeTrajectoryFilter_h_
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 namespace edm { class ParameterSet; class EventSetup; }
 
@@ -12,10 +13,11 @@ class MagneticField;
 class SiPixelLorentzAngle;
 class SiStripLorentzAngle;
 class ClusterShapeHitFilter;
+class SiPixelClusterShapeCache;
 
 class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
  public:
-  ClusterShapeTrajectoryFilter(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC): theFilter(nullptr) {}
+  ClusterShapeTrajectoryFilter(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC);
 
   virtual ~ClusterShapeTrajectoryFilter();
 
@@ -30,7 +32,8 @@ class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
   virtual std::string name() const { return "ClusterShapeTrajectoryFilter"; }
 
  private:
-
+  edm::EDGetTokenT<SiPixelClusterShapeCache> theCacheToken;
+  const SiPixelClusterShapeCache *theCache;
   const ClusterShapeHitFilter * theFilter;
 };
 
