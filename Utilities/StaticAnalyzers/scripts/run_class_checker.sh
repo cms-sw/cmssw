@@ -13,7 +13,7 @@ eval `scram runtime -sh`
 ulimit -m 2000000
 ulimit -v 2000000
 ulimit -t 1200
-export USER_LLVM_CHECKERS="-disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassChecker"
+export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassChecker"
 if [ ! -f ${CMSSW_BASE}/tmp/classes.txt ] 
 	then 
 	cp  -p ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/classes.txt ${CMSSW_BASE}/tmp/classes.txt
