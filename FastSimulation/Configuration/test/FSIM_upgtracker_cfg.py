@@ -79,7 +79,7 @@ elif GEOM=="phase2BE":
 ## this is for phase 2 geometries
     process.load('FastSimulation.Configuration.Geometriesph2_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
     from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_phase2_BE,noCrossing 
 ##turning off material effects (needed ONLY for phase2, waiting for tuning)
     process.famosSimHits.MaterialEffects.PairProduction = cms.bool(False)
@@ -109,7 +109,7 @@ elif GEOM=="phase2BEforward":
 ## this is for phase 2 geometries
     process.load('FastSimulation.Configuration.Geometriesph2Forward_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
     from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_phase2_BE,noCrossing 
 ##turning off material effects (needed ONLY for phase2, waiting for tuning)
     process.famosSimHits.MaterialEffects.PairProduction = cms.bool(False)
@@ -215,8 +215,8 @@ process.outpath = cms.EndPath(process.o1)
 process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
 
 #process.schedule = cms.Schedule( process.simulation,process.prevalidation_step,process.validation_step,process.endjob_step,process.outpath )
-process.schedule = cms.Schedule( process.simulation,process.prevalidation_step,process.validation_step,process.endjob_step)
-#process.schedule = cms.Schedule( process.simulation, process.outpath)
+#process.schedule = cms.Schedule( process.simulation,process.prevalidation_step,process.validation_step,process.endjob_step)
+process.schedule = cms.Schedule( process.simulation, process.outpath)
 
 
 # customisation of the process.
