@@ -24,9 +24,6 @@ public:
   void VisitChildren(clang::Stmt *S );
   void VisitStmt( clang::Stmt *S) { VisitChildren(S); }
   void VisitDeclRefExpr( clang::DeclRefExpr * DRE);
-  void CheckCXXOperatorCallExpr(const clang::CXXOperatorCallExpr *CE,const clang::Expr *E);
-  void CheckBinaryOperator(const clang::BinaryOperator * BO,const clang::Expr *E);
-  void CheckUnaryOperator(const clang::UnaryOperator * UO,const clang::Expr *E);
   void ReportDeclRef( const clang::DeclRefExpr * DRE);
  
 };
