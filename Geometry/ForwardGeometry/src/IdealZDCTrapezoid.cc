@@ -27,8 +27,7 @@ IdealZDCTrapezoid::IdealZDCTrapezoid( const GlobalPoint& faceCenter,
 				      const CornersMgr*  mgr       ,
 				      const CCGFloat*    parm        ) :  
    CaloCellGeometry ( faceCenter, mgr, parm )  
-{
-}
+{initSpan();}
 	 
 IdealZDCTrapezoid::~IdealZDCTrapezoid() {}
 

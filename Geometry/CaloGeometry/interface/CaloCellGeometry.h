@@ -44,7 +44,6 @@ a default that the derived class author has to call deliberately if he wants it:
     };
 @endcode
 
-$Revision: 1.21 $
 \author J. Mans, P. Meridiani
 */
 
@@ -78,6 +77,8 @@ public:
   float etaPos() const { return m_eta;}
   float phiPos() const { return m_phi;}
 
+  float etaSpan() const { return m_dEta;}
+  float	phiSpan() const	{ return m_dPhi;}
 
 
   /// Returns true if the specified point is inside this cell
@@ -116,11 +117,22 @@ protected:
 
   CaloCellGeometry( void );
 
+  // MUST be called by children constructors
+  void initSpan() const {
+     m_dEta = std::abs(getCorners()[0].eta()-
+                      getCorners()[2].eta());
+     m_dPhi = std::abs(getCorners()[0].phi() -
+                      getCorners()[2].phi());
+  }
+
 private:
   GlobalPoint         m_refPoint ;
   mutable CornersVec  m_corners  ;
   const CCGFloat*     m_parms    ;
   float m_eta, m_phi;
+  mutable float m_dEta;
+  mutable float m_dPhi;
+
 };
 
 std::ostream& operator<<( std::ostream& s, const CaloCellGeometry& cell ) ;

@@ -39,7 +39,7 @@ public:
   PreshowerStrip( const GlobalPoint& po   ,
 		  const CornersMgr*  mgr  ,
 		  const CCGFloat*    parm  ) :
-    CaloCellGeometry ( po , mgr, parm ) {}
+    CaloCellGeometry ( po , mgr, parm ) {initSpan();}
 
   virtual ~PreshowerStrip();
 
