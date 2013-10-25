@@ -296,7 +296,7 @@ namespace edm {
       LogDebug("MixingModule") <<" merging Event:  id " << eventPrincipal.id();
       //      std::cout <<"PILEALLWORKERS merging Event:  id " << eventPrincipal.id() << std::endl;
 
-      workers_[ii]->addPileups(bunchCrossing,eventPrincipal, &moduleCallingContext, eventId, vertexoffset);
+      workers_[ii]->addPileups(bunchCrossing,eventPrincipal, &moduleCallingContext, eventId, vertexOffset_);
     }
   }
 
