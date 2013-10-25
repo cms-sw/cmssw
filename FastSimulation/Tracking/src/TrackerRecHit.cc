@@ -79,7 +79,7 @@ TrackerRecHit::init(const TrackerGeometry* theGeometry, const TrackerTopology *t
 bool
 TrackerRecHit::isOnRequestedDet(const std::vector<std::string>& layerList) const { /// TEMPORARY, JUST FOR SOME TESTS
 
-  std::cout << "layerList.size() = " << layerList.size()  << std::endl;
+
   bool isOnDet = false;
 
   int subdet = 0; // 1 = PXB, 2 = PXD, 3 = TIB, 4 = TID, 5 = TOB, 6 = TEC, 0 = not valid
@@ -151,15 +151,13 @@ TrackerRecHit::isOnRequestedDet(const std::vector<std::string>& layerList) const
       }
     }
     
+  }
+
     std::cout << "subdet = " << subdet << std::endl;
     std::cout << "idLayer = " << idLayer << std::endl;
     std::cout << "side = " << side << std::endl;
 
-  }
-
   /// http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoTracker/TkSeedingLayers/src/SeedingLayerSetsBuilder.cc?revision=1.13&view=markup
-
-  
 
   return isOnDet;
 }
@@ -167,7 +165,7 @@ TrackerRecHit::isOnRequestedDet(const std::vector<std::string>& layerList) const
 bool
 //TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet) const { 
 TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet, const std::string& seedingAlgo) const { 
-  
+
   bool isOnDet = false;
   
   for ( unsigned idet=0; idet<whichDet.size(); ++idet ) {
@@ -230,7 +228,7 @@ TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet, const
     if ( isOnDet ) break;
     
   }
-  
+
   return isOnDet;
 }
 
@@ -346,7 +344,7 @@ TrackerRecHit::makesAPairWith3rd(const TrackerRecHit& anotherHit) const {
       
 bool
 TrackerRecHit::makesATripletWith(const TrackerRecHit& anotherHit,
-				 const TrackerRecHit& yetAnotherHit ) const { 
+				 const TrackerRecHit& yetAnotherHit, const std::string& seedingAlgo ) const { 
 
   bool isAProperTriplet = false;
 
@@ -354,6 +352,25 @@ TrackerRecHit::makesATripletWith(const TrackerRecHit& anotherHit,
   unsigned int anotherLayerNumber = anotherHit.layerNumber();
   unsigned int yetAnotherSubDetId = yetAnotherHit.subDetId();
   unsigned int yetAnotherLayerNumber = yetAnotherHit.layerNumber();
+
+  if(seedingAlgo == "SecondPixelTriplets") {
+
+    isAProperTriplet = 
+      (theSubDetId == 2 && anotherSubDetId == 2 && yetAnotherSubDetId == 2)
+      &&
+      (
+       ( theLayerNumber == 2  && anotherLayerNumber == 3 && yetAnotherLayerNumber == 4)
+       ||
+       ( theLayerNumber == 3  && anotherLayerNumber == 4 && yetAnotherLayerNumber == 5)
+       ||
+       ( theLayerNumber == 4  && anotherLayerNumber == 5 && yetAnotherLayerNumber == 6)
+       ||
+       ( theLayerNumber == 5  && anotherLayerNumber == 6 && yetAnotherLayerNumber == 7)
+       ||
+       ( theLayerNumber == 6  && anotherLayerNumber == 7 && yetAnotherLayerNumber == 8)
+       );
+  }
+  else {
   isAProperTriplet = 
     // First hit on PXB1, second on PXB2
     ( ( theSubDetId == 1 && theLayerNumber == 1 ) && 
@@ -401,8 +418,9 @@ TrackerRecHit::makesATripletWith(const TrackerRecHit& anotherHit,
       ( yetAnotherSubDetId == 6 && yetAnotherLayerNumber == 2 ) ) ) ||
     // First hit on TIB1 (pixel less)
     ( ( theSubDetId == 3 && theLayerNumber == 1 ) && 
-      ( anotherSubDetId == 3 && anotherLayerNumber == 2 ) && 
+      ( anotherSubDetId == 3 && anotherLayerNumber == 2 ) &&  
       ( yetAnotherSubDetId == 3 && yetAnotherLayerNumber == 3 ) );
+  }
   
   return isAProperTriplet;
   

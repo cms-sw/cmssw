@@ -72,6 +72,8 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   edm::ParameterSet const& conf) 
   : pset_(conf)
 {
+  std::cout << "geometry = " << geometry << std::endl;
+
   thePixelDataFile = 0;
   thePixelBarrelResolutionFile = 0;
   thePixelForwardResolutionFile = 0;
@@ -82,10 +84,7 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 
   random = 0;
 
-
-#ifdef FAMOS_DEBUG
   std::cout << "SiTrackerGaussianSmearingRecHitConverter instantiated" << std::endl;
-#endif
 
   // Initialize the random number generator service
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -510,7 +509,7 @@ SiTrackerGaussianSmearingRecHitConverter::~SiTrackerGaussianSmearingRecHitConver
 }  
 
 void 
-SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run & run, const edm::EventSetup & es) 
+SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run const &, const edm::EventSetup & es) 
 {
 
   // Initialize the Tracker Geometry
@@ -905,9 +904,13 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 
   // A few caracteritics of the module the SimHit belongs to.
   unsigned int subdet   = DetId(simHit.detUnitId()).subdetId();
+
   unsigned int detid    = DetId(simHit.detUnitId()).rawId();
+
   const GeomDetUnit* theDetUnit = geometry->idToDetUnit((DetId)simHit.detUnitId());
+
   const BoundPlane& theDetPlane = theDetUnit->surface();
+
   const Bounds& theBounds = theDetPlane.bounds();
   double boundX = theBounds.width()/2.;
   double boundY = theBounds.length()/2.;
@@ -933,7 +936,6 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 #endif
     return true; // RecHit == PSimHit with 100% hit finding efficiency
   } else if (trackingPSimHitsEqualSmearing) {
-    
     
     //split the errors per layer
     if(subdet == 1){ //Pixel Barrel (now includes tracker) 
@@ -989,7 +991,7 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 #ifdef FAMOS_DEBUG
   std::cout << " Hit finding probability draw: " << hitFindingProbability << std::endl;;
 #endif
-  
+
   switch (subdet) {
     // Pixel Barrel
   case 1:
