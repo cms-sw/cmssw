@@ -874,6 +874,7 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
   m_interpaths   = 0;
   for (auto & keyval : m_paths) {
     keyval.second.time_active       = 0.;
+    keyval.second.time_exclusive    = 0.;
     keyval.second.time_premodules   = 0.;
     keyval.second.time_intermodules = 0.;
     keyval.second.time_postmodules  = 0.;
@@ -901,7 +902,7 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
   if (m_enable_timing_exclusive) {
     for (auto & keyval: m_paths) {
       PathInfo & pathinfo = keyval.second;
-      float exclusive = pathinfo.time_overhead;
+      pathinfo.time_exclusive = pathinfo.time_overhead;
 
       for (uint32_t i = 0; i <= pathinfo.last_run; ++i) {
         ModuleInfo * module = pathinfo.modules[i];
@@ -909,11 +910,11 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
           // this is a module occurring more than once in the same path, skip it after the first occurrence
           continue;
         if (module->is_exclusive)
-          exclusive += module->time_active;
+          pathinfo.time_exclusive += module->time_active;
       }
-      m_dqm_paths_exclusive_time->Fill(pathinfo.index, exclusive * 1000.);
+      m_dqm_paths_exclusive_time->Fill(pathinfo.index, pathinfo.time_exclusive * 1000.);
       if (m_enable_dqm_bypath_exclusive) {
-        pathinfo.dqm_exclusive->Fill(exclusive * 1000.);
+        pathinfo.dqm_exclusive->Fill(pathinfo.time_exclusive * 1000.);
       }
     }
   }
@@ -1392,6 +1393,17 @@ double FastTimerService::queryPathActiveTime(const std::string & path) const {
     return keyval->second.time_active;
   } else {
     edm::LogError("FastTimerService") << "FastTimerService::queryPathActiveTime: unexpected path " << path;
+    return 0.;
+  }
+}
+
+// query the time spent in a path (available after the path has run)
+double FastTimerService::queryPathExclusiveTime(const std::string & path) const {
+  PathMap<PathInfo>::const_iterator keyval = m_paths.find(path);
+  if (keyval != m_paths.end()) {
+    return keyval->second.time_exclusive;
+  } else {
+    edm::LogError("FastTimerService") << "FastTimerService::queryPathExclusiveTime: unexpected path " << path;
     return 0.;
   }
 }

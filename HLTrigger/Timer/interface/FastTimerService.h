@@ -97,6 +97,7 @@ public:
   double queryModuleTimeByLabel(const std::string &) const;
   double queryModuleTimeByType(const std::string &) const;
   double queryPathActiveTime(const std::string &) const;
+  double queryPathExclusiveTime(const std::string &) const;
   double queryPathTotalTime(const std::string &) const;
 
   // query the time spent in the current event's
@@ -146,7 +147,7 @@ private:
     double                      summary_active;
     TH1F *                      dqm_active;
     bool                        has_just_run;       // flag set to check if a module was active inside a particular path, or not
-    bool                        is_exclusive;       // flag set to check if a module has been run only once
+    bool                        is_exclusive;       // flag set to check if a module was schedules to run exactly once
 
   public:
     ModuleInfo() :
@@ -175,6 +176,7 @@ private:
   struct PathInfo {
     std::vector<ModuleInfo *>   modules;            // list of all modules contributing to the path (duplicate modules stored as null pointers)
     double                      time_active;        // per-event timer: time actually spent in this path
+    double                      time_exclusive;     // per-event timer: time actually spent in this path, in modules that are not run on any other paths
     double                      time_premodules;    // per-event timer: time spent between "begin path" and the first "begin module"
     double                      time_intermodules;  // per-event timer: time spent between modules
     double                      time_postmodules;   // per-event timer: time spent between the last "end module" and "end path"
@@ -203,6 +205,7 @@ private:
     PathInfo() :
       modules(),
       time_active(0.),
+      time_exclusive(0.),
       time_premodules(0.),
       time_intermodules(0.),
       time_postmodules(0.),
@@ -236,6 +239,7 @@ private:
     void reset() {
       modules.clear();
       time_active = 0.;
+      time_exclusive = 0.;
       time_premodules = 0.;
       time_intermodules = 0.;
       time_postmodules = 0.;
