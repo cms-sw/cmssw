@@ -107,6 +107,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_all_paths(0.),
   m_all_endpaths(0.),
   m_interpaths(0.),
+  m_paths_interpaths(),
   // per-job summary
   m_summary_events(0),
   m_summary_event(0.),
@@ -116,6 +117,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_summary_all_paths(0.),
   m_summary_all_endpaths(0.),
   m_summary_interpaths(0.),
+  m_summary_paths_interpaths(),
   // DQM - these are initialized at preBeginRun(), to make sure the DQM service has been loaded
   m_dqms(0),
   // event summary plots
@@ -256,6 +258,8 @@ void FastTimerService::preBeginRun( edm::RunID const &, edm::Timestamp const & )
     std::string const & label = tns.getEndPath(i);
     m_paths[label].index = size_p + i;
   }
+  m_paths_interpaths.assign(size + 1, 0);
+  m_summary_paths_interpaths.assign(size + 1, 0);
 
   // associate to each path all the modules it contains
   for (uint32_t i = 0; i < tns.getTrigPaths().size(); ++i)
@@ -775,6 +779,7 @@ void FastTimerService::reset() {
   m_all_paths = 0.;
   m_all_endpaths = 0.;
   m_interpaths = 0.;
+  m_paths_interpaths.clear();
   // per-job summary
   m_summary_events = 0;
   m_summary_event = 0.;
@@ -784,6 +789,7 @@ void FastTimerService::reset() {
   m_summary_all_paths = 0.;
   m_summary_all_endpaths = 0.;
   m_summary_interpaths = 0.;
+  m_summary_paths_interpaths.clear();
   // DQM - the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
   m_dqms = 0;
   // event summary plots
@@ -872,6 +878,7 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
   m_all_paths    = 0;
   m_all_endpaths = 0;
   m_interpaths   = 0;
+  m_paths_interpaths.assign(m_paths.size() + 1, 0);
   for (auto & keyval : m_paths) {
     keyval.second.time_active       = 0.;
     keyval.second.time_exclusive    = 0.;
@@ -882,13 +889,13 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
   }
   for (auto & keyval : m_modules) {
     keyval.second.time_active       = 0.;
-    keyval.second.has_just_run      = false;
-    keyval.second.is_exclusive      = false;
+    keyval.second.run_in_path       = nullptr;
+    keyval.second.counter           = 0;
   }
   for (auto & keyval : m_moduletypes) {
     keyval.second.time_active       = 0.;
-    keyval.second.has_just_run      = false;
-    keyval.second.is_exclusive      = false;
+    keyval.second.run_in_path       = nullptr;
+    keyval.second.counter           = 0;
   }
 
   // copy the start event timestamp as the end of the previous path
@@ -899,6 +906,21 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
 void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetup const & setup) {
   //edm::LogImportant("FastTimerService") << __func__ << "(...)";
 
+  // stop the per-event timer, and account event time
+  stop(m_timer_event);
+  m_event = delta(m_timer_event);
+  m_summary_event += m_event;
+
+  // the last part of inter-path overhead is the time between the end of the last (end)path and the end of the event processing
+  double interpaths = delta(m_timer_path.second, m_timer_event.second);
+  m_interpaths += interpaths;
+  m_paths_interpaths[m_paths.size()] = interpaths;
+
+  m_summary_interpaths += m_interpaths;
+  for (unsigned int i = 0; i <= m_paths.size(); ++i)
+    m_summary_paths_interpaths[i] += m_paths_interpaths[i];
+
+  // elaborate "exclusive" modules
   if (m_enable_timing_exclusive) {
     for (auto & keyval: m_paths) {
       PathInfo & pathinfo = keyval.second;
@@ -909,111 +931,156 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
         if (module == 0)
           // this is a module occurring more than once in the same path, skip it after the first occurrence
           continue;
-        if (module->is_exclusive)
+        if ((module->run_in_path == & pathinfo) and (module->counter == 1))
           pathinfo.time_exclusive += module->time_active;
-      }
-      m_dqm_paths_exclusive_time->Fill(pathinfo.index, pathinfo.time_exclusive * 1000.);
-      if (m_enable_dqm_bypath_exclusive) {
-        pathinfo.dqm_exclusive->Fill(pathinfo.time_exclusive * 1000.);
-      }
-    }
-  }
-
-  // fill plots for per-event time by module
-  if (m_dqms and m_enable_dqm_bymodule) {
-    for (auto & keyval : m_modules) {
-      ModuleInfo & module = keyval.second;
-      module.dqm_active->Fill(module.time_active * 1000.);
-    }
-  }
-  // fill plots for per-event time by module type
-  if (m_dqms and m_enable_dqm_bymoduletype) {
-    for (auto & keyval : m_moduletypes) {
-      ModuleInfo & module = keyval.second;
-      module.dqm_active->Fill(module.time_active * 1000.);
-    }
-  }
-
-  // stop the per-event timer, and account event time
-  stop(m_timer_event);
-  m_event = delta(m_timer_event);
-  m_summary_event += m_event;
-  // the last part of inter-path overhead is the time between the end of the last (end)path and the end of the event processing
-  double interpaths = delta(m_timer_path.second, m_timer_event.second);
-  m_interpaths += interpaths;
-  m_summary_interpaths += m_interpaths;
-  if (m_dqms) {
-    m_dqm_paths_interpaths->Fill(m_paths.size(), interpaths * 1000.);
-    
-    if (m_enable_dqm_summary) {
-      m_dqm_event         ->Fill(m_event          * 1000.);
-      m_dqm_presource     ->Fill(m_presource      * 1000.);
-      m_dqm_source        ->Fill(m_source         * 1000.);
-      m_dqm_postsource    ->Fill(m_postsource     * 1000.);
-      m_dqm_all_paths     ->Fill(m_all_paths      * 1000.);
-      m_dqm_all_endpaths  ->Fill(m_all_endpaths   * 1000.);
-      m_dqm_interpaths    ->Fill(m_interpaths     * 1000.);
-
-      if (m_nproc_enabled) {
-        m_dqm_nproc_event         ->Fill(m_event          * 1000.);
-        m_dqm_nproc_presource     ->Fill(m_presource      * 1000.);
-        m_dqm_nproc_source        ->Fill(m_source         * 1000.);
-        m_dqm_nproc_postsource    ->Fill(m_postsource     * 1000.);
-        m_dqm_nproc_all_paths     ->Fill(m_all_paths      * 1000.);
-        m_dqm_nproc_all_endpaths  ->Fill(m_all_endpaths   * 1000.);
-        m_dqm_nproc_interpaths    ->Fill(m_interpaths     * 1000.);
-      }
-    }
-
-    if (m_enable_dqm_byls) {
-      unsigned int ls = event.getLuminosityBlock().luminosityBlock();
-      m_dqm_byls_event        ->Fill(ls, m_event        * 1000.);
-      m_dqm_byls_presource    ->Fill(ls, m_presource    * 1000.);
-      m_dqm_byls_source       ->Fill(ls, m_source       * 1000.);
-      m_dqm_byls_postsource   ->Fill(ls, m_postsource   * 1000.);
-      m_dqm_byls_all_paths    ->Fill(ls, m_all_paths    * 1000.);
-      m_dqm_byls_all_endpaths ->Fill(ls, m_all_endpaths * 1000.);
-      m_dqm_byls_interpaths   ->Fill(ls, m_interpaths   * 1000.);
-      
-      if (m_nproc_enabled) {
-        m_dqm_nproc_byls_event        ->Fill(ls, m_event        * 1000.);
-        m_dqm_nproc_byls_presource    ->Fill(ls, m_presource    * 1000.);
-        m_dqm_nproc_byls_source       ->Fill(ls, m_source       * 1000.);
-        m_dqm_nproc_byls_postsource   ->Fill(ls, m_postsource   * 1000.);
-        m_dqm_nproc_byls_all_paths    ->Fill(ls, m_all_paths    * 1000.);
-        m_dqm_nproc_byls_all_endpaths ->Fill(ls, m_all_endpaths * 1000.);
-        m_dqm_nproc_byls_interpaths   ->Fill(ls, m_interpaths   * 1000.);
-      }
-    }
-
-    if (m_enable_dqm_byluminosity) {
-      float luminosity = 0.;
-      edm::Handle<LumiScalersCollection> h_luminosity;
-      if (event.getByLabel(m_luminosity_label, h_luminosity) and not h_luminosity->empty())
-        luminosity = h_luminosity->front().instantLumi();   // in units of 1e30 cm-2s-1
-
-      m_dqm_byluminosity_event        ->Fill(luminosity, m_event        * 1000.);
-      m_dqm_byluminosity_presource    ->Fill(luminosity, m_presource    * 1000.);
-      m_dqm_byluminosity_source       ->Fill(luminosity, m_source       * 1000.);
-      m_dqm_byluminosity_postsource   ->Fill(luminosity, m_postsource   * 1000.);
-      m_dqm_byluminosity_all_paths    ->Fill(luminosity, m_all_paths    * 1000.);
-      m_dqm_byluminosity_all_endpaths ->Fill(luminosity, m_all_endpaths * 1000.);
-      m_dqm_byluminosity_interpaths   ->Fill(luminosity, m_interpaths   * 1000.);
-      
-      if (m_nproc_enabled) {
-        m_dqm_nproc_byluminosity_event        ->Fill(luminosity, m_event        * 1000.);
-        m_dqm_nproc_byluminosity_presource    ->Fill(luminosity, m_presource    * 1000.);
-        m_dqm_nproc_byluminosity_source       ->Fill(luminosity, m_source       * 1000.);
-        m_dqm_nproc_byluminosity_postsource   ->Fill(luminosity, m_postsource   * 1000.);
-        m_dqm_nproc_byluminosity_all_paths    ->Fill(luminosity, m_all_paths    * 1000.);
-        m_dqm_nproc_byluminosity_all_endpaths ->Fill(luminosity, m_all_endpaths * 1000.);
-        m_dqm_nproc_byluminosity_interpaths   ->Fill(luminosity, m_interpaths   * 1000.);
       }
     }
   }
 
   // done processing the first event
   m_is_first_event = false;
+
+  // fill the DQM plots from the internal buffers
+  if (m_dqms == nullptr)
+    return;
+
+  // fill plots for per-event time by path
+  if (m_enable_timing_paths) {
+
+    for (auto & keyval: m_paths) {
+      PathInfo & pathinfo = keyval.second;
+
+      m_dqm_paths_active_time->Fill(pathinfo.index, pathinfo.time_active * 1000.);
+      if (m_enable_dqm_bypath_active)
+        pathinfo.dqm_active      ->Fill(pathinfo.time_active          * 1000.);
+
+      m_dqm_paths_exclusive_time->Fill(pathinfo.index, pathinfo.time_exclusive * 1000.);
+      if (m_enable_dqm_bypath_exclusive)
+        pathinfo.dqm_exclusive   ->Fill(pathinfo.time_exclusive       * 1000.);
+
+      m_dqm_paths_total_time->Fill(pathinfo.index, pathinfo.time_total * 1000.);
+      if (m_enable_dqm_bypath_total)
+        pathinfo.dqm_total       ->Fill(pathinfo.time_total           * 1000.);
+
+      // fill path overhead histograms
+      if (m_enable_dqm_bypath_overhead) {
+        pathinfo.dqm_premodules  ->Fill(pathinfo.time_premodules      * 1000.);
+        pathinfo.dqm_intermodules->Fill(pathinfo.time_intermodules    * 1000.);
+        pathinfo.dqm_postmodules ->Fill(pathinfo.time_postmodules     * 1000.);
+        pathinfo.dqm_overhead    ->Fill(pathinfo.time_overhead        * 1000.);
+      }
+
+      // fill detailed timing histograms
+      if (m_enable_dqm_bypath_details) {
+        for (uint32_t i = 0; i <= pathinfo.last_run; ++i) {
+          ModuleInfo * module = pathinfo.modules[i];
+          // fill the total time for all non-duplicate modules
+          pathinfo.dqm_module_total->Fill(i, module->time_active * 1000.);
+          // fill the active time only for module that have actually run in this path
+          if (module->run_in_path == & pathinfo)
+            pathinfo.dqm_module_active->Fill(i, module->time_active * 1000.);
+        }
+      }
+
+      // fill path counter histograms
+      //   - also for duplicate modules, to properly extract rejection information
+      //   - fill the N+1th bin for paths accepting the event, so the FastTimerServiceClient can properly measure the last filter efficiency
+      if (m_enable_dqm_bypath_counters) {
+        for (uint32_t i = 0; i <= pathinfo.last_run; ++i)
+          pathinfo.dqm_module_counter->Fill(i);
+        if (pathinfo.accept)
+          pathinfo.dqm_module_counter->Fill(pathinfo.modules.size());
+      }
+
+    }
+  }
+
+  // fill plots for per-event time by module
+  if (m_enable_dqm_bymodule) {
+    for (auto & keyval : m_modules) {
+      ModuleInfo & module = keyval.second;
+      module.dqm_active->Fill(module.time_active * 1000.);
+    }
+  }
+
+  // fill plots for per-event time by module type
+  if (m_enable_dqm_bymoduletype) {
+    for (auto & keyval : m_moduletypes) {
+      ModuleInfo & module = keyval.second;
+      module.dqm_active->Fill(module.time_active * 1000.);
+    }
+  }
+
+  // fill the interpath overhead plot
+  for (unsigned int i = 0; i <= m_paths.size(); ++i)
+    m_dqm_paths_interpaths->Fill(i, m_paths_interpaths[i] * 1000.);
+  
+  if (m_enable_dqm_summary) {
+    m_dqm_event         ->Fill(m_event          * 1000.);
+    m_dqm_presource     ->Fill(m_presource      * 1000.);
+    m_dqm_source        ->Fill(m_source         * 1000.);
+    m_dqm_postsource    ->Fill(m_postsource     * 1000.);
+    m_dqm_all_paths     ->Fill(m_all_paths      * 1000.);
+    m_dqm_all_endpaths  ->Fill(m_all_endpaths   * 1000.);
+    m_dqm_interpaths    ->Fill(m_interpaths     * 1000.);
+
+    if (m_nproc_enabled) {
+      m_dqm_nproc_event         ->Fill(m_event          * 1000.);
+      m_dqm_nproc_presource     ->Fill(m_presource      * 1000.);
+      m_dqm_nproc_source        ->Fill(m_source         * 1000.);
+      m_dqm_nproc_postsource    ->Fill(m_postsource     * 1000.);
+      m_dqm_nproc_all_paths     ->Fill(m_all_paths      * 1000.);
+      m_dqm_nproc_all_endpaths  ->Fill(m_all_endpaths   * 1000.);
+      m_dqm_nproc_interpaths    ->Fill(m_interpaths     * 1000.);
+    }
+  }
+
+  if (m_enable_dqm_byls) {
+    unsigned int ls = event.getLuminosityBlock().luminosityBlock();
+    m_dqm_byls_event        ->Fill(ls, m_event        * 1000.);
+    m_dqm_byls_presource    ->Fill(ls, m_presource    * 1000.);
+    m_dqm_byls_source       ->Fill(ls, m_source       * 1000.);
+    m_dqm_byls_postsource   ->Fill(ls, m_postsource   * 1000.);
+    m_dqm_byls_all_paths    ->Fill(ls, m_all_paths    * 1000.);
+    m_dqm_byls_all_endpaths ->Fill(ls, m_all_endpaths * 1000.);
+    m_dqm_byls_interpaths   ->Fill(ls, m_interpaths   * 1000.);
+    
+    if (m_nproc_enabled) {
+      m_dqm_nproc_byls_event        ->Fill(ls, m_event        * 1000.);
+      m_dqm_nproc_byls_presource    ->Fill(ls, m_presource    * 1000.);
+      m_dqm_nproc_byls_source       ->Fill(ls, m_source       * 1000.);
+      m_dqm_nproc_byls_postsource   ->Fill(ls, m_postsource   * 1000.);
+      m_dqm_nproc_byls_all_paths    ->Fill(ls, m_all_paths    * 1000.);
+      m_dqm_nproc_byls_all_endpaths ->Fill(ls, m_all_endpaths * 1000.);
+      m_dqm_nproc_byls_interpaths   ->Fill(ls, m_interpaths   * 1000.);
+    }
+  }
+
+  if (m_enable_dqm_byluminosity) {
+    float luminosity = 0.;
+    edm::Handle<LumiScalersCollection> h_luminosity;
+    if (event.getByLabel(m_luminosity_label, h_luminosity) and not h_luminosity->empty())
+      luminosity = h_luminosity->front().instantLumi();   // in units of 1e30 cm-2s-1
+
+    m_dqm_byluminosity_event        ->Fill(luminosity, m_event        * 1000.);
+    m_dqm_byluminosity_presource    ->Fill(luminosity, m_presource    * 1000.);
+    m_dqm_byluminosity_source       ->Fill(luminosity, m_source       * 1000.);
+    m_dqm_byluminosity_postsource   ->Fill(luminosity, m_postsource   * 1000.);
+    m_dqm_byluminosity_all_paths    ->Fill(luminosity, m_all_paths    * 1000.);
+    m_dqm_byluminosity_all_endpaths ->Fill(luminosity, m_all_endpaths * 1000.);
+    m_dqm_byluminosity_interpaths   ->Fill(luminosity, m_interpaths   * 1000.);
+    
+    if (m_nproc_enabled) {
+      m_dqm_nproc_byluminosity_event        ->Fill(luminosity, m_event        * 1000.);
+      m_dqm_nproc_byluminosity_presource    ->Fill(luminosity, m_presource    * 1000.);
+      m_dqm_nproc_byluminosity_source       ->Fill(luminosity, m_source       * 1000.);
+      m_dqm_nproc_byluminosity_postsource   ->Fill(luminosity, m_postsource   * 1000.);
+      m_dqm_nproc_byluminosity_all_paths    ->Fill(luminosity, m_all_paths    * 1000.);
+      m_dqm_nproc_byluminosity_all_endpaths ->Fill(luminosity, m_all_endpaths * 1000.);
+      m_dqm_nproc_byluminosity_interpaths   ->Fill(luminosity, m_interpaths   * 1000.);
+    }
+  }
+
 }
 
 void FastTimerService::preSourceEvent(edm::StreamID sid) {
@@ -1075,13 +1142,6 @@ void FastTimerService::preProcessPath(std::string const & path ) {
   PathMap<PathInfo>::iterator keyval = m_paths.find(path);
   if (keyval != m_paths.end()) {
     m_current_path = & keyval->second;
-
-    if (m_enable_timing_modules) {
-      // reset the status of this path's modules
-      for (ModuleInfo * module: m_current_path->modules)
-        if (module)
-          module->has_just_run = false;
-    }
   } else {
     // should never get here
     m_current_path = 0;
@@ -1103,9 +1163,7 @@ void FastTimerService::preProcessPath(std::string const & path ) {
   // (or the beginning of the event, if this is the first path - see preProcessEvent)
   double interpaths = delta(m_timer_path.second,  m_timer_path.first);
   m_interpaths += interpaths;
-  if (m_dqms) {
-    m_dqm_paths_interpaths->Fill(m_current_path->index, interpaths * 1000.);
-  }
+  m_paths_interpaths[m_current_path->index] = interpaths;
 }
 
 void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathStatus const & status) {
@@ -1122,13 +1180,6 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
     PathInfo & pathinfo = * m_current_path;
     pathinfo.time_active = active;
     pathinfo.summary_active += active;
-
-    if (m_dqms) {
-      m_dqm_paths_active_time->Fill(pathinfo.index, active * 1000.);
-      if (m_enable_dqm_bypath_active) {
-        pathinfo.dqm_active->Fill(active * 1000.);
-      }
-    }
 
     // measure the time spent between the execution of the last module and the end of the path
     if (m_enable_timing_modules) {
@@ -1149,39 +1200,18 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
       for (uint32_t i = 0; i <= last_run; ++i) {
         ModuleInfo * module = pathinfo.modules[i];
 
-        // fill counter histograms - also for duplicate modules, to properly extract rejection information
-        if (m_enable_dqm_bypath_counters) {
-          pathinfo.dqm_module_counter->Fill(i);
-        }
-        
         if (module == 0)
           // this is a module occurring more than once in the same path, skip it after the first occurrence
           continue;
 
-        if (module->has_just_run) {
+        ++module->counter;
+        if (module->run_in_path == & pathinfo) {
           current += module->time_active;
-          module->is_exclusive = true;
         } else {
           total   += module->time_active;
-          module->is_exclusive = false;
-        }
-
-        // fill detailed timing histograms
-        if (m_enable_dqm_bypath_details) {
-          // fill the total time for all non-duplicate modules
-          pathinfo.dqm_module_total->Fill(i, module->time_active * 1000.);
-          if (module->has_just_run) {
-            // fill the active time only for module actually running in this path
-            pathinfo.dqm_module_active->Fill(i, module->time_active * 1000.);
-          }
         }
 
       }
-
-      if (status.accept())
-        if (m_enable_dqm_bypath_counters) {
-          pathinfo.dqm_module_counter->Fill(pathinfo.modules.size());
-        }
 
       if (m_is_first_module) {
         // no modules were active during this path, account all the time as overhead
@@ -1213,19 +1243,8 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
       pathinfo.summary_postmodules  += post;
       pathinfo.summary_overhead     += overhead;
       pathinfo.summary_total        += total;
-      pathinfo.last_run              = last_run;
-      if (m_dqms) {
-        if (m_enable_dqm_bypath_overhead) {
-          pathinfo.dqm_premodules  ->Fill(pre      * 1000.);
-          pathinfo.dqm_intermodules->Fill(inter    * 1000.);
-          pathinfo.dqm_postmodules ->Fill(post     * 1000.);
-          pathinfo.dqm_overhead    ->Fill(overhead * 1000.);
-        }
-        m_dqm_paths_total_time->Fill(pathinfo.index, total * 1000.);
-        if (m_enable_dqm_bypath_total) {
-          pathinfo.dqm_total       ->Fill(total    * 1000.);
-        }
-      }
+      pathinfo.last_run              = status.index();
+      pathinfo.accept                = status.accept();
     }
   }
 
@@ -1274,7 +1293,7 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
     if (keyval != m_fast_modules.end()) {
       double time = delta(m_timer_module);
       ModuleInfo & module = * keyval->second;
-      module.has_just_run    = true;
+      module.run_in_path     = m_current_path;
       module.time_active     = time;
       module.summary_active += time;
       // plots are filled post event processing
@@ -1289,7 +1308,7 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
     if (keyval != m_fast_moduletypes.end()) {
       double time = delta(m_timer_module);
       ModuleInfo & module = * keyval->second;
-      // module.has_just_run is not useful here
+      // module.run_in_path is not meaningful here
       module.time_active    += time;
       module.summary_active += time;
       // plots are filled post event processing

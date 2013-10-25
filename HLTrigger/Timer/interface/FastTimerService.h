@@ -142,20 +142,22 @@ public:
 
 private:
 
+  struct PathInfo;
+
   struct ModuleInfo {
     double                      time_active;        // per-event timer: time actually spent in this module
     double                      summary_active;
     TH1F *                      dqm_active;
-    bool                        has_just_run;       // flag set to check if a module was active inside a particular path, or not
-    bool                        is_exclusive;       // flag set to check if a module was schedules to run exactly once
+    PathInfo *                  run_in_path;        // the path inside which the module was atually active
+    uint32_t                    counter;            // count how many times the module was scheduled to run
 
   public:
     ModuleInfo() :
       time_active(0.),
       summary_active(0.),
       dqm_active(0),
-      has_just_run(false),
-      is_exclusive(false)
+      run_in_path(nullptr),
+      counter(0)
     { }
 
     ~ModuleInfo() {
@@ -168,8 +170,8 @@ private:
       summary_active = 0.;
       // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
       dqm_active = 0;
-      has_just_run = false;
-      is_exclusive = false;
+      run_in_path = nullptr;
+      counter = 0;
     }
   };
 
@@ -190,13 +192,14 @@ private:
     double                      summary_total;
     uint32_t                    last_run;
     uint32_t                    index;              // index of the Path or EndPath in the "schedule"
-    TH1F *                      dqm_active;
-    TH1F *                      dqm_exclusive;
-    TH1F *                      dqm_premodules;
-    TH1F *                      dqm_intermodules;
-    TH1F *                      dqm_postmodules;
-    TH1F *                      dqm_overhead;
-    TH1F *                      dqm_total;
+    bool                        accept;             // flag indicating if the path acepted the event
+    TH1F *                      dqm_active;         // see time_active
+    TH1F *                      dqm_exclusive;      // see time_exclusive
+    TH1F *                      dqm_premodules;     // see time_premodules
+    TH1F *                      dqm_intermodules;   // see time_intermodules
+    TH1F *                      dqm_postmodules;    // see time_postmodules
+    TH1F *                      dqm_overhead;       // see time_overhead
+    TH1F *                      dqm_total;          // see time_total
     TH1F *                      dqm_module_counter; // for each module in the path, track how many times it ran
     TH1F *                      dqm_module_active;  // for each module in the path, track the active time spent 
     TH1F *                      dqm_module_total;   // for each module in the path, track the total time spent 
@@ -219,6 +222,7 @@ private:
       summary_total(0.),
       last_run(0),
       index(0),
+      accept(false),
       dqm_active(0),
       dqm_exclusive(0),
       dqm_premodules(0),
@@ -253,6 +257,7 @@ private:
       summary_total = 0.;
       last_run = 0;
       index = 0;
+      accept = false;
 
       // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
       dqm_active = 0; 
@@ -323,6 +328,7 @@ private:
   double                                        m_all_paths;
   double                                        m_all_endpaths;
   double                                        m_interpaths;
+  std::vector<double>                           m_paths_interpaths;     // time spent between the beginning of the event and the first path, between paths, and between the last (end)path and the end of the event
 
   // per-job summary
   unsigned int                                  m_summary_events;       // number of events
@@ -333,6 +339,7 @@ private:
   double                                        m_summary_all_paths;
   double                                        m_summary_all_endpaths;
   double                                        m_summary_interpaths;
+  std::vector<double>                           m_summary_paths_interpaths;
 
   // DQM
   DQMStore *                                    m_dqms;
