@@ -21,7 +21,8 @@ using namespace edm;
 CLHEP::HepRandomEngine* decayRandomEngine;
 
 ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
-   : fIsInitialized(false),
+  : hastauolapp(false),
+     fIsInitialized(false),
      fTauolaInterface(0),
      fEvtGenInterface(0),
      fPhotosInterface(0)
@@ -48,9 +49,16 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
 	fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauola-27.121.5", pset.getUntrackedParameter< ParameterSet >(curSet)));
 	fTauolaInterface->SetDecayRandomEngine(decayRandomEngine);
       }
-      if(curSet =="Tauolapp-1.1.1a"){
-	fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp-1.1.1a", pset.getUntrackedParameter< ParameterSet >(curSet)));
-        fTauolaInterface->SetDecayRandomEngine(decayRandomEngine);
+      if(curSet =="Tauolapp111a"){
+	std::cout << "A" << std::endl;
+	fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp111a", pset.getUntrackedParameter< ParameterSet >(curSet)));
+	// fTauolaInterface->SetDecayRandomEngine(decayRandomEngine);
+	std::cout << "B" << std::endl;
+	fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos-215.5", pset.getUntrackedParameter< ParameterSet >(curSet)));
+	//fPhotosInterface->configureOnlyFor( 15 ); // fixme
+	fPhotosInterface->avoidTauLeptonicDecays();
+	hastauolapp=true;
+	std::cout << "C" << std::endl;
       }
       if ( curSet == "Photos" || curSet == "Photos-215.5"){
 	if ( !fPhotosInterface ){
@@ -82,7 +90,9 @@ HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
 
    if ( fTauolaInterface ) 
    {
+     std::cout << "D" << std::endl;
       evt = fTauolaInterface->decay( evt ); 
+      std::cout << "E" << std::endl;
       if ( !evt ) return 0;
    }
    
@@ -102,52 +112,45 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
 
    if ( fIsInitialized ) return;
    
-   if ( fTauolaInterface ) 
-   {
-      fTauolaInterface->init( es );
-      for ( std::vector<int>::const_iterator i=fTauolaInterface->operatesOnParticles().begin();
-            i!=fTauolaInterface->operatesOnParticles().end(); i++ ) 
-               fPDGs.push_back( *i );
+   if ( fTauolaInterface ) {
+     std::cout << "F" << std::endl;
+     fTauolaInterface->init( es );
+     std::cout << "G" << std::endl;
+     for ( std::vector<int>::const_iterator i=fTauolaInterface->operatesOnParticles().begin();
+	   i!=fTauolaInterface->operatesOnParticles().end(); i++ ) 
+       fPDGs.push_back( *i );
+     std::cout << "H" << std::endl;
+   }
+   std::cout << "I" << std::endl;
+   if ( fEvtGenInterface ){
+     fEvtGenInterface->init();
+     for ( std::vector<int>::const_iterator i=fEvtGenInterface->operatesOnParticles().begin();
+	   i!=fEvtGenInterface->operatesOnParticles().end(); i++ )
+       fPDGs.push_back( *i );
    }
    
-   if ( fEvtGenInterface ) 
-   {
-      fEvtGenInterface->init();
-      for ( std::vector<int>::const_iterator i=fEvtGenInterface->operatesOnParticles().begin();
-            i!=fEvtGenInterface->operatesOnParticles().end(); i++ )
-               fPDGs.push_back( *i );
-   }
    
-
-   if ( fPhotosInterface )
-   {
-      fPhotosInterface->init();
-/*   will fix shortly, for future tauola++
-      if ( fPhotosInterface )
-      {
-         for ( unsigned int iss=0; iss<fPhotosInterface->specialSettings().size(); iss++ )
-         {
-            fSpecialSettings.push_back( fPhotosInterface->specialSettings()[iss]; )
-         }
-      }
-*/
+   if( fPhotosInterface){
+     fPhotosInterface->init();
+     if(hastauolapp){
+       if ( fPhotosInterface ){
+	 for ( unsigned int iss=0; iss<fPhotosInterface->specialSettings().size(); iss++ ){
+	   fSpecialSettings.push_back( fPhotosInterface->specialSettings()[iss]);
+	 }
+       }
+     }
    }
-   
-   // now do special settings
-
-   // This is TEMPORARY THING, until we switch to tauola++ !!!
-   
-   if ( fPhotosInterface )
-   {
-      fSpecialSettings.push_back( "QED-brem-off:all" );
+   // now put in hack for TauolaFortran settings
+   if(!hastauolapp){
+     if ( fPhotosInterface ){
+       fSpecialSettings.push_back( "QED-brem-off:all" );
+     }
+     if ( fTauolaInterface ){
+       // override !
+       fSpecialSettings.clear();
+       fSpecialSettings.push_back( "QED-brem-off:15" );
+     }
    }
-   if ( fTauolaInterface )
-   {
-      // override !
-      fSpecialSettings.clear();
-      fSpecialSettings.push_back( "QED-brem-off:15" );
-   }
-   
    fIsInitialized = true;
    
    return;

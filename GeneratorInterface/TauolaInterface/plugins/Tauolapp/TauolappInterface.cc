@@ -57,6 +57,7 @@ TauolappInterface::TauolappInterface( const edm::ParameterSet& pset){
 }
 
 void TauolappInterface::Setup(){
+  fInstance=this;//  TauolappInterface::getInstance();
   fPolarization=false;
   fPSet=0;
   fIsInitialized=false; fMDTAU=-1; 

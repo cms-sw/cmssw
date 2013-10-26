@@ -29,7 +29,7 @@ namespace gen {
 	 void statistics() const;
       
       private:
-      	 
+	 bool hastauolapp;      	 
 	 bool                     fIsInitialized;
 	 TauolaInterfaceBase*     fTauolaInterface;
 	 EvtGenInterfaceBase*     fEvtGenInterface;
