@@ -39,26 +39,25 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
     } 
     decayRandomEngine = &rng->getEngine();   
     
-    for (unsigned int ip=0; ip<extGenNames.size(); ++ip )
-    {
+    for (unsigned int ip=0; ip<extGenNames.size(); ++ip ){
       std::string curSet = extGenNames[ip];
-      if ( curSet == "EvtGen" )
-      {
+      if ( curSet == "EvtGen" || curSet == "EvtGenLHC-9.1"){
 	fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGenLHC-9.1", pset.getUntrackedParameter< ParameterSet >(curSet)));
       }
-      else if ( curSet == "Tauola" )
-      {
+      if ( curSet == "Tauola" || curSet == "Tauola-27.121.5" ){
 	fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauola-27.121.5", pset.getUntrackedParameter< ParameterSet >(curSet)));
 	fTauolaInterface->SetDecayRandomEngine(decayRandomEngine);
       }
-      else if ( curSet == "Photos" )
-      {
+      if(curSet =="Tauolapp-1.1.1a"){
+	fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp-1.1.1a", pset.getUntrackedParameter< ParameterSet >(curSet)));
+        fTauolaInterface->SetDecayRandomEngine(decayRandomEngine);
+      }
+      if ( curSet == "Photos" || curSet == "Photos-215.5"){
 	if ( !fPhotosInterface ){
 	  fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos-215.5", pset.getUntrackedParameter< ParameterSet >(curSet)));
 	  fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
 	}
       }
-
     }
 
 }
