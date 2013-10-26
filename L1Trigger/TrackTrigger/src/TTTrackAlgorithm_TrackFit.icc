@@ -68,6 +68,9 @@
 
       /// Longitudinal plane: [2] cotTheta0, [3] z0
       /// d(z)/d(rInv) = 0
+
+      //D_[0][js] = - stubRho / sigmaZ * ( -2 * seedCotTheta0 / ( seedRInv*seedRInv ) * asin( stubRho * seedRInv * 0.5 )  +2 * seedCotTheta0 * stubRho / seedRInv / sqrt( 4 - stubRho*stubRho*seedRInv*seedRInv ) );
+
       /// d(z)/d(phi0) = 0
       /// d(z)/d(cotTheta0)
       D_[2][js] = 2. / seedRInv * asin( 0.5*seedRInv*stubRho ) / sigmaZ;

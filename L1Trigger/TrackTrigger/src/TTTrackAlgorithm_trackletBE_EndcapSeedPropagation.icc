@@ -21,10 +21,6 @@
     double rhoTrack = 2.0 * sin( 0.5 * curRInv * ( zCand - curZVtx ) / tan( M_PI_2 - curTheta ) ) / curRInv;
     double phiTrack = curPhi - 0.5 * curRInv * ( zCand - curZVtx ) / tan( M_PI_2 - curTheta );
 
-    if ( zCand > 0 )
-    {
-      stubTransvDispl = - stubTransvDispl;
-    }
     double stubPhiCorr = asin( stubTransvDispl / rhoCand );
     deltaRPhi = stubTransvDispl - rhoTrack * sin( stubPhiCorr - phiTrack + phiCand );
 

@@ -67,24 +67,6 @@ void TTTrackAlgorithm_trackletBE< Ref_PixelDigi_ >::CreateSeeds( std::vector< TT
     /// Build the key to the map (by Sector / Wedge)
     std::pair< unsigned int, unsigned int > mapKey = std::make_pair( thisSector, thisWedge );
 
-/*
-    /// If an entry already exists for this Sector/Wedge, just add the stub
-    /// to the vector, otherwise create the entry
-    if ( outputSectorMap->find( mapKey ) == outputSectorMap->end() )
-    {
-      /// New entry
-      std::vector< edm::Ptr< TTStub< Ref_PixelDigi_ > > > tempStubVec;
-      tempStubVec.clear();
-      tempStubVec.push_back( tempStubPtr );
-      outputSectorMap->insert( std::pair< std::pair< unsigned int, unsigned int >, std::vector< edm::Ptr< TTStub< Ref_PixelDigi_ > > > > ( mapKey, tempStubVec ) );
-    }
-    else
-    {
-      /// Already existing entry
-      outputSectorMap->find( mapKey )->second.push_back( tempStubPtr );
-    }
-*/
-
     /// Do the same but separating Barrel and Endcap Stubs
     /// NOTE this is internal to build seeds
     /// The previous one goes into the output
@@ -188,6 +170,10 @@ void TTTrackAlgorithm_trackletBE< Ref_PixelDigi_ >::CreateSeeds( std::vector< TT
           double phi1 = pos1.phi();
           double z1 = pos1.z();
 
+          /// Layer-Disk-Ring constraint
+          if ( detId1.iLayer() > 4 )
+            continue;
+
           bool barrelSeed2S = !( TTTrackAlgorithm< Ref_PixelDigi_ >::theStackedTracker->isPSModule( detId1 ) );
 
           /// Find the index of the first element of the nested loop
@@ -236,8 +222,11 @@ void TTTrackAlgorithm_trackletBE< Ref_PixelDigi_ >::CreateSeeds( std::vector< TT
             /// Correct for seeds in 2S Barrel layers
             if ( barrelSeed2S )
             {
-              z0 = 0;
-              cotTheta0 = z1 / rhoPsi1;
+              if ( fabs( z1 - z2 ) < 10 )
+              {
+                z0 = 0;
+                cotTheta0 = z1 / rhoPsi1;
+              }
             }
 
             /// Perform projected vertex cut
@@ -274,7 +263,11 @@ void TTTrackAlgorithm_trackletBE< Ref_PixelDigi_ >::CreateSeeds( std::vector< TT
             if ( !endcapSeedPS )
             {}//  continue;
 
-            if ( detId2.iDisk() > 11 )
+            /// Layer-Disk-Ring constraint
+            if ( detId2.iDisk() > 1 )
+              continue;
+
+            if ( detId2.iRing() > 11 )
               continue;
 
             /// Safety cross-check
@@ -373,6 +366,10 @@ void TTTrackAlgorithm_trackletBE< Ref_PixelDigi_ >::CreateSeeds( std::vector< TT
           double phi1 = pos1.phi();
           double z1 = pos1.z();
 
+          bool endcapSeedPS1 = TTTrackAlgorithm< Ref_PixelDigi_ >::theStackedTracker->isPSModule( detId1 );
+          if ( !endcapSeedPS1 )
+            continue;
+
           /// Find the index of the first element of the nested loop
           unsigned int startIndex = 0;
           if ( curSector == curSector0%(this->ReturnNumberOfSectors()) &&
@@ -390,6 +387,10 @@ void TTTrackAlgorithm_trackletBE< Ref_PixelDigi_ >::CreateSeeds( std::vector< TT
             double rho2 = pos2.perp();
             double phi2 = pos2.phi();
             double z2 = pos2.z();
+
+            bool endcapSeedPS2 = TTTrackAlgorithm< Ref_PixelDigi_ >::theStackedTracker->isPSModule( detId2 );
+            if ( !endcapSeedPS2 )
+              continue;
 
             /// Skip same disk pairs
             if ( detId2.iSide() != detId1.iSide() )
@@ -602,6 +603,11 @@ void TTTrackAlgorithm_trackletBE< Ref_PixelDigi_ >::AttachStubToSeed( TTTrack< R
     std::pair< float, float > pitch0 = top0->pitch();
     MeasurementPoint stubCoord = candidate->getClusterPtr(0)->findAverageLocalCoordinates();
     double stubTransvDispl = pitch0.first * ( stubCoord.x() - (top0->nrows()/2 - 0.5) ); /// Difference in coordinates is the same as difference in position
+
+    if ( zCand > 0 )
+    {
+      stubTransvDispl = - stubTransvDispl;
+    }
 
     /// Calculate deltaRPhi and deltaRho
 #include "L1Trigger/TrackTrigger/src/TTTrackAlgorithm_trackletBE_EndcapSeedPropagation.icc"

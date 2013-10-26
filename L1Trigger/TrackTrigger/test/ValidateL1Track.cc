@@ -163,6 +163,7 @@ class ValidateL1Track : public edm::EDAnalyzer
     std::map< std::pair< unsigned int, unsigned int >, TH1D* > mapTrack_3Stubs_RelPtRes_PtEta;
     std::map< std::pair< unsigned int, unsigned int >, TH1D* > mapTrack_3Stubs_PhiRes_PtEta;
     std::map< std::pair< unsigned int, unsigned int >, TH1D* > mapTrack_3Stubs_EtaRes_PtEta;
+    std::map< std::pair< unsigned int, unsigned int >, TH1D* > mapTrack_3Stubs_CotThetaRes_PtEta;
     std::map< std::pair< unsigned int, unsigned int >, TH1D* > mapTrack_3Stubs_VtxZ0Res_PtEta;
 
     TH1D* hTrack_2Stubs_N;
@@ -684,6 +685,13 @@ void ValidateL1Track::beginJob()
       mapTrack_3Stubs_EtaRes_PtEta[ mapKey ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(), 200, -0.5, 0.5 );
       mapTrack_3Stubs_EtaRes_PtEta[ mapKey ]->Sumw2();
 
+      histoName.str("");  histoName << "hTrack_3Stubs_CotThetaRes_Pt" << iPt << "_Eta" << iEta;
+      histoTitle.str(""); histoTitle << "Track cot(#theta) - TPart cot(#theta), p_{T} in [" << minPt << ", " << (minPt + ptBinSize) <<
+                                                                           "), |#eta| in [" << minEta << ", " << (minEta + etaBinSize) << ")";
+      mapTrack_3Stubs_CotThetaRes_PtEta[ mapKey ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(), 200, -0.5, 0.5 );
+      mapTrack_3Stubs_CotThetaRes_PtEta[ mapKey ]->Sumw2();
+
+
       histoName.str("");  histoName << "hTrack_3Stubs_VtxZ0Res_Pt" << iPt << "_Eta" << iEta;
       histoTitle.str(""); histoTitle << "Track z_{vtx} - TPart z_{vtx}, p_{T} in [" << minPt << ", " << (minPt + ptBinSize) <<
                                                                    "), |#eta| in [" << minEta << ", " << (minEta + etaBinSize) << ")";
@@ -932,6 +940,7 @@ if ( hasBL1 )
       double trackPt    = tempTrackPtr->getMomentum().perp();
       double trackPhi   = tempTrackPtr->getMomentum().phi();
       double trackEta   = tempTrackPtr->getMomentum().eta();
+      double trackTheta = tempTrackPtr->getMomentum().theta();
       double trackVtxZ0 = tempTrackPtr->getVertex().z();
       double trackChi2  = tempTrackPtr->getChi2();
       double trackChi2R = tempTrackPtr->getChi2Red();
@@ -952,6 +961,7 @@ if ( hasBL1 )
 
       double tpPt = tpPtr->p4().pt();
       double tpEta = tpPtr->momentum().eta();
+      double tpTheta = tpPtr->momentum().theta();
       double tpPhi = tpPtr->momentum().phi();
       double tpVtxZ0 = tpPtr->vertex().z();
 
@@ -1029,6 +1039,7 @@ if ( hasBL1 )
         mapTrack_3Stubs_RelPtRes_PtEta[ mapKey ]->Fill( trackPt / tpPt - 1 );
         mapTrack_3Stubs_PhiRes_PtEta[ mapKey ]->Fill( trackPhi - tpPhi );
         mapTrack_3Stubs_EtaRes_PtEta[ mapKey ]->Fill( trackEta - tpEta );
+        mapTrack_3Stubs_CotThetaRes_PtEta[ mapKey ]->Fill( 1./tan(trackTheta) - 1./tan(tpTheta) );
         mapTrack_3Stubs_VtxZ0Res_PtEta[ mapKey ]->Fill( trackVtxZ0 - tpVtxZ0 );
 //}
       }
