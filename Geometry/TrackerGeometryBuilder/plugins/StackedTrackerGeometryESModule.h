@@ -26,21 +26,27 @@
 #include <memory>
 #include <string>
 
-class  StackedTrackerGeometryESModule: public edm::ESProducer{
- public:
-  StackedTrackerGeometryESModule(const edm::ParameterSet & p);
-  virtual ~StackedTrackerGeometryESModule(); 
-  boost::shared_ptr<StackedTrackerGeometry> produce(const StackedTrackerGeometryRecord & record);
+class  StackedTrackerGeometryESModule: public edm::ESProducer
+{
+  public:
+    StackedTrackerGeometryESModule( const edm::ParameterSet & p );
+    virtual ~StackedTrackerGeometryESModule(); 
+    boost::shared_ptr< StackedTrackerGeometry > produce( const StackedTrackerGeometryRecord & record );
  
- private:
-  boost::shared_ptr <StackedTrackerGeometry> _tracker;
+  private:
+    boost::shared_ptr< StackedTrackerGeometry > _tracker;
 
-  double radial_window, phi_window, z_window;
-  unsigned int truncation_precision;
-  bool makeDebugFile;
+    /// Parameters for matching sensors together
+    double       radial_window, phi_window, z_window;
+    unsigned int truncation_precision;
+    bool         makeDebugFile;
+
+    /// CBC3 emulation stuff
+    int                                  theNumPartitions;
+    unsigned                             theMaxStubs;
+    std::vector< double >                setBarrelCut;
+    std::vector< std::vector< double > > setRingCut;
 
 };
-
-//}
 
 #endif
