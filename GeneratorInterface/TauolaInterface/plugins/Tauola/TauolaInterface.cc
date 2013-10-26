@@ -5,10 +5,8 @@
 
 #include "GeneratorInterface/TauolaInterface/interface/TauolaInterface.h"
 #include "GeneratorInterface/TauolaInterface/interface/TauolaWrapper.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/HEPEVT_Wrapper.h"
@@ -270,4 +268,6 @@ void TauolaInterface::statistics()
    fPy6Service->call( tauola_srs_, &mode, &fPolarization );
    return;
 }
+
+
 

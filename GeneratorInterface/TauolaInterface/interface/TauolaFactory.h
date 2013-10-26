@@ -3,8 +3,8 @@
  
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "GeneratorInterface/TauolaInterface/interface/TauolaInterface.h"
+#include "GeneratorInterface/TauolaInterface/interface/TauolaInterfaceBase.h"
 
-typedef edmplugin::PluginFactory<gen::TauolaInterface* (const edm::ParameterSet&) >  TauolaFactory;
+typedef edmplugin::PluginFactory<gen::TauolaInterfaceBase* (const edm::ParameterSet&) >  TauolaFactory;
 
 #endif

@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "HepMC/GenEvent.h"
 #include <vector>
+#include "CLHEP/Random/RandomEngine.h"
 
 namespace gen {
    class TauolaInterfaceBase {
