@@ -27,7 +27,7 @@ class ESRecHitSimAlgo {
   void setW1(const double& value) { w1_ = value; } 
   void setW2(const double& value) { w2_ = value; } 
 
-  double* EvalAmplitude(const ESDataFrame& digi, const double& ped, const double& w0, const double& w1, const double& w2) const;
+  void EvalAmplitude(double * result, const ESDataFrame& digi, const double& ped, const double& w0, const double& w1, const double& w2) const;
   EcalRecHit reconstruct(const ESDataFrame& digi) const;
 
  private:

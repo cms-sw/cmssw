@@ -8,9 +8,8 @@ ESRecHitSimAlgo::ESRecHitSimAlgo() {
 
 }
 
-double* ESRecHitSimAlgo::EvalAmplitude(const ESDataFrame& digi, const double& ped, const double& w0, const double& w1, const double& w2) const {
+void ESRecHitSimAlgo::EvalAmplitude(double * results, const ESDataFrame& digi, const double& ped, const double& w0, const double& w1, const double& w2) const {
   
-  double *results = new double[4];
   float energy = 0;
   double adc[3];
   float pw[3];
@@ -63,38 +62,38 @@ double* ESRecHitSimAlgo::EvalAmplitude(const ESDataFrame& digi, const double& pe
   results[2] = status; // hit status
   results[3] = AA1;    // energy with analytic method
 
-  return results;
 }
 
 EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
 
-  ESPedestals::const_iterator it_ped = peds_->find(digi.id());
 
-  ESIntercalibConstantMap::const_iterator it_mip = mips_->getMap().find(digi.id());
-  ESAngleCorrectionFactors::const_iterator it_ang = ang_->getMap().find(digi.id());
+  auto ind = digi.id().hashedIndex();
 
-  ESChannelStatusMap::const_iterator it_status = channelStatus_->getMap().find(digi.id());
+  auto const & ped = peds_->preshower(ind);
+  auto const & mip = mips_->getMap().preshower(ind);
+  auto const & ang = ang_->getMap().preshower(ind);
+  auto const & statusCh = channelStatus_->getMap().preshower(ind);
 
-  double* results;
+  double results[4];
 
-  results = EvalAmplitude(digi, it_ped->getMean(), w0_, w1_, w2_);
+  EvalAmplitude(results, digi, ped.getMean(), w0_, w1_, w2_);
 
   double energy   = results[0];
   double t0       = results[1];
   int status      = (int) results[2];
   double otenergy = results[3] * 1000000.; // set out-of-time energy to keV
-  delete[] results;
+  
 
-  double mipCalib = (fabs(cos(*it_ang)) != 0.) ? (*it_mip)/fabs(cos(*it_ang)) : 0.;
-  energy *= (mipCalib != 0.) ? MIPGeV_/mipCalib : 0.;
-  otenergy *= (mipCalib != 0.) ? MIPGeV_/mipCalib : 0.;
+  double mipCalib = (mip != 0.) ? fabs(cos(ang))/(mip*MIPGeV_) : 0.;
+  energy *= mipCalib;
+  otenergy *= mipCalib;
 
   LogDebug("ESRecHitSimAlgo") << "ESRecHitSimAlgo : reconstructed energy "<<energy;
 
   EcalRecHit rechit(digi.id(), energy, t0);
   rechit.setOutOfTimeEnergy(otenergy);
 
-  if (it_status->getStatusCode() == 1) {
+  if (statusCh.getStatusCode() == 1) {
     rechit.setFlag(EcalRecHit::kESDead);
   } else {
     if (status == 0)
