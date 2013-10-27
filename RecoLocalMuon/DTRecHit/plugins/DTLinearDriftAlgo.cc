@@ -197,19 +197,3 @@ bool DTLinearDriftAlgo::compute(const DTLayer* layer,
     return false;
   }
 }
-
-
-float DTLinearDriftAlgo::vDrift;
-//float DTLinearDriftAlgo::vDriftMB1W1;
-
-  
-float DTLinearDriftAlgo::hitResolution;
-
-  
-float DTLinearDriftAlgo::minTime;
-
-  
-float DTLinearDriftAlgo::maxTime;
-
-  
-bool DTLinearDriftAlgo::debug;
