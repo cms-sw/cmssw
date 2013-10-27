@@ -28,7 +28,7 @@
 #include <map>
 
 namespace {
-  struct dictionary {
+  struct dictionary1 {
     reco::L2TauIsolationInfo                                    l2iI;
     reco::L2TauInfoAssociation                                  l2ts;
     edm::Wrapper<reco::L2TauInfoAssociation>                    wl2ts;

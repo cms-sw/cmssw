@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace {
-  struct dictionary {
+  struct dictionarytrigger {
 
   pat::TriggerObjectCollection v_p_to;
   pat::TriggerObjectCollection::const_iterator v_p_to_ci;

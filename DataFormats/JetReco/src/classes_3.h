@@ -39,7 +39,7 @@
 #include "DataFormats/Common/interface/Ptr.h"
 
 namespace {
-  struct dictionary {
+  struct dictionary3 {
     reco::TrackJetCollection o6;
     reco::TrackJetRef r6;
     reco::TrackJetFwdRef fwdr6;

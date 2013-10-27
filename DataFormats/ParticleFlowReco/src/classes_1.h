@@ -64,7 +64,7 @@
 #include <map>
 
 namespace {
-  struct dictionary {
+  struct dictionary1 {
 
     /* NuclearInteraction stuffs  */
     reco::PFNuclearInteraction                                dummy21;

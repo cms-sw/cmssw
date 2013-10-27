@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace {
-  struct dictionary {
+  struct dictionaryvector {
   std::vector<bool> dummy13;
   std::vector<char*> dummy6p;
   std::vector<char> dummy6;

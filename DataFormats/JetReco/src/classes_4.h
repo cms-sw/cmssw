@@ -37,7 +37,7 @@
 #include "DataFormats/Common/interface/Ptr.h"
 
 namespace {
-  struct dictionary {
+  struct dictionary4 {
     // jet id stuff
     reco::JetID jid;
     edm::Ref<std::vector<reco::JetID> > rjid;
