@@ -7,8 +7,6 @@
 // Package:    CommonTools/TriggerUtils
 // Class:      PrescaleWeightProvider
 //
-// $Id: PrescaleWeightProvider.h,v 1.1 2010/08/17 17:15:26 vadler Exp $
-//
 /**
   \class    PrescaleWeightProvider PrescaleWeightProvider.h "CommonTools/TriggerUtils/interface/PrescaleWeightProvider.h"
   \brief
@@ -19,7 +17,6 @@
 
 
   \author   Aram Avetisyan
-  \version  $Id: PrescaleWeightProvider.h,v 1.1 2010/08/17 17:15:26 vadler Exp $
 */
 
 
@@ -29,6 +26,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
@@ -44,14 +42,17 @@ class PrescaleWeightProvider {
     std::vector< std::string > l1SeedPaths_;
 
     // configuration parameters
-    unsigned                   verbosity_;           // optional (default: 0)
-    edm::InputTag              triggerResults_;      // optional (default: "TriggerResults::HLT")
-    edm::InputTag              l1GtTriggerMenuLite_; // optional (default: "l1GtTriggerMenuLite")
-    std::vector< std::string > hltPaths_;
+    unsigned                                verbosity_;           // optional (default: 0)
+    edm::InputTag                           triggerResultsTag_;      // optional (default: "TriggerResults::HLT")
+    edm::EDGetTokenT< edm::TriggerResults > triggerResultsToken_;
+    edm::InputTag                           l1GtTriggerMenuLiteTag_; // optional (default: "l1GtTriggerMenuLite")
+    edm::EDGetTokenT< L1GtTriggerMenuLite > l1GtTriggerMenuLiteToken_; // optional (default: "l1GtTriggerMenuLite")
+    std::vector< std::string >              hltPaths_;
 
   public:
 
-    PrescaleWeightProvider( const edm::ParameterSet & config ); // to be called from the ED module's c'tor
+    PrescaleWeightProvider( const edm::ParameterSet & config, edm::ConsumesCollector && iC ) : PrescaleWeightProvider( config, iC ) {}; // to be called from the ED module's c'tor
+    PrescaleWeightProvider( const edm::ParameterSet & config, edm::ConsumesCollector & iC ); // to be called from the ED module's c'tor
     ~PrescaleWeightProvider() {}
 
     void initRun( const edm::Run & run, const edm::EventSetup & setup );             // to be called from the ED module's beginRun() method
