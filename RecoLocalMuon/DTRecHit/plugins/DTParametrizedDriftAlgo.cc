@@ -26,17 +26,13 @@ using namespace edm;
 
 
 DTParametrizedDriftAlgo::DTParametrizedDriftAlgo(const ParameterSet& config) :
-  DTRecHitBaseAlgo(config) {
-    interpolate = config.getParameter<bool>("interpolate");
-
-    minTime = config.getParameter<double>("minTime"); // FIXME: Default was -3 ns
-
-    maxTime = config.getParameter<double>("maxTime"); // FIXME: Default was 415 ns
-
-    // Set verbose output
-    debug = config.getUntrackedParameter<bool>("debug","false");
-    
-  }
+  DTRecHitBaseAlgo(config),
+  interpolate(config.getParameter<bool>("interpolate")),
+  minTime(config.getParameter<double>("minTime")), // FIXME: Default was -3 ns
+  maxTime(config.getParameter<double>("maxTime")), // FIXME: Default was 415 ns
+  // Set verbose output
+  debug(config.getUntrackedParameter<bool>("debug","false"))
+ {}
 
 
 
@@ -160,7 +156,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
   // Calculate the drift distance and the resolution from the parametrization
   
   DTTime2DriftParametrization::drift_distance DX;
-  static DTTime2DriftParametrization par;
+  static const DTTime2DriftParametrization par;
 
   bool parStatus =
     par.computeDriftDistance_mean(driftTime, angle, By, Bz, interpolate, &DX);
@@ -365,15 +361,3 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
     return false;
   }
 }
-
-
-bool DTParametrizedDriftAlgo::interpolate;
-
-
-float DTParametrizedDriftAlgo::minTime;
-
-  
-float DTParametrizedDriftAlgo::maxTime;
-
-  
-bool DTParametrizedDriftAlgo::debug;
