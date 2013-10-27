@@ -6,7 +6,7 @@
  *
  * Class for the GEM strip response simulation based on a very simple model
  *
- * \author Sven Dildick
+ * \author Roumyana Hadjiiska
  */
 
 #include "SimMuon/GEMDigitizer/interface/GEMDigiModel.h"
@@ -19,6 +19,8 @@ namespace CLHEP
   class RandFlat;
   class RandPoissonQ;
   class RandGaussQ;
+  class RandGamma;
+  class RandLandau;
 }
 
 class GEMSimpleModel: public GEMDigiModel
@@ -57,11 +59,27 @@ private:
   int minBunch_;
   int maxBunch_;
   bool digitizeOnlyMuons_;
+  double cutElecMomentum_;
+  int cutForCls_;
 
   CLHEP::RandFlat* flat1_;
   CLHEP::RandFlat* flat2_;
   CLHEP::RandPoissonQ* poisson_;
   CLHEP::RandGaussQ* gauss1_;
   CLHEP::RandGaussQ* gauss2_;
+  CLHEP::RandGamma* gamma1_;
+  CLHEP::RandLandau* landau1_;
+
+  std::vector<PSimHit> *selPsimHits;
+
+  double  neutronGammaRoll1_;
+  double  neutronGammaRoll2_;
+  double  neutronGammaRoll3_;
+  double  neutronGammaRoll4_;
+  double  neutronGammaRoll5_;
+  double  neutronGammaRoll6_;
+  double  neutronGammaRoll7_;
+  double  neutronGammaRoll8_;
+
 };
 #endif
