@@ -40,6 +40,7 @@ const EcalLinearCorrections* EcalLaserDbService::getLinearCorrections () const {
 }
 
 
+
 float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp const & iTime) const {
   
   float correctionFactor = 1.0;
@@ -68,11 +69,16 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
 
 
   int iLM;
+  int xind;
+  bool isBarrel=true;
   if (xid.subdetId()==EcalBarrel) {
     EBDetId ebid( xid.rawId() );
+    xind = ebid.hashedIndex();
     iLM = MEEBGeom::lmr(ebid.ieta(), ebid.iphi());
   } else if (xid.subdetId()==EcalEndcap) {
-    EEDetId eeid( xid.rawId() );
+    isBarrel=false;
+    EEDetId eeid( xid.rawId() );  
+    xind = eeid.hashedIndex();
     // SuperCrystal coordinates
     MEEEGeom::SuperCrysCoord iX = (eeid.ix()-1)/5 + 1;
     MEEEGeom::SuperCrysCoord iY = (eeid.iy()-1)/5 + 1;    
@@ -85,6 +91,8 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
 
   // get alpha, apd/pn ref, apd/pn pairs and timestamps for interpolation
 
+
+#ifdef VERIFY_LASER
   EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator itratio = laserRatiosMap.find(xid);
   if (itratio != laserRatiosMap.end()) {
     apdpnpair = (*itratio);
@@ -130,6 +138,45 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
     edm::LogError("EcalLaserDbService") << "error with laserAlphaMap!" << endl;     
     return correctionFactor;
   }
+
+#else
+    
+  // waiting for templated lambdas
+  auto getCond =[=](EcalFloatCondObjectContainer const & cond)->float {
+    return isBarrel ? cond.barrel(xind) : cond.endcap(xind);
+  };
+
+  auto getPair =[=](EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap const & cond)->EcalLaserAPDPNRatios::EcalLaserAPDPNpair {
+    return isBarrel ? cond.barrel(xind) : cond.endcap(xind);
+  };
+
+  auto getLinear =[=](EcalLinearCorrections::EcalValueMap const & cond)->EcalLinearCorrections::Values {
+    return isBarrel ? cond.barrel(xind) : cond.endcap(xind);
+  };
+
+
+  apdpnpair = getPair(laserRatiosMap);
+  linValues = getLinear(linearValueMap);
+  apdpnref  = getCond(laserRefMap);
+  alpha     = getCond(laserAlphaMap);
+
+  if (iLM-1< (int)laserTimeMap.size()) {
+    timestamp = laserTimeMap[iLM-1];
+  } else {
+    edm::LogError("EcalLaserDbService") << "error with laserTimeMap!" << endl;
+    return correctionFactor;
+  }
+
+  if (iLM-1< (int)linearTimeMap.size()) {
+    linTimes = linearTimeMap[iLM-1];
+  } else {
+    edm::LogError("EcalLaserDbService") << "error with laserTimeMap!" << endl;
+    return correctionFactor;
+  }
+
+
+#endif
+
 
   
   // should implement some default in case of error...
