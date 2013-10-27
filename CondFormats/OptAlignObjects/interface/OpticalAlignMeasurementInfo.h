@@ -1,7 +1,7 @@
 #ifndef OpticalAlignMeasurementInfo_H
 #define OpticalAlignMeasurementInfo_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
 #include <vector>

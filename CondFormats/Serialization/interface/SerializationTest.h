@@ -10,7 +10,7 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 
-#include "CondFormats/Common/interface/SerializationEqual.h"
+#include "CondFormats/Serialization/interface/SerializationEqual.h"
 
 // The compiler knows our default-constructed objects' members
 // may not be initialized when we serialize them.

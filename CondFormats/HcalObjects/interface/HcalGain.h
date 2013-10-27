@@ -10,7 +10,7 @@ $Date: 2007/12/10 18:36:56 $
 $Revision: 1.5 $
 */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <boost/cstdint.hpp>
 

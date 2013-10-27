@@ -1,7 +1,7 @@
 #ifndef EcalTPGPedestals_h
 #define EcalTPGPedestals_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 

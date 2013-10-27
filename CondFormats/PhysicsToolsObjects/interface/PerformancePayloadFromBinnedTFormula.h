@@ -1,7 +1,7 @@
 #ifndef PerformancePayloadFromBinnedTFormula_h
 #define PerformancePayloadFromBinnedTFormula_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"

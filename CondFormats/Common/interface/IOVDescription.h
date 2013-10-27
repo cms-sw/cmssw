@@ -1,7 +1,7 @@
 #ifndef Cond_IOVDescription_h
 #define Cond_IOVDescription_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 namespace cond {
 

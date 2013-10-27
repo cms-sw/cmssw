@@ -1,7 +1,7 @@
 #ifndef HcalCondObjectContainer_h
 #define HcalCondObjectContainer_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"

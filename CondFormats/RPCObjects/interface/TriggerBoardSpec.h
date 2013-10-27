@@ -1,7 +1,7 @@
 #ifndef CondFormatsRPCObjectsTriggerBoardSpec_H
 #define CondFormatsRPCObjectsTriggerBoardSpec_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <boost/cstdint.hpp>
 #include "CondFormats/RPCObjects/interface/LinkConnSpec.h"

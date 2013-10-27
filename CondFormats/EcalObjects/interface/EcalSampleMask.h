@@ -6,7 +6,7 @@
  * $Id: EcalSampleMask.h,v 1.1 2012/05/10 08:22:10 argiro Exp $
  **/
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
 #include <vector>

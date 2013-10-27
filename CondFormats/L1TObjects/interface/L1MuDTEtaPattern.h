@@ -26,7 +26,7 @@
 // C++ Headers --
 //---------------
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iosfwd>
 #include <string>

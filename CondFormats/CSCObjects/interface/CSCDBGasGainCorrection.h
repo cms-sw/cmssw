@@ -1,7 +1,7 @@
 #ifndef CSCDBGasGainCorrection_h
 #define CSCDBGasGainCorrection_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iosfwd>
 #include <vector>

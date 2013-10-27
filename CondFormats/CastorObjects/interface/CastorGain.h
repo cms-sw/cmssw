@@ -7,7 +7,7 @@
 POOL object to store Gain values 4xCapId
 */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <boost/cstdint.hpp>
 

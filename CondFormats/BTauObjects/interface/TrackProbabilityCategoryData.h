@@ -1,7 +1,7 @@
 #ifndef TrackProbabilityCategoryData_H
 #define TrackProbabilityCategoryData_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 
 struct TrackProbabilityCategoryData {

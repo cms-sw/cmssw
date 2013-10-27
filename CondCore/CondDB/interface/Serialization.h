@@ -22,9 +22,12 @@
 // temporarely
 #include <boost/shared_ptr.hpp>
 
+#include "CondFormats/Serialization/interface/Archive.h"
+
 class TBufferFile;
 
 namespace cond {
+namespace persistency {
 
   // Archives for the streaming based on ROOT.
 
@@ -71,13 +74,13 @@ namespace cond {
     return *this;
   }
 
-  typedef RootInputArchive CondInputArchive;
-  typedef RootOutputArchive CondOutputArchive;
+  typedef cond::serialization::InputArchive InputArchive;
+  typedef cond::serialization::OutputArchive OutputArchive;
 
   template <typename T> Binary serialize( const T& payload ){
     // save data to buffer
     std::ostringstream buffer;
-    CondOutputArchive oa( buffer );
+    OutputArchive oa( buffer );
     oa << payload;
     Binary ret;
     //TODO: avoid (2!!) copies
@@ -93,11 +96,12 @@ namespace cond {
     sbuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
 
     std::istream buffer( &sbuf );
-    CondInputArchive ia(buffer);
+    InputArchive ia(buffer);
     boost::shared_ptr<T> payload( new T );
     ia >> (*payload);
     return payload;
   }
 
+}
 }
 #endif

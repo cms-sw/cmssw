@@ -1,7 +1,7 @@
 #ifndef CSCChamberTimeCorrections_h
 #define CSCChamberTimeCorrections_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iosfwd>
 #include <vector>

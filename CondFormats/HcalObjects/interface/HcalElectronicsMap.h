@@ -10,7 +10,7 @@ $Date: 2007/12/10 18:36:43 $
 $Revision: 1.16 $
 */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include <algorithm>

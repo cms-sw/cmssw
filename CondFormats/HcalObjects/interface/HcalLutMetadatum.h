@@ -1,7 +1,7 @@
 #ifndef HcalLutMetadatum_h
 #define HcalLutMetadatum_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 /*
 \class HcalLutMetadatum

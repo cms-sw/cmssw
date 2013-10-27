@@ -1,7 +1,7 @@
 #ifndef EcalTPGLut_h
 #define EcalTPGLut_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 class EcalTPGLut 
 {

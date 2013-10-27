@@ -6,7 +6,7 @@
  *       Class to map read-out channels to physical RPC strips
  */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <map>
 #include <vector>

@@ -1,7 +1,7 @@
 #ifndef Cond_GenericSummary_h
 #define Cond_GenericSummary_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/Common/interface/Summary.h"
 

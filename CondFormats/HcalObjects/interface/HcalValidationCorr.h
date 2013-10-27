@@ -1,7 +1,7 @@
 #ifndef HcalValidationCorr_h
 #define HcalValidationCorr_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 /*
 \class HcalValidationCorr

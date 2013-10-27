@@ -1,7 +1,7 @@
 #ifndef EventFilter_SiPixelRawToDigi_SiPixelFedCabling_H
 #define EventFilter_SiPixelRawToDigi_SiPixelFedCabling_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"

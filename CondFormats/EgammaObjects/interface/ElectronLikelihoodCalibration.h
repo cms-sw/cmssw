@@ -1,7 +1,7 @@
 #ifndef ElectronLikelihoodCalibration_h
 #define ElectronLikelihoodCalibration_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/EgammaObjects/interface/ElectronLikelihoodCategoryData.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"

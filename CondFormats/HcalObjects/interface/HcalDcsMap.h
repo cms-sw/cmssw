@@ -11,7 +11,7 @@ $Date: 2007/12/14 13:31:21 $
 $Revision: 1.1 $
 */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include <algorithm>

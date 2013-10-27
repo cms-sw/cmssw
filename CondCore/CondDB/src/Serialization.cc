@@ -10,6 +10,7 @@
 #include "Cintex/Cintex.h"
 
 namespace cond {
+namespace persistency {
 
   struct CintexIntializer {
     static bool init;
@@ -36,12 +37,13 @@ namespace cond {
     return rc;
   }
 }
+}
 
-cond::RootOutputArchive::RootOutputArchive( std::ostream& dest ):
+cond::persistency::RootOutputArchive::RootOutputArchive( std::ostream& dest ):
   m_buffer( dest ){
 } 
 
-void cond::RootOutputArchive::write( const std::type_info& sourceType, const void* sourceInstance){
+void cond::persistency::RootOutputArchive::write( const std::type_info& sourceType, const void* sourceInstance){
   TClass* r_class = lookUpDictionary( sourceType );
   if (!r_class) throwException( "No ROOT class registered for \"" + demangledName(sourceType)+"\"", "RootOutputArchive::write");
   TBufferFile buffer(TBufferFile::kWrite);
@@ -51,17 +53,17 @@ void cond::RootOutputArchive::write( const std::type_info& sourceType, const voi
   m_buffer.write( static_cast<const char*>(buffer.Buffer()), buffer.Length() ); 
 }
 
-cond::RootInputArchive::RootInputArchive( std::istream& source ):
+cond::persistency::RootInputArchive::RootInputArchive( std::istream& source ):
   m_buffer( std::istreambuf_iterator<char>(source), std::istreambuf_iterator<char>()),
   m_streamer( new TBufferFile( TBufferFile::kRead, m_buffer.size(), const_cast<char*>(m_buffer.c_str()), kFALSE ) ){
   m_streamer->InitMap();
 }
 
-cond::RootInputArchive::~RootInputArchive(){
+cond::persistency::RootInputArchive::~RootInputArchive(){
   delete m_streamer;
 }
 
-void cond::RootInputArchive::read( const std::type_info& destinationType, void* destinationInstance){
+void cond::persistency::RootInputArchive::read( const std::type_info& destinationType, void* destinationInstance){
   TClass* r_class = lookUpDictionary( destinationType );
   if (!r_class) throwException( "No ROOT class registered for \"" + demangledName(destinationType) +"\"","RootInputArchive::read");
   m_streamer->StreamObject(destinationInstance, r_class);   

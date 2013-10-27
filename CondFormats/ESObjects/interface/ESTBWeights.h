@@ -1,7 +1,7 @@
 #ifndef CondFormats_ESObjects_ESTBWeights_H
 #define CondFormats_ESObjects_ESTBWeights_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <map>
 #include <boost/cstdint.hpp>

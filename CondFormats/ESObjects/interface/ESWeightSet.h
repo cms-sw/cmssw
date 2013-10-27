@@ -1,7 +1,7 @@
 #ifndef CondFormats_ESObjects_ESWeightSet_HH
 #define CondFormats_ESObjects_ESWeightSet_HH
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/ESObjects/interface/ESWeight.h"
 #include "DataFormats/Math/interface/Matrix.h"

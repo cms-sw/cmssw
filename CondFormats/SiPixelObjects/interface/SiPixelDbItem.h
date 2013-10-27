@@ -15,7 +15,7 @@
 //! bits   [7:0] - noise    (upper 6 bits integer part, 2 bits fractional part)
 //-----------------------------------------------------------------------------
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <boost/cstdint.hpp>
 

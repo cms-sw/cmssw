@@ -8,7 +8,7 @@
 
 #ifndef RPCObUXC_h
 #define RPCObUXC_h
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 

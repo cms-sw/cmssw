@@ -1,7 +1,7 @@
 #ifndef MBAChBenchSurveyPlate_H
 #define MBAChBenchSurveyPlate_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 /* #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h" */
 

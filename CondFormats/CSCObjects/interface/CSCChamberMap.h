@@ -1,7 +1,7 @@
 #ifndef CSCChamberMap_h
 #define CSCChamberMap_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/CSCObjects/interface/CSCMapItem.h"
 #include <map>

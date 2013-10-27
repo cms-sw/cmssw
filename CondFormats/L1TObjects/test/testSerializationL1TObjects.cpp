@@ -1,4 +1,4 @@
-#include "CondFormats/Common/interface/SerializationTest.h"
+#include "CondFormats/Serialization/interface/SerializationTest.h"
 
 #include "CondFormats/L1TObjects/interface/Serialization.h"
 

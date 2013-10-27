@@ -1,7 +1,7 @@
 #ifndef CSCDBPedestals_h
 #define CSCDBPedestals_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iosfwd>
 #include <vector>

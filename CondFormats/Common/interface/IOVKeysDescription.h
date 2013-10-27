@@ -1,7 +1,7 @@
 #ifndef Cond_IOVKeysDescription_h
 #define Cond_IOVKeysDescription_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/Common/interface/SmallWORMDict.h"
 #include <string>

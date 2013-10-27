@@ -1,7 +1,7 @@
 #ifndef HcalRespCorr_h
 #define HcalRespCorr_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 /*
 \class HcalRespCorr

@@ -1,7 +1,7 @@
 #ifndef Cond_BaseKeyed_h
 #define Cond_BaseKeyed_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
 

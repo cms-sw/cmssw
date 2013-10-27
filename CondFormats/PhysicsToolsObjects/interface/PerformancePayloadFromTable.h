@@ -1,7 +1,7 @@
 #ifndef PerformancePayloadFromTable_h
 #define PerformancePayloadFromTable_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsPerformancePayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"

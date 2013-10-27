@@ -1,7 +1,7 @@
 #ifndef MBAChBenchCalPlate_H
 #define MBAChBenchCalPlate_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 /* #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h" */
 

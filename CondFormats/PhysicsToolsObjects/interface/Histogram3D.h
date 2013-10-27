@@ -1,7 +1,7 @@
 #ifndef CondFormats_PhysicsToolsObjects_Histogram3D_h
 #define CondFormats_PhysicsToolsObjects_Histogram3D_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>

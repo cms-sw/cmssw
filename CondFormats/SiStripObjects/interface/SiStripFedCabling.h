@@ -1,7 +1,7 @@
 #ifndef CondFormats_SiStripObjects_SiStripFedCabling_H
 #define CondFormats_SiStripObjects_SiStripFedCabling_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <boost/range/iterator_range.hpp>

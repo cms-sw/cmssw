@@ -6,7 +6,7 @@
 
 #include "CondFormats/External/interface/Serialization.h"
 
-#include "../src/classes.h"
+#include "../src/headers.h"
 
 template <class Archive>
 void DQMSummary::serialize(Archive & ar, const unsigned int)

@@ -1,7 +1,7 @@
 #ifndef CondFormats_simpleInheritance_h
 #define CondFormats_simpleInheritance_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 class mybase{
  public:
   mybase(){}

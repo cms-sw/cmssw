@@ -1,7 +1,7 @@
 #ifndef Alignments_H
 #define Alignments_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 

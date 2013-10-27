@@ -1,7 +1,7 @@
 #ifndef Cond_Summary_h
 #define Cond_Summary_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
 #include <iosfwd>

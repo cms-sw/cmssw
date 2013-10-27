@@ -1,7 +1,7 @@
 #ifndef HcalLUTCorr_h
 #define HcalLUTCorr_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 /*
 \class HcalLUTCorr

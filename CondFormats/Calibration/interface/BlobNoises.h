@@ -1,6 +1,6 @@
 #ifndef BLOBNOISES_H
 #define BLOBNOISES_H
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include<vector>
 //#include<boost/cstdint.hpp>

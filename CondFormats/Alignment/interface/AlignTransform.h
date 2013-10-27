@@ -1,6 +1,6 @@
 #ifndef AlignTransform_H
 #define AlignTransform_H
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CLHEP/Vector/EulerAngles.h"
 #include "CLHEP/Vector/Rotation.h"

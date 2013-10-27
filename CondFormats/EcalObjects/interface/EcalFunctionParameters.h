@@ -1,7 +1,7 @@
 #ifndef CondFormats_EcalObjects_EcalFunctionParameters_hh
 #define CondFormats_EcalObjects_EcalFunctionParameters_hh
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 

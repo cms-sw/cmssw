@@ -8,7 +8,7 @@
 #ifndef SiPixelQuality_H
 #define SiPixelQuality_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include <utility>

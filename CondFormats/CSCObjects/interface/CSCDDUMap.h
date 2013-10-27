@@ -1,7 +1,7 @@
 #ifndef CSCDDUMap_h
 #define CSCDDUMap_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/CSCObjects/interface/CSCMapItem.h"
 #include <map>

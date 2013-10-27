@@ -14,7 +14,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/Common/interface/BaseKeyed.h"
 

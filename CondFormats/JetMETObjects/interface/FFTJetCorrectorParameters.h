@@ -7,7 +7,7 @@
 #ifndef CondFormats_JetMETObjects_FFTJetCorrectorParameters_h
 #define CondFormats_JetMETObjects_FFTJetCorrectorParameters_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
 

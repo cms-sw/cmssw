@@ -18,7 +18,7 @@
 #ifndef CondFormatsL1TObjects_L1MuGMTParameters_h
 #define CondFormatsL1TObjects_L1MuGMTParameters_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
 

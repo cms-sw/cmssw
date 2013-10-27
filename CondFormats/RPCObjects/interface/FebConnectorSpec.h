@@ -1,7 +1,7 @@
 #ifndef CondFormatsRPCObjectsFebConnectorSpec_H
 #define CondFormatsRPCObjectsFebConnectorSpec_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"

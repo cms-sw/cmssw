@@ -1,7 +1,7 @@
 #ifndef CSCBadChambers_h
 #define CSCBadChambers_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <vector>

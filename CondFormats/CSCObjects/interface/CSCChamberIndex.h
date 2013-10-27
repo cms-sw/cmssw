@@ -1,7 +1,7 @@
 #ifndef CSCChamberIndex_h
 #define CSCChamberIndex_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/CSCObjects/interface/CSCMapItem.h"
 #include <vector>

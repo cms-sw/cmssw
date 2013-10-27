@@ -1,6 +1,6 @@
 #ifndef CondFormats_fakeMenu_h
 #define CondFormats_fakeMenu_h
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <map>
 class Algo{

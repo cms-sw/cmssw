@@ -1,7 +1,7 @@
 #ifndef CSCObjects_CSCcrosstalk_h
 #define CSCObjects_CSCcrosstalk_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <vector>

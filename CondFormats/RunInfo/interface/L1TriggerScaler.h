@@ -1,7 +1,7 @@
 #ifndef L1TriggerScaler_h
 #define L1TriggerScaler_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
 #include<vector>

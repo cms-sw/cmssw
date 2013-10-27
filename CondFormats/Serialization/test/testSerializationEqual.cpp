@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <limits>
 
-#include "CondFormats/Common/interface/SerializationEqual.h"
+#include "CondFormats/Serialization/interface/SerializationEqual.h"
 
 template <typename T>
 void same(const T & first, const T & second)

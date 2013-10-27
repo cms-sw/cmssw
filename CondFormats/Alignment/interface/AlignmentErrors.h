@@ -1,7 +1,7 @@
 #ifndef CondFormats_Alignment_AlignmentErrors_H
 #define CondFormats_Alignment_AlignmentErrors_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
 

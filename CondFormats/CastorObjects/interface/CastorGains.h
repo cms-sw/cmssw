@@ -8,7 +8,7 @@ Modified by L.Mundim (Mar/2009)
 POOL container to store Gain values 4xCapId
 */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/CastorObjects/interface/CastorCondObjectContainer.h"
 #include "CondFormats/CastorObjects/interface/CastorGain.h"

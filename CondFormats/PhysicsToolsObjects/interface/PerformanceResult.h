@@ -1,7 +1,7 @@
 #ifndef PerformanceResult_h
 #define PerformanceResult_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 class PerformanceResult {
  public:

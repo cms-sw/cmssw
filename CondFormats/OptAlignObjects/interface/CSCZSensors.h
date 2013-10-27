@@ -1,7 +1,7 @@
 #ifndef CSCZSensors_H
 #define CSCZSensors_H
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 /* #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h" */
 #include <vector>

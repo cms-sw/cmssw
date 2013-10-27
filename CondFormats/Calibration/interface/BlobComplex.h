@@ -1,7 +1,7 @@
 #ifndef BlobComplex_h
 #define BlobComplex_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include <utility>

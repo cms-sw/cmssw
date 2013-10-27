@@ -1,7 +1,7 @@
 #ifndef L1GCTJETFINDERPARAMS_H_
 #define L1GCTJETFINDERPARAMS_H_
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include <stdint.h>

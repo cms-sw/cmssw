@@ -1,7 +1,7 @@
 #ifndef CondFormats_L1TObjects_L1TriggerKey_h
 #define CondFormats_L1TObjects_L1TriggerKey_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
 #include <map>

@@ -11,7 +11,7 @@ $Revision: 1.17 $
 Modified for CASTOR by L. Mundim
 */
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
 #include <algorithm>

@@ -1,6 +1,6 @@
 #ifndef CONDFORMATS_HLTOBJECTS_ALCARECOTRIGGERBITS_H
 #define CONDFORMATS_HLTOBJECTS_ALCARECOTRIGGERBITS_H
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <string>
 #include <map>

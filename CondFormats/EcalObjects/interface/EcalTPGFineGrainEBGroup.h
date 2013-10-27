@@ -1,7 +1,7 @@
 #ifndef EcalTPGFineGrainEBGroup_h
 #define EcalTPGFineGrainEBGroup_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/EcalObjects/interface/EcalTPGGroups.h"
 

@@ -1,7 +1,7 @@
 #ifndef CombinedSVCalibration_h
 #define CombinedSVCalibration_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/BTauObjects/interface/CombinedSVCategoryData.h"
 #include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"

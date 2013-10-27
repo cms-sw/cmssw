@@ -1,4 +1,4 @@
-#include "CondFormats/Common/interface/SerializationTest.h"
+#include "CondFormats/Serialization/interface/SerializationTest.h"
 
 #include "CondFormats/HLTObjects/interface/Serialization.h"
 
@@ -6,7 +6,7 @@ int main()
 {
     testSerialization<AlCaRecoTriggerBits>();
     testSerialization<std::pair<const std::string,std::vector<unsigned int>>>();
-    testSerialization<trigger::HLTPrescaleTableCond>();
+    //testSerialization<trigger::HLTPrescaleTableCond>(); never serialized in the old DB
 
     return 0;
 }

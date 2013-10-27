@@ -2,7 +2,7 @@
 #define CastorSaturationCorrs_h
 
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/CastorObjects/interface/CastorSaturationCorr.h"
 #include "CondFormats/CastorObjects/interface/CastorCondObjectContainer.h"

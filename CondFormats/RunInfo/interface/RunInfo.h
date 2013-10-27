@@ -1,7 +1,7 @@
 #ifndef RunInfo_h
 #define RunInfo_h
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
 #include<vector>

@@ -2,7 +2,7 @@
 #define HcalL1TriggerObjects_h
 
 
-#include "CondFormats/Common/interface/Serializable.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <cstring>
 #include <string>
