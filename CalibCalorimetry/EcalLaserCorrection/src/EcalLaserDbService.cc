@@ -244,11 +244,11 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
   }
 
   if ( apdpnref != 0 && (t_i - t_f) != 0 && (lt_i - lt_f) != 0) {
-    float interpolatedLaserResponse = p_i/apdpnref + (t-t_i)*(p_f-p_i)/apdpnref/(t_f-t_i); 
-    float interpolatedLinearResponse = lp_i/apdpnref + (t-lt_i)*(lp_f-lp_i)/apdpnref/(lt_f-lt_i); // FIXED BY FC
+    float interpolatedLaserResponse = p_i/apdpnref + float(t-t_i)*(p_f-p_i)/(apdpnref*float(t_f-t_i)); 
+    float interpolatedLinearResponse = lp_i/apdpnref + float(t-lt_i)*(lp_f-lp_i)/(apdpnref*float(lt_f-lt_i)); // FIXED BY FC
 
-    if(interpolatedLinearResponse >2 || interpolatedLinearResponse <0.1) 
-		interpolatedLinearResponse=1;
+    if(interpolatedLinearResponse >2.f || interpolatedLinearResponse <0.1f) 
+		interpolatedLinearResponse=1.f;
     if ( interpolatedLaserResponse <= 0. ) {
 
 		// print message only if it is the first time we see < 0
@@ -265,7 +265,7 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
 
       float interpolatedTransparencyResponse = interpolatedLaserResponse / interpolatedLinearResponse;
 
-      correctionFactor =  1/( pow(interpolatedTransparencyResponse,alpha) *interpolatedLinearResponse  );
+      correctionFactor =  1.f/( std::pow(interpolatedTransparencyResponse,alpha) *interpolatedLinearResponse  );
       
     }
     
