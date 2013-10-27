@@ -64,7 +64,7 @@
 #include <map>
 
 namespace {
-  struct dictionary {
+  struct dictionary2 {
 
     std::vector<reco::PFCluster>                         dummy1;
     edm::Wrapper< std::vector<reco::PFCluster> >         dummy2;

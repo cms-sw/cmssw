@@ -53,7 +53,7 @@
 #include "DataFormats/Common/interface/Ptr.h"
 
 namespace {
-  struct dictionary {
+  struct dictionary2 {
     reco::FFTBasicJet jet_fft_3;
     reco::FFTBasicJetCollection o2_fft_3;
     reco::FFTBasicJetRef r2_fft_3;

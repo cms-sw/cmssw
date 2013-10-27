@@ -28,7 +28,7 @@
 #include <map>
 
 namespace {
-  struct dictionary {
+  struct dictionary4 {
 
     reco::CaloTauDiscriminatorAgainstElectronBase               calotde_b;
     reco::CaloTauDiscriminatorAgainstElectron                   calotde_o;
