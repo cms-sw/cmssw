@@ -16,11 +16,23 @@ class ESDetId : public DetId {
 
   enum { Subdet = EcalPreshower } ;
   /** Constructor of a null id */
-  ESDetId();
+  ESDetId(){}
   /** Constructor from a raw value */
-  ESDetId(uint32_t rawid);  
+  ESDetId( uint32_t rawid ) : DetId( rawid ) {}
+
+
   /// constructor from strip, ix, iy, plane, and iz
-  ESDetId(int strip, int ixs, int iys, int plane, int iz);
+  ESDetId(int strip, int ixs, int iys, int plane, int iz, bool doverify=false) :
+   DetId( Ecal, EcalPreshower ) {
+   id_ |=  (strip&0x3F) |
+         ((ixs&0x3F)<<6) |
+         ((iys&0x3F)<<12) |
+         (((plane-1)&0x1)<<18) |
+         ((iz>0)?(1<<19):(0))
+       ;
+   if (doverify) verify(strip, ixs, iys, plane, iz); 
+  }
+
   /** constructor from a generic DetId */
   ESDetId(const DetId& id);
   /** assignment from a generic DetId */
@@ -52,6 +64,8 @@ class ESDetId : public DetId {
   static bool    validHashIndex( int hi ) { return ( hi < kSizeForDenseIndexing ) ; }
   /// check if a valid index combination
   static bool validDetId(int istrip, int ixs, int iys, int iplane, int iz) ;
+  static void verify(int istrip, int ixs, int iys, int iplane, int iz) ;
+
 
   static const int IX_MIN=1;
   static const int IY_MIN=1;
