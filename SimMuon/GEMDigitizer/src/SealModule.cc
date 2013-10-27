@@ -15,3 +15,6 @@ DEFINE_EDM_PLUGIN(GEMDigiModelFactory, GEMSimpleModel, "GEMSimpleModel");
 #include "SimMuon/GEMDigitizer/interface/GEMCSCPadDigiProducer.h"
 DEFINE_FWK_MODULE(GEMCSCPadDigiProducer);
 
+#include "SimMuon/GEMDigitizer/interface/GEMSimpleAnalyzeInFlightModel.h"
+DEFINE_EDM_PLUGIN(GEMDigiModelFactory, GEMSimpleAnalyzeInFlightModel, "GEMSimpleAnalyzeInFlightModel");
+
