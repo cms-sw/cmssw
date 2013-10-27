@@ -35,9 +35,12 @@ using namespace edm::service;
 
 Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
   indention_(iPS.getUntrackedParameter<std::string>("indention")),
-  dumpContextForLabel_(iPS.getUntrackedParameter<std::string>("dumpContextForLabel")),
+  dumpContextForLabels_(),
   dumpNonModuleContext_(iPS.getUntrackedParameter<bool>("dumpNonModuleContext"))
 {
+  for (std::string & label: iPS.getUntrackedParameter<std::vector<std::string>>("dumpContextForLabels"))
+    dumpContextForLabels_.insert(std::move(label));
+
   iRegistry.watchPostBeginJob(this, &Tracer::postBeginJob);
   iRegistry.watchPostEndJob(this, &Tracer::postEndJob);
 
@@ -130,10 +133,9 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
 
 void
 Tracer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("indention", "++")->setComment("Prefix characters for output. The characters are repeated to form the indentation.");
-  desc.addUntracked<std::string>("dumpContextForLabel", "")->setComment("Prints context information to cout for the module transitions associated with this module label");
+  desc.addUntracked<std::vector<std::string>>("dumpContextForLabels", {})->setComment("Prints context information to cout for the module transitions associated with these modules' labels");
   desc.addUntracked<bool>("dumpNonModuleContext", false)->setComment("Prints context information to cout for the transitions not associated with any module label");
   descriptions.add("Tracer", desc);
   descriptions.setComment("This service prints each phase the framework is processing, e.g. constructing a module,running a module, etc.");
@@ -210,8 +212,8 @@ void
 Tracer::preModuleBeginStream(StreamContext const& sc, ModuleCallingContext const& mcc) {
   ModuleDescription const& desc = *mcc.moduleDescription();
   LogAbsolute out("Tracer");
-  out << indention_ << indention_ << " starting: begin stream for module: stream = " << sc.streamID() << " label = '" << desc.moduleLabel() << "'";
-  if(dumpContextForLabel_ == desc.moduleLabel()) {
+  out << indention_ << indention_ << " starting: begin stream for module: stream = " << sc.streamID() << " label = '" << desc.moduleLabel() << "' id = " << desc.id();
+  if(dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -221,8 +223,8 @@ void
 Tracer::postModuleBeginStream(StreamContext const& sc, ModuleCallingContext const& mcc) {
   ModuleDescription const& desc = *mcc.moduleDescription();
   LogAbsolute out("Tracer");
-  out << indention_ << indention_ << " finished: begin stream for module: stream = " << sc.streamID() << " label = '" << desc.moduleLabel() << "'";
-  if(dumpContextForLabel_ == desc.moduleLabel()) {
+  out << indention_ << indention_ << " finished: begin stream for module: stream = " << sc.streamID() << " label = '" << desc.moduleLabel() << "' id = " << desc.id();
+  if(dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -232,8 +234,8 @@ void
 Tracer::preModuleEndStream(StreamContext const& sc, ModuleCallingContext const& mcc) {
   ModuleDescription const& desc = *mcc.moduleDescription();
   LogAbsolute out("Tracer");
-  out << indention_ << indention_ << " starting: end stream for module: stream = " << sc.streamID() << " label = '" << desc.moduleLabel() << "'";
-  if(dumpContextForLabel_ == desc.moduleLabel()) {
+  out << indention_ << indention_ << " starting: end stream for module: stream = " << sc.streamID() << " label = '" << desc.moduleLabel() << "' id = " << desc.id();
+  if(dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -243,8 +245,8 @@ void
 Tracer::postModuleEndStream(StreamContext const& sc, ModuleCallingContext const& mcc) {
   ModuleDescription const& desc = *mcc.moduleDescription();
   LogAbsolute out("Tracer");
-  out << indention_ << indention_ << " finished: end stream for module: stream = " << sc.streamID() << " label = '" << desc.moduleLabel() << "'";
-  if(dumpContextForLabel_ == desc.moduleLabel()) {
+  out << indention_ << indention_ << " finished: end stream for module: stream = " << sc.streamID() << " label = '" << desc.moduleLabel() << "' id = " << desc.id();
+  if(dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -453,8 +455,8 @@ Tracer::postPathEvent(StreamContext const& sc, PathContext const& pc, HLTPathSta
 void 
 Tracer::preModuleConstruction(ModuleDescription const& desc) {
   LogAbsolute out("Tracer");
-  out << indention_ << indention_ << " starting: constructing module with label '" << desc.moduleLabel() << "'";
-  if(dumpContextForLabel_ == desc.moduleLabel()) {
+  out << indention_ << indention_ << " starting: constructing module with label '" << desc.moduleLabel() << "' id = " << desc.id();
+  if(dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << desc;
   }
 }
@@ -462,8 +464,8 @@ Tracer::preModuleConstruction(ModuleDescription const& desc) {
 void 
 Tracer::postModuleConstruction(ModuleDescription const& desc) {
   LogAbsolute out("Tracer");
-  out << indention_ << indention_ << " finished: constructing module with label '" << desc.moduleLabel() << "'";
-  if(dumpContextForLabel_ == desc.moduleLabel()) {
+  out << indention_ << indention_ << " finished: constructing module with label '" << desc.moduleLabel() << "' id = " << desc.id();
+  if(dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << desc;
   }
 }
@@ -472,8 +474,8 @@ void
 Tracer::preModuleBeginJob(ModuleDescription const& desc) {
   LogAbsolute out("Tracer");
   out << indention_ << indention_;
-  out << " starting: begin job for module with label '" << desc.moduleLabel() << "'";
-  if(dumpContextForLabel_ == desc.moduleLabel()) {
+  out << " starting: begin job for module with label '" << desc.moduleLabel() << "' id = " << desc.id();
+  if(dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << desc;
   }
 }
@@ -482,8 +484,8 @@ void
 Tracer::postModuleBeginJob(ModuleDescription const& desc) {
   LogAbsolute out("Tracer");
   out << indention_ << indention_;
-  out << " finished: begin job for module with label '" << desc.moduleLabel() << "'";
-  if(dumpContextForLabel_ == desc.moduleLabel()) {
+  out << " finished: begin job for module with label '" << desc.moduleLabel() << "' id = " << desc.id();
+  if(dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << desc;
   }
 }
@@ -492,8 +494,8 @@ void
 Tracer::preModuleEndJob(ModuleDescription const& desc) {
   LogAbsolute out("Tracer");
   out << indention_ << indention_;
-  out << " starting: end job for module with label '" << desc.moduleLabel() << "'";
-  if(dumpContextForLabel_ == desc.moduleLabel()) {
+  out << " starting: end job for module with label '" << desc.moduleLabel() << "' id = " << desc.id();
+  if(dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << desc;
   }
 }
@@ -502,8 +504,8 @@ void
 Tracer::postModuleEndJob(ModuleDescription const& desc) {
   LogAbsolute out("Tracer");
   out << indention_ << indention_;
-  out << " finished: end job for module with label '" << desc.moduleLabel() << "'";
-  if(dumpContextForLabel_ == desc.moduleLabel()) {
+  out << " finished: end job for module with label '" << desc.moduleLabel() << "' id = " << desc.id();
+  if(dumpContextForLabels_.find(desc.moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << desc;
   }
 }
@@ -515,8 +517,8 @@ Tracer::preModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc)
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " starting: processing event for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " starting: processing event for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -529,8 +531,8 @@ Tracer::postModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " finished: processing event for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " finished: processing event for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -544,8 +546,8 @@ Tracer::preModuleStreamBeginRun(StreamContext const& sc, ModuleCallingContext co
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " starting: begin run for module: stream = " << sc.streamID() <<  " label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " starting: begin run for module: stream = " << sc.streamID() <<  " label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -558,8 +560,8 @@ Tracer::postModuleStreamBeginRun(StreamContext const& sc, ModuleCallingContext c
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " finished: begin run for module: stream = " << sc.streamID() <<  " label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " finished: begin run for module: stream = " << sc.streamID() <<  " label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -572,8 +574,8 @@ Tracer::preModuleStreamEndRun(StreamContext const& sc, ModuleCallingContext cons
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " starting: end run for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " starting: end run for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -586,8 +588,8 @@ Tracer::postModuleStreamEndRun(StreamContext const& sc, ModuleCallingContext con
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " finished: end run for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " finished: end run for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -600,8 +602,8 @@ Tracer::preModuleStreamBeginLumi(StreamContext const& sc, ModuleCallingContext c
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " starting: begin lumi for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " starting: begin lumi for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -614,8 +616,8 @@ Tracer::postModuleStreamBeginLumi(StreamContext const& sc, ModuleCallingContext 
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " finished: begin lumi for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " finished: begin lumi for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -628,8 +630,8 @@ Tracer::preModuleStreamEndLumi(StreamContext const& sc, ModuleCallingContext con
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " starting: end lumi for module: stream = " << sc.streamID() << " label = '"<< mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " starting: end lumi for module: stream = " << sc.streamID() << " label = '"<< mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -642,8 +644,8 @@ Tracer::postModuleStreamEndLumi(StreamContext const& sc, ModuleCallingContext co
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " finished: end lumi for module: stream = " << sc.streamID() << " label = '"<< mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " finished: end lumi for module: stream = " << sc.streamID() << " label = '"<< mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
   }
@@ -656,8 +658,8 @@ Tracer::preModuleGlobalBeginRun(GlobalContext const& gc, ModuleCallingContext co
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " starting: global begin run for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " starting: global begin run for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << gc;
     out << mcc;
   }
@@ -670,8 +672,8 @@ Tracer::postModuleGlobalBeginRun(GlobalContext const& gc, ModuleCallingContext c
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " finished: global begin run for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " finished: global begin run for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << gc;
     out << mcc;
   }
@@ -684,8 +686,8 @@ Tracer::preModuleGlobalEndRun(GlobalContext const& gc, ModuleCallingContext cons
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " starting: global end run for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " starting: global end run for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << gc;
     out << mcc;
   }
@@ -698,8 +700,8 @@ Tracer::postModuleGlobalEndRun(GlobalContext const& gc, ModuleCallingContext con
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " finished: global end run for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " finished: global end run for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << gc;
     out << mcc;
   }
@@ -712,8 +714,8 @@ Tracer::preModuleGlobalBeginLumi(GlobalContext const& gc, ModuleCallingContext c
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " starting: global begin lumi for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " starting: global begin lumi for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << gc;
     out << mcc;
   }
@@ -726,8 +728,8 @@ Tracer::postModuleGlobalBeginLumi(GlobalContext const& gc, ModuleCallingContext 
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " finished: global begin lumi for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " finished: global begin lumi for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << gc;
     out << mcc;
   }
@@ -740,8 +742,8 @@ Tracer::preModuleGlobalEndLumi(GlobalContext const& gc, ModuleCallingContext con
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " starting: global end lumi for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " starting: global end lumi for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << gc;
     out << mcc;
   }
@@ -754,8 +756,8 @@ Tracer::postModuleGlobalEndLumi(GlobalContext const& gc, ModuleCallingContext co
   for(unsigned int i = 0; i < nIndents; ++i) {
     out << indention_;
   }
-  out << " finished: global end lumi for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'";
-  if(dumpContextForLabel_ == mcc.moduleDescription()->moduleLabel()) {
+  out << " finished: global end lumi for module: label = '" << mcc.moduleDescription()->moduleLabel() << "'" << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << gc;
     out << mcc;
   }

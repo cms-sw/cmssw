@@ -44,10 +44,10 @@ DQMOldReceiver::runQualityTests.  */
 
 //////////////////////////////////////////////////////////////////////
 /// name of global monitoring folder (containing all sources subdirectories)
-static std::string s_monitorDirName = "DQMData";
-static std::string s_referenceDirName = "Reference";
-static std::string s_collateDirName = "Collate";
-static std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# ";
+static const std::string s_monitorDirName = "DQMData";
+static const std::string s_referenceDirName = "Reference";
+static const std::string s_collateDirName = "Collate";
+static const std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# ";
 
 static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|e|t|qr)=(.*)</\\1>$");
 static const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):([^:]*):(.*)$");
