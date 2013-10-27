@@ -13,9 +13,6 @@ class ESRecHitSimAlgo {
 
  public:
 
-  ESRecHitSimAlgo();
-  ~ESRecHitSimAlgo(){}
-
   void setESGain(const double& value) { gain_ = value; }
   void setMIPGeV(const double& value) { MIPGeV_ = value; }
   void setPedestals(const ESPedestals* peds) { peds_ = peds; }
@@ -27,10 +24,16 @@ class ESRecHitSimAlgo {
   void setW1(const double& value) { w1_ = value; } 
   void setW2(const double& value) { w2_ = value; } 
 
-  void EvalAmplitude(double * result, const ESDataFrame& digi, const double& ped, const double& w0, const double& w1, const double& w2) const;
   EcalRecHit reconstruct(const ESDataFrame& digi) const;
 
  private:
+
+  EcalRecHit::ESFlags evalAmplitude(float * result, const ESDataFrame& digi, float ped) const;
+
+  double* oldEvalAmplitude(const ESDataFrame& digi, const double& ped, const double& w0, const double& w1, const double& w2) const;
+  EcalRecHit oldreconstruct(const ESDataFrame& digi) const;
+
+
 
   int gain_;
   const ESPedestals *peds_;
@@ -38,10 +41,10 @@ class ESRecHitSimAlgo {
   const ESChannelStatus *channelStatus_;
   const ESRecHitRatioCuts *ratioCuts_;
   const ESAngleCorrectionFactors *ang_;
-  double w0_;
-  double w1_;
-  double w2_;
-  double MIPGeV_;
+  float w0_;
+  float w1_;
+  float w2_;
+  float MIPGeV_;
 
 };
 
