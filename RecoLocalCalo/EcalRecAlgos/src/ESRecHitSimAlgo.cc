@@ -95,6 +95,11 @@ EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
 
   rechit.setFlag(statusCh.getStatusCode() == 1 ? EcalRecHit::kESDead : status);
 
+  return rechit;
+
+}
+
+/*
 
   auto oldHit = oldreconstruct(digi);
   
@@ -131,7 +136,7 @@ EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
 
   return rechit;
 }
-
+*/
 
 //
 
