@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>
+#include <vdt/vdtMath.h>
 
 #include<cstdlib>
 #include<cstring>
@@ -84,7 +85,7 @@ EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
   auto otenergy = results[2] * 1000000.f; // set out-of-time energy to keV
   
 
-  auto mipCalib = (mip != 0.f) ? MIPGeV_*std::abs(cos(ang))/(mip) : 0.f;
+  auto mipCalib = (mip != 0.f) ? MIPGeV_*std::abs(vdt::fast_cosf(ang))/(mip) : 0.f;
   energy *= mipCalib;
   otenergy *= mipCalib;
 

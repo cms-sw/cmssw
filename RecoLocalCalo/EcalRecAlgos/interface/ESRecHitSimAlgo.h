@@ -13,16 +13,16 @@ class ESRecHitSimAlgo {
 
  public:
 
-  void setESGain(const double& value) { gain_ = value; }
-  void setMIPGeV(const double& value) { MIPGeV_ = value; }
+  void setESGain(float value) { gain_ = value; }
+  void setMIPGeV(float value) { MIPGeV_ = value; }
   void setPedestals(const ESPedestals* peds) { peds_ = peds; }
   void setIntercalibConstants(const ESIntercalibConstants* mips) { mips_ = mips; }
   void setChannelStatus(const ESChannelStatus* status) { channelStatus_ = status; }
   void setRatioCuts(const ESRecHitRatioCuts* ratioCuts) { ratioCuts_ = ratioCuts; }
   void setAngleCorrectionFactors(const ESAngleCorrectionFactors* ang) { ang_ = ang; }
-  void setW0(const double& value) { w0_ = value; } 
-  void setW1(const double& value) { w1_ = value; } 
-  void setW2(const double& value) { w2_ = value; } 
+  void setW0(float value) { w0_ = value; } 
+  void setW1(float value) { w1_ = value; } 
+  void setW2(float value) { w2_ = value; } 
 
   EcalRecHit reconstruct(const ESDataFrame& digi) const;
 
