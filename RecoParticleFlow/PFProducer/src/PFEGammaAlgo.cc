@@ -4,7 +4,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h" 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-
+#include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -25,6 +25,9 @@
 #include <iomanip>
 #include <algorithm>
 #include <TMath.h>
+
+// include combinations header (not yet included in boost)
+#include "RecoParticleFlow/PFProducer/interface/combination.hpp"
 
 // just for now do this
 //#define PFLOW_DEBUG
@@ -450,6 +453,66 @@ namespace {
 	       isROLinkedByClusterOrTrack(ro,comp)   );      
     }
   }; 
+
+  std::vector<const ClusterElement*> 
+  getSCAssociatedECALsSafe(const reco::SuperClusterRef& scref,
+			   std::vector<PFFlaggedElement>& ecals) {
+    std::vector<const ClusterElement*> cluster_list;    
+    auto sccl = scref->clustersBegin();
+    auto scend = scref->clustersEnd();
+    auto pfc = ecals.begin();
+    auto pfcend = ecals.end();
+    for( ; sccl != scend; ++sccl ) {
+      std::vector<const ClusterElement*> matched_pfcs;
+      const double eg_energy = (*sccl)->energy();
+
+      for( pfc = ecals.begin(); pfc != pfcend; ++pfc ) {
+	const ClusterElement *pfcel = 
+	  docast(const ClusterElement*, pfc->first);
+	const bool matched = 
+	  ClusterClusterMapping::overlap(**sccl,*(pfcel->clusterRef()));
+	if( matched ) {
+	  matched_pfcs.push_back(pfcel);
+	}
+      }
+      std::sort(matched_pfcs.begin(),matched_pfcs.end());
+
+      double min_residual = 1e6;
+      std::vector<const ClusterElement*> best_comb;
+      for( size_t i = 1; i <= matched_pfcs.size(); ++i ) {
+	//now we find the combination of PF-clusters which
+	//has the smallest energy residual with respect to the
+	//EG-cluster we are looking at now
+	do {
+	  double energy = std::accumulate(matched_pfcs.begin(),
+					  matched_pfcs.begin()+i,
+					  0.0,
+					  [](const double a,
+					     const ClusterElement* c) 
+			       { return a + c->clusterRef()->energy(); });
+	  const double resid = std::abs(energy - eg_energy);
+	  if( resid < min_residual ) {
+	    best_comb.clear();
+	    best_comb.reserve(i);
+	    min_residual = resid;
+	    best_comb.insert(best_comb.begin(),
+			     matched_pfcs.begin(),
+			     matched_pfcs.begin()+i);
+	  }
+	}while(boost::next_combination(matched_pfcs.begin(),
+				       matched_pfcs.begin()+i,
+				       matched_pfcs.end()));	
+      }
+      for( const auto& clelem : best_comb ) {
+	reco::PFClusterRef clref = clelem->clusterRef();
+	if( std::find(cluster_list.begin(),cluster_list.end(),clelem) ==
+	    cluster_list.end() ) {
+	  cluster_list.push_back(clelem);
+	}
+      }
+    }
+    return cluster_list;
+  }
 }
 
 PFEGammaAlgo::
@@ -1339,6 +1402,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
      return false;
    }
    reco::SuperClusterRef scref = thesc->superClusterRef();
+   const double sc_energy = scref->rawEnergy();
    // this check needs to be done in a different way
    const bool is_pf_sc = (bool)
      dynamic_cast<const reco::PFCluster*>((*scref->clustersBegin()).get());
@@ -1363,6 +1427,10 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
    //reset the begin and end iterators
    ecalbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
    ecalend = _splayedblock[reco::PFBlockElement::ECAL].end();  
+
+   std::vector<const ClusterElement*> safePFClusters = 
+     getSCAssociatedECALsSafe(scref,_splayedblock[reco::PFBlockElement::ECAL]);
+   
    if( firstnotinsc == ecalbegin ) {
      LOGERR("PFEGammaAlgo::unwrapSuperCluster()")
        << "No associated block elements to SuperCluster!" 
@@ -1387,7 +1455,14 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
    for( auto ecalitr = ecalbegin; ecalitr != firstnotinsc; ++ecalitr ) {    
      const PFClusterElement* elemascluster = 
        docast(const PFClusterElement*,ecalitr->first);
-     if( ecalitr->second != false ) {
+
+     // reject clusters that really shouldn't be associated to the SC
+     if(std::find(safePFClusters.begin(),safePFClusters.end(),elemascluster) ==
+	safePFClusters.end() ) continue;
+     // need to protect against high energy clusters being attached
+     // to low-energy SCs
+     if( ecalitr->second != false && 
+	 ecalitr->first->clusterRef()->energy() < 1.2*sc_energy ) {
        ecalclusters.push_back(std::make_pair(elemascluster,true));
        ecalitr->second = false;
      } else {
@@ -1825,8 +1900,9 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
 	docast(const PFClusterElement*,ecal->first);    
       PFClusterFlaggedElement temp(elemascluster,true);
       LOGDRESSED("PFEGammaAlgo::linkGSFTracktoECAL()") 
-	<< "Found a cluster already associated to GSF extrapolation"
-	<< " at ECAL surface!" << std::endl;
+	<< "Found a cluster already in RO by GSF extrapolation"
+	<< " at ECAL surface!" << std::endl
+	<< *elemascluster << std::endl;
       cdist = _currentblock->dist(primgsf.first->index(),ecal->first->index(),
 				  _currentlinks,reco::PFBlock::LINKTEST_ALL);
       if( cdist != -1 && cdist < min_dist ) {
@@ -1842,8 +1918,9 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
 	docast(const PFClusterElement*,ecal->first);    
       PFClusterFlaggedElement temp(elemascluster,true);      
       LOGDRESSED("PFEGammaAlgo::linkGSFTracktoECAL()") 
-	<< "Found a cluster not already associated to GSF extrapolation"
-	<< " at ECAL surface!" << std::endl;
+	<< "Found a cluster not already in RO by GSF extrapolation"
+	<< " at ECAL surface!" << std::endl
+	<< *elemascluster << std::endl;
       RO.ecalclusters.push_back(temp);
       cdist = _currentblock->dist(primgsf.first->index(),ecal->first->index(),
 				  _currentlinks,reco::PFBlock::LINKTEST_ALL);
@@ -1930,6 +2007,10 @@ PFEGammaAlgo::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
       electronCluster = elemascluster;
       min_dist = cdist;
     }
+    LOGDRESSED("PFEGammaAlgo::linkKFTracktoECAL()") 
+	<< "Found a cluster already in RO by KF extrapolation"
+	<< " at ECAL surface!" << std::endl
+	<< *elemascluster << std::endl;
     RO.localMap.push_back(ElementMap::value_type(elemascluster,
 						 kfflagged.first));
     RO.localMap.push_back(ElementMap::value_type(kfflagged.first,
@@ -1953,6 +2034,10 @@ PFEGammaAlgo::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
       electronCluster = elemascluster;;
       min_dist = cdist;
     }
+    LOGDRESSED("PFEGammaAlgo::linkKFTracktoECAL()") 
+	<< "Found a cluster not in RO by KF extrapolation"
+	<< " at ECAL surface!" << std::endl
+	<< *elemascluster << std::endl;
     RO.localMap.push_back(ElementMap::value_type(elemascluster,
 						 kfflagged.first));
     RO.localMap.push_back( ElementMap::value_type(kfflagged.first,
