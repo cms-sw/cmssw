@@ -28,6 +28,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include <string>
+#include <set>
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -138,7 +139,7 @@ namespace edm {
 
       private:
          std::string indention_;
-         std::string dumpContextForLabel_;
+         std::set<std::string> dumpContextForLabels_;
          bool dumpNonModuleContext_;
       };
    }
