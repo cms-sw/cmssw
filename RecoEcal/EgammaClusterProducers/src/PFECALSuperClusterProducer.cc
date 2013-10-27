@@ -146,10 +146,10 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
     consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<InputTag>("PFClusters"));
   inputTagPFClustersES_ = 
     consumes<reco::PFCluster::EEtoPSAssociation>(iConfig.getParameter<InputTag>("ESAssociation"));
-  inputTagEBReduced_ = 
-    mayConsume<EcalRecHitCollection>(iConfig.getParameter<InputTag>("reducedEcalRecHitsEB"));
-  inputTagEEReduced_ = 
-    mayConsume<EcalRecHitCollection>(iConfig.getParameter<InputTag>("reducedEcalRecHitsEE"));
+  inputTagEBRecHits_ = 
+    mayConsume<EcalRecHitCollection>(iConfig.getParameter<InputTag>("ecalRecHitsEB"));
+  inputTagEERecHits_ = 
+    mayConsume<EcalRecHitCollection>(iConfig.getParameter<InputTag>("ecalRecHitsEE"));
   inputTagVertices_ = 
     mayConsume<reco::VertexCollection>(iConfig.getParameter<InputTag>("vertexCollection"));
 

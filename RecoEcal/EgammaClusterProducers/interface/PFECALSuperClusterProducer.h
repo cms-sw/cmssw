@@ -80,8 +80,8 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
   
   edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClusters_;
   edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation>   inputTagPFClustersES_;
-  edm::EDGetTokenT<EcalRecHitCollection>          inputTagEBReduced_;
-  edm::EDGetTokenT<EcalRecHitCollection>          inputTagEEReduced_;
+  edm::EDGetTokenT<EcalRecHitCollection>          inputTagEBRecHits_;
+  edm::EDGetTokenT<EcalRecHitCollection>          inputTagEERecHits_;
   edm::EDGetTokenT<reco::VertexCollection>        inputTagVertices_;
 
   std::string PFBasicClusterCollectionBarrel_;
