@@ -50,10 +50,11 @@ using namespace std;
 L1MuDTEUX::L1MuDTEUX(const L1MuDTSectorProcessor& sp, const L1MuDTSEU& seu, int id) : 
     m_sp(sp), m_seu(seu), m_id(id), 
     m_result(false), m_quality(0), m_address(15),
-    m_start(0), m_target(0) {
-
-  setPrecision();
-
+    m_start(0), m_target(0) 
+{
+  nbit_phi  = L1MuDTTFConfig::getNbitsExtPhi();
+  nbit_phib = L1MuDTTFConfig::getNbitsExtPhib();
+  theExtFilter = L1MuDTTFConfig::getExtTSFilter();
 }
 
 
@@ -243,24 +244,3 @@ int L1MuDTEUX::sec_mod(int sector) const {
   return new_sector;
 
 }
-
-
-//
-// set precision for phi and phib 
-// default is 12 bits for phi and 10 bits for phib
-//
-void L1MuDTEUX::setPrecision() {
-
-  nbit_phi  = L1MuDTTFConfig::getNbitsExtPhi();
-  nbit_phib = L1MuDTTFConfig::getNbitsExtPhib();
-
-  theExtFilter = L1MuDTTFConfig::getExtTSFilter();
-
-}
-
-
-// static data members
-
-int L1MuDTEUX::theExtFilter = 1;
-unsigned short int L1MuDTEUX::nbit_phi  = 12;
-unsigned short int L1MuDTEUX::nbit_phib = 10;
