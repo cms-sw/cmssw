@@ -17,7 +17,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.Tracer = cms.Service('Tracer',
-                             dumpContextForLabel = cms.untracked.string('one')
+                             dumpContextForLabels = cms.untracked.vstring('one')
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
