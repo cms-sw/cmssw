@@ -5,8 +5,13 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2010/09/17 07:48:11 $
- *  $Revision: 1.10 $
+ *  Residual/pull plots are filled for the rechit with distance from wire
+ *  closer to that of the muon simhit.
+ *  
+ *  Efficiencies are defined as the fraction of muon simhits with a rechit
+ *  in the same cell, for the given reconstruction step. Hence, for S2 and S3 
+ *  the definition incorporate the segment reconstruction efficiency.
+ *
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -172,6 +177,9 @@ private:
   HRes1DHit *hRes_S2RPhi_W2;   // RecHits, 2. step, RPhi, wheel +-2
   HRes1DHit *hRes_S3RPhi_W2;   // RecHits, 3. step, RPhi, wheel +-2
 
+  HRes1DHit* hRes_S3RPhiWS[3][4]; //  RecHits, 3. step, by wheel/station
+  HRes1DHit* hRes_S3RZWS[3][4];   //  RecHits, 3. step, by wheel/station
+
   HEff1DHit *hEff_S1RPhi;     // RecHits, 1. step, RPhi
   HEff1DHit *hEff_S2RPhi;     // RecHits, 2. step, RPhi
   HEff1DHit *hEff_S3RPhi;     // RecHits, 3. step, RPhi
@@ -191,6 +199,12 @@ private:
   HEff1DHit *hEff_S1RZ_W2;   // RecHits, 1. step, RZ, wheel +-2
   HEff1DHit *hEff_S2RZ_W2;   // RecHits, 2. step, RZ, wheel +-2
   HEff1DHit *hEff_S3RZ_W2;   // RecHits, 3. step, RZ, wheel +-2
+
+  HEff1DHit* hEff_S1RPhiWS[3][4]; //  RecHits, 3. step, by wheel/station
+  HEff1DHit* hEff_S3RPhiWS[3][4]; //  RecHits, 3. step, by wheel/station
+  HEff1DHit* hEff_S1RZWS[3][4];   //  RecHits, 3. step, by wheel/station
+  HEff1DHit* hEff_S3RZWS[3][4];   //  RecHits, 3. step, by wheel/station
+
   DQMStore* dbe_;
   bool doall;
 };

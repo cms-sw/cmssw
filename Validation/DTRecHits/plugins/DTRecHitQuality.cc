@@ -2,8 +2,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/09/17 10:58:56 $
- *  $Revision: 1.16 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -114,6 +112,26 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
     hRes_S3RZ_W0= new HRes1DHit("S3RZ_W0",dbe_,doall,local);   // RecHits, 3. step, RZ, wheel 0
     hRes_S3RZ_W1= new HRes1DHit("S3RZ_W1",dbe_,doall,local);   // RecHits, 3. step, RZ, wheel +-1
     hRes_S3RZ_W2= new HRes1DHit("S3RZ_W2",dbe_,doall,local);   // RecHits, 3. step, RZ, wheel +-2
+
+    if (local) {
+      // Plots with finer granularity, not to be included in DQM
+      TString name1="RPhi_W";
+      TString name2="RZ_W";
+      for (long w=0;w<=2;++w) {
+	for (long s=1;s<=4;++s){
+	  hRes_S3RPhiWS[w][s-1] = new HRes1DHit(("S3"+name1+w+"_St"+s).Data(),dbe_,doall,local); 
+	  hEff_S1RPhiWS[w][s-1] = new HEff1DHit(("S1"+name1+w+"_St"+s).Data(),dbe_); 
+	  hEff_S3RPhiWS[w][s-1] = new HEff1DHit(("S3"+name1+w+"_St"+s).Data(),dbe_); 
+	  if (s!=4) {
+	    hRes_S3RZWS[w][s-1] = new HRes1DHit(("S3"+name2+w+"_St"+s).Data(),dbe_,doall,local); 
+	    hEff_S1RZWS[w][s-1] = new HEff1DHit(("S1"+name2+w+"_St"+s).Data(),dbe_); 
+	    hEff_S3RZWS[w][s-1] = new HEff1DHit(("S3"+name2+w+"_St"+s).Data(),dbe_); 
+	  }
+	}
+      }
+    }
+    
+    
     if(doall){
       hEff_S3RPhi= new HEff1DHit("S3RPhi",dbe_);     // RecHits, 3. step, RPhi
       hEff_S3RZ= new HEff1DHit("S3RZ",dbe_);	    // RecHits, 3. step, RZ
@@ -160,51 +178,6 @@ void DTRecHitQuality::endJob() {
       hEff_S3RZ_W2->ComputeEfficiency();
     }
   }
-  //if ( rootFileName.size() != 0 && dbe_ ) dbe_->save(rootFileName); 
-
-  // Write histos to file
-  /*hRes_S1RPhi->Write();
-  hRes_S2RPhi->Write();
-  hRes_S3RPhi->Write();
-
-  hRes_S1RZ->Write();
-  hRes_S2RZ->Write();
-  hRes_S3RZ->Write();
-
-  hRes_S1RZ_W0->Write();
-  hRes_S2RZ_W0->Write();
-  hRes_S3RZ_W0->Write();
-
-  hRes_S1RZ_W1->Write();
-  hRes_S2RZ_W1->Write();
-  hRes_S3RZ_W1->Write();
-
-  hRes_S1RZ_W2->Write();
-  hRes_S2RZ_W2->Write();
-  hRes_S3RZ_W2->Write();
-
-
-  hEff_S1RPhi->Write();
-  hEff_S2RPhi->Write();
-  hEff_S3RPhi->Write();
-
-  hEff_S1RZ->Write();
-  hEff_S2RZ->Write();
-  hEff_S3RZ->Write();
-
-  hEff_S1RZ_W0->Write();
-  hEff_S2RZ_W0->Write();
-  hEff_S3RZ_W0->Write();
-
-  hEff_S1RZ_W1->Write();
-  hEff_S2RZ_W1->Write();
-  hEff_S3RZ_W1->Write();
-
-  hEff_S1RZ_W2->Write();
-  hEff_S2RZ_W2->Write();
-  hEff_S3RZ_W2->Write();*/
-
-  //theFile->Close();
 }
 
 // The real analysis
@@ -558,6 +531,8 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
             hRes = hRes_S3RPhi_W1;
           if(abs(wireId.wheel()) == 2)
             hRes = hRes_S3RPhi_W2;
+	  if (local) hRes_S3RPhiWS[abs(wireId.wheel())][wireId.station()-1]->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),simHitGlobalPos.phi(),recHitErr,wireId.station());
+	  
         } else {
           hResTot = hRes_S3RZ;
           if(wireId.wheel() == 0)
@@ -566,8 +541,9 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
             hRes = hRes_S3RZ_W1;
           if(abs(wireId.wheel()) == 2)
             hRes = hRes_S3RZ_W2;
-        }
 
+	  if (local) hRes_S3RZWS[abs(wireId.wheel())][wireId.station()-1]->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),simHitGlobalPos.phi(),recHitErr,wireId.station());
+        }
       }
       // Fill
       hRes->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),
@@ -585,6 +561,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
 	// Step 1
 	if(wireId.superlayer() != 2) {
 	  hEff = hEff_S1RPhi;
+	  if (local) hEff_S1RPhiWS[abs(wireId.wheel())][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
 	} else {
 	  hEffTot = hEff_S1RZ;
 	  if(wireId.wheel() == 0)
@@ -593,6 +570,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
 	    hEff = hEff_S1RZ_W1;
 	  if(abs(wireId.wheel()) == 2)
 	    hEff = hEff_S1RZ_W2;
+	  if (local) hEff_S1RZWS[abs(wireId.wheel())][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
 	}
 	
       } else if(step == 2) {
@@ -613,6 +591,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
 	// Step 3
 	if(wireId.superlayer() != 2) {
 	  hEff = hEff_S3RPhi;
+	  if (local) hEff_S3RPhiWS[abs(wireId.wheel())][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
 	} else {
 	  hEffTot = hEff_S3RZ;
 	  if(wireId.wheel() == 0)
@@ -621,8 +600,9 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
 	    hEff = hEff_S3RZ_W1;
 	  if(abs(wireId.wheel()) == 2)
 	    hEff = hEff_S3RZ_W2;
+	  if (local) hEff_S3RZWS[abs(wireId.wheel())][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
 	}
-	
+
       }
       // Fill
       hEff->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
