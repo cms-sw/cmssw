@@ -615,6 +615,22 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_2(watchPostModuleEvent)
 
+     /// signal is emitted after the module starts processing the Event and before a delayed get has started
+     typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleEventDelayedGet;
+     PreModuleEventDelayedGet preModuleEventDelayedGetSignal_;
+     void watchPreModuleEventDelayedGet(PreModuleEventDelayedGet::slot_type const& iSlot) {
+       preModuleEventDelayedGetSignal_.connect(iSlot);
+     }
+     AR_WATCH_USING_METHOD_2(watchPreModuleEventDelayedGet)
+     
+     /// signal is emitted after the module starts processing the Event and after a delayed get has finished
+     typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PostModuleEventDelayedGet;
+     PostModuleEventDelayedGet postModuleEventDelayedGetSignal_;
+     void watchPostModuleEventDelayedGet(PostModuleEventDelayedGet::slot_type const& iSlot) {
+       postModuleEventDelayedGetSignal_.connect_front(iSlot);
+     }
+     AR_WATCH_USING_METHOD_2(watchPostModuleEventDelayedGet)
+     
       typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleStreamBeginRun;
       PreModuleStreamBeginRun preModuleStreamBeginRunSignal_;
       void watchPreModuleStreamBeginRun(PreModuleStreamBeginRun::slot_type const& iSlot) {

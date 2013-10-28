@@ -5,6 +5,7 @@
 #include "DQMOffline/PFTau/plugins/BenchmarkAnalyzer.h"
 #include "DQMOffline/PFTau/interface/METBenchmark.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 class TH1F; 
 
@@ -17,6 +18,7 @@ class METBenchmarkAnalyzer: public BenchmarkAnalyzer, public METBenchmark {
   void beginJob() ;
   void endJob();
 
+  edm::EDGetTokenT< edm::View<reco::MET> > myColl_;
 };
 
 #endif 

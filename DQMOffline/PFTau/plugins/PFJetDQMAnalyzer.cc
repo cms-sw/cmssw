@@ -27,8 +27,10 @@ PFJetDQMAnalyzer::PFJetDQMAnalyzer(const edm::ParameterSet& parameterSet)
   matchLabel_          = pSet_.getParameter<edm::InputTag>("MatchCollection");
   benchmarkLabel_      = pSet_.getParameter<std::string>("BenchmarkLabel"); 
 
-  pfJetMonitor_.setParameters(parameterSet);  
+  pfJetMonitor_.setParameters(parameterSet);  // set parameters for booking histograms and validating jet 
   
+  myJet_ = consumes< edm::View<reco::Jet> >(inputLabel_);
+  myMatchedJet_ = consumes< edm::View<reco::Jet> >(matchLabel_);
 }
 //
 // -- BeginJob
@@ -40,35 +42,41 @@ void PFJetDQMAnalyzer::beginJob() {
   std::string path = "ParticleFlow/" + benchmarkLabel_;
   Benchmark::DQM_->setCurrentFolder(path.c_str());
   edm::LogInfo("PFJetDQMAnalyzer") << " PFJetDQMAnalyzer::beginJob " << "Histogram Folder path set to "<< path;
-  pfJetMonitor_.setup(pSet_);  
+  pfJetMonitor_.setup(pSet_);  // booking histograms of type delta_frac_VS_frac from PFJetMonitor, pt_ eta_ phi_ and charge_ from CandidateBenchmark,  delta_x_VS_y from MatchCandidateBenchmark
   nBadEvents_ = 0;
 }
 //
 // -- Analyze
 //
 void PFJetDQMAnalyzer::analyze(edm::Event const& iEvent, 
-				      edm::EventSetup const& iSetup) {
+			       edm::EventSetup const& iSetup) {
+
   edm::Handle< edm::View<reco::Jet> > jetCollection;
-  iEvent.getByLabel(inputLabel_, jetCollection);   
+  //iEvent.getByLabel(inputLabel_, jetCollection);   
+  iEvent.getByToken(myJet_, jetCollection);   
   
   edm::Handle< edm::View<reco::Jet> > matchedJetCollection; 
-  iEvent.getByLabel( matchLabel_, matchedJetCollection);
+  //iEvent.getByLabel( matchLabel_, matchedJetCollection);
+  iEvent.getByToken(myMatchedJet_, matchedJetCollection);
 
   float maxRes = 0.0;
   float minRes = 99.99;
+  float jetpT = 0.0;
   if (jetCollection.isValid() && matchedJetCollection.isValid()) {
-    pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes);
-    
+    //pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes);  // match collections and fill pt eta phi and charge histos for candidate jet, fill delta_x_VS_y histos for matched couples, book and fill delta_frac_VS_frac histos for matched couples
+    pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes, jetpT, pSet_);  // match collections and fill pt eta phi and charge histos for candidate jet, fill delta_x_VS_y histos for matched couples, book and fill delta_frac_VS_frac histos for matched couples
     edm::ParameterSet skimPS = pSet_.getParameter<edm::ParameterSet>("SkimParameter");
     if ( (skimPS.getParameter<bool>("switchOn")) &&  
-         (nBadEvents_ <= skimPS.getParameter<int32_t>("maximumNumberToBeStored")) ){
-      if ( minRes < skimPS.getParameter<double>("lowerCutOffOnResolution")) {
-	storeBadEvents(iEvent,minRes);
-        nBadEvents_++;
-      } else if (maxRes > skimPS.getParameter<double>("upperCutOffOnResolution")) {
-	storeBadEvents(iEvent,maxRes);
-        nBadEvents_++;
-      }
+         (nBadEvents_ <= skimPS.getParameter<int32_t>("maximumNumberToBeStored")) ) {
+      if (jetpT > skimPS.getParameter<double>("minimumJetpT")) { 
+	if ( minRes < skimPS.getParameter<double>("lowerCutOffOnResolution")) {
+	  storeBadEvents(iEvent,minRes);
+	  nBadEvents_++;
+	} else if (maxRes > skimPS.getParameter<double>("upperCutOffOnResolution")) {
+	  storeBadEvents(iEvent,maxRes);
+	  nBadEvents_++;
+	}
+      } // minimum jet pT check
     }
   }
 }

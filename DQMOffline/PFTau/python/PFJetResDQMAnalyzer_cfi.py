@@ -1,39 +1,41 @@
 import FWCore.ParameterSet.Config as cms
 
-pfElectronDQMAnalyzer = cms.EDAnalyzer("PFCandidateDQMAnalyzer",
+pfJetResDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
     InputCollection = cms.InputTag('pfAllElectrons'),
     MatchCollection = cms.InputTag('gensource'),
-    BenchmarkLabel  = cms.string('PFElectronValidation/PFElecVsGenElec'),
-    deltaRMax = cms.double(0.2),
-    matchCharge = cms.bool(True),
+    BenchmarkLabel  = cms.string('PFJetResValidation/PFElecVsGenElec'),
+    deltaRMax = cms.double(0.1),
+    onlyTwoJets = cms.bool(True),
+    matchCharge = cms.bool(False),
     mode = cms.int32( 1 ),
+    CreatePFractionHistos = cms.bool(False),
     CreateReferenceHistos = cms.bool(True),
-    CreateEfficiencyHistos = cms.bool(True),
-    ptMin = cms.double( 2.0 ), # since pT_reco seem to have this threshold
+    CreateEfficiencyHistos = cms.bool(False),
+    ptMin = cms.double( 0.0 ),
     ptMax = cms.double( 999999 ),
-    etaMin = cms.double(-2.5),
-    etaMax = cms.double(2.5),
+    etaMin = cms.double(-10),
+    etaMax = cms.double(10),
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
-    # Histogram Parameters related to pt
+# Histogram Parameters related to pt
     #VariablePtBins  = cms.vdouble(0.,1.,2.,5.,10.,20.,50.,100.,200.,400.,1000.),
-    VariablePtBins  = cms.vdouble(0.), # if only one entry PtHistoParameter used
-      PtHistoParameter = cms.PSet(
+    VariablePtBins  = cms.vdouble(20,40,60,80,100,150,200,250,300,400,500,750), # must be = to the one in PFClient_cfi if you want to slice the TH2
+    PtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
-      nBin = cms.int32(60),
+      nBin = cms.int32(50),
       xMin = cms.double(0.0),
-      xMax = cms.double(120.0)        
+      xMax = cms.double(100.0)        
     ),
     DeltaPtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(100),
-      xMin = cms.double(-30.0),
-      xMax = cms.double(30.0)        
+      xMin = cms.double(-50.0),
+      xMax = cms.double(50.0)        
     ),
     DeltaPtOvPtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
-      BROn = cms.bool(False), BREtaMin = cms.double(0.0), BREtaMax = cms.double(1.4),
-      EROn = cms.bool(False), EREtaMin = cms.double(1.6), EREtaMax = cms.double(2.4),
+      BROn = cms.bool(True), BREtaMin = cms.double(0.0), BREtaMax = cms.double(1.4),
+      EROn = cms.bool(True), EREtaMin = cms.double(1.6), EREtaMax = cms.double(2.4),
       slicingOn = cms.bool(False),
       nBin = cms.int32(160), #200
       xMin = cms.double(-1.0),
@@ -48,9 +50,9 @@ pfElectronDQMAnalyzer = cms.EDAnalyzer("PFCandidateDQMAnalyzer",
     ),
     DeltaEtaHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
-      nBin = cms.int32(400),
-      xMin = cms.double(-0.2),
-      xMax = cms.double(0.2)        
+      nBin = cms.int32(50),
+      xMin = cms.double(-0.5),
+      xMax = cms.double(0.5)        
     ),
 # Histogram Parameters related to Phi                               
     PhiHistoParameter = cms.PSet(
@@ -61,11 +63,12 @@ pfElectronDQMAnalyzer = cms.EDAnalyzer("PFCandidateDQMAnalyzer",
     ),
     DeltaPhiHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
-      nBin = cms.int32(400), 
-      xMin = cms.double(-0.2),
-      xMax = cms.double(0.2)        
+      nBin = cms.int32(50),
+      xMin = cms.double(-0.5),
+      xMax = cms.double(0.5)        
     ),
-    DeltaRHistoParameter = cms.PSet(
+# Histogram Parameters related to DeltaR     
+   DeltaRHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(150), 
       xMin = cms.double(0.0),
@@ -82,7 +85,8 @@ pfElectronDQMAnalyzer = cms.EDAnalyzer("PFCandidateDQMAnalyzer",
     SkimParameter = cms.PSet(
       switchOn = cms.bool(False),
       maximumNumberToBeStored = cms.int32(100),
-      lowerCutOffOnResolution = cms.double(-1.5),
-      upperCutOffOnResolution = cms.double(1.5)
+      minimumJetpT = cms.double(100), 
+      lowerCutOffOnResolution = cms.double(-0.2),
+      upperCutOffOnResolution = cms.double(0.2)
     )
 )

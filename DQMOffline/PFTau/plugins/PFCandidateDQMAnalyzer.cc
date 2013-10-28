@@ -19,13 +19,16 @@
 PFCandidateDQMAnalyzer::PFCandidateDQMAnalyzer(const edm::ParameterSet& parameterSet)  
   
 {
-  pSet_                = parameterSet;
-  inputLabel_          = pSet_.getParameter<edm::InputTag>("InputCollection");
-  matchLabel_          = pSet_.getParameter<edm::InputTag>("MatchCollection");
-  benchmarkLabel_      = pSet_.getParameter<std::string>("BenchmarkLabel"); 
+  pSet_                   = parameterSet;
+  inputLabel_             = pSet_.getParameter<edm::InputTag>("InputCollection");
+  matchLabel_             = pSet_.getParameter<edm::InputTag>("MatchCollection");
+  benchmarkLabel_         = pSet_.getParameter<std::string>("BenchmarkLabel"); 
+  createEfficiencyHistos_ = pSet_.getParameter<bool>( "CreateEfficiencyHistos" );
 
   pfCandidateMonitor_.setParameters(parameterSet);  
   
+  myCand_ = consumes< edm::View<reco::Candidate> >(inputLabel_);
+  myMatchedCand_ = consumes< edm::View<reco::Candidate> >(matchLabel_);
 }
 //
 // -- BeginJob
@@ -45,16 +48,27 @@ void PFCandidateDQMAnalyzer::beginJob() {
 //
 void PFCandidateDQMAnalyzer::analyze(edm::Event const& iEvent, 
 				      edm::EventSetup const& iSetup) {
+  
   edm::Handle< edm::View<reco::Candidate> > candCollection;
-  iEvent.getByLabel( inputLabel_, candCollection);
-
   edm::Handle< edm::View<reco::Candidate> > matchedCandCollection;
-  iEvent.getByLabel( matchLabel_, matchedCandCollection);
-
+  if ( !createEfficiencyHistos_ ) {
+    //iEvent.getByLabel( inputLabel_, candCollection);
+    iEvent.getByToken( myCand_, candCollection);   
+    //iEvent.getByLabel( matchLabel_, matchedCandCollection);
+    iEvent.getByToken( myMatchedCand_, matchedCandCollection);
+  } else {
+    //iEvent.getByLabel( matchLabel_, candCollection);
+    iEvent.getByToken( myMatchedCand_, candCollection);
+    //iEvent.getByLabel( inputLabel_, matchedCandCollection);
+    iEvent.getByToken( myCand_, matchedCandCollection);
+  }
+  
   float maxRes = 0.0;
   float minRes = 99.99;
   if (candCollection.isValid() && matchedCandCollection.isValid()) {
-    pfCandidateMonitor_.fill( *candCollection, *matchedCandCollection, minRes, maxRes);
+    //pfCandidateMonitor_.fill( *candCollection, *matchedCandCollection, minRes, maxRes);
+    pfCandidateMonitor_.fill( *candCollection, *matchedCandCollection, minRes, maxRes, pSet_);
+
     edm::ParameterSet skimPS = pSet_.getParameter<edm::ParameterSet>("SkimParameter");
     if ( (skimPS.getParameter<bool>("switchOn")) &&  
          (nBadEvents_ <= skimPS.getParameter<int32_t>("maximumNumberToBeStored")) ) {
@@ -66,6 +80,7 @@ void PFCandidateDQMAnalyzer::analyze(edm::Event const& iEvent,
 	storeBadEvents(iEvent,maxRes);
       }
     }
+
   }
 }
 void PFCandidateDQMAnalyzer::storeBadEvents(edm::Event const& iEvent, float& val) {

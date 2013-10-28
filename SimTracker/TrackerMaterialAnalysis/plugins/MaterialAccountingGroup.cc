@@ -17,7 +17,7 @@
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingDetector.h"
 #include "MaterialAccountingGroup.h"
 
-double MaterialAccountingGroup::s_tolerance = 0.01; // 100um should be small enough that no elements from different layers/groups are so close
+double const MaterialAccountingGroup::s_tolerance = 0.01; // 100um should be small enough that no elements from different layers/groups are so close
 
 MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, const DDCompactView & geometry ) :
   m_name( name ),
