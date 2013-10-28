@@ -1,4 +1,5 @@
-## This configuration runs the DIGI+L1Emulator mport FWCore.ParameterSet.Config as cms
+## This configuration runs the DIGI+L1Emulator step
+import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MUTRG")
 
