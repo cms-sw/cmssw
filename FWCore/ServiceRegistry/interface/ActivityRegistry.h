@@ -60,7 +60,35 @@ namespace edm {
    namespace service {
      class SystemBounds;
    }
+  
+   namespace signalslot {
+      void throwObsoleteSignalException();
+      
+      template<class T>
+      class ObsoleteSignal {
+      public:
+         typedef std::function<T> slot_type;
 
+         ObsoleteSignal() = default;
+
+         template<typename... Args>
+         void emit(Args&&... args) const {}
+         
+         template<typename... Args>
+         void operator()(Args&&... args) const {}
+
+         template<typename U>
+         void connect(U iFunc) {
+            throwObsoleteSignalException();
+         }
+         
+         template<typename U>
+         void connect_front(U iFunc) {
+            throwObsoleteSignalException();
+         }
+
+      };
+   }
    class ActivityRegistry : private boost::noncopyable {
    public:
       ActivityRegistry() {}
@@ -358,7 +386,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_3(watchPostPathEvent)
 
       // OLD DELETE THIS
-      typedef signalslot::Signal<void(EventID const&, Timestamp const&)> PreProcessEvent;
+      typedef signalslot::ObsoleteSignal<void(EventID const&, Timestamp const&)> PreProcessEvent;
       /// signal is emitted after the Event has been created by the InputSource but before any modules have seen the Event
       PreProcessEvent preProcessEventSignal_;
       void watchPreProcessEvent(PreProcessEvent::slot_type const& iSlot) {
@@ -367,7 +395,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_2(watchPreProcessEvent)
       
       // OLD DELETE THIS
-      typedef signalslot::Signal<void(Event const&, EventSetup const&)> PostProcessEvent;
+      typedef signalslot::ObsoleteSignal<void(Event const&, EventSetup const&)> PostProcessEvent;
       /// signal is emitted after all modules have finished processing the Event
       PostProcessEvent postProcessEventSignal_;
       void watchPostProcessEvent(PostProcessEvent::slot_type const& iSlot) {
@@ -376,7 +404,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_2(watchPostProcessEvent)
 
       // OLD DELETE THIS
-      typedef signalslot::Signal<void(RunID const&, Timestamp const&)> PreBeginRun;
+      typedef signalslot::ObsoleteSignal<void(RunID const&, Timestamp const&)> PreBeginRun;
       /// signal is emitted after the Run has been created by the InputSource but before any modules have seen the Run
       PreBeginRun preBeginRunSignal_;
       void watchPreBeginRun(PreBeginRun::slot_type const& iSlot) {
@@ -385,7 +413,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_2(watchPreBeginRun)
       
       // OLD DELETE THIS
-      typedef signalslot::Signal<void(Run const&, EventSetup const&)> PostBeginRun;
+      typedef signalslot::ObsoleteSignal<void(Run const&, EventSetup const&)> PostBeginRun;
       /// signal is emitted after all modules have finished processing the beginRun 
       PostBeginRun postBeginRunSignal_;
       void watchPostBeginRun(PostBeginRun::slot_type const& iSlot) {
@@ -394,7 +422,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_2(watchPostBeginRun)
 
       // OLD DELETE THIS
-      typedef signalslot::Signal<void(RunID const&, Timestamp const&)> PreEndRun;
+      typedef signalslot::ObsoleteSignal<void(RunID const&, Timestamp const&)> PreEndRun;
       /// signal is emitted before the endRun is processed
       PreEndRun preEndRunSignal_;
       void watchPreEndRun(PreEndRun::slot_type const& iSlot) {
@@ -403,7 +431,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_2(watchPreEndRun)
       
       // OLD DELETE THIS
-      typedef signalslot::Signal<void(Run const&, EventSetup const&)> PostEndRun;
+      typedef signalslot::ObsoleteSignal<void(Run const&, EventSetup const&)> PostEndRun;
       /// signal is emitted after all modules have finished processing the Run
       PostEndRun postEndRunSignal_;
       void watchPostEndRun(PostEndRun::slot_type const& iSlot) {
@@ -412,7 +440,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_2(watchPostEndRun)
 
       // OLD DELETE THIS
-      typedef signalslot::Signal<void(LuminosityBlockID const&, Timestamp const&)> PreBeginLumi;
+      typedef signalslot::ObsoleteSignal<void(LuminosityBlockID const&, Timestamp const&)> PreBeginLumi;
       /// signal is emitted after the Lumi has been created by the InputSource but before any modules have seen the Lumi
       PreBeginLumi preBeginLumiSignal_;
       void watchPreBeginLumi(PreBeginLumi::slot_type const& iSlot) {
@@ -421,7 +449,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_2(watchPreBeginLumi)
       
       // OLD DELETE THIS
-      typedef signalslot::Signal<void(LuminosityBlock const&, EventSetup const&)> PostBeginLumi;
+      typedef signalslot::ObsoleteSignal<void(LuminosityBlock const&, EventSetup const&)> PostBeginLumi;
       /// signal is emitted after all modules have finished processing the beginLumi
       PostBeginLumi postBeginLumiSignal_;
       void watchPostBeginLumi(PostBeginLumi::slot_type const& iSlot) {
@@ -430,7 +458,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_2(watchPostBeginLumi)
 
       // OLD DELETE THIS
-      typedef signalslot::Signal<void(LuminosityBlockID const&, Timestamp const&)> PreEndLumi;
+      typedef signalslot::ObsoleteSignal<void(LuminosityBlockID const&, Timestamp const&)> PreEndLumi;
       /// signal is emitted before the endLumi is processed
       PreEndLumi preEndLumiSignal_;
       void watchPreEndLumi(PreEndLumi::slot_type const& iSlot) {
@@ -439,7 +467,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_2(watchPreEndLumi)
       
       // OLD DELETE THIS
-      typedef signalslot::Signal<void(LuminosityBlock const&, EventSetup const&)> PostEndLumi;
+      typedef signalslot::ObsoleteSignal<void(LuminosityBlock const&, EventSetup const&)> PostEndLumi;
       /// signal is emitted after all modules have finished processing the Lumi
       PostEndLumi postEndLumiSignal_;
       void watchPostEndLumi(PostEndLumi::slot_type const& iSlot) {
@@ -449,7 +477,7 @@ namespace edm {
 
       // OLD DELETE THIS
       /// signal is emitted before starting to process a Path for an event
-      typedef signalslot::Signal<void(std::string const&)> PreProcessPath;
+      typedef signalslot::ObsoleteSignal<void(std::string const&)> PreProcessPath;
       PreProcessPath preProcessPathSignal_;
       void watchPreProcessPath(PreProcessPath::slot_type const& iSlot) {
         preProcessPathSignal_.connect(iSlot);
@@ -458,7 +486,7 @@ namespace edm {
         
       // OLD DELETE THIS
       /// signal is emitted after all modules have finished for the Path for an event
-      typedef signalslot::Signal<void(std::string const&, HLTPathStatus const&)> PostProcessPath;
+      typedef signalslot::ObsoleteSignal<void(std::string const&, HLTPathStatus const&)> PostProcessPath;
       PostProcessPath postProcessPathSignal_;
       void watchPostProcessPath(PostProcessPath::slot_type const& iSlot) {
          postProcessPathSignal_.connect_front(iSlot);
@@ -467,7 +495,7 @@ namespace edm {
         
       // OLD DELETE THIS
       /// signal is emitted before starting to process a Path for beginRun
-      typedef signalslot::Signal<void(std::string const&)> PrePathBeginRun;
+      typedef signalslot::ObsoleteSignal<void(std::string const&)> PrePathBeginRun;
       PrePathBeginRun prePathBeginRunSignal_;
       void watchPrePathBeginRun(PrePathBeginRun::slot_type const& iSlot) {
         prePathBeginRunSignal_.connect(iSlot);
@@ -476,7 +504,7 @@ namespace edm {
         
       // OLD DELETE THIS
       /// signal is emitted after all modules have finished for the Path for beginRun
-      typedef signalslot::Signal<void(std::string const&, HLTPathStatus const&)> PostPathBeginRun;
+      typedef signalslot::ObsoleteSignal<void(std::string const&, HLTPathStatus const&)> PostPathBeginRun;
       PostPathBeginRun postPathBeginRunSignal_;
       void watchPostPathBeginRun(PostPathBeginRun::slot_type const& iSlot) {
          postPathBeginRunSignal_.connect_front(iSlot);
@@ -485,7 +513,7 @@ namespace edm {
         
       // OLD DELETE THIS
       /// signal is emitted before starting to process a Path for endRun
-      typedef signalslot::Signal<void(std::string const&)> PrePathEndRun;
+      typedef signalslot::ObsoleteSignal<void(std::string const&)> PrePathEndRun;
       PrePathEndRun prePathEndRunSignal_;
       void watchPrePathEndRun(PrePathEndRun::slot_type const& iSlot) {
         prePathEndRunSignal_.connect(iSlot);
@@ -494,7 +522,7 @@ namespace edm {
         
       // OLD DELETE THIS
       /// signal is emitted after all modules have finished for the Path for endRun
-      typedef signalslot::Signal<void(std::string const&, HLTPathStatus const&)> PostPathEndRun;
+      typedef signalslot::ObsoleteSignal<void(std::string const&, HLTPathStatus const&)> PostPathEndRun;
       PostPathEndRun postPathEndRunSignal_;
       void watchPostPathEndRun(PostPathEndRun::slot_type const& iSlot) {
          postPathEndRunSignal_.connect_front(iSlot);
@@ -503,7 +531,7 @@ namespace edm {
         
       // OLD DELETE THIS
       /// signal is emitted before starting to process a Path for beginLumi
-      typedef signalslot::Signal<void(std::string const&)> PrePathBeginLumi;
+      typedef signalslot::ObsoleteSignal<void(std::string const&)> PrePathBeginLumi;
       PrePathBeginLumi prePathBeginLumiSignal_;
       void watchPrePathBeginLumi(PrePathBeginLumi::slot_type const& iSlot) {
         prePathBeginLumiSignal_.connect(iSlot);
@@ -512,7 +540,7 @@ namespace edm {
         
       // OLD DELETE THIS
       /// signal is emitted after all modules have finished for the Path for beginLumi
-      typedef signalslot::Signal<void(std::string const&, HLTPathStatus const&)> PostPathBeginLumi;
+      typedef signalslot::ObsoleteSignal<void(std::string const&, HLTPathStatus const&)> PostPathBeginLumi;
       PostPathBeginLumi postPathBeginLumiSignal_;
       void watchPostPathBeginLumi(PostPathBeginLumi::slot_type const& iSlot) {
          postPathBeginLumiSignal_.connect_front(iSlot);
@@ -521,7 +549,7 @@ namespace edm {
         
       // OLD DELETE THIS
       /// signal is emitted before starting to process a Path for endRun
-      typedef signalslot::Signal<void(std::string const&)> PrePathEndLumi;
+      typedef signalslot::ObsoleteSignal<void(std::string const&)> PrePathEndLumi;
       PrePathEndLumi prePathEndLumiSignal_;
       void watchPrePathEndLumi(PrePathEndLumi::slot_type const& iSlot) {
         prePathEndLumiSignal_.connect(iSlot);
@@ -530,7 +558,7 @@ namespace edm {
         
       // OLD DELETE THIS
       /// signal is emitted after all modules have finished for the Path for endRun
-      typedef signalslot::Signal<void(std::string const&, HLTPathStatus const&)> PostPathEndLumi;
+      typedef signalslot::ObsoleteSignal<void(std::string const&, HLTPathStatus const&)> PostPathEndLumi;
       PostPathEndLumi postPathEndLumiSignal_;
       void watchPostPathEndLumi(PostPathEndLumi::slot_type const& iSlot) {
          postPathEndLumiSignal_.connect_front(iSlot);
@@ -745,7 +773,7 @@ namespace edm {
 
       // OLD DELETE THIS
       /// signal is emitted before the module starts processing the Event
-      typedef signalslot::Signal<void(ModuleDescription const&)> PreModule;
+      typedef signalslot::ObsoleteSignal<void(ModuleDescription const&)> PreModule;
       PreModule preModuleSignal_;
       void watchPreModule(PreModule::slot_type const& iSlot) {
          preModuleSignal_.connect(iSlot);
@@ -754,7 +782,7 @@ namespace edm {
          
       // OLD DELETE THIS
       /// signal is emitted after the module finished processing the Event
-      typedef signalslot::Signal<void(ModuleDescription const&)> PostModule;
+      typedef signalslot::ObsoleteSignal<void(ModuleDescription const&)> PostModule;
       PostModule postModuleSignal_;
       void watchPostModule(PostModule::slot_type const& iSlot) {
          postModuleSignal_.connect_front(iSlot);
@@ -763,7 +791,7 @@ namespace edm {
          
       // OLD DELETE THIS
       /// signal is emitted before the module starts processing beginRun
-      typedef signalslot::Signal<void(ModuleDescription const&)> PreModuleBeginRun;
+      typedef signalslot::ObsoleteSignal<void(ModuleDescription const&)> PreModuleBeginRun;
       PreModuleBeginRun preModuleBeginRunSignal_;
       void watchPreModuleBeginRun(PreModuleBeginRun::slot_type const& iSlot) {
          preModuleBeginRunSignal_.connect(iSlot);
@@ -772,7 +800,7 @@ namespace edm {
          
       // OLD DELETE THIS
       /// signal is emitted after the module finished processing beginRun
-      typedef signalslot::Signal<void(ModuleDescription const&)> PostModuleBeginRun;
+      typedef signalslot::ObsoleteSignal<void(ModuleDescription const&)> PostModuleBeginRun;
       PostModuleBeginRun postModuleBeginRunSignal_;
       void watchPostModuleBeginRun(PostModuleBeginRun::slot_type const& iSlot) {
          postModuleBeginRunSignal_.connect_front(iSlot);
@@ -782,7 +810,7 @@ namespace edm {
          
       // OLD DELETE THIS
       /// signal is emitted before the module starts processing endRun
-      typedef signalslot::Signal<void(ModuleDescription const&)> PreModuleEndRun;
+      typedef signalslot::ObsoleteSignal<void(ModuleDescription const&)> PreModuleEndRun;
       PreModuleEndRun preModuleEndRunSignal_;
       void watchPreModuleEndRun(PreModuleEndRun::slot_type const& iSlot) {
          preModuleEndRunSignal_.connect(iSlot);
@@ -791,7 +819,7 @@ namespace edm {
          
       // OLD DELETE THIS
       /// signal is emitted after the module finished processing endRun
-      typedef signalslot::Signal<void(ModuleDescription const&)> PostModuleEndRun;
+      typedef signalslot::ObsoleteSignal<void(ModuleDescription const&)> PostModuleEndRun;
       PostModuleEndRun postModuleEndRunSignal_;
       void watchPostModuleEndRun(PostModuleEndRun::slot_type const& iSlot) {
          postModuleEndRunSignal_.connect_front(iSlot);
@@ -800,7 +828,7 @@ namespace edm {
          
       // OLD DELETE THIS
       /// signal is emitted before the module starts processing beginLumi
-      typedef signalslot::Signal<void(ModuleDescription const&)> PreModuleBeginLumi;
+      typedef signalslot::ObsoleteSignal<void(ModuleDescription const&)> PreModuleBeginLumi;
       PreModuleBeginLumi preModuleBeginLumiSignal_;
       void watchPreModuleBeginLumi(PreModuleBeginLumi::slot_type const& iSlot) {
          preModuleBeginLumiSignal_.connect(iSlot);
@@ -809,7 +837,7 @@ namespace edm {
          
       // OLD DELETE THIS
       /// signal is emitted after the module finished processing beginLumi
-      typedef signalslot::Signal<void(ModuleDescription const&)> PostModuleBeginLumi;
+      typedef signalslot::ObsoleteSignal<void(ModuleDescription const&)> PostModuleBeginLumi;
       PostModuleBeginLumi postModuleBeginLumiSignal_;
       void watchPostModuleBeginLumi(PostModuleBeginLumi::slot_type const& iSlot) {
          postModuleBeginLumiSignal_.connect_front(iSlot);
@@ -818,7 +846,7 @@ namespace edm {
          
       // OLD DELETE THIS
       /// signal is emitted before the module starts processing endLumi
-      typedef signalslot::Signal<void(ModuleDescription const&)> PreModuleEndLumi;
+      typedef signalslot::ObsoleteSignal<void(ModuleDescription const&)> PreModuleEndLumi;
       PreModuleEndLumi preModuleEndLumiSignal_;
       void watchPreModuleEndLumi(PreModuleEndLumi::slot_type const& iSlot) {
          preModuleEndLumiSignal_.connect(iSlot);
@@ -827,7 +855,7 @@ namespace edm {
          
       // OLD DELETE THIS
       /// signal is emitted after the module finished processing endLumi
-      typedef signalslot::Signal<void(ModuleDescription const&)> PostModuleEndLumi;
+      typedef signalslot::ObsoleteSignal<void(ModuleDescription const&)> PostModuleEndLumi;
       PostModuleEndLumi postModuleEndLumiSignal_;
       void watchPostModuleEndLumi(PostModuleEndLumi::slot_type const& iSlot) {
          postModuleEndLumiSignal_.connect_front(iSlot);
