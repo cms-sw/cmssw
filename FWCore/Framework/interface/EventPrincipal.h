@@ -19,6 +19,7 @@ is the DataBlock.
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Framework/interface/Principal.h"
 
 #include "boost/shared_ptr.hpp"
@@ -36,6 +37,7 @@ namespace edm {
   class HistoryAppender;
   class LuminosityBlockPrincipal;
   class ModuleCallingContext;
+  class StreamContext;
   class ProcessHistoryRegistry;
   class RunPrincipal;
   class UnscheduledHandler;
@@ -164,7 +166,11 @@ namespace edm {
     }
 
     using Base::getProvenance;
+    
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> preModuleDelayedGetSignal_;
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> postModuleDelayedGetSignal_;
 
+    
   private:
 
     BranchID pidToBid(ProductID const& pid) const;
