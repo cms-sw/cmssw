@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DQMOffline/PFTau/interface/PFJetMonitor.h"
 
@@ -22,6 +23,8 @@ class PFJetDQMAnalyzer: public edm::EDAnalyzer {
 
   void storeBadEvents(edm::Event const&, float& val);
 
+  edm::EDGetTokenT< edm::View<reco::Jet> > myJet_;
+  edm::EDGetTokenT< edm::View<reco::Jet> > myMatchedJet_;
   edm::InputTag matchLabel_;
   edm::InputTag inputLabel_;
   std::string benchmarkLabel_;
@@ -29,6 +32,7 @@ class PFJetDQMAnalyzer: public edm::EDAnalyzer {
   PFJetMonitor pfJetMonitor_;
 
   edm::ParameterSet pSet_;
+
   int nBadEvents_;
 };
 

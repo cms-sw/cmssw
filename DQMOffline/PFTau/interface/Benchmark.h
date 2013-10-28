@@ -9,6 +9,7 @@
 class TH1;
 class TH1F;
 class TH2;
+class TProfile;
 
 class TH2F;
 class TDirectory;
@@ -80,6 +81,15 @@ class Benchmark{
 	       int nbinsx, float* xbins,
 	       int nbinsy, float ymin, float ymax ); 
 
+  /// book a TProfile histogram, either with DQM or plain root.
+  TProfile* bookProfile(const char* histname, const char* title,
+			int nbinsx, float xmin, float xmax,
+			float ymin, float ymax, const char* option );
+
+  /// book a TProfile histogram, either with DQM or plain root.
+  TProfile* bookProfile(const char* histname, const char* title,
+			int nbinsx, float* xbins,
+			float ymin, float ymax, const char* option );
  
   TDirectory* dir_;
 

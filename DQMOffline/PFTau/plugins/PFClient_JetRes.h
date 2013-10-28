@@ -1,5 +1,5 @@
-#ifndef __DQMOffline_PFTau_PFClient__
-#define __DQMOffline_PFTau_PFClient__
+#ifndef __DQMOffline_PFTau_PFClient_JetRes__
+#define __DQMOffline_PFTau_PFClient_JetRes__
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -9,10 +9,10 @@
 
 class DQMStore;
 class MonitorElement;
-class PFClient: public edm::EDAnalyzer {
+class PFClient_JetRes: public edm::EDAnalyzer {
  public:
   
-  PFClient(const edm::ParameterSet& parameterSet);
+  PFClient_JetRes(const edm::ParameterSet& parameterSet);
   
  private:
   void beginJob();
@@ -22,23 +22,17 @@ class PFClient: public edm::EDAnalyzer {
 
   void doSummaries();
   void doEfficiency();
-  void doProjection();
-  void doProfiles();
   void createResolutionPlots(std::string& folder, std::string& name);
   void getHistogramParameters(MonitorElement* me_slice, double& avarage, double& rms, 
                                                         double& mean, double& sigma);
   void createEfficiencyPlots(std::string& folder, std::string& name);
-
-  void createProjectionPlots(std::string& folder, std::string& name);
-  void createProfilePlots(std::string& folder, std::string& name);
      
   std::vector<std::string> folderNames_;
   std::vector<std::string> histogramNames_;
   std::vector<std::string> effHistogramNames_;
-  std::vector<std::string> projectionHistogramNames_;
-  std::vector<std::string> profileHistogramNames_;
+  std::vector<int> PtBins_;
+
   bool efficiencyFlag_;
-  bool profileFlag_;
 
   DQMStore* dqmStore_;
 
