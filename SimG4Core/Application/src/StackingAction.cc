@@ -20,7 +20,6 @@
 StackingAction::StackingAction(EventAction* e, const edm::ParameterSet & p) 
   : eventAction_(e)
 {
-
   trackNeutrino  = p.getParameter<bool>("TrackNeutrino");
   killHeavy      = p.getParameter<bool>("KillHeavy");
   kmaxIon        = p.getParameter<double>("IonThreshold")*MeV;
@@ -174,8 +173,6 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 {
   // G4 interface part
   G4ClassificationOfNewTrack classification = fUrgent;
-  int flag = 0;
-
   if (aTrack->GetCreatorProcess()==0 || aTrack->GetParentID()==0) {
     /*
     std::cout << "StackingAction: primary weight= " 
@@ -216,7 +213,8 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
       if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18) 
 	classification = fKill;
     }
-    if (classification != fKill && isItLongLived(aTrack)) { classification = fKill; }
+    if (classification != fKill && isItLongLived(aTrack)) 
+      { classification = fKill; }
     if (killDeltaRay && classification != fKill) {
       if (aTrack->GetCreatorProcess()->GetProcessType() == fElectromagnetic &&
 	  aTrack->GetCreatorProcess()->GetProcessSubType() == fIonisation)
@@ -227,54 +225,80 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
         classification = fKill; 
       }
     }
-    // Russian roulette
-    if(classification != fKill && (2112 == pdg || 22 == pdg || 2212 == pdg)) {
-      double currentWeight = aTrack->GetWeight();
-      if(1.0 >= currentWeight) {
-	double prob = 1.0;
-	double elim = 0.0;
-	if(nRRactive && pdg == 2112) {
-	  elim = nRusRoEnerLim;
-	  G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
-	  if(reg == regionEcal)             { prob = nRusRoEcal; }
-	  else if(reg == regionHcal)        { prob = nRusRoHcal; }
-	  else if(reg == regionMuonIron)    { prob = nRusRoMuonIron; }
-	  else if(reg == regionPreShower)   { prob = nRusRoPreShower; }
-	  else if(reg == regionCastor)      { prob = nRusRoCastor; }
-	  else if(reg == regionWorld)       { prob = nRusRoWorld; }
-
-	} else if(gRRactive && pdg == 22) {
-	  elim = gRusRoEnerLim;
-	  G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
-	  if(reg == regionEcal)             { prob = gRusRoEcal; }
-	  else if(reg == regionHcal)        { prob = gRusRoHcal; }
-	  else if(reg == regionMuonIron)    { prob = gRusRoMuonIron; }
-	  else if(reg == regionPreShower)   { prob = gRusRoPreShower; }
-	  else if(reg == regionCastor)      { prob = gRusRoCastor; }
-	  else if(reg == regionWorld)       { prob = gRusRoWorld; }
-
-	} else if(pRRactive && pdg == 2212) {
-	  elim = pRusRoEnerLim;
-	  G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
-	  if(reg == regionEcal)             { prob = pRusRoEcal; }
-	  else if(reg == regionHcal)        { prob = pRusRoHcal; }
-	  else if(reg == regionMuonIron)    { prob = pRusRoMuonIron; }
-	  else if(reg == regionPreShower)   { prob = pRusRoPreShower; }
-	  else if(reg == regionCastor)      { prob = pRusRoCastor; }
-	  else if(reg == regionWorld)       { prob = pRusRoWorld; }
-	}
-        if(prob < 1.0 && aTrack->GetKineticEnergy() < elim) {
-          if(G4UniformRand() < prob) {
-            const_cast<G4Track*>(aTrack)->SetWeight(currentWeight/prob);
-          } else {
-	    classification = fKill;
-          }
-	}
-      }
-    }
+    // Russian roulette && MC truth
     if(classification != fKill) {
       const G4Track * mother = CurrentG4Track::track();
-      if (killInCaloEfH && classification != fKill) {
+      int flag = 0;
+      if (savePDandCinTracker && isThisVolume(aTrack->GetTouchable(),tracker)) {
+	flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
+      }
+      if (savePDandCinCalo && 0 == flag 
+	  && isThisVolume(aTrack->GetTouchable(),calo)) {
+	flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
+      }
+      if (savePDandCinMuon && 0 == flag 
+	  && isThisVolume(aTrack->GetTouchable(),muon)) {
+	flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
+      }
+
+      // Russian roulette
+      if(2112 == pdg || 22 == pdg || 2212 == pdg) {
+	double currentWeight = aTrack->GetWeight();
+
+	if(1.0 >= currentWeight) {
+	  double prob = 1.0;
+	  double elim = 0.0;
+
+	  // neutron
+	  if(nRRactive && pdg == 2112) {
+	    elim = nRusRoEnerLim;
+	    G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
+	    if(reg == regionEcal)             { prob = nRusRoEcal; }
+	    else if(reg == regionHcal)        { prob = nRusRoHcal; }
+	    else if(reg == regionMuonIron)    { prob = nRusRoMuonIron; }
+	    else if(reg == regionPreShower)   { prob = nRusRoPreShower; }
+	    else if(reg == regionCastor)      { prob = nRusRoCastor; }
+	    else if(reg == regionWorld)       { prob = nRusRoWorld; }
+
+	    // gamma
+	  } else if(gRRactive && pdg == 22) {
+	    elim = gRusRoEnerLim;
+
+	    G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
+	    if(reg == regionEcal || reg == regionPreShower) {
+              if(rrApplicable(aTrack, *mother)) {
+		if(reg == regionEcal)         { prob = gRusRoEcal; }
+                else                          { prob = gRusRoPreShower; }
+	      }
+	    } else {
+	      if(reg == regionHcal)           { prob = gRusRoHcal; }
+	      else if(reg == regionMuonIron)  { prob = gRusRoMuonIron; }
+	      else if(reg == regionCastor)    { prob = gRusRoCastor; }
+	      else if(reg == regionWorld)     { prob = gRusRoWorld; }
+	    }
+
+	    // proton
+	  } else if(pRRactive && pdg == 2212) {
+	    elim = pRusRoEnerLim;
+	    G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
+	    if(reg == regionEcal)             { prob = pRusRoEcal; }
+	    else if(reg == regionHcal)        { prob = pRusRoHcal; }
+	    else if(reg == regionMuonIron)    { prob = pRusRoMuonIron; }
+	    else if(reg == regionPreShower)   { prob = pRusRoPreShower; }
+	    else if(reg == regionCastor)      { prob = pRusRoCastor; }
+	    else if(reg == regionWorld)       { prob = pRusRoWorld; }
+	  }
+	  if(prob < 1.0 && aTrack->GetKineticEnergy() < elim) {
+	    if(G4UniformRand() < prob) {
+	      const_cast<G4Track*>(aTrack)->SetWeight(currentWeight/prob);
+	    } else {
+	      classification = fKill;
+	    }
+	  }
+	}
+      }
+	
+      if(classification != fKill && killInCaloEfH) {
 	int pdgMother = mother->GetDefinition()->GetPDGEncoding();
 	if ( (pdg == 22 || std::abs(pdg) == 11) && 
 	     (std::abs(pdgMother) < 11 || std::abs(pdgMother) > 17) && 
@@ -284,14 +308,8 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	  }
 	}
       }
-
+      
       if (classification != fKill) {
-	if ((savePDandCinTracker && isThisVolume(aTrack->GetTouchable(),tracker))||
-	    (savePDandCinCalo && isThisVolume(aTrack->GetTouchable(),calo)) ||
-	    (savePDandCinMuon && isThisVolume(aTrack->GetTouchable(),muon))) {
-	  flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
-	}
-	if (saveFirstSecondary) { flag = isItFromPrimary(*mother, flag); }
 	newTA->secondary(aTrack, *mother, flag);
       }
     }
@@ -431,8 +449,8 @@ void StackingAction::initPointer() {
 }
 
 bool StackingAction::isThisVolume(const G4VTouchable* touch, 
-				  std::vector<G4LogicalVolume*> & lvs) const {
-
+				  std::vector<G4LogicalVolume*> & lvs) const 
+{
   bool flag = false;
   if (lvs.size() > 0 && touch !=0) {
     int level = ((touch->GetHistoryDepth())+1);
@@ -445,9 +463,8 @@ bool StackingAction::isThisVolume(const G4VTouchable* touch,
   return flag;
 }
 
-int 
-StackingAction::isItPrimaryDecayProductOrConversion(const G4Track * aTrack,
-						    const G4Track & mother) const 
+int StackingAction::isItPrimaryDecayProductOrConversion(const G4Track * aTrack,
+							const G4Track & mother) const
 {
   int flag = 0;
   TrackInformationExtractor extractor;
@@ -458,20 +475,38 @@ StackingAction::isItPrimaryDecayProductOrConversion(const G4Track * aTrack,
       flag = 1;
     } else if (aTrack->GetCreatorProcess()->GetProcessSubType()==fGammaConversion) {
       flag = 2;
-    }
-  }
-  // what about forced decay?
+    } else {
+      flag = 3;
+    } 
+  }   
   return flag;
 }
 
-int StackingAction::isItFromPrimary(const G4Track & mother, int flagIn) const 
+bool StackingAction::rrApplicable(const G4Track * aTrack,
+				  const G4Track & mother) const
 {
-  int flag = flagIn;
-  if (flag != 1) {
-    TrackInformationExtractor extractor;
-    const TrackInformation & motherInfo(extractor(mother));
-    if (motherInfo.isPrimary()) { flag = 3; }
-  }
+  bool flag = true;
+  TrackInformationExtractor extractor;
+  const TrackInformation & motherInfo(extractor(mother));
+  // Check whether mother is a primary
+  //if (motherInfo.isPrimary()) {
+  // }   
+  int genID = motherInfo.genParticlePID();
+  if(22 == genID || 11 == genID || -11 == genID) { flag = false; }
+    
+  /*
+  //check if the primary was g, e+, e-
+  int genID = motherInfo.genParticlePID();
+  double genp = motherInfo.genParticleP();
+  std::cout << "Track# " << aTrack->GetTrackID() << "  " 
+	    << aTrack->GetDefinition()->GetParticleName()  
+	    << "  E(MeV)= " << aTrack->GetKineticEnergy()/MeV 
+	    << " mother: " << mother.GetTrackID()
+	    << "  " << mother.GetDefinition()->GetParticleName()
+	    << " E(GeV)= " <<  mother.GetKineticEnergy()/GeV
+	    << " flag: " << flag << " genID= " << genID 
+	    << " p(GeV)= " << genp/GeV << std::endl; 
+    */
   return flag;
 }
 

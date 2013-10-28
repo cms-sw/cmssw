@@ -77,7 +77,7 @@ namespace edm {
       virtual void endJob() override;
       //      std::string type_;
       int bunchSpace_;
-      static int vertexoffset;
+      int vertexOffset_;
       bool checktof_;
       int minBunch_;
       int maxBunch_;

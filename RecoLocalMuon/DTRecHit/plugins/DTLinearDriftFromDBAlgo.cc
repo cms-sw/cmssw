@@ -240,11 +240,3 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
     return false;
   }
 }
-
-float DTLinearDriftFromDBAlgo::minTime;
-
-  
-float DTLinearDriftFromDBAlgo::maxTime;
-
-  
-bool DTLinearDriftFromDBAlgo::debug;
