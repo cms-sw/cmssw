@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimGeneral.MixingModule.digitizers_cfi import theDigitizersValid
-
 def customize(process):
 
     process.mix.mixObjects.mixCH.crossingFrames = cms.untracked.vstring(
