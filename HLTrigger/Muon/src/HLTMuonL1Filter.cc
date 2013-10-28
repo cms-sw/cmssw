@@ -39,9 +39,7 @@ HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) : HLTFilter(i
   minN_( iConfig.getParameter<int>("MinN") ),
   excludeSingleSegmentCSC_( iConfig.getParameter<bool>("ExcludeSingleSegmentCSC") ),
   csctfTag_( iConfig.getParameter<edm::InputTag>("CSCTFtag") ),
-  csctfToken_(consumes<L1CSCTrackCollection>(csctfTag_)),
-  l1MuTriggerScales_(0),
-  m_scalesCacheID_(0)
+  csctfToken_(excludeSingleSegmentCSC_ ? consumes<L1CSCTrackCollection>(csctfTag_) : edm::EDGetTokenT<L1CSCTrackCollection>{})
 {
   using namespace std;
 
@@ -121,19 +119,19 @@ bool HLTMuonL1Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(candToken_, allMuons);
 
   /// handle for CSCTFtracks
-  edm::Handle<L1CSCTrackCollection> csctfTracks;
+  const L1CSCTrackCollection * csctfTracks = nullptr;
+  const L1MuTriggerScales * l1MuTriggerScales = nullptr;
 
   // get hold of CSCTF raw tracks
   if( excludeSingleSegmentCSC_ ) {
-    iEvent.getByToken(csctfToken_, csctfTracks);
-    // update scales if necessary
-    if( iSetup.get<L1MuTriggerScalesRcd>().cacheIdentifier() != m_scalesCacheID_ ){
-      LogDebug("HLTMuonL1Filter")<<"Changing trigger scales";
-      ESHandle<L1MuTriggerScales> scales;
-      iSetup.get<L1MuTriggerScalesRcd>().get(scales);
-      l1MuTriggerScales_ = scales.product();
-      m_scalesCacheID_  = iSetup.get<L1MuTriggerScalesRcd>().cacheIdentifier();
-    }
+    edm::Handle<L1CSCTrackCollection> csctfTracksHandle;
+    iEvent.getByToken(csctfToken_, csctfTracksHandle);
+    csctfTracks = csctfTracksHandle.product();
+
+    // read scales for every event (fast, no need to cache this)
+    ESHandle<L1MuTriggerScales> scales;
+    iSetup.get<L1MuTriggerScalesRcd>().get(scales);
+    l1MuTriggerScales = scales.product();
   }
 
   // get hold of muons that fired the previous level
@@ -163,7 +161,7 @@ bool HLTMuonL1Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 
     // reject single-segment CSC objects if necessary
-    if (excludeSingleSegmentCSC_ && isSingleSegmentCSC(muon, * csctfTracks)) continue;
+    if (excludeSingleSegmentCSC_ and isSingleSegmentCSC(muon, * csctfTracks, * l1MuTriggerScales)) continue;
 
     //we have a good candidate
     n++;
@@ -189,7 +187,7 @@ bool HLTMuonL1Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
       int quality = mu->gmtMuonCand().empty() ? 0 : mu->gmtMuonCand().quality();
       bool isPrev = find(prevMuons.begin(), prevMuons.end(), mu) != prevMuons.end();
       bool isFired = find(firedMuons.begin(), firedMuons.end(), mu) != firedMuons.end();
-      bool isSingleCSC = excludeSingleSegmentCSC_ and isSingleSegmentCSC(mu, * csctfTracks);
+      bool isSingleCSC = excludeSingleSegmentCSC_ and isSingleSegmentCSC(mu, * csctfTracks, * l1MuTriggerScales);
       ss<<i<<'\t'<<scientific<<mu->charge()*mu->pt()<<'\t'<<fixed<<mu->eta()<<'\t'<<mu->phi()<<'\t'<<quality<<'\t'<<isPrev<<'\t'<<isFired<<'\t'<<isSingleCSC<<endl;
     }
     ss<<"--------------------------------------------------------------------------"<<endl;
@@ -199,7 +197,7 @@ bool HLTMuonL1Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
   return accept;
 }
 
-bool HLTMuonL1Filter::isSingleSegmentCSC(const l1extra::L1MuonParticleRef & muon, L1CSCTrackCollection const & csctfTracks) const {
+bool HLTMuonL1Filter::isSingleSegmentCSC(l1extra::L1MuonParticleRef const & muon, L1CSCTrackCollection const & csctfTracks, L1MuTriggerScales const & l1MuTriggerScales) const {
   // is the muon matching a csctf track?
   //bool matched   = false;     // unused
   // which csctf track mode?
@@ -218,8 +216,8 @@ bool HLTMuonL1Filter::isSingleSegmentCSC(const l1extra::L1MuonParticleRef & muon
 
     //... in radians
     // Type 2 is CSC
-    float trEtaScale = l1MuTriggerScales_->getRegionalEtaScale(2)->getCenter(trk->first.eta_packed());
-    float trPhiScale = l1MuTriggerScales_->getPhiScale()->getLowEdge(trk->first.localPhi());
+    float trEtaScale = l1MuTriggerScales.getRegionalEtaScale(2)->getCenter(trk->first.eta_packed());
+    float trPhiScale = l1MuTriggerScales.getPhiScale()->getLowEdge(trk->first.localPhi());
 
     double trEta = trEtaScale * trEndcap;
     // there is no L1ExtraParticle below -2.375
