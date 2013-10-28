@@ -160,7 +160,7 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
   // Calculate the drift distance and the resolution from the parametrization
   
   DTTime2DriftParametrization::drift_distance DX;
-  static DTTime2DriftParametrization par;
+  static const DTTime2DriftParametrization par;
 
   bool parStatus =
     par.computeDriftDistance_mean(driftTime, angle, By, Bz, interpolate, &DX);
@@ -365,15 +365,3 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
     return false;
   }
 }
-
-
-bool DTParametrizedDriftAlgo::interpolate;
-
-
-float DTParametrizedDriftAlgo::minTime;
-
-  
-float DTParametrizedDriftAlgo::maxTime;
-
-  
-bool DTParametrizedDriftAlgo::debug;

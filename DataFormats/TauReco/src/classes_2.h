@@ -28,7 +28,7 @@
 #include <map>
 
 namespace {
-  struct dictionary {
+  struct dictionary2 {
 
     std::vector<reco::PFTau>                                    pft_v;
     edm::Wrapper<std::vector<reco::PFTau> >                     pft_w;

@@ -18,14 +18,14 @@ namespace edm {
   public:
     ~DigiAccumulatorMixModFactory();
 
-    static DigiAccumulatorMixModFactory* get();
+    static DigiAccumulatorMixModFactory const* get();
 
     std::auto_ptr<DigiAccumulatorMixMod>
       makeDigiAccumulator(ParameterSet const&, one::EDProducerBase&, ConsumesCollector&) const;
 
   private:
     DigiAccumulatorMixModFactory();
-    static DigiAccumulatorMixModFactory singleInstance_;
+    static DigiAccumulatorMixModFactory const singleInstance_;
   };
 }
 

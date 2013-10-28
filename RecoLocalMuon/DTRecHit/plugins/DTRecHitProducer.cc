@@ -95,8 +95,3 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
   event.put(recHitCollection);
 }
-
-
-
-bool
-DTRecHitProducer::debug;

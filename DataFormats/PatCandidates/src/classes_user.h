@@ -11,7 +11,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 namespace {
-  struct dictionary {
+  struct dictionaryuser {
 
   /*   UserData: Core   */
   pat::UserDataCollection	         ov_p_ud;

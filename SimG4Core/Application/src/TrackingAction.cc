@@ -96,8 +96,9 @@ void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
 #endif
     }
 
-    bool withAncestor = ((extractor(aTrack).getIDonCaloSurface() == aTrack->GetTrackID()) 
-			 || (extractor(aTrack).isAncestor()));
+    bool withAncestor = 
+      ((extractor(aTrack).getIDonCaloSurface() == aTrack->GetTrackID()) 
+       || (extractor(aTrack).isAncestor()));
 
     if (extractor(aTrack).isInHistory()) {
 
@@ -109,7 +110,8 @@ void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
       math::XYZVectorD pos((aTrack->GetStep()->GetPostStepPoint()->GetPosition()).x(),
 			   (aTrack->GetStep()->GetPostStepPoint()->GetPosition()).y(),
 			   (aTrack->GetStep()->GetPostStepPoint()->GetPosition()).z());
-      LogDebug("SimTrackManager") << "TrackingAction addTrack "  << currentTrack_->trackID() 
+      LogDebug("SimTrackManager") << "TrackingAction addTrack "  
+				  << currentTrack_->trackID() 
 				  << " added with " << true << " and " << withAncestor 
 				  << " at " << pos;
 #endif

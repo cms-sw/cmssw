@@ -18,7 +18,7 @@
 #include "DataFormats/PatCandidates/interface/Conversion.h"
 
 namespace {
-  struct dictionary {
+  struct dictionaryobjects {
 
   /*   PAT Object Collection Iterators   */
   std::vector<pat::Electron>::const_iterator	    v_p_e_ci;

@@ -233,18 +233,3 @@ bool DTNoDriftAlgo::compute(const DTLayer* layer,
     return false;
   }
 }
-
-
-float DTNoDriftAlgo::fixedDrift;
-
-  
-float DTNoDriftAlgo::hitResolution;
-
-  
-float DTNoDriftAlgo::minTime;
-
-  
-float DTNoDriftAlgo::maxTime;
-
-  
-bool DTNoDriftAlgo::debug;

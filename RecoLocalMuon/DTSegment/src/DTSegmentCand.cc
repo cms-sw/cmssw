@@ -16,8 +16,8 @@
 /* C++ Headers */
 
 /* ====================================================================== */
-double DTSegmentCand::chi2max=20.; // to be tuned!!
-unsigned int DTSegmentCand::nHitsMin=3; // to be tuned!!
+const double DTSegmentCand::chi2max=20.; // to be tuned!!
+const unsigned int DTSegmentCand::nHitsMin=3; // to be tuned!!
 
 /// Constructor
 DTSegmentCand::DTSegmentCand(AssPointCont& hits,
