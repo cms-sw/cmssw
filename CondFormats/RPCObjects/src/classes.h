@@ -32,7 +32,7 @@
 #include "CondFormats/RPCObjects/interface/RPCObGasMix.h"
 #include "CondFormats/RPCObjects/interface/RPCObGasHum.h"
 
-namespace{
+namespace CondFormats_RPCObjects {
   struct dictionary {
     std::vector<ChamberStripSpec> theStrips;
  

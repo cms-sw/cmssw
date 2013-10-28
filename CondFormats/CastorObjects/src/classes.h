@@ -13,7 +13,7 @@
 #include "CondFormats/CastorObjects/interface/CastorSaturationCorr.h"
 #include "CondFormats/CastorObjects/interface/CastorSaturationCorrs.h"
 
-namespace {
+namespace CondFormats_CastorObjects {
   struct dictionary {
     CastorPedestals mypeds;
     std::vector<CastorPedestal> mypedsVec;

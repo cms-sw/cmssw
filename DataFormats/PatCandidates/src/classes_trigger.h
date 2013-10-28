@@ -8,7 +8,7 @@
 #include <iterator>
 #include <vector>
 
-namespace {
+namespace DataFormats_PatCandidates {
   struct dictionarytrigger {
 
   pat::TriggerObjectCollection v_p_to;

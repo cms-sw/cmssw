@@ -6,7 +6,7 @@
 #include <vector>
 #include <map>
 
-namespace{ 
+namespace DataFormats_DTDigi {
   struct dictionary {
 
   DTDigi d;

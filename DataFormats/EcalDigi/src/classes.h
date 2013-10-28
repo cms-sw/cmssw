@@ -1,7 +1,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace DataFormats_EcalDigi {
   struct dictionary {
     std::vector<EcalMGPASample> vMGPA_;
     std::vector<EcalFEMSample> vFEM_;

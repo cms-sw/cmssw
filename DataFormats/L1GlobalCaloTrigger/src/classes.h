@@ -6,7 +6,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-namespace {
+namespace DataFormats_L1GlobalCaloTrigger {
   struct dictionary {
     // internal collections
     L1GctInternEmCandCollection internEmColl;

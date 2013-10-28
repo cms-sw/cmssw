@@ -17,7 +17,7 @@
 
 #include "DataFormats/PatCandidates/interface/CandKinResolution.h"
 
-namespace {
+namespace DataFormats_PatCandidates {
   struct dictionaryother {
 
   std::pair<std::string, std::vector<float> > jcfcf;

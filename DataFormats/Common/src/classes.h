@@ -29,7 +29,7 @@
 
 #include <vector>
 
-namespace {
+namespace DataFormats_Common {
   struct dictionary {
     edm::Wrapper<edm::DataFrameContainer> dummywdfc;
     edm::Wrapper<edm::HLTPathStatus> dummyx16;

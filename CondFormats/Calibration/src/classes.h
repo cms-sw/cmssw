@@ -15,7 +15,7 @@
 #include "CondFormats/Calibration/interface/Conf.h"
 #include "CondFormats/Calibration/interface/big.h"
 
-namespace {
+namespace CondFormats_Calibration {
   struct dictionary {
     fixedArray<unsigned short,2097> d;
     std::map<std::string, Algo> e;

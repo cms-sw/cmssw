@@ -21,7 +21,7 @@
 #include "TString.h"
 #include <stdint.h>
 
-namespace {
+namespace DataFormats_Histograms {
   struct dictionary {
     edm::Wrapper<TH1C> dummy1C;
     edm::Wrapper<TH1D> dummy1D;

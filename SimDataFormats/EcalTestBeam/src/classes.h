@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 
-namespace {
+namespace SimDataFormats_EcalTestBeam {
   struct dictionary {
     PEcalTBInfo                 theInfo;
     edm::Wrapper<PEcalTBInfo>   theEcalTBInfo;

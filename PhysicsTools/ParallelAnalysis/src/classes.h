@@ -1,6 +1,6 @@
 #include "PhysicsTools/ParallelAnalysis/interface/TrackTSelector.h"
 
-namespace {
+namespace PhysicsTools_ParallelAnalysis {
   struct dictionary {
   };
 }

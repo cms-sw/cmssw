@@ -7,7 +7,7 @@
 #include <map>
 #include "DataFormats/Common/interface/LazyGetter.h"
 
-namespace {
+namespace DataFormats_SiStripCluster {
   struct dictionary {
     edm::Wrapper<SiStripClusterCollection> siStripClusterCollectionWrapper;
   };
@@ -18,7 +18,7 @@ namespace {
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
-namespace {
+namespace DataFormats_SiStripCluster {
   struct dictionary2 {
     edm::Wrapper< SiStripCluster > dummy0;
     edm::Wrapper< std::vector<SiStripCluster>  > dummy1;
@@ -47,7 +47,7 @@ namespace {
 
 #include "boost/cstdint.hpp" 
 #include "DataFormats/Common/interface/RefGetter.h"
-namespace {
+namespace DataFormats_SiStripCluster {
   struct dictionary3 {
 
     edm::Wrapper< edm::RegionIndex<SiStripCluster> > dummy7;

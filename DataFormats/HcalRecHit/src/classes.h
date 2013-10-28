@@ -17,7 +17,7 @@
 #include "DataFormats/Common/interface/Holder.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
-namespace {
+namespace DataFormats_HcalRecHit {
   struct dictionary {
     std::vector<HBHERecHit> vHBHE_;
     std::vector<HORecHit> vHO_;

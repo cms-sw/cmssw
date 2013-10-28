@@ -6,7 +6,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include <vector>
 
-namespace {
+namespace DataFormats_SiPixelRawData {
   struct dictionary {
     std::vector<SiPixelRawDataError> err0;
     std::map<int, std::vector<SiPixelRawDataError> > err1;
