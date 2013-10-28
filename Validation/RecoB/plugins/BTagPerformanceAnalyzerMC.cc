@@ -39,8 +39,6 @@ BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet& pS
   finalize(pSet.getParameter< bool >("finalizePlots")),
   finalizeOnly(pSet.getParameter< bool >("finalizeOnly")),
   ptHatWeight(pSet.getParameter< bool >("applyPtHatWeight")),
-  //jetMCSrc(pSet.getParameter<edm::InputTag>("jetMCSrc")),
-  //slInfoTag(pSet.getParameter<edm::InputTag>("softLeptonInfo")),
   moduleConfig(pSet.getParameter< vector<edm::ParameterSet> >("tagConfig")),
   flavPlots_(pSet.getParameter< std::string >("flavPlots")),
   makeDiffPlots_(pSet.getParameter< bool >("differentialPlots")),
@@ -66,7 +64,6 @@ BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet& pS
     default: electronPlots = false; muonPlots = false; tauPlots = false;
   }
   
-  //add consumes
   genToken = mayConsume<GenEventInfoProduct>(edm::InputTag("generator"));
   jetToken = consumes<JetFlavourMatchingCollection>(pSet.getParameter<InputTag>("jetMCSrc"));
   slInfoToken = consumes<SoftLeptonTagInfoCollection>(pSet.getParameter<InputTag>("softLeptonInfo"));
@@ -317,8 +314,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
     /* APPLY PTHAT EVENT  WEIGHT */
 
     edm::Handle<GenEventInfoProduct> genInfoHandle;
-    //iEvent.getByLabel("generator", genInfoHandle);
-    iEvent.getByToken(genToken, genInfoHandle); //consume
+    iEvent.getByToken(genToken, genInfoHandle);
 
     if( genInfoHandle.isValid() ) {
       weight = weight*static_cast<float>(genInfoHandle->weight());
@@ -334,8 +330,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
   FlavourMap flavours;
   LeptonMap leptons;
 
-  //iEvent.getByLabel(jetMCSrc, jetMC);
-  iEvent.getByToken(jetToken, jetMC); //consume
+  iEvent.getByToken(jetToken, jetMC); 
   for (JetFlavourMatchingCollection::const_iterator iter = jetMC->begin();
        iter != jetMC->end(); ++iter) {
     unsigned int fl = std::abs(iter->second.getFlavour());
@@ -345,14 +340,12 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
   }
 
   edm::Handle<reco::SoftLeptonTagInfoCollection> infoHandle;
-  //iEvent.getByLabel(slInfoTag, infoHandle);
-  iEvent.getByToken(slInfoToken, infoHandle); //consume
+  iEvent.getByToken(slInfoToken, infoHandle);
 
 // Look first at the jetTags
   for (unsigned int iJetLabel = 0; iJetLabel != jetTagInputTags.size(); ++iJetLabel) {
     edm::Handle<reco::JetTagCollection> tagHandle;
-    //iEvent.getByLabel(jetTagInputTags[iJetLabel], tagHandle);
-    iEvent.getByToken(jetTagToken[iJetLabel], tagHandle); //consume
+    iEvent.getByToken(jetTagToken[iJetLabel], tagHandle); 
     const reco::JetTagCollection & tagColl = *(tagHandle.product());
     LogDebug("Info") << "Found " << tagColl.size() << " B candidates in collection " << jetTagInputTags[iJetLabel];
 
@@ -393,16 +386,13 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
 
 // Now look at Tag Correlations
   for (unsigned int iJetLabel = 0; iJetLabel != tagCorrelationInputTags.size(); ++iJetLabel) {
-    //const std::pair<edm::InputTag, edm::InputTag>& inputTags = tagCorrelationInputTags[iJetLabel];
-    const std::pair< edm::EDGetTokenT<reco::JetTagCollection>, edm::EDGetTokenT<reco::JetTagCollection> >& inputTokens = tagCorrelationToken[iJetLabel]; //consume
+    const std::pair< edm::EDGetTokenT<reco::JetTagCollection>, edm::EDGetTokenT<reco::JetTagCollection> >& inputTokens = tagCorrelationToken[iJetLabel];
     edm::Handle<reco::JetTagCollection> tagHandle1;
-    //iEvent.getByLabel(inputTags.first, tagHandle1);
-    iEvent.getByToken(inputTokens.first, tagHandle1); //consume
+    iEvent.getByToken(inputTokens.first, tagHandle1); 
     const reco::JetTagCollection& tagColl1 = *(tagHandle1.product());
 
     edm::Handle<reco::JetTagCollection> tagHandle2;
-    //iEvent.getByLabel(inputTags.second, tagHandle2);
-    iEvent.getByToken(inputTokens.second, tagHandle2); //consume
+    iEvent.getByToken(inputTokens.second, tagHandle2);
     const reco::JetTagCollection& tagColl2 = *(tagHandle2.product());
 
     int plotterSize = binTagCorrelationPlotters[iJetLabel].size();
@@ -469,8 +459,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
     if(nInputTags!=tokens.size()) throw cms::Exception("Configuration") << "Different number of Tag Infos than expected" << endl;
     for (unsigned int iInputTags = 0; iInputTags < tokens.size(); ++iInputTags) {
       edm::Handle< View<BaseTagInfo> > & tagInfoHandle = tagInfoHandles[iInputTags];
-      //iEvent.getByLabel(inputTags[iInputTags], tagInfoHandle);
-      iEvent.getByToken(tokens[iInputTags], tagInfoHandle); //consume
+      iEvent.getByToken(tokens[iInputTags], tagInfoHandle); 
       unsigned int size = tagInfoHandle->size();
       LogDebug("Info") << "Found " << size << " B candidates in collection " << inputTags[iInputTags];
 

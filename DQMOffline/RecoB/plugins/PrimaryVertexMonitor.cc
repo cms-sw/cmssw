@@ -13,8 +13,6 @@ using namespace edm;
 
 PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
 {
-  //moduleLabel = pSet.getParameter<InputTag>("vertexLabel");
-  //beamSpotLabel = pSet.getParameter<InputTag>("beamSpotLabel");
   vtxToken = consumes<reco::VertexCollection>(pSet.getParameter<InputTag>("vertexLabel"));
   bsToken = consumes<reco::BeamSpot>(pSet.getParameter<InputTag>("beamSpotLabel"));
   //
@@ -99,12 +97,10 @@ PrimaryVertexMonitor::~PrimaryVertexMonitor()
 void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   Handle<reco::VertexCollection> recVtxs;
-  //iEvent.getByLabel(moduleLabel, recVtxs);
-  iEvent.getByToken(vtxToken, recVtxs); //consume
+  iEvent.getByToken(vtxToken, recVtxs); 
 
   edm::Handle<reco::BeamSpot> beamSpotHandle;
-  //iEvent.getByLabel(beamSpotLabel,beamSpotHandle);
-  iEvent.getByToken(bsToken, beamSpotHandle); //consume
+  iEvent.getByToken(bsToken, beamSpotHandle);
 
   //
   // check for absent products and simply "return" in that case
