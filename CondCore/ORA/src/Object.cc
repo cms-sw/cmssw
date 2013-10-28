@@ -60,6 +60,10 @@ void* ora::Object::cast( const std::type_info& typeInfo ) const{
   return ClassUtils::upCast( m_type, m_ptr, castType );
 }
 
+boost::shared_ptr<void> ora::Object::makeShared() const {
+  return boost::shared_ptr<void>( m_ptr, RflxDeleter( m_type ) );
+}
+
 void ora::Object::destruct() {
   if( ! m_type ){
     throwException( "Object input class has not been found in the dictionary.",

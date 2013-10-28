@@ -19,7 +19,8 @@ namespace cond {
     class CondGetter {
     public:
       virtual ~CondGetter(){}
-      virtual IOVProxy get(std::string name) const=0;
+      //virtual IOVProxy get(std::string name) const=0;
+      virtual std::string getTag(std::string name) const=0;
       
     };
     
@@ -74,11 +75,11 @@ namespace cond {
     class PayloadProxy : public BasePayloadProxy {
     public:
       
-      explicit PayloadProxy( Session& session ) :
+      PayloadProxy( Session& session, const char * source=0 ) :
 	BasePayloadProxy( session ) {}
       
-      PayloadProxy( Session& session, const std::string& tag ) :
-	BasePayloadProxy(session, tag ) {}
+      //PayloadProxy( Session& session, const std::string& tag ) :
+      //	BasePayloadProxy(session, tag ) {}
       
       virtual ~PayloadProxy(){}
       
