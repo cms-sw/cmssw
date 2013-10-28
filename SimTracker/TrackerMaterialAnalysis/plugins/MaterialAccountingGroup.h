@@ -181,7 +181,7 @@ private:
   mutable TFile * m_file;
 
   // 100um should be small enough that no elements from different layers/groups are so close
-  static double s_tolerance;
+  static double const s_tolerance;
 };
 
 #endif // MaterialAccountingGroup_h
