@@ -21,7 +21,7 @@
 #include "getopt.h"
 #include <map>
 #include <iostream>
-#include "string.h"
+#include <cstring>
 #include <sstream>
 #include <unistd.h>
 #include <iomanip>
