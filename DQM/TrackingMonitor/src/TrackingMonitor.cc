@@ -20,10 +20,10 @@
 #include "DQM/TrackingMonitor/interface/TrackingMonitor.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -34,10 +34,10 @@
 
 #include <string>
 
-// TrackingMonitor 
+// TrackingMonitor
 // ----------------------------------------------------------------------------------//
 
-TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig) 
+TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     : dqmStore_( edm::Service<DQMStore>().operator->() )
     , conf_ ( iConfig )
     , theTrackBuildingAnalyzer( new TrackBuildingAnalyzer(conf_) )
@@ -83,7 +83,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , doHitPropertiesPlots_    ( conf_.getParameter<bool>("doHitPropertiesPlots"))
     , doGoodTrackPlots_        ( conf_.getParameter<bool>("doGoodTrackPlots") )
     , doPUmonitoring_          ( conf_.getParameter<bool>("doPUmonitoring") )
-    , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig))
+    , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig, consumesCollector()))
 {
 
   edm::ConsumesCollector c{ consumesCollector() };
@@ -99,7 +99,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   edm::InputTag tcProducer     = conf_.getParameter<edm::InputTag>("TCProducer");
   edm::InputTag seedProducer   = conf_.getParameter<edm::InputTag>("SeedProducer");
   trackToken_          = consumes<reco::TrackCollection>(trackProducer);
-  trackCandidateToken_ = consumes<TrackCandidateCollection>(tcProducer); 
+  trackCandidateToken_ = consumes<TrackCandidateCollection>(tcProducer);
   seedToken_           = consumes<edm::View<TrajectorySeed> >(seedProducer);
 
   edm::InputTag stripClusterInputTag_ = conf_.getParameter<edm::InputTag>("stripCluster");
@@ -111,7 +111,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   AlgoName_ = conf_.getParameter<std::string>("AlgoName");
 
 
-  
+
 
   if ( doPUmonitoring_ ) {
 
@@ -121,7 +121,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
 
     if ( doPlotsVsBXlumi_ )
       theLumiDetails_ = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), c );
-    
+
     std::vector<edm::InputTag> primaryVertexInputTags    = conf_.getParameter<std::vector<edm::InputTag> >("primaryVertexInputTags");
     std::vector<edm::InputTag> selPrimaryVertexInputTags = conf_.getParameter<std::vector<edm::InputTag> >("selPrimaryVertexInputTags");
     std::vector<std::string>   pvLabels                  = conf_.getParameter<std::vector<std::string> >  ("pvLabels");
@@ -132,7 +132,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
 	edm::InputTag iPVinputTag    = primaryVertexInputTags[i];
 	edm::InputTag iSelPVinputTag = selPrimaryVertexInputTags[i];
 	std::string   iPVlabel       = pvLabels[i];
-	
+
 	theVertexMonitor.push_back(new VertexMonitor(conf_,iPVinputTag,iSelPVinputTag,iPVlabel,c) );
       }
     }
@@ -141,7 +141,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
 }
 
 
-TrackingMonitor::~TrackingMonitor() 
+TrackingMonitor::~TrackingMonitor()
 {
   if (theTrackAnalyzer)          delete theTrackAnalyzer;
   if (theTrackBuildingAnalyzer)  delete theTrackBuildingAnalyzer;
@@ -152,18 +152,18 @@ TrackingMonitor::~TrackingMonitor()
 }
 
 
-void TrackingMonitor::beginJob(void) 
+void TrackingMonitor::beginJob(void)
 {
 
     // parameters from the configuration
     std::string Quality      = conf_.getParameter<std::string>("Quality");
     std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
-    std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
+    std::string MEFolderName = conf_.getParameter<std::string>("FolderName");
 
     // test for the Quality veriable validity
     if( Quality_ != "")
     {
-        if( Quality_ != "highPurity" && Quality_ != "tight" && Quality_ != "loose") 
+        if( Quality_ != "highPurity" && Quality_ != "tight" && Quality_ != "loose")
         {
             edm::LogWarning("TrackingMonitor")  << "Qualty Name is invalid, using no quality criterea by default";
             Quality_ = "";
@@ -218,7 +218,7 @@ void TrackingMonitor::beginJob(void)
     // ---------------------------------------------------------------------------------//
 
     if (doGeneralPropertiesPlots_ || doAllPlots){
-     
+
       dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
 
       histname = "NumberOfTracks_" + CategoryName;
@@ -227,24 +227,24 @@ void TrackingMonitor::beginJob(void)
       NumberOfTracks = dqmStore_->book1D(histname, histname, 3*TKNoBin, TKNoMin, (TKNoMax+0.5)*3.-0.5);
       NumberOfTracks->setAxisTitle("Number of Tracks per Event", 1);
       NumberOfTracks->setAxisTitle("Number of Events", 2);
-      
+
       histname = "NumberOfMeanRecHitsPerTrack_" + CategoryName;
       NumberOfMeanRecHitsPerTrack = dqmStore_->book1D(histname, histname, MeanHitBin, MeanHitMin, MeanHitMax);
       NumberOfMeanRecHitsPerTrack->setAxisTitle("Mean number of found RecHits per Track", 1);
       NumberOfMeanRecHitsPerTrack->setAxisTitle("Entries", 2);
-      
+
       histname = "NumberOfMeanLayersPerTrack_" + CategoryName;
       NumberOfMeanLayersPerTrack = dqmStore_->book1D(histname, histname, MeanLayBin, MeanLayMin, MeanLayMax);
       NumberOfMeanLayersPerTrack->setAxisTitle("Mean number of Layers per Track", 1);
       NumberOfMeanLayersPerTrack->setAxisTitle("Entries", 2);
-      
+
       dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties/GoodTracks");
 
       histname = "NumberOfGoodTracks_" + CategoryName;
       NumberOfGoodTracks = dqmStore_->book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
       NumberOfGoodTracks->setAxisTitle("Number of Good Tracks per Event", 1);
       NumberOfGoodTracks->setAxisTitle("Number of Events", 2);
-      
+
       histname = "FractionOfGoodTracks_" + CategoryName;
       FractionOfGoodTracks = dqmStore_->book1D(histname, histname, 101, -0.005, 1.005);
       FractionOfGoodTracks->setAxisTitle("Fraction of High Purity Tracks (Tracks with Pt>1GeV)", 1);
@@ -266,13 +266,13 @@ void TrackingMonitor::beginJob(void)
 	NumberOfGoodTracks_lumiFlag->setAxisTitle("Number of Good Tracks per Event", 1);
 	NumberOfGoodTracks_lumiFlag->setAxisTitle("Number of Events", 2);
       }
-      
+
     }
 
-    // book profile plots vs LS :  
-    //---------------------------  
-   
- 
+    // book profile plots vs LS :
+    //---------------------------
+
+
     if ( doProfilesVsLS_ || doAllPlots) {
 
       dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
@@ -291,13 +291,13 @@ void TrackingMonitor::beginJob(void)
 	NumberOfGoodTracksVsLS->getTH1()->SetBit(TH1::kCanRebin);
 	NumberOfGoodTracksVsLS->setAxisTitle("#Lumi section",1);
 	NumberOfGoodTracksVsLS->setAxisTitle("Number of Good Tracks",2);
-	
+
 	histname = "GoodTracksFractionVsLS_"+ CategoryName;
 	GoodTracksFractionVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax,0,1.1,"");
 	GoodTracksFractionVsLS->getTH1()->SetBit(TH1::kCanRebin);
 	GoodTracksFractionVsLS->setAxisTitle("#Lumi section",1);
 	GoodTracksFractionVsLS->setAxisTitle("Fraction of Good Tracks",2);
-	
+
 	histname = "GoodTracksNumberOfRecHitsPerTrackVsLS_" + CategoryName;
 	GoodTracksNumberOfRecHitsPerTrackVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax,0.,40.,"");
 	GoodTracksNumberOfRecHitsPerTrackVsLS->getTH1()->SetBit(TH1::kCanRebin);
@@ -306,16 +306,16 @@ void TrackingMonitor::beginJob(void)
       }
     }
 
-    // book PU monitoring plots :  
-    //---------------------------  
-   
+    // book PU monitoring plots :
+    //---------------------------
+
     if ( doPUmonitoring_ ) {
 
       for (size_t i=0; i<theVertexMonitor.size(); i++)
 	theVertexMonitor[i]->beginJob(dqmStore_);
 
       dqmStore_->setCurrentFolder(MEFolderName+"/PUmonitoring");
-      
+
       if ( doPlotsVsGoodPVtx_ ) {
 	// get binning from the configuration
 	int    GoodPVtxBin   = conf_.getParameter<int>("GoodPVtxBin");
@@ -327,7 +327,7 @@ void TrackingMonitor::beginJob(void)
 	NumberOfTracksVsGoodPVtx->getTH1()->SetBit(TH1::kCanRebin);
 	NumberOfTracksVsGoodPVtx->setAxisTitle("Number of PV",1);
 	NumberOfTracksVsGoodPVtx->setAxisTitle("Mean number of Tracks per Event",2);
-      
+
 	histname = "NumberOfGoodTracksVsGoodPVtx";
 	NumberOfGoodTracksVsGoodPVtx = dqmStore_->bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax, TKNoMin, TKNoMax,"");
 	NumberOfGoodTracksVsGoodPVtx->getTH1()->SetBit(TH1::kCanRebin);
@@ -340,14 +340,14 @@ void TrackingMonitor::beginJob(void)
 	FractionOfGoodTracksVsGoodPVtx->setAxisTitle("Number of PV",1);
 	FractionOfGoodTracksVsGoodPVtx->setAxisTitle("Mean fraction of Good Tracks per Event",2);
       }
-      
+
       if ( doPlotsVsBXlumi_ ) {
 	// get binning from the configuration
 	edm::ParameterSet BXlumiParameters = conf_.getParameter<edm::ParameterSet>("BXlumiSetup");
 	int    BXlumiBin   = BXlumiParameters.getParameter<int>("BXlumiBin");
 	double BXlumiMin   = BXlumiParameters.getParameter<double>("BXlumiMin");
 	double BXlumiMax   = BXlumiParameters.getParameter<double>("BXlumiMax");
-      
+
 	histname = "NumberOfTracksVsBXlumi_"+ CategoryName;
 	NumberOfTracksVsBXlumi = dqmStore_->bookProfile(histname,histname, BXlumiBin,BXlumiMin,BXlumiMax, TKNoMin, TKNoMax,"");
 	NumberOfTracksVsBXlumi->getTH1()->SetBit(TH1::kCanRebin);
@@ -359,13 +359,13 @@ void TrackingMonitor::beginJob(void)
 	NumberOfGoodTracksVsBXlumi->getTH1()->SetBit(TH1::kCanRebin);
 	NumberOfGoodTracksVsBXlumi->setAxisTitle("lumi BX [10^{30}Hzcm^{-2}]",1);
 	NumberOfGoodTracksVsBXlumi->setAxisTitle("Mean number of Good Tracks",2);
-      
+
 	histname = "FractionOfGoodTracksVsBXlumi_"+ CategoryName;
 	FractionOfGoodTracksVsBXlumi = dqmStore_->bookProfile(histname,histname, BXlumiBin,BXlumiMin,BXlumiMax, TKNoMin, TKNoMax,"");
 	FractionOfGoodTracksVsBXlumi->getTH1()->SetBit(TH1::kCanRebin);
 	FractionOfGoodTracksVsBXlumi->setAxisTitle("lumi BX [10^{30}Hzcm^{-2}]",1);
 	FractionOfGoodTracksVsBXlumi->setAxisTitle("Mean fraction of Good Tracks",2);
-      
+
       }
     }
 
@@ -397,18 +397,18 @@ void TrackingMonitor::beginJob(void)
       ClusterLabels=  conf_.getParameter<std::vector<std::string> >("ClusterLabels");
 
       std::vector<double> histoMin,histoMax;
-      std::vector<int> histoBin; //these vectors are for max min and nbins in histograms 
+      std::vector<int> histoBin; //these vectors are for max min and nbins in histograms
 
       int    NClusPxBin  = conf_.getParameter<int>(   "NClusPxBin");
       double NClusPxMin  = conf_.getParameter<double>("NClusPxMin");
       double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
-      
+
       int    NClusStrBin = conf_.getParameter<int>(   "NClusStrBin");
       double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
       double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
 
       setMaxMinBin(histoMin,histoMax,histoBin,NClusStrMin,NClusStrMax,NClusStrBin,NClusPxMin,NClusPxMax,NClusPxBin);
-     
+
       for (uint i=0; i<ClusterLabels.size(); i++){
 	histname = "SeedsVsClusters_" + seedProducer.label() + "_Vs_" + ClusterLabels[i] + "_" + CategoryName;
 	SeedsVsClusters.push_back(dynamic_cast<MonitorElement*>(dqmStore_->book2D(histname, histname, histoBin[i], histoMin[i], histoMax[i],
@@ -417,7 +417,7 @@ void TrackingMonitor::beginJob(void)
 	SeedsVsClusters[i]->setAxisTitle("Number of Seeds", 2);
       }
     }
-    
+
 
     doTkCandPlots=conf_.getParameter<bool>("doTrackCandHistos");
     //    if (doAllPlots) doTkCandPlots=true;
@@ -432,9 +432,9 @@ void TrackingMonitor::beginJob(void)
       NumberOfTrackCandidates->setAxisTitle("Number of Event", 2);
     }
 
-   
+
     theTrackBuildingAnalyzer->beginJob(dqmStore_);
-    
+
 
     if (doLumiAnalysis) {
 //      if (NumberOfTracks) NumberOfTracks->setLumiFlag();
@@ -442,7 +442,7 @@ void TrackingMonitor::beginJob(void)
 //      if (FractionOfGoodTracks) FractionOfGoodTracks->setLumiFlag();
       if ( NumberOfTracks_lumiFlag       ) NumberOfTracks_lumiFlag       -> setLumiFlag();
       if ( NumberOfGoodTracks_lumiFlag   ) NumberOfGoodTracks_lumiFlag   -> setLumiFlag();
-      theTrackAnalyzer->setLumiFlag();    
+      theTrackAnalyzer->setLumiFlag();
     }
 
     if (doTrackerSpecific_ || doAllPlots) {
@@ -450,13 +450,13 @@ void TrackingMonitor::beginJob(void)
       ClusterLabels=  conf_.getParameter<std::vector<std::string> >("ClusterLabels");
 
       std::vector<double> histoMin,histoMax;
-      std::vector<int> histoBin; //these vectors are for max min and nbins in histograms 
+      std::vector<int> histoBin; //these vectors are for max min and nbins in histograms
 
       /*
       int    NClusPxBin  = conf_.getParameter<int>(   "NClusPxBin");
       double NClusPxMin  = conf_.getParameter<double>("NClusPxMin");
       double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
-      
+
       int    NClusStrBin = conf_.getParameter<int>(   "NClusStrBin");
       double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
       double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
@@ -484,7 +484,7 @@ void TrackingMonitor::beginJob(void)
       setMaxMinBin(histoMin,histoMax,histoBin,
 		   NClusStrMin,NClusStrMax,NClusStrBin,
 		   NClusPxMin,  NClusPxMax,  NClusPxBin);
-     
+
       /*
       int    NClusPxBin  = conf_.getParameter<int>(   "NClusPxBin");
       double NClusPxMin  = conf_.getParameter<double>("NClusPxMin");
@@ -514,7 +514,7 @@ void TrackingMonitor::beginJob(void)
 	  dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties/GoodTracks");
 
 	  if(ClusterLabels[i].compare("Tot")==0){
-	    histname = "GoodTracksVs" + ClusterLabels[i] + "Cluster_" + CategoryName; 
+	    histname = "GoodTracksVs" + ClusterLabels[i] + "Cluster_" + CategoryName;
 	    NumberOfGoodTrkVsClus = dqmStore_->book2D(histname,histname,
 						      histoBin[i], histoMin[i], histoMax[i],
 						      TKNoBin,TKNoMin,TKNoMax
@@ -526,7 +526,7 @@ void TrackingMonitor::beginJob(void)
       }
 
       /*
-      histname = "TracksVsClusters_" + CategoryName; 
+      histname = "TracksVsClusters_" + CategoryName;
       NumberOfTrkVsClus = dqmStore_->book2D(histname,histname,
 					    NClus2DTotBin,NClus2DTotMin,NClus2DTotMax,
 					    NTrk2DBin,NTrk2DMin,NTrk2DMax
@@ -536,14 +536,14 @@ void TrackingMonitor::beginJob(void)
       */
     }
 
-    
+
 }
 
 // -- BeginRun
 //---------------------------------------------------------------------------------//
 void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
- 
+
   // Initialize the GenericTriggerEventFlag
   if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
 }
@@ -556,17 +556,17 @@ void TrackingMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumi, con
 //    dqmStore_->softReset(NumberOfTracks);
 //    dqmStore_->softReset(NumberOfGoodTracks);
 //    dqmStore_->softReset(FractionOfGoodTracks);
-//    theTrackAnalyzer->doSoftReset(dqmStore_);    
+//    theTrackAnalyzer->doSoftReset(dqmStore_);
     if ( NumberOfTracks_lumiFlag       ) NumberOfTracks_lumiFlag       -> Reset();
     if ( doGoodTrackPlots_ )
       if ( NumberOfGoodTracks_lumiFlag   ) NumberOfGoodTracks_lumiFlag   -> Reset();
-    theTrackAnalyzer->doReset(dqmStore_);    
+    theTrackAnalyzer->doReset(dqmStore_);
   }
 }
 
 // -- Analyse
 // ---------------------------------------------------------------------------------//
-void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
+void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     // Filter out events if Trigger Filtering is requested
     if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
@@ -580,7 +580,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     //    iEvent.getByLabel(trackProducer, trackHandle);
     iEvent.getByToken(trackToken_, trackHandle);
 
-    if (trackHandle.isValid()) 
+    if (trackHandle.isValid())
     {
 
        reco::TrackCollection trackCollection = *trackHandle;
@@ -588,7 +588,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         int totalNumTracks = 0, totalRecHits = 0, totalLayers = 0;
 	int totalNumHPTracks = 0, totalNumPt1Tracks = 0, totalNumHPPt1Tracks = 0;
 	double frac = 0.;
-        for (reco::TrackCollection::const_iterator track = trackCollection.begin(); track!=trackCollection.end(); ++track) 
+        for (reco::TrackCollection::const_iterator track = trackCollection.begin(); track!=trackCollection.end(); ++track)
         {
 
 	    if( track->quality(reco::TrackBase::highPurity) ) {
@@ -601,23 +601,23 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		  }
 	      }
 	    }
-	    
-	    if ( track->pt() >= 1. ) ++totalNumPt1Tracks;
-	
 
-            if( Quality_ == "highPurity") 
+	    if ( track->pt() >= 1. ) ++totalNumPt1Tracks;
+
+
+            if( Quality_ == "highPurity")
             {
                 if( !track->quality(reco::TrackBase::highPurity) ) continue;
             }
-            else if( Quality_ == "tight") 
+            else if( Quality_ == "tight")
             {
                 if( !track->quality(reco::TrackBase::tight) ) continue;
             }
-            else if( Quality_ == "loose") 
+            else if( Quality_ == "loose")
             {
                 if( !track->quality(reco::TrackBase::loose) ) continue;
             }
-            
+
             totalNumTracks++;
             totalRecHits    += track->numberOfValidHits();
             totalLayers     += track->hitPattern().trackerLayersWithMeasurement();
@@ -657,29 +657,29 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		NumberOfMeanLayersPerTrack  -> Fill(meanLayers);
 	      }
 	  }
-    
-	//  Analyse the Track Building variables 
+
+	//  Analyse the Track Building variables
 	//  if the collection is empty, do not fill anything
 	// ---------------------------------------------------------------------------------//
-	
-	    	   	    
+
+
 	    // fill the TrackCandidate info
-	if (doTkCandPlots) 
+	if (doTkCandPlots)
 	      {
-	
+
 		// magnetic field
 		edm::ESHandle<MagneticField> theMF;
-		iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
-		
+		iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+
 		// get the beam spot
 		edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
 		//		iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
 		iEvent.getByToken(bsSrcToken_, recoBeamSpotHandle );
-		const reco::BeamSpot& bs = *recoBeamSpotHandle;      
-		
+		const reco::BeamSpot& bs = *recoBeamSpotHandle;
+
 		// get the candidate collection
 		edm::Handle<TrackCandidateCollection> theTCHandle;
-		//		iEvent.getByLabel(tcProducer, theTCHandle ); 
+		//		iEvent.getByLabel(tcProducer, theTCHandle );
 		iEvent.getByToken( trackCandidateToken_, theTCHandle );
 		const TrackCandidateCollection& theTCCollection = *theTCHandle;
 
@@ -697,19 +697,19 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		    edm::LogWarning("TrackingMonitor") << "No Track Candidates in the event.  Not filling associated histograms";
 		  }
 	      }
-    
+
 	    //plots for trajectory seeds
 
 	    if (doAllSeedPlots || doSeedNumberPlot || doSeedVsClusterPlot || runTrackBuildingAnalyzerForSeed) {
-	    
+
 	    // get the seed collection
 	    edm::Handle<edm::View<TrajectorySeed> > seedHandle;
 	    //	    iEvent.getByLabel(seedProducer, seedHandle);
 	    iEvent.getByToken(seedToken_, seedHandle );
 	    const edm::View<TrajectorySeed>& seedCollection = *seedHandle;
-	    
+
 	    // fill the seed info
-	    if (seedHandle.isValid()) 
+	    if (seedHandle.isValid())
 	      {
 		if(doAllSeedPlots || doSeedNumberPlot) NumberOfSeeds->Fill(seedCollection.size());
 
@@ -727,14 +727,14 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		  //here duplication of mag field and be informations is needed to allow seed and track cand histos to be independent
 		  // magnetic field
 		  edm::ESHandle<MagneticField> theMF;
-		  iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
-		  
+		  iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+
 		  // get the beam spot
 		  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
 		  //		  iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
 		  iEvent.getByToken(bsSrcToken_, recoBeamSpotHandle );
-		  const reco::BeamSpot& bs = *recoBeamSpotHandle;      
-		  
+		  const reco::BeamSpot& bs = *recoBeamSpotHandle;
+
 		  iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
 		  for(size_t i=0; i < seedHandle->size(); ++i)
 		    {
@@ -742,7 +742,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		      theTrackBuildingAnalyzer->analyze(iEvent, iSetup, *seed, bs, theMF, theTTRHBuilder);
 		    }
 		}
-		
+
 	      }
 	    else
 	      {
@@ -751,7 +751,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    }
 
 
-	 if (doTrackerSpecific_ || doAllPlots) 
+	 if (doTrackerSpecific_ || doAllPlots)
           {
 	    std::vector<int> NClus;
 	    setNclus(iEvent,NClus);
@@ -768,67 +768,67 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           }
 
 	 if ( doPUmonitoring_ ) {
-	   
+
 	   // do vertex monitoring
 	   for (size_t i=0; i<theVertexMonitor.size(); i++)
 	     theVertexMonitor[i]->analyze(iEvent, iSetup);
-	   
+
 	   if ( doPlotsVsGoodPVtx_ ) {
-	     
+
 	     size_t totalNumGoodPV = 0;
 	     edm::Handle< reco::VertexCollection > pvHandle;
 	     //	     iEvent.getByLabel(primaryVertexInputTag, pvHandle );
 	     iEvent.getByToken(pvSrcToken_, pvHandle );
 	     if (pvHandle.isValid())
 	       {
-		 
+
 		 for (reco::VertexCollection::const_iterator pv = pvHandle->begin();
 		      pv != pvHandle->end(); ++pv) {
-		   
-		   //--- pv fake (the pv collection should have size==1 and the pv==beam spot) 
+
+		   //--- pv fake (the pv collection should have size==1 and the pv==beam spot)
 		   if (pv->isFake() || pv->tracksSize()==0) continue;
-		   
+
 		   // definition of goodOfflinePrimaryVertex
 		   if (pv->ndof() < 4. || pv->z() > 24.)  continue;
 		   totalNumGoodPV++;
 		 }
-		 
+
 		 NumberOfTracksVsGoodPVtx       -> Fill( totalNumGoodPV, totalNumTracks      );
 		 NumberOfGoodTracksVsGoodPVtx   -> Fill( totalNumGoodPV, totalNumHPPt1Tracks );
 		 FractionOfGoodTracksVsGoodPVtx -> Fill( totalNumGoodPV, frac                );
 	       }
 	   }
-	   
+
 	   if ( doPlotsVsBXlumi_ ) {
-	     
+
 	     double bxlumi = theLumiDetails_->getValue(iEvent);
-	     
+
 	     NumberOfTracksVsBXlumi       -> Fill( bxlumi, totalNumTracks      );
 	     NumberOfGoodTracksVsBXlumi   -> Fill( bxlumi, totalNumHPPt1Tracks );
 	     FractionOfGoodTracksVsBXlumi -> Fill( bxlumi, frac                );
 	   }
-	   
+
 	 }
-	 
+
     }
 
 }
 
 
-void TrackingMonitor::endRun(const edm::Run&, const edm::EventSetup&) 
+void TrackingMonitor::endRun(const edm::Run&, const edm::EventSetup&)
 {
   if (doLumiAnalysis) {
     /*
     dqmStore_->disableSoftReset(NumberOfTracks);
     dqmStore_->disableSoftReset(NumberOfGoodTracks);
     dqmStore_->disableSoftReset(FractionOfGoodTracks);
-    theTrackAnalyzer->undoSoftReset(dqmStore_);    
+    theTrackAnalyzer->undoSoftReset(dqmStore_);
     */
   }
-  
+
 }
 
-void TrackingMonitor::endJob(void) 
+void TrackingMonitor::endJob(void)
 {
     bool outputMEsInRootFile   = conf_.getParameter<bool>("OutputMEsInRootFile");
     std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
@@ -839,7 +839,7 @@ void TrackingMonitor::endJob(void)
     }
 }
 
-void TrackingMonitor::setMaxMinBin(std::vector<double> &arrayMin,  std::vector<double> &arrayMax, std::vector<int> &arrayBin, double smin, double smax, int sbin, double pmin, double pmax, int pbin) 
+void TrackingMonitor::setMaxMinBin(std::vector<double> &arrayMin,  std::vector<double> &arrayMax, std::vector<int> &arrayBin, double smin, double smax, int sbin, double pmin, double pmax, int pbin)
 {
   arrayMin.resize(ClusterLabels.size());
   arrayMax.resize(ClusterLabels.size());
@@ -850,14 +850,14 @@ void TrackingMonitor::setMaxMinBin(std::vector<double> &arrayMin,  std::vector<d
     if (ClusterLabels[i].compare("Pix")==0) {arrayMin[i]=pmin; arrayMax[i]=pmax; arrayBin[i]=pbin;}
     else if(ClusterLabels[i].compare("Strip")==0){arrayMin[i]=smin; arrayMax[i]=smax; arrayBin[i]=sbin;}
     else if(ClusterLabels[i].compare("Tot")==0){arrayMin[i]=smin; arrayMax[i]=smax+pmax; arrayBin[i]=sbin;}
-    else {edm::LogWarning("TrackingMonitor")  << "Cluster Label " << ClusterLabels[i] << " not defined, using strip parameters "; 
+    else {edm::LogWarning("TrackingMonitor")  << "Cluster Label " << ClusterLabels[i] << " not defined, using strip parameters ";
       arrayMin[i]=smin; arrayMax[i]=smax; arrayBin[i]=sbin;}
 
   }
-    
+
 }
 
-void TrackingMonitor::setNclus(const edm::Event& iEvent,std::vector<int> &arrayNclus) 
+void TrackingMonitor::setNclus(const edm::Event& iEvent,std::vector<int> &arrayNclus)
 {
 
   int ncluster_pix=-1;
@@ -870,10 +870,10 @@ void TrackingMonitor::setNclus(const edm::Event& iEvent,std::vector<int> &arrayN
   //  iEvent.getByLabel("siPixelClusters", pixel_clusters);
   iEvent.getByToken(pixelClustersToken_, pixel_clusters );
 
-  if (strip_clusters.isValid() && pixel_clusters.isValid()) 
+  if (strip_clusters.isValid() && pixel_clusters.isValid())
     {
-                ncluster_pix   = (*pixel_clusters).dataSize(); 
-                ncluster_strip = (*strip_clusters).dataSize(); 
+                ncluster_pix   = (*pixel_clusters).dataSize();
+                ncluster_strip = (*strip_clusters).dataSize();
     }
 
   arrayNclus.resize(ClusterLabels.size());
@@ -885,6 +885,6 @@ void TrackingMonitor::setNclus(const edm::Event& iEvent,std::vector<int> &arrayN
     else {edm::LogWarning("TrackingMonitor") << "Cluster Label " << ClusterLabels[i] << " not defined using stri parametrs ";
       arrayNclus[i]=ncluster_strip ;}
   }
-    
+
 }
 DEFINE_FWK_MODULE(TrackingMonitor);

@@ -24,7 +24,7 @@
 #include "DataFormats/Common/interface/Ptr.h"
 
 namespace {
-  struct dictionary {
+  struct dictionary1 {
     reco::CaloJetCollection o1;
     reco::CaloJetRef r1;
     reco::CaloJetFwdRef fwdr1;

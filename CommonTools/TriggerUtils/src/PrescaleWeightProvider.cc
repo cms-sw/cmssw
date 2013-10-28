@@ -1,6 +1,5 @@
 //
 // See header file for description
-// $Id: PrescaleWeightProvider.cc,v 1.1 2010/08/23 18:44:13 avetisya Exp $
 //
 
 
@@ -14,32 +13,38 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-PrescaleWeightProvider::PrescaleWeightProvider( const edm::ParameterSet & config )
+PrescaleWeightProvider::PrescaleWeightProvider( const edm::ParameterSet & config, edm::ConsumesCollector & iC )
 // default values
 : verbosity_( 0 )
-, triggerResults_( "TriggerResults::HLT" )
-, l1GtTriggerMenuLite_( "l1GtTriggerMenuLite" )
+, triggerResultsTag_( "TriggerResults::HLT" )
+, triggerResultsToken_( iC.mayConsume< edm::TriggerResults >( triggerResultsTag_ ) )
+, l1GtTriggerMenuLiteTag_( "l1GtTriggerMenuLite" )
+, l1GtTriggerMenuLiteToken_( iC.mayConsume< L1GtTriggerMenuLite, edm::InRun >( l1GtTriggerMenuLiteTag_ ) )
 {
 
   hltPaths_.clear();
-  if ( config.exists( "prescaleWeightVerbosityLevel" ) )      verbosity_           = config.getParameter< unsigned >( "prescaleWeightVerbosityLevel" );
-  if ( config.exists( "prescaleWeightTriggerResults" ) )      triggerResults_      = config.getParameter< edm::InputTag >( "prescaleWeightTriggerResults" );
-  if ( config.exists( "prescaleWeightL1GtTriggerMenuLite" ) ) l1GtTriggerMenuLite_ = config.getParameter< edm::InputTag >( "prescaleWeightL1GtTriggerMenuLite" );
-  if ( config.exists( "prescaleWeightHltPaths" ) )            hltPaths_            = config.getParameter< std::vector< std::string > >( "prescaleWeightHltPaths" );
+  if ( config.exists( "prescaleWeightVerbosityLevel" ) )      verbosity_              = config.getParameter< unsigned >( "prescaleWeightVerbosityLevel" );
+  if ( config.exists( "prescaleWeightTriggerResults" ) )      triggerResultsTag_      = config.getParameter< edm::InputTag >( "prescaleWeightTriggerResults" );
+  if ( config.exists( "prescaleWeightL1GtTriggerMenuLite" ) ) l1GtTriggerMenuLiteTag_ = config.getParameter< edm::InputTag >( "prescaleWeightL1GtTriggerMenuLite" );
+  if ( config.exists( "prescaleWeightHltPaths" ) )            hltPaths_               = config.getParameter< std::vector< std::string > >( "prescaleWeightHltPaths" );
 
   configured_ = true;
-  if ( triggerResults_.process().empty() ) {
+  if ( triggerResultsTag_.process().empty() ) {
     configured_ = false;
     if ( verbosity_ > 0 ) edm::LogWarning( "PrescaleWeightProvider" ) << "Process name not configured via TriggerResults InputTag";
-  } else if ( triggerResults_.label().empty() ) {
+  } else if ( triggerResultsTag_.label().empty() ) {
     configured_ = false;
     if ( verbosity_ > 0 ) edm::LogWarning( "PrescaleWeightProvider" ) << "TriggerResults label not configured";
-  } else if ( l1GtTriggerMenuLite_.label().empty() ) {
+  } else if ( l1GtTriggerMenuLiteTag_.label().empty() ) {
     configured_ = false;
     if ( verbosity_ > 0 ) edm::LogWarning( "PrescaleWeightProvider" ) << "L1GtTriggerMenuLite label not configured";
   } else if ( hltPaths_.empty() ) {
     configured_ = false;
     if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider" ) << "HLT paths of interest not configured";
+  }
+  if ( configured_ ) {
+    triggerResultsToken_ = iC.mayConsume< edm::TriggerResults >( triggerResultsTag_ );
+    l1GtTriggerMenuLiteToken_ = iC.mayConsume< L1GtTriggerMenuLite, edm::InRun >( l1GtTriggerMenuLiteTag_ );
   }
 
 }
@@ -56,8 +61,8 @@ void PrescaleWeightProvider::initRun( const edm::Run & run, const edm::EventSetu
   }
 
   bool hltChanged( false );
-  if ( ! hltConfig_.init( run, setup, triggerResults_.process(), hltChanged ) ) {
-    if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider" ) << "HLT config initialization error with process name \"" << triggerResults_.process() << "\"";
+  if ( ! hltConfig_.init( run, setup, triggerResultsTag_.process(), hltChanged ) ) {
+    if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider" ) << "HLT config initialization error with process name \"" << triggerResultsTag_.process() << "\"";
     init_ = false;
   } else if ( hltConfig_.size() <= 0 ) {
     if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider" ) << "HLT config size error";
@@ -67,9 +72,9 @@ void PrescaleWeightProvider::initRun( const edm::Run & run, const edm::EventSetu
   }
   if ( ! init_ ) return;
 
-  run.getByLabel( l1GtTriggerMenuLite_.label(), triggerMenuLite_ );
+  run.getByToken( l1GtTriggerMenuLiteToken_, triggerMenuLite_ );
   if ( ! triggerMenuLite_.isValid() ) {
-    if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider" ) << "L1GtTriggerMenuLite with label \"" << l1GtTriggerMenuLite_.label() << "\" not found";
+    if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider" ) << "L1GtTriggerMenuLite with label \"" << l1GtTriggerMenuLiteTag_.label() << "\" not found";
     init_ = false;
   }
 
@@ -86,9 +91,9 @@ int PrescaleWeightProvider::prescaleWeight( const edm::Event & event, const edm:
 
   // HLT
   edm::Handle< edm::TriggerResults > triggerResults;
-  event.getByLabel( triggerResults_, triggerResults);
+  event.getByToken( triggerResultsToken_, triggerResults);
   if( ! triggerResults.isValid() ) {
-    if ( verbosity_ > 0 ) edm::LogError("PrescaleWeightProvider::prescaleWeight") << "TriggerResults product not found for InputTag \"" << triggerResults_.encode() << "\"";
+    if ( verbosity_ > 0 ) edm::LogError("PrescaleWeightProvider::prescaleWeight") << "TriggerResults product not found for InputTag \"" << triggerResultsTag_.encode() << "\"";
     return 1;
   }
 
