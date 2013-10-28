@@ -48,7 +48,7 @@ Implementation:
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 // Math
-#include "math.h"
+#include <cmath>
 // C++
 #include <vector>
 

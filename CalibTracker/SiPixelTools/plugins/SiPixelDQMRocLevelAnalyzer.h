@@ -38,7 +38,7 @@
 #include <string>
 #include "TH1D.h"
 #include "TFile.h"
-#include "math.h"
+#include <cmath>
 //
 // class decleration
 //

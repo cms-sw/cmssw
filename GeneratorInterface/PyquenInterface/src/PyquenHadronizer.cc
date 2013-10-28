@@ -5,7 +5,7 @@
 */
 
 #include <iostream>
-#include "time.h"
+#include <ctime>
 
 #include "GeneratorInterface/PyquenInterface/interface/PyquenHadronizer.h"
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"

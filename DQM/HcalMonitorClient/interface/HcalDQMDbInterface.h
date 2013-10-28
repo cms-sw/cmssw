@@ -10,7 +10,7 @@
 #include "DQM/HcalMonitorClient/interface/HcalHLXMask.h"
 //#include "CondTools/Hcal/include/HcalDbXml.h"
 
-#include "time.h"
+#include <ctime>
 #include <fstream>
 #include <sstream>
 #include <iostream>

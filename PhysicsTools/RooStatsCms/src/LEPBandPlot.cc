@@ -1,7 +1,7 @@
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
-#include "assert.h"
-#include "math.h"
+#include <cassert>
+#include <cmath>
 
 #if (defined (STANDALONE) or defined (__CINT__) )
    #include "LEPBandPlot.h"

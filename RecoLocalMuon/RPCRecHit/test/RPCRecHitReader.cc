@@ -13,7 +13,7 @@
 #include <iostream>
 #include <string>
 #include <cmath>
-#include "math.h"
+#include <cmath>
 #include <vector>
 #include <iomanip>
 #include <set>
