@@ -153,6 +153,8 @@ namespace edm {
                                                               *processConfiguration_,
                                                               &(historyAppenders_[index]),
                                                               index));
+      ep->preModuleDelayedGetSignal_.connect(std::cref(items.actReg_->preModuleEventDelayedGetSignal_));
+      ep->postModuleDelayedGetSignal_.connect(std::cref(items.actReg_->postModuleEventDelayedGetSignal_));
       principalCache_.insert(ep);
     }
     if(subProcessParameterSet) {

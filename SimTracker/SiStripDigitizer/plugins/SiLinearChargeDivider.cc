@@ -144,7 +144,7 @@ float SiLinearChargeDivider::DeconvolutionShape(const PSimHit* hit, const StripG
 // That pulse shapes correspond to the ones described in CMS NOTE 2007/027
 // with tau=50ns and delta=20ns
 // It is fairly similar to the previous analytical forms, except in the tails
-float SiLinearChargeDivider::decoValues[651] = 
+float const SiLinearChargeDivider::decoValues[651] = 
                            { 0.00924234, 0.00994226, 0.0106394, 0.0115231, 0.0127115
                            , 0.0138952, 0.015074, 0.0162481, 0.0174175, 0.0185821
                            , 0.019742, 0.0208972, 0.0220476, 0.0231934, 0.0243346
@@ -277,7 +277,7 @@ float SiLinearChargeDivider::decoValues[651] =
                            , 0.00862127, 0.00813344, 0.00764753, 0.00716353, 0.00668143
                            , 0.00620122 };
 
-float SiLinearChargeDivider::peakValues[921] = 
+float const SiLinearChargeDivider::peakValues[921] = 
                            { 0.000598718, 0.00179789, 0.00380417, 0.00622833, 0.00934726
                            , 0.0133483, 0.0172689, 0.0225072, 0.0282688, 0.0339136
                            , 0.040572, 0.0482572, 0.0557854, 0.063159, 0.0727605

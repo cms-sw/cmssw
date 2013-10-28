@@ -26,7 +26,9 @@ PFJetMonitor::PFJetMonitor( float dRMax, bool matchCharge, Benchmark::Mode mode)
   delta_frac_VS_frac_electron_       = 0;
   delta_frac_VS_frac_charged_hadron_ = 0;
   delta_frac_VS_frac_neutral_hadron_ = 0;
-  
+
+  deltaR_   = 0;
+
   createPFractionHistos_ = false;
   histogramBooked_ = false;
 }
@@ -41,10 +43,10 @@ PFJetMonitor::~PFJetMonitor() {}
 void PFJetMonitor::setParameters( const edm::ParameterSet & parameterSet) {
 
   dRMax_                 = parameterSet.getParameter<double>( "deltaRMax" );
+  onlyTwoJets_           = parameterSet.getParameter<bool>( "onlyTwoJets" );
   matchCharge_           = parameterSet.getParameter<bool>( "matchCharge" );
   mode_                  = (Benchmark::Mode) parameterSet.getParameter<int>( "mode" );
   createPFractionHistos_ = parameterSet.getParameter<bool>( "CreatePFractionHistos" );
-
   
   setRange( parameterSet.getParameter<double>("ptMin"),
 	    parameterSet.getParameter<double>("ptMax"),
@@ -60,9 +62,25 @@ void PFJetMonitor::setParameters( const edm::ParameterSet & parameterSet) {
 // -- Set Parameters 
 //
 void PFJetMonitor::setParameters(float dRMax, bool matchCharge, Benchmark::Mode mode,
-                    float ptmin, float ptmax, float etamin, float etamax, 
+				 float ptmin, float ptmax, float etamin, float etamax, 
 				 float phimin, float phimax, bool fracHistoFlag) {
   dRMax_                 = dRMax;
+  matchCharge_           = matchCharge;
+  mode_                  = mode;
+  createPFractionHistos_ = fracHistoFlag;
+  
+  setRange( ptmin, ptmax, etamin, etamax, phimin, phimax );
+  
+  candBench_.setParameters(mode_);
+  matchCandBench_.setParameters(mode_); 
+}
+
+
+void PFJetMonitor::setParameters(float dRMax, bool onlyTwoJets, bool matchCharge, Benchmark::Mode mode,
+				 float ptmin, float ptmax, float etamin, float etamax, 
+				 float phimin, float phimax, bool fracHistoFlag) {
+  dRMax_                 = dRMax;
+  onlyTwoJets_           = onlyTwoJets;
   matchCharge_           = matchCharge;
   mode_                  = mode;
   createPFractionHistos_ = fracHistoFlag;
@@ -71,7 +89,6 @@ void PFJetMonitor::setParameters(float dRMax, bool matchCharge, Benchmark::Mode 
 
   candBench_.setParameters(mode_);
   matchCandBench_.setParameters(mode_);
-
 }
 //
 // -- Create histograms accessing parameters from ParameterSet
@@ -80,21 +97,22 @@ void PFJetMonitor::setup(const edm::ParameterSet & parameterSet) {
   candBench_.setup(parameterSet);
   matchCandBench_.setup(parameterSet);
 
+  edm::ParameterSet dR = parameterSet.getParameter<edm::ParameterSet>("DeltaRHistoParameter");
+  if ( dR.getParameter<bool>("switchOn") ) 
+    deltaR_ = book1D("deltaR_", "#DeltaR;#DeltaR",
+		     dR.getParameter<int32_t>("nBin"), 
+		     dR.getParameter<double>("xMin"),
+		     dR.getParameter<double>("xMax"));
+
   if (createPFractionHistos_ && !histogramBooked_) {
-    delta_frac_VS_frac_muon_ = book2D("delta_frac_VS_frac_muon_", 
- "#DeltaFraction_Vs_Fraction(muon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_photon_ = book2D("delta_frac_VS_frac_photon_", 
- "#DeltaFraction_Vs_Fraction(photon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_electron_ = book2D("delta_frac_VS_frac_electron_", 
- "#DeltaFraction_Vs_Fraction(electron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_charged_hadron_ = book2D("delta_frac_VS_frac_charged_hadron_", 
- "#DeltaFraction_Vs_Fraction(charged hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_neutral_hadron_ = book2D("delta_frac_VS_frac_neutral_hadron_", 
- "#DeltaFraction_Vs_Fraction(neutral hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-  
+    delta_frac_VS_frac_muon_ = book2D("delta_frac_VS_frac_muon_", "#DeltaFraction_Vs_Fraction(muon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_photon_ = book2D("delta_frac_VS_frac_photon_", "#DeltaFraction_Vs_Fraction(photon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_electron_ = book2D("delta_frac_VS_frac_electron_", "#DeltaFraction_Vs_Fraction(electron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_charged_hadron_ = book2D("delta_frac_VS_frac_charged_hadron_", "#DeltaFraction_Vs_Fraction(charged hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_neutral_hadron_ = book2D("delta_frac_VS_frac_neutral_hadron_", "#DeltaFraction_Vs_Fraction(neutral hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+
     histogramBooked_ = true;
   }
-
 }
 //
 // -- Create histograms using local parameters
@@ -104,16 +122,11 @@ void PFJetMonitor::setup() {
   matchCandBench_.setup();
 
   if (createPFractionHistos_ && !histogramBooked_) {
-    delta_frac_VS_frac_muon_ = book2D("delta_frac_VS_frac_muon_", 
- "#DeltaFraction_Vs_Fraction(muon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_photon_ = book2D("delta_frac_VS_frac_photon_", 
- "#DeltaFraction_Vs_Fraction(photon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_electron_ = book2D("delta_frac_VS_frac_electron_", 
- "#DeltaFraction_Vs_Fraction(electron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_charged_hadron_ = book2D("delta_frac_VS_frac_charged_hadron_", 
- "#DeltaFraction_Vs_Fraction(charged hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
-    delta_frac_VS_frac_neutral_hadron_ = book2D("delta_frac_VS_frac_neutral_hadron_", 
- "#DeltaFraction_Vs_Fraction(neutral hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_muon_ = book2D("delta_frac_VS_frac_muon_", "#DeltaFraction_Vs_Fraction(muon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_photon_ = book2D("delta_frac_VS_frac_photon_", "#DeltaFraction_Vs_Fraction(photon)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_electron_ = book2D("delta_frac_VS_frac_electron_", "#DeltaFraction_Vs_Fraction(electron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_charged_hadron_ = book2D("delta_frac_VS_frac_charged_hadron_", "#DeltaFraction_Vs_Fraction(charged hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
+    delta_frac_VS_frac_neutral_hadron_ = book2D("delta_frac_VS_frac_neutral_hadron_", "#DeltaFraction_Vs_Fraction(neutral hadron)", 100, 0.0, 1.0, 100, -1.0, 1.0);
 
     histogramBooked_ = true;
   }
@@ -134,6 +147,8 @@ void PFJetMonitor::setDirectory(TDirectory* dir) {
 //
 void PFJetMonitor::fillOne(const reco::Jet& jet,
 			const reco::Jet& matchedJet) {
+  std::cout <<"\nfillone Jet histos" <<std::endl;
+
   const reco::PFJet* pfJet = dynamic_cast<const reco::PFJet*>(&jet);
   const reco::PFJet* pfMatchedJet = dynamic_cast<const reco::PFJet*>(&matchedJet);
   if (pfJet && pfMatchedJet && createPFractionHistos_) {
