@@ -15,6 +15,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <algorithm>
+#include <atomic>
 
 using namespace pos;
 using namespace std;
@@ -24,9 +25,8 @@ using namespace std;
 PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::string> > & tableMat):
 						 PixelCalibBase(), PixelConfigBase("","","") 
 {
-  std::string mthn = "[PixelCalibConfiguration::PixelCalibConfiguration()]\t    " ;
+  const char *mthn = "[PixelCalibConfiguration::PixelCalibConfiguration()]\t    ";
   std::map<std::string , int > colM;
-  std::vector<std::string > colNames;
   /**
 
   EXTENSION_TABLE_NAME: PIXEL_CALIB_CLOB (VIEW: CONF_KEY_PIXEL_CALIB_V)
@@ -41,31 +41,32 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
   CALIB_OBJ_DATA_CLOB			    NOT NULL CLOB
   */
 
-  colNames.push_back("CONFIG_KEY"  	  );
-  colNames.push_back("KEY_TYPE"    	  );
-  colNames.push_back("KEY_ALIAS"   	  );
-  colNames.push_back("VERSION"     	  );
-  colNames.push_back("KIND_OF_COND"	  );
-  colNames.push_back("CALIB_TYPE"  	  );
-  colNames.push_back("CALIB_OBJ_DATA_FILE");
-  colNames.push_back("CALIB_OBJ_DATA_CLOB");
+  const char *colNames[] = {
+    "CONFIG_KEY", 
+    "KEY_TYPE",
+    "KEY_ALIAS", 
+    "VERSION", 
+    "KIND_OF_COND", 
+    "CALIB_TYPE", 
+    "CALIB_OBJ_DATA_FILE",
+    "CALIB_OBJ_DATA_CLOB"};
 
   for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
     {
-      for(unsigned int n=0; n<colNames.size(); n++)
+      for(auto &name : colNames)
 	{
-	  if(tableMat[0][c] == colNames[n])
+	  if(tableMat[0][c] == name)
 	    {
-	      colM[colNames[n]] = c;
+	      colM[name] = c;
 	      break;
 	    }
 	}
     }//end for
-  for(unsigned int n=0; n<colNames.size(); n++)
+  for(auto &name : colNames)
     {
-      if(colM.find(colNames[n]) == colM.end())
+      if(colM.find(name) == colM.end())
 	{
-	  std::cerr << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
+	  std::cerr << mthn << "Couldn't find in the database the column with name " << name << std::endl;
 	  assert(0);
 	}
     }
@@ -916,7 +917,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
 
 					   unsigned int state) const {
 
-  std::string mthn = "[PixelCalibConfiguration::nextFECState()]\t\t    " ;
+  const char *mthn = "[PixelCalibConfiguration::nextFECState()]\t\t    " ;
   std::string modeName=parameterValue("ScanMode");
 
   int mode=-1;
@@ -925,7 +926,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
   if (modeName=="useAllPixel"||modeName=="")  mode=1;
   if (modeName=="default")  mode=2;
 
-  static bool first=true;
+  static std::atomic<bool> first(true);
 
   if (first) {
     cout << __LINE__ << "]\t" << mthn << "mode="<<mode<<endl;
@@ -1680,7 +1681,7 @@ void PixelCalibConfiguration::writeXMLHeader(pos::PixelConfigKey key,
                                     	     std::ofstream *out1stream,
                                     	     std::ofstream *out2stream) const
 {
-  std::string mthn = "[PixelCalibConfiguration::writeXMLHeader()]\t\t    " ;
+  const char *mthn = "[PixelCalibConfiguration::writeXMLHeader()]\t\t    " ;
   std::stringstream maskFullPath ;
 
   writeASCII(path) ;
@@ -1726,9 +1727,6 @@ void PixelCalibConfiguration::writeXML( std::ofstream *outstream,
                                 	std::ofstream *out1stream,
                                 	std::ofstream *out2stream) const 
 {
-  std::string mthn = "[PixelCalibConfiguration::writeXML()]\t\t    " ;
-  
-
   *outstream << " "                                                                                       << std::endl ;
   *outstream << "  <DATA>"                                                                                << std::endl ;
   *outstream << "   <CALIB_OBJ_DATA_FILE>./calib.dat</CALIB_OBJ_DATA_FILE>"                               << std::endl ;
@@ -1742,7 +1740,7 @@ void PixelCalibConfiguration::writeXMLTrailer(std::ofstream *outstream,
                              	     	      std::ofstream *out1stream,
                              	     	      std::ofstream *out2stream ) const 
 {
-  std::string mthn = "[PixelCalibConfiguration::writeXMLTrailer()]\t\t    " ;
+  const char *mthn = "[PixelCalibConfiguration::writeXMLTrailer()]\t\t    " ;
   
   *outstream << " </DATA_SET>"		 								  << std::endl ;
   *outstream << "</ROOT>"  		 								  << std::endl ;

@@ -10,6 +10,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelDACNames.h"
 #include <fstream>
 #include <iostream>
+#include <atomic>
 
 using namespace pos;
 using namespace std;
@@ -482,7 +483,7 @@ int PixelROCDACSettings::read(std::istringstream& in, const PixelROCName& rocid)
     in >> tmp; CalDel_=tmp;
     in >> tag; 
     if (tag==k_DACName_WBC+":"){
-      static bool first=true;
+      static std::atomic<bool> first(true);
       if (first){
 	cout << __LINE__ << "]\t" << mthn << "**********************************************" << endl;
 	cout << __LINE__ << "]\t" << mthn << "Did not find TempRange setting in DAC settings" << endl;
