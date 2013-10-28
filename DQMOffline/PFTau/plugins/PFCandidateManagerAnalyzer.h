@@ -5,6 +5,7 @@
 #include "DQMOffline/PFTau/plugins/BenchmarkAnalyzer.h"
 #include "DQMOffline/PFTau/interface/PFCandidateManager.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 class TH1F; 
 
@@ -18,6 +19,8 @@ class PFCandidateManagerAnalyzer: public BenchmarkAnalyzer, public PFCandidateMa
   void endJob();
 
  private:
+  edm::EDGetTokenT< reco::PFCandidateCollection > myColl_;
+  edm::EDGetTokenT< edm::View<reco::Candidate> > myMatchColl_;
   edm::InputTag matchLabel_;
 };
 

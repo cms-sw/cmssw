@@ -26,17 +26,13 @@ using namespace edm;
 
 
 DTParametrizedDriftAlgo::DTParametrizedDriftAlgo(const ParameterSet& config) :
-  DTRecHitBaseAlgo(config) {
-    interpolate = config.getParameter<bool>("interpolate");
-
-    minTime = config.getParameter<double>("minTime"); // FIXME: Default was -3 ns
-
-    maxTime = config.getParameter<double>("maxTime"); // FIXME: Default was 415 ns
-
-    // Set verbose output
-    debug = config.getUntrackedParameter<bool>("debug","false");
-    
-  }
+  DTRecHitBaseAlgo(config),
+  interpolate(config.getParameter<bool>("interpolate")),
+  minTime(config.getParameter<double>("minTime")), // FIXME: Default was -3 ns
+  maxTime(config.getParameter<double>("maxTime")), // FIXME: Default was 415 ns
+  // Set verbose output
+  debug(config.getUntrackedParameter<bool>("debug","false"))
+ {}
 
 
 

@@ -90,19 +90,19 @@ class DTNoDriftAlgo : public DTRecHitBaseAlgo {
 
 
   // The Drift Velocity (cm/ns)
-  float fixedDrift;
+  const float fixedDrift;
 
   // The resolution on the Hits (cm)
-  float hitResolution;
+  const float hitResolution;
 
   // Times below MinTime (ns) are considered as coming from previous BXs.
-  float minTime;
+  const float minTime;
 
   // Times above MaxTime (ns) are considered as coming from following BXs
-  float maxTime;
+  const float maxTime;
 
   // Switch on/off the verbosity
-  bool debug;
+  const bool debug;
 };
 #endif
 

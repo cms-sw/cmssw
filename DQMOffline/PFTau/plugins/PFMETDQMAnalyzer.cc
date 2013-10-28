@@ -27,6 +27,8 @@ PFMETDQMAnalyzer::PFMETDQMAnalyzer(const edm::ParameterSet& parameterSet)
 
   pfMETMonitor_.setParameters(parameterSet);  
 
+  myMET_ = consumes< edm::View<reco::MET> >(inputLabel_);
+  myMatchedMET_ = consumes< edm::View<reco::MET> >(matchLabel_);
 }
 //
 // -- BeginJob
@@ -47,15 +49,18 @@ void PFMETDQMAnalyzer::beginJob() {
 void PFMETDQMAnalyzer::analyze(edm::Event const& iEvent, 
 				      edm::EventSetup const& iSetup) {
   edm::Handle< edm::View<reco::MET> > metCollection;
-  iEvent.getByLabel(inputLabel_, metCollection);   
+  //iEvent.getByLabel(inputLabel_, metCollection);   
+  iEvent.getByToken(myMET_, metCollection);   
   
   edm::Handle< edm::View<reco::MET> > matchedMetCollection; 
-  iEvent.getByLabel( matchLabel_, matchedMetCollection);
+  //iEvent.getByLabel( matchLabel_, matchedMetCollection);
+  iEvent.getByToken(myMatchedMET_, matchedMetCollection);
 
   if (metCollection.isValid() && matchedMetCollection.isValid()) {
     float maxRes = 0.0;
     float minRes = 99.99;
     pfMETMonitor_.fillOne( (*metCollection)[0], (*matchedMetCollection)[0], minRes, maxRes);    
+    //pfMETMonitor_.fillOne( (*metCollection)[0], (*matchedMetCollection)[0], minRes, maxRes, pSet_);    
     edm::ParameterSet skimPS = pSet_.getParameter<edm::ParameterSet>("SkimParameter");
     if ( (skimPS.getParameter<bool>("switchOn")) && 
          (nBadEvents_ <= skimPS.getParameter<int32_t>("maximumNumberToBeStored")) ) {
