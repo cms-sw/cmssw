@@ -21,7 +21,7 @@
 #include <map>
 
 namespace {
-  struct dictionary {
+  struct dictionaryhlt {
     //Needed only in HLT-Open
     std::vector<reco::HLTTau>                                  ht_v;
     edm::Wrapper<std::vector<reco::HLTTau> >                   ht_w;

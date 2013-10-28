@@ -80,7 +80,7 @@ class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
 		       int step) const;
 
   //Map of meantimes
-   const DTMtime *mTimeMap;
+  const DTMtime *mTimeMap;
  
   // Times below MinTime (ns) are considered as coming from previous BXs.
   const float minTime;

@@ -9,7 +9,7 @@
 
 
 struct verbose {
-  static bool debugOut;
+  static constexpr bool debugOut = false;
 };
 
 #endif
