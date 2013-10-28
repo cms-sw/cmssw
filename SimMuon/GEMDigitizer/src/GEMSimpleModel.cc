@@ -5,6 +5,8 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -98,8 +100,8 @@ void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSim
 
   for (edm::PSimHitContainer::const_iterator hit1 = simHits.begin(); hit1 != simHits.end(); ++hit1)
   {
-    //    if (!(abs(hit1->particleType()) == 13 || abs(hit1->particleType()) == 11))
-    //      continue;
+    //if (!(abs(hit1->particleType()) == 13 || abs(hit1->particleType()) == 11))
+    //  continue;
     if ((abs(hit1->particleType() != 13)) && (hit1->pabs() < cutElecMomentum_))
       continue;
     selPsimHits->push_back(*hit1);
@@ -118,6 +120,7 @@ void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSim
       const auto entry2(hit2->entryPoint());
       const Topology& topology(roll->specs()->topology());
       const int hitStrip2(topology.channel(entry2) + 1);
+
       int deltaStrip = abs(hitStrip1 - hitStrip2);
       if (deltaStrip < cutForCls_)
       {
@@ -133,23 +136,22 @@ void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSim
 
   if ((selPsimHits->size() > 0))
   {
-for  (const auto & hit: (*selPsimHits))
-  {
-
-    if (std::abs(hit.particleType()) != 13 && digitizeOnlyMuons_)
-    continue;
-    // Check GEM efficiency
-    if (flat1_->fire(1) > averageEfficiency_)
-    continue;
-    const int bx(getSimHitBx(&hit));
-    const std::vector<std::pair<int, int> > cluster(simulateClustering(roll, &hit, bx));
-    for (auto & digi : cluster)
+    for  (const auto & hit: (*selPsimHits))
     {
-      detectorHitMap_.insert(DetectorHitMap::value_type(digi,&hit));
-      strips_.insert(digi);
+      if (std::abs(hit.particleType()) != 13 && digitizeOnlyMuons_)
+      continue;
+      // Check GEM efficiency
+      if (flat1_->fire(1) > averageEfficiency_)
+      continue;
+      const int bx(getSimHitBx(&hit));
+      const std::vector<std::pair<int, int> > cluster(simulateClustering(roll, &hit, bx));
+      for (auto & digi : cluster)
+      {
+        detectorHitMap_.insert(DetectorHitMap::value_type(digi,&hit));
+        strips_.insert(digi);
+      }
     }
   }
-}
 }
 
 int GEMSimpleModel::getSimHitBx(const PSimHit* simhit)
@@ -166,14 +168,16 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit)
   if (!roll)
   {
     throw cms::Exception("Geometry")
-        << "GEMSimpleModel::getSimHitBx() - GEM simhit id does not match any GEM roll id: " << id << "\n";
+        << "GEMSimpleModel::getSimHitBx() - GEM simhit id does not match any GEM roll id: " << id
+        << "\n";
     return 999;
   }
 
   if (roll->id().region() == 0)
   {
     throw cms::Exception("Geometry")
-        << "GEMSimpleModel::getSimHitBx() - this GEM id is from barrel, which cannot happen: " << roll->id() << "\n";
+        << "GEMSimpleModel::getSimHitBx() - this GEM id is from barrel, which cannot happen: "
+        << roll->id() << "\n";
   }
 
   const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*> (&(roll->topology())));
@@ -256,7 +260,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
     averageNoiseRatePerStrip = neutronGammaRoll8_ / roll->nstrips() + averageNoiseRate_;
   }
 
-  //  const double averageNoise(averageNoiseRate_ * nBxing * bxwidth_ * area * 1.0e-9);
+  // const double averageNoise(averageNoiseRate_ * nBxing * bxwidth_ * area * 1.0e-9);
   const double averageNoise(averageNoiseRatePerStrip * nBxing * bxwidth_ * area * 1.0e-9);
   const int n_hits(poisson_->fire(averageNoise));
 
@@ -273,11 +277,11 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
 std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEtaPartition* roll,
     const PSimHit* simHit, const int bx)
 {
-  const auto entry(simHit->entryPoint());
   const Topology& topology(roll->specs()->topology());
-  const int centralStrip(topology.channel(entry) + 1);
+  const auto entry(simHit->entryPoint());
+  const auto hit_position(simHit->localPosition());
 
-  LocalPoint lsimHitEntry(entry);
+  float centralStrip(topology.channel(hit_position)+1);
   double deltaX(roll->centreOfStrip(centralStrip).x() - entry.x());
 
   // Add central digi to cluster vector
@@ -329,6 +333,5 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
       }
     }
   }
-
   return cluster_;
 }

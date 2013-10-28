@@ -109,8 +109,9 @@ private:
   double  neutronGammaRoll8_;
 
   TH1F *res_mu1;
+  TH1F *res_mu4;
   TH1F *res_mu8;
-
+  TH1F *pitch_res;
 
 };
 #endif

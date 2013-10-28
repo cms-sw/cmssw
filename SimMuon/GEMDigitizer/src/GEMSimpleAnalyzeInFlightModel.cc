@@ -71,15 +71,17 @@ GEMSimpleAnalyzeInFlightModel::GEMSimpleAnalyzeInFlightModel(const edm::Paramete
   res_all = fs->make<TH1F> ("res_all", "res_all", 10000, -5., 5.);
   bx_h = fs->make<TH1F> ("bx", "bx", 12, -6, 6);
   numbDigis = fs->make<TH1F> ("deltaStrip", "deltaStrip", 390, 0., 390);
-  poisHisto = fs->make<TH1F> ("poisHisto", "poisHisto", 2000, 0., 20);
+  poisHisto = fs->make<TH1F> ("poisHisto", "poisHisto", 200000, 0., 2);
   noisyBX = fs->make<TH1F> ("noisyBX", "noisyBX", 20, -10., 10);
 
   selPsimHits = new std::vector<PSimHit>;
 
   res_mu1 = fs->make<TH1F> ("res_mu1", "res_mu1", 10000, -5., 5.);
+  res_mu4 = fs->make<TH1F> ("res_mu4", "res_mu4", 10000, -5., 5.);
   res_mu8 = fs->make<TH1F> ("res_mu8", "res_mu8", 10000, -5., 5.);
   bx_final = fs->make<TH1F> ("bx_final", "bx_final", 12, -6, 6);
   stripProfile = fs->make<TH1F> ("stripProfile", "stripProfile", 390, 0., 390);
+  pitch_res = fs->make<TH1F> ("pitch_res", "pitch_res", 10000, -5., 5.);
 
 }
 
@@ -123,14 +125,13 @@ void GEMSimpleAnalyzeInFlightModel::simulateSignal(const GEMEtaPartition* roll, 
   stripDigiSimLinks_.clear();
   detectorHitMap_.clear();
   stripDigiSimLinks_ = StripDigiSimLinks(roll->id().rawId());
-  //  const Topology& topology(roll->specs()->topology());
   selPsimHits->clear();
 
   for (edm::PSimHitContainer::const_iterator hit1 = simHits.begin(); hit1 != simHits.end(); ++hit1)
   {
     particleId_h->Fill(hit1->particleType());
-    if (!(abs(hit1->particleType()) == 13 || abs(hit1->particleType()) == 11))
-      continue;
+    //if (!(abs(hit1->particleType()) == 13 || abs(hit1->particleType()) == 11))
+    //  continue;
     if ((abs(hit1->particleType() != 13)) && (hit1->pabs() < cutElecMomentum_))
       continue;
     selPsimHits->push_back(*hit1);
@@ -166,7 +167,6 @@ void GEMSimpleAnalyzeInFlightModel::simulateSignal(const GEMEtaPartition* roll, 
 
   if ((selPsimHits->size() > 0))
   {
-    //    std::cout << "---------------------------" << std::endl;
 for  (const auto & hit: (*selPsimHits))
   {
     if (std::fabs(hit.particleType()) == 11)
@@ -193,7 +193,6 @@ for  (const auto & hit: (*selPsimHits))
     const std::vector<std::pair<int, int> > cluster(simulateClustering(roll, &hit, bx));
     for (auto & digi : cluster)
     {
-      //       std::cout << hit.particleType() << "\t" << digi.first << std::endl;
       detectorHitMap_.insert(DetectorHitMap::value_type(digi,&hit));
       strips_.insert(digi);
       bx_final->Fill(digi.second);
@@ -310,7 +309,7 @@ void GEMSimpleAnalyzeInFlightModel::simulateNoise(const GEMEtaPartition* roll)
     averageNoiseRatePerStrip = neutronGammaRoll8_ / roll->nstrips() + averageNoiseRate_;
   }
 
-  //  const double averageNoise(averageNoiseRate_ * nBxing * bxwidth_ * area * 1.0e-9);
+  // const double averageNoise(averageNoiseRate_ * nBxing * bxwidth_ * area * 1.0e-9);
   const double averageNoise(averageNoiseRatePerStrip * nBxing * bxwidth_ * area * 1.0e-9);
   const int n_hits(poisson_->fire(averageNoise));
   poisHisto->Fill(n_hits);
@@ -329,12 +328,14 @@ void GEMSimpleAnalyzeInFlightModel::simulateNoise(const GEMEtaPartition* roll)
 std::vector<std::pair<int, int> > GEMSimpleAnalyzeInFlightModel::simulateClustering(const GEMEtaPartition* roll,
     const PSimHit* simHit, const int bx)
 {
-  const auto entry(simHit->entryPoint());
   const Topology& topology(roll->specs()->topology());
-  const int centralStrip(topology.channel(entry) + 1);
+  const auto entry(simHit->entryPoint());
+  const auto hit_position(simHit->localPosition());
 
-  LocalPoint lsimHitEntry(entry);
+  float centralStrip(topology.channel(hit_position)+1);
   double deltaX(roll->centreOfStrip(centralStrip).x() - entry.x());
+
+  pitch_res->Fill(roll->localPitch(hit_position)/2. - deltaX);
 
   // Add central digi to cluster vector
   std::vector<std::pair<int, int> > cluster_;
@@ -351,6 +352,8 @@ std::vector<std::pair<int, int> > GEMSimpleAnalyzeInFlightModel::simulateCluster
     res_mu->Fill(deltaX);
     if (roll->id().roll() == 1)
       res_mu1->Fill(deltaX);
+    if (roll->id().roll() == 4)
+      res_mu4->Fill(deltaX);
     if (roll->id().roll() == 8)
       res_mu8->Fill(deltaX);
     if (clusterSize < 1)
@@ -413,38 +416,5 @@ std::vector<std::pair<int, int> > GEMSimpleAnalyzeInFlightModel::simulateCluster
     }
   }
 
-  //
-  /*
-   // Add the other digis to the cluster
-   for (int cl = 0; cl < (clusterSize - 1) / 2; ++cl)
-   {
-   if (centralStrip - cl - 1 >= 1)
-   cluster_.push_back(std::pair<int, int>(centralStrip - cl - 1, bx));
-   if (centralStrip + cl + 1 <= roll->nstrips())
-   cluster_.push_back(std::pair<int, int>(centralStrip + cl + 1, bx));
-   }
-   if (clusterSize % 2 == 0)
-   {
-   // insert the last strip according to the
-   // simhit position in the central strip
-   //    const double deltaX(roll->centreOfStrip(centralStrip).x() - entry.x());
-   if (deltaX < 0.)
-   {
-   if (lstrip < roll->nstrips())
-   {
-   ++lstrip;
-   cluster_.push_back(std::pair<int, int>(lstrip, bx));
-   }
-   }
-   else
-   {
-   if (fstrip > 1)
-   {
-   --fstrip;
-   cluster_.push_back(std::pair<int, int>(fstrip, bx));
-   }
-   }
-   }
-   */
   return cluster_;
 }
