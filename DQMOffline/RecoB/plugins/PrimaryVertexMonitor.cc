@@ -13,9 +13,10 @@ using namespace edm;
 
 PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
 {
-  moduleLabel = pSet.getParameter<InputTag>("vertexLabel");
-  beamSpotLabel = pSet.getParameter<InputTag>("beamSpotLabel");
-
+  //moduleLabel = pSet.getParameter<InputTag>("vertexLabel");
+  //beamSpotLabel = pSet.getParameter<InputTag>("beamSpotLabel");
+  vtxToken = consumes<reco::VertexCollection>(pSet.getParameter<InputTag>("vertexLabel"));
+  bsToken = consumes<reco::BeamSpot>(pSet.getParameter<InputTag>("beamSpotLabel"));
   //
   // Book all histograms.
   //
@@ -98,10 +99,12 @@ PrimaryVertexMonitor::~PrimaryVertexMonitor()
 void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByLabel(moduleLabel, recVtxs);
+  //iEvent.getByLabel(moduleLabel, recVtxs);
+  iEvent.getByToken(vtxToken, recVtxs); //consume
 
   edm::Handle<reco::BeamSpot> beamSpotHandle;
-  iEvent.getByLabel(beamSpotLabel,beamSpotHandle);
+  //iEvent.getByLabel(beamSpotLabel,beamSpotHandle);
+  iEvent.getByToken(bsToken, beamSpotHandle); //consume
 
   //
   // check for absent products and simply "return" in that case

@@ -44,7 +44,7 @@
 
 class BTagPerformanceAnalyzerMC : public edm::EDAnalyzer {
    public:
-      explicit BTagPerformanceAnalyzerMC(const edm::ParameterSet& pSet/*, const edm::EventSetup & setup*/);
+      explicit BTagPerformanceAnalyzerMC(const edm::ParameterSet& pSet);
 
       ~BTagPerformanceAnalyzerMC();
 

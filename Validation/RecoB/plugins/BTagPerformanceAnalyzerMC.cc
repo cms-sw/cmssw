@@ -8,14 +8,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-//added for consume
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
-#include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
-#include "DQMOffline/RecoB/interface/MVAJetTagPlotter.h"
-
-
-
 using namespace reco;
 using namespace edm;
 using namespace std;
@@ -24,7 +16,7 @@ using namespace RecoBTag;
 
 typedef std::pair<Jet, reco::JetFlavour> JetWithFlavour;
 
-BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet& pSet/*, const edm::EventSetup & setup*/) :
+BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet& pSet) :
   partonKinematics(pSet.getParameter< bool >("partonKinematics")),
   ptPartonMin(pSet.getParameter<double>("ptPartonMin")),
   ptPartonMax(pSet.getParameter<double>("ptPartonMax")),
