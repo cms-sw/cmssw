@@ -1,5 +1,4 @@
 ## This configuration runs the DIGI+L1Emulator step
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MUTRG")
@@ -25,6 +24,13 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 #process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+
+## GEM geometry customization
+use6part = True
+if use6part:
+    mynum = process.XMLIdealGeometryESSource.geomXMLFiles.index('Geometry/MuonCommonData/data/v4/gemf.xml')
+    process.XMLIdealGeometryESSource.geomXMLFiles.remove('Geometry/MuonCommonData/data/v4/gemf.xml')
+    process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/v2/gemf.xml')
 
 ## upgrade CSC geometry customizations
 runCSCforSLHC = True
