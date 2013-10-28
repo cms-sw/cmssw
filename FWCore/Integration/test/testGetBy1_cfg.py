@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD1")
 
 process.Tracer = cms.Service('Tracer',
-                             dumpContextForLabel = cms.untracked.string('intProducerA'),
+                             dumpContextForLabels = cms.untracked.vstring('intProducerA'),
                              dumpNonModuleContext = cms.untracked.bool(True)
 )
 
