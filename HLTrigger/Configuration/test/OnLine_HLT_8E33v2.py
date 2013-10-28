@@ -8084,7 +8084,8 @@ process.hltPFJetPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromPr
     InputVertexCollection = cms.InputTag( "hltPixelVertices" ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     InputCollection = cms.InputTag( "hltPixelTracks" ),
-    originRadius = cms.double( 0.1 )
+    originRadius = cms.double( 0.1 ),
+    usePV = cms.bool(True)
 )
 process.hltPFJetCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltPFJetPixelSeedsFromPixelTracks" ),
@@ -18154,8 +18155,9 @@ process.hltTau3MuPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromP
     InputVertexCollection = cms.InputTag( "hltDisplacedmumuFilterDoubleMuTau2Mu" ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     InputCollection = cms.InputTag( "hltRegionalPixelTracks" ),
-    originRadius = cms.double( 0.1 )
-)
+    originRadius = cms.double( 0.1 ),
+    usePV = cms.bool(True)
+                                                             )
 process.hltTau3MuCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltTau3MuPixelSeedsFromPixelTracks" ),
     maxSeedsBeforeCleaning = cms.uint32( 1000 ),
@@ -19148,8 +19150,9 @@ process.hltMuTrackSeeds = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProduce
     InputVertexCollection = cms.InputTag( "" ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     InputCollection = cms.InputTag( "hltPixelTracks" ),
-    originRadius = cms.double( 1.0E9 )
-)
+    originRadius = cms.double( 1.0E9 ),
+    usePV = cms.bool(True)
+                                          )
 process.hltMuCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltMuTrackSeeds" ),
     maxSeedsBeforeCleaning = cms.uint32( 1000 ),
@@ -19896,8 +19899,9 @@ process.hltMuTrackJpsiTrackSeeds = cms.EDProducer( "SeedGeneratorFromProtoTracks
     InputVertexCollection = cms.InputTag( "" ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     InputCollection = cms.InputTag( "hltMuTrackJpsiPixelTrackSelector" ),
-    originRadius = cms.double( 1.0E9 )
-)
+    originRadius = cms.double( 1.0E9 ),
+    usePV = cms.bool(True)
+                                                   )
 process.hltMuTrackJpsiEffCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltMuTrackJpsiTrackSeeds" ),
     maxSeedsBeforeCleaning = cms.uint32( 1000 ),
@@ -20216,8 +20220,9 @@ process.hltMuTrackTrackSeedsOnia = cms.EDProducer( "SeedGeneratorFromProtoTracks
     InputVertexCollection = cms.InputTag( "" ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     InputCollection = cms.InputTag( "hltMuTrackPixelTrackSelectorOnia" ),
-    originRadius = cms.double( 1.0E9 )
-)
+    originRadius = cms.double( 1.0E9 ),
+    usePV = cms.bool(True)
+                                                   )
 process.hltMuTrackCkfTrackCandidatesOnia = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltMuTrackTrackSeedsOnia" ),
     maxSeedsBeforeCleaning = cms.uint32( 1000 ),
@@ -32275,8 +32280,9 @@ process.hltPFJetPixelSeedsFromPixelTracksReg = cms.EDProducer( "SeedGeneratorFro
     InputVertexCollection = cms.InputTag( "hltPixelVerticesReg" ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     InputCollection = cms.InputTag( "hltPixelTracksReg" ),
-    originRadius = cms.double( 0.1 )
-)
+    originRadius = cms.double( 0.1 ),
+    usePV = cms.bool(True)
+                                                               )
 process.hltPFJetCkfTrackCandidatesReg = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltPFJetPixelSeedsFromPixelTracksReg" ),
     maxSeedsBeforeCleaning = cms.uint32( 1000 ),

@@ -41,9 +41,11 @@ SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(c
     useProtoTrackKinematics(cfg.getParameter<bool>("useProtoTrackKinematics")),
     useEventsWithNoVertex(cfg.getParameter<bool>("useEventsWithNoVertex")),
     builderName(cfg.getParameter<std::string>("TTRHBuilder"))
-
+  
 {
-  produces<TrajectorySeedCollection>();
+  produces<TrajectorySeedCollection>(); 
+  if(cfg.exists("usePV")) usePV_ = cfg.getParameter<bool>( "usePV" );
+ 
 }
 
 void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
@@ -69,7 +71,16 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
     bool keepTrack = false;
     if ( !foundVertices ) { 
 	  if (useEventsWithNoVertex) keepTrack = true;
-    } else { 
+    } 
+    else if (usePV_){
+      GlobalPoint aPV(vertices->begin()->position().x(),vertices->begin()->position().y(),vertices->begin()->position().z());
+      double distR2 = sqr(vtx.x()-aPV.x()) +sqr(vtx.y()-aPV.y());
+      double distZ = fabs(vtx.z()-aPV.z());
+      if ( distR2 < sqr(originRadius) && distZ < originHalfLength ) {
+        keepTrack = true;
+      }
+    }
+    else { 
       for (reco::VertexCollection::const_iterator iv=vertices->begin(); iv!= vertices->end(); ++iv) {
         GlobalPoint aPV(iv->position().x(),iv->position().y(),iv->position().z());
 	double distR2 = sqr(vtx.x()-aPV.x()) +sqr(vtx.y()-aPV.y());

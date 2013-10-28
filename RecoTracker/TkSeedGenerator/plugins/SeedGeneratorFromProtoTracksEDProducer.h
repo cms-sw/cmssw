@@ -22,5 +22,6 @@ private:
   bool useProtoTrackKinematics;
   bool useEventsWithNoVertex;
   std::string builderName;
+  bool usePV_;
 };
 #endif
