@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("photonAnalysis")
 
+process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("DQMOffline.EGamma.photonAnalyzer_cfi")
 process.load("DQMOffline.EGamma.zmumugammaAnalyzer_cfi")
@@ -14,11 +15,13 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
+#process.MessageLogger.cerr.FwkReport.reportEvery = 100
+
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 	
-'/store/relval/CMSSW_6_0_0_pre7-GR_R_53_V2_RelVal_zMu2011B/DoubleMu/RECO/v1/0000/124D426F-38BA-E111-AEC8-003048FFD75C.root'
-
+	'/store/relval/CMSSW_7_0_0_pre2/RelValZEE/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/0229B33C-E10F-E311-9C16-002618943829.root'
+#	'/store/relval/CMSSW_7_0_0_pre2/RelValH130GGgluonfusion/GEN-SIM-DIGI-RECO/PRE_ST62_V8_FastSim-v1/00000/2EB245F1-A30F-E311-80ED-0025905938A4.root'
 
 ))
 
@@ -44,3 +47,4 @@ process.p1 = cms.Path(process.photonAnalysis*process.zmumugammaAnalysis*process.
 
 process.schedule = cms.Schedule(process.p1)
 
+#print process.dumpPython()

@@ -33,6 +33,13 @@
 
 //
 
+#include "RooGlobalFunc.h"
+#include "RooRealVar.h"
+#include "RooDataSet.h"
+#include "RooBreitWigner.h"
+#include "RooDataHist.h"
+#include "RooFitResult.h"
+
 #include <vector>
 #include <string>
 
@@ -42,9 +49,9 @@
  **  $Id: PhotonOfflineClient
  **  $Date: 2011/04/08 15:55:00 $ 
  **  authors: 
- **   Nancy Marinelli, U. of Notre Dame, US  
+ **   Nancy Marinelli, U. of Notre Dame, US
  **   Jamie Antonelli, U. of Notre Dame, US
- **     
+ **   
  ***/
 
 
@@ -109,12 +116,10 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > p_badChannelsFractionVsEt_;
 
   MonitorElement* p_vertexReconstructionEfficiencyVsEta_;
-
-
+  
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator);
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator); 
-
-
+  
   DQMStore *dbe_;
   int verbosity_;
 
