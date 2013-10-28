@@ -48,8 +48,13 @@ process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag('simMuonC
 process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
 process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
 process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
-process.simCscTriggerPrimitiveDigis.tmbSLHC.gemMatchDeltaEta = cms.untracked.double(0.08)
-process.simCscTriggerPrimitiveDigis.tmbSLHC.gemMatchDeltaBX = cms.untracked.int32(1)
+tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
+tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
+tmb.gemMatchDeltaBX = cms.untracked.int32(1)
+lct_store_gemdphi = True
+if lct_store_gemdphi:
+    tmb.gemClearNomatchLCTs = cms.untracked.bool(False) 
+    tmb.gemMatchDeltaPhiOdd = cms.untracked.double(2.)
 
 ## upgrade CSC TrackFinder 
 process.load('L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi')
