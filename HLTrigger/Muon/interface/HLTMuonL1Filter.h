@@ -3,8 +3,8 @@
 
 /** \class HLTMuonL1Filter
  *
- *  
- *  This class is an HLTFilter (-> EDFilter) implementing a 
+ *
+ *  This class is an HLTFilter (-> EDFilter) implementing a
  *  filter on L1 GMT input
  *
  *  \author J. Alcaraz
@@ -46,7 +46,7 @@ class HLTMuonL1Filter : public HLTFilter {
     /// max Eta cut
     double maxEta_;
 
-    /// pT threshold 
+    /// pT threshold
     double minPt_;
 
     /// Quality codes:
@@ -64,7 +64,7 @@ class HLTMuonL1Filter : public HLTFilter {
     ///
     /// Quality bit mask:
     ///
-    /// the eight lowest order or least significant bits correspond to the qulity codes above; 
+    /// the eight lowest order or least significant bits correspond to the qulity codes above;
     /// if a bit is 1, that code is accepted, otherwise not;
     /// example: 11101000 accepts qualities 3, 5, 6, 7
     int qualityBitMask_;
@@ -76,14 +76,11 @@ class HLTMuonL1Filter : public HLTFilter {
     bool excludeSingleSegmentCSC_;
 
     /// checks if the passed L1MuExtraParticle is a single segment CSC
-    bool isSingleSegmentCSC(const l1extra::L1MuonParticleRef &);
+    bool isSingleSegmentCSC(const l1extra::L1MuonParticleRef & muon, L1CSCTrackCollection const & csctfTracks) const;
 
     /// input tag identifying the product containing CSCTF tracks
     edm::InputTag                          csctfTag_;
     edm::EDGetTokenT<L1CSCTrackCollection> csctfToken_;
-    
-    /// handle for CSCTFtracks
-    edm::Handle<L1CSCTrackCollection> csctfTracks_;
 
     /// trigger scales
     const L1MuTriggerScales *l1MuTriggerScales_;

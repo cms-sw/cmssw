@@ -2,7 +2,7 @@
 //
 // Package:    EcalMIPRecHitFilter
 // Class:      EcalMIPRecHitFilter
-// 
+//
 /**\class EcalMIPRecHitFilter EcalMIPRecHitFilter.cc Work/EcalMIPRecHitFilter/src/EcalMIPRecHitFilter.cc
 
  Description: <one line class summary>
@@ -60,7 +60,7 @@ class EcalMIPRecHitFilter : public HLTFilter {
       virtual void beginJob() override ;
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       virtual void endJob() override ;
-      
+
       // ----------member data ---------------------------
 
   edm::InputTag EcalRecHitCollection_;
@@ -81,16 +81,16 @@ EcalMIPRecHitFilter::EcalMIPRecHitFilter(const edm::ParameterSet& iConfig) :
   // now do what ever initialization is needed
   minSingleAmp_     = iConfig.getUntrackedParameter<double>("SingleAmpMin", 0.108);
   minAmp1_     = iConfig.getUntrackedParameter<double>("AmpMinSeed", 0.063);
-  minAmp2_     = iConfig.getUntrackedParameter<double>("AmpMin2", 0.045); 
+  minAmp2_     = iConfig.getUntrackedParameter<double>("AmpMin2", 0.045);
   maskedList_ = iConfig.getUntrackedParameter<std::vector<int> >("maskedChannels", maskedList_); //this is using the ashed index
   EcalRecHitCollection_ = iConfig.getParameter<edm::InputTag>("EcalRecHitCollection");
-  side_ = iConfig.getUntrackedParameter<int>("side", 3);  
+  side_ = iConfig.getUntrackedParameter<int>("side", 3);
 }
 
 
 EcalMIPRecHitFilter::~EcalMIPRecHitFilter()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -127,52 +127,51 @@ EcalMIPRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
    iSetup.get<EcalIntercalibConstantsRcd>().get(pIcal);
    const EcalIntercalibConstants* ical = pIcal.product();
    const EcalIntercalibConstantMap& icalMap=ical->getMap();
-   
+
    edm::ESHandle<EcalLaserDbService> pLaser;
    iSetup.get<EcalLaserDbRecord>().get( pLaser );
-   
+
    edm::ESHandle<EcalADCToGeVConstant> pAgc;
    iSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
    const EcalADCToGeVConstant* agc = pAgc.product();
    //std::cout << "Global EB ADC->GeV scale: " << agc->getEBValue() << " GeV/ADC count" ;
    float adcconst = agc->getEBValue();
-   
-   bool thereIsSignal = false;  
+
+   bool thereIsSignal = false;
    // loop on  rechits
    for ( EcalRecHitCollection::const_iterator hitItr = recHits->begin(); hitItr != recHits->end(); ++hitItr ) {
-     
+
      EcalRecHit hit = (*hitItr);
-     
+
      // masking noisy channels //KEEP this for now, just in case a few show up
-     std::vector<int>::iterator result;
-     result = find( maskedList_.begin(), maskedList_.end(), EBDetId(hit.id()).hashedIndex() );    
-     if  (result != maskedList_.end()) 
+     std::vector<int>::const_iterator result = std::find( maskedList_.begin(), maskedList_.end(), EBDetId(hit.id()).hashedIndex() );
+     if  (result != maskedList_.end())
        // LogWarning("EcalFilter") << "skipping uncalRecHit for channel: " << ic << " with amplitude " << ampli_ ;
-       continue; 
-     
+       continue;
+
      float ampli_ = hit.energy();
      EBDetId ebDet = hit.id();
-	 
-	 // find intercalib constant for this xtal
-	 EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(ebDet);
-         EcalIntercalibConstant icalconst = 1.;
-	 if( icalit!=icalMap.end() ){
-	   icalconst = (*icalit);
-	   //	   LogDebug("EcalRecHitDebug") << "Found intercalib for xtal " << EBDetId(it->id()).ic() << " " << icalconst ;
-	 } else {
-	   //edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EBDetId(ebDet) << "! something wrong with EcalIntercalibConstants in your DB? " ;
-	 }
-	 float lasercalib = pLaser->getLaserCorrection( EBDetId(ebDet), iEvent.time() );
+	
+     // find intercalib constant for this xtal
+     EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(ebDet);
+     EcalIntercalibConstant icalconst = 1.;
+     if( icalit!=icalMap.end() ){
+       icalconst = (*icalit);
+       //LogDebug("EcalRecHitDebug") << "Found intercalib for xtal " << EBDetId(it->id()).ic() << " " << icalconst ;
+     } else {
+       //edm::LogError("EcalRecHitError") << "No intercalib const found for xtal " << EBDetId(ebDet) << "! something wrong with EcalIntercalibConstants in your DB? " ;
+     }
+     float lasercalib = pLaser->getLaserCorrection( EBDetId(ebDet), iEvent.time() );
 
-	 ampli_ /= (icalconst * lasercalib * adcconst);///LASER and CALIB constants from the DB //PUT THRESHOLDS IN ADC... AGAIN.
+     ampli_ /= (icalconst * lasercalib * adcconst);///LASER and CALIB constants from the DB //PUT THRESHOLDS IN ADC... AGAIN.
      // seeking channels with signal and displaced jitter
-     if (ampli_ >= minSingleAmp_  ) 
+     if (ampli_ >= minSingleAmp_  )
        {
 	 //std::cout << " THIS AMPLITUDE WORKS " << ampli_ << std::endl;
 	 thereIsSignal = true;
-	 // LogWarning("EcalFilter")  << "at evet: " << iEvent.id().event() 
-	 // 				       << " and run: " << iEvent.id().run() 
-	 // 				       << " there is OUT OF TIME signal at chanel: " << ic 
+	 // LogWarning("EcalFilter")  << "at evet: " << iEvent.id().event()
+	 // 				       << " and run: " << iEvent.id().run()
+	 // 				       << " there is OUT OF TIME signal at chanel: " << ic
 	 // 				       << " with amplitude " << ampli_  << " and max at: " << jitter_;
 	 break;
        }
@@ -186,7 +185,7 @@ EcalMIPRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
           for(std::vector<DetId>::const_iterator detitr = neighbors.begin(); detitr != neighbors.end(); ++detitr)
 	    {
 	      EcalRecHitCollection::const_iterator thishit = recHits->find((*detitr));
-              if (thishit == recHits->end()) 
+              if (thishit == recHits->end())
 		{
 		  //LogWarning("EcalMIPRecHitFilter") << "No RecHit available, for "<< EBDetId(*detitr);
 		  continue;
@@ -206,14 +205,14 @@ EcalMIPRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	              float lasercalib2 = pLaser->getLaserCorrection( EBDetId((*thishit).id()), iEvent.time() );
 				  thisamp /= (icalconst2 * lasercalib2 * adcconst);///LASER and CALIB constants from the DB
                   if (thisamp > secondMin) secondMin = thisamp;
-                } 
+                }
 	    }
-	    
-          if (secondMin > minAmp2_ ) 
+	
+          if (secondMin > minAmp2_ )
 	    {
 	       thereIsSignal = true;
 	       break;
-	    }	 
+	    }	
        }
    }
    //std::cout << " Ok is There one of THEM " << thereIsSignal << std::endl;
@@ -221,13 +220,13 @@ EcalMIPRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 EcalMIPRecHitFilter::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 EcalMIPRecHitFilter::endJob() {
 }
 

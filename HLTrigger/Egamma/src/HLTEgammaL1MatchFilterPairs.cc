@@ -24,8 +24,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include <vector>
+#include <cmath>
 
-#define TWOPI 6.283185308
+#define TWOPI 2*M_PI
 //
 // constructors and destructor
 //
@@ -165,7 +166,7 @@ HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup
   return accept;
 }
 
-bool HLTEgammaL1MatchFilterPairs::CheckL1Matching(edm::Ref<reco::RecoEcalCandidateCollection>ref,std::vector<l1extra::L1EmParticleRef >& l1EGIso,std::vector<l1extra::L1EmParticleRef >& l1EGNonIso){
+bool HLTEgammaL1MatchFilterPairs::CheckL1Matching(edm::Ref<reco::RecoEcalCandidateCollection> ref, std::vector<l1extra::L1EmParticleRef >& l1EGIso, std::vector<l1extra::L1EmParticleRef >& l1EGNonIso) const {
 
   for (unsigned int i=0; i<l1EGIso.size(); i++) {
     //ORCA matching method
@@ -182,7 +183,7 @@ bool HLTEgammaL1MatchFilterPairs::CheckL1Matching(edm::Ref<reco::RecoEcalCandida
 
     float deltaphi=fabs(ref->phi() -l1EGIso[i]->phi());
     if(deltaphi>TWOPI) deltaphi-=TWOPI;
-    if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
+    if(deltaphi>M_PI) deltaphi=TWOPI-deltaphi;
 
     if(ref->eta() < etaBinHigh && ref->eta() > etaBinLow && deltaphi <region_phi_size_/2. )  {return true;}
 
@@ -203,7 +204,7 @@ bool HLTEgammaL1MatchFilterPairs::CheckL1Matching(edm::Ref<reco::RecoEcalCandida
 
     float deltaphi=fabs(ref->phi() - l1EGNonIso[i]->phi());
     if(deltaphi>TWOPI) deltaphi-=TWOPI;
-    if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
+    if(deltaphi>M_PI) deltaphi=TWOPI-deltaphi;
 
     if(ref->eta() < etaBinHigh && ref->eta() > etaBinLow && deltaphi <region_phi_size_/2. )  {return true;}
 	

@@ -3,7 +3,7 @@
 
 /** \class HLTMuonIsoFilter
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing
  *  the isolation filtering for HLT muons
  *
@@ -28,8 +28,10 @@ class HLTMuonIsoFilter : public HLTFilter {
       ~HLTMuonIsoFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
-      bool triggerdByPreviousLevel(const reco::RecoChargedCandidateRef &, const std::vector<reco::RecoChargedCandidateRef> &);
+
    private:
+      static bool triggerdByPreviousLevel(const reco::RecoChargedCandidateRef &, const std::vector<reco::RecoChargedCandidateRef> &);
+
       edm::InputTag                                          candTag_;   // input tag identifying muon container
       edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_; // token identifying muon container
       edm::InputTag                                          previousCandTag_;   // input tag identifying product contains muons passing the previous level

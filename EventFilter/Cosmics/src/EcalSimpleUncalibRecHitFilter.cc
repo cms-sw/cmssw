@@ -2,7 +2,7 @@
 //
 // Package:    EcalSimpleUncalibRecHitFilter
 // Class:      EcalSimpleUncalibRecHitFilter
-// 
+//
 /**\class EcalSimpleUncalibRecHitFilter EcalSimpleUncalibRecHitFilter.cc Work/EcalSimpleUncalibRecHitFilter/src/EcalSimpleUncalibRecHitFilter.cc
 
  Description: <one line class summary>
@@ -46,7 +46,7 @@ class EcalSimpleUncalibRecHitFilter : public HLTFilter {
       virtual void beginJob() override ;
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       virtual void endJob() override ;
-      
+
       // ----------member data ---------------------------
 
   edm::InputTag EcalUncalibRecHitCollection_;
@@ -70,7 +70,7 @@ EcalSimpleUncalibRecHitFilter::EcalSimpleUncalibRecHitFilter(const edm::Paramete
 
 EcalSimpleUncalibRecHitFilter::~EcalSimpleUncalibRecHitFilter()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -95,46 +95,45 @@ EcalSimpleUncalibRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSet
      LogWarning("EcalSimpleUncalibRecHitFilter") << EcalUncalibRecHitCollection_ << " not available";
    }
 
-   
-   bool thereIsSignal = false;  
+
+   bool thereIsSignal = false;
    // loop on crude rechits
    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = crudeHits->begin(); hitItr != crudeHits->end(); ++hitItr ) {
-     
+
      EcalUncalibratedRecHit hit = (*hitItr);
-     
+
      // masking noisy channels
-     std::vector<int>::iterator result;
-     result = find( maskedList_.begin(), maskedList_.end(), EBDetId(hit.id()).hashedIndex() );    
-     if  (result != maskedList_.end()) 
+     std::vector<int>::const_iterator result = std::find( maskedList_.begin(), maskedList_.end(), EBDetId(hit.id()).hashedIndex() );
+     if  (result != maskedList_.end())
        // LogWarning("EcalFilter") << "skipping uncalRecHit for channel: " << ic << " with amplitude " << ampli_ ;
-       continue; 
-     
+       continue;
+
      float ampli_ = hit.amplitude();
-     
+
      // seeking channels with signal and displaced jitter
-     if (ampli_ >= minAdc_  ) 
+     if (ampli_ >= minAdc_  )
        {
 	 thereIsSignal = true;
-	 // LogWarning("EcalFilter")  << "at evet: " << iEvent.id().event() 
-	 // 				       << " and run: " << iEvent.id().run() 
-	 // 				       << " there is OUT OF TIME signal at chanel: " << ic 
+	 // LogWarning("EcalFilter")  << "at evet: " << iEvent.id().event()
+	 // 				       << " and run: " << iEvent.id().run()
+	 // 				       << " there is OUT OF TIME signal at chanel: " << ic
 	 // 				       << " with amplitude " << ampli_  << " and max at: " << jitter_;
 	 break;
        }
-     
+
    }
-   
+
    return thereIsSignal;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 EcalSimpleUncalibRecHitFilter::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 EcalSimpleUncalibRecHitFilter::endJob() {
 }
 
