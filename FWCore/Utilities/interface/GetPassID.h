@@ -5,7 +5,7 @@
 
 namespace edm {
   inline
-  std::string const getPassID () {
+  std::string getPassID () {
     static std::string const passID;
     // return empty string for now.
     return passID; 
