@@ -41,6 +41,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" 
 #include "RecoParticleFlow/PFProducer/interface/Utils.h"
@@ -107,6 +108,9 @@ class GsfGEDElectronAnalyzer : public edm::EDAnalyzer {
   TH1F *eg_scshh_all,*eg_scshh_eb,*eg_scshh_ee,*ged_scshh_all,*ged_scshh_eb,*ged_scshh_ee,*pf_scshh_all,*pf_scshh_eb,*pf_scshh_ee;
 
   TH1F *eg_scsff_all,*eg_scsff_eb,*eg_scsff_ee,*ged_scsff_all,*ged_scsff_eb,*ged_scsff_ee,*pf_scsff_all,*pf_scsff_eb,*pf_scsff_ee;
+
+
+  TH1F *pf_MET_reco ,*pf_MET_rereco;
 };
 
 //
@@ -240,7 +244,11 @@ GsfGEDElectronAnalyzer::GsfGEDElectronAnalyzer(const edm::ParameterSet& iConfig)
   pf_scsff_all = fs->make<TH1F>("pf_scsff_all","  ",150,0.0,0.15);
   pf_scsff_eb  = fs->make<TH1F>("pf_scsff_eb","  ",150,0.0,0.15);
   pf_scsff_ee  = fs->make<TH1F>("pf_scsff_ee","  ",150,0.0,0.15);
-  
+ 
+  // MET 
+  pf_MET_reco = fs->make<TH1F>("pf_MET_reco","  ",10,0,1000);
+  pf_MET_rereco = fs->make<TH1F>("pf_MET_rereco","  ",10,0,1000);
+ 
 }
 
 
@@ -266,7 +274,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // Candidate info
   Handle<reco::PFCandidateCollection> collection;
-  InputTag label("particleFlow::RECO");  // <- Special electron coll. 
+  InputTag label("particleFlow::REPROD");  // <- Special electron coll. 
   iEvent.getByLabel(label, collection);
   std::vector<reco::PFCandidate> candidates = (*collection.product());
 
@@ -290,6 +298,17 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   const GsfElectronCollection theGedEle = *(theGedEleCollection.product());
 
 
+  //get and plot the reco met
+  InputTag pfMETRecoLabel("pfMet::RECO");
+  Handle<std::vector<reco::PFMET> > recoMet;
+  iEvent.getByLabel(pfMETRecoLabel,recoMet);
+  pf_MET_reco->Fill(recoMet->at(0).et());
+  
+  //get and plot the rereco met
+  InputTag pfMETReRecoLabel("pfMet::REPROD");
+  Handle<std::vector<reco::PFMET> > rerecoMet;
+  iEvent.getByLabel(pfMETReRecoLabel,rerecoMet);
+  pf_MET_rereco->Fill(rerecoMet->at(0).et());
 
 
   bool debug = true;
