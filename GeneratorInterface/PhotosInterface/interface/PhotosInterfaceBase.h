@@ -8,6 +8,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "HepMC/SimpleVector.h"
 #include <string>
+#include "CLHEP/Random/RandomEngine.h"
 
 namespace gen {
    class PhotosInterfaceBase {
@@ -21,7 +22,7 @@ namespace gen {
      virtual const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
      virtual HepMC::GenEvent* apply( HepMC::GenEvent* evt){return evt;}
      virtual void avoidTauLeptonicDecays(){};
-
+     virtual void configureOnlyFor( int ){};
      
    protected: 
      std::vector<std::string> fSpecialSettings;

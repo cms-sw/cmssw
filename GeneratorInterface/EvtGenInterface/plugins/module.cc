@@ -4,4 +4,4 @@
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenFactory.h"
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterface.h"
 
-DEFINE_EDM_PLUGIN(EvtGenFactory, gen::EvtGenInterface, "EvtGenLHC-9.1");
+DEFINE_EDM_PLUGIN(EvtGenFactory, gen::EvtGenInterface, "EvtGenLHC91");
