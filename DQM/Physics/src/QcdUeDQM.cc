@@ -24,7 +24,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfoTrackAssociation.h"
@@ -75,17 +75,22 @@ QcdUeDQM::QcdUeDQM(const ParameterSet &parameters) :
   bsuse_(parameters.getParameter<bool>("bsuse")),
   allowTriplets_(parameters.getParameter<bool>("allowTriplets")),
   bsPos_(parameters.getParameter<double>("bsPos")),
-  caloJetLabel_(parameters.getUntrackedParameter<edm::InputTag>("caloJetTag")),
-  chargedJetLabel_(parameters.getUntrackedParameter<edm::InputTag>("chargedJetTag")),
-  trackLabel_(parameters.getUntrackedParameter<edm::InputTag>("trackTag")),
-  vtxLabel_(parameters.getUntrackedParameter<edm::InputTag>("vtxTag")),
-  bsLabel_(parameters.getParameter<edm::InputTag>("beamSpotTag")) 
+  caloJetLabel_(consumes<reco::CaloJetCollection>(
+		  parameters.getUntrackedParameter<edm::InputTag>("caloJetTag"))),
+  chargedJetLabel_(consumes<reco::TrackJetCollection>(
+		     parameters.getUntrackedParameter<edm::InputTag>("chargedJetTag"))),
+  trackLabel_(consumes<reco::TrackCollection>(
+		parameters.getUntrackedParameter<edm::InputTag>("trackTag"))),
+  vtxLabel_(consumes<reco::VertexCollection>(
+	      parameters.getUntrackedParameter<edm::InputTag>("vtxTag"))),
+  bsLabel_(consumes<reco::BeamSpot>(
+	     parameters.getParameter<edm::InputTag>("beamSpotTag")))
 {
   // Constructor.
   std::vector<std::string> quality = parameters.getParameter<std::vector<std::string> >("quality");
-  for (unsigned int j=0;j<quality.size();j++) quality_.push_back(reco::TrackBase::qualityByName(quality[j])); 
+  for (unsigned int j=0;j<quality.size();j++) quality_.push_back(reco::TrackBase::qualityByName(quality[j]));
   std::vector<std::string> algorithm = parameters.getParameter<std::vector<std::string> >("algorithm");
-  for (unsigned int j=0;j<algorithm.size();j++) algorithm_.push_back(reco::TrackBase::algoByName(algorithm[j])); 
+  for (unsigned int j=0;j<algorithm.size();j++) algorithm_.push_back(reco::TrackBase::algoByName(algorithm[j]));
 
   if (parameters.exists("hltTrgNames"))
     hltTrgNames_ = parameters.getUntrackedParameter<vector<string> >("hltTrgNames");
@@ -98,7 +103,7 @@ QcdUeDQM::QcdUeDQM(const ParameterSet &parameters) :
   }
 
   isHltConfigSuccessful_ = false; // init
- 
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,39 +115,35 @@ QcdUeDQM::~QcdUeDQM()
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup) 
+void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
 {
   if( ! isHltConfigSuccessful_ ) return;
 
   // Analyze the given event.
-   
+
    edm::Handle<reco::BeamSpot> beamSpot;
-   bool ValidBS_ = iEvent.getByLabel(bsLabel_,beamSpot);
+   bool ValidBS_ = iEvent.getByToken(bsLabel_,beamSpot);
    if(!ValidBS_)return;
 
    edm::Handle<reco::TrackCollection>tracks ;
-   bool ValidTrack_ = iEvent.getByLabel(trackLabel_,tracks);
+   bool ValidTrack_ = iEvent.getByToken(trackLabel_,tracks);
    if(!ValidTrack_)return;
 
-   //edm::Handle<reco::CandidateView> trkJets;
-   //bool ValidTrackJet_ = iEvent.getByLabel (chargedJetLabel_,trkJets);
-   //if(!ValidTrackJet_)return;
-
    edm::Handle< reco::TrackJetCollection > trkJets ;
-   bool ValidTrackJet_ =  iEvent.getByLabel(chargedJetLabel_,trkJets );
+   bool ValidTrackJet_ =  iEvent.getByToken(chargedJetLabel_,trkJets );
    if(!ValidTrackJet_)return;
 
-   
+
    edm::Handle<reco::CaloJetCollection> calJets;
-   bool ValidCaloJet_ = iEvent.getByLabel (caloJetLabel_,calJets);
+   bool ValidCaloJet_ = iEvent.getByToken(caloJetLabel_,calJets);
    if(!ValidCaloJet_)return;
- 
+
    edm::Handle< reco::VertexCollection > vertexColl;
-   bool ValidVtxColl_ = iEvent.getByLabel (vtxLabel_, vertexColl);
+   bool ValidVtxColl_ = iEvent.getByToken(vtxLabel_, vertexColl);
    if(!ValidVtxColl_)return;
 
    reco::TrackCollection tracks_sort = *tracks;
-   std::sort(tracks_sort.begin(), tracks_sort.end(), PtSorter()); 
+   std::sort(tracks_sort.begin(), tracks_sort.end(), PtSorter());
 
   // get tracker geometry
 /*  ESHandle<TrackerGeometry> trackerHandle;
@@ -150,7 +151,7 @@ void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
   tgeo_ = trackerHandle.product();
   if (!tgeo_)return;
 */
-  selected_.clear(); 
+  selected_.clear();
   fillHltBits(iEvent,iSetup);
   // select good tracks
   if(fillVtxPlots(beamSpot.product(),vertexColl))
@@ -158,36 +159,36 @@ void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
   fill1D(hNevts_,1);
   for(reco::TrackCollection::const_iterator Trk = tracks_sort.begin(); Trk != tracks_sort.end(); ++Trk)
    {
-    
-   if ( trackSelection(*Trk,beamSpot.product(),vtx1,vertexColl->size()) ) selected_.push_back( & * Trk );   
+
+   if ( trackSelection(*Trk,beamSpot.product(),vtx1,vertexColl->size()) ) selected_.push_back( & * Trk );
    }
- 
-      
+
+
     fillpTMaxRelated(selected_);
-    fillChargedJetSpectra(trkJets);  
+    fillChargedJetSpectra(trkJets);
 //    fillCaloJetSpectra(calJets);
     fillUE_with_MaxpTtrack(selected_);
-    if(trkJets->size() > 0)fillUE_with_ChargedJets(selected_,trkJets); 
+    if(trkJets->size() > 0)fillUE_with_ChargedJets(selected_,trkJets);
    // if(calJets->size()>0)fillUE_with_CaloJets(selected_,calJets);
-  
+
  }
 
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdUeDQM::beginJob() 
+void QcdUeDQM::beginJob()
 {
   // Begin job and setup the DQM store.
 
   theDbe_ = Service<DQMStore>().operator->();
   if (!theDbe_)return;
-  
+
   //  theDbe_->setCurrentFolder("Physics/QcdUe");
-  
+
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdUeDQM::beginLuminosityBlock(const LuminosityBlock &l, 
+void QcdUeDQM::beginLuminosityBlock(const LuminosityBlock &l,
                                        const EventSetup &iSetup)
 {
   if( ! isHltConfigSuccessful_ ) return;
@@ -206,7 +207,7 @@ void QcdUeDQM::beginRun(const Run &run, const EventSetup &iSetup)
 
  string teststr;
  for(size_t i=0; i<hltProcNames_.size(); ++i) {
-   if (i>0) 
+   if (i>0)
      teststr += ", ";
    teststr += hltProcNames_.at(i);
    if ( hltConfig.init( run, iSetup, hltProcNames_.at(i), isHltCfgChange ) ) {
@@ -214,13 +215,13 @@ void QcdUeDQM::beginRun(const Run &run, const EventSetup &iSetup)
      hltUsedResName_ = hltResName_;
      if (hltResName_.find(':')==string::npos)
        hltUsedResName_ += "::";
-     else 
+     else
        hltUsedResName_ += ":";
      hltUsedResName_ += hltProcNames_.at(i);
      break;
    }
  }
- 
+
  if ( ! isHltConfigSuccessful_ )return;
 
   // setup "Any" bit
@@ -246,12 +247,12 @@ void QcdUeDQM::beginRun(const Run &run, const EventSetup &iSetup)
         found = 1;
         break;
       }
-    }      
+    }
     if (!found) {
       CP(2) cout<<"Could not find trigger bit"<<endl ;
     }
   }
- 
+
   // book monitoring histograms
   createHistos();
   isHltConfigSuccessful_ = true;
@@ -259,8 +260,8 @@ void QcdUeDQM::beginRun(const Run &run, const EventSetup &iSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdUeDQM::book1D(std::vector<MonitorElement*> &mes, 
-                         const std::string &name, const std::string &title, 
+void QcdUeDQM::book1D(std::vector<MonitorElement*> &mes,
+                         const std::string &name, const std::string &title,
                          int nx, double x1, double x2, bool sumw2, bool sbox)
 {
   // Book 1D histos.
@@ -269,7 +270,7 @@ void QcdUeDQM::book1D(std::vector<MonitorElement*> &mes,
     std::string folderName = "Physics/QcdUe/" + hltTrgUsedNames_.at(i);
     theDbe_->setCurrentFolder(folderName);
     MonitorElement *e = theDbe_->book1D(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
-                                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
+                                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()),
                                         nx, x1, x2);
     TH1 *h1 = e->getTH1();
     if (sumw2) {
@@ -283,9 +284,9 @@ void QcdUeDQM::book1D(std::vector<MonitorElement*> &mes,
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdUeDQM::book2D(std::vector<MonitorElement*> &mes, 
-                         const std::string &name, const std::string &title, 
-                         int nx, double x1, double x2, int ny, double y1, double y2, 
+void QcdUeDQM::book2D(std::vector<MonitorElement*> &mes,
+                         const std::string &name, const std::string &title,
+                         int nx, double x1, double x2, int ny, double y1, double y2,
                          bool sumw2, bool sbox)
 {
   // Book 2D histos.
@@ -294,7 +295,7 @@ void QcdUeDQM::book2D(std::vector<MonitorElement*> &mes,
     std::string folderName = "Physics/QcdUe/" + hltTrgUsedNames_.at(i);
     theDbe_->setCurrentFolder(folderName);
     MonitorElement *e = theDbe_->book2D(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
-                                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
+                                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()),
                                         nx, x1, x2, ny, y1, y2);
     TH1 *h1 = e->getTH1();
     if (sumw2) {
@@ -308,9 +309,9 @@ void QcdUeDQM::book2D(std::vector<MonitorElement*> &mes,
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdUeDQM::bookProfile(std::vector<MonitorElement*> &mes, 
-                         const std::string &name, const std::string &title, 
-                         int nx, double x1, double x2,  double y1, double y2, 
+void QcdUeDQM::bookProfile(std::vector<MonitorElement*> &mes,
+                         const std::string &name, const std::string &title,
+                         int nx, double x1, double x2,  double y1, double y2,
                          bool sumw2, bool sbox)
 {
   // Book Profile histos.
@@ -319,7 +320,7 @@ void QcdUeDQM::bookProfile(std::vector<MonitorElement*> &mes,
     std::string folderName = "Physics/QcdUe/" + hltTrgUsedNames_.at(i);
     theDbe_->setCurrentFolder(folderName);
     MonitorElement *e = theDbe_->bookProfile(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
-                                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
+                                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()),
                                         nx, x1, x2, y1, y2," ");
     mes.push_back(e);
   }
@@ -335,7 +336,7 @@ void QcdUeDQM::createHistos()
     repSumMap_  = theDbe_->book2D("reportSummaryMap","reportSummaryMap",1,0,1,1,0,1);
     repSummary_ = theDbe_->bookFloat("reportSummary");
   }
-  */ 
+  */
    theDbe_->setCurrentFolder("Physics/QcdUe");
 
   if (1) {
@@ -396,9 +397,9 @@ void QcdUeDQM::createHistos()
     book1D(hLeadingTrack_pTSpectrum_,"hLeadingTrack_pTSpectrum","pT spectrum of leading track;pT(GeV/c)",Nx,x1,x2);
 //    book1D(hLeadingCaloJet_pTSpectrum_,"hLeadingCalo_pTSpectrum","pT spectrum of leading calo jet;pT(GeV/c)",Nx,x1,x2);
     book1D(hLeadingChargedJet_pTSpectrum_,"hLeadingChargedJet_pTSpectrum","pT spectrum of leading track jet;pT(GeV/c)",Nx,x1,x2);
-    
+
   }
-  
+
   if (1) {
     const int Nx = 24;
     const double x1 = -4.;
@@ -408,7 +409,7 @@ void QcdUeDQM::createHistos()
     book1D(hLeadingChargedJet_phiSpectrum_,"hLeadingChargedJet_phiSpectrum","#phi spectrum of leading track jet;#phi",Nx,x1,x2);
 
   }
-  
+
   if (1) {
     const int Nx = 24;
     const double x1 = -4.;
@@ -426,53 +427,53 @@ if (1) {
     const double x2 = 75.0;
     const double y1 = 0.;
     const double y2 = 10.;
-    bookProfile(hdNdEtadPhi_pTMax_Toward500_,"hdNdEtadPhi_pTMax_Toward500", 
+    bookProfile(hdNdEtadPhi_pTMax_Toward500_,"hdNdEtadPhi_pTMax_Toward500",
                  "Average number of tracks (pT > 500 MeV) in toward region vs leading track pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    bookProfile(hdNdEtadPhi_pTMax_Transverse500_,"hdNdEtadPhi_pTMax_Transverse500", 
+    bookProfile(hdNdEtadPhi_pTMax_Transverse500_,"hdNdEtadPhi_pTMax_Transverse500",
                  "Average number of tracks (pT > 500 MeV) in transverse region vs leading track pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    bookProfile(hdNdEtadPhi_pTMax_Away500_,"hdNdEtadPhi_pTMax_Away500", 
+    bookProfile(hdNdEtadPhi_pTMax_Away500_,"hdNdEtadPhi_pTMax_Away500",
                  "Average number of tracks (pT > 500 MeV) in away region vs leading track pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
  /*
-    bookProfile(hdNdEtadPhi_caloJet_Toward500_,"hdNdEtadPhi_caloJet_Toward500", 
+    bookProfile(hdNdEtadPhi_caloJet_Toward500_,"hdNdEtadPhi_caloJet_Toward500",
                  "Average number of tracks (pT > 500 MeV) in toward region vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    bookProfile(hdNdEtadPhi_caloJet_Transverse500_,"hdNdEtadPhi_caloJet_Transverse500", 
+    bookProfile(hdNdEtadPhi_caloJet_Transverse500_,"hdNdEtadPhi_caloJet_Transverse500",
                  "Average number of tracks (pT > 500 MeV) in transverse region vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    bookProfile(hdNdEtadPhi_caloJet_Away500_,"hdNdEtadPhi_caloJet_Away500", 
-                 "Average number of tracks (pT > 500 MeV) in away region vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);   
+    bookProfile(hdNdEtadPhi_caloJet_Away500_,"hdNdEtadPhi_caloJet_Away500",
+                 "Average number of tracks (pT > 500 MeV) in away region vs leading calo jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
   */
 
-    bookProfile(hdNdEtadPhi_trackJet_Toward500_,"hdNdEtadPhi_trackJet_Toward500", 
+    bookProfile(hdNdEtadPhi_trackJet_Toward500_,"hdNdEtadPhi_trackJet_Toward500",
                  "Average number of tracks (pT > 500 MeV) in toward region vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2);
-    bookProfile(hdNdEtadPhi_trackJet_Transverse500_,"hdNdEtadPhi_trackJet_Transverse500", 
+    bookProfile(hdNdEtadPhi_trackJet_Transverse500_,"hdNdEtadPhi_trackJet_Transverse500",
                  "Average number of tracks (pT > 500 MeV) in transverse region vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    bookProfile(hdNdEtadPhi_trackJet_Away500_,"hdNdEtadPhi_trackJet_Away500", 
+    bookProfile(hdNdEtadPhi_trackJet_Away500_,"hdNdEtadPhi_trackJet_Away500",
                  "Average number of tracks (pT > 500 MeV) in away region vs leading track jet pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
 
 
- 
-    bookProfile(hpTSumdEtadPhi_pTMax_Toward500_,"hpTSumdEtadPhi_pTMax_Toward500", 
+
+    bookProfile(hpTSumdEtadPhi_pTMax_Toward500_,"hpTSumdEtadPhi_pTMax_Toward500",
                  "Average number of tracks (pT > 500 MeV) in toward region vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    bookProfile(hpTSumdEtadPhi_pTMax_Transverse500_,"hpTSumdEtadPhi_pTMax_Transverse500", 
+    bookProfile(hpTSumdEtadPhi_pTMax_Transverse500_,"hpTSumdEtadPhi_pTMax_Transverse500",
                  "Average number of tracks (pT > 500 MeV) in transverse region vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    bookProfile(hpTSumdEtadPhi_pTMax_Away500_,"hpTSumdEtadPhi_pTMax_Away500", 
+    bookProfile(hpTSumdEtadPhi_pTMax_Away500_,"hpTSumdEtadPhi_pTMax_Away500",
                  "Average number of tracks (pT > 500 MeV) in away region vs leading track pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-/* 
-    bookProfile(hpTSumdEtadPhi_caloJet_Toward500_,"hpTSumdEtadPhi_caloJet_Toward500", 
+/*
+    bookProfile(hpTSumdEtadPhi_caloJet_Toward500_,"hpTSumdEtadPhi_caloJet_Toward500",
                  "Average number of tracks (pT > 500 MeV) in toward region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    bookProfile(hpTSumdEtadPhi_caloJet_Transverse500_,"hpTSumdEtadPhi_caloJet_Transverse500", 
+    bookProfile(hpTSumdEtadPhi_caloJet_Transverse500_,"hpTSumdEtadPhi_caloJet_Transverse500",
                  "Average number of tracks (pT > 500 MeV) in transverse region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    bookProfile(hpTSumdEtadPhi_caloJet_Away500_,"hpTSumdEtadPhi_caloJet_Away500", 
-                 "Average number of tracks (pT > 500 MeV) in away region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);   
+    bookProfile(hpTSumdEtadPhi_caloJet_Away500_,"hpTSumdEtadPhi_caloJet_Away500",
+                 "Average number of tracks (pT > 500 MeV) in away region vs leading calo jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
 */
-  
-    bookProfile(hpTSumdEtadPhi_trackJet_Toward500_,"hpTSumdEtadPhi_trackJet_Toward500", 
+
+    bookProfile(hpTSumdEtadPhi_trackJet_Toward500_,"hpTSumdEtadPhi_trackJet_Toward500",
                  "Average number of tracks (pT > 500 MeV) in toward region vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    bookProfile(hpTSumdEtadPhi_trackJet_Transverse500_,"hpTSumdEtadPhi_trackJet_Transverse500", 
+    bookProfile(hpTSumdEtadPhi_trackJet_Transverse500_,"hpTSumdEtadPhi_trackJet_Transverse500",
                  "Average number of tracks (pT > 500 MeV) in transverse region vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
-    bookProfile(hpTSumdEtadPhi_trackJet_Away500_,"hpTSumdEtadPhi_trackJet_Away500", 
+    bookProfile(hpTSumdEtadPhi_trackJet_Away500_,"hpTSumdEtadPhi_trackJet_Away500",
                  "Average number of tracks (pT > 500 MeV) in away region vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
 
-   
+
    bookProfile(hdNdEtadPhi_pTMax_Toward900_,"hdNdEtadPhi_pTMax_Toward900",
                  "Average number of tracks (pT > 900 MeV) in toward region vs leading track pT;pT(GeV/c);dN/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hdNdEtadPhi_pTMax_Transverse900_,"hdNdEtadPhi_pTMax_Transverse900",
@@ -517,8 +518,8 @@ if (1) {
                  "Average number of tracks (pT > 900 MeV) in transverse region vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
     bookProfile(hpTSumdEtadPhi_trackJet_Away900_,"hpTSumdEtadPhi_trackJet_Away900",
                  "Average number of tracks (pT > 900 MeV) in away region vs leading track jet pT;pT(GeV/c);dpTSum/d#eta d#phi",Nx,x1,x2,y1,y2,0,0);
- 
-   
+
+
   }
 
 if (1) {
@@ -542,18 +543,18 @@ if (1) {
         book1D(hdPhi_chargedJet_tracks_,"hdPhi_chargedJet_tracks","delta phi between leading charged jet  and tracks;#Delta#phi(leading charged jet-track)",Nx,x1,x2);
 
 }
-            
+
 
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdUeDQM::endJob(void) 
+void QcdUeDQM::endJob(void)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void QcdUeDQM::endLuminosityBlock(const LuminosityBlock &l, 
+void QcdUeDQM::endLuminosityBlock(const LuminosityBlock &l,
                                      const EventSetup &iSetup)
 {
   if( ! isHltConfigSuccessful_ ) return;
@@ -654,7 +655,7 @@ void QcdUeDQM::fillProfile(std::vector<MonitorElement*> &mes, double valx, doubl
   for(size_t i=0;i<mes.size();++i) {
     if (!hltTrgDeci_.at(i))
       continue;
-   const double y = valy*w; 
+   const double y = valy*w;
     mes.at(i)->Fill(valx, y);
   }
 }
@@ -677,19 +678,19 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
   fill1D(hNtrackerStripPixelLayer_,(trk.hitPattern().pixelLayersWithMeasurement() +  trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()));
   fill1D(hRatioPtErrorPt_,(trk.ptError()/trk.pt()));
   fill1D(hTrkPt_,trk.pt());
-  fill1D(hTrkEta_,trk.eta());  
+  fill1D(hTrkEta_,trk.eta());
   fill1D(hTrkPhi_,trk.phi());
   fill1D(hRatioDxySigmaDxyBS_,(trk.dxy(bs->position())/trk.dxyError()));
   fill1D(hRatioDxySigmaDxyPV_,(trk.dxy(vtx.position())/trk.dxyError()));
   fill1D(hRatioDzSigmaDzBS_,(trk.dz(bs->position())/trk.dzError()));
   fill1D(hRatioDzSigmaDzPV_,(trk.dz(vtx.position())/trk.dzError()));
   fill1D(hTrkChi2_,trk.normalizedChi2());
-  fill1D(hTrkNdof_,trk.ndof());   
+  fill1D(hTrkNdof_,trk.ndof());
 
   fill1D(hBeamSpot_x_,bs->x0());
-  fill1D(hBeamSpot_y_,bs->y0()); 
+  fill1D(hBeamSpot_y_,bs->y0());
   fill1D(hBeamSpot_z_,bs->z0());
- 
+
  //number of layers
  bool layerMinCutbool=false;
     if (trk.hitPattern().trackerLayersWithMeasurement() >= minHit_ ||
@@ -711,13 +712,13 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
         if (p.validHitFilter(hit) && p.pixelHitFilter(hit) && p.getLayer(hit)==1) hasPIX1 = true;
       }
     }else hasPIX1 = true;
- 
+
  // cut on the pT error
- bool ptErrorbool=false; 
-    if (trk.ptError()/trk.pt() < ptErr_pt_ || 
-        (trk.hitPattern().trackerLayersWithMeasurement()==3 && trk.hitPattern().pixelLayersWithMeasurement()==3 && allowTriplets_)) ptErrorbool=true; 
+ bool ptErrorbool=false;
+    if (trk.ptError()/trk.pt() < ptErr_pt_ ||
+        (trk.hitPattern().trackerLayersWithMeasurement()==3 && trk.hitPattern().pixelLayersWithMeasurement()==3 && allowTriplets_)) ptErrorbool=true;
  // quality cut
- bool quality_ok = true;  
+ bool quality_ok = true;
  if (quality_.size()!=0) {
       quality_ok = false;
       for (unsigned int i = 0; i<quality_.size();++i) {
@@ -732,7 +733,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
     if (algorithm_.size()!=0) {
       if (std::find(algorithm_.begin(),algorithm_.end(),trk.algo())==algorithm_.end()) algo_ok = false;
     }
- 
+
 
  if(bsuse_==1)
       {
@@ -742,7 +743,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
     if(bsuse_==0)
      {
        if(hasPIX1 &&  pxlLayerMinCutbool &&  layerMinCutbool &&  (trk.hitPattern().pixelLayersWithMeasurement() +  trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo())  >= min3DHit_ && ptErrorbool && fabs(trk.pt()) >= ptMin_ && trk.eta() >= minRapidity_ && trk.eta() <= maxRapidity_ && fabs(trk.dxy(vtx.position())/trk.dxyError()) < tip_ && fabs(trk.dz(vtx.position())/trk.dzError()) < lip_  && trk.normalizedChi2()<=maxChi2_ && quality_ok &&  algo_ok)goodTrk=true;
-     
+
      }
 
   return goodTrk;
@@ -755,21 +756,21 @@ bool  QcdUeDQM::fillVtxPlots( const reco::BeamSpot* bs, const edm::Handle< reco:
 {
   const reco::VertexCollection theVertices = *(vtxColl.product());
   bool goodVtx = false;
-  fill1D(hNvertices_,theVertices.size()); 
-    for (reco::VertexCollection::const_iterator vertexIt = theVertices.begin(); vertexIt != theVertices.end(); ++vertexIt) 
+  fill1D(hNvertices_,theVertices.size());
+    for (reco::VertexCollection::const_iterator vertexIt = theVertices.begin(); vertexIt != theVertices.end(); ++vertexIt)
       {
 	fill1D(hVertex_z_,vertexIt->z());
         fill1D(hVertex_y_,vertexIt->y());
         fill1D(hVertex_x_,vertexIt->x());
         fill1D(hVertex_ndof_,vertexIt->ndof());
-        fill1D(hVertex_rho_,vertexIt->position().rho()); 
+        fill1D(hVertex_rho_,vertexIt->position().rho());
         fill1D(hVertex_z_bs_,(vertexIt->z() -bs->z0()));
 
         if(fabs(vertexIt->z() -bs->z0()) < diffvtxbs_  && vertexIt->ndof() >= 4 && vertexIt->position().rho()<= 2.0)
          {
          goodVtx = true;
          vtx1=(*vertexIt);
-         
+
          break;
          }
       } // Loop over vertcies
@@ -797,21 +798,21 @@ void QcdUeDQM::fillpTMaxRelated(const std::vector<const reco::Track *> &track)
         fill1D(hGoodTrkPhi900_,track[i]->phi());
         }
         }
-		     
+
  }
 
 
 void QcdUeDQM::fillChargedJetSpectra(const edm::Handle<reco::TrackJetCollection> trackJets)
 {
   fill1D(hChargedJetMulti_,trackJets->size());
-  for( reco::TrackJetCollection::const_iterator f  = trackJets->begin();  f != trackJets->end(); f++) 
+  for( reco::TrackJetCollection::const_iterator f  = trackJets->begin();  f != trackJets->end(); f++)
     {
       if(f != trackJets->begin())continue;
       fill1D(hLeadingChargedJet_pTSpectrum_,f->pt());
       fill1D(hLeadingChargedJet_etaSpectrum_,f->eta());
       fill1D(hLeadingChargedJet_phiSpectrum_,f->phi());
-    } 
-	
+    }
+
 }
 
 /*
@@ -821,11 +822,11 @@ void QcdUeDQM::fillCaloJetSpectra(const edm::Handle<reco::CaloJetCollection> cal
    for( reco::CaloJetCollection::const_iterator f  = caloJets->begin();  f != caloJets->end(); f++)
      {
        if(f != caloJets->begin())continue;
-       fill1D(hLeadingCaloJet_pTSpectrum_,f->pt()); 
+       fill1D(hLeadingCaloJet_pTSpectrum_,f->pt());
        fill1D(hLeadingCaloJet_etaSpectrum_,f->eta());
        fill1D(hLeadingCaloJet_phiSpectrum_,f->phi());
      }
-   
+
 }
 
 
@@ -834,18 +835,18 @@ void QcdUeDQM::fillCaloJetSpectra(const edm::Handle<reco::CaloJetCollection> cal
 
 /*
  weight for transverse/toward/away region = 0.12
- 
+
 
 */
 
 void QcdUeDQM::fillUE_with_MaxpTtrack(const std::vector<const reco::Track*>  &track)
 {
-double w = 0.119;          
+double w = 0.119;
 //double w = 1.;
 double nTrk500_TransReg = 0;
 double nTrk500_AwayReg = 0;
 double nTrk500_TowardReg = 0;
- 
+
 double pTSum500_TransReg = 0;
 double pTSum500_AwayReg = 0;
 double pTSum500_TowardReg = 0;
@@ -858,38 +859,38 @@ double nTrk900_TowardReg = 0;
 double pTSum900_TransReg = 0;
 double pTSum900_AwayReg = 0;
 double pTSum900_TowardReg = 0;
-   if(track.size() > 0) 
+   if(track.size() > 0)
     {
      if(track[0]->pt() > 1.)
          {
 	    for(size_t i = 1; i < track.size();i++)
 		 {
-                        
+
                        double dphi = (180./PI)*(deltaPhi(track[0]->phi(),track[i]->phi()));
                        fill1D(hdPhi_maxpTTrack_tracks_,dphi);
 		       if(fabs(dphi)>60. && fabs(dphi)<120.)
 			 {
-			       pTSum500_TransReg =  pTSum500_TransReg + track[i]->pt();     
+			       pTSum500_TransReg =  pTSum500_TransReg + track[i]->pt();
 			       nTrk500_TransReg++;
                                if(track[i]->pt() > 0.9)
                                {
                                pTSum900_TransReg =  pTSum900_TransReg + track[i]->pt();
                                nTrk900_TransReg++;
                                }
-			 }            
-			
+			 }
+
 		       if(fabs(dphi)>120. && fabs(dphi)<180.)
 			 {
-			       pTSum500_AwayReg =  pTSum500_AwayReg + track[i]->pt();   
+			       pTSum500_AwayReg =  pTSum500_AwayReg + track[i]->pt();
 			       nTrk500_AwayReg++;
                                 if(track[i]->pt() > 0.9)
                                 {
                                 pTSum900_AwayReg =  pTSum900_AwayReg + track[i]->pt();
                                 nTrk900_AwayReg++;
 
-                                } 
-			 } 
-		       
+                                }
+			 }
+
 		       if(fabs(dphi)<60.)
 			 {
 			       pTSum500_TowardReg =  pTSum500_TowardReg + track[i]->pt();
@@ -898,9 +899,9 @@ double pTSum900_TowardReg = 0;
                                {
                                pTSum900_TowardReg =  pTSum900_TowardReg + track[i]->pt();
                                nTrk900_TowardReg++;
-                               } 
-			 }           
-		     } // track loop 
+                               }
+			 }
+		     } // track loop
 		 }// leading track
              // non empty collection
                fillProfile(hdNdEtadPhi_pTMax_Toward500_, track[0]->pt(),nTrk500_TowardReg,w);
@@ -927,7 +928,7 @@ double w = 0.119;
 double nTrk500_TransReg = 0;
 double nTrk500_AwayReg = 0;
 double nTrk500_TowardReg = 0;
-  
+
 double pTSum500_TransReg = 0;
 double pTSum500_AwayReg = 0;
 double pTSum500_TowardReg = 0;
@@ -958,7 +959,7 @@ double pTSum900_TowardReg = 0;
                                  nTrk900_TransReg++;
                                  }
 			   }
-			
+
 			 if(fabs(dphi)>120. && fabs(dphi)<180.)
 			   {
 				 pTSum500_AwayReg =  pTSum500_AwayReg + track[i]->pt();
@@ -977,16 +978,16 @@ double pTSum900_TowardReg = 0;
                                  {
                                  pTSum900_TowardReg =  pTSum900_TowardReg + track[i]->pt();
                                  nTrk900_TowardReg++;
-                                 } 
+                                 }
 			   }
-		       }// tracks loop 
+		       }// tracks loop
 
 		   }// leading track jet
-		 
+
 		 fillProfile(hdNdEtadPhi_trackJet_Toward500_, (trackJets->begin())->pt(),nTrk500_TowardReg,w);
 		 fillProfile(hdNdEtadPhi_trackJet_Transverse500_, (trackJets->begin())->pt(),nTrk500_TransReg,w);
 		 fillProfile(hdNdEtadPhi_trackJet_Away500_, (trackJets->begin())->pt(),nTrk500_AwayReg,w);
-		 
+
 		 fillProfile(hpTSumdEtadPhi_trackJet_Toward500_, (trackJets->begin())->pt(),pTSum500_TowardReg,w);
 		 fillProfile(hpTSumdEtadPhi_trackJet_Transverse500_, (trackJets->begin())->pt(),pTSum500_TransReg,w);
 		 fillProfile(hpTSumdEtadPhi_trackJet_Away500_, (trackJets->begin())->pt(),pTSum500_AwayReg,w);
@@ -997,7 +998,7 @@ double pTSum900_TowardReg = 0;
 
                  fillProfile(hpTSumdEtadPhi_trackJet_Toward900_, (trackJets->begin())->pt(),pTSum900_TowardReg,w);
                  fillProfile(hpTSumdEtadPhi_trackJet_Transverse900_, (trackJets->begin())->pt(),pTSum900_TransReg,w);
-                 fillProfile(hpTSumdEtadPhi_trackJet_Away900_, (trackJets->begin())->pt(),pTSum900_AwayReg,w);  
+                 fillProfile(hpTSumdEtadPhi_trackJet_Away900_, (trackJets->begin())->pt(),pTSum900_AwayReg,w);
 }
 
 /*
@@ -1007,7 +1008,7 @@ double w = 0.119;
 double nTrk500_TransReg = 0;
 double nTrk500_AwayReg = 0;
 double nTrk500_TowardReg = 0;
-                 
+
 double pTSum500_TransReg = 0;
 double pTSum500_AwayReg = 0;
 double pTSum500_TowardReg = 0;
@@ -1053,16 +1054,16 @@ double pTSum900_TowardReg = 0;
                                  if(track[i]->pt() > 0.9)
                                  {
                                  pTSum900_TowardReg =  pTSum900_TowardReg + track[i]->pt();
-                                 nTrk900_TowardReg++; 
+                                 nTrk900_TowardReg++;
                                  }
 			   }
-		       }// tracks loop 
+		       }// tracks loop
 
 		   }// leading calo jet
 		 fillProfile(hdNdEtadPhi_caloJet_Toward500_, (caloJets->begin())->pt(),nTrk500_TowardReg,w);
 		 fillProfile(hdNdEtadPhi_caloJet_Transverse500_, (caloJets->begin())->pt(),nTrk500_TransReg,w);
 		 fillProfile(hdNdEtadPhi_caloJet_Away500_, (caloJets->begin())->pt(),nTrk500_AwayReg,w);
-		   
+
 		 fillProfile(hpTSumdEtadPhi_caloJet_Toward500_, (caloJets->begin())->pt(),pTSum500_TowardReg,w);
 		 fillProfile(hpTSumdEtadPhi_caloJet_Transverse500_, (caloJets->begin())->pt(),pTSum500_TransReg,w);
                  fillProfile(hpTSumdEtadPhi_caloJet_Away500_, (caloJets->begin())->pt(),pTSum500_AwayReg,w);
@@ -1075,7 +1076,7 @@ double pTSum900_TowardReg = 0;
                  fillProfile(hpTSumdEtadPhi_caloJet_Transverse900_, (caloJets->begin())->pt(),pTSum900_TransReg,w);
                  fillProfile(hpTSumdEtadPhi_caloJet_Away900_, (caloJets->begin())->pt(),pTSum900_AwayReg,w);
 
-                 
+
 }
 
 */
@@ -1085,7 +1086,7 @@ void QcdUeDQM::fillHltBits(const Event &iEvent,const EventSetup &iSetup)
 
   Handle<TriggerResults> triggerResultsHLT;
   getProduct(hltUsedResName_, triggerResultsHLT, iEvent);
-  
+
 /*  const unsigned int ntrigs(triggerResultsHLT.product()->size());
   if( ntrigs != 0 ) {
   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResultsHLT);
@@ -1096,17 +1097,17 @@ void QcdUeDQM::fillHltBits(const Event &iEvent,const EventSetup &iSetup)
     for(unsigned int itrigName = 0; itrigName < hltTrgNames_.size(); itrigName++ ) {
      unsigned int hlt_prescale = hltConfig.prescaleValue(iEvent, iSetup, hltTrgNames_[itrigName]);
 
-     if(triggerNames.triggerIndex(hltTrgNames_[itrigName]) >= (unsigned int)ntrigs ) continue; 
+     if(triggerNames.triggerIndex(hltTrgNames_[itrigName]) >= (unsigned int)ntrigs ) continue;
 //    if( triggerResultsHLT->accept(triggerNames.triggerIndex(hltTrgNames_[itrigName])) )cout<<hltTrgNames_[itrigName]<<endl;
 
  }
     }
-   } 
+   }
  // }
 */
   for(size_t i=0;i<hltTrgBits_.size();++i) {
-    if (hltTrgBits_.at(i)<0) 
-      continue; //ignore unknown trigger 
+    if (hltTrgBits_.at(i)<0)
+      continue; //ignore unknown trigger
     size_t tbit = hltTrgBits_.at(i);
     if (tbit<triggerResultsHLT->size()) {
       hltTrgDeci_[i] = triggerResultsHLT->accept(tbit);
@@ -1129,3 +1130,7 @@ void QcdUeDQM::fillHltBits(const Event &iEvent,const EventSetup &iSetup)
 
 //--------------------------------------------------------------------------------------------------
 
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:
