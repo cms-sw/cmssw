@@ -171,4 +171,4 @@ FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementLis
 
 }
 
-REGISTER_FWPROXYBUILDER( FWTrackingParticleProxyBuilderFF, TrackingParticleCollection, "TrackingParticlesFF", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER( FWTrackingParticleProxyBuilderFF, TrackingParticleCollection, "TrackingParticlesFF", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
