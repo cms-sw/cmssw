@@ -89,8 +89,6 @@ FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementLis
    if (item()->getEvent() == 0 ) {
       return;
    }
-   const TrackingParticleCollection * tracks = 0;
-   iItem->get( tracks );
 
    getAssocList1();
    fflush(stdout);
@@ -110,7 +108,7 @@ FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementLis
    event->getByLabel(coltag, tpch);
 
    unsigned int tpIdx = 0;
-   for (TrackingParticleCollection::const_iterator it = tracks->begin(); it != tracks->end(); ++it, ++tpIdx)
+   for (TrackingParticleCollection::const_iterator it = tpch->begin(); it != tpch->end(); ++it, ++tpIdx) 
    {
       TEveCompound* comp = createCompound();
       setupAddElement( comp, product );
