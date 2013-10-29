@@ -13,7 +13,7 @@
   <class name="pat::TriggerObjectRefProd" />
   <class name="edm::Wrapper&lt;pat::TriggerObjectRefProd&gt;" />
   <class name="pat::TriggerObjectRefVector" />
-   <class name="edm::RefVectorIterator<std::vector<pat::TriggerObject>, pat::TriggerObject, edm::refhelper::FindUsingAdvance<std::vector<pat::TriggerObject>, pat::TriggerObject> > "/>
+  <class name="pat::TriggerObjectRefVectorIterator" />
   <class name="edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt;" />
   <class name="edm::reftobase::Holder&lt;reco::Candidate,pat::TriggerObjectRef&gt;" />
   <class name="edm::reftobase::RefHolder&lt;pat::TriggerObjectRef&gt;" />
@@ -34,7 +34,7 @@
   <class name="pat::TriggerObjectStandAloneRefProd" />
   <class name="edm::Wrapper&lt;pat::TriggerObjectStandAloneRefProd&gt;" />
   <class name="pat::TriggerObjectStandAloneRefVector" />
-   <class name="edm::RefVectorIterator<std::vector<pat::TriggerObjectStandAlone>, pat::TriggerObjectStandAlone, edm::refhelper::FindUsingAdvance<std::vector<pat::TriggerObjectStandAlone> >, pat::TriggerObjectStandAlone> > "/>
+  <class name="pat::TriggerObjectStandAloneRefVectorIterator" />
   <class name="edm::Association&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt; &gt;" />
   <class name="edm::reftobase::Holder&lt;reco::Candidate,pat::TriggerObjectStandAloneRef&gt;" />
   <class name="edm::reftobase::RefHolder&lt;pat::TriggerObjectStandAloneRef&gt;" />
@@ -50,7 +50,7 @@
   <class name="pat::TriggerFilterRefProd" />
   <class name="edm::Wrapper&lt;pat::TriggerFilterRefProd &gt;" />
   <class name="pat::TriggerFilterRefVector" />
-   <class name="edm::RefVectorIterator<std::vector<pat::TriggerFilter>, pat::TriggerFilter, edm::refhelper::FindUsingAdvance<std::vector<pat::TriggerFilter>, pat::TriggerFilter> > "/>
+  <class name="pat::TriggerFilterRefVectorIterator" />
 
   <class name="pat::TriggerPath"  ClassVersion="10">
    <version ClassVersion="10" checksum="2458567651"/>
@@ -62,7 +62,7 @@
   <class name="pat::TriggerPathRefProd" />
   <class name="edm::Wrapper&lt;pat::TriggerPathRefProd &gt;" />
   <class name="pat::TriggerPathRefVector" />
-   <class name="edm::RefVectorIterator<std::vector<pat::TriggerPath>, pat::TriggerPath, edm::refhelper::FindUsingAdvance<std::vector<pat::TriggerPath>, pat::TriggerPath> > "/>
+  <class name="pat::TriggerPathRefVectorIterator" />
   <class name="pat::L1Seed" />
   <class name="std::vector&lt;pat::L1Seed&gt;" />
   <class name="std::vector&lt;pat::L1Seed&gt;::const_iterator" />
@@ -77,7 +77,7 @@
   <class name="pat::TriggerConditionRefProd" />
   <class name="edm::Wrapper&lt;pat::TriggerConditionRefProd &gt;" />
   <class name="pat::TriggerConditionRefVector" />
-   <class name="edm::RefVectorIterator<std::vector<pat::TriggerCondition>, pat::TriggerCondition, edm::refhelper::FindUsingAdvance<std::vector<pat::TriggerCondition>, pat::TriggerCondition> > "/>
+  <class name="pat::TriggerConditionRefVectorIterator" />
 
   <class name="pat::TriggerAlgorithm"  ClassVersion="10">
    <version ClassVersion="10" checksum="1625162602"/>
@@ -89,7 +89,7 @@
   <class name="pat::TriggerAlgorithmRefProd" />
   <class name="edm::Wrapper&lt;pat::TriggerAlgorithmRefProd &gt;" />
   <class name="pat::TriggerAlgorithmRefVector" />
-   <class name="edm::RefVectorIterator<std::vector<pat::TriggerAlgorithm>, pat::TriggerAlgorithm, edm::refhelper::FindUsingAdvance<std::vector<pat::TriggerAlgorithm>, pat::TriggerAlgorithm> > "/>
+  <class name="pat::TriggerAlgorithmRefVectorIterator" />
 
   <class name="pat::TriggerEvent"  ClassVersion="10">
    <version ClassVersion="10" checksum="174329539"/>
