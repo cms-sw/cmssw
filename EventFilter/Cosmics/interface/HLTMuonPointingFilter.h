@@ -28,28 +28,28 @@ class Propagator;
 class HLTMuonPointingFilter : public HLTFilter {
 
 public:
-  
+
   /// Constructor
   HLTMuonPointingFilter(const edm::ParameterSet&) ;
-  
+
   /// Destructor
   ~HLTMuonPointingFilter() ;
-  
-  /* Operations */ 
+
+  /* Operations */
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-  
+
 private:
-  std::string theSTAMuonLabel; // label of muons 
-  std::string thePropagatorName; // name of propagator to be used
-    double theRadius;  // radius of cylinder
-  double theMaxZ;    // half lenght of cylinder
-  
+  const std::string theSTAMuonLabel;        // label of muons
+  const std::string thePropagatorName;      // name of propagator to be used
+  const double theRadius;                   // radius of cylinder
+  const double theMaxZ;                     // half length of cylinder
+
   Cylinder::CylinderPointer theCyl;
-  Plane::PlanePointer thePosPlane,theNegPlane;
-  
+  Plane::PlanePointer thePosPlane, theNegPlane;
+
   mutable Propagator* thePropagator;
   unsigned long long  m_cacheRecordId;
-  
+
 };
 #endif // Muon_HLTMuonPointingFilter_h
 
