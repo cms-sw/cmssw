@@ -722,6 +722,13 @@ namespace cond {
       }
       return m_switch.impl.existsDatabase();
     }
+
+    void Session::createDatabase(){
+      if( existsDatabase() ){
+	throwException( "Condition Database already exists.","Session::createDatabase");
+      }
+      m_switch.impl.createDatabase();
+    }
     
     IOVProxy Session::readIov( const std::string& tag, bool full ){
       if( m_switch.isOra() ){
@@ -734,7 +741,7 @@ namespace cond {
     }
     
     // 
-    bool Session::existIov( const std::string& tag ){
+    bool Session::existsIov( const std::string& tag ){
       if( m_switch.isOra() ){
 	cond::MetaData metadata( m_switch.oraCurrent );
 	return metadata.hasTag( tag );
@@ -743,7 +750,7 @@ namespace cond {
       }
     }
     
-    IOVEditor Session::createIov( const std::string& tag, cond::TimeType timeType, const std::string& payloadType, 
+    IOVEditor Session::createIov( const std::string& payloadType, const std::string& tag, cond::TimeType timeType,  
 				  cond::SynchronizationType synchronizationType ){
       if( m_switch.isOra() ){
 	cond::MetaData metadata( m_switch.oraCurrent );
@@ -752,7 +759,7 @@ namespace cond {
 	metadata.addMapping( tag, tok, (cond::TimeType )timeType );
 	return IOVEditor( oraEditor );
       } else {
-	return IOVEditor( m_switch.impl.createIov( tag, timeType, payloadType, synchronizationType ) );
+	return IOVEditor( m_switch.impl.createIov( payloadType, tag, timeType, synchronizationType ) );
       }
     }
     

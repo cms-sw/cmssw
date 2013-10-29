@@ -105,7 +105,7 @@ namespace cond {
       template <typename T>
       IOVEditor createIov( const std::string& tag, cond::TimeType timeType, 
 			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
-      IOVEditor createIov( const std::string& tag, cond::TimeType timeType, const std::string& payloadType, 
+      IOVEditor createIov(  const std::string& payloadType, const std::string& tag, cond::TimeType timeType,
 			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
       
       // update an existing iov sequence with the specified tag.
@@ -144,7 +144,7 @@ namespace cond {
     };
     
     template <typename T> inline IOVEditor Session::createIov( const std::string& tag, cond::TimeType timeType, cond::SynchronizationType synchronizationType ){
-      return createIov( tag, timeType, cond::demangledName( typeid(T) ), synchronizationType );
+      return createIov( cond::demangledName( typeid(T) ), tag, timeType, synchronizationType );
     }
     
     template <typename T> inline cond::Hash Session::storePayload( const T& payload, const boost::posix_time::ptime& creationTime ){

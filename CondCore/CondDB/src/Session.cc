@@ -133,7 +133,7 @@ namespace cond {
       return proxy;
     }
 
-    IOVEditor Session::createIov( const std::string& tag, cond::TimeType timeType, const std::string& payloadType, cond::SynchronizationType synchronizationType ){
+    IOVEditor Session::createIov( const std::string& payloadType, const std::string& tag, cond::TimeType timeType, cond::SynchronizationType synchronizationType ){
       openIovDb( CREATE );
       if( TAG::select( tag, *m_session ) ) throwException( "The specified tag \""+tag+"\" already exist in the database.","Session::createIov");
       IOVEditor editor( m_session, tag, timeType, payloadType, synchronizationType );

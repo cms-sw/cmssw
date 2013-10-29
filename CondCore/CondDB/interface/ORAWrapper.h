@@ -251,19 +251,22 @@ namespace cond {
 
       bool existsDatabase();
 
+      void createDatabase();
+
       IOVProxy readIov( const std::string& tag, bool full=false );//,const boost::posix_time::ptime& snapshottime )  
 
-      bool existIov( const std::string& tag );
+      bool existsIov( const std::string& tag );
 
       template <typename T>
       IOVEditor createIov( const std::string& tag,cond::TimeType timeType, 
 			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
-      IOVEditor createIov( const std::string& tag, cond::TimeType timeType, const std::string& payloadType, 
+      IOVEditor createIov( const std::string& payloadType, const std::string& tag, cond::TimeType timeType,
 			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
 
       IOVEditor editIov( const std::string& tag );
 
       template <typename T> cond::Hash storePayload( const T& payload, const boost::posix_time::ptime& creationTime );
+      template <typename T> cond::Hash storePayload( const T& payload );
       template <typename T> boost::shared_ptr<T> fetchPayload( const cond::Hash& payloadHash );
 
       IOVProxy iovProxy();
@@ -281,7 +284,7 @@ namespace cond {
     };
 
     template <typename T> inline IOVEditor Session::createIov( const std::string& tag, cond::TimeType timeType, cond::SynchronizationType synchronizationType ){
-      return createIov( tag, timeType, cond::demangledName( typeid(T) ), synchronizationType );
+      return createIov( cond::demangledName( typeid(T) ), tag, timeType, synchronizationType );
     }
 
     template <typename T> inline cond::Hash Session::storePayload( const T& payload, const boost::posix_time::ptime& creationTime ){
@@ -292,6 +295,10 @@ namespace cond {
 	hashOrToken = m_switch.impl.storePayload( payload, creationTime );
       }
       return hashOrToken;
+    }
+
+    template <typename T> inline cond::Hash Session::storePayload( const T& payload ){
+      return storePayload( payload, boost::posix_time::microsec_clock::universal_time() );
     }
 
     template <typename T> inline boost::shared_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
