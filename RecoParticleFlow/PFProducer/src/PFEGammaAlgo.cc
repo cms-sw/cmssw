@@ -1441,7 +1441,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
    npfclusters = std::distance(ecalbegin,firstnotinsc);
    // ensure we have found the correct number of PF ecal clusters in the case
    // that this is a PF supercluster, otherwise all bets are off
-   if( is_pf_sc && nscclusters != npfclusters ) {
+   if( is_pf_sc && nscclusters != safePFClusters.size() ) {
      std::stringstream sc_err;
      thesc->Dump(sc_err,"\t");
      throw cms::Exception("PFEGammaAlgo::unwrapSuperCluster()")
@@ -1493,9 +1493,8 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
        npfpsclusters += attachPSClusters(elemascluster,eslist);    
      }
    } // loop over ecal elements
-
-   // check that we found the right number of PF-PS clusters if this is a 
-   // PF supercluster, otherwise all bets are off
+   
+   /*
    if( is_pf_sc && nscpsclusters != npfpsclusters) {
      std::stringstream sc_err;
      thesc->Dump(sc_err,"\t");
@@ -1507,6 +1506,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
        << std::endl 
        << sc_err.str() << std::endl;
    }
+   */
 
    LOGDRESSED("PFEGammaAlgo")
      << " Unwrapped SC has " << npfclusters << " ECAL sub-clusters"
@@ -1521,9 +1521,8 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 				    const ClusterElement* ecalclus,
 				    ClusterMap::mapped_type& eslist) {  
    if( ecalclus->clusterRef()->layer() == PFLayer::ECAL_BARREL ) return 0;
-   SuperClusterRef::key_type sc_key = ecalclus->clusterRef().key();
-   edm::Ptr<reco::CaloCluster> clusptr = refToPtr(ecalclus->clusterRef());
-   EEtoPSElement ecalkey = std::make_pair(clusptr.key(),clusptr);  
+   edm::Ptr<reco::PFCluster> clusptr = refToPtr(ecalclus->clusterRef());
+   EEtoPSElement ecalkey = std::make_pair(clusptr.key(),clusptr);
    auto assc_ps = std::equal_range(eetops_->cbegin(),
 				   eetops_->cend(),
 				   ecalkey,
