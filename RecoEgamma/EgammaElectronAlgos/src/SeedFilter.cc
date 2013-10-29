@@ -131,7 +131,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   //===============================================
 
   TrackCharge aCharge = -1 ;
-  FreeTrajectoryState fts = myFTS(&(*theMagField), clusterPos, vtxPos, energy, aCharge);
+  FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField, clusterPos, vtxPos, energy, aCharge);
 
   RectangularEtaPhiTrackingRegion etaphiRegionMinus(fts.momentum(),
                                                     vtxPos,
@@ -158,7 +158,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   //===============================================
 
   TrackCharge aChargep = 1 ;
-  fts = myFTS(&(*theMagField), clusterPos, vtxPos, energy, aChargep);
+  fts = FTSFromVertexToPointFactory::get(*theMagField, clusterPos, vtxPos, energy, aChargep);
 
   RectangularEtaPhiTrackingRegion etaphiRegionPlus(fts.momentum(),
                                                    vtxPos,

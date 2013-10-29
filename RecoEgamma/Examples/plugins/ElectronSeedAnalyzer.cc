@@ -210,7 +210,6 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   edm::LogInfo("")<<"\n\n =================> Treating event "<<e.id()<<" Number of seeds "<<elSeeds.product()->size();
   int is=0;
 
-  FTSFromVertexToPointFactory   myFTS;
   float mass=.000511; // electron propagation
   PropagatorWithMaterial* prop1stLayer = new PropagatorWithMaterial(oppositeToMomentum,mass,&(*theMagField));
   PropagatorWithMaterial* prop2ndLayer = new PropagatorWithMaterial(alongMomentum,mass,&(*theMagField));
@@ -269,8 +268,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
     GlobalPoint vprim(theBeamSpot->position().x(),theBeamSpot->position().y(),theBeamSpot->position().z());
     float energy = theClus->energy();
 
-    FreeTrajectoryState fts = myFTS(&(*theMagField),xmeas, vprim,
-				 energy, charge);
+    FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField, xmeas, vprim, energy, charge);
     //std::cout << "[PixelHitMatcher::compatibleSeeds] fts position, momentum " <<
     // fts.parameters().position() << " " << fts.parameters().momentum() << std::endl;
 
@@ -328,7 +326,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 
       GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
 
-      FreeTrajectoryState fts2 = myFTS(&(*theMagField),hitPos,vertexPred,energy, charge);
+      FreeTrajectoryState fts2 = FTSFromVertexToPointFactory::get(*theMagField, hitPos, vertexPred, energy, charge);
       tsos2 = prop2ndLayer->propagate(fts2,geomdet2->surface()) ;
 
       if (tsos2.isValid()) {
