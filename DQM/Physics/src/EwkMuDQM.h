@@ -14,8 +14,18 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+namespace reco {
+  class Muon;
+  class Jet;
+  class MET;
+  class Vertex;
+  class Photon;
+  class BeamSpot;
+}
+
 class DQMStore;
 class MonitorElement;
+
 class EwkMuDQM : public edm::EDAnalyzer {
 public:
   EwkMuDQM (const edm::ParameterSet &);
@@ -28,13 +38,15 @@ public:
   void init_histograms();
 private:
 
-  edm::InputTag trigTag_;
-  edm::InputTag muonTag_;
   edm::InputTag metTag_;
   edm::InputTag jetTag_;
-  edm::InputTag phoTag_;
-  edm::InputTag pfPhoTag_; 
-  edm::InputTag vertexTag_;
+  edm::EDGetTokenT<edm::TriggerResults> trigTag_;
+  edm::EDGetTokenT<edm::View<reco::Muon> > muonTag_;
+  edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
+  edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
+  edm::EDGetTokenT<edm::View<reco::Photon> > phoTag_;
+  edm::EDGetTokenT<edm::View<reco::Vertex> > vertexTag_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
   std::vector <std::string> trigPathNames_;
 
   bool   isAlsoTrackerMuon_;
@@ -43,7 +55,7 @@ private:
   int    trackerHitsCut_;
   int    pixelHitsCut_;
   int    muonHitsCut_;
-  int    nMatchesCut_;  
+  int    nMatchesCut_;
 
   bool   isRelativeIso_;
   bool   isCombinedIso_;
@@ -62,13 +74,13 @@ private:
   double ptThrForZ2_;
 
   double dimuonMassMin_;
-  double dimuonMassMax_; 
+  double dimuonMassMax_;
 
   double eJetMin_;
   int    nJetMax_;
 
-  double ptThrForPhoton_; 
-  int    nPhoMax_ ; 
+  double ptThrForPhoton_;
+  int    nPhoMax_ ;
 
   bool isValidHltConfig_;
   HLTConfigProvider  hltConfigProvider_;
@@ -79,13 +91,13 @@ private:
   unsigned int nhlt;
   unsigned int nmet;
   unsigned int nsel;
-  unsigned int nz  ; 
+  unsigned int nz  ;
 
   DQMStore* theDbe;
 
   MonitorElement* pt_before_;
   MonitorElement* pt_after_;
-  MonitorElement* eta_before_; 
+  MonitorElement* eta_before_;
   MonitorElement* eta_after_;
   MonitorElement* dxy_before_;
   MonitorElement* dxy_after_;
@@ -93,19 +105,19 @@ private:
   MonitorElement* goodewkmuon_after_;
   MonitorElement* iso_before_;
   MonitorElement* iso_after_;
-  MonitorElement* trig_before_; 
+  MonitorElement* trig_before_;
   MonitorElement* trig_after_;
   MonitorElement* mt_before_;
   MonitorElement* mt_after_;
   MonitorElement* met_before_;
   MonitorElement* met_after_;
-  MonitorElement* acop_before_;  
+  MonitorElement* acop_before_;
   MonitorElement* acop_after_;
 
   MonitorElement* njets_before_;
   MonitorElement* njets_after_;
   MonitorElement* njets_afterZ_;
-  MonitorElement* leadingjet_pt_before_; 
+  MonitorElement* leadingjet_pt_before_;
   MonitorElement* leadingjet_pt_after_;
   MonitorElement* leadingjet_pt_afterZ_;
   MonitorElement* leadingjet_eta_before_;
@@ -131,7 +143,7 @@ private:
   MonitorElement* eta2_afterZ_;
   MonitorElement* dxy2_afterZ_;
   MonitorElement* goodewkmuon2_afterZ_;
-  MonitorElement* iso2_afterZ_;  
+  MonitorElement* iso2_afterZ_;
 
   // filled if there is a Z-candidate
   MonitorElement* n_zselPt1thr_; // number of muons in the event with pt>pt1thr
@@ -153,7 +165,7 @@ private:
   MonitorElement* ngoodmuons_;
 
   MonitorElement* npfph_;
-  MonitorElement* nph_; 
+  MonitorElement* nph_;
   MonitorElement* pfphPt_;
   MonitorElement* phPt_;
   MonitorElement* pfphEta_;
@@ -162,3 +174,8 @@ private:
 };
 
 #endif
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:
