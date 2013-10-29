@@ -2,6 +2,10 @@
 #include "PhysicsTools/IsolationAlgos/interface/EventDependentAbsVetos.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 bool 
@@ -43,3 +47,63 @@ reco::isodeposit::OtherCandVeto::setEvent(const edm::Event &iEvent, const edm::E
     }
 }
 
+bool 
+reco::isodeposit::OtherJetConstituentsDeltaRVeto::veto(double eta, double phi, float value) const 
+{
+    for (std::vector<Direction>::const_iterator it = items_.begin(), ed = items_.end(); it != ed; ++it) {
+        if (::deltaR2(it->eta(), it->phi(), eta, phi) < dR2constituent_) return true;
+    }
+    return false;
+}
+
+void
+reco::isodeposit::OtherJetConstituentsDeltaRVeto::setEvent(const edm::Event& evt, const edm::EventSetup& es) 
+{
+    //std::cout << "<OtherJetConstituentsDeltaRVeto::setEvent>:" << std::endl;
+    evt_ = &evt;
+}
+void
+reco::isodeposit::OtherJetConstituentsDeltaRVeto::initialize()
+{
+    //std::cout << "<OtherJetConstituentsDeltaRVeto::initialize>:" << std::endl;
+    //std::cout << " vetoDir: eta = " << vetoDir_.eta() << ", phi = " << vetoDir_.phi() << std::endl;
+    assert(evt_);
+    items_.clear();
+    edm::Handle<reco::PFJetCollection> jets;
+    evt_->getByLabel(srcJets_, jets);
+    typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>, std::vector<reco::PFCandidate>, unsigned int> > JetToPFCandidateAssociation;
+    edm::Handle<JetToPFCandidateAssociation> jetToPFCandMap;
+    evt_->getByLabel(srcPFCandAssocMap_, jetToPFCandMap);
+    double dR2min = dR2jet_;
+    reco::PFJetRef matchedJet;
+    size_t numJets = jets->size();
+    for ( size_t jetIndex = 0; jetIndex < numJets; ++jetIndex ) {
+      reco::PFJetRef jet(jets, jetIndex);
+      double dR2 = ::deltaR2(vetoDir_.eta(), vetoDir_.phi(), jet->eta(), jet->phi());
+      //std::cout << "jet #" << jetIndex << ": Pt = " << jet->pt() << ", eta = " << jet->eta() << ", phi = " << jet->phi() << " (dR = " << sqrt(dR2) << ")" << std::endl;
+      if ( dR2 < dR2min ) {
+	matchedJet = jet;
+	dR2min = dR2;
+      }
+    }
+    if ( matchedJet.isNonnull() ) {
+      edm::RefVector<reco::PFCandidateCollection> pfCandsMappedToJet = (*jetToPFCandMap)[matchedJet];
+      int idx = 0;
+      for ( edm::RefVector<reco::PFCandidateCollection>::const_iterator pfCand = pfCandsMappedToJet.begin();
+	    pfCand != pfCandsMappedToJet.end(); ++pfCand ) {
+	//std::cout << "pfCand #" << idx << ": Pt = " << (*pfCand)->pt() << ", eta = " << (*pfCand)->eta() << ", phi = " << (*pfCand)->phi() << std::endl;
+	items_.push_back(Direction((*pfCand)->eta(), (*pfCand)->phi()));
+	++idx;
+      }
+    }
+}
+
+void 
+reco::isodeposit::OtherJetConstituentsDeltaRVeto::centerOn(double eta, double phi) 
+{ 
+    //std::cout << "<OtherJetConstituentsDeltaRVeto::centerOn>:" << std::endl;
+    //std::cout << " eta = " << eta << std::endl;
+    //std::cout << " phi = " << phi << std::endl;
+    vetoDir_ = Direction(eta,phi); 
+    initialize();
+}
