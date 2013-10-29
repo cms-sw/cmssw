@@ -26,15 +26,12 @@
 
 // Physics Objects
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "TLorentzVector.h"
@@ -51,23 +48,29 @@ EwkDQM::EwkDQM(const ParameterSet& parameters) {
 
   // riguardare questa sintassi
   // Get parameters from configuration file
+  thePFJetCollectionLabel_ =
+    parameters.getParameter<InputTag>("PFJetCollection");
+  theCaloMETCollectionLabel_ =
+    parameters.getParameter<InputTag>("caloMETCollection");
+  theTriggerResultsCollection_ =
+    parameters.getParameter<InputTag>("triggerResultsCollection");
+
   theElecTriggerPathToPass_ =
     parameters.getParameter<std::vector<string> >("elecTriggerPathToPass");
   theMuonTriggerPathToPass_ =
     parameters.getParameter<std::vector<string> >("muonTriggerPathToPass");
-  //   eleTrigPathNames_ =
-  //     parameters.getUntrackedParameter<std::vector<std::string> >("eleTrigPathNames");
-  //   muTrigPathNames_ =
-  //     parameters.getUntrackedParameter< std::vector<std::string> >("muTrigPathNames");
-  theTriggerResultsCollection_ =
-    parameters.getParameter<InputTag>("triggerResultsCollection");
-  theMuonCollectionLabel_ = parameters.getParameter<InputTag>("muonCollection");
-  theElectronCollectionLabel_ =
-    parameters.getParameter<InputTag>("electronCollection");
-  //  theCaloJetCollectionLabel_   = parameters.getParameter<InputTag>("caloJetCollection");
-  thePFJetCollectionLabel_ =
-    parameters.getParameter<InputTag>("PFJetCollection");
-  theCaloMETCollectionLabel_ = parameters.getParameter<InputTag>("caloMETCollection");
+  theTriggerResultsToken_ = consumes<edm::TriggerResults>(
+    parameters.getParameter<InputTag>("triggerResultsCollection"));
+  theMuonCollectionLabel_ = consumes<reco::MuonCollection>(
+    parameters.getParameter<InputTag>("muonCollection"));
+  theElectronCollectionLabel_ = consumes<reco::GsfElectronCollection>(
+    parameters.getParameter<InputTag>("electronCollection"));
+  thePFJetCollectionToken_ = consumes<edm::View<reco::Jet> >(
+    parameters.getParameter<InputTag>("PFJetCollection"));
+  theCaloMETCollectionToken_ = consumes<edm::View<reco::MET> >(
+    parameters.getParameter<InputTag>("caloMETCollection"));
+  theVertexToken_ = consumes<reco::VertexCollection>(
+    parameters.getParameter<InputTag>("vertexCollection"));
 
   // just to initialize
   isValidHltConfig_ = false;
@@ -250,7 +253,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   LogTrace(logTraceName) << "Analysis of event # ";
   // Did it pass certain HLT path?
   Handle<TriggerResults> HLTresults;
-  iEvent.getByLabel(theTriggerResultsCollection_, HLTresults);
+  iEvent.getByToken(theTriggerResultsToken_, HLTresults);
   if (!HLTresults.isValid())
     return;
 
@@ -299,7 +302,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   ////////////////////////////////////////////////////////////////////////////////
   // Vertex information
   Handle<VertexCollection> vertexHandle;
-  iEvent.getByLabel("offlinePrimaryVertices", vertexHandle);
+  iEvent.getByToken(theVertexToken_, vertexHandle);
   if (!vertexHandle.isValid())
     return;
   VertexCollection vertexCollection = *(vertexHandle.product());
@@ -318,7 +321,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   ////////////////////////////////////////////////////////////////////////////////
   // Missing ET
   Handle< View<MET> > caloMETCollection;
-  iEvent.getByLabel(theCaloMETCollectionLabel_, caloMETCollection);
+  iEvent.getByToken(theCaloMETCollectionToken_, caloMETCollection);
   if (!caloMETCollection.isValid())
     return;
   float missing_et = caloMETCollection->begin()->et();
@@ -328,7 +331,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   ////////////////////////////////////////////////////////////////////////////////
   // grab "gaussian sum fitting" electrons
   Handle<GsfElectronCollection> electronCollection;
-  iEvent.getByLabel(theElectronCollectionLabel_, electronCollection);
+  iEvent.getByToken(theElectronCollectionLabel_, electronCollection);
   if (!electronCollection.isValid())
     return;
 
@@ -389,7 +392,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   ////////////////////////////////////////////////////////////////////////////////
   // Take the STA muon container
   Handle<MuonCollection> muonCollection;
-  iEvent.getByLabel(theMuonCollectionLabel_, muonCollection);
+  iEvent.getByToken(theMuonCollectionLabel_, muonCollection);
   if (!muonCollection.isValid())
     return;
 
@@ -447,9 +450,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   //  Handle<CaloJetCollection> caloJetCollection;
   Handle<View<Jet> > PFJetCollection;
-  //  iEvent.getByLabel (theCaloJetCollectionLabel,caloJetCollection);
-  iEvent.getByLabel(thePFJetCollectionLabel_, PFJetCollection);
-  //  if ( !caloJetCollection.isValid() ) return;
+  iEvent.getByToken(thePFJetCollectionToken_, PFJetCollection);
   if (!PFJetCollection.isValid())
     return;
 
@@ -678,3 +679,8 @@ double EwkDQM::calcDeltaPhi(double phi1, double phi2) {
 
   return deltaPhi;
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:
