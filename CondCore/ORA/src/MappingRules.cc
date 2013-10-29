@@ -7,7 +7,7 @@
 #include "Reflex/Type.h"
 
 std::string ora::MappingRules::sequenceNameForContainerId(){
-  static std::string s_sequenceName("CONTAINER_ID");
+  static const std::string s_sequenceName("CONTAINER_ID");
   return s_sequenceName;
 }
 
@@ -27,14 +27,14 @@ ora::MappingRules::sequenceNameForDependentClass( const std::string& containerNa
 }
 
 std::string ora::MappingRules::sequenceNameForMapping(){
-  static std::string s_mappingSequenceName("MAPPING_ELEMENT_ID");
+  static const std::string s_mappingSequenceName("MAPPING_ELEMENT_ID");
   return s_mappingSequenceName;
 }
 
 std::string
 ora::MappingRules::mappingPropertyNameInDictionary()
 {
-  static std::string s_propertyName("mapping");
+  static const std::string s_propertyName("mapping");
   return s_propertyName;
 }
 
@@ -45,7 +45,7 @@ ora::MappingRules::isMappedToBlob(const std::string& mappingProperty){
 
 std::string 
 ora::MappingRules::persistencyPropertyNameInDictionary(){
-  static std::string s_propertyName("persistency");
+  static const std::string s_propertyName("persistency");
   return s_propertyName;
 }
 
@@ -82,7 +82,7 @@ ora::MappingRules::baseIdForClass( const std::string& className ){
 std::string
 ora::MappingRules::baseClassVersion()
 {
-  static std::string classVersion("BASE");
+  static const std::string classVersion("BASE");
   return classVersion;
 }
 
@@ -107,7 +107,7 @@ ora::MappingRules::defaultClassVersion(const std::string& className)
 std::string
 ora::MappingRules::classVersionPropertyNameInDictionary()
 {
-  static std::string s_propertyName("class_version");
+  static const std::string s_propertyName("class_version");
   return s_propertyName;
 
 }
@@ -176,12 +176,12 @@ ora::MappingRules::variableNameForArrayColumn( const Reflex::Type& array ){
 }
 
 std::string ora::MappingRules::variableNameForContainerValue(){
-  static std::string s_cv("CV");
+  static const std::string s_cv("CV");
   return s_cv;
 }
 
 std::string ora::MappingRules::variableNameForContainerKey(){
-  static std::string s_ck("CK");
+  static const std::string s_ck("CK");
   return s_ck;
 }
 
@@ -197,7 +197,7 @@ ora::MappingRules::scopedVariableForSchemaObjects( const std::string& variableNa
 /// TO BE REMOVED
 #include "CondCore/ORA/interface/Exception.h"
 namespace ora {
-  static std::string validChars("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-0123456789");
+  static const std::string validChars("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-0123456789");
   void checkString( const std::string& s, int code, bool thro=true){
     for( size_t i=0;i<s.size();i++){
       if( validChars.find( s[i])==std::string::npos ) {

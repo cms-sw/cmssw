@@ -38,9 +38,9 @@ namespace ora {
       ora::Container contH0 = db.containerHandle( "Cont0" );
       //inserting into source db
       SimpleClass s0(4);
-      int oid0 = contH0.insert( s0 );
+      contH0.insert( s0 );
       SimpleClass s1(999);
-      int oid01 = contH0.insert( s1 );
+      contH0.insert( s1 );
       contH0.flush();
       trans.commit();
       db.disconnect();
@@ -62,9 +62,9 @@ namespace ora {
       //inserting
       contH0 = db.containerHandle( "Cont0" );
       SimpleClass s01(5);
-      oid0 = contH0.insert( s01 );
+      int oid0 = contH0.insert( s01 );
       SimpleClass s11(998);
-      oid01 = contH0.insert( s11 );
+      int oid01 = contH0.insert( s11 );
       contH0.flush();
       trans.commit();
       db.disconnect();
