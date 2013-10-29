@@ -10,6 +10,7 @@
 #include <llvm/Support/Regex.h>
 
 #include <clang/AST/Type.h>
+#include <clang/AST/Decl.h>
 
 namespace clangcms {
 
@@ -43,7 +44,7 @@ inline bool isConst( clang::QualType const& qt )
 }
 
 bool isCmsLocalFile(const char* file);
-
+std::string getQualifiedName(const clang::NamedDecl &d);
 }
 } 
 

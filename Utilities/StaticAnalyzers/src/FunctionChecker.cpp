@@ -57,7 +57,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
   	clang::PrintingPolicy Policy(LangOpts);
 	const Decl * PD = AC->getDecl();
 	std::string dname =""; 
-	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(PD)) dname = ND->getQualifiedNameAsString();
+	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(PD)) dname = support::getQualifiedName(*ND);
 
   	clang::ento::PathDiagnosticLocation CELoc = clang::ento::PathDiagnosticLocation::createBegin(DRE, BR.getSourceManager(),AC);
 

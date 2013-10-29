@@ -41,30 +41,27 @@ void FDumper::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 	PrintingPolicy Policy(LangOpts);
 	const Decl * D = AC->getDecl();
 	std::string dname =""; 
-	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) dname = ND->getQualifiedNameAsString();
-	CXXMethodDecl * MD = CE->getMethodDecl();
+	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) dname = support::getQualifiedName(*ND);
+	CXXMethodDecl * MD = dyn_cast<CXXMethodDecl>(CE->getMethodDecl()->getMostRecentDecl());
 	if (!MD) return;
  	const char *sfile=BR.getSourceManager().getPresumedLoc(CE->getExprLoc()).getFilename();
   	if (!support::isCmsLocalFile(sfile)) return;
- 	std::string mname = MD->getQualifiedNameAsString();
-	llvm::SmallString<100> buf;
+ 	std::string mname = support::getQualifiedName(*MD);
+	llvm::SmallString<1000> buf;
 	llvm::raw_svector_ostream os(buf);
 	os<<"function '"<<dname<<"' ";
-	os<<"calls function '";
-	MD->getNameForDiagnostic(os,Policy,1);
+	os<<"calls function '"<<mname;
+//	MD->getNameForDiagnostic(os,Policy,1);
 	os<<"' \n\n";
 	for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I!=E; ++I) {
 		os<<"function '"<<mname<<"' ";
 		os<<"overrides function '";
-		(*I)->getNameForDiagnostic(os,Policy,1);
+//		(*I)->getNameForDiagnostic(os,Policy,1);
+		os<<support::getQualifiedName(*(*I));
 		os<<"' \n\n";	
 	} 
         llvm::errs()<<os.str();
 }
-
-
-
-
 
 void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
                     BugReporter &BR) const {
