@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -33,19 +34,12 @@ using namespace edm;
 
 /// Constructor
 HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) :
-   HLTFilter(pset),
-   m_cacheRecordId(0) 
+  HLTFilter(pset),
+  theSTAMuonLabel(  pset.getParameter<string>("SALabel") ),             // the name of the STA rec hits collection
+  thePropagatorName(pset.getParameter<std::string>("PropagatorName") ),
+  theRadius(        pset.getParameter<double>("radius") ),              // cyl's radius (cm)
+  theMaxZ(          pset.getParameter<double>("maxZ") )                 // cyl's half lenght (cm)
 {
-  // the name of the STA rec hits collection
-  theSTAMuonLabel = pset.getParameter<string>("SALabel");
-
-  thePropagatorName = pset.getParameter<std::string>("PropagatorName");
-  thePropagator = 0;
-
-  theRadius = pset.getParameter<double>("radius"); // cyl's radius (cm)
-  theMaxZ = pset.getParameter<double>("maxZ"); // cyl's half lenght (cm)
-
-
   // Get a surface (here a cylinder of radius 1290mm) ECAL
   Cylinder::PositionType pos0;
   Cylinder::RotationType rot0;
@@ -71,12 +65,11 @@ bool HLTMuonPointingFilter::hltFilter(edm::Event& event, const edm::EventSetup& 
   bool accept = false;
 
   const TrackingComponentsRecord & tkRec = eventSetup.get<TrackingComponentsRecord>();
-  if (not thePropagator or tkRec.cacheIdentifier() != m_cacheRecordId) {
-    ESHandle<Propagator> prop;
-    tkRec.get(thePropagatorName, prop);
-    thePropagator = prop->clone();
-    thePropagator->setPropagationDirection(anyDirection);
-    m_cacheRecordId = tkRec.cacheIdentifier();
+  ESHandle<Propagator> propagatorHandle;
+  tkRec.get(thePropagatorName, propagatorHandle);
+  const Propagator * thePropagator = propagatorHandle.product();
+  if (thePropagator->propagationDirection() != anyDirection) {
+    throw cms::Exception("Configuration") << "the propagator " << thePropagatorName << " should be configured with PropagationDirection = \"anyDirection\"" << std::endl;
   }
 
   ESHandle<MagneticField> theMGField;
