@@ -90,21 +90,21 @@ B2GDQM::B2GDQM(const edm::ParameterSet& ps){
   // Get parameters from configuration file
   // Trigger
   theTriggerResultsCollection = ps.getParameter<InputTag>("triggerResultsCollection");
+  triggerToken_ = consumes< edm::TriggerResults> ( theTriggerResultsCollection );
 
   // Jets
   jetLabels_ = ps.getParameter<std::vector<edm::InputTag> >("jetLabels");
+  for ( std::vector<edm::InputTag>::const_iterator jetlabel = jetLabels_.begin(),
+	  jetlabelEnd = jetLabels_.end(); jetlabel != jetlabelEnd; ++jetlabel ) {
+    jetTokens_.push_back( consumes<edm::View<reco::Jet> >( *jetlabel ) );
+  }
   jetPtMins_ = ps.getParameter<std::vector<double> > ("jetPtMins");
   PFJetCorService_ = ps.getParameter<std::string>("PFJetCorService");
 
   // MET
   PFMETLabel_         = ps.getParameter<InputTag>("pfMETCollection");  
+  PFMETToken_         = consumes<std::vector<reco::PFMET> > ( PFMETLabel_ );
 
-
-
-
-  bei_ = Service<DQMStore>().operator->();
-  bei_->setCurrentFolder("Physics/B2G");
-  bookHistos(bei_);
 
 }
 
@@ -131,6 +131,11 @@ void B2GDQM::beginJob(){
 //
 void B2GDQM::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo ("B2GDQM") <<"[B2GDQM]: Begining of Run";
+
+
+  bei_ = Service<DQMStore>().operator->();
+  bei_->setCurrentFolder("Physics/B2G");
+  bookHistos(bei_);
   
   // passed as parameter to HLTConfigProvider::init(), not yet used
   bool isConfigChanged = false;
@@ -214,7 +219,7 @@ void B2GDQM::analyzeEventInterpretation(const Event & iEvent, const edm::EventSe
   for ( unsigned int icoll = 0; icoll < jetLabels_.size(); ++icoll ) {
 
     edm::Handle<edm::View<reco::Jet> > pfJetCollection;
-    bool ValidPFJets = iEvent.getByLabel(jetLabels_[icoll], pfJetCollection );
+    bool ValidPFJets = iEvent.getByToken(jetTokens_[icoll], pfJetCollection );
     if(!ValidPFJets) continue;
     edm::View<reco::Jet> const & pfjets = *pfJetCollection;
     
@@ -295,7 +300,7 @@ void B2GDQM::analyzeEventInterpretation(const Event & iEvent, const edm::EventSe
 
   // PFMETs
   edm::Handle<std::vector<reco::PFMET> > pfMETCollection;
-  bool ValidPFMET = iEvent.getByLabel(PFMETLabel_, pfMETCollection);
+  bool ValidPFMET = iEvent.getByToken(PFMETToken_, pfMETCollection);
   if(!ValidPFMET) return;
 
   pfMet_pt->Fill( (*pfMETCollection)[0].pt() );

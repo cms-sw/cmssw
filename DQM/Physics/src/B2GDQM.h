@@ -121,14 +121,18 @@ private:
 
   // Variables from config file
   edm::InputTag theTriggerResultsCollection;
+  edm::EDGetTokenT<edm::TriggerResults> triggerToken_;
  
   edm::Handle<edm::TriggerResults> triggerResults_;
 
   
 
  
-  std::vector<edm::InputTag> jetLabels_;   
+  std::vector<edm::InputTag> jetLabels_;
+  std::vector< edm::EDGetTokenT< edm::View<reco::Jet> > > jetTokens_;
   edm::InputTag PFMETLabel_;
+  edm::EDGetTokenT< std::vector<reco::PFMET> > PFMETToken_;
+
   
   ///////////////////////////
   // Parameters 
