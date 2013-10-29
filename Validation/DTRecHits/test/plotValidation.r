@@ -42,7 +42,7 @@ void plotValidation(TString filename, int wheel, int station) {
   bool doEff = true;
   bool doT0= true;
   bool doSegRes=true;
-
+  bool doSegPull = true;
   bool doAngularDeps = true;
   bool doEff4D = true;
 
@@ -326,5 +326,27 @@ void plotValidation(TString filename, int wheel, int station) {
 
 
     }
+
+ //-------------------- Segment x, y, alpha, beta pull
+  if (doSegPull){
+    TCanvas* c1= new TCanvas;
+    c1->SetTitle(canvbasename+"_PullSeg"); 
+    c1->SetName(canvbasename+"_PullSeg");
+    c1->Divide(2,2);
+    c1->cd(1);
+
+    hRes4D->hPullX->Rebin(2);
+    drawGFit(hRes4D->hPullX, nsigma, -10.,10.);
+    c1->cd(2);
+    hRes4D->hPullAlpha->Rebin(2);
+    drawGFit(hRes4D->hPullAlpha, nsigma, -10., 10.);
+    c1->cd(3);
+    hRes4D->hPullY->Rebin(2);
+    drawGFit(hRes4D->hPullY, nsigma, -10., 10.);
+    c1->cd(4);
+    hRes4D->hPullBeta->Rebin(2);
+    drawGFit(hRes4D->hPullBeta, nsigma, -10.,10.);
+  }
+
 
 } 

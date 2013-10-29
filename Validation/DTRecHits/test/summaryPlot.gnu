@@ -11,7 +11,7 @@ myfile =  '"<sort -gs -k 2 True_RelValZMM5312_BP7X_noDRR_summary.txt"'
 
 
 #Set this to 1 to print plots to png files
-print=1
+print=0
 
 # Output to png viewer
 set terminal png enhanced font "Arial,14" size 800,600
@@ -60,7 +60,7 @@ if (sl==theta) unset arrow 4
 
 
 # Fields:
-# 1:W 2:St 3:sec 4:SL 5:effS1RPhi 6:effS3RPhi 7:effSeg 8:resHit 9:pullHit 10:meanAngle  11:sigmaAngle
+# 1:W 2:St 3:sec 4:SL 5:effS1RPhi 6:effS3RPhi 7:effSeg 8:resHit 9:pullHit 10:meanAngle  11:sigmaAngle 12:meanAngle_pull 13:sigmaAngle_pull 14:meanPos_pull 15:sigmaPos_pull
 
 
 
@@ -105,8 +105,8 @@ plot \
 
 
 ### Segment angular resolution
-if (print) {set output "TrueSegmentAngleReso.png"}
 unset arrow 1
+if (print) {set output "TrueSegmentAngleReso.png"}
 set yrange [0:20]
 set ylabel "Segment Angle Resolution [mrad]" offset 0,graph 0.20
 plot \
@@ -116,8 +116,25 @@ plot \
 
 ### Segment average angle bias
 if (print) {set output "TrueSegmentAngleBias.png"}
-set yrange [-4:4]
+set yrange [-3:3]
 set ylabel "Segment Average Angle bias [mrad]" offset 0,graph 0.20
 plot \
 @myfile using (($3)==1&&int($4)==1?$10*1000.:1/0) title '{/Symbol f} SLs' w p pt  5 ps 1.4 lc 4, \
 @myfile using (($3)==1&&int($4)==2?$10*1000.:1/0) title '{/Symbol q} SLs' w p pt 13 ps 1.5 lc 13
+
+### Segment angular pull width
+set arrow 1 from -18,1 to 668,1 nohead back lt 0 lw 2 lc 0
+if (print) {set output "TrueSegmentAnglePull.png"}
+set yrange [0:2]
+set ylabel "Segment Angle Pull Width" offset 0,graph 0.20
+plot \
+@myfile using (($3)==1&&int($4)==1?$13:1/0) title '{/Symbol f} SLs' w p pt  5 ps 1.4 lc 4, \
+@myfile using (($3)==1&&int($4)==2?$13:1/0) title '{/Symbol q} SLs' w p pt 13 ps 1.5 lc 13
+
+### Segment position pull width
+if (print) {set output "TrueSegmentPosPull.png"}
+set yrange [0:2]
+set ylabel "Segment Pull Width" offset 0,graph 0.20
+plot \
+@myfile using (($3)==1&&int($4)==1?$15:1/0) title '{/Symbol f} SLs' w p pt  5 ps 1.4 lc 4, \
+@myfile using (($3)==1&&int($4)==2?$15:1/0) title '{/Symbol q} SLs' w p pt 13 ps 1.5 lc 13

@@ -16,7 +16,7 @@ void writeSummaryTable(){
 }
 
 
-void writeSummaryTable(TString filename, bool doEff=true, bool doEffab = true, bool doRes=true, bool doResab = true, bool doPull=true) {
+void writeSummaryTable(TString filename, bool doEff=true, bool doEffab = true, bool doRes=true, bool doResab = true, bool doPull=true,bool doPullabxy=true) {
 
   //----------------------------------------------------------------------
   // Configurable options  
@@ -54,10 +54,18 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doEffab = true, b
 	double sphi = -1.;
 	double ptheta = -1.;
 	double pphi = -1.;
-	double salpha = -1.;
-	double sbeta = -1.;
-	double malpha = -1.;
-	double mbeta = -1.;
+	double salpha_res = -1.;
+	double sbeta_res = -1.;
+	double malpha_res = -1.;
+	double mbeta_res = -1.;
+	double salpha_pull = -1.;
+	double sbeta_pull = -1.;
+	double malpha_pull = -1.;
+	double mbeta_pull = -1.;
+	double sx_pull = -1.;
+	double sy_pull = -1.;
+	double mx_pull = -1.;
+	double my_pull = -1.;
 
 	float effS1RPhi=0.;
 	float effS3RPhi=0.;
@@ -134,22 +142,56 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doEffab = true, b
 	    TH1F* tmpBeta = (TH1F*) hRes4D->hResBeta->Clone("tmpBeta");
 	    tmpBeta->Rebin(2);
 	    TF1* fbeta = drawGFit(tmpBeta, nsigma, -2. , 2.);
-	    sbeta = fbeta->GetParameter("Sigma");
-	    mbeta = fbeta->GetParameter("Mean");
+	    sbeta_res = fbeta->GetParameter("Sigma");
+	    mbeta_res = fbeta->GetParameter("Mean");
 	    
 	    TH1F* tmpAlpha = (TH1F*) hRes4D->hResAlpha->Clone("tmpAlpha");
 	    // tmpAlpha->Rebin(2);
 	    TF1* falpha = drawGFit(tmpAlpha, nsigma, -2. , 2. );
-	    salpha = falpha->GetParameter("Sigma");
-	    malpha = falpha->GetParameter("Mean");
+	    salpha_res = falpha->GetParameter("Sigma");
+	    malpha_res = falpha->GetParameter("Mean");
 
-	    cout << " " << wheel << " " << station << " " << sector  <<  " salpha: " << salpha  << " malpha: " << malpha;
-	    cout  << " sbeta: " << sbeta  << " mbeta: " << mbeta;
+	    cout << " " << wheel << " " << station << " " << sector  <<  " salpha_res: " << salpha_res  << " malpha_res: " << malpha_res;
+	    cout  << " sbeta_res: " << sbeta_res  << " mbeta_res: " << mbeta_res;
 	    cout << endl;
 	  }
 	 	  
 	}
 	
+	if (doPullabxy) {
+	  if (station!=4) {
+	    TH1F* tmpBeta = (TH1F*) hRes4D->hPullBeta->Clone("tmpBeta");
+	    tmpBeta->Rebin(2);
+	    TF1* fbeta = drawGFit(tmpBeta, nsigma, -2. , 2.);
+	    sbeta_pull = fbeta->GetParameter("Sigma");
+	    mbeta_pull = fbeta->GetParameter("Mean");
+	    
+	    TH1F* tmpAlpha = (TH1F*) hRes4D->hPullAlpha->Clone("tmpAlpha");
+	    tmpAlpha->Rebin(2);
+	    TF1* falpha = drawGFit(tmpAlpha, nsigma, -2. , 2. );
+	    salpha_pull = falpha->GetParameter("Sigma");
+	    malpha_pull = falpha->GetParameter("Mean");
+	    
+	    TH1F* tmpX = (TH1F*) hRes4D->hPullX->Clone("tmpX");
+	    tmpX->Rebin(2);
+	    TF1* fx = drawGFit(tmpX, nsigma, -2. , 2.);
+	    sx_pull = fx->GetParameter("Sigma");
+	    mx_pull = fx->GetParameter("Mean");
+	    
+	    TH1F* tmpY = (TH1F*) hRes4D->hPullY->Clone("tmpY");
+	    tmpY->Rebin(2);
+	    TF1* fy = drawGFit(tmpY, nsigma, -2. , 2. );
+	    sy_pull = fy->GetParameter("Sigma");
+	    my_pull = fy->GetParameter("Mean");
+	    
+	  cout << " " << wheel << " " << station << " " << sector  <<  " salpha_pull: " << salpha_pull  << " malpha_pull: " << malpha_pull;
+	    cout  << " sbeta_pull: " << sbeta_pull  << " mbeta_pull: " << mbeta_pull;
+	    cout  << " sx_pull: " << sx_pull  << " mx_pull: " << mx_pull;     
+	    cout  << " sy_pull: " << sy_pull  << " my_pull: " << my_pull;
+	    cout << endl;	    
+	  }
+
+	}
 
 	if (doPull) {
 	  if (station!=4) {
@@ -179,9 +221,9 @@ void writeSummaryTable(TString filename, bool doEff=true, bool doEffab = true, b
  	}
  	for (int sec = secmin; sec<=secmax; sec++) {
  	  if (station!=4 && sec>12) continue;
-	  f                 << wheel << " " << station << " " << sec << " " << 1 << " " << effS1RPhi << " " << effS3RPhi << " " << effSeg << " " << sphi   << " " << pphi << " " << malpha <<  " " <<salpha <<endl;
-	  if (station!=4) f << wheel << " " << station << " " << sec << " " << 2 << " " << effS1RZ   << " " << effS3RZ   << " " <<  effSeg <<" " << stheta << " " << ptheta << " " << mbeta <<  " " <<sbeta <<endl;
-	  f                 << wheel << " " << station << " " << sec << " " << 3 << " " << effS1RPhi << " " << effS3RPhi << " " << effSeg << " " << sphi   << " " << pphi << " " << malpha <<  " " <<salpha << endl;
+	  f                 << wheel << " " << station << " " << sec << " " << 1 << " " << effS1RPhi << " " << effS3RPhi << " " << effSeg << " " << sphi   << " " << pphi << " " << malpha_res <<  " " <<salpha_res  << " " << malpha_pull <<  " " <<salpha_pull << " " << mx_pull <<  " " <<sx_pull << endl;
+	  if (station!=4) f << wheel << " " << station << " " << sec << " " << 2 << " " << effS1RZ   << " " << effS3RZ   << " " <<  effSeg <<" " << stheta << " " << ptheta << " " << mbeta_res <<  " " <<sbeta_res  << " " << mbeta_pull <<  " " <<sbeta_pull << " " << my_pull <<  " " <<sy_pull <<endl;
+	  f                 << wheel << " " << station << " " << sec << " " << 3 << " " << effS1RPhi << " " << effS3RPhi << " " << effSeg << " " << sphi   << " " << pphi << " " << malpha_res <<  " " <<salpha_res  << " " << malpha_pull <<  " " <<salpha_pull  << " " << mx_pull <<  " " <<sx_pull << endl;
  	}
       } // sector
     } //station
