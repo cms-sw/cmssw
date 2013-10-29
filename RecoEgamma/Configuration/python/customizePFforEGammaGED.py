@@ -61,6 +61,11 @@ def customize_Validation(process):
                                                  cms.string('gedGsfElectrons')
         for pset in process.HLTSusyExoValFastSim.reco_parametersets:
             pset.electrons = cms.string('gedGsfElectrons')
+    if hasattr(process,'HLTSusyExoVal'):
+        process.HLTSusyExoVal.PlotMakerRecoInput.electrons = \
+                                                 cms.string('gedGsfElectrons')
+        for pset in process.HLTSusyExoVal.reco_parametersets:
+            pset.electrons = cms.string('gedGsfElectrons')
     if hasattr(process,'hltHiggsValidator'):
         process.hltHiggsValidator.H2tau.recElecLabel = \
                                                 cms.string('gedGsfElectrons')
@@ -68,6 +73,8 @@ def customize_Validation(process):
                                                 cms.string('gedGsfElectrons')
         process.hltHiggsValidator.HWW.recElecLabel = \
                                                 cms.string('gedGsfElectrons')
+    if hasattr(process,'oldpfPhotonValidation'):
+        process.photonValidationSequence.remove(process.oldpfPhotonValidation)
     return process
 
 
@@ -97,7 +104,10 @@ def customize_FastSim(process):
     process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)
     replaceTags(process.reconstructionWithFamos,
                 cms.InputTag('gsfElectrons'),
-                cms.InputTag('gedGsfElectrons'))    
+                cms.InputTag('gedGsfElectrons'))
+    if hasattr(process,'ecalDrivenElectronSeeds'):
+        process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
+        process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
     return process
 
 
@@ -108,17 +118,16 @@ def customize_Reco(process):
     process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)
     replaceTags(process.reconstruction,
                 cms.InputTag('gsfElectrons'),
-                cms.InputTag('gedGsfElectrons'))    
+                cms.InputTag('gedGsfElectrons'))
+    if hasattr(process,'ecalDrivenElectronSeeds'):
+        process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
+        process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
     return process
 
 
 def customize_harvesting(process):
-    #replaceTags(process.dqmHarvesting,
-    #            cms.InputTag('gsfElectrons'),
-    #            cms.InputTag('gedGsfElectrons'))
-    #replaceTags(process.dqmHarvesting,
-    #            cms.InputTag('gsfElectronCores'),
-    #            cms.InputTag('gedGsfElectronCores'))
+    if hasattr(process,'oldpfPhotonPostprocessing'):
+        process.photonPostProcessor.remove(process.oldpfPhotonPostprocessing)
     return process
 
 def recoOutputCustoms(process):
