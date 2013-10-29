@@ -35,33 +35,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(
       cms.PSet(
-        record = cms.string('wgbrph_EBCorrection'),
-        tag = cms.string('wgbrph_EBCorrection')
+        record = cms.string('pfecalsc_EBCorrection'),
+        tag = cms.string('pfecalsc_EBCorrection')
+      ),      
+      cms.PSet(
+        record = cms.string('pfecalsc_EECorrection'),
+        tag = cms.string('pfecalsc_EECorrection')
       ),
-      cms.PSet(
-        record = cms.string('wgbrph_EBUncertainty'),
-        tag = cms.string('wgbrph_EBUncertainty')
-      ),    
-      cms.PSet(
-        record = cms.string('wgbrph_EECorrection'),
-        tag = cms.string('wgbrph_EECorrection')
-      ),
-      cms.PSet(
-        record = cms.string('wgbrph_EEUncertainty'),
-        tag = cms.string('wgbrph_EEUncertainty')
-      ),
-      cms.PSet(
-    record = cms.string('wgbrph_PFLCCorrection'),
-    tag = cms.string('wgbrph_PFLCCorrection')
-    ),
-            cms.PSet(
-    record = cms.string('wgbrph_PFGlobalCorrection'),
-    tag = cms.string('wgbrph_PFGlobalCorrection')
-    ),
-                  cms.PSet(
-    record = cms.string('wgbrph_PFResolution'),
-    tag = cms.string('wgbrph_PFResolution')
-    ),
+      
   )
 )
             

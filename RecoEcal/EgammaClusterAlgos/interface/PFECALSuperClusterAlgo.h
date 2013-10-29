@@ -96,7 +96,7 @@ class PFECALSuperClusterAlgo {
 
   void setCrackCorrections( bool applyCrackCorrections) { applyCrackCorrections_ = applyCrackCorrections;}
 
-  std::auto_ptr<reco::SuperClusterCollection>
+  std::auto_ptr<reco::SuperClusterCollection>&
     getEBOutputSCCollection() { return superClustersEB_; }
   std::auto_ptr<reco::SuperClusterCollection>
     getEEOutputSCCollection() { return superClustersEE_; }

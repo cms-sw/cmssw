@@ -51,11 +51,11 @@ globalreco = cms.Sequence(offlineBeamSpot*
                           standalonemuontracking*
                           recopixelvertexing*
                           trackingGlobalReco*
+                          vertexreco*
                           hcalGlobalRecoSequence*
                           particleFlowCluster*
                           ecalClusters*
-                          caloTowersRec*
-                          vertexreco*
+                          caloTowersRec*                          
                           egammaGlobalReco*
                           jetGlobalReco*
                           muonGlobalReco*
