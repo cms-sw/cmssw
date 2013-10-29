@@ -43,12 +43,6 @@ namespace edm {
       unsigned int getPrescale(std::string const& prescaledPath);
 
       void setIndex(unsigned int lvl1Index){iLvl1IndexDefault_ = lvl1Index;}      
-      void postBeginJob();
-      void postEndJob() {}
-      void preEventProcessing(EventID const&, Timestamp const&) {}
-      void postEventProcessing(Event const&, EventSetup const&) {}
-      void preModule(ModuleDescription const&) {}
-      void postModule(ModuleDescription const&) {}
       
       typedef std::vector<std::string>                          VString_t;
       typedef std::map<std::string, std::vector<unsigned int> > PrescaleTable_t;
@@ -63,6 +57,7 @@ namespace edm {
       //
       // private member functions
       //
+      void postBeginJob();
 
       void configure();
       
