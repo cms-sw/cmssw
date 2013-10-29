@@ -34,9 +34,6 @@ def configurePFForGEDEGamma(process):
     process.particleFlowTmp.usePFElectrons = cms.bool(False)
     process.particleFlow.GsfElectrons = cms.InputTag('gedGsfElectrons')
     process.particleFlow.Photons = cms.InputTag('gedPhotons')
-    process.particleFlowReco.remove(the_process.pfElectronTranslatorSequence)
-    process.particleFlowReco.remove(the_process.pfPhotonTranslatorSequence)
-    process.egammaHighLevelRecoPostPF.remove(the_process.gsfElectronMergingSequence)
     return process
 
 
@@ -45,6 +42,9 @@ def customize_DQM(process):
     replaceTags(process.dqmoffline_step,
                 cms.InputTag('gsfElectrons'),
                 cms.InputTag('gedGsfElectrons'))
+    replaceTags(process.dqmoffline_step,
+                cms.InputTag('gsfElectronCores'),
+                cms.InputTag('gedGsfElectronCores'))
     return process
 
 
@@ -52,11 +52,26 @@ def customize_Validation(process):
     replaceTags(process.validation_step,
                 cms.InputTag('gsfElectrons'),
                 cms.InputTag('gedGsfElectrons'))
+    replaceTags(process.validation_step,
+                cms.InputTag('gsfElectronCores'),
+                cms.InputTag('gedGsfElectronCores'))
+    #don't ask... just don't ask
+    if hasattr(process,'HLTSusyExoValFastSim'):
+        process.HLTSusyExoValFastSim.PlotMakerRecoInput.electrons = \
+                                                 cms.string('gedGsfElectrons')
+        for pset in process.HLTSusyExoValFastSim.reco_parametersets:
+            pset.electrons = cms.string('gedGsfElectrons')
+    if hasattr(process,'hltHiggsValidator'):
+        process.hltHiggsValidator.H2tau.recElecLabel = \
+                                                cms.string('gedGsfElectrons')
+        process.hltHiggsValidator.HZZ.recElecLabel = \
+                                                cms.string('gedGsfElectrons')
+        process.hltHiggsValidator.HWW.recElecLabel = \
+                                                cms.string('gedGsfElectrons')
     return process
 
 
 def customize_Digi(process):
-    process=digiEventContent(process)
     return process
 
 
@@ -77,6 +92,9 @@ def customize_HLT(process):
 
 def customize_FastSim(process):    
     process=configurePFForGEDEGamma(process)
+    process.famosParticleFlowSequence.remove(process.pfElectronTranslatorSequence)
+    process.famosParticleFlowSequence.remove(process.pfPhotonTranslatorSequence)
+    process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)
     replaceTags(process.reconstructionWithFamos,
                 cms.InputTag('gsfElectrons'),
                 cms.InputTag('gedGsfElectrons'))    
@@ -85,6 +103,9 @@ def customize_FastSim(process):
 
 def customize_Reco(process):
     process=configurePFForGEDEGamma(process)
+    process.particleFlowReco.remove(process.pfElectronTranslatorSequence)
+    process.particleFlowReco.remove(process.pfPhotonTranslatorSequence)
+    process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)
     replaceTags(process.reconstruction,
                 cms.InputTag('gsfElectrons'),
                 cms.InputTag('gedGsfElectrons'))    
@@ -92,9 +113,12 @@ def customize_Reco(process):
 
 
 def customize_harvesting(process):
-    replaceTags(process.dqmHarvesting,
-                cms.InputTag('gsfElectrons'),
-                cms.InputTag('gedGsfElectrons'))
+    #replaceTags(process.dqmHarvesting,
+    #            cms.InputTag('gsfElectrons'),
+    #            cms.InputTag('gedGsfElectrons'))
+    #replaceTags(process.dqmHarvesting,
+    #            cms.InputTag('gsfElectronCores'),
+    #            cms.InputTag('gedGsfElectronCores'))
     return process
 
 def recoOutputCustoms(process):
