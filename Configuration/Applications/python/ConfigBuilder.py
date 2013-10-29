@@ -1353,7 +1353,6 @@ class ConfigBuilder(object):
             self.loadAndRemember("SimGeneral/MixingModule/himixDIGI_cff")
 
         if sequence == 'pdigi_valid':
-            from SimGeneral.MixingModule.digitizers_cfi import theDigitizersValid
             self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
