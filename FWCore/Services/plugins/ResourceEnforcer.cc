@@ -19,6 +19,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 
 
 namespace edm {
@@ -28,21 +29,23 @@ namespace edm {
   namespace service {
     class ResourceEnforcer {
     public:
-      ResourceEnforcer(edm::ParameterSet const& iConfig, ActivityRegistry& iAR);
-      
-      void check();
-      
-      void postEventProcessing(Event const& e, EventSetup const&);
+      ResourceEnforcer(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iAR);
       
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
+      void check();
+      void postEventProcessing(edm::StreamContext const&);
+      
       ProcInfoFetcher m_fetcher;
       CPUTimer m_timer;
       
       double m_maxVSize;
       double m_maxRSS;
       double m_maxTime;
+      unsigned int m_nEventsToSkip;
+      std::atomic<unsigned int> m_eventCount;
+      std::atomic<bool> m_doingCheck;
     };
   }
 }
@@ -62,10 +65,17 @@ using namespace edm::service;
 ResourceEnforcer::ResourceEnforcer( edm::ParameterSet const& iConfig,ActivityRegistry& iReg):
 m_maxVSize(iConfig.getUntrackedParameter<double>("maxVSize",0)*1000.), //convert to MB
 m_maxRSS(iConfig.getUntrackedParameter<double>("maxRSS",0)*1000.),
-m_maxTime(iConfig.getUntrackedParameter<double>("maxTime",0)*60.*60.) //convert from hours to seconds
-
+m_maxTime(iConfig.getUntrackedParameter<double>("maxTime",0)*60.*60.), //convert from hours to seconds
+m_nEventsToSkip(0),
+m_eventCount(0),
+m_doingCheck(false)
 {
-  iReg.watchPostProcessEvent(this, &ResourceEnforcer::postEventProcessing);
+  iReg.watchPostEvent(this, &ResourceEnforcer::postEventProcessing);
+  iReg.watchPreallocate([this](edm::service::SystemBounds const& iBounds){
+    //We do not want the frequency of checking to be dependent on
+    // how many parallel streams are running
+    m_nEventsToSkip = iBounds.maxNumberOfStreams()-1;
+  });
   m_timer.start();
 
 }
@@ -79,8 +89,17 @@ m_maxTime(iConfig.getUntrackedParameter<double>("maxTime",0)*60.*60.) //convert 
 //
 
 void 
-ResourceEnforcer::postEventProcessing(Event const& e, EventSetup const&) {
-  this->check();
+ResourceEnforcer::postEventProcessing(StreamContext const&) {
+  //If another thread is already doing a check, we don't need to do another one
+  auto count = ++m_eventCount;
+  if(count> m_nEventsToSkip) {
+    bool expected = false;
+    if( m_doingCheck.compare_exchange_strong(expected,true,std::memory_order_acq_rel) ) {
+      this->check();
+      m_doingCheck.store(false,std::memory_order_release);
+      m_eventCount.store(0,std::memory_order_release);
+    }
+  }
 }
 
 
