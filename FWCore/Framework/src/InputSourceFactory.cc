@@ -18,9 +18,9 @@ namespace edm {
   {
   }
 
-  InputSourceFactory InputSourceFactory::singleInstance_;
+  InputSourceFactory const InputSourceFactory::singleInstance_;
 
-  InputSourceFactory* InputSourceFactory::get()
+  InputSourceFactory const* InputSourceFactory::get()
   {
     // will not work with plugin factories
     //static InputSourceFactory f;

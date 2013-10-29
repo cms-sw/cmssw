@@ -14,7 +14,7 @@ namespace edm {
     delete v.second;
   }
 
-  Factory Factory::singleInstance_;
+  Factory const Factory::singleInstance_;
   
   Factory::~Factory()
   {
@@ -26,7 +26,7 @@ namespace edm {
   {
   }
 
-  Factory* Factory::get()
+  Factory const* Factory::get()
   {
     return &singleInstance_;
   }
