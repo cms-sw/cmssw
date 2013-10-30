@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include "TMath.h"
-#include "math.h"
+#include <cmath>
 #include "TROOT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

@@ -104,7 +104,7 @@ PixelHitMatcher::compatibleSeeds
  {
   int charge = int(fcharge) ;
 
-  FreeTrajectoryState fts = myFTS(theMagField,xmeas, vprim, energy, charge);
+  FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField, xmeas, vprim, energy, charge);
   PerpendicularBoundPlaneBuilder bpb;
   TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
 
@@ -196,7 +196,7 @@ PixelHitMatcher::compatibleSeeds
            { zVertex = vprim.z() ; }
 
           GlobalPoint vertex(vprim.x(),vprim.y(),zVertex) ;
-          FreeTrajectoryState fts2 = myFTS(theMagField,hitPos,vertex,energy, charge) ;
+          FreeTrajectoryState fts2 = FTSFromVertexToPointFactory::get(*theMagField, hitPos, vertex, energy, charge) ;
 
           found = false;
           std::vector<std::pair< std::pair<const GeomDet *,GlobalPoint>, TrajectoryStateOnSurface> >::iterator itTsos2 ;
@@ -275,8 +275,7 @@ PixelHitMatcher::compatibleHits
   typedef vector<BarrelDetLayer*>::const_iterator BarrelLayerIterator;
   BarrelLayerIterator firstLayer = startLayers.firstBLayer();
 
-  FreeTrajectoryState fts =myFTS(theMagField,xmeas, vprim,
-				 energy, charge);
+  FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField,xmeas, vprim, energy, charge);
 
   PerpendicularBoundPlaneBuilder bpb;
   TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
@@ -430,7 +429,7 @@ PixelHitMatcher::compatibleHits
     GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertex) ;
     GlobalPoint hitPos( validMeasurements[i].recHit()->det()->surface().toGlobal( validMeasurements[i].recHit()->localPosition() ) ) ;
 
-    FreeTrajectoryState secondFTS=myFTS(theMagField,hitPos,vertexPred,energy, charge);
+    FreeTrajectoryState secondFTS = FTSFromVertexToPointFactory::get(*theMagField, hitPos, vertexPred, energy, charge);
 
     PixelMatchNextLayers secondHit(&theLayerMeasurements, newLayer, secondFTS,
 				   prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer,

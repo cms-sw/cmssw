@@ -64,7 +64,6 @@ class HLTPMMassFilter : public HLTFilter {
    private:
       TLorentzVector approxMomAtVtx( const MagneticField *magField, const GlobalPoint& xvert, const reco::SuperClusterRef sc, int charge) ;
 
-      FTSFromVertexToPointFactory theFTSFactory;
       edm::ESHandle<MagneticField> theMagField;
 
       edm::InputTag candTag_;     // input tag identifying product contains filtered egammas

@@ -1,5 +1,5 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/OldThreeThresholdAlgorithm.h"
-#include "sstream"
+#include <sstream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #define PATCH_FOR_DIGIS_DUPLICATION
