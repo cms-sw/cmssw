@@ -69,7 +69,7 @@
 
 using namespace edm;
 using namespace std;
-using namespace reco; 
+using namespace reco;
 using namespace trigger;
 
 typedef vector<string> vstring;
@@ -100,12 +100,12 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
   //
   theTriggerForMultiJetsList  = ps.getParameter<vstring>("triggerMultiJetsList");
   theTriggerForLongLivedList  = ps.getParameter<vstring>("triggerLongLivedList");
-  
+
   //
   ElectronLabel_      = ps.getParameter<InputTag>("electronCollection");
   PFElectronLabelEI_  = ps.getParameter<InputTag>("pfelectronCollectionEI");
   //
-  MuonLabel_          = ps.getParameter<InputTag>("muonCollection"); 
+  MuonLabel_          = ps.getParameter<InputTag>("muonCollection");
   PFMuonLabelEI_      = ps.getParameter<InputTag>("pfmuonCollectionEI");
   //
   TauLabel_           = ps.getParameter<InputTag>("tauCollection");
@@ -117,13 +117,13 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
   CaloJetLabel_       = ps.getParameter<InputTag>("caloJetCollection");
   PFJetLabel_         = ps.getParameter<InputTag>("pfJetCollection");
   PFJetLabelEI_       = ps.getParameter<InputTag>("pfJetCollectionEI");
-  
+
   //
   CaloMETLabel_       = ps.getParameter<InputTag>("caloMETCollection");
   PFMETLabel_         = ps.getParameter<InputTag>("pfMETCollection");
   PFMETLabelEI_       = ps.getParameter<InputTag>("pfMETCollectionEI");
-  
-  //Cuts - MultiJets 
+
+  //Cuts - MultiJets
   jetID                    = new reco::helper::JetIDHelper(ps.getParameter<ParameterSet>("JetIDParams"));
   mj_monojet_ptPFJet_      = ps.getParameter<double>("mj_monojet_ptPFJet");
   mj_monojet_ptPFMuon_     = ps.getParameter<double>("mj_monojet_ptPFMuon");
@@ -159,10 +159,10 @@ void ExoticaDQM::beginJob(){
 //
 void ExoticaDQM::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo ("ExoticaDQM") <<"[ExoticaDQM]: Begining of Run";
-  
+
   // passed as parameter to HLTConfigProvider::init(), not yet used
   bool isConfigChanged = false;
-  
+
   // isValidHltConfig_ used to short-circuit analyze() in case of problems
   //  const std::string hltProcessName( "HLT" );
   const std::string hltProcessName = theTriggerResultsCollection.process();
@@ -174,8 +174,8 @@ void ExoticaDQM::beginRun(Run const& run, edm::EventSetup const& eSetup) {
 //
 // -- Begin  Luminosity Block
 //
-void ExoticaDQM::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-                                            edm::EventSetup const& context) { 
+void ExoticaDQM::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+                                            edm::EventSetup const& context) {
   //edm::LogInfo ("ExoticaDQM") <<"[ExoticaDQM]: Begin of LS transition";
 }
 
@@ -184,9 +184,9 @@ void ExoticaDQM::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 //  -- Book histograms
 //
 void ExoticaDQM::bookHistos(DQMStore* bei){
- 
+
   bei->cd();
-  
+
   //--- Multijets
   bei->setCurrentFolder("Physics/Exotica/MultiJets");
   mj_monojet_pfchef               = bei->book1D("mj_monojet_pfchef", "PFJetID CHEF", 50, 0.0 , 1.0);
@@ -200,22 +200,22 @@ void ExoticaDQM::bookHistos(DQMStore* bei){
   mj_monojet_pfJetMulti           = bei->book1D("mj_monojet_pfJetMulti", "No. of PFJets", 10, 0., 10.);
   mj_monojet_deltaPhiPFJet1PFJet2 = bei->book1D("mj_monojet_deltaPhiPFJet1PFJet2", "#Delta#phi(PFJet1, PFJet2)", 40, 0., 4.);
   mj_monojet_deltaRPFJet1PFJet2   = bei->book1D("mj_monojet_deltaRPFJet1PFJet2", "#DeltaR(PFJet1, PFJet2)", 50, 0., 10.);
-  mj_monojet_pfmetnomu            = bei->book1D("mj_monojet_pfmetnomu", "PFMET no Mu", 100, 0.0 , 500.0); 
+  mj_monojet_pfmetnomu            = bei->book1D("mj_monojet_pfmetnomu", "PFMET no Mu", 100, 0.0 , 500.0);
   mj_caloMet_et                   = bei->book1D("mj_caloMet", "Calo Missing E_{T}; GeV", 50, 0.0 , 500);
   mj_caloMet_phi                  = bei->book1D("mj_caloMet_phi", "Calo Missing E_{T} #phi;#phi(MET)", 35, -3.5, 3.5 );
   mj_pfMet_et                     = bei->book1D("mj_pfMet", "Pf Missing E_{T}; GeV", 50,  0.0 , 500);
   mj_pfMet_phi                    = bei->book1D("mj_pfMet_phi", "Pf Missing E_{T} #phi;#phi(MET)", 35, -3.5, 3.5 );
-  
+
   //
-  //bei->setCurrentFolder("Physics/Exotica/MultiJetsTrigger"); 
- 
+  //bei->setCurrentFolder("Physics/Exotica/MultiJetsTrigger");
+
   //--- LongLived
   bei->setCurrentFolder("Physics/Exotica/LongLived");
   ll_gammajet_sMajMajPhot         = bei->book1D("ll_gammajet_sMajMajPhot", "sMajMajPhot", 50, 0.0 , 5.0);
   ll_gammajet_sMinMinPhot         = bei->book1D("ll_gammajet_sMinMinPhot", "sMinMinPhot", 50, 0.0 , 5.0);
 
   //
-  //bei->setCurrentFolder("Physics/Exotica/LongLivedTrigger"); 
+  //bei->setCurrentFolder("Physics/Exotica/LongLivedTrigger");
 
   //
   bei->setCurrentFolder("Physics/Exotica/EIComparison");
@@ -223,15 +223,15 @@ void ExoticaDQM::bookHistos(DQMStore* bei){
   ei_pfmet_pt      = bei->book1D("ei_pfmet_pt",      "Pt of PFMET      (EI) (GeV)", 40, 0.0 , 1000);
   //ei_pfmuon_pt     = bei->book1D("ei_pfmuon_pt",     "Pt of PFMuon     (EI) (GeV)", 40, 0.0 , 1000);
   //ei_pfelectron_pt = bei->book1D("ei_pfelectron_pt", "Pt of PFElectron (EI) (GeV)", 40, 0.0 , 1000);
-  
+
   bei->cd();
 }
 
 
 //
-//  -- Analyze 
+//  -- Analyze
 //
-void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){ 
+void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   // Calo objects
   // Electrons
@@ -242,28 +242,28 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if(!ValidCaloMuon) return;
   // Taus
   bool ValidCaloTau = iEvent.getByLabel(TauLabel_, TauCollection_);
-  if(!ValidCaloTau) return;  
+  if(!ValidCaloTau) return;
   // Photons
   bool ValidCaloPhoton = iEvent.getByLabel(PhotonLabel_, PhotonCollection_);
-  if(!ValidCaloPhoton) return; 
+  if(!ValidCaloPhoton) return;
   // Jets
   bool ValidCaloJet = iEvent.getByLabel(CaloJetLabel_, caloJetCollection_);
   if(!ValidCaloJet) return;
-  calojets = *caloJetCollection_; 
+  calojets = *caloJetCollection_;
   // MET
   bool ValidCaloMET = iEvent.getByLabel(CaloMETLabel_, caloMETCollection_);
   if(!ValidCaloMET) return;
-  
+
 
   // PF objects
   // PFJets
   bool ValidPFJet = iEvent.getByLabel(PFJetLabel_, pfJetCollection_);
   if(!ValidPFJet) return;
-  pfjets = *pfJetCollection_; 
+  pfjets = *pfJetCollection_;
   // PFMETs
   bool ValidPFMET = iEvent.getByLabel(PFMETLabel_, pfMETCollection_);
   if(!ValidPFMET) return;
-  
+
   //#######################################################
   // Jet Correction
   // Define on-the-fly correction Jet
@@ -286,16 +286,16 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     PFJetNEMF[i]   = 0.;
     PFJetCEMF[i]   = 0.;
   }
-  
+
   //---------- CaloJet Correction (on-the-fly) ----------
   const JetCorrector* calocorrector = JetCorrector::getJetCorrector(CaloJetCorService_,iSetup);
   CaloJetCollection::const_iterator calojet_ = calojets.begin();
   for(; calojet_ != calojets.end(); ++calojet_){
-    double scale = calocorrector->correction(*calojet_,iEvent, iSetup);	
+    double scale = calocorrector->correction(*calojet_,iEvent, iSetup);
     jetID->calculate(iEvent, *calojet_);
-    
+
     if(scale*calojet_->pt()>CaloJetPt[0]){
-      CaloJetPt[1]   = CaloJetPt[0]; 
+      CaloJetPt[1]   = CaloJetPt[0];
       CaloJetPx[1]   = CaloJetPx[0];
       CaloJetPy[1]   = CaloJetPy[0];
       CaloJetEta[1]  = CaloJetEta[0];
@@ -325,7 +325,7 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
     else{}
   }
-  
+
   //
   mj_monojet_countPFJet=0;
   const JetCorrector* pfcorrector = JetCorrector::getJetCorrector(PFJetCorService_,iSetup);
@@ -338,9 +338,9 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       PFJetPy[1]   = PFJetPy[0];
       PFJetEta[1]  = PFJetEta[0];
       PFJetPhi[1]  = PFJetPhi[0];
-      PFJetNHEF[1] = PFJetNHEF[0]; 
+      PFJetNHEF[1] = PFJetNHEF[0];
       PFJetCHEF[1] = PFJetCHEF[0];
-      PFJetNEMF[1] = PFJetNEMF[0]; 
+      PFJetNEMF[1] = PFJetNEMF[0];
       PFJetCEMF[1] = PFJetCEMF[0];
       //
       PFJetPt[0]   = scale*pfjet_->pt();
@@ -358,7 +358,7 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       PFJetPx[1]   = scale*pfjet_->px();
       PFJetPy[1]   = scale*pfjet_->py();
       PFJetEta[1]  = pfjet_->eta();
-      PFJetPhi[1]  = pfjet_->phi(); 
+      PFJetPhi[1]  = pfjet_->phi();
       PFJetNHEF[1] = pfjet_->neutralHadronEnergyFraction();
       PFJetCHEF[1] = pfjet_->chargedHadronEnergyFraction();
       PFJetNEMF[1] = pfjet_->neutralEmEnergyFraction();
@@ -368,8 +368,8 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     if(scale*pfjet_->pt()>mj_monojet_ptPFJet_) mj_monojet_countPFJet++;
   }
   //#######################################################
-  
-  
+
+
   // Analyze
   //
   analyzeMultiJets(iEvent);
@@ -381,19 +381,19 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   analyzeEventInterpretation(iEvent, iSetup);
 }
 
-void ExoticaDQM::analyzeMultiJets(const Event & iEvent){ 
+void ExoticaDQM::analyzeMultiJets(const Event & iEvent){
 
   //--- MonoJet
   //bool checkLepton = false;
   //reco::MuonCollection::const_iterator  muon  = MuonCollection_->begin();
   //for(; muon != MuonCollection_->end(); muon++){
-  //if(muon->pt()<mj_monojet_ptPFMuon_) continue; 
-  //checkLepton = true; 
+  //if(muon->pt()<mj_monojet_ptPFMuon_) continue;
+  //checkLepton = true;
   //}
   //reco::GsfElectronCollection::const_iterator electron = ElectronCollection_->begin();
   //for(; electron != ElectronCollection_->end(); electron++){
-  //if(electron->pt()<mj_monojet_ptPFElectron_) continue; 
-  //checkLepton = true; 
+  //if(electron->pt()<mj_monojet_ptPFElectron_) continue;
+  //checkLepton = true;
   //}
   //if(checkLepton==false){
 
@@ -401,10 +401,10 @@ void ExoticaDQM::analyzeMultiJets(const Event & iEvent){
     mj_monojet_pfJet1_pt->Fill(PFJetPt[0]);
     mj_monojet_pfJet1_eta->Fill(PFJetEta[0]);
     mj_monojet_pfchef->Fill(PFJetCHEF[0]);
-    mj_monojet_pfnhef->Fill(PFJetNHEF[0]); 
+    mj_monojet_pfnhef->Fill(PFJetNHEF[0]);
     mj_monojet_pfcemf->Fill(PFJetCEMF[0]);
     mj_monojet_pfnemf->Fill(PFJetNEMF[0]);
-    mj_monojet_pfJetMulti->Fill(mj_monojet_countPFJet); 
+    mj_monojet_pfJetMulti->Fill(mj_monojet_countPFJet);
   }
   if(PFJetPt[1]>0.){
     mj_monojet_pfJet2_pt->Fill(PFJetPt[1]);
@@ -413,13 +413,13 @@ void ExoticaDQM::analyzeMultiJets(const Event & iEvent){
     mj_monojet_deltaRPFJet1PFJet2->Fill(deltaR(PFJetEta[0],PFJetPhi[0],
 					       PFJetEta[1],PFJetPhi[1]));
   }
-  
+
   //--- MET
   const CaloMETCollection *calometcol = caloMETCollection_.product();
   const CaloMET met = calometcol->front();
   mj_caloMet_et->Fill(met.et());
   mj_caloMet_phi->Fill(met.phi());
-  
+
   //
   const PFMETCollection *pfmetcol = pfMETCollection_.product();
   const PFMET pfmet = pfmetcol->front();
@@ -430,12 +430,12 @@ void ExoticaDQM::analyzeMultiJets(const Event & iEvent){
 void ExoticaDQM::analyzeMultiJetsTrigger(const Event & iEvent){
 }
 
-void ExoticaDQM::analyzeLongLived(const Event & iEvent){ 
+void ExoticaDQM::analyzeLongLived(const Event & iEvent){
   // SMajMajPho, SMinMinPho
   // get ECAL reco hits
   Handle<EBRecHitCollection> ecalhitseb;
   const EBRecHitCollection* rhitseb=0;
-  iEvent.getByLabel("reducedEcalRecHitsEB", ecalhitseb);    
+  iEvent.getByLabel("reducedEcalRecHitsEB", ecalhitseb);
   rhitseb = ecalhitseb.product(); // get a ptr to the product
   //
   Handle<EERecHitCollection> ecalhitsee;
@@ -448,13 +448,13 @@ void ExoticaDQM::analyzeLongLived(const Event & iEvent){
   for(; photon != PhotonCollection_->end(); ++photon){
     if(photon->energy()<3.) continue;
     if(nPhot>=40) continue;
-    
-    const Ptr<CaloCluster> theSeed = photon->superCluster()->seed(); 
+
+    const Ptr<CaloCluster> theSeed = photon->superCluster()->seed();
     const EcalRecHitCollection* rechits = ( photon->isEB()) ? rhitseb : rhitsee;
     CaloClusterPtr SCseed = photon->superCluster()->seed();
-    
+
     std::pair<DetId, float> maxRH = EcalClusterTools::getMaximum( *theSeed, &(*rechits) );
-    
+
     if(maxRH.second) {
       Cluster2ndMoments moments = EcalClusterTools::cluster2ndMoments(*SCseed, *rechits);
       //std::vector<float> etaphimoments = EcalClusterTools::localCovariances(*SCseed, &(*rechits), &(*topology));
@@ -473,7 +473,7 @@ void ExoticaDQM::analyzeLongLived(const Event & iEvent){
 void ExoticaDQM::analyzeLongLivedTrigger(const Event & iEvent){
 }
 
-void ExoticaDQM::analyzeEventInterpretation(const Event & iEvent, const edm::EventSetup& iSetup){  
+void ExoticaDQM::analyzeEventInterpretation(const Event & iEvent, const edm::EventSetup& iSetup){
 
   // EI
   // PFElectrons
@@ -485,12 +485,12 @@ void ExoticaDQM::analyzeEventInterpretation(const Event & iEvent, const edm::Eve
   bool ValidPFMuonEI = iEvent.getByLabel(PFMuonLabelEI_, pfMuonCollectionEI_);
   if(!ValidPFMuonEI) return;
   pfmuonsEI = *pfMuonCollectionEI_;
-  
+
   // PFJets
   bool ValidPFJetEI = iEvent.getByLabel(PFJetLabelEI_, pfJetCollectionEI_);
   if(!ValidPFJetEI) return;
   pfjetsEI = *pfJetCollectionEI_;
-  
+
   // PFMETs
   bool ValidPFMETEI = iEvent.getByLabel(PFMETLabelEI_, pfMETCollectionEI_);
   if(!ValidPFMETEI) return;
@@ -517,7 +517,7 @@ void ExoticaDQM::analyzeEventInterpretation(const Event & iEvent, const edm::Eve
   if(countJet>0){
     ei_pfjet1_pt->Fill(PFJetEIPt);
   }
-  
+
   const PFMETCollection *pfmetcolEI = pfMETCollectionEI_.product();
   const PFMET pfmetEI = pfmetcolEI->front();
   ei_pfmet_pt->Fill(pfmetEI.et());
@@ -529,8 +529,8 @@ void ExoticaDQM::analyzeEventInterpretation(const Event & iEvent, const edm::Eve
 void ExoticaDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
   //edm::LogInfo ("ExoticaDQM") <<"[ExoticaDQM]: End of LS transition, performing the DQM client operation";
   nLumiSecs_++;
-  //edm::LogInfo("ExoticaDQM") << "============================================ " 
-  //<< endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() 
+  //edm::LogInfo("ExoticaDQM") << "============================================ "
+  //<< endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock()
   //<< endl  << "============================================ " << endl;
 }
 
@@ -548,3 +548,8 @@ void ExoticaDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
 void ExoticaDQM::endJob(){
   //edm::LogInfo("ExoticaDQM") <<"[ExoticaDQM]: endjob called!";
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

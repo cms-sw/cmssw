@@ -16,7 +16,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "DataFormats/Common/interface/Handle.h" 
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/DataKeyTags.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -39,26 +39,26 @@
 #include <map>
 
 class DQMStore;
- 
+
 class HiggsDQM: public edm::EDAnalyzer{
 
 public:
 
   HiggsDQM(const edm::ParameterSet& ps);
   virtual ~HiggsDQM();
-  
+
 protected:
 
   void beginJob();
-  void beginRun(edm::Run const& run, 
+  void beginRun(edm::Run const& run,
                 edm::EventSetup const& eSetup);
-  void analyze(edm::Event const& e, 
+  void analyze(edm::Event const& e,
                edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
                             edm::EventSetup const& context) ;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
                           edm::EventSetup const& c);
-  void endRun(edm::Run const& run, 
+  void endRun(edm::Run const& run,
               edm::EventSetup const& eSetup);
   void endJob();
 
@@ -68,15 +68,15 @@ private:
   double DistancePhi( const reco::Candidate & c1, const reco::Candidate & c2 );
   double calcDeltaPhi(double phi1, double phi2);
   void bookHistos(DQMStore * bei );
-  
+
   unsigned long long m_cacheID_;
   int nLumiSecs_;
   int nEvents_, irun, ievt;
   reco::CandidateCollection *leptonscands_;
   int leptonflavor;
   float pi;
-  
-  DQMStore* bei_;  
+
+  DQMStore* bei_;
   HLTConfigProvider hltConfigProvider_;
   bool isValidHltConfig_;
 
@@ -90,8 +90,8 @@ private:
   edm::InputTag theCaloMETCollectionLabel;
   edm::InputTag thePfMETCollectionLabel;
   double ptThrMu1_; // pt cut on the first muon for the Z^0
-  double ptThrMu2_; // pt cut on the second muon for the Z^0 
-  
+  double ptThrMu2_; // pt cut on the second muon for the Z^0
+
   // Histograms
   MonitorElement* h_vertex_number;
   MonitorElement* h_vertex_chi2;
@@ -133,9 +133,14 @@ private:
   MonitorElement* h_dimumass_TMTM;
   MonitorElement* h_dielemass;
   MonitorElement* h_lepcounts;
-  
-  
+
+
 };
 
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

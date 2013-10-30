@@ -110,19 +110,19 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   h_triggers_passed = 0;
 
   theDbe = Service<DQMStore>().operator->();
-  
+
 }
 
-QcdPhotonsDQM::~QcdPhotonsDQM() { 
+QcdPhotonsDQM::~QcdPhotonsDQM() {
 }
 
 
 void QcdPhotonsDQM::beginJob() {
- 
+
   logTraceName = "QcdPhotonAnalyzer";
 
   LogTrace(logTraceName)<<"Parameters initialization";
- 
+
   theDbe->setCurrentFolder("Physics/QcdPhotons");  // Use folder with name of PAG
 
   std::stringstream aStringStream;
@@ -204,13 +204,13 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   //// short-circuit if hlt problems
   //if( ! isValidHltConfig_ ) return;
-  
+
   LogTrace(logTraceName)<<"Analysis of event # ";
 
   ////////////////////////////////////////////////////////////////////
   // Did event pass HLT paths?
   Handle<TriggerResults> HLTresults;
-  iEvent.getByLabel(trigTag_, HLTresults); 
+  iEvent.getByLabel(trigTag_, HLTresults);
   if (!HLTresults.isValid()) {
     //LogWarning("") << ">>> TRIGGER collection does not exist !!!";
     return;
@@ -265,7 +265,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     return;
   }
   }
-  
+
   ////////////////////////////////////////////////////////////////////
 
   //std::cout << "\tpassed main trigger (" << theTriggerPathToPass_ << ")" << std::endl;
@@ -285,7 +285,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   //  vtx_isFake = false;
   //}
   //if (vtx_isFake || fabs(vtx_z)>15 || vtx_ndof<4) return;
-  
+
   int nvvertex = 0;
   for (unsigned int i=0; i<vertexCollection.size(); ++i) {
     if (vertexCollection[i].isValid()) nvvertex++;
@@ -308,7 +308,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   Handle<EcalRecHitCollection> EBReducedRecHits;
   iEvent.getByLabel(theBarrelRecHitTag, EBReducedRecHits);
   Handle<EcalRecHitCollection> EEReducedRecHits;
-  iEvent.getByLabel(theEndcapRecHitTag, EEReducedRecHits); 
+  iEvent.getByLabel(theEndcapRecHitTag, EEReducedRecHits);
   EcalClusterLazyTools lazyTool(iEvent, iSetup, theBarrelRecHitTag, theEndcapRecHitTag);
 
 
@@ -331,8 +331,8 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     const reco::CaloClusterPtr  seed = recoPhoton->superCluster()->seed();
     DetId id = lazyTool.getMaximum(*seed).first; // Cluster shape variables
     //    float time  = -999., outOfTimeChi2 = -999., chi2 = -999.;  // UNUSED
-    int   flags=-1, severity = -1; 
-    const EcalRecHitCollection & rechits = ( recoPhoton->isEB() ? *EBReducedRecHits : *EEReducedRecHits); 
+    int   flags=-1, severity = -1;
+    const EcalRecHitCollection & rechits = ( recoPhoton->isEB() ? *EBReducedRecHits : *EEReducedRecHits);
     EcalRecHitCollection::const_iterator it = rechits.find( id );
     if( it != rechits.end() ) {
       //      time = it->time(); // UNUSED
@@ -371,7 +371,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
       photon_phi = recoPhoton->phi();
     }
   }
-  
+
   // If user requires a photon to be found, but none is, return.
   //   theRequirePhotonFound should pretty much always be set to 'True'
   //    except when running on qcd monte carlo just to see the jets.
@@ -465,7 +465,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
       h_deltaR_jet_jet2     ->Fill( deltaR(   jet_eta,    jet_phi, jet2_eta, jet2_phi) );
       h_deltaR_photon_jet2  ->Fill( deltaR(photon_eta, photon_phi, jet2_eta, jet2_phi) );
     }
-  } 
+  }
   // End of Filling histograms
   ////////////////////////////////////////////////////////////////////
 }
@@ -474,7 +474,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 void QcdPhotonsDQM::endJob(void) {}
 
 void QcdPhotonsDQM::endRun(const edm::Run& run, const edm::EventSetup& es) {
-  if (num_events_in_run>0) { 
+  if (num_events_in_run>0) {
     h_triggers_passed->getTH1F()->Scale(1.0/num_events_in_run);
   }
   h_photon_et_ratio_co_cs->getTH1F()->Divide( h_photon_et_jetco->getTH1F(), h_photon_et_jetcs->getTH1F() );
@@ -485,3 +485,8 @@ void QcdPhotonsDQM::endRun(const edm::Run& run, const edm::EventSetup& es) {
   h_photon_et_ratio_co_fo->getTH1F()->Divide( h_photon_et_jetco->getTH1F(), h_photon_et_jetfo->getTH1F() );
 }
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

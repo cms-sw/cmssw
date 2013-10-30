@@ -67,7 +67,7 @@
 //#include "HiggsAnalysis/HiggsToZZ4Leptons/plugins/CandidateTkIsolation.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuonIsolation.h" 
+#include "DataFormats/MuonReco/interface/MuonIsolation.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include <DataFormats/EgammaCandidates/interface/GsfElectron.h>
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -128,7 +128,7 @@ double HiggsDQM::calcDeltaPhi(double phi1, double phi2) {
 //
 HiggsDQM::HiggsDQM(const edm::ParameterSet& ps){
  //cout<<"Entering  HiggsDQM::HiggsDQM: "<<endl;
- 
+
   edm::LogInfo("HZZ4LeptonsDQM") <<  " Creating HZZ4LeptonsDQM " << "\n" ;
 
   bei_ = Service<DQMStore>().operator->();
@@ -150,9 +150,9 @@ HiggsDQM::HiggsDQM(const edm::ParameterSet& ps){
   // cuts:
   ptThrMu1_ = ps.getUntrackedParameter<double>("PtThrMu1");
   ptThrMu2_ = ps.getUntrackedParameter<double>("PtThrMu2");
- 
 
-  
+
+
  //cout<<"...leaving  HiggsDQM::HiggsDQM. "<<endl;
 }
 //
@@ -160,7 +160,7 @@ HiggsDQM::HiggsDQM(const edm::ParameterSet& ps){
 //
 HiggsDQM::~HiggsDQM(){
   //cout<<"Entering HiggsDQM::~HiggsDQM: "<<endl;
-  
+
   edm::LogInfo("HiggsDQM") <<  " Deleting HiggsDQM " << "\n" ;
 
   //cout<<"...leaving HiggsDQM::~HiggsDQM. "<<endl;
@@ -174,7 +174,7 @@ void HiggsDQM::beginJob(){
   nLumiSecs_ = 0;
   nEvents_   = 0;
   pi = 3.14159265;
-  
+
 
   //cout<<"...leaving HiggsDQM::beginJob. "<<endl;
 }
@@ -185,7 +185,7 @@ void HiggsDQM::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo ("HiggsDQM") <<"[HiggsDQM]: Begining of Run";
   // passed as parameter to HLTConfigProvider::init(), not yet used
   bool isConfigChanged = false;
-  
+
   // isValidHltConfig_ used to short-circuit analyze() in case of problems
   //  const std::string hltProcessName( "HLT" );
   const std::string hltProcessName = theTriggerResultsCollection.process();
@@ -195,10 +195,10 @@ void HiggsDQM::beginRun(Run const& run, edm::EventSetup const& eSetup) {
 //
 // -- Begin  Luminosity Block
 //
-void HiggsDQM::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
+void HiggsDQM::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
                                             edm::EventSetup const& context) {
   //cout<<"Entering HiggsDQM::beginLuminosityBlock: "<<endl;
-  
+
   edm::LogInfo ("HiggsDQM") <<"[HiggsDQM]: Begin of LS transition";
 
   //cout<<"...leaving HiggsDQM::beginLuminosityBlock. "<<endl;
@@ -248,12 +248,12 @@ void HiggsDQM::bookHistos(DQMStore* bei){
   h_dimumass_TMTM = bei->book1D("DimuMass_TMTM","Invariant mass of TMTM pairs",100,0.,200.);
   h_dielemass = bei->book1D("DieleMass","Invariant mass of EE pairs",100,0.,200.);
   h_lepcounts = bei->book1D("LeptonCounts","LeptonCounts for multi lepton events",49,0.,49.);
-  
-  bei->cd();  
+
+  bei->cd();
 
 }
 //
-//  -- Analyze 
+//  -- Analyze
 //
 void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
   //cout<<"[HiggsDQM::analyze()] "<<endl;
@@ -265,7 +265,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
   if( ! isValidHltConfig_ ) return;
   // Did it pass certain HLT path?
   Handle<TriggerResults> HLTresults;
-  e.getByLabel(theTriggerResultsCollection, HLTresults); 
+  e.getByLabel(theTriggerResultsCollection, HLTresults);
   if ( !HLTresults.isValid() ) return;
   //unsigned int triggerIndex_elec = hltConfig.triggerIndex(theElecTriggerPathToPass);
   //unsigned int triggerIndex_muon = hltConfig.triggerIndex(theMuonTriggerPathToPass);
@@ -298,7 +298,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
     h_vertex_numTrks->Fill(vertex_numTrks);
     h_vertex_sumTrks->Fill(vertex_sumTrks);
   }
-  
+
 //-------------------------------
 //--- Electrons
 //-------------------------------
@@ -322,13 +322,13 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
       // Require electron to pass some basic cuts
       //if ( recoElectron->et() < 20 || fabs(recoElectron->eta())>2.5 ) continue;
       // Tighter electron cuts
-      //if ( recoElectron->deltaPhiSuperClusterTrackAtVtx() > 0.58 || 
-      //     recoElectron->deltaEtaSuperClusterTrackAtVtx() > 0.01 || 
+      //if ( recoElectron->deltaPhiSuperClusterTrackAtVtx() > 0.58 ||
+      //     recoElectron->deltaEtaSuperClusterTrackAtVtx() > 0.01 ||
       //     recoElectron->sigmaIetaIeta() > 0.027 ) continue;
       } // end of loop over electrons
     } // end if passed HLT
     nEle = posEle+negEle; if(nEle>9.) nEle=9.;
-    h_eMultiplicity->Fill(nEle);  
+    h_eMultiplicity->Fill(nEle);
 
     // Z->ee:
     unsigned int eleCollectionSize = electronCollection->size();
@@ -347,9 +347,9 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
       }
     }
   }
-  
-  
-  
+
+
+
 //-------------------------------
 //--- Muons
 //-------------------------------
@@ -405,17 +405,17 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
     	  const Muon& mu2 = muonCollection->at(j);
     	  double pt2 = mu2.pt();
     	  if(pt2>ptThrMu2_){
-    	    // Glb + Glb  
+    	    // Glb + Glb
     	    if(mu.isGlobalMuon() && mu2.isGlobalMuon()){
     	      const math::XYZTLorentzVector ZRecoGMGM (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
     	      h_dimumass_GMGM->Fill(ZRecoGMGM.mass());
     	    }
-    	    // Glb + TM 
+    	    // Glb + TM
     	    else if(mu.isGlobalMuon() && mu2.isTrackerMuon()){
     	      const math::XYZTLorentzVector ZRecoGMTM (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
     	      h_dimumass_GMTM->Fill(ZRecoGMTM.mass());
     	    }
-    	    // TM + TM 
+    	    // TM + TM
     	    else if(mu.isTrackerMuon() && mu2.isTrackerMuon()){
     	      const math::XYZTLorentzVector ZRecoTMTM (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
     	      h_dimumass_TMTM->Fill(ZRecoTMTM.mass());
@@ -425,7 +425,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
       }
     }
   }
-  
+
 //-------------------------------
 //--- Jets
 //-------------------------------
@@ -465,7 +465,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
       h_jet_count->Fill(jet_count);
     }
   }
-  
+
 //-------------------------------
 //--- MET
 //-------------------------------
@@ -485,7 +485,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
     h_pfMet        ->Fill(pfMet);
     h_pfMet_phi    ->Fill(pfMet_phi);
   }
-  
+
 //-------------------------------------
 //--- Events with more than 2 leptons:
 //-------------------------------------
@@ -539,13 +539,13 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
     if(nMu==8 && nEle==0) h_lepcounts->Fill(46);
     if(nMu==8 && nEle==1) h_lepcounts->Fill(47);
     if(nMu==9 && nEle==0) h_lepcounts->Fill(48);
-    
-  
+
+
   }
   if ((nMu+nEle) >= 10)
-    LogDebug("HiggsDQM") <<"WARNING: "<<nMu+nEle<<" leptons in this event: run="<<e.id().run()<<", event="<<e.id().event()<< "\n"; 
-//     std::cout <<"WARNING: "<<nMu+nEle<<" leptons in this event: run="<<e.id().run()<<", event="<<e.id().event()<< "\n"; 
-  
+    LogDebug("HiggsDQM") <<"WARNING: "<<nMu+nEle<<" leptons in this event: run="<<e.id().run()<<", event="<<e.id().event()<< "\n";
+//     std::cout <<"WARNING: "<<nMu+nEle<<" leptons in this event: run="<<e.id().run()<<", event="<<e.id().event()<< "\n";
+
 /*  /// channel conditions
   nElectron=0;
   nMuon=0;
@@ -565,18 +565,18 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
   else if (decaychannel=="4mu") {
     if ( posMu>=2 && negMu>=2 ) {
       nMuon=posMu+negMu;
-    }  
+    }
   }
-       
 
-  // Pairs of EE MuMu 
+
+  // Pairs of EE MuMu
   int nZEE=0,nZMuMu=0;
   if (decaychannel=="2e2mu"){
     Handle<CompositeCandidateCollection> zEECandidates;
-    e.getByLabel(zToEETag_.label(), zEECandidates);    
+    e.getByLabel(zToEETag_.label(), zEECandidates);
     for ( CompositeCandidateCollection::const_iterator zIter=zEECandidates->begin(); zIter!= zEECandidates->end(); ++zIter ) {
 //      cout << "Zee mass= " << double(zIter->p4().mass()) << endl;
-      if ( double(zIter->p4().mass())> 12. ){ 
+      if ( double(zIter->p4().mass())> 12. ){
 	nZEE++;
       }
     }
@@ -587,9 +587,9 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
       if ( zIter->p4().mass()> 12. ){
 	nZMuMu++;
       }
-    }    
+    }
   }
-  
+
   // exclusive couples ZEE and ZMUMU
   if (decaychannel=="4e" ){
     Handle<CompositeCandidateCollection> higgsCandidates;
@@ -597,7 +597,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
     for ( CompositeCandidateCollection::const_iterator hIter=higgsCandidates->begin(); hIter!= higgsCandidates->end(); ++hIter ) {
       if (nZEE<2) nZEE=0;
       for (size_t ndau=0; ndau<hIter->numberOfDaughters();ndau++){
-	if ( hIter->daughter(ndau)->p4().mass()> 12.){  
+	if ( hIter->daughter(ndau)->p4().mass()> 12.){
 	  nZEE++;
 	}
       }
@@ -610,7 +610,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
     for ( CompositeCandidateCollection::const_iterator hIter=higgsCandidates->begin(); hIter!= higgsCandidates->end(); ++hIter ) {
       if (nZMuMu<2) nZMuMu=0;
       for (size_t ndau=0; ndau<hIter->numberOfDaughters();ndau++){
-	if ( hIter->daughter(ndau)->p4().mass()> 12. ){  
+	if ( hIter->daughter(ndau)->p4().mass()> 12. ){
 	  nZMuMu++;
 	}
       }
@@ -622,10 +622,10 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
   e.getByLabel(hTozzTo4leptonsTag_.label(), higgsCandidates);
    int nHiggs=0;
   for ( CompositeCandidateCollection::const_iterator hIter=higgsCandidates->begin(); hIter!= higgsCandidates->end(); ++hIter ) {
-    if ( hIter->p4().mass()> 100. ){  
+    if ( hIter->p4().mass()> 100. ){
       nHiggs++;
     }
-  }    
+  }
 */
 //  cout<<"Z and Higgs candidates: "<<nZEE<<" "<<nZMuMu<<" "<<nHiggs<<endl;
 
@@ -642,7 +642,7 @@ void HiggsDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::Even
 
   nLumiSecs_++;
   //cout << "nLumiSecs_: "<< nLumiSecs_ << endl;
-  
+
   edm::LogInfo("HiggsDQM") << "====================================================== " << endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << endl  << "====================================================== " << endl;
 
 //  cout<<"...leaving HiggsDQM::endLuminosityBlock. "<<endl;
@@ -655,7 +655,7 @@ void HiggsDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
 
   //edm::LogVerbatim ("HiggsDQM") <<"[HiggsDQM]: End of Run, saving  DQM output ";
   //int iRun = run.run();
-  
+
 //  cout<<"...leaving HiggsDQM::endRun. "<<endl;
 }
 
@@ -667,3 +667,8 @@ void HiggsDQM::endJob(){
   edm::LogInfo("HiggsDQM") <<"[HiggsDQM]: endjob called!";
 
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

@@ -38,7 +38,7 @@ struct deleter {
 };
 
 //--------------------------------------------------------------------------------------------------
-bool compareTracklets(const QcdLowPtDQM::Tracklet &a, const QcdLowPtDQM::Tracklet &b) 
+bool compareTracklets(const QcdLowPtDQM::Tracklet &a, const QcdLowPtDQM::Tracklet &b)
 {
   return (TMath::Abs(a.deta())<TMath::Abs(b.deta()));
 }
@@ -107,7 +107,7 @@ QcdLowPtDQM::~QcdLowPtDQM()
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::analyze(const Event &iEvent, const EventSetup &iSetup) 
+void QcdLowPtDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
 {
   // Analyze the given event.
 
@@ -128,7 +128,7 @@ void QcdLowPtDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::beginJob() 
+void QcdLowPtDQM::beginJob()
 {
   // Begin job and setup the DQM store.
 
@@ -142,7 +142,7 @@ void QcdLowPtDQM::beginJob()
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::beginLuminosityBlock(const LuminosityBlock &l, 
+void QcdLowPtDQM::beginLuminosityBlock(const LuminosityBlock &l,
                                        const EventSetup &iSetup)
 {
   // At the moment, nothing needed to be done.
@@ -157,7 +157,7 @@ void QcdLowPtDQM::beginRun(const Run &run, const EventSetup &iSetup)
   bool isHltCfgChanged = false; // for new HLTConfigProvider::init
   string teststr;
   for(size_t i=0; i<hltProcNames_.size(); ++i) {
-    if (i>0) 
+    if (i>0)
       teststr += ", ";
     teststr += hltProcNames_.at(i);
     if( hltConfig_.init(  run, iSetup, hltProcNames_.at(i), isHltCfgChanged )  ) {
@@ -165,7 +165,7 @@ void QcdLowPtDQM::beginRun(const Run &run, const EventSetup &iSetup)
       hltUsedResName_ = hltResName_;
       if (hltResName_.find(':')==string::npos)
         hltUsedResName_ += "::";
-      else 
+      else
         hltUsedResName_ += ":";
       hltUsedResName_ += hltProcNames_.at(i);
       break;
@@ -194,12 +194,12 @@ void QcdLowPtDQM::beginRun(const Run &run, const EventSetup &iSetup)
         hltTrgBits_.push_back(j);
         hltTrgUsedNames_.push_back(n1);
         hltTrgDeci_.push_back(false);
-        print(0,Form("Added trigger %d with name %s for bit %d", 
+        print(0,Form("Added trigger %d with name %s for bit %d",
                      int(hltTrgBits_.size()-1), n1.c_str(), int(j)));
         found = 1;
         break;
       }
-    }      
+    }
     if (!found) {
       CP(2) print(2,Form("Could not find trigger bit for %s", n1.c_str()));
     }
@@ -250,15 +250,15 @@ void QcdLowPtDQM::beginRun(const Run &run, const EventSetup &iSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::book1D(std::vector<MonitorElement*> &mes, 
-                         const std::string &name, const std::string &title, 
+void QcdLowPtDQM::book1D(std::vector<MonitorElement*> &mes,
+                         const std::string &name, const std::string &title,
                          int nx, double x1, double x2, bool sumw2, bool sbox)
 {
   // Book 1D histos.
 
   for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
     MonitorElement *e = theDbe_->book1D(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
-                                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
+                                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()),
                                         nx, x1, x2);
     TH1 *h1 = e->getTH1();
     if (sumw2)
@@ -269,16 +269,16 @@ void QcdLowPtDQM::book1D(std::vector<MonitorElement*> &mes,
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::book2D(std::vector<MonitorElement*> &mes, 
-                         const std::string &name, const std::string &title, 
-                         int nx, double x1, double x2, int ny, double y1, double y2, 
+void QcdLowPtDQM::book2D(std::vector<MonitorElement*> &mes,
+                         const std::string &name, const std::string &title,
+                         int nx, double x1, double x2, int ny, double y1, double y2,
                          bool sumw2, bool sbox)
 {
   // Book 2D histos.
 
   for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
     MonitorElement *e = theDbe_->book2D(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
-                                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
+                                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()),
                                         nx, x1, x2, ny, y1, y2);
     TH1 *h1 = e->getTH1();
     if (sumw2)
@@ -289,15 +289,15 @@ void QcdLowPtDQM::book2D(std::vector<MonitorElement*> &mes,
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::create1D(std::vector<TH1F*> &hs, 
-                         const std::string &name, const std::string &title, 
+void QcdLowPtDQM::create1D(std::vector<TH1F*> &hs,
+                         const std::string &name, const std::string &title,
                          int nx, double x1, double x2, bool sumw2, bool sbox)
 {
   // Create 1D histos.
 
   for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
     TH1F *h1 = new TH1F(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
-                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
+                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()),
                         nx, x1, x2);
     if (sumw2)
       h1->Sumw2();
@@ -307,16 +307,16 @@ void QcdLowPtDQM::create1D(std::vector<TH1F*> &hs,
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::create2D(std::vector<TH2F*> &hs, 
-                           const std::string &name, const std::string &title, 
-                           int nx, double x1, double x2, int ny, double y1, double y2, 
+void QcdLowPtDQM::create2D(std::vector<TH2F*> &hs,
+                           const std::string &name, const std::string &title,
+                           int nx, double x1, double x2, int ny, double y1, double y2,
                            bool sumw2, bool sbox)
 {
   // Create 2D histos.
 
   for(size_t i=0;i<hltTrgUsedNames_.size();++i) {
     TH2F *h1 = new TH2F(Form("%s_%s",name.c_str(),hltTrgUsedNames_.at(i).c_str()),
-                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()), 
+                        Form("%s: %s",hltTrgUsedNames_.at(i).c_str(), title.c_str()),
                         nx, x1, x2, ny, y1, y2);
     if (sumw2)
       h1->Sumw2();
@@ -329,7 +329,7 @@ void QcdLowPtDQM::create2D(std::vector<TH2F*> &hs,
 void QcdLowPtDQM::createHistos()
 {
   // Book histograms if needed.
-  
+
   if (hNhitsL1_.size())
     return; // histograms already booked
 
@@ -445,13 +445,13 @@ void QcdLowPtDQM::createHistos()
     const double x2 = +3;
     if (pixLayers_>=12)
       book1D(hTrkRawDeta12_,"hTracklet12RawDeta",
-             "tracklet12 raw dN/#Delta#eta;#Delta#eta;dN/#Delta#eta",Nx,x1,x2,0,0); 
+             "tracklet12 raw dN/#Delta#eta;#Delta#eta;dN/#Delta#eta",Nx,x1,x2,0,0);
     if (pixLayers_>=13)
       book1D(hTrkRawDeta13_,"hTracklet13RawDeta",
-             "tracklet13 raw dN/#Delta#eta;#Delta#eta;dN/#Delta#eta",Nx,x1,x2,0,0); 
+             "tracklet13 raw dN/#Delta#eta;#Delta#eta;dN/#Delta#eta",Nx,x1,x2,0,0);
     if (pixLayers_>=23)
       book1D(hTrkRawDeta23_,"hTracklet23RawDeta",
-             "tracklet23 raw dN/#Delta#eta;#Delta#eta;dN/#Delta#eta",Nx,x1,x2,0,0); 
+             "tracklet23 raw dN/#Delta#eta;#Delta#eta;dN/#Delta#eta",Nx,x1,x2,0,0);
   }
   if (0) {
     theDbe_->setCurrentFolder("Physics/QcdLowPt/TrackletDphi/");
@@ -460,13 +460,13 @@ void QcdLowPtDQM::createHistos()
     const double x2 = +3.2;
     if (pixLayers_>=12)
       book1D(hTrkRawDphi12_,"hTracklet12RawDphi",
-             "tracklet12 raw dN/#Delta#phi;#Delta#phi;dN/#Delta#phi",Nx,x1,x2,0,0); 
+             "tracklet12 raw dN/#Delta#phi;#Delta#phi;dN/#Delta#phi",Nx,x1,x2,0,0);
     if (pixLayers_>=13)
       book1D(hTrkRawDphi13_,"hTracklet13RawDphi",
-             "tracklet13 raw dN/#Delta#phi;#Delta#phi;dN/#Delta#phi",Nx,x1,x2,0,0); 
+             "tracklet13 raw dN/#Delta#phi;#Delta#phi;dN/#Delta#phi",Nx,x1,x2,0,0);
     if (pixLayers_>=23)
       book1D(hTrkRawDphi23_,"hTracklet23RawDphi",
-             "tracklet23 raw dN/#Delta#phi;#Delta#phi;dN/#Delta#phi",Nx,x1,x2,0,0); 
+             "tracklet23 raw dN/#Delta#phi;#Delta#phi;dN/#Delta#phi",Nx,x1,x2,0,0);
   }
   if (AlphaTracklets12_) {
     TAxis *xa = AlphaTracklets12_->GetXaxis();
@@ -475,13 +475,13 @@ void QcdLowPtDQM::createHistos()
     const double x2 = xa->GetBinLowEdge(Nx+1);
     theDbe_->setCurrentFolder("Physics/QcdLowPt/RawTracklets/");
     book1D(hdNdEtaRawTrkl12_,"hdNdEtaRawTracklets12",
-           "raw dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+           "raw dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0);
     theDbe_->setCurrentFolder("Physics/QcdLowPt/SubTracklets/");
     book1D(hdNdEtaSubTrkl12_,"hdNdEtaSubTracklets12",
-           "(1-#beta) dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+           "(1-#beta) dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0);
     theDbe_->setCurrentFolder("Physics/QcdLowPt/CorTracklets/");
     book1D(hdNdEtaTrklets12_,"hdNdEtaTracklets12",
-           "dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+           "dN/d#eta for tracklets12;#eta;dN/d#eta",Nx,x1,x2,0,0);
     create1D(hEvtCountsPerEta12_,"hEventCountsPerEta12_",
              "Events per vtx-#eta bin from tracklets12;#eta;#",1,-ZVEtaRegion_,ZVEtaRegion_,0,0);
   }
@@ -492,13 +492,13 @@ void QcdLowPtDQM::createHistos()
     const double x2 = xa->GetBinLowEdge(Nx+1);
     theDbe_->setCurrentFolder("Physics/QcdLowPt/RawTracklets/");
     book1D(hdNdEtaRawTrkl13_,"hdNdEtaRawTracklets13",
-           "raw dN/d#eta for tracklets13;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+           "raw dN/d#eta for tracklets13;#eta;dN/d#eta",Nx,x1,x2,0,0);
     theDbe_->setCurrentFolder("Physics/QcdLowPt/SubTracklets/");
     book1D(hdNdEtaSubTrkl13_,"hdNdEtaSubTracklets13",
-           "(1-#beta) dN/d#eta for tracklets13;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+           "(1-#beta) dN/d#eta for tracklets13;#eta;dN/d#eta",Nx,x1,x2,0,0);
     theDbe_->setCurrentFolder("Physics/QcdLowPt/CorTracklets/");
     book1D(hdNdEtaTrklets13_,"hdNdEtaTracklets13",
-           "dN/d#eta for tracklets13;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+           "dN/d#eta for tracklets13;#eta;dN/d#eta",Nx,x1,x2,0,0);
     create1D(hEvtCountsPerEta13_,"hEventCountsPerEta13",
              "Events per vtx-#eta bin from tracklets13;#eta;#",1,-ZVEtaRegion_,ZVEtaRegion_,0,0);
   }
@@ -509,13 +509,13 @@ void QcdLowPtDQM::createHistos()
     const double x2 = xa->GetBinLowEdge(Nx+1);
     theDbe_->setCurrentFolder("Physics/QcdLowPt/RawTracklets/");
     book1D(hdNdEtaRawTrkl23_,"hdNdEtaRawTracklets23",
-           "raw dN/d#eta for tracklets23;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+           "raw dN/d#eta for tracklets23;#eta;dN/d#eta",Nx,x1,x2,0,0);
     theDbe_->setCurrentFolder("Physics/QcdLowPt/SubTracklets/");
     book1D(hdNdEtaSubTrkl23_,"hdNdEtaSubTracklets23",
-           "(1-#beta) dN/d#eta for tracklets23;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+           "(1-#beta) dN/d#eta for tracklets23;#eta;dN/d#eta",Nx,x1,x2,0,0);
     theDbe_->setCurrentFolder("Physics/QcdLowPt/CorTracklets/");
     book1D(hdNdEtaTrklets23_,"hdNdEtaTracklets23",
-           "dN/d#eta for tracklets23;#eta;dN/d#eta",Nx,x1,x2,0,0); 
+           "dN/d#eta for tracklets23;#eta;dN/d#eta",Nx,x1,x2,0,0);
     create1D(hEvtCountsPerEta23_,"hEventCountsPerEta23",
              "Events per vtx-#eta bin from tracklets23;#eta;#",1,-ZVEtaRegion_,ZVEtaRegion_,0,0);
   }
@@ -567,7 +567,7 @@ void QcdLowPtDQM::createHistos()
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::endJob(void) 
+void QcdLowPtDQM::endJob(void)
 {
   // At the moment, nothing needed to be done.
 }
@@ -604,7 +604,7 @@ void QcdLowPtDQM::filldNdeta(const TH3F *AlphaTracklets,
     TH3F *hsig = NsigTracklets.at(i);
     TH3F *hbkg = NbkgTracklets.at(i);
     TH1F *hepa = NEvsPerEta.at(i);
-    
+
     for(int etabin=1;etabin<=netabins;++etabin) {
       const double etaval   = AlphaTracklets->GetXaxis()->GetBinCenter(etabin);
       const double etawidth = AlphaTracklets->GetXaxis()->GetBinWidth(etabin);
@@ -672,7 +672,7 @@ void QcdLowPtDQM::filldNdeta(const TH3F *AlphaTracklets,
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::endLuminosityBlock(const LuminosityBlock &l, 
+void QcdLowPtDQM::endLuminosityBlock(const LuminosityBlock &l,
                                      const EventSetup &iSetup)
 {
   // Update various histograms.
@@ -776,8 +776,8 @@ void QcdLowPtDQM::fillHltBits(const Event &iEvent)
   getProduct(hltUsedResName_, triggerResultsHLT, iEvent);
 
   for(size_t i=0;i<hltTrgBits_.size();++i) {
-    if (hltTrgBits_.at(i)<0) 
-      continue; //ignore unknown trigger 
+    if (hltTrgBits_.at(i)<0)
+      continue; //ignore unknown trigger
     size_t tbit = hltTrgBits_.at(i);
     if (tbit<triggerResultsHLT->size()) {
       hltTrgDeci_[i] = triggerResultsHLT->accept(tbit);
@@ -803,7 +803,7 @@ void QcdLowPtDQM::fillHltBits(const Event &iEvent)
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::fillPixels(const Event &iEvent, const edm::EventSetup& iSetup) 
+void QcdLowPtDQM::fillPixels(const Event &iEvent, const edm::EventSetup& iSetup)
 {
   // Fill pixel hit collections.
 
@@ -823,7 +823,7 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent, const edm::EventSetup& iSetup)
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   const SiPixelRecHitCollection *hits = hRecHits.product();
-  for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), 
+  for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(),
         end = hits->data().end(); hit != end; ++hit) {
 
     if (!hit->isValid())
@@ -844,7 +844,7 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent, const edm::EventSetup& iSetup)
       const PixelTopology *pixTopo = &(pgdu->specificTopology());
       vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
       bool pixelOnEdge = false;
-      for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); 
+      for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin();
           pixel != pixels.end(); ++pixel) {
         int pixelX = pixel->x;
         int pixelY = pixel->y;
@@ -867,19 +867,19 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent, const edm::EventSetup& iSetup)
 
     Pixel pix(gpos, adc, sizex, sizey);
 
-    
+
     int layer = tTopo->pxbLayer(id);
 
     if (layer==1) {
-      bpix1_.push_back(pix);     
+      bpix1_.push_back(pix);
       fill1D(hdNdEtaHitsL1_,pix.eta());
       fill1D(hdNdPhiHitsL1_,pix.phi());
     } else if (layer==2) {
-      bpix2_.push_back(pix);     
+      bpix2_.push_back(pix);
       fill1D(hdNdEtaHitsL2_,pix.eta());
       fill1D(hdNdPhiHitsL2_,pix.phi());
     } else {
-      bpix3_.push_back(pix);     
+      bpix3_.push_back(pix);
       fill1D(hdNdEtaHitsL3_,pix.eta());
       fill1D(hdNdPhiHitsL3_,pix.phi());
     }
@@ -904,7 +904,7 @@ void QcdLowPtDQM::fillPixelClusterInfos(const Event &iEvent, int which)
   if (clusterVtxName_.size()) { // get vertex from producer
     Handle<reco::VertexCollection> hVertexCollection;
     if (!getProductSafe(clusterVtxName_, hVertexCollection, iEvent)) {
-      CP(2) print(2,Form("Can not obtain pixel vertex from cluster collection with name %s", 
+      CP(2) print(2,Form("Can not obtain pixel vertex from cluster collection with name %s",
                          clusterVtxName_.c_str()));
       return;
     }
@@ -934,7 +934,7 @@ void QcdLowPtDQM::fillPixelClusterInfos(const Event &iEvent, int which)
 
 //--------------------------------------------------------------------------------------------------
 void QcdLowPtDQM::fillPixelClusterInfos(const double vz,
-                                        const std::vector<Pixel> &pix, 
+                                        const std::vector<Pixel> &pix,
                                         std::vector<MonitorElement*> &hClusterYSize,
                                         std::vector<MonitorElement*> &hClusterADC)
 {
@@ -949,12 +949,12 @@ void QcdLowPtDQM::fillPixelClusterInfos(const double vz,
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::fillTracklets(const Event &iEvent, int which) 
+void QcdLowPtDQM::fillTracklets(const Event &iEvent, int which)
 {
   // Fill tracklet collections.
 
   if (which>=12) {
-    fillTracklets(btracklets12_,bpix1_,bpix2_,trackletV12_); 
+    fillTracklets(btracklets12_,bpix1_,bpix2_,trackletV12_);
     fillTracklets(btracklets12_, bpix1_, trackletV12_, AlphaTracklets12_,
                   NsigTracklets12_, NbkgTracklets12_, hEvtCountsPerEta12_, hTrkRawDetaDphi12_,
                   hTrkRawDeta12_, hTrkRawDphi12_, hRawTrkEtaVtxZ12_);
@@ -962,7 +962,7 @@ void QcdLowPtDQM::fillTracklets(const Event &iEvent, int which)
   if (which>=13) {
     fillTracklets(btracklets13_,bpix1_,bpix3_,trackletV12_);
     fillTracklets(btracklets13_,bpix1_,trackletV13_,AlphaTracklets13_,
-                  NsigTracklets13_, NbkgTracklets13_, hEvtCountsPerEta13_, hTrkRawDetaDphi13_, 
+                  NsigTracklets13_, NbkgTracklets13_, hEvtCountsPerEta13_, hTrkRawDetaDphi13_,
                   hTrkRawDeta13_, hTrkRawDphi13_, hRawTrkEtaVtxZ13_);
   }
   if (which>=23) {
@@ -974,8 +974,8 @@ void QcdLowPtDQM::fillTracklets(const Event &iEvent, int which)
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::fillTracklets(std::vector<Tracklet> &tracklets, 
-                                const std::vector<Pixel> &pix1, 
+void QcdLowPtDQM::fillTracklets(std::vector<Tracklet> &tracklets,
+                                const std::vector<Pixel> &pix1,
                                 const std::vector<Pixel> &pix2,
                                 const Vertex &trackletV)
 {
@@ -1010,7 +1010,7 @@ void QcdLowPtDQM::fillTracklets(std::vector<Tracklet> &tracklets,
   for(size_t k=0; k<tmptrkls.size(); ++k) {
     const Tracklet &tl(tmptrkls.at(k));
     size_t p2ind = tl.i2();
-    if (secused.at(p2ind)) 
+    if (secused.at(p2ind))
       continue;
     secused[p2ind] = true;
     tracklets.push_back(tl);
@@ -1020,7 +1020,7 @@ void QcdLowPtDQM::fillTracklets(std::vector<Tracklet> &tracklets,
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::fillTracklets(const std::vector<Tracklet> &tracklets, 
+void QcdLowPtDQM::fillTracklets(const std::vector<Tracklet> &tracklets,
                                 const std::vector<Pixel> &pixels,
                                 const Vertex &trackletV,
                                 const TH3F *AlphaTracklets,
@@ -1082,7 +1082,7 @@ void QcdLowPtDQM::reallyPrint(int level, const char *msg)
   // Print out information dependent on level and verbosity.
 
   if (level==0) {
-    printf("QcdLowPtDQM: %s\n", msg); 
+    printf("QcdLowPtDQM: %s\n", msg);
   } else if (level==1) {
     LogWarning("QcdLowPtDQM") << msg << std::endl;
   } else if (level==2) {
@@ -1113,11 +1113,11 @@ void QcdLowPtDQM::trackletVertexUnbinned(const Event &iEvent, int which)
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::trackletVertexUnbinned(std::vector<Pixel> &pix1, 
+void QcdLowPtDQM::trackletVertexUnbinned(std::vector<Pixel> &pix1,
                                          std::vector<Pixel> &pix2,
                                          Vertex &vtx)
 {
-  // Calculate tracklet based z vertex position. 
+  // Calculate tracklet based z vertex position.
   // At first build zvertex candidates from tracklet prototypes,
   // then group zvertex candidates and calculate mean position
   // from most likely cluster.
@@ -1163,7 +1163,7 @@ void QcdLowPtDQM::trackletVertexUnbinned(std::vector<Pixel> &pix1,
       ++ncl;
       mean += z2;
       mean2 += z2*z2;
-    }      
+    }
     if (ncl>0) {
       mean /= ncl;
       mean2 /= ncl;
@@ -1200,7 +1200,7 @@ double QcdLowPtDQM::vertexZFromClusters(const std::vector<Pixel> &pix) const
       // predicted cluster width in y direction
       double pval = 2*TMath::Abs(p.z()-z0)/p.rho() + 0.5; // FIXME
       double chitest = TMath::Abs(pval - p.sizey());
-      if(chitest <= 1.) { 
+      if(chitest <= 1.) {
         chi += chitest;
         ++nhits;
       }
@@ -1212,10 +1212,10 @@ double QcdLowPtDQM::vertexZFromClusters(const std::vector<Pixel> &pix) const
     if(nhits < nhits_max)
       continue;
 
-    if ((nhits > nhits_max) || (chi < chi_max)) { 
-      z_best    = z0; 
-      nhits_max = nhits; 
-      chi_max   = chi; 
+    if ((nhits > nhits_max) || (chi < chi_max)) {
+      z_best    = z0;
+      nhits_max = nhits;
+      chi_max   = chi;
     }
   }
 
@@ -4542,3 +4542,8 @@ void QcdLowPtDQM::yieldAlphaHistogram(int which)
     AlphaTracklets23_->SetBinContent(10,14,6,0);
   }
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

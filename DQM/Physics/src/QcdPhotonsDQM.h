@@ -27,10 +27,10 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
 
   /// Constructor
   QcdPhotonsDQM(const edm::ParameterSet&);
-  
+
   /// Destructor
   virtual ~QcdPhotonsDQM();
-  
+
   /// Inizialize parameters for histo binning
   void beginJob();
 
@@ -49,7 +49,7 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
  private:
 
   // ----------member data ---------------------------
-  
+
   DQMStore* theDbe;
 
   HLTConfigProvider hltConfigProvider_;
@@ -71,7 +71,7 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   double thePlotPhotonMaxEt_;
   double thePlotPhotonMaxEta_;
   double thePlotJetMaxEta_;
- 
+
   edm::InputTag theBarrelRecHitTag;
   edm::InputTag theEndcapRecHitTag;
 
@@ -110,3 +110,8 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   MonitorElement* h_photon_et_ratio_co_fo;
 };
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

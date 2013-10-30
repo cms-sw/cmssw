@@ -35,3 +35,8 @@ DEFINE_FWK_MODULE(QcdUeDQM);
 DEFINE_FWK_MODULE(HiggsDQM);
 DEFINE_FWK_MODULE(ExoticaDQM);
 DEFINE_FWK_MODULE(B2GDQM);
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:
