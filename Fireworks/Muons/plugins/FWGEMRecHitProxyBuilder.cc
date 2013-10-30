@@ -6,7 +6,8 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWGEMRecHitProxyBuilder.cc,v 1.15 2010/09/07 15:46:48 yana Exp $
+// $Id: FWRPCRecHitProxyBuilder.cc,v 1.16 2010/11/11 20:25:28 amraktad Exp $
+// $Id: FWGEMRecHitProxyBuilder.cc,v 1.17 2013/10/10 21:57:00 Yusang Kim   $
 //
 
 #include "TEveGeoNode.h"
@@ -51,8 +52,8 @@ FWGEMRecHitProxyBuilder::buildViewType(const GEMRecHit& iData,
                                        FWViewType::EType type,
                                        const FWViewContext*)
 {
-  GEMDetId rpcId = iData.gemId();
-  unsigned int rawid = rpcId.rawId();
+  GEMDetId gemId = iData.gemId();
+  unsigned int rawid = gemId.rawId();
   
   const FWGeometry *geom = item()->getGeom();
 
