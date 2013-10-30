@@ -133,42 +133,28 @@ FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementLis
       TEvePointSet* pointSet = new TEvePointSet;
       setupAddElement( pointSet, comp );
 
-      /*
-        TrackingParticleRef tpr(tpch, tpIdx);
-        std::pair<TrackingParticleRef, TrackPSimHitRef> clusterTPpairWithDummyTP(tpr,TrackPSimHitRef());//SimHit is dummy: for simHitTPAssociationListGreater 
-        auto range = std::equal_range(m_assocList->begin(), m_assocList->end(), 
-        clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);
-      */
 
-       int alistIdx = 0;
-      for (SimHitTPAssociationProducer::SimHitTPAssociationList::const_iterator ai = m_assocList->begin(); ai != m_assocList->end(); ++ai, ++alistIdx)
+      TrackingParticleRef tpr(tpch, tpIdx);
+      int alistIdx = 0;
+      std::pair<TrackingParticleRef, TrackPSimHitRef> clusterTPpairWithDummyTP(tpr,TrackPSimHitRef());
+      auto range = std::equal_range(m_assocList->begin(), m_assocList->end(), clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);      
+      printf("TrackingParticle[%d] matches %d hits\n",tpIdx,(int)(range.second-range.first ));
+      for (SimHitTPAssociationProducer::SimHitTPAssociationList::const_iterator ai = range.first; ai != range.second; ++ai, ++alistIdx)
       {
-         const edm::PSimHitContainer* l = ai->second.product();
-         const TrackingParticle* tp = ai->first.get();
-         printf("assoc list entry %d has %d TrackingParticles in TrackingParticleRef \n", alistIdx, (int)ai->first.product()->size());
-         if (&iData == tp) {
-            printf("TrackingParticle[%d] matches [%d] associantion pair, the pair has %d hits\n",tpIdx, alistIdx, (int)l->size());
-            for (edm::PSimHitContainer::const_iterator hi = l->begin(); hi != l->end(); ++hi)
-            {
-               const PSimHit& phit = (*hi);
-
-               if (phit.trackId() != tpIdx)
-                  continue;
-
-               local[0] = phit.localPosition().x();
-               local[1] = phit.localPosition().y();
-               local[2] = phit.localPosition().z();
-               localDir[0] = phit.momentumAtEntry().x();
-               localDir[1] = phit.momentumAtEntry().y();
-               localDir[2] = phit.momentumAtEntry().z();
-               geom->localToGlobal( phit.detUnitId(), local, global );
-               geom->localToGlobal( phit.detUnitId(), localDir, globalDir );
+               TrackPSimHitRef phit = ai->second;
+               local[0] = phit->localPosition().x();
+               local[1] = phit->localPosition().y();
+               local[2] = phit->localPosition().z();
+               localDir[0] = phit->momentumAtEntry().x();
+               localDir[1] = phit->momentumAtEntry().y();
+               localDir[2] = phit->momentumAtEntry().z();
+               geom->localToGlobal( phit->detUnitId(), local, global );
+               geom->localToGlobal( phit->detUnitId(), localDir, globalDir );
                pointSet->SetNextPoint( global[0], global[1], global[2] );
                track->AddPathMark( TEvePathMark( TEvePathMark::kReference, TEveVector( global[0], global[1], global[2] ),
                                                  TEveVector( globalDir[0], globalDir[1], globalDir[2] )));
-            }
-         }
       }
+
 
       track->MakeTrack();
    }
