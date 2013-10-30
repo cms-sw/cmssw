@@ -1352,6 +1352,9 @@ class ConfigBuilder(object):
         if self._options.himix==True:
             self.loadAndRemember("SimGeneral/MixingModule/himixDIGI_cff")
 
+        if sequence == 'pdigi_valid':
+            self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
+
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
 
@@ -1646,6 +1649,7 @@ class ConfigBuilder(object):
 		    self.executeAndRemember("process.mix.playback = True")
 		    self.executeAndRemember("process.mix.digitizers = cms.PSet()")
                     self.executeAndRemember("for a in process.aliases: delattr(process, a)")
+                    self._options.customisation_file+=",SimGeneral/MixingModule/fullMixCustomize_cff.customize"
 
 	    if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
 		    #will get in the schedule, smoothly

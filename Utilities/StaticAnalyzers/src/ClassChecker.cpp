@@ -166,9 +166,7 @@ void WalkAST::CheckBinaryOperator(const clang::BinaryOperator * BO,const clang::
 //	BO->dump(); 
 //	llvm::errs()<<"\n";
 if (BO->isAssignmentOp()) {
-	if (clang::DeclRefExpr * DRE =dyn_cast<clang::DeclRefExpr>(BO->getLHS())){
-			ReportDeclRef(DRE);
-		} else
+
 	if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(BO->getLHS())){
 			if (ME->isImplicitAccess()) ReportMember(ME);
 		} else
@@ -192,19 +190,17 @@ if (BO->isAssignmentOp()) {
 		}
 	}
 }
+
 void WalkAST::CheckUnaryOperator(const clang::UnaryOperator * UO,const clang::Expr *E) {
 //	UO->dump(); 
 //	llvm::errs()<<"\n";
   if (UO->isIncrementDecrementOp())  {
-	if ( dyn_cast<clang::DeclRefExpr>(E)) {
-		if (clang::DeclRefExpr * DRE = dyn_cast<clang::DeclRefExpr>(UO->getSubExpr()->IgnoreParenImpCasts())) ReportDeclRef(DRE);
-		}
-	else 
 	if ( dyn_cast<clang::MemberExpr>(E)) {
 		if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts())) ReportMember(ME);
 		}
 	}
 }
+
 void WalkAST::CheckCXXOperatorCallExpr(const clang::CXXOperatorCallExpr *OCE,const clang::Expr *E) {
 // OCE->dump(); 
 //  llvm::errs()<<"\n";
@@ -220,9 +216,6 @@ switch ( OCE->getOperator() ) {
 	case OO_PipeEqual:
 	case OO_LessLessEqual:
 	case OO_GreaterGreaterEqual:
-	if (const clang::DeclRefExpr * DRE =dyn_cast<clang::DeclRefExpr>(OCE->arg_begin()->IgnoreParenImpCasts())) {
-		ReportDeclRef(DRE);
-	} else
 	if (const clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(OCE->arg_begin()->IgnoreParenImpCasts())){
 		if (ME->isImplicitAccess())
 			ReportMember(ME);
@@ -230,10 +223,6 @@ switch ( OCE->getOperator() ) {
 
 	case OO_PlusPlus:
 	case OO_MinusMinus:
-	if ( dyn_cast<clang::DeclRefExpr>(E)) 
-	if (const clang::DeclRefExpr * DRE =dyn_cast<clang::DeclRefExpr>(OCE->arg_begin()->IgnoreParenCasts())) {
-		ReportDeclRef(DRE);
-	} else
 	if ( dyn_cast<clang::MemberExpr>(E)) 
 	if (const clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(OCE->getCallee()->IgnoreParenCasts())) {
 		if (ME->isImplicitAccess())
@@ -259,10 +248,6 @@ void WalkAST::CheckExplicitCastExpr(const clang::ExplicitCastExpr * CE,const cla
 		ReportCast(CE,ME);
 	}
 
-	if (const clang::DeclRefExpr * DRE = dyn_cast<clang::DeclRefExpr>(expr)) {
-	if ( support::isConst( OrigTy ) && ! support::isConst(ToTy) )
-		ReportCast(CE,DRE);
-	}
 }
  
 
@@ -303,20 +288,7 @@ void WalkAST::VisitDeclRefExpr( clang::DeclRefExpr * DRE) {
   if (clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl()) ) { 
   	clang::SourceLocation SL = DRE->getLocStart();
   	if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExternCSystemHeader(SL)) return;
-	Stmt * P = AC->getParentMap().getParent(DRE);
-	while (AC->getParentMap().hasParent(P)) {
-		if (const clang::UnaryOperator * UO = llvm::dyn_cast<clang::UnaryOperator>(P)) 
-			{ WalkAST::CheckUnaryOperator(UO,DRE);}
-		if (const clang::BinaryOperator * BO = llvm::dyn_cast<clang::BinaryOperator>(P)) 
-			{ WalkAST::CheckBinaryOperator(BO,DRE);}
-		if (const clang::CXXOperatorCallExpr *OCE = llvm::dyn_cast<clang::CXXOperatorCallExpr>(P)) 
-			{ WalkAST::CheckCXXOperatorCallExpr(OCE,DRE);}
-		if (const clang::ExplicitCastExpr * CE = llvm::dyn_cast<clang::ExplicitCastExpr>(P))
-			{ WalkAST::CheckExplicitCastExpr(CE,DRE);}
-		if (const clang::CXXNewExpr * NE = llvm::dyn_cast<clang::CXXNewExpr>(P)) break; 
-		P = AC->getParentMap().getParent(P);
-	}
-
+	ReportDeclRef( DRE );
 
 //	llvm::errs()<<"Declaration Ref Expr\t";
 //	dyn_cast<Stmt>(DRE)->dumpPretty(AC->getASTContext());
@@ -339,27 +311,27 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
   	clang::ento::PathDiagnosticLocation CELoc = clang::ento::PathDiagnosticLocation::createBegin(DRE, BR.getSourceManager(),AC);
 	if (!m_exception.reportClass( CELoc, BR ) ) return;
 
-	if ( D->isStaticLocal() && ! support::isConst( t ) )
+	if ( D->isStaticLocal() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local && ! support::isConst( t ) )
 	{
 		std::string buf;
 	    	llvm::raw_string_ostream os(buf);
-	   	os << "Non-const variable '" << D->getNameAsString() << "' is static local and modified in statement '";
+	   	os << "Non-const variable '" << D->getNameAsString() << "' is static local and accessed in statement '";
 	    	PS->printPretty(os,0,Policy);
 		os << "'.\n";
-	    	BugType * BT = new BugType("ClassChecker : non-const static local variable modified","ThreadSafety");
+	    	BugType * BT = new BugType("ClassChecker : non-const static local variable accessed","ThreadSafety");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 		BR.emitReport(R);
 		return;
 	}
 
-	if ( D->isStaticDataMember() && ! support::isConst( t ) )
+	if ( D->isStaticDataMember() &&  D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local && ! support::isConst( t ) )
 	{
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);
-	    	os << "Non-const variable '" << D->getNameAsString() << "' is static member data and modified in statement '";
+	    	os << "Non-const variable '" << D->getNameAsString() << "' is static member data and accessed in statement '";
 	    	PS->printPretty(os,0,Policy);
 		os << "'.\n";
-	    	BugType * BT = new BugType("ClassChecker : non-const static member variable modified","ThreadSafety");
+	    	BugType * BT = new BugType("ClassChecker : non-const static member variable accessed","ThreadSafety");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 		BR.emitReport(R);
 	    return;
@@ -374,10 +346,10 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);
-	    	os << "Non-const variable '" << D->getNameAsString() << "' is global static and modified in statement '";
+	    	os << "Non-const variable '" << D->getNameAsString() << "' is global static and accessed in statement '";
 	    	PS->printPretty(os,0,Policy);
 		os << "'.\n";
-	    	BugType * BT = new BugType("ClassChecker : non-const global static variable modified","ThreadSafety");
+	    	BugType * BT = new BugType("ClassChecker : non-const global static variable accessed","ThreadSafety");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 		BR.emitReport(R);
 	    return;

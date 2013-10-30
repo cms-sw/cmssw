@@ -9,7 +9,6 @@
 #include <boost/regex.hpp>
 #include <iostream>
 #include <map>
-#include "boost/thread/tss.hpp"
 
 //NOTE:  This should probably be rewritten so that we break the class name into a tree where the template arguments are the node.  On the way down the tree
 // we look for '<' or ',' and on the way up (caused by finding a '>') we can apply the transformation to the output string based on the class name for the
@@ -135,13 +134,10 @@ namespace edm {
     }
     std::string friendlyName(std::string const& iFullName) {
        typedef std::map<std::string, std::string> Map;
-       static boost::thread_specific_ptr<Map> s_fillToFriendlyName;
-       if(0 == s_fillToFriendlyName.get()){
-          s_fillToFriendlyName.reset(new Map);
-       }
-       Map::const_iterator itFound = s_fillToFriendlyName->find(iFullName);
-       if(s_fillToFriendlyName->end()==itFound) {
-          itFound = s_fillToFriendlyName->insert(Map::value_type(iFullName, handleNamespaces(subFriendlyName(standardRenames(iFullName))))).first;
+       static thread_local Map s_fillToFriendlyName;
+       auto itFound = s_fillToFriendlyName.find(iFullName);
+       if(s_fillToFriendlyName.end()==itFound) {
+          itFound = s_fillToFriendlyName.insert(Map::value_type(iFullName, handleNamespaces(subFriendlyName(standardRenames(iFullName))))).first;
        }
        return itFound->second;
     }

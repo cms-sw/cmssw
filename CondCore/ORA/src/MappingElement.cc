@@ -7,105 +7,105 @@
 std::string
 ora::MappingElement::classMappingElementType()
 {
-  static std::string s_classMappingElementType = "Class";
+  static const std::string s_classMappingElementType = "Class";
   return s_classMappingElementType;
 }
 
 std::string
 ora::MappingElement::objectMappingElementType()
 {
-  static std::string s_objectMappingElementType = "Object";
+  static const std::string s_objectMappingElementType = "Object";
   return s_objectMappingElementType;
 }
 
 std::string
 ora::MappingElement::dependencyMappingElementType()
 {
-  static std::string s_dependencyMappingElementType = "Dependency";
+  static const std::string s_dependencyMappingElementType = "Dependency";
   return s_dependencyMappingElementType;
 }
 
 std::string
 ora::MappingElement::primitiveMappingElementType()
 {
-  static std::string s_primitiveMappingElementType = "Primitive";
+  static const std::string s_primitiveMappingElementType = "Primitive";
   return s_primitiveMappingElementType;
 }
 
 std::string
 ora::MappingElement::arrayMappingElementType()
 {
-  static std::string s_arrayMappingElementType = "Array";
+  static const std::string s_arrayMappingElementType = "Array";
   return s_arrayMappingElementType;
 }
 
 std::string
 ora::MappingElement::CArrayMappingElementType()
 {
-  static std::string s_CArrayMappingElementType = "CArray";
+  static const std::string s_CArrayMappingElementType = "CArray";
   return s_CArrayMappingElementType;
 }
 
 std::string
 ora::MappingElement::inlineCArrayMappingElementType()
 {
-  static std::string s_inlineCArrayMappingElementType = "InlineCArray";
+  static const std::string s_inlineCArrayMappingElementType = "InlineCArray";
   return s_inlineCArrayMappingElementType;
 }
 
 std::string
 ora::MappingElement::OraReferenceMappingElementType()
 {
-  static std::string s_oraReferenceMappingElementType = "OraReference";
+  static const std::string s_oraReferenceMappingElementType = "OraReference";
   return s_oraReferenceMappingElementType;
 }
 
 std::string
 ora::MappingElement::OraPointerMappingElementType()
 {
-  static std::string s_oraPointerMappingElementType = "OraPointer";
+  static const std::string s_oraPointerMappingElementType = "OraPointer";
   return s_oraPointerMappingElementType;
 }
 
 std::string
 ora::MappingElement::uniqueReferenceMappingElementType()
 {
-  static std::string s_oraUniqueReferenceMappingElementType = "UniqueReference";
+  static const std::string s_oraUniqueReferenceMappingElementType = "UniqueReference";
   return s_oraUniqueReferenceMappingElementType;
 }
 
 std::string
 ora::MappingElement::OraArrayMappingElementType()
 {
-  static std::string s_oraArrayMappingElementType = "OraArray";
+  static const std::string s_oraArrayMappingElementType = "OraArray";
   return s_oraArrayMappingElementType;
 }
 
 std::string
 ora::MappingElement::pointerMappingElementType()
 {
-  static std::string s_pointerMappingElementType = "Pointer";
+  static const std::string s_pointerMappingElementType = "Pointer";
   return s_pointerMappingElementType;
 }
 
 std::string
 ora::MappingElement::referenceMappingElementType()
 {
-  static std::string s_referenceMappingElementType = "Reference";
+  static const std::string s_referenceMappingElementType = "Reference";
   return s_referenceMappingElementType;
 }
 
 std::string
 ora::MappingElement::blobMappingElementType()
 {
-  static std::string s_blobMappingElementType = "Blob";
+  static const std::string s_blobMappingElementType = "Blob";
   return s_blobMappingElementType;
 }
 
 std::string
 ora::MappingElement::namedReferenceMappingElementType()
 {
-  static std::string s_namedReferenceMappingElementType = "NamedReference";
+  static const std::string s_namedReferenceMappingElementType = "NamedReference";
   return s_namedReferenceMappingElementType;
 }
 

@@ -278,11 +278,6 @@ CondDBESSource::~CondDBESSource() {
 	      << " Reconnect " << m_stats.nReconnect
 	      << " Actual Reconnect " << m_stats.nActualReconnect;
     std::cout << std::endl;
-    std::cout << "Global Proxy Statistics" << std::endl
-	      << "proxy " << cond::BasePayloadProxy::gstats.nProxy
-	      << " make " << cond::BasePayloadProxy::gstats.nMake
-	      << " load " << cond::BasePayloadProxy::gstats.nLoad;
-    std::cout << std::endl;
 
 
     ProxyMap::iterator b= m_proxies.begin();

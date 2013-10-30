@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 # Full Event content 
@@ -16,6 +15,7 @@ RecoEgammaFEVT = cms.PSet(
         'keep *_conversions_*_*',
         'drop *_conversions_uncleanedConversions_*',
         'keep *_gedPhotonCore_*_*',
+        'keep *_tmpGedPhotons_*_*',
         'keep *_gedPhotons_*_*',
         'keep *_photonCore_*_*',
         'keep *_photons_*_*',
@@ -47,10 +47,12 @@ RecoEgammaRECO = cms.PSet(
         'keep floatedmValueMap_eidTight_*_*',
         'keep *_gedPhotonCore_*_*',
         'keep *_gedPhotons_*_*',
+        'keep *_tmpGedPhotons_*_*',
         'keep recoPhotons_photons_*_*',
         'keep recoPhotonCores_photonCore_*_*', 
         'keep recoConversions_conversions_*_*', 
         'drop *_conversions_uncleanedConversions_*',
+        'drop *_gedPhotons_valMapPFEgammaCandToPhoton_*',
         'keep recoConversions_allConversions_*_*',
         'keep recoTracks_ckfOutInTracksFromConversions_*_*', 
         'keep recoTracks_ckfInOutTracksFromConversions_*_*', 
@@ -87,6 +89,7 @@ RecoEgammaAOD = cms.PSet(
         'keep floatedmValueMap_eidTight_*_*',
         'keep recoPhotonCores_gedPhotonCore_*_*',
         'keep recoPhotons_gedPhotons_*_*',
+        'drop *_gedPhotons_valMapPFEgammaCandToPhoton_*',
         'keep recoPhotonCores_photonCore_*_*',
         'keep recoPhotons_photons_*_*', 
         'keep recoConversions_conversions_*_*', 

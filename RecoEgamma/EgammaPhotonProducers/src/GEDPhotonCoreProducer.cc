@@ -41,7 +41,12 @@ GEDPhotonCoreProducer::GEDPhotonCoreProducer(const edm::ParameterSet& config) :
   // use onfiguration file to setup input/output collection names
   pfEgammaCandidates_ = 
     consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfEgammaCandidates"));
+  pixelSeedProducer_ = 
+    consumes<reco::ElectronSeedCollection>(conf_.getParameter<edm::InputTag>("pixelSeedProducer"));
+
   GEDPhotonCoreCollection_ = conf_.getParameter<std::string>("gedPhotonCoreCollection");
+
+
 
   // Register the product
   produces<reco::PhotonCoreCollection>(GEDPhotonCoreCollection_);
@@ -74,15 +79,25 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
       << "Error! Can't get the pfEgammaCandidates";
   }
 
+
+ // Get ElectronPixelSeeds
+  validPixelSeeds_=true;
+  Handle<reco::ElectronSeedCollection> pixelSeedHandle;
+  reco::ElectronSeedCollection pixelSeeds;
+  theEvent.getByToken(pixelSeedProducer_, pixelSeedHandle);
+  if (!pixelSeedHandle.isValid()) {
+    validPixelSeeds_=false;
+  }
+
+
  
   //  std::cout <<  "  GEDPhotonCoreProducer::produce input PFcandidate size " <<   pfCandidateHandle->size() << std::endl;
 
 
   // Loop over PF candidates and get only photons
-
+  reco::ElectronSeedCollection::const_iterator pixelSeedItr;
   for(unsigned int lCand=0; lCand < pfCandidateHandle->size(); lCand++) {
     reco::PFCandidateRef candRef (reco::PFCandidateRef(pfCandidateHandle,lCand));
-    if(candRef->particleId()!=reco::PFCandidate::gamma) continue;
 
     // Retrieve stuff from the pfPhoton
     reco::PFCandidateEGammaExtraRef pfPhoRef =  candRef->egammaExtraRef();
@@ -110,6 +125,14 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
     //    std::cout << "newCandidate pf refined SC energy="<< newCandidate.superCluster()->energy()<<std::endl;
     //std::cout << "newCandidate pf SC energy="<< newCandidate.pfSuperCluster()->energy()<<std::endl;
     //std::cout << "newCandidate  nconv2leg="<<newCandidate.conversions().size()<< std::endl;
+
+    if ( validPixelSeeds_) {
+      for( unsigned int icp = 0;  icp < pixelSeedHandle->size(); icp++) {
+        reco::ElectronSeedRef cpRef(reco::ElectronSeedRef(pixelSeedHandle,icp));
+        if (!( refinedSC.id() == cpRef->caloCluster().id() && refinedSC.key() == cpRef->caloCluster().key() )) continue; 
+        newCandidate.addElectronPixelSeed(cpRef);     
+      } 
+    }
 
 
 

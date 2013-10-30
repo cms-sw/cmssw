@@ -36,13 +36,6 @@ namespace edm {
       , prescaleTable_()
     {
       iReg.watchPostBeginJob(this, &PrescaleService::postBeginJob);
-      iReg.watchPostEndJob(this, &PrescaleService::postEndJob);
-      
-      iReg.watchPreProcessEvent(this, &PrescaleService::preEventProcessing);
-      iReg.watchPostProcessEvent(this, &PrescaleService::postEventProcessing);
-      
-      iReg.watchPreModule(this, &PrescaleService::preModule);
-      iReg.watchPostModule(this, &PrescaleService::postModule);
     }
       
     //______________________________________________________________________________

@@ -11,9 +11,9 @@ namespace reco {
 
 using namespace btau;
 
-const float SoftLeptonProperties::quality::undef = -999.0;
+const float SoftLeptonProperties::Quality::undef = -999.0;
 
-unsigned int SoftLeptonProperties::quality::internalByName(const char *name)
+unsigned int SoftLeptonProperties::Quality::internalByName(const char *name)
 {
   if (std::strcmp(name, "") == 0)
     return 0;
@@ -35,19 +35,19 @@ unsigned int SoftLeptonProperties::quality::internalByName(const char *name)
 
   throw edm::Exception(edm::errors::Configuration) 
     << "Requested lepton quality \"" << name
-    << "\" not found in SoftLeptonProperties::quality:byName"
+    << "\" not found in SoftLeptonProperties::Quality::byName"
     << std::endl;
 }
 
 float SoftLeptonProperties::quality(unsigned int index, bool throwIfUndefined) const
 {
-  float qual = quality::undef;
+  float qual = Quality::undef;
   if (index < qualities_.size())
     qual = qualities_[index];
 
-  if (qual == quality::undef && throwIfUndefined)
+  if (qual == Quality::undef && throwIfUndefined)
     throw edm::Exception(edm::errors::InvalidReference)
-      << "Requested lepton quality not found in SoftLeptonProperties::quality"
+      << "Requested lepton quality not found in SoftLeptonProperties::Quality"
       << std::endl;
 
   return qual;
@@ -56,7 +56,7 @@ float SoftLeptonProperties::quality(unsigned int index, bool throwIfUndefined) c
 void SoftLeptonProperties::setQuality(unsigned int index, float qual)
 {
   if (qualities_.size() <= index)
-    qualities_.resize(index + 1, quality::undef);
+    qualities_.resize(index + 1, Quality::undef);
 
   qualities_[index] = qual;
 }
@@ -77,8 +77,8 @@ TaggingVariableList SoftLeptonTagInfo::taggingVariables(void) const {
     list.insert( TaggingVariable(trackPhi,       track.phi()),   true );
     list.insert( TaggingVariable(trackChi2,      track.normalizedChi2()), true );
     const SoftLeptonProperties & data = m_leptons[i].second;
-    list.insert( TaggingVariable(leptonQuality,  data.quality(SoftLeptonProperties::quality::leptonId, false)), true );
-    list.insert( TaggingVariable(leptonQuality2, data.quality(SoftLeptonProperties::quality::btagLeptonCands, false)), true );
+    list.insert( TaggingVariable(leptonQuality,  data.quality(SoftLeptonProperties::Quality::leptonId, false)), true );
+    list.insert( TaggingVariable(leptonQuality2, data.quality(SoftLeptonProperties::Quality::btagLeptonCands, false)), true );
     list.insert( TaggingVariable(trackSip2dSig,  data.sip2d),    true );
     list.insert( TaggingVariable(trackSip3dSig,  data.sip3d),    true );
     list.insert( TaggingVariable(trackPtRel,     data.ptRel),    true );

@@ -40,7 +40,7 @@ namespace ora {
     static Monitoring& get(); 
     static bool isEnabled();
     static void enable();
-    static std::string& outFileName();
+    static const std::string& outFileName();
   public:
 
     /// 

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 
-gedGsfElectrons = cms.EDProducer("GEDGsfElectronProducer",
+gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
 
     # input collections
     previousGsfElectronsTag = cms.InputTag(""),
