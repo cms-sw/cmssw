@@ -58,7 +58,11 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
   	clang::PrintingPolicy Policy(LangOpts);
 	const Decl * PD = AC->getDecl();
 	std::string dname =""; 
-	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(PD)) dname = support::getQualifiedName(*ND);
+	std::string sdname =""; 
+	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(PD)) {
+		sdname = support::getQualifiedName(*ND);
+		dname = ND->getQualifiedNameAsString();
+	}
 
  // 	clang::ento::PathDiagnosticLocation CELoc = clang::ento::PathDiagnosticLocation::createBegin(DRE, BR.getSourceManager(),AC);
   	clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
@@ -72,7 +76,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 //		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 //		BR.emitReport(R);
 		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
- 		llvm::errs() <<  "function '"<<dname << "' static variable '" << D->getNameAsString() << "'.\n\n";
+ 		llvm::errs() <<  "function '"<<sdname << "' static variable '" << D->getNameAsString() << "'.\n\n";
 		return;
 	}
 
@@ -85,7 +89,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 //		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 //		BR.emitReport(R);
 		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
- 		llvm::errs() <<  "function '"<<dname << "' static variable '" << D->getNameAsString() << "'.\n\n";
+ 		llvm::errs() <<  "function '"<<sdname << "' static variable '" << D->getNameAsString() << "'.\n\n";
 	    return;
 	}
 
@@ -103,7 +107,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 //		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 //		BR.emitReport(R);
 		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
- 		llvm::errs() <<  "function '"<<dname << "' static variable '" << D->getNameAsString() << "'.\n\n";
+ 		llvm::errs() <<  "function '"<<sdname << "' static variable '" << D->getNameAsString() << "'.\n\n";
 	    return;
 	
 	}
