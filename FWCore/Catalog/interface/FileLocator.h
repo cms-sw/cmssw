@@ -1,6 +1,7 @@
 #ifndef FWCore_Catalog_FileLocator_h
 #define FWCore_Catalog_FileLocator_h
 
+#include <atomic>
 #include <string>
 #include <list>
 #include <map>
@@ -23,7 +24,7 @@ namespace edm {
     /** For the time being the only allowed configuration item is a
      *  prefix to be added to the GUID/LFN.
      */
-    static int s_numberOfInstances;
+    static std::atomic<bool> s_initialized;
 
     struct Rule {
       boost::regex pathMatch;

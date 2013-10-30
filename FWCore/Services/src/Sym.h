@@ -1,6 +1,7 @@
 #ifndef FWCore_Services_Sym_h
 #define FWCore_Services_Sym_h
 
+#include <atomic>
 #include <iosfwd>
 #include <string>
 
@@ -35,7 +36,7 @@ struct Sym {
   int          id_;
   address_type addr_;
 
-  static int next_id_;
+  static std::atomic<int> next_id_;
 
   bool
   operator<(address_type b) const

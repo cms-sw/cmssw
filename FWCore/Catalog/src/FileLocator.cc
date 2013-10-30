@@ -50,14 +50,14 @@ namespace {
 
 namespace edm {
 
-  int FileLocator::s_numberOfInstances = 0;
+  std::atomic<bool> FileLocator::s_initialized{false};
 
   FileLocator::FileLocator(std::string const& catUrl, bool fallback)
     : m_destination("any") {
     try {
       //  << "Xerces-c initialization Number "
-      //   << s_numberOfInstances <<
-      if (s_numberOfInstances == 0) {
+      //   << s_initialized <<
+      if (!s_initialized) {
         cms::concurrency::xercesInitialize();
       }
     }
@@ -68,7 +68,7 @@ namespace edm {
       throw
         cms::Exception("TrivialFileCatalog", std::string("Fatal Error on edm::FileLocator:")+ _toString(e.getMessage()));
     }
-    ++s_numberOfInstances;
+    s_initialized = true;
 
     init(catUrl, fallback);
 
