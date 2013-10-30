@@ -29,6 +29,9 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+#include <DataFormats/MuonReco/interface/MuonFwd.h>
 
 #include <vector>
 #include <string>
@@ -90,13 +93,11 @@ class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
   float phiAccRange;
   int nMinHitsPhi;
 
-  edm::InputTag inputTagMuons;
-
-  edm::InputTag inputTagDCC;
-  edm::InputTag inputTagDDU;
+  edm::EDGetTokenT<reco::MuonCollection> muons_Token_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> dcc_Token_;
+  edm::EDGetTokenT<DTLocalTriggerCollection> ddu_Token_;
   edm::InputTag inputTagSEG;
-
-  edm::InputTag inputTagGMT;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> gmt_Token_;
 
   DQMStore* dbe;
   edm::ParameterSet parameters;

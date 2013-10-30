@@ -12,8 +12,6 @@
 
 // DT trigger
 #include "DQM/DTMonitorModule/interface/DTTrigGeomUtils.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 
 // Geometry
 #include "DataFormats/GeometryVector/interface/Pi.h"
@@ -29,7 +27,6 @@
 
 // Muon tracks
 #include <DataFormats/MuonReco/interface/Muon.h>
-#include <DataFormats/MuonReco/interface/MuonFwd.h>
 
 //Root
 #include"TH1.h"
@@ -64,12 +61,15 @@ void DTTriggerEfficiencyTask::beginJob(){
 
   LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: BeginJob" << endl;
 
-  inputTagMuons = parameters.getUntrackedParameter<edm::InputTag>("inputTagMuons");
-
-  inputTagDCC = parameters.getUntrackedParameter<edm::InputTag>("inputTagDCC");
-  inputTagDDU = parameters.getUntrackedParameter<edm::InputTag>("inputTagDDU");
-  inputTagSEG = parameters.getUntrackedParameter<edm::InputTag>("inputTagSEG");
-  inputTagGMT = parameters.getUntrackedParameter<edm::InputTag>("inputTagGMT");
+  muons_Token_ = consumes<reco::MuonCollection>(
+      parameters.getUntrackedParameter<edm::InputTag>("inputTagMuons"));
+  dcc_Token_   = consumes<L1MuDTChambPhContainer>(
+      parameters.getUntrackedParameter<edm::InputTag>("inputTagDCC"));
+  ddu_Token_   = consumes<DTLocalTriggerCollection>(
+      parameters.getUntrackedParameter<edm::InputTag>("inputTagDDU"));
+  inputTagSEG  = parameters.getUntrackedParameter<edm::InputTag>("inputTagSEG");
+  gmt_Token_   = consumes<L1MuGMTReadoutCollection>(
+      parameters.getUntrackedParameter<edm::InputTag>("inputTagGMT"));
 
   SegmArbitration = parameters.getUntrackedParameter<std::string>("SegmArbitration");
 
@@ -138,7 +138,7 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
 
   // Getting best DCC Stuff
   edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
-  e.getByLabel(inputTagDCC,l1DTTPGPh);
+  e.getByToken(dcc_Token_, l1DTTPGPh);
   vector<L1MuDTChambPhDigi> const*  phTrigs = l1DTTPGPh->getContainer();
 
   vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();
@@ -158,7 +158,7 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
 
   //Getting Best DDU Stuff
   Handle<DTLocalTriggerCollection> trigsDDU;
-  e.getByLabel(inputTagDDU,trigsDDU);
+  e.getByToken(ddu_Token_, trigsDDU);
   DTLocalTriggerCollection::DigiRangeIterator detUnitIt;
 
   for (detUnitIt=trigsDDU->begin();detUnitIt!=trigsDDU->end();++detUnitIt){
@@ -181,7 +181,7 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
   vector<const DTRecSegment4D*> best4DSegments;
 
   Handle<reco::MuonCollection> muons;
-  e.getByLabel(inputTagMuons, muons);
+  e.getByToken(muons_Token_, muons);
   reco::MuonCollection::const_iterator mu;
 
   for( mu = muons->begin(); mu != muons->end(); ++mu ) {
@@ -279,7 +279,7 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
 bool DTTriggerEfficiencyTask::hasRPCTriggers(const edm::Event& e) {
 
   edm::Handle<L1MuGMTReadoutCollection> gmtrc;
-  e.getByLabel(inputTagGMT,gmtrc);
+  e.getByToken(gmt_Token_, gmtrc);
 
   std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
   std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr = gmt_records.begin();
