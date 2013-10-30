@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -59,28 +60,27 @@ private:
   virtual bool filter(edm::Event &, edm::EventSetup const &) override;
 
   // ----------member data ---------------------------
-
-  edm::InputTag     EcalRecHitCollection_;
-  double            minAmp1_;
-  double            minAmp2_;
-  double            minSingleAmp_;
-  std::vector<int>  maskedList_;
-  int               side_;
+  const edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitToken_;
+  const double           minAmp1_;
+  const double           minAmp2_;
+  const double           minSingleAmp_;
+  const std::vector<int> maskedList_;
+  const int              side_;
 
 };
 
 //
 // constructors and destructor
 //
-EcalMIPRecHitFilter::EcalMIPRecHitFilter(const edm::ParameterSet& iConfig)
+EcalMIPRecHitFilter::EcalMIPRecHitFilter(const edm::ParameterSet& iConfig) :
+  EcalRecHitToken_( consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EcalRecHitCollection")) ),
+  minAmp1_(             iConfig.getUntrackedParameter<double>("AmpMinSeed", 0.063) ),
+  minAmp2_(             iConfig.getUntrackedParameter<double>("AmpMin2", 0.045) ),
+  minSingleAmp_(        iConfig.getUntrackedParameter<double>("SingleAmpMin", 0.108) ),
+  maskedList_(          iConfig.getUntrackedParameter<std::vector<int>>("maskedChannels", {}) ),   // this is using the ashed index
+  side_(                iConfig.getUntrackedParameter<int>("side", 3) )
 {
   // now do what ever initialization is needed
-  minSingleAmp_         = iConfig.getUntrackedParameter<double>("SingleAmpMin", 0.108);
-  minAmp1_              = iConfig.getUntrackedParameter<double>("AmpMinSeed", 0.063);
-  minAmp2_              = iConfig.getUntrackedParameter<double>("AmpMin2", 0.045);
-  maskedList_           = iConfig.getUntrackedParameter<std::vector<int>>("maskedChannels", maskedList_);   // this is using the ashed index
-  EcalRecHitCollection_ = iConfig.getParameter<edm::InputTag>("EcalRecHitCollection");
-  side_                 = iConfig.getUntrackedParameter<int>("side", 3);
 }
 
 
@@ -103,12 +103,15 @@ EcalMIPRecHitFilter::filter(edm::Event & iEvent, edm::EventSetup const & iSetup)
 
   // getting very basic uncalRH
   Handle<EcalRecHitCollection> recHits;
-  iEvent.getByLabel(EcalRecHitCollection_, recHits);
-  if (not recHits.isValid()) {
-    LogWarning("EcalMIPRecHitFilter") << EcalRecHitCollection_ << " not available";
+  if (not iEvent.getByToken(EcalRecHitToken_, recHits))
+  {
+    edm::EDConsumerBase::Labels labels;
+    labelsForToken(EcalRecHitToken_, labels);
+    LogWarning("EcalMIPRecHitFilter") << "InputTag:  label = \"" << labels.module << "\", instance = \"" << labels.productInstance << "\", process = \"" << labels.process << "\" is not available";
+    return false;
   }
 
-  ESHandle<CaloTopology> caloTopo;
+  edm::ESHandle<CaloTopology> caloTopo;
   iSetup.get<CaloTopologyRecord>().get(caloTopo);
 
   // Intercalib constants

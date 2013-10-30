@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -46,29 +47,28 @@ private:
   virtual bool filter(edm::Event &, edm::EventSetup const &) override;
 
   // ----------member data ---------------------------
-
-  edm::InputTag     EcalUncalibRecHitCollection_;
-  double            minAdc_;
-  std::vector<int>  maskedList_;
+  const edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EcalUncalibRecHitToken_;
+  const double           minAdc_;
+  const std::vector<int> maskedList_;
 
 };
 
 //
 // constructors and destructor
 //
-EcalSimpleUncalibRecHitFilter::EcalSimpleUncalibRecHitFilter(const edm::ParameterSet& iConfig)
+EcalSimpleUncalibRecHitFilter::EcalSimpleUncalibRecHitFilter(const edm::ParameterSet& iConfig) :
+  EcalUncalibRecHitToken_(  consumes<EcalUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("EcalUncalibRecHitCollection")) ),
+  minAdc_(                  iConfig.getUntrackedParameter<double>("adcCut", 12) ),
+  maskedList_(              iConfig.getUntrackedParameter<std::vector<int>>("maskedChannels", {}) )     // this is using the ashed index
 {
-   //now do what ever initialization is needed
-  minAdc_     = iConfig.getUntrackedParameter<double>("adcCut", 12);
-  maskedList_ = iConfig.getUntrackedParameter<std::vector<int> >("maskedChannels", maskedList_); //this is using the ashed index
-  EcalUncalibRecHitCollection_ = iConfig.getParameter<edm::InputTag>("EcalUncalibRecHitCollection");
+  // now do what ever initialization is needed
 }
 
 
 EcalSimpleUncalibRecHitFilter::~EcalSimpleUncalibRecHitFilter()
 {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
 
@@ -84,10 +84,12 @@ EcalSimpleUncalibRecHitFilter::filter(edm::Event & iEvent, edm::EventSetup const
 
   // getting very basic uncalRH
   Handle<EcalUncalibratedRecHitCollection> crudeHits;
-  try {
-    iEvent.getByLabel(EcalUncalibRecHitCollection_, crudeHits);
-  } catch ( std::exception& ex) {
-    LogWarning("EcalSimpleUncalibRecHitFilter") << EcalUncalibRecHitCollection_ << " not available";
+  if (not iEvent.getByToken(EcalUncalibRecHitToken_, crudeHits))
+  {
+    edm::EDConsumerBase::Labels labels;
+    labelsForToken(EcalUncalibRecHitToken_, labels);
+    LogWarning("EcalSimpleUncalibRecHitFilter") << "InputTag:  label = \"" << labels.module << "\", instance = \"" << labels.productInstance << "\", process = \"" << labels.process << "\" is not available";
+    return false;
   }
 
 
