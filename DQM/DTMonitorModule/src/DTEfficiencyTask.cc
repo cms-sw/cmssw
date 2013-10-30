@@ -25,8 +25,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 //RecHit
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRangeMapAccessor.h"
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
@@ -41,6 +39,12 @@ using namespace std;
 DTEfficiencyTask::DTEfficiencyTask(const ParameterSet& pset) {
 
   debug = pset.getUntrackedParameter<bool>("debug",false);
+  // the name of the 4D rec hits collection
+  recHits4DToken_ = consumes<DTRecSegment4DCollection>(
+      edm::InputTag(pset.getParameter<string>("recHits4DLabel")));
+  // the name of the rechits collection
+  recHitToken_    = consumes<DTRecHitCollection>(
+      edm::InputTag(pset.getParameter<string>("recHitLabel")));
 
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
@@ -55,10 +59,6 @@ DTEfficiencyTask::~DTEfficiencyTask(){
 
 
 void DTEfficiencyTask::beginJob(){
-  // the name of the 4D rec hits collection
-  theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");
-  // the name of the rechits collection
-  theRecHitLabel = parameters.getParameter<string>("recHitLabel");
 }
 
 
@@ -94,11 +94,11 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(theRecHits4DLabel, all4DSegments);
+  event.getByToken(recHits4DToken_, all4DSegments);
 
   // Get the rechit collection from the event
   Handle<DTRecHitCollection> dtRecHits;
-  event.getByLabel(theRecHitLabel, dtRecHits);
+  event.getByToken(recHitToken_, dtRecHits);
 
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;

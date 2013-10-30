@@ -14,6 +14,8 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
@@ -56,10 +58,10 @@ private:
   bool debug;
 
   // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // Lable of 1D rechits in the event
-  std::string theRecHitLabel;
+  edm::EDGetTokenT<DTRecHitCollection> recHitToken_;
 
   edm::ParameterSet parameters;
 
