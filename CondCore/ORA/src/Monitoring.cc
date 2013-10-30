@@ -92,14 +92,9 @@ void ora::Monitoring::enable(){
   s_enabled = true;
 }
 
-std::string& ora::Monitoring::outFileName(){
-  static std::string s_outFileName("");
-  if( s_outFileName.empty() ){
-    const char* fileEnvVar = ::getenv( "ORA_MONITORING_FILE" );
-    if( fileEnvVar ){
-      s_outFileName = fileEnvVar;
-    }
-  }
+const std::string& ora::Monitoring::outFileName(){
+  const char* fileEnvVar = ::getenv( "ORA_MONITORING_FILE" );
+  static const std::string s_outFileName( fileEnvVar?fileEnvVar:"");
   return s_outFileName;
 }
 

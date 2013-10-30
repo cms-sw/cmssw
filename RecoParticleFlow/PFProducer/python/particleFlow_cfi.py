@@ -27,6 +27,17 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     usePFElectrons = cms.bool(True),
     pf_electron_output_col=cms.string('electrons'),
     pf_electronID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt'),
+    pf_electron_mvaCut = cms.double(-0.1),
+    # New electron selection cuts for CMSSW_700
+    electron_iso_pt = cms.double(10.0),
+    electron_iso_mva_barrel  = cms.double( -0.1875),
+    electron_iso_mva_endcap = cms.double( -0.1075),
+    electron_iso_combIso_barrel = cms.double(10.0),
+    electron_iso_combIso_endcap = cms.double(10.0),
+    electron_noniso_mvaCut = cms.double(-0.1),                            
+    electron_missinghits = cms.uint32(1), 
+    isolatedElectronID_mvaWeightFile = cms.string('RecoEgamma/ElectronIdentification/data/TMVA_BDTSimpleCat_17Feb2011.weights.xml'),
+
 
     # Use Photon identification in PFAlgo (for now this has NO impact, algo is swicthed off hard-coded
     usePFPhotons = cms.bool(True),
@@ -41,8 +52,19 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     sumPtTrackIsoForPhoton=cms.double(2.0),
     sumPtTrackIsoSlopeForPhoton=cms.double(0.001),
 
-                              
-    pf_electron_mvaCut = cms.double(-0.1),
+    # New photon selection cuts for CMSSW_700
+    photon_MinEt = cms.double(10.),
+    photon_combIso = cms.double(10.),
+    photon_HoE =  cms.double(0.10),
+                                 
+
+    useEGammaFilters = cms.bool(False),
+    PFEGammaCandidates = cms.InputTag("particleFlowEGamma"),
+    GedElectronValueMap = cms.InputTag("gedGsfElectronsTmp"),
+    GedPhotonValueMap = cms.InputTag("tmpGedPhotons","valMapPFEgammaCandToPhoton"),
+
+
+                                 
     # apply the crack corrections                             
     pf_electronID_crackCorrection = cms.bool(False),
     usePFSCEleCalib = cms.bool(True),

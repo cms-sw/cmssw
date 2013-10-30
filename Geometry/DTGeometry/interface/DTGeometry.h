@@ -117,9 +117,9 @@ class DTGeometry : public TrackingGeometry {
 
     // Replace local static with mutable members
     // to allow lazy evaluation if (ever) needed.
-    mutable DetTypeContainer  theDetTypes;
-    mutable DetIdContainer    theDetUnitIds;
-    mutable DetIdContainer    theDetIds;
+    DetTypeContainer  theDetTypes;
+    DetIdContainer    theDetUnitIds;
+    DetIdContainer    theDetIds;
 };
 
 #endif

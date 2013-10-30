@@ -16,15 +16,16 @@
   any two threads running event processors.
  */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-
 #include <string>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
 namespace edm {
   class ConfigurationDescriptions;
+  class ParameterSet;
+  class ActivityRegistry;
+  class ModuleDescription;
+  class StreamContext;
+  class ModuleCallingContext;
 
   namespace rootfix {
   
@@ -38,25 +39,18 @@ namespace edm {
 
       boost::mutex& getLock() { return lock_; }
       
-      void postBeginJob();
-      void postEndJob();
-      
       void preSourceConstruction(const edm::ModuleDescription&);
       void postSourceConstruction(const edm::ModuleDescription&);
-      
-      void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
-      void postEventProcessing(const edm::Event&, const edm::EventSetup&);
       
       void preSource();
       void postSource();
       
       
-      void preModule(const edm::ModuleDescription&);
-      void postModule(const edm::ModuleDescription&);
+      void preModule(StreamContext const&, ModuleCallingContext const&);
+      void postModule(StreamContext const&, ModuleCallingContext const&);
       
     private:
       boost::mutex& lock_;
-      boost::shared_ptr<boost::mutex::scoped_lock> locker_; // what a hack!
       typedef std::vector<std::string> Labels;
       Labels labels_;
       bool lockSources_;

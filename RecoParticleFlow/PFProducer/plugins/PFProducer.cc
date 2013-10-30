@@ -16,6 +16,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
 #include <sstream>
 
 #include "TFile.h"
@@ -56,11 +58,28 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   postMuonCleaning_
     = iConfig.getParameter<bool>("postMuonCleaning");
 
+  if( iConfig.existsAs<bool>("useEGammaFilters") ) {
+    use_EGammaFilters_ =  iConfig.getParameter<bool>("useEGammaFilters");    
+  } else {
+    use_EGammaFilters_ = false;
+  }
+
   usePFElectrons_
     = iConfig.getParameter<bool>("usePFElectrons");    
 
   usePFPhotons_
     = iConfig.getParameter<bool>("usePFPhotons");    
+  
+  // **************************** !! IMPORTANT !! ************************************
+  // When you code is swithed on, automatically turn off the old PFElectrons/PFPhotons. 
+  // The two algorithms can not run at the same time
+  // *********************************************************************************
+ 
+  if(use_EGammaFilters_) {
+    usePFElectrons_ = false;
+    usePFPhotons_ = false;
+  }
+
 
   usePhotonReg_
     = (usePFPhotons_) ? iConfig.getParameter<bool>("usePhotonReg") : false ;
@@ -188,6 +207,38 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     }
   
 
+  // Reading new EGamma selection cuts
+  
+  double ele_iso_pt(0.0), ele_iso_mva_barrel(0.0), ele_iso_mva_endcap(0.0), 
+    ele_iso_combIso_barrel(0.0), ele_iso_combIso_endcap(0.0), 
+    ele_noniso_mva(0.0);
+  unsigned int ele_missinghits(0);
+  double ph_MinEt(0.0), ph_combIso(0.0), ph_HoE(0.0);
+
+
+  string ele_iso_mvaWeightFile(""), ele_iso_path_mvaWeightFile("");
+
+ // Reading new EGamma ubiased collections and value maps
+ if(use_EGammaFilters_) {
+   ele_iso_mvaWeightFile = iConfig.getParameter<string>("isolatedElectronID_mvaWeightFile");
+   ele_iso_path_mvaWeightFile  = edm::FileInPath ( ele_iso_mvaWeightFile.c_str() ).fullPath();
+   inputTagPFEGammaCandidates_ = iConfig.getParameter<edm::InputTag>("PFEGammaCandidates");
+   inputTagValueMapGedElectrons_ = iConfig.getParameter<edm::InputTag>("GedElectronValueMap"); 
+   inputTagValueMapGedPhotons_ = iConfig.getParameter<edm::InputTag>("GedPhotonValueMap"); 
+   ele_iso_pt = iConfig.getParameter<double>("electron_iso_pt");
+   ele_iso_mva_barrel  = iConfig.getParameter<double>("electron_iso_mva_barrel");
+   ele_iso_mva_endcap = iConfig.getParameter<double>("electron_iso_mva_endcap");
+   ele_iso_combIso_barrel = iConfig.getParameter<double>("electron_iso_combIso_barrel");
+   ele_iso_combIso_endcap = iConfig.getParameter<double>("electron_iso_combIso_endcap");
+   ele_noniso_mva = iConfig.getParameter<double>("electron_noniso_mvaCut");
+   ele_missinghits = iConfig.getParameter<unsigned int>("electron_missinghits"); 
+   ph_MinEt  = iConfig.getParameter<double>("photon_MinEt");
+   ph_combIso  = iConfig.getParameter<double>("photon_combIso");
+   ph_HoE = iConfig.getParameter<double>("photon_HoE");
+ }
+ 
+
+
   //Secondary tracks and displaced vertices parameters
 
   bool rejectTracks_Bad
@@ -265,6 +316,21 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 				 calibration,
 				 sumPtTrackIsoForPhoton,
 				 sumPtTrackIsoSlopeForPhoton);
+
+
+  // NEW EGamma Filters
+   pfAlgo_->setEGammaParameters(use_EGammaFilters_,
+				ele_iso_path_mvaWeightFile,
+				ele_iso_pt,
+				ele_iso_mva_barrel,
+				ele_iso_mva_endcap,
+				ele_iso_combIso_barrel,
+				ele_iso_combIso_endcap,
+				ele_noniso_mva,
+				ele_missinghits,
+				ph_MinEt,
+				ph_combIso,
+				ph_HoE);
 
 
   //Secondary tracks and displaced vertices parameters
@@ -494,6 +560,54 @@ PFProducer::produce(Event& iEvent,
     pfAlgo_->setEGElectronCollection(*egelectrons);
   }
 
+  if(use_EGammaFilters_) {
+
+    // Read PFEGammaCandidates
+
+    edm::Handle<edm::View<reco::PFCandidate> > pfEgammaCandidates;
+
+    found=iEvent.getByLabel(inputTagPFEGammaCandidates_,pfEgammaCandidates);
+
+    if(!found ) {
+      std::ostringstream err;
+      err<<" cannot get PFEGammaCandidates: "
+	 << inputTagPFEGammaCandidates_ <<std::endl;
+      edm::LogError("PFProducer")<<err.str();
+      throw cms::Exception( "MissingProduct", err.str());
+    }
+    
+    // Get the value maps
+    
+    edm::Handle<edm::ValueMap<reco::GsfElectronRef> > valueMapGedElectrons;
+    found = iEvent.getByLabel(inputTagValueMapGedElectrons_,valueMapGedElectrons);
+
+    if(!found ) {
+      std::ostringstream err;
+      err<<" cannot get valueMapGedElectrons: "
+	 << inputTagValueMapGedElectrons_ <<std::endl;
+      edm::LogError("PFProducer")<<err.str();
+      throw cms::Exception( "MissingProduct", err.str());
+    }
+
+
+    edm::Handle<edm::ValueMap<reco::PhotonRef> > valueMapGedPhotons;
+    found = iEvent.getByLabel(inputTagValueMapGedPhotons_,valueMapGedPhotons);
+
+    if(!found ) {
+      std::ostringstream err;
+      err<<" cannot get valueMapGedPhotons: "
+	 << inputTagValueMapGedPhotons_ <<std::endl;
+      edm::LogError("PFProducer")<<err.str();
+      throw cms::Exception( "MissingProduct", err.str());
+    }
+
+    pfAlgo_->setEGammaCollections(*pfEgammaCandidates,
+    				  *valueMapGedElectrons,
+    				  *valueMapGedPhotons);
+
+  }
+
+
   
   LogDebug("PFProducer")<<"particle flow is starting"<<endl;
 
@@ -530,7 +644,6 @@ PFProducer::produce(Event& iEvent,
       iEvent.put(pOutputPhotonCandidateExtraCollection,photonExtraOutputCol_);      
     pfAlgo_->setPhotonExtraRef(photonExtraProd);
   }
-
 
    // Save cosmic cleaned muon candidates
     auto_ptr< reco::PFCandidateCollection > 

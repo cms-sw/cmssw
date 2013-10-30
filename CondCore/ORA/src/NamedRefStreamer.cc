@@ -12,7 +12,7 @@
 #include "Reflex/Member.h"
 
 std::string ora::namedRefNullLabel(){
-  static std::string nullLabel("ora::NamedRef::Null");
+  static const std::string nullLabel("ora::NamedRef::Null");
   return nullLabel;
 }
 

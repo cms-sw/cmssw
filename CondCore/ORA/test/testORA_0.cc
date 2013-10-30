@@ -213,12 +213,16 @@ namespace ora {
       ora::ScopedTransaction trans5( db.transaction() );
       trans5.start( false );
       contH0 = db.containerHandle( "Cont0" );
-      rInt0 = contH0.fetch<int>( oid00);
-      if( rInt0 ){
-	ora::throwException( "Found entry for deleted oid="+oid00,"testORA_0");
-      } else {
+      bool ok = true;
+      try{
+	rInt0 = contH0.fetch<int>( oid00);
+	ok = false;
+      } catch ( ora::Exception& e ){
 	std::cout << "## Entry for oid="<<oid00<<" deleted as expected."<<std::endl;
       }
+      if( !ok ){
+	ora::throwException( "Found entry for deleted oid="+oid00,"testORA_0");
+      } 
       rInt1 = contH0.fetch<int>( oid01);
       if( rInt1 ){
 	std::cout << "## Entry for oid="<<oid01<<" found as expected."<<std::endl;
@@ -232,12 +236,16 @@ namespace ora {
       } else {
 	ora::throwException( "Entry for oid10 not found.","testORA_0");
       }
-      rStr1 = contH1.fetch<std::string>( oid11);
-      if( rStr1 ){
-	ora::throwException( "Found entry for deleted oid="+oid11,"testORA_0");
-      } else {
+      ok = true;
+      try {
+	rStr1 = contH1.fetch<std::string>( oid11);
+	ok = false;
+      } catch ( ora::Exception& e ){
 	std::cout << "## Entry for oid="<<oid11<<" deleted as expected."<<std::endl;
       }
+      if( !ok ){
+	ora::throwException( "Found entry for deleted oid="+oid11,"testORA_0");
+      } 
       iter0 = contH0.iterator();
       while( iter0.next() ){
 	boost::shared_ptr<int> o = iter0.get<int>();
