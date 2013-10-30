@@ -25,8 +25,6 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-//RecHit
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
@@ -46,7 +44,8 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : ne
   // switch for detailed analysis
   detailedAnalysis = pset.getUntrackedParameter<bool>("detailedAnalysis",false);
   // the name of the 4D rec hits collection
-  theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
+  recHits4DToken_ = consumes<DTRecSegment4DCollection>(
+      edm::InputTag(pset.getParameter<string>("recHits4DLabel")));
   // Get the map of noisy channels
   checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels",false);
   // # of bins in the time histos
@@ -151,7 +150,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(theRecHits4DLabel, all4DSegments);
+  event.getByToken(recHits4DToken_, all4DSegments);
 
   if(!all4DSegments.isValid()) return;
 
