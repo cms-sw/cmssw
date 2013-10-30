@@ -5,6 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "GeneratorInterface/PhotosInterface/interface/PhotosInterface.h"
 
-typedef edmplugin::PluginFactory<gen::PhotosInterface* (edm::ParameterSet const&)>  PhotosFactory;
+typedef edmplugin::PluginFactory<gen::PhotosInterfaceBase* (edm::ParameterSet const&)>  PhotosFactory;
 
 #endif

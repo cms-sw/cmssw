@@ -58,12 +58,19 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
 	fPhotosInterface->avoidTauLeptonicDecays();
 	hastauolapp=true;
       }
-      if ( curSet == "Photos" || curSet == "Photos2155"){
+      if ( curSet == "Photos" || curSet == "Photos2155Legacy"){
 	if ( !fPhotosInterface ){
-	  fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet >(curSet)));
+	  fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155Legacy", pset.getUntrackedParameter< ParameterSet >(curSet)));
 	  fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
 	}
       }
+      if (curSet == "Photos2155"){
+        if ( !fPhotosInterface ){
+          fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet>(curSet)));
+          fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
+        }
+      }
+
     }
 
 }

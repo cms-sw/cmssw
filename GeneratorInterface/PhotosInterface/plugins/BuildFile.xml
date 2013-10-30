@@ -1,4 +1,4 @@
-<library file="*.cc,*.f" name="PhotosFactory">
+<library file="PhotosInterface.cc,*.f" name="PhotosInterfaceDefault">
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
@@ -11,3 +11,14 @@
 </library>
 
 
+<library file="PhotosInterface53XLegacy.cc,*.f" name="PhotosInterfaceLegacy">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="GeneratorInterface/PhotosInterface"/>
+  <use name="photos"/>
+  <use name="hepmc"/>
+  <use name="clhep"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

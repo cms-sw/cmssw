@@ -1,5 +1,5 @@
-#ifndef gen_ExternalDecays_PhotosInterface_h
-#define gen_ExternalDecays_PhotosInterface_h
+#ifndef gen_PhotosInterface_PhotosInterface_h
+#define gen_PhotosInterface_PhotosInterface_h
 
 // #include "HepPDT/ParticleDataTable.hh"
 

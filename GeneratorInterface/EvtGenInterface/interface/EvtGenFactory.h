@@ -5,6 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterface.h"
 
-typedef edmplugin::PluginFactory<gen::EvtGenInterface* (const edm::ParameterSet&) >  EvtGenFactory;
+typedef edmplugin::PluginFactory<gen::EvtGenInterfaceBase* (const edm::ParameterSet&) >  EvtGenFactory;
 
 #endif
