@@ -60,16 +60,18 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 	std::string dname =""; 
 	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(PD)) dname = support::getQualifiedName(*ND);
 
-  	clang::ento::PathDiagnosticLocation CELoc = clang::ento::PathDiagnosticLocation::createBegin(DRE, BR.getSourceManager(),AC);
+ // 	clang::ento::PathDiagnosticLocation CELoc = clang::ento::PathDiagnosticLocation::createBegin(DRE, BR.getSourceManager(),AC);
+  	clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
 
 	if ( (D->isStaticLocal() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local ) && ! clangcms::support::isConst( t ) )
 	{
 		std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 	   	os << "function '"<<dname << "' accesses or modifies non-const static local variable '" << D->getNameAsString() << "'.\n";
-	    	BugType * BT = new BugType("FunctionChecker : non-const static local variable accessed or modified","ThreadSafety");
-		BugReport * R = new BugReport(*BT,os.str(),CELoc);
-		BR.emitReport(R);
+//	    	BugType * BT = new BugType("FunctionChecker : non-const static local variable accessed or modified","ThreadSafety");
+//		BugReport * R = new BugReport(*BT,os.str(),CELoc);
+//		BR.emitReport(R);
+		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
  		llvm::errs() <<  "function '"<<dname << "' static variable '" << D->getNameAsString() << "'.\n\n";
 		return;
 	}
@@ -79,9 +81,10 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 	    	os << "function '"<<dname<< "' accesses or modifies non-const static member data variable '" << D->getNameAsString() << "'.\n";
-	    	BugType * BT = new BugType("FunctionChecker : non-const static member variable accessed or modified","ThreadSafety");
-		BugReport * R = new BugReport(*BT,os.str(),CELoc);
-		BR.emitReport(R);
+//	    	BugType * BT = new BugType("FunctionChecker : non-const static member variable accessed or modified","ThreadSafety");
+//		BugReport * R = new BugReport(*BT,os.str(),CELoc);
+//		BR.emitReport(R);
+		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
  		llvm::errs() <<  "function '"<<dname << "' static variable '" << D->getNameAsString() << "'.\n\n";
 	    return;
 	}
@@ -96,9 +99,10 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 	    	os << "function '"<<dname << "' accesses or modifies non-const global static variable '" << D->getNameAsString() << "'.\n";
-	    	BugType * BT = new BugType("FunctionChecker : non-const global static variable accessed or modified","ThreadSafety");
-		BugReport * R = new BugReport(*BT,os.str(),CELoc);
-		BR.emitReport(R);
+//	    	BugType * BT = new BugType("FunctionChecker : non-const global static variable accessed or modified","ThreadSafety");
+//		BugReport * R = new BugReport(*BT,os.str(),CELoc);
+//		BR.emitReport(R);
+		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
  		llvm::errs() <<  "function '"<<dname << "' static variable '" << D->getNameAsString() << "'.\n\n";
 	    return;
 	
