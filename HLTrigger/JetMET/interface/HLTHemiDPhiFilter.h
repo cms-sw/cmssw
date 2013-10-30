@@ -21,13 +21,13 @@ class HLTHemiDPhiFilter : public HLTFilter {
       explicit HLTHemiDPhiFilter(const edm::ParameterSet&);
       ~HLTHemiDPhiFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
-      
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+
 
    private:
       edm::EDGetTokenT<std::vector<math::XYZTLorentzVector>> m_theHemiToken;
       static double deltaPhi(double, double); //helper function
-  
+
       edm::InputTag inputTag_; // input tag identifying product
       double min_dphi_;          // minimum dphi value
       bool accept_NJ_;         // accept or reject events with high NJ

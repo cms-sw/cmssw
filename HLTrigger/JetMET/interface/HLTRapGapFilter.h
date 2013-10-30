@@ -20,7 +20,7 @@ class HLTRapGapFilter : public HLTFilter {
    public:
       explicit HLTRapGapFilter(const edm::ParameterSet&);
       ~HLTRapGapFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

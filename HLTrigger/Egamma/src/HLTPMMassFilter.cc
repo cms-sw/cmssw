@@ -52,7 +52,7 @@ HLTPMMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 
 // ------------ method called to produce the data  ------------
 bool
-HLTPMMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+HLTPMMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;

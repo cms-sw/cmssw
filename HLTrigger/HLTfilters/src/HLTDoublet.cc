@@ -104,7 +104,7 @@ HLTDoublet<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 // ------------ method called to produce the data  ------------
 template<typename T1, typename T2>
 bool
-HLTDoublet<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+HLTDoublet<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace std;
    using namespace edm;

@@ -7,7 +7,7 @@
 //
 // HLTrackerHaloFilter
 //
-// Filter selecting beam halo track candidates by looking at 
+// Filter selecting beam halo track candidates by looking at
 // TEC clusters accumulations
 //
 // This filter is working with events seeded by L1_BeamHalo
@@ -46,7 +46,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
   edm::EDGetTokenT<edm::RefGetter<SiStripCluster> > inputToken_;
   edm::InputTag inputTag_; // input tag identifying product containing pixel clusters
@@ -55,8 +55,8 @@ private:
   int sign_accu_;  // Minimal size for a signal accumulation
   int max_clusT_;  // Maximum number of TEC clusters
   int max_back_;   // Max number of accumulations per side
-  int fastproc_;   // fast unpacking of cluster info, based on DetIds 
- 
+  int fastproc_;   // fast unpacking of cluster info, based on DetIds
+
   static const int m_TEC_cells[];
 };
 

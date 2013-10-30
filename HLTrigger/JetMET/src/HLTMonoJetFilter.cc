@@ -59,7 +59,7 @@ HLTMonoJetFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 //
 template<typename T>
 bool
-HLTMonoJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+HLTMonoJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;

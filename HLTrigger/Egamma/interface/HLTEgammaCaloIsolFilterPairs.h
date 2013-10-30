@@ -30,7 +30,7 @@ class HLTEgammaCaloIsolFilterPairs : public HLTFilter {
   public:
     explicit HLTEgammaCaloIsolFilterPairs(const edm::ParameterSet&);
     ~HLTEgammaCaloIsolFilterPairs();
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   private:

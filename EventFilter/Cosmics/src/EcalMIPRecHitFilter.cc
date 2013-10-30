@@ -58,7 +58,7 @@ class EcalMIPRecHitFilter : public HLTFilter {
 
    private:
       virtual void beginJob() override ;
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
       virtual void endJob() override ;
 
       // ----------member data ---------------------------
@@ -103,7 +103,7 @@ EcalMIPRecHitFilter::~EcalMIPRecHitFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-EcalMIPRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+EcalMIPRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace edm;
 

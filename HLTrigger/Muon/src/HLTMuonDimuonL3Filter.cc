@@ -138,7 +138,7 @@ HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 // ------------ method called to produce the data  ------------
 bool
-HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
 
    if (min_InvMass_.size() != min_PtPair_.size()) {cout << "ERROR!!! Vector sizes don't match!" << endl; return false;}

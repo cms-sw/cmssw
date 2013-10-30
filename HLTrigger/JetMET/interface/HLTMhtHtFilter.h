@@ -28,7 +28,7 @@ class HLTMhtHtFilter : public HLTFilter {
       explicit HLTMhtHtFilter(const edm::ParameterSet&);
       ~HLTMhtHtFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
    private:
       edm::EDGetTokenT<std::vector<T>> m_theObjectToken;
@@ -50,7 +50,7 @@ class HLTMhtHtFilter : public HLTFilter {
                                                 //----mode = 4 for HT only
                                                 //----mode = 5 for HT and AlphaT cross trigger (ALWAYS uses jet ET, not pT)
       const bool                usePt_;
-      const bool                useTracks_; 
+      const bool                useTracks_;
       int   triggerType_;
 };
 

@@ -22,14 +22,14 @@
 //
 // constructors and destructor
 //
-HLTPhi2METFilter::HLTPhi2METFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTPhi2METFilter::HLTPhi2METFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
    inputMETTag_ = iConfig.getParameter< edm::InputTag > ("inputMETTag");
    minDPhi_   = iConfig.getParameter<double> ("minDeltaPhi");
    maxDPhi_   = iConfig.getParameter<double> ("maxDeltaPhi");
-   minEtjet1_= iConfig.getParameter<double> ("minEtJet1"); 
-   minEtjet2_= iConfig.getParameter<double> ("minEtJet2"); 
+   minEtjet1_= iConfig.getParameter<double> ("minEtJet1");
+   minEtjet2_= iConfig.getParameter<double> ("minEtJet2");
    m_theJetToken = consumes<reco::CaloJetCollection>(inputJetTag_);
    m_theMETToken = consumes<trigger::TriggerFilterObjectWithRefs>(inputMETTag_);
 }
@@ -48,7 +48,7 @@ void HLTPhi2METFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 // ------------ method called to produce the data  ------------
 bool
-HLTPhi2METFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+HLTPhi2METFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
@@ -69,7 +69,7 @@ HLTPhi2METFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 
-  VRcalomet vrefMET; 
+  VRcalomet vrefMET;
   metcal->getObjects(TriggerMET,vrefMET);
   CaloMETRef metRef=vrefMET.at(0);
   CaloJetRef ref1,ref2;
@@ -83,10 +83,10 @@ HLTPhi2METFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
     // double etmiss  = vrefMET.at(0)->et();
     double phimiss = vrefMET.at(0)->phi();
     int countjets =0;
-   
-    for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
+
+    for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin();
 	 recocalojet<=(recocalojets->begin()+1); recocalojet++) {
-      
+
       if(countjets==0) {
 	etjet1 = recocalojet->et();
 	ref1  = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
@@ -106,13 +106,13 @@ HLTPhi2METFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
 	filterproduct.addObject(TriggerJet,ref2);
 	n++;
     }
-    
+
   } // events with two or more jets
-  
-  
-  
+
+
+
   // filter decision
   bool accept(n>=1);
-  
+
   return accept;
 }

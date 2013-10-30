@@ -22,7 +22,7 @@ class HLTHtMhtFilter : public HLTFilter {
     explicit HLTHtMhtFilter(const edm::ParameterSet &);
     ~HLTHtMhtFilter();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
+    virtual bool hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
   private:
     std::vector<edm::EDGetTokenT<std::vector<reco::MET>>> m_theHtToken;

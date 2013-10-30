@@ -26,7 +26,7 @@ class HLTMonoJetFilter : public HLTFilter {
       explicit HLTMonoJetFilter(const edm::ParameterSet&);
       ~HLTMonoJetFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
    private:
       edm::InputTag inputJetTag_;   // input tag identifying jets

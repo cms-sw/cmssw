@@ -1,4 +1,4 @@
-// Author:  Alfredo Gurrola 
+// Author:  Alfredo Gurrola
 //(20/11/08 make MET and JET logic independent   /Grigory Safronov)
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -9,7 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   JetSource_ = iConfig.getParameter<edm::InputTag>("JetSource");
   MetSource_ = iConfig.getParameter<edm::InputTag>("MetSource");
@@ -50,13 +50,13 @@ HLTHcalNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 // member functions
 //
 
-bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
    using namespace edm;
    using namespace reco;
 
    bool isAnomalous_BasedOnMET = false;
-   bool isAnomalous_BasedOnEnergyFraction=false; 
+   bool isAnomalous_BasedOnEnergyFraction=false;
 
    if (useMet_)
      {
@@ -64,15 +64,15 @@ bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
        iEvent.getByToken(MetSourceToken_, metHandle);
        const CaloMETCollection *metCol = metHandle.product();
        const CaloMET met = metCol->front();
-    
+
        if(met.pt() > MetCut_) isAnomalous_BasedOnMET=true;
      }
-       
+
    if (useJet_)
      {
        Handle<CaloJetCollection> calojetHandle;
        iEvent.getByToken(JetSourceToken_,calojetHandle);
-       
+
        Handle<CaloTowerCollection> towerHandle;
        iEvent.getByToken(TowerSourceToken_, towerHandle);
 
@@ -94,12 +94,12 @@ bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 	   }
 	   TowerContainer.push_back(seedTower);
 	 }
-	 
+	
        }
        if(JetContainer.size() > 0) {
 	 isAnomalous_BasedOnEnergyFraction = true;
        }
      }
-   
+
    return ((useMet_ and isAnomalous_BasedOnMET) or (useJet_ and isAnomalous_BasedOnEnergyFraction));
 }

@@ -27,7 +27,7 @@ class HLTDoubletDZ : public HLTFilter {
       explicit HLTDoubletDZ(const edm::ParameterSet&);
       ~HLTDoubletDZ();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
    private:
       // configuration

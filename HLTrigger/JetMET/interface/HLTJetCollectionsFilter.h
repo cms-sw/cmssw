@@ -23,7 +23,7 @@ class HLTJetCollectionsFilter : public HLTFilter {
       explicit HLTJetCollectionsFilter(const edm::ParameterSet&);
       ~HLTJetCollectionsFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
    private:
       edm::InputTag inputTag_; // input tag identifying jet collections
       edm::InputTag originalTag_; // input tag original jet collection

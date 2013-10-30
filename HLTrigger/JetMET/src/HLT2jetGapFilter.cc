@@ -18,16 +18,16 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h" 
+#include "FWCore/Utilities/interface/InputTag.h"
 
 //
 // constructors and destructor
 //
-HLT2jetGapFilter::HLT2jetGapFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLT2jetGapFilter::HLT2jetGapFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
    inputTag_ = iConfig.getParameter<edm::InputTag> ("inputTag");
    minEt_    = iConfig.getParameter<double> ("minEt");
-   minEta_   = iConfig.getParameter<double> ("minEta"); 
+   minEta_   = iConfig.getParameter<double> ("minEta");
 
    m_theCaloJetToken = consumes<reco::CaloJetCollection>(inputTag_);
 
@@ -47,7 +47,7 @@ HLT2jetGapFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
 // ------------ method called to produce the data  ------------
 bool
-HLT2jetGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+HLT2jetGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace trigger;
 
@@ -69,9 +69,9 @@ HLT2jetGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
     double etajet2=0.;
     int countjets =0;
 
-    for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
+    for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin();
 	 recocalojet<=(recocalojets->begin()+1); recocalojet++) {
-      
+
       if(countjets==0) {
 	etjet1 = recocalojet->et();
 	etajet1 = recocalojet->eta();
@@ -84,20 +84,20 @@ HLT2jetGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
     }
 
   if(etjet1>minEt_ && etjet2>minEt_ && (etajet1*etajet2)<0 && std::abs(etajet1)>minEta_ && std::abs(etajet2)>minEta_){
-      for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
+      for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin();
 	   recocalojet<=(recocalojets->begin()+1); recocalojet++) {
 	reco::CaloJetRef ref(reco::CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet)));
 	filterproduct.addObject(TriggerJet,ref);
 	n++;
       }
     }
-    
+
   } // events with two or more jets
-  
-  
-  
+
+
+
   // filter decision
   bool accept(n>=2);
-  
+
   return accept;
 }

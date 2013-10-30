@@ -3,7 +3,7 @@
 
 /** \class HLTJetSortedVBFFilter
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing a
  *  single jet requirement with an Energy threshold (not Et!)
  *  Based on HLTSinglet
@@ -41,19 +41,19 @@ class HLTJetSortedVBFFilter : public HLTFilter {
   explicit HLTJetSortedVBFFilter(const edm::ParameterSet&);
   ~HLTJetSortedVBFFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&,trigger::TriggerFilterObjectWithRefs& filterproduct) const;
-      
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&,trigger::TriggerFilterObjectWithRefs& filterproduct) override;
+
  private:
   edm::EDGetTokenT<std::vector<T>> m_theJetsToken;
   edm::EDGetTokenT<reco::JetTagCollection> m_theJetTagsToken;
-  edm::InputTag inputJets_; 
-  edm::InputTag inputJetTags_; 
-  double mqq_;           
-  double detaqq_; 
-  double detabb_;        
-  double ptsqq_;          
-  double ptsbb_; 
-  double seta_; 
+  edm::InputTag inputJets_;
+  edm::InputTag inputJetTags_;
+  double mqq_;
+  double detaqq_;
+  double detabb_;
+  double ptsqq_;
+  double ptsbb_;
+  double seta_;
   std::string value_;
   int triggerType_;
 };

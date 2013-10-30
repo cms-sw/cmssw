@@ -45,7 +45,7 @@ public:
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
     // ----------member data ---------------------------
     edm::EDGetTokenT<HFRecHitCollection> HcalRecHitsToken_;
@@ -114,7 +114,7 @@ HLTHcalSimpleRecHitFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
 
 // ------------ method called on each new Event  ------------
 bool
-HLTHcalSimpleRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
+HLTHcalSimpleRecHitFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
     // using namespace edm;
 
     // getting very basic uncalRH

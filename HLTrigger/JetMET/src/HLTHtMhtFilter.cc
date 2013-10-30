@@ -62,7 +62,7 @@ void HLTHtMhtFilter::fillDescriptions(edm::ConfigurationDescriptions & descripti
 }
 
 
-bool HLTHtMhtFilter::hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
+bool HLTHtMhtFilter::hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
 
   // the filter objects to be stored
   std::auto_ptr<reco::METCollection> metobject(new reco::METCollection());

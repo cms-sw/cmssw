@@ -50,7 +50,7 @@ public:
     /// parameter description
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     /// filter the event
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
 private:
 

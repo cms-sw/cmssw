@@ -24,11 +24,11 @@
 // constructors and destructor
 //
 template<typename T>
-HLTForwardBackwardJetsFilter<T>::HLTForwardBackwardJetsFilter(const edm::ParameterSet& iConfig) : 
+HLTForwardBackwardJetsFilter<T>::HLTForwardBackwardJetsFilter(const edm::ParameterSet& iConfig) :
   HLTFilter(iConfig),
   inputTag_ (iConfig.template getParameter< edm::InputTag > ("inputTag")),
   minPt_    (iConfig.template getParameter<double> ("minPt")),
-  minEta_   (iConfig.template getParameter<double> ("minEta")), 
+  minEta_   (iConfig.template getParameter<double> ("minEta")),
   maxEta_   (iConfig.template getParameter<double> ("maxEta")),
   nNeg_     (iConfig.template getParameter<unsigned int>("nNeg")),
   nPos_     (iConfig.template getParameter<unsigned int>("nPos")),
@@ -38,7 +38,7 @@ HLTForwardBackwardJetsFilter<T>::HLTForwardBackwardJetsFilter(const edm::Paramet
   m_theJetToken = consumes<std::vector<T>>(inputTag_);
   LogDebug("") << "HLTForwardBackwardJetsFilter: Input/minPt/minEta/maxEta/triggerType : "
 	       << inputTag_.encode() << " "
-	       << minPt_ << " " 
+	       << minPt_ << " "
 	       << minEta_ << " "
 	       << maxEta_ << " "
 	       << nNeg_ << " "
@@ -69,27 +69,27 @@ HLTForwardBackwardJetsFilter<T>::fillDescriptions(edm::ConfigurationDescriptions
 // ------------ method called to produce the data  ------------
 template<typename T>
 bool
-HLTForwardBackwardJetsFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+HLTForwardBackwardJetsFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
-  using namespace trigger; 
+  using namespace trigger;
 
   typedef vector<T> TCollection;
   typedef Ref<TCollection> TRef;
-  
+
   // The filter object
   if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
   // get hold of collection of objects
   Handle<TCollection> objects;
   iEvent.getByToken(m_theJetToken,objects);
-  
+
   // look at all candidates,  check cuts and add to filter object
   unsigned int nPosJets(0);
   unsigned int nNegJets(0);
-  
+
   typename TCollection::const_iterator jet;
   // look for jets satifying pt and eta cuts; first on the plus side, then the minus side
 
@@ -109,13 +109,13 @@ HLTForwardBackwardJetsFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventS
       }
     }
   }
-  
+
   // filter decision
   const bool accept(
 		    ( nNegJets >= nNeg_ ) &&
 		    ( nPosJets >= nPos_ ) &&
 		    ((nNegJets+nPosJets) >= nTot_ )
-		   );  
-  
+		   );
+
   return accept;
 }

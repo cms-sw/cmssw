@@ -27,7 +27,7 @@
 // constructors and destructor
 //
 template<typename T>
-HLTMhtHtFilter<T>::HLTMhtHtFilter(const edm::ParameterSet& iConfig) : 
+HLTMhtHtFilter<T>::HLTMhtHtFilter(const edm::ParameterSet& iConfig) :
   HLTFilter(iConfig),
   inputJetTag_    ( iConfig.template getParameter<edm::InputTag>("inputJetTag") ),
   inputTracksTag_ ( iConfig.template getParameter<edm::InputTag>("inputTracksTag") ),
@@ -53,8 +53,8 @@ HLTMhtHtFilter<T>::HLTMhtHtFilter(const edm::ParameterSet& iConfig) :
   // sanity checks
   if ( (minPtJet_.size() != etaJet_.size())
        or ( (minPtJet_.size()<1) || (etaJet_.size()<1) )
-       or ( ((minPtJet_.size()<2) || (etaJet_.size()<2)) and ( (mode_==1) or (mode_==2) or (mode_ == 5))) 
-       ) 
+       or ( ((minPtJet_.size()<2) || (etaJet_.size()<2)) and ( (mode_==1) or (mode_==2) or (mode_ == 5)))
+       )
     {
       edm::LogError("HLTMhtHtFilter") << "inconsistent module configuration!";
     }
@@ -66,7 +66,7 @@ template<typename T>
 HLTMhtHtFilter<T>::~HLTMhtHtFilter(){}
 
 template<typename T>
-void 
+void
 HLTMhtHtFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
@@ -105,7 +105,7 @@ HLTMhtHtFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 // ------------ method called to produce the data  ------------
 template<typename T>
 bool
-HLTMhtHtFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+HLTMhtHtFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
@@ -117,7 +117,7 @@ HLTMhtHtFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
   // The filter object
   if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);
-  
+
   // Ref to Candidate object to be recorded in filter object
   TRef ref;
 
@@ -126,7 +126,7 @@ HLTMhtHtFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
   iEvent.getByToken (m_theObjectToken,objects);
   Handle<TrackCollection> tracks;
   if (useTracks_) iEvent.getByToken(m_theTrackToken,tracks);
- 
+
   // look at all candidates,  check cuts and add to filter object
   int n(0), nj(0), flag(0);
   double ht=0.;
@@ -202,7 +202,7 @@ HLTMhtHtFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
     if( mode_==2 && sqrt(mhtx*mhtx + mhty*mhty) + meffSlope_*ht > minMeff_) flag=1;
     if( mode_==3 && sqrt(mhtx*mhtx + mhty*mhty) > minPT12_ && nj>1) flag=1;
     if( mode_==4 && ht > minHt_ && nj >= minNJet_ ) flag=1;
-    
+
     if (flag==1) {
       typename TCollection::const_iterator jet ( objects->begin() );
       for (; jet!=objects->end(); jet++) {
@@ -220,6 +220,6 @@ HLTMhtHtFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
   // filter decision
   bool accept(n>0);
-  
+
   return accept;
 }

@@ -4,7 +4,7 @@
 //
 // Package:    HLTHcalNZSFilter
 // Class:      HLTHcalNZSFilter
-// 
+//
 /**\class HLTHcalNZSFilter HLTHcalNZSFilter.cc filter/HLTHcalNZSFilter/src/HLTHcalNZSFilter.cc
 
 Description: Filter to select HCAL non-ZS events
@@ -43,12 +43,12 @@ public:
   explicit HLTHcalNZSFilter(const edm::ParameterSet&);
   virtual ~HLTHcalNZSFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
+
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
-  
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+
   // ----------member data ---------------------------
-  
+
   edm::EDGetTokenT<FEDRawDataCollection> dataInputToken_;
   edm::InputTag dataInputTag_;
 

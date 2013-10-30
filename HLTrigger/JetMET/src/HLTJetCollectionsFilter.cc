@@ -56,7 +56,7 @@ HLTJetCollectionsFilter<jetType>::fillDescriptions(edm::ConfigurationDescription
 // ------------ method called to produce the data  ------------
 template <typename jetType>
 bool
-HLTJetCollectionsFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+HLTJetCollectionsFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
@@ -94,7 +94,7 @@ HLTJetCollectionsFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::Event
 
     if (numberOfGoodJets >= minNJets_) {
       accept = true;
-      // keep looping through collections to save all possible jets 
+      // keep looping through collections to save all possible jets
     }
   }
 

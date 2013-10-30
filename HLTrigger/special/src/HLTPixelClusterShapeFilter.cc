@@ -35,7 +35,7 @@ private:
     float w;
   };
 
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
   int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi) const;
 
 };
@@ -98,7 +98,7 @@ HLTPixelClusterShapeFilter::fillDescriptions(edm::ConfigurationDescriptions& des
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixelClusterShapeFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+bool HLTPixelClusterShapeFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)

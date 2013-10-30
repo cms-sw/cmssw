@@ -21,20 +21,20 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h" 
+#include "FWCore/Utilities/interface/InputTag.h"
 
 
 //
 // constructors and destructor
 //
-HLTAcoFilter::HLTAcoFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTAcoFilter::HLTAcoFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
    inputMETTag_ = iConfig.getParameter< edm::InputTag > ("inputMETTag");
    minDPhi_     = iConfig.getParameter<double> ("minDeltaPhi");
    maxDPhi_     = iConfig.getParameter<double> ("maxDeltaPhi");
-   minEtjet1_   = iConfig.getParameter<double> ("minEtJet1"); 
-   minEtjet2_   = iConfig.getParameter<double> ("minEtJet2"); 
+   minEtjet1_   = iConfig.getParameter<double> ("minEtJet1");
+   minEtjet2_   = iConfig.getParameter<double> ("minEtJet2");
    AcoString_   = iConfig.getParameter<std::string> ("Acoplanar");
 
    m_theJetToken = consumes<reco::CaloJetCollection>(inputJetTag_);
@@ -59,7 +59,7 @@ HLTAcoFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 // ------------ method called to produce the data  ------------
 bool
-HLTAcoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+HLTAcoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
@@ -89,8 +89,8 @@ HLTAcoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigg
   double phijet2=0.;
   //double etmiss=0.;
   double phimiss=0.;
-   
-  VRcalomet vrefMET; 
+
+  VRcalomet vrefMET;
   metcal->getObjects(TriggerMET,vrefMET);
   CaloMETRef metRef=vrefMET.at(0);
   //etmiss  = vrefMET.at(0)->et();
@@ -99,12 +99,12 @@ HLTAcoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigg
   CaloJetRef ref1,ref2;
 
   if (JetNum>0) {
-    CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); 
+    CaloJetCollection::const_iterator recocalojet = recocalojets->begin();
 	
     etjet1 = recocalojet->et();
     phijet1 = recocalojet->phi();
     ref1  = CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet));
-    
+
     if(JetNum>1) {
       recocalojet++;
       etjet2 = recocalojet->et();
@@ -113,36 +113,36 @@ HLTAcoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigg
     }
     double Dphi= -1.;
     int JetSel = 0;
-    
+
     if (AcoString_ == "Jet2Met") {
       Dphi = std::abs(phimiss-phijet2);
-      if (JetNum>=2 && etjet1>minEtjet1_  && etjet2>minEtjet2_) {JetSel=1;} 
+      if (JetNum>=2 && etjet1>minEtjet1_  && etjet2>minEtjet2_) {JetSel=1;}
     }
     if (AcoString_ == "Jet1Jet2") {
       Dphi = std::abs(phijet1-phijet2);
-      if (JetNum>=2 && etjet1>minEtjet1_  && etjet2>minEtjet2_) {JetSel=1;} 
+      if (JetNum>=2 && etjet1>minEtjet1_  && etjet2>minEtjet2_) {JetSel=1;}
     }
-    if (AcoString_ == "Jet1Met") { 
+    if (AcoString_ == "Jet1Met") {
       Dphi = std::abs(phimiss-phijet1);
-      if (JetNum>=1 && etjet1>minEtjet1_ ) {JetSel=1;} 
+      if (JetNum>=1 && etjet1>minEtjet1_ ) {JetSel=1;}
     }
-    
-      
+
+
     if (Dphi>M_PI) {Dphi=2.0*M_PI-Dphi;}
     if(JetSel>0 && Dphi>=minDPhi_ && Dphi<=maxDPhi_){
-      
+
       if (AcoString_=="Jet2Met" || AcoString_=="Jet1Met")  {filterproduct.addObject(TriggerMET,metRef);}
       if (AcoString_=="Jet1Met" || AcoString_=="Jet1Jet2") {filterproduct.addObject(TriggerJet,ref1);}
       if (AcoString_=="Jet2Met" || AcoString_=="Jet1Jet2") {filterproduct.addObject(TriggerJet,ref2);}
       n++;
     }
-    
+
 
   } // at least one jet
-  
-    
+
+
   // filter decision
   bool accept(n>=1);
-    
+
   return accept;
 }

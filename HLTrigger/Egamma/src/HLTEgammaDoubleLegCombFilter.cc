@@ -52,7 +52,7 @@ HLTEgammaDoubleLegCombFilter::~HLTEgammaDoubleLegCombFilter(){}
 
 
 // ------------ method called to produce the data  ------------
-bool HLTEgammaDoubleLegCombFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+bool HLTEgammaDoubleLegCombFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   //right, issue 1, we dont know if this is a TriggerElectron, TriggerPhoton, TriggerCluster (should never be a TriggerCluster btw as that implies the 4-vectors are not stored in AOD)
 

@@ -20,7 +20,7 @@ class HLTPhi2METFilter : public HLTFilter {
    public:
       explicit HLTPhi2METFilter(const edm::ParameterSet&);
       ~HLTPhi2METFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

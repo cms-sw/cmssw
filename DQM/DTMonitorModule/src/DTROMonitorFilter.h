@@ -21,8 +21,8 @@ public:
   virtual ~DTROMonitorFilter();
 
   // Operations
-  virtual bool hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
-  
+  virtual bool hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+
 protected:
 
 private:

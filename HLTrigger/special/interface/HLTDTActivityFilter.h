@@ -4,7 +4,7 @@
 //
 // Package:    HLTDTActivityFilter
 // Class:      HLTDTActivityFilter
-// 
+//
 
 
 /*
@@ -55,22 +55,22 @@ public:
 
   explicit HLTDTActivityFilter(const edm::ParameterSet&);
   virtual ~HLTDTActivityFilter();
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
 
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
   virtual bool beginRun(edm::Run& iRun, const edm::EventSetup& iSetup);
 
-  bool hasActivity(const std::bitset<4> &) const;  
+  bool hasActivity(const std::bitset<4> &) const;
   bool matchChamber(const uint32_t &, const L1MuRegionalCand&) const;
-  
+
   enum activityType { DCC=0, DDU=1, RPC=2, DIGI=3 };
-  
+
 
   // ----------member data ---------------------------
 
-  edm::InputTag inputTag_[4]; 
+  edm::InputTag inputTag_[4];
   bool process_[4];
   std::bitset<15> activeSecs_;
 
@@ -91,7 +91,7 @@ private:
   int   maxBX_[3];
   int   minActiveChambs_;
   int   minChambLayers_;
-  
+
   float maxDeltaPhi_;
   float maxDeltaEta_;
 

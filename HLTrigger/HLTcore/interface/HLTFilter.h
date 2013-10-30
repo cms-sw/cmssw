@@ -3,7 +3,7 @@
 
 /** \class HLTFilter
  *
- *  
+ *
  *  This class derives from EDFilter and adds a few HLT specific items.
  *  All HLT filters that wish to save summary objects for the AOD must derive from the HLTFilter class.
  *
@@ -36,7 +36,7 @@ private:
   bool filter(edm::Event & event, const edm::EventSetup & setup) override final;
 
   // declared pure virtual to enforce inheriting classes to implement it
-  virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterobject) const = 0;
+  virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterobject) = 0;
 
 private:
   const bool saveTags_;

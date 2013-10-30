@@ -22,7 +22,7 @@ class HLTForwardBackwardJetsFilter : public HLTFilter {
       explicit HLTForwardBackwardJetsFilter(const edm::ParameterSet&);
       ~HLTForwardBackwardJetsFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
    private:
       edm::EDGetTokenT<std::vector<T>> m_theJetToken;

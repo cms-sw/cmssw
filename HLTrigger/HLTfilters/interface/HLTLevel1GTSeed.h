@@ -64,7 +64,7 @@ public:
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     /// filter the event
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
 private:
 
@@ -90,9 +90,9 @@ private:
 
     /// seeding is done via L1 trigger object maps, considering the objects which fired in L1
     bool seedsL1TriggerObjectMaps(
-            edm::Event &, 
+            edm::Event &,
             trigger::TriggerFilterObjectWithRefs &,
-            const L1GlobalTriggerReadoutRecord *, 
+            const L1GlobalTriggerReadoutRecord *,
             const int physicsDaqPartition);
 
     /// seeding is done ignoring if a L1 object fired or not

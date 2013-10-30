@@ -28,14 +28,14 @@ template<typename T>
 HLTDiJetAveFilter<T>::HLTDiJetAveFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputJetTag_ (iConfig.template getParameter< edm::InputTag > ("inputJetTag")),
   minPtAve_    (iConfig.template getParameter<double> ("minPtAve")),
-  minPtJet3_   (iConfig.template getParameter<double> ("minPtJet3")), 
+  minPtJet3_   (iConfig.template getParameter<double> ("minPtJet3")),
   minDphi_     (iConfig.template getParameter<double> ("minDphi")),
   triggerType_ (iConfig.template getParameter<int> ("triggerType"))
 {
   m_theJetToken = consumes<std::vector<T>>(inputJetTag_);
   LogDebug("") << "HLTDiJetAveFilter: Input/minPtAve/minPtJet3/minDphi/triggerType : "
 	       << inputJetTag_.encode() << " "
-	       << minPtAve_ << " " 
+	       << minPtAve_ << " "
 	       << minPtJet3_ << " "
 	       << minDphi_ << " "
 	       << triggerType_;
@@ -60,12 +60,12 @@ HLTDiJetAveFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descripti
 // ------------ method called to produce the data  ------------
 template<typename T>
 bool
-HLTDiJetAveFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+HLTDiJetAveFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
-  using namespace trigger; 
+  using namespace trigger;
 
   typedef vector<T> TCollection;
   typedef Ref<TCollection> TRef;
@@ -76,7 +76,7 @@ HLTDiJetAveFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
   // get hold of collection of objects
   Handle<TCollection> objects;
   iEvent.getByToken (m_theJetToken,objects);
-  
+
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 
@@ -90,7 +90,7 @@ HLTDiJetAveFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
     int nmax=1;
     if (objects->size() > 2) nmax=2;
 
-    TRef JetRef1,JetRef2; 
+    TRef JetRef1,JetRef2;
 
     typename TCollection::const_iterator i ( objects->begin() );
     for (; i<=(objects->begin()+nmax); i++) {
@@ -109,22 +109,22 @@ HLTDiJetAveFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
       ++countjets;
     }
-    
+
     double PtAve=(ptjet1 + ptjet2) / 2.;
     double Dphi = std::abs(deltaPhi(phijet1,phijet2));
-    
+
     if( PtAve>minPtAve_ && ptjet3<minPtJet3_ && Dphi>minDphi_){
       filterproduct.addObject(triggerType_,JetRef1);
       filterproduct.addObject(triggerType_,JetRef2);
       ++n;
     }
-    
+
   } // events with two or more jets
-  
-  
-  
+
+
+
   // filter decision
   bool accept(n>=1);
-  
+
   return accept;
 }
