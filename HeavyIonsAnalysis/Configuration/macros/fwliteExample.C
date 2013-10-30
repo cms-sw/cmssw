@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "math.h"
+#include <cmath>
 
 #include <TH1D.h>
 #include <TH2D.h>

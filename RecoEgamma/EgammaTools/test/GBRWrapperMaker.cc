@@ -116,21 +116,21 @@ GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 //    iSetup.get<SetupRecord>().get(pSetup);
 // #endif
 //from Josh:
-  TFile *infile = new TFile("/afs/cern.ch/user/b/bendavid/cmspublic/gbrv3ph.root","READ");
+  TFile *infile = new TFile("/afs/cern.ch/user/l/lgray/work/public/CMSSW_7_0_0_pre4/src/RecoEgamma/EgammaTools/test/GBR_Clustering_PFMustache_results.root","READ");
 
   printf("load forest\n");
 
 
   GBRForest *gbreb = (GBRForest*)infile->Get("EBCorrection");
-  GBRForest *gbrebvar = (GBRForest*)infile->Get("EBUncertainty");
+  //GBRForest *gbrebvar = (GBRForest*)infile->Get("EBUncertainty");
   GBRForest *gbree = (GBRForest*)infile->Get("EECorrection");
-  GBRForest *gbreevar = (GBRForest*)infile->Get("EEUncertainty");
+  //GBRForest *gbreevar = (GBRForest*)infile->Get("EEUncertainty");
 
 
 
 
 //from Rishi
-  
+  /*
   TFile *infile_PFLC = new TFile("/afs/cern.ch/user/r/rpatel/ConvXml/TMVARegression_BDTG_PFClusterCorr.root","READ");
   TFile *infile_PFGC = new TFile("/afs/cern.ch/user/r/rpatel/ConvXml/TMVARegression_BDTG_PFGlobalCorr.root","READ");
   TFile *infile_PFRes = new TFile("/afs/cern.ch/user/r/rpatel/ConvXml/TMVARegression_BDTG_PFRes.root ","READ");
@@ -138,6 +138,7 @@ GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   GBRForest *gbrLC = (GBRForest*)infile_PFLC->Get("GBRForest");
   GBRForest *gbrGC = (GBRForest*)infile_PFGC->Get("GBRForest");
   GBRForest *gbrRes = (GBRForest*)infile_PFRes->Get("GBRForest");
+  */
   
   
   
@@ -147,20 +148,20 @@ GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (poolDbService.isAvailable()) {
        
  poolDbService->writeOne( gbreb, poolDbService->beginOfTime(),
-                                                "wgbrph_EBCorrection"  );
-    poolDbService->writeOne( gbrebvar, poolDbService->beginOfTime(),
-                                                "wgbrph_EBUncertainty"  );
-    poolDbService->writeOne( gbree, poolDbService->beginOfTime(),
-                                              "wgbrph_EECorrection"  );
-    poolDbService->writeOne( gbreevar, poolDbService->beginOfTime(),
-                                                "wgbrph_EEUncertainty"  );
+                                                "pfecalsc_EBCorrection"  );
+ //poolDbService->writeOne( gbrebvar, poolDbService->beginOfTime(),
+ //"wgbrph_EBUncertainty"  );
+ poolDbService->writeOne( gbree, poolDbService->beginOfTime(),
+			  "pfecalsc_EECorrection"  );
+ //poolDbService->writeOne( gbreevar, poolDbService->beginOfTime(),
+ //		  "wgbrph_EEUncertainty"  );
     
-    poolDbService->writeOne( gbrLC, poolDbService->beginOfTime(),
-			     "wgbrph_PFLCCorrection"  );
-    poolDbService->writeOne( gbrGC, poolDbService->beginOfTime(),
-			     "wgbrph_PFGlobalCorrection"  );
-    poolDbService->writeOne( gbrRes, poolDbService->beginOfTime(),
-			     "wgbrph_PFResolution"  );
+ //poolDbService->writeOne( gbrLC, poolDbService->beginOfTime(),
+ //		     "wgbrph_PFLCCorrection"  );
+ // poolDbService->writeOne( gbrGC, poolDbService->beginOfTime(),
+ //		     "wgbrph_PFGlobalCorrection"  );
+ // poolDbService->writeOne( gbrRes, poolDbService->beginOfTime(),
+ //		     "wgbrph_PFResolution"  );
   
   }
 

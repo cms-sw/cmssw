@@ -36,7 +36,7 @@ class DummyRecord : public edm::eventsetup::EventSetupRecordImplementation<Dummy
 HCTYPETAG_HELPER_METHODS(eventsetuprecord_t::DummyRecord)
 
 //create an instance of the factory
-static eventsetup::EventSetupRecordProviderFactoryTemplate<eventsetuprecord_t::DummyRecord> s_factory;
+static eventsetup::EventSetupRecordProviderFactoryTemplate<eventsetuprecord_t::DummyRecord> const s_factory;
 
 namespace eventsetuprecord_t {
 class Dummy {};

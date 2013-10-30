@@ -51,7 +51,6 @@ class SeedFilter {
   edm::EDGetTokenT<std::vector<reco::Vertex> > vertexSrc_;
 
   edm::ESHandle<MagneticField> theMagField;
-  FTSFromVertexToPointFactory myFTS;
 
   int hitsfactoryMode_;
 

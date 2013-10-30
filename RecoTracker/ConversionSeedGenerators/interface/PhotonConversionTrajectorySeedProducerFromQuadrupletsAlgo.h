@@ -23,7 +23,7 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 #include "RecoTracker/TkTrackingRegions/plugins/GlobalTrackingRegionProducerFromBeamSpot.h"
 
-#include "sstream"
+#include <sstream>
 #include "boost/foreach.hpp"
 
 class PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo{

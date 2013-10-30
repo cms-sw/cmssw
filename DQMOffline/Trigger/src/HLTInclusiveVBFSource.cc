@@ -31,7 +31,7 @@
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
-#include "math.h"
+#include <cmath>
 #include "TH1F.h"
 #include "TProfile.h"
 #include "TH2F.h"
