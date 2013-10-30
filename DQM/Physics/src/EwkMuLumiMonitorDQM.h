@@ -21,7 +21,12 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+
+namespace trigger {class TriggerEvent;}
+namespace reco {class BeamSpot; class MET;}
+
+
 
 class DQMStore;
 class MonitorElement;
@@ -42,11 +47,13 @@ public:
 private:
 
   edm::InputTag trigTag_;
-  edm::InputTag trigEv_;
-  edm::InputTag muonTag_;
-  edm::InputTag trackTag_;
-  edm::InputTag caloTowerTag_;
-  edm::InputTag metTag_;
+  edm::EDGetTokenT<edm::TriggerResults> trigToken_;
+  edm::EDGetTokenT<trigger::TriggerEvent> trigEvToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_; //offlineBeamSpot
+  edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  edm::EDGetTokenT<CaloTowerCollection> caloTowerToken_;
+  edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
   bool  metIncludesMuons_;
 
   // const std::string hltPath_;

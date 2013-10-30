@@ -10,8 +10,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-
-
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -38,13 +36,21 @@ using namespace isodeposit;
 
 EwkMuLumiMonitorDQM::EwkMuLumiMonitorDQM( const ParameterSet & cfg ) :
   // Input collections
-   trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
-  trigEv_(cfg.getUntrackedParameter<edm::InputTag> ("triggerEvent")),
-  muonTag_(cfg.getUntrackedParameter<edm::InputTag>("muons")),
-  trackTag_(cfg.getUntrackedParameter<edm::InputTag>("tracks")),
-  caloTowerTag_(cfg.getUntrackedParameter<edm::InputTag>("calotower")),
-  metTag_(cfg.getUntrackedParameter<edm::InputTag> ("metTag")),
-  metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons")),
+    trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
+    trigToken_(consumes<edm::TriggerResults>(trigTag_)),
+    trigEvToken_(consumes<trigger::TriggerEvent>(
+        cfg.getUntrackedParameter<edm::InputTag> ("triggerEvent"))),
+    beamSpotToken_(consumes<reco::BeamSpot>(
+        cfg.getUntrackedParameter<edm::InputTag> ("offlineBeamSpot"))),
+    muonToken_(consumes<edm::View<reco::Muon> >(
+        cfg.getUntrackedParameter<edm::InputTag>("muons"))),
+    trackToken_(consumes<reco::TrackCollection>(
+        cfg.getUntrackedParameter<edm::InputTag>("tracks"))),
+    caloTowerToken_(consumes<CaloTowerCollection>(
+        cfg.getUntrackedParameter<edm::InputTag>("calotower"))),
+    metToken_(consumes<edm::View<reco::MET> >(
+        cfg.getUntrackedParameter<edm::InputTag> ("metTag"))),
+    metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons")),
  // Main cuts
   // massMin_(cfg.getUntrackedParameter<double>("MtMin", 20.)),
   //   massMax_(cfg.getUntrackedParameter<double>("MtMax", 2000.))
@@ -237,12 +243,12 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       bool trigger_fired = false;
 
       Handle<TriggerResults> triggerResults;
-      if (!ev.getByLabel(trigTag_, triggerResults)) {
+      if (!ev.getByToken(trigToken_, triggerResults)) {
 	//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
 	return;
       }
 
-      ev.getByLabel(trigTag_, triggerResults);
+      ev.getByToken(trigToken_, triggerResults);
       /*
 	const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
 
@@ -333,11 +339,11 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 
       edm::Handle< trigger::TriggerEvent > handleTriggerEvent;
       LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << hltPath_ << ")";
-      if ( ! ev.getByLabel( trigEv_, handleTriggerEvent ))  {
+      if ( ! ev.getByToken( trigEvToken_, handleTriggerEvent ))  {
 	//LogWarning( "errorTriggerEventValid" ) << "trigger::TriggerEvent product with InputTag " << trigEv_.encode() << " not in event";
 	return;
       }
-      ev.getByLabel( trigEv_, handleTriggerEvent );
+      ev.getByToken( trigEvToken_, handleTriggerEvent );
       const trigger::TriggerObjectCollection & toc(handleTriggerEvent->getObjects());
       size_t nMuHLT =0;
       std::vector<reco::Particle>  HLTMuMatched;
@@ -369,7 +375,7 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 
       // Beam spot
       Handle<reco::BeamSpot> beamSpotHandle;
-      if (!ev.getByLabel(InputTag("offlineBeamSpot"), beamSpotHandle)) {
+      if (!ev.getByToken(beamSpotToken_, beamSpotHandle)) {
 	//LogWarning("") << ">>> No beam spot found !!!";
 	return;
       }
@@ -377,12 +383,12 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 
 	//  looping on muon....
       Handle<View<Muon> >   muons;
-      if (!ev.getByLabel(muonTag_, muons)) {
+      if (!ev.getByToken(muonToken_, muons)) {
 	//LogError("") << ">>> muon collection does not exist !!!";
 	return;
       }
 
-      ev.getByLabel(muonTag_, muons);
+      ev.getByToken(muonToken_, muons);
       //saving only muons with pt> ptMuCut and eta<etaMuCut, and dxy<dxyCut
       std::vector<reco::Muon>  highPtGlbMuons;
       std::vector<reco::Muon>  highPtStaMuons;
@@ -497,7 +503,7 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	// looking for a W if a Z is not found.... let's think if we prefer to exclude zMuMuNotIso or zMuSta....
 	if ( !(isZGolden2HLT_ || isZGolden1HLT_ )){
 	  Handle<View<MET> > metCollection;
-	  if (!ev.getByLabel(metTag_, metCollection)) {
+	  if (!ev.getByToken(metToken_, metCollection)) {
 	    //LogError("") << ">>> MET collection does not exist !!!";
 	    return;
 	  }
@@ -597,17 +603,17 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	    }
 	    // look at the tracks....
 	    Handle< TrackCollection >   tracks;
-	    if (!ev.getByLabel(trackTag_, tracks)) {
+	    if (!ev.getByToken(trackToken_, tracks)) {
 	      //LogError("") << ">>> track collection does not exist !!!";
 	      return;
 	    }
-	    ev.getByLabel(trackTag_, tracks);
+	    ev.getByToken(trackToken_, tracks);
 	    Handle< CaloTowerCollection >   calotower;
-	    if (!ev.getByLabel(caloTowerTag_, calotower)) {
+	    if (!ev.getByToken(caloTowerToken_, calotower)) {
 	      //LogError("") << ">>> calotower collection does not exist !!!";
 	      return;
 	    }
-	    ev.getByLabel(caloTowerTag_, calotower);
+	    ev.getByToken(caloTowerToken_, calotower);
             // avoid to loop on more than 5000 trks
             size_t nTrk = tracks->size();
             (nTrk> 5000)?   nTrk=5000 : 1;
