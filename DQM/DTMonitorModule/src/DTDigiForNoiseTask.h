@@ -21,6 +21,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
+#include <DataFormats/DTDigi/interface/DTDigi.h>
+#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -74,6 +77,7 @@ private:
   edm::ParameterSet parameters;
 
   edm::ESHandle<DTGeometry> muonGeom;
+  edm::EDGetTokenT<DTDigiCollection> dtDigisToken_; // dtunpacker
 
   std::map< DTLayerId, MonitorElement* > digiHistos;
 

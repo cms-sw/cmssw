@@ -11,8 +11,6 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 
 // Digis
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 
@@ -36,6 +34,9 @@ using namespace std;
 DTDigiForNoiseTask::DTDigiForNoiseTask(const edm::ParameterSet& ps){
 
   debug = ps.getUntrackedParameter<bool>("debug", false);
+  dtDigisToken_ = consumes<DTDigiCollection>(
+      edm::InputTag(ps.getUntrackedParameter<std::string>("diDigisLabel", "dtunpacker")));
+
   if(debug)
     cout<<"[DTDigiForNoiseTask]: Constructor"<<endl;
 
@@ -147,7 +148,7 @@ void DTDigiForNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if (nevents%1000 == 0 && debug) {}
 
   edm::Handle<DTDigiCollection> dtdigis;
-  e.getByLabel("dtunpacker", dtdigis);
+  e.getByToken(dtDigisToken_, dtdigis);
 
   std::map< int,int > DigiPerWirePerEvent;
 
