@@ -513,6 +513,19 @@ namespace {
     }
     return cluster_list;
   }
+  inline void addPFClusterToROSafe(const ClusterElement* cl,
+				   PFEGammaAlgo::ProtoEGObject& RO) {
+    if( !RO.ecalclusters.size() ) {
+      RO.ecalclusters.push_back(std::make_pair(cl,true));      
+    } else {
+      const PFLayer::Layer clayer = cl->clusterRef()->layer();
+      const PFLayer::Layer blayer = 
+	RO.ecalclusters.back().first->clusterRef()->layer();
+      if( clayer == blayer ) {
+	RO.ecalclusters.push_back(std::make_pair(cl,true));      
+      }
+    }
+  }
 }
 
 PFEGammaAlgo::
@@ -1915,12 +1928,11 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
     for( auto ecal = ECALbegin; ecal != notmatched_blk; ++ecal ) {
       const PFClusterElement* elemascluster = 
 	docast(const PFClusterElement*,ecal->first);    
-      PFClusterFlaggedElement temp(elemascluster,true);      
       LOGDRESSED("PFEGammaAlgo::linkGSFTracktoECAL()") 
 	<< "Found a cluster not already in RO by GSF extrapolation"
 	<< " at ECAL surface!" << std::endl
 	<< *elemascluster << std::endl;
-      RO.ecalclusters.push_back(temp);
+      addPFClusterToROSafe(elemascluster,RO);
       cdist = _currentblock->dist(primgsf.first->index(),ecal->first->index(),
 				  _currentlinks,reco::PFBlock::LINKTEST_ALL);
       if( cdist != -1 && cdist < min_dist ) {
@@ -1928,8 +1940,8 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
 	min_dist = cdist;
       }      
       attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);      
-      RO.localMap.push_back(ElementMap::value_type(primgsf.first,temp.first));
-      RO.localMap.push_back(ElementMap::value_type(temp.first,primgsf.first));
+      RO.localMap.push_back(ElementMap::value_type(primgsf.first,elemascluster));
+      RO.localMap.push_back(ElementMap::value_type(elemascluster,primgsf.first));
       ECALbegin->second = false;    
     }
     RO.electronClusters.push_back(electronCluster);
@@ -2022,15 +2034,14 @@ PFEGammaAlgo::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
   for( auto ecalitr = ECALbegin; ecalitr != notmatched_blk; ++ecalitr ) {
     const PFClusterElement* elemascluster = 
       docast(const PFClusterElement*,ecalitr->first);
-    PFClusterFlaggedElement flaggedclus(elemascluster,true);    
-    RO.ecalclusters.push_back(flaggedclus);
+    addPFClusterToROSafe(elemascluster,RO);
     attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);	  
     ecalitr->second = false;
     cdist = _currentblock->dist(kfflagged.first->index(),
 				ecalitr->first->index(),
 				_currentlinks,reco::PFBlock::LINKTEST_ALL);
     if( cdist != -1 && cdist < min_dist ) {
-      electronCluster = elemascluster;;
+      electronCluster = elemascluster;
       min_dist = cdist;
     }
     LOGDRESSED("PFEGammaAlgo::linkKFTracktoECAL()") 
@@ -2119,7 +2130,7 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
 	}
 	const PFClusterElement* elemasclus =
 	  docast(const PFClusterElement*,ecal->first);    
-	RO.ecalclusters.push_back(std::make_pair(elemasclus,true));
+	addPFClusterToROSafe(elemasclus,RO);
 	attachPSClusters(elemasclus,RO.ecal2ps[elemasclus]);
 	
 	RO.localMap.push_back( ElementMap::value_type(ecal->first,bremflagged.first) );
@@ -2215,7 +2226,7 @@ linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject& RO) {
     for( auto ecal = ECALbegin; ecal != notmatched; ++ecal ) {
       const reco::PFBlockElementCluster* elemascluster =
 	docast(const reco::PFBlockElementCluster*,ecal->first);      
-      RO.ecalclusters.push_back(std::make_pair(elemascluster,true));
+      addPFClusterToROSafe(elemascluster,RO);
       attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);
       RO.localMap.push_back(ElementMap::value_type(skf.first,elemascluster));
       RO.localMap.push_back(ElementMap::value_type(elemascluster,skf.first));
@@ -2524,114 +2535,6 @@ void PFEGammaAlgo::fill_extra_info( const ProtoEGObject& RO,
     }
   }
 }
-
-/*
-unsigned PFEGammaAlgo::
-calculate_electron_vars(const PFEGammaAlgo::ProtoEGObject& RO,
-			const reco::PFCandidateEGammaExtra& xtra,
-			const reco::SuperCluster& rsc) {
-  if( !RO.primaryGSFs.size() ) { // no gsf = not an electron
-    return ((1<<reco::PFCandidateEGammaExtra::kN_EVETOS) - 1);
-  }
-  const double sc_et = rsc.energy() * std::sin( rsc.position().Theta() );
-  const double gsf_phi = RO.primaryGSFs[0].first->GsftrackRef()->phiMode();
-  const double dphi_scgsf = 
-    TVector2::Phi_mpi_pi(rsc.position().Phi() - gsf_phi);
-  // say whether or not we passed the mva
-  const float ele_mva = 
-    xtra.mvaVariable(reco::PFCandidateEGammaExtra::MVA_MVA);
-  const bool passMVA = (ele_mva  > cfg_.mvaEleCut);
-  unsigned vetobits = 
-    (1 << reco::PFCandidateEGammaExtra::kFailsMVA)*passMVA;
-  // next we determine if too many tracks point at the electron cluster
-  if( RO.electronClusters[0] ) {
-    unsigned int iextratrack = 0, itrackHcalLinked = 0;
-    double SumExtraKfP = 0.0;
-    std::multimap<double, unsigned> tracksOnEleCluster;
-    _currentblock->associatedElements(RO.electronClusters[0]->index(),
-				      _currentlinks,
-				      tracksOnEleCluster,
-				      reco::PFBlockElement::TRACK,
-				      reco::PFBlock::LINKTEST_ALL);
-    const double Ene_ecalgsf = 
-      RO.electronClusters[0]->clusterRef()->correctedEnergy();
-    const double Ene_hcalgsf = xtra.hadEnergy();
-    for( const auto& distAndIdx : tracksOnEleCluster ) {
-      const reco::PFBlockElement* trk = 
-	&(_currentblock->elements()[distAndIdx.second]);
-      const reco::TrackRef tkref = trk->trackRef();
-      const unsigned Algo = whichTrackAlgo(tkref);
-      const int nexhits = tkref->trackerExpectedHitsInner().numberOfLostHits();
-      bool fromPV = false;
-      for( auto pvtrk = cfg_.primaryVtx->tracks_begin();
-	   pvtrk != cfg_.primaryVtx->tracks_end(); ++pvtrk ) {
-	if( pvtrk->castTo<reco::TrackRef>() == tkref ) {
-	  fromPV = true;
-	  break;
-	}
-      }
-      if( Algo < 3 && nexhits == 0 && fromPV ) {
-	SumExtraKfP += tkref->p();
-	++iextratrack;
-      }
-      // Check if these extra tracks are HCAL linked
-      std::multimap<double, unsigned int> hcalKfElems;
-      _currentblock->associatedElements( trk->index(),
-					 _currentlinks,
-					 hcalKfElems,
-					 reco::PFBlockElement::HCAL,
-					 reco::PFBlock::LINKTEST_ALL );
-      if(hcalKfElems.size() > 0) {
-	itrackHcalLinked++;
-      }
-    }
-    if( iextratrack > 0 ) {
-      vetobits += (1<<reco::PFCandidateEGammaExtra::kKFTracksOnGSFCluster);
-      // bad hcal isolation of extra tracks
-      if( ( iextratrack > 3 || 
-	    Ene_hcalgsf > 10 || 
-	    (SumExtraKfP/Ene_ecalgsf) > 1.0) || 
-	  ( sc_et > 50 && 
-	    iextratrack > 1 && 
-	    (Ene_hcalgsf/Ene_ecalgsf) > 0.1)) {
-	vetobits += (1<<reco::PFCandidateEGammaExtra::kFailsTrackAndHCALIso);
-      }
-      // good gsf/cluster match but weird tracks
-      if( ( std::abs(1.0-EtotPinMode) < 0.2 && 
-	    ( std::abs(Eta_gsf) < 1.0 || std::abs(Eta_gsf) > 2.0 ) ) ||
-	  ( (EtotPinMode < 1.1 && EtotPinMode > 0.6) && 
-	    (fabs(Eta_gsf) >= 1.0 && fabs(Eta_gsf) <= 2.0) ) ) {
-	if( std::abs(1.0-EGsfPoutMode) < 0.5 && 
-	    (itrackHcalLinked == iextratrack) &&
-	    RO.primaryKFs.size() ) {
-	  vetobits += (1<<reco::PFCandidateEGammaExtra::kKillAdditionalKFs);
-	}
-      }      
-    }
-    // this is a pion
-    if( HOverPin > 1.0 && HOverHE > 0.1 && EtotPinMode < 0.5 ) {
-      vetobits += (1<<reco::PFCandidateEGammaExtra::kItIsAPion);
-    }
-    // weird e/p values
-    if( EtotPinMode < 0.2 && EGsfPoutMode < 0.2 ) {
-      vetobits += (1<<reco::PFCandidateEGammaExtra::kCrazyEoverP);
-    }    
-    // too large angle for energetic rsc
-    if( sc_et > 50.0 && std::abs(dphi_scgsf) > 0.1 ) {
-      vetobits += (1<<reco::PFCandidateEGammaExtra::kTooLargeAngle);
-    }
-  }
-  return vetobits;
-}
-
-unsigned PFEGammaAlgo::
-calculate_photon_vetoes(const PFEGammaAlgo::ProtoEGObject& RO,
-			const reco::PFCandidateEGammaExtra& xtra,
-			const reco::SuperCluster& rsc) {
-  unsigned vetobits = 0;
-  return vetobits;
-}
-*/
 
 // currently stolen from PFECALSuperClusterAlgo, we should
 // try to factor this correctly since the operation is the same in
