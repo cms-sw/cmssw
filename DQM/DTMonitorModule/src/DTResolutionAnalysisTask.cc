@@ -24,7 +24,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 //RecHit
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
 
@@ -38,12 +37,13 @@ DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Constructor called!" << endl;
 
   // the name of the 4D rec hits collection
-  theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
+  recHits4DToken_ = consumes<DTRecSegment4DCollection>(
+      edm::InputTag(pset.getParameter<string>("recHits4DLabel")));
 
-  prescaleFactor = pset.getUntrackedParameter<int>("diagnosticPrescale", 1);
+  prescaleFactor  = pset.getUntrackedParameter<int>("diagnosticPrescale", 1);
   resetCycle = pset.getUntrackedParameter<int>("ResetCycle", -1);
   // top folder for the histograms in DQMStore
-  topHistoFolder = pset.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
+  topHistoFolder  = pset.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
 
   thePhiHitsCut = pset.getUntrackedParameter<u_int32_t>("phiHitsCut",8);
   theZHitsCut = pset.getUntrackedParameter<u_int32_t>("zHitsCut",4);
@@ -117,7 +117,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(theRecHits4DLabel, all4DSegments);
+  event.getByToken(recHits4DToken_, all4DSegments);
 
   // check the validity of the collection
   if(!all4DSegments.isValid()) return;

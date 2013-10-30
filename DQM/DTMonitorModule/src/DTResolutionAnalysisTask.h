@@ -18,6 +18,8 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+
 
 #include <string>
 #include <map>
@@ -62,7 +64,7 @@ private:
   u_int32_t theZHitsCut;
 
   // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // Book a set of histograms for a give chamber
   void bookHistos(DTSuperLayerId slId);
