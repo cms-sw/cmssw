@@ -300,54 +300,54 @@ if __name__ == "__main__":
 
 
   draw_geff(targetDir, "eff_lx_track_dg_gem_l1_even", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl1;SimTrack localX [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl1;SimTrack localX [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_lx_even", TCut(""), ok_trk_gL1dg, "P", kBlue)
   draw_geff(targetDir, "eff_lx_track_dg_gem_l2_even", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl2;SimTrack localX [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl2;SimTrack localX [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_lx_even", TCut(""), ok_trk_gL2dg, "P", kBlue)
   draw_geff(targetDir, "eff_lx_track_dg_gem_l1or2_even", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl1 or GEMl2;SimTrack localX [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 or GEMl2;SimTrack localX [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_lx_even", TCut(""), OR(ok_trk_gL1dg,ok_trk_gL2dg), "P", kBlue)
   draw_geff(targetDir, "eff_lx_track_dg_gem_l1and2_even", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl1 and GEMl2;SimTrack localX [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 and GEMl2;SimTrack localX [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_lx_even", TCut(""), AND(ok_trk_gL1dg,ok_trk_gL2dg), "P", kBlue)
 
   draw_geff(targetDir, "eff_lx_track_dg_gem_l1_odd", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl1;SimTrack localX [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl1;SimTrack localX [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_lx_odd", TCut(""), ok_trk_gL1dg, "P", kBlue)
   draw_geff(targetDir, "eff_lx_track_dg_gem_l2_odd", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl2;SimTrack localX [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl2;SimTrack localX [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_lx_odd", TCut(""), ok_trk_gL2dg, "P", kBlue)
   draw_geff(targetDir, "eff_lx_track_dg_gem_l1or2_odd", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl1 or GEMl2;SimTrack localX [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 or GEMl2;SimTrack localX [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_lx_odd", TCut(""), OR(ok_trk_gL1dg,ok_trk_gL2dg), "P", kBlue)
   draw_geff(targetDir, "eff_lx_track_dg_gem_l1and2_odd", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl1 and GEMl2;SimTrack localX [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 and GEMl2;SimTrack localX [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_lx_odd", TCut(""), AND(ok_trk_gL1dg,ok_trk_gL2dg), "P", kBlue)
 
 
   draw_geff(targetDir, "eff_ly_track_dg_gem_l1_even", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl1;SimTrack localy [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl1;SimTrack localy [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_ly_even", TCut(""), ok_trk_gL1dg, "P", kBlue)
   draw_geff(targetDir, "eff_ly_track_dg_gem_l2_even", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl2;SimTrack localy [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl2;SimTrack localy [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_ly_even", TCut(""), ok_trk_gL2dg, "P", kBlue)
   draw_geff(targetDir, "eff_ly_track_dg_gem_l1or2_even", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl1 or GEMl2;SimTrack localy [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 or GEMl2;SimTrack localy [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_ly_even", TCut(""), OR(ok_trk_gL1dg,ok_trk_gL2dg), "P", kBlue)
   draw_geff(targetDir, "eff_ly_track_dg_gem_l1and2_even", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl1 and GEMl2;SimTrack localy [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 and GEMl2;SimTrack localy [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_ly_even", TCut(""), AND(ok_trk_gL1dg,ok_trk_gL2dg), "P", kBlue)
 
   draw_geff(targetDir, "eff_ly_track_dg_gem_l1_odd", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl1;SimTrack localy [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl1;SimTrack localy [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_ly_odd", TCut(""), ok_trk_gL1dg, "P", kBlue)
   draw_geff(targetDir, "eff_ly_track_dg_gem_l2_odd", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl2;SimTrack localy [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl2;SimTrack localy [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_ly_odd", TCut(""), ok_trk_gL2dg, "P", kBlue)
   draw_geff(targetDir, "eff_ly_track_dg_gem_l1or2_odd", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl1 or GEMl2;SimTrack localy [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 or GEMl2;SimTrack localy [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_ly_odd", TCut(""), OR(ok_trk_gL1dg,ok_trk_gL2dg), "P", kBlue)
   draw_geff(targetDir, "eff_ly_track_dg_gem_l1and2_odd", ext, treeTracks,
-            "Eff. for a SimTrack to have an associated GEM DigiHit in GEMl1 and GEMl2;SimTrack localy [cm];Eff.", 
+            "Eff. for a SimTrack to have an associated GEM Digi in GEMl1 and GEMl2;SimTrack localy [cm];Eff.", 
             "h_", "(100,-100,100)", "gem_ly_odd", TCut(""), AND(ok_trk_gL1dg,ok_trk_gL2dg), "P", kBlue)
