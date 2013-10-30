@@ -50,45 +50,28 @@ public:
   TH1F* dg_eta[4];
 
 
-  TH1F* dg_sh_eta_l1; 
-  TH1F* dg_sh_eta_l2; 
-  TH1F* dg_sh_eta_l1or2;
-  TH1F* dg_sh_eta_l1and2; 
+  TH1F* dg_sh_eta[4]; 
 
 
-  TH1F* dg_phi_l1;
-  TH1F* dg_phi_l2;
-  TH1F* dg_phi_l1or2; 
-  TH1F* dg_phi_l1and2;
+  TH1F* dg_phi[4];
   
-  TH1F* dg_sh_phi_l1; 
-  TH1F* dg_sh_phi_l2; 
-  TH1F* dg_sh_phi_l1or2;
-  TH1F* dg_sh_phi_l1and2; 
+  TH1F* dg_sh_phi[4]; 
 
-  TH1F* pad_eta_l1;
-  TH1F* pad_eta_l2;
-  TH1F* pad_eta_l1or2;
+  TH1F* pad_eta[3];
 
-  TH1F* pad_phi_l1;
-  TH1F* pad_phi_l2;
-  TH1F* pad_phi_l1or2;
+  TH1F* pad_phi[3];
 
-  TH1F* pad_sh_eta_l1;
-  TH1F* pad_sh_eta_l2;
-  TH1F* pad_sh_eta_l1or2; 
+  TH1F* pad_sh_eta[3]
 
-  TH1F* pad_sh_phi_l1;
-  TH1F* pad_sh_phi_l2;
-  TH1F* pad_sh_phi_l1or2; 
+  TH1F* pad_sh_phi[3];
 
 
-  TH1F* copad_eta_l1and2; 
-  TH1F* copad_phi_l1and2; 
+  TH1F* copad_eta; 
+  TH1F* copad_phi; 
   
 
-  TH1F* copad_sh_eta_l1and2;
-  TH1F* copad_sh_phi_l1and2;
+  TH1F* copad_sh_eta;
+  TH1F* copad_sh_phi;
 
   
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
