@@ -40,7 +40,7 @@ def getTree(fileName):
     """Get tree for given filename"""
 
     analyzer = "GEMCSCAnalyzer"
-    trk_eff = "trk_eff"
+    trk_eff = "trk_eff_st1"
 
     file = TFile.Open(fileName)
     if not file:
@@ -86,9 +86,9 @@ def padMatchingEffVsGenMuonPhiForPosAndNegMuons(
     t = getTree("%sgem_csc_delta_pt%d_pad4.root"%(filesDir,pt))
 
     ## latest instructions by Vadim on 21-08-2013
-    ok_pad1_or_pad2 = TCut("%s || %s" %(ok_pad1.GetTitle(),ok_pad2.GetTitle()))
-    ok_eta_and_Qn = TCut("%s && %s" %(ok_eta.GetTitle(),ok_Qn.GetTitle()))
-    ok_eta_and_Qp = TCut("%s && %s" %(ok_eta.GetTitle(),ok_Qp.GetTitle()))
+    ok_pad1_or_pad2 = OR(ok_pad1,ok_pad2)
+    ok_eta_and_Qn = AND(ok_eta,ok_Qn)
+    ok_eta_and_Qp = AND(ok_eta,ok_Qp)
 
     ## variables for the plot
     title = " " * 9 + "GEM pad matching" + " " * 16 + "CMS Simulation Preliminary"
@@ -191,13 +191,14 @@ def padMatchingEffVsHalfStripForOddEven(filesDir, plotDir, pt, doOverlaps, ext):
 
     t = getTree("%sgem_csc_delta_pt%d_pad4.root"%(filesDir,pt))
     ho = draw_geff(t, "         GEM pad matching               CMS Simulation Preliminary;LCT half-strip number;Efficiency", 
-                  "h_odd", "(130,0.5,130.5)", "hs_lct_odd", TCut("%s&&%s"%(ok_lct1.GetTitle(), ok_eta.GetTitle())), cut1, "", kRed)
+                  "h_odd", "(130,0.5,130.5)", "hs_lct_odd", AND(ok_lct1,ok_eta), cut1, "", kRed)
     he = draw_geff(t, "         GEM pad matching               CMS Simulation Preliminary;LCT half-strip number;Efficiency", 
-                  "h_evn", "(130,0.5,130.5)", "hs_lct_even", TCut("%s&&%s"%(ok_lct1.GetTitle(), ok_eta.GetTitle())), cut2, "same")
+                  "h_evn", "(130,0.5,130.5)", "hs_lct_even", AND(ok_lct1,ok_eta), cut2, "same")
     ho.SetMinimum(0.)
     ho.GetXaxis().SetLabelSize(0.05)
     ho.GetYaxis().SetLabelSize(0.05)
     
+
     leg = TLegend(0.25,0.23,.75,0.5, "", "brNDC");
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
@@ -246,10 +247,12 @@ def padMatchingEffVsLctEtaForOddEven(filesDir, plotDir, pt, doOverlaps, ext):
         overlapStr = ""
 
     t = getTree("%sgem_csc_delta_pt%d_pad4.root"%(filesDir,pt))
-    ho = draw_geff(t, "         GEM pad matching               CMS Simulation Preliminary;LCT |#eta|;Efficiency", 
-                  "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta_lct_odd)", TCut("%s&&%s"%(ok_lct1.GetTitle(), ok_eta.GetTitle())), cut1, "", kRed)
-    he = draw_geff(t, "         GEM pad matching               CMS Simulation Preliminary;LCT |#eta|;Efficiency", 
-                  "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta_lct_even)", TCut("%s&&%s"%(ok_lct1.GetTitle(), ok_eta.GetTitle())), cut2, "same")
+    topTitle = "         GEM pad matching               CMS Simulation Preliminary"
+    xTitle = "LCT |#eta|LCT |#eta|"
+    yTitle = "Efficiency"
+    title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
+    ho = draw_geff(t, title, "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta_lct_odd)", AND(ok_lct1,ok_eta), cut1, "", kRed)
+    he = draw_geff(t, title, "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta_lct_even)", AND(ok_lct1,ok_eta), cut2, "same")
     ho.SetMinimum(0.)
     ho.GetXaxis().SetLabelSize(0.05)
     ho.GetYaxis().SetLabelSize(0.05)
@@ -301,10 +304,14 @@ def padMatchingEffVsSimTrackEtaForOddEven(filesDir, plotDir, pt, doOverlaps, ext
         overlapStr = ""
 
     t = getTree("%sgem_csc_delta_pt%d_pad4.root"%(filesDir,pt))
-    ho = draw_geff(t, "         GEM pad matching               CMS Simulation Preliminary;SimTrack |#eta|;Efficiency", 
-                  "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta)", TCut("%s&&%s"%(ok_lct1.GetTitle(), ok_eta.GetTitle())), cut1, "", kRed)
-    he = draw_geff(t, "         GEM pad matching               CMS Simulation Preliminary;SimTrack |#eta|;Efficiency", 
-                  "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta)", TCut("%s&&%s"%(ok_lct1.GetTitle(), ok_eta.GetTitle())), cut2, "same")
+
+    topTitle = "         GEM pad matching               CMS Simulation Preliminary"
+    xTitle = "SimTrack |#eta|"
+    yTitle = "Efficiency"
+    title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
+    
+    ho = draw_geff(t, title, "h_odd", "(140,1.5,2.2)", "TMath::Abs(eta)", AND(ok_lct1,ok_eta), cut1, "", kRed)
+    he = draw_geff(t, title, "h_evn", "(140,1.5,2.2)", "TMath::Abs(eta)", AND(ok_lct1,ok_eta), cut2, "same")
     ho.SetMinimum(0.)
     ho.GetXaxis().SetLabelSize(0.05)
     ho.GetYaxis().SetLabelSize(0.05)
@@ -326,6 +333,68 @@ def padMatchingEffVsSimTrackEtaForOddEven(filesDir, plotDir, pt, doOverlaps, ext
     ## this has to be fixed
     c.Print("%sgem_pad_eff_for_LCT_vs_TrkEta_pt%d%s%s"%(plotDir,pt,overlapStr,ext))
 
+def cscMatchingEfficiencyToStripsAndWires(filesDir, plotDir, ext):
+
+    gStyle.SetTitleStyle(0);
+    gStyle.SetTitleAlign(13); ##coord in top left
+    gStyle.SetTitleX(0.);
+    gStyle.SetTitleY(1.);
+    gStyle.SetTitleW(1);
+    gStyle.SetTitleH(0.058);
+    gStyle.SetTitleBorderSize(0);
+    
+    gStyle.SetPadLeftMargin(0.126);
+    gStyle.SetPadRightMargin(0.04);
+    gStyle.SetPadTopMargin(0.06);
+    gStyle.SetPadBottomMargin(0.13);
+    gStyle.SetOptStat(0);
+    gStyle.SetMarkerStyle(1);
+    
+    ok_eta = TCut("TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12")
+
+    t = getTree("%sgem-csc_stub_ana_L1_MuonGun_neweta_PU100_Pt20_50k_digi_preTrig2.root"%(filesDir))
+
+
+    ## variables for the plot
+    topTitle = " " * 9 + "CSC Digi matching" + " " * 16 + "CMS Simulation Preliminary"
+    xTitle = "Generated muon #eta"
+    yTitle = "Efficiency"
+    title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
+    toPlot = "TMath::Abs(eta)"
+    h_bins = "(140,1.5,2.2)"
+    nBins = int(h_bins[1:-1].split(',')[0])
+    minBin = float(h_bins[1:-1].split(',')[1])
+    maxBin = float(h_bins[1:-1].split(',')[2])
+
+    c = TCanvas("c","c",700,450)
+    c.Clear()
+    base  = TH1F("base","",nBins,minBin,maxBin)
+    base.SetMinimum(0.9)
+    base.SetMaximum(1.02)
+    base.Draw("")
+    base.GetXaxis().SetLabelSize(0.05)
+    base.GetYaxis().SetLabelSize(0.05)
+
+    h1 = draw_geff(t, title, h_bins, toPlot, ok_sh1, ok_w1, "same", kRed)
+    h2 = draw_geff(t, title, h_bins, toPlot, ok_sh1, ok_st1, "same")
+    h3 = draw_geff(t, title, h_bins, toPlot, AND(ok_sh1,OR(ok_w1,ok_st1)), ok_digi1, "same",kGreen+1)
+    
+    c.Print("%stest_matching%s"%(plotDir,ext))
+
+    leg = TLegend(0.25,0.23,.75,0.5, "", "brNDC");
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetTextSize(0.06)
+    leg.AddEntry(h1, "Wires","l")
+    leg.AddEntry(h2, "Strips","l")
+    leg.AddEntry(h3, "Wires and strips","l")
+    leg.Draw();
+    
+    tex = TLatex(.66,.73,"1.64<|#eta|<2.12")
+    tex.SetTextSize(0.05)
+    tex.SetNDC()
+    tex.Draw()
+
 def makePlots(ext):
     input_dir = "files_09_10_2013"
     output_dir = "plots_09_10_2013/track_matching_eff/"
@@ -336,11 +405,15 @@ def makePlots(ext):
     padMatchingEffVsSimTrackEtaForOddEven(input_dir,output_dir, 20, True, ext)
 
 if __name__ == "__main__":
+    """
     makePlots(".pdf")
     makePlots(".png")
     makePlots(".eps")
-
-
+    """
+    input_dir = "files/"
+    output_dir = "plots/"
+    
+    cscMatchingEfficiencyToStripsAndWires(input_dir, output_dir, ".png")
    ### DO NOT REMOVE THE STUFF IN COMMENTS ###
    ### WE MIGHT NEED IT LATER ON ###
 
@@ -543,9 +616,9 @@ def eff_hs_9(filesDir, plotDir, f_name, ext):
     he.Draw()
     ho.Draw("same")
     ho = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;|#phi|;Eff.", "hname", "(128,0,3.2)", "TMath::Abs(phi)", 
-                  TCut("%s && %s && %s"%(ok_lct2.GetTitle(), ok_eta.GetTitle(), ok_pt.GetTitle())), ok_pad2,kRed)
+                  AND(ok_lct2,AND(ok_eta,ok_pt)), ok_pad2,kRed)
     he = draw_eff(t, "Eff. for track with LCT to have GEM pad in chamber;|#phi|;Eff.", "hname", "(128,0,3.2)", "TMath::Abs(phi)", 
-                  TCut("%s && %s && %s"%(ok_lct2.GetTitle(), ok_eta.GetTitle(), ok_pt.GetTitle())), ok_pad1)
+                  AND(ok_lct2,AND(ok_eta,ok_pt)), ok_pad1)
     c.SaveAs("%stest%s"%(plotDir, ext))
 
 

@@ -1,9 +1,6 @@
 import sys
 import math
-from ROOT import TString,TTree,TCut,TH1F,TH2F
-from ROOT import TCanvas,TGraphAsymmErrors,TF1,TPaveStats,TText,TPaveText
-from ROOT import gStyle,gROOT,gDirectory,gPad
-from ROOT import kBlue,kRed
+from ROOT *
 from cuts import *
 
 
