@@ -138,17 +138,79 @@ def plotGEMCSCdPhi(filesDir, plotDir, oddEven = "even", ext = ".png", useReverse
     else:
         c.SaveAs("%sGEMCSCdPhi_%s_chambers%s"%(plotDir, oddEven, ext))
 
-if __name__ == "__main__":  
-    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".eps", False)
-    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".eps", False)
-    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".pdf", False)
-    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".pdf", False)
-    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".png", False)
-    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".png", False)
+def bendingAngleParametrization(filesDir, plotDir, oddEven = "even", ext = ".png"):
+    """Bending angle parametrization vs eta"""
+    
+    pt_values = [5,10,15,20,30,40]
+    maxi = [0.03,0.015,0.01,0.007,0.005,0.005]
 
-    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".eps", True)
-    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".eps", True)
-    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".pdf", True)
-    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".pdf", True)
-    plotGEMCSCdPhi("files/", "plots/bending/", "even", ".png", True)
-    plotGEMCSCdPhi("files/", "plots/bending/", "odd",  ".png", True)
+    for i in range(len(pt_values)):
+        t1 = getTree("%sgem_csc_delta_pt%d_pad4.root"%(filesDir,pt_values[i]))
+
+        if oddEven == "even":
+            ok_pad_lct = ok_pad2_lct2       
+            var = "dphi_pad_even"
+        else:
+            ok_pad_lct = ok_pad1_lct1
+            var = "dphi_pad_odd"
+            
+        c = TCanvas("c","c",700,450)
+        c.Clear()
+        ##    c.SetGridx(1)
+        ##    c.SetGridy(1)
+
+        gStyle.SetTitleStyle(0)
+        gStyle.SetTitleAlign(13) ##// coord in top left
+        gStyle.SetTitleX(0.)
+        gStyle.SetTitleY(1.)
+        gStyle.SetTitleW(1)
+        gStyle.SetTitleH(0.058)
+        gStyle.SetTitleBorderSize(0)
+        
+        gStyle.SetPadLeftMargin(0.126)
+        gStyle.SetPadRightMargin(0.04)
+        gStyle.SetPadTopMargin(0.06)
+        gStyle.SetPadBottomMargin(0.13)
+        gStyle.SetOptStat(0)
+        gStyle.SetMarkerStyle(1)
+
+        dphi_pt = TH2F("dphi_pt",";#eta;#Delta#phi_{(GEM,CSC)} [rad]",6,1.6,2.14,100,0.,0.03)
+        t1.Draw("TMath::Abs(%s):TMath::Abs(eta)>>dphi_pt_bin"%(var) , ok_pad_lct)
+        dphi_pt_bin = TH1F("dphi_pt",";#Delta#phi_{(GEM,CSC)} [rad]",100,0.,0.03)
+        dphi_pt_bin = dphi_pt.ProjectionY("",0,1)
+        
+        
+        #dphi_pt.GetYaxis().SetRangeUser(0,maxi[i])
+        #c.SaveAs("%sbendingAnglePar_%d_%d_%s%s"%(plotDir, pt_values[i], j, oddEven, ext))
+        c.SaveAs("%sbendingAnglePar_%d_%s%s"%(plotDir, pt_values[i],oddEven, ext))
+
+        """
+        ## for each eta bin, construct a 1D histogram and redo analysis
+        for j in range(0,7):
+        dphi_pt_bin = TH1F("dphi_pt",";#Delta#phi_{(GEM,CSC)} [rad]",100,0.,0.03)
+        dphi_pt_bin = dphi_pt.ProjectionY("",j,j+1)
+        t1.Draw("TMath::Abs(%s):TMath::Abs(eta)>>dphi_pt_bin"%(var) , ok_pad_lct)
+        #dphi_pt.GetYaxis().SetRangeUser(0,maxi[i])
+        c.SaveAs("%sbendingAnglePar_%d_%d_%s%s"%(plotDir, pt_values[i], j, oddEven, ext))
+        """
+
+
+if __name__ == "__main__":  
+    input_dir = "files/"
+    output_dir = "plots_cmssw_601_postls1/bending/"
+
+    plotGEMCSCdPhi(input_dir, output_dir, "even", ".eps", False)
+    plotGEMCSCdPhi(input_dir, output_dir, "odd",  ".eps", False)
+    plotGEMCSCdPhi(input_dir, output_dir, "even", ".pdf", False)
+    plotGEMCSCdPhi(input_dir, output_dir, "odd",  ".pdf", False)
+    plotGEMCSCdPhi(input_dir, output_dir, "even", ".png", False)
+    plotGEMCSCdPhi(input_dir, output_dir, "odd",  ".png", False)
+
+    plotGEMCSCdPhi(input_dir, output_dir, "even", ".eps", True)
+    plotGEMCSCdPhi(input_dir, output_dir, "odd",  ".eps", True)
+    plotGEMCSCdPhi(input_dir, output_dir, "even", ".pdf", True)
+    plotGEMCSCdPhi(input_dir, output_dir, "odd",  ".pdf", True)
+    plotGEMCSCdPhi(input_dir, output_dir, "even", ".png", True)
+    plotGEMCSCdPhi(input_dir, output_dir, "odd",  ".png", True)
+
+    bendingAngleParametrization(input_dir, output_dir, "odd",  ".png")
