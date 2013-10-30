@@ -56,7 +56,8 @@ DTChamberEfficiencyTask::~DTChamberEfficiencyTask(){
 void DTChamberEfficiencyTask::beginJob(){
 
   // the name of the 4D rec hits collection
-  theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");
+  recHits4DToken_ = consumes<DTRecSegment4DCollection>(
+      edm::InputTag(parameters.getParameter<string>("recHits4DLabel")));
 
   // parameters to use for the segment quality check
   theMinHitsSegment = static_cast<unsigned int>(parameters.getParameter<int>("minHitsSegment"));
@@ -171,7 +172,7 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
 	 << " #Event: " << event.id().event();
 
   // Get the 4D rechit collection from the event
-  event.getByLabel(theRecHits4DLabel, segs);
+  event.getByToken(recHits4DToken_, segs);
 
   int bottom=0, top=0;
 

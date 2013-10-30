@@ -82,7 +82,7 @@ private:
   bool detailedAnalysis;
 
   // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   edm::ParameterSet parameters;
 
