@@ -7,8 +7,8 @@
 #include "EventFilter/Cosmics/interface/HLTMuonPointingFilter.h"
 
 /* Collaborating Class Header */
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -24,8 +24,6 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-
-
 /* C++ Headers */
 using namespace std;
 using namespace edm;
@@ -34,7 +32,7 @@ using namespace edm;
 
 /// Constructor
 HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) :
-  theSTAMuonLabel(  pset.getParameter<string>("SALabel") ),             // the name of the STA rec hits collection
+  theSTAMuonToken(  consumes<reco::TrackCollection>( pset.getParameter<edm::InputTag>("SALabel") ) ),      // token to read the muons
   thePropagatorName(pset.getParameter<std::string>("PropagatorName") ),
   theRadius(        pset.getParameter<double>("radius") ),              // cyl's radius (cm)
   theMaxZ(          pset.getParameter<double>("maxZ") ),                // cyl's half lenght (cm)
@@ -52,7 +50,7 @@ HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) :
   thePosPlane = Plane::build(posPos,rot0);
   theNegPlane = Plane::build(posNeg,rot0);
 
-  LogDebug("HLTMuonPointing") << " SALabel : " << theSTAMuonLabel
+  LogDebug("HLTMuonPointing") << " SALabel : " << pset.getParameter<edm::InputTag>("SALabel")
     << " Radius : " << theRadius
     << " Half lenght : " << theMaxZ;
 }
@@ -87,7 +85,7 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
 
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
-  event.getByLabel(theSTAMuonLabel, staTracks);
+  event.getByToken(theSTAMuonToken, staTracks);
 
   reco::TrackCollection::const_iterator staTrack;
 
@@ -133,5 +131,7 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
   return accept;
 }
 
+
 // define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HLTMuonPointingFilter);

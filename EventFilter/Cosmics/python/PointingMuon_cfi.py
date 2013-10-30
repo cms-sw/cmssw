@@ -5,7 +5,7 @@ hltL2MuonPoiting = cms.EDFilter("L2MuonPoiting",
     #ecal
     radius = cms.double(129.0),
     PropagatorName = cms.string('SteppingHelixPropagator'),
-    SALabel = cms.string('cosmicMuons')
+    SALabel = cms.InputTag('cosmicMuons')
 )
 
 
