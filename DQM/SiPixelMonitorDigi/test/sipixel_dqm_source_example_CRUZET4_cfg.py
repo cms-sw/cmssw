@@ -25,9 +25,9 @@ process.GlobalTag.globaltag = "CRUZET4_V2P::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
+#process.LockService = cms.Service("LockService",
+#    labels = cms.untracked.vstring('source')
+#)
 
 process.p1 = cms.Path(process.SiPixelDigiSource)
 process.SiPixelDigiSource.saveFile = True
