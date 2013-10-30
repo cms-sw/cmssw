@@ -1,12 +1,27 @@
 from ROOT import TCut
 
 #_______________________________________________________________________________
-def AND(cut1,cut2):
-    return TCut("(%s) && (%s)"%(cut1.GetTitle(),cut2.GetTitle()))
+def AND(*arg):
+    length = len(arg)
+    if length < 2:
+        print "ERROR: invalid number of arguments"
+        return
+    result = arg[0]
+    for i in range(len(arg)-1):
+        result = TCut("(%s) && (%s)"%(arg[i].GetTitle(),result.GetTitle()))
+    return result
+
 
 #_______________________________________________________________________________
-def OR(cut1,cut2):
-    return TCut("(%s) || (%s)"%(cut1.GetTitle(),cut2.GetTitle()))
+def OR(*arg):
+    length = len(arg)
+    if length < 2:
+        print "ERROR: invalid number of arguments"
+        return
+    result = arg[0]
+    for i in range(len(arg)-1):
+        result = TCut("(%s) || (%s)"%(arg[i].GetTitle(),result.GetTitle()))
+    return result
 
 #_______________________________________________________________________________
 ok_eta = TCut("TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.14")
