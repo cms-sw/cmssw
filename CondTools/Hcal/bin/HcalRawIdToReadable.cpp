@@ -1,5 +1,5 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
-#include "stdlib.h"
+#include <cstdlib>
 #include <iostream>
 
 int main(int argc, char* argv[]) {

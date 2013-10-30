@@ -16,7 +16,7 @@
 #include "TLorentzVector.h"
 #include "TFile.h"
 #include <vector>
-#include "math.h"
+#include <cmath>
 #include <algorithm>
 
 /* C++ Headers */

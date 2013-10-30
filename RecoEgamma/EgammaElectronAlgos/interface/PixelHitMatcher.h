@@ -186,7 +186,6 @@ class PixelHitMatcher
 
     std::vector<CLHEP::Hep3Vector> pred1Meas ;
     std::vector<CLHEP::Hep3Vector> pred2Meas ;
-    FTSFromVertexToPointFactory myFTS ;
     BarrelMeasurementEstimator meas1stBLayer ;
     BarrelMeasurementEstimator meas2ndBLayer ;
     ForwardMeasurementEstimator meas1stFLayer ;

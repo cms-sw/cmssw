@@ -31,9 +31,9 @@ namespace edm
     dead_ = true;
   }
 
-  ProblemTracker* ProblemTracker::instance()
+  ProblemTracker const* ProblemTracker::instance()
   {
-    static ProblemTracker pt;
+    static ProblemTracker const pt;
     return &pt;
   }
 
