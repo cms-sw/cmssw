@@ -156,10 +156,10 @@ namespace ora {
 
   class OraNamingServiceTable : public INamingServiceTable {
     public:
-    static std::string& tableName();
-    static std::string& objectNameColumn();
-    static std::string& containerIdColumn();
-    static std::string& itemIdColumn();
+    static std::string tableName();
+    static std::string objectNameColumn();
+    static std::string containerIdColumn();
+    static std::string itemIdColumn();
    public: 
     explicit OraNamingServiceTable( coral::ISchema& dbSchema );
     virtual ~OraNamingServiceTable();

@@ -8,16 +8,13 @@ static const char* thisSchemaVersionLabel = "1.1.0";
 static const char* poolSchemaVersionLabel = "POOL";
 static const char* fmt = "%3d.%3d.%3d";
 
-ora::Version& ora::Version::poolSchemaVersion(){
-  static Version s_ver;
-  s_ver.m_label = std::string(poolSchemaVersionLabel);
-  s_ver.m_main = -1;
+const ora::Version& ora::Version::poolSchemaVersion(){
+  static const Version s_ver(  std::string(poolSchemaVersionLabel), -1 );
   return s_ver;
 }
 
-ora::Version& ora::Version::thisSchemaVersion(){
-  static Version s_ver;
-  s_ver = fromString( std::string( thisSchemaVersionLabel ));
+const ora::Version& ora::Version::thisSchemaVersion(){
+  static const Version s_ver = fromString( std::string( thisSchemaVersionLabel ));
   return s_ver;
 }
 
@@ -34,6 +31,13 @@ ora::Version ora::Version::fromString( const std::string& source ){
 ora::Version::Version():
   m_label(""),
   m_main( -999 ),
+  m_release( 0 ),
+  m_patch( 0 ){
+}
+
+ora::Version::Version( const std::string& label, int id ):
+  m_label( label ),
+  m_main( id ),
   m_release( 0 ),
   m_patch( 0 ){
 }

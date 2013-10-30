@@ -143,8 +143,8 @@ int main (int argc, char** argv)
     edm::ParameterSet pSet;
     pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
     psets.push_back(pSet);
-    static edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
-    static edm::ServiceRegistry::Operate operate(services);
+    static const edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
+    static const edm::ServiceRegistry::Operate operate(services);
 
     std::string connectionString("");
     std::string authenticationPath("CORAL_AUTH_PATH=");

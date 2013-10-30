@@ -31,7 +31,7 @@ namespace cond{
   
   class DbConnectionConfiguration{
   public:
-    static std::vector<DbConnectionConfiguration>& defaultConfigurations();
+    static const std::vector<DbConnectionConfiguration>& defaultConfigurations();
   public:
     DbConnectionConfiguration();
     DbConnectionConfiguration( bool connectionSharing,

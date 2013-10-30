@@ -7,7 +7,7 @@
 #include "RelationalAccess/ITablePrivilegeManager.h"
 
 std::string ora::poolSchemaVersion(){
-  static std::string s_version("POOL");
+  static const std::string s_version("POOL");
   return s_version;
 }
 
@@ -37,12 +37,12 @@ void ora::IDatabaseTable::setAccessPermission( const std::string& principal,
 }
 
 std::string ora::IMainTable::versionParameterName(){
-  static std::string s_name("SCHEMA_VERSION");
+  static const std::string s_name("SCHEMA_VERSION");
   return s_name;
 }
 
 std::string ora::IMainTable::userSchemaVersionParameterName(){
-  static std::string s_name("USER_SCHEMA_VERSION");
+  static const std::string s_name("USER_SCHEMA_VERSION");
   return s_name;
 }
 
@@ -83,7 +83,7 @@ ora::MappingRawElement& ora::MappingRawElement::operator==(const MappingRawEleme
 }
 
 std::string ora::MappingRawElement::emptyScope(){
-  static std::string s_scope("[]");
+  static const std::string s_scope("[]");
   return s_scope;
 }
 

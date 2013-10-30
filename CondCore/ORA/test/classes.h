@@ -385,7 +385,6 @@ class SimpleClass : public BaseClass {
     return s_data;
   }
   
-  static int s_data1;
   static int const s_data0= 0xFFFF;
   static const int s_data = 0x0FFF;
   enum MySimpleClassCode { ZERO, ONE, TWO };
