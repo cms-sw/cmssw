@@ -387,7 +387,8 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
   else { std::cout<<"dg_eta : "<<track_.gem_dg_eta; }
    
-
+  if ( track_gem_dg_sh_layer> 0 ) {
+    
 
 
 
