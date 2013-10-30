@@ -2,7 +2,7 @@
 //
 // Package:    EcalMIPRecHitFilter
 // Class:      EcalMIPRecHitFilter
-// 
+//
 /**\class EcalMIPRecHitFilter EcalMIPRecHitFilter.cc Work/EcalMIPRecHitFilter/src/EcalMIPRecHitFilter.cc
 
  Description: <one line class summary>
@@ -28,6 +28,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -55,6 +56,8 @@ class EcalMIPRecHitFilter : public edm::EDFilter {
 public:
   explicit EcalMIPRecHitFilter(const edm::ParameterSet&);
   ~EcalMIPRecHitFilter();
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
   virtual bool filter(edm::Event &, edm::EventSetup const &) override;
@@ -210,6 +213,20 @@ EcalMIPRecHitFilter::filter(edm::Event & iEvent, edm::EventSetup const & iSetup)
   //std::cout << " Ok is There one of THEM " << thereIsSignal << std::endl;
   return thereIsSignal;
 }
+
+void EcalMIPRecHitFilter::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("EcalRecHitCollection", edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  desc.addUntracked<double>("AmpMinSeed", 0.045);
+  desc.addUntracked<double>("AmpMin2", 0.045);
+  desc.addUntracked<double>("SingleAmpMin", 0.108);
+  desc.addUntracked<std::vector<int>>("maskedChannels", {});
+  desc.addUntracked<int>("side", 3);
+
+  descriptions.add("ecalMIPRecHitFilter", desc);
+}
+
 
 //define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"

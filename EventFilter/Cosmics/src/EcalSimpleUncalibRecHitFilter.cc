@@ -2,7 +2,7 @@
 //
 // Package:    EcalSimpleUncalibRecHitFilter
 // Class:      EcalSimpleUncalibRecHitFilter
-// 
+//
 /**\class EcalSimpleUncalibRecHitFilter EcalSimpleUncalibRecHitFilter.cc Work/EcalSimpleUncalibRecHitFilter/src/EcalSimpleUncalibRecHitFilter.cc
 
  Description: <one line class summary>
@@ -27,6 +27,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -42,6 +43,8 @@ class EcalSimpleUncalibRecHitFilter : public edm::EDFilter {
 public:
   explicit EcalSimpleUncalibRecHitFilter(const edm::ParameterSet&);
   ~EcalSimpleUncalibRecHitFilter();
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
   virtual bool filter(edm::Event &, edm::EventSetup const &) override;
@@ -122,6 +125,17 @@ EcalSimpleUncalibRecHitFilter::filter(edm::Event & iEvent, edm::EventSetup const
 
   return thereIsSignal;
 }
+
+void EcalSimpleUncalibRecHitFilter::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("EcalUncalibRecHitCollection", edm::InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEB"));
+  desc.addUntracked<double>("adcCut", 12.);
+  desc.addUntracked<std::vector<int>>("maskedChannels", {});
+
+  descriptions.add("ecalSimpleUncalibRecHitFilter", desc);
+}
+
 
 //define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -11,6 +11,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -129,6 +132,17 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
   }
 
   return accept;
+}
+
+void HLTMuonPointingFilter::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("SALabel", edm::InputTag("hltCosmicMuonBarrelOnly"));
+  desc.add<std::string>("PropagatorName", "SteppingHelixPropagatorAny");
+  desc.add<double>("radius", 90.0);
+  desc.add<double>("maxZ", 280.0);
+
+  descriptions.add("hltMuonPointingFilter", desc);
 }
 
 

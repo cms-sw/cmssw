@@ -42,6 +42,8 @@ public:
   /* Operations */
   virtual bool filter(edm::Event &, edm::EventSetup const &) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
 private:
   const edm::EDGetTokenT<reco::TrackCollection> theSTAMuonToken;
   const std::string thePropagatorName;      // name of propagator to be used
