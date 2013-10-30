@@ -135,9 +135,10 @@ process.qTester = cms.EDAnalyzer("QualityTester",
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
+# https://github.com/cms-sw/cmssw/pull/1219
+#process.LockService = cms.Service("LockService",
+#    labels = cms.untracked.vstring('source')
+#)
 
 process.Reco = cms.Sequence(process.siPixelDigis)
 process.Calibration = cms.Sequence(process.siPixelCalibDigis*process.siPixelGainCalibrationAnalysis*process.siPixelIsAliveCalibration)

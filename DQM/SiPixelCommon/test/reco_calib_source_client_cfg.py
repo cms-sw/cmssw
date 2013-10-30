@@ -76,9 +76,9 @@ process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
+#process.LockService = cms.Service("LockService",
+#    labels = cms.untracked.vstring('source')
+#)
 
 process.DigiReco = cms.Sequence(process.siPixelDigis)
 process.CalibAnalysis = cms.Sequence(process.siPixelCalibDigis*process.siPixelSCurveAnalysis*process.siPixelGainCalibrationAnalysis*process.siPixelIsAliveCalibration)

@@ -75,9 +75,9 @@ process.qTester = cms.EDAnalyzer("QualityTester",
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
+#process.LockService = cms.Service("LockService",
+#    labels = cms.untracked.vstring('source')
+#)
 
 process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
 process.RAWmonitor = cms.Sequence(process.SiPixelRawDataErrorSource)
