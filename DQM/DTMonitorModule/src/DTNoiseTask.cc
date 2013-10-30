@@ -22,14 +22,9 @@
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
 // Digi
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
-
-// RecHit
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 // Database
 #include <CondFormats/DTObjects/interface/DTTtrig.h>
@@ -53,10 +48,12 @@ DTNoiseTask::DTNoiseTask(const ParameterSet& ps) : evtNumber(0) {
   doTimeBoxHistos = ps.getUntrackedParameter<bool>("doTbHistos", false);
 
   // The label to retrieve the digis
-  dtDigiLabel = ps.getParameter<InputTag>("dtDigiLabel");
+  dtDigiToken_ = consumes<DTDigiCollection>(
+      ps.getParameter<InputTag>("dtDigiLabel"));
 
   // the name of the 4D rec hits collection
-  theRecHits4DLabel = ps.getParameter<string>("recHits4DLabel");
+  recHits4DToken_ = consumes<DTRecSegment4DCollection>(
+      edm::InputTag(ps.getParameter<string>("recHits4DLabel")));
 
   // switch for segment veto
   doSegmentVeto = ps.getUntrackedParameter<bool>("doSegmentVeto", false);
@@ -107,7 +104,7 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
   if(doSegmentVeto) {
-    e.getByLabel(theRecHits4DLabel, all4DSegments);
+    e.getByToken(recHits4DToken_, all4DSegments);
 
     // Loop over all chambers containing a segment and look for the number of segments
     DTRecSegment4DCollection::id_iterator chamberId;
@@ -120,7 +117,7 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   // Get the digis from the event
   edm::Handle<DTDigiCollection> dtdigis;
-  e.getByLabel(dtDigiLabel, dtdigis);
+  e.getByToken(dtDigiToken_, dtdigis);
 
   // LOOP OVER ALL THE DIGIS OF THE EVENT
   DTDigiCollection::DigiRangeIterator dtLayerId_It;

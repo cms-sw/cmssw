@@ -13,6 +13,11 @@
 
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
+#include <DataFormats/DTDigi/interface/DTDigi.h>
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+// RecHit
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -59,13 +64,13 @@ private:
   void bookHistos(DTSuperLayerId slId);
 
   // The label to retrieve the digis
-  edm::InputTag dtDigiLabel;
+  edm::EDGetTokenT<DTDigiCollection> dtDigiToken_;
   // counter of processed events
   int evtNumber;
   //switch for time boxes filling
   bool doTimeBoxHistos;
   // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
   //switch for segment veto
   bool doSegmentVeto;
 
