@@ -2,6 +2,9 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/GlobalMutex.h"
 
@@ -13,22 +16,16 @@ using namespace edm::rootfix;
 LockService::LockService(ParameterSet const& iPS,
                          ActivityRegistry& reg):
   lock_(*getGlobalMutex()),
-  locker_(),
   labels_(iPS.getUntrackedParameter<Labels>("labels")),
   lockSources_(iPS.getUntrackedParameter<bool>("lockSources")) {
   reg.watchPreSourceConstruction(this,&LockService::preSourceConstruction);
   reg.watchPostSourceConstruction(this,&LockService::postSourceConstruction);
 
-  // reg.watchPostBeginJob(this,&LockService::postBeginJob);
-  // reg.watchPostEndJob(this,&LockService::postEndJob);
-
-  // reg.watchPreProcessEvent(this,&LockService::preEventProcessing);
-  // reg.watchPostProcessEvent(this,&LockService::postEventProcessing);
   reg.watchPreSource(this,&LockService::preSource);
   reg.watchPostSource(this,&LockService::postSource);
 
-  reg.watchPreModule(this,&LockService::preModule);
-  reg.watchPostModule(this,&LockService::postModule);
+  reg.watchPreModuleEvent(this,&LockService::preModule);
+  reg.watchPostModuleEvent(this,&LockService::postModule);
 
   FDEBUG(4) << "In LockServices" << std::endl;
 }
@@ -48,50 +45,33 @@ void LockService::preSourceConstruction(ModuleDescription const& desc) {
   if(!labels_.empty() &&
      find(labels_.begin(), labels_.end(), desc.moduleLabel()) != labels_.end()) {
      //search_all(labels_, desc.moduleLabel()))
-      FDEBUG(4) << "made a new locked in LockService" << std::endl;
-      locker_.reset(new boost::mutex::scoped_lock(lock_));
+      lock_.lock();
     }
 }
 
 void LockService::postSourceConstruction(ModuleDescription const&) {
-  FDEBUG(4) << "destroyed a locked in LockService" << std::endl;
-  locker_.reset();
-}
-
-void LockService::postBeginJob() {
-}
-
-void LockService::postEndJob() {
-}
-
-void LockService::preEventProcessing(edm::EventID const&, edm::Timestamp const&) {
-}
-
-void LockService::postEventProcessing(Event const&, EventSetup const&) {
+  lock_.unlock();
 }
 
 void LockService::preSource() {
   if(lockSources_) {
-    FDEBUG(4) << "made a new locked in LockService" << std::endl;
-    locker_.reset(new boost::mutex::scoped_lock(lock_));
+    lock_.lock();
   }
 }
 
 void LockService::postSource() {
-  FDEBUG(4) << "destroyed a locked in LockService" << std::endl;
-  locker_.reset();
+  lock_.unlock();
 }
 
-void LockService::preModule(ModuleDescription const& desc) {
-  if(!labels_.empty() && find(labels_.begin(), labels_.end(), desc.moduleLabel()) != labels_.end()) {
-    //search_all(labels_, desc.moduleLabel()))
-    FDEBUG(4) << "made a new locked in LockService" << std::endl;
-    locker_.reset(new boost::mutex::scoped_lock(lock_));
+void LockService::preModule(StreamContext const&, ModuleCallingContext const& iContext) {
+  if(!labels_.empty() && find(labels_.begin(), labels_.end(), iContext.moduleDescription()->moduleLabel()) != labels_.end()) {
+    lock_.lock();
   }
 }
 
-void LockService::postModule(ModuleDescription const&) {
-  FDEBUG(4) << "destroyed a locked in LockService" << std::endl;
-  locker_.reset();
+void LockService::postModule(StreamContext const&, ModuleCallingContext const& iContext) {
+  if(!labels_.empty() && find(labels_.begin(), labels_.end(), iContext.moduleDescription()->moduleLabel()) != labels_.end()) {
+    lock_.unlock();
+  }
 }
 
