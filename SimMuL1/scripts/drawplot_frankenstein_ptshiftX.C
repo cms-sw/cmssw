@@ -125,6 +125,8 @@ void drawplot_frankenstein_ptshiftX()
 {
   gROOT->ProcessLine(".L drawplot_gmtrt.C");
   gROOT->ProcessLine(".L getPTHistos.C");
+  gROOT->SetBatch(1);
+
 
   TString ext = ".eps";
   TString filesDir = "files/";

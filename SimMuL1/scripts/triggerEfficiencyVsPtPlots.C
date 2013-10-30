@@ -190,47 +190,48 @@ return heff;
 
 void gem_eff_draw()
 {
-gStyle->SetOptStat(0);
-gStyle->SetTitleStyle(0);
+  gStyle->SetOptStat(0);
+  gStyle->SetTitleStyle(0);
+  gROOT->SetBatch(1);
+  int ptreb=2;
+  
+  TString hdir = "SimMuL1StrictAll";
 
-int ptreb=2;
-
-TString hdir = "SimMuL1StrictAll";
-
-//TString f_def = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_def_pat2.root";
-TString f_def = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem_dphi0_pat2.root";
-TString f_g98_pt10 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt10_pat2.root";
-TString f_g98_pt15 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt15_pat2.root";
-TString f_g98_pt20 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt20_pat2.root";
-TString f_g98_pt30 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt30_pat2.root";
-TString f_g98_pt40 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt40_pat2.root";
-
-TString f_g95_pt10 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt10_pat2.root";
-TString f_g95_pt20 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt20_pat2.root";
-TString f_g95_pt30 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt30_pat2.root";
-TString f_g95_pt40 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt40_pat2.root";
-
-double rpt[2] = {0.,49.99};
-
-TString htitle = "Efficiency for #mu in 1.6<|#eta|<2.12 to have TF track;p_{T}^{MC}";
-
-TString hini = "h_pt_initial_1b";
-TString h2s = "h_pt_after_tfcand_eta1b_2s";
-TString h3s = "h_pt_after_tfcand_eta1b_3s";
-TString h2s1b = "h_pt_after_tfcand_eta1b_2s1b";
-TString h3s1b = "h_pt_after_tfcand_eta1b_3s1b";
-
-
-TH1D* h_eff_tf0_2s  = getEffHisto(f_def, hdir, h2s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
-TH1D* h_eff_tf0_3s  = getEffHisto(f_def, hdir, h3s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
-TH1D* h_eff_tf0_2s1b  = getEffHisto(f_def, hdir, h2s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
-TH1D* h_eff_tf0_3s1b  = getEffHisto(f_def, hdir, h3s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
-
-
-TH1D* h_eff_tf10_2s  = getEffHisto(f_def, hdir, h2s + "_pt10", hini, ptreb, kGreen+4, 1, 2, htitle, rpt,yrange);
-TH1D* h_eff_tf10_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange);
-TH1D* h_eff_tf10_3s  = getEffHisto(f_def, hdir, h3s + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange);
-TH1D* h_eff_tf10_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange);
+  //TString f_def = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_def_pat2.root";
+  TString f_def = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem_dphi0_pat2.root";
+  TString f_g98_pt10 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt10_pat2.root";
+  TString f_g98_pt15 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt15_pat2.root";
+  //TString f_g98_pt20 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt20_pat2.root";
+  TString f_g98_pt20 = "/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_2_0_SLHC1/src/gem_trigger_eff_ana-out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_preTrig2.root";
+  TString f_g98_pt30 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt30_pat2.root";
+  TString f_g98_pt40 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt40_pat2.root";
+  
+  TString f_g95_pt10 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt10_pat2.root";
+  TString f_g95_pt20 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt20_pat2.root";
+  TString f_g95_pt30 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt30_pat2.root";
+  TString f_g95_pt40 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt40_pat2.root";
+  
+  double rpt[2] = {0.,49.99};
+  
+  TString htitle = "Efficiency for #mu in 1.6<|#eta|<2.12 to have TF track;p_{T}^{MC}";
+  
+  TString hini = "h_pt_initial_1b";
+  TString h2s = "h_pt_after_tfcand_eta1b_2s";
+  TString h3s = "h_pt_after_tfcand_eta1b_3s";
+  TString h2s1b = "h_pt_after_tfcand_eta1b_2s1b";
+  TString h3s1b = "h_pt_after_tfcand_eta1b_3s1b";
+  
+  
+  TH1D* h_eff_tf0_2s  = getEffHisto(f_def, hdir, h2s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
+  TH1D* h_eff_tf0_3s  = getEffHisto(f_def, hdir, h3s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
+  TH1D* h_eff_tf0_2s1b  = getEffHisto(f_def, hdir, h2s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
+  TH1D* h_eff_tf0_3s1b  = getEffHisto(f_def, hdir, h3s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange);
+  
+  
+  TH1D* h_eff_tf10_2s  = getEffHisto(f_def, hdir, h2s + "_pt10", hini, ptreb, kGreen+4, 1, 2, htitle, rpt,yrange);
+  TH1D* h_eff_tf10_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange);
+  TH1D* h_eff_tf10_3s  = getEffHisto(f_def, hdir, h3s + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange);
+  TH1D* h_eff_tf10_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange);
 
 //TH1D* h_eff_tf15_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange);
 //TH1D* h_eff_tf15_3s  = getEffHisto(f_def, hdir, h3s + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange);
