@@ -13,19 +13,15 @@
 // externals
 #include <boost/filesystem/operations.hpp>
 
-std::vector<cond::DbConnectionConfiguration>&
+const std::vector<cond::DbConnectionConfiguration>&
 cond::DbConnectionConfiguration::defaultConfigurations(){
-  static std::vector<DbConnectionConfiguration> s_defaultConfigurations;
-  // coral default
-  s_defaultConfigurations.push_back( cond::DbConnectionConfiguration() );
-  // cms default
-  s_defaultConfigurations.push_back( cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", "", coral::Error, coral::monitor::Off, false ) );
-  // prod default
-  s_defaultConfigurations.push_back( cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", "", coral::Error, coral::monitor::Off, false ) );
-  // tool default
-  s_defaultConfigurations.push_back( cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", "",coral::Error, coral::monitor::Off, false ) );
-  // web default
-  s_defaultConfigurations.push_back( cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", "",coral::Error, coral::monitor::Off, false ) );
+  static const std::vector<DbConnectionConfiguration> s_defaultConfigurations = 
+    { cond::DbConnectionConfiguration(),
+      cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", "", coral::Error, coral::monitor::Off, false ),
+      cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", "", coral::Error, coral::monitor::Off, false ),
+      cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", "",coral::Error, coral::monitor::Off, false ),
+      cond::DbConnectionConfiguration( false, 0, false, 10, 60, false, "", "",coral::Error, coral::monitor::Off, false )
+    };
   return s_defaultConfigurations;
 }
 

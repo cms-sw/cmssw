@@ -24,8 +24,8 @@ namespace ora {
     return ret;
   }
 
-  char* conditionOfType( ConditionType condType ){
-    static char* cond[ 5 ] = { (char*)"=",(char*)">",(char*)"<",(char*)">=",(char*)"<=" };
+  const char* conditionOfType( ConditionType condType ){
+    static const char* cond[ 5 ] = { (char*)"=",(char*)">",(char*)"<",(char*)">=",(char*)"<=" };
     return cond[ condType ];
   }
   

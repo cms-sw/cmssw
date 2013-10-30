@@ -19,6 +19,8 @@
 #include "CatchAll.h"
 #include "UsingNamespace.h"
 #include "ArgSizeChecker.h"
+#include "FunctionChecker.h"
+#include "FunctionDumper.h"
 
 #include <clang/StaticAnalyzer/Core/CheckerRegistry.h>
 
@@ -43,6 +45,8 @@ void clang_registerCheckers ( clang::ento::CheckerRegistry &registry)
 	registry.addChecker< clangcms::edmChecker>( "optional.edmChecker", "Checks classes inheriting from edm::Producer and edm::Filter" );
 	registry.addChecker< clangcms::getByChecker>( "optional.getByChecker", "Checks for calls to edm::getByLabel or edm::getManyByType and reports edm::Handle type passed" );
 	registry.addChecker< clangcms::ArgSizeChecker>( "cms.ArgSize", "Reports args passed by value with size>4k." );
+	registry.addChecker< clangcms::FunctionChecker>( "cms.FunctionChecker", "Reports functions which access non-const statics" );
+	registry.addChecker< clangcms::FunctionDumper>( "cms.FunctionDumper", "Reports function calls and overrides" );
 }
 
 extern "C"

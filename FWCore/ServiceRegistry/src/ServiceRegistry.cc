@@ -15,7 +15,6 @@
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 
 // system include files
-#include "boost/thread/tss.hpp"
 
 namespace edm {
    //
@@ -106,10 +105,7 @@ namespace edm {
 
    ServiceRegistry& 
    ServiceRegistry::instance() {
-      static boost::thread_specific_ptr<ServiceRegistry> s_registry;
-      if(0 == s_registry.get()){
-         s_registry.reset(new ServiceRegistry);
-      }
-      return *s_registry;
+      static thread_local ServiceRegistry s_registry;
+      return s_registry;
    }
 }
