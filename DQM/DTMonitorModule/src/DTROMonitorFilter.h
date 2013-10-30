@@ -27,7 +27,7 @@ protected:
 
 private:
   /// if not you need the label
-  edm::InputTag inputLabel;
+  edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
 
 };
 #endif

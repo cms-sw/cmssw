@@ -22,17 +22,19 @@ using namespace edm;
 DTROMonitorFilter::DTROMonitorFilter(const edm::ParameterSet& pset) :
   HLTFilter(pset)
 {
-  inputLabel = pset.getUntrackedParameter<InputTag>("inputLabel",InputTag("source"));
+  rawDataToken_ = consumes<FEDRawDataCollection>(
+      pset.getUntrackedParameter<InputTag>("inputLabel",InputTag("source")));
 }
 
 DTROMonitorFilter::~DTROMonitorFilter(){}
 
 
-bool DTROMonitorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
-
+bool DTROMonitorFilter::hltFilter(edm::Event& event,
+                                  const edm::EventSetup& setup,
+                                  trigger::TriggerFilterObjectWithRefs & filterproduct) const {
   // get the raw data
   edm::Handle<FEDRawDataCollection> rawdata;
-  event.getByLabel(inputLabel, rawdata);
+  event.getByToken(rawDataToken_, rawdata);
 
   // Loop over the DT FEDs
   int FEDIDmin = FEDNumbering::MINDTFEDID;
