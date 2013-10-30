@@ -12,6 +12,7 @@
 <use   name="DataFormats/EcalDetId"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="RecoEgamma/ElectronIdentification"/>
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="rootmath"/>

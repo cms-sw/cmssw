@@ -91,6 +91,10 @@ class PFEGammaAlgo {
     // for track-HCAL cluster linking
     std::vector<PFClusterFlaggedElement> hcalClusters;
     ElementMap localMap;
+    // cluster closest to the gsf track(s), primary kf if none for gsf
+    // last brem tangent cluster if neither of those work
+    std::vector<const PFClusterElement*> electronClusters; 
+    int firstBrem, lateBrem, nBremsWithClusters;
   };  
   
   struct PFEGConfigInfo {
@@ -259,6 +263,7 @@ private:
   void linkRefinableObjectGSFTracksToKFs(ProtoEGObject&);
   void linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject&);
   void linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject&);
+  void linkRefinableObjectPrimaryGSFTrackToHCAL(ProtoEGObject&);
   void linkRefinableObjectKFTracksToECAL(ProtoEGObject&);
   void linkRefinableObjectBremTangentsToECAL(ProtoEGObject&);
   // WARNING! this should be ONLY used after doing the ECAL->track 
@@ -266,7 +271,8 @@ private:
   void linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject&);
   void linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject&);
   // helper function for above
-  void linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
+  const PFClusterElement* 
+    linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
 
   // refining steps doing the ECAL -> track piece
   // this is the factorization of the old PF photon algo stuff
@@ -293,6 +299,10 @@ private:
   
   // helper functions for that
 
+  float calculate_ele_mva(const ProtoEGObject&,
+			  reco::PFCandidateEGammaExtra&);
+  void fill_extra_info(const ProtoEGObject&,
+		       reco::PFCandidateEGammaExtra&);
   
   // ------ end of new stuff 
   
