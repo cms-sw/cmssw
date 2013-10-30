@@ -21,7 +21,6 @@ public:
 
   /// explicit ctor 
   explicit ElectronTagger(const edm::ParameterSet & configuration) : 
-    theNet(),
     m_selector(configuration)
   { 
     uses("seTagInfos"); 
@@ -34,8 +33,6 @@ public:
   virtual float discriminator(const TagInfoHelper & tagInfo) const;
 
 private:
-
-  mutable ElectronTaggerMLP theNet;
 
   btag::LeptonSelector m_selector;
 
