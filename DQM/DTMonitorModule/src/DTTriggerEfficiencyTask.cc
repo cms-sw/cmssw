@@ -47,20 +47,6 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
   parameters = ps;
   dbe = edm::Service<DQMStore>().operator->();
 
-}
-
-
-DTTriggerEfficiencyTask::~DTTriggerEfficiencyTask() {
-
-  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: analyzed " << nevents << " events" << endl;
-
-}
-
-
-void DTTriggerEfficiencyTask::beginJob(){
-
-  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: BeginJob" << endl;
-
   muons_Token_ = consumes<reco::MuonCollection>(
       parameters.getUntrackedParameter<edm::InputTag>("inputTagMuons"));
   dcc_Token_   = consumes<L1MuDTChambPhContainer>(
@@ -84,6 +70,20 @@ void DTTriggerEfficiencyTask::beginJob(){
 
   if (processDCC) processTags.push_back("DCC");
   if (processDDU) processTags.push_back("DDU");
+
+}
+
+
+DTTriggerEfficiencyTask::~DTTriggerEfficiencyTask() {
+
+  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: analyzed " << nevents << " events" << endl;
+
+}
+
+
+void DTTriggerEfficiencyTask::beginJob(){
+
+  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: BeginJob" << endl;
 
 }
 
