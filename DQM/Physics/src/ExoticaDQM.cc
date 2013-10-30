@@ -88,10 +88,6 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
 
   edm::LogInfo("ExoticaDQM") <<  " Starting ExoticaDQM " << "\n" ;
 
-  bei_ = Service<DQMStore>().operator->();
-  bei_->setCurrentFolder("Physics/Exotica");
-  bookHistos(bei_);
-
   typedef std::vector<edm::InputTag> vtag;
 
   // Get parameters from configuration file
@@ -102,26 +98,43 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
   theTriggerForLongLivedList  = ps.getParameter<vstring>("triggerLongLivedList");
 
   //
-  ElectronLabel_      = ps.getParameter<InputTag>("electronCollection");
-  PFElectronLabelEI_  = ps.getParameter<InputTag>("pfelectronCollectionEI");
+  ElectronToken_      = consumes<reco::GsfElectronCollection>(
+      ps.getParameter<InputTag>("electronCollection"));
+  PFElectronTokenEI_  = consumes<reco::PFCandidateCollection>(
+      ps.getParameter<InputTag>("pfelectronCollectionEI"));
   //
-  MuonLabel_          = ps.getParameter<InputTag>("muonCollection");
-  PFMuonLabelEI_      = ps.getParameter<InputTag>("pfmuonCollectionEI");
+  MuonToken_          = consumes<reco::MuonCollection>(
+      ps.getParameter<InputTag>("muonCollection"));
+  PFMuonTokenEI_      = consumes<reco::PFCandidateCollection>(
+      ps.getParameter<InputTag>("pfmuonCollectionEI"));
   //
-  TauLabel_           = ps.getParameter<InputTag>("tauCollection");
+  TauToken_           = consumes<reco::CaloTauCollection>(
+      ps.getParameter<InputTag>("tauCollection"));
   //PFTauLabel_       = ps.getParameter<InputTag>("pftauCollection");
   //
-  PhotonLabel_        = ps.getParameter<InputTag>("photonCollection");
+  PhotonToken_        = consumes<reco::PhotonCollection>(
+      ps.getParameter<InputTag>("photonCollection"));
   //PFPhotonLabel_    = ps.getParameter<InputTag>("pfphotonCollection");
   //
-  CaloJetLabel_       = ps.getParameter<InputTag>("caloJetCollection");
-  PFJetLabel_         = ps.getParameter<InputTag>("pfJetCollection");
-  PFJetLabelEI_       = ps.getParameter<InputTag>("pfJetCollectionEI");
+  CaloJetToken_       = consumes<reco::CaloJetCollection>(
+      ps.getParameter<InputTag>("caloJetCollection"));
+  PFJetToken_         = consumes<reco::PFJetCollection>(
+      ps.getParameter<InputTag>("pfJetCollection"));
+  PFJetTokenEI_       = consumes<reco::PFJetCollection>(
+      ps.getParameter<InputTag>("pfJetCollectionEI"));
 
   //
-  CaloMETLabel_       = ps.getParameter<InputTag>("caloMETCollection");
-  PFMETLabel_         = ps.getParameter<InputTag>("pfMETCollection");
-  PFMETLabelEI_       = ps.getParameter<InputTag>("pfMETCollectionEI");
+  CaloMETToken_       = consumes<reco::CaloMETCollection>(
+      ps.getParameter<InputTag>("caloMETCollection"));
+  PFMETToken_         = consumes<reco::PFMETCollection>(
+      ps.getParameter<InputTag>("pfMETCollection"));
+  PFMETTokenEI_       = consumes<reco::PFMETCollection>(
+      ps.getParameter<InputTag>("pfMETCollectionEI"));
+
+  ecalBarrelRecHitToken_ = consumes<EBRecHitCollection>(
+      ps.getUntrackedParameter<InputTag>("ecalBarrelRecHit", InputTag("reducedEcalRecHitsEB")));
+  ecalEndcapRecHitToken_ = consumes<EERecHitCollection>(
+      ps.getUntrackedParameter<InputTag>("ecalEndcapRecHit", InputTag("reducedEcalRecHitsEE")));
 
   //Cuts - MultiJets
   jetID                    = new reco::helper::JetIDHelper(ps.getParameter<ParameterSet>("JetIDParams"));
@@ -159,6 +172,10 @@ void ExoticaDQM::beginJob(){
 //
 void ExoticaDQM::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo ("ExoticaDQM") <<"[ExoticaDQM]: Begining of Run";
+
+  bei_ = Service<DQMStore>().operator->();
+  bei_->setCurrentFolder("Physics/Exotica");
+  bookHistos(bei_);
 
   // passed as parameter to HLTConfigProvider::init(), not yet used
   bool isConfigChanged = false;
@@ -235,33 +252,33 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // Calo objects
   // Electrons
-  bool ValidCaloElectron = iEvent.getByLabel(ElectronLabel_, ElectronCollection_);
+  bool ValidCaloElectron = iEvent.getByToken(ElectronToken_, ElectronCollection_);
   if(!ValidCaloElectron) return;
   // Muons
-  bool ValidCaloMuon = iEvent.getByLabel(MuonLabel_, MuonCollection_);
+  bool ValidCaloMuon = iEvent.getByToken(MuonToken_, MuonCollection_);
   if(!ValidCaloMuon) return;
   // Taus
-  bool ValidCaloTau = iEvent.getByLabel(TauLabel_, TauCollection_);
+  bool ValidCaloTau = iEvent.getByToken(TauToken_, TauCollection_);
   if(!ValidCaloTau) return;
   // Photons
-  bool ValidCaloPhoton = iEvent.getByLabel(PhotonLabel_, PhotonCollection_);
+  bool ValidCaloPhoton = iEvent.getByToken(PhotonToken_, PhotonCollection_);
   if(!ValidCaloPhoton) return;
   // Jets
-  bool ValidCaloJet = iEvent.getByLabel(CaloJetLabel_, caloJetCollection_);
+  bool ValidCaloJet = iEvent.getByToken(CaloJetToken_, caloJetCollection_);
   if(!ValidCaloJet) return;
   calojets = *caloJetCollection_;
   // MET
-  bool ValidCaloMET = iEvent.getByLabel(CaloMETLabel_, caloMETCollection_);
+  bool ValidCaloMET = iEvent.getByToken(CaloMETToken_, caloMETCollection_);
   if(!ValidCaloMET) return;
 
 
   // PF objects
   // PFJets
-  bool ValidPFJet = iEvent.getByLabel(PFJetLabel_, pfJetCollection_);
+  bool ValidPFJet = iEvent.getByToken(PFJetToken_, pfJetCollection_);
   if(!ValidPFJet) return;
   pfjets = *pfJetCollection_;
   // PFMETs
-  bool ValidPFMET = iEvent.getByLabel(PFMETLabel_, pfMETCollection_);
+  bool ValidPFMET = iEvent.getByToken(PFMETToken_, pfMETCollection_);
   if(!ValidPFMET) return;
 
   //#######################################################
@@ -435,12 +452,12 @@ void ExoticaDQM::analyzeLongLived(const Event & iEvent){
   // get ECAL reco hits
   Handle<EBRecHitCollection> ecalhitseb;
   const EBRecHitCollection* rhitseb=0;
-  iEvent.getByLabel("reducedEcalRecHitsEB", ecalhitseb);
+  iEvent.getByToken(ecalBarrelRecHitToken_, ecalhitseb);
   rhitseb = ecalhitseb.product(); // get a ptr to the product
   //
   Handle<EERecHitCollection> ecalhitsee;
   const EERecHitCollection* rhitsee=0;
-  iEvent.getByLabel("reducedEcalRecHitsEE", ecalhitsee);
+  iEvent.getByToken(ecalEndcapRecHitToken_, ecalhitsee);
   rhitsee = ecalhitsee.product(); // get a ptr to the product
   //
   int nPhot = 0;
@@ -477,22 +494,22 @@ void ExoticaDQM::analyzeEventInterpretation(const Event & iEvent, const edm::Eve
 
   // EI
   // PFElectrons
-  bool ValidPFElectronEI = iEvent.getByLabel(PFElectronLabelEI_, pfElectronCollectionEI_);
+  bool ValidPFElectronEI = iEvent.getByToken(PFElectronTokenEI_, pfElectronCollectionEI_);
   if(!ValidPFElectronEI) return;
   pfelectronsEI = *pfElectronCollectionEI_;
 
   // PFMuons
-  bool ValidPFMuonEI = iEvent.getByLabel(PFMuonLabelEI_, pfMuonCollectionEI_);
+  bool ValidPFMuonEI = iEvent.getByToken(PFMuonTokenEI_, pfMuonCollectionEI_);
   if(!ValidPFMuonEI) return;
   pfmuonsEI = *pfMuonCollectionEI_;
 
   // PFJets
-  bool ValidPFJetEI = iEvent.getByLabel(PFJetLabelEI_, pfJetCollectionEI_);
+  bool ValidPFJetEI = iEvent.getByToken(PFJetTokenEI_, pfJetCollectionEI_);
   if(!ValidPFJetEI) return;
   pfjetsEI = *pfJetCollectionEI_;
 
   // PFMETs
-  bool ValidPFMETEI = iEvent.getByLabel(PFMETLabelEI_, pfMETCollectionEI_);
+  bool ValidPFMETEI = iEvent.getByToken(PFMETTokenEI_, pfMETCollectionEI_);
   if(!ValidPFMETEI) return;
 
   // Jet Correction

@@ -141,25 +141,25 @@ private:
 
 
   // Electrons
-  edm::InputTag ElectronLabel_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> ElectronToken_;
   edm::Handle<reco::GsfElectronCollection> ElectronCollection_;
   //
-  edm::InputTag PFElectronLabelEI_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> PFElectronTokenEI_;
   edm::Handle<reco::PFCandidateCollection> pfElectronCollectionEI_;
   reco::PFCandidateCollection pfelectronsEI;
 
 
   // Muons
-  edm::InputTag MuonLabel_;
+  edm::EDGetTokenT<reco::MuonCollection> MuonToken_;
   edm::Handle<reco::MuonCollection> MuonCollection_;
   //
-  edm::InputTag PFMuonLabelEI_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> PFMuonTokenEI_;
   edm::Handle<reco::PFCandidateCollection> pfMuonCollectionEI_;
   reco::PFCandidateCollection pfmuonsEI;
 
 
   // Taus
-  edm::InputTag TauLabel_;
+  edm::EDGetTokenT<reco::CaloTauCollection> TauToken_;
   edm::Handle<reco::CaloTauCollection> TauCollection_;
   //
   edm::InputTag PFTauLabelEI_;
@@ -167,7 +167,7 @@ private:
 
 
   // Photons
-  edm::InputTag PhotonLabel_;
+  edm::EDGetTokenT<reco::PhotonCollection> PhotonToken_;
   edm::Handle<reco::PhotonCollection> PhotonCollection_;
   //
   edm::InputTag PFPhotonLabelEI_;
@@ -176,28 +176,32 @@ private:
 
 
   // Jets
-  edm::InputTag CaloJetLabel_;
+  edm::EDGetTokenT<reco::CaloJetCollection> CaloJetToken_;
   edm::Handle<reco::CaloJetCollection> caloJetCollection_;
   reco::CaloJetCollection calojets;
   //
-  edm::InputTag PFJetLabel_;
+  edm::EDGetTokenT<reco::PFJetCollection> PFJetToken_;
   edm::Handle<reco::PFJetCollection> pfJetCollection_;
   reco::PFJetCollection pfjets;
   //
-  edm::InputTag PFJetLabelEI_;
+  edm::EDGetTokenT<reco::PFJetCollection> PFJetTokenEI_;
   edm::Handle<reco::PFJetCollection> pfJetCollectionEI_;
   reco::PFJetCollection pfjetsEI;
 
 
   // MET
-  edm::InputTag CaloMETLabel_;
+  edm::EDGetTokenT<reco::CaloMETCollection> CaloMETToken_;
   edm::Handle<reco::CaloMETCollection> caloMETCollection_;
   //
-  edm::InputTag PFMETLabel_;
+  edm::EDGetTokenT<reco::PFMETCollection> PFMETToken_;
   edm::Handle<reco::PFMETCollection> pfMETCollection_;
   //
-  edm::InputTag PFMETLabelEI_;
+  edm::EDGetTokenT<reco::PFMETCollection> PFMETTokenEI_;
   edm::Handle<reco::PFMETCollection> pfMETCollectionEI_;
+
+  // ECAL RECHITS
+  edm::EDGetTokenT<EBRecHitCollection> ecalBarrelRecHitToken_; // reducedEcalRecHitsEB
+  edm::EDGetTokenT<EERecHitCollection> ecalEndcapRecHitToken_; // reducedEcalRecHitsEE
 
   ///////////////////////////
   // Parameters
