@@ -71,11 +71,10 @@ FWTrackingParticleProxyBuilderFF::getAssocList()
    }
    catch (const std::exception& e) {
       std::cerr << " Can't get asociation list " << e.what() <<  std::endl;
+      return;
    }   
 
-   if (simHitsTPAssoc.isValid()) {
       m_assocList = &*simHitsTPAssoc;
-   }
 }
 //______________________________________________________________________________
 
@@ -89,7 +88,7 @@ FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementLis
    }
 
    getAssocList();
-   fflush(stdout);
+   if (!m_assocList) return;
 
    gEve->GetBrowser()->MapWindow();
    
