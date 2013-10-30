@@ -19,6 +19,9 @@
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
+#include <DataFormats/DTDigi/interface/DTDigi.h>
+#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+
 
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -117,9 +120,9 @@ private:
   // Parameters from config file
 
   // The label to retrieve the digis
-  edm::InputTag dtDigiLabel;
+  edm::EDGetTokenT<DTDigiCollection> dtDigiToken_;
 
-  edm::InputTag ltcDigiCollectionTag;
+  edm::EDGetTokenT<LTCDigiCollection> ltcDigiCollectionToken_;
 
   // Set to true to read the ttrig from DB (useful to determine in-time and out-of-time hits)
   bool readTTrigDB;

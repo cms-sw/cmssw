@@ -11,8 +11,6 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 
 // Digis
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
@@ -50,7 +48,8 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   LogTrace("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask]: Constructor" << endl;
 
   // The label to retrieve the digis
-  dtDigiLabel = ps.getParameter<InputTag>("dtDigiLabel");
+  dtDigiToken_ = consumes<DTDigiCollection>(
+      ps.getParameter<InputTag>("dtDigiLabel"));
   // Read the configuration parameters
   maxTDCHits = ps.getUntrackedParameter<int>("maxTDCHitsPerChamber",30000);
   // Set to true to read the ttrig from DB (useful to determine in-time and out-of-time hits)
@@ -65,7 +64,8 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   // Switch for local/global runs
   isLocalRun = ps.getUntrackedParameter<bool>("localrun", true);
   if (!isLocalRun) {
-    ltcDigiCollectionTag = ps.getParameter<edm::InputTag>("ltcDigiCollectionTag");
+    ltcDigiCollectionToken_ = consumes<LTCDigiCollection>(
+        ps.getParameter<edm::InputTag>("ltcDigiCollectionTag"));
   }
 
   // Setting for the reset of the ME after n (= ResetCycle) luminosity sections
@@ -484,10 +484,10 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 
   // Digi collection
   edm::Handle<DTDigiCollection> dtdigis;
-  event.getByLabel(dtDigiLabel, dtdigis);
+  event.getByToken(dtDigiToken_, dtdigis);
 
   // LTC digis
-  if (!isLocalRun) event.getByLabel(ltcDigiCollectionTag, ltcdigis);
+  if (!isLocalRun) event.getByToken(ltcDigiCollectionToken_, ltcdigis);
 
   // Status map (for noisy channels)
   ESHandle<DTStatusFlag> statusMap;
