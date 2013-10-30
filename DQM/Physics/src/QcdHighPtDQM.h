@@ -49,12 +49,12 @@ class QcdHighPtDQM : public edm::EDAnalyzer {
 
   DQMStore* theDbe;
 
-  //input tags for Jets/MET
-  edm::InputTag jetLabel_;
-  edm::InputTag metLabel1_;
-  edm::InputTag metLabel2_;
-  edm::InputTag metLabel3_;
-  edm::InputTag metLabel4_;
+  //input tags/Tokens for Jets/MET
+  edm::EDGetTokenT<reco::CaloJetCollection> jetToken_;
+  edm::EDGetTokenT<reco::CaloMETCollection> metToken1_;
+  edm::EDGetTokenT<reco::CaloMETCollection> metToken2_;
+  edm::EDGetTokenT<reco::CaloMETCollection> metToken3_;
+  edm::EDGetTokenT<reco::CaloMETCollection> metToken4_;
 
   //map of MEs
   std::map<std::string, MonitorElement*> MEcontainer_;

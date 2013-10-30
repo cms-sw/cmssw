@@ -31,11 +31,16 @@ using namespace math;
 //Get Jets and MET (no MET plots yet pending converging w/JetMET group)
 
 QcdHighPtDQM::QcdHighPtDQM(const ParameterSet& iConfig):
-  jetLabel_(iConfig.getUntrackedParameter<edm::InputTag>("jetTag")),
-  metLabel1_(iConfig.getUntrackedParameter<edm::InputTag>("metTag1")),
-  metLabel2_(iConfig.getUntrackedParameter<edm::InputTag>("metTag2")),
-  metLabel3_(iConfig.getUntrackedParameter<edm::InputTag>("metTag3")),
-  metLabel4_(iConfig.getUntrackedParameter<edm::InputTag>("metTag4"))
+    jetToken_(consumes<CaloJetCollection>
+              (iConfig.getUntrackedParameter<edm::InputTag>("jetTag"))),
+    metToken1_(consumes<CaloMETCollection>
+               (iConfig.getUntrackedParameter<edm::InputTag>("metTag1"))),
+    metToken2_(consumes<CaloMETCollection>
+               (iConfig.getUntrackedParameter<edm::InputTag>("metTag2"))),
+    metToken3_(consumes<CaloMETCollection>
+               (iConfig.getUntrackedParameter<edm::InputTag>("metTag3"))),
+    metToken4_(consumes<CaloMETCollection>
+               (iConfig.getUntrackedParameter<edm::InputTag>("metTag4")))
 {
 
   theDbe = Service<DQMStore>().operator->();
@@ -137,25 +142,25 @@ void QcdHighPtDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   //Get Jets
   edm::Handle<CaloJetCollection> jetHandle;
-  iEvent.getByLabel(jetLabel_,jetHandle);
+  iEvent.getByToken(jetToken_,jetHandle);
   const CaloJetCollection & jets = *jetHandle;
   CaloJetCollection::const_iterator jet_iter;
 
   //Get MET collections
   edm::Handle<CaloMETCollection> metHandle;
-  iEvent.getByLabel(metLabel1_, metHandle);
+  iEvent.getByToken(metToken1_, metHandle);
   const CaloMETCollection &met = *metHandle;
 
   edm::Handle<CaloMETCollection> metHOHandle;
-  iEvent.getByLabel(metLabel2_, metHOHandle);
+  iEvent.getByToken(metToken2_, metHOHandle);
   const CaloMETCollection &metHO = *metHOHandle;
 
   edm::Handle<CaloMETCollection> metNoHFHandle;
-  iEvent.getByLabel(metLabel3_, metNoHFHandle);
+  iEvent.getByToken(metToken3_, metNoHFHandle);
   const CaloMETCollection &metNoHF = *metNoHFHandle;
 
   edm::Handle<CaloMETCollection> metNoHFHOHandle;
-  iEvent.getByLabel(metLabel4_, metNoHFHOHandle);
+  iEvent.getByToken(metToken4_, metNoHFHOHandle);
   const CaloMETCollection &metNoHFHO = *metNoHFHOHandle;
 
   //initialize leading jet value and jet multiplicity counter
