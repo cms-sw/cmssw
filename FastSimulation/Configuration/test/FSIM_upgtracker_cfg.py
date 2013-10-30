@@ -9,7 +9,7 @@ process = cms.Process("PROD")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(20)
 )
 
 # Include DQMStore, needed by the famosSimHits
@@ -73,7 +73,7 @@ process.famosSimHits.SimulateTracking = True
 if GEOM=="phase1":
     process.load('FastSimulation.Configuration.Geometries_cff')
     from Configuration.AlCa.autoCond import autoCond
-    process.GlobalTag.globaltag = cms.string('STAR17_61_V1A::All')
+    process.GlobalTag.globaltag = cms.string('DES17_62_V7::All')
 elif GEOM=="phase2BE":
 
 ## this is for phase 2 geometries
