@@ -21,16 +21,13 @@
 
 // Physics Objects
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
 // Vertex
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 // For removing ECAL Spikes
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -64,18 +61,27 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   // Get parameters from configuration file
   theTriggerPathToPass_        = parameters.getParameter<string>("triggerPathToPass");
   thePlotTheseTriggersToo_     = parameters.getParameter<vector<string> >("plotTheseTriggersToo");
-  trigTag_                    = parameters.getUntrackedParameter<edm::InputTag>("trigTag");
-  thePhotonCollectionLabel_    = parameters.getParameter<InputTag>("photonCollection");
   theJetCollectionLabel_       = parameters.getParameter<InputTag>("jetCollection");
-  theVertexCollectionLabel_    = parameters.getParameter<InputTag>("vertexCollection");
-  theMinJetPt_             = parameters.getParameter<double>("minJetPt");
+  trigTagToken_                = consumes<edm::TriggerResults>(
+      parameters.getUntrackedParameter<edm::InputTag>("trigTag"));
+  thePhotonCollectionToken_    = consumes<reco::PhotonCollection>(
+      parameters.getParameter<InputTag>("photonCollection"));
+  theJetCollectionToken_       = consumes<edm::View<reco::Jet> >(
+      parameters.getParameter<InputTag>("jetCollection"));
+  theVertexCollectionToken_    = consumes<reco::VertexCollection>(
+      parameters.getParameter<InputTag>("vertexCollection"));
+  theMinJetPt_                 = parameters.getParameter<double>("minJetPt");
   theMinPhotonEt_              = parameters.getParameter<double>("minPhotonEt");
   theRequirePhotonFound_       = parameters.getParameter<bool>("requirePhotonFound");
   thePlotPhotonMaxEt_          = parameters.getParameter<double>("plotPhotonMaxEt");
   thePlotPhotonMaxEta_         = parameters.getParameter<double>("plotPhotonMaxEta");
   thePlotJetMaxEta_            = parameters.getParameter<double>("plotJetMaxEta");
-  theBarrelRecHitTag           = parameters.getParameter<InputTag>("barrelRecHitTag");
-  theEndcapRecHitTag           = parameters.getParameter<InputTag>("endcapRecHitTag");
+  theBarrelRecHitTag_          = parameters.getParameter<InputTag>("barrelRecHitTag");
+  theEndcapRecHitTag_          = parameters.getParameter<InputTag>("endcapRecHitTag");
+  theBarrelRecHitToken_        = consumes<EcalRecHitCollection>(
+      parameters.getParameter<InputTag>("barrelRecHitTag"));
+  theEndcapRecHitToken_        = consumes<EcalRecHitCollection>(
+      parameters.getParameter<InputTag>("endcapRecHitTag"));
   // just to initialize
   isValidHltConfig_ = false;
 
@@ -210,7 +216,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   ////////////////////////////////////////////////////////////////////
   // Did event pass HLT paths?
   Handle<TriggerResults> HLTresults;
-  iEvent.getByLabel(trigTag_, HLTresults);
+  iEvent.getByToken(trigTagToken_, HLTresults);
   if (!HLTresults.isValid()) {
     //LogWarning("") << ">>> TRIGGER collection does not exist !!!";
     return;
@@ -233,7 +239,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
    // grab photons
   Handle<PhotonCollection> photonCollection;
-  iEvent.getByLabel(thePhotonCollectionLabel_, photonCollection);
+  iEvent.getByToken(thePhotonCollectionToken_, photonCollection);
 
   // If photon collection is empty, exit
   if (!photonCollection.isValid()) return;
@@ -274,7 +280,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // Does event have valid vertex?
   // Get the primary event vertex
   Handle<VertexCollection> vertexHandle;
-  iEvent.getByLabel(theVertexCollectionLabel_, vertexHandle);
+  iEvent.getByToken(theVertexCollectionToken_, vertexHandle);
   VertexCollection vertexCollection = *(vertexHandle.product());
   //double vtx_ndof = -1.0;
   //double vtx_z    = 0.0;
@@ -306,10 +312,10 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   // For finding spikes
   Handle<EcalRecHitCollection> EBReducedRecHits;
-  iEvent.getByLabel(theBarrelRecHitTag, EBReducedRecHits);
+  iEvent.getByToken(theBarrelRecHitToken_, EBReducedRecHits);
   Handle<EcalRecHitCollection> EEReducedRecHits;
-  iEvent.getByLabel(theEndcapRecHitTag, EEReducedRecHits);
-  EcalClusterLazyTools lazyTool(iEvent, iSetup, theBarrelRecHitTag, theEndcapRecHitTag);
+  iEvent.getByToken(theEndcapRecHitToken_, EEReducedRecHits);
+  EcalClusterLazyTools lazyTool(iEvent, iSetup, theBarrelRecHitTag_, theEndcapRecHitTag_);
 
 
   // Find the highest et "decent" photon
@@ -381,7 +387,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   ////////////////////////////////////////////////////////////////////
   // Find the highest et jet
   Handle<View<Jet> > jetCollection;
-  iEvent.getByLabel (theJetCollectionLabel_,jetCollection);
+  iEvent.getByToken (theJetCollectionToken_,jetCollection);
   if (!jetCollection.isValid()) return;
 
   float jet_pt    = -8.0;
