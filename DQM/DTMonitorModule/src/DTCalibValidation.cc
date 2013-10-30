@@ -57,11 +57,14 @@ DTCalibValidation::~DTCalibValidation(){
 void DTCalibValidation::beginJob(){
 
   // the name of the rechits collection at step 1
-  recHits1DLabel = parameters.getUntrackedParameter<string>("recHits1DLabel");
+  recHits1DToken_ = consumes<DTRecHitCollection>(
+      edm::InputTag(parameters.getUntrackedParameter<string>("recHits1DLabel")));
   // the name of the 2D segments
-  segment2DLabel = parameters.getUntrackedParameter<string>("segment2DLabel");
+  segment2DToken_ = consumes<DTRecSegment2DCollection>(
+      edm::InputTag(parameters.getUntrackedParameter<string>("segment2DLabel")));
   // the name of the 4D segments
-  segment4DLabel = parameters.getUntrackedParameter<string>("segment4DLabel");
+  segment4DToken_ = consumes<DTRecSegment4DCollection>(
+      edm::InputTag(parameters.getUntrackedParameter<string>("segment4DLabel")));
   // the counter of segments not used to compute residuals
   wrongSegment = 0;
   // the counter of segments used to compute residuals
@@ -134,13 +137,13 @@ void DTCalibValidation::analyze(const edm::Event& event, const edm::EventSetup& 
      LogTrace("DTCalibValidation") << "  -- DTRecHit S1: begin analysis:";
      // Get the rechit collection from the event
      Handle<DTRecHitCollection> dtRecHits;
-     event.getByLabel(recHits1DLabel, dtRecHits);
+     event.getByToken(recHits1DToken_, dtRecHits);
      recHitsPerWire_1S = map1DRecHitsPerWire(dtRecHits.product());
 
      LogTrace("DTCalibValidation") << "  -- DTRecHit S2: begin analysis:";
      // Get the 2D rechits from the event
      Handle<DTRecSegment2DCollection> segment2Ds;
-     event.getByLabel(segment2DLabel, segment2Ds);
+     event.getByToken(segment2DToken_, segment2Ds);
      recHitsPerWire_2S =  map1DRecHitsPerWire(segment2Ds.product());
   }
 
@@ -148,7 +151,7 @@ void DTCalibValidation::analyze(const edm::Event& event, const edm::EventSetup& 
   LogTrace("DTCalibValidation") << "  -- DTRecHit S3: begin analysis:";
   // Get the 4D rechits from the event
   Handle<DTRecSegment4DCollection> segment4Ds;
-  event.getByLabel(segment4DLabel, segment4Ds);
+  event.getByToken(segment4DToken_, segment4Ds);
   map<DTWireId,vector<DTRecHit1D> > recHitsPerWire_3S =  map1DRecHitsPerWire(segment4Ds.product());
 
 

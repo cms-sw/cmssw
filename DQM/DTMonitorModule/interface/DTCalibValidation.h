@@ -77,11 +77,11 @@ class DTCalibValidation: public edm::EDAnalyzer{
   edm::ESHandle<DTGeometry> dtGeom;
 
   // Lable of 1D rechits in the event
-  std::string recHits1DLabel;
+  edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
   // Lable of 2D segments in the event
-  std::string segment2DLabel;
+  edm::EDGetTokenT<DTRecSegment2DCollection> segment2DToken_;
   // Lable of 4D segments in the event
-  std::string segment4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
 
   // Return a map between DTRecHit1DPair and wireId
   std::map<DTWireId, std::vector<DTRecHit1DPair> >
