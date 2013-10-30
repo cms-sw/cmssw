@@ -21,9 +21,6 @@ class DTLayerType : public GeomDetType {
 
 /* Operations */ 
     virtual const Topology& topology() const;
-
-  private:
-
 };
 #endif // DTLAYERTYPE_H
 
