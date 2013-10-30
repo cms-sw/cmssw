@@ -20,7 +20,7 @@ float MuonTagger::discriminator(const TagInfoHelper & tagInfo) const {
 			float rndm = r->Uniform(0,1);
 			//for negative tagger, flip 50% of the negative signs to positive value
 			float sip3d = (m_selector.isNegative() && rndm<0.5) ? -properties.sip3d : properties.sip3d;
-            float tag = theNet.Value(0, properties.ptRel, sip3d, properties.deltaR, properties.ratioRel);
+			float tag = theNet.Value(0, properties.ptRel, sip3d, properties.deltaR, properties.ratioRel);
 			if (tag > bestTag) bestTag = tag;
     }
   }
