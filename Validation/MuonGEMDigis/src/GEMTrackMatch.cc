@@ -283,13 +283,13 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       
       if (id.layer() == 1)
       {
-        if (odd) track_.gem_sh_layer1 |= 1;
-        else track_.gem_sh_layer1 |= 2;
+        if (odd) track_.gem_sh_layer1 |= 1;   // 01
+        else track_.gem_sh_layer1 |= 2;       // 10
       }
       else if (id.layer() == 2)
       {
-        if (odd) track_.gem_sh_layer2 |= 1;
-        else track_.gem_sh_layer2 |= 2;
+        if (odd) track_.gem_sh_layer2 |= 1;   // 01
+        else track_.gem_sh_layer2 |= 2;       // 10
       }
     }
 
@@ -387,19 +387,19 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
   else { std::cout<<"dg_eta : "<<track_.gem_dg_eta; }
    
-  if ( track_gem_dg_sh_layer> 0 ) {
-    
-
-
-
-
-
- 
-
-    
-
-
-
-
+  if ( track_gem_sh_layer1 > 0 ) {
+    dg_sh_eta[0]->Fill ( track_.gem_sh_eta); 
+    dg_sh_eta[2]->Fill ( track_.gem_sh_eta);
   }
+  else if ( track_.gem_sh_layer2 > 0 ) {
+    dg_sh_eta[1]->Fill( track_.gem_sh_eta);
+    dg_sh_eta[2]->Fill( track_.gem_sh_eta);
+  }
+  else if (track_.gem_sh_layer1 >0 && track_.gem_sh_layer2>0 ) {
+    dg_sh_eta[3]->Fill( track_.gem_sh_eta);
+  }
+  else { std::cout<<"dg_sh_eta : "<<track_.gem_sh_eta; }
+  }
+  
+  
 }
