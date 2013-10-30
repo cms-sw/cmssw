@@ -64,6 +64,7 @@
 
 #if defined(R__LINUX)
 #include "TGX11.h" // !!!! AMT has to be at the end to pass build
+#include "X11/Xlib.h"
 #endif
 //
 // constants, enums and typedefs
