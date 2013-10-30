@@ -51,8 +51,7 @@ private:
 
    const SimHitTPAssociationProducer::SimHitTPAssociationList* m_assocList;
 
-   void getAssocList1();
-   void getAssocList2();
+   void getAssocList();
 };
 
 //______________________________________________________________________________
@@ -60,23 +59,22 @@ private:
 
 
 void
-FWTrackingParticleProxyBuilderFF::getAssocList1()
+FWTrackingParticleProxyBuilderFF::getAssocList()
 {
    edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc; 
    const edm::Event* event = (const edm::Event*)item()->getEvent();
+
+   // AMT todo: check if there is any other way getting the list other than this
+   //           ifnot, set proces name as a configurable parameter
    try {
       event->getByLabel("xxx", simHitsTPAssoc);
    }
    catch (const std::exception& e) {
-      std::cout << "===== ERROR #1 " << e.what() <<  std::endl;
+      std::cerr << " Can't get asociation list " << e.what() <<  std::endl;
    }   
 
    if (simHitsTPAssoc.isValid()) {
       m_assocList = &*simHitsTPAssoc;
-   }
-   //else 
-   {
-      printf("HAVE ASSOC LIST SIZE %d \n", (int)simHitsTPAssoc->size() );
    }
 }
 //______________________________________________________________________________
@@ -90,7 +88,7 @@ FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementLis
       return;
    }
 
-   getAssocList1();
+   getAssocList();
    fflush(stdout);
 
    gEve->GetBrowser()->MapWindow();
@@ -138,7 +136,7 @@ FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementLis
       int alistIdx = 0;
       std::pair<TrackingParticleRef, TrackPSimHitRef> clusterTPpairWithDummyTP(tpr,TrackPSimHitRef());
       auto range = std::equal_range(m_assocList->begin(), m_assocList->end(), clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);      
-      printf("TrackingParticle[%d] matches %d hits\n",tpIdx,(int)(range.second-range.first ));
+      // printf("TrackingParticle[%d] matches %d hits\n",tpIdx,(int)(range.second-range.first ));
       for (SimHitTPAssociationProducer::SimHitTPAssociationList::const_iterator ai = range.first; ai != range.second; ++ai, ++alistIdx)
       {
                TrackPSimHitRef phit = ai->second;
