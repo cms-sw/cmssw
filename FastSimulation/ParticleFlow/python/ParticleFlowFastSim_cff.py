@@ -52,9 +52,10 @@ famosParticleFlowSequence = cms.Sequence(
 #    pfGsfElectronCiCSelectionSequence+
     pfGsfElectronMVASelectionSequence+
     particleFlowBlock+
-    particleFlowEGamma+
+    particleFlowEGammaFull+
     particleFlowTmp+
     particleFlowTmpPtrs+
+    particleFlowEGammaFinal+
     FSparticleFlow+
     pfElectronTranslatorSequence+
     pfPhotonTranslatorSequence
