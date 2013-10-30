@@ -27,7 +27,7 @@ public:
       const reco::SoftLeptonProperties & properties
   ) const 
   {
-    auto theNet = MuonTaggerNoIPMLP();
+    MuonTaggerNoIPMLP theNet{};
     return theNet.value( 0, properties.ptRel, properties.ratioRel, properties.deltaR, axis.Mag(), axis.Eta() ) +
            theNet.value( 1, properties.ptRel, properties.ratioRel, properties.deltaR, axis.Mag(), axis.Eta() );
   }
