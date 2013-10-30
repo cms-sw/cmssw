@@ -37,7 +37,8 @@ void FWalker::VisitChildren( clang::Stmt *S) {
 
 
 void FWalker::VisitDeclRefExpr( clang::DeclRefExpr * DRE) {
-  if (clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl()) ) { 
+  if (clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl()) ) {
+	if ( support::isSafeClassName(D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
 	ReportDeclRef(DRE);
 //	llvm::errs()<<"Declaration Ref Expr\t";
 //	dyn_cast<Stmt>(DRE)->dumpPretty(AC->getASTContext());

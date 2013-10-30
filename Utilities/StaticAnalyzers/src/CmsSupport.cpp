@@ -74,4 +74,16 @@ std::string support::getQualifiedName(const clang::NamedDecl &d) {
   return ret;
 }
 
+bool support::isSafeClassName(const std::string &d) {
+  std::string name = d;
+  std::string atomic = "std::atomic<";
+  std::string mutex = "std::mutex";
+  std::string rmutex = "std::recursive_mutex";
+  std::string btsp = "boost::thread_specific_ptr<";
+  
+  if ( name.substr(0,atomic.length()) == atomic || name.substr(0,mutex.length()) == mutex
+	|| name.substr(0,rmutex.length()) == rmutex || name.substr(0,btsp.length()) == btsp )
+	return true;	
+  return false;
+}
 

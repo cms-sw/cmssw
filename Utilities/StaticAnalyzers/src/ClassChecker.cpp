@@ -288,6 +288,7 @@ void WalkAST::VisitDeclRefExpr( clang::DeclRefExpr * DRE) {
   if (clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl()) ) { 
   	clang::SourceLocation SL = DRE->getLocStart();
   	if (BR.getSourceManager().isInSystemHeader(SL) || BR.getSourceManager().isInExternCSystemHeader(SL)) return;
+	if ( support::isSafeClassName( D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
 	ReportDeclRef( DRE );
 
 //	llvm::errs()<<"Declaration Ref Expr\t";
