@@ -25,6 +25,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 
 #include <vector>
 #include <string>
@@ -87,8 +88,8 @@ class DTLocalTriggerLutTask: public edm::EDAnalyzer{
   bool detailedAnalysis;
   bool overUnderIn;
 
-  edm::InputTag dccInputTag;
-  edm::InputTag segInputTag;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> dcc_Token_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
 
   int trigQualBest[6][5][13];
   const L1MuDTChambPhDigi* trigBest[6][5][13];

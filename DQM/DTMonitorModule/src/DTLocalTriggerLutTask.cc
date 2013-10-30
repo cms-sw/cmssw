@@ -11,7 +11,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 // DT trigger
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DQM/DTMonitorModule/interface/DTTrigGeomUtils.h"
 
 // Geometry
@@ -37,8 +36,10 @@ DTLocalTriggerLutTask::DTLocalTriggerLutTask(const edm::ParameterSet& ps) : trig
 
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerLutTask") << "[DTLocalTriggerLutTask]: Constructor"<<endl;
 
-  dccInputTag  = ps.getUntrackedParameter<InputTag>("inputTagDCC");
-  segInputTag  = ps.getUntrackedParameter<InputTag>("inputTagSEG");
+  dcc_Token_   = consumes<L1MuDTChambPhContainer>(
+      ps.getUntrackedParameter<InputTag>("inputTagDCC"));
+  seg_Token_   = consumes<DTRecSegment4DCollection>(
+      ps.getUntrackedParameter<InputTag>("inputTagSEG"));
 
   overUnderIn      = ps.getUntrackedParameter<bool>("rebinOutFlowsInGraph");
   detailedAnalysis = ps.getUntrackedParameter<bool>("detailedAnalysis");
@@ -166,12 +167,12 @@ void DTLocalTriggerLutTask::analyze(const edm::Event& e, const edm::EventSetup& 
   nEvents++;
 
   edm::Handle<L1MuDTChambPhContainer> trigHandle;
-  e.getByLabel(dccInputTag,trigHandle);
+  e.getByToken(dcc_Token_, trigHandle);
   vector<L1MuDTChambPhDigi> const* trigs = trigHandle->getContainer();
   searchDccBest(trigs);
 
   Handle<DTRecSegment4DCollection> segments4D;
-  e.getByLabel(segInputTag,segments4D);
+  e.getByToken(seg_Token_, segments4D);
   DTRecSegment4DCollection::id_iterator chamberId;
 
   // Preliminary loop finds best 4D Segment and high quality ones
