@@ -12,7 +12,7 @@ using namespace reco;
 PFEGammaFilters::PFEGammaFilters(float ph_Et,
 				 float ph_combIso,
 				 float ph_loose_hoe,
-				 std::vector<double> & ph_protectionsForJetMET,
+				 const edm::ParameterSet& ph_protectionsForJetMET,
 				 float ele_iso_pt,
 				 float ele_iso_mva_eb,
 				 float ele_iso_mva_ee,
@@ -20,13 +20,14 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
 				 float ele_iso_combIso_ee,
 				 float ele_noniso_mva,
 				 unsigned int ele_missinghits,
-				 string ele_iso_path_mvaWeightFile,
-				 std::vector<double> & ele_protectionsForJetMET
+				 const string& ele_iso_path_mvaWeightFile,
+				 const edm::ParameterSet& ele_protectionsForJetMET
 				 ):
   ph_Et_(ph_Et),
   ph_combIso_(ph_combIso),
   ph_loose_hoe_(ph_loose_hoe),
-  ph_protectionsForJetMET_(ph_protectionsForJetMET),
+  pho_sumPtTrackIso(ph_protectionsForJetMET.getParameter<double>("sumPtTrackIso")), 
+  pho_sumPtTrackIsoSlope(ph_protectionsForJetMET.getParameter<double>("sumPtTrackIsoSlope")),
   ele_iso_pt_(ele_iso_pt),
   ele_iso_mva_eb_(ele_iso_mva_eb),
   ele_iso_mva_ee_(ele_iso_mva_ee),
@@ -34,7 +35,19 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
   ele_iso_combIso_ee_(ele_iso_combIso_ee),
   ele_noniso_mva_(ele_noniso_mva),
   ele_missinghits_(ele_missinghits),
-  ele_protectionsForJetMET_(ele_protectionsForJetMET)
+  ele_maxNtracks(ele_protectionsForJetMET.getParameter<double>("maxNtracks")), 
+  ele_maxHcalE(ele_protectionsForJetMET.getParameter<double>("maxHcalE")), 
+  ele_maxTrackPOverEele(ele_protectionsForJetMET.getParameter<double>("maxTrackPOverEele")), 
+  ele_maxE(ele_protectionsForJetMET.getParameter<double>("maxE")),
+  ele_maxEleHcalEOverEcalE(ele_protectionsForJetMET.getParameter<double>("maxEleHcalEOverEcalE")),
+  ele_maxEcalEOverPRes(ele_protectionsForJetMET.getParameter<double>("maxEcalEOverPRes")), 
+  ele_maxEeleOverPoutRes(ele_protectionsForJetMET.getParameter<double>("maxEeleOverPoutRes")),
+  ele_maxHcalEOverP(ele_protectionsForJetMET.getParameter<double>("maxHcalEOverP")), 
+  ele_maxHcalEOverEcalE(ele_protectionsForJetMET.getParameter<double>("maxHcalEOverEcalE")), 
+  ele_maxEcalEOverP_1(ele_protectionsForJetMET.getParameter<double>("maxEcalEOverP_1")),
+  ele_maxEcalEOverP_2(ele_protectionsForJetMET.getParameter<double>("maxEcalEOverP_2")), 
+  ele_maxEeleOverPout(ele_protectionsForJetMET.getParameter<double>("maxEeleOverPout")), 
+  ele_maxDPhiIN(ele_protectionsForJetMET.getParameter<double>("maxDPhiIN"))
 {
 
   ele_iso_mvaID_= new ElectronMVAEstimator(ele_iso_path_mvaWeightFile);
@@ -108,35 +121,19 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
   bool debugSafeForJetMET = false;
   bool isSafeForJetMET = true;
 
-  //MyCuts
-  float maxNtracks = ele_protectionsForJetMET_[0];  //3.; 
-  float maxHcalE = ele_protectionsForJetMET_[1];  //10.;
-  float maxTrackPOverEele = ele_protectionsForJetMET_[2];  //1.;
-  float maxE = ele_protectionsForJetMET_[3];  //50.;
-  float maxEleHcalEOverEcalE = ele_protectionsForJetMET_[4];  //0.1;
-  float maxEcalEOverPRes = ele_protectionsForJetMET_[5];  //0.2;
-  float maxEeleOverPoutRes = ele_protectionsForJetMET_[6];  //0.5;
-  float maxHcalEOverP = ele_protectionsForJetMET_[7];  //1.0;
-  float maxHcalEOverEcalE = ele_protectionsForJetMET_[8];  //0.1;
-  float maxEcalEOverP_1 = ele_protectionsForJetMET_[9];  //0.5;
-  float maxEcalEOverP_2 = ele_protectionsForJetMET_[10];  //0.2;
-  float maxEeleOverPout = ele_protectionsForJetMET_[11];  //0.2;
-  float maxDPhiIN = ele_protectionsForJetMET_[12];  //0.1;
-
-  
-//   cout << " maxNtracks " <<  maxNtracks << endl
-//        << " maxHcalE " << maxHcalE << endl
-//        << " maxTrackPOverEele " << maxTrackPOverEele << endl
-//        << " maxE " << maxE << endl
-//        << " maxEleHcalEOverEcalE "<< maxEleHcalEOverEcalE << endl
-//        << " maxEcalEOverPRes " << maxEcalEOverPRes << endl
-//        << " maxEeleOverPoutRes "  << maxEeleOverPoutRes << endl
-//        << " maxHcalEOverP " << maxHcalEOverP << endl
-//        << " maxHcalEOverEcalE " << maxHcalEOverEcalE << endl
-//        << " maxEcalEOverP_1 " << maxEcalEOverP_1 << endl
-//        << " maxEcalEOverP_2 " << maxEcalEOverP_2 << endl
-//        << " maxEeleOverPout "  << maxEeleOverPout << endl
-//        << " maxDPhiIN " << maxDPhiIN << endl;
+//   cout << " ele_maxNtracks " <<  ele_maxNtracks << endl
+//        << " ele_maxHcalE " << ele_maxHcalE << endl
+//        << " ele_maxTrackPOverEele " << ele_maxTrackPOverEele << endl
+//        << " ele_maxE " << ele_maxE << endl
+//        << " ele_maxEleHcalEOverEcalE "<< ele_maxEleHcalEOverEcalE << endl
+//        << " ele_maxEcalEOverPRes " << ele_maxEcalEOverPRes << endl
+//        << " ele_maxEeleOverPoutRes "  << ele_maxEeleOverPoutRes << endl
+//        << " ele_maxHcalEOverP " << ele_maxHcalEOverP << endl
+//        << " ele_maxHcalEOverEcalE " << ele_maxHcalEOverEcalE << endl
+//        << " ele_maxEcalEOverP_1 " << ele_maxEcalEOverP_1 << endl
+//        << " ele_maxEcalEOverP_2 " << ele_maxEcalEOverP_2 << endl
+//        << " ele_maxEeleOverPout "  << ele_maxEeleOverPout << endl
+//        << " ele_maxDPhiIN " << ele_maxDPhiIN << endl;
     
   // loop on the extra-tracks associated to the electron
   PFCandidateEGammaExtraRef pfcandextra = pfcand.egammaExtraRef();
@@ -229,8 +226,8 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
     }
   }
   if( iextratrack > 0) {
-    if(iextratrack > maxNtracks || Ene_hcalgsf > maxHcalE || (SumExtraKfP/Ene_ecalgsf) > maxTrackPOverEele 
-       || (ETtotal > maxE && iextratrack > 1 && (Ene_hcalgsf/Ene_ecalgsf) > maxEleHcalEOverEcalE) ) {
+    if(iextratrack > ele_maxNtracks || Ene_hcalgsf > ele_maxHcalE || (SumExtraKfP/Ene_ecalgsf) > ele_maxTrackPOverEele 
+       || (ETtotal > ele_maxE && iextratrack > 1 && (Ene_hcalgsf/Ene_ecalgsf) > ele_maxEleHcalEOverEcalE) ) {
       if(debugSafeForJetMET) 
 	cout << " *****This electron candidate is discarded: Non isolated  # tracks "		
 	     << iextratrack << " HOverHE " << HOverHE 
@@ -244,9 +241,9 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
       isSafeForJetMET = false;
     }
     // the electron is retained and the kf tracks are not locked
-    if( (fabs(1.-EtotPinMode) < maxEcalEOverPRes && (fabs(electron.eta()) < 1.0 || fabs(electron.eta()) > 2.0)) ||
+    if( (fabs(1.-EtotPinMode) < ele_maxEcalEOverPRes && (fabs(electron.eta()) < 1.0 || fabs(electron.eta()) > 2.0)) ||
 	((EtotPinMode < 1.1 && EtotPinMode > 0.6) && (fabs(electron.eta()) >= 1.0 && fabs(electron.eta()) <= 2.0))) {
-      if( fabs(1.-EGsfPoutMode) < maxEeleOverPoutRes && 
+      if( fabs(1.-EGsfPoutMode) < ele_maxEeleOverPoutRes && 
 	  (itrackHcalLinked == iextratrack)) {
 
 	lockTracks = false;
@@ -261,7 +258,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
     }
   }
 
-  if (HOverPin > maxHcalEOverP && HOverHE > maxHcalEOverEcalE && EtotPinMode < maxEcalEOverP_1) {
+  if (HOverPin > ele_maxHcalEOverP && HOverHE > ele_maxHcalEOverEcalE && EtotPinMode < ele_maxEcalEOverP_1) {
     if(debugSafeForJetMET) 
       cout << " *****This electron candidate is discarded  HCAL ENERGY "	
 	   << " HOverPin " << HOverPin << " HOverHE " << HOverHE  << " EtotPinMode" << EtotPinMode << endl;
@@ -271,7 +268,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
   // Reject Crazy E/p values... to be understood in the future how to train a 
   // BDT in order to avoid to select this bad electron candidates. 
   
-  if( EtotPinMode < maxEcalEOverP_2 && EGsfPoutMode < maxEeleOverPout ) {
+  if( EtotPinMode < ele_maxEcalEOverP_2 && EGsfPoutMode < ele_maxEeleOverPout ) {
     if(debugSafeForJetMET) 
       cout << " *****This electron candidate is discarded  Low ETOTPIN "
 	   << " EtotPinMode " << EtotPinMode << " EGsfPoutMode " << EGsfPoutMode << endl;
@@ -279,7 +276,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
   }
   
   // For not-preselected Gsf Tracks ET > 50 GeV, apply dphi preselection
-  if(ETtotal > maxE && fabs(dphi_normalsc) > maxDPhiIN ) {
+  if(ETtotal > ele_maxE && fabs(dphi_normalsc) > ele_maxDPhiIN ) {
     if(debugSafeForJetMET) 
       cout << " *****This electron candidate is discarded  Large ANGLE "
 	   << " ETtotal " << ETtotal << " EGsfPoutMode " << dphi_normalsc << endl;
@@ -295,11 +292,8 @@ bool PFEGammaFilters::isPhotonSafeForJetMET(const reco::Photon & photon, const r
   bool isSafeForJetMET = true;
   bool debugSafeForJetMET = false;
 
-  float sumPtTrackIso = ph_protectionsForJetMET_[0]; // 2.0
-  float sumPtTrackIsoSlope = ph_protectionsForJetMET_[1]; // 0.001
-
-//   cout << " sumPtTrackIsoForPhoton " << sumPtTrackIso
-//        << " sumPtTrackIsoSlopeForPhoton " << sumPtTrackIsoSlope <<  endl;
+//   cout << " pho_sumPtTrackIsoForPhoton " << pho_sumPtTrackIso
+//        << " pho_sumPtTrackIsoSlopeForPhoton " << pho_sumPtTrackIsoSlope <<  endl;
 
   float sum_track_pt = 0.;
 
@@ -346,7 +340,7 @@ bool PFEGammaFilters::isPhotonSafeForJetMET(const reco::Photon & photon, const r
   if(debugSafeForJetMET)
     cout << " PFEGammaFilters::isPhotonSafeForJetMET: SumPt " << sum_track_pt << endl;
 
-  if(sum_track_pt>(sumPtTrackIso + sumPtTrackIsoSlope * photon.pt())) {
+  if(sum_track_pt>(pho_sumPtTrackIso + pho_sumPtTrackIsoSlope * photon.pt())) {
     isSafeForJetMET = false;
     if(debugSafeForJetMET)
       cout << "************************************!!!! PFEGammaFilters::isPhotonSafeForJetMET: Photon Discaded !!! " << endl;

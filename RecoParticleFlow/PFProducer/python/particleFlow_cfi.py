@@ -55,16 +55,31 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     isolatedElectronID_mvaWeightFile = cms.string('RecoEgamma/ElectronIdentification/data/TMVA_BDTSimpleCat_17Feb2011.weights.xml'),
     # maxNtracks,maxHcalE,maxTrackPOverEele,maxE,maxEleHcalEOverEcalE,maxEcalEOverPRes
     # maxEeleOverPoutRes,maxHcalEOverP,maxHcalEOverEcalE,maxEcalEOverP_cut1,axEcalEOverP_cut2,maxEeleOverPout,maxDPhiIN;                             
-    electron_protectionsForJetMET = cms.vdouble(3.,10.,1.,50.,0.1,0.2,0.5,1.0,0.1,0.5,0.2,0.2,0.1),                          
-
+    electron_protectionsForJetMET = cms.PSet(
+    maxNtracks = cms.double(3.0), #max tracks pointing at Ele cluster
+    maxHcalE = cms.double(10.0),
+    maxTrackPOverEele = cms.double(1.0),
+    maxE = cms.double(50.0), #for dphi cut
+    maxEleHcalEOverEcalE = cms.double(0.1),
+    maxEcalEOverPRes = cms.double(0.2),
+    maxEeleOverPoutRes = cms.double(0.5),
+    maxHcalEOverP = cms.double(1.0),
+    maxHcalEOverEcalE = cms.double(0.1),
+    maxEcalEOverP_1 = cms.double(0.5), #pion rejection
+    maxEcalEOverP_2 = cms.double(0.2), #weird events
+    maxEeleOverPout = cms.double(0.2),
+    maxDPhiIN = cms.double(0.1)    
+    ),
     # New photon selection cuts for CMSSW_700
     photon_MinEt = cms.double(10.),
     photon_combIso = cms.double(10.),
     photon_HoE =  cms.double(0.10),
 
     # sumPtTrackIso, sumPtTrackIsoSlope                          
-    photon_protectionsForJetMET = cms.vdouble(2.0,0.001),                                    
-
+    photon_protectionsForJetMET = cms.PSet(
+    sumPtTrackIso = cms.double(2.0),
+    sumPtTrackIsoSlope = cms.double(0.001)
+    ),
     PFEGammaCandidates = cms.InputTag("particleFlowEGamma"),
     GedElectronValueMap = cms.InputTag("gedGsfElectronsTmp"),
     GedPhotonValueMap = cms.InputTag("tmpGedPhotons","valMapPFEgammaCandToPhoton"),
