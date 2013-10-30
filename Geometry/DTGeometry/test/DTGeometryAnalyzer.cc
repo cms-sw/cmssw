@@ -14,7 +14,6 @@
 
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-//#include <Geometry/DTGeometry/interface/DTLayer.h>
 
 #include <iostream>
 #include <string>
@@ -144,32 +143,40 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
         DTChamberId id(w,st,se);
         const DTChamber* ch = pDD->chamber(id);
-        if (!ch) cout << "ERROR ch not found " << id << endl;
-        if (id!=ch->id()) cout << "ERROR: got wrong chamber: Cerco camera " << id << " e trovo " << ch->id() << endl;
-	// test idToDet for chamber
-	const GeomDet* gdetc=pDD->idToDet(id);
-	assert(gdetc==ch);
+        if (!ch)
+	  cout << "ERROR ch not found " << id << endl;
+	else
+	{	  
+	  if (id!=ch->id()) cout << "ERROR: got wrong chamber: Cerco camera " << id << " e trovo " << ch->id() << endl;
+	  // test idToDet for chamber
+	  const GeomDet* gdetc=pDD->idToDet(id);
+	  assert(gdetc==ch);
 
-        for (int sl=1; sl<= 3 ; ++sl) {
-	  if (sl==2 && st==4) continue;
-          DTSuperLayerId slid(id,sl);
-          const DTSuperLayer* dtsl = pDD->superLayer(slid);
-          if (!dtsl) cout << "ERROR sl not found " << slid << endl;
-          if (slid!=dtsl->id()) cout << "ERROR: got wrong sl! Cerco sl " << slid << " e trovo " << dtsl->id() << endl;
-	  // test idToDet for superLayer
-	  const GeomDet* gdets=pDD->idToDet(slid);
-	  assert(gdets==dtsl);
+	  for (int sl=1; sl<= 3 ; ++sl) {
+	    if (sl==2 && st==4) continue;
+	    DTSuperLayerId slid(id,sl);
+	    const DTSuperLayer* dtsl = pDD->superLayer(slid);
+	    if (!dtsl)
+	      cout << "ERROR sl not found " << slid << endl;
+	    else
+	    {
+	      if (slid!=dtsl->id()) cout << "ERROR: got wrong sl! Cerco sl " << slid << " e trovo " << dtsl->id() << endl;
+	      // test idToDet for superLayer
+	      const GeomDet* gdets=pDD->idToDet(slid);
+	      assert(gdets==dtsl);
 
-          for (int l=1; l<=4; ++l) {
-            DTLayerId lid(slid,l);
-            const DTLayer* lay = pDD->layer(lid);
-            if (!lay) cout << "ERROR lay not found " << lid << endl;
-            if (lid!=lay->id()) cout << "ERROR: got wrong layer Cerco lay  " << lid << " e trovo " << lay->id() << endl;
-	    // test idToDet for layer
-	    const GeomDet* gdetl=pDD->idToDet(lid);
-	    assert(gdetl==lay);
-          }
-        }
+	      for (int l=1; l<=4; ++l) {
+		DTLayerId lid(slid,l);
+		const DTLayer* lay = pDD->layer(lid);
+		if (!lay) cout << "ERROR lay not found " << lid << endl;
+		if (lid!=lay->id()) cout << "ERROR: got wrong layer Cerco lay  " << lid << " e trovo " << lay->id() << endl;
+		// test idToDet for layer
+		const GeomDet* gdetl=pDD->idToDet(lid);
+		assert(gdetl==lay);
+	      }
+	    } 
+	  }
+	}
       }
     }
   }
