@@ -12,10 +12,10 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 
 ### Expects test.root in current directory.
-# fileNames=cms.untracked.vstring('file:/home/alja/cms-dev/tracking.root')
+#     fileNames=cms.untracked.vstring('root://xrootd.t2.ucsd.edu//tas-5/cerati/TTbarEventsPU/step2_ttbar_45PU25ns.root')
 process.source = cms.Source(
     "PoolSource",  
-     fileNames=cms.untracked.vstring('root://xrootd.t2.ucsd.edu//tas-5/cerati/TTbarEventsPU/step2_ttbar_45PU25ns.root')
+ fileNames=cms.untracked.vstring('file:/home/alja/cms-dev/tracking.root')
 )
 
 process.POurFilter = cms.EDFilter("RandomFilter",
