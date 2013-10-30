@@ -34,7 +34,6 @@ using namespace edm;
 
 /// Constructor
 HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) :
-  HLTFilter(pset),
   theSTAMuonLabel(  pset.getParameter<string>("SALabel") ),             // the name of the STA rec hits collection
   thePropagatorName(pset.getParameter<std::string>("PropagatorName") ),
   theRadius(        pset.getParameter<double>("radius") ),              // cyl's radius (cm)
@@ -63,7 +62,7 @@ HLTMuonPointingFilter::~HLTMuonPointingFilter() {
 }
 
 /* Operations */
-bool HLTMuonPointingFilter::hltFilter(edm::Event& event, const edm::EventSetup& eventSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
   bool accept = false;
 
   const TrackingComponentsRecord & tkRec = eventSetup.get<TrackingComponentsRecord>();
@@ -132,8 +131,6 @@ bool HLTMuonPointingFilter::hltFilter(edm::Event& event, const edm::EventSetup& 
   }
 
   return accept;
-
-
 }
 
 // define this as a plug-in

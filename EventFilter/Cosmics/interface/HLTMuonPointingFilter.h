@@ -3,7 +3,7 @@
 
 /** \class HLTMuonPointingFilter
  *
- * HLTFilter to select muons that points to a cylinder of configurable radius
+ * EDFilter to select muons that points to a cylinder of configurable radius
  * and lenght.
  *
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
@@ -11,7 +11,7 @@
  */
 
 /* Base Class Headers */
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 
 /* Collaborating Class Declarations */
 class Propagator;
@@ -25,7 +25,7 @@ class Propagator;
 
 /* Class HLTMuonPointingFilter Interface */
 
-class HLTMuonPointingFilter : public HLTFilter {
+class HLTMuonPointingFilter : public edm::EDFilter {
 
 public:
 
@@ -36,7 +36,7 @@ public:
   ~HLTMuonPointingFilter() ;
 
   /* Operations */
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool filter(edm::Event &, edm::EventSetup const &) override;
 
 private:
   const std::string theSTAMuonLabel;        // label of muons
