@@ -14,8 +14,6 @@
 #include "DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h"
 
 // DT trigger
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DQM/DTMonitorModule/interface/DTTrigGeomUtils.h"
 
 // Geometry
@@ -77,6 +75,13 @@ DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps) :
 
   processDCC   = ps.getUntrackedParameter<bool>("processDCC");
   processDDU   = ps.getUntrackedParameter<bool>("processDDU");
+
+  dcc_phi_Token_ = consumes<L1MuDTChambPhContainer>(
+      ps.getUntrackedParameter<InputTag>("inputTagDCC"));
+  dcc_theta_Token_ = consumes<L1MuDTChambThContainer>(
+      ps.getUntrackedParameter<InputTag>("inputTagDCC"));
+  trig_Token_ = consumes<DTLocalTriggerCollection>(
+      ps.getUntrackedParameter<InputTag>("inputTagDDU"));
 
   if (processDCC) theTypes.push_back("DCC");
   if (processDDU) theTypes.push_back("DDU");
@@ -198,8 +203,8 @@ void DTLocalTriggerBaseTask::analyze(const edm::Event& e, const edm::EventSetup&
   if (processDCC) {
     InputTag inputTagDCC = theParams.getUntrackedParameter<InputTag>("inputTagDCC");
 
-    e.getByLabel(inputTagDCC,phiTrigsDCC);
-    e.getByLabel(inputTagDCC,thetaTrigsDCC);
+    e.getByToken(dcc_phi_Token_, phiTrigsDCC);
+    e.getByToken(dcc_theta_Token_, thetaTrigsDCC);
 
     if (phiTrigsDCC.isValid() && thetaTrigsDCC.isValid()) {
       runDCCAnalysis(phiTrigsDCC->getContainer(),thetaTrigsDCC->getContainer());
@@ -213,7 +218,7 @@ void DTLocalTriggerBaseTask::analyze(const edm::Event& e, const edm::EventSetup&
 
   if (processDDU) {
     InputTag inputTagDDU = theParams.getUntrackedParameter<InputTag>("inputTagDDU");
-    e.getByLabel(inputTagDDU,trigsDDU);
+    e.getByToken(trig_Token_, trigsDDU);
 
     if (trigsDDU.isValid()) {
       runDDUAnalysis(trigsDDU);

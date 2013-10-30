@@ -24,6 +24,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 
 #include <vector>
 #include <string>
@@ -118,6 +120,9 @@ class DTLocalTriggerBaseTask: public edm::EDAnalyzer{
   std::map<uint32_t,DTTimeEvolutionHisto* > trendHistos;
   MonitorElement* nEventMonitor;
 
+  edm::EDGetTokenT<L1MuDTChambPhContainer> dcc_phi_Token_;
+  edm::EDGetTokenT<L1MuDTChambThContainer> dcc_theta_Token_;
+  edm::EDGetTokenT<DTLocalTriggerCollection> trig_Token_;
 };
 
 #endif
