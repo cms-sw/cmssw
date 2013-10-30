@@ -26,6 +26,11 @@
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
+// DT trigger
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+
+
 #include <vector>
 #include <string>
 #include <map>
@@ -97,6 +102,9 @@ class DTLocalTriggerSynchTask: public edm::EDAnalyzer{
   std::map<uint32_t, std::map<std::string, MonitorElement*> > triggerHistos;
   MonitorElement* dcc_IDDataErrorPlot;
 
+  edm::EDGetTokenT<L1MuDTChambPhContainer>   dcc_Token_;
+  edm::EDGetTokenT<DTLocalTriggerCollection> ddu_Token_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
 };
 
 #endif

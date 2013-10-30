@@ -12,10 +12,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-// DT trigger
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-
 // Geometry
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -48,8 +44,14 @@ using namespace std;
 DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps) : nevents(0) {
 
   edm::LogVerbatim ("DTLocalTriggerSynchTask")  << "[DTLocalTriggerSynchTask]: Constructor" << endl;
-  parameters = ps;
+  dcc_Token_  = consumes<L1MuDTChambPhContainer>(
+      parameters.getParameter<edm::InputTag>("DCCInputTag"));
+  ddu_Token_  = consumes<DTLocalTriggerCollection>(
+      parameters.getParameter<edm::InputTag>("DDUInputTag"));
+  seg_Token_  = consumes<DTRecSegment4DCollection>(
+      parameters.getParameter<edm::InputTag>("SEGInputTag"));
 
+  parameters = ps;
 }
 
 
@@ -127,8 +129,9 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
 
   // Get best DCC triggers
   edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
-  event.getByLabel(inputTagDCC,l1DTTPGPh);
+  event.getByToken(dcc_Token_, l1DTTPGPh);
   vector<L1MuDTChambPhDigi> const*  phTrigs = l1DTTPGPh->getContainer();
+
   vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();
   vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();
   for(; iph !=iphe ; ++iph) {
@@ -146,7 +149,7 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
 
   // Get best DDU triggers
   Handle<DTLocalTriggerCollection> trigsDDU;
-  event.getByLabel(inputTagDDU,trigsDDU);
+  event.getByToken(ddu_Token_, trigsDDU);
   DTLocalTriggerCollection::DigiRangeIterator detUnitIt;
 
   for (detUnitIt=trigsDDU->begin();detUnitIt!=trigsDDU->end();++detUnitIt){
@@ -172,7 +175,7 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
   //Get best segments (highest number of phi hits)
   vector<const DTRecSegment4D*> bestSegments4D;
   Handle<DTRecSegment4DCollection> segments4D;
-  event.getByLabel(inputTagSEG, segments4D);
+  event.getByToken(seg_Token_, segments4D);
   DTRecSegment4DCollection::const_iterator track;
   DTRecSegment4DCollection::id_iterator chambIdIt;
 
