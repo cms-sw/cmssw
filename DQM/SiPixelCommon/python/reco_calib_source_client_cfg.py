@@ -76,9 +76,11 @@ process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
+## 2013.10.30 cleaning of LockService
+## https://github.com/cms-sw/cmssw/pull/1219
+#process.LockService = cms.Service("LockService",
+#    labels = cms.untracked.vstring('source')
+#)
 
 process.DigiReco = cms.Sequence(process.siPixelDigis)
 process.CalibAnalysis = cms.Sequence(process.siPixelCalibDigis*process.siPixelSCurveAnalysis*process.siPixelGainCalibrationAnalysis*process.siPixelIsAliveCalibration)
