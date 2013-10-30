@@ -20,6 +20,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DataFormats/DTDigi/interface/DTDigi.h>
+#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+
 #include <iostream>
 #include <stdio.h>
 #include <string>
@@ -66,9 +69,9 @@ private:
   edm::ParameterSet parameters;
 
   edm::ESHandle<DTGeometry> muonGeom;
-
   edm::ESHandle<DTRangeT0> t0RangeMap;
 
+  edm::EDGetTokenT<DTDigiCollection> dtDigisToken_; // dtunpacker
   std::pair <int, int> t0sPeakRange;
 
   // My monitor elements

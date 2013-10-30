@@ -11,8 +11,6 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 
 // Digis
-#include <DataFormats/DTDigi/interface/DTDigi.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
 
 // Geometry
@@ -37,6 +35,8 @@ DTTestPulsesTask::DTTestPulsesTask(const edm::ParameterSet& ps){
 
 
   cout<<"[DTTestPulseTask]: Constructor"<<endl;
+  dtDigisToken_ = consumes<DTDigiCollection>(
+      edm::InputTag(ps.getUntrackedParameter<std::string>("dtdigis", "dtunpacker")));
 
   parameters = ps;
 
@@ -186,7 +186,7 @@ void DTTestPulsesTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   nevents++;
 
   edm::Handle<DTDigiCollection> dtdigis;
-  e.getByLabel("dtunpacker", dtdigis);
+  e.getByToken(dtDigisToken_, dtdigis);
 
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
   for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
