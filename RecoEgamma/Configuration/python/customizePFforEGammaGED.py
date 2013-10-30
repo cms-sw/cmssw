@@ -1,34 +1,44 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.Utilities as psu
-from  PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag as replaceTags
+from  PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag as _replaceTags
 
 def customizePFforEGammaGED(process):
+    for path in process.paths:
+        sequences = getattr(process,path)
+        #for seq in path:
+        _replaceTags(sequences,
+                     cms.InputTag('gsfElectrons'),
+                     cms.InputTag('gedGsfElectrons'))
+        _replaceTags(sequences,
+                     cms.InputTag('gsfElectronCores'),
+                     cms.InputTag('gedGsfElectronCores'))
     
     # all the rest:
     if hasattr(process,'DigiToRaw'):
-        process=customize_DigiToRaw(process)
+        process=_customize_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
-        process=customize_RawToDigi(process)
+        process=_customize_RawToDigi(process)
     if hasattr(process,'reconstruction'):
-        process=customize_Reco(process)
+        process=_customize_Reco(process)
     if hasattr(process,'reconstructionWithFamos'):
-        process=customize_FastSim(process)
+        process=_customize_FastSim(process)
     if hasattr(process,'digitisation_step'):
-        process=customize_Digi(process)
+        process=_customize_Digi(process)
     if hasattr(process,'HLTSchedule'):
-        process=customize_HLT(process)
+        process=_customize_HLT(process)
     if hasattr(process,'L1simulation_step'):
-        process=customize_L1Emulator(process)
+        process=_customize_L1Emulator(process)
     if hasattr(process,'dqmoffline_step'):
-        process=customize_DQM(process)
+        process=_customize_DQM(process)
     if hasattr(process,'dqmHarvesting'):
-        process=customize_harvesting(process)
+        process=_customize_harvesting(process)
     if hasattr(process,'validation_step'):
-        process=customize_Validation(process)
+        process=_customize_Validation(process)
+
 
     return process
 
-def configurePFForGEDEGamma(process):
+def _configurePFForGEDEGamma(process):
     process.particleFlowTmp.useEGammaFilters = cms.bool(True)
     process.particleFlowTmp.usePFPhotons = cms.bool(False)
     process.particleFlowTmp.usePFElectrons = cms.bool(False)
@@ -38,23 +48,17 @@ def configurePFForGEDEGamma(process):
 
 
 
-def customize_DQM(process):
-    replaceTags(process.dqmoffline_step,
-                cms.InputTag('gsfElectrons'),
-                cms.InputTag('gedGsfElectrons'))
-    replaceTags(process.dqmoffline_step,
-                cms.InputTag('gsfElectronCores'),
-                cms.InputTag('gedGsfElectronCores'))
+def _customize_DQM(process):    
     return process
 
 
-def customize_Validation(process):
-    replaceTags(process.validation_step,
-                cms.InputTag('gsfElectrons'),
-                cms.InputTag('gedGsfElectrons'))
-    replaceTags(process.validation_step,
-                cms.InputTag('gsfElectronCores'),
-                cms.InputTag('gedGsfElectronCores'))
+def _customize_Validation(process):
+    _replaceTags(process.validation_step,
+                 cms.InputTag('gsfElectrons'),
+                 cms.InputTag('gedGsfElectrons'))
+    _replaceTags(process.validation_step,
+                 cms.InputTag('gsfElectronCores'),
+                 cms.InputTag('gedGsfElectronCores'))
     #don't ask... just don't ask
     if hasattr(process,'HLTSusyExoValFastSim'):
         process.HLTSusyExoValFastSim.PlotMakerRecoInput.electrons = \
@@ -78,57 +82,48 @@ def customize_Validation(process):
     return process
 
 
-def customize_Digi(process):
+def _customize_Digi(process):
     return process
 
 
-def customize_L1Emulator(process):
+def _customize_L1Emulator(process):
     return process
 
 
-def customize_RawToDigi(process):
+def _customize_RawToDigi(process):
     return process
 
 
-def customize_DigiToRaw(process):
+def _customize_DigiToRaw(process):
     return process
 
 
-def customize_HLT(process):
+def _customize_HLT(process):
     return process
 
-def customize_FastSim(process):    
-    process=configurePFForGEDEGamma(process)
+def _customize_FastSim(process):    
+    process=_configurePFForGEDEGamma(process)
     process.famosParticleFlowSequence.remove(process.pfElectronTranslatorSequence)
     process.famosParticleFlowSequence.remove(process.pfPhotonTranslatorSequence)
-    process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)
-    replaceTags(process.reconstructionWithFamos,
-                cms.InputTag('gsfElectrons'),
-                cms.InputTag('gedGsfElectrons'))
+    process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)    
     if hasattr(process,'ecalDrivenElectronSeeds'):
         process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
         process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
     return process
 
 
-def customize_Reco(process):
-    process=configurePFForGEDEGamma(process)
+def _customize_Reco(process):
+    process=_configurePFForGEDEGamma(process)
     process.particleFlowReco.remove(process.pfElectronTranslatorSequence)
     process.particleFlowReco.remove(process.pfPhotonTranslatorSequence)
-    process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)
-    replaceTags(process.reconstruction,
-                cms.InputTag('gsfElectrons'),
-                cms.InputTag('gedGsfElectrons'))
+    process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)    
     if hasattr(process,'ecalDrivenElectronSeeds'):
         process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
         process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
     return process
 
 
-def customize_harvesting(process):
+def _customize_harvesting(process):
     if hasattr(process,'oldpfPhotonPostprocessing'):
         process.photonPostProcessor.remove(process.oldpfPhotonPostprocessing)
-    return process
-
-def recoOutputCustoms(process):
     return process
