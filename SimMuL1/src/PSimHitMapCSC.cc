@@ -7,7 +7,9 @@
 
 namespace SimHitAnalysis {
 
-void PSimHitMapCSC::fill(const edm::Event & e)
+//_____________________________________________________________________________
+void 
+PSimHitMapCSC::fill(const edm::Event & e)
 {
   theMap.clear();
   theChLayers.clear();
@@ -35,7 +37,9 @@ void PSimHitMapCSC::fill(const edm::Event & e)
 }
 
 
-std::vector<int> PSimHitMapCSC::chambersWithHits() const
+//_____________________________________________________________________________
+std::vector<int> 
+PSimHitMapCSC::chambersWithHits() const
 {
   if (theChLayers.size()==0) return theEmptyVector;
   std::vector<int> result;
@@ -48,7 +52,9 @@ std::vector<int> PSimHitMapCSC::chambersWithHits() const
 }
 
 
-std::vector<int> PSimHitMapCSC::chamberLayersWithHits(int detId) const
+//_____________________________________________________________________________
+std::vector<int> 
+PSimHitMapCSC::chamberLayersWithHits(int detId) const
 {
   std::map<int, std::vector<int> >::const_iterator itr = theChLayers.find(detId);
   if(itr != theChLayers.end()) return itr->second;

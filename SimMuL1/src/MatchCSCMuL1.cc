@@ -33,10 +33,6 @@
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
 
 
-using namespace std;
-using namespace reco;
-using namespace edm;
-
 namespace 
 {
 const double MUON_MASS = 0.105658369 ; // PDG06
@@ -107,8 +103,7 @@ MatchCSCMuL1::vAtStation(int st)
 math::XYZVectorD
 MatchCSCMuL1::vSmart()
 {
-  int key_st = keyStation();
-  return vAtStation(key_st);
+  return vAtStation(keyStation());
 }
 
 
@@ -126,8 +121,7 @@ MatchCSCMuL1::deltaRAtStation(int station, double to_eta, double to_phi)
 double
 MatchCSCMuL1::deltaRSmart(double to_eta, double to_phi)
 {
-  int key_st = keyStation();
-  return deltaRAtStation(key_st, to_eta,to_phi);
+  return deltaRAtStation(keyStation(), to_eta,to_phi);
 }
 
 
@@ -143,27 +137,26 @@ MatchCSCMuL1::nSimHits()
 
 
 //_____________________________________________________________________________
-vector<int> 
+std::vector<int> 
 MatchCSCMuL1::detsWithHits()
 {
-  set<int> dets;
-  map<int, vector<PSimHit> >::const_iterator mapItr = hitsMapLayer.begin();
+  std::set<int> dets;
+  std::map<int, std::vector<PSimHit> >::const_iterator mapItr = hitsMapLayer.begin();
   for( ; mapItr != hitsMapLayer.end(); ++mapItr) 
     if ( !muOnly || abs((mapItr->second)[0].particleType())==13 ) 
       dets.insert(mapItr->first);
-  vector<int> result( dets.begin() , dets.end() );
-  return result;
+  return std::vector<int>(dets.begin(), dets.end()); 
 }
 
 
 //_____________________________________________________________________________
-vector<int> 
+std::vector<int> 
 MatchCSCMuL1::chambersWithHits(int station, int ring, unsigned minNHits)
 {
-  set<int> chambers;
-  set<int> layersWithHits;
+  std::set<int> chambers;
+  std::set<int> layersWithHits;
   
-  map<int, vector<PSimHit> >::const_iterator mapItr = hitsMapChamber.begin();
+  std::map<int, std::vector<PSimHit> >::const_iterator mapItr = hitsMapChamber.begin();
   for( ; mapItr != hitsMapChamber.end(); ++mapItr){
     CSCDetId cid(mapItr->first);
     if (station && cid.station() != station) continue;
@@ -176,17 +169,17 @@ MatchCSCMuL1::chambersWithHits(int station, int ring, unsigned minNHits)
       }
     if (layersWithHits.size()>=minNHits) chambers.insert( mapItr->first );
   }
-  vector<int> result( chambers.begin() , chambers.end() );
+  std::vector<int> result( chambers.begin() , chambers.end() );
   return result;
 }
 
 
 //_____________________________________________________________________________
-vector<PSimHit>
+std::vector<PSimHit>
 MatchCSCMuL1::layerHits(int detId)
 {
-  vector<PSimHit> result;
-  std::map<int, vector<PSimHit> >::const_iterator mapItr = hitsMapLayer.find(detId);
+  std::vector<PSimHit> result;
+  std::map<int, std::vector<PSimHit> >::const_iterator mapItr = hitsMapLayer.find(detId);
   if (mapItr == hitsMapLayer.end()) return result;
   for (unsigned i=0; i<(mapItr->second).size(); i++)
     if ( !muOnly || abs((mapItr->second)[i].particleType())==13 ) 
@@ -196,15 +189,15 @@ MatchCSCMuL1::layerHits(int detId)
 
 
 //_____________________________________________________________________________
-vector<PSimHit>
+std::vector<PSimHit>
 MatchCSCMuL1::chamberHits(int detId)
 {
   // foolproof chamber id
   CSCDetId dId(detId);
   CSCDetId chamberId = dId.chamberId();
 
-  vector<PSimHit> result;
-  std::map<int, vector<PSimHit> >::const_iterator mapItr = hitsMapChamber.find(chamberId);
+  std::vector<PSimHit> result;
+  std::map<int, std::vector<PSimHit> >::const_iterator mapItr = hitsMapChamber.find(chamberId);
   if (mapItr == hitsMapChamber.end()) return result;
   for (unsigned i=0; i<(mapItr->second).size(); i++)
     if ( !muOnly || abs((mapItr->second)[i].particleType())==13 ) 
@@ -219,8 +212,10 @@ std::vector<PSimHit>
 MatchCSCMuL1::allSimHits()
 {
   if (!muOnly) return simHits;
-  vector<PSimHit> result;
-  for (unsigned j=0; j<simHits.size(); j++) if (abs(simHits[j].particleType())==13 ) result.push_back(simHits[j]);
+  std::vector<PSimHit> result;
+  for (unsigned j=0; j<simHits.size(); j++) 
+    if (abs(simHits[j].particleType())==13 ) 
+      result.push_back(simHits[j]);
   return result;
 }
 
@@ -229,9 +224,9 @@ MatchCSCMuL1::allSimHits()
 int
 MatchCSCMuL1::numberOfLayersWithHitsInChamber(int detId)
 {
-  set<int> layersWithHits;
+  std::set<int> layersWithHits;
 
-  vector<PSimHit> chHits = chamberHits(detId);
+  std::vector<PSimHit> chHits = chamberHits(detId);
   for (unsigned i = 0; i < chHits.size(); i++) 
   {
     CSCDetId hid(chHits[i].detUnitId());
@@ -248,7 +243,7 @@ MatchCSCMuL1::wireGroupAndStripInChamber( int detId )
 {
   std::pair<int,int> err_pair(-1,-1);
   
-  vector<PSimHit> hits = chamberHits( detId );
+  std::vector<PSimHit> hits = chamberHits( detId );
   unsigned n = hits.size();
   if ( n == 0 ) return err_pair;
 
@@ -290,9 +285,8 @@ MatchCSCMuL1::wireGroupAndStripInChamber( int detId )
 bool
 MatchCSCMuL1::hasHitsInStation(int st, unsigned minNHits) // st=0 - any,  st=1,2,3,4 - ME1-4
 {
-  vector<int> chIds = chambersWithHits(st,0,minNHits);
-  if (chIds.size()==0) return false;
-  return true;
+  std::vector<int> chIds = chambersWithHits(st,0,minNHits);
+  return chIds.size()==0;
 }
 
 
@@ -311,7 +305,7 @@ MatchCSCMuL1::nStationsWithHits(bool me1, bool me2, bool me3, bool me4, unsigned
 std::vector< MatchCSCMuL1::ALCT > 
 MatchCSCMuL1::ALCTsInReadOut()
 {
-  vector<ALCT> result;
+  std::vector<ALCT> result;
   for (unsigned i=0; i<ALCTs.size();i++) 
     if ( ALCTs[i].inReadOut() ) result.push_back(ALCTs[i]);
   return result;
@@ -331,11 +325,11 @@ MatchCSCMuL1::vALCTs(bool readout)
 std::vector<int>
 MatchCSCMuL1::chambersWithALCTs(bool readout)
 {
-  vector<ALCT> tALCTs = vALCTs(readout);
-  set<int> chambers;
-  for (unsigned i=0; i<tALCTs.size();i++) chambers.insert( tALCTs[i].id.rawId() );
-  vector<int> result( chambers.begin() , chambers.end() );
-  return result;
+  std::vector<ALCT> tALCTs = vALCTs(readout);
+  std::set<int> chambers;
+  for (unsigned i=0; i<tALCTs.size();i++) 
+    chambers.insert( tALCTs[i].id.rawId() );
+  return std::vector<int>(chambers.begin(), chambers.end());
 }
 
 
@@ -343,11 +337,11 @@ MatchCSCMuL1::chambersWithALCTs(bool readout)
 std::vector<MatchCSCMuL1::ALCT>
 MatchCSCMuL1::chamberALCTs( int detId, bool readout )
 {
-  vector<ALCT> tALCTs = vALCTs(readout);
+  std::vector<ALCT> tALCTs = vALCTs(readout);
   // foolproof chamber id
   CSCDetId dId(detId);
   CSCDetId chamberId = dId.chamberId();
-  vector<ALCT> result;
+  std::vector<ALCT> result;
   for (unsigned i=0; i<tALCTs.size();i++) 
     if ( tALCTs[i].id == chamberId ) result.push_back(tALCTs[i]);
   return result;
@@ -358,11 +352,11 @@ MatchCSCMuL1::chamberALCTs( int detId, bool readout )
 std::vector<int> 
 MatchCSCMuL1::bxsWithALCTs( int detId, bool readout )
 {
-  vector<MatchCSCMuL1::ALCT> v = chamberALCTs( detId, readout );
-  set<int> bxs;
-  for (unsigned i=0; i<v.size();i++) bxs.insert( v[i].getBX() );
-  vector<int> result( bxs.begin() , bxs.end() );
-  return result;
+  std::vector<MatchCSCMuL1::ALCT> v = chamberALCTs( detId, readout );
+  std::set<int> bxs;
+  for (unsigned i=0; i<v.size();i++) 
+    bxs.insert( v[i].getBX() );
+  return std::vector<int>(bxs.begin(), bxs.end());
 }
 
 
@@ -370,8 +364,8 @@ MatchCSCMuL1::bxsWithALCTs( int detId, bool readout )
 std::vector<MatchCSCMuL1::ALCT> 
 MatchCSCMuL1::chamberALCTsInBx( int detId, int bx, bool readout )
 {
-  vector<MatchCSCMuL1::ALCT> v = chamberALCTs( detId, readout );
-  vector<MatchCSCMuL1::ALCT> result;
+  std::vector<MatchCSCMuL1::ALCT> v = chamberALCTs( detId, readout );
+  std::vector<MatchCSCMuL1::ALCT> result;
   for (unsigned i=0; i<v.size();i++)
     if ( v[i].getBX() == bx ) result.push_back(v[i]);
   return result;
@@ -382,7 +376,7 @@ MatchCSCMuL1::chamberALCTsInBx( int detId, int bx, bool readout )
 std::vector< MatchCSCMuL1::CLCT >
 MatchCSCMuL1::CLCTsInReadOut()
 {
-  vector<CLCT> result;
+  std::vector<CLCT> result;
   for (unsigned i=0; i<CLCTs.size();i++)
     if ( CLCTs[i].inReadOut() ) result.push_back(CLCTs[i]);
   return result;
@@ -402,11 +396,10 @@ MatchCSCMuL1::vCLCTs(bool readout)
 std::vector<int>
 MatchCSCMuL1::chambersWithCLCTs( bool readout)
 {
-  vector<CLCT> tCLCTs = vCLCTs(readout);
-  set<int> chambers;
+  std::vector<CLCT> tCLCTs = vCLCTs(readout);
+  std::set<int> chambers;
   for (unsigned i=0; i<tCLCTs.size();i++) chambers.insert( tCLCTs[i].id.rawId() );
-  vector<int> result( chambers.begin() , chambers.end() );
-  return result;
+  return std::vector<int>(chambers.begin(), chambers.end());
 }
 
 
@@ -414,11 +407,11 @@ MatchCSCMuL1::chambersWithCLCTs( bool readout)
 std::vector<MatchCSCMuL1::CLCT>
 MatchCSCMuL1::chamberCLCTs( int detId, bool readout )
 {
-  vector<CLCT> tCLCTs = vCLCTs(readout);
+  std::vector<CLCT> tCLCTs = vCLCTs(readout);
   // foolproof chamber id
   CSCDetId dId(detId);
   CSCDetId chamberId = dId.chamberId();
-  vector<CLCT> result;
+  std::vector<CLCT> result;
   for (unsigned i=0; i<tCLCTs.size();i++) 
     if ( tCLCTs[i].id == chamberId ) result.push_back(tCLCTs[i]);
   return result;
@@ -429,11 +422,10 @@ MatchCSCMuL1::chamberCLCTs( int detId, bool readout )
 std::vector<int>
 MatchCSCMuL1::bxsWithCLCTs( int detId, bool readout )
 {
-  vector<MatchCSCMuL1::CLCT> v = chamberCLCTs( detId, readout );
-  set<int> bxs;
+  std::vector<MatchCSCMuL1::CLCT> v = chamberCLCTs( detId, readout );
+  std::set<int> bxs;
   for (unsigned i=0; i<v.size();i++) bxs.insert( v[i].getBX() );
-  vector<int> result( bxs.begin() , bxs.end() );
-  return result;
+  return std::vector<int>(bxs.begin(), bxs.end());
 }
 
 
@@ -441,8 +433,8 @@ MatchCSCMuL1::bxsWithCLCTs( int detId, bool readout )
 std::vector<MatchCSCMuL1::CLCT>
 MatchCSCMuL1::chamberCLCTsInBx( int detId, int bx, bool readout )
 {
-  vector<MatchCSCMuL1::CLCT> v = chamberCLCTs( detId, readout );
-  vector<MatchCSCMuL1::CLCT> result;
+  std::vector<MatchCSCMuL1::CLCT> v = chamberCLCTs( detId, readout );
+  std::vector<MatchCSCMuL1::CLCT> result;
   for (unsigned i=0; i<v.size();i++)
     if ( v[i].getBX() == bx ) result.push_back(v[i]);
   return result;
@@ -453,7 +445,7 @@ MatchCSCMuL1::chamberCLCTsInBx( int detId, int bx, bool readout )
 std::vector< MatchCSCMuL1::LCT >
 MatchCSCMuL1::LCTsInReadOut()
 {
-  vector<LCT> result;
+  std::vector<LCT> result;
   for (unsigned i=0; i<LCTs.size();i++)
     if ( LCTs[i].inReadOut() ) result.push_back(LCTs[i]);
   return result;
@@ -473,11 +465,10 @@ MatchCSCMuL1::vLCTs(bool readout)
 std::vector<int>
 MatchCSCMuL1::chambersWithLCTs( bool readout )
 {
-  vector<LCT> tLCTs = vLCTs(readout);
-  set<int> chambers;
+  std::vector<LCT> tLCTs = vLCTs(readout);
+  std::set<int> chambers;
   for (unsigned i=0; i<tLCTs.size();i++) chambers.insert( tLCTs[i].id.rawId() );
-  vector<int> result( chambers.begin() , chambers.end() );
-  return result;
+  return std::vector<int>(chambers.begin(), chambers.end());
 }
 
 
@@ -485,11 +476,11 @@ MatchCSCMuL1::chambersWithLCTs( bool readout )
 std::vector<MatchCSCMuL1::LCT>
 MatchCSCMuL1::chamberLCTs( int detId, bool readout )
 {
-  vector<LCT> tLCTs = vLCTs(readout);
+  std::vector<LCT> tLCTs = vLCTs(readout);
   // foolproof chamber id
   CSCDetId dId(detId);
   CSCDetId chamberId = dId.chamberId();
-  vector<LCT> result;
+  std::vector<LCT> result;
   for (unsigned i=0; i<tLCTs.size();i++) 
     if ( tLCTs[i].id == chamberId ) result.push_back(tLCTs[i]);
   return result;
@@ -503,7 +494,7 @@ MatchCSCMuL1::chamberLCTsp( int detId, bool readout )
   // foolproof chamber id
   CSCDetId dId(detId);
   CSCDetId chamberId = dId.chamberId();
-  vector<LCT*> result;
+  std::vector<LCT*> result;
   for (unsigned i=0; i<LCTs.size();i++) {
     if ( readout && !(LCTs[i].inReadOut()) ) continue;
     if ( LCTs[i].id == chamberId ) result.push_back( &(LCTs[i]) );
@@ -516,11 +507,11 @@ MatchCSCMuL1::chamberLCTsp( int detId, bool readout )
 std::vector<int>
 MatchCSCMuL1::bxsWithLCTs( int detId, bool readout )
 {
-  vector<MatchCSCMuL1::LCT> v = chamberLCTs( detId, readout );
-  set<int> bxs;
-  for (unsigned i=0; i<v.size();i++) bxs.insert( v[i].getBX() );
-  vector<int> result( bxs.begin() , bxs.end() );
-  return result;
+  std::vector<MatchCSCMuL1::LCT> v = chamberLCTs( detId, readout );
+  std::set<int> bxs;
+  for (unsigned i=0; i<v.size();i++) 
+    bxs.insert( v[i].getBX() );
+  return std::vector<int>(bxs.begin(), bxs.end());
 }
 
 
@@ -528,8 +519,8 @@ MatchCSCMuL1::bxsWithLCTs( int detId, bool readout )
 std::vector<MatchCSCMuL1::LCT>
 MatchCSCMuL1::chamberLCTsInBx( int detId, int bx, bool readout )
 {
-  vector<MatchCSCMuL1::LCT> v = chamberLCTs( detId, readout );
-  vector<MatchCSCMuL1::LCT> result;
+  std::vector<MatchCSCMuL1::LCT> v = chamberLCTs( detId, readout );
+  std::vector<MatchCSCMuL1::LCT> result;
   for (unsigned i=0; i<v.size();i++)
     if ( v[i].getBX() == bx ) result.push_back(v[i]);
   return result;
@@ -540,7 +531,7 @@ MatchCSCMuL1::chamberLCTsInBx( int detId, int bx, bool readout )
 std::vector< MatchCSCMuL1::MPLCT >
 MatchCSCMuL1::MPLCTsInReadOut()
 {
-  vector<MPLCT> result;
+  std::vector<MPLCT> result;
   for (unsigned i=0; i<MPLCTs.size();i++)
     if ( MPLCTs[i].inReadOut() ) result.push_back(MPLCTs[i]);
   return result;
@@ -560,11 +551,10 @@ MatchCSCMuL1::vMPLCTs(bool readout)
 std::vector<int>
 MatchCSCMuL1::chambersWithMPLCTs(bool readout)
 {
-  vector<MPLCT> tMPLCTs = vMPLCTs(readout);
-  set<int> chambers;
+  std::vector<MPLCT> tMPLCTs = vMPLCTs(readout);
+  std::set<int> chambers;
   for (unsigned i=0; i<tMPLCTs.size();i++) chambers.insert( tMPLCTs[i].id.rawId() );
-  vector<int> result( chambers.begin() , chambers.end() );
-  return result;
+  return std::vector<int>(chambers.begin(), chambers.end());
 }
 
 
@@ -572,11 +562,11 @@ MatchCSCMuL1::chambersWithMPLCTs(bool readout)
 std::vector<MatchCSCMuL1::MPLCT>
 MatchCSCMuL1::chamberMPLCTs( int detId, bool readout )
 {
-  vector<MPLCT> tMPLCTs = vMPLCTs(readout);
+  std::vector<MPLCT> tMPLCTs = vMPLCTs(readout);
   // foolproof chamber id
   CSCDetId dId(detId);
   CSCDetId chamberId = dId.chamberId();
-  vector<MPLCT> result;
+  std::vector<MPLCT> result;
   for (unsigned i=0; i<tMPLCTs.size();i++) 
     if ( tMPLCTs[i].id == chamberId ) result.push_back(tMPLCTs[i]);
   return result;
@@ -587,10 +577,10 @@ MatchCSCMuL1::chamberMPLCTs( int detId, bool readout )
 std::vector<int>
 MatchCSCMuL1::bxsWithMPLCTs( int detId, bool readout )
 {
-  vector<MatchCSCMuL1::MPLCT> v = chamberMPLCTs( detId, readout );
-  set<int> bxs;
+  std::vector<MatchCSCMuL1::MPLCT> v = chamberMPLCTs( detId, readout );
+  std::set<int> bxs;
   for (unsigned i=0; i<v.size();i++) bxs.insert( v[i].trgdigi->getBX() );
-  vector<int> result( bxs.begin() , bxs.end() );
+  std::vector<int> result( bxs.begin() , bxs.end() );
   return result;
 }
 
@@ -599,8 +589,8 @@ MatchCSCMuL1::bxsWithMPLCTs( int detId, bool readout )
 std::vector<MatchCSCMuL1::MPLCT>
 MatchCSCMuL1::chamberMPLCTsInBx( int detId, int bx, bool readout )
 {
-  vector<MatchCSCMuL1::MPLCT> v = chamberMPLCTs( detId, readout );
-  vector<MatchCSCMuL1::MPLCT> result;
+  std::vector<MatchCSCMuL1::MPLCT> v = chamberMPLCTs( detId, readout );
+  std::vector<MatchCSCMuL1::MPLCT> result;
   for (unsigned i=0; i<v.size();i++)
     if ( v[i].trgdigi->getBX() == bx ) result.push_back(v[i]);
   return result;
@@ -656,11 +646,11 @@ MatchCSCMuL1::print (const char msg[300], bool psimtr, bool psimh,
 
     //self check 
     unsigned ntot=0;
-    std::map<int, vector<PSimHit> >::const_iterator mapItr = hitsMapChamber.begin();
+    std::map<int, std::vector<PSimHit> >::const_iterator mapItr = hitsMapChamber.begin();
     for (; mapItr != hitsMapChamber.end(); mapItr++) 
     {
       unsigned nltot=0;
-      std::map<int, vector<PSimHit> >::const_iterator lmapItr = hitsMapLayer.begin();
+      std::map<int, std::vector<PSimHit> >::const_iterator lmapItr = hitsMapLayer.begin();
       for (; lmapItr != hitsMapLayer.end(); lmapItr++) 
       {
         CSCDetId lId(lmapItr->first);
@@ -674,12 +664,12 @@ MatchCSCMuL1::print (const char msg[300], bool psimtr, bool psimh,
       std::cout<<" SELF CHACK ALARM!!! : ntot hits in chambers = "<<ntot<<"!= simHits.size()"<<std::endl;
     
 
-    vector<int> chIds = chambersWithHits(0,0,1);
+    std::vector<int> chIds = chambersWithHits(0,0,1);
     for (size_t ch = 0; ch < chIds.size(); ch++) {
       CSCDetId chid(chIds[ch]);
       std::pair<int,int> ws = wireGroupAndStripInChamber(chIds[ch]);
       std::cout<<"  chamber "<<chIds[ch]<<"   "<<chid<<"    #layers with hits = "<<numberOfLayersWithHitsInChamber(chIds[ch])<<"  w="<<ws.first<<"  s="<<ws.second<<std::endl;
-      vector<PSimHit> chHits;
+      std::vector<PSimHit> chHits;
       if(DETAILED_HIT_LAYERS) chHits = chamberHits(chIds[ch]);
       for (unsigned i = 0; i < chHits.size(); i++) 
       {
@@ -1027,9 +1017,7 @@ MatchCSCMuL1::TFCAND::TFCAND(MatchCSCMuL1 *m):match(m),l1cand(0) {}
 bool 
 MatchCSCMuL1::ALCT::inReadOut()
 {
-  if (getBX()>=match->minBxALCT && getBX()<=match->maxBxALCT) 
-    return true;
-  return false;
+  return getBX()>=match->minBxALCT && getBX()<=match->maxBxALCT;
 }
 
 
@@ -1037,9 +1025,7 @@ MatchCSCMuL1::ALCT::inReadOut()
 bool 
 MatchCSCMuL1::CLCT::inReadOut()
 {
-  if (getBX()>=match->minBxCLCT && getBX()<=match->maxBxCLCT)
-    return true;
-  return false;
+  return getBX()>=match->minBxCLCT && getBX()<=match->maxBxCLCT;
 }
 
 
@@ -1047,9 +1033,7 @@ MatchCSCMuL1::CLCT::inReadOut()
 bool 
 MatchCSCMuL1::LCT::inReadOut()
 {
-  if (getBX()>=match->minBxLCT && getBX()<=match->maxBxLCT)
-    return true;
-  return false;
+  return getBX()>=match->minBxLCT && getBX()<=match->maxBxLCT;
 }
 
 
@@ -1057,9 +1041,7 @@ MatchCSCMuL1::LCT::inReadOut()
 bool 
 MatchCSCMuL1::MPLCT::inReadOut()
 {
-  if (getBX()>=match->minBxMPLCT && getBX()<=match->maxBxMPLCT)
-    return true;
-  return false;
+  return getBX()>=match->minBxMPLCT && getBX()<=match->maxBxMPLCT;
 }
 
 
@@ -1180,21 +1162,9 @@ MatchCSCMuL1::TFTRACK::passStubsMatch(int minLowHStubs, int minMidHStubs, int mi
   double steta = match->strk->momentum().eta();
   int nstubs = nStubs(1,1,1,1,1);
   int nstubsok = nStubsCSCOk(1,1,1,1);
-  if (fabs(steta) <= 1.2)
-  {
-    if (nstubsok >=1 && nstubs >= minLowHStubs) return true;
-    else return false;
-  }
-  else if (fabs(steta) <= 2.1)
-  {
-    if (nstubsok >=2 && nstubs >= minMidHStubs) return true;
-    else return false;
-  }
-  else
-  {
-    if (nstubsok >=2 && nstubs >= minHighHStubs) return true;
-    else return false;
-  }
+  if (fabs(steta) <= 1.2)      return nstubsok >=1 && nstubs >= minLowHStubs;
+  else if (fabs(steta) <= 2.1) return nstubsok >=2 && nstubs >= minMidHStubs;
+  else                         return nstubsok >=2 && nstubs >= minHighHStubs;
 }
 
 
@@ -1213,7 +1183,7 @@ MatchCSCMuL1::TFTRACK::print(const char msg[300])
   std::cout<<"\tMB1 ME1 ME2 ME3 ME4 = "<<l1trk->mb1ID()<<" "<<l1trk->me1ID()<<" "<<l1trk->me2ID()<<" "<<l1trk->me3ID()<<" "<<l1trk->me4ID()
       <<" ("<<hasStub(0)<<" "<<hasStub(1)<<" "<<hasStub(2)<<" "<<hasStub(3)<<" "<<hasStub(4)<<")  "
       <<" ("<<hasStubCSCOk(1)<<" "<<hasStubCSCOk(2)<<" "<<hasStubCSCOk(3)<<" "<<hasStubCSCOk(4)<<")"<<std::endl;
-  std::cout<<"\tptAddress: 0x"<<hex<<l1trk->ptLUTAddress()<<dec<<"  mode: "<<mode()<<"  sign: "<<sign()<<"  dphi12: "<<dPhi12()<<"  dphi23: "<<dPhi23()<<std::endl;
+  std::cout<<"\tptAddress: 0x"<<std::hex<<l1trk->ptLUTAddress()<<std::dec<<"  mode: "<<mode()<<"  sign: "<<sign()<<"  dphi12: "<<dPhi12()<<"  dphi23: "<<dPhi23()<<std::endl;
   std::cout<<"\thas "<<trgdigis.size()<<" stubs in ";
   for (size_t s=0; s<trgids.size(); s++) 
     std::cout<<trgids[s]<<" w:"<<trgdigis[s]->getKeyWG()<<" s:"<<trgdigis[s]->getStrip()/2 + 1<<" p:"<<trgdigis[s]->getPattern()<<" bx:"<<trgdigis[s]->getBX()<<"; ";
