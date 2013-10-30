@@ -13,9 +13,6 @@
 // DT DQM
 #include "DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h"
 
-#include "DataFormats/Luminosity/interface/LumiDetails.h"
-#include "DataFormats/Scalers/interface/LumiScalers.h"
-
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -29,7 +26,8 @@ DTScalerInfoTask::DTScalerInfoTask(const edm::ParameterSet& ps) :
   LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask")
     << "[DTScalerInfoTask]: Constructor"<<endl;
 
-  theScalerTag = ps.getUntrackedParameter<InputTag>("inputTagScaler");
+  scalerToken_ = consumes<LumiScalersCollection>(
+      ps.getUntrackedParameter<InputTag>("inputTagScaler"));
   theParams = ps;
   theDQMStore = edm::Service<DQMStore>().operator->();
 
@@ -104,7 +102,7 @@ void DTScalerInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   //retrieve the luminosity
   edm::Handle<LumiScalersCollection> lumiScalers;
-  e.getByLabel(theScalerTag, lumiScalers);
+  e.getByToken(scalerToken_, lumiScalers);
   LumiScalersCollection::const_iterator lumiIt = lumiScalers->begin();
   trendHistos["AvgLumivsLumiSec"]->accumulateValueTimeSlot(lumiIt->instantLumi());
 

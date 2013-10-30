@@ -24,6 +24,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
+#include "DataFormats/Luminosity/interface/LumiDetails.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
 
 #include <vector>
 #include <string>
@@ -74,7 +76,7 @@ class DTScalerInfoTask: public edm::EDAnalyzer{
   DQMStore* theDQMStore;
   edm::ParameterSet theParams;
 
-  edm::InputTag theScalerTag;
+  edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
 
   std::map<std::string ,DTTimeEvolutionHisto* > trendHistos;
   MonitorElement* nEventMonitor;
