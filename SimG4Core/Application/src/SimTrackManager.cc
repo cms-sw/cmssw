@@ -20,6 +20,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4VProcess.hh"
+
 //#define DebugLog
 
 //
@@ -186,7 +188,8 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory * trkH, int iParentID,
     }
   }
   
-  simEvent->add(new G4SimVertex(trkH->vertexPosition(),trkH->globalTime(),parent));
+  simEvent->add(new G4SimVertex(trkH->vertexPosition(),trkH->globalTime(),
+				parent,trkH->creatorProcess()->GetProcessSubType()));
   m_vertexMap[parent].push_back(MapVertexPosition(m_nVertices,trkH->vertexPosition()));
   m_nVertices++;
   return (m_nVertices-1);
