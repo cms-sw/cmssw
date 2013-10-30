@@ -35,15 +35,15 @@ class DTRangeT0;
 class DTTestPulsesTask: public edm::EDAnalyzer{
 
 public:
-  
+
   /// Constructor
   DTTestPulsesTask(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   virtual ~DTTestPulsesTask();
-  
+
 protected:
-  
+
   /// BeginJob
   void beginJob();
 
@@ -52,13 +52,13 @@ protected:
 
   /// Book the ME
   void bookHistos(const DTLayerId& dtLayer, std::string folder, std::string histoTag);
-  
+
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  
+
 private:
-  
+
   int nevents;
 
   DQMStore* dbe;
@@ -70,13 +70,18 @@ private:
   edm::ESHandle<DTRangeT0> t0RangeMap;
 
   std::pair <int, int> t0sPeakRange;
-  
+
   // My monitor elements
   std::map<int, MonitorElement*> testPulsesProfiles;
   std::map<int, MonitorElement*> testPulsesOccupancies;
   std::map<int, MonitorElement*> testPulsesTimeBoxes;
 
-  
+
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

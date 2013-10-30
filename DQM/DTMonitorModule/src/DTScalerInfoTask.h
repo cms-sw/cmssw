@@ -32,19 +32,19 @@
 class DTTimeEvolutionHisto;
 
 class DTScalerInfoTask: public edm::EDAnalyzer{
-  
+
   friend class DTMonitorModule;
-  
+
  public:
-  
+
   /// Constructor
   DTScalerInfoTask(const edm::ParameterSet& ps );
-  
+
   /// Destructor
   virtual ~DTScalerInfoTask();
-  
+
  protected:
-  
+
   // BeginJob
   void beginJob();
 
@@ -59,10 +59,10 @@ class DTScalerInfoTask: public edm::EDAnalyzer{
 
   /// Perform trend plot operations
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
-  
+
   /// EndJob
   void endJob(void);
-  
+
  private:
 
   /// Book the histograms
@@ -70,7 +70,7 @@ class DTScalerInfoTask: public edm::EDAnalyzer{
 
   int nEvents;
   int nEventsInLS;
-  
+
   DQMStore* theDQMStore;
   edm::ParameterSet theParams;
 
@@ -82,3 +82,8 @@ class DTScalerInfoTask: public edm::EDAnalyzer{
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

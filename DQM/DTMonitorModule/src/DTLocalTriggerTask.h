@@ -41,19 +41,19 @@ class L1MuDTChambThDigi;
 
 
 class DTLocalTriggerTask: public edm::EDAnalyzer{
-  
+
   friend class DTMonitorModule;
-  
+
  public:
-  
+
   /// Constructor
   DTLocalTriggerTask(const edm::ParameterSet& ps );
-  
+
   /// Destructor
   virtual ~DTLocalTriggerTask();
-  
+
  protected:
-  
+
   // BeginJob
   void beginJob();
 
@@ -68,7 +68,7 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
 
   /// Book the histograms
   void bookBarrelHistos(std::string histoTag);
-  
+
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);
 
@@ -89,18 +89,18 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
 
   /// To reset the MEs
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
-  
+
   /// EndJob
   void endJob(void);
-  
+
   /// Get the L1A source
   void triggerSource(const edm::Event& e);
 
   /// Get the Top folder (different between Physics and TP and DCC/DDU)
   std::string& topFolder(bool isDCC) { return isDCC ? baseFolderDCC : baseFolderDDU; }
-  
+
  private:
-  
+
   bool useDCC, useDDU, useSEG;
   std::string trigsrc;
   int nevents;
@@ -109,11 +109,11 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   std::string baseFolderDDU;
   bool doDCCTheta;
   bool detailedAnalysis;
-  
- 
+
+
   int phcode_best[6][5][13];
   int dduphcode_best[6][5][13];
-  int thcode_best[6][5][13];  
+  int thcode_best[6][5][13];
   int dduthcode_best[6][5][13];
   int mapDTTF[6][13][2];
   const L1MuDTChambPhDigi* iphbest[6][5][13];
@@ -127,7 +127,7 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   DTTrigGeomUtils* trigGeomUtils;
   std::map<uint32_t, std::map<std::string, MonitorElement*> > digiHistos;
   std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
-  
+
   MonitorElement* dcc_IDDataErrorPlot;
 
   bool isLocalRun;
@@ -135,3 +135,8 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

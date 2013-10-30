@@ -4,7 +4,7 @@
 
 /** \class DTChamberEfficiencyTask
  *  DQM Analysis of 4D DT segments, it produces plots about: <br>
- *      - single chamber efficiency 
+ *      - single chamber efficiency
  *  All histos are produced per Chamber
  *
  *  Class based on the code written by S. Lacaprara :
@@ -69,11 +69,11 @@ private:
   LocalPoint interpolate(const DTRecSegment4D& seg1,
 			 const DTRecSegment4D& seg3,
 			 const DTChamberId& MB2) const;
-  void bookHistos(DTChamberId chId); 
+  void bookHistos(DTChamberId chId);
 
 
   DQMStore* theDbe;
-  
+
   // Switch for verbosity
   bool debug;
   // The running mode
@@ -97,3 +97,8 @@ private:
 
 };
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

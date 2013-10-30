@@ -50,11 +50,16 @@ void endJob(void);
 private:
 
   int nevents;
-  
+
   // My monitor elements
-  
+
   std::ofstream logFile;
-  
+
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

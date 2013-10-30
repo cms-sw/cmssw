@@ -64,3 +64,8 @@ bool DTROMonitorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setu
   // check the event error flag
   return false;
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

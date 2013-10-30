@@ -1,7 +1,7 @@
 /******* \class DTRunConditionVar *******
  *
  * Description:
- *  
+ *
  *  detailed description
  *
  * \author : Paolo Bellan, Antonio Branca
@@ -35,7 +35,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "DataFormats/Common/interface/RefToBase.h" 
+#include "DataFormats/Common/interface/RefToBase.h"
 
 #include <TMath.h>
 #include <cmath>
@@ -131,7 +131,7 @@ void DTRunConditionVar::analyze(const Event & event,
 
   // Get the segment collection from the event
   Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(thedt4DSegments_, all4DSegments); 
+  event.getByLabel(thedt4DSegments_, all4DSegments);
 
   // Loop over the segments
   for(DTRecSegment4DCollection::const_iterator segment  = all4DSegments->begin();
@@ -145,8 +145,8 @@ void DTRunConditionVar::analyze(const Event & event,
     if( (*segment).hasPhi() ) {
 
       int nHitsPhi = (*segment).phiSegment()->degreesOfFreedom()+2;
-      double xdir = (*segment).phiSegment()->localDirection().x();      
-      double zdir = (*segment).phiSegment()->localDirection().z();      
+      double xdir = (*segment).phiSegment()->localDirection().x();
+      double zdir = (*segment).phiSegment()->localDirection().z();
 
       double anglePhiSegm = fabs(atan(xdir/zdir))*180./TMath::Pi();
 
@@ -158,13 +158,13 @@ void DTRunConditionVar::analyze(const Event & event,
         DTSuperLayerId indexSLPhi1(DTid,1);
         DTSuperLayerId indexSLPhi2(DTid,3);
 
-        float vDriftPhi1(0.), vDriftPhi2(0.); 
+        float vDriftPhi1(0.), vDriftPhi2(0.);
         float ResPhi1(0.), ResPhi2(0.);
-        int status1 = mTimeMap_->get(indexSLPhi1,vDriftPhi1,ResPhi1,DTVelocityUnits::cm_per_ns); 
-        int status2 = mTimeMap_->get(indexSLPhi2,vDriftPhi2,ResPhi2,DTVelocityUnits::cm_per_ns); 
+        int status1 = mTimeMap_->get(indexSLPhi1,vDriftPhi1,ResPhi1,DTVelocityUnits::cm_per_ns);
+        int status2 = mTimeMap_->get(indexSLPhi2,vDriftPhi2,ResPhi2,DTVelocityUnits::cm_per_ns);
 
         if(status1 != 0 || status2 != 0) {
-          DTSuperLayerId sl = (status1 != 0) ? indexSLPhi1 : indexSLPhi2; 
+          DTSuperLayerId sl = (status1 != 0) ? indexSLPhi1 : indexSLPhi2;
           throw cms::Exception("DTRunConditionVarClient") << "Could not find vDrift entry in DB for"
             << sl << endl;
         }
@@ -186,7 +186,7 @@ void DTRunConditionVar::analyze(const Event & event,
     //      double segmentT0 = segment->zSegment()->t0();
     //
     //
-    //      if(segmentT0 != -999 ) ht0[sector-1]->Fill(segmentT0);      
+    //      if(segmentT0 != -999 ) ht0[sector-1]->Fill(segmentT0);
     //      if( segmentVDrift > 0.00 ) hvd[sector-1]->Fill(segmentVDrift);
     //
     //    }
@@ -199,25 +199,30 @@ void DTRunConditionVar::analyze(const Event & event,
 
 void DTRunConditionVar::bookChamberHistos(const DTChamberId& dtCh, string histoType, int nbins, float min, float max) {
 
-  int wh = dtCh.wheel();		
-  int sc = dtCh.sector();	
+  int wh = dtCh.wheel();
+  int sc = dtCh.sector();
   int st = dtCh.station();
-  stringstream wheel; wheel << wh;	
-  stringstream station; station << st;	
-  stringstream sector; sector << sc;	
+  stringstream wheel; wheel << wh;
+  stringstream station; station << st;
+  stringstream sector; sector << sc;
 
   string bookingFolder = "DT/02-Segments/Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();
   string histoTag      = "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
   theDbe->setCurrentFolder(bookingFolder);
 
-  LogTrace ("DTDQM|DTMonitorModule|DTRunConditionVar") 
+  LogTrace ("DTDQM|DTMonitorModule|DTRunConditionVar")
     << "[DTRunConditionVar]: booking histos in " << bookingFolder << endl;
 
   string histoName = histoType  +  histoTag;
   string histoLabel = histoType;
 
-  (chamberHistos[dtCh.rawId()])[histoType] = 
+  (chamberHistos[dtCh.rawId()])[histoType] =
     theDbe->book1D(histoName,histoLabel,nbins,min,max);
 
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

@@ -40,40 +40,40 @@ class L1MuDTChambThDigi;
 
 
 class DTLocalTriggerSynchTask: public edm::EDAnalyzer{
-  
+
   friend class DTMonitorModule;
-  
+
  public:
-  
+
   /// Constructor
   DTLocalTriggerSynchTask(const edm::ParameterSet& ps );
-  
+
   /// Destructor
   virtual ~DTLocalTriggerSynchTask();
-  
+
  protected:
-  
+
   // BeginJob
   void beginJob();
-  
+
   /// Book the histograms
   void bookHistos(const DTChamberId& dtCh );
-  
+
   /// Analyze
   void analyze(const edm::Event& event, const edm::EventSetup& context);
 
   /// Begin Run
   void beginRun(const edm::Run& run, const edm::EventSetup& context);
-  
+
   /// EndJob
   void endJob(void);
 
   std::string & baseDir() { return baseDirectory; }
-    
+
  private:
-  
+
   int nevents;
- 
+
   int phCodeBestDCC[6][5][13];
   int phCodeBXDCC[6][5][13][3];
   int phCodeBestDDU[6][5][13];
@@ -100,3 +100,8 @@ class DTLocalTriggerSynchTask: public edm::EDAnalyzer{
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

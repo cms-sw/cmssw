@@ -74,7 +74,7 @@ DTSegmentAnalysisTask::~DTSegmentAnalysisTask(){
 }
 
 
-void DTSegmentAnalysisTask::beginRun(const Run& run, const edm::EventSetup& context){ 
+void DTSegmentAnalysisTask::beginRun(const Run& run, const edm::EventSetup& context){
 
   // Get the DT Geometry
   context.get<MuonGeometryRecord>().get(dtGeom);
@@ -97,7 +97,7 @@ void DTSegmentAnalysisTask::beginRun(const Run& run, const edm::EventSetup& cont
   if(!slideTimeBins) modeTimeHisto = 1;
   for(int wheel = -2; wheel != 3; ++wheel) { // loop over wheels
     for(int sector = 1; sector <= 12; ++sector) { // loop over sectors
-      stringstream wheelstr; wheelstr << wheel;	
+      stringstream wheelstr; wheelstr << wheel;
       stringstream sectorstr; sectorstr << sector;
       string sectorHistoName = "NSegmPerEvent_W" + wheelstr.str()
 	+ "_Sec" + sectorstr.str();
@@ -144,7 +144,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
   ESHandle<DTStatusFlag> statusMap;
   if(checkNoisyChannels) {
     setup.get<DTStatusFlagRcd>().get(statusMap);
-  } 
+  }
 
 
   // -- 4D segment analysis  -----------------------------------------------------
@@ -178,7 +178,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 	if((*segment4D).hasPhi()){
 	  const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
 	  vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
-	  map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap; 
+	  map<DTSuperLayerId,vector<DTRecHit1D> > hitsBySLMap;
 	  for(vector<DTRecHit1D>::const_iterator hit = phiHits.begin();
 	      hit != phiHits.end(); ++hit) {
 	    DTWireId wireId = (*hit).wireId();
@@ -194,7 +194,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 	    if(isNoisy) {
 	      edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "Wire: " << wireId << " is noisy, skipping!";
 	      segmNoisy = true;
-	    }      
+	    }
 	  }
 	}
 
@@ -215,9 +215,9 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 	    if(isNoisy) {
 	      edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "Wire: " << wireId << " is noisy, skipping!";
 	      segmNoisy = true;
-	    }     
+	    }
 	  }
-	} 
+	}
 
       } // end of switch on noisy channels
       if (segmNoisy) {
@@ -229,13 +229,13 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
       int nHits=0;
       if((*segment4D).hasPhi())
 	nHits = (((*segment4D).phiSegment())->specificRecHits()).size();
-      if((*segment4D).hasZed()) 
+      if((*segment4D).hasZed())
 	nHits = nHits + ((((*segment4D).zSegment())->specificRecHits()).size());
 
       double anglePhiSegm(0.);
       if( (*segment4D).hasPhi() ) {
-	double xdir = (*segment4D).phiSegment()->localDirection().x();      
-	double zdir = (*segment4D).phiSegment()->localDirection().z();      
+	double xdir = (*segment4D).phiSegment()->localDirection().x();
+	double zdir = (*segment4D).phiSegment()->localDirection().z();
 
 	anglePhiSegm = atan(xdir/zdir)*180./TMath::Pi();
       }
@@ -246,7 +246,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 
 	bool segmOk=false;
 	int mb(2);
-	while( mb < 4 ) { 
+	while( mb < 4 ) {
 	  DTChamberId checkMB((*chamberId).wheel(),mb,(*chamberId).sector());
 	  DTRecSegment4DCollection::range  ckrange = all4DSegments->get(checkMB);
 
@@ -257,7 +257,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 	    int nHits=0;
 	    if((*cksegment4D).hasPhi())
 	      nHits = (((*cksegment4D).phiSegment())->specificRecHits()).size();
-	    if((*cksegment4D).hasZed()) 
+	    if((*cksegment4D).hasZed())
 	      nHits = nHits + ((((*cksegment4D).zSegment())->specificRecHits()).size());
 
 	    if( nHits >= nhitsCut ) segmOk=true;
@@ -286,8 +286,8 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
 
 
   // Compose the chamber name
-  stringstream wheel; wheel << chamberId.wheel();	
-  stringstream station; station << chamberId.station();	
+  stringstream wheel; wheel << chamberId.wheel();
+  stringstream station; station << chamberId.station();
   stringstream sector; sector << chamberId.sector();
 
   string chamberHistoName =
@@ -319,7 +319,7 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
     summaryHistos[wh]->setBinLabel(1,"MB1",2);
     summaryHistos[wh]->setBinLabel(2,"MB2",2);
     summaryHistos[wh]->setBinLabel(3,"MB3",2);
-    summaryHistos[wh]->setBinLabel(4,"MB4",2);  
+    summaryHistos[wh]->setBinLabel(4,"MB4",2);
   }
 
 
@@ -341,7 +341,7 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
 }
 
 
-// Fill a set of histograms for a give chamber 
+// Fill a set of histograms for a give chamber
 void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId,
     int nHits,
     float chi2) {
@@ -355,7 +355,7 @@ void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId,
   summaryHistos[chamberId.wheel()]->Fill(sector,chamberId.station());
   histoTimeEvol[chamberId.wheel()][sector]->accumulateValueTimeSlot(1);
 
-  vector<MonitorElement *> histos =  histosPerCh[chamberId];                          
+  vector<MonitorElement *> histos =  histosPerCh[chamberId];
   histos[0]->Fill(nHits);
   if(detailedAnalysis){
     histos[1]->Fill(chi2);
@@ -381,3 +381,8 @@ void DTSegmentAnalysisTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg,
 }
 
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

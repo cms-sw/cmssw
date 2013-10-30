@@ -39,20 +39,20 @@ class DTChamberId;
 class DTTrigGeomUtils;
 
 class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
-  
+
  public:
-  
+
   /// Constructor
   DTTriggerEfficiencyTask(const edm::ParameterSet& ps );
-  
+
   /// Destructor
   virtual ~DTTriggerEfficiencyTask();
-  
+
  protected:
-  
+
   // BeginJob
   void beginJob();
-  
+
   /// BeginRun
   void beginRun(const edm::Run& run, const edm::EventSetup& context);
 
@@ -73,12 +73,12 @@ class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
 
   /// To reset the MEs
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
-  
+
   /// EndJob
   void endJob(void);
-    
+
  private:
-  
+
   int nevents;
 
   std::string SegmArbitration;
@@ -108,3 +108,8 @@ class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

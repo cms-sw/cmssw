@@ -40,7 +40,7 @@ public:
 
   /// Constructor
   DTDigiForNoiseTask(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   virtual ~DTDigiForNoiseTask();
 
@@ -54,7 +54,7 @@ protected:
 
   /// Book the ME
   void bookHistos(const DTLayerId& dtSL);
- 
+
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
@@ -81,3 +81,8 @@ private:
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

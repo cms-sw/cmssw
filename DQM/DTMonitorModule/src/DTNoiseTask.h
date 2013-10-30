@@ -45,20 +45,20 @@ protected:
 
   void beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg, const edm::EventSetup& context);
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup);
-  
+
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
-  
+
   /// Endjob
   void endJob();
 
 private:
-  
+
   void bookHistos(DTChamberId chId);
   void bookHistos(DTSuperLayerId slId);
 
-  // The label to retrieve the digis 
+  // The label to retrieve the digis
   edm::InputTag dtDigiLabel;
   // counter of processed events
   int evtNumber;
@@ -92,3 +92,8 @@ private:
 };
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

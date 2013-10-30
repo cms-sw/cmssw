@@ -46,15 +46,15 @@ public:
 
   // Operations
   void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  
- 
+
+
 protected:
 
 private:
   DQMStore* theDbe;
 
   edm::ESHandle<DTGeometry> dtGeom;
-  
+
   int prescaleFactor;
   int resetCycle;
 
@@ -63,10 +63,10 @@ private:
 
   // Lable of 4D segments in the event
   std::string theRecHits4DLabel;
-  
+
   // Book a set of histograms for a give chamber
   void bookHistos(DTSuperLayerId slId);
-  // Fill a set of histograms for a give chamber 
+  // Fill a set of histograms for a give chamber
   void fillHistos(DTSuperLayerId slId,
 		  float distExtr,
 		  float residual);
@@ -79,3 +79,8 @@ private:
 };
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

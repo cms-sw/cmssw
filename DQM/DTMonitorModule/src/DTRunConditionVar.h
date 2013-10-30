@@ -4,7 +4,7 @@
 /** \class DTRunConditionVar
  *
  * Description:
- *  
+ *
  *
  * \author : Paolo Bellan, Antonio Branca
  * $date   : 23/09/2011 15:42:04 CET $
@@ -43,7 +43,7 @@ class DTRunConditionVar : public edm::EDAnalyzer
 {
 
   public:
-    //Constructor 
+    //Constructor
     DTRunConditionVar(const edm::ParameterSet& pset) ;
 
     //Destructor
@@ -81,3 +81,8 @@ class DTRunConditionVar : public edm::EDAnalyzer
 
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

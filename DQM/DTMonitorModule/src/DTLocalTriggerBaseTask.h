@@ -39,19 +39,19 @@ class DTTPGCompareUnit;
 class DTTimeEvolutionHisto;
 
 class DTLocalTriggerBaseTask: public edm::EDAnalyzer{
-  
+
   friend class DTMonitorModule;
-  
+
  public:
-  
+
   /// Constructor
   DTLocalTriggerBaseTask(const edm::ParameterSet& ps );
-  
+
   /// Destructor
   virtual ~DTLocalTriggerBaseTask();
-  
+
  protected:
-  
+
   // BeginJob
   void beginJob();
 
@@ -66,10 +66,10 @@ class DTLocalTriggerBaseTask: public edm::EDAnalyzer{
 
   /// Perform trend plot operations
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
-  
+
   /// EndJob
   void endJob(void);
-  
+
  private:
 
   /// Run analysis on DCC data
@@ -83,20 +83,20 @@ class DTLocalTriggerBaseTask: public edm::EDAnalyzer{
 
   /// Get the Top folder (different between Physics and TP and DCC/DDU)
   std::string& topFolder(std::string const& type) { return baseFolder[type == "DCC"]; }
-  
+
   /// Book the histograms
   void bookHistos(const DTChamberId& chamb);
 
   /// Book the histograms
   void bookHistos(int wh);
-  
+
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);
 
   int nEvents;
   int nEventsInLS;
   int nLumis;
-  
+
   std::string baseFolder[2];
   bool tpMode;
   bool detailedAnalysis;
@@ -106,7 +106,7 @@ class DTLocalTriggerBaseTask: public edm::EDAnalyzer{
   int targetBXDDU;
   int targetBXDCC;
   int bestAccRange;
-  
+
   DQMStore* theDQMStore;
   edm::ParameterSet theParams;
   DTTrigGeomUtils* theTrigGeomUtils;
@@ -121,3 +121,8 @@ class DTLocalTriggerBaseTask: public edm::EDAnalyzer{
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

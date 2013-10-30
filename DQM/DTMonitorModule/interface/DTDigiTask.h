@@ -46,7 +46,7 @@ public:
 
   /// Constructor
   DTDigiTask(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   virtual ~DTDigiTask();
 
@@ -79,7 +79,7 @@ protected:
   std::string triggerSource();
 
 private:
-  
+
   std::string topFolder() const;
 
   int nevents;
@@ -116,7 +116,7 @@ private:
 
   // Parameters from config file
 
-  // The label to retrieve the digis 
+  // The label to retrieve the digis
   edm::InputTag dtDigiLabel;
 
   edm::InputTag ltcDigiCollectionTag;
@@ -160,3 +160,8 @@ private:
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */
