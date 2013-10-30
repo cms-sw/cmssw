@@ -41,7 +41,7 @@ EwkMuLumiMonitorDQM::EwkMuLumiMonitorDQM( const ParameterSet & cfg ) :
     trigEvToken_(consumes<trigger::TriggerEvent>(
         cfg.getUntrackedParameter<edm::InputTag> ("triggerEvent"))),
     beamSpotToken_(consumes<reco::BeamSpot>(
-        cfg.getUntrackedParameter<edm::InputTag> ("offlineBeamSpot"))),
+        cfg.getUntrackedParameter<edm::InputTag> ("offlineBeamSpot", edm::InputTag("offlineBeamSpot")))),
     muonToken_(consumes<edm::View<reco::Muon> >(
         cfg.getUntrackedParameter<edm::InputTag>("muons"))),
     trackToken_(consumes<reco::TrackCollection>(
