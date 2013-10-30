@@ -241,26 +241,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
    ph_protectionsForJetMET = 
      iConfig.getParameter<edm::ParameterSet>("photon_protectionsForJetMET");
  }
-  
-
-  double ph_MinEt  = iConfig.getParameter<double>("photon_MinEt");
-  double ph_combIso  = iConfig.getParameter<double>("photon_combIso");
-  double ph_HoE = iConfig.getParameter<double>("photon_HoE");
-  std::vector<double>  ph_protectionsForJetMET = 
-    iConfig.getParameter<std::vector<double> >("photon_protectionsForJetMET");; 
-
-
-  string ele_iso_mvaWeightFile = iConfig.getParameter<string>("isolatedElectronID_mvaWeightFile");
-  string ele_iso_path_mvaWeightFile;
-  
- // Reading new EGamma ubiased collections and value maps
-  if(use_EGammaFilters_) {
-    ele_iso_path_mvaWeightFile  = edm::FileInPath ( ele_iso_mvaWeightFile.c_str() ).fullPath();
-    inputTagPFEGammaCandidates_ = iConfig.getParameter<edm::InputTag>("PFEGammaCandidates");
-    inputTagValueMapGedElectrons_ = iConfig.getParameter<edm::InputTag>("GedElectronValueMap"); 
-    inputTagValueMapGedPhotons_ = iConfig.getParameter<edm::InputTag>("GedPhotonValueMap"); 
-  }
->>>>>>> ffaed17... protections part 1
 
   //Secondary tracks and displaced vertices parameters
 
