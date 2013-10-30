@@ -11,9 +11,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 // DT trigger
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/LTCDigi/interface/LTCDigi.h"
 #include "DQM/DTMonitorModule/interface/DTTrigGeomUtils.h"
 
 // Geometry
@@ -40,7 +37,8 @@ DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps) :
   isLocalRun(ps.getUntrackedParameter<bool>("localrun", true))
  {
   if (!isLocalRun) {
-    ltcDigiCollectionTag = ps.getParameter<edm::InputTag>("ltcDigiCollectionTag");
+    ltcDigiCollectionToken_ = consumes<LTCDigiCollection>(
+        ps.getParameter<edm::InputTag>("ltcDigiCollectionTag"));
   }
 
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: Constructor"<<endl;
@@ -48,6 +46,12 @@ DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps) :
   tpMode           = ps.getUntrackedParameter<bool>("testPulseMode", false);
   detailedAnalysis = ps.getUntrackedParameter<bool>("detailedAnalysis", false);
   doDCCTheta       = ps.getUntrackedParameter<bool>("enableDCCTheta", false);
+  dcc_Token_       = consumes<L1MuDTChambPhContainer>(
+      edm::InputTag(ps.getUntrackedParameter<string>("dcc_label", "dttpgprod")));
+  ros_Token_       = consumes<DTLocalTriggerCollection>(
+      edm::InputTag(ps.getUntrackedParameter<string>("ros_label", "dtunpacker")));
+  seg_Token_       = consumes<DTRecSegment4DCollection>(
+      edm::InputTag(ps.getUntrackedParameter<string>("seg_label", "dt4DSegments")));
 
   if (tpMode) {
     baseFolderDCC = "DT/11-LocalTriggerTP-DCC/";
@@ -250,25 +254,20 @@ void DTLocalTriggerTask::endJob(){
 
 
 void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
-
-  string dcc_label  = parameters.getUntrackedParameter<string>("dcc_label", "dttpgprod");
-  string ros_label  = parameters.getUntrackedParameter<string>("ros_label", "dtunpacker");
-  string seg_label  = parameters.getUntrackedParameter<string>("seg_label", "dt4DSegments");
-
   if (!nevents){
 
     edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
-    e.getByLabel(dcc_label, l1DTTPGPh);
+    e.getByToken(dcc_Token_, l1DTTPGPh);
     edm::Handle<L1MuDTChambThContainer> l1DTTPGTh;
-    e.getByLabel(dcc_label, l1DTTPGTh);
+    e.getByToken(dcc_Token_, l1DTTPGTh);
     useDCC = (l1DTTPGPh.isValid() || l1DTTPGTh.isValid()) && parameters.getUntrackedParameter<bool>("process_dcc", true) ;
 
     Handle<DTLocalTriggerCollection> l1DDUTrigs;
-    e.getByLabel(ros_label,l1DDUTrigs);
+    e.getByToken(ros_Token_,l1DDUTrigs);
     useDDU = l1DDUTrigs.isValid() && parameters.getUntrackedParameter<bool>("process_ros", true) ;
 
     Handle<DTRecSegment4DCollection> all4DSegments;
-    e.getByLabel(seg_label, all4DSegments);
+    e.getByToken(seg_Token_, all4DSegments);
     useSEG = all4DSegments.isValid() && parameters.getUntrackedParameter<bool>("process_seg", true) ;
 
   }
@@ -279,24 +278,24 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( useDCC ) {
     edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
-    e.getByLabel(dcc_label,l1DTTPGPh);
+    e.getByToken(dcc_Token_, l1DTTPGPh);
     vector<L1MuDTChambPhDigi> const*  l1PhTrig = l1DTTPGPh->getContainer();
 
     edm::Handle<L1MuDTChambThContainer> l1DTTPGTh;
-    e.getByLabel(dcc_label,l1DTTPGTh);
+    e.getByToken(dcc_Token_, l1DTTPGTh);
     vector<L1MuDTChambThDigi> const*  l1ThTrig = l1DTTPGTh->getContainer();
 
-    runDCCAnalysis(l1PhTrig,l1ThTrig);
+    runDCCAnalysis(l1PhTrig, l1ThTrig);
   }
   if ( useDDU ) {
     Handle<DTLocalTriggerCollection> l1DDUTrigs;
-    e.getByLabel(ros_label,l1DDUTrigs);
+    e.getByToken(ros_Token_, l1DDUTrigs);
 
     runDDUAnalysis(l1DDUTrigs);
   }
   if ( !tpMode && useSEG ) {
     Handle<DTRecSegment4DCollection> segments4D;
-    e.getByLabel(seg_label, segments4D);
+    e.getByToken(seg_Token_, segments4D);
 
     runSegmentAnalysis(segments4D);
   }
@@ -1023,7 +1022,7 @@ void DTLocalTriggerTask::triggerSource(const edm::Event& e) {
   if (!isLocalRun){
 
     Handle<LTCDigiCollection> ltcdigis;
-    e.getByLabel(ltcDigiCollectionTag, ltcdigis);
+    e.getByToken(ltcDigiCollectionToken_, ltcdigis);
 
     for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
 

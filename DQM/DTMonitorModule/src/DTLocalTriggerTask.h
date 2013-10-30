@@ -24,6 +24,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+#include "DataFormats/LTCDigi/interface/LTCDigi.h"
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
@@ -101,6 +104,11 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
 
  private:
 
+  edm::EDGetTokenT<L1MuDTChambPhContainer> dcc_Token_;
+  edm::EDGetTokenT<DTLocalTriggerCollection> ros_Token_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
+  edm::EDGetTokenT<LTCDigiCollection> ltcDigiCollectionToken_;
+
   bool useDCC, useDDU, useSEG;
   std::string trigsrc;
   int nevents;
@@ -131,7 +139,6 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   MonitorElement* dcc_IDDataErrorPlot;
 
   bool isLocalRun;
-  edm::InputTag ltcDigiCollectionTag;
 };
 
 #endif
