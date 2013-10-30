@@ -27,7 +27,7 @@
 #include <TMath.h>
 
 // include combinations header (not yet included in boost)
-#include "RecoParticleFlow/PFProducer/interface/combination.hpp"
+#include "combination.hpp"
 
 // just for now do this
 //#define PFLOW_DEBUG
