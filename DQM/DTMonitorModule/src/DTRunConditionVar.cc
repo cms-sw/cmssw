@@ -22,7 +22,6 @@
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
@@ -48,7 +47,8 @@ DTRunConditionVar::DTRunConditionVar(const ParameterSet& pSet):
   debug(pSet.getUntrackedParameter<bool>("debug",false)),
   nMinHitsPhi(pSet.getUntrackedParameter<int>("nMinHitsPhi")),
   maxAnglePhiSegm(pSet.getUntrackedParameter<double>("maxAnglePhiSegm")),
-  thedt4DSegments_(pSet.getParameter<InputTag>("recoSegments"))
+  dt4DSegmentsToken_(consumes<DTRecSegment4DCollection>(
+      pSet.getParameter<InputTag>("recoSegments")))
 {
   //  LogVerbatim("DTDQM|DTRunConditionVar|DTRunConditionVar")
   //    << "DTRunConditionVar: constructor called";
@@ -131,7 +131,7 @@ void DTRunConditionVar::analyze(const Event & event,
 
   // Get the segment collection from the event
   Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(thedt4DSegments_, all4DSegments);
+  event.getByToken(dt4DSegmentsToken_, all4DSegments);
 
   // Loop over the segments
   for(DTRecSegment4DCollection::const_iterator segment  = all4DSegments->begin();

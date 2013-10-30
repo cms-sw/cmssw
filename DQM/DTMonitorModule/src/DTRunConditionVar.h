@@ -18,6 +18,7 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -63,7 +64,7 @@ class DTRunConditionVar : public edm::EDAnalyzer
     int nMinHitsPhi;
     double maxAnglePhiSegm;
 
-    edm::InputTag thedt4DSegments_;
+    edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegmentsToken_;
 
     edm::ESHandle<DTGeometry> dtGeom;
 
