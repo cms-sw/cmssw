@@ -8,15 +8,13 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWGEMDigiProxyBuilder.cc,v 1.13 2010/09/06 15:49:55 yana Exp $
+// $Id: FWRPCDigiProxyBuilder.cc,v 1.14 2010/09/07 15:46:48 yana Exp $
+// $Id: FWGEMDigiProxyBuilder.cc,v 1.15 2013/10/10 22:06:00 YusangKim$
 //
 
 #include "TEveStraightLineSet.h"
-#include "TEvePointSet.h"
 #include "TEveCompound.h"
 #include "TEveGeoNode.h"
-
-#include "TEveManager.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -42,12 +40,10 @@ private:
 void
 FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-
   const GEMDigiCollection* digis = 0;
  
   iItem->get(digis);
 
-  printf("GEMDigiCollection size (int)%d \n", (int)iItem->size());
   if ( ! digis ) 
   {
     fwLog(fwlog::kWarning)<<"Failed to get GEMDigis"<<std::endl;
@@ -59,7 +55,6 @@ FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
         dri != driEnd; ++dri )
   {
     unsigned int rawid = (*dri).first.rawId();
-    printf("GEMDigi [%s] ==> rawId = %d \n", item()->name().c_str(), rawid );
     const GEMDigiCollection::Range& range = (*dri).second;
 
     if( ! geom->contains( rawid ))
@@ -72,7 +67,7 @@ FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
       
       continue;
     }
-    
+
     const float* parameters = geom->getParameters( rawid );
     float nStrips = parameters[0];
     float halfStripLength = parameters[1]*0.5;
@@ -82,13 +77,9 @@ FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
     for( GEMDigiCollection::const_iterator dit = range.first;
 	 dit != range.second; ++dit )
     {
-      TEvePointSet* ps = new TEvePointSet("tmp", 1);
-      ps->SetMarkerStyle(2);
-      ps->SetMarkerSize(2);
       TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
       stripDigiSet->SetLineWidth(3);
-
-
+      setupAddElement( stripDigiSet, product );
 
       int strip = (*dit).strip();
       float centreOfStrip = (strip-0.5)*pitch + offset;
@@ -108,18 +99,8 @@ FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
 
       geom->localToGlobal( rawid, localPointTop, globalPointTop, localPointBottom, globalPointBottom );
 
-      printf("Strip = %d global pnts...(%f, %f, %f) (%f, %f, %f)\n", strip,globalPointTop[0], globalPointTop[1], globalPointTop[2],
-                            globalPointBottom[0], globalPointBottom[1], globalPointBottom[2]);
-
       stripDigiSet->AddLine(globalPointTop[0], globalPointTop[1], globalPointTop[2],
                             globalPointBottom[0], globalPointBottom[1], globalPointBottom[2]);
-
-      // debug == draw marker at the first point in case length is zero
-      ps->SetNextPoint(globalPointTop[0], globalPointTop[1], globalPointTop[2]);
-      ps->SetNextPoint(globalPointBottom[0], globalPointBottom[1], globalPointBottom[2]);
-
-      setupAddElement( stripDigiSet, product );
-      setupAddElement( ps, product );
     }
   }
 }
