@@ -16,6 +16,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DataFormats/LTCDigi/interface/LTCDigi.h"
+
 #include <string>
 #include <map>
 #include <vector>
@@ -53,7 +55,7 @@ private:
   MonitorElement* histo;
 
   bool isLocalRun;
-  edm::InputTag ltcDigiCollectionTag;
+  edm::EDGetTokenT<LTCDigiCollection> ltcDigiCollectionToken_;
 };
 #endif
 

@@ -9,7 +9,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 
-#include "DataFormats/LTCDigi/interface/LTCDigi.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iterator>
@@ -21,7 +20,8 @@ DTTriggerCheck::DTTriggerCheck(const ParameterSet& pset) :
   isLocalRun(pset.getUntrackedParameter<bool>("localrun", true)) {
 
   if (!isLocalRun) {
-    ltcDigiCollectionTag = pset.getParameter<edm::InputTag>("ltcDigiCollectionTag");
+    ltcDigiCollectionToken_ = consumes<LTCDigiCollection>(
+        pset.getParameter<edm::InputTag>("ltcDigiCollectionTag"));
   }
 
  theDbe = edm::Service<DQMStore>().operator->();
@@ -56,7 +56,7 @@ void DTTriggerCheck::analyze(const Event& event, const EventSetup& setup) {
   edm::Handle<LTCDigiCollection> ltcdigis;
   if (!isLocalRun)
     {
-      event.getByLabel(ltcDigiCollectionTag, ltcdigis);
+      event.getByToken(ltcDigiCollectionToken_, ltcdigis);
       for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
 	if (((*ltc_it).HasTriggered(0)) ||
 	    ((*ltc_it).HasTriggered(1)) ||
