@@ -70,7 +70,8 @@ DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet)
   ParameterSet serviceParameters = pSet.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
 
-  theTracksLabel = pSet.getParameter<InputTag>("TrackCollection");
+  theTracksLabel_ = pSet.getParameter<InputTag>("TrackCollection");
+  theTracksToken_ = consumes<reco::TrackCollection>(theTracksLabel_);
 
   theMaxChi2 = static_cast<unsigned int>(pSet.getParameter<double>("theMaxChi2"));
   theNSigma = pSet.getParameter<double>("theNSigma");
@@ -176,7 +177,7 @@ void DTChamberEfficiency::analyze(const Event & event,
 
   //Read tracks from event
   Handle<reco::TrackCollection> tracks;
-  event.getByLabel(theTracksLabel, tracks);
+  event.getByToken(theTracksToken_, tracks);
 
   if(tracks.isValid()) { // check the validity of the collection
 
@@ -267,7 +268,7 @@ void DTChamberEfficiency::analyze(const Event & event,
       }
     }
   } else {
-    LogInfo("DTDQM|DTMonitorModule|DTChamberEfficiency") << "[DTChamberEfficiency] Collection: " << theTracksLabel
+    LogInfo("DTDQM|DTMonitorModule|DTChamberEfficiency") << "[DTChamberEfficiency] Collection: " << theTracksLabel_
 							 << " is not valid!" << endl;
   }
   return;

@@ -82,7 +82,8 @@ class DTChamberEfficiency : public edm::EDAnalyzer
   //data members
   bool debug;
 
-  edm::InputTag theTracksLabel;
+  edm::InputTag theTracksLabel_;
+  edm::EDGetTokenT<reco::TrackCollection> theTracksToken_;
 
   edm::InputTag labelRPCRecHits;
   edm::InputTag thedt4DSegments;
