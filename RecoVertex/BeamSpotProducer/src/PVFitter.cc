@@ -14,6 +14,7 @@ ________________________________________________________________**/
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
@@ -24,7 +25,6 @@ ________________________________________________________________**/
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "TFitterMinuit.h"
 #include "Minuit2/FCNBase.h"
@@ -47,11 +47,14 @@ ________________________________________________________________**/
 //   return ts;
 // }
 
-PVFitter::PVFitter(const edm::ParameterSet& iConfig): ftree_(0)
+PVFitter::PVFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector &iColl): ftree_(0)
 {
 
   debug_             = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("Debug");
-  vertexLabel_     = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<edm::InputTag>("VertexCollection", edm::InputTag("offlinePrimaryVertices"));
+  vertexToken_       = iColl.consumes<reco::VertexCollection>(
+      iConfig.getParameter<edm::ParameterSet>("PVFitter")
+      .getUntrackedParameter<edm::InputTag>("VertexCollection",
+                                            edm::InputTag("offlinePrimaryVertices")));
   do3DFit_           = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("Apply3DFit");
   //writeTxt_          = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("WriteAscii");
   //outputTxt_         = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<std::string>("AsciiFileName");
@@ -109,7 +112,7 @@ void PVFitter::readEvent(const edm::Event& iEvent)
   //edm::View<reco::Vertex> vertices;
   //const reco::VertexCollection & vertices = 0;
 
-  if ( iEvent.getByLabel(vertexLabel_, PVCollection ) ) {
+  if ( iEvent.getByToken(vertexToken_, PVCollection ) ) {
       //pv = *PVCollection;
       //vertices = *PVCollection;
       hasPVs = true;

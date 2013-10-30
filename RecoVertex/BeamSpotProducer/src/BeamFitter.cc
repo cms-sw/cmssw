@@ -180,7 +180,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig,
   resetCutFlow();
 
   // Primary vertex fitter
-  MyPVFitter = new PVFitter(iConfig);
+  MyPVFitter = new PVFitter(iConfig, iColl);
   MyPVFitter->resetAll();
   if (savePVVertices_){
     fPVTree_ = new TTree("PrimaryVertices","PrimaryVertices");
