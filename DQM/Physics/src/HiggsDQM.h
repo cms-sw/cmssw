@@ -11,6 +11,13 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 
 // Trigger stuff
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -21,14 +28,10 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include <DataFormats/EgammaCandidates/interface/GsfElectron.h>
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -83,12 +86,15 @@ private:
   // Variables from config file
   std::string   theElecTriggerPathToPass;
   std::string   theMuonTriggerPathToPass;
-  edm::InputTag theTriggerResultsCollection;
-  edm::InputTag theMuonCollectionLabel;
-  edm::InputTag theElectronCollectionLabel;
-  edm::InputTag theCaloJetCollectionLabel;
-  edm::InputTag theCaloMETCollectionLabel;
-  edm::InputTag thePfMETCollectionLabel;
+  edm::InputTag theTriggerResultsCollectionTag_;
+  edm::InputTag theCaloJetCollectionLabel_;
+  edm::EDGetTokenT<edm::TriggerResults> theTriggerResultsCollection_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_; //offlinePrimaryVertices
+  edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> theElectronCollectionToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollectionToken_;
+  edm::EDGetTokenT<reco::CaloMETCollection> theCaloMETCollectionToken_;
+  edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollectionToken_;
   double ptThrMu1_; // pt cut on the first muon for the Z^0
   double ptThrMu2_; // pt cut on the second muon for the Z^0
 
