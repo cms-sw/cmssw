@@ -215,7 +215,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   unsigned int ele_missinghits(0);
   double ph_MinEt(0.0), ph_combIso(0.0), ph_HoE(0.0);
   string ele_iso_mvaWeightFile(""), ele_iso_path_mvaWeightFile("");
-  std::vector<double> ele_protectionsForJetMET,ph_protectionsForJetMET;
+  edm::ParameterSet ele_protectionsForJetMET,ph_protectionsForJetMET;
 
  // Reading new EGamma ubiased collections and value maps
  if(use_EGammaFilters_) {
@@ -237,9 +237,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
    useProtectionsForJetMET = 
      iConfig.getParameter<bool>("useProtectionsForJetMET");
    ele_protectionsForJetMET = 
-     iConfig.getParameter<std::vector<double> >("electron_protectionsForJetMET");
+     iConfig.getParameter<edm::ParameterSet>("electron_protectionsForJetMET");
    ph_protectionsForJetMET = 
-     iConfig.getParameter<std::vector<double> >("photon_protectionsForJetMET");
+     iConfig.getParameter<edm::ParameterSet>("photon_protectionsForJetMET");
  }
  
   //Secondary tracks and displaced vertices parameters

@@ -124,11 +124,11 @@ class PFAlgo {
 			   double ele_noniso_mva,
 			   unsigned int ele_missinghits,
 			   bool useProtectionsForJetMET,
-			   std::vector<double> & ele_protectionsForJetMET,
+			   const edm::ParameterSet& ele_protectionsForJetMET,
 			   double ph_MinEt,
 			   double ph_combIso,
 			   double ph_HoE,
-			   std::vector<double> & ph_protectionsForJetMET);
+			   const edm::ParameterSet& ph_protectionsForJetMET);
 
   
   void setEGammaCollections(const edm::View<reco::PFCandidate> & pfEgammaCandidates,

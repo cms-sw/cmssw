@@ -9,6 +9,7 @@
 #include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <iostream>
 
@@ -19,7 +20,7 @@ class PFEGammaFilters {
   PFEGammaFilters(float ph_Et,
 		  float ph_combIso,
 		  float ph_loose_hoe,
-		  std::vector<double> & ph_protectionsForJetMET,
+		  const edm::ParameterSet& ph_protectionsForJetMET,
 		  float ele_iso_pt,
 		  float ele_iso_mva_eb,
 		  float ele_iso_mva_ee,
@@ -27,8 +28,8 @@ class PFEGammaFilters {
 		  float ele_iso_combIso_ee,
 		  float ele_noniso_mva,
 		  unsigned int ele_missinghits,
-		  std::string ele_iso_path_mvaWeightFile,
-		  std::vector<double> & ele_protectionsForJetMET
+		  const std::string& ele_iso_path_mvaWeightFile,
+		  const edm::ParameterSet& ele_protectionsForJetMET
 		  );
   
   ~PFEGammaFilters(){delete ele_iso_mvaID_;};
@@ -57,7 +58,8 @@ class PFEGammaFilters {
   float ph_Et_;
   float ph_combIso_;
   float ph_loose_hoe_;
-  std::vector<double> ph_protectionsForJetMET_;
+  //std::vector<double> ph_protectionsForJetMET_; //replacement below
+  float pho_sumPtTrackIso, pho_sumPtTrackIsoSlope;
 
   // Electron selections 
   float ele_iso_pt_;
@@ -69,7 +71,13 @@ class PFEGammaFilters {
   ElectronMVAEstimator *ele_iso_mvaID_;
   float ele_noniso_mva_;
   unsigned int ele_missinghits_;
-  std::vector<double> ele_protectionsForJetMET_;
+  //std::vector<double> ele_protectionsForJetMET_; // replacement below
+  float ele_maxNtracks, ele_maxHcalE, ele_maxTrackPOverEele, ele_maxE,
+    ele_maxEleHcalEOverEcalE, ele_maxEcalEOverPRes, ele_maxEeleOverPoutRes,
+    ele_maxHcalEOverP, ele_maxHcalEOverEcalE, ele_maxEcalEOverP_1,
+    ele_maxEcalEOverP_2, ele_maxEeleOverPout, ele_maxDPhiIN;
+  
+  
   // Event variables 
   
 
