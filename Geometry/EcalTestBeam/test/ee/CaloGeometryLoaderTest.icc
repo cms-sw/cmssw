@@ -122,14 +122,14 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
    static const HepGeom::Point3D<double>  FLOOR ( 13533.35, -000.02, -152.23 ) ;//-152.23 ) ;
 
    static const HepGeom::Point3D<double>  IP    ( 0, 0, 0 ) ;//-152.23 ) ;
-   static HepGeom::Point3D<double>  AA0 ;
-   static HepGeom::Point3D<double>  BB0 ;
-   static HepGeom::Point3D<double>  CC0 ;
-   static HepGeom::Point3D<double>  DD0 ;
-   static HepGeom::Point3D<double>  EE0 ;
-   static HepGeom::Point3D<double>  FF0 ;
-   static HepGeom::Point3D<double>  GG0 ;
-   static HepGeom::Point3D<double>  HH0 ;
+   HepGeom::Point3D<double>  AA0 ;
+   HepGeom::Point3D<double>  BB0 ;
+   HepGeom::Point3D<double>  CC0 ;
+   HepGeom::Point3D<double>  DD0 ;
+   HepGeom::Point3D<double>  EE0 ;
+   HepGeom::Point3D<double>  FF0 ;
+   HepGeom::Point3D<double>  GG0 ;
+   HepGeom::Point3D<double>  HH0 ;
 
    std::vector<CCGFloat> pv ;
    pv.reserve( vv.size() ) ;
@@ -245,7 +245,7 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 
       const double angle ( (C0-B0).angle( A0-B0 ) ) ;
 
-      static std::vector< HepGeom::Point3D<double>  > extra ;
+      std::vector< HepGeom::Point3D<double>  > extra ;
       extra.push_back( HepGeom::Point3D<double> (  13859.05,  005.79, -002.66 ) ) ;
       extra.push_back( HepGeom::Point3D<double> (  13860.98, -038.39, -002.11 ) ) ;
       extra.push_back( HepGeom::Point3D<double> (  13853.19, -039.25, -030.77 ) ) ;
@@ -253,7 +253,7 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 
 
 
-      static std::vector< HepGeom::Point3D<double>  > sur ;
+      std::vector< HepGeom::Point3D<double>  > sur ;
       sur.push_back( HepGeom::Point3D<double> ( 13862.30,  20.68, 11.60 ) ) ;
       sur.push_back( HepGeom::Point3D<double> ( 13865.69, -52.85, 12.64) ) ;
       sur.push_back( HepGeom::Point3D<double> ( 13851.53, -54.27, -44.75 ) ) ;
