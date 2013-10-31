@@ -319,12 +319,13 @@ def fixEcalConditions_3000(process):
                                     )
     return process
 
+def customise_noPixelDataloss(process):
+    return cNoPixDataloss(process)
+
 def fastsimDefault(process):
     return fastCustomiseDefault(process)
 
 def fastsimPhase2(process):
     return fastCustomisePhase2(process)
 
-def customise_noPixelDataloss(process):
-    return cNoPixDataloss(process)
 
