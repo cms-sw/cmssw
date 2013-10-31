@@ -56,10 +56,14 @@
   <class name="edm::RefVector<std::vector<reco::CaloTau>,reco::CaloTau,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTau>,reco::CaloTau> >"/>
   <class name="edm::reftobase::Holder<reco::BaseTau, edm::Ref<std::vector<reco::CaloTau>,reco::CaloTau,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTau>,reco::CaloTau> > >" />
   
-  <class name="reco::PFTau" ClassVersion="11">
-    <version ClassVersion="11" checksum="2334259986"/>
+  <class name="reco::PFTau" ClassVersion="13">
+   <version ClassVersion="13" checksum="3087106015"/>
+   <version ClassVersion="12" checksum="1810832394"/>
+   <version ClassVersion="11" checksum="2334259986"/>
      <field name="signalPiZeroCandidates_" transient="true"/>
      <field name="isolationPiZeroCandidates_" transient="true"/>
+     <field name="signalTauChargedHadronCandidates_" transient="true"/>
+     <field name="isolationTauChargedHadronCandidates_" transient="true"/>
     <version ClassVersion="10" checksum="2369119060"/>
   </class>
 
@@ -109,6 +113,19 @@
   <class name="edm::RefProd<std::vector<reco::RecoTauPiZero> >"/>
   <class name="edm::RefVector<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> >"/>
   <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> > >" />
+
+  <class name="reco::PFRecoTauChargedHadron" ClassVersion="11">
+   <version ClassVersion="11" checksum="858406271" />
+   <version ClassVersion="10" checksum="4027987990"/>
+  </class>
+  <class name="std::vector<reco::PFRecoTauChargedHadron>"/>
+     <class name="std::vector<std::vector<reco::PFRecoTauChargedHadron> >"/>
+  <class name="edm::Wrapper<std::vector<reco::PFRecoTauChargedHadron> >"/>
+  <class name="edm::Ref<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFRecoTauChargedHadron> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>
+  <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> > >" />
+
   
   <class name="reco::CaloTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>
@@ -211,6 +228,25 @@
   <class name="std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> >"/>
   <class name="std::vector<std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> > >" />
 
+  <class name="reco::PFJetChargedHadronAssociationBase">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+
+  <class name="reco::PFJetChargedHadronAssociation" ClassVersion="10">
+   <version ClassVersion="10" checksum="3498827707"/>
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::PFJetChargedHadronAssociationRef"/>
+  <class name="reco::PFJetChargedHadronAssociationRefProd"/>
+  <class name="reco::PFJetChargedHadronAssociationRefVector"/>
+  <class name="edm::Wrapper<reco::PFJetChargedHadronAssociation>"/>
+
+  <class name="std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> >"/>
+  <class name="std::vector<std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> > >" />
+
+
   <class name="reco::PFTauDecayModeAssociation">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
@@ -223,6 +259,134 @@
   <class name="std::pair<reco::PFTauRef, reco::PFTauDecayMode>"/>
   <class name="std::vector<std::pair<reco::PFTauRef, reco::PFTauDecayMode> >" />
 
+  <class name="reco::PFTauTransverseImpactParameter"/>
+  <class name="std::vector<reco::PFTauTransverseImpactParameter>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFTauTransverseImpactParameter> >"/>
+  <class name="edm::Ref<std::vector<reco::PFTauTransverseImpactParameter>,reco::PFTauTransverseImpactParameter,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTransverseImpactParameter>,reco::PFTauTransverseImpactParameter> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFTauTransverseImpactParameter> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFTauTransverseImpactParameter>,reco::PFTauTransverseImpactParameter,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTransverseImpactParameter>,reco::PFTauTransverseImpactParameter> >"/>
+  <class name="edm::reftobase::Holder<reco::PFTauTransverseImpactParameter, edm::Ref<std::vector<reco::PFTauTransverseImpactParameter>,reco::PFTauTransverseImpactParameter,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTransverseImpactParameter>,reco::PFTauTransverseImpactParameter> > > " />
+  <class name="edm::Association<std::vector<reco::PFTauTransverseImpactParameter> >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTauTransverseImpactParameter> > >"/>
+
+  <class name="reco::PFTauTransverseImpactParameterCollection"/>
+  <class name="std::vector<reco::PFTauTransverseImpactParameterCollection>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFTauTransverseImpactParameterCollection> >"/>
+  <class name="edm::Ref<std::vector<reco::PFTauTransverseImpactParameterCollection>,reco::PFTauTransverseImpactParameterCollection,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTransverseImpactParameterCollection>,reco::PFTauTransverseImpactParameterCollection> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFTauTransverseImpactParameterCollection> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFTauTransverseImpactParameterCollection>,reco::PFTauTransverseImpactParameterCollection,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTransverseImpactParameterCollection>,reco::PFTauTransverseImpactParameterCollection> >"/>
+  <class name="edm::reftobase::Holder<reco::PFTauTransverseImpactParameterCollection, edm::Ref<std::vector<reco::PFTauTransverseImpactParameterCollection>,reco::PFTauTransverseImpactParameterCollection,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTransverseImpactParameterCollection>,reco::PFTauTransverseImpactParameterCollection> > > " />
+  <class name="edm::Association<std::vector<reco::PFTauTransverseImpactParameterCollection> >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTauTransverseImpactParameterCollection> > >"/>
+
+  <class name="reco::PFTauTransverseImpactParameterRef"/>
+  <class name="std::vector<reco::PFTauTransverseImpactParameterRef>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFTauTransverseImpactParameterRef> >"/>
+  <class name="edm::Ref<std::vector<reco::PFTauTransverseImpactParameterRef>,reco::PFTauTransverseImpactParameterRef,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTransverseImpactParameterRef>,reco::PFTauTransverseImpactParameterRef> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFTauTransverseImpactParameterRef> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFTauTransverseImpactParameterRef>,reco::PFTauTransverseImpactParameterRef,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTransverseImpactParameterRef>,reco::PFTauTransverseImpactParameterRef> >"/>
+  <class name="edm::reftobase::Holder<reco::PFTauTransverseImpactParameterRef, edm::Ref<std::vector<reco::PFTauTransverseImpactParameterRef>,reco::PFTauTransverseImpactParameterRef,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTransverseImpactParameterRef>,reco::PFTauTransverseImpactParameterRef> > > " />
+  <class name="edm::Association<std::vector<reco::PFTauTransverseImpactParameterRef> >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTauTransverseImpactParameterRef> > >"/>
+
+  <class name="std::vector<reco::VertexRef>"/>
+  <class name="edm::Wrapper<std::vector<reco::VertexRef> >"/>
+  <class name="edm::Ref<std::vector<reco::VertexRef>,reco::VertexRef,edm::refhelper::FindUsingAdvance<std::vector<reco::VertexRef>,reco::VertexRef> >"/>
+  <class name="edm::RefProd<std::vector<reco::VertexRef> >"/>
+  <class name="edm::RefVector<std::vector<reco::VertexRef>,reco::VertexRef,edm::refhelper::FindUsingAdvance<std::vector<reco::VertexRef>,reco::VertexRef> >"/>
+  <class name="edm::reftobase::Holder<reco::VertexRef, edm::Ref<std::vector<reco::VertexRef>,reco::VertexRef,edm::refhelper::FindUsingAdvance<std::vector<reco::VertexRef>,reco::VertexRef> > >" />
+  <class name="edm::Association<std::vector<reco::VertexRef> >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<reco::VertexRef> > >"/>
+
+  <class name="std::vector<std::vector<reco::VertexRef> >"/>
+  <class name="edm::Wrapper<std::vector<std::vector<reco::VertexRef> > >"/>
+  <class name="edm::Ref<std::vector<std::vector<reco::VertexRef> >,std::vector<reco::VertexRef>,edm::refhelper::FindUsingAdvance<std::vector<std::vector<reco::VertexRef> >,std::vector<reco::VertexRef> > >"/>
+  <class name="edm::RefProd<std::vector<std::vector<reco::VertexRef> > >"/>
+  <class name="edm::RefVector<std::vector<std::vector<reco::VertexRef> >,std::vector<reco::VertexRef>,edm::refhelper::FindUsingAdvance<std::vector<std::vector<reco::VertexRef> >,std::vector<reco::VertexRef> > >"/>
+  <class name="edm::reftobase::Holder<std::vector<reco::VertexRef>, edm::Ref<std::vector<std::vector<reco::VertexRef> >,std::vector<reco::VertexRef>,edm::refhelper::FindUsingAdvance<std::vector<std::vector<reco::VertexRef> >,std::vector<reco::VertexRef> > > >" />
+  <class name="edm::Association<std::vector<std::vector<reco::VertexRef> > >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<std::vector<reco::VertexRef> > > >"/>
+
+  <class name="reco::PFTauTIPAssociation">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::PFTauTIPAssociationRef"/>
+  <class name="reco::PFTauTIPAssociationRefProd"/>
+  <class name="reco::PFTauTIPAssociationRefVector"/>
+  <class name="edm::Wrapper<reco::PFTauTIPAssociation>"/>
+  <class name="std::pair<reco::PFTauRef, std::vector<reco::PFTauTransverseImpactParameterRef> >"/>
+  <class name="std::vector<std::pair<reco::PFTauRef,  std::vector<reco::PFTauTransverseImpactParameterRef> > >" />
+
+  <class name="reco::PFTauVertexAssociation">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::PFTauVertexAssociationRef"/>
+  <class name="reco::PFTauVertexAssociationRefProd"/>
+  <class name="reco::PFTauVertexAssociationRefVector"/>
+  <class name="edm::Wrapper<reco::PFTauVertexAssociation>"/>
+  <class name="std::pair<reco::PFTauRef, std::vector<reco::VertexRef> >"/>
+  <class name="std::vector<std::pair<reco::PFTauRef, std::vector<reco::VertexRef> > >" />
+
+  <class name="reco::PFTauVertexVAssociation">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::PFTauVertexVAssociationRef"/>
+  <class name="reco::PFTauVertexVAssociationRefProd"/>
+  <class name="reco::PFTauVertexVAssociationRefVector"/>
+  <class name="edm::Wrapper<reco::PFTauVertexVAssociation>"/>
+  <class name="std::pair<reco::PFTauRef, std::vector<std::vector<reco::VertexRef> > >"/>
+  <class name="std::vector<std::pair<reco::PFTauRef, std::vector<std::vector<reco::VertexRef> > > >" />
+
+  <class name="reco::PFTau3ProngSummary"/>
+  <class name="std::vector<reco::PFTau3ProngSummary>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFTau3ProngSummary> >"/>
+  <class name="edm::Ref<std::vector<reco::PFTau3ProngSummary>,reco::PFTau3ProngSummary,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau3ProngSummary>,reco::PFTau3ProngSummary> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFTau3ProngSummary> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFTau3ProngSummary>,reco::PFTau3ProngSummary,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau3ProngSummary>,reco::PFTau3ProngSummary> >"/>
+  <class name="edm::reftobase::Holder<reco::PFTau3ProngSummary, edm::Ref<std::vector<reco::PFTau3ProngSummary>,reco::PFTau3ProngSummary,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau3ProngSummary>,reco::PFTau3ProngSummary> > >" />
+  <class name="edm::Association<std::vector<reco::PFTau3ProngSummary> >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau3ProngSummary> > >"/>
+
+
+
+  <class name="reco::PFTau3ProngSummaryCollection"/>
+  <class name="std::vector<reco::PFTau3ProngSummaryCollection>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFTau3ProngSummaryCollection> >"/>
+  <class name="edm::Ref<std::vector<reco::PFTau3ProngSummaryCollection>,reco::PFTau3ProngSummaryCollection,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau3ProngSummaryCollection>,reco::PFTau3ProngSummaryCollection> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFTau3ProngSummaryCollection> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFTau3ProngSummaryCollection>,reco::PFTau3ProngSummaryCollection,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau3ProngSummaryCollection>,reco::PFTau3ProngSummaryCollection> >"/>
+  <class name="edm::reftobase::Holder<reco::PFTau3ProngSummaryCollection, edm::Ref<std::vector<reco::PFTau3ProngSummaryCollection>,reco::PFTau3ProngSummaryCollection,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau3ProngSummaryCollection>,reco::PFTau3ProngSummaryCollection> > >" />
+  <class name="edm::Association<std::vector<reco::PFTau3ProngSummaryCollection> >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau3ProngSummaryCollection> > >"/>
+
+
+
+  <class name="reco::PFTau3ProngSummaryRef"/>
+  <class name="std::vector<reco::PFTau3ProngSummaryRef>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFTau3ProngSummaryRef> >"/>
+  <class name="edm::Ref<std::vector<reco::PFTau3ProngSummaryRef>,reco::PFTau3ProngSummaryRef,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau3ProngSummaryRef>,reco::PFTau3ProngSummaryRef> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFTau3ProngSummaryRef> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFTau3ProngSummaryRef>,reco::PFTau3ProngSummaryRef,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau3ProngSummaryRef>,reco::PFTau3ProngSummaryRef> >"/>
+  <class name="edm::reftobase::Holder<reco::PFTau3ProngSummaryRef, edm::Ref<std::vector<reco::PFTau3ProngSummaryRef>,reco::PFTau3ProngSummaryRef,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau3ProngSummaryRef>,reco::PFTau3ProngSummaryRef> > >" />
+  <class name="edm::Association<std::vector<reco::PFTau3ProngSummaryRef> >"/>
+  <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau3ProngSummaryRef> > >"/>
+
+ <class name="std::vector<TLorentzVector>"/>
+ <class name="std::vector<std::vector<TLorentzVector> >"/>
+
+ <class name="reco::PFTau3ProngSumAssociation">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="reco::PFTau3ProngSumAssociationRef"/>
+  <class name="reco::PFTau3ProngSumAssociationRefProd"/>
+  <class name="reco::PFTau3ProngSumAssociationRefVector"/>
+  <class name="edm::Wrapper<reco::PFTau3ProngSumAssociation>"/>
+  <class name="std::pair<reco::PFTauRef, std::vector<reco::PFTau3ProngSummaryRef> >"/>
+  <class name="std::vector<std::pair<reco::PFTauRef,  std::vector<reco::PFTau3ProngSummaryRef> > >" />
 
 //Needed only for HLT-Open
 <class name="reco::HLTTau" ClassVersion="10">

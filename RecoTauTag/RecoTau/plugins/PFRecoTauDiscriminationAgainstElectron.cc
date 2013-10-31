@@ -211,7 +211,7 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
 	float emEnergy=0.;
 	for(unsigned int Nc = 0 ;Nc < thePFTauRef->signalPFGammaCands().size();++Nc)
 	  {
-	    PFCandidateRef cand = thePFTauRef->signalPFGammaCands().at(Nc);
+	    PFCandidatePtr cand = thePFTauRef->signalPFGammaCands().at(Nc);
 	    if(fabs(thePFTauRef->leadPFChargedHadrCand()->trackRef()->eta()-cand->eta())<bremCombined_stripSize_)
 	      bremEnergy+=cand->energy();
 	    emEnergy+=cand->energy();

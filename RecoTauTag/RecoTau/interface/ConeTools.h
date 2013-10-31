@@ -4,6 +4,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include <boost/iterator/filter_iterator.hpp>
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include <functional>
 
@@ -42,6 +43,10 @@ class DeltaRPtrFilter : public std::unary_function<CandType, bool> {
 typedef DeltaRPtrFilter<PFCandidatePtr> PFCandPtrDRFilter;
 typedef boost::filter_iterator< PFCandPtrDRFilter,
         std::vector<PFCandidatePtr>::const_iterator> PFCandPtrDRFilterIter;
+
+typedef DeltaRFilter<PFRecoTauChargedHadron> ChargedHadronDRFilter;
+typedef boost::filter_iterator< ChargedHadronDRFilter,
+        std::vector<PFRecoTauChargedHadron>::const_iterator> ChargedHadronDRFilterIter;
 
 typedef DeltaRFilter<RecoTauPiZero> PiZeroDRFilter;
 typedef boost::filter_iterator< PiZeroDRFilter,

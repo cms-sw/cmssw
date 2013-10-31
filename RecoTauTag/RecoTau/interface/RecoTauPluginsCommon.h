@@ -45,13 +45,14 @@ class RecoTauEventHolderPlugin : public RecoTauNamedPlugin {
       virtual ~RecoTauEventHolderPlugin() {}
       // Get the internal cached copy of the event
       const edm::Event* evt() const;
+      edm::Event* evt();
       const edm::EventSetup* evtSetup() const;
       // Cache a local pointer to the event and event setup
-      void setup(const edm::Event&, const edm::EventSetup&);
+      void setup(edm::Event&, const edm::EventSetup&);
       // Called after setup(...)
       virtual void beginEvent() {}
    private:
-      const edm::Event* evt_;
+      edm::Event* evt_;
       const edm::EventSetup* es_;
 };
 }} // end namespace reco::tau

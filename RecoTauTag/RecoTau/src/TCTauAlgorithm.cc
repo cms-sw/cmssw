@@ -230,13 +230,11 @@ XYZVector TCTauAlgorithm::trackEcalHitPoint(const TransientTrack& transientTrack
 
         XYZVector ecalHitPoint(0,0,0);
 
-        try{
 		GlobalPoint trackEcalHitPoint = transientTrack.stateOnSurface(ecalHitPosition).globalPosition();
 
                 ecalHitPoint.SetXYZ(trackEcalHitPoint.x(),
                                     trackEcalHitPoint.y(),
                                     trackEcalHitPoint.z());
-        }catch(...) {;}
 
         return ecalHitPoint;
 }

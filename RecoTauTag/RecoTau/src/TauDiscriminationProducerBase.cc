@@ -1,5 +1,7 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
+#include <string>
+
 using namespace reco;
 
 // default constructor; must not be called
@@ -13,6 +15,7 @@ TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProdu
 //--- standard constructor from PSet
 template<class TauType, class TauDiscriminator>
 TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProducerBase(const edm::ParameterSet& iConfig)
+  : moduleLabel_(iConfig.getParameter<std::string>("@module_label"))
 {
    // tau collection to discriminate
    TauProducer_        = iConfig.getParameter<edm::InputTag>(getProducerString<TauType>());

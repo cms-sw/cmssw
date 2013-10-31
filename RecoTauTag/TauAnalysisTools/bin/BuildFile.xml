@@ -1,0 +1,90 @@
+<bin   file="preselectTreeTauIdMVA.cc" name="preselectTreeTauIdMVA">
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="CondFormats/EgammaObjects"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="PhysicsTools/FWLite"/>
+  <use   name="root"/>
+  <use   name="roottmva"/>
+</bin>
+<bin   file="reweightTreeTauIdMVA.cc" name="reweightTreeTauIdMVA">
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="CondFormats/EgammaObjects"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="PhysicsTools/FWLite"/>
+  <use   name="root"/>
+  <use   name="roottmva"/>
+</bin>
+<bin   file="trainTauIdMVA.cc" name="trainTauIdMVA">
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="CondFormats/EgammaObjects"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="PhysicsTools/FWLite"/>
+  <use   name="root"/>
+  <use   name="roottmva"/>
+</bin>
+<bin   file="makeROCcurveTauIdMVA.cc" name="makeROCcurveTauIdMVA">
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="CondFormats/EgammaObjects"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="PhysicsTools/FWLite"/>
+  <use   name="root"/>
+  <use   name="roottmva"/>
+  <use   name="rootgraphics"/>
+</bin>
+<bin   file="showROCcurvesTauIdMVA.cc" name="showROCcurvesTauIdMVA">
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="CondFormats/EgammaObjects"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="PhysicsTools/FWLite"/>
+  <use   name="root"/>
+  <use   name="roottmva"/>
+  <use   name="rootgraphics"/>
+</bin>
+<bin   file="extendTreeAntiElectronDiscrMVA.cc" name="extendTreeAntiElectronDiscrMVA">
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="CondFormats/EgammaObjects"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="PhysicsTools/FWLite"/>
+  <use   name="root"/>
+  <use   name="roottmva"/>
+</bin>
+<bin   file="computeWPcutsAntiElectronDiscrMVA.cc" name="computeWPcutsAntiElectronDiscrMVA">
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="CondFormats/EgammaObjects"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="PhysicsTools/FWLite"/>
+  <use   name="root"/>
+  <use   name="roottmva"/>
+</bin>
+<bin   file="computeBDTGmappedAntiElectronDiscrMVA.cc" name="computeBDTGmappedAntiElectronDiscrMVA">
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PythonParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="CondFormats/EgammaObjects"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="PhysicsTools/FWLite"/>
+  <use   name="root"/>
+  <use   name="roottmva"/>
+</bin>

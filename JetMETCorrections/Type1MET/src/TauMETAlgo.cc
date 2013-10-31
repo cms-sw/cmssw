@@ -39,15 +39,15 @@ typedef math::XYZPoint Point;
           }
         }
         if(useTrackIsolation) {
-          PFCandidateRefVector PFTauProdIsolCHCands = (*thePFTau).isolationPFChargedHadrCands();
-          for(PFCandidateRefVector::const_iterator iChargedHadrCand=PFTauProdIsolCHCands.begin();
+          vector<reco::PFCandidatePtr> PFTauProdIsolCHCands = (*thePFTau).isolationPFChargedHadrCands();
+          for(vector<reco::PFCandidatePtr>::const_iterator iChargedHadrCand=PFTauProdIsolCHCands.begin();
               iChargedHadrCand!=PFTauProdIsolCHCands.end();++iChargedHadrCand) {
             if((**iChargedHadrCand).pt() > trackIsolationMinPt) {goodTau = false;}
           }
         }
         if(useECALIsolation) {
-          PFCandidateRefVector PFTauProdIsolGammaCands = (*thePFTau).isolationPFGammaCands();
-          for(PFCandidateRefVector::const_iterator iGammaCand=PFTauProdIsolGammaCands.begin();
+          vector<reco::PFCandidatePtr> PFTauProdIsolGammaCands = (*thePFTau).isolationPFGammaCands();
+          for(vector<reco::PFCandidatePtr>::const_iterator iGammaCand=PFTauProdIsolGammaCands.begin();
               iGammaCand!=PFTauProdIsolGammaCands.end();++iGammaCand) {
             if((**iGammaCand).et() > gammaIsolationMinPt) {goodTau = false;}
           }
@@ -115,15 +115,15 @@ typedef math::XYZPoint Point;
           }
         }
         if(useTrackIsolation) {
-          PFCandidateRefVector PFTauProdIsolCHCands = (*thePFTau).isolationPFChargedHadrCands();
-          for(PFCandidateRefVector::const_iterator iChargedHadrCand=PFTauProdIsolCHCands.begin();
+          vector<reco::PFCandidatePtr> PFTauProdIsolCHCands = (*thePFTau).isolationPFChargedHadrCands();
+          for(vector<reco::PFCandidatePtr>::const_iterator iChargedHadrCand=PFTauProdIsolCHCands.begin();
               iChargedHadrCand!=PFTauProdIsolCHCands.end();++iChargedHadrCand) {
             if((**iChargedHadrCand).pt() > trackIsolationMinPt) {goodTau = false;}
           }
         }
         if(useECALIsolation) {
-          PFCandidateRefVector PFTauProdIsolGammaCands = (*thePFTau).isolationPFGammaCands();
-          for(PFCandidateRefVector::const_iterator iGammaCand=PFTauProdIsolGammaCands.begin();
+          vector<reco::PFCandidatePtr> PFTauProdIsolGammaCands = (*thePFTau).isolationPFGammaCands();
+          for(vector<reco::PFCandidatePtr>::const_iterator iGammaCand=PFTauProdIsolGammaCands.begin();
               iGammaCand!=PFTauProdIsolGammaCands.end();++iGammaCand) {
             if((**iGammaCand).et() > gammaIsolationMinPt) {goodTau = false;}
           }

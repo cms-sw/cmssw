@@ -36,7 +36,7 @@ void RecoTauMVAHelper::setEvent(const edm::Event& evt,
     loadDiscriminantPlugins(container->find(name_));
   // Update the event info for all of our discriminators
   BOOST_FOREACH(PluginMap::value_type plugin, plugins_) {
-    plugin.second->setup(evt, es);
+    plugin.second->setup(*const_cast<edm::Event*>(&evt), es);
   }
 }
 

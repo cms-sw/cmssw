@@ -5,9 +5,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.6.2.3 $
  *
- * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.10 2013/04/08 11:45:27 jez Exp $
+ * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.6.2.3 2013/07/10 13:57:16 jez Exp $
  *
  */
 
@@ -133,7 +133,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
     numHitsRPC[iStation] = 0;
   }
 
-  const reco::PFCandidateRef& pfLeadChargedHadron = pfTau->leadPFChargedHadrCand();
+  const reco::PFCandidatePtr& pfLeadChargedHadron = pfTau->leadPFChargedHadrCand();
   if ( pfLeadChargedHadron.isNonnull() ) {
     reco::MuonRef muonRef = pfLeadChargedHadron->muonRef();      
     if ( muonRef.isNonnull() ) {
