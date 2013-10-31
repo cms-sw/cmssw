@@ -91,7 +91,8 @@ FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementLis
    if (!m_assocList) return;
 
    gEve->GetBrowser()->MapWindow();
-   
+   gEve->AddToListTree(context().getTrackPropagator(), true);
+
    const FWGeometry *geom = item()->getGeom();
    float local[3];
    float localDir[3];
@@ -132,24 +133,37 @@ FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementLis
 
 
       TrackingParticleRef tpr(tpch, tpIdx);
-      int alistIdx = 0;
       std::pair<TrackingParticleRef, TrackPSimHitRef> clusterTPpairWithDummyTP(tpr,TrackPSimHitRef());
       auto range = std::equal_range(m_assocList->begin(), m_assocList->end(), clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);      
-      // printf("TrackingParticle[%d] matches %d hits\n",tpIdx,(int)(range.second-range.first ));
-      for (SimHitTPAssociationProducer::SimHitTPAssociationList::const_iterator ai = range.first; ai != range.second; ++ai, ++alistIdx)
+      printf("TrackingParticle[%d] P(%.1f, %.1f, %.1f) matches %d hits\n", tpIdx,iData.px(), iData.py(), iData.pz() ,(int)(range.second-range.first ));
+
+      std::vector<const PSimHit*> phits;
+      for (auto ri = range.first; ri != range.second; ++ri)
+         phits.push_back(ri->second.get());
+
+      std::sort(phits.begin(), phits.end(), [](const PSimHit* a, const PSimHit* b){ return a->tof() < b->tof(); });
+      for (auto phi = phits.begin(); phi != phits.end(); ++phi)
       {
-               TrackPSimHitRef phit = ai->second;
-               local[0] = phit->localPosition().x();
-               local[1] = phit->localPosition().y();
-               local[2] = phit->localPosition().z();
-               localDir[0] = phit->momentumAtEntry().x();
-               localDir[1] = phit->momentumAtEntry().y();
-               localDir[2] = phit->momentumAtEntry().z();
-               geom->localToGlobal( phit->detUnitId(), local, global );
-               geom->localToGlobal( phit->detUnitId(), localDir, globalDir );
-               pointSet->SetNextPoint( global[0], global[1], global[2] );
-               track->AddPathMark( TEvePathMark( TEvePathMark::kReference, TEveVector( global[0], global[1], global[2] ),
-                                                 TEveVector( globalDir[0], globalDir[1], globalDir[2] )));
+         const PSimHit* phit = *phi;
+
+         local[0] = phit->localPosition().x();
+         local[1] = phit->localPosition().y();
+         local[2] = phit->localPosition().z();
+
+         localDir[0] = phit->momentumAtEntry().x();
+         localDir[1] = phit->momentumAtEntry().y();
+         localDir[2] = phit->momentumAtEntry().z();
+
+         geom->localToGlobal( phit->detUnitId(), local, global );
+         geom->localToGlobal( phit->detUnitId(), localDir, globalDir, false );
+         pointSet->SetNextPoint( global[0], global[1], global[2] );
+
+         //printf("localP = (%f, %f, %f) globalP = (%f, %f, %f), loss = %f, tof =%f\n", localDir[0], localDir[1], localDir[2], 
+         //       globalDir[0], globalDir[1], globalDir[2], 
+         //       phit->energyLoss(), phit->tof());
+         track->AddPathMark( TEvePathMark( TEvePathMark::kReference, TEveVector( global[0], global[1], global[2] ),
+                                           TEveVector( globalDir[0], globalDir[1], globalDir[2] )));
+
       }
 
 
