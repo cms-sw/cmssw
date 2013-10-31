@@ -24,12 +24,17 @@ void StaticLocalChecker::checkASTDecl(const clang::VarDecl *D,
 
 	    if ( ! m_exception.reportGlobalStaticForType( t, DLoc, BR ) )
 			return;
+	    std::string vname = D->getCanonicalDecl()->getQualifiedNameAsString();
+	    unsigned found = vname.find_last_of("::");
+	    std::string cname = vname.substr(0,found);
+//	    if ( ! support::isDataClass( cname) ) return;
+	    if ( support::isSafeClassName( vname ) ) return;
 
 	    std::string buf;
 	    llvm::raw_string_ostream os(buf);
-	    os << "Non-const variable '" << *D << "' is local static and might be thread-unsafe";
+	    os << "Non-const variable '" <<t.getAsString()<<" "<< *D << "' is static local or static member data and might be thread-unsafe";
 
-	    BR.EmitBasicReport(D, "Possibly Thread-Unsafe: non-const static local variable",
+	    BR.EmitBasicReport(D, "Possibly Thread-Unsafe: non-const static variable",
 	    					"ThreadSafety",
 	                       os.str(), DLoc);
 	    return;
