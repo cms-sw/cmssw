@@ -41,9 +41,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// no OMDS // #include "DQM/L1TMonitor/interface/L1TOMDSHelper.h"
-
+//L1 includes and dataformats
 #include "DQMOffline/L1Trigger/interface/L1TBeamConfiguration.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 #include <TString.h>
 
@@ -160,9 +161,8 @@ class L1TSync_Offline : public edm::EDAnalyzer {
     MonitorElement*                        m_ErrorMonitor;
 
     // Input tags
-    edm::InputTag                          m_scalersSource;       // Where to get L1 Scalers
-    edm::InputTag                          m_l1GtEvmSource;
-    edm::InputTag                          m_l1GtDataDaqInputTag;
+    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEvmSource;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>    m_l1GtDataDaqInputTag;
 
 };
 

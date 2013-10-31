@@ -13,13 +13,11 @@
 #include "DQM/L1TMonitor/interface/L1TGT.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 L1TGT::L1TGT(const edm::ParameterSet& ps) :
-            gtSource_(ps.getParameter<edm::InputTag> ("gtSource")),
-            gtEvmSource_(ps.getParameter<edm::InputTag> ("gtEvmSource")),
+            gtSource_(consumes<L1GlobalTriggerReadoutRecord>(ps.getParameter<edm::InputTag> ("gtSource"))),
+            gtEvmSource_(consumes<L1GlobalTriggerEvmReadoutRecord>(ps.getParameter<edm::InputTag> ("gtEvmSource"))),
             m_runInEventLoop(ps.getUntrackedParameter<bool>("runInEventLoop", false)),
             m_runInEndLumi(ps.getUntrackedParameter<bool>("runInEndLumi", false)),
             m_runInEndRun(ps.getUntrackedParameter<bool>("runInEndRun", false)),
@@ -122,12 +120,11 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
     // open EVM readout record if available
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
-    iEvent.getByLabel(gtEvmSource_, gtEvmReadoutRecord);
+    iEvent.getByToken(gtEvmSource_, gtEvmReadoutRecord);
 
     if (!gtEvmReadoutRecord.isValid()) {
         edm::LogInfo("L1TGT")
-                << "can't find L1GlobalTriggerEvmReadoutRecord with label "
-                << gtSource_.label();
+                << "can't find L1GlobalTriggerEvmReadoutRecord";
     } else {
 
         // get all info from the EVM record if available and fill the histograms
@@ -297,12 +294,11 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
     // open GT DAQ readout record - exit if failed
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel(gtSource_, gtReadoutRecord);
+    iEvent.getByToken(gtSource_, gtReadoutRecord);
 
     if (!gtReadoutRecord.isValid()) {
         edm::LogInfo("L1TGT")
-                << "can't find L1GlobalTriggerReadoutRecord with label "
-                << gtSource_.label();
+                << "can't find L1GlobalTriggerReadoutRecord";
         return;
     }
 
@@ -323,7 +319,7 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
     // look for GMT readout collection from the same source if GMT active
     if (isActive(gtfeActiveBoards, GMT)) {
         edm::Handle<L1MuGMTReadoutCollection> gmtReadoutCollection;
-        iEvent.getByLabel(gtSource_, gmtReadoutCollection);
+        iEvent.getByToken(gtSource_, gmtReadoutCollection);
 
         if (gmtReadoutCollection.isValid()) {
             gmtBx = gmtReadoutCollection->getRecord().getBxNr();

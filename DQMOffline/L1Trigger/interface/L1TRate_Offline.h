@@ -27,6 +27,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+//L1 includes
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -105,8 +109,8 @@ private:
   std::map<int,std::map<TString,double> > m_lsCounts;                // Map of counts (by bit) recorded for each LS
 
   // Input tags
-  edm::InputTag m_scalersSource;       // Where to get L1 Scalers
-  edm::InputTag m_l1GtDataDaqInputTag; // Where to get L1 GT Data DAQ
+  edm::EDGetTokenT<LumiScalersCollection> m_scalersSource;       // Where to get L1 Scalers
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputTag; // Where to get L1 GT Data DAQ
 
   // ParameterSet
   edm::ParameterSet m_parameters;

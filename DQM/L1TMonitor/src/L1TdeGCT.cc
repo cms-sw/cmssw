@@ -10,7 +10,7 @@ L1TdeGCT::L1TdeGCT(const edm::ParameterSet& iConfig) {
   if(verbose())
     std::cout << "L1TdeGCT::L1TdeGCT()...\n" << std::flush;
   
-  DEsource_ = iConfig.getParameter<edm::InputTag>("DataEmulCompareSource");
+  DEsource_ = consumes<L1DataEmulRecord>(iConfig.getParameter<edm::InputTag>("DataEmulCompareSource"));
   histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/GCTexpert");
   
   dbe = NULL;
@@ -41,40 +41,20 @@ L1TdeGCT::L1TdeGCT(const edm::ParameterSet& iConfig) {
 
 L1TdeGCT::~L1TdeGCT() {}
 
-void 
-L1TdeGCT::beginJob(void) {
+void L1TdeGCT::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
 
   if(verbose())
-    std::cout << "L1TdeGCT::beginJob()  start\n" << std::flush;
+    std::cout << "L1TdeGCT::beginRun()  start\n" << std::flush;
 
-  DQMStore* dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
   if(dbe) {
     dbe->setCurrentFolder(histFolder_);
     dbe->rmdir(histFolder_);
   }
-
-  // (em) iso, no-iso, (jets) cen, for, tau
-  std::string cLabel[nGctColl_]= 
-    {"IsoEM", "NoisoEM", "CenJet", "ForJet", "TauJet", "HT", "MET", "ET", "MHT", "HFSums", "HFCnts"};
-  const int nerr  = 5; 
-  const int nbit = 32;
   
   if(dbe) {
     dbe->setCurrentFolder(histFolder_);
 
     // book histograms here 
-
-    const int    phiNBins = 18  ;
-    const double phiMinim = -0.5;
-    const double phiMaxim = 17.5;
-    const int    etaNBins = 22  ;
-    const double etaMinim = -0.5;
-    const double etaMaxim = 21.5;
-    const int    rnkNBins = 63;
-    const double rnkMinim = 0.5;
-    const double rnkMaxim = 63.5;
-
     sysrates = dbe->book1D("sysrates","RATE OF COMPARISON FAILURES",nGctColl_, 0, nGctColl_ );
 
     for(int j=0; j<2; j++) {
@@ -159,12 +139,7 @@ L1TdeGCT::beginJob(void) {
     }
 
   }
-  
-  /// labeling
-  std::string errLabel[nerr]= {
-    "Agree", "Loc. Agree", "L.Disagree", "Data only", "Emul only"
-  };
-  
+    
   for(int i=0; i<nGctColl_; i++) {
     sysrates   ->setBinLabel(i+1,cLabel[i]);
     sysncand[0]->setBinLabel(i+1,cLabel[i]);
@@ -202,6 +177,10 @@ L1TdeGCT::beginJob(void) {
 }
 
 void 
+L1TdeGCT::beginJob(void) {
+}
+
+void 
 L1TdeGCT::endJob() {
   if(verbose())
     std::cout << "L1TdeGCT::endJob()...\n" << std::flush;
@@ -226,12 +205,11 @@ void
 
   /// get the comparison results
   edm::Handle<L1DataEmulRecord> deRecord;
-  iEvent.getByLabel(DEsource_, deRecord);
+  iEvent.getByToken(DEsource_, deRecord);
 
   if (!deRecord.isValid()) {
     edm::LogInfo("DataNotFound") 
-      << "Cannot find L1DataEmulRecord with label "
-      << DEsource_.label() 
+      << "Cannot find L1DataEmulRecord"
       << " Please verify that comparator was successfully executed."
       << " Emulator DQM for GCT will be skipped!"
       << std::endl;
