@@ -12,6 +12,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h" 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 
@@ -47,6 +48,10 @@ class PrimaryVertexMonitor : public edm::EDAnalyzer {
   MonitorElement *vtxchi2[2] , *vtxndf[2], *vtxprob[2] , *nans[2];
   MonitorElement *type[2];
   MonitorElement *bsX, *bsY, *bsZ, *bsSigmaZ, *bsDxdz, *bsDydz, *bsBeamWidthX, *bsBeamWidthY, *bsType;
+
+  //consume
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken;
+  edm::EDGetTokenT<reco::BeamSpot> bsToken;
 };
 
 

@@ -71,10 +71,6 @@ process.load("DQM.TrigXMonitor.run58738")
 # )
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
-
 process.MessageLogger = cms.Service("MessageLogger",
     detailedInfo = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
