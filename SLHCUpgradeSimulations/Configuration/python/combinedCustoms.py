@@ -14,6 +14,8 @@ from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault as fastCustomiseDefault
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 as fastCustomisePhase2
+from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelMixing as cNoPixelMixing
+
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
@@ -366,3 +368,7 @@ def bsStudyStep2(process):
         ptMin = cms.double(0.3)
         )
     return process
+
+def customise_noPixelMixing(process):
+    return cNoPixelMixing(process)
+
