@@ -10,16 +10,18 @@ class G4SimVertex
 {
 public:
     G4SimVertex() {}
-    G4SimVertex(const math::XYZVectorD & ip, double it, int iv) : 
-	ilv_(ip),itime_(it),itrack_(iv) {}
+    G4SimVertex(const math::XYZVectorD & ip, double it, int iv, unsigned int typ=0) : 
+      ilv_(ip),itime_(it),itrack_(iv),procType_(typ) {}
     /// index of the parent (-1 if no parent)
     const math::XYZVectorD & vertexPosition() const { return  ilv_; }
     const double vertexGlobalTime() const     { return  itime_; }
     const int parentIndex() const	      { return  itrack_; }
+    const unsigned int processType() const    { return  procType_; }
 private:
     math::XYZVectorD ilv_;
     double itime_;
     int itrack_;
+    unsigned int procType_;
 };
 
 #endif
