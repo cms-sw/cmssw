@@ -412,7 +412,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
     if (theVertexAdaptiveRaw.trackWeight(transTracksRaw[i]) > minAdaptWeight_){
 
-      PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerGeomHandle_, transTracksRefRaw[i], theVertexAdaptiveRaw);
+      PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerGeomHandle_, tTopoHand_, transTracksRefRaw[i], theVertexAdaptiveRaw);
 
       PFDisplacedVertex::VertexTrackType vertexTrackType = getVertexTrackType(pattern);
 
@@ -529,7 +529,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   
   for(unsigned i = 0; i < transTracks.size();i++) {
     
-    PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerGeomHandle_, transTracksRef[i], theRecoVertex);
+    PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerGeomHandle_, tTopoHand_, transTracksRef[i], theRecoVertex);
 
     PFDisplacedVertex::VertexTrackType vertexTrackType = getVertexTrackType(pattern);
 
