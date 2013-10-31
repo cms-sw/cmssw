@@ -324,3 +324,45 @@ def fastsimDefault(process):
 def fastsimPhase2(process):
     return fastCustomisePhase2(process)
 
+def bsStudyStep1(process):
+    process.VtxSmeared.MaxZ = 11.0
+    process.VtxSmeared.MinZ = -11.0
+    return process
+
+def bsStudyStep2(process):
+    process.initialStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+        precise = cms.bool(True),
+        originRadius = cms.double(0.02),
+        originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
+        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        ptMin = cms.double(0.7)
+        )
+    process.highPtTripletStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+        precise = cms.bool(True),
+        originRadius = cms.double(0.02),
+        originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
+        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        ptMin = cms.double(0.7)
+        )
+    process.lowPtQuadStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+        precise = cms.bool(True),
+        originRadius = cms.double(0.02),
+        originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
+        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        ptMin = cms.double(0.2)
+        )
+    process.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+        precise = cms.bool(True),
+        originRadius = cms.double(0.015),
+        originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
+        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        ptMin = cms.double(0.35)
+        )
+    process.detachedQuadStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+        precise = cms.bool(True),
+        originRadius = cms.double(0.5),
+        originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
+        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        ptMin = cms.double(0.3)
+        )
+    return process
