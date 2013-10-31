@@ -42,7 +42,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 #################################################################################################
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-     fileNames = cms.untracked.vstring('file:TenMuPt_0_100_ExtendedPhase2TkBE5D_10000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
+     fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/p/pozzo/workspace0/CMSSW_6_2_0_SLHC1/src/L1Trigger/TrackTrigger/test/TenMuPt_0_100_ExtendedPhase2TkBE5D_10000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
 #     fileNames = cms.untracked.vstring('file:TenMuPt_0_20_ExtendedPhase2TkBE5D_10000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
 #     fileNames = cms.untracked.vstring('file:TenPiPt_0_50_ExtendedPhase2TkBE5D_5000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
 #     fileNames = cms.untracked.vstring('file:TenElePt_0_50_ExtendedPhase2TkBE5D_5000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
@@ -110,7 +110,7 @@ process.ValidateL1Track = cms.EDAnalyzer("ValidateL1Track",
 # define output file and message logger
 #################################################################################################
 process.TFileService = cms.Service("TFileService",
-  fileName = cms.string('file:ValidateL1Track_ExtendedPhase2TkBE5D_Muon0100GeV3Wedges6SectorsNeighSeedCHECK.root')
+  fileName = cms.string('file:ValidateL1Track_ExtendedPhase2TkBE5D_Muon0100GeVNEWFIT.root')
 
 #  fileName = cms.string('file:ValidateL1Track_ExtendedPhase2TkBE5D_Pion050GeV.root')
 #  fileName = cms.string('file:ValidateL1Track_ExtendedPhase2TkBE5D_Ele.root')
