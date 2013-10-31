@@ -1,6 +1,6 @@
 #include "CATopJetTagger.h"
-#include "CATopJetHelper.h"
-#include "AnalysisDataFormats/TopObjects/interface/CATopJetTagInfo.h"
+#include "RecoJets/JetAlgorithms/interface/CATopJetHelper.h"
+#include "DataFormats/JetReco/interface/CATopJetTagInfo.h"
 
 using namespace std;
 using namespace reco;
@@ -43,9 +43,6 @@ CATopJetTagger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Set up output list
   auto_ptr<CATopJetTagInfoCollection> tagInfos(new CATopJetTagInfoCollection() );
-
-  // Here is the four-momentum adder
-  AddFourMomenta addFourMomenta;
 
   // Get the input list of basic jets corresponding to the hard jets
   Handle<View<Jet> > pBasicJets;

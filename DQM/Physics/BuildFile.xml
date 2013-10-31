@@ -17,4 +17,5 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="RecoJets/JetProducers"/>
+<use   name="RecoJets/JetAlgorithms"/>
 <flags   EDM_PLUGIN="1"/> 

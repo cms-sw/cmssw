@@ -1,4 +1,4 @@
-#include "CATopJetHelper.h"
+#include "RecoJets/JetAlgorithms/interface/CATopJetHelper.h"
 
 
 struct GreaterByPtCandPtr {
