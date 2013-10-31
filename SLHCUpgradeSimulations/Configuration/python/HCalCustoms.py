@@ -230,8 +230,8 @@ def customise_harvesting(process):
     return process
 
 def customise_Validation(process):
-    process.AllHcalDigisValidation.doSLHC = True
-    process.RecHitsValidation.doSLHC = True
+    process.AllHcalDigisValidation.doSLHC = cms.untracked.bool(True)
+    process.RecHitsValidation.doSLHC = cms.untracked.bool(True)
     process.validation_step.remove(process.globalhitsanalyze)
     return process
 
