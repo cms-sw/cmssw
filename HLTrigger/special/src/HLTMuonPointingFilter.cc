@@ -4,7 +4,7 @@
  */
 
 /* This Class Header */
-#include "EventFilter/Cosmics/interface/HLTMuonPointingFilter.h"
+#include "HLTrigger/special/interface/HLTMuonPointingFilter.h"
 
 /* Collaborating Class Header */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
