@@ -1,5 +1,6 @@
 
 #include <algorithm>
+#include <atomic>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -38,10 +39,10 @@ struct PathTracker
   void setID() const { id_=next_id_++; }
   void incTotal() const { ++total_; }
 
-  static unsigned int next_id_;
+  static std::atomic<unsigned int> next_id_;
 };
 
-unsigned int PathTracker::next_id_ = 0;
+std::atomic<unsigned int> PathTracker::next_id_{0U};
 
 bool PathTracker::operator<(const PathTracker& a) const
 {
