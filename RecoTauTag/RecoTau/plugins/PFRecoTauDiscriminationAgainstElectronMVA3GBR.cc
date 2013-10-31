@@ -164,15 +164,15 @@ double PFRecoTauDiscriminationAgainstElectronMVA3GBR::discriminate(const PFTauRe
   double category = -1.;
   bool isGsfElectronMatched = false;
 
-  //  float deltaRTestigo = 9.9; // variables not used
-  // float mvaCutTestigo = 999;
+  float deltaRTestigo = 9.9;
+  float mvaCutTestigo = 999;
 
   if( (*thePFTauRef).leadPFChargedHadrCand().isNonnull()) {
     for ( reco::GsfElectronCollection::const_iterator theGsfElectron = gsfElectrons_->begin();
 	  theGsfElectron != gsfElectrons_->end(); ++theGsfElectron ) {
       if ( theGsfElectron->pt() > 10. ) { // CV: only take electrons above some minimal energy/Pt into account...
 	double deltaREleTau = deltaR(theGsfElectron->p4(), thePFTauRef->p4());
-	//	deltaRTestigo = deltaREleTau;
+	deltaRTestigo = deltaREleTau;
 	if ( deltaREleTau < 0.3 ) {
 	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron);
 	  double workingPoint_match = 0.;
@@ -236,7 +236,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA3GBR::discriminate(const PFTauRe
 	      }
 	    }
 	    workingPoint_match = (mva_match > mvaCut);
-	    // mvaCutTestigo = mvaCut;
+	    mvaCutTestigo = mvaCut;
 	  } else {
 	    category = 16.;
 	    workingPoint_match = (mva_match > minMVA3prongMatch_);
@@ -309,7 +309,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA3GBR::discriminate(const PFTauRe
 	  }
 	}
 	workingPoint = (mva > mvaCut);
-	//	mvaCutTestigo = mvaCut;
+	mvaCutTestigo = mvaCut;
       } else {
 	category = 17.; 
 	workingPoint = (mva > minMVA3prongNoMatch_);

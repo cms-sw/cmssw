@@ -29,6 +29,9 @@
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
 #include "DataFormats/TauReco/interface/PFTau3ProngSummaryFwd.h"
 #include "DataFormats/TauReco/interface/PFTau3ProngSummaryAssociation.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include <vector>
 #include <map>
 #include "TLorentzVector.h"
@@ -38,7 +41,6 @@ namespace {
     reco::L2TauIsolationInfo                                    l2iI;
     reco::L2TauInfoAssociation                                  l2ts;
     edm::Wrapper<reco::L2TauInfoAssociation>                    wl2ts;
-
 
     std::vector<reco::BaseTauTagInfo>                           btti_v;
     edm::Wrapper<std::vector<reco::BaseTauTagInfo> >            btti_w;
@@ -118,7 +120,6 @@ namespace {
     edm::RefVector<std::vector<reco::PFRecoTauChargedHadron> >                          pfrecoTauChH_rv;
     edm::reftobase::Holder<reco::CompositePtrCandidate, reco::PFRecoTauChargedHadronRef>        pfrecoTauChH_rb;
 
-
     reco::CaloTauDiscriminatorByIsolationBase                   calotdi_b;
     reco::CaloTauDiscriminatorByIsolation                       calotdi_o;
     reco::CaloTauDiscriminatorByIsolationRef                    calotdi_r;
@@ -152,7 +153,6 @@ namespace {
 
     std::pair<reco::PFTauRef, int>                              pftd_p;
     std::vector<std::pair<reco::PFTauRef, int> >                pftd_v;
-
 
     reco::PFTauDiscriminatorBase                     pftdiscr_b;
     reco::PFTauDiscriminator                         pftdiscr_o;
@@ -188,8 +188,6 @@ namespace {
 
     std::vector<std::vector<reco::PFRecoTauChargedHadron> >                jetChHAssoc_v_v;
 
-
-
     reco::PFTauDecayModeAssociation                         pftdecaymodeass_o;
     reco::PFTauDecayModeAssociationRef                      pftdecaymodeass_r;
     reco::PFTauDecayModeAssociationRefProd                  pftdecaymodeass_rp;
@@ -221,7 +219,6 @@ namespace {
     edm::Association<std::vector<reco::PFTauTransverseImpactParameter> >                        pftautip_assoc_v;
     edm::Wrapper<edm::Association<std::vector<reco::PFTauTransverseImpactParameter> > >         pftautip_assoc_v_wrapper;
 
-
     reco::PFTauTransverseImpactParameterCollection                                                        pftautip_oc;
     std::vector<reco::PFTauTransverseImpactParameterCollection>                                           pftautip_vc;
     edm::Wrapper<std::vector<reco::PFTauTransverseImpactParameterCollection> >                            pftautip_vwc;
@@ -231,7 +228,6 @@ namespace {
     edm::reftobase::Holder<reco::PFTauTransverseImpactParameterCollection,edm::Ref<std::vector<reco::PFTauTransverseImpactParameterCollection> > >    pftautip_rbc;
     edm::Association<std::vector<reco::PFTauTransverseImpactParameterCollection> >                        pftautip_assoc_vc;
     edm::Wrapper<edm::Association<std::vector<reco::PFTauTransverseImpactParameterCollection> > >         pftautip_assoc_vc_wrapper;
-
 
     reco::PFTauTransverseImpactParameterRef                                                        pftautip_or;
     std::vector<reco::PFTauTransverseImpactParameterRef>                                           pftautip_vrb;
@@ -286,7 +282,6 @@ namespace {
     std::pair<reco::PFTauRef, std::vector<std::vector<reco::VertexRef> > >                pftaupairvertexv_o;
     std::vector<std::pair<reco::PFTauRef, std::vector<std::vector<reco::VertexRef> > > >  pftaupairvertexv_v;
 
-
     reco::PFTau3ProngSummary                                                        pftau3prong_o;
     std::vector<reco::PFTau3ProngSummary>                                           pftau3prong_v;
     edm::Wrapper<std::vector<reco::PFTau3ProngSummary> >                            pftau3prong_w;
@@ -297,7 +292,6 @@ namespace {
     edm::Association<std::vector<reco::PFTau3ProngSummary> >                        pftau3prong_assoc_v;
     edm::Wrapper<edm::Association<std::vector<reco::PFTau3ProngSummary> > >         pftau3prong_assoc_v_wrapper;
 
-
     reco::PFTau3ProngSummaryCollection                                                        pftau3prong_oc;
     std::vector<reco::PFTau3ProngSummaryCollection>                                           pftau3prong_vc;
     edm::Wrapper<std::vector<reco::PFTau3ProngSummaryCollection> >                            pftau3prong_wc;
@@ -307,7 +301,6 @@ namespace {
     edm::reftobase::Holder<reco::PFTau3ProngSummaryCollection,edm::Ref<std::vector<reco::PFTau3ProngSummaryCollection> > >    pftau3prong_rbc;
     edm::Association<std::vector<reco::PFTau3ProngSummaryCollection> >                        pftau3prong_assoc_vc;
     edm::Wrapper<edm::Association<std::vector<reco::PFTau3ProngSummaryCollection> > >         pftau3prong_assoc_vc_wrapper;
-
 
     reco::PFTau3ProngSummaryRef                                                        pftau3prong_or;
     std::vector<reco::PFTau3ProngSummaryRef>                                           pftau3prong_vr;
@@ -328,9 +321,13 @@ namespace {
     std::pair<reco::PFTauRef, std::vector<reco::PFTau3ProngSummaryRef> >                pftaupair3prong_o;
     std::vector<std::pair<reco::PFTauRef, std::vector<reco::PFTau3ProngSummaryRef> > >  pftaupair3prong_v;
 
+    std::vector<std::vector<TLorentzVector> > vlv_o;
 
-    std::vector<TLorentzVector> vlv;
-    std::vector<std::vector<TLorentzVector> > vvlv_o;
-
+    // jet -> PFCandidate associations, needed for boosted tau reconstruction
+    edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>,std::vector<reco::PFCandidate>,unsigned int> > jetPFCandidateAssociation_o;
+    edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>,std::vector<reco::PFCandidate>,unsigned int> > > jetPFCandidateAssociation_w;
+    edm::helpers::KeyVal<edm::RefProd<std::vector<reco::PFJet> >,edm::RefProd<std::vector<reco::PFCandidate> > > jetPFCandidateAssociation_kv;
+    edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > jetPFCandidateAssociation_kv2;
+    std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > jetPFCandidateAssociation_mkv;
   };
 }

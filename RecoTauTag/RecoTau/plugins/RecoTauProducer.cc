@@ -4,7 +4,7 @@
  * Interface between the various tau algorithms and the edm::Event.  The
  * RecoTauProducer takes as data input is a collection (view) of reco::PFJets,
  * and Jet-PiZero assoications that give the reco::RecoTauPiZeros for those
- * jets.  The actaul building of taus is done by the list of builders - each of
+ * jets.  The actual building of taus is done by the list of builders - each of
  * which constructs a PFTau for each PFJet.  The output collection may have
  * multiple taus for each PFJet - these overlaps are to be resolved by the
  * RecoTauCleaner module.
