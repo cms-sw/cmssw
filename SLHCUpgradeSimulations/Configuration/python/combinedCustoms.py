@@ -14,6 +14,7 @@ from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault as fastCustomiseDefault
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 as fastCustomisePhase2
+from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
@@ -318,9 +319,13 @@ def fixEcalConditions_3000(process):
                                     )
     return process
 
+def customise_noPixelDataloss(process):
+    return cNoPixDataloss(process)
+
 def fastsimDefault(process):
     return fastCustomiseDefault(process)
 
 def fastsimPhase2(process):
     return fastCustomisePhase2(process)
+
 
