@@ -35,10 +35,6 @@ process.source = cms.Source("PoolSource",
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
-
 process.p1 = cms.Path(process.siPixelRecHits*process.SiPixelRecHitSource)
 process.SiPixelRecHitSource.saveFile = True
 process.SiPixelRecHitSource.isPIB = False
