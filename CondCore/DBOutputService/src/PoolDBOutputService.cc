@@ -29,8 +29,8 @@ cond::service::PoolDBOutputService::fillRecord( edm::ParameterSet & pset) {
   thisrecord.m_closeIOV =
     pset.getUntrackedParameter<bool>("closeIOV", m_closeIOV);
  
-  thisrecord.m_freeInsert = 
-    pset.getUntrackedParameter<bool>("outOfOrder",m_freeInsert);
+  //thisrecord.m_freeInsert = 
+  //  pset.getUntrackedParameter<bool>("outOfOrder",m_freeInsert);
   
   //thisrecord.m_timetype=cond::findSpecs(pset.getUntrackedParameter< std::string >("timetype",m_timetypestr)).type;
   thisrecord.m_timetype = cond::time::timeTypeFromName( pset.getUntrackedParameter< std::string >("timetype",m_timetypestr) );
@@ -53,15 +53,15 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_dbstarted( false ),
   m_callbacks(),
   //m_newtags(),
-  m_closeIOV(false),
-  m_freeInsert(false)//,
+  m_closeIOV(false)//,
+  //m_freeInsert(false),
   //m_logheaders()
 {
   m_closeIOV=iConfig.getUntrackedParameter<bool>("closeIOV",m_closeIOV);
 
-  if( iConfig.exists("outOfOrder") ){
-     m_freeInsert=iConfig.getUntrackedParameter<bool>("outOfOrder");
-  }  
+  //if( iConfig.exists("outOfOrder") ){
+  //   m_freeInsert=iConfig.getUntrackedParameter<bool>("outOfOrder");
+  //}  
 
   m_timetypestr=iConfig.getUntrackedParameter< std::string >("timetype","runnumber");
   m_timetype = cond::time::timeTypeFromName( m_timetypestr );

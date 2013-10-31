@@ -41,7 +41,7 @@ namespace cond {
       oraConnection.configure();
       cond::DbSession oraSession = oraConnection.createSession();
       // fix me: what do we do for the roles?
-      oraSession.open( connectionString, cond::Auth::COND_READER_ROLE, readOnly );
+      oraSession.open( connectionString, readOnly?cond::Auth::COND_READER_ROLE:cond::Auth::COND_WRITER_ROLE, readOnly );
       auto oraDb = oraSession.storage();
       cond::persistency::Session session;
       session.open( oraDb.storageAccessSession().share() );

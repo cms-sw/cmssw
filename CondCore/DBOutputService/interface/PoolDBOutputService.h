@@ -116,7 +116,8 @@ namespace cond{
       // 
       template<typename T>
       void writeOne( T * payload, Time_t time, const std::string& recordName, bool withlogging=false ) {
-	Hash payloadId = m_session.storePayload( payload );
+        if( !payload ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::writeOne");
+	Hash payloadId = m_session.storePayload( *payload );
 	std::string payloadType = cond::demangledName(typeid(T));
 	if (isNewTagRequest(recordName) ){
 	  createNewIOV(payloadId, payloadType, time, endOfTime(), recordName, withlogging);
@@ -136,7 +137,8 @@ namespace cond{
 			 cond::Time_t firstTillTime,
 			 const std::string& recordName,
                          bool withlogging=false){
-        createNewIOV( m_session.storePayload( firstPayloadObj ),
+        if( !firstPayloadObj ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::createNewIOV");
+        createNewIOV( m_session.storePayload( *firstPayloadObj ),
 		      cond::demangledName(typeid(T)),
                       firstSinceTime,
                       firstTillTime,
@@ -156,7 +158,8 @@ namespace cond{
                                                  cond::Time_t sinceTime,
                                                  const std::string& recordName,
                                                  bool withlogging=false){
-        appendSinceTime( m_session.storePayload( payloadObj ),
+        if( !payloadObj ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::appendSinceTime");
+        appendSinceTime( m_session.storePayload( *payloadObj ),
 			 cond::demangledName(typeid(T)),
 			 sinceTime,
 			 recordName,
@@ -174,12 +177,6 @@ namespace cond{
                             const std::string& recordName,
                             bool withlogging=false);
      
-      // set last till so that the iov sequence is "closed"
-      // void closeSequence(cond::Time_t tillTime,
-      //                 const std::string& recordName,
-      //                 bool withlogging=false);
-
-
       //
       // Service time utility method 
       // return the infinity value according to the given timetype
@@ -217,8 +214,8 @@ namespace cond{
 		  m_idName(),
 		  //m_iovtoken(),
 		  m_timetype(cond::runnumber),
-                  m_closeIOV(false),
-		  m_freeInsert(false)
+                  m_closeIOV(false)//,
+		  //m_freeInsert(false)
 	{}
 
 	std::string timetypestr() const { return cond::timeTypeSpecs[m_timetype].name;}
@@ -228,7 +225,7 @@ namespace cond{
 	//std::string m_iovtoken;
 	cond::TimeType m_timetype;
         bool m_closeIOV;
-	bool m_freeInsert;
+	//bool m_freeInsert;
     };      
 
 
@@ -267,7 +264,7 @@ namespace cond{
       std::map<std::string, Record> m_callbacks;
       //std::vector< std::pair<std::string,std::string> > m_newtags;
       bool m_closeIOV;
-      bool m_freeInsert;
+      //bool m_freeInsert;
       //std::map<std::string, cond::UserLogInfo> m_logheaders;
 
     };//PoolDBOutputService

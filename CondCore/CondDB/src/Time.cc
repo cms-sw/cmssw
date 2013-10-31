@@ -9,20 +9,20 @@
 namespace cond {
 
   namespace time {
-    static auto s_timeTypeMap = { enumPair( "Run",cond::runnumber ),
-				  enumPair( "Time",cond::timestamp ),
-				  enumPair( "Lumi",cond::lumiid ),
-				  enumPair( "Hash",cond::hash ),
-				  enumPair( "User",cond::userid ) };
+    auto s_timeTypeMap = { enumPair( "Run",cond::runnumber ),
+			   enumPair( "Time",cond::timestamp ),
+			   enumPair( "Lumi",cond::lumiid ),
+			   enumPair( "Hash",cond::hash ),
+			   enumPair( "User",cond::userid ) };
 
     std::string timeTypeName(TimeType type) {
-      std::vector<std::pair<const std::string,TimeType> > tmp( s_timeTypeMap );
+      static const std::vector<std::pair<const std::string,TimeType> > tmp( s_timeTypeMap );
       if( type==invalid ) return "";
       return tmp[type].first;
     }
 
     TimeType timeTypeFromName( const std::string& name ){
-      std::map<std::string,TimeType> tmp( s_timeTypeMap );
+      static const std::map<std::string,TimeType> tmp( s_timeTypeMap );
       auto t = tmp.find( name );
       if( t == tmp.end() ) throwException( "TimeType \""+name+"\" is unknown.","timeTypeFromName");
       return t->second;

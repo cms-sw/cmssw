@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 process.source = cms.Source("EmptyIOVSource",
     lastValue = cms.uint64(15),
-    timetype = cms.string('runnumber'),
+    timetype = cms.string('Run'),
     firstValue = cms.uint64(11),
     interval = cms.uint64(1)
 )
@@ -13,7 +13,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('.')
     ),
-    timetype = cms.untracked.string('runnumber'),
+    timetype = cms.untracked.string('Run'),
     connect = cms.string('sqlite_file:test.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('PedestalsRcd'),

@@ -9,14 +9,14 @@ process.CondDBCommon.DBParameters.messageLevel = cms.untracked.int32(3)
 
 process.source = cms.Source("EmptyIOVSource",
     lastValue = cms.uint64(30),
-    timetype = cms.string('runnumber'),
+    timetype = cms.string('Run'),
     firstValue = cms.uint64(21),
     interval = cms.uint64(2)
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
-    timetype = cms.untracked.string('runnumber'),
+    timetype = cms.untracked.string('Run'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('PedestalsRcd'),
         tag = cms.string('mytest')
