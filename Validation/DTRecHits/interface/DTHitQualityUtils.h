@@ -50,6 +50,8 @@ public:
   // Set the verbosity level
   static bool debug; 
 
+  //Find angle error
+  static double sigmaAngle(double Angle, double sigma2TanAngle);
 
 protected:
 

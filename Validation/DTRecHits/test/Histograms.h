@@ -543,13 +543,13 @@ class HRes4DHit{
       hResYVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResYVsEtaRZ");
       hResYVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hResYVsPhiRZ");
 
-      hPullBetaRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullBetaRZ");
-      hPullBetaVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullBetaVsEtaRZ");
-      hPullBetaVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullBetaVsPhiRZ");
+      hPullBetaRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Pull/4D_"+name+"_hPullBetaRZ");
+      hPullBetaVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Pull/4D_"+name+"_hPullBetaVsEtaRZ");
+      hPullBetaVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Pull/4D_"+name+"_hPullBetaVsPhiRZ");
 
-      hPullYRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullYRZ");
-      hPullYVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullYVsEtaRZ");
-      hPullYVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Res/4D_"+name+"_hPullYVsPhiRZ");
+      hPullYRZ = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Pull/4D_"+name+"_hPullYRZ");
+      hPullYVsEtaRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Pull/4D_"+name+"_hPullYVsEtaRZ");
+      hPullYVsPhiRZ = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/Pull/4D_"+name+"_hPullYVsPhiRZ");
 
       hHitMult = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hNHits");
       ht0      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_ht0");

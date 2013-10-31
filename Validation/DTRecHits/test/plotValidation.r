@@ -332,7 +332,7 @@ void plotValidation(TString filename, int wheel, int station) {
     TCanvas* c1= new TCanvas;
     c1->SetTitle(canvbasename+"_PullSeg"); 
     c1->SetName(canvbasename+"_PullSeg");
-    c1->Divide(2,2);
+    c1->Divide(2,3);
     c1->cd(1);
 
     hRes4D->hPullX->Rebin(2);
@@ -345,7 +345,14 @@ void plotValidation(TString filename, int wheel, int station) {
     drawGFit(hRes4D->hPullY, nsigma, -10., 10.);
     c1->cd(4);
     hRes4D->hPullBeta->Rebin(2);
-    drawGFit(hRes4D->hPullBeta, nsigma, -10.,10.);
+    drawGFit(hRes4D->hPullBeta, nsigma, -10.,10.);  
+
+    c1->cd(5);
+    hRes4D->hPullYRZ->Rebin(2);
+    drawGFit(hRes4D->hPullYRZ, nsigma, -10., 10.);
+    c1->cd(6);
+    hRes4D->hPullBetaRZ->Rebin(2);
+    drawGFit(hRes4D->hPullBetaRZ, nsigma, -10.,10.);
   }
 
 
