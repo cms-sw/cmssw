@@ -15,7 +15,18 @@
 //		pass by const ref & pointer OK
 //
 //
-
+#include <clang/AST/Decl.h>
+#include <clang/AST/DeclTemplate.h>
+#include <clang/AST/DeclCXX.h>
+#include <clang/AST/StmtVisitor.h>
+#include <clang/AST/ParentMap.h>
+#include <clang/Analysis/CFGStmtMap.h>
+#include <clang/StaticAnalyzer/Core/Checker.h>
+#include <clang/StaticAnalyzer/Core/BugReporter/BugReporter.h>
+#include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
+#include <clang/StaticAnalyzer/Core/PathSensitive/AnalysisManager.h>
+#include <llvm/Support/SaveAndRestore.h>
+#include <llvm/ADT/SmallString.h>
 
 #include "ClassChecker.h"
 
@@ -619,21 +630,23 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 	
   	llvm::SmallString<100> buf;
   	llvm::raw_svector_ostream os(buf);
-	clang::FileSystemOptions FSO;
-	clang::FileManager FM(FSO);
-	const char * pPath = std::getenv("LOCALRT");
-	std::string dname(""); 
-	if ( pPath != NULL ) dname = std::string(pPath);
-	std::string fname("/tmp/classes.txt");
-	std::string tname = dname + fname;
-	if (!FM.getFile(tname) ) {
-		llvm::errs()<<"\n\nChecker optional.ClassChecker cannot find $LOCALRT/tmp/classes.txt. Run 'scram b checker' with USER_LLVM_CHECKERS='-enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT' to create $LOCALRT/tmp/classes.txt.\n\n\n";
-		exit(1);
-		}
-	llvm::MemoryBuffer * buffer = FM.getBufferForFile(FM.getFile(tname));
-		os <<"class "<<RD->getQualifiedNameAsString()<<"\n";
-		llvm::StringRef Rname(os.str());
-		if (buffer->getBuffer().find(Rname) == llvm::StringRef::npos ) {return;}
+//	clang::FileSystemOptions FSO;
+//	clang::FileManager FM(FSO);
+//	const char * pPath = std::getenv("LOCALRT");
+//	std::string dname(""); 
+//	if ( pPath != NULL ) dname = std::string(pPath);
+//	std::string fname("/tmp/classes.txt");
+//	std::string tname = dname + fname;
+//	if (!FM.getFile(tname) ) {
+//		llvm::errs()<<"\n\nChecker optional.ClassChecker cannot find $LOCALRT/tmp/classes.txt. Run 'scram b checker' with USER_LLVM_CHECKERS='-enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT' to create $LOCALRT/tmp/classes.txt.\n\n\n";
+//		exit(1);
+//		}
+//	llvm::MemoryBuffer * buffer = FM.getBufferForFile(FM.getFile(tname));
+//		os <<"class "<<RD->getQualifiedNameAsString()<<"\n";
+//		llvm::StringRef Rname(os.str());
+//		if (buffer->getBuffer().find(Rname) == llvm::StringRef::npos ) {return;}
+	std::string name = RD->getQualifiedNameAsString();
+	if ( ! support::isDataClass(name) ) return;
 	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
 	if (  !m_exception.reportClass( DLoc, BR ) ) return;
 //	clangcms::WalkAST walker(BR, mgr.getAnalysisDeclContext(RD));

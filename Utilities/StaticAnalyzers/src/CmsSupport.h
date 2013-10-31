@@ -11,6 +11,7 @@
 
 #include <clang/AST/Type.h>
 #include <clang/AST/Decl.h>
+#include <clang/AST/DeclCXX.h>
 
 namespace clangcms {
 
@@ -46,6 +47,7 @@ inline bool isConst( clang::QualType const& qt )
 bool isCmsLocalFile(const char* file);
 std::string getQualifiedName(const clang::NamedDecl &d);
 bool isSafeClassName(const std::string &d);
+bool isDataClass(const std::string &d);
 }
 } 
 

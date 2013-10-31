@@ -3,12 +3,19 @@
 // by Shahzad Malik MUZAFFAR [ Shahzad.Malik.MUZAFFAR@cern.ch ]
 //
 //===----------------------------------------------------------------------===//
-
+#include <clang/Basic/FileManager.h>
+#include <clang/StaticAnalyzer/Core/Checker.h>
+#include <clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h>
+#include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
+#include <llvm/ADT/SmallString.h>
+#include "llvm/Support/raw_ostream.h"
 #include "CmsSupport.h"
 #include <cstdlib>
 #include <cstring>
+
 using namespace clangcms;
 using namespace clang;
+using namespace llvm;
 bool support::isCmsLocalFile(const char* file)
 {
   static char* LocalDir=0;
@@ -74,8 +81,7 @@ std::string support::getQualifiedName(const clang::NamedDecl &d) {
   return ret;
 }
 
-bool support::isSafeClassName(const std::string &d) {
-  std::string name = d;
+bool support::isSafeClassName(const std::string &name) {
   std::string atomic = "std::atomic<";
   std::string mutex = "std::mutex";
   std::string rmutex = "std::recursive_mutex";
@@ -87,3 +93,35 @@ bool support::isSafeClassName(const std::string &d) {
   return false;
 }
 
+bool support::isDataClass(const std::string & name) {
+        std::string buf;
+        llvm::raw_string_ostream os(buf);
+	clang::FileSystemOptions FSO;
+	clang::FileManager FM(FSO);
+	const char * lPath = std::getenv("LOCALRT");
+	const char * rPath = std::getenv("CMSSW_RELEASE_BASE");
+	std::string lname(""); 
+	std::string rname(""); 
+	if ( lPath != NULL && rPath != NULL ) {
+		lname = std::string(lPath);
+		rname = std::string(rPath);
+	}
+		
+	std::string tname("/tmp/classes.txt");
+	std::string sname("/Utilities/StaticAnalyzers/scripts/classes.txt");
+	std::string fname1 = lname + tname;
+	std::string fname2 = rname + sname;
+	if (!FM.getFile(fname1) && !FM.getFile(fname2) ) {
+		llvm::errs()<<"\n\nChecker cannot find classes.txt. Run \"USER_LLVM_CHECKERS='-enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT scram b checker to create $LOCALRT/tmp/classes.txt.\n\n\n";
+		exit(1);
+		}
+	llvm::MemoryBuffer * buffer;
+	if ( FM.getFile(fname1) ) 
+		buffer = FM.getBufferForFile(FM.getFile(fname1));
+	else 
+		buffer = FM.getBufferForFile(FM.getFile(fname2));	
+	os <<"class "<< name <<"\n";
+	llvm::StringRef Rname(os.str());
+	if ( buffer->getBuffer().find(Rname) == llvm::StringRef::npos ) return false;
+	return true;
+}
