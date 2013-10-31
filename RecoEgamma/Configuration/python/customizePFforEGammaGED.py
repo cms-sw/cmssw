@@ -105,7 +105,41 @@ def _customize_FastSim(process):
     process=_configurePFForGEDEGamma(process)
     process.famosParticleFlowSequence.remove(process.pfElectronTranslatorSequence)
     process.famosParticleFlowSequence.remove(process.pfPhotonTranslatorSequence)
-    process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)    
+    process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)
+    process.reducedEcalRecHitsEB.interestingDetIdCollections = cms.VInputTag(
+        # ecal
+        cms.InputTag("interestingEcalDetIdEB"),
+        cms.InputTag("interestingEcalDetIdEBU"),
+        # egamma
+        cms.InputTag("interestingEleIsoDetIdEB"),
+        cms.InputTag("interestingGamIsoDetIdEB"),
+        # tau
+        #cms.InputTag("caloRecoTauProducer"),
+        #pf
+        #cms.InputTag("pfElectronInterestingEcalDetIdEB"),
+        #cms.InputTag("pfPhotonInterestingEcalDetIdEB"),
+        # muons
+        cms.InputTag("muonEcalDetIds"),
+        # high pt tracks
+        cms.InputTag("interestingTrackEcalDetIds")
+        )
+    process.reducedEcalRecHitsEE.interestingDetIdCollections = cms.VInputTag(
+        # ecal
+        cms.InputTag("interestingEcalDetIdEE"),
+        # egamma
+        cms.InputTag("interestingEleIsoDetIdEE"),
+        cms.InputTag("interestingGamIsoDetIdEE"),
+        # tau
+        #cms.InputTag("caloRecoTauProducer"),
+        #pf
+        #cms.InputTag("pfElectronInterestingEcalDetIdEE"),
+        #cms.InputTag("pfPhotonInterestingEcalDetIdEE"),
+        # muons
+        cms.InputTag("muonEcalDetIds"),
+        # high pt tracks
+        cms.InputTag("interestingTrackEcalDetIds")
+        )
+    
     if hasattr(process,'ecalDrivenElectronSeeds'):
         process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
         process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
@@ -116,7 +150,41 @@ def _customize_Reco(process):
     process=_configurePFForGEDEGamma(process)
     process.particleFlowReco.remove(process.pfElectronTranslatorSequence)
     process.particleFlowReco.remove(process.pfPhotonTranslatorSequence)
-    process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)    
+    process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)
+    process.reducedEcalRecHitsEB.interestingDetIdCollections = cms.VInputTag(
+        # ecal
+        cms.InputTag("interestingEcalDetIdEB"),
+        cms.InputTag("interestingEcalDetIdEBU"),
+        # egamma
+        cms.InputTag("interestingEleIsoDetIdEB"),
+        cms.InputTag("interestingGamIsoDetIdEB"),
+        # tau
+        #cms.InputTag("caloRecoTauProducer"),
+        #pf
+        #cms.InputTag("pfElectronInterestingEcalDetIdEB"),
+        #cms.InputTag("pfPhotonInterestingEcalDetIdEB"),
+        # muons
+        cms.InputTag("muonEcalDetIds"),
+        # high pt tracks
+        cms.InputTag("interestingTrackEcalDetIds")
+        )
+    process.reducedEcalRecHitsEE.interestingDetIdCollections = cms.VInputTag(
+        # ecal
+        cms.InputTag("interestingEcalDetIdEE"),
+        # egamma
+        cms.InputTag("interestingEleIsoDetIdEE"),
+        cms.InputTag("interestingGamIsoDetIdEE"),
+        # tau
+        #cms.InputTag("caloRecoTauProducer"),
+        #pf
+        #cms.InputTag("pfElectronInterestingEcalDetIdEE"),
+        #cms.InputTag("pfPhotonInterestingEcalDetIdEE"),
+        # muons
+        cms.InputTag("muonEcalDetIds"),
+        # high pt tracks
+        cms.InputTag("interestingTrackEcalDetIds")
+        )
+    
     if hasattr(process,'ecalDrivenElectronSeeds'):
         process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
         process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
