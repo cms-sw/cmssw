@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include <numeric>
 //#include <iostream>
 
@@ -29,7 +30,7 @@ using namespace edm;
 using namespace reco;
 
 //----------------------------------------------------------------------------------------------------------------------
-AlcaBeamMonitor::AlcaBeamMonitor( const ParameterSet& ps ) : 
+AlcaBeamMonitor::AlcaBeamMonitor( const ParameterSet& ps ) :
   parameters_         	(ps),
   monitorName_        	(parameters_.getUntrackedParameter<string>("MonitorName","YourSubsystemName")),
   primaryVertexLabel_ 	(consumes<VertexCollection>(
@@ -42,16 +43,16 @@ AlcaBeamMonitor::AlcaBeamMonitor( const ParameterSet& ps ) :
   numberOfValuesToSave_ (0)
 {
   dbe_ = Service<DQMStore>().operator->();
-  
+
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
-  
-  theBeamFitter_ = new BeamFitter(parameters_);
+
+  theBeamFitter_ = new BeamFitter(parameters_, consumesCollector() );
   theBeamFitter_->resetTrkVector();
   theBeamFitter_->resetLSRange();
   theBeamFitter_->resetRefTime();
   theBeamFitter_->resetPVFitter();
 
-  thePVFitter_ = new PVFitter(parameters_);
+  thePVFitter_ = new PVFitter(parameters_, consumesCollector());
 
 
   varNamesV_.push_back("x");

@@ -43,9 +43,11 @@ namespace reco {
 class PVFitter {
  public:
   PVFitter() {}
+  PVFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector &&iColl);
   PVFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector &iColl);
   virtual ~PVFitter();
 
+  void initialize(const edm::ParameterSet& iConfig, edm::ConsumesCollector &iColl);
   void readEvent(const edm::Event& iEvent);
   void setTree(TTree* tree);
   

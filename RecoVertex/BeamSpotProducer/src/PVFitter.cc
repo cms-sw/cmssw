@@ -46,10 +46,23 @@ ________________________________________________________________**/
 //   strftime(ts,sizeof(ts),"%Y.%m.%d %H:%M:%S %Z",ptm);
 //   return ts;
 // }
-
-PVFitter::PVFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector &iColl): ftree_(0)
+PVFitter::PVFitter(const edm::ParameterSet& iConfig,
+                   edm::ConsumesCollector &&iColl)
+  : ftree_(0)
 {
+  initialize(iConfig, iColl);
+}
 
+PVFitter::PVFitter(const edm::ParameterSet& iConfig,
+                   edm::ConsumesCollector &iColl)
+    :ftree_(0)
+{
+  initialize(iConfig, iColl);
+}
+
+void PVFitter::initialize(const edm::ParameterSet& iConfig,
+                          edm::ConsumesCollector &iColl)
+{
   debug_             = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("Debug");
   vertexToken_       = iColl.consumes<reco::VertexCollection>(
       iConfig.getParameter<edm::ParameterSet>("PVFitter")
