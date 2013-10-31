@@ -9,6 +9,7 @@
 
 /// b-tag a jet based on track-to-jet parameters in the extened info collection
 float ElectronTagger::discriminator(const TagInfoHelper & tagInfo) const {
+  ElectronTaggerMLP theNet{};
   // default value, used if there are no leptons associated to this jet
   float bestTag = - std::numeric_limits<float>::infinity();
   const reco::SoftLeptonTagInfo & info = tagInfo.get<reco::SoftLeptonTagInfo>();
