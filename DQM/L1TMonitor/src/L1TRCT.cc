@@ -38,7 +38,8 @@ const float ETAMAX = 21.5;
 
 
 L1TRCT::L1TRCT(const ParameterSet & ps) :
-   rctSource_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("rctSource") )),
+   rctSource_L1CRCollection_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("rctSource") )),
+   rctSource_L1CEMCollection_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("rctSource") )),
    filterTriggerType_ (ps.getParameter< int >("filterTriggerType"))
 {
 
@@ -243,7 +244,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   bool doEm = true;
   bool doHd = true;
 
-  e.getByToken(rctSource_,rgn);
+  e.getByToken(rctSource_L1CRCollection_,rgn);
  
   if (!rgn.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection";
@@ -285,7 +286,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   }
 
   
-  e.getByToken(rctSource_,em);
+  e.getByToken(rctSource_L1CEMCollection_,em);
   
   if (!em.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection";

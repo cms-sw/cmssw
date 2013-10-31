@@ -16,7 +16,8 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 L1TGT::L1TGT(const edm::ParameterSet& ps) :
-            gtSource_(consumes<L1GlobalTriggerReadoutRecord>(ps.getParameter<edm::InputTag> ("gtSource"))),
+            gtSource_L1GT_(consumes<L1GlobalTriggerReadoutRecord>(ps.getParameter<edm::InputTag> ("gtSource"))),
+            gtSource_L1MuGMT_(consumes<L1MuGMTReadoutCollection>(ps.getParameter<edm::InputTag> ("gtSource"))),
             gtEvmSource_(consumes<L1GlobalTriggerEvmReadoutRecord>(ps.getParameter<edm::InputTag> ("gtEvmSource"))),
             m_runInEventLoop(ps.getUntrackedParameter<bool>("runInEventLoop", false)),
             m_runInEndLumi(ps.getUntrackedParameter<bool>("runInEndLumi", false)),
@@ -294,7 +295,7 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
     // open GT DAQ readout record - exit if failed
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByToken(gtSource_, gtReadoutRecord);
+    iEvent.getByToken(gtSource_L1GT_, gtReadoutRecord);
 
     if (!gtReadoutRecord.isValid()) {
         edm::LogInfo("L1TGT")
@@ -319,7 +320,7 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
     // look for GMT readout collection from the same source if GMT active
     if (isActive(gtfeActiveBoards, GMT)) {
         edm::Handle<L1MuGMTReadoutCollection> gmtReadoutCollection;
-        iEvent.getByToken(gtSource_, gmtReadoutCollection);
+        iEvent.getByToken(gtSource_L1MuGMT_, gmtReadoutCollection);
 
         if (gmtReadoutCollection.isValid()) {
             gmtBx = gmtReadoutCollection->getRecord().getBxNr();

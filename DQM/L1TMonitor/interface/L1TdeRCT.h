@@ -339,8 +339,10 @@ private:
   bool monitorDaemon_;
   std::ofstream logFile_;
 
-  edm::EDGetTokenT<L1CaloRegionCollection> rctSourceEmul_;
-  edm::EDGetTokenT<L1CaloRegionCollection> rctSourceData_;
+  edm::EDGetTokenT<L1CaloRegionCollection> rctSourceEmul_rgnEmul_;
+  edm::EDGetTokenT<L1CaloEmCollection> rctSourceEmul_emEmul_;
+  edm::EDGetTokenT<L1CaloRegionCollection> rctSourceData_rgnData_;
+  edm::EDGetTokenT<L1CaloEmCollection> rctSourceData_emData_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPGData_;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPGData_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigisLabel_;

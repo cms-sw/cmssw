@@ -18,7 +18,8 @@ l1tEfficiencyMuons_offline = cms.EDAnalyzer("L1TEfficiencyMuons_Offline",
         "HLT_Mu40_v*"
         ),
 
-  trigInputTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
-  trigProcess  = cms.untracked.string("HLT")
+  trigInputTag       = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
+  trigProcess        = cms.untracked.string("HLT"),
+  trigProcess_token  = cms.untracked.string("TriggerResults","","HLT")
   
 )

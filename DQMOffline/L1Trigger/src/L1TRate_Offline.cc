@@ -10,14 +10,6 @@
 
 #include "DQMOffline/L1Trigger/interface/L1TMenuHelper.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "DataFormats/Scalers/interface/Level1TriggerRates.h"
-#include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
-#include "DataFormats/Common/interface/ConditionsInEdm.h" // Parameters associated to Run, LS and Event
-#include "DataFormats/Luminosity/interface/LumiDetails.h" // Luminosity Information
-#include "DataFormats/Luminosity/interface/LumiSummary.h" // Luminosity Information
-
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
@@ -40,7 +32,8 @@ L1TRate_Offline::L1TRate_Offline(const ParameterSet & ps){
   m_parameters = ps;
 
   // Mapping parameter input variables
-  m_scalersSource       = consumes<LumiScalersCollection>(m_parameters.getParameter                <InputTag>("inputTagScalersResults") );
+  m_scalersSource_LSCollection       = consumes<LumiScalersCollection>(m_parameters.getParameter                <InputTag>("inputTagScalersResults") );
+  m_scalersSource_L1TSCollection     = consumes<Level1TriggerScalersCollection>(m_parameters.getParameter       <InputTag>("inputTagScalersResults") );
   m_l1GtDataDaqInputTag = consumes<L1GlobalTriggerReadoutRecord>(m_parameters.getParameter         <InputTag>("inputTagL1GtDataDaq") );
   m_verbose             = m_parameters.getUntrackedParameter<bool>    ("verbose",false);
   m_refPrescaleSet      = m_parameters.getParameter         <int>     ("refPrescaleSet");
@@ -338,9 +331,9 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
   edm::Handle<Level1TriggerScalersCollection> triggerScalers;
   edm::Handle<LumiScalersCollection>          colLScal;
 
-  iEvent.getByToken(m_l1GtDataDaqInputTag, gtReadoutRecordData);
-  iEvent.getByToken(m_scalersSource      , colLScal);
-  iEvent.getByToken(m_scalersSource      , triggerScalers);
+  iEvent.getByToken(m_l1GtDataDaqInputTag               , gtReadoutRecordData);
+  iEvent.getByToken(m_scalersSource_LSCollection        , colLScal);
+  iEvent.getByToken(m_scalersSource_L1TSCollection      , triggerScalers);
 
   // Integers
   //int  EventRun = iEvent.id().run();

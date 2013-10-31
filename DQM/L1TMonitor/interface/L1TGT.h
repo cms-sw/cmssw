@@ -104,7 +104,8 @@ private:
     /// input parameters
 
     /// input tag for L1 GT DAQ readout record
-    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtSource_;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtSource_L1GT_;
+    edm::EDGetTokenT<L1MuGMTReadoutCollection> gtSource_L1MuGMT_;
 
     /// input tag for L1 GT EVM readout record
     edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmSource_;

@@ -138,7 +138,8 @@ private:
   bool monitorDaemon_;
   std::ofstream logFile_;
   
-  edm::EDGetTokenT<L1CaloRegionCollection> rctSource_;
+  edm::EDGetTokenT<L1CaloRegionCollection> rctSource_L1CRCollection_;
+  edm::EDGetTokenT<L1CaloEmCollection> rctSource_L1CEMCollection_;
   
   /// filter TriggerType
   int filterTriggerType_;

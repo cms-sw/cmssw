@@ -12,8 +12,6 @@
 
 #include "DQM/L1TMonitor/interface/L1TdeRCT.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
@@ -105,8 +103,10 @@ const int L1TdeRCT::crateFED[90]=
 
 
 L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
-   rctSourceEmul_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("rctSourceEmul") )),
-   rctSourceData_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("rctSourceData") )),
+   rctSourceEmul_rgnEmul_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("rctSourceEmul") )),
+   rctSourceEmul_emEmul_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("rctSourceEmul") )),
+   rctSourceData_rgnData_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("rctSourceData") )),
+   rctSourceData_emData_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("rctSourceData") )),
    ecalTPGData_( consumes<EcalTrigPrimDigiCollection>(ps.getParameter< InputTag >("ecalTPGData") )),
    hcalTPGData_( consumes<HcalTrigPrimDigiCollection>(ps.getParameter< InputTag >("hcalTPGData") )),
    gtDigisLabel_( consumes<L1GlobalTriggerReadoutRecord>(ps.getParameter< InputTag >("gtDigisLabel") )),
@@ -394,8 +394,8 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
   }
 
 
-  e.getByToken(rctSourceData_,rgnData);
-  e.getByToken(rctSourceEmul_,rgnEmul);
+  e.getByToken(rctSourceData_rgnData_,rgnData);
+  e.getByToken(rctSourceEmul_rgnEmul_,rgnEmul);
 
   if (!rgnData.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection";
@@ -412,8 +412,8 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
 //  }
 
 
-  e.getByToken(rctSourceData_,emData);
-  e.getByToken(rctSourceEmul_,emEmul);
+  e.getByToken(rctSourceData_emData_,emData);
+  e.getByToken(rctSourceEmul_emEmul_,emEmul);
 
   if (!emData.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection";
@@ -1280,8 +1280,6 @@ void L1TdeRCT::DivideME1D(MonitorElement* numerator, MonitorElement* denominator
 
 void L1TdeRCT::beginRun(const edm::Run& run , const edm::EventSetup& es) 
 {
-  readFEDVector(fedVectorMonitorRUN_,es);
-
   // get hold of back-end interface
   DQMStore *dbe = 0;
   dbe = Service < DQMStore > ().operator->();
@@ -1948,6 +1946,7 @@ void L1TdeRCT::beginRun(const edm::Run& run , const edm::EventSetup& es)
   notrigCount=0;
   trigCount=0;
 
+  readFEDVector(fedVectorMonitorRUN_,es);
 }
 
 void L1TdeRCT::beginLuminosityBlock(const edm::LuminosityBlock& ls,const edm::EventSetup& es)
