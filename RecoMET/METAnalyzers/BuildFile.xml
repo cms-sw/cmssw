@@ -1,0 +1,10 @@
+<flags   EDM_PLUGIN="1"/>
+<use   name="DataFormats/METReco"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="DataFormats/L1GlobalMuonTrigger"/>
+<use   name="TrackingTools/TrackAssociator"/>
+<use   name="FWCore/Framework"/>
+<use   name="root"/>
+<export>
+  <lib   name="1"/>
+</export>
