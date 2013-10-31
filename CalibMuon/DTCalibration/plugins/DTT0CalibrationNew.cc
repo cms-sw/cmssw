@@ -277,7 +277,7 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
       //int npeaks = spectrum->Search((*lHisto).second,(tpPeakWidthPerLayer/2.),"goff",0.3);
       int npeaks = spectrum->Search((*lHisto).second,(tpPeakWidthPerLayer/2.),"",0.3);
 
-      float *peaks = spectrum->GetPositionX();	
+      double *peaks = spectrum->GetPositionX();
       //Put in a std::vector<float>
       vector<float> peakMeans(peaks,peaks + npeaks);
       //Sort the peaks in ascending order
