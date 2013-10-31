@@ -5,8 +5,8 @@ class EmissionVetoHook : public Pythia8::UserHooks {
 public:
 
   // Constructor and destructor.
-  EmissionVetoHook(int argVerbosity) : last(-1), nISRveto(0), nFSRveto(0),
-    Verbosity(argVerbosity), firstNoRad(true) { }
+  EmissionVetoHook(int argVerbosity, bool argCheckHard) : last(-1), nISRveto(0), nFSRveto(0),
+    Verbosity(argVerbosity), CheckHard(argCheckHard), firstNoRad(true) { }
  ~EmissionVetoHook() {
     cout << "Number of ISR vetoed = " << nISRveto << endl;
     cout << "Number of FSR vetoed = " << nFSRveto << endl;
@@ -39,5 +39,5 @@ private:
       
   double pTveto, pTpowheg, pTshower;
   int    last, nISRveto, nFSRveto, Verbosity;
-  bool   noRad, firstNoRad;
+  bool   CheckHard, noRad, firstNoRad;
 };

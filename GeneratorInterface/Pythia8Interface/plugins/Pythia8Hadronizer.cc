@@ -105,6 +105,8 @@ class Pythia8Hadronizer : public BaseHadronizer {
     //
     EmissionVetoHook* fEmissionVetoHook;
 
+    bool EV_CheckHard;
+
 };
 
 
@@ -215,7 +217,11 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   //
   if ( params.exists("emissionVeto") )
   {   
-    fEmissionVetoHook = new EmissionVetoHook(0);
+    EV_CheckHard = false;
+    int nversion = (int)(1000.*(pythia->settings.parm("Pythia:versionNumber") - 8.));
+    if(nversion > 153) {EV_CheckHard = true;}
+    if(params.exists("EV_CheckHard")) EV_CheckHard = params.getParameter<bool>("EV_CheckHard");
+    fEmissionVetoHook = new EmissionVetoHook(0, EV_CheckHard);
     pythia->setUserHooksPtr( fEmissionVetoHook );
   }  
 
