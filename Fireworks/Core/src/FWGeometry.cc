@@ -322,7 +322,7 @@ FWGeometry::getShapePars( unsigned int id ) const
 }
 
 void
-FWGeometry::localToGlobal( unsigned int id, const float* local, float* global ) const
+FWGeometry::localToGlobal( unsigned int id, const float* local, float* global, bool translatep ) const
 {
    IdToInfoItr it = FWGeometry::find( id );
    if( it == m_idToInfo.end())
@@ -331,12 +331,13 @@ FWGeometry::localToGlobal( unsigned int id, const float* local, float* global ) 
    }
    else
    {
-      localToGlobal( *it, local, global );
+      localToGlobal( *it, local, global, translatep );
    }
 }
 
 void
-FWGeometry::localToGlobal( unsigned int id, const float* local1, float* global1, const float* local2, float* global2 ) const
+FWGeometry::localToGlobal( unsigned int id, const float* local1, float* global1,
+                           const float* local2, float* global2, bool translatep ) const
 {
    IdToInfoItr it = FWGeometry::find( id );
    if( it == m_idToInfo.end())
@@ -345,8 +346,8 @@ FWGeometry::localToGlobal( unsigned int id, const float* local1, float* global1,
    }
    else
    {
-      localToGlobal( *it, local1, global1 );
-      localToGlobal( *it, local2, global2 );
+      localToGlobal( *it, local1, global1, translatep );
+      localToGlobal( *it, local2, global2, translatep );
    }
 }
 
@@ -359,13 +360,13 @@ FWGeometry::find( unsigned int id ) const
 }
 
 void
-FWGeometry::localToGlobal( const GeomDetInfo& info, const float* local, float* global ) const
+FWGeometry::localToGlobal( const GeomDetInfo& info, const float* local, float* global, bool translatep ) const
 {
    for( int i = 0; i < 3; ++i )
    {
-      global[i] = info.translation[i] 
-		  + local[0] * info.matrix[3 * i]
-		  + local[1] * info.matrix[3 * i + 1]
-		  + local[2] * info.matrix[3 * i + 2];
+      global[i]  = translatep ? info.translation[i] : 0;
+      global[i] +=   local[0] * info.matrix[3 * i]
+		   + local[1] * info.matrix[3 * i + 1]
+		   + local[2] * info.matrix[3 * i + 2];
    }
 }
