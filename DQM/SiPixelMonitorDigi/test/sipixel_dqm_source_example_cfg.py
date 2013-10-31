@@ -21,9 +21,6 @@ process.source = cms.Source("PoolSource",
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR_R_42_V22A::All"
 
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis'),
     cout = cms.untracked.PSet(

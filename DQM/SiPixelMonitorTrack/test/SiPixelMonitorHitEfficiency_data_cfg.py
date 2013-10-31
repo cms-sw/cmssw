@@ -109,9 +109,6 @@ process.DQMStore = cms.Service("DQMStore",
   referenceFileName = cms.untracked.string(''),
   verbose = cms.untracked.int32(0)
 )
-process.LockService = cms.Service("LockService", 
-  labels = cms.untracked.vstring('source') 
-)
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
 process.AdaptorConfig = cms.Service("AdaptorConfig") 
