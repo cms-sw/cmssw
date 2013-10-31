@@ -1590,29 +1590,30 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       std::vector<int> chIds = match->chambersWithHits();
       std::vector<int> fillIds;
-      if (pt_ok) for (size_t ch = 0; ch < chIds.size(); ch++)
-      		   {
-      		     CSCDetId chId(chIds[ch]);
-      		     int csct = getCSCType( chId );
-      		     h_cscdet_of_chamber->Fill( csct );
-      		     if(detALCT.find(chIds[ch]) != detALCT.end()) h_cscdet_of_chamber_w_alct->Fill( csct );
-      		     if(detCLCT.find(chIds[ch]) != detCLCT.end()) h_cscdet_of_chamber_w_clct->Fill( csct );
-      		     if(detMPLCT.find(chIds[ch]) != detMPLCT.end()) h_cscdet_of_chamber_w_mplct->Fill( csct );
+      if (pt_ok) 
+	for (size_t ch = 0; ch < chIds.size(); ch++)
+	{
+	  CSCDetId chId(chIds[ch]);
+	  int csct = getCSCType( chId );
+	  h_cscdet_of_chamber->Fill( csct );
+	  if(detALCT.find(chIds[ch]) != detALCT.end()) h_cscdet_of_chamber_w_alct->Fill( csct );
+	  if(detCLCT.find(chIds[ch]) != detCLCT.end()) h_cscdet_of_chamber_w_clct->Fill( csct );
+	  if(detMPLCT.find(chIds[ch]) != detMPLCT.end()) h_cscdet_of_chamber_w_mplct->Fill( csct );
 
-      		     if (csct==0 || csct==3) {
-      		       // check that if the same WG is hit in ME1/b and ME1/a
-      		       // then fill it only once from ME1/b
-      		       int wg = match->wireGroupAndStripInChamber(chIds[ch]).first;
-      		       if (wg>=10 && wg<=18) {
-      			 if (csct==3) {
-      			   CSCDetId di(chId.endcap(),chId.station(),1,chId.chamber(),0);
-      			   if (wg == match->wireGroupAndStripInChamber(di.rawId()).first) continue;
-      			 }
-      		       }
-      		       h_wg_me11_initial->Fill(wg);
-      		     }
-      		   }
-
+	  if (csct==0 || csct==3) {
+	    // check that if the same WG is hit in ME1/b and ME1/a
+	    // then fill it only once from ME1/b
+	    int wg = match->wireGroupAndStripInChamber(chIds[ch]).first;
+	    if (wg>=10 && wg<=18) {
+	      if (csct==3) {
+		CSCDetId di(chId.endcap(),chId.station(),1,chId.chamber(),0);
+		if (wg == match->wireGroupAndStripInChamber(di.rawId()).first) continue;
+	      }
+	    }
+	    h_wg_me11_initial->Fill(wg);
+	  }
+	}
+      
     
       //============ GEM ==================
 
@@ -1624,18 +1625,18 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       std::vector<int> match_gem_chambers;
       auto gem_superch_ids = match_gem.superChamberIds();
       for(auto d: gem_superch_ids)
-  	{
-  	  GEMDetId id(d);
-  	  bool odd = id.chamber() & 1;
-  	  auto digis = match_gem.digisInSuperChamber(d);
-  	  if (digis.size() > 0)
-  	    {
-  	      match_gem_chambers.push_back(id.chamber());
-  	      if (odd) match_has_gem |= 1;
-  	      else     match_has_gem |= 2;
-  	    }
-  	}
-
+      {
+	GEMDetId id(d);
+	bool odd = id.chamber() & 1;
+	auto digis = match_gem.digisInSuperChamber(d);
+	if (digis.size() > 0)
+	  {
+	    match_gem_chambers.push_back(id.chamber());
+	    if (odd) match_has_gem |= 1;
+	    else     match_has_gem |= 2;
+	  }
+      }
+      
       if (eta_gem_1b && match_has_gem) h_pt_gem_1b->Fill(stpt);
       if (eta_gem_1b && match_has_gem && has_mplct_me1b) h_pt_lctgem_1b->Fill(stpt);
 
@@ -1646,121 +1647,125 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       bool hasME1alct = 0;
       std::vector<MatchCSCMuL1::ALCT> rALCTs = match->ALCTsInReadOut();
       if (rALCTs.size()) 
-      	{
-      	  if (eta_ok) h_pt_after_alct->Fill(stpt);
-      	  if (pt_ok) h_eta_after_alct->Fill(steta);
-      	  if (etapt_ok) h_phi_after_alct->Fill(stphi);
-      	  int minbx[CSC_TYPES]={99,99,99,99,99,99,99,99,99,99};
-      	  if (pt_ok) for (unsigned i=0; i<rALCTs.size();i++)
-      		       {
-      			 if (rALCTs[i].inReadOut()==0) continue;
-      			 int bx = rALCTs[i].getBX() - 6;   
-      			 int bxf = rALCTs[i].trgdigi->getFullBX() - 6;  
-      			 h_eta_vs_bx_after_alct->Fill( steta, bx ); // drop it
-      			 h_bx_after_alct->Fill( bx );
-      			 int csct = getCSCType( rALCTs[i].id );
-      			 h_bx__alct_cscdet[ csct ]->Fill( bx );
-      			 h_bxf__alct_cscdet[ csct ]->Fill( bxf );
-      			 h_dbxbxf__alct_cscdet[ csct ]->Fill( bx-bxf );
-      			 if (rALCTs[i].deltaOk) {
-      			   h_bx__alctOk_cscdet[ csct ]->Fill( bx );
-      			   h_bxf__alctOk_cscdet[ csct ]->Fill( bxf );
-      			   if (debugINHISTOS && bx<-1) {    // method to dumpwire digis in case there is out of time alcts
-      			     std::cout<<" OOW good ALCT: "<<*(rALCTs[i].trgdigi)<<std::endl;
-      			     dumpWireDigis(rALCTs[i].id, wiredc);
-      			   }
-      			 }
-      			 if ( fabs(bx) < fabs(minbx[csct]) ) minbx[csct] = bx;
-      			 h_qu_alct->Fill(rALCTs[i].trgdigi->getQuality());
-      			 h_qu_vs_bx__alct->Fill(rALCTs[i].trgdigi->getQuality(), bx);
-      		       }
-      	  if (pt_ok) for (int i=0; i<CSC_TYPES;i++)
-      		       if (minbx[i]<99) h_bx_min__alct_cscdet[ i ]->Fill( minbx[i] );
-
-	  std::vector<int> chIDs = match->chambersWithALCTs();
-	  if (pt_ok) h_n_ch_w_alct->Fill(chIDs.size());
-	  if (pt_ok) for (size_t ch = 0; ch < chIDs.size(); ch++) 
-      	   	       {
-			 std::vector<MatchCSCMuL1::ALCT> chalcts = match->chamberALCTs(chIDs[ch]);
-			 CSCDetId chId(chIDs[ch]);
-			 int csct = getCSCType( chId );
-
-			 MatchCSCMuL1::ALCT *bestALCT = match->bestALCT( chId );
-			 if (bestALCT==0) std::cout<<"STRANGE: no best ALCT in chamber with ALCTs"<<std::endl;
-			 if (bestALCT and bestALCT->deltaOk) {
-			   h_bx__alctOkBest_cscdet[ csct ]->Fill( bestALCT->getBX() - 6 );   // useful histogram  
-			   h_wg_vs_bx__alctOkBest_cscdet[ csct ]->Fill( match->wireGroupAndStripInChamber(chIDs[ch]).first, bestALCT->getBX() - 6);
-			 }
-		       }
-
-
-	  // This is important to flag the quality of ALCTs in ME1
+      {
+	if (eta_ok) h_pt_after_alct->Fill(stpt);
+	if (pt_ok) h_eta_after_alct->Fill(steta);
+	if (etapt_ok) h_phi_after_alct->Fill(stphi);
+	int minbx[CSC_TYPES]={99,99,99,99,99,99,99,99,99,99};
+	if (pt_ok) 
+	  for (unsigned i=0; i<rALCTs.size();i++)
+	  {
+	    if (rALCTs[i].inReadOut()==0) continue;
+	    int bx = rALCTs[i].getBX() - 6;   
+	    int bxf = rALCTs[i].trgdigi->getFullBX() - 6;  
+	    h_eta_vs_bx_after_alct->Fill( steta, bx ); // drop it
+	    h_bx_after_alct->Fill( bx );
+	    int csct = getCSCType( rALCTs[i].id );
+	    h_bx__alct_cscdet[ csct ]->Fill( bx );
+	    h_bxf__alct_cscdet[ csct ]->Fill( bxf );
+	    h_dbxbxf__alct_cscdet[ csct ]->Fill( bx-bxf );
+	    if (rALCTs[i].deltaOk) {
+	      h_bx__alctOk_cscdet[ csct ]->Fill( bx );
+	      h_bxf__alctOk_cscdet[ csct ]->Fill( bxf );
+	      if (debugINHISTOS && bx<-1) {    // method to dumpwire digis in case there is out of time alcts
+		std::cout<<" OOW good ALCT: "<<*(rALCTs[i].trgdigi)<<std::endl;
+		dumpWireDigis(rALCTs[i].id, wiredc);
+	      }
+	    }
+	    if ( fabs(bx) < fabs(minbx[csct]) ) minbx[csct] = bx;
+	    h_qu_alct->Fill(rALCTs[i].trgdigi->getQuality());
+	    h_qu_vs_bx__alct->Fill(rALCTs[i].trgdigi->getQuality(), bx);
+	  }
+	if (pt_ok) for (int i=0; i<CSC_TYPES;i++)
+	  if (minbx[i]<99) h_bx_min__alct_cscdet[ i ]->Fill( minbx[i] );
+	
+	std::vector<int> chIDs = match->chambersWithALCTs();
+	if (pt_ok) h_n_ch_w_alct->Fill(chIDs.size());
+	if (pt_ok) 
+	  for (size_t ch = 0; ch < chIDs.size(); ch++) 
+	  {
+	    std::vector<MatchCSCMuL1::ALCT> chalcts = match->chamberALCTs(chIDs[ch]);
+	    CSCDetId chId(chIDs[ch]);
+	    int csct = getCSCType( chId );
+	    
+	    MatchCSCMuL1::ALCT *bestALCT = match->bestALCT( chId );
+	    if (bestALCT==0) std::cout<<"STRANGE: no best ALCT in chamber with ALCTs"<<std::endl;
+	    if (bestALCT and bestALCT->deltaOk) {
+	      h_bx__alctOkBest_cscdet[ csct ]->Fill( bestALCT->getBX() - 6 );   // useful histogram  
+	      h_wg_vs_bx__alctOkBest_cscdet[ csct ]->Fill( match->wireGroupAndStripInChamber(chIDs[ch]).first, bestALCT->getBX() - 6);
+	    }
+	  }
+	
+	
+	// This is important to flag the quality of ALCTs in ME1
 	  
-      	  bool okME1alct = 0, okME1alctg=0;
-      	  if (pt_ok) for (unsigned i=0; i<rALCTs.size();i++)
-      	  	       {
-      	  		 if (rALCTs[i].id.station() == 1)
-      	  		   {
-      	  		     if (debugINHISTOS) std::cout<<" ALCT check: station "<<1<<std::endl;
-      	  		     okME1alct = 1;
-      	  		     hasME1alct = 1;
-      	  		     if (debugINHISTOS) std::cout<<" dw="<<rALCTs[i].deltaWire<<" md=["<<minDeltaWire_<<","<< maxDeltaWire_<<"]"<<std::endl;
-      	  		     if (minDeltaWire_ <= rALCTs[i].deltaWire &&
-      	  			 rALCTs[i].deltaWire <= maxDeltaWire_)
-      	  		       {
-      	  			 okME1alctg = 1;
-      	  			 ME1ALCTsOk.push_back(rALCTs[i]);
-      	  			 if (debugINHISTOS) std::cout<<" ALCT good "<<1<<std::endl;
-      	  		       }
-      	  		   }
-      	  	       }
-      	  if(okME1alct)  h_eta_me1_after_alct->Fill(steta);
-      	  if(okME1alctg) {
-      	    h_eta_me1_after_alct_okAlct->Fill(steta);
-
-
-      	    std::vector<int> chIDs = match->chambersWithALCTs();
-      	    for (size_t ch = 0; ch < chIDs.size(); ch++)
-      	      {
-      	  	CSCDetId chId(chIDs[ch]);
-      	  	int csct = getCSCType( chId );
-      	  	if (!(csct==0 || csct==3)) continue;
-      	  	bool has_alct=0;
-      	  	for (size_t i=0; i<ME1ALCTsOk.size(); i++) if (ME1ALCTsOk[i].id.rawId()==(unsigned int)chIDs[ch]) has_alct=1;
-      	  	if (has_alct==0) continue;
-      	  	// check that if the same WG has ALCT in ME1/b and ME1/a
+	bool okME1alct = 0, okME1alctg=0;
+	if (pt_ok) 
+	  for (unsigned i=0; i<rALCTs.size();i++)
+	  {
+	    if (rALCTs[i].id.station() == 1)
+	      {
+		if (debugINHISTOS) std::cout<<" ALCT check: station "<<1<<std::endl;
+		okME1alct = 1;
+		hasME1alct = 1;
+		if (debugINHISTOS) std::cout<<" dw="<<rALCTs[i].deltaWire<<" md=["<<minDeltaWire_<<","<< maxDeltaWire_<<"]"<<std::endl;
+		if (minDeltaWire_ <= rALCTs[i].deltaWire &&
+		    rALCTs[i].deltaWire <= maxDeltaWire_)
+		  {
+		    okME1alctg = 1;
+		    ME1ALCTsOk.push_back(rALCTs[i]);
+		    if (debugINHISTOS) std::cout<<" ALCT good "<<1<<std::endl;
+		  }
+	      }
+	  }
+	if(okME1alct)  h_eta_me1_after_alct->Fill(steta);
+	if(okME1alctg) 
+        {
+	  h_eta_me1_after_alct_okAlct->Fill(steta);
+	  
+	  
+	  std::vector<int> chIDs = match->chambersWithALCTs();
+	  for (size_t ch = 0; ch < chIDs.size(); ch++)
+	  {
+	    CSCDetId chId(chIDs[ch]);
+	    int csct = getCSCType( chId );
+	    if (!(csct==0 || csct==3)) continue;
+	    bool has_alct=0;
+	    for (size_t i=0; i<ME1ALCTsOk.size(); i++) if (ME1ALCTsOk[i].id.rawId()==(unsigned int)chIDs[ch]) has_alct=1;
+	    if (has_alct==0) continue;
+	    // check that if the same WG has ALCT in ME1/b and ME1/a
       	  	// then fill it only once from ME1/b
-      	  	int wg = match->wireGroupAndStripInChamber(chIDs[ch]).first;
-      	  	if (wg>=10 && wg<=18)
-      	  	  {
-      	  	    if (csct==3) {
-      	  	      CSCDetId di(chId.endcap(),chId.station(),1,chId.chamber(),0);
-      	  	      bool has_me1b=0;
-      	  	      for (size_t i=0; i<ME1ALCTsOk.size(); i++)
-      	  		if (ME1ALCTsOk[i].id==di && wg == match->wireGroupAndStripInChamber(di.rawId()).first ) has_me1b=1;
-      	  	      if (has_me1b==1) continue;
-      	  	    }
-      	  	  }
-      	  	h_wg_me11_after_alct_okAlct->Fill(wg);    // This is important to keep
-      	      }
-      	  }
-
-	  // Leave it but comment it out (To check ineficiencies looking into specific chamber)
-
-      	  // if (debugINHISTOS && pt_ok && steta>2.1 && !okME1alctg)
-      	  //   {
-      	  //     for (size_t ch = 0; ch < chIds.size(); ch++)
-      	  // 	{
-      	  // 	  CSCDetId chId(chIds[ch]);
-      	  // 	  if (getCSCType( chId )==3) {
-      	  // 	    std::cout<<" no good ME1a okME1alct="<<okME1alct<<std::endl;
-      	  // 	    dumpWireDigis(chId, wiredc);
-      	  // 	  }
-      	  // 	}
-      	  //   }
-
-      	} // ALCT
-
+	    int wg = match->wireGroupAndStripInChamber(chIDs[ch]).first;
+	    if (wg>=10 && wg<=18)
+	      {
+		if (csct==3) {
+		  CSCDetId di(chId.endcap(),chId.station(),1,chId.chamber(),0);
+		  bool has_me1b=0;
+		  for (size_t i=0; i<ME1ALCTsOk.size(); i++)
+		    if (ME1ALCTsOk[i].id==di && wg == match->wireGroupAndStripInChamber(di.rawId()).first ) has_me1b=1;
+		  if (has_me1b==1) continue;
+		}
+	      }
+	    h_wg_me11_after_alct_okAlct->Fill(wg);    // This is important to keep
+	  }
+	}
+	
+	// Leave it but comment it out (To check ineficiencies looking into specific chamber)
+	
+	// if (debugINHISTOS && pt_ok && steta>2.1 && !okME1alctg)
+	//   {
+	//     for (size_t ch = 0; ch < chIds.size(); ch++)
+	// 	{
+	// 	  CSCDetId chId(chIds[ch]);
+	// 	  if (getCSCType( chId )==3) {
+	// 	    std::cout<<" no good ME1a okME1alct="<<okME1alct<<std::endl;
+	// 	    dumpWireDigis(chId, wiredc);
+	// 	  }
+	// 	}
+	//   }
+	
+      } // ALCT
+      
 
       //============ CLCTs ==================
 
@@ -1769,47 +1774,49 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       bool hasME1clct = 0;
       std::vector<MatchCSCMuL1::CLCT> rCLCTs = match->CLCTsInReadOut();
       if (rCLCTs.size()) 
-      	{
-      	  if (eta_ok) h_pt_after_clct->Fill(stpt);
-      	  if (pt_ok) h_eta_after_clct->Fill(steta);
-      	  if (etapt_ok) h_phi_after_clct->Fill(stphi);
-
-
-	  std::vector<int> chIDs = match->chambersWithCLCTs();
-	  if (pt_ok) h_n_ch_w_clct->Fill(chIDs.size());
-	  if (pt_ok) for (size_t ch = 0; ch < chIDs.size(); ch++) 
-		       {
-			 std::vector<MatchCSCMuL1::CLCT> chcltcs = match->chamberCLCTs(chIDs[ch]);
-			 
-			 CSCDetId chId(chIDs[ch]);
-			 int csct = getCSCType( chId );
-      	   		 MatchCSCMuL1::CLCT *bestCLCT = match->bestCLCT( chId );
-			 if (bestCLCT==0) std::cout<<"STRANGE: no best CLCT in chamber with CLCTs"<<std::endl;
-			 if (bestCLCT and bestCLCT->deltaOk) {
-			   h_bx__clctOkBest_cscdet[ csct ]->Fill( bestCLCT->trgdigi->getBX() - 6 );  // keep this but drop what is not related to this
-			 }
-		       }
-
-      	  bool okME1clct = 0, okME1clctg=0;
-      	  if (pt_ok) for (unsigned i=0; i<rCLCTs.size();i++)
-      		       {
-      			 if (rCLCTs[i].id.station() == 1)
-      			   {
-      			     if (debugINHISTOS) std::cout<<" CLCT check: station "<<1<<std::endl;
-      			     okME1clct = 1;
-      			     hasME1clct = 1;
-      			     if (debugINHISTOS) std::cout<<" ds="<<abs(rCLCTs[i].deltaStrip)<<" md="<<minDeltaStrip_<<std::endl;
-      			     if (abs(rCLCTs[i].deltaStrip) <= minDeltaStrip_)
-      			       {
-      				 okME1clctg = 1;
-      				 ME1CLCTsOk.push_back(rCLCTs[i]);
-      				 if (debugINHISTOS) std::cout<<" CLCT good "<<1<<std::endl;
-      			       }
-      			   }
-      		       }
-      	  if(okME1clct)  h_eta_me1_after_clct->Fill(steta);
-      	  if(okME1clctg) h_eta_me1_after_clct_okClct->Fill(steta);
-      	}
+      {
+	if (eta_ok) h_pt_after_clct->Fill(stpt);
+	if (pt_ok) h_eta_after_clct->Fill(steta);
+	if (etapt_ok) h_phi_after_clct->Fill(stphi);
+	
+	
+	std::vector<int> chIDs = match->chambersWithCLCTs();
+	if (pt_ok) h_n_ch_w_clct->Fill(chIDs.size());
+	if (pt_ok) 
+	  for (size_t ch = 0; ch < chIDs.size(); ch++) 
+	  {
+	    std::vector<MatchCSCMuL1::CLCT> chcltcs = match->chamberCLCTs(chIDs[ch]);
+	    
+	    CSCDetId chId(chIDs[ch]);
+	    int csct = getCSCType( chId );
+	    MatchCSCMuL1::CLCT *bestCLCT = match->bestCLCT( chId );
+	    if (bestCLCT==0) std::cout<<"STRANGE: no best CLCT in chamber with CLCTs"<<std::endl;
+	    if (bestCLCT and bestCLCT->deltaOk) {
+	      h_bx__clctOkBest_cscdet[ csct ]->Fill( bestCLCT->trgdigi->getBX() - 6 );  // keep this but drop what is not related to this
+	    }
+	  }
+	
+	bool okME1clct = 0, okME1clctg=0;
+	if (pt_ok) 
+	  for (unsigned i=0; i<rCLCTs.size();i++)
+	  {
+	    if (rCLCTs[i].id.station() == 1)
+	    {
+	      if (debugINHISTOS) std::cout<<" CLCT check: station "<<1<<std::endl;
+	      okME1clct = 1;
+	      hasME1clct = 1;
+	      if (debugINHISTOS) std::cout<<" ds="<<abs(rCLCTs[i].deltaStrip)<<" md="<<minDeltaStrip_<<std::endl;
+	      if (abs(rCLCTs[i].deltaStrip) <= minDeltaStrip_)
+		{
+		  okME1clctg = 1;
+		  ME1CLCTsOk.push_back(rCLCTs[i]);
+		  if (debugINHISTOS) std::cout<<" CLCT good "<<1<<std::endl;
+		}
+	    }
+	  }
+	if(okME1clct)  h_eta_me1_after_clct->Fill(steta);
+	if(okME1clctg) h_eta_me1_after_clct_okClct->Fill(steta);
+      }
     
       if (hasME1alct && hasME1clct) h_eta_me1_after_alctclct->Fill(steta);
       if (ME1ALCTsOk.size() && hasME1clct) h_eta_me1_after_alctclct_okAlct->Fill(steta);
@@ -1818,9 +1825,9 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       	{
       	  h_eta_me1_after_alctclct_okAlctClct->Fill(steta);
 
-
+	  
 	  //  This is important 
-
+	  
       	  std::vector<int> chIDs = match->chambersWithALCTs();
       	  for (size_t ch = 0; ch < chIDs.size(); ch++)
       	    {
@@ -1879,51 +1886,52 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       	  bool okME1lct = 0, okME1alct=0, okME1alctclct=0, okME1clct=0, okME1clctalct=0;
       	  std::vector<MatchCSCMuL1::LCT> ME1LCTsOkCLCTNo, ME1LCTsOkCLCTOkALCTNo;
-      	  if (pt_ok) for (unsigned i=0; i<rLCTs.size();i++)
-      		       {
-      			 if (rLCTs[i].id.station() == 1)
-      			   {
-      			     if (debugINHISTOS) std::cout<<" LCT check: station "<<1<<std::endl;
-      			     okME1lct = 1;
-      			     if (debugINHISTOS && rLCTs[i].alct) std::cout<<" dw="<<abs(rLCTs[i].alct->deltaWire)<<" md="<<minDeltaWire_<<std::endl;
-      			     if (debugINHISTOS && rLCTs[i].clct) std::cout<<" ds="<<abs(rLCTs[i].clct->deltaStrip)<<" md="<<minDeltaStrip_<<std::endl;
-
-      			     if (rLCTs[i].alct && rLCTs[i].alct->deltaOk)
-      			       {
-      				 okME1alct = 1;
-      				 if (debugINHISTOS) std::cout<<" LCT check: alct good "<<1<<std::endl;
-      				 if (rLCTs[i].clct && rLCTs[i].clct->deltaOk)
-      				   {
-      				     if (debugINHISTOS) std::cout<<" LCT check: alct-clct good "<<1<<std::endl;
-      				     okME1alctclct = 1;
-      				     //ME1LCTsOk.push_back(rLCTs[i]);
-      				     //if (debugINHISTOS) std::cout<<" LCT check: lct pushed "<<1<<std::endl;
-      				   }
-      			       }
-
-      			     if (rLCTs[i].clct && rLCTs[i].clct->deltaOk)
-      			       {
-      				 okME1clct = 1;
-      				 if (debugINHISTOS) std::cout<<" LCT check: clct good "<<1<<std::endl;
-      				 if (rLCTs[i].alct && rLCTs[i].alct->deltaOk)
-      				   {
-      				     if (debugINHISTOS) std::cout<<" LCT check: clct-alct good "<<1<<std::endl;
-      				     okME1clctalct = 1;
-      				     ME1LCTsOk.push_back(rLCTs[i]);
-      				     if (debugINHISTOS) std::cout<<" LCT check: lct pushed "<<1<<std::endl;
-      				   }
-      				 else if (rLCTs[i].alct) ME1LCTsOkCLCTOkALCTNo.push_back(rLCTs[i]);
-      			       }
-      			     else if (rLCTs[i].clct) ME1LCTsOkCLCTNo.push_back(rLCTs[i]);
-      			   }
-      		       }
+      	  if (pt_ok) 
+	    for (unsigned i=0; i<rLCTs.size();i++)
+	    {
+	      if (rLCTs[i].id.station() == 1)
+	      {
+		if (debugINHISTOS) std::cout<<" LCT check: station "<<1<<std::endl;
+		okME1lct = 1;
+		if (debugINHISTOS && rLCTs[i].alct) std::cout<<" dw="<<abs(rLCTs[i].alct->deltaWire)<<" md="<<minDeltaWire_<<std::endl;
+		if (debugINHISTOS && rLCTs[i].clct) std::cout<<" ds="<<abs(rLCTs[i].clct->deltaStrip)<<" md="<<minDeltaStrip_<<std::endl;
+		
+		if (rLCTs[i].alct && rLCTs[i].alct->deltaOk)
+		{
+		  okME1alct = 1;
+		  if (debugINHISTOS) std::cout<<" LCT check: alct good "<<1<<std::endl;
+		  if (rLCTs[i].clct && rLCTs[i].clct->deltaOk)
+		  {
+		    if (debugINHISTOS) std::cout<<" LCT check: alct-clct good "<<1<<std::endl;
+		    okME1alctclct = 1;
+		    //ME1LCTsOk.push_back(rLCTs[i]);
+		    //if (debugINHISTOS) std::cout<<" LCT check: lct pushed "<<1<<std::endl;
+		  }
+		}
+		
+		if (rLCTs[i].clct && rLCTs[i].clct->deltaOk)
+		  {
+		    okME1clct = 1;
+		    if (debugINHISTOS) std::cout<<" LCT check: clct good "<<1<<std::endl;
+		    if (rLCTs[i].alct && rLCTs[i].alct->deltaOk)
+		      {
+		      if (debugINHISTOS) std::cout<<" LCT check: clct-alct good "<<1<<std::endl;
+		      okME1clctalct = 1;
+		      ME1LCTsOk.push_back(rLCTs[i]);
+		      if (debugINHISTOS) std::cout<<" LCT check: lct pushed "<<1<<std::endl;
+		      }
+		    else if (rLCTs[i].alct) ME1LCTsOkCLCTOkALCTNo.push_back(rLCTs[i]);
+		  }
+		  else if (rLCTs[i].clct) ME1LCTsOkCLCTNo.push_back(rLCTs[i]);
+	      }
+	    }
       	  if(okME1lct) h_eta_me1_after_lct->Fill(steta);
       	  if(okME1alct) h_eta_me1_after_lct_okAlct->Fill(steta);
       	  if(okME1clct) h_eta_me1_after_lct_okClct->Fill(steta);
       	  if(okME1alctclct) 
       	    {
       	      h_eta_me1_after_lct_okAlctClct->Fill(steta);
-
+	      
       	      std::vector<int> chIDs = match->chambersWithLCTs();
       	      for (size_t ch = 0; ch < chIDs.size(); ch++)
       		{
@@ -1939,11 +1947,11 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       	    }
       	  if(okME1clctalct) h_eta_me1_after_lct_okClctAlct->Fill(steta);
       	  if (debugINHISTOS) std::cout<<" LCT check: histo filled "<<1<<std::endl;
-      
-
+	  
+	  
 	  
 	  // For Debug
-
+	  
       	  // if (pt_ok && ME1ALCTsOk.size() && ME1CLCTsOk.size() && ME1LCTsOk.size()==0 )
       	  //   {
       	  //     for(size_t c=0; c<ME1CLCTsOk.size(); c++)
@@ -2165,14 +2173,15 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       	      if (okME1tf)
       		{
-      		  for (int i=0; i<Nthr; ++i) if (tfc_pt >= tfc_pt_thr[i])
-      					       {
-      						 h_pt_after_tfcand_eta1b_2s1b[i]->Fill(stpt);
-      						 if (ok_2s123) h_pt_after_tfcand_eta1b_2s123[i]->Fill(stpt);
-      						 if (ok_2s13) h_pt_after_tfcand_eta1b_2s13[i]->Fill(stpt);
-      					       }
+      		  for (int i=0; i<Nthr; ++i) 
+		    if (tfc_pt >= tfc_pt_thr[i])
+		      {
+			h_pt_after_tfcand_eta1b_2s1b[i]->Fill(stpt);
+			if (ok_2s123) h_pt_after_tfcand_eta1b_2s123[i]->Fill(stpt);
+			if (ok_2s13) h_pt_after_tfcand_eta1b_2s13[i]->Fill(stpt);
+		      }
       		}
-
+	      
       	      if ( nTFstubsOk >= 3 )
       		{
       		  for (int i=0; i<Nthr; ++i) if (tfc_pt >= tfc_pt_thr[i])  h_pt_after_tfcand_eta1b_3s[i]->Fill(stpt);
@@ -2189,28 +2198,29 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       	      const int Nthr = 7;
       	      float tfc_pt_thr[Nthr] = {0., 10., 15., 20., 25., 30., 40.};
         
-      	      for (int i=0; i<Nthr; ++i) if (tfc_pt >= tfc_pt_thr[i]) 
-      					   {
-      					     h_mode_tfcand_gem1b_2s1b_1b[i]->Fill(tf_mode);
-
-      					     h_pt_after_tfcand_gem1b_2s1b[i]->Fill(stpt);
-      					     if (ok_2s123) h_pt_after_tfcand_gem1b_2s123[i]->Fill(stpt);
-      					     if (ok_2s13) h_pt_after_tfcand_gem1b_2s13[i]->Fill(stpt);
-
-      					     if ( nTFstubsOk >= 3 )  h_pt_after_tfcand_gem1b_3s1b[i]->Fill(stpt);
-          
-      					     if (   (gem_dphi_odd < -99. && gem_dphi_even < 99.)  // both just dummy default values
-      						    || (gem_dphi_odd  > -9. && isGEMDPhiGood(gem_dphi_odd, tfc_pt_thr[i], 1) )  // good dphi odd
-      						    || (gem_dphi_even > -9. && isGEMDPhiGood(gem_dphi_even, tfc_pt_thr[i], 0) ) ) // good dphi even
-      					       {
-      						 h_pt_after_tfcand_dphigem1b_2s1b[i]->Fill(stpt);
-      						 if (ok_2s123) h_pt_after_tfcand_dphigem1b_2s123[i]->Fill(stpt);
-      						 if (ok_2s13) h_pt_after_tfcand_dphigem1b_2s13[i]->Fill(stpt);
-      						 if ( nTFstubsOk >= 3 )  h_pt_after_tfcand_dphigem1b_3s1b[i]->Fill(stpt);
-      					       }
-      					   }
+      	      for (int i=0; i<Nthr; ++i) 
+		if (tfc_pt >= tfc_pt_thr[i]) 
+		  {
+		    h_mode_tfcand_gem1b_2s1b_1b[i]->Fill(tf_mode);
+		    
+		    h_pt_after_tfcand_gem1b_2s1b[i]->Fill(stpt);
+		    if (ok_2s123) h_pt_after_tfcand_gem1b_2s123[i]->Fill(stpt);
+		    if (ok_2s13) h_pt_after_tfcand_gem1b_2s13[i]->Fill(stpt);
+		    
+		    if ( nTFstubsOk >= 3 )  h_pt_after_tfcand_gem1b_3s1b[i]->Fill(stpt);
+		    
+		    if (   (gem_dphi_odd < -99. && gem_dphi_even < 99.)  // both just dummy default values
+			   || (gem_dphi_odd  > -9. && isGEMDPhiGood(gem_dphi_odd, tfc_pt_thr[i], 1) )  // good dphi odd
+			   || (gem_dphi_even > -9. && isGEMDPhiGood(gem_dphi_even, tfc_pt_thr[i], 0) ) ) // good dphi even
+		      {
+			h_pt_after_tfcand_dphigem1b_2s1b[i]->Fill(stpt);
+			if (ok_2s123) h_pt_after_tfcand_dphigem1b_2s123[i]->Fill(stpt);
+			if (ok_2s13) h_pt_after_tfcand_dphigem1b_2s13[i]->Fill(stpt);
+			if ( nTFstubsOk >= 3 )  h_pt_after_tfcand_dphigem1b_3s1b[i]->Fill(stpt);
+		      }
+		  }
       	    }
-
+	  
       	  if (eta_high) 
       	    {
       	      h_pth_after_tfcand->Fill(stpt);
@@ -2488,22 +2498,23 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       	    {
       	      const int Nthr = 7;
       	      float tfc_pt_thr[Nthr] = {0., 10., 15., 20., 25., 30., 40.};
-      	      for (int i=0; i<Nthr; ++i) if (gmtc->pt >= tfc_pt_thr[i]) 
-      					   {
-      					     h_pt_after_gmt_eta1b_1mu[i]->Fill(stpt);
-
-      					     if (eta_gem_1b && match_has_gem && has_mplct_me1b) 
-      					       {
-      						 h_pt_after_gmt_gem1b_1mu[i]->Fill(stpt);
-
-      						 if (   (gem_dphi_odd < -99. && gem_dphi_even < 99.)  // both just dummy default values
-      							|| (gem_dphi_odd  > -9. && isGEMDPhiGood(gem_dphi_odd, tfc_pt_thr[i], 1) )  // good dphi odd
-      							|| (gem_dphi_even > -9. && isGEMDPhiGood(gem_dphi_even, tfc_pt_thr[i], 0) ) ) // good dphi even
-      						   {
-      						     h_pt_after_gmt_dphigem1b_1mu[i]->Fill(stpt);
-      						   }
-      					       }
-      					   }
+      	      for (int i=0; i<Nthr; ++i) 
+		if (gmtc->pt >= tfc_pt_thr[i]) 
+		  {
+		    h_pt_after_gmt_eta1b_1mu[i]->Fill(stpt);
+		    
+		    if (eta_gem_1b && match_has_gem && has_mplct_me1b) 
+		      {
+			h_pt_after_gmt_gem1b_1mu[i]->Fill(stpt);
+			
+			if (   (gem_dphi_odd < -99. && gem_dphi_even < 99.)  // both just dummy default values
+			       || (gem_dphi_odd  > -9. && isGEMDPhiGood(gem_dphi_odd, tfc_pt_thr[i], 1) )  // good dphi odd
+			       || (gem_dphi_even > -9. && isGEMDPhiGood(gem_dphi_even, tfc_pt_thr[i], 0) ) ) // good dphi even
+			  {
+			    h_pt_after_gmt_dphigem1b_1mu[i]->Fill(stpt);
+			  }
+		      }
+		  }
       	    }
 
       	}
