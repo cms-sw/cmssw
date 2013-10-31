@@ -44,14 +44,13 @@ using namespace std;
 DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps) : nevents(0) {
 
   edm::LogVerbatim ("DTLocalTriggerSynchTask")  << "[DTLocalTriggerSynchTask]: Constructor" << endl;
+  parameters = ps;
   dcc_Token_  = consumes<L1MuDTChambPhContainer>(
       parameters.getParameter<edm::InputTag>("DCCInputTag"));
   ddu_Token_  = consumes<DTLocalTriggerCollection>(
       parameters.getParameter<edm::InputTag>("DDUInputTag"));
   seg_Token_  = consumes<DTRecSegment4DCollection>(
       parameters.getParameter<edm::InputTag>("SEGInputTag"));
-
-  parameters = ps;
 }
 
 
