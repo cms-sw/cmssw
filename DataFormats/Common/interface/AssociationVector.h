@@ -22,6 +22,10 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#ifndef __GCCXML__
+#include <atomic>
+#endif
+#include <memory>
 #include "boost/static_assert.hpp"
 
 namespace edm {
@@ -99,31 +103,55 @@ namespace edm {
     CMS_CLASS_VERSION(10)
 
   private:
+    enum CacheState { kUnset, kFilling, kSet };
     CVal data_;
     KeyRefProd ref_;
-    mutable transient_vector_type transientVector_;
-    mutable bool fixed_;
-    transient_vector_type const& transientVector() const { fixup(); return transientVector_; }
+#ifndef __GCCXML__
+    mutable std::atomic<transient_vector_type*> transientVector_;
+#else
+    transient_vector_type* transientVector_;
+#endif
+
+    transient_vector_type const& transientVector() const;
     void fixup() const;
   };
 
+#ifndef __GCCXML__
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
+  inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::transient_vector_type const&
+  AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::transientVector() const {
+    fixup();
+    return *(transientVector_.load(std::memory_order_acquire)); }
+#endif
+  
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::AssociationVector() :
-    data_(), ref_(), transientVector_(), fixed_(false)  { }
+    data_(), ref_(), transientVector_(nullptr)  { }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::AssociationVector(KeyRefProd const& ref,
 												      CKey const* coll) :
     data_(coll == 0 ? ref->size() : coll->size()), ref_(ref),
-    transientVector_(coll == 0 ? ref->size() : coll->size()), fixed_(true) { }
+    transientVector_( new transient_vector_type(coll == 0 ? ref->size() : coll->size())) { }
 
+#ifndef __GCCXML__
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::
     AssociationVector(AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper> const& o) :
-    data_(o.data_), ref_(o.ref_), transientVector_(o.transientVector_), fixed_(o.fixed_) { }
-
+    data_(o.data_), ref_(o.ref_), transientVector_() {
+      auto t = o.transientVector.load(std::memory_order_acquire);
+      if(t) {
+        transientVector_.store( new transient_vector_type(*t), std::memory_order_release);
+      }
+    }
+#endif
+  
+#ifndef __GCCXML__
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
-  inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::~AssociationVector() { }
+  inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::~AssociationVector() {
+    delete transientVector_.load(std::memory_order_acquire);
+  }
+#endif
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::const_reference
@@ -140,15 +168,19 @@ namespace edm {
   }
 
 
+#ifndef __GCCXML__
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline typename CVal::reference
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](KeyRef const& k) {
     KeyRef keyRef = KeyReferenceHelper::get(k, ref_.id());
-    fixed_ = false;
+    auto t = transientVector_.exchange(nullptr,std::memory_order_acq_rel);
+    delete t;
     checkForWrongProduct(keyRef.id(), ref_.id());
     return data_[ keyRef.key() ];
   }
-
+#endif
+  
+#ifndef __GCCXML__
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>&
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator=(self const& o) {
@@ -157,17 +189,20 @@ namespace edm {
     }
     data_ = o.data_;
     ref_ = o.ref_;
-    fixed_ = false;
+    auto t =transientVector_.exchange(nullptr, std::memory_order_acq_rel);
+    delete t;
     return *this;
   }
-
+  
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::setValue(size_type i, typename CVal::value_type const& val) {
     data_[ i ] = val;
     KeyRef ref(ref_, i);
-    transientVector_[ i ].first = ref;
-    transientVector_[ i ].second = data_[ i ];
+    auto t = transientVector_.load(std::memory_order_acquire);
+    (*t)[ i ].first = ref;
+    (*t)[ i ].second = data_[ i ];
   }
+#endif
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::size_type
@@ -180,32 +215,37 @@ namespace edm {
     return data_.empty();
   }
 
+#ifndef __GCCXML__
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::clear() {
     data_.clear();
-    transientVector_.clear();
+    auto t = transientVector_.load(std::memory_order_acquire);
+    if(t) t->clear();
     ref_ = KeyRefProd();
-    fixed_ = true;
   }
-
+  
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::swap(self& other) {
     data_.swap(other.data_);
-    transientVector_.swap(other.transientVector_);
+    other.transientVector_.store(transientVector_.exchange(other.transientVector_.load(std::memory_order_acquire),std::memory_order_acq_rel),std::memory_order_release);
     ref_.swap(other.ref_);
-    std::swap(fixed_, other.fixed_);
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::fixup() const {
-    if (!fixed_) {
-      fixed_ = true;
-      transientVector_.resize(size());
+    auto t = transientVector_.load(std::memory_order_acquire);
+    if (nullptr == t) {
+      std::unique_ptr<transient_vector_type> t {new transient_vector_type(size()) };
       for(size_type i = 0; i != size(); ++i) {
-	transientVector_[ i ] = std::make_pair(KeyRef(ref_, i), data_[ i ]);
+        (*t)[ i ] = std::make_pair(KeyRef(ref_, i), data_[ i ]);
+      }
+      transient_vector_type* expected = nullptr;
+      if(transientVector_.compare_exchange_strong(expected, t.get(), std::memory_order_acq_rel) ) {
+        t.release();
       }
     }
   }
+#endif
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::fillView(ProductID const& id,
