@@ -1,4 +1,5 @@
 #include "DataFormats/TrackerCommon/interface/ClusterSummary.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 int ClusterSummary::GetModuleLocation ( int mod ) const {
@@ -127,14 +128,13 @@ std::vector<std::string> ClusterSummary::DecodeProvInfo(std::string ProvInfo) co
 
 
 
-std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
+std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId, const TrackerTopology *tTopo){
 
   // true if the module mod is among the selected modules.  
   int isselected = 0;
   int enumVal = 99999;
   
-  SiStripDetId subdet(DetId);
-  int subdetid = subdet.subDetector();
+  int subdetid = SiStripDetId(DetId).subDetector();
   
   std::string::size_type result = geosearch.find("_");
 
@@ -150,15 +150,13 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
     std::string Layer = modStr.substr(pos+1, modStr.length()); //find the Layer
 
     std::stringstream ss(Layer);
-    int layer_id = 0;
+    unsigned int layer_id = 0;
 	 
     ss >> layer_id;
 	 
     if (SiStripDetId::TIB == subdetid && Mod == "TIB"){
 	   
-      TIBDetId tib(DetId);
-      int layer    = tib.layer(); 
-      if (layer_id == layer){
+      if (layer_id == tTopo->tibLayer(DetId)){
 
 	if (layer_id == 1) enumVal = ClusterSummary::TIB_1;
 	else if (layer_id == 2) enumVal = ClusterSummary::TIB_2;
@@ -171,9 +169,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
 	 
     else if (SiStripDetId::TOB == subdetid && Mod == "TOB"){
 
-      TOBDetId tob(DetId);
-      int layer    = tob.layer(); 
-      if (layer_id == layer){
+      if (layer_id == tTopo->tobLayer(DetId)){
 
 	if (layer_id == 1) enumVal = ClusterSummary::TOB_1;
 	else if (layer_id == 2) enumVal = ClusterSummary::TOB_2;
@@ -188,11 +184,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
 
     else if (SiStripDetId::TEC == subdetid && Mod == "TECM"){
 
-      TECDetId tec(DetId);
-      int side          = (tec.isZMinusSide())?-1:1; 
-      int layerwheel    = tec.wheel(); 
-
-      if (layer_id == layerwheel && side == -1){
+      if (layer_id == tTopo->tecWheel(DetId) && tTopo->tecIsZMinusSide(DetId)){
 	  
 	if (layer_id == 1) enumVal = ClusterSummary::TECM_1;
 	else if (layer_id == 2) enumVal = ClusterSummary::TECM_2;
@@ -210,11 +202,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
 
     else if (SiStripDetId::TEC == subdetid && Mod == "TECP"){
 
-      TECDetId tec(DetId);
-      int side          = (tec.isZMinusSide())?-1:1; 
-      int layerwheel    = tec.wheel(); 
-
-      if (layer_id == layerwheel && side == 1){
+      if (layer_id == tTopo->tecWheel(DetId) && !tTopo->tecIsZMinusSide(DetId)){
 
 	if (layer_id == 1) enumVal = ClusterSummary::TECP_1;
 	else if (layer_id == 2) enumVal = ClusterSummary::TECP_2;
@@ -233,11 +221,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
     // TEC minus ring
     else if (SiStripDetId::TEC == subdetid && Mod == "TECMR"){
 
-      TECDetId tec(DetId);
-      int side          = (tec.isZMinusSide())?-1:1; 
-      int ring    = tec.ringNumber();  
-
-      if (layer_id == ring && side == -1){
+      if (layer_id == tTopo->tecRing(DetId) && tTopo->tecIsZMinusSide(DetId)){
 
 	if (layer_id == 1) enumVal = ClusterSummary::TECMR_1;
 	else if (layer_id == 2) enumVal = ClusterSummary::TECMR_2;
@@ -254,10 +238,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
     // TEC plus ring
     else if (SiStripDetId::TEC == subdetid && Mod == "TECPR"){
 
-      TECDetId tec(DetId);
-      int side          = (tec.isZMinusSide())?-1:1; 
-      int ring    = tec.ringNumber();  
-      if (layer_id == ring && side == 1){
+      if (layer_id == tTopo->tecRing(DetId) && !tTopo->tecIsZMinusSide(DetId)){
 
 	if (layer_id == 1) enumVal = ClusterSummary::TECPR_1;
 	else if (layer_id == 2) enumVal = ClusterSummary::TECPR_2;
@@ -273,12 +254,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
 
     else if (SiStripDetId::TID == subdetid && Mod == "TIDM"){
 
-      TIDDetId tid(DetId);
-      int side          = (tid.isZMinusSide())?-1:1; 
-      int layerwheel    = tid.wheel(); 
-
-      if (layer_id == layerwheel && side == -1){
-
+      if (layer_id == tTopo->tidWheel(DetId) && tTopo->tidIsZMinusSide(DetId)){
 	if (layer_id == 1) enumVal = ClusterSummary::TIDM_1;
 	else if (layer_id == 2) enumVal = ClusterSummary::TIDM_2;
 	else if (layer_id == 3) enumVal = ClusterSummary::TIDM_3;
@@ -289,12 +265,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
 
     else if (SiStripDetId::TID == subdetid && Mod == "TIDP"){
 
-      TIDDetId tid(DetId);
-      int side          = (tid.isZMinusSide())?-1:1; 
-      int layerwheel    = tid.wheel(); 
-
-      if (layer_id == layerwheel && side == 1){
-
+      if (layer_id == tTopo->tidWheel(DetId) && !tTopo->tidIsZMinusSide(DetId)){
 	if (layer_id == 1) enumVal = ClusterSummary::TIDP_1;
 	else if (layer_id == 2) enumVal = ClusterSummary::TIDP_2;
 	else if (layer_id == 3) enumVal = ClusterSummary::TIDP_3;
@@ -305,11 +276,8 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
          
     // TID minus ring
     else if (SiStripDetId::TID == subdetid && Mod == "TIDMR"){
-      TIDDetId tid(DetId);
-      int side          = (tid.isZMinusSide())?-1:1; 
-      int ring    = tid.ringNumber(); 
-      if (layer_id == ring && side == -1){
-	  
+      if (layer_id == tTopo->tidRing(DetId) && tTopo->tidIsZMinusSide(DetId)){
+  
 	if (layer_id == 1) enumVal = ClusterSummary::TIDMR_1;
 	else if (layer_id == 2) enumVal = ClusterSummary::TIDMR_2;
 	else if (layer_id == 3) enumVal = ClusterSummary::TIDMR_3;
@@ -320,11 +288,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
 
     // TID plus ring
     else if (SiStripDetId::TID == subdetid && Mod == "TIDPR"){
-      TIDDetId tid(DetId);
-      int side          = (tid.isZMinusSide())?-1:1; 
-      int ring    = tid.ringNumber(); 
-	
-      if (layer_id == ring && side == 1){
+      if (layer_id == tTopo->tidRing(DetId) && !tTopo->tidIsZMinusSide(DetId)){
 
 	if (layer_id == 1) enumVal = ClusterSummary::TIDPR_1;
 	else if (layer_id == 2) enumVal = ClusterSummary::TIDPR_2;
@@ -341,10 +305,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
 
   else if( SiStripDetId::TEC == subdetid && geosearch.compare("TECM")==0 ) {
        
-    TECDetId tec(DetId);
-    int side          = (tec.isZMinusSide())?-1:1;  
-
-    if (side == -1){
+    if (tTopo->tecIsZMinusSide(DetId)){
       isselected = 1;
       enumVal = ClusterSummary::TECM;
     }
@@ -352,10 +313,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
 
   else if( SiStripDetId::TEC == subdetid && geosearch.compare("TECP")==0 ) {
       
-    TECDetId tec(DetId);
-    int side          = (tec.isZMinusSide())?-1:1;  
-
-    if (side == 1){
+    if (!tTopo->tecIsZMinusSide(DetId)){
       isselected = 1;
       enumVal = ClusterSummary::TECP;
     }    
@@ -363,11 +321,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
 
 
   else if( SiStripDetId::TID == subdetid && geosearch.compare("TIDM")==0 ) {
-       
-    TIDDetId tid(DetId);
-    int side          = (tid.isZMinusSide())?-1:1;  
-
-    if (side == -1){
+    if (tTopo->tidIsZMinusSide(DetId)){
       isselected = 1;
       enumVal = ClusterSummary::TIDM;
     }
@@ -376,10 +330,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
 
   else if( SiStripDetId::TID == subdetid && geosearch.compare("TIDP")==0 ) {
        
-    TIDDetId tid(DetId);
-    int side          = (tid.isZMinusSide())?-1:1;  
-
-    if (side == 1){
+    if (!tTopo->tidIsZMinusSide(DetId)){
       isselected = 1;
       enumVal = ClusterSummary::TIDP;
     }
@@ -421,7 +372,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
 
 
 
-std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid){
+std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid, const TrackerTopology *tTopo){
 
   // true if the module mod is among the selected modules.  
   int isselected = 0;
@@ -443,7 +394,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid){
     std::string Layer = modStr.substr(pos+1, modStr.length()); //find the Layer
 
     std::stringstream ss(Layer);
-    int layer_id = 0;
+    unsigned int layer_id = 0;
 	 
     ss >> layer_id;
 
@@ -453,11 +404,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid){
 
     if (subdetid == 1 && Mod == "BPIX"){
 	   
-      PXBDetId pdetId = PXBDetId(detid);
-      // Barell layer = 1,2,3
-      int layer=pdetId.layer();
-
-      if (layer_id == layer){
+      if (layer_id == tTopo->pxbLayer(detid)) {
 
 	if (layer_id == 1) enumVal = ClusterSummary::BPIX_1;
 	else if (layer_id == 2) enumVal = ClusterSummary::BPIX_2;
@@ -472,14 +419,11 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid){
     ****/
     else if (subdetid == 2 && Mod == "FPIX"){
       
-      PXFDetId pdetId = PXFDetId(detid);
-      int disk=pdetId.disk(); //1,2,3
+      if (layer_id == tTopo->pxfDisk(detid)) {
 
-      if (layer_id == disk){
-
-	if (disk == 1) enumVal = ClusterSummary::FPIX_1;
-	else if (disk == 2) enumVal = ClusterSummary::FPIX_2;
-	else if (disk == 3) enumVal = ClusterSummary::FPIX_3;
+	if (layer_id == 1) enumVal = ClusterSummary::FPIX_1;
+	else if (layer_id == 2) enumVal = ClusterSummary::FPIX_2;
+	else if (layer_id == 3) enumVal = ClusterSummary::FPIX_3;
 
 	isselected = 1;
 	
@@ -492,15 +436,11 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid){
 
     else if (subdetid == 2 && Mod == "FPIXM"){
       
-      PXFDetId pdetId = PXFDetId(detid);
-      int side=pdetId.side(); //size=1 for -z, 2 for +z
-      int disk=pdetId.disk(); //1,2,3
+      if (layer_id == tTopo->pxfDisk(detid) && tTopo->pxfSide(detid)==1) {
 
-      if (layer_id == disk && side == 1 ){
-
-	if (disk == 1) enumVal = ClusterSummary::FPIXM_1;
-	else if (disk == 2) enumVal = ClusterSummary::FPIXM_2;
-	else if (disk == 3) enumVal = ClusterSummary::FPIXM_3;
+	if (layer_id == 1) enumVal = ClusterSummary::FPIXM_1;
+	else if (layer_id == 2) enumVal = ClusterSummary::FPIXM_2;
+	else if (layer_id == 3) enumVal = ClusterSummary::FPIXM_3;
 
 	isselected = 1;
 	
@@ -508,16 +448,11 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid){
     }
 
     else if (subdetid == 2 && Mod == "FPIXP"){
-      
-      PXFDetId pdetId = PXFDetId(detid);
-      int side=pdetId.side(); //size=1 for -z, 2 for +z
-      int disk=pdetId.disk(); //1,2,3
+      if (layer_id == tTopo->pxfDisk(detid) && tTopo->pxfSide(detid)==2) {
 
-      if (layer_id == disk && side == 2){
-
-	if (disk == 1) enumVal = ClusterSummary::FPIXP_1;
-	else if (disk == 2) enumVal = ClusterSummary::FPIXP_2;
-	else if (disk == 3) enumVal = ClusterSummary::FPIXP_3;
+	if (layer_id == 1) enumVal = ClusterSummary::FPIXP_1;
+	else if (layer_id == 2) enumVal = ClusterSummary::FPIXP_2;
+	else if (layer_id == 3) enumVal = ClusterSummary::FPIXP_3;
 
 	isselected = 1;
 	
@@ -531,10 +466,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid){
 
   else if( subdetid == 2 && geosearch.compare("FPIXM")==0 ) {
        
-    PXFDetId pdetId = PXFDetId(detid);
-    int side=pdetId.side(); //size=1 for -z, 2 for +z
-
-    if (side == 1){
+    if (tTopo->pxfSide(detid) ==1) {
       isselected = 1;
       enumVal = ClusterSummary::FPIXM;
     }
@@ -542,10 +474,7 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid){
 
   else if( subdetid == 2 && geosearch.compare("FPIXP")==0 ) {
       
-    PXFDetId pdetId = PXFDetId(detid);
-    int side=pdetId.side(); //size=1 for -z, 2 for +z
-
-    if (side == 2){
+    if (tTopo->pxfSide(detid) ==2) {
       isselected = 1;
       enumVal = ClusterSummary::FPIXP;
     }    

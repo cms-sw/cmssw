@@ -31,6 +31,7 @@
 <use   name="TrackingTools/Records"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackPropagation/SteppingHelixPropagator"/>
+<use   name="DataFormats/TrackerCommon"/>
 <export>
   <lib   name="1"/>
 </export>
