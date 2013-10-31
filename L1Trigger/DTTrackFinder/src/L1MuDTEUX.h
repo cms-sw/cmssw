@@ -70,9 +70,6 @@ class L1MuDTEUX : public L1AbstractProcessor {
     /// return pointer to start and target track segment
     std::pair<const L1MuDTTrackSegPhi*, const L1MuDTTrackSegPhi*> ts() const;
 
-    /// set precision of phi and phib
-    static void setPrecision();
-    
     /// helper class for finding the best and second best extrapolation
     class EUX_Comp : std::binary_function< L1MuDTEUX*, L1MuDTEUX*, bool> {
       public :
@@ -118,9 +115,9 @@ class L1MuDTEUX : public L1AbstractProcessor {
     const L1MuDTTrackSegPhi* m_target;      // target track segment
       
     edm::ESHandle< L1MuDTExtLut > theExtLUTs;  // extrapolation look-up tables
-    static int               theExtFilter;     // extrapolation quality filter
-    static unsigned short    nbit_phi;         // number of bits used for phi
-    static unsigned short    nbit_phib;        // number of bits used for phib
+    int            const   theExtFilter = 1;        // extrapolation quality filter
+    unsigned short const   nbit_phi = 12;           // number of bits used for phi
+    unsigned short const   nbit_phib = 10;          // number of bits used for phib
 
     edm::ESHandle< L1MuDTTFParameters > pars;
 
