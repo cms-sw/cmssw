@@ -63,10 +63,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
-
 process.MessageLogger = cms.Service("MessageLogger",
 #  debugModules = cms.untracked.vstring('l1tsClient', 'l1ts', 'main_input'),
   debugModules = cms.untracked.vstring('*'),
