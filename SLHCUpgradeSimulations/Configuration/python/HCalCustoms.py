@@ -117,6 +117,7 @@ def customise_Digi(process):
         process.mix.digitizers.hcal.he.pixels = cms.int32(4500*4*2)
         process.mix.digitizers.hcal.HFUpgradeQIE = True
         process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
+        process.mix.digitizers.hcal.doTimeSlew = False 
 
     if hasattr(process,'HcalTPGCoderULUT'):
         process.HcalTPGCoderULUT.hcalTopologyConstants.mode=cms.string('HcalTopologyMode::SLHC')
@@ -229,8 +230,8 @@ def customise_harvesting(process):
     return process
 
 def customise_Validation(process):
-    process.validation_step.remove(process.AllHcalDigisValidation)
-    process.validation_step.remove(process.RecHitsValidation)
+    process.AllHcalDigisValidation.doSLHC = True
+    process.RecHitsValidation.doSLHC = True
     process.validation_step.remove(process.globalhitsanalyze)
     return process
 
