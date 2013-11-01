@@ -233,6 +233,9 @@ def customise_Validation(process):
     process.AllHcalDigisValidation.doSLHC = cms.untracked.bool(True)
     process.RecHitsValidation.doSLHC = cms.untracked.bool(True)
     process.validation_step.remove(process.globalhitsanalyze)
+    #err, well, these still dont run
+    process.validation_step.remove(process.AllHcalDigisValidation)
+    process.validation_step.remove(process.RecHitsValidation)
     return process
 
 def customise_condOverRides(process):
