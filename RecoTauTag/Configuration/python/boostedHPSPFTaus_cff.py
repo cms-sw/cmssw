@@ -32,7 +32,7 @@ ca8PFJetsCHSprunedForBoostedTaus = boostedTaus2.ak5PFJetsPruned.clone(
 )
 
 boostedTauSeeds = cms.EDProducer("BoostedTauSeedsProducer",
-    jetSrc = cms.InputTag('ca8PFJetsCHSprunedForBoostedTaus', 'subJetsForSeedingBoostedTaus'),
+    subjetSrc = cms.InputTag('ca8PFJetsCHSprunedForBoostedTaus', 'subJetsForSeedingBoostedTaus'),
     pfCandidateSrc = cms.InputTag('particleFlow'),
     verbosity = cms.int32(0)
 )
@@ -50,7 +50,7 @@ ak5PFJetsRecoTauChargedHadrons.builders[1].dRcone = cms.double(1.2)
 ak5PFJetsRecoTauChargedHadrons.builders[1].dRconeLimitedToJetArea = cms.bool(True)
 
 combinatoricRecoTaus.jetSrc = cms.InputTag('boostedTauSeeds')
-combinatoricRecoTaus.builders[0].pfCandSrc = cms.InputTag('boostedTauSeeds')
+combinatoricRecoTaus.builders[0].pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')
 combinatoricRecoTaus.modifiers.remove(combinatoricRecoTaus.modifiers[3])
 
 hpsPFTauDiscriminationByLooseMuonRejection3.dRmuonMatch = cms.double(0.3)
