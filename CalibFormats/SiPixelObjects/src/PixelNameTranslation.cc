@@ -21,9 +21,8 @@ using namespace std;
 
 
 PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string> > &tableMat):PixelConfigBase(" "," "," "){
-  std::string mthn = "[PixelNameTranslation::PixelNameTranslation()]\t\t    " ;
+  const char *mthn = "[PixelNameTranslation::PixelNameTranslation()]\t\t    " ;
   std::map<std::string , int > colM;
-  std::vector<std::string > colNames;
 
 /*
   EXTENSION_TABLE_NAME: PIXEL_NAME_TRANS (VIEW: CONF_KEY_NAME_TRANS_V)
@@ -46,22 +45,24 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
   TBM_MODE					     VARCHAR2(200)
 */
 
-  colNames.push_back("CONFIG_KEY"  ); //0
-  colNames.push_back("KEY_TYPE"    ); //1
-  colNames.push_back("KEY_ALIAS"   ); //2
-  colNames.push_back("VERSION"     ); //3
-  colNames.push_back("KIND_OF_COND"); //4
-  colNames.push_back("ROC_NAME"    ); //5
-  colNames.push_back("PXLFEC_NAME" ); //6 
-  colNames.push_back("MFEC_POSN"   ); //7 
-  colNames.push_back("MFEC_CHAN"   ); //8 
-  colNames.push_back("HUB_ADDRS"   ); //9 
-  colNames.push_back("PORT_NUM"    ); //10
-  colNames.push_back("ROC_I2C_ADDR"); //11
-  colNames.push_back("PXLFED_NAME" ); //12
-  colNames.push_back("FED_CHAN"    ); //13
-  colNames.push_back("FED_ROC_NUM" ); //14
-  colNames.push_back("TBM_MODE"    ); //15
+  std::vector<std::string > colNames = {
+    "CONFIG_KEY"  , //0
+    "KEY_TYPE"    , //1
+    "KEY_ALIAS"   , //2
+    "VERSION"     , //3
+    "KIND_OF_COND", //4
+    "ROC_NAME"    , //5
+    "PXLFEC_NAME" , //6 
+    "MFEC_POSN"   , //7 
+    "MFEC_CHAN"   , //8 
+    "HUB_ADDRS"   , //9 
+    "PORT_NUM"    , //10
+    "ROC_I2C_ADDR", //11
+    "PXLFED_NAME" , //12
+    "FED_CHAN"    , //13
+    "FED_ROC_NUM" , //14
+    "TBM_MODE"    , //15
+  };
 
   for(unsigned int c = 0 ; c < tableMat[0].size() ; c++){
     for(unsigned int n=0; n<colNames.size(); n++){
@@ -230,7 +231,7 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
 PixelNameTranslation::PixelNameTranslation(std::string filename):
   PixelConfigBase(" "," "," "){
 
-  static std::string mthn = "[PixelNameTranslation::PixelNameTranslation()]\t\t    " ;
+  const char *mthn = "[PixelNameTranslation::PixelNameTranslation()]\t\t    " ;
   
   std::ifstream in(filename.c_str());
   
@@ -493,7 +494,7 @@ std::set<PixelChannel> PixelNameTranslation::getChannels(const PixelDetectorConf
 
 const PixelHdwAddress* PixelNameTranslation::getHdwAddress(const PixelROCName& aROC) const{
 
-  static std::string mthn = "[PixelNameTranslation::getHdwAddress()]\t\t    " ;
+  const char *mthn = "[PixelNameTranslation::getHdwAddress()]\t\t    " ;
   std::map<PixelROCName,PixelHdwAddress>::const_iterator it=
     translationtable_.find(aROC);
 
@@ -509,7 +510,6 @@ const PixelHdwAddress* PixelNameTranslation::getHdwAddress(const PixelROCName& a
 // Added for Debbie (used there only) to allow integrity checks (Dario)
 bool PixelNameTranslation::checkROCExistence(const PixelROCName& aROC) const{
 
-  std::string mthn = "[PixelNameTranslation::checkROCExistence()]\t\t    " ;
   if (translationtable_.find(aROC)==translationtable_.end()) return false ;
   return true ;
 }
@@ -534,7 +534,7 @@ const PixelHdwAddress& PixelNameTranslation::getHdwAddress(const PixelChannel& a
 
 const PixelHdwAddress& PixelNameTranslation::firstHdwAddress(const PixelModuleName& aModule) const
 {
-        std::string mthn = "[PixelNameTranslation::firstHdwAddress()]\t\t    " ;
+        const char *mthn = "[PixelNameTranslation::firstHdwAddress()]\t\t    " ;
 	std::set<PixelChannel> channelsOnModule = getChannelsOnModule(aModule);
 	if (channelsOnModule.size() == 0 ){
 	  cout << __LINE__ << "]\t" << mthn << "module=" << aModule << " has zero channels!" << endl;
@@ -635,7 +635,7 @@ PixelROCName PixelNameTranslation::ROCNameFromFEDChannelROC(unsigned int fednumb
 							    unsigned int roc) const {
 
 
-  std::string mthn = "[PixelNameTranslation::ROCNameFromFEDChannelROC()]\t\t    " ;
+  const char *mthn = "[PixelNameTranslation::ROCNameFromFEDChannelROC()]\t\t    " ;
   PixelHdwAddress tmp(0,0,0,0,0,0,fednumber,channel,roc);
 
   std::map<PixelHdwAddress,PixelROCName,PixelHdwAddress>::const_iterator it1=fedlookup_.find(tmp);
@@ -657,7 +657,7 @@ PixelROCName PixelNameTranslation::ROCNameFromFEDChannelROC(unsigned int fednumb
 
 PixelChannel PixelNameTranslation::ChannelFromFEDChannel(unsigned int fednumber, unsigned int fedchannel) const
 {
-        std::string mthn = "[PixelNameTranslation::ChannelFromFEDChannel()]\t\t    " ;
+        const char *mthn = "[PixelNameTranslation::ChannelFromFEDChannel()]\t\t    " ;
 	std::map<PixelChannel,PixelHdwAddress>::const_iterator toReturn;
 	bool foundOne = false;
 	for(std::map<PixelChannel,PixelHdwAddress>::const_iterator it=channelTranslationTable_.begin(); it!=channelTranslationTable_.end();it++)
@@ -690,7 +690,7 @@ PixelChannel PixelNameTranslation::ChannelFromFEDChannel(unsigned int fednumber,
 
 bool PixelNameTranslation::FEDChannelExist(unsigned int fednumber, unsigned int fedchannel) const
 {
-        std::string mthn = "[PixelNameTranslation::FEDChannelExist()]\t\t    " ;
+        const char *mthn = "[PixelNameTranslation::FEDChannelExist()]\t\t    " ;
 	std::map<PixelChannel,PixelHdwAddress>::const_iterator toReturn;
 	bool foundOne = false;
 	for(std::map<PixelChannel,PixelHdwAddress>::const_iterator it=channelTranslationTable_.begin(); it!=channelTranslationTable_.end();it++)
@@ -716,7 +716,7 @@ bool PixelNameTranslation::FEDChannelExist(unsigned int fednumber, unsigned int 
 const PixelChannel& PixelNameTranslation::getChannelFromHdwAddress(const PixelHdwAddress& aHdwAddress) const
 {
 // modified by MR on 30-01-2008 10:38:22
-  std::string mthn = "[PixelNameTranslation::getChannelFromHdwAddress()]\t\t    " ;
+  const char *mthn = "[PixelNameTranslation::getChannelFromHdwAddress()]\t\t    " ;
 
   std::map<PixelHdwAddress, PixelChannel >::const_iterator it=
     hdwTranslationTable_.find(aHdwAddress);
@@ -748,7 +748,6 @@ const PixelChannel& PixelNameTranslation::getChannelFromHdwAddress(const PixelHd
 
 void PixelNameTranslation::writeASCII(std::string dir) const {
 
-  std::string mthn = "[PixelNameTranslation::writeASCII()]\t\t\t    " ;
   if (dir!="") dir+="/";
   std::string filename=dir+"translation.dat";
 
@@ -799,7 +798,7 @@ void PixelNameTranslation::writeXMLHeader(pos::PixelConfigKey key,
                                   	  std::ofstream *out1stream,
                                   	  std::ofstream *out2stream) const 
 {
-  std::string mthn = "[PixelNameTranslation:::writeXMLHeader()]\t\t\t    " ;
+  const char *mthn = "[PixelNameTranslation:::writeXMLHeader()]\t\t\t    " ;
   std::stringstream fullPath ;
   fullPath << path << "/Pixel_NameTranslation_" << PixelTimeFormatter::getmSecTime() << ".xml" ;
   cout << __LINE__ << "]\t" << mthn << "Writing to: " << fullPath.str() << endl ;
@@ -837,8 +836,6 @@ void PixelNameTranslation::writeXML(std::ofstream *outstream,
                                     std::ofstream *out1stream,
                                     std::ofstream *out2stream) const 
 {
-  std::string mthn = "[PixelNameTranslation::writeXML()]\t\t\t    " ;
-  
   std::map<PixelROCName,PixelHdwAddress>::const_iterator iroc=translationtable_.begin();
 
   for (;iroc!=translationtable_.end();++iroc) 
@@ -868,8 +865,6 @@ void PixelNameTranslation::writeXMLTrailer(std::ofstream *outstream,
                                   	   std::ofstream *out1stream,
                                   	   std::ofstream *out2stream) const 
 {
-  std::string mthn = "[PixelNameTranslation::writeXMLTrailer()]\t\t\t    " ;
-  
   *outstream << " </DATA_SET>" 						    	 	              	     << endl ;
   *outstream << "</ROOT> "								              	     << endl ;
 
@@ -878,7 +873,7 @@ void PixelNameTranslation::writeXMLTrailer(std::ofstream *outstream,
 
 //=============================================================================================
 void PixelNameTranslation::writeXML(pos::PixelConfigKey key, int version, std::string path) const {
-  std::string mthn = "[PixelNameTranslation::writeXML]\t\t\t    " ;
+  const char *mthn = "[PixelNameTranslation::writeXML]\t\t\t    " ;
   std::stringstream fullPath ;
 
   fullPath << path << "/Pixel_NameTranslation.xml" ;

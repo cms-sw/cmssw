@@ -158,7 +158,7 @@ const SiStripModule& SiStripFecCabling::module( const FedChannelConnection& conn
   }
 
   if ( !ss.str().empty() ) { edm::LogWarning(mlCabling_) << ss.str(); }
-  static FedChannelConnection temp;
+  static const FedChannelConnection temp;
   static const SiStripModule module(temp);
   return module;
 }
@@ -177,7 +177,7 @@ const SiStripModule& SiStripFecCabling::module( const uint32_t& dcu_id ) const {
       }
     }
   }
-  static FedChannelConnection temp;
+  static const FedChannelConnection temp;
   static const SiStripModule module(temp);
   return module;
 }
