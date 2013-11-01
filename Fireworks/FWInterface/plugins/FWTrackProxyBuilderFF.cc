@@ -98,30 +98,48 @@ FWTrackProxyBuilderFF::build(const FWEventItem* iItem, TEveElementList* product,
    {
       m_trajToTrackMap =0;
       std::cout << exception.what() << std::endl;
-      return;
    }
-   
- 
-   bool rnrPathMarks = item()->getConfig()->value<bool>("Rnr TrajectoryMeasurement");
-   if (m_trackerPropagator->GetRnrReferences() != rnrPathMarks ) m_trackerPropagator->SetRnrReferences(rnrPathMarks);
+    
+   if (m_trajToTrackMap) {
+      bool rnrPathMarks = item()->getConfig()->value<bool>("Rnr TrajectoryMeasurement");
+      if (m_trackerPropagator->GetRnrReferences() != rnrPathMarks ) m_trackerPropagator->SetRnrReferences(rnrPathMarks);
 
-   unsigned track_index = 0;
-   for(TrajTrackAssociationCollection::const_iterator it = m_trajToTrackMap->begin(); it!=m_trajToTrackMap->end(); ++it, ++track_index) 
-   {
-      TEveCompound* comp = createCompound();
-      setupAddElement( comp, product );
+      unsigned track_index = 0;
+      for(TrajTrackAssociationCollection::const_iterator it = m_trajToTrackMap->begin(); it!=m_trajToTrackMap->end(); ++it, ++track_index) 
+      {
+         TEveCompound* comp = createCompound();
+         setupAddElement( comp, product );
       
-      if (item()->modelInfo(track_index).displayProperties().isVisible())
-         buildTrack(it, comp);
+         if (item()->modelInfo(track_index).displayProperties().isVisible())
+            buildTrack(it, comp);
+      }
    }
-   
-  gEve->GetBrowser()->MapWindow();
+   else {
+      for (reco::TrackCollection::const_iterator i = tracks->begin(); i != tracks->end(); ++i)
+      {
+         const reco::Track& track = *i;
+         TEveRecTrack ts;
+         ts.fBeta = 1.;
+         ts.fSign = track.charge();
+         ts.fP.Set(track.px(), track.py(), track.pz());
+         ts.fV.Set(track.vx(), track.vy(), track.vz());
+         TEveTrack* eveTrack = new TEveTrack( &ts, m_trackerPropagator);
+         eveTrack->MakeTrack();   
+         TEveCompound* comp = createCompound();
+         setupAddElement(comp, product );
+         setupAddElement(eveTrack, comp);
+      }
+   }
+
+
+
+   gEve->GetBrowser()->MapWindow();
 }
 
 void FWTrackProxyBuilderFF::buildTrack(TrajTrackAssociationCollection::const_iterator it, TEveCompound* comp)
 {
-   const reco::Track track = *it->val;
-   const Trajectory  traj  = *it->key;
+   const reco::Track& track = *it->val;
+   const Trajectory&  traj  = *it->key;
    
    TEveRecTrack ts;
    ts.fBeta = 1.;
@@ -146,7 +164,7 @@ void FWTrackProxyBuilderFF::buildTrack(TrajTrackAssociationCollection::const_ite
    }
 
    eveTrack->MakeTrack();         
-   setupAddElement(eveTrack, comp);      
+   setupAddElement(eveTrack, comp);     
 }
 
 bool FWTrackProxyBuilderFF::visibilityModelChanges(const FWModelId& iId, TEveElement* iCompound,
