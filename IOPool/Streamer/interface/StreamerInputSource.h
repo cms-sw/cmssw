@@ -33,7 +33,6 @@ namespace edm {
     virtual ~StreamerInputSource();
     static void fillDescription(ParameterSetDescription& description);
 
-    static
     std::auto_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);
 
     void deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent = false);
@@ -91,9 +90,8 @@ namespace edm {
     EventPrincipalHolder eventPrincipalHolder_;
     bool adjustEventToNewProductRegistry_;
 
-    //Do not like these to be static, but no choice as deserializeRegistry() that sets it is a static memeber 
-    static std::string processName_;
-    static unsigned int protocolVersion_;
+    std::string processName_;
+    unsigned int protocolVersion_;
   }; //end-of-class-def
 } // end of namespace-edm
   
