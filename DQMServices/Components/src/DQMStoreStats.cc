@@ -1,7 +1,6 @@
 /*
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
- * Last Update:
  *
  * Description: Print out statistics of histograms in DQMStore
 */
@@ -225,6 +224,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
       // no subfolders in subsystem, make dummy
       DQMStoreStatsSubfolder aSubfolder;
       aSubfolder.subfolderName_ = subsystemname; // <-- for tagging this case
+      assert(dqmStoreStatsTopLevel.size());
       dqmStoreStatsTopLevel.back().push_back( aSubfolder );
     }
 
@@ -239,6 +239,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
         subfoldername = path.substr( subsysStringEnd + 1, subfolderStringEnd - subsysStringEnd - 1 );
         DQMStoreStatsSubfolder aSubfolder;
         aSubfolder.subfolderName_ = subfoldername;
+	assert(dqmStoreStatsTopLevel.size());
         dqmStoreStatsTopLevel.back().push_back( aSubfolder );
       }
 
