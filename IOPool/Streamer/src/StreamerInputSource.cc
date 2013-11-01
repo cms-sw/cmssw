@@ -39,10 +39,6 @@ namespace edm {
     int const init_size = 1024*1024;
   }
 
-  std::string StreamerInputSource::processName_;
-  unsigned int StreamerInputSource::protocolVersion_;
-
-
   StreamerInputSource::StreamerInputSource(
                     ParameterSet const& pset,
                     InputSourceDescription const& desc):
@@ -52,7 +48,9 @@ namespace edm {
     xbuf_(TBuffer::kRead, init_size),
     sendEvent_(),
     eventPrincipalHolder_(),
-    adjustEventToNewProductRegistry_(false) {
+    adjustEventToNewProductRegistry_(false),
+    processName_(),
+    protocolVersion_(0U) {
   }
 
   StreamerInputSource::~StreamerInputSource() {}
@@ -237,14 +235,14 @@ namespace edm {
     sendEvent_ = std::unique_ptr<SendEvent>((SendEvent*)xbuf_.ReadObjectAny(tc_));
     setRefCoreStreamer();
 
-    if(sendEvent_.get()==0) {
+    if(sendEvent_.get() == nullptr) {
         throw cms::Exception("StreamTranslation","Event deserialization error")
           << "got a null event from input stream\n";
     }
     processHistoryRegistryUpdate().registerProcessHistory(sendEvent_->processHistory());
 
     FDEBUG(5) << "Got event: " << sendEvent_->aux().id() << " " << sendEvent_->products().size() << std::endl;
-    if(runAuxiliary().get() == 0 || runAuxiliary()->run() != sendEvent_->aux().run()) {
+    if(runAuxiliary().get() == nullptr || runAuxiliary()->run() != sendEvent_->aux().run()) {
       RunAuxiliary* runAuxiliary = new RunAuxiliary(sendEvent_->aux().run(), sendEvent_->aux().time(), Timestamp::invalidTimestamp());
       runAuxiliary->setProcessHistoryID(sendEvent_->processHistory().id());
       setRunAuxiliary(runAuxiliary);
@@ -278,7 +276,7 @@ namespace edm {
     SendProds& sps = sendEvent_->products();
     for(auto& spitem : sps) {
         FDEBUG(10) << "check prodpair" << std::endl;
-        if(spitem.desc() == 0)
+        if(spitem.desc() == nullptr)
           throw cms::Exception("StreamTranslation","Empty Provenance");
         FDEBUG(5) << "Prov:"
              << " " << spitem.desc()->className()
@@ -290,7 +288,7 @@ namespace edm {
         // This ProductProvenance constructor inserts into the entry description registry
         ProductProvenance productProvenance(spitem.branchID(), *spitem.parents());
 
-        if(spitem.prod() != 0) {
+        if(spitem.prod() != nullptr) {
           FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
           eventPrincipal.putOnRead(branchDesc, spitem.prod(), productProvenance);
           FDEBUG(10) << "addproduct done" << std::endl;

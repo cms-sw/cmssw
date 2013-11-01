@@ -19,8 +19,6 @@
 #include <unistd.h>
 #include "zlib.h"
 
-static SerializeDataBuffer serialize_databuffer;
-
 namespace {
   //A utility function that packs bits from source into bytes, with
   // packInOneByte as the numeber of bytes that are packed from source to dest.
@@ -61,6 +59,7 @@ namespace edm {
     compressionLevel_(ps.getUntrackedParameter<int>("compression_level")),
     lumiSectionInterval_(ps.getUntrackedParameter<int>("lumiSection_interval")),
     serializer_(selections_),
+    serializeDataBuffer_(),
     hltsize_(0),
     lumi_(0),
     l1bit_(0),
@@ -89,7 +88,7 @@ namespace edm {
         compressionLevel_ = 9;
       }
     }
-    serialize_databuffer.bufs_.resize(maxEventSize_);
+    serializeDataBuffer_.bufs_.resize(maxEventSize_);
     int got_host = gethostname(host_name_, 255);
     if(got_host != 0) strncpy(host_name_, "noHostNameFoundOrTooLong", sizeof(host_name_));
     //loadExtraClasses();
@@ -138,13 +137,13 @@ namespace edm {
   std::auto_ptr<InitMsgBuilder>
   StreamerOutputModuleBase::serializeRegistry() {
 
-    serializer_.serializeRegistry(serialize_databuffer, *branchIDLists());
+    serializer_.serializeRegistry(serializeDataBuffer_, *branchIDLists());
 
     // resize bufs_ to reflect space used in serializer_ + header
     // I just added an overhead for header of 50000 for now
-    unsigned int src_size = serialize_databuffer.currentSpaceUsed();
+    unsigned int src_size = serializeDataBuffer_.currentSpaceUsed();
     unsigned int new_size = src_size + 50000;
-    if(serialize_databuffer.header_buf_.size() < new_size) serialize_databuffer.header_buf_.resize(new_size);
+    if(serializeDataBuffer_.header_buf_.size() < new_size) serializeDataBuffer_.header_buf_.resize(new_size);
 
     //Build the INIT Message
     //Following values are strictly DUMMY and will be replaced
@@ -180,15 +179,15 @@ namespace edm {
     outputModuleId_ = static_cast<uint32>(crc);
 
     std::auto_ptr<InitMsgBuilder> init_message(
-        new InitMsgBuilder(&serialize_databuffer.header_buf_[0], serialize_databuffer.header_buf_.size(),
+        new InitMsgBuilder(&serializeDataBuffer_.header_buf_[0], serializeDataBuffer_.header_buf_.size(),
                            run, Version((uint8 const*)toplevel.compactForm().c_str()),
                            getReleaseVersion().c_str() , processName.c_str(),
                            moduleLabel.c_str(), outputModuleId_,
                            hltTriggerNames, hltTriggerSelections_, l1_names,
-                           (uint32)serialize_databuffer.adler32_chksum(), host_name_));
+                           (uint32)serializeDataBuffer_.adler32_chksum(), host_name_));
 
     // copy data into the destination message
-    unsigned char* src = serialize_databuffer.bufferPointer();
+    unsigned char* src = serializeDataBuffer_.bufferPointer();
     std::copy(src, src + src_size, init_message->dataAddress());
     init_message->setDataLength(src_size);
     return init_message;
@@ -254,19 +253,19 @@ namespace edm {
       setLumiSection();
     }
 
-    serializer_.serializeEvent(e, selectorConfig(), useCompression_, compressionLevel_, serialize_databuffer, mcc);
+    serializer_.serializeEvent(e, selectorConfig(), useCompression_, compressionLevel_, serializeDataBuffer_, mcc);
 
     // resize bufs_ to reflect space used in serializer_ + header
     // I just added an overhead for header of 50000 for now
-    unsigned int src_size = serialize_databuffer.currentSpaceUsed();
+    unsigned int src_size = serializeDataBuffer_.currentSpaceUsed();
     unsigned int new_size = src_size + 50000;
-    if(serialize_databuffer.bufs_.size() < new_size) serialize_databuffer.bufs_.resize(new_size);
+    if(serializeDataBuffer_.bufs_.size() < new_size) serializeDataBuffer_.bufs_.resize(new_size);
 
     std::auto_ptr<EventMsgBuilder>
-      msg(new EventMsgBuilder(&serialize_databuffer.bufs_[0], serialize_databuffer.bufs_.size(), e.id().run(),
+      msg(new EventMsgBuilder(&serializeDataBuffer_.bufs_[0], serializeDataBuffer_.bufs_.size(), e.id().run(),
                               e.id().event(), lumi_, outputModuleId_, 0,
                               l1bit_, (uint8*)&hltbits_[0], hltsize_,
-                              (uint32)serialize_databuffer.adler32_chksum(), host_name_) );
+                              (uint32)serializeDataBuffer_.adler32_chksum(), host_name_) );
     msg->setOrigDataSize(origSize_); // we need this set to zero
 
     // copy data into the destination message
@@ -278,10 +277,10 @@ namespace edm {
     // size + overhead for header because we will not know the actual
     // compressed size.
 
-    unsigned char* src = serialize_databuffer.bufferPointer();
+    unsigned char* src = serializeDataBuffer_.bufferPointer();
     std::copy(src,src + src_size, msg->eventAddr());
     msg->setEventLength(src_size);
-    if(useCompression_) msg->setOrigDataSize(serialize_databuffer.currentEventSize());
+    if(useCompression_) msg->setOrigDataSize(serializeDataBuffer_.currentEventSize());
 
     l1bit_.clear();  //Clear up for the next event to come.
     return msg;
