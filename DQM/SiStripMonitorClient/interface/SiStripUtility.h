@@ -38,7 +38,7 @@ class SiStripUtility
  static void getSubDetectorTag(uint32_t det_id, std::string& subdet_tag, const TrackerTopology* tTopo);
  static void setBadModuleFlag(std::string & hname, uint16_t& flg);
  static void getBadModuleStatus(uint16_t flag, std::string& message);
- static void getTopFolderPath(DQMStore* dqm_store, std::string type, std::string& path);   
+ static void getTopFolderPath(DQMStore* dqm_store, std::string top_dir, std::string& path);   
 };
 
 #endif
