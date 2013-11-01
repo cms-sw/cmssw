@@ -10,4 +10,4 @@ operator<<(std::ostream& ost,const Sym& s)
   return ost;
 }
 
-int Sym::next_id_ = 1000000;
+std::atomic<int> Sym::next_id_{1000000};

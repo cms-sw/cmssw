@@ -92,7 +92,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 //		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 //		BR.emitReport(R);
 		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
- 		llvm::errs() <<  "function '"<<sdname << "' static variable '" << D->getNameAsString() << "'.\n\n";
+ 		llvm::errs() <<  "function '"<<sdname << "' static variable '" << support::getQualifiedName(*D) << "'.\n\n";
 		return;
 	}
 
@@ -105,7 +105,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 //		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 //		BR.emitReport(R);
 		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
- 		llvm::errs() <<  "function '"<<sdname << "' static variable '" << D->getNameAsString() << "'.\n\n";
+ 		llvm::errs() <<  "function '"<<sdname << "' static variable '" << support::getQualifiedName(*D) << "'.\n\n";
 	    return;
 	}
 
@@ -123,7 +123,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 //		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 //		BR.emitReport(R);
 		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
- 		llvm::errs() <<  "function '"<<sdname << "' static variable '" << D->getNameAsString() << "'.\n\n";
+ 		llvm::errs() <<  "function '"<<sdname << "' static variable '" << support::getQualifiedName(*D) << "'.\n\n";
 	    return;
 	
 	}
@@ -138,7 +138,7 @@ void FunctionChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr
                     BugReporter &BR) const {
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
-   	if (!support::isCmsLocalFile(sfile)) return;
+//   	if (!support::isCmsLocalFile(sfile)) return;
   
       	if (!MD->doesThisDeclarationHaveABody()) return;
 	FWalker walker(BR, mgr.getAnalysisDeclContext(MD));
@@ -150,7 +150,7 @@ void FunctionChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManag
                     BugReporter &BR) const {
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation ()).getFilename();
-   	if (!support::isCmsLocalFile(sfile)) return;
+//   	if (!support::isCmsLocalFile(sfile)) return;
   
 	for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
 			E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
