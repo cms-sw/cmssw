@@ -337,12 +337,14 @@ void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
    edm::InputTag seedProducer   = conf_.getParameter<edm::InputTag>("SeedProducer");
 
    if (doAllSeedPlots || doSeedNumberPlot){
+     dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
      histname = "NumberOfSeeds_"+ seedProducer.label() + "_"+ CategoryName;
      NumberOfSeeds = dqmStore_->book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
      NumberOfSeeds->setAxisTitle("Number of Seeds per Event", 1);
      NumberOfSeeds->setAxisTitle("Number of Events", 2);
      
      if ( doSeedLumiAnalysis_ ) {
+       dqmStore_->setCurrentFolder(MEFolderName+"/LSanalysis");
        histname = "NumberOfSeeds_lumiFlag_"+ seedProducer.label() + "_"+ CategoryName;
        NumberOfSeeds_lumiFlag = dqmStore_->book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
        NumberOfSeeds_lumiFlag->setAxisTitle("Number of Seeds per Event", 1);
@@ -352,7 +354,8 @@ void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
    }
 
    if (doAllSeedPlots || doSeedVsClusterPlot){
-  
+     dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
+
      ClusterLabels=  conf_.getParameter<std::vector<std::string> >("ClusterLabels");
   
      std::vector<double> histoMin,histoMax;
@@ -381,6 +384,7 @@ void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
   //    if (doAllPlots) doTkCandPlots=true;
   
   if (doTkCandPlots){
+    dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
     
     edm::InputTag tcProducer     = conf_.getParameter<edm::InputTag>("TCProducer");
     
