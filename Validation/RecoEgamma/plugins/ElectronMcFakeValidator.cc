@@ -1095,17 +1095,19 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
       // supercluster related distributions
       reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
       if (!bestGsfElectron.ecalDrivenSeed()&&bestGsfElectron.trackerDrivenSeed()) sclRef = bestGsfElectron.pflowSuperCluster();
-      h1_scl_En_->Fill(sclRef->energy());
-      double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
-      double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());
-      h1_scl_Et_->Fill(sclRef->energy()*(Rt/R));
-      h2_scl_EtVsEta_->Fill(sclRef->eta(),sclRef->energy()*(Rt/R));
-      h2_scl_EtVsPhi_->Fill(sclRef->phi(),sclRef->energy()*(Rt/R));
-      if (bestGsfElectron.classification() < 100)  h1_scl_EoEmatchingObject_barrel->Fill(sclRef->energy()/moIter->energy());
-      if (bestGsfElectron.classification() >= 100)  h1_scl_EoEmatchingObject_endcaps->Fill(sclRef->energy()/moIter->energy());
-      h1_scl_Eta_->Fill(sclRef->eta());
-      h2_scl_EtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
-      h1_scl_Phi_->Fill(sclRef->phi());
+      if( sclRef.isNonnull() ) {
+	h1_scl_En_->Fill(sclRef->energy());      
+	double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
+	double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());
+	h1_scl_Et_->Fill(sclRef->energy()*(Rt/R));
+	h2_scl_EtVsEta_->Fill(sclRef->eta(),sclRef->energy()*(Rt/R));
+	h2_scl_EtVsPhi_->Fill(sclRef->phi(),sclRef->energy()*(Rt/R));
+	if (bestGsfElectron.classification() < 100)  h1_scl_EoEmatchingObject_barrel->Fill(sclRef->energy()/moIter->energy());
+	if (bestGsfElectron.classification() >= 100)  h1_scl_EoEmatchingObject_endcaps->Fill(sclRef->energy()/moIter->energy());
+	h1_scl_Eta_->Fill(sclRef->eta());
+	h2_scl_EtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
+	h1_scl_Phi_->Fill(sclRef->phi());
+      }
       h1_scl_SigIEtaIEta_->Fill(bestGsfElectron.scSigmaIEtaIEta());
       if (bestGsfElectron.isEB()) h1_scl_SigIEtaIEta_barrel_->Fill(bestGsfElectron.scSigmaIEtaIEta());
       if (bestGsfElectron.isEE()) h1_scl_SigIEtaIEta_endcaps_->Fill(bestGsfElectron.scSigmaIEtaIEta());

@@ -348,7 +348,7 @@ buildSuperCluster(CalibClusterPtr& seed,
     posZ += energyweight * cluspos.Z();    
 
     energyweighttot += energyweight;
-    corrSCEnergy    += clus->energy();    
+    corrSCEnergy    += clus->energy();   
     corrPS1Energy   += ePS1;
     corrPS2Energy   += ePS2;
   }
