@@ -24,6 +24,8 @@ HcalRecHitsClient::HcalRecHitsClient(const edm::ParameterSet& iConfig):conf_(iCo
  
   debug_ = false;
   verbose_ = false;
+  // false for regular relval and true for SLHC relval
+  doslhc_  = false;
 
   dirName_=iConfig.getParameter<std::string>("DQMDirName");
   if(dbe_) dbe_->setCurrentFolder(dirName_);
@@ -116,39 +118,39 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
    MonitorElement* ZS_HB1=0, *ZS_seqHB1=0, *ZS_HB2=0, *ZS_seqHB2=0; 
    MonitorElement* ZS_HF1=0, *ZS_seqHF1=0, *ZS_HF2=0, *ZS_seqHF2=0; 
    MonitorElement* ZS_HE1=0, *ZS_seqHE1=0, *ZS_HE2=0, *ZS_seqHE2=0, *ZS_HE3=0, *ZS_seqHE3=0;
-   MonitorElement* map_depth1 =0, *map_depth2 =0, *map_depth3 =0, *map_depth4 =0;
+   MonitorElement* map_depth1 =0, *map_depth2 =0, *map_depth3 =0, *map_depth4 =0, *map_depth5 =0, *map_depth6 =0, *map_depth7 =0;
 // others 
    MonitorElement* Nhf=0;
-   MonitorElement* emap_depth1 =0, *emap_depth2 =0, *emap_depth3 =0, *emap_depth4 =0; 
-   MonitorElement* occupancy_seqHB1 =0, *occupancy_seqHB2 =0; 
-   MonitorElement* occupancy_seqHE1 =0, *occupancy_seqHE2 =0, *occupancy_seqHE3 =0;
+   MonitorElement* emap_depth1 =0, *emap_depth2 =0, *emap_depth3 =0, *emap_depth4 =0, *emap_depth5 =0, *emap_depth6 =0, *emap_depth7 =0; 
+   MonitorElement* occupancy_seqHB1 =0, *occupancy_seqHB2 =0, *occupancy_seqHB3 =0, *occupancy_seqHB4 =0, *occupancy_seqHB5 =0, *occupancy_seqHB6 =0, *occupancy_seqHB7 =0; 
+   MonitorElement* occupancy_seqHE1 =0, *occupancy_seqHE2 =0, *occupancy_seqHE3 =0, *occupancy_seqHE4 =0, *occupancy_seqHE5 =0, *occupancy_seqHE6 =0, *occupancy_seqHE7 =0;
    MonitorElement* occupancy_seqHF1 =0, *occupancy_seqHF2 =0; 
    MonitorElement* occupancy_seqHO =0;
-   MonitorElement* emean_seqHB1 =0, *emean_seqHB2 =0; 
-   MonitorElement* emean_seqHE1 =0, *emean_seqHE2 =0, *emean_seqHE3 =0;
+   MonitorElement* emean_seqHB1 =0, *emean_seqHB2 =0, *emean_seqHB3 =0, *emean_seqHB4 =0, *emean_seqHB5 =0, *emean_seqHB6 =0, *emean_seqHB7 =0; 
+   MonitorElement* emean_seqHE1 =0, *emean_seqHE2 =0, *emean_seqHE3 =0, *emean_seqHE4 =0, *emean_seqHE5 =0, *emean_seqHE6 =0, *emean_seqHE7 =0;
    MonitorElement* emean_seqHF1 =0, *emean_seqHF2 =0; 
    MonitorElement* emean_seqHO =0;
 
-   MonitorElement* RMS_seq_HB1 =0, *RMS_seq_HB2 =0; 
-   MonitorElement* RMS_seq_HE1 =0, *RMS_seq_HE2 =0, *RMS_seq_HE3 =0;
+   MonitorElement* RMS_seq_HB1 =0, *RMS_seq_HB2 =0, *RMS_seq_HB3 =0, *RMS_seq_HB4 =0, *RMS_seq_HB5 =0, *RMS_seq_HB6 =0, *RMS_seq_HB7 =0; 
+   MonitorElement* RMS_seq_HE1 =0, *RMS_seq_HE2 =0, *RMS_seq_HE3 =0, *RMS_seq_HE4 =0, *RMS_seq_HE5 =0, *RMS_seq_HE6 =0, *RMS_seq_HE7 =0;
    MonitorElement* RMS_seq_HF1 =0, *RMS_seq_HF2 =0; 
    MonitorElement* RMS_seq_HO =0;
 
    MonitorElement *occupancy_map_HO =0;
-   MonitorElement* occupancy_map_HB1 =0, *occupancy_map_HB2 =0;
+   MonitorElement* occupancy_map_HB1 =0, *occupancy_map_HB2 =0, *occupancy_map_HB3 =0, *occupancy_map_HB4 =0, *occupancy_map_HB5 =0, *occupancy_map_HB6 =0, *occupancy_map_HB7 =0;
    MonitorElement* occupancy_map_HF1 =0, *occupancy_map_HF2 =0;
-   MonitorElement* occupancy_map_HE1 =0, *occupancy_map_HE2 =0, *occupancy_map_HE3 =0;
+   MonitorElement* occupancy_map_HE1 =0, *occupancy_map_HE2 =0, *occupancy_map_HE3 =0, *occupancy_map_HE4 =0, *occupancy_map_HE5 =0, *occupancy_map_HE6 =0, *occupancy_map_HE7 =0;
 
-   MonitorElement* emean_vs_ieta_HB1 =0, *emean_vs_ieta_HB2 =0; 
-   MonitorElement* emean_vs_ieta_HE1 =0, *emean_vs_ieta_HE2 =0/*, *emean_vs_ieta_HE3 =0*/;
+   MonitorElement* emean_vs_ieta_HB1 =0, *emean_vs_ieta_HB2 =0, *emean_vs_ieta_HB3 =0, *emean_vs_ieta_HB4 =0, *emean_vs_ieta_HB5 =0, *emean_vs_ieta_HB6 =0, *emean_vs_ieta_HB7 =0; 
+   MonitorElement* emean_vs_ieta_HE1 =0, *emean_vs_ieta_HE2 =0, *emean_vs_ieta_HE3 =0, *emean_vs_ieta_HE4 =0, *emean_vs_ieta_HE5 =0, *emean_vs_ieta_HE6 =0, *emean_vs_ieta_HE7 =0;
    //MonitorElement* emean_vs_ieta_HF1 =0, *emean_vs_ieta_HF2 =0; 
    //MonitorElement* emean_vs_ieta_HO =0;
-   MonitorElement* RMS_vs_ieta_HB1 =0, *RMS_vs_ieta_HB2 =0; 
-   MonitorElement* RMS_vs_ieta_HE1 =0, *RMS_vs_ieta_HE2 =0, *RMS_vs_ieta_HE3 =0;
+   MonitorElement* RMS_vs_ieta_HB1 =0, *RMS_vs_ieta_HB2 =0, *RMS_vs_ieta_HB3 =0, *RMS_vs_ieta_HB4 =0, *RMS_vs_ieta_HB5 =0, *RMS_vs_ieta_HB6 =0, *RMS_vs_ieta_HB7 =0; 
+   MonitorElement* RMS_vs_ieta_HE1 =0, *RMS_vs_ieta_HE2 =0, *RMS_vs_ieta_HE3 =0, *RMS_vs_ieta_HE4 =0, *RMS_vs_ieta_HE5 =0, *RMS_vs_ieta_HE6 =0, *RMS_vs_ieta_HE7 =0;
    MonitorElement* RMS_vs_ieta_HF1 =0, *RMS_vs_ieta_HF2 =0; 
    MonitorElement* RMS_vs_ieta_HO =0;
-   MonitorElement* occupancy_vs_ieta_HB1 =0, *occupancy_vs_ieta_HB2 =0; 
-   MonitorElement* occupancy_vs_ieta_HE1 =0, *occupancy_vs_ieta_HE2 =0, *occupancy_vs_ieta_HE3 =0;
+   MonitorElement* occupancy_vs_ieta_HB1 =0, *occupancy_vs_ieta_HB2 =0, *occupancy_vs_ieta_HB3 =0, *occupancy_vs_ieta_HB4 =0, *occupancy_vs_ieta_HB5 =0, *occupancy_vs_ieta_HB6 =0, *occupancy_vs_ieta_HB7 =0; 
+   MonitorElement* occupancy_vs_ieta_HE1 =0, *occupancy_vs_ieta_HE2 =0, *occupancy_vs_ieta_HE3 =0, *occupancy_vs_ieta_HE4 =0, *occupancy_vs_ieta_HE5 =0, *occupancy_vs_ieta_HE6 =0, *occupancy_vs_ieta_HE7 =0;
    MonitorElement* occupancy_vs_ieta_HF1 =0, *occupancy_vs_ieta_HF2 =0; 
    MonitorElement* occupancy_vs_ieta_HO =0;
 
@@ -189,60 +191,137 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth2") ==0  ){ emap_depth2= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth3") ==0  ){ emap_depth3= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth4") ==0  ){ emap_depth4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth5") ==0  ){ emap_depth5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth6") ==0  ){ emap_depth6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emap_depth7") ==0  ){ emap_depth7= hcalMEs[ih]; }
+
 
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HB1") ==0  ){ occupancy_seqHB1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HB2") ==0  ){ occupancy_seqHB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HB3") ==0  ){ occupancy_seqHB3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HB4") ==0  ){ occupancy_seqHB4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HB5") ==0  ){ occupancy_seqHB5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HB6") ==0  ){ occupancy_seqHB6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HB7") ==0  ){ occupancy_seqHB7= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE1") ==0  ){ occupancy_seqHE1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE2") ==0  ){ occupancy_seqHE2= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE3") ==0  ){ occupancy_seqHE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE4") ==0  ){ occupancy_seqHE4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE5") ==0  ){ occupancy_seqHE5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE6") ==0  ){ occupancy_seqHE6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HE7") ==0  ){ occupancy_seqHE7= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HF1") ==0  ){ occupancy_seqHF1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HF2") ==0  ){ occupancy_seqHF2= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occ_sequential1D_HO") ==0  ){ occupancy_seqHO= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HB1") ==0  ){ emean_seqHB1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HB2") ==0  ){ emean_seqHB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HB3") ==0  ){ emean_seqHB3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HB4") ==0  ){ emean_seqHB4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HB5") ==0  ){ emean_seqHB5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HB6") ==0  ){ emean_seqHB6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HB7") ==0  ){ emean_seqHB7= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HE1") ==0  ){ emean_seqHE1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HE2") ==0  ){ emean_seqHE2= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HE3") ==0  ){ emean_seqHE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HE4") ==0  ){ emean_seqHE4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HE5") ==0  ){ emean_seqHE5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HE6") ==0  ){ emean_seqHE6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HE7") ==0  ){ emean_seqHE7= hcalMEs[ih]; }
+
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HF1") ==0  ){ emean_seqHF1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HF2") ==0  ){ emean_seqHF2= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_seq_HO") ==0  ){ emean_seqHO= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HB1") ==0  ){ RMS_seq_HB1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HB2") ==0  ){ RMS_seq_HB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HB3") ==0  ){ RMS_seq_HB3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HB4") ==0  ){ RMS_seq_HB4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HB5") ==0  ){ RMS_seq_HB5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HB6") ==0  ){ RMS_seq_HB6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HB7") ==0  ){ RMS_seq_HB7= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HE1") ==0  ){ RMS_seq_HE1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HE2") ==0  ){ RMS_seq_HE2= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HE3") ==0  ){ RMS_seq_HE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HE4") ==0  ){ RMS_seq_HE4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HE5") ==0  ){ RMS_seq_HE5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HE6") ==0  ){ RMS_seq_HE6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HE7") ==0  ){ RMS_seq_HE7= hcalMEs[ih]; }
+
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HF1") ==0  ){ RMS_seq_HF1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HF2") ==0  ){ RMS_seq_HF2= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_seq_HO") ==0  ){ RMS_seq_HO= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HB1") ==0  ){ occupancy_map_HB1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HB2") ==0  ){ occupancy_map_HB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HB3") ==0  ){ occupancy_map_HB3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HB4") ==0  ){ occupancy_map_HB4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HB5") ==0  ){ occupancy_map_HB5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HB6") ==0  ){ occupancy_map_HB6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HB7") ==0  ){ occupancy_map_HB7= hcalMEs[ih]; }
+
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HE1") ==0  ){ occupancy_map_HE1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HE2") ==0  ){ occupancy_map_HE2= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HE3") ==0  ){ occupancy_map_HE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HE4") ==0  ){ occupancy_map_HE4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HE5") ==0  ){ occupancy_map_HE5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HE6") ==0  ){ occupancy_map_HE6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HE7") ==0  ){ occupancy_map_HE7= hcalMEs[ih]; }
+
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HF1") ==0  ){ occupancy_map_HF1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HF2") ==0  ){ occupancy_map_HF2= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_map_HO") ==0  ){ occupancy_map_HO= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HB1") ==0  ){ emean_vs_ieta_HB1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HB2") ==0  ){ emean_vs_ieta_HB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HB3") ==0  ){ emean_vs_ieta_HB3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HB4") ==0  ){ emean_vs_ieta_HB4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HB5") ==0  ){ emean_vs_ieta_HB5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HB6") ==0  ){ emean_vs_ieta_HB6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HB7") ==0  ){ emean_vs_ieta_HB7= hcalMEs[ih]; }      
+
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE1") ==0  ){ emean_vs_ieta_HE1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE2") ==0  ){ emean_vs_ieta_HE2= hcalMEs[ih]; }
-      //else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE3") ==0  ){ emean_vs_ieta_HE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE3") ==0  ){ emean_vs_ieta_HE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE4") ==0  ){ emean_vs_ieta_HE4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE5") ==0  ){ emean_vs_ieta_HE5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE6") ==0  ){ emean_vs_ieta_HE6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HE7") ==0  ){ emean_vs_ieta_HE7= hcalMEs[ih]; }     
+
       //else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HF1") ==0  ){ emean_vs_ieta_HF1= hcalMEs[ih]; }
       //else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HF2") ==0  ){ emean_vs_ieta_HF2= hcalMEs[ih]; }
       //else if( strcmp(hcalMEs[ih]->getName().c_str(), "emean_vs_ieta_HO") ==0  ){ emean_vs_ieta_HO= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HB1") ==0  ){ RMS_vs_ieta_HB1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HB2") ==0  ){ RMS_vs_ieta_HB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HB3") ==0  ){ RMS_vs_ieta_HB3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HB4") ==0  ){ RMS_vs_ieta_HB4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HB5") ==0  ){ RMS_vs_ieta_HB5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HB6") ==0  ){ RMS_vs_ieta_HB6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HB7") ==0  ){ RMS_vs_ieta_HB7= hcalMEs[ih]; }
+
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HE1") ==0  ){ RMS_vs_ieta_HE1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HE2") ==0  ){ RMS_vs_ieta_HE2= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HE3") ==0  ){ RMS_vs_ieta_HE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HE4") ==0  ){ RMS_vs_ieta_HE4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HE5") ==0  ){ RMS_vs_ieta_HE5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HE6") ==0  ){ RMS_vs_ieta_HE6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HE7") ==0  ){ RMS_vs_ieta_HE7= hcalMEs[ih]; }
+
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HF1") ==0  ){ RMS_vs_ieta_HF1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HF2") ==0  ){ RMS_vs_ieta_HF2= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "RMS_vs_ieta_HO") ==0  ){ RMS_vs_ieta_HO= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HB1") ==0  ){ occupancy_vs_ieta_HB1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HB2") ==0  ){ occupancy_vs_ieta_HB2= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HB3") ==0  ){ occupancy_vs_ieta_HB3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HB4") ==0  ){ occupancy_vs_ieta_HB4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HB5") ==0  ){ occupancy_vs_ieta_HB5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HB6") ==0  ){ occupancy_vs_ieta_HB6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HB7") ==0  ){ occupancy_vs_ieta_HB7= hcalMEs[ih]; }
+
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HE1") ==0  ){ occupancy_vs_ieta_HE1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HE2") ==0  ){ occupancy_vs_ieta_HE2= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HE3") ==0  ){ occupancy_vs_ieta_HE3= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HE4") ==0  ){ occupancy_vs_ieta_HE4= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HE5") ==0  ){ occupancy_vs_ieta_HE5= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HE6") ==0  ){ occupancy_vs_ieta_HE6= hcalMEs[ih]; }
+      else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HE7") ==0  ){ occupancy_vs_ieta_HE7= hcalMEs[ih]; }
+
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HF1") ==0  ){ occupancy_vs_ieta_HF1= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HF2") ==0  ){ occupancy_vs_ieta_HF2= hcalMEs[ih]; }
       else if( strcmp(hcalMEs[ih]->getName().c_str(), "occupancy_vs_ieta_HO") ==0  ){ occupancy_vs_ieta_HO= hcalMEs[ih]; }
@@ -324,8 +403,12 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 	        ZS_HF2->Fill(e);
 	        ZS_seqHF2->Fill(double(index),e);
 	     }
+
+          
+            unsigned int n_depth = 4;
+            if (doslhc_){n_depth = 7;}
 	
-	     for (unsigned int i3 = 0;  i3 < 4;  i3++) {  // depth
+	     for (unsigned int i3 = 0;  i3 < n_depth;  i3++) {  // depth
 	        double emin = 100000.;
 	        for (unsigned int i4 = 0;  i4 < 4;  i4++) {  // subdet
 	           /*
@@ -352,6 +435,15 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 	           map_depth3->Fill(double(ieta),double(i2),emin);
                 if( i3 == 3 && emin < 10000.) 
 	           map_depth4->Fill(double(ieta),double(i2),emin);
+               if (doslhc_){ 
+                  if( i3 == 4 && emin < 10000.)
+                     map_depth5->Fill(double(ieta),double(i2),emin);
+                  if( i3 == 5 && emin < 10000.)
+                     map_depth6->Fill(double(ieta),double(i2),emin);
+                  if( i3 == 6 && emin < 10000.)
+                    map_depth7->Fill(double(ieta),double(i2),emin);
+                }
+
 	    }
          }
       } 
@@ -369,7 +461,7 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
       float fev = float (nevtot);
       //    std::cout << "*** nevtot " <<  nevtot << std::endl; 
 
-      float sumphi_hb1, sumphi_hb2, sumphi_he1, sumphi_he2, sumphi_he3,
+      float sumphi_hb1, sumphi_hb2, sumphi_hb3, sumphi_hb4, sumphi_hb5, sumphi_hb6, sumphi_hb7, sumphi_he1, sumphi_he2, sumphi_he3, sumphi_he4, sumphi_he5, sumphi_he6, sumphi_he7,
             sumphi_ho, sumphi_hf1, sumphi_hf2;
       /*
       if(nx != 82 || ny != 72) 
@@ -390,6 +482,15 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
             emap_depth3->setBinContent(i,j,cnorm);
 	    cnorm = emap_depth4->getBinContent(i,j) / fev;
             emap_depth4->setBinContent(i,j,cnorm);
+ 
+            if (doslhc_){
+               cnorm = emap_depth5->getBinContent(i,j) / fev;
+               emap_depth5->setBinContent(i,j,cnorm);
+               cnorm = emap_depth6->getBinContent(i,j) / fev;
+               emap_depth6->setBinContent(i,j,cnorm);
+               cnorm = emap_depth7->getBinContent(i,j) / fev;
+               emap_depth7->setBinContent(i,j,cnorm);
+         }
 	}
       }
 
@@ -397,9 +498,18 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
       for (int i = 1; i <= nx; i++) {
          sumphi_hb1 = 0.;
          sumphi_hb2 = 0.;
+         sumphi_hb3 = 0.;
+         sumphi_hb4 = 0.;
+         sumphi_hb5 = 0.;
+         sumphi_hb6 = 0.;
+         sumphi_hb7 = 0.;
          sumphi_he1 = 0.;
          sumphi_he2 = 0.;
          sumphi_he3 = 0.;
+         sumphi_he4 = 0.;
+         sumphi_he5 = 0.;
+         sumphi_he6 = 0.;
+         sumphi_he7 = 0.;
          sumphi_ho  = 0.; 
          sumphi_hf1 = 0.;
          sumphi_hf2 = 0.;
@@ -414,16 +524,40 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 	
 	    cnorm = occupancy_map_HB2->getBinContent(i,j) / fev;   
 	    occupancy_map_HB2->setBinContent(i,j,cnorm);
+
+            if (doslhc_){
+               cnorm = occupancy_map_HB3->getBinContent(i,j) / fev;
+               occupancy_map_HB3->setBinContent(i,j,cnorm);
+               cnorm = occupancy_map_HB4->getBinContent(i,j) / fev;
+               occupancy_map_HB4->setBinContent(i,j,cnorm);
+               cnorm = occupancy_map_HB5->getBinContent(i,j) / fev;
+               occupancy_map_HB5->setBinContent(i,j,cnorm);
+               cnorm = occupancy_map_HB6->getBinContent(i,j) / fev;
+               occupancy_map_HB6->setBinContent(i,j,cnorm);
+               cnorm = occupancy_map_HB7->getBinContent(i,j) / fev;
+               occupancy_map_HB7->setBinContent(i,j,cnorm);
+            }
 	
 	    cnorm = occupancy_map_HE1->getBinContent(i,j) / fev;   
 	    occupancy_map_HE1->setBinContent(i,j,cnorm);
 	
 	    cnorm = occupancy_map_HE2->getBinContent(i,j) / fev;   
 	    occupancy_map_HE2->setBinContent(i,j,cnorm);
+
+            cnorm = occupancy_map_HE3->getBinContent(i,j) / fev;
+            occupancy_map_HE3->setBinContent(i,j,cnorm);
 	
-	    cnorm = occupancy_map_HE3->getBinContent(i,j) / fev;   
-	    occupancy_map_HE3->setBinContent(i,j,cnorm);
-	
+            if (doslhc_){
+	       cnorm = occupancy_map_HE4->getBinContent(i,j) / fev;   
+	       occupancy_map_HE4->setBinContent(i,j,cnorm);
+               cnorm = occupancy_map_HE5->getBinContent(i,j) / fev;
+               occupancy_map_HE5->setBinContent(i,j,cnorm);
+               cnorm = occupancy_map_HE6->getBinContent(i,j) / fev;
+               occupancy_map_HE6->setBinContent(i,j,cnorm);
+               cnorm = occupancy_map_HE7->getBinContent(i,j) / fev;
+               occupancy_map_HE7->setBinContent(i,j,cnorm);
+            }
+
 	    cnorm = occupancy_map_HO->getBinContent(i,j) / fev;   
 	    occupancy_map_HO->setBinContent(i,j,cnorm);
 	
@@ -435,9 +569,26 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 
 	    sumphi_hb1 += occupancy_map_HB1->getBinContent(i,j);
 	    sumphi_hb2 += occupancy_map_HB2->getBinContent(i,j);
+           
+            if (doslhc_){
+               sumphi_hb3 += occupancy_map_HB3->getBinContent(i,j);
+               sumphi_hb4 += occupancy_map_HB4->getBinContent(i,j);
+               sumphi_hb5 += occupancy_map_HB5->getBinContent(i,j);
+               sumphi_hb6 += occupancy_map_HB6->getBinContent(i,j);
+               sumphi_hb7 += occupancy_map_HB7->getBinContent(i,j);
+            }
+
 	    sumphi_he1 += occupancy_map_HE1->getBinContent(i,j);
 	    sumphi_he2 += occupancy_map_HE2->getBinContent(i,j);
 	    sumphi_he3 += occupancy_map_HE3->getBinContent(i,j);
+      
+            if (doslhc_){
+               sumphi_he4 += occupancy_map_HE4->getBinContent(i,j);
+               sumphi_he5 += occupancy_map_HE5->getBinContent(i,j);
+               sumphi_he6 += occupancy_map_HE6->getBinContent(i,j);
+               sumphi_he7 += occupancy_map_HE7->getBinContent(i,j);
+            }
+
 	    sumphi_ho  += occupancy_map_HO->getBinContent(i,j);
 	    sumphi_hf1 += occupancy_map_HF1->getBinContent(i,j);
 	    sumphi_hf2 += occupancy_map_HF2->getBinContent(i,j);
@@ -446,9 +597,20 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
             if(useAllHistos){
               occupancy_seqHB1->Fill(double(index),cnorm);
 	      occupancy_seqHB2->Fill(double(index),cnorm);
+              occupancy_seqHB3->Fill(double(index),cnorm);
+              occupancy_seqHB4->Fill(double(index),cnorm);
+              occupancy_seqHB5->Fill(double(index),cnorm);
+              occupancy_seqHB6->Fill(double(index),cnorm);
+              occupancy_seqHB7->Fill(double(index),cnorm);
+     
 	      occupancy_seqHE1->Fill(double(index),cnorm);
 	      occupancy_seqHE2->Fill(double(index),cnorm);
 	      occupancy_seqHE3->Fill(double(index),cnorm);
+              occupancy_seqHE4->Fill(double(index),cnorm);
+              occupancy_seqHE5->Fill(double(index),cnorm);
+              occupancy_seqHE6->Fill(double(index),cnorm);
+              occupancy_seqHE7->Fill(double(index),cnorm);
+
 	      occupancy_seqHO->Fill(double(index),cnorm);
 	      occupancy_seqHF1->Fill(double(index),cnorm);
 	      occupancy_seqHF2->Fill(double(index),cnorm); 
@@ -478,12 +640,38 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
          occupancy_vs_ieta_HB1->Fill(float(ieta), cnorm);
          cnorm = sumphi_hb2 / phi_factor;
          occupancy_vs_ieta_HB2->Fill(float(ieta), cnorm);
+
+         if (doslhc_){
+            cnorm = sumphi_hb3 / phi_factor;
+            occupancy_vs_ieta_HB3->Fill(float(ieta), cnorm);
+            cnorm = sumphi_hb4 / phi_factor;
+            occupancy_vs_ieta_HB4->Fill(float(ieta), cnorm);
+            cnorm = sumphi_hb5 / phi_factor;
+            occupancy_vs_ieta_HB5->Fill(float(ieta), cnorm);
+            cnorm = sumphi_hb6 / phi_factor;
+            occupancy_vs_ieta_HB6->Fill(float(ieta), cnorm);
+            cnorm = sumphi_hb7 / phi_factor;
+            occupancy_vs_ieta_HB7->Fill(float(ieta), cnorm);
+         }
+
          cnorm = sumphi_he1 / phi_factor;
          occupancy_vs_ieta_HE1->Fill(float(ieta), cnorm);
          cnorm = sumphi_he2 / phi_factor;
          occupancy_vs_ieta_HE2->Fill(float(ieta), cnorm);
          cnorm = sumphi_he3 / phi_factor;
          occupancy_vs_ieta_HE3->Fill(float(ieta), cnorm);
+
+         if (doslhc_){
+            cnorm = sumphi_he4 / phi_factor;
+            occupancy_vs_ieta_HE4->Fill(float(ieta), cnorm);
+            cnorm = sumphi_he5 / phi_factor;
+            occupancy_vs_ieta_HE5->Fill(float(ieta), cnorm);
+            cnorm = sumphi_he6 / phi_factor;
+            occupancy_vs_ieta_HE6->Fill(float(ieta), cnorm);
+            cnorm = sumphi_he7 / phi_factor;
+            occupancy_vs_ieta_HE7->Fill(float(ieta), cnorm);
+         }
+
          cnorm = sumphi_ho / phi_factor;
          occupancy_vs_ieta_HO->Fill(float(ieta), cnorm);
          cnorm = sumphi_hf1 / phi_factor;
@@ -497,12 +685,35 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 	    RMS_vs_ieta_HB1->Fill(ieta,cnorm);
 	    cnorm = emean_vs_ieta_HB2->getBinError(i);
 	    RMS_vs_ieta_HB2->Fill(ieta,cnorm);
+
+            cnorm = emean_vs_ieta_HB3->getBinError(i);
+            RMS_vs_ieta_HB3->Fill(ieta,cnorm);
+            cnorm = emean_vs_ieta_HB4->getBinError(i);
+            RMS_vs_ieta_HB4->Fill(ieta,cnorm);
+            cnorm = emean_vs_ieta_HB5->getBinError(i);
+            RMS_vs_ieta_HB5->Fill(ieta,cnorm);
+            cnorm = emean_vs_ieta_HB6->getBinError(i);
+            RMS_vs_ieta_HB6->Fill(ieta,cnorm);
+            cnorm = emean_vs_ieta_HB7->getBinError(i);
+            RMS_vs_ieta_HB7->Fill(ieta,cnorm);
+
 	    cnorm = emean_vs_ieta_HE1->getBinError(i);
 	    RMS_vs_ieta_HE1->Fill(ieta,cnorm);
 	    cnorm = emean_vs_ieta_HE2->getBinError(i);
 	    RMS_vs_ieta_HE2->Fill(ieta,cnorm);
-	    cnorm = emean_vs_ieta_HE1->getBinError(i);
+	    cnorm = emean_vs_ieta_HE3->getBinError(i);
 	    RMS_vs_ieta_HE3->Fill(ieta,cnorm);
+
+            cnorm = emean_vs_ieta_HE4->getBinError(i);
+            RMS_vs_ieta_HE4->Fill(ieta,cnorm);
+            cnorm = emean_vs_ieta_HE5->getBinError(i);
+            RMS_vs_ieta_HE5->Fill(ieta,cnorm);
+            cnorm = emean_vs_ieta_HE6->getBinError(i);
+            RMS_vs_ieta_HE6->Fill(ieta,cnorm);
+            cnorm = emean_vs_ieta_HE7->getBinError(i);
+            RMS_vs_ieta_HE7->Fill(ieta,cnorm);
+
+
 	    cnorm = emean_vs_ieta_HB1->getBinError(i);
 	    RMS_vs_ieta_HO->Fill(ieta,cnorm);
 	    cnorm = emean_vs_ieta_HB1->getBinError(i);
@@ -521,6 +732,18 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 	    RMS_seq_HB1->setBinContent(ibin, cnorm);
 	    cnorm = emean_seqHB2->getBinError(ibin);
 	    RMS_seq_HB2->setBinContent(ibin, cnorm);
+            cnorm = emean_seqHB3->getBinError(ibin);
+            RMS_seq_HB3->setBinContent(ibin, cnorm);
+            cnorm = emean_seqHB4->getBinError(ibin);
+            RMS_seq_HB4->setBinContent(ibin, cnorm);
+            cnorm = emean_seqHB5->getBinError(ibin);
+            RMS_seq_HB5->setBinContent(ibin, cnorm);
+            cnorm = emean_seqHB6->getBinError(ibin);
+            RMS_seq_HB6->setBinContent(ibin, cnorm);
+            cnorm = emean_seqHB7->getBinError(ibin);
+            RMS_seq_HB7->setBinContent(ibin, cnorm);
+
+
 	    cnorm = emean_seqHO->getBinError(ibin);
 	    RMS_seq_HO->setBinContent(ibin, cnorm);
          }
@@ -532,6 +755,16 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 	    RMS_seq_HE2->setBinContent(ibin, cnorm);
 	    cnorm = emean_seqHE3->getBinError(ibin);
 	    RMS_seq_HE3->setBinContent(ibin, cnorm);
+            cnorm = emean_seqHE4->getBinError(ibin);
+            RMS_seq_HE4->setBinContent(ibin, cnorm);
+            cnorm = emean_seqHE5->getBinError(ibin);
+            RMS_seq_HE5->setBinContent(ibin, cnorm);
+            cnorm = emean_seqHE6->getBinError(ibin);
+            RMS_seq_HE6->setBinContent(ibin, cnorm);
+            cnorm = emean_seqHE7->getBinError(ibin);
+            RMS_seq_HE7->setBinContent(ibin, cnorm);
+
+
          }
          nx = emean_seqHF1->getNbinsX();    
          for(int ibin = 1; ibin <= nx; ibin++ ){

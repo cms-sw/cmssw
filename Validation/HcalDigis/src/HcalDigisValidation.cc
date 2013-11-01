@@ -30,6 +30,9 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
     mc_ = iConfig.getUntrackedParameter<std::string > ("mc", "no");
     mode_ = iConfig.getUntrackedParameter<std::string > ("mode", "multi");
     dirName_ = iConfig.getUntrackedParameter<std::string > ("dirName", "HcalDigisV/HcalDigiTask");
+ 
+    // false for regular rel val and true for SLHC rel val 
+    doSLHC_ = false;
 
     dbe_ = edm::Service<DQMStore > ().operator->();
     msm_ = new std::map<std::string, MonitorElement*>();
@@ -121,6 +124,16 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
         sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth4_%s", sub);
         book2D(histo, ietaLim, iphiLim);
 
+        if (doSLHC_){
+           sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth5_%s", sub);
+           book2D(histo, ietaLim, iphiLim);
+           sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth6_%s", sub);
+           book2D(histo, ietaLim, iphiLim);
+           sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth7_%s", sub);
+           book2D(histo, ietaLim, iphiLim);        
+        }
+
+
         // occupancies vs ieta
         sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth1_%s", sub);
         book1D(histo, ietaLim);
@@ -133,6 +146,15 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
 
         sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth4_%s", sub);
         book1D(histo, ietaLim);
+
+        if (doSLHC_){
+           sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth5_%s", sub);
+           book1D(histo, ietaLim);
+           sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth6_%s", sub);
+           book1D(histo, ietaLim);
+           sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth7_%s", sub);
+           book1D(histo, ietaLim);
+        }
 
 
         // maps of sum of amplitudes (sum lin.digis(4,5,6,7) - ped) all depths
@@ -162,6 +184,7 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
         sprintf(histo, "HcalDigiTask_ADC0_adc_depth4_%s", sub);
         book1D(histo, pedestal);
 
+
         sprintf(histo, "HcalDigiTask_ADC0_fC_depth1_%s", sub);
         book1D(histo, pedestalfC);
         sprintf(histo, "HcalDigiTask_ADC0_fC_depth2_%s", sub);
@@ -170,6 +193,7 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
         book1D(histo, pedestalfC);
         sprintf(histo, "HcalDigiTask_ADC0_fC_depth4_%s", sub);
         book1D(histo, pedestalfC);
+
 
         sprintf(histo, "HcalDigiTask_signal_amplitude_%s", sub);
         book1D(histo, digiAmp);
@@ -181,6 +205,15 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
         book1D(histo, digiAmp);
         sprintf(histo, "HcalDigiTask_signal_amplitude_depth4_%s", sub);
         book1D(histo, digiAmp);
+
+        if (doSLHC_){
+           sprintf(histo, "HcalDigiTask_signal_amplitude_depth5_%s", sub);
+           book1D(histo, digiAmp);
+           sprintf(histo, "HcalDigiTask_signal_amplitude_depth6_%s", sub);
+           book1D(histo, digiAmp);
+           sprintf(histo, "HcalDigiTask_signal_amplitude_depth7_%s", sub);
+           book1D(histo, digiAmp);
+        }
 
         sprintf(histo, "HcalDigiTask_signal_amplitude_vs_bin_all_depths_%s", sub);
         book2D(histo, nbin, digiAmp);
@@ -213,6 +246,7 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_depth4_%s", sub);
             book2D(histo, sime, digiAmp);
 
+
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_profile_%s", sub);
             bookPf(histo, sime, digiAmp);
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_profile_depth1_%s", sub);
@@ -224,6 +258,7 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
             sprintf(histo, "HcalDigiTask_amplitude_vs_simhits_profile_depth4_%s", sub);
             bookPf(histo, sime, digiAmp);
 
+
             sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_%s", sub);
             book1D(histo, ratio);
             sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_depth1_%s", sub);
@@ -234,6 +269,8 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
             book1D(histo, ratio);
             sprintf(histo, "HcalDigiTask_ratio_amplitude_vs_simhits_depth4_%s", sub);
             book1D(histo, ratio);
+
+
         }//mc only
 
     } else { // noise only
@@ -499,6 +536,9 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
     double ampl2_c = 0.;
     double ampl3_c = 0.;
     double ampl4_c = 0.;
+    double ampl5_c = 0.;
+    double ampl6_c = 0.;
+    double ampl7_c = 0.;
     double ampl_c = 0.;
 
     // is set to 1 if "seed" SimHit is found
@@ -576,7 +616,9 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
         double ampl2 = 0.;
         double ampl3 = 0.;
         double ampl4 = 0.;
-
+        double ampl5 = 0.;
+        double ampl6 = 0.;
+        double ampl7 = 0.;
 
         // Gains, pedestals (once !) and only for "noise" case
         if (((nevent1 == 1 && isubdet == 1) ||
@@ -665,6 +707,9 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
                     if (depth == 2) ampl2 += val;
                     if (depth == 3) ampl3 += val;
                     if (depth == 4) ampl4 += val;
+                    if (depth == 5) ampl5 += val;
+                    if (depth == 6) ampl6 += val;
+                    if (depth == 7) ampl7 += val;
 
                     if (closen == 1) {
                         ampl_c += val;
@@ -672,6 +717,9 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
                         if (depth == 2) ampl2_c += val;
                         if (depth == 3) ampl3_c += val;
                         if (depth == 4) ampl4_c += val;
+                        if (depth == 5) ampl5_c += val;
+                        if (depth == 6) ampl6_c += val;
+                        if (depth == 7) ampl7_c += val;
                     }
                 }
 
@@ -682,12 +730,18 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
                     if (depth == 2) ampl2 += val;
                     if (depth == 3) ampl3 += val;
                     if (depth == 4) ampl4 += val;
+                    if (depth == 5) ampl5 += val;
+                    if (depth == 6) ampl6 += val;
+                    if (depth == 7) ampl7 += val;
                     if (closen == 1) {
                         ampl_c += val;
                         if (depth == 1) ampl1_c += val;
                         if (depth == 2) ampl2_c += val;
                         if (depth == 3) ampl3_c += val;
                         if (depth == 4) ampl4_c += val;
+                        if (depth == 5) ampl5_c += val;
+                        if (depth == 6) ampl6_c += val;
+                        if (depth == 7) ampl7_c += val; 
 
                     }
                 }
@@ -847,7 +901,7 @@ void HcalDigisValidation::eval_occupancy() {
     float fev = float (nevtot);
         std::cout << "*** nevtot " <<  nevtot << std::endl;
 
-    float sumphi_1, sumphi_2, sumphi_3, sumphi_4;
+    float sumphi_1, sumphi_2, sumphi_3, sumphi_4, sumphi_5, sumphi_6, sumphi_7;
     float phi_factor;
 
     for (int i = 1; i <= nx; i++) {
@@ -855,6 +909,9 @@ void HcalDigisValidation::eval_occupancy() {
         sumphi_2 = 0.;
         sumphi_3 = 0.;
         sumphi_4 = 0.;
+        sumphi_5 = 0.;
+        sumphi_6 = 0.;
+        sumphi_7 = 0.;
 
         for (int j = 1; j <= ny; j++) {
 
@@ -879,6 +936,21 @@ void HcalDigisValidation::eval_occupancy() {
             cnorm = monitor(strtmp)->getBinContent(i, j) / fev;
             monitor(strtmp)->setBinContent(i, j, cnorm);
             sumphi_4 += monitor(strtmp)->getBinContent(i, j);
+
+            if (doSLHC_){
+               strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth5_" + subdet_;
+               cnorm = monitor(strtmp)->getBinContent(i, j) / fev;
+               monitor(strtmp)->setBinContent(i, j, cnorm);
+               sumphi_5 += monitor(strtmp)->getBinContent(i, j);
+               strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth6_" + subdet_;
+               cnorm = monitor(strtmp)->getBinContent(i, j) / fev;
+               monitor(strtmp)->setBinContent(i, j, cnorm);
+               sumphi_6 += monitor(strtmp)->getBinContent(i, j);
+               strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth7_" + subdet_;
+               cnorm = monitor(strtmp)->getBinContent(i, j) / fev;
+               monitor(strtmp)->setBinContent(i, j, cnorm);
+               sumphi_7 += monitor(strtmp)->getBinContent(i, j);
+            }
 
         }
 
@@ -914,6 +986,18 @@ void HcalDigisValidation::eval_occupancy() {
         cnorm = sumphi_4 / phi_factor;
         strtmp = "HcalDigiTask_occupancy_vs_ieta_depth4_" + subdet_;
         fill1D(strtmp, deta, cnorm);
+
+        if (doSLHC_){
+           cnorm = sumphi_5 / phi_factor;
+           strtmp = "HcalDigiTask_occupancy_vs_ieta_depth5_" + subdet_;
+           fill1D(strtmp, deta, cnorm);
+           cnorm = sumphi_6 / phi_factor;
+           strtmp = "HcalDigiTask_occupancy_vs_ieta_depth6_" + subdet_;
+           fill1D(strtmp, deta, cnorm);
+           cnorm = sumphi_7 / phi_factor;
+           strtmp = "HcalDigiTask_occupancy_vs_ieta_depth7_" + subdet_;
+           fill1D(strtmp, deta, cnorm);
+        }
 
     } // end of i-loop
 
