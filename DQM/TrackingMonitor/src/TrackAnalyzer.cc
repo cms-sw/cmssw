@@ -953,7 +953,7 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_)
     tkmes.NumberOfValidRecHitsPerTrackVsPhi->setAxisTitle("Track #phi",1);
     tkmes.NumberOfValidRecHitsPerTrackVsPhi->setAxisTitle("Number of valid RecHits in each Track",2);
     
-    std::cout << "[TrackAnalyzer::bookHistosForState] histTag: " << histTag << std::endl;
+    //    std::cout << "[TrackAnalyzer::bookHistosForState] histTag: " << histTag << std::endl;
     histname = "NumberOfValidRecHitsPerTrackVsEta_" + histTag;
     tkmes.NumberOfValidRecHitsPerTrackVsEta = dqmStore_->bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, RecHitMin, RecHitMax,"");
     tkmes.NumberOfValidRecHitsPerTrackVsEta->setAxisTitle("Track #eta",1);
