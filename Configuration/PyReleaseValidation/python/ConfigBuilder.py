@@ -67,6 +67,8 @@ defaultOptions.donotDropOnInput = ''
 defaultOptions.python_filename =''
 defaultOptions.io=None
 defaultOptions.lumiToProcess=None
+defaultOptions.runsAndWeightsForMC = None
+defaultOptions.runsScenarioForMC = None
 
 # some helper routines
 def dumpPython(process,name):
