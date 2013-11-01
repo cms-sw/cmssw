@@ -18,7 +18,7 @@ namespace edm {
   public:
     ~VectorInputSourceFactory();
 
-    static VectorInputSourceFactory* get();
+    static VectorInputSourceFactory const* get();
 
     std::unique_ptr<VectorInputSource>
       makeVectorInputSource(ParameterSet const&,
@@ -26,7 +26,7 @@ namespace edm {
 
   private:
     VectorInputSourceFactory();
-    static VectorInputSourceFactory singleInstance_;
+    static VectorInputSourceFactory const singleInstance_;
   };
 }
 #endif

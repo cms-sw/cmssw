@@ -2,13 +2,14 @@
 
 #include <memory>
 #include <cassert>
+#include <atomic>
 
 class simple
 {
   int i;
  public:
-  static int count;
-  static int count1;
+  static std::atomic<int> count;
+  static std::atomic<int> count1;
   simple() : i(0) { ++count; ++count1; }
   explicit simple(int j) : i(j) { ++count; ++count1; }
   simple(simple const& s) : i(s.i) { ++count; ++count1; }
@@ -22,8 +23,8 @@ class simple
   }
 };
 
-int simple::count = 0;
-int simple::count1 = 0;
+std::atomic<int> simple::count{0};
+std::atomic<int> simple::count1{0};
 
 
 int main()
@@ -35,7 +36,7 @@ int main()
     edm::atomic_value_ptr<simple> b(a);
     assert(simple::count == 2);
     
-    assert(*a==*b);
+    assert(*a == *b);
     assert(a->isSame(*b) == false);
   } // a and b destroyed
   assert(simple::count == 0);
@@ -43,13 +44,13 @@ int main()
   {
     std::auto_ptr<simple> c(new simple(11));
     std::auto_ptr<simple> d(new simple(11));
-    assert(c.get() != 0);
-    assert(d.get() != 0);
+    assert(c.get() != nullptr);
+    assert(d.get() != nullptr);
     simple* pc = c.get();
     simple* pd = d.get();
 
     edm::atomic_value_ptr<simple> e(c);
-    assert(c.get() == 0);
+    assert(c.get() == nullptr);
     assert(*d == *e);
     assert(e.operator->() == pc);
 
@@ -60,7 +61,7 @@ int main()
     else {
     }
     f = d;
-    assert(d.get() == 0);
+    assert(d.get() == nullptr);
     assert(*e == *f);
     assert(f.operator->() == pd);
     if (f) {
