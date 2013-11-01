@@ -107,6 +107,7 @@ class TrackingMonitor : public edm::EDAnalyzer
 
         // Track Seeds 
         MonitorElement * NumberOfSeeds;
+        MonitorElement * NumberOfSeeds_lumiFlag;
 	std::vector<MonitorElement *> SeedsVsClusters;
 	std::vector<std::string> ClusterLabels;
 	
@@ -145,6 +146,7 @@ class TrackingMonitor : public edm::EDAnalyzer
 	bool doHitPropertiesPlots_;
 	bool doTkCandPlots;
 	bool doSeedNumberPlot;
+	bool doSeedLumiAnalysis_;
 	bool doSeedVsClusterPlot;
 	bool runTrackBuildingAnalyzerForSeed;
 	// ADD by Mia in order to have GoodTrack plots only for collision

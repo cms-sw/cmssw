@@ -75,6 +75,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
                           
     #which seed plots to do
     doSeedNumberHisto = cms.bool(False),
+    doSeedLumiAnalysis = cms.bool(False),
     doSeedVsClusterHisto = cms.bool(False),
     doSeedPTHisto = cms.bool(False),
     doSeedETAHisto = cms.bool(False),

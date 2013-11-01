@@ -47,6 +47,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
 				//    , NumberOfGoodTracks(NULL)
     , FractionOfGoodTracks(NULL)
     , NumberOfSeeds(NULL)
+    , NumberOfSeeds_lumiFlag(NULL)
     , NumberOfTrackCandidates(NULL)
 				//    , NumberOfGoodTrkVsClus(NULL)
     , NumberOfTracksVsLS(NULL)
@@ -327,6 +328,7 @@ void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
 
    doAllSeedPlots      = conf_.getParameter<bool>("doSeedParameterHistos");
    doSeedNumberPlot    = conf_.getParameter<bool>("doSeedNumberHisto");
+   doSeedLumiAnalysis_ = conf_.getParameter<bool>("doSeedLumiAnalysis");
    doSeedVsClusterPlot = conf_.getParameter<bool>("doSeedVsClusterHisto");
    //    if (doAllPlots) doAllSeedPlots=true;
 
@@ -339,6 +341,14 @@ void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
      NumberOfSeeds = dqmStore_->book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
      NumberOfSeeds->setAxisTitle("Number of Seeds per Event", 1);
      NumberOfSeeds->setAxisTitle("Number of Events", 2);
+     
+     if ( doSeedLumiAnalysis_ ) {
+       histname = "NumberOfSeeds_lumiFlag_"+ seedProducer.label() + "_"+ CategoryName;
+       NumberOfSeeds_lumiFlag = dqmStore_->book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
+       NumberOfSeeds_lumiFlag->setAxisTitle("Number of Seeds per Event", 1);
+       NumberOfSeeds_lumiFlag->setAxisTitle("Number of Events", 2);
+     }
+
    }
 
    if (doAllSeedPlots || doSeedVsClusterPlot){
@@ -386,6 +396,11 @@ void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
   if (doLumiAnalysis) {
     if ( NumberOfTracks_lumiFlag ) NumberOfTracks_lumiFlag -> setLumiFlag();
     theTrackAnalyzer->setLumiFlag();    
+  }
+
+  if(doAllSeedPlots || doSeedNumberPlot){
+    if ( doSeedLumiAnalysis_ )
+      NumberOfSeeds_lumiFlag->setLumiFlag();
   }
   
   if (doTrackerSpecific_ || doAllPlots) {
@@ -440,6 +455,10 @@ void TrackingMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumi, con
   if (doLumiAnalysis) {
     if ( NumberOfTracks_lumiFlag ) NumberOfTracks_lumiFlag -> Reset();
     theTrackAnalyzer->doReset(dqmStore_);    
+  }
+  if(doAllSeedPlots || doSeedNumberPlot) {
+    if ( doSeedLumiAnalysis_ )
+      NumberOfSeeds_lumiFlag->Reset();
   }
 }
 
@@ -559,7 +578,11 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	// fill the seed info
 	if (seedHandle.isValid()) {
 	  
-	  if(doAllSeedPlots || doSeedNumberPlot) NumberOfSeeds->Fill(seedCollection.size());
+	  if(doAllSeedPlots || doSeedNumberPlot) {
+	    NumberOfSeeds->Fill(seedCollection.size());
+	    if ( doSeedLumiAnalysis_ )
+	      NumberOfSeeds_lumiFlag->Fill(seedCollection.size());	           
+	  }
 	  
 	  if(doAllSeedPlots || doSeedVsClusterPlot){
 	    

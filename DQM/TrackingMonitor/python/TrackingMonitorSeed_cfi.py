@@ -26,6 +26,7 @@ TrackMonSeed.doRecHitVsPhiVsEtaPerTrack = cms.bool(False)
 # plot on Seed (total number, pt, seed # vs cluster)
 #
 TrackMonSeed.doSeedNumberHisto    = cms.bool(True)
+TrackMonSeed.doSeedLumiAnalysis   = cms.bool(True)
 TrackMonSeed.doSeedVsClusterHisto = cms.bool(True)
 TrackMonSeed.doSeedPTHisto        = cms.bool(True)
 TrackMonSeed.doSeedETAHisto       = cms.bool(True)
