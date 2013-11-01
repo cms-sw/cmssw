@@ -4,6 +4,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTrackerBuilder.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -36,8 +37,15 @@ TrackerRecoGeometryESProducer::produce(const TrackerRecoGeometryRecord & iRecord
 
   edm::ESHandle<TrackerGeometry> tG;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( geoLabel, tG );
+
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  iRecord.getRecord<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+  std::cout << tTopo << " is tTopo\n"; 
+
+
   GeometricSearchTrackerBuilder builder;
-  _tracker  = boost::shared_ptr<GeometricSearchTracker>(builder.build( tG->trackerDet(), &(*tG) ));
+  _tracker  = boost::shared_ptr<GeometricSearchTracker>(builder.build( tG->trackerDet(), &(*tG), tTopo ));
   return _tracker;
 }
 

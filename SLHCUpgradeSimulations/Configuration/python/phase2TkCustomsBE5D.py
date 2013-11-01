@@ -127,7 +127,7 @@ def customise_Reco(process,pileup):
     del process.muonSeededStepExtra 
     del process.muonSeededStep
     del process.muonSeededStepDebug
-
+    
     # add the correct tracking back in
     process.load("RecoTracker.Configuration.RecoTrackerPhase2BE_cff")
 
