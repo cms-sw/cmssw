@@ -19,6 +19,8 @@
 
 #include "boost/thread/thread.hpp"
 
+#include <atomic>
+
 class testServiceRegistry: public CppUnit::TestFixture
 {
    CPPUNIT_TEST_SUITE(testServiceRegistry);
@@ -239,9 +241,9 @@ namespace {
          isUnique_ = (otherRegistry_ != &(edm::ServiceRegistry::instance()));
       }
       void* otherRegistry_;
-      static bool isUnique_;
+      static std::atomic<bool> isUnique_;
    };
-   bool UniqueRegistry::isUnique_ = false;
+   std::atomic<bool> UniqueRegistry::isUnique_{false};
 
    struct PassServices {
       PassServices(edm::ServiceToken iToken,

@@ -53,8 +53,8 @@ for key in gets:
 		callstack(get.strip())
 		stack.sort()
 		for item in  stack:
-#			func += item,
-			func += "\t"+item,
+			func += item,
+#			func += "\t"+item,
 	
 	if func not in funcs:
 		funcs.append(func)
@@ -66,9 +66,9 @@ funcs.sort()
 for func in funcs:
 #	print func
 	for field in func:
-		print field
-#		if topfunc.search(field):
-#			print func[0]+ " # "+ field
+#		print field
+		if topfunc.search(field):
+			print func[0]+ " # "+ field
 #			print field + " # "+ func[0]
 #			print field 
 		
