@@ -1,12 +1,4 @@
-
-/*
- *  FWTrackingParticleProxyBuilder.cc
- *  FWorks
- *
- *  Created by Ianna Osborne on 9/9/10.
- *
- */
-
+#include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -33,109 +25,103 @@
 #include "TEveTrackPropagator.h"
 
 
-class FWTrackingParticleProxyBuilderFF : public FWProxyBuilderBase
+class FWTrackingParticleProxyBuilderFF : public FWSimpleProxyBuilderTemplate<TrackingParticle>
 {
 public:
-
    FWTrackingParticleProxyBuilderFF( void ):m_assocList(0) {} 
    virtual ~FWTrackingParticleProxyBuilderFF( void ) {}
 
-   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-  
+   // virtual void setItem(const FWEventItem* iItem) override;
+
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
    FWTrackingParticleProxyBuilderFF( const FWTrackingParticleProxyBuilderFF& );
    const FWTrackingParticleProxyBuilderFF& operator=( const FWTrackingParticleProxyBuilderFF& );
+   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+  
+   void build( const TrackingParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 
-
+   edm::Handle<TrackingParticleCollection> tpch;
    const SimHitTPAssociationProducer::SimHitTPAssociationList* m_assocList;
 
-   void getAssocList();
+
 };
 
 //______________________________________________________________________________
 
-
-
-void
-FWTrackingParticleProxyBuilderFF::getAssocList()
-{
-   edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc; 
-   const edm::Event* event = (const edm::Event*)item()->getEvent();
-
-   // AMT todo: check if there is any other way getting the list other than this
-   //           ifnot, set proces name as a configurable parameter
-   try {
-      event->getByLabel("xxx", simHitsTPAssoc);
-   }
-   catch (const std::exception& e) {
-      std::cerr << " Can't get asociation list " << e.what() <<  std::endl;
-      return;
-   }   
-
-      m_assocList = &*simHitsTPAssoc;
-}
+/*
+  void FWTrackingParticleProxyBuilderFF::setItem(const FWEventItem* iItem)
+  {
+  printf("set item\n");
+  FWProxyBuilderBase::setItem(iItem);
+  }
+*/
 //______________________________________________________________________________
-
-
-void
-FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc)
+void FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
+   // setup event handles amd call function from parent class
+
    const edm::Event* event = (const edm::Event*)item()->getEvent();
-   if (item()->getEvent() == 0 ) {
+   if (event) {
       return;
    }
 
-   getAssocList();
-   if (!m_assocList) return;
-
-   gEve->GetBrowser()->MapWindow();
-   gEve->AddToListTree(context().getTrackPropagator(), true);
-
-   const FWGeometry *geom = item()->getGeom();
-   float local[3];
-   float localDir[3];
-   float global[3] = { 0.0, 0.0, 0.0 };
-   float globalDir[3] = { 0.0, 0.0, 0.0 };
-
-
-   context().getTrackPropagator()->SetRnrReferences(true);
-   edm::Handle<TrackingParticleCollection> tpch;
+   // get collection handle
    edm::InputTag coltag(item()->moduleLabel(), item()->productInstanceLabel(), item()->processName());
    event->getByLabel(coltag, tpch);
 
-   unsigned int tpIdx = 0;
-   for (TrackingParticleCollection::const_iterator it = tpch->begin(); it != tpch->end(); ++it, ++tpIdx) 
-   {
-      TEveCompound* comp = createCompound();
-      setupAddElement( comp, product );
-      if (iItem->modelInfo(tpIdx).displayProperties().isVisible() == false)
-      {
-         continue;
-      }
+   // AMT todo: check if there is any other way getting the list other than this
+   //           ifnot, set proces name as a configurable parameter
+   edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
+   try {
+      event->getByLabel("xxx", simHitsTPAssoc);
+      m_assocList = &*simHitsTPAssoc;
+   }
+   catch (const std::exception& e) {
+      std::cerr << " FWTrackingParticleProxyBuilderFF::setItem() Can't get hits association list " << e.what() <<  std::endl;
+   }  
 
-      const TrackingParticle& iData = *it;
-      TEveRecTrack t;
-      t.fBeta = 1.0;
-      t.fP = TEveVector( iData.px(), iData.py(), iData.pz() );
-      t.fV = TEveVector( iData.vx(), iData.vy(), iData.vz() );
-      t.fSign = iData.charge();
+   // debug propagator
+   gEve->GetBrowser()->MapWindow();
+   gEve->AddToListTree(context().getTrackPropagator(), true);
+   context().getTrackPropagator()->SetRnrReferences(true);
 
-      TEveTrack* track = new TEveTrack(&t, context().getTrackPropagator());
-      setupAddElement( track, comp );
+   FWSimpleProxyBuilder::build(iItem, product, 0);
+}
+//______________________________________________________________________________
+void
+FWTrackingParticleProxyBuilderFF::build( const TrackingParticle& iData, unsigned int tpIdx, TEveElement& comp, const FWViewContext* )
+{
+   TEveRecTrack t;
+   t.fBeta = 1.0;
+   t.fP = TEveVector( iData.px(), iData.py(), iData.pz() );
+   t.fV = TEveVector( iData.vx(), iData.vy(), iData.vz() );
+   t.fSign = iData.charge();
 
-      if( t.fSign == 0 )
-         track->SetLineStyle( 7 );
+   TEveTrack* track = new TEveTrack(&t, context().getTrackPropagator());   
+   if( t.fSign == 0 )
+      track->SetLineStyle( 7 );
 
+   track->MakeTrack();
+   setupAddElement( track, &comp );
+   // printf("add track %d \n", tpIdx);
+
+   
+   if (m_assocList) {
       TEvePointSet* pointSet = new TEvePointSet;
-      setupAddElement( pointSet, comp );
+      setupAddElement( pointSet, &comp );
 
+      const FWGeometry *geom = item()->getGeom();
+      float local[3];
+      float localDir[3];
+      float global[3] = { 0.0, 0.0, 0.0 };
+      float globalDir[3] = { 0.0, 0.0, 0.0 };
 
       TrackingParticleRef tpr(tpch, tpIdx);
       std::pair<TrackingParticleRef, TrackPSimHitRef> clusterTPpairWithDummyTP(tpr,TrackPSimHitRef());
       auto range = std::equal_range(m_assocList->begin(), m_assocList->end(), clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);      
-      printf("TrackingParticle[%d] P(%.1f, %.1f, %.1f) matches %d hits\n", tpIdx,iData.px(), iData.py(), iData.pz() ,(int)(range.second-range.first ));
+      // printf("TrackingParticle[%d] P(%.1f, %.1f, %.1f) matches %d hits\n", tpIdx,iData.px(), iData.py(), iData.pz() ,(int)(range.second-range.first ));
 
       std::vector<const PSimHit*> phits;
       for (auto ri = range.first; ri != range.second; ++ri)
@@ -165,11 +151,7 @@ FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementLis
                                            TEveVector( globalDir[0], globalDir[1], globalDir[2] )));
 
       }
-
-
-      track->MakeTrack();
    }
-
 }
 
-REGISTER_FWPROXYBUILDER( FWTrackingParticleProxyBuilderFF, TrackingParticleCollection, "TrackingParticlesFF", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER( FWTrackingParticleProxyBuilderFF, TrackingParticle, "TrackingParticlesFF", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
