@@ -51,6 +51,8 @@ namespace edm {
 
     StreamSerializer serializer_;
 
+    SerializeDataBuffer serializeDataBuffer_;
+
     //Event variables, made class memebers to avoid re instatiation for each event.
     unsigned int hltsize_;
     uint32 lumi_;

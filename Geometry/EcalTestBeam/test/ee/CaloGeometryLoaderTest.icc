@@ -1,30 +1,11 @@
 #ifndef GEOMETRY_ECALGEOMETRYLOADER_ICC
 #define GEOMETRY_ECALGEOMETRYLOADER_ICC 1
 
-#include "CondFormats/Alignment/interface/AlignTransform.h"
-
 #include "Geometry/EcalTestBeam/test/ee/CaloGeometryLoaderTest.h"
-
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-
-#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
-
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDNodes.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDScope.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDQuery.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Geometry/Plane3D.h"
@@ -46,10 +27,6 @@ CaloGeometryLoaderTest<T>::CaloGeometryLoaderTest()
 //				  "EESCEnv1",
 				  0                  ),
 			 DDSpecificsFilter::equals    ) ;
-//,
-//			 DDSpecificsFilter::AND,
-//			 true,
-//			 true                       ) ;
 }
 
 template <class T>
@@ -122,14 +99,14 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
    static const HepGeom::Point3D<double>  FLOOR ( 13533.35, -000.02, -152.23 ) ;//-152.23 ) ;
 
    static const HepGeom::Point3D<double>  IP    ( 0, 0, 0 ) ;//-152.23 ) ;
-   static HepGeom::Point3D<double>  AA0 ;
-   static HepGeom::Point3D<double>  BB0 ;
-   static HepGeom::Point3D<double>  CC0 ;
-   static HepGeom::Point3D<double>  DD0 ;
-   static HepGeom::Point3D<double>  EE0 ;
-   static HepGeom::Point3D<double>  FF0 ;
-   static HepGeom::Point3D<double>  GG0 ;
-   static HepGeom::Point3D<double>  HH0 ;
+   HepGeom::Point3D<double>  AA0 ;
+   HepGeom::Point3D<double>  BB0 ;
+   HepGeom::Point3D<double>  CC0 ;
+   HepGeom::Point3D<double>  DD0 ;
+   HepGeom::Point3D<double>  EE0 ;
+   HepGeom::Point3D<double>  FF0 ;
+   HepGeom::Point3D<double>  GG0 ;
+   HepGeom::Point3D<double>  HH0 ;
 
    std::vector<CCGFloat> pv ;
    pv.reserve( vv.size() ) ;
@@ -138,9 +115,6 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
       const double factor ( 1==i || 2==i || 6==i || 10==i ? 1 : k_ScaleFromDDDtoGeant ) ;
       pv.push_back( factor*vv[i] ) ;
    }
-
-//   CaloCellGeometry::CornersVec corners ( geom->cornersMgr() ) ;
-//   corners.resize() ;
 
    std::vector<GlobalPoint> corners ( 8 ) ;
 
@@ -245,56 +219,56 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 
       const double angle ( (C0-B0).angle( A0-B0 ) ) ;
 
-      static std::vector< HepGeom::Point3D<double>  > extra ;
-      extra.push_back( HepGeom::Point3D<double> (  13859.05,  005.79, -002.66 ) ) ;
-      extra.push_back( HepGeom::Point3D<double> (  13860.98, -038.39, -002.11 ) ) ;
-      extra.push_back( HepGeom::Point3D<double> (  13853.19, -039.25, -030.77 ) ) ;
-      extra.push_back( HepGeom::Point3D<double> (  13851.23,  004.99, -031.39 ) ) ;
+      static const std::vector< HepGeom::Point3D<double>  > extra = {
+		   HepGeom::Point3D<double> (  13859.05,  005.79, -002.66 ),
+		   HepGeom::Point3D<double> (  13860.98, -038.39, -002.11 ),
+		   HepGeom::Point3D<double> (  13853.19, -039.25, -030.77 ),
+		   HepGeom::Point3D<double> (  13851.23,  004.99, -031.39 ) } ;
 
 
 
-      static std::vector< HepGeom::Point3D<double>  > sur ;
-      sur.push_back( HepGeom::Point3D<double> ( 13862.30,  20.68, 11.60 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13865.69, -52.85, 12.64) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13851.53, -54.27, -44.75 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13848.21,  19.18, -45.89 ) ) ;
+      static const std::vector< HepGeom::Point3D<double>  > sur = {
+		   HepGeom::Point3D<double> ( 13862.30,  20.68, 11.60 ),
+		   HepGeom::Point3D<double> ( 13865.69, -52.85, 12.64 ),
+		   HepGeom::Point3D<double> ( 13851.53, -54.27, -44.75 ),
+		   HepGeom::Point3D<double> ( 13848.21,  19.18, -45.89 ),
 
-      sur.push_back( HepGeom::Point3D<double> ( 13861.72,   28.62,   11.61 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13866.88,  -44.81,   12.64 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13852.76,  -46.56,  -44.73 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13847.67,   26.79,  -45.88 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13856.82,   63.41,   11.60 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13869.76,   -9.06,   12.64 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13855.90,  -12.31,  -44.73 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13843.04,   60.08,  -45.89 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13860.86,  -36.96,   11.60 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13851.38, -109.96,   12.63 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13837.21, -108.89,  -44.73 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13846.73,  -35.98,  -45.88 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13854.03,  -76.21,   11.60 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13835.82, -147.53,   12.64 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13821.88, -144.76,  -44.73 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13840.13,  -73.54,  -45.88 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13861.10,   35.48,   09.88 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13867.78,  -37.82,   11.07 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13853.42,  -40.01,  -46.22 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13846.80,   33.21,  -47.52 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13860.68,   35.23,   19.89 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13867.35,  -38.08,   20.23 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13854.67,  -39.43,  -37.48 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13848.07,   33.79,  -37.92 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13859.95,   34.97,   29.87 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13866.62,  -38.34,   29.33 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13855.61,  -38.88,  -28.76 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13849.00,   34.34,  -28.32 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13858.93,   34.41,   39.81 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13865.65,  -38.90,   38.40 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13856.34,  -38.58,  -19.97 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13849.70,   34.65,  -18.68 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13857.67,   33.69,   49.76 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13864.43,  -39.60,   47.48 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13856.81,  -38.43,  -11.13 ) ) ;
-      sur.push_back( HepGeom::Point3D<double> ( 13850.14,   34.78,   -8.95 ) ) ;
+		   HepGeom::Point3D<double> ( 13861.72,   28.62,   11.61 ),
+		   HepGeom::Point3D<double> ( 13866.88,  -44.81,   12.64 ),
+		   HepGeom::Point3D<double> ( 13852.76,  -46.56,  -44.73 ),
+		   HepGeom::Point3D<double> ( 13847.67,   26.79,  -45.88 ),
+		   HepGeom::Point3D<double> ( 13856.82,   63.41,   11.60 ),
+		   HepGeom::Point3D<double> ( 13869.76,   -9.06,   12.64 ),
+		   HepGeom::Point3D<double> ( 13855.90,  -12.31,  -44.73 ),
+		   HepGeom::Point3D<double> ( 13843.04,   60.08,  -45.89 ),
+		   HepGeom::Point3D<double> ( 13860.86,  -36.96,   11.60 ),
+		   HepGeom::Point3D<double> ( 13851.38, -109.96,   12.63 ),
+		   HepGeom::Point3D<double> ( 13837.21, -108.89,  -44.73 ),
+		   HepGeom::Point3D<double> ( 13846.73,  -35.98,  -45.88 ),
+		   HepGeom::Point3D<double> ( 13854.03,  -76.21,   11.60 ),
+		   HepGeom::Point3D<double> ( 13835.82, -147.53,   12.64 ),
+      		   HepGeom::Point3D<double> ( 13821.88, -144.76,  -44.73 ),
+		   HepGeom::Point3D<double> ( 13840.13,  -73.54,  -45.88 ),
+		   HepGeom::Point3D<double> ( 13861.10,   35.48,   09.88 ),
+		   HepGeom::Point3D<double> ( 13867.78,  -37.82,   11.07 ),
+		   HepGeom::Point3D<double> ( 13853.42,  -40.01,  -46.22 ),
+		   HepGeom::Point3D<double> ( 13846.80,   33.21,  -47.52 ),
+		   HepGeom::Point3D<double> ( 13860.68,   35.23,   19.89 ),
+		   HepGeom::Point3D<double> ( 13867.35,  -38.08,   20.23 ),
+		   HepGeom::Point3D<double> ( 13854.67,  -39.43,  -37.48 ),
+		   HepGeom::Point3D<double> ( 13848.07,   33.79,  -37.92 ),
+		   HepGeom::Point3D<double> ( 13859.95,   34.97,   29.87 ),
+		   HepGeom::Point3D<double> ( 13866.62,  -38.34,   29.33 ),
+		   HepGeom::Point3D<double> ( 13855.61,  -38.88,  -28.76 ),
+		   HepGeom::Point3D<double> ( 13849.00,   34.34,  -28.32 ),
+		   HepGeom::Point3D<double> ( 13858.93,   34.41,   39.81 ),
+		   HepGeom::Point3D<double> ( 13865.65,  -38.90,   38.40 ),
+		   HepGeom::Point3D<double> ( 13856.34,  -38.58,  -19.97 ),
+		   HepGeom::Point3D<double> ( 13849.70,   34.65,  -18.68 ),
+		   HepGeom::Point3D<double> ( 13857.67,   33.69,   49.76 ),
+		   HepGeom::Point3D<double> ( 13864.43,  -39.60,   47.48 ),
+		   HepGeom::Point3D<double> ( 13856.81,  -38.43,  -11.13 ),
+		   HepGeom::Point3D<double> ( 13850.14,   34.78,   -8.95 ) } ;
       
       double fsumx  ( 0 ) ;
       double fsumy  ( 0 ) ;
