@@ -48,6 +48,11 @@ trackingOfflineAnalyser = cms.EDAnalyzer("TrackingOfflineDQM",
              LSname     = cms.string("GoodTrackNumberOfRecHitsPerTrack_lumiFlag_"),
              LSlowerCut = cms.double(  5.0 ),
              LSupperCut = cms.double( 20.0 )
+         ),
+         cms.PSet(
+             QT         = cms.string("Seed"),
+             dir        = cms.string("TrackParameters/generalTracks/LSanalysis"),
+             name       = cms.string("NumberOfSeeds_lumiFlag_"),
          )
     )
 )
