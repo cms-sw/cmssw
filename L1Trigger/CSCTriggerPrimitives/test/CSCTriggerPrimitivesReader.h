@@ -120,23 +120,23 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   static const int ptype_TMB07[CSCConstants::NUM_CLCT_PATTERNS];
 
   // LCT counters
-  static int numALCT;
-  static int numCLCT;
-  static int numLCTTMB;
-  static int numLCTMPC;
+  static std::atomic<int> numALCT;
+  static std::atomic<int> numCLCT;
+  static std::atomic<int> numLCTTMB;
+  static std::atomic<int> numLCTMPC;
 
-  static bool bookedHotWireHistos;
-  static bool bookedALCTHistos;
-  static bool bookedCLCTHistos;
-  static bool bookedLCTTMBHistos;
-  static bool bookedLCTMPCHistos;
+  static std::atomic<bool> bookedHotWireHistos;
+  static std::atomic<bool> bookedALCTHistos;
+  static std::atomic<bool> bookedCLCTHistos;
+  static std::atomic<bool> bookedLCTTMBHistos;
+  static std::atomic<bool> bookedLCTMPCHistos;
 
-  static bool bookedCompHistos;
+  static std::atomic<bool> bookedCompHistos;
 
-  static bool bookedResolHistos;
-  static bool bookedEfficHistos;
+  static std::atomic<bool> bookedResolHistos;
+  static std::atomic<bool> bookedEfficHistos;
 
-  static bool printps;
+  static std::atomic<bool> printps;
 
   void setRootStyle();
 
