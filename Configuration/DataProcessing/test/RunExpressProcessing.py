@@ -32,7 +32,7 @@ class RunExpressProcessing:
             msg = "No --scenario specified"
             raise RuntimeError, msg
         if self.globalTag == None:
-            msg = "No --globaltag specified"
+            msg = "No --global-tag specified"
             raise RuntimeError, msg
         if self.inputLFN == None:
             msg = "No --lfn specified"
