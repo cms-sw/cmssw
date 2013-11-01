@@ -37,7 +37,7 @@ namespace edm {
       loadPosMap(end_pos_,end_names_);
 
       const unsigned int n(trignames_.size());
-      for(unsigned int i=0;i!=n;++i) {
+      for(unsigned int i = 0; i != n; ++i) {
         modulenames_.push_back(pset.getParameter<Strings>(trignames_[i]));
       }
       for(unsigned int i = 0; i != end_names_.size(); ++i) {
@@ -52,15 +52,15 @@ namespace edm {
 
       // Get the parameter set containing the trigger names from the parameter set registry
       // using the ID from TriggerResults as the key used to find it.
-      ParameterSet const* pset=0;
-      pset::Registry* psetRegistry = pset::Registry::instance();
-      if (0 != (pset=psetRegistry->getMapped(triggerResults.parameterSetID()))) {
+      ParameterSet const* pset = nullptr;
+      pset::Registry const* psetRegistry = pset::Registry::instance();
+      if (nullptr != (pset = psetRegistry->getMapped(triggerResults.parameterSetID()))) {
 
         // Check to make sure the parameter set contains
         // a Strings parameter named "trigger_paths".
         // We do not want to throw an exception if it is not there
         // for reasons of backward compatibility
-        Strings const & psetNames = pset->getParameterNamesForType<Strings>();
+        Strings const& psetNames = pset->getParameterNamesForType<Strings>();
         std::string name("@trigger_paths");
 	if (search_all(psetNames, name)) {
           // It is there, get it

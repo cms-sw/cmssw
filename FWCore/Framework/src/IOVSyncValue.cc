@@ -90,7 +90,7 @@ IOVSyncValue::throwInvalidComparison() const {
 //
 const IOVSyncValue&
 IOVSyncValue::invalidIOVSyncValue() {
-   static IOVSyncValue s_invalid;
+   static const IOVSyncValue s_invalid;
    return s_invalid;
 }
 const IOVSyncValue&
