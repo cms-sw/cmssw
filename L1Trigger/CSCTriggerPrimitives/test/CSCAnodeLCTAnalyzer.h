@@ -50,11 +50,11 @@ class CSCAnodeLCTAnalyzer
   static void setNoDebug() {debug = false;}
 
  private:
-  static std::atomic<bool> debug;
-  static const bool isMTCCMask;
+  static bool debug;
+  static bool isMTCCMask;
 
   /** Flag to decide whether to analyze stubs in ME1/A or not. */
-  static const bool doME1A;
+  static bool doME1A;
 
   /* Cache geometry for current event. */
   const CSCGeometry* geom_;

@@ -23,9 +23,9 @@ using namespace std;
 // Static variables
 //-----------------
 
-std::atomic<bool> CSCCathodeLCTAnalyzer::debug{true};
-const bool CSCCathodeLCTAnalyzer::isTMB07 = true;
-const bool CSCCathodeLCTAnalyzer::doME1A = false;
+bool CSCCathodeLCTAnalyzer::debug = true;
+bool CSCCathodeLCTAnalyzer::isTMB07 = true;
+bool CSCCathodeLCTAnalyzer::doME1A = false;
 
 vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::getSimInfo(
       const CSCCLCTDigi& clct, const CSCDetId& clctId,

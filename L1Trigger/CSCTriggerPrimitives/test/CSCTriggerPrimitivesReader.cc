@@ -81,23 +81,23 @@ const int CSCTriggerPrimitivesReader::ptype_TMB07[CSCConstants::NUM_CLCT_PATTERN
   -999,  -5,  4, -4,  3, -3,  2, -2,  1, -1,  0}; // "signed" pattern (== phiBend)
 
 // LCT counters
-std::atomic<int> CSCTriggerPrimitivesReader::numALCT{0};
-std::atomic<int> CSCTriggerPrimitivesReader::numCLCT   {0};
-std::atomic<int> CSCTriggerPrimitivesReader::numLCTTMB {0};
-std::atomic<int> CSCTriggerPrimitivesReader::numLCTMPC {0};
+int  CSCTriggerPrimitivesReader::numALCT   = 0;
+int  CSCTriggerPrimitivesReader::numCLCT   = 0;
+int  CSCTriggerPrimitivesReader::numLCTTMB = 0;
+int  CSCTriggerPrimitivesReader::numLCTMPC = 0;
 
-std::atomic<bool> CSCTriggerPrimitivesReader::bookedHotWireHistos {false};
-std::atomic<bool> CSCTriggerPrimitivesReader::bookedALCTHistos    {false};
-std::atomic<bool> CSCTriggerPrimitivesReader::bookedCLCTHistos    {false};
-std::atomic<bool> CSCTriggerPrimitivesReader::bookedLCTTMBHistos  {false};
-std::atomic<bool> CSCTriggerPrimitivesReader::bookedLCTMPCHistos  {false};
+bool CSCTriggerPrimitivesReader::bookedHotWireHistos = false;
+bool CSCTriggerPrimitivesReader::bookedALCTHistos    = false;
+bool CSCTriggerPrimitivesReader::bookedCLCTHistos    = false;
+bool CSCTriggerPrimitivesReader::bookedLCTTMBHistos  = false;
+bool CSCTriggerPrimitivesReader::bookedLCTMPCHistos  = false;
 
-std::atomic<bool> CSCTriggerPrimitivesReader::bookedCompHistos    {false};
+bool CSCTriggerPrimitivesReader::bookedCompHistos    = false;
 
-std::atomic<bool> CSCTriggerPrimitivesReader::bookedResolHistos   {false};
-std::atomic<bool> CSCTriggerPrimitivesReader::bookedEfficHistos   {false};
+bool CSCTriggerPrimitivesReader::bookedResolHistos   = false;
+bool CSCTriggerPrimitivesReader::bookedEfficHistos   = false;
 
-std::atomic<bool> CSCTriggerPrimitivesReader::printps {false};
+bool CSCTriggerPrimitivesReader::printps = false;
 
 //----------------
 // Constructor  --
