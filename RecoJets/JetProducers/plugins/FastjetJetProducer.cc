@@ -38,6 +38,7 @@
 #include "fastjet/tools/Filter.hh"
 #include "fastjet/tools/Pruner.hh"
 #include "fastjet/tools/MassDropTagger.hh"
+#include "RecoJets/JetAlgorithms/interface/CMSBoostedTauSeedingAlgorithm.h"
 
 #include <iostream>
 #include <memory>
@@ -101,11 +102,13 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
   if ( iConfig.exists("useFiltering") ||
        iConfig.exists("useTrimming") ||
        iConfig.exists("usePruning") ||
-       iConfig.exists("useMassDropTagger") ) {
+       iConfig.exists("useMassDropTagger") ||
+       iConfig.exists("useCMSBoostedTauSeedingAlgorithm") ) {
     useMassDropTagger_=false;
     useFiltering_=false;
     useTrimming_=false;
     usePruning_=false;
+    useCMSBoostedTauSeedingAlgorithm_=false;
     rFilt_=-1.0;
     nFilt_=-1;
     trimPtFracMin_=-1.0;
@@ -113,6 +116,14 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     RcutFactor_=-1.0;
     muCut_=-1.0;
     yCut_=-1.0;
+    subjetPtMin_ = -1.0;
+    muMin_ = -1.0;
+    muMax_ = -1.0;
+    yMin_ = -1.0;
+    yMax_ = -1.0;
+    dRMin_ = -1.0;
+    dRMax_ = -1.0;
+    maxDepth_ = -1;
     useExplicitGhosts_ = true;
 
 
@@ -139,6 +150,18 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
       zCut_ = iConfig.getParameter<double>("zcut");
       RcutFactor_ = iConfig.getParameter<double>("rcut_factor");
       nFilt_ = iConfig.getParameter<int>("nFilt");
+    }
+
+    if ( iConfig.exists("useCMSBoostedTauSeedingAlgorithm") ) {
+      useCMSBoostedTauSeedingAlgorithm_ = iConfig.getParameter<bool>("useCMSBoostedTauSeedingAlgorithm");
+      subjetPtMin_ = iConfig.getParameter<double>("subjetPtMin");
+      muMin_ = iConfig.getParameter<double>("muMin");
+      muMax_ = iConfig.getParameter<double>("muMax");
+      yMin_ = iConfig.getParameter<double>("yMin");
+      yMax_ = iConfig.getParameter<double>("yMax");
+      dRMin_ = iConfig.getParameter<double>("dRMin");
+      dRMax_ = iConfig.getParameter<double>("dRMax");
+      maxDepth_ = iConfig.getParameter<int>("maxDepth");
     }
 
   }
@@ -336,6 +359,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
     std::vector<fastjet::PseudoJet> tempJets = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
 
     fastjet::MassDropTagger md_tagger( muCut_, yCut_ );
+    fastjet::contrib::CMSBoostedTauSeedingAlgorithm tau_tagger( subjetPtMin_, muMin_, muMax_, yMin_, yMax_, dRMin_, dRMax_, maxDepth_, verbosity_ );
     fastjet::Filter trimmer( fastjet::Filter(fastjet::JetDefinition(fastjet::kt_algorithm, rFilt_), fastjet::SelectorPtFractionMin(trimPtFracMin_)));
     fastjet::Filter filter( fastjet::Filter(fastjet::JetDefinition(fastjet::cambridge_algorithm, rFilt_), fastjet::SelectorNHardest(nFilt_)));
     fastjet::Pruner pruner(fastjet::cambridge_algorithm, zCut_, RcutFactor_);
@@ -344,6 +368,9 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
 
     if ( useMassDropTagger_ ) {
       transformers.push_back(&md_tagger);
+    }
+    if ( useCMSBoostedTauSeedingAlgorithm_ ) {
+      transformers.push_back(&tau_tagger);
     }
     if ( useTrimming_ ) {
       transformers.push_back(&trimmer);
