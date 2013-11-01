@@ -102,7 +102,7 @@ private:
   
   bool outputMEsInRootFile;
 
-
+  edm::InputTag offlineElectrons;
 
  edm::ParameterSet parameters;
 

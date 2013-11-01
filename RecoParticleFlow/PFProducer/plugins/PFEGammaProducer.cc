@@ -256,6 +256,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   // Get the EE-PS associations
   edm::Handle<reco::PFCluster::EEtoPSAssociation> eetops;
   iEvent.getByToken(eetopsSrc_,eetops);
+  pfeg_->setEEtoPSAssociation(eetops);
 
   // Get The vertices from the event
   // and assign dynamic vertex parameters
