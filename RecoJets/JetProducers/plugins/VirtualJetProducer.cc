@@ -137,6 +137,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   , nExclude_(0)
   , jetCollInstanceName_ ("")
   , writeCompound_ ( false )
+  , verbosity_(0)
 {
   anomalousTowerDef_ = std::auto_ptr<AnomalousTower>(new AnomalousTower(iConfig));
 
@@ -273,8 +274,11 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
     useDeterministicSeed_ = iConfig.getParameter<bool>("useDeterministicSeed");
     minSeed_ =              iConfig.getParameter<unsigned int>("minSeed");
   }
-
-
+  
+  if ( iConfig.exists("verbosity" ) ) {
+    verbosity_ = iConfig.getParameter<int>("verbosity");
+  }
+  
   produces<std::vector<double> >("rhos");
   produces<std::vector<double> >("sigmas");
   produces<double>("rho");
@@ -710,6 +714,9 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 template< class T>
 void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetup const& iSetup)
 {
+  if ( verbosity_ >= 1 ) { 
+    std::cout << "<VirtualJetProducer::writeCompoundJets (moduleLabel = " << moduleLabel_ << ")>:" << std::endl;
+  }
 
   // get a list of output jets
   std::auto_ptr<reco::BasicJetCollection>  jetCollection( new reco::BasicJetCollection() );
@@ -756,6 +763,19 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
     for (; itSubJet != itSubJetEnd; ++itSubJet ){
 
       fastjet::PseudoJet const & subjet = *itSubJet;      
+      if ( verbosity_ >= 1 ) {
+	std::cout << "subjet #" << (itSubJet - itSubJetBegin) << ": Pt = " << subjet.pt() << ", eta = " << subjet.eta() << ", phi = " << subjet.phi() << ", mass = " << subjet.m() 
+		  << " (#constituents = " << subjet.constituents().size() << ")" << std::endl;
+	std::vector<fastjet::PseudoJet> subjet_constituents = subjet.constituents();
+	int idx_constituent = 0;
+	for ( std::vector<fastjet::PseudoJet>::const_iterator constituent = subjet_constituents.begin();
+	      constituent != subjet_constituents.end(); ++constituent ) {
+	  if ( constituent->pt() < 1.e-3 ) continue; // CV: skip ghosts
+	  std::cout << "  constituent #" << idx_constituent << ": Pt = " << constituent->pt() << ", eta = " << constituent->eta() << ", phi = " << constituent->phi() << "," 
+		    << " mass = " << constituent->m() << std::endl;
+	  ++idx_constituent;
+	}
+      }
 
       math::XYZTLorentzVector p4Subjet(subjet.px(), subjet.py(), subjet.pz(), subjet.e() );
       reco::Particle::Point point(0,0,0);
