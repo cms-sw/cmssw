@@ -81,12 +81,12 @@ void FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveEleme
    catch (const std::exception& e) {
       std::cerr << " FWTrackingParticleProxyBuilderFF::setItem() Can't get hits association list " << e.what() <<  std::endl;
    }  
-
+   /*
    // debug propagator
    gEve->GetBrowser()->MapWindow();
    gEve->AddToListTree(context().getTrackPropagator(), true);
    context().getTrackPropagator()->SetRnrReferences(true);
-
+   */
    FWSimpleProxyBuilder::build(iItem, product, 0);
 }
 //______________________________________________________________________________
