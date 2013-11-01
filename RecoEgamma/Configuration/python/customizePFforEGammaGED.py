@@ -39,9 +39,20 @@ def customizePFforEGammaGED(process):
     return process
 
 def _configurePFForGEDEGamma(process):
+    #setup mustache based reco::Photon
+    process.photonSequence += process.mustachePhotonSequence    
+    process.particleFlowBlock.EGPhotons = cms.InputTag('mustachePhotons')
+    #for later
+    process.particleFlowBlock.SCBarrel = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
+    process.particleFlowBlock.SCEndcap = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
+    #add in conversions
+    process.allConversionSequence += process.allConversionMustacheSequence
+    process.pfConversions.conversionCollection = cms.InputTag('allConversionsMustache')
+    #tell PFProducer to use PFEG objects / gedTmp
     process.particleFlowTmp.useEGammaFilters = cms.bool(True)
     process.particleFlowTmp.usePFPhotons = cms.bool(False)
     process.particleFlowTmp.usePFElectrons = cms.bool(False)
+    #re-route PF linker to use ged collections
     process.particleFlow.GsfElectrons = cms.InputTag('gedGsfElectrons')
     process.particleFlow.Photons = cms.InputTag('gedPhotons')
     return process
