@@ -208,15 +208,14 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   
 
   // Reading new EGamma selection cuts
-  
+  bool useProtectionsForJetMET(false);
   double ele_iso_pt(0.0), ele_iso_mva_barrel(0.0), ele_iso_mva_endcap(0.0), 
     ele_iso_combIso_barrel(0.0), ele_iso_combIso_endcap(0.0), 
     ele_noniso_mva(0.0);
   unsigned int ele_missinghits(0);
   double ph_MinEt(0.0), ph_combIso(0.0), ph_HoE(0.0);
-
-
   string ele_iso_mvaWeightFile(""), ele_iso_path_mvaWeightFile("");
+  edm::ParameterSet ele_protectionsForJetMET,ph_protectionsForJetMET;
 
  // Reading new EGamma ubiased collections and value maps
  if(use_EGammaFilters_) {
@@ -235,9 +234,13 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
    ph_MinEt  = iConfig.getParameter<double>("photon_MinEt");
    ph_combIso  = iConfig.getParameter<double>("photon_combIso");
    ph_HoE = iConfig.getParameter<double>("photon_HoE");
+   useProtectionsForJetMET = 
+     iConfig.getParameter<bool>("useProtectionsForJetMET");
+   ele_protectionsForJetMET = 
+     iConfig.getParameter<edm::ParameterSet>("electron_protectionsForJetMET");
+   ph_protectionsForJetMET = 
+     iConfig.getParameter<edm::ParameterSet>("photon_protectionsForJetMET");
  }
- 
-
 
   //Secondary tracks and displaced vertices parameters
 
@@ -328,10 +331,12 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 				ele_iso_combIso_endcap,
 				ele_noniso_mva,
 				ele_missinghits,
+				useProtectionsForJetMET,
+				ele_protectionsForJetMET,
 				ph_MinEt,
 				ph_combIso,
-				ph_HoE);
-
+				ph_HoE,
+				ph_protectionsForJetMET);
 
   //Secondary tracks and displaced vertices parameters
   
