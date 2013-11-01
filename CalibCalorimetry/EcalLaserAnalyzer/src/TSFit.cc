@@ -274,7 +274,7 @@ double TSFit::fit_third_degree_polynomial(
   double xki2;
   double tm, tmp, amp;
 
-  static double nevt;
+  double nevt;
 
   ret_dat[0] = -999.;
   ret_dat[1] = -999.;
