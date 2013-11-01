@@ -70,6 +70,9 @@ class PFRecoTauChargedHadronFromTrackPlugin : public PFRecoTauChargedHadronBuild
 
   math::XYZVector magneticFieldStrength_;
 
+  mutable int numWarnings_;
+  int maxWarnings_;
+
   int verbosity_;
 };
 
@@ -87,6 +90,9 @@ PFRecoTauChargedHadronFromTrackPlugin::PFRecoTauChargedHadronFromTrackPlugin(con
 
   dRmergeNeutralHadron_ = pset.getParameter<double>("dRmergeNeutralHadron");
   dRmergePhoton_ = pset.getParameter<double>("dRmergePhoton");
+
+  numWarnings_ = 0;
+  maxWarnings_ = 3;
 
   verbosity_ = ( pset.exists("verbosity") ) ?
     pset.getParameter<int>("verbosity") : 0;
@@ -149,8 +155,12 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
       if ( jetArea > 0. ) {
 	dRmatch = TMath::Min(dRmatch, TMath::Sqrt(jetArea/TMath::Pi()));
       } else {
-	edm::LogWarning("PFRecoTauChargedHadronFromTrackPlugin::operator()") 
-	  << "Jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << " has area = " << jetArea << " !!" << std::endl;
+	if ( numWarnings_ < maxWarnings_ ) {
+	  edm::LogWarning("PFRecoTauChargedHadronFromTrackPlugin::operator()") 
+	    << "Jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << " has area = " << jetArea << " !!" << std::endl;
+	  ++numWarnings_;
+	}
+	dRmatch = 0.1;
       }
     }
     if ( dR > dRmatch ) continue;
