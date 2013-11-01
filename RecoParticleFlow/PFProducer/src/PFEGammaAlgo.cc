@@ -1230,9 +1230,9 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
     linkRefinableObjectECALToSingleLegConv(RO);
     dumpCurrentRefinableObjects();
     // look for tracks that complement conversion legs
-    //linkRefinableObjectConvSecondaryKFsToSecondaryKFs(RO);
+    linkRefinableObjectConvSecondaryKFsToSecondaryKFs(RO);
     // look again for ECAL clusters (this time with an e/p cut)
-    //linkRefinableObjectSecondaryKFsToECAL(RO);
+    linkRefinableObjectSecondaryKFsToECAL(RO);
   } 
 
   LOGDRESSED("PFEGammaAlgo")
