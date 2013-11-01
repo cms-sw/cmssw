@@ -44,7 +44,7 @@ void TrackBuildingAnalyzer::beginRun(DQMStore * dqmStore_)
   std::string AlgoName       = conf_.getParameter<std::string>("AlgoName");
   std::string MEFolderName   = conf_.getParameter<std::string>("FolderName"); 
 
-  std::cout << "[TrackBuildingAnalyzer::beginRun] AlgoName: " << AlgoName << std::endl;
+  //  std::cout << "[TrackBuildingAnalyzer::beginRun] AlgoName: " << AlgoName << std::endl;
   
   // use the AlgoName and Quality Name 
   std::string CatagoryName = AlgoName;
@@ -119,7 +119,7 @@ void TrackBuildingAnalyzer::beginRun(DQMStore * dqmStore_)
   
   // book the Seed histograms
   // ---------------------------------------------------------------------------------//
-  std::cout << "[TrackBuildingAnalyzer::beginRun] MEFolderName: " << MEFolderName << std::endl;
+  //  std::cout << "[TrackBuildingAnalyzer::beginRun] MEFolderName: " << MEFolderName << std::endl;
   dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
   
   if (doAllSeedPlots || doPT) {
