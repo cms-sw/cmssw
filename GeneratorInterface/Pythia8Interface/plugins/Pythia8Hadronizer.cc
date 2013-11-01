@@ -10,17 +10,17 @@
 #include <Pythia.h>
 #include <HepMCInterface.h>
 
-#include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/RandomP8.h"
 
-#include "GeneratorInterface/Pythia8Interface/interface/ReweightUserHooks.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
 
 // PS matchning prototype
 //
-#include "GeneratorInterface/Pythia8Interface/interface/JetMatchingHook.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
 
 // Emission Veto Hook
 //
-#include "GeneratorInterface/Pythia8Interface/interface/EmissionVetoHook.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -35,7 +35,7 @@
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
-#include "GeneratorInterface/Pythia8Interface/interface/LHAupLesHouches.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/LHAupLesHouches.h"
 
 #include "HepPID/ParticleIDTranslations.hh"
 
@@ -105,6 +105,8 @@ class Pythia8Hadronizer : public BaseHadronizer {
     //
     EmissionVetoHook* fEmissionVetoHook;
 
+    bool EV_CheckHard;
+
 };
 
 
@@ -121,6 +123,11 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   fJetMatchingHook(0),
   fEmissionVetoHook(0)
 {
+
+#ifdef PYTHIA8175
+  setenv("PYTHIA8DATA", getenv("PYTHIA8175DATA"), true);
+#endif
+
   randomEngine = &getEngineReference();
 
   //Old code that used Pythia8 own random engine
@@ -210,7 +217,11 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   //
   if ( params.exists("emissionVeto") )
   {   
-    fEmissionVetoHook = new EmissionVetoHook(0);
+    EV_CheckHard = false;
+    int nversion = (int)(1000.*(pythia->settings.parm("Pythia:versionNumber") - 8.));
+    if(nversion > 153) {EV_CheckHard = true;}
+    if(params.exists("EV_CheckHard")) EV_CheckHard = params.getParameter<bool>("EV_CheckHard");
+    fEmissionVetoHook = new EmissionVetoHook(0, EV_CheckHard);
     pythia->setUserHooksPtr( fEmissionVetoHook );
   }  
 
@@ -590,10 +601,20 @@ void Pythia8Hadronizer::finalizeEvent()
   }
 }
 
+#ifdef PYTHIA8175
+
+typedef edm::GeneratorFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8175GeneratorFilter;
+DEFINE_FWK_MODULE(Pythia8175GeneratorFilter);
+
+typedef edm::HadronizerFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8175HadronizerFilter;
+DEFINE_FWK_MODULE(Pythia8175HadronizerFilter);
+
+#else
 
 typedef edm::GeneratorFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8GeneratorFilter;
 DEFINE_FWK_MODULE(Pythia8GeneratorFilter);
 
-
 typedef edm::HadronizerFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8HadronizerFilter;
 DEFINE_FWK_MODULE(Pythia8HadronizerFilter);
+
+#endif

@@ -17,6 +17,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(7000.),
     emissionVeto = cms.untracked.PSet(),
+    #EV_CheckHard = cms.bool(True),
     PythiaParameters = cms.PSet(
         pythia8_example07 = cms.vstring('SpaceShower:pTmaxMatch = 2',
                                         'TimeShower:pTmaxMatch  = 2'),
