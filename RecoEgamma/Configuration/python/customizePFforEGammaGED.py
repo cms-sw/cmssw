@@ -8,11 +8,13 @@ def customizePFforEGammaGED(process):
         #for seq in path:
         _replaceTags(sequences,
                      cms.InputTag('gsfElectrons'),
-                     cms.InputTag('gedGsfElectrons'))
+                     cms.InputTag('gedGsfElectrons'),
+                     skipLabelTest=True)
         _replaceTags(sequences,
                      cms.InputTag('gsfElectronCores'),
-                     cms.InputTag('gedGsfElectronCores'))
-    
+                     cms.InputTag('gedGsfElectronCores'),
+                     skipLabelTest=True)
+
     # all the rest:
     if hasattr(process,'DigiToRaw'):
         process=_customize_DigiToRaw(process)
@@ -66,17 +68,19 @@ def _configurePFForGEDEGamma(process):
 
 
 
-def _customize_DQM(process):    
+def _customize_DQM(process):
     return process
 
 
 def _customize_Validation(process):
     _replaceTags(process.validation_step,
                  cms.InputTag('gsfElectrons'),
-                 cms.InputTag('gedGsfElectrons'))
+                 cms.InputTag('gedGsfElectrons'),
+                 skipLabelTest=True)
     _replaceTags(process.validation_step,
                  cms.InputTag('gsfElectronCores'),
-                 cms.InputTag('gedGsfElectronCores'))
+                 cms.InputTag('gedGsfElectronCores'),
+                 skipLabelTest=True)
     #don't ask... just don't ask
     if hasattr(process,'HLTSusyExoValFastSim'):
         process.HLTSusyExoValFastSim.PlotMakerRecoInput.electrons = \
@@ -119,7 +123,7 @@ def _customize_DigiToRaw(process):
 def _customize_HLT(process):
     return process
 
-def _customize_FastSim(process):    
+def _customize_FastSim(process):
     process=_configurePFForGEDEGamma(process)
     process.famosParticleFlowSequence.remove(process.pfElectronTranslatorSequence)
     process.famosParticleFlowSequence.remove(process.pfPhotonTranslatorSequence)
@@ -158,7 +162,7 @@ def _customize_FastSim(process):
         cms.InputTag("interestingTrackEcalDetIds")
         )
     process.allConversionsMustache.src = cms.InputTag('gsfGeneralConversionTrackMerger')
-    if hasattr(process,'ecalDrivenElectronSeeds'):        
+    if hasattr(process,'ecalDrivenElectronSeeds'):
         process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
         process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
     return process
@@ -202,7 +206,7 @@ def _customize_Reco(process):
         # high pt tracks
         cms.InputTag("interestingTrackEcalDetIds")
         )
-    
+
     if hasattr(process,'ecalDrivenElectronSeeds'):
         process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
         process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
