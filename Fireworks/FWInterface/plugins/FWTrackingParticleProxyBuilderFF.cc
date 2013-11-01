@@ -64,29 +64,28 @@ void FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveEleme
 
    const edm::Event* event = (const edm::Event*)item()->getEvent();
    if (event) {
-      return;
-   }
 
-   // get collection handle
-   edm::InputTag coltag(item()->moduleLabel(), item()->productInstanceLabel(), item()->processName());
-   event->getByLabel(coltag, tpch);
+      // get collection handle
+      edm::InputTag coltag(item()->moduleLabel(), item()->productInstanceLabel(), item()->processName());
+      event->getByLabel(coltag, tpch);
 
-   // AMT todo: check if there is any other way getting the list other than this
-   //           ifnot, set proces name as a configurable parameter
-   edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
-   try {
-      event->getByLabel("xxx", simHitsTPAssoc);
-      m_assocList = &*simHitsTPAssoc;
+      // AMT todo: check if there is any other way getting the list other than this
+      //           ifnot, set proces name as a configurable parameter
+      edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
+      try {
+         event->getByLabel("xxx", simHitsTPAssoc);
+         m_assocList = &*simHitsTPAssoc;
+      }
+      catch (const std::exception& e) {
+         std::cerr << " FWTrackingParticleProxyBuilderFF::setItem() Can't get hits association list " << e.what() <<  std::endl;
+      }  
+      /*
+      // debug propagator
+      gEve->GetBrowser()->MapWindow();
+      gEve->AddToListTree(context().getTrackPropagator(), true);
+      context().getTrackPropagator()->SetRnrReferences(true);
+      */
    }
-   catch (const std::exception& e) {
-      std::cerr << " FWTrackingParticleProxyBuilderFF::setItem() Can't get hits association list " << e.what() <<  std::endl;
-   }  
-   /*
-   // debug propagator
-   gEve->GetBrowser()->MapWindow();
-   gEve->AddToListTree(context().getTrackPropagator(), true);
-   context().getTrackPropagator()->SetRnrReferences(true);
-   */
    FWSimpleProxyBuilder::build(iItem, product, 0);
 }
 //______________________________________________________________________________
