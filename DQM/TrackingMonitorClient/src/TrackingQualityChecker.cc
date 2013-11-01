@@ -98,7 +98,7 @@ void TrackingQualityChecker::bookGlobalStatus(DQMStore* dqm_store) {
     
     size_t nQT = TrackingMEsMap.size();
     std::cout << "[TrackingQualityChecker::bookGlobalStatus] nQT: " << nQT << std::endl;
-    TrackGlobalSummaryReportMap    = dqm_store->book2D(hname, htitle, nQT,0.5,double(nQT)+0.5,1,0.5,1.5);
+    TrackGlobalSummaryReportMap    = dqm_store->book2D(hname, htitle, nQT,0.5,float(nQT)+0.5,1,0.5,1.5);
     TrackGlobalSummaryReportMap->setAxisTitle("Track Quality Type", 1);
     TrackGlobalSummaryReportMap->setAxisTitle("QTest Flag", 2);
     size_t ibin =0;
@@ -329,7 +329,7 @@ void TrackingQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
     } else { // more than 1 ME w/ the same root => they need to be considered together
       float status = 1.;
       for ( auto ime : tmpMEvec ) {
-	double tmp_status = 1.;
+	float tmp_status = 1.;
 	std::string name = ime->getName();
 	if ( name.find(MEname) != std::string::npos) {
 	  me = ime;
@@ -434,7 +434,7 @@ void TrackingQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
       if (!me) continue;
 
       if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
-	double x_mean = me->getMean();
+	float x_mean = me->getMean();
 	std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] MEname: " << MEname << " x_mean: " << x_mean << std::endl;
 	if (x_mean <= lower_cut || x_mean > upper_cut) status = 0.0;
 	else status = 1.0; 
@@ -449,28 +449,28 @@ void TrackingQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
     } else { // more than 1 ME w/ the same root => they need to be considered together
       float status = 1.;
       for ( auto ime : tmpMEvec ) {
-	double tmp_status = 1.;
+	float tmp_status = 1.;
 	std::string name = ime->getName();
 	if ( name.find(MEname) != std::string::npos) {
 	  me = ime;
 	  if (!me) continue;
 
 	  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
-	    double x_mean = me->getMean();
+	    float x_mean = me->getMean();
 	    std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] MEname: " << MEname << " x_mean: " << x_mean << std::endl;
-	    if (x_mean <= lower_cut || x_mean > upper_cut) status = 0.0;
-	    else status = 1.0; 
-	    
-	    it->second.TrackingFlag->Fill(status);
-	    std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ===> status: " << status << " [" << gstatus << "]" << std::endl;
+	    if (x_mean <= lower_cut || x_mean > upper_cut) tmp_status = 0.0;
+	    else tmp_status = 1.0; 
 	  }
-	  if (status == 0.0) gstatus = -1.0;
-	  else gstatus = gstatus * status; 
-	  std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ===> gstatus: " << gstatus << std::endl;
-	  std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
 	}
+	status = fminf(tmp_status,status);
       }
-    }  // end else
+    }
+    it->second.TrackingFlag->Fill(status);
+    std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ===> status: " << status << " [" << gstatus << "]" << std::endl;
+    if (status == 0.0) gstatus = -1.0;
+    else gstatus = gstatus * status; 
+    std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ===> gstatus: " << gstatus << std::endl;
+    std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
   }
   TrackLSSummaryReportGlobal->Fill(gstatus);
   dqm_store->cd();
