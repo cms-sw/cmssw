@@ -23,9 +23,9 @@ using namespace std;
 // Static variables
 //-----------------
 
-bool CSCAnodeLCTAnalyzer::debug = true;
-bool CSCAnodeLCTAnalyzer::isMTCCMask = true;
-bool CSCAnodeLCTAnalyzer::doME1A = true;
+std::atomic<bool> CSCAnodeLCTAnalyzer::debug{true};
+const bool CSCAnodeLCTAnalyzer::isMTCCMask = true;
+const bool CSCAnodeLCTAnalyzer::doME1A = true;
 
 vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::getSimInfo(
       const CSCALCTDigi& alct, const CSCDetId& alctId,
