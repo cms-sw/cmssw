@@ -31,7 +31,7 @@ using namespace edm::stream;
 //
 // constructors and destructor
 //
-EDProducerBase::EDProducerBase()
+EDProducerBase::EDProducerBase(): moduleDescriptionPtr_(nullptr)
 {
 }
 
