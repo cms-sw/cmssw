@@ -411,30 +411,66 @@ void TrackingQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
 
     std::vector<MonitorElement*> tmpMEvec = dqm_store->getContents(dqm_store->pwd()+"/"+localMEdirpath);
     std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] tmpMEvec: " << tmpMEvec.size() << std::endl;
+
     MonitorElement* me = NULL;
+
+    size_t nMEs = 0;
     for ( auto ime : tmpMEvec ) {
       std::string name = ime->getName();
-      std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] name: " << name << std::endl;
-      if (name.find(MEname) != std::string::npos) {
+      if ( name.find(MEname) != std::string::npos) {
 	me = ime;
-	break;
+	nMEs++;
       }
     }
-    if (!me) continue;     
+    // only one ME found
+    if (nMEs == 1) {
+      float status = 0.;
+      for ( auto ime : tmpMEvec ) {
+	std::string name = ime->getName();
+	if ( name.find(MEname) != std::string::npos) {
+	  me = ime;
+	}
+      }
+      if (!me) continue;
 
-    if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
-      double x_mean = me->getMean();
-      std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] MEname: " << MEname << " x_mean: " << x_mean << std::endl;
-      if (x_mean <= lower_cut || x_mean > upper_cut) status = 0.0;
-      else status = 1.0; 
-      
-      it->second.TrackingFlag->Fill(status);
-      std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ===> status: " << status << " [" << gstatus << "]" << std::endl;
-    }
-    if (status == 0.0) gstatus = -1.0;
-    else gstatus = gstatus * status; 
-    std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ===> gstatus: " << gstatus << std::endl;
-    std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
+      if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+	double x_mean = me->getMean();
+	std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] MEname: " << MEname << " x_mean: " << x_mean << std::endl;
+	if (x_mean <= lower_cut || x_mean > upper_cut) status = 0.0;
+	else status = 1.0; 
+	
+	it->second.TrackingFlag->Fill(status);
+	std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ===> status: " << status << " [" << gstatus << "]" << std::endl;
+      }
+      if (status == 0.0) gstatus = -1.0;
+      else gstatus = gstatus * status; 
+      std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ===> gstatus: " << gstatus << std::endl;
+      std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
+    } else { // more than 1 ME w/ the same root => they need to be considered together
+      float status = 1.;
+      for ( auto ime : tmpMEvec ) {
+	double tmp_status = 1.;
+	std::string name = ime->getName();
+	if ( name.find(MEname) != std::string::npos) {
+	  me = ime;
+	  if (!me) continue;
+
+	  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+	    double x_mean = me->getMean();
+	    std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] MEname: " << MEname << " x_mean: " << x_mean << std::endl;
+	    if (x_mean <= lower_cut || x_mean > upper_cut) status = 0.0;
+	    else status = 1.0; 
+	    
+	    it->second.TrackingFlag->Fill(status);
+	    std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ===> status: " << status << " [" << gstatus << "]" << std::endl;
+	  }
+	  if (status == 0.0) gstatus = -1.0;
+	  else gstatus = gstatus * status; 
+	  std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ===> gstatus: " << gstatus << std::endl;
+	  std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
+	}
+      }
+    }  // end else
   }
   TrackLSSummaryReportGlobal->Fill(gstatus);
   dqm_store->cd();
