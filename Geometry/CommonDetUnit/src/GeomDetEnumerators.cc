@@ -18,6 +18,7 @@ std::ostream& operator<<( std::ostream& s, SubDetector m){
   else if ( m == CSC ) return s << "CSC";
   else if ( m == RPCBarrel ) return s << "RPCBarrel";
   else if ( m == RPCEndcap ) return s << "RPCEndcap";
+  else if ( m == GEM ) return s << "GEM";
   else return s << "?";
 }
 
