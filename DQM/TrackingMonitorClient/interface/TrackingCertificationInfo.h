@@ -65,13 +65,16 @@ class TrackingCertificationInfo: public edm::EDAnalyzer {
 private:
 
   void bookTrackingCertificationMEs();
+  void bookTrackingCertificationMEsAtLumi();
 
   void resetTrackingCertificationMEs();
+  void resetTrackingCertificationMEsAtLumi();
 
   void fillTrackingCertificationMEs(edm::EventSetup const& eSetup);
   void fillTrackingCertificationMEsAtLumi();
 
   void fillDummyTrackingCertification();
+  void fillDummyTrackingCertificationAtLumi();
 
 
   DQMStore* dqmStore_;
@@ -80,21 +83,28 @@ private:
     MonitorElement* TrackingFlag;
   };
 
-  std::map<std::string, TrackingMEs> TrackingMEsMap;
+  struct TrackingLSMEs{
+    MonitorElement* TrackingFlag;
+  };
+
+  std::map<std::string, TrackingMEs>   TrackingMEsMap;
+  std::map<std::string, TrackingLSMEs> TrackingLSMEsMap;
 
   MonitorElement * TrackingCertification;  
   MonitorElement * TrackingCertificationSummaryMap;  
 
-  bool trackingCertificationBooked_;
-  unsigned long long m_cacheID_;
+  MonitorElement * TrackingLSCertification;  
 
   edm::ESHandle< SiStripDetCabling > detCabling_;
-
-  int nFEDConnected_;
-
-
   edm::ParameterSet pSet_;
+
+  bool trackingCertificationBooked_;
+  bool trackingLSCertificationBooked_;
+  int nFEDConnected_;
+  bool allPixelFEDConnected_;
   std::string TopFolderName_;
+
+  unsigned long long m_cacheID_;
 
   std::vector<std::string> SubDetFolder;
 };
