@@ -22,7 +22,7 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#ifndef __GCCXML__
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
 #endif
 #include <memory>
@@ -106,17 +106,17 @@ namespace edm {
     enum CacheState { kUnset, kFilling, kSet };
     CVal data_;
     KeyRefProd ref_;
-#ifndef __GCCXML__
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     mutable std::atomic<transient_vector_type*> transientVector_;
 #else
-    transient_vector_type* transientVector_;
+    mutable transient_vector_type* transientVector_;
 #endif
 
     transient_vector_type const& transientVector() const;
     void fixup() const;
   };
 
-#ifndef __GCCXML__
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::transient_vector_type const&
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::transientVector() const {
@@ -134,19 +134,19 @@ namespace edm {
     data_(coll == 0 ? ref->size() : coll->size()), ref_(ref),
     transientVector_( new transient_vector_type(coll == 0 ? ref->size() : coll->size())) { }
 
-#ifndef __GCCXML__
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::
     AssociationVector(AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper> const& o) :
     data_(o.data_), ref_(o.ref_), transientVector_() {
-      auto t = o.transientVector.load(std::memory_order_acquire);
+      auto t = o.transientVector_.load(std::memory_order_acquire);
       if(t) {
         transientVector_.store( new transient_vector_type(*t), std::memory_order_release);
       }
     }
 #endif
   
-#ifndef __GCCXML__
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::~AssociationVector() {
     delete transientVector_.load(std::memory_order_acquire);
@@ -168,7 +168,7 @@ namespace edm {
   }
 
 
-#ifndef __GCCXML__
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline typename CVal::reference
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator[](KeyRef const& k) {
@@ -180,7 +180,7 @@ namespace edm {
   }
 #endif
   
-#ifndef __GCCXML__
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>&
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::operator=(self const& o) {
@@ -215,7 +215,7 @@ namespace edm {
     return data_.empty();
   }
 
-#ifndef __GCCXML__
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::clear() {
     data_.clear();
@@ -233,15 +233,14 @@ namespace edm {
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::fixup() const {
-    auto t = transientVector_.load(std::memory_order_acquire);
-    if (nullptr == t) {
-      std::unique_ptr<transient_vector_type> t {new transient_vector_type(size()) };
+    if (nullptr == transientVector_.load(std::memory_order_acquire)) {
+      std::unique_ptr<transient_vector_type> newT {new transient_vector_type(size()) };
       for(size_type i = 0; i != size(); ++i) {
-        (*t)[ i ] = std::make_pair(KeyRef(ref_, i), data_[ i ]);
+        (*newT)[ i ] = std::make_pair(KeyRef(ref_, i), data_[ i ]);
       }
       transient_vector_type* expected = nullptr;
-      if(transientVector_.compare_exchange_strong(expected, t.get(), std::memory_order_acq_rel) ) {
-        t.release();
+      if(transientVector_.compare_exchange_strong(expected, newT.get()) ) {
+        newT.release();
       }
     }
   }
