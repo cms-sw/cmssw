@@ -207,7 +207,7 @@ class FWXMLConfigParser : public SimpleSAXParser
       };
 
 public:
-   FWXMLConfigParser(istream &f) 
+   FWXMLConfigParser(std::istream &f) 
    : SimpleSAXParser(f),
      m_state(IN_BEGIN_DOCUMENT),
      m_first(0)
