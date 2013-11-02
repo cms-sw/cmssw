@@ -13,6 +13,8 @@ occur, good state information can be printed.
 
 **/
 
+#include <atomic>
+
 namespace edm
 {
   class ProblemTracker
@@ -25,7 +27,7 @@ namespace edm
     ~ProblemTracker();
     ProblemTracker(const ProblemTracker&);
 
-    static bool dead_;
+    static std::atomic<bool> dead_;
   };
 
   class AssertHandler

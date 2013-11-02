@@ -111,7 +111,7 @@ template<typename T>
       }
    
       // ---------- static member functions --------------------
-      static ComponentFactory<T>* get();
+      static ComponentFactory<T> const* get();
 
       // ---------- member functions ---------------------------
 
@@ -129,9 +129,9 @@ template<typename T>
 }
 #define COMPONENTFACTORY_GET(_type_) \
 EDM_REGISTER_PLUGINFACTORY(edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<_type_>* ()>,_type_::name()); \
-static edm::eventsetup::ComponentFactory<_type_> s_dummyfactory; \
+static edm::eventsetup::ComponentFactory<_type_> const s_dummyfactory; \
 namespace edm { namespace eventsetup { \
-template<> edm::eventsetup::ComponentFactory<_type_>* edm::eventsetup::ComponentFactory<_type_>::get() \
+template<> edm::eventsetup::ComponentFactory<_type_> const* edm::eventsetup::ComponentFactory<_type_>::get() \
 { return &s_dummyfactory; } \
   } } \
 typedef int componentfactory_get_needs_semicolon

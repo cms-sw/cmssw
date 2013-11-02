@@ -11,7 +11,7 @@ namespace edm
 
   // -----------------------------------------------
 
-  bool ProblemTracker::dead_ = true;
+  std::atomic<bool> ProblemTracker::dead_{true};
   //edmplugin::DebugAids::AssertHook ProblemTracker::old_assert_hook_ = 0;
 
   ProblemTracker::ProblemTracker()
