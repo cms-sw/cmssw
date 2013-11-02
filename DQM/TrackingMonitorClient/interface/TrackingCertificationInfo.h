@@ -104,6 +104,8 @@ private:
   bool allPixelFEDConnected_;
   std::string TopFolderName_;
 
+  bool checkPixelFEDs_;
+
   unsigned long long m_cacheID_;
 
   std::vector<std::string> SubDetFolder;

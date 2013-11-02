@@ -48,6 +48,14 @@ TrackingCertificationInfo::TrackingCertificationInfo(edm::ParameterSet const& pS
 
   TrackingMEs tracking_mes;
   // load variables for Global certification
+
+  checkPixelFEDs_ = pSet_.getParameter<bool>("checkPixelFEDs");
+  if ( checkPixelFEDs_ ) {
+    std::string QTname        = "pixel";
+    tracking_mes.TrackingFlag = 0;
+    TrackingMEsMap.insert(std::pair<std::string, TrackingMEs>(QTname, tracking_mes));
+  }
+
   std::vector<edm::ParameterSet> TrackingGlobalQualityMEs = pSet_.getParameter< std::vector<edm::ParameterSet> >("TrackingGlobalQualityPSets" );
   for ( auto meQTset : TrackingGlobalQualityMEs ) {
 
@@ -206,7 +214,7 @@ void TrackingCertificationInfo::bookTrackingCertificationMEsAtLumi() {
     if (tracking_dir.size() > 0 ) dqmStore_->setCurrentFolder(tracking_dir+"/EventInfo");
     else dqmStore_->setCurrentFolder(TopFolderName_+"/EventInfo");
 
-    TrackingCertification = dqmStore_->bookFloat("CertificationSummary");  
+    TrackingLSCertification = dqmStore_->bookFloat("CertificationSummary");  
     
     if (tracking_dir.size() > 0 ) dqmStore_->setCurrentFolder(TopFolderName_+"/EventInfo/CertificationContents");
     else dqmStore_->setCurrentFolder(TopFolderName_+"/EventInfo/CertificationContents");
@@ -273,7 +281,23 @@ void TrackingCertificationInfo::fillTrackingCertificationMEs(edm::EventSetup con
 
   //  std::cout << "all_mes: " << all_mes.size() << std::endl;
 
-  int xbin = 0;
+  if ( checkPixelFEDs_ ) {
+    float val = 1.;
+    if ( allPixelFEDConnected_ ) val = 0.;
+    int xbin = 0;
+    for (std::map<std::string, TrackingMEs>::const_iterator it = TrackingMEsMap.begin();
+	 it != TrackingMEsMap.end(); it++) {
+      std::string type = it->first;
+      if ( type == "pixel" ) {
+	it->second.TrackingFlag->Fill(val);
+	TH2F*  th2d = TrackingCertificationSummaryMap->getTH2F();
+	th2d->SetBinContent(xbin+1,1,val);
+      }
+      xbin++;
+    }
+    fval = fminf(fval,val);
+  }
+
   for (std::vector<MonitorElement *>::const_iterator ime = all_mes.begin();
       ime!= all_mes.end(); ime++) {
     MonitorElement * me = (*ime);
@@ -283,6 +307,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEs(edm::EventSetup con
       std::string name = me->getName();
       float val   = me->getFloatValue();
 
+      int xbin = 0;
       for (std::map<std::string, TrackingMEs>::const_iterator it = TrackingMEsMap.begin();
 	   it != TrackingMEsMap.end(); it++) {
 	
