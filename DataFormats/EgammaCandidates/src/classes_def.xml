@@ -241,7 +241,6 @@
 
   <class name="reco::GsfElectronIsoCollection">
     <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
   </class>
   <class name="reco::GsfElectronIsoCollectionRef"/>
   <class name="reco::GsfElectronIsoCollectionRefProd"/>
@@ -253,7 +252,6 @@
 
   <class name="reco::GsfElectronIsoNumCollection">
     <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
   </class>
   <class name="reco::GsfElectronIsoNumCollectionRef"/>
   <class name="reco::GsfElectronIsoNumCollectionRefProd"/>

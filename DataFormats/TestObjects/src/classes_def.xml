@@ -55,7 +55,6 @@
  <class name="edm::DetSetVector<edmtest::Unsortable>"/>
  <class pattern="class edm::AssociationVector<edm::RefProd<std::vector<edmtest::Simple> >,std::vector<edmtest::Simple>,edm::Ref<std::vector<edmtest::Simple>,edmtest::Simple,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Simple>,edmtest::Simple> >,unsigned int>">
    <field name="transientVector_" transient="true"/>
-   <field name="fixed_" transient="true"/>
  </class>
  <class name="edm::Wrapper<edmtest::DummyProduct>"/>
  <class name="edm::Wrapper<edmtest::IntProduct>"/>
