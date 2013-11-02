@@ -194,7 +194,7 @@ process.validation_step = cms.EndPath(process.tracksValidation)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
-process.validation_test = cms.EndPath(process.trackingTruthValid+process.tracksValidation)
+process.validation_test = cms.EndPath(process.trackingTruthValid+process.tracksValidationFS)
 
 process.trackValidator.outputFile='trackvalidation.root'
 process.trackValidator.associators = cms.vstring('TrackAssociatorByChi2','TrackAssociatorByHitsRecoDenom')
@@ -215,8 +215,8 @@ process.outpath = cms.EndPath(process.o1)
 process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
 
 #process.schedule = cms.Schedule( process.simulation,process.prevalidation_step,process.validation_step,process.endjob_step,process.outpath )
-#process.schedule = cms.Schedule( process.simulation,process.prevalidation_step,process.validation_step,process.endjob_step)
-process.schedule = cms.Schedule( process.simulation, process.outpath)
+process.schedule = cms.Schedule( process.simulation,process.prevalidation_step,process.validation_step,process.endjob_step)
+#process.schedule = cms.Schedule( process.simulation, process.outpath)
 
 
 # customisation of the process.
