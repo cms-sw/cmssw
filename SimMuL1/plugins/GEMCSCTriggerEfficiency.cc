@@ -122,7 +122,6 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   debugTFCAND   = iConfig.getUntrackedParameter<int>("debugTFCAND", 0);
   debugGMTCAND  = iConfig.getUntrackedParameter<int>("debugGMTCAND", 0);
   debugL1EXTRA  = iConfig.getUntrackedParameter<int>("debugL1EXTRA", 0);
-  debugRATE     = iConfig.getUntrackedParameter<int>("debugRATE", 0);
 
   minSimTrPt_   = iConfig.getUntrackedParameter<double>("minSimTrPt", 2.);
   minSimTrPhi_  = iConfig.getUntrackedParameter<double>("minSimTrPhi",-3.15);
@@ -136,8 +135,6 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   maxBX_    = iConfig.getUntrackedParameter< int >("maxBX",6);
   minTMBBX_ = iConfig.getUntrackedParameter< int >("minTMBBX",-6);
   maxTMBBX_ = iConfig.getUntrackedParameter< int >("maxTMBBX",6);
-  minRateBX_    = iConfig.getUntrackedParameter< int >("minRateBX",-1);
-  maxRateBX_    = iConfig.getUntrackedParameter< int >("maxRateBX",1);
 
   minBxALCT_ = iConfig.getUntrackedParameter< int >("minBxALCT",5);
   maxBxALCT_ = iConfig.getUntrackedParameter< int >("maxBxALCT",7);
@@ -153,8 +150,6 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
 
   centralBxOnlyGMT_ = iConfig.getUntrackedParameter< bool >("centralBxOnlyGMT",false);
 
-  doSelectEtaForGMTRates_ = iConfig.getUntrackedParameter< bool >("doSelectEtaForGMTRates",false);
-  
   goodChambersOnly_ = iConfig.getUntrackedParameter< bool >("goodChambersOnly",false);
   
   lookAtTrackCondition_ = iConfig.getUntrackedParameter<int>("lookAtTrackCondition", 0);
@@ -163,14 +158,10 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   naiveME1a_ = iConfig.getUntrackedParameter< bool >("naiveME1a",true);
 
   // no GMT and L1Extra processing
-  lightRun = iConfig.getUntrackedParameter<bool>("lightRun", true);
+  lightRun = iConfig.getUntrackedParameter<bool>("lightRun", false);
 
   // special treatment of matching in ME1a for the case of the default emulator
   defaultME1a = iConfig.getUntrackedParameter<bool>("defaultME1a", false);
-
-  // properly treat ganged ME1a in matching (consider triple ambiguity)
-  gangedME1a = iConfig.getUntrackedParameter<bool>("gangedME1a", false);
-  //if (defaultME1a) gangedME1a = true;
 
   addGhostLCTs_ = iConfig.getUntrackedParameter< bool >("addGhostLCTs",true);
 
@@ -232,13 +223,13 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   double ETA_START=-2.4999;
   double ETA_END = ETA_START + ETA_BIN*N_ETA_BINS;
   
-//   int   N_ETA_BINS_CSC = 32;
-//   double ETA_START_CSC = 0.9;
-//   double ETA_END_CSC   = 2.5;
+  //   int   N_ETA_BINS_CSC = 32;
+  //   double ETA_START_CSC = 0.9;
+  //   double ETA_END_CSC   = 2.5;
 
-//   int   N_ETA_BINS_DT = 32;
-//   double ETA_START_DT = 0.;
-//   double ETA_END_DT   = 1.2;
+  //   int   N_ETA_BINS_DT = 32;
+  //   double ETA_START_DT = 0.;
+  //   double ETA_END_DT   = 1.2;
 
   h_N_mctr  = fs->make<TH1D>("h_N_mctr","No of MC muons",16,-0.5,15.5);
   h_N_simtr = fs->make<TH1D>("h_N_simtr","No of SimTrack muons",16,-0.5,15.5);
@@ -392,7 +383,7 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
 
 
   h_eta_initial0 = fs->make<TH1D>("h_eta_initial0","h_eta_initial0",N_ETA_BINS, ETA_START, ETA_END);
- h_eta_initial = fs->make<TH1D>("h_eta_initial","h_eta_initial",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_initial = fs->make<TH1D>("h_eta_initial","h_eta_initial",N_ETA_BINS, ETA_START, ETA_END);
 
   h_eta_me1_initial = fs->make<TH1D>("h_eta_me1_initial","h_eta_me1_initial",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me2_initial = fs->make<TH1D>("h_eta_me2_initial","h_eta_me2_initial",N_ETA_BINS, ETA_START, ETA_END);
@@ -454,29 +445,30 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
 
   const int Nthr = 7;
   std::string str_pts[Nthr] = {"", "_pt10", "_pt15", "_pt20", "_pt25", "_pt30","_pt40"};
-  for (int i = 0; i < Nthr; ++i) {
-    std::string prefix = "h_pt_after_tfcand_eta1b_";
-    h_pt_after_tfcand_eta1b_2s[i] = fs->make<TH1D>((prefix + "2s" + str_pts[i]).c_str(), (prefix + "2s" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
-    h_pt_after_tfcand_eta1b_2s1b[i] = fs->make<TH1D>((prefix + "2s1b" + str_pts[i]).c_str(), (prefix + "2s1b" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
-    h_pt_after_tfcand_eta1b_2s123[i] = fs->make<TH1D>((prefix + "2s123" + str_pts[i]).c_str(), (prefix + "2s123" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
-    h_pt_after_tfcand_eta1b_2s13[i] = fs->make<TH1D>((prefix + "2s13" + str_pts[i]).c_str(), (prefix + "2s13" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
-    h_pt_after_tfcand_eta1b_3s[i] = fs->make<TH1D>((prefix + "3s" + str_pts[i]).c_str(), (prefix + "3s" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
-    h_pt_after_tfcand_eta1b_3s1b[i] = fs->make<TH1D>((prefix + "3s1b" + str_pts[i]).c_str(), (prefix + "3s1b" + str_pts[i]).c_str(),N_PT_BINS, PT_START, PT_END);
-    prefix = "h_pt_after_tfcand_gem1b_";
-    h_pt_after_tfcand_gem1b_2s1b[i] = fs->make<TH1D>((prefix + "2s1b" + str_pts[i]).c_str(), (prefix + "2s1b" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
-    h_pt_after_tfcand_gem1b_2s123[i] = fs->make<TH1D>((prefix + "2s123" + str_pts[i]).c_str(), (prefix + "2s123" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
-    h_pt_after_tfcand_gem1b_2s13[i] = fs->make<TH1D>((prefix + "2s13" + str_pts[i]).c_str(), (prefix + "2s13" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
-    h_pt_after_tfcand_gem1b_3s1b[i] = fs->make<TH1D>((prefix + "3s1b" + str_pts[i]).c_str(), (prefix + "3s1b" + str_pts[i]).c_str(),N_PT_BINS, PT_START, PT_END);
-    prefix = "h_pt_after_tfcand_dphigem1b_";
-    h_pt_after_tfcand_dphigem1b_2s1b[i] = fs->make<TH1D>((prefix + "2s1b" + str_pts[i]).c_str(), (prefix + "2s1b" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
-    h_pt_after_tfcand_dphigem1b_2s123[i] = fs->make<TH1D>((prefix + "2s123" + str_pts[i]).c_str(), (prefix + "2s123" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
-    h_pt_after_tfcand_dphigem1b_2s13[i] = fs->make<TH1D>((prefix + "2s13" + str_pts[i]).c_str(), (prefix + "2s13" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
-    h_pt_after_tfcand_dphigem1b_3s1b[i] = fs->make<TH1D>((prefix + "3s1b" + str_pts[i]).c_str(), (prefix + "3s1b" + str_pts[i]).c_str(),N_PT_BINS, PT_START, PT_END);
+  for (int i = 0; i < Nthr; ++i) 
+    {
+      std::string prefix = "h_pt_after_tfcand_eta1b_";
+      h_pt_after_tfcand_eta1b_2s[i] = fs->make<TH1D>((prefix + "2s" + str_pts[i]).c_str(), (prefix + "2s" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
+      h_pt_after_tfcand_eta1b_2s1b[i] = fs->make<TH1D>((prefix + "2s1b" + str_pts[i]).c_str(), (prefix + "2s1b" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
+      h_pt_after_tfcand_eta1b_2s123[i] = fs->make<TH1D>((prefix + "2s123" + str_pts[i]).c_str(), (prefix + "2s123" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
+      h_pt_after_tfcand_eta1b_2s13[i] = fs->make<TH1D>((prefix + "2s13" + str_pts[i]).c_str(), (prefix + "2s13" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
+      h_pt_after_tfcand_eta1b_3s[i] = fs->make<TH1D>((prefix + "3s" + str_pts[i]).c_str(), (prefix + "3s" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
+      h_pt_after_tfcand_eta1b_3s1b[i] = fs->make<TH1D>((prefix + "3s1b" + str_pts[i]).c_str(), (prefix + "3s1b" + str_pts[i]).c_str(),N_PT_BINS, PT_START, PT_END);
+      prefix = "h_pt_after_tfcand_gem1b_";
+      h_pt_after_tfcand_gem1b_2s1b[i] = fs->make<TH1D>((prefix + "2s1b" + str_pts[i]).c_str(), (prefix + "2s1b" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
+      h_pt_after_tfcand_gem1b_2s123[i] = fs->make<TH1D>((prefix + "2s123" + str_pts[i]).c_str(), (prefix + "2s123" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
+      h_pt_after_tfcand_gem1b_2s13[i] = fs->make<TH1D>((prefix + "2s13" + str_pts[i]).c_str(), (prefix + "2s13" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
+      h_pt_after_tfcand_gem1b_3s1b[i] = fs->make<TH1D>((prefix + "3s1b" + str_pts[i]).c_str(), (prefix + "3s1b" + str_pts[i]).c_str(),N_PT_BINS, PT_START, PT_END);
+      prefix = "h_pt_after_tfcand_dphigem1b_";
+      h_pt_after_tfcand_dphigem1b_2s1b[i] = fs->make<TH1D>((prefix + "2s1b" + str_pts[i]).c_str(), (prefix + "2s1b" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
+      h_pt_after_tfcand_dphigem1b_2s123[i] = fs->make<TH1D>((prefix + "2s123" + str_pts[i]).c_str(), (prefix + "2s123" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
+      h_pt_after_tfcand_dphigem1b_2s13[i] = fs->make<TH1D>((prefix + "2s13" + str_pts[i]).c_str(), (prefix + "2s13" + str_pts[i]).c_str(), N_PT_BINS, PT_START, PT_END);
+      h_pt_after_tfcand_dphigem1b_3s1b[i] = fs->make<TH1D>((prefix + "3s1b" + str_pts[i]).c_str(), (prefix + "3s1b" + str_pts[i]).c_str(),N_PT_BINS, PT_START, PT_END);
 
-    prefix = "h_mode_tfcand_gem1b_2s1b_1b_";
-    h_mode_tfcand_gem1b_2s1b_1b[i] = fs->make<TH1D>((prefix + str_pts[i]).c_str(), (prefix + str_pts[i]).c_str(), 16, -0.5, 15.5);
-    setupTFModeHisto(h_mode_tfcand_gem1b_2s1b_1b[i]);
-  }
+      prefix = "h_mode_tfcand_gem1b_2s1b_1b_";
+      h_mode_tfcand_gem1b_2s1b_1b[i] = fs->make<TH1D>((prefix + str_pts[i]).c_str(), (prefix + str_pts[i]).c_str(), 16, -0.5, 15.5);
+      setupTFModeHisto(h_mode_tfcand_gem1b_2s1b_1b[i]);
+    }
 
   h_pt_after_tfcand_ok_plus = fs->make<TH1D>("h_pt_after_tfcand_ok_plus","h_pt_after_tfcand_ok_plus",N_PT_BINS, PT_START, PT_END);
   h_pt_after_tfcand_ok_plus_pt10 = fs->make<TH1D>("h_pt_after_tfcand_ok_plus_pt10","h_pt_after_tfcand_ok_plus_pt10",N_PT_BINS, PT_START, PT_END);
@@ -828,9 +820,6 @@ GEMCSCTriggerEfficiency::~GEMCSCTriggerEfficiency()
 }
 
 
-//
-// member functions
-//
 // ================================================================================================
 void 
 GEMCSCTriggerEfficiency::bookDbgTTree()
@@ -864,6 +853,8 @@ GEMCSCTriggerEfficiency::bookDbgTTree()
   //dbg_tree->Branch("" , "vector<double>" , & );
 }
 
+
+// ================================================================================================
 void
 GEMCSCTriggerEfficiency::resetDbg(DbgStruct& d)
 {
@@ -875,7 +866,6 @@ GEMCSCTriggerEfficiency::resetDbg(DbgStruct& d)
 
 
 // ================================================================================================
-// ------------ method called to for each event  ------------
 void 
 GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -901,15 +891,12 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
   // get conditions for bad chambers (don't need random engine)
   theStripConditions->initializeEvent(iSetup);
 
-
   //Get the Magnetic field from the setup
   iSetup.get<IdealMagneticFieldRecord>().get(theBField);
-
 
   // Get the propagators
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyRK", propagatorAlong);
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite", propagatorOpposite);
-
 
   // get MC
   edm::Handle< reco::GenParticleCollection > hMCCand;
@@ -959,9 +946,9 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
   const CSCCorrelatedLCTDigiCollection* mplcts = lcts_mpc.product();
   
   // DT primitives for input to TF
-//   edm::Handle<L1MuDTChambPhContainer> dttrig;
-//   iEvent.getByLabel("simDtTriggerPrimitiveDigis", dttrig);
-//   const L1MuDTChambPhContainer* dttrigs = dttrig.product();
+  //   edm::Handle<L1MuDTChambPhContainer> dttrig;
+  //   iEvent.getByLabel("simDtTriggerPrimitiveDigis", dttrig);
+  //   const L1MuDTChambPhContainer* dttrigs = dttrig.product();
 
   // tracks produced by TF
   edm::Handle< L1CSCTrackCollection > hl1Tracks;
@@ -973,6 +960,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByLabel("simCsctfDigis", "CSC", hl1TfCands);
   const std::vector< L1MuRegionalCand > *l1TfCands = hl1TfCands.product();
 
+  /////////////////////////////////////////////////////////////////////////////////////////////////
   // GMT readout collection
   edm::Handle< L1MuGMTReadoutCollection > hl1GmtCands;
   if (!lightRun) iEvent.getByLabel("simGmtDigis", hl1GmtCands ) ;// InputTag("simCsctfDigis","CSC")
@@ -991,55 +979,55 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
   if( !lightRun )
     {
       if ( centralBxOnlyGMT_ )
-  	{
-  	  // Get GMT candidates from central bunch crossing only
-  	  l1GmtCands = hl1GmtCands->getRecord().getGMTCands() ;
-  	  l1GmtfCands = hl1GmtCands->getRecord().getGMTFwdCands() ;
-  	  l1GmtCSCCands = hl1GmtCands->getRecord().getCSCCands() ;
-  	  l1GmtRPCfCands = hl1GmtCands->getRecord().getFwdRPCCands() ;
-  	  l1GmtRPCbCands = hl1GmtCands->getRecord().getBrlRPCCands() ;
-  	  l1GmtDTCands = hl1GmtCands->getRecord().getDTBXCands() ;
-  	  l1GmtCSCCandsInBXs[hl1GmtCands->getRecord().getBxInEvent()] = l1GmtCSCCands;
-  	}
+	{
+	  // Get GMT candidates from central bunch crossing only
+	  l1GmtCands = hl1GmtCands->getRecord().getGMTCands() ;
+	  l1GmtfCands = hl1GmtCands->getRecord().getGMTFwdCands() ;
+	  l1GmtCSCCands = hl1GmtCands->getRecord().getCSCCands() ;
+	  l1GmtRPCfCands = hl1GmtCands->getRecord().getFwdRPCCands() ;
+	  l1GmtRPCbCands = hl1GmtCands->getRecord().getBrlRPCCands() ;
+	  l1GmtDTCands = hl1GmtCands->getRecord().getDTBXCands() ;
+	  l1GmtCSCCandsInBXs[hl1GmtCands->getRecord().getBxInEvent()] = l1GmtCSCCands;
+	}
       else
-  	{
-  	  // Get GMT candidates from all bunch crossings
-  	  std::vector<L1MuGMTReadoutRecord> gmt_records = hl1GmtCands->getRecords();
-  	  for ( std::vector< L1MuGMTReadoutRecord >::const_iterator rItr=gmt_records.begin(); rItr!=gmt_records.end() ; ++rItr )
-  	    {
-  	      if (rItr->getBxInEvent() < minBxGMT_ || rItr->getBxInEvent() > maxBxGMT_) continue;
-
-  	      std::vector<L1MuGMTExtendedCand> GMTCands = rItr->getGMTCands();
-  	      for ( std::vector<L1MuGMTExtendedCand>::const_iterator  cItr = GMTCands.begin() ; cItr != GMTCands.end() ; ++cItr )
-  		if (!cItr->empty()) l1GmtCands.push_back(*cItr);
-
-  	      std::vector<L1MuGMTExtendedCand> GMTfCands = rItr->getGMTFwdCands();
-  	      for ( std::vector<L1MuGMTExtendedCand>::const_iterator  cItr = GMTfCands.begin() ; cItr != GMTfCands.end() ; ++cItr )
-  		if (!cItr->empty()) l1GmtfCands.push_back(*cItr);
-
-  	      //std::cout<<" ggg: "<<GMTCands.size()<<" "<<GMTfCands.size()<<std::endl;
-
-  	      std::vector<L1MuRegionalCand> CSCCands = rItr->getCSCCands();
-  	      l1GmtCSCCandsInBXs[rItr->getBxInEvent()] = CSCCands;
-  	      for ( std::vector<L1MuRegionalCand>::const_iterator  cItr = CSCCands.begin() ; cItr != CSCCands.end() ; ++cItr )
-  		if (!cItr->empty()) l1GmtCSCCands.push_back(*cItr);
-
-  	      std::vector<L1MuRegionalCand> RPCfCands = rItr->getFwdRPCCands();
-  	      for ( std::vector<L1MuRegionalCand>::const_iterator  cItr = RPCfCands.begin() ; cItr != RPCfCands.end() ; ++cItr )
-  		if (!cItr->empty()) l1GmtRPCfCands.push_back(*cItr);
-
-  	      std::vector<L1MuRegionalCand> RPCbCands = rItr->getBrlRPCCands();
-  	      for ( std::vector<L1MuRegionalCand>::const_iterator  cItr = RPCbCands.begin() ; cItr != RPCbCands.end() ; ++cItr )
-  		if (!cItr->empty()) l1GmtRPCbCands.push_back(*cItr);
-
-  	      std::vector<L1MuRegionalCand> DTCands = rItr->getDTBXCands();
-  	      for ( std::vector<L1MuRegionalCand>::const_iterator  cItr = DTCands.begin() ; cItr != DTCands.end() ; ++cItr )
-  		if (!cItr->empty()) l1GmtDTCands.push_back(*cItr);
-  	    }
-  	  //std::cout<<" sizes: "<<l1GmtCands.size()<<" "<<l1GmtfCands.size()<<" "<<l1GmtCSCCands.size()<<" "<<l1GmtRPCfCands.size()<<std::endl;
-  	}
+	{
+	  // Get GMT candidates from all bunch crossings
+	  std::vector<L1MuGMTReadoutRecord> gmt_records = hl1GmtCands->getRecords();
+	  for ( std::vector< L1MuGMTReadoutRecord >::const_iterator rItr=gmt_records.begin(); rItr!=gmt_records.end() ; ++rItr )
+	    {
+	      if (rItr->getBxInEvent() < minBxGMT_ || rItr->getBxInEvent() > maxBxGMT_) continue;
+	
+	      std::vector<L1MuGMTExtendedCand> GMTCands = rItr->getGMTCands();
+	      for ( std::vector<L1MuGMTExtendedCand>::const_iterator  cItr = GMTCands.begin() ; cItr != GMTCands.end() ; ++cItr )
+		if (!cItr->empty()) l1GmtCands.push_back(*cItr);
+	
+	      std::vector<L1MuGMTExtendedCand> GMTfCands = rItr->getGMTFwdCands();
+	      for ( std::vector<L1MuGMTExtendedCand>::const_iterator  cItr = GMTfCands.begin() ; cItr != GMTfCands.end() ; ++cItr )
+		if (!cItr->empty()) l1GmtfCands.push_back(*cItr);
+	
+	      //std::cout<<" ggg: "<<GMTCands.size()<<" "<<GMTfCands.size()<<std::endl;
+	
+	      std::vector<L1MuRegionalCand> CSCCands = rItr->getCSCCands();
+	      l1GmtCSCCandsInBXs[rItr->getBxInEvent()] = CSCCands;
+	      for ( std::vector<L1MuRegionalCand>::const_iterator  cItr = CSCCands.begin() ; cItr != CSCCands.end() ; ++cItr )
+		if (!cItr->empty()) l1GmtCSCCands.push_back(*cItr);
+	
+	      std::vector<L1MuRegionalCand> RPCfCands = rItr->getFwdRPCCands();
+	      for ( std::vector<L1MuRegionalCand>::const_iterator  cItr = RPCfCands.begin() ; cItr != RPCfCands.end() ; ++cItr )
+		if (!cItr->empty()) l1GmtRPCfCands.push_back(*cItr);
+	
+	      std::vector<L1MuRegionalCand> RPCbCands = rItr->getBrlRPCCands();
+	      for ( std::vector<L1MuRegionalCand>::const_iterator  cItr = RPCbCands.begin() ; cItr != RPCbCands.end() ; ++cItr )
+		if (!cItr->empty()) l1GmtRPCbCands.push_back(*cItr);
+	
+	      std::vector<L1MuRegionalCand> DTCands = rItr->getDTBXCands();
+	      for ( std::vector<L1MuRegionalCand>::const_iterator  cItr = DTCands.begin() ; cItr != DTCands.end() ; ++cItr )
+		if (!cItr->empty()) l1GmtDTCands.push_back(*cItr);
+	    }
+	  //std::cout<<" sizes: "<<l1GmtCands.size()<<" "<<l1GmtfCands.size()<<" "<<l1GmtCSCCands.size()<<" "<<l1GmtRPCfCands.size()<<std::endl;
+	}
     }
-
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   if (iSetup.get< L1MuTriggerScalesRcd >().cacheIdentifier() != muScalesCacheID_ ||
       iSetup.get< L1MuTriggerPtScaleRcd >().cacheIdentifier() != muPtScaleCacheID_ )
@@ -1061,13 +1049,13 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
 
 
-//   // simple trigger muons from L1Extra
-//   edm::Handle< l1extra::L1MuonParticleCollection > hl1Muons;
-//   const l1extra::L1MuonParticleCollection* l1Muons = 0;
-//   if (!lightRun) {
-//     iEvent.getByLabel("l1extraParticles", hl1Muons);
-//     l1Muons  = hl1Muons.product();
-//   }
+  //   // simple trigger muons from L1Extra
+  //   edm::Handle< l1extra::L1MuonParticleCollection > hl1Muons;
+  //   const l1extra::L1MuonParticleCollection* l1Muons = 0;
+  //   if (!lightRun) {
+  //     iEvent.getByLabel("l1extraParticles", hl1Muons);
+  //     l1Muons  = hl1Muons.product();
+  //   }
 
 
   double mcpt, mceta, mcphi, stpt, steta, stphi ;
@@ -1407,7 +1395,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
   
-//   unsigned inefTF = 0;
+  //   unsigned inefTF = 0;
   
   for (unsigned int im=0; im<matches.size(); im++) 
     {
@@ -1538,7 +1526,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       bool tffidAll_ok = false;
       if ( tfcAll ) tffidAll_ok = ( eta_ok && tfcAll->l1cand->quality_packed() > 1 );
 
-//       MatchCSCMuL1::TFTRACK * tft = match->bestTFTRACK(match->TFTRACKs, bestPtMatch_);
+      //       MatchCSCMuL1::TFTRACK * tft = match->bestTFTRACK(match->TFTRACKs, bestPtMatch_);
       MatchCSCMuL1::TFTRACK * tftAll = match->bestTFTRACK(match->TFTRACKsAll, bestPtMatch_);
       int nokeey=0;
 
@@ -1590,30 +1578,31 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       std::vector<int> chIds = match->chambersWithHits();
       std::vector<int> fillIds;
-      if (pt_ok) for (size_t ch = 0; ch < chIds.size(); ch++)
-      		   {
-      		     CSCDetId chId(chIds[ch]);
-      		     int csct = getCSCType( chId );
-      		     h_cscdet_of_chamber->Fill( csct );
-      		     if(detALCT.find(chIds[ch]) != detALCT.end()) h_cscdet_of_chamber_w_alct->Fill( csct );
-      		     if(detCLCT.find(chIds[ch]) != detCLCT.end()) h_cscdet_of_chamber_w_clct->Fill( csct );
-      		     if(detMPLCT.find(chIds[ch]) != detMPLCT.end()) h_cscdet_of_chamber_w_mplct->Fill( csct );
-
-      		     if (csct==0 || csct==3) {
-      		       // check that if the same WG is hit in ME1/b and ME1/a
-      		       // then fill it only once from ME1/b
-      		       int wg = match->wireGroupAndStripInChamber(chIds[ch]).first;
-      		       if (wg>=10 && wg<=18) {
-      			 if (csct==3) {
-      			   CSCDetId di(chId.endcap(),chId.station(),1,chId.chamber(),0);
-      			   if (wg == match->wireGroupAndStripInChamber(di.rawId()).first) continue;
-      			 }
-      		       }
-      		       h_wg_me11_initial->Fill(wg);
-      		     }
-      		   }
-
-    
+      if (pt_ok) 
+	for (size_t ch = 0; ch < chIds.size(); ch++)
+	{
+	  CSCDetId chId(chIds[ch]);
+	  int csct = getCSCType( chId );
+	  h_cscdet_of_chamber->Fill( csct );
+	  if(detALCT.find(chIds[ch]) != detALCT.end()) h_cscdet_of_chamber_w_alct->Fill( csct );
+	  if(detCLCT.find(chIds[ch]) != detCLCT.end()) h_cscdet_of_chamber_w_clct->Fill( csct );
+	  if(detMPLCT.find(chIds[ch]) != detMPLCT.end()) h_cscdet_of_chamber_w_mplct->Fill( csct );
+	  
+	  if (csct==0 || csct==3) {
+	    // check that if the same WG is hit in ME1/b and ME1/a
+	    // then fill it only once from ME1/b
+	    int wg = match->wireGroupAndStripInChamber(chIds[ch]).first;
+	    if (wg>=10 && wg<=18) {
+	      if (csct==3) {
+		CSCDetId di(chId.endcap(),chId.station(),1,chId.chamber(),0);
+		if (wg == match->wireGroupAndStripInChamber(di.rawId()).first) continue;
+	      }
+	    }
+	    h_wg_me11_initial->Fill(wg);
+	  }
+	}
+      
+      
       //============ GEM ==================
 
       SimTrackMatchManager gemcsc_match(*(match->strk), simVertices[match->strk->vertIndex()], gemMatchCfg_, iEvent, iSetup);
@@ -1651,74 +1640,78 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       	  if (pt_ok) h_eta_after_alct->Fill(steta);
       	  if (etapt_ok) h_phi_after_alct->Fill(stphi);
       	  int minbx[CSC_TYPES]={99,99,99,99,99,99,99,99,99,99};
-      	  if (pt_ok) for (unsigned i=0; i<rALCTs.size();i++)
-      		       {
-      			 if (rALCTs[i].inReadOut()==0) continue;
-      			 int bx = rALCTs[i].getBX() - 6;   
-      			 int bxf = rALCTs[i].trgdigi->getFullBX() - 6;  
-      			 h_eta_vs_bx_after_alct->Fill( steta, bx ); // drop it
-      			 h_bx_after_alct->Fill( bx );
-      			 int csct = getCSCType( rALCTs[i].id );
-      			 h_bx__alct_cscdet[ csct ]->Fill( bx );
-      			 h_bxf__alct_cscdet[ csct ]->Fill( bxf );
-      			 h_dbxbxf__alct_cscdet[ csct ]->Fill( bx-bxf );
-      			 if (rALCTs[i].deltaOk) {
-      			   h_bx__alctOk_cscdet[ csct ]->Fill( bx );
-      			   h_bxf__alctOk_cscdet[ csct ]->Fill( bxf );
-      			   if (debugINHISTOS && bx<-1) {    // method to dumpwire digis in case there is out of time alcts
-      			     std::cout<<" OOW good ALCT: "<<*(rALCTs[i].trgdigi)<<std::endl;
-      			     dumpWireDigis(rALCTs[i].id, wiredc);
-      			   }
-      			 }
-      			 if ( fabs(bx) < fabs(minbx[csct]) ) minbx[csct] = bx;
-      			 h_qu_alct->Fill(rALCTs[i].trgdigi->getQuality());
-      			 h_qu_vs_bx__alct->Fill(rALCTs[i].trgdigi->getQuality(), bx);
-      		       }
-      	  if (pt_ok) for (int i=0; i<CSC_TYPES;i++)
-      		       if (minbx[i]<99) h_bx_min__alct_cscdet[ i ]->Fill( minbx[i] );
-
+      	  if (pt_ok) 
+	    for (unsigned i=0; i<rALCTs.size();i++)
+	    {	      
+	      if (rALCTs[i].inReadOut()==0) continue;
+	      int bx = rALCTs[i].getBX() - 6;   
+	      int bxf = rALCTs[i].trgdigi->getFullBX() - 6;  
+	      h_eta_vs_bx_after_alct->Fill( steta, bx ); // drop it
+	      h_bx_after_alct->Fill( bx );
+	      int csct = getCSCType( rALCTs[i].id );
+	      h_bx__alct_cscdet[ csct ]->Fill( bx );
+	      h_bxf__alct_cscdet[ csct ]->Fill( bxf );
+	      h_dbxbxf__alct_cscdet[ csct ]->Fill( bx-bxf );
+	      if (rALCTs[i].deltaOk) {
+		h_bx__alctOk_cscdet[ csct ]->Fill( bx );
+		h_bxf__alctOk_cscdet[ csct ]->Fill( bxf );
+		if (debugINHISTOS && bx<-1) {    // method to dumpwire digis in case there is out of time alcts
+		  std::cout<<" OOW good ALCT: "<<*(rALCTs[i].trgdigi)<<std::endl;
+		  dumpWireDigis(rALCTs[i].id, wiredc);
+		}
+	      }
+	      if ( fabs(bx) < fabs(minbx[csct]) ) minbx[csct] = bx;
+	      h_qu_alct->Fill(rALCTs[i].trgdigi->getQuality());
+	      h_qu_vs_bx__alct->Fill(rALCTs[i].trgdigi->getQuality(), bx);
+	    }
+      	  if (pt_ok) 
+	    for (int i=0; i<CSC_TYPES;i++)
+	      if (minbx[i]<99) h_bx_min__alct_cscdet[ i ]->Fill( minbx[i] );
+	  
 	  std::vector<int> chIDs = match->chambersWithALCTs();
 	  if (pt_ok) h_n_ch_w_alct->Fill(chIDs.size());
-	  if (pt_ok) for (size_t ch = 0; ch < chIDs.size(); ch++) 
-      	   	       {
-			 std::vector<MatchCSCMuL1::ALCT> chalcts = match->chamberALCTs(chIDs[ch]);
-			 CSCDetId chId(chIDs[ch]);
-			 int csct = getCSCType( chId );
-
-			 MatchCSCMuL1::ALCT *bestALCT = match->bestALCT( chId );
-			 if (bestALCT==0) std::cout<<"STRANGE: no best ALCT in chamber with ALCTs"<<std::endl;
-			 if (bestALCT and bestALCT->deltaOk) {
-			   h_bx__alctOkBest_cscdet[ csct ]->Fill( bestALCT->getBX() - 6 );   // useful histogram  
-			   h_wg_vs_bx__alctOkBest_cscdet[ csct ]->Fill( match->wireGroupAndStripInChamber(chIDs[ch]).first, bestALCT->getBX() - 6);
-			 }
-		       }
-
-
+	  if (pt_ok) 
+	    for (size_t ch = 0; ch < chIDs.size(); ch++) 
+	    {
+	      std::vector<MatchCSCMuL1::ALCT> chalcts = match->chamberALCTs(chIDs[ch]);
+	      CSCDetId chId(chIDs[ch]);
+	      int csct = getCSCType( chId );
+	      
+	      MatchCSCMuL1::ALCT *bestALCT = match->bestALCT( chId );
+	      if (bestALCT==0) std::cout<<"STRANGE: no best ALCT in chamber with ALCTs"<<std::endl;
+	      if (bestALCT and bestALCT->deltaOk) {
+		h_bx__alctOkBest_cscdet[ csct ]->Fill( bestALCT->getBX() - 6 );   // useful histogram  
+		h_wg_vs_bx__alctOkBest_cscdet[ csct ]->Fill( match->wireGroupAndStripInChamber(chIDs[ch]).first, bestALCT->getBX() - 6);
+	      }
+	    }
+	  
+	  
 	  // This is important to flag the quality of ALCTs in ME1
 	  
       	  bool okME1alct = 0, okME1alctg=0;
-      	  if (pt_ok) for (unsigned i=0; i<rALCTs.size();i++)
-      	  	       {
-      	  		 if (rALCTs[i].id.station() == 1)
-      	  		   {
-      	  		     if (debugINHISTOS) std::cout<<" ALCT check: station "<<1<<std::endl;
-      	  		     okME1alct = 1;
-      	  		     hasME1alct = 1;
-      	  		     if (debugINHISTOS) std::cout<<" dw="<<rALCTs[i].deltaWire<<" md=["<<minDeltaWire_<<","<< maxDeltaWire_<<"]"<<std::endl;
-      	  		     if (minDeltaWire_ <= rALCTs[i].deltaWire &&
-      	  			 rALCTs[i].deltaWire <= maxDeltaWire_)
-      	  		       {
-      	  			 okME1alctg = 1;
-      	  			 ME1ALCTsOk.push_back(rALCTs[i]);
-      	  			 if (debugINHISTOS) std::cout<<" ALCT good "<<1<<std::endl;
-      	  		       }
-      	  		   }
-      	  	       }
+      	  if (pt_ok) 
+	    for (unsigned i=0; i<rALCTs.size();i++)
+	      {
+		if (rALCTs[i].id.station() == 1)
+		  {
+		    if (debugINHISTOS) std::cout<<" ALCT check: station "<<1<<std::endl;
+		    okME1alct = 1;
+		    hasME1alct = 1;
+		    if (debugINHISTOS) std::cout<<" dw="<<rALCTs[i].deltaWire<<" md=["<<minDeltaWire_<<","<< maxDeltaWire_<<"]"<<std::endl;
+		    if (minDeltaWire_ <= rALCTs[i].deltaWire &&
+			rALCTs[i].deltaWire <= maxDeltaWire_)
+		      {
+			okME1alctg = 1;
+			ME1ALCTsOk.push_back(rALCTs[i]);
+			if (debugINHISTOS) std::cout<<" ALCT good "<<1<<std::endl;
+		      }
+		  }
+	      }
       	  if(okME1alct)  h_eta_me1_after_alct->Fill(steta);
       	  if(okME1alctg) {
       	    h_eta_me1_after_alct_okAlct->Fill(steta);
-
-
+	    
+	    
       	    std::vector<int> chIDs = match->chambersWithALCTs();
       	    for (size_t ch = 0; ch < chIDs.size(); ch++)
       	      {
@@ -1777,40 +1770,42 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	  std::vector<int> chIDs = match->chambersWithCLCTs();
 	  if (pt_ok) h_n_ch_w_clct->Fill(chIDs.size());
-	  if (pt_ok) for (size_t ch = 0; ch < chIDs.size(); ch++) 
-		       {
-			 std::vector<MatchCSCMuL1::CLCT> chcltcs = match->chamberCLCTs(chIDs[ch]);
-			 
-			 CSCDetId chId(chIDs[ch]);
-			 int csct = getCSCType( chId );
-      	   		 MatchCSCMuL1::CLCT *bestCLCT = match->bestCLCT( chId );
-			 if (bestCLCT==0) std::cout<<"STRANGE: no best CLCT in chamber with CLCTs"<<std::endl;
-			 if (bestCLCT and bestCLCT->deltaOk) {
-			   h_bx__clctOkBest_cscdet[ csct ]->Fill( bestCLCT->trgdigi->getBX() - 6 );  // keep this but drop what is not related to this
-			 }
-		       }
-
+	  if (pt_ok) 
+	    for (size_t ch = 0; ch < chIDs.size(); ch++) 
+	    {
+	      std::vector<MatchCSCMuL1::CLCT> chcltcs = match->chamberCLCTs(chIDs[ch]);
+	      
+	      CSCDetId chId(chIDs[ch]);
+	      int csct = getCSCType( chId );
+	      MatchCSCMuL1::CLCT *bestCLCT = match->bestCLCT( chId );
+	      if (bestCLCT==0) std::cout<<"STRANGE: no best CLCT in chamber with CLCTs"<<std::endl;
+	      if (bestCLCT and bestCLCT->deltaOk) {
+		h_bx__clctOkBest_cscdet[ csct ]->Fill( bestCLCT->trgdigi->getBX() - 6 );  // keep this but drop what is not related to this
+	      }
+	    }
+	  
       	  bool okME1clct = 0, okME1clctg=0;
-      	  if (pt_ok) for (unsigned i=0; i<rCLCTs.size();i++)
-      		       {
-      			 if (rCLCTs[i].id.station() == 1)
-      			   {
-      			     if (debugINHISTOS) std::cout<<" CLCT check: station "<<1<<std::endl;
-      			     okME1clct = 1;
-      			     hasME1clct = 1;
-      			     if (debugINHISTOS) std::cout<<" ds="<<abs(rCLCTs[i].deltaStrip)<<" md="<<minDeltaStrip_<<std::endl;
-      			     if (abs(rCLCTs[i].deltaStrip) <= minDeltaStrip_)
-      			       {
-      				 okME1clctg = 1;
-      				 ME1CLCTsOk.push_back(rCLCTs[i]);
-      				 if (debugINHISTOS) std::cout<<" CLCT good "<<1<<std::endl;
-      			       }
-      			   }
-      		       }
+      	  if (pt_ok) 
+	    for (unsigned i=0; i<rCLCTs.size();i++)
+	    {
+	      if (rCLCTs[i].id.station() == 1)
+		{
+		  if (debugINHISTOS) std::cout<<" CLCT check: station "<<1<<std::endl;
+		  okME1clct = 1;
+		  hasME1clct = 1;
+		  if (debugINHISTOS) std::cout<<" ds="<<abs(rCLCTs[i].deltaStrip)<<" md="<<minDeltaStrip_<<std::endl;
+		  if (abs(rCLCTs[i].deltaStrip) <= minDeltaStrip_)
+		    {
+		      okME1clctg = 1;
+		      ME1CLCTsOk.push_back(rCLCTs[i]);
+		      if (debugINHISTOS) std::cout<<" CLCT good "<<1<<std::endl;
+		    }
+		}
+	    }
       	  if(okME1clct)  h_eta_me1_after_clct->Fill(steta);
       	  if(okME1clctg) h_eta_me1_after_clct_okClct->Fill(steta);
       	}
-    
+      
       if (hasME1alct && hasME1clct) h_eta_me1_after_alctclct->Fill(steta);
       if (ME1ALCTsOk.size() && hasME1clct) h_eta_me1_after_alctclct_okAlct->Fill(steta);
       if (ME1CLCTsOk.size() && hasME1alct) h_eta_me1_after_alctclct_okClct->Fill(steta);
@@ -1879,44 +1874,45 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       	  bool okME1lct = 0, okME1alct=0, okME1alctclct=0, okME1clct=0, okME1clctalct=0;
       	  std::vector<MatchCSCMuL1::LCT> ME1LCTsOkCLCTNo, ME1LCTsOkCLCTOkALCTNo;
-      	  if (pt_ok) for (unsigned i=0; i<rLCTs.size();i++)
-      		       {
-      			 if (rLCTs[i].id.station() == 1)
-      			   {
-      			     if (debugINHISTOS) std::cout<<" LCT check: station "<<1<<std::endl;
-      			     okME1lct = 1;
-      			     if (debugINHISTOS && rLCTs[i].alct) std::cout<<" dw="<<abs(rLCTs[i].alct->deltaWire)<<" md="<<minDeltaWire_<<std::endl;
-      			     if (debugINHISTOS && rLCTs[i].clct) std::cout<<" ds="<<abs(rLCTs[i].clct->deltaStrip)<<" md="<<minDeltaStrip_<<std::endl;
-
-      			     if (rLCTs[i].alct && rLCTs[i].alct->deltaOk)
-      			       {
-      				 okME1alct = 1;
-      				 if (debugINHISTOS) std::cout<<" LCT check: alct good "<<1<<std::endl;
-      				 if (rLCTs[i].clct && rLCTs[i].clct->deltaOk)
-      				   {
-      				     if (debugINHISTOS) std::cout<<" LCT check: alct-clct good "<<1<<std::endl;
-      				     okME1alctclct = 1;
-      				     //ME1LCTsOk.push_back(rLCTs[i]);
-      				     //if (debugINHISTOS) std::cout<<" LCT check: lct pushed "<<1<<std::endl;
-      				   }
-      			       }
-
-      			     if (rLCTs[i].clct && rLCTs[i].clct->deltaOk)
-      			       {
-      				 okME1clct = 1;
-      				 if (debugINHISTOS) std::cout<<" LCT check: clct good "<<1<<std::endl;
-      				 if (rLCTs[i].alct && rLCTs[i].alct->deltaOk)
-      				   {
-      				     if (debugINHISTOS) std::cout<<" LCT check: clct-alct good "<<1<<std::endl;
-      				     okME1clctalct = 1;
-      				     ME1LCTsOk.push_back(rLCTs[i]);
-      				     if (debugINHISTOS) std::cout<<" LCT check: lct pushed "<<1<<std::endl;
-      				   }
-      				 else if (rLCTs[i].alct) ME1LCTsOkCLCTOkALCTNo.push_back(rLCTs[i]);
-      			       }
-      			     else if (rLCTs[i].clct) ME1LCTsOkCLCTNo.push_back(rLCTs[i]);
-      			   }
-      		       }
+      	  if (pt_ok) 
+	    for (unsigned i=0; i<rLCTs.size();i++)
+      	    {
+	      if (rLCTs[i].id.station() == 1)
+		{
+		  if (debugINHISTOS) std::cout<<" LCT check: station "<<1<<std::endl;
+		  okME1lct = 1;
+		  if (debugINHISTOS && rLCTs[i].alct) std::cout<<" dw="<<abs(rLCTs[i].alct->deltaWire)<<" md="<<minDeltaWire_<<std::endl;
+		  if (debugINHISTOS && rLCTs[i].clct) std::cout<<" ds="<<abs(rLCTs[i].clct->deltaStrip)<<" md="<<minDeltaStrip_<<std::endl;
+		  
+		  if (rLCTs[i].alct && rLCTs[i].alct->deltaOk)
+		    {
+		      okME1alct = 1;
+		      if (debugINHISTOS) std::cout<<" LCT check: alct good "<<1<<std::endl;
+		      if (rLCTs[i].clct && rLCTs[i].clct->deltaOk)
+			{
+			  if (debugINHISTOS) std::cout<<" LCT check: alct-clct good "<<1<<std::endl;
+			  okME1alctclct = 1;
+			  //ME1LCTsOk.push_back(rLCTs[i]);
+			  //if (debugINHISTOS) std::cout<<" LCT check: lct pushed "<<1<<std::endl;
+			}
+		    }
+		  
+		  if (rLCTs[i].clct && rLCTs[i].clct->deltaOk)
+		    {
+		      okME1clct = 1;
+		      if (debugINHISTOS) std::cout<<" LCT check: clct good "<<1<<std::endl;
+		      if (rLCTs[i].alct && rLCTs[i].alct->deltaOk)
+			{
+			  if (debugINHISTOS) std::cout<<" LCT check: clct-alct good "<<1<<std::endl;
+			  okME1clctalct = 1;
+			  ME1LCTsOk.push_back(rLCTs[i]);
+			  if (debugINHISTOS) std::cout<<" LCT check: lct pushed "<<1<<std::endl;
+			}
+		      else if (rLCTs[i].alct) ME1LCTsOkCLCTOkALCTNo.push_back(rLCTs[i]);
+		    }
+		  else if (rLCTs[i].clct) ME1LCTsOkCLCTNo.push_back(rLCTs[i]);
+		}
+	    }
       	  if(okME1lct) h_eta_me1_after_lct->Fill(steta);
       	  if(okME1alct) h_eta_me1_after_lct_okAlct->Fill(steta);
       	  if(okME1clct) h_eta_me1_after_lct_okClct->Fill(steta);
@@ -2189,28 +2185,29 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       	      const int Nthr = 7;
       	      float tfc_pt_thr[Nthr] = {0., 10., 15., 20., 25., 30., 40.};
         
-      	      for (int i=0; i<Nthr; ++i) if (tfc_pt >= tfc_pt_thr[i]) 
-      					   {
-      					     h_mode_tfcand_gem1b_2s1b_1b[i]->Fill(tf_mode);
-
-      					     h_pt_after_tfcand_gem1b_2s1b[i]->Fill(stpt);
-      					     if (ok_2s123) h_pt_after_tfcand_gem1b_2s123[i]->Fill(stpt);
-      					     if (ok_2s13) h_pt_after_tfcand_gem1b_2s13[i]->Fill(stpt);
-
-      					     if ( nTFstubsOk >= 3 )  h_pt_after_tfcand_gem1b_3s1b[i]->Fill(stpt);
-          
-      					     if (   (gem_dphi_odd < -99. && gem_dphi_even < 99.)  // both just dummy default values
-      						    || (gem_dphi_odd  > -9. && isGEMDPhiGood(gem_dphi_odd, tfc_pt_thr[i], 1) )  // good dphi odd
-      						    || (gem_dphi_even > -9. && isGEMDPhiGood(gem_dphi_even, tfc_pt_thr[i], 0) ) ) // good dphi even
-      					       {
-      						 h_pt_after_tfcand_dphigem1b_2s1b[i]->Fill(stpt);
-      						 if (ok_2s123) h_pt_after_tfcand_dphigem1b_2s123[i]->Fill(stpt);
-      						 if (ok_2s13) h_pt_after_tfcand_dphigem1b_2s13[i]->Fill(stpt);
-      						 if ( nTFstubsOk >= 3 )  h_pt_after_tfcand_dphigem1b_3s1b[i]->Fill(stpt);
-      					       }
-      					   }
+      	      for (int i=0; i<Nthr; ++i) 
+		if (tfc_pt >= tfc_pt_thr[i]) 
+		{
+		  h_mode_tfcand_gem1b_2s1b_1b[i]->Fill(tf_mode);
+		  
+		  h_pt_after_tfcand_gem1b_2s1b[i]->Fill(stpt);
+		  if (ok_2s123) h_pt_after_tfcand_gem1b_2s123[i]->Fill(stpt);
+		  if (ok_2s13) h_pt_after_tfcand_gem1b_2s13[i]->Fill(stpt);
+		  
+		  if ( nTFstubsOk >= 3 )  h_pt_after_tfcand_gem1b_3s1b[i]->Fill(stpt);
+		  
+		  if (   (gem_dphi_odd < -99. && gem_dphi_even < 99.)  // both just dummy default values
+			 || (gem_dphi_odd  > -9. && isGEMDPhiGood(gem_dphi_odd, tfc_pt_thr[i], 1) )  // good dphi odd
+			 || (gem_dphi_even > -9. && isGEMDPhiGood(gem_dphi_even, tfc_pt_thr[i], 0) ) ) // good dphi even
+		    {
+		      h_pt_after_tfcand_dphigem1b_2s1b[i]->Fill(stpt);
+		      if (ok_2s123) h_pt_after_tfcand_dphigem1b_2s123[i]->Fill(stpt);
+		      if (ok_2s13) h_pt_after_tfcand_dphigem1b_2s13[i]->Fill(stpt);
+		      if ( nTFstubsOk >= 3 )  h_pt_after_tfcand_dphigem1b_3s1b[i]->Fill(stpt);
+		    }
+		}
       	    }
-
+	  
       	  if (eta_high) 
       	    {
       	      h_pth_after_tfcand->Fill(stpt);
@@ -2488,24 +2485,25 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       	    {
       	      const int Nthr = 7;
       	      float tfc_pt_thr[Nthr] = {0., 10., 15., 20., 25., 30., 40.};
-      	      for (int i=0; i<Nthr; ++i) if (gmtc->pt >= tfc_pt_thr[i]) 
-      					   {
-      					     h_pt_after_gmt_eta1b_1mu[i]->Fill(stpt);
-
-      					     if (eta_gem_1b && match_has_gem && has_mplct_me1b) 
-      					       {
-      						 h_pt_after_gmt_gem1b_1mu[i]->Fill(stpt);
-
-      						 if (   (gem_dphi_odd < -99. && gem_dphi_even < 99.)  // both just dummy default values
-      							|| (gem_dphi_odd  > -9. && isGEMDPhiGood(gem_dphi_odd, tfc_pt_thr[i], 1) )  // good dphi odd
-      							|| (gem_dphi_even > -9. && isGEMDPhiGood(gem_dphi_even, tfc_pt_thr[i], 0) ) ) // good dphi even
-      						   {
-      						     h_pt_after_gmt_dphigem1b_1mu[i]->Fill(stpt);
-      						   }
-      					       }
-      					   }
+      	      for (int i=0; i<Nthr; ++i) 
+		if (gmtc->pt >= tfc_pt_thr[i]) 
+		{
+		  h_pt_after_gmt_eta1b_1mu[i]->Fill(stpt);
+		  
+		  if (eta_gem_1b && match_has_gem && has_mplct_me1b) 
+		    {
+		      h_pt_after_gmt_gem1b_1mu[i]->Fill(stpt);
+		      
+		      if (   (gem_dphi_odd < -99. && gem_dphi_even < 99.)  // both just dummy default values
+			     || (gem_dphi_odd  > -9. && isGEMDPhiGood(gem_dphi_odd, tfc_pt_thr[i], 1) )  // good dphi odd
+			     || (gem_dphi_even > -9. && isGEMDPhiGood(gem_dphi_even, tfc_pt_thr[i], 0) ) ) // good dphi even
+			{
+			  h_pt_after_gmt_dphigem1b_1mu[i]->Fill(stpt);
+			}
+		    }
+		}
       	    }
-
+	  
       	}
       MatchCSCMuL1::GMTCAND * gmtca = 0;
       if (!lightRun) gmtca = match->bestGMTCAND(match->GMTCANDsAll, bestPtMatch_);
@@ -2598,7 +2596,6 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 }
 
 
-
 // ================================================================================================
 void 
 GEMCSCTriggerEfficiency::cleanUp()
@@ -2609,6 +2606,7 @@ GEMCSCTriggerEfficiency::cleanUp()
       ghostLCTs.clear();
     }
 }
+
 
 // ================================================================================================
 void 
@@ -2655,9 +2653,9 @@ GEMCSCTriggerEfficiency::propagateToCSCStations(MatchCSCMuL1 *match)
 // ================================================================================================
 void 
 GEMCSCTriggerEfficiency::matchSimTrack2SimHits( MatchCSCMuL1 * match, 
-				    const edm::SimTrackContainer & simTracks, 
-				    const edm::SimVertexContainer & simVertices, 
-				    const edm::PSimHitContainer * allCSCSimHits )
+						const edm::SimTrackContainer & simTracks, 
+						const edm::SimVertexContainer & simVertices, 
+						const edm::PSimHitContainer * allCSCSimHits )
 {
   // Matching of SimHits that were created by SimTrack
 
@@ -2705,9 +2703,9 @@ GEMCSCTriggerEfficiency::matchSimTrack2SimHits( MatchCSCMuL1 * match,
 // ================================================================================================
 void
 GEMCSCTriggerEfficiency::matchSimTrack2ALCTs(MatchCSCMuL1 *match, 
-				 const edm::PSimHitContainer* allCSCSimHits, 
-				 const CSCALCTDigiCollection *alcts, 
-				 const CSCWireDigiCollection* wiredc )
+					     const edm::PSimHitContainer* allCSCSimHits, 
+					     const CSCALCTDigiCollection *alcts, 
+					     const CSCWireDigiCollection* wiredc )
 {
   // tool for matching SimHits to ALCTs
   //CSCAnodeLCTAnalyzer alct_analyzer;
@@ -2789,9 +2787,9 @@ GEMCSCTriggerEfficiency::matchSimTrack2ALCTs(MatchCSCMuL1 *match,
 	  }
 
 	  if (debugALCT) std::cout<<"raw ID "<<id.rawId()<<" "<<id<<"  #"<<nm<<"    NTrackHitsInChamber  nmhits  alctInfo.size  diff  "
-			     <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<alctInfo.size()<<"  "
-			     << nmhits-alctInfo.size() <<std::endl
-			     << "  "<<(*digiIt)<<"  DW="<<malct.deltaWire<<" eta="<<malct.eta;
+				  <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<alctInfo.size()<<"  "
+				  << nmhits-alctInfo.size() <<std::endl
+				  << "  "<<(*digiIt)<<"  DW="<<malct.deltaWire<<" eta="<<malct.eta;
 
 	  if (nmhits + nmhits1a > 0)
 	    {
@@ -2839,8 +2837,8 @@ GEMCSCTriggerEfficiency::matchSimTrack2ALCTs(MatchCSCMuL1 *match,
 		{
 		  if (debugALCT)  for (unsigned i=0; i<trackHitsInChamber.size();i++)
 				    std::cout<<"   DY match: "<<trackHitsInChamber[i]<<" "<<trackHitsInChamber[i].exitPoint()<<"  "
-					<<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
-					<<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
+					     <<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
+					     <<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
   
 		  if (!me1a_no_overlap) match->ALCTs.push_back(malct);
 		  dymatch = true;
@@ -2856,8 +2854,8 @@ GEMCSCTriggerEfficiency::matchSimTrack2ALCTs(MatchCSCMuL1 *match,
 		{
 		  if (debugALCT)  for (unsigned i=0; i<trackHitsInChamber.size();i++)
 				    std::cout<<"   chamber match: "<<trackHitsInChamber[i]<<" "<<trackHitsInChamber[i].exitPoint()<<"  "
-					<<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
-					<<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
+					     <<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
+					     <<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
   
 		  if (!me1a_no_overlap) match->ALCTs.push_back(malct);
 		  if (me1a_all) match->ALCTs.push_back(malct1a);
@@ -2906,13 +2904,12 @@ GEMCSCTriggerEfficiency::matchSimTrack2ALCTs(MatchCSCMuL1 *match,
 }
 
 
-
 // ================================================================================================
 void
 GEMCSCTriggerEfficiency::matchSimTrack2CLCTs(MatchCSCMuL1 *match, 
-				 const edm::PSimHitContainer* allCSCSimHits, 
-				 const CSCCLCTDigiCollection *clcts, 
-				 const CSCComparatorDigiCollection* compdc )
+					     const edm::PSimHitContainer* allCSCSimHits, 
+					     const CSCCLCTDigiCollection *clcts, 
+					     const CSCComparatorDigiCollection* compdc )
 {
   // tool for matching SimHits to CLCTs
   //CSCCathodeLCTAnalyzer clct_analyzer;
@@ -2980,9 +2977,9 @@ GEMCSCTriggerEfficiency::matchSimTrack2CLCTs(MatchCSCMuL1 *match,
 	  mclct.deltaOk = (abs(mclct.deltaStrip) <= minDeltaStrip_);
 
 	  if (debugCLCT) std::cout<<"raw ID "<<cid.rawId()<<" "<<cid<<"  #"<<nm<<"    NTrackHitsInChamber  nmhits  clctInfo.size  diff  "
-			     <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<clctInfo.size()<<"  "
-			     << nmhits-clctInfo.size() <<std::endl
-			     << "  "<<(*digiIt)<<"  DS="<<mclct.deltaStrip<<" phi="<<mclct.phi;
+				  <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<clctInfo.size()<<"  "
+				  << nmhits-clctInfo.size() <<std::endl
+				  << "  "<<(*digiIt)<<"  DS="<<mclct.deltaStrip<<" phi="<<mclct.phi;
 
 	  if (nmhits > 0)
 	    {
@@ -3015,8 +3012,8 @@ GEMCSCTriggerEfficiency::matchSimTrack2CLCTs(MatchCSCMuL1 *match,
 		{
 		  if (debugCLCT)  for (unsigned i=0; i<trackHitsInChamber.size();i++)
 				    std::cout<<"   DY match: "<<trackHitsInChamber[i]<<" "<<trackHitsInChamber[i].exitPoint()<<"  "
-					<<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
-					<<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
+					     <<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
+					     <<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
   
 		  match->CLCTs.push_back(mclct);
 		  continue;
@@ -3025,8 +3022,8 @@ GEMCSCTriggerEfficiency::matchSimTrack2CLCTs(MatchCSCMuL1 *match,
 		{
 		  if (debugCLCT)  for (unsigned i=0; i<trackHitsInChamber.size();i++)
 				    std::cout<<"   chamber match: "<<trackHitsInChamber[i]<<" "<<trackHitsInChamber[i].exitPoint()<<"  "
-					<<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
-					<<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
+					     <<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
+					     <<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
   
 		  match->CLCTs.push_back(mclct);
 		  continue;
@@ -3070,12 +3067,10 @@ GEMCSCTriggerEfficiency::matchSimTrack2CLCTs(MatchCSCMuL1 *match,
 }
 
 
-
-
 // ================================================================================================
 void
 GEMCSCTriggerEfficiency::matchSimTrack2LCTs(MatchCSCMuL1 *match, 
-				const CSCCorrelatedLCTDigiCollection* lcts )
+					    const CSCCorrelatedLCTDigiCollection* lcts )
 {
   if (debugLCT) std::cout<<"--- LCT ---- begin"<<std::endl;
   int nValidLCTs = 0, nCorrelLCTs = 0, nALCTs = 0, nCLCTs = 0;
@@ -3238,8 +3233,8 @@ GEMCSCTriggerEfficiency::matchSimTrack2LCTs(MatchCSCMuL1 *match,
 		bool sameCLCT = ( lt[0].clct->trgdigi->getKeyStrip() == lt[1].clct->trgdigi->getKeyStrip() );
 		if (debugLCT) {
 		  std::cout<<" n["<<bx<<"] = 2 sameALCT="<<sameALCT<<" sameCLCT="<<sameCLCT<<std::endl
-		      <<" lct1: "<<*(lt[0].trgdigi)
-		      <<" lct2: "<<*(lt[1].trgdigi);
+			   <<" lct1: "<<*(lt[0].trgdigi)
+			   <<" lct2: "<<*(lt[1].trgdigi);
 		}
 		if (sameALCT||sameCLCT) continue;
 	  
@@ -3291,12 +3286,10 @@ GEMCSCTriggerEfficiency::matchSimTrack2LCTs(MatchCSCMuL1 *match,
 }
 
 
-
-
 // ================================================================================================
 void
 GEMCSCTriggerEfficiency::matchSimTrack2MPLCTs(MatchCSCMuL1 *match, 
-				  const CSCCorrelatedLCTDigiCollection* mplcts )
+					      const CSCCorrelatedLCTDigiCollection* mplcts )
 {
   if (debugMPLCT) std::cout<<"--- MPLCT ---- begin"<<std::endl;
   int nValidMPLCTs = 0, nCorrelMPLCTs = 0;
@@ -3456,9 +3449,9 @@ GEMCSCTriggerEfficiency::matchSimTrack2MPLCTs(MatchCSCMuL1 *match,
 // ================================================================================================
 void
 GEMCSCTriggerEfficiency::matchSimtrack2TFTRACKs( MatchCSCMuL1 *match,
-				     edm::ESHandle< L1MuTriggerScales > &muScales,
-				     edm::ESHandle< L1MuTriggerPtScale > &muPtScale,
-				     const L1CSCTrackCollection* l1Tracks)
+						 edm::ESHandle< L1MuTriggerScales > &muScales,
+						 edm::ESHandle< L1MuTriggerPtScale > &muPtScale,
+						 const L1CSCTrackCollection* l1Tracks)
 {
   // TrackFinder's track is considered matched if it contains at least one of already matched MPLCTs
   // so, there is a possibility that several TF tracks would be matched
@@ -3485,9 +3478,9 @@ GEMCSCTriggerEfficiency::matchSimtrack2TFTRACKs( MatchCSCMuL1 *match,
       int Cphi = (int)(degs+5)/10+1;
 
       if (debugTFTRACK) std::cout<< "----- L1CSCTrack with  packed: eta="<<mtftrack.eta_packed<<" phi="<<mtftrack.phi_packed
-			    <<" pt="<<mtftrack.pt_packed<<" qu="<<mtftrack.q_packed<<"  Cphi="<<Cphi
-			    <<"  real: eta="<<mtftrack.eta<<"  phi=" <<mtftrack.phi
-			    <<"  pt="<<mtftrack.pt<<"  dr="<<mtftrack.dr<<"  BX="<<mtftrack.l1trk->bx()<<std::endl;
+				 <<" pt="<<mtftrack.pt_packed<<" qu="<<mtftrack.q_packed<<"  Cphi="<<Cphi
+				 <<"  real: eta="<<mtftrack.eta<<"  phi=" <<mtftrack.phi
+				 <<"  pt="<<mtftrack.pt<<"  dr="<<mtftrack.dr<<"  BX="<<mtftrack.l1trk->bx()<<std::endl;
       //if (debugTFTRACK) std::cout<< "----- ---- vaues: eta/phi "<<mtftrack.l1trk->etaValue()<<"/"<<mtftrack.l1trk->phiValue()<<"  ptValue "<<mtftrack.l1trk->ptValue()<<std::endl;
 
       for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = trk->second.begin(); 
@@ -3574,9 +3567,9 @@ GEMCSCTriggerEfficiency::matchSimtrack2TFTRACKs( MatchCSCMuL1 *match,
 // ================================================================================================
 void
 GEMCSCTriggerEfficiency::matchSimtrack2TFCANDs( MatchCSCMuL1 *match,
-				    edm::ESHandle< L1MuTriggerScales > &muScales,
-				    edm::ESHandle< L1MuTriggerPtScale > &muPtScale,
-				    const std::vector< L1MuRegionalCand > *l1TfCands)
+						edm::ESHandle< L1MuTriggerScales > &muScales,
+						edm::ESHandle< L1MuTriggerPtScale > &muPtScale,
+						const std::vector< L1MuRegionalCand > *l1TfCands)
 {
   if (debugTFCAND) std::cout<<"--- TFCAND ---- begin"<<std::endl;
   for ( std::vector< L1MuRegionalCand >::const_iterator trk = l1TfCands->begin(); trk != l1TfCands->end(); trk++)
@@ -3623,11 +3616,11 @@ GEMCSCTriggerEfficiency::matchSimtrack2TFCANDs( MatchCSCMuL1 *match,
 // ================================================================================================
 void
 GEMCSCTriggerEfficiency::matchSimtrack2GMTCANDs( MatchCSCMuL1 *match, 
-             edm::ESHandle< L1MuTriggerScales > &muScales,
-             edm::ESHandle< L1MuTriggerPtScale > &muPtScale,
-             const std::vector< L1MuGMTExtendedCand> &l1GmtCands,
-             const std::vector<L1MuRegionalCand> &l1GmtCSCCands,
-             const std::map<int, std::vector<L1MuRegionalCand> > &l1GmtCSCCandsInBXs)
+						 edm::ESHandle< L1MuTriggerScales > &muScales,
+						 edm::ESHandle< L1MuTriggerPtScale > &muPtScale,
+						 const std::vector< L1MuGMTExtendedCand> &l1GmtCands,
+						 const std::vector<L1MuRegionalCand> &l1GmtCSCCands,
+						 const std::map<int, std::vector<L1MuRegionalCand> > &l1GmtCSCCandsInBXs)
 {
   if (debugGMTCAND) std::cout<<"--- GMTREGCAND ---- begin"<<std::endl;
 
@@ -3636,56 +3629,56 @@ GEMCSCTriggerEfficiency::matchSimtrack2GMTCANDs( MatchCSCMuL1 *match,
   grmatch.l1reg = NULL;
 
   for ( std::vector<L1MuRegionalCand>::const_iterator trk = l1GmtCSCCands.begin(); trk != l1GmtCSCCands.end(); trk++)
-  {
-/*
-    if ( trk->bx() < minBX_ || trk->bx() > maxBX_ ) 
     {
-      if (debugGMTCAND) std::cout<<"discarding BX = "<< trk->bx() <<std::endl;
-      continue;
+      /*
+	if ( trk->bx() < minBX_ || trk->bx() > maxBX_ ) 
+	{
+	if (debugGMTCAND) std::cout<<"discarding BX = "<< trk->bx() <<std::endl;
+	continue;
+	}
+      */
+      MatchCSCMuL1::GMTREGCAND mcand;
+      mcand.init( &*trk , muScales, muPtScale);
+
+      //mcand.dr = deltaR( match->strk->momentum().eta(), normalizedPhi( match->strk->momentum().phi() ), mcand.eta, mcand.phi );
+      mcand.dr = match->deltaRSmart( mcand.eta, mcand.phi );
+
+      if (debugGMTCAND) std::cout<< "----- GMT:L1MuRegionalCand: packed eta/phi/pt "<<mcand.eta_packed<<"/"<<mcand.phi_packed<<"/"<<trk->pt_packed()<<"    eta="<<mcand.eta<<"  phi=" <<mcand.phi<<"  pt="<<mcand.pt<<"\t  dr="<<mcand.dr<<"  qu="<<trk->quality_packed()<<"  type="<<trk->type_idx()<<std::endl;
+      //if (debugGMTCAND) std::cout<< "----- ---- values: eta/phi "<<trk->etaValue()<<"/"<<trk->phiValue()<<"  ptValue "<<trk->ptValue()<<std::endl;
+
+      mcand.tfcand = NULL;
+      for (unsigned i=0; i< match->TFCANDs.size(); i++)
+	{
+	  if ( trk->phi_packed()  != (match->TFCANDs[i]).l1cand->phi_packed() ||
+	       trk->eta_packed()  != (match->TFCANDs[i]).l1cand->eta_packed()   ) continue;
+
+	  mcand.tfcand = &(match->TFCANDs[i]);
+	  mcand.ids = match->TFCANDs[i].ids;
+	  if (debugGMTCAND) std::cout<< "---------> matched to TFCANDs["<<i<<"]"<<std::endl;
+	  break;
+	}
+      if (mcand.tfcand != NULL)  match->GMTREGCANDs.push_back(mcand);
+
+      mcand.tfcand = NULL;
+      for (unsigned i=0; i< match->TFCANDsAll.size(); i++)
+	{
+	  if ( trk->phi_packed()  != (match->TFCANDsAll[i]).l1cand->phi_packed() ||
+	       trk->eta_packed()  != (match->TFCANDsAll[i]).l1cand->eta_packed()   ) continue;
+
+	  mcand.tfcand = &(match->TFCANDsAll[i]);
+	  mcand.ids = match->TFCANDsAll[i].ids;
+	  if (debugGMTCAND) std::cout<< "---------> matched to TFCANDsAll["<<i<<"]"<<std::endl;
+	  break;
+	}
+      if (mcand.tfcand != NULL)  match->GMTREGCANDsAll.push_back(mcand);
+
+      if (mcand.dr < 0.2 && mcand.pt > ptmatch) 
+	{
+	  ptmatch = mcand.pt;
+	  grmatch = mcand;
+	  if (debugGMTCAND) std::cout<< "---------> DR matched"<<std::endl;
+	}
     }
-*/
-    MatchCSCMuL1::GMTREGCAND mcand;
-    mcand.init( &*trk , muScales, muPtScale);
-
-    //mcand.dr = deltaR( match->strk->momentum().eta(), normalizedPhi( match->strk->momentum().phi() ), mcand.eta, mcand.phi );
-    mcand.dr = match->deltaRSmart( mcand.eta, mcand.phi );
-
-    if (debugGMTCAND) std::cout<< "----- GMT:L1MuRegionalCand: packed eta/phi/pt "<<mcand.eta_packed<<"/"<<mcand.phi_packed<<"/"<<trk->pt_packed()<<"    eta="<<mcand.eta<<"  phi=" <<mcand.phi<<"  pt="<<mcand.pt<<"\t  dr="<<mcand.dr<<"  qu="<<trk->quality_packed()<<"  type="<<trk->type_idx()<<std::endl;
-    //if (debugGMTCAND) std::cout<< "----- ---- values: eta/phi "<<trk->etaValue()<<"/"<<trk->phiValue()<<"  ptValue "<<trk->ptValue()<<std::endl;
-
-    mcand.tfcand = NULL;
-    for (unsigned i=0; i< match->TFCANDs.size(); i++)
-    {
-      if ( trk->phi_packed()  != (match->TFCANDs[i]).l1cand->phi_packed() ||
-           trk->eta_packed()  != (match->TFCANDs[i]).l1cand->eta_packed()   ) continue;
-
-      mcand.tfcand = &(match->TFCANDs[i]);
-      mcand.ids = match->TFCANDs[i].ids;
-      if (debugGMTCAND) std::cout<< "---------> matched to TFCANDs["<<i<<"]"<<std::endl;
-      break;
-    }
-    if (mcand.tfcand != NULL)  match->GMTREGCANDs.push_back(mcand);
-
-    mcand.tfcand = NULL;
-    for (unsigned i=0; i< match->TFCANDsAll.size(); i++)
-    {
-      if ( trk->phi_packed()  != (match->TFCANDsAll[i]).l1cand->phi_packed() ||
-           trk->eta_packed()  != (match->TFCANDsAll[i]).l1cand->eta_packed()   ) continue;
-
-      mcand.tfcand = &(match->TFCANDsAll[i]);
-      mcand.ids = match->TFCANDsAll[i].ids;
-      if (debugGMTCAND) std::cout<< "---------> matched to TFCANDsAll["<<i<<"]"<<std::endl;
-      break;
-    }
-    if (mcand.tfcand != NULL)  match->GMTREGCANDsAll.push_back(mcand);
-
-    if (mcand.dr < 0.2 && mcand.pt > ptmatch) 
-    {
-      ptmatch = mcand.pt;
-      grmatch = mcand;
-      if (debugGMTCAND) std::cout<< "---------> DR matched"<<std::endl;
-    }
-  }
   match->GMTREGCANDBest = grmatch;
   if (debugGMTCAND) std::cout<<"---- # of matched GMTREGCANDs = "<<match->GMTREGCANDs.size()<<"  All = "<<match->GMTREGCANDsAll.size()<<"  DR = "<<(match->GMTREGCANDBest.l1reg != NULL)<<std::endl;
   if (debugGMTCAND) std::cout<<"--- GMTREGCAND ---- end"<<std::endl;
@@ -3698,66 +3691,66 @@ GEMCSCTriggerEfficiency::matchSimtrack2GMTCANDs( MatchCSCMuL1 *match,
   gmatch.l1gmt = NULL;
 
   for( std::vector< L1MuGMTExtendedCand >::const_iterator muItr = l1GmtCands.begin() ; muItr != l1GmtCands.end() ; ++muItr)
-  {
-    if( muItr->empty() ) continue;
-/*
-    if ( muItr->bx() < minBX_ || muItr->bx() > maxBX_ ) 
     {
-      if (debugGMTCAND) std::cout<<"discarding BX = "<< muItr->bx() <<std::endl;
-      continue;
+      if( muItr->empty() ) continue;
+      /*
+	if ( muItr->bx() < minBX_ || muItr->bx() > maxBX_ ) 
+	{
+	if (debugGMTCAND) std::cout<<"discarding BX = "<< muItr->bx() <<std::endl;
+	continue;
+	}
+      */
+      MatchCSCMuL1::GMTCAND mcand;
+      mcand.init( &*muItr , muScales, muPtScale);
+
+      //mcand.dr = deltaR( match->strk->momentum().eta(), normalizedPhi( match->strk->momentum().phi() ), mcand.eta, mcand.phi );
+      mcand.dr = match->deltaRSmart( mcand.eta, mcand.phi );
+
+      if (debugGMTCAND) std::cout<< "----- L1MuGMTExtendedCand: packed eta/phi/pt "<<muItr->etaIndex()<<"/"<<muItr->phiIndex()<<"/"<<muItr->ptIndex()<<"    eta="<<mcand.eta<<"  phi=" <<mcand.phi<<"  pt="<<mcand.pt<<"\t  dr="<<mcand.dr<<"  qu="<<muItr->quality()<<"  bx="<<muItr->bx()<<"  q="<<muItr->charge()<<"("<<muItr->charge_valid()<<")  isRPC="<<muItr->isRPC()<<"  rank="<<muItr->rank()<<std::endl;
+
+      // dataword to match to regional CSC candidates:
+      unsigned int csc_dataword = 0;
+      if (muItr->isFwd() && ( muItr->isMatchedCand() || !muItr->isRPC()))
+	{
+	  auto cands = l1GmtCSCCandsInBXs.find(muItr->bx());
+	  if (cands != l1GmtCSCCandsInBXs.end())
+	    {
+	      auto& rcsc = (cands->second)[muItr->getDTCSCIndex()];
+	      if (!rcsc.empty()) csc_dataword = rcsc.getDataWord();
+	    }
+	}
+
+      mcand.regcand = NULL;
+      if (csc_dataword) for (unsigned i=0; i< match->GMTREGCANDs.size(); i++)
+			  {
+			    if ( csc_dataword != match->GMTREGCANDs[i].l1reg->getDataWord() ) continue;
+
+			    mcand.regcand = &(match->GMTREGCANDs[i]);
+			    mcand.ids = match->GMTREGCANDs[i].ids;
+			    if (debugGMTCAND) std::cout<< "---------> matched to GMTREGCANDs["<<i<<"]"<<std::endl;
+			    break;
+			  }
+      if (mcand.regcand != NULL)  match->GMTCANDs.push_back(mcand);
+
+      mcand.regcand = NULL;
+      if (csc_dataword) for (unsigned i=0; i< match->GMTREGCANDsAll.size(); i++)
+			  {
+			    if ( csc_dataword != match->GMTREGCANDsAll[i].l1reg->getDataWord() ) continue;
+
+			    mcand.regcand = &(match->GMTREGCANDsAll[i]);
+			    mcand.ids = match->GMTREGCANDsAll[i].ids;
+			    if (debugGMTCAND) std::cout<< "---------> matched to GMTREGCANDsAll["<<i<<"]"<<std::endl;
+			    break;
+			  }
+      if (mcand.regcand != NULL)  match->GMTCANDsAll.push_back(mcand);
+
+      if (mcand.dr < 0.2 && mcand.pt > ptmatch) 
+	{
+	  ptmatch = mcand.pt;
+	  gmatch = mcand;
+	  if (debugGMTCAND) std::cout<< "---------> DR matched"<<std::endl;
+	}
     }
-*/
-    MatchCSCMuL1::GMTCAND mcand;
-    mcand.init( &*muItr , muScales, muPtScale);
-
-    //mcand.dr = deltaR( match->strk->momentum().eta(), normalizedPhi( match->strk->momentum().phi() ), mcand.eta, mcand.phi );
-    mcand.dr = match->deltaRSmart( mcand.eta, mcand.phi );
-
-    if (debugGMTCAND) std::cout<< "----- L1MuGMTExtendedCand: packed eta/phi/pt "<<muItr->etaIndex()<<"/"<<muItr->phiIndex()<<"/"<<muItr->ptIndex()<<"    eta="<<mcand.eta<<"  phi=" <<mcand.phi<<"  pt="<<mcand.pt<<"\t  dr="<<mcand.dr<<"  qu="<<muItr->quality()<<"  bx="<<muItr->bx()<<"  q="<<muItr->charge()<<"("<<muItr->charge_valid()<<")  isRPC="<<muItr->isRPC()<<"  rank="<<muItr->rank()<<std::endl;
-
-    // dataword to match to regional CSC candidates:
-    unsigned int csc_dataword = 0;
-    if (muItr->isFwd() && ( muItr->isMatchedCand() || !muItr->isRPC()))
-    {
-      auto cands = l1GmtCSCCandsInBXs.find(muItr->bx());
-      if (cands != l1GmtCSCCandsInBXs.end())
-      {
-        auto& rcsc = (cands->second)[muItr->getDTCSCIndex()];
-        if (!rcsc.empty()) csc_dataword = rcsc.getDataWord();
-      }
-    }
-
-    mcand.regcand = NULL;
-    if (csc_dataword) for (unsigned i=0; i< match->GMTREGCANDs.size(); i++)
-    {
-      if ( csc_dataword != match->GMTREGCANDs[i].l1reg->getDataWord() ) continue;
-
-      mcand.regcand = &(match->GMTREGCANDs[i]);
-      mcand.ids = match->GMTREGCANDs[i].ids;
-      if (debugGMTCAND) std::cout<< "---------> matched to GMTREGCANDs["<<i<<"]"<<std::endl;
-      break;
-    }
-    if (mcand.regcand != NULL)  match->GMTCANDs.push_back(mcand);
-
-    mcand.regcand = NULL;
-    if (csc_dataword) for (unsigned i=0; i< match->GMTREGCANDsAll.size(); i++)
-    {
-      if ( csc_dataword != match->GMTREGCANDsAll[i].l1reg->getDataWord() ) continue;
-
-      mcand.regcand = &(match->GMTREGCANDsAll[i]);
-      mcand.ids = match->GMTREGCANDsAll[i].ids;
-      if (debugGMTCAND) std::cout<< "---------> matched to GMTREGCANDsAll["<<i<<"]"<<std::endl;
-      break;
-    }
-    if (mcand.regcand != NULL)  match->GMTCANDsAll.push_back(mcand);
-
-    if (mcand.dr < 0.2 && mcand.pt > ptmatch) 
-    {
-      ptmatch = mcand.pt;
-      gmatch = mcand;
-      if (debugGMTCAND) std::cout<< "---------> DR matched"<<std::endl;
-    }
-  }
   match->GMTCANDBest = gmatch;
 
   if (debugGMTCAND) std::cout<<"---- # of matched GMTCANDs = "<<match->GMTCANDs.size()<<"  All = "<<match->GMTCANDsAll.size()<<"  DR = "<<(match->GMTCANDBest.l1gmt != NULL)<<std::endl;
@@ -3769,7 +3762,7 @@ GEMCSCTriggerEfficiency::matchSimtrack2GMTCANDs( MatchCSCMuL1 *match,
 // ================================================================================================
 std::vector<unsigned> 
 GEMCSCTriggerEfficiency::fillSimTrackFamilyIds(unsigned  id,
-				   const edm::SimTrackContainer & simTracks, const edm::SimVertexContainer & simVertices)
+					       const edm::SimTrackContainer & simTracks, const edm::SimVertexContainer & simVertices)
 {
   int fdebug = 0;
   std::vector<unsigned> result;
@@ -3932,12 +3925,10 @@ GEMCSCTriggerEfficiency::compareSimHits(PSimHit &sh1, PSimHit &sh2)
 }
 
 
-
-
 // ================================================================================================
 unsigned
 GEMCSCTriggerEfficiency::matchCSCAnodeHits(const std::vector<CSCAnodeLayerInfo>& allLayerInfo, 
-			       std::vector<PSimHit> &matchedHit) 
+					   std::vector<PSimHit> &matchedHit) 
 {
   // Match Anode hits in a chamber to SimHits
 
@@ -3963,8 +3954,8 @@ GEMCSCTriggerEfficiency::matchCSCAnodeHits(const std::vector<CSCAnodeLayerInfo>&
 	      if (thisLayerHits.size() != 1) 
 		{
 		  std::cout<< "+++ Warning in matchCSCAnodeHits: " << thisLayerHits.size()
-		      << " SimHits in key layer " << CSCConstants::KEY_ALCT_LAYER
-		      << "! +++ \n";
+			   << " SimHits in key layer " << CSCConstants::KEY_ALCT_LAYER
+			   << "! +++ \n";
 		  for (unsigned i = 0; i < thisLayerHits.size(); i++) 
 		    std::cout<<"      SimHit # " << i <<": "<< thisLayerHits[i] << "\n";
 		}
@@ -4002,11 +3993,10 @@ GEMCSCTriggerEfficiency::matchCSCAnodeHits(const std::vector<CSCAnodeLayerInfo>&
 }
 
 
-
 // ================================================================================================
 unsigned
 GEMCSCTriggerEfficiency::matchCSCCathodeHits(const std::vector<CSCCathodeLayerInfo>& allLayerInfo, 
-				 std::vector<PSimHit> &matchedHit) 
+					     std::vector<PSimHit> &matchedHit) 
 {
   // It first tries to look for the SimHit in the key layer.  If it is
   // unsuccessful, it loops over all layers and looks for an associated
@@ -4033,8 +4023,8 @@ GEMCSCTriggerEfficiency::matchCSCCathodeHits(const std::vector<CSCCathodeLayerIn
 	      if (thisLayerHits.size() != 1) 
 		{
 		  std::cout<< "+++ Warning in matchCSCCathodeHits: " << thisLayerHits.size()
-		      << " SimHits in key layer " << key_layer
-		      << "! +++ \n";
+			   << " SimHits in key layer " << key_layer
+			   << "! +++ \n";
 		  for (unsigned i = 0; i < thisLayerHits.size(); i++) 
 		    std::cout<<"      SimHit # " << i <<": "<< thisLayerHits[i] << "\n";
 		}
@@ -4070,7 +4060,6 @@ GEMCSCTriggerEfficiency::matchCSCCathodeHits(const std::vector<CSCCathodeLayerIn
   
   return nhits;
 }
-
 
 
 // ================================================================================================
@@ -4149,22 +4138,24 @@ GEMCSCTriggerEfficiency::calculate2DStubsDeltas(MatchCSCMuL1 *match, MatchCSCMuL
   
   clct.mcStrip = hitStrip;
   
-  
-  // if it's upgraded TMB's ganged ME1a or defaultGangedME1a, find the best delta strip
-  if ( (gangedME1a && !defaultME1a && clct.id.station()==1 && clct.id.ring()==4) || defaultGangedME1a) {
+  /*
+    Unganged wires after the LS1  
+    // if it's upgraded TMB's ganged ME1a or defaultGangedME1a, find the best delta strip
+    if ( (gangedME1a && !defaultME1a && clct.id.station()==1 && clct.id.ring()==4) || defaultGangedME1a) {
     // consider gang#2
     int ds = hitStrip - stubStrip - 16;
     if (abs(ds) < abs(clct.deltaStrip)) {
-      clct.deltaStrip = ds;
-      stubStripGeo = stubStrip + 16;
+    clct.deltaStrip = ds;
+    stubStripGeo = stubStrip + 16;
     }
     // consider gang#3
     ds = hitStrip - stubStrip - 32;
     if (abs(ds) < abs(clct.deltaStrip)) {
-      clct.deltaStrip = ds;
-      stubStripGeo = stubStrip + 32;
+    clct.deltaStrip = ds;
+    stubStripGeo = stubStrip + 32;
     }
-  }
+    }
+  */
 
   GlobalPoint gpcs = csclayer->centerOfStrip( stubStripGeo );
   math::XYZVectorD vcs( gpcs.x(), gpcs.y(), gpcs.z() );
@@ -4196,8 +4187,6 @@ GEMCSCTriggerEfficiency::propagateSimTrackToZ(const SimTrack *track, const SimVe
 
   return stateProp;
 }
-
-
 
 
 // ================================================================================================
@@ -4237,7 +4226,7 @@ GEMCSCTriggerEfficiency::findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi&
           else if (pattern == 8 || pattern == 9) quality = 14;
           else if (pattern == 10) quality = 15;
           else std::cout<< "+++ findQuality: Unexpected CLCT pattern id = "
-		   << pattern << "+++"<<std::endl;
+			<< pattern << "+++"<<std::endl;
         }
       }
     }
@@ -4340,7 +4329,7 @@ GEMCSCTriggerEfficiency::getCSCType(CSCDetId &id)
 }
 
 
-
+// ================================================================================================
 int
 GEMCSCTriggerEfficiency::isME11(int t)
 {
@@ -4348,6 +4337,8 @@ GEMCSCTriggerEfficiency::isME11(int t)
   return 0;
 }
 
+
+// ================================================================================================
 // Returns chamber type (0-9) according to CSCChamberSpecs type
 // 1..10 -> 1/a, 1/b, 1/2, 1/3, 2/1...
 int
@@ -4378,9 +4369,10 @@ GEMCSCTriggerEfficiency::cscTriggerSubsector(CSCDetId &id)
   return ((chamber-1) / 3) + 1; // [1,3] -> 1 , [4,6]->2
 }
 
-// ================================================================================================
 
-void GEMCSCTriggerEfficiency::setupTFModeHisto(TH1D* h)
+// ================================================================================================
+void 
+GEMCSCTriggerEfficiency::setupTFModeHisto(TH1D* h)
 {
   if (h==0) return;
   if (h->GetXaxis()->GetNbins()<16) {
@@ -4407,9 +4399,10 @@ void GEMCSCTriggerEfficiency::setupTFModeHisto(TH1D* h)
   h->GetXaxis()->SetBinLabel(16,"Halo Trigger");
 }
 
-// ================================================================================================
 
-std::pair<float, float> GEMCSCTriggerEfficiency::intersectionEtaPhi(CSCDetId id, int wg, int hs)
+// ================================================================================================
+std::pair<float, float> 
+GEMCSCTriggerEfficiency::intersectionEtaPhi(CSCDetId id, int wg, int hs)
 {
 
   CSCDetId layerId(id.endcap(), id.station(), id.ring(), id.chamber(), CSCConstants::KEY_CLCT_LAYER);
@@ -4430,9 +4423,10 @@ std::pair<float, float> GEMCSCTriggerEfficiency::intersectionEtaPhi(CSCDetId id,
   return std::make_pair(csc_gp.eta(), csc_gp.phi());
 }
 
-// ================================================================================================
 
-csctf::TrackStub GEMCSCTriggerEfficiency::buildTrackStub(const CSCCorrelatedLCTDigi &d, CSCDetId id)
+// ================================================================================================
+csctf::TrackStub 
+GEMCSCTriggerEfficiency::buildTrackStub(const CSCCorrelatedLCTDigi &d, CSCDetId id)
 {
   unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
   CSCSectorReceiverLUT* srLUT = srLUTs_[fpga][id.triggerSector()-1][id.endcap()-1];
@@ -4453,9 +4447,10 @@ csctf::TrackStub GEMCSCTriggerEfficiency::buildTrackStub(const CSCCorrelatedLCTD
   return csctf::TrackStub(d, id, gblPhi.global_phi, gblEta.global_eta);
 }
 
-// ================================================================================================
 
-bool GEMCSCTriggerEfficiency::isGEMDPhiGood(double dphi, double tfpt, int is_odd)
+// ================================================================================================
+bool 
+GEMCSCTriggerEfficiency::isGEMDPhiGood(double dphi, double tfpt, int is_odd)
 {
   // ignore the default/don't-care value of -99
   if (dphi < 9.) return true;
@@ -4474,13 +4469,13 @@ bool GEMCSCTriggerEfficiency::isGEMDPhiGood(double dphi, double tfpt, int is_odd
   return is_odd ? (dphi <= gemDPhisOdd_[n]) : (dphi <= gemDPhisEven_[n]);
 }
 
+
 // ================================================================================================
-// ------------ method called once each job just before starting event loop  ------------
 void 
 GEMCSCTriggerEfficiency::beginJob() {}
 
+
 // ================================================================================================
-// ------------ method called once each job just after ending the event loop  ------------
 void 
 GEMCSCTriggerEfficiency::endJob() {}
 
