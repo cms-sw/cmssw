@@ -20,6 +20,7 @@
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
 #include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
 
 #include <DataFormats/DetId/interface/DetId.h>
@@ -105,6 +106,31 @@ void GlobalTrackingGeometryTest::analyzeRPC(const GlobalTrackingGeometry* geo, c
 	    // Check idToDet
 	    const GeomDet* gd = geo->idToDet(detId);
         assert(gd == (*itRPC));
+    }
+    std::cout << "RPC det: GlobalTrackingGeometry succesfully tested." << std::endl;
+}
+
+void GlobalTrackingGeometryTest::analyzeGEM(const GlobalTrackingGeometry* geo, const GEMGeometry* gemGeometry) {
+
+    for(GEMGeometry::DetUnitContainer::const_iterator itGEM = gemGeometry->detUnits().begin(); 
+        itGEM != gemGeometry->detUnits().end(); itGEM++) {
+        
+        DetId detId = (*itGEM)->geographicalId();
+        
+        // Check idToDetUnit
+        const GeomDetUnit* gdu = geo->idToDetUnit(detId);
+	    assert(gdu == (*itGEM));
+    }
+    std::cout << "GEM detUnit: GlobalTrackingGeometry succesfully tested." << std::endl;
+    
+    for(GEMGeometry::DetContainer::const_iterator itGEM = gemGeometry->dets().begin(); 
+        itGEM != gemGeometry->dets().end(); itGEM++) {
+    
+        DetId detId = (*itGEM)->geographicalId();
+
+	    // Check idToDet
+	    const GeomDet* gd = geo->idToDet(detId);
+        assert(gd == (*itGEM));
     }
     std::cout << "RPC det: GlobalTrackingGeometry succesfully tested." << std::endl;
 }
