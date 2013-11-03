@@ -76,7 +76,7 @@ HLTHcalNZSFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
 {
   using namespace edm;
 
-  // MC treatment for this hltFilter(NZS not fully emulated in HTR for MC, trigger::TriggerFilterObjectWithRefs & filterproduct) override
+  // MC treatment for this filter(NZS not fully emulated in HTR for MC)
   if (!iEvent.isRealData()) return false;
 
   edm::Handle<FEDRawDataCollection> rawdata;
