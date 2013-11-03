@@ -33,8 +33,6 @@
 
 #include "HepMC/GenRanges.h"
 
-typedef unsigned long long size_type;  // WORKAROUND for genreflex bug
-
 namespace {
 	struct dictionary {
 		// HepMC externals used in HepMCProduct
