@@ -1,0 +1,14 @@
+<lcgdict>
+   <class name="Phase2TrackerCluster1D" ClassVersion="10">
+     <version ClassVersion="10" checksum="3868623983"/>
+   </class>
+   <class name="edm::DetSet<Phase2TrackerCluster1D>"/>
+   <class name="std::vector<Phase2TrackerCluster1D>"/>
+   <class name="edm::DetSetVector<Phase2TrackerCluster1D>"/>
+   <class name="std::vector<edm::DetSet<Phase2TrackerCluster1D> >"/>
+   <class name="edm::Wrapper< edm::DetSet<Phase2TrackerCluster1D> >" splitLevel="0"/>
+   <class name="edm::Wrapper< std::vector<edm::DetSet<Phase2TrackerCluster1D> > >" splitLevel="0"/>
+   <class name="edm::Wrapper< edm::DetSetVector<Phase2TrackerCluster1D> >" splitLevel="0"/>
+   <class name="edmNew::DetSetVector<Phase2TrackerCluster1D>"/>
+   <class name="edm::Wrapper< edmNew::DetSetVector<Phase2TrackerCluster1D> >"/>
+</lcgdict>
