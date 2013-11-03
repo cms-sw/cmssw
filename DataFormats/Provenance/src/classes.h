@@ -55,13 +55,6 @@ namespace edm {
   typedef Hash<ModuleDescriptionType> ModuleDescriptionID;
 }
 
-using edm::EntryDescriptionType;      // WORKAROUND for genreflex bug
-using edm::ModuleDescriptionType;     // WORKAROUND for genreflex bug
-using edm::ParameterSetType;          // WORKAROUND for genreflex bug
-using edm::ParentageType;             // WORKAROUND for genreflex bug
-using edm::ProcessConfigurationType;  // WORKAROUND for genreflex bug
-using edm::ProcessHistoryType;        // WORKAROUND for genreflex bug
-
 namespace {
   struct dictionary {
   std::pair<edm::BranchKey, edm::BranchDescription> dummyPairBranch;
