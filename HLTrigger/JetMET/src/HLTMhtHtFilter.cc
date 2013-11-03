@@ -105,7 +105,7 @@ HLTMhtHtFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 // ------------ method called to produce the data  ------------
 template<typename T>
 bool
-HLTMhtHtFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTMhtHtFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;

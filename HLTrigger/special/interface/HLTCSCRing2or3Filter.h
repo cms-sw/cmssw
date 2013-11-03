@@ -18,7 +18,7 @@ class HLTCSCRing2or3Filter : public HLTFilter {
  public:
   explicit HLTCSCRing2or3Filter(const edm::ParameterSet&);
   ~HLTCSCRing2or3Filter();
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:

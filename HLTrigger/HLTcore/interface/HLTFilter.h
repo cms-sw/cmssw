@@ -13,7 +13,7 @@
  */
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
@@ -25,7 +25,7 @@
 // class decleration
 //
 
-class HLTFilter : public edm::EDFilter {
+class HLTFilter : public edm::global::EDFilter<> {
 
 public:
   explicit HLTFilter(const edm::ParameterSet & config);
@@ -33,10 +33,10 @@ public:
   virtual ~HLTFilter();
 
 private:
-  bool filter(edm::Event & event, const edm::EventSetup & setup) override final;
+  bool filter(edm::StreamID, edm::Event & event, const edm::EventSetup & setup) const override final;
 
   // declared pure virtual to enforce inheriting classes to implement it
-  virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterobject) = 0;
+  virtual bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterobject) const = 0;
 
 private:
   const bool saveTags_;

@@ -59,7 +59,7 @@ public:
 
 private:
 
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   virtual bool beginRun(edm::Run& iRun, const edm::EventSetup& iSetup);
 
   bool hasActivity(const std::bitset<4> &) const;

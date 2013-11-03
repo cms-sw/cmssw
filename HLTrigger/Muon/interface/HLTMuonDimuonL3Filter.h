@@ -25,7 +25,7 @@ class HLTMuonDimuonL3Filter : public HLTFilter {
       explicit HLTMuonDimuonL3Filter(const edm::ParameterSet&);
       ~HLTMuonDimuonL3Filter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       static bool triggeredByLevel2(reco::TrackRef const & track, std::vector<reco::RecoChargedCandidateRef> const & vcands);

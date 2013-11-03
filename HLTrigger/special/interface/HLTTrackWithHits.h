@@ -53,7 +53,7 @@ public:
     }
 
 private:
-  virtual bool hltFilter(edm::Event& iEvent, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override
+  virtual bool hltFilter(edm::Event& iEvent, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override
   {
     edm::Handle<reco::TrackCollection> oHandle;
     iEvent.getByToken(srcToken_, oHandle);

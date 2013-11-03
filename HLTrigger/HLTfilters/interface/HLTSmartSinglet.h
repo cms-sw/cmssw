@@ -34,7 +34,7 @@ class HLTSmartSinglet : public HLTFilter {
       explicit HLTSmartSinglet(const edm::ParameterSet&);
       ~HLTSmartSinglet();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       edm::InputTag                     inputTag_;   // input tag identifying product

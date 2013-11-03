@@ -39,7 +39,7 @@ class HLTFiltCand : public HLTFilter {
       explicit HLTFiltCand(const edm::ParameterSet&);
       ~HLTFiltCand();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       edm::InputTag photTag_;  // input tag identifying product containing photons

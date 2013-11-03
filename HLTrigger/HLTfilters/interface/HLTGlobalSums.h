@@ -30,7 +30,7 @@ class HLTGlobalSums : public HLTFilter {
       explicit HLTGlobalSums(const edm::ParameterSet&);
       ~HLTGlobalSums();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       // configuration

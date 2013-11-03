@@ -47,7 +47,7 @@ HLTPixelIsolTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.add("isolPixelTrackFilter",desc);
 }
 
-bool HLTPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   if (saveTags())
     filterproduct.addCollectionTag(candTag_);

@@ -40,7 +40,7 @@ void HLTElectronMissingHitsFilter::fillDescriptions(edm::ConfigurationDescriptio
   descriptions.add("hltElectronMissingHitsFilter", desc);
 }
 
-bool HLTElectronMissingHitsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTElectronMissingHitsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
   using namespace trigger;
 

@@ -70,7 +70,7 @@ HLTElectronGenericFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
 
 // ------------ method called to produce the data  ------------
 bool
-HLTElectronGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTElectronGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
 

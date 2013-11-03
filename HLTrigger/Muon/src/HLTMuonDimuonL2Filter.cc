@@ -129,7 +129,7 @@ HLTMuonDimuonL2Filter::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 // ------------ method called to produce the data  ------------
 bool
-HLTMuonDimuonL2Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTMuonDimuonL2Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
    double const MuMass = 0.106;

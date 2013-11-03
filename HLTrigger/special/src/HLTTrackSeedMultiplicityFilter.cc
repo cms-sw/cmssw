@@ -17,7 +17,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::InputTag inputTag_;       // input tag identifying product containing track seeds
   unsigned int  min_seeds_;      // minimum number of track seeds
@@ -67,7 +67,7 @@ HLTTrackSeedMultiplicityFilter::fillDescriptions(edm::ConfigurationDescriptions&
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTTrackSeedMultiplicityFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTTrackSeedMultiplicityFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)

@@ -27,7 +27,7 @@ class HLTPMDocaFilter : public HLTFilter {
    public:
       explicit HLTPMDocaFilter(const edm::ParameterSet&);
       ~HLTPMDocaFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

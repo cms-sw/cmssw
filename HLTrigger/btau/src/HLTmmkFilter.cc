@@ -95,7 +95,7 @@ void HLTmmkFilter::endJob() {
 
 
 // ----------------------------------------------------------------------
-bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
   const double MuMass(0.106);
   const double MuMass2(MuMass*MuMass);

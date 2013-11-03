@@ -24,7 +24,7 @@ class HLTElectronEtFilter : public HLTFilter {
    public:
       explicit HLTElectronEtFilter(const edm::ParameterSet&);
       ~HLTElectronEtFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

@@ -144,7 +144,7 @@ bool HLTDTActivityFilter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup
 }
 
 // ------------ method called on each new Event  ------------
-bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
   using namespace edm;
   using namespace std;

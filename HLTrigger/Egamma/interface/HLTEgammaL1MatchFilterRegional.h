@@ -28,7 +28,7 @@ class HLTEgammaL1MatchFilterRegional : public HLTFilter {
   public:
     explicit HLTEgammaL1MatchFilterRegional(const edm::ParameterSet&);
     ~HLTEgammaL1MatchFilterRegional();
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   private:

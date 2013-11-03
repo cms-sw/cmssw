@@ -26,7 +26,7 @@ class HLTMuonDimuonL2Filter : public HLTFilter {
       explicit HLTMuonDimuonL2Filter(const edm::ParameterSet&);
       ~HLTMuonDimuonL2Filter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       edm::InputTag                    beamspotTag_ ;

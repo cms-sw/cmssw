@@ -53,7 +53,7 @@ HLTTrackerHaloFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;

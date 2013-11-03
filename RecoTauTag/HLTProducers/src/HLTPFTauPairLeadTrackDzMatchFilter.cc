@@ -44,7 +44,7 @@ void HLTPFTauPairLeadTrackDzMatchFilter::fillDescriptions(edm::ConfigurationDesc
   descriptions.add("hltPFTauPairLeadTrackDzMatchFilter",desc);
 }
 
-bool HLTPFTauPairLeadTrackDzMatchFilter::hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs& filterproduct) {
+bool HLTPFTauPairLeadTrackDzMatchFilter::hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs& filterproduct) const {
 
   using namespace std;
   using namespace reco;

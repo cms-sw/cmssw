@@ -49,7 +49,7 @@ void HLTElectronPFMTFilter::fillDescriptions(edm::ConfigurationDescriptions& des
 
 // ------------ method called to produce the data  ------------
 bool
-    HLTElectronPFMTFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+    HLTElectronPFMTFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;

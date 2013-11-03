@@ -33,7 +33,7 @@ HLTFilter::makeHLTFilterDescription(edm::ParameterSetDescription& desc) {
 HLTFilter::~HLTFilter()
 { }
 
-bool HLTFilter::filter(edm::Event & event, const edm::EventSetup & setup) {
+bool HLTFilter::filter(edm::StreamID, edm::Event & event, const edm::EventSetup & setup) const {
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct( new trigger::TriggerFilterObjectWithRefs(path(event), module(event)) );
 
   // compute the result of the HLTFilter implementation

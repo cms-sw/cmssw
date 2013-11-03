@@ -49,7 +49,7 @@ HLTEgammaEtFilter::~HLTEgammaEtFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEgammaEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
 

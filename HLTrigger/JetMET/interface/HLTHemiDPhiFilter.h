@@ -21,7 +21,7 @@ class HLTHemiDPhiFilter : public HLTFilter {
       explicit HLTHemiDPhiFilter(const edm::ParameterSet&);
       ~HLTHemiDPhiFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
 
    private:

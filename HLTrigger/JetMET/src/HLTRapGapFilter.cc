@@ -45,7 +45,7 @@ void HLTRapGapFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
 
 // ------------ method called to produce the data  ------------
 bool
-HLTRapGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTRapGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace reco;
   using namespace trigger;

@@ -136,7 +136,7 @@ HLTMuonL2PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)

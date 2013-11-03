@@ -65,7 +65,7 @@ HLTElectronPixelMatchFilter::fillDescriptions(edm::ConfigurationDescriptions& de
 
 // ------------ method called to produce the data  ------------
 bool
-HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // The filter object
   using namespace trigger;

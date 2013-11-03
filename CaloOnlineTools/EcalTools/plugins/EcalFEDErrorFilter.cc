@@ -50,7 +50,7 @@ EcalFEDErrorFilter::~EcalFEDErrorFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-EcalFEDErrorFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+EcalFEDErrorFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace edm;
 

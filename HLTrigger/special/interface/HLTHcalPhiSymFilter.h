@@ -41,7 +41,7 @@ class HLTHcalPhiSymFilter : public HLTFilter {
       explicit HLTHcalPhiSymFilter(const edm::ParameterSet&);
       ~HLTHcalPhiSymFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event &, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+      virtual bool hltFilter(edm::Event &, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       // ----------member data ---------------------------

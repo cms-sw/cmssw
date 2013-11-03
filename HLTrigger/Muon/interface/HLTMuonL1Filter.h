@@ -32,7 +32,7 @@ class HLTMuonL1Filter : public HLTFilter {
     explicit HLTMuonL1Filter(const edm::ParameterSet&);
     ~HLTMuonL1Filter();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   private:
     /// input tag identifying the product containing muons

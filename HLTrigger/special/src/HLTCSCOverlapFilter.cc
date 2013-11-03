@@ -52,7 +52,7 @@ HLTCSCOverlapFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descriptions.add("hltCSCOverlapFilter",desc);
 }
 
-bool HLTCSCOverlapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTCSCOverlapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
    edm::Handle<CSCRecHit2DCollection> hits;
    iEvent.getByToken(cscrechitsToken, hits);
 

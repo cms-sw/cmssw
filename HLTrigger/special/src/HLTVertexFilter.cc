@@ -43,7 +43,7 @@ public:
 
 private:
   virtual
-  bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::EDGetTokenT<reco::VertexCollection> m_inputToken;
   edm::InputTag m_inputTag;     // input vertex collection
@@ -94,7 +94,7 @@ HLTVertexFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 
 // ------------ method called on each new Event  ------------
 bool
-HLTVertexFilter::hltFilter(edm::Event &  event, edm::EventSetup const & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+HLTVertexFilter::hltFilter(edm::Event &  event, edm::EventSetup const & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
   // get hold of collection of objects
   edm::Handle<reco::VertexCollection> vertices;

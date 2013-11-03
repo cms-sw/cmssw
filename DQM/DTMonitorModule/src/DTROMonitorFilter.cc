@@ -28,7 +28,7 @@ DTROMonitorFilter::DTROMonitorFilter(const edm::ParameterSet& pset) :
 DTROMonitorFilter::~DTROMonitorFilter(){}
 
 
-bool DTROMonitorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool DTROMonitorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
   // get the raw data
   edm::Handle<FEDRawDataCollection> rawdata;

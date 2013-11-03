@@ -74,7 +74,7 @@ HLTRPCTrigNoSyncFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 //
 
 // ------------ method called on each new Event  ------------
-bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTRPCTrigNoSyncFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
   std::vector<RPC4DHit> GlobalRPC4DHits;
   std::vector<RPC4DHit> GlobalRPC4DHitsNoBx0;

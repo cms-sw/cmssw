@@ -72,7 +72,7 @@ HLTEgammaCaloIsolFilterPairs::fillDescriptions(edm::ConfigurationDescriptions& d
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaCaloIsolFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEgammaCaloIsolFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
 

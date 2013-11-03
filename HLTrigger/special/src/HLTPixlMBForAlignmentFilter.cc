@@ -64,7 +64,7 @@ HLTPixlMBForAlignmentFilter::fillDescriptions(edm::ConfigurationDescriptions& de
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;

@@ -37,7 +37,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<CaloTowerCollection> inputToken_;
@@ -84,7 +84,7 @@ HLTCaloTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 
 // ------------ method called on each new Event  ------------
 bool
-HLTCaloTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+HLTCaloTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
   using namespace std;
   using namespace edm;
   using namespace reco;

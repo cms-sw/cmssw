@@ -48,7 +48,7 @@ void HLTPhi2METFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 // ------------ method called to produce the data  ------------
 bool
-HLTPhi2METFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTPhi2METFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;

@@ -69,7 +69,7 @@ HLTForwardBackwardJetsFilter<T>::fillDescriptions(edm::ConfigurationDescriptions
 // ------------ method called to produce the data  ------------
 template<typename T>
 bool
-HLTForwardBackwardJetsFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTForwardBackwardJetsFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;

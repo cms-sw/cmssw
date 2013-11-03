@@ -47,7 +47,7 @@ class HLTmmkFilter : public HLTFilter {
 
  private:
   virtual void beginJob() ;
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   virtual void endJob();
 
   static int overlap(const reco::Candidate&, const reco::Candidate&);

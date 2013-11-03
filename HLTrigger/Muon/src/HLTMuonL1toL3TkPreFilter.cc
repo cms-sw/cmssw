@@ -90,7 +90,7 @@ HLTMuonL1toL3TkPreFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
 
 // ------------ method called to produce the data  ------------
 bool
-HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
    // All HLT filters must create and fill an HLT filter object,

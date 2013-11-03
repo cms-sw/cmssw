@@ -50,7 +50,7 @@ HLTHcalNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 // member functions
 //
 
-bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace edm;
    using namespace reco;

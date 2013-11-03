@@ -62,7 +62,7 @@ HLTExclDiJetFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descript
 // ------------ method called to produce the data  ------------
 template<typename T>
 bool
-HLTExclDiJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTExclDiJetFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;

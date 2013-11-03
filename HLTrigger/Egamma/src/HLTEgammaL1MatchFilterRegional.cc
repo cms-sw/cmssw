@@ -74,7 +74,7 @@ HLTEgammaL1MatchFilterRegional::fillDescriptions(edm::ConfigurationDescriptions&
 //doIsolated=true, only isolated superclusters are allowed to match isolated L1 seeds
 //doIsolated=false, isolated superclusters are allowed to match either iso or non iso L1 seeds, non isolated superclusters are allowed only to match non-iso seeds. If no collection name is given for non-isolated superclusters, assumes the the isolated collection contains all (both iso + non iso) seeded superclusters.
 bool
-HLTEgammaL1MatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEgammaL1MatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // std::cout <<"runnr "<<iEvent.id().run()<<" event "<<iEvent.id().event()<<std::endl;
   using namespace trigger;

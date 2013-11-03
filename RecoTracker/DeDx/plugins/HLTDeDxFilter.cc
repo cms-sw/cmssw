@@ -67,7 +67,7 @@ void HLTDeDxFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 
 // ------------ method called to produce the data  ------------
 bool
-  HLTDeDxFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+  HLTDeDxFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;

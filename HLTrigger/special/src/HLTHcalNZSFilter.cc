@@ -72,7 +72,7 @@ HLTHcalNZSFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
 // ------------ method called on each new Event  ------------
 bool
-HLTHcalNZSFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTHcalNZSFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace edm;
 

@@ -28,7 +28,7 @@ class HLTEgammaDoubleEtPhiFilter : public HLTFilter {
  public:
   explicit HLTEgammaDoubleEtPhiFilter(const edm::ParameterSet&);
   ~HLTEgammaDoubleEtPhiFilter();
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:

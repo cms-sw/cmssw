@@ -17,7 +17,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::InputTag inputTag_;          // input tag identifying product containing pixel clusters
   unsigned int  min_clusters_;      // minimum number of clusters
@@ -68,7 +68,7 @@ HLTPixelActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixelActivityFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTPixelActivityFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)

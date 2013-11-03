@@ -21,7 +21,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   bool pairMatched (std::vector<reco::RecoChargedCandidateRef>& prevMuonRefs,
 		    std::vector<reco::RecoChargedCandidateRef>& prevTrackRefs,
 		    const reco::RecoChargedCandidateRef& muonRef,

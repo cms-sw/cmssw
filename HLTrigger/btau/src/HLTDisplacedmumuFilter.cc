@@ -84,7 +84,7 @@ void HLTDisplacedmumuFilter::endJob()
 }
 
 // ------------ method called on each new Event  ------------
-bool HLTDisplacedmumuFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTDisplacedmumuFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
 

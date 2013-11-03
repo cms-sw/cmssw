@@ -136,7 +136,7 @@ HLTMuonTrackMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 }
 
 bool
-HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // The filter object
   if (saveTags()) {

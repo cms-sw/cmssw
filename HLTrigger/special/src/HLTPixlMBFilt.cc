@@ -61,7 +61,7 @@ HLTPixlMBFilt::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;
