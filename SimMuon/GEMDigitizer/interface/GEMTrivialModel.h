@@ -23,7 +23,7 @@ public:
 
   void simulateSignal(const GEMEtaPartition*, const edm::PSimHitContainer&);
 
-  void simulateNoise(const GEMEtaPartition*) {}
+  void simulateNoise(const GEMEtaPartition*, std::map<int, double>) {}
 
   std::vector<std::pair<int,int> > 
     simulateClustering(const GEMEtaPartition*, const PSimHit*, const int);

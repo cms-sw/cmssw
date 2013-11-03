@@ -6,8 +6,9 @@
  *
  * Class for the GEM strip response simulation based on a very simple model
  *
- * \author Roumyana Hadjiiska
- */
+ * \author Sven Dildick
+ * \modified by Roumyana Hadjiiska
+*/
 
 #include "SimMuon/GEMDigitizer/interface/GEMDigiModel.h"
 
@@ -20,7 +21,6 @@ namespace CLHEP
   class RandPoissonQ;
   class RandGaussQ;
   class RandGamma;
-  class RandLandau;
 }
 
 class GEMSimpleModel: public GEMDigiModel
@@ -39,7 +39,7 @@ public:
 
   int getSimHitBx(const PSimHit*);
 
-  void simulateNoise(const GEMEtaPartition*);
+  void simulateNoise(const GEMEtaPartition*, std::map<int, double>);
 
   std::vector<std::pair<int,int> > 
     simulateClustering(const GEMEtaPartition*, const PSimHit*, const int);
@@ -59,8 +59,6 @@ private:
   int minBunch_;
   int maxBunch_;
   bool digitizeOnlyMuons_;
-  double cutElecMomentum_;
-  int cutForCls_;
 
   CLHEP::RandFlat* flat1_;
   CLHEP::RandFlat* flat2_;
@@ -68,18 +66,6 @@ private:
   CLHEP::RandGaussQ* gauss1_;
   CLHEP::RandGaussQ* gauss2_;
   CLHEP::RandGamma* gamma1_;
-  CLHEP::RandLandau* landau1_;
-
-  std::vector<PSimHit> *selPsimHits;
-
-  double  neutronGammaRoll1_;
-  double  neutronGammaRoll2_;
-  double  neutronGammaRoll3_;
-  double  neutronGammaRoll4_;
-  double  neutronGammaRoll5_;
-  double  neutronGammaRoll6_;
-  double  neutronGammaRoll7_;
-  double  neutronGammaRoll8_;
 
 };
 #endif

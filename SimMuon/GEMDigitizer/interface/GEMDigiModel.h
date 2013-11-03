@@ -38,7 +38,7 @@ public:
 
   virtual void simulateSignal(const GEMEtaPartition*, const edm::PSimHitContainer&) = 0;
 
-  virtual void simulateNoise(const GEMEtaPartition*) = 0;
+  virtual void simulateNoise(const GEMEtaPartition*, std::map<int, double>) = 0;
   
   virtual std::vector<std::pair<int,int> > 
     simulateClustering(const GEMEtaPartition*, const PSimHit*, const int) = 0;

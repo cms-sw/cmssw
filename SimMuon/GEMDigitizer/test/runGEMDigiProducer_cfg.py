@@ -19,7 +19,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
+    input = cms.untracked.int32(100)
 )
 
 process.options = cms.untracked.PSet(
@@ -72,13 +72,15 @@ if addPileUp:
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:out_sim.root'
+#        'file:out_sim.root'
+'root://eoscms//eos/cms/store/user/mileva/gemTest/singleMuPt1000_gen_sim_merged620slhc/gensimMuPt1000Merged.root'
+
     )
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(
-        'file:out_digi.root'
+        'file:out_digi_sven.root'
     ),
     outputCommands = cms.untracked.vstring(
         'keep  *_*_*_*',

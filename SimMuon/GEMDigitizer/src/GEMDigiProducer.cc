@@ -28,6 +28,7 @@
 GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
   : collectionXF_(ps.getParameter<std::string>("inputCollection"))
   , digiModelString_(ps.getParameter<std::string>("digiModelString"))
+  , neutronGammaRoll_(ps.getParameter<std::vector<double> > ("neutronGammaRoll"))
 {
   produces<GEMDigiCollection>();
   produces<StripDigiSimLinks>("GEM");
@@ -54,6 +55,14 @@ GEMDigiProducer::~GEMDigiProducer()
 
 void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
+
+//fill the noise map<#roll, noise value>
+for(unsigned int i = 0; i < neutronGammaRoll_.size(); i++)
+{
+//  std::cout << "neutrongamma = " << i+1 << "\t" << neutronGammaRoll_[i] << std::endl;
+  mapRollNoise.insert(std::pair<int, double>(i+1, neutronGammaRoll_[i]));
+}
+
   // set geometry
   edm::ESHandle<GEMGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get(hGeom);
@@ -77,6 +86,7 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   
   // simulate signal and noise for each eta partition
   const auto & etaPartitions(gemDigiModel_->getGeometry()->etaPartitions());
+
   for(auto &roll: etaPartitions){
     const GEMDetId detId(roll->id());
     const uint32_t rawId(detId.rawId());
@@ -86,7 +96,7 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
       << "GEMDigiProducer: found " << simHits.size() << " hit(s) in eta partition" << rawId;
     
     gemDigiModel_->simulateSignal(roll, simHits);
-    gemDigiModel_->simulateNoise(roll);
+    gemDigiModel_->simulateNoise(roll, mapRollNoise);
     gemDigiModel_->fillDigis(rawId, *digis);
     (*stripDigiSimLinks).insert(gemDigiModel_->stripDigiSimLinks());
   }
