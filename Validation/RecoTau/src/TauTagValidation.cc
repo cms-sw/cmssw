@@ -27,6 +27,7 @@
 
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -68,7 +69,7 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig):
   TauProducer_ = TauProducerInputTag_.label();
 
   histoSettings_= (iConfig.exists("histoSettings")) ? iConfig.getParameter<edm::ParameterSet>("histoSettings") : edm::ParameterSet();
-  PrimaryVertexCollection_ = (iConfig.exists("PrimaryVertexCollection")) ? iConfig.getParameter<InputTag>("PrimaryVertexCollection") : edm::InputTag("offlinePrimaryVertices");
+  edm::InputTag PrimaryVertexCollection_ = (iConfig.exists("PrimaryVertexCollection")) ? iConfig.getParameter<InputTag>("PrimaryVertexCollection") : edm::InputTag("offlinePrimaryVertices"); //TO-DO
   // The vector of Tau Discriminators to be monitored
   // TauProducerDiscriminators_ = iConfig.getUntrackedParameter<std::vector<string> >("TauProducerDiscriminators");
 
@@ -76,6 +77,14 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig):
   //  TauDiscriminatorCuts_ = iConfig.getUntrackedParameter<std::vector<double> > ("TauDiscriminatorCuts");
 
   //  cout << " RefCollection: " << refCollection_.label() << " "<< refCollection_ << endl;
+
+  refCollectionInputTagToken_ = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<InputTag>("RefCollection"));
+  primaryVertexCollectionToken_ = consumes<VertexCollection>(PrimaryVertexCollection_); //TO-DO
+  tauProducerInputTagToken_ = consumes<reco::PFTauCollection>(iConfig.getParameter<InputTag>("TauProducer"));
+  int j = 0;
+  for ( std::vector<edm::ParameterSet>::iterator it = discriminators_.begin();  it != discriminators_.end(); ++j, ++it ) {
+    currentDiscriminatorToken_.push_back( consumes<reco::PFTauDiscriminator>(edm::InputTag(it->getParameter<string>("discriminator"))) );
+  }
 
   tversion = edm::getReleaseVersion();
   //    cout<<endl<<"-----------------------*******************************Version: " << tversion<<endl;
@@ -107,6 +116,7 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig):
   iConfig.getParameter<bool>("chainCuts") : true;
 
 }
+
 TauTagValidation::~TauTagValidation() {
   if (genericTriggerEventFlag_) delete genericTriggerEventFlag_;
 }
@@ -138,10 +148,12 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   // ----------------------- Reference product -----------------------------------------------------------------------
 
   Handle<genCandidateCollection> ReferenceCollection;
-  bool isGen = iEvent.getByLabel(refCollectionInputTag_, ReferenceCollection);    // get the product from the event
+  //bool isGen = iEvent.getByLabel(refCollectionInputTag_, ReferenceCollection);    // get the product from the event
+  bool isGen = iEvent.getByToken( refCollectionInputTagToken_, ReferenceCollection );
 
   Handle<VertexCollection> pvHandle;
-  iEvent.getByLabel(PrimaryVertexCollection_,pvHandle);
+  // iEvent.getByLabel(PrimaryVertexCollection_,pvHandle);
+  iEvent.getByToken( primaryVertexCollectionToken_, pvHandle ); //TO-DO
 
   if (!isGen) {
     std::cerr << " Reference collection: " << refCollection_ << " not found while running TauTagValidation.cc " << std::endl;
@@ -161,7 +173,8 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if ( TauProducer_.find("PFTau") != string::npos || TauProducer_.find("hpsTancTaus") != string::npos )
   {
     Handle<PFTauCollection> thePFTauHandle;
-    iEvent.getByLabel(TauProducerInputTag_,thePFTauHandle);
+    //iEvent.getByLabel(TauProducerInputTag_,thePFTauHandle);
+    iEvent.getByToken( tauProducerInputTagToken_, thePFTauHandle );
 
     const PFTauCollection  *pfTauProduct;
     pfTauProduct = thePFTauHandle.product();
@@ -221,11 +234,13 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if( !pass ) continue;
       //printf("TauTagValidation::analyze:selectGen: values: %f, %f\n", gen_particle->pt(), gen_particle->eta());
 
-
-      for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++)
+      int j = 0;
+      for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++, j++)
       {
         string currentDiscriminatorLabel = it->getParameter<string>("discriminator");
-        iEvent.getByLabel(currentDiscriminatorLabel, currentDiscriminator);
+        // iEvent.getByLabel(currentDiscriminatorLabel, currentDiscriminator);
+        iEvent.getByToken( currentDiscriminatorToken_[j], currentDiscriminator );
+
 
         if ((*currentDiscriminator)[thePFTau] >= it->getParameter<double>("selectionCut")){
           ptTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->pt());
