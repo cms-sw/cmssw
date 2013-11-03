@@ -73,10 +73,13 @@ SiPixelHitEfficiencySource::SiPixelHitEfficiencySource(const edm::ParameterSet& 
  { 
    pSet_ = pSet; 
    debug_ = pSet_.getUntrackedParameter<bool>("debug", false); 
-   tracksrc_ = pSet_.getParameter<edm::InputTag>("trajectoryInput");
+   //tracksrc_ = pSet_.getParameter<edm::InputTag>("trajectoryInput");
    applyEdgeCut_ = pSet_.getUntrackedParameter<bool>("applyEdgeCut");
    nSigma_EdgeCut_ = pSet_.getUntrackedParameter<double>("nSigma_EdgeCut");
    dbe_ = edm::Service<DQMStore>().operator->();
+   vertexCollectionToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
+   tracksrc_ = consumes<TrajTrackAssociationCollection>(pSet_.getParameter<edm::InputTag>("trajectoryInput"));
+   clusterCollectionToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(std::string("siPixelClusters"));
 
   LogInfo("PixelDQM") << "SiPixelHitEfficiencySource constructor" << endl;
   LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
@@ -191,7 +194,8 @@ void SiPixelHitEfficiencySource::endJob(void) {
 void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::Handle<reco::VertexCollection> vertexCollectionHandle;
-  iEvent.getByLabel("offlinePrimaryVertices", vertexCollectionHandle);
+  //iEvent.getByLabel("offlinePrimaryVertices", vertexCollectionHandle);
+  iEvent.getByToken( vertexCollectionToken_, vertexCollectionHandle );
   if(!vertexCollectionHandle.isValid()) return;
   nvtx_=0;
   vtxntrk_=-9999;
@@ -223,7 +227,8 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
   
   //get the map
   edm::Handle<TrajTrackAssociationCollection> match;
-  iEvent.getByLabel(tracksrc_,match);  
+  //iEvent.getByLabel(tracksrc_,match);  
+  iEvent.getByToken( tracksrc_, match );
   const TrajTrackAssociationCollection ttac = *(match.product());
 
   if(debug_){
@@ -464,7 +469,8 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 		if(tracker.isValid()){
 		  const TrackerGeometry *tkgeom=&(*tracker);
 		  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusterCollectionHandle;
-		  iEvent.getByLabel("siPixelClusters", clusterCollectionHandle);
+		  //iEvent.getByLabel("siPixelClusters", clusterCollectionHandle);
+      iEvent.getByToken( clusterCollectionToken_, clusterCollectionHandle );
 		  if(clusterCollectionHandle.isValid()){
 		    const edmNew::DetSetVector<SiPixelCluster>& clusterCollection=*clusterCollectionHandle;
 		    edmNew::DetSetVector<SiPixelCluster>::const_iterator itClusterSet=clusterCollection.begin();
