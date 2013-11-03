@@ -50,7 +50,10 @@ class SiPixelHitEfficiencySource : public edm::EDAnalyzer {
   private: 
     edm::ParameterSet pSet_; 
     edm::InputTag src_; 
-    edm::InputTag tracksrc_;
+    // edm::InputTag tracksrc_;
+    edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken_;
+    edm::EDGetTokenT<TrajTrackAssociationCollection> tracksrc_;
+    edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clusterCollectionToken_;
     
     bool applyEdgeCut_;
     double nSigma_EdgeCut_;
