@@ -22,7 +22,7 @@ class AssociationVector2ValueMap : public edm::EDProducer {
   typedef edm::ValueMap<value_t> vm_t;
   typedef typename av_t::CKey collection_t;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  edm::InputTag av_;
+  edm::EDGetTokenT<av_t> av_;
 };
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,7 +33,7 @@ class AssociationVector2ValueMap : public edm::EDProducer {
 
 template<typename KeyRefProd, typename CVal>
 AssociationVector2ValueMap<KeyRefProd, CVal>::AssociationVector2ValueMap(const edm::ParameterSet& cfg) :
-  av_(cfg.template getParameter<edm::InputTag>("src")) {
+  av_(consumes<av_t>(cfg.template getParameter<edm::InputTag>("src"))) {
   produces<vm_t>();
 }
 
@@ -42,9 +42,9 @@ void AssociationVector2ValueMap<KeyRefProd, CVal>::produce(edm::Event& evt, cons
   using namespace edm;
   using namespace std;
   Handle<av_t> av;
-  evt.getByLabel(av_, av);
+  evt.getByToken(av_, av);
 
-  auto_ptr<vm_t> vm(new vm_t);  
+  auto_ptr<vm_t> vm(new vm_t);
   typename vm_t::Filler filler(*vm);
   filler.fill();
   size_t size = av->size();

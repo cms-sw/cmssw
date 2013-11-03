@@ -8,8 +8,8 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-bool 
-reco::isodeposit::OtherCandidatesDeltaRVeto::veto(double eta, double phi, float value) const 
+bool
+reco::isodeposit::OtherCandidatesDeltaRVeto::veto(double eta, double phi, float value) const
 {
     for (std::vector<Direction>::const_iterator it = items_.begin(), ed = items_.end(); it != ed; ++it) {
         if (::deltaR2(it->eta(), it->phi(), eta, phi) < deltaR2_) return true;
@@ -27,8 +27,8 @@ reco::isodeposit::OtherCandidatesDeltaRVeto::setEvent(const edm::Event &iEvent, 
     }
 }
 
-bool 
-reco::isodeposit::OtherCandVeto::veto(double eta, double phi, float value) const 
+bool
+reco::isodeposit::OtherCandVeto::veto(double eta, double phi, float value) const
 {
     for (std::vector<Direction>::const_iterator it = items_.begin(), ed = items_.end(); it != ed; ++it) {
         veto_->centerOn(it->eta(), it->phi());
@@ -47,8 +47,8 @@ reco::isodeposit::OtherCandVeto::setEvent(const edm::Event &iEvent, const edm::E
     }
 }
 
-bool 
-reco::isodeposit::OtherJetConstituentsDeltaRVeto::veto(double eta, double phi, float value) const 
+bool
+reco::isodeposit::OtherJetConstituentsDeltaRVeto::veto(double eta, double phi, float value) const
 {
     for (std::vector<Direction>::const_iterator it = items_.begin(), ed = items_.end(); it != ed; ++it) {
         if (::deltaR2(it->eta(), it->phi(), eta, phi) < dR2constituent_) return true;
@@ -57,7 +57,7 @@ reco::isodeposit::OtherJetConstituentsDeltaRVeto::veto(double eta, double phi, f
 }
 
 void
-reco::isodeposit::OtherJetConstituentsDeltaRVeto::setEvent(const edm::Event& evt, const edm::EventSetup& es) 
+reco::isodeposit::OtherJetConstituentsDeltaRVeto::setEvent(const edm::Event& evt, const edm::EventSetup& es)
 {
     //std::cout << "<OtherJetConstituentsDeltaRVeto::setEvent>:" << std::endl;
     evt_ = &evt;
@@ -98,12 +98,12 @@ reco::isodeposit::OtherJetConstituentsDeltaRVeto::initialize()
     }
 }
 
-void 
-reco::isodeposit::OtherJetConstituentsDeltaRVeto::centerOn(double eta, double phi) 
-{ 
+void
+reco::isodeposit::OtherJetConstituentsDeltaRVeto::centerOn(double eta, double phi)
+{
     //std::cout << "<OtherJetConstituentsDeltaRVeto::centerOn>:" << std::endl;
     //std::cout << " eta = " << eta << std::endl;
     //std::cout << " phi = " << phi << std::endl;
-    vetoDir_ = Direction(eta,phi); 
+    vetoDir_ = Direction(eta,phi);
     initialize();
 }

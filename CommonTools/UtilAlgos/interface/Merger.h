@@ -2,12 +2,12 @@
 #define UtilAlgos_Merger_h
 /** \class Merger
  *
- * Merges an arbitrary number of collections 
+ * Merges an arbitrary number of collections
  * into a single collection.
- * 
+ *
  * Template parameters:
  * - C : collection type
- * - P : policy class that specifies how objects 
+ * - P : policy class that specifies how objects
  *       in the collection are are cloned
  *
  * \author Luca Lista, INFN
@@ -20,11 +20,12 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/CloneTrait.h"
 #include <vector>
 
-template<typename InputCollection, 
+template<typename InputCollection,
 	 typename OutputCollection = InputCollection,
 	 typename P = typename edm::clonehelper::CloneTrait<InputCollection>::type>
 class Merger : public edm::EDProducer {
@@ -38,14 +39,14 @@ private:
   /// process an event
   virtual void produce( edm::Event&, const edm::EventSetup&) override;
   /// vector of strings
-  typedef std::vector<edm::InputTag> vtag;
+  typedef std::vector<edm::EDGetTokenT<InputCollection> > vtoken;
   /// labels of the collections to be merged
-  vtag src_;
+  vtoken srcToken_;
 };
 
 template<typename InputCollection, typename OutputCollection, typename P>
-Merger<InputCollection, OutputCollection, P>::Merger( const edm::ParameterSet& par ) : 
-  src_( par.template getParameter<vtag>( "src" ) ) {
+Merger<InputCollection, OutputCollection, P>::Merger( const edm::ParameterSet& par ) :
+  srcToken_( edm::vector_transform(par.template getParameter<std::vector<edm::InputTag> >( "src" ), [this](edm::InputTag const & tag){return consumes<InputCollection>(tag);} ) ) {
   produces<OutputCollection>();
 }
 
@@ -56,9 +57,9 @@ Merger<InputCollection, OutputCollection, P>::~Merger() {
 template<typename InputCollection, typename OutputCollection, typename P>
 void Merger<InputCollection, OutputCollection, P>::produce( edm::Event& evt, const edm::EventSetup&) {
   std::auto_ptr<OutputCollection> coll( new OutputCollection );
-  for( vtag::const_iterator s = src_.begin(); s != src_.end(); ++ s ) {
+  for( typename vtoken::const_iterator s = srcToken_.begin(); s != srcToken_.end(); ++ s ) {
     edm::Handle<InputCollection> h;
-    evt.getByLabel( * s, h );
+    evt.getByToken( * s, h );
     for( typename InputCollection::const_iterator c = h->begin(); c != h->end(); ++c ) {
       coll->push_back( P::clone( * c ) );
     }

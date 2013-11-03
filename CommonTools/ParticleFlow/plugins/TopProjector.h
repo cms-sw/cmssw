@@ -21,14 +21,14 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/OverlapChecker.h"  
+#include "DataFormats/Candidate/interface/OverlapChecker.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-/**\class TopProjector 
-\brief 
+/**\class TopProjector
+\brief
 
 \author Colin Bernet
 \date   february 2008
@@ -37,9 +37,9 @@
 #include <iostream>
 
 
-/// This checks a slew of possible overlaps for FwdPtr<Candidate> and derivatives. 
+/// This checks a slew of possible overlaps for FwdPtr<Candidate> and derivatives.
 template < class Top, class Bottom>
-  class TopProjectorFwdPtrOverlap : public std::unary_function<edm::FwdPtr<Top>, bool > { 
+  class TopProjectorFwdPtrOverlap : public std::unary_function<edm::FwdPtr<Top>, bool > {
 
   public:
     typedef edm::FwdPtr<Top> TopFwdPtr;
@@ -58,7 +58,7 @@ template < class Top, class Bottom>
       bool bottomFwdGood = bottom_->ptr().isNonnull() && bottom_->ptr().isAvailable();
       bool bottomBckGood = bottom_->backPtr().isNonnull() && bottom_->backPtr().isAvailable();
 
-      bool matched = 
+      bool matched =
 	(topFwdGood && bottomFwdGood && top.ptr().refCore() == bottom_->ptr().refCore() && top.ptr().key() == bottom_->ptr().key()) ||
 	(topFwdGood && bottomBckGood && top.ptr().refCore() == bottom_->backPtr().refCore() && top.ptr().key() == bottom_->backPtr().key()) ||
 	(topBckGood && bottomFwdGood && top.backPtr().refCore() == bottom_->ptr().refCore() && top.backPtr().key() == bottom_->ptr().key()) ||
@@ -68,7 +68,7 @@ template < class Top, class Bottom>
 	for ( unsigned isource = 0; isource < top->numberOfSourceCandidatePtrs(); ++isource ) {
 	  reco::CandidatePtr const & topSrcPtr = top->sourceCandidatePtr(isource);
 	  bool topSrcGood = topSrcPtr.isNonnull() && topSrcPtr.isAvailable();
-	  if ( (topSrcGood && bottomFwdGood && topSrcPtr.refCore() == bottom_->ptr().refCore() && topSrcPtr.key() == bottom_->ptr().key())|| 
+	  if ( (topSrcGood && bottomFwdGood && topSrcPtr.refCore() == bottom_->ptr().refCore() && topSrcPtr.key() == bottom_->ptr().key())||
 	       (topSrcGood && bottomBckGood && topSrcPtr.refCore() == bottom_->backPtr().refCore() && topSrcPtr.key() == bottom_->backPtr().key())
 	       ) {
 	    matched = true;
@@ -80,7 +80,7 @@ template < class Top, class Bottom>
 	for ( unsigned isource = 0; isource < (*bottom_)->numberOfSourceCandidatePtrs(); ++isource ) {
 	  reco::CandidatePtr const & bottomSrcPtr = (*bottom_)->sourceCandidatePtr(isource);
 	  bool bottomSrcGood = bottomSrcPtr.isNonnull() && bottomSrcPtr.isAvailable();
-	  if ( (topFwdGood && bottomSrcGood && bottomSrcPtr.refCore() == top.ptr().refCore() && bottomSrcPtr.key() == top.ptr().key() )|| 
+	  if ( (topFwdGood && bottomSrcGood && bottomSrcPtr.refCore() == top.ptr().refCore() && bottomSrcPtr.key() == top.ptr().key() )||
 	       (topBckGood && bottomSrcGood && bottomSrcPtr.refCore() == top.backPtr().refCore() && bottomSrcPtr.key() == top.backPtr().key() )
 	       ) {
 	    matched = true;
@@ -90,18 +90,18 @@ template < class Top, class Bottom>
       }
 
       return matched;
-      
+
     }
 
  protected :
-    BottomFwdPtr const * bottom_; 
- 
+    BottomFwdPtr const * bottom_;
+
 };
 
 
 /// This checks matching based on delta R
 template < class Top, class Bottom>
-  class TopProjectorDeltaROverlap : public std::unary_function<edm::FwdPtr<Top>, bool > { 
+  class TopProjectorDeltaROverlap : public std::unary_function<edm::FwdPtr<Top>, bool > {
 
   public:
     typedef edm::FwdPtr<Top> TopFwdPtr;
@@ -114,7 +114,7 @@ template < class Top, class Bottom>
       {deltaR2_*=deltaR2_;}
 
 
-      inline void setBottom(BottomFwdPtr const & bottom ) { 
+      inline void setBottom(BottomFwdPtr const & bottom ) {
 	bottom_ = &bottom; bottomCPtr_=&**bottom_;
 	botEta_ = bottomCPtr_->eta();
 	botPhi_ = bottomCPtr_->phi();
@@ -128,8 +128,8 @@ template < class Top, class Bottom>
 
  protected :
     double deltaR2_;
-    BottomFwdPtr const * bottom_; 
-    const Bottom* bottomCPtr_; 
+    BottomFwdPtr const * bottom_;
+    const Bottom* bottomCPtr_;
     float botEta_,botPhi_;
 };
 
@@ -141,27 +141,27 @@ class TopProjector : public edm::EDProducer {
   typedef std::vector<Top> TopCollection;
   typedef edm::Handle< std::vector<Top> > TopHandle;
   typedef edm::FwdPtr<Top> TopFwdPtr;
-  typedef std::vector<TopFwdPtr> TopFwdPtrCollection; 
-  typedef edm::Handle< TopFwdPtrCollection > TopFwdPtrHandle; 
+  typedef std::vector<TopFwdPtr> TopFwdPtrCollection;
+  typedef edm::Handle< TopFwdPtrCollection > TopFwdPtrHandle;
 
   typedef std::vector<Bottom> BottomCollection;
   typedef edm::Handle< std::vector<Bottom> > BottomHandle;
-  typedef edm::Ptr<Bottom> BottomPtr; 
-  typedef edm::Ref<BottomCollection> BottomRef; 
+  typedef edm::Ptr<Bottom> BottomPtr;
+  typedef edm::Ref<BottomCollection> BottomRef;
   typedef edm::FwdPtr<Bottom> BottomFwdPtr;
   typedef std::vector<BottomFwdPtr> BottomFwdPtrCollection;
-  typedef edm::Handle< BottomFwdPtrCollection > BottomFwdPtrHandle; 
+  typedef edm::Handle< BottomFwdPtrCollection > BottomFwdPtrHandle;
 
   TopProjector(const edm::ParameterSet&);
 
   ~TopProjector() {};
 
-  
+
   void produce(edm::Event&, const edm::EventSetup&);
 
 
  private:
-  /// Matching method. 
+  /// Matching method.
   Matcher         match_;
 
   /// enable? if not, all candidates in the bottom collection are copied to the output collection
@@ -169,27 +169,31 @@ class TopProjector : public edm::EDProducer {
 
   /// name of the top projection
   std::string     name_;
- 
+
   /// input tag for the top (masking) collection
   edm::InputTag   inputTagTop_;
+  edm::EDGetTokenT<TopFwdPtrCollection>   tokenTop_;
 
-  /// input tag for the masked collection. 
+  /// input tag for the masked collection.
   edm::InputTag   inputTagBottom_;
+  edm::EDGetTokenT<BottomFwdPtrCollection>   tokenBottom_;
 };
 
 
 
 
 template< class Top, class Bottom, class Matcher >
-TopProjector< Top, Bottom, Matcher>::TopProjector(const edm::ParameterSet& iConfig) : 
+TopProjector< Top, Bottom, Matcher>::TopProjector(const edm::ParameterSet& iConfig) :
   match_(iConfig),
   enable_(iConfig.getParameter<bool>("enable")) {
   name_ = iConfig.getUntrackedParameter<std::string>("name","No Name");
   inputTagTop_ = iConfig.getParameter<edm::InputTag>("topCollection");
+  tokenTop_ = consumes<TopFwdPtrCollection>(inputTagTop_);
   inputTagBottom_ = iConfig.getParameter<edm::InputTag>("bottomCollection");
+  tokenBottom_ = consumes<BottomFwdPtrCollection>(inputTagBottom_);
 
-  // will produce a collection of the unmasked candidates in the 
-  // bottom collection 
+  // will produce a collection of the unmasked candidates in the
+  // bottom collection
   produces< BottomFwdPtrCollection > ();
 }
 
@@ -201,10 +205,10 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
 
   // Access the masking collection
   TopFwdPtrHandle tops;
-  iEvent.getByLabel(  inputTagTop_, tops );
+  iEvent.getByToken(  tokenTop_, tops );
   std::list<  TopFwdPtr > topsList;
 
-  for ( typename TopFwdPtrCollection::const_iterator ibegin = tops->begin(), 
+  for ( typename TopFwdPtrCollection::const_iterator ibegin = tops->begin(),
 	  iend = tops->end(), i = ibegin; i != iend; ++i ) {
     topsList.push_back( *i );
   }
@@ -219,12 +223,12 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
 /*   } */
 
 
-  
+
 
   // Access the collection to
   // be masked by the other ones
   BottomFwdPtrHandle bottoms;
-  iEvent.getByLabel(  inputTagBottom_, bottoms );
+  iEvent.getByToken(  tokenBottom_, bottoms );
 
 /*   if( !bottoms.isValid() ) { */
 /*     std::ostringstream  err; */
@@ -234,7 +238,7 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
 /*     throw cms::Exception( "MissingProduct", err.str()); */
 /*   } */
 
- 
+
   /* if(verbose_) { */
   /*   const edm::Provenance& topProv = iEvent.getProvenance(tops.id()); */
   /*   const edm::Provenance& bottomProv = iEvent.getProvenance(bottoms.id()); */
@@ -265,11 +269,11 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
 
   // output collection of FwdPtrs to objects,
   // selected from the Bottom collection
-  std::auto_ptr< BottomFwdPtrCollection > 
+  std::auto_ptr< BottomFwdPtrCollection >
     pBottomFwdPtrOutput( new BottomFwdPtrCollection );
 
   LogDebug("TopProjection")<<" Remaining candidates in the bottom collection ------ ";
-  
+
   for(typename BottomFwdPtrCollection::const_iterator i=bottoms->begin(),
 	iend = bottoms->end(), ibegin = i; i != iend; ++i) {
 
@@ -280,20 +284,20 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
       found = std::find_if( topsList.begin(), topsList.end(), match_ );
     }
 
-    // If this is masked in the top projection, we remove it. 
+    // If this is masked in the top projection, we remove it.
     if( found != topsList.end() ) {
       LogDebug("TopProjection")<<"X "<<i-ibegin << **i;
       topsList.erase(found);
       continue;
     }
-    // otherwise, we keep it. 
+    // otherwise, we keep it.
     else {
       LogDebug("TopProjection")<<"O "<<i-ibegin << **i;
       pBottomFwdPtrOutput->push_back( bottom );
     }
   }
 
-  iEvent.put( pBottomFwdPtrOutput ); 
+  iEvent.put( pBottomFwdPtrOutput );
 }
 
 
