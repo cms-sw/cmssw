@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-HLTCSCRing2or3Filter::HLTCSCRing2or3Filter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTCSCRing2or3Filter::HLTCSCRing2or3Filter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
      , m_input(iConfig.getParameter<edm::InputTag>("input"))
      , m_minHits(iConfig.getParameter<unsigned int>("minHits"))
      , m_xWindow(iConfig.getParameter<double>("xWindow"))

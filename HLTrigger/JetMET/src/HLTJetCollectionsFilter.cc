@@ -94,7 +94,7 @@ HLTJetCollectionsFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::Event
 
     if (numberOfGoodJets >= minNJets_) {
       accept = true;
-      // keep looping through collections to save all possible jets 
+      // keep looping through collections to save all possible jets
     }
   }
 

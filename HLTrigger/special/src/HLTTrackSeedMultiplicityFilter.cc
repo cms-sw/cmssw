@@ -35,7 +35,7 @@ private:
 //
 // constructors and destructor
 //
- 
+
 HLTTrackSeedMultiplicityFilter::HLTTrackSeedMultiplicityFilter(const edm::ParameterSet& config) : HLTFilter(config),
   inputTag_  (config.getParameter<edm::InputTag>("inputTag")),
   min_seeds_ (config.getParameter<unsigned int>("minSeeds")),
@@ -44,7 +44,7 @@ HLTTrackSeedMultiplicityFilter::HLTTrackSeedMultiplicityFilter(const edm::Parame
   inputToken_ = consumes<TrajectorySeedCollection>(inputTag_);
   LogDebug("") << "Using the " << inputTag_ << " input collection";
   LogDebug("") << "Requesting at least " << min_seeds_ << " seeds";
-  if(max_seeds_ > 0) 
+  if(max_seeds_ > 0)
     LogDebug("") << "...but no more than " << max_seeds_ << " seeds";
 }
 
@@ -87,7 +87,7 @@ bool HLTTrackSeedMultiplicityFilter::hltFilter(edm::Event& event, const edm::Eve
   {
     //std::cout << "Problem!!" << std::endl;
     rsSeedCollection = seedColl.product();
-  } 
+  }
   else
   {
     return false;
@@ -105,9 +105,9 @@ bool HLTTrackSeedMultiplicityFilter::hltFilter(edm::Event& event, const edm::Eve
 
   bool accept = (seedsize >= min_seeds_);
 
-  if(max_seeds_ > 0) 
+  if(max_seeds_ > 0)
     accept &= (seedsize <= max_seeds_);
-  
+
   // return with final filter decision
   return accept;
 }

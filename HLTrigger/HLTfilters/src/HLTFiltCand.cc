@@ -40,7 +40,7 @@
 //
 // constructors and destructor
 //
- 
+
 HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   photTag_ (iConfig.getParameter<edm::InputTag>("photTag")),
   elecTag_ (iConfig.getParameter<edm::InputTag>("elecTag")),

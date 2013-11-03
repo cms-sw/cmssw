@@ -21,14 +21,11 @@ public:
   virtual ~DTROMonitorFilter();
 
   // Operations
-  virtual bool hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct);
-  
+  virtual bool hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+
 protected:
 
 private:
-  // Get the data integrity service
-  edm::Handle<FEDRawDataCollection> rawdata;
-
   /// if not you need the label
   edm::InputTag inputLabel;
 

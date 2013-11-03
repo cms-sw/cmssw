@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-HLTEcalIsolationFilter::HLTEcalIsolationFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTEcalIsolationFilter::HLTEcalIsolationFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   candTag_ = iConfig.getParameter<edm::InputTag> ("EcalIsolatedParticleSource");
   maxhitout = iConfig.getParameter<int> ("MaxNhitOuterCone");
@@ -59,11 +59,11 @@ bool HLTEcalIsolationFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 	  n++;
 	}
     }
-  
-  
+
+
   bool accept(n>0);
 
   return accept;
 
 }
-	  
+	

@@ -20,7 +20,7 @@ DTDataErrorFilter::~DTDataErrorFilter(){}
 
 
 bool DTDataErrorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
-  // check the event error flag 
+  // check the event error flag
   if (dataMonitor->eventHasErrors()) return true;
   return false;
 }
