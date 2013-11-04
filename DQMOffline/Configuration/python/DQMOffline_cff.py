@@ -27,7 +27,7 @@ DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  cscSources *
                                  es_dqm_source_offline *
                                  castorSources *
-                                 HcalDQMOfflineSequence)
+                                 HcalDQMOfflineSequence )
 
 DQMOfflineDPG = cms.Sequence( DQMOfflinePreDPG *
                               DQMMessageLogger )
@@ -41,9 +41,10 @@ from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from DQM.Physics.DQMPhysics_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
+from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_cff import *
 
-
-DQMOfflinePrePOG = cms.Sequence( muonMonitors *
+DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
+                                 muonMonitors *
                                  jetMETDQMOfflineSource *
                                  egammaDQMOffline *
                                  l1TriggerDqmOffline *
@@ -77,6 +78,7 @@ DQMOfflinePhysics = cms.Sequence( dqmPhysics )
 DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
                                  SiStripDQMTier0Common *
+                                 TrackingDQMSourceTier0Common *
                                  siPixelOfflineDQM_source *
                                  l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
@@ -90,6 +92,7 @@ DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
 DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
                                  SiStripDQMTier0MinBias *
+                                 TrackingDQMSourceTier0MinBias *               
                                  siPixelOfflineDQM_source *
                                  l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
