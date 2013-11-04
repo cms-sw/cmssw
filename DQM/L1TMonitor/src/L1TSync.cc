@@ -14,9 +14,6 @@
 #include "DataFormats/Scalers/interface/Level1TriggerRates.h"
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
-
 #include "DataFormats/Common/interface/ConditionsInEdm.h" // Parameters associated to Run, LS and Event
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
@@ -45,9 +42,8 @@ L1TSync::L1TSync(const ParameterSet & pset){
   m_parameters = pset;
   
   // Mapping parameter input variables
-  m_scalersSource       = pset.getParameter         <InputTag>("inputTagScalersResults");
-  m_l1GtDataDaqInputTag = pset.getParameter         <InputTag>("inputTagL1GtDataDaq");
-  m_l1GtEvmSource       = pset.getParameter         <InputTag>("inputTagtEvmSource");
+  m_l1GtDataDaqInputTag = consumes<L1GlobalTriggerReadoutRecord>(pset.getParameter         <InputTag>("inputTagL1GtDataDaq"));
+  m_l1GtEvmSource       = consumes<L1GlobalTriggerEvmReadoutRecord>(pset.getParameter      <InputTag>("inputTagtEvmSource"));
   m_verbose             = pset.getUntrackedParameter<bool>    ("verbose",false);
   m_refPrescaleSet      = pset.getParameter         <int>     ("refPrescaleSet");  
 
@@ -439,7 +435,7 @@ void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
     
     // Retriving information from GT
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
-    iEvent.getByLabel(m_l1GtEvmSource, gtEvmReadoutRecord);
+    iEvent.getByToken(m_l1GtEvmSource, gtEvmReadoutRecord);
 
     // Determining beam mode and fill number
     if(gtEvmReadoutRecord.isValid()){
@@ -470,7 +466,7 @@ void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
     // Getting Final Decision Logic (FDL) Data from GT
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecordData;
-    iEvent.getByLabel(m_l1GtDataDaqInputTag, gtReadoutRecordData);
+    iEvent.getByToken(m_l1GtDataDaqInputTag, gtReadoutRecordData);
 
     if(gtReadoutRecordData.isValid()){
 

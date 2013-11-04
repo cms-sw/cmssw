@@ -13,9 +13,7 @@
  
 #include "DQM/L1TMonitor/interface/L1TdeCSCTF.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
-#include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
@@ -40,11 +38,10 @@ using namespace std;
 using namespace edm;
 
 L1TdeCSCTF::L1TdeCSCTF(ParameterSet const& pset):EDAnalyzer(){
-	dataTrackProducer = pset.getParameter<InputTag>("dataTrackProducer");
-	emulTrackProducer = pset.getParameter<InputTag>("emulTrackProducer");
-	lctProducer       = pset.getParameter<InputTag>("lctProducer");
-	dataStubProducer  = pset.getParameter<InputTag>("dataStubProducer");
-	emulStubProducer  = pset.getParameter<InputTag>("emulStubProducer");
+        dataTrackProducer = consumes<L1CSCTrackCollection>(pset.getParameter<InputTag>("dataTrackProducer"));
+	emulTrackProducer = consumes<L1CSCTrackCollection>(pset.getParameter<InputTag>("emulTrackProducer"));
+	dataStubProducer  = consumes<CSCTriggerContainer<csctf::TrackStub> >(pset.getParameter<InputTag>("dataStubProducer"));
+	emulStubProducer  = consumes<L1MuDTChambPhContainer>(pset.getParameter<InputTag>("emulStubProducer"));
 	
 	m_dirName         = pset.getUntrackedParameter("DQMFolder", string("L1TEMU/CSCTFexpert"));
 
@@ -104,9 +101,20 @@ L1TdeCSCTF::L1TdeCSCTF(ParameterSet const& pset):EDAnalyzer(){
 	my_dtrc = new CSCTFDTReceiver();
 }
 
-void L1TdeCSCTF::beginJob()
-{
+void L1TdeCSCTF::beginJob(){
+}
 
+void L1TdeCSCTF::endJob(void){
+	
+	if(ptLUT_) delete ptLUT_;
+	
+	if ( outFile.size() != 0  && dbe ) dbe->save(outFile);	
+	return;
+}
+
+void L1TdeCSCTF::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) 
+{
+  //Histograms booking
 
 	/////////////////////////////
 	// DQM Directory Structure //
@@ -265,108 +273,10 @@ void L1TdeCSCTF::beginJob()
                 dtStubPhi_1d->setBinLabel(1, "Agree", 1);
                 dtStubPhi_1d->setBinLabel(2, "Disagree", 1);
 
-	}
-	
-}
-
-void L1TdeCSCTF::endJob(void){
-	
-	if(ptLUT_) delete ptLUT_;
-	
-	if ( outFile.size() != 0  && dbe ) dbe->save(outFile);	
-	return;
+	} 
 }
 
 void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
-	// Get LCT information
-	//////////////////////
-	/*int lctArray[20][7];
-	short nLCTs=0;
-	for(int oj=0; oj<20; oj++) lctArray[oj][0]=0;
-	if( lctProducer.label() != "null" )
-	{
-		Handle<CSCCorrelatedLCTDigiCollection> LCTs;
-		e.getByLabel(lctProducer.label(),lctProducer.instance(), LCTs);
-
-		// check validity of input collection
-		if(!LCTs.isValid()) {
-		  LogWarning("L1TdeCSCTF")
-		    << "\n No valid [lct] product found: "
-		    << " CSCCorrelatedLCTDigiCollection"
-		    << endl;
-		  return;
-		}
-		
-		ESHandle< L1MuTriggerScales > scales ;
-		es.get< L1MuTriggerScalesRcd >().get( scales ) ;
-		ESHandle< L1MuTriggerPtScale > ptScale ;
-		es.get< L1MuTriggerPtScaleRcd >().get( ptScale ) ;
-		ptLUT_ = new CSCTFPtLUT(ptLUTset, scales.product(), ptScale.product() );
-
-		for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=LCTs.product()->begin(); csc!=LCTs.product()->end(); csc++)
-		{
-			int lctId=0;
-
-			CSCCorrelatedLCTDigiCollection::Range range1 = LCTs.product()->get((*csc).first);
-			for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range1.first; lct!=range1.second; lct++,lctId++)
-			{
-				CSCCorrelatedLCTDigiCollection::Range range1 = LCTs.product()->get((*csc).first);
-				CSCCorrelatedLCTDigiCollection::const_iterator lct;
-				for( lct = range1.first; lct!=range1.second; lct++)
-				{	
-					int station = (*csc).first.station()-1;
-					int cscId   = (*csc).first.triggerCscId()-1;
-					int sector  = (*csc).first.triggerSector()-1;
-					int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
-					int tbin    = lct->getBX();
-					int fpga    = ( subSector ? subSector-1 : station+1 );
-					int endcap = (*csc).first.endcap()-1;
-
-					lclphidat lclPhi;
-					gblphidat gblPhi;
-					gbletadat gblEta;
-
-					try{
-						lclPhi = srLUTs_[endcap][sector][fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend());
-					} catch ( cms::Exception &e ) {
-						bzero(&lclPhi, sizeof(lclPhi));
-						LogWarning("L1TdeCSCTF:analyze()") << "Exception from LocalPhi LUT in endCap: " << endcap << ", sector: " << sector << ", fpga: " << fpga 
-							<< "(strip:" << lct->getStrip() << ", pattern:"<< lct->getPattern() << ", Q:" << lct->getQuality() << ", bend:" << lct->getBend() << endl;
-					}
-
-					try{
-						gblPhi = srLUTs_[endcap][sector][fpga]->globalPhiME( lclPhi.phi_local, lct->getKeyWG(),cscId+1);
-					} catch  ( cms::Exception &e ) {
-						bzero(&gblPhi,sizeof(gblPhi));
-						LogWarning("L1TdeCSCTF:analyze()") << "Exception from GlobalPhi LUT in endCap: " << endcap << ", sector: " << sector << ", fpga: " << fpga 
-							<< "(local phi:" << lclPhi.phi_local << ", keyWG:" << lct->getKeyWG() << ",cscID:" << cscId+1 << endl;
-					}
-					try{
-						gblEta = srLUTs_[endcap][sector][fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local,lct->getKeyWG(),cscId+1);
-					} catch  ( cms::Exception &e ) {
-						bzero(&gblEta,sizeof(gblEta));
-						LogWarning("L1TdeCSCTF:analyze()") << "Exception from GlobalEta LUT in endCap: " << endcap << ", sector: " << sector << ", fpga: " << fpga
-							<< "(local phi bend:" << lclPhi.phi_bend_local << ", local phi:" <<  lclPhi.phi_local << ", keyWG: " << lct->getKeyWG() << ", cscID: " << cscId+1 << endl;
-					}
-
-					allLctBx->Fill(tbin);
-					
-					if((nLCTs < 20))
-					{
-						lctArray[nLCTs][0] = 1;
-						lctArray[nLCTs][1] = sector;
-						lctArray[nLCTs][2] = tbin;
-						lctArray[nLCTs][3] = endcap;
-						lctArray[nLCTs][4] = gblPhi.global_phi;
-						lctArray[nLCTs][5] = gblEta.global_eta;
-						lctArray[nLCTs][6] = station;
-						nLCTs++;
-					}
-				}
-			}
-		}
-	}*/
-
 	// Initialize Arrays
 	////////////////////
 	unsigned int nDataMuons = 0;
@@ -393,10 +303,10 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 	}
 	// Get Hardware information, and check output of PtLUT
 	//////////////////////////////////////////////////////
-	if( dataTrackProducer.label() != "null" )
+	if( !dataTrackProducer.isUnitialized())
 	{
 		Handle<L1CSCTrackCollection> tracks;
-		e.getByLabel(dataTrackProducer.label(),dataTrackProducer.instance(),tracks);
+		e.getByToken(dataTrackProducer,tracks);
 
 		// check validity of input collection
 		if(!tracks.isValid()) {
@@ -431,10 +341,10 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 	}
 	// Get Emulator information
 	///////////////////////////
-	if( emulTrackProducer.label() != "null" )
+	if( !emulTrackProducer.isUnitialized() )
 	{
 		Handle<L1CSCTrackCollection> tracks;
-		e.getByLabel(emulTrackProducer.label(),emulTrackProducer.instance(),tracks);
+		e.getByToken(emulTrackProducer,tracks);
 
 		// check validity of input collection
 		if(!tracks.isValid()) {
@@ -591,10 +501,10 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 	}
 	
 	// Get Daq Recorded Stub Information
-	if( dataStubProducer.label() != "null" )
+	if( !dataStubProducer.isUnitialized() )
 	{
 		Handle<CSCTriggerContainer<csctf::TrackStub> > dtTrig;
-		e.getByLabel(dataStubProducer.label(),dataStubProducer.instance(),dtTrig);
+		e.getByToken(dataStubProducer,dtTrig);
 		// check validity of input collection
 		if(!dtTrig.isValid()) {
 		  LogWarning("L1TdeCSCTF")
@@ -625,11 +535,11 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 	}
 	
 	// Get Daq Recorded Stub Information
-	if( emulStubProducer.label() != "null" )
+	if( !emulStubProducer.isUnitialized() )
 	{
 		// Get Emulated Stub Information
 		Handle<L1MuDTChambPhContainer> pCon;
-		e.getByLabel(emulStubProducer.label(),emulStubProducer.instance(),pCon);
+		e.getByToken(emulStubProducer,pCon);
 		// check validity of input collection
 		if(!pCon.isValid()) {
 		  LogWarning("L1TdeCSCTF")

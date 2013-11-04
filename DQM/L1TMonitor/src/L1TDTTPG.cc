@@ -86,19 +86,17 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQM/L1TMonitor/interface/L1TDTTPG.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
 using namespace edm;
 
 L1TDTTPG::L1TDTTPG(const ParameterSet& ps)
-  : dttpgSource_( ps.getParameter< InputTag >("dttpgSource") )
+  : dttpgSourcePhContainer_token_( consumes<L1MuDTChambPhContainer>(ps.getParameter< InputTag >("dttpgSource") )),
+    dttpgSourceThContainer_token_( consumes<L1MuDTChambThContainer>(ps.getParameter< InputTag >("dttpgSource") )),
+    dttpgSource_( ps.getParameter< InputTag >("dttpgSource") )
 {
+  trstring_ = dttpgSource_.label()+":"+"DATA"+":"+dttpgSource_.process();
+  trToken_ = consumes<L1MuDTTrackContainer>(trstring_);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -137,12 +135,22 @@ L1TDTTPG::~L1TDTTPG()
 
 void L1TDTTPG::beginJob(void)
 {
-
   nev_ = 0;
+}
 
-  // get hold of back-end interface
-  DQMStore* dbe = 0;
-  dbe = Service<DQMStore>().operator->();
+
+void L1TDTTPG::endJob(void)
+{
+  if(verbose_) cout << "L1TDTTPG: end job...." << endl;
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
+
+  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
+
+  return;
+}
+
+void L1TDTTPG::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) 
+{
   if ( dbe ) {
     dbe->setCurrentFolder("L1T/L1TDTTPG");
     dbe->rmdir("L1T/L1TDTTPG");
@@ -308,18 +316,8 @@ void L1TDTTPG::beginJob(void)
       setMapThLabel(dttpgthbestmaph);
 
 
-    }  
-}
+    }
 
-
-void L1TDTTPG::endJob(void)
-{
-  if(verbose_) cout << "L1TDTTPG: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
-
-  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
-
-  return;
 }
 
 void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
@@ -329,7 +327,7 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
   if(verbose_) cout << "L1TDTTPG: analyze...." << endl;
 
   edm::Handle<L1MuDTChambPhContainer > myL1MuDTChambPhContainer;  
-  e.getByLabel(dttpgSource_,myL1MuDTChambPhContainer);
+  e.getByToken(dttpgSourcePhContainer_token_,myL1MuDTChambPhContainer);
   
   if (!myL1MuDTChambPhContainer.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1MuDTChambPhContainer with label "
@@ -340,7 +338,7 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
     myL1MuDTChambPhContainer->getContainer();
 
   edm::Handle<L1MuDTChambThContainer > myL1MuDTChambThContainer;  
-  e.getByLabel(dttpgSource_,myL1MuDTChambThContainer);
+  e.getByToken(dttpgSourceThContainer_token_,myL1MuDTChambThContainer);
   
   if (!myL1MuDTChambThContainer.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1MuDTChambThContainer with label "
@@ -579,12 +577,7 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
   }
 
   edm::Handle<L1MuDTTrackContainer > myL1MuDTTrackContainer;
-
-  
-    std::string trstring;
-    trstring = dttpgSource_.label()+":"+"DATA"+":"+dttpgSource_.process();
-    edm::InputTag trInputTag(trstring);
-    e.getByLabel(trInputTag,myL1MuDTTrackContainer);
+  e.getByToken(trToken_,myL1MuDTTrackContainer);
 
   if (!myL1MuDTTrackContainer.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1MuDTTrackContainer with label "

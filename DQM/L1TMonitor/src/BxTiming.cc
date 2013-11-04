@@ -1,10 +1,4 @@
 #include "DQM/L1TMonitor/interface/BxTiming.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDHeader.h"
-#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include <cstdio>
 
 BxTiming::BxTiming(const edm::ParameterSet& iConfig) {
@@ -16,8 +10,12 @@ BxTiming::BxTiming(const edm::ParameterSet& iConfig) {
   fedRef_ = iConfig.getUntrackedParameter<int>("ReferenceFedId",813);
   fedSource_ = iConfig.getUntrackedParameter<edm::InputTag>
     ("FedSource",edm::InputTag("source"));
+  fedSource_token_ = consumes<FEDRawDataCollection>(iConfig.getUntrackedParameter<edm::InputTag>
+						    ("FedSource",edm::InputTag("source")));
   gtSource_ = iConfig.getUntrackedParameter<edm::InputTag>
     ("GtSource",edm::InputTag("gtUnpack"));
+  gtSource_token_ = consumes<L1GlobalTriggerReadoutRecord>(iConfig.getUntrackedParameter<edm::InputTag>
+							   ("GtSource",edm::InputTag("gtUnpack")));
   histFile_ = iConfig.getUntrackedParameter<std::string>
     ("HistFile","");
   histFolder_ = iConfig.getUntrackedParameter<std::string>
@@ -70,11 +68,17 @@ BxTiming::beginJob(void) {
   if(verbose())
     std::cout << "BxTiming::beginJob()  start\n" << std::flush;
 
-  DQMStore* dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
-  if(dbe) {
+  if(verbose())
+    std::cout << "BxTiming::beginJob()  end.\n" << std::flush;
+}
+
+
+
+void 
+BxTiming::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+{
+ if(dbe) {
     dbe->setCurrentFolder(histFolder_);
-    //dbe->rmdir(histFolder_);
   }
 
   /// initialize counters  
@@ -238,9 +242,6 @@ BxTiming::beginJob(void) {
       delete [] ii;
     }
   }
-    
-  if(verbose())
-    std::cout << "BxTiming::beginJob()  end.\n" << std::flush;
 }
 
 void 
@@ -268,7 +269,7 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   /// get the raw data - if not found, return
   edm::Handle<FEDRawDataCollection> rawdata;
-  iEvent.getByLabel(fedSource_, rawdata);
+  iEvent.getByToken(fedSource_token_, rawdata);
 
   if (!rawdata.isValid()) {
 
@@ -282,7 +283,7 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // get the GT bits
   edm::Handle<L1GlobalTriggerReadoutRecord> gtdata;
-  iEvent.getByLabel(gtSource_, gtdata);
+  iEvent.getByToken(gtSource_token_, gtdata);
   std::vector<bool> gtbits;
   int ngtbits = 128;
   gtbits.reserve(ngtbits); for(int i=0; i<ngtbits; i++) gtbits[i]=false;
