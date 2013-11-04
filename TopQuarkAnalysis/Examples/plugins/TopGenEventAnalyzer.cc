@@ -1,9 +1,8 @@
-#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TopQuarkAnalysis/Examples/plugins/TopGenEventAnalyzer.h"
- 
+
 TopGenEventAnalyzer::TopGenEventAnalyzer(const edm::ParameterSet& cfg):
-  inputGenEvent_(cfg.getParameter<edm::InputTag>("genEvent"))
-{ 
+  inputGenEventToken_(consumes<TtGenEvent>(cfg.getParameter<edm::InputTag>("genEvent")))
+{
   edm::Service<TFileService> fs;
   nLep_      = fs->make<TH1F>("nLep",      "N(Lepton)",     5,   0.,   5.);
   topPt_     = fs->make<TH1F>("topPt",     "pt (top)",    100,   0., 500.);
@@ -29,7 +28,7 @@ void
 TopGenEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 {
   edm::Handle<TtGenEvent> genEvent;
-  evt.getByLabel(inputGenEvent_, genEvent);
+  evt.getByToken(inputGenEventToken_, genEvent);
 
   if(!genEvent->isTtBar())
     return;
@@ -59,8 +58,8 @@ TopGenEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 }
 
 void TopGenEventAnalyzer::beginJob()
-{  
-} 
+{
+}
 
 void TopGenEventAnalyzer::endJob()
 {

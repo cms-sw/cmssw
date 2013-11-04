@@ -3,6 +3,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
+
 class StGenEventReco : public edm::EDProducer {
 
  public:
@@ -10,9 +12,9 @@ class StGenEventReco : public edm::EDProducer {
   explicit StGenEventReco(const edm::ParameterSet&);
   ~StGenEventReco();
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+
  private:
-  
-  edm::InputTag src_;
-  edm::InputTag init_; 
+
+  edm::EDGetTokenT<reco::GenParticleCollection> srcToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> initToken_;
 };

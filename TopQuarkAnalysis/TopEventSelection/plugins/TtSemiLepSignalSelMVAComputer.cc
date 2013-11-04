@@ -4,10 +4,6 @@
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLepSignalSelEval.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -16,15 +12,15 @@
 
 
 TtSemiLepSignalSelMVAComputer::TtSemiLepSignalSelMVAComputer(const edm::ParameterSet& cfg):
-  muons_ (cfg.getParameter<edm::InputTag>("muons")),
-  jets_    (cfg.getParameter<edm::InputTag>("jets")),
-  METs_    (cfg.getParameter<edm::InputTag>("mets")),
-  electrons_ (cfg.getParameter<edm::InputTag>("elecs"))
+  muonsToken_ (consumes< edm::View<pat::Muon> >(cfg.getParameter<edm::InputTag>("muons"))),
+  jetsToken_    (consumes< std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
+  METsToken_    (consumes<edm::View<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
+  electronsToken_ (consumes< edm::View<pat::Electron> >(cfg.getParameter<edm::InputTag>("elecs")))
 {
   produces< double >("DiscSel");
 }
 
-  
+
 
 TtSemiLepSignalSelMVAComputer::~TtSemiLepSignalSelMVAComputer()
 {
@@ -34,7 +30,7 @@ void
 TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
   std::auto_ptr< double > pOutDisc (new double);
- 
+
   mvaComputer.update<TtSemiLepSignalSelMVARcd>(setup, "ttSemiLepSignalSelMVA");
 
   // read name of the last processor in the MVA calibration
@@ -44,14 +40,14 @@ TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& s
   std::vector<PhysicsTools::Calibration::VarProcessor*> processors
     = (calibContainer->find("ttSemiLepSignalSelMVA")).getProcessors();
 
-  //make your preselection! This must!! be the same one as in TraintreeSaver.cc  
+  //make your preselection! This must!! be the same one as in TraintreeSaver.cc
   edm::Handle<edm::View<pat::MET> > MET_handle;
-  evt.getByLabel(METs_,MET_handle);
+  evt.getByToken(METsToken_,MET_handle);
   if(!MET_handle.isValid()) return;
   const edm::View<pat::MET> MET = *MET_handle;
 
   edm::Handle< std::vector<pat::Jet> > jet_handle;
-  evt.getByLabel(jets_, jet_handle);
+  evt.getByToken(jetsToken_, jet_handle);
   if(!jet_handle.isValid()) return;
   const std::vector<pat::Jet> jets = *jet_handle;
   unsigned int nJets = 0;
@@ -63,9 +59,9 @@ TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& s
       nJets++;
     }
   }
-   
-  edm::Handle< edm::View<pat::Muon> > muon_handle; 
-  evt.getByLabel(muons_, muon_handle);
+
+  edm::Handle< edm::View<pat::Muon> > muon_handle;
+  evt.getByToken(muonsToken_, muon_handle);
   if(!muon_handle.isValid()) return;
   const edm::View<pat::Muon> muons = *muon_handle;
   int nmuons = 0;
@@ -90,20 +86,20 @@ TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& s
       }
     }
   }
-  
-  edm::Handle< edm::View<pat::Electron> > electron_handle; 
-  evt.getByLabel(electrons_, electron_handle);
+
+  edm::Handle< edm::View<pat::Electron> > electron_handle;
+  evt.getByToken(electronsToken_, electron_handle);
   if(!electron_handle.isValid()) return;
   const edm::View<pat::Electron> electrons = *electron_handle;
   int nelectrons = 0;
   for(edm::View<pat::Electron>::const_iterator it = electrons.begin(); it!=electrons.end(); it++) {
     if(it->pt()>30 && fabs(it->eta())<2.4 && (it->pt()/(it->pt()+it->trackIso()+it->caloIso()))>0.95 && it->isElectronIDAvailable("eidTight"))
-    { 
+    {
       if(it->electronID("eidTight")==1) nelectrons++;
     }
   }
- 
-  
+
+
   double discrim;
   // discriminator output for events which do not pass the preselection is set to -1
   if( nmuons!=1                    ||
@@ -119,19 +115,19 @@ TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& s
   }
 
   *pOutDisc = discrim;
-  
+
   evt.put(pOutDisc, "DiscSel");
-  
+
   DiscSel = discrim;
 
 }
 
-void 
+void
 TtSemiLepSignalSelMVAComputer::beginJob()
 {
 }
 
-void 
+void
 TtSemiLepSignalSelMVAComputer::endJob()
 {
 }

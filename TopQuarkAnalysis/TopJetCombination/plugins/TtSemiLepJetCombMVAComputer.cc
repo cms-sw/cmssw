@@ -1,15 +1,11 @@
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
-#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepJetCombEval.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVAComputer.h"
 
 TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet& cfg):
-  leps_    (cfg.getParameter<edm::InputTag>("leps")),
-  jets_    (cfg.getParameter<edm::InputTag>("jets")),
-  mets_    (cfg.getParameter<edm::InputTag>("mets")),
+  lepsToken_    (consumes< edm::View<reco::RecoCandidate>>(cfg.getParameter<edm::InputTag>("leps"))),
+  jetsToken_    (consumes< std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
+  metsToken_    (consumes< std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
   maxNJets_(cfg.getParameter<int>("maxNJets")),
   maxNComb_(cfg.getParameter<int>("maxNComb"))
 {
@@ -43,14 +39,14 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
   evt.put(pOutMeth, "Method");
 
   // get lepton, jets and mets
-  edm::Handle< edm::View<reco::RecoCandidate> > leptons; 
-  evt.getByLabel(leps_, leptons);
+  edm::Handle< edm::View<reco::RecoCandidate> > leptons;
+  evt.getByToken(lepsToken_, leptons);
 
   edm::Handle< std::vector<pat::Jet> > jets;
-  evt.getByLabel(jets_, jets);
+  evt.getByToken(jetsToken_, jets);
 
   edm::Handle< std::vector<pat::MET> > mets;
-  evt.getByLabel(mets_, mets);
+  evt.getByToken(metsToken_, mets);
 
   const unsigned int nPartons = 4;
 
@@ -58,7 +54,7 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
   // empty METs vector or less jets than partons
   if( leptons->empty() || mets->empty() || jets->size() < nPartons ) {
     std::vector<int> invalidCombi;
-    for(unsigned int i = 0; i < nPartons; ++i) 
+    for(unsigned int i = 0; i < nPartons; ++i)
       invalidCombi.push_back( -1 );
     pOut->push_back( invalidCombi );
     evt.put(pOut);
@@ -82,9 +78,9 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
     }
     jetIndices.push_back(i);
   }
-  
+
   std::vector<int> combi;
-  for(unsigned int i=0; i<nPartons; ++i) 
+  for(unsigned int i=0; i<nPartons; ++i)
     combi.push_back(i);
 
   typedef std::pair<double, std::vector<int> > discCombPair;
@@ -131,12 +127,12 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
   evt.put(pJetsConsidered, "NumberOfConsideredJets");
 }
 
-void 
+void
 TtSemiLepJetCombMVAComputer::beginJob()
 {
 }
 
-void 
+void
 TtSemiLepJetCombMVAComputer::endJob()
 {
 }

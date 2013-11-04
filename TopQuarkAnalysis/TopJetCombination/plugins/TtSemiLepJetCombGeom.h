@@ -10,10 +10,10 @@
 class TtSemiLepJetCombGeom : public edm::EDProducer {
 
  public:
-  
+
   explicit TtSemiLepJetCombGeom(const edm::ParameterSet&);
   ~TtSemiLepJetCombGeom();
-  
+
  private:
 
   virtual void beginJob() {};
@@ -23,8 +23,8 @@ class TtSemiLepJetCombGeom : public edm::EDProducer {
   bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets){ return (0<=idx && idx<(int)jets->size()); };
   double distance(const math::XYZTLorentzVector&, const math::XYZTLorentzVector&);
 
-  edm::InputTag jets_;
-  edm::InputTag leps_;
+  edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT< edm::View<reco::RecoCandidate> > lepsToken_;
   int maxNJets_;
   bool useDeltaR_;
   bool useBTagging_;

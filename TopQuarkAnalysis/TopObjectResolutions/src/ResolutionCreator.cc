@@ -46,7 +46,13 @@ class ResolutionCreator : public edm::EDAnalyzer {
       virtual void endJob() override ;
 
       // ----------member data ---------------------------
+		  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
 		  std::string objectType_, labelName_;
+		  edm::EDGetTokenT<std::vector<pat::Electron> > electronsToken_;
+		  edm::EDGetTokenT<std::vector<pat::Muon> > muonsToken_;
+		  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
+		  edm::EDGetTokenT<std::vector<pat::MET> > metsToken_;
+		  edm::EDGetTokenT<std::vector<pat::Tau> > tausToken_;
 		  std::vector<double> etabinVals_, pTbinVals_;
   		double minDR_;
       int matchingAlgo_;
@@ -71,8 +77,14 @@ class ResolutionCreator : public edm::EDAnalyzer {
 ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
 {
   // input parameters
+  genEvtToken_ = consumes<TtGenEvent>(edm::InputTag("genEvt"));
   objectType_  	= iConfig.getParameter< std::string >    	("object");
   labelName_  = iConfig.getParameter< std::string > 	 	("label");
+  if(objectType_ == "electron") electronsToken_ = consumes<std::vector<pat::Electron> >(edm::InputTag(labelName_));
+  else if(objectType_ == "muon") muonsToken_ = consumes<std::vector<pat::Muon> >(edm::InputTag(labelName_));
+  else if(objectType_ == "lJets" || objectType_ == "bJets") jetsToken_ = consumes<std::vector<pat::Jet> >(edm::InputTag(labelName_));
+  else if(objectType_ == "met") metsToken_ = consumes<std::vector<pat::MET> >(edm::InputTag(labelName_));
+  else if(objectType_ == "tau") tausToken_ = consumes<std::vector<pat::Tau> >(edm::InputTag(labelName_));
 	if(objectType_ != "met"){
     etabinVals_	= iConfig.getParameter< std::vector<double> > 	("etabinValues");
   }
@@ -97,19 +109,19 @@ ResolutionCreator::~ResolutionCreator()
 void
 ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   
+
  // Get the gen and cal object fourvector
    std::vector<reco::Particle *> p4gen, p4rec;
-	    
+
    edm::Handle<TtGenEvent> genEvt;
-   iEvent.getByLabel ("genEvt",genEvt);
+   iEvent.getByToken(genEvtToken_,genEvt);
 
    if(genEvt->particles().size()<10) return;
 
-   if(objectType_ == "electron"){ 
+   if(objectType_ == "electron"){
      edm::Handle<std::vector<pat::Electron> >  electrons; //to calculate the ResolutionCreator for the electrons, i used the TopElectron instead of the AOD information
-     iEvent.getByLabel(labelName_,electrons);
-     for(size_t e=0; e<electrons->size(); e++) { 
+     iEvent.getByToken(electronsToken_,electrons);
+     for(size_t e=0; e<electrons->size(); e++) {
        for(size_t p=0; p<genEvt->particles().size(); p++){
          if( (std::abs(genEvt->particles()[p].pdgId()) == 11) && (ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*electrons)[e].p4()) < minDR_) ) {
            //p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
@@ -120,8 +132,8 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    }
    else if(objectType_ == "muon"){
      edm::Handle<std::vector<pat::Muon> >  muons;
-     iEvent.getByLabel(labelName_,muons);
-     for(size_t m=0; m<muons->size(); m++) {      
+     iEvent.getByToken(muonsToken_,muons);
+     for(size_t m=0; m<muons->size(); m++) {
        for(size_t p=0; p<genEvt->particles().size(); p++){
          if( (std::abs(genEvt->particles()[p].pdgId()) == 13) && (ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*muons)[m].p4()) < minDR_) ) {
            //p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
@@ -132,9 +144,9 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    }
    else if(objectType_ == "lJets" ){
      edm::Handle<std::vector<pat::Jet> > jets;
-     iEvent.getByLabel(labelName_,jets);	 
-     if(jets->size()>=4) { 
-       for(unsigned int j = 0; j<4; j++){      
+     iEvent.getByToken(jetsToken_,jets);
+     if(jets->size()>=4) {
+       for(unsigned int j = 0; j<4; j++){
          for(size_t p=0; p<genEvt->particles().size(); p++){
            if( (std::abs(genEvt->particles()[p].pdgId()) < 5) && (ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*jets)[j].p4())< minDR_) ){
 	     //p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
@@ -146,9 +158,9 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    }
    else if(objectType_ == "bJets" ){
      edm::Handle<std::vector<pat::Jet> > jets;
-     iEvent.getByLabel(labelName_,jets);
-     if(jets->size()>=4) { 
-       for(unsigned int j = 0; j<4; j++){      
+     iEvent.getByToken(jetsToken_,jets);
+     if(jets->size()>=4) {
+       for(unsigned int j = 0; j<4; j++){
          for(size_t p=0; p<genEvt->particles().size(); p++){
 	   if( (std::abs(genEvt->particles()[p].pdgId()) == 5) && (ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*jets)[j].p4())< minDR_) ) {
 	     //p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
@@ -160,17 +172,17 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    }
    else if(objectType_ == "met"){
      edm::Handle<std::vector<pat::MET> >  mets;
-     iEvent.getByLabel(labelName_,mets);
-     if(mets->size()>=1) { 
+     iEvent.getByToken(metsToken_,mets);
+     if(mets->size()>=1) {
        if( genEvt->isSemiLeptonic() && genEvt->singleNeutrino() != 0 && ROOT::Math::VectorUtil::DeltaR(genEvt->singleNeutrino()->p4(), (*mets)[0].p4()) < minDR_) {
          //p4gen.push_back(new reco::Particle(0,genEvt->singleNeutrino()->p4(),math::XYZPoint()));
          //p4rec.push_back(new reco::Particle((pat::MET)((*mets)[0])));
        }
      }
-   } 
+   }
    else if(objectType_ == "tau"){
-     edm::Handle<std::vector<pat::Tau> > taus; 
-     iEvent.getByLabel(labelName_,taus);
+     edm::Handle<std::vector<pat::Tau> > taus;
+     iEvent.getByToken(tausToken_,taus);
      for(std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau != taus->end(); ++tau) {
        // find the tau (if any) that matches a MC tau from W
        reco::GenParticle genLepton = *(tau->genLepton());
@@ -186,13 +198,13 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      }
    }
    // Fill the object's value
-     for(unsigned m=0; m<p4gen.size(); m++){ 
-       double Egen     = p4gen[m]->energy(); 
-       double Thetagen = p4gen[m]->theta(); 
+     for(unsigned m=0; m<p4gen.size(); m++){
+       double Egen     = p4gen[m]->energy();
+       double Thetagen = p4gen[m]->theta();
        double Phigen   = p4gen[m]->phi();
        double Etgen    = p4gen[m]->et();
        double Etagen   = p4gen[m]->eta();
-       double Ecal     = p4rec[m]->energy(); 
+       double Ecal     = p4rec[m]->energy();
        double Thetacal = p4rec[m]->theta();
        double Phical   = p4rec[m]->phi();
        double Etcal    = p4rec[m]->et();
@@ -200,7 +212,7 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        double phidiff  = Phical- Phigen;
        if(phidiff>3.14159)  phidiff = 2.*3.14159 - phidiff;
        if(phidiff<-3.14159) phidiff = -phidiff - 2.*3.14159;
-   
+
        // find eta and et bin
        int etabin  =  0;
        if(etanrbins > 1){
@@ -208,12 +220,12 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
            if(fabs(Etacal) > etabinVals_[b]) etabin = b;
          }
        }
-     
+
        int ptbin  =  0;
        for(unsigned int b=0; b<pTbinVals_.size()-1; b++) {
          if(p4rec[m]->pt() > pTbinVals_[b]) ptbin = b;
        }
-     
+
        // calculate the resolution on "a", "b", "c" & "d" according to the definition (CMS-NOTE-2006-023):
        // p = a*|p_meas|*u_1 + b*u_2 + c*u_3
        // E(fit) = E_meas * d
@@ -227,7 +239,7 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        // 1/ calculate the unitary vectors of the basis u_1, u_2, u_3
        ROOT::Math::SVector<double,3> pcalvec(p4rec[m]->px(),p4rec[m]->py(),p4rec[m]->pz());
        ROOT::Math::SVector<double,3> pgenvec(p4gen[m]->px(),p4gen[m]->py(),p4gen[m]->pz());
-       
+
        ROOT::Math::SVector<double,3> u_z(0,0,1);
        ROOT::Math::SVector<double,3> u_1 = ROOT::Math::Unit(pcalvec);
        ROOT::Math::SVector<double,3> u_3 = ROOT::Math::Cross(u_z,u_1)/ROOT::Math::Mag(ROOT::Math::Cross(u_z,u_1));
@@ -240,9 +252,9 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        double bgen = ROOT::Math::Dot(pgenvec,u_2);
        double cgen = ROOT::Math::Dot(pgenvec,u_3);
        double dgen = Egen/Ecal;
-			        
-       //fill histograms    
-       ++nrFilled; 
+
+       //fill histograms
+       ++nrFilled;
        hResPtEtaBin[0][etabin][ptbin] -> Fill(acal-agen);
        hResPtEtaBin[1][etabin][ptbin] -> Fill(bcal-bgen);
        hResPtEtaBin[2][etabin][ptbin] -> Fill(ccal-cgen);
@@ -255,39 +267,39 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        delete p4gen[m];
        delete p4rec[m];
      }
-		 
+
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 ResolutionCreator::beginJob()
 {
   edm::Service<TFileService> fs;
   if (!fs) throw edm::Exception(edm::errors::Configuration, "TFileService missing from configuration!");
 
-	// input constants  
+	// input constants
   TString  	  resObsName[8] 	= {"_ares","_bres","_cres","_dres","_thres","_phres","_etres","_etares"};
   int      	  resObsNrBins  	= 120;
   if( (objectType_ == "muon") || (objectType_ == "electron") ) resObsNrBins = 80;
   std::vector<double>  resObsMin, resObsMax;
-  if(objectType_ == "electron"){ 
-    resObsMin.push_back(-0.15);  resObsMin.push_back(-0.2);  resObsMin.push_back(-0.1);  resObsMin.push_back(-0.15);  resObsMin.push_back(-0.0012); resObsMin.push_back(-0.009);  resObsMin.push_back(-16);   resObsMin.push_back(-0.0012);   
+  if(objectType_ == "electron"){
+    resObsMin.push_back(-0.15);  resObsMin.push_back(-0.2);  resObsMin.push_back(-0.1);  resObsMin.push_back(-0.15);  resObsMin.push_back(-0.0012); resObsMin.push_back(-0.009);  resObsMin.push_back(-16);   resObsMin.push_back(-0.0012);
     resObsMax.push_back( 0.15);  resObsMax.push_back( 0.2);  resObsMax.push_back( 0.1);  resObsMax.push_back( 0.15);  resObsMax.push_back( 0.0012); resObsMax.push_back( 0.009);  resObsMax.push_back( 16);   resObsMax.push_back( 0.0012);
   } else if(objectType_ == "muon"){
-    resObsMin.push_back(-0.15);  resObsMin.push_back(-0.1);  resObsMin.push_back(-0.05);  resObsMin.push_back(-0.15);  resObsMin.push_back(-0.004);  resObsMin.push_back(-0.003);  resObsMin.push_back(-8);    resObsMin.push_back(-0.004);   
+    resObsMin.push_back(-0.15);  resObsMin.push_back(-0.1);  resObsMin.push_back(-0.05);  resObsMin.push_back(-0.15);  resObsMin.push_back(-0.004);  resObsMin.push_back(-0.003);  resObsMin.push_back(-8);    resObsMin.push_back(-0.004);
     resObsMax.push_back( 0.15);  resObsMax.push_back( 0.1);  resObsMax.push_back( 0.05);  resObsMax.push_back( 0.15);  resObsMax.push_back( 0.004);  resObsMax.push_back( 0.003);  resObsMax.push_back( 8);    resObsMax.push_back( 0.004);
-  } else if(objectType_ == "tau"){ 
-    resObsMin.push_back(-1.);    resObsMin.push_back(-10.);  resObsMin.push_back(-10);   resObsMin.push_back(-1.);   resObsMin.push_back(-0.1);    resObsMin.push_back(-0.1);    resObsMin.push_back(-80);   resObsMin.push_back(-0.1);   
+  } else if(objectType_ == "tau"){
+    resObsMin.push_back(-1.);    resObsMin.push_back(-10.);  resObsMin.push_back(-10);   resObsMin.push_back(-1.);   resObsMin.push_back(-0.1);    resObsMin.push_back(-0.1);    resObsMin.push_back(-80);   resObsMin.push_back(-0.1);
     resObsMax.push_back( 1.);    resObsMax.push_back( 10.);  resObsMax.push_back( 10);   resObsMax.push_back( 1.);   resObsMax.push_back( 0.1);    resObsMax.push_back( 0.1);    resObsMax.push_back( 50);   resObsMax.push_back( 0.1);
   } else if(objectType_ == "lJets" || objectType_ == "bJets"){
-    resObsMin.push_back(-1.);    resObsMin.push_back(-10.);  resObsMin.push_back(-10.);  resObsMin.push_back(-1.);   resObsMin.push_back(-0.4);    resObsMin.push_back(-0.6);    resObsMin.push_back( -80);  resObsMin.push_back(-0.6);   
+    resObsMin.push_back(-1.);    resObsMin.push_back(-10.);  resObsMin.push_back(-10.);  resObsMin.push_back(-1.);   resObsMin.push_back(-0.4);    resObsMin.push_back(-0.6);    resObsMin.push_back( -80);  resObsMin.push_back(-0.6);
     resObsMax.push_back( 1.);    resObsMax.push_back( 10.);  resObsMax.push_back( 10.);  resObsMax.push_back( 1.);   resObsMax.push_back( 0.4);    resObsMax.push_back( 0.6);    resObsMax.push_back( 80);   resObsMax.push_back( 0.6);
   } else{
-    resObsMin.push_back(-2.);   resObsMin.push_back(-150.); resObsMin.push_back(-150.); resObsMin.push_back(-2.);   resObsMin.push_back(-6);      resObsMin.push_back(-6);      resObsMin.push_back( -180); resObsMin.push_back(-6);   
+    resObsMin.push_back(-2.);   resObsMin.push_back(-150.); resObsMin.push_back(-150.); resObsMin.push_back(-2.);   resObsMin.push_back(-6);      resObsMin.push_back(-6);      resObsMin.push_back( -180); resObsMin.push_back(-6);
     resObsMax.push_back( 3.);   resObsMax.push_back( 150.); resObsMax.push_back( 150.); resObsMax.push_back( 3.);   resObsMax.push_back( 6);      resObsMax.push_back( 6);      resObsMax.push_back(  180); resObsMax.push_back( 6);
   }
-  
+
   const char*   resObsVsPtFit[8]    	= {	"[0]+[1]*exp(-[2]*x)",
                                           "[0]+[1]*exp(-[2]*x)",
                                           "[0]+[1]*exp(-[2]*x)",
@@ -297,7 +309,7 @@ ResolutionCreator::beginJob()
 					   															"pol1",
 					   															"[0]+[1]*exp(-[2]*x)"
 					  														};
- 
+
   ptnrbins        = pTbinVals_.size()-1;
   double *ptbins  = new double[pTbinVals_.size()];
   for(unsigned int b=0; b<pTbinVals_.size(); b++)  ptbins[b]  = pTbinVals_[b];
@@ -311,11 +323,11 @@ ResolutionCreator::beginJob()
     etabins    = new double[2];
     etabins[0] = 0; etabins[1] = 5.;
   }
-	
+
 
   //define the histograms booked
   for(Int_t ro=0; ro<8; ro++) {
-    for(Int_t etab=0; etab<etanrbins; etab++) {	
+    for(Int_t etab=0; etab<etanrbins; etab++) {
       for(Int_t ptb=0; ptb<ptnrbins; ptb++) {
         TString obsName = objectType_; obsName += resObsName[ro]; obsName += "_etabin"; obsName += etab; obsName += "_ptbin";
 				obsName += ptb;
@@ -329,13 +341,13 @@ ResolutionCreator::beginJob()
   }
 	tResVar = fs->make< TTree >("tResVar","Resolution tree");
 
-  delete [] etabins; 
-  delete [] ptbins; 
+  delete [] etabins;
+  delete [] ptbins;
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 ResolutionCreator::endJob() {
   TString  	  resObsName2[8] 	= {"a","b","c","d","theta","phi","et","eta"};
   Int_t ro=0;
@@ -348,14 +360,14 @@ ResolutionCreator::endJob() {
   tResVar->Branch("ro",&ro,"ro/I");
   tResVar->Branch("value",&value,"value/D");
   tResVar->Branch("error",&error,"error/D");
-  
+
   for(ro=0; ro<8; ro++) {
-    for(int etab=0; etab<etanrbins; etab++) {	
+    for(int etab=0; etab<etanrbins; etab++) {
       //CD set eta at the center of the bin
-      eta = etanrbins > 1 ? (etabinVals_[etab]+etabinVals_[etab+1])/2. : 2.5 ; 
+      eta = etanrbins > 1 ? (etabinVals_[etab]+etabinVals_[etab+1])/2. : 2.5 ;
       for(int ptb=0; ptb<ptnrbins; ptb++) {
 				//CD set pt at the center of the bin
-				pt = (pTbinVals_[ptb]+pTbinVals_[ptb+1])/2.; 
+				pt = (pTbinVals_[ptb]+pTbinVals_[ptb+1])/2.;
         double maxcontent = 0.;
 				int maxbin = 0;
 				for(int nb=1; nb<hResPtEtaBin[ro][etab][ptb]->GetNbinsX(); nb ++){
@@ -387,15 +399,15 @@ ResolutionCreator::endJob() {
       // standard fit
       hResEtaBin[ro][etab] -> Fit(fResEtaBin[ro][etab]->GetName(),"RQ");
     }
-  } 
-  if(objectType_ == "lJets" && nrFilled == 0) edm::LogProblem  ("SummaryError") << "No plots filled for light jets \n";    
-  if(objectType_ == "bJets" && nrFilled == 0) edm::LogProblem  ("SummaryError") << "No plots filled for bjets \n";    
-  if(objectType_ == "muon" && nrFilled == 0) edm::LogProblem  ("SummaryError") << "No plots filled for muons \n";    
-  if(objectType_ == "electron" && nrFilled == 0) edm::LogProblem  ("SummaryError") << "No plots filled for electrons \n";    
-  if(objectType_ == "tau" && nrFilled == 0) edm::LogProblem  ("SummaryError") << "No plots filled for taus \n";    
-  if(objectType_ == "met" && nrFilled == 0) edm::LogProblem  ("SummaryError") << "No plots filled for met \n";    
-	
-  edm::LogVerbatim ("MainResults") << " \n\n";	
+  }
+  if(objectType_ == "lJets" && nrFilled == 0) edm::LogProblem  ("SummaryError") << "No plots filled for light jets \n";
+  if(objectType_ == "bJets" && nrFilled == 0) edm::LogProblem  ("SummaryError") << "No plots filled for bjets \n";
+  if(objectType_ == "muon" && nrFilled == 0) edm::LogProblem  ("SummaryError") << "No plots filled for muons \n";
+  if(objectType_ == "electron" && nrFilled == 0) edm::LogProblem  ("SummaryError") << "No plots filled for electrons \n";
+  if(objectType_ == "tau" && nrFilled == 0) edm::LogProblem  ("SummaryError") << "No plots filled for taus \n";
+  if(objectType_ == "met" && nrFilled == 0) edm::LogProblem  ("SummaryError") << "No plots filled for met \n";
+
+  edm::LogVerbatim ("MainResults") << " \n\n";
   edm::LogVerbatim ("MainResults") << " ----------------------------------------------";
   edm::LogVerbatim ("MainResults") << " ----------------------------------------------";
   edm::LogVerbatim ("MainResults") << " Resolutions on "<< objectType_ << " with nrfilled: "<<nrFilled;
@@ -406,25 +418,25 @@ ResolutionCreator::endJob() {
  			edm::LogVerbatim ("MainResults") << "-------------------- ";
     	edm::LogVerbatim ("MainResults") << "\n Resolutions on " << resObsName2[ro] << "\n";
   		edm::LogVerbatim ("MainResults") << "-------------------- ";
-			for(int etab=0; etab<etanrbins; etab++) {	
+			for(int etab=0; etab<etanrbins; etab++) {
   			if(nrFilled != 0 && ro != 6) {
 					if(etab == 0){
-						edm::LogVerbatim   ("MainResults") << "if(fabs(eta)<"<<etabinVals_[etab+1] <<") res = " << 
-						fResEtaBin[ro][etab]->GetParameter(0) << "+" << fResEtaBin[ro][etab]->GetParameter(1) 
-						<< "*exp(-(" <<fResEtaBin[ro][etab]->GetParameter(2) << "*pt));";  
-					}else{ 
-						edm::LogVerbatim   ("MainResults") << "else if(fabs(eta)<"<<etabinVals_[etab+1] <<") res = " << 
-						fResEtaBin[ro][etab]->GetParameter(0) << "+" << fResEtaBin[ro][etab]->GetParameter(1) 
-						<< "*exp(-(" <<fResEtaBin[ro][etab]->GetParameter(2) << "*pt));";  					
+						edm::LogVerbatim   ("MainResults") << "if(fabs(eta)<"<<etabinVals_[etab+1] <<") res = " <<
+						fResEtaBin[ro][etab]->GetParameter(0) << "+" << fResEtaBin[ro][etab]->GetParameter(1)
+						<< "*exp(-(" <<fResEtaBin[ro][etab]->GetParameter(2) << "*pt));";
+					}else{
+						edm::LogVerbatim   ("MainResults") << "else if(fabs(eta)<"<<etabinVals_[etab+1] <<") res = " <<
+						fResEtaBin[ro][etab]->GetParameter(0) << "+" << fResEtaBin[ro][etab]->GetParameter(1)
+						<< "*exp(-(" <<fResEtaBin[ro][etab]->GetParameter(2) << "*pt));";
 					}
 				}else if(nrFilled != 0 && ro == 6){
 					if(etab == 0){
-						edm::LogVerbatim   ("MainResults") << "if(fabs(eta)<"<<etabinVals_[etab+1] <<") res = " << 
-						fResEtaBin[ro][etab]->GetParameter(0) << "+" << fResEtaBin[ro][etab]->GetParameter(1) 
+						edm::LogVerbatim   ("MainResults") << "if(fabs(eta)<"<<etabinVals_[etab+1] <<") res = " <<
+						fResEtaBin[ro][etab]->GetParameter(0) << "+" << fResEtaBin[ro][etab]->GetParameter(1)
 						<< "*pt;";
-					}else{  					
-						edm::LogVerbatim   ("MainResults") << "else if(fabs(eta)<"<<etabinVals_[etab+1] <<") res = " << 
-						fResEtaBin[ro][etab]->GetParameter(0) << "+" << fResEtaBin[ro][etab]->GetParameter(1) 
+					}else{
+						edm::LogVerbatim   ("MainResults") << "else if(fabs(eta)<"<<etabinVals_[etab+1] <<") res = " <<
+						fResEtaBin[ro][etab]->GetParameter(0) << "+" << fResEtaBin[ro][etab]->GetParameter(1)
 						<< "*pt;";
 
 					}
@@ -438,10 +450,10 @@ ResolutionCreator::endJob() {
   		edm::LogVerbatim ("MainResults") << "-------------------- ";
 			if(nrFilled != 0 && ro != 6) {
 					edm::LogVerbatim   ("MainResults") << "res = " <<
-					fResEtaBin[ro][0]->GetParameter(0) << "+" << fResEtaBin[ro][0]->GetParameter(1) 
-					<< "*exp(-(" <<fResEtaBin[ro][0]->GetParameter(2) << "*pt));";  			
+					fResEtaBin[ro][0]->GetParameter(0) << "+" << fResEtaBin[ro][0]->GetParameter(1)
+					<< "*exp(-(" <<fResEtaBin[ro][0]->GetParameter(2) << "*pt));";
 			}else if(nrFilled != 0 && ro == 6){
-					edm::LogVerbatim   ("MainResults") << "res = " << 
+					edm::LogVerbatim   ("MainResults") << "res = " <<
 					fResEtaBin[ro][0]->GetParameter(0) << "+" << fResEtaBin[ro][0]->GetParameter(1) << "*pt;";
 			}
 		}

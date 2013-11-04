@@ -5,9 +5,6 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
-
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepJetCombEval.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVATrainer.h"
 
@@ -15,10 +12,11 @@
 #include "PhysicsTools/MVATrainer/interface/HelperMacros.h"
 
 TtSemiLepJetCombMVATrainer::TtSemiLepJetCombMVATrainer(const edm::ParameterSet& cfg):
-  leps_      (cfg.getParameter<edm::InputTag>("leps"    )),
-  jets_      (cfg.getParameter<edm::InputTag>("jets"    )),
-  mets_      (cfg.getParameter<edm::InputTag>("mets"    )),
-  matching_  (cfg.getParameter<edm::InputTag>("matching")),
+  genEvtToken_      (consumes<TtGenEvent>(edm::InputTag("genEvt"))),
+  lepsToken_      (consumes< edm::View<reco::RecoCandidate> >(cfg.getParameter<edm::InputTag>("leps"    ))),
+  jetsToken_      (consumes< std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"    ))),
+  metsToken_      (consumes< std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"    ))),
+  matchingToken_  (mayConsume< std::vector< std::vector<int> > >(cfg.getParameter<edm::InputTag>("matching"))),
   maxNJets_  (cfg.getParameter<int>          ("maxNJets")),
   leptonType_(readLeptonType(cfg.getParameter<std::string>("leptonType")))
 {
@@ -28,7 +26,7 @@ TtSemiLepJetCombMVATrainer::~TtSemiLepJetCombMVATrainer()
 {
 }
 
-void 
+void
 TtSemiLepJetCombMVATrainer::beginJob()
 {
   for(unsigned int i = 0; i < 5; i++)
@@ -40,17 +38,17 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
 {
   mvaComputer.update<TtSemiLepJetCombMVARcd>("trainer", setup, "ttSemiLepJetCombMVA");
 
-  // can occur in the last iteration when the 
+  // can occur in the last iteration when the
   // MVATrainer is about to save the result
   if(!mvaComputer) return;
 
   nEvents[0]++;
 
   edm::Handle<TtGenEvent> genEvt;
-  evt.getByLabel("genEvt", genEvt);
+  evt.getByToken(genEvtToken_, genEvt);
 
-  edm::Handle< edm::View<reco::RecoCandidate> > leptons; 
-  evt.getByLabel(leps_, leptons);
+  edm::Handle< edm::View<reco::RecoCandidate> > leptons;
+  evt.getByToken(lepsToken_, leptons);
 
   // skip events with no appropriate lepton candidate
   if( leptons->empty() ) return;
@@ -60,7 +58,7 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
   const math::XYZTLorentzVector lepton = leptons->begin()->p4();
 
   edm::Handle< std::vector<pat::MET> > mets;
-  evt.getByLabel(mets_, mets);
+  evt.getByToken(metsToken_, mets);
 
   // skip events with empty METs vector
   if( mets->empty() ) return;
@@ -70,7 +68,7 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
   const pat::MET *met = &(*mets)[0];
 
   edm::Handle< std::vector<pat::Jet> > jets;
-  evt.getByLabel(jets_, jets);
+  evt.getByToken(jetsToken_, jets);
 
   // skip events with less jets than partons
   unsigned int nPartons = 4;
@@ -82,13 +80,13 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
   std::vector<int> matching;
   // get jet-parton matching if signal channel
   if(genEvt->semiLeptonicChannel() == leptonType_) {
-    evt.getByLabel(matching_, matchingHandle);
+    evt.getByToken(matchingToken_, matchingHandle);
     if( matchingHandle->empty() )
       throw cms::Exception("EmptyProduct")
 	<< "Empty vector from jet-parton matching. This should not happen! \n";
     matching = *(matchingHandle->begin());
     if(matching.size() < nPartons) return;
-    // skip events that were affected by the outlier 
+    // skip events that were affected by the outlier
     // rejection in the jet-parton matching
     for(unsigned int i = 0; i < matching.size(); ++i) {
       if(matching[i] == -3) continue; // -3: parton was chosen to be excluded from jet-parton matching
@@ -118,7 +116,7 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
   }
 
   std::vector<int> combi;
-  for(unsigned int i = 0; i < nPartons; ++i) 
+  for(unsigned int i = 0; i < nPartons; ++i)
     combi.push_back(i);
 
   // use a ValueList to collect all variables for the MVAComputer
@@ -135,7 +133,7 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
       // take into account indistinguishability of the two jets from the hadr. W decay,
       // reduces combinatorics by a factor of 2
       if(combi[TtSemiLepEvtPartons::LightQ] < combi[TtSemiLepEvtPartons::LightQBar]) {
-	
+
 	TtSemiLepJetComb jetComb(*jets, combi, lepton, *met);
 
 	bool trueCombi = false;
@@ -168,7 +166,7 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
 }
 
 void
-TtSemiLepJetCombMVATrainer::endJob() 
+TtSemiLepJetCombMVATrainer::endJob()
 {
   edm::LogInfo log("TtSemiLepJetCombMVATrainer");
   log << "Number of events... \n"
