@@ -208,7 +208,7 @@ def operate(timelog, memlog, json_f, num):
     histo1.SetMarkerSize(.6)
     histo1.SetMarkerColor(1)
     histo1.Draw("E1P SAME")
-    ave_canvas.Print(outdir + "/average_cpu_histo.gif","gif")
+    ave_canvas.Print(outdir + "/average_cpu_histo.png","png")
 
     rss_canvas = ROOT.TCanvas(cmsrelease + '_maxrss_canvas')
     rss_canvas.SetGridy()
@@ -224,7 +224,7 @@ def operate(timelog, memlog, json_f, num):
     histo2.SetMarkerSize(.6)
     histo2.SetMarkerColor(1)
     histo2.Draw("P SAME")
-    rss_canvas.Print(outdir + "/maximum_rss_histo.gif","gif")
+    rss_canvas.Print(outdir + "/maximum_rss_histo.png","png")
 
     # write them on file
     histo1.Write()
