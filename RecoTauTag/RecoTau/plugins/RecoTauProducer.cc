@@ -146,6 +146,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   // Loop over the jets and build the taus for each jet
   BOOST_FOREACH( reco::PFJetRef jetRef, jets ) {
+    if ( !(jetRef->nConstituents() >= 1 && jetRef->pt() > 1.) ) continue; // CV: skip pathological cases
     // Get the jet with extra constituents from an area around the jet
     reco::PFJetRef jetRegionRef = (*jetRegionHandle)[jetRef];
     if ( jetRegionRef.isNull() ) {
