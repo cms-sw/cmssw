@@ -4,7 +4,6 @@
  * \author J. Berryhill
  *
  */
-
 #include "DQM/L1TMonitor/interface/L1TRPCTF.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -17,7 +16,7 @@ using namespace std;
 using namespace edm;
 
 L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
-  : rpctfSource_( ps.getParameter< InputTag >("rpctfSource") ),
+: rpctfSource_(consumes<L1MuGMTReadoutCollection>( ps.getParameter< InputTag >("rpctfSource") )),
 //    digiSource_( ps.getParameter< InputTag >("rpctfRPCDigiSource") ),
 //   m_rpcDigiFine(false),
 //    m_useRpcDigi(true),
@@ -279,11 +278,10 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   if(verbose_) cout << "L1TRPCTF: analyze...." << endl;
 
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
-  e.getByLabel(rpctfSource_,pCollection);
+  e.getByToken(rpctfSource_,pCollection);
   
   if (!pCollection.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
-			       << rpctfSource_.label() ;
+    edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection";
     return;
   }
 

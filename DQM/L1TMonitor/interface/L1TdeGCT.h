@@ -34,13 +34,15 @@ class L1TdeGCT : public edm::EDAnalyzer {
  protected:
 
   virtual void beginJob(void) ;
+  virtual void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
+
 
  private:
 
   // input d|e record
-  edm::InputTag DEsource_;
+  edm::EDGetTokenT<L1DataEmulRecord> DEsource_;
   bool hasRecord_;
 
   // debug verbose level
@@ -63,6 +65,23 @@ class L1TdeGCT : public edm::EDAnalyzer {
   // counters
   int colCount[nGctColl_];
   int nWithCol[nGctColl_];
+
+  // Ranges and labels
+  const int    phiNBins = 18  ;
+  const double phiMinim = -0.5;
+  const double phiMaxim = 17.5;
+  const int    etaNBins = 22  ;
+  const double etaMinim = -0.5;
+  const double etaMaxim = 21.5;
+  const int    rnkNBins = 63;
+  const double rnkMinim = 0.5;
+  const double rnkMaxim = 63.5;
+  static const int nerr = 5; 
+  const int nbit = 32;
+  std::string cLabel[nGctColl_]= 
+    {"IsoEM", "NoisoEM", "CenJet", "ForJet", "TauJet", "HT", "MET", "ET", "MHT", "HFSums", "HFCnts"};
+  std::string errLabel[nerr]= 
+    {"Agree", "Loc. Agree", "L.Disagree", "Data only", "Emul only"};
 
   // MEs
   MonitorElement* sysrates;

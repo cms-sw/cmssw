@@ -144,14 +144,15 @@ L1TEfficiencyMuons_Offline::L1TEfficiencyMuons_Offline(const ParameterSet & ps){
   // Initializing config params
   m_GmtPtCuts = ps.getUntrackedParameter< vector<int> >("gmtPtCuts");
   
-  m_MuonInputTag =  ps.getUntrackedParameter<InputTag>("muonInputTag");
-  m_GmtInputTag  =  ps.getUntrackedParameter<InputTag>("gmtInputTag");
+  m_MuonInputTag =  consumes<reco::MuonCollection>(ps.getUntrackedParameter<InputTag>("muonInputTag"));
+  m_GmtInputTag  =  consumes<L1MuGMTReadoutCollection>(ps.getUntrackedParameter<InputTag>("gmtInputTag"));
   
-  m_VtxInputTag =  ps.getUntrackedParameter<InputTag>("vtxInputTag");
-  m_BsInputTag  =  ps.getUntrackedParameter<InputTag>("bsInputTag");
+  m_VtxInputTag =  consumes<VertexCollection>(ps.getUntrackedParameter<InputTag>("vtxInputTag"));
+  m_BsInputTag  =  consumes<BeamSpot>(ps.getUntrackedParameter<InputTag>("bsInputTag"));
 
-  m_trigInputTag = ps.getUntrackedParameter<InputTag>("trigInputTag");
+  m_trigInputTag = consumes<trigger::TriggerEvent>(ps.getUntrackedParameter<InputTag>("trigInputTag"));
   m_trigProcess  = ps.getUntrackedParameter<string>("trigProcess");
+  m_trigProcess_token  = consumes<edm::TriggerResults>(ps.getUntrackedParameter<string>("trigProcess_token"));
   m_trigNames    = ps.getUntrackedParameter<vector<string> >("triggerNames");
 
   // CB do we need them from cfi?
@@ -173,15 +174,6 @@ void L1TEfficiencyMuons_Offline::beginJob(void){
    
   if (m_verbose) {cout << "[L1TEfficiencyMuons_Offline:] Called beginJob." << endl;}
   
-  bookControlHistos();
-  
-  vector<int>::const_iterator gmtPtCutsIt  = m_GmtPtCuts.begin();
-  vector<int>::const_iterator gmtPtCutsEnd = m_GmtPtCuts.end();
-  
-  for (; gmtPtCutsIt!=gmtPtCutsEnd; ++ gmtPtCutsIt) {
-    bookEfficiencyHistos((*gmtPtCutsIt));
-  } 
-  
 }
 
 
@@ -197,6 +189,17 @@ void L1TEfficiencyMuons_Offline::endJob(void){
 void L1TEfficiencyMuons_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
 
   if (m_verbose) {cout << "[L1TEfficiencyMuons_Offline:] Called beginRun." << endl;}
+
+  //book histos
+  bookControlHistos();
+  
+  vector<int>::const_iterator gmtPtCutsIt  = m_GmtPtCuts.begin();
+  vector<int>::const_iterator gmtPtCutsEnd = m_GmtPtCuts.end();
+  
+  for (; gmtPtCutsIt!=gmtPtCutsEnd; ++ gmtPtCutsIt) {
+    bookEfficiencyHistos((*gmtPtCutsIt));
+  } 
+  
   
   bool changed = true;
   
@@ -265,22 +268,22 @@ void L1TEfficiencyMuons_Offline::endLuminosityBlock(LuminosityBlock const& lumiB
 void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
   Handle<reco::MuonCollection> muons;
-  iEvent.getByLabel(m_MuonInputTag, muons);
+  iEvent.getByToken(m_MuonInputTag, muons);
 
   Handle<BeamSpot> beamSpot;
-  iEvent.getByLabel(m_BsInputTag, beamSpot);
+  iEvent.getByToken(m_BsInputTag, beamSpot);
 
   Handle<VertexCollection> vertex;
-  iEvent.getByLabel(m_VtxInputTag, vertex);
+  iEvent.getByToken(m_VtxInputTag, vertex);
   
   Handle<L1MuGMTReadoutCollection> gmtCands;
-  iEvent.getByLabel(m_GmtInputTag,gmtCands);
+  iEvent.getByToken(m_GmtInputTag,gmtCands);
   
   Handle<edm::TriggerResults> trigResults;
-  iEvent.getByLabel(InputTag("TriggerResults","",m_trigProcess),trigResults);
+  iEvent.getByToken(m_trigProcess_token,trigResults);
   
   edm::Handle<trigger::TriggerEvent> trigEvent;
-  iEvent.getByLabel(m_trigInputTag,trigEvent);
+  iEvent.getByToken(m_trigInputTag,trigEvent);
 
   eventSetup.get<IdealMagneticFieldRecord>().get(m_BField);
 
