@@ -6,13 +6,13 @@
  */
 
 #include "DQM/L1TMonitor/interface/L1TCSCTPG.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
 using namespace edm;
 
 L1TCSCTPG::L1TCSCTPG(const ParameterSet& ps)
-  : csctpgSource_( ps.getParameter< InputTag >("csctpgSource") )
+  : csctpgSource_( ps.getParameter< InputTag >("csctpgSource") ),
+    csctpgSource_token_( consumes<CSCCorrelatedLCTDigiCollection>(ps.getParameter< InputTag >("csctpgSource") ))
 {
 
   // verbosity switch
@@ -52,13 +52,11 @@ L1TCSCTPG::~L1TCSCTPG()
 
 void L1TCSCTPG::beginJob(void)
 {
-
   nev_ = 0;
+}
 
-  // get hold of back-end interface
-  DQMStore* dbe = 0;
-  dbe = Service<DQMStore>().operator->();
-
+void L1TCSCTPG::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) 
+{
   if ( dbe ) {
     dbe->setCurrentFolder("L1T/L1TCSCTPG");
     dbe->rmdir("L1T/L1TCSCTPG");
@@ -89,6 +87,8 @@ void L1TCSCTPG::beginJob(void)
 }
 
 
+
+
 void L1TCSCTPG::endJob(void)
 {
   if(verbose_) cout << "L1TCSCTPG: end job...." << endl;
@@ -106,7 +106,7 @@ void L1TCSCTPG::analyze(const Event& e, const EventSetup& c)
 
 
   Handle<CSCCorrelatedLCTDigiCollection> pCSCTPGcorrlcts;
-  e.getByLabel(csctpgSource_,pCSCTPGcorrlcts);
+  e.getByToken(csctpgSource_token_,pCSCTPGcorrlcts);
     
   if (!pCSCTPGcorrlcts.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find CSCCorrelatedLCTDigiCollection with label "

@@ -6,20 +6,15 @@
  */
 
 #include "DQM/L1TMonitor/interface/L1TRPCTPG.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
-
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 using namespace std;
 using namespace edm;
 
 L1TRPCTPG::L1TRPCTPG(const ParameterSet& ps)
   : rpctpgSource_( ps.getParameter< InputTag >("rpctpgSource") ),
-    rpctfSource_( ps.getParameter< InputTag >("rpctfSource") )
+    rpctpgSource_token_( consumes<RPCDigiCollection>(ps.getParameter< InputTag >("rpctpgSource") )),
+    rpctfSource_( ps.getParameter< InputTag >("rpctfSource") ),
+    rpctfSource_token_( consumes<L1MuGMTReadoutCollection>(ps.getParameter< InputTag >("rpctfSource") ))
 {
 
   // verbosity switch
@@ -59,13 +54,11 @@ L1TRPCTPG::~L1TRPCTPG()
 
 void L1TRPCTPG::beginJob(void)
 {
-
   nev_ = 0;
+}
 
-  // get hold of back-end interface
-  DQMStore* dbe = 0;
-  dbe = Service<DQMStore>().operator->();
-
+void L1TRPCTPG::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) 
+{
   if ( dbe ) {
     dbe->setCurrentFolder("L1T/L1TRPCTPG");
     dbe->rmdir("L1T/L1TRPCTPG");
@@ -131,7 +124,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
 
   /// DIGI     
   edm::Handle<RPCDigiCollection> rpcdigis;
-  e.getByLabel(rpctpgSource_,rpcdigis);
+  e.getByToken(rpctpgSource_token_,rpcdigis);
     
   if (!rpcdigis.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find RPCDigiCollection with label "<< rpctpgSource_ << endl;
@@ -140,7 +133,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
 
   // Calculate the number of DT and CSC cands present
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
-  e.getByLabel(rpctfSource_,pCollection);
+  e.getByToken(rpctfSource_token_,pCollection);
   
   if (!pCollection.isValid()) {
      edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "

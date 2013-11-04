@@ -163,8 +163,8 @@ class MassSearchReplaceAnyInputTagVisitor(object):
 
     def enter(self,visitee):
         label = ''
-        try:    label = visitee.label_()
-        except AttributeError: label = '<Module not in a Process>'
+        #try:    label = visitee.label_()
+        #except AttributeError: label = '<Module not in a Process>'
         self.doIt(visitee, label)
     def leave(self,visitee):
         pass

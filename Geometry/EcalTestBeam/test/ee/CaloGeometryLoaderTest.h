@@ -3,14 +3,10 @@
 
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
-#include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-
 #include "CondFormats/Alignment/interface/Alignments.h"
 
 #include "CLHEP/Geometry/Transform3D.h"
-#include <string>
 #include <vector>
 
 /** \class EcalGeometryLoader

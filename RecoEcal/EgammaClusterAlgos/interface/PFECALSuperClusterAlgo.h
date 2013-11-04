@@ -98,7 +98,7 @@ class PFECALSuperClusterAlgo {
 
   std::auto_ptr<reco::SuperClusterCollection>&
     getEBOutputSCCollection() { return superClustersEB_; }
-  std::auto_ptr<reco::SuperClusterCollection>
+  std::auto_ptr<reco::SuperClusterCollection>&
     getEEOutputSCCollection() { return superClustersEE_; }
 
   void loadAndSortPFClusters(const edm::View<reco::PFCluster>& ecalclusters,
