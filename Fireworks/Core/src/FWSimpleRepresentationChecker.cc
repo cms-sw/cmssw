@@ -95,8 +95,6 @@ static bool inheritsFrom(const edm::TypeWithDict& iChild,
 FWRepresentationInfo
 FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
 {
-
-
    unsigned int distance=1;
 
    FWItemAccessorFactory factory;
@@ -120,7 +118,7 @@ FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
    //see if the modelType inherits from our type
 
    if(inheritsFrom(modelType,m_typeidName,distance) ) {
-      return FWRepresentationInfo(purpose(),distance,bitPackedViews(), representsSubPart());
+      return FWRepresentationInfo(purpose(),distance,bitPackedViews(), representsSubPart(), requiresFF());
    }
    return FWRepresentationInfo();
 }

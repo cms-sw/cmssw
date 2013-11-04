@@ -33,7 +33,7 @@ public:
                                     const std::string& iPurpose,
                                     unsigned int iBitPackedViews,
                                     bool iRepresentsSubPart,
-                                    bool iFullFrameWork = false);
+                                    bool iRequiresFF = false);
 
    // ---------- const member functions ---------------------
    virtual FWRepresentationInfo infoFor(const std::string& iTypeName) const;

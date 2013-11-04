@@ -25,19 +25,19 @@
 #include "TEveTrackPropagator.h"
 
 
-class FWTrackingParticleProxyBuilderFF : public FWSimpleProxyBuilderTemplate<TrackingParticle>
+class FWTrackingParticleProxyBuilderFullFramework : public FWSimpleProxyBuilderTemplate<TrackingParticle>
 {
 public:
-   FWTrackingParticleProxyBuilderFF( void ):m_assocList(0) {} 
-   virtual ~FWTrackingParticleProxyBuilderFF( void ) {}
+   FWTrackingParticleProxyBuilderFullFramework( void ):m_assocList(0) {} 
+   virtual ~FWTrackingParticleProxyBuilderFullFramework( void ) {}
 
    // virtual void setItem(const FWEventItem* iItem) override;
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWTrackingParticleProxyBuilderFF( const FWTrackingParticleProxyBuilderFF& );
-   const FWTrackingParticleProxyBuilderFF& operator=( const FWTrackingParticleProxyBuilderFF& );
+   FWTrackingParticleProxyBuilderFullFramework( const FWTrackingParticleProxyBuilderFullFramework& );
+   const FWTrackingParticleProxyBuilderFullFramework& operator=( const FWTrackingParticleProxyBuilderFullFramework& );
    void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
   
    void build( const TrackingParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
@@ -51,14 +51,14 @@ private:
 //______________________________________________________________________________
 
 /*
-  void FWTrackingParticleProxyBuilderFF::setItem(const FWEventItem* iItem)
+  void FWTrackingParticleProxyBuilderFullFramework::setItem(const FWEventItem* iItem)
   {
   printf("set item\n");
   FWProxyBuilderBase::setItem(iItem);
   }
 */
 //______________________________________________________________________________
-void FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
+void FWTrackingParticleProxyBuilderFullFramework::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
    // setup event handles amd call function from parent class
 
@@ -77,7 +77,7 @@ void FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveEleme
          m_assocList = &*simHitsTPAssoc;
       }
       catch (const std::exception& e) {
-         std::cerr << " FWTrackingParticleProxyBuilderFF::setItem() Can't get hits association list " << e.what() <<  std::endl;
+         std::cerr << " FWTrackingParticleProxyBuilderFullFramework::setItem() Can't get hits association list " << e.what() <<  std::endl;
       }  
       /*
       // debug propagator
@@ -90,7 +90,7 @@ void FWTrackingParticleProxyBuilderFF::build(const FWEventItem* iItem, TEveEleme
 }
 //______________________________________________________________________________
 void
-FWTrackingParticleProxyBuilderFF::build( const TrackingParticle& iData, unsigned int tpIdx, TEveElement& comp, const FWViewContext* )
+FWTrackingParticleProxyBuilderFullFramework::build( const TrackingParticle& iData, unsigned int tpIdx, TEveElement& comp, const FWViewContext* )
 {
    TEveRecTrack t;
    t.fBeta = 1.0;
@@ -153,4 +153,4 @@ FWTrackingParticleProxyBuilderFF::build( const TrackingParticle& iData, unsigned
    }
 }
 
-REGISTER_FWPROXYBUILDER( FWTrackingParticleProxyBuilderFF, TrackingParticle, "TrackingParticlesFF", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER( FWTrackingParticleProxyBuilderFullFramework, TrackingParticle, "TrackingParticleWithPSimHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

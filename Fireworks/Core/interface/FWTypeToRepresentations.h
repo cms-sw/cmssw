@@ -37,7 +37,7 @@ public:
    virtual ~FWTypeToRepresentations();
 
    // ---------- const member functions ---------------------
-   const std::vector<FWRepresentationInfo>& representationsForType(const std::string& iTypeName, bool iRunningInFFMode) const;
+   const std::vector<FWRepresentationInfo>& representationsForType(const std::string& iTypeName) const;
 
    // ---------- static member functions --------------------
 

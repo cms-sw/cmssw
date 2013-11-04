@@ -28,7 +28,7 @@ class FWRepresentationInfo;
 class FWRepresentationCheckerBase {
 
 public:
-   FWRepresentationCheckerBase(const std::string& iPurpose, unsigned int iBitPackedViews, bool iRepresentsSubPart, bool iRequiresFF);
+   FWRepresentationCheckerBase(const std::string& iPurpose, unsigned int iBitPackedViews, bool iRepresentsSubPart, bool iRequiresFF = false);
    virtual ~FWRepresentationCheckerBase();
 
    // ---------- const member functions ---------------------
@@ -53,7 +53,7 @@ private:
    const std::string m_purpose;
    const unsigned int m_bitPackedViews;
    const bool  m_representsSubPart;
-   const bool m_requiresFF;
+   const bool  m_requiresFF;
 
 };
 

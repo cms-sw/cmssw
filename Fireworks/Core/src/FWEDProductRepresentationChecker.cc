@@ -74,7 +74,7 @@ FWEDProductRepresentationChecker::infoFor(const std::string& iTypeName) const
       return FWRepresentationInfo();
    }
    if(clss->GetTypeInfo()->name() == m_typeidName) {
-      return FWRepresentationInfo(purpose(),0,bitPackedViews(), representsSubPart());
+      return FWRepresentationInfo(purpose(),0,bitPackedViews(), representsSubPart(), requiresFF());
    }
    return FWRepresentationInfo();
 }
