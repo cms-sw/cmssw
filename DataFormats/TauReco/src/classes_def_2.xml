@@ -56,7 +56,6 @@
   
   <class name="reco::CaloTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
   </class>
   <class name="reco::CaloTauDiscriminatorByIsolation" ClassVersion="10">
    <version ClassVersion="10" checksum="2968502385"/>
@@ -70,7 +69,6 @@
 
   <class name="reco::CaloTauDiscriminatorBase">
     <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
   </class>
   <class name="reco::CaloTauDiscriminator" ClassVersion="10">
    <version ClassVersion="10" checksum="1989330711"/>
