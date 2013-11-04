@@ -360,8 +360,8 @@ void DTLocalTriggerBaseTask::bookHistos(int wh) {
 }
 
 
-void DTLocalTriggerBaseTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi>* phTrigs, 
-					 std::vector<L1MuDTChambThDigi>* thTrigs ){
+void DTLocalTriggerBaseTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi> const* phTrigs, 
+					     std::vector<L1MuDTChambThDigi> const* thTrigs ){
 
   vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();
   vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();

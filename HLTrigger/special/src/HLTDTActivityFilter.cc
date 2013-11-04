@@ -155,7 +155,7 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
 
     edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
     iEvent.getByToken(inputDCCToken_,l1DTTPGPh);
-    vector<L1MuDTChambPhDigi>*  phTrigs = l1DTTPGPh->getContainer();
+    vector<L1MuDTChambPhDigi> const*  phTrigs = l1DTTPGPh->getContainer();
     vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();
     vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();
     

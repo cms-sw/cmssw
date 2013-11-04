@@ -227,7 +227,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<L1MuDTTrackContainer>& data,
 			   const edm::Handle<L1MuDTTrackContainer> emul) {
   typedef std::vector<L1MuDTTrackCand>  TrackContainer;
   typedef TrackContainer::const_iterator col_cit;
-  TrackContainer* tracks_in = emul->getContainer();
+  TrackContainer const* tracks_in = emul->getContainer();
   TrackContainer tracks;
   for(col_cit it = tracks_in->begin(); it!=tracks_in->end(); it++) {
     L1MuDTTrackCand cand(*it);    
@@ -257,7 +257,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<L1MuDTChambPhContainer>& data,
 			   const edm::Handle<L1MuDTChambPhContainer> emul) {
   typedef std::vector<L1MuDTChambPhDigi> Phi_Container;
   typedef Phi_Container::const_iterator  col_it;
-  Phi_Container* tracks_in = emul->getContainer(); 
+  Phi_Container const* tracks_in = emul->getContainer(); 
   Phi_Container tracks(tracks_in->size());
   int uqua;
   for(col_it it=tracks_in->begin(); it!=tracks_in->end(); it++) {
@@ -276,7 +276,7 @@ L1EmulBias::ModifyCollection(std::auto_ptr<L1MuDTChambThContainer>& data,
 			   const edm::Handle<L1MuDTChambThContainer> emul) {
   typedef std::vector<L1MuDTChambThDigi> Thi_Container;
   typedef Thi_Container::const_iterator  col_cit;
-  Thi_Container* tracks_in = emul->getContainer(); 
+  Thi_Container const* tracks_in = emul->getContainer(); 
   Thi_Container tracks(tracks_in->size());
   int uos[7],uqa[7];
   for(col_cit it=tracks_in->begin(); it!=tracks_in->end(); it++) {

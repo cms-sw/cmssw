@@ -167,7 +167,7 @@ void DTLocalTriggerLutTask::analyze(const edm::Event& e, const edm::EventSetup& 
     
   edm::Handle<L1MuDTChambPhContainer> trigHandle;
   e.getByLabel(dccInputTag,trigHandle);
-  vector<L1MuDTChambPhDigi>* trigs = trigHandle->getContainer();
+  vector<L1MuDTChambPhDigi> const* trigs = trigHandle->getContainer();
   searchDccBest(trigs);
 
   Handle<DTRecSegment4DCollection> segments4D;
@@ -250,7 +250,7 @@ void DTLocalTriggerLutTask::analyze(const edm::Event& e, const edm::EventSetup& 
   
 }
 
-void DTLocalTriggerLutTask::searchDccBest( std::vector<L1MuDTChambPhDigi>* trigs ){
+void DTLocalTriggerLutTask::searchDccBest( std::vector<L1MuDTChambPhDigi> const* trigs ){
   
   string histoType ;
   string histoTag ;
