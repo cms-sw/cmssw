@@ -203,12 +203,12 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     track_.gem_ly_even = -999.;
     track_.gem_lx_odd = -999.;
     track_.gem_ly_odd = -999.;
-    track_.has_gem_sh[0] = 0;
-    track_.has_gem_sh[1] = 0;
-    track_.has_gem_dg[0] = 0;
-    track_.has_gem_dg[1] = 0;
-    track_.has_gem_pad[0] = 0;
-    track_.has_gem_pad[1] = 0;
+    track_.has_gem_sh_l1 = 0;
+    track_.has_gem_sh_l2 = 0;
+    track_.has_gem_dg_l1 = 0;
+    track_.has_gem_dg_l2 = 0;
+    track_.has_gem_pad_l1 = 0;
+    track_.has_gem_pad_l2 = 0;
 
 
 
@@ -351,27 +351,27 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     GEMDetId id_ch_odd_L2(detId_odd_L1.region(), detId_odd_L1.ring(), detId_odd_L1.station(), 2, detId_odd_L1.chamber(), 0);
 
     // check if track has sh
-    if(gem_sh_ids_ch.count(id_ch_even_L1)!=0) track_.has_gem_sh[0] |= 2;
-    if(gem_sh_ids_ch.count(id_ch_odd_L1)!=0) track_.has_gem_sh[0] |= 1;
-    if(gem_sh_ids_ch.count(id_ch_even_L2)!=0) track_.has_gem_sh[1] |= 2;
-    if(gem_sh_ids_ch.count(id_ch_odd_L2)!=0) track_.has_gem_sh[1] |= 1;
+    if(gem_sh_ids_ch.count(id_ch_even_L1)!=0) track_.has_gem_sh_l1 |= 2;
+    if(gem_sh_ids_ch.count(id_ch_odd_L1)!=0) track_.has_gem_sh_l1 |= 1;
+    if(gem_sh_ids_ch.count(id_ch_even_L2)!=0) track_.has_gem_sh_l2 |= 2;
+    if(gem_sh_ids_ch.count(id_ch_odd_L2)!=0) track_.has_gem_sh_l2 |= 1;
 
     // check if track has dg
     if(gem_dg_ids_ch.count(id_ch_even_L1)!=0){
-      track_.has_gem_dg[0] |= 2;
-      track_.has_gem_pad[0] |= 2;
+      track_.has_gem_dg_l1 |= 2;
+      track_.has_gem_pad_l1 |= 2;
     }
     if(gem_dg_ids_ch.count(id_ch_odd_L1)!=0){
-      track_.has_gem_dg[0] |= 1;
-      track_.has_gem_pad[0] |= 1;
+      track_.has_gem_dg_l1 |= 1;
+      track_.has_gem_pad_l1 |= 1;
     }
     if(gem_dg_ids_ch.count(id_ch_even_L2)!=0){
-      track_.has_gem_dg[1] |= 2;
-      track_.has_gem_pad[1] |= 2;
+      track_.has_gem_dg_l2 |= 2;
+      track_.has_gem_pad_l2 |= 2;
     }
     if(gem_dg_ids_ch.count(id_ch_odd_L2)!=0){
-      track_.has_gem_dg[1] |= 1;
-      track_.has_gem_pad[1] |= 1;
+      track_.has_gem_dg_l2 |= 1;
+      track_.has_gem_pad_l2 |= 1;
     }
   track_eta->Fill( track_.eta );
   if ( track_.gem_dg_layer1 > 0 ) {
@@ -387,7 +387,7 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
   else { std::cout<<"dg_eta : "<<track_.gem_dg_eta; }
    
-  if ( track_gem_sh_layer1 > 0 ) {
+  if ( track_.gem_sh_layer1 > 0 ) {
     dg_sh_eta[0]->Fill ( track_.gem_sh_eta); 
     dg_sh_eta[2]->Fill ( track_.gem_sh_eta);
   }

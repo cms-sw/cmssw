@@ -61,7 +61,7 @@ public:
 
   TH1F* pad_phi[3];
 
-  TH1F* pad_sh_eta[3]
+  TH1F* pad_sh_eta[3];
 
   TH1F* pad_sh_phi[3];
 
