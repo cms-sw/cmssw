@@ -291,6 +291,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEs(edm::EventSetup con
       if ( type == "pixel" ) {
 	it->second.TrackingFlag->Fill(val);
 	TH2F*  th2d = TrackingCertificationSummaryMap->getTH2F();
+	std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] xbin: " << xbin << " val: " << val << std::endl;
 	th2d->SetBinContent(xbin+1,1,val);
       }
       xbin++;
@@ -298,6 +299,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEs(edm::EventSetup con
     fval = fminf(fval,val);
   }
 
+  int xbin = ( checkPixelFEDs_ ? 1 : 0);
   for (std::vector<MonitorElement *>::const_iterator ime = all_mes.begin();
       ime!= all_mes.end(); ime++) {
     MonitorElement * me = (*ime);
@@ -307,7 +309,6 @@ void TrackingCertificationInfo::fillTrackingCertificationMEs(edm::EventSetup con
       std::string name = me->getName();
       float val   = me->getFloatValue();
 
-      int xbin = 0;
       for (std::map<std::string, TrackingMEs>::const_iterator it = TrackingMEsMap.begin();
 	   it != TrackingMEsMap.end(); it++) {
 	
@@ -317,7 +318,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEs(edm::EventSetup con
 	if (name.find(type) != std::string::npos) {
 	  //	  std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] type: " << type << " <---> name: " << name << std::endl;
 	  it->second.TrackingFlag->Fill(val);
-	  //	  std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] xbin: " << xbin << " val: " << val << std::endl;
+	  std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] xbin: " << xbin << " val: " << val << std::endl;
 	  TH2F*  th2d = TrackingCertificationSummaryMap->getTH2F();
 	  th2d->SetBinContent(xbin+1,1,val);
 	  xbin++;
