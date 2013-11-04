@@ -34,7 +34,14 @@ public:
   bool isSimTrackGood(const SimTrack& );
   void setGeometry(const GEMGeometry* geom) { theGEMGeometry = geom; }
 
-  TH1F** GetDgEta() { return dg_eta; }
+  TH1F** GetDgEta()  { return dg_eta;    }
+  TH1F** GetPadEta() { return pad_eta;   }
+  TH1F** GetShEta()  { return dg_sh_eta; }
+
+  TH1F** GetDgPhi()  { return dg_phi;    }
+  TH1F** GetPadPhi() { return pad_phi;   }
+  TH1F** GetShPhi()  { return dg_sh_phi; }
+
  private:
 
   edm::ParameterSet cfg_;
@@ -57,21 +64,14 @@ public:
   
   TH1F* dg_sh_phi[4]; 
 
-  TH1F* pad_eta[3];
+  TH1F* pad_eta[4];
 
-  TH1F* pad_phi[3];
-
-  TH1F* pad_sh_eta[3];
-
-  TH1F* pad_sh_phi[3];
+  TH1F* pad_phi[4];
 
 
-  TH1F* copad_eta; 
-  TH1F* copad_phi; 
-  
+ // TH1F* pad_sh_phi[4];
 
-  TH1F* copad_sh_eta;
-  TH1F* copad_sh_phi;
+
 
   
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;

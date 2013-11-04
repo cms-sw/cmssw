@@ -73,26 +73,27 @@ GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::Par
   pad_eta[0] = new TH1F("pad_eta_l1","pad_eta_l1",140,1.5,2.2);
   pad_eta[1] = new TH1F("pad_eta_l2","pad_eta_l2",140,1.5,2.2);
   pad_eta[2] = new TH1F("pad_eta_l1or2","pad_eta_l1or2",140,1.5,2.2);
+  pad_eta[3] = new TH1F("copad_eta","copad_eta",140,1.5,2.2);
 
   pad_phi[0] = new TH1F("pad_phi_l1","pad_phi_l1",100,-PI,PI);
   pad_phi[1] = new TH1F("pad_phi_l2","pad_phi_l2",100,-PI,PI);
   pad_phi[2] = new TH1F("pad_phi_l1or2","pad_phi_l1or2",100,-PI,PI);
+  pad_phi[3] = new TH1F("copad_phi","copad_phi",100,-PI,PI);
 
+/*
   pad_sh_eta[0] = new TH1F("pad_sh_eta_l1","pad_eta_l1",140,1.5,2.2);
   pad_sh_eta[1] = new TH1F("pad_sh_eta_l2","pad_eta_l2",140,1.5,2.2);
   pad_sh_eta[2] = new TH1F("pad_sh_eta_l1or2","pad_eta_l1or2",140,1.5,2.2);
+  pad_sh_eta[3] = new TH1F("copad_sh_eta","copad_sh_eta",140,1.5,2.2);
 
   pad_sh_phi[0] = new TH1F("pad_sh_phi_l1","pad_phi_l1",100,-PI,PI);
   pad_sh_phi[1] = new TH1F("pad_sh_phi_l2","pad_phi_l2",100,-PI,PI);
   pad_sh_phi[2] = new TH1F("pad_sh_phi_l1or2","pad_phi_l1or2",100,-PI,PI);
+  pad_sh_phi[3] = new TH1F("copad_sh_phi","copad_sh_phi",100,-PI,PI);
+*/
 
-
-  copad_eta = new TH1F("copad_eta","copad_eta",140,1.5,2.2);
-  copad_phi = new TH1F("copad_phi","copad_phi",100,-PI,PI);
   
 
-  copad_sh_eta = new TH1F("copad_sh_eta","copad_sh_eta",140,1.5,2.2);
-  copad_sh_phi = new TH1F("copad_sh_phi","copad_sh_phi",100,-PI,PI);
 
 
 }
@@ -351,10 +352,10 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     GEMDetId id_ch_odd_L2(detId_odd_L1.region(), detId_odd_L1.ring(), detId_odd_L1.station(), 2, detId_odd_L1.chamber(), 0);
 
     // check if track has sh
-    if(gem_sh_ids_ch.count(id_ch_even_L1)!=0) track_.has_gem_sh_l1 |= 2;
-    if(gem_sh_ids_ch.count(id_ch_odd_L1)!=0) track_.has_gem_sh_l1 |= 1;
-    if(gem_sh_ids_ch.count(id_ch_even_L2)!=0) track_.has_gem_sh_l2 |= 2;
-    if(gem_sh_ids_ch.count(id_ch_odd_L2)!=0) track_.has_gem_sh_l2 |= 1;
+    if(gem_sh_ids_ch.count(id_ch_even_L1)!=0) track_.has_gem_sh_l1 |= 2;     // + 10
+    if(gem_sh_ids_ch.count(id_ch_odd_L1)!=0) track_.has_gem_sh_l1 |= 1;      // + 01
+    if(gem_sh_ids_ch.count(id_ch_even_L2)!=0) track_.has_gem_sh_l2 |= 2;     // + 10
+    if(gem_sh_ids_ch.count(id_ch_odd_L2)!=0) track_.has_gem_sh_l2 |= 1;      // + 01
 
     // check if track has dg
     if(gem_dg_ids_ch.count(id_ch_even_L1)!=0){
@@ -373,8 +374,15 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       track_.has_gem_dg_l2 |= 1;
       track_.has_gem_pad_l2 |= 1;
     }
+
+
   track_eta->Fill( track_.eta );
-  if ( track_.gem_dg_layer1 > 0 ) {
+
+  if ( track_.gem_dg_layer1 > 0 && track_.gem_dg_layer2>0 ) {
+    dg_eta[2]->Fill( track_.gem_dg_eta);
+    dg_eta[3]->Fill( track_.gem_dg_eta);
+  }
+  else if ( track_.gem_dg_layer1 > 0 ) {
     dg_eta[0]->Fill ( track_.gem_dg_eta );
     dg_eta[2]->Fill( track_.gem_dg_eta);
   }
@@ -382,12 +390,14 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     dg_eta[1]->Fill ( track_.gem_dg_eta );
     dg_eta[2]->Fill( track_.gem_dg_eta);
   }
-  else if ( track_.gem_dg_layer1 > 0 && track_.gem_dg_layer2>0 ) {
-    dg_eta[3]->Fill( track_.gem_dg_eta);
-  }
   else { std::cout<<"dg_eta : "<<track_.gem_dg_eta; }
    
-  if ( track_.gem_sh_layer1 > 0 ) {
+  if (track_.gem_sh_layer1 >0 && track_.gem_sh_layer2>0 ) {
+    dg_sh_eta[2]->Fill( track_.gem_sh_eta);
+    dg_sh_eta[3]->Fill( track_.gem_sh_eta);
+
+  }
+  else if ( track_.gem_sh_layer1 > 0 ) {
     dg_sh_eta[0]->Fill ( track_.gem_sh_eta); 
     dg_sh_eta[2]->Fill ( track_.gem_sh_eta);
   }
@@ -395,11 +405,83 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     dg_sh_eta[1]->Fill( track_.gem_sh_eta);
     dg_sh_eta[2]->Fill( track_.gem_sh_eta);
   }
-  else if (track_.gem_sh_layer1 >0 && track_.gem_sh_layer2>0 ) {
-    dg_sh_eta[3]->Fill( track_.gem_sh_eta);
-  }
   else { std::cout<<"dg_sh_eta : "<<track_.gem_sh_eta; }
+
+  if ( track_.gem_pad_layer1 > 0 && track_.gem_pad_layer2>0 ) {
+    pad_eta[2]->Fill( track_.gem_pad_eta);
+    pad_eta[3]->Fill( track_.gem_pad_eta);
   }
-  
-  
+  else if ( track_.gem_pad_layer1 > 0 ) {
+    pad_eta[0]->Fill ( track_.gem_pad_eta );
+    pad_eta[2]->Fill( track_.gem_pad_eta);
+  }
+  else if ( track_.gem_pad_layer2 > 0 ) { 
+    pad_eta[1]->Fill ( track_.gem_pad_eta );
+    pad_eta[2]->Fill( track_.gem_pad_eta);
+  }
+  else { std::cout<<"dg_pad_eta : "<<track_.gem_pad_eta; }
+
+
+
+
+
+  // phi efficiency. 
+
+  if( fabs(track_.eta) < 2.12 && fabs( track_.eta) > 1.64 ) {
+    track_phi->Fill( track_.phi);
+    if ( track_.gem_dg_layer1 > 0 && track_.gem_dg_layer2>0 ) {
+      dg_phi[2]->Fill( track_.gem_dg_phi );
+      dg_phi[3]->Fill( track_.gem_dg_phi );
+    }
+    else if ( track_.gem_dg_layer1 > 0 ) {
+      dg_phi[0]->Fill ( track_.gem_dg_phi );
+      dg_phi[2]->Fill( track_.gem_dg_phi );
+    }
+    else if ( track_.gem_dg_layer2 > 0 ) { 
+      dg_phi[1]->Fill ( track_.gem_dg_phi );
+      dg_phi[2]->Fill(  track_.gem_dg_phi );
+    }
+    else { std::cout<<"dg_eta : "<<track_.gem_dg_eta; }
+    
+    if (track_.gem_sh_layer1 >0 && track_.gem_sh_layer2>0 ) {
+      dg_sh_phi[2]->Fill( track_.gem_sh_phi);
+      dg_sh_phi[3]->Fill( track_.gem_sh_phi);
+    }
+    else if ( track_.gem_sh_layer1 > 0 ) {
+      dg_sh_phi[0]->Fill ( track_.gem_sh_phi);
+      dg_sh_phi[2]->Fill ( track_.gem_sh_phi);
+    }
+    else if ( track_.gem_sh_layer2 > 0 ) {
+      dg_sh_phi[1]->Fill( track_.gem_sh_phi);
+      dg_sh_phi[2]->Fill( track_.gem_sh_phi);
+    }
+    else { std::cout<<"dg_sh_phi : "<<track_.gem_sh_phi; }
+
+
+    if ( track_.gem_pad_layer1 > 0 && track_.gem_pad_layer2>0 ) {
+      pad_phi[2]->Fill( track_.gem_pad_phi );
+      pad_phi[3]->Fill( track_.gem_pad_phi );
+    }
+    else if ( track_.gem_pad_layer1 > 0 ) {
+      pad_phi[0]->Fill ( track_.gem_pad_phi );
+      pad_phi[2]->Fill( track_.gem_pad_phi );
+    }
+    else if ( track_.gem_pad_layer2 > 0 ) { 
+      pad_phi[1]->Fill ( track_.gem_pad_phi );
+      pad_phi[2]->Fill(  track_.gem_pad_phi );
+    }
+    else { std::cout<<"pad_phi : "<<track_.gem_pad_phi; }
+
+  }
+
+
+
+
+
+
+ }
+
+
+
+
 }
