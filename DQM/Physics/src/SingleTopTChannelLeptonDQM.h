@@ -1,5 +1,5 @@
-#ifndef TOPDILEPTONOFFLINEDQM
-#define TOPDILEPTONOFFLINEDQM
+#ifndef SINGLETOPTCHANNELLEPTONDQM
+#define SINGLETOPTCHANNELLEPTONDQM
 
 #include <string>
 #include <vector>
@@ -8,7 +8,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DQM/Physics/interface/TopDQMHelpers.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -16,6 +15,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 /**
    \class   MonitorEnsemble TopDQMHelpers.h "DQM/Physics/interface/TopDQMHelpers.h"
@@ -34,21 +34,16 @@
    Ensemble. It will not be covered by the SelectionStep class.
 */
 
-namespace TopDiLeptonOffline {
+namespace SingleTopTChannelLepton {
 
   class MonitorEnsemble {
   public:
     /// different verbosity levels
     enum Level{ STANDARD, VERBOSE, DEBUG };
-    /// make clear which LorentzVector to use
-    /// for jet, electrons and muon buffering
-    typedef reco::LeafCandidate::LorentzVector LorentzVector;
-    /// different decay channels
-    enum DecayChannel{ NONE, DIMUON, DIELEC, ELECMU };
     
   public:
     /// default contructor
-    MonitorEnsemble(const char* label, const edm::ParameterSet& cfg);
+    MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, const edm::VParameterSet& vcfg);
     /// default destructor
     ~MonitorEnsemble(){};
     
@@ -64,11 +59,7 @@ namespace TopDiLeptonOffline {
     /// deduce selectionPath from label, the label is 
     /// expected to be of type 'selectionPath:monitorPath' 
     std::string selectionPath(const std::string& label) const { return label.substr(0, label.find(':')); };  
-    /// determine dileptonic decay channel 
-    DecayChannel decayChannel(const std::vector<const reco::Muon*>& muons, const std::vector<const reco::GsfElectron*>& elecs) const;
 
-    /// set labels for event logging histograms
-    void loggerBinLabels(std::string hist);
     /// set configurable labels for trigger monitoring histograms
     void triggerBinLabels(std::string channel, const std::vector<std::string> labels);
     /// fill trigger monitoring histograms
@@ -88,18 +79,16 @@ namespace TopDiLeptonOffline {
     Level verbosity_;
     /// instance label 
     std::string label_;
-    /// input sources for monitoring
-    edm::InputTag elecs_, muons_, jets_; 
     /// considers a vector of METs
     std::vector<edm::InputTag> mets_;
+    /// input sources for monitoring
+    edm::InputTag elecs_, elecs_gsf_, muons_, muons_reco_, jets_, pvs_; 
 
     /// trigger table
     edm::InputTag triggerTable_;
     /// trigger paths for monitoring, expected 
     /// to be of form signalPath:MonitorPath
-    std::vector<std::string> elecMuPaths_;
-    /// trigger paths for di muon channel
-    std::vector<std::string> diMuonPaths_;
+    std::vector<std::string> triggerPaths_;
 
     /// electronId label
     edm::InputTag electronId_;
@@ -115,14 +104,21 @@ namespace TopDiLeptonOffline {
     /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
     int eidPattern_;
     /// extra isolation criterion on electron
-    StringCutObjectSelector<reco::GsfElectron>* elecIso_;
+    //    StringCutObjectSelector<reco::GsfElectron>* elecIso_;
+    std::string elecIso_;
     /// extra selection on electrons
-    StringCutObjectSelector<reco::GsfElectron>* elecSelect_;
-
+    //StringCutObjectSelector<reco::GsfElectron>* elecSelect_;
+    std::string elecSelect_;
+    
+    /// extra selection on primary vertices; meant to investigate the pile-up effect
+    StringCutObjectSelector<reco::Vertex>* pvSelect_;
+    
     /// extra isolation criterion on muon
-    StringCutObjectSelector<reco::Muon>* muonIso_;
+    //StringCutObjectSelector<reco::Muon>* muonIso_;
+    std::string muonIso_;
     /// extra selection on muons
-    StringCutObjectSelector<reco::Muon>* muonSelect_;
+    //StringCutObjectSelector<reco::Muon>* muonSelect_;
+    std::string muonSelect_;
 
     /// jetCorrector
     std::string jetCorrector_;
@@ -133,43 +129,23 @@ namespace TopDiLeptonOffline {
     /// extra selection on jets (here given as std::string as it depends
     /// on the the jet type, which selections are valid and which not)
     std::string jetSelect_;
+    /// include btag information or not
+    /// to be determined from the cfg  
+    bool includeBTag_;
+    /// btag discriminator labels
+    edm::InputTag btagEff_, btagPur_, btagVtx_, btagCombVtx_;
+    /// btag working points
+    double btagEffWP_, btagPurWP_, btagVtxWP_, btagCombVtxWP_;
     /// mass window upper and lower edge
     double lowerEdge_, upperEdge_;
 
     /// number of logged interesting events
-    int elecMuLogged_, diMuonLogged_, diElecLogged_;
+    int logged_;
     /// storage manager
     DQMStore* store_;
     /// histogram container  
     std::map<std::string,MonitorElement*> hists_;
   };
-
-  inline void 
-  MonitorEnsemble::loggerBinLabels(std::string hist)
-  {
-    // set axes titles for selected events
-    hists_[hist.c_str()]->getTH1()->SetOption("TEXT");
-    hists_[hist.c_str()]->setBinLabel( 1 , "Run"             , 1);
-    hists_[hist.c_str()]->setBinLabel( 2 , "Block"           , 1);
-    hists_[hist.c_str()]->setBinLabel( 3 , "Event"           , 1);
-    hists_[hist.c_str()]->setBinLabel( 6 , "pt_{L2L3}(jet1)" , 1);
-    hists_[hist.c_str()]->setBinLabel( 7 , "pt_{L2L3}(jet2)" , 1);
-    hists_[hist.c_str()]->setBinLabel( 8 , "MET_{Calo}"      , 1);
-    hists_[hist.c_str()]->setAxisTitle("logged evts"         , 2);
-
-    if(hist=="diMuonLogger_"){
-      hists_[hist.c_str()]->setBinLabel( 4 , "pt(muon)" , 1);
-      hists_[hist.c_str()]->setBinLabel( 5 , "pt(muon)" , 1);
-    }
-    if(hist=="diElecLogger_"){
-      hists_[hist.c_str()]->setBinLabel( 4 , "pt(elec)" , 1);
-      hists_[hist.c_str()]->setBinLabel( 5 , "pt(elec)" , 1);
-    }
-    if(hist=="elecMuLogger_"){
-      hists_[hist.c_str()]->setBinLabel( 4 , "pt(elec)" , 1);
-      hists_[hist.c_str()]->setBinLabel( 5 , "pt(muon)" , 1);
-    }
-  }
 
   inline void 
   MonitorEnsemble::triggerBinLabels(std::string channel, const std::vector<std::string> labels)
@@ -193,19 +169,12 @@ namespace TopDiLeptonOffline {
       }
     }
   }
-  
-  inline MonitorEnsemble::DecayChannel
-  MonitorEnsemble::decayChannel(const std::vector<const reco::Muon*>& muons, const std::vector<const reco::GsfElectron*>& elecs) const 
-  {
-    DecayChannel type=NONE;
-    if( muons.size()>1 ){ type=DIMUON; } else if( elecs.size()>1 ){ type=DIELEC; } else if( !elecs.empty() && !muons.empty() ){ type=ELECMU; }
-    return type;
-  } 
-  
+
 }
 
 #include <utility>
 
+#include "DQM/Physics/interface/TopDQMHelpers.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -217,9 +186,9 @@ namespace TopDiLeptonOffline {
 #include "DataFormats/Common/interface/TriggerResults.h"
   
 /**
-   \class   TopDiLeptonOfflineDQM TopDiLeptonOfflineDQM.h "DQM/Physics/plugins/TopDiLeptonOfflineDQM.h"
+   \class   SingleTopTChannelLeptonDQM SingleTopTChannelLeptonDQM.h "DQM/Physics/plugins/SingleTopTChannelLeptonDQM.h"
 
-   \brief   Module to apply a monitored selection of top like events in the di-leptonic channel
+   \brief   Module to apply a monitored selection of top like events in the semi-leptonic channel
 
    Plugin to apply a monitored selection of top like events with some minimal flexibility 
    in the number and definition of the selection steps. To achieve this flexibility it 
@@ -230,7 +199,7 @@ namespace TopDiLeptonOffline {
    step (which is not monitored in the context of this module) with an instance of the 
    MonitorEnsemble class. The following objects are supported for selection:
 
-    - jets  : of type reco::Jet
+    - jets  : of type reco::Jet (jets), reco::CaloJet (jets/calo) or reco::PFJet (jets/pflow)
     - elecs : of type reco::GsfElectron
     - muons : of type reco::Muon
     - met   : of type reco::MET
@@ -242,17 +211,18 @@ namespace TopDiLeptonOffline {
 */
 
 /// define MonitorEnsembple to be used
-//using TopDiLeptonOffline::MonitorEnsemble;
+//using SingleTopTChannelLepton::MonitorEnsemble;
 
-class TopDiLeptonOfflineDQM : public edm::EDAnalyzer  {
+class SingleTopTChannelLeptonDQM : public edm::EDAnalyzer  {
  public: 
   /// default constructor
-  TopDiLeptonOfflineDQM(const edm::ParameterSet& cfg);
+  SingleTopTChannelLeptonDQM(const edm::ParameterSet& cfg);
   /// default destructor
-  ~TopDiLeptonOfflineDQM(){ 
-    if( beamspotSelect_ ) delete beamspotSelect_; 
+  ~SingleTopTChannelLeptonDQM(){
     if( vertexSelect_ ) delete vertexSelect_;
-  }
+    if( beamspotSelect_ ) delete beamspotSelect_;
+    //    if( selection_ ) delete selection_;
+  };
   
   /// do this during the event loop
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
@@ -274,6 +244,7 @@ class TopDiLeptonOfflineDQM : public edm::EDAnalyzer  {
   edm::InputTag vertex_;
   /// string cut selector
   StringCutObjectSelector<reco::Vertex>* vertexSelect_;
+
   /// beamspot 
   edm::InputTag beamspot_;
   /// string cut selector
@@ -287,7 +258,7 @@ class TopDiLeptonOfflineDQM : public edm::EDAnalyzer  {
   /// the configuration of the selection for the SelectionStep class, 
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to 
   /// be filled _after_ each selection step
-    std::map<std::string, std::pair<edm::ParameterSet, TopDiLeptonOffline::MonitorEnsemble*> > selection_;
+  std::map<std::string, std::pair<edm::ParameterSet, SingleTopTChannelLepton::MonitorEnsemble*> > selection_;
 };
 
 #endif
