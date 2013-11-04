@@ -111,7 +111,7 @@ private:
   bool verbose_;
   bool monitorDaemon_;
   std::ofstream logFile_;
-  edm::InputTag gmtSource_ ;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtSource_ ;
   
   int evnum_old_; // event number of previous event
   int bxnum_old_; // bx of previous event

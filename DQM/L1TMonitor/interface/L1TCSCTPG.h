@@ -54,6 +54,10 @@ void analyze(const edm::Event& e, const edm::EventSetup& c);
 // BeginJob
 void beginJob(void);
 
+// BeginRun
+ void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
+
+
 // EndJob
 void endJob(void);
 
@@ -75,6 +79,7 @@ private:
   bool monitorDaemon_;
   std::ofstream logFile_;
   edm::InputTag csctpgSource_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> csctpgSource_token_;
 };
 
 #endif
