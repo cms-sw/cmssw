@@ -111,8 +111,8 @@ bool LHESource::produce(edm::Event &event)
 
 	std::auto_ptr<LHEEventProduct> product(
 			new LHEEventProduct(*partonLevel->getHEPEUP()));
-	if (partonLevel->getPDF())
-		product->setPDF(*partonLevel->getPDF());
+	if (partonLevel->getPDF()) {
+	  product->setPDF(*partonLevel->getPDF());
         }		
 	std::for_each(partonLevel->weights().begin(),
 		      partonLevel->weights().end(),
