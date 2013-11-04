@@ -115,6 +115,7 @@ float PhotonDataCertification::invMassZtest(string path, TString name){
   float ZWidth = 2.5;
   MonitorElement *TestElem=0;
   TestElem = dbe_->get(path);
+  if(TestElem==0) return 0;
   TH1F *TestHist = TestElem->getTH1F();
   if(TestHist==0) return 0;
   RooRealVar mass("mass","Mass_{2#gamma}", 0, 200,"GeV");
@@ -124,7 +125,6 @@ float PhotonDataCertification::invMassZtest(string path, TString name){
   RooDataHist test(name, name, mass, TestHist);
 
   BreitWigner.fitTo(test, RooFit::Range(80,100));
-  //  cout << "EB Resonance value: " << mResEB.getValV() << " +/-  " << mResEB.getError() << endl;
 
   if(abs(mRes.getValV() - ZMass) < ZWidth){return 1.0;}
   else if(abs(mRes.getValV() - ZMass) < gamma.getValV()){return 0.9;}
