@@ -38,16 +38,23 @@ def customizePFforEGammaGED(process):
 
     return process
 
-def _configurePFForGEDEGamma(process):
-    #setup mustache based reco::Photon
-    process.photonSequence += process.mustachePhotonSequence    
-    process.particleFlowBlock.EGPhotons = cms.InputTag('mustachePhotons')
+def _configurePFForGEDEGamma(process):  
     #for later
     process.particleFlowBlock.SCBarrel = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
     process.particleFlowBlock.SCEndcap = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
     #add in conversions
+    ## for PF
+    
     process.allConversionSequence += process.allConversionMustacheSequence
-    process.pfConversions.conversionCollection = cms.InputTag('allConversionsMustache')
+    process.pfConversions.conversionCollection = cms.InputTag('allConversionsMustache')        
+    #setup mustache based reco::Photon
+    process.ckfTracksFromConversions += process.ckfTracksFromMustacheConversions
+    process.conversionTrackProducers += process.mustacheConversionTrackProducers
+    process.conversionTrackMergers += process.mustacheConversionTrackMergers
+    if hasattr(process,'conversionSequence'):
+        process.conversionSequence += process.mustacheConversionSequence
+    process.photonSequence += process.mustachePhotonSequence
+    process.particleFlowBlock.EGPhotons = cms.InputTag('mustachePhotons')
     #tell PFProducer to use PFEG objects / gedTmp
     process.particleFlowTmp.useEGammaFilters = cms.bool(True)
     process.particleFlowTmp.usePFPhotons = cms.bool(False)
@@ -150,8 +157,8 @@ def _customize_FastSim(process):
         # high pt tracks
         cms.InputTag("interestingTrackEcalDetIds")
         )
-    
-    if hasattr(process,'ecalDrivenElectronSeeds'):
+    process.allConversionsMustache.src = cms.InputTag('gsfGeneralConversionTrackMerger')
+    if hasattr(process,'ecalDrivenElectronSeeds'):        
         process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
         process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
     return process
