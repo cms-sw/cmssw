@@ -24,8 +24,6 @@ namespace edm
     ProblemTracker();
     ~ProblemTracker();
     ProblemTracker(const ProblemTracker&);
-
-    static bool dead_;
   };
 
   class AssertHandler

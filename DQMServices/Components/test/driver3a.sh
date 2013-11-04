@@ -7,7 +7,7 @@ numev=3
 step=a
 DQMSEQUENCE=DQM
 
-cmsDriver.py SingleMuPt10.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun -n ${numev} --eventcontent FEVTDEBUGHLT --conditions auto:startup_GRun --mc --no_exec --python_filename=test_${tnum}_${step}_1.py
+cmsDriver.py SingleMuPt10.cfi -s GEN,SIM,DIGI:pdigi_valid,L1,DIGI2RAW,HLT:GRun -n ${numev} --eventcontent FEVTDEBUGHLT --conditions auto:startup_GRun --mc --no_exec --python_filename=test_${tnum}_${step}_1.py
 
 cmsRun -e test_${tnum}_${step}_1.py >& p3.0.log
 
