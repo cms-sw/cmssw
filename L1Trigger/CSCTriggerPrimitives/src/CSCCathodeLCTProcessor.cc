@@ -243,7 +243,7 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 					       const edm::ParameterSet& ctmb) :
 		     theEndcap(endcap), theStation(station), theSector(sector),
                      theSubsector(subsector), theTrigChamber(chamber) {
-  static bool config_dumped = false;
+  static std::atomic<bool> config_dumped{false};
 
   // CLCT configuration parameters.
   fifo_tbins   = conf.getParameter<unsigned int>("clctFifoTbins");
@@ -359,7 +359,7 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() :
   		     theEndcap(1), theStation(1), theSector(1),
                      theSubsector(1), theTrigChamber(1) {
   // constructor for debugging.
-  static bool config_dumped = false;
+  static std::atomic<bool> config_dumped{false};
 
   // CLCT configuration parameters.
   setDefaultConfigParameters();
@@ -419,7 +419,7 @@ void CSCCathodeLCTProcessor::setDefaultConfigParameters() {
 
 // Set configuration parameters obtained via EventSetup mechanism.
 void CSCCathodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf) {
-  static bool config_dumped = false;
+  static std::atomic<bool> config_dumped{false};
 
   fifo_tbins   = conf->clctFifoTbins();
   fifo_pretrig = conf->clctFifoPretrig();
@@ -552,7 +552,7 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 
   // clear(); // redundant; called by L1MuCSCMotherboard.
 
-  static bool config_dumped = false;
+  static std::atomic<bool> config_dumped{false};
   if ((infoV > 0 || isSLHC) && !config_dumped) {
     //std::cerr<<"**** CLCT run parameters dump ****"<<std::endl;
     dumpConfigParams();
@@ -1017,7 +1017,7 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
       // This loop is only for distrips.  We have to separate the routines
       // because triad and time arrays can be changed by the distripStagger
       // routine which could mess up the halfstrips.
-      static int test_iteration = 0;
+      static std::atomic<int> test_iteration{0};
       for (int j = 0; j < CSCConstants::MAX_NUM_STRIPS; j++){
 	if (time[i][j] >= 0) {
 	  int i_distrip = j/2;
@@ -2232,7 +2232,7 @@ void CSCCathodeLCTProcessor::pulseExtension(
  const int nStrips,
  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]) {
 
-  static unsigned int bits_in_pulse = 8*sizeof(pulse[0][0]);
+  static const unsigned int bits_in_pulse = 8*sizeof(pulse[0][0]);
 
   // Clear pulse array.  This array will be used as a bit representation of
   // hit times.  For example: if strip[1][2] has a value of 3, then 1 shifted
@@ -2824,11 +2824,12 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() {
   // tmb_l1a_window_size parameter, but made even by setting the LSB
   // of tmb_l1a_window_size to 0.
   //
-  static int lct_bins   = 
-    (tmb_l1a_window_size%2 == 0) ? tmb_l1a_window_size : tmb_l1a_window_size-1;
-  static int late_tbins = early_tbins + lct_bins;
+  static std::atomic<int> lct_bins; 
+    lct_bins = (tmb_l1a_window_size%2 == 0) ? tmb_l1a_window_size : tmb_l1a_window_size-1;
+  static std::atomic<int> late_tbins;
+    late_tbins = early_tbins + lct_bins;
 
-  static int ifois = 0;
+  static std::atomic<int> ifois{0};
   if (ifois == 0) {
     if (infoV >= 0 && early_tbins < 0) {
       edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
