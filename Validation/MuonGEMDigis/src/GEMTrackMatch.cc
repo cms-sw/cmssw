@@ -33,7 +33,7 @@ struct MySimTrack
 
 GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg )
 {
-   //theEff_eta_dg_l1  =  dbe_->book1D("eff_eta_track_dg_gem_l1", "Eff. for a SimTrack to have an associated GEM Digi in l2;SimTrack |#eta|;Eff.", 140,1.5,2.2);
+   //theEff_eta_dg[0]  =  dbe_->book1D("eff_eta_track_dg_gem_l1", "Eff. for a SimTrack to have an associated GEM Digi in l2;SimTrack |#eta|;Eff.", 140,1.5,2.2);
 
 
    cfg_= cfg; 
@@ -54,45 +54,45 @@ GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::Par
   dg_eta[3] = new TH1F("dg_eta_l1and2","dg_eta_l1and2",140,1.5,2.2);
 
 
-  dg_sh_eta_l1 = new TH1F("dg_sh_eta_l1","dg_sh_eta_l1",140,1.5,2.2);
-  dg_sh_eta_l2 = new TH1F("dg_sh_eta_l2","dg_sh_eta_l2",140,1.5,2.2);
-  dg_sh_eta_l1or2 = new TH1F("dg_sh_eta_l1or2","dg_sh_eta_l1or2",140,1.5,2.2);
-  dg_sh_eta_l1and2 = new TH1F("dg_sh_eta_l1and2","dg_sh_eta_l1and2",140,1.5,2.2);
+  dg_sh_eta[0] = new TH1F("dg_sh_eta_l1","dg_sh_eta_l1",140,1.5,2.2);
+  dg_sh_eta[1] = new TH1F("dg_sh_eta_l2","dg_sh_eta_l2",140,1.5,2.2);
+  dg_sh_eta[2] = new TH1F("dg_sh_eta_l1or2","dg_sh_eta_l1or2",140,1.5,2.2);
+  dg_sh_eta[3] = new TH1F("dg_sh_eta_l1and2","dg_sh_eta_l1and2",140,1.5,2.2);
 
 
-  dg_phi_l1 = new TH1F("dg_phi_l1","dg_phi_l1",100,-PI,PI);
-  dg_phi_l2 = new TH1F("dg_phi_l2","dg_phi_l2",100,-PI,PI);
-  dg_phi_l1or2 = new TH1F("dg_phi_l1or2","dg_phi_l1or2",100,-PI,PI);
-  dg_phi_l1and2 = new TH1F("dg_phi_l1and2","dg_phi_l1and2",100,-PI,PI);
+  dg_phi[0] = new TH1F("dg_phi_l1","dg_phi_l1",100,-PI,PI);
+  dg_phi[1] = new TH1F("dg_phi_l2","dg_phi_l2",100,-PI,PI);
+  dg_phi[2] = new TH1F("dg_phi_l1or2","dg_phi_l1or2",100,-PI,PI);
+  dg_phi[3] = new TH1F("dg_phi_l1and2","dg_phi_l1and2",100,-PI,PI);
   
-  dg_sh_phi_l1 = new TH1F("dg_sh_phi_l1","dg_sh_phi_l1",100,-PI,PI);
-  dg_sh_phi_l2 = new TH1F("dg_sh_phi_l2","dg_sh_phi_l2",100,-PI,PI);
-  dg_sh_phi_l1or2 = new TH1F("dg_sh_phi_l1or2","dg_sh_phi_l1or2",100,-PI,PI);
-  dg_sh_phi_l1and2 = new TH1F("dg_sh_phi_l1and2","dg_sh_phi_l1and2",100,-PI,PI);
+  dg_sh_phi[0] = new TH1F("dg_sh_phi_l1","dg_sh_phi_l1",100,-PI,PI);
+  dg_sh_phi[1] = new TH1F("dg_sh_phi_l2","dg_sh_phi_l2",100,-PI,PI);
+  dg_sh_phi[2] = new TH1F("dg_sh_phi_l1or2","dg_sh_phi_l1or2",100,-PI,PI);
+  dg_sh_phi[3] = new TH1F("dg_sh_phi_l1and2","dg_sh_phi_l1and2",100,-PI,PI);
 
-  pad_eta_l1 = new TH1F("pad_eta_l1","pad_eta_l1",140,1.5,2.2);
-  pad_eta_l2 = new TH1F("pad_eta_l2","pad_eta_l2",140,1.5,2.2);
-  pad_eta_l1or2 = new TH1F("pad_eta_l1or2","pad_eta_l1or2",140,1.5,2.2);
+  pad_eta[0] = new TH1F("pad_eta_l1","pad_eta_l1",140,1.5,2.2);
+  pad_eta[1] = new TH1F("pad_eta_l2","pad_eta_l2",140,1.5,2.2);
+  pad_eta[2] = new TH1F("pad_eta_l1or2","pad_eta_l1or2",140,1.5,2.2);
 
-  pad_phi_l1 = new TH1F("pad_phi_l1","pad_phi_l1",100,-PI,PI);
-  pad_phi_l2 = new TH1F("pad_phi_l2","pad_phi_l2",100,-PI,PI);
-  pad_phi_l1or2 = new TH1F("pad_phi_l1or2","pad_phi_l1or2",100,-PI,PI);
+  pad_phi[0] = new TH1F("pad_phi_l1","pad_phi_l1",100,-PI,PI);
+  pad_phi[1] = new TH1F("pad_phi_l2","pad_phi_l2",100,-PI,PI);
+  pad_phi[2] = new TH1F("pad_phi_l1or2","pad_phi_l1or2",100,-PI,PI);
 
-  pad_sh_eta_l1 = new TH1F("pad_sh_eta_l1","pad_eta_l1",140,1.5,2.2);
-  pad_sh_eta_l2 = new TH1F("pad_sh_eta_l2","pad_eta_l2",140,1.5,2.2);
-  pad_sh_eta_l1or2 = new TH1F("pad_sh_eta_l1or2","pad_eta_l1or2",140,1.5,2.2);
+  pad_sh_eta[0] = new TH1F("pad_sh_eta_l1","pad_eta_l1",140,1.5,2.2);
+  pad_sh_eta[1] = new TH1F("pad_sh_eta_l2","pad_eta_l2",140,1.5,2.2);
+  pad_sh_eta[2] = new TH1F("pad_sh_eta_l1or2","pad_eta_l1or2",140,1.5,2.2);
 
-  pad_sh_phi_l1 = new TH1F("pad_sh_phi_l1","pad_phi_l1",100,-PI,PI);
-  pad_sh_phi_l2 = new TH1F("pad_sh_phi_l2","pad_phi_l2",100,-PI,PI);
-  pad_sh_phi_l1or2 = new TH1F("pad_sh_phi_l1or2","pad_phi_l1or2",100,-PI,PI);
+  pad_sh_phi[0] = new TH1F("pad_sh_phi_l1","pad_phi_l1",100,-PI,PI);
+  pad_sh_phi[1] = new TH1F("pad_sh_phi_l2","pad_phi_l2",100,-PI,PI);
+  pad_sh_phi[2] = new TH1F("pad_sh_phi_l1or2","pad_phi_l1or2",100,-PI,PI);
 
 
-  copad_eta_l1and2 = new TH1F("copad_eta","copad_eta",140,1.5,2.2);
-  copad_phi_l1and2 = new TH1F("copad_phi","copad_phi",100,-PI,PI);
+  copad_eta = new TH1F("copad_eta","copad_eta",140,1.5,2.2);
+  copad_phi = new TH1F("copad_phi","copad_phi",100,-PI,PI);
   
 
-  copad_sh_eta_l1and2 = new TH1F("copad_sh_eta","copad_sh_eta",140,1.5,2.2);
-  copad_sh_phi_l1and2 = new TH1F("copad_sh_phi","copad_sh_phi",100,-PI,PI);
+  copad_sh_eta = new TH1F("copad_sh_eta","copad_sh_eta",140,1.5,2.2);
+  copad_sh_phi = new TH1F("copad_sh_phi","copad_sh_phi",100,-PI,PI);
 
 
 }
@@ -203,12 +203,12 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     track_.gem_ly_even = -999.;
     track_.gem_lx_odd = -999.;
     track_.gem_ly_odd = -999.;
-    track_.has_gem_sh_l1 = 0;
-    track_.has_gem_sh_l2 = 0;
-    track_.has_gem_dg_l1 = 0;
-    track_.has_gem_dg_l2 = 0;
-    track_.has_gem_pad_l1 = 0;
-    track_.has_gem_pad_l2 = 0;
+    track_.has_gem_sh[0] = 0;
+    track_.has_gem_sh[1] = 0;
+    track_.has_gem_dg[0] = 0;
+    track_.has_gem_dg[1] = 0;
+    track_.has_gem_pad[0] = 0;
+    track_.has_gem_pad[1] = 0;
 
 
 
@@ -351,27 +351,27 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     GEMDetId id_ch_odd_L2(detId_odd_L1.region(), detId_odd_L1.ring(), detId_odd_L1.station(), 2, detId_odd_L1.chamber(), 0);
 
     // check if track has sh
-    if(gem_sh_ids_ch.count(id_ch_even_L1)!=0) track_.has_gem_sh_l1 |= 2;
-    if(gem_sh_ids_ch.count(id_ch_odd_L1)!=0) track_.has_gem_sh_l1 |= 1;
-    if(gem_sh_ids_ch.count(id_ch_even_L2)!=0) track_.has_gem_sh_l2 |= 2;
-    if(gem_sh_ids_ch.count(id_ch_odd_L2)!=0) track_.has_gem_sh_l2 |= 1;
+    if(gem_sh_ids_ch.count(id_ch_even_L1)!=0) track_.has_gem_sh[0] |= 2;
+    if(gem_sh_ids_ch.count(id_ch_odd_L1)!=0) track_.has_gem_sh[0] |= 1;
+    if(gem_sh_ids_ch.count(id_ch_even_L2)!=0) track_.has_gem_sh[1] |= 2;
+    if(gem_sh_ids_ch.count(id_ch_odd_L2)!=0) track_.has_gem_sh[1] |= 1;
 
     // check if track has dg
     if(gem_dg_ids_ch.count(id_ch_even_L1)!=0){
-      track_.has_gem_dg_l1 |= 2;
-      track_.has_gem_pad_l1 |= 2;
+      track_.has_gem_dg[0] |= 2;
+      track_.has_gem_pad[0] |= 2;
     }
     if(gem_dg_ids_ch.count(id_ch_odd_L1)!=0){
-      track_.has_gem_dg_l1 |= 1;
-      track_.has_gem_pad_l1 |= 1;
+      track_.has_gem_dg[0] |= 1;
+      track_.has_gem_pad[0] |= 1;
     }
     if(gem_dg_ids_ch.count(id_ch_even_L2)!=0){
-      track_.has_gem_dg_l2 |= 2;
-      track_.has_gem_pad_l2 |= 2;
+      track_.has_gem_dg[1] |= 2;
+      track_.has_gem_pad[1] |= 2;
     }
     if(gem_dg_ids_ch.count(id_ch_odd_L2)!=0){
-      track_.has_gem_dg_l2 |= 1;
-      track_.has_gem_pad_l2 |= 1;
+      track_.has_gem_dg[1] |= 1;
+      track_.has_gem_pad[1] |= 1;
     }
   track_eta->Fill( track_.eta );
   if ( track_.gem_dg_layer1 > 0 ) {
