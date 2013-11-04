@@ -45,8 +45,8 @@ public:
     const FreeTrajectoryState& fts = *tm.updatedState().freeTrajectoryState();
 
     //avoid doing twice the check in TBC and QF
-    static bool answerMemory=false;
-    static FreeTrajectoryState ftsMemory;
+    static thread_local bool answerMemory=false;
+    static thread_local FreeTrajectoryState ftsMemory;
     if (ftsMemory.parameters().vector() == fts.parameters().vector()) { return answerMemory;}
     ftsMemory=fts;
 
