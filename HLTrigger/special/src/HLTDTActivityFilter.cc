@@ -135,14 +135,6 @@ HLTDTActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 // member functions
 //
 
-bool HLTDTActivityFilter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup) {
-
-  iSetup.get<MuonGeometryRecord>().get(dtGeom_);
-
-  return true;
-
-}
-
 // ------------ method called on each new Event  ------------
 bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
@@ -235,6 +227,8 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   if (process_[RPC]) {
+    edm::ESHandle<DTGeometry> dtGeom;
+    iSetup.get<MuonGeometryRecord>().get(dtGeom);
 
     edm::Handle<L1MuGMTReadoutCollection> gmtrc;
     iEvent.getByToken(inputRPCToken_,gmtrc);
@@ -258,8 +252,8 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
 	  activityMap::iterator actMapIt  = actMap.begin();
 	  activityMap::iterator actMapEnd = actMap.end();
 	  for (; actMapIt!= actMapEnd; ++ actMapIt)
-	    if (matchChamber((*actMapIt).first,(*candIt)))
-	      (*actMapIt).second.set(RPC);
+	    if (matchChamber(actMapIt->first, *candIt, dtGeom.product()))
+	      actMapIt->second.set(RPC);
 	}
       }
     }
@@ -290,9 +284,9 @@ bool HLTDTActivityFilter::hasActivity(const std::bitset<4>& actWord) const {
 
 }
 
-bool HLTDTActivityFilter::matchChamber(const uint32_t& rawId, const L1MuRegionalCand& rpcTrig) const {
+bool HLTDTActivityFilter::matchChamber(uint32_t rawId, L1MuRegionalCand const & rpcTrig, DTGeometry const * dtGeom) const {
 
-  const GlobalPoint chPos = dtGeom_->chamber(DTChamberId(rawId))->position();
+  const GlobalPoint chPos = dtGeom->chamber(DTChamberId(rawId))->position();
 
   float fDeltaPhi = fabs( chPos.phi() - rpcTrig.phiValue() );
   if ( fDeltaPhi>Geom::pi() ) fDeltaPhi = fabs(fDeltaPhi - 2*Geom::pi());

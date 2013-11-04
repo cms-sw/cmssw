@@ -60,10 +60,9 @@ public:
 private:
 
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
-  virtual bool beginRun(edm::Run& iRun, const edm::EventSetup& iSetup);
 
   bool hasActivity(const std::bitset<4> &) const;
-  bool matchChamber(const uint32_t &, const L1MuRegionalCand&) const;
+  bool matchChamber(uint32_t rawId, L1MuRegionalCand const & rpcTrig, DTGeometry const * dtGeom) const;
 
   enum activityType { DCC=0, DDU=1, RPC=2, DIGI=3 };
 
@@ -78,8 +77,6 @@ private:
   edm::EDGetTokenT<DTLocalTriggerCollection> inputDDUToken_;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> inputRPCToken_;
   edm::EDGetTokenT<DTDigiCollection>         inputDigiToken_;
-
-  edm::ESHandle<DTGeometry> dtGeom_;
 
   bool  orTPG_;
   bool  orRPC_;
