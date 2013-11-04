@@ -31,8 +31,9 @@
 FWEDProductRepresentationChecker::FWEDProductRepresentationChecker(const std::string& iTypeidName,
                                                                    const std::string& iPurpose,
                                                                    unsigned int iBitPackedViews,
-                                                                   bool iRepresentsSubPart) :
-   FWRepresentationCheckerBase(iPurpose, iBitPackedViews,iRepresentsSubPart),
+                                                                   bool iRepresentsSubPart,
+                                                                   bool iRequiresFF) :
+   FWRepresentationCheckerBase(iPurpose,iBitPackedViews,iRepresentsSubPart, iRequiresFF),
    m_typeidName(iTypeidName)
 {
 }

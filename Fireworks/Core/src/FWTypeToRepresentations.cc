@@ -90,7 +90,7 @@ FWTypeToRepresentations::insert( const FWTypeToRepresentations& iOther)
 // const member functions
 //
 const std::vector<FWRepresentationInfo>&
-FWTypeToRepresentations::representationsForType(const std::string& iTypeName) const
+FWTypeToRepresentations::representationsForType(const std::string& iTypeName, bool iRunningInFFMode) const
 {
    TypeToReps::const_iterator itFound = m_typeToReps.find(iTypeName);
    if(itFound == m_typeToReps.end()) {
@@ -101,9 +101,11 @@ FWTypeToRepresentations::representationsForType(const std::string& iTypeName) co
           it != itEnd;
           ++it) {
          FWRepresentationInfo info = (*it)->infoFor(iTypeName);
-         if(info.isValid()) {
+         if (!iRunningInFFMode && (*it)->requiresFF())
+            continue;
+         if(info.isValid()) 
             reps.push_back(info);
-         }
+         
       }
       m_typeToReps.insert(std::make_pair(iTypeName,reps));
       itFound = m_typeToReps.find(iTypeName);

@@ -37,8 +37,9 @@
 FWSimpleRepresentationChecker::FWSimpleRepresentationChecker(const std::string& iTypeName,
                                                              const std::string& iPurpose,
                                                              unsigned int iBitPackedViews,
-                                                             bool iRepresentsSubPart) :
-   FWRepresentationCheckerBase(iPurpose,iBitPackedViews,iRepresentsSubPart),
+                                                             bool iRepresentsSubPart,
+                                                             bool iRequiresFF) :
+   FWRepresentationCheckerBase(iPurpose,iBitPackedViews,iRepresentsSubPart, iRequiresFF),
    m_typeidName(iTypeName)
 {
 }
@@ -94,6 +95,8 @@ static bool inheritsFrom(const edm::TypeWithDict& iChild,
 FWRepresentationInfo
 FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
 {
+
+
    unsigned int distance=1;
 
    FWItemAccessorFactory factory;

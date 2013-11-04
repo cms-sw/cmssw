@@ -80,7 +80,7 @@ FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest *request)
          continue;
       
       const std::vector<FWRepresentationInfo>& infos 
-         = m_typeAndReps->representationsForType(desc.fullClassName());
+         = m_typeAndReps->representationsForType(desc.fullClassName(), false);
       
       /*
       //std::cout <<"try to find match "<<itBranch->fullClassName()<<std::endl;
@@ -102,6 +102,7 @@ FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest *request)
          /* if(!infos[ii].representsSubPart() && minProx != infos[ii].proximity()) {
             continue;
             } */
+
          purposes.insert(infos[ii].purpose());
       }
       
