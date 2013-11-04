@@ -12,6 +12,7 @@
    <version ClassVersion="10" checksum="256436604"/>
   </class>
   <class name="l1extra::L1ParticleMap" ClassVersion="10">
+   <field name="indexCombosState_" transient="true"/>
    <version ClassVersion="10" checksum="72905536"/>
   </class>
   <class name="l1extra::L1HFRings" ClassVersion="10">
