@@ -121,7 +121,6 @@
   </class>
   <class pattern="edm::AssociationVector<*>">
     <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
   </class>
   <class name="reco::CandRefValueMap" /> 
 

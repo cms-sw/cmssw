@@ -1,7 +1,6 @@
 <lcgdict>
   <class name="reco::CaloTauDiscriminatorAgainstElectronBase">
     <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
   </class>
   <class name="reco::CaloTauDiscriminatorAgainstElectron" ClassVersion="10">
    <version ClassVersion="10" checksum="3692008801"/>
@@ -21,7 +20,6 @@
 
   <class name="reco::PFTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
   </class>
   <class name="reco::PFTauDiscriminatorByIsolation" ClassVersion="10">
    <version ClassVersion="10" checksum="1187112623"/>
@@ -41,7 +39,6 @@
 
   <class name="reco::PFTauDiscriminatorBase">
     <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
   </class>
 
   <class name="reco::PFTauDiscriminator" ClassVersion="10">
@@ -56,7 +53,6 @@
 
   <class name="reco::JetPiZeroAssociationBase">
     <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
   </class>
 
   <class name="reco::JetPiZeroAssociation" ClassVersion="10">
@@ -74,7 +70,6 @@
 
   <class name="reco::PFTauDecayModeAssociation">
     <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
   </class>
   <class name="reco::PFTauDecayModeAssociationRef"/>
   <class name="reco::PFTauDecayModeAssociationRefProd"/>
