@@ -92,7 +92,7 @@ private:
   
 
 
-  edm::InputTag rpctfSource_ ;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> rpctfSource_ ;
 
   int nev_; // Number of events processed
   int nevRPC_; // Number of events processed where muon was found by rpc trigger
