@@ -29,7 +29,9 @@ namespace edm {
     explicit FwdPtrCollectionFilter() {}
 
     explicit FwdPtrCollectionFilter( edm::ParameterSet const & params ) :
-    srcToken_( consumes<std::vector< edm::FwdPtr<T> > >( params.getParameter<edm::InputTag>("src") ) ), filter_(false), makeClones_(false),
+    srcToken_( consumes< std::vector< edm::FwdPtr<T> > >( params.getParameter<edm::InputTag>("src") ) ),
+    srcViewToken_( mayConsume< edm::View<T>  >( params.getParameter<edm::InputTag>("src") ) ),
+    filter_(false), makeClones_(false),
       selector_( params )
     {
       if ( params.exists("filter") ) {
@@ -58,7 +60,7 @@ namespace edm {
       edm::Handle< edm::View<T> > hSrcAsView;
       bool foundAsFwdPtr = iEvent.getByToken( srcToken_, hSrcAsFwdPtr );
       if ( !foundAsFwdPtr ) {
-	iEvent.getByToken( srcToken_, hSrcAsView );
+	iEvent.getByToken( srcViewToken_, hSrcAsView );
       }
 
       // First try to access as a View<T>. If not a View<T>, look as a vector<FwdPtr<T> >
@@ -103,7 +105,8 @@ namespace edm {
     }
 
   protected :
-    edm::EDGetTokenT<std::vector< edm::FwdPtr<T> > > srcToken_;
+    edm::EDGetTokenT< std::vector< edm::FwdPtr<T> > > srcToken_;
+    edm::EDGetTokenT< edm::View<T>  > srcViewToken_;
     bool          filter_;
     bool          makeClones_;
     S             selector_;
