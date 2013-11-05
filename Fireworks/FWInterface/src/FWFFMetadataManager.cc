@@ -37,7 +37,7 @@ FWFFMetadataManager::doUpdate(FWJobMetadataUpdateRequest* request)
          continue;
 
       const std::vector<FWRepresentationInfo>& infos
-         = m_typeAndReps->representationsForType(desc.fullClassName(), true);
+         = m_typeAndReps->representationsForType(desc.fullClassName());
       
       /*
       //std::cout <<"try to find match "<<itBranch->fullClassName()<<std::endl;
