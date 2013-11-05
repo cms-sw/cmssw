@@ -335,9 +335,9 @@ class HRes2DHit{
       pre += name_;
       dbe_->setCurrentFolder("DT/2DSegments/Res/");
       if(doall){
-	hRecAngle=0;hRecAngle = dbe_->book1D (pre+"_hRecAngle", "Distribution of Rec segment angles;angle (rad)",100, -3.5, 3.5);
-	hSimAngle=0;hSimAngle = dbe_->book1D (pre+"_hSimAngle", "Distribution of segment angles from SimHits;angle (rad)",100, -3.5, 3.5);
-	hRecVsSimAngle=0;hRecVsSimAngle = dbe_->book2D (pre+"_hRecVsSimAngle", "Rec angle vs sim angle;angle (rad)",100, -3.5, 3.5, 100, -3.5, 3.5);
+	hRecAngle=0;hRecAngle = dbe_->book1D (pre+"_hRecAngle", "Distribution of Rec segment angles;angle (rad)",100, -1.5, 1.5);
+	hSimAngle=0;hSimAngle = dbe_->book1D (pre+"_hSimAngle", "Distribution of segment angles from SimHits;angle (rad)",100, -1.5, 1.5);
+	hRecVsSimAngle=0;hRecVsSimAngle = dbe_->book2D (pre+"_hRecVsSimAngle", "Rec angle vs sim angle;angle (rad)",100, -1.5, 1.5, 100, -1.5, 1.5);
 	hResAngleVsEta=0;hResAngleVsEta   = dbe_->book2D (pre+"_hResAngleVsEta", "Residual on 2D segment angle vs Eta; #eta; res (rad)",100, -2.5, 2.5, 200, -0.2, 0.2);
 	hResAngleVsPhi=0;hResAngleVsPhi   = dbe_->book2D (pre+"_hResAngleVsPhi", "Residual on 2D segment angle vs Phi; #phi (rad);res (rad)",
 							  100, -3.2, 3.2, 150, -0.2, 0.2);
@@ -672,17 +672,17 @@ class HRes4DHit{
       
       dbe_->setCurrentFolder("DT/4DSegments/Res/");    
       if(doall){
-	hRecAlpha=0;hRecAlpha  = dbe_->book1D (pre+"_hRecAlpha", "4D RecHit alpha (RPhi) distribution;#alpha^{x} (rad)", 100, -3.5, 3.5);
-	hRecBeta=0;hRecBeta = dbe_->book1D (pre+"_hRecBeta", "4D RecHit beta distribution:#alpha^{y} (rad)", 100, -3.5, 3.5);
+	hRecAlpha=0;hRecAlpha  = dbe_->book1D (pre+"_hRecAlpha", "4D RecHit alpha (RPhi) distribution;#alpha^{x} (rad)", 100, -1.5, 1.5);
+	hRecBeta=0;hRecBeta = dbe_->book1D (pre+"_hRecBeta", "4D RecHit beta distribution:#alpha^{y} (rad)", 100, -1.5, 1.5);
 	
 	hSimAlpha=0;hSimAlpha = dbe_->book1D(pre+"_hSimAlpha", "4D segment from SimHit alpha (RPhi) distribution;i#alpha^{x} (rad)",
-					     100, -3.5, 3.5);
+					     100, -1.5, 1.5);
 	hSimBeta=0;hSimBeta = dbe_->book1D(pre+"_hSimBeta", "4D segment from SimHit beta distribution;#alpha^{y} (rad)",
-					   100, -3.5, 3.5);
+					   100, -1.5, 1.5);
 	hRecVsSimAlpha=0;hRecVsSimAlpha = dbe_->book2D(pre+"_hRecVsSimAlpha", "4D segment rec alpha {v}s sim alpha (RPhi);#alpha^{x} (rad)",
-						       100, -3.5, 3.5, 100, -3.5, 3.5);
+						       100, -1.5, 1.5, 100, -1.5, 1.5);
 	hRecVsSimBeta=0;hRecVsSimBeta = dbe_->book2D(pre+"_hRecVsSimBeta", "4D segment rec beta vs sim beta (RZ);#alpha^{y} (rad)",
-						     100, -3.5, 3.5, 100, -3.5, 3.5);
+						     100, -1.5, 1.5, 100, -1.5, 1.5);
 	
 	hResAlphaVsEta=0;hResAlphaVsEta = dbe_->book2D (pre+"_hResAlphaVsEta",
 							"4D RecHit residual on #alpha_x direction vs eta;#eta;#alpha^{x}_{rec}-#alpha^{x}_{sim} (rad)",
@@ -717,12 +717,12 @@ class HRes4DHit{
 	hResAlphaVsResY=0;hResAlphaVsResY = dbe_->book2D(pre+"_hResAlphaVsResY", "4D RecHit residual on alpha vs residual on y",
 							 150, -0.6, 0.6, 500, -0.15, 0.15);
 	
-	hRecBetaRZ=0;hRecBetaRZ        = dbe_->book1D (pre+"_hRecBetaRZ", "4D RecHit beta distribution:#alpha^{y} (rad)", 100, -3.5, 3.5);
+	hRecBetaRZ=0;hRecBetaRZ        = dbe_->book1D (pre+"_hRecBetaRZ", "4D RecHit beta distribution:#alpha^{y} (rad)", 100, -1.5, 1.5);
 	
 	hSimBetaRZ=0;hSimBetaRZ      = dbe_->book1D(pre+"_hSimBetaRZ", "4D segment from SimHit beta distribution in RZ SL;#alpha^{y} (rad)",
-						    100, -3.5, 3.5);
+						    100, -1.5, 1.5);
 	hRecVsSimBetaRZ=0;hRecVsSimBetaRZ = dbe_->book2D(pre+"_hRecVsSimBetaRZ", "4D segment rec beta vs sim beta (RZ) in RZ SL;#alpha^{y} (rad)",
-							 100, -3.5, 3.5, 100, -3.5, 3.5);
+							 100, -1.5, 1.5, 100, -1.5, 1.5);
 	
 	hResBetaVsEtaRZ=0;hResBetaVsEtaRZ = dbe_->book2D (pre+"_hResBetaVsEtaRZ",
 							  "4D RecHit residual on beta direction vs eta;#eta in RZ SL;#alpha^{y}_{rec}-#alpha^{y}_{sim} (rad)",

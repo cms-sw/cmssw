@@ -188,7 +188,7 @@ pair<double, double> DTHitQualityUtils::findSegmentAlphaAndBeta(const LocalVecto
   return make_pair(atan(direction.x()/direction.z()), atan(direction.y()/direction.z()));
 }
 
-//Find error on angle from localDirectionError, which is the error on tan(Angle) 
+//Find error on angle (squared) from localDirectionError, which is the error on tan(Angle) 
 double DTHitQualityUtils::sigmaAngle(double Angle, double sigma2TanAngle) {
 
   double XdivZ = tan(Angle);

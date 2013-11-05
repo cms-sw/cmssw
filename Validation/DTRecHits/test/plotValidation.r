@@ -279,8 +279,18 @@ void plotValidation(TString filename, int wheel, int station) {
     
     c1->Divide(2,2);
 
+    c1->cd(1);
+    hRes4D->hSimAlpha->SetLineColor(kGreen);
+    hRes4D->hSimAlpha->Draw();
+    hRes4D->hRecAlpha->Draw("same");
+
     c1->cd(2);  
     plotAndProfileX(hResPhi->hResVsAngle,1,1,1,-.04, .04, -1., 1.);
+
+    c1->cd(3);
+    hRes4D->hSimBetaRZ->SetLineColor(kGreen);
+    hRes4D->hSimBetaRZ->Draw();
+    hRes4D->hRecBetaRZ->Draw("same");
        
     c1->cd(4);
     plotAndProfileX(hResTheta->hResVsAngle,1,1,1,-.04, .04, -1.2.,1.2);
@@ -332,7 +342,7 @@ void plotValidation(TString filename, int wheel, int station) {
     TCanvas* c1= new TCanvas;
     c1->SetTitle(canvbasename+"_PullSeg"); 
     c1->SetName(canvbasename+"_PullSeg");
-    c1->Divide(2,3);
+    c1->Divide(2,2);
     c1->cd(1);
 
     hRes4D->hPullX->Rebin(2);
@@ -341,18 +351,21 @@ void plotValidation(TString filename, int wheel, int station) {
     hRes4D->hPullAlpha->Rebin(2);
     drawGFit(hRes4D->hPullAlpha, nsigma, -10., 10.);
     c1->cd(3);
-    hRes4D->hPullY->Rebin(2);
-    drawGFit(hRes4D->hPullY, nsigma, -10., 10.);
-    c1->cd(4);
-    hRes4D->hPullBeta->Rebin(2);
-    drawGFit(hRes4D->hPullBeta, nsigma, -10.,10.);  
-
-    c1->cd(5);
     hRes4D->hPullYRZ->Rebin(2);
     drawGFit(hRes4D->hPullYRZ, nsigma, -10., 10.);
-    c1->cd(6);
+    c1->cd(4);
     hRes4D->hPullBetaRZ->Rebin(2);
     drawGFit(hRes4D->hPullBetaRZ, nsigma, -10.,10.);
+
+    //Fixme: Move these to another canvas. Note that the error used for hPullY is not computed correctly.q
+//     c1->cd(3);
+//     hRes4D->hPullY->Rebin(2);
+//     drawGFit(hRes4D->hPullY, nsigma, -10., 10.);
+//     c1->cd(4);
+//     hRes4D->hPullBeta->Rebin(2);
+//     drawGFit(hRes4D->hPullBeta, nsigma, -10.,10.);  
+
+
   }
 
 
