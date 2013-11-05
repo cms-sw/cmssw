@@ -19,15 +19,15 @@ class HTrack{
   
   double resolution(double rec,double sim);
   
-  void computeResolution(FreeTrajectoryState& fts,
+  void computeResolution(const FreeTrajectoryState& fts,
 			 SimTrack &simTracks,
 			 HResolution* hReso);
   
-  void computeTDRResolution(FreeTrajectoryState& fts,
+  void computeTDRResolution(const FreeTrajectoryState& fts,
 			    SimTrack &simTracks,
 			    HResolution* hReso);
   
-  void computePull(FreeTrajectoryState& fts,
+  void computePull(const FreeTrajectoryState& fts,
 		   SimTrack &simTracks,
 		   HResolution* hReso); 
 
@@ -35,11 +35,11 @@ class HTrack{
   void computeResolutionAndPull(TrajectoryStateOnSurface &vtx,
 				SimTrack &simTrack);
 
-  void computeResolutionAndPull(FreeTrajectoryState& fts, 
+  void computeResolutionAndPull(const FreeTrajectoryState& fts, 
 				SimTrack& simTrack);
   
   void Fill(TrajectoryStateOnSurface &);
-  void Fill(FreeTrajectoryState &);
+  void Fill(const FreeTrajectoryState &);
   void FillDeltaR(double);
 
   double computeEfficiency(HTrackVariables *sim);
