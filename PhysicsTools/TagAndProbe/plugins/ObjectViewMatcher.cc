@@ -14,7 +14,7 @@
  *   - For example: can match a photon with track within a given deltaR.
  *   - Saves collection of the reference vectors of matched objects.
  * History:
- *   
+ *
  *
  *****************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -53,17 +54,17 @@ public:
   // construction/destruction
   ObjectViewMatcher(const edm::ParameterSet& iConfig);
   virtual ~ObjectViewMatcher();
-  
+
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
   void endJob() override;
 
-private:  
+private:
   // member data
-  edm::InputTag              srcCands_;
-  std::vector<edm::InputTag> srcObjects_;
+  edm::EDGetTokenT<edm::View<T1> >              srcCandsToken_;
+  std::vector<edm::EDGetTokenT<edm::View<T2> > > srcObjectsTokens_;
   double                     deltaRMax_;
-  
+
   std::string  moduleLabel_;
 
   StringCutObjectSelector<T1,true> objCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
@@ -83,8 +84,8 @@ private:
 //______________________________________________________________________________
 template<typename T1, typename T2>
 ObjectViewMatcher<T1, T2>::ObjectViewMatcher(const edm::ParameterSet& iConfig)
-  : srcCands_    (iConfig.getParameter<edm::InputTag>         ("srcObject"))
-  , srcObjects_ (iConfig.getParameter<std::vector<edm::InputTag> >("srcObjectsToMatch"))
+  : srcCandsToken_    (consumes<edm::View<T1> >(iConfig.getParameter<edm::InputTag>         ("srcObject")))
+  , srcObjectsTokens_ (edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("srcObjectsToMatch"), [this](edm::InputTag const & tag){return consumes<edm::View<T2> >(tag);}))
   , deltaRMax_  (iConfig.getParameter<double>                ("deltaRMax"))
   , moduleLabel_(iConfig.getParameter<std::string>                ("@module_label"))
   , objCut_(iConfig.existsAs<std::string>("srcObjectSelection") ? iConfig.getParameter<std::string>("srcObjectSelection") : "", true)
@@ -113,17 +114,17 @@ void ObjectViewMatcher<T1, T2>::produce(edm::Event& iEvent,const edm::EventSetup
   std::auto_ptr<std::vector<T1> > cleanObjects(new std::vector<T1 >);
 
   edm::Handle<edm::View<T1> > candidates;
-  iEvent.getByLabel(srcCands_,candidates);
-  
+  iEvent.getByToken(srcCandsToken_,candidates);
+
   bool* isMatch = new bool[candidates->size()];
   for (unsigned int iObject=0;iObject<candidates->size();iObject++) isMatch[iObject] = false;
-  
-  for (unsigned int iSrc=0;iSrc<srcObjects_.size();iSrc++) {
+
+  for (unsigned int iSrc=0;iSrc<srcObjectsTokens_.size();iSrc++) {
     edm::Handle<edm::View<T2> > objects;
-    iEvent.getByLabel(srcObjects_[iSrc],objects);
-   
+    iEvent.getByToken(srcObjectsTokens_[iSrc],objects);
+
     if(objects->size()==0) continue;
- 
+
     for (unsigned int iObject=0;iObject<candidates->size();iObject++) {
       const T1& candidate = candidates->at(iObject);
       if (!objCut_(candidate)) continue;
@@ -135,21 +136,21 @@ void ObjectViewMatcher<T1, T2>::produce(edm::Event& iEvent,const edm::EventSetup
 	double deltaR = reco::deltaR(candidate,obj);
 	if (deltaR<deltaRMax_)  isMatch[iObject] = true;
       }
-    } 
+    }
   }
-  
 
-  
+
+
   unsigned int counter=0;
   typename edm::View<T1>::const_iterator tIt, endcands = candidates->end();
   for (tIt = candidates->begin(); tIt != endcands; ++tIt, ++counter) {
-    if(isMatch[counter]) cleanObjects->push_back( *tIt );  
+    if(isMatch[counter]) cleanObjects->push_back( *tIt );
   }
 
   nObjectsTot_  +=candidates->size();
   nObjectsMatch_+=cleanObjects->size();
 
-  delete [] isMatch;  
+  delete [] isMatch;
   iEvent.put(cleanObjects);
 }
 

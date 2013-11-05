@@ -17,7 +17,7 @@ class JetChargeProducer : public edm::EDProducer {
         explicit JetChargeProducer(const edm::ParameterSet &cfg) ;
         virtual void produce(edm::Event&, const edm::EventSetup&);
     private:
-        edm::InputTag src_;
+        edm::EDGetTokenT<reco::JetTracksAssociationCollection> srcToken_;
         JetCharge     algo_;
 };
 

@@ -2,7 +2,7 @@
 //
 // Package:    PatJPsiProducer
 // Class:      PatJPsiProducer
-// 
+//
 /**\class PatJPsiProducer PatJPsiProducer.cc Analysis/PatJPsiProducer/src/PatJPsiProducer.cc
 
  Description: <one line class summary>
@@ -56,10 +56,10 @@ class PatJPsiProducer : public edm::EDProducer {
       virtual void beginJob() override ;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
-      
+
       // ----------member data ---------------------------
 
-  edm::InputTag    muonSrc_;
+  edm::EDGetTokenT<edm::View<pat::Muon> >    muonSrcToken_;
 };
 
 //
@@ -75,16 +75,16 @@ class PatJPsiProducer : public edm::EDProducer {
 // constructors and destructor
 //
 PatJPsiProducer::PatJPsiProducer(const edm::ParameterSet& iConfig) :
-  muonSrc_ ( iConfig.getParameter<edm::InputTag>("muonSrc") )
+  muonSrcToken_ ( consumes<edm::View<pat::Muon> >( iConfig.getParameter<edm::InputTag>("muonSrc") ) )
 {
   produces<std::vector<pat::CompositeCandidate> > ();
-  
+
 }
 
 
 PatJPsiProducer::~PatJPsiProducer()
 {
- 
+
 }
 
 
@@ -99,14 +99,14 @@ PatJPsiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::auto_ptr<std::vector<pat::CompositeCandidate> > jpsiCands( new std::vector<pat::CompositeCandidate> );
   edm::Handle<edm::View<pat::Muon> > h_muons;
-  iEvent.getByLabel( muonSrc_, h_muons );
+  iEvent.getByToken( muonSrcToken_, h_muons );
 
   // const double MUON_MASS = 0.106;
   const double JPSI_MASS = 3.097;
 
-	
+
   if ( h_muons.isValid() && h_muons->size() > 1 ) {
-    
+
     for ( edm::View<pat::Muon>::const_iterator muonsBegin = h_muons->begin(),
 	    muonsEnd = h_muons->end(), imuon = muonsBegin;
 	  imuon != muonsEnd - 1; ++imuon ) {
@@ -136,19 +136,19 @@ PatJPsiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
   }
-  
+
   iEvent.put( jpsiCands );
- 
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 PatJPsiProducer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 PatJPsiProducer::endJob() {
 }
 

@@ -1,7 +1,7 @@
 #include "PhysicsTools/TagAndProbe/interface/TPTreeFiller.h"
 
-tnp::TPTreeFiller::TPTreeFiller(const edm::ParameterSet& config) :
-    tnp::BaseTreeFiller("fitter_tree",config) 
+tnp::TPTreeFiller::TPTreeFiller(const edm::ParameterSet& config, edm::ConsumesCollector & iC) :
+    tnp::BaseTreeFiller("fitter_tree",config, iC)
 {
     // Add extra branch for the mass
     tree_->Branch("mass",   &mass_,   "mass/F");

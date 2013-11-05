@@ -2,10 +2,10 @@
 #define UtilAlgos_NtpProducer_h
 /** \class NtpProducer
  *
- * Creates histograms defined in config file 
+ * Creates histograms defined in config file
  *
  * \author: Luca Lista, INFN
- * 
+ *
  * Template parameters:
  * - C : Concrete candidate collection type
  *
@@ -23,31 +23,31 @@ public:
   NtpProducer( const edm::ParameterSet& );
   /// destructor
   ~NtpProducer();
-  
+
 protected:
   /// process an event
   virtual void produce( edm::Event&, const edm::EventSetup& );
 
 private:
   /// label of the collection to be read in
-  edm::InputTag src_;
+  edm::EDGetTokenT<C> srcToken_;
   /// variable tags
   std::vector<std::pair<std::string, StringObjectFunction<typename C::value_type> > > tags_;
 };
 
 template<typename C>
-NtpProducer<C>::NtpProducer( const edm::ParameterSet& par ) : 
-  src_( par.template getParameter<edm::InputTag>( "src" ) ) {
-   std::vector<edm::ParameterSet> variables = 
+NtpProducer<C>::NtpProducer( const edm::ParameterSet& par ) :
+  srcToken_( consumes<C>(par.template getParameter<edm::InputTag>( "src" ) ) ) {
+   std::vector<edm::ParameterSet> variables =
                                    par.template getParameter<std::vector<edm::ParameterSet> >("variables");
-   std::vector<edm::ParameterSet>::const_iterator 
+   std::vector<edm::ParameterSet>::const_iterator
      q = variables.begin(), end = variables.end();
    for (; q!=end; ++q) {
      std::string tag = q->getUntrackedParameter<std::string>("tag");
      StringObjectFunction<typename C::value_type> quantity(q->getUntrackedParameter<std::string>("quantity"));
      tags_.push_back(std::make_pair(tag, quantity));
      produces<std::vector<float> >(tag).setBranchAlias(tag);
-   }   
+   }
 }
 
 template<typename C>
@@ -57,9 +57,9 @@ NtpProducer<C>::~NtpProducer() {
 template<typename C>
 void NtpProducer<C>::produce( edm::Event& iEvent, const edm::EventSetup& ) {
    edm::Handle<C> coll;
-   iEvent.getByLabel(src_, coll);
+   iEvent.getByToken(srcToken_, coll);
 
-   typename std::vector<std::pair<std::string, StringObjectFunction<typename C::value_type> > >::const_iterator 
+   typename std::vector<std::pair<std::string, StringObjectFunction<typename C::value_type> > >::const_iterator
      q = tags_.begin(), end = tags_.end();
    for(;q!=end; ++q) {
      std::auto_ptr<std::vector<float> > x(new std::vector<float>);

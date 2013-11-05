@@ -2,15 +2,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/METReco/interface/METCollection.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETCollection.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "PhysicsTools/TagAndProbe/interface/ColinsSoperVariables.h"
 
 #include <TList.h>
@@ -23,7 +14,7 @@ tnp::ProbeFlag::~ProbeFlag() {}
 void tnp::ProbeFlag::init(const edm::Event &iEvent) const {
     if (external_) {
         edm::Handle<edm::View<reco::Candidate> > view;
-        iEvent.getByLabel(src_, view);
+        iEvent.getByToken(srcToken_, view);
         passingProbes_.clear();
         for (size_t i = 0, n = view->size(); i < n; ++i) passingProbes_.push_back(view->refAt(i));
     }
@@ -38,21 +29,21 @@ void tnp::ProbeFlag::fill(const reco::CandidateBaseRef &probe) const {
     }
 }
 
-tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet& iConfig) {
+tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet& iConfig, edm::ConsumesCollector & iC) {
     // make trees as requested
     edm::Service<TFileService> fs;
     tree_ = fs->make<TTree>(name,name);
 
     // add the branches
-    addBranches_(tree_, iConfig, "");
+    addBranches_(tree_, iConfig, iC, "");
 
     // set up weights, if needed
-    if (iConfig.existsAs<double>("eventWeight")) { 
+    if (iConfig.existsAs<double>("eventWeight")) {
         weightMode_ = Fixed;
         weight_ = iConfig.getParameter<double>("eventWeight");
-    } else if (iConfig.existsAs<edm::InputTag>("eventWeight")) { 
+    } else if (iConfig.existsAs<edm::InputTag>("eventWeight")) {
         weightMode_ = External;
-        weightSrc_ = iConfig.getParameter<edm::InputTag>("eventWeight");
+        weightSrcToken_ = iC.consumes<double>(iConfig.getParameter<edm::InputTag>("eventWeight"));
     } else {
         weightMode_ = None;
     }
@@ -67,7 +58,12 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet& i
          tree_->Branch("event", &event_, "event/i");
     }
     addEventVariablesInfo_ = iConfig.existsAs<bool>("addEventVariablesInfo") ? iConfig.getParameter<bool>("addEventVariablesInfo") : false;
-    if (addEventVariablesInfo_) {      
+    if (addEventVariablesInfo_) {
+      recVtxsToken_ = iC.consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+      beamSpotToken_ = iC.consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+      metToken_ = iC.consumes<reco::CaloMETCollection>(edm::InputTag("met"));
+      tcmetToken_ = iC.consumes<reco::METCollection>(edm::InputTag("tcMet"));
+      pfmetToken_ = iC.consumes<reco::PFMETCollection>(edm::InputTag("pfMet"));
       tree_->Branch("event_nPV"        ,&mNPV_                 ,"mNPV/I");
       tree_->Branch("event_met_calomet"    ,&mMET_                ,"mMET/F");
       tree_->Branch("event_met_calosumet"  ,&mSumET_              ,"mSumET/F");
@@ -89,15 +85,15 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet& i
     ignoreExceptions_ = iConfig.existsAs<bool>("ignoreExceptions") ? iConfig.getParameter<bool>("ignoreExceptions") : false;
 }
 
-tnp::BaseTreeFiller::BaseTreeFiller(BaseTreeFiller &main, const edm::ParameterSet &iConfig, const std::string &branchNamePrefix) :
+tnp::BaseTreeFiller::BaseTreeFiller(BaseTreeFiller &main, const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC, const std::string &branchNamePrefix) :
     addEventVariablesInfo_(false),
     tree_(0)
 {
-    addBranches_(main.tree_, iConfig, branchNamePrefix);
+    addBranches_(main.tree_, iConfig, iC, branchNamePrefix);
 }
 
 void
-tnp::BaseTreeFiller::addBranches_(TTree *tree, const edm::ParameterSet &iConfig, const std::string &branchNamePrefix) {
+tnp::BaseTreeFiller::addBranches_(TTree *tree, const edm::ParameterSet &iConfig, edm::ConsumesCollector & iC, const std::string &branchNamePrefix) {
     // set up variables
     edm::ParameterSet variables = iConfig.getParameter<edm::ParameterSet>("variables");
     //.. the ones that are strings
@@ -108,7 +104,7 @@ tnp::BaseTreeFiller::addBranches_(TTree *tree, const edm::ParameterSet &iConfig,
     //.. the ones that are InputTags
     std::vector<std::string> inputTagVars = variables.getParameterNamesForType<edm::InputTag>();
     for (std::vector<std::string>::const_iterator it = inputTagVars.begin(), ed = inputTagVars.end(); it != ed; ++it) {
-        vars_.push_back(tnp::ProbeVariable(branchNamePrefix + *it, variables.getParameter<edm::InputTag>(*it)));
+        vars_.push_back(tnp::ProbeVariable(branchNamePrefix + *it, iC.consumes<edm::ValueMap<float> >(variables.getParameter<edm::InputTag>(*it))));
     }
     // set up flags
     edm::ParameterSet flags = iConfig.getParameter<edm::ParameterSet>("flags");
@@ -120,18 +116,18 @@ tnp::BaseTreeFiller::addBranches_(TTree *tree, const edm::ParameterSet &iConfig,
     //.. the ones that are InputTags
     std::vector<std::string> inputTagFlags = flags.getParameterNamesForType<edm::InputTag>();
     for (std::vector<std::string>::const_iterator it = inputTagFlags.begin(), ed = inputTagFlags.end(); it != ed; ++it) {
-        flags_.push_back(tnp::ProbeFlag(branchNamePrefix + *it, flags.getParameter<edm::InputTag>(*it)));
+        flags_.push_back(tnp::ProbeFlag(branchNamePrefix + *it, iC.consumes<edm::View<reco::Candidate> >(flags.getParameter<edm::InputTag>(*it))));
     }
 
     // then make all the variables in the trees
     for (std::vector<tnp::ProbeVariable>::iterator it = vars_.begin(), ed = vars_.end(); it != ed; ++it) {
         tree->Branch(it->name().c_str(), it->address(), (it->name()+"/F").c_str());
     }
-    
+
     for (std::vector<tnp::ProbeFlag>::iterator it = flags_.begin(), ed = flags_.end(); it != ed; ++it) {
         tree->Branch(it->name().c_str(), it->address(), (it->name()+"/I").c_str());
     }
-    
+
 }
 
 tnp::BaseTreeFiller::~BaseTreeFiller() { }
@@ -139,7 +135,7 @@ tnp::BaseTreeFiller::~BaseTreeFiller() { }
 void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
     run_  = iEvent.id().run();
     lumi_ = iEvent.id().luminosityBlock();
-    event_ = iEvent.id().event(); 
+    event_ = iEvent.id().event();
 
     for (std::vector<tnp::ProbeVariable>::const_iterator it = vars_.begin(), ed = vars_.end(); it != ed; ++it) {
         it->init(iEvent);
@@ -149,7 +145,7 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
     }
     if (weightMode_ == External) {
         edm::Handle<double> weight;
-        iEvent.getByLabel(weightSrc_, weight);
+        iEvent.getByToken(weightSrcToken_, weight);
         weight_ = *weight;
     }
 
@@ -157,15 +153,15 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
         /// *********** store some event variables: MET, SumET ******
         //////////// Primary vertex //////////////
         edm::Handle<reco::VertexCollection> recVtxs;
-        iEvent.getByLabel("offlinePrimaryVertices",recVtxs);
+        iEvent.getByToken(recVtxsToken_,recVtxs);
         mNPV_ = 0;
         mPVx_ =  100.0;
         mPVy_ =  100.0;
         mPVz_ =  100.0;
 
         for(unsigned int ind=0;ind<recVtxs->size();ind++) {
-          if (!((*recVtxs)[ind].isFake()) && ((*recVtxs)[ind].ndof()>4) 
-              && (fabs((*recVtxs)[ind].z())<=24.0) &&  
+          if (!((*recVtxs)[ind].isFake()) && ((*recVtxs)[ind].ndof()>4)
+              && (fabs((*recVtxs)[ind].z())<=24.0) &&
               ((*recVtxs)[ind].position().Rho()<=2.0) ) {
             mNPV_++;
             if(mNPV_==1) { // store the first good primary vertex
@@ -179,7 +175,7 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
 
         //////////// Beam spot //////////////
         edm::Handle<reco::BeamSpot> beamSpot;
-        iEvent.getByLabel("offlineBeamSpot", beamSpot);
+        iEvent.getByToken(beamSpotToken_, beamSpot);
         mBSx_ = beamSpot->position().X();
         mBSy_ = beamSpot->position().Y();
         mBSz_ = beamSpot->position().Z();
@@ -187,7 +183,7 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
 
         ////////////// CaloMET //////
         edm::Handle<reco::CaloMETCollection> met;
-        iEvent.getByLabel("met",met);
+        iEvent.getByToken(metToken_,met);
         if (met->size() == 0) {
           mMET_   = -1;
           mSumET_ = -1;
@@ -201,7 +197,7 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
 
         /////// TcMET information /////
         edm::Handle<reco::METCollection> tcmet;
-        iEvent.getByLabel("tcMet", tcmet);
+        iEvent.getByToken(tcmetToken_, tcmet);
         if (tcmet->size() == 0) {
           mtcMET_   = -1;
           mtcSumET_ = -1;
@@ -215,7 +211,7 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
 
         /////// PfMET information /////
         edm::Handle<reco::PFMETCollection> pfmet;
-        iEvent.getByLabel("pfMet", pfmet);
+        iEvent.getByToken(pfmetToken_, pfmet);
         if (pfmet->size() == 0) {
           mpfMET_   = -1;
           mpfSumET_ = -1;

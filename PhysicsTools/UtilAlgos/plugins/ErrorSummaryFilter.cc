@@ -44,7 +44,7 @@ private:
   virtual bool filter(edm::Event&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
-  edm::InputTag src_;
+  edm::EDGetTokenT<std::vector<edm::ErrorSummaryEntry> > srcToken_;
   std::vector<std::string> modules_;
   std::string severityName_;
   std::vector<std::string> avoidCategories_;
@@ -64,9 +64,9 @@ private:
 // constructors and destructor
 //
 ErrorSummaryFilter::ErrorSummaryFilter(edm::ParameterSet const& iConfig) :
-  src_(iConfig.getParameter<edm::InputTag>("src")),
+  srcToken_(consumes<std::vector<edm::ErrorSummaryEntry> >(iConfig.getParameter<edm::InputTag>("src"))),
   modules_(iConfig.getParameter<std::vector<std::string> >("modules")),
-  severityName_(iConfig.getParameter<std::string>("severity")), 
+  severityName_(iConfig.getParameter<std::string>("severity")),
   avoidCategories_(iConfig.getParameter<std::vector<std::string> >("avoidCategories"))
 {
   if (!(severityName_ == "error" || severityName_ == "warning") ) { throw edm::Exception(edm::errors::Configuration) << "Severity parameter needs to be 'error' or 'warning'.\n"; }
@@ -89,21 +89,21 @@ ErrorSummaryFilter::~ErrorSummaryFilter() {
 bool
 ErrorSummaryFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   edm::Handle<std::vector<edm::ErrorSummaryEntry> > errorSummaryEntry;
-  iEvent.getByLabel(src_,errorSummaryEntry);
+  iEvent.getByToken(srcToken_,errorSummaryEntry);
 
   for (ErrorSummaryEntries::const_iterator i = errorSummaryEntry->begin(), end = errorSummaryEntry->end(); i != end; ++i) {
-    if (std::find(modules_.begin(),modules_.end(), i->module) != modules_.end()) { 
-      if (std::find(avoidCategories_.begin(),avoidCategories_.end(), i->category) != avoidCategories_.end()){ 
+    if (std::find(modules_.begin(),modules_.end(), i->module) != modules_.end()) {
+      if (std::find(avoidCategories_.begin(),avoidCategories_.end(), i->category) != avoidCategories_.end()){
         continue;
       } else {
 	edm::ELseverityLevel const& severity = i->severity;
         if (severityName_ == "error") {
-          if (severity.getLevel() == edm::ELseverityLevel::ELsev_error || 
+          if (severity.getLevel() == edm::ELseverityLevel::ELsev_error ||
               severity.getLevel() == edm::ELseverityLevel::ELsev_warning) {return (false);}
         } else if (severityName_ == "warning") {
   	  if (severity.getLevel() == edm::ELseverityLevel::ELsev_warning) {return (false);}
         } else { continue; }
-      } 
+      }
     }
   }
   return (true);
