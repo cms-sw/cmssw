@@ -77,10 +77,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_enable_dqm_bymoduletype(     config.getUntrackedParameter<bool>(     "enableDQMbyModuleType"    ) ),
   m_enable_dqm_summary(          config.getUntrackedParameter<bool>(     "enableDQMSummary"         ) ),
   m_enable_dqm_byluminosity(     config.getUntrackedParameter<bool>(     "enableDQMbyLuminosity"    ) ),   
-  m_enable_dqm_byls(             config.existsAs<bool>("enableDQMbyLumiSection", false) ? 
-                                    config.getUntrackedParameter<bool>("enableDQMbyLumiSection") : 
-                                    ( edm::LogWarning("Configuration") << "enableDQMbyLumi is deprecated, please use enableDQMbyLumiSection instead", config.getUntrackedParameter<bool>("enableDQMbyLumi") ) 
-                                 ),
+  m_enable_dqm_byls(             config.getUntrackedParameter<bool>(     "enableDQMbyLumiSection"   ) ),   
   m_enable_dqm_bynproc(          config.getUntrackedParameter<bool>(     "enableDQMbyProcesses"     ) ),
   m_nproc_enabled(               false ),
   m_dqm_eventtime_range(         config.getUntrackedParameter<double>(   "dqmTimeRange"             ) ),            // ms
@@ -1450,10 +1447,7 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<bool>(   "enableDQMbyModuleType",    false);
   desc.addUntracked<bool>(   "enableDQMSummary",         false);
   desc.addUntracked<bool>(   "enableDQMbyLuminosity",    false);
-  desc.addNode(
-    edm::ParameterDescription<bool>(   "enableDQMbyLumiSection", false, false) or
-    edm::ParameterDescription<bool>(   "enableDQMbyLumi",        false, false)
-  );
+  desc.addUntracked<bool>(   "enableDQMbyLumiSection",   false);
   desc.addUntracked<bool>(   "enableDQMbyProcesses",     false);
   desc.addUntracked<double>( "dqmTimeRange",             1000. );   // ms
   desc.addUntracked<double>( "dqmTimeResolution",           5. );   // ms
