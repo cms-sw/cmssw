@@ -34,7 +34,20 @@ public:
   bool isSimTrackGood(const SimTrack& );
   void setGeometry(const GEMGeometry* geom) { theGEMGeometry = geom; }
 
-  TH1F** GetDgEta() { return dg_eta; }
+  TH1F** GetDgEta()  { return dg_eta;    }
+  TH1F** GetPadEta() { return pad_eta;   }
+  TH1F** GetShEta()  { return dg_sh_eta; }
+
+  TH1F** GetDgPhi()  { return dg_phi;    }
+  TH1F** GetPadPhi() { return pad_phi;   }
+  TH1F** GetShPhi()  { return dg_sh_phi; }
+
+
+  TH1F* GetTrackEta()  { return track_eta; }
+  TH1F* GetTrackDgEta()  { return track_dg_eta; }
+  TH1F* GetTrackShEta()  { return track_sh_eta; }
+  TH1F* GetTrackPhi()  { return track_phi; }
+
  private:
 
   edm::ParameterSet cfg_;
@@ -47,48 +60,26 @@ public:
   TH1F* track_eta;
   TH1F* track_phi;
 
+  TH1F* track_dg_eta;
+  TH1F* track_sh_eta;
+
   TH1F* dg_eta[4];
 
 
-  TH1F* dg_sh_eta_l1; 
-  TH1F* dg_sh_eta_l2; 
-  TH1F* dg_sh_eta_l1or2;
-  TH1F* dg_sh_eta_l1and2; 
+  TH1F* dg_sh_eta[4]; 
 
 
-  TH1F* dg_phi_l1;
-  TH1F* dg_phi_l2;
-  TH1F* dg_phi_l1or2; 
-  TH1F* dg_phi_l1and2;
+  TH1F* dg_phi[4];
   
-  TH1F* dg_sh_phi_l1; 
-  TH1F* dg_sh_phi_l2; 
-  TH1F* dg_sh_phi_l1or2;
-  TH1F* dg_sh_phi_l1and2; 
+  TH1F* dg_sh_phi[4]; 
 
-  TH1F* pad_eta_l1;
-  TH1F* pad_eta_l2;
-  TH1F* pad_eta_l1or2;
+  TH1F* pad_eta[4];
 
-  TH1F* pad_phi_l1;
-  TH1F* pad_phi_l2;
-  TH1F* pad_phi_l1or2;
-
-  TH1F* pad_sh_eta_l1;
-  TH1F* pad_sh_eta_l2;
-  TH1F* pad_sh_eta_l1or2; 
-
-  TH1F* pad_sh_phi_l1;
-  TH1F* pad_sh_phi_l2;
-  TH1F* pad_sh_phi_l1or2; 
+  TH1F* pad_phi[4];
 
 
-  TH1F* copad_eta_l1and2; 
-  TH1F* copad_phi_l1and2; 
-  
 
-  TH1F* copad_sh_eta_l1and2;
-  TH1F* copad_sh_phi_l1and2;
+
 
   
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
