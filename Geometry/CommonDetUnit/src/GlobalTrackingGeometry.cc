@@ -7,6 +7,7 @@
 
 #include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
 #include <FWCore/Utilities/interface/Exception.h>
+#include <memory>
 
 GlobalTrackingGeometry::GlobalTrackingGeometry(std::vector<const TrackingGeometry*>& geos)
     : theGeometries(geos),
@@ -67,7 +68,7 @@ const TrackingGeometry::DetTypeContainer&
 GlobalTrackingGeometry::detTypes( void ) const
 {    
    if (!theDetTypes.load(std::memory_order_acquire)) {
-       auto ptr = new DetTypeContainer();
+       std::unique_ptr<DetTypeContainer> ptr{new DetTypeContainer()};
        for( auto geom = theGeometries.cbegin(), geomEnd = theGeometries.cend(); geom != geomEnd; ++geom )
        {
         if( *geom == 0 ) continue;
@@ -77,8 +78,8 @@ GlobalTrackingGeometry::detTypes( void ) const
           ptr->push_back( *detType );
        }
        DetTypeContainer* expect = nullptr;
-       bool exchanged = theDetTypes.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
-       if(!exchanged) delete ptr;
+       bool exchanged = theDetTypes.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel);
+       if(!exchanged) ptr.reset();
    }
    return *theDetTypes.load(std::memory_order_acquire);
 }
@@ -87,7 +88,7 @@ const TrackingGeometry::DetUnitContainer&
 GlobalTrackingGeometry::detUnits( void ) const
 {
    if (!theDetUnits.load(std::memory_order_acquire)) {
-       auto ptr = new DetUnitContainer();
+       std::unique_ptr<DetUnitContainer> ptr{new DetUnitContainer()};
        for( auto geom = theGeometries.cbegin(), geomEnd = theGeometries.cend(); geom != geomEnd; ++geom )
        {
         if( *geom == 0 ) continue;
@@ -97,8 +98,8 @@ GlobalTrackingGeometry::detUnits( void ) const
           ptr->push_back( *detUnit );
        }
        DetUnitContainer* expect = nullptr;
-       bool exchanged = theDetUnits.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
-       if(!exchanged) delete ptr;
+       bool exchanged = theDetUnits.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel);
+       if(!exchanged) ptr.reset();
    }
    return *theDetUnits.load(std::memory_order_acquire);
 }
@@ -107,7 +108,7 @@ const TrackingGeometry::DetContainer&
 GlobalTrackingGeometry::dets( void ) const
 {
    if (!theDets.load(std::memory_order_acquire)) {
-       auto ptr = new DetContainer();
+       std::unique_ptr<DetContainer> ptr{new DetContainer()};
        for( auto geom = theGeometries.cbegin(), geomEnd = theGeometries.cend(); geom != geomEnd; ++geom )
        {
         if( *geom == 0 ) continue;
@@ -117,8 +118,8 @@ GlobalTrackingGeometry::dets( void ) const
           ptr->push_back( *det );
        }
        DetContainer* expect = nullptr;
-       bool exchanged = theDets.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
-       if(!exchanged) delete ptr;
+       bool exchanged = theDets.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel);
+       if(!exchanged) ptr.reset();
    }
    return *theDets.load(std::memory_order_acquire);
 }
@@ -127,7 +128,7 @@ const TrackingGeometry::DetIdContainer&
 GlobalTrackingGeometry::detUnitIds( void ) const
 {
    if (!theDetUnitIds.load(std::memory_order_acquire)) {
-       auto ptr = new DetIdContainer();
+       std::unique_ptr<DetIdContainer> ptr{new DetIdContainer()};
        for( auto geom = theGeometries.cbegin(), geomEnd = theGeometries.cend(); geom != geomEnd; ++geom )
        {
         if( *geom == 0 ) continue;
@@ -137,8 +138,8 @@ GlobalTrackingGeometry::detUnitIds( void ) const
           ptr->push_back( *detUnitId );
        }
        DetIdContainer* expect = nullptr;
-       bool exchanged = theDetUnitIds.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
-       if(!exchanged) delete ptr;
+       bool exchanged = theDetUnitIds.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel);
+       if(!exchanged) ptr.reset();
    }
    return *theDetUnitIds.load(std::memory_order_acquire);
 }
@@ -147,7 +148,7 @@ const TrackingGeometry::DetIdContainer&
 GlobalTrackingGeometry::detIds( void ) const
 {
    if (!theDetIds.load(std::memory_order_acquire)) {
-       auto ptr = new DetIdContainer();
+       std::unique_ptr<DetIdContainer> ptr{new DetIdContainer()};
        for( auto geom = theGeometries.cbegin(), geomEnd = theGeometries.cend(); geom != geomEnd; ++geom )
        {
         if( *geom == 0 ) continue;
@@ -157,8 +158,8 @@ GlobalTrackingGeometry::detIds( void ) const
           ptr->push_back( *detId );
        }
        DetIdContainer* expect = nullptr;
-       bool exchanged = theDetIds.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
-       if(!exchanged) delete ptr;
+       bool exchanged = theDetIds.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel);
+       if(!exchanged) ptr.reset();
    }
    return *theDetIds.load(std::memory_order_acquire);
 }
