@@ -280,11 +280,11 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if ( useDCC ) {   
     edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
     e.getByLabel(dcc_label,l1DTTPGPh);
-    vector<L1MuDTChambPhDigi>*  l1PhTrig = l1DTTPGPh->getContainer();
+    vector<L1MuDTChambPhDigi> const*  l1PhTrig = l1DTTPGPh->getContainer();
 
     edm::Handle<L1MuDTChambThContainer> l1DTTPGTh;
     e.getByLabel(dcc_label,l1DTTPGTh);
-    vector<L1MuDTChambThDigi>*  l1ThTrig = l1DTTPGTh->getContainer();
+    vector<L1MuDTChambThDigi> const*  l1ThTrig = l1DTTPGTh->getContainer();
 
     runDCCAnalysis(l1PhTrig,l1ThTrig);
   }  
@@ -508,8 +508,8 @@ void DTLocalTriggerTask::bookWheelHistos(int wh, string histoTag) {
 
 }
 
-void DTLocalTriggerTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi>* phTrigs, 
-					 std::vector<L1MuDTChambThDigi>* thTrigs ){
+void DTLocalTriggerTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi> const* phTrigs, 
+					 std::vector<L1MuDTChambThDigi> const* thTrigs ){
 
   string histoType ;
   string histoTag ;

@@ -55,8 +55,8 @@ class L1TDTTF : public edm::EDAnalyzer {
  private:
 
 
-  void fillMEs( std::vector<L1MuDTTrackCand> * trackContainer,
-		std::vector<L1MuRegionalCand> & gmtDttfCands );
+  void fillMEs( std::vector<L1MuDTTrackCand> const* trackContainer,
+		std::vector<L1MuRegionalCand>& gmtDttfCands );
   void setWheelLabel(MonitorElement *me);
   void setQualLabel(MonitorElement *me, int axis);
   void bookEta( int wh, int & nbins, float & start, float & stop );

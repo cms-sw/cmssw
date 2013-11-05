@@ -40,8 +40,22 @@ generalTracks = cms.EDAlias(
     mix = cms.VPSet( cms.PSet(type=cms.string('recoTracks') ) )
     )
 
+
 from SimGeneral.MixingModule.ecalDigitizer_cfi import *
-from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
+import SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff
+ecal_digi_parameters =SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff.ecal_digi_parameters.clone()
+ecal_digi_parameters.hitsProducer = cms.string('famosSimHits')
+
+ecalDigitizer = cms.PSet(ecal_digi_parameters,####FastSim,
+                         apd_sim_parameters,
+                         ecal_electronics_sim,
+                         ecal_cosmics_sim,
+                         ecal_sim_parameter_map,
+                         ecal_notCont_sim,
+                         es_electronics_sim,
+                         accumulatorType = cms.string("EcalDigiProducer"),
+                         makeDigiSimLinks = cms.untracked.bool(False)
+                         )
 
 import SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi 
 hcalSimBlockFastSim = SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi.hcalSimBlock.clone()
@@ -55,92 +69,40 @@ from FastSimulation.Tracking.recoTrackAccumulator_cfi import *
 
 from FastSimulation.Configuration.mixFastSimObjects_cfi import *
 
-mixSimCaloHits = cms.EDProducer("MixingModule", #remove?
-                                digitizers = cms.PSet(ecal = cms.PSet(ecalDigitizer),
-                                                      hcal = cms.PSet(hcalDigitizer)),
-                                LabelPlayback = cms.string(''),
-                                maxBunch = cms.int32(0),
-                                minBunch = cms.int32(0),
-                                bunchspace = cms.int32(25),
-                                checktof = cms.bool(False),
-                                playback = cms.untracked.bool(False),
-                                mixProdStep1 = cms.bool(False),
-                                mixProdStep2 = cms.bool(False),
-                                input = cms.SecSource("PoolSource",
-                                                      type = cms.string('probFunction'),
-                                                      nbPileupEvents = cms.PSet(
-    probFunctionVariable = cms.vint32(),
-    probValue = cms.vdouble(),
-    histoFileName = cms.untracked.string('histProbFunction.root'),
-    ),
-                                                      sequential = cms.untracked.bool(False),
-                                                      manage_OOT = cms.untracked.bool(False),  ## manage out-of-time pileup
-                                                      ## setting this to True means that the out-of-time pileup
-                                                      ## will have a different distribution than in-time, given
-                                                      ## by what is described on the next line:
-                                                      OOT_type = cms.untracked.string('None'),  ## generate OOT with a Poisson matching the number chosen for in-time
-                                                      #OOT_type = cms.untracked.string('fixed'),  ## generate OOT with a fixed distribution
-                                                      #intFixed_OOT = cms.untracked.int32(2),
-                                                      fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/user/federica/FastSim/MinBias_620/MinBias_8TeV_cfi_GEN_SIM_RECO.root'),
-                                                      
-                                                      #fileNames = cms.untracked.vstring('/store/relval/CMSSW_6_2_0_pre3-START61_V11/RelValProdMinBias/GEN-SIM-RAW/v1/00000/4E330A0D-BA82-E211-9A0A-003048F23D68.root',
-                                                      #  '/store/relval/CMSSW_6_2_0_pre3-START61_V11/RelValProdMinBias/GEN-SIM-RAW/v1/00000/DEFF70AE-B982-E211-9C0F-003048F1C4B6.root'), # from FullSim
-                                                      ),
-                                mixObjects = cms.PSet(
-    mixSH = cms.PSet(
-    mixSimHits
-    ),
-    mixVertices = cms.PSet(
-    mixSimVertices
-    ),
-    mixCH = cms.PSet(
-    mixCaloHits
-    ),
-    mixMuonTracks = cms.PSet( 
-    mixMuonSimTracks
-    ),
-    mixTracks = cms.PSet(
-    mixSimTracks
-    ),
-    mixHepMC = cms.PSet(
-    mixHepMCProducts
-    )
-    )
-)
-
-
 mix = cms.EDProducer("MixingModule",
                      digitizers = cms.PSet(ecal = cms.PSet(ecalDigitizer),
                                            hcal = cms.PSet(hcalDigitizer),
                                            tracker = cms.PSet(trackAccumulator)),
                      LabelPlayback = cms.string(''),
                      maxBunch = cms.int32(0),
-                     minBunch = cms.int32(0),
-                     bunchspace = cms.int32(50),
-                     checktof = cms.bool(False),
-                     playback = cms.untracked.bool(False),
+                     minBunch = cms.int32(0), ## -4in terms of 25nsec
+
+                     bunchspace = cms.int32(250), ##ns
                      mixProdStep1 = cms.bool(False),
                      mixProdStep2 = cms.bool(False),
+
+                     #checktof = cms.bool(False),
+                     playback = cms.untracked.bool(False),
+                     useCurrentProcessOnly = cms.bool(False),
+                     
                      input = cms.SecSource("PoolSource",
-                                           type = cms.string('probFunction'),
-                                           nbPileupEvents = cms.PSet(
-    probFunctionVariable = cms.vint32(),
-    probValue = cms.vdouble(),
-    histoFileName = cms.untracked.string('histProbFunction.root'),
-    ),
-                                           sequential = cms.untracked.bool(False),
-                                           manage_OOT = cms.untracked.bool(False),  ## manage out-of-time pileup
+                         nbPileupEvents = cms.PSet(
+                         averageNumber = cms.double(16.)  ###fede prova tracce
+                         ),
+                         type = cms.string('poisson'),
+                         sequential = cms.untracked.bool(False),
+                         manage_OOT = cms.untracked.bool(False),  ## manage out-of-time pileup
                                            ## setting this to True means that the out-of-time pileup
                                            ## will have a different distribution than in-time, given
                                            ## by what is described on the next line:
-                                           OOT_type = cms.untracked.string('None'),  ## generate OOT with a Poisson matching the number chosen for in-time
+##                         OOT_type = cms.untracked.string('Poisson'),  ## generate OOT with a Poisson matching the number chosen for in-time
                                            #OOT_type = cms.untracked.string('fixed'),  ## generate OOT with a fixed distribution
                                            #intFixed_OOT = cms.untracked.int32(2),
-                                           fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/user/federica/FastSim/MinBias_620/MinBias_8TeV_cfi_GEN_SIM_RECO.root'),
-                                          # fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/user/federica/FastSim/ForTuning_SinglePiPt100_newPFpatch/SinglePiPt100_cfi_GEN_FASTSIM_HLT_01.root'),
-                                                    
-                                           #fileNames = cms.untracked.vstring('/store/relval/CMSSW_6_2_0_pre3-START61_V11/RelValProdMinBias/GEN-SIM-RAW/v1/00000/4E330A0D-BA82-E211-9A0A-003048F23D68.root',
-                                           #                                 '/store/relval/CMSSW_6_2_0_pre3-START61_V11/RelValProdMinBias/GEN-SIM-RAW/v1/00000/DEFF70AE-B982-E211-9C0F-003048F1C4B6.root'), # from FullSim
+                         fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/user/federica/FastSim/MinBias_620/MinBias_8TeV_cfi_GEN_SIM_RECO.root'),
+                                           #fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/user/federica/FastSim/MinBias_620/SingleNuE10_cfi_py_GEN_SIM_RECO.root'),
+                                           #fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/user/federica/FastSim/MinBias_620/SingleMuPt10_cfi_py_GEN_SIM_RECO_50evt.root'), 
+                                           #fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/relval/CMSSW_7_0_0_pre1/RelValProdMinBias/AODSIM/PRE_ST62_V8-v1/00000/CCA02E69-520F-E311-96CA-003048678BB2.root'), # from FullSim
+                                          #### fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/g/giamman/public/mixing/MinBias_GENSIMRECO.root')
                                            ),
                      mixObjects = cms.PSet(
     mixSH = cms.PSet(
