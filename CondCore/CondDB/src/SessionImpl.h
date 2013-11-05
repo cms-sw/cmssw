@@ -2,6 +2,8 @@
 #define CondCore_CondDB_SessionImpl_h
 
 #include "CondCore/CondDB/interface/Configuration.h"
+#include "IOVSchema.h"
+#include "GTSchema.h"
 //
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
@@ -28,6 +30,8 @@ namespace cond {
     
     class SessionImpl {
     public:
+      typedef enum { THROW, DO_NOT_THROW, CREATE } FailureOnOpeningPolicy;
+    public:
       SessionImpl();
       ~SessionImpl();
       
@@ -43,6 +47,11 @@ namespace cond {
       void commitTransaction();
       void rollbackTransaction();
       bool isTransactionActive() const;
+
+      void openIovDb( FailureOnOpeningPolicy policy = THROW );
+      void openGTDb();
+      IOVSchema& iovSchema();
+      GTSchema& gtSchema();
       
       coral::ISchema& coralSchema();
       
@@ -53,6 +62,8 @@ namespace cond {
       boost::shared_ptr<coral::ISessionProxy> coralSession;
       std::unique_ptr<TransactionCache> transactionCache;
       size_t transactionClients = 0;
+      std::unique_ptr<IOVSchema> iovSchemaHandle; 
+      std::unique_ptr<GTSchema> gtSchemaHandle; 
     };
 
   }

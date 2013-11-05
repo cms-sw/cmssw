@@ -1,6 +1,4 @@
 #include "CondCore/CondDB/interface/Session.h"
-#include "IOVSchema.h"
-#include "GTSchema.h"
 #include "SessionImpl.h"
 //
 #include <openssl/sha.h>
@@ -80,89 +78,65 @@ namespace cond {
 
     //
     bool Session::existsDatabase(){
-      openIovDb( DO_NOT_THROW );
+      m_session->openIovDb( SessionImpl::DO_NOT_THROW );
       return m_session->transactionCache->iovDbExists;
     }
     
     //
     void Session::createDatabase(){
-      openIovDb( CREATE );
+      m_session->openIovDb( SessionImpl::CREATE );
     }
 
-    void Session::openIovDb( Session::OpenFailurePolicy policy ){
-      if(!m_session->transactionCache.get()) throwException( "The transaction is not active.","Session::open" );
-      if( !m_session->transactionCache->iovDbOpen ){
-	m_session->transactionCache->iovDbExists = cond::persistency::iovDb::exists( *m_session );
-	m_session->transactionCache->iovDbOpen = true;
-      }      if( !m_session->transactionCache->iovDbExists ){
-	if( policy==CREATE ){
-	  cond::persistency::iovDb::create( *m_session );
-	  m_session->transactionCache->iovDbExists = true;
-	} else {
-	  if( policy==THROW) throwException( "IOV Database does not exist.","Session::openIovDb");
-	}
-      }
-    }
-    
-    void Session::openGTDb(){
-      if(!m_session->transactionCache.get()) throwException( "The transaction is not active.","Session::open" );
-      if( !m_session->transactionCache->gtDbOpen ){
-	m_session->transactionCache->gtDbExists = cond::persistency::gtDb::exists( *m_session );
-	m_session->transactionCache->gtDbOpen = true;
-      }
-      if( !m_session->transactionCache->gtDbExists ){
-	throwException( "GT Database does not exist.","Session::openIovDb");
-      }
-    }
-    
     IOVProxy Session::readIov( const std::string& tag, bool full ){
-      openIovDb();
+      m_session->openIovDb();
       IOVProxy proxy( m_session );
       proxy.load( tag, full );
       return proxy;
     }
 
     bool Session::existsIov( const std::string& tag ){
-      openIovDb();
-      return TAG::select( tag, *m_session );
+      m_session->openIovDb();
+      return m_session->iovSchema().tagTable().select( tag );
     }
     
     IOVProxy Session::iovProxy(){
-      openIovDb();
+      m_session->openIovDb();
       IOVProxy proxy( m_session );
       return proxy;
     }
 
     IOVEditor Session::createIov( const std::string& payloadType, const std::string& tag, cond::TimeType timeType, cond::SynchronizationType synchronizationType ){
-      openIovDb( CREATE );
-      if( TAG::select( tag, *m_session ) ) throwException( "The specified tag \""+tag+"\" already exist in the database.","Session::createIov");
+      m_session->openIovDb( SessionImpl::CREATE );
+      if( m_session->iovSchema().tagTable().select( tag ) ) 
+	throwException( "The specified tag \""+tag+"\" already exist in the database.","Session::createIov");
       IOVEditor editor( m_session, tag, timeType, payloadType, synchronizationType );
       return editor;
     }
     
     IOVEditor Session::editIov( const std::string& tag ){
-      openIovDb();
+      m_session->openIovDb();
       IOVEditor editor( m_session );
       editor.load( tag );
       return editor;
     }
     
     GTEditor Session::createGlobalTag( const std::string& name ){
-      openGTDb();
-      if( GLOBAL_TAG::select( name, *m_session ) ) throwException( "The specified Global Tag \""+name+"\" already exist in the database.","Session::createGlobalTag");
+      m_session->openGTDb();
+      if( m_session->gtSchema().gtTable().select( name ) ) 
+	throwException( "The specified Global Tag \""+name+"\" already exist in the database.","Session::createGlobalTag");
       GTEditor editor( m_session, name );
       return editor;
     }
     
     GTEditor Session::editGlobalTag( const std::string& name ){
-      openGTDb();
+      m_session->openGTDb();
       GTEditor editor( m_session );
       editor.load( name );
       return editor;
     }
     
     GTProxy Session::readGlobalTag( const std::string& name ){
-      openGTDb();
+      m_session->openGTDb();
       GTProxy proxy( m_session );
       proxy.load( name );
       return proxy;
@@ -196,11 +170,11 @@ namespace cond {
     cond::Hash Session::storePayloadData( const std::string& payloadObjectType, 
 					  const cond::Binary& payloadData, 
 					  const boost::posix_time::ptime& creationTime ){
-      openIovDb( CREATE );
+      m_session->openIovDb( SessionImpl::CREATE );
       cond::Hash payloadHash = makeHash( payloadObjectType, payloadData );
       // the check on the hash existance is only required to avoid the error message printing in SQLite! once this is removed, this check is useless... 
-      if( !PAYLOAD::select( payloadHash, *m_session ) ){
-	PAYLOAD::insert( payloadHash, payloadObjectType, payloadData, creationTime, *m_session );
+      if( !m_session->iovSchema().payloadTable().select( payloadHash ) ){
+	m_session->iovSchema().payloadTable().insert( payloadHash, payloadObjectType, payloadData, creationTime );
       }
       return payloadHash;
     }
@@ -208,19 +182,20 @@ namespace cond {
     bool Session::fetchPayloadData( const cond::Hash& payloadHash,
 				    std::string& payloadType, 
 				    cond::Binary& payloadData ){
-      openIovDb();
-      return PAYLOAD::select( payloadHash, payloadType, payloadData, *m_session );
+      m_session->openIovDb();
+      return m_session->iovSchema().payloadTable().select( payloadHash, payloadType, payloadData );
     }
     
     bool Session::checkMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, std::string& destTag ){
-      if(! TAG_MIGRATION::exists(  *m_session ) ) TAG_MIGRATION::create( *m_session );
+      if(! m_session->iovSchema().tagMigrationTable().exists() ) m_session->iovSchema().tagMigrationTable().create();
       //throwException( "Migration Log Table does not exist in this schema.","Session::checkMigrationLog");
-      return TAG_MIGRATION::select( sourceAccount, sourceTag, destTag, *m_session );
+      return m_session->iovSchema().tagMigrationTable().select( sourceAccount, sourceTag, destTag );
     }
     
     void Session::addToMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, const std::string& destTag ){
-      if(! TAG_MIGRATION::exists(  *m_session ) ) TAG_MIGRATION::create( *m_session );
-      TAG_MIGRATION::insert( sourceAccount, sourceTag, destTag, boost::posix_time::microsec_clock::universal_time(), *m_session );
+      if(! m_session->iovSchema().tagMigrationTable().exists() ) m_session->iovSchema().tagMigrationTable().create();
+      m_session->iovSchema().tagMigrationTable().insert( sourceAccount, sourceTag, destTag, 
+						       boost::posix_time::microsec_clock::universal_time() );
     }
     
   }

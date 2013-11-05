@@ -132,9 +132,6 @@ namespace cond {
       void addToMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, const std::string& destinationTag );
       
     private:
-      typedef enum { THROW, DO_NOT_THROW, CREATE } OpenFailurePolicy;
-      void openIovDb( OpenFailurePolicy policy = THROW );
-      void openGTDb();
       cond::Hash storePayloadData( const std::string& payloadObjectType, const cond::Binary& payloadData, const boost::posix_time::ptime& creationTime ); 
       
     private:
