@@ -13,9 +13,9 @@ function runTest { echo $1 ; python $1 || die "Failure for configuration: $1" $?
 
 INPUT=${LOCAL_TEST_DIR}/RunExpressProcessing.py
 
-#runTest "${INPUT} --scenario cosmics --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
-#runTest "${INPUT} --scenario pp --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
-#runTest "${INPUT} --scenario HeavyIons --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
+runTest "${INPUT} --scenario cosmics --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
+runTest "${INPUT} --scenario pp --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
+runTest "${INPUT} --scenario HeavyIons --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
 
 
 INPUT=${LOCAL_TEST_DIR}/RunRepack.py
