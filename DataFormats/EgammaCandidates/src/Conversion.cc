@@ -33,7 +33,7 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector& sc,
   nSharedHits_(0),  
   algorithm_(algo)
  { 
-   trackToBaseRefs_.resize(tr.size());
+   trackToBaseRefs_.reserve(tr.size());
    for( auto const& track: tr) {
      trackToBaseRefs_.emplace_back(track);
    }
@@ -90,7 +90,7 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector& sc,
   nSharedHits_(0),
   algorithm_(algo)
  { 
-   trackToBaseRefs_.resize(tr.size());
+   trackToBaseRefs_.reserve(tr.size());
    for( auto const& track: tr) {
      trackToBaseRefs_.emplace_back(track);
    }
