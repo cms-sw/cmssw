@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -40,6 +41,8 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
 {
   for (std::string & label: iPS.getUntrackedParameter<std::vector<std::string>>("dumpContextForLabels"))
     dumpContextForLabels_.insert(std::move(label));
+
+  iRegistry.watchPreallocate(this, &Tracer::preallocate);
 
   iRegistry.watchPostBeginJob(this, &Tracer::postBeginJob);
   iRegistry.watchPostEndJob(this, &Tracer::postEndJob);
@@ -139,6 +142,13 @@ Tracer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   desc.addUntracked<bool>("dumpNonModuleContext", false)->setComment("Prints context information to cout for the transitions not associated with any module label");
   descriptions.add("Tracer", desc);
   descriptions.setComment("This service prints each phase the framework is processing, e.g. constructing a module,running a module, etc.");
+}
+
+void
+Tracer::preallocate(service::SystemBounds const& bounds) {
+  LogAbsolute("Tracer") << indention_ << " preallocate: " << bounds.maxNumberOfConcurrentRuns() << " concurrent runs, " 
+                                                          << bounds.maxNumberOfConcurrentLuminosityBlocks() << " concurrent luminosity sections, " 
+                                                          << bounds.maxNumberOfStreams() << " streams";
 }
 
 void 

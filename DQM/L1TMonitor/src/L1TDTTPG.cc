@@ -334,7 +334,7 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
 			     << dttpgSource_.label() ;
     return;
   }
-  L1MuDTChambPhContainer::Phi_Container *myPhContainer =  
+  L1MuDTChambPhContainer::Phi_Container const *myPhContainer =  
     myL1MuDTChambPhContainer->getContainer();
 
   edm::Handle<L1MuDTChambThContainer > myL1MuDTChambThContainer;  
@@ -347,7 +347,7 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
 
     return;
   }
-  L1MuDTChambThContainer::The_Container* myThContainer =  
+  L1MuDTChambThContainer::The_Container const* myThContainer =  
     myL1MuDTChambThContainer->getContainer();
 
   int ndttpgphtrack = 0;
@@ -585,7 +585,7 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
     return;
   }
 
-  L1MuDTTrackContainer::TrackContainer *t =  myL1MuDTTrackContainer->getContainer();
+  L1MuDTTrackContainer::TrackContainer const * t =  myL1MuDTTrackContainer->getContainer();
 
 
 
