@@ -73,7 +73,7 @@ class DTLocalTriggerBaseTask: public edm::EDAnalyzer{
  private:
 
   /// Run analysis on DCC data
-  void runDCCAnalysis(std::vector<L1MuDTChambPhDigi>* phTrigs, std::vector<L1MuDTChambThDigi>* thTrigs);
+  void runDCCAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs, std::vector<L1MuDTChambThDigi> const* thTrigs);
 
   /// Run analysis on ROS data
   void runDDUAnalysis(edm::Handle<DTLocalTriggerCollection>& trigsDDU);
@@ -82,7 +82,7 @@ class DTLocalTriggerBaseTask: public edm::EDAnalyzer{
   void runDDUvsDCCAnalysis();
 
   /// Get the Top folder (different between Physics and TP and DCC/DDU)
-  std::string& topFolder(std::string type) { return baseFolder[type == "DCC"]; }
+  std::string& topFolder(std::string const& type) { return baseFolder[type == "DCC"]; }
   
   /// Book the histograms
   void bookHistos(const DTChamberId& chamb);

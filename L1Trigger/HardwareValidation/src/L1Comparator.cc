@@ -316,13 +316,13 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   L1MuRegionalCandCollection dtf_trk_data_v, dtf_trk_emul_v;
   dtf_trk_data_v.clear(); dtf_trk_emul_v.clear();
   if(dtf_trk_data_.isValid()) {
-    L1MuDTTrackCandCollection *dttc = dtf_trk_data_->getContainer();
+    L1MuDTTrackCandCollection const *dttc = dtf_trk_data_->getContainer();
     for(L1MuDTTrackCandCollection::const_iterator  it=dttc->begin(); 
 	it!=dttc->end(); it++)
       dtf_trk_data_v.push_back(L1MuRegionalCand(*it)); 
   }
   if(dtf_trk_emul_.isValid()) {
-    L1MuDTTrackCandCollection *dttc = dtf_trk_emul_->getContainer();
+    L1MuDTTrackCandCollection const *dttc = dtf_trk_emul_->getContainer();
     for(L1MuDTTrackCandCollection::const_iterator  it=dttc->begin(); 
 	it!=dttc->end(); it++)
       dtf_trk_emul_v.push_back(L1MuRegionalCand(*it)); 

@@ -48,13 +48,8 @@ void L1MuDTChambThContainer::setContainer(const The_Container& inputSegments) {
   theSegments = inputSegments;
 }
 
-L1MuDTChambThContainer::The_Container* L1MuDTChambThContainer::getContainer() const {
-
-  The_Container* rT=0;
-
-  rT = const_cast<The_Container*>(&theSegments);
-
-  return(rT);
+L1MuDTChambThContainer::The_Container const* L1MuDTChambThContainer::getContainer() const {
+  return &theSegments;
 }
 
 bool L1MuDTChambThContainer::bxEmpty(int step) const {
@@ -83,16 +78,16 @@ int L1MuDTChambThContainer::bxSize(int step1, int step2) const {
   return(size);
 }
 
-L1MuDTChambThDigi* L1MuDTChambThContainer::chThetaSegm(int wheel, int stat, int sect, int step) const {
+L1MuDTChambThDigi const* L1MuDTChambThContainer::chThetaSegm(int wheel, int stat, int sect, int step) const {
 
-  L1MuDTChambThDigi* rT=0;
+  L1MuDTChambThDigi const* rT=0;
 
   for ( The_iterator i  = theSegments.begin();
                      i != theSegments.end();
                      i++ ) {
     if  (step == i->bxNum() && wheel == i->whNum() && sect == i->scNum()
       && stat == i->stNum() )
-      rT = const_cast<L1MuDTChambThDigi*>(&(*i));
+      rT = &(*i);
   }
 
   return(rT);

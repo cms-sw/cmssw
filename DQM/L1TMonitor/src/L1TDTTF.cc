@@ -634,7 +634,7 @@ void L1TDTTF::analyze(const edm::Event& event,
     return;
   }
 
-  L1MuDTTrackContainer::TrackContainer * trackContainer =
+  L1MuDTTrackContainer::TrackContainer const * trackContainer =
     myL1MuDTTrackContainer->getContainer();
 
   /// dttf counters
@@ -811,8 +811,8 @@ void L1TDTTF::analyze(const edm::Event& event,
 
 
 //--------------------------------------------------------
-void L1TDTTF::fillMEs( std::vector<L1MuDTTrackCand> * trackContainer,
-		       std::vector<L1MuRegionalCand> & gmtDttfCands )
+void L1TDTTF::fillMEs( std::vector<L1MuDTTrackCand> const* trackContainer,
+		       std::vector<L1MuRegionalCand>& gmtDttfCands )
 {
 
   L1MuDTTrackContainer::TrackContainer::const_iterator track

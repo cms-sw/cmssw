@@ -128,7 +128,7 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
   // Get best DCC triggers
   edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
   event.getByLabel(inputTagDCC,l1DTTPGPh);
-  vector<L1MuDTChambPhDigi>*  phTrigs = l1DTTPGPh->getContainer();
+  vector<L1MuDTChambPhDigi> const*  phTrigs = l1DTTPGPh->getContainer();
   
   vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();
   vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();
