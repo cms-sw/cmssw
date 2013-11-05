@@ -48,6 +48,8 @@ namespace edm {
          
          static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
+         void preallocate(service::SystemBounds const&);
+
          void postBeginJob();
          void postEndJob();
          
