@@ -109,6 +109,11 @@ private:
     int noise_;
     bool doSLHC_;
 
+    // specifically for SLHC    
+    edm::InputTag inputTag_HBHE;  
+    edm::InputTag inputTag_HF;
+
+
     edm::ESHandle<CaloGeometry> geometry;
     edm::ESHandle<HcalDbService> conditions;
     int nevent1;
