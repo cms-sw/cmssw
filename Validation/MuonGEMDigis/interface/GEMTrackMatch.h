@@ -42,6 +42,12 @@ public:
   TH1F** GetPadPhi() { return pad_phi;   }
   TH1F** GetShPhi()  { return dg_sh_phi; }
 
+
+  TH1F* GetTrackEta()  { return track_eta; }
+  TH1F* GetTrackDgEta()  { return track_dg_eta; }
+  TH1F* GetTrackShEta()  { return track_sh_eta; }
+  TH1F* GetTrackPhi()  { return track_phi; }
+
  private:
 
   edm::ParameterSet cfg_;
@@ -53,6 +59,9 @@ public:
   
   TH1F* track_eta;
   TH1F* track_phi;
+
+  TH1F* track_dg_eta;
+  TH1F* track_sh_eta;
 
   TH1F* dg_eta[4];
 
@@ -69,7 +78,6 @@ public:
   TH1F* pad_phi[4];
 
 
- // TH1F* pad_sh_phi[4];
 
 
 

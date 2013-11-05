@@ -32,6 +32,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "TTree.h"
 #include "TFile.h"
+#include "TGraphAsymmErrors.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -208,8 +209,30 @@ void
 MuonGEMDigis::endRun(edm::Run const&, edm::EventSetup const&)
 {
 //    if ( theDQM && ! outputFileName_.empty() ) theDQM->save(outputFileName_);
-  dbe_->book1D( "dg_eta_l1",theGEMTrackMatch->GetDgEta()[0] );
-
+  for ( int i =0 ; i< 4 ; i++) {
+      TH1F* dg = theGEMTrackMatch->GetDgEta()[i];
+      TH1F* temp1 = (TH1F*)dg->Clone("temp1");
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetDgEta()[i]->GetName(),"_origin").Data(), temp1 );
+      temp1->Divide( theGEMTrackMatch->GetTrackEta()); 
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetDgEta()[i]->GetName(),"_divided").Data(), temp1 );
+      TH1F* temp2 = (TH1F*)dg->Clone("temp2");
+      temp2->Divide( theGEMTrackMatch->GetShEta()[i]); 
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetShEta()[i]->GetName(),"_origin").Data(), theGEMTrackMatch->GetShEta()[i] );
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetShEta()[i]->GetName(),"_divided").Data(), temp2 );
+  }
+  for ( int i =0 ; i< 4 ; i++) {
+      TH1F* pad = (TH1F*)theGEMTrackMatch->GetPadEta()[i];
+      TH1F* temp1 = (TH1F*)pad->Clone("temp1");
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetPadEta()[i]->GetName(),"_origin").Data(), temp1 );
+      temp1->Divide( theGEMTrackMatch->GetTrackEta());
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetPadEta()[i]->GetName(),"_divided").Data(), temp1 );
+      
+      TH1F* temp2 = (TH1F*)pad->Clone("temp2");
+      temp2->Divide( theGEMTrackMatch->GetShEta()[i]);
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetPadEta()[i]->GetName(),"_sh_divided").Data(), temp1 );
+  
+  }
+  //printf(" Call endRun!!\n");
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
