@@ -12,7 +12,7 @@ AlCaRecoMatrix = {'ExpressCosmics' : 'SiStripCalZeroBias+TkAlCosmics0T',
                   'MuOniaParked'   : 'TkAlJpsiMuMu+TkAlUpsilonMuMu',
                   'Cosmics'        : 'TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics+DtCalibCosmics',
                   # These two cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
-                  'AlCaP0'         : 'EcalCalPi0Calib+EcalCalEtaCalib',
+                  'AlCaP0'         : '',
                   # ---------------------------------------------------------------------------------------------------------------------------
                   'HcalNZS'        : 'HcalCalMinBias'
                   # This is in the AlCaRecoMatrix, but no RelVals are produced
