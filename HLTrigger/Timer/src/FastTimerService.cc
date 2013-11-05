@@ -231,8 +231,6 @@ FastTimerService::~FastTimerService()
 
 void FastTimerService::preBeginRun( edm::RunID const &, edm::Timestamp const & )
 {
-  //edm::LogImportant("FastTimerService") << __func__ << "()";
-
   // check if the process is bound to a single CPU.
   // otherwise, the results of the CLOCK_THREAD_CPUTIME_ID timer might be inaccurate
 #ifdef __linux
@@ -675,8 +673,6 @@ void FastTimerService::setNumberOfProcesses(unsigned int procs) {
 }
 
 void FastTimerService::postEndJob() {
-  //edm::LogImportant("FastTimerService") << __func__ << "()";
-
   if (m_enable_timing_summary) {
     // print a timing sumary for the whle job
     edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
@@ -855,17 +851,12 @@ void FastTimerService::reset() {
 }
 
 void FastTimerService::preModuleBeginJob(edm::ModuleDescription const & module) {
-  //edm::LogImportant("FastTimerService") << __func__ << "(" << & module << ")";
-  //edm::LogImportant("FastTimerService") << "module type " << module.moduleName() << " label " << module.moduleLabel() << " @ " << & module;
-
   // allocate a counter for each module and module type
   m_fast_modules[& module]     = & m_modules[module.moduleLabel()];;
   m_fast_moduletypes[& module] = & m_moduletypes[module.moduleName()];
 }
 
 void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp const & stamp) {
-  //edm::LogImportant("FastTimerService") << __func__ << "(...)";
-
   // new event, reset the per-event counter
   start(m_timer_event);
 
@@ -904,8 +895,6 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
 }
 
 void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetup const & setup) {
-  //edm::LogImportant("FastTimerService") << __func__ << "(...)";
-
   // stop the per-event timer, and account event time
   stop(m_timer_event);
   m_event = delta(m_timer_event);
@@ -1084,8 +1073,6 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
 }
 
 void FastTimerService::preSourceEvent(edm::StreamID sid) {
-  //edm::LogImportant("FastTimerService") << __func__ << "()";
-
   start(m_timer_source);
 
   // account the time spent before the source
@@ -1101,16 +1088,12 @@ void FastTimerService::preSourceEvent(edm::StreamID sid) {
 }
 
 void FastTimerService::postSourceEvent(edm::StreamID sid) {
-  //edm::LogImportant("FastTimerService") << __func__ << "()";
-
   stop(m_timer_source);
   m_source = delta(m_timer_source);
   m_summary_source += m_source;
 }
 
 void FastTimerService::prePathBeginRun(std::string const & path ) {
-  //edm::LogImportant("FastTimerService") << __func__ << "(" << path << ")";
-
   // cache the pointers to the names of the first and last path and endpath
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
   if (not m_skip_first_path and not tns.getTrigPaths().empty()) {
@@ -1134,8 +1117,6 @@ void FastTimerService::prePathBeginRun(std::string const & path ) {
 }
 
 void FastTimerService::preProcessPath(std::string const & path ) {
-  //edm::LogImportant("FastTimerService") << __func__ << "(" << path << ")";
-
   // prepare to measure the time spent between the beginning of the path and the execution of the first module
   m_is_first_module = true;
 
@@ -1167,8 +1148,6 @@ void FastTimerService::preProcessPath(std::string const & path ) {
 }
 
 void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathStatus const & status) {
-  //edm::LogImportant("FastTimerService") << __func__ << "(" << path << ", ...)";
-
   // time each (end)path
   stop(m_timer_path);
 
@@ -1263,8 +1242,6 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
 }
 
 void FastTimerService::preModule(edm::ModuleDescription const & module) {
-  //edm::LogImportant("FastTimerService") << __func__ << "(" << & module << ")";
-
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
 
@@ -1280,8 +1257,6 @@ void FastTimerService::preModule(edm::ModuleDescription const & module) {
 }
 
 void FastTimerService::postModule(edm::ModuleDescription const & module) {
-  //edm::LogImportant("FastTimerService") << __func__ << "(" << & module << ")";
-
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
 
