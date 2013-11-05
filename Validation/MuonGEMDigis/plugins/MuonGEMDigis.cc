@@ -232,6 +232,19 @@ MuonGEMDigis::endRun(edm::Run const&, edm::EventSetup const&)
       dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetPadEta()[i]->GetName(),"_sh_divided").Data(), temp1 );
   
   }
+  for ( int i=0 ; i<4 ; i++) {
+      TH1F* dgphi = theGEMTrackMatch->GetDgPhi()[i];
+      TH1F* temp1 = (TH1F*)dgphi->Clone("temp1");
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetDgPhi()[i]->GetName(),"_origin").Data(), temp1 );
+      temp1->Divide( theGEMTrackMatch->GetTrackPhi()); 
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetDgPhi()[i]->GetName(),"_divided").Data(), temp1 );
+      TH1F* temp2 = (TH1F*)dgphi->Clone("temp2");
+      temp2->Divide( theGEMTrackMatch->GetShPhi()[i]); 
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetShPhi()[i]->GetName(),"_origin").Data(), theGEMTrackMatch->GetShPhi()[i] );
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetShPhi()[i]->GetName(),"_divided").Data(), temp2 );
+  }
+
+
   //printf(" Call endRun!!\n");
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
