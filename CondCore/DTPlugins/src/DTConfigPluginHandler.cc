@@ -32,9 +32,9 @@
 //-------------------
 // Initializations --
 //-------------------
-int DTConfigPluginHandler::maxBrickNumber  = 5000;
-int DTConfigPluginHandler::maxStringNumber = 100000;
-int DTConfigPluginHandler::maxByteNumber   = 10000000;
+const int DTConfigPluginHandler::maxBrickNumber  = 5000;
+const int DTConfigPluginHandler::maxStringNumber = 100000;
+const int DTConfigPluginHandler::maxByteNumber   = 10000000;
 //DTConfigPluginHandler::handler_map DTConfigPluginHandler::handlerMap;
 
 //----------------
