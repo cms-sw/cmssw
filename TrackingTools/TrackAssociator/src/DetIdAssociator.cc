@@ -148,6 +148,8 @@ void DetIdAssociator::buildMap()
    LogTrace("TrackAssociator")<<"building map for " << name() << "\n";
    // clear the map
    if (nEta_ <= 0 || nPhi_ <= 0) throw cms::Exception("FatalError") << "incorrect look-up map size. Cannot build such a map.";
+   std::vector<GlobalPoint> pointBuffer;
+   std::vector<DetId> detIdBuffer;
    unsigned int numberOfSubDetectors = getNumberOfSubdetectors();
    unsigned totalNumberOfElementsInTheContainer(0);
    for ( unsigned int step = 0; step < 2; ++step){
@@ -155,10 +157,12 @@ void DetIdAssociator::buildMap()
      unsigned int numberOfDetIdsActive = 0;
      LogTrace("TrackAssociator")<< "Step: " << step;
      for ( unsigned int subDetectorIndex = 0; subDetectorIndex < numberOfSubDetectors; ++subDetectorIndex ){
-       const std::vector<DetId>& validIds = getValidDetIds(subDetectorIndex);
+       getValidDetIds(subDetectorIndex, detIdBuffer);
+       // This std::move prevents modification
+       std::vector<DetId> const& validIds = std::move(detIdBuffer);
        LogTrace("TrackAssociator")<< "Number of valid DetIds for subdetector: " << subDetectorIndex << " is " <<  validIds.size();
        for (std::vector<DetId>::const_iterator id_itr = validIds.begin(); id_itr!=validIds.end(); id_itr++) {
-	 std::pair<const_iterator,const_iterator> points = getDetIdPoints(*id_itr);
+	 std::pair<const_iterator,const_iterator> points = getDetIdPoints(*id_itr, pointBuffer);
 	 LogTrace("TrackAssociatorVerbose")<< "Found " << points.second-points.first << " global points to describe geometry of DetId: " 
 					   << id_itr->rawId();
 	 int etaMax(-1);
@@ -325,13 +329,14 @@ void DetIdAssociator::dumpMapContent(int ieta, int iphi) const
 	return;
      }
 
+   std::vector<GlobalPoint> pointBuffer;
    std::set<DetId> set;
    fillSet(set,ieta,iphi%nPhi_);
    LogTrace("TrackAssociator") << "Map content for cell (ieta,iphi): " << ieta << ", " << iphi%nPhi_;
    for(std::set<DetId>::const_iterator itr = set.begin(); itr!=set.end(); itr++)
      {
 	LogTrace("TrackAssociator") << "\tDetId " << itr->rawId() << ", geometry (x,y,z,rho,eta,phi):";
-	std::pair<const_iterator,const_iterator> points = getDetIdPoints(*itr);
+	std::pair<const_iterator,const_iterator> points = getDetIdPoints(*itr, pointBuffer);
 	for(std::vector<GlobalPoint>::const_iterator point = points.first; point != points.second; point++)
 	  LogTrace("TrackAssociator") << "\t\t" << point->x() << ", " << point->y() << ", " << point->z() << ", "
 	  << point->perp() << ", " << point->eta() << ", " << point->phi();
