@@ -69,7 +69,6 @@ def customise_Digi(process):
 # DQM steps change
 def customise_DQM(process,pileup):
     # We cut down the number of iterative tracking steps
-    process.dqmoffline_step.remove(process.muonAnalyzer)
     process.dqmoffline_step.remove(process.jetMETAnalyzer)
 
     #put isUpgrade flag==true
