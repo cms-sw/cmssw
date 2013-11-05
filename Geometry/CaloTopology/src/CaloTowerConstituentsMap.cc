@@ -4,6 +4,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
+#include <memory>
+
 CaloTowerConstituentsMap::~CaloTowerConstituentsMap() {
   delete m_reverseItems;
   m_reverseItems = nullptr;
@@ -65,12 +67,13 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
 
   // build reverse map if needed
   if(!m_reverseItems.load(std::memory_order_acquire)) {
-      auto ptr = new std::multimap<CaloTowerDetId,DetId>;
+      std::unique_ptr<std::multimap<CaloTowerDetId,DetId>> ptr{new std::multimap<CaloTowerDetId,DetId>};
       for (auto i=m_items.begin(); i!=m_items.end(); i++)
           ptr->insert(std::pair<CaloTowerDetId,DetId>(i->tower,i->cell));
       std::multimap<CaloTowerDetId,DetId>* expected = nullptr;
-      bool exhanged = m_reverseItems.compare_exchange_strong(expected, ptr, std::memory_order_acq_rel);
-      if(!exhanged) delete ptr;
+      if(m_reverseItems.compare_exchange_strong(expected, ptr.get(), std::memory_order_acq_rel)) {
+          ptr.release();
+      }
   }
 
   /// copy from the items map
