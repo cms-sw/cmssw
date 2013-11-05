@@ -78,8 +78,9 @@ GlobalTrackingGeometry::detTypes( void ) const
           ptr->push_back( *detType );
        }
        DetTypeContainer* expect = nullptr;
-       bool exchanged = theDetTypes.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel);
-       if(!exchanged) ptr.reset();
+       if(theDetTypes.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
+           ptr.release();
+       }
    }
    return *theDetTypes.load(std::memory_order_acquire);
 }
@@ -98,8 +99,9 @@ GlobalTrackingGeometry::detUnits( void ) const
           ptr->push_back( *detUnit );
        }
        DetUnitContainer* expect = nullptr;
-       bool exchanged = theDetUnits.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel);
-       if(!exchanged) ptr.reset();
+       if(theDetUnits.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
+           ptr.release();
+       }
    }
    return *theDetUnits.load(std::memory_order_acquire);
 }
@@ -118,8 +120,9 @@ GlobalTrackingGeometry::dets( void ) const
           ptr->push_back( *det );
        }
        DetContainer* expect = nullptr;
-       bool exchanged = theDets.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel);
-       if(!exchanged) ptr.reset();
+       if(theDets.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
+           ptr.release();
+       }
    }
    return *theDets.load(std::memory_order_acquire);
 }
@@ -138,8 +141,9 @@ GlobalTrackingGeometry::detUnitIds( void ) const
           ptr->push_back( *detUnitId );
        }
        DetIdContainer* expect = nullptr;
-       bool exchanged = theDetUnitIds.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel);
-       if(!exchanged) ptr.reset();
+       if(theDetUnitIds.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
+           ptr.release();
+       }
    }
    return *theDetUnitIds.load(std::memory_order_acquire);
 }
@@ -158,8 +162,9 @@ GlobalTrackingGeometry::detIds( void ) const
           ptr->push_back( *detId );
        }
        DetIdContainer* expect = nullptr;
-       bool exchanged = theDetIds.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel);
-       if(!exchanged) ptr.reset();
+       if(theDetIds.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
+           ptr.release();
+       }
    }
    return *theDetIds.load(std::memory_order_acquire);
 }
