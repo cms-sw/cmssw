@@ -19,5 +19,6 @@ simMuonGEMDigis = cms.EDProducer("GEMDigiProducer",
     digiModelString = cms.string('Simple'),
     digitizeOnlyMuons = cms.bool(False),
 #    neutronGammaRoll = cms.vdouble(76., 62., 52., 45., 39., 30., 23., 18, 0., 0., 0.)#, #n and gamma bkg per roll
-    neutronGammaRoll = cms.vdouble(314.1, 199.1, 143.8, 145.5, 121.1, 101.7, 74.0, 69.3, 0., 0., 0.)#, #n, gamma and charged prtcls bkg per roll
+#    neutronGammaRoll = cms.vdouble(314.1, 199.1, 143.8, 145.5, 121.1, 101.7, 74.0, 69.3, 0., 0., 0.)#, #n, gamma and charged prtcls bkg per roll
+    neutronGammaRoll = cms.vdouble(69.3, 74.0, 101.7, 121.1, 145.5, 143.8, 199.1, 314.1, 0., 0., 0.)#, #n, gamma and charged prtcls bkg per roll
 )
