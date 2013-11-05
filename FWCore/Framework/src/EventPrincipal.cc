@@ -170,14 +170,6 @@ namespace edm {
     // Try unscheduled production.
     if(phb.onDemand()) {
       if(fillOnDemand) {
-        if(mcc) {
-          preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-        }
-        std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
-          if(mcc) {
-            postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-          }
-        });
         unscheduledFill(phb.resolvedModuleLabel(),
                         mcc);
       }
@@ -347,6 +339,10 @@ namespace edm {
           << "with a null pointer to the ModuleCalling Context. This should never happen.\n"
           << "Contact a Framework developer";
       }
+      preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+      std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
+        postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+      });
       unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal*>(this), mcc);
     }
     return true;
