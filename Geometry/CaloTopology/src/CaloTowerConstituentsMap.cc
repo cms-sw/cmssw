@@ -4,16 +4,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
-CaloTowerConstituentsMap::CaloTowerConstituentsMap() :
-  m_topology(nullptr),
-  standardHB_(false),
-  standardHE_(false),
-  standardHF_(false),
-  standardHO_(false),
-  standardEB_(false),
-  m_reverseItems(nullptr)
-{
-}
 CaloTowerConstituentsMap::~CaloTowerConstituentsMap() {
   delete m_reverseItems;
   m_reverseItems = nullptr;

@@ -18,7 +18,7 @@ class HcalTopology;
   */
 class CaloTowerConstituentsMap {
 public:
-  CaloTowerConstituentsMap();
+  CaloTowerConstituentsMap() = delete;
   ~CaloTowerConstituentsMap();
   CaloTowerConstituentsMap(const HcalTopology * topology);
 
