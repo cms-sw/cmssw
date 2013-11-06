@@ -636,37 +636,37 @@ TopDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup& s
 	selection_[key].second->fill(event, setup);
       }
       if(type=="muons"){
-	SelectionStep<reco::Muon> step(selection_[key].first);
+	SelectionStep<reco::Muon> step(selection_[key].first, consumesCollector());
 	if(step.select(event)){
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="elecs"){
-	SelectionStep<reco::GsfElectron> step(selection_[key].first);
+	SelectionStep<reco::GsfElectron> step(selection_[key].first, consumesCollector());
 	if(step.select(event)){ 
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="jets" ){
-	SelectionStep<reco::Jet> step(selection_[key].first);
+	SelectionStep<reco::Jet> step(selection_[key].first, consumesCollector());
 	if(step.select(event, setup)){
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="jets/pf" ){
-	SelectionStep<reco::PFJet> step(selection_[key].first);
+	SelectionStep<reco::PFJet> step(selection_[key].first, consumesCollector());
 	if(step.select(event, setup)){
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="jets/calo" ){
-	SelectionStep<reco::CaloJet> step(selection_[key].first);
+	SelectionStep<reco::CaloJet> step(selection_[key].first, consumesCollector());
 	if(step.select(event, setup)){
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="met" ){
-	SelectionStep<reco::MET> step(selection_[key].first);
+	SelectionStep<reco::MET> step(selection_[key].first, consumesCollector());
 	if(step.select(event)){
 	  selection_[key].second->fill(event, setup);
 	} else break;
