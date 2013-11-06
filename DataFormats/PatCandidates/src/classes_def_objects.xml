@@ -112,7 +112,6 @@
    <version ClassVersion="10" checksum="1136648776"/>
     <field name="uncorInfo_" transient="true"/>
     <field name="nCorrections_" transient="true"/>
-    <field name="oldPt_" transient="true"/>
   </class>
   <class name="pat::MHT"  ClassVersion="10">
    <version ClassVersion="10" checksum="2696169357"/>
