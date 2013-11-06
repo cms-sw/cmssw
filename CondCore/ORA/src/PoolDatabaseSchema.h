@@ -200,10 +200,10 @@ namespace ora {
 
   class CondMetadataTable : public INamingServiceTable {
     public:
-    static std::string& tableName();
-    static std::string& objectNameColumn();
-    static std::string& tokenColumn();
-    static std::string& timetypeColumn();
+    static std::string tableName();
+    static std::string objectNameColumn();
+    static std::string tokenColumn();
+    static std::string timetypeColumn();
    public: 
     CondMetadataTable( coral::ISchema& dbSchema, PoolDbCache& dbCache );
     virtual ~CondMetadataTable();

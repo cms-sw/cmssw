@@ -10,8 +10,6 @@
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/IBlobStreamingService.h"
-#include "Reflex/Member.h"
-#include "Reflex/Object.h"
 #include "CoralBase/Blob.h"
 
 #include "CondCore/DBCommon/interface/DbConnection.h"

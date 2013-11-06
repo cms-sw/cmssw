@@ -22,13 +22,14 @@
  */
 #include "SimGeneral/TrackingAnalysis/interface/TrackingTruthAccumulator.h"
 
-#include <SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <SimGeneral/MixingModule/interface/PileUpEventPrincipal.h>
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -213,7 +214,7 @@ namespace
 //---------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------
 
-TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & config, edm::EDProducer& mixMod ) :
+TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & config, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
 		messageCategory_("TrackingTruthAccumulator"),
 		volumeRadius_( config.getParameter<double>("volumeRadius") ),
 		volumeZ_( config.getParameter<double>("volumeZ") ),
@@ -226,7 +227,7 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 		removeDeadModules_( config.getParameter<bool>("removeDeadModules") ),
 		simTrackLabel_( config.getParameter<edm::InputTag>("simTrackCollection") ),
 		simVertexLabel_( config.getParameter<edm::InputTag>("simVertexCollection") ),
-		simHitCollectionConfig_( config.getParameter<edm::ParameterSet>("simHitCollections") ),
+		collectionTags_( ),
 		genParticleLabel_( config.getParameter<edm::InputTag>("genParticleCollection") ),
 		allowDifferentProcessTypeForDifferentDetectors_( config.getParameter<bool>("allowDifferentSimHitProcesses") )
 {
@@ -238,8 +239,6 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 		edm::LogError(messageCategory_) << "Both \"createUnmergedCollection\" and \"createMergedBremsstrahlung\" have been"
 			<< "set to false, which means no collections will be created";
 
-
-	//
 	// Initialize selection for building TrackingParticles
 	//
 	if( config.exists( "select" ) )
@@ -285,6 +284,26 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 		mixMod.produces<TrackingParticleCollection>("MergedTrackTruth");
 		mixMod.produces<TrackingVertexCollection>("MergedTrackTruth");
 	}
+
+        iC.consumes<std::vector<SimTrack> >(simTrackLabel_);
+        iC.consumes<std::vector<SimVertex> >(simVertexLabel_);
+        iC.consumes<std::vector<reco::GenParticle> >(genParticleLabel_);
+        iC.consumes<std::vector<int> >(genParticleLabel_);
+
+	// Fill the collection tags
+        const edm::ParameterSet& simHitCollectionConfig=config.getParameterSet("simHitCollections");
+	std::vector<std::string> parameterNames=simHitCollectionConfig.getParameterNames();
+
+	for( const auto& parameterName : parameterNames )
+	{
+           std::vector<edm::InputTag> tags=simHitCollectionConfig.getParameter<std::vector<edm::InputTag> >(parameterName);
+           collectionTags_.insert(collectionTags_.end(), tags.begin(), tags.end());
+        }
+
+	for( const auto& collectionTag : collectionTags_ ) {
+	  iC.consumes<std::vector<PSimHit> >(collectionTag);
+        }
+
 }
 
 void TrackingTruthAccumulator::initializeEvent( edm::Event const& event, edm::EventSetup const& setup )
@@ -434,27 +453,19 @@ template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event
 
 template<class T> void TrackingTruthAccumulator::fillSimHits( std::vector<const PSimHit*>& returnValue, const T& event, const edm::EventSetup& setup )
 {
-	std::vector<std::string> parameterNames=simHitCollectionConfig_.getParameterNames();
-
-	// loop over the different parameter collections. The names of these are unimportant but
-	// usually set to the sub-detectors, e.g. "muon", "pixel" etcetera.
-	for( const auto& parameterName : parameterNames )
+	// loop over the collections
+	for( const auto& collectionTag : collectionTags_ )
 	{
-		std::vector<edm::InputTag> collectionTags=simHitCollectionConfig_.getParameter<std::vector<edm::InputTag> >(parameterName);
+		edm::Handle< std::vector<PSimHit> > hSimHits;
+		event.getByLabel( collectionTag, hSimHits );
 
-		for( const auto& collectionTag : collectionTags )
+		// TODO - implement removing the dead modules
+		for( const auto& simHit : *hSimHits )
 		{
-			edm::Handle< std::vector<PSimHit> > hSimHits;
-			event.getByLabel( collectionTag, hSimHits );
+			returnValue.push_back( &simHit );
+		}
 
-			// TODO - implement removing the dead modules
-			for( const auto& simHit : *hSimHits )
-			{
-				returnValue.push_back( &simHit );
-			}
-
-		} // end of loop over InputTags
-	} // end of loop over parameter names. These are arbitrary but usually "muon", "pixel" etcetera.
+	} // end of loop over InputTags
 }
 
 

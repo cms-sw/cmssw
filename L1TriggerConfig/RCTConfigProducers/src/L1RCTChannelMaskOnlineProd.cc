@@ -19,6 +19,7 @@
 
 
 // system include files
+#include <iostream>
 
 // user include files
 #include "CondTools/L1Trigger/interface/L1ConfigOnlineProdBase.h"

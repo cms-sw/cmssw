@@ -18,7 +18,8 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -47,7 +48,7 @@
 #include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
-EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::EDProducer& mixMod ) :
+EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
    DigiAccumulatorMixMod(),
    m_APDShape         ( params.getParameter<double>( "apdShapeTstart" ) ,
 			params.getParameter<double>( "apdShapeTau"    )   )  ,
@@ -141,6 +142,9 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::EDProd
    mixMod.produces<EBDigiCollection>(m_EBdigiCollection);
    mixMod.produces<EEDigiCollection>(m_EEdigiCollection);
    mixMod.produces<ESDigiCollection>(m_ESdigiCollection);
+   iC.consumes<std::vector<PCaloHit> >(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"));
+   iC.consumes<std::vector<PCaloHit> >(edm::InputTag(m_hitsProducerTag, "EcalHitsEE"));
+   iC.consumes<std::vector<PCaloHit> >(edm::InputTag(m_hitsProducerTag, "EcalHitsES"));
 
    const std::vector<double> ebCorMatG12 = params.getParameter< std::vector<double> >("EBCorrNoiseMatrixG12");
    const std::vector<double> eeCorMatG12 = params.getParameter< std::vector<double> >("EECorrNoiseMatrixG12");

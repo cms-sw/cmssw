@@ -5,24 +5,27 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
 namespace edm {
-  class EDProducer;
+  class ConsumesCollector;
   class ParameterSet;
+  namespace one {
+    class EDProducerBase;
+  }
 
-  typedef DigiAccumulatorMixMod*(DAFunc)(ParameterSet const&, EDProducer&);
+  typedef DigiAccumulatorMixMod*(DAFunc)(ParameterSet const&, one::EDProducerBase&, ConsumesCollector&);
   typedef edmplugin::PluginFactory<DAFunc> DigiAccumulatorMixModPluginFactory;
 
   class DigiAccumulatorMixModFactory {
   public:
     ~DigiAccumulatorMixModFactory();
 
-    static DigiAccumulatorMixModFactory* get();
+    static DigiAccumulatorMixModFactory const* get();
 
     std::auto_ptr<DigiAccumulatorMixMod>
-      makeDigiAccumulator(ParameterSet const&, EDProducer&) const;
+      makeDigiAccumulator(ParameterSet const&, one::EDProducerBase&, ConsumesCollector&) const;
 
   private:
     DigiAccumulatorMixModFactory();
-    static DigiAccumulatorMixModFactory singleInstance_;
+    static DigiAccumulatorMixModFactory const singleInstance_;
   };
 }
 

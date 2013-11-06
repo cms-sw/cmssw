@@ -35,7 +35,11 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+
 
 class SiPixelTrackResidualSource : public edm::EDAnalyzer {
   public:
@@ -55,6 +59,14 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     edm::InputTag tracksrc_; 
     std::string ttrhbuilder_; 
     DQMStore* dbe_; 
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+    edm::EDGetTokenT<reco::VertexCollection> offlinePrimaryVerticesToken_;
+    edm::EDGetTokenT<reco::TrackCollection> generalTracksToken_;
+    edm::EDGetTokenT<std::vector<Trajectory> > tracksrcToken_;
+    edm::EDGetTokenT<std::vector<reco::Track> > trackToken_;
+    edm::EDGetTokenT<TrajTrackAssociationCollection> trackAssociationToken_;
+    edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clustersrcToken_;
+
 
     bool debug_; 
     bool modOn; 

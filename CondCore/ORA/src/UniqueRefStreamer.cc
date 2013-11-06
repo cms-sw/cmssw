@@ -182,7 +182,7 @@ ora::UniqueRefWriter::UniqueRefWriter( const Reflex::Type& objectType,
 }
 
 std::string ora::uniqueRefNullLabel(){
-  static std::string nullLabel("ora::UniqueRef::Null");
+  static const std::string nullLabel("ora::UniqueRef::Null");
   return nullLabel;
 }
       

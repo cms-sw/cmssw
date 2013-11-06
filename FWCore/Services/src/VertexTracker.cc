@@ -2,7 +2,7 @@
 
 #include <ostream>
 
-unsigned int VertexTracker::next_id_ = 0;
+std::atomic<unsigned int> VertexTracker::next_id_{0};
 
 std::ostream& 
 operator<<(std::ostream& ost, const VertexTracker& vt)

@@ -8,9 +8,26 @@ from RecoEgamma.EgammaPhotonProducers.conversionTrackCandidates_cfi import *
 # Conversion Track producer  ( final fit )
 from RecoEgamma.EgammaPhotonProducers.ckfOutInTracksFromConversions_cfi import *
 from RecoEgamma.EgammaPhotonProducers.ckfInOutTracksFromConversions_cfi import *
+
 ckfTracksFromConversions = cms.Sequence(conversionTrackCandidates*ckfOutInTracksFromConversions*ckfInOutTracksFromConversions)
 
+mustacheConversionTrackCandidates = conversionTrackCandidates.clone()
+mustacheConversionTrackCandidates.scHybridBarrelProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
+mustacheConversionTrackCandidates.bcBarrelCollection = cms.InputTag('particleFlowClusterECAL')
+mustacheConversionTrackCandidates.scIslandEndcapProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
+mustacheConversionTrackCandidates.bcEndcapCollection = cms.InputTag('particleFlowClusterECAL')
 
+ckfOutInTracksFromMustacheConversions = ckfOutInTracksFromConversions.clone()
+ckfOutInTracksFromMustacheConversions.src = cms.InputTag('mustacheConversionTrackCandidates','outInTracksFromConversions')
+ckfOutInTracksFromMustacheConversions.producer = cms.string('mustacheConversionTrackCandidates')
+ckfOutInTracksFromMustacheConversions.ComponentName = cms.string('ckfOutInTracksFromMustacheConversions')
+
+ckfInOutTracksFromMustacheConversions = ckfInOutTracksFromConversions.clone()
+ckfInOutTracksFromMustacheConversions.src = cms.InputTag('mustacheConversionTrackCandidates','inOutTracksFromConversions')
+ckfInOutTracksFromMustacheConversions.producer = cms.string('mustacheConversionTrackCandidates')
+ckfInOutTracksFromMustacheConversions.ComponentName = cms.string('ckfInOutTracksFromMustacheConversions')
+
+ckfTracksFromMustacheConversions = cms.Sequence(mustacheConversionTrackCandidates*ckfOutInTracksFromMustacheConversions*ckfInOutTracksFromMustacheConversions)
 
 #producer from general tracks collection, set tracker only, merged arbitrated, merged arbitrated ecal/general flags
 generalConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
@@ -49,11 +66,17 @@ gsfConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackPro
 
 conversionTrackProducers = cms.Sequence(generalConversionTrackProducer*conversionStepConversionTrackProducer*inOutConversionTrackProducer*outInConversionTrackProducer*gsfConversionTrackProducer)
 
+inOutMustacheConversionTrackProducer = inOutConversionTrackProducer.clone()
+inOutMustacheConversionTrackProducer.TrackProducer = cms.string('ckfInOutTracksFromMustacheConversions')
+outInMustacheConversionTrackProducer = outInConversionTrackProducer.clone()
+outInMustacheConversionTrackProducer.TrackProducer = cms.string('ckfOutInTracksFromMustacheConversions')
+
+mustacheConversionTrackProducers = cms.Sequence(inOutMustacheConversionTrackProducer*outInMustacheConversionTrackProducer)
 
 #merge generalTracks and conversionStepTracks collections, with arbitration by nhits then chi^2/ndof for ecalseededarbitrated, mergedarbitratedecalgeneral and mergedarbitrated flags
 generalConversionStepConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
-    TrackProducer1 = cms.string('generalConversionTrackProducer'),
-    TrackProducer2 = cms.string('conversionStepConversionTrackProducer'),
+    TrackProducer1 = cms.InputTag('generalConversionTrackProducer'),
+    TrackProducer2 = cms.InputTag('conversionStepConversionTrackProducer'),
     #prefer collection settings:
     #-1: propagate output/flag from both input collections
     # 0: propagate output/flag from neither input collection
@@ -66,8 +89,8 @@ generalConversionStepConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.co
 
 #merge two ecal-seeded collections, with arbitration by nhits then chi^2/ndof for ecalseededarbitrated, mergedarbitratedecalgeneral and mergedarbitrated flags
 inOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
-    TrackProducer1 = cms.string('inOutConversionTrackProducer'),
-    TrackProducer2 = cms.string('outInConversionTrackProducer'),
+    TrackProducer1 = cms.InputTag('inOutConversionTrackProducer'),
+    TrackProducer2 = cms.InputTag('outInConversionTrackProducer'),
     #prefer collection settings:
     #-1: propagate output/flag from both input collections
     # 0: propagate output/flag from neither input collection
@@ -85,8 +108,8 @@ inOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTra
 #arbitratedmerged flag is set based on shared hit matching, arbitration by nhits then chi^2/ndof
 #arbitratedmergedecalgeneral flag is set based on shared hit matching, precedence given to generalTracks
 generalInOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
-    TrackProducer1 = cms.string('inOutOutInConversionTrackMerger'),
-    TrackProducer2 = cms.string('generalConversionStepConversionTrackMerger'),
+    TrackProducer1 = cms.InputTag('inOutOutInConversionTrackMerger'),
+    TrackProducer2 = cms.InputTag('generalConversionStepConversionTrackMerger'),
     arbitratedMergedPreferCollection = cms.int32(3),
     arbitratedMergedEcalGeneralPreferCollection = cms.int32(2),        
 )
@@ -95,8 +118,8 @@ generalInOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conver
 #trackeronly, arbitratedmergedecalgeneral, and mergedecal flags are forwarded
 #arbitratedmerged flag set based on overlap removal by shared hits, with precedence given to gsf tracks
 gsfGeneralInOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
-    TrackProducer1 = cms.string('generalInOutOutInConversionTrackMerger'),
-    TrackProducer2 = cms.string('gsfConversionTrackProducer'),
+    TrackProducer1 = cms.InputTag('generalInOutOutInConversionTrackMerger'),
+    TrackProducer2 = cms.InputTag('gsfConversionTrackProducer'),
     arbitratedMergedPreferCollection = cms.int32(2),
 )
 
@@ -107,13 +130,25 @@ gsfGeneralInOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.con
 
 conversionTrackMergers = cms.Sequence(inOutOutInConversionTrackMerger*generalConversionStepConversionTrackMerger*generalInOutOutInConversionTrackMerger*gsfGeneralInOutOutInConversionTrackMerger)
 
+inOutOutInMustacheConversionTrackMerger = inOutOutInConversionTrackMerger.clone()
+inOutOutInMustacheConversionTrackMerger.TrackProducer1 = cms.InputTag('inOutMustacheConversionTrackProducer')
+inOutOutInMustacheConversionTrackMerger.TrackProducer2 = cms.InputTag('outInMustacheConversionTrackProducer')
+
+generalInOutOutInMustacheConversionTrackMerger = generalInOutOutInConversionTrackMerger.clone()
+generalInOutOutInMustacheConversionTrackMerger.TrackProducer1 = cms.InputTag('inOutOutInConversionTrackMerger')
+
+gsfGeneralInOutOutInMustacheConversionTrackMerger = gsfGeneralInOutOutInConversionTrackMerger.clone()
+gsfGeneralInOutOutInMustacheConversionTrackMerger.TrackProducer1 = cms.InputTag('generalInOutOutInMustacheConversionTrackMerger')
+
+mustacheConversionTrackMergers = cms.Sequence(inOutOutInMustacheConversionTrackMerger*generalInOutOutInMustacheConversionTrackMerger*gsfGeneralInOutOutInMustacheConversionTrackMerger)
+
 conversionTrackSequence = cms.Sequence(ckfTracksFromConversions*conversionTrackProducers*conversionTrackMergers)
 
 #merge the general tracks with the collection from gsf tracks
 #arbitratedmerged flag set based on overlap removal by shared hits, with precedence given to gsf tracks
 gsfGeneralConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
-    TrackProducer1 = cms.string('generalConversionTrackProducer'),
-    TrackProducer2 = cms.string('gsfConversionTrackProducer'),
+    TrackProducer1 = cms.InputTag('generalConversionTrackProducer'),
+    TrackProducer2 = cms.InputTag('gsfConversionTrackProducer'),
     arbitratedMergedPreferCollection = cms.int32(2),
 )
 

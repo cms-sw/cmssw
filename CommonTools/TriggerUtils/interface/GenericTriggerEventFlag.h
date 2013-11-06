@@ -24,8 +24,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -46,11 +49,14 @@ class GenericTriggerEventFlag {
     unsigned    verbose_;
     bool               andOrDcs_;
     edm::InputTag      dcsInputTag_;
+    edm::EDGetTokenT< DcsStatusCollection > dcsInputToken_;
     std::vector< int > dcsPartitions_;
     bool               errorReplyDcs_;
     bool                       andOrGt_;
     edm::InputTag              gtInputTag_;
+    edm::EDGetTokenT< L1GlobalTriggerReadoutRecord > gtInputToken_;
     edm::InputTag              gtEvmInputTag_;
+    edm::EDGetTokenT< L1GlobalTriggerEvmReadoutRecord > gtEvmInputToken_;
     std::string                gtDBKey_;
     std::vector< std::string > gtLogicalExpressions_;
     bool                       errorReplyGt_;
@@ -62,6 +68,7 @@ class GenericTriggerEventFlag {
     bool                       errorReplyL1_;
     bool                       andOrHlt_;
     edm::InputTag              hltInputTag_;
+    edm::EDGetTokenT< edm::TriggerResults > hltInputToken_;
     std::string                hltDBKey_;
     std::vector< std::string > hltLogicalExpressionsCache_;
     std::vector< std::string > hltLogicalExpressions_;
@@ -79,7 +86,8 @@ class GenericTriggerEventFlag {
   public:
 
     // Constructors and destructor
-    GenericTriggerEventFlag( const edm::ParameterSet & config ); // To be called from the ED module's c'tor
+    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector && iC ) : GenericTriggerEventFlag( config, iC ) {}; // To be called from the ED module's c'tor
+    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC ); // To be called from the ED module's c'tor
     ~GenericTriggerEventFlag();
 
     // Public methods

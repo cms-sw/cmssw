@@ -19,7 +19,7 @@
 
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Mixing/Base/interface/PileUp.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -27,7 +27,7 @@
 
 
 namespace edm {
-  class BMixingModule : public edm::EDProducer {
+  class BMixingModule : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
     public:
       /** standard constructor*/
       explicit BMixingModule(const edm::ParameterSet& ps);
@@ -77,7 +77,7 @@ namespace edm {
       virtual void endJob() override;
       //      std::string type_;
       int bunchSpace_;
-      static int vertexoffset;
+      int vertexOffset_;
       bool checktof_;
       int minBunch_;
       int maxBunch_;

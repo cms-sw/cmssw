@@ -21,8 +21,8 @@ using namespace edm;
 const double L1TGMT::piconv_ = 180. / acos(-1.);
 
 L1TGMT::L1TGMT(const ParameterSet& ps)
-  : gmtSource_( ps.getParameter< InputTag >("gmtSource") )
  {
+   gmtSource_ = consumes<L1MuGMTReadoutCollection>(ps.getParameter< InputTag >("gmtSource"));
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -95,11 +95,10 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
 
 
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
-  e.getByLabel(gmtSource_,pCollection);
+  e.getByToken(gmtSource_,pCollection);
   
   if (!pCollection.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
-    << gmtSource_.label() ;
+    edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection" ;
     return;
   }
 

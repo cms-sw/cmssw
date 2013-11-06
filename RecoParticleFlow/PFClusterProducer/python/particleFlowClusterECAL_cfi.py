@@ -4,8 +4,12 @@ import FWCore.ParameterSet.Config as cms
 particleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
     # verbosity 
     verbose = cms.untracked.bool(False),
+    #corrections
+    applyCrackCorrections = cms.bool(False),
     # PFRecHit collection          
     PFRecHits = cms.InputTag("particleFlowRecHitECAL"),
+    PFClustersPS = cms.InputTag('particleFlowClusterPS'), #for EE->PS assoc.
+    thresh_Preshower = cms.double(0.0),
     #PFCluster Collection name
     #PFClusterCollectionName =  cms.string("ECAL"),                                
     #----all thresholds are in GeV

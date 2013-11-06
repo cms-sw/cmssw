@@ -132,6 +132,7 @@ namespace evf{
   {
     //bonus track, now monitoring path execution too...
     // here we are forced to use string keys...
+    std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>update path map with " << pathName << std::endl;
     encPath_.update((void*)&pathName);
   }
 

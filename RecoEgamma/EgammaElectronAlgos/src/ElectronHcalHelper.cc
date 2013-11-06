@@ -9,8 +9,8 @@
 using namespace reco ;
 
 ElectronHcalHelper::ElectronHcalHelper( const Configuration & cfg  )
-  : cfg_(cfg), caloGeomCacheId_(0), hbhe_(0), mhbhe_(0), hcalIso_(0), towersH_(0), towerIso1_(0), towerIso2_(0),hadTower_(0)
- {}
+  : cfg_(cfg), caloGeomCacheId_(0), mhbhe_(0), hcalIso_(0), towerIso1_(0), towerIso2_(0),hadTower_(0) 
+{  }
 
 void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
  {
@@ -44,25 +44,27 @@ void ElectronHcalHelper::readEvent( const edm::Event & evt )
    {
     delete towerIso1_ ; towerIso1_ = 0 ;
     delete towerIso2_ ; towerIso2_ = 0 ;
-    delete towersH_ ; towersH_ = 0 ;
 
-    towersH_ = new edm::Handle<CaloTowerCollection>() ;
-    if (!evt.getByLabel(cfg_.hcalTowers,*towersH_))
-     { edm::LogError("ElectronHcalHelper::readEvent")<<"failed to get the hcal towers of label "<<cfg_.hcalTowers ; }
-    hadTower_->setTowerCollection(towersH_->product());
-    towerIso1_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEPtMin,1,towersH_->product()) ;
-    towerIso2_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEPtMin,2,towersH_->product()) ;
+    edm::Handle<CaloTowerCollection> towersH_ ;
+    if (!evt.getByToken(cfg_.hcalTowers,towersH_)){
+      edm::LogError("ElectronHcalHelper::readEvent")
+	<<"failed to get the hcal towers"; 
+    }
+    hadTower_->setTowerCollection(towersH_.product());
+    towerIso1_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEPtMin,1,towersH_.product()) ;
+    towerIso2_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEPtMin,2,towersH_.product()) ;
    }
   else
    {
     delete hcalIso_ ; hcalIso_ = 0 ;
     delete mhbhe_ ; mhbhe_ = 0 ;
-    delete hbhe_ ; hbhe_ = 0 ;
 
-    hbhe_=  new edm::Handle<HBHERecHitCollection>() ;
-    if (!evt.getByLabel(cfg_.hcalRecHits,*hbhe_))
-     { edm::LogError("ElectronHcalHelper::readEvent")<<"failed to get the rechits of label "<<cfg_.hcalRecHits ; }
-    mhbhe_=  new HBHERecHitMetaCollection(**hbhe_) ;
+    edm::Handle<HBHERecHitCollection> hbhe_;
+    if (!evt.getByToken(cfg_.hcalRecHits,hbhe_)) { 
+      edm::LogError("ElectronHcalHelper::readEvent")
+	<<"failed to get the rechits";
+    }
+    mhbhe_=  new HBHERecHitMetaCollection(*hbhe_) ;
     hcalIso_ = new EgammaHcalIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEHBMinE,cfg_.hOverEHFMinE,0.,0.,caloGeom_,mhbhe_) ;
    }
  }
@@ -114,14 +116,12 @@ ElectronHcalHelper::~ElectronHcalHelper()
    {
     delete towerIso1_ ;
     delete towerIso2_ ;
-    delete towersH_ ;
     delete hadTower_;
    }
   else
    {
     delete hcalIso_ ;
     delete mhbhe_ ;
-    delete hbhe_ ;
    }
  }
 

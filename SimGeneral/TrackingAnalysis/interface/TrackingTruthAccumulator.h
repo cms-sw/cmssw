@@ -12,7 +12,10 @@
 namespace edm
 {
 	class ParameterSet;
-	class EDProducer;
+        class ConsumesCollector;
+  namespace one {
+	class EDProducerBase;
+  }
 	class Event;
 	class EventSetup;
 }
@@ -64,7 +67,7 @@ class PSimHit;
 class TrackingTruthAccumulator : public DigiAccumulatorMixMod
 {
 public:
-	explicit TrackingTruthAccumulator( const edm::ParameterSet& config, edm::EDProducer& mixMod );
+	explicit TrackingTruthAccumulator( const edm::ParameterSet& config, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
 private:
 	virtual void initializeEvent( const edm::Event& event, const edm::EventSetup& setup );
 	virtual void accumulate( const edm::Event& event, const edm::EventSetup& setup );
@@ -99,7 +102,7 @@ private:
 	const bool removeDeadModules_;
 	const edm::InputTag simTrackLabel_;
 	const edm::InputTag simVertexLabel_;
-	edm::ParameterSet simHitCollectionConfig_;
+        std::vector<edm::InputTag> collectionTags_;
 	edm::InputTag genParticleLabel_;
 
 	bool selectorFlag_;

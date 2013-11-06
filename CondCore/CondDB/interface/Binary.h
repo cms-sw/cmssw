@@ -9,7 +9,7 @@ namespace coral {
   class Blob;
 }
 
-namespace conddb {
+namespace cond {
   class Binary {
   public:
     Binary();

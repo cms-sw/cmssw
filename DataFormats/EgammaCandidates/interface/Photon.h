@@ -80,6 +80,7 @@ namespace reco {
     void setVertex(const Point & vertex);
     /// Implement Candidate method for particle species
     bool isPhoton() const { return true ; }
+ 
 
     //=======================================================
     // Fiducial Flags
@@ -387,18 +388,27 @@ namespace reco {
     struct PflowIsolationVariables
     {
 
-      float chargedHadronIso;
-      float neutralHadronIso;
-      float photonIso ;
+      float chargedHadronIso; //  equivalent to sumChargedHadronPt in  DataFormats/MuonReco/interface/MuonPFIsolation.h
+      float chargedHadronIsoWrongVtx; //  equivalent to sumChargedHadronPt in  DataFormats/MuonReco/interface/MuonPFIsolation.h
+      float neutralHadronIso; //  equivalent to sumNeutralHadronPt in  DataFormats/MuonReco/interface/MuonPFIsolation.h
+      float photonIso ;       //  equivalent to sumPhotonPt in  DataFormats/MuonReco/interface/MuonPFIsolation.h
       float modFrixione ;      
-      
+      float sumChargedParticlePt; //!< sum-pt of charged Particles(inludes e/mu) 
+      float sumNeutralHadronEtHighThreshold;  //!< sum pt of neutral hadrons with a higher threshold
+      float sumPhotonEtHighThreshold;  //!< sum pt of PF photons with a higher threshold
+      float sumPUPt;  //!< sum pt of charged Particles not from PV  (for Pu corrections)
+
       PflowIsolationVariables():
 	
 	chargedHadronIso(0),
+	chargedHadronIsoWrongVtx(0),
 	neutralHadronIso(0),
 	photonIso(0),
-        modFrixione(0)
-      		   
+        modFrixione(0),
+	sumChargedParticlePt(0),
+      	sumNeutralHadronEtHighThreshold(0),
+	sumPhotonEtHighThreshold(0),
+	sumPUPt(0)	   
       {}
       
       
@@ -406,8 +416,13 @@ namespace reco {
 
     /// Accessors for Particle Flow Isolation variables 
     float chargedHadronIso() const {return  pfIsolation_.chargedHadronIso;}
+    float chargedHadronIsoWrongVtx() const {return  pfIsolation_.chargedHadronIsoWrongVtx;}
     float neutralHadronIso() const {return  pfIsolation_.neutralHadronIso;}
     float photonIso() const {return  pfIsolation_.photonIso;}
+    float sumChargedParticlePt() const {return pfIsolation_.sumChargedParticlePt;}
+    float sumNeutralHadronEtHighThreshold() const {return pfIsolation_.sumNeutralHadronEtHighThreshold;}
+    float sumPhotonEtHighThreshold() const {return pfIsolation_.sumPhotonEtHighThreshold;}
+    float sumPUPt() const {return pfIsolation_.sumPUPt;}
 
     /// Set Particle Flow Isolation variables
     void setPflowIsolationVariables ( const PflowIsolationVariables& pfisol ) {  pfIsolation_ = pfisol;} 

@@ -11,21 +11,29 @@
 #include <string>
 #include <vector>
 
+class EventAction;
+class NewTrackAction;
+
 class StackingAction : public G4UserStackingAction {
 
 public:
-  StackingAction(const edm::ParameterSet & ps);
+  StackingAction(EventAction* e, const edm::ParameterSet & ps);
   virtual ~StackingAction();
+
   virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track * aTrack);
-  virtual void NewStage();
-  virtual void PrepareNewEvent();
+
+  void NewStage();
+  void PrepareNewEvent();
+
 private:
   void   initPointer();
   bool   isThisVolume(const G4VTouchable*, std::vector<G4LogicalVolume*>&) const;
   int    isItPrimaryDecayProductOrConversion(const G4Track*, const G4Track &) const;
-  int    isItFromPrimary(const G4Track &, int) const;
+  bool   rrApplicable(const G4Track*, const G4Track&) const;
   bool   isItLongLived(const G4Track*) const;
+
 private:
+  EventAction                   *eventAction_;
   bool                          savePDandCinTracker, savePDandCinCalo;
   bool                          savePDandCinMuon, saveFirstSecondary;
   bool                          killInCalo, killInCaloEfH;
@@ -37,38 +45,42 @@ private:
   std::vector<G4Region*>        maxTimeRegions;
   std::vector<G4LogicalVolume*> tracker, calo, muon;
 
+  NewTrackAction*               newTA;
+
   // Russian roulette regions
   G4Region*                     regionEcal;
   G4Region*                     regionHcal;
-  G4Region*                     regionQuad;
   G4Region*                     regionMuonIron;
   G4Region*                     regionPreShower;
   G4Region*                     regionCastor;
-  G4Region*                     regionBeamPipeOut;
   G4Region*                     regionWorld;
 
   // Russian roulette energy limits
+  double                        gRusRoEnerLim;
   double                        nRusRoEnerLim;
   double                        pRusRoEnerLim;
 
   // Russian roulette factors
+  double                        gRusRoEcal;
   double                        nRusRoEcal;
   double                        pRusRoEcal;
+  double                        gRusRoHcal;
   double                        nRusRoHcal;
   double                        pRusRoHcal;
-  double                        nRusRoQuad;
-  double                        pRusRoQuad;
+  double                        gRusRoMuonIron;
   double                        nRusRoMuonIron;
   double                        pRusRoMuonIron;
+  double                        gRusRoPreShower;
   double                        nRusRoPreShower;
   double                        pRusRoPreShower;
+  double                        gRusRoCastor;
   double                        nRusRoCastor;
   double                        pRusRoCastor;
-  double                        nRusRoBeam;
-  double                        pRusRoBeam;
+  double                        gRusRoWorld;
   double                        nRusRoWorld;
   double                        pRusRoWorld;
   // flags
+  bool                          gRRactive;
   bool                          nRRactive;
   bool                          pRRactive;
 };

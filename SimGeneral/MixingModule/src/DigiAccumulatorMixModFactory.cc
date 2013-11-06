@@ -9,7 +9,9 @@
 EDM_REGISTER_PLUGINFACTORY(edm::DigiAccumulatorMixModPluginFactory,"DigiAccumulator");
 
 namespace edm {
-  class EDProducer;
+  namespace one {
+    class EDProducerBase;
+  }
 
   DigiAccumulatorMixModFactory::~DigiAccumulatorMixModFactory() {
   }
@@ -17,9 +19,9 @@ namespace edm {
   DigiAccumulatorMixModFactory::DigiAccumulatorMixModFactory() {
   }
 
-  DigiAccumulatorMixModFactory DigiAccumulatorMixModFactory::singleInstance_;
+  DigiAccumulatorMixModFactory const DigiAccumulatorMixModFactory::singleInstance_;
 
-  DigiAccumulatorMixModFactory* DigiAccumulatorMixModFactory::get() {
+  DigiAccumulatorMixModFactory const* DigiAccumulatorMixModFactory::get() {
     // will not work with plugin factories
     //static DigiAccumulatorMixModFactory f;
     //return &f;
@@ -28,11 +30,11 @@ namespace edm {
   }
 
   std::auto_ptr<DigiAccumulatorMixMod>
-  DigiAccumulatorMixModFactory::makeDigiAccumulator(ParameterSet const& conf, EDProducer& mixMod) const {
+  DigiAccumulatorMixModFactory::makeDigiAccumulator(ParameterSet const& conf, one::EDProducerBase& mixMod, ConsumesCollector& iC) const {
     std::string accumulatorType = conf.getParameter<std::string>("accumulatorType");
     FDEBUG(1) << "DigiAccumulatorMixModFactory: digi_accumulator_type = " << accumulatorType << std::endl;
     std::auto_ptr<DigiAccumulatorMixMod> wm;
-    wm = std::auto_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModPluginFactory::get()->create(accumulatorType, conf, mixMod));
+    wm = std::auto_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModPluginFactory::get()->create(accumulatorType, conf, mixMod, iC));
     
     if(wm.get()==0) {
 	throw edm::Exception(errors::Configuration,"NoSourceModule")

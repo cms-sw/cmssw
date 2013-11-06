@@ -1,6 +1,7 @@
 #ifndef RecoJets_JetProducers_interface_JetIDHelper_h
 #define RecoJets_JetProducers_interface_JetIDHelper_h
 
+#include <atomic>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -126,7 +127,7 @@ namespace reco {
       edm::InputTag ebRecHitsColl_;
       edm::InputTag eeRecHitsColl_;
 
-      static int sanity_checks_left_;
+      static std::atomic<int> sanity_checks_left_;
     };
   }
 }

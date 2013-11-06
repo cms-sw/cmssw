@@ -65,7 +65,8 @@ namespace pat {
     private:
 
       // configurables
-      edm::InputTag electronSrc_;
+      edm::EDGetTokenT<edm::View<reco::GsfElectron> > electronToken_;
+      edm::EDGetTokenT<reco::ConversionCollection> hConversionsToken_;
       bool          embedGsfElectronCore_;
       bool          embedGsfTrack_;
       bool          embedSuperCluster_;
@@ -79,26 +80,29 @@ namespace pat {
       bool          addGenMatch_;
       bool          embedGenMatch_;
       bool          embedRecHits_;
-      
-      std::vector<edm::InputTag> genMatchSrc_;
+
+      typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
+
+      std::vector<edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > > genMatchTokens_;
 
       /// pflow specific
       bool          useParticleFlow_;
-      edm::InputTag pfElecSrc_;
-      edm::InputTag pfCandidateMap_;
+      edm::EDGetTokenT<reco::PFCandidateCollection> pfElecToken_;
+      edm::EDGetTokenT<edm::ValueMap<reco::PFCandidatePtr> > pfCandidateMapToken_;
       bool          embedPFCandidate_;
 
       /// mva input variables
       edm::InputTag reducedBarrelRecHitCollection_;
+      edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
       edm::InputTag reducedEndcapRecHitCollection_;
- 
+      edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;
+
       /// embed high level selection variables?
       bool          embedHighLevelSelection_;
-      edm::InputTag beamLineSrc_;
+      edm::EDGetTokenT<reco::BeamSpot> beamLineToken_;
       bool          usePV_;
-      edm::InputTag pvSrc_;
+      edm::EDGetTokenT<std::vector<reco::Vertex> > pvToken_;
 
-      typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
       typedef edm::RefToBase<reco::GsfElectron> ElectronBaseRef;
       typedef std::vector< edm::Handle< edm::ValueMap<IsoDeposit> > > IsoDepositMaps;
       typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsolationValueMaps;
@@ -137,13 +141,15 @@ namespace pat {
 
       /// fill the labels vector from the contents of the parameter set,
       /// for the isodeposit or isolation values embedding
-      void readIsolationLabels( const edm::ParameterSet & iConfig,
-				const char* psetName,
-				IsolationLabels& labels);
+      template<typename T> void readIsolationLabels( const edm::ParameterSet & iConfig,
+				                     const char* psetName,
+				                     IsolationLabels& labels,
+					             std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > tokens);
 
       bool          addElecID_;
       typedef std::pair<std::string, edm::InputTag> NameTag;
       std::vector<NameTag> elecIDSrcs_;
+      std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > elecIDTokens_;
 
       // tools
       GreaterByPt<Electron>       pTComparator_;
@@ -151,8 +157,11 @@ namespace pat {
       pat::helper::MultiIsolator isolator_;
       pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
       IsolationLabels isoDepositLabels_;
+      std::vector<edm::EDGetTokenT<edm::ValueMap<IsoDeposit> > > isoDepositTokens_;
       IsolationLabels isolationValueLabels_;
+      std::vector<edm::EDGetTokenT<edm::ValueMap<double> > > isolationValueTokens_;
       IsolationLabels isolationValueLabelsNoPFId_;
+      std::vector<edm::EDGetTokenT<edm::ValueMap<double> > > isolationValueNoPFIdTokens_;
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
@@ -166,6 +175,57 @@ namespace pat {
       const CaloTopology * ecalTopology_;
 
   };
+
+
+}
+
+
+using namespace pat;
+
+
+template<typename T>
+void PATElectronProducer::readIsolationLabels( const edm::ParameterSet & iConfig,
+					       const char* psetName,
+					       IsolationLabels& labels,
+					       std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > tokens) {
+
+  labels.clear();
+
+  if (iConfig.exists( psetName )) {
+    edm::ParameterSet depconf
+      = iConfig.getParameter<edm::ParameterSet>(psetName);
+
+    if (depconf.exists("tracker")) labels.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
+    if (depconf.exists("ecal"))    labels.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
+    if (depconf.exists("hcal"))    labels.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
+    if (depconf.exists("pfAllParticles"))  {
+      labels.push_back(std::make_pair(pat::PfAllParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
+    }
+    if (depconf.exists("pfChargedHadrons"))  {
+      labels.push_back(std::make_pair(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons")));
+    }
+    if (depconf.exists("pfChargedAll"))  {
+      labels.push_back(std::make_pair(pat::PfChargedAllIso, depconf.getParameter<edm::InputTag>("pfChargedAll")));
+    }
+    if (depconf.exists("pfPUChargedHadrons"))  {
+      labels.push_back(std::make_pair(pat::PfPUChargedHadronIso, depconf.getParameter<edm::InputTag>("pfPUChargedHadrons")));
+    }
+    if (depconf.exists("pfNeutralHadrons"))  {
+      labels.push_back(std::make_pair(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons")));
+    }
+    if (depconf.exists("pfPhotons")) {
+      labels.push_back(std::make_pair(pat::PfGammaIso, depconf.getParameter<edm::InputTag>("pfPhotons")));
+    }
+    if (depconf.exists("user")) {
+      std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
+      std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
+      int key = UserBaseIso;
+      for ( ; it != ed; ++it, ++key) {
+       labels.push_back(std::make_pair(IsolationKeys(key), *it));
+      }
+    }
+  }
+  tokens = edm::vector_transform(labels, [this](IsolationLabel const & label){return consumes<edm::ValueMap<T> >(label.second);});
 
 
 }

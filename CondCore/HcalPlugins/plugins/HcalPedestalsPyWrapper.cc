@@ -19,7 +19,7 @@
 #include "TColor.h"
 #include "TLine.h"
 
-#include "math.h"
+#include <cmath>
 //functions for correct representation of data in summary and plot:
 #include "CondCore/HcalPlugins/interface/HcalObjRepresent.h"
 using namespace HcalObjRepresent;

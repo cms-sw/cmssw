@@ -35,7 +35,7 @@
 #include "TProfile.h"
 #include "TPRegexp.h"
 
-#include "math.h"
+#include <cmath>
 
 using namespace edm;
 using namespace reco;

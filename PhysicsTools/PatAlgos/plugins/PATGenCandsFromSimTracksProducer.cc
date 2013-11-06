@@ -3,7 +3,7 @@
   \brief    Produces reco::GenParticle from SimTracks
 
    The PATGenCandsFromSimTracksProducer produces GenParticles from SimTracks, so they can be used for MC matching.
-   
+
 
   \author   Jordan Tucker (original module), Giovanni Petrucciani (PAT integration)
   \version  $Id: PATGenCandsFromSimTracksProducer.cc,v 1.8 2010/10/20 23:09:25 wmtan Exp $
@@ -36,7 +36,8 @@ private:
   virtual void endJob() override {}
 
   bool firstEvent_;
-  edm::InputTag src_;
+  edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
   int setStatus_;
   std::set<int>         pdgIds_; // these are the ones we really use
   std::vector<PdtEntry> pdts_;   // these are needed before we get the EventSetup
@@ -46,13 +47,14 @@ private:
   typedef StringCutObjectSelector<reco::GenParticle> StrFilter;
   std::auto_ptr<StrFilter> filter_;
 
-  /// If true, I'll try to make a link from the GEANT particle to a GenParticle  
+  /// If true, I'll try to make a link from the GEANT particle to a GenParticle
   bool makeMotherLink_;
   /// If true, I'll save GenParticles corresponding to the ancestors of this GEANT particle. Common ancestors are only written once.
   bool writeAncestors_;
 
   /// Collection of GenParticles I need to make refs to. It must also have its associated vector<int> of barcodes, aligned with them.
-  edm::InputTag genParticles_;
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
+  edm::EDGetTokenT<std::vector<int> > genBarcodesToken_;
 
   /// Global context for all recursive methods
   struct GlobalContext {
@@ -63,7 +65,7 @@ private:
                     bool                                            barcodesAreSorted1,
                     reco::GenParticleCollection                     & output1,
                     const edm::RefProd<reco::GenParticleCollection> & refprod1) :
-          simtks(simtks1), simvtxs(simvtxs1), 
+          simtks(simtks1), simvtxs(simvtxs1),
           gens(gens1), genBarcodes(genBarcodes1), barcodesAreSorted(barcodesAreSorted1),
           output(output1), refprod(refprod1), simTksProcessed() {}
       // GEANT info
@@ -77,8 +79,8 @@ private:
       reco::GenParticleCollection                     & output;
       const edm::RefProd<reco::GenParticleCollection> & refprod;
       // BOOK-KEEPING
-      std::map<unsigned int,int> simTksProcessed; // key = sim track id; 
-                                         // val = 0: not processed; 
+      std::map<unsigned int,int> simTksProcessed; // key = sim track id;
+                                         // val = 0: not processed;
                                          //       i>0:  (index+1) in my output
                                          //       i<0: -(index+1) in pythia [NOT USED]
   };
@@ -96,7 +98,7 @@ private:
   edm::Ref<reco::GenParticleCollection> generatorRef_(const SimTrack &tk, const GlobalContext &g) const ;
   /// Make a GenParticle for this SimTrack, with a given mother
   reco::GenParticle makeGenParticle_(const SimTrack &tk, const edm::Ref<reco::GenParticleCollection> & mother, const GlobalContext &g) const ;
-  
+
 
 
   struct LessById {
@@ -104,7 +106,7 @@ private:
     bool operator()(const SimTrack &tk1, unsigned int    id ) const { return tk1.trackId() < id;            }
     bool operator()(unsigned int     id, const SimTrack &tk2) const { return id            < tk2.trackId(); }
   };
-   
+
 };
 }
 
@@ -115,11 +117,13 @@ using pat::PATGenCandsFromSimTracksProducer;
 
 PATGenCandsFromSimTracksProducer::PATGenCandsFromSimTracksProducer(const ParameterSet& cfg) :
   firstEvent_(true),
-  src_(cfg.getParameter<InputTag>("src")),            // source sim tracks & vertices
+  simTracksToken_(consumes<SimTrackContainer>(cfg.getParameter<InputTag>("src"))),            // source sim tracks
+  simVertexToken_(consumes<SimVertexContainer>(cfg.getParameter<InputTag>("src"))),            // source sim  vertices
   setStatus_(cfg.getParameter<int32_t>("setStatus")), // set status of GenParticle to this code
   makeMotherLink_(cfg.existsAs<bool>("makeMotherLink") ? cfg.getParameter<bool>("makeMotherLink") : false),
   writeAncestors_(cfg.existsAs<bool>("writeAncestors") ? cfg.getParameter<bool>("writeAncestors") : false),
-  genParticles_(makeMotherLink_ ? cfg.getParameter<InputTag>("genParticles") : edm::InputTag())
+  genParticlesToken_(mayConsume<GenParticleCollection>(cfg.getParameter<InputTag>("genParticles"))),
+  genBarcodesToken_(mayConsume<std::vector<int> >(cfg.getParameter<InputTag>("genParticles")))
 {
     // Possibly allow a list of particle types
     if (cfg.exists("particleTypes")) {
@@ -138,14 +142,14 @@ PATGenCandsFromSimTracksProducer::PATGenCandsFromSimTracksProducer(const Paramet
     }
 
     if (writeAncestors_ && !makeMotherLink_) {
-        edm::LogWarning("Configuration") << "PATGenCandsFromSimTracksProducer: " << 
+        edm::LogWarning("Configuration") << "PATGenCandsFromSimTracksProducer: " <<
             "you have set 'writeAncestors' to 'true' and 'makeMotherLink' to false;" <<
             "GEANT particles with generator level (e.g.PYHIA) mothers won't have mother links.\n";
     }
     produces<GenParticleCollection>();
 }
 
-const SimTrack * 
+const SimTrack *
 PATGenCandsFromSimTracksProducer::findGeantMother(const SimTrack &tk, const GlobalContext &g) const {
    assert(tk.genpartIndex() == -1); // MUST NOT be called with a PYTHIA track
    if (!tk.noVertex()) {
@@ -161,7 +165,7 @@ PATGenCandsFromSimTracksProducer::findGeantMother(const SimTrack &tk, const Glob
    return 0;
 }
 
-edm::Ref<reco::GenParticleCollection> 
+edm::Ref<reco::GenParticleCollection>
 PATGenCandsFromSimTracksProducer::findRef(const SimTrack &tk, GlobalContext &g) const {
     if (tk.genpartIndex() != -1) return makeMotherLink_ ? generatorRef_(tk, g) : edm::Ref<reco::GenParticleCollection>();
     const SimTrack * simMother = findGeantMother(tk, g);
@@ -179,20 +183,20 @@ PATGenCandsFromSimTracksProducer::findRef(const SimTrack &tk, GlobalContext &g) 
             return edm::Ref<reco::GenParticleCollection>(g.refprod, (it->second) - 1);
         } else {
             // make genParticle, save, update the map, and return ref to myself
-            reco::GenParticle p = makeGenParticle_(tk, motherRef, g); 
+            reco::GenParticle p = makeGenParticle_(tk, motherRef, g);
             g.output.push_back(p);
             g.simTksProcessed[tk.trackId()] = g.output.size();
             return edm::Ref<reco::GenParticleCollection>(g.refprod, g.output.size()-1 );
         }
     } else {
         // Otherwise, I just return a ref to my mum
-        return motherRef; 
+        return motherRef;
     }
 }
 
-edm::Ref<reco::GenParticleCollection> 
+edm::Ref<reco::GenParticleCollection>
 PATGenCandsFromSimTracksProducer::generatorRef_(const SimTrack &st, const GlobalContext &g) const {
-    assert(st.genpartIndex() != -1);        
+    assert(st.genpartIndex() != -1);
     // Note that st.genpartIndex() is the barcode, not the index within GenParticleCollection, so I have to search the particle
     std::vector<int>::const_iterator it;
     if (g.barcodesAreSorted) {
@@ -210,7 +214,7 @@ PATGenCandsFromSimTracksProducer::generatorRef_(const SimTrack &st, const Global
     }
 }
 
-reco::GenParticle 
+reco::GenParticle
 PATGenCandsFromSimTracksProducer::makeGenParticle_(const SimTrack &tk, const edm::Ref<reco::GenParticleCollection> & mother, const GlobalContext &g) const {
     // Make up a GenParticleCandidate from the GEANT track info.
     int charge = static_cast<int>(tk.charge());
@@ -230,7 +234,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
     if (!pdts_.empty()) {
       pdgIds_.clear();
       for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
-	itp->setup(iSetup); // decode string->pdgId and vice-versa                                                                                                
+	itp->setup(iSetup); // decode string->pdgId and vice-versa
 	pdgIds_.insert(std::abs(itp->pdgId()));
       }
       pdts_.clear();
@@ -238,7 +242,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
     if (!motherPdts_.empty()) {
       motherPdgIds_.clear();
       for (vector<PdtEntry>::iterator itp = motherPdts_.begin(), edp = motherPdts_.end(); itp != edp; ++itp) {
-	itp->setup(iSetup); // decode string->pdgId and vice-versa                                                                                                
+	itp->setup(iSetup); // decode string->pdgId and vice-versa
 	motherPdgIds_.insert(std::abs(itp->pdgId()));
       }
       motherPdts_.clear();
@@ -248,7 +252,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
 
   // Simulated tracks (i.e. GEANT particles).
   Handle<SimTrackContainer> simtracks;
-  event.getByLabel(src_, simtracks);
+  event.getByToken(simTracksToken_, simtracks);
 
   // Need to check that SimTrackContainer is sorted; otherwise, copy and sort :-(
   std::auto_ptr<SimTrackContainer> simtracksTmp;
@@ -263,18 +267,18 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
 
   // Get the associated vertices
   Handle<SimVertexContainer> simvertices;
-  event.getByLabel(src_, simvertices);
+  event.getByToken(simVertexToken_, simvertices);
 
   // Get the GenParticles and barcodes, if needed to set mother links
   Handle<GenParticleCollection> gens;
   Handle<std::vector<int> > genBarcodes;
   bool barcodesAreSorted = true;
   if (makeMotherLink_) {
-      event.getByLabel(genParticles_, gens);
-      event.getByLabel(genParticles_, genBarcodes);
+      event.getByToken(genParticlesToken_, gens);
+      event.getByToken(genBarcodesToken_, genBarcodes);
       if (gens->size() != genBarcodes->size()) throw cms::Exception("Corrupt data") << "Barcodes not of the same size as GenParticles!\n";
       barcodesAreSorted = __gnu_cxx::is_sorted(genBarcodes->begin(), genBarcodes->end());
-  }    
+  }
 
 
   // make the output collection
@@ -287,7 +291,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
           isimtrk != simtracks->end(); ++isimtrk) {
 
       // Skip PYTHIA tracks.
-      if (isimtrk->genpartIndex() != -1) continue; 
+      if (isimtrk->genpartIndex() != -1) continue;
 
       // Maybe apply the PdgId filter
       if (!pdgIds_.empty()) { // if we have a filter on pdg ids
@@ -310,7 +314,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
       if (makeMotherLink_ || writeAncestors_) {
           Ref<GenParticleCollection> motherRef;
           const SimTrack * mother = findGeantMother(*isimtrk, globals);
-          if (mother != 0) motherRef = findRef(*mother, globals); 
+          if (mother != 0) motherRef = findRef(*mother, globals);
           if (motherRef.isNonnull()) genp.addMother(motherRef);
       }
 
@@ -325,7 +329,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
   for (GenParticleCollection::const_iterator it = orphans->begin(), ed = orphans->end(); it != ed; ++it) {
       std::cout << "    ";
       std::cout << "GenParticle #" << (it - orphans->begin()) << ": pdgId " << it->pdgId()
-                << ", pt = " << it->pt() << ", eta = " << it->eta() << ", phi = " << it->phi() 
+                << ", pt = " << it->pt() << ", eta = " << it->eta() << ", phi = " << it->phi()
                 << ", rho = " << it->vertex().Rho() << ", z = " << it->vertex().Z() << std::endl;
       edm::Ref<GenParticleCollection> mom = it->motherRef();
       size_t depth = 2;
@@ -335,15 +339,15 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
               mom = edm::Ref<GenParticleCollection>(orphans, mom.key());
           }
           for (size_t i = 0; i < depth; ++i) std::cout << "    ";
-          std::cout << "GenParticleRef [" << mom.id() << "/" << mom.key() << "]: pdgId " << mom->pdgId() << ", status = " << mom->status() 
-                    << ", pt = " << mom->pt() << ", eta = " << mom->eta() << ", phi = " << mom->phi() 
+          std::cout << "GenParticleRef [" << mom.id() << "/" << mom.key() << "]: pdgId " << mom->pdgId() << ", status = " << mom->status()
+                    << ", pt = " << mom->pt() << ", eta = " << mom->eta() << ", phi = " << mom->phi()
                     << ", rho = " << mom->vertex().Rho() << ", z = " << mom->vertex().Z() << std::endl;
           if (mom.id() != orphans.id()) break;
           if ((mom->motherRef().id() == mom.id()) && (mom->motherRef().key() == mom.key())) {
               throw cms::Exception("Corrupt Data") << "A particle is it's own mother.\n";
           }
-          mom = mom->motherRef(); 
-          depth++; 
+          mom = mom->motherRef();
+          depth++;
       }
   }
   std::cout << std::endl;

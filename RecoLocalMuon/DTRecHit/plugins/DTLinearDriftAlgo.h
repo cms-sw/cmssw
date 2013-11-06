@@ -81,21 +81,21 @@ class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
 
 
   // The Drift Velocity (cm/ns)
-  static float vDrift;
+  const float vDrift;
   // // The Drift Velocity (cm/ns) for MB1 Wheel1 (non fluxed chamber) 21-Dec-2006 SL
-  // static float vDriftMB1W1;
+  // const float vDriftMB1W1;
 
   // The resolution on the Hits (cm)
-  static float hitResolution;
+  const float hitResolution;
 
   // Times below MinTime (ns) are considered as coming from previous BXs.
-  static float minTime;
+  const float minTime;
 
   // Times above MaxTime (ns) are considered as coming from following BXs
-  static float maxTime;
+  const float maxTime;
 
   // Switch on/off the verbosity
-  static bool debug;
+  const bool debug;
 };
 #endif
 

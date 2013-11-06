@@ -37,7 +37,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/ConditionsInEdm.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 
@@ -59,16 +62,27 @@ namespace pat {
       std::string                  nameProcess_;        // configuration
       bool                         autoProcessName_;
       edm::InputTag                tagTriggerProducer_; // configuration (optional with default)
+      edm::EDGetTokenT< TriggerAlgorithmCollection > triggerAlgorithmCollectionToken_;
+      edm::EDGetTokenT< TriggerConditionCollection > triggerConditionCollectionToken_;
+      edm::EDGetTokenT< TriggerPathCollection >      triggerPathCollectionToken_;
+      edm::EDGetTokenT< TriggerFilterCollection >    triggerFilterCollectionToken_;
+      edm::EDGetTokenT< TriggerObjectCollection >    triggerObjectCollectionToken_;
       std::vector< edm::InputTag > tagsTriggerMatcher_; // configuration (optional)
+      std::vector< edm::EDGetTokenT< TriggerObjectStandAloneMatch > > triggerMatcherTokens_;
       // L1
       edm::InputTag                tagL1Gt_;            // configuration (optional with default)
+      edm::EDGetTokenT< L1GlobalTriggerReadoutRecord > l1GtToken_;
       // HLT
       HLTConfigProvider            hltConfig_;
       bool                         hltConfigInit_;
       edm::InputTag                tagTriggerResults_;  // configuration (optional with default)
+//       edm::EDGetTokenT< edm::TriggerResults > triggerResultsToken_;
       edm::InputTag                tagTriggerEvent_;    // configuration (optional with default)
       // Conditions
       edm::InputTag                tagCondGt_;          // configuration (optional with default)
+      edm::EDGetTokenT< edm::ConditionsInRunBlock > tagCondGtRunToken_;
+      edm::EDGetTokenT< edm::ConditionsInLumiBlock > tagCondGtLumiToken_;
+      edm::EDGetTokenT< edm::ConditionsInEventBlock > tagCondGtEventToken_;
       edm::ConditionsInRunBlock    condRun_;
       edm::ConditionsInLumiBlock   condLumi_;
       bool                         gtCondRunInit_;

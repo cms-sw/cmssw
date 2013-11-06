@@ -16,19 +16,13 @@ using namespace std;
 using namespace edm;
 
 DTNoDriftAlgo::DTNoDriftAlgo(const ParameterSet& config) :
-  DTRecHitBaseAlgo(config) {
-
-    minTime = config.getParameter<double>("minTime");
-
-    maxTime = config.getParameter<double>("maxTime"); 
-
-    fixedDrift = config.getParameter<double>("fixedDrift");
-
-    hitResolution = config.getParameter<double>("hitResolution"); // Set to size of (half)cell 
-    // Set verbose output
-    debug = config.getUntrackedParameter<bool>("debug");
-    
-  }
+  DTRecHitBaseAlgo(config),
+  fixedDrift(config.getParameter<double>("fixedDrift")),
+  hitResolution(config.getParameter<double>("hitResolution")), // Set to size of (half)cell 
+  minTime(config.getParameter<double>("minTime")),
+  maxTime(config.getParameter<double>("maxTime")),
+  debug(config.getUntrackedParameter<bool>("debug")) // Set verbose output
+ {}
 
 
 
@@ -233,18 +227,3 @@ bool DTNoDriftAlgo::compute(const DTLayer* layer,
     return false;
   }
 }
-
-
-float DTNoDriftAlgo::fixedDrift;
-
-  
-float DTNoDriftAlgo::hitResolution;
-
-  
-float DTNoDriftAlgo::minTime;
-
-  
-float DTNoDriftAlgo::maxTime;
-
-  
-bool DTNoDriftAlgo::debug;

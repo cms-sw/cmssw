@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
+import os
 
 particleFlowSuperClusterECALBox = cms.EDProducer(
     "PFECALSuperClusterProducer",
@@ -14,7 +16,11 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     
     #PFClusters collection
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
-    PFClustersES = cms.InputTag("particleFlowClusterPS"),
+    ESAssociation = cms.InputTag("particleFlowClusterECAL"),
+    vertexCollection = cms.InputTag("offlinePrimaryVertices"),
+    #rechit collections for lazytools
+    ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
+    ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
                                               
     PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),                                       
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
@@ -28,6 +34,11 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
 
     # are the seed thresholds Et or Energy?
     seedThresholdIsET = cms.bool(True),
+
+    # regression setup
+    useRegression = cms.bool(False), #regressions are mustache only
+    regressionKeyEB = cms.string('pfecalsc_EBCorrection'),
+    regressionKeyEE = cms.string('pfecalsc_EECorrection'),
     
     # threshold in ECAL
     thresh_PFClusterSeedBarrel = cms.double(3.0),
@@ -73,7 +84,11 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
                                               
     #PFClusters collection
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
-    PFClustersES = cms.InputTag("particleFlowClusterPS"),
+    ESAssociation = cms.InputTag("particleFlowClusterECAL"),
+    vertexCollection = cms.InputTag("offlinePrimaryVertices"),
+    #rechit collections for lazytools
+    ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
+    ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
                                               
     PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),                                       
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
@@ -87,12 +102,16 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
 
     # are the seed thresholds Et or Energy?
     seedThresholdIsET = cms.bool(True),
-
+    # regression setup
+    useRegression = cms.bool(False),
+    regressionKeyEB = cms.string('pfecalsc_EBCorrection'),
+    regressionKeyEE = cms.string('pfecalsc_EECorrection'),
+    
     # threshold in ECAL
-    thresh_PFClusterSeedBarrel = cms.double(3.0),
+    thresh_PFClusterSeedBarrel = cms.double(1.0),
     thresh_PFClusterBarrel = cms.double(0.0),
 
-    thresh_PFClusterSeedEndcap = cms.double(5.0),
+    thresh_PFClusterSeedEndcap = cms.double(1.0),
     thresh_PFClusterEndcap = cms.double(0.0),
 
     # window width in ECAL ( these don't mean anything for Mustache )

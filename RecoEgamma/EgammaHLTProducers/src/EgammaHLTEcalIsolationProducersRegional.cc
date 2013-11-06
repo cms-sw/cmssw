@@ -11,6 +11,8 @@
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalIsolationProducersRegional.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTEcalIsolationProducersRegional::EgammaHLTEcalIsolationProducersRegional(const edm::ParameterSet& config) : conf_(config) {
   
@@ -35,6 +37,20 @@ EgammaHLTEcalIsolationProducersRegional::~EgammaHLTEcalIsolationProducersRegiona
   delete test_;
 }
 
+void EgammaHLTEcalIsolationProducersRegional::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc; 
+  desc.add<edm::InputTag>("bcBarrelProducer", edm::InputTag(""));
+  desc.add<edm::InputTag>("bcEndcapProducer", edm::InputTag(""));
+  desc.add<edm::InputTag>("scIslandBarrelProducer", edm::InputTag(""));
+  desc.add<edm::InputTag>("scIslandEndcapProducer", edm::InputTag(""));
+  desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag(""));
+  desc.add<double>("egEcalIsoEtMin", 0.);
+  desc.add<double>("egEcalIsoConeSize", 0.3);
+  desc.add<int>("SCAlgoType", 1);
+  descriptions.add("hltEgammaHLTEcalIsolationProducersRegional", desc);  
+}
+
+  
 void EgammaHLTEcalIsolationProducersRegional::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   // Get the basic cluster collection in the Barrel

@@ -64,10 +64,15 @@
 #include <map>
 
 namespace {
-  struct dictionary {
+  struct dictionary2 {
 
     std::vector<reco::PFCluster>                         dummy1;
     edm::Wrapper< std::vector<reco::PFCluster> >         dummy2;
+
+    reco::PFCluster::EEtoPSAssociation sceepsassoc;
+    edm::Wrapper<reco::PFCluster::EEtoPSAssociation> wsceepsassoc;    
+    std::pair<reco::CaloClusterPtr::key_type,edm::Ptr<reco::PFCluster> > 
+      sceepsassocval;
 
     std::vector<reco::PFRecHit>                          dummy3;
     edm::Ref< std::vector<reco::PFRecHit> >              dummy4;

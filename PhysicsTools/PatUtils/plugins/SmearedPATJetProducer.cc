@@ -16,7 +16,7 @@ namespace SmearedJetProducer_namespace
   {
     public:
 
-     GenJetMatcherT(const edm::ParameterSet& cfg)
+     GenJetMatcherT(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC)
        : dRmaxGenJetMatch_(0)
      {
        TString dRmaxGenJetMatch_formula = cfg.getParameter<std::string>("dRmaxGenJetMatch").data();
@@ -33,7 +33,7 @@ namespace SmearedJetProducer_namespace
        const reco::GenJet* retVal = 0;
 
        // CV: apply matching criterion which is tighter than PAT default,
-       //     in order to avoid "accidental" matches for which the difference between genJetPt and recJetPt is large 
+       //     in order to avoid "accidental" matches for which the difference between genJetPt and recJetPt is large
        //    (the large effect of such bad matches on the MEt smearing is "unphysical",
        //     because the large difference between genJetPt and recJetPt results from the matching
        //     and not from the particle/jet reconstruction)
@@ -43,12 +43,12 @@ namespace SmearedJetProducer_namespace
 	 double dR = deltaR(jet.p4(), genJet->p4());
 	 if ( dR < dRmaxGenJetMatch_->Eval(genJet->pt()) ) retVal = genJet;
        }
-       
+
        return retVal;
      }
 
     private:
-    
+
      TFormula* dRmaxGenJetMatch_;
   };
 
@@ -57,7 +57,7 @@ namespace SmearedJetProducer_namespace
   {
     public:
 
-     JetResolutionExtractorT(const edm::ParameterSet& cfg) 
+     JetResolutionExtractorT(const edm::ParameterSet& cfg)
        : jetResolutions_(cfg)
      {}
      ~JetResolutionExtractorT() {}

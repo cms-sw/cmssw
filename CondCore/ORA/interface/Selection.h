@@ -20,7 +20,7 @@ namespace ora    {
 
     static const int endOfRange = -1;
     static std::string indexVariable();
-    static std::vector<std::string>& selectionTypes();
+    static const std::vector<std::string>& selectionTypes();
     static std::string variableNameFromUniqueString(const std::string& uniqueString);
 
     public:

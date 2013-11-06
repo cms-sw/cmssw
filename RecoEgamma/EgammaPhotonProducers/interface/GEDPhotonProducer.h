@@ -26,6 +26,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "RecoEgamma/PhotonIdentification/interface/PFPhotonIsolationCalculator.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
@@ -33,6 +34,9 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
+
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 // GEDPhotonProducer inherits from EDProducer, so it can be a module:
 class GEDPhotonProducer : public edm::EDProducer {
@@ -61,16 +65,34 @@ class GEDPhotonProducer : public edm::EDProducer {
 			    int& iSC,
 			    const EcalSeverityLevelAlgo * sevLv);
 
-  // std::string PhotonCoreCollection_;
-  std::string PhotonCollection_;
-  edm::InputTag photonCoreProducer_;
-  edm::InputTag barrelEcalHits_;
-  edm::InputTag endcapEcalHits_;
+ void fillPhotonCollection(edm::Event& evt,
+			    edm::EventSetup const & es,
+                            const edm::Handle<reco::PhotonCollection> & photonHandle,
+		   	   const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle,
+			    //math::XYZPoint & vtx,
+			    edm::Handle< reco::VertexCollection >&  pvVertices,
+			    reco::PhotonCollection & outputCollection,
+			    int& iSC,
+			    const EcalSeverityLevelAlgo * sevLv);
 
-  edm::InputTag hcalTowers_;
+
+  // std::string PhotonCoreCollection_;
+  std::string photonCollection_;
+  edm::InputTag  photonProducer_; 
+  edm::EDGetTokenT<reco::PhotonCoreCollection> photonCoreProducerT_;
+  edm::EDGetTokenT<reco::PhotonCollection> photonProducerT_;
+  edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
+  edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
+  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
 
   std::string conversionProducer_;
   std::string conversionCollection_;
+  std::string valueMapPFCandPhoton_;
+
+  PFPhotonIsolationCalculator* thePFBasedIsolationCalculator_;
+  PhotonIsolationCalculator* thePhotonIsolationCalculator_;
 
   //AA
   //Flags and severities to be excluded from calculations
@@ -80,7 +102,7 @@ class GEDPhotonProducer : public edm::EDProducer {
   std::vector<int> severitiesexclEB_;
   std::vector<int> severitiesexclEE_;
 
-
+  
   double hOverEConeSize_;
   double maxHOverE_;
   double minSCEt_;
@@ -91,7 +113,7 @@ class GEDPhotonProducer : public edm::EDProducer {
 
   bool validConversions_;
   std::string pixelSeedProducer_;
-  std::string vertexProducer_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
   bool usePrimaryVertex_;
   edm::ParameterSet conf_;
 
@@ -101,7 +123,6 @@ class GEDPhotonProducer : public edm::EDProducer {
   edm::ESHandle<CaloTopology> theCaloTopo_;
  
   bool validPixelSeeds_;
-  PhotonIsolationCalculator* thePhotonIsolationCalculator_;
 
   //MIP
   PhotonMIPHaloTagger* thePhotonMIPHaloTagger_;

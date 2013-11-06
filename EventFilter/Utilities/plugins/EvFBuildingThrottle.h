@@ -25,7 +25,8 @@ namespace evf{
 	, lowWaterMark_(pset.getUntrackedParameter<double>("lowWaterMark",0.5))
 	, m_stoprequest(false)
 	, whatToThrottleOn_(Directory(pset.getUntrackedParameter<int>("dirCode",mBase)))
-	, throttled_(false) 
+	, throttled_(false)
+	, sleep_( pset.getUntrackedParameter<unsigned int>("sleepmSecs",1000))
       {
 	reg.watchPreBeginRun(this,&EvFBuildingThrottle::preBeginRun);  
 	reg.watchPostEndRun(this,&EvFBuildingThrottle::postEndRun);  
@@ -81,17 +82,18 @@ namespace evf{
 	  double fraction = 1.-float(buf.f_bfree*buf.f_bsize)/float(buf.f_blocks*buf.f_frsize);
 	  bool highwater_ = fraction>highWaterMark_;
 	  bool lowwater_ = fraction<lowWaterMark_;
-	  if(highwater_ && !throttled_){ lock_.lock(); throttled_ = true;}
+	  if(highwater_ && !throttled_){ lock_.lock(); throttled_ = true;std::cout << ">>>>throttling on " << std::endl;}
 	  if(lowwater_ && throttled_){ lock_.unlock(); throttled_ = false;}
+	  std::cout << " building throttle on " << baseDir_ << " is " << fraction*100 << " %full " << std::endl;
 	  edm::Service<EvFDaqDirector>()->writeDiskAndThrottleStat(fraction,highwater_,lowwater_);
-	  ::sleep(1);
+	  ::usleep(sleep_*1000);
 	}
       }
       void start(){
 	assert(!m_thread);
 	token_ = edm::ServiceRegistry::instance().presentToken();
 	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&EvFBuildingThrottle::dowork,this)));
-	std::cout << "throttle thread started " << std::endl;
+	std::cout << "throttle thread started - throttle on " <<  whatToThrottleOn_ << std::endl;
       }
       void stop(){
 	assert(m_thread);
@@ -108,6 +110,7 @@ namespace evf{
       Directory whatToThrottleOn_;
       edm::ServiceToken token_;
       bool throttled_;
+      unsigned int sleep_;
   };
 }
 

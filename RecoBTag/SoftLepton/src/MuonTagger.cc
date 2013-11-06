@@ -8,6 +8,7 @@
 
 /// b-tag a jet based on track-to-jet parameters in the extened info collection
 float MuonTagger::discriminator(const TagInfoHelper & tagInfo) const {
+  MuonTaggerMLP theNet{};
   // default value, used if there are no leptons associated to this jet
   float bestTag = - std::numeric_limits<float>::infinity();
   const reco::SoftLeptonTagInfo & info = tagInfo.get<reco::SoftLeptonTagInfo>();
@@ -19,9 +20,8 @@ float MuonTagger::discriminator(const TagInfoHelper & tagInfo) const {
 			float rndm = r->Uniform(0,1);
 			//for negative tagger, flip 50% of the negative signs to positive value
 			float sip3d = (m_selector.isNegative() && rndm<0.5) ? -properties.sip3d : properties.sip3d;
-      float tag = theNet.Value(0, properties.ptRel, sip3d, properties.deltaR, properties.ratioRel);
-			if (tag > bestTag)
-        bestTag = tag;
+			float tag = theNet.Value(0, properties.ptRel, sip3d, properties.deltaR, properties.ratioRel);
+			if (tag > bestTag) bestTag = tag;
     }
   }
   return bestTag;

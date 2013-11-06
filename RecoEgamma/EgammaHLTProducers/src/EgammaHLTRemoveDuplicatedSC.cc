@@ -6,6 +6,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <string>
 
@@ -25,6 +27,16 @@ EgammaHLTRemoveDuplicatedSC::EgammaHLTRemoveDuplicatedSC(const edm::ParameterSet
 
 EgammaHLTRemoveDuplicatedSC::~EgammaHLTRemoveDuplicatedSC()
 {}
+
+void EgammaHLTRemoveDuplicatedSC::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>(("L1NonIsoUskimmedSC"), edm::InputTag("hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1NonIsolatedTemp"));
+  desc.add<edm::InputTag>(("L1IsoSC"), edm::InputTag("hltCorrectedMulti5x5EndcapSuperClustersWithPreshowerL1Isolated"));
+  desc.add<std::string>(("L1NonIsoSkimmedCollection"), ""); 
+  descriptions.add(("hltEgammaHLTRemoveDuplicatedSC"), desc);  
+}
+
 
 void
 EgammaHLTRemoveDuplicatedSC::produce(edm::Event& evt, const edm::EventSetup& es) {

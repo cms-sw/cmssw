@@ -47,15 +47,15 @@ class L1MuDTTrackContainer {
 
   void setContainer(const TrackContainer& inputTracks);
 
-  TrackContainer* getContainer() const;
+  TrackContainer const* getContainer() const;
 
   bool bxEmpty(int step) const;
 
   int bxSize(int step1, int step2) const;
 
-  L1MuDTTrackCand* dtTrackCand1(int wheel, int sect, int bx) const;
+  L1MuDTTrackCand const* dtTrackCand1(int wheel, int sect, int bx) const;
 
-  L1MuDTTrackCand* dtTrackCand2(int wheel, int sect, int bx) const;
+  L1MuDTTrackCand const* dtTrackCand2(int wheel, int sect, int bx) const;
 
 
  private:

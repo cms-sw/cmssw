@@ -13,6 +13,7 @@
 #include "CondCore/ORA/interface/SharedLibraryName.h"
 #include <boost/foreach.hpp>                   
 #include <fstream>
+#include <iostream>
 
 #include "CondCore/DBCommon/interface/Auth.h"
 
@@ -197,8 +198,8 @@ void cond::Utilities::initializePluginManager(){
     edm::ParameterSet pSet;
     pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
     psets.push_back(pSet);
-    static edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
-    static edm::ServiceRegistry::Operate operate(services);
+    static const edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
+    static const edm::ServiceRegistry::Operate operate(services);
 
     m_pluginMgrInitialized = true;
   }

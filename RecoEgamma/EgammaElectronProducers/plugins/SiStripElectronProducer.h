@@ -27,6 +27,8 @@
 
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronAlgo.h"
+#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 // forward declarations
 
@@ -47,6 +49,13 @@ class SiStripElectronProducer : public edm::EDProducer {
       std::string superClusterCollection_;
       std::string siStripElectronsLabel_;
       std::string trackCandidatesLabel_;
+
+      edm::EDGetTokenT<SiStripRecHit2DCollection> rphi_sistrips2dtag_;
+      edm::EDGetTokenT<SiStripRecHit2DCollection> stereo_sistrips2dtag_;
+      edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matched_sistrips2dtag_;
+      edm::EDGetTokenT<reco::SuperClusterCollection> superClustertag_;
+      
+      
 
       SiStripElectronAlgo* algo_p;
 };

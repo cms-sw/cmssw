@@ -3,6 +3,8 @@
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include <DataFormats/BeamSpot/interface/BeamSpot.h>
 
+#include "FWCore/Utilities/interface/transform.h"
+
 #include <algorithm>
 
 using pat::PATSingleVertexSelector;
@@ -37,21 +39,21 @@ PATSingleVertexSelector::PATSingleVertexSelector(const edm::ParameterSet & iConf
       }
    }
    if (hasMode_(First) || hasMode_(NearestToCand)) {
-        vertices_ = iConfig.getParameter<edm::InputTag>("vertices");
+        verticesToken_ = consumes<vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertices"));
         if (iConfig.existsAs<string>("vertexPreselection")) {
             string presel = iConfig.getParameter<string>("vertexPreselection");
             if (!presel.empty()) vtxPreselection_ = auto_ptr<VtxSel>(new VtxSel(presel));
         }
    }
    if (hasMode_(NearestToCand) || hasMode_(FromCand)) {
-        candidates_ = iConfig.getParameter<vector<edm::InputTag> >("candidates");
+        candidatesToken_ = edm::vector_transform(iConfig.getParameter<vector<edm::InputTag> >("candidates"), [this](edm::InputTag const & tag){return consumes<edm::View<reco::Candidate> >(tag);});
         if (iConfig.existsAs<string>("candidatePreselection")) {
             string presel = iConfig.getParameter<string>("candidatePreselection");
             if (!presel.empty()) candPreselection_ = auto_ptr<CandSel>(new CandSel(presel));
         }
    }
    if (hasMode_(FromBeamSpot)) {
-        beamSpot_ = iConfig.getParameter<edm::InputTag>("beamSpot");
+        beamSpotToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"));
    }
 
    if ( iConfig.exists("filter") ) doFilterEvents_ = iConfig.getParameter<bool>("filter");
@@ -80,7 +82,7 @@ PATSingleVertexSelector::filter(edm::Event & iEvent, const edm::EventSetup & iSe
     // -- vertex data --
     if (hasMode_(First) || hasMode_(NearestToCand)) {
         Handle<vector<reco::Vertex> > vertices;
-        iEvent.getByLabel(vertices_, vertices);
+        iEvent.getByToken(verticesToken_, vertices);
         for (vector<reco::Vertex>::const_iterator itv = vertices->begin(), edv = vertices->end(); itv != edv; ++itv) {
             if ((vtxPreselection_.get() != 0) && !((*vtxPreselection_)(*itv)) ) continue;
             selVtxs_.push_back( &*itv );
@@ -89,9 +91,9 @@ PATSingleVertexSelector::filter(edm::Event & iEvent, const edm::EventSetup & iSe
     // -- candidate data --
     if (hasMode_(NearestToCand) || hasMode_(FromCand)) {
        vector<pair<double, const reco::Candidate *> > cands;
-       for (vector<edm::InputTag>::const_iterator itt = candidates_.begin(), edt = candidates_.end(); itt != edt; ++itt) {
+       for (vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator itt = candidatesToken_.begin(), edt = candidatesToken_.end(); itt != edt; ++itt) {
           Handle<View<reco::Candidate> > theseCands;
-          iEvent.getByLabel(*itt, theseCands);
+          iEvent.getByToken(*itt, theseCands);
           for (View<reco::Candidate>::const_iterator itc = theseCands->begin(), edc = theseCands->end(); itc != edc; ++itc) {
             if ((candPreselection_.get() != 0) && !((*candPreselection_)(*itc))) continue;
             cands.push_back( pair<double, const reco::Candidate *>(-itc->pt(), &*itc) );
@@ -156,7 +158,7 @@ PATSingleVertexSelector::filter_(Mode mode, const edm::Event &iEvent, const edm:
             }
         case FromBeamSpot: {
             Handle<reco::BeamSpot> beamSpot;
-            iEvent.getByLabel(beamSpot_, beamSpot);
+            iEvent.getByToken(beamSpotToken_, beamSpot);
             reco::Vertex bs(beamSpot->position(), beamSpot->covariance3D(), 0, 0, 0);
             result->push_back(bs);
             return result;

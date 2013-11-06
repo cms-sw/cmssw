@@ -7,6 +7,8 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -60,6 +62,39 @@ EgammaHLTNxNClusterProducer::EgammaHLTNxNClusterProducer(const edm::ParameterSet
 
 EgammaHLTNxNClusterProducer::~EgammaHLTNxNClusterProducer()
 {}
+
+void EgammaHLTNxNClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<bool>(("doBarrel"), true);
+  desc.add<bool>(("doEndcaps"), true);
+  desc.add<edm::InputTag>(("barrelHitProducer"), edm::InputTag("hltEcalRegionalPi0EtaRecHit","EcalRecHitsEB"));
+  desc.add<edm::InputTag>(("endcapHitProducer"), edm::InputTag("hltEcalRegionalPi0EtaRecHit","EcalRecHitsEE"));
+  desc.add<int>(("clusEtaSize"), 3);
+  desc.add<int>(("clusPhiSize"), 3);
+  desc.add<std::string>(("barrelClusterCollection"), "Simple3x3ClustersBarrel");
+  desc.add<std::string>(("endcapClusterCollection"), "Simple3x3ClustersEndcap");
+  desc.add<double>(("clusSeedThr"), 0.5);
+  desc.add<double>(("clusSeedThrEndCap"), 1.0);
+  desc.add<bool>(("useRecoFlag"), false);
+  desc.add<int>(("flagLevelRecHitsToUse"), 1); 
+  desc.add<bool>(("useDBStatus"), true);
+  desc.add<int>(("statusLevelRecHitsToUse"), 1);
+
+  edm::ParameterSetDescription posCalcPSET;
+  posCalcPSET.add<double>("T0_barl", 7.4);
+  posCalcPSET.add<double>("T0_endc", 3.1);
+  posCalcPSET.add<double>("T0_endcPresh", 1.2);
+  posCalcPSET.add<double>("W0", 4.2);
+  posCalcPSET.add<double>("X0", 0.89);
+  posCalcPSET.add<bool>("LogWeighted", true);
+  desc.add<edm::ParameterSetDescription>("posCalcParameters", posCalcPSET);
+ 
+  desc.add<int>(("maxNumberofSeeds"), 1000);
+  desc.add<int>(("maxNumberofClusters"), 200);
+  desc.add<int>(("debugLevel"), 0);
+  descriptions.add(("hltEgammaHLTNxNClusterProducer"), desc);  
+}
 
 void EgammaHLTNxNClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     

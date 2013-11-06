@@ -16,11 +16,12 @@ KinematicPerigeeConversions::extendedPerigeeFromKinematicParameters(
  double phi = state.globalMomentum().phi();
  double pt  = state.globalMomentum().transverse();
 //  double field = MagneticField::inGeVPerCentimeter(state.globalPosition()).z();
-  double field  = state.magneticField()->inInverseGeV(state.globalPosition()).z();
+ double field  = state.magneticFieldInInverseGeV().z();
 // double signTC = -state.particleCharge();
 // double transverseCurvature = field/pt*signTC;
 
 //making a proper sign for epsilon
+// FIXME use scalar product...
  double positiveMomentumPhi  = ((phi>0) ? phi : (2*M_PI + phi));
  double positionPhi = impactDistance.phi();
  double positivePositionPhi =

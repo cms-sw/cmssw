@@ -20,7 +20,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "math.h"
+#include <cmath>
 #include "TH1F.h"
 #include "TProfile.h"
 #include "TH2F.h"

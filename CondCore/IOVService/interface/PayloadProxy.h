@@ -40,8 +40,6 @@ namespace cond {
       ObjIds ids;
     };
 
-    // global stat
-    static Stats gstats;
     // local stat
     Stats stats;
 

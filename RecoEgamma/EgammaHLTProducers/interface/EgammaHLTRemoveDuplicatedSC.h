@@ -24,6 +24,9 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class EgammaHLTRemoveDuplicatedSC : public edm::EDProducer {
   
@@ -31,7 +34,8 @@ class EgammaHLTRemoveDuplicatedSC : public edm::EDProducer {
   explicit EgammaHLTRemoveDuplicatedSC(const edm::ParameterSet&);
   ~EgammaHLTRemoveDuplicatedSC();
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
  private:
   // vars to get products
   edm::EDGetTokenT<reco::SuperClusterCollection> sCInputProducer_;

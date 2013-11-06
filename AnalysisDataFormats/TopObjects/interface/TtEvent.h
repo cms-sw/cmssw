@@ -31,10 +31,10 @@ class TtEvent {
   enum HypoClassKey {kGeom, kWMassMaxSumPt, kMaxSumPtWMass, kGenMatch, kMVADisc, kKinFit, kKinSolution, kWMassDeltaTopMass, kHitFit};
   /// pair of hypothesis and lepton jet combinatorics for a given hypothesis
   typedef std::pair<reco::CompositeCandidate, std::vector<int> > HypoCombPair;
-
- protected:
    /// a lightweight map for selection type string label and enum value
    struct HypoClassKeyStringToEnum { const char* label; HypoClassKey value; };
+
+ protected:
    /// return the corresponding enum value from a string 
    HypoClassKey hypoClassKeyFromString(const std::string& label) const;
   

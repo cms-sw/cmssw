@@ -13,6 +13,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Geometry/Records/interface/PEcalBarrelRcd.h"
 #include <vector>
+#include <atomic>
 
 class EcalBarrelGeometry GCC11_FINAL : public CaloSubdetectorGeometry 
 {
@@ -121,11 +122,12 @@ class EcalBarrelGeometry GCC11_FINAL : public CaloSubdetectorGeometry
       /** size of one basket in phi */
       int _PhiBaskets;
 
-      mutable EZMgrFL<EEDetId>*     m_borderMgr ;
+      mutable std::atomic<EZMgrFL<EEDetId>*>     m_borderMgr ;
 
-      mutable VecOrdListEEDetIdPtr* m_borderPtrVec ;
+      mutable std::atomic<VecOrdListEEDetIdPtr*> m_borderPtrVec ;
 
-      mutable CCGFloat m_radius ;
+      mutable CCGFloat m_radius ; // CMS-THREADING protected by m_check
+      mutable std::atomic<bool> m_check;
 
       CellVec m_cellVec ;
 };

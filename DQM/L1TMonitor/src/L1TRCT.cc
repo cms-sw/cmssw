@@ -8,8 +8,7 @@
 #include "DQM/L1TMonitor/interface/L1TRCT.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
-// GCT and RCT data formats
-#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+//DQMStore
 #include "DQMServices/Core/interface/DQMStore.h"
 
 
@@ -39,7 +38,8 @@ const float ETAMAX = 21.5;
 
 
 L1TRCT::L1TRCT(const ParameterSet & ps) :
-   rctSource_( ps.getParameter< InputTag >("rctSource") ),
+   rctSource_L1CRCollection_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("rctSource") )),
+   rctSource_L1CEMCollection_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("rctSource") )),
    filterTriggerType_ (ps.getParameter< int >("filterTriggerType"))
 {
 
@@ -84,19 +84,16 @@ L1TRCT::~L1TRCT()
 
 void L1TRCT::beginJob(void)
 {
-
-
   nev_ = 0;
+}
+
+void L1TRCT::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+{
+  //Only histograms booking
 
   // get hold of back-end interface
   DQMStore *dbe = 0;
   dbe = Service < DQMStore > ().operator->();
-
-  if (dbe) {
-    dbe->setCurrentFolder("L1T/L1TRCT");
-    dbe->rmdir("L1T/L1TRCT");
-  }
-
 
   if (dbe) {
     dbe->setCurrentFolder("L1T/L1TRCT");
@@ -182,12 +179,9 @@ void L1TRCT::beginJob(void)
     // bx histos
     rctRegionBx_ = dbe->book1D("RctRegionBx", "Region BX", 256, -0.5, 4095.5);
     rctEmBx_ = dbe->book1D("RctEmBx", "EM BX", 256, -0.5, 4095.5);
-
-    
-
+ 
   }
 }
-
 
 void L1TRCT::endJob(void)
 {
@@ -250,11 +244,10 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   bool doEm = true;
   bool doHd = true;
 
-  e.getByLabel(rctSource_,rgn);
+  e.getByToken(rctSource_L1CRCollection_,rgn);
  
   if (!rgn.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection with label "
-			       << rctSource_.label() ;
+    edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection";
     doHd = false;
   }
 
@@ -293,11 +286,10 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   }
 
   
-  e.getByLabel(rctSource_,em);
+  e.getByToken(rctSource_L1CEMCollection_,em);
   
   if (!em.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection with label "
-			       << rctSource_.label() ;
+    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection";
     doEm = false;
   }
   if ( ! doEm ) return;

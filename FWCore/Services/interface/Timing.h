@@ -8,16 +8,8 @@
 // Original Author:  Jim Kowalkowski
 //
 
-/*
-Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
-	Modified the service to add some new measurements:
-		- Average time per event (cpu and wallclock)
-                - Fastest time per event (cpu and wallclock)
-                - Slowest time per event (cpu and wallclock)
-*/
-
-#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include <atomic>
 
 namespace edm {
   class ActivityRegistry;
@@ -25,6 +17,8 @@ namespace edm {
   class EventSetup;
   class ParameterSet;
   class ConfigurationDescriptions;
+  class StreamContext;
+  class ModuleCallingContext;
 
   namespace service {
     class Timing {
@@ -35,33 +29,32 @@ namespace edm {
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
+      
       void postBeginJob();
       void postEndJob();
 
-      void preEventProcessing(EventID const&, Timestamp const&);
-      void postEventProcessing(Event const&, EventSetup const&);
+      void preEvent(StreamContext const&);
+      void postEvent(StreamContext const&);
 
-      void preModule(ModuleDescription const&);
-      void postModule(ModuleDescription const&);
+      void preModule(StreamContext const&, ModuleCallingContext const&);
+      void postModule(StreamContext const&, ModuleCallingContext const&);
 
-      EventID curr_event_;
       double curr_job_time_;    // seconds
       double curr_job_cpu_;     // seconds
-      double curr_event_time_;  // seconds
-      double curr_event_cpu_;   // seconds
-      double curr_module_time_; // seconds
-      double total_event_cpu_;  // seconds
+      std::vector<double> curr_events_time_;  // seconds
+      std::vector<double> curr_events_cpu_;   // seconds
+      std::vector<double> total_events_cpu_;  // seconds
       bool summary_only_;
       bool report_summary_;
 
       //
-      // Min Max and average event times for summary
-      //  at end of job
-      double max_event_time_; // seconds
-      double max_event_cpu_;  // seconds
-      double min_event_time_; // seconds
-      double min_event_cpu_;  // seconds
-      int total_event_count_;
+      // Min Max and average event times for each Stream.
+      //  Used for summary at end of job
+      std::vector<double> max_events_time_; // seconds
+      std::vector<double> max_events_cpu_;  // seconds
+      std::vector<double> min_events_time_; // seconds
+      std::vector<double> min_events_cpu_;  // seconds
+      std::atomic<unsigned long> total_event_count_;
     };
   }
 }

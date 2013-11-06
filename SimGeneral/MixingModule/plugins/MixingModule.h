@@ -40,6 +40,7 @@ class DigiAccumulatorMixMod;
 class PileUpEventPrincipal;
 
 namespace edm {
+  class ConsumesCollector;
   class MixingWorkerBase;
   class ModuleCallingContext;
 
@@ -82,7 +83,7 @@ namespace edm {
       virtual void doPileUp(edm::Event &e, const edm::EventSetup& es);
       void pileAllWorkers(EventPrincipal const& ep, ModuleCallingContext const*, int bcr, int id, int& offset,
 			  const edm::EventSetup& setup);
-      void createDigiAccumulators( const edm::ParameterSet& mixingPSet ) ;
+      void createDigiAccumulators(const edm::ParameterSet& mixingPSet, edm::ConsumesCollector& iC);
 
       InputTag inputTagPlayback_;
       bool mixProdStep2_;

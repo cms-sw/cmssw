@@ -19,7 +19,7 @@
 void average() {
   short interpolate = 1;
   DTDriftTimeParametrization::drift_time DT;
-  static DTDriftTimeParametrization p;
+  static const DTDriftTimeParametrization p;
   double alpha =0;
   double Bwire =0;
   double Bnorm=0;
@@ -43,7 +43,7 @@ void printDt(double x, double alpha, double Bwire, double Bnorm, int ifl)
   short interpolate = 1;
 //  DRIFT_TIME * DT;
   DTDriftTimeParametrization::drift_time DT;
-  static  DTDriftTimeParametrization p;
+  static  const DTDriftTimeParametrization p;
   unsigned short status = p.MB_DT_drift_time(x,alpha,Bwire,Bnorm,ifl,&DT, interpolate);
 
   std::cout << "(x = " << x << ", alpha = " << alpha

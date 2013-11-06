@@ -8,7 +8,6 @@
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeDemangler.h"
-#include "boost/thread/tss.hpp"
 
 namespace edm {
   void
@@ -39,13 +38,11 @@ namespace {
   std::string const&
   TypeID::className() const {
     typedef std::map<edm::TypeID, std::string> Map;
-    static boost::thread_specific_ptr<Map> s_typeToName;
-    if(0 == s_typeToName.get()){
-      s_typeToName.reset(new Map);
-    }
-    Map::const_iterator itFound = s_typeToName->find(*this);
-    if(s_typeToName->end() == itFound) {
-      itFound = s_typeToName->insert(Map::value_type(*this, typeToClassName(typeInfo()))).first;
+    static thread_local Map s_typeToName;
+
+    auto itFound = s_typeToName.find(*this);
+    if(s_typeToName.end() == itFound) {
+      itFound = s_typeToName.insert(Map::value_type(*this, typeToClassName(typeInfo()))).first;
     }
     return itFound->second;
   }

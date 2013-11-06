@@ -29,6 +29,10 @@
 
 #include "DQM/L1TMonitor/interface/L1TOMDSHelper.h"
 
+//DataFormats
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -138,9 +142,8 @@ class L1TSync : public edm::EDAnalyzer {
     MonitorElement*                        m_ErrorMonitor;
 
     // Input tags
-    edm::InputTag                          m_scalersSource;       // Where to get L1 Scalers
-    edm::InputTag                          m_l1GtEvmSource;
-    edm::InputTag                          m_l1GtDataDaqInputTag;
+    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord>    m_l1GtEvmSource;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>       m_l1GtDataDaqInputTag;
 
 };
 

@@ -19,14 +19,15 @@ class TestEventHypothesisWriter : public edm::EDProducer {
         virtual void produce( edm::Event &iEvent, const edm::EventSetup &iSetup) ;
         void runTests( const pat::EventHypothesis &h) ;
     private:
-        edm::InputTag jets_, muons_;
+        edm::EDGetTokenT<edm::View<reco::Candidate> > jetsToken_;
+        edm::EDGetTokenT<edm::View<reco::Candidate> > muonsToken_;
 };
 
 
 
 TestEventHypothesisWriter::TestEventHypothesisWriter(const edm::ParameterSet &iConfig) :
-    jets_(iConfig.getParameter<edm::InputTag>("jets")),
-    muons_(iConfig.getParameter<edm::InputTag>("muons"))
+    jetsToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("jets"))),
+    muonsToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("muons")))
 {
     produces<std::vector<pat::EventHypothesis> >();
     produces<edm::ValueMap<double> >("deltaR");
@@ -52,7 +53,7 @@ TestEventHypothesisWriter::runTests( const pat::EventHypothesis &h) {
     cout << "Test 5.3: all with regex: " << h.all(".*jet").size() << endl;
 
     cout << "Test 6.0: get as : " << h.getAs<reco::CaloJet>("nearest jet")->maxEInHadTowers() << endl;
-   
+
     cout << "Loopers" << endl;
     cout << "Test 7.0: simple looper on all" << endl;
     for (CandLooper jet = h.loop(); jet; ++jet) {
@@ -74,24 +75,24 @@ void
 TestEventHypothesisWriter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
     using namespace edm;
     using namespace std;
-    using reco::Candidate; 
+    using reco::Candidate;
     using reco::CandidatePtr;
 
     auto_ptr<vector<pat::EventHypothesis> > hyps(new vector<pat::EventHypothesis>());;
     vector<double>  deltaRs;
-    
-    Handle<View<Candidate> > hMu; 
-    iEvent.getByLabel(muons_, hMu);
 
-    Handle<View<Candidate> > hJet; 
-    iEvent.getByLabel(jets_, hJet);
-    
+    Handle<View<Candidate> > hMu;
+    iEvent.getByToken(muonsToken_, hMu);
+
+    Handle<View<Candidate> > hJet;
+    iEvent.getByToken(jetsToken_, hJet);
+
     // fake analysis
     for (size_t imu = 0, nmu = hMu->size(); imu < nmu; ++imu) {
         pat::EventHypothesis h;
         CandidatePtr mu = hMu->ptrAt(imu);
         h.add(mu, "mu");
-        
+
         int bestj = -1; double drmin = 99.0;
         for (size_t ij = 0, nj = hJet->size(); ij < nj; ++ij) {
             CandidatePtr jet = hJet->ptrAt(ij);
@@ -111,7 +112,7 @@ TestEventHypothesisWriter::produce(edm::Event &iEvent, const edm::EventSetup &iS
             if (jet->et() < 10) break;
             h.add(jet, "other jet");
         }
-        
+
         // save hypothesis
         deltaRs.push_back(drmin);
 

@@ -43,10 +43,9 @@ dbl **Hessian;
 /* The following lines are needed to use the dgels routine from the LAPACK
    library in Reslin() 							    */
 
-#include "mlp_lapack.h"
-/* Subroutine */ int dgels_(char *trans, integer *m, integer *n, integer *
-	nrhs, doublereal *a, integer *lda, doublereal *b, integer *ldb, 
-	doublereal *work, integer *lwork, integer *info);
+/* Subroutine */ int dgels_(char *trans, int *m, int *n, int *
+	nrhs, double *a, int *lda, double *b, int *ldb, 
+	double *work, int *lwork, int *info);
     
 /***********************************************************/
 /* MLP_Out                                                 */
@@ -62,8 +61,7 @@ dbl **Hessian;
    
 /* extern "C"Dllexport */void MLP_Out(type_pat *rrin, dbl *rrout)
 {
-//  	static int i, il, in, j, ilm1, m, mp1;  
-  	static int i, il, in, j, m, mp1;  
+        int i, il, in, j, m, mp1;
 	dbl **deriv1;
 
 /* input layer */  
@@ -114,7 +112,7 @@ L10:
    
 /* extern "C"Dllexport */void MLP_Out_T(type_pat *rrin)
 {
-  	static int i, il, in, j, ilm1, m, mp1;  
+        int i, il, in, j, ilm1, m, mp1;
 	register dbl a;
 
 /* input layer */  
@@ -185,8 +183,7 @@ L20:
    
 /* extern "C"Dllexport */void MLP_Out2(type_pat *rrin)
 {
-//  	static int il, in, m, mp1, i0, ilm1;  
-  	static int il, in, m, mp1;
+  	int il, in, m, mp1;
 	register int i;
 	dbl **rrout, **deriv1;
 	register dbl *prrout;
@@ -1970,16 +1967,16 @@ void MLP_ResLin()
 {
 /*	dbl rrans[NMAX], rrout[NMAX];*/
 /*	type_pat rrin[NMAX];*/
-	doublereal *HR,*dpat; //,*wlin,*SV;
+	double *HR,*dpat; //,*wlin,*SV;
 	double err,lambda,lambda2;
-	integer Nl,M,Nhr,khr,nrhs,iret,ierr;
+	int Nl,M,Nhr,khr,nrhs,iret,ierr;
 	int   il, in, inl, ipat;
 	/*register dbl a;*/ //a unused
 	char Trans = 'N';
 
 	
-/*	integer rank; */
-//	doublereal rcond = -1;	/* use machine precision */
+/*	int rank; */
+//	double rcond = -1;	/* use machine precision */
 	
 	lambda2 = LEARN.Alambda;
 	
@@ -1988,16 +1985,16 @@ void MLP_ResLin()
 	Nl = NET.Nneur[NET.Nlayer-2] + 1;
 	M = PAT.Npat[0]+Nl;
 
-	integer Lwork = 5 * M;
-        doublereal *Work = (doublereal*) malloc((int) Lwork*sizeof(doublereal));
+	int Lwork = 5 * M;
+        double *Work = (double*) malloc((int) Lwork*sizeof(double));
 	
 /* memory allocation */
-	dpat = (doublereal*) malloc((int) M*sizeof(doublereal));
-//	wlin = (doublereal*) malloc((int) Nl*sizeof(doublereal));
-//	SV = (doublereal*) malloc((int) Nl*sizeof(doublereal));
+	dpat = (double*) malloc((int) M*sizeof(double));
+//	wlin = (double*) malloc((int) Nl*sizeof(double));
+//	SV = (double*) malloc((int) Nl*sizeof(double));
 	
 	Nhr = M * Nl;
-	HR = (doublereal*) malloc((int) Nhr*sizeof(doublereal));
+	HR = (double*) malloc((int) Nhr*sizeof(double));
 	err = 0.;
 	for(ipat=0;ipat<PAT.Npat[0];ipat++)
 		{

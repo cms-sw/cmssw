@@ -18,6 +18,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterAlgo.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 /**\class PFClusterProducer 
 \brief Producer for particle flow  clusters (PFCluster). 
@@ -57,12 +58,17 @@ class PFClusterProducer : public edm::EDProducer {
   /// clustering algorithm 
   PFClusterAlgo    clusterAlgo_;
   const CaloGeometryRecord* geom;
+  bool applyCrackCorrections_;
+  std::shared_ptr<PFEnergyCalibration> pfEnergyCalibration_;
 
   /// verbose ?
   bool   verbose_;
   
   // ----------access to event data
   edm::InputTag    inputTagPFRecHits_;
+  bool produces_eeps;
+  edm::InputTag    inputTagPFClustersPS_;
+  double threshPFClusterES_;
   //---ab
   //std::string    inputTagClusterCollectionName_;
   //---ab

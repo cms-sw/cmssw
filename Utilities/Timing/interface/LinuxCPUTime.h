@@ -8,7 +8,7 @@
 #include <iosfwd>
 #include <string>
 #include <fstream>
-#include "ctime"
+#include <ctime>
 #include "Utilities/Timing/interface/GenTimer.h"
 
 /**

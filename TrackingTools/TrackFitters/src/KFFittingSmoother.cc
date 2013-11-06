@@ -233,7 +233,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 	
 	// Look if there are two consecutive invalid hits
 	if ( breakTrajWith2ConsecutiveMissing ) {
-	  unsigned int firstinvalid = myHits.size()-1;
+	  unsigned int firstinvalid = myHits.size();
 	  for ( unsigned int j=0; j<myHits.size()-1; ++j ) 
 	    { 
 	      if ( ((myHits[j  ]->type() == TrackingRecHit::missing) && (myHits[j  ]->geographicalId().rawId() != 0)) && 
@@ -247,7 +247,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 	  
 	  //reject all the hits after the last valid before two consecutive invalid (missing) hits
 	  //hits are sorted in the same order as in the track candidate FIXME??????
-	  myHits.erase(myHits.begin()+firstinvalid,myHits.end());
+	  if (firstinvalid != myHits.size()) myHits.erase(myHits.begin()+firstinvalid,myHits.end());
 	  
 	}
 	

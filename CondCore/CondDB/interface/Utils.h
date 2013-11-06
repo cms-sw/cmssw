@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace conddb {
+namespace cond {
 
   namespace {
 

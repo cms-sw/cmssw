@@ -23,7 +23,7 @@
 
 L1GtObject l1GtObjectStringToEnum(const std::string& label) {
 
-    static L1GtObjectStringToEnum l1GtObjectStringToEnumMap[] = {
+    static const L1GtObjectStringToEnum l1GtObjectStringToEnumMap[] = {
             {"Mu", Mu},
             {"NoIsoEG", NoIsoEG},
             {"IsoEG", IsoEG},

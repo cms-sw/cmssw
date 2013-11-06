@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/06/06 17:23:42 $
- *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -28,15 +26,15 @@
 //---------------
 // C++ Headers --
 //---------------
-//#include <iostream>
 #include <cstdio>
+#include <iostream>
 
 //-------------------
 // Initializations --
 //-------------------
-int DTConfigPluginHandler::maxBrickNumber  = 5000;
-int DTConfigPluginHandler::maxStringNumber = 100000;
-int DTConfigPluginHandler::maxByteNumber   = 10000000;
+const int DTConfigPluginHandler::maxBrickNumber  = 5000;
+const int DTConfigPluginHandler::maxStringNumber = 100000;
+const int DTConfigPluginHandler::maxByteNumber   = 10000000;
 //DTConfigPluginHandler::handler_map DTConfigPluginHandler::handlerMap;
 
 //----------------

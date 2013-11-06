@@ -11,12 +11,12 @@ using namespace btag;
 
 LeptonSelector::LeptonSelector(const edm::ParameterSet &params) :
   m_sign(option(params.getParameter<std::string>("ipSign"))),
-  m_leptonId(reco::SoftLeptonProperties::quality::btagLeptonCands),
+  m_leptonId(reco::SoftLeptonProperties::Quality::btagLeptonCands),
   m_qualityCut(0.5)
 {
   if (params.exists("leptonId") || params.exists("qualityCut")) {
     std::string leptonId = params.getParameter<std::string>("leptonId");
-    m_leptonId = reco::SoftLeptonProperties::quality::byName<reco::SoftLeptonProperties::quality::Generic>(leptonId.c_str());
+    m_leptonId = reco::SoftLeptonProperties::Quality::byName<reco::SoftLeptonProperties::Quality::Generic>(leptonId.c_str());
     m_qualityCut = params.getParameter<double>("qualityCut");
   }
 }
@@ -32,9 +32,9 @@ bool LeptonSelector::operator() (const reco::SoftLeptonProperties &properties, b
       (isNegative() && sip >= 0.0))
     return false;
 
-  bool candSelection = (m_leptonId == reco::SoftLeptonProperties::quality::btagLeptonCands);
+  bool candSelection = (m_leptonId == reco::SoftLeptonProperties::Quality::btagLeptonCands);
   float quality = properties.quality(m_leptonId, !candSelection);
-  if (candSelection && quality == reco::SoftLeptonProperties::quality::undef)
+  if (candSelection && quality == reco::SoftLeptonProperties::Quality::undef)
    return true;		// for backwards compatibility
 
   return quality > m_qualityCut;

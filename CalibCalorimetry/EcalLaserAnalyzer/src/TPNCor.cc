@@ -11,7 +11,7 @@
 #include <iomanip>
 #include <fstream>
 
-#include "math.h"
+#include <cmath>
 
 using namespace std;
 //using namespace edm;

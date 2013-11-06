@@ -4,6 +4,7 @@
 #include "CondCore/ORA/interface/SchemaUtils.h"
 #include "CondCore/ORA/interface/Exception.h"
 #include <cstdlib>
+#include <iostream>
 //
 
 namespace ora {
@@ -31,7 +32,6 @@ namespace ora {
       std::string pathEnv(std::string("CORAL_AUTH_PATH=")+defaultPath);
       if( !authEnv ){
 	//setting environment variable: if pathEnv is defined in this scope (as it should be), it does not work!! (??)
-        authEnv = pathEnv.c_str();
 	::putenv(const_cast<char*>(pathEnv.c_str()));
       }
       try{

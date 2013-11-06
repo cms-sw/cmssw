@@ -17,7 +17,24 @@ process.source = cms.Source("EmptySource",
 )
 
 process.Tracer = cms.Service('Tracer',
-                             dumpContextForLabel = cms.untracked.string('one')
+                             dumpContextForLabels = cms.untracked.vstring('one')
+)
+
+process.MessageLogger = cms.Service("MessageLogger",
+    destinations   = cms.untracked.vstring('cout',
+                                           'cerr'
+    ),
+    categories = cms.untracked.vstring(
+        'Tracer'
+    ),
+    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet (
+            limit = cms.untracked.int32(0)
+        ),
+        Tracer = cms.untracked.PSet(
+            limit=cms.untracked.int32(100000000)
+        )
+    )
 )
 
 process.one = cms.EDProducer("IntProducer",

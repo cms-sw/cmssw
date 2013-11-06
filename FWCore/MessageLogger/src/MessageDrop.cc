@@ -11,7 +11,6 @@
 //
 
 // system include files
-#include "boost/thread/tss.hpp"
 #include <cstring>
 #include <limits>
 
@@ -60,18 +59,8 @@ std::string MessageDrop::jobMode{};
 MessageDrop *
 MessageDrop::instance()
 {
-  //needs gcc4.8.1
-  //thread_local static s_drop{};
-  //return &s_drop;
-  
-  static boost::thread_specific_ptr<MessageDrop> drops;
-  MessageDrop* drop = drops.get();
-  if(drop==0) { 
-    drops.reset(new MessageDrop);
-    drop=drops.get(); 
-  }
-  return drop;
-  
+  thread_local static MessageDrop s_drop{};
+  return &s_drop;
 }
 namespace  {
   const std::string kBlankString{" "};

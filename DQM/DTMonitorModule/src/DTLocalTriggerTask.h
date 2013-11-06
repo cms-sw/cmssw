@@ -73,7 +73,7 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   void setQLabels(MonitorElement* me, short int iaxis);
 
   /// Run analysis on DCC data
-  void runDCCAnalysis(std::vector<L1MuDTChambPhDigi>* phTrigs, std::vector<L1MuDTChambThDigi>* thTrigs);
+  void runDCCAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs, std::vector<L1MuDTChambThDigi> const* thTrigs);
 
   /// Run analysis on ROS data
   void runDDUAnalysis(edm::Handle<DTLocalTriggerCollection>& trigsDDU);

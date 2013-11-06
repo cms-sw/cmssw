@@ -12,6 +12,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
@@ -49,7 +50,7 @@ class PFEnergyCalibration;
 
 class PFEGammaAlgo {
  public:
-  typedef reco::SuperCluster::EEtoPSAssociation EEtoPSAssociation;
+  typedef reco::PFCluster::EEtoPSAssociation EEtoPSAssociation;
   typedef reco::PFBlockElementSuperCluster PFSCElement;
   typedef reco::PFBlockElementBrem PFBremElement;
   typedef reco::PFBlockElementGsfTrack PFGSFElement;
@@ -90,6 +91,10 @@ class PFEGammaAlgo {
     // for track-HCAL cluster linking
     std::vector<PFClusterFlaggedElement> hcalClusters;
     ElementMap localMap;
+    // cluster closest to the gsf track(s), primary kf if none for gsf
+    // last brem tangent cluster if neither of those work
+    std::vector<const PFClusterElement*> electronClusters; 
+    int firstBrem, lateBrem, nBremsWithClusters;
   };  
   
   struct PFEGConfigInfo {
@@ -199,7 +204,7 @@ private:
 
   // useful pre-cached mappings:
   // hopefully we get an enum that lets us just make an array in the future
-  edm::Handle<reco::SuperCluster::EEtoPSAssociation> eetops_;
+  edm::Handle<reco::PFCluster::EEtoPSAssociation> eetops_;
   reco::PFBlockRef _currentblock;
   reco::PFBlock::LinkData _currentlinks;  
   // keep a map of pf indices to the splayed block for convenience
@@ -258,6 +263,7 @@ private:
   void linkRefinableObjectGSFTracksToKFs(ProtoEGObject&);
   void linkRefinableObjectPrimaryKFsToSecondaryKFs(ProtoEGObject&);
   void linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject&);
+  void linkRefinableObjectPrimaryGSFTrackToHCAL(ProtoEGObject&);
   void linkRefinableObjectKFTracksToECAL(ProtoEGObject&);
   void linkRefinableObjectBremTangentsToECAL(ProtoEGObject&);
   // WARNING! this should be ONLY used after doing the ECAL->track 
@@ -265,7 +271,8 @@ private:
   void linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject&);
   void linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject&);
   // helper function for above
-  void linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
+  const PFClusterElement* 
+    linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
 
   // refining steps doing the ECAL -> track piece
   // this is the factorization of the old PF photon algo stuff
@@ -292,6 +299,10 @@ private:
   
   // helper functions for that
 
+  float calculate_ele_mva(const ProtoEGObject&,
+			  reco::PFCandidateEGammaExtra&);
+  void fill_extra_info(const ProtoEGObject&,
+		       reco::PFCandidateEGammaExtra&);
   
   // ------ end of new stuff 
   

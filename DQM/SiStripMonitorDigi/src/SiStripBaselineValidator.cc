@@ -32,7 +32,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TString.h"
-#include "assert.h"
+#include <cassert>
 #include <fstream>
 
 class TFile;

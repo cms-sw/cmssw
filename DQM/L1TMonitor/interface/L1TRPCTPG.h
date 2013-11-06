@@ -34,6 +34,10 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 ///Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
@@ -73,6 +77,9 @@ void beginJob(void);
 // EndJob
 void endJob(void);
 
+// BeginRun
+void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
+
 private:
   // ----------member data ---------------------------
   DQMStore * dbe;
@@ -96,7 +103,9 @@ private:
   bool monitorDaemon_;
   std::ofstream logFile_;
   edm::InputTag rpctpgSource_;
+  edm::EDGetTokenT<RPCDigiCollection> rpctpgSource_token_;
   edm::InputTag rpctfSource_ ;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> rpctfSource_token_ ;
 
 };
 

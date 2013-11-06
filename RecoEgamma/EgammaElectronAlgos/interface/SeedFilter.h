@@ -15,6 +15,7 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include <TMath.h>
 
@@ -27,7 +28,13 @@ class MagneticField;
 class SeedFilter {
  public:
 
-  SeedFilter(const edm::ParameterSet& conf);
+  struct Tokens {
+    edm::EDGetTokenT<std::vector<reco::Vertex> > token_vtx;
+    edm::EDGetTokenT<reco::BeamSpot> token_bs;
+  };
+
+  SeedFilter(const edm::ParameterSet& conf,
+	     const Tokens& tokens);
   ~SeedFilter();
 
   void seeds(edm::Event&, const edm::EventSetup&, const reco::SuperClusterRef &, TrajectorySeedCollection *);
@@ -41,14 +48,13 @@ class SeedFilter {
   double ptmin_, vertexz_, originradius_,  halflength_, deltaEta_, deltaPhi_;
   bool useZvertex_;
   //  edm::InputTag BSProducer_;  //FIXME?
-  edm::InputTag vertexSrc_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > vertexSrc_;
 
   edm::ESHandle<MagneticField> theMagField;
-  FTSFromVertexToPointFactory myFTS;
 
   int hitsfactoryMode_;
 
-  edm::InputTag beamSpotTag_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
 
   std::string measurementTrackerName_;
 };
