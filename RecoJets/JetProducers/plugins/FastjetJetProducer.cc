@@ -126,7 +126,6 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     maxDepth_ = -1;
     useExplicitGhosts_ = true;
 
-
     if ( iConfig.exists("useMassDropTagger") ) {
       useMassDropTagger_ = true;
       muCut_ = iConfig.getParameter<double>("muCut");
@@ -351,10 +350,9 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceVoronoiArea( fjInputs_, *fjJetDefinition_ , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
   }
 
-  if ( !useTrimming_ && !useFiltering_ && !usePruning_ ) {
+  if ( !useMassDropTagger_ && !useCMSBoostedTauSeedingAlgorithm_ && !useTrimming_ && !useFiltering_ && !usePruning_ ) {
     fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
-  }
-  else {
+  } else {
     fjJets_.clear();
     std::vector<fastjet::PseudoJet> tempJets = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
 
@@ -382,8 +380,6 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
       transformers.push_back(&pruner);
     }
 
-
-
     for ( std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(),
 	    ijetEnd = tempJets.end(); ijet != ijetEnd; ++ijet ) {
 
@@ -393,13 +389,13 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
 	      itransfEnd = transformers.end(); itransf != itransfEnd; ++itransf ) {
 	if ( transformedJet != 0 ) {
 	  transformedJet = (**itransf)(transformedJet);
-	}
-	else {
+	} else {
 	  passed=false;
 	}
       }
-      if ( passed ) 
+      if ( passed ) {
 	fjJets_.push_back( transformedJet );
+      }
     }
   }
 

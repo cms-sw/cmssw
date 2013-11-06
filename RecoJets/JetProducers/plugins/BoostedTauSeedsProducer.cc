@@ -224,10 +224,12 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
     if ( verbosity_ >= 1 ) {
       std::cout << "processing jet #" << idx << ":" << std::endl;
       std::cout << " subjet1: Pt = " << subjet1->pt() << ", eta = " << subjet1->eta() << ", phi = " << subjet1->phi() << ", mass = " << subjet1->mass() 
-		<< " (area = " << subjet1->jetArea() << ")" << std::endl;
+		<< " (#constituents = " << subjet1->nConstituents() << ", area = " << subjet1->jetArea() << ")" << std::endl;
       std::cout << " subjet2: Pt = " << subjet2->pt() << ", eta = " << subjet2->eta() << ", phi = " << subjet2->phi() << ", mass = " << subjet2->mass() 
-		<< " (area = " << subjet2->jetArea() << ")" << std::endl;
+		<< " (#constituents = " << subjet2->nConstituents() << ", area = " << subjet2->jetArea() << ")" << std::endl;
     }
+    if ( !(subjet1->nConstituents() >= 1 && subjet1->pt() > 1. &&
+	   subjet2->nConstituents() >= 1 && subjet2->pt() > 1.) ) continue; // CV: skip pathological cases
 
     // find PFCandidate constituents of each subjet
     reco::Jet::Constituents subjetConstituents1;

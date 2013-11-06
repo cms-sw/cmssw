@@ -527,7 +527,6 @@ void VirtualJetProducer::output(edm::Event & iEvent, edm::EventSetup const& iSet
       break;
     };
   }
-  
 }
 
 template< typename T >
@@ -608,7 +607,6 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     std::vector<CandidatePtr> constituents =
       getConstituents(fjConstituents);
 
-
     // calcuate the jet area
     double jetArea=0.0;
     if ( doAreaFastjet_ && fjJet.has_area() ) {
@@ -656,11 +654,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
   }
   // put the jets in the collection
   iEvent.put(jets,jetCollInstanceName_);
-  
-
 }
-
-
 
 /// function template to write out the outputs
 template< class T>
@@ -684,7 +678,6 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
   // this is the hardjet areas
   std::vector<double> area_hardJets;
 
-
   // Loop over the hard jets
   std::vector<fastjet::PseudoJet>::const_iterator it = fjJets_.begin(),
     iEnd = fjJets_.end(),
@@ -705,16 +698,16 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
     std::vector<fastjet::PseudoJet> constituents;
     if ( it->has_pieces() ) {
       constituents = it->pieces();
-    } else {
-      constituents=it->constituents();
+    } else if ( it->has_constituents () ) {
+      constituents = it->constituents();
     }
 
-    
     std::vector<fastjet::PseudoJet>::const_iterator itSubJetBegin = constituents.begin(),
       itSubJet = itSubJetBegin, itSubJetEnd = constituents.end();
     for (; itSubJet != itSubJetEnd; ++itSubJet ){
 
       fastjet::PseudoJet const & subjet = *itSubJet;      
+
       if ( verbosity_ >= 1 ) {
 	std::cout << "subjet #" << (itSubJet - itSubJetBegin) << ": Pt = " << subjet.pt() << ", eta = " << subjet.eta() << ", phi = " << subjet.phi() << ", mass = " << subjet.m() 
 		  << " (#constituents = " << subjet.constituents().size() << ")" << std::endl;
@@ -723,7 +716,7 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
 	for ( std::vector<fastjet::PseudoJet>::const_iterator constituent = subjet_constituents.begin();
 	      constituent != subjet_constituents.end(); ++constituent ) {
 	  if ( constituent->pt() < 1.e-3 ) continue; // CV: skip ghosts
-	  std::cout << "  constituent #" << idx_constituent << ": Pt = " << constituent->pt() << ", eta = " << constituent->eta() << ", phi = " << constituent->phi() << "," 
+	  std::cout << " constituent #" << idx_constituent << ": Pt = " << constituent->pt() << ", eta = " << constituent->eta() << ", phi = " << constituent->phi() << "," 
 		    << " mass = " << constituent->m() << std::endl;
 	  ++idx_constituent;
 	}
@@ -751,12 +744,11 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
       }
       jet.setJetArea( subjetArea );
       subjetCollection->push_back( jet );
-
     }
   }
+
   // put subjets into event record
   subjetHandleAfterPut = iEvent.put( subjetCollection, jetCollInstanceName_ );
-  
   
   // Now create the hard jets with ptr's to the subjets as constituents
   std::vector<math::XYZTLorentzVector>::const_iterator ip4 = p4_hardJets.begin(),
@@ -778,8 +770,7 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
     toput.setJetArea( area_hardJets[ip4 - ip4Begin] );
     jetCollection->push_back( toput );
   }
-  
+
   // put hard jets into event record
   iEvent.put( jetCollection);
-
 }
