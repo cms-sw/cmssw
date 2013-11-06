@@ -874,43 +874,43 @@ SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::EventSet
       	selection_[key].second->fill(event, setup);
       }
       if(type=="elecs"){
-	SelectionStep<reco::GsfElectron> step(selection_[key].first);
+	SelectionStep<reco::GsfElectron> step(selection_[key].first, consumesCollector());
 	if(step.select(event)){ ++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="elecs/pf"){
-        SelectionStep<reco::PFCandidate> step(selection_[key].first);
+        SelectionStep<reco::PFCandidate> step(selection_[key].first, consumesCollector());
         if(step.select(event, "electron")){ ++passed;
 	  selection_[key].second->fill(event, setup);
         } else break;
       }
       if(type=="muons"){
-	SelectionStep<reco::Muon> step(selection_[key].first);
+	SelectionStep<reco::Muon> step(selection_[key].first, consumesCollector());
 	if(step.select(event)){ ++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="muons/pf"){
 	//	cout << "MUON SELECTION" << endl;
-	SelectionStep<reco::PFCandidate> step(selection_[key].first);
+	SelectionStep<reco::PFCandidate> step(selection_[key].first, consumesCollector());
         if(step.select(event, "muon")){++passed;
           selection_[key].second->fill(event, setup);
 	  
         } else break;
       }
       if(type=="jets" ){
-	SelectionStep<reco::Jet> step(selection_[key].first);
+	SelectionStep<reco::Jet> step(selection_[key].first, consumesCollector());
 	if(step.select(event, setup)){ ++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="jets/pf" ){
 	//	cout << "JET SELECTION" << endl;
-	SelectionStep<reco::PFJet> step(selection_[key].first);
+	SelectionStep<reco::PFJet> step(selection_[key].first, consumesCollector());
 	
 	std::string key2 = selectionStep(*(++selIt));
-	SelectionStep<reco::PFJet> step2(selection_[key2].first);
+	SelectionStep<reco::PFJet> step2(selection_[key2].first, consumesCollector());
 	
  	if(step.select(event, setup)){ ++passed;
 	  selection_[key].second->fill(event, setup);
@@ -921,13 +921,13 @@ SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::EventSet
 	else break;
       }
       if(type=="jets/calo" ){
-	SelectionStep<reco::CaloJet> step(selection_[key].first);
+	SelectionStep<reco::CaloJet> step(selection_[key].first, consumesCollector());
 	if(step.select(event, setup)){ ++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="met" ){
-	SelectionStep<reco::MET> step(selection_[key].first);
+	SelectionStep<reco::MET> step(selection_[key].first, consumesCollector());
 	if(step.select(event)){ ++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;
