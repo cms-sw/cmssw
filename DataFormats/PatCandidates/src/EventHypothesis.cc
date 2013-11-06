@@ -96,4 +96,4 @@ pat::EventHypothesis::loop(const ParticleFilterPtr &role) const
     return CandLooper(*this, role); 
 }
 
-
+const pat::eventhypothesis::AcceptAllFilter pat::eventhypothesis::AcceptAllFilter::s_dummyFilter;

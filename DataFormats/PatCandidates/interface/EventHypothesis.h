@@ -105,8 +105,10 @@ namespace pat {
 
    namespace eventhypothesis {
         struct AcceptAllFilter : public ParticleFilter {
-            static const AcceptAllFilter & get() { static AcceptAllFilter dummyFilter; return dummyFilter; }
+            static const AcceptAllFilter & get() { return s_dummyFilter; }
             virtual bool operator()(const CandRefType &cand, const std::string &role) const { return true; }
+            private:
+               static const AcceptAllFilter s_dummyFilter;
         };
         class RoleRegexpFilter : public ParticleFilter {
             public:
