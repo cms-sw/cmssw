@@ -4,16 +4,17 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypGenMatch.h"
 
 TtSemiLepHypGenMatch::TtSemiLepHypGenMatch(const edm::ParameterSet& cfg):
-  TtSemiLepHypothesis( cfg )
+  TtSemiLepHypothesis( cfg ),
+  genEvtToken_( consumes<TtGenEvent>( edm::InputTag( "genEvt" ) ) )
 { }
 
 TtSemiLepHypGenMatch::~TtSemiLepHypGenMatch() { }
 
 void
 TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
-				const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
-				const edm::Handle<std::vector<pat::MET> >& mets, 
-				const edm::Handle<std::vector<pat::Jet> >& jets, 
+				const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
+				const edm::Handle<std::vector<pat::MET> >& mets,
+				const edm::Handle<std::vector<pat::Jet> >& jets,
 				std::vector<int>& match, const unsigned int iComb)
 {
   // -----------------------------------------------------
@@ -21,7 +22,7 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
   // and for the lepton matching)
   // -----------------------------------------------------
   edm::Handle<TtGenEvent> genEvt;
-  evt.getByLabel("genEvt", genEvt);  
+  evt.getByToken(genEvtToken_, genEvt);
 
   // -----------------------------------------------------
   // add jets
@@ -43,12 +44,12 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
 	break;
       case TtSemiLepEvtPartons::HadB:
 	setCandidate(jets, match[idx], hadronicB_, jetCorrectionLevel("bQuark")); break;
-      case TtSemiLepEvtPartons::LepB: 
+      case TtSemiLepEvtPartons::LepB:
 	setCandidate(jets, match[idx], leptonicB_, jetCorrectionLevel("bQuark")); break;
       }
     }
   }
- 
+
   // -----------------------------------------------------
   // add lepton
   // -----------------------------------------------------
@@ -78,7 +79,7 @@ TtSemiLepHypGenMatch::findMatchingLepton(const edm::Handle<TtGenEvent>& genEvt,
 
   // jump out with -1 when the collection is empty
   if( leps->empty() ) return genIdx;
-  
+
   if( genEvt->isTtBar() && genEvt->isSemiLeptonic( leptonType( &(leps->front()) ) ) && genEvt->singleLepton() ){
     double minDR=-1;
     for(unsigned i=0; i<leps->size(); ++i){

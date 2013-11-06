@@ -1,12 +1,11 @@
-#include "DataFormats/PatCandidates/interface/Tau.h"
 #include "TopQuarkAnalysis/Examples/plugins/TopTauAnalyzer.h"
 
 
 TopTauAnalyzer::TopTauAnalyzer(const edm::ParameterSet& cfg):
-  input_(cfg.getParameter<edm::InputTag>("input"))
+  inputToken_(consumes<std::vector<pat::Tau> >(cfg.getParameter<edm::InputTag>("input")))
 {
   edm::Service<TFileService> fs;
-  
+
   mult_ = fs->make<TH1F>("mult", "multiplicity (taus)", 30,  0 ,   30);
   en_   = fs->make<TH1F>("en"  , "energy (taus)",       60,  0., 300.);
   pt_   = fs->make<TH1F>("pt"  , "pt (taus}",           60,  0., 300.);
@@ -20,9 +19,9 @@ TopTauAnalyzer::~TopTauAnalyzer()
 
 void
 TopTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
-{       
+{
   edm::Handle<std::vector<pat::Tau> > taus;
-  evt.getByLabel(input_, taus); 
+  evt.getByToken(inputToken_, taus);
 
   // fill histograms
 
@@ -42,4 +41,4 @@ void TopTauAnalyzer::beginJob()
 void TopTauAnalyzer::endJob()
 {
 }
-  
+

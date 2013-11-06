@@ -17,11 +17,11 @@ class TtDilepEvtSolutionMaker : public edm::EDProducer {
 
     explicit TtDilepEvtSolutionMaker(const edm::ParameterSet & iConfig);
     ~TtDilepEvtSolutionMaker();
-  
+
     virtual void beginJob();
     virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
-  private:  
+  private:
 
     // next methods are avoidable but they make the code legible
     inline bool PTComp(const reco::Candidate*, const reco::Candidate*) const;
@@ -30,34 +30,34 @@ class TtDilepEvtSolutionMaker : public edm::EDProducer {
 
   private:
 
-    edm::InputTag electronSource_;
-    edm::InputTag muonSource_;
-    edm::InputTag tauSource_;
-    edm::InputTag metSource_;
-    edm::InputTag jetSource_;
-    edm::InputTag evtSource_;
+    edm::EDGetTokenT<std::vector<pat::Electron> > electronSourceToken_;
+    edm::EDGetTokenT<std::vector<pat::Muon> > muonSourceToken_;
+    edm::EDGetTokenT<std::vector<pat::Tau> > tauSourceToken_;
+    edm::EDGetTokenT<std::vector<pat::MET> > metSourceToken_;
+    edm::EDGetTokenT<std::vector<pat::Jet> > jetSourceToken_;
+    edm::EDGetTokenT<TtGenEvent> evtSourceToken_;
     int jetCorrScheme_;
     unsigned int nrCombJets_;
     bool matchToGenEvt_, calcTopMass_, useMCforBest_;
     bool eeChannel_, emuChannel_, mumuChannel_, etauChannel_, mutauChannel_, tautauChannel_;
     double tmassbegin_, tmassend_, tmassstep_;
-    std::vector<double> nupars_;    
-    
+    std::vector<double> nupars_;
+
     TtDilepLRSignalSelObservables* myLRSignalSelObservables;
     TtFullLepKinSolver* solver;
 };
 
-inline bool TtDilepEvtSolutionMaker::PTComp(const reco::Candidate* l1, const reco::Candidate* l2) const 
+inline bool TtDilepEvtSolutionMaker::PTComp(const reco::Candidate* l1, const reco::Candidate* l2) const
 {
   return (l1->pt() > l2->pt());
 }
 
-inline bool TtDilepEvtSolutionMaker::LepDiffCharge(const reco::Candidate* l1, const reco::Candidate* l2) const 
+inline bool TtDilepEvtSolutionMaker::LepDiffCharge(const reco::Candidate* l1, const reco::Candidate* l2) const
 {
   return (l1->charge() != l2->charge());
 }
 
-inline bool TtDilepEvtSolutionMaker::HasPositiveCharge(const reco::Candidate* l) const 
+inline bool TtDilepEvtSolutionMaker::HasPositiveCharge(const reco::Candidate* l) const
 {
   return (l->charge() > 0);
 }

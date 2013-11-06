@@ -4,12 +4,10 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
-
 #include "TopQuarkAnalysis/Examples/plugins/HypothesisAnalyzer.h"
 
 HypothesisAnalyzer::HypothesisAnalyzer(const edm::ParameterSet& cfg):
-  semiLepEvt_  (cfg.getParameter<edm::InputTag>("semiLepEvent")),
+  semiLepEvtToken_  (consumes<TtSemiLeptonicEvent>(cfg.getParameter<edm::InputTag>("semiLepEvent"))),
   hypoClassKey_(cfg.getParameter<std::string>("hypoClassKey"))
 {
 }
@@ -20,9 +18,9 @@ HypothesisAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setu
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // get a handle for the TtSemiLeptonicEvent and a key to the hypothesis
   //////////////////////////////////////////////////////////////////////////////////////////////////
-  
+
   edm::Handle<TtSemiLeptonicEvent> semiLepEvt;
-  event.getByLabel(semiLepEvt_, semiLepEvt);
+  event.getByToken(semiLepEvtToken_, semiLepEvt);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // check if hypothesis is available and valid in this event
@@ -129,7 +127,7 @@ HypothesisAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setu
 
 }
 
-void 
+void
 HypothesisAnalyzer::beginJob()
 {
   edm::Service<TFileService> fs;
@@ -189,6 +187,6 @@ HypothesisAnalyzer::beginJob()
 }
 
 void
-HypothesisAnalyzer::endJob() 
+HypothesisAnalyzer::endJob()
 {
 }

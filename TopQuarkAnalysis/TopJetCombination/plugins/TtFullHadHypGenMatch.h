@@ -14,12 +14,16 @@ class TtFullHadHypGenMatch : public TtFullHadHypothesis  {
  private:
 
   /// build the event hypothesis key
-  virtual void buildKey() { key_= TtFullHadronicEvent::kGenMatch; };  
-  /// build event hypothesis from the reco objects of a semi-leptonic event 
+  virtual void buildKey() { key_= TtFullHadronicEvent::kGenMatch; };
+  /// build event hypothesis from the reco objects of a semi-leptonic event
   virtual void buildHypo(edm::Event& evt,
-			 const edm::Handle<std::vector<pat::Jet> >& jets, 
+			 const edm::Handle<std::vector<pat::Jet> >& jets,
 			 std::vector<int>& match,
 			 const unsigned int iComb);
+
+ protected:
+
+  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
 };
 
 #endif

@@ -13,6 +13,7 @@
 #include "PhysicsTools/MVAComputer/interface/HelperMacros.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
@@ -22,18 +23,19 @@ MVA_COMPUTER_CONTAINER_DEFINE(TtFullHadSignalSelMVA);  // defines TtFullHadSigna
 #endif
 
 class TtFullHadSignalSelMVATrainer : public edm::EDAnalyzer {
-  
+
  public:
-  
+
   explicit TtFullHadSignalSelMVATrainer(const edm::ParameterSet&);
   ~TtFullHadSignalSelMVATrainer();
-  
+
  private:
-  
+
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& setup);
   virtual void beginJob();
 
-  edm::InputTag jets_;
+  edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
 
   int whatData_;
   int maxEv_;

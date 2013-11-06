@@ -13,21 +13,21 @@
 #include <vector>
 
 
-TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConfig) 
+TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConfig)
 {
   // configurables
-  electronSource_ = iConfig.getParameter<edm::InputTag>("electronSource");
-  muonSource_     = iConfig.getParameter<edm::InputTag>("muonSource");
-  tauSource_      = iConfig.getParameter<edm::InputTag>("tauSource");
-  metSource_      = iConfig.getParameter<edm::InputTag>("metSource");
-  jetSource_      = iConfig.getParameter<edm::InputTag>("jetSource");
+  electronSourceToken_ = consumes<std::vector<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electronSource"));
+  muonSourceToken_     = consumes<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muonSource"));
+  tauSourceToken_      = consumes<std::vector<pat::Tau> >(iConfig.getParameter<edm::InputTag>("tauSource"));
+  metSourceToken_      = consumes<std::vector<pat::MET> >(iConfig.getParameter<edm::InputTag>("metSource"));
+  jetSourceToken_      = consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jetSource"));
   jetCorrScheme_  = iConfig.getParameter<int>          ("jetCorrectionScheme");
-  evtSource_      = iConfig.getParameter<edm::InputTag>("evtSource");
+  evtSourceToken_      = mayConsume<TtGenEvent>(iConfig.getParameter<edm::InputTag>("evtSource"));
   nrCombJets_     = iConfig.getParameter<unsigned int> ("nrCombJets");
   matchToGenEvt_  = iConfig.getParameter<bool>         ("matchToGenEvt");
-  calcTopMass_    = iConfig.getParameter<bool>         ("calcTopMass"); 
+  calcTopMass_    = iConfig.getParameter<bool>         ("calcTopMass");
   useMCforBest_   = iConfig.getParameter<bool>         ("bestSolFromMC");
-  eeChannel_      = iConfig.getParameter<bool>         ("eeChannel"); 
+  eeChannel_      = iConfig.getParameter<bool>         ("eeChannel");
   emuChannel_     = iConfig.getParameter<bool>         ("emuChannel");
   mumuChannel_    = iConfig.getParameter<bool>         ("mumuChannel");
   mutauChannel_   = iConfig.getParameter<bool>         ("mutauChannel");
@@ -37,15 +37,14 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet & iConf
   tmassend_       = iConfig.getParameter<double>       ("tmassend");
   tmassstep_      = iConfig.getParameter<double>       ("tmassstep");
   nupars_         = iConfig.getParameter<std::vector<double> >("neutrino_parameters");
-    
+
   // define what will be produced
   produces<std::vector<TtDilepEvtSolution> >();
-  
-  myLRSignalSelObservables = new TtDilepLRSignalSelObservables();
-  myLRSignalSelObservables->jetSource(jetSource_);
+
+  myLRSignalSelObservables = new TtDilepLRSignalSelObservables(consumesCollector(), jetSourceToken_);
 }
 
-TtDilepEvtSolutionMaker::~TtDilepEvtSolutionMaker() 
+TtDilepEvtSolutionMaker::~TtDilepEvtSolutionMaker()
 {
 }
 
@@ -54,19 +53,19 @@ void TtDilepEvtSolutionMaker::beginJob()
   solver = new TtFullLepKinSolver(tmassbegin_, tmassend_, tmassstep_, nupars_);
 }
 
-void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
+void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
   edm::Handle<std::vector<pat::Tau> > taus;
-  iEvent.getByLabel(tauSource_, taus);
+  iEvent.getByToken(tauSourceToken_, taus);
   edm::Handle<std::vector<pat::Muon> > muons;
-  iEvent.getByLabel(muonSource_, muons);
+  iEvent.getByToken(muonSourceToken_, muons);
   edm::Handle<std::vector<pat::Electron> > electrons;
-  iEvent.getByLabel(electronSource_, electrons);
+  iEvent.getByToken(electronSourceToken_, electrons);
   edm::Handle<std::vector<pat::MET> > mets;
-  iEvent.getByLabel(metSource_, mets);
+  iEvent.getByToken(metSourceToken_, mets);
   edm::Handle<std::vector<pat::Jet> > jets;
-  iEvent.getByLabel(jetSource_, jets);
-  
+  iEvent.getByToken(jetSourceToken_, jets);
+
   int selMuonp = -1, selMuonm = -1;
   int selElectronp = -1, selElectronm = -1;
   int selTaup = -1, selTaum = -1;
@@ -89,11 +88,11 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
   bool jetsFound = false;
   bool METFound = false;
   std::vector<int>  JetVetoByTaus;
-  
+
   //select MET (TopMET vector is sorted on ET)
   if(mets->size()>=1) { METFound = true; }
-  
-  // If we have electrons and muons available, 
+
+  // If we have electrons and muons available,
   // build a solutions with electrons and muons.
   if (muons->size() + electrons->size() >=2) {
     // select leptons
@@ -176,8 +175,8 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       // that have the charge opposite to the muon one, and do not match in eta-phi
       std::vector<std::vector<pat::Tau>::const_iterator> subset1;
       for(std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau ) {
-        if(tau->charge()*expectedCharge>=0 && DeltaR<pat::Particle>()(*tau,*(muons->begin()))>0.1) { 
-	  *tauIdx = tau-taus->begin(); 
+        if(tau->charge()*expectedCharge>=0 && DeltaR<pat::Particle>()(*tau,*(muons->begin()))>0.1) {
+	  *tauIdx = tau-taus->begin();
           leptonFound = true;
           subset1.push_back(tau);
 	}
@@ -194,10 +193,10 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	  iso = (*tau)->isolationPFChargedHadrCandsPtSum();
 	}
       }
-      
+
       // check that one combination has been found
-      if(!leptonFound) { leptonFoundMpTm = false; leptonFoundMmTp = false; } 
-      // discard the jet that matches the tau (if one) 
+      if(!leptonFound) { leptonFoundMpTm = false; leptonFoundMmTp = false; }
+      // discard the jet that matches the tau (if one)
       if(leptonFound) {
         for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
           if(DeltaR<pat::Particle, pat::Jet>()(*(taus->begin()+*tauIdx),*jet)<0.1) {
@@ -224,9 +223,9 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       // that have the charge opposite to the muon one, and do not match in eta-phi
       std::vector<std::vector<pat::Tau>::const_iterator> subset1;
       for(std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau ) {
-        if(tau->charge()*expectedCharge>=0 && DeltaR<pat::Particle>()(*tau,*(electrons->begin()))>0.1) { 
-	  *tauIdx = tau-taus->begin(); 
-	  leptonFound = true; 
+        if(tau->charge()*expectedCharge>=0 && DeltaR<pat::Particle>()(*tau,*(electrons->begin()))>0.1) {
+	  *tauIdx = tau-taus->begin();
+	  leptonFound = true;
           subset1.push_back(tau);
 	}
       }
@@ -244,8 +243,8 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       }
 
       // check that one combination has been found
-      if(!leptonFound) { leptonFoundEpTm = false; leptonFoundEmTp = false; } 
-      // discard the jet that matches the tau (if one) 
+      if(!leptonFound) { leptonFoundEpTm = false; leptonFoundEmTp = false; }
+      // discard the jet that matches the tau (if one)
       if(leptonFound) {
         for(std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet<jets->end(); ++jet) {
           if(DeltaR<pat::Particle, pat::Jet>()(*(taus->begin()+*tauIdx),*jet)<0.1) {
@@ -278,23 +277,23 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
     // select Jets (TopJet vector is sorted on ET)
     jetsFound = ((jets->size()-JetVetoByTaus.size())>=2);
   }
- 
+
   // Check that the above work makes sense
-  if(int(ee)+int(emu)+int(mumu)+int(etau)+int(mutau)+int(tautau)>1) 
+  if(int(ee)+int(emu)+int(mumu)+int(etau)+int(mutau)+int(tautau)>1)
     std::cout << "[TtDilepEvtSolutionMaker]: "
               << "Lepton selection criteria uncorrectly defined" << std::endl;
-  
+
   bool correctLepton = (leptonFoundEE && eeChannel_)                          ||
                        ((leptonFoundEmMp || leptonFoundEpMm) && emuChannel_)  ||
                        (leptonFoundMM && mumuChannel_)                        ||
 		       ((leptonFoundMmTp || leptonFoundMpTm) && mutauChannel_)||
 		       ((leptonFoundEmTp || leptonFoundEpTm) && etauChannel_) ||
 		       (leptonFoundTT && tautauChannel_)                        ;
-                       
+
   std::vector<TtDilepEvtSolution> * evtsols = new std::vector<TtDilepEvtSolution>();
   if(correctLepton && METFound && jetsFound) {
     // protect against reading beyond array boundaries while discounting vetoed jets
-    unsigned int nrCombJets = 0; 
+    unsigned int nrCombJets = 0;
     unsigned int numberOfJets = 0;
     for(; nrCombJets<jets->size() && numberOfJets<nrCombJets_; ++nrCombJets) {
       if(find(JetVetoByTaus.begin(),JetVetoByTaus.end(),int(nrCombJets))==JetVetoByTaus.end()) ++numberOfJets;
@@ -350,7 +349,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
           yconstraint += (*taus)[selTaup].py();
         }
 	// Set Jets/MET in the event
-        asol.setB(jets, ib); 
+        asol.setB(jets, ib);
 	asol.setBbar(jets, ibbar);
         asol.setMET(mets, 0);
         xconstraint += (*jets)[ib].px() + (*jets)[ibbar].px() + (*mets)[0].px();
@@ -358,9 +357,9 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	// if asked for, match the event solutions to the gen Event
 	if(matchToGenEvt_){
 	  edm::Handle<TtGenEvent> genEvt;
-	  iEvent.getByLabel (evtSource_,genEvt);
+	  iEvent.getByToken(evtSourceToken_,genEvt);
 	  asol.setGenEvt(genEvt);
-	} 
+	}
 	// If asked, use the kin fitter to compute the top mass
         if (calcTopMass_) {
           solver->SetConstraints(xconstraint, yconstraint);
@@ -373,7 +372,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 
         evtsols->push_back(asol);
       }
-    } 
+    }
     // flag the best solution (MC matching)
     if(matchToGenEvt_){
       double bestSolDR = 9999.;
