@@ -161,7 +161,9 @@ PFCandidate& PFCandidate::operator=(PFCandidate const& iOther) {
   CompositeCandidate::operator=(iOther);
   auto tmp = iOther.elementsInBlocks_.load(std::memory_order_acquire);
   if(nullptr != tmp) {
-    elementsInBlocks_.store( new ElementsInBlocks{*tmp}, std::memory_order_release);
+    delete elementsInBlocks_.exchange( new ElementsInBlocks{*tmp}, std::memory_order_acq_rel);
+  } else {
+    delete elementsInBlocks_.exchange(nullptr, std::memory_order_acq_rel);
   }
   blocksStorage_=iOther.blocksStorage_;
   elementsStorage_=iOther.elementsStorage_;
