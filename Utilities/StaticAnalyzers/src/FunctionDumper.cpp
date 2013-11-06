@@ -42,36 +42,40 @@ void FDumper::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 	const Decl * D = AC->getDecl();
 	std::string dname =""; 
 	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) dname = support::getQualifiedName(*ND);
-	CXXMethodDecl * MD = dyn_cast<CXXMethodDecl>(CE->getMethodDecl()->getMostRecentDecl());
+	CXXMethodDecl * MD = CE->getMethodDecl();
 	if (!MD) return;
+	FunctionDecl * FD = MD->getMostRecentDecl();
  	const char *sfile=BR.getSourceManager().getPresumedLoc(CE->getExprLoc()).getFilename();
-  	if (!support::isCmsLocalFile(sfile)) return;
- 	std::string mname = support::getQualifiedName(*MD);
+ 	if (!support::isCmsLocalFile(sfile)) return;
+ 	std::string mname = support::getQualifiedName(*FD);
 	llvm::SmallString<1000> buf;
 	llvm::raw_svector_ostream os(buf);
 	os<<"function '"<<dname<<"' ";
 	os<<"calls function '"<<mname;
 //	MD->getNameForDiagnostic(os,Policy,1);
 	os<<"' \n\n";
-	for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I!=E; ++I) {
-		os<<"function '"<<mname<<"' ";
-		os<<"overrides function '";
-//		(*I)->getNameForDiagnostic(os,Policy,1);
-		os<<support::getQualifiedName(*(*I));
-		os<<"' \n\n";	
-	} 
         llvm::errs()<<os.str();
 }
 
 void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
                     BugReporter &BR) const {
 
+	llvm::SmallString<1000> buf;
+	llvm::raw_svector_ostream os(buf);
  	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
    	if (!support::isCmsLocalFile(sfile)) return;
-  
-      	if (!MD->doesThisDeclarationHaveABody()) return;
+	if (!MD->doesThisDeclarationHaveABody()) return;
 	FDumper walker(BR, mgr.getAnalysisDeclContext(MD));
 	walker.Visit(MD->getBody());
+        std::string mname = support::getQualifiedName(*MD);
+        for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I!=E; ++I) {
+		os<<"function '"<<mname<<"' ";
+		os<<"overrides function '";
+		os<< support::getQualifiedName(*(*I));
+		os<<"' \n\n";
+	}
+        llvm::errs()<<os.str();
+
        	return;
 } 
 
