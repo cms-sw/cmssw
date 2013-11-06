@@ -26,5 +26,5 @@ process.source = cms.Source("EmptySource")
 process.faker = cms.EDProducer("GEMFakeEvent")
 
 
-process.p    = cms.Path(process.faker)
+process.p = cms.Path(process.faker)
 

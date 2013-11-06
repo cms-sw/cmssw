@@ -6,6 +6,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="L1Trigger/CSCCommonTrigger"/>
+<use   name="Geometry/GEMGeometry"/>
 <export>
   <lib   name="1"/>
 </export>
