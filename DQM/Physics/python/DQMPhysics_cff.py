@@ -29,10 +29,10 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *qcdPhotonsDQM
 			   *topSingleMuonMediumDQM
                            *topSingleElectronMediumDQM	
-                           *DiMuonDQM
-			   *DiElectronDQM
-                           *singleTopMuonMediumDQM
-                           *singleTopElectronMediumDQM
+                           #*DiMuonDQM
+			   #*DiElectronDQM
+                           #*singleTopMuonMediumDQM
+                           #*singleTopElectronMediumDQM
                            *susyDQM
                            *HiggsDQM
                            *ExoticaDQM
