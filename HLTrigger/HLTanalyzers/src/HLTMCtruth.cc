@@ -164,7 +164,7 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
 
 	// Set-up flags, based on Pythia-generator information, for avoiding double-counting events when
 	// using both pp->{e,mu}X AND QCD samples
-// 	if (((mcpid[nmc]==13)||(mcpid[nmc]==-13))&&(mcpt[nmc]>2.5)) {mu3 += 1;} // Flag for muons with pT > 2.5 GeV/c
+ 	if (((mcpid[nmc]==13)||(mcpid[nmc]==-13))&&(mcpt[nmc]>2.5)) {mu3 += 1;} // Flag for muons with pT > 2.5 GeV/c
 	if (((mcpid[nmc]==11)||(mcpid[nmc]==-11))&&(mcpt[nmc]>2.5)) {el3 += 1;} // Flag for electrons with pT > 2.5 GeV/c
 
 	if (mcpid[nmc]==-5) {mab += 1;} // Flag for bbar
