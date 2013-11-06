@@ -176,6 +176,7 @@ SimHitMatcher::matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
       if (h.trackId() != track_id) continue;
       int pdgid = h.particleType();
       if (simMuOnlyCSC_ && std::abs(pdgid) != 13) continue;
+      // discard electron hits in the CSC chambers
       if (discardEleHitsCSC_ && pdgid == 11) continue;
 
       csc_detid_to_hits_[ h.detUnitId() ].push_back(h);
@@ -188,6 +189,7 @@ SimHitMatcher::matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
       if (h.trackId() != track_id) continue;
       int pdgid = h.particleType();
       if (simMuOnlyGEM_ && std::abs(pdgid) != 13) continue;
+      // discard electron hits in the GEM chambers
       if (discardEleHitsGEM_ && pdgid == 11) continue;
 
       gem_detid_to_hits_[ h.detUnitId() ].push_back(h);

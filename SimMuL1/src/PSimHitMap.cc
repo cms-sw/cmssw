@@ -10,7 +10,9 @@
 
 namespace SimHitAnalysis {
 
-void PSimHitMap::fill(const edm::Event & e)
+//_____________________________________________________________________________
+void 
+PSimHitMap::fill(const edm::Event & e)
 {
   theMap.clear();
   theEmptyVector.clear();
@@ -40,7 +42,9 @@ void PSimHitMap::fill(const edm::Event & e)
 }
 
 
-const edm::PSimHitContainer & PSimHitMap::hits(int detId) const
+//_____________________________________________________________________________
+const edm::PSimHitContainer & 
+PSimHitMap::hits(int detId) const
 {
   std::map<int, edm::PSimHitContainer>::const_iterator mapItr = theMap.find(detId);
   if(mapItr != theMap.end())    return mapItr->second;
@@ -48,7 +52,9 @@ const edm::PSimHitContainer & PSimHitMap::hits(int detId) const
 }
 
 
-std::vector<int> PSimHitMap::detsWithHits() const
+//_____________________________________________________________________________
+std::vector<int> 
+PSimHitMap::detsWithHits() const
 {
   if (theMap.size()==0) return theEmptyVector;
   std::vector<int> result;
@@ -61,7 +67,9 @@ std::vector<int> PSimHitMap::detsWithHits() const
 }
 
 
-void PSimHitMap::setInputTag(edm::InputTag &t)
+//_____________________________________________________________________________
+void 
+PSimHitMap::setInputTag(edm::InputTag &t)
 {
   theModuleName = t.label();
   theCollectionName = t.instance();

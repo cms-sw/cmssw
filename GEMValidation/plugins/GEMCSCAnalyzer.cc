@@ -92,8 +92,8 @@ struct MyTrackEff
   Char_t has_csc_strips; // #layers with comparator digis > 4    bit1: in odd, bit2: even
   Char_t has_csc_wires; // #layers with wire digis > 4    bit1: in odd, bit2: even
 
-  //Char_t has_clct; // bit1: in odd, bit2: even
-  //Char_t has_alct; // bit1: in odd, bit2: even
+  Char_t has_clct; // bit1: in odd, bit2: even
+  Char_t has_alct; // bit1: in odd, bit2: even
   Char_t has_lct; // bit1: in odd, bit2: even
 
   Char_t bend_lct_odd;
@@ -136,8 +136,10 @@ struct MyTrackEff
   Float_t dphi_pad_even;
   Float_t deta_pad_odd;
   Float_t deta_pad_even;
-};
 
+  Int_t quality_odd;
+  Int_t quality_even;
+};
 
 void MyTrackEff::init()
 {
@@ -148,10 +150,14 @@ void MyTrackEff::init()
   endcap = -9;
   chamber_odd = 0;
   chamber_even = 0;
+  quality_odd = 0;
+  quality_even = 0;
 
   has_csc_sh = 0;
   has_csc_strips = 0;
   has_csc_wires = 0;
+  has_alct = 0;
+  has_clct = 0;
   has_lct = 0;
   bend_lct_odd = -9;
   bend_lct_even = -9;
@@ -205,11 +211,13 @@ TTree* MyTrackEff::book(TTree *t, const std::string & name)
   t->Branch("endcap", &endcap);
   t->Branch("chamber_odd", &chamber_odd);
   t->Branch("chamber_even", &chamber_even);
+  t->Branch("quality_odd", &quality_odd);
+  t->Branch("quality_even", &quality_even);
   t->Branch("has_csc_sh", &has_csc_sh);
   t->Branch("has_csc_strips", &has_csc_strips);
   t->Branch("has_csc_wires", &has_csc_wires);
-  //t->Branch("has_clct", &has_clct);
-  //t->Branch("has_alct", &has_alct);
+  t->Branch("has_clct", &has_clct);
+  t->Branch("has_alct", &has_alct);
   t->Branch("has_lct", &has_lct);
   t->Branch("bend_lct_odd", &bend_lct_odd);
   t->Branch("bend_lct_even", &bend_lct_even);
@@ -479,6 +487,36 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     else etrk_[st].has_csc_wires |= 2;
   }
 
+  // CSC CLCTs
+  csc_ch_ids = match_lct.chamberIdsCLCT(0);
+  for(auto d: csc_ch_ids)
+  {
+    CSCDetId id(d);
+    int st = id.station();
+    //cout<<"LCT st "<<st<<endl;
+    if (stations_to_use_.count(st) == 0) continue;
+
+    bool odd = id.chamber() & 1;
+
+    if (odd) etrk_[st].has_clct |= 1;
+    else etrk_[st].has_clct |= 2;
+  }
+
+  // CSC ALCTs
+  csc_ch_ids = match_lct.chamberIdsALCT(0.);
+  for(auto d: csc_ch_ids)
+  {
+    CSCDetId id(d);
+    int st = id.station();
+    //cout<<"LCT st "<<st<<endl;
+    if (stations_to_use_.count(st) == 0) continue;
+
+    bool odd = id.chamber() & 1;
+
+    if (odd) etrk_[st].has_alct |= 1;
+    else etrk_[st].has_alct |= 2;
+  }
+
   // holders for track's LCTs
   Digi lct_odd[5];
   Digi lct_even[5];
@@ -525,6 +563,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
       etrk_[st].bx_lct_odd = digi_bx(lct);
       etrk_[st].hs_lct_odd = digi_channel(lct);
       etrk_[st].chamber_odd |= 2;
+      etrk_[st].quality_odd = digi_quality(lct);
     }
     else
     {
@@ -537,6 +576,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
       etrk_[st].bx_lct_even = digi_bx(lct);
       etrk_[st].hs_lct_even = digi_channel(lct);
       etrk_[st].chamber_even |= 2;
+      etrk_[st].quality_even = digi_quality(lct);
     }
   }
 

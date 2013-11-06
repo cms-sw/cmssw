@@ -23,6 +23,7 @@ CSCStubMatcher::CSCStubMatcher(SimHitMatcher& sh, CSCDigiMatcher& dg)
   maxBXALCT_ = conf().getUntrackedParameter<int>("maxBXALCT", 8);
   minBXLCT_ = conf().getUntrackedParameter<int>("minBXLCT", 3);
   maxBXLCT_ = conf().getUntrackedParameter<int>("maxBXLCT", 8);
+  addGhostLCTs_ = conf().getUntrackedParameter<bool>("addGhostLCTs", true);
 
   setVerbose(conf().getUntrackedParameter<int>("verboseCSCStub", 0));
 
@@ -282,7 +283,7 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
       // Add ghost LCTs when there are two in bx
       // and the two don't share half-strip or wiregroup
       // TODO: when GEMs would be used to resolve this, there might ned to be an option to turn this off!
-      if (bx_to_lcts[bx].size() == 2)
+      if (bx_to_lcts[bx].size() == 2 && addGhostLCTs_)
       {
         auto lct11 = bx_to_lcts[bx][0];
         auto lct22 = bx_to_lcts[bx][1];
@@ -303,7 +304,6 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
           cout<<"added ghosts"<<endl<<lct11<<"    "<<lct22<<endl <<lct12<<"    "<<lct21<<endl;
         }
       }
-
     } // lcts_in_det
 
     size_t n_lct = lcts_tmp.size();
@@ -369,7 +369,7 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
       }
 
     }
-    else cout<<"effYesLCT"<<endl;
+    else cout<<"effYesLCT" << std::endl;
   }
 }
 

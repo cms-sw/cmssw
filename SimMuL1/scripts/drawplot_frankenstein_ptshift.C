@@ -1,658 +1,1170 @@
-/*
-.L drawplot_gmtrt.C
-
-*/
-
+TLatex* drawEtaLabel(TString minEta, TString maxEta, float x=0.17, float y=0.35, float font_size=0.)
 {
-//gem_dir = "gemPT/"; gem_label = "gem98";
-
-gem_dir = "gemPT95/"; gem_label = "gem95";
-
-// ********** PAT2 **********
-
-drawplot_gmtrt("minbias_pt10_pat2");
-hh = (TH1D*)result_gem->Clone("gem_new");
-hh->SetFillColor(kGreen+4);
-for (int b = hh->FindBin(10.01); b <= hh->GetNbinsX(); ++b) hh->SetBinContent(b, 0);
-hh_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all");
-hh_all->SetFillColor(kGreen+4);
-for (int b = hh_all->FindBin(10.01); b <= hh_all->GetNbinsX(); ++b) hh_all->SetBinContent(b, 0);
-hh_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a");
-hh_no1a->SetFillColor(kGreen+4);
-for (int b = hh_no1a->FindBin(10.01); b <= hh_no1a->GetNbinsX(); ++b) hh_no1a->SetBinContent(b, 0);
-hh_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b");
-hh_2s1b->SetFillColor(kGreen+4);
-for (int b = hh_2s1b->FindBin(10.01); b <= hh_2s1b->GetNbinsX(); ++b) hh_2s1b->SetBinContent(b, 0);
-
-drawplot_gmtrt("minbias_pt15_pat2");
-h15 = (TH1D*)result_gem->Clone("gem15");
-for (int b = h15->FindBin(10.01); b < h15->FindBin(15.01); ++b) hh->SetBinContent(b, h15->GetBinContent(b));
-h15_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_15");
-for (int b = h15_all->FindBin(10.01); b < h15_all->FindBin(15.01); ++b) hh_all->SetBinContent(b, h15_all->GetBinContent(b));
-h15_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_15");
-for (int b = h15_no1a->FindBin(10.01); b < h15_no1a->FindBin(15.01); ++b) hh_no1a->SetBinContent(b, h15_no1a->GetBinContent(b));
-h15_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_15");
-for (int b = h15_2s1b->FindBin(10.01); b < h15_2s1b->FindBin(15.01); ++b) hh_2s1b->SetBinContent(b, h15_2s1b->GetBinContent(b));
-
-drawplot_gmtrt("minbias_pt20_pat2");
-h20 = (TH1D*)result_gem->Clone("gem20");
-for (int b = h20->FindBin(15.01); b < h20->FindBin(20.01); ++b) hh->SetBinContent(b, h20->GetBinContent(b));
-h20_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_20");
-for (int b = h20_all->FindBin(15.01); b < h20_all->FindBin(20.01); ++b) hh_all->SetBinContent(b, h20_all->GetBinContent(b));
-h20_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_20");
-for (int b = h20_no1a->FindBin(15.01); b < h20_no1a->FindBin(20.01); ++b) hh_no1a->SetBinContent(b, h20_no1a->GetBinContent(b));
-h20_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_20");
-for (int b = h20_2s1b->FindBin(15.01); b < h20_2s1b->FindBin(20.01); ++b) hh_2s1b->SetBinContent(b, h20_2s1b->GetBinContent(b));
-
-drawplot_gmtrt("minbias_pt30_pat2");
-h30 = (TH1D*)result_gem->Clone("gem30");
-for (int b = h30->FindBin(20.01); b <= h30->FindBin(30.01); ++b) hh->SetBinContent(b, h30->GetBinContent(b));
-h30_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_30");
-for (int b = h30_all->FindBin(20.01); b < h30_all->FindBin(30.01); ++b) hh_all->SetBinContent(b, h30_all->GetBinContent(b));
-h30_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_30");
-for (int b = h30_no1a->FindBin(20.01); b < h30_no1a->FindBin(30.01); ++b) hh_no1a->SetBinContent(b, h30_no1a->GetBinContent(b));
-h30_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_30");
-for (int b = h30_2s1b->FindBin(20.01); b < h30_2s1b->FindBin(30.01); ++b) hh_2s1b->SetBinContent(b, h30_2s1b->GetBinContent(b));
-
-drawplot_gmtrt("minbias_pt40_pat2");
-h40 = (TH1D*)result_gem->Clone("gem30");
-for (int b = h40->FindBin(30.01); b <= h40->GetNbinsX(); ++b) hh->SetBinContent(b, h40->GetBinContent(b));
-h40_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_40");
-for (int b = h40_all->FindBin(30.01); b < h40_all->GetNbinsX(); ++b) hh_all->SetBinContent(b, h40_all->GetBinContent(b));
-h40_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_40");
-for (int b = h40_no1a->FindBin(30.01); b < h40_no1a->GetNbinsX(); ++b) hh_no1a->SetBinContent(b, h40_no1a->GetBinContent(b));
-h40_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_40");
-for (int b = h40_2s1b->FindBin(30.01); b < h40_2s1b->GetNbinsX(); ++b) hh_2s1b->SetBinContent(b, h40_2s1b->GetBinContent(b));
-
-for (int b = 1; b <= hh->GetNbinsX(); ++b) if (hh->GetBinContent(b)==0) hh->SetBinError(b, 0.);
-for (int b = 1; b <= hh_all->GetNbinsX(); ++b) if (hh_all->GetBinContent(b)==0) hh_all->SetBinError(b, 0.);
-for (int b = 1; b <= hh_no1a->GetNbinsX(); ++b) if (hh_no1a->GetBinContent(b)==0) hh_no1a->SetBinError(b, 0.);
-for (int b = 1; b <= hh_2s1b->GetNbinsX(); ++b) if (hh_2s1b->GetBinContent(b)==0) hh_2s1b->SetBinError(b, 0.);
-
-
-// --- def-3s   gem-3s-3s1b
-
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def->Draw("e3");
-hh->Draw("same e3");
-
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def,"default emulator","f");
-leg->AddEntry(result_def,"Tracks: with >=3 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(hh,"with GEM match","f");
-leg->AddEntry(result_def,"Tracks: same, plus req. one stub from ME1/b","");
-leg->Draw();
-
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
-
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2.png");
-
-
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh, result_def, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio.png");
-
-
-// --- def-3s-3s1b   gem-3s-3s1b
-
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_3s1b->Draw("e3");
-hh->Draw("same e3");
-
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_3s1b,"default emulator","f");
-leg->AddEntry(hh,"with GEM match","f");
-leg->AddEntry(result_def_3s1b,"Tracks req. for both:","");
-leg->AddEntry(result_def_3s1b,"with >=3 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(result_def_3s1b,"and require one stub to be from ME1/b","");
-leg->Draw();
+  TString label(minEta + " < |#eta| < " + maxEta);
+  TLatex *  tex = new TLatex(x, y,label);
+  if (font_size > 0.) tex->SetFontSize(font_size);
+  tex->SetTextSize(0.05);
+  tex->SetNDC();
+  tex->Draw();
+  return tex;
+}
+
+TLatex* drawLumiLabel(float x=0.17, float y=0.35)
+{
+  TLatex *  tex = new TLatex(x, y,"L = 4*10^{34} cm^{-2} s^{-1}");
+  tex->SetTextSize(0.05);
+  tex->SetNDC();
+  tex->Draw();
+  return tex;
+}
+
+TLatex* drawL1Label(float x=0.17, float y=0.35)
+{
+  TLatex *  tex = new TLatex(x, y,"L1 trigger in 2012 configuration");
+  tex->SetTextSize(0.04);
+  tex->SetNDC();
+  tex->Draw();
+  return tex;
+}
+
+void produceRatePlot(TH1D* h, TH1D* i, TH1D* j, TH1D* m, Color_t col0, Color_t col1, Color_t col2, Color_t col3,
+		     float miny, float maxy, TString k, TString l, TString plots, TString ext)
+)
+{
+  TCanvas* c = new TCanvas("c","c",800,800);
+  c->Clear();
+  TPad *pad1 = new TPad("pad1","top pad",0.0,0.25,1.0,1.0);
+  pad1->Draw();
+  TPad *pad2 = new TPad("pad2","bottom pad",0,0.,1.0,.30);
+  pad2->Draw();
+
+  pad1->cd();
+  pad1->SetLogx(1);
+  pad1->SetLogy(1);
+  pad1->SetGridx(1);
+  pad1->SetGridy(1);
+  pad1->SetFrameBorderMode(0);
+  pad1->SetFillColor(kWhite);
+  
+  h->SetFillColor(col0);
+  i->SetFillColor(col1);
+  j->SetFillColor(col2);
+  m->SetFillColor(col3);
+
+  h->Draw("e3");
+  i->Draw("same e3");
+  j->Draw("same e3");
+  m->Draw("same e3");
+  h->Draw("same e3");
+  h->GetYaxis()->SetRangeUser(miny, maxy);
+  h->GetXaxis()->SetTitle("");
+  
+  TLegend *leg = new TLegend(0.45,0.7,.93,0.93,"","brNDC");
+  leg->SetMargin(0.25);
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->SetTextSize(0.04);
+  leg->SetFillStyle(1001);
+  leg->SetFillColor(kWhite);
+  leg->AddEntry(h, "GMT (2012 configuration)","f");
+  leg->AddEntry((TObject*)0,          "L1 selections (#geq " + k + " stations):","");
+  leg->AddEntry(i,  "CSC, loose","f");
+  leg->AddEntry(j,"CSC, tight","f");
+  leg->AddEntry(m,"GEM+CSC integrated trigger","f");
+  leg->Draw();
+  
+  drawLumiLabel(0.17,.3);
+  drawEtaLabel("1.64","2.14",0.17,.37);
+  
+  pad2->cd();
+  pad2->SetLogx(1);
+  pad2->SetLogy(1);
+  pad2->SetGridx(1);
+  pad2->SetGridy(1);
+  pad2->SetFillColor(kWhite);
+  pad2->SetFrameBorderMode(0);
+  pad2->SetLeftMargin(0.126);
+  pad2->SetRightMargin(0.04);
+  pad2->SetTopMargin(0.06);
+  pad2->SetBottomMargin(0.4);
+  
+  TH1D* hh_ratio = setHistoRatio(m, j, "", 0.01,1.1,col2);
+  hh_ratio->GetXaxis()->SetTitle("L1 muon candidate p_{T}^{cut} [GeV/c]");
+  hh_ratio->Draw("P");
+  
+  TH1D* hh_ratio_gmt = setHistoRatio(m, h, "", 0.01,1.1,col0);
+  hh_ratio_gmt->Draw("P same");
+  
+  leg = new TLegend(0.15,0.45,.45,0.7,NULL,"brNDC");
+  leg->SetMargin(0.1);
+  leg->SetBorderSize(0);
+  leg->SetTextSize(0.1);
+  leg->SetFillStyle(1001);
+  leg->SetFillColor(kWhite);
+  leg->AddEntry(hh_ratio_gmt, "(GEM+CSC)/GMT","p");
+  leg->AddEntry(hh_ratio,     "(GEM+CSC)/CSC tight","p");
+  leg->Draw("same");
+  
+  c->SaveAs(plots + "rates_vs_pt__PU100__def_" + k + "s_" + k + "s1b_" + k + "s1bgem__" + l + ext);
+}
+
+void drawplot_frankenstein_ptshift()
+{
+  TString ext = ".png";
+  TString filesDir = "files/";
+  TString plotDir = "plots/rate_vs_pt_shift/";
+  
+  gROOT->ProcessLine(".L drawplot_gmtrt.C");
+  gROOT->ProcessLine(".L getPTHistos.C");
+  
+  gem_label = "gem98";
+
+  gROOT->SetBatch(true);
+
+  //gStyle->SetStatW(0.13);
+  //gStyle->SetStatH(0.08);
+  gStyle->SetStatW(0.07);
+  gStyle->SetStatH(0.06);
+
+  gStyle->SetOptStat(0);
+
+  gStyle->SetTitleStyle(0);
+  gStyle->SetTitleAlign(13);// coord in top left
+  gStyle->SetTitleX(0.);
+  gStyle->SetTitleY(1.);
+  gStyle->SetTitleW(1);
+  gStyle->SetTitleH(0.058);
+  gStyle->SetTitleBorderSize(0);
+
+  gStyle->SetPadLeftMargin(0.126);
+  gStyle->SetPadRightMargin(0.04);
+  gStyle->SetPadTopMargin(0.06);
+  gStyle->SetPadBottomMargin(0.13);
+
+  gStyle->SetMarkerStyle(1);
+
+  TCanvas* cAll100r = new TCanvas("cAll100r","cAll100r",800,300) ;
+  gPad->SetLogx(1);
+  gPad->SetGridx(1);gPad->SetGridy(1);
+
+  TCanvas* cAll100 = new TCanvas("cAll100","cAll100",800,600) ;
+  gPad->SetLogx(1);gPad->SetLogy(1);
+  gPad->SetGridx(1);gPad->SetGridy(1);
+
+
+  // ********** PAT2 **********
+
+  getPTHistos("minbias_pt10_pat2", filesDir, filesDir, gem_label);
+  hh = (TH1D*)result_def_3s1b->Clone("gem_new");
+  for (int b = hh->FindBin(7.01); b <= hh->GetNbinsX(); ++b) hh->SetBinContent(b, 0);
+  hh_all = (TH1D*)result_def_eta_all_3s1b->Clone("gem_new_eta_all");
+  for (int b = hh_all->FindBin(7.01); b <= hh_all->GetNbinsX(); ++b) hh_all->SetBinContent(b, 0);
+  hh_no1a = (TH1D*)result_def_eta_no1a_3s1b->Clone("gem_new_eta_no1a");
+  for (int b = hh_no1a->FindBin(7.01); b <= hh_no1a->GetNbinsX(); ++b) hh_no1a->SetBinContent(b, 0);
+  hh_2s1b = (TH1D*)result_def_2s1b->Clone("gem_new_2s1b");
+  for (int b = hh_2s1b->FindBin(7.01); b <= hh_2s1b->GetNbinsX(); ++b) hh_2s1b->SetBinContent(b, 0);
+
+  h06 = (TH1D*)result_gem->Clone("gem_new_06");
+  for (int b = h06->FindBin(7.01); b < h06->FindBin(10.01); ++b) {hh->SetBinContent(b, h06->GetBinContent(b)); hh->SetBinError(b, h06->GetBinError(b));}
+  h06_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_06");
+  for (int b = h06_all->FindBin(7.01); b < h06_all->FindBin(10.01); ++b) {hh_all->SetBinContent(b, h06_all->GetBinContent(b)); hh_all->SetBinError(b, h06_all->GetBinError(b));}
+  h06_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_06");
+  for (int b = h06_no1a->FindBin(7.01); b < h06_no1a->FindBin(10.01); ++b) {hh_no1a->SetBinContent(b, h06_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h06_no1a->GetBinError(b));}
+  h06_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_06");
+  for (int b = h06_2s1b->FindBin(7.01); b < h06_2s1b->FindBin(10.01); ++b) {hh_2s1b->SetBinContent(b, h06_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h06_2s1b->GetBinError(b));}
+
+  getPTHistos("minbias_pt15_pat2", filesDir, filesDir, gem_label);
+  h10 = (TH1D*)result_gem->Clone("gem10");
+  for (int b = h10->FindBin(10.01); b < h10->FindBin(15.01); ++b) {hh->SetBinContent(b, h10->GetBinContent(b)); hh->SetBinError(b, h10->GetBinError(b));}
+  h10_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_10");
+  for (int b = h10_all->FindBin(10.01); b < h10_all->FindBin(15.01); ++b) {hh_all->SetBinContent(b, h10_all->GetBinContent(b)); hh_all->SetBinError(b, h10_all->GetBinError(b));}
+  h10_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_10");
+  for (int b = h10_no1a->FindBin(10.01); b < h10_no1a->FindBin(15.01); ++b) {hh_no1a->SetBinContent(b, h10_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h10_no1a->GetBinError(b));}
+  h10_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_10");
+  for (int b = h10_2s1b->FindBin(10.01); b < h10_2s1b->FindBin(15.01); ++b) {hh_2s1b->SetBinContent(b, h10_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h10_2s1b->GetBinError(b));}
+
+  getPTHistos("minbias_pt20_pat2", filesDir, filesDir, gem_label);
+  h15 = (TH1D*)result_gem->Clone("gem15");
+  for (int b = h15->FindBin(15.01); b < h15->FindBin(20.01); ++b) {hh->SetBinContent(b, h15->GetBinContent(b)); hh->SetBinError(b, h15->GetBinError(b));}
+  h15_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_15");
+  for (int b = h15_all->FindBin(15.01); b < h15_all->FindBin(20.01); ++b) {hh_all->SetBinContent(b, h15_all->GetBinContent(b)); hh_all->SetBinError(b, h15_all->GetBinError(b));}
+  h15_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_15");
+  for (int b = h15_no1a->FindBin(15.01); b < h15_no1a->FindBin(20.01); ++b) {hh_no1a->SetBinContent(b, h15_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h15_no1a->GetBinError(b));}
+  h15_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_15");
+  for (int b = h15_2s1b->FindBin(15.01); b < h15_2s1b->FindBin(20.01); ++b) {hh_2s1b->SetBinContent(b, h15_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h15_2s1b->GetBinError(b));}
+
+  getPTHistos("minbias_pt30_pat2", filesDir, filesDir, gem_label);
+  h20 = (TH1D*)result_gem->Clone("gem20");
+  for (int b = h20->FindBin(20.01); b < h20->FindBin(30.01); ++b) {hh->SetBinContent(b, h20->GetBinContent(b)); hh->SetBinError(b, h20->GetBinError(b));}
+  h20_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_20");
+  for (int b = h20_all->FindBin(20.01); b < h20_all->FindBin(30.01); ++b) {hh_all->SetBinContent(b, h20_all->GetBinContent(b)); hh_all->SetBinError(b, h20_all->GetBinError(b));}
+  h20_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_20");
+  for (int b = h20_no1a->FindBin(20.01); b < h20_no1a->FindBin(30.01); ++b) {hh_no1a->SetBinContent(b, h20_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h20_no1a->GetBinError(b));}
+  h20_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_20");
+  for (int b = h20_2s1b->FindBin(20.01); b < h20_2s1b->FindBin(30.01); ++b) {hh_2s1b->SetBinContent(b, h20_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h20_2s1b->GetBinError(b));}
+
+  getPTHistos("minbias_pt40_pat2", filesDir, filesDir, gem_label);
+  h30 = (TH1D*)result_gem->Clone("gem30");
+  for (int b = h30->FindBin(30.01); b <= h30->GetNbinsX(); ++b) {hh->SetBinContent(b, h30->GetBinContent(b)); hh->SetBinError(b, h30->GetBinError(b));}
+  h30_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_30");
+  for (int b = h30_all->FindBin(30.01); b < h30_all->GetNbinsX(); ++b) {hh_all->SetBinContent(b, h30_all->GetBinContent(b)); hh_all->SetBinError(b, h30_all->GetBinError(b));}
+  h30_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_30");
+  for (int b = h30_no1a->FindBin(30.01); b < h30_no1a->GetNbinsX(); ++b) {hh_no1a->SetBinContent(b, h30_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h30_no1a->GetBinError(b));}
+  h30_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_30");
+  for (int b = h30_2s1b->FindBin(30.01); b < h30_2s1b->GetNbinsX(); ++b) {hh_2s1b->SetBinContent(b, h30_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h30_2s1b->GetBinError(b));}
+
+  for (int b = 1; b <= hh->GetNbinsX(); ++b) if (hh->GetBinContent(b)==0) hh->SetBinError(b, 0.);
+  for (int b = 1; b <= hh_all->GetNbinsX(); ++b) if (hh_all->GetBinContent(b)==0) hh_all->SetBinError(b, 0.);
+  for (int b = 1; b <= hh_no1a->GetNbinsX(); ++b) if (hh_no1a->GetBinContent(b)==0) hh_no1a->SetBinError(b, 0.);
+  for (int b = 1; b <= hh_2s1b->GetNbinsX(); ++b) if (hh_2s1b->GetBinContent(b)==0) hh_2s1b->SetBinError(b, 0.);
+
+
+  //TString the_ttl = "CSC L1 trigger rates in ME1/b eta region;p_{T}^{cut} [GeV/c];rate [kHz]";
+
+  TString the_ttl = "         L1 Single Muon Trigger                             CMS Simulation;L1 candidate muon p_{T}^{cut} [GeV/c];rate [kHz]";
+
+
+  hh = setPTHisto(hh, the_ttl, kGreen+3, 1, 1);
+  hh_all = setPTHisto(hh_all, the_ttl, kGreen+3, 1, 1);
+  hh_no1a = setPTHisto(hh_no1a, the_ttl, kGreen+3, 1, 1);
+  hh_2s1b = setPTHisto(hh_2s1b, the_ttl, kGreen+3, 1, 1);
+
+  result_gmtsing = setPTHisto(result_gmtsing, the_ttl, kAzure+1, 1, 1);
+
+  result_def = setPTHisto(result_def, the_ttl, kAzure+9, 1, 1);
+  result_def_2s = setPTHisto(result_def_2s, the_ttl, kAzure+9, 1, 1);
+  result_def_3s1b = setPTHisto(result_def_3s1b, the_ttl, kAzure+9, 1, 1);
+  result_def_2s1b = setPTHisto(result_def_2s1b, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_all = setPTHisto(result_def_eta_all, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_all_3s1b = setPTHisto(result_def_eta_all_3s1b, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_no1a = setPTHisto(result_def_eta_no1a, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_no1a_3s1b = setPTHisto(result_def_eta_no1a_3s1b, the_ttl, kAzure+9, 1, 1);
+
+
+
+  hh->SetFillColor(kGreen+4);
+  hh_all->SetFillColor(kGreen+4);
+  hh_no1a->SetFillColor(kGreen+4);
+  hh_2s1b->SetFillColor(kGreen+4);
+
+  result_def_2s__pat2 = (TH1D*) result_def_2s->Clone("result_def_2s__pat2");
+  result_def_3s__pat2 = (TH1D*) result_def->Clone("result_def_3s__pat2");
+  result_def_2s1b__pat2 = (TH1D*) result_def_2s1b->Clone("result_def_2s1b__pat2");
+  result_def_3s1b__pat2 = (TH1D*) result_def_3s1b->Clone("result_def_3s1b__pat2");
+  result_gmtsing__pat2 = (TH1D*) result_gmtsing->Clone("result_gmtsing__pat2");;
+
+  result_gem_2s1b__pat2 = (TH1D*) hh_2s1b->Clone("result_gem_2s1b__pat2");
+  result_gem_3s1b__pat2 = (TH1D*) hh->Clone("result_gem_3s1b__pat2");
+
+
+
+  // --- def-3s   gem-3s-3s1b
+
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def->Draw("e3");
+  hh->Draw("same e3");
+
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def,"default emulator","f");
+  leg->AddEntry(result_def,"Tracks: with #geq3 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(hh,"with GEM match","f");
+  leg->AddEntry(result_def,"Tracks: same, plus req. one stub from ME1/b","");
+  leg->Draw();
+
+  drawPULabel();
+
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2" + ext);
+
+
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh, result_def, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio" + ext);
+
+
+  // --- def-3s-3s1b   gem-3s-3s1b
+
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_3s1b->Draw("e3");
+  hh->Draw("same e3");
+
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_3s1b,"default emulator","f");
+  leg->AddEntry(hh,"with GEM match","f");
+  leg->AddEntry(result_def_3s1b,"Tracks req. for both:","");
+  leg->AddEntry(result_def_3s1b,"with #geq3 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(result_def_3s1b,"and require one stub to be from ME1/b","");
+  leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  drawPULabel();
+
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2" + ext);
+
+
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh, result_def_3s1b, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio" + ext);
+
+
+  // --- def-3s-2s1b   gem-3s-2s1b
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_2s1b->Draw("e3");
+  hh_2s1b->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_2s1b,"default emulator","f");
+  leg->AddEntry(hh_2s1b,"with GEM match","f");
+  leg->AddEntry(result_def_2s1b,"Tracks req. for both:","");
+  leg->AddEntry(result_def_2s1b,"with #geq2 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(result_def_2s1b,"and require one stub to be from ME1/b","");
+  leg->Draw();
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh, result_def_3s1b, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio.png");
+  drawPULabel();
 
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat2" + ext);
 
-// --- def-3s-2s1b   gem-3s-2s1b
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_2s1b->Draw("e3");
-hh_2s1b->Draw("same e3");
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_2s1b, result_def_2s1b, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat2__ratio" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_2s1b,"default emulator","f");
-leg->AddEntry(hh_2s1b,"with GEM match","f");
-leg->AddEntry(result_def_2s1b,"Tracks req. for both:","");
-leg->AddEntry(result_def_2s1b,"with >=2 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(result_def_2s1b,"and require one stub to be from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  // --- def-3s   gem-3s-2s1b
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat2.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def->Draw("e3");
+  hh_2s1b->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def,"default emulator","f");
+  leg->AddEntry(result_def,"Tracks: with #geq3 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(hh_2s1b,"with GEM match","f");
+  leg->AddEntry(hh_2s1b,"Tracks: with #geq2 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(hh_2s1b,"and require one stub to be from ME1/b","");
+  leg->Draw();
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_2s1b, result_def_2s1b, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat2__ratio.png");
+  drawPULabel();
 
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat2" + ext);
 
-// --- def-3s   gem-3s-2s1b
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def->Draw("e3");
-hh_2s1b->Draw("same e3");
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_2s1b, result_def, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat2__ratio" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def,"default emulator","f");
-leg->AddEntry(result_def,"Tracks: with >=3 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(hh_2s1b,"with GEM match","f");
-leg->AddEntry(hh_2s1b,"Tracks: with >=2 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(hh_2s1b,"and require one stub to be from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  // --- def-3s-3s1b   gem-3s-2s1b
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat2.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_3s1b->Draw("e3");
+  hh_2s1b->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_3s1b,"default emulator","f");
+  leg->AddEntry(result_def_3s1b,"Tracks req. #geq3 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(result_def_3s1b,"and require one stub to be from ME1/b","");
+  leg->AddEntry(hh_2s1b,"with GEM match","f");
+  leg->AddEntry(hh_2s1b,"Tracks req. #geq2 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(hh_2s1b,"and require one stub to be from ME1/b","");
+  leg->Draw();
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_2s1b, result_def, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat2__ratio.png");
+  drawPULabel();
 
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat2" + ext);
 
-// --- def-3s-3s1b   gem-3s-2s1b
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_3s1b->Draw("e3");
-hh_2s1b->Draw("same e3");
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_2s1b, result_def_3s1b, "", 0.,3.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat2__ratio" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_3s1b,"default emulator","f");
-leg->AddEntry(result_def_3s1b,"Tracks req. >=3 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(result_def_3s1b,"and require one stub to be from ME1/b","");
-leg->AddEntry(hh_2s1b,"with GEM match","f");
-leg->AddEntry(hh_2s1b,"Tracks req. >=2 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(hh_2s1b,"and require one stub to be from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  // --- eta 1-2.4  def-3s   gem-3s-3s1b
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat2.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_eta_all->Draw("e3");
+  hh_all->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_eta_all,"default emulator","f");
+  leg->AddEntry(result_def_eta_all,"Tracks: with #geq3 stubs in 1.<|#eta|<2.4","");
+  leg->AddEntry(hh_all,"with GEM match","f");
+  leg->AddEntry(result_def_eta_all,"Tracks: same, plus req. one stub from ME1/b","");
+  leg->Draw();
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_2s1b, result_def_3s1b, "", 0.,3.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat2__ratio.png");
+  drawPULabel();
 
+  gPad->Print(plotDir + "rates__100-240_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2" + ext);
 
-// --- eta 1-2.4  def-3s   gem-3s-3s1b
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_eta_all->Draw("e3");
-hh_all->Draw("same e3");
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_all, result_def_eta_all, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__100-240_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_eta_all,"default emulator","f");
-leg->AddEntry(result_def_eta_all,"Tracks: with >=3 stubs in 1.<|#eta|<2.4","");
-leg->AddEntry(hh_all,"with GEM match","f");
-leg->AddEntry(result_def_eta_all,"Tracks: same, plus req. one stub from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  // --- eta 1-2.4  def-3s-3s1b   gem-3s-3s1b
 
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_eta_all_3s1b->Draw("e3");
+  hh_all->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_eta_all_3s1b,"default emulator","f");
+  leg->AddEntry(hh_all,"with GEM match","f");
+  leg->AddEntry(result_def_eta_all_3s1b,"Tracks req. for both:","");
+  leg->AddEntry(result_def_eta_all_3s1b,"with #geq3 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(result_def_eta_all_3s1b,"and require one stub to be from ME1/b","");
+  leg->Draw();
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_all, result_def_eta_all, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio.png");
+  drawPULabel();
 
+  gPad->Print(plotDir + "rates__100-240_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2" + ext);
 
-// --- eta 1-2.4  def-3s-3s1b   gem-3s-3s1b
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_eta_all_3s1b->Draw("e3");
-hh_all->Draw("same e3");
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_all, result_def_eta_all_3s1b, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__100-240_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_eta_all_3s1b,"default emulator","f");
-leg->AddEntry(hh_all,"with GEM match","f");
-leg->AddEntry(result_def_eta_all_3s1b,"Tracks req. for both:","");
-leg->AddEntry(result_def_eta_all_3s1b,"with >=3 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(result_def_eta_all_3s1b,"and require one stub to be from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  // --- eta 1-2.1 def-3s   gem-3s-3s1b
 
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_eta_no1a->Draw("e3");
+  hh_no1a->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_eta_no1a,"default emulator","f");
+  leg->AddEntry(result_def_eta_no1a,"Tracks: with #geq3 stubs in 1.<|#eta|<2.14","");
+  leg->AddEntry(hh_no1a,"with GEM match","f");
+  leg->AddEntry(result_def_eta_no1a,"Tracks: same, plus req. one stub from ME1/b","");
+  leg->Draw();
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_all, result_def_eta_all_3s1b, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio.png");
+  drawPULabel();
 
+  gPad->Print(plotDir + "rates__100-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2" + ext);
 
-// --- eta 1-2.1 def-3s   gem-3s-3s1b
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_eta_no1a->Draw("e3");
-hh_no1a->Draw("same e3");
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_no1a, result_def_eta_no1a, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__100-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_eta_no1a,"default emulator","f");
-leg->AddEntry(result_def_eta_no1a,"Tracks: with >=3 stubs in 1.<|#eta|<2.4","");
-leg->AddEntry(hh_no1a,"with GEM match","f");
-leg->AddEntry(result_def_eta_no1a,"Tracks: same, plus req. one stub from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  // --- eta 1-2.1  def-3s-3s1b   gem-3s-3s1b
 
-gPad->Print(gem_dir + "rates__1-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_eta_no1a_3s1b->Draw("e3");
+  hh_no1a->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_eta_no1a_3s1b,"default emulator","f");
+  leg->AddEntry(hh_no1a,"with GEM match","f");
+  leg->AddEntry(result_def_eta_no1a_3s1b,"Tracks req. for both:","");
+  leg->AddEntry(result_def_eta_no1a_3s1b,"with #geq3 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(result_def_eta_no1a_3s1b,"and require one stub to be from ME1/b","");
+  leg->Draw();
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_no1a, result_def_eta_no1a, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat2__ratio.png");
+  drawPULabel();
 
+  gPad->Print(plotDir + "rates__100-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2" + ext);
 
-// --- eta 1-2.1  def-3s-3s1b   gem-3s-3s1b
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_eta_no1a_3s1b->Draw("e3");
-hh_no1a->Draw("same e3");
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_no1a, result_def_eta_no1a_3s1b, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__100-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_eta_no1a_3s1b,"default emulator","f");
-leg->AddEntry(hh_no1a,"with GEM match","f");
-leg->AddEntry(result_def_eta_no1a_3s1b,"Tracks req. for both:","");
-leg->AddEntry(result_def_eta_no1a_3s1b,"with >=3 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(result_def_eta_no1a_3s1b,"and require one stub to be from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
 
-gPad->Print(gem_dir + "rates__1-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2.png");
 
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_no1a, result_def_eta_no1a_3s1b, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat2__ratio.png");
 
 
+  // ********** PAT8 **********
 
+  getPTHistos("minbias_pt10_pat8", filesDir, filesDir, gem_label);
+  hh = (TH1D*)result_def_3s1b->Clone("gem_new");
+  for (int b = hh->FindBin(7.01); b <= hh->GetNbinsX(); ++b) hh->SetBinContent(b, 0);
+  hh_all = (TH1D*)result_def_eta_all_3s1b->Clone("gem_new_eta_all");
+  for (int b = hh_all->FindBin(7.01); b <= hh_all->GetNbinsX(); ++b) hh_all->SetBinContent(b, 0);
+  hh_no1a = (TH1D*)result_def_eta_no1a_3s1b->Clone("gem_new_eta_no1a");
+  for (int b = hh_no1a->FindBin(7.01); b <= hh_no1a->GetNbinsX(); ++b) hh_no1a->SetBinContent(b, 0);
+  hh_2s1b = (TH1D*)result_def_2s1b->Clone("gem_new_2s1b");
+  for (int b = hh_2s1b->FindBin(7.01); b <= hh_2s1b->GetNbinsX(); ++b) hh_2s1b->SetBinContent(b, 0);
 
+  h06 = (TH1D*)result_gem->Clone("gem_new_06");
+  for (int b = h06->FindBin(7.01); b < h06->FindBin(10.01); ++b) {hh->SetBinContent(b, h06->GetBinContent(b)); hh->SetBinError(b, h06->GetBinError(b));}
+  h06_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_06");
+  for (int b = h06_all->FindBin(7.01); b < h06_all->FindBin(10.01); ++b) {hh_all->SetBinContent(b, h06_all->GetBinContent(b)); hh_all->SetBinError(b, h06_all->GetBinError(b));}
+  h06_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_06");
+  for (int b = h06_no1a->FindBin(7.01); b < h06_no1a->FindBin(10.01); ++b) {hh_no1a->SetBinContent(b, h06_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h06_no1a->GetBinError(b));}
+  h06_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_06");
+  for (int b = h06_2s1b->FindBin(7.01); b < h06_2s1b->FindBin(10.01); ++b) {hh_2s1b->SetBinContent(b, h06_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h06_2s1b->GetBinError(b));}
 
+  getPTHistos("minbias_pt15_pat8", filesDir, filesDir, gem_label);
+  h10 = (TH1D*)result_gem->Clone("gem10");
+  for (int b = h10->FindBin(10.01); b < h10->FindBin(15.01); ++b) {hh->SetBinContent(b, h10->GetBinContent(b)); hh->SetBinError(b, h10->GetBinError(b));}
+  h10_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_10");
+  for (int b = h10_all->FindBin(10.01); b < h10_all->FindBin(15.01); ++b) {hh_all->SetBinContent(b, h10_all->GetBinContent(b)); hh_all->SetBinError(b, h10_all->GetBinError(b));}
+  h10_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_10");
+  for (int b = h10_no1a->FindBin(10.01); b < h10_no1a->FindBin(15.01); ++b) {hh_no1a->SetBinContent(b, h10_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h10_no1a->GetBinError(b));}
+  h10_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_10");
+  for (int b = h10_2s1b->FindBin(10.01); b < h10_2s1b->FindBin(15.01); ++b) {hh_2s1b->SetBinContent(b, h10_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h10_2s1b->GetBinError(b));}
 
+  getPTHistos("minbias_pt20_pat8", filesDir, filesDir, gem_label);
+  h15 = (TH1D*)result_gem->Clone("gem15");
+  for (int b = h15->FindBin(15.01); b < h15->FindBin(20.01); ++b) {hh->SetBinContent(b, h15->GetBinContent(b)); hh->SetBinError(b, h15->GetBinError(b));}
+  h15_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_15");
+  for (int b = h15_all->FindBin(15.01); b < h15_all->FindBin(20.01); ++b) {hh_all->SetBinContent(b, h15_all->GetBinContent(b)); hh_all->SetBinError(b, h15_all->GetBinError(b));}
+  h15_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_15");
+  for (int b = h15_no1a->FindBin(15.01); b < h15_no1a->FindBin(20.01); ++b) {hh_no1a->SetBinContent(b, h15_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h15_no1a->GetBinError(b));}
+  h15_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_15");
+  for (int b = h15_2s1b->FindBin(15.01); b < h15_2s1b->FindBin(20.01); ++b) {hh_2s1b->SetBinContent(b, h15_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h15_2s1b->GetBinError(b));}
 
-// ********** PAT8 **********
+  getPTHistos("minbias_pt30_pat8", filesDir, filesDir, gem_label);
+  h20 = (TH1D*)result_gem->Clone("gem20");
+  for (int b = h20->FindBin(20.01); b < h20->FindBin(30.01); ++b) {hh->SetBinContent(b, h20->GetBinContent(b)); hh->SetBinError(b, h20->GetBinError(b));}
+  h20_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_20");
+  for (int b = h20_all->FindBin(20.01); b < h20_all->FindBin(30.01); ++b) {hh_all->SetBinContent(b, h20_all->GetBinContent(b)); hh_all->SetBinError(b, h20_all->GetBinError(b));}
+  h20_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_20");
+  for (int b = h20_no1a->FindBin(20.01); b < h20_no1a->FindBin(30.01); ++b) {hh_no1a->SetBinContent(b, h20_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h20_no1a->GetBinError(b));}
+  h20_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_20");
+  for (int b = h20_2s1b->FindBin(20.01); b < h20_2s1b->FindBin(30.01); ++b) {hh_2s1b->SetBinContent(b, h20_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h20_2s1b->GetBinError(b));}
 
-drawplot_gmtrt("minbias_pt10_pat8");
-hh = (TH1D*)result_gem->Clone("gem_new");
-hh->SetFillColor(kGreen+4);
-for (int b = hh->FindBin(10.01); b <= hh->GetNbinsX(); ++b) hh->SetBinContent(b, 0);
-hh_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all");
-hh_all->SetFillColor(kGreen+4);
-for (int b = hh_all->FindBin(10.01); b <= hh_all->GetNbinsX(); ++b) hh_all->SetBinContent(b, 0);
-hh_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a");
-hh_no1a->SetFillColor(kGreen+4);
-for (int b = hh_no1a->FindBin(10.01); b <= hh_no1a->GetNbinsX(); ++b) hh_no1a->SetBinContent(b, 0);
-hh_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b");
-hh_2s1b->SetFillColor(kGreen+4);
-for (int b = hh_2s1b->FindBin(10.01); b <= hh_2s1b->GetNbinsX(); ++b) hh_2s1b->SetBinContent(b, 0);
+  getPTHistos("minbias_pt40_pat8", filesDir, filesDir, gem_label);
+  h30 = (TH1D*)result_gem->Clone("gem30");
+  for (int b = h30->FindBin(30.01); b <= h30->GetNbinsX(); ++b) {hh->SetBinContent(b, h30->GetBinContent(b)); hh->SetBinError(b, h30->GetBinError(b));}
+  h30_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_30");
+  for (int b = h30_all->FindBin(30.01); b < h30_all->GetNbinsX(); ++b) {hh_all->SetBinContent(b, h30_all->GetBinContent(b)); hh_all->SetBinError(b, h30_all->GetBinError(b));}
+  h30_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_30");
+  for (int b = h30_no1a->FindBin(30.01); b < h30_no1a->GetNbinsX(); ++b) {hh_no1a->SetBinContent(b, h30_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h30_no1a->GetBinError(b));}
+  h30_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_30");
+  for (int b = h30_2s1b->FindBin(30.01); b < h30_2s1b->GetNbinsX(); ++b) {hh_2s1b->SetBinContent(b, h30_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h30_2s1b->GetBinError(b));}
 
-drawplot_gmtrt("minbias_pt15_pat8");
-h15 = (TH1D*)result_gem->Clone("gem15");
-for (int b = h15->FindBin(10.01); b < h15->FindBin(15.01); ++b) hh->SetBinContent(b, h15->GetBinContent(b));
-h15_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_15");
-for (int b = h15_all->FindBin(10.01); b < h15_all->FindBin(15.01); ++b) hh_all->SetBinContent(b, h15_all->GetBinContent(b));
-h15_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_15");
-for (int b = h15_no1a->FindBin(10.01); b < h15_no1a->FindBin(15.01); ++b) hh_no1a->SetBinContent(b, h15_no1a->GetBinContent(b));
-h15_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_15");
-for (int b = h15_2s1b->FindBin(10.01); b < h15_2s1b->FindBin(15.01); ++b) hh_2s1b->SetBinContent(b, h15_2s1b->GetBinContent(b));
+  for (int b = 1; b <= hh->GetNbinsX(); ++b) if (hh->GetBinContent(b)==0) hh->SetBinError(b, 0.);
+  for (int b = 1; b <= hh_all->GetNbinsX(); ++b) if (hh_all->GetBinContent(b)==0) hh_all->SetBinError(b, 0.);
+  for (int b = 1; b <= hh_no1a->GetNbinsX(); ++b) if (hh_no1a->GetBinContent(b)==0) hh_no1a->SetBinError(b, 0.);
+  for (int b = 1; b <= hh_2s1b->GetNbinsX(); ++b) if (hh_2s1b->GetBinContent(b)==0) hh_2s1b->SetBinError(b, 0.);
 
-drawplot_gmtrt("minbias_pt20_pat8");
-h20 = (TH1D*)result_gem->Clone("gem20");
-for (int b = h20->FindBin(15.01); b < h20->FindBin(20.01); ++b) hh->SetBinContent(b, h20->GetBinContent(b));
-h20_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_20");
-for (int b = h20_all->FindBin(15.01); b < h20_all->FindBin(20.01); ++b) hh_all->SetBinContent(b, h20_all->GetBinContent(b));
-h20_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_20");
-for (int b = h20_no1a->FindBin(15.01); b < h20_no1a->FindBin(20.01); ++b) hh_no1a->SetBinContent(b, h20_no1a->GetBinContent(b));
-h20_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_20");
-for (int b = h20_2s1b->FindBin(15.01); b < h20_2s1b->FindBin(20.01); ++b) hh_2s1b->SetBinContent(b, h20_2s1b->GetBinContent(b));
 
-drawplot_gmtrt("minbias_pt30_pat8");
-h30 = (TH1D*)result_gem->Clone("gem30");
-for (int b = h30->FindBin(20.01); b <= h30->FindBin(30.01); ++b) hh->SetBinContent(b, h30->GetBinContent(b));
-h30_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_30");
-for (int b = h30_all->FindBin(20.01); b < h30_all->FindBin(30.01); ++b) hh_all->SetBinContent(b, h30_all->GetBinContent(b));
-h30_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_30");
-for (int b = h30_no1a->FindBin(20.01); b < h30_no1a->FindBin(30.01); ++b) hh_no1a->SetBinContent(b, h30_no1a->GetBinContent(b));
-h30_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_30");
-for (int b = h30_2s1b->FindBin(20.01); b < h30_2s1b->FindBin(30.01); ++b) hh_2s1b->SetBinContent(b, h30_2s1b->GetBinContent(b));
+  hh = setPTHisto(hh, the_ttl, kGreen+3, 1, 1);
+  hh_all = setPTHisto(hh_all, the_ttl, kGreen+3, 1, 1);
+  hh_no1a = setPTHisto(hh_no1a, the_ttl, kGreen+3, 1, 1);
+  hh_2s1b = setPTHisto(hh_2s1b, the_ttl, kGreen+3, 1, 1);
 
-drawplot_gmtrt("minbias_pt40_pat8");
-h40 = (TH1D*)result_gem->Clone("gem30");
-for (int b = h40->FindBin(30.01); b <= h40->GetNbinsX(); ++b) hh->SetBinContent(b, h40->GetBinContent(b));
-h40_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_40");
-for (int b = h40_all->FindBin(30.01); b < h40_all->GetNbinsX(); ++b) hh_all->SetBinContent(b, h40_all->GetBinContent(b));
-h40_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_40");
-for (int b = h40_no1a->FindBin(30.01); b < h40_no1a->GetNbinsX(); ++b) hh_no1a->SetBinContent(b, h40_no1a->GetBinContent(b));
-h40_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_40");
-for (int b = h40_2s1b->FindBin(30.01); b < h40_2s1b->GetNbinsX(); ++b) hh_2s1b->SetBinContent(b, h40_2s1b->GetBinContent(b));
+  result_gmtsing = setPTHisto(result_gmtsing, the_ttl, kAzure+1, 1, 1);
 
-for (int b = 1; b <= hh->GetNbinsX(); ++b) if (hh->GetBinContent(b)==0) hh->SetBinError(b, 0.);
-for (int b = 1; b <= hh_all->GetNbinsX(); ++b) if (hh_all->GetBinContent(b)==0) hh_all->SetBinError(b, 0.);
-for (int b = 1; b <= hh_no1a->GetNbinsX(); ++b) if (hh_no1a->GetBinContent(b)==0) hh_no1a->SetBinError(b, 0.);
-for (int b = 1; b <= hh_2s1b->GetNbinsX(); ++b) if (hh_2s1b->GetBinContent(b)==0) hh_2s1b->SetBinError(b, 0.);
+  result_def = setPTHisto(result_def, the_ttl, kAzure+9, 1, 1);
+  result_def_2s = setPTHisto(result_def_2s, the_ttl, kAzure+9, 1, 1);
+  result_def_3s1b = setPTHisto(result_def_3s1b, the_ttl, kAzure+9, 1, 1);
+  result_def_2s1b = setPTHisto(result_def_2s1b, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_all = setPTHisto(result_def_eta_all, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_all_3s1b = setPTHisto(result_def_eta_all_3s1b, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_no1a = setPTHisto(result_def_eta_no1a, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_no1a_3s1b = setPTHisto(result_def_eta_no1a_3s1b, the_ttl, kAzure+9, 1, 1);
 
 
-// --- def-3s   gem-3s-3s1b
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def->Draw("e3");
-hh->Draw("same e3");
+  hh->SetFillColor(kGreen+4);
+  hh_all->SetFillColor(kGreen+4);
+  hh_no1a->SetFillColor(kGreen+4);
+  hh_2s1b->SetFillColor(kGreen+4);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def,"default emulator","f");
-leg->AddEntry(result_def,"Tracks: with >=3 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(hh,"with GEM match","f");
-leg->AddEntry(result_def,"Tracks: same, plus req. one stub from ME1/b","");
-leg->Draw();
+  result_def_2s__pat8 = (TH1D*) result_def_2s->Clone("result_def_2s__pat8");
+  result_def_3s__pat8 = (TH1D*) result_def->Clone("result_def_3s__pat8");
+  result_def_2s1b__pat8 = (TH1D*) result_def_2s1b->Clone("result_def_2s1b__pat8");
+  result_def_3s1b__pat8 = (TH1D*) result_def_3s1b->Clone("result_def_3s1b__pat8");
+  result_gmtsing__pat8 = (TH1D*) result_gmtsing->Clone("result_gmtsing__pat8");;
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  result_gem_2s1b__pat8 = (TH1D*) hh_2s1b->Clone("result_gem_2s1b__pat8");
+  result_gem_3s1b__pat8 = (TH1D*) hh->Clone("result_gem_3s1b__pat8");
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8.png");
 
+  // --- def-3s   gem-3s-3s1b
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh, result_def, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def->Draw("e3");
+  hh->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def,"default emulator","f");
+  leg->AddEntry(result_def,"Tracks: with #geq3 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(hh,"with GEM match","f");
+  leg->AddEntry(result_def,"Tracks: same, plus req. one stub from ME1/b","");
+  leg->Draw();
 
-// --- def-3s-3s1b   gem-3s-3s1b
+  drawPULabel();
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_3s1b->Draw("e3");
-hh->Draw("same e3");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_3s1b,"default emulator","f");
-leg->AddEntry(hh,"with GEM match","f");
-leg->AddEntry(result_def_3s1b,"Tracks req. for both:","");
-leg->AddEntry(result_def_3s1b,"with >=3 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(result_def_3s1b,"and require one stub to be from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh, result_def, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio" + ext);
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8.png");
 
+  // --- def-3s-3s1b   gem-3s-3s1b
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh, result_def_3s1b, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_3s1b->Draw("e3");
+  hh->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_3s1b,"default emulator","f");
+  leg->AddEntry(hh,"with GEM match","f");
+  leg->AddEntry(result_def_3s1b,"Tracks req. for both:","");
+  leg->AddEntry(result_def_3s1b,"with #geq3 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(result_def_3s1b,"and require one stub to be from ME1/b","");
+  leg->Draw();
 
-// --- def-3s-2s1b   gem-3s-2s1b
+  drawPULabel();
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_2s1b->Draw("e3");
-hh_2s1b->Draw("same e3");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_2s1b,"default emulator","f");
-leg->AddEntry(hh_2s1b,"with GEM match","f");
-leg->AddEntry(result_def_2s1b,"Tracks req. for both:","");
-leg->AddEntry(result_def_2s1b,"with >=2 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(result_def_2s1b,"and require one stub to be from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh, result_def_3s1b, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio" + ext);
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat8.png");
 
+  // --- def-3s-2s1b   gem-3s-2s1b
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_2s1b, result_def_2s1b, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat8__ratio.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_2s1b->Draw("e3");
+  hh_2s1b->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_2s1b,"default emulator","f");
+  leg->AddEntry(hh_2s1b,"with GEM match","f");
+  leg->AddEntry(result_def_2s1b,"Tracks req. for both:","");
+  leg->AddEntry(result_def_2s1b,"with #geq2 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(result_def_2s1b,"and require one stub to be from ME1/b","");
+  leg->Draw();
 
-// --- def-3s   gem-3s-2s1b
+  drawPULabel();
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def->Draw("e3");
-hh_2s1b->Draw("same e3");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat8" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def,"default emulator","f");
-leg->AddEntry(result_def,"Tracks: with >=3 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(hh_2s1b,"with GEM match","f");
-leg->AddEntry(hh_2s1b,"Tracks: with >=2 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(hh_2s1b,"and require one stub to be from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_2s1b, result_def_2s1b, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s-2s1b__gem-3s-2s1b__Frankenstein_pat8__ratio" + ext);
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat8.png");
 
+  // --- def-3s   gem-3s-2s1b
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_2s1b, result_def, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat8__ratio.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def->Draw("e3");
+  hh_2s1b->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def,"default emulator","f");
+  leg->AddEntry(result_def,"Tracks: with #geq3 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(hh_2s1b,"with GEM match","f");
+  leg->AddEntry(hh_2s1b,"Tracks: with #geq2 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(hh_2s1b,"and require one stub to be from ME1/b","");
+  leg->Draw();
 
-// --- def-3s-3s1b   gem-3s-2s1b
+  drawPULabel();
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_3s1b->Draw("e3");
-hh_2s1b->Draw("same e3");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat8" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_3s1b,"default emulator","f");
-leg->AddEntry(result_def_3s1b,"Tracks req. >=3 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(result_def_3s1b,"and require one stub to be from ME1/b","");
-leg->AddEntry(hh_2s1b,"with GEM match","f");
-leg->AddEntry(hh_2s1b,"Tracks req. >=2 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(hh_2s1b,"and require one stub to be from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_2s1b, result_def, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s__gem-3s-2s1b__Frankenstein_pat8__ratio" + ext);
 
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat8.png");
 
+  // --- def-3s-3s1b   gem-3s-2s1b
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_2s1b, result_def_3s1b, "", 0.,3.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1.6-2.1_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat8__ratio.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_3s1b->Draw("e3");
+  hh_2s1b->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_3s1b,"default emulator","f");
+  leg->AddEntry(result_def_3s1b,"Tracks req. #geq3 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(result_def_3s1b,"and require one stub to be from ME1/b","");
+  leg->AddEntry(hh_2s1b,"with GEM match","f");
+  leg->AddEntry(hh_2s1b,"Tracks req. #geq2 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(hh_2s1b,"and require one stub to be from ME1/b","");
+  leg->Draw();
 
-// --- eta 1-2.4 def-3s   gem-3s-3s1b
+  drawPULabel();
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_eta_all->Draw("e3");
-hh_all->Draw("same e3");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat8" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_eta_all,"default emulator","f");
-leg->AddEntry(result_def_eta_all,"Tracks: with >=3 stubs in 1.<|#eta|<2.4","");
-leg->AddEntry(hh_all,"with GEM match","f");
-leg->AddEntry(result_def_eta_all,"Tracks: same, plus req. one stub from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_2s1b, result_def_3s1b, "", 0.,3.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__def-3s-3s1b__gem-3s-2s1b__Frankenstein_pat8__ratio" + ext);
 
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8.png");
 
+  // --- eta 1-2.4 def-3s   gem-3s-3s1b
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_all, result_def_eta_all, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_eta_all->Draw("e3");
+  hh_all->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_eta_all,"default emulator","f");
+  leg->AddEntry(result_def_eta_all,"Tracks: with #geq3 stubs in 1.<|#eta|<2.4","");
+  leg->AddEntry(hh_all,"with GEM match","f");
+  leg->AddEntry(result_def_eta_all,"Tracks: same, plus req. one stub from ME1/b","");
+  leg->Draw();
 
-// --- eta 1-2.4  def-3s-3s1b   gem-3s-3s1b
+  drawPULabel();
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_eta_all_3s1b->Draw("e3");
-hh_all->Draw("same e3");
+  gPad->Print(plotDir + "rates__100-240_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_eta_all_3s1b,"default emulator","f");
-leg->AddEntry(hh_all,"with GEM match","f");
-leg->AddEntry(result_def_eta_all_3s1b,"Tracks req. for both:","");
-leg->AddEntry(result_def_eta_all_3s1b,"with >=3 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(result_def_eta_all_3s1b,"and require one stub to be from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_all, result_def_eta_all, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__100-240_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio" + ext);
 
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8.png");
 
+  // --- eta 1-2.4  def-3s-3s1b   gem-3s-3s1b
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_all, result_def_eta_all_3s1b, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1-2.4_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_eta_all_3s1b->Draw("e3");
+  hh_all->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_eta_all_3s1b,"default emulator","f");
+  leg->AddEntry(hh_all,"with GEM match","f");
+  leg->AddEntry(result_def_eta_all_3s1b,"Tracks req. for both:","");
+  leg->AddEntry(result_def_eta_all_3s1b,"with #geq3 stubs in 1.64<|#eta|<2.4","");
+  leg->AddEntry(result_def_eta_all_3s1b,"and require one stub to be from ME1/b","");
+  leg->Draw();
 
-// --- eta 1-2.1 def-3s   gem-3s-3s1b
+  drawPULabel();
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_eta_no1a->Draw("e3");
-hh_no1a->Draw("same e3");
+  gPad->Print(plotDir + "rates__100-240_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_eta_no1a,"default emulator","f");
-leg->AddEntry(result_def_eta_no1a,"Tracks: with >=3 stubs in 1.<|#eta|<2.4","");
-leg->AddEntry(hh_no1a,"with GEM match","f");
-leg->AddEntry(result_def_eta_no1a,"Tracks: same, plus req. one stub from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_all, result_def_eta_all_3s1b, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__100-240_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio" + ext);
 
-gPad->Print(gem_dir + "rates__1-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8.png");
 
+  // --- eta 1-2.1 def-3s   gem-3s-3s1b
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_no1a, result_def_eta_no1a, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1-2.1_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_eta_no1a->Draw("e3");
+  hh_no1a->Draw("same e3");
 
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_eta_no1a,"default emulator","f");
+  leg->AddEntry(result_def_eta_no1a,"Tracks: with #geq3 stubs in 1.<|#eta|<2.14","");
+  leg->AddEntry(hh_no1a,"with GEM match","f");
+  leg->AddEntry(result_def_eta_no1a,"Tracks: same, plus req. one stub from ME1/b","");
+  leg->Draw();
 
-// --- eta 1-2.1  def-3s-3s1b   gem-3s-3s1b
+  drawPULabel();
 
-((TCanvas*)gROOT->FindObject("cAll100"))->cd();
-result_def_eta_no1a_3s1b->Draw("e3");
-hh_no1a->Draw("same e3");
+  gPad->Print(plotDir + "rates__100-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8" + ext);
 
-TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
-leg->SetBorderSize(0);
-leg->SetFillStyle(0);
-leg->AddEntry(result_def_eta_no1a_3s1b,"default emulator","f");
-leg->AddEntry(hh_no1a,"with GEM match","f");
-leg->AddEntry(result_def_eta_no1a_3s1b,"Tracks req. for both:","");
-leg->AddEntry(result_def_eta_no1a_3s1b,"with >=3 stubs in 1.64<|#eta|<2.14","");
-leg->AddEntry(result_def_eta_no1a_3s1b,"and require one stub to be from ME1/b","");
-leg->Draw();
 
-TLatex *  tex = new TLatex(0.17, 0.15,"L=4*10^{34} (25ns PU100)");
-tex->SetNDC();
-tex->Draw();
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_no1a, result_def_eta_no1a, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__100-214_PU100__def-3s__gem-3s-3s1b__Frankenstein_pat8__ratio" + ext);
 
-gPad->Print(gem_dir + "rates__1-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8.png");
 
+  // --- eta 1-2.1  def-3s-3s1b   gem-3s-3s1b
 
-((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
-hh_ratio = setHistoRatio(hh_no1a, result_def_eta_no1a_3s1b, "", 0.,1.1);
-hh_ratio->Draw("e1");
-gPad->Print(gem_dir + "rates__1-2.1_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio.png");
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_eta_no1a_3s1b->Draw("e3");
+  hh_no1a->Draw("same e3");
+
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_eta_no1a_3s1b,"default emulator","f");
+  leg->AddEntry(hh_no1a,"with GEM match","f");
+  leg->AddEntry(result_def_eta_no1a_3s1b,"Tracks req. for both:","");
+  leg->AddEntry(result_def_eta_no1a_3s1b,"with #geq3 stubs in 1.64<|#eta|<2.14","");
+  leg->AddEntry(result_def_eta_no1a_3s1b,"and require one stub to be from ME1/b","");
+  leg->Draw();
+
+  drawPULabel();
+
+  gPad->Print(plotDir + "rates__100-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8" + ext);
+
+
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(hh_no1a, result_def_eta_no1a_3s1b, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__100-214_PU100__def-3s-3s1b__gem-3s-3s1b__Frankenstein_pat8__ratio" + ext);
+
+
+
+
+
+  //-------------------------- "Sequential" combinations -----------------------------
+
+  result_def_2s__pat2->SetFillColor(kAzure+2);
+  result_def_2s1b__pat2->SetFillColor(kAzure+5);
+  result_def_3s__pat2->SetFillColor(kAzure+3);
+  result_def_3s1b__pat2->SetFillColor(kAzure+6);
+
+  result_def_2s__pat8->SetFillColor(kViolet);
+  result_def_2s1b__pat8->SetFillColor(kViolet+3);
+  result_def_3s__pat8->SetFillColor(kViolet+1);
+  result_def_3s1b__pat8->SetFillColor(kViolet+4);
+
+  result_gmtsing__pat2->SetFillColor(kRed);
+  result_gmtsing__pat8->SetFillColor(kRed);
+
+  result_gem_2s1b__pat2->SetFillColor(kGreen+1);
+  result_gem_3s1b__pat2->SetFillColor(kGreen+3);
+  result_gem_2s1b__pat8->SetFillColor(kGreen-2);
+  result_gem_3s1b__pat8->SetFillColor(kGreen-3);
+
+  /*
+    result_def_2s__pat2->GetYaxis()->SetRangeUser(0.01, 3000.);
+    result_def_2s__pat8->GetYaxis()->SetRangeUser(0.01, 3000.);
+    result_def_3s__pat2->GetYaxis()->SetRangeUser(0.01, 3000.);
+    result_def_3s__pat8->GetYaxis()->SetRangeUser(0.01, 3000.);
+    result_gmtsing__pat2->GetYaxis()->SetRangeUser(.1, 1000.);
+    result_gmtsing__pat8->GetYaxis()->SetRangeUser(.1, 1000.);
+  */
+  result_def_2s__pat2->GetYaxis()->SetRangeUser(0.01, 8000.);
+  result_def_2s__pat8->GetYaxis()->SetRangeUser(0.01, 8000.);
+  result_def_3s__pat2->GetYaxis()->SetRangeUser(0.01, 8000.);
+  result_def_3s__pat8->GetYaxis()->SetRangeUser(0.01, 8000.);
+  result_gem_2s1b__pat2->GetYaxis()->SetRangeUser(0.01, 8000.);
+  result_gem_3s1b__pat2->GetYaxis()->SetRangeUser(0.01, 8000.);
+  result_gmtsing__pat2->GetYaxis()->SetRangeUser(.1, 5000.);
+  result_gmtsing__pat8->GetYaxis()->SetRangeUser(.1, 5000.);
+
+
+  ///----- 3 stubs
+
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_3s__pat2->Draw("e3");
+  result_def_3s1b__pat2->Draw("same e3");
+  result_gem_3s1b__pat2->Draw("same e3");
+
+  TLegend *leg = new TLegend(0.47,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_3s__pat2,"CSCTF tracks #geq3 stubs:","");
+  leg->AddEntry(result_def_3s__pat2,"any stubs","f");
+  leg->AddEntry(result_def_3s1b__pat2,"has ME1/b stub","f");
+  leg->AddEntry(result_gem_3s1b__pat2,"has (ME1/b + GEM) stub","f");
+  leg->Draw();
+
+  drawPULabel();
+
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__3s__Frankenstein_pat2" + ext);
+
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(result_gem_3s1b__pat2, result_def_3s1b__pat2, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__3s1b__Frankenstein_pat2__ratio" + ext);
+  hh_ratio = setHistoRatio(result_gem_3s1b__pat2, result_def_3s__pat2, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__3s__Frankenstein_pat2__ratio" + ext);
+
+
+
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_3s__pat2->Draw("e3");
+  result_def_3s1b__pat2->Draw("same e3");
+  result_gmtsing__pat2->Draw("same e3");
+  result_gem_3s1b__pat2->Draw("same e3");
+
+  TLegend *leg = new TLegend(0.47,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_gmtsing__pat2,"GMT single Mu selection","f");
+  leg->AddEntry(result_def_3s__pat2,"CSCTF tracks #geq3 stubs:","");
+  leg->AddEntry(result_def_3s__pat2,"any stubs","f");
+  leg->AddEntry(result_def_3s1b__pat2,"has ME1/b stub","f");
+  leg->AddEntry(result_gem_3s1b__pat2,"has (ME1/b + GEM) stub","f");
+  leg->Draw();
+
+  drawPULabel();
+
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__3s_GMT__Frankenstein_pat2" + ext);
+
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(result_gem_3s1b__pat2, result_gmtsing__pat2, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__3s_GMT__Frankenstein_pat2__ratio" + ext);
+
+
+  TFile fsave("gem_3plus_ptshift.root", "RECREATE");
+  result_gem_2s1b__pat2->Write();
+  result_gem_3s1b__pat2->Write();
+  fsave.Write();
+  fsave.Close();
+
+
+
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_3s__pat8->Draw("e3");
+  result_def_3s1b__pat8->Draw("same e3");
+  result_gem_3s1b__pat8->Draw("same e3");
+
+  TLegend *leg = new TLegend(0.47,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_3s__pat8,"CSCTF tracks #geq3 stubs:","");
+  leg->AddEntry(result_def_3s__pat8,"any stubs","f");
+  leg->AddEntry(result_def_3s1b__pat8,"has ME1/b stub","f");
+  leg->AddEntry(result_gem_3s1b__pat8,"has (ME1/b + GEM) stub","f");
+  leg->Draw();
+
+  drawPULabel();
+
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__3s__Frankenstein_pat8" + ext);
+
+
+
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_3s__pat2->Draw("e3");
+  result_def_3s__pat8->Draw("same e3");
+  result_def_3s1b__pat8->Draw("same e3");
+  result_gem_3s1b__pat8->Draw("same e3");
+
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_3s__pat2,"CSCTF tracks #geq3 stubs:","");
+  leg->AddEntry(result_def_3s__pat2,"any stubs","f");
+  leg->AddEntry(result_def_3s__pat8,"any stubs, tight patt.","f");
+  leg->AddEntry(result_def_3s1b__pat8,"has ME1/b stub, tight patt.","f");
+  leg->AddEntry(result_gem_3s1b__pat8,"has (ME1/b + GEM) stub, tight patt.","f");
+  leg->Draw();
+
+  drawPULabel();
+
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__3s__Frankenstein" + ext);
+
+
+  /// ----- 2 stubs
+
+
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_2s__pat2->Draw("e3");
+  result_def_2s1b__pat2->Draw("same e3");
+  result_gem_2s1b__pat2->Draw("same e3");
+
+  TLegend *leg = new TLegend(0.47,0.685,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_2s__pat2,"CSCTF tracks #geq2 stubs:","");
+  leg->AddEntry(result_def_2s__pat2,"any stubs","f");
+  leg->AddEntry(result_def_2s1b__pat2,"has ME1/b stub","f");
+  leg->AddEntry(result_gem_2s1b__pat2,"has (ME1/b + GEM) stub","f");
+  leg->Draw();
+
+  drawPULabel();
+
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__2s__Frankenstein_pat2" + ext);
+
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(result_gem_2s1b__pat2, result_def_2s1b__pat2, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__2s1b__Frankenstein_pat2__ratio" + ext);
+
+
+
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_2s__pat2->Draw("e3");
+  result_def_2s1b__pat2->Draw("same e3");
+  result_gmtsing__pat2->Draw("same e3");
+  result_gem_2s1b__pat2->Draw("same e3");
+
+  TLegend *leg = new TLegend(0.47,0.685,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_gmtsing__pat2,"GMT single Mu selection","f");
+  leg->AddEntry(result_def_2s__pat2,"CSCTF tracks #geq2 stubs:","");
+  leg->AddEntry(result_def_2s__pat2,"any stubs","f");
+  leg->AddEntry(result_def_2s1b__pat2,"has ME1/b stub","f");
+  leg->AddEntry(result_gem_2s1b__pat2,"has (ME1/b + GEM) stub","f");
+  leg->Draw();
+
+  drawPULabel();
+
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__2s_GMT__Frankenstein_pat2" + ext);
+
+  ((TCanvas*)gROOT->FindObject("cAll100r"))->cd();
+  hh_ratio = setHistoRatio(result_gem_2s1b__pat2, result_gmtsing__pat2, "", 0.,1.1);
+  hh_ratio->Draw("e1");
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__2s_GMT__Frankenstein_pat2__ratio" + ext);
+
+
+
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_2s__pat8->Draw("e3");
+  result_def_2s1b__pat8->Draw("same e3");
+  result_gem_2s1b__pat8->Draw("same e3");
+
+  TLegend *leg = new TLegend(0.47,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_2s__pat8,"CSCTF tracks #geq2 stubs:","");
+  leg->AddEntry(result_def_2s__pat8,"any stubs","f");
+  leg->AddEntry(result_def_2s1b__pat8,"has ME1/b stub","f");
+  leg->AddEntry(result_gem_2s1b__pat8,"has (ME1/b + GEM) stub","f");
+  leg->Draw();
+
+  drawPULabel();
+
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__2s__Frankenstein_pat8" + ext);
+
+
+
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_2s__pat2->Draw("e3");
+  result_def_2s__pat8->Draw("same e3");
+  result_def_2s1b__pat8->Draw("same e3");
+  result_gem_2s1b__pat8->Draw("same e3");
+
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_2s__pat2,"CSCTF tracks #geq2 stubs:","");
+  leg->AddEntry(result_def_2s__pat2,"any stubs","f");
+  leg->AddEntry(result_def_2s__pat8,"any stubs, tight patt.","f");
+  leg->AddEntry(result_def_2s1b__pat8,"has ME1/b stub, tight patt.","f");
+  leg->AddEntry(result_gem_2s1b__pat8,"has (ME1/b + GEM) stub, tight patt.","f");
+  leg->Draw();
+
+  drawPULabel();
+
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__2s__Frankenstein" + ext);
+
+
+  /// ----- GMT current "default" single trigger
+
+
+
+
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_gmtsing__pat2->Draw("e3");
+  result_def_2s__pat2->Draw("same e3");
+  result_def_2s1b__pat2->Draw("same e3");
+  result_def_3s__pat2->Draw("same e3");
+  result_def_3s1b__pat2->Draw("same e3");
+  result_gmtsing__pat2->Draw("same e3");
+
+  TLegend *leg = new TLegend(0.49,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_gmtsing__pat2,"GMT single Mu selection","f");
+  leg->AddEntry(result_def_2s__pat2,"Tracks: #geq2 stubs","f");
+  leg->AddEntry(result_def_2s1b__pat2,"   #geq2 with ME1/b stubs","f");
+  leg->AddEntry(result_def_3s__pat2,"   #geq3 stubs","f");
+  leg->AddEntry(result_def_3s1b__pat2,"   #geq3 with ME1/b stubs","f");
+  leg->Draw();
+
+  drawPULabel();
+
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__GMT__Frankenstein_pat2" + ext);
+
+  ///----- 2 & 3 stubs
+
+
+
+
+  ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
+  result_def_3s__pat2->Draw("e3");
+  result_def_3s1b__pat2->Draw("same e3");
+  result_gem_2s1b__pat2->Draw("same e3");
+  result_gem_3s1b__pat2->Draw("same e3");
+
+
+  TLegend *leg = new TLegend(0.4,0.65,.98,0.92,NULL,"brNDC");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(result_def_3s__pat2,"CSCTF tracks with:","");
+  leg->AddEntry(result_def_3s__pat2,"3+ stubs","f");
+  leg->AddEntry(result_def_3s1b__pat2,"3+ stubs with ME1/b stub","f");
+  leg->AddEntry(result_gem_2s1b__pat2,"2+ stubs with (ME1/b + GEM) stub","f");
+  leg->AddEntry(result_gem_2s1b__pat2,"3+ stubs with (ME1/b + GEM) stub","f");
+  leg->Draw();
+
+  drawPULabel();
+
+  gPad->Print(plotDir + "rates__164-214_PU100__sequential__2s3s__Frankenstein_pat2" + ext);
+
+  Color_t col0 = kRed;
+  Color_t col1 = kViolet+1;
+  Color_t col2 = kAzure+2;
+  Color_t col3 = kGreen-2;
+
+  TString plots = "plots/rate_vs_pt_shift/";
+  TString ext = ".pdf";
+
+
+
+  produceRatePlot(result_gmtsing, result_def_2s__pat2, result_def_2s1b__pat2, result_gem_2s1b__pat2, 
+		  col0, col1, col2, col3, 0.1, 10000, "2", "loose", plots, ext);
+  produceRatePlot(result_gmtsing, result_def_2s__pat8, result_def_2s1b__pat8, result_gem_2s1b__pat8, 
+		  col0, col1, col2, col3, 0.1, 10000, "2", "tight", plots, ext);
+  produceRatePlot(result_gmtsing, result_def_3s__pat2, result_def_3s1b__pat2, result_gem_3s1b__pat2, 
+		  col0, col1, col2, col3, 0.01, 10000, "3", "loose", plots, ext);
+  produceRatePlot(result_gmtsing, result_def_3s__pat8, result_def_3s1b__pat8, result_gem_3s1b__pat8, 
+   		  col0, col1, col2, col3, 0.01, 10000, "3", "tight", plots, ext);
+
+
+
+
+
+
+  return;
 
 
 }

@@ -1,3 +1,4 @@
+TH1F* eff_base = 0;
 
 TH1F* draw_eff(TTree *t, TString title, TString h_name, TString h_bins,
                TString to_draw, TCut denom_cut, TCut extra_num_cut, TString opt = "", int color = kBlue, int marker_st = 20)
@@ -32,11 +33,12 @@ TGraphAsymmErrors* draw_geff(TTree *t, TString title, TString h_name, TString h_
   TGraphAsymmErrors *eff = new TGraphAsymmErrors(num, den);
   
   if (!opt.Contains("same")) {
-  num->Reset();
-  num->GetYaxis()->SetRangeUser(0.,1.05);
-  num->SetStats(0);
-  num->SetTitle(title);
-  num->Draw();
+    num->Reset();
+    num->GetYaxis()->SetRangeUser(0.0,1.1);
+    num->SetStats(0);
+    num->SetTitle(title);
+    num->Draw();
+    eff_base = num;
   }
   eff->SetLineWidth(2);
   eff->SetLineColor(color);
@@ -44,7 +46,8 @@ TGraphAsymmErrors* draw_geff(TTree *t, TString title, TString h_name, TString h_
   eff->SetMarkerStyle(marker_st);
   eff->SetMarkerColor(color);
   eff->SetMarkerSize(marker_sz);
+  eff->GetXaxis()->SetLabelSize(0.05);
+  eff->GetYaxis()->SetLabelSize(0.05);
 
   return eff;
 }
-

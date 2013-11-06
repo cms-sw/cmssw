@@ -1,0 +1,477 @@
+from ROOT import *
+from triggerPlotHelpers import *
+
+## run quiet mode
+import sys
+sys.argv.append( '-b' )
+
+import ROOT
+ROOT.gROOT.SetBatch(1)
+
+def drawEtaLabel(minEta, maxEta, x=0.17, y=0.35, font_size=0.):
+  label(minEta + " < |#eta| < " + maxEta)
+  tex = TLatex(x, y,label)
+  if (font_size > 0.):
+    tex.SetFontSize(font_size)
+  tex.SetTextSize(0.05)
+  tex.SetNDC()
+  tex.Draw()
+  return tex
+
+def drawLumiLabel(x=0.17, y=0.35):
+  tex = TLatex(x, y,"L = 4*10^{34} cm^{-2} s^{-1}")
+  tex.SetTextSize(0.05)
+  tex.SetNDC()
+  tex.Draw()
+  return tex
+
+def drawL1Label(x=0.17, y=0.35):
+  tex = TLatex(x, y,"L1 trigger in 2012 configuration")
+  tex.SetTextSize(0.04)
+  tex.SetNDC()
+  tex.Draw()
+  return tex
+
+def produceRatePlot(h, i, j, m, col0, col1, col2, col3, miny, maxy, k, l, plots, ext):
+  c = TCanvas("c","c",800,800)
+  c.Clear()
+  pad1 = TPad("pad1","top pad",0.0,0.25,1.0,1.0)
+  pad1.Draw()
+  pad2 = TPad("pad2","bottom pad",0,0.,1.0,.30)
+  pad2.Draw()
+
+  pad1.cd()
+  pad1.SetLogx(1)
+  pad1.SetLogy(1)
+  pad1.SetGridx(1)
+  pad1.SetGridy(1)
+  pad1.SetFrameBorderMode(0)
+  pad1.SetFillColor(kWhite)
+  
+  h.SetFillColor(col0)
+  i.SetFillColor(col1)
+  j.SetFillColor(col2)
+  m.SetFillColor(col3)
+
+  h.Draw("e3")
+  i.Draw("same e3")
+  j.Draw("same e3")
+  m.Draw("same e3")
+  h.Draw("same e3")
+  h.GetYaxis().SetRangeUser(miny, maxy)
+  h.GetXaxis().SetTitle("")
+  
+  leg = TLegend(0.45,0.7,.93,0.93,"","brNDC")
+  leg.SetMargin(0.25)
+  leg.SetBorderSize(0)
+  leg.SetFillStyle(0)
+  leg.SetTextSize(0.04)
+  leg.SetFillStyle(1001)
+  leg.SetFillColor(kWhite)
+  leg.AddEntry(h, "GMT (2012 configuration)","f")
+  leg.AddEntry(0,          "L1 selections (#geq " + k + " stations):","")
+  leg.AddEntry(i,  "CSC, loose","f")
+  leg.AddEntry(j,"CSC, tight","f")
+  leg.AddEntry(m,"GEM+CSC integrated trigger","f")
+  leg.Draw()
+  
+  drawLumiLabel(0.17,.3)
+  drawEtaLabel("1.64","2.14",0.17,.37)
+  
+  pad2.cd()
+  pad2.SetLogx(1)
+  pad2.SetLogy(1)
+  pad2.SetGridx(1)
+  pad2.SetGridy(1)
+  pad2.SetFillColor(kWhite)
+  pad2.SetFrameBorderMode(0)
+  pad2.SetLeftMargin(0.126)
+  pad2.SetRightMargin(0.04)
+  pad2.SetTopMargin(0.06)
+  pad2.SetBottomMargin(0.4)
+  
+  hh_ratio = setHistoRatio(m, j, "", 0.01,1.1,col2)
+  hh_ratio.GetXaxis().SetTitle("L1 muon candidate p_{T}^{cut} [GeV/c]")
+  hh_ratio.Draw("P")
+  
+  hh_ratio_gmt = setHistoRatio(m, h, "", 0.01,1.1,col0)
+  hh_ratio_gmt.Draw("P same")
+  
+  leg = TLegend(0.15,0.45,.45,0.7,"","brNDC")
+  leg.SetMargin(0.1)
+  leg.SetBorderSize(0)
+  leg.SetTextSize(0.1)
+  leg.SetFillStyle(1001)
+  leg.SetFillColor(kWhite)
+  leg.AddEntry(hh_ratio_gmt, "(GEM+CSC)/GMT","p")
+  leg.AddEntry(hh_ratio,     "(GEM+CSC)/CSC tight","p")
+  leg.Draw("same")
+  
+  c.SaveAs(plots + "rates_vs_pt__PU100__def_" + k + "s_" + k + "s1b_" + k + "s1bgem__" + l + ext)
+
+def produceRatePlots(ext):
+  gem_dir = "files/" 
+  gem_label = "gem98"
+
+  the_ttl = "         L1 Single Muon Trigger                             CMS Simulation;L1 candidate muon p_{T}^{cut} [GeV/c];rate [kHz]"
+  plots = "plots/rate/"
+
+  ##gStyle.SetStatW(0.13)
+  ##gStyle.SetStatH(0.08)
+  gStyle.SetStatW(0.07)
+  gStyle.SetStatH(0.06)
+  gStyle.SetOptStat(0)
+
+  gStyle.SetTitleStyle(0)
+  gStyle.SetTitleAlign(13)## coord in top left
+  gStyle.SetTitleX(0.)
+  gStyle.SetTitleY(1.)
+  gStyle.SetTitleW(1)
+  gStyle.SetTitleH(0.058)
+  gStyle.SetTitleBorderSize(0)
+
+  gStyle.SetPadLeftMargin(0.126)
+  gStyle.SetPadRightMargin(0.04)
+  gStyle.SetPadTopMargin(0.06)
+  gStyle.SetPadBottomMargin(0.13)
+
+  gStyle.SetMarkerStyle(1)
+
+  ## ********** PAT2 **********
+
+  getPTHistos("minbias_pt06_pat2")
+
+  hh = result_def_3s1b.Clone("gem_new")
+  for b in range(hh.FindBin(6.01),hh.GetNbinsX()+1): hh.SetBinContent(b, 0)
+  hh_all = result_def_eta_all_3s1b.Clone("gem_new_eta_all");
+  for b in range(hh_all.FindBin(6.01),hh_all.GetNbinsX()+1): hh.SetBinContent(b, 0)
+  hh_no1a = result_def_eta_no1a_3s1b.Clone("gem_new_eta_no1a"); 
+  for b in range(hh_no1a.FindBin(6.01),hh_no1a.GetNbinsX()+1): hh.SetBinContent(b, 0)
+  hh_2s1b = result_def_2s1b.Clone("gem_new_2s1b");
+  for (int b = hh_2s1b.FindBin(6.01); b <= hh_2s1b.GetNbinsX(); ++b) hh_2s1b.SetBinContent(b, 0);
+
+
+
+  h06 = result_gem.Clone("gem_new_06");
+  for (int b = h06.FindBin(6.01); b < h06.FindBin(10.01); ++b) {hh.SetBinContent(b, h06.GetBinContent(b)); hh.SetBinError(b, h06.GetBinError(b));}
+
+  h06_all = result_gem_eta_all.Clone("gem_new_eta_all_06");
+  for (int b = h06_all.FindBin(6.01); b < h06_all.FindBin(10.01); ++b) {hh_all.SetBinContent(b, h06_all.GetBinContent(b)); hh_all.SetBinError(b, h06_all.GetBinError(b));}
+
+  h06_no1a = result_gem_eta_no1a.Clone("gem_new_eta_no1a_06");
+  for (int b = h06_no1a.FindBin(6.01); b < h06_no1a.FindBin(10.01); ++b) {hh_no1a.SetBinContent(b, h06_no1a.GetBinContent(b)); hh_no1a.SetBinError(b, h06_no1a.GetBinError(b));}
+
+  h06_2s1b = result_gem_2s1b.Clone("gem_new_2s1b_06");
+  for (int b = h06_2s1b.FindBin(6.01); b < h06_2s1b.FindBin(10.01); ++b) {hh_2s1b.SetBinContent(b, h06_2s1b.GetBinContent(b)); hh_2s1b.SetBinError(b, h06_2s1b.GetBinError(b));}
+
+  getPTHistos("minbias_pt10_pat2");
+  h10 = result_gem.Clone("gem10");
+  for (int b = h10.FindBin(10.01); b < h10.FindBin(15.01); ++b) {hh.SetBinContent(b, h10.GetBinContent(b)); hh.SetBinError(b, h10.GetBinError(b));}
+  h10_all = result_gem_eta_all.Clone("gem_new_eta_all_10");
+  for (int b = h10_all.FindBin(10.01); b < h10_all.FindBin(15.01); ++b) {hh_all.SetBinContent(b, h10_all.GetBinContent(b)); hh_all.SetBinError(b, h10_all.GetBinError(b));}
+  h10_no1a = result_gem_eta_no1a.Clone("gem_new_eta_no1a_10");
+  for (int b = h10_no1a.FindBin(10.01); b < h10_no1a.FindBin(15.01); ++b) {hh_no1a.SetBinContent(b, h10_no1a.GetBinContent(b)); hh_no1a.SetBinError(b, h10_no1a.GetBinError(b));}
+  h10_2s1b = result_gem_2s1b.Clone("gem_new_2s1b_10");
+  for (int b = h10_2s1b.FindBin(10.01); b < h10_2s1b.FindBin(15.01); ++b) {hh_2s1b.SetBinContent(b, h10_2s1b.GetBinContent(b)); hh_2s1b.SetBinError(b, h10_2s1b.GetBinError(b));}
+
+  getPTHistos("minbias_pt15_pat2");
+  h15 = result_gem.Clone("gem15");
+  for (int b = h15.FindBin(15.01); b < h15.FindBin(20.01); ++b) {hh.SetBinContent(b, h15.GetBinContent(b)); hh.SetBinError(b, h15.GetBinError(b));}
+  h15_all = result_gem_eta_all.Clone("gem_new_eta_all_15");
+  for (int b = h15_all.FindBin(15.01); b < h15_all.FindBin(20.01); ++b) {hh_all.SetBinContent(b, h15_all.GetBinContent(b)); hh_all.SetBinError(b, h15_all.GetBinError(b));}
+  h15_no1a = result_gem_eta_no1a.Clone("gem_new_eta_no1a_15");
+  for (int b = h15_no1a.FindBin(15.01); b < h15_no1a.FindBin(20.01); ++b) {hh_no1a.SetBinContent(b, h15_no1a.GetBinContent(b)); hh_no1a.SetBinError(b, h15_no1a.GetBinError(b));}
+  h15_2s1b = result_gem_2s1b.Clone("gem_new_2s1b_15");
+  for (int b = h15_2s1b.FindBin(15.01); b < h15_2s1b.FindBin(20.01); ++b) {hh_2s1b.SetBinContent(b, h15_2s1b.GetBinContent(b)); hh_2s1b.SetBinError(b, h15_2s1b.GetBinError(b));}
+
+  getPTHistos("minbias_pt20_pat2");
+  h20 = result_gem.Clone("gem20");
+  for (int b = h20.FindBin(20.01); b < h20.FindBin(30.01); ++b) {hh.SetBinContent(b, h20.GetBinContent(b)); hh.SetBinError(b, h20.GetBinError(b));}
+  h20_all = result_gem_eta_all.Clone("gem_new_eta_all_20");
+  for (int b = h20_all.FindBin(20.01); b < h20_all.FindBin(30.01); ++b) {hh_all.SetBinContent(b, h20_all.GetBinContent(b)); hh_all.SetBinError(b, h20_all.GetBinError(b));}
+  h20_no1a = result_gem_eta_no1a.Clone("gem_new_eta_no1a_20");
+  for (int b = h20_no1a.FindBin(20.01); b < h20_no1a.FindBin(30.01); ++b) {hh_no1a.SetBinContent(b, h20_no1a.GetBinContent(b)); hh_no1a.SetBinError(b, h20_no1a.GetBinError(b));}
+  h20_2s1b = result_gem_2s1b.Clone("gem_new_2s1b_20");
+  for (int b = h20_2s1b.FindBin(20.01); b < h20_2s1b.FindBin(30.01); ++b) {hh_2s1b.SetBinContent(b, h20_2s1b.GetBinContent(b)); hh_2s1b.SetBinError(b, h20_2s1b.GetBinError(b));}
+
+  getPTHistos("minbias_pt30_pat2");
+  h30 = result_gem.Clone("gem30");
+  for (int b = h30.FindBin(30.01); b <= h30.FindBin(40.01); ++b) {hh.SetBinContent(b, h30.GetBinContent(b)); hh.SetBinError(b, h30.GetBinError(b));}
+  h30_all = result_gem_eta_all.Clone("gem_new_eta_all_30");
+  for (int b = h30_all.FindBin(30.01); b < h30_all.FindBin(40.01); ++b) {hh_all.SetBinContent(b, h30_all.GetBinContent(b)); hh_all.SetBinError(b, h30_all.GetBinError(b));}
+  h30_no1a = result_gem_eta_no1a.Clone("gem_new_eta_no1a_30");
+  for (int b = h30_no1a.FindBin(30.01); b < h30_no1a.FindBin(40.01); ++b) {hh_no1a.SetBinContent(b, h30_no1a.GetBinContent(b)); hh_no1a.SetBinError(b, h30_no1a.GetBinError(b));}
+  h30_2s1b = result_gem_2s1b.Clone("gem_new_2s1b_30");
+  for (int b = h30_2s1b.FindBin(30.01); b < h30_2s1b.FindBin(40.01); ++b) {hh_2s1b.SetBinContent(b, h30_2s1b.GetBinContent(b)); hh_2s1b.SetBinError(b, h30_2s1b.GetBinError(b));}
+
+  getPTHistos("minbias_pt40_pat2");
+  h40 = result_gem.Clone("gem30");
+  for (int b = h40.FindBin(40.01); b <= h40.GetNbinsX(); ++b) {hh.SetBinContent(b, h40.GetBinContent(b)); hh.SetBinError(b, h40.GetBinError(b));}
+  h40_all = result_gem_eta_all.Clone("gem_new_eta_all_40");
+  for (int b = h40_all.FindBin(40.01); b < h40_all.GetNbinsX(); ++b) {hh_all.SetBinContent(b, h40_all.GetBinContent(b)); hh_all.SetBinError(b, h40_all.GetBinError(b));}
+  h40_no1a = result_gem_eta_no1a.Clone("gem_new_eta_no1a_40");
+  for (int b = h40_no1a.FindBin(40.01); b < h40_no1a.GetNbinsX(); ++b) {hh_no1a.SetBinContent(b, h40_no1a.GetBinContent(b)); hh_no1a.SetBinError(b, h40_no1a.GetBinError(b));}
+  h40_2s1b = result_gem_2s1b.Clone("gem_new_2s1b_40");
+  for (int b = h40_2s1b.FindBin(40.01); b < h40_2s1b.GetNbinsX(); ++b) {hh_2s1b.SetBinContent(b, h40_2s1b.GetBinContent(b)); hh_2s1b.SetBinError(b, h40_2s1b.GetBinError(b));}
+
+  for (int b = 1; b <= hh.GetNbinsX(); ++b) if (hh.GetBinContent(b)==0) hh.SetBinError(b, 0.);
+  for (int b = 1; b <= hh_all.GetNbinsX(); ++b) if (hh_all.GetBinContent(b)==0) hh_all.SetBinError(b, 0.);
+  for (int b = 1; b <= hh_no1a.GetNbinsX(); ++b) if (hh_no1a.GetBinContent(b)==0) hh_no1a.SetBinError(b, 0.);
+  for (int b = 1; b <= hh_2s1b.GetNbinsX(); ++b) if (hh_2s1b.GetBinContent(b)==0) hh_2s1b.SetBinError(b, 0.);
+
+  hh = setPTHisto(hh, the_ttl, kGreen+3, 1, 1);
+  hh_all = setPTHisto(hh_all, the_ttl, kGreen+3, 1, 1);
+  hh_no1a = setPTHisto(hh_no1a, the_ttl, kGreen+3, 1, 1);
+  hh_2s1b = setPTHisto(hh_2s1b, the_ttl, kGreen+3, 1, 1);
+
+  result_gmtsing = setPTHisto(result_gmtsing, the_ttl, kAzure+1, 1, 1);
+
+  result_def = setPTHisto(result_def, the_ttl, kAzure+9, 1, 1);
+  result_def_2s = setPTHisto(result_def_2s, the_ttl, kAzure+9, 1, 1);
+  result_def_3s1b = setPTHisto(result_def_3s1b, the_ttl, kAzure+9, 1, 1);
+  result_def_2s1b = setPTHisto(result_def_2s1b, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_all = setPTHisto(result_def_eta_all, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_all_3s1b = setPTHisto(result_def_eta_all_3s1b, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_no1a = setPTHisto(result_def_eta_no1a, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_no1a_3s1b = setPTHisto(result_def_eta_no1a_3s1b, the_ttl, kAzure+9, 1, 1);
+
+  result_def_2s__pat2 =  result_def_2s.Clone("result_def_2s__pat2");
+  result_def_3s__pat2 =  result_def.Clone("result_def_2s__pat2");
+  result_def_2s1b__pat2 =  result_def_2s1b.Clone("result_def_2s1b__pat2");
+  result_def_3s1b__pat2 =  result_def_3s1b.Clone("result_def_3s1b__pat2");
+  result_gmtsing__pat2 =  result_gmtsing.Clone("result_gmtsing__pat2");;
+
+  result_gem_2s1b__pat2 =  hh_2s1b.Clone("result_gem_2s1b__pat2");
+  result_gem_3s1b__pat2 =  hh.Clone("result_gem_2s1b__pat2");
+
+  ## ********** PAT8 **********
+
+  getPTHistos("minbias_pt06_pat8");
+  hh = result_def_3s1b.Clone("gem_new");
+  for (int b = hh.FindBin(6.01); b <= hh.GetNbinsX(); ++b) hh.SetBinContent(b, 0);
+  hh_all = result_def_eta_all_3s1b.Clone("gem_new_eta_all");
+  for (int b = hh_all.FindBin(6.01); b <= hh_all.GetNbinsX(); ++b) hh_all.SetBinContent(b, 0);
+  hh_no1a = result_def_eta_no1a_3s1b.Clone("gem_new_eta_no1a");
+  for (int b = hh_no1a.FindBin(6.01); b <= hh_no1a.GetNbinsX(); ++b) hh_no1a.SetBinContent(b, 0);
+  hh_2s1b = result_def_2s1b.Clone("gem_new_2s1b");
+  for (int b = hh_2s1b.FindBin(6.01); b <= hh_2s1b.GetNbinsX(); ++b) hh_2s1b.SetBinContent(b, 0);
+
+  h06 = result_gem.Clone("gem_new_06");
+  for (int b = h06.FindBin(6.01); b < h06.FindBin(10.01); ++b) {hh.SetBinContent(b, h06.GetBinContent(b)); hh.SetBinError(b, h06.GetBinError(b));}
+  h06_all = result_gem_eta_all.Clone("gem_new_eta_all_06");
+  for (int b = h06_all.FindBin(6.01); b < h06_all.FindBin(10.01); ++b) {hh_all.SetBinContent(b, h06_all.GetBinContent(b)); hh_all.SetBinError(b, h06_all.GetBinError(b));}
+  h06_no1a = result_gem_eta_no1a.Clone("gem_new_eta_no1a_06");
+  for (int b = h06_no1a.FindBin(6.01); b < h06_no1a.FindBin(10.01); ++b) {hh_no1a.SetBinContent(b, h06_no1a.GetBinContent(b)); hh_no1a.SetBinError(b, h06_no1a.GetBinError(b));}
+  h06_2s1b = result_gem_2s1b.Clone("gem_new_2s1b_06");
+  for (int b = h06_2s1b.FindBin(6.01); b < h06_2s1b.FindBin(10.01); ++b) {hh_2s1b.SetBinContent(b, h06_2s1b.GetBinContent(b)); hh_2s1b.SetBinError(b, h06_2s1b.GetBinError(b));}
+
+  getPTHistos("minbias_pt10_pat8");
+  h10 = result_gem.Clone("gem10");
+  for (int b = h10.FindBin(10.01); b < h10.FindBin(15.01); ++b) {hh.SetBinContent(b, h10.GetBinContent(b)); hh.SetBinError(b, h10.GetBinError(b));}
+  h10_all = result_gem_eta_all.Clone("gem_new_eta_all_10");
+  for (int b = h10_all.FindBin(10.01); b < h10_all.FindBin(15.01); ++b) {hh_all.SetBinContent(b, h10_all.GetBinContent(b)); hh_all.SetBinError(b, h10_all.GetBinError(b));}
+  h10_no1a = result_gem_eta_no1a.Clone("gem_new_eta_no1a_10");
+  for (int b = h10_no1a.FindBin(10.01); b < h10_no1a.FindBin(15.01); ++b) {hh_no1a.SetBinContent(b, h10_no1a.GetBinContent(b)); hh_no1a.SetBinError(b, h10_no1a.GetBinError(b));}
+  h10_2s1b = result_gem_2s1b.Clone("gem_new_2s1b_10");
+  for (int b = h10_2s1b.FindBin(10.01); b < h10_2s1b.FindBin(15.01); ++b) {hh_2s1b.SetBinContent(b, h10_2s1b.GetBinContent(b)); hh_2s1b.SetBinError(b, h10_2s1b.GetBinError(b));}
+
+  getPTHistos("minbias_pt15_pat8");
+  h15 = result_gem.Clone("gem15");
+  for (int b = h15.FindBin(15.01); b < h15.FindBin(20.01); ++b) {hh.SetBinContent(b, h15.GetBinContent(b)); hh.SetBinError(b, h15.GetBinError(b));}
+  h15_all = result_gem_eta_all.Clone("gem_new_eta_all_15");
+  for (int b = h15_all.FindBin(15.01); b < h15_all.FindBin(20.01); ++b) {hh_all.SetBinContent(b, h15_all.GetBinContent(b)); hh_all.SetBinError(b, h15_all.GetBinError(b));}
+  h15_no1a = result_gem_eta_no1a.Clone("gem_new_eta_no1a_15");
+  for (int b = h15_no1a.FindBin(15.01); b < h15_no1a.FindBin(20.01); ++b) {hh_no1a.SetBinContent(b, h15_no1a.GetBinContent(b)); hh_no1a.SetBinError(b, h15_no1a.GetBinError(b));}
+  h15_2s1b = result_gem_2s1b.Clone("gem_new_2s1b_15");
+  for (int b = h15_2s1b.FindBin(15.01); b < h15_2s1b.FindBin(20.01); ++b) {hh_2s1b.SetBinContent(b, h15_2s1b.GetBinContent(b)); hh_2s1b.SetBinError(b, h15_2s1b.GetBinError(b));}
+
+  getPTHistos("minbias_pt20_pat8");
+  h20 = result_gem.Clone("gem20");
+  for (int b = h20.FindBin(20.01); b < h20.FindBin(30.01); ++b) {hh.SetBinContent(b, h20.GetBinContent(b)); hh.SetBinError(b, h20.GetBinError(b));}
+  h20_all = result_gem_eta_all.Clone("gem_new_eta_all_20");
+  for (int b = h20_all.FindBin(20.01); b < h20_all.FindBin(30.01); ++b) {hh_all.SetBinContent(b, h20_all.GetBinContent(b)); hh_all.SetBinError(b, h20_all.GetBinError(b));}
+  h20_no1a = result_gem_eta_no1a.Clone("gem_new_eta_no1a_20");
+  for (int b = h20_no1a.FindBin(20.01); b < h20_no1a.FindBin(30.01); ++b) {hh_no1a.SetBinContent(b, h20_no1a.GetBinContent(b)); hh_no1a.SetBinError(b, h20_no1a.GetBinError(b));}
+  h20_2s1b = result_gem_2s1b.Clone("gem_new_2s1b_20");
+  for (int b = h20_2s1b.FindBin(20.01); b < h20_2s1b.FindBin(30.01); ++b) {hh_2s1b.SetBinContent(b, h20_2s1b.GetBinContent(b)); hh_2s1b.SetBinError(b, h20_2s1b.GetBinError(b));}
+
+  getPTHistos("minbias_pt30_pat8");
+  h30 = result_gem.Clone("gem30");
+  for (int b = h30.FindBin(30.01); b <= h30.FindBin(40.01); ++b) {hh.SetBinContent(b, h30.GetBinContent(b)); hh.SetBinError(b, h30.GetBinError(b));}
+  h30_all = result_gem_eta_all.Clone("gem_new_eta_all_30");
+  for (int b = h30_all.FindBin(30.01); b < h30_all.FindBin(40.01); ++b) {hh_all.SetBinContent(b, h30_all.GetBinContent(b)); hh_all.SetBinError(b, h30_all.GetBinError(b));}
+  h30_no1a = result_gem_eta_no1a.Clone("gem_new_eta_no1a_30");
+  for (int b = h30_no1a.FindBin(30.01); b < h30_no1a.FindBin(40.01); ++b) {hh_no1a.SetBinContent(b, h30_no1a.GetBinContent(b)); hh_no1a.SetBinError(b, h30_no1a.GetBinError(b));}
+  h30_2s1b = result_gem_2s1b.Clone("gem_new_2s1b_30");
+  for (int b = h30_2s1b.FindBin(30.01); b < h30_2s1b.FindBin(40.01); ++b) {hh_2s1b.SetBinContent(b, h30_2s1b.GetBinContent(b)); hh_2s1b.SetBinError(b, h30_2s1b.GetBinError(b));}
+
+  getPTHistos("minbias_pt40_pat8");
+  h40 = result_gem.Clone("gem30");
+  for (int b = h40.FindBin(40.01); b <= h40.GetNbinsX(); ++b) {hh.SetBinContent(b, h40.GetBinContent(b)); hh.SetBinError(b, h40.GetBinError(b));}
+  h40_all = result_gem_eta_all.Clone("gem_new_eta_all_40");
+  for (int b = h40_all.FindBin(40.01); b < h40_all.GetNbinsX(); ++b) {hh_all.SetBinContent(b, h40_all.GetBinContent(b)); hh_all.SetBinError(b, h40_all.GetBinError(b));}
+  h40_no1a = result_gem_eta_no1a.Clone("gem_new_eta_no1a_40");
+  for (int b = h40_no1a.FindBin(40.01); b < h40_no1a.GetNbinsX(); ++b) {hh_no1a.SetBinContent(b, h40_no1a.GetBinContent(b)); hh_no1a.SetBinError(b, h40_no1a.GetBinError(b));}
+  h40_2s1b = result_gem_2s1b.Clone("gem_new_2s1b_40");
+  for (int b = h40_2s1b.FindBin(40.01); b < h40_2s1b.GetNbinsX(); ++b) {hh_2s1b.SetBinContent(b, h40_2s1b.GetBinContent(b)); hh_2s1b.SetBinError(b, h40_2s1b.GetBinError(b));}
+
+  for (int b = 1; b <= hh.GetNbinsX(); ++b) if (hh.GetBinContent(b)==0) hh.SetBinError(b, 0.);
+  for (int b = 1; b <= hh_all.GetNbinsX(); ++b) if (hh_all.GetBinContent(b)==0) hh_all.SetBinError(b, 0.);
+  for (int b = 1; b <= hh_no1a.GetNbinsX(); ++b) if (hh_no1a.GetBinContent(b)==0) hh_no1a.SetBinError(b, 0.);
+  for (int b = 1; b <= hh_2s1b.GetNbinsX(); ++b) if (hh_2s1b.GetBinContent(b)==0) hh_2s1b.SetBinError(b, 0.);
+
+  hh = setPTHisto(hh, the_ttl, kGreen+3, 1, 1);
+  hh_all = setPTHisto(hh_all, the_ttl, kGreen+3, 1, 1);
+  hh_no1a = setPTHisto(hh_no1a, the_ttl, kGreen+3, 1, 1);
+  hh_2s1b = setPTHisto(hh_2s1b, the_ttl, kGreen+3, 1, 1);
+
+  result_gmtsing = setPTHisto(result_gmtsing, the_ttl, kAzure+1, 1, 1);
+
+  result_def = setPTHisto(result_def, the_ttl, kAzure+9, 1, 1);
+  result_def_2s = setPTHisto(result_def_2s, the_ttl, kAzure+9, 1, 1);
+  result_def_3s1b = setPTHisto(result_def_3s1b, the_ttl, kAzure+9, 1, 1);
+  result_def_2s1b = setPTHisto(result_def_2s1b, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_all = setPTHisto(result_def_eta_all, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_all_3s1b = setPTHisto(result_def_eta_all_3s1b, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_no1a = setPTHisto(result_def_eta_no1a, the_ttl, kAzure+9, 1, 1);
+  result_def_eta_no1a_3s1b = setPTHisto(result_def_eta_no1a_3s1b, the_ttl, kAzure+9, 1, 1);
+
+  result_def_2s__pat8 =  result_def_2s.Clone("result_def_2s__pat8");
+  result_def_3s__pat8 =  result_def.Clone("result_def_2s__pat8");
+  result_def_2s1b__pat8 =  result_def_2s1b.Clone("result_def_2s1b__pat8");
+  result_def_3s1b__pat8 =  result_def_3s1b.Clone("result_def_3s1b__pat8");
+  result_gmtsing__pat8 =  result_gmtsing.Clone("result_gmtsing__pat8");;
+
+  result_gem_2s1b__pat8 =  hh_2s1b.Clone("result_gem_2s1b__pat8");
+  result_gem_3s1b__pat8 =  hh.Clone("result_gem_2s1b__pat8");
+
+  ########################
+  ## PLOTS FOR APPROVAL ##
+  ########################
+  col0 = kRed;
+  col1 = kViolet+1;
+  col2 = kAzure+2;
+  col3 = kGreen-2;
+  
+  produceRatePlot(result_gmtsing__pat2, result_def_2s__pat2, result_def_2s1b__pat2, result_gem_2s1b__pat2, 
+		  col0, col1, col2, col3, 0.1, 10000, "2", "loose", plots, ext)
+  produceRatePlot(result_gmtsing__pat8, result_def_2s__pat8, result_def_2s1b__pat8, result_gem_2s1b__pat8, 
+		  col0, col1, col2, col3, 0.1, 10000, "2", "tight", plots, ext)
+  produceRatePlot(result_gmtsing__pat2, result_def_3s__pat2, result_def_3s1b__pat2, result_gem_3s1b__pat2, 
+		  col0, col1, col2, col3, 0.01, 10000, "3", "loose", plots, ext)
+  produceRatePlot(result_gmtsing__pat8, result_def_3s__pat8, result_def_3s1b__pat8, result_gem_3s1b__pat8, 
+		  col0, col1, col2, col3, 0.01, 10000, "3", "tight", plots, ext);
+  
+"""
+  ## EXTRA PLOTS
+  bool produceTheBigPlots = false;
+  if (produceTheBigPlots)
+  {
+    result_def_2s__pat8.SetFillColor(kViolet+2);
+    result_def_2s1b__pat8.SetFillColor(kAzure+2);
+    result_gem_2s1b__pat8.SetFillColor(kGreen-1);
+
+    ## GMT; CSCTF 2 stubs; CSCTF 2 stubs + ME1/b; CSCTF 2 stubs + ME1/b + GEM -- LOOSE & TIGHT + GEM-- Absolute + ratio
+    TCanvas* c = TCanvas("c","c",1000,800);
+    c.Clear();
+    TPad *pad1 = TPad("pad1","top pad",0.0,0.0,1.0,1.0);
+    pad1.Draw();
+
+    pad1.cd();
+    pad1.SetLogx(1);
+    pad1.SetLogy(1);
+    pad1.SetGridx(1);
+    pad1.SetGridy(1);
+    pad1.SetFrameBorderMode(0);
+    pad1.SetFillColor(kWhite);
+
+    result_gmtsing__pat2.Draw("e3");
+    result_def_2s__pat2.Draw("same e3");
+    result_def_2s1b__pat2.Draw("same e3");
+    result_gem_2s1b__pat2.Draw("same e3");
+    result_def_2s__pat8.Draw("same e3");
+    result_def_2s1b__pat8.Draw("same e3");
+    result_gem_2s1b__pat8.Draw("same e3");
+    result_gmtsing__pat2.Draw("same e3");
+    result_gmtsing__pat2.GetYaxis().SetRangeUser(0.1, 10000.);
+    result_gmtsing__pat2.GetXaxis().SetTitle("p_{T}^{cut} [GeV/c]");
+ 
+    leg = TLegend(0.5,0.65,.92,0.92,"","brNDC");
+    leg.SetBorderSize(0);
+    leg.SetFillStyle(0);
+    leg.SetTextSize(0.03);
+    leg.AddEntry((TObject*)0, "Global Muon Trigger [GMT]:","");
+    leg.AddEntry(result_gmtsing__pat2, "default muon selection","f");
+    leg.AddEntry((TObject*)0,          "CSCTF tracks with:","");
+    leg.AddEntry(result_def_2s__pat2,  "#geq 2 stubs","f");
+    leg.AddEntry(result_def_2s1b__pat2,"#geq 2 with ME1/b stub","f");
+    leg.AddEntry(result_gem_2s1b__pat2,"#geq 2 with ME1/b stub and GEM pad","f");
+    leg.AddEntry(result_def_2s__pat8,  "#geq 2 stubs","f");
+    leg.AddEntry(result_def_2s1b__pat8,"#geq 2 with ME1/b stub","f");
+    leg.AddEntry(result_gem_2s1b__pat8,"#geq 2 with ME1/b stub and GEM pad","f");
+    leg.SetFillStyle(1001);
+    leg.SetFillColor(kWhite);
+    leg.Draw();
+ 
+    drawLumiLabel(0.17,.3);
+    drawEtaLabel("1.64","2.14");
+
+    c.SaveAs(plots + "rates_vs_pt__PU100__def_2s_2s1b_2s1bgem" + ext);
+  }
+
+  {
+    result_def_3s__pat8.SetFillColor(kViolet+2);
+    result_def_3s1b__pat8.SetFillColor(kAzure+2);
+    result_gem_3s1b__pat8.SetFillColor(kGreen-1);
+
+    ## GMT; CSCTF 3 stubs; CSCTF 3 stubs + ME1/b; CSCTF 3 stubs + ME1/b + GEM -- LOOSE & TIGHT + GEM-- Absolute + ratio
+    TCanvas* c = TCanvas("c","c",1000,800);
+    c.Clear();
+    TPad *pad1 = TPad("pad1","top pad",0.0,0.0,1.0,1.0);
+    pad1.Draw();
+
+    pad1.cd();
+    pad1.SetLogx(1);
+    pad1.SetLogy(1);
+    pad1.SetGridx(1);
+    pad1.SetGridy(1);
+    pad1.SetFrameBorderMode(0);
+    pad1.SetFillColor(kWhite);
+
+    result_gmtsing__pat2.Draw("e3");
+    result_def_3s__pat2.Draw("same e3");
+    result_def_3s1b__pat2.Draw("same e3");
+    result_gem_3s1b__pat2.Draw("same e3");
+    result_def_3s__pat8.Draw("same e3");
+    result_def_3s1b__pat8.Draw("same e3");
+    result_gem_3s1b__pat8.Draw("same e3");
+    result_gmtsing__pat2.Draw("same e3");
+    result_gmtsing__pat2.GetYaxis().SetRangeUser(0.01, 10000.);
+    result_gmtsing__pat2.GetXaxis().SetTitle("p_{T}^{cut} [GeV/c]");
+ 
+    leg = TLegend(0.5,0.65,.92,0.92,"","brNDC");
+    leg.SetBorderSize(0);
+    leg.SetFillStyle(0);
+    leg.SetTextSize(0.03);
+    leg.AddEntry((TObject*)0, "Global Muon Trigger [GMT]:","");
+    leg.AddEntry(result_gmtsing__pat2, "default muon selection","f");
+    leg.AddEntry((TObject*)0,          "CSCTF tracks with:","");
+    leg.AddEntry(result_def_3s__pat2,  "#geq 3 stubs","f");
+    leg.AddEntry(result_def_3s1b__pat2,"#geq 3 with ME1/b stub","f");
+    leg.AddEntry(result_gem_3s1b__pat2,"#geq 3 with ME1/b stub and GEM pad","f");
+    leg.AddEntry(result_def_3s__pat8,  "#geq 3 stubs","f");
+    leg.AddEntry(result_def_3s1b__pat8,"#geq 3 with ME1/b stub","f");
+    leg.AddEntry(result_gem_3s1b__pat8,"#geq 3 with ME1/b stub and GEM pad","f");
+    leg.SetFillStyle(1001);
+    leg.SetFillColor(kWhite);
+    leg.Draw();
+ 
+    drawLumiLabel(0.17,.3);
+    drawEtaLabel("1.64","2.14");
+
+    c.SaveAs(plots + "rates_vs_pt__PU100__def_3s_3s1b_3s1bgem" + ext);
+"""
+
+if __name__ == "__main__":
+  produceRatePlots(".C")
+  produceRatePlots(".eps")

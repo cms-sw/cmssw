@@ -3,7 +3,7 @@ TLatex* drawEtaLabel(TString minEta, TString maxEta, float x=0.17, float y=0.35,
   TString label(minEta + " < |#eta| < " + maxEta);
   TLatex *  tex = new TLatex(x, y,label);
   if (font_size > 0.) tex->SetFontSize(font_size);
-  tex->SetTextSize(0.04);
+  tex->SetTextSize(0.05);
   tex->SetNDC();
   tex->Draw();
   return tex;
@@ -12,33 +12,114 @@ TLatex* drawEtaLabel(TString minEta, TString maxEta, float x=0.17, float y=0.35,
 TLatex* drawLumiLabel(float x=0.17, float y=0.35)
 {
   TLatex *  tex = new TLatex(x, y,"L = 4*10^{34} cm^{-2} s^{-1}");
+  tex->SetTextSize(0.05);
+  tex->SetNDC();
+  tex->Draw();
+  return tex;
+}
+
+TLatex* drawL1Label(float x=0.17, float y=0.35)
+{
+  TLatex *  tex = new TLatex(x, y,"L1 trigger in 2012 configuration");
   tex->SetTextSize(0.04);
   tex->SetNDC();
   tex->Draw();
   return tex;
 }
 
-
-
-void produceRatePlotsForApproval()
+void produceRatePlot(TH1D* h, TH1D* i, TH1D* j, TH1D* m, Color_t col0, Color_t col1, Color_t col2, Color_t col3,
+		     float miny, float maxy, TString k, TString l, TString plots, TString ext)
+)
 {
-  gROOT->ProcessLine(".L drawplot_gmtrt.C");
-  gROOT->ProcessLine(".L getPTHistos.C");
-  gROOT->SetBatch(true);
+  TCanvas* c = new TCanvas("c","c",800,800);
+  c->Clear();
+  TPad *pad1 = new TPad("pad1","top pad",0.0,0.25,1.0,1.0);
+  pad1->Draw();
+  TPad *pad2 = new TPad("pad2","bottom pad",0,0.,1.0,.30);
+  pad2->Draw();
 
+  pad1->cd();
+  pad1->SetLogx(1);
+  pad1->SetLogy(1);
+  pad1->SetGridx(1);
+  pad1->SetGridy(1);
+  pad1->SetFrameBorderMode(0);
+  pad1->SetFillColor(kWhite);
+  
+  h->SetFillColor(col0);
+  i->SetFillColor(col1);
+  j->SetFillColor(col2);
+  m->SetFillColor(col3);
+
+  h->Draw("e3");
+  i->Draw("same e3");
+  j->Draw("same e3");
+  m->Draw("same e3");
+  h->Draw("same e3");
+  h->GetYaxis()->SetRangeUser(miny, maxy);
+  h->GetXaxis()->SetTitle("");
+  
+  TLegend *leg = new TLegend(0.45,0.7,.93,0.93,"","brNDC");
+  leg->SetMargin(0.25);
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->SetTextSize(0.04);
+  leg->SetFillStyle(1001);
+  leg->SetFillColor(kWhite);
+  leg->AddEntry(h, "GMT (2012 configuration)","f");
+  leg->AddEntry((TObject*)0,          "L1 selections (#geq " + k + " stations):","");
+  leg->AddEntry(i,"CSC #geq" + k + " stubs (anywhere)","f");
+  leg->AddEntry(j,"CSC #geq" + k + " stubs (one in ME1/b)","f");
+  leg->AddEntry(m,"GEM+CSC integrated trigger","f");
+  leg->Draw();
+  
+  drawLumiLabel(0.17,.3);
+  drawEtaLabel("1.64","2.14",0.17,.37);
+  
+  pad2->cd();
+  pad2->SetLogx(1);
+  pad2->SetLogy(1);
+  pad2->SetGridx(1);
+  pad2->SetGridy(1);
+  pad2->SetFillColor(kWhite);
+  pad2->SetFrameBorderMode(0);
+  pad2->SetLeftMargin(0.126);
+  pad2->SetRightMargin(0.04);
+  pad2->SetTopMargin(0.06);
+  pad2->SetBottomMargin(0.4);
+  
+  TH1D* hh_ratio = setHistoRatio(m, j, "", 0.01,1.1,col2);
+  hh_ratio->GetXaxis()->SetTitle("L1 muon candidate p_{T}^{cut} [GeV/c]");
+  hh_ratio->Draw("P");
+  
+  TH1D* hh_ratio_gmt = setHistoRatio(m, h, "", 0.01,1.1,col0);
+  hh_ratio_gmt->Draw("P same");
+  
+  leg = new TLegend(0.15,0.45,.45,0.7,NULL,"brNDC");
+  leg->SetMargin(0.1);
+  leg->SetBorderSize(0);
+  leg->SetTextSize(0.1);
+  leg->SetFillStyle(1001);
+  leg->SetFillColor(kWhite);
+  leg->AddEntry(hh_ratio_gmt, "(GEM+CSC)/GMT","p");
+  leg->AddEntry(hh_ratio,     "(GEM+CSC)/CSC tight","p");
+  leg->Draw("same");
+  
+  c->SaveAs(plots + "rates_vs_pt__PU100__def_" + k + "s_" + k + "s1b_" + k + "s1bgem__" + l + ext);
+}
+
+void produceRatePlots(TString ext)
+{
   gem_dir = "files/"; 
   gem_label = "gem98";
 
-  TString plots = "plots/"; 
-  TString ext = ".pdf";
-  TString the_ttl = "CSC L1 trigger rates in ME1/b region;p_{T}^{cut} [GeV/c];rate [kHz]";
-
+  TString the_ttl = "         L1 Single Muon Trigger                             CMS Simulation Preliminary;L1 candidate muon p_{T}^{cut} [GeV/c];rate [kHz]";
+  TString plots = "plots/rate/";
 
   //gStyle->SetStatW(0.13);
   //gStyle->SetStatH(0.08);
   gStyle->SetStatW(0.07);
   gStyle->SetStatH(0.06);
-
   gStyle->SetOptStat(0);
 
   gStyle->SetTitleStyle(0);
@@ -61,19 +142,27 @@ void produceRatePlotsForApproval()
   getPTHistos("minbias_pt06_pat2");
   hh = (TH1D*)result_def_3s1b->Clone("gem_new");
   for (int b = hh->FindBin(6.01); b <= hh->GetNbinsX(); ++b) hh->SetBinContent(b, 0);
+
   hh_all = (TH1D*)result_def_eta_all_3s1b->Clone("gem_new_eta_all");
   for (int b = hh_all->FindBin(6.01); b <= hh_all->GetNbinsX(); ++b) hh_all->SetBinContent(b, 0);
+
   hh_no1a = (TH1D*)result_def_eta_no1a_3s1b->Clone("gem_new_eta_no1a");
   for (int b = hh_no1a->FindBin(6.01); b <= hh_no1a->GetNbinsX(); ++b) hh_no1a->SetBinContent(b, 0);
+
   hh_2s1b = (TH1D*)result_def_2s1b->Clone("gem_new_2s1b");
   for (int b = hh_2s1b->FindBin(6.01); b <= hh_2s1b->GetNbinsX(); ++b) hh_2s1b->SetBinContent(b, 0);
 
+
+
   h06 = (TH1D*)result_gem->Clone("gem_new_06");
   for (int b = h06->FindBin(6.01); b < h06->FindBin(10.01); ++b) {hh->SetBinContent(b, h06->GetBinContent(b)); hh->SetBinError(b, h06->GetBinError(b));}
+
   h06_all = (TH1D*)result_gem_eta_all->Clone("gem_new_eta_all_06");
   for (int b = h06_all->FindBin(6.01); b < h06_all->FindBin(10.01); ++b) {hh_all->SetBinContent(b, h06_all->GetBinContent(b)); hh_all->SetBinError(b, h06_all->GetBinError(b));}
+
   h06_no1a = (TH1D*)result_gem_eta_no1a->Clone("gem_new_eta_no1a_06");
   for (int b = h06_no1a->FindBin(6.01); b < h06_no1a->FindBin(10.01); ++b) {hh_no1a->SetBinContent(b, h06_no1a->GetBinContent(b)); hh_no1a->SetBinError(b, h06_no1a->GetBinError(b));}
+
   h06_2s1b = (TH1D*)result_gem_2s1b->Clone("gem_new_2s1b_06");
   for (int b = h06_2s1b->FindBin(6.01); b < h06_2s1b->FindBin(10.01); ++b) {hh_2s1b->SetBinContent(b, h06_2s1b->GetBinContent(b)); hh_2s1b->SetBinError(b, h06_2s1b->GetBinError(b));}
 
@@ -132,8 +221,6 @@ void produceRatePlotsForApproval()
   for (int b = 1; b <= hh_no1a->GetNbinsX(); ++b) if (hh_no1a->GetBinContent(b)==0) hh_no1a->SetBinError(b, 0.);
   for (int b = 1; b <= hh_2s1b->GetNbinsX(); ++b) if (hh_2s1b->GetBinContent(b)==0) hh_2s1b->SetBinError(b, 0.);
 
-
-
   hh = setPTHisto(hh, the_ttl, kGreen+3, 1, 1);
   hh_all = setPTHisto(hh_all, the_ttl, kGreen+3, 1, 1);
   hh_no1a = setPTHisto(hh_no1a, the_ttl, kGreen+3, 1, 1);
@@ -149,8 +236,6 @@ void produceRatePlotsForApproval()
   result_def_eta_all_3s1b = setPTHisto(result_def_eta_all_3s1b, the_ttl, kAzure+9, 1, 1);
   result_def_eta_no1a = setPTHisto(result_def_eta_no1a, the_ttl, kAzure+9, 1, 1);
   result_def_eta_no1a_3s1b = setPTHisto(result_def_eta_no1a_3s1b, the_ttl, kAzure+9, 1, 1);
-
-
 
   result_def_2s__pat2 = (TH1D*) result_def_2s->Clone("result_def_2s__pat2");
   result_def_3s__pat2 = (TH1D*) result_def->Clone("result_def_2s__pat2");
@@ -237,7 +322,6 @@ void produceRatePlotsForApproval()
   for (int b = 1; b <= hh_no1a->GetNbinsX(); ++b) if (hh_no1a->GetBinContent(b)==0) hh_no1a->SetBinError(b, 0.);
   for (int b = 1; b <= hh_2s1b->GetNbinsX(); ++b) if (hh_2s1b->GetBinContent(b)==0) hh_2s1b->SetBinError(b, 0.);
 
-
   hh = setPTHisto(hh, the_ttl, kGreen+3, 1, 1);
   hh_all = setPTHisto(hh_all, the_ttl, kGreen+3, 1, 1);
   hh_no1a = setPTHisto(hh_no1a, the_ttl, kGreen+3, 1, 1);
@@ -254,7 +338,6 @@ void produceRatePlotsForApproval()
   result_def_eta_no1a = setPTHisto(result_def_eta_no1a, the_ttl, kAzure+9, 1, 1);
   result_def_eta_no1a_3s1b = setPTHisto(result_def_eta_no1a_3s1b, the_ttl, kAzure+9, 1, 1);
 
-
   result_def_2s__pat8 = (TH1D*) result_def_2s->Clone("result_def_2s__pat8");
   result_def_3s__pat8 = (TH1D*) result_def->Clone("result_def_2s__pat8");
   result_def_2s1b__pat8 = (TH1D*) result_def_2s1b->Clone("result_def_2s1b__pat8");
@@ -264,36 +347,37 @@ void produceRatePlotsForApproval()
   result_gem_2s1b__pat8 = (TH1D*) hh_2s1b->Clone("result_gem_2s1b__pat8");
   result_gem_3s1b__pat8 = (TH1D*) hh->Clone("result_gem_2s1b__pat8");
 
-  ////////////////////////////
-  // MY OWN PLOTS FOR APPROVAL
-  ////////////////////////////
+  ////////////////////////
+  // PLOTS FOR APPROVAL //
+  ////////////////////////
+  Color_t col0 = kRed;
+  Color_t col1 = kViolet+1;
+  Color_t col2 = kAzure+2;
+  Color_t col3 = kGreen-2;
+  
+  produceRatePlot(result_gmtsing__pat2, result_def_2s__pat2, result_def_2s1b__pat2, result_gem_2s1b__pat2, 
+		  col0, col1, col2, col3, 0.1, 10000, "2", "loose", plots, ext);
+  produceRatePlot(result_gmtsing__pat8, result_def_2s__pat8, result_def_2s1b__pat8, result_gem_2s1b__pat8, 
+		  col0, col1, col2, col3, 0.1, 10000, "2", "tight", plots, ext);
+  
+  produceRatePlot(result_gmtsing__pat2, result_def_3s__pat2, result_def_3s1b__pat2, result_gem_3s1b__pat2, 
+		  col0, col1, col2, col3, 0.01, 10000, "3", "loose", plots, ext);
+  produceRatePlot(result_gmtsing__pat8, result_def_3s__pat8, result_def_3s1b__pat8, result_gem_3s1b__pat8, 
+		  col0, col1, col2, col3, 0.01, 10000, "3", "tight", plots, ext);
+  
+  // EXTRA PLOTS
+  bool produceTheBigPlots = false;
+  if (produceTheBigPlots)
   {
-    result_gmtsing__pat2->SetFillColor(kRed);
-    result_gmtsing__pat8->SetFillColor(kRed);
+    result_def_2s__pat8->SetFillColor(kViolet+2);
+    result_def_2s1b__pat8->SetFillColor(kAzure+2);
+    result_gem_2s1b__pat8->SetFillColor(kGreen-1);
 
-    result_def_2s__pat2->SetFillColor(kViolet+1);
-    result_def_2s1b__pat2->SetFillColor(kAzure+1);
-    result_gem_2s1b__pat2->SetFillColor(kGreen-2);
-
-    result_def_3s__pat2->SetFillColor(kViolet+1);
-    result_def_3s1b__pat2->SetFillColor(kAzure+1);
-    result_gem_3s1b__pat2->SetFillColor(kGreen-2);
-
-    result_def_2s__pat8->SetFillColor(kViolet+1);
-    result_def_2s1b__pat8->SetFillColor(kAzure+1);
-    result_gem_2s1b__pat8->SetFillColor(kGreen-2);
-
-    result_def_3s__pat8->SetFillColor(kViolet+1);
-    result_def_3s1b__pat8->SetFillColor(kAzure+1);
-    result_gem_3s1b__pat8->SetFillColor(kGreen-2);
-
-    // GMT; CSCTF 2 stubs; CSCTF 2 stubs + ME1/b; CSCTF 2 stubs + ME1/b + GEM -- LOOSE -- Absolute + ratio
-    TCanvas* c = new TCanvas("c","c",800,800);
+    // GMT; CSCTF 2 stubs; CSCTF 2 stubs + ME1/b; CSCTF 2 stubs + ME1/b + GEM -- LOOSE & TIGHT + GEM-- Absolute + ratio
+    TCanvas* c = new TCanvas("c","c",1000,800);
     c->Clear();
-    TPad *pad1 = new TPad("pad1","top pad",0.0,0.25,1.0,1.0);
+    TPad *pad1 = new TPad("pad1","top pad",0.0,0.0,1.0,1.0);
     pad1->Draw();
-    TPad *pad2 = new TPad("pad2","bottom pad",0,0.,1.0,.30);
-    pad2->Draw();
 
     pad1->cd();
     pad1->SetLogx(1);
@@ -307,103 +391,47 @@ void produceRatePlotsForApproval()
     result_def_2s__pat2->Draw("same e3");
     result_def_2s1b__pat2->Draw("same e3");
     result_gem_2s1b__pat2->Draw("same e3");
-    result_gmtsing__pat2->Draw("same e3");
-    result_gmtsing__pat2->GetYaxis()->SetRangeUser(0.1, 10000.);
-    result_gmtsing__pat2->GetXaxis()->SetTitle("");
- 
-    TLegend *leg = new TLegend(0.49,0.6,.98,0.92,NULL,"brNDC");
-    leg->SetBorderSize(0);
-    leg->SetFillStyle(0);
-    leg->SetTextSize(0.04);
-    leg->AddEntry((TObject*)0, "Global Muon Trigger:","");
-    leg->AddEntry(result_gmtsing__pat2, "default muon selection","f");
-    leg->AddEntry((TObject*)0,          "","");
-    leg->AddEntry((TObject*)0,          "CSCTF tracks with:","");
-    leg->AddEntry(result_def_2s__pat2,  "#geq 2 stubs","f");
-    leg->AddEntry(result_def_2s1b__pat2,"#geq 2 with ME1/b stub","f");
-    leg->AddEntry(result_gem_2s1b__pat2,"#geq 2 with ME1/b stub ","f");
-    leg->AddEntry((TObject*)0,          "       and GEM pad","");
-    leg->Draw();
-
-    drawLumiLabel(0.17,.3);
-    drawPULabel(0.17,.25);
-    drawEtaLabel("1.64","2.14",0.17,.20);
-
-    pad2->cd();
-    pad2->SetLogx(1);
-    pad2->SetLogy(1);
-    pad2->SetGridx(1);
-    pad2->SetGridy(1);
-    pad2->SetFillColor(kWhite);
-    pad2->SetFrameBorderMode(0);
-    pad2->SetLeftMargin(0.126);
-    pad2->SetRightMargin(0.04);
-    pad2->SetTopMargin(0.06);
-    pad2->SetBottomMargin(0.4);
-    
-    hh_ratio = setHistoRatio(result_gem_2s1b__pat2, result_def_2s1b__pat2, "", 0.,1.1);
-    hh_ratio->SetMinimum(0.01);
-    hh_ratio->GetXaxis()->SetTitle("p_{T}^{cut} [GeV/c]");
-    hh_ratio->Draw("e1");
-    c->SaveAs(plots + "GMT_2s_2s1b_2s1bgem_loose" + ext);
-  }
-  {
-    // GMT; CSCTF 2 stubs; CSCTF 2 stubs + ME1/b; CSCTF 2 stubs + ME1/b + GEM -- TIGHT -- Absolute
-    pad1->cd();
-    pad1->SetLogx(1);
-    pad1->SetLogy(1);
-    pad1->SetGridx(1);
-    pad1->SetGridy(1);
-    pad1->SetFrameBorderMode(0);
-    pad1->SetFillColor(kWhite);
-
-    result_gmtsing__pat8->Draw("e3");
     result_def_2s__pat8->Draw("same e3");
     result_def_2s1b__pat8->Draw("same e3");
     result_gem_2s1b__pat8->Draw("same e3");
-    result_gmtsing__pat8->Draw("same e3");
-    result_gmtsing__pat8->GetYaxis()->SetRangeUser(0.1, 10000.);
-    result_gmtsing__pat8->GetXaxis()->SetTitle("");
+    result_gmtsing__pat2->Draw("same e3");
+    result_gmtsing__pat2->GetYaxis()->SetRangeUser(0.1, 10000.);
+    result_gmtsing__pat2->GetXaxis()->SetTitle("p_{T}^{cut} [GeV/c]");
  
-    TLegend *leg = new TLegend(0.49,0.6,.98,0.92,NULL,"brNDC");
+    TLegend *leg = new TLegend(0.5,0.65,.92,0.92,NULL,"brNDC");
     leg->SetBorderSize(0);
     leg->SetFillStyle(0);
-    leg->SetTextSize(0.04);
-    leg->AddEntry((TObject*)0, "Global Muon Trigger:","");
-    leg->AddEntry(result_gmtsing__pat8, "default muon selection","f");
-    leg->AddEntry((TObject*)0,          "","");
+    leg->SetTextSize(0.03);
+    leg->AddEntry((TObject*)0, "Global Muon Trigger [GMT]:","");
+    leg->AddEntry(result_gmtsing__pat2, "default muon selection","f");
     leg->AddEntry((TObject*)0,          "CSCTF tracks with:","");
+    leg->AddEntry(result_def_2s__pat2,  "#geq 2 stubs","f");
+    leg->AddEntry(result_def_2s1b__pat2,"#geq 2 with ME1/b stub","f");
+    leg->AddEntry(result_gem_2s1b__pat2,"#geq 2 with ME1/b stub and GEM pad","f");
     leg->AddEntry(result_def_2s__pat8,  "#geq 2 stubs","f");
     leg->AddEntry(result_def_2s1b__pat8,"#geq 2 with ME1/b stub","f");
-    leg->AddEntry(result_gem_2s1b__pat8,"#geq 2 with ME1/b stub ","f");
-    leg->AddEntry((TObject*)0,          "       and GEM pad","");
+    leg->AddEntry(result_gem_2s1b__pat8,"#geq 2 with ME1/b stub and GEM pad","f");
+    leg->SetFillStyle(1001);
+    leg->SetFillColor(kWhite);
     leg->Draw();
-
+ 
     drawLumiLabel(0.17,.3);
-    drawPULabel(0.17,.25);
-    drawEtaLabel("1.64","2.14",0.17,.20);
+    drawEtaLabel("1.64","2.14");
 
-    pad2->cd();
-    pad2->SetLogx(1);
-    pad2->SetLogy(1);
-    pad2->SetGridx(1);
-    pad2->SetGridy(1);
-    pad2->SetFillColor(kWhite);
-    pad2->SetFrameBorderMode(0);
-    pad2->SetLeftMargin(0.126);
-    pad2->SetRightMargin(0.04);
-    pad2->SetTopMargin(0.06);
-    pad2->SetBottomMargin(0.4);
-    
-    hh_ratio = setHistoRatio(result_gem_2s1b__pat8, result_def_2s1b__pat8, "", 0.,1.1);
-    hh_ratio->SetMinimum(0.01);
-    hh_ratio->GetXaxis()->SetTitle("p_{T}^{cut} [GeV/c]");
-    hh_ratio->Draw("e1");
-    c->SaveAs(plots + "GMT_2s_2s1b_2s1bgem_tight" + ext);
-    
+    c->SaveAs(plots + "rates_vs_pt__PU100__def_2s_2s1b_2s1bgem" + ext);
   }
+
   {
-    // GMT; CSCTF 3 stubs; CSCTF 3 stubs + ME1/b; CSCTF 3 stubs + ME1/b + GEM -- LOOSE -- Absolute
+    result_def_3s__pat8->SetFillColor(kViolet+2);
+    result_def_3s1b__pat8->SetFillColor(kAzure+2);
+    result_gem_3s1b__pat8->SetFillColor(kGreen-1);
+
+    // GMT; CSCTF 3 stubs; CSCTF 3 stubs + ME1/b; CSCTF 3 stubs + ME1/b + GEM -- LOOSE & TIGHT + GEM-- Absolute + ratio
+    TCanvas* c = new TCanvas("c","c",1000,800);
+    c->Clear();
+    TPad *pad1 = new TPad("pad1","top pad",0.0,0.0,1.0,1.0);
+    pad1->Draw();
+
     pad1->cd();
     pad1->SetLogx(1);
     pad1->SetLogy(1);
@@ -416,102 +444,44 @@ void produceRatePlotsForApproval()
     result_def_3s__pat2->Draw("same e3");
     result_def_3s1b__pat2->Draw("same e3");
     result_gem_3s1b__pat2->Draw("same e3");
-    result_gmtsing__pat2->Draw("same e3");
-    result_gmtsing__pat2->GetYaxis()->SetRangeUser(0.01, 10000.);
-    result_gmtsing__pat2->GetXaxis()->SetTitle("");
- 
-    TLegend *leg = new TLegend(0.49,0.6,.98,0.92,NULL,"brNDC");
-    leg->SetBorderSize(0);
-    leg->SetFillStyle(0);
-    leg->SetTextSize(0.04);
-    leg->AddEntry((TObject*)0, "Global Muon Trigger:","");
-    leg->AddEntry(result_gmtsing__pat2, "default muon selection","f");
-    leg->AddEntry((TObject*)0,          "","");
-    leg->AddEntry((TObject*)0,          "CSCTF tracks with:","");
-    leg->AddEntry(result_def_3s__pat2,  "#geq 3 stubs","f");
-    leg->AddEntry(result_def_3s1b__pat2,"#geq 3 with ME1/b stub","f");
-    leg->AddEntry(result_gem_3s1b__pat2,"#geq 3 with ME1/b stub ","f");
-    leg->AddEntry((TObject*)0,          "       and GEM pad","");
-    leg->Draw();
-
-    drawLumiLabel(0.17,.3);
-    drawPULabel(0.17,.25);
-    drawEtaLabel("1.64","2.14",0.17,.20);
-
-    pad2->cd();
-    pad2->SetLogx(1);
-    pad2->SetLogy(1);
-    pad2->SetGridx(1);
-    pad2->SetGridy(1);
-    pad2->SetFillColor(kWhite);
-    pad2->SetFrameBorderMode(0);
-    pad2->SetLeftMargin(0.126);
-    pad2->SetRightMargin(0.04);
-    pad2->SetTopMargin(0.06);
-    pad2->SetBottomMargin(0.4);
-    
-    hh_ratio = setHistoRatio(result_gem_3s1b__pat2, result_def_3s1b__pat2, "", 0.,1.1);
-    hh_ratio->SetMinimum(0.01);
-    hh_ratio->GetXaxis()->SetTitle("p_{T}^{cut} [GeV/c]");
-    hh_ratio->Draw("e1");
-    c->SaveAs(plots + "GMT_3s_3s1b_3s1bgem_loose" + ext);
-    
-  }
-  {
-    // GMT; CSCTF 3 stubs; CSCTF 3 stubs + ME1/b; CSCTF 3 stubs + ME1/b + GEM -- TIGHT -- Absolute
-    pad1->cd();
-    pad1->SetLogx(1);
-    pad1->SetLogy(1);
-    pad1->SetGridx(1);
-    pad1->SetGridy(1);
-    pad1->SetFrameBorderMode(0);
-    pad1->SetFillColor(kWhite);
-
-    result_gmtsing__pat8->Draw("e3");
     result_def_3s__pat8->Draw("same e3");
     result_def_3s1b__pat8->Draw("same e3");
     result_gem_3s1b__pat8->Draw("same e3");
-    result_gmtsing__pat8->Draw("same e3");
-    result_gmtsing__pat8->GetYaxis()->SetRangeUser(0.01, 10000.);
-    result_gmtsing__pat8->GetXaxis()->SetTitle("");
+    result_gmtsing__pat2->Draw("same e3");
+    result_gmtsing__pat2->GetYaxis()->SetRangeUser(0.01, 10000.);
+    result_gmtsing__pat2->GetXaxis()->SetTitle("p_{T}^{cut} [GeV/c]");
  
-    TLegend *leg = new TLegend(0.49,0.6,.98,0.92,NULL,"brNDC");
+    TLegend *leg = new TLegend(0.5,0.65,.92,0.92,NULL,"brNDC");
     leg->SetBorderSize(0);
     leg->SetFillStyle(0);
-    leg->SetTextSize(0.04);
-    leg->AddEntry((TObject*)0, "Global Muon Trigger:","");
-    leg->AddEntry(result_gmtsing__pat8, "default muon selection","f");
-    leg->AddEntry((TObject*)0,          "","");
+    leg->SetTextSize(0.03);
+    leg->AddEntry((TObject*)0, "Global Muon Trigger [GMT]:","");
+    leg->AddEntry(result_gmtsing__pat2, "default muon selection","f");
     leg->AddEntry((TObject*)0,          "CSCTF tracks with:","");
+    leg->AddEntry(result_def_3s__pat2,  "#geq 3 stubs","f");
+    leg->AddEntry(result_def_3s1b__pat2,"#geq 3 with ME1/b stub","f");
+    leg->AddEntry(result_gem_3s1b__pat2,"#geq 3 with ME1/b stub and GEM pad","f");
     leg->AddEntry(result_def_3s__pat8,  "#geq 3 stubs","f");
     leg->AddEntry(result_def_3s1b__pat8,"#geq 3 with ME1/b stub","f");
-    leg->AddEntry(result_gem_3s1b__pat8,"#geq 3 with ME1/b stub ","f");
-    leg->AddEntry((TObject*)0,          "       and GEM pad","");
+    leg->AddEntry(result_gem_3s1b__pat8,"#geq 3 with ME1/b stub and GEM pad","f");
+    leg->SetFillStyle(1001);
+    leg->SetFillColor(kWhite);
     leg->Draw();
-
+ 
     drawLumiLabel(0.17,.3);
-    drawPULabel(0.17,.25);
-    drawEtaLabel("1.64","2.14",0.17,.20);
+    drawEtaLabel("1.64","2.14");
 
-    pad2->cd();
-    pad2->SetLogx(1);
-    pad2->SetLogy(1);
-    pad2->SetGridx(1);
-    pad2->SetGridy(1);
-    pad2->SetFillColor(kWhite);
-    pad2->SetFrameBorderMode(0);
-    pad2->SetLeftMargin(0.126);
-    pad2->SetRightMargin(0.04);
-    pad2->SetTopMargin(0.06);
-    pad2->SetBottomMargin(0.4);
-    
-    hh_ratio = setHistoRatio(result_gem_3s1b__pat8, result_def_3s1b__pat8, "", 0.,1.1);
-    hh_ratio->SetMinimum(0.01);
-    hh_ratio->GetXaxis()->SetTitle("p_{T}^{cut} [GeV/c]");
-    hh_ratio->Draw("e1");
-    c->SaveAs(plots + "GMT_3s_3s1b_3s1bgem_tight" + ext);
-    
+    c->SaveAs(plots + "rates_vs_pt__PU100__def_3s_3s1b_3s1bgem" + ext);
   }
-
 }
 
+void produceRateVsPtPlotsForApproval()
+{
+  gROOT->ProcessLine(".L drawplot_gmtrt.C");
+  gROOT->ProcessLine(".L getPTHistos.C");
+  gROOT->SetBatch(true);
+
+  produceRatePlots(".pdf");
+  produceRatePlots(".eps");
+  produceRatePlots(".png");
+}
