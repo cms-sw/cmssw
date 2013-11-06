@@ -91,7 +91,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 //	    	BugType * BT = new BugType("FunctionChecker : non-const static local variable accessed or modified","ThreadSafety");
 //		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 //		BR.emitReport(R);
-		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+//		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
  		llvm::errs() <<  "function '"<<sdname << "' static variable '" << support::getQualifiedName(*D) << "'.\n\n";
 		return;
 	}
@@ -104,7 +104,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 //	    	BugType * BT = new BugType("FunctionChecker : non-const static member variable accessed or modified","ThreadSafety");
 //		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 //		BR.emitReport(R);
-		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+//		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
  		llvm::errs() <<  "function '"<<sdname << "' static variable '" << support::getQualifiedName(*D) << "'.\n\n";
 	    return;
 	}
@@ -122,7 +122,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 //	    	BugType * BT = new BugType("FunctionChecker : non-const global static variable accessed or modified","ThreadSafety");
 //		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 //		BR.emitReport(R);
-		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+//		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
  		llvm::errs() <<  "function '"<<sdname << "' static variable '" << support::getQualifiedName(*D) << "'.\n\n";
 	    return;
 	
@@ -139,6 +139,8 @@ void FunctionChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
    	if (!support::isCmsLocalFile(sfile)) return;
+	std::string fname(sfile);
+	if ( fname.find("/test/") != std::string::npos) return;
   
       	if (!MD->doesThisDeclarationHaveABody()) return;
 	FWalker walker(BR, mgr.getAnalysisDeclContext(MD));
@@ -151,6 +153,8 @@ void FunctionChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManag
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation ()).getFilename();
    	if (!support::isCmsLocalFile(sfile)) return;
+	std::string fname(sfile);
+	if ( fname.find("/test/") != std::string::npos) return;
   
 	for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
 			E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
