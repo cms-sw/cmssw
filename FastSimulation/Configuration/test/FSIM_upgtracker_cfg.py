@@ -190,7 +190,7 @@ process.DQMoutput = cms.OutputModule("PoolOutputModule",
 )
 
 process.prevalidation_step = cms.Path(process.prevalidation)
-process.validation_step = cms.EndPath(process.tracksValidation)
+process.validation_step = cms.EndPath(process.tracksValidationFS)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
