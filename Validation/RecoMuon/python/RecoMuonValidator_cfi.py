@@ -30,11 +30,11 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     #
     nBinP = cms.untracked.uint32(100),
     minP = cms.untracked.double(0.0),
-    maxP = cms.untracked.double(500.0),
+    maxP = cms.untracked.double(1500.0),
 
     nBinPt = cms.untracked.uint32(100),
     minPt = cms.untracked.double(0.0),
-    maxPt = cms.untracked.double(500.0),
+    maxPt = cms.untracked.double(1500.0),
 
     doAbsEta = cms.untracked.bool(False),
 
