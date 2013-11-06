@@ -105,7 +105,6 @@ namespace reco {
     virtual ~PFCandidate();
 
     PFCandidate& operator=(PFCandidate const&);
-    void swap(PFCandidate&);
 
     /// return a clone
     virtual PFCandidate * clone() const;

@@ -122,6 +122,7 @@ PFCandidate::PFCandidate( Charge charge,
 }
 
 PFCandidate::PFCandidate( PFCandidate const& iOther) : 
+  CompositeCandidate(iOther),
   elementsInBlocks_(nullptr),
   blocksStorage_(iOther.blocksStorage_),
   elementsStorage_(iOther.elementsStorage_),
@@ -149,47 +150,51 @@ PFCandidate::PFCandidate( PFCandidate const& iOther) :
   storedRefsBitPattern_(iOther.storedRefsBitPattern_),
   refsInfo_(iOther.refsInfo_),
   refsCollectionCache_(iOther.refsCollectionCache_)
-{}
+{
+  auto tmp = iOther.elementsInBlocks_.load(std::memory_order_acquire);
+  if(nullptr != tmp) {
+    elementsInBlocks_.store( new ElementsInBlocks{*tmp}, std::memory_order_release);
+  }
+}
 
 PFCandidate& PFCandidate::operator=(PFCandidate const& iOther) {
-  PFCandidate tmp(iOther);
-  swap(tmp);
+  CompositeCandidate::operator=(iOther);
+  auto tmp = iOther.elementsInBlocks_.load(std::memory_order_acquire);
+  if(nullptr != tmp) {
+    elementsInBlocks_.store( new ElementsInBlocks{*tmp}, std::memory_order_release);
+  }
+  blocksStorage_=iOther.blocksStorage_;
+  elementsStorage_=iOther.elementsStorage_;
+  sourcePtr_=iOther.sourcePtr_;
+  muonTrackType_=iOther.muonTrackType_;
+  ecalERatio_=iOther.ecalERatio_;
+  hcalERatio_=iOther.hcalERatio_;
+  hoERatio_=iOther.hoERatio_;
+  rawEcalEnergy_=iOther.rawEcalEnergy_;
+  rawHcalEnergy_=iOther.rawHcalEnergy_;
+  rawHoEnergy_=iOther.rawHoEnergy_;
+  ps1Energy_=iOther.ps1Energy_;
+  ps2Energy_=iOther.ps2Energy_;
+  flags_=iOther.flags_; 
+  deltaP_=iOther.deltaP_; 
+  vertexType_=iOther.vertexType_;
+  mva_e_pi_=iOther.mva_e_pi_;
+  mva_e_mu_=iOther.mva_e_mu_;
+  mva_pi_mu_=iOther.mva_pi_mu_;
+  mva_nothing_gamma_=iOther.mva_nothing_gamma_;
+  mva_nothing_nh_=iOther.mva_nothing_nh_;
+  mva_gamma_nh_=iOther.mva_gamma_nh_;
+  positionAtECALEntrance_=iOther.positionAtECALEntrance_;
+  getter_=iOther.getter_;
+  storedRefsBitPattern_=iOther.storedRefsBitPattern_;
+  refsInfo_=iOther.refsInfo_;
+  refsCollectionCache_=iOther.refsCollectionCache_;
+
   return *this;
 }
 
 PFCandidate::~PFCandidate() {
   delete elementsInBlocks_.load(std::memory_order_acquire);
-}
-
-void
-PFCandidate::swap( PFCandidate & iOther) {
-  elementsInBlocks_.store( iOther.elementsInBlocks_.exchange(elementsInBlocks_.load(std::memory_order_acquire), std::memory_order_acq_rel), std::memory_order_release);
-  std::swap(blocksStorage_,iOther.blocksStorage_);
-  std::swap(elementsStorage_,iOther.elementsStorage_);
-  std::swap(sourcePtr_,iOther.sourcePtr_);
-  std::swap(muonTrackType_,iOther.muonTrackType_);
-  std::swap(ecalERatio_,iOther.ecalERatio_);
-  std::swap(hcalERatio_,iOther.hcalERatio_);
-  std::swap(hoERatio_,iOther.hoERatio_);
-  std::swap(rawEcalEnergy_,iOther.rawEcalEnergy_);
-  std::swap(rawHcalEnergy_,iOther.rawHcalEnergy_);
-  std::swap(rawHoEnergy_,iOther.rawHoEnergy_);
-  std::swap(ps1Energy_,iOther.ps1Energy_);
-  std::swap(ps2Energy_,iOther.ps2Energy_);
-  std::swap(flags_,iOther.flags_); 
-  std::swap(deltaP_,iOther.deltaP_); 
-  std::swap(vertexType_,iOther.vertexType_);
-  std::swap(mva_e_pi_,iOther.mva_e_pi_);
-  std::swap(mva_e_mu_,iOther.mva_e_mu_);
-  std::swap(mva_pi_mu_,iOther.mva_pi_mu_);
-  std::swap(mva_nothing_gamma_,iOther.mva_nothing_gamma_);
-  std::swap(mva_nothing_nh_,iOther.mva_nothing_nh_);
-  std::swap(mva_gamma_nh_,iOther.mva_gamma_nh_);
-  std::swap(positionAtECALEntrance_,iOther.positionAtECALEntrance_);
-  std::swap(getter_,iOther.getter_);
-  std::swap(storedRefsBitPattern_,iOther.storedRefsBitPattern_);
-  std::swap(refsInfo_,iOther.refsInfo_);
-  std::swap(refsCollectionCache_,iOther.refsCollectionCache_);
 }
 
 PFCandidate * PFCandidate::clone() const {
