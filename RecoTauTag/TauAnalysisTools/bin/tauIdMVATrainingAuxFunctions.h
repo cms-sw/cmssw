@@ -136,7 +136,7 @@ TTree* preselectTree(TTree* inputTree, const std::string& outputTreeName,
       branchEntry->branchName_ = branch->GetName();
       branchEntry->branchName_and_Type_ = branch->GetTitle();      
       int idx = branchEntry->branchName_and_Type_.find_last_of("/");
-      if ( idx == (int(branchEntry->branchName_and_Type_.length()) - 2) ) {
+      if ( idx == (branchEntry->branchName_and_Type_.length() - 2) ) {
 	branchEntry->branchType_ = branchEntry->branchName_and_Type_[idx + 1];
 	if ( branchEntry->branchType_ == 'F' ) {
 	  inputTree->SetBranchAddress(branchEntry->branchName_.data(), &branchEntry->valueF_);

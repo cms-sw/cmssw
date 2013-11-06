@@ -70,6 +70,4 @@ std::vector<reco::PFCandidatePtr> pfChargedCands(const reco::PFJet& jet,
   return output;
 }
 
-
-
 } }
