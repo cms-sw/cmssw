@@ -32,7 +32,8 @@ public:
    FWEDProductRepresentationChecker(const std::string& iTypeidName,
                                     const std::string& iPurpose,
                                     unsigned int iBitPackedViews,
-                                    bool iRepresentsSubPart);
+                                    bool iRepresentsSubPart,
+                                    bool iRequiresFF = false);
 
    // ---------- const member functions ---------------------
    virtual FWRepresentationInfo infoFor(const std::string& iTypeName) const;

@@ -31,11 +31,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Common/interface/EventBase.h"
 
-class FWTrackProxyBuilderFF : public FWProxyBuilderBase {
+class FWTrackProxyBuilderFullFramework : public FWProxyBuilderBase {
 
 public:
-   FWTrackProxyBuilderFF();
-   virtual ~FWTrackProxyBuilderFF();
+   FWTrackProxyBuilderFullFramework();
+   virtual ~FWTrackProxyBuilderFullFramework();
 
    REGISTER_PROXYBUILDER_METHODS();
    
@@ -43,8 +43,8 @@ public:
    virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*) override;
    
 private:
-   FWTrackProxyBuilderFF(const FWTrackProxyBuilderFF&); // stop default
-   const FWTrackProxyBuilderFF& operator=(const FWTrackProxyBuilderFF&); // stop default
+   FWTrackProxyBuilderFullFramework(const FWTrackProxyBuilderFullFramework&); // stop default
+   const FWTrackProxyBuilderFullFramework& operator=(const FWTrackProxyBuilderFullFramework&); // stop default
 
    void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
    void buildTrack(TrajTrackAssociationCollection::const_iterator it, TEveCompound* comp);
@@ -54,7 +54,7 @@ private:
    const TrajTrackAssociationCollection* m_trajToTrackMap;
 };
 
-FWTrackProxyBuilderFF::FWTrackProxyBuilderFF(): 
+FWTrackProxyBuilderFullFramework::FWTrackProxyBuilderFullFramework(): 
 m_trackerPropagator(0),
 m_trajToTrackMap(0)
 {
@@ -65,12 +65,12 @@ m_trajToTrackMap(0)
    m_trackerPropagator->IncDenyDestroy();
 }
 
-FWTrackProxyBuilderFF::~FWTrackProxyBuilderFF()
+FWTrackProxyBuilderFullFramework::~FWTrackProxyBuilderFullFramework()
 {
    m_trackerPropagator->DecDenyDestroy();
 }
 
-void FWTrackProxyBuilderFF::setItem(const FWEventItem* iItem)
+void FWTrackProxyBuilderFullFramework::setItem(const FWEventItem* iItem)
 {
    FWProxyBuilderBase::setItem(iItem);
    if (iItem)
@@ -81,7 +81,7 @@ void FWTrackProxyBuilderFF::setItem(const FWEventItem* iItem)
 }
 
 void
-FWTrackProxyBuilderFF::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc)
+FWTrackProxyBuilderFullFramework::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc)
 {    
    const reco::TrackCollection * tracks = 0;
    iItem->get( tracks );
@@ -98,30 +98,48 @@ FWTrackProxyBuilderFF::build(const FWEventItem* iItem, TEveElementList* product,
    {
       m_trajToTrackMap =0;
       std::cout << exception.what() << std::endl;
-      return;
    }
-   
- 
-   bool rnrPathMarks = item()->getConfig()->value<bool>("Rnr TrajectoryMeasurement");
-   if (m_trackerPropagator->GetRnrReferences() != rnrPathMarks ) m_trackerPropagator->SetRnrReferences(rnrPathMarks);
+    
+   if (m_trajToTrackMap) {
+      bool rnrPathMarks = item()->getConfig()->value<bool>("Rnr TrajectoryMeasurement");
+      if (m_trackerPropagator->GetRnrReferences() != rnrPathMarks ) m_trackerPropagator->SetRnrReferences(rnrPathMarks);
 
-   unsigned track_index = 0;
-   for(TrajTrackAssociationCollection::const_iterator it = m_trajToTrackMap->begin(); it!=m_trajToTrackMap->end(); ++it, ++track_index) 
-   {
-      TEveCompound* comp = createCompound();
-      setupAddElement( comp, product );
+      unsigned track_index = 0;
+      for(TrajTrackAssociationCollection::const_iterator it = m_trajToTrackMap->begin(); it!=m_trajToTrackMap->end(); ++it, ++track_index) 
+      {
+         TEveCompound* comp = createCompound();
+         setupAddElement( comp, product );
       
-      if (item()->modelInfo(track_index).displayProperties().isVisible())
-         buildTrack(it, comp);
+         if (item()->modelInfo(track_index).displayProperties().isVisible())
+            buildTrack(it, comp);
+      }
    }
-   
-  gEve->GetBrowser()->MapWindow();
+   else {
+      for (reco::TrackCollection::const_iterator i = tracks->begin(); i != tracks->end(); ++i)
+      {
+         const reco::Track& track = *i;
+         TEveRecTrack ts;
+         ts.fBeta = 1.;
+         ts.fSign = track.charge();
+         ts.fP.Set(track.px(), track.py(), track.pz());
+         ts.fV.Set(track.vx(), track.vy(), track.vz());
+         TEveTrack* eveTrack = new TEveTrack( &ts, m_trackerPropagator);
+         eveTrack->MakeTrack();   
+         TEveCompound* comp = createCompound();
+         setupAddElement(comp, product );
+         setupAddElement(eveTrack, comp);
+      }
+   }
+
+
+
+   gEve->GetBrowser()->MapWindow();
 }
 
-void FWTrackProxyBuilderFF::buildTrack(TrajTrackAssociationCollection::const_iterator it, TEveCompound* comp)
+void FWTrackProxyBuilderFullFramework::buildTrack(TrajTrackAssociationCollection::const_iterator it, TEveCompound* comp)
 {
-   const reco::Track track = *it->val;
-   const Trajectory  traj  = *it->key;
+   const reco::Track& track = *it->val;
+   const Trajectory&  traj  = *it->key;
    
    TEveRecTrack ts;
    ts.fBeta = 1.;
@@ -146,10 +164,10 @@ void FWTrackProxyBuilderFF::buildTrack(TrajTrackAssociationCollection::const_ite
    }
 
    eveTrack->MakeTrack();         
-   setupAddElement(eveTrack, comp);      
+   setupAddElement(eveTrack, comp);     
 }
 
-bool FWTrackProxyBuilderFF::visibilityModelChanges(const FWModelId& iId, TEveElement* iCompound,
+bool FWTrackProxyBuilderFullFramework::visibilityModelChanges(const FWModelId& iId, TEveElement* iCompound,
                                              FWViewType::EType viewType, const FWViewContext* vc)
 {
    const FWEventItem::ModelInfo& info = iId.item()->modelInfo(iId.index());
@@ -164,6 +182,6 @@ bool FWTrackProxyBuilderFF::visibilityModelChanges(const FWModelId& iId, TEveEle
    return returnValue;
 }
 
-REGISTER_FWPROXYBUILDER(FWTrackProxyBuilderFF, reco::TrackCollection, "TracksFF", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
+REGISTER_FWPROXYBUILDER(FWTrackProxyBuilderFullFramework, reco::TrackCollection, "TracksTrajectory", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
 
 

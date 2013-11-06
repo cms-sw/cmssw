@@ -97,14 +97,15 @@ FWTypeToRepresentations::representationsForType(const std::string& iTypeName) co
       std::vector<FWRepresentationInfo> reps;
       //check all reps
       for(std::vector<boost::shared_ptr<FWRepresentationCheckerBase> >::const_iterator it = m_checkers.begin(),
-                                                                                       itEnd = m_checkers.end();
+             itEnd = m_checkers.end();
           it != itEnd;
           ++it) {
-         FWRepresentationInfo info = (*it)->infoFor(iTypeName);
-         if(info.isValid()) {
+
+         FWRepresentationInfo info = (*it)->infoFor(iTypeName);         
+         if(info.isValid()) 
             reps.push_back(info);
-         }
       }
+   
       m_typeToReps.insert(std::make_pair(iTypeName,reps));
       itFound = m_typeToReps.find(iTypeName);
    }

@@ -26,9 +26,6 @@ process.POurFilter = cms.EDFilter("RandomFilter",
 from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
 process.load("SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi")
 
-# process.xxx = cms.Sequence(simHitTPAssocProducer)
-# process.yyy = cms.Path(process.xxx)
-# process.schedule = cms.Schedule(process.yyy)
 
 
 process.xxx=cms.EDProducer('SimHitTPAssociationProducer',
