@@ -50,7 +50,7 @@ runTest "${INPUT} --scenario pp --lfn /store/whatever --dataset /A/B/C --global-
 runTest "${INPUT} --scenario cosmics --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG::ALL --workflows=SiStripQuality"
 runTest "${INPUT} --scenario HeavyIons --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG::ALL --workflows=BeamSpotByRun,BeamSpotByLumi,SiStripQuality"
 
-INPUT=${LOCAL_TEST_DIR}/RunDQMHarvestingCfg.py
+INPUT=${LOCAL_TEST_DIR}/RunDQMHarvesting.py
 
 runTest "${INPUT} --scenario pp --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
 runTest "${INPUT} --scenario cosmics --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
