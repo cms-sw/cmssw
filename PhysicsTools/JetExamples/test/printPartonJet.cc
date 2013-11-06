@@ -32,25 +32,25 @@ class printPartonJet : public edm::EDAnalyzer {
     explicit printPartonJet(const edm::ParameterSet & );
     ~printPartonJet() {};
     void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-     
+
   private:
 
-    edm::InputTag source_;
-    string   fOutputFileName_;   
+    edm::EDGetTokenT< View <Candidate> > sourceToken_;
+    string   fOutputFileName_;
     Handle< View <Candidate> > partonJets;
 };
 
 printPartonJet::printPartonJet(const edm::ParameterSet& iConfig)
 {
-  source_  = iConfig.getParameter<InputTag> ("src");
+  sourceToken_  = consumes< View <Candidate> >(iConfig.getParameter<InputTag> ("src"));
 }
 
 void printPartonJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   cout << "[printPartonJet] analysing event " << iEvent.id() << endl;
-  
+
   try {
-    iEvent.getByLabel (source_ ,partonJets);
+    iEvent.getByToken (sourceToken_ ,partonJets);
   } catch(std::exception& ce) {
     cerr << "[printPartonJet] caught std::exception " << ce.what() << endl;
     return;
@@ -60,7 +60,7 @@ void printPartonJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   cout << "* PartonJetCollection  *" << endl;
   cout << "************************" << endl;
   for( size_t j = 0; j != partonJets->size(); ++j ) {
-     
+
     printf("[printPartonJet] (pt,eta,phi) = %7.3f %6.3f %6.3f |\n",
              (*partonJets)[j].et(),
              (*partonJets)[j].eta(),
@@ -73,7 +73,7 @@ void printPartonJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               << itC->eta() << " "
               << itC->phi() << " "
               << itC->pdgId() << endl;
-    }   
+    }
   }
 }
 

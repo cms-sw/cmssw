@@ -6,7 +6,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -17,15 +16,17 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig) 
+TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig)
 {
-  inputTagGenParticles_ 
+  inputTagGenParticles_
     = iConfig.getParameter<InputTag>("GenParticles");
+  tokenGenParticles_
+    = consumes<GenParticleCollection>(inputTagGenParticles_);
 
-  includeNeutrinos_ 
+  includeNeutrinos_
     = iConfig.getParameter<bool>("includeNeutrinos");
 
-  verbose_ = 
+  verbose_ =
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
   produces<GenJetCollection>();
@@ -35,13 +36,13 @@ TauGenJetProducer::~TauGenJetProducer() { }
 
 void TauGenJetProducer::beginJob() { }
 
-void TauGenJetProducer::produce(Event& iEvent, 
+void TauGenJetProducer::produce(Event& iEvent,
 				const EventSetup& iSetup) {
-  
+
   Handle<GenParticleCollection> genParticles;
 
-  bool found = iEvent.getByLabel( inputTagGenParticles_, genParticles);
-  
+  bool found = iEvent.getByToken( tokenGenParticles_, genParticles);
+
   if ( !found ) {
     std::ostringstream  err;
     err<<" cannot get collection: "
@@ -50,18 +51,18 @@ void TauGenJetProducer::produce(Event& iEvent,
     throw cms::Exception( "MissingProduct", err.str());
   }
 
-  std::auto_ptr<GenJetCollection> 
+  std::auto_ptr<GenJetCollection>
     pOutVisTaus(new GenJetCollection());
 
   using namespace GenParticlesHelper;
 
-  GenParticleRefVector allStatus2Taus;  
+  GenParticleRefVector allStatus2Taus;
   findParticles( *genParticles,
 		 allStatus2Taus, 15, 2);
 
   for ( IGR iTau=allStatus2Taus.begin(); iTau!=allStatus2Taus.end(); ++iTau ) {
 
-    // look for all status 1 (stable) descendents 
+    // look for all status 1 (stable) descendents
     GenParticleRefVector descendents;
     findDescendents( *iTau, descendents, 1);
 
@@ -70,7 +71,7 @@ void TauGenJetProducer::produce(Event& iEvent,
     GenParticleRefVector status2TauDaughters;
     findDescendents( *iTau, status2TauDaughters, 2, 15 );
     if ( status2TauDaughters.size() > 0 ) continue;
-    
+
     // loop on descendents, and take all except neutrinos
     math::XYZTLorentzVector sumVisMom;
     Particle::Charge charge = 0;
@@ -79,22 +80,22 @@ void TauGenJetProducer::produce(Event& iEvent,
     if(verbose_)
       cout<<"tau "<<(*iTau)<<endl;
 
-    for(IGR igr = descendents.begin(); 
+    for(IGR igr = descendents.begin();
 	igr!= descendents.end(); ++igr ) {
-      
+
       int absPdgId = abs((*igr)->pdgId());
-      
+
       // neutrinos
       if(!includeNeutrinos_ ) {
-	if( absPdgId == 12 || 
-	    absPdgId == 14 || 
-	    absPdgId == 16  ) 
+	if( absPdgId == 12 ||
+	    absPdgId == 14 ||
+	    absPdgId == 16  )
 	  continue;
-      }      
+      }
 
-      if(verbose_) 
+      if(verbose_)
 	cout<<"\t"<<(*igr)<<endl;
-      
+
       charge += (*igr)->charge();
       sumVisMom += (*igr)->p4();
 
@@ -105,15 +106,15 @@ void TauGenJetProducer::produce(Event& iEvent,
 
     math::XYZPoint vertex;
     GenJet::Specific specific;
-    
-    GenJet jet( sumVisMom, vertex, specific, constituents); 
-    
+
+    GenJet jet( sumVisMom, vertex, specific, constituents);
+
     if (charge != (*iTau)->charge() )
       std::cout<<" charge of Tau: " << (*iTau) << " not equal to charge of sum of charge of all descendents. " << std::cout;
 
     jet.setCharge(charge);
     pOutVisTaus->push_back( jet );
-    
+
   }
   iEvent.put( pOutVisTaus );
 }

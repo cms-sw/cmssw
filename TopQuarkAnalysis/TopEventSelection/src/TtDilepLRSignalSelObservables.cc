@@ -8,7 +8,10 @@
 /************** Definition of the functions of the class ***************/
 
 //Constructor
-TtDilepLRSignalSelObservables::TtDilepLRSignalSelObservables(){
+TtDilepLRSignalSelObservables::TtDilepLRSignalSelObservables(edm::ConsumesCollector && iC, const edm::EDGetTokenT<std::vector<pat::Jet> > & jetSourceToken)
+: jetSourceToken_( jetSourceToken )
+, genEvtToken_( iC.consumes<TtGenEvent>( edm::InputTag( "genEvt" ) ) )
+{
 count1=0; count2=0; count3=0;
 count4=0; count5=0; count3=0;
 }
@@ -33,7 +36,7 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
   bool matchLeptNeg =  false;
 
   edm::Handle<TtGenEvent> genEvent;
-  iEvent.getByLabel ("genEvt",genEvent);
+  iEvent.getByToken(genEvtToken_,genEvent);
 
   if (!genEvent.failedToGet() && genEvent.isValid()) {
     // std::cout <<std::endl;
@@ -102,7 +105,7 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
   }
 
   edm::Handle<std::vector<pat::Jet> > jets;
-  iEvent.getByLabel(jetSource_, jets);
+  iEvent.getByToken(jetSourceToken_, jets);
 
   //  Lower / Higher of both jet angles
 

@@ -1,16 +1,15 @@
-#include "DataFormats/PatCandidates/interface/Particle.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypHitFit.h"
 
 
 TtSemiLepHypHitFit::TtSemiLepHypHitFit(const edm::ParameterSet& cfg):
   TtSemiLepHypothesis( cfg ),
-  status_     (cfg.getParameter<edm::InputTag>("status"     )),
-  partonsHadP_(cfg.getParameter<edm::InputTag>("partonsHadP")),
-  partonsHadQ_(cfg.getParameter<edm::InputTag>("partonsHadQ")),
-  partonsHadB_(cfg.getParameter<edm::InputTag>("partonsHadB")),
-  partonsLepB_(cfg.getParameter<edm::InputTag>("partonsLepB")),
-  leptons_    (cfg.getParameter<edm::InputTag>("leptons"    )),
-  neutrinos_  (cfg.getParameter<edm::InputTag>("neutrinos"  ))
+  statusToken_     (consumes<std::vector<int> >(cfg.getParameter<edm::InputTag>("status"     ))),
+  partonsHadPToken_(consumes<std::vector<pat::Particle> >(cfg.getParameter<edm::InputTag>("partonsHadP"))),
+  partonsHadQToken_(consumes<std::vector<pat::Particle> >(cfg.getParameter<edm::InputTag>("partonsHadQ"))),
+  partonsHadBToken_(consumes<std::vector<pat::Particle> >(cfg.getParameter<edm::InputTag>("partonsHadB"))),
+  partonsLepBToken_(consumes<std::vector<pat::Particle> >(cfg.getParameter<edm::InputTag>("partonsLepB"))),
+  leptonsToken_    (consumes<std::vector<pat::Particle> >(cfg.getParameter<edm::InputTag>("leptons"    ))),
+  neutrinosToken_  (consumes<std::vector<pat::Particle> >(cfg.getParameter<edm::InputTag>("neutrinos"  )))
 {
 }
 
@@ -18,13 +17,13 @@ TtSemiLepHypHitFit::~TtSemiLepHypHitFit() { }
 
 void
 TtSemiLepHypHitFit::buildHypo(edm::Event& evt,
-			      const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
-			      const edm::Handle<std::vector<pat::MET> >& mets, 
-			      const edm::Handle<std::vector<pat::Jet> >& jets, 
+			      const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
+			      const edm::Handle<std::vector<pat::MET> >& mets,
+			      const edm::Handle<std::vector<pat::Jet> >& jets,
 			      std::vector<int>& match, const unsigned int iComb)
 {
   edm::Handle<std::vector<int> > status;
-  evt.getByLabel(status_, status);
+  evt.getByToken(statusToken_, status);
   if( (*status)[iComb] != 0 ){
     // create empty hypothesis if kinematic fit did not converge
     return;
@@ -37,12 +36,12 @@ TtSemiLepHypHitFit::buildHypo(edm::Event& evt,
   edm::Handle<std::vector<pat::Particle> > leptons;
   edm::Handle<std::vector<pat::Particle> > neutrinos;
 
-  evt.getByLabel(partonsHadP_,   partonsHadP);
-  evt.getByLabel(partonsHadQ_,   partonsHadQ);
-  evt.getByLabel(partonsHadB_,   partonsHadB);
-  evt.getByLabel(partonsLepB_,   partonsLepB);
-  evt.getByLabel(leptons_    ,   leptons    );
-  evt.getByLabel(neutrinos_  ,   neutrinos  );
+  evt.getByToken(partonsHadPToken_,   partonsHadP);
+  evt.getByToken(partonsHadQToken_,   partonsHadQ);
+  evt.getByToken(partonsHadBToken_,   partonsHadB);
+  evt.getByToken(partonsLepBToken_,   partonsLepB);
+  evt.getByToken(leptonsToken_    ,   leptons    );
+  evt.getByToken(neutrinosToken_  ,   neutrinos  );
 
   // -----------------------------------------------------
   // add jets
@@ -62,7 +61,7 @@ TtSemiLepHypHitFit::buildHypo(edm::Event& evt,
     setCandidate(leptons, iComb, lepton_);
   }
   match.push_back( 0 );
-  
+
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------

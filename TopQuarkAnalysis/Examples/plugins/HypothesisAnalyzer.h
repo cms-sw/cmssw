@@ -6,20 +6,22 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+
 class HypothesisAnalyzer : public edm::EDAnalyzer {
 
  public:
 
   explicit HypothesisAnalyzer(const edm::ParameterSet&);
   ~HypothesisAnalyzer(){};
-  
+
  private:
 
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
-  const edm::InputTag semiLepEvt_;
+  const edm::EDGetTokenT<TtSemiLeptonicEvent> semiLepEvtToken_;
   const std::string hypoClassKey_;
 
   TH1F* neutrinoEta_;

@@ -1,4 +1,4 @@
-#ifndef TopJetAnalyzer_h  
+#ifndef TopJetAnalyzer_h
 #define TopJetAnalyzer_h
 
 #include "TH1F.h"
@@ -10,27 +10,29 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
 class TopJetAnalyzer : public edm::EDAnalyzer {
 
  public:
-  
+
   explicit TopJetAnalyzer(const edm::ParameterSet&);
   ~TopJetAnalyzer();
-  
+
  private:
-  
+
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  edm::InputTag input_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > inputToken_;
   bool verbose_;
-  
+
   TH1F *mult_;
   TH1F *en_;
   TH1F *pt_;
   TH1F *eta_;
   TH1F *phi_;
-};  
+};
 
-#endif  
+#endif

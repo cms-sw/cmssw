@@ -21,10 +21,10 @@
 /// constructor
 TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig) {
   // configurables
-  electronSrc_     = iConfig.getParameter<edm::InputTag>    ("electronSource");
-  muonSrc_         = iConfig.getParameter<edm::InputTag>    ("muonSource");
-  metSrc_          = iConfig.getParameter<edm::InputTag>    ("metSource");
-  jetSrc_          = iConfig.getParameter<edm::InputTag>    ("jetSource");
+  electronSrcToken_     = mayConsume<std::vector<pat::Electron> >(iConfig.getParameter<edm::InputTag>    ("electronSource"));
+  muonSrcToken_         = mayConsume<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>    ("muonSource"));
+  metSrcToken_          = consumes<std::vector<pat::MET> >(iConfig.getParameter<edm::InputTag>    ("metSource"));
+  jetSrcToken_          = consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>    ("jetSource"));
   leptonFlavour_   = iConfig.getParameter<std::string>      ("leptonFlavour");
   jetCorrScheme_   = iConfig.getParameter<int>              ("jetCorrectionScheme");
   nrCombJets_      = iConfig.getParameter<unsigned int>     ("nrCombJets");
@@ -47,6 +47,7 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig
   useMaxDist_      = iConfig.getParameter<bool>             ("useMaximalDistance");
   useDeltaR_       = iConfig.getParameter<bool>             ("useDeltaR");
   maxDist_         = iConfig.getParameter<double>           ("maximalDistance");
+  genEvtToken_ = mayConsume<TtGenEvent>(edm::InputTag("genEvt"));
 
   // define kinfitter
   if(doKinFit_){
@@ -56,8 +57,7 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig
   // define jet combinations related calculators
   mySimpleBestJetComb                    = new TtSemiSimpleBestJetComb();
   myLRSignalSelObservables               = new TtSemiLRSignalSelObservables();
-  myLRJetCombObservables                 = new TtSemiLRJetCombObservables();
-  myLRJetCombObservables -> jetSource(jetSrc_);
+  myLRJetCombObservables                 = new TtSemiLRJetCombObservables(consumesCollector(), jetSrcToken_);
   if (addLRJetComb_)   myLRJetCombCalc   = new TtSemiLRJetCombCalc(edm::FileInPath(lrJetCombFile_).fullPath(), lrJetCombObs_);
 
   // instantiate signal selection calculator
@@ -89,25 +89,25 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
   bool leptonFound = false;
   edm::Handle<std::vector<pat::Muon> > muons;
   if(leptonFlavour_ == "muon"){
-    iEvent.getByLabel(muonSrc_, muons);
+    iEvent.getByToken(muonSrcToken_, muons);
     if (muons->size() > 0) leptonFound = true;
   }
   edm::Handle<std::vector<pat::Electron> > electrons;
   if(leptonFlavour_ == "electron"){
-    iEvent.getByLabel(electronSrc_, electrons);
+    iEvent.getByToken(electronSrcToken_, electrons);
     if (electrons->size() > 0) leptonFound = true;
-  }  
+  }
 
   // select MET (TopMET vector is sorted on ET)
   bool metFound = false;
   edm::Handle<std::vector<pat::MET> > mets;
-  iEvent.getByLabel(metSrc_, mets);
+  iEvent.getByToken(metSrcToken_, mets);
   if (mets->size() > 0) metFound = true;
 
   // select Jets
   bool jetsFound = false;
   edm::Handle<std::vector<pat::Jet> > jets;
-  iEvent.getByLabel(jetSrc_, jets);
+  iEvent.getByToken(jetSrcToken_, jets);
   if (jets->size() >= 4) jetsFound = true;
 
   //
@@ -143,27 +143,27 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
                 }
 		if(matchToGenEvt_){
 		  edm::Handle<TtGenEvent> genEvt;
-		  iEvent.getByLabel ("genEvt",genEvt); 
-		  if (genEvt->numberOfBQuarks() == 2 &&  // FIXME: in rare cases W->bc decay, resulting in a wrong filled genEvt leading to a segmentation fault 
+		  iEvent.getByToken(genEvtToken_,genEvt);
+		  if (genEvt->numberOfBQuarks() == 2 &&  // FIXME: in rare cases W->bc decay, resulting in a wrong filled genEvt leading to a segmentation fault
 		      genEvt->numberOfLeptons() == 1) {  // FIXME: temporary solution to avoid crash in JetPartonMatching for non semi-leptonic events
-		    asol.setGenEvt(genEvt);   
-		  
+		    asol.setGenEvt(genEvt);
+
 		  }
 		}
                 // these lines calculate the observables to be used in the TtSemiSignalSelection LR
                 (*myLRSignalSelObservables)(asol, *jets);
 
-                // if asked for, calculate with these observable values the LRvalue and 
+                // if asked for, calculate with these observable values the LRvalue and
                 // (depending on the configuration) probability this event is signal
                 // FIXME: DO WE NEED TO DO THIS FOR EACH SOLUTION??? (S.L.20/8/07)
                 if(addLRSignalSel_) (*myLRSignalSelCalc)(asol);
 
                 // these lines calculate the observables to be used in the TtSemiJetCombination LR
                 //(*myLRJetCombObservables)(asol);
-		
+
 		(*myLRJetCombObservables)(asol, iEvent);
-                
-		// if asked for, calculate with these observable values the LRvalue and 
+
+		// if asked for, calculate with these observable values the LRvalue and
                 // (depending on the configuration) probability a jet combination is correct
                 if(addLRJetComb_) (*myLRJetCombCalc)(asol);
 
@@ -173,19 +173,19 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
                 // fill solution to vector
 		asol.setupHyp();
                 evtsols->push_back(asol);
-              } 
+              }
             }
           }
-        } 
+        }
       }
     }
 
     // if asked for, match the event solutions to the gen Event
     if(matchToGenEvt_){
-      int bestSolution = -999; 
+      int bestSolution = -999;
       int bestSolutionChangeWQ = -999;
       edm::Handle<TtGenEvent> genEvt;
-      iEvent.getByLabel ("genEvt",genEvt); 
+      iEvent.getByToken(genEvtToken_, genEvt);
       if (genEvt->numberOfBQuarks() == 2 &&   // FIXME: in rare cases W->bc decay, resulting in a wrong filled genEvt leading to a segmentation fault
           genEvt->numberOfLeptons() == 1) {   // FIXME: temporary solution to avoid crash in JetPartonMatching for non semi-leptonic events
 	std::vector<const reco::Candidate*> quarks;
@@ -197,7 +197,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
         quarks.push_back( &genq );
         quarks.push_back( &genbh );
         quarks.push_back( &genbl );
-	std::vector<const reco::Candidate*> recjets;  
+	std::vector<const reco::Candidate*> recjets;
         for(size_t s=0; s<evtsols->size(); s++) {
           recjets.clear();
           const reco::Candidate & jetp  = (*evtsols)[s].getRecHadp();
@@ -208,8 +208,8 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
           recjets.push_back( &jetq );
           recjets.push_back( &jetbh );
           recjets.push_back( &jetbl );
-          JetPartonMatching aMatch(quarks, recjets, matchingAlgo_, useMaxDist_, useDeltaR_, maxDist_);   
-          (*evtsols)[s].setGenEvt(genEvt);   
+          JetPartonMatching aMatch(quarks, recjets, matchingAlgo_, useMaxDist_, useDeltaR_, maxDist_);
+          (*evtsols)[s].setGenEvt(genEvt);
           (*evtsols)[s].setMCBestSumAngles(aMatch.getSumDistances());
           (*evtsols)[s].setMCBestAngleHadp(aMatch.getDistanceForParton(0));
           (*evtsols)[s].setMCBestAngleHadq(aMatch.getDistanceForParton(1));
@@ -228,7 +228,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
       }
       for(size_t s=0; s<evtsols->size(); s++) {
         (*evtsols)[s].setMCBestJetComb(bestSolution);
-        (*evtsols)[s].setMCChangeWQ(bestSolutionChangeWQ);     
+        (*evtsols)[s].setMCChangeWQ(bestSolutionChangeWQ);
       }
     }
 
@@ -251,7 +251,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
       }
     }
 
-    //store the vector of solutions to the event     
+    //store the vector of solutions to the event
     std::auto_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
     iEvent.put(pOut);
 
@@ -271,22 +271,22 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
   }
 }
 
-TtSemiLepKinFitter::Param TtSemiEvtSolutionMaker::param(unsigned val) 
+TtSemiLepKinFitter::Param TtSemiEvtSolutionMaker::param(unsigned val)
 {
   TtSemiLepKinFitter::Param result;
   switch(val){
   case TtSemiLepKinFitter::kEMom       : result=TtSemiLepKinFitter::kEMom;       break;
   case TtSemiLepKinFitter::kEtEtaPhi   : result=TtSemiLepKinFitter::kEtEtaPhi;   break;
   case TtSemiLepKinFitter::kEtThetaPhi : result=TtSemiLepKinFitter::kEtThetaPhi; break;
-  default: 
-    throw cms::Exception("WrongConfig") 
+  default:
+    throw cms::Exception("WrongConfig")
       << "Chosen jet parametrization is not supported: " << val << "\n";
     break;
   }
   return result;
-} 
+}
 
-TtSemiLepKinFitter::Constraint TtSemiEvtSolutionMaker::constraint(unsigned val) 
+TtSemiLepKinFitter::Constraint TtSemiEvtSolutionMaker::constraint(unsigned val)
 {
   TtSemiLepKinFitter::Constraint result;
   switch(val){
@@ -295,20 +295,20 @@ TtSemiLepKinFitter::Constraint TtSemiEvtSolutionMaker::constraint(unsigned val)
   case TtSemiLepKinFitter::kTopHadMass   : result=TtSemiLepKinFitter::kTopHadMass;   break;
   case TtSemiLepKinFitter::kTopLepMass   : result=TtSemiLepKinFitter::kTopLepMass;   break;
   case TtSemiLepKinFitter::kNeutrinoMass : result=TtSemiLepKinFitter::kNeutrinoMass; break;
-  default: 
-    throw cms::Exception("WrongConfig") 
+  default:
+    throw cms::Exception("WrongConfig")
       << "Chosen fit constraint is not supported: " << val << "\n";
     break;
   }
   return result;
-} 
+}
 
 std::vector<TtSemiLepKinFitter::Constraint> TtSemiEvtSolutionMaker::constraints(std::vector<unsigned>& val)
 {
   std::vector<TtSemiLepKinFitter::Constraint> result;
   for(unsigned i=0; i<val.size(); ++i){
     result.push_back(constraint(val[i]));
-  } 
+  }
   return result;
 }
 

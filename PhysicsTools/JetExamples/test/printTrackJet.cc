@@ -25,24 +25,24 @@ class printTrackJet : public edm::EDAnalyzer {
     explicit printTrackJet(const edm::ParameterSet & );
     ~printTrackJet() {};
     void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-     
+
   private:
 
-    edm::InputTag source_;
+    edm::EDGetTokenT<reco::CandidateView> sourceToken_;
     edm::Handle<reco::CandidateView> trackJets;
 };
 
 printTrackJet::printTrackJet(const edm::ParameterSet& iConfig)
 {
-  source_  = iConfig.getParameter<InputTag> ("src");
+  sourceToken_  = consumes<reco::CandidateView>(iConfig.getParameter<InputTag> ("src"));
 }
 
 void printTrackJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   cout << "[printTrackJet] analysing event " << iEvent.id() << endl;
-  
+
   try {
-    iEvent.getByLabel (source_ ,trackJets);
+    iEvent.getByToken (sourceToken_ ,trackJets);
   } catch(std::exception& ce) {
     cerr << "[printTrackJet] caught std::exception " << ce.what() << endl;
     return;
@@ -60,14 +60,14 @@ void printTrackJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
               f->eta(),
               f->phi()  );
 
-     for( Candidate::const_iterator c  = f->begin();   
-                                    c != f->end();   
-                                    c ++) {  
+     for( Candidate::const_iterator c  = f->begin();
+                                    c != f->end();
+                                    c ++) {
        printf("        [Constituents] (pt,eta,phi) = %6.2f %5.2f %5.2f|\n",
-               c->et(),                                                                       
-               c->eta(),                                                                      
+               c->et(),
+               c->eta(),
                c->phi() );
-     }                                                                                          
+     }
   }
 }
 

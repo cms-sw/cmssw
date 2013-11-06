@@ -4,14 +4,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/PatCandidates/interface/Tau.h"
 
 #include <TMath.h>
 
 const reco::GenParticle* getGenTau(const pat::Tau& patTau)
 {
   std::vector<reco::GenParticleRef> associatedGenParticles = patTau.genParticleRefs();
-  for ( std::vector<reco::GenParticleRef>::const_iterator it = associatedGenParticles.begin(); 
+  for ( std::vector<reco::GenParticleRef>::const_iterator it = associatedGenParticles.begin();
 	it != associatedGenParticles.end(); ++it ) {
     if ( it->isAvailable() ) {
       const reco::GenParticleRef& genParticle = (*it);
@@ -29,6 +28,7 @@ PatTauAnalyzer::PatTauAnalyzer(const edm::ParameterSet& cfg)
 //--- read name of pat::Tau collection
   src_ = cfg.getParameter<edm::InputTag>("src");
   //std::cout << " src = " << src_ << std::endl;
+  srcToken_ = consumes<pat::TauCollection>(src_);
 
 //--- fill histograms for all tau-jet candidates or for "real" taus only ?
   requireGenTauMatch_ = cfg.getParameter<bool>("requireGenTauMatch");
@@ -94,26 +94,26 @@ void PatTauAnalyzer::beginJob()
   hGenTauPt_ = fs->make<TH1F>("GenTauPt", "GenTauPt", 30, 0., 150.);
   hGenTauEta_ = fs->make<TH1F>("GenTauEta", "GenTauEta", 24, -3., +3.);
   hGenTauPhi_ = fs->make<TH1F>("GenTauPhi", "GenTauPhi", 18, -TMath::Pi(), +TMath::Pi());
-  
+
 //--- book reconstruction level histograms
 //    for tau-jet Energy, Pt, Eta, Phi
   hTauJetEnergy_ = fs->make<TH1F>("TauJetEnergy", "TauJetEnergy", 30, 0., 150.);
   hTauJetPt_ = fs->make<TH1F>("TauJetPt", "TauJetPt", 30, 0., 150.);
-// 
+//
 // TO-DO: add histograms for eta and phi of the tau-jet candidate
-//      
+//
 // NOTE:
-//  1.) please use 
-//       "TauJetEta" and "TauJetPhi" 
-//      for the names of the histograms and choose the exact same binning 
-//      as is used for the histograms 
-//       "TauJetEtaIsoPassed" and "TauJetPhiIsoPassed" 
+//  1.) please use
+//       "TauJetEta" and "TauJetPhi"
+//      for the names of the histograms and choose the exact same binning
+//      as is used for the histograms
+//       "TauJetEtaIsoPassed" and "TauJetPhiIsoPassed"
 //      below
 //
 //  2.) please check the histograms
 //       hTauJetEta_ and hTauJetPt_
 //      have already been defined in PatTauAnalyzer.h
-// 
+//
 //hTauJetEta_ =...
 //hTauJetPt_ =...
 
@@ -122,7 +122,7 @@ void PatTauAnalyzer::beginJob()
 
 //... for Pt of highest Pt track within signal cone tau-jet...
   hTauLeadTrackPt_ = fs->make<TH1F>("TauLeadTrackPt", "TauLeadTrackPt", 40, 0., 100.);
-  
+
 //... for total number of tracks within signal/isolation cones
   hTauNumSigConeTracks_ = fs->make<TH1F>("TauNumSigConeTracks", "TauNumSigConeTracks", 10, -0.5,  9.5);
   hTauNumIsoConeTracks_ = fs->make<TH1F>("TauNumIsoConeTracks", "TauNumIsoConeTracks", 20, -0.5, 19.5);
@@ -131,7 +131,7 @@ void PatTauAnalyzer::beginJob()
 //    neural network-based tau id.
   hTauDiscrByIso_ = fs->make<TH1F>("TauDiscrByIso", "TauDiscrByIso", 103, -0.015, 1.015);
   hTauDiscrByTaNC_ = fs->make<TH1F>("TauDiscrByTaNC", "TauDiscrByTaNC", 103, -0.015, 1.015);
-  
+
 //... for values of tau id. discriminators against (unidentified) electrons and muons
   hTauDiscrAgainstElectrons_ = fs->make<TH1F>("TauDiscrAgainstElectrons", "TauDiscrAgainstElectrons", 103, -0.015, 1.015);
   hTauDiscrAgainstMuons_ = fs->make<TH1F>("TauDiscrAgainstMuons", "TauDiscrAgainstMuons", 103, -0.015, 1.015);
@@ -150,22 +150,22 @@ void PatTauAnalyzer::beginJob()
 }
 
 void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
-{  
-  //std::cout << "<PatTauAnalyzer::analyze>:" << std::endl; 
+{
+  //std::cout << "<PatTauAnalyzer::analyze>:" << std::endl;
 
   edm::Handle<pat::TauCollection> patTaus;
-  evt.getByLabel(src_, patTaus);
+  evt.getByToken(srcToken_, patTaus);
 
   hNumTauJets_->Fill(patTaus->size());
 
-  for ( pat::TauCollection::const_iterator patTau = patTaus->begin(); 
+  for ( pat::TauCollection::const_iterator patTau = patTaus->begin();
 	patTau != patTaus->end(); ++patTau ) {
 
 //--- skip fake taus in case configuration parameters set to do so...
     const reco::GenParticle* genTau = getGenTau(*patTau);
     if ( requireGenTauMatch_ && !genTau ) continue;
 
-//--- fill generator level histograms    
+//--- fill generator level histograms
     if ( genTau ) {
       hGenTauEnergy_->Fill(genTau->energy());
       hGenTauPt_->Fill(genTau->pt());
@@ -177,9 +177,9 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //    for Pt of highest Pt track within signal cone tau-jet...
     hTauJetEnergy_->Fill(patTau->energy());
     hTauJetPt_->Fill(patTau->pt());
-// 
-// TO-DO: 
-//  1.) fill histograms 
+//
+// TO-DO:
+//  1.) fill histograms
 //       hTauJetEta_ and hTauJetPhi_
 //      with the pseudo-rapidity and azimuthal angle
 //      of the tau-jet candidate respectively
@@ -189,8 +189,8 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //  2.) fill histogram
 //       hTauLeadTrackPt_
 //      with the transverse momentum of the highest Pt ("leading") track within the tau-jet
-//       
-// NOTE: 
+//
+// NOTE:
 //  1.) please have a look at
 //       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/Candidate/interface/Particle.h?revision=1.28&view=markup
 //      to find the methods for accessing eta and phi of the tau-jet
@@ -204,14 +204,14 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //      so a check if the leadTrack exists is needed before dereferencing the reco::TrackRef via operator->
 //
 //  if ( patTau->leadTrack().isAvailable() ) hTauLeadTrackPt_->Fill(patTau->leadTrack()->pt());
-  
+
 //... for total number of tracks within signal/isolation cones
     hTauNumSigConeTracks_->Fill(patTau->signalTracks().size());
     hTauNumIsoConeTracks_->Fill(patTau->isolationTracks().size());
 
 //... for values of tau id. discriminators based on track isolation cut/
 //    neural network-based tau id.
-//    (combine with requirement of at least one "leading" track of Pt > 5. GeV 
+//    (combine with requirement of at least one "leading" track of Pt > 5. GeV
 //     within the signal cone of the tau-jet)
     float discrByIso = ( patTau->tauID(discrByLeadTrack_.data()) > 0.5 ) ? patTau->tauID(discrByIso_.data()) : 0.;
     hTauDiscrByIso_->Fill(discrByIso);
@@ -228,10 +228,10 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //  1.) please have a look at
 //       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/PatCandidates/interface/Tau.h?revision=1.25&view=markup
 //      to find the method for accessing the tau id. information
-//  
+//
 //  2.) please have a look at
 //       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/PatAlgos/python/tools/tauTools.py?revision=1.43&view=markup
-//      and convince yourself that the string "againstElectronLoose" needs to be passed as argument 
+//      and convince yourself that the string "againstElectronLoose" needs to be passed as argument
 //      of the pat::Tau::tauID method
 //
 //  hTauDiscrAgainstElectrons_->Fill...

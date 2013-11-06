@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
 
 /**
@@ -48,9 +49,15 @@ class TtEvtBuilder : public edm::EDProducer {
   /// vebosity level
   int verbosity_;
   /// vector of hypothesis class names
-  std::vector<edm::InputTag> hyps_;
+  std::vector<edm::EDGetTokenT<int> > hypKeyTokens_;
+  std::vector<edm::EDGetTokenT<std::vector<TtEvent::HypoCombPair> > > hypTokens_;
+  std::vector<edm::EDGetTokenT<int> > hypNeutrTokens_;
+  std::vector<edm::EDGetTokenT<int> > hypJetTokens_;
+  typedef std::vector<edm::EDGetTokenT<int> >::const_iterator EventHypoIntToken;
+  typedef std::vector<edm::EDGetTokenT<std::vector<TtEvent::HypoCombPair> > >::const_iterator EventHypoToken;
   /// TtGenEvent
   edm::InputTag genEvt_;
+  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
   /// decay channels of the two top decay branches; to be
   /// filled according to WDecay::LeptonTypes in TtGenEvent
   int decayChnTop1_;
@@ -59,71 +66,75 @@ class TtEvtBuilder : public edm::EDProducer {
   /// input parameters for the kKinFit
   /// hypothesis class extras
   edm::ParameterSet kinFit_;
-  edm::InputTag fitChi2_;
-  edm::InputTag fitProb_;
+  edm::EDGetTokenT<std::vector<double> > fitChi2Token_;
+  edm::EDGetTokenT<std::vector<double> > fitProbToken_;
   /// input parameters for the kHitFit
   /// hypothesis class extras
   edm::ParameterSet hitFit_;
-  edm::InputTag hitFitChi2_;
-  edm::InputTag hitFitProb_;
-  edm::InputTag hitFitMT_;
-  edm::InputTag hitFitSigMT_;
+  edm::EDGetTokenT<std::vector<double> > hitFitChi2Token_;
+  edm::EDGetTokenT<std::vector<double> > hitFitProbToken_;
+  edm::EDGetTokenT<std::vector<double> > hitFitMTToken_;
+  edm::EDGetTokenT<std::vector<double> > hitFitSigMTToken_;
   /// input parameters for the kKinSolution
   /// hypothesis class extras
   edm::ParameterSet kinSolution_;
-  edm::InputTag solWeight_;
-  edm::InputTag wrongCharge_;
+  edm::EDGetTokenT<std::vector<double> > solWeightToken_;
+  edm::EDGetTokenT<bool> wrongChargeToken_;
   /// input parameters for the kGenMatch
   /// hypothesis class extras
   edm::ParameterSet genMatch_;
-  edm::InputTag sumPt_;
-  edm::InputTag sumDR_;
+  edm::EDGetTokenT<std::vector<double> > sumPtToken_;
+  edm::EDGetTokenT<std::vector<double> > sumDRToken_;
   /// input parameters for the kMVADisc
   /// hypothesis class extras
   edm::ParameterSet mvaDisc_;
-  edm::InputTag meth_;
-  edm::InputTag disc_;
+  edm::EDGetTokenT<std::string> methToken_;
+  edm::EDGetTokenT<std::vector<double> > discToken_;
 };
 
 template <typename C>
 TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg) :
   verbosity_   (cfg.getParameter<int>                        ("verbosity"    )),
-  hyps_        (cfg.getParameter<std::vector<edm::InputTag> >("hypotheses"   )),
+  hypKeyTokens_        (edm::vector_transform(cfg.getParameter<std::vector<edm::InputTag> >("hypotheses"   ), [this](edm::InputTag const & tag){return consumes<int>(edm::InputTag(tag.label(), "Key"));})),
+  hypTokens_        (edm::vector_transform(cfg.getParameter<std::vector<edm::InputTag> >("hypotheses"   ), [this](edm::InputTag const & tag){return consumes<std::vector<TtEvent::HypoCombPair> >(tag);})),
+  hypNeutrTokens_        (edm::vector_transform(cfg.getParameter<std::vector<edm::InputTag> >("hypotheses"   ), [this](edm::InputTag const & tag){return consumes<int>(edm::InputTag(tag.label(), "NumberOfRealNeutrinoSolutions"));})),
+  hypJetTokens_        (edm::vector_transform(cfg.getParameter<std::vector<edm::InputTag> >("hypotheses"   ), [this](edm::InputTag const & tag){return consumes<int>(edm::InputTag(tag.label(), "NumberOfConsideredJets"));})),
   genEvt_      (cfg.getParameter<edm::InputTag>              ("genEvent"     )),
+  genEvtToken_      (mayConsume<TtGenEvent>(genEvt_)),
   decayChnTop1_(cfg.getParameter<int>                        ("decayChannel1")),
   decayChnTop2_(cfg.getParameter<int>                        ("decayChannel2"))
 {
   // parameter subsets for kKinFit
   if( cfg.exists("kinFit") ) {
     kinFit_  = cfg.getParameter<edm::ParameterSet>("kinFit");
-    fitChi2_ = kinFit_.getParameter<edm::InputTag>("chi2");
-    fitProb_ = kinFit_.getParameter<edm::InputTag>("prob");
+    fitChi2Token_ = mayConsume<std::vector<double> >(kinFit_.getParameter<edm::InputTag>("chi2"));
+    fitProbToken_ = mayConsume<std::vector<double> >(kinFit_.getParameter<edm::InputTag>("prob"));
   }
   // parameter subsets for kHitFit
   if( cfg.exists("hitFit") ) {
     hitFit_  = cfg.getParameter<edm::ParameterSet>("hitFit");
-    hitFitChi2_ = hitFit_.getParameter<edm::InputTag>("chi2");
-    hitFitProb_ = hitFit_.getParameter<edm::InputTag>("prob");
-    hitFitMT_ = hitFit_.getParameter<edm::InputTag>("mt");
-    hitFitSigMT_ = hitFit_.getParameter<edm::InputTag>("sigmt");
+    hitFitChi2Token_ = mayConsume<std::vector<double> >(hitFit_.getParameter<edm::InputTag>("chi2"));
+    hitFitProbToken_ = mayConsume<std::vector<double> >(hitFit_.getParameter<edm::InputTag>("prob"));
+    hitFitMTToken_ = mayConsume<std::vector<double> >(hitFit_.getParameter<edm::InputTag>("mt"));
+    hitFitSigMTToken_ = mayConsume<std::vector<double> >(hitFit_.getParameter<edm::InputTag>("sigmt"));
   }
   // parameter subsets for kKinSolution
   if( cfg.exists("kinSolution") ) {
     kinSolution_  = cfg.getParameter<edm::ParameterSet>("kinSolution");
-    solWeight_    = kinSolution_.getParameter<edm::InputTag>("solWeight");
-    wrongCharge_  = kinSolution_.getParameter<edm::InputTag>("wrongCharge");
+    solWeightToken_    = mayConsume<std::vector<double> >(kinSolution_.getParameter<edm::InputTag>("solWeight"));
+    wrongChargeToken_  = mayConsume<bool>(kinSolution_.getParameter<edm::InputTag>("wrongCharge"));
   }
   // parameter subsets for kGenMatch
   if( cfg.exists("genMatch") ) {
     genMatch_ = cfg.getParameter<edm::ParameterSet>("genMatch");
-    sumPt_    = genMatch_.getParameter<edm::InputTag>("sumPt");
-    sumDR_    = genMatch_.getParameter<edm::InputTag>("sumDR");
+    sumPtToken_    = mayConsume<std::vector<double> >(genMatch_.getParameter<edm::InputTag>("sumPt"));
+    sumDRToken_    = mayConsume<std::vector<double> >(genMatch_.getParameter<edm::InputTag>("sumDR"));
   }
   // parameter subsets for kMvaDisc
   if( cfg.exists("mvaDisc") ) {
     mvaDisc_ = cfg.getParameter<edm::ParameterSet>("mvaDisc");
-    meth_    = mvaDisc_.getParameter<edm::InputTag>("meth");
-    disc_    = mvaDisc_.getParameter<edm::InputTag>("disc");
+    methToken_    = mayConsume<std::string>(mvaDisc_.getParameter<edm::InputTag>("meth"));
+    discToken_    = mayConsume<std::vector<double> >(mvaDisc_.getParameter<edm::InputTag>("disc"));
   }
   // produces a TtEventEvent for:
   //  * TtSemiLeptonicEvent
@@ -145,18 +156,19 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   // set genEvent (if available)
   edm::Handle<TtGenEvent> genEvt;
   if ( genEvt_.label().size() > 0 )
-    if( evt.getByLabel(genEvt_, genEvt) )
+    if( evt.getByToken(genEvtToken_, genEvt) )
       ttEvent.setGenEvent(genEvt);
 
   // add event hypotheses for all given
   // hypothesis classes to the TtEvent
-  typedef std::vector<edm::InputTag>::const_iterator EventHypo;
-  for(EventHypo h=hyps_.begin(); h!=hyps_.end(); ++h){
+  EventHypoIntToken hKey = hypKeyTokens_.begin();
+  EventHypoToken h = hypTokens_.begin();
+  for( ; hKey != hypKeyTokens_.end(); ++hKey, ++h){
     edm::Handle<int> key;
-    evt.getByLabel(h->label(), "Key", key);
+    evt.getByToken(*hKey, key);
 
     edm::Handle<std::vector<TtEvent::HypoCombPair> > hypMatchVec;
-    evt.getByLabel(*h, hypMatchVec);
+    evt.getByToken(*h, hypMatchVec);
 
     typedef std::vector<TtEvent::HypoCombPair>::const_iterator HypMatch;
     for(HypMatch hm=hypMatchVec->begin(); hm != hypMatchVec->end(); ++hm){
@@ -167,52 +179,52 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   // set kKinFit extras
   if( ttEvent.isHypoAvailable(TtEvent::kKinFit) ) {
     edm::Handle<std::vector<double> > fitChi2;
-    evt.getByLabel(fitChi2_, fitChi2);
+    evt.getByToken(fitChi2Token_, fitChi2);
     ttEvent.setFitChi2( *fitChi2 );
 
     edm::Handle<std::vector<double> > fitProb;
-    evt.getByLabel(fitProb_, fitProb);
+    evt.getByToken(fitProbToken_, fitProb);
     ttEvent.setFitProb( *fitProb );
   }
 
   // set kHitFit extras
   if( ttEvent.isHypoAvailable(TtEvent::kHitFit) ) {
     edm::Handle<std::vector<double> > hitFitChi2;
-    evt.getByLabel(hitFitChi2_, hitFitChi2);
+    evt.getByToken(hitFitChi2Token_, hitFitChi2);
     ttEvent.setHitFitChi2( *hitFitChi2 );
 
     edm::Handle<std::vector<double> > hitFitProb;
-    evt.getByLabel(hitFitProb_, hitFitProb);
+    evt.getByToken(hitFitProbToken_, hitFitProb);
     ttEvent.setHitFitProb( *hitFitProb );
 
     edm::Handle<std::vector<double> > hitFitMT;
-    evt.getByLabel(hitFitMT_, hitFitMT);
+    evt.getByToken(hitFitMTToken_, hitFitMT);
     ttEvent.setHitFitMT( *hitFitMT );
 
     edm::Handle<std::vector<double> > hitFitSigMT;
-    evt.getByLabel(hitFitSigMT_, hitFitSigMT);
+    evt.getByToken(hitFitSigMTToken_, hitFitSigMT);
     ttEvent.setHitFitSigMT( *hitFitSigMT );
   }
 
   // set kGenMatch extras
   if( ttEvent.isHypoAvailable(TtEvent::kGenMatch) ) {
     edm::Handle<std::vector<double> > sumPt;
-    evt.getByLabel(sumPt_, sumPt);
+    evt.getByToken(sumPtToken_, sumPt);
     ttEvent.setGenMatchSumPt( *sumPt );
 
     edm::Handle<std::vector<double> > sumDR;
-    evt.getByLabel(sumDR_, sumDR);
+    evt.getByToken(sumDRToken_, sumDR);
     ttEvent.setGenMatchSumDR( *sumDR );
   }
 
   // set kMvaDisc extras
   if( ttEvent.isHypoAvailable(TtEvent::kMVADisc) ) {
     edm::Handle<std::string> meth;
-    evt.getByLabel(meth_, meth);
+    evt.getByToken(methToken_, meth);
     ttEvent.setMvaMethod( *meth );
 
     edm::Handle<std::vector<double> > disc;
-    evt.getByLabel(disc_, disc);
+    evt.getByToken(discToken_, disc);
     ttEvent.setMvaDiscriminators( *disc );
   }
 
@@ -240,11 +252,11 @@ void TtEvtBuilder<TtFullLeptonicEvent>::fillSpecific(TtFullLeptonicEvent& ttEven
   // set kKinSolution extras
   if( ttEvent.isHypoAvailable(TtEvent::kKinSolution) ) {
     edm::Handle<std::vector<double> > solWeight;
-    evt.getByLabel(solWeight_, solWeight);
+    evt.getByToken(solWeightToken_, solWeight);
     ttEvent.setSolWeight( *solWeight );
 
     edm::Handle<bool> wrongCharge;
-    evt.getByLabel(wrongCharge_, wrongCharge);
+    evt.getByToken(wrongChargeToken_, wrongCharge);
     ttEvent.setWrongCharge( *wrongCharge );
   }
 
@@ -254,19 +266,21 @@ template <>
 void TtEvtBuilder<TtSemiLeptonicEvent>::fillSpecific(TtSemiLeptonicEvent& ttEvent, const edm::Event& evt)
 {
 
-  typedef std::vector<edm::InputTag>::const_iterator EventHypo;
-  for(EventHypo h=hyps_.begin(); h!=hyps_.end(); ++h){
+  EventHypoIntToken hKey = hypKeyTokens_.begin();
+  EventHypoIntToken hNeutr = hypNeutrTokens_.begin();
+  EventHypoIntToken hJet = hypJetTokens_.begin();
+  for( ; hKey != hypKeyTokens_.end(); ++hKey, ++hNeutr, ++hJet){
     edm::Handle<int> key;
-    evt.getByLabel(h->label(), "Key", key);
+    evt.getByToken(*hKey, key);
 
     // set number of real neutrino solutions for all hypotheses
     edm::Handle<int> numberOfRealNeutrinoSolutions;
-    evt.getByLabel(h->label(), "NumberOfRealNeutrinoSolutions", numberOfRealNeutrinoSolutions);
+    evt.getByToken(*hNeutr, numberOfRealNeutrinoSolutions);
     ttEvent.setNumberOfRealNeutrinoSolutions((TtEvent::HypoClassKey&)*key, *numberOfRealNeutrinoSolutions);
 
     // set number of considered jets for all hypotheses
     edm::Handle<int> numberOfConsideredJets;
-    evt.getByLabel(h->label(), "NumberOfConsideredJets", numberOfConsideredJets);
+    evt.getByToken(*hJet, numberOfConsideredJets);
     ttEvent.setNumberOfConsideredJets((TtEvent::HypoClassKey&)*key, *numberOfConsideredJets);
   }
 

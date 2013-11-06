@@ -2,9 +2,9 @@
 
 /**
   \class    ElectronConversionRejectionVars"
-  \brief    Store electron partner track conversion-rejection quantities 
+  \brief    Store electron partner track conversion-rejection quantities
             ("dist" and "dcot") in the TP tree.
-            
+
   \author   Kalanand Mishra
   Fermi National Accelerator Laboratory
 */
@@ -32,11 +32,11 @@ class ColinsSoperVariablesComputer : public edm::EDProducer {
         virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
-        edm::InputTag parentBoson_;            
+        edm::EDGetTokenT<edm::View<reco::Candidate> > parentBosonToken_;
 };
 
 ColinsSoperVariablesComputer::ColinsSoperVariablesComputer(const edm::ParameterSet & iConfig) :
-    parentBoson_(iConfig.getParameter<edm::InputTag>("parentBoson"))
+    parentBosonToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("parentBoson")))
 {
     produces<edm::ValueMap<float> >("costheta");
     produces<edm::ValueMap<float> >("sin2theta");
@@ -48,21 +48,21 @@ ColinsSoperVariablesComputer::~ColinsSoperVariablesComputer()
 {
 }
 
-void 
+void
 ColinsSoperVariablesComputer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     using namespace edm;
 
     // read input
     Handle<View<reco::Candidate> > bosons;
-    iEvent.getByLabel(parentBoson_,  bosons);
+    iEvent.getByToken(parentBosonToken_,  bosons);
 
 
-    // prepare vector for output   
+    // prepare vector for output
     std::vector<float> values;
     std::vector<float> values2;
     std::vector<float> values3;
 
-    // fill: use brute force    
+    // fill: use brute force
     double costheta = -10.0;
     double sin2theta = -10.0;
     double tanphi = -10.0;
@@ -75,7 +75,7 @@ ColinsSoperVariablesComputer::produce(edm::Event & iEvent, const edm::EventSetup
     int charge1=0, charge2 =0;
     double res[3] = { -10., -10., -10.};
 
-    View<reco::Candidate>::const_iterator boson, endbosons = bosons->end(); 
+    View<reco::Candidate>::const_iterator boson, endbosons = bosons->end();
 
     for (boson = bosons->begin(); boson != endbosons; ++boson) {
 
@@ -97,7 +97,7 @@ ColinsSoperVariablesComputer::produce(edm::Event & iEvent, const edm::EventSetup
 	}
       }
 
-      
+
       calCSVariables(mu, mubar, res, boson->pz()<0.0);
 
       costheta = res[0];
@@ -118,14 +118,14 @@ ColinsSoperVariablesComputer::produce(edm::Event & iEvent, const edm::EventSetup
     iEvent.put(valMap, "costheta");
 
 
-    // ---> same for sin2theta   
+    // ---> same for sin2theta
     std::auto_ptr<ValueMap<float> > valMap2(new ValueMap<float>());
     ValueMap<float>::Filler filler2(*valMap2);
     filler2.insert(bosons, values2.begin(), values2.end());
     filler2.fill();
     iEvent.put(valMap2, "sin2theta");
 
-    // ---> same for tanphi   
+    // ---> same for tanphi
     std::auto_ptr<ValueMap<float> > valMap3(new ValueMap<float>());
     ValueMap<float>::Filler filler3(*valMap3);
     filler3.insert(bosons, values3.begin(), values3.end());
