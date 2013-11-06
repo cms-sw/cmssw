@@ -1,15 +1,60 @@
+#include <map>
+#include <string>
+
+#include "TH1D.h"
+#include "TH2D.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
+
+
+class PatTriggerTagAndProbe : public edm::EDAnalyzer {
+
+ public:
+  /// default constructor
+  explicit PatTriggerTagAndProbe( const edm::ParameterSet & iConfig );
+  /// default destructor
+  ~PatTriggerTagAndProbe();
+
+ private:
+  /// everythin that needs to be done before the event loop
+  virtual void beginJob() ;
+  /// everythin that needs to be done during the event loop
+  virtual void analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup );
+  /// everythin that needs to be done after the event loop
+  virtual void endJob();
+
+  /// helper function to set proper bin errors
+  void setErrors(TH1D& h, const TH1D& ref);
+
+  /// input for patTriggerEvent
+  edm::EDGetTokenT< pat::TriggerEvent > triggerEventToken_;
+  /// input for muons
+  edm::EDGetTokenT< pat::MuonCollection > muonsToken_;
+  /// input for trigger match objects
+  std::string   muonMatch_;
+  /// management of 1d histograms
+  std::map< std::string, TH1D* > histos1D_;
+};
+
+
 #include "TMath.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "PhysicsTools/PatUtils/interface/TriggerHelper.h"
-#include "PhysicsTools/PatExamples/plugins/PatTriggerTagAndProbe.h"
 
 
 PatTriggerTagAndProbe::PatTriggerTagAndProbe( const edm::ParameterSet & iConfig ) :
   // pat::TriggerEvent
-  triggerEvent_( iConfig.getParameter< edm::InputTag >( "triggerEvent" ) ),
+  triggerEventToken_( consumes< pat::TriggerEvent >( iConfig.getParameter< edm::InputTag >( "triggerEvent" ) ) ),
   // muon input collection
-  muons_( iConfig.getParameter< edm::InputTag >( "muons" ) ),
+  muonsToken_( consumes< pat::MuonCollection >( iConfig.getParameter< edm::InputTag >( "muons" ) ) ),
   // muon match objects
   muonMatch_( iConfig.getParameter< std::string >( "muonMatch" ) ),
   // histogram management
@@ -41,10 +86,10 @@ void PatTriggerTagAndProbe::analyze( const edm::Event & iEvent, const edm::Event
 {
   // trigger event
   edm::Handle< pat::TriggerEvent > triggerEvent;
-  iEvent.getByLabel( triggerEvent_, triggerEvent );
+  iEvent.getByToken( triggerEventToken_, triggerEvent );
   // pat candidate collection
   edm::Handle< pat::MuonCollection > muons;
-  iEvent.getByLabel( muons_, muons );
+  iEvent.getByToken( muonsToken_, muons );
 
   // pat trigger helper to recieve for trigger
   // matching information

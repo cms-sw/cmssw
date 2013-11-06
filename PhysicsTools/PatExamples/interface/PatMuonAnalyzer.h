@@ -8,9 +8,9 @@
    \class PatMuonAnalyzer PatMuonAnalyzer.h "PhysicsTools/PatExamples/interface/PatMuonAnalyzer.h"
    \brief Example class that can be used to analyze pat::Muons both within FWLite and within the full framework
 
-   This is an example for keeping classes that can be used both within FWLite and within the full 
-   framework. The class is derived from the BasicAnalyzer base class, which is an interface for 
-   the two wrapper classes EDAnalyzerWrapper and FWLiteAnalyzerWrapper. You can fin more information 
+   This is an example for keeping classes that can be used both within FWLite and within the full
+   framework. The class is derived from the BasicAnalyzer base class, which is an interface for
+   the two wrapper classes EDAnalyzerWrapper and FWLiteAnalyzerWrapper. You can fin more information
    on this on WorkBookFWLiteExamples#ExampleFive.
 */
 

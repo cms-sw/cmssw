@@ -1,8 +1,7 @@
 #include "PhysicsTools/TagAndProbe/interface/TagProbePairMaker.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 
-tnp::TagProbePairMaker::TagProbePairMaker(const edm::ParameterSet &iConfig) :
-  src_(iConfig.getParameter<edm::InputTag>("tagProbePairs")),
+tnp::TagProbePairMaker::TagProbePairMaker(const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC) :
+  srcToken_(iC.consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("tagProbePairs"))),
   randGen_(0)
 {
   std::string arbitration = iConfig.getParameter<std::string>("arbitration");
@@ -27,20 +26,20 @@ tnp::TagProbePairMaker::TagProbePairMaker(const edm::ParameterSet &iConfig) :
 
 
 tnp::TagProbePairs
-tnp::TagProbePairMaker::run(const edm::Event &iEvent) const 
+tnp::TagProbePairMaker::run(const edm::Event &iEvent) const
 {
   // declare output
   tnp::TagProbePairs pairs;
-    
+
   // read from event
   edm::Handle<reco::CandidateView> src;
-  iEvent.getByLabel(src_, src);
+  iEvent.getByToken(srcToken_, src);
 
   // convert
   for (reco::CandidateView::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
     const reco::Candidate & mother = *it;
     if (mother.numberOfDaughters() != 2) throw cms::Exception("CorruptData") << "Tag&Probe pair with " << mother.numberOfDaughters() << " daughters\n";
-    pairs.push_back(tnp::TagProbePair(mother.daughter(0)->masterClone(), mother.daughter(1)->masterClone(), 
+    pairs.push_back(tnp::TagProbePair(mother.daughter(0)->masterClone(), mother.daughter(1)->masterClone(),
 				      src->refAt(it - src->begin()), mother.mass()));
   }
 
@@ -53,8 +52,8 @@ tnp::TagProbePairMaker::run(const edm::Event &iEvent) const
   return pairs;
 }
 
-void 
-tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const 
+void
+tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const
 {
   size_t nclean = pairs.size();
   for (TagProbePairs::iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
@@ -78,7 +77,7 @@ tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const
 	  //std::cout << "remove unnecessary pair! -----------" << std::endl;
 	  continue;
 	}
-	    
+
 	if (arbitration_ == OneProbe) {
 	  // invalidate this one
 	  it2->tag = reco::CandidateBaseRef(); --nclean;
@@ -106,24 +105,24 @@ tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const
 	    // and invalidate it2
 	    it2->tag = reco::CandidateBaseRef();
 	    --nclean;
-	  } 
+	  }
 	}
       }
       // arbitrate the case where the same probe is associated to more then one tag
       if ((arbitration_ == NonDuplicate) && (it->probe == it2->probe)) {
         // invalidate the pair in which the tag has lower pT
         if (it2->tag->pt() > it->tag->pt()) std::swap(*it, *it2);
-        it2->tag = reco::CandidateBaseRef(); --nclean;  
+        it2->tag = reco::CandidateBaseRef(); --nclean;
       }
       // arbitrate the OnePair case: disallow the same pair to enter the lineshape twice
       // this can't be done by reference, unfortunately, so we resort to a simple matching
-      if ((arbitration_ == OnePair) && 
+      if ((arbitration_ == OnePair) &&
           std::abs(it->mass - it2->mass) < 1e-4 &&
-          std::abs( it->probe->phi() - it2->tag->phi()) < 1e-5 && 
-          std::abs( it->probe->eta() - it2->tag->eta()) < 1e-5 && 
-          std::abs( it->probe->pt()  - it2->tag->pt() ) < 1e-5 && 
-          std::abs(it2->probe->phi() -  it->tag->phi()) < 1e-5 && 
-          std::abs(it2->probe->eta() -  it->tag->eta()) < 1e-5 && 
+          std::abs( it->probe->phi() - it2->tag->phi()) < 1e-5 &&
+          std::abs( it->probe->eta() - it2->tag->eta()) < 1e-5 &&
+          std::abs( it->probe->pt()  - it2->tag->pt() ) < 1e-5 &&
+          std::abs(it2->probe->phi() -  it->tag->phi()) < 1e-5 &&
+          std::abs(it2->probe->eta() -  it->tag->eta()) < 1e-5 &&
           std::abs(it2->probe->pt()  -  it->tag->pt() ) < 1e-5) {
           it2->tag = reco::CandidateBaseRef(); --nclean;
       }
