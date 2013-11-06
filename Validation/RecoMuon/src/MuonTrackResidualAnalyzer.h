@@ -60,6 +60,8 @@ public:
 
   virtual void beginJob() ;
   virtual void endJob() ;
+  virtual void beginRun() ;
+  virtual void endRun() ;
 
 protected:
 
