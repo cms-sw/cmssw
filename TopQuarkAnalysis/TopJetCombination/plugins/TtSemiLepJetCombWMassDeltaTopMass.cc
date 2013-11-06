@@ -1,15 +1,13 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombWMassDeltaTopMass.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "TopQuarkAnalysis/TopTools/interface/MEzCalculator.h"
 
 TtSemiLepJetCombWMassDeltaTopMass::TtSemiLepJetCombWMassDeltaTopMass(const edm::ParameterSet& cfg):
-  jets_             (cfg.getParameter<edm::InputTag>("jets"             )),
-  leps_             (cfg.getParameter<edm::InputTag>("leps"             )),
-  mets_             (cfg.getParameter<edm::InputTag>("mets"             )),
+  jetsToken_             (consumes< std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"             ))),
+  lepsToken_             (consumes< edm::View<reco::RecoCandidate> >(cfg.getParameter<edm::InputTag>("leps"             ))),
+  metsToken_             (consumes< std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"             ))),
   maxNJets_         (cfg.getParameter<int>          ("maxNJets"         )),
   wMass_            (cfg.getParameter<double>       ("wMass"            )),
   useBTagging_      (cfg.getParameter<bool>         ("useBTagging"      )),
@@ -19,7 +17,7 @@ TtSemiLepJetCombWMassDeltaTopMass::TtSemiLepJetCombWMassDeltaTopMass(const edm::
   neutrinoSolutionType_(cfg.getParameter<int>       ("neutrinoSolutionType"))
 {
   if(maxNJets_<4 && maxNJets_!=-1)
-    throw cms::Exception("WrongConfig") 
+    throw cms::Exception("WrongConfig")
       << "Parameter maxNJets can not be set to " << maxNJets_ << ". \n"
       << "It has to be larger than 4 or can be set to -1 to take all jets.";
 
@@ -38,20 +36,20 @@ TtSemiLepJetCombWMassDeltaTopMass::produce(edm::Event& evt, const edm::EventSetu
   std::auto_ptr<int> pJetsConsidered(new int);
 
   std::vector<int> match;
-  for(unsigned int i = 0; i < 4; ++i) 
+  for(unsigned int i = 0; i < 4; ++i)
     match.push_back( -1 );
 
   // get jets
   edm::Handle< std::vector<pat::Jet> > jets;
-  evt.getByLabel(jets_, jets);
+  evt.getByToken(jetsToken_, jets);
 
   // get leptons
-  edm::Handle< edm::View<reco::RecoCandidate> > leps; 
-  evt.getByLabel(leps_, leps);
+  edm::Handle< edm::View<reco::RecoCandidate> > leps;
+  evt.getByToken(lepsToken_, leps);
 
   // get MET
   edm::Handle< std::vector<pat::MET> > mets;
-  evt.getByLabel(mets_, mets);
+  evt.getByToken(metsToken_, mets);
 
   // skip events without lepton candidate or less than 4 jets or no MET
   if(leps->empty() || jets->size() < 4 || mets->empty()){
@@ -90,7 +88,7 @@ TtSemiLepJetCombWMassDeltaTopMass::produce(edm::Event& evt, const edm::EventSetu
     if(useBTagging_ && (!isLJet[idx] || (cntBJets<=2 && isBJet[idx]))) continue;
     for(unsigned jdx=(idx+1); jdx<maxNJets; ++jdx){
       if(useBTagging_ && (!isLJet[jdx] || (cntBJets<=2 && isBJet[jdx]) || (cntBJets==3 && isBJet[idx] && isBJet[jdx]))) continue;
-      reco::Particle::LorentzVector sum = 
+      reco::Particle::LorentzVector sum =
 	(*jets)[idx].p4()+
 	(*jets)[jdx].p4();
       if( wDist<0. || wDist>fabs(sum.mass()-wMass_) ){

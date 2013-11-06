@@ -16,12 +16,12 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "FWCore/Common/interface/TriggerNames.h" 
+#include "FWCore/Common/interface/TriggerNames.h"
 
 
 // forward declarations
 template<class object>
-class TriggerCandProducer : public edm::EDProducer 
+class TriggerCandProducer : public edm::EDProducer
 {
  public:
   explicit TriggerCandProducer(const edm::ParameterSet&);
@@ -34,10 +34,13 @@ class TriggerCandProducer : public edm::EDProducer
   virtual void endJob() ;
 
   // ----------member data --------------------------
-    
+
   edm::InputTag _inputProducer;
+  edm::EDGetTokenT<edm::View<object> > _inputProducerToken;
   edm::InputTag triggerEventTag_;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
   edm::InputTag triggerResultsTag_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   std::vector<edm::InputTag> hltTags_;
   edm::InputTag theRightHLTTag_;
   double delRMatchingCut_;

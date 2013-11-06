@@ -23,7 +23,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 class PatTrackAnalyzer : public edm::EDAnalyzer  {
-    public: 
+    public:
 	/// constructor and destructor
 	PatTrackAnalyzer(const edm::ParameterSet &params);
 	~PatTrackAnalyzer();
@@ -34,8 +34,9 @@ class PatTrackAnalyzer : public edm::EDAnalyzer  {
 
     private:
 	// configuration parameters
-	edm::InputTag src_;
-	edm::InputTag beamSpot_;
+	edm::EDGetTokenT<edm::View<reco::Track> > srcTracksToken_;
+	edm::EDGetTokenT<pat::MuonCollection> srcMuonsToken_;
+	edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 
 	// the list of track quality cuts to demand from the tracking
 	std::vector<std::string> qualities_;
@@ -58,8 +59,9 @@ class PatTrackAnalyzer : public edm::EDAnalyzer  {
 
 
 PatTrackAnalyzer::PatTrackAnalyzer(const edm::ParameterSet &params) :
-	src_(params.getParameter<edm::InputTag>("src")),
-	beamSpot_(params.getParameter<edm::InputTag>("beamSpot")),
+	srcTracksToken_(mayConsume<edm::View<reco::Track> >(params.getParameter<edm::InputTag>("src"))),
+	srcMuonsToken_(mayConsume<pat::MuonCollection>(params.getParameter<edm::InputTag>("src"))),
+	beamSpotToken_(consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpot"))),
 	qualities_(params.getParameter< std::vector<std::string> >("qualities"))
 {
 }
@@ -136,14 +138,14 @@ void PatTrackAnalyzer::beginJob()
 }
 
 void PatTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &es)
-{  
+{
 	// handles to kinds of data we might want to read
 	edm::Handle<reco::BeamSpot> beamSpot;
 	edm::Handle< edm::View<reco::Track> > tracksHandle;
 	edm::Handle< pat::MuonCollection > muonsHandle;
 
 	// read the beam spot
-	event.getByLabel(beamSpot_, beamSpot);
+	event.getByToken(beamSpotToken_, beamSpot);
 
 	// our internal copy of track points
 	// (we need this in order to able to simultaneously access tracks
@@ -151,7 +153,7 @@ void PatTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &e
 	//  would iterate over the handle directly)
 	std::vector<const reco::Track*> tracks;
 
-	event.getByLabel(src_, tracksHandle);
+	event.getByToken(srcTracksToken_, tracksHandle);
 	if (tracksHandle.isValid()) {
 		// framework was able to read the collection as a view of
 		// tracks, no copy them to our "tracks" variable
@@ -161,7 +163,7 @@ void PatTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &e
 	} else {
 		// does not exist or is not a track collection
 		// let's assume it is a collection of PAT muons
-		event.getByLabel(src_, muonsHandle);
+		event.getByToken(srcMuonsToken_, muonsHandle);
 
 		// and copy them over
 		// NOTE: We are using ->globalTrack() here
@@ -233,7 +235,7 @@ void PatTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &e
 		}
 	}
 }
-	
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(PatTrackAnalyzer);

@@ -16,18 +16,18 @@
 
    \brief   Module to produce the subset of generator particles directly contained in top decay chains
 
-   The module produces the subset of generator particles directly contained in top decay chains. The 
+   The module produces the subset of generator particles directly contained in top decay chains. The
    particles are saved as a collection of reco::GenParticles. Depending on the configuration of the module,
-   the 4-vector kinematics can be taken from the status-3 particles (ME before parton showering) or from 
+   the 4-vector kinematics can be taken from the status-3 particles (ME before parton showering) or from
    the status-2 particles (after parton showering), additionally radiated gluons may be considered during
-   the creation of the subset or not. 
+   the creation of the subset or not.
 */
 
 
 class TopDecaySubset : public edm::EDProducer {
 
  public:
-  /// supported modes to fill the new vectors 
+  /// supported modes to fill the new vectors
   /// of gen particles
   enum  FillMode {kStable, kME};
   /// classification of potential shower types
@@ -47,7 +47,7 @@ class TopDecaySubset : public edm::EDProducer {
   ShowerModel checkShowerModel(const std::vector<const reco::GenParticle*>& tops) const;
   /// check whether W bosons are contained in the original gen particle listing
   void checkWBosons(std::vector<const reco::GenParticle*>& tops) const;
-  /// fill output vector for full decay chain 
+  /// fill output vector for full decay chain
   void fillListing(const std::vector<const reco::GenParticle*>& tops, reco::GenParticleCollection& target);
 
   /// clear references
@@ -65,19 +65,19 @@ class TopDecaySubset : public edm::EDProducer {
 
  private:
   /// input tag for the genParticle source
-  edm::InputTag src_;
+  edm::EDGetTokenT<reco::GenParticleCollection> srcToken_;
   /// add radiation or not?
   bool addRadiation_;
   /// print the whole list of input particles or not?
-  /// mode of decaySubset creation 
+  /// mode of decaySubset creation
   FillMode fillMode_;
   /// parton shower mode (filled in checkShowerModel)
   ShowerModel showerModel_;
 
-  /// index in new evt listing of parts with daughters; 
-  /// has to be set to -1 in produce to deliver consistent 
+  /// index in new evt listing of parts with daughters;
+  /// has to be set to -1 in produce to deliver consistent
   /// results!
-  int motherPartIdx_;                    
+  int motherPartIdx_;
   /// management of daughter indices for fillRefs
-  std::map<int,std::vector<int> > refs_; 
+  std::map<int,std::vector<int> > refs_;
 };

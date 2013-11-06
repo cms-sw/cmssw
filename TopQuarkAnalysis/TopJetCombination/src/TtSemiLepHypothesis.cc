@@ -8,18 +8,18 @@
 
 /// default constructor
 TtSemiLepHypothesis::TtSemiLepHypothesis(const edm::ParameterSet& cfg):
-  jets_(cfg.getParameter<edm::InputTag>("jets")),
-  leps_(cfg.getParameter<edm::InputTag>("leps")),
-  mets_(cfg.getParameter<edm::InputTag>("mets")),
-  nJetsConsidered_(cfg.getParameter<edm::InputTag>("nJetsConsidered")),
+  jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
+  lepsToken_(consumes<edm::View<reco::RecoCandidate> >(cfg.getParameter<edm::InputTag>("leps"))),
+  metsToken_(consumes<std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
+  nJetsConsideredToken_(consumes<int>(cfg.getParameter<edm::InputTag>("nJetsConsidered"))),
   numberOfRealNeutrinoSolutions_(-1),
-  lightQ_(0), lightQBar_(0), hadronicB_(0), 
+  lightQ_(0), lightQBar_(0), hadronicB_(0),
   leptonicB_(0), neutrino_(0), lepton_(0)
 {
   getMatch_ = false;
   if( cfg.exists("match") ) {
     getMatch_ = true;
-    match_ = cfg.getParameter<edm::InputTag>("match");
+    matchToken_ = consumes<std::vector<std::vector<int> > >(cfg.getParameter<edm::InputTag>("match"));
   }
   if( cfg.exists("neutrinoSolutionType") )
     neutrinoSolutionType_ = cfg.getParameter<int>("neutrinoSolutionType");
@@ -50,26 +50,26 @@ void
 TtSemiLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
   edm::Handle<std::vector<pat::Jet> > jets;
-  evt.getByLabel(jets_, jets);
-  
+  evt.getByToken(jetsToken_, jets);
+
   edm::Handle<edm::View<reco::RecoCandidate> > leps;
-  evt.getByLabel(leps_, leps);
+  evt.getByToken(lepsToken_, leps);
 
   edm::Handle<std::vector<pat::MET> > mets;
-  evt.getByLabel(mets_, mets);
+  evt.getByToken(metsToken_, mets);
 
   edm::Handle<int> nJetsConsidered;
-  evt.getByLabel(nJetsConsidered_, nJetsConsidered);
+  evt.getByToken(nJetsConsideredToken_, nJetsConsidered);
 
   std::vector<std::vector<int> > matchVec;
   if( getMatch_ ) {
     edm::Handle<std::vector<std::vector<int> > > matchHandle;
-    evt.getByLabel(match_, matchHandle);
+    evt.getByToken(matchToken_, matchHandle);
     matchVec = *matchHandle;
   }
   else {
     std::vector<int> dummyMatch;
-    for(unsigned int i = 0; i < 4; ++i) 
+    for(unsigned int i = 0; i < 4; ++i)
       dummyMatch.push_back( -1 );
     matchVec.push_back( dummyMatch );
   }
@@ -126,14 +126,14 @@ reco::CompositeCandidate
 TtSemiLepHypothesis::hypo()
 {
   // check for sanity of the hypothesis
-  if( !lightQ_ || !lightQBar_ || !hadronicB_ || 
+  if( !lightQ_ || !lightQBar_ || !hadronicB_ ||
       !leptonicB_ || !neutrino_ || !lepton_ )
     return reco::CompositeCandidate();
-  
+
   // setup transient references
   reco::CompositeCandidate hyp, hadTop, hadW, lepTop, lepW;
 
-  AddFourMomenta addFourMomenta;  
+  AddFourMomenta addFourMomenta;
   // build up the top branch that decays leptonically
   lepW  .addDaughter(*lepton_,   TtSemiLepDaughter::Lep    );
   lepW  .addDaughter(*neutrino_, TtSemiLepDaughter::Nu     );
@@ -141,7 +141,7 @@ TtSemiLepHypothesis::hypo()
   lepTop.addDaughter( lepW,      TtSemiLepDaughter::LepW   );
   lepTop.addDaughter(*leptonicB_,TtSemiLepDaughter::LepB   );
   addFourMomenta.set( lepTop );
-  
+
   // build up the top branch that decays hadronically
   hadW  .addDaughter(*lightQ_,   TtSemiLepDaughter::HadP   );
   hadW  .addDaughter(*lightQBar_,TtSemiLepDaughter::HadQ   );
@@ -158,7 +158,7 @@ TtSemiLepHypothesis::hypo()
   return hyp;
 }
 
-/// determine lepton type of reco candidate and return a corresponding WDecay::LeptonType; the type is kNone if it is whether a muon nor an electron 
+/// determine lepton type of reco candidate and return a corresponding WDecay::LeptonType; the type is kNone if it is whether a muon nor an electron
 WDecay::LeptonType
 TtSemiLepHypothesis::leptonType(const reco::RecoCandidate* cand)
 {
@@ -166,7 +166,7 @@ TtSemiLepHypothesis::leptonType(const reco::RecoCandidate* cand)
   WDecay::LeptonType type = WDecay::kNone;
   if( dynamic_cast<const reco::Muon*>(cand) ){
     type = WDecay::kMuon;
-  } 
+  }
   else if( dynamic_cast<const reco::GsfElectron*>(cand) ){
     type = WDecay::kElec;
   }
@@ -190,9 +190,9 @@ TtSemiLepHypothesis::jetCorrectionLevel(const std::string& quarkType)
     throw cms::Exception("Configuration")
       << quarkType << " is unknown as a quarkType for the jetCorrectionLevel.\n";
 
-  // combine correction level; start with a ':' even if 
+  // combine correction level; start with a ':' even if
   // there is no flavor tag to be added, as it is needed
-  // by setCandidate to disentangle the correction tag 
+  // by setCandidate to disentangle the correction tag
   // from a potential flavor tag, which can be empty
   std::string level=jetCorrectionLevel_+":";
   if( level=="L5Flavor:" || level=="L6UE:" || level=="L7Parton:" ){
@@ -208,12 +208,12 @@ TtSemiLepHypothesis::jetCorrectionLevel(const std::string& quarkType)
 }
 
 /// use one object in a jet collection to set a ShallowClonePtrCandidate with proper jet corrections
-void 
+void
 TtSemiLepHypothesis::setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle, const int& idx,
 				  reco::ShallowClonePtrCandidate*& clone, const std::string& correctionLevel)
 {
   edm::Ptr<pat::Jet> ptr = edm::Ptr<pat::Jet>(handle, idx);
-  // disentangle the correction from the potential flavor tag 
+  // disentangle the correction from the potential flavor tag
   // by the separating ':'; the flavor tag can be empty though
   std::string step   = correctionLevel.substr(0,correctionLevel.find(":"));
   std::string flavor = correctionLevel.substr(1+correctionLevel.find(":"));
@@ -247,8 +247,8 @@ void TtSemiLepHypothesis::setNeutrino(const edm::Handle<std::vector<pat::MET> >&
 /// minimalistic build function for simple hypotheses
 void
 TtSemiLepHypothesis::buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
-			       const edm::Handle<std::vector<pat::MET> >& mets, 
-			       const edm::Handle<std::vector<pat::Jet> >& jets, 
+			       const edm::Handle<std::vector<pat::MET> >& mets,
+			       const edm::Handle<std::vector<pat::Jet> >& jets,
 			       std::vector<int>& match)
 {
   // -----------------------------------------------------
@@ -263,7 +263,7 @@ TtSemiLepHypothesis::buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> 
 	setCandidate(jets, match[idx], lightQBar_, jetCorrectionLevel("wQuarkMix")); break;
       case TtSemiLepEvtPartons::HadB:
 	setCandidate(jets, match[idx], hadronicB_, jetCorrectionLevel("bQuark")); break;
-      case TtSemiLepEvtPartons::LepB: 
+      case TtSemiLepEvtPartons::LepB:
 	setCandidate(jets, match[idx], leptonicB_, jetCorrectionLevel("bQuark")); break;
       }
     }
@@ -276,7 +276,7 @@ TtSemiLepHypothesis::buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> 
     return;
   setCandidate(leps, 0, lepton_);
   match.push_back( 0 );
-  
+
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------

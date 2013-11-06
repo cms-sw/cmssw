@@ -28,9 +28,9 @@ class TtSemiLepHitFitProducer : public edm::EDProducer {
   // produce
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
-  edm::InputTag jets_;
-  edm::InputTag leps_;
-  edm::InputTag mets_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<LeptonCollection> lepsToken_;
+  edm::EDGetTokenT<std::vector<pat::MET> > metsToken_;
 
   /// maximal number of jets (-1 possible to indicate 'all')
   int maxNJets_;
@@ -99,9 +99,9 @@ class TtSemiLepHitFitProducer : public edm::EDProducer {
 
 template<typename LeptonCollection>
 TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::ParameterSet& cfg):
-  jets_                    (cfg.getParameter<edm::InputTag>("jets")),
-  leps_                    (cfg.getParameter<edm::InputTag>("leps")),
-  mets_                    (cfg.getParameter<edm::InputTag>("mets")),
+  jetsToken_                    (consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
+  lepsToken_                    (consumes<LeptonCollection>(cfg.getParameter<edm::InputTag>("leps"))),
+  metsToken_                    (consumes<std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
   maxNJets_                (cfg.getParameter<int>          ("maxNJets"            )),
   maxNComb_                (cfg.getParameter<int>          ("maxNComb"            )),
   bTagAlgo_                (cfg.getParameter<std::string>  ("bTagAlgo"            )),
@@ -205,13 +205,13 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   std::auto_ptr< int > pJetsConsidered( new int );
 
   edm::Handle<std::vector<pat::Jet> > jets;
-  evt.getByLabel(jets_, jets);
+  evt.getByToken(jetsToken_, jets);
 
   edm::Handle<std::vector<pat::MET> > mets;
-  evt.getByLabel(mets_, mets);
+  evt.getByToken(metsToken_, mets);
 
   edm::Handle<LeptonCollection> leps;
-  evt.getByLabel(leps_, leps);
+  evt.getByToken(lepsToken_, leps);
 
   // -----------------------------------------------------
   // skip events with no appropriate lepton candidate in

@@ -6,7 +6,7 @@
 
 /// default constructor
 TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg):
-  src_         (cfg.getParameter<edm::InputTag>("src")),
+  srcToken_         (consumes<reco::GenParticleCollection>(cfg.getParameter<edm::InputTag>("src"))),
   addRadiation_(cfg.getParameter<bool>("addRadiation")),
   showerModel_ (kStart)
 {
@@ -40,7 +40,7 @@ TopDecaySubset::produce(edm::Event& event, const edm::EventSetup& setup)
 
   // get source collection
   edm::Handle<reco::GenParticleCollection> src;
-  event.getByLabel(src_, src);
+  event.getByToken(srcToken_, src);
 
   // find top quarks in list of input particles
   std::vector<const reco::GenParticle*> tops = findTops(*src);

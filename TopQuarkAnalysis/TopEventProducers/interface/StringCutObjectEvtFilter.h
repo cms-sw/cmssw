@@ -14,7 +14,7 @@
 
    Template class to filter events based on member functions of a given object in the event
    and cuts that are parsed by the StringCutObjectSelector.
-   
+
 */
 
 template <typename T>
@@ -26,7 +26,7 @@ class StringCutObjectEvtFilter : public edm::EDFilter {
   explicit StringCutObjectEvtFilter(const edm::ParameterSet&);
   /// default destructor
   ~StringCutObjectEvtFilter(){};
-  
+
  private:
 
   /// filter function
@@ -35,14 +35,14 @@ class StringCutObjectEvtFilter : public edm::EDFilter {
  private:
 
   /// input object
-  edm::InputTag src_;
+  edm::EDGetTokenT<T> srcToken_;
   /// cut string for event selection
   StringCutObjectSelector<T> cut_;
 };
 
 template <typename T>
 StringCutObjectEvtFilter<T>::StringCutObjectEvtFilter(const edm::ParameterSet& cfg):
-  src_(cfg.getParameter<edm::InputTag>("src")),
+  srcToken_(consumes<T>(cfg.getParameter<edm::InputTag>("src"))),
   cut_(cfg.getParameter<std::string>  ("cut"))
 {}
 
@@ -50,8 +50,8 @@ template <typename T>
 bool
 StringCutObjectEvtFilter<T>::filter(edm::Event& evt, const edm::EventSetup& setup)
 {
-  edm::Handle<T> src; 
-  evt.getByLabel(src_, src);
+  edm::Handle<T> src;
+  evt.getByToken(srcToken_, src);
   return cut_(*src);
 }
 

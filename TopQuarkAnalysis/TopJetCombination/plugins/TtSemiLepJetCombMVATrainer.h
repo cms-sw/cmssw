@@ -11,6 +11,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 
 #include "PhysicsTools/MVAComputer/interface/HelperMacros.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
@@ -21,27 +23,28 @@ MVA_COMPUTER_CONTAINER_DEFINE(TtSemiLepJetCombMVA);  // defines TtSemiLepJetComb
 #endif
 
 class TtSemiLepJetCombMVATrainer : public edm::EDAnalyzer {
-  
+
  public:
-  
+
   explicit TtSemiLepJetCombMVATrainer(const edm::ParameterSet&);
   ~TtSemiLepJetCombMVATrainer();
-  
+
  private:
-  
+
   virtual void beginJob();
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& setup);
   virtual void endJob();
 
   WDecay::LeptonType readLeptonType(const std::string& str);
 
-  edm::InputTag leps_;
-  edm::InputTag jets_;
-  edm::InputTag mets_;
-  edm::InputTag matching_;
+  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
+  edm::EDGetTokenT< edm::View<reco::RecoCandidate> > lepsToken_;
+  edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT< std::vector<pat::MET> > metsToken_;
+  edm::EDGetTokenT< std::vector< std::vector<int> > > matchingToken_;
 
   int maxNJets_;
-  
+
   WDecay::LeptonType leptonType_;
 
   PhysicsTools::MVAComputerCache mvaComputer;

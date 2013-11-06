@@ -1,14 +1,14 @@
-// 
-// Translation of BTag MCJetFlavour tool to identify real flavour of a jet 
+//
+// Translation of BTag MCJetFlavour tool to identify real flavour of a jet
 // work with CaloJet objects
 // Store Infos by Values in JetFlavour.h
-// Author: Attilio  
+// Author: Attilio
 // Date: 05.10.2007
 //
 //
 // \class JetFlavourIdentifier
 //
-// \brief Interface to pull out the proper flavour identifier from a 
+// \brief Interface to pull out the proper flavour identifier from a
 //        jet->parton matching collection.
 //
 // In detail, the definitions are as follows:
@@ -31,7 +31,7 @@
 //                 Added capability for all methods of identification, not just
 //                 "physics" or "algorithmic". If the requested method does not exist
 //                 (i.e. is unphysical), the "physics" or "algorithmic" definition
-//                 is defaulted to. 
+//                 is defaulted to.
 
 //=======================================================================
 
@@ -40,7 +40,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
- 
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -80,15 +80,15 @@ using namespace ROOT::Math::VectorUtil;
 namespace reco { namespace modules {
 
 //--------------------------------------------------------------------------
-// 
+//
 //--------------------------------------------------------------------------
-class JetFlavourIdentifier : public edm::EDProducer 
+class JetFlavourIdentifier : public edm::EDProducer
 {
   public:
-  enum DEFINITION_T { PHYSICS=0, ALGO, NEAREST_STATUS2, NEAREST_STATUS3, HEAVIEST, 
+  enum DEFINITION_T { PHYSICS=0, ALGO, NEAREST_STATUS2, NEAREST_STATUS3, HEAVIEST,
 		      N_DEFINITIONS,
 		      NULL_DEF};
-  
+
     JetFlavourIdentifier( const edm::ParameterSet & );
     ~JetFlavourIdentifier();
 
@@ -101,7 +101,7 @@ class JetFlavourIdentifier : public edm::EDProducer
     static int heaviestFlavour(int);
 
     Handle<JetMatchedPartonsCollection> theTagByRef;
-    InputTag sourceByRefer_;
+    EDGetTokenT<JetMatchedPartonsCollection> sourceByReferToken_;
     bool physDefinition;
     bool leptonInfo_;
     DEFINITION_T definition;
@@ -116,13 +116,13 @@ using reco::modules::JetFlavourIdentifier;
 JetFlavourIdentifier::JetFlavourIdentifier( const edm::ParameterSet& iConfig )
 {
     produces<JetFlavourMatchingCollection>();
-    sourceByRefer_ = iConfig.getParameter<InputTag>("srcByReference");
+    sourceByReferToken_ = consumes<JetMatchedPartonsCollection>(iConfig.getParameter<InputTag>("srcByReference"));
     physDefinition = iConfig.getParameter<bool>("physicsDefinition");
     leptonInfo_ = iConfig.exists("leptonInfo") ? iConfig.getParameter<bool>("leptonInfo") : true;
     // If we have a definition of which parton to identify, use it,
     // otherwise we default to the "old" behavior of either "physics" or "algorithmic".
     // Furthermore, if the specified definition is not sensible for the given jet,
-    // then the "physDefinition" switch is used to identify the flavour of the jet. 
+    // then the "physDefinition" switch is used to identify the flavour of the jet.
     if ( iConfig.exists("definition") ) {
       definition = static_cast<DEFINITION_T>( iConfig.getParameter<int>("definition") );
     } else {
@@ -132,16 +132,16 @@ JetFlavourIdentifier::JetFlavourIdentifier( const edm::ParameterSet& iConfig )
 
 //=========================================================================
 
-JetFlavourIdentifier::~JetFlavourIdentifier() 
+JetFlavourIdentifier::~JetFlavourIdentifier()
 {
 }
 
 // ------------ method called to produce the data  ------------
 
-void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs ) 
+void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
 {
   // Get the JetMatchedPartons
-  iEvent.getByLabel (sourceByRefer_, theTagByRef);
+  iEvent.getByToken (sourceByReferToken_, theTagByRef);
 
   // Create a JetFlavourMatchingCollection
   JetFlavourMatchingCollection *jfmc;
@@ -153,13 +153,13 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
   }
   auto_ptr<reco::JetFlavourMatchingCollection> jetFlavMatching(jfmc);
 
-  // Loop over the matched partons and see which match. 
+  // Loop over the matched partons and see which match.
   for ( JetMatchedPartonsCollection::const_iterator j  = theTagByRef->begin();
                                                     j != theTagByRef->end();
                                                     j ++ ) {
 
 
-    // Consider this match. 
+    // Consider this match.
     const MatchedPartons aMatch = (*j).second;
 
     // This will hold the 4-vector, vertex, flavour and the leptonian decays (0: no lepton, xyz: x leptons in layer 2, y in layer 1 and z in layer 0) of the requested object.
@@ -168,7 +168,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
     int                     thePartonFlavour = 0;
     JetFlavour::Leptons     theLeptons;
 
-    // get the partons based on which definition to use. 
+    // get the partons based on which definition to use.
     switch (definition) {
       case PHYSICS: {
         const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton();
@@ -244,7 +244,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
 
     // Now make sure we have a match. If the user specified "heaviest", for instance,
     // and there is no b- or c-quarks, then fall back to the "physDefinition" switch.
-    
+
     if (thePartonFlavour == 0) {
       if (physDefinition) {
         const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton();
@@ -271,12 +271,12 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
      std::cout << "  muons    : " <<theLeptons.muon << std::endl;
      std::cout << "  tau      : " <<theLeptons.tau << std::endl;
 */
-    // Add the jet->flavour match to the map. 
+    // Add the jet->flavour match to the map.
     (*jetFlavMatching)[(*j).first] = JetFlavour(thePartonLorentzVector, thePartonVertex, thePartonFlavour, theLeptons);
   }// end loop over jets
 
 
-  // Put the object into the event. 
+  // Put the object into the event.
   iEvent.put(  jetFlavMatching );
 
 }
@@ -306,7 +306,7 @@ JetFlavour::Leptons JetFlavourIdentifier::findLeptons(const GenParticleRef &part
 std::vector<const reco::Candidate*> JetFlavourIdentifier::findCandidates(const reco::Candidate *cand, int partonFlavour)
 {
   std::vector<const reco::Candidate*> cands;
-  
+
   for(unsigned int i = 0; i < cand->numberOfDaughters(); i++) {
 /*
     std::cout << "DeltaR - " << partonFlavour << " ";

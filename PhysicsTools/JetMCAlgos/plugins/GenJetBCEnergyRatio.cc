@@ -1,6 +1,6 @@
-// 
+//
 // Plugin to store B and C ratio for a GenJet in the event
-// Author: Attilio  
+// Author: Attilio
 // Date: 05.10.2007
 //
 
@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
- 
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,7 +47,7 @@ using namespace ROOT::Math::VectorUtil;
 using namespace JetMCTagUtils;
 using namespace CandMCTagUtils;
 
-class GenJetBCEnergyRatio : public edm::EDProducer 
+class GenJetBCEnergyRatio : public edm::EDProducer
 {
   public:
     GenJetBCEnergyRatio( const edm::ParameterSet & );
@@ -58,7 +58,7 @@ class GenJetBCEnergyRatio : public edm::EDProducer
   private:
     virtual void produce(edm::Event&, const edm::EventSetup& ) override;
     Handle< View <Jet> > genjets;
-    edm::InputTag m_genjetsSrc;
+    edm::EDGetTokenT< View <Jet> > m_genjetsSrcToken;
 
 };
 
@@ -68,20 +68,20 @@ GenJetBCEnergyRatio::GenJetBCEnergyRatio( const edm::ParameterSet& iConfig )
 {
     produces<JetBCEnergyRatioCollection>("bRatioCollection");
     produces<JetBCEnergyRatioCollection>("cRatioCollection");
-    m_genjetsSrc = iConfig.getParameter<edm::InputTag>("genJets");
+    m_genjetsSrcToken = consumes< View <Jet> >(iConfig.getParameter<edm::InputTag>("genJets"));
 }
 
 //=========================================================================
 
-GenJetBCEnergyRatio::~GenJetBCEnergyRatio() 
+GenJetBCEnergyRatio::~GenJetBCEnergyRatio()
 {
 }
 
 // ------------ method called to produce the data  ------------
 
-void GenJetBCEnergyRatio::produce( Event& iEvent, const EventSetup& iEs ) 
+void GenJetBCEnergyRatio::produce( Event& iEvent, const EventSetup& iEs )
 {
-  iEvent.getByLabel(m_genjetsSrc, genjets);
+  iEvent.getByToken(m_genjetsSrcToken, genjets);
 
   typedef edm::RefToBase<reco::Jet> JetRef;
 

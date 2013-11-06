@@ -5,13 +5,14 @@
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/StEvtSolutionMaker.h"
 
-StEvtSolutionMaker::StEvtSolutionMaker(const edm::ParameterSet& iConfig) 
+StEvtSolutionMaker::StEvtSolutionMaker(const edm::ParameterSet& iConfig)
 {
   // configurables
-  electronSrc_    = iConfig.getParameter<edm::InputTag>("electronSource");
-  muonSrc_        = iConfig.getParameter<edm::InputTag>("muonSource");
-  metSrc_         = iConfig.getParameter<edm::InputTag>("metSource");
-  jetSrc_         = iConfig.getParameter<edm::InputTag>("jetSource");
+  electronSrcToken_    = mayConsume<std::vector<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electronSource"));
+  muonSrcToken_        = mayConsume<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muonSource"));
+  metSrcToken_         = consumes<std::vector<pat::MET> >(iConfig.getParameter<edm::InputTag>("metSource"));
+  jetSrcToken_         = consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jetSource"));
+  genEvtSrcToken_      = mayConsume<StGenEvent>(edm::InputTag("genEvt"));
   leptonFlavour_  = iConfig.getParameter< std::string >("leptonFlavour");
   jetCorrScheme_  = iConfig.getParameter<int>          ("jetCorrectionScheme");
   //jetInput_        = iConfig.getParameter< std::string > 	  ("jetInput");
@@ -25,7 +26,7 @@ StEvtSolutionMaker::StEvtSolutionMaker(const edm::ParameterSet& iConfig)
   metParam_       = iConfig.getParameter<int>          ("metParametrisation");
   constraints_    = iConfig.getParameter< std::vector<int> > ("constraints");
   matchToGenEvt_  = iConfig.getParameter< bool > 	("matchToGenEvt");
-  
+
   // define kinfitter
   if(doKinFit_){
     myKinFitter = new StKinFitter(jetParam_, lepParam_, metParam_, maxNrIter_, maxDeltaS_, maxF_, constraints_);
@@ -34,7 +35,7 @@ StEvtSolutionMaker::StEvtSolutionMaker(const edm::ParameterSet& iConfig)
   produces<std::vector<StEvtSolution> >();
 }
 
-StEvtSolutionMaker::~StEvtSolutionMaker() 
+StEvtSolutionMaker::~StEvtSolutionMaker()
 {
   if (doKinFit_) delete myKinFitter;
 }
@@ -44,33 +45,33 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   //
   //  TopObject Selection
   //
-  
+
   // select lepton (the TtLepton vectors are, for the moment, sorted on pT)
   bool leptonFound = false;
   edm::Handle<std::vector<pat::Muon> > muons;
   if(leptonFlavour_ == "muon"){
-    iEvent.getByLabel(muonSrc_, muons);
+    iEvent.getByToken(muonSrcToken_, muons);
     if( muons->size() > 0 ) leptonFound = true;
   }
   edm::Handle<std::vector<pat::Electron> > electrons;
   if(leptonFlavour_ == "electron"){
-    iEvent.getByLabel(electronSrc_, electrons);
+    iEvent.getByToken(electronSrcToken_, electrons);
     if( electrons->size() > 0 ) leptonFound = true;
   }
-  
+
   // select MET (TopMET vector is sorted on ET)
   bool metFound = false;
   edm::Handle<std::vector<pat::MET> > mets;
-  iEvent.getByLabel(metSrc_, mets);
+  iEvent.getByToken(metSrcToken_, mets);
   if( mets->size() > 0 ) metFound = true;
-  
+
   // select Jets
   bool jetsFound = false;
   edm::Handle<std::vector<pat::Jet> > jets;
-  iEvent.getByLabel(jetSrc_, jets);
+  iEvent.getByToken(jetSrcToken_, jets);
   unsigned int maxJets=2;//this has to become a custom-defined parameter (we may want 2 or 3 jets)
   if (jets->size() >= 2) jetsFound = true;
-  
+
   std::vector<StEvtSolution> *evtsols = new std::vector<StEvtSolution>();
   if(leptonFound && metFound && jetsFound){
     std::cout<<"constructing solutions"<<std::endl;
@@ -84,9 +85,9 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	  asol.setNeutrino(mets, 0);
 	  asol.setBottom(jets, b);
 	  asol.setLight(jets, l);
-	  
+
 	  if(doKinFit_) asol = myKinFitter->addKinFitInfo(&asol);
-	  
+
 	  /* to be adapted to ST (Andrea)
 	     if(addLRJetComb_){
 	     asol.setPtrueCombExist(jetCombProbs[m].getPTrueCombExist(&afitsol));
@@ -99,12 +100,12 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	}
       }
     }
-    
+
     // if asked for, match the event solutions to the gen Event
     if(matchToGenEvt_){
       /*
 	edm::Handle<StGenEvent> genEvt;
-	iEvent.getByLabel ("genEvt",genEvt);
+	iEvent.getByToken (genEvtSrcToken_,genEvt);
 	double bestSolDR = 9999.;
 	int bestSol = 0;
 	for(size_t s=0; s<evtsols->size(); s++) {
@@ -119,20 +120,20 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	(*evtsols)[bestSol].setBestSol(true);
       */
     }
-    
-    //store the vector of solutions to the event     
+
+    //store the vector of solutions to the event
     std::auto_ptr<std::vector<StEvtSolution> > pOut(evtsols);
     iEvent.put(pOut);
   }
   else
     {
-      
+
       std::cout<<"@@@ No calibrated solutions built, because:  " << std::endl;;
       if(jets->size()<maxJets)   				  std::cout<<"@ nr jets = " << jets->size() << " < " << maxJets <<std::endl;
       if(leptonFlavour_ == "muon" && !leptonFound)     	          std::cout<<"@ no good muon candidate"<<std::endl;
       if(leptonFlavour_ == "electron" && !leptonFound)             std::cout<<"@ no good electron candidate"<<std::endl;
       if(mets->size() == 0)    					  std::cout<<"@ no MET reconstruction"<<std::endl;
-      
+
       StEvtSolution asol;
       evtsols->push_back(asol);
       std::auto_ptr<std::vector<StEvtSolution> > pOut(evtsols);

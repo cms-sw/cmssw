@@ -22,11 +22,11 @@ public:
   explicit ConstrainedFitCandProducer(const edm::ParameterSet &);
 
 private:
-  edm::InputTag src_;
+  edm::EDGetTokenT<InputCollection> srcToken_;
   bool setLongLived_;
   bool setMassConstraint_;
   bool setPdgId_;
-  int pdgId_;  
+  int pdgId_;
   Fitter fitter_;
   void produce(edm::Event &, const edm::EventSetup &);
 };
@@ -42,7 +42,7 @@ private:
 
 template<typename Fitter, typename InputCollection, typename OutputCollection, typename Init>
 ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::ConstrainedFitCandProducer(const edm::ParameterSet & cfg) :
-  src_(cfg.template getParameter<edm::InputTag>("src")),
+  srcToken_(consumes<InputCollection>(cfg.template getParameter<edm::InputTag>("src"))),
   setLongLived_(false), setMassConstraint_(false), setPdgId_(false),
   fitter_(reco::modules::make<Fitter>(cfg)) {
   produces<OutputCollection>();
@@ -83,7 +83,7 @@ template<typename Fitter, typename InputCollection, typename OutputCollection, t
 void ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::produce(edm::Event & evt, const edm::EventSetup & es) {
   Init::init(fitter_, evt, es);
   edm::Handle<InputCollection> cands;
-  evt.getByLabel(src_, cands);
+  evt.getByToken(srcToken_, cands);
   std::auto_ptr<OutputCollection> fitted(new OutputCollection);
   fitted->reserve(cands->size());
   for(typename InputCollection::const_iterator c = cands->begin(); c != cands->end(); ++ c) {
