@@ -109,6 +109,8 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
 
   iRegistry.watchPreModuleEvent(this, &Tracer::preModuleEvent);
   iRegistry.watchPostModuleEvent(this, &Tracer::postModuleEvent);
+  iRegistry.watchPreModuleEventDelayedGet(this, &Tracer::preModuleEventDelayedGet);
+  iRegistry.watchPostModuleEventDelayedGet(this, &Tracer::postModuleEventDelayedGet);
 
   iRegistry.watchPreModuleStreamBeginRun(this, &Tracer::preModuleStreamBeginRun);
   iRegistry.watchPostModuleStreamBeginRun(this, &Tracer::postModuleStreamBeginRun);
@@ -542,6 +544,35 @@ Tracer::postModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc
     out << indention_;
   }
   out << " finished: processing event for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << sc;
+    out << mcc;
+  }
+}
+
+
+void
+Tracer::preModuleEventDelayedGet(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  unsigned int nIndents = mcc.depth() + 4;
+  for(unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: delayed processing event for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << sc;
+    out << mcc;
+  }
+}
+
+void
+Tracer::postModuleEventDelayedGet(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  unsigned int nIndents = mcc.depth() + 4;
+  for(unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: delayed processing event for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
   if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
