@@ -948,8 +948,7 @@ const std::vector<FedChannelConnection>& SiStripFedCabling::connections( uint16_
 // TO BE DEPRECATED! TO BE DEPRECATED! TO BE DEPRECATED! 
 const FedChannelConnection& SiStripFedCabling::connection( uint16_t fed_id, 
 							   uint16_t fed_ch ) const {
-  static FedChannelConnection output;
-  output = fedConnection( fed_id, fed_ch );
+  const static FedChannelConnection output = fedConnection( fed_id, fed_ch );
   return output;
 }
 
