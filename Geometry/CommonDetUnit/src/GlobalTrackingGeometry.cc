@@ -11,7 +11,7 @@
 
 GlobalTrackingGeometry::GlobalTrackingGeometry(std::vector<const TrackingGeometry*>& geos)
     : theGeometries(geos),
-    theDetTypes(nullptr), theDetUnits(nullptr), theDetUnitIds(nullptr), theDetIds(nullptr)
+    theDetTypes(nullptr), theDetUnits(nullptr), theDets(nullptr), theDetUnitIds(nullptr), theDetIds(nullptr)
 {}
 
 GlobalTrackingGeometry::~GlobalTrackingGeometry()
