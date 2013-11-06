@@ -9,32 +9,35 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 class PatElectronAnalyzer : public edm::EDAnalyzer {
 
  public:
-  
+
   explicit PatElectronAnalyzer(const edm::ParameterSet&);
   ~PatElectronAnalyzer();
-  
+
  private:
-  
+
   virtual void beginJob() override ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
 
-  // restrictions for the electron to be 
+  // restrictions for the electron to be
   // considered
   double minPt_;
   double maxEta_;
 
   // decide in which mode to run the analyzer
-  // 0 : genMatch, 1 : tagAndProbe are 
+  // 0 : genMatch, 1 : tagAndProbe are
   // supported depending on the line comments
   unsigned int mode_;
 
   // choose a given electronID for the electron
-  // in consideration; the following types are 
-  // available: 
+  // in consideration; the following types are
+  // available:
   // * eidRobustLoose
   // * eidRobustTight
   // * eidLoose
@@ -43,19 +46,19 @@ class PatElectronAnalyzer : public edm::EDAnalyzer {
   std::string electronID_;
 
   // source of electrons
-  edm::InputTag electronSrc_;
+  edm::EDGetTokenT<std::vector<pat::Electron> > electronSrcToken_;
   // source of generator particles
-  edm::InputTag particleSrc_;
+  edm::EDGetTokenT<reco::GenParticleCollection> particleSrcToken_;
 
   edm::ParameterSet genMatchMode_;
   edm::ParameterSet tagAndProbeMode_;
 
   // internal variables for genMatchMode and
-  // tagAndProbeMode 
+  // tagAndProbeMode
   double maxDeltaR_;
   double maxDeltaM_;
   double maxTagIso_;
-  
+
   // book histograms of interest
   TH1I *nr_;
   TH1F *pt_;
@@ -68,26 +71,24 @@ class PatElectronAnalyzer : public edm::EDAnalyzer {
   TH1F *isoTag_;
   TH1F *invMass_;
   TH1F *deltaPhi_;
-};  
+};
 
 #include "Math/VectorUtil.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 PatElectronAnalyzer::PatElectronAnalyzer(const edm::ParameterSet& cfg):
   minPt_ (cfg.getParameter<double>("minPt")),
   maxEta_ (cfg.getParameter<double>("maxEta")),
   mode_ (cfg.getParameter<unsigned int>("mode")),
-  electronID_  (cfg.getParameter<std::string>("electronID")), 
-  electronSrc_ (cfg.getParameter<edm::InputTag>("electronSrc")),
-  particleSrc_ (cfg.getParameter<edm::InputTag>("particleSrc")),
+  electronID_  (cfg.getParameter<std::string>("electronID")),
+  electronSrcToken_ (consumes<std::vector<pat::Electron> >(cfg.getParameter<edm::InputTag>("electronSrc"))),
+  particleSrcToken_ (consumes<reco::GenParticleCollection>(cfg.getParameter<edm::InputTag>("particleSrc"))),
   genMatchMode_(cfg.getParameter<edm::ParameterSet>("genMatchMode")),
   tagAndProbeMode_(cfg.getParameter<edm::ParameterSet>("tagAndProbeMode"))
 {
   // complete the configuration of the analyzer
-  maxDeltaR_ = genMatchMode_   .getParameter<double>("maxDeltaR"); 
-  maxDeltaM_ = tagAndProbeMode_.getParameter<double>("maxDeltaM"); 
-  maxTagIso_ = tagAndProbeMode_.getParameter<double>("maxTagIso"); 
+  maxDeltaR_ = genMatchMode_   .getParameter<double>("maxDeltaR");
+  maxDeltaM_ = tagAndProbeMode_.getParameter<double>("maxDeltaM");
+  maxTagIso_ = tagAndProbeMode_.getParameter<double>("maxTagIso");
 
 
   // register histograms to the TFileService
@@ -111,13 +112,13 @@ PatElectronAnalyzer::~PatElectronAnalyzer()
 
 void
 PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
-{       
+{
   // get electron collection
   edm::Handle<std::vector<pat::Electron> > electrons;
-  evt.getByLabel(electronSrc_, electrons); 
+  evt.getByToken(electronSrcToken_, electrons);
   // get generator particle collection
   edm::Handle<reco::GenParticleCollection> particles;
-  evt.getByLabel(particleSrc_, particles); 
+  evt.getByToken(particleSrcToken_, particles);
 
   nr_->Fill( electrons->size() );
 
@@ -127,27 +128,27 @@ PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   //
   // ----------------------------------------------------------------------
   if( mode_==0 ){
-    // loop generator particles 
-    for(reco::GenParticleCollection::const_iterator part=particles->begin(); 
+    // loop generator particles
+    for(reco::GenParticleCollection::const_iterator part=particles->begin();
 	part!=particles->end(); ++part){
       // only loop stable electrons
       if( part->status()==1  && abs(part->pdgId())==11 ){
 	if( part->pt()>minPt_ && fabs(part->eta())<maxEta_ ){
 	  genPt_ ->Fill( part->pt()  );
 	  genEta_->Fill( part->eta() );
-	  genPhi_->Fill( part->phi() );      
+	  genPhi_->Fill( part->phi() );
 	}
       }
     }
-    
+
     // loop electrons
     for( std::vector<pat::Electron>::const_iterator elec=electrons->begin(); elec!=electrons->end(); ++elec ){
       if( elec->genLepton() ){
 	float deltaR = ROOT::Math::VectorUtil::DeltaR(elec->genLepton()->p4(), elec->p4());
-	deltaR_->Fill(TMath::Log10(deltaR));	
+	deltaR_->Fill(TMath::Log10(deltaR));
 	if( deltaR<maxDeltaR_ ){
 	  if( electronID_.compare("none")!=0 ){
-	    if( elec->electronID(electronID_)<0.5 ) 
+	    if( elec->electronID(electronID_)<0.5 )
 	      continue;
 	  }
 	  if( elec->pt()>minPt_ && fabs(elec->eta())<maxEta_ ){
@@ -168,22 +169,22 @@ PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   if( mode_==1 ){
     // loop tag electron
     for( std::vector<pat::Electron>::const_iterator elec=electrons->begin(); elec!=electrons->end(); ++elec ){
-      isoTag_->Fill(elec->trackIso());	
+      isoTag_->Fill(elec->trackIso());
       if( elec->trackIso()<maxTagIso_  && elec->electronID("eidTight")>0.5 ){
 	// loop probe electron
 	for( std::vector<pat::Electron>::const_iterator probe=electrons->begin(); probe!=electrons->end(); ++probe ){
 	  // skip the tag electron itself
 	  if( probe==elec ) continue;
-	  
+
 	  float zMass = (probe->p4()+elec->p4()).mass();
-	  invMass_ ->Fill(zMass);	
+	  invMass_ ->Fill(zMass);
 	  float deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(elec->p4(), probe->p4());
-	  deltaPhi_->Fill(deltaPhi);	
-	  
+	  deltaPhi_->Fill(deltaPhi);
+
 	  // check for the Z mass
 	  if( fabs( zMass-90. )<maxDeltaM_ ){
 	    if( electronID_.compare("none")!=0 ){
-	      if( probe->electronID(electronID_)<0.5 ) 
+	      if( probe->electronID(electronID_)<0.5 )
 		continue;
 	    }
 	    if( probe->pt()>minPt_ && fabs(probe->eta())<maxEta_ ){

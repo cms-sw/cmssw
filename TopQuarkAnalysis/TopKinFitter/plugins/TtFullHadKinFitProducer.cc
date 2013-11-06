@@ -2,10 +2,10 @@
 
 static const unsigned int nPartons=6;
 
-/// default constructor  
+/// default constructor
 TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg):
-  jets_                       (cfg.getParameter<edm::InputTag>("jets")),
-  match_                      (cfg.getParameter<edm::InputTag>("match")),
+  jetsToken_                       (consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
+  matchToken_                      (mayConsume<std::vector<std::vector<int> > >(cfg.getParameter<edm::InputTag>("match"))),
   useOnlyMatch_               (cfg.getParameter<bool>("useOnlyMatch")),
   bTagAlgo_                   (cfg.getParameter<std::string>("bTagAlgo")),
   minBTagValueBJet_           (cfg.getParameter<double>("minBTagValueBJet")),
@@ -36,7 +36,7 @@ TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg):
 
   // define kinematic fit interface
   kinFitter = new TtFullHadKinFitter::KinFit(useBTagging_, bTags_, bTagAlgo_, minBTagValueBJet_, maxBTagValueNonBJet_,
-					     udscResolutions_, bResolutions_, jetEnergyResolutionScaleFactors_, 
+					     udscResolutions_, bResolutions_, jetEnergyResolutionScaleFactors_,
 					     jetEnergyResolutionEtaBinning_, jetCorrectionLevel_, maxNJets_, maxNComb_,
 					     maxNrIter_, maxDeltaS_, maxF_, jetParam_, constraints_, mW_, mTop_);
 
@@ -61,12 +61,12 @@ TtFullHadKinFitProducer::~TtFullHadKinFitProducer()
 }
 
 /// produce fitted object collections and meta data describing fit quality
-void 
+void
 TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup)
 {
   // get jet collection
   edm::Handle<std::vector<pat::Jet> > jets;
-  event.getByLabel(jets_, jets);
+  event.getByToken(jetsToken_, jets);
 
   // get match in case that useOnlyMatch_ is true
   std::vector<int> match;
@@ -75,7 +75,7 @@ TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup
     kinFitter->setUseOnlyMatch(true);
     // in case that only a ceratin match should be used, get match here
     edm::Handle<std::vector<std::vector<int> > > matches;
-    event.getByLabel(match_, matches);
+    event.getByToken(matchToken_, matches);
     match = *(matches->begin());
     // check if match is valid
     if( match.size()!=nPartons ){
@@ -113,7 +113,7 @@ TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup
 
   unsigned int iComb = 0;
   for(std::list<TtFullHadKinFitter::KinFitResult>::const_iterator res = fitResults.begin(); res != fitResults.end(); ++res){
-    if(maxNComb_>=1 && iComb==(unsigned int)maxNComb_){ 
+    if(maxNComb_>=1 && iComb==(unsigned int)maxNComb_){
       break;
     }
     ++iComb;

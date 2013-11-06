@@ -1,12 +1,11 @@
-#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "TopQuarkAnalysis/Examples/plugins/TopElecAnalyzer.h"
 
 TopElecAnalyzer::TopElecAnalyzer(const edm::ParameterSet& cfg):
-  input_  (cfg.getParameter<edm::InputTag>("input"  )),
+  inputToken_  (consumes<std::vector<pat::Electron> >(cfg.getParameter<edm::InputTag>("input"  ))),
   verbose_(cfg.getParameter<bool>         ("verbose"))
 {
   edm::Service<TFileService> fs;
-  
+
   mult_ = fs->make<TH1F>("mult", "multiplicity (electrons)", 10,  0 ,   10);
   en_   = fs->make<TH1F>("en"  , "energy (electrons)"      , 60,  0., 300.);
   pt_   = fs->make<TH1F>("pt"  , "pt (electrons)"          , 60,  0., 300.);
@@ -20,9 +19,9 @@ TopElecAnalyzer::~TopElecAnalyzer()
 
 void
 TopElecAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
-{       
+{
   edm::Handle<std::vector<pat::Electron> > elecs;
-  evt.getByLabel(input_, elecs); 
+  evt.getByToken(inputToken_, elecs);
 
   // fill histograms
 
@@ -69,4 +68,4 @@ void TopElecAnalyzer::beginJob()
 void TopElecAnalyzer::endJob()
 {
 }
-  
+

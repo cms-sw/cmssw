@@ -10,9 +10,9 @@
  *   Kalanand Mishra, Fermilab - kalanand@fnal.gov
  *
  * Description:
- *   - Cleans a given object collection of other 
+ *   - Cleans a given object collection of other
  *     cross-object candidates using deltaR-matching.
- *   - For example: can clean a muon collection by 
+ *   - For example: can clean a muon collection by
  *      removing all jets in the muon collection.
  *   - Saves collection of the reference vectors of cleaned objects.
  * History:
@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -56,20 +57,20 @@ public:
   // construction/destruction
   ObjectViewCleaner(const edm::ParameterSet& iConfig);
   virtual ~ObjectViewCleaner();
-  
+
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
   void endJob() override;
 
-private:  
+private:
   // member data
-  edm::InputTag              srcCands_;
-  std::vector<edm::InputTag> srcObjects_;
+  edm::EDGetTokenT<edm::View<T> >              srcCandsToken_;
+  std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > srcObjectsTokens_;
   double                     deltaRMin_;
-  
+
   std::string  moduleLabel_;
   StringCutObjectSelector<T,true> objKeepCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
-  StringCutObjectSelector<reco::Candidate,true> objRemoveCut_; // lazy parsing, to allow cutting on variables 
+  StringCutObjectSelector<reco::Candidate,true> objRemoveCut_; // lazy parsing, to allow cutting on variables
 
   unsigned int nObjectsTot_;
   unsigned int nObjectsClean_;
@@ -86,8 +87,8 @@ using namespace std;
 //______________________________________________________________________________
 template<typename T>
 ObjectViewCleaner<T>::ObjectViewCleaner(const edm::ParameterSet& iConfig)
-  : srcCands_    (iConfig.getParameter<edm::InputTag>         ("srcObject"))
-  , srcObjects_ (iConfig.getParameter<vector<edm::InputTag> >("srcObjectsToRemove"))
+  : srcCandsToken_    (consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>         ("srcObject")))
+  , srcObjectsTokens_ (edm::vector_transform(iConfig.getParameter<vector<edm::InputTag> >("srcObjectsToRemove"), [this](edm::InputTag const & tag){return consumes<edm::View<reco::Candidate> >(tag);}))
   , deltaRMin_  (iConfig.getParameter<double>                ("deltaRMin"))
   , moduleLabel_(iConfig.getParameter<string>                ("@module_label"))
   , objKeepCut_(iConfig.existsAs<std::string>("srcObjectSelection") ? iConfig.getParameter<std::string>("srcObjectSelection") : "", true)
@@ -103,7 +104,7 @@ ObjectViewCleaner<T>::ObjectViewCleaner(const edm::ParameterSet& iConfig)
 template<typename T>
 ObjectViewCleaner<T>::~ObjectViewCleaner()
 {
-  
+
 }
 
 
@@ -120,15 +121,15 @@ void ObjectViewCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSe
     cleanObjects(new edm::RefToBaseVector<T >());
 
   edm::Handle<edm::View<T> > candidates;
-  iEvent.getByLabel(srcCands_,candidates);
-  
+  iEvent.getByToken(srcCandsToken_,candidates);
+
   bool* isClean = new bool[candidates->size()];
   for (unsigned int iObject=0;iObject<candidates->size();iObject++) isClean[iObject] = true;
-  
-  for (unsigned int iSrc=0;iSrc<srcObjects_.size();iSrc++) {
+
+  for (unsigned int iSrc=0;iSrc<srcObjectsTokens_.size();iSrc++) {
     edm::Handle<edm::View<reco::Candidate> > objects;
-    iEvent.getByLabel(srcObjects_[iSrc],objects);
-    
+    iEvent.getByToken(srcObjectsTokens_[iSrc],objects);
+
     for (unsigned int iObject=0;iObject<candidates->size();iObject++) {
       const T& candidate = candidates->at(iObject);
       if (!objKeepCut_(candidate)) isClean[iObject] = false;
@@ -142,14 +143,14 @@ void ObjectViewCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSe
       }
     }
   }
-  
+
   for (unsigned int iObject=0;iObject<candidates->size();iObject++)
     if (isClean[iObject]) cleanObjects->push_back(candidates->refAt(iObject));
-  
+
   nObjectsTot_  +=candidates->size();
   nObjectsClean_+=cleanObjects->size();
 
-  delete [] isClean;  
+  delete [] isClean;
   iEvent.put(cleanObjects);
 }
 

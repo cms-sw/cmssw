@@ -1,7 +1,6 @@
 #include "PhysicsTools/TagAndProbe/interface/ElectronMatchedCandidateProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 #include "DataFormats/Math/interface/deltaR.h" // reco::deltaR
 
@@ -10,15 +9,15 @@ ElectronMatchedCandidateProducer::ElectronMatchedCandidateProducer(const edm::Pa
 {
 
   const edm::InputTag allelectrons("gsfElectrons");
-  electronCollection_ = 
-    params.getUntrackedParameter<edm::InputTag>("ReferenceElectronCollection", 
-						allelectrons);
-  scCollection_ = 
-    params.getParameter<edm::InputTag>("src");
+  electronCollectionToken_ =
+    consumes<edm::View<reco::GsfElectron> >(params.getUntrackedParameter<edm::InputTag>("ReferenceElectronCollection",
+						allelectrons));
+  scCollectionToken_ =
+    consumes<edm::View<reco::Candidate> >(params.getParameter<edm::InputTag>("src"));
 
   delRMatchingCut_ = params.getUntrackedParameter<double>("deltaR",
 							   0.30);
-  
+
   produces< edm::PtrVector<reco::Candidate> >();
   produces< edm::RefToBaseVector<reco::Candidate> >();
 }
@@ -39,25 +38,25 @@ ElectronMatchedCandidateProducer::~ElectronMatchedCandidateProducer()
 
 // ------------ method called to produce the data  ------------
 
-void ElectronMatchedCandidateProducer::produce(edm::Event &event, 
+void ElectronMatchedCandidateProducer::produce(edm::Event &event,
 			      const edm::EventSetup &eventSetup)
 {
    // Create the output collection
-  std::auto_ptr< edm::RefToBaseVector<reco::Candidate> > 
+  std::auto_ptr< edm::RefToBaseVector<reco::Candidate> >
     outColRef( new edm::RefToBaseVector<reco::Candidate> );
-  std::auto_ptr< edm::PtrVector<reco::Candidate> > 
+  std::auto_ptr< edm::PtrVector<reco::Candidate> >
     outColPtr( new edm::PtrVector<reco::Candidate> );
 
 
   // Read electrons
   edm::Handle<edm::View<reco::GsfElectron> > electrons;
-  event.getByLabel(electronCollection_, electrons);
-   
+  event.getByToken(electronCollectionToken_, electrons);
+
 
 
   //Read candidates
-  edm::Handle<edm::View<reco::Candidate> > recoCandColl; 
-  event.getByLabel( scCollection_ , recoCandColl); 
+  edm::Handle<edm::View<reco::Candidate> > recoCandColl;
+  event.getByToken( scCollectionToken_ , recoCandColl);
 
 
   const edm::PtrVector<reco::Candidate>& ptrVect = recoCandColl->ptrVector();
@@ -68,14 +67,14 @@ void ElectronMatchedCandidateProducer::produce(edm::Event &event,
   for(edm::View<reco::Candidate>::const_iterator scIt = recoCandColl->begin();
       scIt != recoCandColl->end(); ++scIt, ++counter){
     // Now loop over electrons
-    for(edm::View<reco::GsfElectron>::const_iterator  elec = electrons->begin(); 
+    for(edm::View<reco::GsfElectron>::const_iterator  elec = electrons->begin();
 	elec != electrons->end();  ++elec) {
 
       reco::SuperClusterRef eSC = elec->superCluster();
 
-      double dRval = reco::deltaR((float)eSC->eta(), (float)eSC->phi(), 
-				  scIt->eta(), scIt->phi());	
-       
+      double dRval = reco::deltaR((float)eSC->eta(), (float)eSC->phi(),
+				  scIt->eta(), scIt->phi());
+
       if( dRval < delRMatchingCut_ ) {
 	//outCol->push_back( *scIt );
 	outColRef->push_back( refs[counter] );
