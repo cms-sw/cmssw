@@ -70,8 +70,8 @@ public:
    // get reco topology/parameters
    const float* getParameters( unsigned int id ) const;
 
-   void localToGlobal( unsigned int id, const float* local, float* global ) const;
-   void localToGlobal( unsigned int id, const float* local1, float* global1, const float* local2, float* global2 ) const;
+   void localToGlobal( unsigned int id, const float* local,  float* global, bool translatep=true ) const;
+   void localToGlobal( unsigned int id, const float* local1, float* global1, const float* local2, float* global2, bool translatep=true ) const;
 
    struct GeomDetInfo
    {
@@ -101,7 +101,7 @@ public:
 
    void clear( void ) { m_idToInfo.clear(); m_idToMatrix.clear(); }
    IdToInfoItr find( unsigned int ) const;
-   void localToGlobal( const GeomDetInfo& info, const float* local, float* global ) const;
+   void localToGlobal( const GeomDetInfo& info, const float* local, float* global, bool translatep=true ) const;
  
 private:
    mutable std::map<unsigned int, TGeoMatrix*> m_idToMatrix;

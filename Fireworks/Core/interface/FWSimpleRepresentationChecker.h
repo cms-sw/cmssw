@@ -32,7 +32,8 @@ public:
    FWSimpleRepresentationChecker(const std::string& iTypeidName,
                                  const std::string& iPurpose,
                                  unsigned int iBitPackedViews,
-                                 bool iRepresentsSubPart);
+                                 bool iRepresentsSubPart,
+                                 bool iRequiresFF = false);
    virtual ~FWSimpleRepresentationChecker();
 
    // ---------- const member functions ---------------------

@@ -4,7 +4,7 @@
 std::string FebLocationSpec::localEtaPartitionName() const
 {
   std::ostringstream str;
-  static std::string localPartVal[7]={"Forward","Central","Backward","A","B","C","D"};
+  const static std::string localPartVal[7]={"Forward","Central","Backward","A","B","C","D"};
   str << localPartVal[localEtaPartition-1];
   return str.str();
 }

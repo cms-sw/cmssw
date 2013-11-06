@@ -14,6 +14,7 @@ Module type=IntProducer, Module label=one, Parameter Set ID=bece7daf7ab0166d4f60
 ++++ finished: constructing module with label 'result2' id = 5
 ++++ starting: constructing module with label 'result4' id = 6
 ++++ finished: constructing module with label 'result4' id = 6
+++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
 ++++ starting: begin job for module with label 'one' id = 3
 Module type=IntProducer, Module label=one, Parameter Set ID=bece7daf7ab0166d4f6047cc887d46b8
 ++++ finished: begin job for module with label 'one' id = 3
@@ -211,6 +212,10 @@ ModuleCallingContext state = Running
 ++++ finished: source event
 ++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 1 time = 1000010
 ++++++ starting: processing path 'p' : stream = 0
+++++++++ starting: delayed processing event for module: stream = 0 label = 'get' id = 2
+++++++++++ starting: delayed processing event for module: stream = 0 label = 'result4' id = 6
+++++++++++++ starting: delayed processing event for module: stream = 0 label = 'result2' id = 5
+++++++++++++++ starting: delayed processing event for module: stream = 0 label = 'result1' id = 4
 ++++++++++++++++ starting: processing event for module: stream = 0 label = 'one' id = 3
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
@@ -263,12 +268,16 @@ ModuleCallingContext state = Running
     previousModuleOnThread: same as parent module
     previousModuleOnThread: same as parent module
 
+++++++++++++++ finished: delayed processing event for module: stream = 0 label = 'result1' id = 4
 ++++++++++++++ starting: processing event for module: stream = 0 label = 'result1' id = 4
 ++++++++++++++ finished: processing event for module: stream = 0 label = 'result1' id = 4
+++++++++++++ finished: delayed processing event for module: stream = 0 label = 'result2' id = 5
 ++++++++++++ starting: processing event for module: stream = 0 label = 'result2' id = 5
 ++++++++++++ finished: processing event for module: stream = 0 label = 'result2' id = 5
+++++++++++ finished: delayed processing event for module: stream = 0 label = 'result4' id = 6
 ++++++++++ starting: processing event for module: stream = 0 label = 'result4' id = 6
 ++++++++++ finished: processing event for module: stream = 0 label = 'result4' id = 6
+++++++++ finished: delayed processing event for module: stream = 0 label = 'get' id = 2
 ++++++++ starting: processing event for module: stream = 0 label = 'get' id = 2
 ++++++++ finished: processing event for module: stream = 0 label = 'get' id = 2
 ++++++ finished: processing path 'p' : stream = 0
@@ -279,6 +288,10 @@ ModuleCallingContext state = Running
 ++++ finished: source event
 ++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 2 time = 1000020
 ++++++ starting: processing path 'p' : stream = 0
+++++++++ starting: delayed processing event for module: stream = 0 label = 'get' id = 2
+++++++++++ starting: delayed processing event for module: stream = 0 label = 'result4' id = 6
+++++++++++++ starting: delayed processing event for module: stream = 0 label = 'result2' id = 5
+++++++++++++++ starting: delayed processing event for module: stream = 0 label = 'result1' id = 4
 ++++++++++++++++ starting: processing event for module: stream = 0 label = 'one' id = 3
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
@@ -331,12 +344,16 @@ ModuleCallingContext state = Running
     previousModuleOnThread: same as parent module
     previousModuleOnThread: same as parent module
 
+++++++++++++++ finished: delayed processing event for module: stream = 0 label = 'result1' id = 4
 ++++++++++++++ starting: processing event for module: stream = 0 label = 'result1' id = 4
 ++++++++++++++ finished: processing event for module: stream = 0 label = 'result1' id = 4
+++++++++++++ finished: delayed processing event for module: stream = 0 label = 'result2' id = 5
 ++++++++++++ starting: processing event for module: stream = 0 label = 'result2' id = 5
 ++++++++++++ finished: processing event for module: stream = 0 label = 'result2' id = 5
+++++++++++ finished: delayed processing event for module: stream = 0 label = 'result4' id = 6
 ++++++++++ starting: processing event for module: stream = 0 label = 'result4' id = 6
 ++++++++++ finished: processing event for module: stream = 0 label = 'result4' id = 6
+++++++++ finished: delayed processing event for module: stream = 0 label = 'get' id = 2
 ++++++++ starting: processing event for module: stream = 0 label = 'get' id = 2
 ++++++++ finished: processing event for module: stream = 0 label = 'get' id = 2
 ++++++ finished: processing path 'p' : stream = 0
@@ -347,6 +364,10 @@ ModuleCallingContext state = Running
 ++++ finished: source event
 ++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 1000030
 ++++++ starting: processing path 'p' : stream = 0
+++++++++ starting: delayed processing event for module: stream = 0 label = 'get' id = 2
+++++++++++ starting: delayed processing event for module: stream = 0 label = 'result4' id = 6
+++++++++++++ starting: delayed processing event for module: stream = 0 label = 'result2' id = 5
+++++++++++++++ starting: delayed processing event for module: stream = 0 label = 'result1' id = 4
 ++++++++++++++++ starting: processing event for module: stream = 0 label = 'one' id = 3
 StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
@@ -399,12 +420,16 @@ ModuleCallingContext state = Running
     previousModuleOnThread: same as parent module
     previousModuleOnThread: same as parent module
 
+++++++++++++++ finished: delayed processing event for module: stream = 0 label = 'result1' id = 4
 ++++++++++++++ starting: processing event for module: stream = 0 label = 'result1' id = 4
 ++++++++++++++ finished: processing event for module: stream = 0 label = 'result1' id = 4
+++++++++++++ finished: delayed processing event for module: stream = 0 label = 'result2' id = 5
 ++++++++++++ starting: processing event for module: stream = 0 label = 'result2' id = 5
 ++++++++++++ finished: processing event for module: stream = 0 label = 'result2' id = 5
+++++++++++ finished: delayed processing event for module: stream = 0 label = 'result4' id = 6
 ++++++++++ starting: processing event for module: stream = 0 label = 'result4' id = 6
 ++++++++++ finished: processing event for module: stream = 0 label = 'result4' id = 6
+++++++++ finished: delayed processing event for module: stream = 0 label = 'get' id = 2
 ++++++++ starting: processing event for module: stream = 0 label = 'get' id = 2
 ++++++++ finished: processing event for module: stream = 0 label = 'get' id = 2
 ++++++ finished: processing path 'p' : stream = 0
