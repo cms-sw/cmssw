@@ -742,7 +742,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   MuonAssociatorByHits::MuonToSimCollection muonToSimColl;
   MuonAssociatorByHits::SimToMuonCollection simToMuonColl;
 
-  cout<<" pero que pasa aquo"<<endl;
+
   if ( doAssoc_ ) {
   assoByHits->associateMuons(muonToSimColl, simToMuonColl, Muons, trackType_, allTPs, &event, &eventSetup);
   } else {
@@ -776,13 +776,13 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 */
   }
 
-    cout<<" a ver si el problema es aqui"<<endl;
+
 
   int glbNTrackerHits = 0; int trkNTrackerHits = 0;
   int glbNMuonHits = 0; int staNMuonHits = 0;
   int NTrackerHits = 0; int NMuonHits = 0;
   
-  cout<<" aqui empueza el reco"<<endl;
+
   // Analyzer reco::Muon  
   for(View<Muon>::const_iterator iMuon = muonColl.begin();
       iMuon != muonColl.end(); ++iMuon) {
@@ -800,7 +800,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
       muonEta = iMuon->eta();
       muonPhi = iMuon->phi();
     }
-    cout<<" a ver si el problema es en el loop"<<endl;
+
     //histograms for fractions
     commonME_->hMuonAllP_->Fill(muonP);
     commonME_->hMuonAllPt_->Fill(muonPt);
@@ -836,7 +836,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     } else {
       Track = iMuon->standAloneMuon();
     } 
-        cout<<" a ver si el problemma que no sea nada"<<endl;
+
     NTrackerHits = countTrackerHits(*Track);
     muonME_->hNTrackerHits_->Fill(NTrackerHits);
     muonME_->hNTrackerHits_vs_Pt_->Fill(Track->pt(), NTrackerHits);
@@ -885,7 +885,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 
   }//end of reco muon loop
 
-  cout<<" ahora acabamos elloop de reco emepzamos hits"<<endl;
+
   // Associate by hits
   for(TrackingParticleCollection::size_type i=0; i<nSim; i++) {
     TrackingParticleRef simRef(simHandle, i);
