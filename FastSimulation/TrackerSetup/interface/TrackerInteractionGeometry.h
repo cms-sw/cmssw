@@ -47,7 +47,7 @@ class TrackerInteractionGeometry
 
   /// Returns the number of cylinders in the Tracker
   inline const int nCylinders() const 
-    { return static_cast<const int>(_theCylinders.size()); }
+    { return _theCylinders.size(); }
 
  private:
 
