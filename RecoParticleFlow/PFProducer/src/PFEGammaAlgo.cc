@@ -171,11 +171,21 @@ namespace {
 
   struct SeedMatchesToProtoObject : public POMatcher {
     reco::SuperClusterRef _scfromseed;
+    bool _ispfsc;
     SeedMatchesToProtoObject(const reco::ElectronSeedRef& s) {
       _scfromseed = s->caloCluster().castTo<reco::SuperClusterRef>();
+      _ispfsc = false;
+      if( _scfromseed.isNonnull() ) {
+	const edm::Ptr<reco::PFCluster> testCast(_scfromseed->seed());
+	_ispfsc = testCast.isNonnull();
+      }      
     }
     bool operator() (const PFEGammaAlgo::ProtoEGObject& po) {
       if( _scfromseed.isNull() || !po.parentSC ) return false;      
+      if( _ispfsc ) {
+	return ( _scfromseed->seed() == 
+		 po.parentSC->superClusterRef()->seed() ); 
+      }      
       return ( _scfromseed->seed()->seed() == 
 	       po.parentSC->superClusterRef()->seed()->seed() );
     }
@@ -403,6 +413,15 @@ namespace {
 				    secdkf.first->type(),
 				    secdkf.first->index());
 	if( not_closer ) return true;	  
+      }
+      // check links brem -> cluster
+      for( const auto& brem : RO2.brems ) {
+	not_closer = elementNotCloserToOther(blk,
+					     cluster.first->type(),
+					     cluster.first->index(),
+					     brem.first->type(),
+					     brem.first->index());
+	if( not_closer ) return true;
       }
     }    
     // check links primary gsf -> secondary kf
@@ -2323,6 +2342,7 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
 					 scE           ));
       math::XYZPointF ecalPOS_f(seedPos.x(),seedPos.y(),seedPos.z());
       cand.setPositionAtECALEntrance(ecalPOS_f);
+      cand.setEcalEnergy(the_sc.rawEnergy(),the_sc.energy());
     } else if ( cfg_.produceEGCandsWithNoSuperCluster && 
 		RO.primaryGSFs.size() ) {
       const PFGSFElement* gsf = RO.primaryGSFs[0].first;
