@@ -16,6 +16,7 @@
 #include "globals.hh"                        // Global Constants and typedefs
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleGun.hh"
+#include "G4SystemOfUnits.hh"
 
 LaserBeamsTEC2::LaserBeamsTEC2() :
   theParticleGun(0),
