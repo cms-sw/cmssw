@@ -8,7 +8,12 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.cerr.INFO.limit = 100
 
-#process.options = cms.untracked.PSet(forceEventSetupCacheClearOnNewRun = cms.untracked.bool(True))
+process.options = cms.untracked.PSet(
+    #forceEventSetupCacheClearOnNewRun = cms.untracked.bool(True),
+    numberOfStreams = cms.untracked.uint32(1),
+    numberOfConcurrentRuns = cms.untracked.uint32(1),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1)
+)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(30)
