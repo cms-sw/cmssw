@@ -32,6 +32,7 @@
 ++++ finished: constructing module with label 'dependsOnNoPut' id = 15
 ++++ starting: constructing module with label 'out' id = 16
 ++++ finished: constructing module with label 'out' id = 16
+++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
 ++++ starting: begin job for module with label 'thingWithMergeProducer' id = 2
 ++++ finished: begin job for module with label 'thingWithMergeProducer' id = 2
 ++++ starting: begin job for module with label 'get' id = 3
