@@ -129,8 +129,8 @@ class DetIdAssociator{
    
    virtual GlobalPoint getPosition(const DetId&) const = 0;
    virtual const unsigned int getNumberOfSubdetectors() const { return 1;}
-   virtual const std::vector<DetId>& getValidDetIds(unsigned int subDetectorIndex) const = 0;
-   virtual std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId&) const = 0;
+   virtual void getValidDetIds(unsigned int subDetectorIndex, std::vector<DetId>&) const = 0;
+   virtual std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId&, std::vector<GlobalPoint>&) const = 0;
    
    virtual bool insideElement(const GlobalPoint&, const DetId&) const = 0;
    virtual bool crossedElement(const GlobalPoint&, 

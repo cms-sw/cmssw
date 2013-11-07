@@ -26,15 +26,15 @@ class HODetIdAssociator: public CaloDetIdAssociator{
 
    HODetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
 
-   virtual const char* name() const { return "HO"; }
+   virtual const char* name() const override { return "HO"; }
 
  protected:
 
-   const std::vector<DetId>& getValidDetIds(unsigned int subDectorIndex) const
+   void getValidDetIds(unsigned int subDectorIndex, std::vector<DetId>& validIds) const override
      {
        if ( subDectorIndex!=0 ) cms::Exception("FatalError") << 
 	 "HO sub-dectors are all handle as one sub-system, but subDetectorIndex is not zero.\n";
-       return geometry_->getValidDetIds(DetId::Hcal, HcalOuter);
+       validIds = geometry_->getValidDetIds(DetId::Hcal, HcalOuter);
      }
 };
 #endif
