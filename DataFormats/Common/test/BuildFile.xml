@@ -1,7 +1,7 @@
 <use   name="boost"/>
 <use   name="cppunit"/>
 <use   name="DataFormats/Common"/>
-<bin   name="testDataFormatsCommon" file="testRunner.cpp,testOwnVector.cc,testOneToOneAssociation.cc,testValueMap.cc,testOneToManyAssociation.cc,testAssociationVector.cc,testAssociationNew.cc,testValueMapNew.cc,testSortedCollection.cc,testRangeMap.cc,testIDVectorMap.cc,ref_t.cppunit.cc,DetSetRefVector_t.cppunit.cc,DetSetLazyVector_t.cppunit.cc,reftobase_t.cppunit.cc,reftobasevector_t.cppunit.cc,cloningptr_t.cppunit.cc,ptr_t.cppunit.cc,ptrvector_t.cppunit.cc,containermask_t.cppunit.cc,reftobaseprod_t.cppunit.cc">
+<bin   name="testDataFormatsCommon" file="testRunner.cpp,testOwnVector.cc,testOneToOneAssociation.cc,testValueMap.cc,testOneToManyAssociation.cc,testAssociationVector.cc,testAssociationNew.cc,testValueMapNew.cc,testSortedCollection.cc,testRangeMap.cc,testIDVectorMap.cc,ref_t.cppunit.cc,DetSetRefVector_t.cppunit.cc,DetSetLazyVector_t.cppunit.cc,reftobase_t.cppunit.cc,reftobasevector_t.cppunit.cc,cloningptr_t.cppunit.cc,ptr_t.cppunit.cc,ptrvector_t.cppunit.cc,containermask_t.cppunit.cc,reftobaseprod_t.cppunit.cc,atomicptrcache_t.cppunit.cc">
   <use   name="rootcintex"/>
 </bin>
 <bin   file="DetSetVector_t.cpp">
