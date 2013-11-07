@@ -39,7 +39,7 @@ ReferenceCountingPointer<BoundCylinder> & SmartPropagator::theTkVolume() {
 
 
 /* Constructor */ 
-SmartPropagator::SmartPropagator(Propagator* aTkProp, Propagator* aGenProp, const MagneticField* field,
+SmartPropagator::SmartPropagator(const Propagator* aTkProp, const Propagator* aGenProp, const MagneticField* field,
                                  PropagationDirection dir, float epsilon) :
   Propagator(dir), theTkProp(aTkProp->clone()), theGenProp(aGenProp->clone()), theField(field) { 
 
@@ -193,14 +193,14 @@ bool SmartPropagator::insideTkVol( const Plane& plane)  const {
 }
 
 
-Propagator* SmartPropagator::getTkPropagator() const {
+const Propagator* SmartPropagator::getTkPropagator() const {
 
   return theTkProp;
 
 }
 
 
-Propagator* SmartPropagator::getGenPropagator() const {
+const Propagator* SmartPropagator::getGenPropagator() const {
 
   return theGenProp;
 

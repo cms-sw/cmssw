@@ -125,7 +125,7 @@ public:
     typename container::const_iterator it = data_.find(index);
     if (it==data_.end()) {
       // if data_ is empty there is no other way to get an empty range
-      static std::vector<DigiType> empty;
+      static const std::vector<DigiType> empty;
       return std::make_pair(empty.end(),empty.end());
     } 
     const std::vector<DigiType>& digis = (*it).second;

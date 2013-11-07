@@ -123,7 +123,7 @@ private:
  
   /// Set the rigth Navigation
   std::vector<const DetLayer*> compatibleLayers(const DetLayer *initialLayer,
-						FreeTrajectoryState& fts,
+						const FreeTrajectoryState& fts,
 						PropagationDirection propDir);
 
   bool update(const DetLayer * layer, 

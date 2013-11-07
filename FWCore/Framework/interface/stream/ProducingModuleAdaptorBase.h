@@ -81,6 +81,7 @@ namespace edm {
       template<typename F> void createStreamModules(F iFunc) {
         for(auto& m: m_streamModules) {
           m = iFunc();
+          m->setModuleDescriptionPtr(&moduleDescription_);
         }
       }
       

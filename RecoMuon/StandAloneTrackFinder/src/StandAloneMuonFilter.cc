@@ -164,7 +164,7 @@ void StandAloneMuonFilter::incrementCompatibleChamberCounters(const DetLayer *la
 
 
 vector<const DetLayer*> StandAloneMuonFilter::compatibleLayers(const DetLayer *initialLayer,
-								 FreeTrajectoryState& fts,
+								 const FreeTrajectoryState& fts,
 								 PropagationDirection propDir){
   vector<const DetLayer*> detLayers;
 
