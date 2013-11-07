@@ -45,6 +45,8 @@
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" 
 #include "RecoParticleFlow/PFProducer/interface/Utils.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 
 #include <vector>
 #include <TROOT.h>
@@ -274,7 +276,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // Candidate info
   Handle<reco::PFCandidateCollection> collection;
-  InputTag label("particleFlow::REPROD");  // <- Special electron coll. 
+  InputTag label("particleFlow::reRECO");  // <- Special electron coll. 
   iEvent.getByLabel(label, collection);
   std::vector<reco::PFCandidate> candidates = (*collection.product());
 
@@ -285,14 +287,12 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   const GsfElectronCollection theGsfEle = *(theGsfEleCollection.product());
 
 
-  InputTag  MCTruthCollection(string("generator"));
-  edm::Handle<edm::HepMCProduct> pMCTruth;
+  InputTag  MCTruthCollection(string("genParticles"));
+  edm::Handle<std::vector<reco::GenParticle> > pMCTruth;
   iEvent.getByLabel(MCTruthCollection,pMCTruth);
-  const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();
 
 
-
-  InputTag gedEleLabel(string("gedGsfElectrons::REPROD"));
+  InputTag gedEleLabel(string("gedGsfElectrons::reRECO"));
   Handle<GsfElectronCollection> theGedEleCollection;
   iEvent.getByLabel(gedEleLabel,theGedEleCollection);
   const GsfElectronCollection theGedEle = *(theGedEleCollection.product());
@@ -305,7 +305,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   pf_MET_reco->Fill(recoMet->at(0).et());
   
   //get and plot the rereco met
-  InputTag pfMETReRecoLabel("pfMet::REPROD");
+  InputTag pfMETReRecoLabel("pfMet::reRECO");
   Handle<std::vector<reco::PFMET> > rerecoMet;
   iEvent.getByLabel(pfMETReRecoLabel,rerecoMet);
   pf_MET_rereco->Fill(rerecoMet->at(0).et());
@@ -321,18 +321,18 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // Validation from generator events 
 
-  for(HepMC::GenEvent::particle_const_iterator cP = genEvent->particles_begin(); 
-      cP != genEvent->particles_end(); cP++ ) {
+  for(std::vector<reco::GenParticle>::const_iterator cP = pMCTruth->begin(); 
+      cP != pMCTruth->end(); cP++ ) {
 
-    float etamc= (*cP)->momentum().eta();
-    float phimc= (*cP)->momentum().phi();
-    float ptmc = (*cP)->momentum().perp();
-    float Emc = (*cP)->momentum().e();
+    float etamc= cP->eta();
+    float phimc= cP->phi();
+    float ptmc = cP->pt();
+    float Emc = cP->energy();
 
 
-    if(abs((*cP)->pdg_id())==11 && (*cP)->status()==1 
-       && (*cP)->momentum().perp() > 2. && 
-       fabs((*cP)->momentum().eta()) < 2.5 ){
+    if(abs(cP->pdgId())==11 && cP->status()==1 
+       && cP->pt() > 2. && 
+       fabs(cP->eta()) < 2.5 ){
    
       h_etamc_ele->Fill(etamc);
       h_ptmc_ele->Fill(ptmc);
@@ -362,7 +362,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 
 	  reco::GsfTrackRef refGsf = (*it).gsfTrackRef();
-	  ElectronSeedRef seedRef= refGsf->extra()->seedRef().castTo<ElectronSeedRef>();
+	  //ElectronSeedRef seedRef= refGsf->extra()->seedRef().castTo<ElectronSeedRef>();
 
 
 	  float deta = etamc - eta;
@@ -372,13 +372,15 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  if(dR < 0.05){
 	    MindR = dR;
 	    mvaCutEle = (*it).mva_e_pi();
+	    /*
 	    if(seedRef->isEcalDriven())
 	      isPfEcDr = true;
 	    if(seedRef->isTrackerDriven())
 	      isPfTrDr = true;
+	    */
 
 	    if(debug)
-	      cout << " PF ele matched:  pt " << (*it).pt()  << " eta,phi " <<  eta << ", " << phi << " pfmva " << pfmva << endl;
+	      cout << " PF ele matched:  pt " << (*it).pt()  << " (" << (*it).ecalEnergy()/std::cosh(eta) << ") "<< " eta,phi " <<  eta << ", " << phi << " pfmva " << pfmva << endl;
 	    // all for the moment
 	  }
 	} // End PFCandidates Electron Selection
@@ -415,7 +417,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	float pfmva =  theGsfEle[j].mva();
 
 	reco::GsfTrackRef refGsf =  theGsfEle[j].gsfTrack();
-	ElectronSeedRef seedRef= refGsf->extra()->seedRef().castTo<ElectronSeedRef>();
+	//ElectronSeedRef seedRef= refGsf->extra()->seedRef().castTo<ElectronSeedRef>();
 
 
 	float deta = etamc - etareco;
@@ -429,7 +431,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 	if(dR < 0.05){
 	  if(debug)
-	    cout << " EG ele matched: pt " << theGsfEle[j].pt() << " eta,phi " <<  etareco << ", " << phireco << " pfmva " <<  pfmva << endl;
+	    cout << " EG ele matched: pt " << theGsfEle[j].pt() << " (" << SCEnergy/std::cosh(etareco) << ") " << " eta,phi " <<  etareco << ", " << phireco << " pfmva " <<  pfmva << endl;
 	
 
 	  if (fabs(etamc) < 0.5) {
@@ -512,10 +514,12 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  }
   
 	  MindREG = dR;
+	  /*
 	  if(seedRef->isEcalDriven())
 	    isEgEcDr = true;
 	  if(seedRef->isTrackerDriven())
 	    isEgTrDr = true;
+	  */
 	}
       }
       if(MindREG < 0.05) {
@@ -551,7 +555,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	float pfmva =  theGedEle[j].mva();
 	
 	reco::GsfTrackRef refGsf =  theGedEle[j].gsfTrack();
-	ElectronSeedRef seedRef= refGsf->extra()->seedRef().castTo<ElectronSeedRef>();
+	//ElectronSeedRef seedRef= refGsf->extra()->seedRef().castTo<ElectronSeedRef>();
 	
 	
 	float deta = etamc - etareco;
@@ -566,7 +570,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	if(dR < 0.05){	  
 	  const reco::PFCandidate* matchPF = NULL;
 	  if(debug)
-	    cout << " GED ele matched: pt " << theGedEle[j].pt() << " eta,phi " <<  etareco << ", " << phireco << " pfmva " <<  pfmva << endl;
+	    cout << " GED ele matched: pt " << theGedEle[j].pt() << " (" << SCEnergy/std::cosh(etareco) << ") "<< " eta,phi " <<  etareco << ", " << phireco << " pfmva " <<  pfmva << endl;
 	  
 	  for( unsigned k = 0; k < candidates.size(); ++k ) {
 	    if( std::abs(candidates[k].pdgId()) == 11 ) {
@@ -578,8 +582,10 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    }
 	  }
 
-	  
+	  if( debug && matchPF ) std::cout << "GED-PF match!" << std::endl;
 
+	  if( ErecoEtrue < 0.6 ) std::cout << "++bad Ereco/Etrue: " 
+					   << ErecoEtrue << std::endl;
 
 	  if (fabs(etamc) < 0.5) {
 	    ged_EEcalEtrue_1->Fill(ErecoEtrue);
@@ -595,6 +601,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  }
 	  if (fabs(etamc) >= 2.0 && fabs(etamc) < 2.5) {
 	    ged_EEcalEtrue_5->Fill(ErecoEtrue);
+	    /*
 	    if( debug && matchPF && ErecoEtrue > 1.30 ) {
 	      cout << " -PF ele matched: pt " 
 		   << matchPF->pt()
@@ -615,6 +622,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	      }
 	      
 	    }
+	    */
 	  }
 
 	  ged_e1x5_all->Fill(theGedEle[j].e1x5());
@@ -638,10 +646,12 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  }
 
 	  MindRGedEg = dR;
+	  /*
 	  if(seedRef->isEcalDriven())
 	    isGedEgEcDr = true;
 	  if(seedRef->isTrackerDriven())
 	    isGedEgTrDr = true;
+	  */
 	}
       }
       if(MindRGedEg < 0.05) {
