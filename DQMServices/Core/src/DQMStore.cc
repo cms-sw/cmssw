@@ -1822,19 +1822,38 @@ DQMStore::getAllTags(std::vector<std::string> &into) const
 /// get vector with children of folder, including all subfolders + their children;
 /// must use an exact pathname
 std::vector<MonitorElement*>
-DQMStore::getAllContents(const std::string &path) const
+DQMStore::getAllContents(const std::string &path,
+                         uint32_t runNumber /* = 0 */,
+                         uint32_t lumi /* = 0 */) const
 {
   std::string clean;
   const std::string *cleaned = 0;
   cleanTrailingSlashes(path, clean, cleaned);
-  MonitorElement proto(cleaned, std::string());
+  MonitorElement proto(cleaned, std::string(), runNumber);
+  proto.setLumi(lumi);
 
   std::vector<MonitorElement *> result;
   MEMap::const_iterator e = data_.end();
   MEMap::const_iterator i = data_.lower_bound(proto);
-  for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i)
+  for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i) {
+    if (runNumber != 0) {
+      if (i->data_.run > runNumber // TODO[rovere]: pleonastic? first we encounter local ME of the same run ...
+          || i->data_.streamId != 0
+          || i->data_.moduleId != 0)
+        break;
+    }
+    if (lumi != 0) {
+      if (i->data_.lumi > lumi
+          || i->data_.streamId != 0
+          || i->data_.moduleId != 0)
+        break;
+    }
+    if (runNumber != 0 or lumi !=0) {
+      assert(i->data_.streamId == 0);
+      assert(i->data_.moduleId == 0);
+    }
     result.push_back(const_cast<MonitorElement *>(&*i));
-
+  }
   return result;
 }
 

@@ -440,7 +440,9 @@ private:
 
 public:
   void                          getAllTags(std::vector<std::string> &into) const;
-  std::vector<MonitorElement*>  getAllContents(const std::string &path) const;
+  std::vector<MonitorElement*>  getAllContents(const std::string &path,
+                                               uint32_t runNumber = 0,
+                                               uint32_t lumi = 0) const;
   std::vector<MonitorElement*>  getMatchingContents(const std::string &pattern, lat::Regexp::Syntax syntaxType = lat::Regexp::Wildcard) const;
 
   // Multithread SummaryCache manipulations
