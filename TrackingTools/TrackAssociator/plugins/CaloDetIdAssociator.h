@@ -38,24 +38,24 @@ class CaloDetIdAssociator: public DetIdAssociator{
    CaloDetIdAssociator(const edm::ParameterSet& pSet)
      :DetIdAssociator(pSet.getParameter<int>("nPhi"),pSet.getParameter<int>("nEta"),pSet.getParameter<double>("etaBinSize")),geometry_(0){};
    
-   virtual void setGeometry(const CaloGeometry* ptr){ geometry_ = ptr; };
+   virtual void setGeometry(const CaloGeometry* ptr) { geometry_ = ptr; };
 
-   virtual void setGeometry(const DetIdAssociatorRecord& iRecord);
+   virtual void setGeometry(const DetIdAssociatorRecord& iRecord) override;
 
-   virtual const GeomDet* getGeomDet(const DetId& id) const { return 0; };
+   virtual const GeomDet* getGeomDet(const DetId& id) const override { return 0; };
 
-   virtual const char* name() const { return "CaloTowers"; }
+   virtual const char* name() const override { return "CaloTowers"; }
 
  protected:
-   virtual void check_setup() const;
+   virtual void check_setup() const override;
    
-   virtual GlobalPoint getPosition(const DetId& id) const;
+   virtual GlobalPoint getPosition(const DetId& id) const override;
    
-   virtual const std::vector<DetId>& getValidDetIds( unsigned int subDetectorIndex ) const;
+   virtual void getValidDetIds( unsigned int subDetectorIndex, std::vector<DetId>& ) const override;
    
-   virtual std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId& id) const;
+   virtual std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& points) const override;
 
-   virtual bool insideElement(const GlobalPoint& point, const DetId& id) const {
+   virtual bool insideElement(const GlobalPoint& point, const DetId& id) const override{
       return  geometry_->getSubdetectorGeometry(id)->getGeometry(id)->inside(point);
    };
 
@@ -63,7 +63,7 @@ class CaloDetIdAssociator: public DetIdAssociator{
 			       const GlobalPoint&, 
 			       const DetId& id,
 			       const double tolerance = -1,
-			       const SteppingHelixStateInfo* = 0 ) const;
+			       const SteppingHelixStateInfo* = 0 ) const override;
    const CaloGeometry* geometry_;
    std::vector<GlobalPoint> dummy_;
 };

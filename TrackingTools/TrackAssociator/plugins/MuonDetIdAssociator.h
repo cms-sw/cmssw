@@ -38,40 +38,38 @@ class MuonDetIdAssociator: public DetIdAssociator{
    MuonDetIdAssociator(const edm::ParameterSet& pSet)
      :DetIdAssociator(pSet.getParameter<int>("nPhi"),pSet.getParameter<int>("nEta"),pSet.getParameter<double>("etaBinSize")),geometry_(0),cscbadchambers_(0),includeBadChambers_(pSet.getParameter<bool>("includeBadChambers")){};
    
-   virtual void setGeometry(const GlobalTrackingGeometry* ptr){ geometry_ = ptr; }
+   virtual void setGeometry(const GlobalTrackingGeometry* ptr) { geometry_ = ptr; }
 
-   virtual void setGeometry(const DetIdAssociatorRecord& iRecord);
+   virtual void setGeometry(const DetIdAssociatorRecord& iRecord) override;
 
-   virtual void setCSCBadChambers(const CSCBadChambers* ptr){ cscbadchambers_ = ptr; }
+   virtual void setCSCBadChambers(const CSCBadChambers* ptr) { cscbadchambers_ = ptr; }
 
-   virtual void setConditions(const DetIdAssociatorRecord& iRecord){
+   virtual void setConditions(const DetIdAssociatorRecord& iRecord) override{
       edm::ESHandle<CSCBadChambers> cscbadchambersH;
       iRecord.getRecord<CSCBadChambersRcd>().get(cscbadchambersH);
       setCSCBadChambers(cscbadchambersH.product());
    };
 
-   virtual const GeomDet* getGeomDet( const DetId& id ) const;
+   virtual const GeomDet* getGeomDet( const DetId& id ) const override;
 
-   virtual const char* name() const { return "AllMuonDetectors"; }
+   virtual const char* name() const override { return "AllMuonDetectors"; }
 
  protected:
    
-   virtual void check_setup() const;
+   virtual void check_setup() const override;
    
-   virtual GlobalPoint getPosition(const DetId& id) const;
+   virtual GlobalPoint getPosition(const DetId& id) const override;
    
-   virtual const std::vector<DetId>& getValidDetIds(unsigned int) const;
+   virtual void getValidDetIds(unsigned int, std::vector<DetId>&) const override;
    
-   virtual std::pair<const_iterator,const_iterator> getDetIdPoints(const DetId& id) const;
+   virtual std::pair<const_iterator,const_iterator> getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& points) const override;
 
-   virtual bool insideElement(const GlobalPoint& point, const DetId& id) const;
+   virtual bool insideElement(const GlobalPoint& point, const DetId& id) const override;
 
    const GlobalTrackingGeometry* geometry_;
 
    const CSCBadChambers* cscbadchambers_;
    bool includeBadChambers_;
-   mutable std::vector<GlobalPoint> points_;
-   mutable std::vector<DetId> validIds_;
 
 };
 #endif

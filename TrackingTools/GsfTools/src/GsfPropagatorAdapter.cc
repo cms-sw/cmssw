@@ -3,6 +3,8 @@
 #include "TrackingTools/GsfTools/src/MultiStatePropagation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <atomic>
+
 GsfPropagatorAdapter::GsfPropagatorAdapter (const Propagator& aPropagator) :
   Propagator(aPropagator.propagationDirection()),
   thePropagator(aPropagator.clone()) {}
@@ -25,7 +27,7 @@ std::pair<TrajectoryStateOnSurface,double>
 GsfPropagatorAdapter::propagateWithPath (const FreeTrajectoryState& fts, 
 					 const Plane& plane) const {
   /// use counter in MessageLogger?
-  static int nWarn(0);
+  static std::atomic<int> nWarn{0};
   if ( nWarn++<5 )
     edm::LogInfo("GsfPropagatorAdapter") << "GsfPropagator used from FTS = single state mode!";
   return thePropagator->propagateWithPath(fts,plane);
@@ -35,7 +37,7 @@ std::pair<TrajectoryStateOnSurface,double>
 GsfPropagatorAdapter::propagateWithPath (const FreeTrajectoryState& fts, 
 					 const Cylinder& cylinder) const {
   /// use counter in MessageLogger?
-  static int nWarn(0);
+  static std::atomic<int> nWarn{0};
   if ( nWarn++<5 )
     edm::LogInfo("GsfPropagatorAdapter") << "GsfPropagator used from FTS = single state mode!";
   return thePropagator->propagateWithPath(fts,cylinder);

@@ -130,7 +130,7 @@ void HTrack::Fill(TrajectoryStateOnSurface &tsos){
   Fill(*tsos.freeState());
 }
 
-void HTrack::Fill(FreeTrajectoryState &fts){
+void HTrack::Fill(const FreeTrajectoryState &fts){
   
   hVariables->Fill(fts.momentum().mag(),
 		   fts.momentum().perp(),
@@ -154,7 +154,7 @@ void HTrack::computeResolutionAndPull(TrajectoryStateOnSurface& tsos, SimTrack& 
 }
 
 
-void HTrack::computeResolutionAndPull(FreeTrajectoryState& fts, SimTrack& simTrack){
+void HTrack::computeResolutionAndPull(const FreeTrajectoryState& fts, SimTrack& simTrack){
   
 
   // Global Resolution
@@ -252,7 +252,7 @@ void HTrack::computeResolutionAndPull(FreeTrajectoryState& fts, SimTrack& simTra
   }
 }
 
-void HTrack::computeResolution(FreeTrajectoryState &fts,
+void HTrack::computeResolution(const FreeTrajectoryState &fts,
 			       SimTrack& simTrack,
 			       HResolution* hReso){
 
@@ -268,7 +268,7 @@ void HTrack::computeResolution(FreeTrajectoryState &fts,
 	      fts.charge()+simTrack.type()/abs(simTrack.type())); // FIXME
 }
 
-void HTrack::computeTDRResolution(FreeTrajectoryState &fts,
+void HTrack::computeTDRResolution(const FreeTrajectoryState &fts,
 				  SimTrack& simTrack,
 				  HResolution* hReso){
 
@@ -285,7 +285,7 @@ void HTrack::computeTDRResolution(FreeTrajectoryState &fts,
 	      resolution(fts.charge()/fts.momentum().perp(),simCharge/sqrt(simTrack.momentum().Perp2())));
 }
 
-void HTrack::computePull(FreeTrajectoryState &fts,
+void HTrack::computePull(const FreeTrajectoryState &fts,
 			 SimTrack& simTrack,
 			 HResolution* hReso){
 

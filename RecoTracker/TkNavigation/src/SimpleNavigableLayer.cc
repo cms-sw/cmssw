@@ -44,7 +44,7 @@ TrajectoryStateOnSurface SimpleNavigableLayer::crossingState(const FreeTrajector
   propState = propagator(dir).propagate( dest, detLayer()->surface());
   if ( !propState.isValid()) return TrajectoryStateOnSurface();
   
-  FreeTrajectoryState & dest2 = *propState.freeState();
+  const FreeTrajectoryState & dest2 = *propState.freeState();
   GlobalPoint finalPoint = dest2.position();
   LogDebug("SimpleNavigableLayer")<<"second propagation("<< dir <<") to: \n"
 				  <<dest2;

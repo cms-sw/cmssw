@@ -56,7 +56,7 @@ int main() {
   cout << "ts curv err\n" << ts.curvilinearError().matrix() << std::endl;					   
   cout << "ts cart err\n" << ts.cartesianError().matrix() << std::endl;					   
 
-  FreeTrajectoryState* fts = ts.freeTrajectoryState();
+  const FreeTrajectoryState* fts = ts.freeTrajectoryState();
   assert(fts);
 
   KinematicState ks(*fts,0.151,0.01);
