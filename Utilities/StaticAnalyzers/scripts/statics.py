@@ -3,7 +3,7 @@ import re
 warning = re.compile("^function ")
 tab = re.compile("\s+")
 topfunc = re.compile("::produce\(|::analyze\(|::filter\(")
-edmns = re.compile("(edm::ED|edm::one|edm::stream|edm::global)(Producer|Analyzer|Filter)")
+edmns = re.compile("::ED(Producer|Analyzer|Filter)")
 keyword = re.compile("calls|overrides|variable")
 paths = re.compile(".*?\s*src/([A-Z].*?/[A-z].*?)(/.*?):(.*?):(.*?)")
 from collections import defaultdict
@@ -28,8 +28,6 @@ for line in f :
 
 f.close()
 
-import pdb
-	
 def callstack(str):
 	for call in calls[str]:
 		if call not in stack:
@@ -47,7 +45,6 @@ for key in gets:
 		for item in sorted(stack):
 			func += " # "+item
 		funcs.append(func)
-
 
 for func in sorted(set(funcs)):
 	fields = func.split("#")
