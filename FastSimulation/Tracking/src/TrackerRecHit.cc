@@ -75,94 +75,39 @@ TrackerRecHit::init(const TrackerGeometry* theGeometry, const TrackerTopology *t
   
 }
 
-
 bool
-TrackerRecHit::isOnRequestedDet(const std::vector<std::string>& layerList) const { /// TEMPORARY, JUST FOR SOME TESTS
-
-  std::cout << "layerList.size() = " << layerList.size()  << std::endl;
-  bool isOnDet = false;
-
-  int subdet = 0; // 1 = PXB, 2 = PXD, 3 = TIB, 4 = TID, 5 = TOB, 6 = TEC, 0 = not valid
-  int idLayer = 0;
-  int side = 0; // 0 = barrel, -1 = neg. endcap, +1 = pos. endcap
-
-  for (unsigned i=0; i<layerList.size();i++) {
-    std::string name = layerList[i];
-    std::cout << "------- Name = " << name << std::endl;
-
-    //
-    // BPIX
-    //
-    if (name.substr(0,4) == "BPix") {
-      subdet = 1;
-      idLayer = atoi(name.substr(4,1).c_str());
-      side=0;
-    }
-    //
-    // FPIX
-    //
-    else if (name.substr(0,4) == "FPix") {
-      subdet = 2;
-      idLayer = atoi(name.substr(4,1).c_str());
-      if ( name.find("pos") != std::string::npos ) {
-	side = +1;
-      } else {
-	side = -1;
-      }
-    }
-    //
-    // TIB
-    //
-    else if (name.substr(0,3) == "TIB") {
-      subdet = 3;
-      idLayer = atoi(name.substr(3,1).c_str());
-      side=0;
-    }
-    //
-    // TID
-    //
-    else if (name.substr(0,3) == "TID") {
-      subdet = 4;
-      idLayer = atoi(name.substr(3,1).c_str());
-      if ( name.find("pos") !=std::string::npos ) {
-	side = +1;
-      } else {
-	side = -1;
-      }
-    }
-    //
-    // TOB
-    //
-    else if (name.substr(0,3) == "TOB") {
-      subdet = 5;
-      idLayer = atoi(name.substr(3,1).c_str());
-      side = 0;
-    }
-    //
-    // TEC
-    //
-    else if (name.substr(0,3) == "TEC") {
-      subdet = 6;
-      idLayer = atoi(name.substr(3,1).c_str());
-      if ( name.find("pos") != std::string::npos ) {
-	side = +1;
-      } else {
-	side = -1;
-      }
-    }
-    
-    std::cout << "subdet = " << subdet << std::endl;
-    std::cout << "idLayer = " << idLayer << std::endl;
-    std::cout << "side = " << side << std::endl;
-
+TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets) const{ 
+  
+  for(unsigned int i=0; i<theLayersInSets.size(); ++i) {
+    if(theLayersInSets[i][0].subDet==theSubDetId && theLayersInSets[i][0].idLayer==theLayerNumber) return true;
   }
 
-  /// http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoTracker/TkSeedingLayers/src/SeedingLayerSetsBuilder.cc?revision=1.13&view=markup
-
-  
-
-  return isOnDet;
+  return false;
 }
+
+bool
+TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets,  const TrackerRecHit& theSeedHitSecond) const{ 
+
+  for(unsigned int i=0; i<theLayersInSets.size(); ++i){
+    if( theLayersInSets[i][0].subDet==theSubDetId && theLayersInSets[i][0].idLayer==theLayerNumber &&
+        theLayersInSets[i][1].subDet==theSeedHitSecond.subDetId() && theLayersInSets[i][1].idLayer==theSeedHitSecond.layerNumber()
+      ) return true;
+  }
+  return false;
+}
+
+bool
+TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets,  const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const{ 
+
+  for(unsigned int i=0; i<theLayersInSets.size(); ++i){
+    if( theLayersInSets[i][0].subDet==theSubDetId && theLayersInSets[i][0].idLayer==theLayerNumber &&
+        theLayersInSets[i][1].subDet==theSeedHitSecond.subDetId() && theLayersInSets[i][1].idLayer==theSeedHitSecond.layerNumber() &&
+        theLayersInSets[i][2].subDet==theSeedHitThird.subDetId() && theLayersInSets[i][2].idLayer==theSeedHitThird.layerNumber() 
+      ) return true;
+  }
+  return false;
+}
+
 
 bool
 //TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet) const { 
