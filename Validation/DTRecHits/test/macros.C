@@ -116,7 +116,16 @@ void plotAndProfileX (TH2* h2, int rebinX, int rebinY, int rebinProfile, float m
     TObjArray aSlices;
     //    TF1 fff("a", "gaus", -0.1, 0.1);   
     h2->FitSlicesY(0, 0, -1, 0, "QNR", &aSlices); // add "G2" to merge 2 consecutive bins
-    TH1F*  ht = aSlices[1]->Clone();    
+
+    TH1F*  ht = (TH1F*) aSlices[1]->Clone();    
+    // Remove bins with failed fits, based on fit errors
+    float thr = (maxY-minY)/4.;
+    for (int bin=1; bin<=ht->GetNbinsX();++bin){
+      if (ht->GetBinError(bin)>thr) {
+	ht->SetBinContent(bin,0);
+	ht->SetBinError(bin,0);
+      }
+    }
     ht->SetMarkerColor(4);
     ht->Draw("same");    
   }
@@ -305,6 +314,9 @@ void printCanvases(TString type=".eps"){
 TStyle * getStyle(TString name="myStyle")
 {
   TStyle *theStyle;
+
+  gROOT->ForceStyle();
+
   if ( name == "myStyle" ) {
     theStyle = new TStyle("myStyle", "myStyle");
     //    theStyle->SetOptStat(0);
@@ -329,8 +341,8 @@ TStyle * getStyle(TString name="myStyle")
     theStyle->SetCanvasColor(kWhite);
 //      theStyle->SetCanvasDefH(600); //Height of canvas
 //      theStyle->SetCanvasDefW(800); //Width of canvas
-      theStyle->SetCanvasDefH(750); //Height of canvas
-      theStyle->SetCanvasDefW(1000); //Width of canvas
+    theStyle->SetCanvasDefH(750); //Height of canvas
+    theStyle->SetCanvasDefW(1000); //Width of canvas
 
     theStyle->SetCanvasDefX(0);   //POsition on screen
     theStyle->SetCanvasDefY(0);
@@ -357,9 +369,10 @@ TStyle * getStyle(TString name="myStyle")
     // For the histo:
     // theStyle->SetHistFillColor(1);
     // theStyle->SetHistFillStyle(0);
-    theStyle->SetHistLineColor(1);
-    theStyle->SetHistLineStyle(0);
-    theStyle->SetHistLineWidth(1);
+    theStyle->SetHistLineColor(kBlue);
+    theStyle->SetMarkerColor(kBlue);
+    //    theStyle->SetHistLineStyle(0);
+    //    theStyle->SetHistLineWidth(1);
     // theStyle->SetLegoInnerR(Float_t rad = 0.5);
     // theStyle->SetNumberContours(Int_t number = 20);
 
@@ -398,51 +411,49 @@ TStyle * getStyle(TString name="myStyle")
 //     theStyle->SetStatH(0.02);
 //     theStyle->SetStatW(0.2);
     // theStyle->SetStatStyle(Style_t style = 1001);
-//     theStyle->SetStatX(0.82);
-//     theStyle->SetStatY(0.5);
+    theStyle->SetStatX(0.94);
+    theStyle->SetStatY(0.96);
 
     // Margins:
-     theStyle->SetPadTopMargin(0.1);
-     theStyle->SetPadBottomMargin(0.1);
-     theStyle->SetPadLeftMargin(0.1);
-     theStyle->SetPadRightMargin(0.05);
+//      theStyle->SetPadTopMargin(0.1);
+      theStyle->SetPadBottomMargin(0.11);
+//      theStyle->SetPadLeftMargin(0.1);
+//      theStyle->SetPadRightMargin(0.05);
+    theStyle->SetPadLeftMargin(0.15);
 
     // For the Global title:
-
-    // Uncomment to remove title
-    //    theStyle->SetOptTitle(0); 
-    theStyle->SetTitleFont(42);
-    theStyle->SetTitleColor(1);
-    theStyle->SetTitleTextColor(1);
-    theStyle->SetTitleFillColor(10);
-    theStyle->SetTitleFontSize(0.05);
+    
+    //    theStyle->SetOptTitle(0); // Uncomment to remove title
+//     theStyle->SetTitleFont(42);
+//     theStyle->SetTitleColor(1);
+//     theStyle->SetTitleTextColor(1);
+    theStyle->SetTitleFillColor(0);
+//     theStyle->SetTitleFontSize(0.05);
     // theStyle->SetTitleH(0); // Set the height of the title box
     // theStyle->SetTitleW(0); // Set the width of the title box
     // theStyle->SetTitleX(0); // Set the position of the title box
-    theStyle->SetTitleY(1); // Set the position of the title box
-    theStyle->SetTitleStyle(1001);
-    // theStyle->SetTitleBorderSize(2);
+    theStyle->SetTitleY(0.96); // Set the position of the title box
+    theStyle->SetTitleStyle(0);
+    theStyle->SetTitleBorderSize(0);
+
 
     // For the axis titles:
 
-    theStyle->SetTitleColor(1, "XYZ");
-    theStyle->SetTitleFont(42, "XYZ");
-    theStyle->SetTitleSize(0.05, "XYZ");
+//     theStyle->SetTitleColor(1, "XYZ");
+//     theStyle->SetTitleFont(42, "XYZ");
+    //    theStyle->SetTitleSize(0.05, "XYZ");
     // theStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
     // theStyle->SetTitleYSize(Float_t size = 0.02);
-    theStyle->SetTitleXOffset(0.9);
-    theStyle->SetTitleYOffset(1.25);
+//     theStyle->SetTitleXOffset(0.9);
+//     theStyle->SetTitleYOffset(1.25);
     // theStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
 
     // For the axis labels:
 
-    theStyle->SetLabelColor(1, "XYZ");
-
-    theStyle->SetLabelFont(42, "XYZ");
-
-    theStyle->SetLabelOffset(0.007, "XYZ");
-
-    theStyle->SetLabelSize(0.045, "XYZ");
+//     theStyle->SetLabelColor(1, "XYZ");
+//     theStyle->SetLabelFont(42, "XYZ");
+//     theStyle->SetLabelOffset(0.007, "XYZ");
+//     theStyle->SetLabelSize(0.045, "XYZ");
 
     // For the axis:
 
@@ -472,10 +483,10 @@ TStyle * getStyle(TString name="myStyle")
     // theStyle->SetTimeOffset(Double_t toffset);
     // theStyle->SetHistMinimumZero(kTRUE);
     theStyle->SetTextSize(0.045);
-    theStyle->SetTextFont(42);
+    //    theStyle->SetTextFont(42);
     
     //   style->SetOptFit(101);
-    //   style->SetOptStat(1111111); 
+    //   style->SetOptStat(1111111);
 
   } else {
     // Avoid modifying the default style!
@@ -485,6 +496,48 @@ TStyle * getStyle(TString name="myStyle")
 }
 
 
+setPalette()
+{
+  const Int_t NRGBs = 5;
+  const Int_t NCont = 255;
+ 
+//   { // Fine rainbow
+//     Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
+//     Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
+//     Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
+//     Double_t blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 };
+//   }
+ 
+//   { // blues
+//     Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
+//     Double_t red[NRGBs]   = { 1.00, 0.84, 0.61, 0.34, 0.00 };
+//     Double_t green[NRGBs] = { 1.00, 0.84, 0.61, 0.34, 0.00 };
+//     Double_t blue[NRGBs]  = { 1.00, 1.00, 1.00, 1.00, 1.00 };
+//   }
+
+
+//   { // Gray (white->black)
+//     Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
+//     Double_t red[NRGBs]   = { 1.00, 0.84, 0.61, 0.34, 0.00 };
+//     Double_t green[NRGBs] = { 1.00, 0.84, 0.61, 0.34, 0.00 };
+//     Double_t blue[NRGBs]  = { 1.00, 0.84, 0.61, 0.34, 0.00 };
+//   }
+
+
+  { // Gray (white->gray)
+    //  similar to gStyle->SetPalette(5);
+    float max = 0.3;
+    float step=(1-max)/(NRGBs-1);
+    Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
+    Double_t red[NRGBs]   = { 1.00, 1-step, 1-2*step, 1-3*step, 1-4*step };
+    Double_t green[NRGBs] = { 1.00, 1-step, 1-2*step, 1-3*step, 1-4*step };
+    Double_t blue[NRGBs]  = { 1.00, 1-step, 1-2*step, 1-3*step, 1-4*step };
+  }
+
+
+ TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+ gStyle->SetNumberContours(NCont);
+}
 
 
 // Overlay efficiency plots for S1, S2, S3

@@ -51,7 +51,11 @@ void plotValidation(TString filename, int wheel, int station) {
  
   TStyle * style = getStyle("tdr");
   style->cd();  
-  gStyle->SetPalette(5);
+  setPalette();
+  gStyle->SetTitleSize(0.05,"XYZ"); // Set larger axis titles
+  gStyle->SetTitleOffset(1.3,"Y");
+  //  gStyle->SetOptTitle(0); // remove histogram titles
+
   //  gStyle->SetOptStat(111);
 
   float cmToMicron = 10000.;
