@@ -33,7 +33,15 @@
 using namespace std;
 using namespace edm;
 
-// Book the histos
+// In phi SLs, The dependency on X and angle is specular in positive 
+// and negative wheels. Since positive and negative wheels are filled 
+// together into the same plots, it is useful to mirror negative wheels 
+// so that the actual dependency can be observerd instead of an artificially 
+// simmetrized one.
+// Set mirrorMinusWheels to avoid this.
+namespace {
+  bool mirrorMinusWheels = true;
+}
 
 // Constructor
 DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
@@ -178,6 +186,7 @@ void DTSegment4DQuality::endJob() {
 
       DTChamberId chamberId = simHitsInChamber->first;
       if (chamberId.station() == 4) continue; //use DTSegment2DSLPhiQuality to analyze MB4 performaces
+      int wheel = chamberId.wheel();
 
       //------------------------- simHits ---------------------------//
       //Get simHits of this chamber
@@ -319,6 +328,7 @@ void DTSegment4DQuality::endJob() {
           LocalError bestRecHitLocalPosErrRZ = zedRecSeg->localPositionError();
           LocalError bestRecHitLocalDirErrRZ = zedRecSeg->localDirectionError();
 
+	  // angle measured in the RZ SL, in its own frame
           float alphaBestRHitRZ = DTHitQualityUtils::findSegmentAlphaAndBeta(bestRecHitLocalDirRZ).first;
 
           // Get SimSeg position and Direction in rZ SL frame 
@@ -364,18 +374,29 @@ void DTSegment4DQuality::endJob() {
 //           }
 	  recHitFound = true;
 	  
-
+	  // Mirror alpha in phi SLs so that + and - wheels can be plotted together
+	  if (mirrorMinusWheels && wheel<0){
+	    alphaSimSeg*=-1.;
+	    alphaBestRHit*=-1.;
+	    // Note: local X (xSimSeg, bestRecHitLocalPos.x() would have to be mirrored as well;
+	    // but at the moment there is no plot of dependency vs X, except for efficiency.
+	  }
+	  
           // Fill Residual histos
           HRes4DHit *histo=0;
 
-          if(chamberId.wheel() == 0)
+          if(wheel == 0)
             histo = h4DHit_W0;
-          else if(abs(chamberId.wheel()) == 1)
+          else if(abs(wheel) == 1)
             histo = h4DHit_W1;
-          else if(abs(chamberId.wheel()) == 2)
+          else if(abs(wheel) == 2)
             histo = h4DHit_W2;
 
-          histo->Fill(alphaSimSeg,
+	  float sigmaAlphaBestRhit = sqrt(DTHitQualityUtils::sigmaAngle(alphaBestRHit,bestRecHitLocalDirErr.xx()));
+	  float sigmaBetaBestRhit  = sqrt(DTHitQualityUtils::sigmaAngle(betaBestRHit,bestRecHitLocalDirErr.yy())); // FIXME this misses the contribution from uncertainty in extrapolation!
+	  float sigmaAlphaBestRhitRZ = sqrt(DTHitQualityUtils::sigmaAngle(alphaBestRHitRZ,bestRecHitLocalDirErrRZ.xx()));
+
+          histo->Fill(alphaSimSeg, 
 		      alphaBestRHit,
 		      betaSimSeg,
 		      betaBestRHit,
@@ -389,11 +410,11 @@ void DTSegment4DQuality::endJob() {
 		      simSegLocalPosRZ.x(),
 		      alphaBestRHitRZ,
 		      alphaSimSegRZ,
-		      sqrt(DTHitQualityUtils::sigmaAngle(alphaBestRHit,bestRecHitLocalDirErr.xx())),
-		      sqrt(DTHitQualityUtils::sigmaAngle(betaBestRHit,bestRecHitLocalDirErr.yy())),
+		      sigmaAlphaBestRhit,
+		      sigmaBetaBestRhit,
 		      sqrt(bestRecHitLocalPosErr.xx()),
 		      sqrt(bestRecHitLocalPosErr.yy()),
-		      sqrt(DTHitQualityUtils::sigmaAngle(alphaBestRHitRZ,bestRecHitLocalDirErrRZ.xx())),
+		     sigmaAlphaBestRhitRZ,
 		      sqrt(bestRecHitLocalPosErrRZ.xx()),
 		      nHitPhi,nHitTheta,t0phi,t0theta
 		      );
@@ -412,16 +433,16 @@ void DTSegment4DQuality::endJob() {
 		       simSegLocalPosRZ.x(),
 		       alphaBestRHitRZ,
 		       alphaSimSegRZ,
-		       sqrt(DTHitQualityUtils::sigmaAngle(alphaBestRHit,bestRecHitLocalDirErr.xx())),
-		       sqrt(DTHitQualityUtils::sigmaAngle(betaBestRHit,bestRecHitLocalDirErr.yy())),
+		       sigmaAlphaBestRhit,
+		       sigmaBetaBestRhit,
 		       sqrt(bestRecHitLocalPosErr.xx()),
 		       sqrt(bestRecHitLocalPosErr.yy()),
-		       sqrt(DTHitQualityUtils::sigmaAngle(alphaBestRHitRZ,bestRecHitLocalDirErrRZ.xx())),
+		       sigmaAlphaBestRhitRZ,
 		       sqrt(bestRecHitLocalPosErrRZ.xx()),
 		       nHitPhi,nHitTheta,t0phi,t0theta
                       );
 
-	  if (local) h4DHitWS[abs(chamberId.wheel())][chamberId.station()-1]->Fill(alphaSimSeg,
+	  if (local) h4DHitWS[abs(wheel)][chamberId.station()-1]->Fill(alphaSimSeg,
 			   alphaBestRHit,
 			   betaSimSeg,
 			   betaBestRHit,
@@ -435,11 +456,11 @@ void DTSegment4DQuality::endJob() {
 			   simSegLocalPosRZ.x(),
 			   alphaBestRHitRZ,
 			   alphaSimSegRZ,
-			   sqrt(DTHitQualityUtils::sigmaAngle(alphaBestRHit,bestRecHitLocalDirErr.xx())),
-			   sqrt(DTHitQualityUtils::sigmaAngle(betaBestRHit,bestRecHitLocalDirErr.yy())),
+			   sigmaAlphaBestRhit,
+			   sigmaBetaBestRhit,
                            sqrt(bestRecHitLocalPosErr.xx()),
 			   sqrt(bestRecHitLocalPosErr.yy()),
-                           sqrt(DTHitQualityUtils::sigmaAngle(alphaBestRHitRZ,bestRecHitLocalDirErrRZ.xx())),
+			   sigmaAlphaBestRhitRZ,
 			   sqrt(bestRecHitLocalPosErrRZ.xx()),
 			   nHitPhi,nHitTheta,t0phi,t0theta
 			   );
@@ -452,15 +473,15 @@ void DTSegment4DQuality::endJob() {
       if(doall){
 	HEff4DHit *heff = 0;
 	
-	if(chamberId.wheel() == 0)
+	if(wheel == 0)
 	  heff = hEff_W0;
-	else if(abs(chamberId.wheel()) == 1)
+	else if(abs(wheel) == 1)
 	  heff = hEff_W1;
-	else if(abs(chamberId.wheel()) == 2)
+	else if(abs(wheel) == 2)
 	  heff = hEff_W2;
 	heff->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
 	hEff_All->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
-	if (local) hEffWS[abs(chamberId.wheel())][chamberId.station()-1]->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
+	if (local) hEffWS[abs(wheel)][chamberId.station()-1]->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
 
       }
     } // End of loop over chambers
