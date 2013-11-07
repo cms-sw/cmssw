@@ -3,7 +3,7 @@
 
 const unsigned int reco::Particle::longLivedTag = 65536;
 
-namespace reco {
+using namespace reco;
 
 /// default constructor
 Particle::Particle()
@@ -88,38 +88,38 @@ void Particle::setThreeCharge( Charge qx3 ) {
 /// four-momentum Lorentz vector
 const Particle::LorentzVector & Particle::p4() const {
     cacheCartesian();
-    return (*p4Cartesian_);
+    return (*p4Cartesian_.load(std::memory_order_acquire));
 }
 /// four-momentum Lorentz vector
 const Particle::PolarLorentzVector & Particle::polarP4() const {
     cachePolar();
-    return (*p4Polar_);
+    return (*p4Polar_.load(std::memory_order_acquire));
 }
 /// spatial momentum vector
 Particle::Vector Particle::momentum() const {
     cacheCartesian();
-    return (*p4Cartesian_).Vect();
+    return (*p4Cartesian_.load(std::memory_order_acquire)).Vect();
 }
 /// boost vector to boost a Lorentz vector
 /// to the particle center of mass system
 Particle::Vector Particle::boostToCM() const {
     cacheCartesian();
-    return (*p4Cartesian_).BoostToCM();
+    return (*p4Cartesian_.load(std::memory_order_acquire)).BoostToCM();
 }
 /// magnitude of momentum vector
 double Particle::p() const {
     cacheCartesian();
-    return (*p4Cartesian_).P();
+    return (*p4Cartesian_.load(std::memory_order_acquire)).P();
 }
 /// energy
 double Particle::energy() const {
     cacheCartesian();
-    return (*p4Cartesian_).E();
+    return (*p4Cartesian_.load(std::memory_order_acquire)).E();
 }
 /// transverse energy
 double Particle::et() const {
     cachePolar();
-    return (*p4Polar_).Et();
+    return (*p4Polar_.load(std::memory_order_acquire)).Et();
 }
 /// mass
 double Particle::mass() const {
@@ -132,27 +132,27 @@ double Particle::massSqr() const {
 /// transverse mass
 double Particle::mt() const {
     cachePolar();
-    return (*p4Polar_).Mt();
+    return (*p4Polar_.load(std::memory_order_acquire)).Mt();
 }
 /// transverse mass squared
 double Particle::mtSqr() const {
     cachePolar();
-    return (*p4Polar_).Mt2();
+    return (*p4Polar_.load(std::memory_order_acquire)).Mt2();
 }
 /// x coordinate of momentum vector
 double Particle::px() const {
     cacheCartesian();
-    return (*p4Cartesian_).Px();
+    return (*p4Cartesian_.load(std::memory_order_acquire)).Px();
 }
 /// y coordinate of momentum vector
 double Particle::py() const {
     cacheCartesian();
-    return (*p4Cartesian_).Py();
+    return (*p4Cartesian_.load(std::memory_order_acquire)).Py();
 }
 /// z coordinate of momentum vector
 double Particle::pz() const {
     cacheCartesian();
-    return (*p4Cartesian_).Pz();
+    return (*p4Cartesian_.load(std::memory_order_acquire)).Pz();
 }
 /// transverse momentum
 double Particle::pt() const {
@@ -165,7 +165,7 @@ double Particle::phi() const {
 /// momentum polar angle
 double Particle::theta() const {
     cacheCartesian();
-    return (*p4Cartesian_).Theta();
+    return (*p4Cartesian_.load(std::memory_order_acquire)).Theta();
 }
 /// momentum pseudorapidity
 double Particle::eta() const {
@@ -174,7 +174,7 @@ double Particle::eta() const {
 /// repidity
 double Particle::rapidity() const {
     cachePolar();
-    return (*p4Polar_).Rapidity();
+    return (*p4Polar_.load(std::memory_order_acquire)).Rapidity();
 }
 /// repidity
 double Particle::y() const {
@@ -183,20 +183,20 @@ double Particle::y() const {
 
 /// set 4-momentum
 void Particle::setP4( const LorentzVector & p4 ) {
-  *p4Cartesian_ = p4;
-  *p4Polar_ = p4;
-  pt_ = (*p4Polar_).pt();
-  eta_ = (*p4Polar_).eta();
-  phi_ = (*p4Polar_).phi();
-  mass_ = (*p4Polar_).mass();
+  *p4Cartesian_.load(std::memory_order_acquire) = p4;
+  *p4Polar_.load(std::memory_order_acquire) = p4;
+  pt_ = (*p4Polar_.load(std::memory_order_acquire)).pt();
+  eta_ = (*p4Polar_.load(std::memory_order_acquire)).eta();
+  phi_ = (*p4Polar_.load(std::memory_order_acquire)).phi();
+  mass_ = (*p4Polar_.load(std::memory_order_acquire)).mass();
 }
 /// set 4-momentum
 void Particle::setP4( const PolarLorentzVector & p4 ) {
-  *p4Polar_ = p4;
-  pt_ = (*p4Polar_).pt();
-  eta_ = (*p4Polar_).eta();
-  phi_ = (*p4Polar_).phi();
-  mass_ = (*p4Polar_).mass();
+  *p4Polar_.load(std::memory_order_acquire) = p4;
+  pt_ = (*p4Polar_.load(std::memory_order_acquire)).pt();
+  eta_ = (*p4Polar_.load(std::memory_order_acquire)).eta();
+  phi_ = (*p4Polar_.load(std::memory_order_acquire)).phi();
+  mass_ = (*p4Polar_.load(std::memory_order_acquire)).mass();
   delete p4Cartesian_;
   p4Cartesian_=nullptr;
 }
@@ -207,12 +207,12 @@ void Particle::setMass( double m ) {
 }
 void Particle::setPz( double pz ) {
   cacheCartesian();
-  (*p4Cartesian_).SetPz(pz);
-  (*p4Polar_) = (*p4Cartesian_);
-  pt_ = (*p4Polar_).pt();
-  eta_ = (*p4Polar_).eta();
-  phi_ = (*p4Polar_).phi();
-  mass_ = (*p4Polar_).mass();
+  (*p4Cartesian_.load(std::memory_order_acquire)).SetPz(pz);
+  (*p4Polar_.load(std::memory_order_acquire)) = (*p4Cartesian_.load(std::memory_order_acquire));
+  pt_ = (*p4Polar_.load(std::memory_order_acquire)).pt();
+  eta_ = (*p4Polar_.load(std::memory_order_acquire)).eta();
+  phi_ = (*p4Polar_.load(std::memory_order_acquire)).phi();
+  mass_ = (*p4Polar_.load(std::memory_order_acquire)).mass();
 }
 
 const Particle::Point & Particle::vertex() const {
@@ -273,7 +273,7 @@ void Particle::cachePolar() const {
 void Particle::cacheCartesian() const {
     if(!p4Cartesian_.load(std::memory_order_acquire)) {
         cachePolar();
-        (*p4Cartesian_) = (*p4Polar_);
+        (*p4Cartesian_.load(std::memory_order_acquire)) = (*p4Polar_.load(std::memory_order_acquire));
     }
 }
 /// clear internal cache
@@ -283,4 +283,3 @@ void Particle::clearCache() const {
     delete p4Cartesian_;
     p4Cartesian_ = nullptr;
 }
-} // end of reco namespace
