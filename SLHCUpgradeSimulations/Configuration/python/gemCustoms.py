@@ -63,7 +63,7 @@ def customise_DQM(process):
 
 def customise_Validation(process):
     #process.load('Validation.MuonGEMDigis.SimTrackMatching_cfi')
-    process.load('Validation.MuonGEMDigis.MuonGEMDigi_cfi')
+    process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
     #process.gemDigiValidation.simTrackMatching= process.SimTrackMatching
     process.globalValidation += cms.Sequence(process.gemDigiValidation)
    
