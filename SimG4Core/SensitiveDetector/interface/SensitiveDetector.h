@@ -3,8 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-//#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -13,6 +11,7 @@
 #include "G4VSensitiveDetector.hh"
 
 #include <boost/cstdint.hpp>
+#include <vector>
 #include <string>
 
 class G4Step;
