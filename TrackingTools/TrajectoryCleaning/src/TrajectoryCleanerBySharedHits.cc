@@ -37,7 +37,7 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) cons
   //typedef boost::unordered_map<Trajectory*, int> TrajMap;  // for each Trajectory it stores the number of shared hits
   typedef cmsutil::UnsortedDumbVectorMap<Trajectory*, int> TrajMap;
 
-  static RecHitMap theRecHitMap(128,256,1024);// allocate 128 buckets, one row for 256 keys and one row for 512 values
+  thread_local static RecHitMap theRecHitMap(128,256,1024);// allocate 128 buckets, one row for 256 keys and one row for 512 values
   theRecHitMap.clear(10*tc.size());           // set 10*tc.size() active buckets
                                               // numbers are not optimized
 
@@ -59,7 +59,7 @@ void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) cons
 
   DEBUG_PRINT(std::cout << "Using RecHit map" << std::endl);
   // for each trajectory fill theTrajMap
-  static TrajMap theTrajMap; 
+  thread_local static TrajMap theTrajMap; 
   for (TrajectoryCleaner::TrajectoryPointerIterator
 	 itt = tc.begin(); itt != tc.end(); ++itt) {
     if((*itt)->isValid()){  
