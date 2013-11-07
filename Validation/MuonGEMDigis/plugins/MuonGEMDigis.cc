@@ -88,8 +88,6 @@ MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
 {
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
-  minPt_= ps.getUntrackedParameter<double>("minPt", 5.);
-  //cfg_= ps.getParameterSet("simTrackMatching");
   outputFile_ =  ps.getParameter<std::string>("outputFile");
 
    //now do what ever initialization is needed
@@ -98,7 +96,9 @@ MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
   theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, ps.getParameter<edm::InputTag>("stripLabel"));
   theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscPadLabel"));
   theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscCopadLabel"));
-  theGEMTrackMatch = new GEMTrackMatch(dbe_, ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits")   ,ps.getParameterSet("simTrackMatching"));
+  theGEMTrackMatch = new GEMTrackMatch(dbe_, ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"), 
+                                       ps.getParameterSet("simTrackMatching"),ps.getUntrackedParameter<double>("minPt",5.),
+                                       ps.getUntrackedParameter<double>("minEta",1.55), ps.getUntrackedParameter<double>("maxPt",2.18)       );
   
 
 

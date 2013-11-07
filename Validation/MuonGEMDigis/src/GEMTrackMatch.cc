@@ -19,15 +19,16 @@ struct MySimTrack
 
 
 
-GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg )
+GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg , double minPt, double minEta, double maxEta)
 {
-   //theEff_eta_dg[0]  =  dbe_->book1D("eff_eta_track_dg_gem_l1", "Eff. for a SimTrack to have an associated GEM Digi in l2;SimTrack |#eta|;Eff.", 140,1.5,2.2);
 
 
    cfg_= cfg; 
    simInputLabel_= simInputLabel;
    dbe_= dbe;
-
+   minPt_  = minPt;
+   minEta_ = minEta;
+   maxEta_ = maxEta;
 
 
    buildLUT();
@@ -96,7 +97,7 @@ bool GEMTrackMatch::isSimTrackGood(const SimTrack &t)
   if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
   if (t.momentum().pt() < 5 ) return false;
   float eta = fabs(t.momentum().eta());
-  if (eta > 2.18 || eta < 1.55) return false; // no GEMs could be in such eta
+  if (eta > maxEta_ || eta < minEta_ ) return false; // no GEMs could be in such eta
   return true;
 }
 
