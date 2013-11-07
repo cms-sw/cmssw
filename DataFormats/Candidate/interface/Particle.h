@@ -42,60 +42,60 @@ namespace reco {
 	      int pdgId = 0, int status = 0, bool integerCharge = true );
     void swap(Particle& other);
     /// destructor
-    virtual ~Particle() { }
+    virtual ~Particle();
     // copy ctor
     Particle(const Particle& srv);
     // assignment operator
     Particle& operator=(const Particle& rhs);
     /// electric charge
-    int charge() const { return qx3_ / 3; }
+    int charge() const;
     /// set electric charge
-    void setCharge( Charge q ) { qx3_ = q * 3; }
+    void setCharge( Charge q );
     /// electric charge
-    int threeCharge() const { return qx3_; }
+    int threeCharge() const;
     /// set electric charge
-    void setThreeCharge( Charge qx3 ) { qx3_ = qx3; }
+    void setThreeCharge( Charge qx3 );
     /// four-momentum Lorentz vector
-    const LorentzVector & p4() const { cacheCartesian(); return p4Cartesian_; }
+    const LorentzVector & p4() const;
     /// four-momentum Lorentz vector
-    const PolarLorentzVector & polarP4() const { cachePolar(); return p4Polar_; }
+    const PolarLorentzVector & polarP4() const;
     /// spatial momentum vector
-    Vector momentum() const { cacheCartesian(); return p4Cartesian_.Vect(); }
+    Vector momentum() const;
     /// boost vector to boost a Lorentz vector 
     /// to the particle center of mass system
-    Vector boostToCM() const { cacheCartesian(); return p4Cartesian_.BoostToCM(); }
+    Vector boostToCM() const;
     /// magnitude of momentum vector
-    double p() const { cacheCartesian(); return p4Cartesian_.P(); }
+    double p() const;
     /// energy
-    double energy() const { cacheCartesian(); return p4Cartesian_.E(); }  
+    double energy() const;
     /// transverse energy 
-    double et() const { cachePolar(); return p4Polar_.Et(); }  
+    double et() const;
     /// mass
-    double mass() const { return mass_; }
+    double mass() const;
     /// mass squared
-    double massSqr() const { return mass_ * mass_; }
+    double massSqr() const;
     /// transverse mass
-    double mt() const { cachePolar(); return p4Polar_.Mt(); }
+    double mt() const;
     /// transverse mass squared
-    double mtSqr() const { cachePolar(); return p4Polar_.Mt2(); }
+    double mtSqr() const;
     /// x coordinate of momentum vector
-    double px() const { cacheCartesian(); return p4Cartesian_.Px(); }
+    double px() const;
     /// y coordinate of momentum vector
-    double py() const { cacheCartesian(); return p4Cartesian_.Py(); }
+    double py() const;
     /// z coordinate of momentum vector
-    double pz() const { cacheCartesian(); return p4Cartesian_.Pz(); }
+    double pz() const;
     /// transverse momentum
-    double pt() const { return pt_; }
+    double pt() const;
     /// momentum azimuthal angle
-    double phi() const { return phi_; }
+    double phi() const;
     /// momentum polar angle
-    double theta() const { cacheCartesian(); return p4Cartesian_.Theta(); }
+    double theta() const;
     /// momentum pseudorapidity
-    double eta() const { return eta_; }
+    double eta() const;
     /// repidity
-    double rapidity() const { cachePolar(); return p4Polar_.Rapidity(); }
+    double rapidity() const;
     /// repidity
-    double y() const { return rapidity(); }
+    double y() const;
     /// set 4-momentum
     void setP4( const LorentzVector & p4 );
     /// set 4-momentum
@@ -105,29 +105,29 @@ namespace reco {
     /// set Pz
     void setPz( double pz );
     /// vertex position
-    const Point & vertex() const { return vertex_; }
+    const Point & vertex() const;
     /// x coordinate of vertex position
-    double vx() const { return vertex_.X(); }
+    double vx() const;
     /// y coordinate of vertex position
-    double vy() const { return vertex_.Y(); }
+    double vy() const;
     /// z coordinate of vertex position
-    double vz() const { return vertex_.Z(); }
+    double vz() const;
     /// set vertex
-    void setVertex( const Point & vertex ) { vertex_ = vertex; }
+    void setVertex( const Point & vertex );
     /// PDG identifier
-    int pdgId() const { return pdgId_; }
+    int pdgId() const;
     // set PDG identifier
-    void setPdgId( int pdgId ) { pdgId_ = pdgId; }
+    void setPdgId( int pdgId );
     /// status word
-    int status() const { return status_; }
+    int status() const;
     /// set status word
-    void setStatus( int status ) { status_ = status; }
+    void setStatus( int status );
     /// long lived flag
     static const unsigned int longLivedTag;
     /// set long lived flag
-    void setLongLived() { status_ |= longLivedTag; }
+    void setLongLived();
     /// is long lived?
-    bool longLived() const { return status_ & longLivedTag; }
+    bool longLived() const;
 
   protected:
     /// electric charge
@@ -140,54 +140,23 @@ namespace reco {
     int pdgId_;
     /// status word
     int status_;
-    /// internal cache for p4
-    mutable PolarLorentzVector p4Polar_; // CMS-THREADING protected by cachePolarFixed_
-    /// internal cache for p4
-    mutable LorentzVector p4Cartesian_; // CMS-THREADING protected by cacheCartesianFixed_
-    /// has cache been set?
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-    mutable  std::atomic<bool> cachePolarFixed_, cacheCartesianFixed_;
+    /// internal cache for p4
+    mutable std::atomic<PolarLorentzVector*> p4Polar_;
+    /// internal cache for p4
+    mutable std::atomic<LorentzVector*> p4Cartesian_;
 #else
-    mutable  bool cachePolarFixed_, cacheCartesianFixed_;
+    /// internal cache for p4
+    mutable PolarLorentzVector* p4Polar_;
+    /// internal cache for p4
+    mutable LorentzVector* p4Cartesian_;
 #endif
     /// set internal cache
-    inline void cachePolar() const { 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-      if(!cachePolarFixed_.load(std::memory_order_acquire)) {
-          p4Polar_ = PolarLorentzVector( pt_, eta_, phi_, mass_ );
-          cachePolarFixed_.store(true, std::memory_order_release);
-      }
-#else
-      if ( cachePolarFixed_ ) return;
-      p4Polar_ = PolarLorentzVector( pt_, eta_, phi_, mass_ );
-      cachePolarFixed_;
-#endif
-    }
+    void cachePolar() const;
     /// set internal cache
-    inline void cacheCartesian() const { 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-      if(!cacheCartesianFixed_.load(std::memory_order_acquire)) {
-          cachePolar();
-          p4Cartesian_ = p4Polar_;
-          cacheCartesianFixed_.store(true, std::memory_order_release);
-      }
-#else
-      if ( cacheCartesianFixed_ ) return;
-      cachePolar();
-      p4Cartesian_ = p4Polar_;
-      cacheCartesianFixed_;
-#endif
-    }
+    void cacheCartesian() const;
     /// clear internal cache
-    inline void clearCache() const { 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-      cachePolarFixed_.store(false, std::memory_order_release);
-      cacheCartesianFixed_.store(false, std::memory_order_release);
-#else
-      cachePolarFixed_;
-      cacheCartesianFixed_;
-#endif
-    }
+    void clearCache() const;
   };
 
 }
