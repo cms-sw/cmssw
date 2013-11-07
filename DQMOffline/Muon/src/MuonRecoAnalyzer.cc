@@ -23,7 +23,6 @@ MuonRecoAnalyzer::MuonRecoAnalyzer(const edm::ParameterSet& pSet) {
   // the services:
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
   theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("Muons/MuonRecoAnalyzer");
   
   theMuonCollectionLabel_ = consumes<reco::MuonCollection>(parameters.getParameter<InputTag>("MuonCollection"));
 }
@@ -42,6 +41,9 @@ void MuonRecoAnalyzer::beginJob(){
 }
 void MuonRecoAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
   
+  theDbe->cd();
+  theDbe->setCurrentFolder("Muons/MuonRecoAnalyzer");
+    
   muReco = theDbe->book1D("muReco", "muon reconstructed tracks", 6, 1, 7);
   muReco->setBinLabel(1,"glb+tk+sta");
   muReco->setBinLabel(2,"glb+sta");
