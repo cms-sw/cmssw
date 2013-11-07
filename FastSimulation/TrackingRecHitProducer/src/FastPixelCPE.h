@@ -22,16 +22,16 @@ class FastPixelCPE : public PixelClusterParameterEstimator
 							       const GeomDetUnit    & det) const;
 	
   //Put information into the map.
-  void enterLocalParameters(unsigned int id, std::pair<int,int> &row_col, std::pair<LocalPoint,LocalError> pos_err_info) const; 
+  void enterLocalParameters(unsigned int id, std::pair<int,int> &row_col, std::pair<LocalPoint,LocalError> pos_err_info);
   
   //Clear the map.
-  void clearParameters() const { 
+  void clearParameters() {
     pos_err_map.clear(); 
   }
   
  private:
   //Map used to store clusters distinctly.
-  mutable std::map<std::pair<unsigned int, std::pair<int,int> >, std::pair<LocalPoint, LocalError> > pos_err_map;
+  std::map<std::pair<unsigned int, std::pair<int,int> >, std::pair<LocalPoint, LocalError> > pos_err_map;
 };
 
 #endif
