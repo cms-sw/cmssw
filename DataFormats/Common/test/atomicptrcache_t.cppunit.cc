@@ -33,6 +33,9 @@ testAtomicPtrCache::check()
     cache.set(std::move(p));
     CPPUNIT_ASSERT(true == cache.isSet());
     CPPUNIT_ASSERT(cache->size() == values.size());
+    
+    cache.reset();
+    CPPUNIT_ASSERT(false == cache.isSet());
   }
   
   {
