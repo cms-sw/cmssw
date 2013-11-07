@@ -24,10 +24,15 @@ class DQMTestMultiThread
   DQMTestMultiThread(void) = delete;
   MonitorElement * myHisto;
   std::string folder_;
+  double fill_value_;
+  bool debug_;
 };
 
-DQMTestMultiThread::DQMTestMultiThread(const edm::ParameterSet &pset):
-    folder_(pset.getUntrackedParameter<std::string>("folder")){}
+DQMTestMultiThread::DQMTestMultiThread(const edm::ParameterSet &pset)
+    : folder_(pset.getUntrackedParameter<std::string>("folder")),
+      fill_value_(pset.getUntrackedParameter<double>("fillValue", 1.)),
+      debug_(pset.getUntrackedParameter<bool>("debug", false))
+{}
 
 void DQMTestMultiThread::bookHistograms(DQMStore::IBooker &b) {
   b.setCurrentFolder("");
@@ -36,16 +41,18 @@ void DQMTestMultiThread::bookHistograms(DQMStore::IBooker &b) {
                      "MyHisto",
                      100, -0.5, 99.5);
   DQMStore * store = edm::Service<DQMStore>().operator->();
-  std::cout << std::endl;
-  for (auto me : store->getAllContents("")) {
-    dumpMe(*me);
+  if (debug_) {
+    std::cout << std::endl;
+    for (auto me : store->getAllContents("")) {
+      dumpMe(*me);
+    }
   }
 }
 
 void DQMTestMultiThread::analyze(const edm::Event &iEvent,
                                  const edm::EventSetup&)
 {
-  myHisto->Fill(iEvent.moduleCallingContext()->moduleDescription()->id());
+  myHisto->Fill(fill_value_);
 }
 
 void DQMTestMultiThread::dumpMe(MonitorElement const& me,
