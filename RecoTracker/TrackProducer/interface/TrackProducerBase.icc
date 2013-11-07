@@ -147,8 +147,8 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
   // Therefore the lastMeasurement is the inner one (for LHC-like tracks)
   if(traj->firstMeasurement().updatedState().isValid() &&
      traj->lastMeasurement().updatedState().isValid()){
-    FreeTrajectoryState*  outerState = traj->firstMeasurement().updatedState().freeState();    
-    FreeTrajectoryState*  innerState = traj->lastMeasurement().updatedState().freeState(); 
+    const FreeTrajectoryState*  outerState = traj->firstMeasurement().updatedState().freeState();    
+    const FreeTrajectoryState*  innerState = traj->lastMeasurement().updatedState().freeState(); 
     TrajectoryStateOnSurface outerTSOS = traj->firstMeasurement().updatedState();
     TrajectoryStateOnSurface innerTSOS = traj->lastMeasurement().updatedState();
     const DetLayer* outerLayer = traj->firstMeasurement().layer();

@@ -51,6 +51,10 @@ namespace edm {
       static void prevalidate(ConfigurationDescriptions& descriptions);
       static const std::string& baseType();
       
+      // Warning: the returned moduleDescription will be invalid during construction
+      ModuleDescription const& moduleDescription() const {
+        return *moduleDescriptionPtr_;
+      }
     private:
       EDFilterBase(const EDFilterBase&) = delete; // stop default
       
@@ -64,10 +68,14 @@ namespace edm {
       virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void endStream(){}
 
+      void setModuleDescriptionPtr(ModuleDescription const* iDesc) {
+        moduleDescriptionPtr_ = iDesc;
+      }
       // ---------- member data --------------------------------
 
       std::vector<BranchID> previousParentage_;
       ParentageID previousParentageId_;
+      ModuleDescription const* moduleDescriptionPtr_;
     };
   }
 }
