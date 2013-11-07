@@ -6,12 +6,12 @@ import FWCore.ParameterSet.Config as cms
 # seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeSecondSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeSecondSeeds.firstHitSubDetectorNumber = [2]
-iterativeSecondSeeds.firstHitSubDetectors = [1,2]
-iterativeSecondSeeds.secondHitSubDetectorNumber = [2]
-iterativeSecondSeeds.secondHitSubDetectors = [1, 2]
-iterativeSecondSeeds.thirdHitSubDetectorNumber = [2]
-iterativeSecondSeeds.thirdHitSubDetectors = [1,2]
+iterativeSecondSeeds.firstHitSubDetectorNumber = [1]
+iterativeSecondSeeds.firstHitSubDetectors = [2]
+iterativeSecondSeeds.secondHitSubDetectorNumber = [1]
+iterativeSecondSeeds.secondHitSubDetectors = [ 2]
+iterativeSecondSeeds.thirdHitSubDetectorNumber = [1]
+iterativeSecondSeeds.thirdHitSubDetectors = [2]
 iterativeSecondSeeds.seedingAlgo = ['SecondPixelTriplets']
 iterativeSecondSeeds.minRecHits = [3] 
 iterativeSecondSeeds.pTMin = [0.3]
