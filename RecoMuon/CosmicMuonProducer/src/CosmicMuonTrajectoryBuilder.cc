@@ -474,7 +474,7 @@ void CosmicMuonTrajectoryBuilder::build(const TrajectoryStateOnSurface& ts,
 
   if ( !ts.isValid() ) return;
 
-  FreeTrajectoryState* fts = ts.freeState();
+  const FreeTrajectoryState* fts = ts.freeState();
   if ( !fts ) return;
 
   vector<const DetLayer*> navLayers;

@@ -205,7 +205,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
     }
     
     //PropagatorWithMaterial reversePropagator(oppositeToMomentum, 0.000511, &(*theMF_) );
-    FreeTrajectoryState * fts = myPointer->updatedState().freeTrajectoryState();
+    const FreeTrajectoryState * fts = myPointer->updatedState().freeTrajectoryState();
     
    //std::cout << " InOutConversionSeedFinder::fillClusterSeeds First FTS charge " << fts->charge() << " Position " << fts->position() << " momentum " << fts->momentum() << " R " << sqrt(fts->position().x()*fts->position().x() + fts->position().y()* fts->position().y() ) << " Z " << fts->position().z() << " phi " << fts->position().phi() << " fts parameters " << fts->parameters() << "\n";
     
@@ -310,7 +310,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 
 
 
-void InOutConversionSeedFinder::startSeed( FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int ilayer  )  const {
+void InOutConversionSeedFinder::startSeed( const FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int ilayer  )  const {
   
   //std::cout << "InOutConversionSeedFinder::startSeed ilayer " << ilayer <<  "\n";
   // Get a list of basic clusters that are consistent with a track 

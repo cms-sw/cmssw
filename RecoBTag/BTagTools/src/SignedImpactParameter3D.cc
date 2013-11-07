@@ -29,7 +29,7 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const TransientTrack & t
     return pair<bool,Measurement1D>(theIsValid,Measurement1D(0.,0.)) ;
    }
   
-  FreeTrajectoryState * FTS = TSOS.freeTrajectoryState();
+  const FreeTrajectoryState * FTS = TSOS.freeTrajectoryState();
 
   GlobalVector JetDirection(direction);
   
@@ -120,7 +120,7 @@ pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const Tr
     return pair<double,Measurement1D> (theDistanceAlongJetAxis,Measurement1D(theDistanceToJetAxis,theLDist_err));
   }
   
-  FreeTrajectoryState * FTS = TSOS.freeTrajectoryState();
+  const FreeTrajectoryState * FTS = TSOS.freeTrajectoryState();
 
   GlobalVector jetDirection(direction);
 

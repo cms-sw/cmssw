@@ -136,7 +136,7 @@ StartingLayerFinder::startingLayers(const TrajectorySeed& aSeed) const {
 							      thePropagator->magneticField());
 
 
-  FreeTrajectoryState* fts=tsos.freeTrajectoryState();
+  const FreeTrajectoryState* fts=tsos.freeTrajectoryState();
   
   return startingLayers(*fts, dr, dz);
 }

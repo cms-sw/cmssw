@@ -206,7 +206,7 @@ public:
 
 
 
-  FreeTrajectoryState* freeTrajectoryState(bool withErrors=true) const {
+  FreeTrajectoryState const* freeTrajectoryState(bool withErrors=true) const {
     if unlikely(!isValid()) notValid();
     if(withErrors && hasError()) { // this is the right thing
       checkCurvilinError();
