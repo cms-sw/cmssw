@@ -66,11 +66,15 @@ void setStyle(TH2 *histo) {
 
 bool addProfile=false;
 bool addSlice=true;
+bool addMedian  = false;
+TString opt2Dplot = "col";
 
 // Plot a TH2 + add profiles on top of it
 // minY, maxY: Y range for plotting and for computing profile if addProfile==true.
 //             Note that the simple profile is very sensitive to the Y range used!
-void plotAndProfileX (TH2* h2, int rebinX, int rebinY, int rebinProfile, float minY, float maxY, float minX=0, float maxX=0) {
+TH1F* plotAndProfileX (TH2* theh, int rebinX, int rebinY, int rebinProfile, float minY, float maxY, float minX=0, float maxX=0) {
+  TH2* h2=theh->Clone();
+  
   //  setStyle(h2);
   if (h2==0) {
     cout << "plotAndProfileX: null histo ptr" << endl;
@@ -90,7 +94,7 @@ void plotAndProfileX (TH2* h2, int rebinX, int rebinY, int rebinProfile, float m
   }
 
   h2->SetMarkerStyle(1);
-  h2->Draw("col");
+  h2->Draw(opt2Dplot);
   l->SetLineColor(3);
   l->SetLineWidth(2);
   l->Draw();
@@ -111,6 +115,7 @@ void plotAndProfileX (TH2* h2, int rebinX, int rebinY, int rebinProfile, float m
     prof->Draw("same");
   }
 
+  TH1F* ht=0;
 
   if (addSlice) {
     TObjArray aSlices;
@@ -130,10 +135,41 @@ void plotAndProfileX (TH2* h2, int rebinX, int rebinY, int rebinProfile, float m
     ht->Draw("same");    
   }
 
+  if (addMedian) {
+    double xq[1] = {0.5};
+    double median[1];
+
+    TAxis* axis =  h2->GetXaxis();
+    TH1F* medprof = new TH1F(h2->GetName()+TString("medians"),"medians", axis->GetNbins(), axis->GetXmin(), axis->GetXmax());
+    float bw =  h2->GetYaxis()->GetBinLowEdge(2)-h2->GetYaxis()->GetBinLowEdge(1);
+    
+
+    TString projname = h2->GetName()+TString("_pmedian");
+    for (int bin=1; bin<=h2->GetNbinsX(); ++bin){
+      TH1D * proj = h2->ProjectionY(projname, bin, bin);
+      double integral = proj->Integral();
+      if (integral==0) continue;
+      // Take overflow and underflow into account
+      int nbins = proj->GetNbinsX();
+      proj->SetBinContent(1, proj->GetBinContent(0)+proj->GetBinContent(1));
+      proj->SetBinContent(0,0);
+      proj->SetBinContent(nbins, proj->GetBinContent(nbins)+proj->GetBinContent(nbins+1));
+      proj->SetBinContent(nbins+1,0);
+      proj->GetQuantiles(1,median,xq);
+      medprof->SetBinContent(bin,median[0]);
+      // Approximated uncertainty on median, probably underestimated.
+      medprof->SetBinError(bin,bw*sqrt(integral/2.)/2./TMath::Max(1.,proj->GetBinContent(proj->FindBin(median[0]))));
+    }
+    medprof->SetMarkerColor(2);
+    medprof->SetMarkerStyle(20);
+    medprof->SetMarkerSize(0.4);
+    medprof->Draw("Esame");
+  }
+
   h2->GetYaxis()->SetRangeUser(minY,maxY);
 
+  return ht;
 }
-
 
 
 // void plotAndProfileX (TH2* h2, float min, float max, bool profile=false) {
@@ -196,7 +232,12 @@ TF1* drawGFit(TH1 * h1, float nsigmas, float min, float max){
   h1->GetXaxis()->SetRangeUser(min,max);
   float minfit = h1->GetMean() - h1->GetRMS();
   float maxfit = h1->GetMean() + h1->GetRMS();
-
+ 
+  TLine * l = new TLine(0,0,0,h1->GetMaximum()*1.05);
+  
+  l->SetLineColor(3);
+  l->SetLineWidth(2);
+  
   static int i = 0;
   TString nameF1 = TString("g") + (Long_t)i;
   i++;
@@ -214,7 +255,9 @@ TF1* drawGFit(TH1 * h1, float nsigmas, float min, float max){
   TF1* fh=h1->GetFunction(nameF1);
   if (fh) fh->FixParameter(0,g1->GetParameter(0)); // so that it is not shown in legend
 
-  gPad->Draw();
+  gPad->Draw(); 
+  l->Draw();
+  h1->Draw("same"); //redraw on top of the line
   return g1;
 }
 
@@ -296,15 +339,17 @@ void printCanvasesEps(){
 void printCanvasesEps2() {
   gROOT->GetListOfCanvases()->Print(".eps");
 }
-// Print all canvases in separate EPS files
-void printCanvases(TString type=".eps"){
+
+// Print all canvases in separate files
+void printCanvases(TString type="png", TString path="."){
   TIter iter(gROOT->GetListOfCanvases());
   TCanvas *c;
   while( (c = (TCanvas *)iter()) ) {
-    c->cd();
-    c->Print(0,type);
+    TString name =  c->GetTitle();
+    c->Print(path+"/"+name+"."+type,type);
   }
 }
+
 /*
  * Define different TStyles; use them with:
  * getStyle->cd();
