@@ -91,7 +91,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 //	    	BugType * BT = new BugType("FunctionChecker : non-const static local variable accessed or modified","ThreadSafety");
 //		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 //		BR.emitReport(R);
-//		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
  		llvm::errs() <<  "function '"<<sdname << "' static variable '" << support::getQualifiedName(*D) << "'.\n\n";
 		return;
 	}
@@ -104,7 +104,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 //	    	BugType * BT = new BugType("FunctionChecker : non-const static member variable accessed or modified","ThreadSafety");
 //		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 //		BR.emitReport(R);
-//		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
  		llvm::errs() <<  "function '"<<sdname << "' static variable '" << support::getQualifiedName(*D) << "'.\n\n";
 	    return;
 	}
@@ -122,7 +122,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 //	    	BugType * BT = new BugType("FunctionChecker : non-const global static variable accessed or modified","ThreadSafety");
 //		BugReport * R = new BugReport(*BT,os.str(),CELoc);
 //		BR.emitReport(R);
-//		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
+		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
  		llvm::errs() <<  "function '"<<sdname << "' static variable '" << support::getQualifiedName(*D) << "'.\n\n";
 	    return;
 	
