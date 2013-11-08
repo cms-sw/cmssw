@@ -63,10 +63,7 @@ void Particle::swap(Particle& other) {
 }
 /// dtor
 Particle::~Particle() {
-    delete p4Polar_;
-    p4Polar_ = nullptr;
-    delete p4Cartesian_;
-    p4Cartesian_ = nullptr;
+    clearCache();
 }
 
 /// electric charge
@@ -183,36 +180,47 @@ double Particle::y() const {
 
 /// set 4-momentum
 void Particle::setP4( const LorentzVector & p4 ) {
-  *p4Cartesian_.load(std::memory_order_acquire) = p4;
-  *p4Polar_.load(std::memory_order_acquire) = p4;
-  pt_ = (*p4Polar_.load(std::memory_order_acquire)).pt();
-  eta_ = (*p4Polar_.load(std::memory_order_acquire)).eta();
-  phi_ = (*p4Polar_.load(std::memory_order_acquire)).phi();
-  mass_ = (*p4Polar_.load(std::memory_order_acquire)).mass();
+    // ensure that we have non-null pointers
+    cacheCartesian();
+    *p4Cartesian_.load(std::memory_order_acquire) = p4;
+    // ensure that we have non-null pointers
+    cachePolar();
+    *p4Polar_.load(std::memory_order_acquire) = p4;
+    auto const* p4Polar = p4Polar_.load(std::memory_order_acquire);
+    pt_ = p4Polar->pt();
+    eta_ = p4Polar->eta();
+    phi_ = p4Polar->phi();
+    mass_ = p4Polar->mass();
 }
 /// set 4-momentum
 void Particle::setP4( const PolarLorentzVector & p4 ) {
-  *p4Polar_.load(std::memory_order_acquire) = p4;
-  pt_ = (*p4Polar_.load(std::memory_order_acquire)).pt();
-  eta_ = (*p4Polar_.load(std::memory_order_acquire)).eta();
-  phi_ = (*p4Polar_.load(std::memory_order_acquire)).phi();
-  mass_ = (*p4Polar_.load(std::memory_order_acquire)).mass();
-  delete p4Cartesian_;
-  p4Cartesian_=nullptr;
+    // ensure that we have non-null pointers
+    cachePolar();
+    *p4Polar_.load(std::memory_order_acquire) = p4;
+    auto const* p4Polar = p4Polar_.load(std::memory_order_acquire);
+    pt_ = p4Polar->pt();
+    eta_ = p4Polar->eta();
+    phi_ = p4Polar->phi();
+    mass_ = p4Polar->mass();
+    delete p4Cartesian_.exchange(nullptr, std::memory_order_acq_rel);
 }
 /// set particle mass
 void Particle::setMass( double m ) {
-  mass_ = m;
-  clearCache();
+    mass_ = m;
+    clearCache();
 }
 void Particle::setPz( double pz ) {
-  cacheCartesian();
-  (*p4Cartesian_.load(std::memory_order_acquire)).SetPz(pz);
-  (*p4Polar_.load(std::memory_order_acquire)) = (*p4Cartesian_.load(std::memory_order_acquire));
-  pt_ = (*p4Polar_.load(std::memory_order_acquire)).pt();
-  eta_ = (*p4Polar_.load(std::memory_order_acquire)).eta();
-  phi_ = (*p4Polar_.load(std::memory_order_acquire)).phi();
-  mass_ = (*p4Polar_.load(std::memory_order_acquire)).mass();
+    // ensure that we have non-null pointers
+    cacheCartesian();
+    (*p4Cartesian_.load(std::memory_order_acquire)).SetPz(pz);
+    // ensure that we have non-null pointers
+    cachePolar();
+    (*p4Polar_.load(std::memory_order_acquire)) = (*p4Cartesian_.load(std::memory_order_acquire));
+    auto const* p4Polar = p4Polar_.load(std::memory_order_acquire);
+    pt_ = p4Polar->pt();
+    eta_ = p4Polar->eta();
+    phi_ = p4Polar->phi();
+    mass_ = p4Polar->mass();
 }
 
 const Particle::Point & Particle::vertex() const {
@@ -278,8 +286,6 @@ void Particle::cacheCartesian() const {
 }
 /// clear internal cache
 void Particle::clearCache() const {
-    delete p4Polar_;
-    p4Polar_ = nullptr;
-    delete p4Cartesian_;
-    p4Cartesian_ = nullptr;
+    delete p4Polar_.exchange(nullptr, std::memory_order_acq_rel);
+    delete p4Cartesian_.exchange(nullptr, std::memory_order_acq_rel);
 }
