@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoMuon.selectors_cff import *
 from Validation.RecoMuon.associators_cff import *
-
 # Configurations for MuonTrackValidators
 import Validation.RecoMuon.MuonTrackValidator_cfi
 
@@ -12,6 +11,14 @@ trkMuonTrackVTrackAssoc.associators = ('TrackAssociatorByHits',)
 trkMuonTrackVTrackAssoc.label = ('generalTracks',)
 trkMuonTrackVTrackAssoc.usetracker = True
 trkMuonTrackVTrackAssoc.usemuon = False
+
+
+trkMuonTrackVMuonTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+trkMuonTrackVMuonTrackAssoc.associatormap = 'tpToTkMuonAssociation'
+trkMuonTrackVMuonTrackAssoc.associators = ('MuonAssociatorByHits',)
+trkMuonTrackVMuonTrackAssoc.label = ('generalTracks',)
+trkMuonTrackVMuonTrackAssoc.usetracker = True
+trkMuonTrackVMuonTrackAssoc.usemuon = False
 
 trkCosmicMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 trkCosmicMuonTrackVTrackAssoc.associatormap = 'tpToTkCosmicTrackAssociation'
@@ -290,9 +297,12 @@ recoMuonVMuAssoc_tgt.primaryVertex = 'offlinePrimaryVertices'
 # Muon validation sequence
 muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc
                                  +staMuonTrackVMuonAssoc+staUpdMuonTrackVMuonAssoc+glbMuonTrackVMuonAssoc
-                                  +recoMuonVMuAssoc_trk+recoMuonVMuAssoc_sta+recoMuonVMuAssoc_glb+recoMuonVMuAssoc_tgt
-                                  +recoMuonVMuAssoc_trkPF+recoMuonVMuAssoc_staPF+recoMuonVMuAssoc_glbPF)
+                                  +recoMuonVMuAssoc_trk+recoMuonVMuAssoc_sta+recoMuonVMuAssoc_glb+recoMuonVMuAssoc_tgt)
 
+muonValidationTest_seq = cms.Sequence(trkMuonTrackVMuonTrackAssoc
+                                 +staMuonTrackVMuonAssoc+staUpdMuonTrackVMuonAssoc+glbMuonTrackVMuonAssoc
+                                  +recoMuonVMuAssoc_trk+recoMuonVMuAssoc_sta+recoMuonVMuAssoc_glb+recoMuonVMuAssoc_tgt)
+                                  
 muonValidationTEV_seq = cms.Sequence(tevMuonFirstTrackVMuonAssoc+tevMuonPickyTrackVMuonAssoc+tevMuonDytTrackVMuonAssoc)
 
 muonValidationRefit_seq = cms.Sequence(staRefitMuonTrackVMuonAssoc+staRefitUpdMuonTrackVMuonAssoc)
@@ -304,7 +314,8 @@ muonValidationCosmic_seq = cms.Sequence(trkCosmicMuonTrackVTrackAssoc
 
 # The muon association and validation sequence
 
-recoMuonValidation = cms.Sequence((muonAssociation_seq*muonValidation_seq)
+recoMuonValidation = cms.Sequence((muonAssociation_seq*muonValidationTest_seq)
+#                                 +(muonAssociation_seq*muonValidationTest_seq)
                                  +(muonAssociationTEV_seq*muonValidationTEV_seq)
                                  +(muonAssociationSET_seq*muonValidationSET_seq)
                                  +(muonAssociationRefit_seq*muonValidationRefit_seq)
