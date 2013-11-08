@@ -33,7 +33,6 @@
 #include "TauSpinner/SimpleParticle.h"
 
 using namespace edm;
-using namespace std;
 using namespace TauSpinner;
 
 class TauSpinnerCMS : public edm::EDProducer
@@ -55,7 +54,7 @@ class TauSpinnerCMS : public edm::EDProducer
   bool isReco_;
   bool isTauolaConfigured_;
   bool isLHPDFConfigured_;
-  string LHAPDFname_;
+  std::string LHAPDFname_;
   double CMSEnergy_;
   edm::InputTag gensrc_;
   int MotherPDGID_,Ipol_,nonSM2_,nonSMN_;

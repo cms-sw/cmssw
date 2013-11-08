@@ -53,7 +53,7 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   double WTFlip=1.0;
   double polSM=-999; //range [-1,1]
   SimpleParticle X, tau, tau2;
-  vector<SimpleParticle> tau_daughters, tau_daughters2;
+  std::vector<SimpleParticle> tau_daughters, tau_daughters2;
   int stat(0);
   if(isReco_){
     stat=readParticlesfromReco(e,X,tau,tau2,tau_daughters,tau_daughters2);
