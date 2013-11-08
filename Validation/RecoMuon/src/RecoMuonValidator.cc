@@ -473,7 +473,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
   beamspotToken_ = consumes<reco::BeamSpot>(beamspotLabel_);
   primvertexToken_ = consumes<reco::VertexCollection>(primvertexLabel_);
 
-  // Set histogram dimensions from config
+ // Set histogram dimensions from config
   HistoDimensions hDim;
   
   hDim.nBinP = pset.getUntrackedParameter<unsigned int>("nBinP");
@@ -532,6 +532,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
   hDim.nAssoc = pset.getUntrackedParameter<unsigned int>("nAssoc");
   hDim.nDof = pset.getUntrackedParameter<unsigned int>("nDof", 55);
 
+ 
   // Labels for simulation and reconstruction tracks
   simLabel_  = pset.getParameter<InputTag>("simLabel" );
   muonLabel_ = pset.getParameter<InputTag>("muonLabel");
@@ -542,10 +543,12 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
   doAssoc_ = pset.getUntrackedParameter<bool>("doAssoc", true);
   muAssocLabel_ = pset.getParameter<InputTag>("muAssocLabel");
   //  muAssocToken = consumes<>(muAssocLabel_);
-
-  // Different momentum assignment and additional histos in case of PF muons
+ 
+// Different momentum assignment and additional histos in case of PF muons
   usePFMuon_ = pset.getUntrackedParameter<bool>("usePFMuon");
   hDim.usePFMuon = usePFMuon_;
+
+ 
 
   //type of track
   std::string trackType = pset.getParameter< std::string >("trackType");
@@ -568,6 +571,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
                                          tpset.getParameter<bool>("chargedOnly"),
                                          tpset.getParameter<bool>("stableOnly"),
                                          tpset.getParameter<std::vector<int> >("pdgId"));
+
 
   // the service parameters
   ParameterSet serviceParameters 
@@ -636,6 +640,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
   muonME_->bookHistograms(theDQM, subDir_, hDim);
 
   if ( verbose_ > 0 ) theDQM->showDirStructure();
+
 }
 
 //
@@ -649,6 +654,7 @@ RecoMuonValidator::~RecoMuonValidator()
 //
 //Begin run
 //
+
 void RecoMuonValidator::beginRun(const edm::Run& , const EventSetup& eventSetup)
 {
   if ( theMuonService ) theMuonService->update(eventSetup);
@@ -728,6 +734,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   for (size_t i = 0; i < nSim; ++i) {
       allTPs.push_back(TrackingParticleRef(simHandle,i));
   }
+ 
 
   muonME_->hNSim_->Fill(nSim);
   muonME_->hNMuon_->Fill(muonColl.size());
@@ -735,9 +742,11 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   MuonAssociatorByHits::MuonToSimCollection muonToSimColl;
   MuonAssociatorByHits::SimToMuonCollection simToMuonColl;
 
+
   if ( doAssoc_ ) {
   assoByHits->associateMuons(muonToSimColl, simToMuonColl, Muons, trackType_, allTPs, &event, &eventSetup);
   } else {
+
 /*
     // SimToMuon associations
     Handle<reco::RecoToSimCollection> simToTrkMuHandle;
@@ -767,10 +776,13 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 */
   }
 
+
+
   int glbNTrackerHits = 0; int trkNTrackerHits = 0;
   int glbNMuonHits = 0; int staNMuonHits = 0;
   int NTrackerHits = 0; int NMuonHits = 0;
   
+
   // Analyzer reco::Muon  
   for(View<Muon>::const_iterator iMuon = muonColl.begin();
       iMuon != muonColl.end(); ++iMuon) {
@@ -824,7 +836,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     } else {
       Track = iMuon->standAloneMuon();
     } 
-    
+
     NTrackerHits = countTrackerHits(*Track);
     muonME_->hNTrackerHits_->Fill(NTrackerHits);
     muonME_->hNTrackerHits_vs_Pt_->Fill(Track->pt(), NTrackerHits);
@@ -872,6 +884,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     }
 
   }//end of reco muon loop
+
 
   // Associate by hits
   for(TrackingParticleCollection::size_type i=0; i<nSim; i++) {

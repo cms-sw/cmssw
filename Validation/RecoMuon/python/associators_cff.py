@@ -42,6 +42,12 @@ tpToTkmuTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     label_tr = cms.InputTag('generalTracks')
 )
 
+tpToTkMuonTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
+    associator = cms.string('MuonAssociatorByHits'),
+    label_tp = cms.InputTag('mix', 'MergedTrackTruth'),
+    label_tr = cms.InputTag('generalTracks','')
+)
+
 tpToStaTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByDeltaR'),
     label_tp = cms.InputTag('mix', 'MergedTrackTruth'),
@@ -156,6 +162,8 @@ tpToTkMuonAssociation.tpTag = 'mix:MergedTrackTruth'
 tpToTkMuonAssociation.tracksTag = 'generalTracks'
 tpToTkMuonAssociation.UseTracker = True
 tpToTkMuonAssociation.UseMuon = False
+
+
 
 tpToStaMuonAssociation.tpTag = 'mix:MergedTrackTruth'
 tpToStaMuonAssociation.tracksTag = 'standAloneMuons'
@@ -292,7 +300,8 @@ tpToGlbCosmicMuonAssociation.UseMuon = True
 
 muonAssociation_seq = cms.Sequence(
     extractedMuonTracks_seq
-    +(tpToTkMuonAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation)
+    +(tpToTkMuonAssociation)
+    +(tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation)
     +(tpToTkmuTrackAssociation)
 #   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToStaUpdTrackAssociation+tpToGlbTrackAssociation)
 )

@@ -65,6 +65,8 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
 
   virtual void beginJob() ;
   virtual void endJob() ;
+  virtual void beginRun() ;
+  virtual void endRun() ;
  protected:
 
  private:
