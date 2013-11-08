@@ -72,7 +72,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 					   const edm::EventSetup& es)
 {
 
-  if (theComparitor) theComparitor->init(es);
+  if (theComparitor) theComparitor->init(ev, es);
   
   auto const & doublets = thePairGenerator->doublets(region,ev,es);
   

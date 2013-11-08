@@ -21,7 +21,7 @@ class PixelClusterShapeSeedComparitor : public SeedComparitor {
     public:
         PixelClusterShapeSeedComparitor(const edm::ParameterSet &cfg) ;
         virtual ~PixelClusterShapeSeedComparitor() ; 
-        virtual void init(const edm::EventSetup& es) override ;
+        virtual void init(const edm::Event& ev, const edm::EventSetup& es) override ;
         virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const override { return true; }
         virtual bool compatible(const TrajectorySeed &seed) const override { return true; }
         virtual bool compatible(const TrajectoryStateOnSurface &,
@@ -57,7 +57,7 @@ PixelClusterShapeSeedComparitor::~PixelClusterShapeSeedComparitor()
 }
 
 void
-PixelClusterShapeSeedComparitor::init(const edm::EventSetup& es) {
+PixelClusterShapeSeedComparitor::init(const edm::Event& ev, const edm::EventSetup& es) {
     es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
 }
 

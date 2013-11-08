@@ -35,6 +35,7 @@ public:
 						 const SeedingHitSet & phits,
 						 const SeedingHitSet & mhits,
 						 const TrackingRegion & region,
+                                                 const edm::Event& ev,
 						 const edm::EventSetup& es,
 						 std::stringstream& ss, std::vector<Quad> & quadV,
 						 edm::ParameterSet& SeedComparitorPSet,
