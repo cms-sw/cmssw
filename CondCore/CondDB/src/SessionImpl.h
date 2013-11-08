@@ -50,7 +50,7 @@ namespace cond {
 
       void openIovDb( FailureOnOpeningPolicy policy = THROW );
       void openGTDb();
-      IOVSchema& iovSchema();
+      IIOVSchema& iovSchema();
       GTSchema& gtSchema();
       
       coral::ISchema& coralSchema();
@@ -62,7 +62,7 @@ namespace cond {
       boost::shared_ptr<coral::ISessionProxy> coralSession;
       std::unique_ptr<TransactionCache> transactionCache;
       size_t transactionClients = 0;
-      std::unique_ptr<IOVSchema> iovSchemaHandle; 
+      std::unique_ptr<IIOVSchema> iovSchemaHandle; 
       std::unique_ptr<GTSchema> gtSchemaHandle; 
     };
 

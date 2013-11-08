@@ -1,10 +1,36 @@
 #include "CondCore/CondDB/interface/Exception.h"
 #include "IOVSchema.h"
 //
+#include <openssl/sha.h>
 
 namespace cond {
 
   namespace persistency {
+
+    cond::Hash makeHash( const std::string& objectType, const cond::Binary& data ){
+      SHA_CTX ctx;
+      if( !SHA1_Init( &ctx ) ){
+	throwException( "SHA1 initialization error.","IOVSchema::makeHash");
+      }
+      if( !SHA1_Update( &ctx, objectType.c_str(), objectType.size() ) ){
+	throwException( "SHA1 processing error (1).","IOVSchema::makeHash");
+      }
+      if( !SHA1_Update( &ctx, data.data(), data.size() ) ){
+	throwException( "SHA1 processing error (2).","IOVSchema::makeHash");
+      }
+      unsigned char hash[SHA_DIGEST_LENGTH];
+      if( !SHA1_Final(hash, &ctx) ){
+	throwException( "SHA1 finalization error.","IOVSchema::makeHash");
+      }
+      
+      char tmp[SHA_DIGEST_LENGTH*2+1];
+      // re-write bytes in hex
+      for (unsigned int i = 0; i < 20; i++) {                                                                                                        
+	::sprintf(&tmp[i * 2], "%02x", hash[i]);                                                                                                 
+      }                                                                                                                                              
+      tmp[20*2] = 0;                                                                                                                                 
+      return tmp;                                                                                                                                    
+    }
 
     TAG::Table::Table( coral::ISchema& schema ):
       m_schema( schema ){
@@ -249,6 +275,16 @@ namespace cond {
       bool failOnDuplicate = false;
       return insertInTable( m_schema, tname, dataToInsert.get(), failOnDuplicate );
     }
+
+    cond::Hash PAYLOAD::Table::insertIfNew( const std::string& payloadObjectType, const cond::Binary& payloadData, 
+					    const boost::posix_time::ptime& insertionTime ){
+      cond::Hash payloadHash = makeHash( payloadObjectType, payloadData );
+      // the check on the hash existance is only required to avoid the error message printing in SQLite! once this is removed, this check is useless... 
+      if( !select( payloadHash ) ){
+	insert( payloadHash, payloadObjectType, payloadData, insertionTime );
+      }
+      return payloadHash;
+    }
     
     TAG_MIGRATION::Table::Table( coral::ISchema& schema ):
       m_schema( schema ){
@@ -313,19 +349,19 @@ namespace cond {
       return created;
     }
 
-    TAG::Table& IOVSchema::tagTable(){
+    ITagTable& IOVSchema::tagTable(){
       return m_tagTable;
     }
       
-    IOV::Table& IOVSchema::iovTable(){
+    IIOVTable& IOVSchema::iovTable(){
       return m_iovTable;
     }
       
-    PAYLOAD::Table& IOVSchema::payloadTable(){
+    IPayloadTable& IOVSchema::payloadTable(){
       return m_payloadTable;
     }
       
-    TAG_MIGRATION::Table& IOVSchema::tagMigrationTable(){
+    ITagMigrationTable& IOVSchema::tagMigrationTable(){
       return m_tagMigrationTable;
     }
     

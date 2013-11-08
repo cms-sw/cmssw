@@ -1,7 +1,6 @@
 #include "CondCore/CondDB/interface/Session.h"
 #include "SessionImpl.h"
 //
-#include <openssl/sha.h>
 
 namespace cond {
 
@@ -142,41 +141,11 @@ namespace cond {
       return proxy;
     }
     
-    cond::Hash makeHash( const std::string& objectType, const cond::Binary& data ){
-      SHA_CTX ctx;
-      if( !SHA1_Init( &ctx ) ){
-	throwException( "SHA1 initialization error.","Session::makeHash");
-      }
-      if( !SHA1_Update( &ctx, objectType.c_str(), objectType.size() ) ){
-	throwException( "SHA1 processing error (1).","Session::makeHash");
-      }
-      if( !SHA1_Update( &ctx, data.data(), data.size() ) ){
-	throwException( "SHA1 processing error (2).","Session::makeHash");
-      }
-      unsigned char hash[SHA_DIGEST_LENGTH];
-      if( !SHA1_Final(hash, &ctx) ){
-	throwException( "SHA1 finalization error.","Session::makeHash");
-      }
-      
-      char tmp[SHA_DIGEST_LENGTH*2+1];
-      // re-write bytes in hex
-      for (unsigned int i = 0; i < 20; i++) {                                                                                                        
-	::sprintf(&tmp[i * 2], "%02x", hash[i]);                                                                                                 
-      }                                                                                                                                              
-      tmp[20*2] = 0;                                                                                                                                 
-      return tmp;                                                                                                                                    
-    }
-    
     cond::Hash Session::storePayloadData( const std::string& payloadObjectType, 
 					  const cond::Binary& payloadData, 
 					  const boost::posix_time::ptime& creationTime ){
       m_session->openIovDb( SessionImpl::CREATE );
-      cond::Hash payloadHash = makeHash( payloadObjectType, payloadData );
-      // the check on the hash existance is only required to avoid the error message printing in SQLite! once this is removed, this check is useless... 
-      if( !m_session->iovSchema().payloadTable().select( payloadHash ) ){
-	m_session->iovSchema().payloadTable().insert( payloadHash, payloadObjectType, payloadData, creationTime );
-      }
-      return payloadHash;
+      return m_session->iovSchema().payloadTable().insertIfNew( payloadObjectType, payloadData, creationTime );
     }
     
     bool Session::fetchPayloadData( const cond::Hash& payloadHash,

@@ -117,7 +117,7 @@ namespace cond {
       }
     }
     
-    IOVSchema& SessionImpl::iovSchema(){
+    IIOVSchema& SessionImpl::iovSchema(){
       return *iovSchemaHandle;
     }
 

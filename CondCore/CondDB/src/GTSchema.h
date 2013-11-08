@@ -20,7 +20,7 @@ namespace cond {
       
       class Table {
       public:
-	Table( coral::ISchema& schema );
+	explicit Table( coral::ISchema& schema );
 	virtual ~Table(){}
 	bool exists();
 	bool select( const std::string& name);
@@ -49,7 +49,7 @@ namespace cond {
       
       class Table {
       public:
-	Table( coral::ISchema& schema );
+	explicit Table( coral::ISchema& schema );
 	virtual ~Table(){}
 	bool exists();
 	bool select( const std::string& gtName, std::vector<std::tuple<std::string,std::string,std::string> >& tags );
@@ -61,7 +61,7 @@ namespace cond {
     
     class GTSchema {
     public: 
-      GTSchema( coral::ISchema& schema );
+      explicit GTSchema( coral::ISchema& schema );
       virtual ~GTSchema(){}
       bool exists();
       GLOBAL_TAG::Table& gtTable();
