@@ -1,6 +1,4 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
-#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -8,9 +6,12 @@
 #include "G4Transform3D.hh"
 #include "G4LogicalVolumeStore.hh"
 
-//using std::string;
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
-SensitiveDetector::SensitiveDetector(std::string & iname, 
+using std::string;
+
+SensitiveDetector::SensitiveDetector(string & iname, 
 				     const DDCompactView & cpv,
 				     SensitiveDetectorCatalog & clg, 
 				     edm::ParameterSet const & p) :
@@ -26,7 +27,7 @@ void SensitiveDetector::Register()
   SDman->AddNewDetector(this);
 }
 
-void SensitiveDetector::AssignSD(std::string & vname)
+void SensitiveDetector::AssignSD(string & vname)
 {
   G4LogicalVolumeStore * theStore = G4LogicalVolumeStore::GetInstance();
   G4LogicalVolumeStore::const_iterator it;
