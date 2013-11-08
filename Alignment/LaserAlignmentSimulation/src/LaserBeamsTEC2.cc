@@ -13,10 +13,10 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "globals.hh"                        // Global Constants and typedefs
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleGun.hh"
-#include "G4SystemOfUnits.hh"
 
 LaserBeamsTEC2::LaserBeamsTEC2() :
   theParticleGun(0),

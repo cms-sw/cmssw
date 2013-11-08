@@ -12,11 +12,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "globals.hh"                        // Global Constants and typedefs
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleGun.hh"
-#include "G4SystemOfUnits.hh"
 
 LaserBeamsTEC1::LaserBeamsTEC1() :
   theParticleGun(0),
@@ -29,11 +29,10 @@ LaserBeamsTEC1::LaserBeamsTEC1() :
   LaserBeamsTEC1(nPhotonsGun, nPhotonsBeam, Energy);
 }
 
-LaserBeamsTEC1::LaserBeamsTEC1(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4double PhotonEnergy) : thenParticleInGun(0),
-												   thenParticle(0),
-												   thePhotonEnergy(0),
-												   theParticleGun(),
-												   theDRand48Engine()
+LaserBeamsTEC1::LaserBeamsTEC1(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4double PhotonEnergy) : 
+  thenParticleInGun(0), 
+  thenParticle(0), 
+  thePhotonEnergy(0)
 {
   /* *********************************************************************** */
   /*  initialize and configure the particle gun                              */
