@@ -22,7 +22,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-
 //#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 //
 //DQM services
@@ -97,6 +96,7 @@ class PhotonValidator : public edm::EDAnalyzer
   edm::ParameterSet parameters_;
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<CaloTopology> theCaloTopo_;
+
 
   std::string photonCollectionProducer_;
   std::string photonCollection_;
