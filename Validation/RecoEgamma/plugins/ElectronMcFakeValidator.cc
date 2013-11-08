@@ -44,23 +44,23 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
  : ElectronDqmAnalyzerBase(conf)
  {
   //outputFile_ = conf.getParameter<std::string>("outputFile");
-  electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
-  electronCoreCollection_ = conf.getParameter<edm::InputTag>("electronCoreCollection");
-  electronTrackCollection_ = conf.getParameter<edm::InputTag>("electronTrackCollection");
-  electronSeedCollection_ = conf.getParameter<edm::InputTag>("electronSeedCollection");
-  matchingObjectCollection_ = conf.getParameter<edm::InputTag>("matchingObjectCollection");
+  electronCollection_ = consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollection"));
+  electronCoreCollection_ = consumes<reco::GsfElectronCoreCollection>(conf.getParameter<edm::InputTag>("electronCoreCollection"));
+  electronTrackCollection_ = consumes<reco::GsfTrackCollection>(conf.getParameter<edm::InputTag>("electronTrackCollection"));
+  electronSeedCollection_ = consumes<reco::ElectronSeedCollection>(conf.getParameter<edm::InputTag>("electronSeedCollection"));
+  matchingObjectCollection_ = consumes<reco::GenJetCollection>(conf.getParameter<edm::InputTag>("matchingObjectCollection"));
 
-  beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot");
+  beamSpotTag_ = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
   readAOD_ = conf.getParameter<bool>("readAOD");
 
-  isoFromDepsTk03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsTk03" ) ;
-  isoFromDepsTk04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsTk04" ) ;
-  isoFromDepsEcalFull03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalFull03" ) ;
-  isoFromDepsEcalFull04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalFull04" ) ;
-  isoFromDepsEcalReduced03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalReduced03" ) ;
-  isoFromDepsEcalReduced04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalReduced04" ) ;
-  isoFromDepsHcal03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsHcal03" ) ;
-  isoFromDepsHcal04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsHcal04" ) ;
+  isoFromDepsTk03Tag_ = consumes<edm::ValueMap<double>>(conf.getParameter<edm::InputTag>( "isoFromDepsTk03" )) ;
+  isoFromDepsTk04Tag_ = consumes<edm::ValueMap<double>>(conf.getParameter<edm::InputTag>( "isoFromDepsTk04" )) ;
+  isoFromDepsEcalFull03Tag_ = consumes<edm::ValueMap<double>>(conf.getParameter<edm::InputTag>( "isoFromDepsEcalFull03" )) ;
+  isoFromDepsEcalFull04Tag_ = consumes<edm::ValueMap<double>>(conf.getParameter<edm::InputTag>( "isoFromDepsEcalFull04" ));
+  isoFromDepsEcalReduced03Tag_ = consumes<edm::ValueMap<double>>(conf.getParameter<edm::InputTag>( "isoFromDepsEcalReduced03" )) ;
+  isoFromDepsEcalReduced04Tag_ = consumes<edm::ValueMap<double>>(conf.getParameter<edm::InputTag>( "isoFromDepsEcalReduced04" )) ;
+  isoFromDepsHcal03Tag_ = consumes<edm::ValueMap<double>>(conf.getParameter<edm::InputTag>( "isoFromDepsHcal03" )) ;
+  isoFromDepsHcal04Tag_ = consumes<edm::ValueMap<double>>(conf.getParameter<edm::InputTag>( "isoFromDepsHcal04" )) ;
 
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
@@ -470,12 +470,16 @@ void ElectronMcFakeValidator::book()
 
   // matching object type
   std::string matchingObjectType ;
-  if (std::string::npos!=matchingObjectCollection_.label().find("iterativeCone5GenJets",0))
+/*  if (std::string::npos!=matchingObjectCollection_.label().find("iterativeCone5GenJets",0))
    { matchingObjectType = "GenJet" ; }
   if (matchingObjectType=="")
    { edm::LogError("ElectronMcFakeValidator::beginJob")<<"Unknown matching object type !" ; }
   else
    { edm::LogInfo("ElectronMcFakeValidator::beginJob")<<"Matching object type: "<<matchingObjectType ; }
+*/  
+  // Emilia
+  matchingObjectType = "GenJet" ;
+  
   std::string htitle = "# "+matchingObjectType+"s", xtitle = "N_{"+matchingObjectType+"}" ;
   h1_matchingObjectNum = bookH1withSumw2("matchingObjectNum",htitle,fhits_nbin,0.,fhits_max,xtitle) ;
 
@@ -889,30 +893,30 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
  {
   // get reco electrons
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
-  iEvent.getByLabel(electronCollection_,gsfElectrons);
+  iEvent.getByToken(electronCollection_,gsfElectrons);
   edm::Handle<GsfElectronCoreCollection> gsfElectronCores ;
-  iEvent.getByLabel(electronCoreCollection_,gsfElectronCores) ;
+  iEvent.getByToken(electronCoreCollection_,gsfElectronCores) ;
   edm::Handle<GsfTrackCollection> gsfElectronTracks ;
-  iEvent.getByLabel(electronTrackCollection_,gsfElectronTracks) ;
+  iEvent.getByToken(electronTrackCollection_,gsfElectronTracks) ;
   edm::Handle<ElectronSeedCollection> gsfElectronSeeds ;
-  iEvent.getByLabel(electronSeedCollection_,gsfElectronSeeds) ;
+  iEvent.getByToken(electronSeedCollection_,gsfElectronSeeds) ;
 
-  edm::Handle<edm::ValueMap<double> > isoFromDepsTk03Handle          ;   iEvent.getByLabel( isoFromDepsTk03Tag_         , isoFromDepsTk03Handle          ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsTk04Handle          ;   iEvent.getByLabel( isoFromDepsTk04Tag_         , isoFromDepsTk04Handle          ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalFull03Handle    ;   iEvent.getByLabel( isoFromDepsEcalFull03Tag_   , isoFromDepsEcalFull03Handle    ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalFull04Handle    ;   iEvent.getByLabel( isoFromDepsEcalFull04Tag_   , isoFromDepsEcalFull04Handle    ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalReduced03Handle ;   iEvent.getByLabel( isoFromDepsEcalReduced03Tag_, isoFromDepsEcalReduced03Handle ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalReduced04Handle ;   iEvent.getByLabel( isoFromDepsEcalReduced04Tag_, isoFromDepsEcalReduced04Handle ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsHcal03Handle        ;   iEvent.getByLabel( isoFromDepsHcal03Tag_       , isoFromDepsHcal03Handle        ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsHcal04Handle        ;   iEvent.getByLabel( isoFromDepsHcal04Tag_       , isoFromDepsHcal04Handle        ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsTk03Handle          ;   iEvent.getByToken( isoFromDepsTk03Tag_         , isoFromDepsTk03Handle          ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsTk04Handle          ;   iEvent.getByToken( isoFromDepsTk04Tag_         , isoFromDepsTk04Handle          ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalFull03Handle    ;   iEvent.getByToken( isoFromDepsEcalFull03Tag_   , isoFromDepsEcalFull03Handle    ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalFull04Handle    ;   iEvent.getByToken( isoFromDepsEcalFull04Tag_   , isoFromDepsEcalFull04Handle    ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalReduced03Handle ;   iEvent.getByToken( isoFromDepsEcalReduced03Tag_, isoFromDepsEcalReduced03Handle ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalReduced04Handle ;   iEvent.getByToken( isoFromDepsEcalReduced04Tag_, isoFromDepsEcalReduced04Handle ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsHcal03Handle        ;   iEvent.getByToken( isoFromDepsHcal03Tag_       , isoFromDepsHcal03Handle        ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsHcal04Handle        ;   iEvent.getByToken( isoFromDepsHcal04Tag_       , isoFromDepsHcal04Handle        ) ;
 
   // get gen jets
   edm::Handle<reco::GenJetCollection> genJets ;
-  iEvent.getByLabel(matchingObjectCollection_,genJets);
+  iEvent.getByToken(matchingObjectCollection_,genJets);
 
   // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle);
+  iEvent.getByToken(beamSpotTag_,recoBeamSpotHandle);
   const BeamSpot bs = *recoBeamSpotHandle;
 
   edm::LogInfo("ElectronMcFakeValidator::analyze")

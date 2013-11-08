@@ -8,6 +8,23 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 class MagneticField;
 
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+ 
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,23 +40,23 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
 
   private:
 
-    edm::InputTag electronCollection_;
-    edm::InputTag electronCoreCollection_;
-    edm::InputTag electronTrackCollection_;
-    edm::InputTag electronSeedCollection_;
-    edm::InputTag  matchingObjectCollection_;
-    edm::InputTag beamSpotTag_;
+    edm::EDGetTokenT<reco::GsfElectronCollection> electronCollection_;
+    edm::EDGetTokenT<reco::GsfElectronCoreCollection> electronCoreCollection_;
+    edm::EDGetTokenT<reco::GsfTrackCollection> electronTrackCollection_;
+    edm::EDGetTokenT<reco::ElectronSeedCollection> electronSeedCollection_;
+    edm::EDGetTokenT<reco::GenJetCollection>  matchingObjectCollection_;
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
     bool readAOD_;
     //std::string outputFile_ ;
 
-    edm::InputTag isoFromDepsTk03Tag_ ;
-    edm::InputTag isoFromDepsTk04Tag_ ;
-    edm::InputTag isoFromDepsEcalFull03Tag_ ;
-    edm::InputTag isoFromDepsEcalFull04Tag_ ;
-    edm::InputTag isoFromDepsEcalReduced03Tag_ ;
-    edm::InputTag isoFromDepsEcalReduced04Tag_ ;
-    edm::InputTag isoFromDepsHcal03Tag_ ;
-    edm::InputTag isoFromDepsHcal04Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsTk03Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsTk04Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsEcalFull03Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsEcalFull04Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsEcalReduced03Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsEcalReduced04Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsHcal03Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsHcal04Tag_ ;
 
     edm::ESHandle<TrackerGeometry> pDD ;
     edm::ESHandle<MagneticField> theMagField ;
