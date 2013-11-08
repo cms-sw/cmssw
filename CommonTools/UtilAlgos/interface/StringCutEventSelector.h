@@ -12,7 +12,8 @@ class  StringCutEventSelector : public EventSelector {
  public:
   StringCutEventSelector(const edm::ParameterSet& pset, edm::ConsumesCollector && iC) :
     EventSelector(pset),
-    srcToken_(iC.consumes<edm::View<Object> >(edm::Service<InputTagDistributorService>()->retrieve("src",pset))),
+    src_(edm::Service<InputTagDistributorService>()->retrieve("src",pset)),
+    srcToken_(iC.consumes<edm::View<Object> >(src_)),
     f_(pset.getParameter<std::string>("cut")),
     //put this guy to 0 to do the check on "all" object in the collection
     nFirst_(pset.getParameter<unsigned int>("nFirst"))
@@ -41,6 +42,7 @@ class  StringCutEventSelector : public EventSelector {
     }
 
  private:
+    edm::InputTag src_;
     edm::EDGetTokenT<edm::View<Object> > srcToken_;
     StringCutObjectSelector<Object> f_;
     unsigned int nFirst_;
