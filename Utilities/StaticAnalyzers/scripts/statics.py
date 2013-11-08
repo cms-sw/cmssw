@@ -44,6 +44,7 @@ for key in gets:
 	for get in gets[key]:
 		func = get+" # "+key
 		stack = set()
+		stack.add(get)
 		stackup(get)
 		funcs[func].append(sorted(stack))
 
