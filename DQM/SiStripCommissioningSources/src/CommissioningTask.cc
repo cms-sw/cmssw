@@ -335,7 +335,7 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
 
     TProfile* prof = ExtractTObject<TProfile>().extract( histo_set.histo() );
     // if ( prof ) { prof->SetErrorOption("s"); } //@@ necessary?
-    static UpdateTProfile profile;
+    const static UpdateTProfile profile;
     for ( uint32_t ibin = 0; ibin < histo_set.vNumOfEntries_.size(); ibin++ ) {
       profile.setBinContents( prof,
 			      ibin+1, 
