@@ -5,7 +5,7 @@
 
 namespace reco {
   namespace modules {
-    
+
     template<>
     struct ParameterAdapter<NonNullNumberSelector> {
       static NonNullNumberSelector make( const edm::ParameterSet & cfg ) {
