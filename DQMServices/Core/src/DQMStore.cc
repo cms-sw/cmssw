@@ -269,6 +269,15 @@ MonitorElement * DQMStore::IBooker::book1D(const std::string &name,
   return owner_->book1D(name, title, nchX, lowX, highX);
 }
 
+MonitorElement * DQMStore::IBooker::book2D(const std::string &name,
+                                           const std::string &title,
+                                           int nchX, double lowX, double highX,
+                                           int nchY, double lowY, double highY) {
+  return owner_->book2D(name, title,
+                        nchX, lowX, highX,
+                        nchY, lowY, highY);
+}
+
 /** Function to transfer the local copies of histograms from each
     stream into the global ROOT Object. Since this involves de-facto a
     booking action in the case in which the global object is not yet

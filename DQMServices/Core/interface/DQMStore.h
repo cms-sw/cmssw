@@ -89,6 +89,10 @@ public:
     MonitorElement * book1D(const std::string &name,
                             const std::string &title,
                             int nchX, double lowX, double highX);
+    MonitorElement * book2D(const std::string &name,
+                            const std::string &title,
+                            int nchX, double lowX, double highX,
+                            int nchY, double lowY, double highY);
     void cd(const std::string &dir);
     void setCurrentFolder(const std::string &fullpath);
 
