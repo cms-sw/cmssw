@@ -6,11 +6,11 @@
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
-#include "G4HadronElasticPhysicsLHEP.hh"
+#include "G4HadronElasticPhysics.hh"
 #include "G4HadronicProcessStore.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "HadronPhysicsLHEP.hh"
+//#include "HadronPhysicsLHEP.hh"
 
 LHEPCMS_EMV::LHEPCMS_EMV(G4LogicalVolumeToDDLogicalPartMap& map,
 		 const HepPDT::ParticleDataTable * table_, 
@@ -42,10 +42,10 @@ LHEPCMS_EMV::LHEPCMS_EMV(G4LogicalVolumeToDDLogicalPartMap& map,
     G4HadronicProcessStore::Instance()->SetVerbose(ver);
 
     // Hadron Elastic scattering
-    RegisterPhysics( new G4HadronElasticPhysicsLHEP(ver));
+    RegisterPhysics( new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(  new HadronPhysicsLHEP(ver));
+    //    RegisterPhysics(  new HadronPhysicsLHEP(ver));
 
     // Ion Physics
     RegisterPhysics( new G4IonPhysics(ver));
