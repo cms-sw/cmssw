@@ -59,6 +59,7 @@ using namespace std;
 FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
   : VirtualJetProducer( iConfig ),
     useMassDropTagger_(false),
+    useCMSBoostedTauSeedingAlgorithm_(false),
     useFiltering_(false),
     useTrimming_(false),
     usePruning_(false),
@@ -350,7 +351,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceVoronoiArea( fjInputs_, *fjJetDefinition_ , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
   }
 
-  if ( !useMassDropTagger_ && !useCMSBoostedTauSeedingAlgorithm_ && !useTrimming_ && !useFiltering_ && !usePruning_ ) {
+  if ( !(useMassDropTagger_ || useCMSBoostedTauSeedingAlgorithm_ || useTrimming_ || useFiltering_ || usePruning_) ) {
     fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
   } else {
     fjJets_.clear();

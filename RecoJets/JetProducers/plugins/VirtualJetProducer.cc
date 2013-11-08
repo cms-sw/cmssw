@@ -698,7 +698,7 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
     std::vector<fastjet::PseudoJet> constituents;
     if ( it->has_pieces() ) {
       constituents = it->pieces();
-    } else if ( it->has_constituents () ) {
+    } else if ( it->has_constituents() ) {
       constituents = it->constituents();
     }
 
