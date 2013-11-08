@@ -1,4 +1,4 @@
-<library file="PhotosInterface.cc,*.f" name="PhotosInterfaceDefault">
+<library file="PhotosInterface.cc" name="PhotosInterfaceDefault">
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
@@ -11,7 +11,7 @@
 </library>
 
 
-<library file="PhotosInterface53XLegacy.cc,*.f" name="PhotosInterfaceLegacy">
+<library file="PhotosInterface53XLegacy.cc" name="PhotosInterfaceLegacy">
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>

@@ -43,6 +43,20 @@ extern "C" {
 
 }
 
+extern "C"{
+
+  double phoran_(int *idummy)
+  {
+    return TauolaInterfaceVar::decayRandomEngine->flat();
+  }
+  extern struct {
+    // bool qedrad[NMXHEP];
+    bool qedrad[4000]; // hardcoded for now...
+  } phoqed_;
+
+}
+
+
 //
 //   General Note: While there're no explicit calls or otherwise "links" to Pythia6 anywhere,
 //   we're using Pythia6Service here because we run pretauola rather than "core" tauola;
