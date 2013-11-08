@@ -10,6 +10,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -21,36 +22,36 @@ namespace reco {
       explicit MCTruthCompositeMatcher( const edm::ParameterSet & );
       ~MCTruthCompositeMatcher();
     private:
-      edm::InputTag src_;
-      std::vector<edm::InputTag> matchMaps_;
+      edm::EDGetTokenT<CandidateView>  srcToken_;
+      std::vector<edm::EDGetTokenT<reco::GenParticleMatch> > matchMapTokens_;
       std::vector<int> pdgId_;
       void produce( edm::Event & , const edm::EventSetup&) override;
     };
-    
+
     MCTruthCompositeMatcher::MCTruthCompositeMatcher( const edm::ParameterSet & cfg ) :
-      src_(cfg.getParameter<edm::InputTag>("src")),
-      matchMaps_(cfg.getParameter<std::vector<edm::InputTag> >("matchMaps")),
+      srcToken_(consumes<CandidateView>(cfg.getParameter<edm::InputTag>("src"))),
+      matchMapTokens_( edm::vector_transform(cfg.template getParameter<std::vector<edm::InputTag> >( "matchMaps" ), [this](edm::InputTag const & tag){return consumes<reco::GenParticleMatch>(tag);} ) ),
       pdgId_(cfg.getParameter<std::vector<int> >("matchPDGId")) {
       produces<reco::GenParticleMatch>();
     }
-    
+
     MCTruthCompositeMatcher::~MCTruthCompositeMatcher() {
     }
-    
+
     void MCTruthCompositeMatcher::produce( edm::Event & evt , const edm::EventSetup & ) {
       using namespace edm;
       using namespace std;
       Handle<CandidateView> cands;
-      evt.getByLabel(src_, cands);
-      size_t nMaps = matchMaps_.size();
+      evt.getByToken(srcToken_, cands);
+      size_t nMaps = matchMapTokens_.size();
       std::vector<const GenParticleMatch *> maps;
       maps.reserve( nMaps );
       for( size_t i = 0; i != nMaps; ++ i ) {
 	Handle<reco::GenParticleMatch> matchMap;
-	evt.getByLabel(matchMaps_[i], matchMap);
+	evt.getByToken(matchMapTokens_[i], matchMap);
 	maps.push_back(& * matchMap);
-      } 
-      utilsNew::CandMatcher<GenParticleCollection> match(maps); 
+      }
+      utilsNew::CandMatcher<GenParticleCollection> match(maps);
       auto_ptr<GenParticleMatch> matchMap(new GenParticleMatch(match.ref()));
       int size = cands->size();
       vector<int>::const_iterator begin = pdgId_.begin(), end = pdgId_.end();
@@ -61,7 +62,7 @@ namespace reco {
 	  const Candidate & cand = (* cands)[i];
 	  GenParticleRef mc = match[cand];
 	  if(mc.isNull()) {
-	    indices[i] = -1; 
+	    indices[i] = -1;
 	  } else {
 	    bool found = true;
 	    if(begin!=end) found = find(begin, end, std::abs(mc->pdgId())) != end;

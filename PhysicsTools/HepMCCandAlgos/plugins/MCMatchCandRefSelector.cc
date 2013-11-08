@@ -14,36 +14,36 @@ using namespace std;
 
 namespace reco {
   namespace modules {
-    
+
     class MCMatchCandRefSelector {
     public:
-      explicit MCMatchCandRefSelector(const InputTag& src) : 
+      explicit MCMatchCandRefSelector(const InputTag& src) :
 	src_(src) { }
-      void newEvent(const Event& evt, const EventSetup&); 
+      void newEvent(const Event& evt, const EventSetup&);
       bool operator()(const CandidateBaseRef &) const;
     private:
       InputTag src_;
       const GenParticleMatch * match_;
     };
-    
+
     void MCMatchCandRefSelector::newEvent(const Event& evt, const EventSetup&) {
       Handle<GenParticleMatch> match;
       evt.getByLabel(src_, match);
       match_ = match.product();
-    } 
-    
+    }
+
     bool MCMatchCandRefSelector::operator()(const CandidateBaseRef & c) const {
       GenParticleRef m = (*match_)[c];
       return m.isNonnull();
     }
-  
+
     template<>
     struct ParameterAdapter<MCMatchCandRefSelector> {
       static MCMatchCandRefSelector make(const ParameterSet & cfg) {
 	return MCMatchCandRefSelector(cfg.getParameter<InputTag>("match"));
       }
     };
-    
+
   }
 }
 
