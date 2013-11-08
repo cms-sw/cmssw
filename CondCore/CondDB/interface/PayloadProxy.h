@@ -3,8 +3,6 @@
 
 #include "CondCore/CondDB/interface/ORAWrapper.h"
 #include "CondCore/CondDB/interface/Time.h"
-//#include "CondCore/CondDB/interface/IOVProxy.h"
-//#include "CondCore/CondDB/interface/Session.h"
 
 namespace cond {
 
@@ -19,7 +17,6 @@ namespace cond {
     class CondGetter {
     public:
       virtual ~CondGetter(){}
-      //virtual IOVProxy get(std::string name) const=0;
       virtual std::string getTag(std::string name) const=0;
       
     };
@@ -54,8 +51,6 @@ namespace cond {
       
       virtual void loadMore(CondGetter const &){}
       
-      // reload the iov return true if size has changed
-      
     private:
       virtual void loadPayload() = 0;   
       
@@ -77,9 +72,6 @@ namespace cond {
       
       PayloadProxy( Session& session, const char * source=0 ) :
 	BasePayloadProxy( session ) {}
-      
-      //PayloadProxy( Session& session, const std::string& tag ) :
-      //	BasePayloadProxy(session, tag ) {}
       
       virtual ~PayloadProxy(){}
       

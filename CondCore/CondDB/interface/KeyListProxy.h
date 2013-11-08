@@ -23,13 +23,6 @@ namespace cond {
 	if( source ) m_name = source;
       }
 
-      //PayloadProxy( Session& session, const std::string& tag ) :
-      //	  super( session, tag ),
-      //	  m_keyList( session ) {
-      //	m_keyList.load( super::operator()() );
-	//m_name = source;
-      //}
-    
       virtual ~PayloadProxy(){}
 
       // dereference (does not load)
