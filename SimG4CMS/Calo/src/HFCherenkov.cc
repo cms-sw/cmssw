@@ -10,6 +10,9 @@
 #include "G4NavigationHistory.hh"
 #include "TMath.h"
 
+#include "Randomize.hh"
+#include "G4SystemOfUnits.hh"
+
 //#define DebugLog
 
 HFCherenkov::HFCherenkov(edm::ParameterSet const & m_HF) {

@@ -54,6 +54,7 @@
 #include "G4ParticleTable.hh"
 
 #include "G4GDMLParser.hh"
+#include "G4SystemOfUnits.hh"
 
 #include <iostream>
 #include <sstream>

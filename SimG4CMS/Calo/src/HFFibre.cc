@@ -11,6 +11,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <iostream>
 
 //#define DebugLog

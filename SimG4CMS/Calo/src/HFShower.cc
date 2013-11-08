@@ -17,6 +17,7 @@
 #include "G4VSolid.hh"
 #include "Randomize.hh"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#define DebugLog
 

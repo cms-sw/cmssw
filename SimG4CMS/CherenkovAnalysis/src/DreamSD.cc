@@ -22,6 +22,9 @@
 #include "SimG4CMS/CherenkovAnalysis/interface/DreamSD.h"
 #include "SimG4CMS/CherenkovAnalysis/interface/PMTResponse.h"
 
+#include "G4SystemOfUnits.hh"
+#include "G4PhysicalConstants.hh"
+
 //________________________________________________________________________________________
 DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 

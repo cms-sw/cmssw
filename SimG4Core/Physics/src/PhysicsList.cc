@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4LossTableManager.hh"
+#include "G4SystemOfUnits.hh"
 
 PhysicsList::PhysicsList(G4LogicalVolumeToDDLogicalPartMap & map,
 			 const HepPDT::ParticleDataTable * table_,
