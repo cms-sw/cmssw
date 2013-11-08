@@ -1,3 +1,4 @@
+// $Id: FourVectorHLTriggerOffline.cc,v 1.40 2011/10/28 16:34:34 olzem Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"
@@ -1353,32 +1354,33 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 
     // from all the other maps, clean entries that have mapped value "topValue"
     // loop j
-    for ( mmset::iterator setIter_j = ++tempIter_i; setIter_j != tempSet.end( ); setIter_j++ ) 
+    for ( mmset::iterator setIter_j = ++tempIter_i; setIter_j != tempSet.end( ); ) 
     {
 
       fimmap tempMap_j = *setIter_j;
       //LogTrace("FourVectorHLTriggerOffline") << "  size of the map  = " << tempMap_j.size() << std::endl;
 
-      for (fimmap::iterator it = tempMap_j.begin(); it != tempMap_j.end(); ++it)
+      for (fimmap::iterator it = tempMap_j.begin(); it != tempMap_j.end(); )
       {
 
         if(topValue == (*it).second) 
 	{
 				  
           //LogTrace("FourVectorHLTriggerOffline") << "   Ridding map of a doubly-matched object." << std::endl;
-	  tempMap_j.erase(it);
+	  tempMap_j.erase(it++);
 
 	  cleanedOneMap = true;
 
 	}
+	else ++it;
 
-     } //end for
+      } //end for
 
      if(cleanedOneMap) 
      {
         
 	//remove the old map from the set
-	tempSet.erase(setIter_j);
+	tempSet.erase(setIter_j++);
 
 	// insert in the set the new map if it is not an empty map
 	if(! tempMap_j.empty()) tempSet.insert(tempMap_j);
@@ -1386,6 +1388,7 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 	break; // break from loop j
 
      } // end if
+     else ++setIter_j;
 
     }// end loop j 
 

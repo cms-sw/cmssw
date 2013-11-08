@@ -87,6 +87,10 @@ MuonTrackAnalyzer::~MuonTrackAnalyzer(){
 }
 
 void MuonTrackAnalyzer::beginJob(){
+
+  //theFile->cd();
+}
+void MuonTrackAnalyzer::beginRun(){
   dbe_->showDirStructure();
   
   dbe_->cd();
@@ -164,10 +168,12 @@ void MuonTrackAnalyzer::beginJob(){
     hDeltaPt_In_Out_VsEta = dbe_->book2D("DeltaPt_In_Out_VsEta_","P^{in}_{t} - P^{out}_{t} vs #eta gen",120,-3.,3.,500,-250.,250.);
   }    
 
-  //theFile->cd();
 }
 
 void MuonTrackAnalyzer::endJob(){
+
+}
+void MuonTrackAnalyzer::endRun(){
   LogInfo("MuonTrackAnalyzer")<< "Number of Sim tracks: " << numberOfSimTracks;
 
   LogInfo("MuonTrackAnalyzer") << "Number of Reco tracks: " << numberOfRecTracks;
@@ -182,10 +188,8 @@ void MuonTrackAnalyzer::endJob(){
     double eff = hRecoSeedInner->computeEfficiency(hSimTracks);
     LogInfo("MuonTrackAnalyzer")<<" *Seed Efficiency* = "<< eff <<"%";
   }
-
   if ( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
-
 void MuonTrackAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
   
   LogDebug("MuonTrackAnalyzer") << "Run: " << event.id().run() << " Event: " << event.id().event();
