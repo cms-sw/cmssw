@@ -29,6 +29,8 @@
 #include "DataFormats/PatCandidates/interface/TauCaloSpecific.h"
 #include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
 
+#include "DataFormats/Common/interface/AtomicPtrCache.h"
+
 // Define typedefs for convenience
 namespace pat {
   class Tau;
@@ -334,17 +336,16 @@ namespace pat {
       /// initialize the jet to a given JEC level during creation starting from Uncorrected
       void initializeJEC(unsigned int level, const unsigned int set = 0);
 
+    private:
       // ---- for content embedding ----
       bool embeddedIsolationTracks_;
       std::vector<reco::Track> isolationTracks_;
-      mutable reco::TrackRefVector isolationTracksTransientRefVector_;
-      mutable bool       isolationTracksTransientRefVectorFixed_;
+      edm::AtomicPtrCache<reco::TrackRefVector> isolationTracksTransientRefVector_;
       bool embeddedLeadTrack_;
       std::vector<reco::Track> leadTrack_;
       bool embeddedSignalTracks_;
       std::vector<reco::Track> signalTracks_;
-      mutable reco::TrackRefVector signalTracksTransientRefVector_;
-      mutable bool       signalTracksTransientRefVectorFixed_;
+      edm::AtomicPtrCache<reco::TrackRefVector> signalTracksTransientRefVector_;
       // specific for PFTau
       std::vector<reco::PFCandidate> leadPFCand_;
       bool embeddedLeadPFCand_;
@@ -355,36 +356,28 @@ namespace pat {
 
       std::vector<reco::PFCandidate> signalPFCands_;
       bool embeddedSignalPFCands_;
-      mutable reco::PFCandidateRefVector signalPFCandsTransientRefVector_;
-      mutable bool signalPFCandsRefVectorFixed_;
+      edm::AtomicPtrCache<reco::PFCandidateRefVector> signalPFCandsTransientRefVector_;
       std::vector<reco::PFCandidate> signalPFChargedHadrCands_;
       bool embeddedSignalPFChargedHadrCands_;
-      mutable reco::PFCandidateRefVector signalPFChargedHadrCandsTransientRefVector_;
-      mutable bool signalPFChargedHadrCandsRefVectorFixed_;
+      edm::AtomicPtrCache<reco::PFCandidateRefVector> signalPFChargedHadrCandsTransientRefVector_;
       std::vector<reco::PFCandidate> signalPFNeutralHadrCands_;
       bool embeddedSignalPFNeutralHadrCands_;
-      mutable reco::PFCandidateRefVector signalPFNeutralHadrCandsTransientRefVector_;
-      mutable bool signalPFNeutralHadrCandsRefVectorFixed_;
+      edm::AtomicPtrCache<reco::PFCandidateRefVector> signalPFNeutralHadrCandsTransientRefVector_;
       std::vector<reco::PFCandidate> signalPFGammaCands_;
       bool embeddedSignalPFGammaCands_;
-      mutable reco::PFCandidateRefVector signalPFGammaCandsTransientRefVector_;
-      mutable bool signalPFGammaCandsRefVectorFixed_;
+      edm::AtomicPtrCache<reco::PFCandidateRefVector> signalPFGammaCandsTransientRefVector_;
       std::vector<reco::PFCandidate> isolationPFCands_;
       bool embeddedIsolationPFCands_;
-      mutable reco::PFCandidateRefVector isolationPFCandsTransientRefVector_;
-      mutable bool isolationPFCandsRefVectorFixed_;
+      edm::AtomicPtrCache<reco::PFCandidateRefVector> isolationPFCandsTransientRefVector_;
       std::vector<reco::PFCandidate> isolationPFChargedHadrCands_;
       bool embeddedIsolationPFChargedHadrCands_;
-      mutable reco::PFCandidateRefVector isolationPFChargedHadrCandsTransientRefVector_;
-      mutable bool isolationPFChargedHadrCandsRefVectorFixed_;
+      edm::AtomicPtrCache<reco::PFCandidateRefVector> isolationPFChargedHadrCandsTransientRefVector_;
       std::vector<reco::PFCandidate> isolationPFNeutralHadrCands_;
       bool embeddedIsolationPFNeutralHadrCands_;
-      mutable reco::PFCandidateRefVector isolationPFNeutralHadrCandsTransientRefVector_;
-      mutable bool isolationPFNeutralHadrCandsRefVectorFixed_;
+      edm::AtomicPtrCache<reco::PFCandidateRefVector> isolationPFNeutralHadrCandsTransientRefVector_;
       std::vector<reco::PFCandidate> isolationPFGammaCands_;
       bool embeddedIsolationPFGammaCands_;
-      mutable reco::PFCandidateRefVector isolationPFGammaCandsTransientRefVector_;
-      mutable bool isolationPFGammaCandsRefVectorFixed_;
+      edm::AtomicPtrCache<reco::PFCandidateRefVector> isolationPFGammaCandsTransientRefVector_;
 
       // ---- matched GenJet holder ----
       std::vector<reco::GenJet> genJet_;

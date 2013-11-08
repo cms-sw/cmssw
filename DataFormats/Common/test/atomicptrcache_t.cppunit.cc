@@ -33,6 +33,18 @@ testAtomicPtrCache::check()
     cache.set(std::move(p));
     CPPUNIT_ASSERT(true == cache.isSet());
     CPPUNIT_ASSERT(cache->size() == values.size());
+    CPPUNIT_ASSERT((*cache).size() == values.size());
+    CPPUNIT_ASSERT(cache.load()->size() == values.size());
+
+    {
+      //test const functions
+      const AtomicPtrCache<Vec> & constCache = cache;
+
+      CPPUNIT_ASSERT(true == constCache.isSet());
+      CPPUNIT_ASSERT(constCache->size() == values.size());
+      CPPUNIT_ASSERT((*constCache).size() == values.size());
+      CPPUNIT_ASSERT(constCache.load()->size() == values.size());
+    }
     
     cache.reset();
     CPPUNIT_ASSERT(false == cache.isSet());

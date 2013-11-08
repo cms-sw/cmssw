@@ -14,9 +14,7 @@ Jet::Jet() :
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
   partonFlavour_(0),
-  jetCharge_(0.),
-  isCaloTowerCached_(false),
-  isPFCandidateCached_(false)
+  jetCharge_(0.)
 {
 }
 
@@ -26,9 +24,7 @@ Jet::Jet(const reco::Jet & aJet) :
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
   partonFlavour_(0),
-  jetCharge_(0.0),
-  isCaloTowerCached_(false),
-  isPFCandidateCached_(false)
+  jetCharge_(0.0)
 {
   tryImportSpecific(aJet);
 }
@@ -39,9 +35,7 @@ Jet::Jet(const edm::Ptr<reco::Jet> & aJetRef) :
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
   partonFlavour_(0),
-  jetCharge_(0.0),
-  isCaloTowerCached_(false),
-  isPFCandidateCached_(false)
+  jetCharge_(0.0)
 {
   tryImportSpecific(*aJetRef);
 }
@@ -52,9 +46,7 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
   partonFlavour_(0),
-  jetCharge_(0.0),
-  isCaloTowerCached_(false),
-  isPFCandidateCached_(false)
+  jetCharge_(0.0)
 {
   tryImportSpecific(*aJetRef);
 }
@@ -142,8 +134,8 @@ CaloTowerPtr Jet::getCaloConstituent (unsigned fIndex) const {
 
 
 std::vector<CaloTowerPtr> const & Jet::getCaloConstituents () const {
-  if ( !isCaloTowerCached_ || caloTowers_.size() > 0 ) cacheCaloTowers();
-  return caloTowersTemp_;
+  if ( !caloTowersTemp_.isSet() || caloTowers_.size() > 0 ) cacheCaloTowers();
+  return *caloTowersTemp_;
 }
 
 
@@ -182,8 +174,8 @@ reco::PFCandidatePtr Jet::getPFConstituent (unsigned fIndex) const {
 }
 
 std::vector<reco::PFCandidatePtr> const & Jet::getPFConstituents () const {
-  if ( !isPFCandidateCached_ || pfCandidates_.size() > 0 ) cachePFCandidates();
-  return pfCandidatesTemp_;
+  if ( !pfCandidatesTemp_.isSet() || pfCandidates_.size() > 0 ) cachePFCandidates();
+  return *pfCandidatesTemp_;
 }
 
 
@@ -398,21 +390,23 @@ void Jet::setAssociatedTracks(const reco::TrackRefVector &tracks) {
 
 /// method to store the CaloJet constituents internally
 void Jet::setCaloTowers(const CaloTowerFwdPtrCollection & caloTowers) {
-  for(unsigned int i = 0; i < caloTowers.size(); ++i) {
-    caloTowersFwdPtr_.push_back( caloTowers.at(i) );
+  caloTowersFwdPtr_.reserve(caloTowers.size());
+  for(auto const& tower : caloTowers) {
+    caloTowersFwdPtr_.push_back( tower );
   }
   embeddedCaloTowers_ = true;
-  isCaloTowerCached_ = false;
+  caloTowersTemp_.reset();
 }
 
 
 /// method to store the CaloJet constituents internally
 void Jet::setPFCandidates(const PFCandidateFwdPtrCollection & pfCandidates) {
-  for(unsigned int i = 0; i < pfCandidates.size(); ++i) {
-    pfCandidatesFwdPtr_.push_back(pfCandidates.at(i));
+  pfCandidatesFwdPtr_.reserve(pfCandidates.size());
+  for(auto const& cand : pfCandidates) {
+    pfCandidatesFwdPtr_.push_back(cand);
   }
   embeddedPFCandidates_ = true;
-  isPFCandidateCached_ = false;
+  pfCandidatesTemp_.reset();
 }
 
 
@@ -444,83 +438,90 @@ void Jet::setJetCharge(float jetCharge) {
 /// method to cache the constituents to allow "user-friendly" access
 void Jet::cacheCaloTowers() const {
   // Clear the cache
-  caloTowersTemp_.clear();
   // Here is where we've embedded constituents
+  std::unique_ptr<std::vector<CaloTowerPtr>> caloTowersTemp{ new std::vector<CaloTowerPtr>{}};
   if ( embeddedCaloTowers_ ) {
     // Refactorized PAT access
     if ( caloTowersFwdPtr_.size() > 0 ) {
+      caloTowersTemp->reserve(caloTowersFwdPtr_.size());
       for ( CaloTowerFwdPtrVector::const_iterator ibegin=caloTowersFwdPtr_.begin(),
 	      iend = caloTowersFwdPtr_.end(),
 	      icalo = ibegin;
 	    icalo != iend; ++icalo ) {
-	caloTowersTemp_.push_back( CaloTowerPtr(icalo->ptr() ) );
+	caloTowersTemp->emplace_back( icalo->ptr()  );
       }
     }
     // Compatibility access
     else if ( caloTowers_.size() > 0 ) {
+      caloTowersTemp->reserve(caloTowers_.size());
       for ( CaloTowerCollection::const_iterator ibegin=caloTowers_.begin(),
 	      iend = caloTowers_.end(),
 	      icalo = ibegin;
 	    icalo != iend; ++icalo ) {
-	caloTowersTemp_.push_back( CaloTowerPtr(&caloTowers_, icalo - ibegin ) );
+	caloTowersTemp->emplace_back( &caloTowers_, icalo - ibegin  );
       }
     }
   }
   // Non-embedded access
   else {
-    for ( unsigned fIndex = 0; fIndex < numberOfDaughters(); ++fIndex ) {
+    const auto nDaughters = numberOfDaughters();
+    caloTowersTemp->reserve(nDaughters);    
+    for ( unsigned fIndex = 0; fIndex < nDaughters; ++fIndex ) {
       Constituent const & dau = daughterPtr (fIndex);
       const CaloTower* caloTower = dynamic_cast <const CaloTower*> (dau.get());
       if (caloTower) {
-	caloTowersTemp_.push_back( CaloTowerPtr(dau.id(), caloTower,dau.key() ) );
+	caloTowersTemp->emplace_back( dau.id(), caloTower,dau.key()  );
       }
       else {
 	throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
       }
     }
   }
-  // Set the cache flag
-  isCaloTowerCached_=true;
+  caloTowersTemp_.set(std::move(caloTowersTemp));
 }
 
 /// method to cache the constituents to allow "user-friendly" access
 void Jet::cachePFCandidates() const {
-  // Clear the cache
-  pfCandidatesTemp_.clear();
+
+  std::unique_ptr<std::vector<reco::PFCandidatePtr>> pfCandidatesTemp{ new std::vector<reco::PFCandidatePtr>{}};
   // Here is where we've embedded constituents
   if ( embeddedPFCandidates_ ) {
     // Refactorized PAT access
     if ( pfCandidatesFwdPtr_.size() > 0 ) {
+      pfCandidatesTemp->reserve(pfCandidatesFwdPtr_.size());
       for ( PFCandidateFwdPtrCollection::const_iterator ibegin=pfCandidatesFwdPtr_.begin(),
 	      iend = pfCandidatesFwdPtr_.end(),
 	      ipf = ibegin;
 	    ipf != iend; ++ipf ) {
-	pfCandidatesTemp_.push_back( reco::PFCandidatePtr(ipf->ptr() ) );
+	pfCandidatesTemp->emplace_back( ipf->ptr()  );
       }
     }
     // Compatibility access
     else if ( pfCandidates_.size() > 0 ) {
+      pfCandidatesTemp->reserve(pfCandidates_.size());
       for ( reco::PFCandidateCollection::const_iterator ibegin=pfCandidates_.begin(),
 	      iend = pfCandidates_.end(),
 	      ipf = ibegin;
 	    ipf != iend; ++ipf ) {
-	pfCandidatesTemp_.push_back( reco::PFCandidatePtr(&pfCandidates_, ipf - ibegin ) );
+	pfCandidatesTemp->emplace_back( &pfCandidates_, ipf - ibegin  );
       }
     }
   }
   // Non-embedded access
   else {
-    for ( unsigned fIndex = 0; fIndex < numberOfDaughters(); ++fIndex ) {
+    const auto nDaughters = numberOfDaughters();
+    pfCandidatesTemp->reserve(nDaughters);
+    for ( unsigned fIndex = 0; fIndex < nDaughters; ++fIndex ) {
       Constituent const & dau = daughterPtr (fIndex);
       const reco::PFCandidate* pfCandidate = dynamic_cast <const reco::PFCandidate*> (dau.get());
       if (pfCandidate) {
-	pfCandidatesTemp_.push_back( reco::PFCandidatePtr(dau.id(), pfCandidate,dau.key() ) );
+	pfCandidatesTemp->emplace_back( dau.id(), pfCandidate,dau.key() );
       }
       else {
 	throw cms::Exception("Invalid Constituent") << "PFJet constituent is not of PFCandidate type";
       }
     }
   }
-  // Set the cache flag
-  isPFCandidateCached_=true;
+  // Set the cache
+  pfCandidatesTemp_.set(std::move(pfCandidatesTemp));
 }
