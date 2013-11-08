@@ -54,7 +54,8 @@ class  StringCutsEventSelector : public EventSelector {
  public:
   StringCutsEventSelector(const edm::ParameterSet& pset, edm::ConsumesCollector && iC) :
     EventSelector(pset),
-    srcToken_(iC.consumes<edm::View<Object> >(edm::Service<InputTagDistributorService>()->retrieve("src",pset)))
+    src_(edm::Service<InputTagDistributorService>()->retrieve("src",pset)),
+    srcToken_(iC.consumes<edm::View<Object> >(src_))
       {
 	std::vector<std::string> selection=pset.getParameter<std::vector<std::string > >("cut");
 	std::stringstream ss;
@@ -92,6 +93,7 @@ class  StringCutsEventSelector : public EventSelector {
     }
 
  private:
+    edm::InputTag src_;
     edm::EDGetTokenT<edm::View<Object> > srcToken_;
     std::vector<StringCutObjectSelector<Object> *> f_;
 };
