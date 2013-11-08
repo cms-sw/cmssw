@@ -4,13 +4,14 @@ warning = re.compile("^function ")
 tab = re.compile("\s+")
 topfunc = re.compile("::produce\(|::analyze\(|::filter\(")
 edmns = re.compile("::ED(Producer|Analyzer|Filter)")
-keyword = re.compile("calls|overrides|variable")
+keyword = re.compile("calls|overrides|variable|edmplugin")
 paths = re.compile(".*?\s*src/([A-Z].*?/[A-z].*?)(/.*?):(.*?):(.*?)")
 from collections import defaultdict
 
 gets = defaultdict(set)
 callby = defaultdict(set)
 calls = defaultdict(set)
+plugins = set()
 
 f = open('db.txt')
 
@@ -28,30 +29,43 @@ for line in f :
 		if fields[2] == ' static variable ' :
 				if fields[1] not in gets[fields[3]]:
 					gets[fields[3]].add(fields[1])
-
+		if fields[0].strip() == 'edmplugin type':
+			plugins.add(fields[1])
 f.close()
 
 def stackup(str):
 	for call in callby[str]:
 		if call not in stack:
-			stack.add(call)
+			stack.append(call)
 			stackup(call)
 	return
+
 
 funcs=defaultdict(list)
 
 for key in gets: 
 	for get in gets[key]:
-		func = get+" # "+key
-		stack = set()
-		stack.add(get)
+		func = get+"#"+key
+		stack = list()
+		stack.append(get)
 		stackup(get)
-		funcs[func].append(sorted(stack))
+		funcs[func].append(stack)
 
 
 for func in sorted(funcs.keys()):
+	get,var = func.split("#")
 	for fields in funcs[func]:
-		for field in fields:
-			if topfunc.search(field) :
-				print func + " # " + field
-		
+		found = ""
+		while fields:
+			field = fields.pop()
+			if topfunc.search(field) and not found:
+				fqn = topfunc.split(field)[0]
+				if fqn in plugins:
+					print "function '"+get+"' accesses static var '"+var +"' in call stack "+field+"->",
+					found = field
+			if field in calls[found] and found :
+				print field+"->",
+				found = field
+			if field == get and found :
+				print field
+
