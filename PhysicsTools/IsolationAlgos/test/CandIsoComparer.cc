@@ -33,22 +33,22 @@ public:
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
- 
+
 private:
    std::string label_;
-   edm::InputTag src1_;
-   edm::InputTag src2_;
+   edm::EDGetTokenT< reco::CandViewDoubleAssociations > src1Token_;
+   edm::EDGetTokenT< reco::CandViewDoubleAssociations > src2Token_;
    TH1 *h1_[2], *h2_[2], *hd_[2];
    TProfile *p1_[2], *p2_[2], *pd_[2];
 };
 
 /// constructor with config
 CandIsoComparer::CandIsoComparer(const edm::ParameterSet& par) :
-  src1_(par.getParameter<edm::InputTag>("src1")), 
-  src2_(par.getParameter<edm::InputTag>("src2"))  {
+  src1Token_(consumes< reco::CandViewDoubleAssociations >(par.getParameter<edm::InputTag>("src1"))),
+  src2Token_(consumes< reco::CandViewDoubleAssociations >(par.getParameter<edm::InputTag>("src2")))  {
 
   label_ = par.getParameter<std::string>("@module_label");
-  
+
   edm::Service<TFileService> fs;
   double max = par.getParameter<double>("max");
   double rmax = par.getParameter<double>("rmax");
@@ -61,7 +61,7 @@ CandIsoComparer::CandIsoComparer(const edm::ParameterSet& par) :
   h1_[1] = fs->make<TH1F>("firstRel","firstRel",bins,0,rmax);
   h2_[1] = fs->make<TH1F>("secondRel","secondRel",bins,0,rmax);
   hd_[1] = fs->make<TH1F>("diffRel","diffRel",bins,-dmax*rmax/max,dmax*rmax/max);
-  
+
   p1_[0] = fs->make<TProfile>("firstEta","firstEta",bins,-3.0,3.0);
   p2_[0] = fs->make<TProfile>("secondEta","secondEta",bins,-3.0,3.0);
   pd_[0] = fs->make<TProfile>("diffEta","diffEta",bins,-3.0,3.0);
@@ -82,8 +82,8 @@ void CandIsoComparer::endJob() {
 void CandIsoComparer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   using namespace reco::isodeposit;
   edm::Handle< reco::CandViewDoubleAssociations > hDeps1, hDeps2;
-  iEvent.getByLabel(src1_, hDeps1);
-  iEvent.getByLabel(src2_, hDeps2);
+  iEvent.getByToken(src1Token_, hDeps1);
+  iEvent.getByToken(src2Token_, hDeps2);
   for (size_t dep = 0; dep < hDeps1->size(); ++dep) {
       const reco::CandidateBaseRef &cand = hDeps1->key(dep);
       double iso1 = (*hDeps1)[cand];

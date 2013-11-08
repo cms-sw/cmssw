@@ -16,16 +16,16 @@ using namespace edm;
 using namespace reco;
 
 PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
-  
-  inputTagPFCandidates_ 
-    = iConfig.getParameter<InputTag>("PFCandidates");
 
-  inputTagVertices_ 
-    = iConfig.getParameter<InputTag>("Vertices");
+  tokenPFCandidates_
+    = consumes<PFCollection>(iConfig.getParameter<InputTag>("PFCandidates"));
+
+  tokenVertices_
+    = consumes<VertexCollection>(iConfig.getParameter<InputTag>("Vertices"));
 
   enable_ = iConfig.getParameter<bool>("Enable");
 
-  verbose_ = 
+  verbose_ =
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
 
@@ -38,7 +38,7 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   // Configure the algo
   pileUpAlgo_.setVerbose(verbose_);
   pileUpAlgo_.setCheckClosestZVertex(checkClosestZVertex_);
-  
+
   //produces<reco::PFCandidateCollection>();
   produces< PFCollection > ();
   // produces< PFCollectionByValue > ();
@@ -53,44 +53,44 @@ PFPileUp::~PFPileUp() { }
 void PFPileUp::beginJob() { }
 
 
-void PFPileUp::produce(Event& iEvent, 
+void PFPileUp::produce(Event& iEvent,
 			  const EventSetup& iSetup) {
-  
+
 //   LogDebug("PFPileUp")<<"START event: "<<iEvent.id().event()
 // 			 <<" in run "<<iEvent.id().run()<<endl;
-  
-   
+
+
   // get PFCandidates
 
-  auto_ptr< PFCollection > 
-    pOutput( new PFCollection ); 
+  auto_ptr< PFCollection >
+    pOutput( new PFCollection );
 
   auto_ptr< PFCollectionByValue >
     pOutputByValue ( new PFCollectionByValue );
-  
+
   if(enable_) {
 
-  
-    // get vertices 
+
+    // get vertices
     Handle<VertexCollection> vertices;
-    iEvent.getByLabel( inputTagVertices_, vertices);
-  
+    iEvent.getByToken( tokenVertices_, vertices);
+
     // get PF Candidates
     Handle<PFCollection> pfCandidates;
     PFCollection const * pfCandidatesRef = 0;
     PFCollection usedIfNoFwdPtrs;
-    bool getFromFwdPtr = iEvent.getByLabel( inputTagPFCandidates_, pfCandidates);
+    bool getFromFwdPtr = iEvent.getByToken( tokenPFCandidates_, pfCandidates);
     if ( getFromFwdPtr ) {
       pfCandidatesRef = pfCandidates.product();
     }
     // Maintain backwards-compatibility.
     // If there is no vector of FwdPtr<PFCandidate> found, then
-    // make a dummy vector<FwdPtr<PFCandidate> > for the PFPileupAlgo, 
+    // make a dummy vector<FwdPtr<PFCandidate> > for the PFPileupAlgo,
     // set the pointer "pfCandidatesRef" to point to it, and
-    // then we can pass it to the PFPileupAlgo. 
+    // then we can pass it to the PFPileupAlgo.
     else {
       Handle<PFView> pfView;
-      bool getFromView = iEvent.getByLabel( inputTagPFCandidates_, pfView );
+      bool getFromView = iEvent.getByToken( tokenPFCandidates_, pfView );
       if ( ! getFromView ) {
 	throw cms::Exception("PFPileUp is misconfigured. This needs to be either vector<FwdPtr<PFCandidate> >, or View<PFCandidate>");
       }
@@ -106,7 +106,7 @@ void PFPileUp::produce(Event& iEvent,
       throw cms::Exception("Something went dreadfully wrong with PFPileUp. pfCandidatesRef should never be zero, so this is a logic error.");
     }
 
-    
+
 
     pileUpAlgo_.process(*pfCandidatesRef,*vertices);
     pOutput->insert(pOutput->end(),pileUpAlgo_.getPFCandidatesFromPU().begin(),pileUpAlgo_.getPFCandidatesFromPU().end());

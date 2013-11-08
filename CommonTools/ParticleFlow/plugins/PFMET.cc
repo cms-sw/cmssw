@@ -19,17 +19,18 @@ using namespace reco;
 using namespace math;
 
 PFMET::PFMET(const edm::ParameterSet& iConfig) : pfMETAlgo_(iConfig) {
-  
 
 
-  inputTagPFCandidates_ 
+
+  inputTagPFCandidates_
     = iConfig.getParameter<InputTag>("PFCandidates");
+  tokenPFCandidates_ = consumes<PFCandidateCollection>(inputTagPFCandidates_);
 
   produces<METCollection>();
-  
+
   LogDebug("PFMET")
     <<" input collection : "<<inputTagPFCandidates_ ;
-   
+
 }
 
 
@@ -41,27 +42,27 @@ PFMET::~PFMET() { }
 void PFMET::beginJob() { }
 
 
-void PFMET::produce(Event& iEvent, 
+void PFMET::produce(Event& iEvent,
 			  const EventSetup& iSetup) {
-  
+
   LogDebug("PFMET")<<"START event: "<<iEvent.id().event()
 		   <<" in run "<<iEvent.id().run()<<endl;
-  
-  
-  
+
+
+
   // get PFCandidates
 
   Handle<PFCandidateCollection> pfCandidates;
-  iEvent.getByLabel( inputTagPFCandidates_, pfCandidates);
-  
-  auto_ptr< METCollection > 
-    pOutput( new METCollection() ); 
+  iEvent.getByToken( tokenPFCandidates_, pfCandidates);
 
-  
-  
+  auto_ptr< METCollection >
+    pOutput( new METCollection() );
+
+
+
   pOutput->push_back( pfMETAlgo_.produce( *pfCandidates ) );
   iEvent.put( pOutput );
-  
+
   LogDebug("PFMET")<<"STOP event: "<<iEvent.id().event()
 		   <<" in run "<<iEvent.id().run()<<endl;
 }

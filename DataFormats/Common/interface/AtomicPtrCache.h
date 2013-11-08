@@ -67,7 +67,7 @@ namespace edm {
     
     // ---------- member functions ---------------------------
     T* operator->() { return load();}
-    T& operator*() {return load();}
+    T& operator*() {return *load();}
     
     T* load();
     

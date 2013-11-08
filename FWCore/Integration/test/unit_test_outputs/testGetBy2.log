@@ -16,6 +16,7 @@ Module type=IntProducer, Module label=intProducer, Parameter Set ID=0e62dace196e
 ++++ finished: constructing module with label 'intProducerU' id = 4
 ++++ starting: constructing module with label 'intVectorProducer' id = 5
 ++++ finished: constructing module with label 'intVectorProducer' id = 5
+++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
 ++++ starting: begin job for module with label 'intProducerU' id = 4
 ++++ finished: begin job for module with label 'intProducerU' id = 4
 ++++ starting: begin job for module with label 'intVectorProducer' id = 5
@@ -308,10 +309,26 @@ PathContext: pathName = e pathID = 0 (EndPath)
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
     ProcessContext: PROD2 c301df4e8d1235b0ad4e7c2cf9431532
 
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: processing event for module: stream = 0 label = 'intProducerU' id = 4
 ++++++++++ finished: processing event for module: stream = 0 label = 'intProducerU' id = 4
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: processing event for module: stream = 0 label = 'intVectorProducer' id = 5
 ++++++++++ finished: processing event for module: stream = 0 label = 'intVectorProducer' id = 5
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ starting: processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 3
 ++++++ finished: processing path 'e' : stream = 0
@@ -402,10 +419,26 @@ PathContext: pathName = e pathID = 0 (EndPath)
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
     ProcessContext: PROD2 c301df4e8d1235b0ad4e7c2cf9431532
 
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: processing event for module: stream = 0 label = 'intProducerU' id = 4
 ++++++++++ finished: processing event for module: stream = 0 label = 'intProducerU' id = 4
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: processing event for module: stream = 0 label = 'intVectorProducer' id = 5
 ++++++++++ finished: processing event for module: stream = 0 label = 'intVectorProducer' id = 5
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ starting: processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 3
 ++++++ finished: processing path 'e' : stream = 0
@@ -496,10 +529,26 @@ PathContext: pathName = e pathID = 0 (EndPath)
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD2 c301df4e8d1235b0ad4e7c2cf9431532
 
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: processing event for module: stream = 0 label = 'intProducerU' id = 4
 ++++++++++ finished: processing event for module: stream = 0 label = 'intProducerU' id = 4
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: processing event for module: stream = 0 label = 'intVectorProducer' id = 5
 ++++++++++ finished: processing event for module: stream = 0 label = 'intVectorProducer' id = 5
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ starting: processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 3
 ++++++ finished: processing path 'e' : stream = 0

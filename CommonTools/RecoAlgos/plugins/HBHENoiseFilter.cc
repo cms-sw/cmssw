@@ -2,7 +2,7 @@
 //
 // Package:    HBHENoiseFilter
 // Class:      HBHENoiseFilter
-// 
+//
 /**\class HBHENoiseFilter
 
  Description: Filter that identifies events containing an RBX with bad pulse-shape, timing, hit multiplicity, and ADC 0 counts
@@ -20,9 +20,6 @@
 
 #include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 
-#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-
 //
 // constants, enums and typedefs
 //
@@ -38,7 +35,7 @@
 HBHENoiseFilter::HBHENoiseFilter(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
-  noiselabel_ = iConfig.getParameter<edm::InputTag>("noiselabel");
+  noisetoken_ = consumes<HcalNoiseSummary>(iConfig.getParameter<edm::InputTag>("noiselabel"));
   minRatio_ = iConfig.getParameter<double>("minRatio");
   maxRatio_ = iConfig.getParameter<double>("maxRatio");
   minHPDHits_ = iConfig.getParameter<int>("minHPDHits");
@@ -50,11 +47,12 @@ HBHENoiseFilter::HBHENoiseFilter(const edm::ParameterSet& iConfig)
   maxRBXEMF_ = iConfig.getParameter<double>("maxRBXEMF");
   minNumIsolatedNoiseChannels_ = iConfig.getParameter<int>("minNumIsolatedNoiseChannels");
   minIsolatedNoiseSumE_ = iConfig.getParameter<double>("minIsolatedNoiseSumE");
-  minIsolatedNoiseSumEt_ = iConfig.getParameter<double>("minIsolatedNoiseSumEt");  
+  minIsolatedNoiseSumEt_ = iConfig.getParameter<double>("minIsolatedNoiseSumEt");
   useTS4TS5_ = iConfig.getParameter<bool>("useTS4TS5");
 
   IgnoreTS4TS5ifJetInLowBVRegion_ = iConfig.getParameter<bool>("IgnoreTS4TS5ifJetInLowBVRegion");
   jetlabel_ =  iConfig.getParameter<edm::InputTag>("jetlabel");
+  jettoken_ =  mayConsume<reco::PFJetCollection>(jetlabel_);
   maxjetindex_ = iConfig.getParameter<int>("maxjetindex");
   maxNHF_ = iConfig.getParameter<double>("maxNHF");
 
@@ -79,7 +77,7 @@ HBHENoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get the Noise summary object
   edm::Handle<HcalNoiseSummary> summary_h;
-  iEvent.getByLabel(noiselabel_, summary_h);
+  iEvent.getByToken(noisetoken_, summary_h);
   if(!summary_h.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HcalNoiseSummary.\n";
     return true;
@@ -88,7 +86,7 @@ HBHENoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //  if(summary.HasBadRBXTS4TS5() == true) std::cout << "TS4TS5 rejection!" << std::endl;
   //  else                                  std::cout << "TS4TS5 passing!" << std::endl;
-  
+
 
   // One HBHE region has HPD with low BV, which increases hits in HPD, and
   // often causes otherwise good events to be flagged as noise.
@@ -97,18 +95,18 @@ HBHENoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if ( IgnoreTS4TS5ifJetInLowBVRegion_==true)
     {
       edm::Handle<reco::PFJetCollection> pfjet_h;
-      iEvent.getByLabel(jetlabel_, pfjet_h);
-      if (pfjet_h.isValid()) 
+      iEvent.getByToken(jettoken_, pfjet_h);
+      if (pfjet_h.isValid())
 	{
 	  // Loop over all jets up to (and including) maxjetindex.
 	  // If jet found in low-BV region, set goodJetFoundInLowBVRegion = true
 	  int jetindex=0;
-	  for( reco::PFJetCollection::const_iterator jet = pfjet_h->begin(); jet != pfjet_h->end(); ++jet) 
+	  for( reco::PFJetCollection::const_iterator jet = pfjet_h->begin(); jet != pfjet_h->end(); ++jet)
 	    {
 	      if (jetindex>maxjetindex_) break; // only look at first N jets (N specified by user)
 	      // Check whether jet is in low-BV region (0<eta<1.4, -1.8<phi<-1.4)
-	      if (jet->eta()>0 && jet->eta()<1.4 && 
-		  jet->phi()>-1.8 && jet->phi()<-1.4) 
+	      if (jet->eta()>0 && jet->eta()<1.4 &&
+		  jet->phi()>-1.8 && jet->phi()<-1.4)
 		{
 		  if (maxNHF_<0 || (maxNHF_>0 &&  jet->neutralHadronEnergyFraction()<maxNHF_))
 		    {

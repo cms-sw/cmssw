@@ -24,17 +24,17 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   bool firstEvent_;
-  edm::InputTag src_;
+  edm::EDGetTokenT<reco::GenParticleCollection> srcToken_;
   int keepOrDropAll_;
   std::vector<std::string> selection_;
   std::vector<std::pair<StringCutObjectSelector<reco::GenParticle>, helper::SelectCode> > select_;
   std::vector<int> flags_;
   std::vector<size_t> indices_;
   void parse(const std::string & selection, helper::SelectCode & code, std::string & cut) const;
-  void flagDaughters(const reco::GenParticle &, int); 
-  void flagMothers(const reco::GenParticle &, int); 
-  void recursiveFlagDaughters(size_t, const reco::GenParticleCollection &, int, std::vector<size_t> &); 
-  void recursiveFlagMothers(size_t, const reco::GenParticleCollection &, int, std::vector<size_t> &); 
+  void flagDaughters(const reco::GenParticle &, int);
+  void flagMothers(const reco::GenParticle &, int);
+  void recursiveFlagDaughters(size_t, const reco::GenParticleCollection &, int, std::vector<size_t> &);
+  void recursiveFlagMothers(size_t, const reco::GenParticleCollection &, int, std::vector<size_t> &);
   void addDaughterRefs(std::vector<size_t> &, reco::GenParticle&, reco::GenParticleRefProd, const reco::GenParticleRefVector&) const;
   void addMotherRefs(std::vector<size_t> &, reco::GenParticle&, reco::GenParticleRefProd, const reco::GenParticleRefVector&) const;
 };
@@ -62,7 +62,7 @@ void GenParticlePruner::parse(const std::string & selection, ::helper::SelectCod
     } else {
       code.mothersDepth_ = SelectCode::kFirst;
     }
-  } else 
+  } else
     code.mothersDepth_ = SelectCode::kNone;
 
   if(command[command.size() - 1] == '+') {
@@ -93,7 +93,7 @@ void GenParticlePruner::parse(const std::string & selection, ::helper::SelectCod
 
 GenParticlePruner::GenParticlePruner(const ParameterSet& cfg) :
   firstEvent_(true),
-  src_(cfg.getParameter<InputTag>("src")), keepOrDropAll_(drop),
+  srcToken_(consumes<GenParticleCollection>(cfg.getParameter<InputTag>("src"))), keepOrDropAll_(drop),
   selection_(cfg.getParameter<vector<string> >("select")) {
   using namespace ::helper;
   produces<GenParticleCollection>();
@@ -101,13 +101,13 @@ GenParticlePruner::GenParticlePruner(const ParameterSet& cfg) :
 
 void GenParticlePruner::flagDaughters(const reco::GenParticle & gen, int keepOrDrop) {
   GenParticleRefVector daughters = gen.daughterRefVector();
-  for(GenParticleRefVector::const_iterator i = daughters.begin(); i != daughters.end(); ++i) 
+  for(GenParticleRefVector::const_iterator i = daughters.begin(); i != daughters.end(); ++i)
     flags_[i->key()] = keepOrDrop;
 }
 
 void GenParticlePruner::flagMothers(const reco::GenParticle & gen, int keepOrDrop) {
   GenParticleRefVector mothers = gen.motherRefVector();
-  for(GenParticleRefVector::const_iterator i = mothers.begin(); i != mothers.end(); ++i) 
+  for(GenParticleRefVector::const_iterator i = mothers.begin(); i != mothers.end(); ++i)
     flags_[i->key()] = keepOrDrop;
 }
 
@@ -119,7 +119,7 @@ void GenParticlePruner::recursiveFlagDaughters(size_t index, const reco::GenPart
   for(GenParticleRefVector::const_iterator i = daughters.begin(); i != daughters.end(); ++i) {
     index = i->key();
     // To also avoid infinite recursion if a "loop" is found in the daughter list,
-    // check to make sure the index hasn't already been added. 
+    // check to make sure the index hasn't already been added.
     if ( find( allIndices.begin(), allIndices.end(), index ) == allIndices.end() ) {
       allIndices.push_back( index );
       if ( cachedIndex != index ) {
@@ -138,7 +138,7 @@ void GenParticlePruner::recursiveFlagMothers(size_t index, const reco::GenPartic
   for(GenParticleRefVector::const_iterator i = mothers.begin(); i != mothers.end(); ++i) {
     index = i->key();
     // To also avoid infinite recursion if a "loop" is found in the daughter list,
-    // check to make sure the index hasn't already been added. 
+    // check to make sure the index hasn't already been added.
     if ( find( allIndices.begin(), allIndices.end(), index ) == allIndices.end() ) {
       allIndices.push_back( index );
       if ( cachedIndex != index ) {
@@ -177,11 +177,11 @@ void GenParticlePruner::produce(Event& evt, const EventSetup& es) {
 
   using namespace ::helper;
   Handle<GenParticleCollection> src;
-  evt.getByLabel(src_, src);
+  evt.getByToken(srcToken_, src);
   const size_t n = src->size();
   flags_.clear();
   flags_.resize(n, keepOrDropAll_);
-  for(size_t j = 0; j < select_.size(); ++j) { 
+  for(size_t j = 0; j < select_.size(); ++j) {
     const pair<StringCutObjectSelector<GenParticle>, SelectCode> & sel = select_[j];
     SelectCode code = sel.second;
     const StringCutObjectSelector<GenParticle> & cut = sel.first;
@@ -193,13 +193,13 @@ void GenParticlePruner::produce(Event& evt, const EventSetup& es) {
 	case SelectCode::kKeep:
 	  keepOrDrop = keep; break;
 	case SelectCode::kDrop:
-	  keepOrDrop = drop; 
+	  keepOrDrop = drop;
 	};
 	flags_[i] = keepOrDrop;
 	std::vector<size_t> allIndicesDa;
 	std::vector<size_t> allIndicesMo;
 	switch(code.daughtersDepth_) {
-	case SelectCode::kAll : 
+	case SelectCode::kAll :
 	  recursiveFlagDaughters(i, *src, keepOrDrop, allIndicesDa); break;
 	case SelectCode::kFirst :
 	  flagDaughters(p, keepOrDrop); break;
@@ -238,7 +238,7 @@ void GenParticlePruner::produce(Event& evt, const EventSetup& es) {
     // The "daIndxs" and "moIndxs" keep a list of the keys for the mother/daughter
     // parentage/descendency. In some cases, a circular referencing is encountered,
     // which would result in an infinite loop. The list is checked to
-    // avoid this. 
+    // avoid this.
     vector<size_t> daIndxs;
     addDaughterRefs(daIndxs, newGen, outRef, gen.daughterRefVector());
     vector<size_t> moIndxs;
@@ -249,8 +249,8 @@ void GenParticlePruner::produce(Event& evt, const EventSetup& es) {
 }
 
 
-void GenParticlePruner::addDaughterRefs(vector<size_t> & daIndxs, 
-					GenParticle& newGen, GenParticleRefProd outRef, 
+void GenParticlePruner::addDaughterRefs(vector<size_t> & daIndxs,
+					GenParticle& newGen, GenParticleRefProd outRef,
 					const GenParticleRefVector& daughters) const {
   for(GenParticleRefVector::const_iterator j = daughters.begin();
       j != daughters.end(); ++j) {
@@ -274,7 +274,7 @@ void GenParticlePruner::addDaughterRefs(vector<size_t> & daIndxs,
 
 
 void GenParticlePruner::addMotherRefs(vector<size_t> & moIndxs,
-				      GenParticle& newGen, GenParticleRefProd outRef, 
+				      GenParticle& newGen, GenParticleRefProd outRef,
 				      const GenParticleRefVector& mothers) const {
   for(GenParticleRefVector::const_iterator j = mothers.begin();
       j != mothers.end(); ++j) {

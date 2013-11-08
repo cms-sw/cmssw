@@ -5,7 +5,10 @@ process = cms.Process("TEST")
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
     allowUnscheduled = cms.untracked.bool(True),
-    Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
+    Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow,
+    numberOfStreams = cms.untracked.uint32(1),
+    numberOfConcurrentRuns = cms.untracked.uint32(1),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(

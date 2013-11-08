@@ -14,6 +14,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+
 //
 // class declaration
 //
@@ -25,11 +28,11 @@ class HBHENoiseFilter : public edm::EDFilter {
 
    private:
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      
+
       // ----------member data ---------------------------
 
       // parameters
-      edm::InputTag noiselabel_;
+      edm::EDGetTokenT<HcalNoiseSummary> noisetoken_;
       double minRatio_, maxRatio_;
       int minHPDHits_, minRBXHits_, minHPDNoOtherHits_;
       int minZeros_;
@@ -41,6 +44,7 @@ class HBHENoiseFilter : public edm::EDFilter {
 
       bool IgnoreTS4TS5ifJetInLowBVRegion_;
       edm::InputTag jetlabel_;
+      edm::EDGetTokenT<reco::PFJetCollection> jettoken_;
       int maxjetindex_;
       double maxNHF_;
 };

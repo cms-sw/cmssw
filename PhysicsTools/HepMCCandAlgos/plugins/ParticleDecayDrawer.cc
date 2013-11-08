@@ -6,6 +6,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 class ParticleDecayDrawer : public edm::EDAnalyzer {
@@ -13,7 +14,7 @@ public:
   ParticleDecayDrawer( const edm::ParameterSet & );
 private:
   void analyze( const edm::Event &, const edm::EventSetup&) override;
-  edm::InputTag src_;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > srcToken_;
   std::string decay( const reco::Candidate &, std::list<const reco::Candidate *> & ) const;
   edm::ESHandle<ParticleDataTable> pdt_;
   /// print parameters
@@ -31,18 +32,17 @@ private:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <iostream>
-#include <sstream> 
+#include <sstream>
 #include <algorithm>
 using namespace std;
 using namespace edm;
 using namespace reco;
 
 ParticleDecayDrawer::ParticleDecayDrawer( const ParameterSet & cfg ) :
-  src_( cfg.getParameter<InputTag>( "src" ) ),
+  srcToken_( consumes<edm::View<reco::Candidate> >(cfg.getParameter<InputTag>( "src" ) ) ),
   printP4_( cfg.getUntrackedParameter<bool>( "printP4", false ) ),
   printPtEtaPhi_( cfg.getUntrackedParameter<bool>( "printPtEtaPhi", false ) ),
   printVertex_( cfg.getUntrackedParameter<bool>( "printVertex", false ) ) {
@@ -65,10 +65,10 @@ bool ParticleDecayDrawer::hasValidDaughters( const reco::Candidate & c ) const {
   return false;
 }
 
-void ParticleDecayDrawer::analyze( const Event & event, const EventSetup & es ) {  
+void ParticleDecayDrawer::analyze( const Event & event, const EventSetup & es ) {
   es.getData( pdt_ );
   Handle<View<Candidate> > particles;
-  event.getByLabel( src_, particles );
+  event.getByToken( srcToken_, particles );
   list<const Candidate *> skip;
   vector<const Candidate *> nodes, moms;
   for( View<Candidate>::const_iterator p = particles->begin();
@@ -97,19 +97,19 @@ void ParticleDecayDrawer::analyze( const Event & event, const EventSetup & es ) 
 	if ( ! dec.empty() )
 	  cout << "{ " << dec << " } ";
       }
-    else 
+    else
       cout << decay( * moms[ 0 ], skip );
   }
   if ( nodes.size() > 0 ) {
     cout << "-> ";
     if ( nodes.size() > 1 ) {
-      for( size_t n = 0; n < nodes.size(); ++ n ) {    
+      for( size_t n = 0; n < nodes.size(); ++ n ) {
 	skip.remove( nodes[ n ] );
 	string dec = decay( * nodes[ n ], skip );
 	if ( ! dec.empty() ) {
 	  if ( dec.find( "->", 0 ) != string::npos )
 	    cout << " ( " << dec << " )";
-	  else 
+	  else
 	    cout << " " << dec;
         }
       }
@@ -123,25 +123,25 @@ void ParticleDecayDrawer::analyze( const Event & event, const EventSetup & es ) 
 
 string ParticleDecayDrawer::printP4( const Candidate & c ) const {
   ostringstream cout;
-  if ( printP4_ ) cout << " (" << c.px() << ", " << c.py() << ", " << c.pz() << "; " << c.energy() << ")"; 
+  if ( printP4_ ) cout << " (" << c.px() << ", " << c.py() << ", " << c.pz() << "; " << c.energy() << ")";
   if ( printPtEtaPhi_ ) cout << " [" << c.pt() << ": " << c.eta() << ", " << c.phi() << "]";
   if ( printVertex_ ) cout << " {" << c.vx() << ", " << c.vy() << ", " << c.vz() << "}";
   return cout.str();
 }
 
-string ParticleDecayDrawer::decay( const Candidate & c, 
+string ParticleDecayDrawer::decay( const Candidate & c,
 				   list<const Candidate *> & skip ) const {
   string out;
-  if ( find( skip.begin(), skip.end(), & c ) != skip.end() ) 
+  if ( find( skip.begin(), skip.end(), & c ) != skip.end() )
     return out;
   skip.push_back( & c );
 
-  
+
   int id = c.pdgId();
-  const ParticleData * pd = pdt_->particle( id );  
+  const ParticleData * pd = pdt_->particle( id );
   assert( pd != 0 );
   out += ( pd->name() + printP4( c ) );
-  
+
   size_t validDau = 0, ndau = c.numberOfDaughters();
   for( size_t i = 0; i < ndau; ++ i )
     if ( accept( * c.daughter( i ), skip ) )
@@ -149,7 +149,7 @@ string ParticleDecayDrawer::decay( const Candidate & c,
   if ( validDau == 0 ) return out;
 
   out += " ->";
-  
+
   for( size_t i = 0; i < ndau; ++ i ) {
     const Candidate * d = c.daughter( i );
     if ( accept( * d, skip ) ) {
