@@ -131,7 +131,7 @@ namespace reco {
       /// constructor from parameter settypedef
       explicit CandCombiner(const edm::ParameterSet & cfg) :
         CandCombinerBase(cfg),
-        combiner_(reco::modules::make<Selector>(cfg),
+        combiner_(reco::modules::make<Selector>(cfg, consumesCollector()),
 		   reco::modules::make<PairSelector>(cfg),
 		   Setup(cfg),
 		   cfg.existsAs<bool>("checkCharge")  ? cfg.getParameter<bool>("checkCharge")  : true,
