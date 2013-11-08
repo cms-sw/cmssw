@@ -43,9 +43,6 @@ namespace gen {
       void statistics() ;
       
       private: 
-      
-      //            
-      //std::vector<int> fPDGs;
       int              fPolarization;
       
       edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;

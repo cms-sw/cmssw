@@ -20,15 +20,12 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-// #include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
-
 extern "C" {
 
   void gen::ranmar_( float *rvec, int *lenv )
   {
       TauolappInterface* instance = TauolappInterface::getInstance();
       for(int i = 0; i < *lenv; i++)
-         // *rvec++ = decayRandomEngine->flat();
 	 *rvec++ = instance->flat();
       return;
   }
@@ -57,7 +54,7 @@ TauolappInterface::TauolappInterface( const edm::ParameterSet& pset){
 }
 
 void TauolappInterface::Setup(){
-  fInstance=this;//  TauolappInterface::getInstance();
+  fInstance=this;
   fPolarization=false;
   fPSet=0;
   fIsInitialized=false; fMDTAU=-1; 

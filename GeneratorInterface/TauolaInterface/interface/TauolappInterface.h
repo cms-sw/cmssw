@@ -63,7 +63,6 @@ namespace gen {
       
       //
       CLHEP::HepRandomEngine*                  fRandomEngine;            
-      std::vector<int>                         fPDGs;
       bool                                     fPolarization;      
       edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
       edm::ParameterSet*                       fPSet;
