@@ -48,7 +48,7 @@ FTFPCMS_BERT_EML95::FTFPCMS_BERT_EML95(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(  new G4HadronPhysicsFTFP_BERT(ver));
+    RegisterPhysics( new G4HadronPhysicsFTFP_BERT(ver));
 
     // Stopping Physics
     RegisterPhysics( new G4StoppingPhysics(ver));
