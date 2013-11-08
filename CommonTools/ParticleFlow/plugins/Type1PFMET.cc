@@ -13,8 +13,8 @@ using namespace reco;
 // PRODUCER CONSTRUCTORS ------------------------------------------
 Type1PFMET::Type1PFMET( const edm::ParameterSet& iConfig )
 {
-  inputUncorMetLabel  = iConfig.getParameter<std::string>("inputUncorMetLabel");
-  inputUncorJetsTag = iConfig.getParameter<edm::InputTag>("inputUncorJetsTag");
+  tokenUncorMet  = consumes<METCollection>(edm::InputTag(iConfig.getParameter<std::string>("tokenUncorMet")));
+  tokenUncorJets = consumes<PFJetCollection>(iConfig.getParameter<edm::InputTag>("tokenUncorJets"));
   correctorLabel   = iConfig.getParameter<std::string>("corrector");
   jetPTthreshold      = iConfig.getParameter<double>("jetPTthreshold");
   jetEMfracLimit      = iConfig.getParameter<double>("jetEMfracLimit");
@@ -31,24 +31,24 @@ Type1PFMET::~Type1PFMET() {}
 {
   using namespace edm;
   Handle<PFJetCollection> inputUncorJets;
-  iEvent.getByLabel( inputUncorJetsTag, inputUncorJets );
+  iEvent.getByToken( tokenUncorJets, inputUncorJets );
   const JetCorrector* corrector = JetCorrector::getJetCorrector (correctorLabel, iSetup);
   Handle<METCollection> inputUncorMet;                     //Define Inputs
-  iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
+  iEvent.getByToken( tokenUncorMet,  inputUncorMet );     //Get Inputs
   std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
-  run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), 
+  run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()),
        jetPTthreshold, jetEMfracLimit, jetMufracLimit,
        &*output );                                         //Invoke the algorithm
   iEvent.put( output );                                        //Put output into Event
 }
 
-void Type1PFMET::run(const METCollection& uncorMET, 
+void Type1PFMET::run(const METCollection& uncorMET,
 		     const JetCorrector& corrector,
 		     const PFJetCollection& uncorJet,
 		     double jetPTthreshold,
 		     double jetEMfracLimit,
 		     double jetMufracLimit,
-		     METCollection* corMET) 
+		     METCollection* corMET)
 {
   if (!corMET) {
     std::cerr << "Type1METAlgo_run-> undefined output MET collection. Stop. " << std::endl;
@@ -63,7 +63,7 @@ void Type1PFMET::run(const METCollection& uncorMET,
   // ---------------- uncorrected jets be matched with the corrected jets.
   for( PFJetCollection::const_iterator jet = uncorJet.begin(); jet != uncorJet.end(); ++jet) {
     if( jet->pt() > jetPTthreshold ) {
-      double emEFrac = 
+      double emEFrac =
 	jet->chargedEmEnergyFraction() + jet->neutralEmEnergyFraction();
       double muEFrac = jet->chargedMuEnergyFraction();
       if( emEFrac < jetEMfracLimit
@@ -77,26 +77,26 @@ void Type1PFMET::run(const METCollection& uncorMET,
   }
   //----------------- Calculate and set deltas for new MET correction
   CorrMETData delta;
-  delta.mex   =  - DeltaPx;    //correction to MET (from Jets) is negative,    
+  delta.mex   =  - DeltaPx;    //correction to MET (from Jets) is negative,
   delta.mey   =  - DeltaPy;    //since MET points in direction opposite of jets
-  delta.sumet =  DeltaSumET; 
+  delta.sumet =  DeltaSumET;
   //----------------- Fill holder with corrected MET (= uncorrected + delta) values
   const MET* u = &(uncorMET.front());
   double corrMetPx = u->px()+delta.mex;
   double corrMetPy = u->py()+delta.mey;
-  MET::LorentzVector correctedMET4vector( corrMetPx, corrMetPy, 0., 
+  MET::LorentzVector correctedMET4vector( corrMetPx, corrMetPy, 0.,
 					  sqrt (corrMetPx*corrMetPx + corrMetPy*corrMetPy)
 					  );
-  //----------------- get previous corrections and push into new corrections 
+  //----------------- get previous corrections and push into new corrections
   std::vector<CorrMETData> corrections = u->mEtCorr();
   corrections.push_back( delta );
   //----------------- Push onto MET Collection
-  MET result = MET(u->sumEt()+delta.sumet, 
-		   corrections, 
-		   correctedMET4vector, 
+  MET result = MET(u->sumEt()+delta.sumet,
+		   corrections,
+		   correctedMET4vector,
 		   u->vertex() );
   corMET->push_back(result);
-  
+
   return;
 }
 

@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_HepMCCandAlgos_interface_FlavorHistoryProducer_h
 #define PhysicsTools_HepMCCandAlgos_interface_FlavorHistoryProducer_h
 
-/** class 
+/** class
  *
  * \author Stephen Mrenna, FNAL
  *
@@ -12,12 +12,12 @@
 
 // -------------------------------------------------------------
 // Identify the ancestry of the Quark
-// 
-// 
+//
+//
 // Matrix Element:
 //    Status 3 parent with precisely 2 "grandparents" that
 //    is outside of the "initial" section (0-5) that has the
-//    same ID as the status 2 parton in question. 
+//    same ID as the status 2 parton in question.
 //
 // Flavor excitation:
 //    Almost the same as the matrix element classification,
@@ -70,13 +70,13 @@ class FlavorHistoryProducer : public edm::EDProducer {
 
   reco::Candidate const * getSister(const reco::Candidate &c);
 
-  
-  reco::CandidateView::const_iterator 
+
+  reco::CandidateView::const_iterator
     getClosestJet( edm::Handle<reco::CandidateView> const & pJets,
 		   reco::Candidate const & parton ) const ;
-  
-  edm::InputTag src_;               // GenParticles source collection name 
-  edm::InputTag matchedSrc_;        // matched particles source collection name
+
+  edm::EDGetTokenT<reco::CandidateView> srcToken_;               // GenParticles source collection name
+  edm::EDGetTokenT<reco::CandidateView> matchedSrcToken_;        // matched particles source collection name
   double matchDR_;                  // delta r to match matched particles
   int    pdgIdToSelect_;            // pdg of hf partons to select
   double ptMinParticle_;            // minimum pt of the partons

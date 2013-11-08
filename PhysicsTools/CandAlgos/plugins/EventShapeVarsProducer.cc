@@ -2,15 +2,11 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
-
-#include "PhysicsTools/CandUtils/interface/EventShapeVariables.h"
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
 
 EventShapeVarsProducer::EventShapeVarsProducer(const edm::ParameterSet& cfg)
 {
-  src_ = cfg.getParameter<edm::InputTag>("src");
+  srcToken_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("src"));
   r_ = cfg.exists("r") ? cfg.getParameter<double>("r") : 2.;
 
   produces<double>("thrust");
@@ -21,7 +17,7 @@ EventShapeVarsProducer::EventShapeVarsProducer(const edm::ParameterSet& cfg)
   produces<double>("aplanarity");
   produces<double>("C");
   produces<double>("D");
-  
+
 }
 
 void put(edm::Event& evt, double value, const char* instanceName)
@@ -30,17 +26,17 @@ void put(edm::Event& evt, double value, const char* instanceName)
   evt.put(eventShapeVarPtr, instanceName);
 }
 
-void EventShapeVarsProducer::produce(edm::Event& evt, const edm::EventSetup&) 
-{ 
+void EventShapeVarsProducer::produce(edm::Event& evt, const edm::EventSetup&)
+{
   //std::cout << "<EventShapeVarsProducer::produce>:" << std::endl;
 
   edm::Handle<edm::View<reco::Candidate> > objects;
-  evt.getByLabel(src_, objects);
+  evt.getByToken(srcToken_, objects);
 
   Thrust thrustAlgo(objects->begin(), objects->end());
   put(evt, thrustAlgo.thrust(), "thrust");
   //put(evt, thrustAlgo.oblateness(), "oblateness");
-  
+
   EventShapeVariables eventShapeVarsAlgo(*objects);
   put(evt, eventShapeVarsAlgo.isotropy(), "isotropy");
   put(evt, eventShapeVarsAlgo.circularity(), "circularity");

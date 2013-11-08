@@ -2,7 +2,7 @@
  *
  * Selects jets with a configurable string-based cut,
  * and also writes out the constituents of the jet
- * into a separate collection. 
+ * into a separate collection.
  *
  * \author: Sal Rappoccio
  *
@@ -33,9 +33,9 @@ public:
 
   typedef std::vector<T> JetsOutput;
   typedef std::vector<typename T::ConstituentTypeFwdPtr> ConstituentsOutput;
-  
+
   JetConstituentSelector ( edm::ParameterSet const & params ) :
-      src_( params.getParameter<edm::InputTag>("src") ),
+      srcToken_( consumes< typename edm::View<T> >( params.getParameter<edm::InputTag>("src") ) ),
       cut_( params.getParameter<std::string>("cut") ),
       filter_(false),
       selector_( cut_ )
@@ -48,16 +48,16 @@ public:
 
     virtual void beginJob() override {}
     virtual void endJob() override {}
-    
+
     virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
 
-      std::auto_ptr< JetsOutput > jets ( new std::vector<T>() ); 
+      std::auto_ptr< JetsOutput > jets ( new std::vector<T>() );
       std::auto_ptr< ConstituentsOutput > candsOut( new ConstituentsOutput  );
 
       edm::Handle< typename edm::View<T> > h_jets;
-      iEvent.getByLabel( src_, h_jets );
+      iEvent.getByToken( srcToken_, h_jets );
 
-      // Now set the Ptrs with the orphan handles. 
+      // Now set the Ptrs with the orphan handles.
       for ( typename edm::View<T>::const_iterator ibegin = h_jets->begin(),
 	      iend = h_jets->end(), ijet = ibegin;
 	    ijet != iend; ++ijet ) {
@@ -77,15 +77,15 @@ public:
       iEvent.put(jets);
       iEvent.put(candsOut, "constituents");
 
-      if ( filter_ ) 
+      if ( filter_ )
 	return pass;
-      else 
+      else
 	return true;
-      
+
     }
 
   protected:
-    edm::InputTag                  src_;
+    edm::EDGetTokenT< typename edm::View<T> >                  srcToken_;
     std::string                    cut_;
     bool                           filter_;
     StringCutObjectSelector<T>   selector_;
