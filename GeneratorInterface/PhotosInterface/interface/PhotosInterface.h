@@ -46,7 +46,6 @@ namespace gen {
       };
 
       int                      fOnlyPDG;
-      std::vector<std::string> fSpecialSettings; 
       bool                     fAvoidTauLeptonicDecays;  
       std::vector<int>         fBarcodes;
       std::vector<int>         fSecVtxStore;

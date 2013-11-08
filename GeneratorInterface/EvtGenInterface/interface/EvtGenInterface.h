@@ -48,7 +48,6 @@ namespace gen {
      // void call_pygive(const std::string& iParm );
      
       Pythia6Service* m_Py6Service;
-      std::vector<int> m_PDGs;
       CLHEP::RandFlat* m_flat;   
       EvtGen *m_EvtGen;
       std::vector<EvtId> forced_Evt;     // EvtId's of particles with forced decay
