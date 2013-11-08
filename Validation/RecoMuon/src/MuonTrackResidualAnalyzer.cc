@@ -78,7 +78,13 @@ MuonTrackResidualAnalyzer::~MuonTrackResidualAnalyzer(){
 
 // Operations
 void MuonTrackResidualAnalyzer::beginJob(){
-  LogDebug("MuonTrackResidualAnalyzer")<<"Begin Job";
+ 
+}
+
+void MuonTrackResidualAnalyzer::endJob(){
+}
+void MuonTrackResidualAnalyzer::beginRun(){
+ LogDebug("MuonTrackResidualAnalyzer")<<"Begin Run";
   
   dbe_->showDirStructure();
   
@@ -112,11 +118,9 @@ void MuonTrackResidualAnalyzer::beginJob(){
   hDeltaPtVsEtaSim2 = dbe_->book2D("DeltaPtVsEtaSim2","#Delta P_{t} vs #eta gen, sim quantity",120,-3.,3.,500,-250.,250.);
 }
 
-void MuonTrackResidualAnalyzer::endJob(){
+void MuonTrackResidualAnalyzer::endRun(){
   if ( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
- 
-
 void MuonTrackResidualAnalyzer::analyze(const edm::Event & event, const edm::EventSetup& eventSetup){
   LogDebug("MuonTrackResidualAnalyzer")<<"Analyze";
 

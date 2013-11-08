@@ -51,6 +51,7 @@ class GlobalMuonMatchAnalyzer : public edm::EDAnalyzer {
       virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+      virtual void endRun() ;
 
   void computeEfficiencyEta(MonitorElement*, MonitorElement *recoTH2, MonitorElement *simTH2);
   void computeEfficiencyPt(MonitorElement*, MonitorElement *recoTH2, MonitorElement *simTH2);
