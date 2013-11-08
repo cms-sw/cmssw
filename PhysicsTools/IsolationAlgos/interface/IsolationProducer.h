@@ -30,8 +30,8 @@ namespace helper {
   };
 }
 
-template <typename C1, typename C2, typename Alg, 
-	  typename OutputCollection = edm::AssociationVector<edm::RefProd<C1>, 
+template <typename C1, typename C2, typename Alg,
+	  typename OutputCollection = edm::AssociationVector<edm::RefProd<C1>,
 							     std::vector<typename Alg::value_type> >,
  	  typename Setup = typename helper::IsolationAlgorithmSetup<Alg>::type>
 class IsolationProducer : public edm::EDProducer {
@@ -41,14 +41,15 @@ public:
 
 private:
   void produce( edm::Event&, const edm::EventSetup& );
-  edm::InputTag src_, elements_;
+  edm::EDGetTokenT<C1> srcToken_;
+  edm::EDGetTokenT<C2> elementsToken_;
   Alg alg_;
 };
 
 template <typename C1, typename C2, typename Alg, typename OutputCollection, typename Setup>
 IsolationProducer<C1, C2, Alg, OutputCollection, Setup>::IsolationProducer( const edm::ParameterSet & cfg ) :
-  src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
-  elements_( cfg.template getParameter<edm::InputTag>( "elements" ) ),
+  srcToken_( consumes<C1>( cfg.template getParameter<edm::InputTag>( "src" ) ) ),
+  elementsToken_( consumes<C2>( cfg.template getParameter<edm::InputTag>( "elements" ) ) ),
   alg_( reco::modules::make<Alg>( cfg ) ) {
   produces<OutputCollection>();
 }
@@ -63,8 +64,8 @@ void IsolationProducer<C1, C2, Alg, OutputCollection, Setup>::produce( edm::Even
   using namespace std;
   Handle<C1> src;
   Handle<C2> elements;
-  evt.getByLabel( src_, src );
-  evt.getByLabel( elements_, elements );
+  evt.getByToken( srcToken_, src );
+  evt.getByToken( elementsToken_, elements );
 
   Setup::init( alg_, es );
 
@@ -73,7 +74,7 @@ void IsolationProducer<C1, C2, Alg, OutputCollection, Setup>::produce( edm::Even
 
   size_t i = 0;
   for( typename C1::const_iterator lep = src->begin(); lep != src->end(); ++ lep ) {
-    typename Alg::value_type iso= alg_(*lep,*elements); 
+    typename Alg::value_type iso= alg_(*lep,*elements);
     isolations->setValue( i++, iso );
   }
   evt.put( isolations );

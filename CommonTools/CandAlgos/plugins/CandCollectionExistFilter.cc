@@ -8,18 +8,18 @@ using namespace edm;
 using namespace reco;
 
 class CandCollectionExistFilter : public EDFilter {
-public: 
+public:
   CandCollectionExistFilter(const ParameterSet & cfg) :
-    src_(cfg.getParameter<InputTag>("src")) { }
+    srcToken_(consumes<CandidateView>(cfg.getParameter<InputTag>("src"))) { }
 private:
   bool filter(Event& evt, const EventSetup&) override {
     Handle<CandidateView> src;
     bool exists = true;
-    evt.getByLabel(src_, src);
+    evt.getByToken(srcToken_, src);
     if(!src.isValid()) exists = false;
     return exists;
   }
-  InputTag src_;
+  EDGetTokenT<CandidateView> srcToken_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
