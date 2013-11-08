@@ -22,8 +22,8 @@ namespace cond {
       cond::Time_t endOfValidity;
       cond::Time_t lastValidatedTime;
       // iov data
-      cond::Time_t lowerGroup = cond::time::MAX;
-      cond::Time_t higherGroup = cond::time::MIN;
+      cond::Time_t lowerGroup = cond::time::MAX_VAL;
+      cond::Time_t higherGroup = cond::time::MIN_VAL;
       std::vector<cond::Time_t> sinceGroups;
       IOVProxy::IOVContainer iovSequence;
       size_t numberOfQueries = 0;
@@ -63,7 +63,7 @@ namespace cond {
       next++;
       
       // for the till, the next element has to be verified!
-      retVal.till = cond::time::MAX;
+      retVal.till = cond::time::MAX_VAL;
       if( next != m_end ){
 	
 	// the till has to be calculated according to the time type ( because of the packing for some types ) 
@@ -131,8 +131,8 @@ namespace cond {
 	
 	// load the full iov sequence in this case!
 	IOV::selectLast( m_data->tag, m_data->iovSequence, *m_session );
-	m_data->lowerGroup = cond::time::MIN;
-	m_data->higherGroup = cond::time::MAX;
+	m_data->lowerGroup = cond::time::MIN_VAL;
+	m_data->higherGroup = cond::time::MAX_VAL;
       } else {
 	IOV::selectGroups( m_data->tag, m_data->sinceGroups, *m_session );
       }
@@ -144,8 +144,8 @@ namespace cond {
     
     void IOVProxy::reset(){
       if( m_data.get() ){
-	m_data->lowerGroup = cond::time::MAX;
-	m_data->higherGroup = cond::time::MIN;
+	m_data->lowerGroup = cond::time::MAX_VAL;
+	m_data->higherGroup = cond::time::MIN_VAL;
 	m_data->sinceGroups.clear();
 	m_data->iovSequence.clear();
 	m_data->numberOfQueries = 0;
@@ -165,11 +165,11 @@ namespace cond {
     }
     
     cond::Time_t IOVProxy::endOfValidity() const {
-      return m_data.get() ? m_data->endOfValidity : cond::time::MIN;
+      return m_data.get() ? m_data->endOfValidity : cond::time::MIN_VAL;
     }
     
     cond::Time_t IOVProxy::lastValidatedTime() const {
-      return m_data.get() ? m_data->lastValidatedTime : cond::time::MIN;
+      return m_data.get() ? m_data->lastValidatedTime : cond::time::MIN_VAL;
     }
     
     void IOVProxy::checkSession( const std::string& ctx ){
@@ -221,7 +221,7 @@ namespace cond {
       // first check the available iov cache:
       // case 0 empty cache ( the first request )
       
-      if( m_data->lowerGroup==cond::time::MAX ||
+      if( m_data->lowerGroup==cond::time::MAX_VAL ||
 	  // case 1 : target outside
 	  time < m_data->lowerGroup || time>= m_data->higherGroup ){
 	
@@ -241,7 +241,7 @@ namespace cond {
 	}
 	// the upper group will be also extended to the next (covering in total up to three groups )
 	iGHigh++;
-	cond::Time_t highG = cond::time::MAX;
+	cond::Time_t highG = cond::time::MAX_VAL;
 	if( iGHigh != m_data->sinceGroups.end() ) {
 	  iGHigh++;
 	  if( iGHigh != m_data->sinceGroups.end() ) highG = *iGHigh;
@@ -273,7 +273,7 @@ namespace cond {
     }
     
     std::pair<cond::Time_t,cond::Time_t> IOVProxy::loadedGroup() const {
-      return m_data.get()? std::make_pair( m_data->lowerGroup, m_data->higherGroup ): std::make_pair( cond::time::MAX, cond::time::MIN );
+      return m_data.get()? std::make_pair( m_data->lowerGroup, m_data->higherGroup ): std::make_pair( cond::time::MAX_VAL, cond::time::MIN_VAL );
     }
     
   }

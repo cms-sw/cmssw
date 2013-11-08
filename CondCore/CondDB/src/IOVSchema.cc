@@ -135,7 +135,7 @@ namespace cond {
       Query< SINCE, PAYLOAD_HASH > q( session.coralSchema() );
       q.addCondition<TAG_NAME>( tag );
       if( lowerSinceGroup > 0 ) q.addCondition<SINCE>( lowerSinceGroup, ">=" );
-      if( upperSinceGroup < cond::time::MAX ) q.addCondition<SINCE>( upperSinceGroup, "<" );
+      if( upperSinceGroup < cond::time::MAX_VAL ) q.addCondition<SINCE>( upperSinceGroup, "<" );
       q.addOrderClause<SINCE>();
       q.addOrderClause<INSERTION_TIME>( false );
       size_t initialSize = iovs.size();
@@ -154,7 +154,7 @@ namespace cond {
       Query< SINCE, PAYLOAD_HASH > q( session.coralSchema() );
       q.addCondition<TAG_NAME>( tag );
       if( lowerSinceGroup > 0 ) q.addCondition<SINCE>( lowerSinceGroup, ">=" );
-      if( upperSinceGroup < cond::time::MAX ) q.addCondition<SINCE>( upperSinceGroup, "<" );
+      if( upperSinceGroup < cond::time::MAX_VAL ) q.addCondition<SINCE>( upperSinceGroup, "<" );
       q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
       q.addOrderClause<SINCE>();
       q.addOrderClause<INSERTION_TIME>( false );
@@ -187,7 +187,7 @@ cond::Time_t targetGroup,
   Query< SINCE, PAYLOAD_HASH > q1( session.coralSchema() );
   q1.addCondition<TAG_NAME>( tag );
   if( lowerSinceGroup > 0 ) q1.addCondition<SINCE>( lowerSinceGroup, ">=" );
-  if( upperSinceGroup < cond::time::MAX ) q1.addCondition<SINCE>( upperSinceGroup, "<=" );
+  if( upperSinceGroup < cond::time::MAX_VAL ) q1.addCondition<SINCE>( upperSinceGroup, "<=" );
   q1.addOrderClause<SINCE>();
   q1.addOrderClause<INSERTION_TIME>( false );
   size_t initialSize = iovs.size();
@@ -219,7 +219,7 @@ size_t IOV::selectSnapshotByGroup( const std::string& tag,
   Query< SINCE, PAYLOAD_HASH > q1( session.coralSchema() );
   q1.addCondition<TAG_NAME>( tag );
   if( lowerSinceGroup > 0 ) q1.addCondition<SINCE>( lowerSinceGroup, ">=" );
-  if( upperSinceGroup < cond::time::MAX ) q1.addCondition<SINCE>( upperSinceGroup, "<=" );
+  if( upperSinceGroup < cond::time::MAX_VAL ) q1.addCondition<SINCE>( upperSinceGroup, "<=" );
   q1.addCondition<INSERTION_TIME>( snapshotUpperTime,"<=" );
   q1.addOrderClause<SINCE>();
   q1.addOrderClause<INSERTION_TIME>( false );

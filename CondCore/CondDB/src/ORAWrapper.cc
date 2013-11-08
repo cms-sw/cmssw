@@ -640,7 +640,7 @@ namespace cond {
     
     cond::Time_t GTProxy::validity() const {
       if( m_oraData.get() ){
-	return cond::time::MAX;
+	return cond::time::MAX_VAL;
       } else {
 	return m_impl.validity();
       }
