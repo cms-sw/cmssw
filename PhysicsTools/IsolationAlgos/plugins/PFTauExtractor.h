@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -13,28 +14,30 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 
-class PFTauExtractor : public reco::isodeposit::IsoDepositExtractor 
+class PFTauExtractor : public reco::isodeposit::IsoDepositExtractor
 {
  public:
 
-  explicit PFTauExtractor(const edm::ParameterSet&);
+  explicit PFTauExtractor(const edm::ParameterSet&, edm::ConsumesCollector && iC);
   virtual ~PFTauExtractor(){}
 
   /// definition of pure virtual functions inherited from IsoDepositExtractor base-class
   virtual void fillVetos(const edm::Event&, const edm::EventSetup&, const reco::TrackCollection&) { }
-  virtual reco::IsoDeposit deposit(const edm::Event& evt, const edm::EventSetup& es, const reco::Track& track) const { 
+  virtual reco::IsoDeposit deposit(const edm::Event& evt, const edm::EventSetup& es, const reco::Track& track) const {
     return depositFromObject(evt, es, track);
   }
-  virtual reco::IsoDeposit deposit(const edm::Event& evt, const edm::EventSetup& es, const reco::Candidate& candidate) const { 
+  virtual reco::IsoDeposit deposit(const edm::Event& evt, const edm::EventSetup& es, const reco::Candidate& candidate) const {
     return depositFromObject(evt, es, candidate);
   }
 
  private:
 
   /// configuration parameters
-  edm::InputTag tauSource_;
-  edm::InputTag candidateSource_;
+  edm::EDGetTokenT<reco::PFTauCollection> tauSourceToken_;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > candidateSourceToken_;
   double maxDxyTrack_;
   double maxDzTrack_;
   double dRmatchPFTau_;
@@ -42,7 +45,7 @@ class PFTauExtractor : public reco::isodeposit::IsoDepositExtractor
   double dRIsoCone_;
   double dRvetoPFTauSignalConeConstituents_;
 
-  /// private member function for computing the IsoDeposits 
+  /// private member function for computing the IsoDeposits
   /// in case of reco::Track as well as in case of reco::Canididate input
   template<typename T>
   reco::IsoDeposit depositFromObject(const edm::Event&, const edm::EventSetup&, const T&) const;

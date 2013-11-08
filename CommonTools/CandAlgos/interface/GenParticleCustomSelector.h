@@ -17,9 +17,9 @@ public:
 			const std::vector<int>& pdgId = std::vector<int>()) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
     tip_( tip ), lip_( lip ), chargedOnly_(chargedOnly), status_(status), pdgId_( pdgId ) { }
-  
+
   /// Operator() performs the selection: e.g. if (tPSelector(tp)) {...}
-  bool operator()( const reco::GenParticle & tp ) const { 
+  bool operator()( const reco::GenParticle & tp ) const {
 
     if (chargedOnly_ && tp.charge()==0) return false;//select only if charge!=0
     bool testId = false;
@@ -30,15 +30,15 @@ public:
     }
 
     return (
-	    tp.pt() >= ptMin_ && 
-	    tp.eta() >= minRapidity_ && tp.eta() <= maxRapidity_ && 
+	    tp.pt() >= ptMin_ &&
+	    tp.eta() >= minRapidity_ && tp.eta() <= maxRapidity_ &&
 	    sqrt(tp.vertex().perp2()) <= tip_ &&
 	    fabs(tp.vertex().z()) <= lip_ &&
 	    tp.status() == status_ &&
-	    testId 
+	    testId
 	    );
   }
-  
+
 private:
   double ptMin_;
   double minRapidity_;
@@ -51,15 +51,16 @@ private:
 
 };
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 
 namespace reco {
   namespace modules {
-    
+
     template<>
     struct ParameterAdapter<GenParticleCustomSelector> {
-      static GenParticleCustomSelector make( const edm::ParameterSet & cfg ) {
-	return GenParticleCustomSelector(    
+      static GenParticleCustomSelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
+	return GenParticleCustomSelector(
  	  cfg.getParameter<double>( "ptMin" ),
 	  cfg.getParameter<double>( "minRapidity" ),
 	  cfg.getParameter<double>( "maxRapidity" ),
@@ -67,10 +68,10 @@ namespace reco {
 	  cfg.getParameter<double>( "lip" ),
 	  cfg.getParameter<bool>( "chargedOnly" ),
 	  cfg.getParameter<int>( "status" ),
-	  cfg.getParameter<std::vector<int> >( "pdgId" )); 
+	  cfg.getParameter<std::vector<int> >( "pdgId" ));
       }
     };
-    
+
   }
 }
 

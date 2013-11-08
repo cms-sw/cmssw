@@ -14,8 +14,8 @@ using namespace muonisolation;
 
 #include "CandViewExtractor.icc"
 
-CandViewExtractor::CandViewExtractor( const ParameterSet& par ) :
-  theCandViewTag(par.getParameter<edm::InputTag>("inputCandView")),
+CandViewExtractor::CandViewExtractor( const ParameterSet& par, edm::ConsumesCollector && iC ) :
+  theCandViewToken(iC.consumes< View<Candidate> >(par.getParameter<edm::InputTag>("inputCandView"))),
   theDepositLabel(par.getUntrackedParameter<std::string>("DepositLabel")),
   theDiff_r(par.getParameter<double>("Diff_r")),
   theDiff_z(par.getParameter<double>("Diff_z")),
@@ -39,7 +39,7 @@ reco::IsoDeposit::Veto CandViewExtractor::veto(const reco::IsoDeposit::Direction
   result.dR = theDR_Veto;
   return result;
 }
- 
+
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
