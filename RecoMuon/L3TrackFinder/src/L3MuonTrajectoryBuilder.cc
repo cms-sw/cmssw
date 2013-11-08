@@ -68,13 +68,14 @@ using namespace edm;
 
 L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
 							 const MuonServiceProxy* service) : GlobalTrajectoryBuilderBase(par, service) {
-
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
-
   theTkCollName = par.getParameter<edm::InputTag>("tkTrajLabel");
-
+  theBeamSpotInputTag = par.getParameter<edm::InputTag>("tkTrajBeamSpot");
+  theMaxChi2 = par.getParameter<double>("tkTrajMaxChi2");
+  theDXYBeamSpot = par.getParameter<double>("tkTrajMaxDXYBeamSpot");
+  theUseVertex = par.getParameter<bool>("tkTrajUseVertex");
+  theVertexCollInputTag = par.getParameter<edm::InputTag>("tkTrajVertex");
 }
-
 
 //--------------
 // Destructor --
@@ -88,24 +89,37 @@ L3MuonTrajectoryBuilder::~L3MuonTrajectoryBuilder() {
 // get information from event
 //
 void L3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
-  
   const std::string category = "Muon|RecoMuon|L3MuonTrajectoryBuilder|setEvent";
-  
   GlobalTrajectoryBuilderBase::setEvent(event);
-      
   // get tracker TrackCollection from Event
   event.getByLabel(theTkCollName,allTrackerTracks);
   LogDebug(category) 
       << "Found " << allTrackerTracks->size() 
-      << " tracker Tracks with label "<< theTkCollName;  
-  
+      << " tracker Tracks with label "<< theTkCollName;
+
+  // BS
+  event.getByLabel(theBeamSpotInputTag, beamSpotHandle);
+  if ( beamSpotHandle.isValid() ) {
+    beamSpot = *beamSpotHandle;
+  }
+  else {
+    edm::LogInfo(category) << "No beam spot available from EventSetup \n";
+  }
+  // PV
+  edm::Handle<reco::VertexCollection> pvHandle;
+  if ( pvHandle.isValid() ) {
+    vtx = pvHandle->front();
+  }
+  else {
+    edm::LogInfo(category) << "No Primary Vertex available from EventSetup \n";
+  }
+
 }
 
 //
 // reconstruct trajectories
 //
 MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
-
   const std::string category = "Muon|RecoMuon|L3MuonTrajectoryBuilder|trajectories";
   
   // cut on muons with low momenta
@@ -133,11 +147,8 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   CandidateContainer tkTrajs;
   for (vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
     if ((*tkt).first != 0 && (*tkt).first->isValid()) {
-      //
       MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, new Trajectory(*(*tkt).first));
       tkTrajs.push_back(muonCand);
-      //      LogTrace(category) << "tpush";
-      //
     } else {
       MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, 0);
       tkTrajs.push_back(muonCand);
@@ -174,11 +185,8 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
 // make a TrackCand collection using tracker Track, Trajectory information
 //
 vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) {
-
   const std::string category = "Muon|RecoMuon|L3MuonTrajectoryBuilder|makeTkCandCollection";
-
   vector<TrackCand> tkCandColl;
-  
   vector<TrackCand> tkTrackCands;
   
   for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
@@ -190,10 +198,16 @@ vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkCandCo
   for(vector<TrackCand>::const_iterator tk = tkCandColl.begin(); tk != tkCandColl.end() ; ++tk) { 
     edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = (*tk).second->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >() ;
     reco::TrackRef staTrack = l3seedRef->l2Track();
-    if(staTrack == (staCand.second) ) tkTrackCands.push_back(*tk);
+    if(staTrack == (staCand.second) ){
+	double tk_vtx;
+	if( theUseVertex ) tk_vtx = (*tk).second->dxy(vtx.position());
+	else tk_vtx = (*tk).second->dxy(beamSpot.position());
+	if( fabs(tk_vtx) > theDXYBeamSpot || (*tk).second->normalizedChi2() > theMaxChi2 ) {
+		continue;
+	}
+	tkTrackCands.push_back(*tk);
+    }
   }
-
   return tkTrackCands;
-  
 }
 
