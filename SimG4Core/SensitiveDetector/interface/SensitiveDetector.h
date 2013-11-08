@@ -22,7 +22,7 @@ class DDCompactView;
 class SensitiveDetector : public G4VSensitiveDetector
 {
 public:
-  explicit SensitiveDetector(string & iname, const DDCompactView & cpv,
+  explicit SensitiveDetector(std::string & iname, const DDCompactView & cpv,
 			     SensitiveDetectorCatalog & , 
 			     edm::ParameterSet const & p);
   virtual ~SensitiveDetector();
@@ -31,7 +31,7 @@ public:
   virtual G4bool ProcessHits(G4Step * step ,G4TouchableHistory * tHistory) = 0;
   virtual uint32_t setDetUnitId(G4Step * step) = 0;
   void Register();
-  virtual void AssignSD(string & vname); 
+  virtual void AssignSD(std::string & vname); 
   virtual void EndOfEvent(G4HCofThisEvent * eventHC); 
   enum coordinates {WorldCoordinates, LocalCoordinates};
   Local3DPoint InitialStepPosition(G4Step * s, coordinates);
