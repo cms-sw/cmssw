@@ -9,8 +9,9 @@
 #include "G4ParticleDefinition.hh"
 #include "G4NavigationHistory.hh"
 #include "TMath.h"
-#include "G4SystemOfUnits.hh"
+
 #include "Randomize.hh"
+#include "G4SystemOfUnits.hh"
 
 //#define DebugLog
 
