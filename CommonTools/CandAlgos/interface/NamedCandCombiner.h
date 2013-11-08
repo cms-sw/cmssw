@@ -27,6 +27,7 @@
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidateFwd.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -40,7 +41,7 @@ namespace reco {
 
     struct NamedCandCombinerBase : public edm::EDProducer {
       NamedCandCombinerBase( const edm::ParameterSet & cfg ) :
-	setLongLived_(false), 
+	setLongLived_(false),
 	setMassConstraint_(false),
 	setPdgId_(false) {
         using namespace cand::parser;
@@ -58,7 +59,7 @@ namespace reco {
 	else
 	  throw edm::Exception(edm::errors::Configuration,
 			       "failed to parse \"" + decay + "\"");
-	
+
 	int lists = labels_.size();
 	if(lists != 2 && lists != 3)
 	  throw edm::Exception(edm::errors::LogicError,
@@ -75,6 +76,7 @@ namespace reco {
 	vector<string> vIntParams = cfg.getParameterNamesForType<int>();
 	found = find(vIntParams.begin(), vIntParams.end(), setPdgId) != vIntParams.end();
 	if(found) { setPdgId_ = true; pdgId_ = cfg.getParameter<int>("setPdgId"); }
+	tokens_ = edm::vector_transform( labels_, [this](ConjInfo const & cI){return consumes<CandidateView>(cI.tag_);} );
 
 	name_ = cfg.getParameter<std::string>( "name" );
 	roles_= cfg.getParameter<std::vector<std::string> > ( "roles" );
@@ -82,6 +84,7 @@ namespace reco {
     protected:
       /// label vector
       std::vector<cand::parser::ConjInfo> labels_;
+      std::vector<EDGetTokenT<CandidateView> > tokens_;
       /// daughter charges
       std::vector<int> dauCharge_;
       /// set long lived flag
@@ -97,24 +100,24 @@ namespace reco {
       // Name of the roles
       std::vector<std::string> roles_;
     };
-    
-    template<typename Selector, 
+
+    template<typename Selector,
              typename PairSelector = AnyPairSelector,
-             typename Cloner = ::combiner::helpers::NormalClone, 
+             typename Cloner = ::combiner::helpers::NormalClone,
              typename Setup = AddFourMomenta,
-             typename Init = typename ::reco::modules::EventSetupInit<Setup>::type         
+             typename Init = typename ::reco::modules::EventSetupInit<Setup>::type
             >
     class NamedCandCombiner : public NamedCandCombinerBase {
       public:
-      /// constructor from parameter settypedef 
+      /// constructor from parameter settypedef
       explicit NamedCandCombiner( const edm::ParameterSet & cfg ) :
         NamedCandCombinerBase( cfg ),
         combiner_( name_,
-		   reco::modules::make<Selector>( cfg ), 
+		   reco::modules::make<Selector>( cfg ),
 		   reco::modules::make<PairSelector>( cfg ),
-		   Setup( cfg ), 
-		   cfg.existsAs<bool>("checkCharge")  ? cfg.getParameter<bool>("checkCharge")  : true, 
-		   cfg.existsAs<bool>("checkOverlap") ? cfg.getParameter<bool>("checkOverlap") : true, 
+		   Setup( cfg ),
+		   cfg.existsAs<bool>("checkCharge")  ? cfg.getParameter<bool>("checkCharge")  : true,
+		   cfg.existsAs<bool>("checkOverlap") ? cfg.getParameter<bool>("checkOverlap") : true,
 		   dauCharge_ ) {
         produces<reco::NamedCompositeCandidateCollection>();
       }
@@ -130,7 +133,7 @@ namespace reco {
 	int n = labels_.size();
 	std::vector<edm::Handle<CandidateView> > colls(n);
 	for(int i = 0; i < n; ++i) {
-	  evt.getByLabel(labels_[i].tag_, colls[i]);
+	  evt.getByToken(tokens_[i], colls[i]);
 	}
 	std::vector<CandidatePtrVector> cv;
 	for(typename std::vector<edm::Handle<CandidateView> >::const_iterator c = colls.begin();

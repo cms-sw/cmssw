@@ -10,27 +10,27 @@ using namespace edm;
 using namespace reco;
 
 class TestGenParticleCandidates : public EDAnalyzer {
-private: 
+private:
   bool dumpHepMC_;
 public:
-  explicit TestGenParticleCandidates( const ParameterSet & cfg ) : 
-    src_( cfg.getParameter<InputTag>( "src" ) ) {
+  explicit TestGenParticleCandidates( const ParameterSet & cfg ) :
+    srcToken_( consumes<CandidateCollection>( cfg.getParameter<InputTag>( "src" ) ) ) {
   }
 private:
   void analyze( const Event & evt, const EventSetup&) override {
     Handle<CandidateCollection> gen;
-    evt.getByLabel( src_, gen );
+    evt.getByToken( srcToken_, gen );
     size_t n = gen->size();
-    if (n == 0) 
-      throw Exception(errors::EventCorruption) 
+    if (n == 0)
+      throw Exception(errors::EventCorruption)
 	<< "No particles in genParticleCandidates\n";
     for(size_t i = 0; i < n; ++ i) {
       const Candidate & p = (*gen)[i];
       size_t nd = p.numberOfDaughters();
       if(nd==0 && p.status()==3)
-	  throw Exception(errors::EventCorruption) 
-	    << "Particle with no daughters and status " << p.status() 
-	    << ", pdgId = " << p.pdgId() << "\n";   
+	  throw Exception(errors::EventCorruption)
+	    << "Particle with no daughters and status " << p.status()
+	    << ", pdgId = " << p.pdgId() << "\n";
       for(size_t j = 0; j < nd; ++ j ) {
 	const Candidate * d = p.daughter(j);
 	size_t nm = d->numberOfMothers();
@@ -42,12 +42,12 @@ private:
 	  }
 	}
 	if(noMother)
-	  throw Exception(errors::EventCorruption) 
+	  throw Exception(errors::EventCorruption)
 	    << "Inconsistent mother/daughter relation, pdgId = " << d->pdgId() << "\n";
        }
     }
-  }    
-  InputTag src_;
+  }
+  EDGetTokenT<CandidateCollection> srcToken_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

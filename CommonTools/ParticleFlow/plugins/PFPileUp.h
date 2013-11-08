@@ -18,8 +18,8 @@
 
 #include "CommonTools/ParticleFlow/interface/PFPileUpAlgo.h"
 
-/**\class PFPileUp 
-\brief Identifies pile-up candidates from a collection of PFCandidates, and 
+/**\class PFPileUp
+\brief Identifies pile-up candidates from a collection of PFCandidates, and
 produces the corresponding collection of PileUpCandidates.
 
 \author Colin Bernet
@@ -41,20 +41,20 @@ class PFPileUp : public edm::EDProducer {
   explicit PFPileUp(const edm::ParameterSet&);
 
   ~PFPileUp();
-  
+
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
   virtual void beginJob();
 
  private:
-  
+
   PFPileUpAlgo    pileUpAlgo_;
-  
+
   /// PFCandidates to be analyzed
-  edm::InputTag   inputTagPFCandidates_;
-  
+  edm::EDGetTokenT<PFCollection>   tokenPFCandidates_;
+
   /// vertices
-  edm::InputTag   inputTagVertices_;
+  edm::EDGetTokenT<reco::VertexCollection>   tokenVertices_;
 
   /// enable PFPileUp selection
   bool   enable_;

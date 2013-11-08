@@ -4,8 +4,8 @@
 
 /**
   \class    edm::FwdPtrCollectionFilter FwdPtrCollectionFilter.h "CommonTools/UtilAlgos/interface/FwdPtrCollectionFilter.h"
-  \brief    Selects a list of FwdPtr's to a product T (templated) that satisfy a method S(T) (templated). Can also handle input as View<T>. 
-            Can also have a factory class to create new instances of clones if desired. 
+  \brief    Selects a list of FwdPtr's to a product T (templated) that satisfy a method S(T) (templated). Can also handle input as View<T>.
+            Can also have a factory class to create new instances of clones if desired.
 
 
   \author   Salvatore Rappoccio
@@ -23,13 +23,15 @@
 
 namespace edm {
 
-  template < class T, class S, class H = ProductFromFwdPtrFactory<T> > 
+  template < class T, class S, class H = ProductFromFwdPtrFactory<T> >
   class FwdPtrCollectionFilter : public edm::EDFilter {
   public :
     explicit FwdPtrCollectionFilter() {}
 
     explicit FwdPtrCollectionFilter( edm::ParameterSet const & params ) :
-    src_( params.getParameter<edm::InputTag>("src") ), filter_(false), makeClones_(false),
+    srcToken_( consumes< std::vector< edm::FwdPtr<T> > >( params.getParameter<edm::InputTag>("src") ) ),
+    srcViewToken_( mayConsume< edm::View<T>  >( params.getParameter<edm::InputTag>("src") ) ),
+    filter_(false), makeClones_(false),
       selector_( params )
     {
       if ( params.exists("filter") ) {
@@ -44,21 +46,21 @@ namespace edm {
 	produces< std::vector<T> > ();
       }
     }
-    
+
     ~FwdPtrCollectionFilter() {}
 
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup& iSetup){
 
       std::auto_ptr< std::vector< edm::FwdPtr<T> > > pOutput ( new std::vector<edm::FwdPtr<T> > );
-      
+
       std::auto_ptr< std::vector<T> > pClones ( new std::vector<T> );
 
 
       edm::Handle< std::vector< edm::FwdPtr<T> > > hSrcAsFwdPtr;
       edm::Handle< edm::View<T> > hSrcAsView;
-      bool foundAsFwdPtr = iEvent.getByLabel( src_, hSrcAsFwdPtr );
+      bool foundAsFwdPtr = iEvent.getByToken( srcToken_, hSrcAsFwdPtr );
       if ( !foundAsFwdPtr ) {
-	iEvent.getByLabel( src_, hSrcAsView );	
+	iEvent.getByToken( srcViewToken_, hSrcAsView );
       }
 
       // First try to access as a View<T>. If not a View<T>, look as a vector<FwdPtr<T> >
@@ -69,7 +71,7 @@ namespace edm {
 	  if ( selector_( *i ) ) {
 	    pOutput->push_back( edm::FwdPtr<T>( hSrcAsView->ptrAt( i - ibegin ), hSrcAsView->ptrAt( i - ibegin ) ) );
 	    if ( makeClones_ ) {
-	      H factory;	      
+	      H factory;
 	      T outclone = factory( pOutput->back() );
 	      pClones->push_back( outclone );
 	    }
@@ -90,23 +92,24 @@ namespace edm {
 	}
 
       }
-      
+
       bool pass = pOutput->size() > 0;
       iEvent.put( pOutput );
       if ( makeClones_ )
 	iEvent.put( pClones );
       if ( filter_ )
 	return pass;
-      else 
+      else
 	return true;
 
     }
-    
+
   protected :
-    edm::InputTag src_;
+    edm::EDGetTokenT< std::vector< edm::FwdPtr<T> > > srcToken_;
+    edm::EDGetTokenT< edm::View<T>  > srcViewToken_;
     bool          filter_;
     bool          makeClones_;
-    S             selector_; 
+    S             selector_;
   };
 }
 

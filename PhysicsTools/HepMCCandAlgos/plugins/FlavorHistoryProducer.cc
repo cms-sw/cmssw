@@ -1,5 +1,5 @@
 // This file was removed but it should not have been.
-// This comment is to restore it. 
+// This comment is to restore it.
 
 #include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistoryProducer.h"
 
@@ -12,19 +12,19 @@
 
 // -------------------------------------------------------------
 // Identify the ancestry of the Quark
-// 
-// 
+//
+//
 // Matrix Element:
 //    Status 3 parent with precisely 2 "grandparents" that
 //    is outside of the "initial" section (0-5) that has the
-//    same ID as the status 2 parton in question. 
+//    same ID as the status 2 parton in question.
 //
 // Flavor excitation:
 //    If we find only one outgoing parton.
 //
 // Gluon splitting:
 //    Parent is a quark of a different flavor than the parton
-//    in question, or a gluon. 
+//    in question, or a gluon.
 //    Can come from either ISR or FSR.
 //
 // True decay:
@@ -36,13 +36,13 @@ using namespace reco;
 using namespace edm;
 
 FlavorHistoryProducer::FlavorHistoryProducer( const ParameterSet & p ) :
-  src_( p.getParameter<InputTag>( "src" ) ),
-  matchedSrc_( p.getParameter<InputTag>( "matchedSrc") ),
+  srcToken_( consumes<CandidateView>( p.getParameter<InputTag>( "src" ) ) ),
+  matchedSrcToken_( consumes<CandidateView>( p.getParameter<InputTag>( "matchedSrc") ) ),
   matchDR_ ( p.getParameter<double> ("matchDR") ),
   pdgIdToSelect_( p.getParameter<int> ("pdgIdToSelect") ),
-  ptMinParticle_( p.getParameter<double>( "ptMinParticle") ),  
-  ptMinShower_( p.getParameter<double>( "ptMinShower") ),  
-  etaMaxParticle_( p.getParameter<double>( "etaMaxParticle" )),  
+  ptMinParticle_( p.getParameter<double>( "ptMinParticle") ),
+  ptMinShower_( p.getParameter<double>( "ptMinShower") ),
+  etaMaxParticle_( p.getParameter<double>( "etaMaxParticle" )),
   etaMaxShower_( p.getParameter<double>( "etaMaxShower" )),
   flavorHistoryName_( p.getParameter<string>("flavorHistoryName") ),
   verbose_( p.getUntrackedParameter<bool>( "verbose" ) )
@@ -50,19 +50,19 @@ FlavorHistoryProducer::FlavorHistoryProducer( const ParameterSet & p ) :
   produces<FlavorHistoryEvent >(flavorHistoryName_);
 }
 
-FlavorHistoryProducer::~FlavorHistoryProducer() { 
+FlavorHistoryProducer::~FlavorHistoryProducer() {
 }
 
-void FlavorHistoryProducer::produce( Event& evt, const EventSetup& ) 
+void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 {
   if ( verbose_ ) cout << "---------- Hello from FlavorHistoryProducer! -----" << endl;
-  
+
   // Get a handle to the particle collection (OwnVector)
   Handle<CandidateView > particlesViewH;
-  evt.getByLabel( src_, particlesViewH );
+  evt.getByToken( srcToken_, particlesViewH );
 
   Handle<CandidateView> matchedView;
-  evt.getByLabel( matchedSrc_, matchedView );
+  evt.getByToken( matchedSrcToken_, matchedView );
 
   // Copy the View to an vector for easier iterator manipulation convenience
   vector<const Candidate* > particles;
@@ -78,7 +78,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
   vector<int> sisterIndices;
   // Flavor sources
   vector<FlavorHistory::FLAVOR_T> flavorSources;
-  
+
   // Make a new flavor history vector
   auto_ptr<FlavorHistoryEvent > flavorHistoryEvent ( new FlavorHistoryEvent () ) ;
 
@@ -94,7 +94,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
     // Set up indices that we'll need for the flavor history
     vector<Candidate const *>::size_type partonIndex=j;
     vector<Candidate const *>::size_type progenitorIndex=j_max;
-    bool foundProgenitor = false; 
+    bool foundProgenitor = false;
     FlavorHistory::FLAVOR_T flavorSource=FlavorHistory::FLAVOR_NULL;
 
 
@@ -102,10 +102,10 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
     int nDa = (p)->numberOfDaughters();
 
     // Check if we have a status 2 or 3 particle, which is a parton before the string.
-    // Only consider quarks. 
+    // Only consider quarks.
     if ( idabs <= FlavorHistory::tQuarkId && p->status() == 2 &&
 	 idabs == pdgIdToSelect_ ) {
-      // Ensure the parton in question has daughters 
+      // Ensure the parton in question has daughters
       if ( nDa > 0 ) {
 	// Ensure the parton passes some minimum kinematic cuts
 	if((p)->pt() > ptMinShower_ && fabs((p)->eta())<etaMaxShower_) {
@@ -117,30 +117,30 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	  //Main (but simple) workhorse to get all ancestors
 	  vector<Candidate const *> allParents;
 	  getAncestors( *p, allParents );
-	    
+
 	  if(verbose_) {
 	    cout << "Parents : " << endl;
 	    vector<Candidate const *>::const_iterator iprint = allParents.begin(),
 	      iprintend = allParents.end();
-	    for ( ; iprint != iprintend; ++iprint ) 
+	    for ( ; iprint != iprintend; ++iprint )
 	      cout << " status = " << (*iprint)->status() << ", pdg id = " << (*iprint)->pdgId() << ", pt = " << (*iprint)->pt() << endl;
 	  }
-	  
+
 	  // -------------------------------------------------------------
 	  // Identify the ancestry of the Quark
-	  // 
-	  // 
+	  //
+	  //
 	  // Matrix Element:
 	  //    Status 3 parent with precisely 2 "grandparents" that
 	  //    is outside of the "initial" section (0-5) that has the
-	  //    same ID as the status 2 parton in question. 
+	  //    same ID as the status 2 parton in question.
 	  //
 	  // Flavor excitation:
 	  //    If we find only one outgoing parton.
 	  //
 	  // Gluon splitting:
 	  //    Parent is a quark of a different flavor than the parton
-	  //    in question, or a gluon. 
+	  //    in question, or a gluon.
 	  //    Can come from either ISR or FSR.
 	  //
 	  // True decay:
@@ -148,9 +148,9 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	  // -------------------------------------------------------------
 	  vector<Candidate const *>::size_type a_size = allParents.size();
 
-	  // 
+	  //
 	  // Loop over all the ancestors of this parton and find the progenitor.
-	  // 
+	  //
  	  for( vector<Candidate const *>::size_type i=0 ; i < a_size && !foundProgenitor; ++i ) {
 	    const Candidate * aParent=allParents[i];
 	    vector<Candidate const *>::const_iterator found = find(particles.begin(),particles.end(),aParent);
@@ -160,7 +160,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	    progenitorIndex = found - particles.begin();
 
 	    int aParentId = std::abs(aParent->pdgId());
-	    
+
 	    // -----------------------------------------------------------------------
 	    // Here we examine particles that were produced after the collision
 	    // -----------------------------------------------------------------------
@@ -170,18 +170,18 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	      // that is outside of the "initial" section (0-5) that has the
 	      // same ID as the status 2 parton in question.
 	      // NOTE: If this parton has no sister, then this will be classified as
-	      // a flavor excitation. Often the only difference is that the matrix element 
-	      // cases have a sister, while the flavor excitation cases do not. 
+	      // a flavor excitation. Often the only difference is that the matrix element
+	      // cases have a sister, while the flavor excitation cases do not.
 	      // If we do not find a sister below, this will be classified as a flavor
-	      // excitation. 
-	      if(  aParent->numberOfMothers() == 2 &&  
+	      // excitation.
+	      if(  aParent->numberOfMothers() == 2 &&
 		  aParent->pdgId() == p->pdgId() && aParent->status() == 3 ) {
 		if(verbose_) cout << "Matrix Element progenitor" << endl;
 		if ( flavorSource == FlavorHistory::FLAVOR_NULL ) flavorSource = FlavorHistory::FLAVOR_ME;
 		foundProgenitor = true;
-	      } 
+	      }
 	      // Here we have a true decay. Parent is not a quark or a gluon.
-	      else if( (aParentId>pdgIdToSelect_ && aParentId<FlavorHistory::gluonId) || 
+	      else if( (aParentId>pdgIdToSelect_ && aParentId<FlavorHistory::gluonId) ||
 		       aParentId > FlavorHistory::gluonId ) {
 		if(verbose_) cout << "Flavor decay progenitor" << endl;
 		if ( flavorSource == FlavorHistory::FLAVOR_NULL ) flavorSource = FlavorHistory::FLAVOR_DECAY;
@@ -200,7 +200,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	      vector<Candidate const *>::const_iterator found = find(particles.begin(),particles.end(),aParent);
 	      // Get the index of the progenitor candidate
 	      progenitorIndex = found - particles.begin();
-	      
+
 	      if ( aParent->numberOfMothers() == 1 && aParent->status() == 3 ) {
 		foundProgenitor = true;
 	      }
@@ -221,14 +221,14 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
       progenitorIndices.push_back( progenitorIndex );
       flavorSources.push_back(flavorSource);
       sisterIndices.push_back( -1 ); // set below
-	
+
     }// End if this particle was a status==2 parton
   }// end loop over particles
 
   // Now add sisters.
   // Also if the event is preliminarily classified as "matrix element", check to
-  // make sure that they have a sister. If not, it is flavor excitation. 
-  
+  // make sure that they have a sister. If not, it is flavor excitation.
+
   if ( verbose_ ) cout << "Making sisters" << endl;
   // First make sure nothing went terribly wrong:
   if ( partonIndices.size() == progenitorIndices.size() && partonIndices.size() > 0 ) {
@@ -257,7 +257,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
       if ( sisterIndices[ii] < 0 ) {
 	if ( verbose_ ) cout << "No sister. Classified as flavor excitation" << endl;
 	flavorSources[ii] = FlavorHistory::FLAVOR_EXC;
-      } 
+      }
 
       if ( verbose_ ) cout << "Getting matched jet" << endl;
       // Get the closest match in the matched object collection
@@ -265,11 +265,11 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
       CandidateView::const_iterator matchedBegin = matchedView->begin();
       CandidateView::const_iterator matchedEnd = matchedView->end();
 
-      
+
       if ( verbose_ ) cout << "Getting sister jet" << endl;
       // Get the closest sister in the matched object collection, if sister is found
-      CandidateView::const_iterator sister = 
-	( sisterIndices[ii] >= 0 && static_cast<unsigned int>(sisterIndices[ii]) < particles.size() ) ? 
+      CandidateView::const_iterator sister =
+	( sisterIndices[ii] >= 0 && static_cast<unsigned int>(sisterIndices[ii]) < particles.size() ) ?
 	getClosestJet( matchedView, *particles[sisterIndices[ii]] ) :
 	matchedEnd ;
 
@@ -281,7 +281,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
       } else {
 	if ( verbose_ ) cout << " NOT found" << endl;
       }
-      
+
       if ( verbose_ ) cout << "Making sister shallow clones : ";
       ShallowClonePtrCandidate sisterCand;
       if ( sister != matchedEnd ) {
@@ -290,19 +290,19 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
       } else {
 	if ( verbose_ ) cout << " NOT found" << endl;
       }
-      
+
       if ( verbose_ ) cout << "Making history object" << endl;
       // Now create the flavor history object
-      FlavorHistory history (flavorSources[ii], 
-			     particlesViewH, 
+      FlavorHistory history (flavorSources[ii],
+			     particlesViewH,
 			     partonIndices[ii], progenitorIndices[ii], sisterIndices[ii],
 			     matchedCand,
 			     sisterCand );
       if ( verbose_ ) cout << "Adding flavor history : " << history << endl;
-      flavorHistoryEvent->push_back( history ); 
+      flavorHistoryEvent->push_back( history );
     }
   }
-  
+
   // If we got any partons, cache them and then write them out
   if ( flavorHistoryEvent->size() > 0 ) {
 
@@ -324,7 +324,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
   evt.put( flavorHistoryEvent, flavorHistoryName_ );
 }
 
- 
+
 // Helper function to get all ancestors of this candidate
 void FlavorHistoryProducer::getAncestors(const Candidate &c,
 					 vector<Candidate const *> & moms )
@@ -337,14 +337,14 @@ void FlavorHistoryProducer::getAncestors(const Candidate &c,
       moms.push_back( dau );
       dau = mom ;
       mom = dau->mother();
-    } 
-  } 
+    }
+  }
 }
 
 
-CandidateView::const_iterator 
+CandidateView::const_iterator
 FlavorHistoryProducer::getClosestJet( Handle<CandidateView> const & pJets,
-				      reco::Candidate const & parton ) const 
+				      reco::Candidate const & parton ) const
 {
   double dr = matchDR_;
   CandidateView::const_iterator j = pJets->begin(),

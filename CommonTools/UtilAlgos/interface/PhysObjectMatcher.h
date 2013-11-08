@@ -3,8 +3,8 @@
 /* \class PhysObjectMatcher.
  *
  * Extended version of reco::CandMatcher.
- * Tries to match elements from collection 1 to collection 2 with optional 
- * resolution of ambiguities. Uses three helper classes for 
+ * Tries to match elements from collection 1 to collection 2 with optional
+ * resolution of ambiguities. Uses three helper classes for
  *  (1) the basic selection of the match (e.g. pdgId, charge, ..);
  *  (2) a distance measure (e.g. deltaR);
  *  (3) the ranking of several matches.
@@ -33,7 +33,7 @@ namespace reco {
 	distance_(reco::modules::make<D>(cfg)), c1_(c1), c2_(c2) {}
       bool operator() (const std::pair<size_t,size_t>& p1,
 		       const std::pair<size_t,size_t>& p2) const {
-	return 
+	return
 	  distance_(c1_[p1.first],c2_[p1.second])<
 	  distance_(c1_[p2.first],c2_[p2.second]);
       }
@@ -43,20 +43,20 @@ namespace reco {
       const C2& c2_;
     };
   }
-  
+
   // Template arguments:
   // C1 .. candidate collection to be matched
   // C2 .. target of the match (typically MC)
   // S ... match (pre-)selector
   // D ... match (typically cut on some distance)
   //         default: deltaR cut
-  // Q ... ranking of matches 
+  // Q ... ranking of matches
   //         default: by smaller deltaR
-  template<typename C1, typename C2, typename S, 
-	   typename D = reco::MatchByDR<typename C1::value_type, 
+  template<typename C1, typename C2, typename S,
+	   typename D = reco::MatchByDR<typename C1::value_type,
 					typename C2::value_type>,
-	   typename Q = 
-	   helper::LessByMatchDistance< DeltaR<typename C1::value_type, 
+	   typename Q =
+	   helper::LessByMatchDistance< DeltaR<typename C1::value_type,
 					       typename C2::value_type>,
 					C1, C2 >
   >
@@ -72,15 +72,15 @@ namespace reco {
     typedef std::vector<IndexPair> MatchContainer;
     void produce(edm::Event&, const edm::EventSetup&) override;
     edm::ParameterSet config_;
-    edm::InputTag src_;
-    edm::InputTag matched_;
+    edm::EDGetTokenT<C1> srcToken_;
+    edm::EDGetTokenT<C2> matchedToken_;
     bool resolveAmbiguities_;            // resolve ambiguities after
                                          //   first pass?
     bool resolveByMatchQuality_;         // resolve by (global) quality
                                          //   of match (otherwise: by order
                                          //   of test candidates)
-    bool select(const T1 & c1, const T2 & c2) const { 
-      return select_(c1, c2); 
+    bool select(const T1 & c1, const T2 & c2) const {
+      return select_(c1, c2);
     }
     S select_;
     D distance_;
@@ -90,11 +90,11 @@ namespace reco {
   template<typename C1, typename C2, typename S, typename D, typename Q>
   PhysObjectMatcher<C1, C2, S, D, Q>::PhysObjectMatcher(const edm::ParameterSet & cfg) :
     config_(cfg),
-    src_(cfg.template getParameter<edm::InputTag>("src")),
-    matched_(cfg.template getParameter<edm::InputTag>("matched")), 
+    srcToken_(consumes<C1>(cfg.template getParameter<edm::InputTag>("src"))),
+    matchedToken_(consumes<C2>(cfg.template getParameter<edm::InputTag>("matched"))),
     resolveAmbiguities_(cfg.template getParameter<bool>("resolveAmbiguities")),
     resolveByMatchQuality_(cfg.template getParameter<bool>("resolveByMatchQuality")),
-    select_(reco::modules::make<S>(cfg)), 
+    select_(reco::modules::make<S>(cfg)),
     distance_(reco::modules::make<D>(cfg)) {
     // definition of the product
     produces<MatchMap>();
@@ -105,17 +105,17 @@ namespace reco {
   template<typename C1, typename C2, typename S, typename D, typename Q>
   PhysObjectMatcher<C1, C2, S, D, Q>::~PhysObjectMatcher() { }
 
-  template<typename C1, typename C2, typename S, typename D, typename Q>    
+  template<typename C1, typename C2, typename S, typename D, typename Q>
   void PhysObjectMatcher<C1, C2, S, D, Q>::produce(edm::Event& evt, const edm::EventSetup&) {
     using namespace edm;
     using namespace std;
     typedef std::pair<size_t, size_t> IndexPair;
     typedef std::vector<IndexPair> MatchContainer;
     // get collections from event
-    Handle<C2> matched;  
-    evt.getByLabel(matched_, matched);
-    Handle<C1> cands;  
-    evt.getByLabel(src_, cands);
+    Handle<C2> matched;
+    evt.getByToken(matchedToken_, matched);
+    Handle<C1> cands;
+    evt.getByToken(srcToken_, cands);
     // create product
     auto_ptr<MatchMap> matchMap(new MatchMap(matched));
     size_t size = cands->size();
@@ -159,7 +159,7 @@ namespace reco {
 	  if ( resolveAmbiguities_ )  mLock[index] = true;
 // 	  {
 // 	    MatchContainer::const_iterator i = min_element(matchPairs.begin(), matchPairs.end(), comparator);
-//  	    cout << "smallest distance for c = " << c << " is " 
+//  	    cout << "smallest distance for c = " << c << " is "
 //  		 << testDR_((*cands)[(*i).first],
 // 			    (*matched)[(*i).second]) << endl;
 // 	  }
@@ -190,8 +190,8 @@ namespace reco {
       filler.fill();
     }
     evt.put(matchMap);
-  }    
-     
+  }
+
 }
 
 #endif
