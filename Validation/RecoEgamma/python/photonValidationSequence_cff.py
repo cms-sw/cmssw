@@ -19,8 +19,7 @@ photonValidation.eoverpMax = 5.
 pfPhotonValidation = Validation.RecoEgamma.photonValidator_cfi.photonValidation.clone()
 pfPhotonValidation.ComponentName = cms.string('pfPhotonValidation')
 pfPhotonValidation.OutputFileName = cms.string('PFPhotonValidationHistos.root')
-pfPhotonValidation.phoProducer = cms.string('gedPhotons')
-pfPhotonValidation.photonCollection = cms.string('')
+pfPhotonValidation.phoProducer = cms.InputTag('gedPhotons')
 pfPhotonValidation.analyzerName = cms.string('pfPhotonValidator')
 pfPhotonValidation.minPhoEtCut = 10
 pfPhotonValidation.eMax  = 500
@@ -35,8 +34,7 @@ pfPhotonValidation.eoverpMax = 5.
 oldpfPhotonValidation = Validation.RecoEgamma.photonValidator_cfi.photonValidation.clone()
 oldpfPhotonValidation.ComponentName = cms.string('oldpfPhotonValidation')
 oldpfPhotonValidation.OutputFileName = cms.string('oldPFPhotonValidationHistos.root')
-oldpfPhotonValidation.phoProducer = cms.string('pfPhotonTranslator')
-oldpfPhotonValidation.photonCollection = cms.string('pfphot')
+oldpfPhotonValidation.phoProducer = cms.InputTag('pfPhotonTranslator')
 oldpfPhotonValidation.analyzerName = cms.string('oldpfPhotonValidator')
 oldpfPhotonValidation.minPhoEtCut = 10
 oldpfPhotonValidation.eMax  = 500
@@ -54,6 +52,7 @@ oldpfPhotonValidation.eoverpMax = 5.
 
 # selectors go in separate "pre-" sequence
 photonPrevalidationSequence = cms.Sequence(tpSelection*tpSelecForFakeRate*tpSelecForEfficiency)
-photonValidationSequence = cms.Sequence(photonValidation*oldpfPhotonValidation*pfPhotonValidation*tkConversionValidation)
+photonValidationSequence = cms.Sequence(photonValidation*pfPhotonValidation*oldpfPhotonValidation*tkConversionValidation)
+#photonValidationSequence = cms.Sequence(photonValidation*pfPhotonValidation*tkConversionValidation)
 
 
