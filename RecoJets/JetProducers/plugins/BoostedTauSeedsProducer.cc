@@ -14,6 +14,7 @@
  * =============================================================================
  */
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -53,8 +54,9 @@ class BoostedTauSeedsProducer : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag srcSubjets_;
-  edm::InputTag srcPFCandidates_;
+  typedef edm::View<reco::Jet> JetView;
+  edm::EDGetTokenT<JetView> srcSubjets_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidates_;
 
   int verbosity_;
 };
@@ -62,8 +64,8 @@ class BoostedTauSeedsProducer : public edm::EDProducer
 BoostedTauSeedsProducer::BoostedTauSeedsProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
-  srcSubjets_ = cfg.getParameter<edm::InputTag>("subjetSrc");
-  srcPFCandidates_ = cfg.getParameter<edm::InputTag>("pfCandidateSrc");
+  srcSubjets_ = consumes<JetView>(cfg.getParameter<edm::InputTag>("subjetSrc"));
+  srcPFCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("pfCandidateSrc"));
 
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
@@ -197,16 +199,15 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
     std::cout << "<BoostedTauSeedsProducer::produce (moduleLabel = " << moduleLabel_ << ")>:" << std::endl;
   }
 
-  typedef edm::View<reco::Jet> JetView;
   edm::Handle<JetView> subjets;
-  evt.getByLabel(srcSubjets_, subjets);
+  evt.getByToken(srcSubjets_, subjets);
   if ( verbosity_ >= 1 ) {
     std::cout << "#subjets = " << subjets->size() << std::endl;
   }
   assert((subjets->size() % 2) == 0); // CV: ensure that subjets come in pairs
-
+  
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
-  evt.getByLabel(srcPFCandidates_, pfCandidates);
+  evt.getByToken(srcPFCandidates_, pfCandidates);
   if ( verbosity_ >= 1 ) {
     std::cout << "#pfCandidates = " << pfCandidates->size() << std::endl;
   }
@@ -224,10 +225,13 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
     if ( verbosity_ >= 1 ) {
       std::cout << "processing jet #" << idx << ":" << std::endl;
       std::cout << " subjet1: Pt = " << subjet1->pt() << ", eta = " << subjet1->eta() << ", phi = " << subjet1->phi() << ", mass = " << subjet1->mass() 
-		<< " (area = " << subjet1->jetArea() << ")" << std::endl;
+		<< " (#constituents = " << subjet1->nConstituents() << ", area = " << subjet1->jetArea() << ")" << std::endl;
       std::cout << " subjet2: Pt = " << subjet2->pt() << ", eta = " << subjet2->eta() << ", phi = " << subjet2->phi() << ", mass = " << subjet2->mass() 
-		<< " (area = " << subjet2->jetArea() << ")" << std::endl;
+		<< " (#constituents = " << subjet2->nConstituents() << ", area = " << subjet2->jetArea() << ")" << std::endl;
     }
+
+    if ( !(subjet1->nConstituents() >= 1 && subjet1->pt() > 1. &&
+	   subjet2->nConstituents() >= 1 && subjet2->pt() > 1.) ) continue; // CV: skip pathological cases
 
     // find PFCandidate constituents of each subjet
     reco::Jet::Constituents subjetConstituents1;

@@ -1,9 +1,14 @@
+#ifndef __RecoJets_JetAlgorithms_CMSBoostedTauSeedingAlgorithm_h__
+#define __RecoJets_JetAlgorithms_CMSBoostedTauSeedingAlgorithm_h__
+
 // CMSBoostedTau Package
+//
+// Find subjets corresponding to decay products of tau lepton pair
+// and produce data-formats neccessary to seed tau reconstruction.
+//
 // Questions/Comments? 
 //    for physics : Christian.Veelken@cern.ch
 //    for implementation : Salvatore.Rappoccio@cern.ch
-//
-// $Id$
 //
 //----------------------------------------------------------------------
 // This file is part of FastJet contrib.
@@ -21,9 +26,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this code. If not, see <http://www.gnu.org/licenses/>.
 //----------------------------------------------------------------------
-
-#ifndef __FASTJET_CONTRIB_CMSBOOSTEDTAUSEEDINGALGORITHM_HH__
-#define __FASTJET_CONTRIB_CMSBOOSTEDTAUSEEDINGALGORITHM_HH__
 
 #include <fastjet/internal/base.hh>
 #include <fastjet/tools/Transformer.hh>
