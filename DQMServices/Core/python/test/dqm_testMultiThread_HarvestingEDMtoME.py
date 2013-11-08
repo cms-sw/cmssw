@@ -6,7 +6,8 @@ myWorkflowHarvesting = '/My/Test/WorkflowEDM_Harvesting'
 process = cms.Process('HARVESTING')
 
 # import of standard configurations
-process.load('Configuration.StandardSequences.Services_cff')
+process.load("DQMServices.Core.DQM_cfg")
+#process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
