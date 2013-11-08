@@ -11,6 +11,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4SystemOfUnits.hh"
+
 	MaterialProperties::MaterialProperties(int DebugLevel, double SiAbsLengthScale) 
 	: theMaterialTable(), theMPDebugLevel(0), 
 	theSiAbsLengthScalingFactor(0),
