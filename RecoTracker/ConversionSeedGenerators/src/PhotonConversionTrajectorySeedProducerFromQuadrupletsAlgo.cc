@@ -168,7 +168,7 @@ inspect(const TrackingRegion & region ){
     try{
       //FIXME (modify the interface of the seed generator if needed)
       //passing the region, that is centered around the primary vertex
-      theSeedCreator->trajectorySeed(*seedCollection, phits, mhits, region, *myEsetup, ss, quadVector, SeedComparitorPSet, QuadCutPSet);
+      theSeedCreator->trajectorySeed(*seedCollection, phits, mhits, region, *myEvent, *myEsetup, ss, quadVector, SeedComparitorPSet, QuadCutPSet);
     }catch(cms::Exception& er){
       edm::LogError("SeedingConversion") << " Problem in the Quad Seed creator " <<er.what()<<std::endl;
     }catch(std::exception& er){

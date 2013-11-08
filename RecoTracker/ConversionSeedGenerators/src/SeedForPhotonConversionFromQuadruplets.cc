@@ -40,6 +40,7 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::trajectorySeed(
     const SeedingHitSet & phits,
     const SeedingHitSet & mhits,
     const TrackingRegion & region,
+    const edm::Event& ev,
     const edm::EventSetup& es,
     std::stringstream& ss,
     std::vector<Quad>& quadV,
@@ -440,7 +441,7 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 
 
     if(ClusterShapeFiltering){
-  	  if (theComparitor) theComparitor->init(es);
+          if (theComparitor) theComparitor->init(ev, es);
 
 		  GlobalTrajectoryParameters pkine;
 		  GlobalTrajectoryParameters mkine;

@@ -15,7 +15,7 @@ class LowPtClusterShapeSeedComparitor : public SeedComparitor
  public:
   LowPtClusterShapeSeedComparitor(const edm::ParameterSet& ps){}
   virtual ~LowPtClusterShapeSeedComparitor(){}
-  virtual void init(const edm::EventSetup& es) ;
+  virtual void init(const edm::Event& e, const edm::EventSetup& es) ;
   virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const ;
   virtual bool compatible(const TrajectorySeed &seed) const { return true; }
   virtual bool compatible(const TrajectoryStateOnSurface &,  

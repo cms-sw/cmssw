@@ -9,7 +9,7 @@ class CombinedSeedComparitor : public SeedComparitor {
     public:
         CombinedSeedComparitor(const edm::ParameterSet &cfg) ;
         virtual ~CombinedSeedComparitor() ; 
-        virtual void init(const edm::EventSetup& es) override ;
+        virtual void init(const edm::Event& ev, const edm::EventSetup& es) override ;
         virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const override ;
         virtual bool compatible(const TrajectorySeed &seed) const override ;
         virtual bool compatible(const TrajectoryStateOnSurface &,  
@@ -48,10 +48,10 @@ CombinedSeedComparitor::~CombinedSeedComparitor()
 }
 
 void
-CombinedSeedComparitor::init(const edm::EventSetup& es) {
+CombinedSeedComparitor::init(const edm::Event& ev, const edm::EventSetup& es) {
     typedef boost::ptr_vector<SeedComparitor>::iterator ITC;
     for (ITC it = comparitors_.begin(), ed = comparitors_.end(); it != ed; ++it) {
-        it->init(es);
+        it->init(ev, es);
     }
 }
 

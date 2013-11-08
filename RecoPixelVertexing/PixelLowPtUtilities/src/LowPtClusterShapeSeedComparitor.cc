@@ -101,7 +101,7 @@ namespace {
 } // namespace
 
 /*****************************************************************************/
-void LowPtClusterShapeSeedComparitor::init(const edm::EventSetup& es) {
+void LowPtClusterShapeSeedComparitor::init(const edm::Event& e, const edm::EventSetup& es) {
   es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", theShapeFilter);
   es.get<IdealGeometryRecord>().get(theTTopo);
 }
