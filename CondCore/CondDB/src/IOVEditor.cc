@@ -23,8 +23,8 @@ namespace cond {
       std::string payloadType;
       cond::SynchronizationType synchronizationType; 
       std::string description;
-      cond::Time_t endOfValidity = cond::time::MAX;
-      cond::Time_t lastValidatedTime = cond::time::MIN; 
+      cond::Time_t endOfValidity = cond::time::MAX_VAL;
+      cond::Time_t lastValidatedTime = cond::time::MIN_VAL; 
       bool change = false;
       bool exists = false;
       // buffer for the iov sequence
@@ -95,7 +95,7 @@ namespace cond {
     }
     
     cond::Time_t IOVEditor::endOfValidity() const {
-      return m_data.get() ? m_data->endOfValidity : cond::time::MIN;
+      return m_data.get() ? m_data->endOfValidity : cond::time::MIN_VAL;
     }
     
     void IOVEditor::setEndOfValidity( cond::Time_t time ){
@@ -117,7 +117,7 @@ namespace cond {
     }
     
     cond::Time_t IOVEditor::lastValidatedTime() const {
-      return m_data.get() ? m_data->lastValidatedTime : cond::time::MIN;
+      return m_data.get() ? m_data->lastValidatedTime : cond::time::MIN_VAL;
     }
     
     void IOVEditor::setLastValidatedTime(cond::Time_t time ){

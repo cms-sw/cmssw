@@ -272,6 +272,8 @@ namespace cond {
 
       bool isOra() const;
 
+      Switch& details();
+
     private:
 
       Switch m_switch;
@@ -301,6 +303,62 @@ namespace cond {
       }
       return obj;
     }
+
+    class KeyList {
+    public:
+      
+      explicit KeyList( Session& session );
+      
+      void init( const std::string& tag );
+
+      void load( const std::vector<unsigned long long>& keys );
+      
+      template<typename T> 
+      T const * get(size_t n) const {
+	if( n> (size()-1) ) throwException( "Index outside the bounds of the key array.",
+					    "KeyList::get");
+	if( !m_objects[n] ){
+	  if( !m_session.isOra() ){
+	    auto i = m_data.find( n );
+	    if( i != m_data.end() ){
+	      m_objects[n] = deserialize<T>( i->second.first, i->second.second );
+	      m_data.erase( n );
+	    } else {
+	      throwException( "Payload for index "+boost::lexical_cast<std::string>(n)+" has not been found.",
+			      "KeyList::get");
+	    }
+	  } else {
+	    auto i = m_oraData.find( n );
+	    if( i != m_oraData.end() ){
+	      if( !i->second.cast<T>() ){
+		throwException( "Payload on index "+boost::lexical_cast<std::string>(n)+" cannot be casted as type "+cond::demangledName( typeid(T) ),
+				"KeyList::get");
+	      }
+	      m_objects[n] = i->second.makeShared();
+	      m_data.erase( n );
+	    } else {
+	      throwException( "Payload for index "+boost::lexical_cast<std::string>(n)+" has not been found.",
+			      "KeyList::get");
+	    }
+	  }
+	}
+	return boost::static_pointer_cast<T>( m_objects[n] );
+      }
+
+      int size() const { return m_objects.size();}
+
+    private:
+      // the tag of the full key collection
+      std::string m_tag;
+      // the db session
+      Session m_session;
+      // the current set
+      mutable std::map<size_t,std::pair<std::string,cond::Binary> > m_data;
+      mutable std::map<size_t,ora::Object > m_oraData;
+      std::vector<boost::shared_ptr<void> > m_objects;
+      
+    };
+    
 
   }
 }
