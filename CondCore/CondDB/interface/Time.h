@@ -15,9 +15,9 @@ namespace cond {
     // Time_t
     typedef cond::Time_t Time_t;
 
-    const Time_t MAX(std::numeric_limits<Time_t>::max());
+    const Time_t MAX_VAL(std::numeric_limits<Time_t>::max());
 
-    const Time_t MIN(0);
+    const Time_t MIN_VAL(0);
   
     typedef cond::UnpackedTime UnpackedTime;
 

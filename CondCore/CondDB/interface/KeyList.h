@@ -28,8 +28,10 @@ namespace cond {
     public:
       
       explicit KeyList( Session& session );
+
+      void init( const std::string& tag );
       
-      void load(const std::string& tag, const std::vector<unsigned long long>& keys);
+      void load( const std::vector<unsigned long long>& keys );
       
       template<typename T> 
       T const * get(size_t n) const {
@@ -51,9 +53,11 @@ namespace cond {
       int size() const { return m_objects.size();}
 
     private:
-      // the full collection of keyed object
+      // the tag of the full key collection
+      std::string m_tag;
+      // the db session
       Session m_session;
-      // the current set
+      // the key selection
       mutable std::map<size_t,std::pair<std::string,cond::Binary> > m_data;
       std::vector<boost::shared_ptr<void> > m_objects;
       
