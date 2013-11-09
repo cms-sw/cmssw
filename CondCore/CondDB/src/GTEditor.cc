@@ -19,7 +19,7 @@ namespace cond {
       }
       // GT data
       std::string name;
-      cond::Time_t validity = cond::time::MAX;
+      cond::Time_t validity = cond::time::MAX_VAL;
       std::string description;
       std::string release;
       boost::posix_time::ptime snapshotTime;
@@ -68,7 +68,7 @@ namespace cond {
     }
     
     cond::Time_t GTEditor::validity() const {
-      return m_data.get()? m_data->validity : cond::time::MIN;
+      return m_data.get()? m_data->validity : cond::time::MIN_VAL;
     }
     
     void GTEditor::setValidity( cond::Time_t validity ){

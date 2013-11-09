@@ -4,6 +4,7 @@
 #include <string>
 //
 #include <typeinfo>
+#include <boost/shared_ptr.hpp>
 // externals
 //#include "Reflex/Type.h"
 
@@ -23,6 +24,7 @@ namespace ora {
     std::string typeName() const;
     void* cast( const std::type_info& asType ) const;
     template <typename T> T* cast() const;
+    boost::shared_ptr<void> makeShared() const;
     void destruct();
     private:
     void* m_ptr;

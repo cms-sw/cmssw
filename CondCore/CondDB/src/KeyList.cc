@@ -6,14 +6,21 @@ namespace cond {
   namespace persistency {
 
     KeyList::KeyList( Session& session ):
+      m_tag(""),
       m_session( session ),
       m_data(),
       m_objects(){
     }
 
-    void KeyList::load(const std::string& tag, const std::vector<unsigned long long>& keys){
+    void KeyList::init( const std::string& tag ){
+      m_tag = tag;
+      m_data.clear();
+      m_objects.clear();
+    }
+
+    void KeyList::load( const std::vector<unsigned long long>& keys ){
       m_session.transaction().start( true );
-      IOVProxy proxy = m_session.readIov( tag );
+      IOVProxy proxy = m_session.readIov( m_tag );
       m_data.clear();
       m_objects.resize(keys.size());
       for (size_t i=0; i<keys.size(); ++i) {
