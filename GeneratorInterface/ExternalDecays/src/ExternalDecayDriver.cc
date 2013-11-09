@@ -27,87 +27,80 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
      fEvtGenInterface(0),
      fPhotosInterface(0)
 {
-    
-    std::vector<std::string> extGenNames =
-       pset.getParameter< std::vector<std::string> >("parameterSets");
-
-    Service<RandomNumberGenerator> rng;
-    if(!rng.isAvailable()) {
-       throw cms::Exception("Configuration")
-       << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
-          "which appears to be absent.  Please add that service to your configuration\n"
-          "or remove the modules that require it." << std::endl;
-    } 
-    decayRandomEngine = &rng->getEngine();   
-    
-    for (unsigned int ip=0; ip<extGenNames.size(); ++ip ){
-      std::string curSet = extGenNames[ip];
-      if ( curSet == "EvtGen" || curSet == "EvtGenLHC91"){
-	fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGenLHC91", pset.getUntrackedParameter< ParameterSet >(curSet)));
-      }
-      if ( curSet == "Tauola" || curSet == "Tauola271215" ){
-	fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauola271215", pset.getUntrackedParameter< ParameterSet >(curSet)));
-	fTauolaInterface->SetDecayRandomEngine(decayRandomEngine);
-      }
-      if(curSet =="Tauolapp111a"){
-	fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp111a", pset.getUntrackedParameter< ParameterSet >(curSet)));
-	fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet >(curSet)));
-	fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
-	fPhotosInterface->configureOnlyFor(15); 
-	fPhotosInterface->avoidTauLeptonicDecays();
-	hastauolapp=true;
-      }
-      if ( curSet == "Photos" || curSet == "Photos2155Legacy"){
-	if ( !fPhotosInterface ){
-	  fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155Legacy", pset.getUntrackedParameter< ParameterSet >(curSet)));
-	  fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
-	}
-      }
-      if (curSet == "Photos2155"){
-        if ( !fPhotosInterface ){
-          fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet>(curSet)));
-          fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
-        }
-      }
-
+  
+  std::vector<std::string> extGenNames = pset.getParameter< std::vector<std::string> >("parameterSets");
+  
+  Service<RandomNumberGenerator> rng;
+  if(!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+      "which appears to be absent.  Please add that service to your configuration\n"
+      "or remove the modules that require it." << std::endl;
+  } 
+  decayRandomEngine = &rng->getEngine();   
+  
+  for (unsigned int ip=0; ip<extGenNames.size(); ++ip ){
+    std::string curSet = extGenNames[ip];
+    if ( curSet == "EvtGen" || curSet == "EvtGenLHC91"){
+      fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGenLHC91", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fEvtGenInterface->SetPhotosDecayRandomEngine(decayRandomEngine);
     }
-
+    if ( curSet == "Tauola" || curSet == "Tauola271215" ){
+      fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauola271215", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fTauolaInterface->SetDecayRandomEngine(decayRandomEngine);
+    }
+    if(curSet =="Tauolapp111a"){
+      fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp111a", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
+      fPhotosInterface->configureOnlyFor(15); 
+      fPhotosInterface->avoidTauLeptonicDecays();
+      hastauolapp=true;
+    }
+    if ( curSet == "Photos" || curSet == "Photos2155Legacy"){
+      if ( !fPhotosInterface ){
+	fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155Legacy", pset.getUntrackedParameter< ParameterSet >(curSet)));
+	fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
+      }
+    }
+    if (curSet == "Photos2155"){
+      if ( !fPhotosInterface ){
+	fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet>(curSet)));
+	fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
+      }
+    }
+  }
 }
 
-ExternalDecayDriver::~ExternalDecayDriver()
-{
-   if ( fEvtGenInterface ) delete fEvtGenInterface;
-   if ( fTauolaInterface ) delete fTauolaInterface;
-   if ( fPhotosInterface ) delete fPhotosInterface;
+ExternalDecayDriver::~ExternalDecayDriver(){
+  if ( fEvtGenInterface ) delete fEvtGenInterface;
+  if ( fTauolaInterface ) delete fTauolaInterface;
+  if ( fPhotosInterface ) delete fPhotosInterface;
 }
 
-HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
-{
-   
-   if ( !fIsInitialized ) return evt;
-   
-   if ( fEvtGenInterface ){  
-      evt = fEvtGenInterface->decay( evt ); 
-      if ( !evt ) return 0;
-   }
+HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt ){
+  
+  if ( !fIsInitialized ) return evt;
+  
+  if ( fEvtGenInterface ){  
+    evt = fEvtGenInterface->decay( evt ); 
+    if ( !evt ) return 0;
+  }
+  
+  if ( fTauolaInterface ){
+    evt = fTauolaInterface->decay( evt ); 
+    if ( !evt ) return 0;
+  }
+  
+  if ( fPhotosInterface ){
+    evt = fPhotosInterface->apply( evt );
+    if ( !evt ) return 0;
+  }
 
-   if ( fTauolaInterface ){
-      evt = fTauolaInterface->decay( evt ); 
-      if ( !evt ) return 0;
-   }
-   
-
-   if ( fPhotosInterface ){
-     evt = fPhotosInterface->apply( evt );
-     if ( !evt ) return 0;
-   }
-
-         
-   return evt;
+  return evt;
 }
 
-void ExternalDecayDriver::init( const edm::EventSetup& es )
-{
+void ExternalDecayDriver::init( const edm::EventSetup& es ){
 
    if ( fIsInitialized ) return;
    

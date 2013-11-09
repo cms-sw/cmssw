@@ -34,7 +34,8 @@ namespace gen {
    public:
      EvtGenInterface( const edm::ParameterSet& );
      ~EvtGenInterface();
-     
+
+     void SetPhotosDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine);     
      void init();
      const std::vector<int>& operatesOnParticles() { return m_PDGs; }      
      HepMC::GenEvent* decay( HepMC::GenEvent* evt);

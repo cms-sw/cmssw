@@ -38,14 +38,32 @@
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 
 #include "HepMC/GenEvent.h"
-// #include "HepMC/PythiaWrapper6_2.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
-//#define PYGIVE pygive_
-//extern "C" {
-//  void PYGIVE(const char*,int length);
-//}
+namespace PhotosRandomVar {
+  CLHEP::HepRandomEngine* decayRandomEngine;
+}
+
+
+extern "C"{
+
+  void phoini_( void );
+  void photos_( int& );
+
+  double phoran_(int *idummy)
+  {
+    return PhotosRandomVar::decayRandomEngine->flat();
+  }
+  extern struct {
+    // bool qedrad[NMXHEP];
+    bool qedrad[4000]; // hardcoded for now...
+  } phoqed_;
+
+}
+
+
+
 
 using namespace gen;
 using namespace edm;
@@ -376,6 +394,11 @@ EvtGenInterface::~EvtGenInterface()
   std::cout << " EvtGenProducer terminating ... " << std::endl; 
   delete m_Py6Service;
 }
+
+void EvtGenInterface::SetPhotosDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){
+  PhotosRandomVar::decayRandomEngine=decayRandomEngine;
+}
+
 
 void EvtGenInterface::init()
 {
