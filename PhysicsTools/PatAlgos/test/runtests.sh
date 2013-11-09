@@ -30,6 +30,8 @@ cmsRun ${LOCAL_TEST_DIR}/patTuple_topSelection_cfg.py || die 'Failure using patT
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_userData_cfg.py || die 'Failure using patTuple_userData_cfg.py' $?
 
+cmsRun ${LOCAL_TEST_DIR}/patTuple_metUncertainties_cfg.py || die 'Failure using patTuple_metUncertainties_cfg.py' $?
+
 # Not needed in IBs
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_factorisedTaginfo_cfg.py || die 'Failure using patTuple_factorisedTaginfo_cfg.py' $?
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_onlyElectrons_cfg.py || die 'Failure using patTuple_onlyElectrons_cfg.py' $?
