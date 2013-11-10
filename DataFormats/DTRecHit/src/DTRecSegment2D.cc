@@ -16,9 +16,15 @@ using namespace std;
 
 
 /* static member definition */
-bool DTRecSegment2D::isInitialized(false);
 
-AlgebraicMatrix DTRecSegment2D::theProjectionMatrix;
+//This function is only used to initialize theProjectionMatrix at load time
+static AlgebraicMatrix initTheProjectionMatrix() {
+  AlgebraicMatrix theProjectionMatrix( 2, 5, 0);
+  theProjectionMatrix[0][1]=1;
+  theProjectionMatrix[1][3]=1;
+  return theProjectionMatrix;
+}
+const AlgebraicMatrix DTRecSegment2D::theProjectionMatrix{initTheProjectionMatrix()};
 
 /* Operations */ 
 AlgebraicSymMatrix DTRecSegment2D::parametersError() const {
