@@ -96,9 +96,7 @@ namespace reco {
     
     friend    std::ostream& operator<<(std::ostream& out, 
 				       const PFCluster& cluster);
-    /// counter
-    static unsigned     instanceCounter_;
-    
+
     /// \todo move to PFClusterTools
     static void setDepthCorParameters(int mode, 
 				      double a, double b, 
@@ -130,8 +128,7 @@ namespace reco {
     
     /// dummy vertex access
     math::XYZPoint const & vertex() const { 
-      static math::XYZPoint dummyVtx(0,0,0);
-      return dummyVtx;      
+      return dummyVtx_;      
     }
     double vx() const { return vertex().x(); }
     double vy() const { return vertex().y(); }
@@ -161,7 +158,8 @@ namespace reco {
     /// \todo move to PFClusterTools
     static double depthCorBp_;
     
-    
+    static const math::XYZPoint dummyVtx_;
+
     /// color (transient)
     int                 color_;
     
