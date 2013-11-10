@@ -923,6 +923,8 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
     // for ECAL the number of all bad channels is obtained here -----------------------
 
+    /* old hyper slow algorithm    
+
     // get all possible constituents of the tower
     std::vector<DetId> allConstituents = theTowerConstituentsMap->constituentsOf(id);
 
@@ -949,9 +951,13 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
       }
 
      }
-     // compare fast version
+     
+     // compare with fast version
      auto  numBadEcalChanNew = ecalBadChs[id.denseIndex()];
      if (numBadEcalChanNew!=numBadEcalChan) std::cout << "wrong " << id << " " << numBadEcalChanNew << " " << numBadEcalChan << " " << mt.numBadEcalCells << std::endl;
+     */
+
+     numBadEcalChan = ecalBadChs[id.denseIndex()];
 
     //--------------------------------------------------------------------------------------
 
