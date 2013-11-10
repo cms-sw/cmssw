@@ -91,20 +91,18 @@ EcalSeverityLevelAlgo::severityLevel(const DetId& id,
 
 
   // else evaluate from dbstatus
- 
-  if (!chStatus_)     
-    edm::LogError("ObjectNotFound") << "Channel Status not set for EcalSeverityLevelAlgo"; 
-	
+  return severityLevel(id);
+
+}
+
+EcalSeverityLevel::SeverityLevel
+EcalSeverityLevelAlgo::severityLevel(const DetId& id) const {
+
+  using namespace EcalSeverityLevel;
+
 
   EcalChannelStatus::const_iterator chIt = chStatus_->find( id );
-  uint16_t dbStatus = 0;
-  if ( chIt != chStatus_->end() ) {
-    dbStatus = chIt->getStatusCode() & 0x1F;
-  } else {
-    edm::LogError("ObjectNotFound") << "No channel status found for xtal " 
-	 << id.rawId() 
-	 << "! something wrong with EcalChannelStatus in your DB? ";
-  }
+  uint16_t dbStatus = chIt->getStatusCode() & 0x1F;
  
   // kGood==0 we know!
   if (0==dbStatus)  return kGood;

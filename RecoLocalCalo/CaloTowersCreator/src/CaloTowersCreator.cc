@@ -221,6 +221,9 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
     algo_.makeHcalDropChMap();
   }
 
+  // check ecal SevLev
+  if (ecalSevLevelWatcher_.check(c)) algo_.makeEcalBadChs();
+
   // ----------------------------------------------------------
   // For ecal error handling need to 
   // have access to the EB and EE collections at the end of 
