@@ -20,6 +20,9 @@ namespace edm {
     for_all(putProducts_, principal_get_adapter_detail::deleter());
   }
 
+  Run::CacheIdentifier_t
+  Run::cacheIdentifier() const {return runPrincipal().cacheIdentifier();}
+
   RunIndex Run::index() const { return runPrincipal().index();}
   
   RunPrincipal&

@@ -138,7 +138,9 @@ namespace edm {
     reader_(),
     productPtrs_(),
     branchType_(bt),
-    historyAppender_(historyAppender) {
+    historyAppender_(historyAppender),
+    cacheIdentifier_(1) //0 means unset
+  {
 
     //Now that these have been set, we can create the list of Branches we need.
     std::string const source("source");
@@ -325,6 +327,8 @@ namespace edm {
   Principal::fillPrincipal(ProcessHistoryID const& hist,
                            ProcessHistoryRegistry const& processHistoryRegistry,
                            DelayedReader* reader) {
+    //increment identifier here since clearPrincipal isn't called for Run/Lumi
+    ++cacheIdentifier_;
     if(reader) {
       reader_ = reader;
     }
