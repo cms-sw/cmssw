@@ -4,13 +4,20 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
+#include <memory>
+
+CaloTowerConstituentsMap::~CaloTowerConstituentsMap() {
+  delete m_reverseItems;
+  m_reverseItems = nullptr;
+}
 CaloTowerConstituentsMap::CaloTowerConstituentsMap(const HcalTopology * topology) :
   m_topology(topology),
   standardHB_(false),
   standardHE_(false),
   standardHF_(false),
   standardHO_(false),
-  standardEB_(false)
+  standardEB_(false),
+  m_reverseItems(nullptr)
 {
 }
 
@@ -59,14 +66,19 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
   std::vector<DetId> items;
 
   // build reverse map if needed
-  if (!m_items.empty() && m_reverseItems.empty()) {
-    for (edm::SortedCollection<MapItem>::const_iterator i=m_items.begin(); i!=m_items.end(); i++)
-      m_reverseItems.insert(std::pair<CaloTowerDetId,DetId>(i->tower,i->cell));
+  if(!m_reverseItems.load(std::memory_order_acquire)) {
+      std::unique_ptr<std::multimap<CaloTowerDetId,DetId>> ptr{new std::multimap<CaloTowerDetId,DetId>};
+      for (auto i=m_items.begin(); i!=m_items.end(); i++)
+          ptr->insert(std::pair<CaloTowerDetId,DetId>(i->tower,i->cell));
+      std::multimap<CaloTowerDetId,DetId>* expected = nullptr;
+      if(m_reverseItems.compare_exchange_strong(expected, ptr.get(), std::memory_order_acq_rel)) {
+          ptr.release();
+      }
   }
 
   /// copy from the items map
   std::multimap<CaloTowerDetId,DetId>::const_iterator j;
-  std::pair<std::multimap<CaloTowerDetId,DetId>::const_iterator,std::multimap<CaloTowerDetId,DetId>::const_iterator> range=m_reverseItems.equal_range(id);
+  auto range=(*m_reverseItems.load(std::memory_order_acquire)).equal_range(id);
   for (j=range.first; j!=range.second; j++)
     items.push_back(j->second);
 
@@ -122,7 +134,6 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
       for (int ip=hid.crystal_iphi_low(); ip<=hid.crystal_iphi_high(); ip++)
 	items.push_back(EBDetId(ie,ip));
   }
-
   return items;
 }
 
