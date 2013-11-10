@@ -19,20 +19,24 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector& sc,
 			 ConversionAlgorithm algo):  
 			 
 
-  caloCluster_(sc), tracks_(tr), 
+  caloCluster_(sc),
+  trackToBaseRefs_(),
   thePositionAtEcal_(trackPositionAtEcal), 
   theConversionVertex_(convVtx), 
   theMatchingBCs_(matchingBC), 
-  theMinDistOfApproach_(DCA),
   theTrackInnerPosition_(innPoint),
   theTrackPin_(trackPin),
   theTrackPout_(trackPout),
-  nSharedHits_(0),  
+  theMinDistOfApproach_(DCA),
   theMVAout_(mva),
-  algorithm_(algo),
-  qualityMask_(0)
+  qualityMask_(0),
+  nSharedHits_(0),  
+  algorithm_(algo)
  { 
-   
+   trackToBaseRefs_.reserve(tr.size());
+   for( auto const& track: tr) {
+     trackToBaseRefs_.emplace_back(track);
+   }
  }
 
 
@@ -58,16 +62,16 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector& sc,
   thePositionAtEcal_(trackPositionAtEcal), 
   theConversionVertex_(convVtx), 
   theMatchingBCs_(matchingBC), 
-  theMinDistOfApproach_(DCA),
   theTrackInnerPosition_(innPoint),
   theTrackPin_(trackPin),
   theTrackPout_(trackPout),
   nHitsBeforeVtx_(nHitsBeforeVtx),
   dlClosestHitToVtx_(dlClosestHitToVtx),
-  nSharedHits_(nSharedHits),
+  theMinDistOfApproach_(DCA),
   theMVAout_(mva),
-  algorithm_(algo),
-  qualityMask_(0)
+  qualityMask_(0),
+  nSharedHits_(nSharedHits),
+  algorithm_(algo)
  { 
    
  }
@@ -79,12 +83,17 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector& sc,
 			 const std::vector<reco::TrackRef>& tr, 
 			 const reco::Vertex  & convVtx,
 			 ConversionAlgorithm algo):  
-  caloCluster_(sc), tracks_(tr), 
+  caloCluster_(sc),
+  trackToBaseRefs_(),
   theConversionVertex_(convVtx),
+  qualityMask_(0),
   nSharedHits_(0),
-  algorithm_(algo),
-  qualityMask_(0)
+  algorithm_(algo)
  { 
+   trackToBaseRefs_.reserve(tr.size());
+   for( auto const& track: tr) {
+     trackToBaseRefs_.emplace_back(track);
+   }
 
 
   theMinDistOfApproach_ = 9999.;
@@ -108,9 +117,9 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector& sc,
 			 ConversionAlgorithm algo):  
   caloCluster_(sc), trackToBaseRefs_(tr), 
   theConversionVertex_(convVtx), 
+  qualityMask_(0),
   nSharedHits_(0),
-  algorithm_(algo),
-  qualityMask_(0)
+  algorithm_(algo)
  { 
 
 
@@ -149,9 +158,6 @@ Conversion::Conversion() {
 }
 
 
-Conversion::~Conversion() { }
-
-
 std::string const Conversion::algoNames[] = { "undefined","ecalSeeded","trackerOnly","mixed","pflow"};  
 
 Conversion::ConversionAlgorithm Conversion::algoByName(const std::string &name){
@@ -167,17 +173,7 @@ Conversion * Conversion::clone() const {
 }
 
 
-std::vector<edm::RefToBase<reco::Track> >  Conversion::tracks() const { 
-  if (trackToBaseRefs_.size() ==0 ) {
- 
-    for (std::vector<reco::TrackRef>::const_iterator ref=tracks_.begin(); ref!=tracks_.end(); ref++ ) 
-      {
-	edm::RefToBase<reco::Track> tt(*ref);
-	trackToBaseRefs_.push_back(tt);
-	
-      }  
-  }
-
+std::vector<edm::RefToBase<reco::Track> > const&  Conversion::tracks() const { 
   return trackToBaseRefs_;
 }
 
@@ -306,13 +302,12 @@ double  Conversion::EoverPrefittedTracks() const  {
 
 std::vector<double>  Conversion::tracksSigned_d0() const  {
   std::vector<double> result;
-
-  for (unsigned int i=0; i< nTracks(); i++)   
-    result.push_back(tracks()[i]->d0()* tracks()[i]->charge()) ;
-
+  result.reserve(tracks().size());
+  
+  for (auto const& track: tracks()) {
+    result.emplace_back(track->d0()* track->charge()) ;
+  }
   return result;
-
-
 }
 
 double  Conversion::dPhiTracksAtVtx() const  {
