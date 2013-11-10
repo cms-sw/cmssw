@@ -140,12 +140,12 @@ class SmartPropagator GCC11_FINAL : public Propagator {
 
   private:
     ///build the tracker volume
-  static void initTkVolume(float epsilon);
+    void initTkVolume(float epsilon);
 
     Propagator* theTkProp;
     Propagator* theGenProp;
     const MagneticField* theField;
-    static ReferenceCountingPointer<Cylinder> & theTkVolume();
+    ReferenceCountingPointer<Cylinder> theTkVolume;
 
   protected:
 
