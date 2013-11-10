@@ -5,13 +5,26 @@
 
 #include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
 #include <FWCore/Utilities/interface/Exception.h>
+#include <memory>
 
 GlobalTrackingGeometry::GlobalTrackingGeometry(std::vector<const TrackingGeometry*>& geos)
-    : theGeometries(geos)
+    : theGeometries(geos),
+    theDetTypes(nullptr), theDetUnits(nullptr), theDets(nullptr), theDetUnitIds(nullptr), theDetIds(nullptr)
 {}
 
 GlobalTrackingGeometry::~GlobalTrackingGeometry()
-{}
+{
+    delete theDetTypes;
+    theDetTypes = nullptr;
+    delete theDetUnits;
+    theDetUnits = nullptr;
+    delete theDets;
+    theDets = nullptr;
+    delete theDetUnitIds;
+    theDetUnitIds = nullptr;
+    delete theDetIds;
+    theDetIds = nullptr;
+}
 
 const GeomDetUnit* GlobalTrackingGeometry::idToDetUnit(DetId id) const {
     
@@ -52,79 +65,104 @@ const TrackingGeometry* GlobalTrackingGeometry::slaveGeometry(DetId id) const {
 const TrackingGeometry::DetTypeContainer&
 GlobalTrackingGeometry::detTypes( void ) const
 {    
-   if ( ! theDetTypes.empty() ) return theDetTypes; 
-   for( std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin(), geomEnd = theGeometries.end();
-       geom != geomEnd; ++geom )
-     {
-	if( *geom == 0 ) continue;
-	DetTypeContainer detTypes(( *geom )->detTypes());
-	if( detTypes.size() + theDetTypes.size() < theDetTypes.capacity()) theDetTypes.resize( detTypes.size() + theDetTypes.size());
-	for( DetTypeContainer::const_iterator detType = detTypes.begin(), detTypeEnd = detTypes.end(); detType != detTypeEnd; ++detType )
-	  theDetTypes.push_back( *detType );
-     }
-   return theDetTypes;
+   if (!theDetTypes.load(std::memory_order_acquire)) {
+       std::unique_ptr<DetTypeContainer> ptr{new DetTypeContainer()};
+       for( auto geom = theGeometries.cbegin(), geomEnd = theGeometries.cend(); geom != geomEnd; ++geom )
+       {
+        if( *geom == 0 ) continue;
+        DetTypeContainer detTypes(( *geom )->detTypes());
+        if( detTypes.size() + ptr->size() < ptr->capacity()) ptr->resize( detTypes.size() + ptr->size());
+        for( auto detType = detTypes.cbegin(), detTypeEnd = detTypes.cend(); detType != detTypeEnd; ++detType )
+          ptr->push_back( *detType );
+       }
+       DetTypeContainer* expect = nullptr;
+       if(theDetTypes.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
+           ptr.release();
+       }
+   }
+   return *theDetTypes.load(std::memory_order_acquire);
 }
 
 const TrackingGeometry::DetUnitContainer&
 GlobalTrackingGeometry::detUnits( void ) const
 {
-   if( ! theDetUnits.empty()) return theDetUnits; 
-   for( std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin(), geomEnd = theGeometries.end();
-       geom != geomEnd; ++geom )
-     {
-	if( *geom == 0 ) continue;
-	DetUnitContainer detUnits(( *geom )->detUnits());
-	if( detUnits.size() + theDetUnits.size() < theDetUnits.capacity()) theDetUnits.resize( detUnits.size() + theDetUnits.size());
-	for( DetUnitContainer::const_iterator detUnit = detUnits.begin(), detUnitEnd = detUnits.end(); detUnit != detUnitEnd; ++detUnit )
-	  theDetUnits.push_back( *detUnit );
-     }
-   return theDetUnits;
+   if (!theDetUnits.load(std::memory_order_acquire)) {
+       std::unique_ptr<DetUnitContainer> ptr{new DetUnitContainer()};
+       for( auto geom = theGeometries.cbegin(), geomEnd = theGeometries.cend(); geom != geomEnd; ++geom )
+       {
+        if( *geom == 0 ) continue;
+        DetUnitContainer detUnits(( *geom )->detUnits());
+        if( detUnits.size() + ptr->size() < ptr->capacity()) ptr->resize( detUnits.size() + ptr->size());
+        for( auto detUnit = detUnits.cbegin(), detUnitEnd = detUnits.cend(); detUnit != detUnitEnd; ++detUnit )
+          ptr->push_back( *detUnit );
+       }
+       DetUnitContainer* expect = nullptr;
+       if(theDetUnits.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
+           ptr.release();
+       }
+   }
+   return *theDetUnits.load(std::memory_order_acquire);
 }
 
 const TrackingGeometry::DetContainer&
 GlobalTrackingGeometry::dets( void ) const
 {
-   if( ! theDets.empty()) return theDets; 
-   for( std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin(), geomEnd = theGeometries.end();
-       geom != geomEnd; ++geom )
-     {
-	if( *geom == 0 ) continue;
-	DetContainer dets(( *geom )->dets());
-	if( dets.size() + theDets.size() < theDets.capacity()) theDets.resize( dets.size() + theDets.size());
-	for( DetContainer::const_iterator det = dets.begin(), detEnd = dets.end(); det != detEnd; ++det )
-	  theDets.push_back( *det );
-     }
-   return theDets;
+   if (!theDets.load(std::memory_order_acquire)) {
+       std::unique_ptr<DetContainer> ptr{new DetContainer()};
+       for( auto geom = theGeometries.cbegin(), geomEnd = theGeometries.cend(); geom != geomEnd; ++geom )
+       {
+        if( *geom == 0 ) continue;
+        DetContainer dets(( *geom )->dets());
+        if( dets.size() + ptr->size() < ptr->capacity()) ptr->resize( dets.size() + ptr->size());
+        for( auto det = dets.cbegin(), detEnd = dets.cend(); det != detEnd; ++det )
+          ptr->push_back( *det );
+       }
+       DetContainer* expect = nullptr;
+       if(theDets.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
+           ptr.release();
+       }
+   }
+   return *theDets.load(std::memory_order_acquire);
 }
 
 const TrackingGeometry::DetIdContainer&
 GlobalTrackingGeometry::detUnitIds( void ) const
 {
-   if( ! theDetUnitIds.empty()) return theDetUnitIds; 
-   for( std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin(), geomEnd = theGeometries.end();
-       geom != geomEnd; ++geom )
-     {
-	if( *geom == 0 ) continue;
-	DetIdContainer detUnitIds(( *geom )->detUnitIds());
-	if( detUnitIds.size() + theDetUnitIds.size() < theDetUnitIds.capacity()) theDetUnitIds.resize( detUnitIds.size() + theDetUnitIds.size());
-	for( DetIdContainer::const_iterator detUnitId = detUnitIds.begin(), detUnitIdEnd = detUnitIds.end(); detUnitId != detUnitIdEnd; ++detUnitId )
-	  theDetUnitIds.push_back( *detUnitId );
-     }
-   return theDetUnitIds;
+   if (!theDetUnitIds.load(std::memory_order_acquire)) {
+       std::unique_ptr<DetIdContainer> ptr{new DetIdContainer()};
+       for( auto geom = theGeometries.cbegin(), geomEnd = theGeometries.cend(); geom != geomEnd; ++geom )
+       {
+        if( *geom == 0 ) continue;
+        DetIdContainer detUnitIds(( *geom )->detUnitIds());
+        if( detUnitIds.size() + ptr->size() < ptr->capacity()) ptr->resize( detUnitIds.size() + ptr->size());
+        for( auto detUnitId = detUnitIds.cbegin(), detUnitIdEnd = detUnitIds.cend(); detUnitId != detUnitIdEnd; ++detUnitId )
+          ptr->push_back( *detUnitId );
+       }
+       DetIdContainer* expect = nullptr;
+       if(theDetUnitIds.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
+           ptr.release();
+       }
+   }
+   return *theDetUnitIds.load(std::memory_order_acquire);
 }
 
 const TrackingGeometry::DetIdContainer&
 GlobalTrackingGeometry::detIds( void ) const
 {
-   if( ! theDetIds.empty() ) return theDetIds; 
-   for( std::vector<const TrackingGeometry*>::const_iterator geom = theGeometries.begin(), geomEnd = theGeometries.end();
-       geom != geomEnd; ++geom )
-     {
-	if( *geom == 0 ) continue;
-	DetIdContainer detIds(( *geom )->detIds());
-	if( detIds.size() + theDetIds.size() < theDetIds.capacity()) theDetIds.resize( detIds.size() + theDetIds.size());
-	for( DetIdContainer::const_iterator detId = detIds.begin(), detIdEnd = detIds.end(); detId != detIdEnd; ++detId )
-	  theDetIds.push_back( *detId );
-     }
-   return theDetIds;
+   if (!theDetIds.load(std::memory_order_acquire)) {
+       std::unique_ptr<DetIdContainer> ptr{new DetIdContainer()};
+       for( auto geom = theGeometries.cbegin(), geomEnd = theGeometries.cend(); geom != geomEnd; ++geom )
+       {
+        if( *geom == 0 ) continue;
+        DetIdContainer detIds(( *geom )->detIds());
+        if( detIds.size() + ptr->size() < ptr->capacity()) ptr->resize( detIds.size() + ptr->size());
+        for( auto detId = detIds.cbegin(), detIdEnd = detIds.cend(); detId != detIdEnd; ++detId )
+          ptr->push_back( *detId );
+       }
+       DetIdContainer* expect = nullptr;
+       if(theDetIds.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
+           ptr.release();
+       }
+   }
+   return *theDetIds.load(std::memory_order_acquire);
 }

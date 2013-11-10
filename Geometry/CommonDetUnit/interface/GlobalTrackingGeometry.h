@@ -15,6 +15,7 @@
 
 # include <Geometry/CommonDetUnit/interface/TrackingGeometry.h>
 # include <vector>
+#include <atomic>
 
 class GlobalTrackingGeometry : public TrackingGeometry
 {
@@ -57,11 +58,11 @@ private:
     // The const methods claim to simply return these vectors,
     // but actually, they'll fill them up the first time they
     // are called, which is rare (or never).
-    mutable DetTypeContainer  theDetTypes;
-    mutable DetUnitContainer  theDetUnits; 
-    mutable DetContainer      theDets; 
-    mutable DetIdContainer    theDetUnitIds;
-    mutable DetIdContainer    theDetIds;
+    mutable std::atomic<DetTypeContainer*>  theDetTypes;
+    mutable std::atomic<DetUnitContainer*>  theDetUnits;
+    mutable std::atomic<DetContainer*>      theDets;
+    mutable std::atomic<DetIdContainer*>    theDetUnitIds;
+    mutable std::atomic<DetIdContainer*>    theDetIds;
 };
 #endif
 
