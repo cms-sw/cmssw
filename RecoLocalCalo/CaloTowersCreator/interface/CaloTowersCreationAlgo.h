@@ -194,9 +194,9 @@ public:
   GlobalPoint hadSegmentShwrPos(DetId detId, float fracDepth);
   // "effective" point for the EM/HAD shower in CaloTower
   //  position based on non-zero energy cells
-  GlobalPoint hadShwrPos(const std::vector<std::pair<DetId,double> >& metaContains,
+  GlobalPoint hadShwrPos(const std::vector<std::pair<DetId,float> >& metaContains,
     float fracDepth, double hadE);
-  GlobalPoint emShwrPos(const std::vector<std::pair<DetId,double> >& metaContains, 
+  GlobalPoint emShwrPos(const std::vector<std::pair<DetId,float> >& metaContains, 
     float fracDepth, double totEmE);
 
   // overloaded function to get had position based on all had cells in the tower
@@ -204,21 +204,23 @@ public:
   GlobalPoint hadShwPosFromCells(DetId frontCell, DetId backCell, float fracDepth);
 
   // for Chris
-  GlobalPoint emShwrLogWeightPos(const std::vector<std::pair<DetId,double> >& metaContains, 
+  GlobalPoint emShwrLogWeightPos(const std::vector<std::pair<DetId,float> >& metaContains, 
     float fracDepth, double totEmE);
 
 
 private:
 
   struct MetaTower {
-    MetaTower();
-    double E, E_em, E_had, E_outer;
+    MetaTower(){}
+    bool empty() const { return metaConstituents.empty();}
     // contains also energy of RecHit
-    std::vector< std::pair<DetId, double> > metaConstituents;
-    double emSumTimeTimesE, hadSumTimeTimesE, emSumEForTime, hadSumEForTime; // Sum(Energy x Timing) : intermediate container
+    std::vector< std::pair<DetId, float> > metaConstituents;
+    CaloTowerDetId id;
+    float E, E_em, E_had, E_outer;
+    float emSumTimeTimesE=0, hadSumTimeTimesE=0, emSumEForTime=0, hadSumEForTime=0; // Sum(Energy x Timing) : intermediate container
 
     // needed to set CaloTower status word
-    int numBadEcalCells, numRecEcalCells, numProbEcalCells, numBadHcalCells, numRecHcalCells, numProbHcalCells; 
+    int numBadEcalCells=0, numRecEcalCells=0, numProbEcalCells=0, numBadHcalCells=0, numRecHcalCells=0, numProbHcalCells=0; 
 
  };
 
@@ -317,7 +319,7 @@ private:
   
 
   // internal map
-  typedef std::map<CaloTowerDetId, MetaTower> MetaTowerMap;
+  typedef std::vector<MetaTower> MetaTowerMap;
   MetaTowerMap theTowerMap;
 
   // Number of channels in the tower that were not used in RecHit production (dead/off,...).
