@@ -1141,16 +1141,11 @@ GlobalPoint CaloTowersCreationAlgo::emCrystalShwrPos(DetId detId, float fracDept
    const CaloCellGeometry* cellGeometry = theGeometry->getGeometry(detId);
    GlobalPoint point = cellGeometry->getPosition();  // face of the cell
 
-   if      (fracDepth<0) fracDepth=0;
-   else if (fracDepth>1) fracDepth=1;
+   if (fracDepth<=0) return point;
+   if (fracDepth>1) fracDepth=1;
 
-   if (fracDepth>0.0) {
-     CaloCellGeometry::CornersVec cv = cellGeometry->getCorners();
-     GlobalPoint backPoint = GlobalPoint( 0.25*( cv[4].x() + cv[5].x() + cv[6].x() + cv[7].x() ),
-                                          0.25*( cv[4].y() + cv[5].y() + cv[6].y() + cv[7].y() ),
-                                          0.25*( cv[4].z() + cv[5].z() + cv[6].z() + cv[7].z() ) );
+     GlobalPoint backPoint = cellGeometry->getBackPoint();
      point += fracDepth * (backPoint-point);
-   }
 
    return point;
 }

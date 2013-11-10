@@ -44,7 +44,6 @@ a default that the derived class author has to call deliberately if he wants it:
     };
 @endcode
 
-$Revision: 1.21 $
 \author J. Mans, P. Meridiani
 */
 
@@ -74,10 +73,14 @@ public:
   virtual const CornersVec& getCorners() const = 0 ;
 
   /// Returns the position of reference for this cell 
-  const GlobalPoint& getPosition() const {return m_refPoint ; }
+  const GlobalPoint& getPosition() const {return m_refPoint;}
+  const GlobalPoint& getBackPoint() const {return m_backPoint;} 
+
   float etaPos() const { return m_eta;}
   float phiPos() const { return m_phi;}
 
+  float etaSpan() const { return m_dEta;}
+  float	phiSpan() const	{ return m_dPhi;}
 
 
   /// Returns true if the specified point is inside this cell
@@ -116,11 +119,32 @@ protected:
 
   CaloCellGeometry( void );
 
+  // MUST be called by children constructors
+  void initSpan() const {
+     initBack();
+     m_dEta = std::abs(getCorners()[0].eta()-
+                      getCorners()[2].eta());
+     m_dPhi = std::abs(getCorners()[0].phi() -
+                      getCorners()[2].phi());
+  }
+
+ void initBack() const {
+    // from CaloTower code
+    auto const & cv = getCorners();
+    m_backPoint = GlobalPoint(0.25 * (cv[4].x() + cv[5].x() + cv[6].x() + cv[7].x()),
+                              0.25 * (cv[4].y() + cv[5].y() + cv[6].y() + cv[7].y()),
+                              0.25 * (cv[4].z() + cv[5].z() + cv[6].z() + cv[7].z()));   
+  }
+
 private:
   GlobalPoint         m_refPoint ;
+  mutable GlobalPoint         m_backPoint ;
   mutable CornersVec  m_corners  ;
   const CCGFloat*     m_parms    ;
   float m_eta, m_phi;
+  mutable float m_dEta;
+  mutable float m_dPhi;
+
 };
 
 std::ostream& operator<<( std::ostream& s, const CaloCellGeometry& cell ) ;
