@@ -889,12 +889,10 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
   }  // end of decision on p4 reconstruction method
 
 
-    CaloTower caloTower(id, E_em, E_had, E_outer, -1, -1, towerP4, emPoint, hadPoint);
-    if(caloTower.energy() < theEcutTower) return;
-
-    // need a fix in dataformats
-    //collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, towerP4, emPoint, hadPoint);
-
+    // insert in collection (remove and return if below threshold)
+    collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, towerP4, emPoint, hadPoint);
+    auto & caloTower = collection.back();
+    if(caloTower.energy() < theEcutTower) { collection.pop_back(); return;}
 
     // set the timings
     float  ecalTime = (mt.emSumEForTime>0)?   mt.emSumTimeTimesE/mt.emSumEForTime  : -9999;
@@ -995,8 +993,6 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
     caloTower.addConstituents(contains);
     caloTower.setHottestCellE(maxCellE);
-
-    collection.push_back(std::move(caloTower));
 
 } 
 
