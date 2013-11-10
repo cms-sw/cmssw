@@ -41,7 +41,10 @@ public:
   explicit EcalSeverityLevelAlgo(const edm::ParameterSet& p);
 
 
-  /// Evaluate status from id
+  /// Evaluate status from id use channelStatus from DB
+  EcalSeverityLevel::SeverityLevel severityLevel(const DetId& id) const;
+
+
   /** If the id is in the collection, use the EcalRecHit::Flag
       else use the channelStatus from DB 
    */

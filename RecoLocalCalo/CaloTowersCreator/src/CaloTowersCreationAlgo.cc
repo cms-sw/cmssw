@@ -289,6 +289,7 @@ void CaloTowersCreationAlgo::process(const CaloTowerCollection& ctc) {
 
 void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
   // now copy this map into the final collection
+  result.reserve(theTowerMap.size());
   for(MetaTowerMap::const_iterator mapItr = theTowerMap.begin();
       mapItr != theTowerMap.end(); ++mapItr) {
 
@@ -890,6 +891,11 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
     CaloTower caloTower(id, E_em, E_had, E_outer, -1, -1, towerP4, emPoint, hadPoint);
     if(caloTower.energy() < theEcutTower) return;
+
+    // need a fix in dataformats
+    //collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, towerP4, emPoint, hadPoint);
+
+
     // set the timings
     float  ecalTime = (mt.emSumEForTime>0)?   mt.emSumTimeTimesE/mt.emSumEForTime  : -9999;
     float  hcalTime = (mt.hadSumEForTime>0)?  mt.hadSumTimeTimesE/mt.hadSumEForTime : -9999;
@@ -942,7 +948,11 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 	++numBadEcalChan;
       }
 
-    }
+     }
+     // compare fast version
+     auto  numBadEcalChanNew = ecalBadChs[id.denseIndex()];
+     if (numBadEcalChanNew!=numBadEcalChan) std::cout << "wrong " << id << " " << numBadEcalChanNew << " " << numBadEcalChan << " " << mt.numBadEcalCells << std::endl;
+
     //--------------------------------------------------------------------------------------
 
     caloTower.setCaloTowerStatus(numBadHcalChan, numBadEcalChan,	 
@@ -980,7 +990,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     caloTower.addConstituents(contains);
     caloTower.setHottestCellE(maxCellE);
 
-    collection.push_back(caloTower);
+    collection.push_back(std::move(caloTower));
 
 } 
 
@@ -1402,9 +1412,48 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
 
   }
 
-  return;
 }
 
+
+void CaloTowersCreationAlgo::makeEcalBadChs() {
+
+  // for ECAL the number of all bad channels is obtained here -----------------------
+
+  for (auto ind=0U; ind<CaloTowerDetId::kSizeForDenseIndexing; ++ind) {
+   
+    auto & numBadEcalChan = ecalBadChs[ind];
+    numBadEcalChan=0;
+    auto id = CaloTowerDetId::detIdFromDenseIndex(ind);
+
+    // this is utterly slow... (can be optmized if really needed)
+
+    // get all possible constituents of the tower
+    std::vector<DetId> allConstituents = theTowerConstituentsMap->constituentsOf(id);
+
+    for (std::vector<DetId>::iterator ac_it=allConstituents.begin(); 
+	 ac_it!=allConstituents.end(); ++ac_it) {
+
+      if (ac_it->det()!=DetId::Ecal) continue;
+ 
+      int thisEcalSevLvl = -999;
+     
+      if (ac_it->subdetId() == EcalBarrel) {
+	thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it);
+      }
+      else if (ac_it->subdetId() == EcalEndcap) {
+	thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it);
+      }
+ 
+      // check if the Ecal severity is ok to keep
+      std::vector<int>::const_iterator sevit = std::find(theEcalSeveritiesToBeExcluded.begin(),
+							 theEcalSeveritiesToBeExcluded.end(),
+							 thisEcalSevLvl);
+      if (sevit!=theEcalSeveritiesToBeExcluded.end()) {
+	++numBadEcalChan;
+      }
+     }
+   }
+}
 
 
 //////  Get status of the channel contributing to the tower

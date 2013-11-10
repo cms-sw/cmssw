@@ -111,6 +111,8 @@ public:
   // The key is the calotower id.
   void makeHcalDropChMap();
 
+  void makeEcalBadChs();
+
   void begin();
   void process(const HBHERecHitCollection& hbhe);
   void process(const HORecHitCollection& ho);
@@ -322,6 +324,9 @@ private:
   // These channels are added to the other "bad" channels found in the recHit collection. 
   typedef std::map<CaloTowerDetId, int> HcalDropChMap;
   HcalDropChMap hcalDropChMap;
+
+  // Number of bad Ecal channel in each tower
+  unsigned short ecalBadChs[CaloTowerDetId::kSizeForDenseIndexing];
 
   // clasification of channels in tower construction: the category definition is
   // affected by the setting in the configuration file
