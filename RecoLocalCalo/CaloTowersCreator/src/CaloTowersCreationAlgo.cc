@@ -289,14 +289,12 @@ void CaloTowersCreationAlgo::process(const CaloTowerCollection& ctc) {
 
 void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
   // now copy this map into the final collection
-  result.reserve(theTowerMap.size());
-  for(MetaTowerMap::const_iterator mapItr = theTowerMap.begin();
-      mapItr != theTowerMap.end(); ++mapItr) {
-
+  result.reserve(theTowerMapSize);
+  for(auto const & mt : theTowerMap ) { 
     // Convert only if there is at least one constituent in the metatower. 
     // The check of constituents size in the coverted tower is still needed!
-    if ( (mapItr->second).metaConstituents.empty() ) continue;
-    convert(mapItr->first, mapItr->second, result);
+    if ( (mt.empty() ) continue;
+    convert(mt.id, mt, result);	
   }
   theTowerMap.clear(); // save the memory
 }
@@ -468,7 +466,7 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
 
       tower28.E_had += e28;
       tower28.E += e28;
-      std::pair<DetId,double> mc(detId,e28);
+      std::pair<DetId,float> mc(detId,e28);
       tower28.metaConstituents.push_back(mc);
       
       tower29.E_had += e29;
@@ -544,7 +542,7 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
           tower.emSumEForTime   += e;  // see above
         }
 
-	std::pair<DetId,double> mc(detId,e);
+	std::pair<DetId,float> mc(detId,e);
 	tower.metaConstituents.push_back(mc);
       }
     
@@ -582,7 +580,7 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
         
 	  
 	  // add HO to constituents even if it is not used: JetMET wants to keep these towers
-	  std::pair<DetId,double> mc(detId,e);
+	  std::pair<DetId,float> mc(detId,e);
 	  tower.metaConstituents.push_back(mc);	  
 
         } // not a bad channel, energy above threshold
@@ -628,7 +626,7 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
             tower.hadSumEForTime   += e;
           }
 
-	  std::pair<DetId,double> mc(detId,e);
+	  std::pair<DetId,float> mc(detId,e);
 	  tower.metaConstituents.push_back(mc);	           
 
         } // not a bad HF channel, energy above threshold
@@ -673,7 +671,7 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
 	    }
           }
 
- 	  std::pair<DetId,double> mc(detId,e);
+ 	  std::pair<DetId,float> mc(detId,e);
 	  tower.metaConstituents.push_back(mc);	  
        
         }   // not a "bad" channel, energy above threshold
@@ -737,24 +735,20 @@ void CaloTowersCreationAlgo::rescale(const CaloTower * ct) {
   tower.hadSumEForTime = 1.0;
 }
 
-CaloTowersCreationAlgo::MetaTower::MetaTower() : 
-  E(0),E_em(0),E_had(0),E_outer(0), emSumTimeTimesE(0), hadSumTimeTimesE(0), emSumEForTime(0), hadSumEForTime(0),
-  numBadEcalCells(0), numRecEcalCells(0), numProbEcalCells(0), numBadHcalCells(0), numRecHcalCells(0), numProbHcalCells(0) { }
-
 
 CaloTowersCreationAlgo::MetaTower & CaloTowersCreationAlgo::find(const CaloTowerDetId & detId) {
-  MetaTowerMap::iterator itr = theTowerMap.lower_bound(detId);
-  if(itr != theTowerMap.end() && ! (theTowerMap.key_comp()(detId,itr->first)))
-    {
-      // do nothing if exists
-    }
-  else
-    {
-      // build and insert a new tower
-      // and return position
-      itr = theTowerMap.insert(itr, std::pair<CaloTowerDetId,CaloTowersCreationAlgo::MetaTower>(detId, MetaTower()));
-    }
-   return itr->second;
+  if (theTowerMap.empty()) {
+    theTowerMap.resize(CaloTowerDetId::kSizeForDenseIndexing);
+  }
+  
+  auto & mt = theTowerMap[detId.denseIndex()]; 
+
+  if (mt.empty()) {
+    mt.id=detId;
+    mt.metaConstituents.reserve(detId.ietaAbs()<30 ? 12 : 2);
+  }
+
+  return mt;
 }
 
 
@@ -774,13 +768,13 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     //     else the energy will be double counted
     // When summing up the energy of the tower these checks are performed in the loops over RecHits
 
-    std::vector<std::pair<DetId,double> > metaContains=mt.metaConstituents;
+    std::vector<std::pair<DetId,float> > metaContains=mt.metaConstituents;
     if (id.ietaAbs()<=29 && E_em<ecalThres) { // ignore EM threshold in HF
       E-=E_em;
       E_em=0;
-      std::vector<std::pair<DetId,double> > metaContains_noecal;
+      std::vector<std::pair<DetId,float> > metaContains_noecal;
 
-    for (std::vector<std::pair<DetId,double> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) 
+    for (std::vector<std::pair<DetId,float> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) 
 	        if (i->first.det()!=DetId::Ecal) metaContains_noecal.push_back(*i);
       metaContains.swap(metaContains_noecal);
     }
@@ -791,9 +785,9 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
      
       E_had=0;
       E_outer=0;
-      std::vector<std::pair<DetId,double> > metaContains_nohcal;
+      std::vector<std::pair<DetId,float> > metaContains_nohcal;
 
-      for (std::vector<std::pair<DetId,double> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) 
+      for (std::vector<std::pair<DetId,float> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) 
         if (i->first.det()!=DetId::Hcal) metaContains_nohcal.push_back(*i);
       metaContains.swap(metaContains_nohcal);
     }
@@ -967,7 +961,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
     std::vector<DetId> contains;
     contains.reserve(metaContains.size());
-    for (std::vector<std::pair<DetId,double> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) {
+    for (std::vector<std::pair<DetId,float> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) {
 
       contains.push_back(i->first);
 
@@ -1169,7 +1163,7 @@ GlobalPoint CaloTowersCreationAlgo::hadSegmentShwrPos(DetId detId, float fracDep
 }
 
 
-GlobalPoint CaloTowersCreationAlgo::hadShwrPos(const std::vector<std::pair<DetId,double> >& metaContains,
+GlobalPoint CaloTowersCreationAlgo::hadShwrPos(const std::vector<std::pair<DetId,float> >& metaContains,
                                                float fracDepth, double hadE) {
                                                   
   // this is based on available RecHits, can lead to different actual depths if
@@ -1182,7 +1176,7 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(const std::vector<std::pair<DetId
 
   int nConst = 0;
 
-  std::vector<std::pair<DetId,double> >::const_iterator mc_it = metaContains.begin();
+  std::vector<std::pair<DetId,float> >::const_iterator mc_it = metaContains.begin();
   for (; mc_it!=metaContains.end(); ++mc_it) {
     if (mc_it->first.det() != DetId::Hcal) continue;
     // do not use HO for deirection calculations for now
@@ -1289,7 +1283,7 @@ GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId 
 }
 
 
-GlobalPoint CaloTowersCreationAlgo::emShwrPos(const std::vector<std::pair<DetId,double> >& metaContains, 
+GlobalPoint CaloTowersCreationAlgo::emShwrPos(const std::vector<std::pair<DetId,float> >& metaContains, 
                                               float fracDepth, double emE) {
 
   if (emE<=0) return GlobalPoint(0,0,0);
@@ -1300,7 +1294,7 @@ GlobalPoint CaloTowersCreationAlgo::emShwrPos(const std::vector<std::pair<DetId,
 
   double eSum = 0;
 
-  std::vector<std::pair<DetId,double> >::const_iterator mc_it = metaContains.begin();
+  std::vector<std::pair<DetId,float> >::const_iterator mc_it = metaContains.begin();
   for (; mc_it!=metaContains.end(); ++mc_it) {
     if (mc_it->first.det() != DetId::Ecal) continue;
     GlobalPoint p = emCrystalShwrPos(mc_it->first, fracDepth);
@@ -1319,7 +1313,7 @@ GlobalPoint CaloTowersCreationAlgo::emShwrPos(const std::vector<std::pair<DetId,
 }
 
 
-GlobalPoint CaloTowersCreationAlgo::emShwrLogWeightPos(const std::vector<std::pair<DetId,double> >& metaContains, 
+GlobalPoint CaloTowersCreationAlgo::emShwrLogWeightPos(const std::vector<std::pair<DetId,float> >& metaContains, 
                                float fracDepth, double emE) {
 
   double emX = 0.0;
@@ -1331,7 +1325,7 @@ GlobalPoint CaloTowersCreationAlgo::emShwrLogWeightPos(const std::vector<std::pa
   double sumEmE = 0;  // add crystals with E/E_EM > 1.5%
   double crystalThresh = 0.015 * emE;
 
-  std::vector<std::pair<DetId,double> >::const_iterator mc_it = metaContains.begin();
+  std::vector<std::pair<DetId,float> >::const_iterator mc_it = metaContains.begin();
   for (; mc_it!=metaContains.end(); ++mc_it) {
     if (mc_it->second < 0) continue;
     if (mc_it->first.det() == DetId::Ecal && mc_it->second > crystalThresh) sumEmE += mc_it->second;

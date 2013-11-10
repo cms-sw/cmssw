@@ -286,7 +286,7 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.finish(*prod);
 
   int totc=0; float totE=0;
-  for (auto const tw : (*prod) ) { totc += tw.constituents().size(); totE+=tw.energy();}
+  for (auto const & tw : (*prod) ) { totc += tw.constituents().size(); totE+=tw.energy();}
   std::cout << "VI " << (*prod).size() << " " << totc << " " << totE << std::endl;
 
 
