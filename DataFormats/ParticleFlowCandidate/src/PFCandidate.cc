@@ -57,10 +57,10 @@ PFCandidate::PFCandidate() :
 }
 
 
-PFCandidate::PFCandidate( const PFCandidatePtr& sourcePtr ) {
-  *this = *sourcePtr;
+PFCandidate::PFCandidate( const PFCandidatePtr& sourcePtr ):
+  PFCandidate(*sourcePtr)
+{
   sourcePtr_ = sourcePtr;
-
 }
 
 
