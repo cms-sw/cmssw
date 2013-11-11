@@ -13,8 +13,8 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-TrackExtractor::TrackExtractor( const ParameterSet& par, edm::ConsumesCollector && iC ) :
-  theTrackCollectionToken(iC.consumes<View<Track> >(par.getParameter<edm::InputTag>("inputTrackCollection"))),
+TrackExtractor::TrackExtractor( const ParameterSet& par, edm::ConsumesCollector & iC ) :
+  theTrackCollectionTag(par.getParameter<edm::InputTag>("inputTrackCollection")),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDiff_r(par.getParameter<double>("Diff_r")),
   theDiff_z(par.getParameter<double>("Diff_z")),

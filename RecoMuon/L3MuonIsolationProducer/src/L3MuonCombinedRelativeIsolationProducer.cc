@@ -63,12 +63,15 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   //
   // Calorimeters (ONLY if not previously computed)
   //
+  edm::ConsumesCollector  iC = consumesCollector();
+
   if( useRhoCorrectedCaloDeps==false ) {
     edm::ParameterSet caloExtractorPSet = theConfig.getParameter<edm::ParameterSet>("CaloExtractorPSet");
 
     theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
     std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
-    caloExtractor = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet, consumesCollector());
+    caloExtractor = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet,iC);
+
     //std::string caloDepositType = caloExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
   }
 
@@ -77,7 +80,7 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   edm::ParameterSet trkExtractorPSet = theConfig.getParameter<edm::ParameterSet>("TrkExtractorPSet");
 
   std::string trkExtractorName = trkExtractorPSet.getParameter<std::string>("ComponentName");
-  trkExtractor = IsoDepositExtractorFactory::get()->create( trkExtractorName, trkExtractorPSet, consumesCollector());
+  trkExtractor = IsoDepositExtractorFactory::get()->create( trkExtractorName, trkExtractorPSet,iC);
   //std::string trkDepositType = trkExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
 
 
@@ -109,13 +112,19 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   theMaxNTracks = cutsPSet.getParameter<int>("maxNTracks");
   theApplyCutsORmaxNTracks = cutsPSet.getParameter<bool>("applyCutsORmaxNTracks");
 
-}
 
+}
+  
 /// destructor
 L3MuonCombinedRelativeIsolationProducer::~L3MuonCombinedRelativeIsolationProducer(){
   LogDebug("RecoMuon|L3MuonCombinedRelativeIsolationProducer")<<" L3MuonCombinedRelativeIsolationProducer DTOR";
   if (caloExtractor) delete caloExtractor;
   if (trkExtractor) delete trkExtractor;
+}
+
+void L3MuonCombinedRelativeIsolationProducer::beginJob()
+{
+
 }
 
 void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventSetup& eventSetup){

@@ -56,7 +56,7 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
   ConsumesCollector iC = consumesCollector();
   
   // instantiate the concrete trajectory builder in the Track Finder
-  MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,theService);
+  MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,iC,theService);
   L3MuonTrajectoryBuilder* l3mtb = new L3MuonTrajectoryBuilder(trajectoryBuilderParameters, theService,iC);
   theTrackFinder = new MuonTrackFinder(l3mtb, mtl);
 

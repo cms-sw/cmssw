@@ -3,6 +3,9 @@
 
 #include "RecoMuon/MuonIsolation/interface/MuIsoBaseAlgorithm.h"
 #include "RecoMuon/MuonIsolation/interface/CutsConeSizeFunction.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+
 
 namespace reco { namespace isodeposit { class IsoDepositExtractor; }}
 namespace muonisolation { class IsolatorByDeposit; }
@@ -15,7 +18,7 @@ namespace edm { class ParameterSet; }
 
 class MuIsoByTrackPt : public MuIsoBaseAlgorithm {
 public:
-  MuIsoByTrackPt(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
+  MuIsoByTrackPt(const edm::ParameterSet& conf,edm::ConsumesCollector& iC);
   virtual ~MuIsoByTrackPt();
 
   virtual float isolation(const edm::Event&, const edm::EventSetup&, const reco::Track& muon);

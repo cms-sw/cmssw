@@ -21,6 +21,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -37,8 +39,7 @@ namespace muonisolation {
 
     //! constructors
     CaloExtractorByAssociator(){};
-    CaloExtractorByAssociator(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
-
+    CaloExtractorByAssociator(const edm::ParameterSet& par,edm::ConsumesCollector& iC );
     //! destructor
     virtual ~CaloExtractorByAssociator();
 
