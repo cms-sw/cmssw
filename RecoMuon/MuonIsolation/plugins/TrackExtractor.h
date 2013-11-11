@@ -22,7 +22,7 @@ class TrackExtractor : public reco::isodeposit::IsoDepositExtractor {
 public:
 
   TrackExtractor(){};
-  TrackExtractor(const edm::ParameterSet& par,edm::ConsumesCollector& iC);
+  TrackExtractor(const edm::ParameterSet& par);
 
   virtual ~TrackExtractor(){}
 
@@ -34,6 +34,9 @@ public:
 
   virtual reco::IsoDeposit deposit (const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Track & muon) const;
+
+
+  void registerProducts(edm::ConsumesCollector& iC);
 
 private:
   reco::IsoDeposit::Veto veto( const reco::IsoDeposit::Direction & dir) const;

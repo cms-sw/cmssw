@@ -11,21 +11,22 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-<<<<<<< HEAD
-ExtractorFromDeposits::ExtractorFromDeposits( const ParameterSet& par, edm::ConsumesCollector && iC ) :
-  theCollectionToken(iC.consumes<reco::IsoDepositMap>(par.getParameter<edm::InputTag>("IsolationCollectionTag")))
-{ }
-=======
 ExtractorFromDeposits::ExtractorFromDeposits( const ParameterSet& par,edm::ConsumesCollector& iC ) :
   theCollectionTag(par.getParameter<edm::InputTag>("IsolationCollectionTag"))
 { 
 
-  isoToken_ = iC.consumes<reco::IsoDepositMap> (theCollectionTag );
 }
->>>>>>> Add MuonIsolation
 
+
+void ExtractorFromDeposits::registerProducts(edm::ConsumesCollector& iC) {
+  isoToken_ = iC.consumes<reco::IsoDepositMap> (theCollectionTag );
+
+}
 void ExtractorFromDeposits::fillVetos (const edm::Event & ev,
     const edm::EventSetup & evSetup, const reco::TrackCollection & muons)
+
+void ExtractorFromDeposits::fillVetos (const edm::Event & ev, 
+    const edm::EventSetup & evSetup, const reco::TrackCollection & muons) 
 { }
 
 IsoDeposit ExtractorFromDeposits::deposit(const Event & event,
@@ -33,12 +34,7 @@ IsoDeposit ExtractorFromDeposits::deposit(const Event & event,
 {
   static std::string metname = "RecoMuon|ExtractorFromDeposits";
   Handle<reco::IsoDepositMap> depMap;
-<<<<<<< HEAD
-  event.getByToken(theCollectionToken, depMap);
-=======
   event.getByToken(isoToken_, depMap);
->>>>>>> Add MuonIsolation
-
   LogWarning(metname)<<"Call this method only if the original muon track collection is lost";
 
   // double vtx_z = muon.vz();
@@ -65,11 +61,6 @@ IsoDeposit ExtractorFromDeposits::deposit(const Event & event,
 {
   static std::string metname = "RecoMuon|ExtractorFromDeposits";
   Handle<reco::IsoDepositMap> depMap;
-<<<<<<< HEAD
-  event.getByToken(theCollectionToken, depMap);
-=======
   event.getByToken(isoToken_,depMap);
->>>>>>> Add MuonIsolation
-
   return (*depMap)[muon];
 }

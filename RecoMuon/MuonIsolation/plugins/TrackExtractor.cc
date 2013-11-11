@@ -13,7 +13,7 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-TrackExtractor::TrackExtractor( const ParameterSet& par, edm::ConsumesCollector & iC ) :
+TrackExtractor::TrackExtractor( const ParameterSet& par ) :
   theTrackCollectionTag(par.getParameter<edm::InputTag>("inputTrackCollection")),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDiff_r(par.getParameter<double>("Diff_r")),
@@ -27,11 +27,16 @@ TrackExtractor::TrackExtractor( const ParameterSet& par, edm::ConsumesCollector 
   theChi2Prob_Min(par.getParameter<double>("Chi2Prob_Min")),
   thePt_Min(par.getParameter<double>("Pt_Min"))
 {
-  trackToken_ = iC.consumes<edm::View<reco::Track> >(theTrackCollectionTag);
-  beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
 
 
 }
+
+void TrackExtractor::registerProducts(edm::ConsumesCollector & iC) {
+  trackToken_ = iC.consumes<edm::View<reco::Track> >(theTrackCollectionTag);
+  beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
+
+}
+
 
 reco::IsoDeposit::Vetos TrackExtractor::vetos(const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Track & track) const

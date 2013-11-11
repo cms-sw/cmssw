@@ -22,7 +22,7 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-CaloExtractor::CaloExtractor(const ParameterSet& par,edm::ConsumesCollector& iC) :
+CaloExtractor::CaloExtractor(const ParameterSet& par) :
   theCaloTowerCollectionLabel(par.getParameter<edm::InputTag>("CaloTowerCollectionLabel")),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theWeight_E(par.getParameter<double>("Weight_E")),
@@ -35,8 +35,14 @@ CaloExtractor::CaloExtractor(const ParameterSet& par,edm::ConsumesCollector& iC)
   vertexConstraintFlag_XY(par.getParameter<bool>("Vertex_Constraint_XY")),
   vertexConstraintFlag_Z(par.getParameter<bool>("Vertex_Constraint_Z"))
 {
+}
+
+
+
+void CaloExtractor::registerProducts(edm::ConsumesCollector& iC) {
   caloTowerToken_ = iC.consumes<CaloTowerCollection>(theCaloTowerCollectionLabel);
 }
+
 
 void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& eventSetup, const TrackCollection& muons)
 {

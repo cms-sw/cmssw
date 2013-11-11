@@ -31,7 +31,7 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-JetExtractor::JetExtractor(const ParameterSet& par,edm::ConsumesCollector& iC) :
+JetExtractor::JetExtractor(const ParameterSet& par) :
   theJetCollectionLabel(par.getParameter<edm::InputTag>("JetCollectionLabel")),
   thePropagatorName(par.getParameter<std::string>("PropagatorName")),
   theThreshold(par.getParameter<double>("Threshold")),
@@ -44,10 +44,16 @@ JetExtractor::JetExtractor(const ParameterSet& par,edm::ConsumesCollector& iC) :
 {
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
-  jetToken_ = iC.consumes<reco::CaloJetCollection>(theJetCollectionLabel); 
   theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"));
   theAssociator = new TrackDetectorAssociator();
 }
+
+
+void JetExtractor::registerProducts(edm::ConsumesCollector & iC) {
+  jetToken_ = iC.consumes<reco::CaloJetCollection>(theJetCollectionLabel); 
+}
+
+
 
 JetExtractor::~JetExtractor(){
   if (thePrintTimeReport) TimingReport::current()->dump(std::cout);

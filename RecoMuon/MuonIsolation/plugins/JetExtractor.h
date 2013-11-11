@@ -45,6 +45,8 @@ public:
   virtual reco::IsoDeposit
     deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
 
+  void registerProducts(edm::ConsumesCollector &);
+
 private:
   edm::EDGetTokenT<reco::CaloJetCollection> theJetCollectionToken;
 

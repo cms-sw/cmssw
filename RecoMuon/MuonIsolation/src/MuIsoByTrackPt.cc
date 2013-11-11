@@ -20,7 +20,7 @@ using reco::IsoDeposit;
 using namespace muonisolation;
 
 
-MuIsoByTrackPt::MuIsoByTrackPt(const edm::ParameterSet& conf,edm::ConsumesCollector& iC) 
+MuIsoByTrackPt::MuIsoByTrackPt(const edm::ParameterSet& conf) 
   : theExtractor(0), theIsolator(0)
 {
   edm::ParameterSet extractorPSet = conf.getParameter<edm::ParameterSet>("ExtractorPSet");

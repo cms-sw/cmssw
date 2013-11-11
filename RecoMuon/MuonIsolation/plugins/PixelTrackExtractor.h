@@ -24,10 +24,12 @@ class PixelTrackExtractor : public reco::isodeposit::IsoDepositExtractor {
 public:
 
   PixelTrackExtractor(){};
-  PixelTrackExtractor(const edm::ParameterSet& par,edm::ConsumesCollector& iC);
+  PixelTrackExtractor(const edm::ParameterSet& par);
 
 
   virtual ~PixelTrackExtractor(){}
+
+  void registerProducts(edm::ConsumesCollector& iC);
 
   virtual void fillVetos (const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::TrackCollection & track) {}
