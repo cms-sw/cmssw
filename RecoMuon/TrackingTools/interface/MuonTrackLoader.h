@@ -22,6 +22,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {class Event; class EventSetup; class ParameterSet;}
 
@@ -40,7 +41,7 @@ class MuonTrackLoader {
     typedef MuonCandidate::CandidateContainer CandidateContainer;
 
     /// Constructor for the STA reco the args must be specify!
-    MuonTrackLoader(edm::ParameterSet &parameterSet, const MuonServiceProxy *service =0);
+    MuonTrackLoader(edm::ParameterSet &parameterSet,edm::ConsumesCollector& iC,  const MuonServiceProxy *service =0);
 
     /// Destructor
     virtual ~MuonTrackLoader();
@@ -88,6 +89,7 @@ class MuonTrackLoader {
     edm::ESHandle<TrajectorySmoother> theSmoother;
 
     edm::InputTag theBeamSpotInputTag; 
+    edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
 
     /// Label for L2SeededTracks
     std::string theL2SeededTkLabel; 

@@ -13,6 +13,7 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {class Event; class EventSetup;}
 namespace reco {class TransientTrack;}
@@ -24,7 +25,7 @@ class MuonSegmentMatcher {
   public:
 
     /// constructor with Parameter Set and MuonServiceProxy
-    MuonSegmentMatcher(const edm::ParameterSet&, MuonServiceProxy*);
+  MuonSegmentMatcher(const edm::ParameterSet&, MuonServiceProxy*,edm::ConsumesCollector& iC);
           
     /// destructor
     virtual ~MuonSegmentMatcher();
@@ -44,6 +45,11 @@ class MuonSegmentMatcher {
 	edm::InputTag trackTags_; //used to select what tracks to read from configuration file
 	edm::InputTag DTSegmentTags_;
 	edm::InputTag CSCSegmentTags_;
+
+	edm::EDGetTokenT<DTRecSegment4DCollection> dtRecHitsToken;
+	edm::EDGetTokenT<CSCSegmentCollection> allSegmentsCSCToken;
+
+
 	double dtRadius_;
 	
 	bool dtTightMatch;
