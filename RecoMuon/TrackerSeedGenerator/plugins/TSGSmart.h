@@ -3,6 +3,7 @@
 
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class SeedGeneratorFromRegionHits;
 class TrackingRegion;
@@ -11,7 +12,7 @@ class TrackingRegion;
 class TSGSmart : public TrackerSeedGenerator {
 
 public:
-  TSGSmart(const edm::ParameterSet &pset);
+  TSGSmart(const edm::ParameterSet &pset,edm::ConsumesCollector& iC);
 
   virtual ~TSGSmart();
 

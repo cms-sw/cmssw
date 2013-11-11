@@ -33,8 +33,6 @@
 
 #include <vector>
 
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
@@ -50,7 +48,7 @@ TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
 {
   produces<L3MuonTrajectorySeedCollection>();
   theSourceTag = cfg.getParameter<edm::InputTag>("L1MuonLabel");
-  l1muonToken = consumes<L1MuonParticleCollection>(theSourceTag);
+  l1muonToken = consumes<l1extra::L1MuonParticleCollection>(theSourceTag);
 }
 
 TSGFromL1Muon::~TSGFromL1Muon()

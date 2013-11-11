@@ -10,12 +10,13 @@
  */
 
 #include "RecoMuon/TrackerSeedGenerator/plugins/CompositeTSG.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class TrackerTopology;
 
 class SeparatingTSG : public CompositeTSG {
  public:
-  SeparatingTSG(const edm::ParameterSet &pset);
+  SeparatingTSG(const edm::ParameterSet &pset,edm::ConsumesCollector& IC );
   virtual ~SeparatingTSG();
 
   void trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection &);

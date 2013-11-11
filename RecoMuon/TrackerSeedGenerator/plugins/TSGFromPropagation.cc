@@ -173,7 +173,6 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
-  theBeamSpotInputTag = theConfig.getParameter<edm::InputTag>("beamSpot");
 
   edm::ParameterSet errorMatrixPset = theConfig.getParameter<edm::ParameterSet>("errorMatrixPset");
   if ( theResetMethod == "matrix" && !errorMatrixPset.empty()){
@@ -191,7 +190,7 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
 void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
   //edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByLabel(theBeamSpotInputTag, beamSpot);
+  iEvent.getByToken(beamspotToken, beamSpot);
 
   unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();
 

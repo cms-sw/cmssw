@@ -9,11 +9,13 @@
 */
 
 #include "RecoMuon/TrackerSeedGenerator/plugins/CompositeTSG.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 class TrackerTopology;
 
 class CombinedTSG : public CompositeTSG {
  public:
-  CombinedTSG(const edm::ParameterSet &pset);
+  CombinedTSG(const edm::ParameterSet &pset,edm::ConsumesCollector& iC);
   ~CombinedTSG();
 
   /// provide the seeds from the TSGs: must be overloaded
