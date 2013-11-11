@@ -550,7 +550,7 @@ float PFPhotonIsolationCalculator::isPhotonParticleVetoed( const reco::PFCandida
     }
   }else{
     if (bUseCrystalSize_ == true) {
-      fDeltaRVetoEndcapPhotons_ = 0.00864*fabs(sinh(refSC->position().eta()))*fNumberOfCrystalEndcapPhotons_;
+      fDeltaRVetoEndcapPhotons_ = 0.00864*fabs(refSC->position().z()/sqrt(refSC->position().perp2()))*fNumberOfCrystalEndcapPhotons_;
     }
 
     if(bDeltaRVetoEndcap_){
@@ -610,7 +610,7 @@ float PFPhotonIsolationCalculator::isPhotonParticleVetoed( const reco::PFCandida
     }
   }else{
     if (bUseCrystalSize_ == true) {
-      fDeltaRVetoEndcapPhotons_ = 0.00864*fabs(sinh(refSC->position().eta()))*fNumberOfCrystalEndcapPhotons_;
+      fDeltaRVetoEndcapPhotons_ = 0.00864*fabs(refSC->position().z()/sqrt(refSC->position().perp2()))*fNumberOfCrystalEndcapPhotons_;
     }
 
     if(bDeltaRVetoEndcap_){
