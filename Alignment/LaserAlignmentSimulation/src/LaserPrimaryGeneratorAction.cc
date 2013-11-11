@@ -11,6 +11,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4SystemOfUnits.hh"
+
 LaserPrimaryGeneratorAction::LaserPrimaryGeneratorAction(edm::ParameterSet const& theConf) 
   : thePhotonEnergy(0),
     thenParticleInGun(0),
