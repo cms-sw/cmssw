@@ -995,7 +995,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
     } // loop over matacontains
 
-    caloTower.addConstituents(contains);
+    caloTower.setConstituents(std::move(contains));
     caloTower.setHottestCellE(maxCellE);
 
 } 
