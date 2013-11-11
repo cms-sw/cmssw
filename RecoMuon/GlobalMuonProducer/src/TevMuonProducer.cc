@@ -52,7 +52,7 @@ TevMuonProducer::TevMuonProducer(const ParameterSet& parameterSet) {
 
   // TrackLoader parameters
   ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
-  theTrackLoader = new MuonTrackLoader(trackLoaderParameters,theService);
+  theTrackLoader = new MuonTrackLoader(trackLoaderParameters,consumesCollector(),theService);
 
   theRefits = parameterSet.getParameter< std::vector<std::string> >("Refits");
   theRefitIndex = parameterSet.getParameter< std::vector<int> >("RefitIndex");
