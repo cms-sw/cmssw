@@ -39,7 +39,7 @@ class MuonTrackLoader {
     typedef MuonCandidate::CandidateContainer CandidateContainer;
 
     /// Constructor for the STA reco the args must be specify!
-    MuonTrackLoader(edm::ParameterSet &parameterSet,edm::ConsumesCollector& iC,  const MuonServiceProxy *service =0);
+    MuonTrackLoader(edm::ParameterSet &parameterSet,edm::ConsumesCollector&& iC,  const MuonServiceProxy *service =0);
 
     /// Destructor
     virtual ~MuonTrackLoader();

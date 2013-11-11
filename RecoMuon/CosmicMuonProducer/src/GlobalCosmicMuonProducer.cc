@@ -52,7 +52,7 @@ GlobalCosmicMuonProducer::GlobalCosmicMuonProducer(const edm::ParameterSet& iCon
   theService = new MuonServiceProxy(serviceParameters);
 
   theTrackFinder = new MuonTrackFinder(new GlobalCosmicMuonTrajectoryBuilder(tbpar,theService,consumesCollector()),
-				       new MuonTrackLoader(trackLoaderParameters, theService));
+				       new MuonTrackLoader(trackLoaderParameters,consumesCollector(), theService));
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
