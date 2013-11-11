@@ -3,12 +3,11 @@
 
 /** \class TriggerResultsFilter
  *
- *  
- *  This class is an HLTFilter (-> EDFilter) implementing filtering on
- *  arbitrary logical combinations of L1 and HLT results.
  *
- *  It has been written as an extension of the HLTHighLevel and HLTHighLevelDev 
- *  filters.
+ *  This class is an EDFilter implementing filtering on arbitrary logical combinations
+ *  of L1 and HLT results.
+ *
+ *  It has been written as an extension of the HLTHighLevel and HLTHighLevelDev filters.
  *
  *
  *  Authors: Martin Grunewald, Andrea Bocci
@@ -42,7 +41,7 @@ public:
   explicit TriggerResultsFilter(const edm::ParameterSet &);
   ~TriggerResultsFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::Event &, const edm::EventSetup &);
+  bool filter(edm::Event &, const edm::EventSetup &) override;
 
 private:
   /// parse the logical expression into functionals

@@ -56,7 +56,7 @@ HLTCSCActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
 //
 
 // ------------ method called on each new Event  ------------
-bool HLTCSCActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTCSCActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
   using namespace edm;
   using namespace std;
   using namespace trigger;

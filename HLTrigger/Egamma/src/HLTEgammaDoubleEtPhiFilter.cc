@@ -25,7 +25,7 @@ public:
 //
 // constructors and destructor
 //
-HLTEgammaDoubleEtPhiFilter::HLTEgammaDoubleEtPhiFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTEgammaDoubleEtPhiFilter::HLTEgammaDoubleEtPhiFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
    candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
    etcut1_  = iConfig.getParameter<double> ("etcut1");
@@ -40,7 +40,7 @@ HLTEgammaDoubleEtPhiFilter::HLTEgammaDoubleEtPhiFilter(const edm::ParameterSet& 
 
 HLTEgammaDoubleEtPhiFilter::~HLTEgammaDoubleEtPhiFilter(){}
 
-void 
+void
 HLTEgammaDoubleEtPhiFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
    edm::ParameterSetDescription desc;
    makeHLTFilterDescription(desc);
@@ -57,7 +57,7 @@ HLTEgammaDoubleEtPhiFilter::fillDescriptions(edm::ConfigurationDescriptions& des
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaDoubleEtPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEgammaDoubleEtPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
 
@@ -66,7 +66,7 @@ HLTEgammaDoubleEtPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
   iEvent.getByToken (candToken_,PrevFilterOutput);
-  
+
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> >  mysortedrecoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster,  mysortedrecoecalcands);
   if(mysortedrecoecalcands.empty()) PrevFilterOutput->getObjects(TriggerCluster,mysortedrecoecalcands);  //we dont know if its type trigger cluster or trigger photon
@@ -78,11 +78,11 @@ HLTEgammaDoubleEtPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
   for (unsigned int i=0; i<mysortedrecoecalcands.size(); i++) {
     ref1 = mysortedrecoecalcands[i];
     if( ref1->et() >= etcut1_){
-      
+
       for (unsigned int j=i+1; j<mysortedrecoecalcands.size(); j++) {
 	ref2 = mysortedrecoecalcands[j];
 	if( ref2->et() >= etcut2_ ){
-	  
+	
 	  // Acoplanarity
 	  double acop = fabs(ref1->phi()-ref2->phi());
 	  if (acop>M_PI) acop = 2*M_PI - acop;
@@ -108,9 +108,9 @@ HLTEgammaDoubleEtPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
 
   // filter decision
   bool accept(n>=npaircut_);
-  
+
   return accept;
 }
 
 
-  
+

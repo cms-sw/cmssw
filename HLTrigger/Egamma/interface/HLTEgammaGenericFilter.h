@@ -25,7 +25,7 @@ class HLTEgammaGenericFilter : public HLTFilter {
    public:
       explicit HLTEgammaGenericFilter(const edm::ParameterSet&);
       ~HLTEgammaGenericFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
@@ -37,17 +37,17 @@ class HLTEgammaGenericFilter : public HLTFilter {
       edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> nonIsoToken_;
       bool lessThan_;           // the cut is "<" or ">" ?
       bool useEt_;              // use E or Et in relative isolation cuts
-      double thrRegularEB_;     // threshold for regular cut (x < thr) - ECAL barrel 
+      double thrRegularEB_;     // threshold for regular cut (x < thr) - ECAL barrel
       double thrRegularEE_;     // threshold for regular cut (x < thr) - ECAL endcap
-      double thrOverEEB_;       // threshold for x/E < thr cut (isolations) - ECAL barrel 
-      double thrOverEEE_;       // threshold for x/E < thr cut (isolations) - ECAL endcap 
-      double thrOverE2EB_;      // threshold for x/E^2 < thr cut (isolations) - ECAL barrel 
-      double thrOverE2EE_;      // threshold for x/E^2 < thr cut (isolations) - ECAL endcap 
+      double thrOverEEB_;       // threshold for x/E < thr cut (isolations) - ECAL barrel
+      double thrOverEEE_;       // threshold for x/E < thr cut (isolations) - ECAL endcap
+      double thrOverE2EB_;      // threshold for x/E^2 < thr cut (isolations) - ECAL barrel
+      double thrOverE2EE_;      // threshold for x/E^2 < thr cut (isolations) - ECAL endcap
       int    ncandcut_;        // number of photons required
       bool doIsolated_;
 
-      edm::InputTag L1IsoCollTag_; 
-      edm::InputTag L1NonIsoCollTag_; 
+      edm::InputTag L1IsoCollTag_;
+      edm::InputTag L1NonIsoCollTag_;
 };
 
 #endif //HLTEgammaGenericFilter_h

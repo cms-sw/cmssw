@@ -3,7 +3,7 @@
 
 /** \class HLTMuonTrimuonL3Filter
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing a muon triplet
  *  filter for HLT muons
  *
@@ -26,17 +26,18 @@ class HLTMuonTrimuonL3Filter : public HLTFilter {
       explicit HLTMuonTrimuonL3Filter(const edm::ParameterSet&);
       ~HLTMuonTrimuonL3Filter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-      bool triggeredByLevel2(const reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
+      static bool triggeredByLevel2(const reco::TrackRef& track, std::vector<reco::RecoChargedCandidateRef>& vcands);
+
       edm::InputTag beamspotTag_ ;
       edm::EDGetTokenT<reco::BeamSpot> beamspotToken_ ;
       edm::InputTag                                          candTag_;   // input tag identifying product contains muons
       edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_; // token identifying product contains muons
       edm::InputTag                                          previousCandTag_;   // input tag identifying product contains muons passing the previous level
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_; // token identifying product contains muons passing the previous level
-      
+
       bool   fast_Accept_;      // flag to save time: stop processing after identification of the first valid triplet
       double max_Eta_;          // Eta cut
       int    min_Nhits_;        // threshold on number of hits on muon

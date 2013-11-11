@@ -8,7 +8,7 @@
  * Description: filter L1 bits and extract seed objects from L1 GT for HLT algorithms.
  *
  * Implementation:
- *    This class is an HLTFilter (-> EDFilter). It implements:
+ *    This class is an HLTStreamFilter (-> stream::EDFilter). It implements:
  *      - filtering on Level-1 bits, given via a logical expression of algorithm names
  *      - extraction of the seed objects from L1 GT object map record
  *
@@ -24,7 +24,7 @@
 // user include files
 
 //   base class
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "HLTrigger/HLTcore/interface/HLTStreamFilter.h"
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
@@ -49,7 +49,7 @@ namespace edm {
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 // class declaration
-class HLTLevel1GTSeed : public HLTFilter
+class HLTLevel1GTSeed : public HLTStreamFilter
 {
 
 public:
@@ -64,12 +64,12 @@ public:
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     /// filter the event
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
 private:
 
     /// get the vector of object types for a condition cndName on the GTL chip chipNumber
-    const std::vector<L1GtObject>* objectTypeVec(const int chipNumber, const std::string& cndName);
+    const std::vector<L1GtObject>* objectTypeVec(const int chipNumber, const std::string& cndName) const;
 
     /// update the tokenNumber (holding the bit numbers) from m_l1AlgoLogicParser
     /// for a new L1 Trigger menu
@@ -81,18 +81,19 @@ private:
             const std::vector<unsigned int>& triggerMask, const int physicsDaqPartition);
 
     /// for seeding via technical triggers, convert the "name" to tokenNumber
-    /// (seeding via bit numbers)
+    /// (seeding via bit numbers) - done once in constructor
     void convertStringToBitNumber();
 
     /// debug print grouped in a single function
     /// can be called for a new menu (bool "true") or for a new event
-    void debugPrint(bool);
+    void debugPrint(bool) const;
 
     /// seeding is done via L1 trigger object maps, considering the objects which fired in L1
     bool seedsL1TriggerObjectMaps(
-            edm::Event &, 
+            edm::Event &,
             trigger::TriggerFilterObjectWithRefs &,
-            const L1GlobalTriggerReadoutRecord *, 
+            const L1GtTriggerMask *,
+            const L1GlobalTriggerReadoutRecord *,
             const int physicsDaqPartition);
 
     /// seeding is done ignoring if a L1 object fired or not
@@ -100,10 +101,10 @@ private:
     /// L1 conditions from the seeding logical expression for bunch crosses F, 0, 1
     /// directly from L1Extra and use them as seeds at HLT
     /// method and filter return true if at least an object is filled
-    bool seedsL1Extra(edm::Event &, trigger::TriggerFilterObjectWithRefs &);
+    bool seedsL1Extra(edm::Event &, trigger::TriggerFilterObjectWithRefs &) const;
 
     /// detailed print of filter content
-    void dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWithRefs &);
+    void dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWithRefs &) const;
 
 
 private:
@@ -111,20 +112,8 @@ private:
     // cached stuff
 
     /// trigger menu
-    const L1GtTriggerMenu* m_l1GtMenu;
+    L1GtTriggerMenu * m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
-
-    /// trigger masks
-    const L1GtTriggerMask* m_l1GtTmAlgo;
-    unsigned long long m_l1GtTmAlgoCacheID;
-
-    const L1GtTriggerMask* m_l1GtTmTech;
-    unsigned long long m_l1GtTmTechCacheID;
-
-    std::vector<unsigned int> m_triggerMaskAlgoTrig;
-    std::vector<unsigned int> m_triggerMaskTechTrig;
-
-    //
 
     /// logic parser for m_l1SeedsLogicalExpression
     L1GtLogicParser m_l1AlgoLogicParser;
