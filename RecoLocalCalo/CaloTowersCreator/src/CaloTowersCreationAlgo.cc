@@ -247,6 +247,7 @@ void CaloTowersCreationAlgo::setGeometry(const CaloTowerConstituentsMap* ctt, co
 
 void CaloTowersCreationAlgo::begin() {
   theTowerMap.clear();
+  theTowerMapSize=0;
   //hcalDropChMap.clear();
 }
 
@@ -296,10 +297,10 @@ void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
     // The check of constituents size in the coverted tower is still needed!
     if (!mt.empty() ) { convert(mt.id, mt, result); } // ++k;}	
   }
-
+  
   // assert(k==theTowerMapSize);
   // std::cout << "VI TowerMap " << theTowerMapSize << " " << k << std::endl;
-
+  
   theTowerMap.clear(); // save the memory
   theTowerMapSize=0;
 }
@@ -747,13 +748,13 @@ CaloTowersCreationAlgo::MetaTower & CaloTowersCreationAlgo::find(const CaloTower
   }
   
   auto & mt = theTowerMap[detId.denseIndex()]; 
-
+  
   if (mt.empty()) {
     mt.id=detId;
     mt.metaConstituents.reserve(detId.ietaAbs()<30 ? 12 : 2);
     ++theTowerMapSize;
   }
-
+  
   return mt;
 }
 
@@ -1154,21 +1155,8 @@ GlobalPoint CaloTowersCreationAlgo::emCrystalShwrPos(DetId detId, float fracDept
 }
 
 GlobalPoint CaloTowersCreationAlgo::hadSegmentShwrPos(DetId detId, float fracDepth) {
-   const CaloCellGeometry* cellGeometry = theGeometry->getGeometry(detId);
-   GlobalPoint point = cellGeometry->getPosition();  // face of the cell
-
-   if      (fracDepth<0) fracDepth=0;
-   else if (fracDepth>1) fracDepth=1;
-
-   if (fracDepth>0.0) {
-     CaloCellGeometry::CornersVec cv = cellGeometry->getCorners();
-     GlobalPoint backPoint = GlobalPoint( 0.25*( cv[4].x() + cv[5].x() + cv[6].x() + cv[7].x() ),
-                                          0.25*( cv[4].y() + cv[5].y() + cv[6].y() + cv[7].y() ),
-                                          0.25*( cv[4].z() + cv[5].z() + cv[6].z() + cv[7].z() ) );
-     point += fracDepth * (backPoint-point);
-   }
-
-   return point;
+  // same code as above
+  return emCrystalShwrPos(detId, fracDepth);
 }
 
 
@@ -1279,12 +1267,7 @@ GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId 
     const CaloCellGeometry* backCellGeometry  = theGeometry->getGeometry(DetId(backCellId));
 
     GlobalPoint point = frontCellGeometry->getPosition();
-
-    CaloCellGeometry::CornersVec cv = backCellGeometry->getCorners();
-
-    GlobalPoint backPoint = GlobalPoint(0.25 * (cv[4].x() + cv[5].x() + cv[6].x() + cv[7].x()),
-      0.25 * (cv[4].y() + cv[5].y() + cv[6].y() + cv[7].y()),
-      0.25 * (cv[4].z() + cv[5].z() + cv[6].z() + cv[7].z()));
+    GlobalPoint backPoint = backCellGeometry->getBackPoint();
 
     point += fracDepth * (backPoint - point);
 
@@ -1418,32 +1401,32 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
 void CaloTowersCreationAlgo::makeEcalBadChs() {
 
   // for ECAL the number of all bad channels is obtained here -----------------------
-
+  
   for (auto ind=0U; ind<CaloTowerDetId::kSizeForDenseIndexing; ++ind) {
-   
+    
     auto & numBadEcalChan = ecalBadChs[ind];
     numBadEcalChan=0;
     auto id = CaloTowerDetId::detIdFromDenseIndex(ind);
-
+    
     // this is utterly slow... (can be optmized if really needed)
-
+    
     // get all possible constituents of the tower
     std::vector<DetId> allConstituents = theTowerConstituentsMap->constituentsOf(id);
-
+    
     for (std::vector<DetId>::iterator ac_it=allConstituents.begin(); 
 	 ac_it!=allConstituents.end(); ++ac_it) {
-
+      
       if (ac_it->det()!=DetId::Ecal) continue;
- 
+      
       int thisEcalSevLvl = -999;
-     
+      
       if (ac_it->subdetId() == EcalBarrel) {
 	thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it);
       }
       else if (ac_it->subdetId() == EcalEndcap) {
 	thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it);
       }
- 
+      
       // check if the Ecal severity is ok to keep
       std::vector<int>::const_iterator sevit = std::find(theEcalSeveritiesToBeExcluded.begin(),
 							 theEcalSeveritiesToBeExcluded.end(),
