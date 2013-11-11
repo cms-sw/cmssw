@@ -279,8 +279,8 @@ void Particle::cachePolar() const {
 }
 /// set internal cache
 void Particle::cacheCartesian() const {
+    cachePolar();
     if(!p4Cartesian_.load(std::memory_order_acquire)) {
-        cachePolar();
         (*p4Cartesian_.load(std::memory_order_acquire)) = (*p4Polar_.load(std::memory_order_acquire));
     }
 }
