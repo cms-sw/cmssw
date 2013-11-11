@@ -8,6 +8,7 @@ from DQMOffline.Muon.muonRecoAnalyzer_cfi import *
 from DQMOffline.Muon.muonEnergyDepositAnalyzer_cfi import *
 from DQMOffline.Muon.segmentTrackAnalyzer_cfi import *
 from DQMOffline.Muon.muonSeedsAnalyzer_cfi import *
+from DQMOffline.Muon.muonPFAnalyzer_cfi import *
 
 muonAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
                             muonSeedsAnalyzer*
@@ -17,4 +18,15 @@ muonAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
                             muonKinVsEtaAnalyzer*
                             diMuonHistos*
                             muonEfficiencyAnalyzer*
+                            muonPFsequence*
                             muonRecoOneHLT)
+
+muonAnalyzer_noHLT = cms.Sequence(muonEnergyDepositAnalyzer*
+                                  muonSeedsAnalyzer*
+                                  muonRecoAnalyzer*
+                                  glbMuonSegmentAnalyzer*
+                                  staMuonSegmentAnalyzer*
+                                  muonKinVsEtaAnalyzer*
+                                  diMuonHistos*
+                                  muonEfficiencyAnalyzer*
+                                  muonPFsequence)

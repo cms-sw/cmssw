@@ -40,23 +40,20 @@ using namespace std;
 using namespace reco;
 
 
-MuonPFAnalyzer::MuonPFAnalyzer(const ParameterSet& pSet)
-			       
-{
-
-  LogTrace("MuonPFAnalyzer") << 
-    "[MuonPFAnalyzer] Initializing configuration from parameterset.\n";
-
-  theGenLabel      = pSet.getParameter<InputTag>("inputTagGenParticles");  
-  theRecoLabel     = pSet.getParameter<InputTag>("inputTagMuonReco");  
-  theBeamSpotLabel = pSet.getParameter<InputTag>("inputTagBeamSpot");  
-  theVertexLabel   = pSet.getParameter<InputTag>("inputTagVertex");  
+MuonPFAnalyzer::MuonPFAnalyzer(const ParameterSet& pSet){
+  
+  LogTrace("MuonPFAnalyzer") << "[MuonPFAnalyzer] Initializing configuration from parameterset.\n";
+  
+  theGenLabel_      = consumes<GenParticleCollection>(pSet.getParameter<InputTag>("inputTagGenParticles"));  
+  theRecoLabel_     = consumes<MuonCollection>       (pSet.getParameter<InputTag>("inputTagMuonReco"));  
+  theVertexLabel_   = consumes<VertexCollection>     (pSet.getParameter<InputTag>("inputTagVertex"));  
+  theBeamSpotLabel_ = consumes<BeamSpot>             (pSet.getParameter<InputTag>("inputTagBeamSpot"));  
   
   theHighPtTh   = pSet.getParameter<double>("highPtThreshold");
   theRecoGenR   = pSet.getParameter<double>("recoGenDeltaR");
   theIsoCut     = pSet.getParameter<double>("relCombIsoCut");
   theRunOnMC    = pSet.getParameter<bool>("runOnMC");
-
+  
   theFolder = pSet.getParameter<string>("folder");
   
   theMuonKinds.push_back("");          // all TUNEP/PF muons
@@ -111,16 +108,16 @@ void MuonPFAnalyzer::analyze(const Event& event,
 {
   
   Handle<reco::MuonCollection> muons;
-  event.getByLabel(theRecoLabel, muons);
+  event.getByToken(theRecoLabel_, muons);
 
   Handle<GenParticleCollection> genMuons;
-  event.getByLabel(theGenLabel, genMuons);
+  event.getByToken(theGenLabel_, genMuons);
 
   Handle<BeamSpot> beamSpot;
-  event.getByLabel(theBeamSpotLabel, beamSpot);
+  event.getByToken(theBeamSpotLabel_, beamSpot);
 
   Handle<VertexCollection> vertex;
-  event.getByLabel(theVertexLabel, vertex);
+  event.getByToken(theVertexLabel_, vertex);
 
   const Vertex primaryVertex = getPrimaryVertex(vertex, beamSpot);
 
