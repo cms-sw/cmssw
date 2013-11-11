@@ -26,6 +26,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <typeinfo>
+#include <atomic>
 
 namespace edm {
 
@@ -121,7 +122,12 @@ namespace edm {
     }
 }
 
-
+  //0 means unset
+  static std::atomic<Principal::CacheIdentifier_t> s_nextIdentifier{1};
+  static inline Principal::CacheIdentifier_t nextIdentifier() {
+    return s_nextIdentifier.fetch_add(1,std::memory_order_acq_rel);
+  }
+  
   Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
                        boost::shared_ptr<ProductHolderIndexHelper const> productLookup,
                        ProcessConfiguration const& pc,
@@ -138,7 +144,9 @@ namespace edm {
     reader_(),
     productPtrs_(),
     branchType_(bt),
-    historyAppender_(historyAppender) {
+    historyAppender_(historyAppender),
+    cacheIdentifier_(nextIdentifier())
+  {
 
     //Now that these have been set, we can create the list of Branches we need.
     std::string const source("source");
@@ -325,6 +333,8 @@ namespace edm {
   Principal::fillPrincipal(ProcessHistoryID const& hist,
                            ProcessHistoryRegistry const& processHistoryRegistry,
                            DelayedReader* reader) {
+    //increment identifier here since clearPrincipal isn't called for Run/Lumi
+    cacheIdentifier_=nextIdentifier();
     if(reader) {
       reader_ = reader;
     }

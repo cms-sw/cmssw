@@ -5,7 +5,7 @@
  * Description: filter L1 bits and extract seed objects from L1 GT for HLT algorithms.
  *
  * Implementation:
- *    This class is an HLTFilter (-> EDFilter). It implements:
+ *    This class is an HLTStreamFilter (-> stream::EDFilter). It implements:
  *      - filtering on Level-1 bits, given via a logical expression of algorithm names
  *      - extraction of the seed objects from L1 GT object map record
  *
@@ -73,7 +73,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // constructors
-HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) : HLTFilter(parSet),
+HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) : HLTStreamFilter(parSet),
             //    seeding done via L1 trigger object maps, with objects that fired
             m_l1UseL1TriggerObjectMaps(parSet.getParameter<bool> (
                     "L1UseL1TriggerObjectMaps")),
@@ -179,12 +179,9 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) : HLTFilter(pa
             << "Input tag for L1 muon  collections:            "
             << m_l1MuonCollectionTag << " \n" << std::endl;
 
-    // initialize cached IDs
+    // initialize cache
+    m_l1GtMenu = nullptr;
     m_l1GtMenuCacheID = 0ULL;
-
-    m_l1GtTmAlgoCacheID = 0ULL;
-    m_l1GtTmTechCacheID = 0ULL;
-
 }
 
 // destructor
@@ -200,12 +197,12 @@ HLTLevel1GTSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   makeHLTFilterDescription(desc);
 
   // # default: true
-  // #    seeding done via L1 trigger object maps, with objects that fired 
+  // #    seeding done via L1 trigger object maps, with objects that fired
   // #    only objects from the central BxInEvent (L1A) are used
   // # if false:
-  // #    seeding is done ignoring if a L1 object fired or not, 
-  // #    adding all L1EXtra objects corresponding to the object types 
-  // #    used in all conditions from the algorithms in logical expression 
+  // #    seeding is done ignoring if a L1 object fired or not,
+  // #    adding all L1EXtra objects corresponding to the object types
+  // #    used in all conditions from the algorithms in logical expression
   // #    for a given number of BxInEvent
   desc.add<bool>("L1UseL1TriggerObjectMaps",true);
 
@@ -271,6 +268,10 @@ bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSet
         filterproduct.addCollectionTag(m_l1EtMissMHTTag);
     }
 
+    // get the trigger mask from the EventSetup
+    edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
+    evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
+
     // get L1GlobalTriggerReadoutRecord and GT decision
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
     iEvent.getByToken(m_l1GtReadoutRecordToken, gtReadoutRecord);
@@ -312,29 +313,14 @@ bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSet
     // seeding done via technical trigger bits
     if (m_l1TechTriggerSeeding) {
 
-        // get / update the trigger mask from the EventSetup
-        // local cache & check on cacheIdentifier
-        unsigned long long l1GtTmTechCacheID = evSetup.get<
-                L1GtTriggerMaskTechTrigRcd>().cacheIdentifier();
-
-        if (m_l1GtTmTechCacheID != l1GtTmTechCacheID) {
-
-            edm::ESHandle<L1GtTriggerMask> l1GtTmTech;
-            evSetup.get<L1GtTriggerMaskTechTrigRcd>().get(l1GtTmTech);
-            m_l1GtTmTech = l1GtTmTech.product();
-
-            m_triggerMaskTechTrig = m_l1GtTmTech->gtTriggerMask();
-
-            m_l1GtTmTechCacheID = l1GtTmTechCacheID;
-
-        }
+        // get the technical trigger mask from the EventSetup
+        edm::ESHandle<L1GtTriggerMask> l1GtTmTech;
+        evSetup.get<L1GtTriggerMaskTechTrigRcd>().get(l1GtTmTech);
 
         // get Global Trigger technical trigger word, update the tokenResult members
         // from m_l1AlgoLogicParser and get the result for the logical expression
-        const std::vector<bool>& gtTechTrigWord =
-                gtReadoutRecord->technicalTriggerWord();
-        updateAlgoLogicParser(gtTechTrigWord, m_triggerMaskTechTrig,
-                physicsDaqPartition);
+        const std::vector<bool>& gtTechTrigWord = gtReadoutRecord->technicalTriggerWord();
+        updateAlgoLogicParser(gtTechTrigWord, l1GtTmTech->gtTriggerMask(), physicsDaqPartition);
 
         // always empty filter - GT not aware of objects for technical triggers
         bool seedsResult = m_l1AlgoLogicParser.expressionResult();
@@ -359,12 +345,13 @@ bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSet
 
         edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
         evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
-        m_l1GtMenu = l1GtMenu.product();
-        (const_cast<L1GtTriggerMenu*> (m_l1GtMenu))->buildGtConditionMap(); //...ugly
-
+        // make a copy of the L1GtTriggerMenu in order to call buildGtConditionMap() (FIXME - is this really needed ?)
+        delete m_l1GtMenu;
+        m_l1GtMenu = new L1GtTriggerMenu(* l1GtMenu.product());
+        m_l1GtMenu->buildGtConditionMap();
         m_l1GtMenuCacheID = l1GtMenuCacheID;
 
-        const AlgorithmMap& algorithmMap = l1GtMenu->gtAlgorithmMap();
+        const AlgorithmMap& algorithmMap      = l1GtMenu->gtAlgorithmMap();
         const AlgorithmMap& algorithmAliasMap = l1GtMenu->gtAlgorithmAliasMap();
 
         LogTrace("HLTLevel1GTSeed") << "\n L1 trigger menu "
@@ -382,35 +369,13 @@ bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSet
         }
     }
 
-    // get / update the trigger mask from the EventSetup
-    // local cache & check on cacheIdentifier
-
-    unsigned long long l1GtTmAlgoCacheID = evSetup.get<
-            L1GtTriggerMaskAlgoTrigRcd>().cacheIdentifier();
-
-    if (m_l1GtTmAlgoCacheID != l1GtTmAlgoCacheID) {
-
-        edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
-        evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
-        m_l1GtTmAlgo = l1GtTmAlgo.product();
-
-        m_triggerMaskAlgoTrig = m_l1GtTmAlgo->gtTriggerMask();
-
-        m_l1GtTmAlgoCacheID = l1GtTmAlgoCacheID;
-
-    }
-
     // FinalOR is true, it was tested before
     if (m_l1UseL1TriggerObjectMaps) {
-        if (!(seedsL1TriggerObjectMaps(iEvent, filterproduct,
-                gtReadoutRecordPtr, physicsDaqPartition))) {
+        if (not seedsL1TriggerObjectMaps(iEvent, filterproduct, l1GtTmAlgo.product(), gtReadoutRecordPtr, physicsDaqPartition))
             return false;
-        }
     } else {
-        if (!(seedsL1Extra(iEvent, filterproduct))) {
+        if (not seedsL1Extra(iEvent, filterproduct))
             return false;
-        }
-
     }
 
     if (m_isDebugEnabled) {
@@ -422,7 +387,7 @@ bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSet
 }
 
 const std::vector<L1GtObject>* HLTLevel1GTSeed::objectTypeVec(const int chipNr,
-        const std::string& cndName) {
+        const std::string& cndName) const {
 
     const ConditionMap& conditionMap =
             (m_l1GtMenu->gtConditionMap()).at(chipNr);
@@ -437,11 +402,9 @@ const std::vector<L1GtObject>* HLTLevel1GTSeed::objectTypeVec(const int chipNr,
 
 // for a new L1 Trigger menu, update the tokenNumber (holding the bit numbers)
 // from m_l1AlgoLogicParser and from m_l1AlgoSeeds, and fill the m_l1AlgoSeedsRpn vector
-void HLTLevel1GTSeed::updateAlgoLogicParser(const L1GtTriggerMenu* l1GtMenu,
-        const AlgorithmMap& algorithmMap) {
+void HLTLevel1GTSeed::updateAlgoLogicParser(const L1GtTriggerMenu* l1GtMenu, const AlgorithmMap& algorithmMap) {
 
-    std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
-            m_l1AlgoLogicParser.operandTokenVector();
+    std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector = m_l1AlgoLogicParser.operandTokenVector();
 
     size_t jSeed = 0;
     size_t l1AlgoSeedsSize = m_l1AlgoSeeds.size();
@@ -592,7 +555,7 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const std::vector<bool>& gtWord,
 // (seeding via bit numbers) - done once in constructor
 void HLTLevel1GTSeed::convertStringToBitNumber() {
 
-    std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
+    std::vector<L1GtLogicParser::OperandToken> & algOpTokenVector =
             m_l1AlgoLogicParser.operandTokenVector();
 
     for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
@@ -636,7 +599,8 @@ void HLTLevel1GTSeed::convertStringToBitNumber() {
 
 // debug print grouped in a single function
 // can be called for a new menu (bool "true") or for a new event
-void HLTLevel1GTSeed::debugPrint(bool newMenu) {
+void HLTLevel1GTSeed::debugPrint(bool newMenu) const
+{
 
     if (m_l1TechTriggerSeeding) {
         LogDebug("HLTLevel1GTSeed")
@@ -657,7 +621,7 @@ void HLTLevel1GTSeed::debugPrint(bool newMenu) {
         }
     }
 
-    std::vector<L1GtLogicParser::OperandToken>& algOpTokenVector =
+    std::vector<L1GtLogicParser::OperandToken> const & algOpTokenVector =
             m_l1AlgoLogicParser.operandTokenVector();
 
     LogTrace("HLTLevel1GTSeed")
@@ -748,13 +712,14 @@ void HLTLevel1GTSeed::debugPrint(bool newMenu) {
 // seeding is done via L1 trigger object maps, considering the objects which fired in L1
 bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         trigger::TriggerFilterObjectWithRefs & filterproduct,
+        const L1GtTriggerMask * l1GtTmAlgo,
         const L1GlobalTriggerReadoutRecord* gtReadoutRecordPtr,
         const int physicsDaqPartition) {
 
     // get Global Trigger decision word, update the tokenResult members
     // from m_l1AlgoLogicParser and get the result for the logical expression
     const std::vector<bool>& gtDecisionWord = gtReadoutRecordPtr->decisionWord();
-    updateAlgoLogicParser(gtDecisionWord, m_triggerMaskAlgoTrig, physicsDaqPartition);
+    updateAlgoLogicParser(gtDecisionWord, l1GtTmAlgo->gtTriggerMask(), physicsDaqPartition);
 
     bool seedsResult = m_l1AlgoLogicParser.expressionResult();
 
@@ -852,13 +817,13 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         }
 
         const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap =
-        objMap->operandTokenVector();
+            objMap->operandTokenVector();
 
         const std::vector<L1GtLogicParser::TokenRPN>& algoSeedsRpn =
-        * ( m_l1AlgoSeedsRpn.at(iAlgo) );
+            * ( m_l1AlgoSeedsRpn.at(iAlgo) );
 
         const std::vector<const std::vector<L1GtObject>*>& algoSeedsObjTypeVec =
-        m_l1AlgoSeedsObjType[iAlgo];
+            m_l1AlgoSeedsObjType[iAlgo];
 
         //
         L1GtLogicParser logicParserConditions(algoSeedsRpn, opTokenVecObjMap);
@@ -1321,7 +1286,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 // L1 conditions from the seeding logical expression for bunch crosses F, 0, 1
 // directly from L1Extra and use them as seeds at HLT
 // method and filter return true if at least an object is filled
-bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
 
 
@@ -1856,7 +1821,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
 }
 
 // detailed print of filter content
-void HLTLevel1GTSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWithRefs & filterproduct)
+void HLTLevel1GTSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
     LogDebug("HLTLevel1GTSeed") << "\nHLTLevel1GTSeed::hltFilter "
             << "\n  Dump TriggerFilterObjectWithRefs\n" << std::endl;
@@ -2019,3 +1984,7 @@ void HLTLevel1GTSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObje
     LogTrace("HLTLevel1GTSeed") << " \n\n" << std::endl;
 
 }
+
+// register as framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTLevel1GTSeed);

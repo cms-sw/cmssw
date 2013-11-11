@@ -31,12 +31,8 @@ HLTDoubletDZ<T1,T2>::HLTDoubletDZ(const edm::ParameterSet& iConfig) : HLTFilter(
   maxDZ_ (iConfig.template getParameter<double>("MaxDZ")),
   min_N_    (iConfig.template getParameter<int>("MinN")),
   checkSC_  (iConfig.template getParameter<bool>("checkSC")),
-  label_    (iConfig.getParameter<std::string>("@module_label")),
-  coll1_(),
-  coll2_()
+  same_     (inputTag1_.encode()==inputTag2_.encode())      // same collections to be compared?
 {
-   // same collections to be compared?
-   same_ = (inputTag1_.encode()==inputTag2_.encode());
 }
 
 template<typename T1, typename T2>
@@ -67,7 +63,7 @@ HLTDoubletDZ<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 // ------------ method called to produce the data  ------------
 template<typename T1, typename T2>
 bool
-HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;
@@ -80,27 +76,28 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
    bool accept(false);
 
-   LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 0 " << std::endl;
+   LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 0 " << std::endl;
+
+   std::vector<T1Ref> coll1;
+   std::vector<T2Ref> coll2;
 
    // get hold of pre-filtered object collections
-   Handle<TriggerFilterObjectWithRefs> coll1,coll2;
-   if (iEvent.getByToken(inputToken1_,coll1) && iEvent.getByToken(inputToken2_,coll2)) {
-     coll1_.clear();
-     coll1->getObjects(triggerType1_,coll1_);
-     const size_type n1(coll1_.size());
-     coll2_.clear();
-     coll2->getObjects(triggerType2_,coll2_);
-     const size_type n2(coll2_.size());
+   Handle<TriggerFilterObjectWithRefs> handle1,handle2;
+   if (iEvent.getByToken(inputToken1_, handle1) and iEvent.getByToken(inputToken2_, handle2)) {
+     handle1->getObjects(triggerType1_, coll1);
+     handle2->getObjects(triggerType2_, coll2);
+     const size_type n1(coll1.size());
+     const size_type n2(coll2.size());
 
      if (saveTags()) {
        InputTag tagOld;
        for (unsigned int i=0; i<originTag1_.size(); ++i) {
 	 filterproduct.addCollectionTag(originTag1_[i]);
-	 LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 1a/" << i << " " << originTag1_[i].encode() << std::endl;
+	 LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 1a/" << i << " " << originTag1_[i].encode() << std::endl;
        }
        tagOld=InputTag();
        for (size_type i1=0; i1!=n1; ++i1) {
-	 const ProductID pid(coll1_[i1].id());
+	 const ProductID pid(coll1[i1].id());
 	 const string&    label(iEvent.getProvenance(pid).moduleLabel());
 	 const string& instance(iEvent.getProvenance(pid).productInstanceName());
 	 const string&  process(iEvent.getProvenance(pid).processName());
@@ -108,16 +105,16 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	 if (tagOld.encode()!=tagNew.encode()) {
 	   filterproduct.addCollectionTag(tagNew);
 	   tagOld=tagNew;
-           LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 1b " << tagNew.encode() << std::endl;
+           LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 1b " << tagNew.encode() << std::endl;
 	 }
        }
        for (unsigned int i=0; i<originTag2_.size(); ++i) {
 	 filterproduct.addCollectionTag(originTag2_[i]);
-	 LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 2a/" << originTag2_[i].encode() << std::endl;
+	 LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 2a/" << originTag2_[i].encode() << std::endl;
        }
        tagOld=InputTag();
        for (size_type i2=0; i2!=n2; ++i2) {
-	 const ProductID pid(coll2_[i2].id());
+	 const ProductID pid(coll2[i2].id());
 	 const string&    label(iEvent.getProvenance(pid).moduleLabel());
 	 const string& instance(iEvent.getProvenance(pid).productInstanceName());
 	 const string&  process(iEvent.getProvenance(pid).processName());
@@ -125,7 +122,7 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	 if (tagOld.encode()!=tagNew.encode()) {
 	   filterproduct.addCollectionTag(tagNew);
 	   tagOld=tagNew;
-           LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 2b " << tagNew.encode() << std::endl;
+           LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 2b " << tagNew.encode() << std::endl;
 	 }
        }
      }
@@ -135,12 +132,12 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
      T2Ref r2;
      Particle::LorentzVector p1,p2,p;
      for (unsigned int i1=0; i1!=n1; i1++) {
-       r1=coll1_[i1];
+       r1=coll1[i1];
        const reco::Candidate& candidate1(*r1);
        unsigned int I(0);
        if (same_) {I=i1+1;}
        for (unsigned int i2=I; i2!=n2; i2++) {
-	 r2=coll2_[i2];
+	 r2=coll2[i2];
 	 if (checkSC_) {
 	   if (r1->superCluster().isNonnull() && r2->superCluster().isNonnull()) {
 	     if (r1->superCluster() == r2->superCluster()) continue;

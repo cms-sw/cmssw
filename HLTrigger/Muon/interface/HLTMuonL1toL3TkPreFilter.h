@@ -3,7 +3,7 @@
 
 /** \class HLTMuonL1toL3TkPreFilter
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing a first
  *  filtering for HLT muons
  *
@@ -28,9 +28,10 @@ class HLTMuonL1toL3TkPreFilter : public HLTFilter {
       explicit HLTMuonL1toL3TkPreFilter(const edm::ParameterSet&);
       ~HLTMuonL1toL3TkPreFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-      bool triggeredAtL1(const l1extra::L1MuonParticleRef & l1mu,std::vector<l1extra::L1MuonParticleRef>& vcands);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+
    private:
+      bool triggeredAtL1(const l1extra::L1MuonParticleRef & l1mu,std::vector<l1extra::L1MuonParticleRef>& vcands) const;
 
       edm::InputTag                    beamspotTag_ ;
       edm::EDGetTokenT<reco::BeamSpot> beamspotToken_ ;
@@ -43,7 +44,7 @@ class HLTMuonL1toL3TkPreFilter : public HLTFilter {
       int    min_Nhits_;        // threshold on number of hits on muon
       double max_Dr_;           // impact parameter cut
       double max_Dz_;           // dz cut
-      double min_Pt_;           // pt threshold in GeV 
+      double min_Pt_;           // pt threshold in GeV
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
 };
 

@@ -3,8 +3,8 @@
 //
 // Package:    HLTstaging
 // Class:      HLTmmkFilter
-// 
-/**\class HLTmmkFilter 
+//
+/**\class HLTmmkFilter
 
  HLT Filter for b to (mumu) + X
 
@@ -31,7 +31,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 
 namespace reco {
-  class Candidate; 
+  class Candidate;
   class Track;
 }
 
@@ -43,20 +43,21 @@ class HLTmmkFilter : public HLTFilter {
  public:
   explicit HLTmmkFilter(const edm::ParameterSet&);
   ~HLTmmkFilter();
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);  
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
   virtual void beginJob() ;
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   virtual void endJob();
-  virtual int overlap(const reco::Candidate&, const reco::Candidate&);
-  virtual FreeTrajectoryState initialFreeState( const reco::Track&,const MagneticField*);
-  
+
+  static int overlap(const reco::Candidate&, const reco::Candidate&);
+  static FreeTrajectoryState initialFreeState( const reco::Track&,const MagneticField*);
+
   edm::InputTag                                          muCandTag_;
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> muCandToken_;
-  edm::InputTag                                          trkCandTag_; 
+  edm::InputTag                                          trkCandTag_;
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> trkCandToken_;
-  
+
   const double thirdTrackMass_;
   const double maxEta_;
   const double minPt_;

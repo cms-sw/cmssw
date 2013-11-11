@@ -2,7 +2,7 @@
 //
 // Package:    HLTFEDSizeFilter
 // Class:      HLTFEDSizeFilter
-// 
+//
 /**\class HLTFEDSizeFilter HLTFEDSizeFilter.cc Work/HLTFEDSizeFilter/src/HLTFEDSizeFilter.cc
 
  Description: <one line class summary>
@@ -42,28 +42,28 @@ public:
     explicit HLTFEDSizeFilter(const edm::ParameterSet&);
     ~HLTFEDSizeFilter();
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    
+
 private:
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
-    
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+
     // ----------member data ---------------------------
     edm::EDGetTokenT<FEDRawDataCollection> RawCollectionToken_;
     edm::InputTag RawCollection_;
     unsigned int  threshold_;
     unsigned int  fedStart_, fedStop_ ;
     bool          requireAllFEDs_;
- 
+
 };
 
 //
 // constructors and destructor
 //
-HLTFEDSizeFilter::HLTFEDSizeFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTFEDSizeFilter::HLTFEDSizeFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
     threshold_      = iConfig.getParameter<unsigned int>("threshold");
     RawCollection_  = iConfig.getParameter<edm::InputTag>("rawData");
     // For a list of FEDs by subdetector, see DataFormats/FEDRawData/src/FEDNumbering.cc
-    fedStart_       = iConfig.getParameter<unsigned int>("firstFED"); 
+    fedStart_       = iConfig.getParameter<unsigned int>("firstFED");
     fedStop_        = iConfig.getParameter<unsigned int>("lastFED");
     requireAllFEDs_ = iConfig.getParameter<bool>("requireAllFEDs");
 
@@ -100,7 +100,7 @@ HLTFEDSizeFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
 // ------------ method called on each new Event  ------------
 bool
-HLTFEDSizeFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+HLTFEDSizeFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
     // get the RAW data collction
     edm::Handle<FEDRawDataCollection> h_raw;

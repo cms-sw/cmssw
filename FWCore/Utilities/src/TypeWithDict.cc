@@ -164,25 +164,24 @@ namespace edm {
   TypeWithDict::byName(std::string const& name, Long_t property) {
     // static map for built in types
     typedef std::map<std::string, TypeWithDict> TypeMap;  
-    static TypeMap typeMap;
-    if(typeMap.empty()) {
-      typeMap.insert(std::make_pair(std::string("bool"), TypeWithDict(typeid(bool))));
-      typeMap.insert(std::make_pair(std::string("char"), TypeWithDict(typeid(char))));
-      typeMap.insert(std::make_pair(std::string("unsigned char"), TypeWithDict(typeid(unsigned char))));
-      typeMap.insert(std::make_pair(std::string("short"), TypeWithDict(typeid(short))));
-      typeMap.insert(std::make_pair(std::string("unsigned short"), TypeWithDict(typeid(unsigned short))));
-      typeMap.insert(std::make_pair(std::string("int"), TypeWithDict(typeid(int))));
-      typeMap.insert(std::make_pair(std::string("unsigned int"), TypeWithDict(typeid(unsigned int))));
-      typeMap.insert(std::make_pair(std::string("long"), TypeWithDict(typeid(long))));
-      typeMap.insert(std::make_pair(std::string("unsigned long"), TypeWithDict(typeid(unsigned long))));
-      typeMap.insert(std::make_pair(std::string("long long"), TypeWithDict(typeid(int))));
-      typeMap.insert(std::make_pair(std::string("unsigned long long"), TypeWithDict(typeid(int))));
-      typeMap.insert(std::make_pair(std::string("float"), TypeWithDict(typeid(float))));
-      typeMap.insert(std::make_pair(std::string("double"), TypeWithDict(typeid(double))));
-      // typeMap.insert(std::make_pair(std::string("long double"), TypeWithDict(typeid(long double)))); // ROOT does not seem to know about long double
-      typeMap.insert(std::make_pair(std::string("string"), TypeWithDict(typeid(std::string))));
-      typeMap.insert(std::make_pair(std::string("void"), TypeWithDict(typeid(void))));
-    }
+    static const TypeMap typeMap = {
+      {std::string("bool"), TypeWithDict(typeid(bool))},
+      {std::string("char"), TypeWithDict(typeid(char))},
+      {std::string("unsigned char"), TypeWithDict(typeid(unsigned char))},
+      {std::string("short"), TypeWithDict(typeid(short))},
+      {std::string("unsigned short"), TypeWithDict(typeid(unsigned short))},
+      {std::string("int"), TypeWithDict(typeid(int))},
+      {std::string("unsigned int"), TypeWithDict(typeid(unsigned int))},
+      {std::string("long"), TypeWithDict(typeid(long))},
+      {std::string("unsigned long"), TypeWithDict(typeid(unsigned long))},
+      {std::string("long long"), TypeWithDict(typeid(int))},
+      {std::string("unsigned long long"), TypeWithDict(typeid(int))},
+      {std::string("float"), TypeWithDict(typeid(float))},
+      {std::string("double"), TypeWithDict(typeid(double))},
+      // {std::string("long double"), TypeWithDict(typeid(long double))}, // ROOT does not seem to know about long double
+      {std::string("string"), TypeWithDict(typeid(std::string))},
+      {std::string("void"), TypeWithDict(typeid(void))}
+    };
     
     std::string cintName = ROOT::Cintex::CintName(name);
     char last = *cintName.rbegin();

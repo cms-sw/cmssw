@@ -53,8 +53,8 @@ HLTHemiDPhiFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 //
 
 // ------------ method called to produce the data  ------------
-bool 
-HLTHemiDPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool
+HLTHemiDPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;
@@ -78,15 +78,15 @@ HLTHemiDPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
   //***********************************
   // Get the set of hemisphere axes
-   
+
    TLorentzVector j1R(hemispheres->at(0).x(),hemispheres->at(0).y(),hemispheres->at(0).z(),hemispheres->at(0).t());
    TLorentzVector j2R(hemispheres->at(1).x(),hemispheres->at(1).y(),hemispheres->at(1).z(),hemispheres->at(1).t());
 
    // compute the dPhi between them
   double dphi = 50.;
-  dphi = deltaPhi(j1R.Phi(),j2R.Phi()); 
-  
-  // Dphi requirement  
+  dphi = deltaPhi(j1R.Phi(),j2R.Phi());
+
+  // Dphi requirement
 
   if(dphi<=min_dphi_) return true;
 
@@ -96,12 +96,10 @@ HLTHemiDPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
 
 double HLTHemiDPhiFilter::deltaPhi(double v1, double v2)
-{ // Computes the correctly normalized phi difference
+{
+  // Computes the correctly normalized phi difference
   // v1, v2 = phi of object 1 and 2
   double diff = std::abs(v2 - v1);
- double corr = 2*acos(-1.) - diff;
- if (diff < acos(-1.)){ return diff;} else { return corr;} 
- 
+  return (diff < M_PI) ? diff : 2*M_PI - diff;
 }
-
 

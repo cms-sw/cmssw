@@ -49,8 +49,6 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
 {
   field_ = field;
   vbField_ = dynamic_cast<const VolumeBasedMagneticField*>(field_);
-  covCurvRot_ = AlgebraicMatrix55();
-  dCCurvTransform_ = unit55_;
   debug_ = false;
   noMaterialMode_ = false;
   noErrorPropagation_ = false;
@@ -860,6 +858,8 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Make atom step "<<svCurrent.path()<<" with step "<<dS<<" in direction "<<dir<<std::endl;
   }
 
+  AlgebraicMatrix55 dCCurvTransform(unit55_);
+
   double dP = 0;
   double curP = svCurrent.p3.mag();
   Vector tau = svCurrent.p3; tau *= 1./curP;
@@ -1028,7 +1028,6 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
       
       Vector tbtVec(bHat - tauB*tau); // for b||z tau.z()*(-tau.x(), -tau.y(), 1.-tau.z())
       
-      dCCurvTransform_ = unit55_;
       {
 	//Slightly modified copy of the curvilinear jacobian (don't use the original just because it's in float precision
 	// and seems to have some assumptions about the field values
@@ -1098,103 +1097,103 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 	double hv3 =  hn1*v12 - hn2*v11;
 	
 	//   1/p - doesn't change since |tau| = |tauNext| ... not. It changes now
-	dCCurvTransform_(0,0) = 1./(epsilonP0*epsilonP0)*(1. + dS*dEdXPrime);
+	dCCurvTransform(0,0) = 1./(epsilonP0*epsilonP0)*(1. + dS*dEdXPrime);
 	
 	//   lambda
 	
-	dCCurvTransform_(1,0) = phi*p0/svCurrent.q*cosecl1*
+	dCCurvTransform(1,0) = phi*p0/svCurrent.q*cosecl1*
 	  (sinPhi*bbtVec.z() - cosPhi*btVec.z());
-	//was dCCurvTransform_(1,0) = -qp*anv*(t21*dx1 + t22*dx2 + t23*dx3); //NOTE (SK) this was found to have an opposite sign
+	//was dCCurvTransform(1,0) = -qp*anv*(t21*dx1 + t22*dx2 + t23*dx3); //NOTE (SK) this was found to have an opposite sign
 	//from independent re-calculation ... in fact the tauNext.dot.dR piece isnt reproduced 
 	
-	dCCurvTransform_(1,1) = cost*(v11*v21 + v12*v22 + v13*v23) +
+	dCCurvTransform(1,1) = cost*(v11*v21 + v12*v22 + v13*v23) +
 	  sint*(hv1*v21 + hv2*v22 + hv3*v23) +
 	  omcost*(hn1*v11 + hn2*v12 + hn3*v13) * (hn1*v21 + hn2*v22 + hn3*v23) +
 	  anv*(-sint*(v11*t21 + v12*t22 + v13*t23) +
 	       omcost*(v11*an1 + v12*an2 + v13*an3) -
 	       tmsint*gamma*(hn1*v11 + hn2*v12 + hn3*v13) );
 	
-	dCCurvTransform_(1,2) = cost*(u11*v21 + u12*v22          ) +
+	dCCurvTransform(1,2) = cost*(u11*v21 + u12*v22          ) +
 	  sint*(hu1*v21 + hu2*v22 + hu3*v23) +
 	  omcost*(hn1*u11 + hn2*u12          ) * (hn1*v21 + hn2*v22 + hn3*v23) +
 	  anv*(-sint*(u11*t21 + u12*t22          ) +
 	       omcost*(u11*an1 + u12*an2          ) -
 	       tmsint*gamma*(hn1*u11 + hn2*u12          ) );
-	dCCurvTransform_(1,2) *= cosl0;
+	dCCurvTransform(1,2) *= cosl0;
 	
 	// Commented out in part for reproducibility purposes: these terms are zero in cart->curv 
-	//	dCCurvTransform_(1,3) = -q*anv*(u11*t21 + u12*t22          ); //don't show up in cartesian setup-->curv
+	//	dCCurvTransform(1,3) = -q*anv*(u11*t21 + u12*t22          ); //don't show up in cartesian setup-->curv
 	//why would lambdaNext depend explicitely on initial position ? any arbitrary init point can be chosen not 
 	// affecting the final state's momentum direction ... is this the field gradient in curvilinear coord?
-	//	dCCurvTransform_(1,4) = -q*anv*(v11*t21 + v12*t22 + v13*t23); //don't show up in cartesian setup-->curv
+	//	dCCurvTransform(1,4) = -q*anv*(v11*t21 + v12*t22 + v13*t23); //don't show up in cartesian setup-->curv
 	
 	//   phi
 	
-	dCCurvTransform_(2,0) = - phi*p0/svCurrent.q*cosecl1*cosecl1*
+	dCCurvTransform(2,0) = - phi*p0/svCurrent.q*cosecl1*cosecl1*
 	  (oneLessCosPhi*bHat.z()*btVec.mag2() + sinPhi*btVec.z() + cosPhi*tbtVec.z()) ;
-	//was 	dCCurvTransform_(2,0) = -qp*anu*(t21*dx1 + t22*dx2 + t23*dx3)*cosecl1;
+	//was 	dCCurvTransform(2,0) = -qp*anu*(t21*dx1 + t22*dx2 + t23*dx3)*cosecl1;
 	
-	dCCurvTransform_(2,1) = cost*(v11*u21 + v12*u22          ) +
+	dCCurvTransform(2,1) = cost*(v11*u21 + v12*u22          ) +
 	  sint*(hv1*u21 + hv2*u22          ) +
 	  omcost*(hn1*v11 + hn2*v12 + hn3*v13) *
 	  (hn1*u21 + hn2*u22          ) +
 	  anu*(-sint*(v11*t21 + v12*t22 + v13*t23) +
 	       omcost*(v11*an1 + v12*an2 + v13*an3) -
 	       tmsint*gamma*(hn1*v11 + hn2*v12 + hn3*v13) );
-	dCCurvTransform_(2,1) *= cosecl1;
+	dCCurvTransform(2,1) *= cosecl1;
 	
-	dCCurvTransform_(2,2) = cost*(u11*u21 + u12*u22          ) +
+	dCCurvTransform(2,2) = cost*(u11*u21 + u12*u22          ) +
 	  sint*(hu1*u21 + hu2*u22          ) +
 	  omcost*(hn1*u11 + hn2*u12          ) *
 	  (hn1*u21 + hn2*u22          ) +
 	  anu*(-sint*(u11*t21 + u12*t22          ) +
 	       omcost*(u11*an1 + u12*an2          ) -
 	       tmsint*gamma*(hn1*u11 + hn2*u12          ) );
-	dCCurvTransform_(2,2) *= cosecl1*cosl0;
+	dCCurvTransform(2,2) *= cosecl1*cosl0;
 	
 	// Commented out in part for reproducibility purposes: these terms are zero in cart->curv 
-	// dCCurvTransform_(2,3) = -q*anu*(u11*t21 + u12*t22          )*cosecl1;
+	// dCCurvTransform(2,3) = -q*anu*(u11*t21 + u12*t22          )*cosecl1;
 	//why would lambdaNext depend explicitely on initial position ? any arbitrary init point can be chosen not 
 	// affecting the final state's momentum direction ... is this the field gradient in curvilinear coord?
-	// dCCurvTransform_(2,4) = -q*anu*(v11*t21 + v12*t22 + v13*t23)*cosecl1;
+	// dCCurvTransform(2,4) = -q*anu*(v11*t21 + v12*t22 + v13*t23)*cosecl1;
 	
 	//   yt
 	
 	double pp = 1./qbp;
 	// (SK) these terms seem to consistently have a sign opp from private derivation
-	dCCurvTransform_(3,0) = - pp*(u21*dx1 + u22*dx2            ); //NB: modified from the original: changed the sign
-	dCCurvTransform_(4,0) = - pp*(v21*dx1 + v22*dx2 + v23*dx3);  
+	dCCurvTransform(3,0) = - pp*(u21*dx1 + u22*dx2            ); //NB: modified from the original: changed the sign
+	dCCurvTransform(4,0) = - pp*(v21*dx1 + v22*dx2 + v23*dx3);  
 	
 	
-	dCCurvTransform_(3,1) = (sint*(v11*u21 + v12*u22          ) +
+	dCCurvTransform(3,1) = (sint*(v11*u21 + v12*u22          ) +
 				 omcost*(hv1*u21 + hv2*u22          ) +
 				 tmsint*(hn1*u21 + hn2*u22          ) *
 				 (hn1*v11 + hn2*v12 + hn3*v13))/q;
 	
-	dCCurvTransform_(3,2) = (sint*(u11*u21 + u12*u22          ) +
+	dCCurvTransform(3,2) = (sint*(u11*u21 + u12*u22          ) +
 				 omcost*(hu1*u21 + hu2*u22          ) +
 				 tmsint*(hn1*u21 + hn2*u22          ) *
 				 (hn1*u11 + hn2*u12          ))*cosl0/q;
 	
-	dCCurvTransform_(3,3) = (u11*u21 + u12*u22          );
+	dCCurvTransform(3,3) = (u11*u21 + u12*u22          );
 	
-	dCCurvTransform_(3,4) = (v11*u21 + v12*u22          );
+	dCCurvTransform(3,4) = (v11*u21 + v12*u22          );
 	
 	//   zt
 	
-	dCCurvTransform_(4,1) = (sint*(v11*v21 + v12*v22 + v13*v23) +
+	dCCurvTransform(4,1) = (sint*(v11*v21 + v12*v22 + v13*v23) +
 				 omcost*(hv1*v21 + hv2*v22 + hv3*v23) +
 				 tmsint*(hn1*v21 + hn2*v22 + hn3*v23) *
 				 (hn1*v11 + hn2*v12 + hn3*v13))/q;
 	
-	dCCurvTransform_(4,2) = (sint*(u11*v21 + u12*v22          ) +
+	dCCurvTransform(4,2) = (sint*(u11*v21 + u12*v22          ) +
 				 omcost*(hu1*v21 + hu2*v22 + hu3*v23) +
 				 tmsint*(hn1*v21 + hn2*v22 + hn3*v23) *
 				 (hn1*u11 + hn2*u12          ))*cosl0/q;
 	
-	dCCurvTransform_(4,3) = (u11*v21 + u12*v22          );
+	dCCurvTransform(4,3) = (u11*v21 + u12*v22          );
 	
-	dCCurvTransform_(4,4) = (v11*v21 + v12*v22 + v13*v23);
+	dCCurvTransform(4,4) = (v11*v21 + v12*v22 + v13*v23);
 	// end of TRPRFN
       }
     
@@ -1269,7 +1268,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
   }
   
   getNextState(svCurrent, svNext, dP, tauNext, drVec, dS, dS/radX0,
-	       dCCurvTransform_);
+	       dCCurvTransform);
   return true;
 }
 

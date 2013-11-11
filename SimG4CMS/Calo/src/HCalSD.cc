@@ -29,6 +29,8 @@
 #include <fstream>
 #include <iomanip>
 
+#include "G4SystemOfUnits.hh"
+
 //#define DebugLog
 //#define plotDebug
 

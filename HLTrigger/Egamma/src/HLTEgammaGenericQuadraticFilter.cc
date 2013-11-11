@@ -27,20 +27,20 @@ HLTEgammaGenericQuadraticFilter::HLTEgammaGenericQuadraticFilter(const edm::Para
   isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
   nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
 
-  lessThan_ = iConfig.getParameter<bool> ("lessThan");			  
-  useEt_ = iConfig.getParameter<bool> ("useEt");			  
-  thrRegularEB_ = iConfig.getParameter<double> ("thrRegularEB");	  
-  thrRegularEE_ = iConfig.getParameter<double> ("thrRegularEE");	  
-  thrOverEEB_ = iConfig.getParameter<double> ("thrOverEEB");		  
-  thrOverEEE_ = iConfig.getParameter<double> ("thrOverEEE");		  
-  thrOverE2EB_ = iConfig.getParameter<double> ("thrOverE2EB");		  
-  thrOverE2EE_ = iConfig.getParameter<double> ("thrOverE2EE");		  
-  				     	  
-  ncandcut_  = iConfig.getParameter<int> ("ncandcut");			  
-  doIsolated_ = iConfig.getParameter<bool> ("doIsolated");		  
-			     				  
-  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 	  
-  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+  lessThan_ = iConfig.getParameter<bool> ("lessThan");			
+  useEt_ = iConfig.getParameter<bool> ("useEt");			
+  thrRegularEB_ = iConfig.getParameter<double> ("thrRegularEB");	
+  thrRegularEE_ = iConfig.getParameter<double> ("thrRegularEE");	
+  thrOverEEB_ = iConfig.getParameter<double> ("thrOverEEB");		
+  thrOverEEE_ = iConfig.getParameter<double> ("thrOverEEE");		
+  thrOverE2EB_ = iConfig.getParameter<double> ("thrOverE2EB");		
+  thrOverE2EE_ = iConfig.getParameter<double> ("thrOverE2EE");		
+  				     	
+  ncandcut_  = iConfig.getParameter<int> ("ncandcut");			
+  doIsolated_ = iConfig.getParameter<bool> ("doIsolated");		
+			     				
+  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 	
+  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
 
   candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
   isoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(isoTag_);
@@ -74,7 +74,7 @@ HLTEgammaGenericQuadraticFilter::~HLTEgammaGenericQuadraticFilter(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaGenericQuadraticFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEgammaGenericQuadraticFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
   if (saveTags()) {
@@ -85,7 +85,7 @@ HLTEgammaGenericQuadraticFilter::hltFilter(edm::Event& iEvent, const edm::EventS
   // Ref to Candidate object to be recorded in filter object
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
 
-  // Set output format 
+  // Set output format
   int trigger_type = trigger::TriggerCluster;
   if (saveTags()) trigger_type = trigger::TriggerPhoton;
 
@@ -99,26 +99,26 @@ HLTEgammaGenericQuadraticFilter::hltFilter(edm::Event& iEvent, const edm::EventS
   //get hold of isolated association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
   iEvent.getByToken (isoToken_,depMap);
-  
+
   //get hold of non-isolated association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depNonIsoMap;
   if(!doIsolated_) iEvent.getByToken (nonIsoToken_,depNonIsoMap);
-  
+
   // look at all photons, check cuts and add to filter object
   int n = 0;
-  
+
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
-    
+
     ref = recoecalcands[i];
-    reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find( ref );    
-    if (mapi==(*depMap).end() && !doIsolated_) mapi = (*depNonIsoMap).find( ref ); 
-   
+    reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find( ref );
+    if (mapi==(*depMap).end() && !doIsolated_) mapi = (*depNonIsoMap).find( ref );
+
     float vali = mapi->val;
     float energy = ref->superCluster()->energy();
     float EtaSC = ref->eta();
-    if (useEt_) energy = energy * sin (2*atan(exp(-EtaSC)));   
+    if (useEt_) energy = energy * sin (2*atan(exp(-EtaSC)));
     if (energy < 0.) energy=0.; /* first and second order terms assume non-negative energies */
-    
+
     if ( lessThan_ ) {
       if ((fabs(EtaSC) < 1.479 && vali <= thrRegularEB_ + energy*thrOverEEB_ + energy*energy*thrOverE2EB_) || (fabs(EtaSC) >= 1.479 && vali <= thrRegularEE_ + energy*thrOverEEE_ + energy*energy*thrOverE2EE_) ) {
 	  n++;
@@ -133,7 +133,7 @@ HLTEgammaGenericQuadraticFilter::hltFilter(edm::Event& iEvent, const edm::EventS
       }
     }
   }
-  
+
   // filter decision
   bool accept(n>=ncandcut_);
 
