@@ -31,8 +31,6 @@ DTSegmentsTask::DTSegmentsTask(const edm::ParameterSet& pset) {
 
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setVerbose(1);
-  theDbe->setCurrentFolder("Muons/DTSegmentsMonitor");
   
   parameters = pset;
   
@@ -50,6 +48,10 @@ void DTSegmentsTask::beginJob(void){
 
 void DTSegmentsTask::beginRun(const edm::Run& irun, const edm::EventSetup& isetup){
   
+  theDbe->setVerbose(1);
+  theDbe->cd();
+  theDbe->setCurrentFolder("Muons/DTSegmentsMonitor");
+
   // histos for phi segments
   phiHistos.push_back(theDbe->book2D("phiSegments_numHitsVsWheel", "phiSegments_numHitsVsWheel", 5, -2.5, 2.5, 20, 0, 20));
   phiHistos[0]->setBinLabel(1,"W-2",1);

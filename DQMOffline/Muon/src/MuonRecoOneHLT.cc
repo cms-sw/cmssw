@@ -17,7 +17,6 @@ MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet) { //, MuonServiceP
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
 
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setCurrentFolder("Muons/MuonRecoOneHLT");
 
   ParameterSet muonparms   = parameters.getParameter<edm::ParameterSet>("SingleMuonTrigger");
   ParameterSet dimuonparms = parameters.getParameter<edm::ParameterSet>("DoubleMuonTrigger");
@@ -51,6 +50,9 @@ void MuonRecoOneHLT::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   cout << "[MuonRecoOneHLT]  beginRun " << endl;
   cout << "[MuonRecoOneHLT]  Is MuonEventFlag On? "<< _SingleMuonEventFlag->on() << endl;
 #endif
+  
+  dbe->cd();
+  dbe->setCurrentFolder("Muons/MuonRecoOneHLT");
 
   muReco = dbe->book1D("Muon_Reco", "Muon Reconstructed Tracks", 6, 1, 7);
   muReco->setBinLabel(1,"glb+tk+sta");

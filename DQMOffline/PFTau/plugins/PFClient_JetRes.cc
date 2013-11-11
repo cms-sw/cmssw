@@ -90,9 +90,9 @@ void PFClient_JetRes::createResolutionPlots(std::string& folder, std::string& na
   TString pTRange[PtBins_.size() -1] ;
   //float pTCenter[PtBins_.size() -1] ;
 
-  MonitorElement* me_average;
-  MonitorElement* me_rms;
-  MonitorElement* me_mean;
+  MonitorElement* me_average; 
+  MonitorElement* me_rms; 
+  MonitorElement* me_mean; 
   MonitorElement* me_sigma;
 
   if ( (me->kind() == MonitorElement::DQM_KIND_TH2F) ||
@@ -131,12 +131,16 @@ void PFClient_JetRes::createResolutionPlots(std::string& folder, std::string& na
     
     tit_new = "Average "+ytit+";"+xtit+";Average_"+ytit ; 
     me_average = dqmStore_->book1D("average_"+name,tit_new, nbinx, xbins); 
+    me_average->setEfficiencyFlag();
     tit_new = "RMS "+ytit+";"+xtit+";RMS_"+ytit ; 
     me_rms     = dqmStore_->book1D("rms_"+name,tit_new, nbinx, xbins); 
-    tit_new = "Mean "+ytit+";"+xtit+";Mean_"+ytit ; 
+    me_rms->setEfficiencyFlag();
+    tit_new = ";"+xtit+";Mean_"+ytit; 
     me_mean    = dqmStore_->book1D("mean_"+name,tit_new, nbinx, xbins); 
-    tit_new = "Resolution "+ytit+";"+xtit+";Sigma_"+ytit ; 				 
-    me_sigma   = dqmStore_->book1D("sigma_"+name,tit_new, nbinx, xbins) ; 
+    me_mean->setEfficiencyFlag();
+    tit_new = ";"+xtit+";Sigma_"+ytit; 				 
+    me_sigma   = dqmStore_->book1D("sigma_"+name,tit_new, nbinx, xbins); 
+    me_sigma->setEfficiencyFlag();
     
     double  average, rms, mean, sigma;
     for (size_t ix = 1; ix < nbinx+1; ++ix) {
@@ -212,8 +216,8 @@ void PFClient_JetRes::createEfficiencyPlots(std::string& folder, std::string& na
     dqmStore_->setCurrentFolder(folder);
     me_eff = dqmStore_->book1D("efficiency_"+name,tit_new, nbinx, xmin, xmax); 
 				 
-    double  efficiency;
-    me_eff->Reset();
+    double efficiency;
+    me_eff->Reset(); me_eff->setEfficiencyFlag();
     for (size_t ix = 1; ix < nbinx+1; ++ix) {
       float val1 = me1->getBinContent(ix);
       float val2 = me2->getBinContent(ix);
