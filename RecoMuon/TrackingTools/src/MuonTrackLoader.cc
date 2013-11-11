@@ -41,7 +41,7 @@ using namespace edm;
 using namespace std;
 
 // constructor
-MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, edm::ConsumesCollector&& iC, const MuonServiceProxy *service): 
+MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, edm::ConsumesCollector& iC, const MuonServiceProxy *service): 
   theService(service){
 
 

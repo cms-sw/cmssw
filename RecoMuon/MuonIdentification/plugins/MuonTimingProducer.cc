@@ -49,8 +49,9 @@ MuonTimingProducer::MuonTimingProducer(const edm::ParameterSet& iConfig)
    m_muonCollection = iConfig.getParameter<edm::InputTag>("MuonCollection");
    muonToken_ = consumes<reco::MuonCollection>(m_muonCollection);
    // Load parameters for the TimingFiller
+   edm::ConsumesCollector iC = consumesCollector();
    edm::ParameterSet fillerParameters = iConfig.getParameter<edm::ParameterSet>("TimingFillerParameters");
-   theTimingFiller_ = new MuonTimingFiller(fillerParameters);
+   theTimingFiller_ = new MuonTimingFiller(fillerParameters,iC);
 }
 
 

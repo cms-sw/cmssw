@@ -60,8 +60,8 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   theService = new MuonServiceProxy(serviceParameters);
   
   // instantiate the concrete trajectory builder in the Track Finder
-  MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,consumesCollector(),theService);
-  edm::ConsumesCollector iC = consumesCollector(); 
+  edm::ConsumesCollector iC = consumesCollector();
+  MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,iC,theService);
   GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(trajectoryBuilderParameters, theService,iC);
 
   theTrackFinder = new MuonTrackFinder(gmtb, mtl);
