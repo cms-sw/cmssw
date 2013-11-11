@@ -24,6 +24,8 @@ using namespace edm;
 MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pSet){
   parameters = pSet;
 
+  theDbe = edm::Service<DQMStore>().operator->();
+  
   // the services
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
 
@@ -37,14 +39,14 @@ MuonEnergyDepositAnalyzer::~MuonEnergyDepositAnalyzer() {
 
 
 void MuonEnergyDepositAnalyzer::beginJob(){
-  metname = "muEnergyDepositAnalyzer";
-  
-  theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("Muons/MuonEnergyDepositAnalyzer");
-
+  metname = "muEnergyDepositAnalyzer";  
 }
+
 void MuonEnergyDepositAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
   std::string AlgoName = parameters.getParameter<std::string>("AlgoName");
+
+  theDbe->cd();
+  theDbe->setCurrentFolder("Muons/MuonEnergyDepositAnalyzer");
   
   LogTrace(metname)<<"[MuonEnergyDepositAnalyzer] Parameters initialization";
   LogTrace(metname)<<"[MuonEnergyDepositAnalyzer] Run, Event" << iRun << " , "<< iSetup; 
