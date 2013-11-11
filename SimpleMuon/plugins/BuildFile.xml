@@ -12,6 +12,8 @@
 <use name="GEMCode/SimMuL1"/>
 <use name="DataFormats/CLHEP"/>
 <use name="SimMuon/MCTruth"/>
+<use name="RecoMuon/DetLayers"/>
+<use name="RecoMuon/Records"/>
 <use name="CLHEP"/>
 <use name="root"/>
 <use name="rootminuit"/>

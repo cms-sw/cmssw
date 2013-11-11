@@ -1,4 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-demo = cms.EDAnalyzer('SimpleMuon'
-)
+from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
+
+SimpleMuon = cms.EDAnalyzer('SimpleMuon',
+   strips = cms.PSet()                 
+)    

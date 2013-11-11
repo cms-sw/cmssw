@@ -29,8 +29,11 @@ process.simCsctfTrackDigis.SectorProcessor.isCoreVerbose = cms.bool(True)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
-inputFile = ['file:/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_2_0_SLHC1/src/out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_preTrig2.root']
+#inputFile = ['file:/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_2_0_SLHC1/src/out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_preTrig2.root']
 #inputFile = ['file:/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_2_0_SLHC1/src/out_sim_singleMuPt100Fwdv2.root']
+#inputFile = ['file:/afs/cern.ch/user/d/dildick/out_digi_1_1_QXc.root']
+inputFile = ['file:/afs/cern.ch/user/d/dildick/out_digi_30_1_mZD.root']
+
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
@@ -39,13 +42,23 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.demo = cms.EDAnalyzer('SimpleMuon'
-)
+process.load('GEMCode.SimpleMuon.CfiFile_cfi')
+process.SimpleMuon.strips = process.simMuonCSCDigis.strips
+readout_windows = [ [5,7],[5,7],[5,7],[5,7] ]
+"""
+process.SimpleMuon.minBxALCT = readout_windows[0][0]
+process.SimpleMuon.maxBxALCT = readout_windows[0][1]
+process.SimpleMuon.minBxCLCT = readout_windows[1][0]
+process.SimpleMuon.maxBxCLCT = readout_windows[1][1]
+process.SimpleMuon.minBxLCT = readout_windows[2][0]
+process.SimpleMuon.maxBxLCT = readout_windows[2][1]
+process.SimpleMuon.minBxMPLCT = readout_windows[3][0]
+process.SimpleMuon.maxBxMPLCT = readout_windows[3][1]
+"""
 
 outputFileName = 'output.test.root'
-
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(outputFileName)
 )
 
-process.p = cms.Path(process.demo)
+process.p = cms.Path(process.SimpleMuon)

@@ -54,6 +54,9 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
+#include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
+
+
 //
 // class declaration
 //
@@ -75,7 +78,43 @@ private:
   TrajectoryStateOnSurface propagateSimTrackToZ(const SimTrack*, const SimVertex*, double);
   void matchSimTrack2SimHits(MatchCSCMuL1*, const edm::SimTrackContainer&, 
 			     const edm::SimVertexContainer&, const edm::PSimHitContainer*);
+  std::vector<unsigned> fillSimTrackFamilyIds(unsigned, const edm::SimTrackContainer &, 
+					      const edm::SimVertexContainer &);
+  std::vector<PSimHit> hitsFromSimTrack(std::vector<unsigned>, SimHitAnalysis::PSimHitMap &);
+  std::vector<PSimHit> hitsFromSimTrack(unsigned, SimHitAnalysis::PSimHitMap &);
+  std::vector<PSimHit> hitsFromSimTrack(unsigned, int, SimHitAnalysis::PSimHitMap &);
+  void matchSimTrack2ALCTs(MatchCSCMuL1 *, const edm::PSimHitContainer*, 
+			   const CSCALCTDigiCollection*, const CSCWireDigiCollection*);
+  unsigned matchCSCAnodeHits(const std::vector<CSCAnodeLayerInfo>& , 
+			     std::vector<PSimHit> &); 
+  bool compareSimHits(PSimHit &, PSimHit &);
+  void matchSimTrack2CLCTs( MatchCSCMuL1 *, 
+             const edm::PSimHitContainer* , 
+             const CSCCLCTDigiCollection *, 
+             const CSCComparatorDigiCollection* );
+  unsigned
+  matchCSCCathodeHits(const std::vector<CSCCathodeLayerInfo>& allLayerInfo, 
+		      std::vector<PSimHit> &matchedHit); 
 
+  // fit muon's hits to a 2D linear stub in a chamber :
+  //   wires:   work in 2D plane going through z axis :
+  //     z becomes a new x axis, and new y is perpendicular to it
+  //     (using SimTrack's position point as well when there is <= 2 mu's hits in chamber)
+  // fit a 2D stub from SimHits matched to a digi
+  // set deltas between SimTrack's and Digi's 2D stubs in (Z,R) -> (x,y) plane
+  int calculate2DStubsDeltas(MatchCSCMuL1 *, MatchCSCMuL1::ALCT &);
+
+  // fit muon's hits to a 2D linear stub in a chamber :
+  //   stripes:  work in 2D cylindrical surface :
+  //     z becomes a new x axis, and phi is a new y axis
+  //     (using SimTrack stub with no-bend in phi if there is 1 mu's hit in chamber)
+  // fit a 2D stub from SimHits matched to a digi
+  // set deltas between SimTrack's and Digi's 2D stubs in (Z,Phi) -> (x,y) plane
+  int calculate2DStubsDeltas(MatchCSCMuL1 *match, MatchCSCMuL1::CLCT &clct);
+
+  int getCSCType(const CSCDetId &);
+
+  
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -103,12 +142,82 @@ private:
   int maxBxMPLCT_;
   int minBxGMT_;
   int maxBxGMT_;
-  
+  bool doME1a_;
+  bool goodChambersOnly_;
+  bool gangedME1a;
+
+  bool debugALCT;
+  bool debugCLCT;
+  bool defaultME1a;
+  int minBX_;
+  int maxBX_;
+  int minDeltaWire_;
+  int maxDeltaWire_;
+  int minDeltaYAnode_;
+  int minNHitsShared_;
+  bool matchAllTrigPrimitivesInChamber_;
+  int minDeltaStrip_;
+  int minDeltaYCathode_;
+
+  SimHitAnalysis::PSimHitMap theCSCSimHitMap;
+
+  CSCStripConditions * theStripConditions;
+
+  std::map<unsigned,unsigned> trkId2Index;
+
+  enum trig_cscs {MAX_STATIONS = 4, CSC_TYPES = 10};
+  //Various useful constants
+  static const std::string csc_type[CSC_TYPES+1];
+  static const std::string csc_type_[CSC_TYPES+1];
+  static const std::string csc_type_a[CSC_TYPES+2];
+  static const std::string csc_type_a_[CSC_TYPES+2];
+  static const int NCHAMBERS[CSC_TYPES];
+  static const int MAX_WG[CSC_TYPES];
+  static const int MAX_HS[CSC_TYPES];
+//  static const float ptscale[33];
+  static const int pbend[CSCConstants::NUM_CLCT_PATTERNS];
+
+  enum pt_thresh {N_PT_THRESHOLDS = 6};
+  static const double PT_THRESHOLDS[N_PT_THRESHOLDS];
+  static const double PT_THRESHOLDS_FOR_ETA[N_PT_THRESHOLDS];
+
+  std::vector<MatchCSCMuL1*> matches;
 };
 
 //
 // constants, enums and typedefs
 //
+
+// ================================================================================================
+// class' constants
+//
+const std::string SimpleMuon::csc_type[CSC_TYPES+1] = 
+  { "ME1/1", "ME1/2", "ME1/3", "ME1/a", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2", "ME1/T"};
+const std::string SimpleMuon::csc_type_[CSC_TYPES+1] = 
+  { "ME11", "ME12", "ME13", "ME1A", "ME21", "ME22", "ME31", "ME32", "ME41", "ME42", "ME1T"};
+const std::string SimpleMuon::csc_type_a[CSC_TYPES+2] =
+  { "N/A", "ME1/a", "ME1/b", "ME1/2", "ME1/3", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2", "ME1/T"};
+const std::string SimpleMuon::csc_type_a_[CSC_TYPES+2] =
+  { "NA", "ME1A", "ME1B", "ME12", "ME13", "ME21", "ME22", "ME31", "ME32", "ME41", "ME42", "ME1T"};
+
+const int SimpleMuon::NCHAMBERS[CSC_TYPES] = 
+  { 36,  36,  36,  36, 18,  36,  18,  36,  18,  36};
+
+const int SimpleMuon::MAX_WG[CSC_TYPES] = 
+  { 48,  64,  32,  48, 112, 64,  96,  64,  96,  64};//max. number of wiregroups
+
+const int SimpleMuon::MAX_HS[CSC_TYPES] = 
+  { 128, 160, 128, 96, 160, 160, 160, 160, 160, 160}; // max. # of halfstrips
+
+//const int SimpleMuon::ptype[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07]= 
+//  { -999,  3, -3,  2, -2,  1, -1,  0};  // "signed" pattern (== phiBend)
+const int SimpleMuon::pbend[CSCConstants::NUM_CLCT_PATTERNS]= 
+  { -999,  -5,  4, -4,  3, -3,  2, -2,  1, -1,  0}; // "signed" pattern (== phiBend)
+
+
+const double SimpleMuon::PT_THRESHOLDS[N_PT_THRESHOLDS] = {0,10,20,30,40,50};
+const double SimpleMuon::PT_THRESHOLDS_FOR_ETA[N_PT_THRESHOLDS] = {10,15,30,40,55,70};
+
 
 //
 // static data member definitions
@@ -129,6 +238,24 @@ SimpleMuon::SimpleMuon(const edm::ParameterSet& iConfig)
   maxBxLCT_ = iConfig.getUntrackedParameter< int >("maxBxLCT",7);
   minBxMPLCT_ = iConfig.getUntrackedParameter< int >("minBxMPLCT",5);
   maxBxMPLCT_ = iConfig.getUntrackedParameter< int >("maxBxMPLCT",7);
+
+  doME1a_ = iConfig.getUntrackedParameter< bool >("doME1a",false);
+  goodChambersOnly_ = iConfig.getUntrackedParameter< bool >("goodChambersOnly",false);
+
+  edm::ParameterSet stripPSet = iConfig.getParameter<edm::ParameterSet>("strips");
+  theStripConditions = new CSCDbStripConditions(stripPSet);
+
+  minDeltaWire_    = iConfig.getUntrackedParameter<int>("minDeltaWire", 0);
+  maxDeltaWire_    = iConfig.getUntrackedParameter<int>("maxDeltaWire", 2);
+  minNHitsShared_ = iConfig.getUntrackedParameter<int>("minNHitsShared_", -1);
+  matchAllTrigPrimitivesInChamber_ = iConfig.getUntrackedParameter<bool>("matchAllTrigPrimitivesInChamber", false);
+  minDeltaYAnode_    = iConfig.getUntrackedParameter<double>("minDeltaYAnode", -1.);
+  minBX_    = iConfig.getUntrackedParameter< int >("minBX",-6);
+  maxBX_    = iConfig.getUntrackedParameter< int >("maxBX",6);
+
+  minDeltaYCathode_  = iConfig.getUntrackedParameter<double>("minDeltaYCathode", -1.);
+  minDeltaStrip_   = iConfig.getUntrackedParameter<int>("minDeltaStrip", 1);
+  gangedME1a = iConfig.getUntrackedParameter<bool>("gangedME1a", false);
 
 }
 
@@ -174,7 +301,7 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // ================================================================================================ 
 
-  //                          P A R T I C L E   C O L L E C T I O N S
+  //                                  C O L L E C T I O N S
 
   // ================================================================================================ 
 
@@ -193,16 +320,54 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel("g4SimHits", hSimVertices);
   const edm::SimVertexContainer & simVertices = *(hSimVertices.product());
 
+  // get SimHits
+  theCSCSimHitMap.fill(iEvent);
+
+  edm::Handle< edm::PSimHitContainer > MuonCSCHits;
+  iEvent.getByLabel("g4SimHits", "MuonCSCHits", MuonCSCHits);
+  const edm::PSimHitContainer* allCSCSimHits = MuonCSCHits.product();
+
+  // wire digis
+  edm::Handle< CSCWireDigiCollection >       wireDigis;
+  iEvent.getByLabel("simMuonCSCDigis","MuonCSCWireDigi",       wireDigis);
+  const CSCWireDigiCollection* wiredc = wireDigis.product();
+
+  // strip digis
+  edm::Handle< CSCComparatorDigiCollection > compDigis;
+  iEvent.getByLabel("simMuonCSCDigis","MuonCSCComparatorDigi", compDigis);
+  const CSCComparatorDigiCollection* compdc = compDigis.product();
+
+  // ALCTs 
+  edm::Handle< CSCALCTDigiCollection > halcts;
+  iEvent.getByLabel("simCscTriggerPrimitiveDigis",  halcts);
+  const CSCALCTDigiCollection* alcts = halcts.product();
+
+  // CLCTs
+  edm::Handle< CSCCLCTDigiCollection > hclcts;
+  iEvent.getByLabel("simCscTriggerPrimitiveDigis",  hclcts);
+  const CSCCLCTDigiCollection* clcts = hclcts.product();
+
+  // strip&wire matching output  after TMB  
+  edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_tmb;
+  iEvent.getByLabel("simCscTriggerPrimitiveDigis",  lcts_tmb);
+  const CSCCorrelatedLCTDigiCollection* tmblcts = lcts_tmb.product();
+
+  // strip&wire matching output  after MPC sorting
+  edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_mpc;
+  iEvent.getByLabel("simCscTriggerPrimitiveDigis", "MPCSORTED", lcts_mpc);
+  const CSCCorrelatedLCTDigiCollection* mpclcts = lcts_mpc.product();
+
+  // ================================================================================================ 
+  //
+  //                                 M U O N   S E L E C T I O N 
+  //
   // ================================================================================================ 
 
-  // 
-
-  // ================================================================================================ 
-
-  const bool debug(true);
+  const bool debug(false);
 
   // Select the good generator level muons
   std::vector<const reco::GenParticle *> goodGenMuons;
+  std::cout << "size of candidate gen particles " << cands.size() << std::endl;
   for ( size_t ic = 0; ic < cands.size(); ic++ )
   {
     const reco::GenParticle * cand = &(cands[ic]);
@@ -226,18 +391,21 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   if (debug) std::cout << "Number of generator level muons " << goodGenMuons.size() << std::endl;
 
+  //------------------------------------------------------------------------------------------------
+
   // get the primary vertex for this simtrack collection
-  int no = 1;
-  int primaryVert = -1;
+  int no = 0, primaryVert = -1;
+  trkId2Index.clear();
   for (edm::SimTrackContainer::const_iterator istrk = simTracks.begin(); istrk != simTracks.end(); ++istrk)
   {
     // print out: simtrack number, simtrack id, particle index, (px, py, pz, E), vertex index, generator level index (-1 if no generator level particle) 
-    std::cout<<no<<":\t"<<istrk->trackId()<<" "<<*istrk<<std::endl;
+    //std::cout<<no<<":\t"<<istrk->trackId()<<" "<<*istrk<<std::endl;
     if ( primaryVert == -1 && !(istrk->noVertex()) )
     {
       primaryVert = istrk->vertIndex();
-      std::cout << " -- primary vertex: " << primaryVert << std::endl;
+      //std::cout << " -- primary vertex: " << primaryVert << std::endl;
     }
+    trkId2Index[istrk->trackId()] = no;
     ++no;
   }
   if ( primaryVert == -1 ) 
@@ -246,6 +414,9 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout<<">>> WARNING: NO PRIMARY SIMVERTEX! <<<"<<std::endl; 
     if (simTracks.size()>0) return;
   }
+
+
+  //------------------------------------------------------------------------------------------------
 
   // select the good simulation level muons
   edm::SimTrackContainer goodSimMuons;
@@ -326,12 +497,24 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   */
 
   // ================================================================================================ 
-
-  //                   M A I N    L O O P    O V E R   S I M T R A C K S 
-
+  //
+  //                      M A I N    L O O P    O V E R   S I M T R A C K S 
+  //
   // ================================================================================================ 
+  int nGoodSimTrk = 0;
   for (edm::SimTrackContainer::const_iterator track = goodSimMuons.begin(); track != goodSimMuons.end(); ++track)
   {
+    const double track_pt(track->momentum().pt());
+    const double track_eta(track->momentum().eta());
+
+    // Extra muon selection
+    const bool pt_ok(fabs(track_pt) > 20.);
+    const bool eta_ok(1.2 <= fabs(track_eta) && fabs(track_eta) <= 2.5);
+    //const bool pt_eta_ok(pt_ok && eta_ok);
+
+    if (!pt_ok) continue;
+    if (!eta_ok) continue;
+
     // create a new matching object for this simtrack 
     MatchCSCMuL1 * match = new MatchCSCMuL1(&*track, &(simVertices[track->vertIndex()]), cscGeometry);
     
@@ -351,7 +534,208 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // match SimHits and do some checks
     matchSimTrack2SimHits(match, simTracks, simVertices, allCSCSimHits);
     
+    // match ALCT digis and SimHits;
+    // if there are common SimHits in SimTrack, match to SimTrack
+    matchSimTrack2ALCTs(match, allCSCSimHits, alcts, wiredc);
+
+    matchSimTrack2CLCTs(match, allCSCSimHits, clcts, compdc);
+    
+
+    matches.push_back(match);
+    ++nGoodSimTrk;
   }
+
+  // list the chambers with multiple hits
+  std::vector<int> ch_vecs[5];
+  std::set<int> ch_sets[5];
+  unsigned im=0;
+  for (; im<matches.size() && im<5; im++) {
+    ch_vecs[im] = matches[im]->chambersWithHits();
+    ch_sets[im].insert(ch_vecs[im].begin(), ch_vecs[im].end());
+  }
+  std::set<int> ch_overlap;
+  if (im>1)  
+    set_intersection(ch_sets[0].begin(), ch_sets[0].end(), 
+		     ch_sets[1].begin(), ch_sets[1].end(),
+		     std::inserter(ch_overlap, ch_overlap.begin()));
+  if (debug) std::cout << "Number of simtracks with hits in multiple chambers: " << ch_overlap.size() << std::endl;
+  
+
+  // store the CSC trigger primitives in maps of <detId, collection>
+  std::map<int,std::vector<CSCALCTDigi> > detALCT;
+  detALCT.clear();
+  for (CSCALCTDigiCollection::DigiRangeIterator  adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++)
+  {
+    const CSCDetId& id((*adetUnitIt).first);
+    const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
+    for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    {
+      if ((*digiIt).isValid()) detALCT[id.rawId()].push_back(*digiIt);
+    }
+  } 
+  
+  std::map<int,std::vector<CSCCLCTDigi> > detCLCT;
+  detCLCT.clear();
+  for (CSCCLCTDigiCollection::DigiRangeIterator adetUnitIt = clcts->begin(); adetUnitIt != clcts->end(); adetUnitIt++)
+    {
+    const CSCDetId& id((*adetUnitIt).first);
+    const CSCCLCTDigiCollection::Range& range = (*adetUnitIt).second;
+    for (CSCCLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    {
+      if ((*digiIt).isValid()) detCLCT[id.rawId()].push_back(*digiIt);
+    }
+  } 
+
+  std::map<int,std::vector<CSCCorrelatedLCTDigi> > detTMBLCT;
+  detTMBLCT.clear();
+  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = tmblcts->begin();  detUnitIt != tmblcts->end(); detUnitIt++) 
+  {
+    const CSCDetId& id((*detUnitIt).first);
+    const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
+    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    {
+      if ((*digiIt).isValid()) detTMBLCT[id.rawId()].push_back(*digiIt);
+    }
+  }
+
+  std::map<int,std::vector<CSCCorrelatedLCTDigi> > detMPCLCT;
+  detMPCLCT.clear();
+  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = mpclcts->begin();  detUnitIt != mpclcts->end(); detUnitIt++) 
+  {
+    const CSCDetId& id((*detUnitIt).first);
+    const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
+    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    {
+      if ((*digiIt).isValid()) detMPCLCT[id.rawId()].push_back(*digiIt);
+    }
+  }
+  
+  
+  
+  /*  
+  // ALCTs in the readout 
+  std::vector<MatchCSCMuL1::ALCT> readoutALCTCollection(match->ALCTsInReadOut());
+  std::vector<MatchCSCMuL1::ALCT> goodME1ALCTCollection;
+  if (readoutALCTCollection.size()==0) 
+  {
+    std::cout << "WARNING: ALCT Readout collection is empty" << std::endl;
+    continue;
+  }
+  
+    const MatchCSCMuL1::ALCT* bestALCT(match->bestALCT(detId));
+    if (bestALCT==nullptr)
+      {
+	std::cout << "WARNING: No best ALCT" << std::endl;
+      }
+    
+    
+    for (unsigned i=0; i<readoutALCTCollection.size();i++)
+    {
+      // check if the ALCT is in the readout 
+      if (readoutALCTCollection.at(i).inReadOut()==0) continue;
+      
+      auto myALCT(readoutALCTCollection.at(i));
+      
+      // ALCT info
+      const int bx(myALCT.getBX()-6);
+      const int fullBX(myALCT.trgdigi->getFullBX()-6);
+      const int cscType(getCSCType(myALCT.id));
+//       const bool deltaOk(myALCT.deltaOk);
+//       const int quality(myALCT.trgdigi->getQuality());
+	
+      std::cout << "bx = " << bx << ", fullBX = " << fullBX 
+		<< ", cscType = " << cscType << std::endl;
+
+      if (bx < -1) 
+      {
+	std::cout << "ALCT is out-of-time" << std::endl;
+	// add a section to dump the wiredigis for this ALCT
+      }
+
+      // dump all ALCT information to tree
+    }
+
+    // chambers with ALCTs
+    const std::vector<int> chamberWithALCTs(match->chambersWithALCTs());
+    std::cout << "number of chambers with alcts for this muon " << chamberWithALCTs.size() <<std::endl;
+    for (unsigned ch = 0; ch < chamberWithALCTs.size(); ch++) 
+    {
+      std::cout << "chamberWithALCTs.at(ch) " << chamberWithALCTs.at(ch) << std::endl; 
+      const CSCDetId detId(chamberWithALCTs.at(ch));
+      std::cout << "detid " << detId << std::endl; 
+
+      // get the ALCTs for this chamber
+      const std::vector<MatchCSCMuL1::ALCT> chalcts(match->chamberALCTs(detId));
+      std::cout << "chalcts.size() = " << chalcts.size() << std::endl;
+
+      if (chalcts.size()==0)
+      {
+	std::cout << "INFO: No ALCTs in this chamber for this muon simtrack " << std::endl;
+      }
+
+      if (chalcts.size()!=1)
+      {
+	std::cout << "WARNING: Multiple ALCTs in this chamber for this muon simtrack " << std::endl;
+      }
+      
+      const int cscType(getCSCType(detId));
+      std::cout << "cscType = " << cscType << std::endl;
+      
+      const MatchCSCMuL1::ALCT* bestALCT(match->bestALCT(detId));
+      if (bestALCT==nullptr)
+      {
+	std::cout << "WARNING: No best ALCT" << std::endl;
+      }
+      
+      // if (bestALCT==0) std::cout<<"STRANGE: no best ALCT in chamber with ALCTs"<<std::endl;
+      // if (bestALCT and bestALCT->deltaOk) {
+      // h_bx__alctOkBest_cscdet[ csct ]->Fill( bestALCT->getBX() - 6 );   // useful histogram  
+      // h_wg_vs_bx__alctOkBest_cscdet[ csct ]->
+      //Fill( match->wireGroupAndStripInChamber(chIDs[ch]).first, bestALCT->getBX() - 6);
+      // }
+      // }
+
+      
+    }
+  }
+
+//           int csct = ;
+// 	    h_bx__alct_cscdet[ csct ]->Fill( bx );
+// 	    h_bxf__alct_cscdet[ csct ]->Fill( bxf );
+// 	    h_dbxbxf__alct_cscdet[ csct ]->Fill( bx-bxf );
+// 	    if (rALCTs[i].deltaOk) {
+// 	      h_bx__alctOk_cscdet[ csct ]->Fill( bx );
+// 	      h_bxf__alctOk_cscdet[ csct ]->Fill( bxf );
+// 	      if (debugINHISTOS && bx<-1) {    // method to dumpwire digis in case there is out of time alcts
+// 		std::cout<<" OOW good ALCT: "<<*(rALCTs[i].trgdigi)<<std::endl;
+// 		dumpWireDigis(rALCTs[i].id, wiredc);
+// 	      }
+// 	    }
+// 	    if ( fabs(bx) < fabs(minbx[csct]) ) minbx[csct] = bx;
+// 	    h_qu_alct->Fill(rALCTs[i].trgdigi->getQuality());
+// 	    h_qu_vs_bx__alct->Fill(rALCTs[i].trgdigi->getQuality(), bx);
+// 	  }
+// 	if (pt_ok) for (int i=0; i<CSC_TYPES;i++)
+// 	  if (minbx[i]<99) h_bx_min__alct_cscdet[ i ]->Fill( minbx[i] );
+	
+// 	std::vector<int> chIDs = match->chambersWithALCTs();
+// 	if (pt_ok) h_n_ch_w_alct->Fill(chIDs.size());
+// 	if (pt_ok) 
+// 	  for (size_t ch = 0; ch < chIDs.size(); ch++) 
+// 	  {
+// 	    std::vector<MatchCSCMuL1::ALCT> chalcts = match->chamberALCTs(chIDs[ch]);
+// 	    CSCDetId chId(chIDs[ch]);
+// 	    int csct = getCSCType( chId );
+
+// 	    MatchCSCMuL1::ALCT *bestALCT = match->bestALCT( chId );
+// 	    if (bestALCT==0) std::cout<<"STRANGE: no best ALCT in chamber with ALCTs"<<std::endl;
+// 	    if (bestALCT and bestALCT->deltaOk) {
+// 	      h_bx__alctOkBest_cscdet[ csct ]->Fill( bestALCT->getBX() - 6 );   // useful histogram  
+// 	      h_wg_vs_bx__alctOkBest_cscdet[ csct ]->Fill( match->wireGroupAndStripInChamber(chIDs[ch]).first, bestALCT->getBX() - 6);
+// 	    }
+// 	  }
+
+    
 
 
 
@@ -366,7 +750,7 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //     //   if (minSimTrackDR_<0. && deltaR2Tr > fabs(minSimTrackDR_) ) return true;
 //     //}
 //   }
-
+*/
 
       
 
@@ -459,6 +843,7 @@ SimpleMuon::propagateToCSCStations(MatchCSCMuL1 *match)
 }
 
 // ================================================================================================
+// propagate simtrack to certain Z position
 TrajectoryStateOnSurface
 SimpleMuon::propagateSimTrackToZ(const SimTrack *track, const SimVertex *vtx, double z)
 {
@@ -475,54 +860,857 @@ SimpleMuon::propagateSimTrackToZ(const SimTrack *track, const SimVertex *vtx, do
 
 
 // ================================================================================================
+// Matching of SimHits that were created by SimTrack
 void 
 SimpleMuon::matchSimTrack2SimHits(MatchCSCMuL1 * match, 
 				  const edm::SimTrackContainer & simTracks, 
 				  const edm::SimVertexContainer & simVertices, 
-				  const edm::PSimHitContainer * cscSimHits)
+				  const edm::PSimHitContainer * allCSCSimHits)
 {
-  // Matching of SimHits that were created by SimTrack
-
   // collect all ID of muon SimTrack children
   match->familyIds = fillSimTrackFamilyIds(match->strk->trackId(), simTracks, simVertices);
 
   // match SimHits to SimTracks
-  std::vector<PSimHit> matchingSimHits = hitsFromSimTrack(match->familyIds, theCSCSimHitMap);
-  for (unsigned i=0; i<matchingSimHits.size();i++) {
-    if (goodChambersOnly_)
-      if ( theStripConditions->isInBadChamber( CSCDetId( matchingSimHits[i].detUnitId() ) ) ) continue; // skip 'bad' chamber
+  std::vector<PSimHit> matchingSimHits(hitsFromSimTrack(match->familyIds, theCSCSimHitMap));
+
+  std::cout << "number of matching simhits: " << matchingSimHits.size() << std::endl;
+
+  // add the matching simhits to the matching object
+  for (unsigned i=0; i<matchingSimHits.size();i++) 
+  {
+    // only the good chambers?
+    if (goodChambersOnly_) 
+    {
+      // skip the bad chambers
+      if (theStripConditions->isInBadChamber(CSCDetId(matchingSimHits[i].detUnitId()))) continue;
+    }
     match->addSimHit(matchingSimHits[i]);
   }
 
   // checks
   unsigned stNhist = 0;
-  for (edm::PSimHitContainer::const_iterator hit = allCSCSimHits->begin();  hit != allCSCSimHits->end();  ++hit) 
-    {
-      if (hit->trackId() != match->strk->trackId()) continue;
-      CSCDetId chId(hit->detUnitId());
-      if ( chId.station() == 1 && chId.ring() == 4 && !doME1a_) continue;
-      stNhist++;
-    }
-  if (doStrictSimHitToTrackMatch_ && stNhist != match->simHits.size()) 
-    {
-      std::cout <<" ALARM!!! matchSimTrack2SimHits: stNhist != stHits.size()  ---> "<<stNhist <<" != "<<match->simHits.size()<<std::endl;
-      stNhist = 0;
-      if (debugALLEVENT) for (edm::PSimHitContainer::const_iterator hit = allCSCSimHits->begin();  hit != allCSCSimHits->end();  ++hit) 
-			   if (hit->trackId() == match->strk->trackId()) {
-			     CSCDetId chId(hit->detUnitId());
-			     if ( !(chId.station() == 1 && chId.ring() == 4 && !doME1a_) ) std::cout<<"   "<<chId<<"  "<<(*hit)<<" "<<hit->momentumAtEntry()<<" "<<hit->energyLoss()<<" "<<hit->particleType()<<" "<<hit->trackId()<<std::endl;
-			   }
-    }
+  for (edm::PSimHitContainer::const_iterator hit = allCSCSimHits->begin(); hit != allCSCSimHits->end(); ++hit) 
+  {
+    // track id has to match
+    if (hit->trackId() != match->strk->trackId()) continue;
 
-  if (debugALLEVENT) {
-    std::cout<<"--- SimTrack hits: "<< match->simHits.size()<<std::endl;
-    for (unsigned j=0; j<match->simHits.size(); j++) {
-      PSimHit & sh = (match->simHits)[j];
-      std::cout<<"   "<<sh<<" "<<sh.exitPoint()<<"  "<<sh.momentumAtEntry()<<" "<<sh.energyLoss()<<" "<<sh.particleType()<<" "<<sh.trackId()<<std::endl;
-    }
+    // select only certain regions of CSC
+    const CSCDetId chId(hit->detUnitId());
+    if ( chId.station() == 1 && chId.ring() == 4 && !doME1a_) continue;
+    
+    stNhist++;
   }
+  if (doStrictSimHitToTrackMatch_ && stNhist != match->simHits.size()) 
+  {
+    std::cout <<" ALARM!!! matchSimTrack2SimHits: stNhist != stHits.size()  ---> "<<stNhist <<" != "<<match->simHits.size()<<std::endl;
+    //    stNhist = 0;
+//     if (debugALLEVENT) 
+//       for (edm::PSimHitContainer::const_iterator hit = allCSCSimHits->begin();  hit != allCSCSimHits->end();  ++hit) 
+// 	if (hit->trackId() == match->strk->trackId()) 
+// 	  {
+// 	    CSCDetId chId(hit->detUnitId());
+// 	    if ( !(chId.station() == 1 && chId.ring() == 4 && !doME1a_) ) 
+// 	      std::cout<<"   "<<chId<<"  "<<(*hit)<<" "<<hit->momentumAtEntry()<<" "<<hit->energyLoss()<<" "<<hit->particleType()<<" "<<hit->trackId()<<std::endl;
+// 	  }
+  }
+  
 }
 
+
+// ================================================================================================
+/*
+ * Get the family of child tracks belonging to this track
+ *
+ * @param id            Track Id of the parent track
+ * @param simTracks     The tracks
+ * @param simVertices   The vertices
+ * @return              The vector with track ids of the child tracks
+ *
+ */
+std::vector<unsigned> 
+SimpleMuon::fillSimTrackFamilyIds(unsigned id, const edm::SimTrackContainer & simTracks, 
+				  const edm::SimVertexContainer & simVertices)
+{
+  const bool debug = true;
+
+  std::vector<unsigned> result;
+  result.push_back(id);
+
+  if (doStrictSimHitToTrackMatch_) return result;
+  
+  // get all children for this simtrack
+  for (edm::SimTrackContainer::const_iterator track = simTracks.begin(); track != simTracks.end(); ++track)
+  {
+    SimTrack lastTr = *track;
+    bool ischild = 0;
+
+    // keep looping until all children are found
+    while (1)
+    {
+      // track has no vertex
+      if (lastTr.noVertex()) break;
+      
+      // track vertex has no parent
+      if (simVertices[lastTr.vertIndex()].noParent()) break;
+      
+      // get the parent id for the good track
+      const unsigned parentId(simVertices[lastTr.vertIndex()].parentIndex());
+      if (parentId == id) 
+      {
+	ischild = 1; 
+	break; 
+      }
+      
+      // find the location of the parent track  
+      std::map<unsigned, unsigned >::iterator association(trkId2Index.find(parentId));
+
+      // track not in trkId2Index
+      if (association == trkId2Index.end()) break;
+      
+      lastTr = simTracks[association->second];
+    }
+    // add the track if it is a child
+    if (ischild) result.push_back(track->trackId());
+  }
+
+  if (debug) std::cout<<"  --- family size = " << result.size() <<std::endl;
+  return result;
+}
+
+
+// ================================================================================================
+std::vector<PSimHit> 
+SimpleMuon::hitsFromSimTrack(std::vector<unsigned> ids, SimHitAnalysis::PSimHitMap &hitMap)
+{
+  std::vector<PSimHit> result;
+  for (size_t id = 0; id < ids.size(); ++id)
+  {
+    const std::vector<PSimHit> resultd(hitsFromSimTrack(ids[id], hitMap));
+    result.insert(result.end(), resultd.begin(), resultd.end());
+  }
+  return result;
+}
+
+
+// ================================================================================================
+std::vector<PSimHit> 
+SimpleMuon::hitsFromSimTrack(unsigned id, SimHitAnalysis::PSimHitMap &hitMap)
+{
+  std::vector<PSimHit> result;
+  const std::vector<int> detIds(hitMap.detsWithHits());
+
+  for (size_t di = 0; di < detIds.size(); ++di)
+  {
+    const std::vector<PSimHit> resultd(hitsFromSimTrack(id, detIds[di], hitMap));
+    result.insert(result.end(), resultd.begin(), resultd.end());
+  }
+  return result;
+}
+
+
+// ================================================================================================
+std::vector<PSimHit> 
+SimpleMuon::hitsFromSimTrack(unsigned id, int detId, SimHitAnalysis::PSimHitMap &hitMap)
+{
+  std::vector<PSimHit> result;
+
+  const CSCDetId chId(detId);
+  if ( chId.station() == 1 && chId.ring() == 4 && !doME1a_) return result;
+
+  // get the simhits for this detId
+  const edm::PSimHitContainer hits(hitMap.hits(detId));
+  
+  for(size_t h = 0; h< hits.size(); ++h) 
+  {
+    // add all simhits for which the track id corresponds to the required track id
+    if(hits[h].trackId() == id)
+    {
+      result.push_back(hits[h]);
+    }
+  }
+  return result;
+}
+
+
+// ================================================================================================
+void
+SimpleMuon::matchSimTrack2ALCTs(MatchCSCMuL1 *match, 
+				const edm::PSimHitContainer* allCSCSimHits, 
+				const CSCALCTDigiCollection *alcts, 
+				const CSCWireDigiCollection* wiredc )
+{
+  // tool for matching SimHits to ALCTs
+  //CSCAnodeLCTAnalyzer alct_analyzer;
+  //alct_analyzer.setDebug();
+  //alct_analyzer.setGeometry(cscGeometry);
+
+  if (debugALCT) std::cout<<"--- ALCT-SimHits ---- begin for trk "<<match->strk->trackId()<<std::endl;
+  
+  // map < detId, ALCTCollection > 
+  std::map<int, std::vector<CSCALCTDigi> > checkNALCT;
+  checkNALCT.clear();
+
+  match->ALCTs.clear();
+  for (CSCALCTDigiCollection::DigiRangeIterator adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++)
+  {
+    const CSCDetId& id = (*adetUnitIt).first;
+    const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
+    int nm=0;
+    
+    //if (id.station()==1&&id.ring()==2) debugALCT=1;
+    // ME1/a has ring number 4???
+    CSCDetId id1a(id.endcap(),id.station(),4,id.chamber(),0);
+    
+    for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    {
+     checkNALCT[id.rawId()].push_back(*digiIt);
+     nm++;
+     
+     // ALCT is not valid
+     if (!(*digiIt).isValid()) continue;
+     
+     // how to perform the matching?
+     const bool me1a_all(defaultME1a && id.station()==1 && id.ring()==1 && (*digiIt).getKeyWG() <= 15);
+     const bool me1a_no_overlap(me1a_all && (*digiIt).getKeyWG() < 10);
+     
+     std::vector<PSimHit> trackHitsInChamber = match->chamberHits(id.rawId());
+     std::vector<PSimHit> trackHitsInChamber1a;
+     if (me1a_all) trackHitsInChamber1a = match->chamberHits(id1a.rawId());
+     
+     // no point to do any matching here
+     if (trackHitsInChamber.size() + trackHitsInChamber1a.size() == 0 )
+     {
+       if (debugALCT) std::cout<<"raw ID "<<id.rawId()<<" "<<id<<"  #"<<nm<<"   no SimHits in chamber from this SimTrack!"<<std::endl;
+       continue;
+     }
+     
+     // ALCT BX is not valid
+     if ( (*digiIt).getBX()-6 < minBX_ || (*digiIt).getBX()-6 > maxBX_ )
+     {
+       if (debugALCT) std::cout<<"discarding BX = "<< (*digiIt).getBX()-6 <<std::endl;
+       continue;
+     }
+     
+     std::vector<CSCAnodeLayerInfo> alctInfo;
+     //std::vector<CSCAnodeLayerInfo> alctInfo = alct_analyzer.getSimInfo(*digiIt, id, wiredc, allCSCSimHits);
+     std::vector<PSimHit> matchedHits;
+     unsigned nmhits = matchCSCAnodeHits(alctInfo, matchedHits);
+     
+     MatchCSCMuL1::ALCT malct(match);
+     malct.trgdigi = &*digiIt;
+     malct.layerInfo = alctInfo;
+     malct.simHits = matchedHits;
+     malct.id = id;
+     malct.nHitsShared = 0;
+     calculate2DStubsDeltas(match, malct);
+     malct.deltaOk = (minDeltaWire_ <= malct.deltaWire) & (malct.deltaWire <= maxDeltaWire_);
+     
+     std::vector<CSCAnodeLayerInfo> alctInfo1a;
+     std::vector<PSimHit> matchedHits1a;
+     unsigned nmhits1a = 0;
+     
+     MatchCSCMuL1::ALCT malct1a(match);
+     if (me1a_all) {
+       //alctInfo1a = alct_analyzer.getSimInfo(*digiIt, id1a, wiredc, allCSCSimHits);
+       nmhits1a = matchCSCAnodeHits(alctInfo, matchedHits1a);
+       
+       malct1a.trgdigi = &*digiIt;
+       malct1a.layerInfo = alctInfo1a;
+       malct1a.simHits = matchedHits1a;
+       malct1a.id = id1a;
+       malct1a.nHitsShared = 0;
+       calculate2DStubsDeltas(match, malct1a);
+       malct1a.deltaOk = (minDeltaWire_ <= malct1a.deltaWire) & (malct1a.deltaWire <= maxDeltaWire_);
+     }
+     
+     if (debugALCT) std::cout<<"raw ID "<<id.rawId()<<" "<<id<<"  #"<<nm<<"    NTrackHitsInChamber  nmhits  alctInfo.size  diff  "
+			     <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<alctInfo.size()<<"  "
+			     << nmhits-alctInfo.size() <<std::endl
+			     << "  "<<(*digiIt)<<"  DW="<<malct.deltaWire<<" eta="<<malct.eta;
+     
+     if (nmhits + nmhits1a > 0)
+     {
+       //if (debugALCT) std::cout<<"  --- matched to ALCT hits: "<<std::endl;
+       
+       int nHitsMatch = 0;
+       for (unsigned i=0; i<nmhits;i++)
+	 {
+	   //if (debugALCT) std::cout<<"   "<<matchedHits[i]<<" "<<matchedHits[i].exitPoint()<<"  "
+	   //                   <<matchedHits[i].momentumAtEntry()<<" "<<matchedHits[i].energyLoss()<<" "
+	   //                   <<matchedHits[i].particleType()<<" "<<matchedHits[i].trackId();
+	   //bool wasmatch = 0;
+	   for (unsigned j=0; j<trackHitsInChamber.size(); j++)
+	     if ( compareSimHits ( matchedHits[i], trackHitsInChamber[j] ) )
+	       {
+		 nHitsMatch++;
+		 //wasmatch = 1;
+	       }
+	   //if (debugALCT)  {if (wasmatch) std::cout<<" --> match!"<<std::endl;  else std::cout<<std::endl;}
+	 }
+       malct.nHitsShared = nHitsMatch;
+       if( me1a_all ) {
+	 nHitsMatch = 0;
+	 for (unsigned i=0; i<nmhits1a;i++) {
+	   //bool wasmatch = 0;
+	   for (unsigned j=0; j<trackHitsInChamber1a.size(); j++)
+	     if ( compareSimHits ( matchedHits1a[i], trackHitsInChamber1a[j] ) )
+	       {
+		 nHitsMatch++;
+		 //wasmatch = 1;
+	       }
+	 }
+	 malct1a.nHitsShared = nHitsMatch;
+       }
+     }
+     else if (debugALCT) std::cout<< "  +++ ALCT warning: no simhits for its digi found!\n";
+     
+     if (debugALCT) std::cout<<"  nHitsShared="<<malct.nHitsShared<<std::endl;
+     
+     if(matchAllTrigPrimitivesInChamber_)
+       {
+	 // if specified, try DY match
+	 bool dymatch = 0;
+	 if ( fabs(malct.deltaY)<= minDeltaYAnode_ )
+	   {
+	     if (debugALCT)  for (unsigned i=0; i<trackHitsInChamber.size();i++)
+	       std::cout<<"   DY match: "<<trackHitsInChamber[i]<<" "<<trackHitsInChamber[i].exitPoint()<<"  "
+			<<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
+			<<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
+	     
+	     if (!me1a_no_overlap) match->ALCTs.push_back(malct);
+	     dymatch = true;
+	   }
+	 if ( me1a_all && fabs(malct1a.deltaY)<= minDeltaYAnode_) {
+	   if (!me1a_no_overlap) match->ALCTs.push_back(malct1a);
+	   dymatch = true;
+	 }
+	 if (dymatch) continue;
+	 
+	 // whole chamber match
+	 if ( minDeltaYAnode_ < 0  )
+	   {
+	     if (debugALCT)  for (unsigned i=0; i<trackHitsInChamber.size();i++)
+	       std::cout<<"   chamber match: "<<trackHitsInChamber[i]<<" "<<trackHitsInChamber[i].exitPoint()<<"  "
+			<<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
+			<<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
+	     
+	     if (!me1a_no_overlap) match->ALCTs.push_back(malct);
+	     if (me1a_all) match->ALCTs.push_back(malct1a);
+	     continue;
+	   }
+	 continue;
+       }
+     
+     // else proceed with hit2hit matching:
+     if (minNHitsShared_>=0)
+       {
+	 if (!me1a_no_overlap && malct.nHitsShared >= minNHitsShared_) {
+	   if (debugALCT)  std::cout<<" --> shared hits match!"<<std::endl;
+	   match->ALCTs.push_back(malct);
+	 }
+	 if (me1a_all && malct1a.nHitsShared >= minNHitsShared_) {
+	   if (debugALCT)  std::cout<<" --> shared hits match!"<<std::endl;
+	   match->ALCTs.push_back(malct);
+	 }
+       }
+     
+     // else proceed with deltaWire matching:
+     if (!me1a_no_overlap && minDeltaWire_ <= malct.deltaWire && malct.deltaWire <= maxDeltaWire_){
+       if (debugALCT)  std::cout<<" --> deltaWire match!"<<std::endl;
+       match->ALCTs.push_back(malct);
+     }
+     
+     // special case of default emulator with puts all ME11 alcts into ME1b
+     // only for deltaWire matching!
+     if (me1a_all && minDeltaWire_ <= malct1a.deltaWire && malct1a.deltaWire <= maxDeltaWire_){
+       if (debugALCT)  std::cout<<" --> deltaWire match!"<<std::endl;
+       match->ALCTs.push_back(malct);
+     }
+    }
+    //debugALCT=0;
+  } // loop CSCALCTDigiCollection
+  
+  if (debugALCT) for(std::map<int, std::vector<CSCALCTDigi> >::const_iterator mapItr = checkNALCT.begin(); mapItr != checkNALCT.end(); ++mapItr)
+    if (mapItr->second.size()>2) {
+      CSCDetId idd(mapItr->first);
+      std::cout<<"~~~~ checkNALCT WARNING! nALCT = "<<mapItr->second.size()<<" in ch "<< mapItr->first<<" "<<idd<<std::endl;
+      for (unsigned i=0; i<mapItr->second.size();i++) std::cout<<"~~~~~~ ALCT "<<i<<" "<<(mapItr->second)[i]<<std::endl;
+    }
+  
+  if (debugALCT) std::cout<<"--- ALCT-SimHits ---- end"<<std::endl;
+}
+
+
+// ================================================================================================
+unsigned
+SimpleMuon::matchCSCAnodeHits(const std::vector<CSCAnodeLayerInfo>& allLayerInfo, 
+			      std::vector<PSimHit> &matchedHit) 
+{
+  // Match Anode hits in a chamber to SimHits
+
+  // It first tries to look for the SimHit in the key layer.  If it is
+  // unsuccessful, it loops over all layers and looks for an associated
+  // hits in any one of the layers.  
+
+  //  int fdebug = 0;
+
+  int nhits=0;
+  matchedHit.clear();
+  
+  std::vector<CSCAnodeLayerInfo>::const_iterator pli;
+  for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) 
+  {
+    // For ALCT search, the key layer is the 3rd one, counting from 1.
+    if (pli->getId().layer() == CSCConstants::KEY_ALCT_LAYER) 
+    {
+      std::vector<PSimHit> thisLayerHits = pli->getSimHits();
+      if (thisLayerHits.size() > 0) 
+      {
+	// There can be only one RecDigi (and therefore only one SimHit) in a key layer.
+	if (thisLayerHits.size() != 1) 
+	{
+	  std::cout<< "+++ Warning in matchCSCAnodeHits: " << thisLayerHits.size()
+		   << " SimHits in key layer " << CSCConstants::KEY_ALCT_LAYER
+		   << "! +++ \n";
+	  for (unsigned i = 0; i < thisLayerHits.size(); i++) 
+	    std::cout<<"      SimHit # " << i <<": "<< thisLayerHits[i] << "\n";
+	}
+	matchedHit.push_back(thisLayerHits[0]);
+	nhits++;
+	break;
+      }
+    }
+  }
+  
+  for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) 
+    {
+      if (pli->getId().layer() == CSCConstants::KEY_ALCT_LAYER)  continue;
+    
+      // if there is any occurrence of simHit size greater that zero, use this.
+      if ((pli->getRecDigis()).size() > 0 && (pli->getSimHits()).size() > 0) 
+	{
+	  std::vector<PSimHit> thisLayerHits = pli->getSimHits();
+	  // There can be several RecDigis and several SimHits in a nonkey layer.
+	  //if (thisLayerHits.size() != 1) 
+	  //{
+	  //  std::cout<< "+++ Warning in matchCSCAnodeHits: " << thisLayerHits.size()
+	  //      << " SimHits in layer " << pli->getId().layer() <<" detID "<<pli->getId().rawId()
+	  //      << "! +++ \n";
+	  //  for (unsigned i = 0; i < thisLayerHits.size(); i++)
+	  //    std::cout<<"   "<<thisLayerHits[i]<<" "<<thisLayerHits[i].exitPoint()<<"  "<<thisLayerHits[i].momentumAtEntry()
+	  //        <<" "<<thisLayerHits[i].energyLoss()<<" "<<thisLayerHits[i].particleType()<<" "<<thisLayerHits[i].trackId()<<std::endl;
+	  //}
+	  matchedHit.insert(matchedHit.end(), thisLayerHits.begin(), thisLayerHits.end());
+	  nhits += thisLayerHits.size();
+	}
+    }
+  
+  return nhits;
+}
+
+
+// ================================================================================================
+bool 
+SimpleMuon::compareSimHits(PSimHit &sh1, PSimHit &sh2)
+{
+  int fdebug = 0;
+
+  if (fdebug && sh1.detUnitId() == sh2.detUnitId())  {
+    std::cout<<" compare hits in "<<sh1.detUnitId()<<": "<<std::endl;
+
+    std::cout<<"   "<<sh1<<" "<<sh1.exitPoint()<<" "<<sh1.momentumAtEntry()<<" "<<sh1.energyLoss()
+	     <<" "<<sh1.particleType()<<" "<<sh1.trackId()<<" |"<<sh1.entryPoint().mag()<<" "
+	     <<sh1.exitPoint().mag()<<" "<<sh1.momentumAtEntry().mag()<<std::endl;
+
+    std::cout<<"   "<<sh2<<" "<<sh2.exitPoint()<<" "<<sh2.momentumAtEntry()<<" "<<sh2.energyLoss()
+	     <<" "<<sh2.particleType()<<" "<<sh2.trackId()<<" |"<<sh2.entryPoint().mag()<<" "
+	     <<sh2.exitPoint().mag()<<" "<<sh2.momentumAtEntry().mag()<<std::endl;
+
+  }
+  bool returnValue = true;
+  if (sh1.detUnitId() != sh2.detUnitId()) returnValue = false;
+  if (sh1.trackId() != sh2.trackId()) returnValue = false;
+  if (sh1.particleType() != sh2.particleType()) returnValue = false;
+  if (sh1.entryPoint().mag() != sh2.entryPoint().mag()) {
+    //std::cout<<"  !!ent "<< sh1.entryPoint().mag() - sh2.entryPoint().mag()<<std::endl;
+    returnValue = false;
+  }
+  if (sh1.exitPoint().mag() != sh2.exitPoint().mag()) {
+    //std::cout<<"  !!exi "<< sh1.exitPoint().mag() - sh2.exitPoint().mag()<<std::endl;
+    returnValue = false;
+  }
+  if (fabs(sh1. momentumAtEntry().mag() - sh2. momentumAtEntry().mag() ) > 0.0001) {
+    //std::cout<<"  !!mom "<< sh1.momentumAtEntry().mag() - sh2.momentumAtEntry().mag()<<std::endl;
+    returnValue = false;
+  }
+  if (sh1.tof() != sh2.tof()){
+    //std::cout<<" !!tof "<<sh1.tof()-sh2.tof()<<std::endl;
+    returnValue = false;
+  }
+  if (sh1.energyLoss() != sh2.energyLoss()) {
+    //std::cout<<"  !!los "<<sh1.energyLoss() - sh2.energyLoss() <<std::endl;
+    returnValue = false;
+  }
+  return returnValue;
+}
+
+
+// ================================================================================================
+int 
+SimpleMuon::calculate2DStubsDeltas(MatchCSCMuL1 *match, MatchCSCMuL1::ALCT &alct)
+{
+  //** fit muon's hits to a 2D linear stub in a chamber :
+  //   wires:   work in 2D plane going through z axis :
+  //     z becomes a new x axis, and new y is perpendicular to it
+  //    (using SimTrack's position point as well when there is <= 2 mu's hits in chamber)
+
+  int fdebug = 0;
+
+  alct.deltaPhi = M_PI;
+  alct.deltaY = 9999.;
+  
+  const CSCDetId keyID(alct.id.rawId()+CSCConstants::KEY_ALCT_LAYER);
+  const CSCLayer* csclayer(cscGeometry->layer(keyID));
+  //int hitWireG = csclayer->geometry()->wireGroup(csclayer->geometry()->nearestWire(cLP));
+  const int hitWireG(match->wireGroupAndStripInChamber(alct.id.rawId()).first);
+  if (hitWireG<0) return 1;
+
+  alct.deltaWire = hitWireG - alct.trgdigi->getKeyWG() - 1;
+  alct.mcWG = hitWireG;
+
+  const GlobalPoint gpcwg(csclayer->centerOfWireGroup( alct.trgdigi->getKeyWG()+1));
+  const math::XYZVectorD vcwg(gpcwg.x(), gpcwg.y(), gpcwg.z());
+  alct.eta = vcwg.eta();
+
+  if (fdebug) std::cout<<"    hitWireG = "<<hitWireG<<"    alct.KeyWG = "<<alct.trgdigi->getKeyWG()<<"    deltaWire = "<<alct.deltaWire<<std::endl;
+
+  return 0;
+}
+
+// ================================================================================================
+// Returns chamber type (0-9) according to the station and ring number
+int 
+SimpleMuon::getCSCType(const CSCDetId &id) 
+{
+  int type = -999;
+
+  if (id.station() == 1) 
+  {
+    type = (id.triggerCscId()-1)/3;
+    if (id.ring() == 4) 
+    {
+      type = 3;
+    }
+  }
+  else 
+  { 
+    // stations 2-4
+    type = 3 + id.ring() + 2*(id.station()-2);
+  }
+  assert(type >= 0 && type < CSC_TYPES); // include ME4/2
+  return type;
+}
+
+
+// ================================================================================================
+void
+SimpleMuon::matchSimTrack2CLCTs(MatchCSCMuL1 *match, 
+				const edm::PSimHitContainer* allCSCSimHits, 
+				const CSCCLCTDigiCollection *clcts, 
+				const CSCComparatorDigiCollection* compdc )
+{
+  // tool for matching SimHits to CLCTs
+  //CSCCathodeLCTAnalyzer clct_analyzer;
+  //clct_analyzer.setDebug();
+  //clct_analyzer.setGeometry(cscGeometry);
+
+  if (debugCLCT) std::cout<<"--- CLCT-SimHits ---- begin for trk "<<match->strk->trackId()<<std::endl;
+  //static const int key_layer = 4; //CSCConstants::KEY_CLCT_LAYER
+
+  std::map<int, std::vector<CSCCLCTDigi> > checkNCLCT;
+  checkNCLCT.clear();
+  
+  match->CLCTs.clear();
+  for (CSCCLCTDigiCollection::DigiRangeIterator  cdetUnitIt = clcts->begin(); 
+       cdetUnitIt != clcts->end(); cdetUnitIt++)
+    {
+      const CSCDetId& id = (*cdetUnitIt).first;
+      const CSCCLCTDigiCollection::Range& range = (*cdetUnitIt).second;
+      int nm=0;
+      CSCDetId cid = id;
+
+      //if (id.station()==1&&id.ring()==2) debugCLCT=1;
+
+      for (CSCCLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+	{
+	  checkNCLCT[id.rawId()].push_back(*digiIt);
+	  nm++;
+      
+	  if (!(*digiIt).isValid()) continue;
+
+	  bool me1a_case = (defaultME1a && id.station()==1 && id.ring()==1 && (*digiIt).getKeyStrip() > 127);
+	  if (me1a_case){
+	    CSCDetId id1a(id.endcap(),id.station(),4,id.chamber(),0);
+	    cid = id1a;
+	  }
+
+	  std::vector<PSimHit> trackHitsInChamber = match->chamberHits(cid.rawId());
+
+	  if (trackHitsInChamber.size()==0) // no point to do any matching here
+	    {
+	      if (debugCLCT) std::cout<<"raw ID "<<cid.rawId()<<" "<<cid<<"  #"<<nm<<"   no SimHits in chamber from this SimTrack!"<<std::endl;
+	      continue;
+	    }
+
+	  if ( (*digiIt).getBX()-5 < minBX_ || (*digiIt).getBX()-7 > maxBX_ )
+	    {
+	      if (debugCLCT) std::cout<<"discarding BX = "<< (*digiIt).getBX()-6 <<std::endl;
+	      continue;
+	    }
+
+	  // don't use it anymore: replace with a dummy
+	  std::vector<CSCCathodeLayerInfo> clctInfo;
+	  //std::vector<CSCCathodeLayerInfo> clctInfo = clct_analyzer.getSimInfo(*digiIt, cid, compdc, allCSCSimHits);
+
+	  std::vector<PSimHit> matchedHits;
+	  unsigned nmhits = matchCSCCathodeHits(clctInfo, matchedHits);
+
+	  MatchCSCMuL1::CLCT mclct(match);
+	  mclct.trgdigi = &*digiIt;
+	  mclct.layerInfo = clctInfo;
+	  mclct.simHits = matchedHits;
+	  mclct.id = cid;
+	  mclct.nHitsShared = 0;
+	  calculate2DStubsDeltas(match, mclct);
+	  mclct.deltaOk = (abs(mclct.deltaStrip) <= minDeltaStrip_);
+
+	  if (debugCLCT) std::cout<<"raw ID "<<cid.rawId()<<" "<<cid<<"  #"<<nm<<"    NTrackHitsInChamber  nmhits  clctInfo.size  diff  "
+			     <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<clctInfo.size()<<"  "
+			     << nmhits-clctInfo.size() <<std::endl
+			     << "  "<<(*digiIt)<<"  DS="<<mclct.deltaStrip<<" phi="<<mclct.phi;
+
+	  if (nmhits > 0)
+	    {
+	      //if (debugCLCT) std::cout<<"  --- matched to CLCT hits: "<<std::endl;
+
+	      int nHitsMatch = 0;
+	      for (unsigned i=0; i<nmhits;i++)
+		{
+		  //if (debugCLCT) std::cout<<"   "<<matchedHits[i]<<" "<<matchedHits[i].exitPoint()<<"  "
+		  //                   <<matchedHits[i].momentumAtEntry()<<" "<<matchedHits[i].energyLoss()<<" "
+		  //                   <<matchedHits[i].particleType()<<" "<<matchedHits[i].trackId();
+		  //bool wasmatch = 0;
+		  for (unsigned j=0; j<trackHitsInChamber.size(); j++)
+		    if ( compareSimHits ( matchedHits[i], trackHitsInChamber[j] ) )
+		      {
+			nHitsMatch++;
+			//wasmatch = 1;
+		      }
+		  //if (debugCLCT)  {if (wasmatch) std::cout<<" --> match!"<<std::endl;  else std::cout<<std::endl;}
+		}
+	      mclct.nHitsShared = nHitsMatch;
+	    }
+	  else if (debugCLCT) std::cout<< "  +++ CLCT warning: no simhits for its digi found!\n";
+
+	  if (debugCLCT) std::cout<<"  nHitsShared="<<mclct.nHitsShared<<std::endl;
+
+	  if(matchAllTrigPrimitivesInChamber_)
+	    {
+	      if ( fabs(mclct.deltaY)<= minDeltaYCathode_)
+		{
+		  if (debugCLCT)  for (unsigned i=0; i<trackHitsInChamber.size();i++)
+				    std::cout<<"   DY match: "<<trackHitsInChamber[i]<<" "<<trackHitsInChamber[i].exitPoint()<<"  "
+					<<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
+					<<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
+  
+		  match->CLCTs.push_back(mclct);
+		  continue;
+		}
+	      if ( minDeltaYCathode_ < 0  )
+		{
+		  if (debugCLCT)  for (unsigned i=0; i<trackHitsInChamber.size();i++)
+				    std::cout<<"   chamber match: "<<trackHitsInChamber[i]<<" "<<trackHitsInChamber[i].exitPoint()<<"  "
+					<<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
+					<<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
+  
+		  match->CLCTs.push_back(mclct);
+		  continue;
+		}
+	      continue;
+	    }
+	  // else proceed with hit2hit matching:
+ 
+	  if (mclct.nHitsShared >= minNHitsShared_) {
+	    if (debugCLCT)  std::cout<<" --> shared hits match!"<<std::endl;
+	    match->CLCTs.push_back(mclct);
+	  }
+
+	  // else proceed with hit2hit matching:
+	  if (minNHitsShared_>=0)
+	    {
+	      if (mclct.nHitsShared >= minNHitsShared_) {
+		if (debugCLCT)  std::cout<<" --> shared hits match!"<<std::endl;
+		match->CLCTs.push_back(mclct);
+	      }
+	    }
+
+	  // else proceed with deltaStrip matching:
+	  if (abs(mclct.deltaStrip) <= minDeltaStrip_) {
+	    if (debugCLCT)  std::cout<<" --> deltaStrip match!"<<std::endl;
+	    match->CLCTs.push_back(mclct);
+	  }
+	}
+      //debugCLCT=0;
+
+    } // loop CSCCLCTDigiCollection
+
+  if (debugCLCT) for(std::map<int, std::vector<CSCCLCTDigi> >::const_iterator mapItr = checkNCLCT.begin(); mapItr != checkNCLCT.end(); ++mapItr)
+		   if (mapItr->second.size()>2) {
+		     CSCDetId idd(mapItr->first);
+		     std::cout<<"~~~~ checkNCLCT WARNING! nCLCT = "<<mapItr->second.size()<<" in ch "<< mapItr->first<<" "<<idd<<std::endl;
+		     for (unsigned i=0; i<mapItr->second.size();i++) std::cout<<"~~~~~~ CLCT "<<i<<" "<<(mapItr->second)[i]<<std::endl;
+		   }
+  
+  if (debugCLCT) std::cout<<"--- CLCT-SimHits ---- end"<<std::endl;
+}
+
+
+// ================================================================================================
+unsigned
+SimpleMuon::matchCSCCathodeHits(const std::vector<CSCCathodeLayerInfo>& allLayerInfo, 
+				std::vector<PSimHit> &matchedHit) 
+{
+  // It first tries to look for the SimHit in the key layer.  If it is
+  // unsuccessful, it loops over all layers and looks for an associated
+  // hits in any one of the layers.  
+
+  //  int fdebug = 0;
+
+  //  static const int key_layer = 4; //CSCConstants::KEY_CLCT_LAYER
+  static const int key_layer = CSCConstants::KEY_CLCT_LAYER;
+ 
+  int nhits=0;
+  matchedHit.clear();
+  
+  std::vector<CSCCathodeLayerInfo>::const_iterator pli;
+  for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) 
+    {
+      // For ALCT search, the key layer is the 3rd one, counting from 1.
+      if (pli->getId().layer() == key_layer) 
+	{
+	  std::vector<PSimHit> thisLayerHits = pli->getSimHits();
+	  if (thisLayerHits.size() > 0) 
+	    {
+	      // There can be only one RecDigi (and therefore only one SimHit) in a key layer.
+	      if (thisLayerHits.size() != 1) 
+		{
+		  std::cout<< "+++ Warning in matchCSCCathodeHits: " << thisLayerHits.size()
+		      << " SimHits in key layer " << key_layer
+		      << "! +++ \n";
+		  for (unsigned i = 0; i < thisLayerHits.size(); i++) 
+		    std::cout<<"      SimHit # " << i <<": "<< thisLayerHits[i] << "\n";
+		}
+	      matchedHit.push_back(thisLayerHits[0]);
+	      nhits++;
+	      break;
+	    }
+	}
+    }
+
+  for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) 
+    {
+      if (pli->getId().layer() == key_layer)  continue;
+    
+      // if there is any occurrence of simHit size greater that zero, use this.
+      if ((pli->getRecDigis()).size() > 0 && (pli->getSimHits()).size() > 0) 
+	{
+	  std::vector<PSimHit> thisLayerHits = pli->getSimHits();
+	  // There can be several RecDigis and several SimHits in a nonkey layer.
+	  //if (thisLayerHits.size() != 1) 
+	  //{
+	  //  std::cout<< "+++ Warning in matchCSCCathodeHits: " << thisLayerHits.size()
+	  //      << " SimHits in layer " << pli->getId().layer() <<" detID "<<pli->getId().rawId()
+	  //      << "! +++ \n";
+	  //  for (unsigned i = 0; i < thisLayerHits.size(); i++)
+	  //    std::cout<<"   "<<thisLayerHits[i]<<" "<<thisLayerHits[i].exitPoint()<<"  "<<thisLayerHits[i].momentumAtEntry()
+	  //        <<" "<<thisLayerHits[i].energyLoss()<<" "<<thisLayerHits[i].particleType()<<" "<<thisLayerHits[i].trackId()<<std::endl;
+	  //}
+	  matchedHit.insert(matchedHit.end(), thisLayerHits.begin(), thisLayerHits.end());
+	  nhits += thisLayerHits.size();
+	}
+    }
+  
+  return nhits;
+}
+
+
+// ================================================================================================
+int 
+SimpleMuon::calculate2DStubsDeltas(MatchCSCMuL1 *match, MatchCSCMuL1::CLCT &clct)
+{
+  //** fit muon's hits to a 2D linear stub in a chamber :
+  //   stripes:  work in 2D cylindrical surface :
+  //     z becomes a new x axis, and phi is a new y axis
+  //     (using SimTrack stub with no-bend in phi if there is 1 mu's hit in chamber)
+  
+  int fdebug = 0;
+  
+  clct.deltaPhi = M_PI;
+  clct.deltaY = 9999.;
+
+  //double a = 0., b = 0.;
+  //vector<PSimHit> hits = match->chamberHits(clct.id.rawId());
+
+  bool defaultGangedME1a = (defaultME1a && clct.id.station()==1 && (clct.id.ring()==1||clct.id.ring()==4) && clct.trgdigi->getKeyStrip() > 127);
+
+  // fit a 2D stub from SimHits matched to a digi
+
+
+  CSCDetId keyID(clct.id.rawId()+CSCConstants::KEY_CLCT_LAYER);
+  const CSCLayer* csclayer = cscGeometry->layer(keyID);
+  //int hitStrip = csclayer->geometry()->nearestStrip(cLP);
+  int hitStrip = match->wireGroupAndStripInChamber(clct.id.rawId()).second;
+  if (hitStrip<0) return 1;
+
+  int stubStrip =  clct.trgdigi->getKeyStrip()/2 + 1;
+  int stubStripGeo = stubStrip;
+
+  clct.deltaStrip = hitStrip - stubStrip;
+
+  // shift strip numbers to geometry ME1a space for defaultGangedME1a
+  if ( defaultGangedME1a ) {
+    stubStrip = (clct.trgdigi->getKeyStrip()-128)/2 + 1;
+    stubStripGeo = stubStrip;
+    clct.deltaStrip = hitStrip - stubStrip;
+  }
+  
+  clct.mcStrip = hitStrip;
+  
+  
+  // if it's upgraded TMB's ganged ME1a or defaultGangedME1a, find the best delta strip
+  if ( (gangedME1a && !defaultME1a && clct.id.station()==1 && clct.id.ring()==4) || defaultGangedME1a) {
+    // consider gang#2
+    int ds = hitStrip - stubStrip - 16;
+    if (abs(ds) < abs(clct.deltaStrip)) {
+      clct.deltaStrip = ds;
+      stubStripGeo = stubStrip + 16;
+    }
+    // consider gang#3
+    ds = hitStrip - stubStrip - 32;
+    if (abs(ds) < abs(clct.deltaStrip)) {
+      clct.deltaStrip = ds;
+      stubStripGeo = stubStrip + 32;
+    }
+  }
+
+  GlobalPoint gpcs = csclayer->centerOfStrip( stubStripGeo );
+  math::XYZVectorD vcs( gpcs.x(), gpcs.y(), gpcs.z() );
+  clct.phi = vcs.phi();
+
+  if (fdebug) std::cout<<"    hitStrip = "<<hitStrip<<"    alct.KeyStrip = "<<clct.trgdigi->getKeyStrip()<<"    deltaStrip = "<<clct.deltaStrip<<std::endl;
+
+  return 0;
+}
 
 
 //define this as a plug-in
