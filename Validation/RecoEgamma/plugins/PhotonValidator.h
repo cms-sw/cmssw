@@ -109,6 +109,7 @@ class PhotonValidator : public edm::EDAnalyzer
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
 
+
   edm::EDGetTokenT<TrackingParticleCollection> token_tp_;
 
 
