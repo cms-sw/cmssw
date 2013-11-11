@@ -347,9 +347,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 			 //vtx,
 			 vertexCollection,
 			 outputPhotonCollection,
-			 iSC,
-			 sevLv.product());
- 
+			 iSC);
 
   if ( validPhotonHandle) 
     fillPhotonCollection(theEvent,
@@ -359,9 +357,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 			 //vtx,
 			 vertexHandle,
 			 outputPhotonCollection,
-			 iSC,
-			 sevLv.product());
-
+			 iSC);
 
 
   // put the product in the event
@@ -405,8 +401,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 					  const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
 					  // math::XYZPoint & vtx,
                                           reco::VertexCollection & vertexCollection,
-					  reco::PhotonCollection & outputPhotonCollection, int& iSC,
-					  const EcalSeverityLevelAlgo * sevLv) {
+					     reco::PhotonCollection & outputPhotonCollection, int& iSC) {
+
   
   const CaloGeometry* geometry = theCaloGeom_.product();
   const EcalRecHitCollection* hits = 0 ;
@@ -460,12 +456,12 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     float maxXtal =   EcalClusterTools::eMax( *(scRef->seed()), &(*hits) );
     //AA
     //Change these to consider severity level of hits
-    float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology), flags_, severitiesexcl_, sevLv);
-    float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv );    
-    float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology), flags_, severitiesexcl_, sevLv);
-    float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv);   
-    std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry,flags_, severitiesexcl_, sevLv);
-    std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv);
+    float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology));
+    float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology));
+    float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology));
+    float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology));
+    std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry);
+    std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology));
       
     float sigmaEtaEta = sqrt(cov[0]);
     float sigmaIetaIeta = sqrt(locCov[0]);
@@ -577,8 +573,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 					     const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle,
 					     // math::XYZPoint & vtx,
 					     edm::Handle< reco::VertexCollection >  & vertexHandle,
-					     reco::PhotonCollection & outputPhotonCollection, int& iSC,
-					     const EcalSeverityLevelAlgo * sevLv) {
+					     reco::PhotonCollection & outputPhotonCollection, int& iSC) {
+
   
   //  const CaloGeometry* geometry = theCaloGeom_.product();
   //  const EcalRecHitCollection* hits = 0 ;
