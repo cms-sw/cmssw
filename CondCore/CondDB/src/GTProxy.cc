@@ -117,7 +117,7 @@ namespace cond {
     }
     
     cond::Time_t GTProxy::validity() const {
-      return m_data.get() ? m_data->validity : cond::time::MIN;
+      return m_data.get() ? m_data->validity : cond::time::MIN_VAL;
     }
     
     boost::posix_time::ptime GTProxy::snapshotTime() const {

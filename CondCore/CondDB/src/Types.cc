@@ -8,13 +8,13 @@
 namespace cond {
 
   void Iov_t::clear(){
-    since = time::MAX;
-    till = time::MIN;
+    since = time::MAX_VAL;
+    till = time::MIN_VAL;
     payloadId.clear();
   }
 
   bool Iov_t::isValid() const {
-    return since != time::MAX && till != time::MIN && !payloadId.empty();
+    return since != time::MAX_VAL && till != time::MIN_VAL && !payloadId.empty();
   }
 
   bool Iov_t::isValidFor( Time_t target ) const {
@@ -25,8 +25,8 @@ namespace cond {
     tag.clear();
     payloadType.clear();
     timeType = invalid;
-    endOfValidity = time::MIN;
-    lastValidatedTime = time::MIN;
+    endOfValidity = time::MIN_VAL;
+    lastValidatedTime = time::MIN_VAL;
   }
 
   static auto s_synchronizationTypeMap = { enumPair( "Offline",OFFLINE ),
