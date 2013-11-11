@@ -1,5 +1,5 @@
 /**  \class L2MuonIsolationProducer
- * 
+ *
  *   \author  J. Alcaraz
  */
 
@@ -32,7 +32,7 @@ using namespace muonisolation;
 
 /// constructor with config
 L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
-  theSACollectionLabel(par.getParameter<edm::InputTag>("StandAloneCollectionLabel")), 
+  theSACollectionLabel(par.getParameter<edm::InputTag>("StandAloneCollectionLabel")),
   theExtractor(0),
   theDepositIsolator(0)
 {
@@ -44,9 +44,9 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
   //
   edm::ParameterSet extractorPSet = par.getParameter<edm::ParameterSet>("ExtractorPSet");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);  
+  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
 
-  
+
   edm::ParameterSet isolatorPSet = par.getParameter<edm::ParameterSet>("IsolatorPSet");
   bool haveIsolator = !isolatorPSet.empty();
   optOutputDecision = haveIsolator;
@@ -62,7 +62,7 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
     produces<edm::ValueMap<float> >();
   }
 }
-  
+
 /// destructor
 L2MuonIsolationProducer::~L2MuonIsolationProducer(){
   LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")<<" L2MuonIsolationProducer destructor called";
@@ -77,7 +77,7 @@ void L2MuonIsolationProducer::beginJob(){
 /// build deposits
 void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup){
   std::string metname = "Muon|RecoMuon|L2MuonIsolationProducer";
-  
+
   LogDebug(metname)<<" L2 Muon Isolation producing...";
 
   // Take the SA container
@@ -111,7 +111,7 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
       }
   }
 
-  
+
 
   //!do the business of filling iso map
   reco::IsoDepositMap::Filler depFiller(*depMap);
@@ -132,7 +132,7 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
       event.put(isoFloatMap);
     }
   }
-  
+
   LogDebug(metname) <<" Event loaded"
 		    <<"================================";
 }

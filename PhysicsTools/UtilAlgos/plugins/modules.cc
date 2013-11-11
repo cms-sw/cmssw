@@ -10,7 +10,7 @@ DEFINE_FWK_SERVICE( VariableHelperService );
 #include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
 DEFINE_FWK_SERVICE( InputTagDistributorService );
 
-#include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
+#include "CommonTools/UtilAlgos/interface/EventSelector.h"
 #include "PhysicsTools/UtilAlgos/plugins/VariableEventSelector.h"
 DEFINE_EDM_PLUGIN(EventSelectorFactory, VariableEventSelector, "VariableEventSelector");
 

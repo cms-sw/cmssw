@@ -11,7 +11,9 @@ template<typename Object>
 class  StringCutEventSelector : public EventSelector {
  public:
   StringCutEventSelector(const edm::ParameterSet& pset, edm::ConsumesCollector && iC) :
-    EventSelector(pset),
+    StringCutEventSelector(pset, iC) {}
+  StringCutEventSelector(const edm::ParameterSet& pset, edm::ConsumesCollector & iC) :
+    EventSelector(pset, iC),
     src_(edm::Service<InputTagDistributorService>()->retrieve("src",pset)),
     srcToken_(iC.consumes<edm::View<Object> >(src_)),
     f_(pset.getParameter<std::string>("cut")),
@@ -53,7 +55,9 @@ template<typename Object, bool existenceMatter=true>
 class  StringCutsEventSelector : public EventSelector {
  public:
   StringCutsEventSelector(const edm::ParameterSet& pset, edm::ConsumesCollector && iC) :
-    EventSelector(pset),
+    StringCutsEventSelector(pset, iC) {}
+  StringCutsEventSelector(const edm::ParameterSet& pset, edm::ConsumesCollector & iC) :
+    EventSelector(pset, iC),
     src_(edm::Service<InputTagDistributorService>()->retrieve("src",pset)),
     srcToken_(iC.consumes<edm::View<Object> >(src_))
       {
