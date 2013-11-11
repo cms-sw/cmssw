@@ -59,7 +59,7 @@ class HLTRPCTrigNoSyncFilter : public HLTFilter{
 
    private:
       virtual void beginJob() ;
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       virtual void endJob() ;
       edm::InputTag m_GMTInputTag;
       edm::InputTag rpcRecHitsLabel;

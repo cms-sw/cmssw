@@ -20,6 +20,7 @@
 #include "G4ReflectionFactory.hh"
 
 #include "G4UnitsTable.hh"
+#include "G4SystemOfUnits.hh"
 
 #include <sstream>
 

@@ -17,7 +17,7 @@
 //
 // constructors and destructor
 //
- 
+
 HLTTrackerHaloFilter::HLTTrackerHaloFilter(const edm::ParameterSet& config) : HLTFilter(config),
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
   max_clusTp_   (config.getParameter<int>("MaxClustersTECp")),
@@ -53,9 +53,8 @@ HLTTrackerHaloFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
-
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
@@ -64,29 +63,21 @@ bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& i
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
-  
+
   // The filter object
   if (saveTags()) filterproduct.addCollectionTag(inputTag_);
-  
+
   // get hold of products from Event
   edm::Handle<edm::RefGetter<SiStripCluster> > refgetter;
   event.getByToken(inputToken_, refgetter);
-  
+
 
   /// First initialize some variables
+  int SST_clus_MAP_m[5][8][9]; memset(SST_clus_MAP_m,  0x00, sizeof(SST_clus_MAP_m));
+  int SST_clus_MAP_p[5][8][9]; memset(SST_clus_MAP_p,  0x00, sizeof(SST_clus_MAP_p));
+  int SST_clus_PROJ_m[5][8];   memset(SST_clus_PROJ_m, 0x00, sizeof(SST_clus_PROJ_m));
+  int SST_clus_PROJ_p[5][8];   memset(SST_clus_PROJ_p, 0x00, sizeof(SST_clus_PROJ_p));
 
-  for (int i=0;i<5;++i)
-  {
-    for (int j=0;j<8;++j)
-    {
-      SST_clus_PROJ_m[i][j]=0;
-      SST_clus_PROJ_p[i][j]=0;
-
-      for (int k=0;k<9;++k) SST_clus_MAP_m[i][j][k]=0;
-      for (int k=0;k<9;++k) SST_clus_MAP_p[i][j][k]=0;
-    }
-  }
-  
   int n_total_clus  = 0;
   int n_total_clusp = 0;
   int n_total_clusm = 0;
@@ -104,7 +95,7 @@ bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& i
 
   // Then we loop over tracker cabling regions
 
-  for(;iregion!=refgetter->end();++iregion) 
+  for(;iregion!=refgetter->end();++iregion)
   {
 
     // Don't go further if one of the TEC cluster cut is not passed
@@ -112,8 +103,8 @@ bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& i
     if (n_total_clusp>max_clusTp_) return false;
     if (n_total_clusm>max_clusTm_) return false;
 
-    ++index;  
-    
+    ++index;
+
     // Some cuts applied if fast processing requested
     //
     // !!!! Will fail if cabling is changing !!!!
@@ -133,13 +124,13 @@ bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& i
 
     // We are in TEC, so we load the clusters
     edm::RegionIndex<SiStripCluster>::const_iterator iclus = iregion->begin();
-  
-    for(;iclus!=iregion->end();++iclus) 
+
+    for(;iclus!=iregion->end();++iclus)
     {
       if (iclus->geographicalId()%2 == 1) continue;
 
-      // We skip a a part of the clusters, to restore 
-      // some symmetry between rings  
+      // We skip a a part of the clusters, to restore
+      // some symmetry between rings
       if (tTopo->tecRing(iclus->geographicalId())<3 ||tTopo->tecIsStereo(iclus->geographicalId())) continue;
 
       ++n_total_clus;
@@ -147,7 +138,7 @@ bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& i
       int r_id = tTopo->tecRing(iclus->geographicalId())-3;
       int p_id = tTopo->tecPetalNumber(iclus->geographicalId())-1;
       int w_id = tTopo->tecWheel(iclus->geographicalId())-1;
-    
+
       // Then we do accumulations and cuts 'on the fly'
 
       if (tTopo->tecSide(iclus->geographicalId())==1) // Minus side (BEAM2)
@@ -162,7 +153,7 @@ bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& i
 	  if (SST_clus_PROJ_m[r_id][p_id]>maxm) maxm = SST_clus_PROJ_m[r_id][p_id];
 	  if (SST_clus_PROJ_m[r_id][p_id]==sign_accu_) ++npeakm;
 
-	  if (npeakm>=max_back_) return false; // Too many accumulations (PKAM) 
+	  if (npeakm>=max_back_) return false; // Too many accumulations (PKAM)
 	}
       }
       else // Plus side (BEAM1)
@@ -177,12 +168,12 @@ bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& i
 	  if (SST_clus_PROJ_p[r_id][p_id]>maxp) maxp = SST_clus_PROJ_p[r_id][p_id];
 	  if (SST_clus_PROJ_p[r_id][p_id]==sign_accu_) ++npeakp;
 
-	  if (npeakp>=max_back_) return false;  
+	  if (npeakp>=max_back_) return false;
 	}
       }
     } // End of clusters loop
   } // End of regions loop
-  
+
 
   // The final selection is applied here
   // Most of the cuts have already been applied tough
@@ -193,7 +184,7 @@ bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& i
   if (n_total_clusp<sign_accu_)               return false;
   if (n_total_clusm<sign_accu_)               return false;
   if (maxm<sign_accu_ || maxp<sign_accu_)     return false;
-  if (npeakm>=max_back_ || npeakp>=max_back_) return false;     
+  if (npeakm>=max_back_ || npeakp>=max_back_) return false;
 
   return true;
 }

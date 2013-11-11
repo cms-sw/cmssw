@@ -36,9 +36,9 @@ public:
   {
     srcToken_ = consumes<reco::TrackCollection>(src_);
   }
-  
+
   ~HLTTrackWithHits() { }
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions)
     {
       edm::ParameterSetDescription desc;
@@ -51,9 +51,9 @@ public:
       desc.add<int>("MinPXL",0);
       descriptions.add("hltTrackWithHits",desc);
     }
-  
+
 private:
-  virtual bool hltFilter(edm::Event& iEvent, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct)
+  virtual bool hltFilter(edm::Event& iEvent, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override
   {
     edm::Handle<reco::TrackCollection> oHandle;
     iEvent.getByToken(srcToken_, oHandle);
@@ -66,12 +66,12 @@ private:
       if ( MinFPX_>0 && hits.numberOfValidPixelEndcapHits() >= MinFPX_ ) { ++count; continue; }
       if ( MinPXL_>0 && hits.numberOfValidPixelHits() >= MinPXL_ )       { ++count; continue; }
     }
-      
+
     bool answer=(count>=minN_ && count<=maxN_);
     LogDebug("HLTTrackWithHits")<<module(iEvent)<<" sees: "<<s<<" objects. Only: "<<count<<" satisfy the hit requirement. Filter answer is: "<<(answer?"true":"false")<<std::endl;
     return answer;
   }
- 
+
   edm::InputTag src_;
   edm::EDGetTokenT<reco::TrackCollection> srcToken_;
   int minN_,maxN_,MinBPX_,MinFPX_,MinPXL_;

@@ -31,6 +31,11 @@ namespace edm {
     for_all(putProducts_, principal_get_adapter_detail::deleter());
   }
 
+  Event::CacheIdentifier_t
+  Event::cacheIdentifier() const {
+    return eventPrincipal().cacheIdentifier();
+  }
+
   void
   Event::setConsumer(EDConsumerBase const* iConsumer) {
     provRecorder_.setConsumer(iConsumer);

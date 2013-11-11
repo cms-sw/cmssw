@@ -11,14 +11,14 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
- 
+
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -95,16 +95,16 @@ void HLTmmkFilter::endJob() {
 
 
 // ----------------------------------------------------------------------
-bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
   const double MuMass(0.106);
   const double MuMass2(MuMass*MuMass);
-  
+
   const double thirdTrackMass2(thirdTrackMass_*thirdTrackMass_);
-  
-  auto_ptr<CandidateCollection> output(new CandidateCollection());    
+
+  auto_ptr<CandidateCollection> output(new CandidateCollection());
   auto_ptr<VertexCollection> vertexCollection(new VertexCollection());
-  
+
   //get the transient track builder:
   edm::ESHandle<TransientTrackBuilder> theB;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
@@ -133,32 +133,32 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
   // get track candidates around displaced muons
   Handle<RecoChargedCandidateCollection> trkcands;
   iEvent.getByToken(trkCandToken_,trkcands);
-  
+
   if (saveTags()) {
     filterproduct.addCollectionTag(muCandTag_);
     filterproduct.addCollectionTag(trkCandTag_);
   }
-  
+
   double e1,e2,e3;
   Particle::LorentzVector p,p1,p2,p3;
-  
+
   //TrackRefs to mu cands in trkcand
   vector<TrackRef> trkMuCands;
-  
+
   //Already used mu tracks to avoid double counting candidates
   vector<bool> isUsedCand(trkcands->size(),false);
-  
+
   int counter = 0;
-  
+
   //run algorithm
   for (RecoChargedCandidateCollection::const_iterator mucand1=mucands->begin(), endCand1=mucands->end(); mucand1!=endCand1; ++mucand1) {
-  
+
   	if ( mucands->size()<2) break;
   	if ( trkcands->size()<1) break;
-  
+
   	TrackRef trk1 = mucand1->get<TrackRef>();
 	LogDebug("HLTDisplacedMumukFilter") << " 1st muon: q*pt= " << trk1->charge()*trk1->pt() << ", eta= " << trk1->eta() << ", hits= " << trk1->numberOfValidHits();
-  
+
   	// eta cut
 	if (fabs(trk1->eta()) > maxEta_) continue;
 	
@@ -168,7 +168,7 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
   	RecoChargedCandidateCollection::const_iterator mucand2 = mucand1; ++mucand2;
   	
   	for (RecoChargedCandidateCollection::const_iterator endCand2=mucands->end(); mucand2!=endCand2; ++mucand2) {
-  
+
   		TrackRef trk2 = mucand2->get<TrackRef>();
 
 		LogDebug("HLTDisplacedMumukFilter") << " 2nd muon: q*pt= " << trk2->charge()*trk2->pt() << ", eta= " << trk2->eta() << ", hits= " << trk2->numberOfValidHits();
@@ -207,11 +207,11 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
 		//combine muons with all tracks
   		for ( trkcand = trkcands->begin(), endCandTrk=trkcands->end(), isUsedIter = isUsedCand.begin(), endIsUsedCand = isUsedCand.end(); trkcand != endCandTrk && isUsedIter != endIsUsedCand; ++trkcand, ++isUsedIter) {
- 
+
   			TrackRef trk3 = trkcand->get<TrackRef>();
 
 			LogDebug("HLTDisplacedMumukFilter") << " 3rd track: q*pt= " << trk3->charge()*trk3->pt() << ", eta= " << trk3->eta() << ", hits= " << trk3->numberOfValidHits();
- 
+
  			//skip overlapping muon candidates
 			bool skip=false;
  			for (unsigned int itmc=0;itmc<trkMuCands.size();itmc++) if(trk3==trkMuCands.at(itmc)) skip=true;
@@ -298,7 +298,7 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 			//Add event
 			++counter;
  			
- 			//Get refs 
+ 			//Get refs
  			bool i1done = false;
 			bool i2done = false;
 			bool i3done = false;
@@ -317,11 +317,11 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 				if (i1done && i2done && i3done) break;
 			}
 		
-			if (!i1done) { 
+			if (!i1done) {
 				refMu1=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(), mucand1)));
 				filterproduct.addObject(TriggerMuon,refMu1);
 			}
-			if (!i2done) { 
+			if (!i2done) {
 				refMu2=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(),mucand2)));
 				filterproduct.addObject(TriggerMuon,refMu2);
 			}
@@ -331,19 +331,19 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 			}
  			
  			if (fastAccept_) break;
-  		}  
+  		}
   		
   		trkMuCands.clear();
-  	} 
+  	}
   }
 
   // filter decision
   const bool accept (counter >= 1);
-  
-  LogDebug("HLTDisplacedMumukFilter") << " >>>>> Result of HLTDisplacedMumukFilter is "<< accept << ", number of muon pairs passing thresholds= " << counter; 
-  
+
+  LogDebug("HLTDisplacedMumukFilter") << " >>>>> Result of HLTDisplacedMumukFilter is "<< accept << ", number of muon pairs passing thresholds= " << counter;
+
   iEvent.put(vertexCollection);
-  
+
   return accept;
 }
 
@@ -361,21 +361,21 @@ FreeTrajectoryState HLTmmkFilter::initialFreeState( const reco::Track& tk,
 }
 
 int HLTmmkFilter::overlap(const reco::Candidate &a, const reco::Candidate &b) {
-  
+
   double eps(1.44e-4);
 
   double dpt = a.pt() - b.pt();
   dpt *= dpt;
 
-  double dphi = deltaPhi(a.phi(), b.phi()); 
-  dphi *= dphi; 
+  double dphi = deltaPhi(a.phi(), b.phi());
+  dphi *= dphi;
 
-  double deta = a.eta() - b.eta(); 
-  deta *= deta; 
+  double deta = a.eta() - b.eta();
+  deta *= deta;
 
   if ((dphi + deta) < eps) {
     return 1;
-  } 
+  }
 
   return 0;
 

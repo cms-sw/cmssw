@@ -13,7 +13,7 @@
 //
 // constructors and destructor
 //
- 
+
 HLTPixelAsymmetryFilter::HLTPixelAsymmetryFilter(const edm::ParameterSet& config) : HLTFilter(config),
   inputTag_ (config.getParameter<edm::InputTag>("inputTag")),
   min_asym_ (config.getParameter<double>("MinAsym")),
@@ -37,7 +37,7 @@ HLTPixelAsymmetryFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltSiPixelClusters"));
-  desc.add<double>("MinAsym",0.);        // minimum asymmetry 
+  desc.add<double>("MinAsym",0.);        // minimum asymmetry
   desc.add<double>("MaxAsym",1.);        // maximum asymmetry
   desc.add<double>("MinCharge",4000.);   // minimum charge for a cluster to be selected (in e-)
   desc.add<double>("MinBarrel",10000.);  // minimum average charge in the barrel (bpix, in e-)
@@ -49,7 +49,7 @@ HLTPixelAsymmetryFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixelAsymmetryFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTPixelAsymmetryFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
@@ -75,7 +75,7 @@ bool HLTPixelAsymmetryFilter::hltFilter(edm::Event& event, const edm::EventSetup
   int n_clus[3]   = {0,0,0};
   double e_clus[3] = {0.,0.,0.};
 
-  for (edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=clusterColl->begin(); DSViter!=clusterColl->end();DSViter++ ) 
+  for (edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=clusterColl->begin(); DSViter!=clusterColl->end();DSViter++ )
   {
     edmNew::DetSet<SiPixelCluster>::const_iterator begin=DSViter->begin();
     edmNew::DetSet<SiPixelCluster>::const_iterator end  =DSViter->end();
@@ -105,17 +105,17 @@ bool HLTPixelAsymmetryFilter::hltFilter(edm::Event& event, const edm::EventSetup
 
     if (detpos<0) continue;
 
-    for(edmNew::DetSet<SiPixelCluster>::const_iterator iter=begin;iter!=end;++iter) 
+    for(edmNew::DetSet<SiPixelCluster>::const_iterator iter=begin;iter!=end;++iter)
     {
       if (iter->charge()>clus_thresh_ )
       {
 	++n_clus[detpos];
 	e_clus[detpos]+=iter->charge();
-      }    
+      }
     }
   } // End of cluster loop
 
-  for (int i=0;i<3;++i) 
+  for (int i=0;i<3;++i)
   {
     if (n_clus[i])
       e_clus[i] /= n_clus[i];

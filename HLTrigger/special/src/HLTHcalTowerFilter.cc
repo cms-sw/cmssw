@@ -1,5 +1,5 @@
 /** \class HLTHcalTowerFilter
- *  
+ *
  *  This class is an EDFilter implementing the following requirement:
  *  the number of caltowers with hadEnergy>E_Thr less than N_Thr for HB/HE/HF sperately.
  *
@@ -17,16 +17,16 @@
 //
 // class declaration
 //
-class HLTHcalTowerFilter : public HLTFilter 
+class HLTHcalTowerFilter : public HLTFilter
 {
 public:
   explicit HLTHcalTowerFilter(const edm::ParameterSet &);
   ~HLTHcalTowerFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
+
 private:
-  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
-  
+  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+
   edm::EDGetTokenT<CaloTowerCollection> inputToken_;
   edm::InputTag inputTag_;    // input tag identifying product
   double min_E_HB_;           // energy threshold for HB in GeV
@@ -103,14 +103,14 @@ HLTHcalTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 //
 
 // ------------ method called to produce the data  ------------
-bool 
-HLTHcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool
+HLTHcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace trigger;
-   
+
   // The filter object
   if (saveTags()) filterproduct.addCollectionTag(inputTag_);
 
@@ -126,13 +126,13 @@ HLTHcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
   int n_HFP = 0;
   double abseta = 0.0;
   double eta = 0.0;
-  for(CaloTowerCollection::const_iterator i = towers->begin(); i != towers->end(); ++i) 
+  for(CaloTowerCollection::const_iterator i = towers->begin(); i != towers->end(); ++i)
     {
       eta    = i->eta();
       abseta = std::abs(eta);
       if(abseta<1.305)
 	{
-	  if(i->hadEnergy() >= min_E_HB_) 
+	  if(i->hadEnergy() >= min_E_HB_)
 	    {
 	      n_HB++;
 	      //edm::Ref<CaloTowerCollection> ref(towers, std::distance(towers->begin(), i));
@@ -150,7 +150,7 @@ HLTHcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
 	}
       else
 	{
-	  if(i->hadEnergy() >= min_E_HF_) 
+	  if(i->hadEnergy() >= min_E_HF_)
 	    {
 	      n_HF++;
 	      //edm::Ref<CaloTowerCollection> ref(towers, std::distance(towers->begin(), i));

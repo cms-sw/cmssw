@@ -3,7 +3,7 @@
 
 /** \class HLTSinglet
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing a basic HLT
  *  trigger for single objects of the same physics type, cutting on
  *  variables relating to their 4-momentum representation
@@ -29,18 +29,17 @@ class HLTSinglet : public HLTFilter {
       explicit HLTSinglet(const edm::ParameterSet&);
       ~HLTSinglet();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
-      edm::InputTag                     inputTag_;   // input tag identifying product
-      edm::EDGetTokenT<std::vector<T> > inputToken_; // token identifying product
-      int    triggerType_ ;     // triggerType configured
-      double min_E_;            // energy threshold in GeV 
-      double min_Pt_;           // pt threshold in GeV 
-      double min_Mass_;         // mass threshold in GeV 
-      double max_Eta_;          // eta range (symmetric)
-      int    min_N_;            // number of objects passing cuts required
-      int    tid_;              // actual triggerType
+      const edm::InputTag                    inputTag_;     // input tag identifying product
+      const edm::EDGetTokenT<std::vector<T>> inputToken_;   // token identifying product
+      const int    triggerType_ ;                           // triggerType configured
+      const int    min_N_;                                  // number of objects passing cuts required
+      const double min_E_;                                  // energy threshold in GeV
+      const double min_Pt_;                                 // pt threshold in GeV
+      const double min_Mass_;                               // mass threshold in GeV
+      const double max_Eta_;                                // eta range (symmetric)
 };
 
 #endif // HLTSinglet_h

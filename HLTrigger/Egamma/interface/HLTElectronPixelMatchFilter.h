@@ -27,7 +27,7 @@ class HLTElectronPixelMatchFilter : public HLTFilter {
    public:
       explicit HLTElectronPixelMatchFilter(const edm::ParameterSet&);
       ~HLTElectronPixelMatchFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
@@ -44,10 +44,10 @@ class HLTElectronPixelMatchFilter : public HLTFilter {
 
       double npixelmatchcut_;     // number of pixelmatch hits
       int    ncandcut_;           // number of electrons required
-      
+
       bool doIsolated_;
-      edm::InputTag L1IsoCollTag_; 
-      edm::InputTag L1NonIsoCollTag_; 
+      edm::InputTag L1IsoCollTag_;
+      edm::InputTag L1NonIsoCollTag_;
 };
 
 #endif //HLTElectronPixelMatchFilter_h

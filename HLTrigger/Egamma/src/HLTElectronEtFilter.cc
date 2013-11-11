@@ -29,11 +29,11 @@ HLTElectronEtFilter::HLTElectronEtFilter(const edm::ParameterSet& iConfig) : HLT
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
   EtEB_ = iConfig.getParameter<double> ("EtCutEB");
   EtEE_ = iConfig.getParameter<double> ("EtCutEE");
-  
+
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
-  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
+  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand");
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
 
   candToken_ =  consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
@@ -50,11 +50,11 @@ HLTElectronEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("EtCutEE",0.0);
   desc.add<int>("ncandcut",1);
   desc.add<bool>("doIsolated",true);
-  descriptions.add("hltElectronEtFilter",desc);  
+  descriptions.add("hltElectronEtFilter",desc);
 }
 
 // ------------ method called to produce the data  ------------
-bool HLTElectronEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTElectronEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
   if (saveTags()) {
@@ -71,25 +71,25 @@ bool HLTElectronEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   std::vector<edm::Ref<reco::ElectronCollection> > elecands;
   PrevFilterOutput->getObjects(TriggerElectron, elecands);
 
-  
-    
+
+
   // look at all photons, check cuts and add to filter object
   int n = 0;
-  
+
   for (unsigned int i=0; i<elecands.size(); i++) {
-    
+
     ref = elecands[i];
     float Pt = ref->pt();
     float Eta = fabs(ref->eta());
-    
+
     if ( (Eta < 1.479 && Pt > EtEB_) || (Eta >= 1.479 && Pt > EtEE_) ) {
       n++;
       filterproduct.addObject(TriggerElectron, ref);
     }
-    
-  }  
+
+  }
   // filter decision
   bool accept(n>=ncandcut_);
-  
+
   return accept;
 }

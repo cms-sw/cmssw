@@ -33,7 +33,7 @@ HLTGlobalSums<T>::HLTGlobalSums(const edm::ParameterSet& iConfig) : HLTFilter(iC
   min_N_      (iConfig.template getParameter<int>("MinN")),
   tid_(triggerType_)
 {
-   LogDebug("") << "InputTags and cuts : " 
+   LogDebug("") << "InputTags and cuts : "
 		<< inputTag_.encode() << " "
 		<< triggerType_ << " "
 		<< observable_
@@ -87,9 +87,9 @@ HLTGlobalSums<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 //
 
 // ------------ method called to produce the data  ------------
-template<typename T> 
+template<typename T>
 bool
-HLTGlobalSums<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTGlobalSums<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;

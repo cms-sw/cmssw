@@ -25,7 +25,7 @@ class HLTElectronEoverpFilterRegional : public HLTFilter {
    public:
       explicit HLTElectronEoverpFilterRegional(const edm::ParameterSet&);
       ~HLTElectronEoverpFilterRegional();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
