@@ -21,6 +21,7 @@
 #include "G4SDManager.hh"
 #include "G4VProcess.hh"
 #include "G4EventManager.hh"
+#include "G4SystemOfUnits.hh"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

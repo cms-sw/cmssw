@@ -12,6 +12,7 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4RegionStore.hh"
 #include "Randomize.hh"
+#include "G4SystemOfUnits.hh"
 
 #include<algorithm>
 
