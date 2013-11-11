@@ -10,6 +10,7 @@ from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 #
 gedPhotons = cms.EDProducer("GEDPhotonProducer",
     photonProducer = cms.InputTag("tmpGedPhoton"),                        
+    reconstructionStep = cms.string("tmp"),  
     regressionWeightsFromDB =   cms.bool(True),                    
     energyRegressionWeightsFileLocation = cms.string('/afs/cern.ch/user/b/bendavid/cmspublic/regweights/gbrph.root'),
     energyRegressionWeightsDBLocation = cms.string('wgbrph'), 
