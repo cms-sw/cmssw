@@ -72,7 +72,7 @@ HLTFatJetMassFilter<jetType>::fillDescriptions(edm::ConfigurationDescriptions& d
 // ------------ method called to produce the data  ------------
 template<typename jetType>
 bool
-HLTFatJetMassFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTFatJetMassFilter<jetType>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;

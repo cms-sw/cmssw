@@ -18,7 +18,7 @@
 
 template<typename T>
 HLTJetPairDzMatchFilter<T>::HLTJetPairDzMatchFilter(const edm::ParameterSet& conf) : HLTFilter(conf)
-{ 
+{
   m_jetTag	= conf.getParameter<edm::InputTag>("JetSrc");
   m_jetToken    = consumes<std::vector<T> >(m_jetTag);
   m_jetMinPt	= conf.getParameter<double>("JetMinPt");
@@ -27,15 +27,15 @@ HLTJetPairDzMatchFilter<T>::HLTJetPairDzMatchFilter(const edm::ParameterSet& con
   m_jetMaxDZ	= conf.getParameter<double>("JetMaxDZ");
   m_triggerType = conf.getParameter<int>("TriggerType");
 
-  // set the minimum DR between jets, so that one never has a chance 
+  // set the minimum DR between jets, so that one never has a chance
   // to create a pair out of the same Jet replicated with two
   // different vertices
   if (m_jetMinDR < 0.1) m_jetMinDR = 0.1;
-  
+
 }
 
 template<typename T>
-void 
+void
 HLTJetPairDzMatchFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
@@ -52,12 +52,12 @@ template<typename T>
 HLTJetPairDzMatchFilter<T>::~HLTJetPairDzMatchFilter(){}
 
 template<typename T>
-bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
-  
+
   typedef vector<T> TCollection;
   typedef Ref<TCollection> TRef;
 
@@ -79,9 +79,9 @@ bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup
 
   size_t npairs = 0, nfail_dz = 0;
   if (n_jets > 1) for(size_t j1 = 0; j1 < n_jets; ++j1)
-  { 
+  {
     if ( jets[j1].pt() < m_jetMinPt || std::abs(jets[j1].eta()) > m_jetMaxEta ) continue;
-    
+
     float mindz = 99.f;
     for(size_t j2 = j1+1; j2 < n_jets; ++j2)
     {
@@ -96,7 +96,7 @@ bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup
       if ( dr2 < m_jetMinDR*m_jetMinDR ) {
 	continue;
       }
-      
+
       if (std::abs(dz) < std::abs(mindz)) mindz = dz;
 
       // do not form a pair if dz is too large
@@ -104,20 +104,20 @@ bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup
 	++nfail_dz;
 	continue;
       }
-      
+
       // add references to both jets
       ref = TRef(jetsHandle, j1);
       filterproduct.addObject(m_triggerType, ref);
-      
+
       ref = TRef(jetsHandle, j2);
       filterproduct.addObject(m_triggerType, ref);
 
       ++npairs;
-      
+
     }
 
   }
-  
+
   return npairs>0;
 
 }

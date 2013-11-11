@@ -40,7 +40,7 @@
 //
 // constructors and destructor
 //
- 
+
 HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   photTag_ (iConfig.getParameter<edm::InputTag>("photTag")),
   elecTag_ (iConfig.getParameter<edm::InputTag>("elecTag")),
@@ -102,7 +102,7 @@ HLTFiltCand::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 // ------------ method called to produce the data  ------------
 bool
-HLTFiltCand::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTFiltCand::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;

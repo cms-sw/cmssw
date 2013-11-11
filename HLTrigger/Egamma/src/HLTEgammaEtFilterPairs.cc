@@ -18,7 +18,7 @@
 //
 // constructors and destructor
 //
-HLTEgammaEtFilterPairs::HLTEgammaEtFilterPairs(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTEgammaEtFilterPairs::HLTEgammaEtFilterPairs(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
    inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
    etcutEB1_  = iConfig.getParameter<double> ("etcut1EB");
@@ -26,12 +26,12 @@ HLTEgammaEtFilterPairs::HLTEgammaEtFilterPairs(const edm::ParameterSet& iConfig)
    etcutEB2_  = iConfig.getParameter<double> ("etcut2EB");
    etcutEE2_  = iConfig.getParameter<double> ("etcut2EE");
    relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
-   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand");
+   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
    inputToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputTag_);
 }
 
-void 
+void
 HLTEgammaEtFilterPairs::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
    edm::ParameterSetDescription desc;
    makeHLTFilterDescription(desc);
@@ -51,7 +51,7 @@ HLTEgammaEtFilterPairs::~HLTEgammaEtFilterPairs(){}
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaEtFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEgammaEtFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
   // The filter object
@@ -75,7 +75,7 @@ HLTEgammaEtFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
   int n(0);
 
   for (unsigned int i=0; i<recoecalcands.size(); i=i+2) {
-    
+
      edm::Ref<reco::RecoEcalCandidateCollection> r1 = recoecalcands[i];
      edm::Ref<reco::RecoEcalCandidateCollection> r2 = recoecalcands[i+1];
      //  std::cout<<"EtFilter: 1) Et Eta phi: "<<r1->et()<<" "<<r1->eta()<<" "<<r1->phi()<<" 2) Et eta phi: "<<r2->et()<<" "<<r2->eta()<<" "<<r2->phi()<<std::endl;
@@ -89,9 +89,9 @@ HLTEgammaEtFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
     }
   }
 
-  
+
   // filter decision
   bool accept(n>=1);
-  
+
   return accept;
 }

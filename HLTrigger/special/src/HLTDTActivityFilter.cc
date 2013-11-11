@@ -77,14 +77,14 @@ HLTDTActivityFilter::HLTDTActivityFilter(const edm::ParameterSet& iConfig) : HLT
 
   maxDeltaPhi_  = iConfig.getParameter<double>("maxDeltaPhi");
   maxDeltaEta_  = iConfig.getParameter<double>("maxDeltaEta");
-  
+
 
   activeSecs_.reset();
   vector<int> aSectors = iConfig.getParameter<vector<int> >("activeSectors");
   vector<int>::const_iterator iSec = aSectors.begin();
   vector<int>::const_iterator eSec = aSectors.end();
-  for (;iSec!=eSec;++iSec) 
-    if ((*iSec)>0 && (*iSec<15)) activeSecs_.set((*iSec)); 
+  for (;iSec!=eSec;++iSec)
+    if ((*iSec)>0 && (*iSec<15)) activeSecs_.set((*iSec));
 
   inputDCCToken_  = consumes<L1MuDTChambPhContainer>(inputTag_[DCC]);
   inputDDUToken_  = consumes<DTLocalTriggerCollection>(inputTag_[DDU]);
@@ -112,7 +112,7 @@ HLTDTActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<bool>("orTPG",true);
   desc.add<bool>("orRPC",true);
   desc.add<bool>("orDigi",false)->
-    setComment(" # && of trig & digi info");  
+    setComment(" # && of trig & digi info");
   desc.add<int>("minDCCBX",-1);
   desc.add<int>("maxDCCBX",1);
   desc.add<int>("minDDUBX",8);
@@ -135,21 +135,13 @@ HLTDTActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 // member functions
 //
 
-bool HLTDTActivityFilter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup) {
-
-  iSetup.get<MuonGeometryRecord>().get(dtGeom_);
-
-  return true;
-
-}
-
 // ------------ method called on each new Event  ------------
-bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
   using namespace edm;
   using namespace std;
 
-  activityMap actMap;  
+  activityMap actMap;
 
   if (process_[DCC]) {
 
@@ -158,45 +150,45 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
     vector<L1MuDTChambPhDigi> const*  phTrigs = l1DTTPGPh->getContainer();
     vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();
     vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();
-    
+
     for(; iph !=iphe ; ++iph) {
 
       int qual = iph->code();
       int bx   = iph->bxNum();
       int ch   = iph->stNum();
-      int sec  = iph->scNum() + 1; // DTTF range [0:11] -> DT SC range [1:12] 
+      int sec  = iph->scNum() + 1; // DTTF range [0:11] -> DT SC range [1:12]
       int wh   = iph->whNum();
 
       if (!activeSecs_[sec]) continue;
 
-      if (ch<=maxStation_ && bx>=minBX_[DCC] && bx<=maxBX_[DCC] 
+      if (ch<=maxStation_ && bx>=minBX_[DCC] && bx<=maxBX_[DCC]
 	  && qual>=minQual_ && qual<7) {
 	actMap[DTChamberId(wh,ch,sec).rawId()].set(DCC);	
       }
 
     }
-    
+
   }
 
   if (process_[DDU]) {
-    
+
     Handle<DTLocalTriggerCollection> trigsDDU;
     iEvent.getByToken(inputDDUToken_,trigsDDU);
     DTLocalTriggerCollection::DigiRangeIterator detUnitIt;
-    
+
     for (detUnitIt=trigsDDU->begin();detUnitIt!=trigsDDU->end();++detUnitIt){
 
       int ch  = (*detUnitIt).first.station();
       if (!activeSecs_[(*detUnitIt).first.sector()]) continue;
-      
+
       const DTLocalTriggerCollection::Range& range = (*detUnitIt).second;
 
       for (DTLocalTriggerCollection::const_iterator trigIt = range.first; trigIt!=range.second;++trigIt){	
 	int bx = trigIt->bx();
 	int qual = trigIt->quality();
-	if ( ch<=maxStation_ && bx>=minBX_[DDU] && bx<=maxBX_[DDU] 
+	if ( ch<=maxStation_ && bx>=minBX_[DDU] && bx<=maxBX_[DDU]
 	     && qual>=minQual_ && qual<7) {
-	  actMap[(*detUnitIt).first.rawId()].set(DDU);       
+	  actMap[(*detUnitIt).first.rawId()].set(DDU);
 	}
 
       }
@@ -206,12 +198,12 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   if (process_[DIGI]) {
-    
+
     edm::Handle<DTDigiCollection> dtdigis;
     iEvent.getByToken(inputDigiToken_, dtdigis);
     std::map<uint32_t,int> hitMap;
     DTDigiCollection::DigiRangeIterator dtLayerIdIt;
-    
+
     for (dtLayerIdIt=dtdigis->begin(); dtLayerIdIt!=dtdigis->end(); dtLayerIdIt++) {
 
       DTChamberId chId = ((*dtLayerIdIt).first).chamberId();
@@ -231,12 +223,14 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
       }
 
     }
-    
+
   }
 
   if (process_[RPC]) {
+    edm::ESHandle<DTGeometry> dtGeom;
+    iSetup.get<MuonGeometryRecord>().get(dtGeom);
 
-    edm::Handle<L1MuGMTReadoutCollection> gmtrc; 
+    edm::Handle<L1MuGMTReadoutCollection> gmtrc;
     iEvent.getByToken(inputRPCToken_,gmtrc);
 
     std::vector<L1MuGMTReadoutRecord> gmtrr = gmtrc->getRecords();
@@ -248,7 +242,7 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
       std::vector<L1MuRegionalCand> rpcCands = (*recIt).getBrlRPCCands();
       std::vector<L1MuRegionalCand>::const_iterator candIt  = rpcCands.begin();
       std::vector<L1MuRegionalCand>::const_iterator candEnd = rpcCands.end();
-      
+
       for(; candIt!=candEnd; ++candIt) {
 	
 	if (candIt->empty()) continue;
@@ -258,42 +252,42 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
 	  activityMap::iterator actMapIt  = actMap.begin();
 	  activityMap::iterator actMapEnd = actMap.end();
 	  for (; actMapIt!= actMapEnd; ++ actMapIt)
-	    if (matchChamber((*actMapIt).first,(*candIt))) 
-	      (*actMapIt).second.set(RPC);
+	    if (matchChamber(actMapIt->first, *candIt, dtGeom.product()))
+	      actMapIt->second.set(RPC);
 	}
       }
     }
 
   }
-  
+
   int nActCh = 0;
   activityMap::const_iterator actMapIt  = actMap.begin();
   activityMap::const_iterator actMapEnd = actMap.end();
 
-  for (; actMapIt!=actMapEnd; ++actMapIt) 
+  for (; actMapIt!=actMapEnd; ++actMapIt)
     hasActivity((*actMapIt).second) && nActCh++ ;
 
   bool result = nActCh>=minActiveChambs_;
 
   return result;
-  
+
 }
 
 
-bool HLTDTActivityFilter::hasActivity(const std::bitset<4>& actWord) {
+bool HLTDTActivityFilter::hasActivity(const std::bitset<4>& actWord) const {
 
   bool actTPG   = orTPG_   ? actWord[DCC] || actWord[DDU] : actWord[DCC] && actWord[DDU];
   bool actTrig  = orRPC_   ? actWord[RPC] || actTPG : actWord[RPC] && actTPG;
-  bool result   = orDigi_  ? actWord[DIGI] || actTrig : actWord[DIGI] && actTrig; 
+  bool result   = orDigi_  ? actWord[DIGI] || actTrig : actWord[DIGI] && actTrig;
 
   return result;
 
 }
 
-bool HLTDTActivityFilter::matchChamber(const uint32_t& rawId, const L1MuRegionalCand& rpcTrig) {
+bool HLTDTActivityFilter::matchChamber(uint32_t rawId, L1MuRegionalCand const & rpcTrig, DTGeometry const * dtGeom) const {
 
-  const GlobalPoint chPos = dtGeom_->chamber(DTChamberId(rawId))->position();
-  
+  const GlobalPoint chPos = dtGeom->chamber(DTChamberId(rawId))->position();
+
   float fDeltaPhi = fabs( chPos.phi() - rpcTrig.phiValue() );
   if ( fDeltaPhi>Geom::pi() ) fDeltaPhi = fabs(fDeltaPhi - 2*Geom::pi());
 

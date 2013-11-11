@@ -3,7 +3,7 @@
 
 /** \class HLTMuonDimuonL2Filter
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing a muon pair
  *  filter for HLT muons
  *
@@ -26,7 +26,7 @@ class HLTMuonDimuonL2Filter : public HLTFilter {
       explicit HLTMuonDimuonL2Filter(const edm::ParameterSet&);
       ~HLTMuonDimuonL2Filter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       edm::InputTag                    beamspotTag_ ;
@@ -38,7 +38,7 @@ class HLTMuonDimuonL2Filter : public HLTFilter {
       /// input tag of the map from the L2 seed to the sister L2 seeds of cleaned tracks
       edm::InputTag             seedMapTag_;
       edm::EDGetTokenT<SeedMap> seedMapToken_;
-      
+
       bool   fast_Accept_;      // flag to save time: stop processing after identification of the first valid pair
       double max_Eta_;          // Eta cut
       int    min_Nhits_;        // threshold on number of hits on muon

@@ -3,7 +3,7 @@
 
 /** \class HLTPMMassFilter
  *
- *  Original Author: Jeremy Werner 
+ *  Original Author: Jeremy Werner
  *  Institution: Princeton University, USA
  *  Contact: Jeremy.Werner@cern.ch
  *  Date: February 21, 2007
@@ -17,7 +17,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -58,13 +57,11 @@ class HLTPMMassFilter : public HLTFilter {
    public:
       explicit HLTPMMassFilter(const edm::ParameterSet&);
       ~HLTPMMassFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);      
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
-      TLorentzVector approxMomAtVtx( const MagneticField *magField, const GlobalPoint& xvert, const reco::SuperClusterRef sc, int charge) ;
-
-      edm::ESHandle<MagneticField> theMagField;
+      TLorentzVector approxMomAtVtx( const MagneticField *magField, const GlobalPoint& xvert, const reco::SuperClusterRef sc, int charge) const;
 
       edm::InputTag candTag_;     // input tag identifying product contains filtered egammas
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
@@ -78,8 +75,8 @@ class HLTPMMassFilter : public HLTFilter {
       bool   relaxed_;
       bool   isElectron1_;
       bool   isElectron2_;
-      edm::InputTag L1IsoCollTag_; 
-      edm::InputTag L1NonIsoCollTag_; 
+      edm::InputTag L1IsoCollTag_;
+      edm::InputTag L1NonIsoCollTag_;
 
 };
 
