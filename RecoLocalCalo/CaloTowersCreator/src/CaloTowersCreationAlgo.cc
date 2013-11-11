@@ -810,7 +810,8 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
     GlobalPoint emPoint, hadPoint;
 
-    CaloTower::PolarLorentzVector towerP4;
+    // this is actually a 4D vector
+    Basic3DVectorF towerP4;
     
 
     // conditional assignment of depths for barrel/endcap
@@ -827,83 +828,107 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
       momEmDepth  = theMomEEDepth;
     }
 
-  switch (theMomConstrMethod) {
 
-  // FIXME  : move to simple cartesian algebra
-  case 0 :
-    {  // Simple 4-momentum assignment
-      GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
 
-      double pf=1.0/cosh(p.eta());
-      if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);
+    switch (theMomConstrMethod) {
       
-      emPoint  = p;   
-      hadPoint = p;
-    }  // end case 0
-    break;
-
-  case 1 :
-    {   // separate 4-vectors for ECAL, HCAL, add to get the 4-vector of the tower (=>tower has mass!)
-      if (id.ietaAbs()<=29) {
-        if (E_em>0) {
-          emPoint   = emShwrPos(metaContains, momEmDepth, E_em);
-          double emPf = 1.0/cosh(emPoint.eta());
-          towerP4 += CaloTower::PolarLorentzVector(E_em*emPf, emPoint.eta(), emPoint.phi(), 0); 
-        }
-        if ( (E_had + E_outer) >0) {
-          hadPoint  = hadShwrPos(id, momHadDepth);
-          double hadPf = 1.0/cosh(hadPoint.eta());
-	  
-	  if (E_had_tot>0) {
-	    towerP4 += CaloTower::PolarLorentzVector(E_had_tot*hadPf, hadPoint.eta(), hadPoint.phi(), 0); 
+      // FIXME  : move to simple cartesian algebra
+    case 0 :
+      {  // Simple 4-momentum assignment
+	GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
+	towerP4 = p.basicVector().unit();
+	towerP4[3] = 1.f;  // energy
+	towerP4 *=E;
+	
+	// double pf=1.0/cosh(p.eta());
+	// if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);
+	
+	emPoint  = p;   
+	hadPoint = p;
+      }  // end case 0
+      break;
+      
+    case 1 :
+      {   // separate 4-vectors for ECAL, HCAL, add to get the 4-vector of the tower (=>tower has mass!)
+	if (id.ietaAbs()<=29) {
+	  if (E_em>0) {
+	    emPoint   = emShwrPos(metaContains, momEmDepth, E_em);
+	    auto lP4 = emPoint.basicVector().unit();
+	    lP4[3] = 1.f;  // energy
+	    lP4 *=E_em;
+	    towerP4 +=lP4;
+	    
+	    // double emPf = 1.0/cosh(emPoint.eta());
+	    // towerP4 += CaloTower::PolarLorentzVector(E_em*emPf, emPoint.eta(), emPoint.phi(), 0); 
 	  }
-        }
-      }
-      else {  // forward detector: use the CaloTower position 
-        GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
-        double pf=1.0/cosh(p.eta());
-        if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
-        emPoint  = p;   
-        hadPoint = p;
-      }
-    }  // end case 1
-    break;
-
-  case 2:
-    {   // use ECAL position for the tower (when E_cal>0), else default CaloTower position (massless tower)
-      if (id.ietaAbs()<=29) {
-        if (E_em>0)  emPoint = emShwrLogWeightPos(metaContains, momEmDepth, E_em);
-        else emPoint = theTowerGeometry->getGeometry(id)->getPosition();
-
-        double sumPf = 1.0/cosh(emPoint.eta());
-        if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*sumPf, emPoint.eta(), emPoint.phi(), 0); 
-        
-        hadPoint = emPoint;
-      }
-      else {  // forward detector: use the CaloTower position 
-        GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
-        double pf=1.0/cosh(p.eta());
-        if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
-        emPoint  = p;   
-        hadPoint = p;
-      }
-    }   // end case 2
-    break;
-
-  }  // end of decision on p4 reconstruction method
-
-
+	  if ( (E_had + E_outer) >0) {
+	    hadPoint  = hadShwrPos(id, momHadDepth);
+	    auto lP4 = hadPoint.basicVector().unit();
+	    lP4[3] = 1.f;  // energy
+	    lP4 *=E_had_tot;
+	    towerP4 +=lP4;
+	    
+	    // double hadPf = 1.0/cosh(hadPoint.eta());	  
+	    // if (E_had_tot>0) {
+	    //  towerP4 += CaloTower::PolarLorentzVector(E_had_tot*hadPf, hadPoint.eta(), hadPoint.phi(), 0); 
+	    // }
+	  }
+	}
+	else {  // forward detector: use the CaloTower position 
+	  GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
+	  towerP4 = p.basicVector().unit();
+	  towerP4[3] = 1.f;  // energy
+	  towerP4 *=E;
+	  // double pf=1.0/cosh(p.eta());
+	  // if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
+	  emPoint  = p;   
+	  hadPoint = p;
+	}
+      }  // end case 1
+      break;
+      
+    case 2:
+      {   // use ECAL position for the tower (when E_cal>0), else default CaloTower position (massless tower)
+	if (id.ietaAbs()<=29) {
+	  if (E_em>0)  emPoint = emShwrLogWeightPos(metaContains, momEmDepth, E_em);
+	  else emPoint = theTowerGeometry->getGeometry(id)->getPosition();
+	  towerP4 = emPoint.basicVector().unit();
+	  towerP4[3] = 1.f;  // energy
+	  towerP4 *=E;
+	  
+	  // double sumPf = 1.0/cosh(emPoint.eta());
+	  /// if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*sumPf, emPoint.eta(), emPoint.phi(), 0); 
+	  
+	  hadPoint = emPoint;
+	}
+	else {  // forward detector: use the CaloTower position 
+	  GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
+	  towerP4 = p.basicVector().unit();
+	  towerP4[3] = 1.f;  // energy
+	  towerP4 *=E;
+	  
+	  // double pf=1.0/cosh(p.eta());
+	  // if (E>0) towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
+	  emPoint  = p;   
+	  hadPoint = p;
+	}
+      }   // end case 2
+      break;
+      
+    }  // end of decision on p4 reconstruction method
+    
+    
     // insert in collection (remove and return if below threshold)
-    collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, towerP4, emPoint, hadPoint);
+    collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, GlobalVector(towerP4), towerP4[3], emPoint, hadPoint);
     auto & caloTower = collection.back();
     if(caloTower.energy() < theEcutTower) { collection.pop_back(); return;}
-
+    
     // set the timings
     float  ecalTime = (mt.emSumEForTime>0)?   mt.emSumTimeTimesE/mt.emSumEForTime  : -9999;
     float  hcalTime = (mt.hadSumEForTime>0)?  mt.hadSumTimeTimesE/mt.hadSumEForTime : -9999;
     caloTower.setEcalTime(compactTime(ecalTime));
     caloTower.setHcalTime(compactTime(hcalTime));
-
+    
     // set the CaloTower status word =====================================
     // Channels must be counter exclusively in the defined cathegories
     // "Bad" channels (not used in energy assignment) can be flagged during
