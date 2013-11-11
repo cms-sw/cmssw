@@ -290,11 +290,16 @@ void CaloTowersCreationAlgo::process(const CaloTowerCollection& ctc) {
 void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
   // now copy this map into the final collection
   result.reserve(theTowerMapSize);
+  // auto k=0U;
   for(auto const & mt : theTowerMap ) { 
     // Convert only if there is at least one constituent in the metatower. 
     // The check of constituents size in the coverted tower is still needed!
-    if (!mt.empty() ) convert(mt.id, mt, result);	
+    if (!mt.empty() ) { convert(mt.id, mt, result); } // ++k;}	
   }
+
+  // assert(k==theTowerMapSize);
+  // std::cout << "VI TowerMap " << theTowerMapSize << " " << k << std::endl;
+
   theTowerMap.clear(); // save the memory
   theTowerMapSize=0;
 }
@@ -724,7 +729,7 @@ void CaloTowersCreationAlgo::rescale(const CaloTower * ct) {
 
     // this is to be compliant with the new MetaTower setup
     // used only for the default simple vector assignment
-    std::pair<DetId, double> mc(detId, 0);
+    std::pair<DetId, float> mc(detId, 0);
     tower.metaConstituents.push_back(mc);
   }
 
@@ -756,6 +761,8 @@ CaloTowersCreationAlgo::MetaTower & CaloTowersCreationAlgo::find(const CaloTower
 void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& mt,
                                      CaloTowerCollection & collection) 
 {
+    assert(id.rawId()!=0);
+
     double ecalThres=(id.ietaAbs()<=17)?(theEBSumThreshold):(theEESumThreshold);
     double E=mt.E;
     double E_em=mt.E_em;

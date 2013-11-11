@@ -216,7 +216,7 @@ private:
     // contains also energy of RecHit
     std::vector< std::pair<DetId, float> > metaConstituents;
     CaloTowerDetId id;
-    float E, E_em, E_had, E_outer;
+    float E=0, E_em=0, E_had=0, E_outer=0;
     float emSumTimeTimesE=0, hadSumTimeTimesE=0, emSumEForTime=0, hadSumEForTime=0; // Sum(Energy x Timing) : intermediate container
 
     // needed to set CaloTower status word
