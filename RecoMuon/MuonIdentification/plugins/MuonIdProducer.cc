@@ -106,7 +106,8 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 
    // Load parameters for the TimingFiller
    edm::ParameterSet timingParameters = iConfig.getParameter<edm::ParameterSet>("TimingFillerParameters");
-   theTimingFiller_ = new MuonTimingFiller(timingParameters);
+   edm::ConsumesCollector iC = consumesCollector();
+   theTimingFiller_ = new MuonTimingFiller(timingParameters,iC);
    
    if (fillCaloCompatibility_){
       // Load MuonCaloCompatibility parameters

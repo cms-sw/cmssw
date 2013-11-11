@@ -57,7 +57,7 @@ class CSCTimingExtractor {
 public:
   
   /// Constructor
-  CSCTimingExtractor(const edm::ParameterSet&);
+  CSCTimingExtractor(const edm::ParameterSet&,edm::ConsumesCollector& iC);
   
   /// Destructor
   ~CSCTimingExtractor();

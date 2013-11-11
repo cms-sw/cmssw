@@ -65,8 +65,9 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   theService = new MuonServiceProxy(serviceParameters);
 
   // instantiate the concrete trajectory builder in the Track Finder
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters, theService),
-				       new MuonTrackLoader(trackLoaderParameters, theService),
+  edm::ConsumesCollector  iC = consumesCollector();
+  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters, theService,iC),
+				       new MuonTrackLoader(trackLoaderParameters,iC, theService),
 				       new MuonTrajectoryCleaner(true));
   
   produces<reco::TrackCollection>();
