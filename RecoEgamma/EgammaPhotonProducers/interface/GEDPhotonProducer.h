@@ -62,18 +62,17 @@ class GEDPhotonProducer : public edm::EDProducer {
 			    //math::XYZPoint & vtx,
 			    reco::VertexCollection& pvVertices,
 			    reco::PhotonCollection & outputCollection,
-			    int& iSC,
-			    const EcalSeverityLevelAlgo * sevLv);
+			    int& iSC);
+
 
  void fillPhotonCollection(edm::Event& evt,
 			    edm::EventSetup const & es,
                             const edm::Handle<reco::PhotonCollection> & photonHandle,
 		   	   const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle,
 			    //math::XYZPoint & vtx,
-			    edm::Handle< reco::VertexCollection >&  pvVertices,
-			    reco::PhotonCollection & outputCollection,
-			    int& iSC,
-			    const EcalSeverityLevelAlgo * sevLv);
+			   edm::Handle< reco::VertexCollection >&  pvVertices,
+			   reco::PhotonCollection & outputCollection,
+			   int& iSC);
 
 
   // std::string PhotonCoreCollection_;
