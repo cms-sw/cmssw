@@ -1141,16 +1141,20 @@ void PFEGammaAlgo::EarlyConversion(
 }
 
 bool PFEGammaAlgo::isAMuon(const reco::PFBlockElement& pfbe) {
-  NotCloserToOther<reco::PFBlockElement::GSF,reco::PFBlockElement::TRACK>
-    getTrackPartner(_currentblock,_currentlinks,&pfbe);
   switch( pfbe.type() ) {
   case reco::PFBlockElement::GSF:    
     {
-      auto& tracks = _splayedblock[reco::PFBlockElement::TRACK];
-      auto notmatched = 
-	std::partition(tracks.begin(),tracks.end(),getTrackPartner);
-      for( auto tk = tracks.begin(); tk != notmatched; ++tk ) {
-	if( PFMuonAlgo::isMuon(*(tk->first)) ) return true;
+      auto& elements = _currentblock->elements();
+      std::multimap<double,unsigned> tks;
+      _currentblock->associatedElements(pfbe.index(),
+					_currentlinks,
+					tks,
+					reco::PFBlockElement::TRACK,
+					reco::PFBlock::LINKTEST_ALL);      
+      for( const auto& tk : tks ) {
+	if( PFMuonAlgo::isMuon(elements[tk.second]) ) {
+	  return true;
+	}
       }
     }
     break;
