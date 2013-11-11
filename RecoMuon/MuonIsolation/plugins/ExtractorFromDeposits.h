@@ -17,9 +17,11 @@ class ExtractorFromDeposits : public reco::isodeposit::IsoDepositExtractor {
 
 public:
   ExtractorFromDeposits(){};
-  ExtractorFromDeposits(const edm::ParameterSet& par,edm::ConsumesCollector&);
+  ExtractorFromDeposits(const edm::ParameterSet& par);
 
   virtual ~ExtractorFromDeposits(){}
+
+  void registerProducts(edm::ConsumesCollector& iC);
 
   virtual void fillVetos ( const edm::Event & ev, const edm::EventSetup & evSetup, 
       const reco::TrackCollection & tracks);

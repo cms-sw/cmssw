@@ -11,6 +11,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 
+
 #include "RecoMuon/MuonIsolation/interface/Range.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -60,12 +61,12 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
     produces<reco::IsoDepositMap>(theDepositNames[i]).setBranchAlias(alias);
   }
 
-  edm::ConsumesCollector iC = consumesCollector();
+
 
   if (!theExtractor) {
     edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
     std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-    theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet,iC);
+    theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);
     LogDebug(metname)<<" Load extractor..."<<extractorName;
   }
 

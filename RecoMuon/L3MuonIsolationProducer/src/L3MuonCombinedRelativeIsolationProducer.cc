@@ -19,6 +19,7 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 
 #include "L3NominalEfficiencyConfigurator.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 
@@ -57,21 +58,22 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
 
   produces<edm::ValueMap<bool> >();
 
-
+  edm::ConsumesCollector iC = consumesCollector();
 
   //
   // Extractor
   //
   // Calorimeters (ONLY if not previously computed)
   //
-  edm::ConsumesCollector  iC = consumesCollector();
+
 
   if( useRhoCorrectedCaloDeps==false ) {
     edm::ParameterSet caloExtractorPSet = theConfig.getParameter<edm::ParameterSet>("CaloExtractorPSet");
   
     theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
     std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
-    caloExtractor = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet,iC);
+    caloExtractor = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet);
+    caloExtractor->registerProducts(iC);
     //std::string caloDepositType = caloExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
   }
 
@@ -80,7 +82,9 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   edm::ParameterSet trkExtractorPSet = theConfig.getParameter<edm::ParameterSet>("TrkExtractorPSet");
 
   std::string trkExtractorName = trkExtractorPSet.getParameter<std::string>("ComponentName");
-  trkExtractor = IsoDepositExtractorFactory::get()->create( trkExtractorName, trkExtractorPSet,iC);
+  trkExtractor = IsoDepositExtractorFactory::get()->create( trkExtractorName, trkExtractorPSet);
+  trkExtractor->registerProducts(iC);
+  
   //std::string trkDepositType = trkExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
 
 

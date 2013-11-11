@@ -40,13 +40,15 @@ class JetExtractor : public reco::isodeposit::IsoDepositExtractor {
 public:
 
   JetExtractor(){};
-  JetExtractor(const edm::ParameterSet& par,edm::ConsumesCollector &);
+  JetExtractor(const edm::ParameterSet& par);
 
   virtual ~JetExtractor();
 
   virtual void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks);
   virtual reco::IsoDeposit 
     deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
+
+  void registerProducts(edm::ConsumesCollector &);
 
 private:
   edm::InputTag theJetCollectionLabel;

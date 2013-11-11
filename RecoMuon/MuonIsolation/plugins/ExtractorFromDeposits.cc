@@ -14,12 +14,18 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-ExtractorFromDeposits::ExtractorFromDeposits( const ParameterSet& par,edm::ConsumesCollector& iC ) :
+ExtractorFromDeposits::ExtractorFromDeposits( const ParameterSet& par) :
   theCollectionTag(par.getParameter<edm::InputTag>("IsolationCollectionTag"))
 { 
 
-  isoToken_ = iC.consumes<reco::IsoDepositMap> (theCollectionTag );
 }
+
+
+void ExtractorFromDeposits::registerProducts(edm::ConsumesCollector& iC) {
+  isoToken_ = iC.consumes<reco::IsoDepositMap> (theCollectionTag );
+
+}
+
 
 void ExtractorFromDeposits::fillVetos (const edm::Event & ev, 
     const edm::EventSetup & evSetup, const reco::TrackCollection & muons) 

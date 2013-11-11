@@ -49,7 +49,7 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
 
 
 
-  edm::ConsumesCollector  iC  = consumesCollector();
+
 
   //
   // Extractor
@@ -58,7 +58,7 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
   //! get min pt for the track to go into sumPt
   theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet,iC);
+  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);
   std::string depositType = extractorPSet.getUntrackedParameter<std::string>("DepositLabel");
   
   //

@@ -41,7 +41,7 @@ namespace muonisolation {
 
     //! constructors
     CaloExtractorByAssociator(){};
-    CaloExtractorByAssociator(const edm::ParameterSet& par,edm::ConsumesCollector& iC );
+    CaloExtractorByAssociator(const edm::ParameterSet& par);
 
     //! destructor
     virtual ~CaloExtractorByAssociator();

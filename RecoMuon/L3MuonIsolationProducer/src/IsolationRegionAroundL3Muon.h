@@ -18,7 +18,7 @@ class IsolationRegionAroundL3Muon : public TrackingRegionProducer {
 
 public:
 
-  IsolationRegionAroundL3Muon(const edm::ParameterSet& cfg,edm::ConsumesCollector& iC) { 
+  IsolationRegionAroundL3Muon(const edm::ParameterSet& cfg) { 
 
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
@@ -36,10 +36,14 @@ public:
     theMeasurementTrackerName = regionPSet.getParameter<std::string>("measurementTrackerName"); 
 
   
-  trackToken_ = iC.consumes<reco::TrackCollection>(theInputTrkSrc);
-  vertexToken_ = iC.consumes<reco::VertexCollection>(theVertexSrc);
   }
   virtual ~IsolationRegionAroundL3Muon(){}
+
+
+  void registerProducts(edm::ConsumesCollector& iC) {
+    trackToken_ = iC.consumes<reco::TrackCollection>(theInputTrkSrc);
+    vertexToken_ = iC.consumes<reco::VertexCollection>(theVertexSrc);
+  }
 
   virtual std::vector<TrackingRegion* > regions(const edm::Event& ev, 
 						const edm::EventSetup& es) const {

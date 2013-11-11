@@ -1,4 +1,0 @@
-<use   name="RecoTracker/TkTrackingRegions"/>
-<library   file="*.cc" name="RecoTrackerTkTrackingRegionsPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

@@ -18,7 +18,7 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-PixelTrackExtractor::PixelTrackExtractor( const ParameterSet& par,edm::ConsumesCollector& iC ) :
+PixelTrackExtractor::PixelTrackExtractor( const ParameterSet& par) :
   theTrackCollectionTag(par.getParameter<edm::InputTag>("inputTrackCollection")),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDiff_r(par.getParameter<double>("Diff_r")),
@@ -37,10 +37,16 @@ PixelTrackExtractor::PixelTrackExtractor( const ParameterSet& par,edm::ConsumesC
   thePtVeto_Min(par.getParameter<double>("PtVeto_Min")),           //! .. it is above this threshold
   theDR_VetoPt(par.getParameter<double>("DR_VetoPt"))              //!.. and is inside this cone      
 {
-  trackToken_ = iC.consumes<edm::View<reco::Track> >(theTrackCollectionTag);
-  beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
  
 }
+
+
+void PixelTrackExtractor::registerProducts(edm::ConsumesCollector& iC) {
+  trackToken_ = iC.consumes<edm::View<reco::Track> >(theTrackCollectionTag);
+  beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
+
+}
+
 
 reco::IsoDeposit::Vetos PixelTrackExtractor::vetos(const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Track & track) const
