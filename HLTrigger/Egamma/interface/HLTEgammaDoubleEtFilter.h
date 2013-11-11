@@ -28,18 +28,18 @@ class HLTEgammaDoubleEtFilter : public HLTFilter {
  public:
   explicit HLTEgammaDoubleEtFilter(const edm::ParameterSet&);
   ~HLTEgammaDoubleEtFilter();
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
   edm::InputTag candTag_; // input tag identifying product contains filtered candidates
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>  candToken_;
-  double etcut1_;           // Et threshold in GeV 
-  double etcut2_;           // Et threshold in GeV 
+  double etcut1_;           // Et threshold in GeV
+  double etcut2_;           // Et threshold in GeV
   int    npaircut_;        // number of egammas required
   bool   relaxed_;
-  edm::InputTag L1IsoCollTag_; 
-  edm::InputTag L1NonIsoCollTag_; 
+  edm::InputTag L1IsoCollTag_;
+  edm::InputTag L1NonIsoCollTag_;
 };
 
 #endif //HLTEgammaDoubleEtFilter_h

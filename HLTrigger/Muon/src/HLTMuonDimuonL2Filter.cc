@@ -1,7 +1,7 @@
 /** \class HLTMuonDimuonL2Filter
  *
  * See header file for documentation
- *  
+ *
  *  \author J. Alcaraz, P. Garcia, M.Vander Donckt
  *
  */
@@ -69,7 +69,7 @@ HLTMuonDimuonL2Filter::HLTMuonDimuonL2Filter(const edm::ParameterSet& iConfig): 
 {
 
    LogDebug("HLTMuonDimuonL2Filter")
-      << " CandTag/MinN/MaxEta/MinNhits/MinNstations/MinNchambers/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinAngle/MaxAngle/MinPtBalance/MaxPtBalance/NSigmaPt : " 
+      << " CandTag/MinN/MaxEta/MinNhits/MinNstations/MinNchambers/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinAngle/MaxAngle/MinPtBalance/MaxPtBalance/NSigmaPt : "
       << candTag_.encode()
       << " " << fast_Accept_
       << " " << max_Eta_
@@ -129,7 +129,7 @@ HLTMuonDimuonL2Filter::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 // ------------ method called to produce the data  ------------
 bool
-HLTMuonDimuonL2Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTMuonDimuonL2Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
    double const MuMass = 0.106;
@@ -169,7 +169,7 @@ HLTMuonDimuonL2Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
             << tk1->charge()*tk1->pt() << ", eta= " << tk1->eta() << ", hits= " << tk1->numberOfValidHits();
       // find the L1 Particle corresponding to the L2 Track
       if (!mapL2ToL1.isTriggeredByL1(tk1)) continue;
- 
+
       if (fabs(tk1->eta())>max_Eta_) continue;
 
       // cut on number of hits
@@ -177,7 +177,7 @@ HLTMuonDimuonL2Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 
       // number of stations
       if (tk1->hitPattern().muonStationsWithAnyHits() < min_Nstations_) continue;
-      
+
       // number of chambers
       if(tk1->hitPattern().dtStationsWithAnyHits() +
 	 tk1->hitPattern().cscStationsWithAnyHits() < min_Nchambers_) continue;
@@ -306,12 +306,12 @@ HLTMuonDimuonL2Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 	      }
 	      if (i1done && i2done) break;
             }
-	    
-            if (!i1done) { 
+	
+            if (!i1done) {
 	      ref1=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(), cand1)));
 	      filterproduct.addObject(TriggerMuon,ref1);
             }
-            if (!i2done) { 
+            if (!i2done) {
 	      ref2=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(),cand2 )));
 	    filterproduct.addObject(TriggerMuon,ref2);
             }
@@ -324,7 +324,7 @@ HLTMuonDimuonL2Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
    // filter decision
    const bool accept (n >= 1);
 
-   LogDebug("HLTMuonDimuonL2Filter") << " >>>>> Result of HLTMuonDimuonL2Filter is "<< accept << ", number of muon pairs passing thresholds= " << n; 
+   LogDebug("HLTMuonDimuonL2Filter") << " >>>>> Result of HLTMuonDimuonL2Filter is "<< accept << ", number of muon pairs passing thresholds= " << n;
 
    return accept;
 }

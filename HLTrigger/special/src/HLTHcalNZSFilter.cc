@@ -2,7 +2,7 @@
 //
 // Package:    HLTHcalNZSFilter
 // Class:      HLTHcalNZSFilter
-// 
+//
 /**\class HLTHcalNZSFilter HLTHcalNZSFilter.cc filter/HLTHcalNZSFilter/src/HLTHcalNZSFilter.cc
 
 Description: Filter to select HCAL abort gap events
@@ -41,19 +41,18 @@ Implementation:
 //
 // constructors and destructor
 //
-HLTHcalNZSFilter::HLTHcalNZSFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTHcalNZSFilter::HLTHcalNZSFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   //now do what ever initialization is needed
 
   dataInputTag_ = iConfig.getParameter<edm::InputTag>("InputTag") ;
-  summary_      = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
   dataInputToken_ = consumes<FEDRawDataCollection>(dataInputTag_);
 }
 
 
 HLTHcalNZSFilter::~HLTHcalNZSFilter()
 {
- 
+
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
@@ -64,7 +63,6 @@ HLTHcalNZSFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("InputTag",edm::InputTag("source"));
-  desc.addUntracked<bool>("FilterSummary",false);
   descriptions.add("hltHcalNZSFilter",desc);
 }
 
@@ -74,67 +72,55 @@ HLTHcalNZSFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
 // ------------ method called on each new Event  ------------
 bool
-HLTHcalNZSFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTHcalNZSFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace edm;
 
-  // MC treatment for this hltFilter(NZS not fully emulated in HTR for MC, trigger::TriggerFilterObjectWithRefs & filterproduct)
+  // MC treatment for this filter(NZS not fully emulated in HTR for MC)
   if (!iEvent.isRealData()) return false;
 
-  edm::Handle<FEDRawDataCollection> rawdata;  
+  edm::Handle<FEDRawDataCollection> rawdata;
   iEvent.getByToken(dataInputToken_,rawdata);
 
-  int nFEDs = 0 ; int nNZSfed = 0 ; int nZSfed = 0 ; 
+  int nFEDs = 0 ; int nNZSfed = 0 ; int nZSfed = 0 ;
   for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) {
-      const FEDRawData& fedData = rawdata->FEDData(i) ; 
-      if ( fedData.size() < 24 ) continue ; 
+      const FEDRawData& fedData = rawdata->FEDData(i) ;
+      if ( fedData.size() < 24 ) continue ;
       nFEDs++ ;
-      
+
       // Check for Zero-suppression
       HcalHTRData htr;
-      const HcalDCCHeader* dccHeader = (const HcalDCCHeader*)(fedData.data()) ; 
-      int nZS = 0 ; int nUS = 0 ; int nSpigot = 0 ; 
-      for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
+      const HcalDCCHeader* dccHeader = (const HcalDCCHeader*)(fedData.data()) ;
+      int nZS = 0 ; int nUS = 0 ; int nSpigot = 0 ;
+      for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {
           if (!dccHeader->getSpigotPresent(spigot)) continue;
-          
+
           // Load the given decoder with the pointer and length from this spigot.
-          dccHeader->getSpigotData(spigot,htr, fedData.size()); 
+          dccHeader->getSpigotData(spigot,htr, fedData.size());
           if ((htr.getFirmwareFlavor()&0xE0)==0x80) continue ; // This is TTP data
 
-          nSpigot++ ; 
+          nSpigot++ ;
           // check min length, correct wordcount, empty event, or total length if histo event.
-          if ( htr.isUnsuppressed() ) nUS++ ; 
-          else nZS++ ; 
+          if ( htr.isUnsuppressed() ) nUS++ ;
+          else nZS++ ;
       }
 
-      if ( nUS == nSpigot ) nNZSfed++ ; 
+      if ( nUS == nSpigot ) nNZSfed++ ;
       else {
-          nZSfed++ ; 
+          nZSfed++ ;
           if ( nUS > 0 ) LogWarning("HLTHcalNZSFilter") << "Mixture of ZS(" << nZS
                                                         << ") and NZS(" << nUS
                                                         << ") spigots in FED " << i ;
       }
   }
-  
-  if ( (nNZSfed == nFEDs) && (nFEDs > 0) ) { eventsNZS_++ ; return true ; }
+
+  if ( (nNZSfed == nFEDs) && (nFEDs > 0) ) { return true ; }
   else {
       if ( nNZSfed > 0 ) LogWarning("HLTHcalNZSFilter") << "Mixture of ZS(" << nZSfed
                                                         << ") and NZS(" << nNZSfed
-                                                        << ") FEDs in this event" ; 
+                                                        << ") FEDs in this event" ;
       return false ;
   }
 
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HLTHcalNZSFilter::beginJob(void)
-{
-  eventsNZS_ = 0 ; 
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HLTHcalNZSFilter::endJob(void) {
-  if ( summary_ ) edm::LogWarning("HLTHcalNZSFilter") << "Kept " << eventsNZS_ << " non-ZS events" ;  
-}

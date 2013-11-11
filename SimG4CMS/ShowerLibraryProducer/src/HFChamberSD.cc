@@ -13,6 +13,9 @@
 #include "G4SDManager.hh"
 #include "G4ios.hh"
 
+#include "G4PhysicalConstants.hh"
+#include "G4SystemOfUnits.hh"
+
 HFChamberSD::HFChamberSD(std::string name, const DDCompactView & cpv,
 		 SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
 		 const SimTrackManager* manager) :

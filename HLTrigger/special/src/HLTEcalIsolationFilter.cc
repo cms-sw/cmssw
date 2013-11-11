@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-HLTEcalIsolationFilter::HLTEcalIsolationFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTEcalIsolationFilter::HLTEcalIsolationFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   candTag_ = iConfig.getParameter<edm::InputTag> ("EcalIsolatedParticleSource");
   maxhitout = iConfig.getParameter<int> ("MaxNhitOuterCone");
@@ -36,7 +36,7 @@ HLTEcalIsolationFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   descriptions.add("hltEcalIsolationFilter",desc);
 }
 
-bool HLTEcalIsolationFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTEcalIsolationFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
   // Ref to Candidate object to be recorded in filter object
@@ -59,11 +59,11 @@ bool HLTEcalIsolationFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 	  n++;
 	}
     }
-  
-  
+
+
   bool accept(n>0);
 
   return accept;
 
 }
-	  
+	

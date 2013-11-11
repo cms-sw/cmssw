@@ -3,7 +3,7 @@
 
 /** \class HLTDoublet
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing a basic HLT
  *  trigger for pairs of object, evaluating all pairs with the first
  *  object from collection 1, and the second object from collection 2,
@@ -38,38 +38,34 @@ class HLTDoublet : public HLTFilter {
       explicit HLTDoublet(const edm::ParameterSet&);
       ~HLTDoublet();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       // configuration
-      std::vector<edm::InputTag> originTag1_;  // input tag identifying originals 1st product
-      std::vector<edm::InputTag> originTag2_;  // input tag identifying originals 2nd product
-      edm::InputTag inputTag1_;   // input tag identifying filtered 1st product
-      edm::InputTag inputTag2_;   // input tag identifying filtered 2nd product
-      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken1_;
-      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken2_;
-      int triggerType1_;
-      int triggerType2_;
-      double min_Dphi_,max_Dphi_; // Delta phi window
-      double min_Deta_,max_Deta_; // Delta eta window
-      double min_Minv_,max_Minv_; // Minv(1,2) window
-      double min_DelR_,max_DelR_; // Delta R window
-      double min_Pt_  ,max_Pt_;   // Pt(1,2) window
-      int    min_N_;              // number of pairs passing cuts required
+      const std::vector<edm::InputTag> originTag1_;     // input tag identifying originals 1st product
+      const std::vector<edm::InputTag> originTag2_;     // input tag identifying originals 2nd product
+      const edm::InputTag inputTag1_;                   // input tag identifying filtered 1st product
+      const edm::InputTag inputTag2_;                   // input tag identifying filtered 2nd product
+      const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken1_;
+      const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken2_;
+      const int    triggerType1_;
+      const int    triggerType2_;
+      const double min_Dphi_,max_Dphi_;                 // Delta phi window
+      const double min_Deta_,max_Deta_;                 // Delta eta window
+      const double min_Minv_,max_Minv_;                 // Minv(1,2) window
+      const double min_DelR_,max_DelR_;                 // Delta R window
+      const double min_Pt_  ,max_Pt_;                   // Pt(1,2) window
+      const int    min_N_;                              // number of pairs passing cuts required
 
       // calculated from configuration in c'tor
-      bool   same_;                      // 1st and 2nd product are one and the same
-      bool   cutdphi_,cutdeta_,cutminv_,cutdelr_,cutpt_; // cuts are on=true or off=false
-
-      std::string label_;         // module label
+      const bool   same_;                                       // 1st and 2nd product are one and the same
+      const bool   cutdphi_,cutdeta_,cutminv_,cutdelr_,cutpt_;  // cuts are on=true or off=false
 
       //
       typedef std::vector<T1> T1Collection;
       typedef edm::Ref<T1Collection> T1Ref;
-      std::vector<T1Ref> coll1_;
       typedef std::vector<T2> T2Collection;
       typedef edm::Ref<T2Collection> T2Ref;
-      std::vector<T2Ref> coll2_;
 
 };
 

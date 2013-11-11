@@ -35,8 +35,8 @@ private:
     float w;
   };
 
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
-  int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi) const;
 
 };
 
@@ -60,7 +60,7 @@ private:
 //
 // constructors and destructor
 //
- 
+
 HLTPixelClusterShapeFilter::HLTPixelClusterShapeFilter(const edm::ParameterSet& config) : HLTFilter(config),
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
   minZ_         (config.getParameter<double>("minZ")),
@@ -83,8 +83,8 @@ HLTPixelClusterShapeFilter::fillDescriptions(edm::ConfigurationDescriptions& des
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltSiPixelRecHits"));
-  desc.add<double>("minZ",-20.0); 
-  desc.add<double>("maxZ",20.05); 
+  desc.add<double>("minZ",-20.0);
+  desc.add<double>("maxZ",20.05);
   desc.add<double>("zStep",0.2);
   std::vector<double> temp; temp.push_back(0.0); temp.push_back(0.0045);
   desc.add<std::vector<double> >("clusterPars",temp);
@@ -98,7 +98,7 @@ HLTPixelClusterShapeFilter::fillDescriptions(edm::ConfigurationDescriptions& des
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixelClusterShapeFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTPixelClusterShapeFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
@@ -122,7 +122,7 @@ bool HLTPixelClusterShapeFilter::hltFilter(edm::Event& event, const edm::EventSe
     // loop over pixel rechits
     int nPxlHits=0;
     std::vector<VertexHit> vhits;
-    for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), 
+    for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(),
           end = hits->data().end(); hit != end; ++hit) {
       if (!hit->isValid())
         continue;
@@ -135,7 +135,7 @@ bool HLTPixelClusterShapeFilter::hltFilter(edm::Event& event, const edm::EventSe
         const PixelTopology *pixTopo = &(pgdu->specificTopology());
         std::vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
         bool pixelOnEdge = false;
-        for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); 
+        for(std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin();
             pixel != pixels.end(); ++pixel) {
           int pixelX = pixel->x;
           int pixelY = pixel->y;
@@ -153,8 +153,8 @@ bool HLTPixelClusterShapeFilter::hltFilter(edm::Event& event, const edm::EventSe
 				   hit->localPosition().z());
       GlobalPoint gpos = pgdu->toGlobal(lpos);
       VertexHit vh;
-      vh.z = gpos.z(); 
-      vh.r = gpos.perp(); 
+      vh.z = gpos.z();
+      vh.r = gpos.perp();
       vh.w = hit->cluster()->sizeY();
       vhits.push_back(vh);
     }
@@ -165,17 +165,17 @@ bool HLTPixelClusterShapeFilter::hltFilter(edm::Event& event, const edm::EventSe
     double chi = 0, chi_max = 1e+9;
     for(double z0 = minZ_; z0 <= maxZ_; z0 += zStep_) {
       nhits = getContainedHits(vhits, z0, chi);
-      if(nhits == 0) 
+      if(nhits == 0)
 	continue;
-      if(nhits > nhits_max) { 
-	chi_max = 1e+9; 
-	nhits_max = nhits; 
+      if(nhits > nhits_max) {
+	chi_max = 1e+9;
+	nhits_max = nhits;
       }
       if(nhits >= nhits_max && chi < chi_max) {
-	chi_max = chi; 
-	zest = z0;   
+	chi_max = chi;
+	zest = z0;
       }
-    } 
+    }
 
     chi = 0;
     int nbest=0, nminus=0, nplus=0;
@@ -196,9 +196,9 @@ bool HLTPixelClusterShapeFilter::hltFilter(edm::Event& event, const edm::EventSe
   for(unsigned int i=0; i < clusterPars_.size(); i++) {
     polyCut += clusterPars_[i]*std::pow((double)nPxlHits,(int)i);
   }
-  if(nPxlHits < nhitsTrunc_) 
+  if(nPxlHits < nhitsTrunc_)
     polyCut=0;             // don't use cut below nhitsTrunc_ pixel hits
-  if(polyCut > clusterTrunc_ && clusterTrunc_ > 0) 
+  if(polyCut > clusterTrunc_ && clusterTrunc_ > 0)
     polyCut=clusterTrunc_; // no cut above clusterTrunc_
 
   if (clusVtxQual < polyCut) accept = false;
@@ -208,7 +208,7 @@ bool HLTPixelClusterShapeFilter::hltFilter(edm::Event& event, const edm::EventSe
   return accept;
 }
 
-int HLTPixelClusterShapeFilter::getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi)
+int HLTPixelClusterShapeFilter::getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi) const
 {
   // Calculate number of hits contained in v-shaped window in cluster y-width vs. z-position.
   int n = 0;
@@ -216,7 +216,7 @@ int HLTPixelClusterShapeFilter::getContainedHits(const std::vector<VertexHit> &h
 
   for(std::vector<VertexHit>::const_iterator hit = hits.begin(); hit!= hits.end(); hit++) {
     double p = 2 * fabs(hit->z - z0)/hit->r + 0.5; // FIXME
-    if(fabs(p - hit->w) <= 1.) { 
+    if(fabs(p - hit->w) <= 1.) {
       chi += fabs(p - hit->w);
       n++;
     }

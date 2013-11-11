@@ -16,6 +16,9 @@
 #include "G4GFlashSpot.hh"
 #include "G4ParticleTable.hh"
 
+#include "G4SystemOfUnits.hh"
+#include "G4PhysicalConstants.hh"
+
 //#define DebugLog
 
 CaloSD::CaloSD(G4String name, const DDCompactView & cpv,

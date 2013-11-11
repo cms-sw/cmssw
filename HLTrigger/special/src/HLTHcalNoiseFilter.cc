@@ -1,4 +1,4 @@
-// Author:  Alfredo Gurrola 
+// Author:  Alfredo Gurrola
 //(20/11/08 make MET and JET logic independent   /Grigory Safronov)
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -9,7 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   JetSource_ = iConfig.getParameter<edm::InputTag>("JetSource");
   MetSource_ = iConfig.getParameter<edm::InputTag>("MetSource");
@@ -27,8 +27,6 @@ HLTHcalNoiseFilter::HLTHcalNoiseFilter(const edm::ParameterSet& iConfig) : HLTFi
     JetSourceToken_ = consumes<reco::CaloJetCollection>(JetSource_);
     TowerSourceToken_ = consumes<CaloTowerCollection>(TowerSource_);
   }
-  nAnomalousEvents=0;
-  nEvents=0;
 }
 
 HLTHcalNoiseFilter::~HLTHcalNoiseFilter() { }
@@ -52,13 +50,13 @@ HLTHcalNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 // member functions
 //
 
-bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace edm;
    using namespace reco;
 
    bool isAnomalous_BasedOnMET = false;
-   bool isAnomalous_BasedOnEnergyFraction=false; 
+   bool isAnomalous_BasedOnEnergyFraction=false;
 
    if (useMet_)
      {
@@ -66,15 +64,15 @@ bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
        iEvent.getByToken(MetSourceToken_, metHandle);
        const CaloMETCollection *metCol = metHandle.product();
        const CaloMET met = metCol->front();
-    
+
        if(met.pt() > MetCut_) isAnomalous_BasedOnMET=true;
      }
-       
+
    if (useJet_)
      {
        Handle<CaloJetCollection> calojetHandle;
        iEvent.getByToken(JetSourceToken_,calojetHandle);
-       
+
        Handle<CaloTowerCollection> towerHandle;
        iEvent.getByToken(TowerSourceToken_, towerHandle);
 
@@ -83,27 +81,25 @@ bool HLTHcalNoiseFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
        TowerContainer.clear();
        JetContainer.clear();
        CaloTower seedTower;
-       nEvents++;
        for(CaloJetCollection::const_iterator calojetIter = calojetHandle->begin();calojetIter != calojetHandle->end();++calojetIter) {
-	 if( ((calojetIter->et())*cosh(calojetIter->eta()) > JetMinE_) && (calojetIter->energyFractionHadronic() > JetHCALminEnergyFraction_) ) {
+	 if( ((calojetIter->et())*cosh(calojetIter->eta()) > JetMinE_) and (calojetIter->energyFractionHadronic() > JetHCALminEnergyFraction_) ) {
 	   JetContainer.push_back(*calojetIter);
 	   double maxTowerE = 0.0;
 	   for(CaloTowerCollection::const_iterator kal = towerHandle->begin(); kal != towerHandle->end(); kal++) {
 	     double dR = deltaR((*calojetIter).eta(),(*calojetIter).phi(),(*kal).eta(),(*kal).phi());
-	     if( (dR < 0.50) && (kal->p() > maxTowerE) ) {
+	     if( (dR < 0.50) and (kal->p() > maxTowerE) ) {
 	       maxTowerE = kal->p();
 	       seedTower = *kal;
 	     }
 	   }
 	   TowerContainer.push_back(seedTower);
 	 }
-	 
+	
        }
        if(JetContainer.size() > 0) {
-	 nAnomalousEvents++;
 	 isAnomalous_BasedOnEnergyFraction = true;
        }
      }
-   
-   return ((useMet_&&isAnomalous_BasedOnMET)||(useJet_&&isAnomalous_BasedOnEnergyFraction));
+
+   return ((useMet_ and isAnomalous_BasedOnMET) or (useJet_ and isAnomalous_BasedOnEnergyFraction));
 }

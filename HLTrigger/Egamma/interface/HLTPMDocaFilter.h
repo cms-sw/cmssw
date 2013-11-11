@@ -4,9 +4,9 @@
 /** \class HLTPMDocaFilter
  *
  *  Original Author: Jeremy Werner
- *  Institution: Princeton University, USA                        
- *  Contact: Jeremy.Werner@cern.ch 
- *  Date: February 21, 2007  
+ *  Institution: Princeton University, USA
+ *  Contact: Jeremy.Werner@cern.ch
+ *  Date: February 21, 2007
  *
  */
 
@@ -27,7 +27,7 @@ class HLTPMDocaFilter : public HLTFilter {
    public:
       explicit HLTPMDocaFilter(const edm::ParameterSet&);
       ~HLTPMDocaFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

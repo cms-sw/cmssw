@@ -4,25 +4,25 @@ import os, sys
 try: import simplejson as json
 except ImportError: import json
 
-
-def get_min_error(list):
-    min = 1e20 
+# Helper functions
+def get_yaxis_range(list):
+    """
+    Given a list of dictionaries, where each dict holds the information
+    about an IB, this function returns a tuple (low, high) with the lowest
+    and the highest value of y-axis, respectively. 
+    """
+    low, high = sys.maxint, -1
     for node in list:
-        value = node['average'] - node['error']
-        if value < min:
-             min = value
-    return min
+        low = min((node['average'] - node['error']), low)
+        high = max((node['average'] + node['error']), high)
+    return (low, high)
 
-def get_max_error(list):
-    max = -1
-    for node in list:
-        value = node['average'] + node['error']
-        if value > max:
-             max = value
-    return max
-
+# Main operation function
 def operate(timelog, memlog, json_f, num):
-
+    """
+    Main operation of the script (i.e. json db update, histograms' creation)
+    with respect to the specifications of all the files & formats concerned.
+    """
     import re
     import commands
     import ROOT
@@ -113,7 +113,7 @@ def operate(timelog, memlog, json_f, num):
         json_db = open(json_f, "w+")
         json.dump(dict, json_db, indent=2)
         json_db.close()
-        print 'File \"%s\" was updated successfully!' % json_f
+        print 'File "' + json_f + '" was updated successfully!'
 
     # Change to datetime type (helpful for sorting).
     for record in dict["strips"]:
@@ -144,16 +144,15 @@ def operate(timelog, memlog, json_f, num):
 
     # Average time histogram.
     histo1=ROOT.TH1F("AveCPU per IB", "Ave CPU per IB", num, 0., num)
-    histo1.SetTitle(cmsrelease + ": Showing last " + str(num) + " IB's")
+    histo1.SetTitle(cmsrelease + ": Showing last " + str(num) + " IBs")
     histo1.SetName('avecpu_histo')
 
     # Maximum rss histogram.
     histo2=ROOT.TH1F("Max rrs per IB", "Max rss per IB", num, 0., num)
-    histo2.SetTitle(cmsrelease + ": Showing last " + str(num) + " IB's")
+    histo2.SetTitle(cmsrelease + ": Showing last " + str(num) + " IBs")
     histo2.SetName('maxrss_histo')
 
-    # fill in the histograms
-
+    # Fill in the histograms
     for i in range(num): 
         datime = list[i]['IB'].__format__('%Y-%b-%d %H:%M')
         average = list[i]['average']
@@ -174,9 +173,9 @@ def operate(timelog, memlog, json_f, num):
     histo1.GetXaxis().CenterTitle()
     histo1.GetXaxis().LabelsOption('v')    
     # Histo1 - Set limits on the Y-axis
-    min = get_min_error(list)
-    max = get_max_error(list)
+    min, max = get_yaxis_range(list)
     interval = max - min
+    # ...get a bit more space
     min = min-interval*0.1
     max = max+interval*0.1
     histo1.GetYaxis().SetRangeUser(min, max)
@@ -208,6 +207,7 @@ def operate(timelog, memlog, json_f, num):
     histo1.SetMarkerSize(.6)
     histo1.SetMarkerColor(1)
     histo1.Draw("E1P SAME")
+    ROOT.gStyle.SetErrorX(0)
     ave_canvas.Print(outdir + "/average_cpu_histo.png","png")
 
     rss_canvas = ROOT.TCanvas(cmsrelease + '_maxrss_canvas')
@@ -293,8 +293,7 @@ if __name__ == '__main__':
              "    ]\n"+\
              "  }\n"
 
-    # Acquire locking the database file.
-    
+    # json file validity checks start under the try statement
     json_db = open(options.json_f, "r+")
     try:
         # -check if the json file is empty; if yes, create a new database upon it
@@ -332,4 +331,3 @@ if __name__ == '__main__':
 
     # sys.exit() used in order to return an exit code to shell, in case of error
     sys.exit(operate(options.timelog, options.memlog, options.json_f, options.num))
-

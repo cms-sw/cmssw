@@ -86,12 +86,11 @@ process.rsWithMaterialTracksP5TkCntFilter = cms.EDFilter("TrackCountFilter",
                                                          )
 
 process.cosmicMuonsBarrelOnlyTkFilter = cms.EDFilter("HLTMuonPointingFilter",
-                                                     SALabel = cms.string("cosmicMuonsBarrelOnly"),
-                                                     PropagatorName = cms.string("SteppingHelixPropagatorAny"),
-                                                     radius = cms.double(90.0),
-                                                     maxZ = cms.double(130.0),
-                                                     saveTags = cms.bool(False)
-                                                     )
+    SALabel = cms.InputTag("cosmicMuonsBarrelOnly"),
+    PropagatorName = cms.string("SteppingHelixPropagatorAny"),
+    radius = cms.double(90.0),
+    maxZ = cms.double(130.0),
+)
 
 process.cosmicMuonsBarrelOnlyTkPath = cms.Path(process.cosmicMuonsBarrelOnlyTkFilter)
 process.cosmictrackfinderP5TkCntPath = cms.Path(process.cosmictrackfinderP5TkCntFilter)
