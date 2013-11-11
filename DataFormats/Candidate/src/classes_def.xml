@@ -7,6 +7,12 @@
    <version ClassVersion="11" checksum="2698562380"/>
    <version ClassVersion="10" checksum="2605909260"/>
   </class>
+  <ioread sourceClass = "reco::Particle" version="[1-]" targetClass="reco::Particle" source = "" target="p4Polar_">
+   <![CDATA[delete p4Polar_; p4Polar_=nullptr;]]>
+  </ioread>
+  <ioread sourceClass = "reco::Particle" version="[1-]" targetClass="reco::Particle" source = "" target="p4Cartesian_">
+   <![CDATA[delete p4Cartesian_; p4Cartesian_=nullptr;]]>
+  </ioread>
   <class name="reco::Candidate" ClassVersion="10">
    <version ClassVersion="10" checksum="783896264"/>
     <!-- <field name="mothers_" transient="true"/> -->
