@@ -45,7 +45,7 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
   if (optOutputIsoDeposits) produces<reco::IsoDepositMap>();
   produces<edm::ValueMap<bool> >();
 }
-  
+
 /// destructor
 L3MuonIsolationProducer::~L3MuonIsolationProducer(){
   LogDebug("RecoMuon|L3MuonIsolationProducer")<<" L3MuonIsolationProducer DTOR";
@@ -62,9 +62,9 @@ void L3MuonIsolationProducer::beginJob()
   //! get min pt for the track to go into sumPt
   theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);
+  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
   std::string depositType = extractorPSet.getUntrackedParameter<std::string>("DepositLabel");
-  
+
   //
   // Cuts
   //
@@ -72,15 +72,15 @@ void L3MuonIsolationProducer::beginJob()
   std::string cutsName = cutsPSet.getParameter<std::string>("ComponentName");
   if (cutsName == "SimpleCuts") {
     theCuts = Cuts(cutsPSet);
-  } 
+  }
   else if (
 //        (cutsName== "L3NominalEfficiencyCuts_PXLS" && depositType=="PXLS")
-//     || (cutsName== "L3NominalEfficiencyCuts_TRKS" && depositType=="TRKS") 
+//     || (cutsName== "L3NominalEfficiencyCuts_TRKS" && depositType=="TRKS")
 //! test cutsName only. The depositType is informational only (has not been used so far) [VK]
 	   (cutsName== "L3NominalEfficiencyCuts_PXLS" )
 	   || (cutsName== "L3NominalEfficiencyCuts_TRKS") ) {
     theCuts = L3NominalEfficiencyConfigurator(cutsPSet).cuts();
-  } 
+  }
   else {
     LogError("L3MuonIsolationProducer::beginJob")
       <<"cutsName: "<<cutsPSet<<" is not recognized:"
@@ -95,7 +95,7 @@ void L3MuonIsolationProducer::beginJob()
 
 void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup){
   std::string metname = "RecoMuon|L3MuonIsolationProducer";
-  
+
   LogDebug(metname)<<" L3 Muon Isolation producing..."
                     <<" BEGINING OF EVENT " <<"================================";
 
@@ -114,7 +114,7 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   unsigned int nMuons = muons->size();
 
   IsoDeposit::Vetos vetos(nMuons);
-  
+
   std::vector<IsoDeposit> deps(nMuons);
   std::vector<bool> isos(nMuons, false);
 
@@ -144,7 +144,7 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
     double value = sumAndCount.first;
     int count = sumAndCount.second;
 
-    bool result = (value < cut.threshold); 
+    bool result = (value < cut.threshold);
     if (theApplyCutsORmaxNTracks ) result |= count <= theMaxNTracks;
     LogTrace(metname)<<"deposit in cone: "<<value<<"with count "<<count<<" is isolated: "<<result;
 

@@ -2,7 +2,7 @@
 //
 // Package:    ConfigurableAnalysis
 // Class:      ConfigurableAnalysis
-// 
+//
 /**\class ConfigurableAnalysis ConfigurableAnalysis.cc CommonTools/UtilAlgos/src/ConfigurableAnalysis.cc
 
  Description: <one line class summary>
@@ -27,6 +27,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -84,7 +85,7 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
   edm::Service<VariableHelperService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("Variables"));
 
   //list of selections
-  selections_ = new Selections(iConfig.getParameter<edm::ParameterSet>("Selections"));
+  selections_ = new Selections(iConfig.getParameter<edm::ParameterSet>("Selections"), consumesCollector());
 
   //plotting device
   edm::ParameterSet plotPset = iConfig.getParameter<edm::ParameterSet>("Plotter");
@@ -102,7 +103,7 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
     ntupler_ = NTuplerFactory::get()->create(ntuplerName, ntPset);
   }
   else ntupler_=0;
-  
+
   flows_ = iConfig.getParameter<std::vector<std::string> >("flows");
   workAsASelector_ = iConfig.getParameter<bool>("workAsASelector");
 
@@ -130,7 +131,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   bool majorGlobalAccept=false;
 
   std::auto_ptr<std::vector<bool> > passedProduct(new std::vector<bool>(flows_.size(),false));
-  bool filledOnce=false;  
+  bool filledOnce=false;
 
   // loop the requested selections
   for (Selections::iterator selection=selections_->begin(); selection!=selections_->end();++selection){
@@ -142,10 +143,10 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     //make a specific direction in the plotter
     if (plotter_) plotter_->setDir(selection->name());
-    
+
     // apply individual filters on the event
     std::map<std::string, bool> accept=selection->accept(iEvent);
-    
+
     bool globalAccept=true;
     std::string separator="";
     std::string cumulative="";
@@ -183,7 +184,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	  plotter_->fill(allButOne+filter.name(),iEvent);
 	}
       }
-      
+
     }// loop over the filters in this selection
 
     if (globalAccept){
@@ -198,7 +199,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	ntupler_->fill(iEvent);
 	filledOnce=true;}
     }
-    
+
   }//loop the different filter order/number: loop the Selections
 
   iEvent.put(passedProduct);
@@ -207,16 +208,16 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   else
     return true;
 }
-   
+
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 ConfigurableAnalysis::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 ConfigurableAnalysis::endJob() {
   //print summary tables
   selections_->print();
