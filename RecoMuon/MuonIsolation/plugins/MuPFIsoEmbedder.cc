@@ -40,7 +40,7 @@
 
 class MuPFIsoEmbedder : public edm::EDProducer {
    public:
-  explicit MuPFIsoEmbedder(const edm::ParameterSet&,edm::ConsumesCollector&);
+  explicit MuPFIsoEmbedder(const edm::ParameterSet&);
       ~MuPFIsoEmbedder();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -60,7 +60,7 @@ class MuPFIsoEmbedder : public edm::EDProducer {
 
 
 //
-MuPFIsoEmbedder::MuPFIsoEmbedder(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC ):
+MuPFIsoEmbedder::MuPFIsoEmbedder(const edm::ParameterSet& iConfig):
   muons_(iConfig.getParameter<edm::InputTag>("src"))
 {
 
@@ -80,8 +80,8 @@ MuPFIsoEmbedder::MuPFIsoEmbedder(const edm::ParameterSet& iConfig,edm::ConsumesC
     //Fill the label,pet map and initialize MuPFIsoHelper
     for( std::vector<std::string>::const_iterator label = isolationLabels.begin();label != isolationLabels.end();++label)
       psetMap[*label] =iConfig.getParameter<edm::ParameterSet >(*label); 
-
-    helper_ = new MuPFIsoHelper(psetMap);
+    edm::ConsumesCollector iC = consumesCollector();  
+    helper_ = new MuPFIsoHelper(psetMap,iC);
     muonToken_ = iC.consumes<reco::MuonCollection>(muons_);
   produces<reco::MuonCollection>();
 }

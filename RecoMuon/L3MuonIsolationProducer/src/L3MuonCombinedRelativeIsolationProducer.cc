@@ -57,29 +57,21 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
 
   produces<edm::ValueMap<bool> >();
 
-}
-  
-/// destructor
-L3MuonCombinedRelativeIsolationProducer::~L3MuonCombinedRelativeIsolationProducer(){
-  LogDebug("RecoMuon|L3MuonCombinedRelativeIsolationProducer")<<" L3MuonCombinedRelativeIsolationProducer DTOR";
-  if (caloExtractor) delete caloExtractor;
-  if (trkExtractor) delete trkExtractor;
-}
 
-void L3MuonCombinedRelativeIsolationProducer::beginJob()
-{
 
   //
   // Extractor
   //
   // Calorimeters (ONLY if not previously computed)
   //
+  edm::ConsumesCollector  iC = consumesCollector();
+
   if( useRhoCorrectedCaloDeps==false ) {
     edm::ParameterSet caloExtractorPSet = theConfig.getParameter<edm::ParameterSet>("CaloExtractorPSet");
   
     theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
     std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
-    caloExtractor = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet);
+    caloExtractor = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet,iC);
     //std::string caloDepositType = caloExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
   }
 
@@ -88,7 +80,7 @@ void L3MuonCombinedRelativeIsolationProducer::beginJob()
   edm::ParameterSet trkExtractorPSet = theConfig.getParameter<edm::ParameterSet>("TrkExtractorPSet");
 
   std::string trkExtractorName = trkExtractorPSet.getParameter<std::string>("ComponentName");
-  trkExtractor = IsoDepositExtractorFactory::get()->create( trkExtractorName, trkExtractorPSet);
+  trkExtractor = IsoDepositExtractorFactory::get()->create( trkExtractorName, trkExtractorPSet,iC);
   //std::string trkDepositType = trkExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
 
 
@@ -119,6 +111,21 @@ void L3MuonCombinedRelativeIsolationProducer::beginJob()
   // (kludge) additional cut on the number of tracks
   theMaxNTracks = cutsPSet.getParameter<int>("maxNTracks");
   theApplyCutsORmaxNTracks = cutsPSet.getParameter<bool>("applyCutsORmaxNTracks");
+
+
+
+}
+  
+/// destructor
+L3MuonCombinedRelativeIsolationProducer::~L3MuonCombinedRelativeIsolationProducer(){
+  LogDebug("RecoMuon|L3MuonCombinedRelativeIsolationProducer")<<" L3MuonCombinedRelativeIsolationProducer DTOR";
+  if (caloExtractor) delete caloExtractor;
+  if (trkExtractor) delete trkExtractor;
+}
+
+void L3MuonCombinedRelativeIsolationProducer::beginJob()
+{
+
 }
 
 void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventSetup& eventSetup){

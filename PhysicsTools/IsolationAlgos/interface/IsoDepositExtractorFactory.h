@@ -5,6 +5,7 @@
 namespace edm {class ParameterSet;}
 namespace reco { namespace isodeposit { class IsoDepositExtractor; }}
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
-typedef edmplugin::PluginFactory< reco::isodeposit::IsoDepositExtractor* (const edm::ParameterSet&) > IsoDepositExtractorFactory;
+typedef edmplugin::PluginFactory< reco::isodeposit::IsoDepositExtractor* (const edm::ParameterSet&, edm::ConsumesCollector&) > IsoDepositExtractorFactory;
 #endif
