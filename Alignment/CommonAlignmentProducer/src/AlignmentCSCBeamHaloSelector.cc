@@ -11,11 +11,11 @@
 
 // constructor ----------------------------------------------------------------
 
-AlignmentCSCBeamHaloSelector::AlignmentCSCBeamHaloSelector(const edm::ParameterSet &iConfig)
+AlignmentCSCBeamHaloSelector::AlignmentCSCBeamHaloSelector(const edm::ParameterSet &iConfig, edm::ConsumesCollector & iC)
    : m_minStations(iConfig.getParameter<unsigned int>("minStations"))
    , m_minHitsPerStation(iConfig.getParameter<unsigned int>("minHitsPerStation"))
 {
-   edm::LogInfo("AlignmentCSCBeamHaloSelector") 
+   edm::LogInfo("AlignmentCSCBeamHaloSelector")
       << "Acceptable tracks must have at least " << m_minHitsPerStation << " hits in " << m_minStations << " different CSC stations." << std::endl;
 }
 
@@ -25,7 +25,7 @@ AlignmentCSCBeamHaloSelector::~AlignmentCSCBeamHaloSelector() {}
 
 // do selection ---------------------------------------------------------------
 
-AlignmentCSCBeamHaloSelector::Tracks 
+AlignmentCSCBeamHaloSelector::Tracks
 AlignmentCSCBeamHaloSelector::select(const Tracks &tracks, const edm::Event &iEvent) const {
    Tracks result;
 
@@ -54,6 +54,6 @@ AlignmentCSCBeamHaloSelector::select(const Tracks &tracks, const edm::Event &iEv
 	 result.push_back(*track);
       }
    } // end loop over tracks
-  
+
    return result;
 }
