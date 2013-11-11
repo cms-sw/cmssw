@@ -59,7 +59,7 @@ RecoEgammaRECO = cms.PSet(
         'keep recoConversions_conversions_*_*',
         'keep recoConversions_mustacheConversions_*_*', 
         'drop *_conversions_uncleanedConversions_*',
-        'drop *_gedPhotons_valMapPFEgammaCandToPhoton_*',
+        'drop *_tmpGedPhotons_valMapPFEgammaCandToPhoton_*',
         'keep recoConversions_allConversions_*_*',
         'keep recoConversions_allConversionsMustache_*_*',
         'keep recoTracks_ckfOutInTracksFrom*Conversions_*_*', 
