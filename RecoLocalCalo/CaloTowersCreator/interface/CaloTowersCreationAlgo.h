@@ -321,6 +321,7 @@ private:
   // internal map
   typedef std::vector<MetaTower> MetaTowerMap;
   MetaTowerMap theTowerMap;
+  unsigned int theTowerMapSize=0;
 
   // Number of channels in the tower that were not used in RecHit production (dead/off,...).
   // These channels are added to the other "bad" channels found in the recHit collection. 
