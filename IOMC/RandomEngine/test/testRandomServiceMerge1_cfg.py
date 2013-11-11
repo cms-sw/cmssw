@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MERGE")
 
+process.options = cms.untracked.PSet(
+    numberOfStreams = cms.untracked.uint32(1)
+)
+
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:testRandomService1.root',

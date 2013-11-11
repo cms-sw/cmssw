@@ -1,8 +1,8 @@
 /** \class HLTPMDocaFilter
- * 
- *  Original Author: Jeremy Werner                          
- *  Institution: Princeton University, USA                                                                 *  Contact: Jeremy.Werner@cern.ch 
- *  Date: February 21, 2007     
+ *
+ *  Original Author: Jeremy Werner
+ *  Institution: Princeton University, USA                                                                 *  Contact: Jeremy.Werner@cern.ch
+ *  Date: February 21, 2007
  *
  */
 
@@ -20,7 +20,7 @@
 //
 // constructors and destructor
 //
-HLTPMDocaFilter::HLTPMDocaFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTPMDocaFilter::HLTPMDocaFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   candTag_             = iConfig.getParameter< edm::InputTag > ("candTag");
   docaDiffPerpCutHigh_ = iConfig.getParameter<double> ("docaDiffPerpCutHigh");
@@ -39,12 +39,12 @@ HLTPMDocaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<double>("docaDiffPerpCutHigh",0.055691);
   desc.add<double>("docaDiffPerpCutLow",0.0);
   desc.add<int>("nZcandcut",1);
-  descriptions.add("hltPMDocaFilter",desc);  
+  descriptions.add("hltPMDocaFilter",desc);
 }
 
 // ------------ method called to produce the data  ------------
 bool
-HLTPMDocaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTPMDocaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;
@@ -56,11 +56,11 @@ HLTPMDocaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
   iEvent.getByToken (candToken_,PrevFilterOutput);
-  
+
   std::vector<edm::Ref<reco::ElectronCollection> > electrons;
   PrevFilterOutput->getObjects(TriggerElectron, electrons);
-  
- 
+
+
   int n = 0;
 
   unsigned int size = electrons.size();
@@ -87,11 +87,11 @@ HLTPMDocaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
 	 }
      }
   }
-  
+
 
   // filter decision
   bool accept(n>=nZcandcut_);
-  
+
   return accept;
 }
 

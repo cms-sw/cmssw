@@ -20,7 +20,7 @@ HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfi
   using namespace std;
   using namespace edm;
 
-  // read in the eta-range dependent parameters  
+  // read in the eta-range dependent parameters
   const vector<ParameterSet> cuts = iConfig.getParameter<vector<ParameterSet> >("Cuts");
   size_t ranges = cuts.size();
   if(ranges==0){
@@ -153,7 +153,7 @@ HLTMuonL1RegionalFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.add("hltMuonL1RegionalFilter", desc);
 }
 
-bool HLTMuonL1RegionalFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct){
+bool HLTMuonL1RegionalFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
   using namespace std;
   using namespace edm;
   using namespace trigger;
@@ -172,7 +172,7 @@ bool HLTMuonL1RegionalFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   iEvent.getByToken(previousCandToken_, previousLevelCands);
   vector<L1MuonParticleRef> prevMuons;
   previousLevelCands->getObjects(TriggerL1Mu, prevMuons);
-   
+
   // look at all mucands,  check cuts and add to filter object
   int n = 0;
   for (size_t i = 0; i < allMuons->size(); i++) {

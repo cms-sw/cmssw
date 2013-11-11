@@ -8,14 +8,14 @@
 //
 // Filter definition
 //
-// We perform a selection on PIXEL cluster repartition 
+// We perform a selection on PIXEL cluster repartition
 //
 // This filter is primarily used to select Beamgas (aka PKAM) events
-// 
+//
 // An asymmetry parameter, based on the pixel clusters, is computed as follows
-// 
+//
 //  asym1 = fpix-/(fpix- + fpix+) for beam1
-//  asym2 = fpix+/(fpix- + fpix+) for beam2 
+//  asym2 = fpix+/(fpix- + fpix+) for beam2
 //
 // with:
 //
@@ -23,7 +23,7 @@
 //  fpix+ = mean cluster charge in FPIX+
 //  bpix  = mean cluster charge in BarrelPIX
 //
-//  Usually for PKAM events, cluster repartition is quite uniform and asymmetry is around 0.5 
+//  Usually for PKAM events, cluster repartition is quite uniform and asymmetry is around 0.5
 //
 //
 // More details:
@@ -56,11 +56,11 @@ class HLTPixelAsymmetryFilter : public HLTFilter {
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > inputToken_;
   edm::InputTag inputTag_; // input tag identifying product containing pixel clusters
-  double  min_asym_;       // minimum asymmetry 
+  double  min_asym_;       // minimum asymmetry
   double  max_asym_;       // maximum asymmetry
   double  clus_thresh_;    // minimum charge for a cluster to be selected (in e-)
   double  bmincharge_;     // minimum average charge in the barrel (bpix, in e-)

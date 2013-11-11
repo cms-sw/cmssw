@@ -270,9 +270,6 @@ class SteppingHelixPropagator GCC11_FINAL : public Propagator {
 
   StateInfo invalidState_;
 
-  mutable AlgebraicMatrix55 covCurvRot_;
-  mutable AlgebraicMatrix55 dCCurvTransform_;
-
   const MagneticField* field_;
   const VolumeBasedMagneticField* vbField_;
   const AlgebraicSymMatrix55 unit55_;

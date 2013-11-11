@@ -10,7 +10,7 @@
 
 /** class HLTPFTauPairLeadTrackDzMatchFilter
  * an HLT filter which picks up a PFTauCollection
- * and passes only events with at least one pair of non-overlapping taus with 
+ * and passes only events with at least one pair of non-overlapping taus with
  * vertices of leading tracks within some dz
  */
 
@@ -21,8 +21,8 @@ class HLTPFTauPairLeadTrackDzMatchFilter : public HLTFilter {
     explicit HLTPFTauPairLeadTrackDzMatchFilter(const edm::ParameterSet& conf);
     ~HLTPFTauPairLeadTrackDzMatchFilter();
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    virtual bool hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs& filterproduct);
-    
+    virtual bool hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+
   private:
 
     edm::InputTag tauSrc_;
@@ -34,4 +34,4 @@ class HLTPFTauPairLeadTrackDzMatchFilter : public HLTFilter {
 
 };
 
-#endif 
+#endif

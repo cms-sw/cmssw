@@ -35,6 +35,8 @@
 #include "G4Step.hh"
 #include "G4ParticleTable.hh"
 
+#include "G4SystemOfUnits.hh"
+
 #include <string>
 #include <vector>
 #include <iostream>

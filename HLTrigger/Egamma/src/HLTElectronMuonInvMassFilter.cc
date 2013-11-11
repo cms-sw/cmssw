@@ -13,7 +13,7 @@
 //
 // constructors and destructor
 //
-HLTElectronMuonInvMassFilter::HLTElectronMuonInvMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTElectronMuonInvMassFilter::HLTElectronMuonInvMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   eleCandTag_             = iConfig.getParameter< edm::InputTag > ("elePrevCandTag");
   muonCandTag_            = iConfig.getParameter< edm::InputTag > ("muonPrevCandTag");
@@ -21,7 +21,7 @@ HLTElectronMuonInvMassFilter::HLTElectronMuonInvMassFilter(const edm::ParameterS
   upperMassCut_           = iConfig.getParameter<double> ("upperMassCut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   relaxed_ = iConfig.getUntrackedParameter<bool> ("electronRelaxed",true) ;
-  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("ElectronL1IsoCand"); 
+  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("ElectronL1IsoCand");
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("ElectronL1NonIsoCand");
   MuonCollTag_= iConfig.getParameter< edm::InputTag > ("MuonCand");
   eleCandToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(eleCandTag_);
@@ -44,12 +44,12 @@ HLTElectronMuonInvMassFilter::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<edm::InputTag>("ElectronL1IsoCand",edm::InputTag("hltPixelMatchElectronsActivity"));
   desc.add<edm::InputTag>("ElectronL1NonIsoCand",edm::InputTag("hltPixelMatchElectronsActivity"));
   desc.add<edm::InputTag>("MuonCand",edm::InputTag("hltL3MuonCandidates"));
-  descriptions.add("hltElectronMuonInvMassFilter",desc);  
+  descriptions.add("hltElectronMuonInvMassFilter",desc);
 }
 
 // ------------ method called to produce the data  ------------
 bool
-HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;
@@ -67,7 +67,7 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   }
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> EleFromPrevFilter;
-  iEvent.getByToken (eleCandToken_,EleFromPrevFilter); 
+  iEvent.getByToken (eleCandToken_,EleFromPrevFilter);
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> MuonFromPrevFilter;
   iEvent.getByToken (muonCandToken_,MuonFromPrevFilter);
@@ -81,28 +81,28 @@ HLTElectronMuonInvMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   Ref< ElectronCollection > refele;
   vector< Ref< ElectronCollection > > electrons;
   EleFromPrevFilter->getObjects(TriggerElectron, electrons);
-  
+
   vector<RecoChargedCandidateRef> l3muons;
   MuonFromPrevFilter->getObjects(TriggerMuon,l3muons);
-  
+
   for(unsigned int i=0; i<l3muons.size(); i++) {
     TrackRef tk = l3muons[i]->get<TrackRef>();
     //     TrackRef tk = l3muons[i].track();
     double muonEnergy = sqrt(tk->momentum().Mag2()+MuMass2);
-    TLorentzVector pThisMuon(tk->px(), tk->py(), 
+    TLorentzVector pThisMuon(tk->px(), tk->py(),
 			     tk->pz(), muonEnergy );
     pMuon.push_back( pThisMuon );
     muonCharge.push_back( tk->charge() );
   }
-  
+
   for (unsigned int i=0; i<electrons.size(); i++) {
     refele = electrons[i];
-    TLorentzVector pThisEle(refele->px(), refele->py(), 
+    TLorentzVector pThisEle(refele->px(), refele->py(),
 			    refele->pz(), refele->energy() );
     pElectron.push_back( pThisEle );
     eleCharge.push_back( refele->charge() );
   }
-  
+
   int nEleMuPairs = 0;
   for(unsigned int i=0; i<electrons.size(); i++) {
     for(unsigned int j=0; j<l3muons.size(); j++) {
