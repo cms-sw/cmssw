@@ -54,9 +54,12 @@ CosmicMuonProducer::CosmicMuonProducer(const ParameterSet& iConfig)
   ParameterSet trackLoaderParameters = iConfig.getParameter<ParameterSet>("TrackLoaderParameters");
   
   // the services
+
+  edm::ConsumesCollector iC = consumesCollector();
+  
   theService = new MuonServiceProxy(serviceParameters);
-  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar,theService,consumesCollector()),
-				       new MuonTrackLoader(trackLoaderParameters,consumesCollector(), theService));
+  theTrackFinder = new MuonTrackFinder(new CosmicMuonTrajectoryBuilder(tbpar,theService,iC),
+				       new MuonTrackLoader(trackLoaderParameters,iC, theService));
 
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();

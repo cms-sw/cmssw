@@ -58,24 +58,25 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   
   // TrackLoader parameters
   ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
-  
+  edm::ConsumesCollector  iC = consumesCollector();
+
   // the services
   theService = new MuonServiceProxy(serviceParameters);
 
-  MuonTrackLoader * trackLoader = new MuonTrackLoader(trackLoaderParameters,theService);
+  MuonTrackLoader * trackLoader = new MuonTrackLoader(trackLoaderParameters,iC,theService);
   MuonTrajectoryBuilder * trajectoryBuilder = 0;
   // instantiate the concrete trajectory builder in the Track Finder
   string typeOfBuilder = parameterSet.getParameter<string>("MuonTrajectoryBuilder");
   if(typeOfBuilder == "StandAloneMuonTrajectoryBuilder")
-    trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
+    trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService,iC);
   else if(typeOfBuilder == "DirectMuonTrajectoryBuilder")
     trajectoryBuilder = new DirectMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
   else if(typeOfBuilder == "Exhaustive")
-    trajectoryBuilder = new ExhaustiveMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
+    trajectoryBuilder = new ExhaustiveMuonTrajectoryBuilder(trajectoryBuilderParameters,theService,iC);
   else{
     LogWarning("Muon|RecoMuon|StandAloneMuonProducer") << "No Trajectory builder associated with "<<typeOfBuilder
 						       << ". Falling down to the default (StandAloneMuonTrajectoryBuilder)";
-     trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
+    trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService,iC);
   }
   theTrackFinder = new MuonTrackFinder(trajectoryBuilder, trackLoader);
 

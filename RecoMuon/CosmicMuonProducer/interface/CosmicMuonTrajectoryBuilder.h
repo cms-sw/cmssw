@@ -42,7 +42,7 @@ class CosmicMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 public:
 
   /// Constructor 
-  CosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service,edm::ConsumesCollector&& iC);
+  CosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service,edm::ConsumesCollector& iC);
 
   /// Destructor
   virtual ~CosmicMuonTrajectoryBuilder();

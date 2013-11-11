@@ -41,12 +41,13 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
   tracksToken = consumes<reco::TrackCollection>(theSACollectionLabel);
 
 
+  edm::ConsumesCollector iC  = consumesCollector();
   //
   // Extractor
   //
   edm::ParameterSet extractorPSet = par.getParameter<edm::ParameterSet>("ExtractorPSet");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);  
+  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet,iC);  
 
   
   edm::ParameterSet isolatorPSet = par.getParameter<edm::ParameterSet>("IsolatorPSet");
@@ -54,7 +55,7 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
   optOutputDecision = haveIsolator;
   if (optOutputDecision){
     std::string type = isolatorPSet.getParameter<std::string>("ComponentName");
-    theDepositIsolator = MuonIsolatorFactory::get()->create(type,isolatorPSet);
+    theDepositIsolator = MuonIsolatorFactory::get()->create(type,isolatorPSet,iC);
   }
   if (optOutputDecision) produces<edm::ValueMap<bool> >();
   produces<reco::IsoDepositMap>();

@@ -30,7 +30,7 @@ using namespace edm;
 // constructor
 //
 GlobalCosmicMuonTrajectoryBuilder::GlobalCosmicMuonTrajectoryBuilder(const edm::ParameterSet& par,
-						                     const MuonServiceProxy* service,edm::ConsumesCollector&& iC) : theService(service) {
+						                     const MuonServiceProxy* service,edm::ConsumesCollector& iC) : theService(service) {
   ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
   theSmoother = new CosmicMuonSmoother(smootherPSet,theService);
 
