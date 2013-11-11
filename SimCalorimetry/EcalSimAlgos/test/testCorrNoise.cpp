@@ -33,19 +33,22 @@ class MyRandomNumberGenerator : public edm::RandomNumberGenerator
       virtual ~MyRandomNumberGenerator() {}
  
       virtual CLHEP::HepRandomEngine& getEngine() const { return *m_engine ; }
+      virtual CLHEP::HepRandomEngine& getEngine(edm::StreamID const&) const { return *m_engine ; }
+      virtual CLHEP::HepRandomEngine& getEngine(edm::LuminosityBlockIndex const&) const { return *m_engine ; }
+
       virtual uint32_t mySeed() const { return m_seed; }
       virtual void preBeginLumi(edm::LuminosityBlock const& lumi) {}
       virtual void postEventRead(edm::Event const& event) {}
 
-      virtual std::vector<RandomEngineState> const& getLumiCache() const {
+      virtual std::vector<RandomEngineState> const& getLumiCache(edm::LuminosityBlockIndex const&) const {
 	 return m_states ; }
-      virtual std::vector<RandomEngineState> const& getEventCache() const {
+      virtual std::vector<RandomEngineState> const& getEventCache(edm::StreamID const&) const {
 	 return m_states ; }
-      virtual void print() {}
+      virtual void print(std::ostream& os) const {}
 
    private:
-      MyRandomNumberGenerator(const MyRandomNumberGenerator&); // stop default
-      const MyRandomNumberGenerator& operator=(const MyRandomNumberGenerator&); // stop default
+      MyRandomNumberGenerator(const MyRandomNumberGenerator&) = delete;
+      const MyRandomNumberGenerator& operator=(const MyRandomNumberGenerator&) = delete;
 
       long m_seed ;
       CLHEP::HepRandomEngine* m_engine ;
@@ -57,7 +60,7 @@ int main()
 {
    edm::MessageDrop::instance()->debugEnabled = false;
 
-   std::auto_ptr<edm::RandomNumberGenerator> slcptr( new MyRandomNumberGenerator() ) ;
+   std::auto_ptr<edm::RandomNumberGenerator> slcptr( new MyRandomNumberGenerator ) ;
 
    boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::RandomNumberGenerator > > slc ( new edm::serviceregistry::ServiceWrapper<edm::RandomNumberGenerator >( slcptr ) ) ; 
    edm::ServiceToken token = edm::ServiceRegistry::createContaining( slc ) ;

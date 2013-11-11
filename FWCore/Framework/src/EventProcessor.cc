@@ -1814,6 +1814,11 @@ namespace edm {
   void EventProcessor::processEvent(unsigned int iStreamIndex) {
     auto pep = &(principalCache_.eventPrincipal(iStreamIndex));
     pep->setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
+    Service<RandomNumberGenerator> rng;
+    if(rng.isAvailable()) {
+      Event ev(*pep, ModuleDescription(), nullptr);
+      rng->postEventRead(ev);
+    }
     assert(pep->luminosityBlockPrincipalPtrValid());
     assert(principalCache_.lumiPrincipalPtr()->run() == pep->run());
     assert(principalCache_.lumiPrincipalPtr()->luminosityBlock() == pep->luminosityBlock());
