@@ -34,6 +34,7 @@
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoMuon/TrackingTools/interface/MuonErrorMatrix.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class TrackingRegion;
 class MuonServiceProxy;
@@ -46,7 +47,7 @@ public:
   typedef std::vector<TrajectorySeed> BTSeedCollection;  
   typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
 
-  TSGForRoadSearch(const edm::ParameterSet &pset);
+  TSGForRoadSearch(const edm::ParameterSet &pset,edm::ConsumesCollector& IC);
 
   virtual ~TSGForRoadSearch();
 

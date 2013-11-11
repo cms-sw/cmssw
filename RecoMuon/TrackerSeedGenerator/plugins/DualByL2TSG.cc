@@ -9,12 +9,12 @@
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 
-DualByL2TSG::DualByL2TSG(const edm::ParameterSet &pset) : SeparatingTSG(pset){  theCategory ="DualByL2TSG";
+DualByL2TSG::DualByL2TSG(const edm::ParameterSet &pset,edm::ConsumesCollector& iC ) : SeparatingTSG(pset,iC){  theCategory ="DualByL2TSG";
   theL3CollectionLabelA = pset.getParameter<edm::InputTag>("L3TkCollectionA");
   if (nTSGs()!=2)
     {edm::LogError(theCategory)<<"not two seed generators provided";}
 
-  l3muonToken = consumes<reco::TrackCollection>(theL3CollectionLabelA); 
+  l3muonToken = iC.consumes<reco::TrackCollection>(theL3CollectionLabelA); 
 }
 
 unsigned int DualByL2TSG::selectTSG(const TrackCand & muonTrackCand, const TrackingRegion& region)

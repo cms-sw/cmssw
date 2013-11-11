@@ -7,7 +7,7 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 
 
-TSGSmart::TSGSmart(const edm::ParameterSet &pset)
+TSGSmart::TSGSmart(const edm::ParameterSet &pset,edm::ConsumesCollector& iC)
   : theConfig(pset), thePairGenerator(0), theTripletGenerator(0), theMixedGenerator(0)
 {
 
