@@ -1,7 +1,7 @@
 #include "AnalysisDataFormats/EWK/interface/WMuNuCandidate.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "CommonTools/CandUtils/interface/CandCombiner.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 
 using namespace edm;
 using namespace std;
@@ -9,7 +9,7 @@ using namespace reco;
 
 WMuNuCandidate::WMuNuCandidate(){}
 
-WMuNuCandidate::WMuNuCandidate(edm::Ptr<reco::Muon> muon, edm::Ptr<reco::MET> met): muon_(muon), neutrino_(met)  
+WMuNuCandidate::WMuNuCandidate(edm::Ptr<reco::Muon> muon, edm::Ptr<reco::MET> met): muon_(muon), neutrino_(met)
 {
       addDaughter(*muon,"Muon");
       addDaughter(*met,"Met");
@@ -26,19 +26,19 @@ WMuNuCandidate::~WMuNuCandidate()
 }
 
 double WMuNuCandidate::eT() const{
- double e_t=0; 
+ double e_t=0;
      e_t=muon_->pt()+neutrino_->pt();
- return e_t; 
+ return e_t;
 }
 
 double WMuNuCandidate::massT() const{
-      // Candidates have a mt() function which computes the tranverse mass from E & pz. 
+      // Candidates have a mt() function which computes the tranverse mass from E & pz.
       // As MET does not have pz information... WMuNuCandidates have an alternative function to compute the mt quantity
       // used in the WMuNu Inclusive analysis just from px, py
       double wpx=px(); double wpy=py();
       double mt = eT()*eT() - wpx*wpx - wpy*wpy;
       mt = (mt>0) ? sqrt(mt) : 0;
-      return mt; 
+      return mt;
 }
 
 double WMuNuCandidate::acop() const{
