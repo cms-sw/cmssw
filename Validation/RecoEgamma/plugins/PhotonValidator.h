@@ -108,13 +108,10 @@ class PhotonValidator : public edm::EDAnalyzer
 
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
-
-
   edm::EDGetTokenT<TrackingParticleCollection> token_tp_;
 
-
-  std::string conversionOITrackProducer_;
-  std::string conversionIOTrackProducer_;
+  edm::InputTag conversionOITrackProducer_;
+  edm::InputTag conversionIOTrackProducer_;
 
   edm::EDGetTokenT<edm::View<reco::Track> > conversionOITrackPr_Token_;
   edm::EDGetTokenT<edm::View<reco::Track> > conversionIOTrackPr_Token_;
