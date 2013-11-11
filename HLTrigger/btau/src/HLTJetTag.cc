@@ -1,7 +1,7 @@
 /** \class HLTJetTag
  *
- *  This class is an HLTFilter (a spcialized EDFilter) implementing 
- *  tagged multi-jet trigger for b and tau. 
+ *  This class is an HLTFilter (a spcialized EDFilter) implementing
+ *  tagged multi-jet trigger for b and tau.
  *  It should be run after the normal multi-jet trigger.
  *
  *
@@ -41,7 +41,7 @@ HLTJetTag<T>::HLTJetTag(const edm::ParameterSet & config) : HLTFilter(config),
 {
   m_JetsToken = consumes<std::vector<T> >(m_Jets),
   m_JetTagsToken = consumes<reco::JetTagCollection>(m_JetTags),
-  
+
   edm::LogInfo("") << " (HLTJetTag) trigger cuts: " << std::endl
                    << "\ttype of        jets used: " << m_Jets.encode() << std::endl
                    << "\ttype of tagged jets used: " << m_JetTags.encode() << std::endl

@@ -200,12 +200,12 @@ HLTLevel1GTSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   makeHLTFilterDescription(desc);
 
   // # default: true
-  // #    seeding done via L1 trigger object maps, with objects that fired 
+  // #    seeding done via L1 trigger object maps, with objects that fired
   // #    only objects from the central BxInEvent (L1A) are used
   // # if false:
-  // #    seeding is done ignoring if a L1 object fired or not, 
-  // #    adding all L1EXtra objects corresponding to the object types 
-  // #    used in all conditions from the algorithms in logical expression 
+  // #    seeding is done ignoring if a L1 object fired or not,
+  // #    adding all L1EXtra objects corresponding to the object types
+  // #    used in all conditions from the algorithms in logical expression
   // #    for a given number of BxInEvent
   desc.add<bool>("L1UseL1TriggerObjectMaps",true);
 

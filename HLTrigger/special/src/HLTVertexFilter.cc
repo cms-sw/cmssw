@@ -2,7 +2,7 @@
 //
 // Package:    HLTVertexFilter
 // Class:      HLTVertexFilter
-// 
+//
 /**\class HLTVertexFilter HLTVertexFilter.cc
 
  Description: HLTFilter to accept events with at least a given number of vertices
@@ -40,9 +40,9 @@ public:
   explicit HLTVertexFilter(const edm::ParameterSet & config);
   ~HLTVertexFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    
+
 private:
-  virtual 
+  virtual
   bool hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
 
   edm::EDGetTokenT<reco::VertexCollection> m_inputToken;
