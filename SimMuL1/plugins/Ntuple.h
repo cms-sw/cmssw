@@ -2,222 +2,165 @@
 #define Ntuple_h
 
 #include "TChain.h" 
+#include "TBranch.h" 
 
-#define MAXMU 1000
-#define MAXGEMSIMHIT 1000
-#define MAXGEMDIGI 1000
-#define MAXGEMPAD 1000
-#define MAXCSCSIMHIT 100
-#define MAXCSCWIREDIGI 1000
-#define MAXCSCSTRIPDIGI 1000
-#define MAXCSCALCT 1000
-#define MAXCSCCLCT 1000
-#define MAXCSCLCTTMB 1000
-#define MAXCSCLCTMPC 1000
-#define MAXCSCTF 1000
-#define MAXCSCTFCAND 1000
-#define MAXL1GMTCAND 1000
-#define MAXL1GMTFCAND 1000
-#define MAXL1GMTCSCCAND 1000
-#define MAXL1GMTRPCFCAND 1000
-#define MAXL1GMTRPCBCAND 1000
-#define MAXL1GMTDTCAND 1000
+typedef std::vector<std::vector<Float_t> > vvfloat;
+typedef std::vector<std::vector<Int_t> > vvint;
+typedef std::vector<Float_t> vfloat;
+typedef std::vector<Int_t> vint;
 
 struct MyNtuple
 {
   void init(); // initialize to default values
   TTree* book(TTree *t, const std::string & name = "trk_eff");
+  void initialize();
 
   // event
-  float eventNumber;
+  Float_t eventNumber;
 
   // generator level information
-  float mc_pt[MAXMU];
-  float mc_eta[MAXMU];
-  float mc_phi[MAXMU];
-  int mc_vertex_id[MAXMU];
-  int has_mc_match[MAXMU];
+  vfloat mc_pt;
+  vfloat mc_eta;
+  vfloat mc_phi;
+  vint mc_vertex_id;
 
   // simtrack information
-  float st_pt[MAXMU];
-  float st_eta[MAXMU];
-  float st_phi[MAXMU];
-  bool st_is_matched[MAXMU];
-  float st_min_dr[MAXMU];
-  int st_n_csc_simhits[MAXGEMSIMHIT];
-  int st_n_gem_simhits[MAXGEMSIMHIT];
+  vint has_mc_match;
+  vfloat st_pt;
+  vfloat st_eta;
+  vfloat st_phi;
+  vfloat st_min_dr;
 
-  /*   Char_t gem_sh_layer1, gem_sh_layer2; // bit1: in odd  bit2: even */
-  /*   Float_t gem_sh_eta, gem_sh_phi; */
-  /*   Float_t gem_trk_eta, gem_trk_phi, gem_trk_rho; */
-  /*   Float_t gem_lx_even, gem_ly_even; */
-  /*   Float_t gem_lx_odd, gem_ly_odd; */
-  /*   Char_t  has_gem_sh_l1, has_gem_sh_l2; */
-  
+  vint st_n_csc_simhits;
+  vint st_n_gem_simhits;
+  vint st_n_alcts;
+  vint st_n_clcts;
+  vint st_n_tmblcts;
+  vint st_n_mpclcts;
+  vint st_n_tfTracks;
+  vint st_n_tfTracksAll;
+  vint st_n_tfCands;
+  vint st_n_tfCandsAll;
+  vint st_n_gmtRegCands;
+  vint st_n_gmtRegCandsAll;
+  vint st_n_gmtRegBest;
+  vint st_n_gmtCands;
+  vint st_n_gmtCandsAll;
+  vint st_n_gmtBest;
+  vint st_n_l1Extra;
+  vint st_n_l1ExtraAll;
+  vint st_n_l1ExtraBest;
+
   // gem simhits
-  std::vector<std::vector<Int_t> > gem_sh_detUnitId;
-  //Int_t gem_sh_detUnitId[MAXMU][MAXGEMSIMHIT];
-  Int_t gem_sh_particleType[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_lx[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_ly[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_energyLoss[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_pabs[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_timeOfFlight[MAXMU][MAXGEMSIMHIT];
-  Int_t gem_sh_detId[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_gx[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_gz[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_gr[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_geta[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_gphi[MAXMU][MAXGEMSIMHIT];
-  Int_t gem_sh_strip[MAXMU][MAXGEMSIMHIT];
-  Int_t gem_sh_part[MAXMU][MAXGEMSIMHIT];
-
+  vvint gem_sh_detUnitId;
+  vvint gem_sh_particleType;
+  vvfloat gem_sh_lx;
+  vvfloat gem_sh_ly;
+  vvfloat gem_sh_energyLoss;
+  vvfloat gem_sh_pabs;
+  vvfloat gem_sh_timeOfFlight;
+  vvint gem_sh_detId;
+  vvfloat gem_sh_gx;
+  vvfloat gem_sh_gz;
+  vvfloat gem_sh_gr;
+  vvfloat gem_sh_geta;
+  vvfloat gem_sh_gphi;
+  vvint gem_sh_strip;
+  vvint gem_sh_part;
+  vvint has_gem_sh_l1;
+  vvint has_gem_sh_l2;
+  
   // gem digi 
-  Int_t gem_dg_detId[MAXMU][MAXGEMDIGI];
-  Short_t gem_dg_strip[MAXMU][MAXGEMDIGI];
-  Short_t gem_dg_bx[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_lx[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_ly[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_gr[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_geta[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_gphi[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_gx[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_gy[MAXMU][MAXGEMDIGI]; 
-  Float_t gem_dg_gz[MAXMU][MAXGEMDIGI];
+  vvint gem_dg_detId;
+  vvint gem_dg_strip;
+  vvint gem_dg_bx;
+  vvfloat gem_dg_lx;
+  vvfloat gem_dg_ly;
+  vvfloat gem_dg_gr;
+  vvfloat gem_dg_geta;
+  vvfloat gem_dg_gphi;
+  vvfloat gem_dg_gx;
+  vvfloat gem_dg_gy; 
+  vvfloat gem_dg_gz;
 
   // gem pad
-  Int_t   gem_l1_pad_detId[MAXMU];
-  Short_t gem_l1_pad_strip[MAXMU];
-  Short_t gem_l1_pad_bx[MAXMU];
-  Float_t gem_l1_pad_lx[MAXMU];
-  Float_t gem_l1_pad_ly[MAXMU];
-  Float_t gem_l1_pad_gr[MAXMU];
-  Float_t gem_l1_pad_geta[MAXMU];
-  Float_t gem_l1_pad_gphi[MAXMU];
-  Float_t gem_l1_pad_gx[MAXMU];
-  Float_t gem_l1_pad_gy[MAXMU]; 
-  Float_t gem_l1_pad_gz[MAXMU];
-
-  Int_t   gem_l2_pad_detId[MAXMU];
-  Short_t gem_l2_pad_strip[MAXMU];
-  Short_t gem_l2_pad_bx[MAXMU];
-  Float_t gem_l2_pad_lx[MAXMU];
-  Float_t gem_l2_pad_ly[MAXMU];
-  Float_t gem_l2_pad_gr[MAXMU];
-  Float_t gem_l2_pad_geta[MAXMU];
-  Float_t gem_l2_pad_gphi[MAXMU];
-  Float_t gem_l2_pad_gx[MAXMU];
-  Float_t gem_l2_pad_gy[MAXMU]; 
-  Float_t gem_l2_pad_gz[MAXMU];
+  vvint gem_pad_detId;
+  vvint gem_pad_strip;
+  vvint gem_pad_bx;
+  vvfloat gem_pad_lx;
+  vvfloat gem_pad_ly;
+  vvfloat gem_pad_gr;
+  vvfloat gem_pad_geta;
+  vvfloat gem_pad_gphi;
+  vvfloat gem_pad_gx;
+  vvfloat gem_pad_gy; 
+  vvfloat gem_pad_gz;
+  vvfloat gem_pad_is_l1;
+  vvfloat gem_pad_is_copad;
 
   // csc simhit
-  Int_t csc_sh_detUnitId[MAXMU][MAXCSCSIMHIT];
-  Int_t csc_sh_particleType[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_lx[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_ly[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_energyLoss[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_pabs[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_timeOfFlight[MAXMU][MAXCSCSIMHIT];
-  Int_t csc_sh_detId[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_gx[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_gz[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_gr[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_geta[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_gphi[MAXMU][MAXCSCSIMHIT];
-  Int_t csc_sh_strip[MAXMU][MAXCSCSIMHIT];
-  Int_t csc_sh_wire[MAXMU][MAXCSCSIMHIT];
+  vvint csc_sh_detUnitId;
+  vvint csc_sh_particleType;
+  vvfloat csc_sh_lx;
+  vvfloat csc_sh_ly;
+  vvfloat csc_sh_energyLoss;
+  vvfloat csc_sh_pabs;
+  vvfloat csc_sh_timeOfFlight;
+  vvint csc_sh_detId;
+  vvfloat csc_sh_gx;
+  vvfloat csc_sh_gz;
+  vvfloat csc_sh_gr;
+  vvfloat csc_sh_geta;
+  vvfloat csc_sh_gphi;
+  vvint csc_sh_strip;
+  vvint csc_sh_wire;
 
   // csc ALCT
-  // max 5 stubs per muon
- 
-  uint16_t csc_st1_alct_valid[MAXMU];
-  uint16_t csc_st1_alct_quality[MAXMU]; 
-  uint16_t csc_st1_alct_accel[MAXMU]; 
-  uint16_t csc_st1_alct_keywire[MAXMU];
-  uint16_t csc_st1_alct_bx[MAXMU];
-  uint16_t csc_st1_alct_trknmb[MAXMU];
-  uint16_t csc_st1_alct_fullbx[MAXMU];
-  uint16_t csc_st1_alct_isGood[MAXMU];
-
-  uint16_t csc_st2_alct_valid[MAXMU];
-  uint16_t csc_st2_alct_quality[MAXMU]; 
-  uint16_t csc_st2_alct_accel[MAXMU]; 
-  uint16_t csc_st2_alct_keywire[MAXMU];
-  uint16_t csc_st2_alct_bx[MAXMU];
-  uint16_t csc_st2_alct_trknmb[MAXMU];
-  uint16_t csc_st2_alct_fullbx[MAXMU];
-  uint16_t csc_st2_alct_isGood[MAXMU];
-
-  uint16_t csc_st3_alct_valid[MAXMU];
-  uint16_t csc_st3_alct_quality[MAXMU]; 
-  uint16_t csc_st3_alct_accel[MAXMU]; 
-  uint16_t csc_st3_alct_keywire[MAXMU];
-  uint16_t csc_st3_alct_bx[MAXMU];
-  uint16_t csc_st3_alct_trknmb[MAXMU];
-  uint16_t csc_st3_alct_fullbx[MAXMU];
-  uint16_t csc_st3_alct_isGood[MAXMU];
-
-  uint16_t csc_st4_alct_valid[MAXMU];
-  uint16_t csc_st4_alct_quality[MAXMU]; 
-  uint16_t csc_st4_alct_accel[MAXMU]; 
-  uint16_t csc_st4_alct_keywire[MAXMU];
-  uint16_t csc_st4_alct_bx[MAXMU];
-  uint16_t csc_st4_alct_trknmb[MAXMU];
-  uint16_t csc_st4_alct_fullbx[MAXMU];
-  uint16_t csc_st4_alct_isGood[MAXMU];
-
-  uint16_t csc_st5_alct_valid[MAXMU];
-  uint16_t csc_st5_alct_quality[MAXMU]; 
-  uint16_t csc_st5_alct_accel[MAXMU]; 
-  uint16_t csc_st5_alct_keywire[MAXMU];
-  uint16_t csc_st5_alct_bx[MAXMU];
-  uint16_t csc_st5_alct_trknmb[MAXMU];
-  uint16_t csc_st5_alct_fullbx[MAXMU];
-  uint16_t csc_st5_alct_isGood[MAXMU];
+  vvint csc_alct_valid;
+  vvint csc_alct_quality; 
+  vvint csc_alct_accel; 
+  vvint csc_alct_keywire;
+  vvint csc_alct_bx;
+  vvint csc_alct_trknmb;
+  vvint csc_alct_fullbx;
+  vvint csc_alct_isGood;
+  vvint csc_alct_detId;
+  vvint csc_alct_deltaOk;
 
   // csc CLCT
-  uint16_t csc_st1_clct_valid[MAXMU];      
-  uint16_t csc_st1_clct_quality[MAXMU];    
-  uint16_t csc_st1_clct_pattern[MAXMU];    
-  uint16_t csc_st1_clct_bend[MAXMU];       
-  uint16_t csc_st1_clct_strip[MAXMU];      
-  uint16_t csc_st1_clct_cfeb[MAXMU];      
-  uint16_t csc_st1_clct_bx[MAXMU];        
-  uint16_t csc_st1_clct_trknmb[MAXMU];    
-  uint16_t csc_st1_clct_fullbx[MAXMU];
-  uint16_t csc_st1_clct_isGood[MAXMU];
+  vvint csc_clct_valid;      
+  vvint csc_clct_quality;    
+  vvint csc_clct_pattern;    
+  vvint csc_clct_bend;       
+  vvint csc_clct_strip;      
+  vvint csc_clct_cfeb;      
+  vvint csc_clct_bx;        
+  vvint csc_clct_trknmb;    
+  vvint csc_clct_fullbx;
+  vvint csc_clct_isGood;
 
   // csc LCT
-  uint16_t csc_lct_trknmb[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_valid[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_quality[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_keywire[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_strip[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_pattern[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_bend[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_bx[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_mpclink[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_bx0[MAXMU][MAXCSCSIMHIT]; 
-  uint16_t csc_lct_syncErr[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_cscID[MAXMU][MAXCSCSIMHIT];
-  float csc_lct_gemDPhi[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_isGood[MAXMU][MAXCSCSIMHIT];     
+  vvint csc_lct_trknmb;
+  vvint csc_lct_valid;
+  vvint csc_lct_quality;
+  vvint csc_lct_keywire;
+  vvint csc_lct_strip;
+  vvint csc_lct_pattern;
+  vvint csc_lct_bend;
+  vvint csc_lct_bx;
+  vvint csc_lct_mpclink;
+  vvint csc_lct_bx0; 
+  vvint csc_lct_syncErr;
+  vvint csc_lct_cscID;
+  vvfloat csc_lct_gemDPhi;
+  vvint csc_lct_isGood;     
 
   // CSC TF
+  Int_t has_TF_match;
+  // number of TF 
   
-
+  // CSC 
 };
-
-// ------------------------------------------------------------------------
-/* //! branch addresses settings */
-/* void setBranchAddresses(TTree* chain, Ntuple& treeVars); */
-
-/* //! create branches for a tree */
-/* void setBranches(TTree* chain, Ntuple& treeVars); */
-
-/* //! initialize branches */
-/* void initializeBranches(TTree* chain, Ntuple& treeVars); */
-
 
 TTree* MyNtuple::book(TTree *t, const std::string & name)
 {
@@ -225,462 +168,251 @@ TTree* MyNtuple::book(TTree *t, const std::string & name)
   t = fs->make<TTree>(name.c_str(), name.c_str());
 
   t->Branch("eventNumber", &eventNumber);
-  //  t->Branch("mc_pt",         &mc_pt,                "mc_pt[MAXMU]/F");
-  t->Branch("gem_sh_detUnitId","std::vector<std::vector<Int_t> >", &gem_sh_detUnitId);
-/*   t->Branch("st_pt", st_pt, "st_pt[MAXMU]/F"); */
-/*   t->Branch("st_eta", st_eta, "st_eta[MAXMU]/F"); */
-/*   t->Branch("st_phi", st_phi, "st_phi[MAXMU]/F"); */
-/*   t->Branch("csc_sh_pabs", csc_sh_pabs, "csc_sh_pabs[MAXMU][MAXGEMSIMHIT]/F"); */
+  t->Branch("mc_pt", &mc_pt);
+  t->Branch("mc_eta", &mc_eta);
+  t->Branch("mc_phi", &mc_phi);
+  t->Branch("mc_vertex_id", &mc_vertex_id);
+  t->Branch("has_mc_match", &has_mc_match);
+  t->Branch("st_pt", &st_pt);
+  t->Branch("st_eta", &st_eta);
+  t->Branch("st_phi", &st_phi);
+  t->Branch("st_min_dr", &st_min_dr);
 
-/*   t->SetBranchAddress("st_pt", st_pt); */
-/*   t->SetBranchAddress("st_eta", st_eta); */
-/*   t->SetBranchAddress("st_phi", st_phi); */
-/*   t->SetBranchAddress("csc_sh_pabs", csc_sh_pabs); */
+  t->Branch("st_n_csc_simhits",&st_n_csc_simhits);
+  t->Branch("st_n_gem_simhits",&st_n_gem_simhits);
+  t->Branch("st_n_alcts",&st_n_alcts);
+  t->Branch("st_n_clcts",&st_n_clcts);
+  t->Branch("st_n_tmblcts",&st_n_tmblcts);
+  t->Branch("st_n_mpclcts",&st_n_mpclcts);
+  t->Branch("st_n_tfTracks",&st_n_tfTracks);
+  t->Branch("st_n_tfTracksAll",&st_n_tfTracksAll);
+  t->Branch("st_n_tfCands",&st_n_tfCands);
+  t->Branch("st_n_tfCandsAll",&st_n_tfCandsAll);
+  t->Branch("st_n_gmtRegCands",&st_n_gmtRegCands);
+  t->Branch("st_n_gmtRegCandsAll",&st_n_gmtRegCandsAll);
+  t->Branch("st_n_gmtRegBest",&st_n_gmtRegBest);
+  t->Branch("st_n_gmtCands",&st_n_gmtCands);
+  t->Branch("st_n_gmtCandsAll",&st_n_gmtCandsAll);
+  t->Branch("st_n_gmtBest",&st_n_gmtBest);
+  t->Branch("st_n_l1Extra",&st_n_l1Extra);
+  t->Branch("st_n_l1ExtraAll",&st_n_l1ExtraAll);
+  t->Branch("st_n_l1ExtraBest",&st_n_l1ExtraBest);
+  
+  t->Branch("gem_sh_detUnitId", &gem_sh_detUnitId);
+  t->Branch("gem_sh_particleType",&gem_sh_particleType);
+  t->Branch("gem_sh_lx",&gem_sh_lx);
+  t->Branch("gem_sh_ly",&gem_sh_ly);
+  t->Branch("gem_sh_energyLoss",&gem_sh_energyLoss);
+  t->Branch("gem_sh_pabs",&gem_sh_pabs);
+  t->Branch("gem_sh_timeOfFlight",&gem_sh_timeOfFlight);
+  t->Branch("gem_sh_detId",&gem_sh_detId);
+  t->Branch("gem_sh_gx",&gem_sh_gx);
+  t->Branch("gem_sh_gz",&gem_sh_gz);
+  t->Branch("gem_sh_gr",&gem_sh_gr);
+  t->Branch("gem_sh_geta",&gem_sh_geta);
+  t->Branch("gem_sh_gphi",&gem_sh_gphi);
+  t->Branch("gem_sh_strip",&gem_sh_strip);
 
+  t->Branch("gem_dg_detId",&gem_dg_detId);
+  t->Branch("gem_dg_strip",&gem_dg_strip);
+  t->Branch("gem_dg_bx",&gem_dg_bx);
+  t->Branch("gem_dg_lx",&gem_dg_lx);
+  t->Branch("gem_dg_ly",&gem_dg_ly);
+  t->Branch("gem_dg_gr",&gem_dg_gr);
+  t->Branch("gem_dg_geta",&gem_dg_geta);
+  t->Branch("gem_dg_gphi",&gem_dg_gphi);
+  t->Branch("gem_dg_gx",&gem_dg_gx);
+  t->Branch("gem_dg_gy",&gem_dg_gy);
+  t->Branch("gem_dg_gz",&gem_dg_gz);
 
-  //  t -> SetBranchAddress("st_pt",       &st_pt);
+  t->Branch("gem_pad_detId",&gem_pad_detId);
+  t->Branch("gem_pad_strip",&gem_pad_strip);
+  t->Branch("gem_pad_bx",&gem_pad_bx);
+  t->Branch("gem_pad_lx",&gem_pad_lx);
+  t->Branch("gem_pad_ly",&gem_pad_ly);
+  t->Branch("gem_pad_gr",&gem_pad_gr);
+  t->Branch("gem_pad_geta",&gem_pad_geta);
+  t->Branch("gem_pad_gphi",&gem_pad_gphi);
+  t->Branch("gem_pad_gx",&gem_pad_gx);
+  t->Branch("gem_pad_gy",&gem_pad_gy);
+  t->Branch("gem_pad_gz",&gem_pad_gz);
+  t->Branch("gem_pad_is_l1",&gem_pad_is_l1);
+  t->Branch("gem_pad_is_copad",&gem_pad_is_copad);
+
+  t->Branch("csc_sh_detUnitId",&csc_sh_detUnitId);
+  t->Branch("csc_sh_particleType",&csc_sh_particleType);
+  t->Branch("csc_sh_lx",&csc_sh_lx);
+  t->Branch("csc_sh_ly",&csc_sh_ly);
+  t->Branch("csc_sh_energyLoss",&csc_sh_energyLoss);
+  t->Branch("csc_sh_pabs",&csc_sh_pabs);
+  t->Branch("csc_sh_timeOfFlight",&csc_sh_timeOfFlight);
+  t->Branch("csc_sh_detId",&csc_sh_detId);
+  t->Branch("csc_sh_gx",&csc_sh_gx);
+  t->Branch("csc_sh_gz",&csc_sh_gz);
+  t->Branch("csc_sh_gr",&csc_sh_gr);
+  t->Branch("csc_sh_geta",&csc_sh_geta);
+  t->Branch("csc_sh_gphi",&csc_sh_gphi);
+  t->Branch("csc_sh_strip",&csc_sh_strip);
+  t->Branch("csc_sh_wire",&csc_sh_wire);
+
+  t->Branch("csc_alct_valid",&csc_alct_valid);
+  t->Branch("csc_alct_quality",&csc_alct_quality);
+  t->Branch("csc_alct_accel",&csc_alct_accel);
+  t->Branch("csc_alct_keywire",&csc_alct_keywire);
+  t->Branch("csc_alct_bx",&csc_alct_bx);
+  t->Branch("csc_alct_trknmb",&csc_alct_trknmb);
+  t->Branch("csc_alct_fullbx",&csc_alct_fullbx);
+  t->Branch("csc_alct_detId",&csc_alct_detId);
+  t->Branch("csc_alct_isGood",&csc_alct_isGood);
+  t->Branch("csc_alct_deltaOk",&csc_alct_deltaOk);
+
+  t->Branch("csc_clct_valid",&csc_clct_valid);
+  t->Branch("csc_clct_quality",&csc_clct_quality);
+  t->Branch("csc_clct_pattern",&csc_clct_pattern);
+  t->Branch("csc_clct_bend",&csc_clct_bend);
+  t->Branch("csc_clct_strip",&csc_clct_strip);
+  t->Branch("csc_clct_cfeb",&csc_clct_cfeb);
+  t->Branch("csc_clct_bx",&csc_clct_bx);
+  t->Branch("csc_clct_trknmb",&csc_clct_trknmb);
+  t->Branch("csc_clct_fullbx",&csc_clct_fullbx);
+  t->Branch("csc_clct_isGood",&csc_clct_isGood);
+
+  t->Branch("csc_lct_trknmb",&csc_lct_trknmb);
+  t->Branch("csc_lct_valid",&csc_lct_valid);
+  t->Branch("csc_lct_quality",&csc_lct_quality);
+  t->Branch("csc_lct_keywire",&csc_lct_keywire);
+  t->Branch("csc_lct_strip",&csc_lct_strip);
+  t->Branch("csc_lct_pattern",&csc_lct_pattern);
+  t->Branch("csc_lct_bend",&csc_lct_bend);
+  t->Branch("csc_lct_bx",&csc_lct_bx);
+  t->Branch("csc_lct_mpclink",&csc_lct_mpclink);
+  t->Branch("csc_lct_bx0",&csc_lct_bx0);
+  t->Branch("csc_lct_syncErr",&csc_lct_syncErr);
+  t->Branch("csc_lct_cscID",&csc_lct_cscID);
+  t->Branch("csc_lct_gemDPhi",&csc_lct_gemDPhi);
+  t->Branch("csc_lct_isGood",&csc_lct_isGood);
+
   return t;
-
-
-  /*
-  // generator level information
-  float mc_pt[MAXMU];
-  float mc_eta[MAXMU];
-  float mc_phi[MAXMU];
-  int mc_vertex_id[MAXMU];
-
-  // simtrack information
-  float st_pt[MAXMU];
-  float sim_eta[MAXMU];
-  float sim_phi[MAXMU];
-  bool st_is_matched[MAXMU];
-  float st_min_dr[MAXMU];
-  int st_n_csc_simhits[MAXGEMSIMHIT];
-  int st_n_gem_simhits[MAXGEMSIMHIT];
-
-  // gem simhits
-  Int_t gem_sh_detUnitId[MAXMU][MAXGEMSIMHIT];
-  Int_t gem_sh_particleType[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_lx[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_ly[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_energyLoss[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_pabs[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_timeOfFlight[MAXMU][MAXGEMSIMHIT];
-  Int_t gem_sh_detId[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_gx[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_gz[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_gz[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_gr[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_geta[MAXMU][MAXGEMSIMHIT];
-  Float_t gem_sh_gphi[MAXMU][MAXGEMSIMHIT];
-  Int_t gem_sh_strip[MAXMU][MAXGEMSIMHIT];
-  Int_t gem_sh_part[MAXMU][MAXGEMSIMHIT];
-
-  // gem digi 
-  Int_t gem_dg_detId[MAXMU][MAXGEMDIGI];
-  Short_t gem_dg_strip[MAXMU][MAXGEMDIGI];
-  Short_t gem_dg_bx[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_lx[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_ly[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_gr[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_geta[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_gphi[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_gx[MAXMU][MAXGEMDIGI];
-  Float_t gem_dg_gy[MAXMU][MAXGEMDIGI]; 
-  Float_t gem_dg_gz[MAXMU][MAXGEMDIGI];
-
-  // gem pad
-  Int_t gem_pad_detId[MAXMU][MAXGEMPAD];
-  Short_t gem_pad_strip[MAXMU][MAXGEMPAD];
-  Short_t gem_pad_bx[MAXMU][MAXGEMPAD];
-  Float_t gem_pad_lx[MAXMU][MAXGEMPAD];
-  Float_t gem_pad_ly[MAXMU][MAXGEMPAD];
-  Float_t gem_pad_gr[MAXMU][MAXGEMPAD];
-  Float_t gem_pad_geta[MAXMU][MAXGEMPAD];
-  Float_t gem_pad_gphi[MAXMU][MAXGEMPAD];
-  Float_t gem_pad_gx[MAXMU][MAXGEMPAD];
-  Float_t gem_pad_gy[MAXMU][MAXGEMPAD]; 
-  Float_t gem_pad_gz[MAXMU][MAXGEMPAD];
-
-  // gem copad
-  Int_t gem_copad_detId[MAXMU][MAXGEMPAD];
-  Short_t gem_copad_strip[MAXMU][MAXGEMPAD];
-  Short_t gem_copad_bx[MAXMU][MAXGEMPAD];
-  Float_t gem_copad_lx[MAXMU][MAXGEMPAD];
-  Float_t gem_copad_ly[MAXMU][MAXGEMPAD];
-  Float_t gem_copad_gr[MAXMU][MAXGEMPAD];
-  Float_t gem_copad_geta[MAXMU][MAXGEMPAD];
-  Float_t gem_copad_gphi[MAXMU][MAXGEMPAD];
-  Float_t gem_copad_gx[MAXMU][MAXGEMPAD];
-  Float_t gem_copad_gy[MAXMU][MAXGEMPAD]; 
-  Float_t gem_copad_gz[MAXMU][MAXGEMPAD];
-
-  // csc simhit
-  Int_t csc_sh_detUnitId[MAXMU][MAXCSCSIMHIT];
-  Int_t csc_sh_particleType[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_lx[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_ly[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_energyLoss[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_pabs[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_timeOfFlight[MAXMU][MAXCSCSIMHIT];
-  Int_t csc_sh_detId[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_gx[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_gz[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_gz[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_gr[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_geta[MAXMU][MAXCSCSIMHIT];
-  Float_t csc_sh_gphi[MAXMU][MAXCSCSIMHIT];
-  Int_t csc_sh_strip[MAXMU][MAXCSCSIMHIT];
-  Int_t csc_sh_wire[MAXMU][MAXCSCSIMHIT];
-
-  // csc ALCT
-  uint16_t csc_alct_valid[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_alct_quality[MAXMU][MAXCSCSIMHIT];    
-  uint16_t csc_alct_accel[MAXMU][MAXCSCSIMHIT];     
-  uint16_t csc_alct_keywire[MAXMU][MAXCSCSIMHIT];    
-  uint16_t csc_alct_bx[MAXMU][MAXCSCSIMHIT];         
-  uint16_t csc_alct_trknmb[MAXMU][MAXCSCSIMHIT];     
-  uint16_t csc_alct_fullbx[MAXMU][MAXCSCSIMHIT];     
-  uint16_t csc_alct_isGood[MAXMU][MAXCSCSIMHIT];     
-
-  // csc CLCT
-  uint16_t csc_clct_valid[MAXMU][MAXCSCSIMHIT];      
-  uint16_t csc_clct_quality[MAXMU][MAXCSCSIMHIT];    
-  uint16_t csc_clct_pattern[MAXMU][MAXCSCSIMHIT];    
-  uint16_t csc_clct_bend[MAXMU][MAXCSCSIMHIT];       
-  uint16_t csc_clct_strip[MAXMU][MAXCSCSIMHIT];      
-  uint16_t csc_clct_cfeb[MAXMU][MAXCSCSIMHIT];      
-  uint16_t csc_clct_bx[MAXMU][MAXCSCSIMHIT];        
-  uint16_t csc_clct_trknmb[MAXMU][MAXCSCSIMHIT];     
-  uint16_t csc_clct_fullbx[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_clct_isGood[MAXMU][MAXCSCSIMHIT];     
-
-  // csc LCT
-  uint16_t csc_lct_trknmb[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_valid[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_quality[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_keywire[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_strip[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_pattern[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_bend[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_bx[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_mpclink[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_bx0[MAXMU][MAXCSCSIMHIT]; 
-  uint16_t csc_lct_syncErr[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_cscID[MAXMU][MAXCSCSIMHIT];
-  float csc_lct_gemDPhi[MAXMU][MAXCSCSIMHIT];
-  uint16_t csc_lct_isGood[MAXMU][MAXCSCSIMHIT];     
-
-
-  chain -> SetBranchAddress("runId",       &treeVars.runId);
-  chain -> SetBranchAddress("lumiSection", &treeVars.lumiSection);
-  chain -> SetBranchAddress("orbit",       &treeVars.orbit);
-  chain -> SetBranchAddress("bx",          &treeVars.bx);
-  chain -> SetBranchAddress("eventId",     &treeVars.eventId);
-  chain -> SetBranchAddress("triggered",   &treeVars.triggered);
-  chain -> SetBranchAddress("L1a",         &treeVars.L1a );
-  
-  //Selection variables
-  chain -> SetBranchAddress("Triggersel",      &treeVars.Triggersel     );
-  chain -> SetBranchAddress("Photonsel",      &treeVars.Photonsel     );
-  chain -> SetBranchAddress("Vertexsel",      &treeVars.Vertexsel     );
-  chain -> SetBranchAddress("Beamhalosel",      &treeVars.Beamhalosel     );
-  chain -> SetBranchAddress("Jetsel",      &treeVars.Jetsel     );
-  chain -> SetBranchAddress("METsel",      &treeVars.METsel     );
-
-  // PAT VARIABLES
-  chain -> SetBranchAddress("nMuons",      &treeVars.nMuons     );
-  chain -> SetBranchAddress("nElectrons",  &treeVars.nElectrons );
-  chain -> SetBranchAddress("nJets",       &treeVars.nJets      );
-  chain -> SetBranchAddress("nPhotons",    &treeVars.nPhotons   );
-  chain -> SetBranchAddress("nVertices",   &treeVars.nVertices  );
-  chain -> SetBranchAddress("totalNVtx",   &treeVars.totalNVtx  );
-  chain -> SetBranchAddress("nGen",        &treeVars.nGen       );
-  chain -> SetBranchAddress("nOutTimeHits",  &treeVars.nOutTimeHits );
-  chain -> SetBranchAddress("nHaloTrack",    &treeVars.nHaloTrack );
-  chain -> SetBranchAddress("haloPhi",       &treeVars.haloPhi    );
-  chain -> SetBranchAddress("haloRho",       &treeVars.haloRho    );
-
-  chain -> SetBranchAddress("met0Px",      &treeVars.met0Px     );
-  chain -> SetBranchAddress("met0Py",      &treeVars.met0Py     );
-  chain -> SetBranchAddress("met0",        &treeVars.met0       );
-  chain -> SetBranchAddress("metPx",       &treeVars.metPx     );
-  chain -> SetBranchAddress("metPy",       &treeVars.metPy     );
-  chain -> SetBranchAddress("met",         &treeVars.met       );
-  chain -> SetBranchAddress("met_dx1",     &treeVars.met_dx1    );
-  chain -> SetBranchAddress("met_dy1",     &treeVars.met_dy1    );
-  chain -> SetBranchAddress("met_dx2",     &treeVars.met_dx2    );
-  chain -> SetBranchAddress("met_dy2",     &treeVars.met_dy2    );
-  chain -> SetBranchAddress("met_dx3",     &treeVars.met_dx3    );
-  chain -> SetBranchAddress("met_dy3",     &treeVars.met_dy3    );
-
-  // trigger matched objects 
-  chain -> SetBranchAddress("t_phoPx",      &treeVars.t_phoPx    );
-  chain -> SetBranchAddress("t_phoPy",      &treeVars.t_phoPy    );
-  chain -> SetBranchAddress("t_phoPz",      &treeVars.t_phoPz    );
-  chain -> SetBranchAddress("t_phoE",       &treeVars.t_phoE     );
-  chain -> SetBranchAddress("t_phoPt",      &treeVars.t_phoPt     );
-  chain -> SetBranchAddress("t_phodR",      &treeVars.t_phodR    );
-  chain -> SetBranchAddress("t_phoDxy",      &treeVars.t_phoDxy    );
-  chain -> SetBranchAddress("t_phoDz",      &treeVars.t_phoDz    );
-  chain -> SetBranchAddress("t_metPx",      &treeVars.t_metPx    );
-  chain -> SetBranchAddress("t_metPy",      &treeVars.t_metPy    );
-  chain -> SetBranchAddress("t_met",        &treeVars.t_met      );
-  chain -> SetBranchAddress("t_metdR",      &treeVars.t_metdR    );
-
-  // vertex variables
-  chain -> SetBranchAddress("vtxNTracks", treeVars.vtxNTracks);
-  chain -> SetBranchAddress("vtxChi2",    treeVars.vtxChi2   );
-  chain -> SetBranchAddress("vtxNdof",    treeVars.vtxNdof   );
-  chain -> SetBranchAddress("vtxX",       treeVars.vtxX      );
-  chain -> SetBranchAddress("vtxY",       treeVars.vtxY      );
-  chain -> SetBranchAddress("vtxZ",       treeVars.vtxZ      );
-  chain -> SetBranchAddress("vtxDx",      treeVars.vtxDx     );
-  chain -> SetBranchAddress("vtxDy",      treeVars.vtxDy     );
-  chain -> SetBranchAddress("vtxDz",      treeVars.vtxDz     );
-
-  chain -> SetBranchAddress("muPx",        treeVars.muPx       );
-  chain -> SetBranchAddress("muPy",        treeVars.muPy       );
-  chain -> SetBranchAddress("muPz",        treeVars.muPz       );
-  chain -> SetBranchAddress("muE",         treeVars.muE        );
-  
-  chain -> SetBranchAddress("elePx",        treeVars.elePx     );
-  chain -> SetBranchAddress("elePy",        treeVars.elePy     );
-  chain -> SetBranchAddress("elePz",        treeVars.elePz     );
-  chain -> SetBranchAddress("eleE",         treeVars.eleE      );
-  chain -> SetBranchAddress("eleNLostHits", treeVars.eleNLostHits );
-  chain -> SetBranchAddress("eleEcalIso",   treeVars.eleEcalIso ) ;
-  chain -> SetBranchAddress("eleHcalIso",   treeVars.eleHcalIso ) ;
-  chain -> SetBranchAddress("eleTrkIso",    treeVars.eleTrkIso ) ;
-  
-  chain -> SetBranchAddress("jetPx",        treeVars.jetPx     );
-  chain -> SetBranchAddress("jetPy",        treeVars.jetPy     );
-  chain -> SetBranchAddress("jetPz",        treeVars.jetPz     );
-  chain -> SetBranchAddress("jetE",         treeVars.jetE      );
-  chain -> SetBranchAddress("jetNDau",      treeVars.jetNDau   );
-  chain -> SetBranchAddress("jetCM",        treeVars.jetCM     );
-  chain -> SetBranchAddress("jetCEF",       treeVars.jetCEF    );
-  chain -> SetBranchAddress("jetCHF",       treeVars.jetCHF    );
-  chain -> SetBranchAddress("jetNHF",       treeVars.jetNHF    );
-  chain -> SetBranchAddress("jetNEF",       treeVars.jetNEF    );
-  chain -> SetBranchAddress("jerUnc",        treeVars.jerUnc     );
-  chain -> SetBranchAddress("jecUnc",       treeVars.jecUnc    );
-  //chain -> SetBranchAddress("jecUncU",      treeVars.jecUncU  );
-  //chain -> SetBranchAddress("jecUncD",      treeVars.jecUncD  );
-  
-  chain -> SetBranchAddress("phoPx",        treeVars.phoPx     );
-  chain -> SetBranchAddress("phoPy",        treeVars.phoPy     );
-  chain -> SetBranchAddress("phoPz",        treeVars.phoPz     );
-  chain -> SetBranchAddress("phoE",         treeVars.phoE      );
-  chain -> SetBranchAddress("phoPt",         treeVars.phoPt      );
-  chain -> SetBranchAddress("phoEcalIso",   treeVars.phoEcalIso ) ;
-  chain -> SetBranchAddress("phoDxy",         treeVars.phoDxy      );
-  chain -> SetBranchAddress("phoDz",         treeVars.phoDz      );
-  chain -> SetBranchAddress("phoHcalIso",   treeVars.phoHcalIso ) ;
-  chain -> SetBranchAddress("phoTrkIso",    treeVars.phoTrkIso ) ;
-  chain -> SetBranchAddress("cHadIso",      treeVars.cHadIso ) ;
-  chain -> SetBranchAddress("nHadIso",      treeVars.nHadIso ) ;
-  chain -> SetBranchAddress("photIso",      treeVars.photIso ) ;
-  chain -> SetBranchAddress("dR_TrkPho",    treeVars.dR_TrkPho ) ;
-  chain -> SetBranchAddress("pt_TrkPho",    treeVars.pt_TrkPho ) ;
-  chain -> SetBranchAddress("phoHoverE",    treeVars.phoHoverE ) ;
-  chain -> SetBranchAddress("sMinPho",      treeVars.sMinPho ) ;
-  chain -> SetBranchAddress("sMajPho",      treeVars.sMajPho ) ;
-  chain -> SetBranchAddress("seedTime",     treeVars.seedTime ) ;
-  chain -> SetBranchAddress("seedTimeErr",  treeVars.seedTimeErr ) ;
-  chain -> SetBranchAddress("aveTime",      treeVars.aveTime ) ;
-  chain -> SetBranchAddress("aveTimeErr",   treeVars.aveTimeErr ) ;
-  chain -> SetBranchAddress("aveTime1",     treeVars.aveTime1 ) ;
-  chain -> SetBranchAddress("aveTimeErr1",  treeVars.aveTimeErr1 ) ;
-  chain -> SetBranchAddress("timeChi2",     treeVars.timeChi2 ) ;
-  chain -> SetBranchAddress("nXtals",       treeVars.nXtals ) ;
-  chain -> SetBranchAddress("fSpike",       treeVars.fSpike ) ;
-  chain -> SetBranchAddress("maxSwissX",    treeVars.maxSwissX ) ;
-  chain -> SetBranchAddress("seedSwissX",   treeVars.seedSwissX ) ;
-  chain -> SetBranchAddress("nBC",          treeVars.nBC ) ;
-  chain -> SetBranchAddress("sigmaEta",     treeVars.sigmaEta ) ;
-  chain -> SetBranchAddress("sigmaIeta",    treeVars.sigmaIeta ) ;
-  chain -> SetBranchAddress("cscRho",       treeVars.cscRho ) ;
-  chain -> SetBranchAddress("cscdPhi",      treeVars.cscdPhi ) ;
-  chain -> SetBranchAddress("dtdPhi",       treeVars.dtdPhi ) ;
-  chain -> SetBranchAddress("dtdEta",       treeVars.dtdEta ) ;
-
-  chain -> SetBranchAddress("genPx",        treeVars.genPx       );
-  chain -> SetBranchAddress("genPy",        treeVars.genPy       );
-  chain -> SetBranchAddress("genPz",        treeVars.genPz       );
-  chain -> SetBranchAddress("genE",         treeVars.genE        );
-  chain -> SetBranchAddress("genM",         treeVars.genM        );
-  chain -> SetBranchAddress("genVx",        treeVars.genVx       );
-  chain -> SetBranchAddress("genVy",        treeVars.genVy       );
-  chain -> SetBranchAddress("genVz",        treeVars.genVz       );
-  chain -> SetBranchAddress("genT",         treeVars.genT        );
-  chain -> SetBranchAddress("pdgId",        treeVars.pdgId       );
-  chain -> SetBranchAddress("momId",        treeVars.momId       );
-*/
-  
 }
 
-/* /\* */
-/* void setBranches(TTree* chain, Ntuple& treeVars) */
-/* { */
-/*   chain -> Branch("runId",         &treeVars.runId,                "runId/i"); */
-/*   chain -> Branch("lumiSection",   &treeVars.lumiSection,    "lumiSection/i"); */
-/*   chain -> Branch("orbit",         &treeVars.orbit,                "orbit/i"); */
-/*   chain -> Branch("bx",            &treeVars.bx,                      "bx/i"); */
-/*   chain -> Branch("eventId",       &treeVars.eventId,            "eventId/i"); */
-/*   chain -> Branch("triggered",     &treeVars.triggered,        "triggered/I"); */
-/*   chain -> Branch("L1a",           &treeVars.L1a,              "L1a/I"); */
+void MyNtuple::initialize()
+{
+  eventNumber = 0;
 
-  
-/*   //Selection variables */
-/*   chain -> Branch("Triggersel",       &treeVars.Triggersel,                "Triggersel/I"); */
-/*   chain -> Branch("Photonsel",       &treeVars.Photonsel,                "Photonsel/I"); */
-/*   chain -> Branch("Vertexsel",       &treeVars.Vertexsel,                "Vertexsel/I"); */
-/*   chain -> Branch("Beamhalosel",       &treeVars.Beamhalosel,                "Beamhalosel/I"); */
-/*   chain -> Branch("Jetsel",       &treeVars.Jetsel,                "Jetsel/I"); */
-/*   chain -> Branch("METsel",       &treeVars.METsel,                "METsel/I"); */
+  st_n_csc_simhits.clear();
+  st_n_gem_simhits.clear();
+  st_n_alcts.clear();
+  st_n_clcts.clear();
+  st_n_tmblcts.clear();
+  st_n_mpclcts.clear();
+  st_n_tfTracks.clear();
+  st_n_tfTracksAll.clear();
+  st_n_tfCands.clear();
+  st_n_tfCandsAll.clear();
+  st_n_gmtRegCands.clear();
+  st_n_gmtRegCandsAll.clear();
+  st_n_gmtRegBest.clear();
+  st_n_gmtCands.clear();
+  st_n_gmtCandsAll.clear();
+  st_n_gmtBest.clear();
+  st_n_l1Extra.clear();
+  st_n_l1ExtraAll.clear();
+  st_n_l1ExtraBest.clear();
+  gem_dg_detId.clear();
+  gem_dg_strip.clear();
+  gem_dg_bx.clear();
+  gem_dg_lx.clear();
+  gem_dg_ly.clear();
+  gem_dg_gr.clear();
+  gem_dg_geta.clear();
+  gem_dg_gphi.clear();
+  gem_dg_gx.clear();
+  gem_dg_gy.clear();
+  gem_dg_gz.clear();
+  gem_pad_detId.clear();
+  gem_pad_strip.clear();
+  gem_pad_bx.clear();
+  gem_pad_lx.clear();
+  gem_pad_ly.clear();
+  gem_pad_gr.clear();
+  gem_pad_geta.clear();
+  gem_pad_gphi.clear();
+  gem_pad_gx.clear();
+  gem_pad_gy.clear();
+  gem_pad_gz.clear();
+  gem_pad_is_l1.clear();
+  gem_pad_is_copad.clear();
 
-/*   // RECO VARIABLES */
-/*   chain -> Branch("nMuons",      &treeVars.nMuons,               "nMuons/I"); */
-/*   chain -> Branch("nElectrons",  &treeVars.nElectrons,           "nElectrons/I"); */
-/*   chain -> Branch("nJets",       &treeVars.nJets,                "nJets/I"); */
-/*   chain -> Branch("nPhotons",    &treeVars.nPhotons,             "nPhotons/I"); */
-/*   chain -> Branch("nVertices",   &treeVars.nVertices,            "nVertices/I"); */
-/*   chain -> Branch("totalNVtx",   &treeVars.totalNVtx,            "totalNVtx/I"); */
-/*   chain -> Branch("nGen",        &treeVars.nGen,                 "nGen/I"); */
+  csc_sh_detUnitId.clear();
+  csc_sh_particleType.clear();
+  csc_sh_lx.clear();
+  csc_sh_ly.clear();
+  csc_sh_energyLoss.clear();
+  csc_sh_pabs.clear();
+  csc_sh_timeOfFlight.clear();
+  csc_sh_detId.clear();
+  csc_sh_gx.clear();
+  csc_sh_gz.clear();
+  csc_sh_gr.clear();
+  csc_sh_geta.clear();
+  csc_sh_gphi.clear();
+  csc_sh_strip.clear();
+  csc_sh_wire.clear();
 
-/*   chain -> Branch("nOutTimeHits",  &treeVars.nOutTimeHits, "nOutTimeHits/I" ); */
-/*   chain -> Branch("nHaloTrack",    &treeVars.nHaloTrack,   "nHaloTrack/I" ); */
-/*   chain -> Branch("haloPhi",       &treeVars.haloPhi,      "haloPhi/F" ); */
-/*   chain -> Branch("haloRho",       &treeVars.haloRho,      "haloRho/F" ); */
+  csc_alct_valid.clear();
+  csc_alct_quality.clear();
+  csc_alct_accel.clear();
+  csc_alct_keywire.clear();
+  csc_alct_bx.clear();
+  csc_alct_trknmb.clear();
+  csc_alct_fullbx.clear();
+  csc_alct_isGood.clear();
+  csc_alct_deltaOk.clear();
+  csc_alct_detId.clear();
 
-/*   chain -> Branch("met0Px",      &treeVars.met0Px,               "met0Px/F"); */
-/*   chain -> Branch("met0Py",      &treeVars.met0Py,               "met0Py/F"); */
-/*   chain -> Branch("met0",        &treeVars.met0,                 "met0/F"); */
-/*   chain -> Branch("metPx",       &treeVars.metPx,                "metPx/F"); */
-/*   chain -> Branch("metPy",       &treeVars.metPy,                "metPy/F"); */
-/*   chain -> Branch("met",         &treeVars.met,                  "met/F"); */
-/*   chain -> Branch("met_dx1",     &treeVars.met_dx1,              "met_dx1/F"); */
-/*   chain -> Branch("met_dy1",     &treeVars.met_dy1,              "met_dy1/F"); */
-/*   chain -> Branch("met_dx2",     &treeVars.met_dx2,              "met_dx2/F"); */
-/*   chain -> Branch("met_dy2",     &treeVars.met_dy2,              "met_dy2/F"); */
-/*   chain -> Branch("met_dx3",     &treeVars.met_dx3,              "met_dx3/F"); */
-/*   chain -> Branch("met_dy3",     &treeVars.met_dy3,              "met_dy3/F"); */
+  csc_clct_valid.clear();
+  csc_clct_quality.clear();
+  csc_clct_pattern.clear();
+  csc_clct_bend.clear();
+  csc_clct_strip.clear();
+  csc_clct_cfeb.clear();
+  csc_clct_bx.clear();
+  csc_clct_trknmb.clear();
+  csc_clct_fullbx.clear();
+  csc_clct_isGood.clear();
 
-
-/*   chain -> Branch("t_metPx",     &treeVars.t_metPx,              "t_metPx/F"); */
-/*   chain -> Branch("t_metPy",     &treeVars.t_metPy,              "t_metPy/F"); */
-/*   chain -> Branch("t_met",       &treeVars.t_met,                "t_met/F"); */
-/*   chain -> Branch("t_metdR",     &treeVars.t_metdR,              "t_metdR/F"); */
-/*   chain -> Branch("t_phoPx",     &treeVars.t_phoPx,              "t_phoPx/F"); */
-/*   chain -> Branch("t_phoPy",     &treeVars.t_phoPy,              "t_phoPy/F"); */
-/*   chain -> Branch("t_phoPz",     &treeVars.t_phoPz,              "t_phoPz/F"); */
-/*   chain -> Branch("t_phoE",      &treeVars.t_phoE,               "t_phoE/F"); */
-/*   chain -> Branch("t_phoPt",     &treeVars.t_phoPt,              "t_phoPt/F"); */
-/*   chain -> Branch("t_phodR",     &treeVars.t_phodR,              "t_phodR/F"); */
-/*   chain -> Branch("t_phoDxy",     &treeVars.t_phoDxy,              "t_phoDxy/F"); */
-/*   chain -> Branch("t_phoDz",     &treeVars.t_phoDz,              "t_phoDz/F"); */
-
-/*   chain -> Branch("muPx",        treeVars.muPx,                 "muPx[nMuons]/F"); */
-/*   chain -> Branch("muPy",        treeVars.muPy,                 "muPy[nMuons]/F"); */
-/*   chain -> Branch("muPz",        treeVars.muPz,                 "muPz[nMuons]/F"); */
-/*   chain -> Branch("muE",         treeVars.muE,                  "muE[nMuons]/F"); */
-  
-/*   chain -> Branch("elePx",        treeVars.elePx,                 "elePx[nElectrons]/F"); */
-/*   chain -> Branch("elePy",        treeVars.elePy,                 "elePy[nElectrons]/F"); */
-/*   chain -> Branch("elePz",        treeVars.elePz,                 "elePz[nElectrons]/F"); */
-
-/*   chain -> Branch("eleE",         treeVars.eleE,                  "eleE[nElectrons]/F"); */
-
-/*   chain -> Branch("eleNLostHits", treeVars.eleNLostHits,          "eleNLostHits[nElectrons]/I" ); */
-
-/*   chain -> Branch("eleEcalIso",   treeVars.eleEcalIso,            "eleEcalIso[nElectrons]/F") ; */
-
-/*   chain -> Branch("eleHcalIso",   treeVars.eleHcalIso,            "eleHcalIso[nElectrons]/F") ; */
-/*   chain -> Branch("eleTrkIso",    treeVars.eleTrkIso,             "eleTrkIso[nElectrons]/F" ) ; */
-  
-/*   chain -> Branch("jetPx",        treeVars.jetPx,                 "jetPx[nJets]/F"); */
-/*   chain -> Branch("jetPy",        treeVars.jetPy,                 "jetPy[nJets]/F"); */
-/*   chain -> Branch("jetPz",        treeVars.jetPz,                 "jetPz[nJets]/F"); */
-/*   chain -> Branch("jetE",         treeVars.jetE,                  "jetE[nJets]/F"); */
-/*   chain -> Branch("jetNDau",      treeVars.jetNDau,               "jetNDau[nJets]/I"); */
-/*   chain -> Branch("jetCM",        treeVars.jetCM,                 "jetCM[nJets]/I"  ); */
-/*   chain -> Branch("jetCEF",       treeVars.jetCEF,                "jetCEF[nJets]/F" ); */
-/*   chain -> Branch("jetCHF",       treeVars.jetCHF,                "jetCHF[nJets]/F" ); */
-/*   chain -> Branch("jetNHF",       treeVars.jetNHF,                "jetNHF[nJets]/F" ); */
-/*   chain -> Branch("jetNEF",       treeVars.jetNEF,                "jetNEF[nJets]/F" ); */
-/*   chain -> Branch("jerUnc",        treeVars.jerUnc,                 "jerUnc[nJets]/F"  ); */
-/*   chain -> Branch("jecUnc",       treeVars.jecUnc,                "jecUnc[nJets]/F" ); */
-/*   //chain -> Branch("jecUncU",      treeVars.jecUncU,               "jecUncU[nJets]/F" ); */
-/*   //chain -> Branch("jecUncD",      treeVars.jecUncD,               "jecUncD[nJets]/F" ); */
-  
-/*   chain -> Branch("phoPx",        treeVars.phoPx,                 "phoPx[nPhotons]/F"); */
-/*   chain -> Branch("phoPy",        treeVars.phoPy,                 "phoPy[nPhotons]/F"); */
-/*   chain -> Branch("phoPz",        treeVars.phoPz,                 "phoPz[nPhotons]/F"); */
-/*   chain -> Branch("phoE",         treeVars.phoE,                  "phoE[nPhotons]/F"); */
-/*   chain -> Branch("phoPt",         treeVars.phoPt,                  "phoPt[nPhotons]/F"); */
-/*   chain -> Branch("phoDxy",         treeVars.phoDxy,                  "phoDxy[nPhotons]/F"); */
-/*   chain -> Branch("phoDz",         treeVars.phoDz,                  "phoDz[nPhotons]/F"); */
-/*   chain -> Branch("phoEcalIso",   treeVars.phoEcalIso,            "phoEcalIso[nPhotons]/F") ; */
-/*   chain -> Branch("phoHcalIso",   treeVars.phoHcalIso,            "phoHcalIso[nPhotons]/F") ; */
-/*   chain -> Branch("phoTrkIso",    treeVars.phoTrkIso,             "phoTrkIso[nPhotons]/F") ; */
-/*   chain -> Branch("cHadIso",      treeVars.cHadIso,               "cHadIso[nPhotons]/F") ; */
-/*   chain -> Branch("nHadIso",      treeVars.nHadIso,               "nHadIso[nPhotons]/F") ; */
-/*   chain -> Branch("photIso",      treeVars.photIso,               "photIso[nPhotons]/F") ; */
-/*   chain -> Branch("dR_TrkPho",    treeVars.dR_TrkPho,             "dR_TrkPho[nPhotons]/F") ; */
-/*   chain -> Branch("pt_TrkPho",    treeVars.pt_TrkPho,             "pt_TrkPho[nPhotons]/F") ; */
-/*   chain -> Branch("phoHoverE",    treeVars.phoHoverE,             "phoHoverE[nPhotons]/F") ; */
-/*   chain -> Branch("sMinPho",      treeVars.sMinPho,               "sMinPho[nPhotons]/F") ; */
-/*   chain -> Branch("sMajPho",      treeVars.sMajPho,               "sMajPho[nPhotons]/F") ; */
-/*   chain -> Branch("seedTime",     treeVars.seedTime,              "seedTime[nPhotons]/F") ; */
-/*   chain -> Branch("seedTimeErr",  treeVars.seedTimeErr,           "seedTimeErr[nPhotons]/F") ; */
-/*   chain -> Branch("aveTime",      treeVars.aveTime,               "aveTime[nPhotons]/F") ; */
-/*   chain -> Branch("aveTimeErr",   treeVars.aveTimeErr,            "aveTimeErr[nPhotons]/F") ; */
-/*   chain -> Branch("aveTime1",     treeVars.aveTime1,              "aveTime1[nPhotons]/F") ; */
-/*   chain -> Branch("aveTimeErr1",  treeVars.aveTimeErr1,           "aveTimeErr1[nPhotons]/F") ; */
-/*   chain -> Branch("timeChi2",     treeVars.timeChi2,              "timeChi2[nPhotons]/F") ; */
-/*   chain -> Branch("fSpike",       treeVars.fSpike,                "fSpike[nPhotons]/F"  ) ; */
-/*   chain -> Branch("maxSwissX",    treeVars.maxSwissX,             "maxSwissX[nPhotons]/F"  ) ; */
-/*   chain -> Branch("seedSwissX",   treeVars.seedSwissX,            "seedSwissX[nPhotons]/F"  ) ; */
-/*   chain -> Branch("nXtals",       treeVars.nXtals,                "nXtals[nPhotons]/I"  ) ; */
-/*   chain -> Branch("nBC",          treeVars.nBC,                   "nBC[nPhotons]/I"  ) ; */
-/*   chain -> Branch("sigmaEta",     treeVars.sigmaEta,              "sigmaEta[nPhotons]/I"  ) ; */
-/*   chain -> Branch("sigmaIeta",    treeVars.sigmaIeta,             "sigmaIeta[nPhotons]/I"  ) ; */
-/*   chain -> Branch("cscRho",       treeVars.cscRho,                "cscRho[nPhotons]/F"  ) ; */
-/*   chain -> Branch("cscdPhi",      treeVars.cscdPhi,               "cscdPhi[nPhotons]/F"  ) ; */
-/*   chain -> Branch("dtdPhi",       treeVars.dtdPhi,                "dtdPhi[nPhotons]/F"  ) ; */
-
-/*   chain -> Branch("dtdEta",       treeVars.dtdEta,                "dtdEta[nPhotons]/F"  ) ; */
- 
-/*   chain -> Branch("vtxNTracks",       treeVars.vtxNTracks,   "vtxNTracks[nVertices]/I"); */
-/*   chain -> Branch("vtxChi2",          treeVars.vtxChi2,      "vtxChi2[nVertices]/F"); */
-/*   chain -> Branch("vtxNdof",          treeVars.vtxNdof,      "vtxNdof[nVertices]/F"); */
-/*   chain -> Branch("vtxX",             treeVars.vtxX,         "vtxX[nVertices]/F"); */
-/*   chain -> Branch("vtxY",             treeVars.vtxY,         "vtxY[nVertices]/F"); */
-/*   chain -> Branch("vtxZ",             treeVars.vtxZ,         "vtxZ[nVertices]/F"); */
-/*   chain -> Branch("vtxDx",            treeVars.vtxDx,        "vtxDx[nVertices]/F"); */
-/*   chain -> Branch("vtxDy",            treeVars.vtxDy,        "vtxDy[nVertices]/F"); */
-/*   chain -> Branch("vtxDz",            treeVars.vtxDz,        "vtxDz[nVertices]/F"); */
-  
-/*   chain -> Branch("pdgId",        treeVars.pdgId,                 "pdgId[nGen]/I"); */
-/*   chain -> Branch("momId",        treeVars.momId,                 "momId[nGen]/I"); */
-/*   chain -> Branch("genPx",        treeVars.genPx,                 "genPx[nGen]/F"); */
-/*   chain -> Branch("genPy",        treeVars.genPy,                 "genPy[nGen]/F"); */
-/*   chain -> Branch("genPz",        treeVars.genPz,                 "genPz[nGen]/F"); */
-/*   chain -> Branch("genE",         treeVars.genE,                  "genE[nGen]/F"); */
-/*   chain -> Branch("genM",         treeVars.genM,                  "genM[nGen]/F"); */
-/*   chain -> Branch("genVx",        treeVars.genVx,                 "genVx[nGen]/F"); */
-/*   chain -> Branch("genVy",        treeVars.genVy,                 "genVy[nGen]/F"); */
-/*   chain -> Branch("genVz",        treeVars.genVz,                 "genVz[nGen]/F"); */
-/*   chain -> Branch("genT",         treeVars.genT,                  "genT[nGen]/F"); */
-  
-/* } */
+  csc_lct_trknmb.clear();
+  csc_lct_valid.clear();
+  csc_lct_quality.clear();
+  csc_lct_keywire.clear();
+  csc_lct_strip.clear();
+  csc_lct_pattern.clear();
+  csc_lct_bend.clear();
+  csc_lct_bx.clear();
+  csc_lct_mpclink.clear();
+  csc_lct_bx0.clear();
+  csc_lct_syncErr.clear();
+  csc_lct_cscID.clear();
+  csc_lct_gemDPhi.clear();
+  csc_lct_isGood.clear();
 
 
-/* void initializeBranches(TTree* chain, Ntuple& treeVars) */
-/* { */
-/* } */
-
-/* *\/ */
+/*   for (int i = 0; i< MAXMU; ++i){ */
+/*     mc_pt[i] = 0; */
+/*     mc_eta[i] = 0; */
+/*     mc_phi[i] = 0; */
+/*     mc_vertex_id[i] = 0; */
+/*     has_mc_match[i] = 0; */
+/*     st_pt[i] = 0; */
+/*     st_eta[i] = 0; */
+/*     st_phi[i] = 0; */
+/*     st_is_matched[i] = 0; */
+/*     st_min_dr[i] = 0; */
+/*     st_n_csc_simhits[i] = 0; */
+/*     st_n_gem_simhits[i] = 0; */
+/*     has_gem_sh_l1[i] = 0; */
+/*     has_gem_sh_l2[i] = 0; */
+/*   } */
+}
 
 #endif

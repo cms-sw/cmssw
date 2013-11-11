@@ -30,6 +30,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include "DataFormats/Math/interface/normalizedPhi.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -41,8 +44,9 @@
 #include "GEMCode/SimMuL1/interface/MatchCSCMuL1.h"
 #include "GEMCode/SimMuL1/interface/MuGeometryHelpers.h"
 #include "GEMCode/SimMuL1/interface/PSimHitMap.h"
+#include "GEMCode/SimMuL1/plugins/Ntuple.h"
 
-#include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
+#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
@@ -55,7 +59,13 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
+
+typedef std::vector<std::vector<Float_t> > vvfloat;
+typedef std::vector<std::vector<Int_t> > vvint;
+typedef std::vector<Float_t> vfloat;
+typedef std::vector<Int_t> vint;
 
 //
 // class declaration
@@ -181,7 +191,8 @@ private:
   static const double PT_THRESHOLDS[N_PT_THRESHOLDS];
   static const double PT_THRESHOLDS_FOR_ETA[N_PT_THRESHOLDS];
 
-  std::vector<MatchCSCMuL1*> matches;
+  TTree *tree_eff_;
+  MyNtuple etrk_;
 };
 
 //
@@ -257,6 +268,9 @@ SimpleMuon::SimpleMuon(const edm::ParameterSet& iConfig)
   minDeltaStrip_   = iConfig.getUntrackedParameter<int>("minDeltaStrip", 1);
   gangedME1a = iConfig.getUntrackedParameter<bool>("gangedME1a", false);
 
+  tree_eff_ = etrk_.book(tree_eff_,"efficiency");
+  etrk_.initialize();
+
 }
 
 
@@ -277,6 +291,21 @@ SimpleMuon::~SimpleMuon()
 void
 SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  etrk_.csc_alct_valid.clear();
+  etrk_.csc_alct_quality.clear();
+  etrk_.csc_alct_keywire.clear();
+  etrk_.csc_alct_bx.clear();
+  etrk_.csc_alct_trknmb.clear();
+  etrk_.csc_alct_fullbx.clear();
+  etrk_.csc_alct_isGood.clear();
+  etrk_.csc_alct_detId.clear();
+  etrk_.csc_alct_deltaOk.clear();
+
+
+
+
+
+
   // ================================================================================================ 
 
   //                   G E O M E T R Y   A N D   M A G N E T I C   F I E L D 
@@ -309,7 +338,22 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle< reco::GenParticleCollection > hMCCand;
   iEvent.getByLabel("genParticles", hMCCand);
   const reco::GenParticleCollection & cands  = *(hMCCand.product()); 
-  
+
+  /*
+  // get PU information
+  int bunch_n;
+  edm::Handle<std::vector<PileupSummaryInfo> > puInfo;
+  iEvent.getByLabel("addPileupInfo", puInfo);
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
+  bunch_n=0;
+  for(PVI = puInfo->begin(); PVI != puInfo->end(); ++PVI) {
+    //    pileup.push_back(PVI->getPU_NumInteractions());
+    std::cout << "PVI->getPU_NumInteractions() " << PVI->getPU_NumInteractions() << std::endl;
+    bunch_n++;
+  }
+  std::cout << "number of prim verties: " << bunch_n << std::endl;
+  */
+
   // get SimTracks
   edm::Handle< edm::SimTrackContainer > hSimTracks;
   iEvent.getByLabel("g4SimHits", hSimTracks);
@@ -357,6 +401,58 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel("simCscTriggerPrimitiveDigis", "MPCSORTED", lcts_mpc);
   const CSCCorrelatedLCTDigiCollection* mpclcts = lcts_mpc.product();
 
+  //------------------------------------------------------------------------------------------------
+  
+  // store the CSC trigger primitives in maps of <detId, collection>
+  std::map<int,std::vector<CSCALCTDigi> > detALCT;
+  detALCT.clear();
+  for (CSCALCTDigiCollection::DigiRangeIterator  adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++)
+  {
+    const CSCDetId& id((*adetUnitIt).first);
+    const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
+    for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    {
+      if ((*digiIt).isValid()) detALCT[id.rawId()].push_back(*digiIt);
+    }
+  } 
+
+  std::map<int,std::vector<CSCCLCTDigi> > detCLCT;
+  detCLCT.clear();
+  for (CSCCLCTDigiCollection::DigiRangeIterator adetUnitIt = clcts->begin(); adetUnitIt != clcts->end(); adetUnitIt++)
+    {
+    const CSCDetId& id((*adetUnitIt).first);
+    const CSCCLCTDigiCollection::Range& range = (*adetUnitIt).second;
+    for (CSCCLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    {
+      if ((*digiIt).isValid()) detCLCT[id.rawId()].push_back(*digiIt);
+    }
+  } 
+
+  std::map<int,std::vector<CSCCorrelatedLCTDigi> > detTMBLCT;
+  detTMBLCT.clear();
+  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = tmblcts->begin();  detUnitIt != tmblcts->end(); detUnitIt++) 
+  {
+    const CSCDetId& id((*detUnitIt).first);
+    const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
+    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    {
+      if ((*digiIt).isValid()) detTMBLCT[id.rawId()].push_back(*digiIt);
+    }
+  }
+
+  std::map<int,std::vector<CSCCorrelatedLCTDigi> > detMPCLCT;
+  detMPCLCT.clear();
+  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = mpclcts->begin();  detUnitIt != mpclcts->end(); detUnitIt++) 
+  {
+    const CSCDetId& id((*detUnitIt).first);
+    const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
+    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    {
+      if ((*digiIt).isValid()) detMPCLCT[id.rawId()].push_back(*digiIt);
+    }
+  }
+
+
   // ================================================================================================ 
   //
   //                                 M U O N   S E L E C T I O N 
@@ -368,6 +464,9 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Select the good generator level muons
   std::vector<const reco::GenParticle *> goodGenMuons;
   std::cout << "size of candidate gen particles " << cands.size() << std::endl;
+  std::cout << "size of simtracks " << simTracks.size() << std::endl;
+  std::cout << "size of simVertices " << simVertices.size() << std::endl;
+
   for ( size_t ic = 0; ic < cands.size(); ic++ )
   {
     const reco::GenParticle * cand = &(cands[ic]);
@@ -430,7 +529,7 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     const double sim_pt(sqrt(track->momentum().perp2()));
     const double sim_eta(track->momentum().eta());
     const double sim_phi(normalizedPhi(track->momentum().phi()));
-    
+
     // ignore muons with very low pt
     if (sim_pt<2.) continue;
 
@@ -475,14 +574,6 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // add the muon to the good sim muons
     goodSimMuons.push_back(*track);
 
-    // store the SIM level and GEN level information
-    //    etrk_.mc_pt[nevt]  = (float) mcpt;
-    //    etrk_.mc_eta[nevt] = (float) mceta;
-    //    etrk_.mc_phi[nevt] = (float) mcphi;
-    // 	  etrk_.st_pt[nevt]  = (float) stpt;
-    // 	  etrk_.st_eta[nevt] = (float) steta;
-    // 	  etrk_.st_phi[nevt] = (float) stphi;
-    // 	  etrk_.has_mc_match[nevt] = 1;
     
   }
   if (debug) std::cout << "Number of good simulation level muons " << goodSimMuons.size() << std::endl;
@@ -496,24 +587,33 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		       << std::endl;
   */
 
+
+
+
+
   // ================================================================================================ 
   //
   //                      M A I N    L O O P    O V E R   S I M T R A C K S 
   //
   // ================================================================================================ 
-  int nGoodSimTrk = 0;
+
+  
   for (edm::SimTrackContainer::const_iterator track = goodSimMuons.begin(); track != goodSimMuons.end(); ++track)
   {
     const double track_pt(track->momentum().pt());
     const double track_eta(track->momentum().eta());
+    const double track_phi(normalizedPhi(track->momentum().phi()));
+
+    etrk_.st_pt.push_back(track_pt);
+    etrk_.st_eta.push_back(track_eta);
+    etrk_.st_phi.push_back(track_phi);
 
     // Extra muon selection
     const bool pt_ok(fabs(track_pt) > 20.);
     const bool eta_ok(1.2 <= fabs(track_eta) && fabs(track_eta) <= 2.5);
-    //const bool pt_eta_ok(pt_ok && eta_ok);
+    const bool pt_eta_ok(pt_ok && eta_ok);
 
-    if (!pt_ok) continue;
-    if (!eta_ok) continue;
+    if (!pt_eta_ok) continue;
 
     // create a new matching object for this simtrack 
     MatchCSCMuL1 * match = new MatchCSCMuL1(&*track, &(simVertices[track->vertIndex()]), cscGeometry);
@@ -539,12 +639,118 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     matchSimTrack2ALCTs(match, allCSCSimHits, alcts, wiredc);
 
     matchSimTrack2CLCTs(match, allCSCSimHits, clcts, compdc);
+
+    etrk_.st_n_csc_simhits.push_back(match->simHits.size());
+    etrk_.st_n_alcts.push_back(match->ALCTs.size());
+    etrk_.st_n_clcts.push_back(match->CLCTs.size());
+//     etrk_.st_n_tmblcts.push_back();
+//     etrk_.st_n_mpclcts.push_back();
+//     etrk_.st_n_tfTracks.push_back();
+//     etrk_.st_n_tfTracksAll.push_back();
+//     etrk_.st_n_tfCands.push_back();
+//     etrk_.st_n_tfCandsAll.push_back();
+//     etrk_.st_n_gmtRegCands.push_back();
+//     etrk_.st_n_gmtRegCandsAll.push_back();
+//     etrk_.st_n_gmtRegBest.push_back();
+//     etrk_.st_n_gmtCands.push_back();
+//     etrk_.st_n_gmtCandsAll.push_back();
+//     etrk_.st_n_gmtBest.push_back();
+//     etrk_.st_n_l1Extra.push_back();
+//     etrk_.st_n_l1ExtraAll.push_back();
+//     etrk_.st_n_l1ExtraBest.push_back();
+
+// 		 <<" nLCT: "<<match->LCTs.size() 
+// 		 <<" nMPLCT: "<<match->MPLCTs.size() 
+// 		 <<" TFTRACKs/All: "<<match->TFTRACKs.size() <<"/"<<match->TFTRACKsAll.size()
+// 		 <<" TFCANDs/All: "<<match->TFCANDs.size() <<"/"<<match->TFCANDsAll.size()
+// 		 <<" GMTREGs/All: "<<match->GMTREGCANDs.size()<<"/"<<match->GMTREGCANDsAll.size()
+// 		 <<"  GMTRegBest:"<<(match->GMTREGCANDBest.l1reg != NULL)
+// 		 <<" GMTs/All: "<<match->GMTCANDs.size()<<"/"<<match->GMTCANDsAll.size()
+// 		 <<" GMTBest:"<<(match->GMTCANDBest.l1gmt != NULL)
+// 		 <<" L1EXTRAs/All: "<<match->L1EXTRAs.size()<<"/"<<match->L1EXTRAsAll.size()
+// 		 <<" L1EXTRABest:"<<(match->L1EXTRABest.l1extra != NULL)<<std::endl;
+
+
+    // get GEM information
+//     etrk_.st_n_gem_simhits.push_back();
+
+
     
+    //------------------------------------------------------------------------------------------------
+    //                               ALCTs in the readout 
+    //------------------------------------------------------------------------------------------------
+    std::vector<MatchCSCMuL1::ALCT> readoutALCTCollection(match->ALCTsInReadOut());
+//     std::vector<MatchCSCMuL1::ALCT> goodME1ALCTCollection;
+    if (readoutALCTCollection.size()==0) {
+      std::cout << "WARNING: ALCT Readout collection is empty" << std::endl;
+      continue;
+    }
+    
+//     const MatchCSCMuL1::ALCT* bestALCT(match->bestALCT(detId));
+//     if (bestALCT==nullptr) { 
+//       std::cout << "WARNING: No best ALCT" << std::endl;
+//     }
+    vint trk_csc_alct_valid;
+    vint trk_csc_alct_quality; 
+    vint trk_csc_alct_keywire;
+    vint trk_csc_alct_bx;
+    vint trk_csc_alct_trknmb;
+    vint trk_csc_alct_fullbx;
+    vint trk_csc_alct_isGood;
+    vint trk_csc_alct_detId;
+    vint trk_csc_alct_deltaOk;
 
-    matches.push_back(match);
-    ++nGoodSimTrk;
+    trk_csc_alct_valid.clear();
+    trk_csc_alct_quality.clear();
+    trk_csc_alct_keywire.clear();
+    trk_csc_alct_bx.clear();
+    trk_csc_alct_trknmb.clear();
+    trk_csc_alct_fullbx.clear();
+    trk_csc_alct_isGood.clear();
+    trk_csc_alct_detId.clear();
+    trk_csc_alct_deltaOk.clear();
+
+    std::cout << "number of alcts: " << readoutALCTCollection.size() << std::endl;
+    for (unsigned i=0; i<readoutALCTCollection.size();i++) {
+      std::cout << "\t i = " << i << std::endl;
+      // check if the ALCT is in the readout 
+      auto myALCT(readoutALCTCollection.at(i));
+      if (myALCT.inReadOut()==0) continue;
+      
+      //       const int bx(myALCT.getBX()-6);
+      //       const int fullBX(myALCT.trgdigi->getFullBX()-6);
+      //       const int detId(myALCT.id);
+      //       const bool deltaOk(myALCT.deltaOk);
+      //       const int quality(myALCT.trgdigi->getQuality());
+      //       const bool isGood(minDeltaWire_ <= myALCT.deltaWire && myALCT.deltaWire <= maxDeltaWire_);
+      //       const int trkNmb(myALCT.trgdigi->getTrknmb());
+      //       const int keyWG(myALCT.trgdigi->getKeyWG());
+      //       const bool isValid(isValid);
+
+      trk_csc_alct_valid.push_back(myALCT.trgdigi->isValid());
+      trk_csc_alct_quality.push_back(myALCT.trgdigi->getQuality());
+      trk_csc_alct_keywire.push_back(myALCT.trgdigi->getKeyWG());
+      trk_csc_alct_bx.push_back(myALCT.getBX()-6);
+      trk_csc_alct_trknmb.push_back(myALCT.trgdigi->getTrknmb());
+      trk_csc_alct_fullbx.push_back(myALCT.trgdigi->getFullBX()-6);
+      trk_csc_alct_isGood.push_back(minDeltaWire_ <= myALCT.deltaWire && myALCT.deltaWire <= maxDeltaWire_);
+      trk_csc_alct_detId.push_back(myALCT.id);
+      trk_csc_alct_deltaOk.push_back(myALCT.deltaOk);
+    }
+    etrk_.csc_alct_valid.push_back(trk_csc_alct_valid);
+    etrk_.csc_alct_quality.push_back(trk_csc_alct_quality);
+    etrk_.csc_alct_keywire.push_back(trk_csc_alct_keywire);
+    etrk_.csc_alct_bx.push_back(trk_csc_alct_bx);
+    etrk_.csc_alct_trknmb.push_back(trk_csc_alct_trknmb);
+    etrk_.csc_alct_fullbx.push_back(trk_csc_alct_fullbx);
+    etrk_.csc_alct_isGood.push_back(trk_csc_alct_isGood);
+    etrk_.csc_alct_detId.push_back(trk_csc_alct_detId);
+    etrk_.csc_alct_deltaOk.push_back(trk_csc_alct_deltaOk);
   }
+  tree_eff_->Fill();
+  
 
+  /*
   // list the chambers with multiple hits
   std::vector<int> ch_vecs[5];
   std::set<int> ch_sets[5];
@@ -559,78 +765,29 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		     ch_sets[1].begin(), ch_sets[1].end(),
 		     std::inserter(ch_overlap, ch_overlap.begin()));
   if (debug) std::cout << "Number of simtracks with hits in multiple chambers: " << ch_overlap.size() << std::endl;
-  
+  */
 
-  // store the CSC trigger primitives in maps of <detId, collection>
-  std::map<int,std::vector<CSCALCTDigi> > detALCT;
-  detALCT.clear();
-  for (CSCALCTDigiCollection::DigiRangeIterator  adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++)
-  {
-    const CSCDetId& id((*adetUnitIt).first);
-    const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
-    for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-    {
-      if ((*digiIt).isValid()) detALCT[id.rawId()].push_back(*digiIt);
-    }
-  } 
-  
-  std::map<int,std::vector<CSCCLCTDigi> > detCLCT;
-  detCLCT.clear();
-  for (CSCCLCTDigiCollection::DigiRangeIterator adetUnitIt = clcts->begin(); adetUnitIt != clcts->end(); adetUnitIt++)
-    {
-    const CSCDetId& id((*adetUnitIt).first);
-    const CSCCLCTDigiCollection::Range& range = (*adetUnitIt).second;
-    for (CSCCLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-    {
-      if ((*digiIt).isValid()) detCLCT[id.rawId()].push_back(*digiIt);
-    }
-  } 
+  //  std::cout << "number of match objects " << matches.size() << std::endl;
 
-  std::map<int,std::vector<CSCCorrelatedLCTDigi> > detTMBLCT;
-  detTMBLCT.clear();
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = tmblcts->begin();  detUnitIt != tmblcts->end(); detUnitIt++) 
-  {
-    const CSCDetId& id((*detUnitIt).first);
-    const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
-    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-    {
-      if ((*digiIt).isValid()) detTMBLCT[id.rawId()].push_back(*digiIt);
-    }
-  }
-
-  std::map<int,std::vector<CSCCorrelatedLCTDigi> > detMPCLCT;
-  detMPCLCT.clear();
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = mpclcts->begin();  detUnitIt != mpclcts->end(); detUnitIt++) 
-  {
-    const CSCDetId& id((*detUnitIt).first);
-    const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
-    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-    {
-      if ((*digiIt).isValid()) detMPCLCT[id.rawId()].push_back(*digiIt);
-    }
-  }
-  
-  
-  
   /*  
-  // ALCTs in the readout 
-  std::vector<MatchCSCMuL1::ALCT> readoutALCTCollection(match->ALCTsInReadOut());
-  std::vector<MatchCSCMuL1::ALCT> goodME1ALCTCollection;
-  if (readoutALCTCollection.size()==0) 
+  for (unsigned int im=0; im<matches.size(); im++) 
   {
-    std::cout << "WARNING: ALCT Readout collection is empty" << std::endl;
-    continue;
-  }
-  
-    const MatchCSCMuL1::ALCT* bestALCT(match->bestALCT(detId));
-    if (bestALCT==nullptr)
-      {
-	std::cout << "WARNING: No best ALCT" << std::endl;
-      }
+    MatchCSCMuL1 * match = matches[im];
     
+    // ALCTs in the readout 
+    std::vector<MatchCSCMuL1::ALCT> readoutALCTCollection(match->ALCTsInReadOut());
+    std::vector<MatchCSCMuL1::ALCT> goodME1ALCTCollection;
+    if (readoutALCTCollection.size()==0) {
+      std::cout << "WARNING: ALCT Readout collection is empty" << std::endl;
+      continue;
+    }
     
-    for (unsigned i=0; i<readoutALCTCollection.size();i++)
-    {
+//     const MatchCSCMuL1::ALCT* bestALCT(match->bestALCT(detId));
+//     if (bestALCT==nullptr) { 
+//       std::cout << "WARNING: No best ALCT" << std::endl;
+//     }
+    
+    for (unsigned i=0; i<readoutALCTCollection.size();i++) {
       // check if the ALCT is in the readout 
       if (readoutALCTCollection.at(i).inReadOut()==0) continue;
       
@@ -640,21 +797,24 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       const int bx(myALCT.getBX()-6);
       const int fullBX(myALCT.trgdigi->getFullBX()-6);
       const int cscType(getCSCType(myALCT.id));
-//       const bool deltaOk(myALCT.deltaOk);
-//       const int quality(myALCT.trgdigi->getQuality());
-	
+      //       const bool deltaOk(myALCT.deltaOk);
+      //       const int quality(myALCT.trgdigi->getQuality());
+      
       std::cout << "bx = " << bx << ", fullBX = " << fullBX 
 		<< ", cscType = " << cscType << std::endl;
-
-      if (bx < -1) 
-      {
+      
+      if (bx < -1) {
 	std::cout << "ALCT is out-of-time" << std::endl;
 	// add a section to dump the wiredigis for this ALCT
       }
-
+      
       // dump all ALCT information to tree
     }
-
+    tree_eff_->Fill();
+  }
+  */
+  
+  /*
     // chambers with ALCTs
     const std::vector<int> chamberWithALCTs(match->chambersWithALCTs());
     std::cout << "number of chambers with alcts for this muon " << chamberWithALCTs.size() <<std::endl;
