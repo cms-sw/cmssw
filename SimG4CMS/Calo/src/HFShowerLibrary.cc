@@ -17,6 +17,7 @@
 #include "G4Track.hh"
 #include "Randomize.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 //#define DebugLog
 
