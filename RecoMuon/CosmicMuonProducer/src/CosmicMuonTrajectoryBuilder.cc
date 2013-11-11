@@ -41,7 +41,7 @@
 using namespace edm;
 using namespace std;
 
-CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet& par, const MuonServiceProxy* service, edm::ConsumesCollector&& iC) : theService(service) { 
+CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet& par, const MuonServiceProxy* service, edm::ConsumesCollector& iC) : theService(service) { 
 
   thePropagatorName = par.getParameter<string>("Propagator");
 

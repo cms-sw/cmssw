@@ -44,7 +44,7 @@ public:
   typedef std::pair<const Trajectory*,reco::TrackRef> TrackCand;
 
   /// Constructor
-  GlobalCosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service,edm::ConsumesCollector&& iC);
+  GlobalCosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service,edm::ConsumesCollector& iC);
 
   /// Destructor
   virtual ~GlobalCosmicMuonTrajectoryBuilder();
