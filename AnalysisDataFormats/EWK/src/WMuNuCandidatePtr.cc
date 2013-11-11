@@ -1,6 +1,6 @@
 #include "AnalysisDataFormats/EWK/interface/WMuNuCandidatePtr.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "CommonTools/CandUtils/interface/CandCombiner.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 using namespace edm;
@@ -9,7 +9,7 @@ using namespace reco;
 
 WMuNuCandidatePtr::WMuNuCandidatePtr(){}
 
-WMuNuCandidatePtr::WMuNuCandidatePtr(const reco::CandidatePtr muon, const reco::CandidatePtr met): muon_(muon), neutrino_(met)  
+WMuNuCandidatePtr::WMuNuCandidatePtr(const reco::CandidatePtr muon, const reco::CandidatePtr met): muon_(muon), neutrino_(met)
 {
       addDaughter(muon_);
       addDaughter(neutrino_);
@@ -26,19 +26,19 @@ WMuNuCandidatePtr::~WMuNuCandidatePtr()
 }
 
 double WMuNuCandidatePtr::eT() const{
- double e_t=0; 
+ double e_t=0;
      e_t=muon_->pt()+neutrino_->pt();
- return e_t; 
+ return e_t;
 }
 
 double WMuNuCandidatePtr::massT() const{
-      // CandidatePtrs have a mt() function which computes the tranverse mass from E & pz. 
+      // CandidatePtrs have a mt() function which computes the tranverse mass from E & pz.
       // As MET does not have pz information... WMuNuCandidatePtrs have an alternative function to compute the mt quantity
       // used in the WMuNu Inclusive analysis just from px, py
       double wpx=muon_->px()+neutrino_->px(); double wpy=muon_->py()+neutrino_->py();
       double mt = eT()*eT() - wpx*wpx - wpy*wpy;
       mt = (mt>0) ? sqrt(mt) : 0;
-      return mt; 
+      return mt;
 }
 
 double WMuNuCandidatePtr::acop() const{
