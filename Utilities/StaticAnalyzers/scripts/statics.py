@@ -51,21 +51,41 @@ for key in gets:
 		stackup(get)
 		funcs[func].append(stack)
 
+import copy
 
 for func in sorted(funcs.keys()):
 	get,var = func.split("#")
-	for fields in funcs[func]:
+	clone = copy.deepcopy(funcs[func])
+	for fields in clone:
 		found = ""
 		while fields:
 			field = fields.pop()
 			if topfunc.search(field) and not found:
 				fqn = topfunc.split(field)[0]
 				if fqn in plugins:
-					print "function '"+get+"' accesses static var '"+var +"' in call stack "+field+"->",
+					print "Non-const static var '"+var+"' is accessed in call stack '"+field+"->",
 					found = field
 			if field in calls[found] and found :
 				print field+"->",
 				found = field
 			if field == get and found :
-				print field
+				print field 
+
+for func in sorted(funcs.keys()):
+	get,var = func.split("#")
+	clone = copy.deepcopy(funcs[func])
+	for fields in clone: 
+		found = ""
+		while fields:
+			field = fields.pop()
+			if topfunc.search(field) and not found:
+				fqn = topfunc.split(field)[0]
+				if fqn in plugins:
+					print "In call stack '"+field+"->",
+					found = field
+			if field in calls[found] and found :
+				print field+"->",
+				found = field
+			if field == get and found :
+				print field + "' non-const static var '"+var+"' is accessed."
 
