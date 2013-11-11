@@ -85,6 +85,7 @@ class GEDPhotonProducer : public edm::EDProducer {
   edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
   edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
 
   std::string conversionProducer_;
   std::string conversionCollection_;
@@ -111,11 +112,10 @@ class GEDPhotonProducer : public edm::EDProducer {
   bool   runMIPTagger_;
 
   bool validConversions_;
-  std::string pixelSeedProducer_;
-  edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
+  std::string reconstructionStep_;
+
   bool usePrimaryVertex_;
   edm::ParameterSet conf_;
-
   PositionCalc posCalculator_;
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;
