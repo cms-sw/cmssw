@@ -293,10 +293,10 @@ void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
   for(auto const & mt : theTowerMap ) { 
     // Convert only if there is at least one constituent in the metatower. 
     // The check of constituents size in the coverted tower is still needed!
-    if ( (mt.empty() ) continue;
-    convert(mt.id, mt, result);	
+    if (!mt.empty() ) convert(mt.id, mt, result);	
   }
   theTowerMap.clear(); // save the memory
+  theTowerMapSize=0;
 }
 
 
@@ -746,6 +746,7 @@ CaloTowersCreationAlgo::MetaTower & CaloTowersCreationAlgo::find(const CaloTower
   if (mt.empty()) {
     mt.id=detId;
     mt.metaConstituents.reserve(detId.ietaAbs()<30 ? 12 : 2);
+    ++theTowerMapSize;
   }
 
   return mt;
@@ -820,6 +821,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
   switch (theMomConstrMethod) {
 
+  // FIXME  : move to simple cartesian algebra
   case 0 :
     {  // Simple 4-momentum assignment
       GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
