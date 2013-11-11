@@ -48,17 +48,21 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
   // use onfiguration file to setup input/output collection names
   //
   photonProducer_       = conf_.getParameter<edm::InputTag>("photonProducer");
-  if ( photonProducer_.label() == "gedPhotonCore" ) {
+  reconstructionStep_   = conf_.getParameter<std::string>("reconstructionStep");
+
+  if (  reconstructionStep_ == "final" ) {
+    photonProducerT_   = 
+      consumes<reco::PhotonCollection>(photonProducer_);
+    pfCandidates_      = 
+      consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfCandidates"));
+
+  } else {
+
     photonCoreProducerT_   = 
       consumes<reco::PhotonCoreCollection>(photonProducer_);
     pfEgammaCandidates_      = 
       consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfEgammaCandidates"));
 
-  } else {
-    photonProducerT_   = 
-      consumes<reco::PhotonCollection>(photonProducer_);
-    pfCandidates_      = 
-      consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfCandidates"));
 
   }
 
@@ -172,7 +176,14 @@ GEDPhotonProducer::~GEDPhotonProducer()
 void  GEDPhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
 
-  if ( photonProducer_.label() == "gedPhotonCore" ) { 
+  if ( reconstructionStep_ == "final" ) { 
+
+    thePFBasedIsolationCalculator_ = new PFPhotonIsolationCalculator();
+    edm::ParameterSet pfIsolationCalculatorSet = conf_.getParameter<edm::ParameterSet>("PFIsolationCalculatorSet"); 
+    thePFBasedIsolationCalculator_->setup(pfIsolationCalculatorSet);
+
+  } else {
+
     thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
     edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
     thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_);
@@ -186,11 +197,7 @@ void  GEDPhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & th
 
 
 
-  } else {
 
-    thePFBasedIsolationCalculator_ = new PFPhotonIsolationCalculator();
-    edm::ParameterSet pfIsolationCalculatorSet = conf_.getParameter<edm::ParameterSet>("PFIsolationCalculatorSet"); 
-    thePFBasedIsolationCalculator_->setup(pfIsolationCalculatorSet);
   }
 
 
@@ -198,13 +205,12 @@ void  GEDPhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & th
 
 void  GEDPhotonProducer::endRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
-if ( photonProducer_.label() == "gedPhotonCore" ) { 
-
+if ( reconstructionStep_ == "final" ) { 
+  delete thePFBasedIsolationCalculator_;
+ } else {
   delete thePhotonIsolationCalculator_;
   delete thePhotonMIPHaloTagger_;
   delete thePhotonEnergyCorrector_;
- } else {
-  delete thePFBasedIsolationCalculator_;
  }
 
 }
@@ -225,7 +231,15 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   bool validPhotonHandle= false;
   Handle<reco::PhotonCollection> photonHandle;
 
-  if ( photonProducer_.label() == "gedPhotonCore" ) { 
+  if ( reconstructionStep_ == "final" ) { 
+    theEvent.getByToken(photonProducerT_,photonHandle);
+    if ( photonHandle.isValid()) {
+      validPhotonHandle=true;  
+    } else {
+      edm::LogError("GEDPhotonProducer") << "Error! Can't get the product " <<   photonProducer_.label() << "\n";
+    }
+
+  } else {
     
     theEvent.getByToken(photonCoreProducerT_,photonCoreHandle);
     if (photonCoreHandle.isValid()) {
@@ -234,14 +248,8 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       edm::LogError("GEDPhotonProducer") 
 	<< "Error! Can't get the photonCoreProducer" <<  photonProducer_.label() << "\n";
     }
-  } else {
+
    
-    theEvent.getByToken(photonProducerT_,photonHandle);
-    if ( photonHandle.isValid()) {
-      validPhotonHandle=true;  
-    } else {
-      edm::LogError("GEDPhotonProducer") << "Error! Can't get the product " <<   photonProducer_.label() << "\n";
-    }
  
   }
 
@@ -273,20 +281,23 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
   Handle<reco::PFCandidateCollection> pfEGCandidateHandle;
   Handle<reco::PFCandidateCollection> pfCandidateHandle;
-  if ( photonProducer_.label() == "gedPhotonCore" ) {  
-    // Get the  PF refined cluster  collection
-    theEvent.getByToken(pfEgammaCandidates_,pfEGCandidateHandle);
-    if (!pfEGCandidateHandle.isValid()) {
-      edm::LogError("GEDPhotonProducer") 
-	<< "Error! Can't get the pfEgammaCandidates";
-    }
-  } else {
+  if ( reconstructionStep_ == "final" ) {  
     // Get the  PF candidates collection
     theEvent.getByToken(pfCandidates_,pfCandidateHandle);
     if (!pfCandidateHandle.isValid()) {
       edm::LogError("GEDPhotonProducer") 
 	<< "Error! Can't get the pfCandidates";
     }
+
+  } else {
+
+    // Get the  PF refined cluster  collection
+    theEvent.getByToken(pfEgammaCandidates_,pfEGCandidateHandle);
+    if (!pfEGCandidateHandle.isValid()) {
+      edm::LogError("GEDPhotonProducer") 
+	<< "Error! Can't get the pfEgammaCandidates";
+    }
+
     
   }
 
@@ -365,7 +376,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   outputPhotonCollection_p->assign(outputPhotonCollection.begin(),outputPhotonCollection.end());
   const edm::OrphanHandle<reco::PhotonCollection> photonOrphHandle = theEvent.put(outputPhotonCollection_p, photonCollection_);
 
-  if ( photonProducer_.label() == "gedPhotonCore" ) { 
+  if ( reconstructionStep_ != "final" ) { 
     std::auto_ptr<edm::ValueMap<reco::PhotonRef> >  pfCandToPhotonMap_p(new edm::ValueMap<reco::PhotonRef>());
     edm::ValueMap<reco::PhotonRef>::Filler filler(*pfCandToPhotonMap_p);
     unsigned nObj = pfEGCandidateHandle->size();
