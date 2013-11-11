@@ -37,7 +37,6 @@ private:
   
   GEMDigiModel* gemDigiModel_;
   std::vector<double> neutronGammaRoll_;
-  std::map<int, double> mapRollNoise;
 
 };
 

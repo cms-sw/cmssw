@@ -55,14 +55,6 @@ GEMDigiProducer::~GEMDigiProducer()
 
 void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
-
-//fill the noise map<#roll, noise value>
-for(unsigned int i = 0; i < neutronGammaRoll_.size(); i++)
-{
-//  std::cout << "neutrongamma = " << i+1 << "\t" << neutronGammaRoll_[i] << std::endl;
-  mapRollNoise.insert(std::pair<int, double>(i+1, neutronGammaRoll_[i]));
-}
-
   // set geometry
   edm::ESHandle<GEMGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get(hGeom);
@@ -96,7 +88,7 @@ for(unsigned int i = 0; i < neutronGammaRoll_.size(); i++)
       << "GEMDigiProducer: found " << simHits.size() << " hit(s) in eta partition" << rawId;
     
     gemDigiModel_->simulateSignal(roll, simHits);
-    gemDigiModel_->simulateNoise(roll, mapRollNoise);
+    gemDigiModel_->simulateNoise(roll);
     gemDigiModel_->fillDigis(rawId, *digis);
     (*stripDigiSimLinks).insert(gemDigiModel_->stripDigiSimLinks());
   }

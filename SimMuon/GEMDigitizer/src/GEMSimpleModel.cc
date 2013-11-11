@@ -38,6 +38,7 @@ GEMSimpleModel::GEMSimpleModel(const edm::ParameterSet& config) :
       , minBunch_(config.getParameter<int> ("minBunch"))//
       , maxBunch_(config.getParameter<int> ("maxBunch"))//
       , digitizeOnlyMuons_(config.getParameter<bool> ("digitizeOnlyMuons"))//
+      , neutronGammaRoll_(config.getParameter<std::vector<double>>("neutronGammaRoll"))
 {
 }
 
@@ -154,7 +155,7 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit)
 }
 
 void
-GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, std::map<int, double> mapRollNoise)
+GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
 {
   const GEMDetId gemId(roll->id());
   int rollNumb = gemId.roll();
@@ -170,17 +171,11 @@ GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, std::map<int, double>
   const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*> (&(roll->topology())));
   const float striplength(top_->stripLength());
   trStripArea = (roll->pitch()) * striplength;
-//  trStripArea = (roll->localPitch(lp0) + roll->localPitch(lpy)) * striplength / 2.;
   trArea = trStripArea*nstrips;
 
   const int nBxing(maxBunch_ - minBunch_ + 1);
-  double averageNoiseRatePerStrip = 0.;
-
-  std::map<int, double>::iterator ii = mapRollNoise.find(rollNumb);
-  if (!(ii == mapRollNoise.end()))
-  {
-    averageNoiseRatePerStrip = (ii->second)/(roll->nstrips()) + averageNoiseRate_;
-  }
+  double averageNoiseRatePerRoll = neutronGammaRoll_[rollNumb - 1];
+  double averageNoiseRatePerStrip = averageNoiseRatePerRoll/(roll->nstrips()) + averageNoiseRate_;
 
   const double averageNoise(averageNoiseRatePerStrip * nBxing * bxwidth_ * trArea * 1.0e-9);
   const int n_hits(poisson_->fire(averageNoise));

@@ -39,7 +39,7 @@ public:
 
   int getSimHitBx(const PSimHit*);
 
-  void simulateNoise(const GEMEtaPartition*, std::map<int, double>);
+  void simulateNoise(const GEMEtaPartition*);
 
   std::vector<std::pair<int,int> > 
     simulateClustering(const GEMEtaPartition*, const PSimHit*, const int);
@@ -59,6 +59,7 @@ private:
   int minBunch_;
   int maxBunch_;
   bool digitizeOnlyMuons_;
+  std::vector<double> neutronGammaRoll_;
 
   CLHEP::RandFlat* flat1_;
   CLHEP::RandFlat* flat2_;
