@@ -32,7 +32,8 @@ using namespace std;
 using namespace reco;
 
 SeedFilter::SeedFilter(const edm::ParameterSet& conf,
-		       const SeedFilter::Tokens& tokens)
+		       const SeedFilter::Tokens& tokens,
+		       edm::ConsumesCollector& iC)
  {
   edm::LogInfo("EtaPhiRegionSeedFactory") << "Enter the EtaPhiRegionSeedFactory";
   edm::ParameterSet regionPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
