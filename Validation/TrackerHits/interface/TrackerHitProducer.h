@@ -138,6 +138,9 @@ class TrackerHitProducer : public edm::EDProducer
   edm::InputTag G4TrkSrc_;
 
   edm::ParameterSet config_;
+  std::string HepMClabel;
+  std::string HepMCinstance;
+ 
   // private statistics information
   unsigned int count;
 

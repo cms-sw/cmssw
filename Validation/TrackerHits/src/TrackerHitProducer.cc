@@ -33,7 +33,10 @@ TrackerHitProducer::TrackerHitProducer(const edm::ParameterSet& iPSet) :
   SiTIDHighSrc_ = iPSet.getParameter<edm::InputTag>("SiTIDHighSrc");
   SiTECLowSrc_ = iPSet.getParameter<edm::InputTag>("SiTECLowSrc");
   SiTECHighSrc_ = iPSet.getParameter<edm::InputTag>("SiTECHighSrc");
-
+ 
+  std::string HepMClabel = config_.getUntrackedParameter<std::string>("HepMCProductLabel","source");
+  std::string HepMCinstance = config_.getUntrackedParameter<std::string>("HepMCInputInstance","");
+ 
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
@@ -195,8 +198,6 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
   // get MC information
   /////////////////////
   edm::Handle<edm::HepMCProduct> HepMCEvt;
-  static std::string HepMClabel = config_.getUntrackedParameter<std::string>("HepMCProductLabel","source");
-  static std::string HepMCinstance = config_.getUntrackedParameter<std::string>("HepMCInputInstance","");
   iEvent.getByLabel(HepMClabel, HepMCinstance ,HepMCEvt);
   if (!HepMCEvt.isValid()) {
     edm::LogError("TrackerHitProducer::fillG4MC")
