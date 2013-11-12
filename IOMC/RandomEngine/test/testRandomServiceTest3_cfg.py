@@ -38,19 +38,10 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     restoreStateLabel = cms.untracked.string('randomEngineStateProducer')
 )
 
-process.t1 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer",
-                            firstInPath = cms.untracked.bool(True),
-                            multiprocessReplay = cms.untracked.bool(True)
-)
-process.t2 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer",
-                            multiprocessReplay = cms.untracked.bool(True)
-)
-process.t3 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer",
-                            multiprocessReplay = cms.untracked.bool(True)
-)
-process.t4 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer",
-                            multiprocessReplay = cms.untracked.bool(True)
-)
+process.t1 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
+process.t2 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
+process.t3 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
+process.t4 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 
 process.p = cms.Path(process.t1+process.t2+process.t3+process.t4)
 process.o = cms.EndPath(process.out)
