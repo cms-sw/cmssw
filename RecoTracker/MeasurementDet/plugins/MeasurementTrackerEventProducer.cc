@@ -61,12 +61,12 @@ MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasur
   std::vector<uint32_t> rawInactiveDetIds; 
   if (!theInactivePixelDetectorLabels.empty()) {
     edm::Handle<DetIdCollection> detIds;
-    bool iFailedAlready =false;
     for (std::vector<edm::InputTag>::const_iterator itt = theInactivePixelDetectorLabels.begin(), edt = theInactivePixelDetectorLabels.end(); 
             itt != edt; ++itt) {
       if (event.getByLabel(*itt, detIds)){
         rawInactiveDetIds.insert(rawInactiveDetIds.end(), detIds->begin(), detIds->end());
       }else{
+        static std::atomic<bool> iFailedAlread{false};
         if (!iFailedAlready){
           edm::LogError("MissingProduct")<<"I fail to get the list of inactive pixel modules, because of 4.2/4.4 event content change.";
           iFailedAlready=true;
