@@ -33,12 +33,6 @@
 
 class RandomEngine;
 
-bool initialized_ = false; 
-bool initializedHB_ = false; 
-bool initializedHE_ = false; 
-bool initializedHO_ = false; 
-bool initializedHF_ = false; 
-unsigned maxIndex_  = 0 ; 
 
 HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
 				   const RandomEngine * myrandom)
@@ -58,6 +52,13 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
   hcalfileinpath_= RecHitsParameters.getParameter<std::string> ("fileNameHcal");  
   inputCol_=RecHitsParameters.getParameter<edm::InputTag>("MixedSimHits");
   nhbcells_=nhecells_=nhocells_=nhfcells_=0;
+
+  initialized_ = false;
+  initializedHB_ = false;
+  initializedHE_ = false;
+  initializedHO_ = false;
+  initializedHF_ = false;
+  maxIndex_  = 0 ;
 
   if(det_==4)
     {
