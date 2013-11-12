@@ -52,12 +52,6 @@ reco::Track* L1MuonPixelTrackFitter::run( const edm::EventSetup& es,
   double valZip = this->valZip(curvature, theHit1,theHit2);
   double valCotTheta = this->valCotTheta(PixelRecoLineRZ(theHit1,theHit2)); 
 
-  static const double invPtErrorScale = theConfig.getParameter<double>("invPtErrorScale");
-  static const double phiErrorScale= theConfig.getParameter<double>("phiErrorScale");
-  static const double cotThetaErrorScale = theConfig.getParameter<double>("cotThetaErrorScale");
-  static const double tipErrorScale = theConfig.getParameter<double>("tipErrorScale");
-  static const double zipErrorScale = theConfig.getParameter<double>("zipErrorScale");
-
 //  if ( (fabs(invPt)-0.1)/invPtErr > 3.) return 0;
 
   PixelTrackBuilder builder;

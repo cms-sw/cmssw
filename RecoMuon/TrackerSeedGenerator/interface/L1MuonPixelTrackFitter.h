@@ -82,9 +82,17 @@ private:
   double deltaPhi( double phi1, double phi2) const;
   static void param( double eta, double &p1, double& p2, double& p3);
 
+
 private:
 
   edm::ParameterSet theConfig;
+
+  const double invPtErrorScale{theConfig.getParameter<double>("invPtErrorScale")};
+  const double phiErrorScale{theConfig.getParameter<double>("phiErrorScale")};
+  const double cotThetaErrorScale{theConfig.getParameter<double>("cotThetaErrorScale")};
+  const double tipErrorScale{theConfig.getParameter<double>("tipErrorScale")};
+  const double zipErrorScale{theConfig.getParameter<double>("zipErrorScale")};
+
 
   // L1 constraint
   double thePhiL1, theEtaL1; int theChargeL1;
