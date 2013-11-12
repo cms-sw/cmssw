@@ -172,7 +172,6 @@ void SimpleVertexTree::fill()
   //
   // fill entry
   //
-  static int nFill(0);
   vertexTree->GetDirectory()->cd();
   vertexTree->Fill();
   if ( (++nFill)%1000==0 )  vertexTree->AutoSave();
