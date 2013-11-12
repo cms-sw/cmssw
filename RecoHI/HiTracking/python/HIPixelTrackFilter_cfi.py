@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 ClusterFilterBlock = cms.PSet(
     ComponentName = cms.string( "ClusterShapeTrackFilter" ),
+    clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
     ptMin = cms.double( 1.5 )
     )
 

@@ -74,7 +74,8 @@ tobTecStepSeeds.SeedComparitorPSet = cms.PSet(
         FilterAtHelixStage = cms.bool(True),
         FilterPixelHits = cms.bool(False),
         FilterStripHits = cms.bool(True),
-        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+        ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
     )
 tobTecStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 tobTecStepSeeds.OrderedHitsFactoryPSet.maxElement = cms.uint32(0)
