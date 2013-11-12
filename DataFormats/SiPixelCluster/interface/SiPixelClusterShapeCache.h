@@ -43,7 +43,7 @@ class SiPixelClusterShapeCache {
 public:
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> ClusterRef;
 
-  SiPixelClusterShapeCache() = default;
+  SiPixelClusterShapeCache() {};
   explicit SiPixelClusterShapeCache(const edm::HandleBase& handle): productId_(handle.id()) {}
   explicit SiPixelClusterShapeCache(const edm::ProductID& id): productId_(id) {}
   ~SiPixelClusterShapeCache();
