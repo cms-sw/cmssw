@@ -16,7 +16,8 @@ photonConvTrajSeedFromQuadruplets  = cms.EDProducer("PhotonConversionTrajectoryS
                                                       FilterAtHelixStage = cms.bool(True),#Def: True
                                                       FilterPixelHits = cms.bool(False),#Def: False
                                                       FilterStripHits = cms.bool(True),#Def: True                                                      
-                                                      ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+                                                      ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+                                                      ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
                                                       ),
                                                   ClusterCheckPSet = cms.PSet(
                                                       PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),

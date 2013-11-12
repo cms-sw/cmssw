@@ -51,7 +51,8 @@ hiPixelPairSeeds.SeedComparitorPSet = cms.PSet(
     FilterAtHelixStage = cms.bool(True),
     FilterPixelHits = cms.bool(True),
     FilterStripHits = cms.bool(False),
-    ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+    ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+    ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache")
     )
 
 # QUALITY CUTS DURING TRACK BUILDING
