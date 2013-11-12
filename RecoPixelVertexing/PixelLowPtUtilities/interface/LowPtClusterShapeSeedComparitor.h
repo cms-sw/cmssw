@@ -13,7 +13,7 @@ namespace edm { class ParameterSet; class EventSetup; }
 class LowPtClusterShapeSeedComparitor : public SeedComparitor
 {
  public:
-  LowPtClusterShapeSeedComparitor(const edm::ParameterSet& ps){}
+  LowPtClusterShapeSeedComparitor(const edm::ParameterSet& ps, edm::ConsumesCollector& iC){}
   virtual ~LowPtClusterShapeSeedComparitor(){}
   virtual void init(const edm::Event& e, const edm::EventSetup& es) ;
   virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const ;

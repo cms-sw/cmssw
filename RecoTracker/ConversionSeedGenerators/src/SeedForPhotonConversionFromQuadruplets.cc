@@ -47,7 +47,7 @@ SeedForPhotonConversionFromQuadruplets::SeedForPhotonConversionFromQuadruplets(e
 {
   std::string comparitorName = SeedComparitorPSet.getParameter<std::string>("ComponentName");
   if(comparitorName != "none") {
-    theComparitor.reset(SeedComparitorFactory::get()->create( comparitorName, SeedComparitorPSet));
+    theComparitor.reset(SeedComparitorFactory::get()->create( comparitorName, SeedComparitorPSet, iC));
   }
 }
 

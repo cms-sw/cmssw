@@ -54,7 +54,7 @@ private:
   bool useMScat;
   bool useBend;
   float dphi;
-  SeedComparitor * theComparitor;
+  std::unique_ptr<SeedComparitor> theComparitor;
 
 };
 #endif
