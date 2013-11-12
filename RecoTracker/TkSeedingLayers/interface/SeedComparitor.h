@@ -17,7 +17,7 @@ class TrajectoryStateOnSurface;
 class FastHelix;
 class GlobalTrajectoryParameters;
 
-namespace edm { class Event; class EventSetup; }
+namespace edm { class Event; class EventSetup; class ConsumesCollector;}
 
 class SeedComparitor {
  public:

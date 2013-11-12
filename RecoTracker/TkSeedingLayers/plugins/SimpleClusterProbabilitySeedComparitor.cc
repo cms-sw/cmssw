@@ -6,7 +6,7 @@
 
 class SimpleClusterProbabilitySeedComparitor : public SeedComparitor {
     public:
-        SimpleClusterProbabilitySeedComparitor(const edm::ParameterSet &cfg) ;
+        SimpleClusterProbabilitySeedComparitor(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC) ;
         virtual ~SimpleClusterProbabilitySeedComparitor() ; 
         virtual void init(const edm::Event& ev, const edm::EventSetup& es) override {}
         virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const override { return true; }
@@ -27,7 +27,7 @@ class SimpleClusterProbabilitySeedComparitor : public SeedComparitor {
 };
 
 
-SimpleClusterProbabilitySeedComparitor::SimpleClusterProbabilitySeedComparitor(const edm::ParameterSet &cfg) :
+SimpleClusterProbabilitySeedComparitor::SimpleClusterProbabilitySeedComparitor(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC) :
     probCut_(cfg.getParameter<double>("LogPixelProbabilityCut"))
 {
 }

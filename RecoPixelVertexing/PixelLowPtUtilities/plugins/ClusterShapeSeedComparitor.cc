@@ -19,7 +19,7 @@
 
 class PixelClusterShapeSeedComparitor : public SeedComparitor {
     public:
-        PixelClusterShapeSeedComparitor(const edm::ParameterSet &cfg) ;
+        PixelClusterShapeSeedComparitor(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC) ;
         virtual ~PixelClusterShapeSeedComparitor() ; 
         virtual void init(const edm::Event& ev, const edm::EventSetup& es) override ;
         virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const override { return true; }
@@ -44,7 +44,7 @@ class PixelClusterShapeSeedComparitor : public SeedComparitor {
 };
 
 
-PixelClusterShapeSeedComparitor::PixelClusterShapeSeedComparitor(const edm::ParameterSet &cfg) :
+PixelClusterShapeSeedComparitor::PixelClusterShapeSeedComparitor(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC) :
     filterName_(cfg.getParameter<std::string>("ClusterShapeHitFilterName")),
     filterAtHelixStage_(cfg.getParameter<bool>("FilterAtHelixStage")),
     filterPixelHits_(cfg.getParameter<bool>("FilterPixelHits")),
