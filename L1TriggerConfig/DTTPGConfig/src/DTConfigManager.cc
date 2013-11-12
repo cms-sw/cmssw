@@ -60,7 +60,7 @@ DTConfigManager::~DTConfigManager(){
 // Operations --
 //--------------
 
-DTConfigBti* DTConfigManager::getDTConfigBti(DTBtiId btiid) const {
+const DTConfigBti* DTConfigManager::getDTConfigBti(DTBtiId btiid) const {
   
   DTChamberId chambid = btiid.SLId().chamberId();
   BtiMap::const_iterator biter1 = my_btimap.find(chambid);
@@ -82,7 +82,7 @@ DTConfigBti* DTConfigManager::getDTConfigBti(DTBtiId btiid) const {
 	      << ") not found, return 0" << std::endl;
     return 0;
   }
-  return const_cast<DTConfigBti*>(&(*biter2).second);
+  return &(*biter2).second;
 
 }  
 
@@ -100,7 +100,7 @@ const std::map<DTBtiId,DTConfigBti>& DTConfigManager::getDTConfigBtiMap(DTChambe
 
 }
 
-DTConfigTraco* DTConfigManager::getDTConfigTraco(DTTracoId tracoid) const {
+const DTConfigTraco* DTConfigManager::getDTConfigTraco(DTTracoId tracoid) const {
   
   DTChamberId chambid = tracoid.ChamberId();
   TracoMap::const_iterator titer1 = my_tracomap.find(chambid);
@@ -121,7 +121,7 @@ DTConfigTraco* DTConfigManager::getDTConfigTraco(DTTracoId tracoid) const {
 	      << ") not found, return a reference to the end of the map" << std::endl;
     return 0;
   }
-  return const_cast<DTConfigTraco*>(&(*titer2).second);
+  return &(*titer2).second;
 
 }
 

@@ -70,13 +70,13 @@ class DTConfigManager {
   ~DTConfigManager();
 
   //! Get desired BTI configuration
-  DTConfigBti* getDTConfigBti(DTBtiId) const;
+  const DTConfigBti* getDTConfigBti(DTBtiId) const;
 
   //! Get desired BTI configuration map for a given DTChamber
   const std::map<DTBtiId,DTConfigBti>& getDTConfigBtiMap(DTChamberId) const;
   
   //! Get desired TRACO configuration
-  DTConfigTraco* getDTConfigTraco(DTTracoId) const;
+  const DTConfigTraco* getDTConfigTraco(DTTracoId) const;
 
   //! Get desired TRACO configuration map for a given DTChamber
   const std::map<DTTracoId,DTConfigTraco>& getDTConfigTracoMap(DTChamberId) const;
