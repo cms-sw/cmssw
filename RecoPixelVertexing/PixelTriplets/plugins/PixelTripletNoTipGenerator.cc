@@ -21,7 +21,7 @@ template<class T> T sqr(T t) { return t * t;}
 
 using namespace std;
 
-PixelTripletNoTipGenerator:: PixelTripletNoTipGenerator(const edm::ParameterSet& cfg)
+PixelTripletNoTipGenerator:: PixelTripletNoTipGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
     : thePairGenerator(0),
       theLayerCache(0),
       extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),

@@ -29,7 +29,7 @@ typedef PixelRecoRange<float> Range;
 using namespace std;
 using namespace ctfseeding;
 
-PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg)
+PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
   : thePairGenerator(0),
     theLayerCache(0),
     useFixedPreFiltering(cfg.getParameter<bool>("useFixedPreFiltering")),
