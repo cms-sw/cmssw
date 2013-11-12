@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTracker/ConversionSeedGenerators/interface/PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo.h"
