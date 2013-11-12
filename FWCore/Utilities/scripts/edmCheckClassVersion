@@ -231,6 +231,10 @@ if options.generate and not foundRootDoesNotMatchError and not missingDict:
 
     outFile.writelines(out)
 
+# Disable for ROOT6 for now
+import sys
+sys.exit(0)
+
 if (len(foundErrors)>0 and not options.generate) or (options.generate and foundRootDoesNotMatchError) or missingDict:
    import sys
    sys.exit(1)
