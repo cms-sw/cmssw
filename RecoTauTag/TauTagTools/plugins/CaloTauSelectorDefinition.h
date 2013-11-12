@@ -32,7 +32,6 @@ struct CaloTauSelectorDefinition {
 
   const_iterator end() const { return selected_.end(); }
 
-  TDiscCutPairVec discriminators;
 
   void select( const HandleToCollection & hc, 
 	       const edm::Event & e,
@@ -88,6 +87,7 @@ struct CaloTauSelectorDefinition {
   size_t size() const { return selected_.size(); }
 
  private:
+  TDiscCutPairVec discriminators;
   container selected_;
   std::vector< edm::ParameterSet > discriminators_;
   StringCutObjectSelector<reco::CaloTau>* cut_;
