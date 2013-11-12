@@ -3,14 +3,17 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-namespace edm { class EventSetup; class ConsumesCollector }
+namespace edm { class EventSetup; }
 
 template<typename C, typename T, typename O>
 class OverlapExclusionSelector {
 public:
-  OverlapExclusionSelector(const edm::ParameterSet&);
+  OverlapExclusionSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) :
+    OverlapExclusionSelector(cfg, iC) {};
+  OverlapExclusionSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector & iC);
   void newEvent(const edm::Event&, const edm::EventSetup&) const;
   bool operator()(const T&) const;
 private:
@@ -20,7 +23,7 @@ private:
 };
 
 template<typename C, typename T, typename O>
-OverlapExclusionSelector<C, T, O>::OverlapExclusionSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) :
+OverlapExclusionSelector<C, T, O>::OverlapExclusionSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector & iC) :
   srcToken_(iC.consumes<C>(cfg.template getParameter<edm::InputTag>("overlap"))),
   overlap_(cfg) {
 }

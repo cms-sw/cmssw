@@ -16,7 +16,7 @@
 using namespace std;
 namespace modules {
   struct ZHLTMatchFilter {
-    ZHLTMatchFilter(const edm::ParameterSet& cfg, edm::ConsumesColelctor & iC) :
+    ZHLTMatchFilter(const edm::ParameterSet& cfg, edm::ConsumesCollector & iC) :
     cond_(cfg.getParameter<std::string >("condition")),
     hltPath_(cfg.getParameter<std::string >("hltPath")){ }
     bool operator()(const reco::Candidate & z) const {
