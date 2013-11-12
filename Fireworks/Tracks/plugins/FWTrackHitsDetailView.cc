@@ -424,6 +424,9 @@ FWTrackHitsDetailView::addModules( const reco::Track& track,
 	    case MuonSubdetId::RPC:
 	       name = "RPC";
 	       break;
+	    case MuonSubdetId::GEM:
+	       name = "GEM";
+	       break;
 	    default:
 	       break;
 	    }
