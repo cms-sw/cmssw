@@ -139,7 +139,7 @@ class DTConfigTSPhi : public DTConfig {
 
   // DBSM-doubleTSM
   //! Return the max nb. of TSSs in input to a single TSMD (called ONLY in back-up mode)
-  int TSSinTSMD(int stat, int sect);
+  int TSSinTSMD(int stat, int sect) const;
 
   // Set Methods
   //! Set debug flag
@@ -221,10 +221,10 @@ class DTConfigTSPhi : public DTConfig {
   inline void setTsmStatus(int i, int val) { m_tsmword.set(i,val); };
 
   //! Number of correctly configured TSS
-  int nValidTSS();
+  int nValidTSS() const;
 
   //! Number of correctly configured TSS
-  int nValidTSM();
+  int nValidTSM() const;
 
   //! Print the setup
   void print() const ;
@@ -232,7 +232,7 @@ class DTConfigTSPhi : public DTConfig {
   private:
 
   //! Check mask correctness
-  bool checkMask(unsigned short);
+  bool checkMask(unsigned short) const;
 
   //! Load pset values into class variables
   void setDefaults(const edm:: ParameterSet& ps);
@@ -263,7 +263,7 @@ class DTConfigTSPhi : public DTConfig {
   
   BitArray<24> m_tstren;     // Enabled TRACOs
   BitArray<8> m_tsmword; // TSM backup mode word
-  unsigned short int m_ntsstsmd;        // nb tss to one of the tsmd (only if back-up mode)
+  //unsigned short int m_ntsstsmd;        // nb tss to one of the tsmd (only if back-up mode)
 
   short int m_ntss;
   short int m_ntsm;

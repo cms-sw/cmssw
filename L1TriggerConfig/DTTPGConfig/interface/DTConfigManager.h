@@ -82,22 +82,22 @@ class DTConfigManager {
   const std::map<DTTracoId,DTConfigTraco>& getDTConfigTracoMap(DTChamberId) const;
 
   //! Get desired Trigger Server Theta configuration
-  DTConfigTSTheta* getDTConfigTSTheta(DTChamberId) const;
+  const DTConfigTSTheta* getDTConfigTSTheta(DTChamberId) const;
 
   //! Get desired Trigger Server Phi configuration
-  DTConfigTSPhi* getDTConfigTSPhi(DTChamberId) const;
+  const DTConfigTSPhi* getDTConfigTSPhi(DTChamberId) const;
 
   //! Get desired Trigger Unit configuration 
-  DTConfigTrigUnit* getDTConfigTrigUnit(DTChamberId) const;
+  const DTConfigTrigUnit* getDTConfigTrigUnit(DTChamberId) const;
   
    //! Get desired LUT configuration 
-  DTConfigLUTs* getDTConfigLUTs(DTChamberId) const;
+  const DTConfigLUTs* getDTConfigLUTs(DTChamberId) const;
 
   //! Get desired SectorCollector configuration
-  DTConfigSectColl* getDTConfigSectColl(DTSectCollId) const;
+  const DTConfigSectColl* getDTConfigSectColl(DTSectCollId) const;
 
   //! Get desired Pedestals configuration
-  DTConfigPedestals* getDTConfigPedestals() const;
+  const DTConfigPedestals* getDTConfigPedestals() const;
  
   //! Get global debug flag
   inline bool getDTTPGDebug() const { return my_dttpgdebug; };
