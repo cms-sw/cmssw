@@ -180,7 +180,7 @@ GEMCSCTriggerEfficiencyTree::GEMCSCTriggerEfficiencyTree(const edm::ParameterSet
   assert(gemPTs_.size() == gemDPhisOdd_.size() && gemPTs_.size() == gemDPhisEven_.size());
 
   // book efficiency tree
-  tree_eff_ = etrk_.book(tree_eff_,"test");
+  //  tree_eff_ = etrk_.book(tree_eff_,"test");
 }
 
 
@@ -248,9 +248,9 @@ GEMCSCTriggerEfficiencyTree::analyze(const edm::Event& iEvent, const edm::EventS
 
 
   // get MC
-//   edm::Handle< reco::GenParticleCollection > hMCCand;
-//   iEvent.getByLabel("genParticles", hMCCand);
-//   const reco::GenParticleCollection & cands  = *(hMCCand.product()); 
+  edm::Handle< reco::GenParticleCollection > hMCCand;
+  iEvent.getByLabel("genParticles", hMCCand);
+  const reco::GenParticleCollection & cands  = *(hMCCand.product()); 
   
   // get SimTracks
   edm::Handle< edm::SimTrackContainer > hSimTracks;
@@ -268,24 +268,24 @@ GEMCSCTriggerEfficiencyTree::analyze(const edm::Event& iEvent, const edm::EventS
   iEvent.getByLabel("g4SimHits", "MuonCSCHits", MuonCSCHits);
   const edm::PSimHitContainer* allCSCSimHits = MuonCSCHits.product();
 
-  /*
+
 
   // strip and wire digis
   edm::Handle< CSCWireDigiCollection >       wireDigis;
-  edm::Handle< CSCComparatorDigiCollection > compDigis;
+//   edm::Handle< CSCComparatorDigiCollection > compDigis;
   iEvent.getByLabel("simMuonCSCDigis","MuonCSCWireDigi",       wireDigis);
-  iEvent.getByLabel("simMuonCSCDigis","MuonCSCComparatorDigi", compDigis);
+//   iEvent.getByLabel("simMuonCSCDigis","MuonCSCComparatorDigi", compDigis);
   const CSCWireDigiCollection* wiredc = wireDigis.product();
-  const CSCComparatorDigiCollection* compdc = compDigis.product();
+//   const CSCComparatorDigiCollection* compdc = compDigis.product();
 
   // ALCTs and CLCTs
   edm::Handle< CSCALCTDigiCollection > halcts;
-  edm::Handle< CSCCLCTDigiCollection > hclcts;
+//   edm::Handle< CSCCLCTDigiCollection > hclcts;
   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  halcts);
-  iEvent.getByLabel("simCscTriggerPrimitiveDigis",  hclcts);
+//   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  hclcts);
   const CSCALCTDigiCollection* alcts = halcts.product();
-  const CSCCLCTDigiCollection* clcts = hclcts.product();
-
+//   const CSCCLCTDigiCollection* clcts = hclcts.product();
+  /*
   // strip&wire matching output  after TMB  and after MPC sorting
   edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_tmb;
   edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_mpc;
@@ -405,7 +405,7 @@ GEMCSCTriggerEfficiencyTree::analyze(const edm::Event& iEvent, const edm::EventS
 //   }
 
 
-/*
+
   double  mceta, mcphi, stpt, steta, stphi ;
   int numberMCTr=0;
 
@@ -425,7 +425,7 @@ GEMCSCTriggerEfficiencyTree::analyze(const edm::Event& iEvent, const edm::EventS
       numberMCTr++;
       mceta = cand->eta();
       mcphi = normalizedPhi(cand->phi());
-      double mcpt = cand->pt();
+      //      double mcpt = cand->pt();
       
 //       h_pt_mctr ->Fill(mcpt);
 //       h_eta_mctr->Fill(mceta);
@@ -472,7 +472,7 @@ GEMCSCTriggerEfficiencyTree::analyze(const edm::Event& iEvent, const edm::EventS
       if (matchSimTr == simTracks.end()) 
       {
 	std::cout<<"+++ Warning: no matching sim track for MC track!"<<std::endl;
-	MYDEBUG = 1;
+	//	MYDEBUG = 1;
       }
       
       if (matchSimTr == simTracks.end()) continue;
@@ -498,8 +498,7 @@ GEMCSCTriggerEfficiencyTree::analyze(const edm::Event& iEvent, const edm::EventS
 
 
   // stop here!!!!
-  return;
-*/
+
 
   /*
 
@@ -601,10 +600,10 @@ GEMCSCTriggerEfficiencyTree::analyze(const edm::Event& iEvent, const edm::EventS
   trkId2Index.clear();
   for (edm::SimTrackContainer::const_iterator istrk = simTracks.begin(); istrk != simTracks.end(); ++istrk){
     // print out: simtrack number, simtrack id, particle index, (px, py, pz, E), vertex index, generator level index (-1 if no generator level particle) 
-    std::cout<<no<<":\t"<<istrk->trackId()<<" "<<*istrk<<std::endl;
+    //    std::cout<<no<<":\t"<<istrk->trackId()<<" "<<*istrk<<std::endl;
     if ( primaryVert == -1 && !(istrk->noVertex()) ){
       primaryVert = istrk->vertIndex();
-      std::cout << " -- primary vertex: " << primaryVert << std::endl;
+      //      std::cout << " -- primary vertex: " << primaryVert << std::endl;
     }
     trkId2Index[istrk->trackId()] = no;
     no++;
@@ -623,35 +622,33 @@ GEMCSCTriggerEfficiencyTree::analyze(const edm::Event& iEvent, const edm::EventS
 
     // no muon track
     if (!(abs(istrk->type()) == 13)){
-      std::cout << "  rejected -- track is not muon track" << std::endl;
+      //std::cout << "  rejected -- track is not muon track" << std::endl;
       continue;
     }
     
     // primary vertex?
     if (!(istrk->vertIndex() == primaryVert ) ){
-      std::cout << "  rejected -- muon track not pointing to primary vertex" << std::endl;
+      //std::cout << "  rejected -- muon track not pointing to primary vertex" << std::endl;
       continue;
     }
 
     // calculate the track pt
     float stpt = sqrt(istrk->momentum().perp2());
     if (stpt < minSimTrPt_ ){
-      std::cout<<"  rejected -- muon SimTrack: with low pt = "<<stpt<<std::endl;
+      //std::cout<<"  rejected -- muon SimTrack: with low pt = "<<stpt<<std::endl;
       continue;
     }
 
     // calculate eta and phi
     float steta = istrk->momentum().eta();
     if (fabs (steta) > 2.5 || fabs (steta) < .8 ){
-      std::cout<<"  rejected -- muon SimTrack: eta not in CSC eta = "<<steta<<std::endl;
+      //std::cout<<"  rejected -- muon SimTrack: eta not in CSC eta = "<<steta<<std::endl;
       continue;
     }
 
 //     float stphi = normalizedPhi( istrk->momentum().phi() );
     
-//     etrk_.st_pt[iTrack] = stpt;
-//     etrk_.st_eta[iTrack] = steta;
-//     etrk_.st_phi[iTrack] = stphi;
+    std::cout << "stpt: " << stpt << ", steta: " << steta << ", stphi: " << stphi << std::endl;
 
     // make a new matching object for this simtrack
     MatchCSCMuL1 * match = new MatchCSCMuL1(&*istrk, &(simVertices[istrk->vertIndex()]), cscGeometry);
@@ -668,12 +665,29 @@ GEMCSCTriggerEfficiencyTree::analyze(const edm::Event& iEvent, const edm::EventS
     propagateToCSCStations(match);
 
     matchSimTrack2SimHits(match, simTracks, simVertices, allCSCSimHits);
-    std::vector<int> detIdvect;
-    detIdvect.clear();
-    for (unsigned int i=0; i< match->simHits.size(); ++i){
-      detIdvect.push_back((match->simHits)[i].detUnitId());
-    }
-    etrk_.gem_sh_detUnitId.push_back(detIdvect);
+//     std::vector<int> detIdvect;
+//     std::cout << "number of csc simhits: " << match->simHits.size() << std::endl;
+//     detIdvect.clear();
+//     for (unsigned int i=0; i< match->simHits.size(); ++i){
+//       detIdvect.push_back((match->simHits)[i].detUnitId());
+//       std::cout << "detId: " << (match->simHits)[i].detUnitId() << std::endl;
+//     }
+//     etrk_.gem_sh_detUnitId.push_back(detIdvect);
+//     etrk_.eventNumber = nevt;
+//     std::cout << nevt << std::endl;
+
+    // match ALCT digis and SimHits;
+    // if there are common SimHits in SimTrack, match to SimTrack
+    matchSimTrack2ALCTs(match, allCSCSimHits, alcts, wiredc );
+    std::cout << "number of csc alcts: " << match->ALCTs.size() << std::endl;
+//     for (unsigned int i=0; i< match-> alcts.size(); ++i){
+//       std::cout << "detId: " << (match->simHits)[i].detUnitId() << std::endl;
+//     }
+
+  }
+  //  tree_eff_->Fill();
+  //  tree_eff_->Write();
+}
     /*
 
 
@@ -703,13 +717,8 @@ GEMCSCTriggerEfficiencyTree::analyze(const edm::Event& iEvent, const edm::EventS
     
     // match SimHits and do some checks
     */
-  }
-  tree_eff_->Fill();
     
 /*
-      // match ALCT digis and SimHits;
-      // if there are common SimHits in SimTrack, match to SimTrack
-      matchSimTrack2ALCTs(match, allCSCSimHits, alcts, wiredc );
 
       // match CLCT digis and SimHits;
       // if there are common SimHits in SimTrack, match to SimTrack
@@ -1979,7 +1988,6 @@ GEMCSCTriggerEfficiencyTree::analyze(const edm::Event& iEvent, const edm::EventS
   
   cleanUp();
   */
-}
 
 
 
@@ -2101,7 +2109,6 @@ GEMCSCTriggerEfficiencyTree::matchSimTrack2SimHits( MatchCSCMuL1 * match,
   }
 }
 
-/*
 // ================================================================================================
 void
 GEMCSCTriggerEfficiencyTree::matchSimTrack2ALCTs(MatchCSCMuL1 *match, 
@@ -2305,7 +2312,7 @@ GEMCSCTriggerEfficiencyTree::matchSimTrack2ALCTs(MatchCSCMuL1 *match,
   if (debugALCT) std::cout<<"--- ALCT-SimHits ---- end"<<std::endl;
 }
 
-
+/*
 
 // ================================================================================================
 void

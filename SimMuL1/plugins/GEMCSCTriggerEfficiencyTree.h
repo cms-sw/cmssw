@@ -86,11 +86,8 @@
 #include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
 #include "GEMCode/SimMuL1/interface/MuGeometryHelpers.h"
 
-
 #include "GEMCode/SimMuL1/interface/PSimHitMap.h"
 #include "GEMCode/SimMuL1/interface/MatchCSCMuL1.h"
-
-#include "GEMCode/SimMuL1/plugins/Ntuple.h"
 
 class GEMCSCTriggerEfficiencyTree : public edm::EDAnalyzer 
 {
@@ -114,8 +111,6 @@ public:
   enum pt_thresh {N_PT_THRESHOLDS = 6};
   static const double PT_THRESHOLDS[N_PT_THRESHOLDS];
   static const double PT_THRESHOLDS_FOR_ETA[N_PT_THRESHOLDS];
-
-
 
   int getCSCType(CSCDetId &id);
   int isME11(int t);
@@ -341,10 +336,6 @@ private:
   SimHitAnalysis::PSimHitMap theCSCSimHitMap;
   //SimHitAnalysis::PSimHitMap theDTSimHitMap;
   //SimHitAnalysis::PSimHitMap theRPCSimHitMap;
-
-  TTree *tree_eff_;
-  MyNtuple etrk_;
-
 
   CSCStripConditions * theStripConditions;
 
