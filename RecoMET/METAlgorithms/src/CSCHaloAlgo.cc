@@ -481,7 +481,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      }
    else
      {
-       static std::atomic<bool> RecHitFail{false}
+       static std::atomic<bool> RecHitFail{false};
        if( !RecHitFail ) 
 	 {
 	   edm::LogWarning  ("InvalidInputTag") << "The requested CSCRecHit2DCollection does not appear to be in the event. The CSC RecHit "
