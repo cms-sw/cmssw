@@ -32,6 +32,8 @@ struct CaloTauSelectorDefinition {
 
   const_iterator end() const { return selected_.end(); }
 
+  TDiscCutPairVec discriminators;
+
   void select( const HandleToCollection & hc, 
 	       const edm::Event & e,
 	       const edm::EventSetup& s) 
@@ -41,7 +43,6 @@ struct CaloTauSelectorDefinition {
     assert( hc.isValid() ); // collection of CaloTaus
     
     // get discriminators and coresponding cuts from stored vpset
-    static TDiscCutPairVec discriminators;
     discriminators.clear();
     
     for(std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); 
