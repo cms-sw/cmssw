@@ -562,7 +562,7 @@ FastL1Region::SetTauBit(edm::Event const& iEvent)
   // rest are vetoed; 5=0101;7=0111;9=1001;10=1010;11=1011;13=1101;14=1110;15=1111
   //  --- Alternate patterns
   //  --- 9=1001;15=1111
-  static std::vector<unsigned> vetoPatterns;
+  std::vector<unsigned> vetoPatterns;
   if(vetoPatterns.size() == 0) {
     vetoPatterns.push_back(5);
     vetoPatterns.push_back(7);
