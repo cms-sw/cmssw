@@ -106,7 +106,6 @@ private:
   int maxTrack;
   TString* parameterNames[5];
   TrackAssociatorByChi2 * associatorForParamAtPca;
-  std::atomic<int> nFill{0};
 };
 #endif
 

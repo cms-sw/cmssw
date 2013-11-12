@@ -167,7 +167,7 @@ void SimpleVertexTree::fill(const TrackingVertex * simv)
 void SimpleVertexTree::fill() 
 {
   ++numberOfVertices;
-
+  static std::atomic<int> nFill{0};
   TDirectory* rootDir = gDirectory;
   //
   // fill entry
