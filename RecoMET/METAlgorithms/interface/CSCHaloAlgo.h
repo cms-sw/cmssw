@@ -140,6 +140,12 @@ class CSCHaloAlgo {
   float max_segment_phi_diff;
   float max_segment_theta;
   // End MLR
+  bool MuonTimeFail{false};
+  bool CosmicFail{false};
+  bool HLTFail{false};
+  bool L1Fail{false};   
+  bool DigiFail{false};
+  bool RecHitFail{false};
 };
 
 #endif

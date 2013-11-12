@@ -193,7 +193,6 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	    }
 	  else 
 	    {
-	      static bool MuonTimeFail = false;
 	      if( !MuonTimeFail ) 
 		{
 		  edm::LogWarning  ("InvalidInputTag") <<  "The MuonTimeExtraMap does not appear to be in the event. Some beam halo "
@@ -206,7 +205,6 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
     }
   else // collection is invalid
     {
-      static bool CosmicFail = false;
       if( !CosmicFail ) 
 	{
 	  edm::LogWarning  ("InvalidInputTag") << " The Cosmic Muon collection does not appear to be in the event. These beam halo "
@@ -241,8 +239,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      }
   else //  HLT results are not valid
     {
-      static bool HLTFail = false;
-      if( !HLTFail ) 
+     if( !HLTFail ) 
 	{
 	  edm::LogWarning  ("InvalidInputTag") << "The HLT results do not appear to be in the event. The beam halo HLT trigger "
 					       << "decision will not be used in the halo identification"; 
@@ -348,8 +345,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      }
    else
      {
-       static bool L1Fail = false;
-       if( !L1Fail ) 
+      if( !L1Fail ) 
 	 {
 	   edm::LogWarning  ("InvalidInputTag") << "The L1MuGMTReadoutCollection does not appear to be in the event. The L1 beam halo trigger "
 						<< "decision will not be used in the halo identification"; 
@@ -429,7 +425,6 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      }
    else
      {
-       static bool DigiFail=false;
        if (!DigiFail){
 	 edm::LogWarning  ("InvalidInputTag") << "The CSCALCTDigiCollection does not appear to be in the event. The ALCT Digis will "
 					      << " not be used in the halo identification"; 
@@ -481,8 +476,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      }
    else
      {
-       static bool RecHitFail = false;
-       if( !RecHitFail ) 
+              if( !RecHitFail ) 
 	 {
 	   edm::LogWarning  ("InvalidInputTag") << "The requested CSCRecHit2DCollection does not appear to be in the event. The CSC RecHit "
 						<< " variables used for halo identification will not be calculated or stored";
