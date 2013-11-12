@@ -359,7 +359,6 @@ private:
 
   // for printout
   const static char srpFlagMarker[];
-  // moved from runSelectiveReadout0()
 };
 
 std::ostream & operator<<(std::ostream & os, const EcalSelectiveReadout & selectiveReadout);
