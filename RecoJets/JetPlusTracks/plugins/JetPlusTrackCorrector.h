@@ -445,7 +445,7 @@ class JetPlusTrackCorrector {
   mutable float theSumEnergyWithEff;
   mutable float theSumEnergyWithoutEff;
   mutable float theSumPtForBeta;
-  
+  mutable jpt::Efficiency not_used{response_,efficiency_,leakage_};
 };
 
 // ---------- Inline methods ----------
@@ -477,7 +477,6 @@ inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::muonCorrection( const P4
 									const TrackRefs& muons, 
 									bool in_cone_at_vertex,
 									bool in_cone_at_calo_face ) const {
-  static jpt::Efficiency not_used( responseMap(), efficiencyMap(), leakageMap() );
   return calculateCorr( jet, muons, not_used, in_cone_at_vertex, in_cone_at_calo_face, muonMass_, false, 2. );
 } 
 
@@ -485,7 +484,6 @@ inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::elecCorrection( const P4
 									const TrackRefs& elecs, 
 									bool in_cone_at_vertex,
 									bool in_cone_at_calo_face ) const {
-  static jpt::Efficiency not_used( responseMap(), efficiencyMap(), leakageMap() );
   return calculateCorr( jet, elecs, not_used, in_cone_at_vertex, in_cone_at_calo_face, elecMass_, false, 0. ); 
 } 
 
