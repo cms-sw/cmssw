@@ -7,8 +7,6 @@
 #include "GeneratorInterface/PhotosInterface/interface/PhotosFactory.h"
 #include "GeneratorInterface/PhotosInterface/interface/PhotosInterfaceBase.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
-
 #include "HepMC/GenEvent.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
