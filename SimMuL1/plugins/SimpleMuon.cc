@@ -279,9 +279,9 @@ SimpleMuon::SimpleMuon(const edm::ParameterSet& iConfig)
   minDeltaStrip_   = iConfig.getUntrackedParameter<int>("minDeltaStrip", 1);
   gangedME1a = iConfig.getUntrackedParameter<bool>("gangedME1a", false);
   addGhostLCTs_ = iConfig.getUntrackedParameter< bool >("addGhostLCTs",true);
+
   tree_eff_ = etrk_.book(tree_eff_,"efficiency");
   etrk_.initialize();
-
 }
 
 
@@ -329,7 +329,6 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   etrk_.csc_alct_fullbx.clear();
   etrk_.csc_alct_isGood.clear();
   etrk_.csc_alct_detId.clear();
-  etrk_.csc_alct_deltaOk.clear();
 
   etrk_.csc_clct_valid.clear();
   etrk_.csc_clct_pattern.clear();
@@ -341,7 +340,6 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   etrk_.csc_clct_fullbx.clear();
   etrk_.csc_clct_isGood.clear();
   etrk_.csc_clct_detId.clear();
-  etrk_.csc_clct_deltaOk.clear();
 
   etrk_.csc_tmblct_valid.clear();
   etrk_.csc_tmblct_pattern.clear();
@@ -772,7 +770,6 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     vint trk_csc_alct_fullbx;
     vint trk_csc_alct_isGood;
     vint trk_csc_alct_detId;
-    vint trk_csc_alct_deltaOk;
 
     trk_csc_alct_valid.clear();
     trk_csc_alct_quality.clear();
@@ -782,7 +779,6 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     trk_csc_alct_fullbx.clear();
     trk_csc_alct_isGood.clear();
     trk_csc_alct_detId.clear();
-    trk_csc_alct_deltaOk.clear();
 
     for (unsigned i=0; i<readoutALCTCollection.size();i++) {
       auto myALCT(readoutALCTCollection.at(i));
@@ -794,9 +790,8 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       trk_csc_alct_bx.push_back(myALCT.getBX()-6);
       trk_csc_alct_trknmb.push_back(myALCT.trgdigi->getTrknmb());
       trk_csc_alct_fullbx.push_back(myALCT.trgdigi->getFullBX()-6);
-      trk_csc_alct_isGood.push_back(minDeltaWire_ <= myALCT.deltaWire && myALCT.deltaWire <= maxDeltaWire_);
+      trk_csc_alct_isGood.push_back(myALCT.deltaOk);
       trk_csc_alct_detId.push_back(myALCT.id);
-      trk_csc_alct_deltaOk.push_back(myALCT.deltaOk);
     }
     etrk_.csc_alct_valid.push_back(trk_csc_alct_valid);
     etrk_.csc_alct_quality.push_back(trk_csc_alct_quality);
@@ -806,7 +801,6 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     etrk_.csc_alct_fullbx.push_back(trk_csc_alct_fullbx);
     etrk_.csc_alct_isGood.push_back(trk_csc_alct_isGood);
     etrk_.csc_alct_detId.push_back(trk_csc_alct_detId);
-    etrk_.csc_alct_deltaOk.push_back(trk_csc_alct_deltaOk);
 
     //------------------------------------------------------------------------------------------------
     //                               CLCTs in the readout 
@@ -833,7 +827,6 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     vint trk_csc_clct_fullbx;
     vint trk_csc_clct_isGood;
     vint trk_csc_clct_detId;
-    vint trk_csc_clct_deltaOk;
 
     trk_csc_clct_valid.clear();
     trk_csc_clct_pattern.clear();
@@ -845,7 +838,6 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     trk_csc_clct_fullbx.clear();
     trk_csc_clct_isGood.clear();
     trk_csc_clct_detId.clear();
-    trk_csc_clct_deltaOk.clear();
      
     std::cout << "number of clcts: " << readoutCLCTCollection.size() << std::endl;
     for (unsigned i=0; i<readoutCLCTCollection.size();i++) {
@@ -860,9 +852,8 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       trk_csc_clct_bx.push_back(myCLCT.getBX()-6);
       trk_csc_clct_trknmb.push_back(myCLCT.trgdigi->getTrknmb());
       trk_csc_clct_fullbx.push_back(myCLCT.trgdigi->getFullBX()-6);
-      trk_csc_clct_isGood.push_back((abs(myCLCT.deltaStrip) <= minDeltaStrip_));
+      trk_csc_clct_isGood.push_back(myCLCT.deltaOk);
       trk_csc_clct_detId.push_back(myCLCT.id);
-      trk_csc_clct_deltaOk.push_back(myCLCT.deltaOk);
     }
     etrk_.csc_clct_valid.push_back(trk_csc_clct_valid);
     etrk_.csc_clct_pattern.push_back(trk_csc_clct_pattern);
@@ -874,7 +865,6 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     etrk_.csc_clct_fullbx.push_back(trk_csc_clct_fullbx);
     etrk_.csc_clct_isGood.push_back(trk_csc_clct_isGood);
     etrk_.csc_clct_detId.push_back(trk_csc_clct_detId);
-    etrk_.csc_clct_deltaOk.push_back(trk_csc_clct_deltaOk);
 
     //------------------------------------------------------------------------------------------------
     //                               LCTs in the readout 

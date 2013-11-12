@@ -45,7 +45,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.load('GEMCode.SimpleMuon.CfiFile_cfi')
+process.load('GEMCode.SimMuL1.SimpleMuon_cfi')
 process.SimpleMuon.strips = process.simMuonCSCDigis.strips
 readout_windows = [ [5,7],[5,7],[5,7],[5,7] ]
 """
