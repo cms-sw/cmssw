@@ -192,7 +192,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 		n_tracks_small_dT_and_beta++;
 	    }
 	  else 
-	    {
+           {
+	      static std::atomic<bool> MuonTimeFail{false};
 	      if( !MuonTimeFail ) 
 		{
 		  edm::LogWarning  ("InvalidInputTag") <<  "The MuonTimeExtraMap does not appear to be in the event. Some beam halo "
@@ -205,6 +206,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
     }
   else // collection is invalid
     {
+      static std::atomic<bool> CosmicFail{false};
       if( !CosmicFail ) 
 	{
 	  edm::LogWarning  ("InvalidInputTag") << " The Cosmic Muon collection does not appear to be in the event. These beam halo "
@@ -239,7 +241,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      }
   else //  HLT results are not valid
     {
-     if( !HLTFail ) 
+      static std::atomic<bool> HLTFail{false};
+      if( !HLTFail ) 
 	{
 	  edm::LogWarning  ("InvalidInputTag") << "The HLT results do not appear to be in the event. The beam halo HLT trigger "
 					       << "decision will not be used in the halo identification"; 
@@ -345,7 +348,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      }
    else
      {
-      if( !L1Fail ) 
+       static std::atomic<bool> L1Fail{false};   
+       if( !L1Fail ) 
 	 {
 	   edm::LogWarning  ("InvalidInputTag") << "The L1MuGMTReadoutCollection does not appear to be in the event. The L1 beam halo trigger "
 						<< "decision will not be used in the halo identification"; 
@@ -425,6 +429,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      }
    else
      {
+       static std::atomic<bool> DigiFail{false};
        if (!DigiFail){
 	 edm::LogWarning  ("InvalidInputTag") << "The CSCALCTDigiCollection does not appear to be in the event. The ALCT Digis will "
 					      << " not be used in the halo identification"; 
@@ -476,7 +481,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      }
    else
      {
-              if( !RecHitFail ) 
+       static std::atomic<bool> RecHitFail{false}
+       if( !RecHitFail ) 
 	 {
 	   edm::LogWarning  ("InvalidInputTag") << "The requested CSCRecHit2DCollection does not appear to be in the event. The CSC RecHit "
 						<< " variables used for halo identification will not be calculated or stored";
