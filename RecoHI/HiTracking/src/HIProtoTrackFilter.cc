@@ -19,7 +19,7 @@ using namespace std;
 using namespace edm;
 
 /*****************************************************************************/
-HIProtoTrackFilter::HIProtoTrackFilter (const edm::ParameterSet& ps, const edm::EventSetup& es) :
+HIProtoTrackFilter::HIProtoTrackFilter (const edm::ParameterSet& ps, edm::ConsumesCollector& iC) :
 theTIPMax( ps.getParameter<double>("tipMax") ),
 theChi2Max( ps.getParameter<double>("chi2") ),
 thePtMin( ps.getParameter<double>("ptMin") ),
@@ -73,7 +73,7 @@ bool HIProtoTrackFilter::operator() (const reco::Track* track,const PixelTrackFi
 }
 
 /*****************************************************************************/
-void HIProtoTrackFilter::update(edm::Event& ev)
+void HIProtoTrackFilter::update(const edm::Event& ev, const edm::EventSetup& es)
 {
   
   // Get the beam spot

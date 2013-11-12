@@ -14,8 +14,8 @@ using namespace std;
 using namespace edm;
 
 /*****************************************************************************/
-HIPixelTrackFilter::HIPixelTrackFilter (const edm::ParameterSet& ps, const edm::EventSetup& es) :
-ClusterShapeTrackFilter(ps,es),
+HIPixelTrackFilter::HIPixelTrackFilter (const edm::ParameterSet& ps, edm::ConsumesCollector& iC) :
+ClusterShapeTrackFilter(ps, iC),
 theTIPMax( ps.getParameter<double>("tipMax") ),
 theNSigmaTipMaxTolerance( ps.getParameter<double>("nSigmaTipMaxTolerance")),
 theLIPMax( ps.getParameter<double>("lipMax") ),
@@ -71,9 +71,10 @@ bool HIPixelTrackFilter::operator() (const reco::Track* track,const PixelTrackFi
 }
 
 /*****************************************************************************/
-void HIPixelTrackFilter::update(edm::Event& ev)
+void HIPixelTrackFilter::update(const edm::Event& ev, const edm::EventSetup& es)
 {
-  
+  ClusterShapeTrackFilter::update(ev, es);
+
   // Get reco vertices
   edm::Handle<reco::VertexCollection> vc;
   ev.getByLabel(theVertexCollection, vc);

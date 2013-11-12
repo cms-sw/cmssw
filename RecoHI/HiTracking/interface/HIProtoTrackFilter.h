@@ -10,11 +10,11 @@ namespace edm { class ParameterSet; class EventSetup; class Event;}
 
 class HIProtoTrackFilter : public PixelTrackFilter {
 public:
-	HIProtoTrackFilter(const edm::ParameterSet& ps, const edm::EventSetup& es);
+	HIProtoTrackFilter(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
 	HIProtoTrackFilter(const edm::ParameterSet& ps);
 	virtual ~HIProtoTrackFilter();
 	virtual bool operator() (const reco::Track*, const PixelTrackFilter::Hits & hits) const;
-	virtual void update(edm::Event& ev);
+	virtual void update(const edm::Event& ev, const edm::EventSetup& es) override;
 private:
 	double theTIPMax;
 	double theChi2Max, thePtMin;
