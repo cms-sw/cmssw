@@ -17,7 +17,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::InputTag inputTag_;       // input tag identifying product containing track seeds
   unsigned int  min_seeds_;      // minimum number of track seeds
@@ -35,7 +35,7 @@ private:
 //
 // constructors and destructor
 //
- 
+
 HLTTrackSeedMultiplicityFilter::HLTTrackSeedMultiplicityFilter(const edm::ParameterSet& config) : HLTFilter(config),
   inputTag_  (config.getParameter<edm::InputTag>("inputTag")),
   min_seeds_ (config.getParameter<unsigned int>("minSeeds")),
@@ -44,7 +44,7 @@ HLTTrackSeedMultiplicityFilter::HLTTrackSeedMultiplicityFilter(const edm::Parame
   inputToken_ = consumes<TrajectorySeedCollection>(inputTag_);
   LogDebug("") << "Using the " << inputTag_ << " input collection";
   LogDebug("") << "Requesting at least " << min_seeds_ << " seeds";
-  if(max_seeds_ > 0) 
+  if(max_seeds_ > 0)
     LogDebug("") << "...but no more than " << max_seeds_ << " seeds";
 }
 
@@ -67,7 +67,7 @@ HLTTrackSeedMultiplicityFilter::fillDescriptions(edm::ConfigurationDescriptions&
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTTrackSeedMultiplicityFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTTrackSeedMultiplicityFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
@@ -87,7 +87,7 @@ bool HLTTrackSeedMultiplicityFilter::hltFilter(edm::Event& event, const edm::Eve
   {
     //std::cout << "Problem!!" << std::endl;
     rsSeedCollection = seedColl.product();
-  } 
+  }
   else
   {
     return false;
@@ -105,9 +105,9 @@ bool HLTTrackSeedMultiplicityFilter::hltFilter(edm::Event& event, const edm::Eve
 
   bool accept = (seedsize >= min_seeds_);
 
-  if(max_seeds_ > 0) 
+  if(max_seeds_ > 0)
     accept &= (seedsize <= max_seeds_);
-  
+
   // return with final filter decision
   return accept;
 }

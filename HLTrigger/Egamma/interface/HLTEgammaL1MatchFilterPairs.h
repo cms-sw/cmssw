@@ -28,11 +28,12 @@ class HLTEgammaL1MatchFilterPairs : public HLTFilter {
    public:
       explicit HLTEgammaL1MatchFilterPairs(const edm::ParameterSet&);
       ~HLTEgammaL1MatchFilterPairs();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
-      bool CheckL1Matching(edm::Ref<reco::RecoEcalCandidateCollection>ref,std::vector<l1extra::L1EmParticleRef >& l1EGIso,std::vector<l1extra::L1EmParticleRef >& l1EGNonIso);
+      bool CheckL1Matching(edm::Ref<reco::RecoEcalCandidateCollection>ref,std::vector<l1extra::L1EmParticleRef >& l1EGIso,std::vector<l1extra::L1EmParticleRef >& l1EGNonIso) const;
+
       edm::InputTag candIsolatedTag_; // input tag identifying product contains egammas
       edm::InputTag l1IsolatedTag_; // input tag identifying product contains egammas
       edm::InputTag candNonIsolatedTag_; // input tag identifying product contains egammas
@@ -42,7 +43,7 @@ class HLTEgammaL1MatchFilterPairs : public HLTFilter {
 
       edm::InputTag L1SeedFilterTag_;
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> L1SeedFilterToken_;
-      bool AlsoNonIsolatedFirst_, AlsoNonIsolatedSecond_; 
+      bool AlsoNonIsolatedFirst_, AlsoNonIsolatedSecond_;
 
       // L1 matching cuts
       double region_eta_size_;

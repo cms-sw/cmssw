@@ -35,7 +35,6 @@ DiMuonHistograms::DiMuonHistograms(const edm::ParameterSet& pSet){
   parameters = pSet;
 
   theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("Muons/DiMuonHistograms");  
   
   // declare consumes:
   theMuonCollectionLabel_ = consumes<reco::MuonCollection>  (parameters.getParameter<edm::InputTag>("MuonCollection"));
@@ -54,6 +53,9 @@ void DiMuonHistograms::beginJob(){
 void DiMuonHistograms::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   LogTrace(metname)<<"[DiMuonHistograms] beginRun()";
   
+  theDbe->cd();
+  theDbe->setCurrentFolder("Muons/DiMuonHistograms");  
+
   etaBin = parameters.getParameter<int>("etaBin");
   etaBBin = parameters.getParameter<int>("etaBBin");
   etaEBin = parameters.getParameter<int>("etaEBin");

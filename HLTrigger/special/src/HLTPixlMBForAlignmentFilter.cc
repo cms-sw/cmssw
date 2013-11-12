@@ -27,7 +27,7 @@
 //
 // constructors and destructor
 //
- 
+
 HLTPixlMBForAlignmentFilter::HLTPixlMBForAlignmentFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
     pixlTag_ (iConfig.getParameter<edm::InputTag>("pixlTag")),
     min_Pt_  (iConfig.getParameter<double>("MinPt")),
@@ -64,7 +64,7 @@ HLTPixlMBForAlignmentFilter::fillDescriptions(edm::ConfigurationDescriptions& de
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;
@@ -100,8 +100,8 @@ bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::Event
      etastore.clear();
      phistore.clear();
      itstore.clear();
-     for (ipixl=apixl; ipixl!=epixl; ipixl++){ 
-       const double& ztrk1 = ipixl->vz();                    
+     for (ipixl=apixl; ipixl!=epixl; ipixl++){
+       const double& ztrk1 = ipixl->vz();
        const double& etatrk1 = ipixl->momentum().eta();
        const double& phitrk1 = ipixl->momentum().phi();
        const double& pttrk1 = ipixl->pt();
@@ -131,7 +131,7 @@ bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::Event
        for (unsigned int i=0; i<itstore.size(); i++) {
          int nincone=0;
 //       check isolation wrt ALL tracks, not only those above ptcut
-         for (ipixl=apixl; ipixl!=epixl; ipixl++){ 
+         for (ipixl=apixl; ipixl!=epixl; ipixl++){
            double phidist=std::abs( phistore.at(i) - ipixl->momentum().phi() );
            double etadist=std::abs( etastore.at(i) - ipixl->momentum().eta() );
            double trkdist = sqrt(phidist*phidist + etadist*etadist);
@@ -171,7 +171,7 @@ bool HLTPixlMBForAlignmentFilter::hltFilter(edm::Event& iEvent, const edm::Event
              if (is_separated) itsep.push_back(locisol.at(j));
            }
          }
-         if (itsep.size() >= min_trks_) { 
+         if (itsep.size() >= min_trks_) {
            accept = true;
            break;
          }

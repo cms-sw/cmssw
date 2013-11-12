@@ -2,7 +2,6 @@
 
 #include "HLTrigger/HLTfilters/interface/HLTBool.h"
 #include "HLTrigger/HLTfilters/interface/HLTFiltCand.h"
-#include "HLTrigger/HLTfilters/interface/HLTLevel1GTSeed.h"
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
@@ -117,7 +116,6 @@ typedef HLTDoubletDZ<Electron            ,RecoChargedCandidate> HLT2ElectronMuon
 
 DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
-DEFINE_FWK_MODULE(HLTLevel1GTSeed);
 DEFINE_FWK_MODULE(HLTHighLevel);
 
 DEFINE_FWK_MODULE(HLT2CaloJetCaloJet);

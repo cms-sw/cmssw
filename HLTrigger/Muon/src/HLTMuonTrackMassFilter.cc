@@ -65,7 +65,7 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   bool massesValid = minMasses_.size()==maxMasses_.size();
   if ( massesValid ) {
     for ( unsigned int i=0; i<minMasses_.size(); ++i ) {
-      if ( minMasses_[i]<0 || maxMasses_[i]<0 || 
+      if ( minMasses_[i]<0 || maxMasses_[i]<0 ||
 	   minMasses_[i]>maxMasses_[i] )  massesValid = false;
     }
   }
@@ -84,7 +84,7 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   stream << "  previousCandidates = " << prevCandTag_ << "\n";
   stream << "  saveTags= " << saveTags() << "\n";
   stream << "  mass windows =";
-  for ( size_t i=0; i<minMasses_.size(); ++i )  
+  for ( size_t i=0; i<minMasses_.size(); ++i )
     stream << " (" << minMasses_[i] << "," << maxMasses_[i] << ")";
   stream << "\n";
   stream << "  checkCharge = " << checkCharge_ << "\n";
@@ -136,7 +136,7 @@ HLTMuonTrackMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 }
 
 bool
-HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // The filter object
   if (saveTags()) {
@@ -176,8 +176,8 @@ HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
   //
   // access to muons and selection according to configuration
   //   if the previous candidates are taken from a muon+track
-  //   quarkonia filter we rely on the fact that only the muons 
-  //   are flagged as TriggerMuon 
+  //   quarkonia filter we rely on the fact that only the muons
+  //   are flagged as TriggerMuon
   //
   std::vector<reco::RecoChargedCandidateRef> selectedMuonRefs;
   selectedMuonRefs.reserve(muonHandle->size());
@@ -252,7 +252,7 @@ HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 // 	      << muon.track()->dz(beamspot)-track.track()->dz(beamspot) << " "
 // 	      << track.charge()+qMuon << " "
 // 	      << (p4Muon+track.p4()).mass() << "\n";
-      
+
 //       if ( fabs(muon.track()->dz(beamspot)-track.track()->dz(beamspot))>
 // 	   maxDzMuonTrack_ )  continue;
 //       ++nDz;
@@ -260,12 +260,12 @@ HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
       ++nQ;
 
       ///
-      
+
       // DCA between the two muons
-      
+
       reco::TrackRef tk1 = muon.track();
       reco::TrackRef tk2 = track.track();
-      
+
       reco::TransientTrack mu1TT(*tk1, &(*bFieldHandle));
       reco::TransientTrack mu2TT(*tk2, &(*bFieldHandle));
       TrajectoryStateClosestToPoint mu1TS = mu1TT.impactPointTSCP();
@@ -275,7 +275,7 @@ HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
          cApp.calculate(mu1TS.theState(), mu2TS.theState());
          if (!cApp.status() || cApp.distance() > max_DCAMuonTrack_) continue;
       }
-      
+
       ///
       // if cutting on cowboys reject muons that bend towards each other
       if(cutCowboys_ && (qMuon*deltaPhi(p4Muon.phi(), track.phi()) > 0.)) continue;
@@ -303,7 +303,7 @@ HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   if ( edm::isDebugEnabled() ) {
     std::ostringstream stream;
-    stream << "Total number of combinations = " 
+    stream << "Total number of combinations = "
 // 	   << selectedMuonRefs.size()*selectedTrackRefs.size() << " , after dz " << nDz
 	   << " , after charge " << nQ << " , after cutCowboy " << nCowboy << " , after mass " << nComb << std::endl;
     stream << "Found " << nComb << " jpsi candidates with # / mass / q / pt / eta" << std::endl;
@@ -319,7 +319,7 @@ HLTMuonTrackMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 	p4Mu = muRefs[i]->p4();
 	p4Tk = tkRefs[i]->p4();
 	p4JPsi = p4Mu + p4Tk;
-	stream << "  " << i << " " 
+	stream << "  " << i << " "
 	       << p4JPsi.M() << " "
 	       << muRefs[i]->charge()+tkRefs[i]->charge() << " "
 	       << p4JPsi.P() << " "
@@ -389,7 +389,7 @@ HLTMuonTrackMassFilter::pairMatched (std::vector<reco::RecoChargedCandidateRef>&
   return false;
 }
 
-				       
+				
 
 
 

@@ -57,6 +57,16 @@ namespace edm {
      */
     LuminosityBlockIndex index() const;
     
+    /**If you are caching data from the LuminosityBlock, you should also keep
+     this number.  If this number changes then you know that
+     the data you have cached is invalid.
+     The value of '0' will never be returned so you can use that to
+     denote that you have not yet checked the value.
+     */
+    typedef unsigned long CacheIdentifier_t;
+    CacheIdentifier_t
+    cacheIdentifier() const;
+    
     //Used in conjunction with EDGetToken
     void setConsumer(EDConsumerBase const* iConsumer);
     template <typename PROD>

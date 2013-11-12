@@ -27,6 +27,8 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
+#include "G4SystemOfUnits.hh"
+
 //
 // constructors and destructor
 //

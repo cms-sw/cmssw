@@ -17,6 +17,8 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 
+#include "G4SystemOfUnits.hh"
+
 //#define DebugLog
 
 CaloTrkProcessing::CaloTrkProcessing(G4String name, 

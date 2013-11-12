@@ -5,6 +5,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "G4SystemOfUnits.hh"
 
 using namespace std;
 const vector<double> * DDG4SolidConverter::par_ = 0; 

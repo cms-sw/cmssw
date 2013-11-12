@@ -19,13 +19,13 @@
 //
 // constructors and destructor
 //
-HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   inputTag_    = iConfig.getParameter< edm::InputTag > ("inputTag");
   ncandcut_    = iConfig.getParameter<int> ("ncandcut");
   relaxed_     = iConfig.getParameter<bool> ("relaxed") ;
-  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand");
+  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
 
   inputTrk   = iConfig.getParameter< edm::InputTag > ("inputTrack");
   trkPtCut   = iConfig.getParameter<double> ("trackPtCut");
@@ -34,7 +34,7 @@ HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iCon
 
   rechitsEB  = iConfig.getParameter< edm::InputTag > ("RecHitsEB");
   rechitsEE  = iConfig.getParameter< edm::InputTag > ("RecHitsEE");
-  
+
   EBOnly       = iConfig.getParameter<bool> ("EBOnly") ;
   sMin_min     = iConfig.getParameter<double> ("sMin_min");
   sMin_max     = iConfig.getParameter<double> ("sMin_max");
@@ -52,7 +52,7 @@ HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iCon
 
 HLTDisplacedEgammaFilter::~HLTDisplacedEgammaFilter(){}
 
-void 
+void
 HLTDisplacedEgammaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
    edm::ParameterSetDescription desc;
    makeHLTFilterDescription(desc);
@@ -80,7 +80,7 @@ HLTDisplacedEgammaFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
 // ------------ method called to produce the data  ------------
 
 bool
-HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
 
@@ -108,14 +108,14 @@ HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByToken( rechitsEBToken_, rechitsEB_ );
   iEvent.getByToken( rechitsEEToken_, rechitsEE_ );
 
-  std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;   
+  std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
- 
+
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
-    
+
     ref = recoecalcands[i] ;
     if ( EBOnly &&  std::abs( ref->eta() ) >= 1.479  ) continue ;
 
@@ -130,15 +130,15 @@ HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
     if ( sMin < sMin_min || sMin > sMin_max ) continue ;
     if ( sMaj < sMaj_min || sMaj > sMaj_max ) continue ;
 
-    // seed Time 
+    // seed Time
     std::pair<DetId, float> maxRH = EcalClusterTools::getMaximum( *SCseed, rechits );
     DetId seedCrystalId = maxRH.first;
     EcalRecHitCollection::const_iterator seedRH = rechits->find(seedCrystalId);
     float seedTime = (float)seedRH->time();
     if ( seedTime < seedTimeMin || seedTime > seedTimeMax ) continue ;
- 
+
     //Track Veto
-    
+
     int nTrk = 0 ;
     for (reco::TrackCollection::const_iterator it = tracks->begin(); it != tracks->end(); it++ )  {
         if ( it->pt() < trkPtCut ) continue ;
@@ -147,17 +147,17 @@ HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
         if ( dR < trkdRCut )  nTrk++ ;
         if ( nTrk > maxTrkCut ) break ;
     }
-    if ( nTrk > maxTrkCut ) continue ;     
-    
+    if ( nTrk > maxTrkCut ) continue ;
+
 
     n++;
     // std::cout << "Passed eta: " << ref->eta() << std::endl;
     filterproduct.addObject(TriggerCluster, ref);
   }
-  
-  
+
+
   // filter decision
   bool accept(n>=ncandcut_);
-  
+
   return accept;
 }

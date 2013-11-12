@@ -3,12 +3,12 @@
 
 /** \class TriggerResultsFilterFromDB
  *
- *  
- *  This class is an HLTFilter (-> EDFilter) implementing filtering on
- *  arbitrary logical combinations of L1 and HLT results.
  *
- *  It is a modifed version of TriggerResultsFilter that reads the 
- *  trigger expression from the database.
+ *  This class is an EDFilter implementing filtering on arbitrary logical combinations
+ *  of L1 and HLT results.
+ *
+ *  It is a modifed version of TriggerResultsFilter that reads the trigger expression
+ *  from the database.
  *
  *
  *  Authors: Martin Grunewald, Andrea Bocci
@@ -19,8 +19,8 @@
 #include <string>
 
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 
 // forward declaration
@@ -35,12 +35,12 @@ namespace triggerExpression {
 // class declaration
 //
 
-class TriggerResultsFilterFromDB : public HLTFilter {
+class TriggerResultsFilterFromDB : public edm::EDFilter {
 public:
   explicit TriggerResultsFilterFromDB(const edm::ParameterSet &);
   ~TriggerResultsFilterFromDB();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  bool filter(edm::Event &, const edm::EventSetup &) override;
 
 private:
   /// read the triggerConditions from the database

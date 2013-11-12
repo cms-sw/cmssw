@@ -25,7 +25,7 @@ class HLTEgammaGenericQuadraticEtaFilter : public HLTFilter {
    public:
       explicit HLTEgammaGenericQuadraticEtaFilter(const edm::ParameterSet&);
       ~HLTEgammaGenericQuadraticEtaFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
@@ -42,7 +42,7 @@ class HLTEgammaGenericQuadraticEtaFilter : public HLTFilter {
     Endcap quadratic threshold function:
       vali (<= or >=) thrRegularEE_ + (E or Et)*thrOverEEE_ + (E or Et)*(E or Et)*thrOverE2EE_
 */
-      double etaBoundaryEB12_;     //eta Boundary between Regions 1 and 2 - ECAL barrel 
+      double etaBoundaryEB12_;     //eta Boundary between Regions 1 and 2 - ECAL barrel
       double etaBoundaryEE12_;     //eta Boundary between Regions 1 and 2 - ECAL endcap
       double thrRegularEB1_;     // threshold value for zeroth order term - ECAL barrel region 1
       double thrRegularEE1_;     // threshold value for zeroth order term - ECAL endcap region 1
@@ -60,8 +60,8 @@ class HLTEgammaGenericQuadraticEtaFilter : public HLTFilter {
       bool doIsolated_;
 
       bool   store_;
-      edm::InputTag L1IsoCollTag_; 
-      edm::InputTag L1NonIsoCollTag_; 
+      edm::InputTag L1IsoCollTag_;
+      edm::InputTag L1NonIsoCollTag_;
 };
 
 #endif //HLTEgammaGenericQuadraticEtaFilter_h

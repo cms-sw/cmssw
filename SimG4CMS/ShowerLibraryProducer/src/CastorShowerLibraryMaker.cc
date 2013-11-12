@@ -24,6 +24,9 @@
 
 #include "SimDataFormats/CaloHit/interface/CastorShowerEvent.h"
 
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+
 #include "TFile.h"
 #include <cmath>
 #include <iostream>

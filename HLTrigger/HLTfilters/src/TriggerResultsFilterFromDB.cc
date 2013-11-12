@@ -30,7 +30,7 @@
 //
 // constructors and destructor
 //
-TriggerResultsFilterFromDB::TriggerResultsFilterFromDB(const edm::ParameterSet & config) : HLTFilter(config),
+TriggerResultsFilterFromDB::TriggerResultsFilterFromDB(const edm::ParameterSet & config) :
   m_eventSetupPathsKey(config.getParameter<std::string>("eventSetupPathsKey")),
   m_eventSetupWatcher(),
   m_expression(0),
@@ -46,7 +46,6 @@ TriggerResultsFilterFromDB::~TriggerResultsFilterFromDB()
 void
 TriggerResultsFilterFromDB::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  makeHLTFilterDescription(desc);
   // # HLT results   - set to empty to ignore HLT
   desc.add<edm::InputTag>("hltResults",edm::InputTag("TriggerResults"));
   // # L1 GT results - set to empty to ignore L1T
@@ -99,8 +98,7 @@ void TriggerResultsFilterFromDB::pathsFromSetup(const edm::Event & event, const 
 
   TriggerMap::const_iterator listIter = triggerMap.find(m_eventSetupPathsKey);
   if (listIter == triggerMap.end()) {
-    throw cms::Exception("Configuration") << "TriggerResultsFilterFromDB [instance: " << * moduleLabel() 
-                                          << " - path: " << * pathName(event) 
+    throw cms::Exception("Configuration") << "TriggerResultsFilterFromDB [instance: " << moduleDescription().moduleLabel()
                                           << "]: No triggerList with key " << m_eventSetupPathsKey << " in AlCaRecoTriggerBitsRcd";
   }
 
@@ -109,7 +107,7 @@ void TriggerResultsFilterFromDB::pathsFromSetup(const edm::Event & event, const 
   parse( triggerBits->decompose(listIter->second) );
 }
 
-bool TriggerResultsFilterFromDB::hltFilter(edm::Event & event, const edm::EventSetup & setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool TriggerResultsFilterFromDB::filter(edm::Event & event, const edm::EventSetup & setup)
 {
   // if the IOV has changed, re-read the triggerConditions from the database
   if (m_eventSetupWatcher.check(setup))

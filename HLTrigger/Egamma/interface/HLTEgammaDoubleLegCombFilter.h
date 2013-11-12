@@ -21,12 +21,12 @@ class HLTEgammaDoubleLegCombFilter : public HLTFilter {
  public:
   explicit HLTEgammaDoubleLegCombFilter(const edm::ParameterSet&);
   ~HLTEgammaDoubleLegCombFilter();
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
-  void matchCands(const std::vector<math::XYZPoint>& firstLegP3s,const std::vector<math::XYZPoint>& secondLegP3s,std::vector<std::pair<int,int> >&matchedCands);
+  void matchCands(const std::vector<math::XYZPoint>& firstLegP3s,const std::vector<math::XYZPoint>& secondLegP3s,std::vector<std::pair<int,int> >&matchedCands) const;
   static void getP3OfLegCands(const edm::Event& iEvent, const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>& filterToken, std::vector<math::XYZPoint>& p3s);
-  
+
  private:
   edm::InputTag firstLegLastFilterTag_;
   edm::InputTag secondLegLastFilterTag_;
@@ -38,6 +38,6 @@ class HLTEgammaDoubleLegCombFilter : public HLTFilter {
   double maxMatchDR_;
 };
 
-#endif 
+#endif
 
 

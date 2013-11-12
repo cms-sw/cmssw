@@ -31,7 +31,6 @@ EfficiencyAnalyzer::EfficiencyAnalyzer(const edm::ParameterSet& pSet){
   
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
   theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("Muons/EfficiencyAnalyzer");  
 
   // DATA 
   theMuonCollectionLabel_  = consumes<reco::MuonCollection>  (parameters.getParameter<edm::InputTag>("MuonCollection"));
@@ -52,6 +51,9 @@ void EfficiencyAnalyzer::beginJob(){
 
 void EfficiencyAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){ 
   metname = "EfficiencyAnalyzer";
+  
+  theDbe->cd();
+  theDbe->setCurrentFolder("Muons/EfficiencyAnalyzer");  
 
   //Vertex requirements
   doPVCheck_ = parameters.getParameter<bool>("doPrimaryVertexCheck");
@@ -74,14 +76,14 @@ void EfficiencyAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& i
 
   test_TightMu_Minv  = theDbe->book1D("test_TightMu_Minv"  ,"Minv",50,70,110);
 
-  h_allProbes_pt = theDbe->book1D("allProbes_pt","All Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_allProbes_EB_pt = theDbe->book1D("allProbes_EB_pt","Barrel: all Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_allProbes_EE_pt = theDbe->book1D("allProbes_EE_pt","Endcap: all Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_allProbes_eta = theDbe->book1D("allProbes_eta","All Probes Eta", etaBin_, etaMin_, etaMax_);
+  h_allProbes_pt     = theDbe->book1D("allProbes_pt","All Probes Pt",              ptBin_, ptMin_, ptMax_);
+  h_allProbes_EB_pt  = theDbe->book1D("allProbes_EB_pt","Barrel: all Probes Pt",   ptBin_, ptMin_, ptMax_);
+  h_allProbes_EE_pt  = theDbe->book1D("allProbes_EE_pt","Endcap: all Probes Pt",   ptBin_, ptMin_, ptMax_);
+  h_allProbes_eta    = theDbe->book1D("allProbes_eta","All Probes Eta",            etaBin_, etaMin_, etaMax_);
   h_allProbes_hp_eta = theDbe->book1D("allProbes_hp_eta","High Pt all Probes Eta", etaBin_, etaMin_, etaMax_);
-  h_allProbes_phi = theDbe->book1D("allProbes_phi","All Probes Phi", phiBin_, phiMin_, phiMax_);
-
-  h_allProbes_TightMu_pt = theDbe->book1D("allProbes_TightMu_pt","All TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_allProbes_phi    = theDbe->book1D("allProbes_phi","All Probes Phi",            phiBin_, phiMin_, phiMax_);
+  
+  h_allProbes_TightMu_pt    = theDbe->book1D("allProbes_TightMu_pt","All TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
   h_allProbes_EB_TightMu_pt = theDbe->book1D("allProbes_EB_TightMu_pt","Barrel: all TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
   h_allProbes_EE_TightMu_pt = theDbe->book1D("allProbes_EE_TightMu_pt","Endcap: all TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
   h_allProbes_TightMu_nVtx = theDbe->book1D("allProbes_TightMu_nVtx","All Probes (TightMu) nVtx", vtxBin_, vtxMin_, vtxMax_);

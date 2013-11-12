@@ -4,14 +4,18 @@
  */
 
 /* This Class Header */
-#include "EventFilter/Cosmics/interface/HLTMuonPointingFilter.h"
+#include "HLTrigger/special/interface/HLTMuonPointingFilter.h"
 
 /* Collaborating Class Header */
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -23,8 +27,6 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-
-
 /* C++ Headers */
 using namespace std;
 using namespace edm;
@@ -33,31 +35,25 @@ using namespace edm;
 
 /// Constructor
 HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) :
-   HLTFilter(pset),
-   m_cacheRecordId(0) 
+  theSTAMuonToken(  consumes<reco::TrackCollection>( pset.getParameter<edm::InputTag>("SALabel") ) ),      // token to read the muons
+  thePropagatorName(pset.getParameter<std::string>("PropagatorName") ),
+  theRadius(        pset.getParameter<double>("radius") ),              // cyl's radius (cm)
+  theMaxZ(          pset.getParameter<double>("maxZ") ),                // cyl's half lenght (cm)
+  thePropagator(nullptr),
+  m_cacheRecordId(0)
 {
-  // the name of the STA rec hits collection
-  theSTAMuonLabel = pset.getParameter<string>("SALabel");
-
-  thePropagatorName = pset.getParameter<std::string>("PropagatorName");
-  thePropagator = 0;
-
-  theRadius = pset.getParameter<double>("radius"); // cyl's radius (cm)
-  theMaxZ = pset.getParameter<double>("maxZ"); // cyl's half lenght (cm)
-
-
   // Get a surface (here a cylinder of radius 1290mm) ECAL
   Cylinder::PositionType pos0;
   Cylinder::RotationType rot0;
   theCyl = Cylinder::build(theRadius, pos0, rot0);
-    
+
   Plane::PositionType posPos(0,0,theMaxZ);
   Plane::PositionType posNeg(0,0,-theMaxZ);
 
   thePosPlane = Plane::build(posPos,rot0);
   theNegPlane = Plane::build(posNeg,rot0);
 
-  LogDebug("HLTMuonPointing") << " SALabel : " << theSTAMuonLabel 
+  LogDebug("HLTMuonPointing") << " SALabel : " << pset.getParameter<edm::InputTag>("SALabel")
     << " Radius : " << theRadius
     << " Half lenght : " << theMaxZ;
 }
@@ -66,16 +62,21 @@ HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) :
 HLTMuonPointingFilter::~HLTMuonPointingFilter() {
 }
 
-/* Operations */ 
-bool HLTMuonPointingFilter::hltFilter(edm::Event& event, const edm::EventSetup& eventSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+/* Operations */
+bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
   bool accept = false;
 
   const TrackingComponentsRecord & tkRec = eventSetup.get<TrackingComponentsRecord>();
   if (not thePropagator or tkRec.cacheIdentifier() != m_cacheRecordId) {
-    ESHandle<Propagator> prop;
-    tkRec.get(thePropagatorName, prop);
-    thePropagator = prop->clone();
-    thePropagator->setPropagationDirection(anyDirection);
+    // delete the old propagator
+    delete thePropagator;
+
+    // get the new propagator from the EventSetup and clone it (for thread safety)
+    ESHandle<Propagator> propagatorHandle;
+    tkRec.get(thePropagatorName, propagatorHandle);
+    thePropagator = propagatorHandle.product()->clone();
+    if (thePropagator->propagationDirection() != anyDirection)
+      throw cms::Exception("Configuration") << "the propagator " << thePropagatorName << " should be configured with PropagationDirection = \"anyDirection\"" << std::endl;
     m_cacheRecordId = tkRec.cacheIdentifier();
   }
 
@@ -87,7 +88,7 @@ bool HLTMuonPointingFilter::hltFilter(edm::Event& event, const edm::EventSetup& 
 
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
-  event.getByLabel(theSTAMuonLabel, staTracks);
+  event.getByToken(theSTAMuonToken, staTracks);
 
   reco::TrackCollection::const_iterator staTrack;
 
@@ -107,7 +108,7 @@ bool HLTMuonPointingFilter::hltFilter(edm::Event& event, const edm::EventSetup& 
         accept=true;
         return accept;
       }
-      else { 
+      else {
         LogDebug("HLTMuonPointing") << " extrap TSOS z too big " << tsosAtCyl.globalPosition().z();
 	TrajectoryStateOnSurface tsosAtPlane;
 	if (tsosAtCyl.globalPosition().z()>0)
@@ -131,9 +132,20 @@ bool HLTMuonPointingFilter::hltFilter(edm::Event& event, const edm::EventSetup& 
   }
 
   return accept;
-
-
 }
 
+void HLTMuonPointingFilter::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("SALabel", edm::InputTag("hltCosmicMuonBarrelOnly"));
+  desc.add<std::string>("PropagatorName", "SteppingHelixPropagatorAny");
+  desc.add<double>("radius", 90.0);
+  desc.add<double>("maxZ", 280.0);
+
+  descriptions.add("hltMuonPointingFilter", desc);
+}
+
+
 // define this as a plug-in
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HLTMuonPointingFilter);

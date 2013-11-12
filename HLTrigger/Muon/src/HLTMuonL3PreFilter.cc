@@ -41,7 +41,7 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) : HLTFilter(
    candTag_   (iConfig.getParameter<InputTag > ("CandTag")),
    candToken_ (consumes<reco::RecoChargedCandidateCollection>(candTag_)),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
-   previousCandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)), 
+   previousCandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
    min_N_     (iConfig.getParameter<int> ("MinN")),
    max_Eta_   (iConfig.getParameter<double> ("MaxEta")),
    min_Nhits_ (iConfig.getParameter<int> ("MinNhits")),
@@ -50,7 +50,7 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) : HLTFilter(
    max_Dz_    (iConfig.getParameter<double> ("MaxDz")),
    min_DxySig_(iConfig.getParameter<double> ("MinDxySig")),
    min_Pt_    (iConfig.getParameter<double> ("MinPt")),
-   nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")), 
+   nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")),
    max_NormalizedChi2_ (iConfig.getParameter<double> ("MaxNormalizedChi2")),
    max_DXYBeamSpot_ (iConfig.getParameter<double> ("MaxDXYBeamSpot")),
    min_NmuonHits_ (iConfig.getParameter<int> ("MinNmuonHits")),
@@ -61,7 +61,7 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) : HLTFilter(
    LogDebug("HLTMuonL3PreFilter")
       << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MinDr/MaxDz/MinDxySig/MinPt/NSigmaPt : "
       << candTag_.encode()
-      << " " << min_N_ 
+      << " " << min_N_
       << " " << max_Eta_
       << " " << min_Nhits_
       << " " << max_Dr_
@@ -107,7 +107,7 @@ HLTMuonL3PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 
 // ------------ method called to produce the data  ------------
 bool
-HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
    // All HLT filters must create and fill an HLT filter object,
@@ -149,23 +149,23 @@ HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::
    for (; L2toL3s_it!=L2toL3s_end; ++L2toL3s_it){
 
      if (!triggeredByLevel2(L2toL3s_it->first,vl2cands)) continue;
-     
+
      //loop over the L3Tk reconstructed for this L2.
      unsigned int iTk=0;
      unsigned int maxItk=L2toL3s_it->second.size();
      for (; iTk!=maxItk; iTk++){
-       
+
        RecoChargedCandidateRef & cand=L2toL3s_it->second[iTk];
        TrackRef tk = cand->track();
 
        LogDebug("HLTMuonL3PreFilter") << " Muon in loop, q*pt= " << tk->charge()*tk->pt() <<" (" << cand->charge()*cand->pt() << ") " << ", eta= " << tk->eta() << " (" << cand->eta() << ") " << ", hits= " << tk->numberOfValidHits() << ", d0= " << tk->d0() << ", dz= " << tk->dz();
-       
+
        // eta cut
        if (fabs(cand->eta())>max_Eta_) continue;
-       
+
        // cut on number of hits
        if (tk->numberOfValidHits()<min_Nhits_) continue;
-       
+
        //max dr cut
        //if (fabs(tk->d0())>max_Dr_) continue;
        if (fabs( (- (cand->vx()-beamSpot.x0()) * cand->py() + (cand->vy()-beamSpot.y0()) * cand->px() ) / cand->pt() ) >max_Dr_) continue;
@@ -188,7 +188,7 @@ HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::
        //min muon hits cut
        reco::HitPattern trackHits = tk->hitPattern();
        if (trackHits.numberOfValidMuonHits() < min_NmuonHits_ ) continue;
-       
+
        //pt difference cut
        double candPt = cand->pt();
        double trackPt = tk->pt();
@@ -197,7 +197,7 @@ HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::
 
        //track pt cut
        if (trackPt < min_TrackPt_ ) continue;
-       
+
        // Pt threshold cut
        double pt = cand->pt();
        double err0 = tk->error(0);
@@ -206,10 +206,10 @@ HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::
        // convert 50% efficiency threshold to 90% efficiency threshold
        if (abspar0>0) ptLx += nsigma_Pt_*err0/abspar0*pt;
        LogTrace("HLTMuonL3PreFilter") << " ...Muon in loop, trackkRef pt= "
-				      << tk->pt() << ", ptLx= " << ptLx 
+				      << tk->pt() << ", ptLx= " << ptLx
 				      << " cand pT " << cand->pt();
       if (ptLx<min_Pt_) continue;
-      
+
       filterproduct.addObject(TriggerMuon,cand);
       n++;
       break; // and go on with the next L2 association
@@ -224,16 +224,17 @@ HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::
      LogDebug("HLTMuonL3PreFilter")
        << " Track passing filter: trackRef pt= " << tk->pt() << " (" << candref->pt() << ") " << ", eta: " << tk->eta() << " (" << candref->eta() << ") ";
    }
-   
+
    // filter decision
    const bool accept (n >= min_N_);
-   
-   LogDebug("HLTMuonL3PreFilter") << " >>>>> Result of HLTMuonL3PreFilter is " << accept << ", number of muons passing thresholds= " << n; 
+
+   LogDebug("HLTMuonL3PreFilter") << " >>>>> Result of HLTMuonL3PreFilter is " << accept << ", number of muons passing thresholds= " << n;
 
    return accept;
 }
+
 bool
-HLTMuonL3PreFilter::triggeredByLevel2(const TrackRef& staTrack,vector<RecoChargedCandidateRef>& vcands)
+HLTMuonL3PreFilter::triggeredByLevel2(const TrackRef& staTrack,vector<RecoChargedCandidateRef>& vcands) const
 {
   bool ok=false;
   for (unsigned int i=0; i<vcands.size(); i++) {

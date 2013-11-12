@@ -100,7 +100,9 @@ namespace CLHEP {
 
 namespace edm {
 
+  class StreamID;
   class LuminosityBlock;
+  class LuminosityBlockIndex;
   class Event;
 
   class RandomNumberGenerator
@@ -112,6 +114,9 @@ namespace edm {
 
     /// Use this to get the random number engine, this is the only function most users should call.
     virtual CLHEP::HepRandomEngine& getEngine() const = 0;    
+
+    virtual CLHEP::HepRandomEngine& getEngine(StreamID const&) const { return getEngine(); }
+    virtual CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const&) const { return getEngine(); }
 
     /// Exists for backward compatibility.
     virtual uint32_t mySeed() const = 0;

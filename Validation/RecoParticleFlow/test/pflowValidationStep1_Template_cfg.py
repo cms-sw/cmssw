@@ -246,18 +246,18 @@ process.genReReco = cms.Sequence(process.generator +
                                  process.particleFlowSimParticle
                                  )
 
-process.load("RecoParticleFlow.PFProducer.particleFlowCandidateChecker_cfi")
-#process.particleFlowCandidateChecker.pfCandidatesReco = cms.InputTag("particleFlow","","REPROD")
-#process.particleFlowCandidateChecker.pfCandidatesReReco = cms.InputTag("particleFlow","","REPROD2")
-#process.particleFlowCandidateChecker.pfJetsReco = cms.InputTag("ak5PFJets","","REPROD")
-#process.particleFlowCandidateChecker.pfJetsReReco = cms.InputTag("ak5PFJets","","REPROD2")
+#process.load("RecoParticleFlow.PFProducer.particleFlowCandidateChecker_cfi")
+##process.particleFlowCandidateChecker.pfCandidatesReco = cms.InputTag("particleFlow","","REPROD")
+##process.particleFlowCandidateChecker.pfCandidatesReReco = cms.InputTag("particleFlow","","REPROD2")
+##process.particleFlowCandidateChecker.pfJetsReco = cms.InputTag("ak5PFJets","","REPROD")
+##process.particleFlowCandidateChecker.pfJetsReReco = cms.InputTag("ak5PFJets","","REPROD2")
 
 process.pfReRecoSequence = cms.Sequence(
     process.localReReco
     + process.globalReReco
     + process.pfReReco
     + process.genReReco
-    + process.particleFlowCandidateChecker
+    #+ process.particleFlowCandidateChecker
     )
 
 
@@ -265,8 +265,8 @@ process.pfReRecoSequence = cms.Sequence(
 # PFDQM modules to book/fill actual histograms
 #----------------------------------------------
 process.load("Validation.RecoParticleFlow.PFJetValidation_cff")
-process.pfJetValidation1.SkimParameter.switchOn = cms.bool(True)
-process.pfJetValidation2.SkimParameter.switchOn = cms.bool(True)
+process.pfJetValidation1.SkimParameter.switchOn = cms.bool(False)
+process.pfJetValidation2.SkimParameter.switchOn = cms.bool(False)
 
 process.load("Validation.RecoParticleFlow.PFMETValidation_cff")
 process.load("Validation.RecoParticleFlow.PFJetResValidation_cff")
