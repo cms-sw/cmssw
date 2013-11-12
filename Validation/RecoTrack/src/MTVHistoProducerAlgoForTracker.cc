@@ -1,7 +1,5 @@
 #include "Validation/RecoTrack/interface/MTVHistoProducerAlgoForTracker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -15,9 +13,9 @@
 
 using namespace std;
 
-MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset): MTVHistoProducerAlgo(pset){
+MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, edm::ConsumesCollector & iC): MTVHistoProducerAlgo(pset, iC){
   //parameters for _vs_eta plots
-  minEta  = pset.getParameter<double>("minEta");  
+  minEta  = pset.getParameter<double>("minEta");
   maxEta  = pset.getParameter<double>("maxEta");
   nintEta = pset.getParameter<int>("nintEta");
   useFabsEta = pset.getParameter<bool>("useFabsEta");
@@ -33,12 +31,12 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   minHit  = pset.getParameter<double>("minHit");
   maxHit  = pset.getParameter<double>("maxHit");
   nintHit = pset.getParameter<int>("nintHit");
-  
+
   //parameters for _vs_Layer plots
   minLayers  = pset.getParameter<double>("minLayers");
   maxLayers  = pset.getParameter<double>("maxLayers");
   nintLayers = pset.getParameter<int>("nintLayers");
-  
+
   //parameters for _vs_phi plots
   minPhi  = pset.getParameter<double>("minPhi");
   maxPhi  = pset.getParameter<double>("maxPhi");
@@ -48,7 +46,7 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   minDxy  = pset.getParameter<double>("minDxy");
   maxDxy  = pset.getParameter<double>("maxDxy");
   nintDxy = pset.getParameter<int>("nintDxy");
-    
+
   //parameters for _vs_Dz plots
   minDz  = pset.getParameter<double>("minDz");
   maxDz  = pset.getParameter<double>("maxDz");
@@ -68,7 +66,7 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   minDeDx  = pset.getParameter<double>("minDeDx");
   maxDeDx  = pset.getParameter<double>("maxDeDx");
   nintDeDx = pset.getParameter<int>("nintDeDx");
-  
+
   //parameters for Pileup plots
   minVertcount  = pset.getParameter<double>("minVertcount");
   maxVertcount  = pset.getParameter<double>("maxVertcount");
@@ -116,23 +114,23 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   ParameterSet TpSelectorForEfficiencyVsConPSet = TpSelectorForEfficiencyVsEtaPSet;
   Entry name("signalOnly",false,true);
   TpSelectorForEfficiencyVsConPSet.insert(true,"signalOnly",name);
-  
+
   using namespace reco::modules;
-  generalTpSelector               = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(generalTpSelectorPSet));
-  TpSelectorForEfficiencyVsEta    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsEtaPSet));
-  TpSelectorForEfficiencyVsCon    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsConPSet));
-  TpSelectorForEfficiencyVsPhi    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPhiPSet));
-  TpSelectorForEfficiencyVsPt     = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPtPSet));
-  TpSelectorForEfficiencyVsVTXR   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXRPSet));
-  TpSelectorForEfficiencyVsVTXZ   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXZPSet));
-  
-  generalGpSelector               = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(generalGpSelectorPSet));
-  GpSelectorForEfficiencyVsEta    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsEtaPSet));
-  GpSelectorForEfficiencyVsCon    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsEtaPSet));
-  GpSelectorForEfficiencyVsPhi    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPhiPSet));
-  GpSelectorForEfficiencyVsPt     = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPtPSet));
-  GpSelectorForEfficiencyVsVTXR   = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsVTXRPSet));
-  GpSelectorForEfficiencyVsVTXZ   = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsVTXZPSet));
+  generalTpSelector               = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(generalTpSelectorPSet, iC));
+  TpSelectorForEfficiencyVsEta    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsEtaPSet, iC));
+  TpSelectorForEfficiencyVsCon    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsConPSet, iC));
+  TpSelectorForEfficiencyVsPhi    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPhiPSet, iC));
+  TpSelectorForEfficiencyVsPt     = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPtPSet, iC));
+  TpSelectorForEfficiencyVsVTXR   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXRPSet, iC));
+  TpSelectorForEfficiencyVsVTXZ   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXZPSet, iC));
+
+  generalGpSelector               = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(generalGpSelectorPSet, iC));
+  GpSelectorForEfficiencyVsEta    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsEtaPSet, iC));
+  GpSelectorForEfficiencyVsCon    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsEtaPSet, iC));
+  GpSelectorForEfficiencyVsPhi    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPhiPSet, iC));
+  GpSelectorForEfficiencyVsPt     = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPtPSet, iC));
+  GpSelectorForEfficiencyVsVTXR   = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsVTXRPSet, iC));
+  GpSelectorForEfficiencyVsVTXZ   = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsVTXZPSet, iC));
 
   // fix for the LogScale by Ryan
   if(useLogPt){
@@ -141,7 +139,7 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
       minPt=log10(minPt);
     }
     else{
-      edm::LogWarning("MultiTrackValidator") 
+      edm::LogWarning("MultiTrackValidator")
 	<< "minPt = "
 	<< minPt << " <= 0 out of range while requesting log scale.  Using minPt = 0.1.";
       minPt=log10(0.1);
@@ -186,8 +184,8 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   std::vector<int>    totSIMv_dxy,totASSv_dxy,totASS2v_dxy,totRECv_dxy,totloopv_dxy,totmisidv_dxy;
   std::vector<int>    totSIMv_dz,totASSv_dz,totASS2v_dz,totRECv_dz,totloopv_dz,totmisidv_dz;
 
-  std::vector<int>    totSIMv_vertpos,totASSv_vertpos,totSIMv_zpos,totASSv_zpos; 
-  std::vector<int>    totSIMv_vertcount,totASSv_vertcount,totRECv_vertcount,totASS2v_vertcount; 
+  std::vector<int>    totSIMv_vertpos,totASSv_vertpos,totSIMv_zpos,totASSv_zpos;
+  std::vector<int>    totSIMv_vertcount,totASSv_vertcount,totRECv_vertcount,totASS2v_vertcount;
   std::vector<int>    totRECv_algo;
 
   double step=(maxEta-minEta)/nintEta;
@@ -203,7 +201,7 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
     totmisidveta.push_back(0);
     totASS2vetaSig.push_back(0);
     totRECveta.push_back(0);
-  }   
+  }
   etaintervals.push_back(etaintervalsv);
   totSIMeta.push_back(totSIMveta);
   totCONeta.push_back(totASSveta);
@@ -214,7 +212,7 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   totASS2etaSig.push_back(totASS2vetaSig);
   totRECeta.push_back(totRECveta);
   totFOMT_eta.push_back(totASSveta);
-    
+
   totASS2_itpu_eta_entire.push_back(totASS2veta);
   totASS2_itpu_eta_entire_signal.push_back(totASS2vetaSig);
   totASS2_ootpu_eta_entire.push_back(totASS2veta);
@@ -245,7 +243,7 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   totRECpT.push_back(totRECvpT);
   totlooppT.push_back(totloopvpT);
   totmisidpT.push_back(totmisidvpT);
-  
+
   for (int k=1;k<nintHit+1;k++) {
     totSIMv_hit.push_back(0);
     totASSv_hit.push_back(0);
@@ -260,7 +258,7 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   totREC_hit.push_back(totRECv_hit);
   totloop_hit.push_back(totloopv_hit);
   totmisid_hit.push_back(totmisidv_hit);
-  
+
   double stepPhi = (maxPhi-minPhi)/nintPhi;
   phiintervalsv.push_back(minPhi);
   for (int k=1;k<nintPhi+1;k++) {
@@ -280,7 +278,7 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   totREC_phi.push_back(totRECv_phi);
   totloop_phi.push_back(totloopv_phi);
   totmisid_phi.push_back(totmisidv_phi);
-  
+
   double stepDxy = (maxDxy-minDxy)/nintDxy;
   dxyintervalsv.push_back(minDxy);
   for (int k=1;k<nintDxy+1;k++) {
@@ -300,8 +298,8 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   totREC_dxy.push_back(totRECv_dxy);
   totloop_dxy.push_back(totloopv_dxy);
   totmisid_dxy.push_back(totmisidv_dxy);
-  
-  
+
+
   double stepDz = (maxDz-minDz)/nintDz;
   dzintervalsv.push_back(minDz);
   for (int k=1;k<nintDz+1;k++) {
@@ -321,7 +319,7 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   totREC_dz.push_back(totRECv_dz);
   totloop_dz.push_back(totloopv_dz);
   totmisid_dz.push_back(totmisidv_dz);
-  
+
   double stepVertpos = (maxVertpos-minVertpos)/nintVertpos;
   vertposintervalsv.push_back(minVertpos);
   for (int k=1;k<nintVertpos+1;k++) {
@@ -333,7 +331,7 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   vertposintervals.push_back(vertposintervalsv);
   totSIM_vertpos.push_back(totSIMv_vertpos);
   totASS_vertpos.push_back(totASSv_vertpos);
-    
+
   double stepZpos = (maxZpos-minZpos)/nintZpos;
   zposintervalsv.push_back(minZpos);
   for (int k=1;k<nintZpos+1;k++) {
@@ -364,7 +362,7 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
     totASSv_vertcount.push_back(0);
     totASS2v_vertcount.push_back(0);
     totRECv_vertcount.push_back(0);
-  }   
+  }
   vertcountintervals.push_back(vertcountintervalsv);
   totSIM_vertcount_entire.push_back(totSIMv_vertcount);
   totCONvertcount.push_back(totSIMv_vertcount);
@@ -385,7 +383,7 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   totASS2_vertcount_fwdneg.push_back(totASS2v_vertcount);
   totREC_vertcount_fwdneg.push_back(totRECv_vertcount);
   totFOMT_vertcount.push_back(totASSv_vertcount);
-    
+
   totASS2_itpu_vertcount_entire.push_back(totASS2v_vertcount);
   totASS2_itpu_vertcount_entire_signal.push_back(totASS2v_vertcount);
 
@@ -404,7 +402,7 @@ void MTVHistoProducerAlgoForTracker::bookSimHistos(){
   h_ptSIM.push_back( dbe_->book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
   h_etaSIM.push_back( dbe_->book1D("etaSIM", "generated pseudorapidity", 500, -2.5, 2.5 ) );
   h_tracksSIM.push_back( dbe_->book1D("tracksSIM","number of simulated tracks",200,-0.5,99.5) );
-  h_vertposSIM.push_back( dbe_->book1D("vertposSIM","Transverse position of sim vertices",100,0.,120.) );  
+  h_vertposSIM.push_back( dbe_->book1D("vertposSIM","Transverse position of sim vertices",100,0.,120.) );
   h_bunchxSIM.push_back( dbe_->book1D("bunchxSIM", "bunch crossing", 22, -5, 5 ) );
 }
 
@@ -413,7 +411,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   h_tracks.push_back( dbe_->book1D("tracks","number of reconstructed tracks",401,-0.5,400.5) );
   h_fakes.push_back( dbe_->book1D("fakes","number of fake reco tracks",101,-0.5,100.5) );
   h_charge.push_back( dbe_->book1D("charge","charge",3,-1.5,1.5) );
-  
+
   h_hits.push_back( dbe_->book1D("hits", "number of hits per track", nintHit,minHit,maxHit ) );
   h_losthits.push_back( dbe_->book1D("losthits", "number of lost hits per track", nintHit,minHit,maxHit) );
   h_nchi2.push_back( dbe_->book1D("chi2", "normalized #chi^{2}", 200, 0, 20 ) );
@@ -451,31 +449,31 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   h_simulphi.push_back( dbe_->book1D("num_simul_phi","N of simulated tracks vs phi",nintPhi,minPhi,maxPhi) );
   h_looperphi.push_back( dbe_->book1D("num_duplicate_phi","N of associated (recoToSim) duplicate tracks vs phi",nintPhi,minPhi,maxPhi) );
   h_misidphi.push_back( dbe_->book1D("num_chargemisid_phi","N of associated (recoToSim) charge misIDed tracks vs phi",nintPhi,minPhi,maxPhi) );
-  
+
   h_recodxy.push_back( dbe_->book1D("num_reco_dxy","N of reco track vs dxy",nintDxy,minDxy,maxDxy) );
   h_assocdxy.push_back( dbe_->book1D("num_assoc(simToReco)_dxy","N of associated tracks (simToReco) vs dxy",nintDxy,minDxy,maxDxy) );
   h_assoc2dxy.push_back( dbe_->book1D("num_assoc(recoToSim)_dxy","N of associated (recoToSim) tracks vs dxy",nintDxy,minDxy,maxDxy) );
   h_simuldxy.push_back( dbe_->book1D("num_simul_dxy","N of simulated tracks vs dxy",nintDxy,minDxy,maxDxy) );
   h_looperdxy.push_back( dbe_->book1D("num_duplicate_dxy","N of associated (recoToSim) looper tracks vs dxy",nintDxy,minDxy,maxDxy) );
   h_misiddxy.push_back( dbe_->book1D("num_chargemisid_dxy","N of associated (recoToSim) charge misIDed tracks vs dxy",nintDxy,minDxy,maxDxy) );
-  
+
   h_recodz.push_back( dbe_->book1D("num_reco_dz","N of reco track vs dz",nintDz,minDz,maxDz) );
   h_assocdz.push_back( dbe_->book1D("num_assoc(simToReco)_dz","N of associated tracks (simToReco) vs dz",nintDz,minDz,maxDz) );
   h_assoc2dz.push_back( dbe_->book1D("num_assoc(recoToSim)_dz","N of associated (recoToSim) tracks vs dz",nintDz,minDz,maxDz) );
   h_simuldz.push_back( dbe_->book1D("num_simul_dz","N of simulated tracks vs dz",nintDz,minDz,maxDz) );
   h_looperdz.push_back( dbe_->book1D("num_duplicate_dz","N of associated (recoToSim) looper tracks vs dz",nintDz,minDz,maxDz) );
   h_misiddz.push_back( dbe_->book1D("num_chargemisid_versus_dz","N of associated (recoToSim) charge misIDed tracks vs dz",nintDz,minDz,maxDz) );
-  
+
   h_assocvertpos.push_back( dbe_->book1D("num_assoc(simToReco)_vertpos",
-					 "N of associated tracks (simToReco) vs transverse vert position",	 
+					 "N of associated tracks (simToReco) vs transverse vert position",
 					 nintVertpos,minVertpos,maxVertpos) );
   h_simulvertpos.push_back( dbe_->book1D("num_simul_vertpos","N of simulated tracks vs transverse vert position",
 					 nintVertpos,minVertpos,maxVertpos) );
-  
+
   h_assoczpos.push_back( dbe_->book1D("num_assoc(simToReco)_zpos","N of associated tracks (simToReco) vs z vert position",
 				      nintZpos,minZpos,maxZpos) );
   h_simulzpos.push_back( dbe_->book1D("num_simul_zpos","N of simulated tracks vs z vert position",nintZpos,minZpos,maxZpos) );
-  
+
 
   h_reco_vertcount_entire.push_back( dbe_->book1D("num_reco_vertcount_entire","N of reco tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
   h_assoc_vertcount_entire.push_back( dbe_->book1D("num_assoc(simToReco)_vertcount_entire","N of associated tracks (simToReco) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
@@ -530,7 +528,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
 
 
   /////////////////////////////////
-  
+
   h_eta.push_back( dbe_->book1D("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
   h_pt.push_back( dbe_->book1D("pullPt", "pull of p_{t}", 100, -10, 10 ) );
   h_pullTheta.push_back( dbe_->book1D("pullTheta","pull of #theta parameter",250,-25,25) );
@@ -538,7 +536,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   h_pullDxy.push_back( dbe_->book1D("pullDxy","pull of dxy parameter",250,-25,25) );
   h_pullDz.push_back( dbe_->book1D("pullDz","pull of dz parameter",250,-25,25) );
   h_pullQoverp.push_back( dbe_->book1D("pullQoverp","pull of qoverp parameter",250,-25,25) );
-  
+
   /* TO BE FIXED -----------
   if (associators[ww]=="TrackAssociatorByChi2"){
     h_assochi2.push_back( dbe_->book1D("assocChi2","track association #chi^{2}",1000000,0,100000) );
@@ -553,13 +551,13 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   // ----------------------
 
   chi2_vs_nhits.push_back( dbe_->book2D("chi2_vs_nhits","#chi^{2} vs nhits",25,0,25,100,0,10) );
-  
+
   etares_vs_eta.push_back( dbe_->book2D("etares_vs_eta","etaresidue vs eta",nintEta,minEta,maxEta,200,-0.1,0.1) );
   nrec_vs_nsim.push_back( dbe_->book2D("nrec_vs_nsim","nrec vs nsim",401,-0.5,400.5,401,-0.5,400.5) );
-  
+
   chi2_vs_eta.push_back( dbe_->book2D("chi2_vs_eta","chi2_vs_eta",nintEta,minEta,maxEta, 200, 0, 20 ));
   chi2_vs_phi.push_back( dbe_->book2D("chi2_vs_phi","#chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20 ) );
-  
+
   nhits_vs_eta.push_back( dbe_->book2D("nhits_vs_eta","nhits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
   nPXBhits_vs_eta.push_back( dbe_->book2D("nPXBhits_vs_eta","# PXB its vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
   nPXFhits_vs_eta.push_back( dbe_->book2D("nPXFhits_vs_eta","# PXF hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
@@ -578,31 +576,31 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
 							nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
   nSTRIPlayersWith2dMeas_vs_eta.push_back( dbe_->book2D("nSTRIPlayersWith2dMeas_vs_eta","# STRIP Layers with 2D measurement vs eta",
 						       nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  
+
   nhits_vs_phi.push_back( dbe_->book2D("nhits_vs_phi","#hits vs #phi",nintPhi,minPhi,maxPhi,nintHit,minHit,maxHit) );
-  
+
   nlosthits_vs_eta.push_back( dbe_->book2D("nlosthits_vs_eta","nlosthits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit) );
-  
+
   //resolution of track parameters
   //                       dPt/Pt    cotTheta        Phi            TIP            LIP
   // log10(pt)<0.5        100,0.1    240,0.08     100,0.015      100,0.1000    150,0.3000
   // 0.5<log10(pt)<1.5    100,0.1    120,0.01     100,0.003      100,0.0100    150,0.0500
   // >1.5                 100,0.3    100,0.005    100,0.0008     100,0.0060    120,0.0300
-  
+
   ptres_vs_eta.push_back(dbe_->book2D("ptres_vs_eta","ptres_vs_eta",
 				      nintEta,minEta,maxEta, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
-  
+
   ptres_vs_phi.push_back( dbe_->book2D("ptres_vs_phi","p_{t} res vs #phi",
 				       nintPhi,minPhi,maxPhi, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
-  
+
   ptres_vs_pt.push_back(dbe_->book2D("ptres_vs_pt","ptres_vs_pt",nintPt,minPt,maxPt, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
-  
+
   cotThetares_vs_eta.push_back(dbe_->book2D("cotThetares_vs_eta","cotThetares_vs_eta",
 					    nintEta,minEta,maxEta,cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));
 
-  
+
   cotThetares_vs_pt.push_back(dbe_->book2D("cotThetares_vs_pt","cotThetares_vs_pt",
-					   nintPt,minPt,maxPt, cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));      
+					   nintPt,minPt,maxPt, cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));
 
 
   phires_vs_eta.push_back(dbe_->book2D("phires_vs_eta","phires_vs_eta",
@@ -616,36 +614,36 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
 
   dxyres_vs_eta.push_back(dbe_->book2D("dxyres_vs_eta","dxyres_vs_eta",
 				       nintEta,minEta,maxEta,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
-  
+
   dxyres_vs_pt.push_back( dbe_->book2D("dxyres_vs_pt","dxyres_vs_pt",
 				       nintPt,minPt,maxPt,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
-  
+
   dzres_vs_eta.push_back(dbe_->book2D("dzres_vs_eta","dzres_vs_eta",
 				      nintEta,minEta,maxEta,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
 
   dzres_vs_pt.push_back(dbe_->book2D("dzres_vs_pt","dzres_vs_pt",nintPt,minPt,maxPt,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
-  
+
   ptmean_vs_eta_phi.push_back(dbe_->bookProfile2D("ptmean_vs_eta_phi","mean p_{t} vs #eta and #phi",
 						  nintPhi,minPhi,maxPhi,nintEta,minEta,maxEta,1000,0,1000));
   phimean_vs_eta_phi.push_back(dbe_->bookProfile2D("phimean_vs_eta_phi","mean #phi vs #eta and #phi",
 						   nintPhi,minPhi,maxPhi,nintEta,minEta,maxEta,nintPhi,minPhi,maxPhi));
-  
+
   //pulls of track params vs eta: to be used with fitslicesytool
   dxypull_vs_eta.push_back(dbe_->book2D("dxypull_vs_eta","dxypull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
-  ptpull_vs_eta.push_back(dbe_->book2D("ptpull_vs_eta","ptpull_vs_eta",nintEta,minEta,maxEta,100,-10,10)); 
-  dzpull_vs_eta.push_back(dbe_->book2D("dzpull_vs_eta","dzpull_vs_eta",nintEta,minEta,maxEta,100,-10,10)); 
-  phipull_vs_eta.push_back(dbe_->book2D("phipull_vs_eta","phipull_vs_eta",nintEta,minEta,maxEta,100,-10,10)); 
+  ptpull_vs_eta.push_back(dbe_->book2D("ptpull_vs_eta","ptpull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
+  dzpull_vs_eta.push_back(dbe_->book2D("dzpull_vs_eta","dzpull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
+  phipull_vs_eta.push_back(dbe_->book2D("phipull_vs_eta","phipull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
   thetapull_vs_eta.push_back(dbe_->book2D("thetapull_vs_eta","thetapull_vs_eta",nintEta,minEta,maxEta,100,-10,10));
-  
-  //      h_ptshiftetamean.push_back( dbe_->book1D("h_ptshifteta_Mean","<#deltapT/pT>[%] vs #eta",nintEta,minEta,maxEta) ); 
-  
+
+  //      h_ptshiftetamean.push_back( dbe_->book1D("h_ptshifteta_Mean","<#deltapT/pT>[%] vs #eta",nintEta,minEta,maxEta) );
+
 
   //pulls of track params vs phi
-  ptpull_vs_phi.push_back(dbe_->book2D("ptpull_vs_phi","p_{t} pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10)); 
-  phipull_vs_phi.push_back(dbe_->book2D("phipull_vs_phi","#phi pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10)); 
+  ptpull_vs_phi.push_back(dbe_->book2D("ptpull_vs_phi","p_{t} pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
+  phipull_vs_phi.push_back(dbe_->book2D("phipull_vs_phi","#phi pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
   thetapull_vs_phi.push_back(dbe_->book2D("thetapull_vs_phi","#theta pull vs #phi",nintPhi,minPhi,maxPhi,100,-10,10));
 
-  
+
   nrecHit_vs_nsimHit_sim2rec.push_back( dbe_->book2D("nrecHit_vs_nsimHit_sim2rec","nrecHit vs nsimHit (Sim2RecAssoc)",
 						     nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
   nrecHit_vs_nsimHit_rec2sim.push_back( dbe_->book2D("nrecHit_vs_nsimHit_rec2sim","nrecHit vs nsimHit (Rec2simAssoc)",
@@ -653,12 +651,12 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
 
   // dE/dx stuff
   // FIXME: it would be nice to have an array
-  h_dedx_estim1.push_back( dbe_->book1D("h_dedx_estim1","dE/dx estimator 1",nintDeDx,minDeDx,maxDeDx) ); 
-  h_dedx_estim2.push_back( dbe_->book1D("h_dedx_estim2","dE/dx estimator 2",nintDeDx,minDeDx,maxDeDx) ); 
-  h_dedx_nom1.push_back( dbe_->book1D("h_dedx_nom1","dE/dx number of measurements",nintHit,minHit,maxHit) ); 
-  h_dedx_nom2.push_back( dbe_->book1D("h_dedx_nom2","dE/dx number of measurements",nintHit,minHit,maxHit) ); 
-  h_dedx_sat1.push_back( dbe_->book1D("h_dedx_sat1","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) ); 
-  h_dedx_sat2.push_back( dbe_->book1D("h_dedx_sat2","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) ); 
+  h_dedx_estim1.push_back( dbe_->book1D("h_dedx_estim1","dE/dx estimator 1",nintDeDx,minDeDx,maxDeDx) );
+  h_dedx_estim2.push_back( dbe_->book1D("h_dedx_estim2","dE/dx estimator 2",nintDeDx,minDeDx,maxDeDx) );
+  h_dedx_nom1.push_back( dbe_->book1D("h_dedx_nom1","dE/dx number of measurements",nintHit,minHit,maxHit) );
+  h_dedx_nom2.push_back( dbe_->book1D("h_dedx_nom2","dE/dx number of measurements",nintHit,minHit,maxHit) );
+  h_dedx_sat1.push_back( dbe_->book1D("h_dedx_sat1","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) );
+  h_dedx_sat2.push_back( dbe_->book1D("h_dedx_sat2","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) );
 
   // PU special stuff
   h_con_eta.push_back( dbe_->book1D("num_con_eta","N of PU tracks vs eta",nintEta,minEta,maxEta) );
@@ -678,7 +676,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
     BinLogX(h_assocpT.back()->getTH1F());
     BinLogX(h_assoc2pT.back()->getTH1F());
     BinLogX(h_simulpT.back()->getTH1F());
-  }  
+  }
 }
 
 void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(){
@@ -787,24 +785,24 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(){
   h_dzrmsh.push_back( dbe_->book1D("dzres_vs_eta_Sigma","#sigma(#deltadz) vs #eta",nintEta,minEta,maxEta) );
   h_dzmeanhPt.push_back( dbe_->book1D("dzres_vs_pt_Mean","mean of dzres vs pT",nintPt,minPt,maxPt) );
   h_dzrmshPt.push_back( dbe_->book1D("dzres_vs_pt_Sigma","#sigma(#deltadz vs pT",nintPt,minPt,maxPt) );
-  h_dxypulletamean.push_back( dbe_->book1D("h_dxypulleta_Mean","mean of dxy pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_ptpulletamean.push_back( dbe_->book1D("h_ptpulleta_Mean","mean of p_{t} pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_dzpulletamean.push_back( dbe_->book1D("h_dzpulleta_Mean","mean of dz pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_phipulletamean.push_back( dbe_->book1D("h_phipulleta_Mean","mean of #phi pull vs #eta",nintEta,minEta,maxEta) ); 
+  h_dxypulletamean.push_back( dbe_->book1D("h_dxypulleta_Mean","mean of dxy pull vs #eta",nintEta,minEta,maxEta) );
+  h_ptpulletamean.push_back( dbe_->book1D("h_ptpulleta_Mean","mean of p_{t} pull vs #eta",nintEta,minEta,maxEta) );
+  h_dzpulletamean.push_back( dbe_->book1D("h_dzpulleta_Mean","mean of dz pull vs #eta",nintEta,minEta,maxEta) );
+  h_phipulletamean.push_back( dbe_->book1D("h_phipulleta_Mean","mean of #phi pull vs #eta",nintEta,minEta,maxEta) );
   h_thetapulletamean.push_back( dbe_->book1D("h_thetapulleta_Mean","mean of #theta pull vs #eta",nintEta,minEta,maxEta) );
-  h_dxypulleta.push_back( dbe_->book1D("h_dxypulleta_Sigma","#sigma of dxy pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_ptpulleta.push_back( dbe_->book1D("h_ptpulleta_Sigma","#sigma of p_{t} pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_dzpulleta.push_back( dbe_->book1D("h_dzpulleta_Sigma","#sigma of dz pull vs #eta",nintEta,minEta,maxEta) ); 
-  h_phipulleta.push_back( dbe_->book1D("h_phipulleta_Sigma","#sigma of #phi pull vs #eta",nintEta,minEta,maxEta) ); 
+  h_dxypulleta.push_back( dbe_->book1D("h_dxypulleta_Sigma","#sigma of dxy pull vs #eta",nintEta,minEta,maxEta) );
+  h_ptpulleta.push_back( dbe_->book1D("h_ptpulleta_Sigma","#sigma of p_{t} pull vs #eta",nintEta,minEta,maxEta) );
+  h_dzpulleta.push_back( dbe_->book1D("h_dzpulleta_Sigma","#sigma of dz pull vs #eta",nintEta,minEta,maxEta) );
+  h_phipulleta.push_back( dbe_->book1D("h_phipulleta_Sigma","#sigma of #phi pull vs #eta",nintEta,minEta,maxEta) );
   h_thetapulleta.push_back( dbe_->book1D("h_thetapulleta_Sigma","#sigma of #theta pull vs #eta",nintEta,minEta,maxEta) );
-  h_ptshifteta.push_back( dbe_->book1D("ptres_vs_eta_Mean","<#deltapT/pT>[%] vs #eta",nintEta,minEta,maxEta) ); 
-  h_ptpullphimean.push_back( dbe_->book1D("h_ptpullphi_Mean","mean of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) ); 
+  h_ptshifteta.push_back( dbe_->book1D("ptres_vs_eta_Mean","<#deltapT/pT>[%] vs #eta",nintEta,minEta,maxEta) );
+  h_ptpullphimean.push_back( dbe_->book1D("h_ptpullphi_Mean","mean of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) );
   h_phipullphimean.push_back( dbe_->book1D("h_phipullphi_Mean","mean of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
   h_thetapullphimean.push_back( dbe_->book1D("h_thetapullphi_Mean","mean of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
-  h_ptpullphi.push_back( dbe_->book1D("h_ptpullphi_Sigma","#sigma of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) ); 
+  h_ptpullphi.push_back( dbe_->book1D("h_ptpullphi_Sigma","#sigma of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) );
   h_phipullphi.push_back( dbe_->book1D("h_phipullphi_Sigma","#sigma of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
   h_thetapullphi.push_back( dbe_->book1D("h_thetapullphi_Sigma","#sigma of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
-  
+
   if(useLogPt){
     BinLogX(h_dzmeanhPt.back()->getTH1F());
     BinLogX(h_dzrmshPt.back()->getTH1F());
@@ -820,7 +818,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(){
     BinLogX(h_fakeratePt.back()->getTH1F());
     BinLogX(h_loopratepT.back()->getTH1F());
     BinLogX(h_misidratepT.back()->getTH1F());
-  }    
+  }
 }
 
 void MTVHistoProducerAlgoForTracker::fill_generic_simTrack_histos(int count,
@@ -907,7 +905,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
       }
     } // END for (unsigned int f=0; f<phiintervals[count].size()-1; f++){
   }
-	
+
   if((*TpSelectorForEfficiencyVsPt)(tp)){
     for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
       if (getPt(sqrt(momentumTP.perp2()))>pTintervals[count][f]&&
@@ -918,7 +916,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 	}
       }
     } // END for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
-  }	
+  }
 
   if((*TpSelectorForEfficiencyVsVTXR)(tp)){
     for (unsigned int f=0; f<dxyintervals[count].size()-1; f++){
@@ -953,7 +951,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
       }
     } // END for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
 
-  
+
     for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
         if (vertexTP.z()>zposintervals[count][f]&&vertexTP.z()<=zposintervals[count][f+1]) {
 	        totSIM_zpos[count][f]++;
@@ -978,7 +976,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     } // END for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
   }
 
-  //Special investigations for PU  
+  //Special investigations for PU
   if(((*TpSelectorForEfficiencyVsCon)(tp)) && (!((*TpSelectorForEfficiencyVsEta)(tp)))){
 
    //efficPU vs eta
@@ -995,7 +993,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 	totCONvertcount[count][f]++;
       }
     } // END for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
-  
+
     for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
       if (vertexTP.z()>zposintervals[count][f]&&vertexTP.z()<=zposintervals[count][f+1]) {
 	totCONzpos[count][f]++;
@@ -1015,7 +1013,7 @@ void MTVHistoProducerAlgoForTracker::fill_dedx_recoTrack_histos(int count, edm::
   edm::ValueMap<reco::DeDxData> dEdxTrack;
   for (unsigned int i=0; i<v_dEdx.size(); i++) {
     dEdxTrack = v_dEdx.at(i);
-    dedx = dEdxTrack[trackref].dEdx(); 
+    dedx = dEdxTrack[trackref].dEdx();
     nom  = dEdxTrack[trackref].numberOfMeasurements();
     sat  = dEdxTrack[trackref].numberOfSaturatedMeasurements();
     if (i==0) {
@@ -1045,7 +1043,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
 
   //Fill track algo histogram
 
-  if (track.algo()>=4 && track.algo()<=14) totREC_algo[count][track.algo()-4]++;  
+  if (track.algo()>=4 && track.algo()<=14) totREC_algo[count][track.algo()-4]++;
   int sharedHits = sharedFraction *  track.numberOfValidHits();
 
   //Compute fake rate vs eta
@@ -1073,49 +1071,49 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   for (unsigned int f=0; f<phiintervals[count].size()-1; f++){
     if (track.momentum().phi()>phiintervals[count][f]&&
 	track.momentum().phi()<=phiintervals[count][f+1]) {
-      totREC_phi[count][f]++; 
+      totREC_phi[count][f]++;
       if (isMatched) {
 	totASS2_phi[count][f]++;
         if (!isChargeMatched) totmisid_phi[count][f]++;
         if (numAssocRecoTracks>1) totloop_phi[count][f]++;
-      }		
+      }
     }
   } // End for (unsigned int f=0; f<phiintervals[count].size()-1; f++){
 
-	
+
   for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
     if (getPt(sqrt(track.momentum().perp2()))>pTintervals[count][f]&&
 	getPt(sqrt(track.momentum().perp2()))<=pTintervals[count][f+1]) {
-      totRECpT[count][f]++; 
+      totRECpT[count][f]++;
       if (isMatched) {
 	totASS2pT[count][f]++;
         if (!isChargeMatched) totmisidpT[count][f]++;
         if (numAssocRecoTracks>1) totlooppT[count][f]++;
-      }	      
+      }
     }
   } // End for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
-  
+
   for (unsigned int f=0; f<dxyintervals[count].size()-1; f++){
     if (track.dxy(bsPosition)>dxyintervals[count][f]&&
 	track.dxy(bsPosition)<=dxyintervals[count][f+1]) {
-      totREC_dxy[count][f]++; 
+      totREC_dxy[count][f]++;
       if (isMatched) {
 	totASS2_dxy[count][f]++;
         if (!isChargeMatched) totmisid_dxy[count][f]++;
         if (numAssocRecoTracks>1) totloop_dxy[count][f]++;
-      }	      
+      }
     }
   } // End for (unsigned int f=0; f<dxyintervals[count].size()-1; f++){
-  
+
   for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
     if (track.dz(bsPosition)>dzintervals[count][f]&&
 	track.dz(bsPosition)<=dzintervals[count][f+1]) {
-      totREC_dz[count][f]++; 
+      totREC_dz[count][f]++;
       if (isMatched) {
 	totASS2_dz[count][f]++;
         if (!isChargeMatched) totmisid_dz[count][f]++;
         if (numAssocRecoTracks>1) totloop_dz[count][f]++;
-      }	      
+      }
     }
   } // End for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
 
@@ -1182,7 +1180,7 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     h_charge[count]->Fill( track.charge() );
     h_nmisslayers_inner[count]->Fill(track.trackerExpectedHitsInner().numberOfHits());
     h_nmisslayers_outer[count]->Fill(track.trackerExpectedHitsOuter().numberOfHits());
-    
+
     //chi2 and #hit vs eta: fill 2D histos
     chi2_vs_eta[count]->Fill(getEta(track.eta()),track.normalizedChi2());
     nhits_vs_eta[count]->Fill(getEta(track.eta()),track.numberOfValidHits());
@@ -1195,12 +1193,12 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     nLayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().trackerLayersWithMeasurement());
     nPXLlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().pixelLayersWithMeasurement());
     int LayersAll = track.hitPattern().stripLayersWithMeasurement();
-    int Layers2D = track.hitPattern().numberOfValidStripLayersWithMonoAndStereo(); 
-    int Layers1D = LayersAll - Layers2D;	
+    int Layers2D = track.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
+    int Layers1D = LayersAll - Layers2D;
     nSTRIPlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),LayersAll);
     nSTRIPlayersWith1dMeas_vs_eta[count]->Fill(getEta(track.eta()),Layers1D);
     nSTRIPlayersWith2dMeas_vs_eta[count]->Fill(getEta(track.eta()),Layers2D);
-	
+
     nlosthits_vs_eta[count]->Fill(getEta(track.eta()),track.numberOfLostHits());
 }
 
@@ -1227,17 +1225,17 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
   double lambdaSim = M_PI/2-momentumTP.theta();
   double phiSim    = momentumTP.phi();
   double dxySim    = (-vertexTP.x()*sin(momentumTP.phi())+vertexTP.y()*cos(momentumTP.phi()));
-  double dzSim     = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y())/sqrt(momentumTP.perp2()) 
+  double dzSim     = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y())/sqrt(momentumTP.perp2())
     * momentumTP.z()/sqrt(momentumTP.perp2());
 
-	  
+
   //  reco::Track::ParameterVector rParameters = track.parameters(); // UNUSED
-  
+
   double qoverpRec(0);
-  double qoverpErrorRec(0); 
+  double qoverpErrorRec(0);
   double ptRec(0);
   double ptErrorRec(0);
-  double lambdaRec(0); 
+  double lambdaRec(0);
   double lambdaErrorRec(0);
   double phiRec(0);
   double phiErrorRec(0);
@@ -1249,25 +1247,25 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
     gsfTrack = dynamic_cast<const GsfTrack*>(&(*track));
     if (gsfTrack==0) edm::LogInfo("TrackValidator") << "Trying to access mode for a non-GsfTrack";
   }
-  
+
   if (gsfTrack) {
     // get values from mode
-    getRecoMomentum(*gsfTrack, ptRec, ptErrorRec, qoverpRec, qoverpErrorRec, 
-		    lambdaRec,lambdaErrorRec, phiRec, phiErrorRec); 
+    getRecoMomentum(*gsfTrack, ptRec, ptErrorRec, qoverpRec, qoverpErrorRec,
+		    lambdaRec,lambdaErrorRec, phiRec, phiErrorRec);
   }
-	 
+
   else {
-    // get values from track (without mode) 
-    getRecoMomentum(*track, ptRec, ptErrorRec, qoverpRec, qoverpErrorRec, 
-		    lambdaRec,lambdaErrorRec, phiRec, phiErrorRec); 
+    // get values from track (without mode)
+    getRecoMomentum(*track, ptRec, ptErrorRec, qoverpRec, qoverpErrorRec,
+		    lambdaRec,lambdaErrorRec, phiRec, phiErrorRec);
   }
   */
-  getRecoMomentum(track, ptRec, ptErrorRec, qoverpRec, qoverpErrorRec, 
-		  lambdaRec,lambdaErrorRec, phiRec, phiErrorRec); 
+  getRecoMomentum(track, ptRec, ptErrorRec, qoverpRec, qoverpErrorRec,
+		  lambdaRec,lambdaErrorRec, phiRec, phiErrorRec);
   // -------------
 
-  double ptError = ptErrorRec;	
-  double ptres=ptRec-sqrt(momentumTP.perp2()); 
+  double ptError = ptErrorRec;
+  double ptres=ptRec-sqrt(momentumTP.perp2());
   double etares=track.eta()-momentumTP.Eta();
 
 
@@ -1290,19 +1288,19 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
   double contrib_phi = ((phiRec-phiSim)/phiErrorRec)*
     ((phiRec-phiSim)/phiErrorRec)/5;
 
-  LogTrace("TrackValidatorTEST") 
+  LogTrace("TrackValidatorTEST")
     //<< "assocChi2=" << tp.begin()->second << "\n"
     << "" <<  "\n"
     << "ptREC=" << ptRec << "\n" << "etaREC=" << track.eta() << "\n" << "qoverpREC=" << qoverpRec << "\n"
     << "dxyREC=" << dxyRec << "\n" << "dzREC=" << dzRec << "\n"
     << "thetaREC=" << track.theta() << "\n" << "phiREC=" << phiRec << "\n"
     << "" <<  "\n"
-    << "qoverpError()=" << qoverpErrorRec << "\n" << "dxyError()=" << track.dxyError() << "\n"<< "dzError()=" 
+    << "qoverpError()=" << qoverpErrorRec << "\n" << "dxyError()=" << track.dxyError() << "\n"<< "dzError()="
     << track.dzError() << "\n"
     << "thetaError()=" << lambdaErrorRec << "\n" << "phiError()=" << phiErrorRec << "\n"
     << "" <<  "\n"
     << "ptSIM=" << sqrt(momentumTP.perp2()) << "\n"<< "etaSIM=" << momentumTP.Eta() << "\n"<< "qoverpSIM=" << qoverpSim << "\n"
-    << "dxySIM=" << dxySim << "\n"<< "dzSIM=" << dzSim << "\n" << "thetaSIM=" << M_PI/2-lambdaSim << "\n" 
+    << "dxySIM=" << dxySim << "\n"<< "dzSIM=" << dzSim << "\n" << "thetaSIM=" << M_PI/2-lambdaSim << "\n"
     << "phiSIM=" << phiSim << "\n"
     << "" << "\n"
     << "contrib_Qoverp=" << contrib_Qoverp << "\n"<< "contrib_dxy=" << contrib_dxy << "\n"<< "contrib_dz=" << contrib_dz << "\n"
@@ -1321,40 +1319,40 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
   h_eta[count]->Fill(etares);
   //etares_vs_eta[count]->Fill(getEta(track.eta()),etares);
   etares_vs_eta[count]->Fill(getEta(momentumTP.eta()),etares);
-  
 
-  /*    	
+
+  /*
   //resolution of track params: fill 2D histos
   dxyres_vs_eta[count]->Fill(getEta(track.eta()),dxyRec-dxySim);
   ptres_vs_eta[count]->Fill(getEta(track.eta()),(ptRec-sqrt(momentumTP.perp2()))/ptRec);
   dzres_vs_eta[count]->Fill(getEta(track.eta()),dzRec-dzSim);
   phires_vs_eta[count]->Fill(getEta(track.eta()),phiRec-phiSim);
-  cotThetares_vs_eta[count]->Fill(getEta(track.eta()),1/tan(M_PI*0.5-lambdaRec)-1/tan(M_PI*0.5-lambdaSim));         
-  
+  cotThetares_vs_eta[count]->Fill(getEta(track.eta()),1/tan(M_PI*0.5-lambdaRec)-1/tan(M_PI*0.5-lambdaSim));
+
   //same as before but vs pT
   dxyres_vs_pt[count]->Fill(getPt(ptRec),dxyRec-dxySim);
   ptres_vs_pt[count]->Fill(getPt(ptRec),(ptRec-sqrt(momentumTP.perp2()))/ptRec);
   dzres_vs_pt[count]->Fill(getPt(ptRec),dzRec-dzSim);
   phires_vs_pt[count]->Fill(getPt(ptRec),phiRec-phiSim);
-  cotThetares_vs_pt[count]->Fill(getPt(ptRec),1/tan(M_PI*0.5-lambdaRec)-1/tan(M_PI*0.5-lambdaSim));  	 
-  	
+  cotThetares_vs_pt[count]->Fill(getPt(ptRec),1/tan(M_PI*0.5-lambdaRec)-1/tan(M_PI*0.5-lambdaSim));
+
   //pulls of track params vs eta: fill 2D histos
   dxypull_vs_eta[count]->Fill(getEta(track.eta()),dxyPull);
   ptpull_vs_eta[count]->Fill(getEta(track.eta()),ptres/ptError);
   dzpull_vs_eta[count]->Fill(getEta(track.eta()),dzPull);
   phipull_vs_eta[count]->Fill(getEta(track.eta()),phiPull);
   thetapull_vs_eta[count]->Fill(getEta(track.eta()),thetaPull);
-	
+
   //plots vs phi
   nhits_vs_phi[count]->Fill(phiRec,track.numberOfValidHits());
   chi2_vs_phi[count]->Fill(phiRec,track.normalizedChi2());
   ptmean_vs_eta_phi[count]->Fill(phiRec,getEta(track.eta()),ptRec);
   phimean_vs_eta_phi[count]->Fill(phiRec,getEta(track.eta()),phiRec);
   ptres_vs_phi[count]->Fill(phiRec,(ptRec-sqrt(momentumTP.perp2()))/ptRec);
-  phires_vs_phi[count]->Fill(phiRec,phiRec-phiSim); 
+  phires_vs_phi[count]->Fill(phiRec,phiRec-phiSim);
   ptpull_vs_phi[count]->Fill(phiRec,ptres/ptError);
-  phipull_vs_phi[count]->Fill(phiRec,phiPull); 
-  thetapull_vs_phi[count]->Fill(phiRec,thetaPull); 
+  phipull_vs_phi[count]->Fill(phiRec,phiPull);
+  thetapull_vs_phi[count]->Fill(phiRec,thetaPull);
   */
 
   //resolution of track params: fill 2D histos
@@ -1362,40 +1360,40 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
   ptres_vs_eta[count]->Fill(getEta(momentumTP.eta()),(ptRec-sqrt(momentumTP.perp2()))/ptRec);
   dzres_vs_eta[count]->Fill(getEta(momentumTP.eta()),dzRec-dzSim);
   phires_vs_eta[count]->Fill(getEta(momentumTP.eta()),phiRec-phiSim);
-  cotThetares_vs_eta[count]->Fill(getEta(momentumTP.eta()),1/tan(M_PI*0.5-lambdaRec)-1/tan(M_PI*0.5-lambdaSim));         
-  
+  cotThetares_vs_eta[count]->Fill(getEta(momentumTP.eta()),1/tan(M_PI*0.5-lambdaRec)-1/tan(M_PI*0.5-lambdaSim));
+
   //same as before but vs pT
   dxyres_vs_pt[count]->Fill(getPt(sqrt(momentumTP.perp2())),dxyRec-dxySim);
   ptres_vs_pt[count]->Fill(getPt(sqrt(momentumTP.perp2())),(ptRec-sqrt(momentumTP.perp2()))/ptRec);
   dzres_vs_pt[count]->Fill(getPt(sqrt(momentumTP.perp2())),dzRec-dzSim);
   phires_vs_pt[count]->Fill(getPt(sqrt(momentumTP.perp2())),phiRec-phiSim);
-  cotThetares_vs_pt[count]->Fill(getPt(sqrt(momentumTP.perp2())),1/tan(M_PI*0.5-lambdaRec)-1/tan(M_PI*0.5-lambdaSim));      
-    
+  cotThetares_vs_pt[count]->Fill(getPt(sqrt(momentumTP.perp2())),1/tan(M_PI*0.5-lambdaRec)-1/tan(M_PI*0.5-lambdaSim));
+
   //pulls of track params vs eta: fill 2D histos
   dxypull_vs_eta[count]->Fill(getEta(momentumTP.eta()),dxyPull);
   ptpull_vs_eta[count]->Fill(getEta(momentumTP.eta()),ptres/ptError);
   dzpull_vs_eta[count]->Fill(getEta(momentumTP.eta()),dzPull);
   phipull_vs_eta[count]->Fill(getEta(momentumTP.eta()),phiPull);
   thetapull_vs_eta[count]->Fill(getEta(momentumTP.eta()),thetaPull);
-    
+
   //plots vs phi
   nhits_vs_phi[count]->Fill(phiRec,track.numberOfValidHits());
-  chi2_vs_phi[count]->Fill(phiRec,track.normalizedChi2()); 
+  chi2_vs_phi[count]->Fill(phiRec,track.normalizedChi2());
   ptmean_vs_eta_phi[count]->Fill(phiRec,getEta(track.eta()),ptRec);
   phimean_vs_eta_phi[count]->Fill(phiRec,getEta(track.eta()),phiRec);
 
   ptres_vs_phi[count]->Fill(momentumTP.phi(),(ptRec-sqrt(momentumTP.perp2()))/ptRec);
-  phires_vs_phi[count]->Fill(momentumTP.phi(),phiRec-phiSim); 
-  ptpull_vs_phi[count]->Fill(momentumTP.phi(),ptres/ptError); 
-  phipull_vs_phi[count]->Fill(momentumTP.phi(),phiPull); 
-  thetapull_vs_phi[count]->Fill(momentumTP.phi(),thetaPull); 
+  phires_vs_phi[count]->Fill(momentumTP.phi(),phiRec-phiSim);
+  ptpull_vs_phi[count]->Fill(momentumTP.phi(),ptres/ptError);
+  phipull_vs_phi[count]->Fill(momentumTP.phi(),phiPull);
+  thetapull_vs_phi[count]->Fill(momentumTP.phi(),thetaPull);
 
 
 }
 
 
 
-void 
+void
 MTVHistoProducerAlgoForTracker::getRecoMomentum (const reco::Track& track, double& pt, double& ptError,
 						 double& qoverp, double& qoverpError, double& lambda,double& lambdaError,
 						 double& phi, double& phiError ) const {
@@ -1404,16 +1402,16 @@ MTVHistoProducerAlgoForTracker::getRecoMomentum (const reco::Track& track, doubl
   qoverp = track.qoverp();
   qoverpError = track.qoverpError();
   lambda = track.lambda();
-  lambdaError = track.lambdaError(); 
-  phi = track.phi(); 
+  lambdaError = track.lambdaError();
+  phi = track.phi();
   phiError = track.phiError();
-  //   cout <<"test1" << endl; 
-  
+  //   cout <<"test1" << endl;
+
 
 
 }
 
-void 
+void
 MTVHistoProducerAlgoForTracker::getRecoMomentum (const reco::GsfTrack& gsfTrack, double& pt, double& ptError,
 						 double& qoverp, double& qoverpError, double& lambda,double& lambdaError,
 						 double& phi, double& phiError  ) const {
@@ -1423,20 +1421,20 @@ MTVHistoProducerAlgoForTracker::getRecoMomentum (const reco::GsfTrack& gsfTrack,
   qoverp = gsfTrack.qoverpMode();
   qoverpError = gsfTrack.qoverpModeError();
   lambda = gsfTrack.lambdaMode();
-  lambdaError = gsfTrack.lambdaModeError(); 
-  phi = gsfTrack.phiMode(); 
+  lambdaError = gsfTrack.lambdaModeError();
+  phi = gsfTrack.phiMode();
   phiError = gsfTrack.phiModeError();
   //   cout <<"test2" << endl;
 
 }
 
-double 
+double
 MTVHistoProducerAlgoForTracker::getEta(double eta) {
   if (useFabsEta) return fabs(eta);
   else return eta;
 }
-  
-double 
+
+double
 MTVHistoProducerAlgoForTracker::getPt(double pt) {
   if (useInvPt && pt!=0) return 1/pt;
   else return pt;
@@ -1453,11 +1451,11 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
   fsyt_dxyPt.getFittedMeanWithError(h_dxymeanhPt[counter]);
   FitSlicesYTool fsyt_pt(ptres_vs_eta[counter]);
   fsyt_pt.getFittedSigmaWithError(h_ptrmsh[counter]);
-  fsyt_pt.getFittedMeanWithError(h_ptshifteta[counter]);      
+  fsyt_pt.getFittedMeanWithError(h_ptshifteta[counter]);
   FitSlicesYTool fsyt_ptPt(ptres_vs_pt[counter]);
   fsyt_ptPt.getFittedSigmaWithError(h_ptrmshPt[counter]);
   fsyt_ptPt.getFittedMeanWithError(h_ptmeanhPt[counter]);
-  FitSlicesYTool fsyt_ptPhi(ptres_vs_phi[counter]); 
+  FitSlicesYTool fsyt_ptPhi(ptres_vs_phi[counter]);
   fsyt_ptPhi.getFittedSigmaWithError(h_ptrmshPhi[counter]);
   fsyt_ptPhi.getFittedMeanWithError(h_ptmeanhPhi[counter]);
   FitSlicesYTool fsyt_dz(dzres_vs_eta[counter]);
@@ -1472,9 +1470,9 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
   FitSlicesYTool fsyt_phiPt(phires_vs_pt[counter]);
   fsyt_phiPt.getFittedSigmaWithError(h_phirmshPt[counter]);
   fsyt_phiPt.getFittedMeanWithError(h_phimeanhPt[counter]);
-  FitSlicesYTool fsyt_phiPhi(phires_vs_phi[counter]); 
-  fsyt_phiPhi.getFittedSigmaWithError(h_phirmshPhi[counter]); 
-  fsyt_phiPhi.getFittedMeanWithError(h_phimeanhPhi[counter]); 
+  FitSlicesYTool fsyt_phiPhi(phires_vs_phi[counter]);
+  fsyt_phiPhi.getFittedSigmaWithError(h_phirmshPhi[counter]);
+  fsyt_phiPhi.getFittedMeanWithError(h_phimeanhPhi[counter]);
   FitSlicesYTool fsyt_cotTheta(cotThetares_vs_eta[counter]);
   fsyt_cotTheta.getFittedSigmaWithError(h_cotThetarmsh[counter]);
   fsyt_cotTheta.getFittedMeanWithError(h_cotThetameanh[counter]);
@@ -1508,10 +1506,10 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
   FitSlicesYTool fsyt_thetapPhi(thetapull_vs_phi[counter]);
   fsyt_thetapPhi.getFittedSigmaWithError(h_thetapullphi[counter]);
   fsyt_thetapPhi.getFittedMeanWithError(h_thetapullphimean[counter]);
-  
+
   //effic&fake;
   for (unsigned int ite = 0;ite<totASSeta[counter].size();ite++) totFOMT_eta[counter][ite]=totASS2eta[counter][ite]-totASS2etaSig[counter][ite];
-  for (unsigned int ite = 0;ite<totASS2_vertcount_entire[counter].size();ite++)  
+  for (unsigned int ite = 0;ite<totASS2_vertcount_entire[counter].size();ite++)
     totFOMT_vertcount[counter][ite]=totASS2_vertcount_entire[counter][ite]-totASS2_vertcount_entire_signal[counter][ite];
   for (unsigned int ite = 0;ite<totASS2_itpu_eta_entire[counter].size();ite++) totASS2_itpu_eta_entire[counter][ite]-=totASS2_itpu_eta_entire_signal[counter][ite];
   for (unsigned int ite = 0;ite<totASS2_itpu_vertcount_entire[counter].size();ite++) totASS2_itpu_vertcount_entire[counter][ite]-=totASS2_itpu_vertcount_entire_signal[counter][ite];
@@ -1586,8 +1584,8 @@ void MTVHistoProducerAlgoForTracker::fillProfileHistosFromVectors(int counter){
   doProfileX(nTEChits_vs_eta[counter],h_TEChits_eta[counter]);
 
   doProfileX(nLayersWithMeas_vs_eta[counter],h_LayersWithMeas_eta[counter]);
-  doProfileX(nPXLlayersWithMeas_vs_eta[counter],h_PXLlayersWithMeas_eta[counter]);    
-  doProfileX(nSTRIPlayersWithMeas_vs_eta[counter],h_STRIPlayersWithMeas_eta[counter]);    
+  doProfileX(nPXLlayersWithMeas_vs_eta[counter],h_PXLlayersWithMeas_eta[counter]);
+  doProfileX(nSTRIPlayersWithMeas_vs_eta[counter],h_STRIPlayersWithMeas_eta[counter]);
   doProfileX(nSTRIPlayersWith1dMeas_vs_eta[counter],h_STRIPlayersWith1dMeas_eta[counter]);
   doProfileX(nSTRIPlayersWith2dMeas_vs_eta[counter],h_STRIPlayersWith2dMeas_eta[counter]);
 
@@ -1595,7 +1593,7 @@ void MTVHistoProducerAlgoForTracker::fillProfileHistosFromVectors(int counter){
 
   doProfileX(nlosthits_vs_eta[counter],h_losthits_eta[counter]);
   //vs phi
-  doProfileX(chi2_vs_nhits[counter],h_chi2meanhitsh[counter]); 
+  doProfileX(chi2_vs_nhits[counter],h_chi2meanhitsh[counter]);
   //      doProfileX(ptres_vs_eta[counter],h_ptresmean_vs_eta[counter]);
   //      doProfileX(phires_vs_eta[counter],h_phiresmean_vs_eta[counter]);
   doProfileX(chi2_vs_phi[counter],h_chi2mean_vs_phi[counter]);
@@ -1613,28 +1611,28 @@ void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
   fillPlotFromVector(h_assoc2eta[counter],totASS2eta[counter]);
   fillPlotFromVector(h_loopereta[counter],totloopeta[counter]);
   fillPlotFromVector(h_misideta[counter],totmisideta[counter]);
-  
+
   fillPlotFromVector(h_recopT[counter],totRECpT[counter]);
   fillPlotFromVector(h_simulpT[counter],totSIMpT[counter]);
   fillPlotFromVector(h_assocpT[counter],totASSpT[counter]);
   fillPlotFromVector(h_assoc2pT[counter],totASS2pT[counter]);
   fillPlotFromVector(h_looperpT[counter],totlooppT[counter]);
   fillPlotFromVector(h_misidpT[counter],totmisidpT[counter]);
-  
+
   fillPlotFromVector(h_recohit[counter],totREC_hit[counter]);
   fillPlotFromVector(h_simulhit[counter],totSIM_hit[counter]);
   fillPlotFromVector(h_assochit[counter],totASS_hit[counter]);
   fillPlotFromVector(h_assoc2hit[counter],totASS2_hit[counter]);
   fillPlotFromVector(h_looperhit[counter],totloop_hit[counter]);
   fillPlotFromVector(h_misidhit[counter],totmisid_hit[counter]);
-  
+
   fillPlotFromVector(h_recophi[counter],totREC_phi[counter]);
   fillPlotFromVector(h_simulphi[counter],totSIM_phi[counter]);
   fillPlotFromVector(h_assocphi[counter],totASS_phi[counter]);
   fillPlotFromVector(h_assoc2phi[counter],totASS2_phi[counter]);
   fillPlotFromVector(h_looperphi[counter],totloop_phi[counter]);
   fillPlotFromVector(h_misidphi[counter],totmisid_phi[counter]);
-  
+
   fillPlotFromVector(h_recodxy[counter],totREC_dxy[counter]);
   fillPlotFromVector(h_simuldxy[counter],totSIM_dxy[counter]);
   fillPlotFromVector(h_assocdxy[counter],totASS_dxy[counter]);
@@ -1648,61 +1646,61 @@ void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
   fillPlotFromVector(h_assoc2dz[counter],totASS2_dz[counter]);
   fillPlotFromVector(h_looperdz[counter],totloop_dz[counter]);
   fillPlotFromVector(h_misiddz[counter],totmisid_dz[counter]);
-  
+
   fillPlotFromVector(h_simulvertpos[counter],totSIM_vertpos[counter]);
   fillPlotFromVector(h_assocvertpos[counter],totASS_vertpos[counter]);
-  
+
   fillPlotFromVector(h_simulzpos[counter],totSIM_zpos[counter]);
-  fillPlotFromVector(h_assoczpos[counter],totASS_zpos[counter]);  
+  fillPlotFromVector(h_assoczpos[counter],totASS_zpos[counter]);
 
   fillPlotFromVector(h_reco_vertcount_entire[counter],totREC_vertcount_entire[counter]);
   fillPlotFromVector(h_simul_vertcount_entire[counter],totSIM_vertcount_entire[counter]);
   fillPlotFromVector(h_assoc_vertcount_entire[counter],totASS_vertcount_entire[counter]);
   fillPlotFromVector(h_assoc2_vertcount_entire[counter],totASS2_vertcount_entire[counter]);
-  
+
   fillPlotFromVector(h_reco_vertcount_barrel[counter],totREC_vertcount_barrel[counter]);
   fillPlotFromVector(h_simul_vertcount_barrel[counter],totSIM_vertcount_barrel[counter]);
   fillPlotFromVector(h_assoc_vertcount_barrel[counter],totASS_vertcount_barrel[counter]);
   fillPlotFromVector(h_assoc2_vertcount_barrel[counter],totASS2_vertcount_barrel[counter]);
-  
+
   fillPlotFromVector(h_reco_vertcount_fwdpos[counter],totREC_vertcount_fwdpos[counter]);
   fillPlotFromVector(h_simul_vertcount_fwdpos[counter],totSIM_vertcount_fwdpos[counter]);
   fillPlotFromVector(h_assoc_vertcount_fwdpos[counter],totASS_vertcount_fwdpos[counter]);
   fillPlotFromVector(h_assoc2_vertcount_fwdpos[counter],totASS2_vertcount_fwdpos[counter]);
-  
+
   fillPlotFromVector(h_reco_vertcount_fwdneg[counter],totREC_vertcount_fwdneg[counter]);
   fillPlotFromVector(h_simul_vertcount_fwdneg[counter],totSIM_vertcount_fwdneg[counter]);
   fillPlotFromVector(h_assoc_vertcount_fwdneg[counter],totASS_vertcount_fwdneg[counter]);
   fillPlotFromVector(h_assoc2_vertcount_fwdneg[counter],totASS2_vertcount_fwdneg[counter]);
-  
+
   fillPlotFromVector(h_simul_vertz_entire[counter],totSIM_vertz_entire[counter]);
   fillPlotFromVector(h_assoc_vertz_entire[counter],totASS_vertz_entire[counter]);
-  
+
   fillPlotFromVector(h_simul_vertz_barrel[counter],totSIM_vertz_barrel[counter]);
   fillPlotFromVector(h_assoc_vertz_barrel[counter],totASS_vertz_barrel[counter]);
-  
+
   fillPlotFromVector(h_simul_vertz_fwdpos[counter],totSIM_vertz_fwdpos[counter]);
   fillPlotFromVector(h_assoc_vertz_fwdpos[counter],totASS_vertz_fwdpos[counter]);
-  
+
   fillPlotFromVector(h_simul_vertz_fwdneg[counter],totSIM_vertz_fwdneg[counter]);
   fillPlotFromVector(h_assoc_vertz_fwdneg[counter],totASS_vertz_fwdneg[counter]);
-  
+
   fillPlotFromVector(h_reco_ootpu_entire[counter],totREC_ootpu_entire[counter]);
   fillPlotFromVector(h_assoc2_ootpu_entire[counter],totASS2_ootpu_entire[counter]);
-  
+
   fillPlotFromVector(h_reco_ootpu_barrel[counter],totREC_ootpu_barrel[counter]);
   fillPlotFromVector(h_assoc2_ootpu_barrel[counter],totASS2_ootpu_barrel[counter]);
-  
+
   fillPlotFromVector(h_reco_ootpu_fwdpos[counter],totREC_ootpu_fwdpos[counter]);
   fillPlotFromVector(h_assoc2_ootpu_fwdpos[counter],totASS2_ootpu_fwdpos[counter]);
-  
+
   fillPlotFromVector(h_reco_ootpu_fwdneg[counter],totREC_ootpu_fwdneg[counter]);
   fillPlotFromVector(h_assoc2_ootpu_fwdneg[counter],totASS2_ootpu_fwdneg[counter]);
 
   fillPlotFromVector(h_con_eta[counter],totCONeta[counter]);
   fillPlotFromVector(h_con_vertcount[counter],totCONvertcount[counter]);
   fillPlotFromVector(h_con_zpos[counter],totCONzpos[counter]);
-  
+
 }
 
 
@@ -1781,7 +1779,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
       }
     } // END for (unsigned int f=0; f<phiintervals[count].size()-1; f++){
   }
-	
+
   if((*GpSelectorForEfficiencyVsPt)(tp)){
     for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
       if (getPt(sqrt(momentumTP.perp2()))>pTintervals[count][f]&&
@@ -1792,7 +1790,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 	}
       }
     } // END for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
-  }	
+  }
 
   if((*GpSelectorForEfficiencyVsVTXR)(tp)){
     for (unsigned int f=0; f<dxyintervals[count].size()-1; f++){
@@ -1827,7 +1825,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
       }
     } // END for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
 
-  
+
     for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
         if (vertexTP.z()>zposintervals[count][f]&&vertexTP.z()<=zposintervals[count][f+1]) {
 	        totSIM_zpos[count][f]++;
@@ -1852,7 +1850,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     } // END for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
   }
 
-  //Special investigations for PU  
+  //Special investigations for PU
   if(((*GpSelectorForEfficiencyVsCon)(tp)) && (!((*GpSelectorForEfficiencyVsEta)(tp)))){
 
    //efficPU vs eta
@@ -1869,7 +1867,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 	totCONvertcount[count][f]++;
       }
     } // END for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
-  
+
     for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
       if (vertexTP.z()>zposintervals[count][f]&&vertexTP.z()<=zposintervals[count][f+1]) {
 	totCONzpos[count][f]++;

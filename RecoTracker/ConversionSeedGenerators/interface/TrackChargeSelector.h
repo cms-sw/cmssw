@@ -9,26 +9,27 @@
 struct TrackChargeSelector {
   TrackChargeSelector( int charge ) : charge_( charge ) { }
   template<typename T>
-  bool operator()( const T & t ) const { 
-    return ( t.charge() == charge_ ); 
+  bool operator()( const T & t ) const {
+    return ( t.charge() == charge_ );
   }
 
 private:
   int charge_;
 };
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 
 namespace reco {
   namespace modules {
-    
+
     template<>
     struct ParameterAdapter<TrackChargeSelector> {
-      static TrackChargeSelector make( const edm::ParameterSet & cfg ) {
-        return TrackChargeSelector(cfg.getParameter<int>( "charge" )); 
+      static TrackChargeSelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
+        return TrackChargeSelector(cfg.getParameter<int>( "charge" ));
       }
     };
-    
+
   }
 }
 

@@ -1,6 +1,8 @@
 #ifndef PhysicsTools_PFCandProducer_GenJetClosestMatchSelectorDefinition
 #define PhysicsTools_PFCandProducer_GenJetClosestMatchSelectorDefinition
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "DataFormats/JetReco/interface/GenJet.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
@@ -15,23 +17,23 @@ struct GenJetClosestMatchSelectorDefinition {
   typedef std::vector< reco::GenJet *> container;
   typedef container::const_iterator const_iterator;
 
-  GenJetClosestMatchSelectorDefinition ( const edm::ParameterSet & cfg ) {
+  GenJetClosestMatchSelectorDefinition ( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) {
 
-    matchTo_ = cfg.getParameter< edm::InputTag >( "MatchTo" ); 
+    matchTo_ = cfg.getParameter< edm::InputTag >( "MatchTo" );
   }
-  
+
   const_iterator begin() const { return selected_.begin(); }
 
   const_iterator end() const { return selected_.end(); }
 
-  void select( const HandleToCollection & hc, 
+  void select( const HandleToCollection & hc,
 	       const edm::Event & e,
-	       const edm::EventSetup& s) 
+	       const edm::EventSetup& s)
   {
-           
+
     selected_.clear();
-    
-    edm::Handle< edm::View<reco::Candidate> > matchCandidates; 
+
+    edm::Handle< edm::View<reco::Candidate> > matchCandidates;
     e.getByLabel( matchTo_, matchCandidates);
 
 
@@ -40,34 +42,34 @@ struct GenJetClosestMatchSelectorDefinition {
     //    std::cout<<"number of candidates "<<matchCandidates->size()<<std::endl;
 
     typedef edm::View<reco::Candidate>::const_iterator IC;
-    for( IC ic = matchCandidates->begin(); 
+    for( IC ic = matchCandidates->begin();
 	 ic!= matchCandidates->end(); ++ic ) {
-      
+
       double eta2 = ic->eta();
       double phi2 = ic->phi();
 
-      //      std::cout<<"cand "<<eta2<<" "<<phi2<<std::endl; 
+      //      std::cout<<"cand "<<eta2<<" "<<phi2<<std::endl;
 
-      
+
       // look for the closest gen jet
       double deltaR2Min = 9999;
       collection::const_iterator closest = hc->end();
-      for( collection::const_iterator genjet = hc->begin(); 
+      for( collection::const_iterator genjet = hc->begin();
 	   genjet != hc->end();
 	   ++genjet, ++key) {
-	
+
 	reco::GenJetRef genJetRef(hc, key);
-      
-	// is it matched? 
-	
+
+	// is it matched?
+
 	double eta1 = genjet->eta();
 	double phi1 = genjet->phi();
-	
-	
+
+
 	double deltaR2 = reco::deltaR2(eta1, phi1, eta2, phi2);
-	
+
 	// std::cout<<"  genjet "<<eta1<<" "<<phi1<<" "<<deltaR2<<std::endl;
-	
+
 	// cut should be a parameter
 	if( deltaR2<deltaR2Min ) {
 	  deltaR2Min = deltaR2;
@@ -87,7 +89,7 @@ struct GenJetClosestMatchSelectorDefinition {
   size_t size() const { return selected_.size(); }
 
 private:
-  container selected_;  
+  container selected_;
   edm::InputTag  matchTo_;
 };
 
