@@ -122,6 +122,9 @@ PFDisplacedVertexProducer::produce(Event& iEvent,
   ESHandle<TrackerGeometry> tkerGeomHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(tkerGeomHandle);
 
+  ESHandle<TrackerTopology> tTopoHand;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+
   Handle<reco::PFDisplacedVertexCandidateCollection> vertexCandidates;
   iEvent.getByLabel(inputTagVertexCandidates_, vertexCandidates);
 
@@ -132,7 +135,7 @@ PFDisplacedVertexProducer::produce(Event& iEvent,
   iEvent.getByLabel(inputTagBeamSpot_, beamSpotHandle);
 
   // Fill useful event information for the Finder
-  pfDisplacedVertexFinder_.setEdmParameters(theMagField, globTkGeomHandle, tkerGeomHandle); 
+  pfDisplacedVertexFinder_.setEdmParameters(theMagField, globTkGeomHandle, tkerGeomHandle,tTopoHand); 
   pfDisplacedVertexFinder_.setPrimaryVertex(mainVertexHandle, beamSpotHandle);
   pfDisplacedVertexFinder_.setInput(vertexCandidates);
 

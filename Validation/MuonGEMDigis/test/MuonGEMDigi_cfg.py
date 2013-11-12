@@ -48,8 +48,9 @@ process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
-        'file:/pnfs/user/geonmo/CMSSW_6_2_0_SLHC1/src/Validation/MuonGEMDigis/data/out_digi_2.root'
-    )
+#        'file:/pnfs/user/geonmo/CMSSW_6_2_0_SLHC1/src/Validation/MuonGEMDigis/data/out_digi_2.root'
+         'file:/pnfs/user/unclok/digi/4954.uosaf0008.sscc.uos.ac.kr/out_sim.root'   
+ )
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -58,17 +59,11 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 )
 
 from Validation.MuonGEMDigis.simTrackMatching_cfi import SimTrackMatching
-
-process.demo = cms.EDAnalyzer('MuonGEMDigis',
-	outputFile = cms.string('valid.root'),
-	stripLabel= cms.InputTag('simMuonGEMDigis'),
-	cscPadLabel = cms.InputTag('simMuonGEMCSCPadDigis'),
-	cscCopadLabel = cms.InputTag('simMuonGEMCSCPadDigis','Coincidence'),
-        simInputLabel = cms.untracked.string('g4SimHits'),
-        simTrackMatching = SimTrackMatching
+process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi') 
+process.gemDigiValidation.outputFile= cms.string('valid.root')
+process.gemDigiValidation.simTrackMatching = SimTrackMatching
        	
-)
 
 
-process.p = cms.Path(process.demo*process.MEtoEDMConverter)
+process.p = cms.Path(process.gemDigiValidation*process.MEtoEDMConverter)
 process.outpath = cms.EndPath(process.o1)

@@ -6,7 +6,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #Geometry
 #
-process.load("Configuration.Geometry.GeometryExtended_cff")
+process.load("Configuration.Geometry.GeometryExtendedPhase2TkBE_cff")
 
 #Magnetic Field
 #
@@ -56,7 +56,7 @@ process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('MaterialBudgetAction'),
     MaterialBudgetAction = cms.PSet(
-        HistosFile = cms.string('matbdg_Tracker.root'),
+        HistosFile = cms.string('matbdg_TrackerPhase2TkBE.root'),
         AllStepsToTree = cms.bool(True),
         HistogramList = cms.string('Tracker'),
         SelectedVolumes = cms.vstring('Tracker'),

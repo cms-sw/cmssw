@@ -28,6 +28,9 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   famos_        = conf.getUntrackedParameter<bool>("Famos", false);
   useAllHistos_ = conf.getUntrackedParameter<bool>("useAllHistos", false);
 
+  // false for regular relval and true for SLHC relval
+  doSLHC_ = conf.getUntrackedParameter<bool>("doSLHC", false);
+
   //Collections
   theHBHERecHitCollectionLabel = conf.getUntrackedParameter<edm::InputTag>("HBHERecHitCollectionLabel");
   theHFRecHitCollectionLabel   = conf.getUntrackedParameter<edm::InputTag>("HFRecHitCollectionLabel");
@@ -157,6 +160,16 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf  (histo, "emap_depth4" );
       emap_depth4 = dbe_->book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
       
+    if (doSLHC_){
+       sprintf  (histo, "emap_depth5" );
+       emap_depth5 = dbe_->book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
+       sprintf  (histo, "emap_depth6" );
+       emap_depth6 = dbe_->book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
+       sprintf  (histo, "emap_depth7" );
+       emap_depth7 = dbe_->book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
+    }
+
+      
       if (useAllHistos_){
 	
 	if (ecalselector_ == "yes") {
@@ -170,12 +183,38 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       emean_vs_ieta_HB1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
       sprintf  (histo, "emean_vs_ieta_HB2" );
       emean_vs_ieta_HB2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+      
+      if (doSLHC_){
+         sprintf  (histo, "emean_vs_ieta_HB3" );
+         emean_vs_ieta_HB3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+         sprintf  (histo, "emean_vs_ieta_HB4" );
+         emean_vs_ieta_HB4 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+         sprintf  (histo, "emean_vs_ieta_HB5" );
+         emean_vs_ieta_HB5 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+         sprintf  (histo, "emean_vs_ieta_HB6" );
+         emean_vs_ieta_HB6 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+         sprintf  (histo, "emean_vs_ieta_HB7" );
+         emean_vs_ieta_HB7 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+      }
+
       sprintf  (histo, "emean_vs_ieta_HE1" );
       emean_vs_ieta_HE1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10. ,2000., "s" );
       sprintf  (histo, "emean_vs_ieta_HE2" );
       emean_vs_ieta_HE2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
       sprintf  (histo, "emean_vs_ieta_HE3" );
       emean_vs_ieta_HE3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+
+      if (doSLHC_){
+        sprintf  (histo, "emean_vs_ieta_HE4" );
+        emean_vs_ieta_HE4 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+        sprintf  (histo, "emean_vs_ieta_HE5" );
+        emean_vs_ieta_HE5 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+        sprintf  (histo, "emean_vs_ieta_HE6" );
+        emean_vs_ieta_HE6 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+        sprintf  (histo, "emean_vs_ieta_HE7" );
+        emean_vs_ieta_HE7 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+      }
+
       sprintf  (histo, "emean_vs_ieta_HO" );
       emean_vs_ieta_HO = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
       sprintf  (histo, "emean_vs_ieta_HF1" );
@@ -188,12 +227,32 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 	RMS_vs_ieta_HB1 = dbe_->book1D(histo, histo, 82, -41., 41.);
 	sprintf  (histo, "RMS_vs_ieta_HB2" );
 	RMS_vs_ieta_HB2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+        sprintf  (histo, "RMS_vs_ieta_HB3" );
+        RMS_vs_ieta_HB3 = dbe_->book1D(histo, histo, 82, -41., 41.);
+        sprintf  (histo, "RMS_vs_ieta_HB4" );
+        RMS_vs_ieta_HB4 = dbe_->book1D(histo, histo, 82, -41., 41.);
+        sprintf  (histo, "RMS_vs_ieta_HB5" );
+        RMS_vs_ieta_HB5 = dbe_->book1D(histo, histo, 82, -41., 41.);
+        sprintf  (histo, "RMS_vs_ieta_HB6" );
+        RMS_vs_ieta_HB6 = dbe_->book1D(histo, histo, 82, -41., 41.);
+        sprintf  (histo, "RMS_vs_ieta_HB7" );
+        RMS_vs_ieta_HB7 = dbe_->book1D(histo, histo, 82, -41., 41.);
+
 	sprintf  (histo, "RMS_vs_ieta_HE1" );
 	RMS_vs_ieta_HE1 = dbe_->book1D(histo, histo, 82, -41., 41.);
 	sprintf  (histo, "RMS_vs_ieta_HE2" );
 	RMS_vs_ieta_HE2 = dbe_->book1D(histo, histo, 82, -41., 41.);
 	sprintf  (histo, "RMS_vs_ieta_HE3" );
 	RMS_vs_ieta_HE3 = dbe_->book1D(histo, histo, 82, -41., 41.);
+        sprintf  (histo, "RMS_vs_ieta_HE4" );
+        RMS_vs_ieta_HE4 = dbe_->book1D(histo, histo, 82, -41., 41.);
+        sprintf  (histo, "RMS_vs_ieta_HE5" );
+        RMS_vs_ieta_HE5 = dbe_->book1D(histo, histo, 82, -41., 41.);
+        sprintf  (histo, "RMS_vs_ieta_HE6" );
+        RMS_vs_ieta_HE6 = dbe_->book1D(histo, histo, 82, -41., 41.);
+        sprintf  (histo, "RMS_vs_ieta_HE7" );
+        RMS_vs_ieta_HE7 = dbe_->book1D(histo, histo, 82, -41., 41.);
+
 	sprintf  (histo, "RMS_vs_ieta_HO" );
 	RMS_vs_ieta_HO = dbe_->book1D(histo, histo, 82, -41., 41.);
 	sprintf  (histo, "RMS_vs_ieta_HF1" );
@@ -206,13 +265,34 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 	emean_seqHB1 = dbe_->bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000., "s" );
 	sprintf  (histo, "emean_seq_HB2" );
 	emean_seqHB2 = dbe_->bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000., "s" );
-	sprintf  (histo, "emean_seq_HE1" );
+        sprintf  (histo, "emean_seq_HB3" );
+        emean_seqHB3 = dbe_->bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000., "s" );
+        sprintf  (histo, "emean_seq_HB4" );
+        emean_seqHB4 = dbe_->bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000., "s" );
+        sprintf  (histo, "emean_seq_HB5" );
+        emean_seqHB5 = dbe_->bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000., "s" );
+        sprintf  (histo, "emean_seq_HB6" );
+        emean_seqHB6 = dbe_->bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000., "s" );
+        sprintf  (histo, "emean_seq_HB7" );
+        emean_seqHB7 = dbe_->bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000., "s" );
+	
+        sprintf  (histo, "emean_seq_HE1" );
 	emean_seqHE1 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., "s" );
 	sprintf  (histo, "emean_seq_HE2" );
 	emean_seqHE2 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., "s" );
 	sprintf  (histo, "emean_seq_HE3" );
 	emean_seqHE3 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., "s" );
-	sprintf  (histo, "emean_seq_HO" );
+        sprintf  (histo, "emean_seq_HE4" );
+        emean_seqHE4 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., "s" );
+        sprintf  (histo, "emean_seq_HE5" );
+        emean_seqHE5 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., "s" );
+        sprintf  (histo, "emean_seq_HE6" );
+        emean_seqHE6 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., "s" );
+        sprintf  (histo, "emean_seq_HE7" );
+        emean_seqHE7 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., "s" );
+
+	
+        sprintf  (histo, "emean_seq_HO" );
 	emean_seqHO = dbe_->bookProfile(histo, histo,  2400, -1200., 1200.,  2010, -10., 2000., "s" );
 	sprintf  (histo, "emean_seq_HF1" );
 	emean_seqHF1 = dbe_->bookProfile(histo, histo, 6000, -3000., 3000.,  2010, -10., 2000., "s" );
@@ -223,12 +303,33 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 	RMS_seq_HB1 = dbe_->book1D(histo, histo, 2400, -1200., 1200.);
 	sprintf  (histo, "RMS_seq_HB2" );
 	RMS_seq_HB2 = dbe_->book1D(histo, histo, 2400, -1200., 1200.);
+        sprintf  (histo, "RMS_seq_HB3" );
+        RMS_seq_HB3 = dbe_->book1D(histo, histo, 2400, -1200., 1200.);
+        sprintf  (histo, "RMS_seq_HB4" );
+        RMS_seq_HB4 = dbe_->book1D(histo, histo, 2400, -1200., 1200.);
+        sprintf  (histo, "RMS_seq_HB5" );
+        RMS_seq_HB5 = dbe_->book1D(histo, histo, 2400, -1200., 1200.);
+        sprintf  (histo, "RMS_seq_HB6" );
+        RMS_seq_HB6 = dbe_->book1D(histo, histo, 2400, -1200., 1200.);
+        sprintf  (histo, "RMS_seq_HB7" );
+        RMS_seq_HB7 = dbe_->book1D(histo, histo, 2400, -1200., 1200.);
+
+
 	sprintf  (histo, "RMS_seq_HE1" );
 	RMS_seq_HE1 = dbe_->book1D(histo, histo, 4400, -2200., 2200.);
 	sprintf  (histo, "RMS_seq_HE2" );
 	RMS_seq_HE2 = dbe_->book1D(histo, histo, 4400, -2200., 2200.);
 	sprintf  (histo, "RMS_seq_HE3" );
 	RMS_seq_HE3 = dbe_->book1D(histo, histo, 4400, -2200., 2200.);
+        sprintf  (histo, "RMS_seq_HE4" );
+        RMS_seq_HE4 = dbe_->book1D(histo, histo, 4400, -2200., 2200.);
+        sprintf  (histo, "RMS_seq_HE5" );
+        RMS_seq_HE5 = dbe_->book1D(histo, histo, 4400, -2200., 2200.);
+        sprintf  (histo, "RMS_seq_HE6" );
+        RMS_seq_HE6 = dbe_->book1D(histo, histo, 4400, -2200., 2200.);
+        sprintf  (histo, "RMS_seq_HE7" );
+        RMS_seq_HE7 = dbe_->book1D(histo, histo, 4400, -2200., 2200.);
+
 	sprintf  (histo, "RMS_seq_HO" );
 	RMS_seq_HO = dbe_->book1D(histo, histo, 2400, -1200., 1200.);
 	sprintf  (histo, "RMS_seq_HF1" );
@@ -243,12 +344,38 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       occupancy_map_HB1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
       sprintf  (histo, "occupancy_map_HB2" );
       occupancy_map_HB2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+
+      if (doSLHC_){
+         sprintf  (histo, "occupancy_map_HB3" );
+         occupancy_map_HB3 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+         sprintf  (histo, "occupancy_map_HB4" );
+         occupancy_map_HB4 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+         sprintf  (histo, "occupancy_map_HB5" );
+         occupancy_map_HB5 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+         sprintf  (histo, "occupancy_map_HB6" );
+         occupancy_map_HB6 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+         sprintf  (histo, "occupancy_map_HB7" );
+         occupancy_map_HB7 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      }
+
       sprintf  (histo, "occupancy_map_HE1" );
       occupancy_map_HE1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
       sprintf  (histo, "occupancy_map_HE2" );
       occupancy_map_HE2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);      
       sprintf  (histo, "occupancy_map_HE3" );
       occupancy_map_HE3 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+   
+      if (doSLHC_){
+         sprintf  (histo, "occupancy_map_HE4" );
+         occupancy_map_HE4 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+         sprintf  (histo, "occupancy_map_HE5" );
+         occupancy_map_HE5 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+         sprintf  (histo, "occupancy_map_HE6" );
+         occupancy_map_HE6 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+         sprintf  (histo, "occupancy_map_HE7" );
+         occupancy_map_HE7 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      }
+
       sprintf  (histo, "occupancy_map_HO" );
       occupancy_map_HO = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);      
       sprintf  (histo, "occupancy_map_HF1" );
@@ -261,12 +388,39 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       occupancy_vs_ieta_HB1 = dbe_->book1D(histo, histo, 82, -41., 41.);
       sprintf  (histo, "occupancy_vs_ieta_HB2" );
       occupancy_vs_ieta_HB2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+
+      if (doSLHC_){
+         sprintf  (histo, "occupancy_vs_ieta_HB3" );
+         occupancy_vs_ieta_HB3 = dbe_->book1D(histo, histo, 82, -41., 41.);
+         sprintf  (histo, "occupancy_vs_ieta_HB4" );
+         occupancy_vs_ieta_HB4 = dbe_->book1D(histo, histo, 82, -41., 41.);
+         sprintf  (histo, "occupancy_vs_ieta_HB5" );
+         occupancy_vs_ieta_HB5 = dbe_->book1D(histo, histo, 82, -41., 41.);
+         sprintf  (histo, "occupancy_vs_ieta_HB6" );
+         occupancy_vs_ieta_HB6 = dbe_->book1D(histo, histo, 82, -41., 41.);
+         sprintf  (histo, "occupancy_vs_ieta_HB7" );
+         occupancy_vs_ieta_HB7 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      }
+
+
       sprintf  (histo, "occupancy_vs_ieta_HE1" );
       occupancy_vs_ieta_HE1 = dbe_->book1D(histo, histo, 82, -41., 41.);
       sprintf  (histo, "occupancy_vs_ieta_HE2" );
       occupancy_vs_ieta_HE2 = dbe_->book1D(histo, histo, 82, -41., 41.);
       sprintf  (histo, "occupancy_vs_ieta_HE3" );
       occupancy_vs_ieta_HE3 = dbe_->book1D(histo, histo, 82, -41., 41.);
+ 
+      if (doSLHC_){
+         sprintf  (histo, "occupancy_vs_ieta_HE4" );
+         occupancy_vs_ieta_HE4 = dbe_->book1D(histo, histo, 82, -41., 41.);
+         sprintf  (histo, "occupancy_vs_ieta_HE5" );
+         occupancy_vs_ieta_HE5 = dbe_->book1D(histo, histo, 82, -41., 41.);
+         sprintf  (histo, "occupancy_vs_ieta_HE6" );
+         occupancy_vs_ieta_HE6 = dbe_->book1D(histo, histo, 82, -41., 41.);
+         sprintf  (histo, "occupancy_vs_ieta_HE7" );
+         occupancy_vs_ieta_HE7 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      }
+
       sprintf  (histo, "occupancy_vs_ieta_HO" );
       occupancy_vs_ieta_HO = dbe_->book1D(histo, histo, 82, -41., 41.);
       sprintf  (histo, "occupancy_vs_ieta_HF1" );
@@ -338,6 +492,15 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 	sprintf  (histo, "map_econe_depth4" );
 	map_econe_depth4 =
 	  dbe_->book2D(histo, histo, 520, -5.2, 5.2, 72, -3.1415926536, 3.1415926536);
+        sprintf  (histo, "map_econe_depth5" );
+        map_econe_depth5 =
+          dbe_->book2D(histo, histo, 520, -5.2, 5.2, 72, -3.1415926536, 3.1415926536);
+        sprintf  (histo, "map_econe_depth6" );
+        map_econe_depth6 =
+          dbe_->book2D(histo, histo, 520, -5.2, 5.2, 72, -3.1415926536, 3.1415926536);
+        sprintf  (histo, "map_econe_depth7" );
+        map_econe_depth7 =
+          dbe_->book2D(histo, histo, 520, -5.2, 5.2, 72, -3.1415926536, 3.1415926536);
       }
     }  // end-of (subdet_ =! 6)
 
@@ -370,7 +533,17 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 	meEnConeEtaProfile_depth3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);  
 	
 	sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth4");
-	meEnConeEtaProfile_depth4 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);  
+	meEnConeEtaProfile_depth4 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.); 
+
+        sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth5");
+        meEnConeEtaProfile_depth5 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);
+
+        sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth6");
+        meEnConeEtaProfile_depth6 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);
+
+        sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_depth7");
+        meEnConeEtaProfile_depth7 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);
+ 
 	
       }
       
@@ -475,6 +648,18 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 	
 	sprintf (histo, "HcalRecHitTask_timing_vs_energy_HB_depth2" ) ;
 	meTE_HB2 = dbe_->book2D(histo, histo, 3000, -5., 2995.,  70, -48., 92.);
+ 
+        sprintf (histo, "HcalRecHitTask_timing_vs_energy_HB_depth3" ) ;
+        meTE_HB3 = dbe_->book2D(histo, histo, 3000, -5., 2995.,  70, -48., 92.);
+        sprintf (histo, "HcalRecHitTask_timing_vs_energy_HB_depth4" ) ;
+        meTE_HB4 = dbe_->book2D(histo, histo, 3000, -5., 2995.,  70, -48., 92.);
+        sprintf (histo, "HcalRecHitTask_timing_vs_energy_HB_depth5" ) ;
+        meTE_HB5 = dbe_->book2D(histo, histo, 3000, -5., 2995.,  70, -48., 92.);
+        sprintf (histo, "HcalRecHitTask_timing_vs_energy_HB_depth6" ) ;
+        meTE_HB6 = dbe_->book2D(histo, histo, 3000, -5., 2995.,  70, -48., 92.);
+        sprintf (histo, "HcalRecHitTask_timing_vs_energy_HB_depth7" ) ;
+        meTE_HB7 = dbe_->book2D(histo, histo, 3000, -5., 2995.,  70, -48., 92.);
+
 	
 	if(imc != 0) {
 	  sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HB");
@@ -551,6 +736,18 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 	
 	sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE_depth2" ) ;
 	meTE_HE2 = dbe_->book2D(histo, histo, 1000, -5., 995.,  70, -48., 92.);
+
+        sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE_depth3" ) ;
+        meTE_HE3 = dbe_->book2D(histo, histo, 1000, -5., 995.,  70, -48., 92.);
+        sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE_depth4" ) ;
+        meTE_HE4 = dbe_->book2D(histo, histo, 1000, -5., 995.,  70, -48., 92.);
+        sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE_depth5" ) ;
+        meTE_HE5 = dbe_->book2D(histo, histo, 1000, -5., 995.,  70, -48., 92.);
+        sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE_depth6" ) ;
+        meTE_HE6 = dbe_->book2D(histo, histo, 1000, -5., 995.,  70, -48., 92.);
+        sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE_depth7" ) ;
+        meTE_HE7 = dbe_->book2D(histo, histo, 1000, -5., 995.,  70, -48., 92.);
+
 	
 	if(imc != 0) {
 	  sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HE");
@@ -736,6 +933,10 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   double ehcal_coneMC_2 = 0.;
   double ehcal_coneMC_3 = 0.;
   double ehcal_coneMC_4 = 0.;
+  double ehcal_coneMC_5 = 0.;
+  double ehcal_coneMC_6 = 0.;
+  double ehcal_coneMC_7 = 0.;
+
 
   // Cone size for serach of the hottest HCAL cell around MC
   double searchR = 1.0; 
@@ -896,9 +1097,18 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   
   int nhb1 = 0;
   int nhb2 = 0;
+  int nhb3 = 0;
+  int nhb4 = 0;
+  int nhb5 = 0;
+  int nhb6 = 0;
+  int nhb7 = 0;
   int nhe1 = 0;
   int nhe2 = 0;
   int nhe3 = 0;
+  int nhe4 = 0;
+  int nhe5 = 0;
+  int nhe6 = 0;
+  int nhe7 = 0;
   int nho  = 0;
   int nhf1 = 0;
   int nhf2 = 0;  
@@ -927,9 +1137,20 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     
     if( sub == 1 && depth == 1)  nhb1++;
     if( sub == 1 && depth == 2)  nhb2++;
+    if( sub == 1 && depth == 3)  nhb3++;
+    if( sub == 1 && depth == 4)  nhb4++;
+    if( sub == 1 && depth == 5)  nhb5++;
+    if( sub == 1 && depth == 6)  nhb6++;
+    if( sub == 1 && depth == 7)  nhb7++;
+
     if( sub == 2 && depth == 1)  nhe1++;
     if( sub == 2 && depth == 2)  nhe2++;
     if( sub == 2 && depth == 3)  nhe3++;
+    if( sub == 2 && depth == 4)  nhe4++;
+    if( sub == 2 && depth == 5)  nhe5++;
+    if( sub == 2 && depth == 6)  nhe6++;
+    if( sub == 2 && depth == 7)  nhe7++;
+
     if( sub == 3 && depth == 4)  nho++;
     if( sub == 4 && depth == 1)  nhf1++;
     if( sub == 4 && depth == 2)  nhf2++;
@@ -977,7 +1198,13 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
       if( depth == 3) emap_depth3->Fill(double(ieta), double(iphi), en);
       if( depth == 4) emap_depth4->Fill(double(ieta), double(iphi), en);
-      
+    
+      if (doSLHC_){
+      if( depth == 5) emap_depth5->Fill(double(ieta), double(iphi), en);
+      if( depth == 6) emap_depth6->Fill(double(ieta), double(iphi), en);
+      if( depth == 7) emap_depth7->Fill(double(ieta), double(iphi), en);     
+      } 
+
       if (depth == 1 && sub == 1 ) {
 	emean_vs_ieta_HB1->Fill(double(ieta), en);
 	occupancy_map_HB1->Fill(double(ieta), double(iphi));          
@@ -992,6 +1219,45 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  emean_seqHB2->Fill(double(index), en);
 	}
       }
+
+      if (doSLHC_){
+         if (depth == 3  && sub == 1) {
+           emean_vs_ieta_HB3->Fill(double(ieta), en);
+           occupancy_map_HB3->Fill(double(ieta), double(iphi));
+           if(useAllHistos_){
+             emean_seqHB3->Fill(double(index), en);
+           }
+         }
+         if (depth == 4  && sub == 1) {
+           emean_vs_ieta_HB4->Fill(double(ieta), en);
+           occupancy_map_HB4->Fill(double(ieta), double(iphi));
+           if(useAllHistos_){
+             emean_seqHB4->Fill(double(index), en);
+           }
+         }
+         if (depth == 5  && sub == 1) {
+           emean_vs_ieta_HB5->Fill(double(ieta), en);
+           occupancy_map_HB5->Fill(double(ieta), double(iphi));
+           if(useAllHistos_){
+             emean_seqHB5->Fill(double(index), en);
+           }
+         }
+         if (depth == 6  && sub == 1) {
+           emean_vs_ieta_HB6->Fill(double(ieta), en);
+           occupancy_map_HB6->Fill(double(ieta), double(iphi));
+           if(useAllHistos_){
+             emean_seqHB6->Fill(double(index), en);
+           }
+         }
+         if (depth == 7  && sub == 1) {
+           emean_vs_ieta_HB7->Fill(double(ieta), en);
+           occupancy_map_HB7->Fill(double(ieta), double(iphi));
+           if(useAllHistos_){
+             emean_seqHB7->Fill(double(index), en);
+           }
+         }
+     }
+
       if (depth == 1 && sub == 2) {
 	emean_vs_ieta_HE1->Fill(double(ieta), en);
 	occupancy_map_HE1->Fill(double(ieta), double(iphi));   
@@ -1013,7 +1279,37 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  emean_seqHE3->Fill(double(index), en);
 	}
       }
-      if (depth == 4 ) {
+       if (doSLHC_){
+          if (depth == 4 && sub == 2) {
+           emean_vs_ieta_HE4->Fill(double(ieta), en);
+           occupancy_map_HE4->Fill(double(ieta), double(iphi));
+           if(useAllHistos_){
+             emean_seqHE4->Fill(double(index), en);
+           }
+         }
+          if (depth == 5 && sub == 2) {
+           emean_vs_ieta_HE5->Fill(double(ieta), en);
+           occupancy_map_HE5->Fill(double(ieta), double(iphi));
+           if(useAllHistos_){
+             emean_seqHE5->Fill(double(index), en);
+           }
+         }
+          if (depth == 6 && sub == 2) {
+           emean_vs_ieta_HE6->Fill(double(ieta), en);
+           occupancy_map_HE6->Fill(double(ieta), double(iphi));
+           if(useAllHistos_){
+             emean_seqHE6->Fill(double(index), en);
+           }
+         }
+          if (depth == 7 && sub == 2) {
+           emean_vs_ieta_HE7->Fill(double(ieta), en);
+           occupancy_map_HE7->Fill(double(ieta), double(iphi));
+           if(useAllHistos_){
+             emean_seqHE7->Fill(double(index), en);
+           }
+         }
+     }
+      if (depth == 4 && sub == 3) {
 	emean_vs_ieta_HO->Fill(double(ieta), en);
 	occupancy_map_HO->Fill(double(ieta), double(iphi));          
 	if(useAllHistos_){
@@ -1041,7 +1337,10 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       if (depth == 1) ehcal_coneMC_1 += en; 
       if (depth == 2) ehcal_coneMC_2 += en; 
       if (depth == 3) ehcal_coneMC_3 += en; 
-      if (depth == 4) ehcal_coneMC_4 += en; 
+      if (depth == 4) ehcal_coneMC_4 += en;
+      if (depth == 5) ehcal_coneMC_5 += en;
+      if (depth == 6) ehcal_coneMC_6 += en;
+      if (depth == 7) ehcal_coneMC_7 += en; 
     }
     
     //32-bit status word  
@@ -1099,6 +1398,10 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       map_econe_depth2->Fill(eta_MC, phi_MC, ehcal_coneMC_2);
       map_econe_depth3->Fill(eta_MC, phi_MC, ehcal_coneMC_3);
       map_econe_depth4->Fill(eta_MC, phi_MC, ehcal_coneMC_4);
+      map_econe_depth5->Fill(eta_MC, phi_MC, ehcal_coneMC_5);
+      map_econe_depth6->Fill(eta_MC, phi_MC, ehcal_coneMC_6);
+      map_econe_depth7->Fill(eta_MC, phi_MC, ehcal_coneMC_7);     
+
     }
   }
 
@@ -1143,17 +1446,29 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     double HcalCone_d2 = 0.;
     double HcalCone_d3 = 0.;
     double HcalCone_d4 = 0.;
+    double HcalCone_d5 = 0.;
+    double HcalCone_d6 = 0.;
+    double HcalCone_d7 = 0.;
+
     double HcalCone    = 0.;
 
     int ietaMax1  =  9999;
     int ietaMax2  =  9999;
     int ietaMax3  =  9999;
     int ietaMax4  =  9999;
+    int ietaMax5  =  9999;
+    int ietaMax6  =  9999;
+    int ietaMax7  =  9999;
+
     int ietaMax   =  9999;
     double enMax1 = -9999.;
     double enMax2 = -9999.;
     double enMax3 = -9999.;
     double enMax4 = -9999.;
+    double enMax5 = -9999.;
+    double enMax6 = -9999.;
+    double enMax7 = -9999.;
+
     //    double enMax  = -9999.;
     double etaMax =  9999.;
 
@@ -1228,7 +1543,28 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	    ietaMax4 = ieta;
 	  }
 	}
-
+        if(depth == 5) {
+          HcalCone_d5 += en;
+          if(enMax5 < en) {
+            enMax5   = en;
+            ietaMax5 = ieta;
+          }
+        }
+        if(depth == 6) {
+          HcalCone_d6 += en;
+          if(enMax6 < en) {
+            enMax6   = en;
+            ietaMax6 = ieta;
+          }
+        }
+        if(depth == 7) {
+          HcalCone_d7 += en;
+          if(enMax7 < en) {
+            enMax7   = en;
+            ietaMax7 = ieta;
+          }
+        }
+     
 	if(depth != 4) {
 	  HcalCone += en;
 	}
@@ -1267,7 +1603,12 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
 	if (useAllHistos_){
 	  if      (depth == 1) meTE_HB1->Fill( en, t);
-	  else if (depth == 2) meTE_HB2->Fill( en, t);
+          if      (depth == 2) meTE_HB2->Fill( en, t);
+          if      (depth == 3) meTE_HB3->Fill( en, t);
+          if      (depth == 4) meTE_HB4->Fill( en, t);
+          if      (depth == 5) meTE_HB5->Fill( en, t);
+          if      (depth == 6) meTE_HB6->Fill( en, t);
+	  else if (depth == 7) meTE_HB7->Fill( en, t);
 	}
       }     
       if(sub == 2 && (subdet_ == 2 || subdet_ == 5)) {  
@@ -1281,7 +1622,12 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
 	if (useAllHistos_){
 	  if      (depth == 1) meTE_HE1->Fill( en, t);
-	  else if (depth == 2) meTE_HE2->Fill( en, t);
+          if      (depth == 2) meTE_HE2->Fill( en, t);
+          if      (depth == 3) meTE_HE3->Fill( en, t);
+          if      (depth == 4) meTE_HE4->Fill( en, t);
+          if      (depth == 5) meTE_HE5->Fill( en, t);
+          if      (depth == 6) meTE_HE6->Fill( en, t);
+	  else if (depth == 7) meTE_HE7->Fill( en, t);
 	}
       }
       if(sub == 4 && (subdet_ == 4 || subdet_ == 5)) {  
@@ -1316,6 +1662,10 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	meEnConeEtaProfile_depth2->Fill(double(ietaMax2), HcalCone_d2);
 	meEnConeEtaProfile_depth3->Fill(double(ietaMax3), HcalCone_d3);
 	meEnConeEtaProfile_depth4->Fill(double(ietaMax4), HcalCone_d4);
+        meEnConeEtaProfile_depth5->Fill(double(ietaMax5), HcalCone_d5);
+        meEnConeEtaProfile_depth6->Fill(double(ietaMax6), HcalCone_d6);
+        meEnConeEtaProfile_depth7->Fill(double(ietaMax7), HcalCone_d7);
+
       }
       meEnConeEtaProfile       ->Fill(double(ietaMax),  HcalCone);   // 
       meEnConeEtaProfile_E     ->Fill(double(ietaMax), eEcalCone);   

@@ -107,6 +107,7 @@ private:
     std::string mode_;
     std::string mc_;
     int noise_;
+    bool doSLHC_;
 
     edm::ESHandle<CaloGeometry> geometry;
     edm::ESHandle<HcalDbService> conditions;

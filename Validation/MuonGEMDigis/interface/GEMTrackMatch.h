@@ -25,7 +25,7 @@
 class GEMTrackMatch 
 {
 public:
-  GEMTrackMatch(DQMStore* , std::string , edm::ParameterSet );
+  GEMTrackMatch(DQMStore* , std::string , edm::ParameterSet, double, double, double );
   ~GEMTrackMatch();
   void analyze(const edm::Event& e, const edm::EventSetup&);
 
@@ -89,6 +89,8 @@ public:
   edm::Handle<edm::SimVertexContainer> sim_vertices;
   
   float minPt_;
+  float minEta_;
+  float maxEta_;
   float radiusCenter_, chamberHeight_;
 
 

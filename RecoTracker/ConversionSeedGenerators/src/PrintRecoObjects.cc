@@ -1,9 +1,6 @@
 #include "RecoTracker/ConversionSeedGenerators/interface/PrintRecoObjects.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 void PrintRecoObjects::
 print(std::stringstream& ss, const SiStripCluster& clus){
@@ -38,35 +35,35 @@ PrintRecoObjects::print(std::stringstream& ss, const TrajectorySeed& tjS){
 }
 
 void PrintRecoObjects::
-print(std::stringstream& ss, const uint32_t& detid) const{
-  ss<< getString(detid);
+print(std::stringstream& ss, const uint32_t& detid, const TrackerTopology *tTopo) const{
+  ss<< getString(detid,tTopo);
 }
 
 std::string PrintRecoObjects::
-getString(uint32_t detid) const{
+getString(uint32_t detid, const TrackerTopology *tTopo) const{
   std::string append=" ";
   char cindex[128];
   SiStripDetId a(detid);
   if ( a.subdetId() == 3 ){
     append+="_TIB_L";
-    sprintf(cindex,"%d",TIBDetId(detid).layer()); 
+    sprintf(cindex,"%d",tTopo->tibLayer(detid)); 
   } else if ( a.subdetId() == 4 ) {
-    if(TIDDetId(detid).side()==1){
+    if(tTopo->tidSide(detid)==1){
       append+="_M_D";
     }else{
       append+="_M_P";
     }
-    sprintf(cindex,"%d",TIDDetId(detid).wheel());
+    sprintf(cindex,"%d",tTopo->tidWheel(detid));
   } else if ( a.subdetId() == 5 ) {
     append+="_TOB_L";
-    sprintf(cindex,"%d",TOBDetId(detid).layer());
+    sprintf(cindex,"%d",tTopo->tobLayer(detid));
   } else if ( a.subdetId() == 6 ) {
-    if(TECDetId(detid).side()==1){
+    if(tTopo->tecSide(detid)==1){
       append+="_TEC_M";
     }else{
       append+="_TEC_P";
     }
-    sprintf(cindex,"%d",TECDetId(detid).wheel());
+    sprintf(cindex,"%d",tTopo->tecWheel(detid));
   } 
 
   append+=std::string(cindex);
