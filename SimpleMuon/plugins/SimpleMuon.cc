@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:    SimpleMuon
@@ -102,6 +103,8 @@ private:
              const edm::PSimHitContainer* , 
              const CSCCLCTDigiCollection *, 
              const CSCComparatorDigiCollection* );
+  void  matchSimTrack2LCTs( MatchCSCMuL1 *match, 
+             const CSCCorrelatedLCTDigiCollection* lcts );
   unsigned
   matchCSCCathodeHits(const std::vector<CSCCathodeLayerInfo>& allLayerInfo, 
 		      std::vector<PSimHit> &matchedHit); 
@@ -123,6 +126,7 @@ private:
   int calculate2DStubsDeltas(MatchCSCMuL1 *match, MatchCSCMuL1::CLCT &clct);
 
   int getCSCType(const CSCDetId &);
+  unsigned int findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT);
 
   
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
@@ -158,9 +162,12 @@ private:
 
   bool debugALCT;
   bool debugCLCT;
+  bool debugLCT;
   bool defaultME1a;
   int minBX_;
   int maxBX_;
+  int minTMBBX_;
+  int maxTMBBX_;
   int minDeltaWire_;
   int maxDeltaWire_;
   int minDeltaYAnode_;
@@ -168,7 +175,8 @@ private:
   bool matchAllTrigPrimitivesInChamber_;
   int minDeltaStrip_;
   int minDeltaYCathode_;
-
+  bool addGhostLCTs_;
+  
   SimHitAnalysis::PSimHitMap theCSCSimHitMap;
 
   CSCStripConditions * theStripConditions;
@@ -190,6 +198,8 @@ private:
   enum pt_thresh {N_PT_THRESHOLDS = 6};
   static const double PT_THRESHOLDS[N_PT_THRESHOLDS];
   static const double PT_THRESHOLDS_FOR_ETA[N_PT_THRESHOLDS];
+
+  std::vector<const CSCCorrelatedLCTDigi*> ghostLCTs;
 
   TTree *tree_eff_;
   MyNtuple etrk_;
@@ -263,11 +273,12 @@ SimpleMuon::SimpleMuon(const edm::ParameterSet& iConfig)
   minDeltaYAnode_    = iConfig.getUntrackedParameter<double>("minDeltaYAnode", -1.);
   minBX_    = iConfig.getUntrackedParameter< int >("minBX",-6);
   maxBX_    = iConfig.getUntrackedParameter< int >("maxBX",6);
-
+  minTMBBX_    = iConfig.getUntrackedParameter< int >("minTMBBX",-6);
+  maxTMBBX_    = iConfig.getUntrackedParameter< int >("maxTMBBX",6);
   minDeltaYCathode_  = iConfig.getUntrackedParameter<double>("minDeltaYCathode", -1.);
   minDeltaStrip_   = iConfig.getUntrackedParameter<int>("minDeltaStrip", 1);
   gangedME1a = iConfig.getUntrackedParameter<bool>("gangedME1a", false);
-
+  addGhostLCTs_ = iConfig.getUntrackedParameter< bool >("addGhostLCTs",true);
   tree_eff_ = etrk_.book(tree_eff_,"efficiency");
   etrk_.initialize();
 
@@ -291,6 +302,12 @@ SimpleMuon::~SimpleMuon()
 void
 SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  // ================================================================================================ 
+  //
+  //                                              R E S E T
+  //
+  // ================================================================================================ 
+
   etrk_.st_pt.clear();
   etrk_.st_eta.clear();
   etrk_.st_phi.clear();
@@ -298,6 +315,7 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   etrk_.st_n_alcts.clear();
   etrk_.st_n_alcts_readout.clear();
   etrk_.st_n_clcts.clear();
+  etrk_.st_n_clcts_readout.clear();
   etrk_.st_n_tmblcts.clear();
   etrk_.st_n_tmblcts_readout.clear();
   etrk_.st_n_mpclcts.clear();
@@ -338,34 +356,35 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   etrk_.csc_tmblct_gemDPhi.clear();
   etrk_.csc_tmblct_hasGEM.clear();
   etrk_.csc_tmblct_mpclink.clear();
-
-
+  
+  if (addGhostLCTs_)
+  {
+    for (size_t i=0; i<ghostLCTs.size();i++) if (ghostLCTs[i]) delete ghostLCTs[i];
+    ghostLCTs.clear();
+  }
+  
   // ================================================================================================ 
-
+  //
   //                   G E O M E T R Y   A N D   M A G N E T I C   F I E L D 
-
+  //
   // ================================================================================================ 
 
-  // geometry
   edm::ESHandle<CSCGeometry> cscGeom;
   iSetup.get<MuonGeometryRecord>().get(cscGeom);
   iSetup.get<MuonRecoGeometryRecord>().get(muonGeometry);
   cscGeometry = &*cscGeom;
 
-  // csc trigger geometry
   CSCTriggerGeometry::setGeometry(cscGeometry);
 
-  //Get the Magnetic field from the setup
   iSetup.get<IdealMagneticFieldRecord>().get(theBField);
 
-  // Get the propagators
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyRK", propagatorAlong);
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite", propagatorOpposite);
 
   // ================================================================================================ 
-
+  //
   //                                  C O L L E C T I O N S
-
+  //
   // ================================================================================================ 
 
   // get generator level particle collection
@@ -436,6 +455,8 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   const CSCCorrelatedLCTDigiCollection* mpclcts = lcts_mpc.product();
 
   //------------------------------------------------------------------------------------------------
+
+  // do I need this?
   
   // store the CSC trigger primitives in maps of <detId, collection>
   std::map<int,std::vector<CSCALCTDigi> > detALCT;
@@ -663,6 +684,8 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     match->minBxMPLCT = minBxMPLCT_;
     match->maxBxMPLCT = maxBxMPLCT_;
     
+    //------------------------------------------------------------------------------------------------
+    
     // get the approximate position at the CSC stations
     propagateToCSCStations(match);
     
@@ -675,60 +698,56 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     matchSimTrack2CLCTs(match, allCSCSimHits, clcts, compdc);
 
+    matchSimTrack2LCTs(match, tmblcts);
+
     etrk_.st_n_csc_simhits.push_back(match->simHits.size());
     etrk_.st_n_alcts.push_back(match->ALCTs.size());
     etrk_.st_n_clcts.push_back(match->CLCTs.size());
-//     etrk_.st_n_tmblcts.push_back();
-//     etrk_.st_n_mpclcts.push_back();
-//     etrk_.st_n_tfTracks.push_back();
-//     etrk_.st_n_tfTracksAll.push_back();
-//     etrk_.st_n_tfCands.push_back();
-//     etrk_.st_n_tfCandsAll.push_back();
-//     etrk_.st_n_gmtRegCands.push_back();
-//     etrk_.st_n_gmtRegCandsAll.push_back();
-//     etrk_.st_n_gmtRegBest.push_back();
-//     etrk_.st_n_gmtCands.push_back();
-//     etrk_.st_n_gmtCandsAll.push_back();
-//     etrk_.st_n_gmtBest.push_back();
-//     etrk_.st_n_l1Extra.push_back();
-//     etrk_.st_n_l1ExtraAll.push_back();
-//     etrk_.st_n_l1ExtraBest.push_back();
+    etrk_.st_n_tmblcts.push_back(match->LCTs.size());
 
-// 		 <<" nLCT: "<<match->LCTs.size() 
-// 		 <<" nMPLCT: "<<match->MPLCTs.size() 
-// 		 <<" TFTRACKs/All: "<<match->TFTRACKs.size() <<"/"<<match->TFTRACKsAll.size()
-// 		 <<" TFCANDs/All: "<<match->TFCANDs.size() <<"/"<<match->TFCANDsAll.size()
-// 		 <<" GMTREGs/All: "<<match->GMTREGCANDs.size()<<"/"<<match->GMTREGCANDsAll.size()
-// 		 <<"  GMTRegBest:"<<(match->GMTREGCANDBest.l1reg != NULL)
-// 		 <<" GMTs/All: "<<match->GMTCANDs.size()<<"/"<<match->GMTCANDsAll.size()
-// 		 <<" GMTBest:"<<(match->GMTCANDBest.l1gmt != NULL)
-// 		 <<" L1EXTRAs/All: "<<match->L1EXTRAs.size()<<"/"<<match->L1EXTRAsAll.size()
-// 		 <<" L1EXTRABest:"<<(match->L1EXTRABest.l1extra != NULL)<<std::endl;
-
+//     etrk_.st_n_mpclcts.push_back(match->MPLCTs.size());
+//     etrk_.st_n_tfTracks.push_back(match->TFTRACKs.size());
+//     etrk_.st_n_tfTracksAll.push_back(match->TFTRACKsAll.size());
+//     etrk_.st_n_tfCands.push_back(match->TFCANDs.size());
+//     etrk_.st_n_tfCandsAll.push_back(match->TFCANDsAll.size());
+//     etrk_.st_n_gmtRegCands.push_back(match->GMTREGCANDs.size());
+//     etrk_.st_n_gmtRegCandsAll.push_back(match->GMTREGCANDsAll.size());
+//     etrk_.st_n_gmtRegBest.push_back(match->GMTREGCANDBest.l1reg != NULL);
+//     etrk_.st_n_gmtCands.push_back(match->GMTCANDs.size());
+//     etrk_.st_n_gmtCandsAll.push_back(match->GMTCANDsAll.size());
+//     etrk_.st_n_gmtBest.push_back(match->GMTCANDBest.l1gmt != NULL);
+//     etrk_.st_n_l1Extra.push_back(match->L1EXTRAs.size());
+//     etrk_.st_n_l1ExtraAll.push_back(match->L1EXTRAsAll.size());
+//     etrk_.st_n_l1ExtraBest.push_back(match->L1EXTRABest.l1extra != NULL);
 
     //------------------------------------------------------------------------------------------------
     //                               GEM SimHits
     //------------------------------------------------------------------------------------------------
 
-//     SimTrackMatchManager gemcsc_match(*(match->strk), simVertices[match->strk->vertIndex()], gemMatchCfg_, iEvent, iSetup);
-//     const GEMDigiMatcher& match_gem = gemcsc_match.gemDigis();
+//      SimTrackMatchManager gemcsc_match(*(match->strk), simVertices[match->strk->vertIndex()], gemMatchCfg_, iEvent, iSetup);
+//      const GEMDigiMatcher& match_gem = gemcsc_match.gemDigis();
+     /*     
+     etrk_.st_n_gem_simhits.push_back(match->simHits.size());
+     etrk_.st_n_gem_digis.push_back(match->simHits.size());
+     etrk_.st_n_gem_pads.push_back(match->simHits.size());
     
-//     int match_has_gem = 0;
-//     std::vector<int> match_gem_chambers;
-//     auto gem_superch_ids = match_gem.superChamberIds();
-//     for(auto d: gem_superch_ids) {
-//       GEMDetId id(d);
-//       bool odd = id.chamber() & 1;
-//       auto digis = match_gem.digisInSuperChamber(d);
-//       if (digis.size() > 0) {
-// 	match_gem_chambers.push_back(id.chamber());
-// 	if (odd) match_has_gem |= 1;
-// 	  else     match_has_gem |= 2;
-//       }
-//     }
+     int match_has_gem = 0;
+     std::vector<int> match_gem_chambers;
+     auto gem_superch_ids = match_gem.superChamberIds();
+     for(auto d: gem_superch_ids) {
+       GEMDetId id(d);
+       bool odd = id.chamber() & 1;
+       auto digis = match_gem.digisInSuperChamber(d);
+       if (digis.size() > 0) {
+ 	match_gem_chambers.push_back(id.chamber());
+ 	if (odd) match_has_gem |= 1;
+ 	  else     match_has_gem |= 2;
+       }
+     }
       
-//     if (eta_gem_1b && match_has_gem) h_pt_gem_1b->Fill(stpt);
-//     if (eta_gem_1b && match_has_gem && has_mplct_me1b) h_pt_lctgem_1b->Fill(stpt);
+     if (eta_gem_1b && match_has_gem) h_pt_gem_1b->Fill(stpt);
+     if (eta_gem_1b && match_has_gem && has_mplct_me1b) h_pt_lctgem_1b->Fill(stpt);
+     */
     
     
     //------------------------------------------------------------------------------------------------
@@ -1894,6 +1913,267 @@ SimpleMuon::calculate2DStubsDeltas(MatchCSCMuL1 *match, MatchCSCMuL1::CLCT &clct
   return 0;
 }
 
+// ================================================================================================
+void
+SimpleMuon::matchSimTrack2LCTs(MatchCSCMuL1 *match, const CSCCorrelatedLCTDigiCollection* lcts )
+{
+  if (debugLCT) std::cout<<"--- LCT ---- begin"<<std::endl;
+  int nValidLCTs = 0, nCorrelLCTs = 0, nALCTs = 0, nCLCTs = 0;
+  match->LCTs.clear();
+
+  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) 
+  {
+    const CSCDetId& id = (*detUnitIt).first;
+    const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
+    CSCDetId cid = id;
+
+    //if (id.station()==1&&id.ring()==2) debugLCT=1;
+
+    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    {
+      if (!(*digiIt).isValid()) continue;
+      
+      const bool me1a_case(defaultME1a && id.station()==1 && id.ring()==1 && (*digiIt).getStrip() > 127);
+      if (me1a_case){
+	CSCDetId id1a(id.endcap(),id.station(),4,id.chamber(),0);
+	cid = id1a;
+      }
+      
+      if (debugLCT) std::cout<< "----- LCT in raw ID "<<cid.rawId()<<" "<<cid<< " (trig id. " << id.triggerCscId() << ")"<<std::endl;
+      if (debugLCT) std::cout<< " "<< (*digiIt);
+      nValidLCTs++;
+      
+      if ( (*digiIt).getBX()-6 < minTMBBX_ || (*digiIt).getBX()-6 > maxTMBBX_ )
+	{
+	  if (debugLCT) std::cout<<"discarding BX = "<< (*digiIt).getBX()-6 <<std::endl;
+	  continue;
+	}
+      
+      const int quality((*digiIt).getQuality());
+      
+      //bool alct_valid = (quality != 4 && quality != 5);
+      //bool clct_valid = (quality != 1 && quality != 3);
+      const bool alct_valid(quality != 2);
+      const bool clct_valid(quality != 1);
+      
+      if (debugLCT && !alct_valid) std::cout<<"  +++ note: valid LCT but not alct_valid: quality = "<<quality<<std::endl;
+      if (debugLCT && !clct_valid) std::cout<<"  +++ note: valid LCT but not clct_valid: quality = "<<quality<<std::endl;
+      
+      int nmalct = 0;
+      MatchCSCMuL1::ALCT *malct = 0;
+      if ( alct_valid )
+	{
+	  for (unsigned i=0; i< match->ALCTs.size(); i++)
+	    if ( cid.rawId() == (match->ALCTs)[i].id.rawId() &&
+		 (*digiIt).getKeyWG() == (match->ALCTs)[i].trgdigi->getKeyWG() &&
+		 (*digiIt).getBX() == (match->ALCTs)[i].getBX() )
+	      {
+		if (debugLCT) std::cout<< "  ----- ALCT matches LCT: "<<(match->ALCTs)[i].id<<"  "<<*((match->ALCTs)[i].trgdigi) <<std::endl;
+		malct = &((match->ALCTs)[i]);
+		nmalct++;
+	      }
+	  if (nmalct>1) std::cout<<"+++ ALARM in LCT: number of matching ALCTs is more than one: "<<nmalct<<std::endl;
+	}
+      
+      int nmclct = 0;
+      MatchCSCMuL1::CLCT *mclct = 0;
+      std::vector<MatchCSCMuL1::CLCT*> vmclct;
+      if ( clct_valid )
+	{
+	  for (unsigned i=0; i< match->CLCTs.size(); i++)
+	    if ( cid.rawId() == (match->CLCTs)[i].id.rawId() &&
+		 (*digiIt).getStrip() == (match->CLCTs)[i].trgdigi->getKeyStrip() &&
+		 //(*digiIt).getCLCTPattern() == (match->CLCTs)[i].trgdigi->getPattern() )
+		 (*digiIt).getPattern() == (match->CLCTs)[i].trgdigi->getPattern() )
+	      {
+		if (debugLCT) std::cout<< "  ----- CLCT matches LCT: "<<(match->CLCTs)[i].id<<"  "<<*((match->CLCTs)[i].trgdigi) <<std::endl;
+		mclct = &((match->CLCTs)[i]);
+		vmclct.push_back(mclct);
+		nmclct++;
+	      }
+	  if (nmclct>1) {
+	    std::cout<<"+++ ALARM in LCT: number of matching CLCTs is more than one: "<<nmclct<<std::endl;
+	    // choose the smallest bx one
+	    int mbx=999, mnn=0;
+	    for (int nn=0; nn<nmclct;nn++) if (vmclct[nn]->getBX()<mbx)
+	      {
+		mbx=vmclct[nn]->getBX();
+		mnn=nn;
+	      }
+	    mclct = vmclct[mnn];
+	    std::cout<<"+++ ALARM in LCT: number of matching CLCTs is more than one: "<<nmclct<<"  choosing one with bx="<<mbx<<std::endl;
+	  }
+	}
+      
+      MatchCSCMuL1::LCT mlct(match);
+      mlct.trgdigi = &*digiIt;
+      mlct.id = cid;
+      mlct.ghost = 0;
+      mlct.deltaOk = 0;
+      
+      // Truly correlated LCTs matched to SimTrack's ALCTs and CLCTs
+      if (alct_valid && clct_valid)
+	{
+	  nCorrelLCTs++;
+	  //if (nmclct+nmalct > 2) std::cout<<"+++ ALARM!!! too many matches to LTCs: nmalct="<<nmalct<< "  nmclct="<<nmclct<<std::endl;
+	  if (nmalct && nmclct)
+	    {
+	      mlct.alct = malct;
+	      mlct.clct = mclct;
+	      mlct.deltaOk = (malct->deltaOk & mclct->deltaOk);
+	      match->LCTs.push_back(mlct);
+	      if (debugLCT) std::cout<< "  ------------> LCT matches ALCT & CLCT "<<std::endl;
+	    }
+	}
+      // ALCT only LCTs
+      //else if ( alct_valid )
+      //{
+      //  nALCTs++;
+      //  if (nmalct)
+      //  {
+      //    mlct.alct = malct;
+      //    mlct.clct = 0;
+      //    match->LCTs.push_back(mlct);
+      //    if (debugLCT) std::cout<< "  ------------> LCT matches ALCT only"<<std::endl;
+      //  }
+      //}
+      // CLCT only LCTs
+      else if ( clct_valid )
+	{
+	  nCLCTs++;
+	  if (nmclct)
+	    {
+	      mlct.alct = 0;
+	      mlct.clct = mclct;
+	      match->LCTs.push_back(mlct);
+	      if (debugLCT) std::cout<< "  ------------> LCT matches CLCT only"<<std::endl;
+	    }
+	} // if (alct_valid && clct_valid)  ...
+    }
+    //debugLCT=0;  
+  }
+  
+  // Adding ghost LCT combinatorics
+  std::vector<MatchCSCMuL1::LCT> ghosts;
+  if (addGhostLCTs_)
+    {
+      std::vector<int> chIDs = match->chambersWithLCTs();
+      for (size_t ch = 0; ch < chIDs.size(); ch++) 
+	{
+	  std::vector<MatchCSCMuL1::LCT> chlcts = match->chamberLCTs(chIDs[ch]);
+	  if (chlcts.size()<2) continue;
+	  if (debugLCT) std::cout<<"Ghost LCT combinatorics: "<<chlcts.size()<<" in chamber "<<chlcts[0].id<<std::endl;
+	  std::map<int,std::vector<MatchCSCMuL1::LCT> > bxlcts;
+	  for (size_t t=0; t < chlcts.size(); t++) {
+	    int bx=chlcts[t].getBX();
+	    bxlcts[bx].push_back(chlcts[t]);
+	    if (bxlcts[bx].size() > 2 ) std::cout<<" Huh!?? "<<" n["<<bx<<"] = 2"<<std::endl;
+	    if (bxlcts[bx].size() == 2)
+	      {
+		MatchCSCMuL1::LCT lt[2];
+		lt[0] = (bxlcts[bx])[0];
+		lt[1] = (bxlcts[bx])[1];
+		bool sameALCT = ( lt[0].alct->trgdigi->getKeyWG() == lt[1].alct->trgdigi->getKeyWG() );
+		bool sameCLCT = ( lt[0].clct->trgdigi->getKeyStrip() == lt[1].clct->trgdigi->getKeyStrip() );
+		if (debugLCT) {
+		  std::cout<<" n["<<bx<<"] = 2 sameALCT="<<sameALCT<<" sameCLCT="<<sameCLCT<<std::endl
+		      <<" lct1: "<<*(lt[0].trgdigi)
+		      <<" lct2: "<<*(lt[1].trgdigi);
+		}
+		if (sameALCT||sameCLCT) continue;
+	  
+		unsigned int q[2];
+		q[0]=findQuality(*(lt[0].alct->trgdigi),*(lt[1].clct->trgdigi));
+		q[1]=findQuality(*(lt[1].alct->trgdigi),*(lt[0].clct->trgdigi));
+		if (debugLCT) std::cout<<" q0="<<q[0]<<" q1="<<q[1]<<std::endl;
+		int t3=0, t4=1;
+		if (q[0]<q[1]) {t3=1;t4=0;}
+
+		CSCCorrelatedLCTDigi* lctd3 = 
+		  new  CSCCorrelatedLCTDigi (3, 1, q[t3], lt[t3].trgdigi->getKeyWG(),
+					     lt[t4].trgdigi->getStrip(), lt[t4].trgdigi->getPattern(), lt[t4].trgdigi->getBend(),
+					     bx, 0, 0, 0, lt[0].trgdigi->getCSCID());
+		lctd3->setGEMDPhi( lt[t4].trgdigi->getGEMDPhi() );
+		ghostLCTs.push_back(lctd3);
+		MatchCSCMuL1::LCT mlct3(match);
+		mlct3.trgdigi = lctd3;
+		mlct3.alct = lt[t3].alct;
+		mlct3.clct = lt[t4].clct;
+		mlct3.id = lt[0].id;
+		mlct3.ghost = 1;
+		mlct3.deltaOk = (mlct3.alct->deltaOk & mlct3.clct->deltaOk);
+		ghosts.push_back(mlct3);
+
+		CSCCorrelatedLCTDigi* lctd4 =
+		  new  CSCCorrelatedLCTDigi (4, 1, q[t4], lt[t4].trgdigi->getKeyWG(),
+					     lt[t3].trgdigi->getStrip(), lt[t3].trgdigi->getPattern(), lt[t3].trgdigi->getBend(),
+					     bx, 0, 0, 0, lt[0].trgdigi->getCSCID());
+		lctd4->setGEMDPhi( lt[t3].trgdigi->getGEMDPhi() );
+		ghostLCTs.push_back(lctd4);
+		MatchCSCMuL1::LCT mlct4(match);
+		mlct4.trgdigi = lctd4;
+		mlct4.alct = lt[t4].alct;
+		mlct4.clct = lt[t3].clct;
+		mlct4.id = lt[0].id;
+		mlct4.ghost = 1;
+		mlct4.deltaOk = (mlct4.alct->deltaOk & mlct4.clct->deltaOk);
+		ghosts.push_back(mlct4);
+
+		if (debugLCT) std::cout<<" ghost 3: "<<*lctd3<<" ghost 4: "<<*lctd4;
+	      }
+	  }
+	}
+      if (ghosts.size()) match->LCTs.insert( match->LCTs.end(), ghosts.begin(), ghosts.end());
+    }
+  if (debugLCT) std::cout<<"--- valid LCTs "<<nValidLCTs<<"  Truly correlated LCTs : "<< nCorrelLCTs <<"  ALCT LCTs : "<< nALCTs <<"  CLCT LCTs : "<< nCLCTs <<"  ghosts:"<<ghosts.size()<<std::endl;;
+  if (debugLCT) std::cout<<"--- LCT ---- end"<<std::endl;
+}
+
+
+// ================================================================================================
+// 4-bit LCT quality number. Copied from 
+// http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.cc?view=markup
+unsigned int 
+SimpleMuon::findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT)
+{
+  unsigned int quality = 0;
+
+  // 2008 definition.
+  if (!(aLCT.isValid()) || !(cLCT.isValid())) {
+    if (aLCT.isValid() && !(cLCT.isValid()))  quality = 1; // no CLCT
+    else if (!(aLCT.isValid()) && cLCT.isValid()) quality = 2; // no ALCT
+    else quality = 0; // both absent; should never happen.
+  }
+  else {
+    int pattern = cLCT.getPattern();
+    if (pattern == 1) quality = 3; // layer-trigger in CLCT
+    else {
+      // CLCT quality is the number of layers hit minus 3.
+      // CLCT quality is the number of layers hit.
+      bool a4 = (aLCT.getQuality() >= 1);
+      bool c4 = (cLCT.getQuality() >= 4);
+      //      quality = 4; "reserved for low-quality muons in future"
+      if      (!a4 && !c4) quality = 5; // marginal anode and cathode
+      else if ( a4 && !c4) quality = 6; // HQ anode, but marginal cathode
+      else if (!a4 &&  c4) quality = 7; // HQ cathode, but marginal anode
+      else if ( a4 &&  c4) {
+        if (aLCT.getAccelerator()) quality = 8; // HQ muon, but accel ALCT
+        else {
+          // quality =  9; "reserved for HQ muons with future patterns
+          // quality = 10; "reserved for HQ muons with future patterns
+          if (pattern == 2 || pattern == 3) quality = 11;
+          else if (pattern == 4 || pattern == 5) quality = 12;
+          else if (pattern == 6 || pattern == 7) quality = 13;
+          else if (pattern == 8 || pattern == 9) quality = 14;
+          else if (pattern == 10) quality = 15;
+          else std::cout<< "+++ findQuality: Unexpected CLCT pattern id = "
+		   << pattern << "+++"<<std::endl;
+        }
+      }
+    }
+  }
+  return quality;
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SimpleMuon);

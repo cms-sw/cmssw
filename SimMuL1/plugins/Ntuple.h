@@ -191,7 +191,9 @@ TTree* MyNtuple::book(TTree *t, const std::string & name)
   t->Branch("st_n_clcts",&st_n_clcts);
   t->Branch("st_n_clcts_readout",&st_n_clcts_readout);
   t->Branch("st_n_tmblcts",&st_n_tmblcts);
+  t->Branch("st_n_tmblcts_readout",&st_n_tmblcts_readout);
   t->Branch("st_n_mpclcts",&st_n_mpclcts);
+  t->Branch("st_n_mpclcts_readout",&st_n_mpclcts_readout);
   t->Branch("st_n_tfTracks",&st_n_tfTracks);
   t->Branch("st_n_tfTracksAll",&st_n_tfTracksAll);
   t->Branch("st_n_tfCands",&st_n_tfCands);
