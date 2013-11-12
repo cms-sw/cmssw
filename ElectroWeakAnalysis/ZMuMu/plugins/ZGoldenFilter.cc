@@ -57,9 +57,9 @@ public:
 };
 
 ZGoldenFilter::ZGoldenFilter(const edm::ParameterSet& cfg, edm::ConsumesCollector & iC ) :
-  trigToken_(consumes<edm::TriggerResults>(cfg.getParameter<edm::InputTag> ("TrigTag"))),
+  trigToken_(iC.consumes<edm::TriggerResults>(cfg.getParameter<edm::InputTag> ("TrigTag"))),
   trigEv_(cfg.getParameter<edm::InputTag> ("triggerEvent")),
-  trigEv_(consumes<trigger::TriggerEven>(trigEv_)),
+  trigEvToken_(iC.consumes<trigger::TriggerEvent>(trigEv_)),
   cond_(cfg.getParameter<std::string >("condition")),
   hltPath_(cfg.getParameter<std::string >("hltPath")),
   L3FilterName_(cfg.getParameter<std::string >("L3FilterName")),

@@ -43,7 +43,7 @@ namespace reco {
   namespace modules {
     template<>
     struct ParameterAdapter<IMASelector> {
-      static IMASelector make(const edm::ParameterSet & cfgedm::ConsumedsColelctor & iC) {
+      static IMASelector make(const edm::ParameterSet & cfg, edm::ConsumesCollector & iC) {
         return IMASelector(cfg.getParameter<double>("ESCOPinMin"),
                            cfg.getParameter<double>("ESeedOPoutMin"),
                            cfg.getParameter<double>("PinMPoutOPinMin"),
