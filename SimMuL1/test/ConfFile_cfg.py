@@ -27,12 +27,15 @@ process.simCsctfTrackDigis.DTproducer = cms.untracked.InputTag("simDtTriggerPrim
 process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis","MPCSORTED")
 process.simCsctfTrackDigis.SectorProcessor.isCoreVerbose = cms.bool(True)
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 #inputFile = ['file:/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_2_0_SLHC1/src/out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_preTrig2.root']
 #inputFile = ['file:/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_2_0_SLHC1/src/out_sim_singleMuPt100Fwdv2.root']
 #inputFile = ['file:/afs/cern.ch/user/d/dildick/out_digi_1_1_QXc.root']
 inputFile = ['file:/afs/cern.ch/user/d/dildick/out_digi_30_1_mZD.root']
+
+#inputFile = ['file:/afs/cern.ch/user/d/dildick/work/GEM/digiFiles/GEM_NeutrinoGun_pu100_DIGI_L1/out_21_1_NlZ.root']
+#inputFile = ['file:../../../../digiFiles/MuonGun_neweta_PU100_Pt20_50k_digi/Muon_DIGI_1632_1_baH.root']
 
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
