@@ -6,7 +6,7 @@ typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 using namespace ctfseeding;
 
 
-BeamHaloPairGenerator::BeamHaloPairGenerator(const edm::ParameterSet& conf): conf_(conf){
+BeamHaloPairGenerator::BeamHaloPairGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC): conf_(conf){
 	edm::LogInfo("CtfSpecialSeedGenerator|BeamHaloPairGenerator") << "Constructing BeamHaloPairGenerator";
 	theMaxTheta=conf.getParameter<double>("maxTheta");
 	theMaxTheta=fabs(sin(theMaxTheta));

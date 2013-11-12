@@ -12,6 +12,9 @@
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <string>
+#include <memory>
+
 class TrackingRegion;
 class HitTripletGeneratorFromPairAndLayers;
 
@@ -24,7 +27,7 @@ public:
 
 public:
 
-  CombinedHitTripletGenerator( const edm::ParameterSet& cfg);
+  CombinedHitTripletGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   virtual ~CombinedHitTripletGenerator();
 

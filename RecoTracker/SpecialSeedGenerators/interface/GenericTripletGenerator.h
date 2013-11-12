@@ -15,7 +15,7 @@
 
 class GenericTripletGenerator : public OrderedHitsGenerator {
 	public:
-	GenericTripletGenerator(const edm::ParameterSet& conf);
+	GenericTripletGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
 	virtual ~GenericTripletGenerator(){};
 	virtual const OrderedSeedingHits& run(const TrackingRegion& region, 
 					      const edm::Event & ev, 

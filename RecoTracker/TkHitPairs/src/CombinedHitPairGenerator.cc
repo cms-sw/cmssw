@@ -3,6 +3,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+CombinedHitPairGenerator::CombinedHitPairGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC):
+  CombinedHitPairGenerator(cfg)
+{}
 CombinedHitPairGenerator::CombinedHitPairGenerator(const edm::ParameterSet& cfg)
   : theSeedingLayerSrc(cfg.getParameter<edm::InputTag>("SeedingLayers"))
 {

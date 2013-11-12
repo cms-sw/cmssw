@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-CombinedMultiHitGenerator::CombinedMultiHitGenerator(const edm::ParameterSet& cfg):
+CombinedMultiHitGenerator::CombinedMultiHitGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC):
   theSeedingLayerSrc(cfg.getParameter<edm::InputTag>("SeedingLayers"))
 {
   edm::ParameterSet generatorPSet = cfg.getParameter<edm::ParameterSet>("GeneratorPSet");

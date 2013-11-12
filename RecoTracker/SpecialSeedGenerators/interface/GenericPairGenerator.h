@@ -13,7 +13,7 @@
 
 class GenericPairGenerator : public OrderedHitsGenerator {
 	public:
-	GenericPairGenerator(const edm::ParameterSet& conf);
+	GenericPairGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
 	virtual ~GenericPairGenerator(){};
 	virtual const OrderedSeedingHits& run(const TrackingRegion& region, 
 					      const edm::Event & ev, 

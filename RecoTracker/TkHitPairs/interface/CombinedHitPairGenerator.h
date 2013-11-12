@@ -23,7 +23,8 @@ public:
   typedef LayerHitMapCache LayerCacheType;
 
 public:
-  CombinedHitPairGenerator(const edm::ParameterSet & cfg);
+  CombinedHitPairGenerator(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
+  explicit CombinedHitPairGenerator(const edm::ParameterSet & cfg);
   virtual ~CombinedHitPairGenerator();
 
   void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet layers) override;
