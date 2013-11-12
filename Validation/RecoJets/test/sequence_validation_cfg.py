@@ -61,9 +61,9 @@ process.source = cms.Source("PoolSource",
                             
                             )
 
-process.fileSaver = cms.EDAnalyzer("JetFileSaver",
-                        OutputFile = cms.untracked.string('histo.root')
-)
+#process.fileSaver = cms.EDAnalyzer("JetFileSaver",
+#                        OutputFile = cms.untracked.string('histo.root')
+#)
 
 ## Test for corrected jets - available only for 
 #process.prefer("L2L3CorJetIC5Calo")
@@ -119,8 +119,8 @@ process.fileSaver = cms.EDAnalyzer("JetFileSaver",
 #    reverseEnergyFractionThreshold = cms.double(0.5)
 #)
 
-process.p1 = cms.Path(process.fileSaver
-	              *process.kt6PFJets 
+process.p1 = cms.Path(#process.fileSaver*
+	              process.kt6PFJets 
                       #* process.ak5PFJets 
                       #--- Non-Standard sequence (that involve Producers)
                       #*process.ak5CaloJetsL2L3

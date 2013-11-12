@@ -13,7 +13,7 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   mInputCollection               (iConfig.getParameter<edm::InputTag>       ("src")),
   mInputGenCollection            (iConfig.getParameter<edm::InputTag>       ("srcGen")),
   rhoTag                         (iConfig.getParameter<edm::InputTag>       ("srcRho")), 
-  mOutputFile                    (iConfig.getUntrackedParameter<std::string>("outputFile","")),
+  mOutputFile                    (iConfig.getUntrackedParameter<std::string>("OutputFile","")),
   mRecoJetPtThreshold            (iConfig.getParameter<double>              ("recoJetPtThreshold")),
   mMatchGenPtThreshold           (iConfig.getParameter<double>              ("matchGenPtThreshold")),
   mGenEnergyFractionThreshold    (iConfig.getParameter<double>              ("genEnergyFractionThreshold")),
@@ -386,8 +386,8 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
       chargedMultiplicity = dbe->book1D("chargedMultiplicity", "chargedMultiplicity", 100,0,100);
       chargedEmEnergy = dbe->book1D("chargedEmEnergy", "chargedEmEnergy", 50,0,50);
       neutralEmEnergy = dbe->book1D("neutralEmEnergy", "neutralEmEnergy", 50,0,50);
-      chargedHadronEnergy = dbe->book1D("chargedHadronEnergy", "chargedHadronEnergy", 50,0,1);
-      neutralHadronEnergy = dbe->book1D("neutralHadronEnergy", "neutralHadronEnergy", 50,0,1);
+      chargedHadronEnergy = dbe->book1D("chargedHadronEnergy", "chargedHadronEnergy", 50,0,600);
+      neutralHadronEnergy = dbe->book1D("neutralHadronEnergy", "neutralHadronEnergy", 50,0,200);
       chargedHadronEnergyFraction = dbe->book1D("chargedHadronEnergyFraction", "chargedHadronEnergyFraction", 50,0,1);
       neutralHadronEnergyFraction = dbe->book1D("neutralHadronEnergyFraction", "neutralHadronEnergyFraction", 50,0,1);
       chargedEmEnergyFraction = dbe->book1D("chargedEmEnergyFraction", "chargedEmEnergyFraction", 50,0,1);
