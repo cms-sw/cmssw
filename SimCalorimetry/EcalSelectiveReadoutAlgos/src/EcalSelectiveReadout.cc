@@ -10,6 +10,7 @@
 #include <string>
 #include <iomanip>
 #include <cassert>
+#include <atomic>
 //#include <iostream> //for debugging
 
 using std::vector;

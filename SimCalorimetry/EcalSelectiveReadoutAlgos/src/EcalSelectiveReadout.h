@@ -7,7 +7,6 @@
 
 #include <vector>
 #include <iosfwd>
-#include <atomic>
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
@@ -359,6 +358,7 @@ private:
 
   // for printout
   const static char srpFlagMarker[];
+
 };
 
 std::ostream & operator<<(std::ostream & os, const EcalSelectiveReadout & selectiveReadout);
