@@ -291,6 +291,18 @@ SimpleMuon::~SimpleMuon()
 void
 SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  etrk_.st_pt.clear();
+  etrk_.st_eta.clear();
+  etrk_.st_phi.clear();
+  etrk_.st_n_csc_simhits.clear();
+  etrk_.st_n_alcts.clear();
+  etrk_.st_n_alcts_readout.clear();
+  etrk_.st_n_clcts.clear();
+  etrk_.st_n_tmblcts.clear();
+  etrk_.st_n_tmblcts_readout.clear();
+  etrk_.st_n_mpclcts.clear();
+  etrk_.st_n_mpclcts_readout.clear();
+  
   etrk_.csc_alct_valid.clear();
   etrk_.csc_alct_quality.clear();
   etrk_.csc_alct_keywire.clear();
@@ -301,9 +313,31 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   etrk_.csc_alct_detId.clear();
   etrk_.csc_alct_deltaOk.clear();
 
+  etrk_.csc_clct_valid.clear();
+  etrk_.csc_clct_pattern.clear();
+  etrk_.csc_clct_quality.clear();
+  etrk_.csc_clct_bend.clear();
+  etrk_.csc_clct_strip.clear();
+  etrk_.csc_clct_bx.clear();
+  etrk_.csc_clct_trknmb.clear();
+  etrk_.csc_clct_fullbx.clear();
+  etrk_.csc_clct_isGood.clear();
+  etrk_.csc_clct_detId.clear();
+  etrk_.csc_clct_deltaOk.clear();
 
-
-
+  etrk_.csc_tmblct_valid.clear();
+  etrk_.csc_tmblct_pattern.clear();
+  etrk_.csc_tmblct_quality.clear(); 
+  etrk_.csc_tmblct_bend.clear();       
+  etrk_.csc_tmblct_strip.clear();      
+  etrk_.csc_tmblct_bx.clear();
+  etrk_.csc_tmblct_trknmb.clear();
+  etrk_.csc_tmblct_isAlctGood.clear();
+  etrk_.csc_tmblct_isClctGood.clear();
+  etrk_.csc_tmblct_detId.clear();
+  etrk_.csc_tmblct_gemDPhi.clear();
+  etrk_.csc_tmblct_hasGEM.clear();
+  etrk_.csc_tmblct_mpclink.clear();
 
 
   // ================================================================================================ 
@@ -604,16 +638,17 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     const double track_eta(track->momentum().eta());
     const double track_phi(normalizedPhi(track->momentum().phi()));
 
-    etrk_.st_pt.push_back(track_pt);
-    etrk_.st_eta.push_back(track_eta);
-    etrk_.st_phi.push_back(track_phi);
 
     // Extra muon selection
-    const bool pt_ok(fabs(track_pt) > 20.);
+    const bool pt_ok(fabs(track_pt) > 2.);
     const bool eta_ok(1.2 <= fabs(track_eta) && fabs(track_eta) <= 2.5);
     const bool pt_eta_ok(pt_ok && eta_ok);
 
     if (!pt_eta_ok) continue;
+
+    etrk_.st_pt.push_back(track_pt);
+    etrk_.st_eta.push_back(track_eta);
+    etrk_.st_phi.push_back(track_phi);
 
     // create a new matching object for this simtrack 
     MatchCSCMuL1 * match = new MatchCSCMuL1(&*track, &(simVertices[track->vertIndex()]), cscGeometry);
@@ -671,16 +706,36 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // 		 <<" L1EXTRABest:"<<(match->L1EXTRABest.l1extra != NULL)<<std::endl;
 
 
-    // get GEM information
-//     etrk_.st_n_gem_simhits.push_back();
+    //------------------------------------------------------------------------------------------------
+    //                               GEM SimHits
+    //------------------------------------------------------------------------------------------------
 
-
+//     SimTrackMatchManager gemcsc_match(*(match->strk), simVertices[match->strk->vertIndex()], gemMatchCfg_, iEvent, iSetup);
+//     const GEMDigiMatcher& match_gem = gemcsc_match.gemDigis();
+    
+//     int match_has_gem = 0;
+//     std::vector<int> match_gem_chambers;
+//     auto gem_superch_ids = match_gem.superChamberIds();
+//     for(auto d: gem_superch_ids) {
+//       GEMDetId id(d);
+//       bool odd = id.chamber() & 1;
+//       auto digis = match_gem.digisInSuperChamber(d);
+//       if (digis.size() > 0) {
+// 	match_gem_chambers.push_back(id.chamber());
+// 	if (odd) match_has_gem |= 1;
+// 	  else     match_has_gem |= 2;
+//       }
+//     }
+      
+//     if (eta_gem_1b && match_has_gem) h_pt_gem_1b->Fill(stpt);
+//     if (eta_gem_1b && match_has_gem && has_mplct_me1b) h_pt_lctgem_1b->Fill(stpt);
+    
     
     //------------------------------------------------------------------------------------------------
     //                               ALCTs in the readout 
     //------------------------------------------------------------------------------------------------
     std::vector<MatchCSCMuL1::ALCT> readoutALCTCollection(match->ALCTsInReadOut());
-//     std::vector<MatchCSCMuL1::ALCT> goodME1ALCTCollection;
+    etrk_.st_n_alcts_readout.push_back(readoutALCTCollection.size());
     if (readoutALCTCollection.size()==0) {
       std::cout << "WARNING: ALCT Readout collection is empty" << std::endl;
       continue;
@@ -710,23 +765,10 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     trk_csc_alct_detId.clear();
     trk_csc_alct_deltaOk.clear();
 
-    std::cout << "number of alcts: " << readoutALCTCollection.size() << std::endl;
     for (unsigned i=0; i<readoutALCTCollection.size();i++) {
-      std::cout << "\t i = " << i << std::endl;
-      // check if the ALCT is in the readout 
       auto myALCT(readoutALCTCollection.at(i));
       if (myALCT.inReadOut()==0) continue;
       
-      //       const int bx(myALCT.getBX()-6);
-      //       const int fullBX(myALCT.trgdigi->getFullBX()-6);
-      //       const int detId(myALCT.id);
-      //       const bool deltaOk(myALCT.deltaOk);
-      //       const int quality(myALCT.trgdigi->getQuality());
-      //       const bool isGood(minDeltaWire_ <= myALCT.deltaWire && myALCT.deltaWire <= maxDeltaWire_);
-      //       const int trkNmb(myALCT.trgdigi->getTrknmb());
-      //       const int keyWG(myALCT.trgdigi->getKeyWG());
-      //       const bool isValid(isValid);
-
       trk_csc_alct_valid.push_back(myALCT.trgdigi->isValid());
       trk_csc_alct_quality.push_back(myALCT.trgdigi->getQuality());
       trk_csc_alct_keywire.push_back(myALCT.trgdigi->getKeyWG());
@@ -746,174 +788,154 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     etrk_.csc_alct_isGood.push_back(trk_csc_alct_isGood);
     etrk_.csc_alct_detId.push_back(trk_csc_alct_detId);
     etrk_.csc_alct_deltaOk.push_back(trk_csc_alct_deltaOk);
-  }
-  tree_eff_->Fill();
-  
 
-  /*
-  // list the chambers with multiple hits
-  std::vector<int> ch_vecs[5];
-  std::set<int> ch_sets[5];
-  unsigned im=0;
-  for (; im<matches.size() && im<5; im++) {
-    ch_vecs[im] = matches[im]->chambersWithHits();
-    ch_sets[im].insert(ch_vecs[im].begin(), ch_vecs[im].end());
-  }
-  std::set<int> ch_overlap;
-  if (im>1)  
-    set_intersection(ch_sets[0].begin(), ch_sets[0].end(), 
-		     ch_sets[1].begin(), ch_sets[1].end(),
-		     std::inserter(ch_overlap, ch_overlap.begin()));
-  if (debug) std::cout << "Number of simtracks with hits in multiple chambers: " << ch_overlap.size() << std::endl;
-  */
+    //------------------------------------------------------------------------------------------------
+    //                               CLCTs in the readout 
+    //------------------------------------------------------------------------------------------------
 
-  //  std::cout << "number of match objects " << matches.size() << std::endl;
-
-  /*  
-  for (unsigned int im=0; im<matches.size(); im++) 
-  {
-    MatchCSCMuL1 * match = matches[im];
-    
-    // ALCTs in the readout 
-    std::vector<MatchCSCMuL1::ALCT> readoutALCTCollection(match->ALCTsInReadOut());
-    std::vector<MatchCSCMuL1::ALCT> goodME1ALCTCollection;
-    if (readoutALCTCollection.size()==0) {
-      std::cout << "WARNING: ALCT Readout collection is empty" << std::endl;
+    std::vector<MatchCSCMuL1::CLCT> readoutCLCTCollection(match->CLCTsInReadOut());
+    etrk_.st_n_clcts_readout.push_back(readoutCLCTCollection.size());
+    if (readoutCLCTCollection.size()==0) {
+      std::cout << "WARNING: CLCT Readout collection is empty" << std::endl;
       continue;
     }
     
-//     const MatchCSCMuL1::ALCT* bestALCT(match->bestALCT(detId));
-//     if (bestALCT==nullptr) { 
-//       std::cout << "WARNING: No best ALCT" << std::endl;
+//     const MatchCSCMuL1::CLCT* bestCLCT(match->bestCLCT(detId));
+//     if (bestCLCT==nullptr) { 
+//       std::cout << "WARNING: No best CLCT" << std::endl;
 //     }
-    
-    for (unsigned i=0; i<readoutALCTCollection.size();i++) {
-      // check if the ALCT is in the readout 
-      if (readoutALCTCollection.at(i).inReadOut()==0) continue;
+    vint trk_csc_clct_valid;
+    vint trk_csc_clct_pattern;
+    vint trk_csc_clct_quality; 
+    vint trk_csc_clct_bend;       
+    vint trk_csc_clct_strip;      
+    vint trk_csc_clct_bx;
+    vint trk_csc_clct_trknmb;
+    vint trk_csc_clct_fullbx;
+    vint trk_csc_clct_isGood;
+    vint trk_csc_clct_detId;
+    vint trk_csc_clct_deltaOk;
+
+    trk_csc_clct_valid.clear();
+    trk_csc_clct_pattern.clear();
+    trk_csc_clct_quality.clear(); 
+    trk_csc_clct_bend.clear();       
+    trk_csc_clct_strip.clear();      
+    trk_csc_clct_bx.clear();
+    trk_csc_clct_trknmb.clear();
+    trk_csc_clct_fullbx.clear();
+    trk_csc_clct_isGood.clear();
+    trk_csc_clct_detId.clear();
+    trk_csc_clct_deltaOk.clear();
+     
+    std::cout << "number of clcts: " << readoutCLCTCollection.size() << std::endl;
+    for (unsigned i=0; i<readoutCLCTCollection.size();i++) {
+      auto myCLCT(readoutCLCTCollection.at(i));
+      if (myCLCT.inReadOut()==0) continue;
       
-      auto myALCT(readoutALCTCollection.at(i));
-      
-      // ALCT info
-      const int bx(myALCT.getBX()-6);
-      const int fullBX(myALCT.trgdigi->getFullBX()-6);
-      const int cscType(getCSCType(myALCT.id));
-      //       const bool deltaOk(myALCT.deltaOk);
-      //       const int quality(myALCT.trgdigi->getQuality());
-      
-      std::cout << "bx = " << bx << ", fullBX = " << fullBX 
-		<< ", cscType = " << cscType << std::endl;
-      
-      if (bx < -1) {
-	std::cout << "ALCT is out-of-time" << std::endl;
-	// add a section to dump the wiredigis for this ALCT
-      }
-      
-      // dump all ALCT information to tree
+      trk_csc_clct_valid.push_back(myCLCT.trgdigi->isValid());
+      trk_csc_clct_pattern.push_back(myCLCT.trgdigi->getPattern());
+      trk_csc_clct_quality.push_back(myCLCT.trgdigi->getQuality());
+      trk_csc_clct_bend.push_back(myCLCT.trgdigi->getBend());
+      trk_csc_clct_strip.push_back(myCLCT.trgdigi->getStrip());
+      trk_csc_clct_bx.push_back(myCLCT.getBX()-6);
+      trk_csc_clct_trknmb.push_back(myCLCT.trgdigi->getTrknmb());
+      trk_csc_clct_fullbx.push_back(myCLCT.trgdigi->getFullBX()-6);
+      trk_csc_clct_isGood.push_back((abs(myCLCT.deltaStrip) <= minDeltaStrip_));
+      trk_csc_clct_detId.push_back(myCLCT.id);
+      trk_csc_clct_deltaOk.push_back(myCLCT.deltaOk);
     }
-    tree_eff_->Fill();
+    etrk_.csc_clct_valid.push_back(trk_csc_clct_valid);
+    etrk_.csc_clct_pattern.push_back(trk_csc_clct_pattern);
+    etrk_.csc_clct_quality.push_back(trk_csc_clct_quality);
+    etrk_.csc_clct_bend.push_back(trk_csc_clct_bend);
+    etrk_.csc_clct_strip.push_back(trk_csc_clct_strip);
+    etrk_.csc_clct_bx.push_back(trk_csc_clct_bx);
+    etrk_.csc_clct_trknmb.push_back(trk_csc_clct_trknmb);
+    etrk_.csc_clct_fullbx.push_back(trk_csc_clct_fullbx);
+    etrk_.csc_clct_isGood.push_back(trk_csc_clct_isGood);
+    etrk_.csc_clct_detId.push_back(trk_csc_clct_detId);
+    etrk_.csc_clct_deltaOk.push_back(trk_csc_clct_deltaOk);
+
+    //------------------------------------------------------------------------------------------------
+    //                               LCTs in the readout 
+    //------------------------------------------------------------------------------------------------
+
+    std::vector<MatchCSCMuL1::LCT> readoutLCTCollection(match->LCTsInReadOut());
+    etrk_.st_n_tmblcts_readout.push_back(readoutLCTCollection.size());
+    if (readoutLCTCollection.size()==0) {
+      std::cout << "WARNING: LCT Readout collection is empty" << std::endl;
+      continue;
+    }
+    
+    //     const MatchCSCMuL1::LCT* bestLCT(match->bestLCT(detId));
+    //     if (bestLCT==nullptr) { 
+    //       std::cout << "WARNING: No best LCT" << std::endl;
+    //     }
+    vint trk_csc_tmblct_valid;
+    vint trk_csc_tmblct_pattern;
+    vint trk_csc_tmblct_quality; 
+    vint trk_csc_tmblct_bend;       
+    vint trk_csc_tmblct_strip;      
+    vint trk_csc_tmblct_bx;
+    vint trk_csc_tmblct_trknmb;
+    vint trk_csc_tmblct_isAlctGood;
+    vint trk_csc_tmblct_isClctGood;
+    vint trk_csc_tmblct_detId;
+    vfloat trk_csc_tmblct_gemDPhi;
+    vint trk_csc_tmblct_hasGEM;
+    vint trk_csc_tmblct_mpclink;
+    
+    trk_csc_tmblct_valid.clear();
+    trk_csc_tmblct_pattern.clear();
+    trk_csc_tmblct_quality.clear(); 
+    trk_csc_tmblct_bend.clear();       
+    trk_csc_tmblct_strip.clear();      
+    trk_csc_tmblct_bx.clear();
+    trk_csc_tmblct_trknmb.clear();
+    trk_csc_tmblct_isAlctGood.clear();
+    trk_csc_tmblct_isClctGood.clear();
+    trk_csc_tmblct_detId.clear();
+    trk_csc_tmblct_gemDPhi.clear();
+    trk_csc_tmblct_hasGEM.clear();
+    trk_csc_tmblct_mpclink.clear();
+    
+    std::cout << "number of lcts: " << readoutLCTCollection.size() << std::endl;
+    for (unsigned i=0; i<readoutLCTCollection.size();i++) {
+      auto myLCT(readoutLCTCollection.at(i));
+      if (myLCT.inReadOut()==0) continue;
+      
+      trk_csc_tmblct_valid.push_back(myLCT.trgdigi->isValid());
+      trk_csc_tmblct_pattern.push_back(myLCT.trgdigi->getPattern());
+      trk_csc_tmblct_quality.push_back(myLCT.trgdigi->getQuality());
+      trk_csc_tmblct_bend.push_back(myLCT.trgdigi->getBend());
+      trk_csc_tmblct_strip.push_back(myLCT.trgdigi->getStrip());
+      trk_csc_tmblct_bx.push_back(myLCT.getBX()-6);
+      trk_csc_tmblct_trknmb.push_back(myLCT.trgdigi->getTrknmb());
+      trk_csc_tmblct_detId.push_back(myLCT.id);
+      trk_csc_tmblct_isAlctGood.push_back(myLCT.alct->deltaOk);
+      trk_csc_tmblct_isClctGood.push_back(myLCT.clct->deltaOk);
+      trk_csc_tmblct_gemDPhi.push_back(myLCT.trgdigi->getGEMDPhi());
+      trk_csc_tmblct_hasGEM.push_back(myLCT.trgdigi->hasGEM());
+      trk_csc_tmblct_mpclink.push_back(myLCT.trgdigi->getMPCLink());
+    }
+    etrk_.csc_tmblct_valid.push_back(trk_csc_tmblct_valid);
+    etrk_.csc_tmblct_pattern.push_back(trk_csc_tmblct_pattern);
+    etrk_.csc_tmblct_quality.push_back(trk_csc_tmblct_quality); 
+    etrk_.csc_tmblct_bend.push_back(trk_csc_tmblct_bend);       
+    etrk_.csc_tmblct_strip.push_back(trk_csc_tmblct_strip);      
+    etrk_.csc_tmblct_bx.push_back(trk_csc_tmblct_bx);
+    etrk_.csc_tmblct_trknmb.push_back(trk_csc_tmblct_trknmb);
+    etrk_.csc_tmblct_isAlctGood.push_back(trk_csc_tmblct_isAlctGood);
+    etrk_.csc_tmblct_isClctGood.push_back(trk_csc_tmblct_isClctGood);
+    etrk_.csc_tmblct_detId.push_back(trk_csc_tmblct_detId);
+    etrk_.csc_tmblct_gemDPhi.push_back(trk_csc_tmblct_gemDPhi);
+    etrk_.csc_tmblct_hasGEM.push_back(trk_csc_tmblct_hasGEM);
+    etrk_.csc_tmblct_mpclink.push_back(trk_csc_tmblct_mpclink);
   }
-  */
+
+  tree_eff_->Fill();
   
-  /*
-    // chambers with ALCTs
-    const std::vector<int> chamberWithALCTs(match->chambersWithALCTs());
-    std::cout << "number of chambers with alcts for this muon " << chamberWithALCTs.size() <<std::endl;
-    for (unsigned ch = 0; ch < chamberWithALCTs.size(); ch++) 
-    {
-      std::cout << "chamberWithALCTs.at(ch) " << chamberWithALCTs.at(ch) << std::endl; 
-      const CSCDetId detId(chamberWithALCTs.at(ch));
-      std::cout << "detid " << detId << std::endl; 
-
-      // get the ALCTs for this chamber
-      const std::vector<MatchCSCMuL1::ALCT> chalcts(match->chamberALCTs(detId));
-      std::cout << "chalcts.size() = " << chalcts.size() << std::endl;
-
-      if (chalcts.size()==0)
-      {
-	std::cout << "INFO: No ALCTs in this chamber for this muon simtrack " << std::endl;
-      }
-
-      if (chalcts.size()!=1)
-      {
-	std::cout << "WARNING: Multiple ALCTs in this chamber for this muon simtrack " << std::endl;
-      }
-      
-      const int cscType(getCSCType(detId));
-      std::cout << "cscType = " << cscType << std::endl;
-      
-      const MatchCSCMuL1::ALCT* bestALCT(match->bestALCT(detId));
-      if (bestALCT==nullptr)
-      {
-	std::cout << "WARNING: No best ALCT" << std::endl;
-      }
-      
-      // if (bestALCT==0) std::cout<<"STRANGE: no best ALCT in chamber with ALCTs"<<std::endl;
-      // if (bestALCT and bestALCT->deltaOk) {
-      // h_bx__alctOkBest_cscdet[ csct ]->Fill( bestALCT->getBX() - 6 );   // useful histogram  
-      // h_wg_vs_bx__alctOkBest_cscdet[ csct ]->
-      //Fill( match->wireGroupAndStripInChamber(chIDs[ch]).first, bestALCT->getBX() - 6);
-      // }
-      // }
-
-      
-    }
-  }
-
-//           int csct = ;
-// 	    h_bx__alct_cscdet[ csct ]->Fill( bx );
-// 	    h_bxf__alct_cscdet[ csct ]->Fill( bxf );
-// 	    h_dbxbxf__alct_cscdet[ csct ]->Fill( bx-bxf );
-// 	    if (rALCTs[i].deltaOk) {
-// 	      h_bx__alctOk_cscdet[ csct ]->Fill( bx );
-// 	      h_bxf__alctOk_cscdet[ csct ]->Fill( bxf );
-// 	      if (debugINHISTOS && bx<-1) {    // method to dumpwire digis in case there is out of time alcts
-// 		std::cout<<" OOW good ALCT: "<<*(rALCTs[i].trgdigi)<<std::endl;
-// 		dumpWireDigis(rALCTs[i].id, wiredc);
-// 	      }
-// 	    }
-// 	    if ( fabs(bx) < fabs(minbx[csct]) ) minbx[csct] = bx;
-// 	    h_qu_alct->Fill(rALCTs[i].trgdigi->getQuality());
-// 	    h_qu_vs_bx__alct->Fill(rALCTs[i].trgdigi->getQuality(), bx);
-// 	  }
-// 	if (pt_ok) for (int i=0; i<CSC_TYPES;i++)
-// 	  if (minbx[i]<99) h_bx_min__alct_cscdet[ i ]->Fill( minbx[i] );
-	
-// 	std::vector<int> chIDs = match->chambersWithALCTs();
-// 	if (pt_ok) h_n_ch_w_alct->Fill(chIDs.size());
-// 	if (pt_ok) 
-// 	  for (size_t ch = 0; ch < chIDs.size(); ch++) 
-// 	  {
-// 	    std::vector<MatchCSCMuL1::ALCT> chalcts = match->chamberALCTs(chIDs[ch]);
-// 	    CSCDetId chId(chIDs[ch]);
-// 	    int csct = getCSCType( chId );
-
-// 	    MatchCSCMuL1::ALCT *bestALCT = match->bestALCT( chId );
-// 	    if (bestALCT==0) std::cout<<"STRANGE: no best ALCT in chamber with ALCTs"<<std::endl;
-// 	    if (bestALCT and bestALCT->deltaOk) {
-// 	      h_bx__alctOkBest_cscdet[ csct ]->Fill( bestALCT->getBX() - 6 );   // useful histogram  
-// 	      h_wg_vs_bx__alctOkBest_cscdet[ csct ]->Fill( match->wireGroupAndStripInChamber(chIDs[ch]).first, bestALCT->getBX() - 6);
-// 	    }
-// 	  }
-
-    
-
-
-
-//   double deltaR2Tr = -1;
-//   if (sim_n>1) {
-//     deltaR2Tr = deltaR(sim_eta[0],sim_phi[0],sim_eta[1],sim_phi[1]);
-//     if (deltaR2Tr>M_PI && 1) std::cout<<"PI<deltaR2Tr="<<deltaR2Tr<<std::endl;
-    
-//     // select only well separated or close simtracks
-//     // if (fabs(minSimTrackDR_)>0.01) {
-//     //   if (minSimTrackDR_>0. && deltaR2Tr < minSimTrackDR_ ) return true;
-//     //   if (minSimTrackDR_<0. && deltaR2Tr > fabs(minSimTrackDR_) ) return true;
-//     //}
-//   }
-*/
-
-      
-
 }
 
 

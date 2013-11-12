@@ -34,9 +34,13 @@ struct MyNtuple
   vint st_n_csc_simhits;
   vint st_n_gem_simhits;
   vint st_n_alcts;
+  vint st_n_alcts_readout;
   vint st_n_clcts;
+  vint st_n_clcts_readout;
   vint st_n_tmblcts;
+  vint st_n_tmblcts_readout;
   vint st_n_mpclcts;
+  vint st_n_mpclcts_readout;
   vint st_n_tfTracks;
   vint st_n_tfTracksAll;
   vint st_n_tfCands;
@@ -128,32 +132,34 @@ struct MyNtuple
   vvint csc_alct_deltaOk;
 
   // csc CLCT
-  vvint csc_clct_valid;      
-  vvint csc_clct_quality;    
-  vvint csc_clct_pattern;    
+  vvint csc_clct_valid;
+  vvint csc_clct_pattern;
+  vvint csc_clct_quality; 
   vvint csc_clct_bend;       
   vvint csc_clct_strip;      
-  vvint csc_clct_cfeb;      
-  vvint csc_clct_bx;        
-  vvint csc_clct_trknmb;    
+  vvint csc_clct_bx;
+  vvint csc_clct_trknmb;
   vvint csc_clct_fullbx;
   vvint csc_clct_isGood;
+  vvint csc_clct_detId;
+  vvint csc_clct_deltaOk;
 
-  // csc LCT
-  vvint csc_lct_trknmb;
-  vvint csc_lct_valid;
-  vvint csc_lct_quality;
-  vvint csc_lct_keywire;
-  vvint csc_lct_strip;
-  vvint csc_lct_pattern;
-  vvint csc_lct_bend;
-  vvint csc_lct_bx;
-  vvint csc_lct_mpclink;
-  vvint csc_lct_bx0; 
-  vvint csc_lct_syncErr;
-  vvint csc_lct_cscID;
-  vvfloat csc_lct_gemDPhi;
-  vvint csc_lct_isGood;     
+  // csc TMB LCT
+  vvint csc_tmblct_trknmb;
+  vvint csc_tmblct_valid;
+  vvint csc_tmblct_quality;
+  vvint csc_tmblct_keywire;
+  vvint csc_tmblct_strip;
+  vvint csc_tmblct_pattern;
+  vvint csc_tmblct_bend;
+  vvint csc_tmblct_bx;
+  vvfloat csc_tmblct_gemDPhi;
+  vvint csc_tmblct_hasGEM;
+  vvint csc_tmblct_isAlctGood;
+  vvint csc_tmblct_isClctGood;
+  vvint csc_tmblct_detId;
+  vvint csc_tmblct_mpclink;
+  
 
   // CSC TF
   Int_t has_TF_match;
@@ -181,7 +187,9 @@ TTree* MyNtuple::book(TTree *t, const std::string & name)
   t->Branch("st_n_csc_simhits",&st_n_csc_simhits);
   t->Branch("st_n_gem_simhits",&st_n_gem_simhits);
   t->Branch("st_n_alcts",&st_n_alcts);
+  t->Branch("st_n_alcts_readout",&st_n_alcts_readout);
   t->Branch("st_n_clcts",&st_n_clcts);
+  t->Branch("st_n_clcts_readout",&st_n_clcts_readout);
   t->Branch("st_n_tmblcts",&st_n_tmblcts);
   t->Branch("st_n_mpclcts",&st_n_mpclcts);
   t->Branch("st_n_tfTracks",&st_n_tfTracks);
@@ -271,26 +279,28 @@ TTree* MyNtuple::book(TTree *t, const std::string & name)
   t->Branch("csc_clct_pattern",&csc_clct_pattern);
   t->Branch("csc_clct_bend",&csc_clct_bend);
   t->Branch("csc_clct_strip",&csc_clct_strip);
-  t->Branch("csc_clct_cfeb",&csc_clct_cfeb);
   t->Branch("csc_clct_bx",&csc_clct_bx);
   t->Branch("csc_clct_trknmb",&csc_clct_trknmb);
   t->Branch("csc_clct_fullbx",&csc_clct_fullbx);
   t->Branch("csc_clct_isGood",&csc_clct_isGood);
+  t->Branch("csc_clct_detId",&csc_clct_detId);
+  t->Branch("csc_clct_deltaOk",&csc_clct_deltaOk);
 
-  t->Branch("csc_lct_trknmb",&csc_lct_trknmb);
-  t->Branch("csc_lct_valid",&csc_lct_valid);
-  t->Branch("csc_lct_quality",&csc_lct_quality);
-  t->Branch("csc_lct_keywire",&csc_lct_keywire);
-  t->Branch("csc_lct_strip",&csc_lct_strip);
-  t->Branch("csc_lct_pattern",&csc_lct_pattern);
-  t->Branch("csc_lct_bend",&csc_lct_bend);
-  t->Branch("csc_lct_bx",&csc_lct_bx);
-  t->Branch("csc_lct_mpclink",&csc_lct_mpclink);
-  t->Branch("csc_lct_bx0",&csc_lct_bx0);
-  t->Branch("csc_lct_syncErr",&csc_lct_syncErr);
-  t->Branch("csc_lct_cscID",&csc_lct_cscID);
-  t->Branch("csc_lct_gemDPhi",&csc_lct_gemDPhi);
-  t->Branch("csc_lct_isGood",&csc_lct_isGood);
+  t->Branch("csc_tmblct_trknmb",&csc_tmblct_trknmb);
+  t->Branch("csc_tmblct_valid",&csc_tmblct_valid);
+  t->Branch("csc_tmblct_quality",&csc_tmblct_quality);
+  t->Branch("csc_tmblct_keywire",&csc_tmblct_keywire);
+  t->Branch("csc_tmblct_strip",&csc_tmblct_strip);
+  t->Branch("csc_tmblct_pattern",&csc_tmblct_pattern);
+  t->Branch("csc_tmblct_bend",&csc_tmblct_bend);
+  t->Branch("csc_tmblct_bx",&csc_tmblct_bx);
+  t->Branch("csc_tmblct_mpclink",&csc_tmblct_mpclink);
+  t->Branch("csc_tmblct_gemDPhi",&csc_tmblct_gemDPhi);
+  t->Branch("csc_tmblct_isAlctGood",&csc_tmblct_isAlctGood);
+  t->Branch("csc_tmblct_isClctGood",&csc_tmblct_isClctGood);
+  t->Branch("csc_tmblct_detId",&csc_tmblct_detId);
+  t->Branch("csc_tmblct_gemDPhi",&csc_tmblct_gemDPhi);
+  t->Branch("csc_tmblct_hasGEM",&csc_tmblct_hasGEM);
 
   return t;
 }
@@ -302,6 +312,7 @@ void MyNtuple::initialize()
   st_n_csc_simhits.clear();
   st_n_gem_simhits.clear();
   st_n_alcts.clear();
+  st_n_alcts_readout.clear();
   st_n_clcts.clear();
   st_n_tmblcts.clear();
   st_n_mpclcts.clear();
@@ -371,48 +382,46 @@ void MyNtuple::initialize()
   csc_alct_detId.clear();
 
   csc_clct_valid.clear();
-  csc_clct_quality.clear();
   csc_clct_pattern.clear();
-  csc_clct_bend.clear();
-  csc_clct_strip.clear();
-  csc_clct_cfeb.clear();
+  csc_clct_quality.clear(); 
+  csc_clct_bend.clear();       
+  csc_clct_strip.clear();      
   csc_clct_bx.clear();
   csc_clct_trknmb.clear();
   csc_clct_fullbx.clear();
   csc_clct_isGood.clear();
+  csc_clct_detId.clear();
+  csc_clct_deltaOk.clear();
 
-  csc_lct_trknmb.clear();
-  csc_lct_valid.clear();
-  csc_lct_quality.clear();
-  csc_lct_keywire.clear();
-  csc_lct_strip.clear();
-  csc_lct_pattern.clear();
-  csc_lct_bend.clear();
-  csc_lct_bx.clear();
-  csc_lct_mpclink.clear();
-  csc_lct_bx0.clear();
-  csc_lct_syncErr.clear();
-  csc_lct_cscID.clear();
-  csc_lct_gemDPhi.clear();
-  csc_lct_isGood.clear();
+/*   csc_lct_valid.clear(); */
+/*   csc_lct_pattern.clear(); */
+/*   csc_lct_quality.clear();  */
+/*   csc_lct_bend.clear();        */
+/*   csc_lct_strip.clear();       */
+/*   csc_lct_bx.clear(); */
+/*   csc_lct_trknmb.clear(); */
+/*   csc_lct_isAlctGood.clear(); */
+/*   csc_lct_isClctGood.clear(); */
+/*   csc_lct_isAlctClctGood.clear(); */
+/*   csc_lct_detId.clear(); */
+/*   csc_lct_gemDPhi.clear(); */
+/*   csc_lct_hasGEM.clear(); */
+/*   csc_lct_mpclink.clear(); */
 
+  csc_tmblct_valid.clear();
+  csc_tmblct_pattern.clear();
+  csc_tmblct_quality.clear(); 
+  csc_tmblct_bend.clear();       
+  csc_tmblct_strip.clear();      
+  csc_tmblct_bx.clear();
+  csc_tmblct_trknmb.clear();
+  csc_tmblct_isAlctGood.clear();
+  csc_tmblct_isClctGood.clear();
+  csc_tmblct_detId.clear();
+  csc_tmblct_gemDPhi.clear();
+  csc_tmblct_hasGEM.clear();
+  csc_tmblct_mpclink.clear();
 
-/*   for (int i = 0; i< MAXMU; ++i){ */
-/*     mc_pt[i] = 0; */
-/*     mc_eta[i] = 0; */
-/*     mc_phi[i] = 0; */
-/*     mc_vertex_id[i] = 0; */
-/*     has_mc_match[i] = 0; */
-/*     st_pt[i] = 0; */
-/*     st_eta[i] = 0; */
-/*     st_phi[i] = 0; */
-/*     st_is_matched[i] = 0; */
-/*     st_min_dr[i] = 0; */
-/*     st_n_csc_simhits[i] = 0; */
-/*     st_n_gem_simhits[i] = 0; */
-/*     has_gem_sh_l1[i] = 0; */
-/*     has_gem_sh_l2[i] = 0; */
-/*   } */
 }
 
 #endif
