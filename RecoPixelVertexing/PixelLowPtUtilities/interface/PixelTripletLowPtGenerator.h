@@ -24,7 +24,7 @@ class   PixelTripletLowPtGenerator :
 
 
  public:
-   PixelTripletLowPtGenerator( const edm::ParameterSet& cfg) 
+   PixelTripletLowPtGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
      : theTracker(0), theFilter(0), ps(cfg), thePairGenerator(0), theLayerCache(0)
    {  }
 
