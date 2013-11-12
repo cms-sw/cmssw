@@ -13,7 +13,7 @@
 
 class BeamHaloPairGenerator : public OrderedHitsGenerator {
 	public:
-	BeamHaloPairGenerator(const edm::ParameterSet& conf);
+	BeamHaloPairGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
 	virtual ~BeamHaloPairGenerator(){};
 	virtual const OrderedSeedingHits& run(const TrackingRegion& region, 
 					      const edm::Event & ev, 

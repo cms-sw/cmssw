@@ -6,7 +6,7 @@ typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 using namespace ctfseeding;
 
 
-GenericPairGenerator::GenericPairGenerator(const edm::ParameterSet& conf): 
+GenericPairGenerator::GenericPairGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
 	theLsb(conf.getParameter<edm::ParameterSet>("LayerPSet")){
 	edm::LogInfo("CtfSpecialSeedGenerator|GenericPairGenerator") << "Constructing GenericPairGenerator";
 } 

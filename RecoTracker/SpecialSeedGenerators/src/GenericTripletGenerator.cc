@@ -8,7 +8,7 @@ typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 using namespace ctfseeding;
 
 
-GenericTripletGenerator::GenericTripletGenerator(const edm::ParameterSet& conf): 
+GenericTripletGenerator::GenericTripletGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
 	//conf_(conf),
 	theLsb(conf.getParameter<edm::ParameterSet>("LayerPSet")){
 	edm::LogInfo("CtfSpecialSeedGenerator|GenericTripletGenerator") << "Constructing GenericTripletGenerator";

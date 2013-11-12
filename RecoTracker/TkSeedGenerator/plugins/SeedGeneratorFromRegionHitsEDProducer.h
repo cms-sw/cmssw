@@ -24,7 +24,7 @@ public:
 
 private:
   edm::ParameterSet theConfig;
-  SeedGeneratorFromRegionHits * theGenerator; 
+  std::unique_ptr<SeedGeneratorFromRegionHits> theGenerator;
   TrackingRegionProducer* theRegionProducer;
   ClusterChecker theClusterCheck;
   QuadrupletSeedMerger *theMerger_;
