@@ -1,5 +1,3 @@
-*** TestRandomNumberServiceGlobal constructor 83
-TRandom3
 
 
 RandomNumberGeneratorService dump
@@ -10,8 +8,8 @@ RandomNumberGeneratorService dump
         t3  4  TRandom3  83
         t4  5  HepJamesRandom  84
         t5  4294967295  TRandom3  191
-    nStreams_ = 1
-    saveFileName_ = StashState1.data
+    nStreams_ = 3
+    saveFileName_ = StashStateStream.data
     saveFileNameRecorded_ = 0
     restoreFileName_ = 
     enableChecking_ = 1
@@ -27,28 +25,20 @@ RandomNumberGeneratorService dump
         t2 1 2 RanecuEngine  engine does not know seeds
         t3 83 TRandom3  engine does not know seeds
         t4 84 HepJamesRandom  84
-
-    lumiEngines_
-        lumiIndex 0
+        Stream 1
         t1 82 HepJamesRandom  82
         t2 2 2 RanecuEngine  engine does not know seeds
         t3 84 TRandom3  engine does not know seeds
         t4 85 HepJamesRandom  85
-*** TestRandomNumberServiceGlobal beginJob 83
-TRandom3
-*** TestRandomNumberServiceGlobal beginLuminosityBlock 83
-TRandom3
-*** TestRandomNumberServiceGlobal analyze 83
-TRandom3
-*** TestRandomNumberServiceGlobal analyze 83
-TRandom3
-*** TestRandomNumberServiceGlobal analyze 83
-TRandom3
-*** TestRandomNumberServiceGlobal beginLuminosityBlock 83
-TRandom3
-*** TestRandomNumberServiceGlobal analyze 83
-TRandom3
-*** TestRandomNumberServiceGlobal analyze 83
-TRandom3
-*** TestRandomNumberServiceGlobal endJob 83
-TRandom3
+        Stream 2
+        t1 83 HepJamesRandom  83
+        t2 3 2 RanecuEngine  engine does not know seeds
+        t3 85 TRandom3  engine does not know seeds
+        t4 86 HepJamesRandom  86
+
+    lumiEngines_
+        lumiIndex 0
+        t1 84 HepJamesRandom  84
+        t2 4 2 RanecuEngine  engine does not know seeds
+        t3 86 TRandom3  engine does not know seeds
+        t4 87 HepJamesRandom  87

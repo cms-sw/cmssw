@@ -403,7 +403,6 @@ namespace edm {
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
-    void postRead(Event& event);
     virtual void beginLuminosityBlock(LuminosityBlock&);
     virtual void endLuminosityBlock(LuminosityBlock&);
     virtual void beginRun(Run&);
