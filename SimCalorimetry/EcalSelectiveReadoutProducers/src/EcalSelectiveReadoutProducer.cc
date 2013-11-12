@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <fstream>
+#include <atomic>
 
 
 using namespace std;
@@ -295,7 +296,7 @@ void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
 						const edm::ProductID& noZsDigiId) const{
   const vector<float> & weights = settings_->dccNormalizedWeights_[0]; //params_.getParameter<vector<double> >("dccNormalizedWeights");
   int nFIRTaps = EcalSelectiveReadoutSuppressor::getFIRTapCount();
-  static bool warnWeightCnt = true;
+  static std::atomic<bool> warnWeightCnt{true};
   if((int)weights.size() > nFIRTaps && warnWeightCnt){
       edm::LogWarning("Configuration") << "The list of DCC zero suppression FIR "
 	"weights given in parameter dccNormalizedWeights is longer "
