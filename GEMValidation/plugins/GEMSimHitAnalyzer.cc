@@ -29,11 +29,12 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
-#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -52,6 +53,26 @@ struct MyGEMSimHit
   Float_t globalR, globalEta, globalPhi, globalX, globalY, globalZ;
   Int_t strip;
   Float_t Phi_0, DeltaPhi, R_0;
+};
+
+struct MyCSCSimHit
+{  
+  Int_t eventNumber;
+  Int_t detUnitId, particleType;
+  Float_t x, y, energyLoss, pabs, timeOfFlight;
+  Int_t endcap, ring, station, chamber, layer;
+  Float_t globalR, globalEta, globalPhi, globalX, globalY, globalZ;
+  Float_t Phi_0, DeltaPhi, R_0;
+};
+
+struct MyRPCSimHit
+{  
+  Int_t eventNumber;
+  Int_t detUnitId, particleType;
+  Float_t x, y, energyLoss, pabs, timeOfFlight;
+  Int_t region, ring, station, sector, layer, subsector, roll;
+  Float_t globalR, globalEta, globalPhi, globalX, globalY, globalZ;
+  Int_t strip;
 };
 
 struct MySimTrack
@@ -83,26 +104,41 @@ public:
   
 private:
   
+  void bookCSCSimHitsTree();
+  void bookRPCSimHitsTree();
   void bookGEMSimHitsTree();
   void bookSimTracksTree();
   
+  void analyzeCSC( const edm::Event& iEvent );
+  void analyzeRPC( const edm::Event& iEvent );
   void analyzeGEM( const edm::Event& iEvent );
   bool isSimTrackGood(const SimTrack &t);
   void analyzeTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void buildLUT();
   std::pair<int,int> getClosestChambers(int region, float phi);
 
+  TTree* csc_sh_tree_;
+  TTree* rpc_sh_tree_;
   TTree* gem_sh_tree_;
   TTree* track_tree_;
   
+  const CSCGeometry* csc_geometry;
+  const RPCGeometry* rpc_geometry;
   const GEMGeometry* gem_geometry_;
   
+  MyCSCSimHit csc_sh;
+  MyRPCSimHit rpc_sh;
   MyGEMSimHit gem_sh;
   MySimTrack  track;
 
-  edm::Handle<edm::SimVertexContainer> simVertices;
-  edm::Handle<edm::SimTrackContainer> simTracks;
+  edm::Handle<edm::PSimHitContainer> CSCHits;
+  edm::Handle<edm::PSimHitContainer> RPCHits;
   edm::Handle<edm::PSimHitContainer> GEMHits;
+  edm::Handle<edm::SimTrackContainer> simTracks;
+  edm::Handle<edm::SimVertexContainer> simVertices;
+
+  edm::ESHandle<CSCGeometry> csc_geom;
+  edm::ESHandle<RPCGeometry> rpc_geom;
   edm::ESHandle<GEMGeometry> gem_geom;
  
   edm::ParameterSet cfg_;
@@ -123,6 +159,8 @@ GEMSimHitAnalyzer::GEMSimHitAnalyzer(const edm::ParameterSet& ps)
 , minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 {
+  bookCSCSimHitsTree();
+  bookRPCSimHitsTree();
   bookGEMSimHitsTree();
   bookSimTracksTree();
 }
@@ -137,6 +175,12 @@ void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iS
 {
   iSetup.get<MuonGeometryRecord>().get(gem_geom);
   gem_geometry_ = &*gem_geom;
+
+  iSetup.get<MuonGeometryRecord>().get(csc_geom);
+  csc_geometry = &*csc_geom;
+  
+  iSetup.get<MuonGeometryRecord>().get(rpc_geom);
+  rpc_geometry = &*rpc_geom;
 
   // FIXME - when a geometry with different partition numbers will be released, the code will brake!
   const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
@@ -171,6 +215,67 @@ void GEMSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonGEMHits"), GEMHits);
   if(GEMHits->size()) analyzeGEM( iEvent );
+
+  iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonCSCHits"), CSCHits);
+  if(CSCHits->size()) analyzeCSC( iEvent );
+  
+  iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonRPCHits"), RPCHits);
+  if(RPCHits->size()) analyzeRPC( iEvent );
+}
+
+void GEMSimHitAnalyzer::bookCSCSimHitsTree()
+{  
+  edm::Service<TFileService> fs;
+  csc_sh_tree_ = fs->make<TTree>("CSCSimHits", "CSCSimHits");
+  csc_sh_tree_->Branch("eventNumber",&csc_sh.eventNumber);
+  csc_sh_tree_->Branch("detUnitId",&csc_sh.detUnitId);
+  csc_sh_tree_->Branch("particleType",&csc_sh.particleType);
+  csc_sh_tree_->Branch("x",&csc_sh.x);
+  csc_sh_tree_->Branch("y",&csc_sh.y);
+  csc_sh_tree_->Branch("energyLoss",&csc_sh.energyLoss);
+  csc_sh_tree_->Branch("pabs",&csc_sh.pabs);
+  csc_sh_tree_->Branch("timeOfFlight",&csc_sh.timeOfFlight);
+  csc_sh_tree_->Branch("timeOfFlight",&csc_sh.timeOfFlight);
+  csc_sh_tree_->Branch("endcap",&csc_sh.endcap);
+  csc_sh_tree_->Branch("ring",&csc_sh.ring);
+  csc_sh_tree_->Branch("station",&csc_sh.station);
+  csc_sh_tree_->Branch("chamber",&csc_sh.chamber);
+  csc_sh_tree_->Branch("layer",&csc_sh.layer);
+  csc_sh_tree_->Branch("globalR",&csc_sh.globalR);
+  csc_sh_tree_->Branch("globalEta",&csc_sh.globalEta);
+  csc_sh_tree_->Branch("globalPhi",&csc_sh.globalPhi);
+  csc_sh_tree_->Branch("globalX",&csc_sh.globalX);
+  csc_sh_tree_->Branch("globalY",&csc_sh.globalY);
+  csc_sh_tree_->Branch("globalZ",&csc_sh.globalZ);
+  csc_sh_tree_->Branch("Phi_0", &csc_sh.Phi_0);
+  csc_sh_tree_->Branch("DeltaPhi", &csc_sh.DeltaPhi);
+  csc_sh_tree_->Branch("R_0", &csc_sh.R_0);
+}
+
+
+void GEMSimHitAnalyzer::bookRPCSimHitsTree()
+{
+  edm::Service< TFileService > fs;
+  rpc_sh_tree_ = fs->make< TTree >("RPCSimHits", "RPCSimHits");
+  rpc_sh_tree_->Branch("eventNumber", &rpc_sh.eventNumber);
+  rpc_sh_tree_->Branch("detUnitId", &rpc_sh.detUnitId);
+  rpc_sh_tree_->Branch("particleType", &rpc_sh.particleType);
+  rpc_sh_tree_->Branch("x", &rpc_sh.x);
+  rpc_sh_tree_->Branch("y", &rpc_sh.y);
+  rpc_sh_tree_->Branch("energyLoss", &rpc_sh.energyLoss);
+  rpc_sh_tree_->Branch("pabs", &rpc_sh.pabs);
+  rpc_sh_tree_->Branch("timeOfFlight", &rpc_sh.timeOfFlight);
+  rpc_sh_tree_->Branch("timeOfFlight", &rpc_sh.timeOfFlight);
+  rpc_sh_tree_->Branch("ring", &rpc_sh.ring);
+  rpc_sh_tree_->Branch("station", &rpc_sh.station);
+  rpc_sh_tree_->Branch("layer", &rpc_sh.layer);
+  rpc_sh_tree_->Branch("globalR", &rpc_sh.globalR);
+  rpc_sh_tree_->Branch("globalEta", &rpc_sh.globalEta);
+  rpc_sh_tree_->Branch("globalPhi", &rpc_sh.globalPhi);
+  rpc_sh_tree_->Branch("globalX", &rpc_sh.globalX);
+  rpc_sh_tree_->Branch("globalY", &rpc_sh.globalY);
+  rpc_sh_tree_->Branch("globalZ", &rpc_sh.globalZ);
+  rpc_sh_tree_->Branch("strip", &rpc_sh.strip);
 }
 
 
@@ -277,6 +382,95 @@ void GEMSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
     gem_sh_tree_->Fill();
   }
 }
+
+void GEMSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
+{
+  for (edm::PSimHitContainer::const_iterator itHit = CSCHits->begin(); itHit != CSCHits->end(); ++itHit)
+  {
+    const CSCDetId id(itHit->detUnitId());
+    if (id.station() != 1) continue; // here we care only about station 1
+    
+    csc_sh.eventNumber = iEvent.id().event();
+    csc_sh.detUnitId = itHit->detUnitId();
+    csc_sh.particleType = itHit->particleType();
+    csc_sh.x = itHit->localPosition().x();
+    csc_sh.y = itHit->localPosition().y();
+    csc_sh.energyLoss = itHit->energyLoss();
+    csc_sh.pabs = itHit->pabs();
+    csc_sh.timeOfFlight = itHit->timeOfFlight();
+
+    csc_sh.endcap = id.endcap();
+    csc_sh.ring = id.ring();
+    csc_sh.station = id.station();
+    csc_sh.chamber = id.chamber();
+    csc_sh.layer = id.layer();
+
+    const LocalPoint p0(0., 0., 0.);
+    const GlobalPoint Gp0(csc_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(p0));
+    csc_sh.Phi_0 = Gp0.phi();
+    csc_sh.R_0 = Gp0.perp();
+
+//    if(id.region()*pow(-1,id.chamber()) == 1) gem_sh.DeltaPhi = atan(-(itHit->localPosition().x())/(Gp0.perp() + itHit->localPosition().y()));
+//    if(id.region()*pow(-1,id.chamber()) == -1) gem_sh.DeltaPhi = atan(itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
+//    csc_sh.DeltaPhi = atan(-(itHit->localPosition().x())/(Gp0.perp() + itHit->localPosition().y()));
+    if(id.endcap()==1) csc_sh.DeltaPhi = atan(itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
+    if(id.endcap()==2) csc_sh.DeltaPhi = atan(-(itHit->localPosition().x())/(Gp0.perp() + itHit->localPosition().y()));
+    
+    const LocalPoint hitLP(itHit->localPosition());
+    const GlobalPoint hitGP(csc_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
+    
+    csc_sh.globalR = hitGP.perp();
+    csc_sh.globalEta = hitGP.eta();
+    csc_sh.globalPhi = hitGP.phi();
+    csc_sh.globalX = hitGP.x();
+    csc_sh.globalY = hitGP.y();
+    csc_sh.globalZ = hitGP.z();
+    csc_sh_tree_->Fill();
+
+  }
+}
+
+
+void GEMSimHitAnalyzer::analyzeRPC( const edm::Event& iEvent )
+{
+  for (edm::PSimHitContainer::const_iterator itHit = RPCHits->begin(); itHit != RPCHits->end(); ++itHit)
+  {
+    const RPCDetId id(itHit->detUnitId());
+    if (id.region() == 0) continue; // we don't care about barrel RPCs
+
+    rpc_sh.eventNumber = iEvent.id().event();
+    rpc_sh.detUnitId = itHit->detUnitId();
+    rpc_sh.particleType = itHit->particleType();
+    rpc_sh.x = itHit->localPosition().x();
+    rpc_sh.y = itHit->localPosition().y();
+    rpc_sh.energyLoss = itHit->energyLoss();
+    rpc_sh.pabs = itHit->pabs();
+    rpc_sh.timeOfFlight = itHit->timeOfFlight();
+
+    rpc_sh.region = id.region();
+    rpc_sh.ring = id.ring();
+    rpc_sh.station = id.station();
+    rpc_sh.sector = id.sector();
+    rpc_sh.layer = id.layer();
+    rpc_sh.subsector = id.subsector();
+    rpc_sh.roll = id.roll();
+    
+    const LocalPoint hitLP(itHit->localPosition());
+    const GlobalPoint hitGP(rpc_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
+
+    rpc_sh.globalR = hitGP.perp();
+    rpc_sh.globalEta = hitGP.eta();
+    rpc_sh.globalPhi = hitGP.phi();
+    rpc_sh.globalX = hitGP.x();
+    rpc_sh.globalY = hitGP.y();
+    rpc_sh.globalZ = hitGP.z();
+    
+    rpc_sh.strip=rpc_geometry->roll(itHit->detUnitId())->strip(hitLP);
+
+    rpc_sh_tree_->Fill();
+  }
+}
+
 
 bool GEMSimHitAnalyzer::isSimTrackGood(const SimTrack &t)
 {
