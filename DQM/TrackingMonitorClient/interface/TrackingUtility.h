@@ -1,11 +1,10 @@
-#ifndef SiStripUtility_H
-#define SiStripUtility_H
+#ifndef TrackingUtility_H
+#define TrackingUtility_H
 
-/** \class SiStripUtility
+/** \class TrackingUtility
  * *
- *  Class that handles the SiStrip Quality Tests
- * 
- *  \author Suchandra Dutta
+ *  Class that handles the Tracking Quality Tests
+ * *
   */
 
 #include <vector>
@@ -17,7 +16,7 @@
 class MonitorElement;
 class DQMStore;
 class TrackerTopology;
-class SiStripUtility
+class TrackingUtility
 {
  public:
  
@@ -28,14 +27,12 @@ class SiStripUtility
  static void split(const std::string& str, std::vector<std::string>& tokens, 
              const std::string& delimiters=" ");
  static void getMEStatusColor(int status, int& rval, int&gval, int& bval);
- static void getDetectorStatusColor(int status, int& rval, int&gval, int& bval);
  static void getMEStatusColor(int status, int& icol, std::string& tag);
  static int getMEStatus(MonitorElement* me);
  static int getMEStatus(MonitorElement* me, int& bad_channels);
  static void getModuleFolderList(DQMStore* dqm_store, std::vector<std::string>& m_ids);
  static void getMEValue(MonitorElement* me, std::string & val);
  static bool goToDir(DQMStore * dqm_store, std::string name);
- static void getSubDetectorTag(uint32_t det_id, std::string& subdet_tag, const TrackerTopology* tTopo);
  static void setBadModuleFlag(std::string & hname, uint16_t& flg);
  static void getBadModuleStatus(uint16_t flag, std::string& message);
  static void getTopFolderPath(DQMStore* dqm_store, std::string top_dir, std::string& path);   
