@@ -17,7 +17,7 @@
 //
 #include "CLHEP/Random/RandomEngine.h"
 #include "EvtGenBase/EvtRandomEngine.hh"
-#include "GeneratorInterface/ExternalDecays/interface/myEvtRandomEngine.h"
+#include "GeneratorInterface/EvtGenInterface/interface/myEvtRandomEngine.h"
 
 myEvtRandomEngine::myEvtRandomEngine(CLHEP::HepRandomEngine *xx) {the_engine = xx;}
 
