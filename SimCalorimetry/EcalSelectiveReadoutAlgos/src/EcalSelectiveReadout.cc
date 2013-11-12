@@ -43,8 +43,7 @@ EcalSelectiveReadout::runSelectiveReadout0(const ttFlag_t ttFlags[nTriggerTowers
   //count number of TT in each interest class for debugging display
   int nTriggerTowerE[] = {0, 0, 0, 0, 0, 0, 0, 0};
   int nTriggerTowerB[] = {0, 0, 0, 0, 0, 0, 0, 0};
-
-  static int ncall = 0;
+  static std::atomic<int> ncall{0};
   if(ncall < 10){
     ++ncall;
     for(size_t iPhi = 0; iPhi < nTriggerTowersInPhi; ++iPhi){
