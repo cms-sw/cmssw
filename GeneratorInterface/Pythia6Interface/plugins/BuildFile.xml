@@ -12,6 +12,7 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 <library file="Pythia6*Gun.cc" name="GeneratorInterfacePythia6Guns">
+
   <use   name="heppdt"/>
   <flags EDM_PLUGIN="1"/>
 </library>
