@@ -33,24 +33,12 @@
 
 class RandomEngine;
 
-bool HcalRecHitsMaker::initialized_ = false; 
-bool HcalRecHitsMaker::initializedHB_ = false; 
-bool HcalRecHitsMaker::initializedHE_ = false; 
-bool HcalRecHitsMaker::initializedHO_ = false; 
-bool HcalRecHitsMaker::initializedHF_ = false; 
-std::vector<float> HcalRecHitsMaker::peds_;
-std::vector<int> HcalRecHitsMaker::fctoadc_;
-std::vector<float> HcalRecHitsMaker::sat_;
-std::vector<float> HcalRecHitsMaker::gains_;
-std::vector<float> HcalRecHitsMaker::noisesigma_;
-std::vector<float> HcalRecHitsMaker::TPGFactor_;
-std::vector<float> HcalRecHitsMaker::miscalib_;
-std::vector<HcalDetId> HcalRecHitsMaker::theDetIds_;
-std::vector<int> HcalRecHitsMaker::hbhi_;
-std::vector<int> HcalRecHitsMaker::hehi_;
-std::vector<int> HcalRecHitsMaker::hohi_;
-std::vector<int> HcalRecHitsMaker::hfhi_;
-unsigned HcalRecHitsMaker::maxIndex_  = 0 ; 
+bool initialized_ = false; 
+bool initializedHB_ = false; 
+bool initializedHE_ = false; 
+bool initializedHO_ = false; 
+bool initializedHF_ = false; 
+unsigned maxIndex_  = 0 ; 
 
 HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
 				   const RandomEngine * myrandom)
