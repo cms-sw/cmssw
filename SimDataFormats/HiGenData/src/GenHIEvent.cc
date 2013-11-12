@@ -2,7 +2,7 @@
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 using namespace edm;
 
-void GenHIEvent::setGenParticles(const reco::GenParticleCollection* input) const {
+void GenHIEvent::setGenParticles(const reco::GenParticleCollection* input) {
   subevents_.reserve(nhard_);
   for(int i = 0; i < nhard_; ++i){
     std::vector<reco::GenParticleRef> refs;
