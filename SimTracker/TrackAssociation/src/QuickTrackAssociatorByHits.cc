@@ -15,7 +15,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 QuickTrackAssociatorByHits::QuickTrackAssociatorByHits( const edm::ParameterSet& config )
-	: pHitAssociator_(NULL), pEventForWhichAssociatorIsValid_(NULL),
+	: pHitAssociator_(nullptr), pEventForWhichAssociatorIsValid_(nullptr),
 	  absoluteNumberOfHits_( config.getParameter<bool>( "AbsoluteNumberOfHits" ) ),
 	  qualitySimToReco_( config.getParameter<double>( "Quality_SimToReco" ) ),
 	  puritySimToReco_( config.getParameter<double>( "Purity_SimToReco" ) ),
@@ -91,7 +91,7 @@ QuickTrackAssociatorByHits::QuickTrackAssociatorByHits( const QuickTrackAssociat
 	// Actually, need to check the other hit associator isn't null or the pointer dereference would
 	// probably cause a segmentation fault.
 	if( otherAssociator.pHitAssociator_ ) pHitAssociator_=new TrackerHitAssociator(*otherAssociator.pHitAssociator_);
-	else pHitAssociator_=NULL;
+	else pHitAssociator_=nullptr;
 }
 
 QuickTrackAssociatorByHits& QuickTrackAssociatorByHits::operator=( const QuickTrackAssociatorByHits& otherAssociator )
@@ -104,7 +104,7 @@ QuickTrackAssociatorByHits& QuickTrackAssociatorByHits::operator=( const QuickTr
 	// can be shallow copied from the other associator.
 	//
 	if( otherAssociator.pHitAssociator_ ) pHitAssociator_=new TrackerHitAssociator(*otherAssociator.pHitAssociator_);
-	else pHitAssociator_=NULL;
+	else pHitAssociator_=nullptr;
 	pEventForWhichAssociatorIsValid_=otherAssociator.pEventForWhichAssociatorIsValid_;
 	hitAssociatorParameters_=otherAssociator.hitAssociatorParameters_;
 	absoluteNumberOfHits_=otherAssociator.absoluteNumberOfHits_;
@@ -135,10 +135,10 @@ reco::RecoToSimCollection QuickTrackAssociatorByHits::associateRecoToSim( edm::H
 
 	pTrackCollectionHandle_=&trackCollectionHandle;
 	pTrackingParticleCollectionHandle_=&trackingParticleCollectionHandle;
-	pTrackCollection_=NULL;
-	pTrackingParticleCollection_=NULL;
+	pTrackCollection_=nullptr;
+	pTrackingParticleCollection_=nullptr;
 
-	// This method checks which collection type is set to NULL, and uses the other one.
+	// This method checks which collection type is set to null, and uses the other one.
 	return associateRecoToSimImplementation();
 }
 
@@ -154,10 +154,10 @@ reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToReco( edm::H
 
 	pTrackCollectionHandle_=&trackCollectionHandle;
 	pTrackingParticleCollectionHandle_=&trackingParticleCollectionHandle;
-	pTrackCollection_=NULL;
-	pTrackingParticleCollection_=NULL;
+	pTrackCollection_=nullptr;
+	pTrackingParticleCollection_=nullptr;
 
-	// This method checks which collection type is set to NULL, and uses the other one.
+	// This method checks which collection type is set to null, and uses the other one.
 	return associateSimToRecoImplementation();
 }
 
@@ -172,12 +172,12 @@ reco::RecoToSimCollection QuickTrackAssociatorByHits::associateRecoToSim(const e
   if (useClusterTPAssociation_) prepareCluster2TPMap(pEvent);
   else initialiseHitAssociator( pEvent );
 
-  pTrackCollectionHandle_=NULL;
-  pTrackingParticleCollectionHandle_=NULL;
+  pTrackCollectionHandle_=nullptr;
+  pTrackingParticleCollectionHandle_=nullptr;
   pTrackCollection_=&trackCollection;
   pTrackingParticleCollection_=&trackingParticleCollection;
 
-  // This method checks which collection type is set to NULL, and uses the other one.
+  // This method checks which collection type is set to null, and uses the other one.
   return associateRecoToSimImplementation();
 }
 
@@ -191,12 +191,12 @@ reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToReco(const e
   if (useClusterTPAssociation_) prepareCluster2TPMap(pEvent);
   else initialiseHitAssociator( pEvent );
 
-  pTrackCollectionHandle_=NULL;
-  pTrackingParticleCollectionHandle_=NULL;
+  pTrackCollectionHandle_=nullptr;
+  pTrackingParticleCollectionHandle_=nullptr;
   pTrackCollection_=&trackCollection;
   pTrackingParticleCollection_=&trackingParticleCollection;
 
-  // This method checks which collection type is set to NULL, and uses the other one.
+  // This method checks which collection type is set to null, and uses the other one.
   return associateSimToRecoImplementation();
 }
 
@@ -592,7 +592,7 @@ void QuickTrackAssociatorByHits::initialiseHitAssociator( const edm::Event* pEve
 	// event). I was doing this by recording the event pointer and checking it hasn't changed
 	// but this doesn't appear to work. Until I find a way of uniquely identifying an event
 	// I'll just create it anew each time.
-//	if( pEventForWhichAssociatorIsValid_==pEvent && pEventForWhichAssociatorIsValid_!=NULL ) return; // Already set up so no need to do anything
+//	if( pEventForWhichAssociatorIsValid_==pEvent && pEventForWhichAssociatorIsValid_!=null ) return; // Already set up so no need to do anything
 
 	// Free up the previous instantiation
 	delete pHitAssociator_;
@@ -614,10 +614,10 @@ QuickTrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<TrajectoryS
                                       << pSeedCollectionHandle_->size()<<" #TPs="<<trackingParticleCollectionHandle->size();
 
   initialiseHitAssociator( pEvent );
-  pTrackCollectionHandle_=NULL;
+  pTrackCollectionHandle_=nullptr;
   pTrackingParticleCollectionHandle_=&trackingParticleCollectionHandle;
-  pTrackCollection_=NULL;
-  pTrackingParticleCollection_=NULL;
+  pTrackCollection_=nullptr;
+  pTrackingParticleCollection_=nullptr;
 
   reco::RecoToSimCollectionSeed  returnValue;
 
@@ -675,10 +675,10 @@ QuickTrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectoryS
                                       <<pSeedCollectionHandle_->size()<<" #TPs="<<trackingParticleCollectionHandle->size();
 
   initialiseHitAssociator( pEvent );
-  pTrackCollectionHandle_=NULL;
+  pTrackCollectionHandle_=nullptr;
   pTrackingParticleCollectionHandle_=&trackingParticleCollectionHandle;
-  pTrackCollection_=NULL;
-  pTrackingParticleCollection_=NULL;
+  pTrackCollection_=nullptr;
+  pTrackingParticleCollection_=nullptr;
 
   reco::SimToRecoCollectionSeed  returnValue;
 
