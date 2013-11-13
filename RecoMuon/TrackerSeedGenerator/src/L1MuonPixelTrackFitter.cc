@@ -15,7 +15,12 @@
 template <class T> T sqr( T t) {return t*t;}
 
 L1MuonPixelTrackFitter::L1MuonPixelTrackFitter(const edm::ParameterSet& cfg)
-  : theConfig(cfg)
+  : theConfig(cfg),
+  invPtErrorScale{theConfig.getParameter<double>("invPtErrorScale")},
+  phiErrorScale{theConfig.getParameter<double>("phiErrorScale")},
+  cotThetaErrorScale{theConfig.getParameter<double>("cotThetaErrorScale")},
+  tipErrorScale{theConfig.getParameter<double>("tipErrorScale")},
+  zipErrorScale{theConfig.getParameter<double>("zipErrorScale")}
 { }
 
 void L1MuonPixelTrackFitter::setL1Constraint(const L1MuGMTCand & muon)

@@ -46,7 +46,7 @@ public:
   };
 
 public:
-  L1MuonPixelTrackFitter() {}
+  L1MuonPixelTrackFitter();
   L1MuonPixelTrackFitter( const edm::ParameterSet& cfg);
 
   virtual ~L1MuonPixelTrackFitter(){}
@@ -87,11 +87,11 @@ private:
 
   edm::ParameterSet theConfig;
 
-  const double invPtErrorScale{theConfig.getParameter<double>("invPtErrorScale")};
-  const double phiErrorScale{theConfig.getParameter<double>("phiErrorScale")};
-  const double cotThetaErrorScale{theConfig.getParameter<double>("cotThetaErrorScale")};
-  const double tipErrorScale{theConfig.getParameter<double>("tipErrorScale")};
-  const double zipErrorScale{theConfig.getParameter<double>("zipErrorScale")};
+  const double invPtErrorScale;
+  const double phiErrorScale;
+  const double cotThetaErrorScale;
+  const double tipErrorScale;
+  const double zipErrorScale;
 
 
   // L1 constraint
