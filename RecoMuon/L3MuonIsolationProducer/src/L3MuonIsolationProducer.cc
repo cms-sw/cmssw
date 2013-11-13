@@ -45,16 +45,6 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
 
   if (optOutputIsoDeposits) produces<reco::IsoDepositMap>();
   produces<edm::ValueMap<bool> >();
-}
-
-/// destructor
-L3MuonIsolationProducer::~L3MuonIsolationProducer(){
-  LogDebug("RecoMuon|L3MuonIsolationProducer")<<" L3MuonIsolationProducer DTOR";
-  if (theExtractor) delete theExtractor;
-}
-
-void L3MuonIsolationProducer::beginJob()
-{
 
   //
   // Extractor
@@ -92,6 +82,12 @@ void L3MuonIsolationProducer::beginJob()
   // (kludge) additional cut on the number of tracks
   theMaxNTracks = cutsPSet.getParameter<int>("maxNTracks");
   theApplyCutsORmaxNTracks = cutsPSet.getParameter<bool>("applyCutsORmaxNTracks");
+}
+
+/// destructor
+L3MuonIsolationProducer::~L3MuonIsolationProducer(){
+  LogDebug("RecoMuon|L3MuonIsolationProducer")<<" L3MuonIsolationProducer DTOR";
+  if (theExtractor) delete theExtractor;
 }
 
 void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup){
