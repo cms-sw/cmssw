@@ -56,10 +56,6 @@ void FWalker::VisitDeclRefExpr( clang::DeclRefExpr * DRE) {
   if (clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl()) ) {
 	if ( support::isSafeClassName(D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
 	ReportDeclRef(DRE);
-//	llvm::errs()<<"Declaration Ref Expr\t";
-//	dyn_cast<Stmt>(DRE)->dumpPretty(AC->getASTContext());
-//	DRE->dump();
-//	llvm::errs()<<"\n";
   	}
 }
 
@@ -68,10 +64,6 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 
   if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl())) {
 	clang::QualType t =  D->getType();  
-//	const clang::Stmt * PS = ParentStmt(DRE);
-  	clang::LangOptions LangOpts;
-  	LangOpts.CPlusPlus = true;
-  	clang::PrintingPolicy Policy(LangOpts);
 	const Decl * PD = AC->getDecl();
 	std::string dname =""; 
 	std::string sdname =""; 
@@ -80,17 +72,13 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 		dname = ND->getQualifiedNameAsString();
 	}
 
- // 	clang::ento::PathDiagnosticLocation CELoc = clang::ento::PathDiagnosticLocation::createBegin(DRE, BR.getSourceManager(),AC);
-  	clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
+ 	clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
 
 	if ( (D->isStaticLocal() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local ) && ! clangcms::support::isConst( t ) )
 	{
 		std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 	   	os << "function '"<<dname << "' accesses or modifies non-const static local variable '" << D->getNameAsString() << "'.\n";
-//	    	BugType * BT = new BugType("FunctionChecker : non-const static local variable accessed or modified","ThreadSafety");
-//		BugReport * R = new BugReport(*BT,os.str(),CELoc);
-//		BR.emitReport(R);
 		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
  		llvm::errs() <<  "function '"<<sdname << "' static variable '" << support::getQualifiedName(*D) << "'.\n\n";
 		return;
@@ -101,16 +89,13 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 	    	os << "function '"<<dname<< "' accesses or modifies non-const static member data variable '" << D->getNameAsString() << "'.\n";
-//	    	BugType * BT = new BugType("FunctionChecker : non-const static member variable accessed or modified","ThreadSafety");
-//		BugReport * R = new BugReport(*BT,os.str(),CELoc);
-//		BR.emitReport(R);
 		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
  		llvm::errs() <<  "function '"<<sdname << "' static variable '" << support::getQualifiedName(*D) << "'.\n\n";
 	    return;
 	}
 
-
-	if ( (D->getStorageClass() == clang::SC_Static) &&
+	
+	if ( D->hasGlobalStorage() &&
 			  !D->isStaticDataMember() &&
 			  !D->isStaticLocal() &&
 			  !clangcms::support::isConst( t ) )
@@ -119,9 +104,6 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 	    	os << "function '"<<dname << "' accesses or modifies non-const global static variable '" << D->getNameAsString() << "'.\n";
-//	    	BugType * BT = new BugType("FunctionChecker : non-const global static variable accessed or modified","ThreadSafety");
-//		BugReport * R = new BugReport(*BT,os.str(),CELoc);
-//		BR.emitReport(R);
 		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
  		llvm::errs() <<  "function '"<<sdname << "' static variable '" << support::getQualifiedName(*D) << "'.\n\n";
 	    return;
@@ -138,7 +120,7 @@ void FunctionChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr
                     BugReporter &BR) const {
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
-   	if (!support::isCmsLocalFile(sfile)) return;
+ 	if (!support::isCmsLocalFile(sfile)) return;
 	std::string fname(sfile);
 	if ( fname.find("/test/") != std::string::npos) return;
   
