@@ -99,7 +99,7 @@ void PFCandidateElectronExtra::setClusterEnergies(const std::vector<float>& ener
   if(pout_.t()!=0.)
     setVariable(MVA_EseedOverPout,clusterEnergies_[0]/pout_.t());
  
-  static float m_el2=0.00051*0.00051;
+  const float m_el2=0.00051*0.00051;
   float Ein_gsf =sqrt(gsfTrackRef_->pMode()*
 		      gsfTrackRef_->pMode()+m_el2);
   
@@ -155,29 +155,29 @@ float PFCandidateElectronExtra::mvaVariable(MvaVariable var) const {
 
 #include <string>
 
+static char const * const listVar[] = {
+  "LogPt",
+  "Eta",
+  "SigmaPtOverPt",
+  "fbrem",
+  "Chi2Gsf",
+  "NhitsKf",
+  "Chi2Kf",
+  "EtotOverPin",
+  "EseedOverPout",
+  "EbremOverDeltaP",
+  "DeltaEtaTrackCluster",
+  "LogSigmaEtaEta",
+  "H/(H+E)",
+  "LateBrem",
+  "FirstBrem",
+  "MVA"
+};
+
 std::ostream& reco::operator<<(std::ostream& out, 
 			       const PFCandidateElectronExtra& extra ) { 
   if(!out) return out;
 
-  static std::vector<std::string> listVar;
-  if(listVar.size()==0) {
-    listVar.push_back("LogPt");
-    listVar.push_back("Eta");
-    listVar.push_back("SigmaPtOverPt");
-    listVar.push_back("fbrem");
-    listVar.push_back("Chi2Gsf");
-    listVar.push_back("NhitsKf");
-    listVar.push_back("Chi2Kf");
-    listVar.push_back("EtotOverPin");
-    listVar.push_back("EseedOverPout");
-    listVar.push_back("EbremOverDeltaP");
-    listVar.push_back("DeltaEtaTrackCluster");
-    listVar.push_back("LogSigmaEtaEta");
-    listVar.push_back("H/(H+E)");
-    listVar.push_back("LateBrem");
-    listVar.push_back("FirstBrem");
-    listVar.push_back("MVA");
-  }
   out <<  std::setiosflags(std::ios::left)<<  std::setw(20) << "Variable index" << std::setw(20) << "Name"  << std::setw(10) << "Set(0/1)" << std::setw(8) << "value" << std::endl;  
   for(  PFCandidateElectronExtra::MvaVariable i=PFCandidateElectronExtra::MVA_FIRST;
 	i<PFCandidateElectronExtra::MVA_LAST;i=PFCandidateElectronExtra::MvaVariable(i+1)) {
