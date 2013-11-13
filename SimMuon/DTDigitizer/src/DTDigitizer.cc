@@ -411,7 +411,7 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
   }
 
   DTDriftTimeParametrization::drift_time DT;
-  static DTDriftTimeParametrization par;
+  static const DTDriftTimeParametrization par;
   unsigned short flag = par.MB_DT_drift_time (x, theta_par, By_par, Bz_par, 0, &DT, interpolate);
 
   if (debug) {

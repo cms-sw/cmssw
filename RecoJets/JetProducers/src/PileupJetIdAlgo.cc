@@ -288,7 +288,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 							const reco::VertexCollection & allvtx,
 							bool calculateMva) 
 {
-	static int printWarning = 10; 
+	static std::atomic<int> printWarning{10};
 	typedef std::vector <reco::PFCandidatePtr> constituents_type;
 	typedef std::vector <reco::PFCandidatePtr>::iterator constituents_iterator;
 
