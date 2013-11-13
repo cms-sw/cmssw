@@ -34,8 +34,8 @@ TrackerHitProducer::TrackerHitProducer(const edm::ParameterSet& iPSet) :
   SiTECLowSrc_ = iPSet.getParameter<edm::InputTag>("SiTECLowSrc");
   SiTECHighSrc_ = iPSet.getParameter<edm::InputTag>("SiTECHighSrc");
  
-  std::string HepMClabel = config_.getUntrackedParameter<std::string>("HepMCProductLabel","source");
-  std::string HepMCinstance = config_.getUntrackedParameter<std::string>("HepMCInputInstance","");
+  HepMClabel = config_.getUntrackedParameter<std::string>("HepMCProductLabel","source");
+  HepMCinstance = config_.getUntrackedParameter<std::string>("HepMCInputInstance","");
  
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
