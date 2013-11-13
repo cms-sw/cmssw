@@ -1834,7 +1834,7 @@ ostream& operator<<(ostream& out,const PFClusterAlgo& algo) {
 std::pair<double,double>
 PFClusterAlgo::dCrack(double phi, double eta){
 
-  static double pi= M_PI;// 3.14159265358979323846;
+  static const double pi= M_PI;// 3.14159265358979323846;
   
   //Location of the 18 phi-cracks
   static std::vector<double> cPhi;
