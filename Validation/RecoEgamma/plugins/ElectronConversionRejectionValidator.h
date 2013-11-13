@@ -55,6 +55,7 @@ class ElectronConversionRejectionValidator : public edm::EDAnalyzer
   virtual void beginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
   virtual void endRun (edm::Run& r, edm::EventSetup const & es);
   virtual void endJob() ;
+  void bookHistograms(void);
 
  private:
   //

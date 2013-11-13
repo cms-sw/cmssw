@@ -47,37 +47,37 @@ using namespace std;
 
 
 ElectronConversionRejectionValidator::ElectronConversionRejectionValidator( const edm::ParameterSet& pset )
-  {
+{
 
-    fName_     = pset.getUntrackedParameter<std::string>("Name");
-    verbosity_ = pset.getUntrackedParameter<int>("Verbosity");
-    parameters_ = pset;
+  fName_     = pset.getUntrackedParameter<std::string>("Name");
+  verbosity_ = pset.getUntrackedParameter<int>("Verbosity");
+  parameters_ = pset;
 
-    gsfElectronCollectionProducer_ = pset.getParameter<std::string>("gsfElectronProducer");
-    gsfElectronCollection_ = pset.getParameter<std::string>("gsfElectronCollection");
+  gsfElectronCollectionProducer_ = pset.getParameter<std::string>("gsfElectronProducer");
+  gsfElectronCollection_ = pset.getParameter<std::string>("gsfElectronCollection");
 
-    conversionCollectionProducer_ = pset.getParameter<std::string>("convProducer");
-    conversionCollection_ = pset.getParameter<std::string>("conversionCollection");
-    // conversionTrackProducer_ = pset.getParameter<std::string>("trackProducer");
-    gsfElecToken_ = consumes<reco::GsfElectronCollection>(
-        edm::InputTag(gsfElectronCollectionProducer_,
-                      gsfElectronCollection_));
-    convToken_ = consumes<reco::ConversionCollection>(
-        edm::InputTag(conversionCollectionProducer_,
-                      conversionCollection_));
+  conversionCollectionProducer_ = pset.getParameter<std::string>("convProducer");
+  conversionCollection_ = pset.getParameter<std::string>("conversionCollection");
+  // conversionTrackProducer_ = pset.getParameter<std::string>("trackProducer");
+  gsfElecToken_ = consumes<reco::GsfElectronCollection>(
+      edm::InputTag(gsfElectronCollectionProducer_,
+                    gsfElectronCollection_));
+  convToken_ = consumes<reco::ConversionCollection>(
+      edm::InputTag(conversionCollectionProducer_,
+                    conversionCollection_));
 
-    isRunCentrally_=   pset.getParameter<bool>("isRunCentrally");
+  isRunCentrally_=   pset.getParameter<bool>("isRunCentrally");
 
-    elePtMin_ = pset.getParameter<double>("elePtMin");
-    eleExpectedHitsInnerMax_ = pset.getParameter<int>("eleExpectedHitsInnerMax");
-    eleD0Max_ = pset.getParameter<double>("eleD0Max");
-    offline_pvToken_ = consumes<reco::VertexCollection>(
-        pset.getUntrackedParameter<edm::InputTag> ("offlinePV",
-                                                   edm::InputTag("offlinePrimaryVertices")));
-    beamspotToken_ = consumes<reco::BeamSpot>(
-        pset.getUntrackedParameter<edm::InputTag> ("beamspot",
-                                                   edm::InputTag("offlineBeamSpot")));
-  }
+  elePtMin_ = pset.getParameter<double>("elePtMin");
+  eleExpectedHitsInnerMax_ = pset.getParameter<int>("eleExpectedHitsInnerMax");
+  eleD0Max_ = pset.getParameter<double>("eleD0Max");
+  offline_pvToken_ = consumes<reco::VertexCollection>(
+      pset.getUntrackedParameter<edm::InputTag> ("offlinePV",
+                                                 edm::InputTag("offlinePrimaryVertices")));
+  beamspotToken_ = consumes<reco::BeamSpot>(
+      pset.getUntrackedParameter<edm::InputTag> ("beamspot",
+                                                 edm::InputTag("offlineBeamSpot")));
+}
 
 
 
@@ -98,6 +98,30 @@ void  ElectronConversionRejectionValidator::beginJob() {
   dbe_ = edm::Service<DQMStore>().operator->();
 
 
+
+  //   double dPhiTracksMin = parameters_.getParameter<double>("dPhiTracksMin");
+  //   double dPhiTracksMax = parameters_.getParameter<double>("dPhiTracksMax");
+  //   int dPhiTracksBin = parameters_.getParameter<int>("dPhiTracksBin");
+
+  //   double eoverpMin = parameters_.getParameter<double>("eoverpMin");
+  //   double eoverpMax = parameters_.getParameter<double>("eoverpMax");
+  //   int    eoverpBin = parameters_.getParameter<int>("eoverpBin");
+
+
+  //  double dEtaTracksMin = parameters_.getParameter<double>("dEtaTracksMin");  // unused
+  //  double dEtaTracksMax = parameters_.getParameter<double>("dEtaTracksMax"); // unused
+  //  int    dEtaTracksBin = parameters_.getParameter<int>("dEtaTracksBin");  // unused
+
+  //   double dCotTracksMin = parameters_.getParameter<double>("dCotTracksMin");
+  //   double dCotTracksMax = parameters_.getParameter<double>("dCotTracksMax");
+  //   int    dCotTracksBin = parameters_.getParameter<int>("dCotTracksBin");
+
+
+
+}
+
+
+void ElectronConversionRejectionValidator::bookHistograms(void) {
   double ptMin = parameters_.getParameter<double>("ptMin");
   double ptMax = parameters_.getParameter<double>("ptMax");
   int ptBin = parameters_.getParameter<int>("ptBin");
@@ -105,10 +129,6 @@ void  ElectronConversionRejectionValidator::beginJob() {
   double trackptMin = parameters_.getParameter<double>("trackptMin");
   double trackptMax = parameters_.getParameter<double>("trackptMax");
   int trackptBin = parameters_.getParameter<int>("trackptBin");
-
-//   double resMin = parameters_.getParameter<double>("resMin");
-//   double resMax = parameters_.getParameter<double>("resMax");
-//   int resBin = parameters_.getParameter<int>("resBin");
 
   double etaMin = parameters_.getParameter<double>("etaMin");
   double etaMax = parameters_.getParameter<double>("etaMax");
@@ -126,25 +146,6 @@ void  ElectronConversionRejectionValidator::beginJob() {
   double zMin = parameters_.getParameter<double>("zMin");
   double zMax = parameters_.getParameter<double>("zMax");
   int    zBin = parameters_.getParameter<int>("zBin");
-
-//   double dPhiTracksMin = parameters_.getParameter<double>("dPhiTracksMin");
-//   double dPhiTracksMax = parameters_.getParameter<double>("dPhiTracksMax");
-//   int dPhiTracksBin = parameters_.getParameter<int>("dPhiTracksBin");
-
-//   double eoverpMin = parameters_.getParameter<double>("eoverpMin");
-//   double eoverpMax = parameters_.getParameter<double>("eoverpMax");
-//   int    eoverpBin = parameters_.getParameter<int>("eoverpBin");
-
-
-  //  double dEtaTracksMin = parameters_.getParameter<double>("dEtaTracksMin");  // unused
-  //  double dEtaTracksMax = parameters_.getParameter<double>("dEtaTracksMax"); // unused
-  //  int    dEtaTracksBin = parameters_.getParameter<int>("dEtaTracksBin");  // unused
-
-//   double dCotTracksMin = parameters_.getParameter<double>("dCotTracksMin");
-//   double dCotTracksMax = parameters_.getParameter<double>("dCotTracksMax");
-//   int    dCotTracksBin = parameters_.getParameter<int>("dCotTracksBin");
-
-
   if (dbe_) {
 
     //// All MC photons
@@ -181,24 +182,17 @@ void  ElectronConversionRejectionValidator::beginJob() {
 
     h_convLeadTrackAlgo_ = dbe_->book1D("convLeadTrackAlgo","# of Electrons",31,-0.5,30.5);
     h_convTrailTrackAlgo_ = dbe_->book1D("convLeadTrackAlgo","# of Electrons",31,-0.5,30.5);
-
-
   } // if DQM
-
-
-
 }
 
 
-
- void  ElectronConversionRejectionValidator::beginRun (edm::Run const & r, edm::EventSetup const & theEventSetup) {
-
-
+void ElectronConversionRejectionValidator::beginRun (edm::Run const & r,
+                                                      edm::EventSetup const & theEventSetup) {
+  bookHistograms();
 }
 
-void  ElectronConversionRejectionValidator::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
-
-
+void ElectronConversionRejectionValidator::endRun (edm::Run& r,
+                                                    edm::EventSetup const & theEventSetup) {
 }
 
 
@@ -236,18 +230,18 @@ void ElectronConversionRejectionValidator::analyze( const edm::Event& e, const e
   edm::Handle<reco::VertexCollection> vertexHandle;
   e.getByToken(offline_pvToken_, vertexHandle);
   if (!vertexHandle.isValid()) {
-      edm::LogError("ElectronConversionRejectionValidator")
-          << "Error! Can't get the product primary Vertex Collection "<< "\n";
-      return;
+    edm::LogError("ElectronConversionRejectionValidator")
+        << "Error! Can't get the product primary Vertex Collection "<< "\n";
+    return;
   }
   const reco::Vertex &thevtx = vertexHandle->at(0);
 
   edm::Handle<reco::BeamSpot> bsHandle;
   e.getByToken(beamspotToken_, bsHandle);
   if (!bsHandle.isValid()) {
-      edm::LogError("ElectronConversionRejectionValidator")
-          << "Error! Can't get the product beamspot Collection "<< "\n";
-      return;
+    edm::LogError("ElectronConversionRejectionValidator")
+        << "Error! Can't get the product beamspot Collection "<< "\n";
+    return;
   }
   const reco::BeamSpot &thebs = *bsHandle.product();
 
