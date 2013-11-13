@@ -14,7 +14,7 @@ class PerformancePayloadFromTable : public PerformancePayload {
 //  class PerformancePayloadFromTable : public PerformancePayload, public PhysicsPerformancePayload {
  public:
 
-  static int InvalidPos;
+  static const int InvalidPos;
 
   //PerformancePayloadFromTable(int stride_, std::string columns_,std::vector<float> table) : PerformancePayload(stride_, columns_, table) {}
 

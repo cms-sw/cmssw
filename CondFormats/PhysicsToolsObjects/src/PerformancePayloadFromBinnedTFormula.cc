@@ -1,6 +1,6 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"
 
-int PerformancePayloadFromBinnedTFormula::InvalidPos=-1;
+const int PerformancePayloadFromBinnedTFormula::InvalidPos=-1;
 
 #include <iostream>
 using namespace std;
