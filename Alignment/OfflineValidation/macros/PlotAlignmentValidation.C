@@ -503,7 +503,7 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 //------------------------------------------------------------------------------
 void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits, const std::string& options)
 {
-  // If several, comma-separated values are given,
+  // If several, comma-separated values are given in 'variable',
   // call plotDMR with each value separately.
   // If a comma is found, the string is divided to two.
   // (no space allowed)
@@ -524,6 +524,14 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     plotDMR(variable+"Y", minHits, options);
     return;
   }
+
+  // options: 
+  // -plain (default, the whole distribution)
+  // -split (distribution splitted to two)
+  // -layers (plain db for each layer/disc superimposed in one plot)
+  // -layersSeparate (plain db for each layer/disc in separate plots)
+  // -layersSplit (splitted db for each layers/disc in one plot)
+  // -layersSplitSeparate (splitted db, for each layers/disc in separate plots)
 
   TRegexp layer_re("layer=[0-9]+");
   bool plotPlain = false, plotSplits = false, plotLayers = false;
@@ -565,10 +573,13 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
   plotinfo.plotPlain = plotPlain;
   plotinfo.plotLayers = plotLayers;
 
+  // width in cm
+  // for DMRS, use 100 bins in range +-10 um, bin width 0.2um
+  // if modified, check also TrackerOfflineValidationSummary_cfi.py and TrackerOfflineValidation_Standalone_cff.py
   if (variable == "meanX") {          plotinfo.nbins = 50;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
   else if (variable == "meanY") {     plotinfo.nbins = 50;  plotinfo.min = -0.005; plotinfo.max = 0.005; }
-  else if (variable == "medianX") {   plotinfo.nbins = 50;  plotinfo.min = -0.005; plotinfo.max = 0.005; }
-  else if (variable == "medianY") {   plotinfo.nbins = 50;  plotinfo.min = -0.005; plotinfo.max = 0.005; }
+  else if (variable == "medianX") {   plotinfo.nbins = 100;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
+  else if (variable == "medianY") {   plotinfo.nbins = 100;  plotinfo.min = -0.001; plotinfo.max = 0.001; }
   else if (variable == "meanNormX") { plotinfo.nbins = 100; plotinfo.min = -2.0;   plotinfo.max = 2.0; }
   else if (variable == "meanNormY") { plotinfo.nbins = 100; plotinfo.min = -2.0;   plotinfo.max = 2.0; }
   else if (variable == "rmsX") {      plotinfo.nbins = 100; plotinfo.min = 0.0;    plotinfo.max = 0.1; }
