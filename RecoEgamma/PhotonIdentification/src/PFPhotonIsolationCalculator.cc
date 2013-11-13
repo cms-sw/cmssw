@@ -1,10 +1,9 @@
-#include <TFile.h>
 #include "RecoEgamma/PhotonIdentification/interface/PFPhotonIsolationCalculator.h"
 #include <cmath>
 #include "DataFormats/Math/interface/deltaR.h"
 
 
-#ifndef STANDALONE
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
@@ -19,9 +18,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 
-#endif
 
-using namespace reco;
 
 void PFPhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
  
@@ -143,7 +140,7 @@ void PFPhotonIsolationCalculator::initializeRings(int iNumberOfRings, float fRin
 float PFPhotonIsolationCalculator::fGetIsolation(const reco::PFCandidate * pfCandidate, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
  
   fGetIsolationInRings( pfCandidate, pfParticlesColl, vtx, vertices);
-  refSC = SuperClusterRef();
+  refSC = reco::SuperClusterRef();
   fIsolation_ = fIsolationInRings_[0];
   
   return fIsolation_;
@@ -151,7 +148,7 @@ float PFPhotonIsolationCalculator::fGetIsolation(const reco::PFCandidate * pfCan
 
 
 //--------------------------------------------------------------------------------------------------
-vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::PFCandidate * pfCandidate, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+std::vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::PFCandidate * pfCandidate, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
 
   int isoBin;
   for(isoBin =0;isoBin<iNumberOfRings_;isoBin++){
@@ -236,7 +233,7 @@ float PFPhotonIsolationCalculator::fGetIsolation(const reco::Photon * photon, co
 
 
 //--------------------------------------------------------------------------------------------------
-vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Photon * photon, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+std::vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Photon * photon, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
 
   int isoBin;
   
@@ -333,7 +330,7 @@ vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Pho
 
 
 //--------------------------------------------------------------------------------------------------
-vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Photon * photon, const  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle, reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+std::vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Photon * photon, const  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle, reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
 
 
   int isoBin;
@@ -439,7 +436,7 @@ float PFPhotonIsolationCalculator::fGetIsolation(const reco::GsfElectron * elect
 
 
 //--------------------------------------------------------------------------------------------------
-vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::GsfElectron * electron, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+std::vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::GsfElectron * electron, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
 
   int isoBin;
   
@@ -740,7 +737,7 @@ float PFPhotonIsolationCalculator::isChargedParticleVetoed(const reco::PFCandida
 //-----------------------------------------------------------------------------------------------------
 float PFPhotonIsolationCalculator::isChargedParticleVetoed(const reco::PFCandidate* pfIsoCand,reco::VertexRef vtxMain, edm::Handle< reco::VertexCollection > vertices ){
   
-  VertexRef vtx = chargedHadronVertex(vertices, *pfIsoCand );
+  reco::VertexRef vtx = chargedHadronVertex(vertices, *pfIsoCand );
   if(vtx.isNull())
     return -999.;
   
@@ -845,7 +842,7 @@ if(fabs(dxy) > 0.2)
 //-----------------------------------------------------------------------------------------------------
 float PFPhotonIsolationCalculator::isChargedParticleVetoed(const reco::PFCandidateRef pfIsoCand,reco::VertexRef vtxMain, edm::Handle< reco::VertexCollection > vertices ){
   
-  VertexRef vtx = chargedHadronVertex(vertices, *pfIsoCand );
+  reco::VertexRef vtx = chargedHadronVertex(vertices, *pfIsoCand );
   if(vtx.isNull())
     return -999.;
   
@@ -949,7 +946,7 @@ if(fabs(dxy) > 0.2)
 
 
 //--------------------------------------------------------------------------------------------------
- VertexRef PFPhotonIsolationCalculator::chargedHadronVertex( edm::Handle< reco::VertexCollection > verticesColl, const reco::PFCandidate& pfcand ){
+reco::VertexRef PFPhotonIsolationCalculator::chargedHadronVertex( edm::Handle< reco::VertexCollection > verticesColl, const reco::PFCandidate& pfcand ){
 
   //code copied from Florian's PFNoPU class
     
@@ -969,22 +966,21 @@ if(fabs(dxy) > 0.2)
     
     // loop on tracks in vertices
     for(reco::Vertex::trackRef_iterator iTrack=vtx.tracks_begin();iTrack!=vtx.tracks_end(); ++iTrack) {
-
       const reco::TrackBaseRef& baseRef = *iTrack;
 
       // one of the tracks in the vertex is the same as
       // the track considered in the function
       if(baseRef == trackBaseRef ) {
-        float w = vtx.trackWeight(baseRef);
-        //select the vertex for which the track has the highest weight
-        if (w > bestweight){
-          bestweight=w;
-          iVertex=index;
-          nFoundVertex++;
-        }
+	float w = vtx.trackWeight(baseRef);
+	//select the vertex for which the track has the highest weight
+	if (w > bestweight){
+	  bestweight=w;
+	  iVertex=index;
+	  nFoundVertex++;
+	}
       }
     }
-    
+ 
   }
  
  
@@ -992,7 +988,7 @@ if(fabs(dxy) > 0.2)
   if (nFoundVertex>0){
     if (nFoundVertex!=1)
       edm::LogWarning("TrackOnTwoVertex")<<"a track is shared by at least two verteces. Used to be an assert";
-    return VertexRef( verticesColl, iVertex);
+    return reco::VertexRef( verticesColl, iVertex);
   }
   // no vertex found with this track.
 
@@ -1014,11 +1010,11 @@ if(fabs(dxy) > 0.2)
     }
 
     if( foundVertex )
-      return VertexRef( verticesColl, iVertex);
+      return reco::VertexRef( verticesColl, iVertex);
   
   }
    
-  return VertexRef( );
+  return reco::VertexRef( );
 }
 
 
