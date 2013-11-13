@@ -46,7 +46,7 @@ public:
   };
 
 public:
-  L1MuonPixelTrackFitter();
+
   L1MuonPixelTrackFitter( const edm::ParameterSet& cfg);
 
   virtual ~L1MuonPixelTrackFitter(){}
