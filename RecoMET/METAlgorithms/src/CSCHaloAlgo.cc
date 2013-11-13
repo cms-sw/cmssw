@@ -194,11 +194,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	  else 
            {
 	      static std::atomic<bool> MuonTimeFail{false};
-	      if( !MuonTimeFail ) 
+              bool expected = false;
+	      if( MuonTimeFail.compare_exchange_strong(expected,true,std::memory_order_acq_rel) ) 
 		{
 		  edm::LogWarning  ("InvalidInputTag") <<  "The MuonTimeExtraMap does not appear to be in the event. Some beam halo "
 						       << " identification variables will be empty" ;
-		  MuonTimeFail = true;
 		}
 	    }
 	}
@@ -207,11 +207,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
   else // collection is invalid
     {
       static std::atomic<bool> CosmicFail{false};
-      if( !CosmicFail ) 
+      bool expected = false;
+      if( CosmicFail.compare_exchange_strong(expected,true,std::memory_order_acq_rel) ) 
 	{
 	  edm::LogWarning  ("InvalidInputTag") << " The Cosmic Muon collection does not appear to be in the event. These beam halo "
 					       << " identification variables will be empty" ;
-	  CosmicFail = true;
 	}
     }
 
@@ -242,11 +242,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
   else //  HLT results are not valid
     {
       static std::atomic<bool> HLTFail{false};
-      if( !HLTFail ) 
+      bool expected = false;
+      if( HLTFail.compare_exchange_strong(expected,true,std::memory_order_acq_rel) ) 
 	{
 	  edm::LogWarning  ("InvalidInputTag") << "The HLT results do not appear to be in the event. The beam halo HLT trigger "
 					       << "decision will not be used in the halo identification"; 
-	  HLTFail = true;
 	}
     }
 
@@ -349,11 +349,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
    else
      {
        static std::atomic<bool> L1Fail{false};   
-       if( !L1Fail ) 
+       bool expected = false;
+       if( L1Fail.compare_exchange_strong(expected,true,std::memory_order_acq_rel) ) 
 	 {
 	   edm::LogWarning  ("InvalidInputTag") << "The L1MuGMTReadoutCollection does not appear to be in the event. The L1 beam halo trigger "
 						<< "decision will not be used in the halo identification"; 
-	   L1Fail = true;
 	 }
      }
 
@@ -430,10 +430,10 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
    else
      {
        static std::atomic<bool> DigiFail{false};
-       if (!DigiFail){
+       bool expected = false;
+       if (DigiFail.compare_exchange_strong(expected,true,std::memory_order_acq_rel)){
 	 edm::LogWarning  ("InvalidInputTag") << "The CSCALCTDigiCollection does not appear to be in the event. The ALCT Digis will "
 					      << " not be used in the halo identification"; 
-	 DigiFail=true;
        }
      }
    TheCSCHaloData.SetNOutOfTimeTriggers(n_alctsP,n_alctsM);
@@ -482,11 +482,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
    else
      {
        static std::atomic<bool> RecHitFail{false};
-       if( !RecHitFail ) 
+       bool expected = false;
+       if( RecHitFail.compare_exchange_strong(expected,true,std::memory_order_acq_rel)  ) 
 	 {
 	   edm::LogWarning  ("InvalidInputTag") << "The requested CSCRecHit2DCollection does not appear to be in the event. The CSC RecHit "
 						<< " variables used for halo identification will not be calculated or stored";
-	   RecHitFail = true;
 	 }       
      }
    TheCSCHaloData.SetNOutOfTimeHits(n_recHitsP+n_recHitsM);
