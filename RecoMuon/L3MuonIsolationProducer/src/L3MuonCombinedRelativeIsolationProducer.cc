@@ -59,18 +59,6 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   }
   produces<edm::ValueMap<bool> >();
 
-}
-
-/// destructor
-L3MuonCombinedRelativeIsolationProducer::~L3MuonCombinedRelativeIsolationProducer(){
-  LogDebug("RecoMuon|L3MuonCombinedRelativeIsolationProducer")<<" L3MuonCombinedRelativeIsolationProducer DTOR";
-  if (caloExtractor) delete caloExtractor;
-  if (trkExtractor) delete trkExtractor;
-}
-
-void L3MuonCombinedRelativeIsolationProducer::beginJob()
-{
-
   //
   // Extractor
   //
@@ -121,6 +109,14 @@ void L3MuonCombinedRelativeIsolationProducer::beginJob()
   // (kludge) additional cut on the number of tracks
   theMaxNTracks = cutsPSet.getParameter<int>("maxNTracks");
   theApplyCutsORmaxNTracks = cutsPSet.getParameter<bool>("applyCutsORmaxNTracks");
+
+}
+
+/// destructor
+L3MuonCombinedRelativeIsolationProducer::~L3MuonCombinedRelativeIsolationProducer(){
+  LogDebug("RecoMuon|L3MuonCombinedRelativeIsolationProducer")<<" L3MuonCombinedRelativeIsolationProducer DTOR";
+  if (caloExtractor) delete caloExtractor;
+  if (trkExtractor) delete trkExtractor;
 }
 
 void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventSetup& eventSetup){
