@@ -66,10 +66,10 @@ MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasur
       if (event.getByLabel(*itt, detIds)){
         rawInactiveDetIds.insert(rawInactiveDetIds.end(), detIds->begin(), detIds->end());
       }else{
-        static std::atomic<bool> iFailedAlread{false};
-        if (!iFailedAlready){
+        static std::atomic<bool> iFailedAlready{false};
+        bool expected = false;
+        if (iFailedAlready.compare_exchange_strong(expected,true,std::memory_order_acq_rel)){
           edm::LogError("MissingProduct")<<"I fail to get the list of inactive pixel modules, because of 4.2/4.4 event content change.";
-          iFailedAlready=true;
         }
       }
     }
