@@ -257,7 +257,7 @@ private:
   //                                      matacq event size.
   std::vector<unsigned char> data_;
   MatacqDataFormatter formatter_;
-  static int orbitTolerance_;
+  const static int orbitTolerance_;
   uint32_t openedFileRunNumber_;
   int32_t lastOrb_;
   int fastRetrievalThresh_;
@@ -292,7 +292,7 @@ private:
     double nNonLaserEventsWithMatacq;
   } stats_;
 
-  static stats_t stats_init;
+  const static stats_t stats_init;
   /** Log file name
    */
   std::string logFileName_;
