@@ -36,9 +36,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-//using namespace std;
-//using namespace edm;
-//using namespace reco;
 
 
 class PFPhotonIsolationCalculator{
