@@ -22,7 +22,7 @@ struct CaloTauSelectorDefinition {
   typedef std::vector<TDiscCutPair> TDiscCutPairVec;
   
   CaloTauSelectorDefinition ( const edm::ParameterSet & cfg ) {
-    discriminators_ = cfg.getParameter< std::vector<edm::ParameterSet> >( "discriminators" ); 
+    discriminatorsPSets_ = cfg.getParameter< std::vector<edm::ParameterSet> >( "discriminators" ); 
     cut_ = ( cfg.exists("cut") ) ? new StringCutObjectSelector<reco::CaloTau>( cfg.getParameter<std::string>( "cut" ) ) : 0;
   }
 
@@ -42,10 +42,10 @@ struct CaloTauSelectorDefinition {
     assert( hc.isValid() ); // collection of CaloTaus
     
     // get discriminators and coresponding cuts from stored vpset
-    discriminators.clear();
+    discriminators_.clear();
     
-    for(std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); 
-        it != discriminators_.end();
+    for(std::vector< edm::ParameterSet >::iterator it = discriminatorsPSets_.begin(); 
+        it != discriminatorsPSets_.end();
         ++it)
     {
       TDiscCutPair disc;
@@ -56,7 +56,7 @@ struct CaloTauSelectorDefinition {
       // the discriminator collection and the CaloTau collection
       // must have the same size
       assert( disc.m_discHandle->size() ==  hc->size());
-      discriminators.push_back(disc);
+      discriminators_.push_back(disc);
     }
       
     unsigned key=0;
@@ -69,8 +69,8 @@ struct CaloTauSelectorDefinition {
       reco::CaloTauRef calotauRef(hc, key);
       
       //iterate over all discriminators, check the cuts
-      for (TDiscCutPairVec::iterator discIt = discriminators.begin();
-           discIt!=discriminators.end();
+      for (TDiscCutPairVec::iterator discIt = discriminators_.begin();
+           discIt!=discriminators_.end();
            ++discIt)
       {
         if ( (*(discIt->m_discHandle))[calotauRef] <= discIt->m_cut)
@@ -87,9 +87,9 @@ struct CaloTauSelectorDefinition {
   size_t size() const { return selected_.size(); }
 
  private:
-  TDiscCutPairVec discriminators;
+  TDiscCutPairVec discriminators_;
   container selected_;
-  std::vector< edm::ParameterSet > discriminators_;
+  std::vector< edm::ParameterSet > discriminatorsPSets_;
   StringCutObjectSelector<reco::CaloTau>* cut_;
   
 };
