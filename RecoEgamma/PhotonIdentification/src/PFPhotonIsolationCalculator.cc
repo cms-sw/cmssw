@@ -1026,7 +1026,7 @@ int PFPhotonIsolationCalculator::matchPFObject(const reco::Photon* photon, const
   int i=0;
   for(reco::PFCandidateCollection::const_iterator iPF=Candidates->begin();iPF !=Candidates->end();iPF++){
     const reco::PFCandidate& pfParticle = (*iPF);
-    if((((pfParticle.pdgId()==22 ) || TMath::Abs(pfParticle.pdgId())==11) )){
+    if((((pfParticle.pdgId()==22 ) || std::abs(pfParticle.pdgId())==11) )){
      
       if(pfParticle.superClusterRef()==photon->superCluster())
         iMatch= i;
@@ -1071,7 +1071,7 @@ int PFPhotonIsolationCalculator::matchPFObject(const reco::GsfElectron* electron
   int i=0;
   for(reco::PFCandidateCollection::const_iterator iPF=Candidates->begin();iPF !=Candidates->end();iPF++){
     const reco::PFCandidate& pfParticle = (*iPF);
-    if((((pfParticle.pdgId()==22 ) || TMath::Abs(pfParticle.pdgId())==11) )){
+    if((((pfParticle.pdgId()==22 ) || std::abs(pfParticle.pdgId())==11) )){
      
       if(pfParticle.superClusterRef()==electron->superCluster())
         iMatch= i;
@@ -1086,7 +1086,7 @@ int PFPhotonIsolationCalculator::matchPFObject(const reco::GsfElectron* electron
     float fPt = -1;
     for(reco::PFCandidateCollection::const_iterator iPF=Candidates->begin();iPF !=Candidates->end();iPF++){
       const reco::PFCandidate& pfParticle = (*iPF);
-      if((((pfParticle.pdgId()==22 ) || TMath::Abs(pfParticle.pdgId())==11) )){
+      if((((pfParticle.pdgId()==22 ) || std::abs(pfParticle.pdgId())==11) )){
         if(pfParticle.pt()>fPt){
          float fDeltaR = deltaR(pfParticle.eta(),pfParticle.phi(),electron->eta(),electron->phi());
          if(fDeltaR<0.1){
