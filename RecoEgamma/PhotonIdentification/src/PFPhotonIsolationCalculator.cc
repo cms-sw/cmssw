@@ -212,15 +212,6 @@ std::vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco
 }
 
 
-//--------------------------------------------------------------------------------------------------
-float PFPhotonIsolationCalculator::fGetIsolation(const reco::Photon * photon, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
- 
-  fGetIsolationInRings( photon, pfParticlesColl, vtx, vertices);
-  fIsolation_ = fIsolationInRings_[0];
-  
-  return fIsolation_;
-}
-
 
 
 //--------------------------------------------------------------------------------------------------
@@ -230,102 +221,6 @@ float PFPhotonIsolationCalculator::fGetIsolation(const reco::Photon * photon, co
   fIsolation_ = fIsolationInRings_[0];
   return fIsolation_;
 }
-
-
-//--------------------------------------------------------------------------------------------------
-std::vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Photon * photon, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
-
-  int isoBin;
-  
-  for(isoBin =0;isoBin<iNumberOfRings_;isoBin++){
-    fIsolationInRings_[isoBin]=0.;
-    fIsolationInRingsPhoton_[isoBin]=0.;
-    fIsolationInRingsNeutral_[isoBin]=0.;
-    fIsolationInRingsCharged_[isoBin]=0.;
-    fIsolationInRingsChargedAll_[isoBin]=0.;
-  }
-  
-  iMissHits_ = 0;
-
-  refSC = photon->superCluster();
-  pivotInBarrel = std::fabs((refSC->position().eta()))<1.479;
-
-  for(unsigned iPF=0; iPF<pfParticlesColl->size(); iPF++) {
-
-    const reco::PFCandidate& pfParticle= (*pfParticlesColl)[iPF];
-
-    if (pfParticle.superClusterRef().isNonnull() &&
-        photon->superCluster().isNonnull() &&
-        pfParticle.superClusterRef() == photon->superCluster()) 
-      continue;
-
-    if(pfParticle.pdgId()==22){
-      
-      // Set the vertex of reco::Photon to the first PV
-      math::XYZVector direction = math::XYZVector(photon->superCluster()->x() - pfParticle.vx(),
-                                             photon->superCluster()->y() - pfParticle.vy(),
-                                                  photon->superCluster()->z() - pfParticle.vz());
-
-      fEta_ = direction.Eta();
-      fPhi_ = direction.Phi();
-      fVx_ = pfParticle.vx();
-      fVy_ = pfParticle.vy();
-      fVz_ = pfParticle.vz();
-      float fDeltaR =isPhotonParticleVetoed(&pfParticle); 
-      if( fDeltaR>=0.){
-        isoBin = (int)(fDeltaR/fRingSize_);
-        fIsolationInRingsPhoton_[isoBin] = fIsolationInRingsPhoton_[isoBin] + pfParticle.pt();
-      }
-      
-    }else if(std::abs(pfParticle.pdgId())==130){
-      
-       // Set the vertex of reco::Photon to the first PV
-      math::XYZVector direction = math::XYZVector(photon->superCluster()->x() - pfParticle.vx(),
-                                                  photon->superCluster()->y() - pfParticle.vy(),
-                                                  photon->superCluster()->z() - pfParticle.vz());
-
-      fEta_ = direction.Eta();
-      fPhi_ = direction.Phi();
-      fVx_ = pfParticle.vx();
-      fVy_ = pfParticle.vy();
-      fVz_ = pfParticle.vz();
-      float fDeltaR =  isNeutralParticleVetoed( &pfParticle); 
-      if(fDeltaR>=0.){
-	isoBin = (int)(fDeltaR/fRingSize_);
-        fIsolationInRingsNeutral_[isoBin] = fIsolationInRingsNeutral_[isoBin] + pfParticle.pt();
-      }
-
-
-    }else if(std::abs(pfParticle.pdgId()) == 211){
-     
-      // Set the vertex of reco::Photon to the first PV
-      math::XYZVector direction = math::XYZVector(photon->superCluster()->x() - (*vtx).x(),
-                                                  photon->superCluster()->y() - (*vtx).y(),
-                                                  photon->superCluster()->z() - (*vtx).z());
-
-      fEta_ = direction.Eta();
-      fPhi_ = direction.Phi();
-      fVx_ = (*vtx).x();
-      fVy_ = (*vtx).y();
-      fVz_ = (*vtx).z();
-      float fDeltaR = isChargedParticleVetoed( &pfParticle, vtx, vertices);
-      if( fDeltaR >=0.){
-        isoBin = (int)(fDeltaR/fRingSize_);
-        fIsolationInRingsCharged_[isoBin] = fIsolationInRingsCharged_[isoBin] + pfParticle.pt();
-      }
-
-    }
-  }
-
- 
-  for(int isoBin =0;isoBin<iNumberOfRings_;isoBin++){
-    fIsolationInRings_[isoBin]= fIsolationInRingsPhoton_[isoBin]+ fIsolationInRingsNeutral_[isoBin] + fIsolationInRingsCharged_[isoBin];
-    
- }
-  
-  return fIsolationInRings_;
-}
-
 
 
 
