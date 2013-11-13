@@ -297,12 +297,12 @@ void EcalSelectiveReadoutProducer::checkWeights(const edm::Event& evt,
   const vector<float> & weights = settings_->dccNormalizedWeights_[0]; //params_.getParameter<vector<double> >("dccNormalizedWeights");
   int nFIRTaps = EcalSelectiveReadoutSuppressor::getFIRTapCount();
   static std::atomic<bool> warnWeightCnt{true};
-  if((int)weights.size() > nFIRTaps && warnWeightCnt){
+  bool expected = true;
+  if((int)weights.size() > nFIRTaps && warnWeightCnt.compare_exchange_strong(expected,false,std::memory_order_acq_rel)){
       edm::LogWarning("Configuration") << "The list of DCC zero suppression FIR "
 	"weights given in parameter dccNormalizedWeights is longer "
 	"than the expected depth of the FIR filter :(" << nFIRTaps << "). "
 	"The last weights will be discarded.";
-      warnWeightCnt = false; //it's not needed to repeat the warning.
   }
 
   if(weights.size()>0){
