@@ -31,7 +31,6 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -50,13 +49,6 @@ class PFPhotonIsolationCalculator{
 
  public:
 
-  //void initialize( int iParticleType);
-  //  void initializeElectronIsolation( Bool_t bApplyVeto);
-  // void initializePhotonIsolation( Bool_t bApplyVeto);
-  //void initializeElectronIsolationInRings( Bool_t bApplyVeto, int iNumberOfRings, float fRingSize );
-  // void initializePhotonIsolationInRings( Bool_t bApplyVeto, int iNumberOfRings, float fRingSize );
-  
-  //Bool_t isInitialized() const { return fisInitialized_; }
   
 
   void calculate(const reco::Photon*, 
@@ -109,20 +101,9 @@ class PFPhotonIsolationCalculator{
   int matchPFObject(const reco::Photon* photon, const reco::PFCandidateCollection* pfParticlesColl );
   int matchPFObject(const reco::GsfElectron* photon, const reco::PFCandidateCollection* pfParticlesColl );
 
-  float fGetIsolation(const reco::PFCandidate * pfCandidate,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
-  std::vector<float > fGetIsolationInRings(const reco::PFCandidate * pfCandidate,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
-  
   float fGetIsolation(const reco::Photon* photon, const  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle ,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
   std::vector<float > fGetIsolationInRings(const reco::Photon* photon,  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle, reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
-  
-  float fGetIsolation(const reco::Photon* photon ,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
-  std::vector<float > fGetIsolationInRings(const reco::Photon* photon,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
-  
-  float fGetIsolation(const reco::GsfElectron* electron,const reco::PFCandidateCollection* pfParticlesColl,const reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
-  std::vector<float > fGetIsolationInRings(const reco::GsfElectron* electron,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
-
-
- 
+    
 
   int iParticleType_;
 
