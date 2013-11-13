@@ -33,13 +33,13 @@ class ElectronPATIdMVAProducer : public edm::EDProducer {
 
 		// ----------member data ---------------------------
   bool verbose_;
-  edm::InputTag electronTag_;
+  edm::EDGetTokenT<pat::ElectronCollection> electronToken_;
   double _Rho;
-  edm::InputTag eventrho;
+  edm::EDGetTokenT<double> eventrhoToken_;
   string method_;
   vector<string> mvaWeightFiles_;
-  
-  
+
+
   EGammaMvaEleEstimator* mvaID_;
 
 };
@@ -57,21 +57,21 @@ class ElectronPATIdMVAProducer : public edm::EDProducer {
 //
 ElectronPATIdMVAProducer::ElectronPATIdMVAProducer(const edm::ParameterSet& iConfig) {
         verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
-	electronTag_ = iConfig.getParameter<edm::InputTag>("electronTag");
+	electronToken_ = consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electronTag"));
 	method_ = iConfig.getParameter<string>("method");
 	std::vector<string> fpMvaWeightFiles = iConfig.getParameter<std::vector<std::string> >("mvaWeightFile");
-	eventrho = iConfig.getParameter<edm::InputTag>("Rho");
+	eventrhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("Rho"));
 
         produces<edm::ValueMap<float> >();
 
         mvaID_ = new EGammaMvaEleEstimator();
- 
+
         EGammaMvaEleEstimator::MVAType type_;
-        
-	 
+
+
 	type_ = EGammaMvaEleEstimator::kTrigNoIP;
-	 
-	
+
+
 
         bool manualCat_ = true;
 
@@ -80,7 +80,7 @@ ElectronPATIdMVAProducer::ElectronPATIdMVAProducer(const edm::ParameterSet& iCon
 	  path_mvaWeightFileEleID = edm::FileInPath ( fpMvaWeightFiles[ifile].c_str() ).fullPath();
 	  mvaWeightFiles_.push_back(path_mvaWeightFileEleID);
 	}
-	
+
         mvaID_->initialize(method_, type_, manualCat_, mvaWeightFiles_);
 
 }
@@ -88,7 +88,7 @@ ElectronPATIdMVAProducer::ElectronPATIdMVAProducer(const edm::ParameterSet& iCon
 
 ElectronPATIdMVAProducer::~ElectronPATIdMVAProducer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -107,34 +107,34 @@ void ElectronPATIdMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
 
 
-      
 
-       
+
+
 
 	Handle<pat::ElectronCollection> egCollection;
-	iEvent.getByLabel(electronTag_,egCollection);
+	iEvent.getByToken(electronToken_,egCollection);
         const pat::ElectronCollection egCandidates = (*egCollection.product());
 
 	_Rho=0;
 	edm::Handle<double> rhoPtr;
-	//const edm::InputTag eventrho("kt6PFJets", "rho");
-	iEvent.getByLabel(eventrho,rhoPtr);
+	//const edm::InputTag eventrhoToken_("kt6PFJets", "rho");
+	iEvent.getByToken(eventrhoToken_,rhoPtr);
 	_Rho=*rhoPtr;
 
         std::vector<float> values;
         values.reserve(egCollection->size());
-   
+
         for ( pat::ElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
 
           double mvaVal = -999999;
-	  
-	  
-	  
-	  
+
+
+
+
 	  mvaVal = mvaID_->mvaValue( *egIter, _Rho, verbose_);
-	  
-	  
-	  values.push_back( mvaVal ); 
+
+
+	  values.push_back( mvaVal );
 	}
 
         edm::ValueMap<float>::Filler filler(*out);
@@ -143,7 +143,7 @@ void ElectronPATIdMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
 	iEvent.put(out);
 
-   
+
 }
 
 //define this as a plug-in

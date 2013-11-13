@@ -24,6 +24,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -64,9 +65,9 @@ class ElectronIsoAnalyzer : public edm::EDAnalyzer {
   unsigned int ev;
       // ----------member data ---------------------------
   bool verbose_;
-  edm::InputTag inputTagGsfElectrons_;
-  edm::InputTag rhoIsoInputTag_;
-  std::vector<edm::InputTag> inputTagIsoValElectrons_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> tokenGsfElectrons_;
+  edm::EDGetTokenT<double> rhoIsoToken_;
+  std::vector<edm::EDGetTokenT<edm::ValueMap<double> > > tokensIsoValElectrons_;
   typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoValues;
   ElectronEffectiveArea::ElectronEffectiveAreaTarget effAreaTarget_;
   ElectronEffectiveArea::ElectronEffectiveAreaType   effAreaGammaPlusNeutralHad_;
@@ -111,11 +112,11 @@ ElectronIsoAnalyzer::ElectronIsoAnalyzer(const edm::ParameterSet& iConfig):
 {
 
   verbose_                    = iConfig.getUntrackedParameter<bool>("verbose", false);
-  inputTagGsfElectrons_       = iConfig.getParameter<edm::InputTag>("Electrons");
-  inputTagIsoValElectrons_    = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectrons");
+  tokenGsfElectrons_       = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("Electrons"));
+  tokensIsoValElectrons_    = edm::vector_transform(iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectrons"), [this](edm::InputTag const & tag){return consumes<edm::ValueMap<double> >(tag);});
   deltaR_                     = iConfig.getParameter<std::string>("deltaR");
   std::string eaTarget        = iConfig.getParameter<std::string>("effectiveAreaTarget");
-  rhoIsoInputTag_             = iConfig.getParameter<edm::InputTag>("rhoIsoInputTag");
+  rhoIsoToken_             = consumes<double>(iConfig.getParameter<edm::InputTag>("rhoIsoInputTag"));
 
   if      (eaTarget == "NoCorr")     effAreaTarget_ = ElectronEffectiveArea::kEleEANoCorr;
   else if (eaTarget == "Data2011")   effAreaTarget_ = ElectronEffectiveArea::kEleEAData2011;   // default for HZZ
@@ -175,20 +176,20 @@ ElectronIsoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
   Handle<GsfElectronCollection> theEGammaCollection;
-  iEvent.getByLabel(inputTagGsfElectrons_,theEGammaCollection);
+  iEvent.getByToken(tokenGsfElectrons_,theEGammaCollection);
   const GsfElectronCollection theEGamma = *(theEGammaCollection.product());
 
   // rho for isolation
   edm::Handle<double> rhoIso_h;
-  iEvent.getByLabel(rhoIsoInputTag_, rhoIso_h);
+  iEvent.getByToken(rhoIsoToken_, rhoIso_h);
   double rhoIso = *(rhoIso_h.product());
 
 
   unsigned nTypes=3;
   IsoValues  electronIsoValues(nTypes);
 
-  for (size_t j = 0; j<inputTagIsoValElectrons_.size(); ++j) {
-    iEvent.getByLabel(inputTagIsoValElectrons_[j], electronIsoValues[j]);
+  for (size_t j = 0; j<tokensIsoValElectrons_.size(); ++j) {
+    iEvent.getByToken(tokensIsoValElectrons_[j], electronIsoValues[j]);
   }
 
   unsigned nele=theEGammaCollection->size();

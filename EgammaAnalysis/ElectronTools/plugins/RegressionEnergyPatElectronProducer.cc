@@ -10,9 +10,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "EgammaAnalysis/ElectronTools/interface/SuperClusterHelper.h"
 
 #include <iostream>
@@ -26,14 +23,15 @@ using namespace pat ;
 RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer( const edm::ParameterSet & cfg )
 {
 
-  inputElectrons_ = cfg.getParameter<edm::InputTag>("inputElectronsTag");
+  inputGsfElectronsToken_ = mayConsume<GsfElectronCollection>(cfg.getParameter<edm::InputTag>("inputElectronsTag"));
+  inputPatElectronsToken_ = mayConsume<ElectronCollection>(cfg.getParameter<edm::InputTag>("inputElectronsTag"));
   inputCollectionType_ = cfg.getParameter<uint32_t>("inputCollectionType");
-  rhoInputTag_ = cfg.getParameter<edm::InputTag>("rhoCollection");
-  verticesInputTag_ = cfg.getParameter<edm::InputTag>("vertexCollection");
+  rhoInputToken_ = consumes<double>(cfg.getParameter<edm::InputTag>("rhoCollection"));
+  verticesInputToken_ = consumes<VertexCollection>(cfg.getParameter<edm::InputTag>("vertexCollection"));
   energyRegressionType_ = cfg.getParameter<uint32_t>("energyRegressionType");
   regressionInputFile_ = cfg.getParameter<std::string>("regressionInputFile");
-  recHitCollectionEB_ = cfg.getParameter<edm::InputTag>("recHitCollectionEB");
-  recHitCollectionEE_ = cfg.getParameter<edm::InputTag>("recHitCollectionEE");
+  recHitCollectionEBToken_ = mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitCollectionEB"));
+  recHitCollectionEEToken_ = mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitCollectionEE"));
   nameEnergyReg_      = cfg.getParameter<std::string>("nameEnergyReg");
   nameEnergyErrorReg_ = cfg.getParameter<std::string>("nameEnergyErrorReg");
   debug_ = cfg.getUntrackedParameter<bool>("debug");
@@ -54,7 +52,7 @@ RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer( const 
   } else if (inputCollectionType_ == 1) {
     produces<ElectronCollection>();
   } else {
-    throw cms::Exception("InconsistentParameters")  << " inputCollectionType should be either 0 (GsfElectrons) or 1 (pat::Electrons) " << std::endl;  
+    throw cms::Exception("InconsistentParameters")  << " inputCollectionType should be either 0 (GsfElectrons) or 1 (pat::Electrons) " << std::endl;
   }
 
 
@@ -83,7 +81,7 @@ RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer( const 
   std::cout << " Finished initialization " << std::endl;
 
 }
- 
+
 RegressionEnergyPatElectronProducer::~RegressionEnergyPatElectronProducer()
 {
   delete regressionEvaluator_;
@@ -98,9 +96,9 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
     edm::ESHandle<CaloTopology> theCaloTopology;
     setup.get<CaloTopologyRecord>().get(theCaloTopology);
     ecalTopology_ = & (*theCaloTopology);
-    
+
     edm::ESHandle<CaloGeometry> theCaloGeometry;
-    setup.get<CaloGeometryRecord>().get(theCaloGeometry); 
+    setup.get<CaloGeometryRecord>().get(theCaloGeometry);
     caloGeometry_ = & (*theCaloGeometry);
     geomInitialized_ = true;
   }
@@ -110,12 +108,12 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
   //Get Number of Vertices
   //**************************************************************************
   Handle<reco::VertexCollection> hVertexProduct;
-  event.getByLabel(verticesInputTag_,hVertexProduct);
-  const reco::VertexCollection inVertices = *(hVertexProduct.product());  
+  event.getByToken(verticesInputToken_,hVertexProduct);
+  const reco::VertexCollection inVertices = *(hVertexProduct.product());
 
   // loop through all vertices
   Int_t nvertices = 0;
-  for (reco::VertexCollection::const_iterator inV = inVertices.begin(); 
+  for (reco::VertexCollection::const_iterator inV = inVertices.begin();
        inV != inVertices.end(); ++inV) {
 
     //pass these vertex cuts
@@ -132,7 +130,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
   //**************************************************************************
   double rho = 0;
   Handle<double> hRhoKt6PFJets;
-  event.getByLabel(rhoInputTag_, hRhoKt6PFJets);
+  event.getByToken(rhoInputToken_, hRhoKt6PFJets);
   rho = (*hRhoKt6PFJets);
 
   //*************************************************************************
@@ -142,22 +140,22 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
   edm::Handle< EcalRecHitCollection > pEBRecHits;
   edm::Handle< EcalRecHitCollection > pEERecHits;
   if (useReducedRecHits_) {
-    event.getByLabel( recHitCollectionEB_, pEBRecHits );
-    event.getByLabel( recHitCollectionEE_, pEERecHits );
+    event.getByToken( recHitCollectionEBToken_, pEBRecHits );
+    event.getByToken( recHitCollectionEEToken_, pEERecHits );
   }
 
   edm::Handle<GsfElectronCollection> gsfCollectionH ;
   edm::Handle<ElectronCollection> patCollectionH;
   if ( inputCollectionType_ == 0 ) {
-    event.getByLabel ( inputElectrons_,gsfCollectionH )  ;
+    event.getByToken ( inputGsfElectronsToken_,gsfCollectionH )  ;
     nElectrons_ = gsfCollectionH->size();
   }
   if ( inputCollectionType_ == 1 ) {
-    event.getByLabel ( inputElectrons_,patCollectionH )  ;
+    event.getByToken ( inputPatElectronsToken_,patCollectionH )  ;
     nElectrons_ = patCollectionH->size();
   }
 
-  // prepare the two even if only one is used 
+  // prepare the two even if only one is used
   std::auto_ptr<ElectronCollection> patElectrons( new ElectronCollection ) ;
 
   // Fillers for ValueMaps:
@@ -173,19 +171,19 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
   std::vector<double> energyErrorValues;
   energyValues.reserve(nElectrons_);
   energyErrorValues.reserve(nElectrons_);
- 
+
 
   for(unsigned iele=0; iele < nElectrons_ ; ++iele) {
-    
+
     const GsfElectron * ele = ( inputCollectionType_ == 0 ) ? &(*gsfCollectionH)[iele] : &(*patCollectionH)[iele] ;
     if (debug_) {
       std::cout << "***********************************************************************\n";
       std::cout << "Run Lumi Event: " << event.id().run() << " " << event.luminosityBlock() << " " << event.id().event() << "\n";
       std::cout << "Pat Electron : " << ele->pt() << " " << ele->eta() << " " << ele->phi() << "\n";
     }
-    
+
     pat::Electron * myPatElectron = (inputCollectionType_ == 0 ) ?  0 : new pat::Electron((*patCollectionH)[iele]);
-    // Get RecHit Collection 
+    // Get RecHit Collection
     const EcalRecHitCollection * recHits=0;
     if (useReducedRecHits_) {
       if(ele->isEB()) {
@@ -194,15 +192,15 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 	recHits = pEERecHits.product();
     } else {
       recHits = (*patCollectionH)[iele].recHits();
-    } 
+    }
 
     SuperClusterHelper * mySCHelper = 0 ;
-    if ( inputCollectionType_ == 0 ) { 
+    if ( inputCollectionType_ == 0 ) {
       mySCHelper = new SuperClusterHelper(&(*ele),recHits,ecalTopology_,caloGeometry_);
     } else if ( inputCollectionType_ == 1) {
       mySCHelper = new SuperClusterHelper( &(*patCollectionH)[iele], recHits,ecalTopology_,caloGeometry_);
     }
-   
+
     // apply regression energy
     Double_t FinalMomentum = 0;
     Double_t FinalMomentumError = 0;
@@ -219,8 +217,8 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 									    mySCHelper->phiWidth(),
 									    mySCHelper->clustersSize(),
 									    mySCHelper->hadronicOverEm(),
-									    rho, 
-									    nvertices, 
+									    rho,
+									    nvertices,
 									    mySCHelper->seedEta(),
 									    mySCHelper->seedPhi(),
 									    mySCHelper->seedEnergy(),
@@ -246,7 +244,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 									    mySCHelper->phiCrySeed(),
 									    mySCHelper->preshowerEnergyOverRaw(),
 									    debug_);
-	RegressionMomentumError = regressionEvaluator_->regressionUncertaintyNoTrkVar( 
+	RegressionMomentumError = regressionEvaluator_->regressionUncertaintyNoTrkVar(
 										      mySCHelper->rawEnergy(),
 										      mySCHelper->eta(),
 										      mySCHelper->phi(),
@@ -255,8 +253,8 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 										      mySCHelper->phiWidth(),
 										      mySCHelper->clustersSize(),
 										      mySCHelper->hadronicOverEm(),
-										      rho, 
-										      nvertices, 
+										      rho,
+										      nvertices,
 										      mySCHelper->seedEta(),
 										      mySCHelper->seedPhi(),
 										      mySCHelper->seedEnergy(),
@@ -282,17 +280,17 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 										      mySCHelper->phiCrySeed(),
 										      mySCHelper->preshowerEnergyOverRaw(),
 										      debug_);
-	
+
 	// PAT method
 	if(inputCollectionType_ == 1) {
-	  myPatElectron->setEcalRegressionEnergy(RegressionMomentum, RegressionMomentumError); 
+	  myPatElectron->setEcalRegressionEnergy(RegressionMomentum, RegressionMomentumError);
 	}
 	energyValues.push_back(RegressionMomentum);
-	energyErrorValues.push_back(RegressionMomentumError);	
+	energyErrorValues.push_back(RegressionMomentumError);
 
 
     } else if (energyRegressionType_ == 2) {// ECAL regression with subcluster information
-        RegressionMomentum = regressionEvaluator_->regressionValueWithSubClusters( 
+        RegressionMomentum = regressionEvaluator_->regressionValueWithSubClusters(
                 mySCHelper->rawEnergy(),
                 mySCHelper->eta(),
                 mySCHelper->phi(),
@@ -301,8 +299,8 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
                 mySCHelper->phiWidth(),
                 mySCHelper->clustersSize(),
                 mySCHelper->hadronicOverEm(),
-                rho, 
-                nvertices, 
+                rho,
+                nvertices,
                 mySCHelper->seedEta(),
                 mySCHelper->seedPhi(),
                 mySCHelper->seedEnergy(),
@@ -360,7 +358,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 		        mySCHelper->esClusterPhi(2),
                 ele->isEB(),
                 debug_);
-        RegressionMomentumError = regressionEvaluator_->regressionUncertaintyWithSubClusters( 
+        RegressionMomentumError = regressionEvaluator_->regressionUncertaintyWithSubClusters(
                 mySCHelper->rawEnergy(),
                 mySCHelper->eta(),
                 mySCHelper->phi(),
@@ -369,8 +367,8 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
                 mySCHelper->phiWidth(),
                 mySCHelper->clustersSize(),
                 mySCHelper->hadronicOverEm(),
-                rho, 
-                nvertices, 
+                rho,
+                nvertices,
                 mySCHelper->seedEta(),
                 mySCHelper->seedPhi(),
                 mySCHelper->seedEnergy(),
@@ -431,14 +429,14 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 
         // PAT method
         if(inputCollectionType_ == 1) {
-            myPatElectron->setEcalRegressionEnergy(RegressionMomentum, RegressionMomentumError); 
+            myPatElectron->setEcalRegressionEnergy(RegressionMomentum, RegressionMomentumError);
         }
         energyValues.push_back(RegressionMomentum);
-        energyErrorValues.push_back(RegressionMomentumError);	
+        energyErrorValues.push_back(RegressionMomentumError);
 
 
     }
-      
+
       else if (energyRegressionType_ == 3) {
 	RegressionMomentum = regressionEvaluator_->regressionValueWithTrkVar(ele->p(),
 									    mySCHelper->rawEnergy(),
@@ -449,8 +447,8 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 									    mySCHelper->clustersSize(),
 									    mySCHelper->hadronicOverEm(),
 									    mySCHelper->r9(),
-									    rho, 
-									    nvertices, 
+									    rho,
+									    nvertices,
 									    mySCHelper->seedEta(),
 									    mySCHelper->seedPhi(),
 									    mySCHelper->seedEnergy(),
@@ -491,8 +489,8 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 										       mySCHelper->clustersSize(),
 										       mySCHelper->hadronicOverEm(),
 										       mySCHelper->r9(),
-										       rho, 
-										       nvertices, 
+										       rho,
+										       nvertices,
 										       mySCHelper->seedEta(),
 										       mySCHelper->seedPhi(),
 										       mySCHelper->seedEnergy(),
@@ -533,16 +531,16 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 	    FinalMomentum ) ;
 
 	myPatElectron->correctEcalEnergy(RegressionMomentum, RegressionMomentumError);
-        myPatElectron->correctMomentum(newMomentum,ele->trackMomentumError(),FinalMomentumError); 	
-	
+        myPatElectron->correctMomentum(newMomentum,ele->trackMomentumError(),FinalMomentumError);
+
 	energyValues.push_back(RegressionMomentum);
-	energyErrorValues.push_back(RegressionMomentumError);	
+	energyErrorValues.push_back(RegressionMomentumError);
       } else {
 	cout << "Error: RegressionType = " << energyRegressionType_ << " is not supported.\n";
       }
 
       if(inputCollectionType_ == 1) {
-	patElectrons->push_back(*myPatElectron);				    
+	patElectrons->push_back(*myPatElectron);
      }
       if (myPatElectron) delete myPatElectron;
       if (mySCHelper) delete mySCHelper;
@@ -552,10 +550,10 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
   if(inputCollectionType_ == 1) {
     event.put(patElectrons) ;
   }
-  
+
   // now AOD case: write ValueMaps
   if (produceValueMaps_) {
-    
+
     if ( inputCollectionType_ ==0 ) {
       energyFiller.insert( gsfCollectionH, energyValues.begin(), energyValues.end() );
       energyErrorFiller.insert( gsfCollectionH, energyErrorValues.begin(), energyErrorValues.end() );
@@ -563,16 +561,16 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
       energyFiller.insert( patCollectionH, energyValues.begin(), energyValues.end() );
       energyErrorFiller.insert( patCollectionH, energyErrorValues.begin(), energyErrorValues.end() );
     }
-     
+
     energyFiller.fill();
     energyErrorFiller.fill();
     event.put(regrEnergyMap,nameEnergyReg_);
     event.put(regrEnergyErrorMap,nameEnergyErrorReg_);
   }
-  
+
 }
-  
-  
+
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"

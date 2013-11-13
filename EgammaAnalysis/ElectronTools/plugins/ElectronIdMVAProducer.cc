@@ -33,17 +33,18 @@ class ElectronIdMVAProducer : public edm::EDFilter {
 
 		// ----------member data ---------------------------
                 bool verbose_;
-		edm::InputTag vertexTag_;
-		edm::InputTag electronTag_;
+		edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+		edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
+	        edm::EDGetTokenT<double> eventrhoToken_;
                 edm::InputTag reducedEBRecHitCollection_;
                 edm::InputTag reducedEERecHitCollection_;
-  
+
                 double _Rho;
                 string method_;
                 vector<string> mvaWeightFiles_;
                 bool Trig_;
                 bool NoIP_;
- 
+
                 EGammaMvaEleEstimator* mvaID_;
 
 };
@@ -61,8 +62,9 @@ class ElectronIdMVAProducer : public edm::EDFilter {
 //
 ElectronIdMVAProducer::ElectronIdMVAProducer(const edm::ParameterSet& iConfig) {
         verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
-	vertexTag_ = iConfig.getParameter<edm::InputTag>("vertexTag");
-	electronTag_ = iConfig.getParameter<edm::InputTag>("electronTag");
+	vertexToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexTag"));
+	electronToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronTag"));
+	eventrhoToken_ = consumes<double>(edm::InputTag("kt6PFJets", "rho"));
         reducedEBRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEBRecHitCollection");
         reducedEERecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEERecHitCollection");
 	method_ = iConfig.getParameter<string>("method");
@@ -73,12 +75,12 @@ ElectronIdMVAProducer::ElectronIdMVAProducer(const edm::ParameterSet& iConfig) {
         produces<edm::ValueMap<float> >("");
 
         mvaID_ = new EGammaMvaEleEstimator();
- 
+
         EGammaMvaEleEstimator::MVAType type_;
         if(Trig_ && !NoIP_){type_ = EGammaMvaEleEstimator::kTrig;}
-	 
+
 	if(Trig_ && NoIP_){type_ = EGammaMvaEleEstimator::kTrigNoIP;}
-	 
+
 	if(!Trig_){type_ = EGammaMvaEleEstimator::kNonTrig;}
 
         bool manualCat_ = true;
@@ -88,7 +90,7 @@ ElectronIdMVAProducer::ElectronIdMVAProducer(const edm::ParameterSet& iConfig) {
 	  path_mvaWeightFileEleID = edm::FileInPath ( fpMvaWeightFiles[ifile].c_str() ).fullPath();
 	  mvaWeightFiles_.push_back(path_mvaWeightFileEleID);
 	}
-	
+
         mvaID_->initialize(method_, type_, manualCat_, mvaWeightFiles_);
 
 }
@@ -96,7 +98,7 @@ ElectronIdMVAProducer::ElectronIdMVAProducer(const edm::ParameterSet& iConfig) {
 
 ElectronIdMVAProducer::~ElectronIdMVAProducer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -114,7 +116,7 @@ bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iS
         std::auto_ptr<edm::ValueMap<float> > out(new edm::ValueMap<float>() );
 
 	Handle<reco::VertexCollection>  vertexCollection;
-	iEvent.getByLabel(vertexTag_, vertexCollection);
+	iEvent.getByToken(vertexToken_, vertexCollection);
 
         Vertex dummy;
         const Vertex *pv = &dummy;
@@ -136,18 +138,17 @@ bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iS
         TransientTrackBuilder thebuilder = *(builder.product());
 
 	Handle<reco::GsfElectronCollection> egCollection;
-	iEvent.getByLabel(electronTag_,egCollection);
+	iEvent.getByToken(electronToken_,egCollection);
         const reco::GsfElectronCollection egCandidates = (*egCollection.product());
 
 	_Rho=0;
 	edm::Handle<double> rhoPtr;
-	const edm::InputTag eventrho("kt6PFJets", "rho");
-	iEvent.getByLabel(eventrho,rhoPtr);
+	iEvent.getByToken(eventrhoToken_,rhoPtr);
 	_Rho=*rhoPtr;
 
         std::vector<float> values;
         values.reserve(egCollection->size());
-   
+
         for ( reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
 
           double mvaVal = -999999;
@@ -157,8 +158,8 @@ bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iS
 	  if(NoIP_){
 	    mvaVal = mvaID_->mvaValue( *egIter, *pv, _Rho,/*thebuilder,*/lazyTools, verbose_);
 	  }
-	  
-	  values.push_back( mvaVal ); 
+
+	  values.push_back( mvaVal );
 	}
 
         edm::ValueMap<float>::Filler filler(*out);

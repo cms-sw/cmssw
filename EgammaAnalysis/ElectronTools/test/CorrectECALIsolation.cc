@@ -24,28 +24,28 @@ class CorrectECALIsolation : public edm::EDAnalyzer {
 public:
   explicit CorrectECALIsolation(const edm::ParameterSet&);
   ~CorrectECALIsolation();
-  
+
 private:
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  
+
   edm::ParameterSet conf_;
-  
+
   bool isData_;
-  edm::InputTag inputTagGsfElectrons_;
-  
-  TH1F* uncorrectedIsolationEB_; 
-  TH1F* correctedIsolationEB_; 
-  TH1F* uncorrectedIsolationEE_; 
-  TH1F* correctedIsolationEE_; 
+  edm::EDGetTokenT<reco::GsfElectronCollection> tokenGsfElectrons_;
+
+  TH1F* uncorrectedIsolationEB_;
+  TH1F* correctedIsolationEB_;
+  TH1F* uncorrectedIsolationEE_;
+  TH1F* correctedIsolationEE_;
 };
 
 CorrectECALIsolation::CorrectECALIsolation(const edm::ParameterSet& iConfig):
   conf_(iConfig) {
   isData_                    = iConfig.getUntrackedParameter<bool>("isData", false);
-  inputTagGsfElectrons_       = iConfig.getParameter<edm::InputTag>("Electrons");
-  
+  tokenGsfElectrons_       = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("Electrons"));
+
   edm::Service<TFileService> fs;
   uncorrectedIsolationEB_ = fs->make<TH1F>("uncorrectedIsolationEB", "uncorrected IsolationEB" , 50, 0, 10);
   correctedIsolationEB_   = fs->make<TH1F>("correctedIsolationEB", "corrected IsolationEB" , 50, 0, 10);
@@ -57,37 +57,37 @@ CorrectECALIsolation::~CorrectECALIsolation()
 {}
 
 void CorrectECALIsolation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
- 
+
   edm::Handle<reco::GsfElectronCollection> theEGammaCollection;
-  iEvent.getByLabel(inputTagGsfElectrons_,theEGammaCollection);
+  iEvent.getByToken(tokenGsfElectrons_,theEGammaCollection);
   const reco::GsfElectronCollection theEGamma = *(theEGammaCollection.product());
-  
+
   // Setup a corrector for electrons
   EcalIsolationCorrector ecalIsoCorr(true);
 
   unsigned nele=theEGammaCollection->size();
-  
+
   for(unsigned iele=0; iele<nele;++iele) {
     reco::GsfElectronRef myElectronRef(theEGammaCollection, iele);
-    
+
     float uncorrIso = myElectronRef->dr03EcalRecHitSumEt();
     float corrIso = ecalIsoCorr.correctForHLTDefinition(*myElectronRef, iEvent.id().run(), isData_);
     std::cout << "Uncorrected Isolation Sum: " << uncorrIso << " - Corrected: " << corrIso << std::endl;
 
     if(myElectronRef->isEB()) {
       uncorrectedIsolationEB_->Fill(uncorrIso);
-      correctedIsolationEB_->Fill(corrIso);      
+      correctedIsolationEB_->Fill(corrIso);
     } else {
       uncorrectedIsolationEE_->Fill(uncorrIso);
-      correctedIsolationEE_->Fill(corrIso);      
+      correctedIsolationEE_->Fill(corrIso);
     }
   }
 }
 
-void CorrectECALIsolation::beginJob(const edm::EventSetup&) 
+void CorrectECALIsolation::beginJob(const edm::EventSetup&)
 {}
 
-void CorrectECALIsolation::endJob() 
+void CorrectECALIsolation::endJob()
 {}
 
 //define this as a plug-in

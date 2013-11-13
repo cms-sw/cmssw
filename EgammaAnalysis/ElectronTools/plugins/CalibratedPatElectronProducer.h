@@ -1,4 +1,4 @@
-// This file is imported from 
+// This file is imported from
 // http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/Mangano/WWAnalysis/AnalysisStep/interface/CalibratedPatElectronProducer.h?revision=1.1&view=markup
 
 #ifndef CalibratedPatElectronProducer_h
@@ -15,16 +15,18 @@
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyCalibrator.h"
 #include "EgammaAnalysis/ElectronTools/interface/EpCombinationTool.h"
 
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-class CalibratedPatElectronProducer: public edm::EDProducer 
+class CalibratedPatElectronProducer: public edm::EDProducer
 {
     public:
         explicit CalibratedPatElectronProducer( const edm::ParameterSet & ) ;
         virtual ~CalibratedPatElectronProducer();
         virtual void produce( edm::Event &, const edm::EventSetup & ) ;
-    
+
     private:
-        edm::InputTag inputPatElectrons ;
+        edm::EDGetTokenT<edm::View<reco::Candidate> > inputPatElectronsToken ;
         std::string dataset ;
         bool isAOD ;
         bool isMC ;
@@ -38,7 +40,7 @@ class CalibratedPatElectronProducer: public edm::EDProducer
         std::string combinationRegressionInputPath;
         std::string scaleCorrectionsInputPath;
         std::string linCorrectionsInputPath;
-      
+
         ElectronEnergyCalibrator *theEnCorrector;
         EpCombinationTool *myEpCombinationTool;
         ElectronEPcombinator *myCombinator;

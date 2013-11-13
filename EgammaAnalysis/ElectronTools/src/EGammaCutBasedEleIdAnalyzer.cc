@@ -2,7 +2,7 @@
 //
 // Package:    EGammaCutBasedEleIdAnalyzer
 // Class:      EGammaCutBasedEleIdAnalyzer
-// 
+//
 /**\class EGammaCutBasedEleIdAnalyzer EGammaCutBasedEleIdAnalyzer.cc EGamma/EGammaCutBasedEleIdAnalyzer/src/EGammaCutBasedEleIdAnalyzer.cc
 
 Description: [one line class summary]
@@ -26,6 +26,7 @@ Implementation:
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -47,6 +48,11 @@ Implementation:
 
 class EGammaCutBasedEleIdAnalyzer : public edm::EDAnalyzer {
     public:
+
+        typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > >   IsoDepositMaps;
+        typedef std::vector< edm::Handle< edm::ValueMap<double> > >             IsoDepositVals;
+
+
         explicit EGammaCutBasedEleIdAnalyzer(const edm::ParameterSet&);
         ~EGammaCutBasedEleIdAnalyzer();
 
@@ -66,12 +72,12 @@ class EGammaCutBasedEleIdAnalyzer : public edm::EDAnalyzer {
         // ----------member data ---------------------------
 
         // input tags
-        edm::InputTag               electronsInputTag_;
-        edm::InputTag               conversionsInputTag_;
-        edm::InputTag               beamSpotInputTag_;
-        edm::InputTag               rhoIsoInputTag;
-        edm::InputTag               primaryVertexInputTag_;
-        std::vector<edm::InputTag>  isoValInputTags_;
+        edm::EDGetTokenT<reco::GsfElectronCollection>               electronsToken_;
+        edm::EDGetTokenT<reco::ConversionCollection>               conversionsToken_;
+        edm::EDGetTokenT<reco::BeamSpot>               beamSpotToken_;
+        edm::EDGetTokenT<double>               rhoIsoToken_;
+        edm::EDGetTokenT<reco::VertexCollection>               primaryVertexToken_;
+        std::vector<edm::EDGetTokenT<edm::ValueMap<double> > >  isoValTokens_;
 
         // debug
         bool printDebug_;
@@ -88,13 +94,6 @@ class EGammaCutBasedEleIdAnalyzer : public edm::EDAnalyzer {
 };
 
 //
-// constants, enums and typedefs
-//
-
-typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > >   IsoDepositMaps;
-typedef std::vector< edm::Handle< edm::ValueMap<double> > >             IsoDepositVals;
-
-//
 // static data member definitions
 //
 
@@ -105,12 +104,12 @@ EGammaCutBasedEleIdAnalyzer::EGammaCutBasedEleIdAnalyzer(const edm::ParameterSet
 {
 
     // get input parameters
-    electronsInputTag_      = iConfig.getParameter<edm::InputTag>("electronsInputTag");
-    conversionsInputTag_    = iConfig.getParameter<edm::InputTag>("conversionsInputTag");
-    beamSpotInputTag_       = iConfig.getParameter<edm::InputTag>("beamSpotInputTag");
-    rhoIsoInputTag          = iConfig.getParameter<edm::InputTag>("rhoIsoInputTag");
-    primaryVertexInputTag_  = iConfig.getParameter<edm::InputTag>("primaryVertexInputTag");
-    isoValInputTags_        = iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags");
+    electronsToken_      = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronsInputTag"));
+    conversionsToken_    = consumes<reco::ConversionCollection>(iConfig.getParameter<edm::InputTag>("conversionsInputTag"));
+    beamSpotToken_       = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"));
+    rhoIsoToken_         = consumes<double>(iConfig.getParameter<edm::InputTag>("rhoIsoInputTag"));
+    primaryVertexToken_  = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexInputTag"));
+    isoValTokens_        = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags"), [this](edm::InputTag const & tag){return consumes<edm::ValueMap<double> >(tag);});
 
     // debug
     printDebug_             = iConfig.getParameter<bool>("printDebug");
@@ -123,7 +122,7 @@ EGammaCutBasedEleIdAnalyzer::EGammaCutBasedEleIdAnalyzer(const edm::ParameterSet
     h1_pt_loose_         = fs->make<TH1F>("h1_pt_loose",         "pt (loose)",      100, 0.0, 100.0);
     h1_pt_medium_        = fs->make<TH1F>("h1_pt_medium",        "pt (medium)",     100, 0.0, 100.0);
     h1_pt_tight_         = fs->make<TH1F>("h1_pt_tight",         "pt (tight)",      100, 0.0, 100.0);
-    h1_pt_trig_          = fs->make<TH1F>("h1_pt_trig",          "pt (trig)",       100, 0.0, 100.0); 
+    h1_pt_trig_          = fs->make<TH1F>("h1_pt_trig",          "pt (trig)",       100, 0.0, 100.0);
     h1_pt_fbremeopin_    = fs->make<TH1F>("h1_pt_fbremeopin",    "pt (fbremeopin)", 100, 0.0, 100.0);
 
 }
@@ -148,30 +147,30 @@ EGammaCutBasedEleIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
 {
     // electrons
     edm::Handle<reco::GsfElectronCollection> els_h;
-    iEvent.getByLabel(electronsInputTag_, els_h);
+    iEvent.getByToken(electronsToken_, els_h);
 
     // conversions
     edm::Handle<reco::ConversionCollection> conversions_h;
-    iEvent.getByLabel(conversionsInputTag_, conversions_h);
+    iEvent.getByToken(conversionsToken_, conversions_h);
 
     // iso deposits
-    IsoDepositVals isoVals(isoValInputTags_.size());
-    for (size_t j = 0; j < isoValInputTags_.size(); ++j) {
-        iEvent.getByLabel(isoValInputTags_[j], isoVals[j]);
+    IsoDepositVals isoVals(isoValTokens_.size());
+    for (size_t j = 0; j < isoValTokens_.size(); ++j) {
+        iEvent.getByToken(isoValTokens_[j], isoVals[j]);
     }
 
     // beam spot
     edm::Handle<reco::BeamSpot> beamspot_h;
-    iEvent.getByLabel(beamSpotInputTag_, beamspot_h);
+    iEvent.getByToken(beamSpotToken_, beamspot_h);
     const reco::BeamSpot &beamSpot = *(beamspot_h.product());
 
     // vertices
     edm::Handle<reco::VertexCollection> vtx_h;
-    iEvent.getByLabel(primaryVertexInputTag_, vtx_h);
+    iEvent.getByToken(primaryVertexToken_, vtx_h);
 
     // rho for isolation
     edm::Handle<double> rhoIso_h;
-    iEvent.getByLabel(rhoIsoInputTag, rhoIso_h);
+    iEvent.getByToken(rhoIsoToken_, rhoIso_h);
     double rhoIso = *(rhoIso_h.product());
 
     // loop on electrons
@@ -241,37 +240,37 @@ EGammaCutBasedEleIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
 
 
 // ------------ method called once each job just before starting event loop  ------------
-    void 
+    void
 EGammaCutBasedEleIdAnalyzer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-    void 
-EGammaCutBasedEleIdAnalyzer::endJob() 
+    void
+EGammaCutBasedEleIdAnalyzer::endJob()
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
-    void 
+    void
 EGammaCutBasedEleIdAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a run  ------------
-    void 
+    void
 EGammaCutBasedEleIdAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
-    void 
+    void
 EGammaCutBasedEleIdAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-    void 
+    void
 EGammaCutBasedEleIdAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }

@@ -13,7 +13,11 @@
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyRegressionEvaluate.h"
 //#include "EGamma/EGammaAnalysisTools/interface/ElectronEnergyRegressionEvaluate.h"
 
-class RegressionEnergyPatElectronProducer: public edm::EDProducer 
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+class RegressionEnergyPatElectronProducer: public edm::EDProducer
 {
  public:
 
@@ -24,20 +28,21 @@ class RegressionEnergyPatElectronProducer: public edm::EDProducer
  private:
 
   // input collections
-  edm::InputTag inputElectrons_ ;
-  edm::InputTag rhoInputTag_ ;
-  edm::InputTag verticesInputTag_ ;
-  edm::InputTag recHitCollectionEB_;
-  edm::InputTag recHitCollectionEE_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> inputGsfElectronsToken_ ;
+  edm::EDGetTokenT<pat::ElectronCollection> inputPatElectronsToken_ ;
+  edm::EDGetTokenT<double> rhoInputToken_ ;
+  edm::EDGetTokenT<reco::VertexCollection> verticesInputToken_ ;
+  edm::EDGetTokenT<EcalRecHitCollection> recHitCollectionEBToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> recHitCollectionEEToken_;
 
-  // 
+  //
   bool useReducedRecHits_;
 
   //output collection
   //  std::string outputCollection_;
   std::string nameEnergyReg_;
   std::string nameEnergyErrorReg_;
-  
+
   uint32_t energyRegressionType_ ;
   uint32_t inputCollectionType_ ;
   std::string regressionInputFile_;
@@ -46,7 +51,7 @@ class RegressionEnergyPatElectronProducer: public edm::EDProducer
   bool geomInitialized_;
   bool producePatElectrons_;
   bool produceValueMaps_;
-  
+
 
   const CaloTopology * ecalTopology_;
   const CaloGeometry * caloGeometry_;

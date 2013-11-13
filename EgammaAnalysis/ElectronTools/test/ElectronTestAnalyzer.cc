@@ -88,6 +88,14 @@ class ElectronTestAnalyzer : public edm::EDAnalyzer {
 
   ParameterSet conf_;
 
+  edm::EDGetTokenT<GsfElectronCollection> gsfEleToken_;
+  edm::EDGetTokenT<GenParticleCollection> genToken_;
+  //edm::EDGetTokenT<edm::HepMCProduct>  mcTruthToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+  //edm::EDGetTokenT<reco::PFCandidateCollection> pfCandToken_;
+  edm::EDGetTokenT<double> eventrhoToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+
   EGammaMvaEleEstimator* myMVATrigV0;
   EGammaMvaEleEstimator* myMVATrigNoIPV0;
   EGammaMvaEleEstimator* myMVANonTrigV0;
@@ -166,7 +174,14 @@ class ElectronTestAnalyzer : public edm::EDAnalyzer {
 // constructors and destructor
 //
 ElectronTestAnalyzer::ElectronTestAnalyzer(const edm::ParameterSet& iConfig):
-  conf_(iConfig)
+  conf_(iConfig),
+  gsfEleToken_(consumes<GsfElectronCollection>(edm::InputTag("gsfElectrons"))),
+  genToken_(consumes<GenParticleCollection>(edm::InputTag("genParticles"))),
+  //mcTruthToken_(consumes<edm::HepMCProduct>(edm::InputTag("generator"))),
+  vertexToken_(consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"))),
+  //pfCandToken_(consumes<reco::PFCandidateCollection>(edm::InputTag("particleFlow"))),
+  eventrhoToken_(consumes<double>(edm::InputTag("kt6PFJets", "rho"))),
+  muonToken_(consumes<reco::MuonCollection>(edm::InputTag("muons")))
 
 {
   Bool_t manualCat = true;
@@ -272,27 +287,23 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 	ElectronTestAnalyzer::evaluate_mvas(iEvent, iSetup);
 
-  InputTag gsfEleLabel(string("gsfElectrons"));
   Handle<GsfElectronCollection> theEGammaCollection;
-  iEvent.getByLabel(gsfEleLabel,theEGammaCollection);
+  iEvent.getByToken(gsfEleToken_,theEGammaCollection);
   const GsfElectronCollection theEGamma = *(theEGammaCollection.product());
 
-  InputTag genLable(string("genParticles"));
   Handle<GenParticleCollection> genParticles;
-  iEvent.getByLabel(genLable,genParticles);
-  //InputTag  mcTruthLabel(string("generator"));
+  iEvent.getByToken(genToken_,genParticles);
+  //InputTag  mcTruthToken_(string("generator"));
   //edm::Handle<edm::HepMCProduct> pMCTruth;
-  //iEvent.getByLabel(mcTruthLabel,pMCTruth);
+  //iEvent.getByToken(mcTruthToken_,pMCTruth);
   //const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();
 
-  InputTag  vertexLabel(string("offlinePrimaryVertices"));
   Handle<reco::VertexCollection> thePrimaryVertexColl;
-  iEvent.getByLabel(vertexLabel,thePrimaryVertexColl);
+  iEvent.getByToken(vertexToken_,thePrimaryVertexColl);
 
   _Rho=0;
   edm::Handle<double> rhoPtr;
-  const edm::InputTag eventrho("kt6PFJets", "rho");
-  iEvent.getByLabel(eventrho,rhoPtr);
+  iEvent.getByToken(eventrhoToken_,rhoPtr);
   _Rho=*rhoPtr;
 
 
@@ -691,26 +702,24 @@ ElectronTestAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSe
 
 
   edm::Handle<reco::VertexCollection> hVertex;
-  iEvent.getByLabel("offlinePrimaryVertices", hVertex);
+  iEvent.getByToken(vertexToken_, hVertex);
   const reco::VertexCollection *pvCol = hVertex.product();
 
 // FIXME: unused variable giving compilation warnings/errors
 //   Handle<double> hRho;
-//   edm::InputTag tag("kt6PFJets","rho");
-//   iEvent.getByLabel(tag,hRho);
+//   iEvent.getByToken(eventrhoToken_,hRho);
 //   double Rho = *hRho;
 //
 //   Handle<reco::PFCandidateCollection> hPfCandProduct;
-// 	iEvent.getByLabel("particleFlow", hPfCandProduct);
+// 	iEvent.getByToken(pfCandToken_, hPfCandProduct);
 //   const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
 
-  InputTag gsfEleLabel(string("gsfElectrons"));
   Handle<GsfElectronCollection> theEGammaCollection;
-  iEvent.getByLabel(gsfEleLabel,theEGammaCollection);
+  iEvent.getByToken(gsfEleToken_,theEGammaCollection);
   const GsfElectronCollection inElectrons = *(theEGammaCollection.product());
 
   Handle<reco::MuonCollection> hMuonProduct;
-  iEvent.getByLabel("muons", hMuonProduct);
+  iEvent.getByToken(muonToken_, hMuonProduct);
   const reco::MuonCollection inMuons = *(hMuonProduct.product());
 
 

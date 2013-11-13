@@ -7,7 +7,7 @@
 // Package:    EgammaElectronProducers
 // Class:      CalibratedPatElectronProducer
 //
-/**\class CalibratedPatElectronProducer 
+/**\class CalibratedPatElectronProducer
 
  Description: EDProducer of PatElectron objects
 
@@ -27,8 +27,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -50,8 +48,8 @@ CalibratedPatElectronProducer::CalibratedPatElectronProducer( const edm::Paramet
 // : PatElectronBaseProducer(cfg)
 {
     produces<ElectronCollection>();
-    
-    inputPatElectrons = cfg.getParameter<edm::InputTag>("inputPatElectronsTag");
+
+    inputPatElectronsToken = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("inputPatElectronsTag"));
     dataset = cfg.getParameter<std::string>("inputDataset");
     isMC = cfg.getParameter<bool>("isMC");
     updateEnergyError = cfg.getParameter<bool>("updateEnergyError");
@@ -64,19 +62,19 @@ CalibratedPatElectronProducer::CalibratedPatElectronProducer( const edm::Paramet
     combinationRegressionInputPath = cfg.getParameter<std::string>("combinationRegressionInputPath");
     scaleCorrectionsInputPath = cfg.getParameter<std::string>("scaleCorrectionsInputPath");
     linCorrectionsInputPath   = cfg.getParameter<std::string>("linearityCorrectionsInputPath");
-  
+
     //basic checks
-    if ( isMC && ( dataset != "Summer11" && dataset != "Fall11" 
-        && dataset != "Summer12" && dataset != "Summer12_DR53X_HCP2012" 
+    if ( isMC && ( dataset != "Summer11" && dataset != "Fall11"
+        && dataset != "Summer12" && dataset != "Summer12_DR53X_HCP2012"
         && dataset != "Summer12_LegacyPaper" ) )
-    { 
-        throw cms::Exception("CalibratedPATElectronProducer|ConfigError") << "Unknown MC dataset"; 
+    {
+        throw cms::Exception("CalibratedPATElectronProducer|ConfigError") << "Unknown MC dataset";
     }
     if ( !isMC && ( dataset != "Prompt" && dataset != "ReReco"
         && dataset != "Jan16ReReco" && dataset != "ICHEP2012"
         && dataset != "Moriond2013" && dataset != "22Jan2013ReReco" ) )
-    { 
-        throw cms::Exception("CalibratedPATElectronProducer|ConfigError") << "Unknown Data dataset"; 
+    {
+        throw cms::Exception("CalibratedPATElectronProducer|ConfigError") << "Unknown Data dataset";
     }
 
     // Linearity correction only applied on combined momentum obtain with regression combination
@@ -95,65 +93,65 @@ CalibratedPatElectronProducer::CalibratedPatElectronProducer( const edm::Paramet
     {
         case 0:
       	    break;
-    	    case 1: 
-    	        if ( verbose ) 
+    	    case 1:
+    	        if ( verbose )
                 {
                     std::cout << "You choose regression 1 scale corrections" << std::endl;
                 }
     	        break;
-    	    case 2: 
-                if ( verbose ) 
+    	    case 2:
+                if ( verbose )
                 {
                     std::cout << "You choose regression 2 scale corrections." << std::endl;
                 }
     	        break;
-    	    case 3: 
+    	    case 3:
                 throw cms::Exception("CalibratedPATElectronProducer|ConfigError")
-                    << "You choose standard non-regression ecal energy scale corrections. They are not implemented yet."; 
+                    << "You choose standard non-regression ecal energy scale corrections. They are not implemented yet.";
     	        break;
-    	    default: 
+    	    default:
                 throw cms::Exception("CalibratedPATElectronProducer|ConfigError")
                     << "Unknown correctionsType !!!";
     }
-  
+
     theEnCorrector = new ElectronEnergyCalibrator
         (
-            edm::FileInPath(scaleCorrectionsInputPath.c_str()).fullPath().c_str(), 
+            edm::FileInPath(scaleCorrectionsInputPath.c_str()).fullPath().c_str(),
             edm::FileInPath(linCorrectionsInputPath.c_str()).fullPath().c_str(),
-            dataset, 
-            correctionsType, 
+            dataset,
+            correctionsType,
             applyLinearityCorrection,
-            lumiRatio, 
-            isMC, 
-            updateEnergyError, 
-            verbose, 
+            lumiRatio,
+            isMC,
+            updateEnergyError,
+            verbose,
             synchronization
         );
-    
-    if ( verbose ) 
+
+    if ( verbose )
     {
         std::cout << "[CalibratedPATElectronProducer] "
         << "ElectronEnergyCalibrator object is created " << std::endl;
     }
-    
+
     myEpCombinationTool = new EpCombinationTool();
     myEpCombinationTool->init
         (
             edm::FileInPath(combinationRegressionInputPath.c_str()).fullPath().c_str(),
             "CombinationWeight"
         );
-    
+
     myCombinator = new ElectronEPcombinator();
-    
-    if ( verbose ) 
+
+    if ( verbose )
     {
         std::cout << "[CalibratedPATElectronProducer] "
         << "Combination tools are created and initialized " << std::endl;
     }
 }
 
-   
- 
+
+
 CalibratedPatElectronProducer::~CalibratedPatElectronProducer()
 {}
 
@@ -161,18 +159,18 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
 {
 
     edm::Handle<edm::View<reco::Candidate> > oldElectrons ;
-    event.getByLabel(inputPatElectrons,oldElectrons) ;
+    event.getByToken(inputPatElectronsToken,oldElectrons) ;
     std::auto_ptr<ElectronCollection> electrons( new ElectronCollection ) ;
     ElectronCollection::const_iterator electron ;
     ElectronCollection::iterator ele ;
     // first clone the initial collection
-    for 
-        ( 
-            edm::View<reco::Candidate>::const_iterator ele=oldElectrons->begin(); 
-            ele!=oldElectrons->end(); 
-            ++ele 
+    for
+        (
+            edm::View<reco::Candidate>::const_iterator ele=oldElectrons->begin();
+            ele!=oldElectrons->end();
+            ++ele
         )
-    {    
+    {
         const pat::ElectronRef elecsRef = edm::RefToBase<reco::Candidate>(oldElectrons,ele-oldElectrons->begin()).castTo<pat::ElectronRef>();
         pat::Electron clone = *edm::RefToBase<reco::Candidate>(oldElectrons,ele-oldElectrons->begin()).castTo<pat::ElectronRef>();
         electrons->push_back(clone);
@@ -181,16 +179,16 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
     if (correctionsType != 0 )
     {
         for
-            ( 
+            (
                 ele = electrons->begin();
                 ele != electrons->end() ;
-                ++ele 
+                ++ele
             )
-        {     
+        {
             int elClass = -1;
-            int run = event.run(); 
-            
-            float r9 = ele->r9(); 
+            int run = event.run();
+
+            float r9 = ele->r9();
             double correctedEcalEnergy = ele->correctedEcalEnergy();
             double correctedEcalEnergyError = ele->correctedEcalEnergyError();
             double trackMomentum = ele->trackMomentumAtVtx().R();
@@ -198,8 +196,8 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
             double combinedMomentum = ele->p();
             double combinedMomentumError = ele->p4Error(ele->candidateP4Kind());
             // FIXME : p4Error not filled for pure tracker electrons
-            // Recompute it using the parametrization implemented in 
-            // RecoEgamma/EgammaElectronAlgos/src/ElectronEnergyCorrector.cc::simpleParameterizationUncertainty() 
+            // Recompute it using the parametrization implemented in
+            // RecoEgamma/EgammaElectronAlgos/src/ElectronEnergyCorrector.cc::simpleParameterizationUncertainty()
             if( !ele->ecalDrivenSeed() )
             {
                 double error = 999. ;
@@ -216,51 +214,51 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
                 }
                 combinedMomentumError = error;
             }
-    
+
             if (ele->classification() == reco::GsfElectron::GOLDEN) {elClass = 0;}
             if (ele->classification() == reco::GsfElectron::BIGBREM) {elClass = 1;}
             if (ele->classification() == reco::GsfElectron::BADTRACK) {elClass = 2;}
             if (ele->classification() == reco::GsfElectron::SHOWERING) {elClass = 3;}
             if (ele->classification() == reco::GsfElectron::GAP) {elClass = 4;}
-            
+
             SimpleElectron mySimpleElectron
                 (
-                    run, 
-                    elClass, 
-                    r9, 
-                    correctedEcalEnergy, 
-                    correctedEcalEnergyError, 
-                    trackMomentum, 
-                    trackMomentumError, 
-                    ele->ecalRegressionEnergy(), 
-                    ele->ecalRegressionError(), 
-                    combinedMomentum, 
-                    combinedMomentumError, 
-                    ele->superCluster()->eta(), 
-                    ele->isEB(), 
-                    isMC, 
-                    ele->ecalDriven(), 
+                    run,
+                    elClass,
+                    r9,
+                    correctedEcalEnergy,
+                    correctedEcalEnergyError,
+                    trackMomentum,
+                    trackMomentumError,
+                    ele->ecalRegressionEnergy(),
+                    ele->ecalRegressionError(),
+                    combinedMomentum,
+                    combinedMomentumError,
+                    ele->superCluster()->eta(),
+                    ele->isEB(),
+                    isMC,
+                    ele->ecalDriven(),
                     ele->trackerDrivenSeed()
                 );
 
             // energy calibration for ecalDriven electrons
-            if ( ele->core()->ecalDrivenSeed() || correctionsType==2 || combinationType==3 ) 
+            if ( ele->core()->ecalDrivenSeed() || correctionsType==2 || combinationType==3 )
             {
                 theEnCorrector->calibrate(mySimpleElectron);
 
-                // E-p combination  
+                // E-p combination
 
                 switch ( combinationType )
                 {
-              	    case 0: 
-                		if ( verbose ) 
+              	    case 0:
+                		if ( verbose )
                         {
                             std::cout << "[CalibratedPATElectronProducer] "
                             << "You choose not to combine." << std::endl;
                         }
                 		break;
-                	case 1: 
-                	    if ( verbose ) 
+                	case 1:
+                	    if ( verbose )
                         {
                             std::cout << "[CalibratedPATElectronProducer] "
                             << "You choose corrected regression energy for standard combination" << std::endl;
@@ -268,8 +266,8 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
                 	    myCombinator->setCombinationMode(1);
                 	    myCombinator->combine(mySimpleElectron);
                 	    break;
-                	case 2: 
-                	    if ( verbose ) 
+                	case 2:
+                	    if ( verbose )
                         {
                             std::cout << "[CalibratedPATElectronProducer] "
                             << "You choose uncorrected regression energy for standard combination" << std::endl;
@@ -277,8 +275,8 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
                 	    myCombinator->setCombinationMode(2);
                 	    myCombinator->combine(mySimpleElectron);
                 	    break;
-                	case 3: 
-                	    if ( verbose ) 
+                	case 3:
+                	    if ( verbose )
                         {
                             std::cout << "[CalibratedPATElectronProducer] "
                             << "You choose regression combination." << std::endl;
@@ -286,7 +284,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
                 	    myEpCombinationTool->combine(mySimpleElectron);
                         theEnCorrector->correctLinearity(mySimpleElectron);
                 	    break;
-                	default: 
+                	default:
                 		  throw cms::Exception("CalibratedPATElectronProducer|ConfigError")
                               << "Unknown combination Type !!!" ;
                 }
@@ -298,24 +296,24 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
                    oldMomentum.y()*mySimpleElectron.getCombinedMomentum()/oldMomentum.t(),
                    oldMomentum.z()*mySimpleElectron.getCombinedMomentum()/oldMomentum.t(),
                    mySimpleElectron.getCombinedMomentum() ) ;
-                
+
                 ele->correctMomentum
                     (
                         newMomentum_,
                         mySimpleElectron.getTrackerMomentumError(),
                         mySimpleElectron.getCombinedMomentumError()
                     );
-                
-                if ( verbose ) 
+
+                if ( verbose )
                 {
                     std::cout << "[CalibratedPATElectronProducer] Combined momentum after saving  "
                         << ele->p4().t() << std::endl;
                 }
-            }// end of if (ele.core()->ecalDrivenSeed()) 
-        }// end of loop on electrons 
-    } else 
+            }// end of if (ele.core()->ecalDrivenSeed())
+        }// end of loop on electrons
+    } else
     {
-        if ( verbose ) 
+        if ( verbose )
         {
             std::cout << "[CalibratedPATElectronProducer] "
             << "You choose not to correct. Uncorrected Regression Energy is taken." << std::endl;

@@ -19,7 +19,9 @@ class ElectronIsolatorFromEffectiveArea : public edm::EDFilter {
 
  private:
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-  const edm::InputTag gsfElectronTag, pfElectronTag, rhoIsoTag;
+  edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronToken;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfElectronToken;
+  edm::EDGetTokenT<double> rhoIsoToken;
   const EEA::ElectronEffectiveAreaType modeEEA;
   const EEA::ElectronEffectiveAreaTarget targetEEA;
   static std::map<std::string,EEA::ElectronEffectiveAreaType> EEA_type();
@@ -30,9 +32,9 @@ class ElectronIsolatorFromEffectiveArea : public edm::EDFilter {
 
 ElectronIsolatorFromEffectiveArea::
 ElectronIsolatorFromEffectiveArea(const edm::ParameterSet& config)
-  : gsfElectronTag( config.getParameter<edm::InputTag>("gsfElectrons") )
-  , pfElectronTag( config.getParameter<edm::InputTag>("pfElectrons") )
-  , rhoIsoTag( config.getParameter<edm::InputTag>("rhoIso") )
+  : gsfElectronToken( consumes<reco::GsfElectronCollection>( config.getParameter<edm::InputTag>("gsfElectrons") ) )
+  , pfElectronToken( consumes<reco::PFCandidateCollection>( config.getParameter<edm::InputTag>("pfElectrons") ) )
+  , rhoIsoToken( consumes<double>( config.getParameter<edm::InputTag>("rhoIso") ) )
   , modeEEA( EEA_type()[ config.getParameter<std::string>("EffectiveAreaType") ] )
   , targetEEA( EEA_target()[ config.getParameter<std::string>("EffectiveAreaTarget") ] )
 {  produces<CandDoubleMap>(); }
@@ -45,9 +47,9 @@ filter(edm::Event& event, const edm::EventSetup& )
   std::auto_ptr<CandDoubleMap> product(new CandDoubleMap());
   CandDoubleMap::Filler filler(*product);
 
-  edm::Handle<double> rho;                               event.getByLabel(rhoIsoTag, rho);
-  edm::Handle<reco::GsfElectronCollection> gsfElectrons; event.getByLabel(gsfElectronTag,gsfElectrons);
-  edm::Handle<reco::PFCandidateCollection>  pfElectrons; event.getByLabel( pfElectronTag, pfElectrons);
+  edm::Handle<double> rho;                               event.getByToken(rhoIsoToken, rho);
+  edm::Handle<reco::GsfElectronCollection> gsfElectrons; event.getByToken(gsfElectronToken,gsfElectrons);
+  edm::Handle<reco::PFCandidateCollection>  pfElectrons; event.getByToken( pfElectronToken, pfElectrons);
   std::vector<double> gsfCorrectionsEA,pfCorrectionsEA;
 
   if(gsfElectrons.isValid()) {
