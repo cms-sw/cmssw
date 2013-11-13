@@ -167,9 +167,9 @@ void  PhotonValidator::beginJob() {
 
   dbe_ = 0;
   dbe_ = edm::Service<DQMStore>().operator->();
+}
 
-
-
+void PhotonValidator::bookHistograms(void) {
 
   double resMin = parameters_.getParameter<double>("resMin");
   double resMax = parameters_.getParameter<double>("resMax");
@@ -1462,19 +1462,14 @@ void  PhotonValidator::beginJob() {
     h_RecoConvTwoMTracks_[3] =  dbe_->book1D(histname," All reco conversions with 2 reco-ass tracks: simulated Z",zBin,zMin, zMax);
     histname = "h_RecoConvTwoMTracksEt";
     h_RecoConvTwoMTracks_[4] =  dbe_->book1D(histname," All reco conversions with 2 reco-ass tracks: simulated Et",etBin,etMin, etMax);
-
-
-
-
   } // if DQM
-
-
-
 }
 
 
 
 void  PhotonValidator::beginRun (edm::Run const & r, edm::EventSetup const & theEventSetup) {
+
+  bookHistograms();
 
   //get magnetic field
   edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";
