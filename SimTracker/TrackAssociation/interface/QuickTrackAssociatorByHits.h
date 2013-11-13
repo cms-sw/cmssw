@@ -63,33 +63,39 @@ public:
 	~QuickTrackAssociatorByHits();
 	QuickTrackAssociatorByHits( const QuickTrackAssociatorByHits& otherAssociator );
 	QuickTrackAssociatorByHits& operator=( const QuickTrackAssociatorByHits& otherAssociator );
+        virtual
 	reco::RecoToSimCollection associateRecoToSim( edm::Handle<edm::View<reco::Track> >& trackCollectionHandle,
 	                                              edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle,
 	                                              const edm::Event* pEvent=0,
-	                                              const edm::EventSetup* pSetup=0 ) const;
+	                                              const edm::EventSetup* pSetup=0 ) const override;
+        virtual
 	reco::SimToRecoCollection associateSimToReco( edm::Handle<edm::View<reco::Track> >& trackCollectionHandle,
 	                                              edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle,
 	                                              const edm::Event* pEvent=0,
-	                                              const edm::EventSetup* pSetup=0 ) const;
+	                                              const edm::EventSetup* pSetup=0 ) const override;
+        virtual
 	reco::RecoToSimCollection associateRecoToSim( const edm::RefToBaseVector<reco::Track>& trackCollection,
 												  const edm::RefVector<TrackingParticleCollection>& trackingParticleCollection,
 												  const edm::Event* pEvent=0,
-												  const edm::EventSetup* pSetup=0 ) const;
+												  const edm::EventSetup* pSetup=0 ) const override;
+        virtual
 	reco::SimToRecoCollection associateSimToReco( const edm::RefToBaseVector<reco::Track>& trackCollection,
 												  const edm::RefVector<TrackingParticleCollection>& trackingParticleCollection,
 												  const edm::Event* pEvent=0,
-												  const edm::EventSetup* pSetup=0 ) const;
+												  const edm::EventSetup* pSetup=0 ) const override;
 
 	//seed
+        virtual
 	reco::RecoToSimCollectionSeed associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> >&,
 							 edm::Handle<TrackingParticleCollection>&,
 							 const edm::Event * event ,
-							 const edm::EventSetup * setup ) const;
+							 const edm::EventSetup * setup ) const override;
 	
+        virtual
 	reco::SimToRecoCollectionSeed associateSimToReco(edm::Handle<edm::View<TrajectorySeed> >&,
 							 edm::Handle<TrackingParticleCollection>&,
 							 const edm::Event * event ,
-							 const edm::EventSetup * setup ) const;
+							 const edm::EventSetup * setup ) const override;
 
         void prepareCluster2TPMap(const edm::Event* pEvent) const;
 

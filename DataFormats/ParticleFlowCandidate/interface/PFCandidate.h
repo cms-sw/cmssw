@@ -6,6 +6,9 @@
  *
  */
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
 #include <iosfwd>
 
 #include "DataFormats/Math/interface/Point3D.h"
@@ -95,8 +98,13 @@ namespace reco {
                  const LorentzVector & p4, 
                  ParticleType particleId );
 
+    /// copy constructor
+    PFCandidate( const PFCandidate&);
+
     /// destructor
     virtual ~PFCandidate();
+
+    PFCandidate& operator=(PFCandidate const&);
 
     /// return a clone
     virtual PFCandidate * clone() const;
@@ -362,18 +370,7 @@ namespace reco {
     typedef edm::RefVector<reco::PFBlockCollection> Blocks;
     typedef std::vector<unsigned> Elements;
 
-    const ElementsInBlocks& elementsInBlocks() const { 
-      
-      if (elementsInBlocks_.size()!=blocksStorage_.size())
-	{
-	  elementsInBlocks_.resize(blocksStorage_.size());
-	  for(unsigned int icopy=0;icopy!=blocksStorage_.size();++icopy)
-	    elementsInBlocks_[icopy]=std::make_pair(blocksStorage_[icopy],elementsStorage_[icopy]);
-	}
-      return elementsInBlocks_;
-    }
-    
-  
+    const ElementsInBlocks& elementsInBlocks() const;
 
     static const float bigMva_;
 
@@ -408,7 +405,11 @@ namespace reco {
     bool flag(unsigned shift, unsigned flag) const;
    
    
-    mutable ElementsInBlocks elementsInBlocks_;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    mutable std::atomic<ElementsInBlocks*> elementsInBlocks_;
+#else
+    mutable ElementsInBlocks* elementsInBlocks_;
+#endif
     Blocks blocksStorage_;
     Elements elementsStorage_;
 
