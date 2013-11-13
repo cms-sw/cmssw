@@ -20,6 +20,7 @@
 
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 
+
 // ----------------------------------------------------------------------------------------------------
 class PileupJetIdAlgo {
 public:
@@ -74,7 +75,6 @@ protected:
 	Float_t mvacut_     [3][4][4]; //Keep the array fixed
 	Float_t rmsCut_     [3][4][4]; //Keep the array fixed
 	Float_t betaStarCut_[3][4][4]; //Keep the array fixed
-
 };
 
 #endif
