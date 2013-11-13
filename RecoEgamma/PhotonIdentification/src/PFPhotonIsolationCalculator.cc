@@ -5,10 +5,7 @@
 
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -136,82 +133,6 @@ void PFPhotonIsolationCalculator::initializeRings(int iNumberOfRings, float fRin
 }
   
  
-//--------------------------------------------------------------------------------------------------
-float PFPhotonIsolationCalculator::fGetIsolation(const reco::PFCandidate * pfCandidate, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
- 
-  fGetIsolationInRings( pfCandidate, pfParticlesColl, vtx, vertices);
-  refSC = reco::SuperClusterRef();
-  fIsolation_ = fIsolationInRings_[0];
-  
-  return fIsolation_;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-std::vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::PFCandidate * pfCandidate, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
-
-  int isoBin;
-  for(isoBin =0;isoBin<iNumberOfRings_;isoBin++){
-    fIsolationInRings_[isoBin]=0.;
-    fIsolationInRingsPhoton_[isoBin]=0.;
-    fIsolationInRingsNeutral_[isoBin]=0.;
-    fIsolationInRingsCharged_[isoBin]=0.;
-    fIsolationInRingsChargedAll_[isoBin]=0.;
-  }
-  
- 
-
-  fEta_ = pfCandidate->eta();
-  fPhi_ = pfCandidate->phi();
-  fPt_ = pfCandidate->pt();
-  fVx_ = pfCandidate->vx();
-  fVy_ = pfCandidate->vy();
-  fVz_ = pfCandidate->vz();
-
-  pivotInBarrel = std::fabs(pfCandidate->positionAtECALEntrance().eta())<1.479;
-
-  for(unsigned iPF=0; iPF<pfParticlesColl->size(); iPF++) {
-
-    const reco::PFCandidate& pfParticle= (*pfParticlesColl)[iPF];
-
-    if(&pfParticle==(pfCandidate))
-      continue;
-
-    if(pfParticle.pdgId()==22){
-      float fDeltaR =isPhotonParticleVetoed(&pfParticle); 
-      if( fDeltaR>=0.){
-        isoBin = (int)(fDeltaR/fRingSize_);
-        fIsolationInRingsPhoton_[isoBin] = fIsolationInRingsPhoton_[isoBin] + pfParticle.pt();
-      }
-      
-    }else if(std::abs(pfParticle.pdgId())==130){
-      float fDeltaR =  isNeutralParticleVetoed( &pfParticle); 
-      if(fDeltaR >=0.){
-               isoBin = (int)(fDeltaR/fRingSize_);
-        fIsolationInRingsNeutral_[isoBin] = fIsolationInRingsNeutral_[isoBin] + pfParticle.pt();
-      }
-    
-
-
-    }else if(std::abs(pfParticle.pdgId()) == 211){
-      float fDeltaR = isChargedParticleVetoed( &pfParticle, vtx, vertices);
-      if( fDeltaR >=0.){
-        isoBin = (int)(fDeltaR/fRingSize_);
-        fIsolationInRingsCharged_[isoBin] = fIsolationInRingsCharged_[isoBin] + pfParticle.pt();
-      }
-
-    }
-  }
-
- 
-  for(int isoBin =0;isoBin<iNumberOfRings_;isoBin++){
-    fIsolationInRings_[isoBin]= fIsolationInRingsPhoton_[isoBin]+ fIsolationInRingsNeutral_[isoBin] + fIsolationInRingsCharged_[isoBin];
-  }
-
-  return fIsolationInRings_;
-}
-
-
 
 
 //--------------------------------------------------------------------------------------------------
@@ -319,86 +240,6 @@ std::vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco
 }
 
 
-
-//--------------------------------------------------------------------------------------------------
-float PFPhotonIsolationCalculator::fGetIsolation(const reco::GsfElectron * electron, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
- 
-  fGetIsolationInRings( electron, pfParticlesColl, vtx, vertices);
-  fIsolation_ = fIsolationInRings_[0];
-  
-  return fIsolation_;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-std::vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::GsfElectron * electron, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
-
-  int isoBin;
-  
-  for(isoBin =0;isoBin<iNumberOfRings_;isoBin++){
-    fIsolationInRings_[isoBin]=0.;
-    fIsolationInRingsPhoton_[isoBin]=0.;
-    fIsolationInRingsNeutral_[isoBin]=0.;
-    fIsolationInRingsCharged_[isoBin]=0.;
-    fIsolationInRingsChargedAll_[isoBin]=0.;
-  }
-  
-  // int iMatch = matchPFObject(electron,pfParticlesColl);
-
-
-  fEta_ = electron->eta();
-  fPhi_ = electron->phi();
-  fPt_ = electron->pt();
-  fVx_ = electron->vx();
-  fVy_ = electron->vy();
-  fVz_ = electron->vz();
-  iMissHits_ = electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-  
-  // if(electron->ecalDrivenSeed())
-  refSC = electron->superCluster();
-  pivotInBarrel = std::fabs((refSC->position().eta()))<1.479;
-
-  for(unsigned iPF=0; iPF<pfParticlesColl->size(); iPF++) {
-
-    const reco::PFCandidate& pfParticle= (*pfParticlesColl)[iPF];
- 
- 
-    if(pfParticle.pdgId()==22){
-    
-      float fDeltaR =isPhotonParticleVetoed(&pfParticle); 
-      if( fDeltaR>=0.){
-        isoBin = (int)(fDeltaR/fRingSize_);
-        fIsolationInRingsPhoton_[isoBin] = fIsolationInRingsPhoton_[isoBin] + pfParticle.pt();
-
-      }
-      
-    }else if(std::abs(pfParticle.pdgId())==130){
-      float fDeltaR =  isNeutralParticleVetoed( &pfParticle); 
-      if( fDeltaR >=0.){
-	isoBin = (int)(fDeltaR/fRingSize_);
-        fIsolationInRingsNeutral_[isoBin] = fIsolationInRingsNeutral_[isoBin] + pfParticle.pt();
-      }
-
-
-    }else if(std::abs(pfParticle.pdgId()) == 211){
-
-      float fDeltaR = isChargedParticleVetoed( &pfParticle, vtx, vertices);
-      if( fDeltaR >=0.){
-        isoBin = (int)(fDeltaR/fRingSize_);
-        
-        fIsolationInRingsCharged_[isoBin] = fIsolationInRingsCharged_[isoBin] + pfParticle.pt();
-      }
-
-    }
-  }
-
- 
-  for(int isoBin =0;isoBin<iNumberOfRings_;isoBin++){
-    fIsolationInRings_[isoBin]= fIsolationInRingsPhoton_[isoBin]+ fIsolationInRingsNeutral_[isoBin] + fIsolationInRingsCharged_[isoBin];
-    }
-  
-  return fIsolationInRings_;
-}
 
 
 //--------------------------------------------------------------------------------------------------
