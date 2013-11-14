@@ -24,6 +24,8 @@ HLTElectronMissingHitsFilter::HLTElectronMissingHitsFilter(const edm::ParameterS
   barrelcut_ = iConfig.getParameter<int> ("barrelcut");
   endcapcut_ = iConfig.getParameter<int> ("endcapcut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
+  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
+  electronProducerToken_ = consumes<reco::ElectronCollection>(electronProducer_);
 }
 
 HLTElectronMissingHitsFilter::~HLTElectronMissingHitsFilter()
@@ -48,7 +50,7 @@ bool HLTElectronMissingHitsFilter::hltFilter(edm::Event& iEvent, const edm::Even
     filterproduct.addCollectionTag(electronProducer_);
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByLabel (candTag_,PrevFilterOutput);
+  iEvent.getByToken (candToken_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
@@ -56,7 +58,7 @@ bool HLTElectronMissingHitsFilter::hltFilter(edm::Event& iEvent, const edm::Even
     PrevFilterOutput->getObjects(TriggerPhoton,recoecalcands);
 
   edm::Handle<reco::ElectronCollection> electronHandle;
-  iEvent.getByLabel(electronProducer_, electronHandle);
+  iEvent.getByToken(electronProducerToken_, electronHandle);
 
   int n(0);
 
