@@ -3,7 +3,7 @@
 //
 // PFPhotonIsolationCalculator
 //
-// Class for calculating PFIsolation for Photons. Electrons need to be updated in the same way as photons. 
+// Class for calculating PFIsolation for Photons.
 //This class takes
 // PF Particle collection and the reconstructed vertex collection as input.
 //
