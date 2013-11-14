@@ -23,7 +23,7 @@ public:
 
   void VisitChildren(clang::Stmt *S );
   void VisitStmt( clang::Stmt *S) { VisitChildren(S); }
-  void VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ); 
+  void VisitCallExpr( CallExpr *CE ); 
  
 };
 
@@ -35,24 +35,24 @@ void FDumper::VisitChildren( clang::Stmt *S) {
 }
 
 
-void FDumper::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
+void FDumper::VisitCallExpr( CallExpr *CE ) {
 	LangOptions LangOpts;
 	LangOpts.CPlusPlus = true;
 	PrintingPolicy Policy(LangOpts);
 	const Decl * D = AC->getDecl();
 	std::string dname =""; 
 	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) dname = support::getQualifiedName(*ND);
-	CXXMethodDecl * MD = CE->getMethodDecl();
-	if (!MD) return;
-	FunctionDecl * FD = MD->getMostRecentDecl();
+	FunctionDecl * FD = CE->getDirectCallee();
+	if (!FD) return;
  	const char *sfile=BR.getSourceManager().getPresumedLoc(CE->getExprLoc()).getFilename();
  	if (!support::isCmsLocalFile(sfile)) return;
+	std::string fname(sfile);
+	if ( fname.find("/test/") != std::string::npos) return;
  	std::string mname = support::getQualifiedName(*FD);
 	llvm::SmallString<1000> buf;
 	llvm::raw_svector_ostream os(buf);
 	os<<"function '"<<dname<<"' ";
 	os<<"calls function '"<<mname;
-//	MD->getNameForDiagnostic(os,Policy,1);
 	os<<"' \n\n";
         llvm::errs()<<os.str();
 }
@@ -64,6 +64,8 @@ void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 	llvm::raw_svector_ostream os(buf);
  	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
    	if (!support::isCmsLocalFile(sfile)) return;
+	std::string fname(sfile);
+	if ( fname.find("/test/") != std::string::npos) return;
 	if (!MD->doesThisDeclarationHaveABody()) return;
 	FDumper walker(BR, mgr.getAnalysisDeclContext(MD));
 	walker.Visit(MD->getBody());
@@ -84,6 +86,8 @@ void FunctionDumper::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManage
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation ()).getFilename();
    	if (!support::isCmsLocalFile(sfile)) return;
+	std::string fname(sfile);
+	if ( fname.find("/test/") != std::string::npos) return;
   
 	for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
 			E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
