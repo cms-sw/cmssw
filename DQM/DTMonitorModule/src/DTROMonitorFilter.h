@@ -27,8 +27,13 @@ protected:
 
 private:
   /// if not you need the label
-  edm::InputTag inputLabel;
+  edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
 
 };
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

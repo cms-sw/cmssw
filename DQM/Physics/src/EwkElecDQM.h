@@ -14,6 +14,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+namespace reco {class Jet; class MET; class BeamSpot;}
+
 class DQMStore;
 class MonitorElement;
 class EwkElecDQM : public edm::EDAnalyzer {
@@ -30,13 +35,16 @@ public:
   void init_histograms();
 private:
 
-  edm::InputTag trigTag_;
   //  edm::InputTag muonTag_;
-  edm::InputTag elecTag_;
   edm::InputTag metTag_;
-   bool metIncludesMuons_;
   edm::InputTag jetTag_;
-  edm::InputTag vertexTag_;
+  edm::EDGetTokenT<edm::TriggerResults> trigTag_;
+  edm::EDGetTokenT<edm::View<reco::GsfElectron> > elecTag_;
+  edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
+  edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexTag_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
+  bool metIncludesMuons_;
 
   //  const std::string muonTrig_;
   const std::vector<std::string> elecTrig_;
@@ -58,10 +66,10 @@ private:
   double hcalIsoCutEndcap_;
   double trkIsoCutBarrel_;
   double trkIsoCutEndcap_;
-   double mtMin_;
-   double mtMax_;
-   double metMin_;
-   double metMax_;
+  double mtMin_;
+  double mtMax_;
+  double metMin_;
+  double metMax_;
   //  double acopCut_;
 
   //  double dxyCut_;
@@ -173,11 +181,11 @@ private:
 /*   MonitorElement* nz2_after_; */
 
   MonitorElement* njets_before_;
-  MonitorElement* njets_after_; 
+  MonitorElement* njets_after_;
   MonitorElement* jet_et_before_;
   MonitorElement* jet_et_after_;
   MonitorElement* jet_eta_before_;
-  MonitorElement* jet_eta_after_; 
+  MonitorElement* jet_eta_after_;
 /*   MonitorElement* jet2_et_before_; */
 /*   MonitorElement* jet2_et_after_; */
 
@@ -185,3 +193,8 @@ private:
 
 
 #endif
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

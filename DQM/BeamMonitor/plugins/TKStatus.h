@@ -5,7 +5,7 @@
  * *
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
- *   
+ *
  */
 // C++
 #include <string>
@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include <fstream>
 
 
@@ -27,25 +28,25 @@ class TKStatus : public edm::EDAnalyzer {
   ~TKStatus();
 
  protected:
-   
+
   // BeginJob
   void beginJob();
 
   // BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
-  
+
   void analyze(const edm::Event& e, const edm::EventSetup& c) ;
-  
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			    const edm::EventSetup& context) ;
-  
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-			  const edm::EventSetup& c);  
+
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+			  const edm::EventSetup& c);
   // EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c);
   // Endjob
   void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
-  
+
  private:
 
   void dumpTkDcsStatus(std::string &);
@@ -53,6 +54,7 @@ class TKStatus : public edm::EDAnalyzer {
   edm::ParameterSet parameters_;
   std::string dcsTkFileName_;
   std::ofstream fasciiDcsTkFile;
+  edm::EDGetTokenT<DcsStatusCollection> dcsStatus_;
 
   bool debug_;
   bool checkStatus_;
@@ -63,7 +65,7 @@ class TKStatus : public edm::EDAnalyzer {
   int lastlumi_; // previous LS processed
   bool dcsTk[6];
   // ----------member data ---------------------------
-  
+
   //
   std::time_t tmpTime;
   std::time_t refTime;
@@ -73,3 +75,8 @@ class TKStatus : public edm::EDAnalyzer {
 
 #endif
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

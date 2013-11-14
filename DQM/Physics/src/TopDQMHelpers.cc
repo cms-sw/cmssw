@@ -1,6 +1,6 @@
 #include "DQM/Physics/interface/TopDQMHelpers.h"
 
-Calculate::Calculate(int maxNJets, double wMass): 
+Calculate::Calculate(int maxNJets, double wMass):
   failed_(false), maxNJets_(maxNJets), wMass_(wMass), massWBoson_(-1.), massTopQuark_(-1.)
 {
 }
@@ -11,10 +11,10 @@ Calculate::massWBoson(const std::vector<reco::Jet>& jets)
   if(!failed_&& massWBoson_<0) operator()(jets); return massWBoson_;
 }
 
-double 
-Calculate::massTopQuark(const std::vector<reco::Jet>& jets) 
-{ 
-  if(!failed_&& massTopQuark_<0) operator()(jets); return massTopQuark_; 
+double
+Calculate::massTopQuark(const std::vector<reco::Jet>& jets)
+{
+  if(!failed_&& massTopQuark_<0) operator()(jets); return massTopQuark_;
 }
 
 void
@@ -24,7 +24,7 @@ Calculate::operator()(const std::vector<reco::Jet>& jets)
   failed_= jets.size()<(unsigned int) maxNJets_;
   if( failed_){ return; }
 
-  // associate those jets with maximum pt of the vectorial 
+  // associate those jets with maximum pt of the vectorial
   // sum to the hadronic decay chain
   double maxPt=-1.;
   std::vector<int> maxPtIndices;
@@ -55,8 +55,8 @@ Calculate::operator()(const std::vector<reco::Jet>& jets)
   std::vector<int> wMassIndices;
   wMassIndices.push_back(-1);
   wMassIndices.push_back(-1);
-  for(unsigned idx=0; idx<maxPtIndices.size(); ++idx){  
-    for(unsigned jdx=0; jdx<maxPtIndices.size(); ++jdx){  
+  for(unsigned idx=0; idx<maxPtIndices.size(); ++idx){
+    for(unsigned jdx=0; jdx<maxPtIndices.size(); ++jdx){
       if( jdx==idx || maxPtIndices[idx]>maxPtIndices[jdx] ) continue;
 	reco::Particle::LorentzVector sum = jets[maxPtIndices[idx]].p4()+jets[maxPtIndices[jdx]].p4();
 	if( wDist<0. || wDist>fabs(sum.mass()-wMass_) ){
@@ -70,3 +70,8 @@ Calculate::operator()(const std::vector<reco::Jet>& jets)
   massWBoson_= (jets[wMassIndices[0]].p4()+
 		jets[wMassIndices[1]].p4()).mass();
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

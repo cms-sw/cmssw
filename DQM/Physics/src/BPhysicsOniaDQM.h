@@ -9,12 +9,14 @@
  *  \author S. Bolognesi, Eric - CERN
  */
 
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include <string>
 #include <cmath>
@@ -53,13 +55,15 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
   // ----------member data ---------------------------
 
   DQMStore* theDbe;
-  
-  edm::InputTag vertex;
+
+  edm::EDGetTokenT<reco::VertexCollection> vertex_;
+  // Muon Label
+  edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionLabel_;
+  edm::EDGetTokenT<LumiSummary> lumiSummaryToken_;
+
   // Switch for verbosity
   std::string metname;
 
-  // Muon Label
-  edm::InputTag theMuonCollectionLabel;
 
   //The histos
   MonitorElement* diMuonMass_global;
@@ -95,3 +99,8 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
 };
 #endif
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

@@ -24,7 +24,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 //RecHit
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
 
@@ -38,12 +37,13 @@ DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Constructor called!" << endl;
 
   // the name of the 4D rec hits collection
-  theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
-  
-  prescaleFactor = pset.getUntrackedParameter<int>("diagnosticPrescale", 1);
+  recHits4DToken_ = consumes<DTRecSegment4DCollection>(
+      edm::InputTag(pset.getParameter<string>("recHits4DLabel")));
+
+  prescaleFactor  = pset.getUntrackedParameter<int>("diagnosticPrescale", 1);
   resetCycle = pset.getUntrackedParameter<int>("ResetCycle", -1);
   // top folder for the histograms in DQMStore
-  topHistoFolder = pset.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
+  topHistoFolder  = pset.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
 
   thePhiHitsCut = pset.getUntrackedParameter<u_int32_t>("phiHitsCut",8);
   theZHitsCut = pset.getUntrackedParameter<u_int32_t>("zHitsCut",4);
@@ -87,7 +87,7 @@ void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiS
 						    const EventSetup& context) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionTask]: Begin of LS transition"<<endl;
-  
+
   if(resetCycle != -1 && lumiSeg.id().luminosityBlock() % resetCycle == 0) {
     for(map<DTSuperLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerSL.begin();
 	histo != histosPerSL.end();
@@ -106,7 +106,7 @@ void DTResolutionAnalysisTask::endJob(){
  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] endjob called!"<<endl;
 
 }
-  
+
 
 
 void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
@@ -114,12 +114,12 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] Analyze #Run: " << event.id().run()
 	 << " #Event: " << event.id().event() << endl;
 
-  
+
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(theRecHits4DLabel, all4DSegments);
+  event.getByToken(recHits4DToken_, all4DSegments);
 
-  // check the validity of the collection 
+  // check the validity of the collection
   if(!all4DSegments.isValid()) return;
 
   // Loop over all chambers containing a segment
@@ -140,7 +140,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	 segment4D!=range.second;
 	 ++segment4D) {
       //edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   == RecSegment dimension: " << (*segment4D).dimension() << endl;
-      
+
       // If Statio != 4 skip RecHits with dimension != 4
       // For the Station 4 consider 2D RecHits
       if((*chamberId).station() != 4 && (*segment4D).dimension() != 4) {
@@ -156,7 +156,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 
       // Get all 1D RecHits at step 3 within the 4D segment
       vector<DTRecHit1D> recHits1D_S3;
-    
+
 
       // Get 1D RecHits at Step 3 and select only events with
       // 8 hits in phi and 4 hits in theta (if any)
@@ -191,16 +191,16 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	  recHit1D != recHits1D_S3.end();
 	  recHit1D++) {
 	const DTWireId wireId = (*recHit1D).wireId();
-	
+
 	// Get the layer and the wire position
 	const DTLayer* layer = chamber->superLayer(wireId.superlayerId())->layer(wireId.layerId());
 	float wireX = layer->specificTopology().wirePosition(wireId.wire());
 
 	// Distance of the 1D rechit from the wire
 	float distRecHitToWire = fabs(wireX - (*recHit1D).localPosition().x());
-	
+
 	// Extrapolate the segment to the z of the wire
-	
+
 	// Get wire position in chamber RF
 	LocalPoint wirePosInLay(wireX,(*recHit1D).localPosition().y(),(*recHit1D).localPosition().z());
 	GlobalPoint wirePosGlob = layer->toGlobal(wirePosInLay);
@@ -209,11 +209,11 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	// Segment position at Wire z in chamber local frame
 	LocalPoint segPosAtZWire = (*segment4D).localPosition()
 	  + (*segment4D).localDirection()*wirePosInChamber.z()/cos((*segment4D).localDirection().theta());
-	
+
 	// Compute the distance of the segment from the wire
 	int sl = wireId.superlayer();
-  
-	double distSegmToWire = -1;	
+
+	double distSegmToWire = -1;
 	if(sl == 1 || sl == 3) {
 	  // RPhi SL
 	  distSegmToWire = fabs(wirePosInChamber.x() - segPosAtZWire.x());
@@ -228,12 +228,12 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 	double residual = distRecHitToWire - distSegmToWire;
 	// FIXME: Fill the histos
 	fillHistos(wireId.superlayerId(), distSegmToWire, residual);
-	
+
 	//	edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Dist. segment extrapolation - wire (cm): " << distSegmToWire << endl;
 	//edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Dist. RecHit - wire (cm): " << distRecHitToWire << endl;
 	//edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "     Residual (cm): " << residual << endl;
-	
-			  
+
+
       }// End of loop over 1D RecHit inside 4D segment
     }// End of loop over the rechits of this ChamerId
   }
@@ -243,22 +243,22 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 
 // Book a set of histograms for a given SL
 void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
-  
+
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   Booking histos for SL: " << slId << endl;
 
   // Compose the chamber name
-  stringstream wheel; wheel << slId.wheel();	
-  stringstream station; station << slId.station();	
-  stringstream sector; sector << slId.sector();	
-  stringstream superLayer; superLayer << slId.superlayer();	
+  stringstream wheel; wheel << slId.wheel();
+  stringstream station; station << slId.station();
+  stringstream sector; sector << slId.sector();
+  stringstream superLayer; superLayer << slId.superlayer();
 
-  
+
   string slHistoName =
     "_W" + wheel.str() +
     "_St" + station.str() +
     "_Sec" + sector.str() +
     "_SL" + superLayer.str();
-  
+
   theDbe->setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str() +
 			   "/Sector" + sector.str() +
 			   "/Station" + station.str());
@@ -276,16 +276,21 @@ void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
 }
 
 
-// Fill a set of histograms for a given SL 
+// Fill a set of histograms for a given SL
 void DTResolutionAnalysisTask::fillHistos(DTSuperLayerId slId,
 				      float distExtr,
 				      float residual) {
-  vector<MonitorElement *> histos =  histosPerSL[slId];                          
+  vector<MonitorElement *> histos =  histosPerSL[slId];
   histos[0]->Fill(residual);
   //FIXME: 2D plot removed to reduce the # of ME
-  //   histos[1]->Fill(distExtr, residual); 
+  //   histos[1]->Fill(distExtr, residual);
 
 }
 
 
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

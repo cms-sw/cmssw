@@ -74,11 +74,11 @@ class SusyDQM: public edm::EDAnalyzer {
 
       std::string moduleName_;
 
-      edm::InputTag muons_;
-      edm::InputTag electrons_;
-      edm::InputTag jets_;
-      edm::InputTag met_;
-      edm::InputTag vertex_;
+      edm::EDGetTokenT<std::vector<reco::Muon> > muons_;
+      edm::EDGetTokenT<std::vector<reco::GsfElectron> > electrons_;
+      edm::EDGetTokenT<std::vector<reco::CaloJet> > jets_;
+      edm::EDGetTokenT<std::vector<reco::CaloMET> > met_;
+      edm::EDGetTokenT<reco::VertexCollection> vertex_;
 
       double elec_eta_cut_;
       double elec_mva_cut_;
@@ -149,11 +149,16 @@ SusyDQM<Mu, Ele, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
 
    moduleName_ = pset.getUntrackedParameter<std::string> ("moduleName");
 
-   muons_ = pset.getParameter<edm::InputTag> ("muonCollection");
-   electrons_ = pset.getParameter<edm::InputTag> ("electronCollection");
-   jets_ = pset.getParameter<edm::InputTag> ("jetCollection");
-   met_ = pset.getParameter<edm::InputTag> ("metCollection");
-   vertex_ = pset.getParameter<edm::InputTag> ("vertexCollection");
+   muons_ = consumes<std::vector<reco::Muon> > (
+    pset.getParameter<edm::InputTag> ("muonCollection"));
+   electrons_ = consumes<std::vector<reco::GsfElectron> > (
+    pset.getParameter<edm::InputTag> ("electronCollection"));
+   jets_ = consumes<std::vector<reco::CaloJet> > (
+    pset.getParameter<edm::InputTag> ("jetCollection"));
+     met_ = consumes<std::vector<reco::CaloMET> > (
+    pset.getParameter<edm::InputTag> ("metCollection"));
+       vertex_ = consumes<reco::VertexCollection> (
+    pset.getParameter<edm::InputTag> ("vertexCollection"));
 
    muon_eta_cut_ = pset.getParameter<double> ("muon_eta_cut");
    muon_nHits_cut_ = pset.getParameter<double> ("muon_nHits_cut");
@@ -308,33 +313,30 @@ template<typename Mu, typename Ele, typename Jet, typename Met>
 void SusyDQM<Mu, Ele, Jet, Met>::analyze(const edm::Event& evt, const edm::EventSetup& iSetup) {
 
    edm::Handle<std::vector<Mu> > muons;
-   bool isFound = evt.getByLabel(muons_, muons);
+   bool isFound = evt.getByToken(muons_, muons);
    if (!isFound)
       return;
 
    edm::Handle<std::vector<Ele> > elecs;
-   isFound = evt.getByLabel(electrons_, elecs);
+   isFound = evt.getByToken(electrons_, elecs);
    if (!isFound)
       return;
 
-   //edm::Handle<std::vector<Jet> > jets;
-   //evt.getByLabel(jets_, jets);
-
    //// sorted jets
    edm::Handle<std::vector<Jet> > cJets;
-   isFound = evt.getByLabel(jets_, cJets);
+   isFound = evt.getByToken(jets_, cJets);
    if (!isFound)
       return;
    std::vector<Jet> jets = *cJets;
    std::sort(jets.begin(), jets.end(), PtGreater());
 
    edm::Handle<std::vector<Met> > mets;
-   isFound = evt.getByLabel(met_, mets);
+   isFound = evt.getByToken(met_, mets);
    if (!isFound)
       return;
 
    edm::Handle<reco::VertexCollection> vertices;
-   isFound = evt.getByLabel(vertex_, vertices);
+   isFound = evt.getByToken(vertex_, vertices);
    if (!isFound)
       return;
 
@@ -506,3 +508,8 @@ void SusyDQM<Mu, Ele, Jet, Met>::endJob() {
 
 typedef SusyDQM<reco::Muon, reco::GsfElectron, reco::CaloJet, reco::CaloMET> RecoSusyDQM;
 //typedef SusyDQM< pat::Muon, pat::Electron, pat::Jet, pat::MET > PatSusyDQM;
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

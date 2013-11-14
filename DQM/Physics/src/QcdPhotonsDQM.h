@@ -17,7 +17,11 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+namespace reco {class Jet;}
 
 class DQMStore;
 class MonitorElement;
@@ -27,10 +31,10 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
 
   /// Constructor
   QcdPhotonsDQM(const edm::ParameterSet&);
-  
+
   /// Destructor
   virtual ~QcdPhotonsDQM();
-  
+
   /// Inizialize parameters for histo binning
   void beginJob();
 
@@ -49,7 +53,7 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
  private:
 
   // ----------member data ---------------------------
-  
+
   DQMStore* theDbe;
 
   HLTConfigProvider hltConfigProvider_;
@@ -61,19 +65,22 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   // Variables from config file
   std::string   theTriggerPathToPass_;
   std::vector<std::string> thePlotTheseTriggersToo_;
-  edm::InputTag trigTag_;
-  edm::InputTag thePhotonCollectionLabel_;
   edm::InputTag theJetCollectionLabel_;
-  edm::InputTag theVertexCollectionLabel_;
+  edm::EDGetTokenT<edm::TriggerResults> trigTagToken_;
+  edm::EDGetTokenT<reco::PhotonCollection> thePhotonCollectionToken_;
+  edm::EDGetTokenT<edm::View<reco::Jet> > theJetCollectionToken_;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken_;
   double theMinJetPt_;
   double theMinPhotonEt_;
   bool   theRequirePhotonFound_;
   double thePlotPhotonMaxEt_;
   double thePlotPhotonMaxEta_;
   double thePlotJetMaxEta_;
- 
-  edm::InputTag theBarrelRecHitTag;
-  edm::InputTag theEndcapRecHitTag;
+
+  edm::InputTag theBarrelRecHitTag_;
+  edm::InputTag theEndcapRecHitTag_;
+  edm::EDGetTokenT<EcalRecHitCollection> theBarrelRecHitToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> theEndcapRecHitToken_;
 
   int num_events_in_run;
 
@@ -110,3 +117,8 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   MonitorElement* h_photon_et_ratio_co_fo;
 };
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

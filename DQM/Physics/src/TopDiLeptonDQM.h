@@ -22,7 +22,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -53,7 +53,7 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     virtual void beginJob();
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     virtual void endJob();
-       
+
     DQMStore * dbe_;
     bool fileOutput_;
 
@@ -144,3 +144,8 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */
