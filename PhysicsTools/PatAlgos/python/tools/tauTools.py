@@ -20,15 +20,11 @@ def redoPFTauDiscriminators(process,
     if tauType == 'hpsPFTau':
         process.patHPSPFTauDiscrimination = process.produceAndDiscriminateHPSPFTaus.copy()
         if hasattr(process,"updateHPSPFTaus"+postfix):
-            print 'in update!'
             tauDiscriminationSequence = getattr(process,"patHPSPFTauDiscrimination"+postfix)
         else:
             #        remove producers
-            print 'not in update!'
             for iname in process.patHPSPFTauDiscrimination.moduleNames():
-                print iname
                 if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1 or iname.find("kt6PFJetsForRhoComputationVoronoi")>-1 or iname.find("PtSum")>-1 or iname.find("ImpactParameters")>-1 or iname.find("VertexProducer")>-1):
-                    print 'removed!'
                     process.patHPSPFTauDiscrimination.remove(getattr(process,iname) )
             tauDiscriminationSequence = cloneProcessingSnippet(process, process.patHPSPFTauDiscrimination, postfix)
 
@@ -141,7 +137,6 @@ def _switchToPFTau(process,
                    postfix = ""):
     """internal auxiliary function to switch to **any** PFTau collection"""
     print ' Taus: ', pfTauLabelOld, '->', pfTauLabelNew
-    print ' applying postfix ', postfix,' ',pfTauLabelNew,' ',pfTauLabelOld
     applyPostfix(process, "tauMatch" + patTauLabel, postfix).src = pfTauLabelNew
     applyPostfix(process, "tauGenJetMatch" + patTauLabel, postfix).src = pfTauLabelNew
 
@@ -354,7 +349,6 @@ def switchToPFTauHPS(process,
                      patTauLabel = "",
                      jecLevels = [],
                      postfix = ""):
-    print 'in switch to PFTau HPS'
     hpsTauJECpayloadMapping = pfTauJECpayloadMapping
 
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'hpsPFTau', hpsTauIDSources,
@@ -403,7 +397,6 @@ def switchToPFTauByType(process,
                         patTauLabel = "",
                         jecLevels = [],
                         postfix = "" ):
-    print 'in switchToPFTauByType', pfTauType
     mapping = { 'shrinkingConePFTau' : switchToPFTauShrinkingCone,
                 'fixedConePFTau' : switchToPFTauFixedCone,
                 'hpsPFTau' : switchToPFTauHPS,

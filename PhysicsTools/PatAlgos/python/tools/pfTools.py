@@ -345,13 +345,10 @@ def adaptPFTaus(process,tauType = 'shrinkingConePFTau', postfix = ""):
                             applyPostfix(process,"patTaus", postfix).tauSource,
                             tauType, postfix=postfix)
 
-    print ' Switching to PFTau!!'
-    print applyPostfix(process,"patTaus", postfix).tauSource
     switchToPFTauByType(process, pfTauType=tauType,
                         pfTauLabelNew=applyPostfix(process,"patTaus", postfix).tauSource,
                         pfTauLabelOld=cms.InputTag(tauType+'Producer'),
                         postfix=postfix)
-    print ' Switched '
     applyPostfix(process,"makePatTaus", postfix).remove(
         applyPostfix(process,"patPFCandidateIsoDepositSelection", postfix)
         )
@@ -642,4 +639,3 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", 
 
     print "Done: PF2PAT interfaced to PAT, postfix=", postfix
 
-   # print process.p
