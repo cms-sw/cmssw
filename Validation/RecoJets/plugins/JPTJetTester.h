@@ -11,12 +11,16 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/JetReco/interface/JPTJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 namespace reco {
   class JPTJet;
   class GenJet;
 }
+namespace edm {class HepMCProduct;}
 
 class MonitorElement;
 
@@ -29,14 +33,17 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob() ;
   virtual void endJob() ;
- 
+
 private:
-  
+
   void fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJet& fJPTJet, const std::vector<reco::Vertex>& goodVertices);
   double getSumPt (const reco::TrackRefVector& tracks);
 
-  edm::InputTag mInputCollection;
-  edm::InputTag mInputGenCollection;
+  edm::EDGetTokenT<reco::JPTJetCollection> mInputCollection_;
+  edm::EDGetTokenT<reco::GenJetCollection> mInputGenCollection_;
+  edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
+  edm::EDGetTokenT<edm::HepMCProduct> hepMC_Token_;
+  edm::EDGetTokenT<CaloTowerCollection> caloTower_Token_;
   std::string mOutputFile;
   edm::InputTag inputMETLabel_;
   std::string METType_;
@@ -104,10 +111,10 @@ private:
   MonitorElement* nvtx_0_30;
   MonitorElement* nvtx_0_60;
   MonitorElement* mpTResponse_nvtx_0_5;
-  MonitorElement* mpTResponse_nvtx_5_10; 
+  MonitorElement* mpTResponse_nvtx_5_10;
   MonitorElement* mpTResponse_nvtx_10_15;
   MonitorElement* mpTResponse_nvtx_15_20;
-  MonitorElement* mpTResponse_nvtx_20_30; 
+  MonitorElement* mpTResponse_nvtx_20_30;
   MonitorElement* mpTResponse_nvtx_30_inf;
   MonitorElement* mpTScale_a_nvtx_0_5;
   MonitorElement* mpTScale_b_nvtx_0_5;
@@ -185,37 +192,37 @@ private:
   MonitorElement* mMultiplicityElecInVertexOutCalo;
   MonitorElement* mMultiplicityElecOutVertexInCalo;
   /*
-  MonitorElement* mMaxEInEmTowers;
-  MonitorElement* mMaxEInHadTowers;
-  MonitorElement* mHadEnergyInHO;
-  MonitorElement* mHadEnergyInHB;
-  MonitorElement* mHadEnergyInHF;
-  MonitorElement* mHadEnergyInHE;
-  MonitorElement* mHadEnergyInHO_80;
-  MonitorElement* mHadEnergyInHB_80;
-  MonitorElement* mHadEnergyInHE_80;
-  MonitorElement* mHadEnergyInHO_3000;
-  MonitorElement* mHadEnergyInHB_3000;
-  MonitorElement* mHadEnergyInHE_3000;
-  MonitorElement* mEmEnergyInEB;
-  MonitorElement* mEmEnergyInEE;
-  MonitorElement* mEmEnergyInHF;
-  MonitorElement* mEmEnergyInEB_80;
-  MonitorElement* mEmEnergyInEE_80;
-  MonitorElement* mEmEnergyInEB_3000;
-  MonitorElement* mEmEnergyInEE_3000;
-  MonitorElement* mEnergyFractionHadronic;
-  MonitorElement* mEnergyFractionEm;
-  MonitorElement* mHFTotal;
-  MonitorElement* mHFTotal_80;
-  MonitorElement* mHFTotal_3000;
-  MonitorElement* mHFLong;
-  MonitorElement* mHFLong_80;
-  MonitorElement* mHFLong_3000;
-  MonitorElement* mHFShort;
-  MonitorElement* mHFShort_80;
-  MonitorElement* mHFShort_3000;
-  MonitorElement* mN90;
+    MonitorElement* mMaxEInEmTowers;
+    MonitorElement* mMaxEInHadTowers;
+    MonitorElement* mHadEnergyInHO;
+    MonitorElement* mHadEnergyInHB;
+    MonitorElement* mHadEnergyInHF;
+    MonitorElement* mHadEnergyInHE;
+    MonitorElement* mHadEnergyInHO_80;
+    MonitorElement* mHadEnergyInHB_80;
+    MonitorElement* mHadEnergyInHE_80;
+    MonitorElement* mHadEnergyInHO_3000;
+    MonitorElement* mHadEnergyInHB_3000;
+    MonitorElement* mHadEnergyInHE_3000;
+    MonitorElement* mEmEnergyInEB;
+    MonitorElement* mEmEnergyInEE;
+    MonitorElement* mEmEnergyInHF;
+    MonitorElement* mEmEnergyInEB_80;
+    MonitorElement* mEmEnergyInEE_80;
+    MonitorElement* mEmEnergyInEB_3000;
+    MonitorElement* mEmEnergyInEE_3000;
+    MonitorElement* mEnergyFractionHadronic;
+    MonitorElement* mEnergyFractionEm;
+    MonitorElement* mHFTotal;
+    MonitorElement* mHFTotal_80;
+    MonitorElement* mHFTotal_3000;
+    MonitorElement* mHFLong;
+    MonitorElement* mHFLong_80;
+    MonitorElement* mHFLong_3000;
+    MonitorElement* mHFShort;
+    MonitorElement* mHFShort_80;
+    MonitorElement* mHFShort_3000;
+    MonitorElement* mN90;
   */
 
   // pthat
@@ -307,8 +314,8 @@ private:
   MonitorElement* mEmEnergyProfile;
   MonitorElement* mJetEnergyProfile;
   /*
-  MonitorElement* mHadJetEnergyProfile;
-  MonitorElement* mEMJetEnergyProfile;
+    MonitorElement* mHadJetEnergyProfile;
+    MonitorElement* mEMJetEnergyProfile;
   */
 
   // CaloMET
