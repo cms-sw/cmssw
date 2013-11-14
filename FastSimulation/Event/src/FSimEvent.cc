@@ -73,7 +73,7 @@ FSimEvent::load(edm::SimTrackContainer & c, edm::SimTrackContainer & m) const
 	 fabs(t.momentum().eta()) < 3.0 &&
 	 track(i).noEndVertex() ) {
       // Actually save the muon mother (and the attached muon) in case
-      if ( track(i).mother().closestDaughterId() == (int)i ) {
+      if ( !track(i).noMother() && track(i).mother().closestDaughterId() == (int)i ) {
 	const SimTrack& T = embdTrack(track(i).mother().id());
 	m.push_back(T);
       } 

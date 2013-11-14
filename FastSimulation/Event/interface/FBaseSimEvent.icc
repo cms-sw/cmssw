@@ -2,17 +2,26 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimDataFormats/NuclearInteractions/interface/FSimVertexType.h"
 
-static FSimTrack oTrack;
 inline FSimTrack& FBaseSimEvent::track(int i) const { 
-  return (i>=0 && i<(int)nTracks()) ? (*theSimTracks)[i] : oTrack; }
+  if (i < 0 || i>=(int)nTracks()){
+    throw cms::Exception("FastSim") << "Index for FSimTracks out of range, please contact FastSim developers"<< std::endl;
+  }
+  return (*theSimTracks)[i];
+}
 
-static FSimVertex oVertex;
 inline FSimVertex& FBaseSimEvent::vertex(int i) const { 
-  return (i>=0 && i<(int)nVertices()) ? (*theSimVertices)[i] : oVertex; }
+  if (i < 0 || i>=(int)nVertices()){
+    throw cms::Exception("FastSim") << "Index for FSimVertex out of range, please contact FastSim developers"<< std::endl;
+  }
+  return (*theSimVertices)[i];
+}
 
-static FSimVertexType oVertexType;
-inline FSimVertexType& FBaseSimEvent::vertexType(int i) const { 
-  return (i>=0 && i<(int)nVertices()) ? (*theFSimVerticesType)[i] : oVertexType; }
+inline FSimVertexType& FBaseSimEvent::vertexType(int i) const {
+  if (i < 0 || i >=(int)nVertices()){
+    throw cms::Exception("FastSim") << "Index for FSimVertexType out of range, please contact FastSim developers"<< std::endl;
+  }
+  return (*theFSimVerticesType)[i]; 
+}
 
 inline const SimTrack& FBaseSimEvent::embdTrack(int i) const { 
   return (*theSimTracks)[i].simTrack(); }

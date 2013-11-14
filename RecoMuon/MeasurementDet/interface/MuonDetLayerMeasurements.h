@@ -135,16 +135,12 @@ class MuonDetLayerMeasurements {
   void checkRPCRecHits();
 
   // keeps track of which event the cache holds
-  edm::EventID theDTEventID;
-  edm::EventID theCSCEventID;
-  edm::EventID theRPCEventID;
+  edm::Event::CacheIdentifier_t theDTEventCacheID;
+  edm::Event::CacheIdentifier_t theCSCEventCacheID;
+  edm::Event::CacheIdentifier_t theRPCEventCacheID;
 
   const edm::Event* theEvent;   
 
-  // strings to uniquely identify current process
-  std::string theDTCheckName;
-  std::string theRPCCheckName;
-  std::string theCSCCheckName;
 };
 #endif
 
