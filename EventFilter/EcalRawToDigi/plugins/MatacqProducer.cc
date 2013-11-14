@@ -44,9 +44,9 @@ using namespace edm;
 //static const bool searchDbg = false;
 
 //laser freq is 1 every 112 orbit => >80 orbit
-int MatacqProducer::orbitTolerance_ = 80; 
+const int MatacqProducer::orbitTolerance_ = 80; 
 
-MatacqProducer::stats_t MatacqProducer::stats_init = {0,0,0};
+const MatacqProducer::stats_t MatacqProducer::stats_init = {0,0,0};
 
 static std::string now(){
   struct timeval t;
