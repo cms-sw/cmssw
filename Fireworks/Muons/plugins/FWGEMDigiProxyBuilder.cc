@@ -26,8 +26,6 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 
-using namespace std;
-
 class FWGEMDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:

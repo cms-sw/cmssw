@@ -45,20 +45,20 @@ private:
   const std::string myName_;
   std::ofstream ofos;
 };
-using namespace std;
+
 GEMGeometryAnalyzer::GEMGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )
-  : dashedLineWidth_(104), dashedLine_( string(dashedLineWidth_, '-') ), 
+  : dashedLineWidth_(104), dashedLine_( std::string(dashedLineWidth_, '-') ), 
     myName_( "GEMGeometryAnalyzer" ) 
 { 
   ofos.open("MytestOutput.out"); 
-  ofos <<"======================== Opening output file"<< endl;
+  ofos <<"======================== Opening output file"<< std::endl;
 }
 
 
 GEMGeometryAnalyzer::~GEMGeometryAnalyzer() 
 {
   ofos.close();
-  ofos <<"======================== Closing output file"<< endl;
+  ofos <<"======================== Closing output file"<< std::endl;
 }
 
 void
@@ -67,9 +67,10 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   edm::ESHandle<GEMGeometry> pDD;
   iSetup.get<MuonGeometryRecord>().get(pDD);     
   
-  ofos << myName() << ": Analyzer..." << endl;
-  ofos << "start " << dashedLine_ << endl;
+  ofos << myName() << ": Analyzer..." << std::endl;
+  ofos << "start " << dashedLine_ << std::endl;
 
+<<<<<<< HEAD
   ofos << " Geometry node for GEMGeom is  " << &(*pDD) << endl;   
   ofos << " detTypes       \t"              <<pDD->detTypes().size() << endl;
   ofos << " GeomDetUnit       \t"           <<pDD->detUnits().size() << endl;
@@ -81,6 +82,18 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   ofos << " rings  \t\t"                    <<pDD->rings().size() << endl;
   ofos << " stations  \t\t"                 <<pDD->stations().size() << endl;
   ofos << " regions  \t\t"                  <<pDD->regions().size() << endl;
+=======
+  ofos << " Geometry node for GEMGeom is  " << &(*pDD) << std::endl;   
+  ofos << " detTypes       \t"<<pDD->detTypes().size() << std::endl;
+  ofos << " GeomDetUnit       \t"<<pDD->detUnits().size() << std::endl;
+  ofos << " GeomDet           \t"<<pDD->dets().size() << std::endl;
+  ofos << " GeomDetUnit DetIds\t"<<pDD->detUnitIds().size() << std::endl;
+  ofos << " eta partitions \t"<<pDD->etaPartitions().size() << std::endl;
+  ofos << " chambers       \t"<<pDD->chambers().size() << std::endl;
+  ofos << " no. eta partitions \t"<< pDD->etaPartitions().size()/pDD->chambers().size() << std::endl;
+
+  //ofos << " super chambers  "<<pDD->superChambers().size() << std::endl;
+>>>>>>> 078f1f2... removed using namespace std
 
   // checking uniqueness of roll detIds 
   bool flagNonUniqueRollID = false;
@@ -117,11 +130,11 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   if (flagNonUniqueChID or flagNonUniqueChRawID)
     ofos << " -- WARNING: non unique chamber Ids!!!" << endl;
 
-  ofos << myName() << ": Begin iteration over geometry..." << endl;
-  ofos << "iter " << dashedLine_ << endl;
+  ofos << myName() << ": Begin iteration over geometry..." << std::endl;
+  ofos << "iter " << dashedLine_ << std::endl;
   
   //----------------------- Global GEMGeometry TEST -------------------------------------------------------
-  ofos << myName() << "Begin GEMGeometry structure TEST" << endl;
+  ofos << myName() << "Begin GEMGeometry structure TEST" << std::endl;
   
   for (auto region : pDD->regions()) {
     ofos << "  GEMRegion " << region->region() << " has " << region->nStations() << " stations." << endl;
@@ -238,7 +251,7 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
     }
   }
 
-  ofos << dashedLine_ << " end" << endl;
+  ofos << dashedLine_ << " end" << std::endl;
 }
 
 //define this as a plug-in
