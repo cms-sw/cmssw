@@ -9,14 +9,12 @@
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -46,23 +44,37 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
  : ElectronDqmAnalyzerBase(conf)
  {
   //outputFile_ = conf.getParameter<std::string>("outputFile");
-  mcTruthCollection_ = conf.getParameter<edm::InputTag>("mcTruthCollection");
-  electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
-  electronCoreCollection_ = conf.getParameter<edm::InputTag>("electronCoreCollection");
-  electronTrackCollection_ = conf.getParameter<edm::InputTag>("electronTrackCollection");
-  electronSeedCollection_ = conf.getParameter<edm::InputTag>("electronSeedCollection");
+   mcTruthCollection_ = consumes<reco::GenParticleCollection> (
+       conf.getParameter<edm::InputTag>("mcTruthCollection"));
+  electronCollection_      = consumes<reco::GsfElectronCollection> (
+      conf.getParameter<edm::InputTag>("electronCollection"));
+  electronCoreCollection_  = consumes<reco::GsfElectronCoreCollection> (
+      conf.getParameter<edm::InputTag>("electronCoreCollection"));
+  electronTrackCollection_ = consumes<reco::GsfTrackCollection> (
+      conf.getParameter<edm::InputTag>("electronTrackCollection"));
+  electronSeedCollection_  = consumes<reco::ElectronSeedCollection> (
+      conf.getParameter<edm::InputTag>("electronSeedCollection"));
+  beamSpotTag_ = consumes<reco::BeamSpot> (
+      conf.getParameter<edm::InputTag>("beamSpot"));
 
-  beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot") ;
   readAOD_ = conf.getParameter<bool>("readAOD");
 
-  isoFromDepsTk03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsTk03" ) ;
-  isoFromDepsTk04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsTk04" ) ;
-  isoFromDepsEcalFull03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalFull03" ) ;
-  isoFromDepsEcalFull04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalFull04" ) ;
-  isoFromDepsEcalReduced03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalReduced03" ) ;
-  isoFromDepsEcalReduced04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalReduced04" ) ;
-  isoFromDepsHcal03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsHcal03" ) ;
-  isoFromDepsHcal04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsHcal04" ) ;
+  isoFromDepsTk03Tag_ = consumes<edm::ValueMap<double> > (
+      conf.getParameter<edm::InputTag>( "isoFromDepsTk03"));
+  isoFromDepsTk04Tag_ = consumes<edm::ValueMap<double> > (
+      conf.getParameter<edm::InputTag>( "isoFromDepsTk04"));
+  isoFromDepsEcalFull03Tag_ = consumes<edm::ValueMap<double> > (
+      conf.getParameter<edm::InputTag>( "isoFromDepsEcalFull03"));
+  isoFromDepsEcalFull04Tag_ = consumes<edm::ValueMap<double> > (
+      conf.getParameter<edm::InputTag>( "isoFromDepsEcalFull04"));
+  isoFromDepsEcalReduced03Tag_ = consumes<edm::ValueMap<double> >(
+      conf.getParameter<edm::InputTag>( "isoFromDepsEcalReduced03"));
+  isoFromDepsEcalReduced04Tag_ = consumes<edm::ValueMap<double> > (
+      conf.getParameter<edm::InputTag>( "isoFromDepsEcalReduced04"));
+  isoFromDepsHcal03Tag_ = consumes<edm::ValueMap<double> > (
+      conf.getParameter<edm::InputTag>( "isoFromDepsHcal03"));
+  isoFromDepsHcal04Tag_ = consumes<edm::ValueMap<double> > (
+      conf.getParameter<edm::InputTag>( "isoFromDepsHcal04"));
 
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
@@ -138,7 +150,7 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
 
   error_nbin=histosSet.getParameter<int>("Nbinerror");
   enerror_max=histosSet.getParameter<double>("Energyerrormax");
-  
+
   // so to please coverity...
   h1_mcNum = 0 ;
   h1_eleNum = 0 ;
@@ -1052,26 +1064,41 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
  {
   // get collections
   edm::Handle<GsfElectronCollection> gsfElectrons ;
-  iEvent.getByLabel(electronCollection_,gsfElectrons) ;
+  iEvent.getByToken(electronCollection_, gsfElectrons) ;
   edm::Handle<GsfElectronCoreCollection> gsfElectronCores ;
-  iEvent.getByLabel(electronCoreCollection_,gsfElectronCores) ;
+  iEvent.getByToken(electronCoreCollection_,gsfElectronCores) ;
   edm::Handle<GsfTrackCollection> gsfElectronTracks ;
-  iEvent.getByLabel(electronTrackCollection_,gsfElectronTracks) ;
+  iEvent.getByToken(electronTrackCollection_,gsfElectronTracks) ;
   edm::Handle<ElectronSeedCollection> gsfElectronSeeds ;
-  iEvent.getByLabel(electronSeedCollection_,gsfElectronSeeds) ;
+  iEvent.getByToken(electronSeedCollection_,gsfElectronSeeds) ;
   edm::Handle<GenParticleCollection> genParticles ;
-  iEvent.getByLabel(mcTruthCollection_, genParticles) ;
+  iEvent.getByToken(mcTruthCollection_, genParticles) ;
   edm::Handle<reco::BeamSpot> theBeamSpot ;
-  iEvent.getByLabel(beamSpotTag_,theBeamSpot) ;
+  iEvent.getByToken(beamSpotTag_,theBeamSpot) ;
 
-  edm::Handle<edm::ValueMap<double> > isoFromDepsTk03Handle          ;   iEvent.getByLabel( isoFromDepsTk03Tag_         , isoFromDepsTk03Handle          ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsTk04Handle          ;   iEvent.getByLabel( isoFromDepsTk04Tag_         , isoFromDepsTk04Handle          ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalFull03Handle    ;   iEvent.getByLabel( isoFromDepsEcalFull03Tag_   , isoFromDepsEcalFull03Handle    ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalFull04Handle    ;   iEvent.getByLabel( isoFromDepsEcalFull04Tag_   , isoFromDepsEcalFull04Handle    ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalReduced03Handle ;   iEvent.getByLabel( isoFromDepsEcalReduced03Tag_, isoFromDepsEcalReduced03Handle ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalReduced04Handle ;   iEvent.getByLabel( isoFromDepsEcalReduced04Tag_, isoFromDepsEcalReduced04Handle ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsHcal03Handle        ;   iEvent.getByLabel( isoFromDepsHcal03Tag_       , isoFromDepsHcal03Handle        ) ;
-  edm::Handle<edm::ValueMap<double> > isoFromDepsHcal04Handle        ;   iEvent.getByLabel( isoFromDepsHcal04Tag_       , isoFromDepsHcal04Handle        ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsTk03Handle;
+  iEvent.getByToken(isoFromDepsTk03Tag_, isoFromDepsTk03Handle);
+
+  edm::Handle<edm::ValueMap<double> > isoFromDepsTk04Handle;
+  iEvent.getByToken(isoFromDepsTk04Tag_, isoFromDepsTk04Handle);
+
+  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalFull03Handle;
+  iEvent.getByToken( isoFromDepsEcalFull03Tag_, isoFromDepsEcalFull03Handle);
+
+  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalFull04Handle;
+  iEvent.getByToken( isoFromDepsEcalFull04Tag_, isoFromDepsEcalFull04Handle);
+
+  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalReduced03Handle;
+  iEvent.getByToken( isoFromDepsEcalReduced03Tag_, isoFromDepsEcalReduced03Handle);
+
+  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalReduced04Handle;
+  iEvent.getByToken( isoFromDepsEcalReduced04Tag_, isoFromDepsEcalReduced04Handle);
+
+  edm::Handle<edm::ValueMap<double> > isoFromDepsHcal03Handle;
+  iEvent.getByToken( isoFromDepsHcal03Tag_, isoFromDepsHcal03Handle);
+
+  edm::Handle<edm::ValueMap<double> > isoFromDepsHcal04Handle;
+  iEvent.getByToken( isoFromDepsHcal04Tag_, isoFromDepsHcal04Handle);
 
   edm::LogInfo("ElectronMcSignalValidator::analyze")
     <<"Treating event "<<iEvent.id()
