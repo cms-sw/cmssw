@@ -19,6 +19,7 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+using namespace std;
 
 class FWGEMRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<GEMRecHit>
 {
