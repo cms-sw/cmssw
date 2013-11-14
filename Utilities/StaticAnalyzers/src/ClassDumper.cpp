@@ -6,24 +6,13 @@ using namespace llvm;
 
 namespace clangcms {
 
-
-
-
 void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR ) const {
-
-	const clang::SourceManager &SM = BR.getSourceManager();
-	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
-//	if (  !m_exception.reportClass( DLoc, BR ) ) return;
 //Dump the template name and args
 	if (const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD))
 		{
 			for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J)
 			{
-//			llvm::errs()<<"\nTemplate "<<SD->getSpecializedTemplate()->getQualifiedNameAsString()<<";";
-//			llvm::errs()<<"Template Argument ";
-//			llvm::errs()<<SD->getTemplateArgs().get(J).getAsType().getAsString();
-//			llvm::errs()<<"\n\n\t";
 			if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type && SD->getTemplateArgs().get(J).getAsType().getTypePtr()->isRecordType() )
 				{
 				const clang::CXXRecordDecl * D = SD->getTemplateArgs().get(J).getAsType().getTypePtr()->getAsCXXRecordDecl();
@@ -42,10 +31,9 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 	std::string tname = dname + fname;
 	llvm::raw_fd_ostream output(tname.c_str(),err,llvm::raw_fd_ostream::F_Append);
 	std::string rname = RD->getQualifiedNameAsString();
-//	llvm::errs() <<"class " <<RD->getQualifiedNameAsString()<<"\n";
 	output <<"class " << rname <<"\n";
 	for (clang::RecordDecl::field_iterator I = RD->field_begin(), E = RD->field_end(); I != E; ++I)
-	{
+		{
 		clang::QualType qual;
 		if (I->getType().getTypePtr()->isAnyPointerType()) 
 			qual = I->getType().getTypePtr()->getPointeeType();
@@ -53,50 +41,24 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 			qual = I->getType().getNonReferenceType();
 
 		if (!qual.getTypePtr()->isRecordType()) return;
-//		llvm::errs() <<"Class Member ";
-//		if (I->getType() == qual)
-//			{
-//			llvm::errs() <<"; "<<I->getType().getCanonicalType().getTypePtr()->getTypeClassName();
-//			}
-//		else
-//			{
-//			llvm::errs() <<"; "<<qual.getCanonicalType().getTypePtr()->getTypeClassName()<<" "<<I->getType().getCanonicalType().getTypePtr()->getTypeClassName();
-//			}
-//		llvm::errs() <<"; "<<I->getType().getCanonicalType().getAsString();
-//		llvm::errs() <<"; "<<I->getType().getAsString();
-//		llvm::errs() <<"; "<< I->getQualifiedNameAsString();
-
-//		llvm::errs() <<"\n\n";
-		if (const CXXRecordDecl * TRD = I->getType().getTypePtr()->getAsCXXRecordDecl()) 
-			{
-			if (RD->getNameAsString() == TRD->getNameAsString())
-				{
-				checkASTDecl( TRD, mgr, BR );
-				}
-			}
-	}
+		if (const CXXRecordDecl * TRD = I->getType().getTypePtr()->getAsCXXRecordDecl()) checkASTDecl( TRD, mgr, BR );
+		}
 
 } //end class
 
-
 void ClassDumperCT::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR ) const {
-	const clang::SourceManager &SM = BR.getSourceManager();
-	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( TD, SM );
-	if ( SM.isInSystemHeader(DLoc.asLocation()) || SM.isInExternCSystemHeader(DLoc.asLocation()) ) return;
-	
+ 	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation()).getFilename();
+   	if (!support::isCmsLocalFile(sfile)) return;
+
 	std::string tname = TD->getTemplatedDecl()->getQualifiedNameAsString();
 	if ( tname == "edm::Wrapper" || tname == "edm::RunCache" || tname == "edm::LuminosityBlockCache" || tname == "edm::GlobalCache" ) 
 		{
-//		llvm::errs()<<"\n";
 		for (ClassTemplateDecl::spec_iterator I = const_cast<clang::ClassTemplateDecl *>(TD)->spec_begin(), 
 			E = const_cast<clang::ClassTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
 			{
 			for (unsigned J = 0, F = I->getTemplateArgs().size(); J!=F; ++J)
 				{
-//				llvm::errs()<<"template class "<< TD->getTemplatedDecl()->getQualifiedNameAsString()<<"<" ;
-//				llvm::errs()<<I->getTemplateArgs().get(J).getAsType().getAsString();
-//				llvm::errs()<<">\n";
 				if (const clang::CXXRecordDecl * D = I->getTemplateArgs().get(J).getAsType().getTypePtr()->getAsCXXRecordDecl())
 					{
 					ClassDumper dumper;
@@ -109,20 +71,17 @@ void ClassDumperCT::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento:
 
 void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR ) const {
-	const clang::SourceManager &SM = BR.getSourceManager();
-	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( TD, SM );
-	if ( SM.isInSystemHeader(DLoc.asLocation()) || SM.isInExternCSystemHeader(DLoc.asLocation()) ) return;
+
+ 	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation()).getFilename();
+   	if (!support::isCmsLocalFile(sfile)) return;
+
 	if (TD->getTemplatedDecl()->getQualifiedNameAsString().find("typelookup") != std::string::npos ) 
 		{
-//		llvm::errs()<<"\n";
 		for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
 				E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
 			{
 			for (unsigned J = 0, F = (*I)->getTemplateSpecializationArgs()->size(); J!=F;++J)
 				{
-//				llvm::errs()<<"template function " << TD->getTemplatedDecl()->getQualifiedNameAsString()<<"<";
-//				llvm::errs()<<(*I)->getTemplateSpecializationArgs()->get(J).getAsType().getAsString();
-//				llvm::errs()<<">\n";
 				if (const clang::CXXRecordDecl * D = (*I)->getTemplateSpecializationArgs()->get(J).getAsType().getTypePtr()->getAsCXXRecordDecl()) 
 					{
 					ClassDumper dumper;
@@ -137,7 +96,9 @@ void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::en
 void ClassDumperInherit::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR) const {
 
-	const clang::SourceManager &SM = BR.getSourceManager();
+ 	const char *sfile=BR.getSourceManager().getPresumedLoc(RD->getLocation()).getFilename();
+   	if (!support::isCmsLocalFile(sfile)) return;
+
 	if (!RD->hasDefinition()) return;
 
 	clang::FileSystemOptions FSO;
@@ -152,7 +113,6 @@ void ClassDumperInherit::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ent
 		exit(1);
 		}
 	llvm::MemoryBuffer * buffer = FM.getBufferForFile(FM.getFile(tname));
-//	llvm::errs()<<"class "<<RD->getQualifiedNameAsString()<<"\n";
 
 	for (clang::CXXRecordDecl::base_class_const_iterator J=RD->bases_begin(), F=RD->bases_end();J != F; ++J)
 	{  
@@ -160,7 +120,6 @@ void ClassDumperInherit::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ent
 		if (!BRD) continue;
 		std::string name = BRD->getQualifiedNameAsString();
 		std::string ename = "edm::global::";
-		llvm::errs() << " class " << RD->getQualifiedNameAsString() << " inherits from "<<name <<"\n";
 		llvm::StringRef Rname("class "+name);
 		if ((buffer->getBuffer().find(Rname) != llvm::StringRef::npos )|| (name.substr(0,ename.length()) == ename) )
 			{
@@ -172,13 +131,8 @@ void ClassDumperInherit::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ent
 			std::string tname = dname + fname;
 			llvm::raw_fd_ostream output(tname.c_str(),err,llvm::raw_fd_ostream::F_Append);
 			output <<"class " <<RD->getQualifiedNameAsString()<<"\n";
-			llvm::SmallString<100> buf;
-			llvm::raw_svector_ostream os(buf);
-//			os << " class " << RD->getQualifiedNameAsString() << " inherits from "<<name <<"\n";
-			llvm::errs()<<os.str();
-//			clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
-//			clang::SourceLocation SL = RD->getLocStart();
-//			BR.EmitBasicReport(RD, "Class Checker : inherits from TYPELOOKUP_DATA_REG class","optional",os.str(),ELoc,SL);
+			ClassDumper dumper;
+			dumper.checkASTDecl( RD, mgr, BR );
 			}
 			
 	}
