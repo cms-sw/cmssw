@@ -3,9 +3,9 @@
 
 /** \class EwkMuLumiMonitorDQM
  *
- *  DQM offline for EWK MuLumiMonitor: intended for luminosity purposes using Z/W  
- *  \authors:  Michele de Gruttola, INFN Naples - Maria Cepeda, CIEMAT 
- *  on behalf EWK-Muon group 
+ *  DQM offline for EWK MuLumiMonitor: intended for luminosity purposes using Z/W
+ *  \authors:  Michele de Gruttola, INFN Naples - Maria Cepeda, CIEMAT
+ *  on behalf EWK-Muon group
  *
  */
 
@@ -21,7 +21,12 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+
+namespace trigger {class TriggerEvent;}
+namespace reco {class BeamSpot; class MET;}
+
+
 
 class DQMStore;
 class MonitorElement;
@@ -41,40 +46,42 @@ public:
 
 private:
 
-  edm::InputTag trigTag_; 
-  edm::InputTag trigEv_;
-  edm::InputTag muonTag_;
-  edm::InputTag trackTag_;
-  edm::InputTag caloTowerTag_;
-  edm::InputTag metTag_;
+  edm::InputTag trigTag_;
+  edm::EDGetTokenT<edm::TriggerResults> trigToken_;
+  edm::EDGetTokenT<trigger::TriggerEvent> trigEvToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_; //offlineBeamSpot
+  edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  edm::EDGetTokenT<CaloTowerCollection> caloTowerToken_;
+  edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
   bool  metIncludesMuons_;
 
-  // const std::string hltPath_;  
-  //  const std::string L3FilterName_;    
- 
+  // const std::string hltPath_;
+  //  const std::string L3FilterName_;
+
   double ptMuCut_;
   double etaMuCut_;
 
   bool isRelativeIso_;
   bool isCombinedIso_;
   double isoCut03_;
- 
-  double deltaRTrk_; 
-  double ptThreshold_; 
-  double deltaRVetoTrk_; 
-  double maxDPtRel_; 
+
+  double deltaRTrk_;
+  double ptThreshold_;
+  double deltaRVetoTrk_;
+  double maxDPtRel_;
   double maxDeltaR_;
   double mtMin_;
   double mtMax_;
-  double acopCut_; 
+  double acopCut_;
   double  dxyCut_;
 
 
-  
+
 
   DQMStore* theDbe;
 
-  
+
   MonitorElement* mass2HLT_;
   MonitorElement* highMass2HLT_;
   // MonitorElement* highest_mupt2HLT_;
@@ -104,10 +111,10 @@ private:
 
   MonitorElement* massIsBothGlbTrkThanW_;
   MonitorElement* highMassIsBothGlbTrkThanW_;
-  
+
 
   unsigned int nall;
-  unsigned int nEvWithHighPtMu; 
+  unsigned int nEvWithHighPtMu;
   unsigned int nInKinRange;
   unsigned int nsel;
   unsigned int niso;
@@ -120,8 +127,8 @@ private:
   unsigned int nTMass;
   unsigned int nW;
 
-  bool isZGolden1HLT_;  
-  bool isZGolden2HLT_; 
+  bool isZGolden1HLT_;
+  bool isZGolden2HLT_;
   bool isZGoldenNoIso_;
   bool isZGlbSta_;
   bool isZGlbTrk_;
@@ -134,3 +141,8 @@ private:
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

@@ -33,7 +33,7 @@ public:
 
   /// Constructor
   DTDCSByLumiTask(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   virtual ~DTDCSByLumiTask();
 
@@ -61,7 +61,7 @@ protected:
   void endJob();
 
 private:
-  
+
   std::string topFolder() const;
 
   int theEvents;
@@ -79,3 +79,8 @@ private:
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

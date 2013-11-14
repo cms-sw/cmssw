@@ -23,7 +23,7 @@
 #include "DataFormats/JetReco/interface/TrackJetCollection.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h" 
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -48,7 +48,7 @@ public:
 };
 
 
-class QcdUeDQM : public edm::EDAnalyzer 
+class QcdUeDQM : public edm::EDAnalyzer
 {
   public:
 
@@ -57,87 +57,87 @@ class QcdUeDQM : public edm::EDAnalyzer
 
     void                          analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
     void                          beginJob(void);
-    void                          beginLuminosityBlock(const edm::LuminosityBlock &l, 
+    void                          beginLuminosityBlock(const edm::LuminosityBlock &l,
                                                        const edm::EventSetup &iSetup);
     void                          beginRun(const edm::Run &r, const edm::EventSetup &iSetup);
     void                          endJob(void);
     void                          endRun(const edm::Run &r, const edm::EventSetup &iSetup);
-    void                          endLuminosityBlock(const edm::LuminosityBlock &l, 
+    void                          endLuminosityBlock(const edm::LuminosityBlock &l,
                                                      const edm::EventSetup &iSetup);
 
   private:
     bool isHltConfigSuccessful_; // to prevent processing in case of problems
 
-    void                          book1D(std::vector<MonitorElement*> &mes, 
-                                         const std::string &name, const std::string &title, 
+    void                          book1D(std::vector<MonitorElement*> &mes,
+                                         const std::string &name, const std::string &title,
                                          int nx, double x1, double x2, bool sumw2=1, bool sbox=1);
-    void                          book2D(std::vector<MonitorElement*> &mes, 
-                                         const std::string &name, const std::string &title, 
+    void                          book2D(std::vector<MonitorElement*> &mes,
+                                         const std::string &name, const std::string &title,
                                          int nx, double x1, double x2, int ny, double y1, double y2,
                                          bool sumw2=1, bool sbox=1);
-    void                          bookProfile(std::vector<MonitorElement*> &mes, 
-                                         const std::string &name, const std::string &title, 
+    void                          bookProfile(std::vector<MonitorElement*> &mes,
+                                         const std::string &name, const std::string &title,
                                          int nx, double x1, double x2,  double y1, double y2,
-                                         bool sumw2=1, bool sbox=1); 
-    void                          create1D(std::vector<TH1F*> &mes, 
-                                           const std::string &name, const std::string &title, 
+                                         bool sumw2=1, bool sbox=1);
+    void                          create1D(std::vector<TH1F*> &mes,
+                                           const std::string &name, const std::string &title,
                                            int nx, double x1, double x2, bool sumw2=1, bool sbox=1);
-    void                          create2D(std::vector<TH2F*> &mes, 
-                                           const std::string &name, const std::string &title, 
+    void                          create2D(std::vector<TH2F*> &mes,
+                                           const std::string &name, const std::string &title,
                                            int nx, double x1, double x2, int ny, double y1, double y2,
                                            bool sumw2=1, bool sbox=1);
-    void                          createProfile(std::vector<TProfile*> &mes, 
-                                           const std::string &name, const std::string &title, 
+    void                          createProfile(std::vector<TProfile*> &mes,
+                                           const std::string &name, const std::string &title,
                                            int nx, double x1, double x2,  double y1, double y2,
-                                           bool sumw2=1, bool sbox=1);  
+                                           bool sumw2=1, bool sbox=1);
     void                          createHistos();
     void                          fill1D(std::vector<TH1F*> &hs, double val, double w=1.);
     void                          fill1D(std::vector<MonitorElement*> &mes, double val, double w=1.);
-    void                          fill2D(std::vector<TH2F*> &hs, 
+    void                          fill2D(std::vector<TH2F*> &hs,
                                          double valx, double valy, double w=1.);
-    void                          fill2D(std::vector<MonitorElement*> &mes, 
+    void                          fill2D(std::vector<MonitorElement*> &mes,
                                          double valx, double valy, double w=1.);
-    void                          fillProfile(std::vector<TProfile*> &hs, 
+    void                          fillProfile(std::vector<TProfile*> &hs,
                                          double valx, double valy, double w=1.);
-    void                          fillProfile(std::vector<MonitorElement*> &mes, 
+    void                          fillProfile(std::vector<MonitorElement*> &mes,
                                         double valx, double valy, double w=1.);
     void                          fill3D(std::vector<TH3F*> &hs, int gbin, double w=1.);
     void                          setLabel1D(std::vector<MonitorElement*> &mes);
-   
+
 
     bool                          trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, const reco::Vertex& vtx, int sizevtx);
     void                          fillHltBits(const edm::Event &iEvent,const edm::EventSetup &iSetup);
-    
+
     bool                          fillVtxPlots(const reco::BeamSpot* bs, const edm::Handle< reco::VertexCollection > vtxColl);
     void                          fillpTMaxRelated(const std::vector<const reco::Track *>  &track);
 
     void                          fillChargedJetSpectra( const edm::Handle<reco::TrackJetCollection> trackJets);
-  
+
     //void                          fillCaloJetSpectra(const edm::Handle<reco::CaloJetCollection> caloJets);
 
     void                          fillUE_with_ChargedJets(const std::vector<const reco::Track *>  &track,  const edm::Handle<reco::TrackJetCollection> &trackJets);
     //void                          fillUE_with_CaloJets(const std::vector<const reco::Track *>  &track, const edm::Handle<reco::CaloJetCollection> &caloJets);
-    void                          fillUE_with_MaxpTtrack(const std::vector<const reco::Track *>  &track ); 
+    void                          fillUE_with_MaxpTtrack(const std::vector<const reco::Track *>  &track );
 
-   
+
     template <typename TYPE>
     void                          getProduct(const std::string name, edm::Handle<TYPE> &prod,
-                                             const edm::Event &event) const;    
+                                             const edm::Event &event) const;
     template <typename TYPE>
     bool                          getProductSafe(const std::string name, edm::Handle<TYPE> &prod,
                                                  const edm::Event &event) const;
 
-    HLTConfigProvider hltConfig;   
+    HLTConfigProvider hltConfig;
 
     std::string                   hltResName_;         //HLT trigger results name
     std::vector<std::string>      hltProcNames_;       //HLT process name(s)
     std::vector<std::string>      hltTrgNames_;        //HLT trigger name(s)
-    
-   
+
+
     std::vector<int>              hltTrgBits_;         //HLT trigger bit(s)
     std::vector<bool>             hltTrgDeci_;         //HLT trigger descision(s)
     std::vector<std::string>      hltTrgUsedNames_;    //HLT used trigger name(s)
-    std::string                   hltUsedResName_;     //used HLT trigger results name 
+    std::string                   hltUsedResName_;     //used HLT trigger results name
     int                           verbose_;            //verbosity (0=debug,1=warn,2=error,3=throw)
     const TrackerGeometry        *tgeo_;               //tracker geometry
     DQMStore                     *theDbe_;             //dqm store
@@ -151,12 +151,12 @@ class QcdUeDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*> hNtrackerStripPixelLayer_;
     std::vector<MonitorElement*> hRatioPtErrorPt_;
     std::vector<MonitorElement*> hTrkPt_;
-    std::vector<MonitorElement*> hTrkEta_;  
+    std::vector<MonitorElement*> hTrkEta_;
     std::vector<MonitorElement*> hTrkPhi_;
     std::vector<MonitorElement*> hNgoodTrk_;
     std::vector<MonitorElement*> hGoodTrkPt500_;
     std::vector<MonitorElement*> hGoodTrkEta500_;
-    std::vector<MonitorElement*> hGoodTrkPhi500_; 
+    std::vector<MonitorElement*> hGoodTrkPhi500_;
     std::vector<MonitorElement*> hGoodTrkPt900_;
     std::vector<MonitorElement*> hGoodTrkEta900_;
     std::vector<MonitorElement*> hGoodTrkPhi900_;
@@ -165,7 +165,7 @@ class QcdUeDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*> hRatioDzSigmaDzBS_;
     std::vector<MonitorElement*> hRatioDzSigmaDzPV_;
     std::vector<MonitorElement*> hTrkChi2_;
-    std::vector<MonitorElement*> hTrkNdof_; 
+    std::vector<MonitorElement*> hTrkNdof_;
 
 
 
@@ -175,7 +175,7 @@ class QcdUeDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>  hVertex_x_;
     std::vector<MonitorElement*>  hVertex_ndof_;
     std::vector<MonitorElement*>  hVertex_rho_;
-    std::vector<MonitorElement*>  hVertex_z_bs_; 
+    std::vector<MonitorElement*>  hVertex_z_bs_;
 
 
     std::vector<MonitorElement*>  hBeamSpot_z_;            // z-position of vertex
@@ -187,13 +187,13 @@ class QcdUeDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>  hLeadingTrack_etaSpectrum_;      //eta spectrum of leading track
     std::vector<MonitorElement*>  hLeadingTrack_phiSpectrum_;      //phi spectrum of leading track
 
-    
-   
-   
+
+
+
 
     std::vector<MonitorElement*>   hChargedJetMulti_;         // Number of charged jets
-    std::vector<MonitorElement*>   hChargedJetConstituent_;         // Number of constituent of charged jets 
-    std::vector<MonitorElement*>   hLeadingChargedJet_pTSpectrum_;         // pT spectrum of charged jets 
+    std::vector<MonitorElement*>   hChargedJetConstituent_;         // Number of constituent of charged jets
+    std::vector<MonitorElement*>   hLeadingChargedJet_pTSpectrum_;         // pT spectrum of charged jets
 
     /*std::vector<MonitorElement*>   hCaloJetMulti_;         // Number of calo jets
     std::vector<MonitorElement*>   hCaloJetConstituent_;         // Number of constituent of calo jets
@@ -202,65 +202,65 @@ class QcdUeDQM : public edm::EDAnalyzer
     std::vector<MonitorElement*>  hLeadingCaloJet_phiSpectrum_;      //phi spectrum of leading calo jet
    */
     std::vector<MonitorElement*>  hdPhi_maxpTTrack_tracks_;  // delta phi between leading track and tracks
-    //std::vector<MonitorElement*>  hdPhi_caloJet_tracks_;  // delta phi between leading calo jet and tracks  
+    //std::vector<MonitorElement*>  hdPhi_caloJet_tracks_;  // delta phi between leading calo jet and tracks
     std::vector<MonitorElement*>  hdPhi_chargedJet_tracks_;  // delta phi between leading charged jet and tracks
-   
+
 
     std::vector<MonitorElement*>  hLeadingChargedJet_etaSpectrum_;      //eta spectrum of leading charged jet
     std::vector<MonitorElement*>  hLeadingChargedJet_phiSpectrum_;      //phi spectrum of leading charged jet
-  
+
     std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Toward500_;    // number of tracks in toward region of leadin track (pT > 500 MeV)
-    std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Transverse500_;    // number of tracks in transverse region of leadin track (pT > 500 MeV)  
+    std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Transverse500_;    // number of tracks in transverse region of leadin track (pT > 500 MeV)
     std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Away500_;    // number of tracks in away region of leadin track (pT > 500 MeV)
    /* std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Toward500_;    // number of tracks in toward region of leadin calo Jet (pT > 500 MeV)
-    std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Transverse500_;    // number of tracks in transverse region of leadin calo Jet (pT > 500 MeV)  
+    std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Transverse500_;    // number of tracks in transverse region of leadin calo Jet (pT > 500 MeV)
     std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Away500_;    // number of tracks in away region of leadin calo Jet (pT > 500 MeV)
 */
     std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Toward500_;    // number of tracks in toward region of leadin calo Jet (pT > 500 MeV)
-    std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Transverse500_;    // number of tracks in transverse region of leadin calo Jet (pT > 500 MeV)  
-    std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Away500_;    // number of tracks in away region of leadin calo Jet (pT > 500 MeV) 
+    std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Transverse500_;    // number of tracks in transverse region of leadin calo Jet (pT > 500 MeV)
+    std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Away500_;    // number of tracks in away region of leadin calo Jet (pT > 500 MeV)
 
 
-    
+
     std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Toward500_;    // pT sum of tracks in toward region of leadin track (pT > 500 MeV)
-    std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Transverse500_;    // pT sum of tracks in transverse region of leadin track (pT > 500 MeV)  
+    std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Transverse500_;    // pT sum of tracks in transverse region of leadin track (pT > 500 MeV)
     std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Away500_;    // pT sum of tracks in away region of leadin track (pT > 500 MeV)
   /*  std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Toward500_;    // pT sum of tracks in toward region of leadin calo Jet (pT > 500 MeV)
-    std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Transverse500_;    // pT sum of tracks in transverse region of leadin calo Jet (pT > 500 MeV)  
+    std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Transverse500_;    // pT sum of tracks in transverse region of leadin calo Jet (pT > 500 MeV)
     std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Away500_;    // pT sum of tracks in away region of leadin calo Jet (pT > 500 MeV)
 */
     std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Toward500_;    // pT sum of tracks in toward region of leadin calo Jet (pT > 500 MeV)
-    std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Transverse500_;    // pT sum of tracks in transverse region of leadin calo Jet (pT > 500 MeV)  
+    std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Transverse500_;    // pT sum of tracks in transverse region of leadin calo Jet (pT > 500 MeV)
     std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Away500_;    // pT sum of tracks in away region of leadin calo Jet (pT > 500 MeV)
-   
-  
+
+
 
     std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Toward900_;    // number of tracks in toward region of leadin track (pT > 900 MeV)
-    std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Transverse900_;    // number of tracks in transverse region of leadin track (pT > 900 MeV)  
+    std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Transverse900_;    // number of tracks in transverse region of leadin track (pT > 900 MeV)
     std::vector<MonitorElement*>  hdNdEtadPhi_pTMax_Away900_;    // number of tracks in away region of leadin track (pT > 900 MeV)
   /*  std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Toward900_;    // number of tracks in toward region of leadin calo Jet (pT > 900 MeV)
-    std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Transverse900_;    // number of tracks in transverse region of leadin calo Jet (pT > 900 MeV)  
+    std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Transverse900_;    // number of tracks in transverse region of leadin calo Jet (pT > 900 MeV)
     std::vector<MonitorElement*>  hdNdEtadPhi_caloJet_Away900_;    // number of tracks in away region of leadin calo Jet (pT > 900 MeV)
 */
     std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Toward900_;    // number of tracks in toward region of leadin calo Jet (pT > 900 MeV)
-    std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Transverse900_;    // number of tracks in transverse region of leadin calo Jet (pT > 900 MeV)  
-    std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Away900_;    // number of tracks in away region of leadin calo Jet (pT > 900 MeV) 
+    std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Transverse900_;    // number of tracks in transverse region of leadin calo Jet (pT > 900 MeV)
+    std::vector<MonitorElement*>  hdNdEtadPhi_trackJet_Away900_;    // number of tracks in away region of leadin calo Jet (pT > 900 MeV)
 
 
 
     std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Toward900_;    // pT sum of tracks in toward region of leadin track (pT > 900 MeV)
-    std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Transverse900_;    // pT sum of tracks in transverse region of leadin track (pT > 900 MeV)  
+    std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Transverse900_;    // pT sum of tracks in transverse region of leadin track (pT > 900 MeV)
     std::vector<MonitorElement*>  hpTSumdEtadPhi_pTMax_Away900_;    // pT sum of tracks in away region of leadin track (pT > 900 MeV)
   /*  std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Toward900_;    // pT sum of tracks in toward region of leadin calo Jet (pT > 900 MeV)
-    std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Transverse900_;    // pT sum of tracks in transverse region of leadin calo Jet (pT > 900 MeV)  
+    std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Transverse900_;    // pT sum of tracks in transverse region of leadin calo Jet (pT > 900 MeV)
     std::vector<MonitorElement*>  hpTSumdEtadPhi_caloJet_Away900_;    // pT sum of tracks in away region of leadin calo Jet (pT > 900 MeV)
 */
     std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Toward900_;    // pT sum of tracks in toward region of leadin calo Jet (pT > 900 MeV)
-    std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Transverse900_;    // pT sum of tracks in transverse region of leadin calo Jet (pT > 900 MeV)  
-    std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Away900_;    // pT sum of tracks in away region of leadin calo Jet (pT > 900 MeV)  
+    std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Transverse900_;    // pT sum of tracks in transverse region of leadin calo Jet (pT > 900 MeV)
+    std::vector<MonitorElement*>  hpTSumdEtadPhi_trackJet_Away900_;    // pT sum of tracks in away region of leadin calo Jet (pT > 900 MeV)
 
- 
-   
+
+
     double ptMin_;
     double minRapidity_;
     double maxRapidity_;
@@ -277,17 +277,17 @@ class QcdUeDQM : public edm::EDAnalyzer
     bool bsuse_;
     bool allowTriplets_;
     double bsPos_;
-    edm::InputTag caloJetLabel_;
-    edm::InputTag chargedJetLabel_;
-    edm::InputTag trackLabel_;
-    edm::InputTag vtxLabel_;
-    edm::InputTag bsLabel_;
-    std::vector<reco::TrackBase::TrackQuality> quality_; 
+    edm::EDGetTokenT<reco::CaloJetCollection> caloJetLabel_;
+    edm::EDGetTokenT<reco::TrackJetCollection> chargedJetLabel_;
+    edm::EDGetTokenT<reco::TrackCollection> trackLabel_;
+    edm::EDGetTokenT<reco::VertexCollection> vtxLabel_;
+    edm::EDGetTokenT<reco::BeamSpot> bsLabel_;
+    std::vector<reco::TrackBase::TrackQuality> quality_;
     std::vector<reco::TrackBase::TrackAlgorithm> algorithm_;
     typedef std::vector<const reco::Track *> container;
     container selected_;
     reco::Vertex vtx1;
-    
+
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -299,7 +299,7 @@ inline void QcdUeDQM::getProduct(const std::string name, edm::Handle<TYPE> &prod
   // product with the given name. If not we throw an exception.
 
   event.getByLabel(edm::InputTag(name),prod);
-  if (!prod.isValid()) 
+  if (!prod.isValid())
     throw edm::Exception(edm::errors::Configuration, "QcdUeDQM::GetProduct()\n")
       << "Collection with label " << name << " is not valid" <<  std::endl;
 }
@@ -317,7 +317,7 @@ inline bool QcdUeDQM::getProductSafe(const std::string name, edm::Handle<TYPE> &
 
   try {
     event.getByLabel(edm::InputTag(name),prod);
-    if (!prod.isValid()) 
+    if (!prod.isValid())
       return false;
   } catch (...) {
     return false;
@@ -327,3 +327,8 @@ inline bool QcdUeDQM::getProductSafe(const std::string name, edm::Handle<TYPE> &
 
 //--------------------------------------------------------------------------------------------------
 #endif
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

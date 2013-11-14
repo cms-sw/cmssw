@@ -21,16 +21,13 @@
 
 // Physics Objects
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
 // Vertex
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 // For removing ECAL Spikes
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -64,18 +61,27 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   // Get parameters from configuration file
   theTriggerPathToPass_        = parameters.getParameter<string>("triggerPathToPass");
   thePlotTheseTriggersToo_     = parameters.getParameter<vector<string> >("plotTheseTriggersToo");
-  trigTag_                    = parameters.getUntrackedParameter<edm::InputTag>("trigTag");
-  thePhotonCollectionLabel_    = parameters.getParameter<InputTag>("photonCollection");
   theJetCollectionLabel_       = parameters.getParameter<InputTag>("jetCollection");
-  theVertexCollectionLabel_    = parameters.getParameter<InputTag>("vertexCollection");
-  theMinJetPt_             = parameters.getParameter<double>("minJetPt");
+  trigTagToken_                = consumes<edm::TriggerResults>(
+      parameters.getUntrackedParameter<edm::InputTag>("trigTag"));
+  thePhotonCollectionToken_    = consumes<reco::PhotonCollection>(
+      parameters.getParameter<InputTag>("photonCollection"));
+  theJetCollectionToken_       = consumes<edm::View<reco::Jet> >(
+      parameters.getParameter<InputTag>("jetCollection"));
+  theVertexCollectionToken_    = consumes<reco::VertexCollection>(
+      parameters.getParameter<InputTag>("vertexCollection"));
+  theMinJetPt_                 = parameters.getParameter<double>("minJetPt");
   theMinPhotonEt_              = parameters.getParameter<double>("minPhotonEt");
   theRequirePhotonFound_       = parameters.getParameter<bool>("requirePhotonFound");
   thePlotPhotonMaxEt_          = parameters.getParameter<double>("plotPhotonMaxEt");
   thePlotPhotonMaxEta_         = parameters.getParameter<double>("plotPhotonMaxEta");
   thePlotJetMaxEta_            = parameters.getParameter<double>("plotJetMaxEta");
-  theBarrelRecHitTag           = parameters.getParameter<InputTag>("barrelRecHitTag");
-  theEndcapRecHitTag           = parameters.getParameter<InputTag>("endcapRecHitTag");
+  theBarrelRecHitTag_          = parameters.getParameter<InputTag>("barrelRecHitTag");
+  theEndcapRecHitTag_          = parameters.getParameter<InputTag>("endcapRecHitTag");
+  theBarrelRecHitToken_        = consumes<EcalRecHitCollection>(
+      parameters.getParameter<InputTag>("barrelRecHitTag"));
+  theEndcapRecHitToken_        = consumes<EcalRecHitCollection>(
+      parameters.getParameter<InputTag>("endcapRecHitTag"));
   // just to initialize
   isValidHltConfig_ = false;
 
@@ -110,19 +116,19 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   h_triggers_passed = 0;
 
   theDbe = Service<DQMStore>().operator->();
-  
+
 }
 
-QcdPhotonsDQM::~QcdPhotonsDQM() { 
+QcdPhotonsDQM::~QcdPhotonsDQM() {
 }
 
 
 void QcdPhotonsDQM::beginJob() {
- 
+
   logTraceName = "QcdPhotonAnalyzer";
 
   LogTrace(logTraceName)<<"Parameters initialization";
- 
+
   theDbe->setCurrentFolder("Physics/QcdPhotons");  // Use folder with name of PAG
 
   std::stringstream aStringStream;
@@ -204,13 +210,13 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   //// short-circuit if hlt problems
   //if( ! isValidHltConfig_ ) return;
-  
+
   LogTrace(logTraceName)<<"Analysis of event # ";
 
   ////////////////////////////////////////////////////////////////////
   // Did event pass HLT paths?
   Handle<TriggerResults> HLTresults;
-  iEvent.getByLabel(trigTag_, HLTresults); 
+  iEvent.getByToken(trigTagToken_, HLTresults);
   if (!HLTresults.isValid()) {
     //LogWarning("") << ">>> TRIGGER collection does not exist !!!";
     return;
@@ -233,7 +239,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
    // grab photons
   Handle<PhotonCollection> photonCollection;
-  iEvent.getByLabel(thePhotonCollectionLabel_, photonCollection);
+  iEvent.getByToken(thePhotonCollectionToken_, photonCollection);
 
   // If photon collection is empty, exit
   if (!photonCollection.isValid()) return;
@@ -265,7 +271,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     return;
   }
   }
-  
+
   ////////////////////////////////////////////////////////////////////
 
   //std::cout << "\tpassed main trigger (" << theTriggerPathToPass_ << ")" << std::endl;
@@ -274,7 +280,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // Does event have valid vertex?
   // Get the primary event vertex
   Handle<VertexCollection> vertexHandle;
-  iEvent.getByLabel(theVertexCollectionLabel_, vertexHandle);
+  iEvent.getByToken(theVertexCollectionToken_, vertexHandle);
   VertexCollection vertexCollection = *(vertexHandle.product());
   //double vtx_ndof = -1.0;
   //double vtx_z    = 0.0;
@@ -285,7 +291,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   //  vtx_isFake = false;
   //}
   //if (vtx_isFake || fabs(vtx_z)>15 || vtx_ndof<4) return;
-  
+
   int nvvertex = 0;
   for (unsigned int i=0; i<vertexCollection.size(); ++i) {
     if (vertexCollection[i].isValid()) nvvertex++;
@@ -306,10 +312,10 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   // For finding spikes
   Handle<EcalRecHitCollection> EBReducedRecHits;
-  iEvent.getByLabel(theBarrelRecHitTag, EBReducedRecHits);
+  iEvent.getByToken(theBarrelRecHitToken_, EBReducedRecHits);
   Handle<EcalRecHitCollection> EEReducedRecHits;
-  iEvent.getByLabel(theEndcapRecHitTag, EEReducedRecHits); 
-  EcalClusterLazyTools lazyTool(iEvent, iSetup, theBarrelRecHitTag, theEndcapRecHitTag);
+  iEvent.getByToken(theEndcapRecHitToken_, EEReducedRecHits);
+  EcalClusterLazyTools lazyTool(iEvent, iSetup, theBarrelRecHitTag_, theEndcapRecHitTag_);
 
 
   // Find the highest et "decent" photon
@@ -331,8 +337,8 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     const reco::CaloClusterPtr  seed = recoPhoton->superCluster()->seed();
     DetId id = lazyTool.getMaximum(*seed).first; // Cluster shape variables
     //    float time  = -999., outOfTimeChi2 = -999., chi2 = -999.;  // UNUSED
-    int   flags=-1, severity = -1; 
-    const EcalRecHitCollection & rechits = ( recoPhoton->isEB() ? *EBReducedRecHits : *EEReducedRecHits); 
+    int   flags=-1, severity = -1;
+    const EcalRecHitCollection & rechits = ( recoPhoton->isEB() ? *EBReducedRecHits : *EEReducedRecHits);
     EcalRecHitCollection::const_iterator it = rechits.find( id );
     if( it != rechits.end() ) {
       //      time = it->time(); // UNUSED
@@ -371,7 +377,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
       photon_phi = recoPhoton->phi();
     }
   }
-  
+
   // If user requires a photon to be found, but none is, return.
   //   theRequirePhotonFound should pretty much always be set to 'True'
   //    except when running on qcd monte carlo just to see the jets.
@@ -381,7 +387,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   ////////////////////////////////////////////////////////////////////
   // Find the highest et jet
   Handle<View<Jet> > jetCollection;
-  iEvent.getByLabel (theJetCollectionLabel_,jetCollection);
+  iEvent.getByToken (theJetCollectionToken_,jetCollection);
   if (!jetCollection.isValid()) return;
 
   float jet_pt    = -8.0;
@@ -465,7 +471,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
       h_deltaR_jet_jet2     ->Fill( deltaR(   jet_eta,    jet_phi, jet2_eta, jet2_phi) );
       h_deltaR_photon_jet2  ->Fill( deltaR(photon_eta, photon_phi, jet2_eta, jet2_phi) );
     }
-  } 
+  }
   // End of Filling histograms
   ////////////////////////////////////////////////////////////////////
 }
@@ -474,7 +480,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 void QcdPhotonsDQM::endJob(void) {}
 
 void QcdPhotonsDQM::endRun(const edm::Run& run, const edm::EventSetup& es) {
-  if (num_events_in_run>0) { 
+  if (num_events_in_run>0) {
     h_triggers_passed->getTH1F()->Scale(1.0/num_events_in_run);
   }
   h_photon_et_ratio_co_cs->getTH1F()->Divide( h_photon_et_jetco->getTH1F(), h_photon_et_jetcs->getTH1F() );
@@ -485,3 +491,8 @@ void QcdPhotonsDQM::endRun(const edm::Run& run, const edm::EventSetup& es) {
   h_photon_et_ratio_co_fo->getTH1F()->Divide( h_photon_et_jetco->getTH1F(), h_photon_et_jetfo->getTH1F() );
 }
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

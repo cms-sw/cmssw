@@ -24,3 +24,8 @@ bool DTDataErrorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setu
   if (dataMonitor->eventHasErrors()) return true;
   return false;
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

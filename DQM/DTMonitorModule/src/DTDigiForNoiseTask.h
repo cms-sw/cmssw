@@ -21,6 +21,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
+#include <DataFormats/DTDigi/interface/DTDigi.h>
+#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -40,7 +43,7 @@ public:
 
   /// Constructor
   DTDigiForNoiseTask(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   virtual ~DTDigiForNoiseTask();
 
@@ -54,7 +57,7 @@ protected:
 
   /// Book the ME
   void bookHistos(const DTLayerId& dtSL);
- 
+
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
@@ -74,6 +77,7 @@ private:
   edm::ParameterSet parameters;
 
   edm::ESHandle<DTGeometry> muonGeom;
+  edm::EDGetTokenT<DTDigiCollection> dtDigisToken_; // dtunpacker
 
   std::map< DTLayerId, MonitorElement* > digiHistos;
 
@@ -81,3 +85,8 @@ private:
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

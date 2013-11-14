@@ -1,6 +1,6 @@
 /*
  * \file DTTrigGeomUtils.cc
- * 
+ *
  * \author C. Battilana - CIEMAT
  *
 */
@@ -39,15 +39,15 @@ DTTrigGeomUtils::DTTrigGeomUtils(ESHandle<DTGeometry> muonGeom, bool dirInDeg) :
     const DTSuperLayer *sl3 = chamb->superLayer(DTSuperLayerId(chId,3));
     zcn_[ist-1] = .5*(chamb->surface().toLocal(sl1->position()).z() + chamb->surface().toLocal(sl3->position()).z());
   }
-  
+
   const DTChamber* chamb   = muonGeom_->chamber(DTChamberId(-2,4,13));
   const DTChamber* scchamb = muonGeom_->chamber(DTChamberId(-2,4,4));
   xCenter_[0] = scchamb->toLocal(chamb->position()).x()*.5;
   chamb   = muonGeom_->chamber(DTChamberId(-2,4,14));
   scchamb = muonGeom_->chamber(DTChamberId(-2,4,10));
   xCenter_[1] = scchamb->toLocal(chamb->position()).x()*.5;
-      
-  
+
+
 }
 
 
@@ -75,8 +75,8 @@ void DTTrigGeomUtils::computeSCCoordinates(const DTRecSegment4D* track, int& scs
 void DTTrigGeomUtils::phiRange(const DTChamberId& id, float& min, float& max, int& nbins, float step){
 
   int station = id.station();
-  int sector  = id.sector(); 
-  
+  int sector  = id.sector();
+
   const DTLayer  *layer = muonGeom_->layer(DTLayerId(id,1,1));
   DTTopology topo = layer->specificTopology();
   double range = topo.channels()*topo.cellWidth();
@@ -90,7 +90,7 @@ void DTTrigGeomUtils::phiRange(const DTChamberId& id, float& min, float& max, in
   nbins = static_cast<int>((max-min)/step);
 
   return;
- 
+
 }
 
 
@@ -105,13 +105,13 @@ void DTTrigGeomUtils::thetaRange(const DTChamberId& id, float& min, float& max, 
   nbins = static_cast<int>((max-min)/step);
 
   return;
- 
+
 }
 
 
 float DTTrigGeomUtils::trigPos(const L1MuDTChambPhDigi* trig){
 
-  
+
   int wh   = trig->whNum();
   int sec  = trig->scNum()+1;
   int st   = trig->stNum();
@@ -129,14 +129,14 @@ float DTTrigGeomUtils::trigPos(const L1MuDTChambPhDigi* trig){
     r = gpos.perp();
   } else if (sec==10 && st==4) {
     GlobalPoint gpos = phi>0 ? muonGeom_->chamber(DTChamberId(wh,st,14))->position() : muonGeom_->chamber(DTChamberId(wh,st,10))->position();
-    xcenter = phi>0 ? xCenter_[1] : -xCenter_[1];  
+    xcenter = phi>0 ? xCenter_[1] : -xCenter_[1];
     phicenter =  gpos.phi();
     r = gpos.perp();
   } else {
     GlobalPoint gpos = muonGeom_->chamber(DTChamberId(wh,st,sec))->position();
     phicenter =  gpos.phi();
     r = gpos.perp();
-  }  
+  }
 
   float deltaphi = phicenter-phin;
   float x = (tan(phi/4096.)-tan(deltaphi))*(r*cos(deltaphi) - zcn_[st-1]); //zcn is in local coordinates -> z invreases approching to vertex
@@ -165,3 +165,8 @@ float DTTrigGeomUtils::trigDir(const L1MuDTChambPhDigi* trig){
 
 }
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:
