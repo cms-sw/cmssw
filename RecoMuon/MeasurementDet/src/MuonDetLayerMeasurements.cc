@@ -13,7 +13,7 @@
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Services/interface/UpdaterService.h"
+
 
 
 typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
@@ -34,21 +34,11 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(const edm::InputTag& dtlabel,
   theDTRecHits(),
   theCSCRecHits(),
   theRPCRecHits(),
-  theDTEventID(),
-  theCSCEventID(),
-  theRPCEventID(),
-  theEvent(0){
-  static int procInstance(0);
-  std::ostringstream sDT;
-  sDT<<"MuonDetLayerMeasurements::checkDTRecHits::" << procInstance;
-  theDTCheckName = sDT.str();
-  std::ostringstream sRPC;
-  sRPC<<"MuonDetLayerMeasurements::checkRPCRecHits::" << procInstance;
-  theRPCCheckName = sRPC.str();
-  std::ostringstream sCSC;
-  sCSC<<"MuonDetLayerMeasurements::checkCSCRecHits::" << procInstance;
-  theCSCCheckName = sCSC.str();
-  procInstance++;
+  theDTEventCacheID(0),
+  theCSCEventCacheID(0),
+  theRPCEventCacheID(0),
+  theEvent(0)
+{
 }
 
 MuonDetLayerMeasurements::~MuonDetLayerMeasurements(){}
@@ -127,11 +117,12 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 void MuonDetLayerMeasurements::checkDTRecHits()
 {
   checkEvent();
-  if (!edm::Service<UpdaterService>()->checkOnce(theDTCheckName)) return;
+  auto const cacheID = theEvent->cacheIdentifier();
+  if (cacheID == theDTEventCacheID) return;
 
   {
-    theDTEventID = theEvent->id();
     theEvent->getByLabel(theDTRecHitLabel, theDTRecHits);
+    theDTEventCacheID = cacheID;
   }
   if(!theDTRecHits.isValid())
   {
@@ -143,11 +134,12 @@ void MuonDetLayerMeasurements::checkDTRecHits()
 void MuonDetLayerMeasurements::checkCSCRecHits()
 {
   checkEvent();
-  if (!edm::Service<UpdaterService>()->checkOnce(theCSCCheckName)) return;
+  auto cacheID = theEvent->cacheIdentifier();
+  if (cacheID == theCSCEventCacheID) return;
 
   {
-    theCSCEventID = theEvent->id();
     theEvent->getByLabel(theCSCRecHitLabel, theCSCRecHits);
+    theCSCEventCacheID = cacheID;
   }
   if(!theCSCRecHits.isValid())
   {
@@ -159,11 +151,12 @@ void MuonDetLayerMeasurements::checkCSCRecHits()
 void MuonDetLayerMeasurements::checkRPCRecHits()
 {
   checkEvent();
-  if (!edm::Service<UpdaterService>()->checkOnce(theRPCCheckName)) return;
+  auto cacheID = theEvent->cacheIdentifier();
+  if (cacheID == theRPCEventCacheID) return;
 
   {
-    theRPCEventID = theEvent->id();
     theEvent->getByLabel(theRPCRecHitLabel, theRPCRecHits);
+    theRPCEventCacheID = cacheID;
   }
   if(!theRPCRecHits.isValid())
   {
