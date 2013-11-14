@@ -9,12 +9,16 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 namespace reco {
   class CaloJet;
   class GenJet;
 }
+namespace edm {class HepMCProduct;}
 
 class MonitorElement;
 
@@ -27,21 +31,20 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob() ;
   virtual void endJob() ;
- 
+
 private:
 
- 
+
 
   void fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet);
 
-  edm::InputTag mInputCollection;
-  edm::InputTag mInputGenCollection;
-  edm::InputTag rho_tag_;
+  edm::EDGetTokenT<reco::CaloJetCollection> mInputCollection_;
+  edm::EDGetTokenT<reco::GenJetCollection>  mInputGenCollection_;
+  edm::EDGetTokenT<double> rho_Token_;
+  edm::EDGetTokenT<edm::HepMCProduct> hepMC_Token_;
+  edm::EDGetTokenT<CaloTowerCollection> caloTower_Token_;
+
   std::string mOutputFile;
-  edm::InputTag inputMETLabel_;
-  std::string METType_;
-  std::string inputGenMETLabel_;
-  std::string inputCaloMETLabel_;
 
   // count number of events
   MonitorElement* numberofevents;
@@ -91,7 +94,7 @@ private:
   MonitorElement* mpTRatio_1500_3500_d;
   MonitorElement* mjetArea;
   MonitorElement* mRho;
- 
+
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;
   MonitorElement* mPhiFirst;
