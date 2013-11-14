@@ -23,6 +23,8 @@ class HLTElectronMissingHitsFilter : public HLTFilter {
  private:
       edm::InputTag candTag_;            // input tag for the RecoCandidates from the previous filter
       edm::InputTag electronProducer_;   // input tag for the producer of electrons
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
+      edm::EDGetTokenT<reco::ElectronCollection> electronProducerToken_;
 
       int barrelcut_;      // barrel cut
       int endcapcut_;      // endcap cut
