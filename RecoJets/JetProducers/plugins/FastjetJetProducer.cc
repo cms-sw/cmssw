@@ -59,10 +59,10 @@ using namespace std;
 FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
   : VirtualJetProducer( iConfig ),
     useMassDropTagger_(false),
-    useCMSBoostedTauSeedingAlgorithm_(false),
     useFiltering_(false),
     useTrimming_(false),
     usePruning_(false),
+    useCMSBoostedTauSeedingAlgorithm_(false),
     muCut_(-1.0),
     yCut_(-1.0),
     rFilt_(-1.0),
