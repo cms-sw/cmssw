@@ -46,6 +46,8 @@ void GEDGsfElectronProducer::produce( edm::Event & event, const edm::EventSetup 
   beginEvent(event,setup) ;
   matchWithPFCandidates(event);
   algo_->completeElectrons() ;
+  algo_->setMVAOutputs(gsfMVAOutputMap_);
+  algo_->setMVAInputs(gsfMVAInputMap_);
   fillEvent(event) ;
 
   // ValueMap
