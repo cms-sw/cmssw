@@ -15,7 +15,12 @@
 template <class T> T sqr( T t) {return t*t;}
 
 L1MuonPixelTrackFitter::L1MuonPixelTrackFitter(const edm::ParameterSet& cfg)
-  : theConfig(cfg)
+  : theConfig(cfg),
+  invPtErrorScale{theConfig.getParameter<double>("invPtErrorScale")},
+  phiErrorScale{theConfig.getParameter<double>("phiErrorScale")},
+  cotThetaErrorScale{theConfig.getParameter<double>("cotThetaErrorScale")},
+  tipErrorScale{theConfig.getParameter<double>("tipErrorScale")},
+  zipErrorScale{theConfig.getParameter<double>("zipErrorScale")}
 { }
 
 void L1MuonPixelTrackFitter::setL1Constraint(const L1MuGMTCand & muon)
@@ -51,12 +56,6 @@ reco::Track* L1MuonPixelTrackFitter::run( const edm::EventSetup& es,
   double valTip = this->valTip(circle, curvature); 
   double valZip = this->valZip(curvature, theHit1,theHit2);
   double valCotTheta = this->valCotTheta(PixelRecoLineRZ(theHit1,theHit2)); 
-
-  static double invPtErrorScale = theConfig.getParameter<double>("invPtErrorScale");
-  static double phiErrorScale= theConfig.getParameter<double>("phiErrorScale");
-  static double cotThetaErrorScale = theConfig.getParameter<double>("cotThetaErrorScale");
-  static double tipErrorScale = theConfig.getParameter<double>("tipErrorScale");
-  static double zipErrorScale = theConfig.getParameter<double>("zipErrorScale");
 
 //  if ( (fabs(invPt)-0.1)/invPtErr > 3.) return 0;
 

@@ -52,9 +52,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -110,12 +108,19 @@ TkConvValidator::TkConvValidator( const edm::ParameterSet& pset )
     fName_     = pset.getUntrackedParameter<std::string>("Name");
     verbosity_ = pset.getUntrackedParameter<int>("Verbosity");
     parameters_ = pset;
-    
+
     photonCollectionProducer_ = pset.getParameter<std::string>("phoProducer");
     photonCollection_ = pset.getParameter<std::string>("photonCollection");
+    photonCollectionPr_Token_ = consumes<reco::PhotonCollection> (
+        edm::InputTag(photonCollectionProducer_,
+                      photonCollection_));
 
     conversionCollectionProducer_ = pset.getParameter<std::string>("convProducer");
     conversionCollection_ = pset.getParameter<std::string>("conversionCollection");
+    conversionCollectionPr_Token_ = consumes<reco::ConversionCollection> (
+        edm::InputTag(conversionCollectionProducer_,
+                      conversionCollection_));
+
     // conversionTrackProducer_ = pset.getParameter<std::string>("trackProducer");
     dqmpath_ = pset.getParameter<std::string>("dqmpath");
     minPhoEtCut_ = pset.getParameter<double>("minPhoEtCut");
@@ -128,6 +133,23 @@ TkConvValidator::TkConvValidator( const edm::ParameterSet& pset )
     maxHitsBeforeVtx_ = pset.getParameter<uint>("maxHitsBeforeVtx");
     minLxy_           = pset.getParameter<double>("minLxy");
     isRunCentrally_=   pset.getParameter<bool>("isRunCentrally");
+
+    offline_pvToken_ = consumes<reco::VertexCollection>(
+        pset.getUntrackedParameter<edm::InputTag> ("offlinePV",
+                                                   edm::InputTag("offlinePrimaryVertices")));
+    beamspotToken_ = consumes<reco::BeamSpot>(
+        pset.getUntrackedParameter<edm::InputTag> ("beamspot",
+                                                   edm::InputTag("offlineBeamSpot")));
+    g4_simTk_Token_  = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
+    g4_simVtx_Token_ = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
+
+    tpSelForEff_Token_ = consumes<TrackingParticleCollection> (
+        edm::InputTag("tpSelecForEfficiency"));
+    tpSelForFake_Token_ = consumes<TrackingParticleCollection> (
+        edm::InputTag("tpSelecForFakeRate"));
+    hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
+    genjets_Token_ = consumes<reco::GenJetCollection>(
+        edm::InputTag("iterativeCone5GenJets"));
   }
 
 
@@ -815,7 +837,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   ///// Get the recontructed  conversions
   Handle<reco::ConversionCollection> convHandle;
-  e.getByLabel(conversionCollectionProducer_, conversionCollection_ , convHandle);
+  e.getByToken(conversionCollectionPr_Token_, convHandle);
   const reco::ConversionCollection convCollection = *(convHandle.product());
   if (!convHandle.isValid()) {
     edm::LogError("ConversionsProducer") << "Error! Can't get the  collection "<< std::endl;
@@ -824,7 +846,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   ///// Get the recontructed  photons
   Handle<reco::PhotonCollection> photonHandle;
-  e.getByLabel(photonCollectionProducer_, photonCollection_ , photonHandle);
+  e.getByToken(photonCollectionPr_Token_, photonHandle);
   const reco::PhotonCollection photonCollection = *(photonHandle.product());
   if (!photonHandle.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the Photon collection "<< std::endl;
@@ -835,7 +857,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   // offline  Primary vertex
   edm::Handle<reco::VertexCollection> vertexHandle;
   reco::VertexCollection vertexCollection;
-  e.getByLabel("offlinePrimaryVertices", vertexHandle);
+  e.getByToken(offline_pvToken_, vertexHandle);
   if (!vertexHandle.isValid()) {
       edm::LogError("TrackerOnlyConversionProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
   } else {
@@ -852,9 +874,10 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   }
 
   edm::Handle<reco::BeamSpot> bsHandle;
-  e.getByLabel("offlineBeamSpot", bsHandle);
+  e.getByToken(beamspotToken_, bsHandle);
   if (!bsHandle.isValid()) {
-      edm::LogError("TrackerOnlyConversionProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
+      edm::LogError("TrackerOnlyConversionProducer")
+          << "Error! Can't get the product primary Vertex Collection "<< "\n";
       return;
   }
   const reco::BeamSpot &thebs = *bsHandle.product();
@@ -873,18 +896,18 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   edm::Handle<SimTrackContainer> SimTk;
   edm::Handle<SimVertexContainer> SimVtx;
-  e.getByLabel("g4SimHits",SimTk);
-  e.getByLabel("g4SimHits",SimVtx);
+  e.getByToken(g4_simTk_Token_, SimTk);
+  e.getByToken(g4_simVtx_Token_, SimVtx);
 
-  bool useTP= parameters_.getParameter<bool>("useTP");
+  bool useTP = parameters_.getParameter<bool>("useTP");
   TrackingParticleCollection tpForEfficiency;
   TrackingParticleCollection tpForFakeRate;
   edm::Handle<TrackingParticleCollection> TPHandleForEff;
   edm::Handle<TrackingParticleCollection> TPHandleForFakeRate;
-  if ( useTP) {
-    e.getByLabel("tpSelecForEfficiency",TPHandleForEff);
+  if (useTP) {
+    e.getByToken(tpSelForEff_Token_, TPHandleForEff);
     tpForEfficiency = *(TPHandleForEff.product());
-    e.getByLabel("tpSelecForFakeRate",TPHandleForFakeRate);
+    e.getByToken(tpSelForFake_Token_, TPHandleForFakeRate);
     tpForFakeRate = *(TPHandleForFakeRate.product());
   }
 
@@ -895,13 +918,13 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   std::vector<PhotonMCTruth> mcPhotons=thePhotonMCTruthFinder_->find (theSimTracks,  theSimVertices);
 
   edm::Handle<edm::HepMCProduct> hepMC;
-  e.getByLabel("generator",hepMC);
+  e.getByToken(hepMC_Token_, hepMC);
   //  const HepMC::GenEvent *myGenEvent = hepMC->GetEvent(); // unused
 
 
   // get generated jets
-  edm::Handle<reco::GenJetCollection> GenJetsHandle ;
-  e.getByLabel("iterativeCone5GenJets","",GenJetsHandle);
+  edm::Handle<reco::GenJetCollection> GenJetsHandle;
+  e.getByToken(genjets_Token_, GenJetsHandle);
   reco::GenJetCollection genJetCollection = *(GenJetsHandle.product());
 
   ConversionHitChecker hitChecker;
@@ -1197,7 +1220,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
     nRecConv_++;
 
-    // check matching with reco photon 
+    // check matching with reco photon
     double Mindeltaeta = 999999;
     double Mindeltaphi = 999999;
     bool matchConvSC=false;
@@ -1216,7 +1239,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     if (abs(Mindeltaeta)<0.1 && abs(Mindeltaphi)<0.1) {
       matchConvSC=true;
     }
-  
+
 
     ///////////  Quantities per conversion
     int match =0;
@@ -1303,9 +1326,9 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_nSharedHits_[match][1] ->Fill (aConv.nSharedHits());
 
       /*
-      if ( aConv.caloCluster().size() ) { 
+      if ( aConv.caloCluster().size() ) {
 	h_convSCdPhi_[match][1]->Fill( 	aConv.caloCluster()[0]->phi() - refittedMom.phi() );
-	double ConvEta = etaTransformation(aConv.refittedPairMomentum().eta(),aConv.zOfPrimaryVertexFromTracks());  
+	double ConvEta = etaTransformation(aConv.refittedPairMomentum().eta(),aConv.zOfPrimaryVertexFromTracks());
 	h_convSCdEta_[match][1]->Fill( aConv.caloCluster()[0]->eta() - ConvEta );
       }
       */
@@ -1596,7 +1619,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_convSCdPhi_[match][0]->Fill( iMatchingSC->superCluster()->position().phi() - refittedMom.phi() );
 	double ConvEta = etaTransformation(aConv.refittedPairMomentum().eta(),aConv.zOfPrimaryVertexFromTracks());
 	h_convSCdEta_[match][0]->Fill( iMatchingSC->superCluster()->position().eta() - ConvEta );
-	
+
       }
       if ( match==1) {
 	h2_photonPtRecVsPtSim_->Fill ( mcConvPt_, sqrt(refittedMom.perp2()) );
@@ -1805,7 +1828,7 @@ math::XYZVector TkConvValidator::recalculateMomentumAtFittedVertex ( const Magne
 								   new SimpleDiskBounds( 0,  sqrt(vtx.position().perp2()), -0.001, 0.001) )
                                               );
 
-  
+
   const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::innerStateOnSurface(*tk, trackerGeom, &mf);
   PropagatorWithMaterial propag( anyDirection, 0.000511, &mf );
   TrajectoryStateOnSurface  stateAtVtx;
