@@ -24,6 +24,8 @@ def customise(process):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
         process=customise_Validation(process,float(n))
+    if hasattr(process,'L1TrackTrigger_step'):
+        process=customise_TrackTrigger(process)
     process=customise_condOverRides(process)
     
     return process
@@ -304,3 +306,37 @@ def customise_harvesting(process):
     process.dqmHarvesting.remove(process.sipixelCertification)
     return (process)
 
+def customise_TrackTrigger(process):
+    process.StackedTrackerGeometryESModule.EndcapCutSet = cms.VPSet(
+        cms.PSet( EndcapCut = cms.vdouble( 0 ) ), #Use 0 as dummy to have direct access using DetId to the correct element
+        cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 4, 4, 5, 6, 6, 7, 5, 6, 6, 9, 11, 11 ) ), #D1
+        cms.PSet( EndcapCut = cms.vdouble( 0, 2, 3, 4, 4, 5, 5, 6, 7, 4, 6, 6, 8, 8, 10 ) ), #D2 ...
+        cms.PSet( EndcapCut = cms.vdouble( 0, 2, 2, 3, 4, 4, 5, 6, 6, 4, 4, 6, 6, 8, 9 ) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 2, 2, 3, 3, 4, 4, 5, 5, 7, 4, 5, 6, 6, 8 ) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 2, 3, 3, 4, 4, 5, 5, 6, 8, 4, 5, 6, 7 ) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 3, 4, 4, 5, 6, 7, 4, 5, 6, 6 ) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 2, 3, 4, 4, 5, 5, 6, 8, 4, 5, 6 ) ) 
+        # missing rings are not taken into account in numbering, so everything
+        # always starts from 1 to N, with increasing r
+    )
+
+    process.TTStubAlgorithm_tab2013_PixelDigi_.EndcapCutSet = cms.VPSet(
+        cms.PSet( EndcapCut = cms.vdouble( 0 ) ), #Use 0 as dummy to have direct access using DetId to the correct element
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 2.0, 2.0, 2.5, 3.0, 3.0, 3.5, 2.5, 3.0, 3.0, 4.5, 5.5, 5.5 ) ), #D1
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 2.0, 2.0, 2.5, 2.5, 3.0, 3.5, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0 ) ), #D2 ...
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.0, 1.5, 2.0, 2.0, 2.5, 3.0, 3.0, 2.0, 2.0, 3.0, 3.0, 4.0, 4.5 ) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.0, 1.5, 1.5, 2.0, 2.0, 2.5, 2.5, 3.5, 2.0, 2.5, 3.0, 3.0, 4.0 ) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 1.5, 2.0, 2.0, 2.5, 2.5, 3.0, 4.0, 2.0, 2.5, 3.0, 3.5 ) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 1.5, 2.0, 2.0, 2.5, 3.0, 3.5, 2.0, 2.5, 3.0, 3.0 ) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 2.0, 2.0, 2.5, 2.5, 3.0, 4.0, 2.0, 2.5, 3.0 ) ) # missing rings are not taken into account in numbering, so everything
+        # always starts from 1 to N, with increasing r
+        )
+      
+                                                                                                                                        
+    
+#    process.StackedTrackerGeometryESModule.EndcapCutSet.append(process.StackedTrackerGeometryESModule.EndcapCutSet[5])
+#    process.StackedTrackerGeometryESModule.EndcapCutSet.append(process.StackedTrackerGeometryESModule.EndcapCutSet[5])
+#    process.TTStubAlgorithm_tab2013_PixelDigi_.EndcapCutSet.append(process.TTStubAlgorithm_tab2013_PixelDigi_.EndcapCutSet[5])
+#    process.TTStubAlgorithm_tab2013_PixelDigi_.EndcapCutSet.append(process.TTStubAlgorithm_tab2013_PixelDigi_.EndcapCutSet[5])
+    
+    return process
