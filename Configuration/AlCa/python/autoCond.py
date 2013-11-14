@@ -1,22 +1,7 @@
 autoCond = { 
-    # GlobalTag for MC production with perfectly aligned and calibrated detector
-    'mc'                :   'PRE_MC62_V8::All',
-    # GlobalTag for MC production with realistic alignment and calibrations
-    'startup'           :   'PRE_ST62_V8::All',
-    # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
-    'starthi'           :   'PRE_SH62_V15::All',
-    # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations
-    'startpa'           :   'PRE_SH62_V16::All',
-    # GlobalTag for data reprocessing: this should always be the GR_R tag
-    'com10'             :   'PRE_62_V8::All',
-    # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
-    # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
-    'hltonline'         :   'PRE_P62_V8::All',
-    # GlobalTag for POSTLS1 upgrade studies:
-    'upgradePLS1'       :   'POSTLS162_V1::All',
-    'upgrade2017'       :   'DES17_62_V7::All', # placeholder (GT not meant for 62X)
-    'upgrade2019'       :   'DES19_62_V7::All', # placeholder (GT not meant for 62X)
-    'upgradePLS3'       :   'POSTLS261_V2::All' # placeholder (GT not meant for 62X)
+    'upgrade2017'       :   'DES17_62_V8::All', # 
+    'upgrade2019'       :   'DES19_62_V8::All', # 
+    'upgradePLS3'       :   'DES19_62_V7::All' # waiting waiting waiting
 }
 
 aliases = {
@@ -116,77 +101,3 @@ conditions_HLT_JECs = (
 
 
 # dedicated GlobalTags for MC production with the frozen HLT menus
-autoCond['startup_5E33v4']   = ( autoCond['startup'], ) \
-                             + conditions_L1_Run2012A
-
-autoCond['startup_7E33v2']   = ( autoCond['startup'], ) \
-                             + conditions_L1_Run2012B
-
-autoCond['startup_7E33v3']   = ( autoCond['startup'], ) \
-                             + conditions_L1_Run2012C
-
-autoCond['startup_7E33v4']   = ( autoCond['startup'], ) \
-                             + conditions_L1_Run2012C
-
-autoCond['startup_8E33v2']   = ( autoCond['startup'], ) \
-                             + conditions_L1_Run2012D
-
-autoCond['startup_GRun']     = ( autoCond['startup'], ) \
-                             + conditions_L1_Run2012D
-
-autoCond['starthi_HIon']     = ( autoCond['starthi'], ) \
-                             + conditions_L1_HIRun2011 \
-                             + conditions_HLT_JECs
-
-autoCond['startup_PIon']     = ( autoCond['startpa'], )
-
-
-# dedicated GlobalTags for running the frozen HLT menus on data
-autoCond['hltonline_5E33v4'] = ( autoCond['hltonline'], ) \
-                             + conditions_L1_Run2012A
-
-autoCond['hltonline_7E33v2'] = ( autoCond['hltonline'], ) \
-                             + conditions_L1_Run2012B
-
-autoCond['hltonline_7E33v3'] = ( autoCond['hltonline'], ) \
-                             + conditions_L1_Run2012C
-
-autoCond['hltonline_7E33v4'] = ( autoCond['hltonline'], ) \
-                             + conditions_L1_Run2012C
-
-autoCond['hltonline_8E33v2'] = ( autoCond['hltonline'], ) \
-                             + conditions_L1_Run2012D
-
-autoCond['hltonline_GRun']   = ( autoCond['hltonline'], ) \
-                             + conditions_L1_Run2012D
-
-autoCond['hltonline_HIon']   = ( autoCond['hltonline'], ) \
-                             + conditions_L1_HIRun2011
-
-autoCond['hltonline_PIon']   = ( autoCond['hltonline'], ) \
-                             + conditions_L1_PARun2013
-
-# dedicated GlobalTags for running RECO and the frozen HLT menus on data
-autoCond['com10_5E33v4']     = ( autoCond['com10'], ) \
-                             + conditions_L1_Run2012A
-
-autoCond['com10_7E33v2']     = ( autoCond['com10'], ) \
-                             + conditions_L1_Run2012B
-
-autoCond['com10_7E33v3']     = ( autoCond['com10'], ) \
-                             + conditions_L1_Run2012C
-
-autoCond['com10_7E33v4']     = ( autoCond['com10'], ) \
-                             + conditions_L1_Run2012C
-
-autoCond['com10_8E33v2']     = ( autoCond['com10'], ) \
-                             + conditions_L1_Run2012D
-
-autoCond['com10_GRun']       = ( autoCond['com10'], ) \
-                             + conditions_L1_Run2012D
-
-autoCond['com10_HIon']       = ( autoCond['com10'], ) \
-                             + conditions_L1_HIRun2011
-
-autoCond['com10_PIon']       = ( autoCond['com10'], ) \
-                             + conditions_L1_PARun2013
