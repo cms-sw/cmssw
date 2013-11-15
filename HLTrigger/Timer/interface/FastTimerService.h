@@ -272,8 +272,8 @@ private:
     }
   };
 
-  template <typename T> class PathMap   : public std::unordered_map<std::string, T> {};
-  template <typename T> class ModuleMap : public std::unordered_map<edm::ModuleDescription const *, T> {};
+  template <typename T> using PathMap   = std::unordered_map<std::string, T>;
+  template <typename T> using ModuleMap = std::unordered_map<edm::ModuleDescription const *, T>;
 
   // timer configuration
   const clockid_t                               m_timer_id;             // the default is to use CLOCK_THREAD_CPUTIME_ID, unless useRealTimeClock is set, which will use CLOCK_REALTIME
