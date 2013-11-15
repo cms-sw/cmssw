@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <vector>
 #include <fstream>
+#include <zlib.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -39,6 +40,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   edm::RawInputSource(pset, desc),
   eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",16)),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
+  verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", false)),
   testModeNoBuilderUnit_(edm::Service<evf::EvFDaqDirector>()->getTestModeNoBuilderUnit()),
   runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
   buInputDir_(edm::Service<evf::EvFDaqDirector>()->buBaseDir()),
@@ -160,6 +162,18 @@ bool FedRawDataInputSource::cacheNextEvent()
         "Premature end of input file while reading event data";
     }
     event_.reset( new FRDEventMsgView(bufferCursor_) );
+  }
+
+  if ( verifyAdler32_ && event_->version() >= 3 )
+  {
+    uint32_t adler = adler32(0L,Z_NULL,0);
+    adler = adler32(adler,(Bytef*)event_->payload(),event_->eventSize());
+
+    if ( adler != event_->adler32() ) {
+      throw cms::Exception("FedRawDataInputSource::cacheNextEvent") <<
+        "Found a wrong Adler32 checksum: expected 0x" << std::hex << event_->adler32() <<
+        " but calculated 0x" << adler;
+    }
   }
 
   bufferLeft_ -= msgSize;

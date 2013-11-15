@@ -51,6 +51,7 @@ private:
 
   // get LS from filename instead of event header
   const bool getLSFromFilename_;
+  const bool verifyAdler32_;
   const bool testModeNoBuilderUnit_;
   
   const edm::RunNumber_t runNumber_;
