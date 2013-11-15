@@ -12,10 +12,10 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
 
 #include <utility>
 #include <unordered_map>
-#include <vector>
 #include <cstring>
 
 
@@ -167,7 +167,7 @@ class ClusterShapeHitFilter
   bool getSizes
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
    const SiPixelClusterShapeCache& clusterShapeCache,
-   int & part, std::vector<std::pair<int,int> > & meas,
+   int & part, ClusterData::ArrayType& meas,
    std::pair<float,float> & predr,
    PixelData const * pd=nullptr) const;
   bool isCompatible(const SiPixelRecHit   & recHit,

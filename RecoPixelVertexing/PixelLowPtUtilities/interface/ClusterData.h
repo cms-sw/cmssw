@@ -1,14 +1,15 @@
 #ifndef _ClusterData_h_
 #define _ClusterData_h_
 
+#include "FWCore/Utilities/interface/VecArray.h"
 #include <utility>
-#include <vector>
 
 class ClusterData
 {
  public:
+   using ArrayType = edm::VecArray<std::pair<int, int>, 9>;
+   ArrayType size;
    bool isStraight,isComplete, hasBigPixelsOnlyInside; 
-   std::vector<std::pair<int,int> > size;
 };
 
 #endif

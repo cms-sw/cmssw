@@ -165,11 +165,11 @@ void ClusterShape::determineShape
     if(theTopology->isItBigPixelInY(iy)) y[1]++;
 
   // Treat clusters with bix pixel(s) outside, FIXME FIXME
-  int px = 0;
+  unsigned int px = 0;
   if(theTopology->isItBigPixelInX(cluster.minPixelRow())) px++;
   if(theTopology->isItBigPixelInX(cluster.maxPixelRow())) px++;
 
-  int py = 0;
+  unsigned int py = 0;
   if(theTopology->isItBigPixelInY(cluster.minPixelCol())) py++;
   if(theTopology->isItBigPixelInY(cluster.maxPixelCol())) py++;
 
@@ -185,9 +185,9 @@ void ClusterShape::determineShape
   }
   // else
   { // FIXME do it
-    data.size.reserve(px*py);
-    for(int ax = 0; ax <= px; ax++)
-    for(int ay = 0; ay <= py; ay++)
+    assert((px+1)*(py+1) <= data.size.capacity());
+    for(unsigned int ax = 0; ax <= px; ax++)
+    for(unsigned int ay = 0; ay <= py; ay++)
     {
       int dx = x[1] - x[0] + ax;
       int dy = y[1] - y[0] + ay;
