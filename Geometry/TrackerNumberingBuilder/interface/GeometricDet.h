@@ -10,6 +10,7 @@
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include <atomic>
+#include <memory>
 #include <vector>
 #include "FWCore/ParameterSet/interface/types.h"
 
@@ -72,11 +73,12 @@ class GeometricDet {
    * set or add or clear components
    */
   void setGeographicalID(DetId id) const {
-      if(!_geographicalID) {
-          auto ptr = new DetId(id);
+      if(!_geographicalID.load(std::memory_order_acquire)) {
+          std::unique_ptr<DetId> ptr{new DetId(id)};
           DetId* expect = nullptr;
-          bool exchanged = _geographicalID.compare_exchange_strong(expect, ptr);
-          if(!exchanged) delete ptr;
+          if(_geographicalID.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
+              ptr.release();
+          }
       }
   }
 #ifdef GEOMETRICDETDEBUG
@@ -198,11 +200,11 @@ class GeometricDet {
    */
   DetId geographicalID() const  { 
     //std::cout<<"geographicalID"<<std::endl;
-    return (*_geographicalID);
+    return (*_geographicalID.load(std::memory_order_acquire));
   }
   DetId geographicalId() const  { 
     //std::cout<<"geographicalId"<<std::endl; 
-    return (*_geographicalID);
+    return (*_geographicalID.load(std::memory_order_acquire));
   }
 
   /**
