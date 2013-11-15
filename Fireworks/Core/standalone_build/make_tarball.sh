@@ -100,10 +100,11 @@ getCmssw()
 
    while read p; do
        echo "get libs from $p"
-       x=`basename $p`
-       cp -a $CMSSW_RELEASE_BASE/lib/*/*${x}* ${tard}/lib/
+       x=`dirname $p`
+       y=`basename $p`
+       cp -a $CMSSW_RELEASE_BASE/lib/*/*${x}*${y}* ${tard}/lib/
        #if [ -f "$file" ]
-	   cp -f $CMSSW_BASE/lib/*/*${x}* ${tard}/lib/ 2>/dev/null
+	   cp -f $CMSSW_BASE/lib/*/*${x}*${y}* ${tard}/lib/ 2>/dev/null
        #fi
     done < fwlite_build_set.file
 
@@ -202,7 +203,7 @@ while [ $# -gt 0 ]; do
     -t)  doTar=on;;
     -v)  verbose=on;
    esac
-   tard=${PWD}/$1
+   tard=$1
    shift
 done
 
