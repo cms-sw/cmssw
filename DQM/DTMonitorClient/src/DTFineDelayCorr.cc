@@ -124,7 +124,7 @@ void DTFineDelayCorr::runClientDiagnostic() {
 
     // **  Retrieve Delays Loaded in MiniCrates ** 
     if(readOldFromDb) {    // read from db 
-      DTConfigPedestals *pedestals = dtConfig->getDTConfigPedestals();
+      const DTConfigPedestals *pedestals = dtConfig->getDTConfigPedestals();
       const DTLayer *layer = muonGeom->layer(DTLayerId(chId,1,1));
       float delay = pedestals->getOffset(DTWireId(layer->id(),layer->specificTopology().firstChannel())); 
       coarseDelay = int(delay/25.);

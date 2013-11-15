@@ -9,7 +9,10 @@
 
 
 
-CSCWireDigiValidation::CSCWireDigiValidation(DQMStore* dbe, const edm::InputTag & inputTag, bool doSim)
+CSCWireDigiValidation::CSCWireDigiValidation(DQMStore* dbe,
+                                             const edm::InputTag & inputTag,
+                                             edm::ConsumesCollector && /* iC */,
+                                             bool doSim)
 : CSCBaseValidation(dbe, inputTag),
   theDoSimFlag(doSim),
   theTimeBinPlots(),

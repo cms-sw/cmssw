@@ -70,34 +70,34 @@ class DTConfigManager {
   ~DTConfigManager();
 
   //! Get desired BTI configuration
-  DTConfigBti* getDTConfigBti(DTBtiId) const;
+  const DTConfigBti* getDTConfigBti(DTBtiId) const;
 
   //! Get desired BTI configuration map for a given DTChamber
   const std::map<DTBtiId,DTConfigBti>& getDTConfigBtiMap(DTChamberId) const;
   
   //! Get desired TRACO configuration
-  DTConfigTraco* getDTConfigTraco(DTTracoId) const;
+  const DTConfigTraco* getDTConfigTraco(DTTracoId) const;
 
   //! Get desired TRACO configuration map for a given DTChamber
   const std::map<DTTracoId,DTConfigTraco>& getDTConfigTracoMap(DTChamberId) const;
 
   //! Get desired Trigger Server Theta configuration
-  DTConfigTSTheta* getDTConfigTSTheta(DTChamberId) const;
+  const DTConfigTSTheta* getDTConfigTSTheta(DTChamberId) const;
 
   //! Get desired Trigger Server Phi configuration
-  DTConfigTSPhi* getDTConfigTSPhi(DTChamberId) const;
+  const DTConfigTSPhi* getDTConfigTSPhi(DTChamberId) const;
 
   //! Get desired Trigger Unit configuration 
-  DTConfigTrigUnit* getDTConfigTrigUnit(DTChamberId) const;
+  const DTConfigTrigUnit* getDTConfigTrigUnit(DTChamberId) const;
   
    //! Get desired LUT configuration 
-  DTConfigLUTs* getDTConfigLUTs(DTChamberId) const;
+  const DTConfigLUTs* getDTConfigLUTs(DTChamberId) const;
 
   //! Get desired SectorCollector configuration
-  DTConfigSectColl* getDTConfigSectColl(DTSectCollId) const;
+  const DTConfigSectColl* getDTConfigSectColl(DTSectCollId) const;
 
   //! Get desired Pedestals configuration
-  DTConfigPedestals* getDTConfigPedestals() const;
+  const DTConfigPedestals* getDTConfigPedestals() const;
  
   //! Get global debug flag
   inline bool getDTTPGDebug() const { return my_dttpgdebug; };

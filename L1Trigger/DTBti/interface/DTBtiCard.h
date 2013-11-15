@@ -133,7 +133,7 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
     std::vector<DTDigi*> _digis; 
 
     bool _debug;
-    DTConfigPedestals* _pedestals;
+    const DTConfigPedestals* _pedestals;
 
     bool _flag_acc;
 };

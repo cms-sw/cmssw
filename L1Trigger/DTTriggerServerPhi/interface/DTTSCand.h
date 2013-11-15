@@ -77,7 +77,7 @@ class DTTSCand {
     inline void clear();
 
     /// Configuration set
-    inline DTConfigTSPhi* config() const { return _tss->config(); }
+    inline const DTConfigTSPhi* config() const { return _tss->config(); }
 
     /// Return associated TRACO trigger
     inline const DTTracoTrigData* tracoTr() const { return _tctrig; }
