@@ -11,6 +11,7 @@
 /* #include "DataFormats/GeometrySurface/interface/Bounds.h" */
 #include "DataFormats/DetId/interface/DetId.h"
 #include <atomic>
+#include <memory>
 #include <vector>
 #include "FWCore/ParameterSet/interface/types.h"
 
@@ -60,14 +61,15 @@ class GeometricDetExtra {
    * set or add or clear components
    */
   void setGeographicalId(DetId id) const {
-      if(!_geographicalId) {
-          auto ptr = new DetId(id);
+      if(!_geographicalId.load(std::memory_order_acquire)) {
+          std::unique_ptr<DetId> ptr{new DetId(id)};
           DetId* expect = nullptr;
-          bool exchanged = _geographicalId.compare_exchange_strong(expect, ptr);
-          if(!exchanged) delete ptr;
+          if(_geographicalId.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
+              ptr.release();
+          }
       }
   }
-  DetId geographicalId() const { return (*_geographicalId); }
+  DetId geographicalId() const { return (*_geographicalId.load(std::memory_order_acquire)); }
   //rr
   /** parents() retuns the geometrical history
    * mec: only works if this is built from DD and not from reco DB.
