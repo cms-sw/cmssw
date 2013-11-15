@@ -132,7 +132,6 @@ RPCReadOutMapping::StripInDetUnit
     RPCReadOutMapping::detUnitFrame(const LinkBoardSpec& location, 
     const LinkBoardPackedStrip & lbstrip) const 
 {
-  static bool debug = edm::MessageDrop::instance()->debugEnabled;
   uint32_t detUnit = 0;
   int stripInDU = 0;
   int febInLB = lbstrip.febInLB();
@@ -148,19 +147,15 @@ RPCReadOutMapping::StripInDetUnit
       // LogWarning("detUnitFrame")<<"problem with stip for febInLB: "<<febInLB
       //                             <<" strip pin: "<< stripPinInFeb
       //                             <<" strip pin: "<< stripPinInFeb;
-      if (debug) {
-        LogDebug("")<<"problem with stip for febInLB: "<<febInLB
-                    <<" strip pin: "<< stripPinInFeb
-                    <<" strip pin: "<< stripPinInFeb
-                    <<" for linkBoard: "<<location.print(3);
-      }
+      LogDebug("")<<"problem with stip for febInLB: "<<febInLB
+                  <<" strip pin: "<< stripPinInFeb
+                  <<" strip pin: "<< stripPinInFeb
+                  <<" for linkBoard: "<<location.print(3);
     }
   } else {
     // LogWarning("detUnitFrame")<<"problem with detUnit for febInLB: ";
-    if (debug) {  
-      LogDebug("") <<"problem with detUnit for febInLB: " <<febInLB
-                   <<" for linkBoard: "<<location.print(1);
-    }
+    LogDebug("") <<"problem with detUnit for febInLB: " <<febInLB
+                 <<" for linkBoard: "<<location.print(1);
   }
   return std::make_pair(detUnit,stripInDU);
 }
