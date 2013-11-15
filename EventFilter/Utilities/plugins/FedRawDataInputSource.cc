@@ -78,6 +78,16 @@ bool FedRawDataInputSource::checkNextEvent()
   if ( ! cacheNextEvent() ) {
     // run has ended
     resetLuminosityBlockAuxiliary();
+
+    if (fileStream_) {
+      edm::LogInfo("FedRawDataInputSource") << "Closing input stream ";
+      fclose(fileStream_);
+      fileStream_ = 0;
+      if (!testModeNoBuilderUnit_) {
+        edm::LogInfo("FedRawDataInputSource") << "Removing last input file used : " << openFile_.string();
+        boost::filesystem::remove(openFile_); // won't work in case of forked children
+      }
+    }
     return false;
   }
 
@@ -133,24 +143,23 @@ bool FedRawDataInputSource::checkNextEvent()
 
 bool FedRawDataInputSource::cacheNextEvent()
 {
-  if ( bufferLeft_ < sizeof(FRDEventHeader_V3) )
+  if ( bufferLeft_ < (4 + 1024) * sizeof(uint32) ) //minimal size to fit any version of FRDEventHeader
   {
-    if ( !readNextChunkIntoBuffer(sizeof(FRDEventHeader_V3)) ) return false;
+    if ( !readNextChunkIntoBuffer() ) return false;
   }
 
   event_.reset( new FRDEventMsgView(bufferCursor_) );
-
-  assert(event_->version() >= 3);
 
   const uint32_t msgSize = event_->size();
 
   if ( bufferLeft_ < msgSize )
   {
-    if ( !readNextChunkIntoBuffer(msgSize) )
+    if ( !readNextChunkIntoBuffer() || bufferLeft_ < msgSize )
     {
       throw cms::Exception("FedRawDataInputSource::cacheNextEvent") <<
         "Premature end of input file while reading event data";
     }
+    event_.reset( new FRDEventMsgView(bufferCursor_) );
   }
 
   bufferLeft_ -= msgSize;
@@ -159,7 +168,7 @@ bool FedRawDataInputSource::cacheNextEvent()
   return true;
 }
 
-bool FedRawDataInputSource::readNextChunkIntoBuffer(const uint32_t minSize)
+bool FedRawDataInputSource::readNextChunkIntoBuffer()
 {
   //this function is called when we reach the end of the buffer (i.e. bytes to read are more than bytes left in buffer)
   if (eofReached() && !openNextFile())
@@ -175,7 +184,7 @@ bool FedRawDataInputSource::readNextChunkIntoBuffer(const uint32_t minSize)
                          sizeof(unsigned char), chunksize, fileStream_);
   }
   bufferCursor_ = dataBuffer_; // reset the cursor at the beginning of the buffer
-  return (bufferLeft_ >= minSize);
+  return (bufferLeft_ > 0);
 }
 
 bool FedRawDataInputSource::eofReached() const
@@ -223,7 +232,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FED
 {
   edm::Timestamp tstamp;
   uint32_t eventSize = event_->eventSize();
-  char* event = (char *) (event_->startAddress() + sizeof(FRDEventHeader_V3));
+  char* event = (char*)event_->payload();
   
   while (eventSize > 0) {
     eventSize -= sizeof(fedt_t);
@@ -270,9 +279,10 @@ bool FedRawDataInputSource::searchForNextFile()
     fms->stoppedLookingForFile();
     edm::LogInfo("FedRawDataInputSource") << "grabbing next file, setting last seen lumi to LS = " << ls;
 
-    boost::filesystem::path sourcePath(nextFile);
-    assert( grabNextJsonFile(sourcePath.replace_extension(".jsn")) );
-    openDataFile(sourcePath);
+    boost::filesystem::path jsonFile(nextFile);
+    jsonFile.replace_extension(".jsn");
+    assert( grabNextJsonFile(jsonFile) );
+    openDataFile(nextFile);
 
     if (getLSFromFilename_) lastOpenedLumi_ = ls;
     return true;
@@ -295,18 +305,6 @@ bool FedRawDataInputSource::searchForNextFile()
     
   } else {
     edm::LogInfo("FedRawDataInputSource") << "The DAQ Director has nothing for me! ";
-    if (eorFileSeen_) {
-      edm::LogInfo("FedRawDataInputSource") << "...and it has seen the end of run file! - running some cleanup";
-      if (fileStream_) {
-        edm::LogInfo("FedRawDataInputSource") << "Closing input stream ";
-        fclose(fileStream_);
-        fileStream_ = 0;
-        if (!testModeNoBuilderUnit_) {
-          edm::LogInfo("FedRawDataInputSource") << "Removing last input file used : " << openFile_.string();
-          boost::filesystem::remove(openFile_); // won't work in case of forked children
-        }
-      }
-    }
     return false;
   }
 }
@@ -368,7 +366,7 @@ bool FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& json
   return false;
 }
 
-void FedRawDataInputSource::openDataFile(boost::filesystem::path const& nextFile)
+void FedRawDataInputSource::openDataFile(std::string const& nextFile)
 {
   if (fileStream_) {
     fclose(fileStream_);
@@ -385,9 +383,13 @@ void FedRawDataInputSource::openDataFile(boost::filesystem::path const& nextFile
   if (fileDescriptor != -1) {
     fileStream_ = fdopen(fileDescriptor, "rb");
     openFile_ = nextFile;
+    edm::LogInfo("FedRawDataInputSource") << " opened file " << nextFile;
   }
-  edm::LogInfo("FedRawDataInputSource") << " tried to open file.. " << nextFile << " fd:"
-            << fileDescriptor;
+  else
+  {
+    throw cms::Exception("FedRawDataInputSource::openDataFile") <<
+      " failed to open file " << nextFile << " fd:" << fileDescriptor;
+  }
 }
 
 void FedRawDataInputSource::renameToNextFree() const

@@ -42,9 +42,9 @@ private:
   bool openNextFile();
   bool searchForNextFile();
   bool grabNextJsonFile(boost::filesystem::path const&);
-  void openDataFile(boost::filesystem::path const&);
+  void openDataFile(std::string const&);
   bool eofReached() const;
-  bool readNextChunkIntoBuffer(const uint32_t minSize);
+  bool readNextChunkIntoBuffer();
   void renameToNextFree() const;
 
   const unsigned int eventChunkSize_; // for buffered read-ahead
