@@ -24,8 +24,10 @@ HcalRecHitsClient::HcalRecHitsClient(const edm::ParameterSet& iConfig):conf_(iCo
  
   debug_ = false;
   verbose_ = false;
+
   // false for regular relval and true for SLHC relval
-  doslhc_  = false;
+  doSLHC_ = iConfig.getUntrackedParameter<bool>("doSLHC", false);
+
 
   dirName_=iConfig.getParameter<std::string>("DQMDirName");
   if(dbe_) dbe_->setCurrentFolder(dirName_);
@@ -406,7 +408,7 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 
           
             unsigned int n_depth = 4;
-            if (doslhc_){n_depth = 7;}
+            if (doSLHC_){n_depth = 7;}
 	
 	     for (unsigned int i3 = 0;  i3 < n_depth;  i3++) {  // depth
 	        double emin = 100000.;
@@ -435,7 +437,7 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 	           map_depth3->Fill(double(ieta),double(i2),emin);
                 if( i3 == 3 && emin < 10000.) 
 	           map_depth4->Fill(double(ieta),double(i2),emin);
-               if (doslhc_){ 
+               if (doSLHC_){ 
                   if( i3 == 4 && emin < 10000.)
                      map_depth5->Fill(double(ieta),double(i2),emin);
                   if( i3 == 5 && emin < 10000.)
@@ -483,7 +485,7 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 	    cnorm = emap_depth4->getBinContent(i,j) / fev;
             emap_depth4->setBinContent(i,j,cnorm);
  
-            if (doslhc_){
+            if (doSLHC_){
                cnorm = emap_depth5->getBinContent(i,j) / fev;
                emap_depth5->setBinContent(i,j,cnorm);
                cnorm = emap_depth6->getBinContent(i,j) / fev;
@@ -525,7 +527,7 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 	    cnorm = occupancy_map_HB2->getBinContent(i,j) / fev;   
 	    occupancy_map_HB2->setBinContent(i,j,cnorm);
 
-            if (doslhc_){
+            if (doSLHC_){
                cnorm = occupancy_map_HB3->getBinContent(i,j) / fev;
                occupancy_map_HB3->setBinContent(i,j,cnorm);
                cnorm = occupancy_map_HB4->getBinContent(i,j) / fev;
@@ -547,7 +549,7 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
             cnorm = occupancy_map_HE3->getBinContent(i,j) / fev;
             occupancy_map_HE3->setBinContent(i,j,cnorm);
 	
-            if (doslhc_){
+            if (doSLHC_){
 	       cnorm = occupancy_map_HE4->getBinContent(i,j) / fev;   
 	       occupancy_map_HE4->setBinContent(i,j,cnorm);
                cnorm = occupancy_map_HE5->getBinContent(i,j) / fev;
@@ -570,7 +572,7 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 	    sumphi_hb1 += occupancy_map_HB1->getBinContent(i,j);
 	    sumphi_hb2 += occupancy_map_HB2->getBinContent(i,j);
            
-            if (doslhc_){
+            if (doSLHC_){
                sumphi_hb3 += occupancy_map_HB3->getBinContent(i,j);
                sumphi_hb4 += occupancy_map_HB4->getBinContent(i,j);
                sumphi_hb5 += occupancy_map_HB5->getBinContent(i,j);
@@ -582,7 +584,7 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
 	    sumphi_he2 += occupancy_map_HE2->getBinContent(i,j);
 	    sumphi_he3 += occupancy_map_HE3->getBinContent(i,j);
       
-            if (doslhc_){
+            if (doSLHC_){
                sumphi_he4 += occupancy_map_HE4->getBinContent(i,j);
                sumphi_he5 += occupancy_map_HE5->getBinContent(i,j);
                sumphi_he6 += occupancy_map_HE6->getBinContent(i,j);
@@ -641,7 +643,7 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
          cnorm = sumphi_hb2 / phi_factor;
          occupancy_vs_ieta_HB2->Fill(float(ieta), cnorm);
 
-         if (doslhc_){
+         if (doSLHC_){
             cnorm = sumphi_hb3 / phi_factor;
             occupancy_vs_ieta_HB3->Fill(float(ieta), cnorm);
             cnorm = sumphi_hb4 / phi_factor;
@@ -661,7 +663,7 @@ int HcalRecHitsClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hca
          cnorm = sumphi_he3 / phi_factor;
          occupancy_vs_ieta_HE3->Fill(float(ieta), cnorm);
 
-         if (doslhc_){
+         if (doSLHC_){
             cnorm = sumphi_he4 / phi_factor;
             occupancy_vs_ieta_HE4->Fill(float(ieta), cnorm);
             cnorm = sumphi_he5 / phi_factor;
