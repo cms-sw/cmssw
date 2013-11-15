@@ -1,4 +1,5 @@
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 
@@ -19,21 +20,21 @@ struct TrackConfigSelector {
 
   typedef std::vector<const reco::Track*> container;
   typedef container::const_iterator const_iterator;
-  typedef reco::TrackCollection collection; 
+  typedef reco::TrackCollection collection;
 
- TrackConfigSelector( const edm::ParameterSet & cfg ) :
+ TrackConfigSelector( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
     theBaseSelector(cfg),
     theGlobalSelector(cfg.getParameter<edm::ParameterSet>("GlobalSelector")),
     theTwoBodyDecaySelector(cfg.getParameter<edm::ParameterSet>("TwoBodyDecaySelector"))
   {
     //TODO Wrap the BaseSelector into its own PSet
     theBaseSwitch = theBaseSelector.useThisFilter();
-    
+
     theGlobalSwitch =  theGlobalSelector.useThisFilter();
-      
+
     theTwoBodyDecaySwitch = theTwoBodyDecaySelector.useThisFilter();
   }
-  
+
   const_iterator begin() const { return theSelectedTracks.begin(); }
   const_iterator end() const { return theSelectedTracks.end(); }
   size_t size() const { return theSelectedTracks.size(); }
@@ -49,7 +50,7 @@ struct TrackConfigSelector {
     if(theBaseSwitch)
       theSelectedTracks=theBaseSelector.select(theSelectedTracks,evt,eSetup);
     if(theGlobalSwitch)
-      theSelectedTracks=theGlobalSelector.select(theSelectedTracks,evt,eSetup);    
+      theSelectedTracks=theGlobalSelector.select(theSelectedTracks,evt,eSetup);
     if(theTwoBodyDecaySwitch)
       theSelectedTracks=theTwoBodyDecaySelector.select(theSelectedTracks,evt,eSetup);
   }

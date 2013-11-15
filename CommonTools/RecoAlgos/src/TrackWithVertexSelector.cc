@@ -3,7 +3,7 @@
 // constructors and destructor
 //
 
-TrackWithVertexSelector::TrackWithVertexSelector(const edm::ParameterSet& iConfig) :
+TrackWithVertexSelector::TrackWithVertexSelector(const edm::ParameterSet& iConfig, edm::ConsumesCollector & iC) :
   numberOfValidHits_(iConfig.getParameter<uint32_t>("numberOfValidHits")),
   numberOfValidPixelHits_(iConfig.getParameter<uint32_t>("numberOfValidPixelHits")),
   numberOfLostHits_(iConfig.getParameter<uint32_t>("numberOfLostHits")),
@@ -17,11 +17,11 @@ TrackWithVertexSelector::TrackWithVertexSelector(const edm::ParameterSet& iConfi
   ptErrorCut_(iConfig.getParameter<double>("ptErrorCut")),
   quality_(iConfig.getParameter<std::string>("quality")),
   nVertices_(iConfig.getParameter<bool>("useVtx") ? iConfig.getParameter<uint32_t>("nVertices") : 0),
-  vertexTag_(iConfig.getParameter<edm::InputTag>("vertexTag")),
+  vertexToken_(iC.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexTag"))),
   vtxFallback_(iConfig.getParameter<bool>("vtxFallback")),
   zetaVtx_(iConfig.getParameter<double>("zetaVtx")),
   rhoVtx_(iConfig.getParameter<double>("rhoVtx")) {
-} 
+}
 
 TrackWithVertexSelector::~TrackWithVertexSelector() {  }
 
@@ -50,9 +50,9 @@ bool TrackWithVertexSelector::testVertices(const reco::Track &t, const reco::Ver
     unsigned int tested = 1;
     for (reco::VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end();
 	 it != ed; ++it) {
-      if ((std::abs(t.dxy(it->position())) < rhoVtx_) && 
+      if ((std::abs(t.dxy(it->position())) < rhoVtx_) &&
           (std::abs(t.dz(it->position())) < zetaVtx_)) {
-        ok = true; break; 
+        ok = true; break;
       }
       if (tested++ >= nVertices_) break;
     }
@@ -60,15 +60,15 @@ bool TrackWithVertexSelector::testVertices(const reco::Track &t, const reco::Ver
     return ( (std::abs(t.vertex().z()) < 15.9) && (t.vertex().Rho() < 0.2) );
   }
   return ok;
-} 
+}
 
 bool TrackWithVertexSelector::operator()(const reco::Track &t, const edm::Event &evt) const {
   if (!testTrack(t)) return false;
   if (nVertices_ == 0) return true;
   edm::Handle<reco::VertexCollection> hVtx;
-  evt.getByLabel(vertexTag_, hVtx);
+  evt.getByToken(vertexToken_, hVtx);
   return testVertices(t, *hVtx);
-} 
+}
 
 bool TrackWithVertexSelector::operator()(const reco::Track &t, const reco::VertexCollection &vtxs) const {
   if (!testTrack(t)) return false;

@@ -5,6 +5,8 @@
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -20,7 +22,7 @@ class CaloExtractor : public reco::isodeposit::IsoDepositExtractor {
 public:
 
   CaloExtractor(){};
-  CaloExtractor(const edm::ParameterSet& par);
+  CaloExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
 
   virtual ~CaloExtractor(){}
 
@@ -29,10 +31,10 @@ public:
 
   /// Extrapolate muons to calorimeter-object positions
   static GlobalPoint MuonAtCaloPosition(const reco::Track& muon, const double bz, const GlobalPoint& endpos, bool fixVxy=false, bool fixVz=false);
-  
+
 private:
   // CaloTower Collection Label
-  edm::InputTag theCaloTowerCollectionLabel;
+  edm::EDGetTokenT<CaloTowerCollection> theCaloTowerCollectionToken;
 
   // Label of deposit
   std::string theDepositLabel;

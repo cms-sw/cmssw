@@ -9,6 +9,7 @@
    \version  $Id: GenericPFCandidateSelectorDefinition.h,v 1.1 2011/01/28 20:56:44 srappocc Exp $
 */
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "CommonTools/ParticleFlow/interface/PFCandidateSelectorDefinition.h"
@@ -17,28 +18,28 @@
 namespace pf2pat {
 
   struct GenericPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition {
-    
-    GenericPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg ) :
+
+    GenericPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
       selector_( cfg.getParameter< std::string >( "cut" ) ) { }
-    
-    void select( const HandleToCollection & hc, 
+
+    void select( const HandleToCollection & hc,
 		 const edm::Event & e,
 		 const edm::EventSetup& s) {
       selected_.clear();
-      
+
       unsigned key=0;
-      for( collection::const_iterator pfc = hc->begin(); 
+      for( collection::const_iterator pfc = hc->begin();
 	   pfc != hc->end(); ++pfc, ++key) {
-	
+
 	if( selector_(*pfc) ) {
 	  selected_.push_back( reco::PFCandidate(*pfc) );
 	  reco::PFCandidatePtr ptrToMother( hc, key );
 	  selected_.back().setSourceCandidatePtr( ptrToMother );
-	  
+
 	}
       }
     }
-    
+
     private:
     StringCutObjectSelector<reco::PFCandidate> selector_;
   };

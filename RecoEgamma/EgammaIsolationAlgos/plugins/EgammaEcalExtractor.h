@@ -25,6 +25,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -38,13 +39,15 @@ namespace egammaisolation {
 
     class EgammaEcalExtractor : public reco::isodeposit::IsoDepositExtractor  {
         public:
-            EgammaEcalExtractor(const edm::ParameterSet& par) : 
+            EgammaEcalExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC) :
+              EgammaEcalExtractor(par, iC) {}
+            EgammaEcalExtractor(const edm::ParameterSet& par, edm::ConsumesCollector & iC) :
                     etMin_(par.getParameter<double>("etMin")),
                     conesize_(par.getParameter<double>("extRadius")),
 	            scmatch_(par.getParameter<bool>("superClusterMatch")),
-                    basicClusterTag_(par.getParameter<edm::InputTag>("basicClusters")),
-                    superClusterTag_(par.getParameter<edm::InputTag>("superClusters")) { }
-            
+                    basicClusterToken_(iC.consumes<reco::BasicClusterCollection>(par.getParameter<edm::InputTag>("basicClusters"))),
+                    superClusterToken_(iC.consumes<reco::SuperClusterCollection>(par.getParameter<edm::InputTag>("superClusters"))) { }
+
 
             virtual ~EgammaEcalExtractor();
 
@@ -58,14 +61,14 @@ namespace egammaisolation {
 
             // ---------- member data --------------------------------
 
-            // Parameters of isolation cone geometry. 
+            // Parameters of isolation cone geometry.
             // Photon case
             double etMin_;
             double conesize_;
 	    bool scmatch_;  // true-> reject basic clusters matched to the superclsuter
                             // false-> fill all basic clusters
-            edm::InputTag basicClusterTag_;
-            edm::InputTag superClusterTag_;
+            edm::EDGetTokenT<reco::BasicClusterCollection> basicClusterToken_;
+            edm::EDGetTokenT<reco::SuperClusterCollection> superClusterToken_;
     };
 
 }

@@ -1,7 +1,7 @@
 #ifndef Selections_H
 #define Selections_H
 
-#include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
+#include "CommonTools/UtilAlgos/interface/EventSelector.h"
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
@@ -10,8 +10,8 @@
 class Filter {
  public:
   Filter() : inverted_(false), selector_(0){}
-  Filter(const edm::ParameterSet& iConfig);
-  Filter(std::string name, edm::ParameterSet& iConfig) : 
+  Filter(const edm::ParameterSet& iConfig, edm::ConsumesCollector & iC);
+  Filter(std::string name, edm::ParameterSet& iConfig, edm::ConsumesCollector & iC) :
     name_(name),inverted_(false), selector_(0)
   {
     dump_=iConfig.dump();
@@ -19,7 +19,7 @@ class Filter {
       const std::string d("name");
       iConfig.addUntrackedParameter<std::string>(d,name);
       std::string componentName = iConfig.getParameter<std::string>("selector");
-      selector_ = EventSelectorFactory::get()->create(componentName, iConfig);
+      selector_ = EventSelectorFactoryFromHelper::get()->create(componentName, iConfig, iC);
       if (iConfig.exists("description"))
 	description_=iConfig.getParameter<std::vector<std::string> >("description");
       else
@@ -31,7 +31,7 @@ class Filter {
   const std::string & name() {return name_;}
   const std::string & dump() { return dump_;}
   const std::vector<std::string> description() { return description_;}
-  const std::string descriptionText() { 
+  const std::string descriptionText() {
     std::string text;
     for (unsigned int i=0;i!=description_.size();++i) text+=description_[i]+"\n";
     text+=dump()+"\n";
@@ -57,7 +57,7 @@ class Filter {
 };
 
 
-class FilterOR : public Filter{ 
+class FilterOR : public Filter{
  public:
   ~FilterOR(){}
   FilterOR(const std::string & filterORlist,
@@ -77,12 +77,12 @@ class FilterOR : public Filter{
       }
       else
 	size=orPos;
-      
+
       std::string filter = filterORlistCopy.substr(0,size);
       //remove the filter name and the OR (4 characters) from the string
       if (OK)
 	filterORlistCopy = filterORlistCopy.substr(0+size+4);
-      
+
       std::map<std::string, Filter*>::const_iterator it=filters.find(filter);
       if (it==filters.end()){
 	edm::LogError("FilterOR")<<"cannot do an OR of: "<<filter
@@ -114,7 +114,7 @@ class Selection {
   friend class Selections;
 
   Selection(std::string name, const edm::ParameterSet& iConfig) :
-    name_(name), 
+    name_(name),
     ntuplize_(iConfig.getParameter<bool>("ntuplize")),
     makeContentPlots_(iConfig.getParameter<bool>("makeContentPlots")),
     makeFinalPlots_(iConfig.getParameter<bool>("makeFinalPlots")),
@@ -167,7 +167,7 @@ class Selection {
       }
       edm::LogVerbatim(detailledPrintoutCategory_)<<summary.str();
     }
-    
+
     return ret;
   }
 
@@ -271,7 +271,7 @@ class Selections {
  public:
   typedef std::vector<Selection>::iterator iterator;
 
-  Selections(const edm::ParameterSet& iConfig) : 
+  Selections(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
     filtersPSet_(iConfig.getParameter<edm::ParameterSet>("filters")),
     selectionPSet_(iConfig.getParameter<edm::ParameterSet>("selections"))
   {
@@ -281,7 +281,7 @@ class Selections {
     unsigned int nF=filtersPSet_.getParameterSetNames(filterNames);
     for (unsigned int iF=0;iF!=nF;iF++){
       edm::ParameterSet pset = filtersPSet_.getParameter<edm::ParameterSet>(filterNames[iF]);
-      filters_.insert(std::make_pair(filterNames[iF],new Filter(filterNames[iF],pset)));
+      filters_.insert(std::make_pair(filterNames[iF],new Filter(filterNames[iF],pset, iC)));
     }
 
     //parse all configured selections
@@ -316,7 +316,7 @@ class Selections {
 		  // look for a selection name
 		  std::map<std::string, std::vector<std::string> >::iterator s=selectionFilters.find(*fOrS);
 		  if (s==selectionFilters.end()){
-		    //error. 
+		    //error.
 		    edm::LogError("SelectionHelper")<<"unresolved filter/selection name: "<<*fOrS;
 		  }//not a Selection name.
 		  else{
@@ -330,7 +330,7 @@ class Selections {
 		  }//a Selection name
 		}
 	      }//the name is not a simple filter name : either Selection of _OR_.
-	      
+
 	  }//loop over the strings in "filterOrder"
       }//loop over all defined Selection
 
@@ -340,7 +340,7 @@ class Selections {
     //      const std::string & sName=sIt->first;
     //Selection & selection =sIt->second;
     for (std::vector<Selection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt){
-      const std::string & sName=sIt->name();    
+      const std::string & sName=sIt->name();
       Selection & selection =*sIt;
 
       //parse the vector of filterNames
@@ -358,7 +358,7 @@ class Selections {
 	  }
 	}
     }
-    
+
     for (iterator sIt = begin(); sIt!=end();++sIt)
       sIt->printDetailledPrintoutHeader();
 
@@ -367,9 +367,9 @@ class Selections {
   iterator begin() {return selections_.begin(); }
   iterator end() { return selections_.end();}
 
-  //print each selection 
+  //print each selection
   void print(){ for (std::vector<Selection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt) sIt->print();}
-    
+
  private:
   edm::ParameterSet filtersPSet_;
   std::map<std::string, Filter*> filters_;
