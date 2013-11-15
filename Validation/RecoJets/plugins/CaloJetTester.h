@@ -10,12 +10,16 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 namespace reco {
   class CaloJet;
   class GenJet;
 }
+namespace edm {class HepMCProduct;}
 
 class MonitorElement;
 
@@ -28,20 +32,22 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob() ;
   virtual void endJob() ;
- 
+
 private:
 
- 
 
-  void fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet, const std::vector<reco::Vertex>& goodVertices);
 
-  edm::InputTag mInputCollection;
-  edm::InputTag mInputGenCollection;
+  void fillMatchHists (const reco::GenJet& fGenJet,
+                       const reco::CaloJet& fCaloJet,
+                       const std::vector<reco::Vertex>& goodVertices);
+
+  edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
+  edm::EDGetTokenT<edm::HepMCProduct> hepMC_Token_;
+  edm::EDGetTokenT<CaloTowerCollection> caloTower_Token_;
+  edm::EDGetTokenT<reco::CaloJetCollection> mInputCollection_;
+  edm::EDGetTokenT<reco::GenJetCollection> mInputGenCollection_;
+
   std::string mOutputFile;
-  edm::InputTag inputMETLabel_;
-  std::string METType_;
-  std::string inputGenMETLabel_;
-  std::string inputCaloMETLabel_;
 
   // count number of events
   MonitorElement* numberofevents;
@@ -99,15 +105,15 @@ private:
   MonitorElement* mpTResponse_1500_3500_d;
   MonitorElement* mpTResponse_30_d;
   MonitorElement* mjetArea;
- 
+
   // nvtx
   MonitorElement* nvtx_0_30;
   MonitorElement* nvtx_0_60;
   MonitorElement* mpTResponse_nvtx_0_5;
-  MonitorElement* mpTResponse_nvtx_5_10; 
+  MonitorElement* mpTResponse_nvtx_5_10;
   MonitorElement* mpTResponse_nvtx_10_15;
   MonitorElement* mpTResponse_nvtx_15_20;
-  MonitorElement* mpTResponse_nvtx_20_30; 
+  MonitorElement* mpTResponse_nvtx_20_30;
   MonitorElement* mpTResponse_nvtx_30_inf;
   MonitorElement* mpTScale_a_nvtx_0_5;
   MonitorElement* mpTScale_b_nvtx_0_5;
