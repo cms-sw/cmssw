@@ -85,10 +85,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 
 	if ( (D->isStaticLocal() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local ) && ! clangcms::support::isConst( t ) )
 	{
-            std::string vname = D->getCanonicalDecl()->getQualifiedNameAsString();
-	    unsigned found = vname.find_last_of("::");
-	    std::string cname = vname.substr(0,found);
-	    if ( support::isSafeClassName( vname ) ) return;
+	    if ( support::isSafeClassName( t.getAsString() ) ) return;
 		std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 	   	os << "function '"<<dname << "' accesses or modifies non-const static local variable '" << D->getNameAsString() << "'.\n";
