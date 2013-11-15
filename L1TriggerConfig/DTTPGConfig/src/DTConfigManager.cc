@@ -60,7 +60,7 @@ DTConfigManager::~DTConfigManager(){
 // Operations --
 //--------------
 
-DTConfigBti* DTConfigManager::getDTConfigBti(DTBtiId btiid) const {
+const DTConfigBti* DTConfigManager::getDTConfigBti(DTBtiId btiid) const {
   
   DTChamberId chambid = btiid.SLId().chamberId();
   BtiMap::const_iterator biter1 = my_btimap.find(chambid);
@@ -82,7 +82,7 @@ DTConfigBti* DTConfigManager::getDTConfigBti(DTBtiId btiid) const {
 	      << ") not found, return 0" << std::endl;
     return 0;
   }
-  return const_cast<DTConfigBti*>(&(*biter2).second);
+  return &(*biter2).second;
 
 }  
 
@@ -100,7 +100,7 @@ const std::map<DTBtiId,DTConfigBti>& DTConfigManager::getDTConfigBtiMap(DTChambe
 
 }
 
-DTConfigTraco* DTConfigManager::getDTConfigTraco(DTTracoId tracoid) const {
+const DTConfigTraco* DTConfigManager::getDTConfigTraco(DTTracoId tracoid) const {
   
   DTChamberId chambid = tracoid.ChamberId();
   TracoMap::const_iterator titer1 = my_tracomap.find(chambid);
@@ -121,7 +121,7 @@ DTConfigTraco* DTConfigManager::getDTConfigTraco(DTTracoId tracoid) const {
 	      << ") not found, return a reference to the end of the map" << std::endl;
     return 0;
   }
-  return const_cast<DTConfigTraco*>(&(*titer2).second);
+  return &(*titer2).second;
 
 }
 
@@ -139,7 +139,7 @@ const std::map<DTTracoId,DTConfigTraco>& DTConfigManager::getDTConfigTracoMap(DT
 
 }
 
-DTConfigTSTheta* DTConfigManager::getDTConfigTSTheta(DTChamberId chambid) const {
+const DTConfigTSTheta* DTConfigManager::getDTConfigTSTheta(DTChamberId chambid) const {
  
   TSThetaMap::const_iterator thiter = my_tsthetamap.find(chambid);
   if (thiter == my_tsthetamap.end()){
@@ -150,11 +150,11 @@ DTConfigTSTheta* DTConfigManager::getDTConfigTSTheta(DTChamberId chambid) const 
     return 0;
   }
   
-  return const_cast<DTConfigTSTheta*>(&(*thiter).second);
+  return &(*thiter).second;
 
 }
 
-DTConfigTSPhi* DTConfigManager::getDTConfigTSPhi(DTChamberId chambid) const {
+const DTConfigTSPhi* DTConfigManager::getDTConfigTSPhi(DTChamberId chambid) const {
   
   TSPhiMap::const_iterator phiter = my_tsphimap.find(chambid);
   if (phiter == my_tsphimap.end()){
@@ -165,11 +165,11 @@ DTConfigTSPhi* DTConfigManager::getDTConfigTSPhi(DTChamberId chambid) const {
     return 0;
   }
 
-  return const_cast<DTConfigTSPhi*>(&(*phiter).second);
+  return &(*phiter).second;
 
 }
   
-DTConfigTrigUnit* DTConfigManager::getDTConfigTrigUnit(DTChamberId chambid) const {
+const DTConfigTrigUnit* DTConfigManager::getDTConfigTrigUnit(DTChamberId chambid) const {
   
    TrigUnitMap::const_iterator tuiter = my_trigunitmap.find(chambid);
    if (tuiter == my_trigunitmap.end()){
@@ -180,11 +180,11 @@ DTConfigTrigUnit* DTConfigManager::getDTConfigTrigUnit(DTChamberId chambid) cons
      return 0;
    }
 
-   return const_cast<DTConfigTrigUnit*>(&(*tuiter).second);
+   return &(*tuiter).second;
 
 }
 
-DTConfigLUTs* DTConfigManager::getDTConfigLUTs(DTChamberId chambid) const {
+const DTConfigLUTs* DTConfigManager::getDTConfigLUTs(DTChamberId chambid) const {
   
    LUTMap::const_iterator lutiter = my_lutmap.find(chambid);
    if (lutiter == my_lutmap.end()){
@@ -195,11 +195,11 @@ DTConfigLUTs* DTConfigManager::getDTConfigLUTs(DTChamberId chambid) const {
      return 0;
    }
 
-   return const_cast<DTConfigLUTs*>(&(*lutiter).second);
+   return &(*lutiter).second;
 
 }
 
-DTConfigSectColl* DTConfigManager::getDTConfigSectColl(DTSectCollId scid) const {
+const DTConfigSectColl* DTConfigManager::getDTConfigSectColl(DTSectCollId scid) const {
   
   SectCollMap::const_iterator sciter = my_sectcollmap.find(scid);
   if (sciter == my_sectcollmap.end()){
@@ -209,13 +209,13 @@ DTConfigSectColl* DTConfigManager::getDTConfigSectColl(DTSectCollId scid) const 
     return 0;
   }
 
-  return const_cast<DTConfigSectColl*>(&(*sciter).second);
+  return &(*sciter).second;
 
 }
 
-DTConfigPedestals* DTConfigManager::getDTConfigPedestals() const{
+const DTConfigPedestals* DTConfigManager::getDTConfigPedestals() const{
   
-  return  const_cast<DTConfigPedestals*>(&my_pedestals);
+  return  &my_pedestals;
 
 }
  
@@ -262,7 +262,7 @@ void DTConfigManager::dumpLUTParam(DTChamberId &chambid) const {
 
   // get parameters from configuration
   // get DTConfigLUTs for this chamber
-  DTConfigLUTs* _confLUTs = getDTConfigLUTs(chambid);
+  const DTConfigLUTs* _confLUTs = getDTConfigLUTs(chambid);
   short int btic = getDTConfigTraco(DTTracoId(wh,st,se,1))->BTIC(); 
   float d = _confLUTs->D();
   float xcn = _confLUTs->Xcn();

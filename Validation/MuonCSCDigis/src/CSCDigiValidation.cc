@@ -12,26 +12,37 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
-: dbe_( edm::Service<DQMStore>().operator->() ),
-  outputFile_( ps.getParameter<std::string>("outputFile") ),
-  theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag")),
-  theCSCGeometry(0),
-  theStripDigiValidation(0),
-  theWireDigiValidation(0),
-  theComparatorDigiValidation(0),
-  theALCTDigiValidation(0),
-  theCLCTDigiValidation(0)
+  : dbe_( edm::Service<DQMStore>().operator->() ),
+    outputFile_( ps.getParameter<std::string>("outputFile") ),
+    theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag")),
+    theCSCGeometry(0),
+    theStripDigiValidation(0),
+    theWireDigiValidation(0),
+    theComparatorDigiValidation(0),
+    theALCTDigiValidation(0),
+    theCLCTDigiValidation(0)
 {
   dbe_->setCurrentFolder("MuonCSCDigisV/CSCDigiTask");
   bool doSim = ps.getParameter<bool>("doSim");
 
-  theStripDigiValidation = new CSCStripDigiValidation(dbe_, ps.getParameter<edm::InputTag>("stripDigiTag"), doSim);
-  theWireDigiValidation  = new CSCWireDigiValidation(dbe_, ps.getParameter<edm::InputTag>("wireDigiTag"), doSim);
-  theComparatorDigiValidation  = new CSCComparatorDigiValidation(dbe_, 
-              ps.getParameter<edm::InputTag>("comparatorDigiTag"),
-              ps.getParameter<edm::InputTag>("stripDigiTag"));
-  theALCTDigiValidation = new CSCALCTDigiValidation(dbe_, ps.getParameter<edm::InputTag>("alctDigiTag"));
-  theCLCTDigiValidation = new CSCCLCTDigiValidation(dbe_, ps.getParameter<edm::InputTag>("clctDigiTag"));
+  theStripDigiValidation = new CSCStripDigiValidation(dbe_,
+                                                      ps.getParameter<edm::InputTag>("stripDigiTag"),
+                                                      consumesCollector(),
+                                                      doSim);
+  theWireDigiValidation  = new CSCWireDigiValidation(dbe_,
+                                                     ps.getParameter<edm::InputTag>("wireDigiTag"),
+                                                     consumesCollector(),
+                                                     doSim);
+  theComparatorDigiValidation  = new CSCComparatorDigiValidation(dbe_,
+                                                                 ps.getParameter<edm::InputTag>("comparatorDigiTag"),
+                                                                 ps.getParameter<edm::InputTag>("stripDigiTag"),
+                                                                 consumesCollector());
+  theALCTDigiValidation = new CSCALCTDigiValidation(dbe_,
+                                                    ps.getParameter<edm::InputTag>("alctDigiTag"),
+                                                    consumesCollector());
+  theCLCTDigiValidation = new CSCCLCTDigiValidation(dbe_,
+                                                    ps.getParameter<edm::InputTag>("clctDigiTag"),
+                                                    consumesCollector());
 
   if(doSim)
   {
@@ -39,7 +50,6 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
     theWireDigiValidation->setSimHitMap(&theSimHitMap);
     theComparatorDigiValidation->setSimHitMap(&theSimHitMap);
   }
-
 }
 
 

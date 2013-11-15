@@ -53,7 +53,7 @@ class DTTSTheta : public DTTSThetaManager, public DTGeomSupplier {
     ~DTTSTheta();
 
     /// Return configuration
-    inline DTConfigTSTheta* config() const { return _config; }
+    inline const DTConfigTSTheta* config() const { return _config; }
 
     /// Set configuration
     void setConfig(const DTConfigManager *conf);
@@ -106,7 +106,7 @@ class DTTSTheta : public DTTSThetaManager, public DTGeomSupplier {
 
     DTBtiCard* _bticard;
 
-    DTConfigTSTheta* _config;
+    const DTConfigTSTheta* _config;
 
     // Input data
     BitArray<DTConfigTSTheta::NCELLTH> _trig[DTConfigTSTheta::NSTEPL-DTConfigTSTheta::NSTEPF+1];
