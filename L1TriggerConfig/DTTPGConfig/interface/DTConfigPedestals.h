@@ -45,7 +45,7 @@ class DTConfigPedestals : DTConfig {
   ~DTConfigPedestals();
 
   //! Get wire by wire delay
-  float getOffset(const DTWireId& wire);
+  float getOffset(const DTWireId& wire) const;
 
   //! Set parameters from ES
   void setES(DTTPGParameters const *tpgParams,
