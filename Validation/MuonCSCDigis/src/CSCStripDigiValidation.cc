@@ -1,12 +1,12 @@
 #include "Validation/MuonCSCDigis/src/CSCStripDigiValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 
-CSCStripDigiValidation::CSCStripDigiValidation(DQMStore* dbe, 
+CSCStripDigiValidation::CSCStripDigiValidation(DQMStore* dbe,
                                                const edm::InputTag & inputTag,
+                                               edm::ConsumesCollector && iC,
                                                bool doSim)
 : CSCBaseValidation(dbe, inputTag),
   thePedestalSum(0),
@@ -23,6 +23,8 @@ CSCStripDigiValidation::CSCStripDigiValidation(DQMStore* dbe,
   theNDigisPerChamberPlot(0),
   theNDigisPerEventPlot( dbe_->book1D("CSCStripDigisPerEvent", "Number of CSC Strip Digis per event", 100, 0, 500) )
 {
+  strips_Token_ = iC.consumes<CSCStripDigiCollection>(inputTag);
+
   if(doSim) {
     for(int i = 0; i < 10; ++i)
     {
@@ -36,7 +38,7 @@ CSCStripDigiValidation::CSCStripDigiValidation(DQMStore* dbe,
 
 
 CSCStripDigiValidation::~CSCStripDigiValidation() {
- 
+
 //   edm::LogInfo("CSCDigiValidation") << "RATIO for strips 4 to 5 : " << theRatio4to5Plot->getMean();
 //   edm::LogInfo("CSCDigiValidation") << "RATIO for strips 6 to 5 : " << theRatio6to5Plot->getMean();
 //   edm::LogInfo("CSCDigiValidation") << "NDIGIS per event : " << theNDigisPerEventPlot->getMean();
@@ -44,13 +46,13 @@ CSCStripDigiValidation::~CSCStripDigiValidation() {
 }
 
 
-void CSCStripDigiValidation::analyze(const edm::Event& e, 
+void CSCStripDigiValidation::analyze(const edm::Event& e,
                                      const edm::EventSetup&)
 {
   edm::Handle<CSCStripDigiCollection> strips;
-  e.getByLabel(theInputTag, strips);
+  e.getByToken(strips_Token_, strips);
   if (!strips.isValid()) {
-    edm::LogError("CSCDigiValidation") << "Cannot get strips by label " 
+    edm::LogError("CSCDigiValidation") << "Cannot get strips by label "
                                        << theInputTag.encode();
   }
 
@@ -83,7 +85,7 @@ void CSCStripDigiValidation::analyze(const edm::Event& e,
       if(thePedestalCount > 100)
       {
         fillPedestalPlots(*digiItr);
-       
+
         // see if it's big enough to count as "signal"
         if(adcCounts[5] > (thePedestalSum/thePedestalCount + 100))
         {

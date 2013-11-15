@@ -358,51 +358,51 @@ void CosmicGenFilterHelix::monitorStart(const GlobalPoint &vert, const GlobalVec
   const double z = vert.z();
   const double r = vert.perp();
 
-  static int iMomP = hists.IndexOf(hists.FindObject("momentumP"));
-  static int iMomM = hists.IndexOf(hists.FindObject("momentumM"));
+  const static int iMomP = hists.IndexOf(hists.FindObject("momentumP"));
+  const static int iMomM = hists.IndexOf(hists.FindObject("momentumM"));
   if (charge > 0) static_cast<TH1*>(hists[iMomP])->Fill(scalarMom);
   else            static_cast<TH1*>(hists[iMomM])->Fill(scalarMom);
-  static int iMom2 = hists.IndexOf(hists.FindObject("momentum2"));
+  const static int iMom2 = hists.IndexOf(hists.FindObject("momentum2"));
   static_cast<TH1*>(hists[iMom2])->Fill(scalarMom);
-  static int iMomLog = hists.IndexOf(hists.FindObject("momentumLog"));
+  const static int iMomLog = hists.IndexOf(hists.FindObject("momentumLog"));
   static_cast<TH1*>(hists[iMomLog])->Fill(scalarMom);
-  static int iPhi = hists.IndexOf(hists.FindObject("phi"));
+  const static int iPhi = hists.IndexOf(hists.FindObject("phi"));
   static_cast<TH1*>(hists[iPhi])->Fill(phi);
-  static int iCosPhi = hists.IndexOf(hists.FindObject("cosPhi"));
+  const static int iCosPhi = hists.IndexOf(hists.FindObject("cosPhi"));
   static_cast<TH1*>(hists[iCosPhi])->Fill(TMath::Cos(phi));
-  static int iPhiXz = hists.IndexOf(hists.FindObject("phiXz"));
+  const static int iPhiXz = hists.IndexOf(hists.FindObject("phiXz"));
   static_cast<TH1*>(hists[iPhiXz])->Fill(phiXz);
-  static int iTheta = hists.IndexOf(hists.FindObject("theta"));
+  const static int iTheta = hists.IndexOf(hists.FindObject("theta"));
   static_cast<TH1*>(hists[iTheta])->Fill(theta);
-  static int iThetaY = hists.IndexOf(hists.FindObject("thetaY"));
+  const static int iThetaY = hists.IndexOf(hists.FindObject("thetaY"));
   static_cast<TH1*>(hists[iThetaY])->Fill(thetaY);
 
-  static int iMomVsTheta = hists.IndexOf(hists.FindObject("momVsTheta"));
+  const static int iMomVsTheta = hists.IndexOf(hists.FindObject("momVsTheta"));
   static_cast<TH2*>(hists[iMomVsTheta])->Fill(theta, scalarMom);
-  static int iMomVsThetaY = hists.IndexOf(hists.FindObject("momVsThetaY"));
+  const static int iMomVsThetaY = hists.IndexOf(hists.FindObject("momVsThetaY"));
   static_cast<TH2*>(hists[iMomVsThetaY])->Fill(thetaY, scalarMom);
-  static int iMomVsPhi = hists.IndexOf(hists.FindObject("momVsPhi"));
+  const static int iMomVsPhi = hists.IndexOf(hists.FindObject("momVsPhi"));
   static_cast<TH2*>(hists[iMomVsPhi])->Fill(phi, scalarMom);
-  static int iMomVsZ = hists.IndexOf(hists.FindObject("momVsZ"));
+  const static int iMomVsZ = hists.IndexOf(hists.FindObject("momVsZ"));
   static_cast<TH2*>(hists[iMomVsZ])->Fill(z, scalarMom);
-  static int iThetaVsZ = hists.IndexOf(hists.FindObject("thetaVsZ"));
+  const static int iThetaVsZ = hists.IndexOf(hists.FindObject("thetaVsZ"));
   static_cast<TH2*>(hists[iThetaVsZ])->Fill(z, theta);
-  static int iThetaYvsZ = hists.IndexOf(hists.FindObject("thetaYvsZ"));
+  const static int iThetaYvsZ = hists.IndexOf(hists.FindObject("thetaYvsZ"));
   static_cast<TH2*>(hists[iThetaYvsZ])->Fill(z, thetaY);
-  static int iYvsThetaY = hists.IndexOf(hists.FindObject("yVsThetaY"));
+  const static int iYvsThetaY = hists.IndexOf(hists.FindObject("yVsThetaY"));
   static_cast<TH2*>(hists[iYvsThetaY])->Fill(thetaY, vert.y());
-  static int iYvsThetaYnoR = hists.IndexOf(hists.FindObject("yVsThetaYnoR"));
+  const static int iYvsThetaYnoR = hists.IndexOf(hists.FindObject("yVsThetaYnoR"));
   if (z > -1400. && z < 1400.) {
     static_cast<TH2*>(hists[iYvsThetaYnoR])->Fill(thetaY, vert.y());
   }
 
-  static int iRadius = hists.IndexOf(hists.FindObject("radius"));
+  const static int iRadius = hists.IndexOf(hists.FindObject("radius"));
   static_cast<TH1*>(hists[iRadius])->Fill(r);
-  static int iZ = hists.IndexOf(hists.FindObject("z"));
+  const static int iZ = hists.IndexOf(hists.FindObject("z"));
   static_cast<TH1*>(hists[iZ])->Fill(z);
-  static int iXy = hists.IndexOf(hists.FindObject("xyPlane"));
+  const static int iXy = hists.IndexOf(hists.FindObject("xyPlane"));
   static_cast<TH1*>(hists[iXy])->Fill(vert.x(), vert.y());
-  static int iRz = hists.IndexOf(hists.FindObject("rzPlane"));
+  const static int iRz = hists.IndexOf(hists.FindObject("rzPlane"));
   static_cast<TH1*>(hists[iRz])->Fill(z, (vert.y() > 0 ? r : -r));
 }
 
@@ -427,59 +427,59 @@ void CosmicGenFilterHelix::monitorEnd(const GlobalPoint &endVert, const GlobalVe
   const double rEnd = endVert.perp();
   const double diffZ = zEnd - vert.z();
 
-  static int iPathEnd = hists.IndexOf(hists.FindObject("pathEnd"));
+  const static int iPathEnd = hists.IndexOf(hists.FindObject("pathEnd"));
   static_cast<TH1*>(hists[iPathEnd])->Fill(path);
-  static int iMomEnd = hists.IndexOf(hists.FindObject("momEnd"));
+  const static int iMomEnd = hists.IndexOf(hists.FindObject("momEnd"));
   static_cast<TH1*>(hists[iMomEnd])->Fill(scalarMomEnd);
-  static int iMomEndLog = hists.IndexOf(hists.FindObject("momEndLog"));
+  const static int iMomEndLog = hists.IndexOf(hists.FindObject("momEndLog"));
   static_cast<TH1*>(hists[iMomEndLog])->Fill(scalarMomEnd);
-  static int iPtEnd = hists.IndexOf(hists.FindObject("ptEnd"));
+  const static int iPtEnd = hists.IndexOf(hists.FindObject("ptEnd"));
   static_cast<TH1*>(hists[iPtEnd])->Fill(ptEnd);
-  static int iPtEndLog = hists.IndexOf(hists.FindObject("ptEndLog"));
+  const static int iPtEndLog = hists.IndexOf(hists.FindObject("ptEndLog"));
   static_cast<TH1*>(hists[iPtEndLog])->Fill(ptEnd);
-  static int iPhiXzEnd = hists.IndexOf(hists.FindObject("phiXzEnd"));
+  const static int iPhiXzEnd = hists.IndexOf(hists.FindObject("phiXzEnd"));
   static_cast<TH1*>(hists[iPhiXzEnd])->Fill(phiXzEnd);
-  static int iThetaYEnd = hists.IndexOf(hists.FindObject("thetaYEnd"));
+  const static int iThetaYEnd = hists.IndexOf(hists.FindObject("thetaYEnd"));
   static_cast<TH1*>(hists[iThetaYEnd])->Fill(thetaYEnd);
 
-  static int iMomStartEnd = hists.IndexOf(hists.FindObject("momStartEnd"));
+  const static int iMomStartEnd = hists.IndexOf(hists.FindObject("momStartEnd"));
   static_cast<TH1*>(hists[iMomStartEnd])->Fill(scalarMomStart-scalarMomEnd);
-  static int iMomStartEndRel = hists.IndexOf(hists.FindObject("momStartEndRel"));
+  const static int iMomStartEndRel = hists.IndexOf(hists.FindObject("momStartEndRel"));
   static_cast<TH1*>(hists[iMomStartEndRel])->Fill(diffMomRel);
-  static int iPhiStartEnd = hists.IndexOf(hists.FindObject("phiXzStartEnd"));
+  const static int iPhiStartEnd = hists.IndexOf(hists.FindObject("phiXzStartEnd"));
   static_cast<TH1*>(hists[iPhiStartEnd])->Fill(phiXzStart-phiXzEnd);
-  static int iThetaStartEnd = hists.IndexOf(hists.FindObject("thetaYStartEnd"));
+  const static int iThetaStartEnd = hists.IndexOf(hists.FindObject("thetaYStartEnd"));
   static_cast<TH1*>(hists[iThetaStartEnd])->Fill(thetaYStart-thetaYEnd);
 
-  static int iPhiStartVsEnd = hists.IndexOf(hists.FindObject("phiXzStartVsEnd"));
+  const static int iPhiStartVsEnd = hists.IndexOf(hists.FindObject("phiXzStartVsEnd"));
   static_cast<TH2*>(hists[iPhiStartVsEnd])->Fill(phiXzEnd, phiXzStart);
-  static int iThetaStartVsEnd = hists.IndexOf(hists.FindObject("thetaYStartVsEnd"));
+  const static int iThetaStartVsEnd = hists.IndexOf(hists.FindObject("thetaYStartVsEnd"));
   static_cast<TH2*>(hists[iThetaStartVsEnd])->Fill(thetaYEnd, thetaYStart);
 
-  static int iMomStartEndRelVsZ = hists.IndexOf(hists.FindObject("momStartEndRelVsZ"));
+  const static int iMomStartEndRelVsZ = hists.IndexOf(hists.FindObject("momStartEndRelVsZ"));
   static_cast<TH2*>(hists[iMomStartEndRelVsZ])->Fill(vert.z(), diffMomRel);
-  static int iPhiStartEndVsZ = hists.IndexOf(hists.FindObject("phiXzStartEndVsZ"));
+  const static int iPhiStartEndVsZ = hists.IndexOf(hists.FindObject("phiXzStartEndVsZ"));
   static_cast<TH2*>(hists[iPhiStartEndVsZ])->Fill(vert.z(), phiXzStart-phiXzEnd);
-  static int iThetaStartEndVsZ = hists.IndexOf(hists.FindObject("thetaYStartEndVsZ"));
+  const static int iThetaStartEndVsZ = hists.IndexOf(hists.FindObject("thetaYStartEndVsZ"));
   static_cast<TH2*>(hists[iThetaStartEndVsZ])->Fill(vert.z(), thetaYStart-thetaYEnd);
-  static int iMomStartEndRelVsP = hists.IndexOf(hists.FindObject("momStartEndRelVsP"));
+  const static int iMomStartEndRelVsP = hists.IndexOf(hists.FindObject("momStartEndRelVsP"));
   static_cast<TH2*>(hists[iMomStartEndRelVsP])->Fill(scalarMomStart, diffMomRel);
-  static int iPhiStartEndVsP = hists.IndexOf(hists.FindObject("phiXzStartEndVsP"));
+  const static int iPhiStartEndVsP = hists.IndexOf(hists.FindObject("phiXzStartEndVsP"));
   static_cast<TH2*>(hists[iPhiStartEndVsP])->Fill(scalarMomStart, phiXzStart-phiXzEnd);
-  static int iThetaStartEndVsP = hists.IndexOf(hists.FindObject("thetaYStartEndVsP"));
+  const static int iThetaStartEndVsP = hists.IndexOf(hists.FindObject("thetaYStartEndVsP"));
   static_cast<TH2*>(hists[iThetaStartEndVsP])->Fill(scalarMomStart, thetaYStart-thetaYEnd);
 
-  static int iRadiusEnd = hists.IndexOf(hists.FindObject("radiusEnd"));
+  const static int iRadiusEnd = hists.IndexOf(hists.FindObject("radiusEnd"));
   static_cast<TH1*>(hists[iRadiusEnd])->Fill(rEnd);
-  static int iZend = hists.IndexOf(hists.FindObject("zEnd"));
+  const static int iZend = hists.IndexOf(hists.FindObject("zEnd"));
   static_cast<TH1*>(hists[iZend])->Fill(zEnd);
-  static int iZdiff = hists.IndexOf(hists.FindObject("zDiff"));
+  const static int iZdiff = hists.IndexOf(hists.FindObject("zDiff"));
   static_cast<TH1*>(hists[iZdiff])->Fill(diffZ);
-  static int iXyPlaneEnd = hists.IndexOf(hists.FindObject("xyPlaneEnd"));
+  const static int iXyPlaneEnd = hists.IndexOf(hists.FindObject("xyPlaneEnd"));
   static_cast<TH1*>(hists[iXyPlaneEnd])->Fill(endVert.x(), endVert.y());
-  static int iRzPlaneEnd = hists.IndexOf(hists.FindObject("rzPlaneEnd"));
+  const static int iRzPlaneEnd = hists.IndexOf(hists.FindObject("rzPlaneEnd"));
   static_cast<TH1*>(hists[iRzPlaneEnd])->Fill(zEnd, (endVert.y() > 0 ? rEnd : -rEnd));
-  static int iThetaVsZend = hists.IndexOf(hists.FindObject("thetaVsZend"));
+  const static int iThetaVsZend = hists.IndexOf(hists.FindObject("thetaVsZend"));
   static_cast<TH2*>(hists[iThetaVsZend])->Fill(zEnd, thetaEnd);
 }
 

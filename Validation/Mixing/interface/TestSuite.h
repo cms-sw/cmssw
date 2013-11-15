@@ -1,10 +1,10 @@
 // -*- C++ -*-
 //
 // Class:      TestSuite
-// 
+//
 /**\class TestSuite
 
- Description: test suite for Mixing Module
+   Description: test suite for Mixing Module
 
 */
 //
@@ -24,6 +24,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
 //DQM services for histogram
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -35,22 +44,25 @@ class TFile;
 //
 
 class TestSuite : public edm::EDAnalyzer {
-   public:
-      explicit TestSuite(const edm::ParameterSet&);
-      ~TestSuite();
+ public:
+  explicit TestSuite(const edm::ParameterSet&);
+  ~TestSuite();
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob();
-      virtual void endJob();
-     
-   private:
-      std::string filename_;
-      int bunchcr_;
-      int minbunch_;
-      int maxbunch_;
-      DQMStore* dbe_;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void beginJob();
+  virtual void endJob();
 
-      edm::InputTag cfTrackTag_;
-      edm::InputTag cfVertexTag_;
+ private:
+  std::string filename_;
+  int bunchcr_;
+  int minbunch_;
+  int maxbunch_;
+  DQMStore* dbe_;
+
+  edm::EDGetTokenT<CrossingFrame<SimTrack> > cfTrackToken_;
+  edm::EDGetTokenT<CrossingFrame<SimTrack> > cfVertexToken_;
+  edm::EDGetTokenT<CrossingFrame<PSimHit> >  g4SimHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit> > g4SimHits_Ecal_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit> > g4SimHits_HCal_Token_;
 };
