@@ -248,7 +248,7 @@ namespace cond {
       for ( auto row : q ) {}
       
       return q.retrievedRows();
-
+    
     }
 
 
@@ -264,9 +264,9 @@ namespace cond {
     }
     
     bool PAYLOAD::Table::insert( const cond::Hash& payloadHash, 
-				 const std::string& objectType,
-				 const cond::Binary& payloadData, 				      
-				 const boost::posix_time::ptime& insertionTime ){
+    				 const std::string& objectType,
+    				 const cond::Binary& payloadData, 				      
+    				 const boost::posix_time::ptime& insertionTime ){
       cond::Binary dummy;
       std::string streamerType("ROOT5");
       dummy.copy( streamerType );

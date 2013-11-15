@@ -26,7 +26,8 @@ cond::Binary::Binary( const coral::Blob& data ):
 }
 
 cond::Binary::Binary( const Binary& rhs ):
-  m_data( rhs.m_data ){
+  m_data( rhs.m_data ),
+  m_object( rhs.m_object ){
 }
 
 cond::Binary& cond::Binary::operator=( const Binary& rhs ){

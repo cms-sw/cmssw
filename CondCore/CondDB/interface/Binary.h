@@ -53,7 +53,7 @@ namespace cond {
   };
 
   template <typename T> Binary::Binary( const T& object ):
-    m_object( &object, Nodelete() ){
+    m_object( &const_cast<T&>(object), Nodelete() ){
   }
 }
 

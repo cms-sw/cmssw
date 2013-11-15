@@ -81,6 +81,8 @@ namespace cond{
 
     template <typename T> std::string storeObject( const T* object, const std::string& containerName );
 
+    std::string storeObject( const ora::Object& objectRef, const std::string& containerName  );
+
     template <typename T> bool updateObject( const T* object, const std::string& objectId );
 
     bool deleteObject( const std::string& objectId );
@@ -93,8 +95,6 @@ namespace cond{
     
     ora::Database& storage();
     
-    private:
-    std::string storeObject( const ora::Object& objectRef, const std::string& containerName  );
     private:
 
     boost::shared_ptr<SessionImpl> m_implementation;
