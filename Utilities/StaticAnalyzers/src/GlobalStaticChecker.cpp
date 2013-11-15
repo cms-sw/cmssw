@@ -17,7 +17,7 @@ void GlobalStaticChecker::checkASTDecl(const clang::VarDecl *D,
 {
 
 	clang::QualType t =  D->getType();
-	if ( (D->getStorageClass() == clang::SC_Static) &&
+	if ( D->hasGlobalStorage() &&
 			  !D->isStaticDataMember() &&
 			  !D->isStaticLocal() &&
 			  !support::isConst( t ) )
