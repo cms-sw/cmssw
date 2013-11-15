@@ -30,7 +30,7 @@ def customise_HcalPhase0(process):
     if hasattr(process,'g4SimHits'):
         process=customise_Sim(process)
     if hasattr(process,'validation_step'):
-        process=customise_Validation(process)
+        process=customise_ValidationPhase0(process)
 		
     return process
 
@@ -87,7 +87,7 @@ def customise_HcalPhase1(process):
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
-        process=customise_Validation(process)
+        process=customise_ValidationPhase1(process)
     process=customise_condOverRides(process)
     return process
 
@@ -232,7 +232,13 @@ def customise_harvesting(process):
     process.hcalrechitsClient.doSLHC  = cms.untracked.bool(True)
     return process
 
-def customise_Validation(process):
+def customise_ValidationPhase0(process):
+#    process.AllHcalDigisValidation.doSLHC = cms.untracked.bool(True)
+    process.AllHcalDigisValidation.digiLabel = cms.InputTag("simHcalDigis")
+    process.validation_step.remove(process.globalhitsanalyze)
+    return process
+
+def customise_ValidationPhase1(process):
     process.AllHcalDigisValidation.doSLHC = cms.untracked.bool(True)
     process.AllHcalDigisValidation.digiLabel = cms.InputTag("simHcalDigis")
     process.RecHitsValidation.doSLHC = cms.untracked.bool(True)
