@@ -63,6 +63,13 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
   
 
   if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl())) {
+
+ 	const char *sfile=BR.getSourceManager().getPresumedLoc(D->getLocation()).getFilename();
+	std::string fname(sfile);
+	if ( fname.find("stdio.h") != std::string::npos 
+		|| fname.find("iostream") != std::string::npos 
+		|| fname.find("placeholders.hpp") != std::string::npos) return;	
+
 	clang::QualType t =  D->getType();  
 	const Decl * PD = AC->getDecl();
 	std::string dname =""; 
