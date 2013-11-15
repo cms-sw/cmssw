@@ -8,9 +8,6 @@ getExternals()
     extdl=${tard}/external/lib
     mkdir $extdl
     
-
-    
-
     ext=`dirname ${CMSSW_DATA_PATH}`/external
     ls -l $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/lib/* > $HOME/extlist
 
@@ -51,7 +48,7 @@ getExternals()
         if [ -z "$ever" ]; then
             echo "!!!!!!!! can't get externals fro $i"
 	fi
-        echo "cp -a $ext/$i/$ever/lib/* === ${extdl}"
+        # echo "cp -a $ext/$i/$ever/lib/* === ${extdl}"
         cp -a $ext/$i/$ever/lib/* ${extdl}
     done
 
@@ -89,29 +86,27 @@ getCmssw()
 {
    echo "=========================================================="
    echo "=========================================================="
-     
+
    # cms libraries
    mkdir -p ${tard}/lib
    
-   if [ X$patchedBuild = Xon ]; then
-      echo "getting libs from $CMSSW_RELEASE_BASE/lib/*/* ${tard}/lib/"
-      cp -a $CMSSW_RELEASE_BASE/lib/*/* ${tard}/lib/
-   fi
-   
-   echo "getting libs from $CMSSW_BASE/lib/*/ "
-   cp -f $CMSSW_BASE/lib/*/* ${tard}/lib/
-   
+   wget --no-check-certificate  https://raw.github.com/cms-sw/cmsdist/IB/CMSSW_7_0_X/stable/fwlite_build_set.file
+
+   while read p; do
+       echo "get libs from $p"
+       x=`basename $p`
+       cp -a $CMSSW_RELEASE_BASE/lib/*/*${x}* ${tard}/lib/
+       #if [ -f "$file" ]
+	   cp -f $CMSSW_BASE/lib/*/*${x}* ${tard}/lib/ 2>/dev/null
+       #fi
+    done < fwlite_build_set.file
+
    # plugins cache file
-   if [ X$patchedBuild = Xon ]; then
       echo "get $CMSSW_RELEASE_BASE/lib/*/.edmplugincache > ${tard}/lib/.edmplugincache"
       touch ${tard}/lib/.edmplugincache
-      cat  $CMSSW_RELEASE_BASE/lib/*/.edmplugincache | grep -v Fireworks > /tmp/.edmplugincache
+      cat  $CMSSW_RELEASE_BASE/lib/*/.edmplugincache > /tmp/.edmplugincache
       cat  $CMSSW_BASE/lib/*/.edmplugincache >> /tmp/.edmplugincache
       cat /tmp/.edmplugincache | sort -u >  ${tard}/lib/.edmplugincache
-   else
-      echo "cp $CMSSW_BASE/lib/*/.edmplugincache  ${tard}/lib/.edmplugincache"
-      cp $CMSSW_BASE/lib/*/.edmplugincache  ${tard}/lib/.edmplugincache
-   fi
 }
 
 #----------------------------------------------------------------
@@ -131,6 +126,11 @@ getSources()
    cp -a  $CMSSW_BASE/src/Fireworks/Core/macros $srcDir
    cp -a  $CMSSW_BASE/src/Fireworks/Core/icons $srcDir
    cp -a  $CMSSW_BASE/src/Fireworks/Core/data $srcDir
+
+   cv=`perl -e 'if ($ENV{CMSSW_VERSION} =~ /CMSSW_(\d+)_(\d+)_/) {print "${1}.${2}";}'`
+   echo $cv > $srcDir/data/version.txt
+   echo "DataFormats: $CMSSW_VERSION" >> $srcDir/data/version.txt
+   cat $srcDir/data/version.txt
    cp -a  $CMSSW_BASE/src/Fireworks/Core/scripts $srcDir
    
    cd  $tard
@@ -191,15 +191,14 @@ makeTar()
 #----------------------------------------------------------------
 
 if [ $# -lt 1 ]; then
-  echo "Usage: $0   [-s] [-p] [-v] destination_dir "
+  echo "Usage: $0  [-t] [-v] destination_dir "
   exit 1
 fi
 
 
 while [ $# -gt 0 ]; do
    case "$1" in
-    -s)  skipTar=on;;
-    -p)  patchedBuild=on;;
+    -t)  doTar=on;;
     -v)  verbose=on;
    esac
    tard=${PWD}/$1
@@ -216,6 +215,7 @@ if [ -f $tard ]; then
    echo "dir exist alreday"
    exit
 fi
+
 mkdir $tard
 
 origd=$PWD
@@ -224,7 +224,7 @@ getCmssw
 getSources
 getDataFiles
 echo $tard
-if [ "X$skipTar" != Xon ] ; then
+if [ "X$doTar" = Xon ] ; then
    makeTar
 fi
 
