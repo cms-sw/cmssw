@@ -515,7 +515,7 @@ namespace // Unnamed namespace for things only used in this file
 				size_t hepMCGenParticleIndex=(*hHepMCGenParticleIndices)[recoGenParticleIndex];
 
 				// They should be the same size, give or take a fencepost error, so this should never happen - but just in case
-				if( genParticleIndices_.size()<hepMCGenParticleIndex ) genParticleIndices_.resize(hepMCGenParticleIndex);
+				if( genParticleIndices_.size()<=hepMCGenParticleIndex ) genParticleIndices_.resize(hepMCGenParticleIndex+1);
 
 				genParticleIndices_[ hepMCGenParticleIndex ]=recoGenParticleIndex;
 			}
@@ -547,7 +547,7 @@ namespace // Unnamed namespace for things only used in this file
 		if( simTrack.eventId().event()==0 && simTrack.eventId().bunchCrossing()==0 ) // if this is a track in the signal event
 		{
 			int hepMCGenParticleIndex=simTrack.genpartIndex();
-			if( hepMCGenParticleIndex>=0 && hGenParticles_.isValid() )
+			if( hepMCGenParticleIndex>=0 && hepMCGenParticleIndex<static_cast<int>(genParticleIndices_.size()) && hGenParticles_.isValid() )
 			{
 				int recoGenParticleIndex=genParticleIndices_[hepMCGenParticleIndex];
 				reco::GenParticleRef generatorParticleRef( hGenParticles_, recoGenParticleIndex );
