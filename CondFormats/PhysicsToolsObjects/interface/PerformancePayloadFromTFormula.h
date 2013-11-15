@@ -15,7 +15,7 @@ class PerformancePayloadFromTFormula : public PerformancePayload {
 //  class PerformancePayloadFromTFormula : public PerformancePayload, public PhysicsPerformancePayload {
  public:
 
-  static int InvalidPos;
+  static const int InvalidPos;
 
   PerformancePayloadFromTFormula(const std::vector<PerformanceResult::ResultType>& r, const std::vector<BinningVariables::BinningVariablesType>& b  ,  PhysicsTFormulaPayload& in) : pl(in), results_(r), variables_(b) {}
 
