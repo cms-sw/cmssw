@@ -135,7 +135,7 @@ inOutOutInMustacheConversionTrackMerger.TrackProducer1 = cms.InputTag('inOutMust
 inOutOutInMustacheConversionTrackMerger.TrackProducer2 = cms.InputTag('outInMustacheConversionTrackProducer')
 
 generalInOutOutInMustacheConversionTrackMerger = generalInOutOutInConversionTrackMerger.clone()
-generalInOutOutInMustacheConversionTrackMerger.TrackProducer1 = cms.InputTag('inOutOutInConversionTrackMerger')
+generalInOutOutInMustacheConversionTrackMerger.TrackProducer1 = cms.InputTag('inOutOutInMustacheConversionTrackMerger')
 
 gsfGeneralInOutOutInMustacheConversionTrackMerger = gsfGeneralInOutOutInConversionTrackMerger.clone()
 gsfGeneralInOutOutInMustacheConversionTrackMerger.TrackProducer1 = cms.InputTag('generalInOutOutInMustacheConversionTrackMerger')
