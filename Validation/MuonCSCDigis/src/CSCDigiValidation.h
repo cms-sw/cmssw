@@ -23,9 +23,9 @@ public:
   ~CSCDigiValidation();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
- 
 
- private:
+
+private:
   DQMStore* dbe_;
   std::string outputFile_;
   PSimHitMap theSimHitMap;
@@ -36,7 +36,6 @@ public:
   CSCComparatorDigiValidation * theComparatorDigiValidation;
   CSCALCTDigiValidation * theALCTDigiValidation;
   CSCCLCTDigiValidation * theCLCTDigiValidation;
-
 };
 
 #endif
