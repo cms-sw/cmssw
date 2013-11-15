@@ -568,7 +568,8 @@ namespace edm {
 
     service::SystemBounds bounds(preallocations_.numberOfStreams(),
                                  preallocations_.numberOfLuminosityBlocks(),
-                                 preallocations_.numberOfRuns());
+                                 preallocations_.numberOfRuns(),
+                                 preallocations_.numberOfThreads());
     actReg_->preallocateSignal_(bounds);
     //NOTE:  This implementation assumes 'Job' means one call
     // the EventProcessor::run
