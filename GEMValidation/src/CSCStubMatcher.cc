@@ -16,7 +16,7 @@ CSCStubMatcher::CSCStubMatcher(SimHitMatcher& sh, CSCDigiMatcher& dg)
   clctInput_ = conf().getUntrackedParameter<edm::InputTag>("cscCLCTInput", edm::InputTag("simCscTriggerPrimitiveDigis"));
   alctInput_ = conf().getUntrackedParameter<edm::InputTag>("cscALCTInput", edm::InputTag("simCscTriggerPrimitiveDigis"));
   lctInput_ = conf().getUntrackedParameter<edm::InputTag>("cscLCTInput", edm::InputTag("simCscTriggerPrimitiveDigis"));
-  mplctInput_ = conf().getUntrackedParameter<edm::InputTag>("cscMPLCTInput", edm::InputTag("simCscTriggerPrimitiveDigis"));
+  mplctInput_ = conf().getUntrackedParameter<edm::InputTag>("cscMPLCTInput", edm::InputTag("simCscTriggerPrimitiveDigis","MPCSORTED"));
 
   minBXCLCT_ = conf().getUntrackedParameter<int>("minBXCLCT", 3);
   maxBXCLCT_ = conf().getUntrackedParameter<int>("maxBXCLCT", 9);
