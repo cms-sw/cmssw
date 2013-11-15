@@ -25,6 +25,7 @@
  */
 FRDEventMsgView::FRDEventMsgView(void* buf)
   : buf_((uint8*)buf),
+    payload_(0),
     size_(0),
     version_(0),
     run_(0),
@@ -92,4 +93,6 @@ FRDEventMsgView::FRDEventMsgView(void* buf)
           ++bufPtr;
       }
   }
+
+  payload_ = (void*)bufPtr;
 }

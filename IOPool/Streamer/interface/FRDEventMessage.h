@@ -67,6 +67,7 @@ class FRDEventMsgView
   FRDEventMsgView(void* buf);
 
   uint8* startAddress() const { return buf_; }
+  void* payload() const { return payload_; }
   uint32 size() const { return size_; }
 
   uint32 version() const { return version_; }
@@ -80,6 +81,7 @@ class FRDEventMsgView
  private:
 
   uint8* buf_;
+  void* payload_;
   uint32 size_;
   uint32 version_;
   uint32 run_;
