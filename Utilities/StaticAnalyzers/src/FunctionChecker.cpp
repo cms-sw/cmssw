@@ -64,6 +64,8 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 
   if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl())) {
 
+	if ( support::isSafeClassName( D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
+
  	const char *sfile=BR.getSourceManager().getPresumedLoc(D->getLocation()).getFilename();
 	std::string fname(sfile);
 	if ( fname.find("stdio.h") != std::string::npos 
@@ -83,6 +85,10 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 
 	if ( (D->isStaticLocal() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local ) && ! clangcms::support::isConst( t ) )
 	{
+            std::string vname = D->getCanonicalDecl()->getQualifiedNameAsString();
+	    unsigned found = vname.find_last_of("::");
+	    std::string cname = vname.substr(0,found);
+	    if ( support::isSafeClassName( vname ) ) return;
 		std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 	   	os << "function '"<<dname << "' accesses or modifies non-const static local variable '" << D->getNameAsString() << "'.\n";
@@ -107,7 +113,6 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 			  !D->isStaticLocal() &&
 			  !clangcms::support::isConst( t ) )
 	{
-
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 	    	os << "function '"<<dname << "' accesses or modifies non-const global static variable '" << D->getNameAsString() << "'.\n";
