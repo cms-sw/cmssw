@@ -40,7 +40,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   edm::RawInputSource(pset, desc),
   eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",16)),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
-  verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", false)),
+  verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
   testModeNoBuilderUnit_(edm::Service<evf::EvFDaqDirector>()->getTestModeNoBuilderUnit()),
   runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
   buInputDir_(edm::Service<evf::EvFDaqDirector>()->buBaseDir()),
@@ -340,8 +340,11 @@ bool FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& json
 
     if ( testModeNoBuilderUnit_ )
       boost::filesystem::copy(jsonSourcePath,jsonDestPath);
-    else
-      boost::filesystem::rename(jsonSourcePath,jsonDestPath);
+    else {
+      //boost::filesystem::rename(jsonSourcePath,jsonDestPath);
+      boost::filesystem::copy(jsonSourcePath,jsonDestPath);
+      boost::filesystem::remove(jsonSourcePath);
+    }
 
     currentInputJson_ = jsonDestPath; // store location for later deletion.
     boost::filesystem::ifstream ij(jsonDestPath);
@@ -350,7 +353,7 @@ bool FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& json
     if(!reader_.parse(ij,deserializeRoot)){
       throw std::runtime_error("Cannot deserialize input JSON file");
     }
-    else{
+    else {
       dp.deserialize(deserializeRoot);
       std::string data = dp.getData()[0];
       currentInputEventCount_=atoi(data.c_str()); //all this is horrible...
