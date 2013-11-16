@@ -123,7 +123,6 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   debugTFCAND   = iConfig.getUntrackedParameter<int>("debugTFCAND", 0);
   debugGMTCAND  = iConfig.getUntrackedParameter<int>("debugGMTCAND", 0);
   debugL1EXTRA  = iConfig.getUntrackedParameter<int>("debugL1EXTRA", 0);
-  debugRATE     = iConfig.getUntrackedParameter<int>("debugRATE", 0);
 
   minSimTrPt_   = iConfig.getUntrackedParameter<double>("minSimTrPt", 2.);
   minSimTrPhi_  = iConfig.getUntrackedParameter<double>("minSimTrPhi",-3.15);
@@ -137,8 +136,6 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   maxBX_    = iConfig.getUntrackedParameter< int >("maxBX",6);
   minTMBBX_ = iConfig.getUntrackedParameter< int >("minTMBBX",-6);
   maxTMBBX_ = iConfig.getUntrackedParameter< int >("maxTMBBX",6);
-  minRateBX_    = iConfig.getUntrackedParameter< int >("minRateBX",-1);
-  maxRateBX_    = iConfig.getUntrackedParameter< int >("maxRateBX",1);
 
   minBxALCT_ = iConfig.getUntrackedParameter< int >("minBxALCT",5);
   maxBxALCT_ = iConfig.getUntrackedParameter< int >("maxBxALCT",7);
@@ -154,8 +151,6 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
 
   centralBxOnlyGMT_ = iConfig.getUntrackedParameter< bool >("centralBxOnlyGMT",false);
 
-  doSelectEtaForGMTRates_ = iConfig.getUntrackedParameter< bool >("doSelectEtaForGMTRates",false);
-  
   goodChambersOnly_ = iConfig.getUntrackedParameter< bool >("goodChambersOnly",false);
   
   lookAtTrackCondition_ = iConfig.getUntrackedParameter<int>("lookAtTrackCondition", 0);
