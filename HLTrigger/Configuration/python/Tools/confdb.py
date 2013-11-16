@@ -962,7 +962,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['esmodules'].append( "-CaloTowerConstituentsMapBuilder" )
       self.options['esmodules'].append( "-CaloTopologyBuilder" )
 
-      self.options['services'].append( "-UpdaterService" )
+#     self.options['services'].append( "-UpdaterService" )
 
       self.options['modules'].append( "hltL3MuonIsolations" )
       self.options['modules'].append( "hltPixelVertices" )
