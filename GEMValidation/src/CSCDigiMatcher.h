@@ -9,7 +9,7 @@
  $Id: CSCDigiMatcher.h,v 1.1 2013/02/11 07:33:06 khotilov Exp $
 */
 
-#include "DigiMatcher.h"
+#include "GEMCode/GEMValidation/src/DigiMatcher.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
