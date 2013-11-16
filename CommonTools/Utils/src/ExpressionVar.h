@@ -1,66 +1,74 @@
 #ifndef CommonTools_Utils_ExpressionVar_h
 #define CommonTools_Utils_ExpressionVar_h
+
 /* \class reco::parser::ExpressionVar
  *
  * Variable expression
  *
- * \author original version: Chris Jones, Cornell, 
+ * \author original version: Chris Jones, Cornell,
  *         adapted by Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
- *
  */
+
 #include "CommonTools/Utils/src/ExpressionBase.h"
-#include "CommonTools/Utils/src/TypeCode.h"
 #include "CommonTools/Utils/src/MethodInvoker.h"
+#include "CommonTools/Utils/src/TypeCode.h"
+
 #include <vector>
 
 namespace reco {
-  namespace parser {
-    /// Evaluate an object's method or datamember (or chain of them) to get a number
-    struct ExpressionVar : public ExpressionBase {
-      ExpressionVar(const std::vector<MethodInvoker> & methods, method::TypeCode retType);
+namespace parser {
 
-      ~ExpressionVar() ;
-      ExpressionVar(const ExpressionVar &var) ;
+/// Evaluate an object's method or datamember (or chain of them) to get a number
+class ExpressionVar : public ExpressionBase {
+private: // Private Data Members
+  std::vector<MethodInvoker> methods_;
+  mutable std::vector<edm::ObjectWithDict> objects_;
+  mutable std::vector<bool> needsDestructor_;
+  method::TypeCode retType_;
 
-      virtual double value(const edm::ObjectWithDict & o) const;
+private: // Private Methods
+  void initObjects_();
 
-      static bool isValidReturnType(method::TypeCode);
-      /// performs the needed conversion from void * to double
-      /// this method is used also from the ExpressionLazyVar code
-      static double objToDouble(const edm::ObjectWithDict &obj, method::TypeCode type) ;
+public: // Public Static Methods
+  static bool isValidReturnType(method::TypeCode);
 
-      /// allocate an object to hold the result of a given member (if needed)
-      /// this method is used also from the LazyInvoker code
-      /// returns true if objects returned from this will require a destructor 
-      static bool makeStorage(edm::ObjectWithDict &obj, const edm::TypeWithDict &retType) ;
-      /// delete an objecty, if needed
-      /// this method is used also from the LazyInvoker code
-      static void delStorage(edm::ObjectWithDict &obj);
+  /// performs the needed conversion from void* to double
+  /// this method is used also from the ExpressionLazyVar code
+  static double objToDouble(const edm::ObjectWithDict& obj,
+                            method::TypeCode type);
 
-    private:
-      std::vector<MethodInvoker>  methods_;
-      mutable std::vector<edm::ObjectWithDict> objects_;
-      mutable std::vector<bool>           needsDestructor_;
-      method::TypeCode retType_;
-      void initObjects_();
-    }; 
+  /// allocate an object to hold the result of a given member (if needed)
+  /// this method is used also from the LazyInvoker code
+  /// returns true if objects returned from this will require a destructor
+  static bool makeStorage(edm::ObjectWithDict& obj,
+                          const edm::TypeWithDict& retType);
 
-  /// Same as ExpressionVar but with lazy resolution of object methods
-  /// using the final type of the object, and not the one fixed at compile time
-  struct ExpressionLazyVar : public ExpressionBase {
-      ExpressionLazyVar(const std::vector<LazyInvoker> & methods);
-      ~ExpressionLazyVar() ;
+  /// delete an objecty, if needed
+  /// this method is used also from the LazyInvoker code
+  static void delStorage(edm::ObjectWithDict&);
 
-      virtual double value(const edm::ObjectWithDict & o) const;
+public: // Public Methods
+  ExpressionVar(const std::vector<MethodInvoker>& methods,
+                method::TypeCode retType);
+  ExpressionVar(const ExpressionVar&);
+  ~ExpressionVar();
+  virtual double value(const edm::ObjectWithDict&) const;
+};
 
-    private:
-      std::vector<LazyInvoker> methods_;
-      mutable std::vector<edm::ObjectWithDict> objects_;
-  }; 
+/// Same as ExpressionVar but with lazy resolution of object methods
+/// using the dynamic type of the object, and not the one fixed at compile time
+class ExpressionLazyVar : public ExpressionBase {
+private: // Private Data Members
+  std::vector<LazyInvoker> methods_;
+  mutable std::vector<edm::ObjectWithDict> objects_;
+public:
+  ExpressionLazyVar(const std::vector<LazyInvoker>& methods);
+  ~ExpressionLazyVar();
+  virtual double value(const edm::ObjectWithDict&) const;
+};
 
- }
-}
+} // namespace parser
+} // namespace reco
 
-#endif
+#endif // CommonTools_Utils_ExpressionVar_h

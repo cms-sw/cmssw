@@ -179,6 +179,7 @@ namespace edm {
       setBasketSize(invalidBasketSize);
       return;
     }
+#if 0
     wrappedType().invokeByName(wrapperInterfaceBase(), "getInterface");
     assert(wrapperInterfaceBase() != 0);
 /*
@@ -208,7 +209,8 @@ namespace edm {
     } else {
       setBasketSize(invalidBasketSize);
     }
-*/
+#endif // 0
+    //--
   }
 
   void

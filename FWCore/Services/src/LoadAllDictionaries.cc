@@ -35,6 +35,7 @@ edm::service::LoadAllDictionaries::LoadAllDictionaries(const edm::ParameterSet& 
 {
    bool doLoad(iConfig.getUntrackedParameter<bool>("doLoad"));
    if(doLoad) {
+
      edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
      
      typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;

@@ -77,7 +77,6 @@ namespace {
 
 BOOST_AUTO_TEST_CASE( changemanager )
 {
-
    FWModelChangeManager cm;
    
    //create an item

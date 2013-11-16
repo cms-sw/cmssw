@@ -22,6 +22,7 @@
 #include "DataFormats/Common/interface/IntValues.h"
 #include <typeinfo>
 
+
 using namespace edm;
 using namespace test_with_dictionaries;
 
@@ -34,8 +35,8 @@ class testPtr: public CppUnit::TestFixture {
 
    CPPUNIT_TEST_SUITE_END();
 public:
-   void setUp(){}
-   void tearDown(){}
+   void setUp() {}
+   void tearDown() {}
 
    void constructTest();
    void comparisonTest();

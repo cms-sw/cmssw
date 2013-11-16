@@ -1,120 +1,182 @@
-
-//#include "Reflex/Object.h"
-//#include "Reflex/Member.h"
-//#include "Reflex/Type.h"
-
 #include "FWCore/Utilities/interface/FunctionWithDict.h"
+
+#include "FWCore/Utilities/interface/IterWithDict.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
+#include "TInterpreter.h"
+#include "TMethod.h"
+#include "TMethodArg.h"
+
 namespace edm {
 
-  FunctionWithDict::FunctionWithDict(){}
-
-  FunctionWithDict::FunctionWithDict(Reflex::Member const& func) {}
-
-  Reflex::Member const&
-  FunctionWithDict::function() const {
-    return *function_;
-  } 
-
-  std::string
-  FunctionWithDict::name() const {
-    //return function().Name();
-    return std::string();
-  }
-
-  std::string
-  FunctionWithDict::typeName() const {
-    //return function().TypeOf().Name();
-    return std::string();
-  }
-
-  TypeWithDict
-  FunctionWithDict::typeOf() const {
-    //return (TypeWithDict(function().TypeOf()));
-    return (TypeWithDict());
-  }
-
-  TypeWithDict
-  FunctionWithDict::returnType() const {
-    //return (TypeWithDict(function().TypeOf().ReturnType()));
-    return (TypeWithDict());
-  }
-
-  TypeWithDict
-  FunctionWithDict::finalReturnType() const {
-    //return (TypeWithDict(function().TypeOf().ReturnType().FinalType()));
-    return (TypeWithDict());
-  }
-
-  TypeWithDict
-  FunctionWithDict::declaringType() const {
-    //return (TypeWithDict(function().DeclaringType()));
-    return (TypeWithDict());
-  }
-
-  bool
-  FunctionWithDict::isConst() const {
-    //return function().IsConst();
-    return false;
-  }
-
-  bool
-  FunctionWithDict::isConstructor() const {
-    //return function().IsConstructor();
-    return false;
-  }
-
-  bool
-  FunctionWithDict::isDestructor() const {
-    //return function().IsDestructor();
-    return false;
-  }
-
-  bool
-  FunctionWithDict::isOperator() const {
-    //return function().IsOperator();
-    return false;
-  }
-
-  bool
-  FunctionWithDict::isPublic() const {
-    //return function().IsPublic();
-    return false;
-  }
-
-  bool FunctionWithDict::isStatic() const {
-    //return function().IsStatic();
-    return false;
-  }
-
-  size_t
-  FunctionWithDict::functionParameterSize(bool required) const {
-    //return function().FunctionParameterSize(required);
-    return 0U;
-  }
-
-  void
-  FunctionWithDict::invoke(ObjectWithDict const& obj, ObjectWithDict* ret, std::vector<void*> const& values) const {
-    //Reflex::Object reflexReturn(ret->typeOf().type_, ret->address());
-    //function().Invoke(Reflex::Object(obj.typeOf().type_, obj.address()), &reflexReturn, values);
-  }
-
-/*
-  Reflex::Type_Iterator
-  FunctionWithDict::begin() const {
-    return function().TypeOf().FunctionParameter_Begin();
-  }
-
-  Reflex::Type_Iterator
-  FunctionWithDict::end() const {
-    return function().TypeOf().FunctionParameter_End();
-  }
-*/
-
-  FunctionWithDict::operator bool() const {
-    return false; 
-  }
-
+FunctionWithDict::
+FunctionWithDict()
+  : function_(nullptr)
+{
 }
+
+FunctionWithDict::
+FunctionWithDict(TMethod* meth)
+  : function_(meth)
+{
+}
+
+FunctionWithDict::
+operator bool() const
+{
+  if (function_ == nullptr) {
+    return false;
+  }
+  return function_->IsValid();
+}
+
+std::string
+FunctionWithDict::
+name() const
+{
+  return function_->GetName();
+}
+
+std::string
+FunctionWithDict::
+typeName() const
+{
+  return function_->GetReturnTypeName();
+}
+
+TypeWithDict
+FunctionWithDict::
+typeOf() const
+{
+  return TypeWithDict::byName(function_->GetReturnTypeName());
+}
+
+TypeWithDict
+FunctionWithDict::
+returnType() const
+{
+  return TypeWithDict::byName(function_->GetReturnTypeName());
+}
+
+TypeWithDict
+FunctionWithDict::
+finalReturnType() const
+{
+  return TypeWithDict::byName(function_->GetReturnTypeNormalizedName());
+}
+
+TypeWithDict
+FunctionWithDict::
+declaringType() const
+{
+  return TypeWithDict(function_->GetClass());
+}
+
+bool
+FunctionWithDict::
+isConst() const
+{
+  return function_->Property() & kIsConstMethod;
+}
+
+bool
+FunctionWithDict::
+isConstructor() const
+{
+  return function_->ExtraProperty() & kIsConstructor;
+}
+
+bool
+FunctionWithDict::
+isDestructor() const
+{
+  return function_->ExtraProperty() & kIsDestructor;
+}
+
+bool
+FunctionWithDict::
+isOperator() const
+{
+  return function_->ExtraProperty() & kIsOperator;
+}
+
+bool
+FunctionWithDict::
+isPublic() const
+{
+  return function_->Property() & kIsPublic;
+}
+
+bool FunctionWithDict::
+isStatic() const
+{
+  return function_->Property() & kIsStatic;
+}
+
+size_t
+FunctionWithDict::
+functionParameterSize(bool required/*= false*/) const
+{
+  if (required) {
+    return function_->GetNargs() - function_->GetNargsOpt();
+  }
+  return function_->GetNargs();
+}
+
+size_t
+FunctionWithDict::
+size() const
+{
+  return function_->GetNargs();
+}
+
+/// Call a member function.
+void
+FunctionWithDict::
+invoke(const ObjectWithDict& obj, ObjectWithDict* ret/*=nullptr*/,
+       const std::vector<void*>& values/*=std::vector<void*>()*/) const
+{
+  //Reflex::Object reflexReturn(ret->typeOf().type_, ret->address());
+  //function_.Invoke(Reflex::Object(obj.typeOf().type_, obj.address()), &reflexReturn, values);
+  if (ret == nullptr) {
+    gInterpreter->ExecuteWithArgsAndReturn(function_, obj.address(), values, 0);
+    return;
+  }
+  gInterpreter->ExecuteWithArgsAndReturn(function_, obj.address(), values, ret->address());
+}
+
+/// Call a static function.
+void
+FunctionWithDict::
+invoke(ObjectWithDict* ret/*=nullptr*/,
+       const std::vector<void*>& values/*=std::vector<void*>()*/) const
+{
+  //Reflex::Object reflexReturn(ret->typeOf().type_, ret->address());
+  //function_.Invoke(obj.address()), &reflexReturn, values);
+  if (ret == nullptr) {
+    gInterpreter->ExecuteWithArgsAndReturn(function_, 0, values, 0);
+    return;
+  }
+  gInterpreter->ExecuteWithArgsAndReturn(function_, 0, values, ret->address());
+}
+
+IterWithDict<TMethodArg>
+FunctionWithDict::
+begin() const
+{
+  if (function_ == nullptr) {
+    return IterWithDict<TMethodArg>();
+  }
+  return IterWithDict<TMethodArg>(function_->GetListOfMethodArgs());
+}
+
+IterWithDict<TMethodArg>
+FunctionWithDict::
+end() const
+{
+  return IterWithDict<TMethodArg>();
+}
+
+} // namespace edm
+

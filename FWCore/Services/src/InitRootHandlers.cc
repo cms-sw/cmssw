@@ -234,6 +234,7 @@ namespace edm {
       // Set ROOT parameters.
       TTree::SetMaxTreeSize(kMaxLong64);
       TH1::AddDirectory(kFALSE);
+      //G__SetCatchException(0);
 
       // Set custom streamers
       setRefCoreStreamer();
