@@ -2,20 +2,25 @@ from ROOT import TCut
 
 #_______________________________________________________________________________
 def ANDtwo(cut1,cut2):
+    """AND of two TCuts in PyROOT"""
     return TCut("(%s) && (%s)"%(cut1.GetTitle(),cut2.GetTitle()))
 
 
 #_______________________________________________________________________________
 def ORtwo(cut1,cut2):
+    """OR of two TCuts in PyROOT"""
     return TCut("(%s) || (%s)"%(cut1.GetTitle(),cut2.GetTitle()))
 
 
 #_______________________________________________________________________________
 def AND(*arg):
+    """AND of any number of TCuts in PyROOT"""
     length = len(arg)
-    if length < 2:
+    if length == 0:
         print "ERROR: invalid number of arguments"
         return
+    if length == 1:
+        return arg[0] 
     if length==2:
         return ANDtwo(arg[0],arg[1])
     if length>2:
@@ -27,10 +32,13 @@ def AND(*arg):
 
 #_______________________________________________________________________________
 def OR(*arg): 
+    """OR of any number of TCuts in PyROOT"""
     length = len(arg)
-    if length < 2:
+    if length == 0:
         print "ERROR: invalid number of arguments"
         return
+    if length == 1:
+        return arg[0] 
     if length==2:
         return ORtwo(arg[0],arg[1])
     if length>2:
@@ -41,6 +49,8 @@ def OR(*arg):
 
 
 #_______________________________________________________________________________
+nocut = TCut("")
+
 ok_eta = TCut("TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.14")
 ok_pt = TCut("pt > 20.")
 
@@ -92,11 +102,11 @@ ok_pad2_dphi2 = AND(ok_pad2,ok_dphi2)
 ok_lct1_eta = AND(ok_eta,ok_lct1)
 ok_lct2_eta = AND(ok_eta,ok_lct2)
 
-ok_pad1_lct1_eta = AND(ok_pad1,AND(ok_lct1,ok_eta))
-ok_pad2_lct2_eta = AND(ok_pad2,AND(ok_lct2,ok_eta))
+ok_pad1_lct1_eta = AND(ok_pad1,ok_lct1,ok_eta)
+ok_pad2_lct2_eta = AND(ok_pad2,ok_lct2,ok_eta)
 
-ok_gsh1_lct1_eta = AND(ok_gsh1,AND(ok_lct1,ok_eta))
-ok_gsh2_lct2_eta = AND(ok_gsh2,AND(ok_lct2,ok_eta))
+ok_gsh1_lct1_eta = AND(ok_gsh1,ok_lct1,ok_eta)
+ok_gsh2_lct2_eta = AND(ok_gsh2,ok_lct2,ok_eta)
 
 ok_gsh1_eta = AND(ok_gsh1,ok_eta)
 ok_gsh2_eta = AND(ok_gsh2,ok_eta)
@@ -116,11 +126,11 @@ ok_copad2 = TCut("(has_gem_copad&2) > 0")
 ok_Qp = TCut("charge > 0")
 ok_Qn = TCut("charge < 0")
 
-ok_lct1_eta_Qn = AND(ok_lct1,AND(ok_eta,ok_Qn))
-ok_lct2_eta_Qn = AND(ok_lct2,AND(ok_eta,ok_Qn))
+ok_lct1_eta_Qn = AND(ok_lct1,ok_eta,ok_Qn)
+ok_lct2_eta_Qn = AND(ok_lct2,ok_eta,ok_Qn)
 
-ok_lct1_eta_Qp = AND(ok_lct1,AND(ok_eta,ok_Qp))
-ok_lct2_eta_Qp = AND(ok_lct2,AND(ok_eta,ok_Qp))
+ok_lct1_eta_Qp = AND(ok_lct1,ok_eta,ok_Qp)
+ok_lct2_eta_Qp = AND(ok_lct2,ok_eta,ok_Qp)
 
 Ep = TCut("endcap > 0")
 En = TCut("endcap < 0")
