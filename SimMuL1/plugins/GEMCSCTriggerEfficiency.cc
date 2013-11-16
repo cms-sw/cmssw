@@ -1182,8 +1182,6 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     //}
   }
 
-  return; 
-
   // debuggin' 
   if (debugALLEVENT) {
     std::cout<<"--- detIDs with hits: "<<std::endl;
