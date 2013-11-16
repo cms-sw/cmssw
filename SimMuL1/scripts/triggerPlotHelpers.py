@@ -19,9 +19,12 @@ def SetOptStat(h, op):
   stat.SetOptStat(op)
   return stat
     
-def GetH(f, dir, name):
+def getH(f, dir, name):
   """Get the histogram"""
-  dir = "SimMuL1StrictAll"
+#  dir = "SimMuL1StrictAll"
+  if not f.Get("%s/%s;1"%(dir,name)):
+    print "No such histogram: " + "%s/%s;1"%(dir,name)
+  
   return f.Get("%s/%s;1"%(dir,name))
 
 def Print(c, name):
