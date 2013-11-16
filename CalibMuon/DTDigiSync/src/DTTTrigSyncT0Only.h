@@ -60,7 +60,7 @@ public:
   const DTT0 *tZeroMap;
 
   // Set the verbosity level
-  static bool debug;
+  const bool debug;
 };
 #endif
 

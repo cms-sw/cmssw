@@ -96,7 +96,7 @@ public:
   const DTT0 *tZeroMap;
   const DTTtrig *tTrigMap;
   // Set the verbosity level
-  static bool debug;
+  const bool debug;
   // The velocity of signal propagation along the wire (cm/ns)
   double theVPropWire;
   // Switch on/off the T0 correction from pulses
