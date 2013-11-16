@@ -1,5 +1,5 @@
 from ROOT import *
-
+from cuts import *
 
 #_______________________________________________________________________________
 def draw_eff(t,title, h_name, h_bins, to_draw, denom_cut, extra_num_cut, 
@@ -7,7 +7,7 @@ def draw_eff(t,title, h_name, h_bins, to_draw, denom_cut, extra_num_cut,
     """Make an efficiency plot"""
     
     ## total numerator selection cut
-    num_cut = TCut("%s && %s" %(denom_cut.GetTitle(), extra_num_cut.GetTitle()))
+    num_cut = AND(denom_cut,extra_num_cut)
 
     t.Draw(to_draw + ">>num_" + h_name + h_bins, num_cut, "goff")
     num = TH1F(gDirectory.Get("num_" + h_name).Clone("num_" + h_name))
@@ -36,13 +36,14 @@ def draw_geff(t, title, h_bins, to_draw, den_cut, extra_num_cut,
     
     ## total numerator selection cut 
     ## the extra brackets around the extra_num_cut are necessary !!
-    num_cut = TCut("%s && (%s)" %(den_cut.GetTitle(), extra_num_cut.GetTitle()))
-    
+    num_cut = AND(den_cut,extra_num_cut)
+ 
     ## PyROOT works a little different than ROOT when you are plotting 
     ## histograms directly from tree. Hence, this work-around
-    nBins = int(h_bins[1:-1].split(',')[0])
-    minBin = int(h_bins[1:-1].split(',')[1])
-    maxBin = int(h_bins[1:-1].split(',')[2])
+    nBins  = int(h_bins[1:-1].split(',')[0])
+    minBin = float(h_bins[1:-1].split(',')[1])
+    maxBin = float(h_bins[1:-1].split(',')[2])
+
     num = TH1F("num", "", nBins, minBin, maxBin) 
     den = TH1F("den", "", nBins, minBin, maxBin)
 

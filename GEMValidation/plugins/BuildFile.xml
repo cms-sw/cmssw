@@ -8,6 +8,7 @@
   <use name="FWCore/Utilities"/>
   <use name="DataFormats/MuonDetId"/>
   <use name="DataFormats/GEMDigi"/>
+  <use name="DataFormats/CSCDigi"/>
   <use name="DataFormats/RPCDigi"/>
   <use name="DataFormats/Math"/>
   <use name="Geometry/CommonDetUnit"/>

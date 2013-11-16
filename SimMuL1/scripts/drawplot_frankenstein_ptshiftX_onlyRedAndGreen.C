@@ -52,14 +52,14 @@ void produceRatePlot(TH1D* h, TH1D* i, TH1D* j, TH1D* m, Color_t col0, Color_t c
   m->SetFillColor(col3);
 
   h->Draw("e3");
-  i->Draw("same e3");
-  j->Draw("same e3");
+  // i->Draw("same e3");
+  // j->Draw("same e3");
   m->Draw("same e3");
   h->Draw("same e3");
   h->GetYaxis()->SetRangeUser(miny, maxy);
   h->GetXaxis()->SetTitle("");
   
-  TLegend *leg = new TLegend(0.15,0.88,.93,0.93,"","brNDC");
+  TLegend *leg = new TLegend(0.15,0.84,.93,0.93,"","brNDC");
   leg->SetMargin(0.15);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
@@ -67,20 +67,21 @@ void produceRatePlot(TH1D* h, TH1D* i, TH1D* j, TH1D* m, Color_t col0, Color_t c
   leg->SetFillStyle(1001);
   leg->SetFillColor(kWhite);
   leg->AddEntry(h, "L1 Single Mu (2012 configuration) + ME1/1a unganging","f");
+  leg->AddEntry(m,"GEM+CSC integrated trigger with #geq" + k + " stubs","f");
   leg->Draw();
 
-  TLegend *leg = new TLegend(0.4,0.7,.93,0.88,"","brNDC");
-  leg->SetMargin(0.2);
+  /*
+  TLegend *leg = new TLegend(0.4,0.78,.93,0.88,"","brNDC");
+  leg->SetMargin(0.22);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->SetTextSize(0.04);
   leg->SetFillStyle(1001);
   leg->SetFillColor(kWhite);
-  leg->AddEntry(i,"CSC #geq" + k + " stubs (anywhere)","f");
-  leg->AddEntry(j,"CSC #geq" + k + " stubs (one in Station 1)","f");
-  leg->AddEntry(m,"GEM+CSC integrated trigger","f");
-  leg->AddEntry((TObject*)0,"with #geq" + k + " stubs","");
+  // leg->AddEntry(i,"CSC #geq" + k + " stubs (anywhere)","f");
+  // leg->AddEntry(j,"CSC #geq" + k + " stubs (one in Station 1)","f");
   leg->Draw();
+  */
   
   drawLumiLabel(0.17,.3);
   drawEtaLabel("1.64","2.14",0.17,.37);
@@ -100,9 +101,10 @@ void produceRatePlot(TH1D* h, TH1D* i, TH1D* j, TH1D* m, Color_t col0, Color_t c
   TH1D* hh_ratio = setHistoRatio(m, j, "", 0.01,1.1,col2);
   hh_ratio->GetXaxis()->SetTitle("L1 muon candidate p_{T}^{cut} [GeV/c]");
   hh_ratio->GetYaxis()->SetNdivisions(3);
-  hh_ratio->Draw("P");
+  //  hh_ratio->Draw("P");
   
   TH1D* hh_ratio_gmt = setHistoRatio(m, h, "", 0.01,1.1,col0);
+  hh_ratio_gmt->GetYaxis()->SetNdivisions(3);
   hh_ratio_gmt->Draw("P same");
     
   leg = new TLegend(0.14,0.38,.45,0.65,NULL,"brNDC");
@@ -113,22 +115,20 @@ void produceRatePlot(TH1D* h, TH1D* i, TH1D* j, TH1D* m, Color_t col0, Color_t c
   // leg->SetFillStyle(1001);
   // leg->SetFillColor(kWhite);
   leg->AddEntry(hh_ratio_gmt, "(GEM+CSC)/L1 Single Mu","p");
-  leg->AddEntry(hh_ratio,     "(GEM+CSC)/CSC #geq" + k + " stubs (one in Station 1)","p");
+  //leg->AddEntry(hh_ratio,     "(GEM+CSC)/CSC #geq" + k + " stubs (one in Station 1)","p");
   leg->Draw("same");
   
-  c->SaveAs(plots + "rates_vs_pt__PU100__def_" + k + "s_" + k + "s1b_" + k + "s1bgem__" + l + ext);
+  c->SaveAs(plots + "rates_vs_pt__PU100__def_" + k + "s_" + k + "s1b_" + k + "s1bgem__" + l + "_only_SMT_GE11" + ext);
 }
 
 
 
-void drawplot_frankenstein_ptshiftX()
+void drawplot_frankenstein_ptshiftX_onlyRedAndGreen()
 {
   gROOT->ProcessLine(".L drawplot_gmtrt.C");
   gROOT->ProcessLine(".L getPTHistos.C");
-  gROOT->SetBatch(1);
 
-
-  TString ext = ".eps";
+  TString ext = ".pdf";
   TString filesDir = "files/";
   TString plotDir = "plots/rate_vs_pt_shiftX/";
 
@@ -263,7 +263,7 @@ void drawplot_frankenstein_ptshiftX()
   result_gem_3s1b__pat2 = (TH1D*) hh->Clone("result_gem_3s1b__pat2");
 
 
-
+  /*
   // --- def-3s   gem-3s-3s1b
 
   ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
@@ -509,7 +509,7 @@ void drawplot_frankenstein_ptshiftX()
 
 
 
-
+  */
   // ********** PAT8 **********
 
   getPTHistos("minbias_pt10_pat8", filesDir, filesDir, gem_label);
@@ -609,7 +609,7 @@ void drawplot_frankenstein_ptshiftX()
   result_gem_2s1b__pat8 = (TH1D*) hh_2s1b->Clone("result_gem_2s1b__pat8");
   result_gem_3s1b__pat8 = (TH1D*) hh->Clone("result_gem_3s1b__pat8");
 
-
+  /*
   // --- def-3s   gem-3s-3s1b
 
   ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
@@ -848,7 +848,7 @@ void drawplot_frankenstein_ptshiftX()
 
 
 
-
+  */
 
   //-------------------------- "Sequential" combinations -----------------------------
 
@@ -887,7 +887,7 @@ void drawplot_frankenstein_ptshiftX()
   result_gmtsing__pat2->GetYaxis()->SetRangeUser(.1, 5000.);
   result_gmtsing__pat8->GetYaxis()->SetRangeUser(.1, 5000.);
 
-
+  /*
   ///----- 3 stubs
 
   ((TCanvas*)gROOT->FindObject("cAll100"))->cd();
@@ -1114,7 +1114,7 @@ void drawplot_frankenstein_ptshiftX()
   leg->Draw();
   drawPULabel();
   gPad->Print(plotDir + "rates__164-214_PU100__sequential__2s3s__Frankenstein_pat2" + ext);
-
+  */
 
   Color_t col0 = kRed;
   Color_t col1 = kViolet+1;

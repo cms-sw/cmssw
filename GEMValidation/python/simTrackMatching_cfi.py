@@ -33,12 +33,15 @@ SimTrackMatching = cms.PSet(
     cscCLCTInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis"),
     cscALCTInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis"),
     cscLCTInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis"),
+    cscMPLCTInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis"),
     minBXCLCT = cms.untracked.int32(3),
     maxBXCLCT = cms.untracked.int32(9),
     minBXALCT = cms.untracked.int32(3),
     maxBXALCT = cms.untracked.int32(8),
     minBXLCT = cms.untracked.int32(3),
     maxBXLCT = cms.untracked.int32(8),
+    minBXMPLCT = cms.untracked.int32(3),
+    maxBXMPLCT = cms.untracked.int32(8),
     ## GEM RecHit
     gemRecHitInput = cms.untracked.InputTag("gemRecHits")
 )

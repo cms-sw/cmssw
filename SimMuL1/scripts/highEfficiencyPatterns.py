@@ -46,7 +46,7 @@ def draw_eff(t,title, h_name, h_bins, to_draw, denom_cut, extra_num_cut,
     """Make an efficiency plot"""
     
     ## total numerator selection cut
-    num_cut = TCut("%s && %s" %(denom_cut.GetTitle(), extra_num_cut.GetTitle()))
+    num_cut = AND(denom_cut,extra_num_cut)
 
     t.Draw(to_draw + ">>num_" + h_name + h_bins, num_cut, "goff")
     num = TH1F(gDirectory.Get("num_" + h_name).Clone("num_" + h_name))
@@ -73,7 +73,7 @@ def getTree(fileName):
     """Get tree for given filename"""
 
     analyzer = "GEMCSCAnalyzer"
-    trk_eff = "trk_eff"
+    trk_eff = "trk_eff_st1"
 
     file = TFile.Open(fileName)
     if not file:
