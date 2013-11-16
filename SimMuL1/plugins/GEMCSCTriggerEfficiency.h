@@ -281,7 +281,7 @@ private:
   int maxBxGMT_;
 
   bool centralBxOnlyGMT_;
-
+  bool gangedME1a;
   bool goodChambersOnly_;
   
   int lookAtTrackCondition_;
