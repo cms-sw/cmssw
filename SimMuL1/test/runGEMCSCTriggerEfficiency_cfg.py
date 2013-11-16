@@ -37,10 +37,11 @@ for d in range(len(inputDir)):
     continue
   print "Proceed to next directory"
   ls = os.listdir(my_dir)
+  ## this works only if you pass the location on pnfs - FIXME for files staring with store/user/... 
   theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
     
-inputFiles = ['file:out_SingleMuPt10Fwd_GEM2019_8PartIncRad_DIGI_L1.root']
-print "InputFiles: ", inputFiles
+##inputFiles = ['file:out_SingleMuPt10Fwd_GEM2019_8PartIncRad_DIGI_L1.root']
+print "InputFiles: ", theInputFiles
 
 ## readout windows
 w=3
@@ -97,7 +98,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
     fileNames = cms.untracked.vstring(
-      *inputFiles
+      *theInputFiles
     )
 )
 
