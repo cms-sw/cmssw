@@ -233,7 +233,6 @@ private:
 // config parameters:
 
   bool lightRun;
-  bool gangedME1a;
   bool defaultME1a;
 
   bool doStrictSimHitToTrackMatch_;
@@ -256,7 +255,6 @@ private:
   int debugTFCAND;
   int debugGMTCAND;
   int debugL1EXTRA;
-  int debugRATE;
 
   double minSimTrPt_;
   double minSimTrPhi_;
@@ -270,8 +268,6 @@ private:
   int maxBX_;
   int minTMBBX_;
   int maxTMBBX_;
-  int minRateBX_;
-  int maxRateBX_;
 
   int minBxALCT_;
   int maxBxALCT_;
@@ -285,8 +281,6 @@ private:
   int maxBxGMT_;
 
   bool centralBxOnlyGMT_;
-
-  bool doSelectEtaForGMTRates_;
 
   bool goodChambersOnly_;
   
