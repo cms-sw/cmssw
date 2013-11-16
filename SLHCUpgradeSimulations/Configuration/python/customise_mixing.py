@@ -32,8 +32,6 @@ def customise_NoCrossing(process):
     process.mix.mixObjects.mixTracks.makeCrossingFrame = cms.untracked.bool(False)
     process.mix.mixObjects.mixVertices.makeCrossingFrame = cms.untracked.bool(False)
     process.mix.mixObjects.mixHepMC.makeCrossingFrame = cms.untracked.bool(False)
-    process.digitisation_step.remove(process.simSiStripDigiSimLink)
-    process.digitisation_step.remove(process.mergedtruth)
     return (process)
 
 def customise_pixelMixing_PU(process):
