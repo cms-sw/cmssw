@@ -174,7 +174,7 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   requireME1With4Hits_ = iConfig.getUntrackedParameter< bool >("requireME1With4Hits",false);
 
   minSimTrackDR_ = iConfig.getUntrackedParameter<double>("minSimTrackDR", 0.);
-  
+
   edm::ParameterSet stripPSet = iConfig.getParameter<edm::ParameterSet>("strips");
   theStripConditions = new CSCDbStripConditions(stripPSet);
 
@@ -1473,12 +1473,10 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       steta = match->strk->momentum().eta();
       stphi = normalizedPhi( match->strk->momentum().phi() );
 
- 
-      //bool pt_ok = fabs(stpt)>2.;
-      bool pt_ok = fabs(stpt) > 20.;
-      //bool pt20_ok = fabs(stpt)>20.;
-      bool eta_ok = ( fabs(steta) >= 1.2 &&  fabs(steta) <= 2.14 );
-      bool etapt_ok = eta_ok && pt_ok;
+      const bool pt_ok = fabs(stpt) > minSimTrPt_;
+      const bool eta_ok = ( fabs(steta) >= minSimTrEta_ &&  fabs(steta) <= maxSimTrEta_);
+      //const bool phi_ok = minSimTrPhi_ <= stphi && stphi <= maxSimTrPhi_;
+      const bool etapt_ok = eta_ok && pt_ok;
 
       bool eta_1b = mugeo::isME1bEtaRegion(steta, 1.6, 2.12);
       bool eta_gem_1b = mugeo::isME1bEtaRegion(steta, 1.64, 2.05);
@@ -1769,6 +1767,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      }
 	  }
 	if(okME1alct) {
+    std::cout << "okME1alct OK" << std::endl;
 	  h_eta_me1_after_alct->Fill(steta);
 	  h_phi_me1_after_alct->Fill(stphi);
 	}
