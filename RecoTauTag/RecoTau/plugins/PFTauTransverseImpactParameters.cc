@@ -114,7 +114,7 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
 	    dxy=-transTrk.trajectoryStateClosestToPoint(pv).perigeeParameters().vector()(aTip);
 	    dxy_err=transTrk.trajectoryStateClosestToPoint(pv).perigeeError().covarianceMatrix()(aTip,aTip);
 	    GlobalPoint pos=transTrk.trajectoryStateClosestToPoint(pv).position();
-	    poca=reco::Vertex::Point(pos.x(),pos.y(),pos.x());
+	    poca=reco::Vertex::Point(pos.x(),pos.y(),pos.z());
 	  }
 	  else{
 	    dxy_err=RefPFTau->leadPFChargedHadrCand()->trackRef()->d0Error();
