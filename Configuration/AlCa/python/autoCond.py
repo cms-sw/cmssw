@@ -1,7 +1,7 @@
 autoCond = { 
     'upgrade2017'       :   'DES17_62_V8::All', # 
     'upgrade2019'       :   'DES19_62_V8::All', # 
-    'upgradePLS3'       :   'DES19_62_V7::All' # waiting waiting waiting
+    'upgradePLS3'       :   'DES19_62_V8::All' # 
 }
 
 aliases = {
