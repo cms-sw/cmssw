@@ -289,6 +289,11 @@ workflows[4400] = ['', ['FourMuPt1_200_UPG2023_BE5D','RECOUP23_BE5D']]
 workflows[4401] = ['', ['MinBias_TuneZ2star_UPG2023_14_BE5D','RECOUP23_BE5D']]
 workflows[4402] = ['', ['TTbar_UPG2023_14_BE5D','RECOUP23_BE5D']]
 
+#2023 BE5D with tracking
+workflows[4500] = ['', ['FourMuPt1_200_UPG2023_BE5D','DIGIUP23_BE5D','NRECOUP23_BE5D','HARVESTUPBE5D']]
+workflows[4501] = ['', ['MinBias_TuneZ2star_UPG2023_14_BE5D','DIGIUP23_BE5D','NRECOUP23_BE5D','HARVESTUPBE5D']]
+workflows[4502] = ['', ['TTbar_UPG2023_14_BE5D','DIGIUP23_BE5D','NRECOUP23_BE5D','HARVESTUPBE5D']]
+
 #2013 Lb6PS
 workflows[4200] = ['', ['FourMuPt1_200_UPG2023_LB6','RECOUP23_LB6']]
 workflows[4201] = ['', ['MinBias_TuneZ2star_UPG2023_14_LB6','RECOUP23_LB6']]

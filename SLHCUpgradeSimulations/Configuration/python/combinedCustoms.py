@@ -20,8 +20,8 @@ import SLHCUpgradeSimulations.Configuration.aging as aging
 
 def cust_phase2_BE5D(process):
     process=customisePostLS1(process)
-    process=customise_HcalPhase1(process)
     process=customiseBE5D(process)
+    process=customise_HcalPhase1(process)
     process=customise_ev_BE5D(process)
     return process
 
@@ -189,35 +189,35 @@ def bsStudyStep2(process):
         precise = cms.bool(True),
         originRadius = cms.double(0.02),
         originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
-        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        beamSpot = cms.InputTag("offlineBeamSpot"),
         ptMin = cms.double(0.7)
         )
     process.highPtTripletStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
         precise = cms.bool(True),
         originRadius = cms.double(0.02),
         originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
-        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        beamSpot = cms.InputTag("offlineBeamSpot"),
         ptMin = cms.double(0.7)
         )
     process.lowPtQuadStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
         precise = cms.bool(True),
         originRadius = cms.double(0.02),
         originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
-        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        beamSpot = cms.InputTag("offlineBeamSpot"),
         ptMin = cms.double(0.2)
         )
     process.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
         precise = cms.bool(True),
         originRadius = cms.double(0.015),
         originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
-        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        beamSpot = cms.InputTag("offlineBeamSpot"),
         ptMin = cms.double(0.35)
         )
     process.detachedQuadStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
         precise = cms.bool(True),
         originRadius = cms.double(0.5),
         originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
-        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        beamSpot = cms.InputTag("offlineBeamSpot"),
         ptMin = cms.double(0.3)
         )
     return process
