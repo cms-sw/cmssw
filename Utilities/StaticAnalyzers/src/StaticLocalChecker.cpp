@@ -24,11 +24,7 @@ void StaticLocalChecker::checkASTDecl(const clang::VarDecl *D,
 
 	    if ( ! m_exception.reportGlobalStaticForType( t, DLoc, BR ) )
 			return;
-	    std::string vname = D->getCanonicalDecl()->getQualifiedNameAsString();
-	    unsigned found = vname.find_last_of("::");
-	    std::string cname = vname.substr(0,found);
-//	    if ( ! support::isDataClass( cname) ) return;
-	    if ( support::isSafeClassName( vname ) ) return;
+	    if ( support::isSafeClassName( t.getAsString() ) ) return;
 
 	    std::string buf;
 	    llvm::raw_string_ostream os(buf);
