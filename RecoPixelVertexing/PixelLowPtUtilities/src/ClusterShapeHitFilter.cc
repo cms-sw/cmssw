@@ -269,15 +269,16 @@ bool ClusterShapeHitFilter::getSizes
     pred.first  = ldir.x() / ldir.z();
     pred.second = ldir.y() / ldir.z();
 
-    if(data.size().front().second < 0)
+    SiPixelClusterShapeData::Range sizeRange = data.size();
+    if(sizeRange.first->second < 0)
       pred.second = - pred.second;
 
     meas.clear();
-    assert(meas.capacity() >= data.size().size());
-    for(const auto& s: data.size()) {
-      meas.push_back(s);
+    assert(meas.capacity() >= std::distance(sizeRange.first, sizeRange.second));
+    for(auto s=sizeRange.first; s != sizeRange.second; ++s) {
+      meas.push_back(*s);
     }
-    if(data.size().front().second < 0) {
+    if(sizeRange.first->second < 0) {
       for(auto& s: meas)
         s.second = -s.second;
     }

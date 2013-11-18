@@ -60,7 +60,7 @@ void SiPixelClusterShapeCacheProducer::produce(edm::Event& iEvent, const edm::Ev
   iSetup.get<TrackerDigiGeometryRecord>().get(geom);
 
   std::auto_ptr<SiPixelClusterShapeCache> output(new SiPixelClusterShapeCache(input));
-  output->resize(input->data().size());
+  output->reserve(input->data().size());
 
   ClusterData data; // reused
   ClusterShape clusterShape;
@@ -74,11 +74,12 @@ void SiPixelClusterShapeCacheProducer::produce(edm::Event& iEvent, const edm::Ev
     for(; iCluster != endCluster; ++iCluster) {
       clusterShape.determineShape(*pixDet, *iCluster, data);
       SiPixelClusterShapeCache::ClusterRef clusterRef = edmNew::makeRefTo(input, iCluster);
-      output->set(clusterRef, data);
+      output->push_back(clusterRef, data);
       data.size.clear();
     }
   }
 
+  output->shrink_to_fit();
   iEvent.put(output);
 }
 
