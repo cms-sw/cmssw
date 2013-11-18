@@ -545,6 +545,99 @@ namespace {
       }
     }
   }
+  
+  // sets the cluster best associated to the GSF track
+  // leave it null if no GSF track
+  void setROElectronCluster(PFEGammaAlgo::ProtoEGObject& RO) {
+    if( !RO.ecalclusters.size() ) return;
+    RO.lateBrem = -1;
+    RO.firstBrem = -1;
+    RO.nBremsWithClusters = -1;    
+    const reco::PFBlockElementBrem *firstBrem = NULL, *lastBrem = NULL;
+    const reco::PFBlockElementCluster *bremCluster = NULL, *gsfCluster = NULL,
+      *kfCluster = NULL, *gsfCluster_noassc = NULL;
+    const reco::PFBlockRef& parent = RO.parentBlock;
+    int nBremClusters = 0;
+    constexpr float maxDist = 1e6;
+    float mDist_gsf(maxDist), mDist_gsf_noassc(maxDist), mDist_kf(maxDist);
+    for( const auto& cluster : RO.ecalclusters ) {      
+      for( const auto& gsf : RO.primaryGSFs ) {
+	const bool hasclu = elementNotCloserToOther(parent,
+						    gsf.first->type(),
+						    gsf.first->index(),
+						    cluster.first->type(),
+						    cluster.first->index());
+	const float deta = 
+	  std::abs(cluster.first->clusterRef()->positionREP().eta() -
+		   gsf.first->positionAtECALEntrance().eta());
+	const float dphi = 
+	  std::abs(TVector2::Phi_mpi_pi(
+			cluster.first->clusterRef()->positionREP().phi() - 
+			gsf.first->positionAtECALEntrance().phi()));
+	const float dist = std::hypot(deta,dphi);
+	if( hasclu && dist < mDist_gsf ) {	  
+	  gsfCluster = cluster.first;
+	  mDist_gsf = dist;
+	} else if ( dist < mDist_gsf_noassc ) {
+	  gsfCluster_noassc = cluster.first;
+	  mDist_gsf_noassc = dist;
+	}
+      }    
+      for( const auto& kf  : RO.primaryKFs ) {
+	const bool hasclu = elementNotCloserToOther(parent,
+						    kf.first->type(),
+						    kf.first->index(),
+						    cluster.first->type(),
+						    cluster.first->index());
+	const float dist = parent->dist(cluster.first->index(),
+					kf.first->index(),
+					parent->linkData(),
+					reco::PFBlock::LINKTEST_ALL);
+	if( hasclu && dist < mDist_kf ) {
+	  kfCluster = cluster.first;
+	  mDist_kf = dist;
+	}
+      }
+      for( const auto& brem : RO.brems ) {
+	const bool hasclu = elementNotCloserToOther(parent,
+						    brem.first->type(),
+						    brem.first->index(),
+						    cluster.first->type(),
+						    cluster.first->index());
+	if( hasclu ) {	
+	  ++nBremClusters;
+	  if( !firstBrem || 
+	      ( firstBrem->indTrajPoint() - 2 > 
+		brem.first->indTrajPoint() - 2) ) {
+	    firstBrem = brem.first;
+	  }
+	  if( !lastBrem || 
+	      ( lastBrem->indTrajPoint() - 2 < 
+		brem.first->indTrajPoint() - 2) ) {
+	    lastBrem = brem.first;
+	    bremCluster = cluster.first;
+	  }
+	}
+      }
+    }
+    if( !gsfCluster && !kfCluster && !bremCluster ) {
+      gsfCluster = gsfCluster_noassc;
+    }
+    RO.nBremsWithClusters = nBremClusters;
+    RO.lateBrem = 0;
+    if( gsfCluster ) {
+      RO.electronClusters.push_back(gsfCluster);
+    } else if ( kfCluster ) {
+      RO.electronClusters.push_back(kfCluster);
+    }
+    if( firstBrem ) {      
+      RO.firstBrem = firstBrem->indTrajPoint() - 2;
+      if( !gsfCluster && !kfCluster ) { 
+	RO.electronClusters.push_back(bremCluster);
+      }
+      if( bremCluster == gsfCluster ) RO.lateBrem = 1;
+    }
+  }
 }
 
 PFEGammaAlgo::
@@ -1278,11 +1371,12 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
     // and spoil the resolution
     unlinkRefinableObjectKFandECALWithBadEoverP(RO);
     // put things back in order after partitioning
-  std::sort(RO.ecalclusters.begin(), RO.ecalclusters.end(),
+    std::sort(RO.ecalclusters.begin(), RO.ecalclusters.end(),
 	    [](const PFClusterFlaggedElement& a,
 	       const PFClusterFlaggedElement& b) 
 	    { return ( a.first->clusterRef()->correctedEnergy() > 
 		       b.first->clusterRef()->correctedEnergy() ) ; });
+    setROElectronCluster(RO);
   }
 
   LOGDRESSED("PFEGammaAlgo")
@@ -1638,7 +1732,18 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
      if( ro.electronSeed.isNonnull() ) {
        info << "\tGSF element attached to object:" << std::endl;
        ro.primaryGSFs.front().first->Dump(info,"\t");
-       info << std::endl;      
+       info << std::endl;
+       info << "firstBrem : " << ro.firstBrem 
+	    << " lateBrem : " << ro.lateBrem
+	    << " nBrems with cluster : " << ro.nBremsWithClusters
+	    << std::endl;;
+       if( ro.electronClusters.size() && ro.electronClusters[0] ) {
+	 info << "electron cluster : ";
+	 ro.electronClusters[0]->Dump(info,"\t");
+	 info << std::endl;
+       } else {
+	 info << " no electron cluster." << std::endl;
+       }	 
      }
      if( ro.primaryKFs.size() ) {
        info << "\tPrimary KF tracks attached to object: " << std::endl;
@@ -1913,9 +2018,7 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
   }
   auto ECALbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
   auto ECALend = _splayedblock[reco::PFBlockElement::ECAL].end();
-  for( auto& primgsf : RO.primaryGSFs ) {
-    float min_dist = 1e6, cdist = -1.0f;
-    const PFClusterElement* electronCluster = NULL;
+  for( auto& primgsf : RO.primaryGSFs ) {    
     NotCloserToOther<reco::PFBlockElement::GSF,reco::PFBlockElement::ECAL>
       gsfTracksToECALs(_currentblock,_currentlinks,primgsf.first);
     CompatibleEoPOut eoverp_test(primgsf.first);
@@ -1938,12 +2041,7 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
 	<< "Found a cluster already in RO by GSF extrapolation"
 	<< " at ECAL surface!" << std::endl
 	<< *elemascluster << std::endl;
-      cdist = _currentblock->dist(primgsf.first->index(),ecal->first->index(),
-				  _currentlinks,reco::PFBlock::LINKTEST_ALL);
-      if( cdist != -1 && cdist < min_dist ) {
-	electronCluster = elemascluster;
-	min_dist = cdist;
-      }
+            
       RO.localMap.push_back(ElementMap::value_type(primgsf.first,temp.first));
       RO.localMap.push_back(ElementMap::value_type(temp.first,primgsf.first));
     }
@@ -1955,19 +2053,12 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
 	<< "Found a cluster not already in RO by GSF extrapolation"
 	<< " at ECAL surface!" << std::endl
 	<< *elemascluster << std::endl;
-      addPFClusterToROSafe(elemascluster,RO);
-      cdist = _currentblock->dist(primgsf.first->index(),ecal->first->index(),
-				  _currentlinks,reco::PFBlock::LINKTEST_ALL);
-      if( cdist != -1 && cdist < min_dist ) {
-	electronCluster = elemascluster;
-	min_dist = cdist;
-      }      
+      addPFClusterToROSafe(elemascluster,RO);              
       attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);      
       RO.localMap.push_back(ElementMap::value_type(primgsf.first,elemascluster));
       RO.localMap.push_back(ElementMap::value_type(elemascluster,primgsf.first));
       ECALbegin->second = false;    
-    }
-    RO.electronClusters.push_back(electronCluster);
+    }    
   }
 }
 
@@ -2000,23 +2091,16 @@ linkRefinableObjectPrimaryGSFTrackToHCAL(ProtoEGObject& RO) {
 void PFEGammaAlgo::
 linkRefinableObjectKFTracksToECAL(ProtoEGObject& RO) {
   if( !_splayedblock[reco::PFBlockElement::ECAL].size() ) return;  
-  size_t kf_idx = 0;
-  for( auto& primkf : RO.primaryKFs ) { 
-    const PFClusterElement* ce = linkKFTrackToECAL(primkf,RO);
-    if( !RO.electronClusters[kf_idx] ) RO.electronClusters[kf_idx] = ce;
-    ++kf_idx;
-  }
+  for( auto& primkf : RO.primaryKFs ) linkKFTrackToECAL(primkf,RO);
   for( auto& secdkf : RO.secondaryKFs ) linkKFTrackToECAL(secdkf,RO);
 }
 
-const ClusterElement* 
+void 
 PFEGammaAlgo::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
 				ProtoEGObject& RO) {
   std::vector<PFClusterFlaggedElement>& currentECAL = RO.ecalclusters;
   auto ECALbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
-  auto ECALend = _splayedblock[reco::PFBlockElement::ECAL].end();
-  float min_dist = 1e6, cdist = -1.0f;
-  const PFClusterElement* electronCluster = NULL;
+  auto ECALend = _splayedblock[reco::PFBlockElement::ECAL].end();  
   NotCloserToOther<reco::PFBlockElement::TRACK,reco::PFBlockElement::ECAL>
     kfTrackToECALs(_currentblock,_currentlinks,kfflagged.first);      
   NotCloserToOther<reco::PFBlockElement::GSF,reco::PFBlockElement::ECAL>
@@ -2034,13 +2118,7 @@ PFEGammaAlgo::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
     const PFClusterElement* elemascluster = 
       docast(const PFClusterElement*,ecalitr->first);
     PFClusterFlaggedElement flaggedclus(elemascluster,true);
-    cdist = _currentblock->dist(kfflagged.first->index(),
-				ecalitr->first->index(),
-				_currentlinks,reco::PFBlock::LINKTEST_ALL);
-    if( cdist != -1 && cdist < min_dist ) {
-      electronCluster = elemascluster;
-      min_dist = cdist;
-    }
+        
     LOGDRESSED("PFEGammaAlgo::linkKFTracktoECAL()") 
 	<< "Found a cluster already in RO by KF extrapolation"
 	<< " at ECAL surface!" << std::endl
@@ -2060,13 +2138,7 @@ PFEGammaAlgo::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
     addPFClusterToROSafe(elemascluster,RO);
     attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);	  
     ecalitr->second = false;
-    cdist = _currentblock->dist(kfflagged.first->index(),
-				ecalitr->first->index(),
-				_currentlinks,reco::PFBlock::LINKTEST_ALL);
-    if( cdist != -1 && cdist < min_dist ) {
-      electronCluster = elemascluster;
-      min_dist = cdist;
-    }
+    
     LOGDRESSED("PFEGammaAlgo::linkKFTracktoECAL()") 
 	<< "Found a cluster not in RO by KF extrapolation"
 	<< " at ECAL surface!" << std::endl
@@ -2075,8 +2147,7 @@ PFEGammaAlgo::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
 						 kfflagged.first));
     RO.localMap.push_back( ElementMap::value_type(kfflagged.first,
 						  elemascluster));
-  }
-  return electronCluster;
+  }  
 }
 
 void PFEGammaAlgo::
@@ -2084,8 +2155,7 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
   if( !RO.brems.size() ) return;
   int FirstBrem = -1;
   int TrajPos = -1;
-  int lastBremTrajPos = -1;
-  const PFClusterElement* electronCluster = NULL;
+  int lastBremTrajPos = -1;  
   for( auto& bremflagged : RO.brems ) {
     bool has_clusters = false;
     TrajPos = (bremflagged.first->indTrajPoint())-2;
@@ -2104,21 +2174,12 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
       if( deta < 0.015 ) {
 	has_clusters = true;
 	if( lastBremTrajPos == -1 || lastBremTrajPos < TrajPos ) {
-	  lastBremTrajPos = TrajPos;
-	  electronCluster = docast(const PFClusterElement*,ecal->first);
+	  lastBremTrajPos = TrajPos;	  
 	}
 	if( FirstBrem == -1 || TrajPos < FirstBrem ) { // set brem information
 	  FirstBrem = TrajPos;
 	  RO.firstBrem = TrajPos;
-	}
-	if( ecal->first == RO.electronClusters[0] ) {
-	  ElementMap::value_type gsfToEcal(RO.primaryGSFs.front().first,
-					   ecal->first);
-	  if( std::find(RO.localMap.begin(), RO.localMap.end(), gsfToEcal) !=
-	      RO.localMap.end() ) {
-	    RO.lateBrem = 1;	  
-	  }
-	}
+	}	
 	LOGDRESSED("PFEGammaAlgo::linkBremToECAL()") 
 	  << "Found a cluster already in SC linked to brem extrapolation"
 	  << " at ECAL surface!" << std::endl;
@@ -2135,22 +2196,13 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
       if( deta < 0.015 ) { 	
 	has_clusters = true;
 	if( lastBremTrajPos == -1 || lastBremTrajPos < TrajPos ) {
-	  lastBremTrajPos = TrajPos;
-	  electronCluster = docast(const PFClusterElement*,ecal->first);
+	  lastBremTrajPos = TrajPos;	  
 	}
 	if( FirstBrem == -1 || TrajPos < FirstBrem ) { // set brem information
 	  
 	  FirstBrem = TrajPos;
 	  RO.firstBrem = TrajPos;
-	}
-	if( ecal->first == RO.electronClusters[0] ) {
-	  ElementMap::value_type gsfToEcal(RO.primaryGSFs.front().first,
-					   ecal->first);
-	  if( std::find(RO.localMap.begin(), RO.localMap.end(), gsfToEcal) !=
-	      RO.localMap.end() ) {	    
-	    RO.lateBrem = 1;	  
-	  }	  
-	}
+	}	
 	const PFClusterElement* elemasclus =
 	  docast(const PFClusterElement*,ecal->first);    
 	addPFClusterToROSafe(elemasclus,RO);
@@ -2168,8 +2220,7 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
       if( RO.nBremsWithClusters == -1 ) RO.nBremsWithClusters = 0;
       ++RO.nBremsWithClusters;
     }
-  }
-  if( !RO.electronClusters[0] ) RO.electronClusters[0] = electronCluster;
+  }  
 }
 
 void PFEGammaAlgo::
@@ -2508,7 +2559,7 @@ calculate_ele_mva(const PFEGammaAlgo::ProtoEGObject& RO,
       HOverPin = std::max(HOverPin,0.0f);
       HOverPin = std::min(HOverPin,5.0f);
       /*
-      std::cout << " **** BDT observables ****" << endl;
+      std::cout << " **** PFEG BDT observables ****" << endl;
       std::cout << " < Normalization > " << endl;
       std::cout << " Pt_gsf " << Pt_gsf << " Pin " << Ein_gsf  
 		<< " Pout " << Eout_gsf << " Eta_gsf " << Eta_gsf << endl;
@@ -2531,6 +2582,7 @@ calculate_ele_mva(const PFEGammaAlgo::ProtoEGObject& RO,
 		<< " lateBrem " << lateBrem
 		<< " firstBrem " << firstBrem << endl;
       */
+      
       return tmvaReaderEle_->EvaluateMVA("BDT");
     }
   }
