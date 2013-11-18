@@ -31,15 +31,15 @@ from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 #                 jetIdLabel   = "ak5"
 #                 )
 
-## uncomment the following lines to add ak7CaloJets to your PAT output
+## uncomment the following lines to add ak5PFJetsCHS to your PAT output
 addJetCollection(
    process,
-   labelName = 'AK7Calo',
-   jetSource = cms.InputTag('ak7CaloJets'),
-   jetCorrections = ('AK7Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   labelName = 'AK5PFCHS',
+   jetSource = cms.InputTag('ak5PFJetsCHS'),
+   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2')
    )
-process.patJetsAK7Calo.addJetID=True
-process.patJetsAK7Calo.jetIDMap="ak7JetID"
+process.patJetsAK5PFCHS.addJetID=True
+process.patJetsAK5PFCHS.jetIDMap="ak5JetID"
 
 ## uncomment the following lines to add kt6CaloJets to your PAT output
 postfixAK5Calo = 'Copy'
@@ -104,8 +104,8 @@ switchJetCollection(
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
-process.source.fileNames = filesRelValProdTTbarGENSIMRECO
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
+process.source.fileNames = filesRelValProdTTbarAODSIM
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##
