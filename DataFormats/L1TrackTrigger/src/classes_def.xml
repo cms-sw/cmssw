@@ -1,0 +1,30 @@
+<lcgdict>
+
+  <class name="Ref_PixelDigi_" />
+
+  <class pattern="TTCluster*" />
+  <class pattern="std::vector<TTCluster*>" />
+  <class pattern="edm::Wrapper<std::vector<TTCluster*>>" />
+  <class pattern="edm::Ptr<TTCluster*>" />
+  <class pattern="edm::Wrapper<edm::Ptr<TTCluster*>>" />
+  <class pattern="std::vector<edm::Ptr<TTCluster*>>" />
+  <class pattern="edm::Wrapper<std::vector<edm::Ptr<TTCluster*>>>" />
+
+  <class pattern="TTStub*" />
+  <class pattern="std::vector<TTStub*>" />
+  <class pattern="edm::Wrapper<std::vector<TTStub*>>" />
+  <class pattern="edm::Ptr<TTStub*>" />
+  <class pattern="edm::Wrapper<edm::Ptr<TTStub*>>" />
+  <class pattern="std::vector<edm::Ptr<TTStub*>>" />
+  <class pattern="edm::Wrapper<std::vector<edm::Ptr<TTStub*>>>" />
+
+  <class pattern="TTTrack*" />
+  <class pattern="std::vector<TTTrack*>" />
+  <class pattern="edm::Wrapper<std::vector<TTTrack*>>" />
+  <class pattern="edm::Ptr<TTTrack*>" />
+  <class pattern="edm::Wrapper<edm::Ptr<TTTrack*>>" />
+  <class pattern="std::vector<edm::Ptr<TTTrack*>>" />
+  <class pattern="edm::Wrapper<std::vector<edm::Ptr<TTTrack*>>>" />
+
+</lcgdict>
+

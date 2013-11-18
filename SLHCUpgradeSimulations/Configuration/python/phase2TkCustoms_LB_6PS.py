@@ -16,6 +16,8 @@ def customise(process):
     if hasattr(process,'validation_step'):
         process=customise_Validation(process)
     process=customise_condOverRides(process)
+    if hasattr(process,'L1TrackTrigger_step'):
+        process=customise_TrackTrigger(process)
     
     return process
 
@@ -231,3 +233,32 @@ def l1EventContent(process):
             getattr(process,b).outputCommands.append('drop *_L1TkStubsFromSimHits_StubsFail_*')
     return process
 
+def customise_TrackTrigger(process):
+    process.TTStubAlgorithm_tab2013_PixelDigi_ = cms.ESProducer("TTStubAlgorithm_tab2013_PixelDigi_",
+                                                                zMatchingPS = cms.bool(False),
+                                                                zMatching2S = cms.bool(True),
+                                                                BarrelCut = cms.vdouble( 0, 2.5, 2.5, 3, 3, 4.5, 4.5, 5.5, 5.5, 7, 7 ), #Use 0 as dummy to have direct access using DetId to the correct element
+                                                                EndcapCutSet = cms.VPSet(
+        cms.PSet( EndcapCut = cms.vdouble( 0 ) ), #Use 0 as dummy to have direct access using DetId to the correct element
+        )
+                                                                )
+
+    process.StackedTrackerGeometryESModule = cms.ESProducer( "StackedTrackerGeometryESModule",
+                                                             truncation_precision = cms.uint32(2),
+                                                             z_window = cms.double(4.0),
+                                                             phi_window = cms.double(0.015),
+                                                             radial_window = cms.double(1.0),
+                                                             make_debug_file = cms.bool(True),
+                                                             
+                                                             # Extras for CBC3 chip
+                                                             partitionsPerRoc = cms.int32(4),
+                                                             CBC3_MaxStubs = cms.uint32(3),
+                                                             # Double tab2013 table as CBC3 chip uses full width -- this table for LB's (not verified numbers) design
+                                                             BarrelCut = cms.vdouble( 0, 5, 5, 6, 6, 9, 9, 11, 11, 14, 14 ), #Use 0 as dummy to have direct access using DetId to the correct element
+                                                             EndcapCutSet = cms.VPSet(
+        cms.PSet( EndcapCut = cms.vdouble( 0 ) ), #Use 0 as dummy to have direct access using DetId to the correct element
+        )
+                                                             )
+    
+    
+    return process
