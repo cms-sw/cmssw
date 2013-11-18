@@ -101,9 +101,9 @@ void PerfStatService::postEndJob() {
   out << "|module  ";
   PerfStat::header(out);
   master.read(); master.calib();
-  out << "|Total  "; master.summary(out,1.e-6,100.);
+  out << "|Total  "; master.summary(out,false,1.e-6,100.);
   for ( auto const & p : perfs) {
-    out << '|' << p.second.name << "  "; p.second.p.summary(out,1.e-6,100.);
+    out << '|' << p.second.name << "  "; p.second.p.summary(out,false,1.e-6,100.);
   }
   std::cout << out.str() << std::endl;
 
