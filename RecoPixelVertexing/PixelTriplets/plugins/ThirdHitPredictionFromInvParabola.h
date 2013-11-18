@@ -45,7 +45,7 @@ public:
 //  inline Range operator()(Scalar radius, int charge) const { return rangeRPhiSlow(radius,charge,1); } 
   inline Range operator()(Scalar radius, int charge) const { return rangeRPhi(radius,charge); } 
 
-  Range rangeRPhi(Scalar radius, int charge) const __attribute__ ((optimize(3, "fast-math")));
+  Range rangeRPhi(Scalar radius, int charge) const; //  __attribute__ ((optimize(3, "fast-math")));
   // Range rangeRPhiSlow(Scalar radius, int charge, int nIter=5) const;
 
   void init( const GlobalPoint & P1, const GlobalPoint & P2,  Scalar ip, Scalar curv) {
