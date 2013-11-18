@@ -36,9 +36,10 @@ DTSegmentCleaner::~DTSegmentCleaner() {
 /* Operations */ 
 vector<DTSegmentCand*> DTSegmentCleaner::clean(const std::vector<DTSegmentCand*>& inputCands) const {
   if (inputCands.size()<2) return inputCands;
-  //   cout << "[DTSegmentCleaner] # of candidates: " << inputCands.size() << endl;
+  //cout << "[DTSegmentCleaner] # of candidates: " << inputCands.size() << endl;
   vector<DTSegmentCand*> result = solveConflict(inputCands);
 
+  //cout << "[DTSegmentCleaner] to ghostbuster: " << result.size() << endl;
   result = ghostBuster(result);
   
   return result;
@@ -55,7 +56,7 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
     for (vector<DTSegmentCand*>::const_iterator cand2 = cand+1 ; cand2!=inputCands.end() ; ++cand2) {
 
       DTSegmentCand::AssPointCont confHits=(*cand)->conflictingHitPairs(*(*cand2));
-
+      
       if (confHits.size()) {
 	///treatment of LR ambiguity cases: 1 chooses the best chi2
 	///                                 2 chooses the smaller angle
@@ -91,7 +92,6 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
 	      float DAlpha2 = fabs(cand2GlobDir.theta()-cand2GlobVecIP.theta());
 
 	      badCand = (DAlpha1 > DAlpha2) ? (*cand) : (*cand2);
-		
 	    }
 
 	    for (DTSegmentCand::AssPointCont::const_iterator cHit=confHits.begin() ;
@@ -113,10 +113,9 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
     }
   }
 
- 
   vector<DTSegmentCand*>::const_iterator cand=inputCands.begin();
   while ( cand < inputCands.end() ) {
-    if ((*cand)->good()) result.push_back(*cand);
+    if ((*cand)->good()) result.push_back(*cand); 
     else {
       vector<DTSegmentCand*>::const_iterator badCand=cand;
       delete *badCand;
@@ -134,11 +133,17 @@ DTSegmentCleaner::ghostBuster(const std::vector<DTSegmentCand*>& inputCands) con
     for (vector<DTSegmentCand*>::const_iterator cand2=cand+1;
          cand2!=inputCands.end(); ++cand2) {
       unsigned int nSharedHits=(*cand)->nSharedHitPairs(*(*cand2));
-      // cout << "Sharing " << (**cand) << " " << (**cand2) << " " << nSharedHits
-      //   << " (first or second) " << ((**cand)<(**cand2)) << endl;
+      //cout << "Sharing " << (**cand) << " " << (**cand2) << " " << nSharedHits
+      //     << " (first or second) " << ((**cand)<(**cand2)) << endl;
       if ((nSharedHits==((*cand)->nHits())) && (nSharedHits==((*cand2)->nHits()))
           &&(fabs((*cand)->chi2()-(*cand2)->chi2())<0.1)
           &&(segmCleanerMode==3))
+      {
+        continue;
+      }
+      
+      if (((*cand2)->nHits()==3 || (*cand2)->nHits()==3) 
+          &&(fabs((*cand)->chi2()-(*cand2)->chi2())<0.0001))
       {
         continue;
       }

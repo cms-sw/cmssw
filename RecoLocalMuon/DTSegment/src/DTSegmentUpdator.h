@@ -51,7 +51,7 @@ class DTSegmentUpdator{
 
     /** do the linear fit on the hits of the segment candidate and update it.
      * Returns false if the segment candidate is not good() */
-    bool fit(DTSegmentCand* seg) const;
+    bool fit(DTSegmentCand* seg, const bool allow3par = false, const bool fitdebug = false) const;
 
     /** ditto for true segment: since the fit is applied on a true segment, by
      * definition the segment is "good", while it's not the case for just
@@ -94,24 +94,23 @@ class DTSegmentUpdator{
     /// interface to LinearFit
     void fit(const std::vector<float>& x,
              const std::vector<float>& y, 
+             const std::vector<int>& lfit,
+             const std::vector<double>& dist,
              const std::vector<float>& sigy,
              LocalPoint& pos,
              LocalVector& dir,
+             float& cminf,
+             float& vminf,
              AlgebraicSymMatrix& covMat,
-             double& chi2) const;
-
-    void Fit4Var(const std::vector<float>& xfit,
-                 const std::vector<float>& yfit,
-                 const std::vector<int>& lfit,
-                 const std::vector<double>& tfit,
-                 const int nptfit,
-                 float& cminf, double& vminf,
-                 double& chi2fit) const;
+             double& chi2,
+             const bool allow3par = false) const;
 
     bool vdrift_4parfit;
     double T0_hit_resolution;
     bool perform_delta_rejecting;
     bool debug;
+    bool test;
+    bool enable3parFit;
 
 };
 

@@ -107,6 +107,7 @@ DTSegmentCand::conflictingHitPairs(const DTSegmentCand& seg) const{
 
 bool DTSegmentCand::good() const
 {
+  // std::cout << NDOF() << "  " << chi2()/NDOF() << "   " << nHits() << std::endl;
   if(NDOF() == 0) return false;
   if(chi2()/NDOF() > chi2max || nHits() < nHitsMin) return false;
 
@@ -121,9 +122,9 @@ bool DTSegmentCand::hitsShareLayer() const
 
   for(DTSegmentCand::AssPointCont::iterator assHit=theHits.begin();
       assHit!=theHits.end(); ++assHit) {
-    layerN.push_back((*assHit).first->id().layerId().layer());
+    layerN.push_back((*assHit).first->id().layerId().layer()+10*(*assHit).first->id().superlayerId().superlayer());
 
-    //std::cout << (*assHit).first->id().layerId().layer() << std::endl;
+//    std::cout << (*assHit).first->id().layerId().layer()+10*(*assHit).first->id().superlayerId().superlayer()) << std::endl;
   }
 
   for(int i=0;i<(int)layerN.size();i++){
@@ -220,7 +221,7 @@ bool DTSegmentCand::AssPointLessZ::operator()(const AssPoint& pt1,
 
 std::ostream& operator<<(std::ostream& out, const DTSegmentCand& seg) {
   out <<  " pos: " << seg.position() << " dir: " << seg.direction() 
-      << " chi2/nHits: " << seg.chi2() << "/" << seg.DTSegmentCand::nHits() << "/" << seg.nHits();
+      << " chi2/nHits: " << seg.chi2() << "/" << seg.DTSegmentCand::nHits();
   return out;
 }
 

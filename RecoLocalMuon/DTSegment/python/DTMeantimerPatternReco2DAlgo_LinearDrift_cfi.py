@@ -16,14 +16,12 @@ DTMeantimerPatternReco2DAlgo_LinearDrift = cms.PSet(
         segmCleanerMode = cms.int32(1),
         AlphaMaxPhi = cms.double(1.0),
         MaxChi2 = cms.double(8.0),
-        MaxT0 = cms.double(50.0),
         MaxAllowedHits = cms.uint32(50),
         # Parameters for the cleaner
         nSharedHitsMax = cms.int32(2),
         AlphaMaxTheta = cms.double(0.1),
         debug = cms.untracked.bool(False),
         nUnSharedHitsMin = cms.int32(2),
-        MinT0 = cms.double(-10.0)
     ),
     Reco2DAlgoName = cms.string('DTMeantimerPatternReco')
 )

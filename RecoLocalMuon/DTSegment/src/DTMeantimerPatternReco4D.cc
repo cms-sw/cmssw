@@ -55,6 +55,9 @@ DTMeantimerPatternReco4D::DTMeantimerPatternReco4D(const ParameterSet& pset):
     // For the 2D reco I use this reconstructor!
     the2DAlgo = new DTMeantimerPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
 
+    cout << " Starting MT pattern RECO 4D " << endl;
+    cout << " Compute T0corr: " << computeT0corr << endl;
+
   }
 
 
