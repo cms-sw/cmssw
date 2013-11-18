@@ -2,29 +2,29 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 
 filesRelValProdTTbarAODSIM = cms.untracked.vstring(
-    pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0'
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0_pre8'
                         , relVal        = 'RelValProdTTbar'
                         , globalTag     = 'PRE_ST62_V8'
                         , dataTier      = 'AODSIM'
-                        , maxVersions   = 3
+                        , maxVersions   = 1
                         , numberOfFiles = 1
                         )
     )
 filesRelValProdTTbarGENSIMRECO = cms.untracked.vstring(
-    pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0'
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0_pre5' # event content in 620pre8 broken
                         , relVal        = 'RelValProdTTbar'
-                        , globalTag     = 'PRE_ST62_V8'
+                        , globalTag     = 'PRE_ST61_V1'
                         , dataTier      = 'GEN-SIM-RECO'
-                        , maxVersions   = 3
+                        , maxVersions   = 1
                         , numberOfFiles = 1
                         )
     )
 filesRelValTTbarPileUpGENSIMRECO = cms.untracked.vstring(
-    pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0'
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0_pre5' # event content in 620pre8 broken
                         , relVal        = 'RelValTTbar'
-                        , globalTag     = 'PU_PRE_ST62_V8'
+                        , globalTag     = 'PU_PRE_ST61_V1'
                         , dataTier      = 'GEN-SIM-RECO'
-                        , maxVersions   = 2
+                        , maxVersions   = 1
                         , numberOfFiles = 1
                         )
     )
