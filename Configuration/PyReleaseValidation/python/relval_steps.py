@@ -1339,7 +1339,7 @@ step1FastDefaultsP2Forw =merge([{'-s':'GEN,SIM,RECO,VALIDATION',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQM',
                            '--conditions':'auto:upgradePLS3', 
-			   '--geometry' : 'Phase2Forward',
+			   '--geometry' : 'ExtendedPhase2TkBEForward',
 			   '--fast':'',
 			   '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.fastsimDefault',
                            '--relval':'27000,3000'},
@@ -2574,6 +2574,33 @@ steps['RECOUP23_LB6']=merge([step3Up2023_LB6_Defaults])
 
 
 
+########################### split be5d into three steps
+
+step2Up2023_BE5D_Defaults = {'-s':'DIGI,L1,L1TrackTrigger,DIGI2RAW',
+                 '--conditions':'auto:upgradePLS3', 
+                 '--datatier':'GEN-SIM-DIGI-RAW',
+                 '-n':'10',
+                 '--magField' : '38T_PostLS1',
+                 '--eventcontent':'FEVTDEBUGHLT',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5D',
+                 '--geometry' : 'ExtendedPhase2TkBE5D'
+                 }
+                             
+steps['DIGIUP23_BE5D']=merge([step2Up2023_BE5D_Defaults])
+
+step3NUp2023_BE5D_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
+                 '--conditions':'auto:upgradePLS3', 
+                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '-n':'10',
+                 '--magField' : '38T_PostLS1',
+                 '--eventcontent':'FEVTDEBUGHLT,DQM',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5D',
+                 '--geometry' : 'ExtendedPhase2TkBE5D'
+                 }
+                             
+steps['NRECOUP23_BE5D']=merge([step3NUp2023_BE5D_Defaults])
+
+
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step3,{'--hltProcess':'DIGI'})
 
@@ -2684,7 +2711,15 @@ steps['HARVESTUP19']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
 		   '--geometry' : 'Extended2019'
                    }
-		   
+
+steps['HARVESTUPBE5D']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+                   '--conditions':'auto:upgradePLS3', 
+                   '--mc':'',
+                   '--magField' : '38T_PostLS1',
+                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+		   '--geometry' : 'ExtendedPhase2TkBE5D'
+                   }
+
 ####HARVEST AGING VALIDATION - DESIGN set of reference
 steps['HARVESTUP17DES']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'DES17_61_V5::All', 
@@ -2845,7 +2880,7 @@ steps['HARVESTFSP2']={'-s':'HARVESTING:validationHarvestingFS',
 steps['HARVESTFSP2Forw']={'-s':'HARVESTING:validationHarvestingFS',
                    '--conditions':'auto:upgradePLS3',
                    '--mc':'',
-		   '--geometry' : 'Phase2Forward',
+		   '--geometry' : 'ExtendedPhase2TkBEForward',
                    '--scenario':'pp'}
 		   
 		   
