@@ -15,56 +15,84 @@
 
 class SiPixelClusterShapeData {
 public:
-  SiPixelClusterShapeData();
+  typedef std::vector<std::pair<int, int> >::const_iterator const_iterator;
+  typedef std::pair<const_iterator, const_iterator> Range;
+  SiPixelClusterShapeData(const_iterator begin, const_iterator end, bool isStraight, bool isComplete, bool hasBigPixelsOnlyInside):
+    begin_(begin), end_(end), isStraight_(isStraight), isComplete_(isComplete), hasBigPixelsOnlyInside_(hasBigPixelsOnlyInside)
+  {}
   ~SiPixelClusterShapeData();
 
-  const std::vector<std::pair<int, int> >& size() const { return size_; }
+  Range size() const { return std::make_pair(begin_, end_); }
 
   bool isStraight() const { return isStraight_; }
   bool isComplete() const { return isComplete_; }
   bool hasBigPixelsOnlyInside() const { return hasBigPixelsOnlyInside_; }
 
-  template <typename T>
-  void set(const T& data) {
-    size_.clear();
-    size_.reserve(data.size.size());
-    std::copy(data.size.begin(), data.size.end(), std::back_inserter(size_));
-    isStraight_ = data.isStraight;
-    isComplete_ = data.isComplete;
-    hasBigPixelsOnlyInside_ = data.hasBigPixelsOnlyInside;
-  }
-
 private:
-   std::vector<std::pair<int,int> > size_;
-   bool isStraight_, isComplete_, hasBigPixelsOnlyInside_;
+  const_iterator begin_, end_;
+  const bool isStraight_, isComplete_, hasBigPixelsOnlyInside_;
 };
 
 class SiPixelClusterShapeCache {
 public:
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> ClusterRef;
 
+  struct Field {
+    Field(unsigned i, bool s, bool c, bool h):
+      index(i), straight(s), complete(c), has(h) {}
+    unsigned index;
+    bool straight;
+    bool complete;
+    bool has;
+  };
+
   SiPixelClusterShapeCache() {};
   explicit SiPixelClusterShapeCache(const edm::HandleBase& handle): productId_(handle.id()) {}
   explicit SiPixelClusterShapeCache(const edm::ProductID& id): productId_(id) {}
   ~SiPixelClusterShapeCache();
 
-  void resize(size_t size) {
-    data_.resize(size);
+  void reserve(size_t size) {
+    data_.reserve(size);
+    sizeData_.reserve(size);
   }
+
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  void shrink_to_fit() {
+    data_.shrink_to_fit();
+    sizeData_.shrink_to_fit();
+  }
+#endif
 
   template <typename T>
-  void set(const ClusterRef& cluster, const T& data) {
+  void push_back(const ClusterRef& cluster, const T& data) {
     assert(productId_ == cluster.id());
-    data_.at(cluster.index()).set(data);
+    assert(cluster.index() == data_.size()); // ensure data are pushed in correct order
+
+    std::copy(data.size.begin(), data.size.end(), std::back_inserter(sizeData_));
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    data_.emplace_back(sizeData_.size(), data.isStraight, data.isComplete, data.hasBigPixelsOnlyInside);
+#else
+    data_.push_back(Field(sizeData_.size(), data.isStraight, data.isComplete, data.hasBigPixelsOnlyInside));
+#endif
   }
 
-  const SiPixelClusterShapeData& get(const ClusterRef& cluster) const {
+  SiPixelClusterShapeData get(const ClusterRef& cluster) const {
     assert(productId_ == cluster.id());
-    return data_.at(cluster.index());
+    assert(cluster.index() < data_.size());
+    unsigned beg = 0;
+    if(cluster.index() > 0)
+      beg = data_[cluster.index()-1].index;
+
+    Field f = data_[cluster.index()];
+    unsigned end = f.index;
+
+    return SiPixelClusterShapeData(sizeData_.begin()+beg, sizeData_.begin()+end,
+                                   f.straight, f.complete, f.has);
   }
 
 private:
-  std::vector<SiPixelClusterShapeData> data_;
+  std::vector<Field> data_;
+  std::vector<std::pair<int, int> > sizeData_;
   edm::ProductID productId_;
 };
 
