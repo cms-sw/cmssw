@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+
 # The CMS Geometry files
 # Pilot 2 geometry doesn't contain the preshower
 #from Configuration.StandardSequences.GeometryPilot2_cff import *
@@ -7,7 +8,9 @@ import FWCore.ParameterSet.Config as cms
 # To use the "full" CMS geometry, comment the prevous line, and uncomment the following one:
 #####from Configuration.StandardSequences.Geometry_cff import *
 #from Configuration.StandardSequences.GeometryDB_cff import *
-from Configuration.Geometry.GeometryExtended2017Reco_cff import *
+#from Configuration.Geometry.GeometryExtended2017Reco_cff import *
+from Configuration.Geometry.GeometryExtendedPhase1TkBERecoForward_cff import *
+
 
 
 #TrackerDigiGeometryESModule.applyAlignement = False
