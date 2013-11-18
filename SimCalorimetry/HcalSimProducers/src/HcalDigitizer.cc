@@ -111,6 +111,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
   theHOSiPMHitFilter(HcalOuter),
   theZDCHitFilter(),
   theHitCorrection(0),
+  theTimeSlewSim(0),
   theNoiseGenerator(0),
   theNoiseHitGenerator(0),
   theHBHEDigitizer(0),
