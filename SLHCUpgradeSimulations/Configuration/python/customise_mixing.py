@@ -38,6 +38,8 @@ def customise_NoCrossing(process):
     return (process)
 
 def customise_pixelMixing_PU(process):
+    if hasattr(process,'noPixelDataloss'):
+        return process #avoid race condition
     if hasattr(process,'mix'): 
         n=0
         if hasattr(process.mix,'input'):
@@ -58,3 +60,16 @@ def customise_NoCrossing_PU(process):
     process=customise_NoCrossing(process)
     return (process)
 
+
+def customise_noPixelDataloss(process):
+    process.noPixelDataloss=cms.untracked.PSet()
+    if hasattr(process,'mix'):
+        process.mix.digitizers.pixel.thePixelColEfficiency_BPix1 = cms.double(1)
+        process.mix.digitizers.pixel.thePixelColEfficiency_BPix2 = cms.double(1)
+        process.mix.digitizers.pixel.thePixelColEfficiency_BPix3 = cms.double(1)
+        process.mix.digitizers.pixel.thePixelColEfficiency_BPix4 = cms.double(1)
+        process.mix.digitizers.pixel.thePixelColEfficiency_FPix1 = cms.double(1)
+        process.mix.digitizers.pixel.thePixelColEfficiency_FPix2 = cms.double(1)
+        process.mix.digitizers.pixel.thePixelColEfficiency_FPix3 = cms.double(1)
+    return process
+    
