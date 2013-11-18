@@ -1,3 +1,3 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 
-EcalPedestal::Zero EcalPedestal::zero = {0.,0.};
+const EcalPedestal::Zero EcalPedestal::zero;
