@@ -1,36 +1,62 @@
 from ROOT import *
 
-ptscale = [-1.,  0., 1.5,  2., 2.5,  3., 3.5,  4., 4.5,  5.,  6.,  7.,  8.,  10.,  12.,  14.,
-            16., 18., 20., 25., 30., 35., 40., 45., 50., 60., 70., 80., 90., 100., 120., 140.]
+## global variables
 
-ptscaleb = [1.5,  2., 2.5,  3., 3.5,  4., 4.5,  5.,  6.,  7.,  8.,  10.,  12.,  14.,
-            16., 18., 20., 25., 30., 35., 40., 45., 50., 60., 70., 80., 90., 100., 120., 140., 150.]
+ptscale = [-1.,  0., 1.5,  2., 2.5,  3., 3.5,  4., 4.5, 5.,  6.,  7.,  8.,  10.,  
+            12.,  14., 16., 18., 20., 25., 30., 35., 40., 45., 50., 60., 70., 
+            80., 90., 100., 120., 140.]
 
-ptscaleb_ = [1.25, 1.75, 2.25, 2.75, 3.25, 3.75, 4.25, 4.75,  5.5, 6.5, 7.5,  9., 11.,  13.,  15.,
-             17.,  19., 22.5, 27.5, 32.5, 37.5, 42.5, 47.5,  55.,  65., 75., 85., 95., 110., 130., 150.]
+ptscaleb = [1.5,  2., 2.5,  3., 3.5,  4., 4.5,  5.,  6.,  7.,  8.,  10.,  12.,  
+            14., 16., 18., 20., 25., 30., 35., 40., 45., 50., 60., 70., 80., 
+            90., 100., 120., 140., 150.]
 
+ptscaleb_ = [1.25, 1.75, 2.25, 2.75, 3.25, 3.75, 4.25, 4.75,  5.5, 6.5, 7.5,  
+             9., 11.,  13.,  15., 17.,  19., 22.5, 27.5, 32.5, 37.5, 42.5, 
+             47.5,  55.,  65., 75., 85., 95., 110., 130., 150.]
+
+#_______________________________________________________________________________
 def GetStat(h):
   """Get the statistics options"""
   return h.FindObject("stats")
 
+#_______________________________________________________________________________
 def SetOptStat(h, op):
   """Set the statistics options"""
   stat = GetStat(h)
   stat.SetOptStat(op)
   return stat
     
-def getH(f, dir, name):
-  """Get the histogram"""
-#  dir = "SimMuL1StrictAll"
-  if not f.Get("%s/%s;1"%(dir,name)):
-    print "No such histogram: " + "%s/%s;1"%(dir,name)
-  
-  return f.Get("%s/%s;1"%(dir,name))
+#_______________________________________________________________________________
+def getH(dir, histo_name):
+  """Get the histogram from a directory"""
+  histo = dir.Get("%s;1"%(histo_name))
+  if not histo:
+    print "No such histogram: ", histo_name
+  return histo
 
+#_______________________________________________________________________________
+def getRootDirectory(input_dir, file_name, dir_name = "GEMCSCTriggerEfficiency"):
+    """Get the ROOT directory from the GEMCSCTriggerEfficiency analyzer. Normally,
+    the directory should be called GEMCSCTriggerEfficiency. You should check it anyway"""
+
+    ### get the ROOT file
+    file = TFile.Open(input_dir + file_name)
+    if not file:
+        sys.exit('Input ROOT file %s is missing.' %(file_name))
+
+    ## get the ROOT directory
+    dir = file.Get(dir_name)
+    if not dir:
+        sys.exit('Directory %s does not exist.' %(dir_name))
+
+    return dir
+
+#_______________________________________________________________________________
 def Print(c, name):
   """Print the histogram"""
   c.Print("%s/%s"%(pdir,name))
 
+#_______________________________________________________________________________
 def myRebin(h, n):
   """Custom rebin function"""
   nb = h.GetNbinsX()
@@ -45,6 +71,7 @@ def myRebin(h, n):
   h.SetBinContent(nb+1, binN1)
   h.SetEntries(entr)
 
+#_______________________________________________________________________________
 def scale(h):
   """Calculate the trigger rate"""
   rate = 40000.
@@ -53,12 +80,14 @@ def scale(h):
   bx_filling = 0.795
   h.Scale(rate*bx_filling/(bx_window*nevents))
 
+#_______________________________________________________________________________
 def drawLumiBXPULabel():
   """Draw the luminosity + BX label -- not for TDR"""
   tex = TLatex(0.17, 0.82,"#splitline{L=4*10^{34}}{(25ns PU100)}")
   tex.SetNDC()
   tex.Draw()
 
+#_______________________________________________________________________________
 def drawPULabel(x=0.17, y=0.15, font_size=0.):                          
     tex = TLatex(x, y,"L=4*10^{34} (25ns PU100)")
     if (font_size > 0.): 
@@ -67,6 +96,7 @@ def drawPULabel(x=0.17, y=0.15, font_size=0.):
     tex.Draw()
     return tex
 
+#_______________________________________________________________________________
 def setHistoPt(f_name, name, cname, title, lcolor, lstyle, lwidth):
   """Set rate vs pt histogram""" 
   print "Opening ", f_name
@@ -84,6 +114,7 @@ def setHistoPt(f_name, name, cname, title, lcolor, lstyle, lwidth):
   scale(h)
   return h
 
+#_______________________________________________________________________________
 def setHistoPtRaw(f_name, name, cname, title, lcolor, lstyle, lwidth):
   """Set rate vs pt histogram""" 
   print "Opening ", f_name
@@ -95,6 +126,7 @@ def setHistoPtRaw(f_name, name, cname, title, lcolor, lstyle, lwidth):
   scale(h)
   return h
 
+#_______________________________________________________________________________
 def setHistoEta(f_name, name, cname, title, lcolor, lstyle, lwidth):
   """Set rate vs eta histogram"""
   print "Opening", f_name
@@ -127,11 +159,13 @@ def setHistoEta(f_name, name, cname, title, lcolor, lstyle, lwidth):
   ##h.GetYaxis().SetLabelOffset(0.015)
   return h
 
+#_______________________________________________________________________________
 def getPTHisto(f_name, dir_name, h_name, clone_suffix = "_cln"):
   """Get rate vs pt histogram"""
   f = TFile.Open(f_name)
   return f.Get(dir_name + "/" + h_name).Clone(h_name + clone_suffix)
 
+#_______________________________________________________________________________
 def setPTHisto(h0, title, lcolor, lstyle, lwidth):
     nb = h0.GetXaxis().GetNbins()
     h = TH1D("%s_varpt"%(h0.GetName(), title, 30, ptscaleb_))
@@ -169,10 +203,12 @@ def setPTHisto(h0, title, lcolor, lstyle, lwidth):
     h.GetYaxis().SetLabelFont(62)
     return h
 
+#_______________________________________________________________________________
 def setPTHisto(f_name, dir_name, h_name, clone_suffix, title, lcolor, lstyle, lwidth):
     h0 = getPTHisto(f_name, dir_name, h_name, clone_suffix)
     return setPTHisto(h0, title, lcolor, lstyle, lwidth)
 
+#_______________________________________________________________________________
 def setHisto(f_name, name, cname, title, lcolor, lstyle, lwidth):
     print "Opening ", f_name
     f = TFile.Open(f_name)
@@ -213,6 +249,7 @@ def setHisto(f_name, name, cname, title, lcolor, lstyle, lwidth):
     ##h.GetYaxis().SetLabelOffset(0.015)
     return h
 
+#_______________________________________________________________________________
 def setHistoRatio(num, denom, title = "", ymin=0.4, ymax=1.6, color = kRed+3):
     ratio = num.Clone("%s--%s_ratio"%(num.GetName(),denom.GetName()))
     ratio.Divide(num, denom, 1., 1.)
@@ -236,5 +273,6 @@ def setHistoRatio(num, denom, title = "", ymin=0.4, ymax=1.6, color = kRed+3):
     return ratio
 
 
+#_______________________________________________________________________________
 if __name__ == "__main__":
     print "It's Working!"
