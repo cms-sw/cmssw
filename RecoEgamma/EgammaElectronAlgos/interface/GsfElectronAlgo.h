@@ -210,6 +210,8 @@ class GsfElectronAlgo {
     void removeNotPreselectedElectrons() ;
     void removeAmbiguousElectrons() ;
     void copyElectrons( reco::GsfElectronCollection & ) ;
+    void setMVAInputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput> & mvaInputs)  ;
+    void setMVAOutputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs) ;
     void endEvent() ;
 
   private :
@@ -230,6 +232,7 @@ class GsfElectronAlgo {
     void setPflowPreselectionFlag( reco::GsfElectron * ele ) ;
     bool isPreselected( reco::GsfElectron * ele ) ;
     void calculateShowerShape( const reco::SuperClusterRef &, bool pflow, reco::GsfElectron::ShowerShape & ) ;
+
 
     // associations
     const reco::SuperClusterRef getTrSuperCluster( const reco::GsfTrackRef & trackRef ) ;
