@@ -352,7 +352,7 @@ def cscMatchingEfficiencyToStripsAndWires(filesDir, input_file, plotDir, ext):
     gStyle.SetOptStat(0);
     gStyle.SetMarkerStyle(1);
     
-    ok_eta = TCut("TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12")
+    ok_eta = TCut("TMath::Abs(eta)>1.5 && TMath::Abs(eta)<2.5")
 
     t = getTree("%s%s"%(filesDir,input_file))
 
@@ -362,7 +362,7 @@ def cscMatchingEfficiencyToStripsAndWires(filesDir, input_file, plotDir, ext):
     yTitle = "Efficiency"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
     toPlot = "TMath::Abs(eta)"
-    h_bins = "(70,1.5,2.2)"
+    h_bins = "(100,1.5,2.5)"
     nBins = int(h_bins[1:-1].split(',')[0])
     minBin = float(h_bins[1:-1].split(',')[1])
     maxBin = float(h_bins[1:-1].split(',')[2])
@@ -370,7 +370,7 @@ def cscMatchingEfficiencyToStripsAndWires(filesDir, input_file, plotDir, ext):
     c = TCanvas("c","c",700,450)
     c.Clear()
     base  = TH1F("base",title,nBins,minBin,maxBin)
-    base.SetMinimum(0.8)
+    base.SetMinimum(0.0)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
@@ -387,7 +387,7 @@ def cscMatchingEfficiencyToStripsAndWires(filesDir, input_file, plotDir, ext):
     leg.AddEntry(h2, "Strips","l")
     leg.Draw("same");
     
-    tex = TLatex(.45,.4,"1.64<|#eta|<2.12")
+    tex = TLatex(.45,.4,"1.5<|#eta|<2.5")
     tex.SetTextSize(0.05)
     tex.SetNDC()
     tex.Draw("same")
@@ -413,7 +413,7 @@ def cscMatchingEfficiencyToStripsAndWires_2(filesDir, input_file, plotDir, ext):
     gStyle.SetOptStat(0);
     gStyle.SetMarkerStyle(1);
     
-    ok_eta = TCut("TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12")
+    ok_eta = TCut("TMath::Abs(eta)>1.5 && TMath::Abs(eta)<2.5")
 
     t = getTree("%s%s"%(filesDir, input_file))
 
@@ -423,7 +423,7 @@ def cscMatchingEfficiencyToStripsAndWires_2(filesDir, input_file, plotDir, ext):
     yTitle = "Efficiency"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
     toPlot = "TMath::Abs(eta)"
-    h_bins = "(70,1.5,2.2)"
+    h_bins = "(100,1.5,2.5)"
     nBins = int(h_bins[1:-1].split(',')[0])
     minBin = float(h_bins[1:-1].split(',')[1])
     maxBin = float(h_bins[1:-1].split(',')[2])
@@ -431,7 +431,7 @@ def cscMatchingEfficiencyToStripsAndWires_2(filesDir, input_file, plotDir, ext):
     c = TCanvas("c","c",700,450)
     c.Clear()
     base  = TH1F("base",title,nBins,minBin,maxBin)
-    base.SetMinimum(0.8)
+    base.SetMinimum(0.0)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
@@ -448,7 +448,7 @@ def cscMatchingEfficiencyToStripsAndWires_2(filesDir, input_file, plotDir, ext):
     leg.AddEntry(h2, "Wires AND strips","l")
     leg.Draw("same");
     
-    tex = TLatex(.45,.4,"1.64<|#eta|<2.12")
+    tex = TLatex(.45,.4,"1.5<|#eta|<2.5")
     tex.SetTextSize(0.05)
     tex.SetNDC()
     tex.Draw("same")
@@ -475,7 +475,7 @@ def cscMatchingEfficiencyToAlctClct(filesDir, input_file, plotDir, ext):
     gStyle.SetOptStat(0);
     gStyle.SetMarkerStyle(1);
     
-    ok_eta = TCut("TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12")
+    ok_eta = TCut("TMath::Abs(eta)>1.5 && TMath::Abs(eta)<2.5")
 
     t = getTree("%s%s"%(filesDir, input_file))
 
@@ -485,7 +485,7 @@ def cscMatchingEfficiencyToAlctClct(filesDir, input_file, plotDir, ext):
     yTitle = "Efficiency"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
     toPlot = "TMath::Abs(eta)"
-    h_bins = "(70,1.5,2.2)"
+    h_bins = "(100,1.5,2.5)"
     nBins = int(h_bins[1:-1].split(',')[0])
     minBin = float(h_bins[1:-1].split(',')[1])
     maxBin = float(h_bins[1:-1].split(',')[2])
@@ -493,7 +493,7 @@ def cscMatchingEfficiencyToAlctClct(filesDir, input_file, plotDir, ext):
     c = TCanvas("c","c",700,450)
     c.Clear()
     base  = TH1F("base",title,nBins,minBin,maxBin)
-    base.SetMinimum(0.8)
+    base.SetMinimum(0.0)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
@@ -546,7 +546,7 @@ def cscMatchingEfficiencyToAlctClct_2(filesDir, input_file, plotDir, ext):
     yTitle = "Efficiency"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
     toPlot = "TMath::Abs(eta)"
-    h_bins = "(70,1.5,2.2)"
+    h_bins = "(100,1.5,2.5)"
     nBins = int(h_bins[1:-1].split(',')[0])
     minBin = float(h_bins[1:-1].split(',')[1])
     maxBin = float(h_bins[1:-1].split(',')[2])
@@ -554,7 +554,7 @@ def cscMatchingEfficiencyToAlctClct_2(filesDir, input_file, plotDir, ext):
     c = TCanvas("c","c",700,450)
     c.Clear()
     base  = TH1F("base",title,nBins,minBin,maxBin)
-    base.SetMinimum(0.8)
+    base.SetMinimum(0.0)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
@@ -607,7 +607,7 @@ def cscMatchingEfficiencyToLct(filesDir, input_file, plotDir, ext):
     yTitle = "Efficiency"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
     toPlot = "TMath::Abs(eta)"
-    h_bins = "(70,1.5,2.2)"
+    h_bins = "(100,1.5,2.5)"
     nBins = int(h_bins[1:-1].split(',')[0])
     minBin = float(h_bins[1:-1].split(',')[1])
     maxBin = float(h_bins[1:-1].split(',')[2])
@@ -615,7 +615,7 @@ def cscMatchingEfficiencyToLct(filesDir, input_file, plotDir, ext):
     c = TCanvas("c","c",700,450)
     c.Clear()
     base  = TH1F("base",title,nBins,minBin,maxBin)
-    base.SetMinimum(0.8)
+    base.SetMinimum(0.0)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
