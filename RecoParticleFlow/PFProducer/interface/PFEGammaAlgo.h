@@ -271,8 +271,7 @@ private:
   void linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject&);
   void linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject&);
   // helper function for above
-  const PFClusterElement* 
-    linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
+  void linkKFTrackToECAL(const PFKFFlaggedElement&, ProtoEGObject&);
 
   // refining steps doing the ECAL -> track piece
   // this is the factorization of the old PF photon algo stuff
