@@ -51,7 +51,8 @@ int main() {
   for(size_t i=0; i!=vf.size(); ++i)
     vf[i] = float(i)+float(i)/1000.;
       
-  Reflex::Type vType = Reflex::Type::ByTypeInfo( typeid(std::vector<float>));
+    // Reflex::Type vType = Reflex::Type::ByTypeInfo( typeid(std::vector<float>));
+    edm::TypeWithDict vType = edm::TypeWithDict::typeInfo( typeid(std::vector<float>));
   
   {
     // old mode
@@ -81,7 +82,8 @@ int main() {
   // CBLOB...
   std::vector<unsigned char>  vc = crap;
 
-  Reflex::Type cType = Reflex::Type::ByTypeInfo( typeid(std::vector<unsigned char>));
+  // Reflex::Type cType = Reflex::Type::ByTypeInfo( typeid(std::vector<unsigned char>));
+  edm::TypeWithDict vType = edm::TypeWithDict::typeInfo( typeid(std::vector<unsigned char>));
   
   {
     // old mode
