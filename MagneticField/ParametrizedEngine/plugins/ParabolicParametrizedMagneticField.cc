@@ -38,7 +38,8 @@ ParabolicParametrizedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) cons
 }
 
 float ParabolicParametrizedMagneticField::B0Z(const float z) const {
-  return b0*z*z + b1*z + c1;
+  //1.9: effective correction for large eta effects
+  return 1.9*b0*z*z + b1*z + c1;
 }
 
 float ParabolicParametrizedMagneticField::Kr(const float R2) const {
