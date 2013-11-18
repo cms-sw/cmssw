@@ -14,6 +14,7 @@
 class EcalLaserAPDPNRatios {
  public:
   struct EcalLaserAPDPNpair{
+    EcalLaserAPDPNpair() : p1(0), p2(0), p3(0) {}
     float p1;
     float p2;
     float p3;
@@ -21,6 +22,7 @@ class EcalLaserAPDPNRatios {
   COND_SERIALIZABLE;
 };
   struct EcalLaserTimeStamp{
+    EcalLaserTimeStamp() : t1(), t2(), t3() {}
     edm::Timestamp t1;
     edm::Timestamp t2;
     edm::Timestamp t3;

@@ -108,9 +108,10 @@ class EcalCondObjectContainer {
                 // add coherent operator++, not needed now -- FIXME
 
                 inline
-                Item & operator[]( uint32_t rawId ) {
+                Item & operator[]( uint32_t rawId ) 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+                {
                         DetId id(rawId);
-                        static Item dummy;
                         switch (id.subdetId()) {
                                 case EcalBarrel :
                                         { 
@@ -124,14 +125,17 @@ class EcalCondObjectContainer {
                                         break;
                                 default:
                                         // FIXME (add throw)
+                                        thread_local static Item dummy;
                                         return dummy;
                         }
                 }
+#else
+;
+#endif
                 
                 inline
-                Item const & operator[]( uint32_t rawId ) const {
+                Item operator[]( uint32_t rawId ) const {
                         DetId id(rawId);
-                        static Item dummy;
                         switch (id.subdetId()) {
                                 case EcalBarrel :
                                         { 
@@ -145,11 +149,13 @@ class EcalCondObjectContainer {
                                         break;
                                 default:
                                         // FIXME (add throw)
-                                        return dummy;
+                                        // sizeof(Item) <= sizeof(int64_t) for all Items.
+                                        return Item();
                         }
                 }
                 
         private:
+                
                 EcalContainer< EBDetId, Item > eb_;
                 EcalContainer< EEDetId, Item > ee_;
 
