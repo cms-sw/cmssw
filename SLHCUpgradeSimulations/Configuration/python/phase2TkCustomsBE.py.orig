@@ -242,7 +242,7 @@ def customise_DQM(process,pileup):
     			    #The following two steps were removed
                             #process.PixelLessStep*
                             #process.TobTecStep*
-#    process.dqmoffline_step.remove(process.muonAnalyzer)
+    process.dqmoffline_step.remove(process.muonAnalyzer)
     process.dqmoffline_step.remove(process.jetMETAnalyzer)
 #    process.dqmoffline_step.remove(process.TrackMonStep9)
 #    process.dqmoffline_step.remove(process.TrackMonStep10)

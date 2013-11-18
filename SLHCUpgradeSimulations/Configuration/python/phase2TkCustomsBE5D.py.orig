@@ -35,7 +35,7 @@ def customise_Digi(process):
     process.mix.digitizers.pixel.useDB = False
     process.mix.digitizers.pixel.DeadModules_DB = False
     process.mix.digitizers.pixel.NumPixelBarrel = cms.int32(10)
-    process.mix.digitizers.pixel.NumPixelEndcap = cms.int32(10)
+    process.mix.digitizers.pixel.NumPixelEndcap = cms.int32(7)
     process.mix.digitizers.pixel.ThresholdInElectrons_FPix = cms.double(2000.0)
     process.mix.digitizers.pixel.ThresholdInElectrons_BPix = cms.double(2000.0)
     process.mix.digitizers.pixel.ThresholdInElectrons_BPix_L1 = cms.double(2000.0)
@@ -56,7 +56,7 @@ def customise_Digi(process):
     process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTECHighTof"))
     process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"))
     process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDHighTof"))
-
+    
     return process
 
 
@@ -127,7 +127,7 @@ def customise_Reco(process,pileup):
     del process.muonSeededStepExtra 
     del process.muonSeededStep
     del process.muonSeededStepDebug
-
+    
     # add the correct tracking back in
     process.load("RecoTracker.Configuration.RecoTrackerPhase2BE_cff")
 
@@ -194,7 +194,7 @@ def customise_Reco(process,pileup):
     return process
 
 def customise_condOverRides(process):
-    process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_BarrelEndcap_cff')
+    process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_BarrelEndcap5D_cff')
     process.trackerNumberingSLHCGeometry.layerNumberPXB = cms.uint32(20)
     process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
     process.trackerTopologyConstants.pxb_ladderStartBit = cms.uint32(12)
@@ -242,7 +242,7 @@ def customise_DQM(process,pileup):
     			    #The following two steps were removed
                             #process.PixelLessStep*
                             #process.TobTecStep*
-#    process.dqmoffline_step.remove(process.muonAnalyzer)
+    process.dqmoffline_step.remove(process.muonAnalyzer)
     process.dqmoffline_step.remove(process.jetMETAnalyzer)
 #    process.dqmoffline_step.remove(process.TrackMonStep9)
 #    process.dqmoffline_step.remove(process.TrackMonStep10)
