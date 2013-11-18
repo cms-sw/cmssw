@@ -23,6 +23,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include <algorithm>
 #include <iostream>
