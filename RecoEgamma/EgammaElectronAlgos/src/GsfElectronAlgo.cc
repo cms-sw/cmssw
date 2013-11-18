@@ -1115,6 +1115,32 @@ void GsfElectronAlgo::setPflowPreselectionFlag( GsfElectron * ele )
 //   { LogTrace("GsfElectronAlgo") << "Mva criteria are satisfied" ; }
  }
 
+void GsfElectronAlgo::setMVAInputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput> & mvaInputs) 
+{
+  GsfElectronPtrCollection::iterator el ;
+  for
+    ( el = eventData_->electrons->begin() ;
+      el != eventData_->electrons->end() ;
+      el++ )
+    {
+      std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput>::const_iterator itcheck=mvaInputs.find((*el)->gsfTrack());
+      (*el)->setMvaInput(itcheck->second);
+    }
+}
+
+void GsfElectronAlgo::setMVAOutputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs)
+{
+  GsfElectronPtrCollection::iterator el ;
+  for
+    ( el = eventData_->electrons->begin() ;
+      el != eventData_->electrons->end() ;
+      el++ )
+    {
+      std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput>::const_iterator itcheck=mvaOutputs.find((*el)->gsfTrack());
+      (*el)->setMvaOutput(itcheck->second);
+    }
+}
+
 void GsfElectronAlgo::createElectron()
  {
   // eventually check ctf track

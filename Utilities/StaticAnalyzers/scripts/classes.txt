@@ -1980,6 +1980,7 @@ class reco::ClusterRemovalInfo
 class reco::ClusterShape
 class reco::CombinedTauTagInfo
 class reco::CompositeCandidate
+class reco::ConvBremSeed
 class reco::Conversion
 class reco::ConversionTrack
 class reco::DeDxData
@@ -2018,6 +2019,7 @@ class reco::GsfElectron::ShowerShape
 class reco::GsfElectron::TrackClusterMatching
 class reco::GsfElectron::TrackExtrapolations
 class reco::GsfElectronCore
+class reco::GsfPFRecTrack
 class reco::GsfTrack
 class reco::GsfTrackExtra
 class reco::HFEMClusterShape
@@ -2065,6 +2067,7 @@ class reco::PFCandidateEGammaExtra
 class reco::PFCandidateElectronExtra
 class reco::PFCandidatePhotonExtra
 class reco::PFCluster
+class reco::PFClusterJet
 class reco::PFClusterMET
 class reco::PFConversion
 class reco::PFDisplacedTrackerVertex
@@ -2084,6 +2087,7 @@ class reco::PFTau
 class reco::PFTauDecayMode
 class reco::PFTauDiscriminator
 class reco::PFTauDiscriminatorByIsolation
+class reco::PFTauTagInfo
 class reco::PFV0
 class reco::Particle
 class reco::PattRecoNode
@@ -2093,6 +2097,7 @@ class reco::PdfInfo
 class reco::PhiWedge
 class reco::Photon
 class reco::PhotonCore
+class reco::PileUpPFCandidate
 class reco::PreId
 class reco::PreshowerCluster
 class reco::PreshowerClusterShape
