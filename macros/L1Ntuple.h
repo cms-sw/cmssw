@@ -35,13 +35,11 @@
 #include "L1AnalysisRecoJetDataFormat.h"
 #include "L1AnalysisRecoClusterDataFormat.h"
 #include "L1AnalysisRecoMuonDataFormat.h"
+#include "L1AnalysisRecoRpcHitDataFormat.h"
 #include "L1AnalysisL1ExtraDataFormat.h"
 #include "L1AnalysisRecoVertexDataFormat.h"
 #include "L1AnalysisRecoTrackDataFormat.h"
 #include "L1AnalysisL1MenuDataFormat.h"
-#include "L1AnalysisSimulationDataFormat.h"
-#include "L1AnalysisGeneratorDataFormat.h"
-
 
 class L1Ntuple {
 public:
@@ -60,14 +58,15 @@ public:
   bool dol1menu;
 
   L1Analysis::L1AnalysisEventDataFormat        *event_;
-  L1Analysis::L1AnalysisGCTDataFormat        *gct_;
-  L1Analysis::L1AnalysisGMTDataFormat        *gmt_;
-  L1Analysis::L1AnalysisGTDataFormat         *gt_;
-  L1Analysis::L1AnalysisRCTDataFormat        *rct_;
+  L1Analysis::L1AnalysisGCTDataFormat          *gct_;
+  L1Analysis::L1AnalysisGMTDataFormat          *gmt_;
+  L1Analysis::L1AnalysisGTDataFormat           *gt_;
+  L1Analysis::L1AnalysisRCTDataFormat          *rct_;
   L1Analysis::L1AnalysisDTTFDataFormat         *dttf_;
   L1Analysis::L1AnalysisCSCTFDataFormat        *csctf_;
   L1Analysis::L1AnalysisRecoMetDataFormat      *recoMet_;
   L1Analysis::L1AnalysisRecoMuonDataFormat     *recoMuon_;
+  L1Analysis::L1AnalysisRecoRpcHitDataFormat   *recoRpcHit_;
   L1Analysis::L1AnalysisRecoJetDataFormat      *recoJet_;
   L1Analysis::L1AnalysisRecoClusterDataFormat  *recoBasicCluster_;
   L1Analysis::L1AnalysisRecoClusterDataFormat  *recoSuperCluster_;
@@ -76,8 +75,6 @@ public:
   L1Analysis::L1AnalysisRecoVertexDataFormat   *recoVertex_;
   L1Analysis::L1AnalysisRecoTrackDataFormat    *recoTrack_;
   L1Analysis::L1AnalysisL1MenuDataFormat       *l1menu_;
-  L1Analysis::L1AnalysisSimulationDataFormat      *sim_;
-  L1Analysis::L1AnalysisGeneratorDataFormat      *gen_;
 
   L1Ntuple();
   L1Ntuple(const std::string & fname);
@@ -326,8 +323,6 @@ void L1Ntuple::Init()
    rct_   = new L1Analysis::L1AnalysisRCTDataFormat();
    dttf_  = new L1Analysis::L1AnalysisDTTFDataFormat();
    csctf_ = new L1Analysis::L1AnalysisCSCTFDataFormat();
-	sim_   = new L1Analysis::L1AnalysisSimulationDataFormat();
-	gen_   = new L1Analysis::L1AnalysisGeneratorDataFormat();
 
    std::cout<<"Setting branch addresses for L1Tree...  "<<std::flush;
 
@@ -338,8 +333,6 @@ void L1Ntuple::Init()
    fChain->SetBranchAddress("RCT",   &rct_   );
    fChain->SetBranchAddress("CSCTF", &csctf_ );
    fChain->SetBranchAddress("DTTF",  &dttf_  );
-	fChain->SetBranchAddress("Simulation",  &sim_  );
-	fChain->SetBranchAddress("Generator",  &gen_  );
 
 
 
@@ -367,9 +360,11 @@ void L1Ntuple::Init()
    if (domuonreco)
    {
      std::cout<<"Setting branch addresses for muons...   "<<std::endl;
-     recoMuon_ = new L1Analysis::L1AnalysisRecoMuonDataFormat() ;
+     recoMuon_     = new L1Analysis::L1AnalysisRecoMuonDataFormat() ;
+     recoRpcHit_   = new L1Analysis::L1AnalysisRecoRpcHitDataFormat();
      ftreemuon->SetBranchAddress("Muon",&recoMuon_);
-     }
+     ftreemuon->SetBranchAddress("RpcHit",&recoRpcHit_);
+   }
 
    if (dol1extra)
      {

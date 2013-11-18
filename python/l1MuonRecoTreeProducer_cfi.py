@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 l1MuonRecoTreeProducer = cms.EDAnalyzer("L1MuonRecoTreeProducer",
   maxMuon = cms.uint32(20),
+  muonTag = cms.InputTag("muons"),
+
+  maxRcpHit = cms.uint32(100),
+  rpcHitTag = cms.InputTag("rpcRecHits"),
 
   #---------------------------------------------------------------------
   # TRIGGER MATCHING CONFIGURATION

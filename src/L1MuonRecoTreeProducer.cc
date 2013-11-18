@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    L1TriggerDPG/L1Ntuples
+// Package:    UserCode/L1TriggerDPG
 // Class:      L1MuonRecoTreeProducer
 // 
-/**\class L1MuonRecoTreeProducer L1MuonRecoTreeProducer.cc L1TriggerDPG/L1Ntuples/src/L1MuonRecoTreeProducer.cc
+/**\class L1MuonRecoTreeProducer L1MuonRecoTreeProducer.cc UserCode/L1TriggerDPG/src/L1MuonRecoTreeProducer.cc
 
  Description: Produce Muon Reco tree
 
@@ -56,13 +56,14 @@
 
 // B Field
 #include "MagneticField/Engine/interface/MagneticField.h"
-//#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 
 // Geometry
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 
 // ROOT output stuff
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -73,14 +74,20 @@
 #include "TMath.h"
 
 #include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoMuon.h"
+#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoRpcHit.h"
+
 // GP
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
+
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+
+
 //vertex
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-//#include <cassert>
 
 #include <typeinfo>
 
@@ -94,16 +101,6 @@
 #include "TString.h"
 #include "TRegexp.h"
 #include <utility>
-
-//---------------------------------------------------------------------------
-
-//---------------------------------------------------------------------------
-//#define MAX_CSC_RECHIT 35 // 4 stations x 6 layers + some overlap between chambers
-//using namespace trigger;
-//using namespace reco;
-//using namespace std;
-//using namespace edm;
-// GP end
 
 //
 // class declaration
@@ -134,10 +131,14 @@ public:
  L1Analysis::L1AnalysisRecoMuon* muon;
  L1Analysis::L1AnalysisRecoMuonDataFormat * muonData;
 
+  L1Analysis::L1AnalysisRecoRpcHit* rpcHit;
+  L1Analysis::L1AnalysisRecoRpcHitDataFormat * rpcHitData;
+
 private:
   
   unsigned maxMuon_;
-  
+  unsigned maxRpcHit_;
+
   //---------------------------------------------------------------------------
   // TRIGGER MATCHING 
   // member variables needed for matching, using reco muons instead of PAT
@@ -161,23 +162,26 @@ private:
   };
  
   // GP start
-  //---------------------------------------------------------------------------
-  // Service
-  //---------------------------------------------------------------------------
-  //  MuonServiceProxy* muonGeom;
   edm::ESHandle<CSCGeometry> cscGeom;
   // GP end
  
- // The Magnetic field
-  edm::ESHandle<MagneticField> theBField;
-  // The GlobalTrackingGeometry
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   // DT Geometry
   edm::ESHandle<DTGeometry> dtGeom;
+
+  // RPC Geometry
+  edm::ESHandle<RPCGeometry> rpcGeom;
+
+  // The Magnetic field
+  edm::ESHandle<MagneticField> theBField;
+
+  // The GlobalTrackingGeometry
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+
+
   // Extrapolator to cylinder
   edm::ESHandle<Propagator> propagatorAlong;
   edm::ESHandle<Propagator> propagatorOpposite;
-
+  
   FreeTrajectoryState freeTrajStateMuon(reco::TrackRef track);
   
   // output file
@@ -187,44 +191,49 @@ private:
   TTree * tree_;
   
   // EDM input tags
-  //edm::InputTag muonTag_;
+  edm::InputTag muonTag_;
+  edm::InputTag rpcHitTag_;
   
 };
 
 
 
 L1MuonRecoTreeProducer::L1MuonRecoTreeProducer(const edm::ParameterSet& iConfig)
-  //muonTag_(iConfig.getUntrackedParameter("muonTag",edm::InputTag("sisCone5CaloJets"))),
-  //jetsMissing_(false)
 {
   
   maxMuon_ = iConfig.getParameter<unsigned int>("maxMuon");
+  maxRpcHit_ = iConfig.getParameter<unsigned int>("maxMuon");
+
+  muonTag_   = iConfig.getParameter<edm::InputTag>("muonTag");
+  rpcHitTag_ = iConfig.getParameter<edm::InputTag>("rpcHitTag");
+
   muon = new L1Analysis::L1AnalysisRecoMuon();
   muonData = muon->getData();
+
+  rpcHit = new L1Analysis::L1AnalysisRecoRpcHit();
+  rpcHitData = rpcHit->getData();
    
   // set up output
   tree_=fs_->make<TTree>("MuonRecoTree", "MuonRecoTree");  
-  tree_->Branch("Muon", "L1Analysis::L1AnalysisRecoMuonDataFormat", &muonData, 32000, 3);
-
+  tree_->Branch("Muon",   "L1Analysis::L1AnalysisRecoMuonDataFormat", &muonData, 32000, 3);
+  tree_->Branch("RpcHit", "L1Analysis::L1AnalysisRecoRpcHitDataFormat", &rpcHitData, 32000, 3);
 
   //---------------------------------------------------------------------------
   // TRIGGER MATCHING 
   // member variables needed for matching, if using reco muons instead of PAT
   //---------------------------------------------------------------------------
-  triggerMatching_ = iConfig.getUntrackedParameter<bool>("triggerMatching");
+  triggerMatching_     = iConfig.getUntrackedParameter<bool>("triggerMatching");
   triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   triggerProcessLabel_ = iConfig.getUntrackedParameter<std::string>("triggerProcessLabel");
-  triggerNames_ = iConfig.getParameter<std::vector<std::string> > ("triggerNames");
-  isoTriggerNames_ = iConfig.getParameter<std::vector<std::string> > ("isoTriggerNames");
-  triggerMaxDeltaR_ = iConfig.getParameter<double> ("triggerMaxDeltaR");
+  triggerNames_        = iConfig.getParameter<std::vector<std::string> > ("triggerNames");
+  isoTriggerNames_     = iConfig.getParameter<std::vector<std::string> > ("isoTriggerNames");
+  triggerMaxDeltaR_    = iConfig.getParameter<double> ("triggerMaxDeltaR");
+
 }
 
 
 L1MuonRecoTreeProducer::~L1MuonRecoTreeProducer()
 {
-  
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
   
 }
 
@@ -405,39 +414,100 @@ void
 L1MuonRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
-  // do a bad thing that brings fortune
-  //float pig=3.1415926535;
   float pig=TMath::Pi();  
+
   muon->Reset();
+  rpcHit->Reset();
 
   //GP start
   // Get the CSC Geometry 
   iSetup.get<MuonGeometryRecord>().get(cscGeom);
   //GP end 
 
-  //Get the Magnetic field from the setup
-  //  iSetup.get<IdealMagneticFieldRecord>().get(theBField);
-  //std::cout<<"Going to get the B field... ";
-  iSetup.get<IdealMagneticFieldRecord>().get(theBField);
-  //std::cout<<"Done"<<std::endl;
-  // Get the GlobalTrackingGeometry from the setup
-  //std::cout<<"Going to get tracking geometry... ";
-
-  //  edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
-  //  iSetup.get<TrackerSurfaceDeformationRcd>().get(alignmentsLabel_, surfaceDeformations);
-  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-  //std::cout<<"Done"<<std::endl;
   // Get the DT Geometry from the setup 
-
   iSetup.get<MuonGeometryRecord>().get(dtGeom);
-  
-  // get the muon candidates
-  edm::Handle<reco::MuonCollection> mucand;
-  iEvent.getByLabel("muons",mucand);
 
-  edm::Handle<reco::BeamSpot> beamSpot;
+  // Get the RPC Geometry from the setup 
+  iSetup.get<MuonGeometryRecord>().get(rpcGeom);
+
+  //Get the Magnetic field from the setup
+  iSetup.get<IdealMagneticFieldRecord>().get(theBField);
+
+  // Get the GlobalTrackingGeometry from the setup
+  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+
+  edm::Handle<RPCRecHitCollection> rpcRecHits;
+
+  iEvent.getByLabel(rpcHitTag_,rpcRecHits);
+  if (!rpcRecHits.isValid()) {
+    edm::LogInfo("L1Prompt") << "can't find RPCRecHitCollection with label " << rpcHitTag_.label() ;
+    }
+  else {
+
+    RPCRecHitCollection::const_iterator recHitIt  = rpcRecHits->begin();
+    RPCRecHitCollection::const_iterator recHitEnd = rpcRecHits->end();
+
+    int iRpcRecHits=0;
+
+    for(; recHitIt != recHitEnd; ++recHitIt){ 
+
+      if((unsigned int) iRpcRecHits>maxRpcHit_-1) continue;
+
+      int cls        = recHitIt->clusterSize();
+      int firststrip = recHitIt->firstClusterStrip();
+      int bx         = recHitIt->BunchX();
+
+      RPCDetId rpcId = recHitIt->rpcId();
+      int region    = rpcId.region();
+      int stat      = rpcId.station();
+      int sect      = rpcId.sector();
+      int layer     = rpcId.layer();
+      int subsector = rpcId.subsector();
+      int roll      = rpcId.roll();
+      int ring      = rpcId.ring();
+
+      LocalPoint recHitPosLoc       = recHitIt->localPosition();
+      const BoundPlane & RPCSurface = rpcGeom->roll(rpcId)->surface();
+      GlobalPoint recHitPosGlob     = RPCSurface.toGlobal(recHitPosLoc);
+
+      float xLoc    = recHitPosLoc.x();
+      float phiGlob = recHitPosGlob.phi();
+      
+      rpcHitData->region.push_back(region);
+      rpcHitData->clusterSize.push_back(cls);
+      rpcHitData->strip.push_back(firststrip);
+      rpcHitData->bx.push_back(bx);
+      rpcHitData->xLoc.push_back(xLoc);
+      rpcHitData->phiGlob.push_back(phiGlob);
+      rpcHitData->station.push_back(stat);
+      rpcHitData->sector.push_back(sect);
+      rpcHitData->layer.push_back(layer);
+      rpcHitData->subsector.push_back(subsector);
+      rpcHitData->roll.push_back(roll);
+      rpcHitData->ring.push_back(ring);
+      rpcHitData->muonId.push_back(-999); // CB set to invalid now, updated when looking at muon info 
+      
+      iRpcRecHits++;
+      
+    }
+    
+    rpcHitData->nRpcHits = iRpcRecHits;
+    
+  }
+  
+  // Get the muon candidates
+  edm::Handle<reco::MuonCollection> mucand;
+  iEvent.getByLabel(muonTag_,mucand);
+  if (!mucand.isValid()) {
+    edm::LogInfo("L1Prompt") << "can't find Muon Collection with label " << muonTag_.label() ;
+    return;
+  }
+  
+  // Get the beamspot
+  edm::Handle<reco::BeamSpot> beamSpot;       
   iEvent.getByLabel("offlineBeamSpot", beamSpot);
 
+  // Get the primary vertices
   edm::Handle<std::vector<reco::Vertex> > vertex;
   iEvent.getByLabel(edm::InputTag("offlinePrimaryVertices"), vertex);
     
@@ -445,11 +515,11 @@ L1MuonRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAny", propagatorAlong   );
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite", propagatorOpposite);
 
-  // loop on muon candidates
+
   for(reco::MuonCollection::const_iterator imu = mucand->begin(); 
-  // or use pat muons:
-  // for(pat::MuonCollection::const_iterator imu = mucand->begin(); 
+      // for(pat::MuonCollection::const_iterator imu = mucand->begin(); 
       imu != mucand->end() && (unsigned) muonData->nMuons < maxMuon_; imu++) {
+
     int type=0;
     if (imu->isGlobalMuon()) type=type+1;
     if (imu->isStandAloneMuon()) type=type+2;
@@ -470,13 +540,12 @@ L1MuonRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     muonData->howmanytypes.push_back(type);   // muon type is counting calo muons and multiple assignments
 
-    // bool type identifiers are exclusive. is this correct?
+    // bool type identifiers are exclusive. is this correct? CB to check 
     bool isSA = (!imu->isGlobalMuon() && imu->isStandAloneMuon() && !imu->isTrackerMuon());
     bool isTR = (!imu->isGlobalMuon() && imu->isTrackerMuon() && !imu->isStandAloneMuon());
     bool isGL = (imu->isGlobalMuon());//&&!(imu->isStandAloneMuon())&&!(imu->isTrackerMuon()));
-    bool isTRSA  = (!imu->isGlobalMuon() && imu->isStandAloneMuon()&&imu->isTrackerMuon());
-		    
-		    
+    bool isTRSA  = (!imu->isGlobalMuon() && imu->isStandAloneMuon()&&imu->isTrackerMuon());	    
+
     
     // How we fill this. We have 3 blocks of variables: muons_; muons_sa_; muons_tr_
     //   GL   SA   TR      Description               muon_type     Bool id   Filled Vars               Variables to -99999 
@@ -546,104 +615,144 @@ L1MuonRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       // the closer RecHit to key station/layer -> the smaller the rank
       // KK's original idea
       const int lutCSC[4][6] = { {26,24,22,21,23,25} ,
-                               { 6, 4, 2, 1, 3, 5} ,
-                               {16,14,12,11,13,15} ,
-                               {36,34,32,31,33,35} };
+				 { 6, 4, 2, 1, 3, 5} ,
+				 {16,14,12,11,13,15} ,
+				 {36,34,32,31,33,35} };
 
-      // var needed to register the better ranked muon
       int   globalTypeRCH = -999999;
       // float  localEtaRCH = -999999;
       // float  localPhiRCH = -999999;
       float globalEtaRCH = -999999;
       float globalPhiRCH = -999999;
-
-//      std::cout << " ********************************" << std::endl; 
+      
       if(isSA || isGL){
+	
+	trackingRecHit_iterator hit     = imu->outerTrack()->recHitsBegin();
+	trackingRecHit_iterator hitEnd  = imu->outerTrack()->recHitsEnd();
+	
+	for(; hit != hitEnd; ++hit) {
 
-	//          int iRechit = 0;
-          //for(trackingRecHit_iterator hit  = muon->outerTrack()->recHitsBegin(); 
-          //    hit != muon->outerTrack()->recHitsEnd(); 
-          for(trackingRecHit_iterator hit  = imu->outerTrack()->recHitsBegin();
-              hit != imu->outerTrack()->recHitsEnd();
-              hit++){
-            // some basic protection
-            if ( !((*hit)->isValid()) ) continue;
+	  if ( !((*hit)->isValid()) ) continue;
 
-            // Hardware ID of the RecHit (in terms of wire/strips/chambers)
-            DetId detid = (*hit)->geographicalId();
+	  // Hardware ID of the RecHit (in terms of wire/strips/chambers)
+	  DetId detid = (*hit)->geographicalId();
 
-            // Interested in muon systems only
-            if( detid.det() != DetId::Muon ) continue;
-            //Look only at CSC Hits (CSC id is 2)
-            if (detid.subdetId() != MuonSubdetId::CSC) continue;
+	  // Interested in muon systems only
+	  // Look only at CSC Hits (CSC id is 2)
+	  if ( detid.det() != DetId::Muon ) continue;
+	  if (detid.subdetId() != MuonSubdetId::CSC) continue;
 
-            CSCDetId id(detid.rawId());
-//      std::cout << "before Lut id.station = " <<id.station() << " id.layer() = " << id.layer() << " globalTypeRCH = " << globalTypeRCH  << std::endl; 
-            // another sanity check
-            if  (id.station() < 1) continue;
-            //if  (id.layer()   < 1) continue;
+	  CSCDetId id(detid.rawId());
+	  // std::cout << "before Lut id.station = " <<id.station() 
+	  // << " id.layer() = " << id.layer() << " globalTypeRCH = " 
+	  // << globalTypeRCH  << std::endl; 
+	  // another sanity check
+	  if  (id.station() < 1) continue;
 
-            // Look up some stuff specific to CSCRecHit2D
-//      std::cout << " typeid().name() " << typeid(**hit).name() << std::endl; 
-//            const CSCRecHit2D* CSChit =dynamic_cast<const CSCRecHit2D*>(&**hit);
-            const CSCSegment* cscSegment =dynamic_cast<const CSCSegment*>(&**hit);
-//            const CSCRecHit2D* CSChit =(CSCRecHit2D*)(&**hit);
+	  // Look up some stuff specific to CSCRecHit2D
+	  // std::cout << " typeid().name() " << typeid(**hit).name() << std::endl; 
+	  // const CSCRecHit2D* CSChit =dynamic_cast<const CSCRecHit2D*>(&**hit);
 
-//      std::cout << " after CSCRecHit2D, CSChit = "  << CSChit << std::endl; 
-            //LocalPoint rhitlocal = CSChit->localPosition();
-            LocalPoint rhitlocal = cscSegment->localPosition();
+	  const CSCSegment* cscSegment =dynamic_cast<const CSCSegment*>(&**hit);
+	  // const CSCRecHit2D* CSChit =(CSCRecHit2D*)(&**hit);
 
-            // for debugging purpouses
-            //if (printLevel > 0) {
-            //std::cout << "!!!!rhitlocal.phi = "<<rhitlocal.phi() << std::endl;
-            //  std::cout << "rhitlocal.y="<<rhitlocal.y();
-            //  std::cout << "rhitlocal.z="<<rhitlocal.z();
-            //}
+	  // std::cout << " after CSCRecHit2D, CSChit = "  << CSChit << std::endl; 
+	  // LocalPoint rhitlocal = CSChit->localPosition();
+	  LocalPoint rhitlocal = cscSegment->localPosition();
 
-            GlobalPoint gp = GlobalPoint(0.0, 0.0, 0.0);
+	  // for debugging purpouses
+	  //if (printLevel > 0) {
+	  //std::cout << "!!!!rhitlocal.phi = "<<rhitlocal.phi() << std::endl;
+	  //  std::cout << "rhitlocal.y="<<rhitlocal.y();
+	  //  std::cout << "rhitlocal.z="<<rhitlocal.z();
+	  //}
 
-//      std::cout << " before cscGeom " << std::endl; 
-            const CSCChamber* cscchamber = cscGeom->chamber(id);
-//      std::cout << " after cscGeom, cscchamber = " << cscchamber << std::endl; 
+	  GlobalPoint gp = GlobalPoint(0.0, 0.0, 0.0);
 
-            if (!cscchamber) continue;
+	  const CSCChamber* cscchamber = cscGeom->chamber(id);
 
-            gp = cscchamber->toGlobal(rhitlocal);
+	  if (!cscchamber) continue;
 
-            // identify the rechit position
-            //int pos = ( ((id.station()-1)*6) + (id.layer()-1) ) + (MAX_CSC_RECHIT*whichMuon);
+	  gp = cscchamber->toGlobal(rhitlocal);
 
-            // --------------------------------------------------
-            // this part has to be deprecated once we are sure of 
-            // the TMatrixF usage ;)
-            // fill the rechits array
-            //rchEtaList[pos]      = gp.eta();
-            //rchPhiList[pos]      = gp.phi();
-            //float phi02PI = gp.phi();
-            //if (gp.phi() < 0) phi02PI += (2*PI); 
+	  // identify the rechit position
+	  //int pos = ( ((id.station()-1)*6) + (id.layer()-1) ) + (MAX_CSC_RECHIT*whichMuon);
 
-            //rchPhiList_02PI[pos] = phi02PI;
-            // --------------------------------------------------
+	  // --------------------------------------------------
+	  // this part has to be deprecated once we are sure of 
+	  // the TMatrixF usage ;)
+	  // fill the rechits array
+	  //rchEtaList[pos]      = gp.eta();
+	  //rchPhiList[pos]      = gp.phi();
+	  //float phi02PI = gp.phi();
+	  //if (gp.phi() < 0) phi02PI += (2*PI); 
+	  
+	  //rchPhiList_02PI[pos] = phi02PI;
+	  // --------------------------------------------------
 
-            // --------------------------------------------------
-            // See if this hit is closer to the "key" position
-            //if( lutCSC[id.station()-1][id.layer()-1]<globalTypeRCH || globalTypeRCH<0 ){
-            if( lutCSC[id.station()-1][3-1]<globalTypeRCH || globalTypeRCH<0 ){
-              //globalTypeRCH    = lutCSC[id.station()-1][id.layer()-1];
-              globalTypeRCH    = lutCSC[id.station()-1][3-1];
-              // localEtaRCH      = rhitlocal.eta();
-              // localPhiRCH      = rhitlocal.phi();
-              globalEtaRCH     = gp.eta();
-              globalPhiRCH     = gp.phi();// phi from -pi to pi
-      //std::cout << "globalEtaRCH =  "  <<globalEtaRCH << " globalPhiRCH = " << globalPhiRCH << std::endl; 
-              if(globalPhiRCH < 0) globalPhiRCH = globalPhiRCH + 2*pig;// convert to [0; 2pi]
-            }
-            // -------------------------------------------------- 
-          }//end loop rechit
+	  // --------------------------------------------------
+	  // See if this hit is closer to the "key" position
+	  //if( lutCSC[id.station()-1][id.layer()-1]<globalTypeRCH || globalTypeRCH<0 ){
+	  if( lutCSC[id.station()-1][3-1]<globalTypeRCH || globalTypeRCH<0 ){
+	    //globalTypeRCH    = lutCSC[id.station()-1][id.layer()-1];
+	    globalTypeRCH    = lutCSC[id.station()-1][3-1];
+	    // localEtaRCH      = rhitlocal.eta();
+	    // localPhiRCH      = rhitlocal.phi();
+	    globalEtaRCH     = gp.eta();
+	    globalPhiRCH     = gp.phi();// phi from -pi to pi
+	    //std::cout << "globalEtaRCH =  "  <<globalEtaRCH 
+	    // << " globalPhiRCH = " << globalPhiRCH << std::endl; 
+	    if(globalPhiRCH < 0) globalPhiRCH = globalPhiRCH + 2*pig;// convert to [0; 2pi]
+	  }
+	  // -------------------------------------------------- 
+	}
+
+	hit = imu->outerTrack()->recHitsBegin();
+
+	for(; hit != hitEnd; hit++) {
+
+	  if ( !((*hit)->isValid()) ) continue;
+	  
+	  DetId detId = (*hit)->geographicalId();
+	    
+	  if (detId.det() != DetId::Muon ) continue;
+	  if (detId.subdetId() != MuonSubdetId::RPC) continue;
+
+	  RPCDetId rpcId = (RPCDetId)(*hit)->geographicalId();
+	 
+	  int region    = rpcId.region();
+	  int stat      = rpcId.station();
+	  int sect      = rpcId.sector();
+	  int layer     = rpcId.layer();
+	  int subsector = rpcId.subsector();
+	  int roll      = rpcId.roll();
+	  int ring      = rpcId.ring();
+
+	  float xLoc = (*hit)->localPosition().x();
+ 
+	  for (int iRpcHit = 0; iRpcHit < rpcHitData->nRpcHits; ++ iRpcHit) {
+
+	    if ( region    == rpcHitData->region.at(iRpcHit)     &&
+		 stat      == rpcHitData->station.at(iRpcHit)    &&
+		 sect      == rpcHitData->sector.at(iRpcHit)     &&
+		 layer     == rpcHitData->layer.at(iRpcHit)      &&
+		 subsector == rpcHitData->subsector.at(iRpcHit)  &&
+		 roll      == rpcHitData->roll.at(iRpcHit)       &&
+		 ring      == rpcHitData->ring.at(iRpcHit)       &&
+		 fabs(xLoc - rpcHitData->xLoc.at(iRpcHit)) < 0.01
+		 )
+		 
+	      rpcHitData->muonId.at(iRpcHit) = muonData->nMuons; // CB rpc hit belongs to mu imu
+	                                            // due to cleaning as in 2012 1 rpc hit belogns to 1 mu
+
+	  }
+
+	}
 
       }
       // at the end of the loop, write only the best rechit
-      //if(globalPhiRCH > -100.) std::cout << "globalPhiRCH = " << globalPhiRCH << "globalEtaRCH = " << globalEtaRCH << std::endl;
+      // if(globalPhiRCH > -100.) std::cout << "globalPhiRCH = " << globalPhiRCH 
+      // << "globalEtaRCH = " << globalEtaRCH << std::endl;
       muonData -> rchCSCtype.push_back(globalTypeRCH);
       muonData -> rchPhi.push_back(globalPhiRCH);
       muonData -> rchEta.push_back(globalEtaRCH);

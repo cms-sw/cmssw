@@ -10,6 +10,7 @@
 #include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisSimulationDataFormat.h"
 #include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisL1ExtraDataFormat.h"
 #include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoMuonDataFormat.h"
+#include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoRpcHitDataFormat.h"
 #include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoMetDataFormat.h"
 #include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoJetDataFormat.h"
 #include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisRecoClusterDataFormat.h"
@@ -26,11 +27,12 @@ namespace{
     L1Analysis::L1AnalysisGMTDataFormat  	   pL1gmt;
     L1Analysis::L1AnalysisGTDataFormat   	   pL1gt;
     L1Analysis::L1AnalysisRCTDataFormat            pL1rct;
-    L1Analysis::L1AnalysisCaloTPDataFormat           pL1calotp;
+    L1Analysis::L1AnalysisCaloTPDataFormat         pL1calotp;
     L1Analysis::L1AnalysisGeneratorDataFormat      pL1generator;
     L1Analysis::L1AnalysisSimulationDataFormat     pL1simu;
     L1Analysis::L1AnalysisL1ExtraDataFormat        pLl1extra;
     L1Analysis::L1AnalysisRecoMuonDataFormat       pL1muon;
+    L1Analysis::L1AnalysisRecoRpcHitDataFormat     pL1rpc;
     L1Analysis::L1AnalysisRecoJetDataFormat        pL1jet; 
     L1Analysis::L1AnalysisRecoMetDataFormat        pL1met;    
     L1Analysis::L1AnalysisRecoClusterDataFormat    pL1cluster;

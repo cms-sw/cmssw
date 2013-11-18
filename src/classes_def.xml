@@ -11,6 +11,7 @@
 <class name="L1Analysis::L1AnalysisSimulationDataFormat"/>
 <class name="L1Analysis::L1AnalysisL1ExtraDataFormat"/>
 <class name="L1Analysis::L1AnalysisRecoMuonDataFormat"/>
+<class name="L1Analysis::L1AnalysisRecoRpcHitDataFormat"/>
 <class name="L1Analysis::L1AnalysisRecoJetDataFormat"/>
 <class name="L1Analysis::L1AnalysisRecoMetDataFormat"/>
 <class name="L1Analysis::L1AnalysisRecoClusterDataFormat"/>
