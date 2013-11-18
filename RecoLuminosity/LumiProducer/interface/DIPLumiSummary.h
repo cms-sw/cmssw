@@ -10,7 +10,10 @@ class DIPLumiSummary {
   DIPLumiSummary():m_runnum(0),m_ls(0),m_instlumi(0.0),m_dellumi(0.0),m_reclumi(0.0),m_deadfrac(1.0),m_cmsalive(false){}
   
   /// set default constructor
-  DIPLumiSummary(float instlumi,float dellumi,float reclumi,unsigned short cmsalive):m_instlumi(instlumi),m_dellumi(dellumi),m_reclumi(reclumi),m_deadfrac(1.0),m_cmsalive(cmsalive){}
+  DIPLumiSummary(float instlumi,float dellumi,float reclumi,unsigned short cmsalive):m_instlumi(instlumi),m_dellumi(dellumi),m_reclumi(reclumi),m_deadfrac(1.0),m_cmsalive(cmsalive)
+  {
+    if(m_reclumi>0.0){m_deadfrac=1.0-(m_reclumi/m_dellumi);}
+  }
     
   /// destructor
   ~DIPLumiSummary(){}
@@ -57,7 +60,7 @@ class DIPLumiSummary {
   float m_instlumi;//avg inst lumi in LS
   float m_dellumi;//integrated luminosity of this ls
   float m_reclumi;
-  mutable float m_deadfrac;
+  float m_deadfrac;
   unsigned short m_cmsalive;  
 }; 
 
