@@ -9,7 +9,6 @@
  *
  * editing author: M.B. Anderson
  * 
- * \version $Id: 
  *
  */
 
