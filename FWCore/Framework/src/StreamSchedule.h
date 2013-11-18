@@ -117,11 +117,19 @@ namespace edm {
     class StreamScheduleSignalSentry {
     public:
       StreamScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* principal, EventSetup const* es, typename T::Context const* context) :
-        a_(a), principal_(principal), es_(es), context_(context) {
+        a_(a), principal_(principal), es_(es), context_(context), allowThrow_(false) {
         if (a_) T::preScheduleSignal(a_, principal_, context_);
       }
-      ~StreamScheduleSignalSentry() {
-        if (a_) if (principal_) T::postScheduleSignal(a_, principal_, es_, context_);
+      ~StreamScheduleSignalSentry() noexcept(false) {
+        try {
+          if (a_ and principal_) { T::postScheduleSignal(a_, principal_, es_, context_); }
+        } catch(...) {
+          if(allowThrow_) {throw;}
+        }
+      }
+      
+      void allowThrow() {
+        allowThrow_ = true;
       }
 
     private:
@@ -130,6 +138,7 @@ namespace edm {
       typename T::MyPrincipal* principal_;
       EventSetup const* es_;
       typename T::Context const* context_;
+      bool allowThrow_;
     };
   }
   
@@ -383,7 +392,7 @@ namespace edm {
           if (T::isEvent_) {
             ex.addContext("Calling produce method for module TriggerResultInserter");
           }
-	  std::ostringstream ost;
+          std::ostringstream ost;
           ost << "Processing " << ep.id();
           ex.addContext(ost.str());
           throw;
@@ -407,6 +416,8 @@ namespace edm {
       }
       throw;
     }
+    //If we got here no other exception has happened so we can propogate any Service related exceptions
+    sentry.allowThrow();
   }
 
   template <typename T>
@@ -442,6 +453,8 @@ namespace edm {
       }
       throw;
     }
+    //If we got here no other exception has happened so we can propogate any Service related exceptions
+    sentry.allowThrow();
   }
 
   template <typename T>
