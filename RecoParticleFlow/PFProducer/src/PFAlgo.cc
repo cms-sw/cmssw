@@ -754,6 +754,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  reco::PFCandidate::ParticleType particleType = reco::PFCandidate::gamma;
 	  myPFPhoton.setParticleType(particleType);
 	  myPFPhoton.setCharge(0);
+	  myPFPhoton.set_mva_nothing_gamma(1.);
+	  math::XYZPoint v(primaryVertex_.x(), primaryVertex_.y(), primaryVertex_.z());
+	  myPFPhoton.setVertex( v  );  
 	  myPFPhoton.setP4(gedPhoRef->p4());
 	  if(egmLocalDebug) {
 	    cout << " PFAlgo: found a photon with NEW EGamma code " << endl;

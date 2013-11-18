@@ -131,6 +131,7 @@ class AddJetCollection(ConfigToolBase):
         for x in ["ak", "kt", "sc", "ic"]:
             if jetSource.getModuleLabel().lower().find(x)>-1:
                 _algo=jetSource.getModuleLabel()[jetSource.getModuleLabel().lower().find(x):jetSource.getModuleLabel().lower().find(x)+3]
+                break
 	#print _algo
         ## add new patJets to process (keep instance for later further modifications)
         from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets
