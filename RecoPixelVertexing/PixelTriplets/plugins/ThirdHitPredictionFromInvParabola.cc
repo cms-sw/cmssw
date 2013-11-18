@@ -54,6 +54,10 @@ void ThirdHitPredictionFromInvParabola:: init(Scalar x1,Scalar y1, Scalar x2,Sca
 
   theIpRangePlus  = ipRangePlus.intersection(ipRange);
   theIpRangeMinus = ipRangeMinus.intersection(ipRange);
+
+  emptyP =  theIpRangePlus.empty();
+  emptyM =  theIpRangeMinus.empty();
+
 }
     
 
@@ -86,7 +90,46 @@ ThirdHitPredictionFromInvParabola::rangeRPhi(Scalar radius, int icharge) const
   if (phi2<phi1) std::swap(phi1, phi2); 
   return Range(radius*phi1-theTolerance, radius*phi2+theTolerance);
   
+
 }
+
+
+ThirdHitPredictionFromInvParabola::Range
+ThirdHitPredictionFromInvParabola::rangeRPhi(Scalar radius) const
+{
+
+
+  //  it will vectorize with gcc 4.7 (with -O3 -fno-math-errno)
+  // change sign as intersect assume -ip for negative charge...
+  Scalar ipv[4]={theIpRangePlus.min(), -theIpRangeMinus.min(), theIpRangePlus.max(),  -theIpRangeMinus.max()};
+  Scalar u[4], v[4];
+  for (int i=0; i!=4; ++i)
+    findPointAtCurve(radius,ipv[i],u[i],v[i]);
+
+  // 
+  Scalar phi1P = theRotation.rotateBack(Point2D(u[0],v[0])).barePhi();
+  Scalar phi2P= phi1P+(v[2]-v[0]); 
+
+  Scalar phi1M = theRotation.rotateBack(Point2D(u[1],v[1])).barePhi();
+  Scalar phi2M = phi1M+(v[3]-v[1]); 
+
+  auto getRange = [&](Scalar phi1, Scalar phi2, bool empty)->RangeD {
+    
+    if (empty) {
+      RangeD r1(phi1*radius-theTolerance, phi1*radius+theTolerance); 
+      RangeD r2(phi2*radius-theTolerance, phi2*radius+theTolerance); 
+      return r1.intersection(r2);
+    }
+    
+    if (phi2<phi1) std::swap(phi1, phi2); 
+    return RangeD(radius*phi1-theTolerance, radius*phi2+theTolerance);
+  };
+
+
+  return getRange(phi1M,phi2M,emptyM).sum(getRange(phi1P,phi2P,emptyP));
+
+}
+
 
 /*
 ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rangeRPhiSlow(
