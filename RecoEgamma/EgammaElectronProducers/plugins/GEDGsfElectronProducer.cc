@@ -13,14 +13,14 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+
+
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
 #include "RecoParticleFlow/PFProducer/interface/GsfElectronEqual.h"
 
 #include <iostream>
@@ -44,13 +44,16 @@ GEDGsfElectronProducer::~GEDGsfElectronProducer()
 void GEDGsfElectronProducer::produce( edm::Event & event, const edm::EventSetup & setup )
  {
   beginEvent(event,setup) ;
+  matchWithPFCandidates(event);
   algo_->completeElectrons() ;
+  algo_->setMVAOutputs(gsfMVAOutputMap_);
+  algo_->setMVAInputs(gsfMVAInputMap_);
   fillEvent(event) ;
 
   // ValueMap
   std::auto_ptr<edm::ValueMap<reco::GsfElectronRef> > valMap_p(new edm::ValueMap<reco::GsfElectronRef>);
   edm::ValueMap<reco::GsfElectronRef>::Filler valMapFiller(*valMap_p);
-  matchWithPFCandidates(event,valMapFiller);
+  fillGsfElectronValueMap(event,valMapFiller);
   valMapFiller.fill();
   event.put(valMap_p,outputValueMapLabel_);  
   // Done with the ValueMap
@@ -58,7 +61,7 @@ void GEDGsfElectronProducer::produce( edm::Event & event, const edm::EventSetup 
   endEvent() ;
  }
 
-void GEDGsfElectronProducer::matchWithPFCandidates(edm::Event & event, edm::ValueMap<reco::GsfElectronRef>::Filler & filler)
+void GEDGsfElectronProducer::fillGsfElectronValueMap(edm::Event & event, edm::ValueMap<reco::GsfElectronRef>::Filler & filler)
 {
   // Read the collection of PFCandidates
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
@@ -92,3 +95,46 @@ void GEDGsfElectronProducer::matchWithPFCandidates(edm::Event & event, edm::Valu
   filler.insert(pfCandidates,values.begin(),values.end());
 }
 
+
+// Something more clever has to be found. The collections are small, so the timing is not 
+// an issue here; but it is clearly suboptimal
+
+void GEDGsfElectronProducer::matchWithPFCandidates(edm::Event & event)
+{
+  gsfMVAInputMap_.clear();
+  gsfMVAOutputMap_.clear();
+
+  // Read the collection of PFCandidates
+  edm::Handle<reco::PFCandidateCollection> pfCandidates;
+  
+  bool found = event.getByToken(egmPFCandidateCollection_, pfCandidates);
+  if(!found) {
+    edm::LogError("GEDGsfElectronProducer")
+       <<" cannot get PFCandidates! ";
+  }
+
+  //Loop over the collection of PFFCandidates
+  reco::PFCandidateCollection::const_iterator it = pfCandidates->begin();
+  reco::PFCandidateCollection::const_iterator itend = pfCandidates->end() ;
+  
+  for ( ; it != itend ; ++it) {
+    reco::GsfElectronRef myRef;
+    // First check that the GsfTrack is non null
+    if( it->gsfTrackRef().isNonnull()) {
+
+      reco::GsfElectron::MvaOutput myMvaOutput;
+      myMvaOutput.mva = it->mva_e_pi();
+      // at the moment, undefined
+      myMvaOutput.status = 0;
+      gsfMVAOutputMap_[it->gsfTrackRef()] = myMvaOutput;
+
+      reco::GsfElectron::MvaInput myMvaInput;
+      myMvaInput.earlyBrem = it->egammaExtraRef()->mvaVariable(reco::PFCandidateEGammaExtra::MVA_FirstBrem);
+      myMvaInput.lateBrem = it->egammaExtraRef()->mvaVariable(reco::PFCandidateEGammaExtra::MVA_LateBrem);
+      myMvaInput.deltaEta = it->egammaExtraRef()->mvaVariable(reco::PFCandidateEGammaExtra::MVA_DeltaEtaTrackCluster);
+      myMvaInput.sigmaEtaEta = it->egammaExtraRef()->sigmaEtaEta();
+      myMvaInput.hadEnergy = it->egammaExtraRef()->hadEnergy();
+      gsfMVAInputMap_[it->gsfTrackRef()] = myMvaInput;
+    }
+  }
+}
