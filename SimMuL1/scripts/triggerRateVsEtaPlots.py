@@ -1,4 +1,4 @@
-from helpers import *
+from triggerPlotHelpers import *
 
 ## ROOT modules
 from ROOT import *
@@ -103,7 +103,7 @@ def addRatePlotLegend(h, i, j, k, l):
   leg.SetFillStyle(1001)
   leg.SetFillColor(kWhite)
   leg.AddEntry(h,"CSC #geq%d stubs (anywhere)"%(k),"l");
-  leg.AddEntry(i,"CSC #geq%d stubs (one in ME1/b)"%(k),"l");
+  leg.AddEntry(i,"CSC #geq%d stubs (one in Station 1)"%(k),"l");
   leg.AddEntry(j,"GEM+CSC integrated trigger with #geq%d stubs"%(k),"l");
 #  leg.AddEntry(0,"with #geq%d stubs"%(k),"");
   leg.Draw("same")
@@ -123,7 +123,7 @@ def addRatioPlotLegend(h,k):
   leg.SetFillStyle(0);
   ##  leg.SetFillStyle(1001)
   ##  leg.SetFillColor(kWhite)
-  leg.AddEntry(h, "(GEM+CSC)/CSC #geq%d stubs (one in ME1/b)"%(k),"P");
+  leg.AddEntry(h, "(GEM+CSC)/CSC #geq%d stubs (one in Station 1)"%(k),"P");
   leg.Draw("same")
   return leg
 
@@ -196,6 +196,34 @@ def produceRateVsEtaPlot(h, i, j, col1, col2, col3, sty1, sty2, sty3, sty4,
   addRatePlot(h,i,j,col1,col2,col3,sty1,sty2,sty3,3355,miny,maxy)
   leg = addRatePlotLegend(h, i, j, k, l)
   tex = drawLumiLabel2()
+
+  mini = miny
+  if k==2:
+    maxi = 20
+  elif k==3:
+    maxi = 5
+
+  l1 = TLine(1.6,mini,1.6,maxi)
+  l1.SetLineStyle(7)
+  l1.SetLineWidth(2)
+  l1.Draw()
+
+  l2 = TLine(2.15,mini,2.15,maxi)
+  l2.SetLineStyle(7)
+  l2.SetLineWidth(2)
+  l2.Draw()
+
+  if k==2:
+    ypos = .55
+  elif k==3:
+    ypos = .57
+      
+  tex2 = TLatex(.515,ypos,"GE-1/1 region")
+  tex2.SetTextSize(0.05)
+  tex2.SetNDC()
+  tex2.Draw()
+
+  
   
   pad2.cd()
   setPad2Attributes(pad2)
@@ -236,7 +264,7 @@ def produceRateVsEtaPlotsForApproval(ext, plots):
   sty3 = 1001
 
   ## Declaration of histograms
-  ttl = "                                              CMS Simulation Preliminary;L1 muon candidate #eta;Trigger rate [kHz]";
+  ttl = "                               CMS Phase-2 Simulation Preliminary;L1 muon candidate #eta;Trigger rate [kHz]";
 
   pt = 10
   h_rt_tf10_2s = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_2s"%(pt), "_hAll100", ttl, col1, 1, 2)
@@ -249,7 +277,7 @@ def produceRateVsEtaPlotsForApproval(ext, plots):
   pt = 20
   h_rt_tf20_2s = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_2s"%(pt), "_hAll100", ttl, col1, 1, 2)
   h_rt_tf20_2s1b = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(pt), "_hAll100", ttl, col2, 1, 2)
-  h_rt_tf20_gpt20_2s1b = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(pt), "_hAll100", ttl, col3, 1, 2)
+  h_rt_tf20_gpt20_2s1b = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(pt), "_hAll100", ttl, col2, 1, 2)
   h_rt_tf20_3s = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_3s"%(pt), "_hAll100", ttl, col1, 1, 2)
   h_rt_tf20_3s1b = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(pt), "_hAll100", ttl, col2, 1, 2)
   h_rt_tf20_gpt20_3s1b = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(pt), "_hAll100", ttl, col3, 1, 2)
@@ -261,6 +289,9 @@ def produceRateVsEtaPlotsForApproval(ext, plots):
   h_rt_tf30_3s = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_3s"%(pt), "_hAll100", ttl, col1, 1, 2)
   h_rt_tf30_3s1b = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(pt), "_hAll100", ttl, col2, 1, 2)
   h_rt_tf30_gpt30_3s1b = setHistoEta(f_g98_pt30, "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(pt), "_hAll100", ttl, col3, 1, 2)
+
+  h_rt_gmt_ptmax20_eta_sing = setHistoEta(f_def, "h_rt_gmt_ptmax20_eta_sing", "_hAll100", ttl, kRed, 1, 2)
+  
 
   ## Style
   gStyle.SetStatW(0.07)
@@ -291,6 +322,10 @@ def produceRateVsEtaPlotsForApproval(ext, plots):
   produceRateVsEtaPlot(h_rt_tf20_3s,h_rt_tf20_3s1b,h_rt_tf20_gpt20_3s1b,
 		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,8,3,20,plots,ext)
 
+  ## ------------ +2 stubs & +3 stubs, L1 candidate muon pt=20GeV ----------------##
+  produceRateVsEtaPlot(h_rt_gmt_ptmax20_eta_sing, h_rt_tf20_gpt20_2s1b, h_rt_tf20_gpt20_3s1b,
+		       col1,kAzure+2,col3,sty1,sty2,sty3,3355,0.01,33,2,20,plots,"_test" + ext)
+
   """
   ## ------------ +2 stubs, L1 candidate muon pt=30GeV ----------------##
   produceRateVsEtaPlot(h_rt_tf30_2s,h_rt_tf30_2s1b,h_rt_tf30_gpt30_2s1b,
@@ -302,9 +337,9 @@ def produceRateVsEtaPlotsForApproval(ext, plots):
   
 #_______________________________________________________________________________
 if __name__ == "__main__":
-  produceRateVsEtaPlotsForApproval(".pdf", "plots/rate_vs_eta/")
-  produceRateVsEtaPlotsForApproval(".png", "plots/rate_vs_eta/")
-  produceRateVsEtaPlotsForApproval(".eps", "plots/rate_vs_eta/")
+  produceRateVsEtaPlotsForApproval(".pdf", "plots_cmssw_601_postls1/rate_vs_eta/")
+  produceRateVsEtaPlotsForApproval(".png", "plots_cmssw_601_postls1/rate_vs_eta/")
+  produceRateVsEtaPlotsForApproval(".eps", "plots_cmssw_601_postls1/rate_vs_eta/")
 
 
 """

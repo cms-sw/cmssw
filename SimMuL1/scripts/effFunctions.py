@@ -37,19 +37,24 @@ def draw_geff(t, title, h_bins, to_draw, den_cut, extra_num_cut,
     ## total numerator selection cut 
     ## the extra brackets around the extra_num_cut are necessary !!
     num_cut = AND(den_cut,extra_num_cut)
+    debug = False
+    if debug:
+        print "Denominator cut", den_cut
+        print "Numerator cut", extra_num_cut
  
     ## PyROOT works a little different than ROOT when you are plotting 
     ## histograms directly from tree. Hence, this work-around
     nBins  = int(h_bins[1:-1].split(',')[0])
     minBin = float(h_bins[1:-1].split(',')[1])
     maxBin = float(h_bins[1:-1].split(',')[2])
-
+    
     num = TH1F("num", "", nBins, minBin, maxBin) 
     den = TH1F("den", "", nBins, minBin, maxBin)
 
     t.Draw(to_draw + ">>num", num_cut, "goff")
     t.Draw(to_draw + ">>den", den_cut, "goff")
 
+    ## check if the number of passed entries larger than total entries
     doConsistencyCheck = False
     if doConsistencyCheck:
         for i in range(0,nBins):
@@ -59,13 +64,7 @@ def draw_geff(t, title, h_bins, to_draw, den_cut, extra_num_cut,
 
     eff = TEfficiency(num, den)
 
-    """
-    eff = TEfficiency(num, den)
-    eff.Draw()
-    eff.Paint("")
-    eff = eff.GetPaintedGraph()
-    """
-
+    ## plotting options
     if not "same" in opt:
         num.Reset()
         num.GetYaxis().SetRangeUser(0.0,1.1)
