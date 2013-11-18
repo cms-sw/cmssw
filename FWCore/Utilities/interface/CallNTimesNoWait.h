@@ -44,8 +44,8 @@ namespace edm {
     template <typename T>
     void operator()(T iCall) {
       if(not m_done.load(std::memory_order_acquire) ) {
-        if(m_ntimes.fetch_sub(1,std::memory_order_acquire)<0) {
-          m_done.store(true,std::memory_order_acquire);
+        if(m_ntimes.fetch_sub(1,std::memory_order_acq_rel)<0) {
+          m_done.store(true,std::memory_order_release);
           return;
         };
         iCall();
