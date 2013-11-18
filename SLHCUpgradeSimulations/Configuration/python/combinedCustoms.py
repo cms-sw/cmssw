@@ -20,8 +20,8 @@ import SLHCUpgradeSimulations.Configuration.aging as aging
 
 def cust_phase2_BE5D(process):
     process=customisePostLS1(process)
-    process=customise_HcalPhase1(process)
     process=customiseBE5D(process)
+    process=customise_HcalPhase1(process)
     process=customise_ev_BE5D(process)
     return process
 
