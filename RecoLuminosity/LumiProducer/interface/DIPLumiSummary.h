@@ -57,11 +57,11 @@ class DIPLumiSummary {
  private :
   unsigned int m_runnum;
   unsigned int m_ls;
-  float m_instlumi;//avg inst lumi in LS
-  float m_dellumi;//integrated luminosity of this ls
-  float m_reclumi;
+  const float m_instlumi;//avg inst lumi in LS
+  const float m_dellumi;//integrated luminosity of this ls
+  const float m_reclumi;
   float m_deadfrac;
-  unsigned short m_cmsalive;  
+  const unsigned short m_cmsalive;  
 }; 
 
 std::ostream& operator<<(std::ostream& s, const DIPLumiSummary& diplumiSummary);
