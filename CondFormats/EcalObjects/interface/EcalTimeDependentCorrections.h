@@ -12,11 +12,13 @@
 class EcalTimeDependentCorrections {
  public:
   struct Values {
+    Values() : p1(0), p2(0), p3(0) {}
     float p1;
     float p2;
     float p3;
   };
   struct Times {
+    Times() : t1(0), t2(0), t3(0) {}
     edm::Timestamp t1;
     edm::Timestamp t2;
     edm::Timestamp t3;
