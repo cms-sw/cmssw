@@ -350,6 +350,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mMEx->Fill(caloMEx);
     mMEy->Fill(caloMEy);
     mMET->Fill(caloMET);
+    mMETFine->Fill(caloMET);
     mMET_Nvtx->Fill(nvtx, caloMET);
     mMETPhi->Fill(caloMETPhi);
     mSumET->Fill(caloSumET);
@@ -441,6 +442,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mMEx->Fill(genMEx);
     mMEy->Fill(genMEy);
     mMET->Fill(genMET);
+    mMETFine->Fill(genMET);
     mMETPhi->Fill(genMETPhi);
     mSumET->Fill(genSumET);
     mMETSig->Fill(genMETSig);
@@ -477,6 +479,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mMEx->Fill(MEx);
     mMEy->Fill(MEy);
     mMET->Fill(MET);
+    mMETFine->Fill(MET);
     mMET_Nvtx->Fill(nvtx, MET);
     mMETPhi->Fill(METPhi);
     mSumET->Fill(SumET);
@@ -563,6 +566,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mMEx->Fill(MEx);
     mMEy->Fill(MEy);
     mMET->Fill(MET);
+    mMETFine->Fill(MET);
     mMETPhi->Fill(METPhi);
     mSumET->Fill(SumET);
     mMETSig->Fill(METSig);
@@ -682,6 +686,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mMEx->Fill(MEx);
     mMEy->Fill(MEy);
     mMET->Fill(MET);
+    mMETFine->Fill(MET);
     mMETPhi->Fill(METPhi);
     mSumET->Fill(SumET);
     mMETSig->Fill(METSig);
@@ -854,6 +859,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mMEx->Fill(MEx);
     mMEy->Fill(MEy);
     mMET->Fill(MET);
+    mMETFine->Fill(MET);
     mMETPhi->Fill(METPhi);
     mSumET->Fill(SumET);
     mMETSig->Fill(METSig);
