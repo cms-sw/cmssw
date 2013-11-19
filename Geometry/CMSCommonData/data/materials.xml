@@ -244,6 +244,32 @@
     <rMaterial name="materials:Hydrogen"/>
    </MaterialFraction>
   </CompositeMaterial>
+  <CompositeMaterial name="Heavy Boron concrete" density="3.574*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.032142361">
+    <rMaterial name="materials:Iron"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.47563465">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.20400656">
+    <rMaterial name="materials:Aluminium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.051371319">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.20008524">
+    <rMaterial name="materials:Calcium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0048537181">
+    <rMaterial name="materials:Bor 10"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.02135636">
+    <rMaterial name="materials:Bor 11"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.010549802">
+    <rMaterial name="materials:Hydrogen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
   <CompositeMaterial name="Air" density="1.214*mg/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="0.7494">
     <rMaterial name="materials:Nitrogen"/>
