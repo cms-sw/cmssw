@@ -631,38 +631,38 @@ TopHLTSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup& s
       }
       if(type=="muons"){
 //	cout<<"Good Mu found"<<endl;
-	SelectionStep<reco::Muon> step(selection_[key].first);
+	SelectionStepHLT<reco::Muon> step(selection_[key].first);
 	if(step.select(event)){ ++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="elecs"){
-	SelectionStep<reco::GsfElectron> step(selection_[key].first);
+	SelectionStepHLT<reco::GsfElectron> step(selection_[key].first);
 	if(step.select(event)){ ++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="jets" ){
-	SelectionStep<reco::Jet> step(selection_[key].first);
+	SelectionStepHLT<reco::Jet> step(selection_[key].first);
 	if(step.select(event, setup)){ ++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="jets/pf" ){
-	SelectionStep<reco::PFJet> step(selection_[key].first);
+	SelectionStepHLT<reco::PFJet> step(selection_[key].first);
 	if(step.select(event, setup)){ ++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="jets/calo" ){
 //	cout<<"Jet found!"<<endl;
-	SelectionStep<reco::CaloJet> step(selection_[key].first);
+	SelectionStepHLT<reco::CaloJet> step(selection_[key].first);
 	if(step.select(event, setup)){ ++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }
       if(type=="met" ){
-	SelectionStep<reco::MET> step(selection_[key].first);
+	SelectionStepHLT<reco::MET> step(selection_[key].first);
 	if(step.select(event)){ ++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;
