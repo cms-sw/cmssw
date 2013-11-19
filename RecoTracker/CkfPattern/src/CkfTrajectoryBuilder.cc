@@ -25,8 +25,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
-#include "FWCore/Services/interface/UpdaterService.h"
-
 using namespace std;
 
 
