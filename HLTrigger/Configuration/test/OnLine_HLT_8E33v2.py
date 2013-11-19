@@ -6054,8 +6054,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       'CirculatingBeam',
       'CirculatingBeam+HighRandom' )
 )
-process.UpdaterService = cms.Service( "UpdaterService",
-)
 
 process.hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
     toGet = cms.VPSet( 
