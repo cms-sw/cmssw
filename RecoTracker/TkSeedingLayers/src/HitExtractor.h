@@ -18,6 +18,7 @@ public:
   HitExtractor(){
     skipClusters=false;}
   virtual Hits hits(const SeedingLayer & sl, const edm::Event& , const edm::EventSetup& ) const =0;
+  virtual HitExtractor * clone() const = 0;
 
   //skip clusters
   void useSkipClusters( const edm::InputTag & m) {

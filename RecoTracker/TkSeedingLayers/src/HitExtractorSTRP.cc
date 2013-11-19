@@ -24,6 +24,10 @@ using namespace ctfseeding;
 using namespace std;
 using namespace edm;
 
+HitExtractorSTRP::HitExtractorSTRP(SeedingLayer::Side & side, int idLayer):
+  HitExtractorSTRP(nullptr, side, idLayer)
+{}
+
 HitExtractorSTRP::HitExtractorSTRP( const DetLayer* detLayer, 
     SeedingLayer::Side & side, int idLayer)
   : theLayer(detLayer), theSide(side), theIdLayer(idLayer),
