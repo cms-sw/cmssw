@@ -6,14 +6,13 @@
 */
 
 #include <Validation/EcalDigis/interface/EcalPreshowerDigisValidation.h>
-#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace cms;
 using namespace edm;
 using namespace std;
 
 EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& ps):
-  ESdigiCollection_(ps.getParameter<edm::InputTag>("ESdigiCollection"))
+  ESdigiCollectionToken_( consumes<ESDigiCollection>( ps.getParameter<edm::InputTag>( "ESdigiCollection" ) ) )
 {
   
   // verbosity switch
@@ -66,7 +65,7 @@ void EcalPreshowerDigisValidation::analyze(const Event& e, const EventSetup& c){
 
   Handle<ESDigiCollection> EcalDigiES;
 
-  e.getByLabel( ESdigiCollection_ , EcalDigiES );
+  e.getByToken( ESdigiCollectionToken_ , EcalDigiES );
 
   // Return if no preshower data
   if( !EcalDigiES.isValid() ) return;
