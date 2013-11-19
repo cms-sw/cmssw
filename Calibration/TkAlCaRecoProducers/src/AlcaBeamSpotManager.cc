@@ -21,11 +21,13 @@ AlcaBeamSpotManager::AlcaBeamSpotManager(void){
 }
 
 //--------------------------------------------------------------------------------------------------
-AlcaBeamSpotManager::AlcaBeamSpotManager(const ParameterSet& iConfig) :
+AlcaBeamSpotManager::AlcaBeamSpotManager(const ParameterSet& iConfig, edm::ConsumesCollector&& iC) :
   beamSpotOutputBase_(iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase")),
   beamSpotModuleName_(iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotModuleName")),
   beamSpotLabel_     (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotLabel"))
 {
+  edm::InputTag beamSpotTag_(beamSpotModuleName_, beamSpotLabel_);
+  beamSpotToken_ = iC.consumes<reco::BeamSpot>(beamSpotTag_);
   LogInfo("AlcaBeamSpotManager") 
     << "Output base: " << beamSpotOutputBase_ 
     << std::endl;
@@ -46,6 +48,7 @@ void AlcaBeamSpotManager::readLumi(const LuminosityBlock& iLumi){
   Handle<BeamSpot> beamSpotHandle;
   iLumi.getByLabel(beamSpotModuleName_,beamSpotLabel_, beamSpotHandle);
   //iLumi.getByLabel("beamspot","alcaBeamSpot", beamSpotHandle); 
+  iLumi.getByToken(beamSpotToken_, beamSpotHandle);
 
   if(beamSpotHandle.isValid()) { // check the product
     beamSpotMap_[iLumi.luminosityBlock()] = *beamSpotHandle;
