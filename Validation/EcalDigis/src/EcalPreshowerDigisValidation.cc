@@ -7,11 +7,7 @@
 
 #include <Validation/EcalDigis/interface/EcalPreshowerDigisValidation.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& ps):
+EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const edm::ParameterSet& ps):
   ESdigiCollectionToken_( consumes<ESDigiCollection>( ps.getParameter<edm::InputTag>( "ESdigiCollection" ) ) )
 {
   
@@ -21,7 +17,7 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& p
   dbe_ = 0;
                                                                                                                                           
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
                                                                                                                                           
   if ( dbe_ ) {
     if ( verbose_ ) {
@@ -59,11 +55,11 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& p
  
 }
 
-void EcalPreshowerDigisValidation::analyze(const Event& e, const EventSetup& c){
+void EcalPreshowerDigisValidation::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
 
-  Handle<ESDigiCollection> EcalDigiES;
+  edm::Handle<ESDigiCollection> EcalDigiES;
 
   e.getByToken( ESdigiCollectionToken_ , EcalDigiES );
 
