@@ -28,7 +28,7 @@ process.source = cms.Source("PoolSource",
     #debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
     '/store/relval/CMSSW_6_2_0/RelValTTbarLepton/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/44754556-57EC-E211-A3EE-003048FEB9EE.root',
-    '/store/relval/CMSSW_6_2_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/604E213E-49EC-E211-9D8D-003048F0E5CE.root'        
+#    '/store/relval/CMSSW_6_2_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/604E213E-49EC-E211-9D8D-003048F0E5CE.root'        
     )
 
 

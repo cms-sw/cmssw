@@ -56,7 +56,8 @@ process.source = cms.Source("PoolSource",
 
     fileNames = cms.untracked.vstring(
         #'file:/afs/cern.ch/user/k/kovitang/scratch0/60A53D23-A1BB-E011-987B-001A92971B90.root'
-        '/store/relval/CMSSW_6_2_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/604E213E-49EC-E211-9D8D-003048F0E5CE.root'
+#        '/store/relval/CMSSW_6_2_0/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/604E213E-49EC-E211-9D8D-003048F0E5CE.root'
+        '/store/relval/CMSSW_6_2_0/RelValTTbarLepton/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/44754556-57EC-E211-A3EE-003048FEB9EE.root'
         )
                             
                             )
