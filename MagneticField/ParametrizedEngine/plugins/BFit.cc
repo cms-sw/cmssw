@@ -137,7 +137,7 @@ void BFit::SetField(double B)
 
 //_______________________________________________________________________________
 void BFit::GetField(double r,   double z,   double phi,
-                    double &Br, double &Bz, double &Bphi)
+                    double &Br, double &Bz, double &Bphi) const
 {
 //Get field components in the point (r,z,phi). Always return Bphi=0. 
 //Parameters phi and Bphi introduced in order to keep interface
