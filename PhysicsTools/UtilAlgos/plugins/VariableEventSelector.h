@@ -1,13 +1,16 @@
 #ifndef _VariableEventSelector_H
 #define _VariableEventSelector_H
 
-#include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "CommonTools/UtilAlgos/interface/EventSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
 
 class VariableEventSelector : public EventSelector {
  public:
-  VariableEventSelector(const edm::ParameterSet& pset) :
-    EventSelector(pset)
+  VariableEventSelector(const edm::ParameterSet& pset, edm::ConsumesCollector && iC) :
+    VariableEventSelector(pset, iC) {}
+  VariableEventSelector(const edm::ParameterSet& pset, edm::ConsumesCollector & iC) :
+    EventSelector(pset, iC)
     {
       var_=pset.getParameter<std::string>("var");
       doMin_=pset.exists("min");
@@ -30,7 +33,7 @@ class VariableEventSelector : public EventSelector {
       if (!var->compute(e)) return false;
 
       double v=(*var)(e);
-      
+
       if (doMin_ && v<min_) return false;
       else if (doMax_ && v>max_) return false;
       else return true;

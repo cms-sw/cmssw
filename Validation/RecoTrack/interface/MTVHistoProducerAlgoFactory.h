@@ -6,7 +6,8 @@
 
 namespace edm {class ParameterSet;}
 
- 
-typedef edmplugin::PluginFactory< MTVHistoProducerAlgo*(const edm::ParameterSet&) > MTVHistoProducerAlgoFactory;
+
+typedef edmplugin::PluginFactory< MTVHistoProducerAlgo*(const edm::ParameterSet&, edm::ConsumesCollector && iC) > MTVHistoProducerAlgoFactory;
+typedef edmplugin::PluginFactory< MTVHistoProducerAlgo*(const edm::ParameterSet&, edm::ConsumesCollector & iC) > MTVHistoProducerAlgoFactoryFromHelper;
 
 #endif

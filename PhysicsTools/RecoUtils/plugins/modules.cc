@@ -9,12 +9,12 @@
 
 #include "PhysicsTools/RecoUtils/plugins/CandidateEventSelector.h"
 
-DEFINE_EDM_PLUGIN(EventSelectorFactory, CandidateEventSelector, "CandidateEventSelector");
-DEFINE_EDM_PLUGIN(EventSelectorFactory, CandidateSEventSelector, "CandidateSEventSelector,");
-DEFINE_EDM_PLUGIN(EventSelectorFactory, CandidateSEventVetoSelector, "CandidateSEventVetoSelector");
+DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, CandidateEventSelector, "CandidateEventSelector");
+DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, CandidateSEventSelector, "CandidateSEventSelector,");
+DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, CandidateSEventVetoSelector, "CandidateSEventVetoSelector");
 
 #include "PhysicsTools/RecoUtils/plugins/HLTEventSelector.h"
-DEFINE_EDM_PLUGIN(EventSelectorFactory, HLTEventSelector, "HLTEventSelector");
+DEFINE_EDM_PLUGIN(EventSelectorFactoryFromHelper, HLTEventSelector, "HLTEventSelector");
 
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 

@@ -1,6 +1,7 @@
 #ifndef CategoryCriteria_h
 #define CategoryCriteria_h
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DataFormats/Common/interface/Ref.h"
@@ -26,7 +27,7 @@ public:
     typedef typename container::const_iterator const_iterator;
 
     // Constructor from parameter set configurability
-    CategoryCriteria(const edm::ParameterSet & config) :
+    CategoryCriteria(const edm::ParameterSet & config, edm::ConsumesCollector && iC) :
             classifier_(config),
             evaluate_( config.getParameter<std::string>("cut") ) {}
 

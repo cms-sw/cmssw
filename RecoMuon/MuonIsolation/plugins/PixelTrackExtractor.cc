@@ -4,8 +4,6 @@
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "TrackSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -21,15 +19,15 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-PixelTrackExtractor::PixelTrackExtractor( const ParameterSet& par ) :
-  theTrackCollectionTag(par.getParameter<edm::InputTag>("inputTrackCollection")),
+PixelTrackExtractor::PixelTrackExtractor( const ParameterSet& par, edm::ConsumesCollector && iC ) :
+  theTrackCollectionToken(iC.consumes<View<Track> >(par.getParameter<edm::InputTag>("inputTrackCollection"))),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDiff_r(par.getParameter<double>("Diff_r")),
   theDiff_z(par.getParameter<double>("Diff_z")),
   theDR_Max(par.getParameter<double>("DR_Max")),
   theDR_Veto(par.getParameter<double>("DR_Veto")),
   theBeamlineOption(par.getParameter<string>("BeamlineOption")),
-  theBeamSpotLabel(par.getParameter<edm::InputTag>("BeamSpotLabel")),
+  theBeamSpotToken(iC.mayConsume<BeamSpot>(par.getParameter<edm::InputTag>("BeamSpotLabel"))),
   theNHits_Min(par.getParameter<unsigned int>("NHits_Min")),
   theChi2Ndof_Max(par.getParameter<double>("Chi2Ndof_Max")),
   theChi2Prob_Min(par.getParameter<double>("Chi2Prob_Min")),
@@ -38,7 +36,7 @@ PixelTrackExtractor::PixelTrackExtractor( const ParameterSet& par ) :
   theReferenceRadius(par.getParameter<double>("ReferenceRadius")),
   theVetoLeadingTrack(par.getParameter<bool>("VetoLeadingTrack")), //! will veto leading track if
   thePtVeto_Min(par.getParameter<double>("PtVeto_Min")),           //! .. it is above this threshold
-  theDR_VetoPt(par.getParameter<double>("DR_VetoPt"))              //!.. and is inside this cone      
+  theDR_VetoPt(par.getParameter<double>("DR_VetoPt"))              //!.. and is inside this cone
 {
 }
 
@@ -89,7 +87,7 @@ IsoDeposit PixelTrackExtractor::deposit(const Event & event, const EventSetup & 
   deposit.addCandEnergy(muon.pt());
 
   Handle<View<Track> > tracksH;
-  event.getByLabel(theTrackCollectionTag, tracksH);
+  event.getByToken(theTrackCollectionToken, tracksH);
   //  const TrackCollection tracks = *(tracksH.product());
   LogTrace(metname)<<"***** TRACK COLLECTION SIZE: "<<tracksH->size();
 
@@ -102,7 +100,7 @@ IsoDeposit PixelTrackExtractor::deposit(const Event & event, const EventSetup & 
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> beamSpotH;
 
-    event.getByLabel(theBeamSpotLabel,beamSpotH);
+    event.getByToken(theBeamSpotToken,beamSpotH);
 
     if (beamSpotH.isValid()){
       beamPoint = beamSpotH->position();
@@ -124,20 +122,20 @@ IsoDeposit PixelTrackExtractor::deposit(const Event & event, const EventSetup & 
   TrackSelector::result_type sel_tracks = selection(*tracksH);
   LogTrace(metname)<<"all tracks: "<<tracksH->size()<<" selected: "<<sel_tracks.size();
 
-  
+
   double maxPt = -1;
   Direction maxPtDir;
   TrackSelector::result_type::const_iterator tkI = sel_tracks.begin();
   for (; tkI != sel_tracks.end(); ++tkI) {
     const reco::Track* tk = *tkI;
-    LogTrace(metname) << "This track has: pt= " << tk->pt() << ", eta= " 
+    LogTrace(metname) << "This track has: pt= " << tk->pt() << ", eta= "
         << tk->eta() <<", phi= "<<tk->phi();
     Direction dirTrk(directionAtPresetRadius(*tk, bz));
     deposit.addDeposit(dirTrk, tk->pt());
     double tkDr = (muonDir-dirTrk).deltaR;
     double tkPt = tk->pt();
-    if (theVetoLeadingTrack && tkPt > thePtVeto_Min 
-	&& tkDr < theDR_VetoPt  
+    if (theVetoLeadingTrack && tkPt > thePtVeto_Min
+	&& tkDr < theDR_VetoPt
 	&& maxPt < tkPt ){
       maxPt = tkPt;
       maxPtDir = dirTrk;

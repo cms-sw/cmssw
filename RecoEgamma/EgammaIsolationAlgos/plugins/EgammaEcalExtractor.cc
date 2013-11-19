@@ -25,11 +25,11 @@ EgammaEcalExtractor::~EgammaEcalExtractor(){}
 reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Candidate & candidate) const {
   edm::Handle<reco::SuperClusterCollection> superClusterCollectionH;
   edm::Handle<reco::BasicClusterCollection> basicClusterCollectionH;
-  ev.getByLabel(superClusterTag_, superClusterCollectionH);
-  ev.getByLabel(basicClusterTag_, basicClusterCollectionH);
+  ev.getByToken(superClusterToken_, superClusterCollectionH);
+  ev.getByToken(basicClusterToken_, basicClusterCollectionH);
 
   reco::SuperClusterRef sc = candidate.get<reco::SuperClusterRef>();
-  math::XYZPoint position = sc->position();  
+  math::XYZPoint position = sc->position();
   // match the photon hybrid supercluster with those with Algo==0 (island)
   double delta1=1000.;
   double deltacur=1000.;
@@ -42,11 +42,11 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
   deposit.addCandEnergy(sc->energy()*sin(2*atan(exp(-sc->eta()))));
 
   for(reco::SuperClusterCollection::const_iterator scItr = superClusterCollectionH->begin(); scItr != superClusterCollectionH->end(); ++scItr){
-  
+
     const reco::SuperCluster *supercluster = &(*scItr);
-   
+
     if(supercluster->seed()->algo() == 0){
-      deltacur = ROOT::Math::VectorUtil::DeltaR(supercluster->position(), position); 
+      deltacur = ROOT::Math::VectorUtil::DeltaR(supercluster->position(), position);
       if (deltacur < delta1) {
         delta1=deltacur;
 	matchedsupercluster = supercluster;
@@ -56,10 +56,10 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
   }
 
   const reco::BasicCluster *cluster= 0;
-  
+
   //loop over basic clusters
   for(reco::BasicClusterCollection::const_iterator cItr = basicClusterCollectionH->begin(); cItr != basicClusterCollectionH->end(); ++cItr){
- 
+
     cluster = &(*cItr);
 //    double ebc_bcchi2 = cluster->chi2();
     int    ebc_bcalgo = cluster->algo();
@@ -70,7 +70,7 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
 
     if (ebc_bcet > etMin_ && ebc_bcalgo == 0) {
 //      if (ebc_bcchi2 < 30.) {
-	
+
 	if(MATCHEDSC || !scmatch_ ){  //skip selection if user wants to fill all superclusters
 	  bool inSuperCluster = false;
 
@@ -92,8 +92,8 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
     } // matches ebc_bcet && ebc_bcalgo
 
   }
-  
-  //  std::cout << "Will return ecalIsol = " << ecalIsol << std::endl; 
+
+  //  std::cout << "Will return ecalIsol = " << ecalIsol << std::endl;
   return deposit;
-  
+
 }
