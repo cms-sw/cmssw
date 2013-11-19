@@ -7,6 +7,8 @@ from RecoJets.JetProducers.gk5CaloJets_cfi import gk5CaloJets
 from RecoJets.JetProducers.kt4CaloJets_cfi import kt4CaloJets
 from RecoJets.JetProducers.ca4CaloJets_cfi import ca4CaloJets
 
+from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import fixedGridRhoFastjetAllCalo
+
 
 sisCone7CaloJets = sisCone5CaloJets.clone( rParam = 0.7 )
 ak7CaloJets = ak5CaloJets.clone( rParam = 0.7 )
@@ -44,21 +46,21 @@ kt6CaloJets.doAreaFastjet = True
 ak5CaloJets.doAreaFastjet = True
 ak7CaloJets.doAreaFastjet = True
 
-
-kt6CaloJetsCentral = kt6CaloJets.clone(
-    Ghost_EtaMax = cms.double(3.1),
-    Rho_EtaMax = cms.double(2.5)
+fixedGridRhoFastjetCentralCalo = fixedGridRhoFastjetAllCalo.clone(
+    maxRapidity = cms.double(2.5)
     )
 
-kt6CaloJetsCentralPUCorr           =kt6CaloJetsCentral.clone           (doPUOffsetCorr = doPileup)
-
-
-recoJets   =cms.Sequence(kt4CaloJets+kt6CaloJets+kt6CaloJetsCentral+
+recoJets   =cms.Sequence(#kt4CaloJets+kt6CaloJets+kt6CaloJetsCentral+
+                         fixedGridRhoFastjetAllCalo+
+                         fixedGridRhoFastjetCentralCalo+
                          iterativeCone5CaloJets+
                          ak5CaloJets+ak7CaloJets)
 
 recoAllJets=cms.Sequence(sisCone5CaloJets+sisCone7CaloJets+
-                         kt4CaloJets+kt6CaloJets+kt6CaloJetsCentral+
+                         kt4CaloJets+kt6CaloJets+
+                         fixedGridRhoFastjetAllCalo+
+                         fixedGridRhoFastjetCentralCalo+                         
+                         fixedGridRhoFastjetAllCalo+
                          iterativeCone5CaloJets+
                          ak5CaloJets+ak7CaloJets+
                          gk5CaloJets+gk7CaloJets+
@@ -66,7 +68,9 @@ recoAllJets=cms.Sequence(sisCone5CaloJets+sisCone7CaloJets+
 
 
 recoAllJetsPUOffsetCorr=cms.Sequence(sisCone5CaloJetsPUCorr+sisCone7CaloJetsPUCorr+
-                                     kt4CaloJetsPUCorr+kt6CaloJetsPUCorr+kt6CaloJetsCentralPUCorr+
+                                     kt4CaloJetsPUCorr+kt6CaloJetsPUCorr+
+                                     fixedGridRhoFastjetAllCalo+
+                                     fixedGridRhoFastjetCentralCalo+
                                      iterativeCone5CaloJetsPUCorr+
                                      ak5CaloJetsPUCorr+ak7CaloJetsPUCorr+
                                      gk5CaloJetsPUCorr+gk7CaloJetsPUCorr+

@@ -71,7 +71,7 @@ void EgammaHLTEcalRecIsolationProducer::fillDescriptions(edm::ConfigurationDescr
   desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag("hltL1SeededRecoEcalCandidate"));
   desc.add<edm::InputTag>("ecalBarrelRecHitProducer", edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEB"));
   desc.add<edm::InputTag>("ecalEndcapRecHitProducer", edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEE"));
-  desc.add<edm::InputTag>("rhoProducer", edm::InputTag("hltKT6CaloJets", "rho"));
+  desc.add<edm::InputTag>("rhoProducer", edm::InputTag("fixedGridRhoFastjetAllCalo"));
   desc.add<bool>("doRhoCorrection", false);
   desc.add<double>("rhoMax", 9.9999999E7); 
   desc.add<double>("rhoScale", 1.0); 
