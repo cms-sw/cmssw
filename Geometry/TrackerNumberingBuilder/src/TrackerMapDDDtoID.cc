@@ -1,3 +1,4 @@
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/TrackerMapDDDtoID.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -23,7 +24,7 @@ void TrackerMapDDDtoID::buildAll(const GeometricDet* iDet){
 
 void TrackerMapDDDtoID::buildAllStep2(const GeometricDet* theTracker){
   
-  std::vector<const GeometricDet*> allDetectors;
+  GeometricDet::ConstGeometricDetContainer allDetectors;
   theTracker->deepComponents(allDetectors);
   
   //

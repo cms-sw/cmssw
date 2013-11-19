@@ -9,9 +9,8 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include <atomic>
-#include <memory>
 #include <vector>
+#include <memory>
 #include "FWCore/ParameterSet/interface/types.h"
 
 #include <ext/pool_allocator.h>
@@ -27,6 +26,25 @@ class DDFilteredView;
  * You can understand what you are looking at via enum.
  */
 
+class GeometricDet;
+class GeometricDetPtr {
+    public:
+        GeometricDetPtr(): m_ptr(nullptr) {}
+        explicit GeometricDetPtr(GeometricDet* iDet): m_ptr(iDet) {}
+
+        GeometricDet* operator->() { return m_ptr;}
+        GeometricDet const* operator->() const { return m_ptr;}
+
+        operator GeometricDet* () { return m_ptr;}
+        operator GeometricDet const* () const { return m_ptr;}
+
+        GeometricDet& operator*() { return *m_ptr;}
+        GeometricDet const& operator*() const { return *m_ptr;}
+
+    private:
+        GeometricDet* m_ptr;
+};
+
 class GeometricDet {
  public:
 
@@ -34,7 +52,7 @@ class GeometricDet {
   typedef DDExpandedView::NavRange NavRange;
 
   typedef std::vector< GeometricDet const *>  ConstGeometricDetContainer;
-  typedef std::vector< GeometricDet const *>  GeometricDetContainer;
+  typedef std::vector<GeometricDetPtr>  GeometricDetContainer;
 
 #ifdef PoolAlloc  
   typedef std::vector< DDExpandedNode, PoolAlloc<DDExpandedNode> > GeoHistory;
@@ -68,18 +86,13 @@ class GeometricDet {
 
   GeometricDet & operator=( const GeometricDet & );
   */
+  std::unique_ptr<GeometricDet> clone() const;
 
   /**
    * set or add or clear components
    */
-  void setGeographicalID(DetId id) const {
-      if(!_geographicalID.load(std::memory_order_acquire)) {
-          std::unique_ptr<DetId> ptr{new DetId(id)};
-          DetId* expect = nullptr;
-          if(_geographicalID.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
-              ptr.release();
-          }
-      }
+  void setGeographicalID(DetId id) {
+      _geographicalID = id;
   }
 #ifdef GEOMETRICDETDEBUG
   void setComponents(GeometricDetContainer const & cont) {
@@ -181,7 +194,7 @@ class GeometricDet {
    */
 
   ConstGeometricDetContainer deepComponents() const;
-  void deepComponents(GeometricDetContainer & cont) const;
+  void deepComponents(ConstGeometricDetContainer & cont) const;
 
 #ifdef GEOMETRICDETDEBUG
   //rr
@@ -200,11 +213,11 @@ class GeometricDet {
    */
   DetId geographicalID() const  { 
     //std::cout<<"geographicalID"<<std::endl;
-    return (*_geographicalID.load(std::memory_order_acquire));
+    return _geographicalID;
   }
   DetId geographicalId() const  { 
     //std::cout<<"geographicalId"<<std::endl; 
-    return (*_geographicalID.load(std::memory_order_acquire));
+    return _geographicalID;
   }
 
   /**
@@ -306,7 +319,7 @@ class GeometricDet {
   GeometricEnumType _type;
   std::vector<double> _params;
   //FIXME
-  mutable std::atomic<DetId*> _geographicalID;
+  DetId _geographicalID;
 #ifdef GEOMETRICDETDEBUG
   GeoHistory _parents;
   double _volume;

@@ -10,8 +10,6 @@
 /* #include "DataFormats/GeometrySurface/interface/Surface.h" */
 /* #include "DataFormats/GeometrySurface/interface/Bounds.h" */
 #include "DataFormats/DetId/interface/DetId.h"
-#include <atomic>
-#include <memory>
 #include <vector>
 #include "FWCore/ParameterSet/interface/types.h"
 
@@ -60,16 +58,10 @@ class GeometricDetExtra {
   /**
    * set or add or clear components
    */
-  void setGeographicalId(DetId id) const {
-      if(!_geographicalId.load(std::memory_order_acquire)) {
-          std::unique_ptr<DetId> ptr{new DetId(id)};
-          DetId* expect = nullptr;
-          if(_geographicalId.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
-              ptr.release();
-          }
-      }
+  void setGeographicalId(DetId id) {
+      _geographicalId = id;
   }
-  DetId geographicalId() const { return (*_geographicalId.load(std::memory_order_acquire)); }
+  DetId geographicalId() const { return _geographicalId; }
   //rr
   /** parents() retuns the geometrical history
    * mec: only works if this is built from DD and not from reco DB.
@@ -123,7 +115,7 @@ class GeometricDetExtra {
   std::string _material;
   std::string _name;
   bool _fromDD; // may not need this, keep an eye on it.
-  mutable std::atomic<DetId*> _geographicalId;
+  DetId _geographicalId;
 };
 
 #undef PoolAlloc

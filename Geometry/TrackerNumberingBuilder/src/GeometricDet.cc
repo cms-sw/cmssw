@@ -8,8 +8,6 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include <boost/bind.hpp>
-
 #include <cfloat>
 #include <vector>
 #include <string>
@@ -80,7 +78,6 @@ GeometricDet::~GeometricDet(){
 #ifdef GEOMETRICDETDEBUG
 // for use outside CMSSW framework only since it asks for a default DDCompactView...
 GeometricDet::GeometricDet(DDnav_type const & navtype, GeometricEnumType type) :
-  _geographicalID(nullptr),
   _ddd(navtype.begin(),navtype.end()), _type(type){ 
   //
   // I need to find the params by myself :(
@@ -116,7 +113,7 @@ GeometricDet::GeometricDet(DDnav_type const & navtype, GeometricEnumType type) :
 }
 
 GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) :
-  _geographicalID(nullptr), _type(type) {
+  _type(type) {
   //
   // Set by hand the _ddd
   //
@@ -161,7 +158,6 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) :
   _ddname(((fv->logicalPart()).ddname()).name()),
   _type(type),
   _params(((fv->logicalPart()).solid()).parameters()),
-  _geographicalID(nullptr),
   //  want this :) _ddd(fv->navPos().begin(),fv->navPos().end()),
 #ifdef GEOMTRICDETDEBUG
   _parents(fv->geoHistory().begin(),fv->geoHistory().end()),
@@ -268,6 +264,11 @@ GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumTyp
  
 }
 
+std::unique_ptr<GeometricDet>
+GeometricDet::clone() const {
+  return std::unique_ptr<GeometricDet>(new GeometricDet(*this));
+}
+
 GeometricDet::ConstGeometricDetContainer GeometricDet::deepComponents() const {
   //
   // iterate on all the components ;)
@@ -278,14 +279,15 @@ GeometricDet::ConstGeometricDetContainer GeometricDet::deepComponents() const {
   return _temp;
 }
 
-void GeometricDet::deepComponents(GeometricDetContainer & cont) const {
+void GeometricDet::deepComponents(ConstGeometricDetContainer & cont) const {
   //std::cout << "const deepComponents2" << std::endl;
-  if (isLeaf())
-    cont.push_back(const_cast<GeometricDet*>(this));
-  else 
-    std::for_each(_container.begin(),_container.end(), 
-		  boost::bind(&GeometricDet::deepComponents,_1,boost::ref(cont))
-		  );
+  if (isLeaf()) {
+    cont.push_back(GeometricDetPtr(this->clone().get()));
+  } else {
+      for(auto it=_container.begin();it!=_container.end();++it) {
+          (*it)->deepComponents(cont);
+      }
+  }
 }
 
 
@@ -302,7 +304,7 @@ void GeometricDet::addComponents(GeometricDetContainer const & cont){
 
 void GeometricDet::addComponent(GeometricDet* det){
   //std::cout << "deepComponent" << std::endl;
-  _container.push_back(det);
+  _container.push_back(GeometricDetPtr(det));
 }
 
 namespace {
