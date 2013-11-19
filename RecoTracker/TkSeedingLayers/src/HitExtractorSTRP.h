@@ -8,6 +8,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
 #include <vector>
+#include <tuple>
 class DetLayer;
 
 namespace edm {
@@ -21,8 +22,11 @@ class HitExtractorSTRP : public HitExtractor {
 public:
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
 
+  HitExtractorSTRP(SeedingLayer::Side & side, int idLayer);
   HitExtractorSTRP( const DetLayer* detLayer,  SeedingLayer::Side & side, int idLayer);
   virtual ~HitExtractorSTRP(){}
+
+  void setDetLayer(const DetLayer *detLayer) { theLayer = detLayer; }
 
   virtual HitExtractor::Hits hits( const SeedingLayer & sl, const edm::Event& , const edm::EventSetup& ) const;
   virtual HitExtractorSTRP * clone() const { return new HitExtractorSTRP(*this); }
@@ -45,6 +49,9 @@ public:
 	       TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const;
   void setNoProjection() const {failProjection=true;};
   void setMinAbsZ(double minZToSet) {minAbsZ=minZToSet;}
+
+  bool useRingSelector() const { return hasRingSelector; }
+  std::tuple<int, int> getMinMaxRing() const { return std::make_tuple(theMinRing, theMaxRing); }
 private:
   bool ringRange(int ring) const;
 private:
