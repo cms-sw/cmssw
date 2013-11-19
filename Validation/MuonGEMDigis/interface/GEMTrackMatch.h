@@ -25,7 +25,7 @@
 class GEMTrackMatch 
 {
 public:
-  GEMTrackMatch(DQMStore* , std::string , edm::ParameterSet, double, double, double );
+  GEMTrackMatch(DQMStore* , std::string , edm::ParameterSet);
   ~GEMTrackMatch();
   void analyze(const edm::Event& e, const edm::EventSetup&);
 

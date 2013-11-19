@@ -97,8 +97,7 @@ MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
   theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscPadLabel"));
   theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscCopadLabel"));
   theGEMTrackMatch = new GEMTrackMatch(dbe_, ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"), 
-                                       ps.getParameterSet("simTrackMatching"),ps.getUntrackedParameter<double>("minPt",5.),
-                                       ps.getUntrackedParameter<double>("minEta",1.55), ps.getUntrackedParameter<double>("maxPt",2.18)       );
+                                       ps.getParameterSet("simTrackMatching") );
   
 
 

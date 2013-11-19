@@ -19,16 +19,17 @@ struct MySimTrack
 
 
 
-GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg , double minPt, double minEta, double maxEta)
+GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg)
 {
 
 
    cfg_= cfg; 
    simInputLabel_= simInputLabel;
    dbe_= dbe;
-   minPt_  = minPt;
-   minEta_ = minEta;
-   maxEta_ = maxEta;
+   minPt_  = cfg_.getUntrackedParameter<double>("gemDigiMinPt",5.0);
+   minEta_ = cfg_.getUntrackedParameter<double>("gemDigiMinEta",1.55);
+   maxEta_ = cfg_.getUntrackedParameter<double>("gemDigiMaxEta",2.18);
+
 
 
    buildLUT();
