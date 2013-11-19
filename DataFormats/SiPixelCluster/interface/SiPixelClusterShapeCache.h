@@ -39,11 +39,11 @@ public:
 
   struct Field {
     Field(unsigned i, bool s, bool c, bool h):
-      index(i), straight(s), complete(c), has(h) {}
-    unsigned index;
-    bool straight;
-    bool complete;
-    bool has;
+      straight(s), complete(c), has(h), index(i) {}
+    unsigned straight:1;
+    unsigned complete:1;
+    unsigned has:1;
+    unsigned index:29;
   };
 
   SiPixelClusterShapeCache() {};
@@ -52,6 +52,7 @@ public:
   ~SiPixelClusterShapeCache();
 
   void reserve(size_t size) {
+    assert(size <= 2<<29); // maximum size
     data_.reserve(size);
     sizeData_.reserve(size);
   }
