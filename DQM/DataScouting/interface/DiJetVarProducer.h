@@ -27,6 +27,9 @@ class DiJetVarProducer : public edm::EDProducer {
   edm::InputTag inputJetTag_; // input tag jets
   double wideJetDeltaR_; // Radius parameter for wide jets
 
+  //set Token(-s)
+  edm::EDGetTokenT<reco::CaloJetCollection> inputJetTagToken_;
+
 };
 
 #endif //DiJetVarProducer_h
