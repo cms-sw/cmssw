@@ -59,6 +59,10 @@
 
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 using namespace std;
 using namespace edm;
 
@@ -72,6 +76,11 @@ L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
 
   theTkCollName = par.getParameter<edm::InputTag>("tkTrajLabel");
+  theBeamSpotInputTag = par.getParameter<edm::InputTag>("tkTrajBeamSpot");
+  theMaxChi2 = par.getParameter<double>("tkTrajMaxChi2");
+  theDXYBeamSpot = par.getParameter<double>("tkTrajMaxDXYBeamSpot");
+  theUseVertex = par.getParameter<bool>("tkTrajUseVertex");
+  theVertexCollInputTag = par.getParameter<edm::InputTag>("tkTrajVertex");
 
 }
 
@@ -98,7 +107,29 @@ void L3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   LogDebug(category) 
       << "Found " << allTrackerTracks->size() 
       << " tracker Tracks with label "<< theTkCollName;  
-  
+
+  if( theUseVertex ) {
+    // PV
+    edm::Handle<reco::VertexCollection> pvHandle;
+    if ( pvHandle.isValid() ) {
+      vtx = pvHandle->front();
+    } 
+    else {
+      edm::LogInfo(category)
+      << "No Primary Vertex available from EventSetup \n";
+    }
+  }
+  else {
+    // BS
+    event.getByLabel(theBeamSpotInputTag, beamSpotHandle);
+    if( beamSpotHandle.isValid() ) {
+      beamSpot = *beamSpotHandle;
+    }
+    else {
+      edm::LogInfo(category)
+      << "No beam spot available from EventSetup \n";
+    }
+  }
 }
 
 //
@@ -190,7 +221,16 @@ vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkCandCo
   for(vector<TrackCand>::const_iterator tk = tkCandColl.begin(); tk != tkCandColl.end() ; ++tk) { 
     edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = (*tk).second->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >() ;
     reco::TrackRef staTrack = l3seedRef->l2Track();
-    if(staTrack == (staCand.second) ) tkTrackCands.push_back(*tk);
+    if( staTrack == (staCand.second) ) {
+      // apply a filter (dxy, chi2 cut)
+      double tk_vtx;
+      if( theUseVertex ) tk_vtx = (*tk).second->dxy(vtx.position());
+      else tk_vtx = (*tk).second->dxy(beamSpot.position());
+
+      if( fabs(tk_vtx) > theDXYBeamSpot || (*tk).second->normalizedChi2() > theMaxChi2 ) continue;
+
+      tkTrackCands.push_back(*tk);
+    }
   }
 
   return tkTrackCands;
