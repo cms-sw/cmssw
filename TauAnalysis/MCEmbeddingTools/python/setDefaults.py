@@ -26,7 +26,7 @@ def setDefaults(process):
       rfRotationAngle              = cms.double(90.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus
       embeddingMode                = cms.string("RH"),   # embedding mode: 'PF'=particle flow embedding, 'RH'=recHit embedding
       replaceGenOrRecMuonMomenta   = cms.string("rec"),  # take momenta of generated tau leptons from: 'rec'=reconstructed muons, 'gen'=generator level muons
-      applyMuonRadiationCorrection = cms.string("photos"), # should I correct the momementa of replaced muons for muon -> muon + photon radiation ?
+      applyMuonRadiationCorrection = cms.string(""),     # should I correct the momementa of replaced muons for muon -> muon + photon radiation ?
                                                          # (""=no correction, "pythia"/"photos"=correction is applied using PYTHIA/PHOTOS)
       minVisibleTransverseMomentum = cms.string(""),     # generator level cut on visible transverse momentum (typeN:pT,[...];[...])
       useJson                      = cms.bool(False),    # should I enable event selection by JSON file ?
