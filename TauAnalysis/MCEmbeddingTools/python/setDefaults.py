@@ -31,7 +31,7 @@ def setDefaults(process):
       minVisibleTransverseMomentum = cms.string(""),     # generator level cut on visible transverse momentum (typeN:pT,[...];[...])
       useJson                      = cms.bool(False),    # should I enable event selection by JSON file ?
       overrideBeamSpot             = cms.bool(False),    # should I override beamspot in globaltag ?
-      applyZmumuSkim               = cms.bool(True),     # should I apply the Z->mumu event selection cuts ?
+      applyZmumuSkim               = cms.bool(False),     # should I apply the Z->mumu event selection cuts ?
       applyMuonRadiationFilter     = cms.bool(False),    # should I apply the filter to reject events with muon -> muon + photon radiation ?
       disableCaloNoise             = cms.bool(True),     # should I disable the simulation of calorimeter noise when simulating the detector response for the embedded taus ?
       applyRochesterMuonCorr       = cms.bool(True),     # should I apply muon momentum corrections determined by the Rochester group (documented in AN-12/298) ?
