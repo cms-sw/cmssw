@@ -30,19 +30,19 @@ using namespace reco::isodeposit;
 
 EgammaTowerExtractor::~EgammaTowerExtractor(){}
 
-reco::IsoDeposit EgammaTowerExtractor::deposit(const edm::Event & iEvent, 
+reco::IsoDeposit EgammaTowerExtractor::deposit(const edm::Event & iEvent,
         const edm::EventSetup & iSetup, const reco::Candidate &emObject ) const {
 
     edm::Handle<CaloTowerCollection> towercollectionH;
-    iEvent.getByLabel(caloTowerTag_, towercollectionH);
- 
+    iEvent.getByToken(caloTowerToken, towercollectionH);
+
     //Take the SC position
     reco::SuperClusterRef sc = emObject.get<reco::SuperClusterRef>();
     math::XYZPoint caloPosition = sc->position();
 
     Direction candDir(caloPosition.eta(), caloPosition.phi());
     reco::IsoDeposit deposit( candDir );
-    deposit.setVeto( reco::IsoDeposit::Veto(candDir, intRadius_) ); 
+    deposit.setVeto( reco::IsoDeposit::Veto(candDir, intRadius_) );
     deposit.addCandEnergy(sc->energy()*sin(2*atan(exp(-sc->eta()))));
 
     //loop over tracks
@@ -56,9 +56,9 @@ reco::IsoDeposit EgammaTowerExtractor::deposit(const edm::Event & iEvent,
       if(depth_==AllDepths) depEt = trItr->hadEt();
       else if(depth_==Depth1) depEt = trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEt() : trItr->hadEnergyHeInnerLayer()*sin(trItr->p4().theta());
       else if(depth_==Depth2) depEt = trItr->hadEnergyHeOuterLayer()*sin(trItr->p4().theta());
-      
-      if ( depEt < etLow_ )  continue ;  
-      
+
+      if ( depEt < etLow_ )  continue ;
+
 
         Direction towerDir( trItr->eta(), trItr->phi() );
         double dR2 = candDir.deltaR2(towerDir);

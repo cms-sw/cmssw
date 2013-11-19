@@ -21,13 +21,10 @@ public:
 
   /// constructor with config
   L3MuonCombinedRelativeIsolationProducer(const edm::ParameterSet&);
-  
-  /// destructor
-  virtual ~L3MuonCombinedRelativeIsolationProducer(); 
 
-  /// initialisation
-  virtual void beginJob();
-  
+  /// destructor
+  virtual ~L3MuonCombinedRelativeIsolationProducer();
+
   /// Produce isolation maps
   virtual void produce(edm::Event&, const edm::EventSetup&);
 

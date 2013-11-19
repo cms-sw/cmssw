@@ -2,7 +2,7 @@
 //
 // Package:    ElectronIdMVABased
 // Class:      ElectronIdMVABased
-// 
+//
 /**\class ElectronIdMVABased ElectronIdMVABased.cc MyAnalyzer/ElectronIdMVABased/src/ElectronIdMVABased.cc
 
  Description: [one line class summary]
@@ -49,8 +49,8 @@ class ElectronIdMVABased : public edm::EDFilter {
 
 
 		// ----------member data ---------------------------
-		edm::InputTag vertexTag;
-		edm::InputTag electronTag;
+		edm::EDGetTokenT<reco::VertexCollection> vertexToken;
+		edm::EDGetTokenT<reco::GsfElectronCollection> electronToken;
                 string mvaWeightFileEleID;
                 string path_mvaWeightFileEleID;
 		double thresholdBarrel;
@@ -73,8 +73,8 @@ class ElectronIdMVABased : public edm::EDFilter {
 // constructors and destructor
 //
 ElectronIdMVABased::ElectronIdMVABased(const edm::ParameterSet& iConfig) {
-	vertexTag = iConfig.getParameter<edm::InputTag>("vertexTag");
-	electronTag = iConfig.getParameter<edm::InputTag>("electronTag");
+	vertexToken = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexTag"));
+	electronToken = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronTag"));
 	mvaWeightFileEleID = iConfig.getParameter<string>("HZZmvaWeightFile");
 	thresholdBarrel = iConfig.getParameter<double>("thresholdBarrel");
 	thresholdEndcap = iConfig.getParameter<double>("thresholdEndcap");
@@ -100,7 +100,7 @@ ElectronIdMVABased::ElectronIdMVABased(const edm::ParameterSet& iConfig) {
 
 ElectronIdMVABased::~ElectronIdMVABased()
 {
- 
+
   delete mvaID_;
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
@@ -119,11 +119,11 @@ bool ElectronIdMVABased::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	std::auto_ptr<reco::GsfElectronCollection> mvaElectrons(new reco::GsfElectronCollection);
 
 	Handle<reco::VertexCollection>  vertexCollection;
-	iEvent.getByLabel(vertexTag, vertexCollection);
+	iEvent.getByToken(vertexToken, vertexCollection);
 	int nVtx = vertexCollection->size();
-	
+
 	Handle<reco::GsfElectronCollection> egCollection;
-	iEvent.getByLabel(electronTag,egCollection);
+	iEvent.getByToken(electronToken,egCollection);
 	const reco::GsfElectronCollection egCandidates = (*egCollection.product());
 	for ( reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
 	  double mvaVal = mvaID_->mva( *egIter, nVtx );
@@ -141,10 +141,10 @@ bool ElectronIdMVABased::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	    myMvaOutput.mva = mvaVal;
 	    mvaElectrons->back().setMvaOutput(myMvaOutput);
 	  }
-	  
+
 
 	}
-	
+
 
 	iEvent.put(mvaElectrons);
 

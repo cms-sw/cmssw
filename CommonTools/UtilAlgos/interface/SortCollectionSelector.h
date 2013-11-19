@@ -3,7 +3,7 @@
 /** \class SortCollectionSelector
  *
  * selects the first N elements based on a sorting algorithm
- * 
+ *
  * \author Luca Lista, INFN
  *
  * \version $Revision: 1.1 $
@@ -12,6 +12,7 @@
  *
  */
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include "CommonTools/UtilAlgos/interface/StoreContainerTrait.h"
@@ -20,8 +21,8 @@
 #include <utility>
 namespace edm { class Event; }
 
-template<typename InputCollection, typename Comparator, 
-	 typename OutputCollection = typename helper::SelectedOutputCollectionTrait<InputCollection>::type, 
+template<typename InputCollection, typename Comparator,
+	 typename OutputCollection = typename helper::SelectedOutputCollectionTrait<InputCollection>::type,
 	 typename StoreContainer = typename helper::StoreContainerTrait<OutputCollection>::type,
 	 typename RefAdder = typename helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 class SortCollectionSelector {
@@ -34,7 +35,7 @@ private:
   typedef typename container::const_iterator const_iterator;
 
 public:
-  SortCollectionSelector(const edm::ParameterSet & cfg) : 
+  SortCollectionSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector && iC) :
     compare_(Comparator()),
     maxNumber_(cfg.template getParameter<unsigned int>("maxNumber")) { }
   const_iterator begin() const { return selected_.begin(); }
@@ -53,7 +54,7 @@ private:
     PairComparator(const Comparator & cmp) : cmp_(cmp) { }
     bool operator()(const pair & t1, const pair & t2) const {
       return cmp_(*t1.first, *t2.first);
-    } 
+    }
     Comparator cmp_;
   };
   PairComparator compare_;
