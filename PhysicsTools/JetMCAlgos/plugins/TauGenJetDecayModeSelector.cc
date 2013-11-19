@@ -2,7 +2,7 @@
 
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 
-TauGenJetDecayModeSelectorImp::TauGenJetDecayModeSelectorImp(const edm::ParameterSet& cfg)
+TauGenJetDecayModeSelectorImp::TauGenJetDecayModeSelectorImp(const edm::ParameterSet& cfg, edm::ConsumesCollector & iC)
 {
   selectedTauDecayModes_ = cfg.getParameter<vstring>("select");
 }

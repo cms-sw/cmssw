@@ -1,9 +1,6 @@
 #include "ExtractorFromDeposits.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 
@@ -13,20 +10,20 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-ExtractorFromDeposits::ExtractorFromDeposits( const ParameterSet& par ) :
-  theCollectionTag(par.getParameter<edm::InputTag>("IsolationCollectionTag"))
+ExtractorFromDeposits::ExtractorFromDeposits( const ParameterSet& par, edm::ConsumesCollector && iC ) :
+  theCollectionToken(iC.consumes<reco::IsoDepositMap>(par.getParameter<edm::InputTag>("IsolationCollectionTag")))
 { }
 
-void ExtractorFromDeposits::fillVetos (const edm::Event & ev, 
-    const edm::EventSetup & evSetup, const reco::TrackCollection & muons) 
+void ExtractorFromDeposits::fillVetos (const edm::Event & ev,
+    const edm::EventSetup & evSetup, const reco::TrackCollection & muons)
 { }
 
-IsoDeposit ExtractorFromDeposits::deposit(const Event & event, 
+IsoDeposit ExtractorFromDeposits::deposit(const Event & event,
     const EventSetup & eventSetup, const Track & muon) const
-{ 
+{
   static std::string metname = "RecoMuon|ExtractorFromDeposits";
   Handle<reco::IsoDepositMap> depMap;
-  event.getByLabel(theCollectionTag, depMap);
+  event.getByToken(theCollectionToken, depMap);
 
   LogWarning(metname)<<"Call this method only if the original muon track collection is lost";
 
@@ -49,12 +46,12 @@ IsoDeposit ExtractorFromDeposits::deposit(const Event & event,
   return IsoDeposit();
 }
 
-IsoDeposit ExtractorFromDeposits::deposit(const Event & event, 
+IsoDeposit ExtractorFromDeposits::deposit(const Event & event,
     const EventSetup & eventSetup, const TrackRef & muon) const
-{ 
+{
   static std::string metname = "RecoMuon|ExtractorFromDeposits";
   Handle<reco::IsoDepositMap> depMap;
-  event.getByLabel(theCollectionTag, depMap);
+  event.getByToken(theCollectionToken, depMap);
 
   return (*depMap)[muon];
 }

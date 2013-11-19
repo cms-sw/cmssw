@@ -32,22 +32,22 @@ using namespace std;
 using namespace egammaisolation;
 using namespace reco::isodeposit;
 
-EgammaHcalExtractor::EgammaHcalExtractor ( const edm::ParameterSet& par ) :
+EgammaHcalExtractor::EgammaHcalExtractor ( const edm::ParameterSet& par, edm::ConsumesCollector & iC ) :
     extRadius_(par.getParameter<double>("extRadius")),
     intRadius_(par.getParameter<double>("intRadius")),
     etLow_(par.getParameter<double>("etMin")),
-    hcalRecHitProducer_(par.getParameter<edm::InputTag>("hcalRecHits")) { 
+    hcalRecHitProducerToken_(iC.consumes<HBHERecHitCollection>(par.getParameter<edm::InputTag>("hcalRecHits"))) {
 }
 
 EgammaHcalExtractor::~EgammaHcalExtractor(){}
 
-reco::IsoDeposit EgammaHcalExtractor::deposit(const edm::Event & iEvent, 
+reco::IsoDeposit EgammaHcalExtractor::deposit(const edm::Event & iEvent,
         const edm::EventSetup & iSetup, const reco::Candidate &emObject ) const {
 
     //Get MetaRecHit collection
     edm::Handle<HBHERecHitCollection> hcalRecHitHandle;
-    iEvent.getByLabel(hcalRecHitProducer_, hcalRecHitHandle);
-    HBHERecHitMetaCollection mhbhe =  HBHERecHitMetaCollection(*hcalRecHitHandle); 
+    iEvent.getByToken(hcalRecHitProducerToken_, hcalRecHitHandle);
+    HBHERecHitMetaCollection mhbhe =  HBHERecHitMetaCollection(*hcalRecHitHandle);
 
     //Get Calo Geometry
     edm::ESHandle<CaloGeometry> pG;
@@ -63,13 +63,13 @@ reco::IsoDeposit EgammaHcalExtractor::deposit(const edm::Event & iEvent,
 
     Direction candDir(caloPosition.eta(), caloPosition.phi());
     reco::IsoDeposit deposit( candDir );
-    deposit.setVeto( reco::IsoDeposit::Veto(candDir, intRadius_) ); 
+    deposit.setVeto( reco::IsoDeposit::Veto(candDir, intRadius_) );
     double sinTheta = sin(2*atan(exp(-sc->eta())));
     deposit.addCandEnergy(sc->energy()*sinTheta);
 
     //Compute the HCAL energy behind ECAL
     std::auto_ptr<CaloRecHitMetaCollectionV> chosen = coneSel.select(point, mhbhe);
-    for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin (), ed = chosen->end() ; 
+    for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin (), ed = chosen->end() ;
             i!= ed; ++i) {
         const  GlobalPoint & hcalHit_position = caloGeom->getPosition(i->detid());
         double hcalHit_eta = hcalHit_position.eta();
