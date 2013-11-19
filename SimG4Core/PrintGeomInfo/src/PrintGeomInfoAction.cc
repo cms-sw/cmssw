@@ -29,6 +29,8 @@
 #include <set>
 #include <map>
 
+using namespace CLHEP;
+
 PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
 
   _dumpSummary = p.getUntrackedParameter<bool>("DumpSummary", true);

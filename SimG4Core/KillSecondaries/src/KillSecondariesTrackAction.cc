@@ -7,6 +7,8 @@
 
 #include "G4Track.hh"
 
+using namespace CLHEP;
+
 KillSecondariesTrackAction::KillSecondariesTrackAction(edm::ParameterSet const & p) {
 
   killHeavy      = p.getParameter<bool>("KillHeavy");
