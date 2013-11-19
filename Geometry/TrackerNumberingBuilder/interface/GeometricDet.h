@@ -9,8 +9,6 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include <atomic>
-#include <memory>
 #include <vector>
 #include <memory>
 #include "FWCore/ParameterSet/interface/types.h"
@@ -93,14 +91,8 @@ class GeometricDet {
   /**
    * set or add or clear components
    */
-  void setGeographicalID(DetId id) const {
-      if(!_geographicalID.load(std::memory_order_acquire)) {
-          std::unique_ptr<DetId> ptr{new DetId(id)};
-          DetId* expect = nullptr;
-          if(_geographicalID.compare_exchange_strong(expect, ptr.get(), std::memory_order_acq_rel)) {
-              ptr.release();
-          }
-      }
+  void setGeographicalID(DetId id) {
+      _geographicalID = id;
   }
 #ifdef GEOMETRICDETDEBUG
   void setComponents(GeometricDetContainer const & cont) {
@@ -221,11 +213,11 @@ class GeometricDet {
    */
   DetId geographicalID() const  { 
     //std::cout<<"geographicalID"<<std::endl;
-    return (*_geographicalID.load(std::memory_order_acquire));
+    return _geographicalID;
   }
   DetId geographicalId() const  { 
     //std::cout<<"geographicalId"<<std::endl; 
-    return (*_geographicalID.load(std::memory_order_acquire));
+    return _geographicalID;
   }
 
   /**
@@ -327,7 +319,7 @@ class GeometricDet {
   GeometricEnumType _type;
   std::vector<double> _params;
   //FIXME
-  mutable std::atomic<DetId*> _geographicalID;
+  DetId _geographicalID;
 #ifdef GEOMETRICDETDEBUG
   GeoHistory _parents;
   double _volume;

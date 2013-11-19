@@ -78,7 +78,6 @@ GeometricDet::~GeometricDet(){
 #ifdef GEOMETRICDETDEBUG
 // for use outside CMSSW framework only since it asks for a default DDCompactView...
 GeometricDet::GeometricDet(DDnav_type const & navtype, GeometricEnumType type) :
-  _geographicalID(nullptr),
   _ddd(navtype.begin(),navtype.end()), _type(type){ 
   //
   // I need to find the params by myself :(
@@ -114,7 +113,7 @@ GeometricDet::GeometricDet(DDnav_type const & navtype, GeometricEnumType type) :
 }
 
 GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) :
-  _geographicalID(nullptr), _type(type) {
+  _type(type) {
   //
   // Set by hand the _ddd
   //
@@ -159,7 +158,6 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) :
   _ddname(((fv->logicalPart()).ddname()).name()),
   _type(type),
   _params(((fv->logicalPart()).solid()).parameters()),
-  _geographicalID(nullptr),
   //  want this :) _ddd(fv->navPos().begin(),fv->navPos().end()),
 #ifdef GEOMTRICDETDEBUG
   _parents(fv->geoHistory().begin(),fv->geoHistory().end()),
