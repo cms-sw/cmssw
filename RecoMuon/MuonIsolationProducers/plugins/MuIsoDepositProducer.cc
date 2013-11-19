@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -46,14 +47,14 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
   theMuonTrackRefType = ioPSet.getParameter<std::string>("MuonTrackRefType");
   theMuonCollectionTag = ioPSet.getParameter<edm::InputTag>("inputMuonCollection");
   theMultipleDepositsFlag = ioPSet.getParameter<bool>("MultipleDepositsFlag");
-  
 
-  
+
+
   if (theMultipleDepositsFlag){
     theDepositNames = par.getParameter<edm::ParameterSet>("ExtractorPSet")
       .getParameter<std::vector<std::string> >("DepositInstanceLabels");
   }
-  
+
   for (unsigned int i = 0; i < theDepositNames.size(); ++i){
     std::string alias = theConfig.getParameter<std::string>("@module_label");
     if (theDepositNames[i] != "") alias += "_" + theDepositNames[i];
@@ -77,7 +78,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   if (!theExtractor) {
     edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
     std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-    theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);
+    theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
     LogDebug(metname)<<" Load extractor..."<<extractorName;
   }
 
@@ -103,8 +104,8 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
     event.getByLabel(theMuonCollectionTag,muons);
     nMuons = muons->size();
     LogDebug(metname) <<"Got Muons of size "<<nMuons;
-    
-  } 
+
+  }
   if (readFromRecoTrack){
     event.getByLabel(theMuonCollectionTag,tracks);
     nMuons = tracks->size();
@@ -128,14 +129,14 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   for (unsigned int i =0;i<nDeps; ++i){
     depMaps[i] =  std::auto_ptr<reco::IsoDepositMap>(new reco::IsoDepositMap());
   }
-  
+
   //! OK, now we know how many deps for how many muons each we will create
   //! might linearize this at some point (lazy)
   //! do it in case some muons are there only
   if (nMuons > 0){
-    
+
     std::vector<std::vector<IsoDeposit> > deps2D(nDeps, std::vector<IsoDeposit>(nMuons));
-    
+
     for (unsigned int i=0; i<  nMuons; ++i) {
       TrackBaseRef muRef;
       if (readFromRecoMuon){
@@ -170,7 +171,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
       if (! theMultipleDepositsFlag){
                 if (readFromCandidateView || theExtractForCandidate) deps2D[0][i] = theExtractor->deposit(event, eventSetup, (*cands)[i]);
 	else deps2D[0][i] = theExtractor->deposit(event, eventSetup, muRef);
-	
+
       } else {
 	std::vector<IsoDeposit> deps(nDeps);
                 if (readFromCandidateView || theExtractForCandidate) deps = theExtractor->deposits(event, eventSetup, (*cands)[i]);
@@ -180,7 +181,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
 	}
       }
     }//! end for (nMuons)
-    
+
     //! now fill in selectively
     for (unsigned int iDep=0; iDep < nDeps; ++iDep){
       //!some debugging stuff
@@ -190,8 +191,8 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
 	LogTrace(metname)<<deps2D[iDep][iMu].print();
       }
 
-      //! fill the maps here  
-      reco::IsoDepositMap::Filler filler(*depMaps[iDep]);     
+      //! fill the maps here
+      reco::IsoDepositMap::Filler filler(*depMaps[iDep]);
 
       //!now figure out the source handle (see getByLabel above)
       if (readFromRecoMuon){

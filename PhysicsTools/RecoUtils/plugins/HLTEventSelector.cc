@@ -2,12 +2,12 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-HLTEventSelector::HLTEventSelector (const edm::ParameterSet& pset){
+HLTEventSelector::HLTEventSelector (const edm::ParameterSet& pset, edm::ConsumesCollector & iC){
   // input collection
   triggerResults_ = pset.getParameter<edm::InputTag>("triggerResults");
+  triggerResultsToken_ = iC.consumes<edm::TriggerResults>(triggerResults_);
   // trigger path names
   pathNames_ = pset.getParameter< std::vector<std::string> >("pathNames");
 
@@ -23,7 +23,7 @@ HLTEventSelector::select (const edm::Event& event) const
   // get the trigger results and check validity
   //
   edm::Handle<edm::TriggerResults> hltHandle;
-  event.getByLabel(triggerResults_, hltHandle);
+  event.getByToken(triggerResultsToken_, hltHandle);
   if ( !hltHandle.isValid() ) {
     edm::LogWarning("HLTEventSelector") << "No trigger results for InputTag " << triggerResults_;
     return false;

@@ -19,6 +19,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -38,13 +39,15 @@ namespace egammaisolation {
 
 
       public:
-         EgammaTowerExtractor ( const edm::ParameterSet& par ) :
+         EgammaTowerExtractor ( const edm::ParameterSet& par, edm::ConsumesCollector && iC ) :
+           EgammaTowerExtractor(par, iC) {}
+         EgammaTowerExtractor ( const edm::ParameterSet& par, edm::ConsumesCollector & iC ) :
             extRadius2_(par.getParameter<double>("extRadius")),
             intRadius_(par.getParameter<double>("intRadius")),
             etLow_(par.getParameter<double>("etMin")),
-            caloTowerTag_(par.getParameter<edm::InputTag>("caloTowers")),
+            caloTowerToken(iC.consumes<CaloTowerCollection>(par.getParameter<edm::InputTag>("caloTowers"))),
 	    depth_(par.getParameter<int>("hcalDepth"))
-         { 
+         {
             extRadius2_ *= extRadius2_;
 	    //lets just check we have a valid depth
 	    //should we throw an exception or just warn and then fail gracefully later?
@@ -55,11 +58,11 @@ namespace egammaisolation {
 
          virtual ~EgammaTowerExtractor() ;
 
-         virtual void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup, 
+         virtual void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup,
                                  const reco::TrackCollection & tracks) { }
          virtual reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
                                              const reco::Track & track) const {
-            throw cms::Exception("Configuration Error") << 
+            throw cms::Exception("Configuration Error") <<
                      "This extractor " << (typeid(this).name()) << " is not made for tracks";
          }
          virtual reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
@@ -69,9 +72,9 @@ namespace egammaisolation {
          double extRadius2_ ;
          double intRadius_ ;
          double etLow_ ;
-         
 
-         edm::InputTag caloTowerTag_;
+
+         edm::EDGetTokenT<CaloTowerCollection> caloTowerToken;
          int depth_;
          //const CaloTowerCollection *towercollection_ ;
    };

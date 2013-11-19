@@ -1,6 +1,8 @@
 #ifndef RecoTauTag_TauTagTools_PFTauSelectorDefinition
 #define RecoTauTag_TauTagTools_PFTauSelectorDefinition
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
@@ -20,18 +22,18 @@ struct PFTauSelectorDefinition {
 
   struct DiscCutPair {
     edm::Handle<reco::PFTauDiscriminator> handle;
-    edm::InputTag inputTag;
+    edm::EDGetTokenT<reco::PFTauDiscriminator> inputToken;
     double cut;
   };
   typedef std::vector<DiscCutPair> DiscCutPairVec;
 
-  PFTauSelectorDefinition (const edm::ParameterSet &cfg) {
+  PFTauSelectorDefinition (const edm::ParameterSet &cfg, edm::ConsumesCollector && iC) {
     std::vector<edm::ParameterSet> discriminators =
       cfg.getParameter<std::vector<edm::ParameterSet> >("discriminators");
     // Build each of our cuts
     BOOST_FOREACH(const edm::ParameterSet &pset, discriminators) {
       DiscCutPair newCut;
-      newCut.inputTag = pset.getParameter<edm::InputTag>("discriminator");
+      newCut.inputToken = iC.consumes<reco::PFTauDiscriminator>(pset.getParameter<edm::InputTag>("discriminator"));
       newCut.cut = pset.getParameter<double>("selectionCut");
       discriminators_.push_back(newCut);
     }
@@ -58,7 +60,7 @@ struct PFTauSelectorDefinition {
 
     // Load each discriminator
     BOOST_FOREACH(DiscCutPair &disc, discriminators_) {
-      e.getByLabel(disc.inputTag, disc.handle);
+      e.getByToken(disc.inputToken, disc.handle);
     }
 
     const size_t nTaus = hc->size();

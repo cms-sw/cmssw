@@ -2,13 +2,10 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -25,8 +22,8 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-CaloExtractor::CaloExtractor(const ParameterSet& par) :
-  theCaloTowerCollectionLabel(par.getParameter<edm::InputTag>("CaloTowerCollectionLabel")),
+CaloExtractor::CaloExtractor(const ParameterSet& par, edm::ConsumesCollector && iC) :
+  theCaloTowerCollectionToken(iC.consumes<CaloTowerCollection>(par.getParameter<edm::InputTag>("CaloTowerCollectionLabel"))),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theWeight_E(par.getParameter<double>("Weight_E")),
   theWeight_H(par.getParameter<double>("Weight_H")),
@@ -45,7 +42,7 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
   theVetoCollection.clear();
 
   Handle<CaloTowerCollection> towers;
-  event.getByLabel(theCaloTowerCollectionLabel,towers);
+  event.getByToken(theCaloTowerCollectionToken,towers);
 
   edm::ESHandle<CaloGeometry> caloGeom;
   eventSetup.get<CaloGeometryRecord>().get(caloGeom);
@@ -56,10 +53,10 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
 
   TrackCollection::const_iterator mu;
   TrackCollection::const_iterator muEnd(muons.end());
-  
+
   CaloTowerCollection::const_iterator cal;
   CaloTowerCollection::const_iterator calEnd(towers->end());
-  
+
   for ( mu = muons.begin(); mu != muEnd; ++mu ) {
     for ( cal = towers->begin(); cal != calEnd; ++cal ) {
       //! make this abit faster
@@ -89,7 +86,7 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
             }
       }
   }
-     
+
 }
 
 IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventSetup, const Track & muon) const
@@ -101,7 +98,7 @@ IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventS
 	  << " phi " << muon.phi();
 
   Handle<CaloTowerCollection> towers;
-  event.getByLabel(theCaloTowerCollectionLabel,towers);
+  event.getByToken(theCaloTowerCollectionToken,towers);
 
   edm::ESHandle<CaloGeometry> caloGeom;
   eventSetup.get<CaloGeometryRecord>().get(caloGeom);
@@ -116,7 +113,7 @@ IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventS
       //! make this abit faster
       double dEta = fabs(muon.eta()-cal->eta());
       if (fabs(dEta) > theDR_Max) continue;
-    
+
       double deltar0 = reco::deltaR(muon,*cal);
       if (deltar0>theDR_Max) continue;
 
@@ -138,7 +135,7 @@ IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventS
       }
 
       if (doEcal) {
-            if (deltar<theDR_Veto_E) { 
+            if (deltar<theDR_Veto_E) {
                   double calodep = theWeight_E*etecal;
                   if (doHcal) calodep += theWeight_H*ethcal;
                   dep.addCandEnergy(calodep);
@@ -152,7 +149,7 @@ IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventS
                   continue;
             }
       } else {
-            if (deltar<theDR_Veto_H) { 
+            if (deltar<theDR_Veto_H) {
                   dep.addCandEnergy(theWeight_H*ethcal);
 	            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
 	            << " >>> Calo deposit inside veto (no ECAL): deltar " << deltar
@@ -166,13 +163,13 @@ IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventS
       if (std::find(theVetoCollection.begin(), theVetoCollection.end()
                   , calId)!=theVetoCollection.end()) {
             LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-            << " >>> Deposits belongs to other track: deltar, etecal, ethcal= " 
+            << " >>> Deposits belongs to other track: deltar, etecal, ethcal= "
             << deltar << ", " << etecal << ", " << ethcal;
             continue;
       }
 
       if (doEcal) {
-            if (deltar>theDR_Veto_E) { 
+            if (deltar>theDR_Veto_E) {
                   double calodep = theWeight_E*etecal;
                   if (doHcal) calodep += theWeight_H*ethcal;
                   dep.addDeposit(reco::isodeposit::Direction(endpos.eta(), endpos.phi()),calodep);
@@ -185,7 +182,7 @@ IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventS
 	            << " phi " << cal->phi();
             }
       } else {
-            if (deltar>theDR_Veto_H) { 
+            if (deltar>theDR_Veto_H) {
 	            dep.addDeposit(reco::isodeposit::Direction(endpos.eta(), endpos.phi()),theWeight_H*ethcal);
 	            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
 	            << " >>> Calo deposit (no ECAL): deltar " << deltar
@@ -229,13 +226,13 @@ GlobalPoint CaloExtractor::MuonAtCaloPosition(const Track& muon, const double bz
                   cur -= muon.dxy()*muon.covariance(muon.i_dxy,muon.i_qoverp)
                                      /errd02 * (cur/qoverp);
                   dca = 0;
-            } 
+            }
             double errdsz2 = muon.covariance(muon.i_dsz,muon.i_dsz);
             if (pow(muon.dsz(),2)<4*errdsz2) {
                   theta += muon.dsz()*muon.covariance(muon.i_dsz,muon.i_lambda)
                                      /errdsz2;
                   dz = 0;
-            } 
+            }
       } else if (fixVxy) {
             double errd02 = muon.covariance(muon.i_dxy,muon.i_dxy);
             if (pow(muon.dxy(),2)<4*errd02) {
@@ -248,7 +245,7 @@ GlobalPoint CaloExtractor::MuonAtCaloPosition(const Track& muon, const double bz
                   dz    -= muon.dxy()*muon.covariance(muon.i_dxy,muon.i_dsz)
                                      /errd02 * muon.p()/muon.pt();
                   dca = 0;
-            } 
+            }
       } else if (fixVz) {
             double errdsz2 = muon.covariance(muon.i_dsz,muon.i_dsz);
             if (pow(muon.dsz(),2)<4*errdsz2) {
@@ -261,7 +258,7 @@ GlobalPoint CaloExtractor::MuonAtCaloPosition(const Track& muon, const double bz
                   dca   -= muon.dsz()*muon.covariance(muon.i_dsz,muon.i_dxy)
                                      /errdsz2;
                   dz = 0;
-            } 
+            }
       }
 
       double sphi0 = sin(phi0);
