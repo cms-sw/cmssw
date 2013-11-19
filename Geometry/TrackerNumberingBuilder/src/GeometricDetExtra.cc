@@ -15,9 +15,8 @@
  * Constructors to be used when looping over DDD
  */
 GeometricDetExtra::GeometricDetExtra( GeometricDet const * gd, DetId id, GeoHistory& gh,  double vol, double dens, double wgt, double cpy, const std::string& mat, const std::string& name, bool dd )
-  : _mygd(gd), _parents(gh), _volume(vol), _density(dens), _weight(wgt), _copy((int)(cpy)), _material(mat), _name(name), _fromDD(dd)
+  : _mygd(gd), _parents(gh), _volume(vol), _density(dens), _weight(wgt), _copy((int)(cpy)), _material(mat), _name(name), _fromDD(dd), _geographicalId(id)
 { 
-    setGeographicalId(id);
 }
 
 GeometricDetExtra::~GeometricDetExtra()
@@ -27,7 +26,7 @@ GeometricDetExtra::~GeometricDetExtra()
 GeometricDetExtra::GeometricDetExtra(const GeometricDetExtra& src)
     : _mygd(src._mygd), _parents(src._parents), _density(src._density), _weight(src._weight),
       _copy(src._copy), _material(src._material), _name(src._name), _fromDD(src._fromDD),
-      _geographicalId(nullptr) {}
+      _geographicalId(src._geographicalId) {}
 // copy assignment operator
 GeometricDetExtra&
 GeometricDetExtra::operator=(const GeometricDetExtra& rhs) {
@@ -45,5 +44,5 @@ void GeometricDetExtra::swap(GeometricDetExtra& other) {
     std::swap(_material, other._material);
     std::swap(_name, other._name);
     std::swap(_fromDD, other._fromDD);
-    other._geographicalId.exchange(_geographicalId.exchange(other._geographicalId));
+    std::swap(_geographicalId, other._geographicalId);
 }
