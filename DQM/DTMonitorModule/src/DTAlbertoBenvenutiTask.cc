@@ -58,6 +58,8 @@ DTAlbertoBenvenutiTask::DTAlbertoBenvenutiTask(const edm::ParameterSet& ps){
 
   parameters = ps; 
 
+  //set Token(-s)
+  DTUnpackerToken_ = consumes<DTDigiCollection>(std::string("dtunpacker"));
 }
 
 
@@ -232,7 +234,8 @@ void DTAlbertoBenvenutiTask::analyze(const edm::Event& e, const edm::EventSetup&
   if (nevents%1000 == 0 && debug) {}
   
   edm::Handle<DTDigiCollection> dtdigis;
-  e.getByLabel("dtunpacker", dtdigis);
+  //e.getByLabel("dtunpacker", dtdigis);
+  e.getByToken(DTUnpackerToken_, dtdigis);
 
   bool checkNoisyChannels = parameters.getUntrackedParameter<bool>("checkNoisyChannels",false);
   ESHandle<DTStatusFlag> statusMap;
