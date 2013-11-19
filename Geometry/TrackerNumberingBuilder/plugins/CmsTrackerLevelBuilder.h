@@ -50,7 +50,7 @@ public:
   struct ExtractPhiModule:public uFcn{
     double operator()(const GeometricDet* a)const{
       const double pi = 3.141592653592;
-      std::vector<const GeometricDet*> const & comp = a->components().back()->components();
+      auto& comp = a->components().back()->components();
       float phi = 0.;
       bool sum = true;
       
@@ -92,7 +92,7 @@ public:
   struct ExtractPhiGluedModule:public uFcn{
     double operator()(const GeometricDet* a)const{
       const double pi = 3.141592653592;
-      std::vector<const GeometricDet*> comp;
+      GeometricDet::ConstGeometricDetContainer comp;
       a->deepComponents(comp);
       float phi = 0.;
       bool sum = true;
