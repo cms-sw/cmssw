@@ -33,10 +33,25 @@ using namespace std;
 METTester::METTester(const edm::ParameterSet& iConfig)
 {
 
-  METType_                 =iConfig.getUntrackedParameter<std::string>("METType");
   inputMETLabel_           =iConfig.getParameter<edm::InputTag>("InputMETLabel");
   mOutputFile              =iConfig.getUntrackedParameter<std::string>("OutputFile","");
-  if(METType_ == "TCMET") {
+
+
+  std::string inputMETCollectionLabel(inputMETLabel_.label());
+
+  std::size_t foundCaloMETCollection = inputMETCollectionLabel.find("met");
+  std::size_t foundTCMETCollection   = inputMETCollectionLabel.find("tc");
+  std::size_t foundPFMETCollection   = inputMETCollectionLabel.find("pf");
+  std::size_t foundCORMETCollection  = inputMETCollectionLabel.find("corMet");
+  std::size_t foundGenMETCollection  = inputMETCollectionLabel.find("gen");
+
+  isCaloMET = (foundCaloMETCollection != string::npos) ? true : false;
+  isCorMET  = (foundCORMETCollection != string::npos) ? true : false;
+  isTcMET   = (foundTCMETCollection != string::npos) ? true : false;
+  isPFMET   = (foundPFMETCollection != string::npos) ? true : false;
+  isGenMET  = (foundGenMETCollection != string::npos) ? true : false;
+
+  if(isTcMET) {
     inputCaloMETLabel_       =iConfig.getParameter<edm::InputTag>("InputCaloMETLabel");     
     inputTrackLabel_         =iConfig.getParameter<edm::InputTag>("InputTrackLabel");    
     inputMuonLabel_          =iConfig.getParameter<edm::InputTag>("InputMuonLabel");
@@ -150,12 +165,7 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   DQMStore* dbe_ = &*edm::Service<DQMStore>();
 
   if (dbe_) {
-    //    TString dirName = "RecoMETV/METTask/MET/";
-    //TString dirName = "JetMET/EventInfo/CertificationSummary/MET_Global/";
-    //    TString dirName = "RecoMETV/MET_Global/";
-    //TString dirName(FolderName_.c_str()); 
-    //TString label(inputMETLabel_.label());
-    //dirName += label;
+ 
     dbe_->setCurrentFolder("JetMET/METValidation/"+inputMETLabel_.label());
 
     mNvertex                         = dbe_->book1D("Nvertex","Nvertex",80,0,80);
@@ -164,7 +174,7 @@ METTester::METTester(const edm::ParameterSet& iConfig)
     mMETSig                      = dbe_->book1D("METSig","METSig",25,0,24.5);
     mMET                         = dbe_->book1D("MET", "MET (20 GeV binning)"           , 100,0,2000);
     mMETFine                     = dbe_->book1D("METFine", "MET (2 GeV binning)"        , 1000,0,2000);
-    mMET_Nvtx                    = dbe_->bookProfile("MET_Nvtx", "MET vs. nvtx",    12, 0, 60, 0, 2000, " ");
+    mMET_Nvtx                    = dbe_->bookProfile("MET_Nvtx", "MET vs. nvtx",    12, 0., 60., 0., 2000., " ");
     mMETPhi                      = dbe_->book1D("METPhi","METPhi",40,-4,4);
     mSumET                       = dbe_->book1D("SumET"            , "SumET"            , 800,0,8000);   //10GeV
     mMETResolution_GenMETTrue    = dbe_->book1D("METResolution_GenMETTrue","METResolution_GenMETTrue", 500,-500,500); 
@@ -172,8 +182,7 @@ METTester::METTester(const edm::ParameterSet& iConfig)
     mMETResolution_GenMETCalo        = dbe_->book1D("METResolution_GenMETCalo","METResolution_GenMETCalo", 500,-500,500); 
     mMETPhiResolution_GenMETCalo     = dbe_->book1D("METPhiResolution_GenMETCalo","METPhiResolution_GenMETCalo", 80,0,4); 
 
-    if (METType_ == "CaloMET") { 
-
+    if ( isCaloMET) { 
       mCaloMaxEtInEmTowers             = dbe_->book1D("CaloMaxEtInEmTowers","CaloMaxEtInEmTowers",600,0,3000);   //5GeV
       mCaloMaxEtInHadTowers            = dbe_->book1D("CaloMaxEtInHadTowers","CaloMaxEtInHadTowers",600,0,3000);  //5GeV
       mCaloEtFractionHadronic          = dbe_->book1D("CaloEtFractionHadronic","CaloEtFractionHadronic",100,0,1);
@@ -187,18 +196,18 @@ METTester::METTester(const edm::ParameterSet& iConfig)
       mCaloSETInmHF                    = dbe_->book1D("CaloSETInmHF","CaloSETInmHF",500, 0, 1000);
       mCaloEmEtInEE                    = dbe_->book1D("CaloEmEtInEE","CaloEmEtInEE",100, 0, 200);    //5GeV
       mCaloEmEtInEB                    = dbe_->book1D("CaloEmEtInEB","CaloEmEtInEB",1200, 0, 6000);   //5GeV
+    } 
 
-    } else if (METType_ == "GenMET")   {
-        mNeutralEMEtFraction    = dbe_->book1D("GenNeutralEMEtFraction", "GenNeutralEMEtFraction", 120, 0.0, 1.2 );
-        mNeutralHadEtFraction   = dbe_->book1D("GenNeutralHadEtFraction", "GenNeutralHadEtFraction", 120, 0.0, 1.2 );
-        mChargedEMEtFraction    = dbe_->book1D("GenChargedEMEtFraction", "GenChargedEMEtFraction", 120, 0.0, 1.2);
-        mChargedHadEtFraction   = dbe_->book1D("GenChargedHadEtFraction", "GenChargedHadEtFraction", 120, 0.0,1.2);
-        mMuonEtFraction         = dbe_->book1D("GenMuonEtFraction", "GenMuonEtFraction", 120, 0.0, 1.2 );
-        mInvisibleEtFraction    = dbe_->book1D("GenInvisibleEtFraction", "GenInvisibleEtFraction", 120, 0.0, 1.2 );
-    } else if (METType_ == "MET") {
-    
-    } else if (METType_ == "PFMET"){
+    if(isGenMET){        
+      mNeutralEMEtFraction    = dbe_->book1D("GenNeutralEMEtFraction", "GenNeutralEMEtFraction", 120, 0.0, 1.2 );
+      mNeutralHadEtFraction   = dbe_->book1D("GenNeutralHadEtFraction", "GenNeutralHadEtFraction", 120, 0.0, 1.2 );
+      mChargedEMEtFraction    = dbe_->book1D("GenChargedEMEtFraction", "GenChargedEMEtFraction", 120, 0.0, 1.2);
+      mChargedHadEtFraction   = dbe_->book1D("GenChargedHadEtFraction", "GenChargedHadEtFraction", 120, 0.0,1.2);
+      mMuonEtFraction         = dbe_->book1D("GenMuonEtFraction", "GenMuonEtFraction", 120, 0.0, 1.2 );
+      mInvisibleEtFraction    = dbe_->book1D("GenInvisibleEtFraction", "GenInvisibleEtFraction", 120, 0.0, 1.2 );
+    }
 
+    if (isPFMET){
       mMETResolution_GenMETTrue_MET0to20    = dbe_->book1D("METResolution_GenMETTrue_MET0to20"   , "METResolution_GenMETTrue_MET0to20"   , 500,-500,500); 
       mMETResolution_GenMETTrue_MET20to40   = dbe_->book1D("METResolution_GenMETTrue_MET20to40"  , "METResolution_GenMETTrue_MET20to40"  , 500,-500,500); 
       mMETResolution_GenMETTrue_MET40to60   = dbe_->book1D("METResolution_GenMETTrue_MET40to60"  , "METResolution_GenMETTrue_MET40to60"  , 500,-500,500); 
@@ -212,17 +221,17 @@ METTester::METTester(const edm::ParameterSet& iConfig)
       //this will be filled at the end of the job using info from above hists
       int nBins = 10;
       float bins[] = {0.,20.,40.,60.,80.,100.,150.,200.,300.,400.,500.};
-      mMETResolution_GenMETTrue_METResolution     = dbe_->book1D("METResolution_GenMETTrue_InMETBins","METResolution_GenMETTrue_InMETBins",nBins, bins);
+      mMETResolution_GenMETTrue_METResolution     = dbe_->book1D("METResolution_GenMETTrue_InMETBins","METResolution_GenMETTrue_InMETBins",nBins, bins); 
+    }
 
-    
-    } else if (METType_ == "TCMET" || inputMETLabel_.label() == "corMetGlobalMuons"){
+    if ( isTcMET || isCorMET){
       //TCMET or MuonCorrectedCaloMET Histograms                                                                                                                  
 
       mMExCorrection       = dbe_->book1D("MExCorrection","MExCorrection", 1000, -500.0,500.0);
       mMEyCorrection       = dbe_->book1D("MEyCorrection","MEyCorrection", 1000, -500.0,500.0);
       mMuonCorrectionFlag      = dbe_->book1D("CorrectionFlag", "CorrectionFlag", 6, -0.5, 5.5);
 
-      if( METType_ == "TCMET" ) {
+      if(isTcMET) {//TCMET only histograms
         mtrkPt = dbe_->book1D("trackPt", "trackPt", 50, 0, 500);
         mtrkEta = dbe_->book1D("trackEta", "trackEta", 50, -2.5, 2.5);
         mtrkNhits = dbe_->book1D("trackNhits", "trackNhits", 50, 0, 50);
@@ -249,16 +258,6 @@ METTester::METTester(const edm::ParameterSet& iConfig)
         mdMET = dbe_->book1D("dMET", "dMET", 500, -250, 250);
         mdMUx = dbe_->book1D("dMUx", "dMUx", 500, -250, 250);
         mdMUy = dbe_->book1D("dMUy", "dMUy", 500, -250, 250);
-      }
-      else if( inputMETLabel_.label() == "corMetGlobalMuons" ) {
-        mmuPt = dbe_->book1D("muonPt", "muonPt", 50, 0, 500);
-        mmuEta = dbe_->book1D("muonEta", "muonEta", 50, -2.5, 2.5);
-        mmuNhits = dbe_->book1D("muonNhits", "muonNhits", 50, 0, 50);
-        mmuChi2 = dbe_->book1D("muonNormalizedChi2", "muonNormalizedChi2", 20, 0, 20);
-        mmuD0 = dbe_->book1D("muonD0", "muonD0", 50, -1, 1);
-        mmuSAhits = dbe_->book1D("muonSAhits", "muonSAhits", 51, -0.5, 50.5);
-      }
-      if(METType_ == "TCMET") {
         mMuonCorrectionFlag->setBinLabel(1,"Not Corrected");
         mMuonCorrectionFlag->setBinLabel(2,"Global Fit");
         mMuonCorrectionFlag->setBinLabel(3,"Tracker Fit");
@@ -266,7 +265,13 @@ METTester::METTester(const edm::ParameterSet& iConfig)
         mMuonCorrectionFlag->setBinLabel(5,"Treated as Pion");
         mMuonCorrectionFlag->setBinLabel(6,"Default fit");
       }
-      else if( inputMETLabel_.label() == "corMetGlobalMuons")  {
+      if(isCorMET) {
+        mmuPt = dbe_->book1D("muonPt", "muonPt", 50, 0, 500);
+        mmuEta = dbe_->book1D("muonEta", "muonEta", 50, -2.5, 2.5);
+        mmuNhits = dbe_->book1D("muonNhits", "muonNhits", 50, 0, 50);
+        mmuChi2 = dbe_->book1D("muonNormalizedChi2", "muonNormalizedChi2", 20, 0, 20);
+        mmuD0 = dbe_->book1D("muonD0", "muonD0", 50, -1, 1);
+        mmuSAhits = dbe_->book1D("muonSAhits", "muonSAhits", 51, -0.5, 50.5);
         mMuonCorrectionFlag->setBinLabel(1,"Not Corrected");
         mMuonCorrectionFlag->setBinLabel(2,"Global Fit");
         mMuonCorrectionFlag->setBinLabel(3,"Tracker Fit");
@@ -309,7 +314,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   mNvertex->Fill(nvtx);
 
   using namespace reco;
-  if (METType_ == "CaloMET"){ 
+  if ( isCaloMET) { 
     const CaloMET *calomet;
     // Get CaloMET
     edm::Handle<CaloMETCollection> calo;
@@ -351,7 +356,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mMEy->Fill(caloMEy);
     mMET->Fill(caloMET);
     mMETFine->Fill(caloMET);
-    mMET_Nvtx->Fill(nvtx, caloMET);
+    mMET_Nvtx->Fill((double)nvtx, caloMET);
     mMETPhi->Fill(caloMETPhi);
     mSumET->Fill(caloSumET);
     mMETSig->Fill(caloMETSig);
@@ -402,7 +407,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }    
 
 
-  }  else if (METType_ == "GenMET")
+  }  
+  if (isGenMET)
   {
     const GenMET *genmet;
     // Get Generated MET
@@ -455,7 +461,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mMuonEtFraction->Fill( MuonEtFraction );
     mInvisibleEtFraction->Fill( InvisibleEtFraction );
   
-  } else if( METType_ == "PFMET")
+  } 
+  if(isPFMET)
   {
     const PFMET *pfmet;
     edm::Handle<PFMETCollection> hpfmetcol;
@@ -480,7 +487,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mMEy->Fill(MEy);
     mMET->Fill(MET);
     mMETFine->Fill(MET);
-    mMET_Nvtx->Fill(nvtx, MET);
+    mMET_Nvtx->Fill((double)nvtx, MET);
     mMETPhi->Fill(METPhi);
     mSumET->Fill(SumET);
     mMETSig->Fill(METSig);
@@ -540,7 +547,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
-  } else if (METType_ == "MET")
+  } 
+  if (isCaloMET)
   {
     const MET *met;
     // Get Generated MET
@@ -568,11 +576,13 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mMET->Fill(MET);
     mMETFine->Fill(MET);
     mMETPhi->Fill(METPhi);
+    mMET_Nvtx->Fill((double)nvtx, MET);
     mSumET->Fill(SumET);
     mMETSig->Fill(METSig);
 
-  } else if( METType_ == "TCMET" )
-  {
+  } 
+  if(isTcMET) 
+    {
     const MET *tcMet;
     edm::Handle<METCollection> htcMetcol;
     iEvent.getByLabel(inputMETLabel_, htcMetcol);
@@ -688,6 +698,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mMET->Fill(MET);
     mMETFine->Fill(MET);
     mMETPhi->Fill(METPhi);
+    mMET_Nvtx->Fill((double)nvtx, MET);
     mSumET->Fill(SumET);
     mMETSig->Fill(METSig);
 
@@ -834,7 +845,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetCalo";
     }          
   }
-  else if( inputMETLabel_.label() == "corMetGlobalMuons" )
+  
+  if(isCorMET )
   {
     const CaloMET *corMetGlobalMuons = 0;
     edm::Handle<CaloMETCollection> hcorMetGlobalMuonscol;
@@ -861,6 +873,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mMET->Fill(MET);
     mMETFine->Fill(MET);
     mMETPhi->Fill(METPhi);
+    mMET_Nvtx->Fill((double)nvtx, MET);
     mSumET->Fill(SumET);
     mMETSig->Fill(METSig);
 

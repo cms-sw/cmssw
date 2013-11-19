@@ -104,10 +104,8 @@ public:
 
   // Inputs from Configuration File
 
-  std::string METType_;
   edm::InputTag mInputCollection_;
   std::string     mOutputFile;
-  //std::string FolderName_;
   std::string sample_;
   edm::InputTag inputMETLabel_;
  
@@ -220,6 +218,12 @@ public:
   MonitorElement* mdMEy;
   MonitorElement* mdMUx;
   MonitorElement* mdMUy;
+
+  bool isCaloMET;
+  bool isCorMET;
+  bool isTcMET;
+  bool isPFMET;
+  bool isGenMET;
 
 };
 
