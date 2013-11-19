@@ -994,7 +994,7 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
 
     if (e_5x5 >= 0.) {
         //double w0_ = parameterMap_.find("W0")->second;
-        std::vector< std::pair<DetId, float> > v_id = cluster.hitsAndFractions();
+        const std::vector< std::pair<DetId, float> >& v_id = cluster.hitsAndFractions();
         std::pair<float,float> mean5x5PosInNrCrysFromSeed =  mean5x5PositionInLocalCrysCoord( cluster, recHits, topology );
         std::pair<float,float> mean5x5XYPos =  mean5x5PositionInXY(cluster,recHits,topology);
 
@@ -1020,7 +1020,8 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
             for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel
                 cursor.home();
                 cursor.offsetBy( eastNr, northNr);
-                float energy = recHitEnergy( *cursor, recHits );
+                float frac = getFraction(v_id,*cursor);
+                float energy = recHitEnergy( *cursor, recHits )*frac;
                 if ( energy <= 0 ) continue;
 
                 float dEta = getNrCrysDiffInEta(*cursor,seedId) - mean5x5PosInNrCrysFromSeed.first;
@@ -1102,7 +1103,8 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
             for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel
                 cursor.home();
                 cursor.offsetBy( eastNr, northNr);
-                float energy = recHitEnergy( *cursor, recHits,flagsexcl, severitiesexcl, sevLv);
+                float frac = getFraction(v_id,*cursor); 
+                float energy = recHitEnergy( *cursor, recHits,flagsexcl, severitiesexcl, sevLv)*frac;
                 if ( energy <= 0 ) continue;
 
                 float dEta = getNrCrysDiffInEta(*cursor,seedId) - mean5x5PosInNrCrysFromSeed.first;
@@ -1367,7 +1369,7 @@ std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster
     float covEtaEta, covEtaPhi, covPhiPhi;
 
     if (e_5x5 >= 0.) {
-        std::vector<std::pair<DetId, float> > v_id = cluster.hitsAndFractions();
+        const std::vector<std::pair<DetId, float> >& v_id = cluster.hitsAndFractions();
         std::pair<float,float> mean5x5PosInNrCrysFromSeed =  mean5x5PositionInLocalCrysCoord(bcluster, recHits, topology);
         std::pair<float,float> mean5x5XYPos =  mean5x5PositionInXY(cluster,recHits,topology);
         // now we can calculate the covariances
@@ -1386,7 +1388,8 @@ std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster
 
         for (size_t i = 0; i < v_id.size(); ++i) {
             CaloNavigator<DetId> cursor = CaloNavigator<DetId>(v_id[i].first, topology->getSubdetectorTopology(v_id[i].first));
-            float energy = recHitEnergy(*cursor, recHits);
+            float frac = getFraction(v_id,*cursor);
+            float energy = recHitEnergy(*cursor, recHits)*frac;
 
             if (energy <= 0) continue;
 
@@ -1444,7 +1447,7 @@ std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster
     float covEtaEta, covEtaPhi, covPhiPhi;
 
     if (e_5x5 >= 0.) {
-        std::vector<std::pair<DetId, float> > v_id = cluster.hitsAndFractions();
+        const std::vector<std::pair<DetId, float> >& v_id = cluster.hitsAndFractions();
         std::pair<float,float> mean5x5PosInNrCrysFromSeed =  mean5x5PositionInLocalCrysCoord(bcluster, recHits, topology,flagsexcl, severitiesexcl, sevLv);
         std::pair<float,float> mean5x5XYPos =  mean5x5PositionInXY(cluster,recHits,topology,flagsexcl, severitiesexcl, sevLv);
         // now we can calculate the covariances
@@ -1463,7 +1466,8 @@ std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster
 
         for (size_t i = 0; i < v_id.size(); ++i) {
             CaloNavigator<DetId> cursor = CaloNavigator<DetId>(v_id[i].first, topology->getSubdetectorTopology(v_id[i].first));
-            float energy = recHitEnergy(*cursor, recHits,flagsexcl, severitiesexcl, sevLv);
+            float frac = getFraction(v_id,*cursor); 
+            float energy = recHitEnergy(*cursor, recHits,flagsexcl, severitiesexcl, sevLv)*frac;
 
             if (energy <= 0) continue;
 
