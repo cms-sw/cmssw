@@ -40,11 +40,6 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "TMath.h"
 
-//
-
-//
-
-
 
 //#include "FWCore/PluginManager/interface/ModuleDef.h"
 //#include "FWCore/Framework/interface/MakerMacros.h"
@@ -112,7 +107,6 @@ public:
   std::string METType_;
   edm::InputTag mInputCollection_;
   std::string     mOutputFile;
-  bool finebinning_;
   //std::string FolderName_;
   std::string sample_;
   edm::InputTag inputMETLabel_;
@@ -136,28 +130,23 @@ public:
   std::vector<int> trkAlgos_;
 
  // Events variables
-  MonitorElement* mNevents;
   MonitorElement* mNvertex;
 
+ // Common variables
+  MonitorElement* mMEx;
+  MonitorElement* mMEy;
+  MonitorElement* mMETSig;
+  MonitorElement* mMET;
+  MonitorElement* mMETFine;
+  MonitorElement* mMET_Nvtx;
+  MonitorElement* mMETPhi;
+  MonitorElement* mSumET;
+  MonitorElement* mMETResolution_GenMETTrue;
+  MonitorElement* mMETPhiResolution_GenMETTrue;
+  MonitorElement* mMETResolution_GenMETCalo;
+  MonitorElement* mMETPhiResolution_GenMETCalo;
   //CaloMET variables
-  MonitorElement* mCaloMEx;
-  MonitorElement* mCaloMEy;
-  MonitorElement* mCaloMETSig;
-  MonitorElement* mCaloMET;
-  MonitorElement* mCaloMET_Nvtx0to5;
-  MonitorElement* mCaloMET_Nvtx6to10;
-  MonitorElement* mCaloMET_Nvtx11to15;
-  MonitorElement* mCaloMET_Nvtx16to20;
-  MonitorElement* mCaloMET_Nvtx21to30;
-  MonitorElement* mCaloMET_Nvtx31toInf;
-  MonitorElement* mCaloMETPhi;
-  MonitorElement* mCaloSumET;
-  MonitorElement* mCaloSumET_Nvtx0to5;
-  MonitorElement* mCaloSumET_Nvtx6to10;
-  MonitorElement* mCaloSumET_Nvtx11to15;
-  MonitorElement* mCaloSumET_Nvtx16to20;
-  MonitorElement* mCaloSumET_Nvtx21to30;
-  MonitorElement* mCaloSumET_Nvtx31toInf;
+
   MonitorElement* mCaloMaxEtInEmTowers;
   MonitorElement* mCaloMaxEtInHadTowers;
   MonitorElement* mCaloEtFractionHadronic;
@@ -173,18 +162,8 @@ public:
   MonitorElement* mCaloSETInmHF;
   MonitorElement* mCaloEmEtInEE;
   MonitorElement* mCaloEmEtInEB;
-  MonitorElement* mCaloMETResolution_GenMETTrue;
-  MonitorElement* mCaloMETResolution_GenMETCalo;
-  MonitorElement* mCaloMETPhiResolution_GenMETTrue;
-  MonitorElement* mCaloMETPhiResolution_GenMETCalo;
 
   //GenMET variables
-  MonitorElement* mGenMEx;
-  MonitorElement* mGenMEy;
-  MonitorElement* mGenMETSig;
-  MonitorElement* mGenMET;
-  MonitorElement* mGenMETPhi;
-  MonitorElement* mGenSumET;
   MonitorElement* mNeutralEMEtFraction;
   MonitorElement* mNeutralHadEtFraction;
   MonitorElement* mChargedEMEtFraction;
@@ -193,30 +172,8 @@ public:
   MonitorElement* mInvisibleEtFraction;
 
   //MET variables
-  MonitorElement* mMEx;
-  MonitorElement* mMEy;
-  MonitorElement* mMETSig;
-  MonitorElement* mMET;
-  MonitorElement* mMETPhi;
-  MonitorElement* mSumET;
 
   //PFMET variables
-  MonitorElement* mMET_Nvtx0to5;
-  MonitorElement* mMET_Nvtx6to10;
-  MonitorElement* mMET_Nvtx11to15;
-  MonitorElement* mMET_Nvtx16to20;
-  MonitorElement* mMET_Nvtx21to30;
-  MonitorElement* mMET_Nvtx31toInf;
-  MonitorElement* mSumET_Nvtx0to5;
-  MonitorElement* mSumET_Nvtx6to10;
-  MonitorElement* mSumET_Nvtx11to15;
-  MonitorElement* mSumET_Nvtx16to20;
-  MonitorElement* mSumET_Nvtx21to30;
-  MonitorElement* mSumET_Nvtx31toInf;
-  MonitorElement* mMETResolution_GenMETTrue;
-  MonitorElement* mMETResolution_GenMETCalo;
-  MonitorElement* mMETPhiResolution_GenMETTrue;
-  MonitorElement* mMETPhiResolution_GenMETCalo;
   MonitorElement* mMETResolution_GenMETTrue_MET0to20;
   MonitorElement* mMETResolution_GenMETTrue_MET20to40;
   MonitorElement* mMETResolution_GenMETTrue_MET40to60;
@@ -228,8 +185,6 @@ public:
   MonitorElement* mMETResolution_GenMETTrue_MET300to400;
   MonitorElement* mMETResolution_GenMETTrue_MET400to500;
   MonitorElement* mMETResolution_GenMETTrue_METResolution;
-
-
 
   
   //TCMET specific variables  

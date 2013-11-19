@@ -250,7 +250,7 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 		     5.0, 5.2, 5.4, 5.6, 5.8, 6.0};
 
     // Event variables
-    mNvtx           = dbe->book1D("Nvtx",           "number of vertices", 6, 0, 60);
+    mNvtx           = dbe->book1D("Nvtx",           "number of vertices", 12, 0, 60);
 
     // Jet parameters
     mEta          = dbe->book1D("Eta",          "Eta",          120,   -6,    6); 
@@ -345,8 +345,8 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
     mNJetsEta_B_40 = dbe->book1D("NJetsEta_B", "NJetsEta_B 40<Pt",  15,    0,   15);
     mNJetsEta_E_40 = dbe->book1D("NJetsEta_E", "NJetsEta_E 40<Pt",  15,    0,   15);
     mNJets_40 = dbe->book1D("NJets", "NJets 40<Pt",  15,    0,   15);
-    mNJets1 = dbe->bookProfile("NJets1", "NJets1", 100, 0,  200, 100, 0, 50, "s");
-    mNJets2 = dbe->bookProfile("NJets2", "NJets2", 100, 0, 4000, 100, 0, 50, "s");
+    mNJets1 = dbe->bookProfile("NJets1", "Number of jets above Pt threshold", 100, 0,  200, 100, 0, 50, "s");
+    mNJets2 = dbe->bookProfile("NJets2", "Number of jets above Pt threshold", 100, 0, 4000, 100, 0, 50, "s");
 
 
     // PFJet specific
