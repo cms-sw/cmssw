@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 eleRegressionEnergy = cms.EDProducer("RegressionEnergyPatElectronProducer",
                                    debug = cms.untracked.bool(False),
-                                   inputElectronsTag = cms.InputTag('cleanPatElectrons'),
+                                   inputElectronsTag = cms.InputTag('selectedPatElectrons'),
                                    #inputElectronsTag = cms.InputTag('gsfElectrons'),
                                      # inputCollectionType (0: GsfElectron, 1 :PATElectron)
                                    inputCollectionType = cms.uint32(1),
@@ -18,10 +18,10 @@ eleRegressionEnergy = cms.EDProducer("RegressionEnergyPatElectronProducer",
 
                                    rhoCollection = cms.InputTag('kt6PFJets:rho:RECO'),
                                    vertexCollection = cms.InputTag('offlinePrimaryVertices'),
-                                     # Not used if inputCollectionType is set to 1                                         
+                                     # Not used if inputCollectionType is set to 1
                                    nameEnergyReg = cms.string("eneRegForGsfEle"),
                                    nameEnergyErrorReg = cms.string("eneErrorRegForGsfEle"),
-                                     # Used only if useRecHitCollections is set to true 
+                                     # Used only if useRecHitCollections is set to true
                                    recHitCollectionEB = cms.InputTag('reducedEcalRecHitsEB'),
                                    recHitCollectionEE = cms.InputTag('reducedEcalRecHitsEE')
                                    )

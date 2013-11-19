@@ -1,6 +1,12 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
+## to run in un-scheduled mode uncomment the following lines
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+
+process.options.allowUnscheduled = cms.untracked.bool(True)
+process.Tracer = cms.Service("Tracer")
 
 ## ------------------------------------------------------
 #  NOTE: you can use a bunch of core tools of PAT to
@@ -24,13 +30,13 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.patConversions = cms.EDProducer("PATConversionProducer",
     # input collection
     #electronSource = cms.InputTag("gsfElectrons"),
-    electronSource = cms.InputTag("cleanPatElectrons")  
+    electronSource = cms.InputTag("selectedPatElectrons")
     # this should be your last selected electron collection name since currently index is used to match with electron later. We can fix this using reference pointer. ,
 )
 
 process.mvaTrigNoIPPAT = cms.EDProducer("ElectronPATIdMVAProducer",
-                                    verbose = cms.untracked.bool(False),
-                                    electronTag = cms.InputTag('cleanPatElectrons'),
+                                    verbose = cms.untracked.bool(True),
+                                    electronTag = cms.InputTag('selectedPatElectrons'),
                                     method = cms.string("BDT"),
                                     Rho = cms.InputTag("kt6PFJets", "rho"),
                                     mvaWeightFile = cms.vstring(
@@ -46,17 +52,9 @@ process.mvaTrigNoIPPAT = cms.EDProducer("ElectronPATIdMVAProducer",
                                     )
 
 
+process.out.outputCommands.append( 'keep *_patConversions_*_*' )
+process.out.outputCommands.append( 'keep *_mvaTrigNoIPPAT_*_*' )
 
-## let it run
-process.p = cms.Path(
-    process.patDefaultSequence+
-    process.patConversions+
-    process.mvaTrigNoIPPAT
-    )
-
-## process.out.outputCommands +=[
-##      'keep *_patConversions*_*_*'
-## ]
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
 #  parameters:
@@ -64,14 +62,13 @@ process.p = cms.Path(
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-process.source.fileNames = [          ##
-    '/store/mc/Summer12_DR53X/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v1/0001/FE4B9392-D8D3-E111-8789-0025B3E05D8C.root'
-    ]                                     ##  (e.g. 'file:AOD.root')
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
+process.source.fileNames = filesRelValTTbarPileUpGENSIMRECO
 #                                         ##
-#   process.maxEvents.input = ...         ##  (e.g. -1 to run on all events)
+process.maxEvents.input = 100
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
-#   process.out.fileName = ...            ##  (e.g. 'myTuple.root')
+process.out.fileName = 'patToPat_electronId.root'
 #                                         ##
-#   process.options.wantSummary = True    ##  (to suppress the long output at the end of the job)    
+#   process.options.wantSummary = True    ##  (to suppress the long output at the end of the job)

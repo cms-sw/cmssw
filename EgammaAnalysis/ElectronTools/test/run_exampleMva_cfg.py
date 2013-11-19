@@ -7,16 +7,17 @@ process.load('Configuration.Geometry.GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-##process.GlobalTag.globaltag = 'START42_V12::All'   # CMSSW_4XY
-#process.GlobalTag.globaltag = 'START52_V4::All'    # CMSSW_52Y
-process.GlobalTag.globaltag = cms.string( 'START53_V7A::All' )
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
 
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-    #'rfio:/castor/cern.ch/user/b/benedet/Fall11_DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola_0.root'  #CMSSW_4XY
-    'root://eoscms//eos/cms//store/relval/CMSSW_5_3_9/RelValZEE/GEN-SIM-RECO/PU_START53_V15A_runMC-v2/00000/40368DF5-2A9D-E211-9817-003048CBA446.root'
-    # 'file:/data/benedet/Fall11_DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola_0.root'
+      '/store/relval/CMSSW_7_0_0_pre8/RelValZEE/GEN-SIM-RECO/PU_START70_V1-v1/00000/10C6FC22-F84A-E311-820E-00304867926C.root',
+      '/store/relval/CMSSW_7_0_0_pre8/RelValZEE/GEN-SIM-RECO/PU_START70_V1-v1/00000/4AE7C549-EE4A-E311-9021-00261894396D.root',
+      '/store/relval/CMSSW_7_0_0_pre8/RelValZEE/GEN-SIM-RECO/PU_START70_V1-v1/00000/62E749A2-EF4A-E311-8E58-002618943954.root',
+      '/store/relval/CMSSW_7_0_0_pre8/RelValZEE/GEN-SIM-RECO/PU_START70_V1-v1/00000/8CA60C13-F14A-E311-AC4A-0026189438F2.root',
+      '/store/relval/CMSSW_7_0_0_pre8/RelValZEE/GEN-SIM-RECO/PU_START70_V1-v1/00000/C8C11952-074B-E311-A4F2-002618943836.root'
     ),
     secondaryFileNames = cms.untracked.vstring(),
     noEventSort = cms.untracked.bool(True),
