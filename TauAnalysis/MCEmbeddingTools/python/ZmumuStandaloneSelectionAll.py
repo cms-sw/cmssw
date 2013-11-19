@@ -26,7 +26,8 @@ def customise(process):
                           "keep *_goldenZmumuCandidatesGe0IsoMuons_*_*",
                           "keep *_goldenZmumuCandidatesGe1IsoMuons_*_*",
                           "keep *_goldenZmumuCandidatesGe2IsoMuons_*_*",
-                          "keep TH2DMEtoEDM_MEtoEDMConverter_*_*"))
+                          "keep TH2DMEtoEDM_MEtoEDMConverter_*_*",
+                          "drop *_TriggerResults_*_EmbeddedINPUT"))
 
   process.load('Configuration.StandardSequences.GeometryDB_cff')
   process.load('Configuration.StandardSequences.MagneticField_38T_cff')
@@ -47,16 +48,16 @@ def customise(process):
 
   process.load('HLTrigger.HLTfilters.triggerResultsFilter_cfi')
   process.embedTriggerFilter = process.triggerResultsFilter.clone(
-    hltResults = cms.InputTag('TriggerResults'),
+    hltResults = cms.InputTag('TriggerResults', '', 'HLT'),
     l1tResults = cms.InputTag(''),
     triggerConditions = cms.vstring('HLT_Mu17_Mu8_v*')
   )
 
   # Add mumu selection to schedule
   if process.customization_options.isMC.value():
-    process.goldenZmumuFilterPath = cms.Path(process.embedTriggerFilter) #*process.goldenZmumuFilterSequence)
+    process.goldenZmumuFilterPath = cms.Path(process.embedTriggerFilter*process.goldenZmumuFilterSequence)
   else:
-    process.goldenZmumuFilterPath = cms.Path(process.embedTriggerFilter) #*process.goldenZmumuFilterSequenceData)
+    process.goldenZmumuFilterPath = cms.Path(process.embedTriggerFilter*process.goldenZmumuFilterSequenceData)
   process.goldenZmumuFilter.src = process.customization_options.ZmumuCollection
   process.schedule.insert(0, process.goldenZmumuFilterPath)
 
