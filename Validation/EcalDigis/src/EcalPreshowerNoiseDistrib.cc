@@ -4,13 +4,12 @@
 */
 
 #include <Validation/EcalDigis/interface/EcalPreshowerNoiseDistrib.h>
-#include "DQMServices/Core/interface/DQMStore.h"
 using namespace cms;
 using namespace edm;
 using namespace std;
 
 EcalPreshowerNoiseDistrib::EcalPreshowerNoiseDistrib(const ParameterSet& ps):
-  ESdigiCollection_(ps.getParameter<edm::InputTag>("ESdigiCollection"))
+  ESdigiCollectionToken_( consumes<ESDigiCollection>( ps.getParameter<edm::InputTag>( "ESdigiCollection" ) ) )
 {
   
   // verbosity switch
@@ -61,7 +60,7 @@ void EcalPreshowerNoiseDistrib::analyze(const Event& e, const EventSetup& c){
 
   Handle<ESDigiCollection> EcalDigiES;
   
-  e.getByLabel( ESdigiCollection_ , EcalDigiES );
+  e.getByToken( ESdigiCollectionToken_ , EcalDigiES );
 
   // retrun if no data
   if( !EcalDigiES.isValid() ) return;
