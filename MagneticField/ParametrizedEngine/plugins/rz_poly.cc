@@ -243,7 +243,7 @@ rz_poly& rz_poly::operator*=(double *C)
 }
 
 //_______________________________________________________________________________
-double rz_poly::GetSVal(double r, double z, double *C)
+double rz_poly::GetSVal(double r, double z, const double *C) const
 {
 //Return value of a polynomial, ignoring terms, that are switched off
 
