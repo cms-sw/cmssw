@@ -147,6 +147,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     ThirdHitPredictionFromInvParabola predictionRPhi(xi-region.origin().x(),yi-region.origin().y(),
 						     xo-region.origin().x(),yo-region.origin().y(),
 						     imppar,curv,extraHitRPhitolerance);
+
     ThirdHitPredictionFromInvParabola predictionRPhitmp(xi,yi,xo,yo,imppartmp,curv,extraHitRPhitolerance);
 
     // printf("++Constr %f %f %f %f %f %f %f\n",xi,yi,xo,yo,imppartmp,curv,extraHitRPhitolerance);     
@@ -205,6 +206,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 		  << rPhi2N.first <<'/'<< rPhi2.first << ' '
 		  << rPhi2N.second <<'/'<< rPhi2.second
 		  << std::endl;
+	
 	*/
 
 	auto rPhi1 = predictionRPhitmp(radius.max());
