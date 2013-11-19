@@ -55,6 +55,7 @@
 #include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisSimulation.h"
 
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
@@ -162,10 +163,14 @@ class L1NtupleProducer : public edm::EDAnalyzer {
       L1Analysis::L1AnalysisCSCTF* pL1csctf;
       L1Analysis::L1AnalysisCSCTFDataFormat* pL1csctf_data;
       CSCSectorReceiverLUT* srLUTs_[5][2];
+      CSCTFPtLUT* csctfPtLUTs_;
+      bool initCSCTFPtLutsPSet;
+      edm::ParameterSet csctfPtLutsPSet;     
       const L1MuTriggerScales  *ts;
       const L1MuTriggerPtScale *tpts;
       unsigned long long m_scalesCacheID ;
       unsigned long long m_ptScaleCacheID ;
+      unsigned long long m_csctfptlutCacheID ;
 
       // Calo TP data
       edm::InputTag ecalSource_;

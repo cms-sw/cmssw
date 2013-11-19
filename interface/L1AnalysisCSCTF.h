@@ -35,7 +35,8 @@ namespace L1Analysis
     ~L1AnalysisCSCTF();
     
     void SetTracks(const edm::Handle<L1CSCTrackCollection> csctfTrks, const L1MuTriggerScales  *ts, const L1MuTriggerPtScale *tpts, 
-        	   CSCSectorReceiverLUT* srLUTs_[5][2]);  
+        	   CSCSectorReceiverLUT* srLUTs_[5][2],
+                   CSCTFPtLUT* ptLUTs_);  
     void SetStatus(const edm::Handle<L1CSCStatusDigiCollection> status);
     void SetLCTs(const edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts, CSCSectorReceiverLUT* srLUTs_[5][2]);
     void SetDTStubs(const edm::Handle<CSCTriggerContainer<csctf::TrackStub> > dtStubs);

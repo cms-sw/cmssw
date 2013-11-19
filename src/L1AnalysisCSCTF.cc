@@ -13,10 +13,11 @@ L1Analysis::L1AnalysisCSCTF::~L1AnalysisCSCTF()
 
 
 void L1Analysis::L1AnalysisCSCTF::SetTracks(const edm::Handle<L1CSCTrackCollection> csctfTrks,
-                        const L1MuTriggerScales *ts, const L1MuTriggerPtScale *tpts, CSCSectorReceiverLUT* srLUTs_[5][2])
+                                            const L1MuTriggerScales *ts, const L1MuTriggerPtScale *tpts, 
+                                            CSCSectorReceiverLUT* srLUTs_[5][2],
+                                            CSCTFPtLUT* ptLUTs_)
 {
    
-  
       //for (int i =0; i<MAXCSCTFTR; i++) csctf_.trSector[i]=0;
 
       csctf_.trSize = csctfTrks->size();
@@ -27,35 +28,6 @@ void L1Analysis::L1AnalysisCSCTF::SetTracks(const edm::Handle<L1CSCTrackCollecti
 	  trk<csctfTrks->end(); trk++){
 
 	nTrk++;
-
- 
-	// Standard Pt LUTs	  
-	edm::ParameterSet ptLUTset;
-	ptLUTset.addParameter<bool>("ReadPtLUT", false);
-	ptLUTset.addParameter<bool>("isBinary",   false);
-	//ptLUTset.addUntrackedParameter<unsigned>("PtMethod",4);
-	//ptLUTset.addUntrackedParameter<unsigned>("PtMethod",22);
-	//ptLUTset.addUntrackedParameter<unsigned>("PtMethod",24);
-	//ptLUTset.addUntrackedParameter<unsigned>("PtMethod",26);
-	//ptLUTset.addUntrackedParameter<unsigned>("PtMethod",28);
-	//ptLUTset.addUntrackedParameter<unsigned>("PtMethod",30); // Loose CSCTF
-	//ptLUTset.addUntrackedParameter<unsigned>("PtMethod",29); // Medium CSCTF
-        // tag V02-01-04 for L1Trigger/CSCTrackFinder is necessary: 
-	//ptLUTset.addUntrackedParameter<unsigned>("PtMethod",32); // Medium CSCTF + {redifinded eta > 2.1 only mode 5 has Q = 3}
-
-	// Reading Pt LUTs from file
-	//edm::ParameterSet ptLUTset;	    
-	//ptLUTset.addUntrackedParameter<bool>("ReadPtLUT", true);
-	//ptLUTset.addUntrackedParameter<bool>("isBinary",  true);
-	//ptLUTset.addUntrackedParameter<bool>("isBeamStartConf", true);
-      
-	//edm::FileInPath pt_lut_file;  
-	//pt_lut_file = edm::FileInPath("../results/cfg/L1CSCPtLUT.bin");
-	//ptLUTset.addParameter<edm::FileInPath>("PtLUTFile",pt_lut_file);
-	
-
-	CSCTFPtLUT* ptLUT = new CSCTFPtLUT(ptLUTset, ts, tpts);
-
 
 	// trk->first.endcap() = 2 for - endcap
 	//                     = 1 for + endcap
@@ -91,7 +63,8 @@ void L1Analysis::L1AnalysisCSCTF::SetTracks(const edm::Handle<L1CSCTrackCollecti
 
 
 	//Pt needs some more workaround since it is not in the unpacked data
-	ptdat thePtData  = ptLUT->Pt(thePtAddress);
+	////ptdat thePtData  = ptLUT->Pt(thePtAddress);
+        ptdat thePtData  = ptLUTs_->Pt(thePtAddress);
 	
  	// front or rear bit? 
  	if (thePtAddress.track_fr) {
@@ -266,7 +239,7 @@ void L1Analysis::L1AnalysisCSCTF::SetTracks(const edm::Handle<L1CSCTrackCollecti
   	//else 
   	 // edm::LogInfo("L1NtupleProducer")<<"  No valid CSCCorrelatedLCTDigiCollection products found";
       
-      delete ptLUT;
+          ////delete ptLUT;
      
       } //for(L1CSCTrackCollection::const_iterator trk=csctfTrks->begin(); trk<csctfTrks->end(); trk++,nTrk++){
 }

@@ -69,7 +69,7 @@
 //----------------
 // Constructor  --
 //----------------
-L1NtupleProducer::L1NtupleProducer(const edm::ParameterSet& ps) : tree_(0) {
+L1NtupleProducer::L1NtupleProducer(const edm::ParameterSet& ps) : csctfPtLUTs_(NULL), tree_(0) {
 
   hltSource_           = ps.getParameter<edm::InputTag>("hltSource");
 
@@ -96,15 +96,19 @@ L1NtupleProducer::L1NtupleProducer(const edm::ParameterSet& ps) : tree_(0) {
 //dt  
   dttfSource_          = ps.getParameter<edm::InputTag>("dttfSource");
   
+//ecal/hcal
+  ecalSource_          = ps.getParameter<edm::InputTag>("ecalSource");
+  hcalSource_          = ps.getParameter<edm::InputTag>("hcalSource");
+
 //csctf
   csctfTrkSource_      = ps.getParameter<edm::InputTag>("csctfTrkSource");	
   csctfLCTSource_      = ps.getParameter<edm::InputTag>("csctfLCTSource"); 
   csctfStatusSource_   = ps.getParameter<edm::InputTag>("csctfStatusSource"); 
   csctfDTStubsSource_  = ps.getParameter<edm::InputTag>("csctfDTStubsSource");
 
-  ecalSource_          = ps.getParameter<edm::InputTag>("ecalSource");
-  hcalSource_          = ps.getParameter<edm::InputTag>("hcalSource");
-
+  initCSCTFPtLutsPSet  = ps.getParameter< bool >("initCSCTFPtLutsPSet");
+  csctfPtLutsPSet      = ps.getParameter<edm::ParameterSet>("csctfPtLutsPSet");
+   
 //maximum allowed size of tree vectors
   maxRPC_              = ps.getParameter<unsigned int>("maxRPC");
   maxDTBX_             = ps.getParameter<unsigned int>("maxDTBX");
@@ -167,7 +171,8 @@ L1NtupleProducer::~L1NtupleProducer() {
   for(unsigned int j=0; j<2; j++) 
     for(unsigned int i=0; i<5; i++) 
      delete srLUTs_[i][j]; 
-   
+  delete csctfPtLUTs_; 
+  
   delete pL1evt;
   delete pL1gmt;
   delete pL1rct;
@@ -457,17 +462,46 @@ void L1NtupleProducer::analyzeCSCTF(const edm::Event& e, const edm::EventSetup& 
       m_scalesCacheID  = es.get< L1MuTriggerScalesRcd  >().cacheIdentifier();
       m_ptScaleCacheID = es.get< L1MuTriggerPtScaleRcd >().cacheIdentifier();
       
-      std::cout  << "Changing triggerscales and triggerptscales...\n";
-    }    
-    //muonGeom->update(es);
+      edm::LogInfo("L1NtupleProducer") << "Changing triggerscales and triggerptscales for CSCTF...\n";
+     }    
+
+     // initialize ptLUTs from a PSet if the flag is True
+     if( initCSCTFPtLutsPSet ) 
+       {
+         // set it only if the pointer is empty
+         if (csctfPtLUTs_ == NULL) {
+           edm::LogInfo("L1NtupleProducer") << "Initializing csctf pt LUTs from PSet...";
+           csctfPtLUTs_ = new CSCTFPtLUT(csctfPtLutsPSet, ts, tpts);
+         }
+       } 
+
+     // otherwise use the O2O mechanism
+     else if (es.get< L1MuCSCPtLutRcd > ().cacheIdentifier() != m_csctfptlutCacheID )
+       {
+         edm::LogInfo("L1NtupleProducer") << "  Initializing the CSCTF ptLUTs via O2O mechanism...";
+         // initializing the ptLUT from O2O
+         csctfPtLUTs_ = new CSCTFPtLUT(es);
+         
+         m_csctfptlutCacheID = es.get< L1MuCSCPtLutRcd > ().cacheIdentifier();
+         edm::LogInfo("L1NtupleProducer") << "  Changed the cache ID for CSCTF ptLUTs...";
+       }
+     
+     if (csctfPtLUTs_ == NULL)
+       edm::LogWarning("L1NtupleProducer")<<"  No valid CSCTFPtLUT initialized!";
+
     
      edm::Handle<L1CSCTrackCollection> csctfTrks;
      e.getByLabel(csctfTrkSource_.label(),csctfTrkSource_.instance(),csctfTrks);
      
-     if( csctfTrks.isValid() ) pL1csctf->SetTracks(csctfTrks, ts, tpts, srLUTs_);
-     
+     if( csctfTrks.isValid() && csctfPtLUTs_) 
+       pL1csctf->SetTracks(csctfTrks, ts, tpts, srLUTs_, csctfPtLUTs_);
+     else 
+       edm::LogInfo("L1NtupleProducer")<<" No valid L1CSCTrackCollection products found"
+                                       <<" or ptLUT pointer(" << csctfPtLUTs_ <<") null";
+       
+          
    } else 
-    edm::LogInfo("L1NtupleProducer")<<"  No valid L1CSCTrackCollection products found";
+    edm::LogInfo("L1NtupleProducer")<<" No valid L1CSCTrackCollection products found";
      
      
       
