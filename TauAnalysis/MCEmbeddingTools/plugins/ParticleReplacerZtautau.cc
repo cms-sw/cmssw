@@ -516,7 +516,6 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
 	
 //--- compute probability to pass visible Pt cuts
   HepMC::GenEvent* passedEvt_output = 0;
-  HepMC::GenEvent* tempEvt = 0;
 
   unsigned int numEvents_tried  = 0;
   unsigned int numEvents_passed = 0;
@@ -525,13 +524,19 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
 
   HepMC::IO_HEPEVT conv;
   for ( int iTrial = 0; iTrial < maxNumberOfAttempts_; ++iTrial ) {
+    HepMC::GenEvent* tempEvt = new HepMC::GenEvent(*genEvt_output);
     ++numEvents_tried;
     if ( generatorMode_ == "Pythia" )	{ // Pythia
       throw cms::Exception("Configuration") 
 	<< "Pythia is currently not supported !!\n";
     } else if ( generatorMode_ == "Tauola" ) { // TAUOLA
-      conv.write_event(genEvt_output);      
-      tempEvt = tauola_->decay(genEvt_output);
+      conv.write_event(tempEvt);
+      HepMC::GenEvent* decayEvt = tauola_->decay(tempEvt);
+      // This code only works if decay() modifies the event inplace. This seems
+      // to have changed between CMSSW_5_3_X and CMSSW_7_0_0
+      // (possible with the introduction of tauola++?), so make sure this
+      // assumption is correct:
+      assert(decayEvt == tempEvt);
     }
     
     bool passesVisPtCuts = testEvent(tempEvt);
