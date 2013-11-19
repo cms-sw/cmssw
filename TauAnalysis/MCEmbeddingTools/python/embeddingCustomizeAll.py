@@ -554,39 +554,31 @@ def customise(process):
   #
   #     mdtau values are defined in http:marpix1.in2p3.fr/Physics/biblio_top/mc_toprex_405.ps.gz
   #
-  process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
-  if process.customization_options.mdtau.value() == 116:
-    if process.customization_options.minVisibleTransverseMomentum.value() == 'mu1_7to25had1_15':
-      process.embeddingKineReweightGENembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_muPt7to25tauPtGt18_genEmbedded.root")
-      process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_muPt7to25tauPtGt18_recEmbedded.root")
-    elif process.customization_options.minVisibleTransverseMomentum.value() == 'mu1_16had1_18':
-      process.embeddingKineReweightGENembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_muPtGt16tauPtGt18_genEmbedded.root")
-      process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_muPtGt16tauPtGt18_recEmbedded.root")
-    else:
-      raise ValueError("No makeEmbeddingKineReweightLUTs file defined for minVisTauPt = %s !!" % process.customization_options.minVisibleTransverseMomentum.value())
-  elif process.customization_options.mdtau.value() == 115:
-    if process.customization_options.minVisibleTransverseMomentum.value() == 'elec1_9to30had1_15':
-      process.embeddingKineReweightGENembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_ePt9to30tauPtGt18_genEmbedded.root")
-      process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_ePt9to30tauPtGt18_recEmbedded.root")
-    elif process.customization_options.minVisibleTransverseMomentum.value() == 'elec1_20had1_18':
-      process.embeddingKineReweightGENembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_ePtGt20tauPtGt18_genEmbedded.root")
-      process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_ePtGt20tauPtGt18_recEmbedded.root")
-    else:
-      raise ValueError("No makeEmbeddingKineReweightLUTs file defined for minVisTauPt = %s !!" % process.customization_options.minVisibleTransverseMomentum.value())
-  elif process.customization_options.mdtau.value() == 121 or \
-       process.customization_options.mdtau.value() == 122 or \
-       process.customization_options.mdtau.value() == 123:
-    process.embeddingKineReweightGENembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_emu_genEmbedding.root")
-    process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_emu_recEmbedding.root")
-  elif process.customization_options.mdtau.value() == 132:
-    process.embeddingKineReweightGENembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_tautau_genEmbedding.root")
-    process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath("TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_tautau_recEmbedding.root")
+  embeddingKineReweightTable = {
+    (115, 'elec1_9to30had1_15'): ('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_ePt9to30tauPtGt18_genEmbedded.root', 'TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_ePt9to30tauPtGt18_recEmbedded.root'),
+    (115, 'elec1_20had1_18'): ('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_ePtGt20tauPtGt18_genEmbedded.root', 'TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_ePtGt20tauPtGt18_recEmbedded.root'),
+    (116, 'mu1_7to25had1_15'): ('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_muPt7to25tauPtGt18_genEmbedded.root', 'TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_muPt7to25tauPtGt18_recEmbedded.root'),
+    (116, 'mu1_16had1_18'): ('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_muPtGt16tauPtGt18_genEmbedded.root', 'TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_muPtGt16tauPtGt18_recEmbedded.root'),
+    (121, 'elec1_17elec2_8'): ('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_emu_genEmbedding.root', 'TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_emu_recEmbedding.root'),
+    (122, 'mu1_18mu2_8'): ('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_emu_genEmbedding.root', 'TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_emu_recEmbedding.root'),
+    (123, 'tau1_18tau2_8'): ('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_emu_genEmbedding.root', 'TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_emu_recEmbedding.root'),
+    (132, 'had1_30had2_30'): ('TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_tautau_genEmbedding.root', 'TauAnalysis/MCEmbeddingTools/data/embeddingKineReweight_tautau_recEmbedding.root')
+  }
+
+  key = (process.customization_options.mdtau.value(), process.customization_options.minVisibleTransverseMomentum.value())
+  if key in embeddingKineReweightTable:
+    process.load("TauAnalysis/MCEmbeddingTools/embeddingKineReweight_cff")
+
+    genEmbeddingReweightFile, recEmbeddingReweightFile = embeddingKineReweightTable[key]
+    process.embeddingKineReweightGENembedding.inputFileName = cms.FileInPath(genEmbeddingReweightFile)
+    process.embeddingKineReweightRECembedding.inputFileName = cms.FileInPath(recEmbeddingReweightFile)
+
+    process.reconstruction_step += process.embeddingKineReweightSequence
+    outputModule.outputCommands.extend([
+      'keep *_embeddingKineReweight*_*_*'
+    ])
   else:
-    raise ValueError("No makeEmbeddingKineReweightLUTs file defined for channel = %d !!" % process.customization_options.mdtau.value())
-  process.reconstruction_step += process.embeddingKineReweightSequence
-  outputModule.outputCommands.extend([
-    'keep *_embeddingKineReweight*_*_*'
-  ])
+    print 'Do not produce embeddingKineWeights for mdtau=%d, minVisibleTransverseMomuntem=%s !!' % (key[0], key[1])
 
   # CV: compute weights for correcting Embedded samples 
   #     for efficiency with which Zmumu events used as input for Embedding production were selected
