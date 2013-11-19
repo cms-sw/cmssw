@@ -1,11 +1,11 @@
 //FAMOS header
 #include "FastSimulation/ShowerDevelopment/interface/RadialInterval.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include <cmath>
 
 RadialInterval::RadialInterval(double RC,unsigned nSpots,double energy,
-			       const RandomEngine* engine)
+			       const RandomEngineAndDistribution* engine)
   :
   theR(RC),theNumberOfSpots(nSpots),theSpotEnergy(energy),random(engine)
 {

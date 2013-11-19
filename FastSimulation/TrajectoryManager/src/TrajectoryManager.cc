@@ -28,8 +28,6 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
-
 //#include "FastSimulation/Utilities/interface/Histos.h"
 //#include "FastSimulation/Utilities/interface/FamosLooses.h"
 // Numbering scheme
@@ -47,8 +45,7 @@
 TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent, 
 				     const edm::ParameterSet& matEff,
 				     const edm::ParameterSet& simHits,
-				     const edm::ParameterSet& decays,
-				     const RandomEngine* engine) : 
+				     const edm::ParameterSet& decays) :
   mySimEvent(aSimEvent), 
   _theGeometry(0),
   _theFieldMap(0),
@@ -59,7 +56,6 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   theLayerMap(56, static_cast<const DetLayer*>(0)), // reserve space for layers here
   theNegLayerOffset(27),
   //  myHistos(0),
-  random(engine),
   use_hardcoded(1)
 
 {  
@@ -81,7 +77,7 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
        matEff.getParameter<bool>("MultipleScattering") || 
        matEff.getParameter<bool>("NuclearInteraction")
        )
-       theMaterialEffects = new MaterialEffects(matEff,random);
+       theMaterialEffects = new MaterialEffects(matEff);
 
   // Save SimHits according to Optiom
   // Only the hits from first half loop is saved
@@ -146,7 +142,7 @@ TrajectoryManager::~TrajectoryManager() {
 }
 
 void
-TrajectoryManager::reconstruct(const TrackerTopology *tTopo)
+TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDistribution const* random)
 {
 
   // Clear the hits of the previous event
@@ -284,8 +280,8 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo)
 	  PP.Perp2()>pTmin*pTmin;                    // Consider only pT > pTmin
 
         // Material effects are simulated there
-	if ( theMaterialEffects ) 
-          theMaterialEffects->interact(*mySimEvent,*cyliter,PP,fsimi); 
+	if ( theMaterialEffects )
+          theMaterialEffects->interact(*mySimEvent,*cyliter,PP,fsimi, random);
 
 	// There is a PP.setXYZT=(0,0,0,0) if bremss fails
 	saveHit &= PP.E()>1E-6;

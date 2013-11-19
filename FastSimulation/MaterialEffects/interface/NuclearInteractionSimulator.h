@@ -26,7 +26,7 @@ class TBranch;
 class NUEvent;
 
 class ParticlePropagator;
-class RandomEngine;
+class RandomEngineAndDistribution;
 //class DaqMonitorBEInterface;
 //class MonitorElement;
 
@@ -46,8 +46,7 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
 			      std::map<int,int >& idMap,
 			      std::string inputFile,
 			      unsigned int distAlgo,
-			      double distCut,
-			      const RandomEngine* engine);
+			      double distCut);
 
   /// Default Destructor
   ~NuclearInteractionSimulator();
@@ -61,7 +60,7 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
  private:
 
   /// Generate a nuclear interaction according to the probability that it happens
-  void compute(ParticlePropagator& Particle);
+  void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*);
 
   /// Compute distance between secondary and primary
   double distanceToPrimary(const RawParticle& Particle,

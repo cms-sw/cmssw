@@ -4,7 +4,7 @@
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -18,8 +18,8 @@
 using std::vector;
 
 
-EMShower::EMShower(const RandomEngine* engine,
-		   GammaFunctionGenerator* gamma,
+EMShower::EMShower(const RandomEngineAndDistribution* engine,
+                   GammaFunctionGenerator* gamma,
 		   EMECALShowerParametrization* const myParam, 
 		   vector<const RawParticle*>* const myPart, 
 		   DQMStore * const dbeIn,
@@ -713,7 +713,7 @@ EMShower::compute() {
 			   double depth;
 			   do
 			     {
-			       depth=myGammaGenerator->shoot();
+			       depth=myGammaGenerator->shoot(random);
 			     }
 			   while(depth>t);
 			   theGrid->addHitDepth(ri,phi,depth);
