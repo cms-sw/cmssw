@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/Common/interface/View.h"
@@ -40,11 +41,12 @@ bool IsMuMatchedToHLTSingleMu ( const reco::Candidate * dau, reco::Particle HLTM
 class ZGoldenFilter {
 
 public:
-  ZGoldenFilter(const edm::ParameterSet&  );
+  ZGoldenFilter(const edm::ParameterSet&, edm::ConsumesCollector & iC );
   bool operator()(const reco::Candidate & ) const;
   void newEvent (const edm::Event&, const edm::EventSetup&);
-  edm::InputTag trigTag_;   
+  edm::EDGetTokenT<edm::TriggerResults> trigToken_;
   edm::InputTag  trigEv_;
+  edm::EDGetTokenT<trigger::TriggerEvent>  trigEvToken_;
   std::string cond_ ;
   std::string hltPath_;
   std::string L3FilterName_;
@@ -52,11 +54,12 @@ public:
   edm::TriggerNames const* trigNames_;
   edm::Handle< trigger::TriggerEvent > handleTriggerEvent_;
   double maxDPtRel_, maxDeltaR_ ;
-}; 
+};
 
-ZGoldenFilter::ZGoldenFilter(const edm::ParameterSet& cfg ) :
-  trigTag_(cfg.getParameter<edm::InputTag> ("TrigTag")),
+ZGoldenFilter::ZGoldenFilter(const edm::ParameterSet& cfg, edm::ConsumesCollector & iC ) :
+  trigToken_(iC.consumes<edm::TriggerResults>(cfg.getParameter<edm::InputTag> ("TrigTag"))),
   trigEv_(cfg.getParameter<edm::InputTag> ("triggerEvent")),
+  trigEvToken_(iC.consumes<trigger::TriggerEvent>(trigEv_)),
   cond_(cfg.getParameter<std::string >("condition")),
   hltPath_(cfg.getParameter<std::string >("hltPath")),
   L3FilterName_(cfg.getParameter<std::string >("L3FilterName")),
@@ -65,23 +68,23 @@ ZGoldenFilter::ZGoldenFilter(const edm::ParameterSet& cfg ) :
 }
 
 void  ZGoldenFilter::newEvent(const edm::Event& ev, const edm::EventSetup& ){
-    
-  if (!ev.getByLabel(trigTag_, triggerResults_)) {
+
+  if (!ev.getByToken(trigToken_, triggerResults_)) {
     edm::LogWarning("") << ">>> TRIGGER collection does not exist !!!";
     return ;
   }
-  ev.getByLabel(trigTag_, triggerResults_);
+  ev.getByToken(trigToken_, triggerResults_);
   trigNames_ = &ev.triggerNames(*triggerResults_);
-  if ( ! ev.getByLabel( trigEv_, handleTriggerEvent_ ) ) {
+  if ( ! ev.getByToken( trigEvToken_, handleTriggerEvent_ ) ) {
     edm::LogError( "errorTriggerEventValid" ) << "trigger::TriggerEvent product with InputTag " << trigEv_.encode() << " not in event";
     return;
   }
-  ev.getByLabel( trigEv_, handleTriggerEvent_ ); 
-} 
+  ev.getByToken( trigEvToken_, handleTriggerEvent_ );
+}
 
 
 
-bool ZGoldenFilter::operator()(const reco::Candidate & z) const {     
+bool ZGoldenFilter::operator()(const reco::Candidate & z) const {
   //  int i = newEvent( edm::Event& const , edm::EventSetup& const );
   assert(z.numberOfDaughters()==2);
   bool singleTrigFlag0 = false;
@@ -92,14 +95,14 @@ bool ZGoldenFilter::operator()(const reco::Candidate & z) const {
   bool FirstTriggerFlag = false;
   bool globalisTriggerFlag =false;
   if((((cond_ !="exactlyOneMatched" && cond_!="atLeastOneMatched") && cond_ !="bothMatched") && cond_ != "firstMatched") && cond_ != "globalisMatched")
-    throw edm::Exception(edm::errors::Configuration) 
+    throw edm::Exception(edm::errors::Configuration)
       << "Invalid condition type: " << cond_ << ". Valid types are:"
       << " exactlyOneMatched, atLeastOneMatched, bothMatched, firstMatched,globalisMatched\n";
   const reco::Candidate * dau0 = z.daughter(0);
   const reco::Candidate * dau1 = z.daughter(1);
   const trigger::TriggerObjectCollection & toc(handleTriggerEvent_->getObjects());
   unsigned int nMuHLT =0;
-  std::vector<reco::Particle>  HLTMuMatched; 
+  std::vector<reco::Particle>  HLTMuMatched;
   for ( unsigned int ia = 0; ia < handleTriggerEvent_->sizeFilters(); ++ ia) {
     std::string fullname = handleTriggerEvent_->filterTag(ia).encode();
     std::string name;
@@ -113,11 +116,11 @@ bool ZGoldenFilter::operator()(const reco::Candidate & z) const {
     if ( &toc !=0 ) {
       const trigger::Keys & k = handleTriggerEvent_->filterKeys(ia);
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-	if (name == L3FilterName_  ) { 
+	if (name == L3FilterName_  ) {
 	  HLTMuMatched.push_back(toc[*ki].particle());
-	  nMuHLT++;     
+	  nMuHLT++;
 	}
-      }    
+      }
     }
   }
   /*trigger_fired is unused in all later code
@@ -126,31 +129,31 @@ bool ZGoldenFilter::operator()(const reco::Candidate & z) const {
     std::string trigName = trigNames_->triggerName(i);
     if ( trigName == hltPath_ && triggerResults_->accept(i)) trigger_fired = true;
     }*/
-  bool firstdismuon = (dau0->isGlobalMuon() ? true : false); 
-  bool firstdisStandAlone = (dau0->isStandAloneMuon() ? true : false); 
+  bool firstdismuon = (dau0->isGlobalMuon() ? true : false);
+  bool firstdisStandAlone = (dau0->isStandAloneMuon() ? true : false);
   std::vector<bool> IsDau0Matched_;
   std::vector<bool> IsDau1Matched_;
   if(dau0 != 0){
     // checking if dau0 is matched to any HLT muon....
     singleTrigFlag0 = IsMuMatchedToHLTMu ( dau0,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ );
-    
+
     for (unsigned int y=0; y< HLTMuMatched.size(); y++  ){
-      IsDau0Matched_.push_back( IsMuMatchedToHLTSingleMu ( dau0,  HLTMuMatched[y] ,maxDeltaR_, maxDPtRel_ )); 
-     } 
+      IsDau0Matched_.push_back( IsMuMatchedToHLTSingleMu ( dau0,  HLTMuMatched[y] ,maxDeltaR_, maxDPtRel_ ));
+     }
   }
-  bool secondismuon = (dau1->isGlobalMuon() ? true : false);    
-  bool secondisStandAlone = (dau1->isStandAloneMuon() ? true : false); 
+  bool secondismuon = (dau1->isGlobalMuon() ? true : false);
+  bool secondisStandAlone = (dau1->isStandAloneMuon() ? true : false);
   if(dau1 != 0 && (secondismuon ||secondisStandAlone) ){
-    singleTrigFlag1 = IsMuMatchedToHLTMu ( dau1,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ ); 
+    singleTrigFlag1 = IsMuMatchedToHLTMu ( dau1,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ );
     for (unsigned int y=0; y< HLTMuMatched.size(); y++  ){
-      IsDau1Matched_.push_back( IsMuMatchedToHLTSingleMu ( dau1,  HLTMuMatched[y] ,maxDeltaR_, maxDPtRel_ )); 
-    } 
+      IsDau1Matched_.push_back( IsMuMatchedToHLTSingleMu ( dau1,  HLTMuMatched[y] ,maxDeltaR_, maxDPtRel_ ));
+    }
   }
   if ( (IsDau0Matched_.size() * IsDau1Matched_.size())!=0 ) {
     for (unsigned int y=0; y< IsDau1Matched_.size(); y++ ){
       if ( IsDau0Matched_[y]== true && IsDau1Matched_[y]== true ){
 	std::cout<< "WARNING--> I'm matching the two muons to the same HLT muon....." << std::endl;}
-    } 
+    }
   }
   if(!singleTrigFlag0 && !singleTrigFlag1)return false;
   if((singleTrigFlag0 && singleTrigFlag1) && secondismuon ) bothTriggerFlag = true;
@@ -161,11 +164,11 @@ bool ZGoldenFilter::operator()(const reco::Candidate & z) const {
   if(cond_=="exactlyOneMatched") return exactlyOneTriggerFlag;
   if(cond_=="atLeastOneMatched") return atLeastOneTriggerFlag;
   if(cond_=="bothMatched") return bothTriggerFlag;
-  if(cond_=="firstMatched") return FirstTriggerFlag; 
-  if(cond_=="globalisMatched") return globalisTriggerFlag; 
-  return false; 
+  if(cond_=="firstMatched") return FirstTriggerFlag;
+  if(cond_=="globalisMatched") return globalisTriggerFlag;
+  return false;
 }
-    
+
 
 
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"

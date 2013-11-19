@@ -6,7 +6,6 @@
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTrackSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -27,15 +26,15 @@ using namespace reco;
 using namespace egammaisolation;
 using reco::isodeposit::Direction;
 
-EgammaTrackExtractor::EgammaTrackExtractor( const ParameterSet& par ) :
-    theTrackCollectionTag(par.getParameter<edm::InputTag>("inputTrackCollection")),
+EgammaTrackExtractor::EgammaTrackExtractor( const ParameterSet& par, edm::ConsumesCollector & iC ) :
+    theTrackCollectionToken(iC.consumes<View<Track> >(par.getParameter<edm::InputTag>("inputTrackCollection"))),
     theDepositLabel(par.getUntrackedParameter<std::string>("DepositLabel")),
     theDiff_r(par.getParameter<double>("Diff_r")),
     theDiff_z(par.getParameter<double>("Diff_z")),
     theDR_Max(par.getParameter<double>("DR_Max")),
     theDR_Veto(par.getParameter<double>("DR_Veto")),
     theBeamlineOption(par.getParameter<std::string>("BeamlineOption")),
-    theBeamSpotLabel(par.getParameter<edm::InputTag>("BeamSpotLabel")),
+    theBeamSpotToken(iC.mayConsume<reco::BeamSpot>(par.getParameter<edm::InputTag>("BeamSpotLabel"))),
     theNHits_Min(par.getParameter<unsigned int>("NHits_Min")),
     theChi2Ndof_Max(par.getParameter<double>("Chi2Ndof_Max")),
     theChi2Prob_Min(par.getParameter<double>("Chi2Prob_Min")),
@@ -70,7 +69,7 @@ IsoDeposit EgammaTrackExtractor::deposit(const Event & event, const EventSetup &
     static std::string metname = "EgammaIsolationAlgos|EgammaTrackExtractor";
 
     reco::isodeposit::Direction candDir;
-    double dzCut=0; 
+    double dzCut=0;
 
     reco::TrackBase::Point beamPoint(0,0, 0);
     if (theBeamlineOption.compare("BeamSpotFromEvent") == 0){
@@ -78,17 +77,17 @@ IsoDeposit EgammaTrackExtractor::deposit(const Event & event, const EventSetup &
         reco::BeamSpot beamSpot;
         edm::Handle<reco::BeamSpot> beamSpotH;
 
-        event.getByLabel(theBeamSpotLabel,beamSpotH);
+        event.getByToken(theBeamSpotToken,beamSpotH);
 
         if (beamSpotH.isValid()){
-            beamPoint = beamSpotH->position();	
+            beamPoint = beamSpotH->position();
         }
     }
 
     Handle<View<Track> > tracksH;
-    event.getByLabel(theTrackCollectionTag, tracksH);
+    event.getByToken(theTrackCollectionToken, tracksH);
 
-    if( candTk.isElectron() ){ 
+    if( candTk.isElectron() ){
         const reco::GsfElectron* elec = dynamic_cast<const reco::GsfElectron*>(&candTk);
         candDir = reco::isodeposit::Direction(elec->gsfTrack()->eta(), elec->gsfTrack()->phi());
     } else {
@@ -103,22 +102,22 @@ IsoDeposit EgammaTrackExtractor::deposit(const Event & event, const EventSetup &
     View<Track>::const_iterator trEnd = tracksH->end();
     for (itrTr = tracksH->begin();itrTr != trEnd; ++itrTr) {
 
-        if(candDir.deltaR( reco::isodeposit::Direction(itrTr->eta(),itrTr->phi()) ) > theDR_Max ) 
+        if(candDir.deltaR( reco::isodeposit::Direction(itrTr->eta(),itrTr->phi()) ) > theDR_Max )
             continue;
 
-        if(itrTr->normalizedChi2() > theChi2Ndof_Max) 
+        if(itrTr->normalizedChi2() > theChi2Ndof_Max)
             continue;
 
-        if(itrTr->pt() < thePt_Min) 
+        if(itrTr->pt() < thePt_Min)
             continue;
 
-        if(theChi2Prob_Min > 0 && ChiSquaredProbability(itrTr->chi2(), itrTr->ndof()) < theChi2Prob_Min ) 
+        if(theChi2Prob_Min > 0 && ChiSquaredProbability(itrTr->chi2(), itrTr->ndof()) < theChi2Prob_Min )
             continue;
 
-        if(theNHits_Min > 0 && itrTr->numberOfValidHits() < theNHits_Min) 
+        if(theNHits_Min > 0 && itrTr->numberOfValidHits() < theNHits_Min)
             continue;
 
-        if( candTk.isElectron() ){ 
+        if( candTk.isElectron() ){
             const reco::GsfElectron* elec = dynamic_cast<const reco::GsfElectron*>(&candTk);
             switch(dzOption) {
                 case EgammaTrackSelector::dz : dzCut = elec->gsfTrack()->dz() - itrTr->dz() ; break;
@@ -137,12 +136,12 @@ IsoDeposit EgammaTrackExtractor::deposit(const Event & event, const EventSetup &
             }
         }
 
-        if(fabs(dzCut) > theDiff_z) 
+        if(fabs(dzCut) > theDiff_z)
             continue;
 
-        if(fabs(itrTr->dxy(beamPoint) ) > theDiff_r) 
+        if(fabs(itrTr->dxy(beamPoint) ) > theDiff_r)
             continue;
-        
+
         deposit.addDeposit(reco::isodeposit::Direction(itrTr->eta(), itrTr->phi()), itrTr->pt());
 
     }

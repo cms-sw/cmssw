@@ -7,6 +7,7 @@
  * To be used within the MTV to fill histograms for Tracker tracks.
  */
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Validation/RecoTrack/interface/MTVHistoProducerAlgo.h"
 
@@ -23,7 +24,9 @@
 
 class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
  public:
-  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset) ;
+  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, edm::ConsumesCollector && iC) :
+    MTVHistoProducerAlgoForTracker(pset, iC) {}
+  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, edm::ConsumesCollector & iC) ;
   virtual ~MTVHistoProducerAlgoForTracker();
 
   void initialize(){setUpVectors();};
@@ -70,8 +73,8 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   void fill_simAssociated_recoTrack_histos(int count,
 					   const reco::Track& track);
 
-  void fill_trackBased_histos(int count, 
-		 	      int assTracks, 
+  void fill_trackBased_histos(int count,
+		 	      int assTracks,
 			      int numRecoTracks,
 			      int numSimTracks);
 
@@ -96,21 +99,21 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   void setUpVectors();
 
 
-  /// retrieval of reconstructed momentum components from reco::Track (== mean values for GSF) 
+  /// retrieval of reconstructed momentum components from reco::Track (== mean values for GSF)
   void getRecoMomentum (const reco::Track& track, double& pt, double& ptError,
-			double& qoverp, double& qoverpError, double& lambda, double& lambdaError,  
+			double& qoverp, double& qoverpError, double& lambda, double& lambdaError,
 			double& phi, double& phiError ) const;
   /// retrieval of reconstructed momentum components based on the mode of a reco::GsfTrack
   void getRecoMomentum (const reco::GsfTrack& gsfTrack, double& pt, double& ptError,
-			double& qoverp, double& qoverpError, double& lambda, double& lambdaError,  
+			double& qoverp, double& qoverpError, double& lambda, double& lambdaError,
 			double& phi, double& phiError) const;
 
-  double getEta(double eta); 
-  
-  double getPt(double pt); 
+  double getEta(double eta);
+
+  double getPt(double pt);
 
 
-  //private data members       
+  //private data members
   TrackingParticleSelector* generalTpSelector;
   TrackingParticleSelector* TpSelectorForEfficiencyVsEta;
   TrackingParticleSelector* TpSelectorForEfficiencyVsCon;
@@ -149,7 +152,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
   //sim
   std::vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM, h_bunchxSIM;
-  
+
   //1D
   std::vector<MonitorElement*> h_tracks, h_fakes, h_hits, h_charge;
   std::vector<MonitorElement*> h_effic,  h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta, h_misideta, h_looprate, h_misidrate;
@@ -172,7 +175,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector<MonitorElement*> h_algo;
   std::vector<MonitorElement*> h_fakerate_ootpu_entire, h_reco_ootpu_entire, h_assoc2_ootpu_entire;
   std::vector<MonitorElement*> h_fakerate_ootpu_barrel, h_reco_ootpu_barrel, h_assoc2_ootpu_barrel;
-  std::vector<MonitorElement*> h_fakerate_ootpu_fwdpos, h_reco_ootpu_fwdpos, h_assoc2_ootpu_fwdpos; 
+  std::vector<MonitorElement*> h_fakerate_ootpu_fwdpos, h_reco_ootpu_fwdpos, h_assoc2_ootpu_fwdpos;
   std::vector<MonitorElement*> h_fakerate_ootpu_fwdneg, h_reco_ootpu_fwdneg, h_assoc2_ootpu_fwdneg;
   std::vector<MonitorElement*> h_fomt_eta, h_fomt_sig_eta, h_fomt_vertcount, h_fomt_sig_vertcount;
   std::vector<MonitorElement*> h_fomt_itpu_eta, h_fomt_sig_itpu_eta, h_fomt_itpu_vertcount, h_fomt_sig_itpu_vertcount;
@@ -193,30 +196,30 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector<MonitorElement*> h_dedx_nom2;
   std::vector<MonitorElement*> h_dedx_sat1;
   std::vector<MonitorElement*> h_dedx_sat2;
-  
-  //2D  
+
+  //2D
   std::vector<MonitorElement*> nrec_vs_nsim;
   std::vector<MonitorElement*> nrecHit_vs_nsimHit_sim2rec;
   std::vector<MonitorElement*> nrecHit_vs_nsimHit_rec2sim;
 
   //assoc hits
   std::vector<MonitorElement*> h_assocFraction, h_assocSharedHit;
-  
+
   //#hit vs eta: to be used with doProfileX
-  std::vector<MonitorElement*> nhits_vs_eta, 
-    nPXBhits_vs_eta, nPXFhits_vs_eta, 
+  std::vector<MonitorElement*> nhits_vs_eta,
+    nPXBhits_vs_eta, nPXFhits_vs_eta,
     nTIBhits_vs_eta,nTIDhits_vs_eta,
     nTOBhits_vs_eta,nTEChits_vs_eta,
-    nLayersWithMeas_vs_eta, nPXLlayersWithMeas_vs_eta, 
+    nLayersWithMeas_vs_eta, nPXLlayersWithMeas_vs_eta,
     nSTRIPlayersWithMeas_vs_eta, nSTRIPlayersWith1dMeas_vs_eta, nSTRIPlayersWith2dMeas_vs_eta;
 
 
   std::vector<MonitorElement*> h_hits_eta,
     h_PXBhits_eta, h_PXFhits_eta, h_TIBhits_eta,h_TIDhits_eta,
     h_TOBhits_eta,h_TEChits_eta,h_DThits_eta,h_CSChits_eta,h_RPChits_eta,
-    h_LayersWithMeas_eta, h_PXLlayersWithMeas_eta, 
+    h_LayersWithMeas_eta, h_PXLlayersWithMeas_eta,
     h_STRIPlayersWithMeas_eta, h_STRIPlayersWith1dMeas_eta, h_STRIPlayersWith2dMeas_eta;
-    
+
 
   std::vector< std::vector<double> > etaintervals;
   std::vector< std::vector<double> > pTintervals;
@@ -243,7 +246,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector< std::vector<int> > totSIM_vertz_fwdpos,totASS_vertz_fwdpos;
   std::vector< std::vector<int> > totSIM_vertz_fwdneg,totASS_vertz_fwdneg;
   std::vector< std::vector<int> > totREC_algo;
-  std::vector< std::vector<int> > totREC_ootpu_entire, totASS2_ootpu_entire; 
+  std::vector< std::vector<int> > totREC_ootpu_entire, totASS2_ootpu_entire;
   std::vector< std::vector<int> > totREC_ootpu_barrel, totASS2_ootpu_barrel;
   std::vector< std::vector<int> > totREC_ootpu_fwdpos, totASS2_ootpu_fwdpos;
   std::vector< std::vector<int> > totREC_ootpu_fwdneg, totASS2_ootpu_fwdneg;
@@ -251,30 +254,30 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector< std::vector<int> > totASS2_itpu_eta_entire, totASS2_itpu_eta_entire_signal, totASS2_itpu_vertcount_entire, totASS2_itpu_vertcount_entire_signal;
   std::vector< std::vector<int> > totFOMT_eta, totFOMT_vertcount;
   std::vector< std::vector<int> > totCONeta, totCONvertcount, totCONzpos;
-  
+
 
 
   //---- second set of histograms (originally not used by the SeedGenerator)
   //1D
   std::vector<MonitorElement*> h_nchi2, h_nchi2_prob, h_losthits, h_nmisslayers_inner, h_nmisslayers_outer;
-  
-  //2D  
+
+  //2D
   std::vector<MonitorElement*> chi2_vs_nhits, etares_vs_eta;
   std::vector<MonitorElement*> h_ptshifteta;
   std::vector<MonitorElement*> ptres_vs_phi, chi2_vs_phi, nhits_vs_phi, phires_vs_phi;
 
   //Profile2D
   std::vector<MonitorElement*> ptmean_vs_eta_phi, phimean_vs_eta_phi;
-  
+
   //assoc chi2
   std::vector<MonitorElement*> h_assochi2, h_assochi2_prob;
-  
+
   //chi2 and # lost hits vs eta: to be used with doProfileX
   std::vector<MonitorElement*> chi2_vs_eta, nlosthits_vs_eta;
   std::vector<MonitorElement*> h_chi2meanh, h_losthits_eta;
-  std::vector<MonitorElement*> h_hits_phi;  
+  std::vector<MonitorElement*> h_hits_phi;
   std::vector<MonitorElement*> h_chi2meanhitsh, h_chi2mean_vs_phi;
-  
+
   //resolution of track params: to be used with fitslicesytool
   std::vector<MonitorElement*> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
   std::vector<MonitorElement*> dxyres_vs_pt, ptres_vs_pt, dzres_vs_pt, phires_vs_pt, cotThetares_vs_pt;
@@ -283,7 +286,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector<MonitorElement*> h_dxyrmshPt, h_ptrmshPt, h_dzrmshPt, h_phirmshPt, h_cotThetarmshPt;
   std::vector<MonitorElement*> h_ptrmshPhi, h_phirmshPhi;
   //  std::vector<MonitorElement*> h_phimeanh,h_ptmeanhhi, h_phimeanhPhi;
-  
+
   std::vector<MonitorElement*> h_dxymeanh, h_ptmeanh, h_dzmeanh, h_phimeanh, h_cotThetameanh;
   std::vector<MonitorElement*> h_dxymeanhPt, h_ptmeanhPt, h_dzmeanhPt, h_phimeanhPt, h_cotThetameanhPt;
   std::vector<MonitorElement*> h_ptmeanhPhi, h_phimeanhPhi;

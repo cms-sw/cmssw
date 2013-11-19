@@ -20,9 +20,9 @@ public:
 			     const std::vector<int>& pdgId = std::vector<int>()) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
     tip_( tip ), lip_( lip ), minHit_( minHit ), signalOnly_(signalOnly), chargedOnly_(chargedOnly), stableOnly_(stableOnly), pdgId_( pdgId ) { }
-  
+
   /// Operator() performs the selection: e.g. if (tPSelector(tp)) {...}
-  bool operator()( const TrackingParticle & tp ) const { 
+  bool operator()( const TrackingParticle & tp ) const {
     if (chargedOnly_ && tp.charge()==0) return false;//select only if charge!=0
     bool testId = false;
     unsigned int idSize = pdgId_.size();
@@ -44,7 +44,7 @@ public:
 	  }
 	}
        // test for remaining unstabled due to lack of genparticle pointer
-       if(stable == 1 && tp.status() == -99 && 
+       if(stable == 1 && tp.status() == -99 &&
           (fabs(tp.pdgId()) != 11 && fabs(tp.pdgId()) != 13 && fabs(tp.pdgId()) != 211 &&
            fabs(tp.pdgId()) != 321 && fabs(tp.pdgId()) != 2212 && fabs(tp.pdgId()) != 3112 &&
            fabs(tp.pdgId()) != 3222 && fabs(tp.pdgId()) != 3312 && fabs(tp.pdgId()) != 3334)) stable = 0;
@@ -52,8 +52,8 @@ public:
     }
     return (
 	    tp.numberOfTrackerLayers() >= minHit_ &&
-	    sqrt(tp.momentum().perp2()) >= ptMin_ && 
-	    tp.momentum().eta() >= minRapidity_ && tp.momentum().eta() <= maxRapidity_ && 
+	    sqrt(tp.momentum().perp2()) >= ptMin_ &&
+	    tp.momentum().eta() >= minRapidity_ && tp.momentum().eta() <= maxRapidity_ &&
 	    sqrt(tp.vertex().perp2()) <= tip_ &&
 	    fabs(tp.vertex().z()) <= lip_ &&
 	    testId &&
@@ -61,7 +61,7 @@ public:
             stable
 	    );
   }
-  
+
 private:
   double ptMin_;
   double minRapidity_;
@@ -76,28 +76,29 @@ private:
 
 };
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 
 namespace reco {
   namespace modules {
-    
+
     template<>
     struct ParameterAdapter<TrackingParticleSelector> {
-      static TrackingParticleSelector make( const edm::ParameterSet & cfg ) {
-	return TrackingParticleSelector(    
+      static TrackingParticleSelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
+	return TrackingParticleSelector(
  	  cfg.getParameter<double>( "ptMin" ),
 	  cfg.getParameter<double>( "minRapidity" ),
 	  cfg.getParameter<double>( "maxRapidity" ),
 	  cfg.getParameter<double>( "tip" ),
 	  cfg.getParameter<double>( "lip" ),
-	  cfg.getParameter<int>( "minHit" ), 
+	  cfg.getParameter<int>( "minHit" ),
 	  cfg.getParameter<bool>( "signalOnly" ),
 	  cfg.getParameter<bool>( "chargedOnly" ),
 	  cfg.getParameter<bool>( "stableOnly" ),
-	cfg.getParameter<std::vector<int> >( "pdgId" )); 
+	cfg.getParameter<std::vector<int> >( "pdgId" ));
       }
     };
-    
+
   }
 }
 

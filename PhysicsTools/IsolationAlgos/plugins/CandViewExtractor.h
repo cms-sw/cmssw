@@ -5,6 +5,8 @@
 #include <vector>
 
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -19,7 +21,7 @@ class CandViewExtractor : public reco::isodeposit::IsoDepositExtractor {
 public:
 
   CandViewExtractor(){};
-  CandViewExtractor(const edm::ParameterSet& par);
+  CandViewExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
 
   virtual ~CandViewExtractor(){}
 
@@ -34,12 +36,12 @@ public:
 */
 
   virtual reco::IsoDeposit deposit (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::Track & muon) const { 
+      const edm::EventSetup & evSetup, const reco::Track & muon) const {
         return depositFromObject(ev, evSetup, muon);
   }
 
   virtual reco::IsoDeposit deposit (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::Candidate & muon) const { 
+      const edm::EventSetup & evSetup, const reco::Candidate & muon) const {
         return depositFromObject(ev, evSetup, muon);
   }
 
@@ -49,9 +51,9 @@ private:
   template<typename T>
   reco::IsoDeposit depositFromObject( const edm::Event & ev,
       const edm::EventSetup & evSetup, const T &cand) const ;
-   
+
   // Parameter set
-  edm::InputTag theCandViewTag; // Track Collection Label
+  edm::EDGetTokenT< edm::View<reco::Candidate> > theCandViewToken; // Track Collection Label
   std::string theDepositLabel;         // name for deposit
   double theDiff_r;                    // transverse distance to vertex
   double theDiff_z;                    // z distance to vertex

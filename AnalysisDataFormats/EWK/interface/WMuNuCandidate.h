@@ -1,4 +1,4 @@
-#ifndef AnalysisDataFormats_EWK_WMuNu_h 
+#ifndef AnalysisDataFormats_EWK_WMuNu_h
 #define AnalysisDataFormats_EWK_WMuNu_h
 
 #include <map>
@@ -11,8 +11,6 @@
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "CommonTools/CandUtils/interface/CandCombiner.h"
-#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 namespace reco{
 
@@ -37,7 +35,7 @@ public:
       // Acoplanarity between the muon and the MET
       double acop() const;
 
-      const reco::Muon & getMuon()     const {return *muon_;}; 
+      const reco::Muon & getMuon()     const {return *muon_;};
       const reco::MET  & getNeutrino() const {return *neutrino_;};
 
 
@@ -45,7 +43,7 @@ private:
 
 
       edm::Ptr<Muon> muon_;
-      edm::Ptr<MET>  neutrino_;  
+      edm::Ptr<MET>  neutrino_;
 };
 
 

@@ -4,6 +4,7 @@
 #include <memory>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -13,9 +14,9 @@
 template<class algo>
 struct ElectronIDSelector{
  public:
-   explicit ElectronIDSelector(const edm::ParameterSet& iConfig) :
-            select_(iConfig),
-	    threshold_(iConfig.getParameter<double>("threshold")) 
+   explicit ElectronIDSelector(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
+            select_(iConfig, iC),
+	    threshold_(iConfig.getParameter<double>("threshold"))
    {
    }
 
@@ -23,16 +24,16 @@ struct ElectronIDSelector{
 
    // Collections to be selected
    typedef reco::GsfElectronCollection collection;
-   typedef std::vector<reco::GsfElectronRef> container ; 
-   //typedef std::vector<reco::GsfElectron> container ; 
+   typedef std::vector<reco::GsfElectronRef> container ;
+   //typedef std::vector<reco::GsfElectron> container ;
    typedef container::const_iterator const_iterator;
 
    //define iterators with above typedef
    const_iterator begin () const { return selected_.begin () ; }
    const_iterator end () const { return  selected_.end () ; }
 
-   void select(const edm::Handle<reco::GsfElectronCollection>& _electrons, 
-               const edm::Event& iEvent , 
+   void select(const edm::Handle<reco::GsfElectronCollection>& _electrons,
+               const edm::Event& iEvent ,
 	       const edm::EventSetup& iEs)
    {
      edm::Handle<reco::GsfElectronCollection> electrons = _electrons;
@@ -51,12 +52,12 @@ struct ElectronIDSelector{
 	 ++i;
 	}
    }
-	
- private:	
+
+ private:
    container selected_ ;
    algo select_ ;
    double threshold_ ;
-  
+
 };
 
 #endif

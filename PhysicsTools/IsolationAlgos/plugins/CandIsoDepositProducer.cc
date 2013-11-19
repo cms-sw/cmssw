@@ -41,7 +41,7 @@ CandIsoDepositProducer::CandIsoDepositProducer(const ParameterSet& par) :
 
   edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet);
+  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
 
   if (! theMultipleDepositsFlag) produces<reco::IsoDepositMap>();
   else {

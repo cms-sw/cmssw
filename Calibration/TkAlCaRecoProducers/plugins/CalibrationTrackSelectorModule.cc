@@ -1,4 +1,5 @@
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 
@@ -15,20 +16,20 @@ struct SiStripCalTrackConfigSelector {
 
   typedef std::vector<const reco::Track*> container;
   typedef container::const_iterator const_iterator;
-  typedef reco::TrackCollection collection; 
+  typedef reco::TrackCollection collection;
 
- SiStripCalTrackConfigSelector( const edm::ParameterSet & cfg ) :
+ SiStripCalTrackConfigSelector( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
     theBaseSelector(cfg)
   {
     //TODO Wrap the BaseSelector into its own PSet
-    theBaseSwitch = 
+    theBaseSwitch =
       cfg.getParameter<bool>("applyBasicCuts") ||
       cfg.getParameter<bool>("minHitsPerSubDet") ||
       cfg.getParameter<bool>("applyNHighestPt") ||
       cfg.getParameter<bool>("applyMultiplicityFilter");
-    
+
   }
-  
+
   const_iterator begin() const { return theSelectedTracks.begin(); }
   const_iterator end() const { return theSelectedTracks.end(); }
   size_t size() const { return theSelectedTracks.size(); }

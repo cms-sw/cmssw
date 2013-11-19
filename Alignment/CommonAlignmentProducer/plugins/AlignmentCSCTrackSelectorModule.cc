@@ -1,4 +1,5 @@
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 
@@ -17,10 +18,10 @@ struct CSCTrackConfigSelector {
 
       typedef std::vector<const reco::Track*> container;
       typedef container::const_iterator const_iterator;
-      typedef reco::TrackCollection collection; 
+      typedef reco::TrackCollection collection;
 
-      CSCTrackConfigSelector( const edm::ParameterSet & cfg ) : theBaseSelector(cfg) {}
-  
+      CSCTrackConfigSelector( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) : theBaseSelector(cfg) {}
+
       const_iterator begin() const { return theSelectedTracks.begin(); }
       const_iterator end() const { return theSelectedTracks.end(); }
       size_t size() const { return theSelectedTracks.size(); }
@@ -31,7 +32,7 @@ struct CSCTrackConfigSelector {
 	 for( reco::TrackCollection::const_iterator i=c.product()->begin();i!=c.product()->end();++i){
 	    all.push_back(& * i );
 	 }
-	 theSelectedTracks = theBaseSelector.select(all, evt); // might add dummy 
+	 theSelectedTracks = theBaseSelector.select(all, evt); // might add dummy
       }
 
    private:
