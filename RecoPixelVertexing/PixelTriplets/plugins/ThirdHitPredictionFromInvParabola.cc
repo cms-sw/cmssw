@@ -113,11 +113,10 @@ namespace {
       yy=xx; xx=tmp;
     }
     T t=yy/xx;
-    T z=t;
-    if( t > T(0.4142135623730950) ) // * tan pi/8 
-      {
-	z = (t-T(1.0))/(t+T(1.0));
-      }
+    T z = 
+      ( t > T(0.4142135623730950) ) ?  // * tan pi/8 
+      (t-T(1.0))/(t+T(1.0)) : t;
+     
 
     //printf("%e %e %e %e\n",yy,xx,t,z);
     T z2 = z * z;
