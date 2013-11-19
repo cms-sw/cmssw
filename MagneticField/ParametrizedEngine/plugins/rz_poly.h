@@ -52,13 +52,13 @@ public:
    rz_poly& operator*=(double  C);
    rz_poly& operator*=(double *C);
    
-   double  GetSVal(double r, double z, double *C);
+   double  GetSVal(double r, double z, const double *C) const;
    double *GetVVal(double r, double z, double *rez_out = 0);
    
-   int GetMaxRPow() {return max_nr-1;}
-   int GetMaxZPow() {return max_nz-1;}
-   int GetLength()  {return (int)data.size();}
-   int GetNActive() {return n_active;}
+   int GetMaxRPow() const {return max_nr-1;}
+   int GetMaxZPow() const {return max_nz-1;}
+   int GetLength()  const {return (int)data.size();}
+   int GetNActive() const {return n_active;}
    
    double *Expand(double *C);
    
