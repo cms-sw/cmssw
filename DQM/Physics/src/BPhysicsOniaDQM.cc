@@ -15,12 +15,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -30,8 +28,12 @@ using namespace reco;
 
 BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet& parameters) {
   // Muon Collection Label
-  theMuonCollectionLabel = parameters.getParameter<InputTag>("MuonCollection");
-  vertex = parameters.getParameter<InputTag>("vertex");
+  vertex_ = consumes<reco::VertexCollection>(
+    parameters.getParameter<InputTag>("vertex"));
+  theMuonCollectionLabel_ = consumes<reco::MuonCollection>(
+    parameters.getParameter<InputTag>("MuonCollection"));
+  lumiSummaryToken_ = consumes<LumiSummary>(
+    parameters.getParameter<InputTag>("lumiSummary"));
 
   global_background = NULL;
   diMuonMass_global = NULL;
@@ -39,7 +41,7 @@ BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet& parameters) {
   diMuonMass_tracker = NULL;
   standalone_background = NULL;
   diMuonMass_standalone = NULL;
-  
+
   glbSigCut = NULL;
   glbSigNoCut = NULL;
   glbBkgNoCut = NULL;
@@ -55,7 +57,7 @@ BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet& parameters) {
   //   JPsiTrkYdLumi = NULL;
 }
 
-BPhysicsOniaDQM::~BPhysicsOniaDQM() { 
+BPhysicsOniaDQM::~BPhysicsOniaDQM() {
 }
 
 void BPhysicsOniaDQM::beginJob() {
@@ -90,13 +92,13 @@ void BPhysicsOniaDQM::beginJob() {
 void BPhysicsOniaDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   LogTrace(metname)<<"[BPhysicsOniaDQM] Analysis of event # ";
-  
+
   // Take the STA muon container
   Handle<MuonCollection> muons;
-  iEvent.getByLabel(theMuonCollectionLabel,muons);
+  iEvent.getByToken(theMuonCollectionLabel_ ,muons);
 
   Handle<reco::VertexCollection> privtxs;
-  iEvent.getByLabel(vertex,privtxs);
+  iEvent.getByToken(vertex_, privtxs);
   VertexCollection::const_iterator privtx;
 
   if(privtxs->begin() != privtxs->end()){
@@ -142,7 +144,7 @@ void BPhysicsOniaDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
               }
             }
           }
-          
+
           if(recoMu1->isStandAloneMuon() && recoMu2->isStandAloneMuon() &&
             fabs(recoMu1->outerTrack()->d0()) < 5 && fabs(recoMu1->outerTrack()->dz()) < 30 &&
             fabs(recoMu2->outerTrack()->d0()) < 5 && fabs(recoMu2->outerTrack()->dz()) < 30){
@@ -219,7 +221,7 @@ void BPhysicsOniaDQM::endJob(void) {
 void BPhysicsOniaDQM::beginLuminosityBlock(const edm::LuminosityBlock &lumiBlock, const edm::EventSetup &iSetup)
 {
   LogTrace(metname)<<"[BPhysicsOniaDQM] Start of a LuminosityBlock";
-  
+
   jpsiGlbSigPerLS = 0;
   jpsiStaSigPerLS = 0;
   jpsiTrkSigPerLS = 0;
@@ -230,10 +232,10 @@ void BPhysicsOniaDQM::endLuminosityBlock(const edm::LuminosityBlock &lumiBlock, 
   LogTrace(metname)<<"[BPhysicsOniaDQM] Start of a LuminosityBlock";
 
   edm::Handle<LumiSummary> lumiSummary;
-  lumiBlock.getByLabel("lumiProducer",lumiSummary);
+  lumiBlock.getByToken(lumiSummaryToken_, lumiSummary);
 
   int LBlockNum = lumiBlock.id().luminosityBlock();
-  
+
   jpsiGlbSig.insert( pair<int,int>(LBlockNum, jpsiGlbSigPerLS) );
   jpsiStaSig.insert( pair<int,int>(LBlockNum, jpsiStaSigPerLS) );
   jpsiTrkSig.insert( pair<int,int>(LBlockNum, jpsiTrkSigPerLS) );
@@ -282,7 +284,7 @@ void BPhysicsOniaDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
 void BPhysicsOniaDQM::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   LogTrace(metname)<<"[BPhysicsOniaDQM] End of a Run";
-  
+
   if (!jpsiGlbSig.empty()) {
     jpsiGlbSig.clear();
     jpsiStaSig.clear();
@@ -308,7 +310,7 @@ float BPhysicsOniaDQM::computeMass(const math::XYZVector &vec1,const math::XYZVe
   float massJPsi = -999;
   if((eJPsi*eJPsi - pJPsi*pJPsi) > 0)
     massJPsi = sqrt(eJPsi*eJPsi - pJPsi*pJPsi);
- 
+
  return massJPsi;
 }
 
@@ -324,7 +326,7 @@ bool BPhysicsOniaDQM::selGlobalMuon(const reco::Muon &recoMu)
 {
   TrackRef iTrack = recoMu.innerTrack();
   const reco::HitPattern &p = iTrack->hitPattern();
-  
+
   TrackRef gTrack = recoMu.globalTrack();
   const reco::HitPattern &q = gTrack->hitPattern();
 
@@ -355,3 +357,8 @@ bool BPhysicsOniaDQM::selTrackerMuon(const reco::Muon &recoMu)
           fabs(iTrack->dz(RefVtx)) < 15.0 );
 }
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

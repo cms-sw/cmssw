@@ -14,12 +14,17 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 #include <fstream>
-
 
 //
 // class declaration
@@ -60,10 +65,10 @@ class BeamMonitor : public edm::EDAnalyzer {
     const char * formatFitTime( const std::time_t &);
     edm::ParameterSet parameters_;
     std::string monitorName_;
-    edm::InputTag bsSrc_; // beam spot
-    edm::InputTag tracksLabel_;
-    edm::InputTag pvSrc_; // primary vertex
-    edm::InputTag hltSrc_;//hlt collection
+    edm::EDGetTokenT<reco::BeamSpot> bsSrc_; // beam spot
+    edm::EDGetTokenT<reco::TrackCollection> tracksLabel_;
+    edm::EDGetTokenT<reco::VertexCollection> pvSrc_; // primary vertex
+    edm::EDGetTokenT<edm::TriggerResults> hltSrc_;//hlt collection
 
     int fitNLumi_;
     int fitPVNLumi_;
@@ -170,3 +175,8 @@ class BeamMonitor : public edm::EDAnalyzer {
 
 #endif
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

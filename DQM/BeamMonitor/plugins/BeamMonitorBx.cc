@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <numeric>
 #include <math.h>
@@ -57,7 +58,7 @@ BeamMonitorBx::BeamMonitorBx( const ParameterSet& ps ) :
 
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
 
-  theBeamFitter = new BeamFitter(parameters_);
+  theBeamFitter = new BeamFitter(parameters_, consumesCollector());
   theBeamFitter->resetTrkVector();
   theBeamFitter->resetLSRange();
   theBeamFitter->resetRefTime();

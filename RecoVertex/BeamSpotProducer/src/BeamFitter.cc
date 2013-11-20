@@ -12,16 +12,13 @@ ________________________________________________________________**/
 
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 
-#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
@@ -48,12 +45,17 @@ void BeamFitter::updateBTime() {
 }
 
 
-BeamFitter::BeamFitter(const edm::ParameterSet& iConfig): fPVTree_(0)
+BeamFitter::BeamFitter(const edm::ParameterSet& iConfig,
+                       edm::ConsumesCollector &&iColl): fPVTree_(0)
 {
 
   debug_             = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("Debug");
-  tracksLabel_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<edm::InputTag>("TrackCollection");
-  vertexLabel_       = iConfig.getUntrackedParameter<edm::InputTag>("primaryVertex", edm::InputTag("offlinePrimaryVertices"));
+  tracksToken_       = iColl.consumes<reco::TrackCollection>(
+      iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<edm::InputTag>("TrackCollection"));
+  vertexToken_       = iColl.consumes<edm::View<reco::Vertex> >(
+      iConfig.getUntrackedParameter<edm::InputTag>("primaryVertex", edm::InputTag("offlinePrimaryVertices")));
+  beamSpotToken_     = iColl.consumes<reco::BeamSpot>(
+      iConfig.getUntrackedParameter<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot")));
   writeTxt_          = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("WriteAscii");
   outputTxt_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("AsciiFileName");
   appendRunTxt_      = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("AppendRunToFileName");
@@ -178,7 +180,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig): fPVTree_(0)
   resetCutFlow();
 
   // Primary vertex fitter
-  MyPVFitter = new PVFitter(iConfig);
+  MyPVFitter = new PVFitter(iConfig, iColl);
   MyPVFitter->resetAll();
   if (savePVVertices_){
     fPVTree_ = new TTree("PrimaryVertices","PrimaryVertices");
@@ -239,13 +241,13 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   if (fendLumiOfFit == -1 || fendLumiOfFit < flumi) fendLumiOfFit = flumi;
 
   edm::Handle<reco::TrackCollection> TrackCollection;
-  iEvent.getByLabel(tracksLabel_, TrackCollection);
+  iEvent.getByToken(tracksToken_, TrackCollection);
 
   //------ Primary Vertices
   edm::Handle< edm::View<reco::Vertex> > PVCollection;
   bool hasPVs = false;
   edm::View<reco::Vertex> pv;
-  if ( iEvent.getByLabel(vertexLabel_, PVCollection ) ) {
+  if ( iEvent.getByToken(vertexToken_, PVCollection ) ) {
       pv = *PVCollection;
       hasPVs = true;
   }
@@ -254,7 +256,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   //------ Beam Spot in current event
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   const reco::BeamSpot *refBS =  0;
-  if ( iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle) )
+  if ( iEvent.getByToken(beamSpotToken_, recoBeamSpotHandle) )
       refBS = recoBeamSpotHandle.product();
   //-------
 

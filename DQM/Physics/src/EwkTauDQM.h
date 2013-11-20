@@ -8,7 +8,7 @@
  * so far:
  *  o Z --> electron + tau-jet channel (EwkElecTauHistManager)
  *  o Z --> muon + tau-jet channel (EwkMuTauHistManager)
- * 
+ *
  * \authors Letizia Lusito,
  *          Joshua Swanson,
  *          Christian Veelken
@@ -26,7 +26,7 @@
 class EwkElecTauHistManager;
 class EwkMuTauHistManager;
 
-class EwkTauDQM : public edm::EDAnalyzer 
+class EwkTauDQM : public edm::EDAnalyzer
 {
  public:
   EwkTauDQM(const edm::ParameterSet&);
@@ -35,7 +35,7 @@ class EwkTauDQM : public edm::EDAnalyzer
   void beginJob();
   void analyze(const edm::Event&, const edm::EventSetup&);
   void endJob();
-  
+
  private:
   DQMStore* dqmStore_;
   std::string dqmDirectory_;
@@ -54,7 +54,7 @@ class EwkTauDQM : public edm::EDAnalyzer
  *
  * Booking and filling of histograms for data-quality monitoring purposes
  * in Z --> electron + tau-jet channel
- * 
+ *
  * \author Joshua Swanson
  *        (modified by Christian Veelken)
  *
@@ -78,7 +78,7 @@ class EwkElecTauHistManager
 
   void bookHistograms();
   void fillHistograms(const edm::Event&, const edm::EventSetup&);
-  void finalizeHistograms(); 
+  void finalizeHistograms();
 
  private:
 
@@ -119,8 +119,8 @@ class EwkElecTauHistManager
 
 //--- name of DQM directory in which histograms for Z --> electron + tau-jet channel get stored
   std::string dqmDirectory_;
-  
-//--- histograms  
+
+//--- histograms
   //MonitorElement* hNumIdElectrons_;
   MonitorElement* hElectronPt_;
   MonitorElement* hElectronEta_;
@@ -140,7 +140,7 @@ class EwkElecTauHistManager
   //MonitorElement* hTauJetCharge_;
   //MonitorElement* hTauJetNumSignalTracks_;
   //MonitorElement* hTauJetNumIsoTracks_;
-  
+
   MonitorElement* hVisMass_;
   //MonitorElement* hMtElecCaloMEt_;
   MonitorElement* hMtElecPFMEt_;
@@ -162,8 +162,8 @@ class EwkElecTauHistManager
   MonitorElement* hCutFlowSummary_;
   enum { kPassedPreselection = 1, kPassedTrigger = 2, kPassedElectronId = 3, kPassedElectronTrackIso = 4, kPassedElectronEcalIso = 5,
          kPassedTauLeadTrack = 6, kPassedTauLeadTrackPt = 7, kPassedTauDiscrAgainstElectrons = 8, kPassedTauDiscrAgainstMuons = 9,
-         kPassedTauTrackIso = 10, kPassedTauEcalIso = 11 
-       }; 
+         kPassedTauTrackIso = 10, kPassedTauEcalIso = 11
+       };
 
 //--- counters for filter-statistics output
   unsigned numEventsAnalyzed_;
@@ -199,7 +199,7 @@ class EwkElecTauHistManager
  *
  * Booking and filling of histograms for data-quality monitoring purposes
  * in Z --> muon + tau-jet channel
- * 
+ *
  * \author Letizia Lusito,
  *         Christian Veelken
  *
@@ -242,7 +242,7 @@ class EwkMuTauHistManager
   edm::InputTag tauDiscrByTrackIso_;
   edm::InputTag tauDiscrByEcalIso_;
   edm::InputTag tauDiscrAgainstMuons_;
-  
+
 //--- event selection criteria
   typedef std::vector<std::string> vstring;
   vstring hltPaths_;
@@ -265,7 +265,7 @@ double muonCombIsoCut_;
 //--- name of DQM directory in which histograms for Z --> muon + tau-jet channel get stored
   std::string dqmDirectory_;
 
-//--- histograms  
+//--- histograms
   //MonitorElement* hNumGlobalMuons_;
   MonitorElement* hMuonPt_;
   MonitorElement* hMuonEta_;
@@ -284,7 +284,7 @@ double muonCombIsoCut_;
   MonitorElement* hTauJetCharge_;
   MonitorElement* hTauJetNumSignalTracks_;
   MonitorElement* hTauJetNumIsoTracks_;
-  
+
   MonitorElement* hVisMass_;
 MonitorElement* hMuTauDeltaR_;
 MonitorElement* hVisMassFinal_;
@@ -306,7 +306,7 @@ MonitorElement* hVisMassFinal_;
   //MonitorElement* hPFMEtPhi_;
 
   MonitorElement* hCutFlowSummary_;
-  enum { kPassedPreselection = 1, kPassedTrigger = 2, kPassedMuonId = 3, kPassedTauLeadTrack = 4, kPassedTauLeadTrackPt = 5, kPassedTauDiscrAgainstMuons = 6, kPassedDeltaR = 7, kPassedMuonTrackIso = 8, kPassedMuonEcalIso = 9, kPassedTauTrackIso = 10, kPassedTauEcalIso = 11}; 
+  enum { kPassedPreselection = 1, kPassedTrigger = 2, kPassedMuonId = 3, kPassedTauLeadTrack = 4, kPassedTauLeadTrackPt = 5, kPassedTauDiscrAgainstMuons = 6, kPassedDeltaR = 7, kPassedMuonTrackIso = 8, kPassedMuonEcalIso = 9, kPassedTauTrackIso = 10, kPassedTauEcalIso = 11};
 
 //--- counters for filter-statistics output
   unsigned numEventsAnalyzed_;
@@ -335,11 +335,11 @@ MonitorElement* hVisMassFinal_;
 // common auxiliary functions used by different channels
 //-------------------------------------------------------------------------------
 
-/** 
+/**
  *
  * Auxiliary functions to compute quantities used by EWK Tau DQM
  * (shared by different channels)
- * 
+ *
  * \author Joshua Swanson
  *
  *
@@ -362,7 +362,7 @@ MonitorElement* hVisMassFinal_;
 enum { kAbsoluteIso, kRelativeIso, kUndefinedIso };
 
 template<typename T>
-void readEventData(const edm::Event& evt, const edm::InputTag& src, edm::Handle<T>& handle, long& numWarnings, int maxNumWarnings, 
+void readEventData(const edm::Event& evt, const edm::InputTag& src, edm::Handle<T>& handle, long& numWarnings, int maxNumWarnings,
 		   bool& error, const char* errorMessage)
 {
   if ( !evt.getByLabel(src, handle) ) {
@@ -389,3 +389,8 @@ const reco::PFTau* getTheTauJet(const reco::PFTauCollection&, double, double, in
 double getVertexD0(const reco::Vertex&, const reco::BeamSpot&);
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

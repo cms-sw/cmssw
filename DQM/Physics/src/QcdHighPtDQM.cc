@@ -30,30 +30,35 @@ using namespace math;
 
 //Get Jets and MET (no MET plots yet pending converging w/JetMET group)
 
-QcdHighPtDQM::QcdHighPtDQM(const ParameterSet& iConfig): 
-  jetLabel_(iConfig.getUntrackedParameter<edm::InputTag>("jetTag")),
-  metLabel1_(iConfig.getUntrackedParameter<edm::InputTag>("metTag1")),  
-  metLabel2_(iConfig.getUntrackedParameter<edm::InputTag>("metTag2")),  
-  metLabel3_(iConfig.getUntrackedParameter<edm::InputTag>("metTag3")),  
-  metLabel4_(iConfig.getUntrackedParameter<edm::InputTag>("metTag4"))
+QcdHighPtDQM::QcdHighPtDQM(const ParameterSet& iConfig):
+    jetToken_(consumes<CaloJetCollection>
+              (iConfig.getUntrackedParameter<edm::InputTag>("jetTag"))),
+    metToken1_(consumes<CaloMETCollection>
+               (iConfig.getUntrackedParameter<edm::InputTag>("metTag1"))),
+    metToken2_(consumes<CaloMETCollection>
+               (iConfig.getUntrackedParameter<edm::InputTag>("metTag2"))),
+    metToken3_(consumes<CaloMETCollection>
+               (iConfig.getUntrackedParameter<edm::InputTag>("metTag3"))),
+    metToken4_(consumes<CaloMETCollection>
+               (iConfig.getUntrackedParameter<edm::InputTag>("metTag4")))
 {
 
   theDbe = Service<DQMStore>().operator->();
-  
+
 }
 
-QcdHighPtDQM::~QcdHighPtDQM() { 
-  
+QcdHighPtDQM::~QcdHighPtDQM() {
+
 
 }
 
 
 void QcdHighPtDQM::beginJob() {
- 
+
 
   //Book MEs
- 
-  theDbe->setCurrentFolder("Physics/QcdHighPt");  
+
+  theDbe->setCurrentFolder("Physics/QcdHighPt");
 
   MEcontainer_["dijet_mass"] = theDbe->book1D("dijet_mass", "dijet resonance invariant mass, barrel region", 100, 0, 1000);
   MEcontainer_["njets"] = theDbe->book1D("njets", "jet multiplicity", 10, 0, 10);
@@ -76,10 +81,10 @@ void QcdHighPtDQM::beginJob() {
   //flavors of MET
   MEcontainer_["movers_met"] = theDbe->book1D("movers_met", "MET over Sum ET for basic MET collection", 50, 0, 1);
   MEcontainer_["moverl_met"] = theDbe->book1D("moverl_met", "MET over leading jet Pt for basic MET collection", 50, 0, 2);
-  
+
   MEcontainer_["movers_metho"] = theDbe->book1D("movers_metho", "MET over Sum ET for MET HO collection", 50, 0, 1);
   MEcontainer_["moverl_metho"] = theDbe->book1D("moverl_metho", "MET over leading jet Pt for MET HO collection", 50, 0, 2);
-  
+
   MEcontainer_["movers_metnohf"] = theDbe->book1D("movers_metnohf", "MET over Sum ET for MET no HF collection", 50, 0, 1);
   MEcontainer_["moverl_metnohf"] = theDbe->book1D("moverl_metnohf", "MET over leading jet Pt for MET no HF collection", 50, 0, 2);
 
@@ -91,7 +96,7 @@ void QcdHighPtDQM::beginJob() {
   MEcontainer_["leading_jet_EMF"] = theDbe->book1D("leading_jet_EMF", "leading jet EMF", 50, -1, 1);
   MEcontainer_["second_jet_EMF"] = theDbe->book1D("second_jet_EMF", "second jet EMF", 50, -1, 1);
   MEcontainer_["third_jet_EMF"] = theDbe->book1D("third_jet_EMF", "third jet EMF", 50, -1, 1);
-  
+
 
 
 
@@ -134,28 +139,28 @@ float QcdHighPtDQM::moverl(const CaloMETCollection &metcollection, float &ljpt) 
 
 
 void QcdHighPtDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
-  
+
   //Get Jets
   edm::Handle<CaloJetCollection> jetHandle;
-  iEvent.getByLabel(jetLabel_,jetHandle);
+  iEvent.getByToken(jetToken_,jetHandle);
   const CaloJetCollection & jets = *jetHandle;
   CaloJetCollection::const_iterator jet_iter;
 
   //Get MET collections
   edm::Handle<CaloMETCollection> metHandle;
-  iEvent.getByLabel(metLabel1_, metHandle);
+  iEvent.getByToken(metToken1_, metHandle);
   const CaloMETCollection &met = *metHandle;
 
   edm::Handle<CaloMETCollection> metHOHandle;
-  iEvent.getByLabel(metLabel2_, metHOHandle);
+  iEvent.getByToken(metToken2_, metHOHandle);
   const CaloMETCollection &metHO = *metHOHandle;
-  
+
   edm::Handle<CaloMETCollection> metNoHFHandle;
-  iEvent.getByLabel(metLabel3_, metNoHFHandle);
+  iEvent.getByToken(metToken3_, metNoHFHandle);
   const CaloMETCollection &metNoHF = *metNoHFHandle;
 
   edm::Handle<CaloMETCollection> metNoHFHOHandle;
-  iEvent.getByLabel(metLabel4_, metNoHFHOHandle);
+  iEvent.getByToken(metToken4_, metNoHFHOHandle);
   const CaloMETCollection &metNoHFHO = *metNoHFHOHandle;
 
   //initialize leading jet value and jet multiplicity counter
@@ -165,18 +170,18 @@ void QcdHighPtDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   float leading_jeteta = 0;
 
   //initialize variables for picking out leading 2 barrel jets
-  reco::CaloJet leadingbarreljet; 
+  reco::CaloJet leadingbarreljet;
   reco::CaloJet secondbarreljet;
   int nbarreljets = 0;
 
-  //get bins in eta.  
+  //get bins in eta.
   //Bins correspond to calotower regions.
 
   const float etabins[83] = {-5.191, -4.889, -4.716, -4.538, -4.363, -4.191, -4.013, -3.839, -3.664, -3.489, -3.314, -3.139, -2.964, -2.853, -2.650, -2.500, -2.322, -2.172, -2.043, -1.930, -1.830, -1.740, -1.653, -1.566, -1.479, -1.392, -1.305, -1.218, -1.131, -1.044, -.957, -.879, -.783, -.696, -.609, -.522, -.435, -.348, -.261, -.174, -.087, 0, .087, .174, .261, .348, .435, .522, .609, .696, .783, .879, .957, 1.044, 1.131, 1.218, 1.305, 1.392, 1.479, 1.566, 1.653, 1.740, 1.830, 1.930, 2.043, 2.172, 2.322, 2.500, 2.650, 2.853, 2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.889, 5.191};
 
   for(jet_iter = jets.begin(); jet_iter!= jets.end(); ++jet_iter){
     njets++;
-  
+
     //get Jet stats
     float jet_pt = jet_iter->pt();
     float jet_eta = jet_iter->eta();
@@ -232,12 +237,12 @@ void QcdHighPtDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
       }
     }
   }
-  
-  // after iterating over all jets, fill leading jet quantity histograms 
+
+  // after iterating over all jets, fill leading jet quantity histograms
   // and jet multiplicity histograms
 
   MEcontainer_["leading_jet_pt"]->Fill(leading_jetpt);
-  
+
   if(leading_jeteta <= 1.3){MEcontainer_["leading_jet_pt_barrel"]->Fill(leading_jetpt);}
 
   else if(leading_jeteta <= 3.0 && leading_jeteta > 1.3){MEcontainer_["leading_jet_pt_endcap"]->Fill(leading_jetpt);}
@@ -257,14 +262,14 @@ void QcdHighPtDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   MEcontainer_["moverl_metnohf"]->Fill(movers(metNoHF), leading_jetpt);
   MEcontainer_["movers_metnohfho"]->Fill(movers(metNoHFHO));
   MEcontainer_["moverl_metnohfho"]->Fill(movers(metNoHFHO), leading_jetpt);
-  
+
 
   // fetch first 3 jet EMF
 
   if(jets.size() >= 1){
     MEcontainer_["leading_jet_EMF"]->Fill(jets[0].emEnergyFraction());
     if(jets.size() >=2){
-      MEcontainer_["second_jet_EMF"]->Fill(jets[1].emEnergyFraction());    
+      MEcontainer_["second_jet_EMF"]->Fill(jets[1].emEnergyFraction());
       if(jets.size() >= 3){
 	MEcontainer_["third_jet_EMF"]->Fill(jets[2].emEnergyFraction());
       }
@@ -280,8 +285,8 @@ void QcdHighPtDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	MEcontainer_["dijet_mass"]->Fill(dijet_mass);
     }
   }
-      
-    
+
+
 }
 
 
@@ -296,3 +301,8 @@ void QcdHighPtDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
 
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

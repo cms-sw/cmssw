@@ -20,6 +20,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
+//RecHit
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 #include <string>
 #include <map>
@@ -70,20 +72,20 @@ private:
   edm::ESHandle<DTGeometry> dtGeom;
 
   // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // Get the map of noisy channels
   bool checkNoisyChannels;
 
   edm::ParameterSet parameters;
- 
+
   // book the histos
   void bookHistos(DTChamberId chamberId);
-  // Fill a set of histograms for a given chamber 
+  // Fill a set of histograms for a given chamber
   void fillHistos(DTChamberId chamberId,
 		  int nHits,
 		  float chi2);
-  
+
   //  the histos
   std::map<DTChamberId, std::vector<MonitorElement*> > histosPerCh;
   std::map< int, MonitorElement* > summaryHistos;
@@ -96,20 +98,25 @@ private:
   // # of bins in the time histos
   int nTimeBins;
   // # of LS per bin in the time histos
-  int nLSTimeBin; 
+  int nLSTimeBin;
   // switch on/off sliding bins in time histos
   bool slideTimeBins;
   // top folder for the histograms in DQMStore
   std::string topHistoFolder;
   // hlt DQM mode
   bool hltDQMMode;
-  // max phi angle of reconstructed segments 
+  // max phi angle of reconstructed segments
   double phiSegmCut;
-  // min # hits of segment used to validate a segment in WB+-2/SecX/MB1 
-  int nhitsCut; 
+  // min # hits of segment used to validate a segment in WB+-2/SecX/MB1
+  int nhitsCut;
 
   MonitorElement* nEventMonitor;
 
 };
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */
