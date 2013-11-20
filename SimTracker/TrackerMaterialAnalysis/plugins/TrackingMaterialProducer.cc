@@ -28,6 +28,8 @@
 
 #include "TrackingMaterialProducer.h"
 
+using namespace CLHEP;
+
 // missing from GEANT4 < 9.0 : G4LogicalVolumeStore::GetVolume( name )
 static
 const G4LogicalVolume* GetVolume(const std::string& name) {
