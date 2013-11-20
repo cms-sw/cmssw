@@ -29,7 +29,6 @@
 #include "TFile.h"
 #include "TObjArray.h"
 
-using namespace std;
 template <class T> T sqr( T t) {return t*t;}
 
 
@@ -79,16 +78,12 @@ void PixelTrackVal::analyze(
     const edm::Event& ev, const edm::EventSetup& es)
 {
 
-  using namespace edm;
-  using namespace std;
-  using namespace reco;
-
-  cout <<"*** PixelTrackVal, analyze event: " << ev.id() << endl;
+  std::cout <<"*** PixelTrackVal, analyze event: " << ev.id() << std::endl;
 
 
 
 //------------------------ simulated tracks
-  Handle<reco::TrackCollection> trackCollection;
+  edm::Handle<reco::TrackCollection> trackCollection;
   ev.getByToken(trackCollectionToken_, trackCollection );
   const reco::TrackCollection tracks = *(trackCollection.product());
 
@@ -96,7 +91,7 @@ void PixelTrackVal::analyze(
 
   if (verbose_ > 0) {
 //    std::cout << *(trackCollection.provenance()) << std::endl;
-    cout << "Reconstructed "<< tracks.size() << " tracks" << std::endl;
+    std::cout << "Reconstructed "<< tracks.size() << " tracks" << std::endl;
   }
 
   for (unsigned int idx=0; idx<tracks.size(); idx++) {
@@ -125,18 +120,20 @@ void PixelTrackVal::analyze(
     if (problem) std::cout <<" *** PROBLEM **" << std::endl;
 
     if (verbose_ > 0) {
-      cout << "\tmomentum: " << tracks[idx].momentum()
-	   << "\tPT: " << tracks[idx].pt()<< endl;
-      cout << "\tvertex: " << tracks[idx].vertex()
-         << "\tTIP: "<< tracks[idx].d0() << " +- " << tracks[idx].d0Error()
-	   << "\tZ0: " << tracks[idx].dz() << " +- " << tracks[idx].dzError() << endl;
-      cout << "\tcharge: " << tracks[idx].charge()<< endl;
+      std::cout << "\tmomentum: " << tracks[idx].momentum()
+		<< "\tPT: " << tracks[idx].pt()
+		<< std::endl;
+      std::cout << "\tvertex: " << tracks[idx].vertex()
+		<< "\tTIP: "<< tracks[idx].d0() << " +- " << tracks[idx].d0Error()
+		<< "\tZ0: " << tracks[idx].dz() << " +- " << tracks[idx].dzError()
+		<< std::endl;
+      std::cout << "\tcharge: " << tracks[idx].charge() << std::endl;
     }
   }
 
 //------------------------ simulated vertices and tracks
    
-   Handle<SimVertexContainer> simVtcs;
+   edm::Handle<edm::SimVertexContainer> simVtcs;
    ev.getByToken( simVertexContainerToken_, simVtcs );
 
 //   std::cout << "SimVertex " << simVtcs->size() << std::endl;
@@ -146,7 +143,7 @@ void PixelTrackVal::analyze(
 //         << v->position().x() << " " << v->position().y() << " " << v->position().z() << " "
 //         << v->parentIndex() << " " << v->noParent() << " " << std::endl; }
 
-   Handle<SimTrackContainer> simTrks;
+   edm::Handle<edm::SimTrackContainer> simTrks;
    ev.getByToken( simTrackContainerToken_, simTrks );
    std::cout << "simtrks " << simTrks->size() << std::endl;
 
@@ -154,7 +151,7 @@ void PixelTrackVal::analyze(
   // matching cuts from Marcin
   float detaMax=0.012;
   float dRMax=0.025;
-  typedef SimTrackContainer::const_iterator IP;
+  typedef edm::SimTrackContainer::const_iterator IP;
   for (IP p=simTrks->begin(); p != simTrks->end(); p++) {
     if ( (*p).noVertex() ) continue;
     if ( (*p).type() == -99) continue;
