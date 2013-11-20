@@ -11,14 +11,15 @@
 
 #include <string>
 #include <vector>
-namespace edm { class EventSetup; }
+namespace edm { class EventSetup; class ConsumesCollector;}
 
 class SeedingLayerSetsBuilder {
 
 public:
 
   SeedingLayerSetsBuilder();
-  SeedingLayerSetsBuilder(const edm::ParameterSet & cfg);
+  SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
+  SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector&& iC);
   ~SeedingLayerSetsBuilder();
 
   ctfseeding::SeedingLayerSets layers(const edm::EventSetup& es) const; 

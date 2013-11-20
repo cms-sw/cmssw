@@ -9,17 +9,13 @@ using namespace ctfseeding;
 
 
 GenericTripletGenerator::GenericTripletGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
-	//conf_(conf),
-	theLsb(conf.getParameter<edm::ParameterSet>("LayerPSet")){
+  theLsb(conf.getParameter<edm::ParameterSet>("LayerPSet"), iC) {
 	edm::LogInfo("CtfSpecialSeedGenerator|GenericTripletGenerator") << "Constructing GenericTripletGenerator";
 } 
 
 
 SeedingLayerSets GenericTripletGenerator::init(const edm::EventSetup& es){
-	//edm::ParameterSet leyerPSet = conf_.getParameter<edm::ParameterSet>("LayerPSet");
-	//SeedingLayerSetsBuilder lsBuilder(leyerPSet);
-  	SeedingLayerSets lss = theLsb.layers(es);
-	return lss;	
+	return theLsb.layers(es);
 }
 
 
