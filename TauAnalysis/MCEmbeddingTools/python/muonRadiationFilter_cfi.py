@@ -3,9 +3,13 @@
 import FWCore.ParameterSet.Config as cms
 import os
 
+particleFlowPtrsForMuonRadiationFilter = cms.EDProducer("PFCandidateFwdPtrProducer",
+    src = cms.InputTag('particleFlow', '', 'RECO')
+)
+
 import CommonTools.ParticleFlow.pfPileUp_cfi as config
 pfPileUpForMuonRadiationFilter = config.pfPileUp.clone(
-    PFCandidates = cms.InputTag('particleFlowPtrs')
+    PFCandidates = cms.InputTag('particleFlowPtrsForMuonRadiationFilter')
 )
 
 import CommonTools.ParticleFlow.TopProjectors.pfNoPileUp_cfi as config
@@ -38,7 +42,8 @@ muonRadiationFilter = cms.EDFilter("MuonRadiationFilter",
 )
 
 muonRadiationFilterSequence = cms.Sequence(
-    pfPileUpForMuonRadiationFilter
+   particleFlowPtrsForMuonRadiationFilter
+   * pfPileUpForMuonRadiationFilter
    * pfNoPileUpForMuonRadiationFilter
    * muonRadiationFilter
 )

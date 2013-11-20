@@ -486,14 +486,13 @@ def customise(process):
     process.genMuonRadiationFilter.invert = cms.bool(False)
     process.genMuonRadiationFilter.filter = cms.bool(False)
     process.reconstruction_step += process.genMuonRadiationFilter
-  process.load("TauAnalysis/MCEmbeddingTools/muonRadiationFilter_cfi")
-  process.muonRadiationFilter.srcSelectedMuons = process.customization_options.ZmumuCollection
   # CV: keep track of which events pass/fail muon -> muon + photon radiation filter,
   #     but do not actually reject any events
+  process.load("TauAnalysis/MCEmbeddingTools/muonRadiationFilter_cfi")
+  process.particleFlowPtrsForMuonRadiationFilter.src = cms.InputTag('particleFlow', '', inputProcess)
+  process.muonRadiationFilter.srcSelectedMuons = process.customization_options.ZmumuCollection
   process.muonRadiationFilter.invert = cms.bool(False)
   process.muonRadiationFilter.filter = cms.bool(False)  
-  # CV: add filter at the end of reconstruction path
-  #    (filter needs mixed 'pfPileUp' and 'pfNoPileUp' collections)
   process.reconstruction_step += process.muonRadiationFilterSequence
 
   # CV: disable ECAL/HCAL noise simulation
