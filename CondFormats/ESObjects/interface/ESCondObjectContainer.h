@@ -28,30 +28,14 @@ class ESCondObjectContainer {
                 
                 inline
                 void insert( std::pair<uint32_t, Item> const &a ) {
-                        DetId id(a.first);
-                        switch (id.subdetId()) {
-                                case EcalPreshower :
-                                        { 
-                                                es_.insert(a);
-                                        }
-                                        break;
-                                default:
-                                        // FIXME (add throw)
-                                        return;
+                        if (DetId(a.first).subdetId() == EcalPreshower) {
+				es_.insert(a);
                         }
                 }
                 
                 inline
                 const_iterator find( uint32_t rawId ) const {
-                        DetId id(rawId);
-			const_iterator it = es_.end();
-			if(id.subdetId()== EcalPreshower) {
-			  it = es_.find(rawId);
-			  if ( it != es_.end() ) {
-			    return it;
-			  }
-			} 
-			return it;
+			return es_.find(rawId);
                 }
 
                 inline
@@ -82,16 +66,12 @@ class ESCondObjectContainer {
 
                 inline
                 Item & operator[]( uint32_t rawId ) {
-                        if (DetId(rawId).subdetId() == EcalPreshower)
-				return es_[rawId];
-                        throw cms::Exception("TypeNotEcalPreshower");
+			return es_[rawId];
                 }
                 
                 inline
                 Item const & operator[]( uint32_t rawId ) const {
-                        if (DetId(rawId).subdetId() == EcalPreshower)
-				return es_[rawId];
-			throw cms::Exception("TypeNotEcalPreshower");
+			return es_[rawId];
                 }
                 
         private:
