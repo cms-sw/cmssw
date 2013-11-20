@@ -30,11 +30,7 @@
 /// vvv DEBUG
 // #include <iostream>
 
-//class MagneticField;
-#include "MagneticField/Engine/interface/MagneticField.h"
-
-
-
+class MagneticField;
 class TrajectoryStateOnSurface;
 
 

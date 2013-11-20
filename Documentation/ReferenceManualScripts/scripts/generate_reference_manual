@@ -5,8 +5,8 @@ cmsenv
 set CMSSW_BASE = `echo $CMSSW_BASE`
 set VER     = `echo $CMSSW_VERSION`
 set SOURCE  = $CMSSW_BASE/src
-set SCRIPTS = $CMSSW_BASE/src/Documentation/ReferenceManualScripts/doxygen/python
-set DATA    = $CMSSW_BASE/src/Documentation/ReferenceManualScripts/doxygen/data
+set SCRIPTS = $CMSSW_BASE/src/Documentation/ReferenceManualScripts/python
+set DATA    = $CMSSW_BASE/src/Documentation/ReferenceManualScripts/data
 set DOC     = $CMSSW_BASE/doc
 
 if (-e $DOC) then
