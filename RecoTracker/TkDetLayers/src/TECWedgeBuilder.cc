@@ -5,10 +5,10 @@
 using namespace edm;
 using namespace std;
 
-TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge,
+TECWedge* TECWedgeBuilder::build(GeometricDetPtr aTECWedge,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
-  vector<const GeometricDet*>  theGeometricDets = aTECWedge->components();
+  auto theGeometricDets = aTECWedge->components();
   //edm::LogInfo(TkDetLayers) << "theGeometricDets.size(): " << theGeometricDets.size() ;
 
   if(theGeometricDets.size() == 1 ) {
@@ -22,8 +22,8 @@ TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge,
 
   //---- to evaluate meanZ
   double meanZ = 0;
-  for(vector<const GeometricDet*>::const_iterator it=theGeometricDets.begin();
-      it!=theGeometricDets.end();it++){
+  for(auto it=theGeometricDets.cbegin();
+      it!=theGeometricDets.cend();it++){
     meanZ = meanZ + (*it)->positionBounds().z();
   }
 
@@ -31,8 +31,8 @@ TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge,
   //edm::LogInfo(TkDetLayers) << "meanZ: " << meanZ ;
   //----
 
-  for(vector<const GeometricDet*>::const_iterator it=theGeometricDets.begin();
-      it!=theGeometricDets.end();it++){
+  for(auto it=theGeometricDets.cbegin();
+      it!=theGeometricDets.cend();it++){
     //double theGeometricDetRposition = (*it)->positionBounds().perp();
     const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*it)->geographicalID() );
     //double theGeomDetRposition = theGeomDet->surface().position().perp();    

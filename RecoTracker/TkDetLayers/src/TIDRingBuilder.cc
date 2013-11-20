@@ -3,10 +3,10 @@
 using namespace edm;
 using namespace std;
 
-TIDRing* TIDRingBuilder::build(const GeometricDet* aTIDRing,
+TIDRing* TIDRingBuilder::build(GeometricDetPtr aTIDRing,
 			 const TrackerGeometry* theGeomDetGeometry)
 {
-  vector<const GeometricDet*>  theGeometricDets = aTIDRing->components();
+  auto theGeometricDets = aTIDRing->components();
   //edm::LogInfo(TkDetLayers) << "theGeometricDets.size(): " << theGeometricDets.size() ;
 
 
@@ -15,15 +15,15 @@ TIDRing* TIDRingBuilder::build(const GeometricDet* aTIDRing,
 
   //---- to evaluate meanZ
   double meanZ = 0;
-  for(vector<const GeometricDet*>::const_iterator it=theGeometricDets.begin();
-      it!=theGeometricDets.end();it++){
+  for(auto it=theGeometricDets.cbegin();
+      it!=theGeometricDets.cend();it++){
     meanZ = meanZ + (*it)->positionBounds().z();
   }
   meanZ = meanZ/theGeometricDets.size();
   //----
 
-  for(vector<const GeometricDet*>::const_iterator it=theGeometricDets.begin();
-      it!=theGeometricDets.end();it++){
+  for(auto it=theGeometricDets.cbegin();
+      it!=theGeometricDets.cend();it++){
 
     const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*it)->geographicalID() );
 

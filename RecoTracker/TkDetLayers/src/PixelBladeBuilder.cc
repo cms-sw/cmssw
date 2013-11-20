@@ -7,23 +7,23 @@
 using namespace edm;
 using namespace std;
                                      
-PixelBlade* PixelBladeBuilder:: build(const GeometricDet* geometricDetFrontPanel,
-				      const GeometricDet* geometricDetBackPanel,
+PixelBlade* PixelBladeBuilder:: build(GeometricDetPtr geometricDetFrontPanel,
+				      GeometricDetPtr geometricDetBackPanel,
 				      const TrackerGeometry* theGeomDetGeometry)
 {
-  vector<const GeometricDet*> frontGeometricDets = geometricDetFrontPanel->components();  
-  vector<const GeometricDet*> backGeometricDets  = geometricDetBackPanel->components();  
+  auto frontGeometricDets = geometricDetFrontPanel->components();  
+  auto backGeometricDets  = geometricDetBackPanel->components();  
 
   vector<const GeomDet*> theFrontGeomDets;
   vector<const GeomDet*> theBackGeomDets;
 
-  for(vector<const GeometricDet*>::iterator it=frontGeometricDets.begin();
+  for(auto it=frontGeometricDets.begin();
       it!=frontGeometricDets.end();it++){
     const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*it)->geographicalID() );
     theFrontGeomDets.push_back(theGeomDet);
   }
 
-  for(vector<const GeometricDet*>::iterator it=backGeometricDets.begin();
+  for(auto it=backGeometricDets.begin();
       it!=backGeometricDets.end();it++){
     const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*it)->geographicalID() );
     theBackGeomDets.push_back(theGeomDet);

@@ -19,7 +19,7 @@
 using namespace std;
 
 GeometricSearchTracker*
-GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
+GeometricSearchTrackerBuilder::build(GeometricDetPtr theGeometricTracker,
 				     const TrackerGeometry* theGeomDetGeometry)
 {
   PixelBarrelLayerBuilder aPixelBarrelLayerBuilder;
@@ -96,39 +96,39 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 
 
   // current code
-  vector<const GeometricDet*> theGeometricDetLayers = theGeometricTracker->components();
-  for(vector<const GeometricDet*>::const_iterator it=theGeometricDetLayers.begin();
-      it!=theGeometricDetLayers.end(); it++){
+  auto theGeometricDetLayers = theGeometricTracker->components();
+  for(auto it=theGeometricDetLayers.cbegin();
+      it!=theGeometricDetLayers.cend(); it++){
 
     if( (*it)->type() == GeometricDet::PixelBarrel) {
-      vector<const GeometricDet*> thePxlBarGeometricDetLayers = (*it)->components();
-      for(vector<const GeometricDet*>::const_iterator it2=thePxlBarGeometricDetLayers.begin();
-	  it2!=thePxlBarGeometricDetLayers.end(); it2++){
+      auto thePxlBarGeometricDetLayers = (*it)->components();
+      for(auto it2=thePxlBarGeometricDetLayers.cbegin();
+	  it2!=thePxlBarGeometricDetLayers.cend(); it2++){
 	thePxlBarLayers.push_back( aPixelBarrelLayerBuilder.build(*it2,theGeomDetGeometry) );
       }
     }
     
     if( (*it)->type() == GeometricDet::TIB) {
-      vector<const GeometricDet*> theTIBGeometricDetLayers = (*it)->components();
-      for(vector<const GeometricDet*>::const_iterator it2=theTIBGeometricDetLayers.begin();
-	  it2!=theTIBGeometricDetLayers.end(); it2++){
+      auto theTIBGeometricDetLayers = (*it)->components();
+      for(auto it2=theTIBGeometricDetLayers.cbegin();
+	  it2!=theTIBGeometricDetLayers.cend(); it2++){
 	theTIBLayers.push_back( aTIBLayerBuilder.build(*it2,theGeomDetGeometry) );
       }
     }
 
     if( (*it)->type() == GeometricDet::TOB) {
-      vector<const GeometricDet*> theTOBGeometricDetLayers = (*it)->components();
-      for(vector<const GeometricDet*>::const_iterator it2=theTOBGeometricDetLayers.begin();	  
-      it2!=theTOBGeometricDetLayers.end(); it2++){
+      auto theTOBGeometricDetLayers = (*it)->components();
+      for(auto it2=theTOBGeometricDetLayers.cbegin();	  
+      it2!=theTOBGeometricDetLayers.cend(); it2++){
 	theTOBLayers.push_back( aTOBLayerBuilder.build(*it2,theGeomDetGeometry) );
       }
     }
 
     
     if( (*it)->type() == GeometricDet::PixelEndCap || (*it)->type() == GeometricDet::PixelEndCapPhase1 ){
-      vector<const GeometricDet*> thePxlFwdGeometricDetLayers = (*it)->components();
-      for(vector<const GeometricDet*>::const_iterator it2=thePxlFwdGeometricDetLayers.begin();
-	  it2!=thePxlFwdGeometricDetLayers.end(); it2++){
+      auto thePxlFwdGeometricDetLayers = (*it)->components();
+      for(auto it2=thePxlFwdGeometricDetLayers.cbegin();
+	  it2!=thePxlFwdGeometricDetLayers.cend(); it2++){
 	if((*it2)->positionBounds().z() < 0)
 	  theNegPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
 	if((*it2)->positionBounds().z() > 0)
@@ -139,9 +139,9 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 
 
     if( (*it)->type() == GeometricDet::TID){
-      vector<const GeometricDet*> theTIDGeometricDetLayers = (*it)->components();
-      for(vector<const GeometricDet*>::const_iterator it2=theTIDGeometricDetLayers.begin();
-      it2!=theTIDGeometricDetLayers.end(); it2++){
+      auto theTIDGeometricDetLayers = (*it)->components();
+      for(auto it2=theTIDGeometricDetLayers.cbegin();
+      it2!=theTIDGeometricDetLayers.cend(); it2++){
 	if((*it2)->positionBounds().z() < 0)
 	  theNegTIDLayers.push_back( aTIDLayerBuilder.build(*it2,theGeomDetGeometry) );
 	if((*it2)->positionBounds().z() > 0)
@@ -150,9 +150,9 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
     }
 
     if( (*it)->type() == GeometricDet::TEC) {
-      vector<const GeometricDet*> theTECGeometricDetLayers = (*it)->components();
-      for(vector<const GeometricDet*>::const_iterator it2=theTECGeometricDetLayers.begin();
-      it2!=theTECGeometricDetLayers.end(); it2++){
+      auto theTECGeometricDetLayers = (*it)->components();
+      for(auto it2=theTECGeometricDetLayers.cbegin();
+      it2!=theTECGeometricDetLayers.cend(); it2++){
 	if((*it2)->positionBounds().z() < 0)
 	  theNegTECLayers.push_back( aTECLayerBuilder.build(*it2,theGeomDetGeometry) );
 	if((*it2)->positionBounds().z() > 0)

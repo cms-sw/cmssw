@@ -7,13 +7,13 @@
 using namespace edm;
 using namespace std;
 
-TIBLayer* TIBLayerBuilder::build(const GeometricDet* aTIBLayer,
+TIBLayer* TIBLayerBuilder::build(GeometricDetPtr aTIBLayer,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
-  vector<const GeometricDet*> theGeometricRods = aTIBLayer->components();
+  auto theGeometricRods = aTIBLayer->components();
   
-  vector<vector<const GeometricDet*> > innerGeometricDetRings; 
-  vector<vector<const GeometricDet*> > outerGeometricDetRings;
+  vector<vector<GeometricDetPtr> > innerGeometricDetRings; 
+  vector<vector<GeometricDetPtr> > outerGeometricDetRings;
   
   constructRings(theGeometricRods,innerGeometricDetRings,outerGeometricDetRings);
 
@@ -34,22 +34,22 @@ TIBLayer* TIBLayerBuilder::build(const GeometricDet* aTIBLayer,
 
 
 void 
-TIBLayerBuilder::constructRings(vector<const GeometricDet*>& theGeometricRods,
-				vector<vector<const GeometricDet*> >& innerGeometricDetRings,
-				vector<vector<const GeometricDet*> >& outerGeometricDetRings)
+TIBLayerBuilder::constructRings(vector<GeometricDetPtr>& theGeometricRods,
+				vector<vector<GeometricDetPtr> >& innerGeometricDetRings,
+				vector<vector<GeometricDetPtr> >& outerGeometricDetRings)
 {
   double meanPerp=0;
-  for(vector<const GeometricDet*>::const_iterator it=theGeometricRods.begin(); 
-      it!= theGeometricRods.end();it++){
+  for(auto it=theGeometricRods.cbegin(); 
+      it!= theGeometricRods.cend();it++){
     meanPerp = meanPerp + (*it)->positionBounds().perp();
   }
   meanPerp = meanPerp/theGeometricRods.size();
   
-  vector<const GeometricDet*> theInnerGeometricRods;
-  vector<const GeometricDet*> theOuterGeometricRods;
+  vector<GeometricDetPtr> theInnerGeometricRods;
+  vector<GeometricDetPtr> theOuterGeometricRods;
 
-  for(vector<const GeometricDet*>::const_iterator it=theGeometricRods.begin(); 
-      it!= theGeometricRods.end();it++){
+  for(auto it=theGeometricRods.cbegin(); 
+      it!= theGeometricRods.cend();it++){
     if( (*it)->positionBounds().perp() < meanPerp) theInnerGeometricRods.push_back(*it);
     if( (*it)->positionBounds().perp() > meanPerp) theOuterGeometricRods.push_back(*it);
   }
@@ -59,16 +59,16 @@ TIBLayerBuilder::constructRings(vector<const GeometricDet*>& theGeometricRods,
   size_t outerLeftRodMaxSize  = 0;
   size_t outerRightRodMaxSize = 0;
 
-  for(vector<const GeometricDet*>::const_iterator it=theInnerGeometricRods.begin(); 
-      it!= theInnerGeometricRods.end();it++){
+  for(auto it=theInnerGeometricRods.cbegin(); 
+      it!= theInnerGeometricRods.cend();it++){
     if( (*it)->positionBounds().z() < 0) 
       innerLeftRodMaxSize  = max(innerLeftRodMaxSize,  (**it).components().size());
     if( (*it)->positionBounds().z() > 0) 
       innerRightRodMaxSize = max(innerRightRodMaxSize, (**it).components().size());
   }
 
-  for(vector<const GeometricDet*>::const_iterator it=theOuterGeometricRods.begin(); 
-      it!= theOuterGeometricRods.end();it++){
+  for(auto it=theOuterGeometricRods.cbegin(); 
+      it!= theOuterGeometricRods.cend();it++){
     if( (*it)->positionBounds().z() < 0) 
       outerLeftRodMaxSize  = max(outerLeftRodMaxSize,  (**it).components().size());
     if( (*it)->positionBounds().z() > 0) 
@@ -82,16 +82,16 @@ TIBLayerBuilder::constructRings(vector<const GeometricDet*>& theGeometricRods,
   LogDebug("TkDetLayers") << "outerRightRodMaxSize: " << outerRightRodMaxSize ;
 
   for(unsigned int i=0;i< (innerLeftRodMaxSize+innerRightRodMaxSize);i++){
-    innerGeometricDetRings.push_back(vector<const GeometricDet*>());
+    innerGeometricDetRings.push_back(vector<GeometricDetPtr>());
   }
 
   for(unsigned int i=0;i< (outerLeftRodMaxSize+outerRightRodMaxSize);i++){
-    outerGeometricDetRings.push_back(vector<const GeometricDet*>());
+    outerGeometricDetRings.push_back(vector<GeometricDetPtr>());
   }
   
   for(unsigned int ringN = 0; ringN < innerLeftRodMaxSize; ringN++){
-    for(vector<const GeometricDet*>::const_iterator it=theInnerGeometricRods.begin(); 
-	it!= theInnerGeometricRods.end();it++){
+    for(auto it=theInnerGeometricRods.cbegin(); 
+	it!= theInnerGeometricRods.cend();it++){
       if( (*it)->positionBounds().z() < 0){
 	if( (**it).components().size()>ringN)
 	  innerGeometricDetRings[ringN].push_back( (**it).components()[ringN] );
@@ -100,8 +100,8 @@ TIBLayerBuilder::constructRings(vector<const GeometricDet*>& theGeometricRods,
   }
   
   for(unsigned int ringN = 0; ringN < innerRightRodMaxSize; ringN++){
-    for(vector<const GeometricDet*>::const_iterator it=theInnerGeometricRods.begin(); 
-	it!= theInnerGeometricRods.end();it++){
+    for(auto it=theInnerGeometricRods.cbegin(); 
+	it!= theInnerGeometricRods.cend();it++){
       if( (*it)->positionBounds().z() > 0){
 	if( (**it).components().size()>ringN)
 	  innerGeometricDetRings[innerLeftRodMaxSize+ringN].push_back( (**it).components()[ringN] );
@@ -111,8 +111,8 @@ TIBLayerBuilder::constructRings(vector<const GeometricDet*>& theGeometricRods,
 
 
   for(unsigned int ringN = 0; ringN < outerLeftRodMaxSize; ringN++){
-    for(vector<const GeometricDet*>::const_iterator it=theOuterGeometricRods.begin(); 
-	it!= theOuterGeometricRods.end();it++){
+    for(auto it=theOuterGeometricRods.cbegin(); 
+	it!= theOuterGeometricRods.cend();it++){
       if( (*it)->positionBounds().z() < 0){
 	if( (**it).components().size()>ringN)
 	  outerGeometricDetRings[ringN].push_back( (**it).components()[ringN] );
@@ -121,8 +121,8 @@ TIBLayerBuilder::constructRings(vector<const GeometricDet*>& theGeometricRods,
   }
   
   for(unsigned int ringN = 0; ringN < outerRightRodMaxSize; ringN++){
-    for(vector<const GeometricDet*>::const_iterator it=theOuterGeometricRods.begin(); 
-	it!= theOuterGeometricRods.end();it++){
+    for(auto it=theOuterGeometricRods.cbegin(); 
+	it!= theOuterGeometricRods.cend();it++){
       if( (*it)->positionBounds().z() > 0){
 	if( (**it).components().size()>ringN)
 	  outerGeometricDetRings[outerLeftRodMaxSize+ringN].push_back( (**it).components()[ringN] );
