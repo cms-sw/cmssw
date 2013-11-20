@@ -41,16 +41,17 @@ void ThirdHitPredictionFromInvParabola:: init(Scalar x1,Scalar y1, Scalar x2,Sca
   dv = p2.y() - p1.y();
   su = p2.x() + p1.x();
 
+  ip = std::abs(ip);
   RangeD ipRange(-ip, ip); 
-  ipRange.sort();
+
   
   Scalar ipIntyPlus = ipFromCurvature(0.,true);
   Scalar ipCurvPlus = ipFromCurvature(curv, true);
   Scalar ipCurvMinus = ipFromCurvature(curv, false);
 
   
-  RangeD ipRangePlus(ipIntyPlus, ipCurvPlus); ipRangePlus.sort();
-  RangeD ipRangeMinus(-ipIntyPlus, ipCurvMinus); ipRangeMinus.sort();
+  RangeD ipRangePlus(std::min(ipIntyPlus, ipCurvPlus),std::max(ipIntyPlus, ipCurvPlus)); 
+  RangeD ipRangeMinus(std::min(-ipIntyPlus, ipCurvMinus),std::max(-ipIntyPlus, ipCurvMinus));
 
   theIpRangePlus  = ipRangePlus.intersection(ipRange);
   theIpRangeMinus = ipRangeMinus.intersection(ipRange);
@@ -155,8 +156,7 @@ ThirdHitPredictionFromInvParabola::rangeRPhi(Scalar radius) const
       return r1.intersection(r2);
     }
     
-    if (phi2<phi1) std::swap(phi1, phi2); 
-    return RangeD(radius*phi1-theTolerance, radius*phi2+theTolerance);
+    return RangeD(radius*std::min(phi1,phi2)-theTolerance, radius*std::max(phi1,phi2)+theTolerance);
   };
 
 
