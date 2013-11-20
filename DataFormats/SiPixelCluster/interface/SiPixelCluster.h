@@ -62,7 +62,7 @@ public:
     constexpr PixelPos(int row, int col) : row_(row) , col_(col) {}
     constexpr int row() const { return row_;}
     constexpr int col() const { return col_;}
-    constexpr PixelPos operator+( const Shift& shift) {
+    constexpr PixelPos operator+( const Shift& shift) const {
       return PixelPos( row() + shift.dx(), col() + shift.dy());
     }
   private:
