@@ -4,10 +4,10 @@
 using namespace edm;
 using namespace std;
 
-TECLayer* TECLayerBuilder::build(const GeometricDet* aTECLayer,
+TECLayer* TECLayerBuilder::build(GeometricDetPtr aTECLayer,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
-  vector<const GeometricDet*>  theGeometricDetPetals = aTECLayer->components();
+  auto theGeometricDetPetals = aTECLayer->components();
   vector<const TECPetal*> theInnerPetals;
   vector<const TECPetal*> theOuterPetals;
 
@@ -19,8 +19,8 @@ TECLayer* TECLayerBuilder::build(const GeometricDet* aTECLayer,
   TECPetalBuilder myPetalBuilder;
 
 
-  for(vector<const GeometricDet*>::const_iterator it=theGeometricDetPetals.begin();
-      it!=theGeometricDetPetals.end();it++){
+  for(auto it=theGeometricDetPetals.cbegin();
+      it!=theGeometricDetPetals.cend();it++){
 
     if( fabs((*it)->positionBounds().z()) < fabs(meanZ) ) 
       theInnerPetals.push_back(myPetalBuilder.build(*it,theGeomDetGeometry));

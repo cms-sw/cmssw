@@ -15,8 +15,8 @@
 class PixelBladeBuilder {  
  public:
   PixelBladeBuilder(){};
-  PixelBlade* build(const GeometricDet* geometricDetFrontPanel,
-		    const GeometricDet* geometricDetBackPanel,
+  PixelBlade* build(GeometricDetPtr geometricDetFrontPanel,
+		    GeometricDetPtr geometricDetBackPanel,
 		    const TrackerGeometry* theGeomDetGeometry);
   
 };

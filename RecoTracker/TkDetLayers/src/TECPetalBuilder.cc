@@ -5,10 +5,10 @@
 using namespace edm;
 using namespace std;
 
-TECPetal* TECPetalBuilder::build(const GeometricDet* aTECPetal,
+TECPetal* TECPetalBuilder::build(GeometricDetPtr aTECPetal,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
-  vector<const GeometricDet*>  theGeometricWedges = aTECPetal->components();
+  auto theGeometricWedges = aTECPetal->components();
   //edm::LogInfo(TkDetLayers) << "theGeometricWedges.size(): " << theGeometricWedges.size() ;
   
   vector<const TECWedge*> theInnerWedges;
@@ -20,8 +20,8 @@ TECPetal* TECPetalBuilder::build(const GeometricDet* aTECPetal,
   TECWedgeBuilder myWedgeBuilder;
    
 
-  for(vector<const GeometricDet*>::const_iterator it=theGeometricWedges.begin();
-      it!=theGeometricWedges.end();it++){
+  for(auto it=theGeometricWedges.cbegin();
+      it!=theGeometricWedges.cend();it++){
     if( fabs((*it)->positionBounds().z()) < fabs(meanZ) ) 
       theInnerWedges.push_back(myWedgeBuilder.build(*it,theGeomDetGeometry));
     

@@ -7,15 +7,15 @@
 using namespace edm;
 using namespace std;
 
-TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
+TOBLayer* TOBLayerBuilder::build(GeometricDetPtr aTOBLayer,
 				 const TrackerGeometry* theGeomDetGeometry){
 
-  vector<const GeometricDet*>  theGeometricDetRods = aTOBLayer->components();
-  vector<const GeometricDet*> negativeZrods;
-  vector<const GeometricDet*> positiveZrods;
+  auto theGeometricDetRods = aTOBLayer->components();
+  vector<GeometricDetPtr> negativeZrods;
+  vector<GeometricDetPtr> positiveZrods;
 
-  for(vector<const GeometricDet*>::const_iterator it=theGeometricDetRods.begin();
-      it!=theGeometricDetRods.end(); it++){
+  for(auto it=theGeometricDetRods.cbegin();
+      it!=theGeometricDetRods.cend(); it++){
     if( (*it)->positionBounds().z() < 0) negativeZrods.push_back(*it);
     if( (*it)->positionBounds().z() >= 0) positiveZrods.push_back(*it);
   }
@@ -67,11 +67,11 @@ TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
     if(positiveZrods.size()>0){
       for(unsigned int index=0; index!=positiveZrods.size(); index++){
 	if(positiveZrods[index]->positionBounds().perp() < positiveMeanR)
-	  theInnerRods.push_back(myTOBRodBuilder.build(0,
+	  theInnerRods.push_back(myTOBRodBuilder.build(GeometricDetPtr(),
 						       positiveZrods[index],
 						       theGeomDetGeometry)    );       
 	if(positiveZrods[index]->positionBounds().perp() >= positiveMeanR)
-	  theOuterRods.push_back(myTOBRodBuilder.build(0,
+	  theOuterRods.push_back(myTOBRodBuilder.build(GeometricDetPtr(),
 						       positiveZrods[index],
 						       theGeomDetGeometry)    );       
       }
@@ -80,11 +80,11 @@ TOBLayer* TOBLayerBuilder::build(const GeometricDet* aTOBLayer,
       for(unsigned int index=0; index!=negativeZrods.size(); index++){
 	if(negativeZrods[index]->positionBounds().perp() < negativeMeanR)
 	  theInnerRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
-						       0,
+						       GeometricDetPtr(),
 						       theGeomDetGeometry)    );       
 	if(negativeZrods[index]->positionBounds().perp() >= negativeMeanR)
 	  theOuterRods.push_back(myTOBRodBuilder.build(negativeZrods[index],
-						       0,
+						       GeometricDetPtr(),
 						       theGeomDetGeometry)    );
       }
     }
