@@ -291,7 +291,7 @@ namespace evf {
     fcntl(bu_writelock_fd_, F_SETLKW, &bu_w_fulk);
   }
 
-  bool EvFDaqDirector::updateFuLock(unsigned int& ls, unsigned int& index,
+  bool EvFDaqDirector::updateFuLock(unsigned int& ls, std::string& nextFile,
 				    bool& eorSeen) {
     // close and reopen the stream / fd
     close(fu_readwritelock_fd_);
@@ -333,12 +333,11 @@ namespace evf {
 	  fscanf(fu_rw_lock_stream, "%u %u", &readLs, &readIndex);
 
 	// try to bump
-	bool bumpedOk = bumpFile(readLs, readIndex);
+	bool bumpedOk = bumpFile(readLs, readIndex, nextFile);
 
 	ls = readLs;
 	// there is a new file to grab or lumisection ended
 	if (bumpedOk) {
-	  index = readIndex;
 	  // rewind and clear
 	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
 	  if (check == 0) {
@@ -477,7 +476,7 @@ namespace evf {
 
   }
 
-  bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index) {
+  bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile) {
 
     if (previousFileSize_ != 0) {
       FastMonitoringService *mss = (FastMonitoringService *) (edm::Service<
@@ -492,8 +491,8 @@ namespace evf {
     nextIndex++;
 
     // 1. Check suggested file
-
-    bool found = (stat(formatRawFilePath(ls,index).c_str(), &buf) == 0);
+    nextFile = formatRawFilePath(ls,index);
+    bool found = (stat(nextFile.c_str(), &buf) == 0);
     // if found
     if (found) {
       //grabbedFileSize = buf.st_size;
@@ -507,7 +506,8 @@ namespace evf {
       while (eolFound) {
 	// this lumi ended, check for files
 	++ls;
-	found = (stat(formatRawFilePath(ls,0).c_str(), &buf) == 0);
+	nextFile = formatRawFilePath(ls,0);
+	found = (stat(nextFile.c_str(), &buf) == 0);
 	// update highest ls even if there is no file
 	// input source can now end its' LS when an EoL jsn file is seen
 	if (found) {
@@ -596,7 +596,7 @@ namespace evf {
     fclose(data_rw_stream);
   }
 
-  std::string EvFDaqDirector::formatRawFilePath(unsigned int ls, unsigned int index) {
+  std::string EvFDaqDirector::formatRawFilePath(unsigned int ls, unsigned int index) const {
     std::stringstream ss;
     ss << bu_run_dir_ << "/run" << std::setfill('0') << std::setw(6) << run_ 
        << "_ls" << std::setfill('0') << std::setw(4) << ls
@@ -604,7 +604,7 @@ namespace evf {
        << ".raw";
     return ss.str();
   }
-  std::string EvFDaqDirector::formatOpenRawFilePath(unsigned int ls, unsigned int index) {
+  std::string EvFDaqDirector::formatOpenRawFilePath(unsigned int ls, unsigned int index) const {
     std::stringstream ss;
     ss << bu_run_dir_ << "/open/run" << std::setfill('0') << std::setw(6) << run_ 
        << "_ls" << std::setfill('0') << std::setw(4) << ls
@@ -612,14 +612,14 @@ namespace evf {
        << ".raw";
     return ss.str();
   }
-  std::string EvFDaqDirector::formatMergeFilePath(unsigned int ls, std::string &stream) {
+  std::string EvFDaqDirector::formatMergeFilePath(unsigned int ls, std::string &stream) const {
     std::stringstream ss;
     ss << run_dir_ << "/run" << std::setfill('0') << std::setw(6) << run_ 
        << "_ls" << std::setfill('0') << std::setw(4) << ls
        << "_" << stream << "_"<< hostname_ << ".dat";
     return ss.str();
   }
-  std::string EvFDaqDirector::formatEndOfLS(unsigned int ls) {
+  std::string EvFDaqDirector::formatEndOfLS(unsigned int ls) const {
     std::stringstream ss;
     ss << bu_run_dir_ << "/EoLS_" << std::setfill('0') << std::setw(4)
        << ls << ".jsn";

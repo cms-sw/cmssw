@@ -25,6 +25,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 
 #include <vector>
 #include <string>
@@ -37,19 +38,19 @@ class L1MuDTChambPhDigi;
 
 
 class DTLocalTriggerLutTask: public edm::EDAnalyzer{
-  
+
   friend class DTMonitorModule;
-  
+
  public:
-  
+
   /// Constructor
   DTLocalTriggerLutTask(const edm::ParameterSet& ps );
-  
+
   /// Destructor
   virtual ~DTLocalTriggerLutTask();
-  
+
  protected:
-  
+
   // BeginJob
   void beginJob();
 
@@ -58,17 +59,17 @@ class DTLocalTriggerLutTask: public edm::EDAnalyzer{
 
   /// Find best (highest qual) DCC trigger segments
   void searchDccBest(std::vector<L1MuDTChambPhDigi> const* trigs);
-  
+
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   /// To reset the MEs
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
-  
-  /// EndJob
-  void endJob(void);  
 
- private:  
+  /// EndJob
+  void endJob(void);
+
+ private:
 
   /// Get the top folder
   std::string& topFolder() { return  baseFolder; }
@@ -82,14 +83,14 @@ class DTLocalTriggerLutTask: public edm::EDAnalyzer{
   int nLumis;
   int nPhiBins, nPhibBins;
   double rangePhi, rangePhiB;
-  
+
   std::string baseFolder;
   bool detailedAnalysis;
   bool overUnderIn;
 
-  edm::InputTag dccInputTag;
-  edm::InputTag segInputTag;
- 
+  edm::EDGetTokenT<L1MuDTChambPhContainer> dcc_Token_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
+
   int trigQualBest[6][5][13];
   const L1MuDTChambPhDigi* trigBest[6][5][13];
   bool track_ok[6][5][15]; // CB controlla se serve
@@ -106,3 +107,8 @@ class DTLocalTriggerLutTask: public edm::EDAnalyzer{
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

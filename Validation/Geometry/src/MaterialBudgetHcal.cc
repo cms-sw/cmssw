@@ -17,6 +17,8 @@
 
 #include <iostream>
 
+using namespace CLHEP;
+
 MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p): 
   theHistoHcal(0), theHistoCastor(0) {
   

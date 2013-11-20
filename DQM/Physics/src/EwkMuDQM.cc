@@ -18,7 +18,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h" 
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
@@ -27,34 +27,50 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "DataFormats/Common/interface/View.h"
- 
+
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
- 
+
 using namespace edm;
 using namespace std;
 using namespace reco;
 
 EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
       // Input collections
-      trigTag_      (cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
-      muonTag_      (cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
       metTag_       (cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("pfmet"))),
       jetTag_       (cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("ak5PFJets"))),
-      phoTag_       (cfg.getUntrackedParameter<edm::InputTag> ("phoTag", edm::InputTag("photons"))),
-      pfPhoTag_     (cfg.getUntrackedParameter<edm::InputTag> ("pfPhoTag", edm::InputTag("pfPhotonTranslator","pfPhot"))),
-      vertexTag_    (cfg.getUntrackedParameter<edm::InputTag> ("VertexTag", edm::InputTag("offlinePrimaryVertices"))),
-      trigPathNames_(cfg.getUntrackedParameter<std::vector <std::string> >("TrigPathNames")),           
+      trigTag_      (consumes<edm::TriggerResults> (
+		       cfg.getUntrackedParameter<edm::InputTag> ("TrigTag",
+								 edm::InputTag("TriggerResults::HLT")))),
+      muonTag_      (consumes<edm::View<reco::Muon> > (
+		       cfg.getUntrackedParameter<edm::InputTag> ("MuonTag",
+								 edm::InputTag("muons")))),
+      metToken_     (consumes<edm::View<reco::MET> > (
+		       cfg.getUntrackedParameter<edm::InputTag> ("METTag",
+								 edm::InputTag("pfmet")))),
+      jetToken_       (consumes<edm::View<reco::Jet> > (
+			 cfg.getUntrackedParameter<edm::InputTag> ("JetTag",
+								   edm::InputTag("ak5PFJets")))),
+      phoTag_       (consumes<edm::View<reco::Photon> > (
+		       cfg.getUntrackedParameter<edm::InputTag> ("phoTag",
+								 edm::InputTag("photons")))),
+      vertexTag_    (consumes<edm::View<reco::Vertex> > (
+		       cfg.getUntrackedParameter<edm::InputTag> ("VertexTag",
+								 edm::InputTag("offlinePrimaryVertices")))),
+      beamSpotTag_  (consumes<reco::BeamSpot> (
+		       cfg.getUntrackedParameter<edm::InputTag> ("beamSpotTag",
+								 edm::InputTag("offlineBeamSpot")))),
+      trigPathNames_(cfg.getUntrackedParameter<std::vector <std::string> >("TrigPathNames")),
 
       // Muon quality cuts
-      isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true)),  // Glb muon also tracker muon 
-      dxyCut_           (cfg.getUntrackedParameter<double>("DxyCut", 0.2)),            // dxy < 0.2 cm 
+      isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true)),  // Glb muon also tracker muon
+      dxyCut_           (cfg.getUntrackedParameter<double>("DxyCut", 0.2)),            // dxy < 0.2 cm
       normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)), // chi2/ndof (of global fit) <10.0
-      trackerHitsCut_   (cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),        // Tracker Hits >10 
+      trackerHitsCut_   (cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),        // Tracker Hits >10
       pixelHitsCut_     (cfg.getUntrackedParameter<int>("PixelHitsCut", 1)),           // Pixel Hits >0
-      muonHitsCut_      (cfg.getUntrackedParameter<int>("MuonHitsCut", 1)),            // Valid Muon Hits >0 
-      nMatchesCut_      (cfg.getUntrackedParameter<int>("NMatchesCut", 2)),            // At least 2 Chambers with matches 
+      muonHitsCut_      (cfg.getUntrackedParameter<int>("MuonHitsCut", 1)),            // Valid Muon Hits >0
+      nMatchesCut_      (cfg.getUntrackedParameter<int>("NMatchesCut", 2)),            // At least 2 Chambers with matches
 
-      // W-boson cuts 
+      // W-boson cuts
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
       isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", false)),
       isoCut03_     (cfg.getUntrackedParameter<double>("IsoCut03", 0.1)),
@@ -72,15 +88,15 @@ EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
 
       // Z selection
       dimuonMassMin_(cfg.getUntrackedParameter<double>("dimuonMassMin", 80.)),
-      dimuonMassMax_(cfg.getUntrackedParameter<double>("dimuonMassMax", 120.)), 
+      dimuonMassMax_(cfg.getUntrackedParameter<double>("dimuonMassMax", 120.)),
 
       // Top rejection
       eJetMin_     (cfg.getUntrackedParameter<double>("EJetMin", 999999.)),
-      nJetMax_     (cfg.getUntrackedParameter<int>("NJetMax", 999999)), 
+      nJetMax_     (cfg.getUntrackedParameter<int>("NJetMax", 999999)),
 
-      // Photon cuts 
+      // Photon cuts
       ptThrForPhoton_(cfg.getUntrackedParameter<double>("ptThrForPhoton",5.)),
-      nPhoMax_(cfg.getUntrackedParameter<int>("nPhoMax", 999999)) 
+      nPhoMax_(cfg.getUntrackedParameter<int>("nPhoMax", 999999))
 {
   isValidHltConfig_ = false;
 
@@ -95,9 +111,9 @@ void EwkMuDQM::beginRun(const Run& iRun, const EventSetup& iSet) {
       nsel = 0;
       nz   = 0;
 
-      nrec = 0; 
-      niso = 0; 
-      nhlt = 0; 
+      nrec = 0;
+      niso = 0;
+      nhlt = 0;
       nmet = 0;
 
      // passed as parameter to HLTConfigProvider::init(), not yet used
@@ -219,7 +235,7 @@ void EwkMuDQM::init_histograms() {
   eta2_afterZ_ = theDbe->book1D("ETA2_AFTERZCUTS","Muon pseudo-rapidity",50,-2.5,2.5);
   dxy2_afterZ_ = theDbe->book1D("DXY2_AFTERZCUTS","Muon transverse distance to beam spot [cm]",1000,-0.5,0.5);
   goodewkmuon2_afterZ_ = theDbe->book1D("GOODEWKMUON2_AFTERZCUTS","Quality-muon flag",2,-0.5,1.5);
-  ztrig_afterZ_ = theDbe->book1D("ZTRIG_AFTERZCUTS","Trigger response (boolean of muon triggers)",2,-0.5,1.5); 
+  ztrig_afterZ_ = theDbe->book1D("ZTRIG_AFTERZCUTS","Trigger response (boolean of muon triggers)",2,-0.5,1.5);
   dimuonmass_before_= theDbe->book1D("DIMUONMASS_BEFORECUTS","DiMuonMass (2 globals)",100,0,200);
   dimuonmass_afterZ_= theDbe->book1D("DIMUONMASS_AFTERZCUTS","DiMuonMass (2 globals)",100,0,200);
   npvs_before_ = theDbe->book1D("NPVs_BEFORECUTS","Number of Valid Primary Vertices",51,-0.5,50.5);
@@ -229,17 +245,17 @@ void EwkMuDQM::init_histograms() {
   muoncharge_after_ = theDbe->book1D("MUONCHARGE_AFTERWCUTS","Muon Charge",3,-1.5,1.5);
   muoncharge_afterZ_ = theDbe->book1D("MUONCHARGE_AFTERZCUTS","Muon Charge",3,-1.5,1.5);
 
-  // Adding these to replace the NZ ones (more useful, since they are more general?)     
+  // Adding these to replace the NZ ones (more useful, since they are more general?)
   nmuons_ = theDbe->book1D("NMuons","Number of muons in the event",10,-0.5,9.5);
   ngoodmuons_ = theDbe->book1D("NGoodMuons","Number of muons passing the quality criteria",10,-0.5,9.5);
 
-  nph_ = theDbe->book1D("nph","Number of photons in the event",20,0.,20.); 
-  //npfph_ = theDbe->book1D("npfph","Number of PF photons in the event",20,0.,20.); 
+  nph_ = theDbe->book1D("nph","Number of photons in the event",20,0.,20.);
+  //npfph_ = theDbe->book1D("npfph","Number of PF photons in the event",20,0.,20.);
   phPt_ = theDbe->book1D("phPt","Photon transverse momentum [GeV]",1000,0.,1000.);
-  //pfphPt_ = theDbe->book1D("pfphPt","PF Photon transverse momentum [GeV]",1000,0.,1000.); 
+  //pfphPt_ = theDbe->book1D("pfphPt","PF Photon transverse momentum [GeV]",1000,0.,1000.);
   snprintf(chtitle, 255, "Photon pseudorapidity (pT>%4.1f)",ptThrForPhoton_);
-  phEta_ = theDbe->book1D("phEta",chtitle,100,-2.5,2.5); 
-  //pfphEta_ = theDbe->book1D("pfphEta","PF Photon pseudorapidity",100,-2.5,2.5); 
+  phEta_ = theDbe->book1D("phEta",chtitle,100,-2.5,2.5);
+  //pfphEta_ = theDbe->book1D("pfphEta","PF Photon pseudorapidity",100,-2.5,2.5);
 
 }
 
@@ -252,10 +268,10 @@ void EwkMuDQM::endRun(const Run& r, const EventSetup& iSet) {
 }
 
 void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
-      
+
       // Muon collection
       Handle<View<Muon> > muonCollection;
-      if (!ev.getByLabel(muonTag_, muonCollection)) {
+      if (!ev.getByToken(muonTag_, muonCollection)) {
 	//LogWarning("") << ">>> Muon collection does not exist !!!";
 	return;
       }
@@ -263,7 +279,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
       // Beam spot
       Handle<reco::BeamSpot> beamSpotHandle;
-      if (!ev.getByLabel(InputTag("offlineBeamSpot"), beamSpotHandle)) {
+      if (!ev.getByToken(beamSpotTag_, beamSpotHandle)) {
 	//LogWarning("") << ">>> No beam spot found !!!";
 	return;
       }
@@ -279,7 +295,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
             double pt = mu.pt();
             double dxy = mu.innerTrack()->dxy(beamSpotHandle->position());
 
-            if (fabs(dxy)>1) { cosmic=true; break;} 
+            if (fabs(dxy)>1) { cosmic=true; break;}
 
             if (pt>ptThrForZ1_) nmuonsForZ1++;
             if (pt>ptThrForZ2_) nmuonsForZ2++;
@@ -305,7 +321,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
       // MET
       Handle<View<MET> > metCollection;
-      if (!ev.getByLabel(metTag_, metCollection)) {
+      if (!ev.getByToken(metToken_, metCollection)) {
 	//LogWarning("") << ">>> MET collection does not exist !!!";
 	return;
       }
@@ -316,13 +332,13 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
       // Vertices in the event
       Handle<View<reco::Vertex> > vertexCollection;
-           if (!ev.getByLabel(vertexTag_, vertexCollection)) {
+           if (!ev.getByToken(vertexTag_, vertexCollection)) {
                  LogError("") << ">>> Vertex collection does not exist !!!";
                  return;
             }
       unsigned int vertexCollectionSize = vertexCollection->size();
 
-      
+
 
       int nvvertex = 0;
       for (unsigned int i=0; i<vertexCollectionSize; i++) {
@@ -334,7 +350,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
       bool trigger_fired = false;
       Handle<TriggerResults> triggerResults;
-      if (!ev.getByLabel(trigTag_, triggerResults)) {
+      if (!ev.getByToken(trigTag_, triggerResults)) {
 	//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
 	return;
       }
@@ -346,27 +362,27 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       {
               const std::string trigName = trigNames.triggerName(i);
 
-              bool found=false; 
+              bool found=false;
               for(unsigned int index=0; index<trigPathNames_.size() && found==false; index++) {
                    size_t trigPath = trigName.find(trigPathNames_[index]); // 0 if found, pos if not
                    if (trigPath==0) found=true;
               }
               if(!found) {continue;}
-              
-              bool prescaled=false;    
+
+              bool prescaled=false;
               for (unsigned int ps= 0; ps<  hltConfigProvider_.prescaleSize(); ps++){
                   const unsigned int prescaleValue = hltConfigProvider_.prescaleValue(ps, trigName) ;
                   if (prescaleValue != 1) prescaled =true;
               }
-            
+
               if( triggerResults->accept(i) && !prescaled){   trigger_fired=true;}
                         // LogWarning("")<<"TrigNo: "<<i<<"  "<<found<<"  "<<trigName<<" ---> FIRED";}
-      }     
+      }
       trig_before_->Fill(trigger_fired);
 
       // Jet collection
       Handle<View<Jet> > jetCollection;
-      if (!ev.getByLabel(jetTag_, jetCollection)) {
+      if (!ev.getByToken(jetToken_, jetCollection)) {
 	//LogError("") << ">>> JET collection does not exist !!!";
 	return;
       }
@@ -377,7 +393,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
                   double minDistance=99999; // This is in order to use PFJets
                   for (unsigned int j=0; j<muonCollectionSize; j++) {
                         const Muon& mu = muonCollection->at(j);
-                        double distance = sqrt( (mu.eta()-jet.eta())*(mu.eta()-jet.eta()) +(mu.phi()-jet.phi())*(mu.phi()-jet.phi()) );      
+                        double distance = sqrt( (mu.eta()-jet.eta())*(mu.eta()-jet.eta()) +(mu.phi()-jet.phi())*(mu.phi()-jet.phi()) );
                         if (minDistance>distance) minDistance=distance;
                   }
                   if (minDistance<0.3) continue; // 0.3 is the isolation cone around the muon
@@ -400,12 +416,12 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       }
       //Photon Collection
       Handle<View<Photon> > photonCollection;
-      if(!ev.getByLabel(phoTag_,photonCollection)){
+      if(!ev.getByToken(phoTag_, photonCollection)){
       //LogError("")
       return;
       }
       unsigned int ngam=0;
-      
+
       for (unsigned int i=0; i<photonCollection->size(); i++){
       	const Photon &ph = photonCollection->at(i);
       	double photonPt = ph.pt();
@@ -413,9 +429,9 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 	  ngam++;
 	  phEta_->Fill(ph.eta());
 	}
-	phPt_->Fill(photonPt); 
+	phPt_->Fill(photonPt);
       	}
-      nph_->Fill(ngam); 
+      nph_->Fill(ngam);
       LogTrace("") << " >>> N photons " << ngam << std::endl;
 
       nmuons_->Fill(muonCollectionSize);
@@ -433,9 +449,9 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       //	const Photon &ph = pfPhotonCollection->at(i);
       //	double photonPt = ph.pt();
       //	if (photonPt> ptThrForPhoton_) npfgam++;
-      //  pfphPt_->Fill(photonPt); 
+      //  pfphPt_->Fill(photonPt);
       //	}
-      //npfph_->Fill(npfgam); 
+      //npfph_->Fill(npfgam);
       //LogTrace("") << " >>> N PF photons " << npfgam << std::endl;
 
       // Start counting
@@ -481,8 +497,8 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
             double pt = mu.pt();
             double eta = mu.eta();
             LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;;
-            if (pt>ptCut_) muon_sel[0] = true; 
-            if (fabs(eta)<etaCut_) muon_sel[1] = true; 
+            if (pt>ptCut_) muon_sel[0] = true;
+            if (fabs(eta)<etaCut_) muon_sel[1] = true;
 
             double charge=mu.charge();
 
@@ -495,11 +511,11 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
             int nMatches = mu.numberOfMatches();
 
             LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
-            if (fabs(dxy)<dxyCut_) muon_sel[2] = true; 
+            if (fabs(dxy)<dxyCut_) muon_sel[2] = true;
 
             bool quality=true;
-            
-            if (normalizedChi2>normalizedChi2Cut_) quality =false; 
+
+            if (normalizedChi2>normalizedChi2Cut_) quality =false;
             if (trackerHits<trackerHitsCut_) quality =false;
             if (pixelHits<pixelHitsCut_) quality =false;
             if (muonHits<muonHitsCut_) quality=false;;
@@ -528,14 +544,14 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
                   isovar += mu.isolationR03().hadEt;
             }
             if (isRelativeIso_) isovar /= pt;
-            if (isovar<isoCut03_) muon_sel[4] = true; 
+            if (isovar<isoCut03_) muon_sel[4] = true;
 
             LogTrace("") << "\t... isolation value" << isovar <<", isolated? " << muon_sel[6];
             iso_before_->Fill(isovar);
 
 
             // HLT (not mtched to muon for the time being)
-            if (trigger_fired) muon_sel[5] = true; 
+            if (trigger_fired) muon_sel[5] = true;
 
             // For Z:
             if (pt>ptThrForZ1_ && fabs(eta)<etaCut_ && fabs(dxy)<dxyCut_ && quality && trigger_fired && isovar<isoCut03_) { muon4Z = true;}
@@ -545,14 +561,14 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
             double w_et = met_et+mu.pt();
             double w_px = met.px()+mu.px();
             double w_py = met.py()+mu.py();
-            
+
             double massT = w_et*w_et - w_px*w_px - w_py*w_py;
             massT = (massT>0) ? sqrt(massT) : 0;
 
             LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << w_px << ", " << w_py << " [GeV]";
-            if (massT>mtMin_ && massT<mtMax_) muon_sel[6] = true; 
+            if (massT>mtMin_ && massT<mtMax_) muon_sel[6] = true;
             mt_before_->Fill(massT);
-            if (met_et>metMin_ && met_et<metMax_) muon_sel[7] = true; 
+            if (met_et>metMin_ && met_et<metMax_) muon_sel[7] = true;
 
             // Acoplanarity cuts
             Geom::Phi<double> deltaphi(mu.phi()-atan2(met.py(),met.px()));
@@ -560,12 +576,12 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
             if (acop<0) acop = - acop;
             acop = M_PI - acop;
             LogTrace("") << "\t... acoplanarity: " << acop;
-            if (acop<acopCut_) muon_sel[8] = true; 
+            if (acop<acopCut_) muon_sel[8] = true;
             acop_before_->Fill(acop);
 
             // Remaining flags (from global event information)
-            if (nmuonsForZ1<1 || nmuonsForZ2<2) muon_sel[9] = true; 
-            if (njets<=nJetMax_) muon_sel[10] = true; 
+            if (nmuonsForZ1<1 || nmuonsForZ2<2) muon_sel[9] = true;
+            if (njets<=nJetMax_) muon_sel[10] = true;
 
             // Collect necessary flags "per muon"
             int flags_passed = 0;
@@ -575,28 +591,28 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
             // Do N-1 histograms now (and only once for global event quantities)
             if (flags_passed >= (NFLAGS-1)) {
-                  if (!muon_sel[0] || flags_passed==NFLAGS) 
+                  if (!muon_sel[0] || flags_passed==NFLAGS)
                         pt_after_->Fill(pt);
-                  if (!muon_sel[1] || flags_passed==NFLAGS) 
+                  if (!muon_sel[1] || flags_passed==NFLAGS)
                         eta_after_->Fill(eta);
-                  if (!muon_sel[2] || flags_passed==NFLAGS) 
+                  if (!muon_sel[2] || flags_passed==NFLAGS)
                         dxy_after_->Fill(dxy);
                   if (!muon_sel[3] || flags_passed==NFLAGS)
                         goodewkmuon_after_->Fill(quality);
-                  if (!muon_sel[4] || flags_passed==NFLAGS) 
+                  if (!muon_sel[4] || flags_passed==NFLAGS)
                         iso_after_->Fill(isovar);
-                  if (!muon_sel[5] || flags_passed==NFLAGS) 
+                  if (!muon_sel[5] || flags_passed==NFLAGS)
                         if (!hlt_hist_done) trig_after_->Fill(trigger_fired);
                         hlt_hist_done = true;
-                  if (!muon_sel[6] || flags_passed==NFLAGS) 
+                  if (!muon_sel[6] || flags_passed==NFLAGS)
                         mt_after_->Fill(massT);
-                  if (!muon_sel[7] || flags_passed==NFLAGS) 
+                  if (!muon_sel[7] || flags_passed==NFLAGS)
                         if (!met_hist_done) met_after_->Fill(met_et);
                         met_hist_done = true;
-                  if (!muon_sel[8] || flags_passed==NFLAGS) 
+                  if (!muon_sel[8] || flags_passed==NFLAGS)
                         acop_after_->Fill(acop);
 		  // no action here for muon_sel[9]
-                  if (!muon_sel[10] || flags_passed==NFLAGS) { 
+                  if (!muon_sel[10] || flags_passed==NFLAGS) {
                         if (!njets_hist_done) {
                                     njets_after_->Fill(njets);
                                     leadingjet_pt_after_->Fill(lead_jet_pt);
@@ -611,15 +627,15 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 			//if (charge>0) ptPlus_afterW_->Fill(pt);
 			//if (charge<0) ptMinus_afterW_->Fill(pt);
 		    }
-		    wfullsel_hist_done=true;    
-                  } 
+		    wfullsel_hist_done=true;
+                  }
 	    }
-	    
+
 
             // The cases in which the event is rejected as a Z are considered independently:
             if ( muon4Z &&  !muon_sel[9]){
 
-                   // Plots for 2 muons       
+                   // Plots for 2 muons
                    for (unsigned int j=i+1; j<muonCollectionSize; j++) {
 
                          for (int ij=0; ij<NFLAGSZ; ++ij) {
@@ -644,26 +660,26 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
                                     int    muonHits2       = gm2->hitPattern().numberOfValidMuonHits();
                                     int    nMatches2       = mu2.numberOfMatches();
 				    bool quality2=true;
-                                    if (normalizedChi22>normalizedChi2Cut_) quality2 = false; 
+                                    if (normalizedChi22>normalizedChi2Cut_) quality2 = false;
                                     if (trackerHits2<trackerHitsCut_)       quality2 = false;
                                     if (pixelHits2<pixelHitsCut_)           quality2 = false;
                                     if (muonHits2<muonHitsCut_)             quality2 = false;
                                     if (!mu2.isTrackerMuon())               quality2 = false;
                                     if (nMatches2<nMatchesCut_)             quality2 = false;
                                     zmuon_sel[8]=quality2;
-                                    double isovar2 = mu2.isolationR03().sumPt; 
+                                    double isovar2 = mu2.isolationR03().sumPt;
                                     if (isCombinedIso_) {
                                           isovar2 += mu2.isolationR03().emEt;
                                           isovar2 += mu2.isolationR03().hadEt;
                                     }
                                     if (isRelativeIso_) isovar2 /= pt2;
                                     if (isovar2<isoCut03_) zmuon_sel[9] = true;
-				    if (trigger_fired) zmuon_sel[10] = true; 
+				    if (trigger_fired) zmuon_sel[10] = true;
                                const math::XYZTLorentzVector ZRecoGlb (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
-			       if (ZRecoGlb.mass()>dimuonMassMin_ && ZRecoGlb.mass()<dimuonMassMax_) zmuon_sel[11] = true; 
+			       if (ZRecoGlb.mass()>dimuonMassMin_ && ZRecoGlb.mass()<dimuonMassMax_) zmuon_sel[11] = true;
 
 					//jet flag
-					if (njets <=nJetMax_) zmuon_sel[12] = true; 
+					if (njets <=nJetMax_) zmuon_sel[12] = true;
 
                                // start filling histos: N-1 plots
 			       int  flags_passed_z = 0;
@@ -673,21 +689,21 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 			       }
 
 			       if (flags_passed_z >= (NFLAGSZ-1)) {
-				       if (!zmuon_sel[0]  || flags_passed_z==NFLAGSZ) {pt1_afterZ_->Fill(pt); } 
-				       if (!zmuon_sel[1]  || flags_passed_z==NFLAGSZ) {eta1_afterZ_->Fill(eta); }  
-				       if (!zmuon_sel[2]  || flags_passed_z==NFLAGSZ) {dxy1_afterZ_->Fill(dxy); }  
-				       if (!zmuon_sel[3]  || flags_passed_z==NFLAGSZ) {goodewkmuon1_afterZ_->Fill(quality); }  
-				       if (!zmuon_sel[4]  || flags_passed_z==NFLAGSZ) {iso1_afterZ_->Fill(isovar); }  
-				       if (!zmuon_sel[5]  || flags_passed_z==NFLAGSZ) { pt2_afterZ_->Fill(pt2); }  
-				       if (!zmuon_sel[6]  || flags_passed_z==NFLAGSZ) { eta2_afterZ_->Fill(eta2); }  
-				       if (!zmuon_sel[7]  || flags_passed_z==NFLAGSZ) {dxy2_afterZ_->Fill(dxy2); }  
-				       if (!zmuon_sel[8]  || flags_passed_z==NFLAGSZ) {goodewkmuon2_afterZ_->Fill(quality2); }  
-				       if (!zmuon_sel[9]  || flags_passed_z==NFLAGSZ) {iso2_afterZ_->Fill(isovar2); }   
-				       if (!zmuon_sel[10] || flags_passed_z==NFLAGSZ) { 
-                                         if (!zhlt_hist_done) ztrig_afterZ_->Fill(trigger_fired); 
-                                          zhlt_hist_done = true; 
-				       }  
-				       if (!zmuon_sel[11] || flags_passed_z==NFLAGSZ) {dimuonmass_afterZ_->Fill(ZRecoGlb.mass()); } 
+				       if (!zmuon_sel[0]  || flags_passed_z==NFLAGSZ) {pt1_afterZ_->Fill(pt); }
+				       if (!zmuon_sel[1]  || flags_passed_z==NFLAGSZ) {eta1_afterZ_->Fill(eta); }
+				       if (!zmuon_sel[2]  || flags_passed_z==NFLAGSZ) {dxy1_afterZ_->Fill(dxy); }
+				       if (!zmuon_sel[3]  || flags_passed_z==NFLAGSZ) {goodewkmuon1_afterZ_->Fill(quality); }
+				       if (!zmuon_sel[4]  || flags_passed_z==NFLAGSZ) {iso1_afterZ_->Fill(isovar); }
+				       if (!zmuon_sel[5]  || flags_passed_z==NFLAGSZ) { pt2_afterZ_->Fill(pt2); }
+				       if (!zmuon_sel[6]  || flags_passed_z==NFLAGSZ) { eta2_afterZ_->Fill(eta2); }
+				       if (!zmuon_sel[7]  || flags_passed_z==NFLAGSZ) {dxy2_afterZ_->Fill(dxy2); }
+				       if (!zmuon_sel[8]  || flags_passed_z==NFLAGSZ) {goodewkmuon2_afterZ_->Fill(quality2); }
+				       if (!zmuon_sel[9]  || flags_passed_z==NFLAGSZ) {iso2_afterZ_->Fill(isovar2); }
+				       if (!zmuon_sel[10] || flags_passed_z==NFLAGSZ) {
+                                         if (!zhlt_hist_done) ztrig_afterZ_->Fill(trigger_fired);
+                                          zhlt_hist_done = true;
+				       }
+				       if (!zmuon_sel[11] || flags_passed_z==NFLAGSZ) {dimuonmass_afterZ_->Fill(ZRecoGlb.mass()); }
 				       if (!zmuon_sel[12] || flags_passed_z==NFLAGSZ ){
 					 if(!zjets_hist_done){
 					   njets_afterZ_->Fill(njets);
@@ -733,3 +749,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
 }
 
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

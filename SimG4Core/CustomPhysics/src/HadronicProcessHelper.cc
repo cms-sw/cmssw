@@ -11,6 +11,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+using namespace CLHEP;
+
 HadronicProcessHelper::HadronicProcessHelper(const std::string & fileName){
 
   m_particleTable = G4ParticleTable::GetParticleTable();

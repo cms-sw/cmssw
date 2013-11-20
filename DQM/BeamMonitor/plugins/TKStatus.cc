@@ -1,5 +1,4 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -8,10 +7,12 @@
 
 using namespace edm;
 
-TKStatus::TKStatus( const ParameterSet& ps ) : 
+TKStatus::TKStatus( const ParameterSet& ps ) :
   checkStatus_(true) {
   parameters_     = ps;
   dcsTkFileName_  = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("DIPFileName");
+  dcsStatus_ = consumes<DcsStatusCollection>(
+    parameters_.getUntrackedParameter<std::string>("DCSStatus", "scalersRawToDigi"));
   for (int i=0;i<6;i++) dcsTk[i]=true;
   countLumi_ = lastlumi_ = 0;
   runnum = -1;
@@ -31,7 +32,7 @@ void TKStatus::beginRun(const edm::Run& r, const EventSetup& context) {
 }
 
 //--------------------------------------------------------
-void TKStatus::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
+void TKStatus::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 				    const EventSetup& context) {
   int nthlumi = lumiSeg.luminosityBlock();
   if (nthlumi <= lastlumi_) return;
@@ -40,14 +41,14 @@ void TKStatus::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 }
 
 // ----------------------------------------------------------
-void TKStatus::analyze(const Event& iEvent, 
+void TKStatus::analyze(const Event& iEvent,
 		       const EventSetup& iSetup ) {
   if (checkStatus_) { // check every LS
     // Checking TK status
     Handle<DcsStatusCollection> dcsStatus;
-    iEvent.getByLabel("scalersRawToDigi", dcsStatus);
+    iEvent.getByToken(dcsStatus_, dcsStatus);
     for (int i=0;i<6;i++) dcsTk[i]=true;
-    for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
+    for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin();
 	 dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
       if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcsTk[0]=false;
       if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcsTk[1]=false;
@@ -62,7 +63,7 @@ void TKStatus::analyze(const Event& iEvent,
 }
 
 //--------------------------------------------------------
-void TKStatus::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
+void TKStatus::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 				  const EventSetup& iSetup) {
   int nlumi = lumiSeg.id().luminosityBlock();
   if (nlumi <= lastlumi_ ) return;
@@ -75,7 +76,7 @@ void TKStatus::endRun(const Run& r, const EventSetup& context){
 }
 
 //--------------------------------------------------------
-void TKStatus::endJob(const LuminosityBlock& lumiSeg, 
+void TKStatus::endJob(const LuminosityBlock& lumiSeg,
 		      const EventSetup& iSetup){
 
 }
@@ -104,7 +105,7 @@ void TKStatus::dumpTkDcsStatus(std::string & fileName){
   }
   outFile << "WholeTrackerOn " << (AllTkOn?"Yes":"No") << std::endl;
   outFile << "Runnumber " << runnum << std::endl;
- 
+
   outFile.close();
 }
 

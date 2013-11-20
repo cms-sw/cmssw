@@ -18,6 +18,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
 #include "RecoVertex/BeamSpotProducer/interface/PVFitter.h"
@@ -29,10 +33,12 @@
 
 #include <fstream>
 
+namespace edm {class ConsumesCollector;}
+
 class BeamFitter {
  public:
   BeamFitter() {}
-  BeamFitter(const edm::ParameterSet& iConfig);
+  BeamFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector &&iColl);
   virtual ~BeamFitter();
 
   void readEvent(const edm::Event& iEvent);
@@ -141,8 +147,9 @@ class BeamFitter {
 
   bool debug_;
   bool appendRunTxt_;
-  edm::InputTag tracksLabel_;
-  edm::InputTag vertexLabel_;
+  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+  edm::EDGetTokenT<edm::View<reco::Vertex> > vertexToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_; //offlineBeamSpot
   bool writeTxt_;
   bool writeDIPTxt_;
   bool writeDIPBadFit_;

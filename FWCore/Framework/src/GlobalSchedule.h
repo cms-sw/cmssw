@@ -39,8 +39,16 @@ namespace edm {
         a_(a), principal_(principal), es_(es), context_(context) {
         if (a_) T::preScheduleSignal(a_, principal_, context_);
       }
-      ~GlobalScheduleSignalSentry() {
-        if (a_) if (principal_) T::postScheduleSignal(a_, principal_, es_, context_);
+      ~GlobalScheduleSignalSentry() noexcept(false) {
+        try {
+          if (a_) if (principal_) T::postScheduleSignal(a_, principal_, es_, context_);
+        } catch(...) {
+          if(allowThrow_) {throw;}
+        }
+      }
+
+      void allowThrow() {
+        allowThrow_ = true;
       }
 
     private:
@@ -49,6 +57,7 @@ namespace edm {
       typename T::MyPrincipal* principal_;
       EventSetup const* es_;
       typename T::Context const* context_;
+      bool allowThrow_;
     };
   }
 
@@ -163,6 +172,8 @@ namespace edm {
       }
       throw;
     }
+    //If we got here no other exception has happened so we can propogate any Service related exceptions
+    sentry.allowThrow();
   }
   template <typename T>
   void

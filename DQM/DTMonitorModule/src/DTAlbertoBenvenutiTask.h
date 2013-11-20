@@ -38,7 +38,7 @@ public:
 
   /// Constructor
   DTAlbertoBenvenutiTask(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   virtual ~DTAlbertoBenvenutiTask();
 
@@ -51,7 +51,7 @@ protected:
 
   /// Book the ME
   void bookHistos(const DTWireId dtWire);
- 
+
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
@@ -87,3 +87,8 @@ private:
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

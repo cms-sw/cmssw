@@ -4,7 +4,7 @@
 /** \class DTDataIntegrityTask
  *
  * Class for DT Data Integrity.
- *  
+ *
  *
  * \author Marco Zanetti (INFN Padova), Gianluca Cerminara (INFN Torino)
  *
@@ -39,7 +39,7 @@ class DTDataIntegrityTask : public DTDataMonitorInterface {
 public:
 
   explicit DTDataIntegrityTask( const edm::ParameterSet& ps,edm::ActivityRegistry& reg);
-  
+
   virtual ~DTDataIntegrityTask();
 
   void TimeHistos(std::string histoType);
@@ -47,7 +47,7 @@ public:
   void processROS25(DTROS25Data & data, int dduID, int ros);
   void processFED(DTDDUData & dduData, const std::vector<DTROS25Data> & rosData, int dduID);
 
-  // log number of times the payload of each fed is unpacked 
+  // log number of times the payload of each fed is unpacked
   void fedEntry(int dduID);
   // log number of times the payload of each fed is skipped (no ROS inside)
   void fedFatal(int dduID);
@@ -87,18 +87,18 @@ private:
 
   // back-end interface
   DQMStore * dbe;
-  
+
   DTROChainCoding coding;
 
   // Monitor Elements
   MonitorElement* nEventMonitor;
-  // <histoType, <index , histo> >    
+  // <histoType, <index , histo> >
   std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
-  // <histoType, histo> >    
+  // <histoType, histo> >
   std::map<std::string, std::map<int, MonitorElement*> > rosSHistos;
-  // <histoType, <index , histo> >    
+  // <histoType, <index , histo> >
   std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
-  // <histoType, <tdcID, histo> >   
+  // <histoType, <tdcID, histo> >
   std::map<std::string, std::map<int, MonitorElement*> > robHistos;
 
   // standard ME for monitoring of FED integrity
@@ -121,15 +121,15 @@ private:
   float trigger_counter;
   std::string outputFile;
   double rob_max[25];
-  
+
   //Event counter for the graphs VS time
   int myPrevEv;
-  
+
   //Monitor TTS,ROS,FIFO VS time
   int myPrevTtsVal;
   int myPrevRosVal;
   int myPrevFifoVal[7];
- 
+
   // event error flag: true when errors are detected
   // can be used for the selection of the debug stream
   bool eventErrorFlag;
@@ -147,3 +147,8 @@ private:
 
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */
