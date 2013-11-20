@@ -86,6 +86,9 @@ c ---------------------------------------------------------------------------
       integer*4 i,j,k,active,pnt1,pnt2,prelen,freen
       real*8 scobj,scrhs,sol,lbig
       character*99 buff
+      integer*4 pmbig(m),ppbig(m),dmbig(n),dpbig(n)
+      integer*4 iwork1(mn+mn),iwork2(mn+mn),iwork3(mn+mn),iwork4(mn+mn),
+     &     iwork5(mn+mn)
 c ---------------------------------------------------------------------------
 c
 c inicializalas
@@ -157,9 +160,10 @@ c
         call presol(colpnt,rowidx,nonzeros,rindex,nonzeros(nz+1),
      x  snhead,snhead(n1),nodtyp,nodtyp(n1),vcstat,vcstat(n1),
      x  ecolpnt,count,ecolpnt(n1),count(n1),
-     x  vartyp,dxsn(n1),dxs(n1),diag(n1),odiag(n1),
+     x  vartyp,dxsn(n1),dxs(n1),pmbig,ppbig,
      x  ubound,lbound,ubound(n1),lbound(n1),rhs,obj,prehis,prelen,
-     x  addobj,big,pivots,invprm,dv,ddv,dxsn,dxs,diag,odiag,premet,code)
+     x  addobj,big,pivots,invprm,dv,ddv,dxsn,dxs,dmbig,dpbig,premet,
+     x  code)
         write(buff,'(1x,a)')'Presolv done...'
         call mprnt(buff)
         if(code.ne.0)goto 45
@@ -295,7 +299,7 @@ c
      x ddsprn,dsup,ddsup,ddsupn,dv,ddv,ddvn,nonzeros,prinf,upinf,duinf,
      x vartyp,slktyp,colpnt,ecolpnt,count,vcstat,pivots,invprm,
      x snhead,nodtyp,inta1,rowidx,rindex,
-     x dxs,dxsn,ddspr,ddsprn,ddsup,ddsupn,
+     x dxs,iwork1,iwork2,iwork3,iwork4,iwork5,
      x code,opt,iter,corect,fixn,dropn,active,fnzmax,fnzmin,addobj,
      x sol,ft,i)
       call timer(j)
@@ -537,6 +541,7 @@ c to save parameters
 c
       integer*4 maxcco,mxrefo
       real*8 lamo,spdeno,bargro,topto
+      integer*4 inta12(mn)
 c
 c --------------------------------------------------------------------------
 c
@@ -620,7 +625,7 @@ c
      x  colpnt,rowidx,nodtyp,rindex,iwork3,invprm,
      x  count,snhead,iwork1,iwork1(mn+1),iwork2,iwork2(mn+1),
      x  iwork4,iwork4(mn+1),iwork3(mn+1),iwork5,iwork5(mn+1),
-     x  nonzeros,fnzmax,oper,i,rwork1,code)
+     x  nonzeros,fnzmax,oper,i,inta12,code)
         if(code.ne.0)goto 999
         call supnode(ecolpnt,count,rowidx,vcstat,pivots,snhead,
      x  invprm,nodtyp)
@@ -1560,7 +1565,7 @@ c
       lcd=maxcn
       lcn=maxcn
       z=0
-      pnt1=(n-fixn+m-dropn)*maxdense
+      pnt1=int((n-fixn+m-dropn)*maxdense)
       pnt2=0
       if((m-dropn).ge.1.5*(n-fixn))then
         maxdense=1.0
@@ -1919,6 +1924,7 @@ c
    4  format(' Final supernodal columns disabled:',i9,' col')
    5  format(' Hidden supernodal columns        :',i9,' col')
 
+      clast=0
 c
 c initialization
 c
@@ -3230,6 +3236,7 @@ c --------------------------------------------------------------------------
      x rfirst,rlast,cfirst,clast,pcol,pcnt,ppnt1,ppnt2,fill,
      x prewcol,ii,pass,minm,w1,wignore,method
       real*8    pivot,ss,tltmp1,tltmp2
+      integer*4 inds(mn)
 c---------------------------------------------------------------------------
 c
    1  format(' NOT ENOUGH MEMORY IN THE ROW    FILE ')
@@ -3239,6 +3246,8 @@ c
    6  format(' NONZEROS         :',i12)
    7  format(' OPERATIONS       :',f13.0)
    8  format(' Superdense cols. :',i12)
+      tltmp1=0
+      tltmp2=0
 c
 c move elements in the dropped rows to the end of the columns
 c
@@ -3412,7 +3421,7 @@ c
 c loop for pivots
 c
   50  call fndpiv(cpnt,cnext,pntc,ccol,crow,rowidx,nonz,
-     x diag,pcol,pivot,pmode,method,workr,mark,rindex,pntr)
+     x diag,pcol,pivot,pmode,method,inds,mark,rindex,pntr)
       if (pcol.eq.0)goto 900
       pivot=1.0d+0/pivot
       diag(pcol)=pivot
@@ -4264,6 +4273,9 @@ c --------------------------------------------------------------------------
       integer*4 fill,mfill,q,oo,kk
       real*8    sol,stab,stab1,d,toler,ss
 c --------------------------------------------------------------------------
+      p1=0
+      p2=0
+      oldlen=0
       fill=0
       stab=0
       stab1=0
@@ -4427,6 +4439,8 @@ c -----------------------------------------------------------------------------
       real*8 s,diap,diam
       character*99 buff
 c------------------------------------------------------------------------------
+      ppnt1=0
+      ppnt2=0
       err=0
       w1=0
 c
@@ -4731,6 +4745,7 @@ c --------------------------------------------------------------------------
       real*8 s,diap,diam
       character*99 buff
 c---------------------------------------------------------------------------
+      o=0
       err=0
       w1=0
 c
@@ -5687,6 +5702,7 @@ c
    2  format(1x,'Supernodal cols. :',i12,'   ',i12) 
    3  format(1x,'Dense window     :',i12) 
 c
+      j=0
       do i=1,mn
         snhead(i)=0
         invperm(i)=0
@@ -7672,6 +7688,8 @@ c
       real*8    sol,up,lo,tfeas,zero,lbig,bigbou,dbigbo
       integer*4 dusrch,bndsrc,bndchg
       character*99 buff
+      pnt1=0
+      pnt2=0
 c
 c initialize : clean up the matrix and set-up row-wise structure
 c
@@ -7888,7 +7906,7 @@ c
      x  coln,collst,colmrk,rown,rowlst,rowmrk,
      x  cnum,list,mrk,rnum,list(n+1),mrk(n+1),procn,
      x  ppbig,pmaxr,pmbig,pminr,
-     x  dulo,duup,dmaxc,dminc,dpbig,dmbig,
+     x  dulo,duup,dpbig,dmbig,dmaxc,dminc,
      x  big,lbig,tfeas,zero,dbigbo,dusrch,code,prelev)
         if(code.gt.0)goto 100
       endif
@@ -9894,6 +9912,8 @@ c     pivcol
 c     pivrow
 c
 c --------------------------------------------------------------------------
+      pivot=0
+      ppnt1=0
 c
 c initialization
 c
@@ -10293,6 +10313,7 @@ c
       integer*4 i,j,k,l,p,pnt1,pnt2,row,col
       real*8    sol,lo1,lo2,up1,up2,lbig,sol1,sol2,s
 c
+      sol=0
       lbig=0.9d+0*big
       do i=1,mn
         if(i.le.n)then
