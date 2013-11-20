@@ -37,6 +37,7 @@ private:
   virtual void postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>) override;
   virtual void rewind_() override;
 
+  void maybeOpenNewLumiSection(const uint32_t lumiSection);
   bool cacheNextEvent();
   edm::Timestamp fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>&) const;
   bool openNextFile();
@@ -67,7 +68,7 @@ private:
   FILE* fileStream_;
   edm::EventID eventID_;
 
-  unsigned int lastOpenedLumi_;
+  unsigned int currentLumiSection_;
   boost::filesystem::path currentInputJson_;
   unsigned int currentInputEventCount_;
 
