@@ -10,6 +10,8 @@
 #include "G4VProcess.hh"
 #include "G4GPILSelection.hh"
 
+using namespace CLHEP;
+
 GflashHadronWrapperProcess::GflashHadronWrapperProcess(G4String processName) :
   particleChange(0), 
   pmanager(0), 

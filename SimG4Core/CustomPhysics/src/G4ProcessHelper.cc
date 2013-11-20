@@ -13,6 +13,8 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 
+using namespace CLHEP;
+
 G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
 
   particleTable = G4ParticleTable::GetParticleTable();

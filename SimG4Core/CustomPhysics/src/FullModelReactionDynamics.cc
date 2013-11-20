@@ -57,6 +57,8 @@
 #include <signal.h>
 #include "G4ParticleTable.hh"
 
+using namespace CLHEP;
+
 // #include "DumpFrame.hh"
 
 /* 	   G4double GetQValue(G4ReactionProduct * aSec)
