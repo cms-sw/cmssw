@@ -28,7 +28,8 @@ CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet &
   myConfig = p;
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   particleDefFilePath = fp.fullPath();
-  edm::LogInfo("CustomPhysics")<<"Path for custom particle definition file: "<<particleDefFilePath;
+  edm::LogInfo("CustomPhysics")<<"Path for custom particle definition file: "
+			       <<particleDefFilePath;
   myHelper = 0;
   
  }
@@ -47,14 +48,15 @@ void CustomPhysicsList::ConstructProcess() {
  
 void CustomPhysicsList::addCustomPhysics(){
   LogDebug("CustomPhysics") << " CustomPhysics: adding CustomPhysics processes";
-  theParticleIterator->reset();
+  aParticleIterator->reset();
 
-  while((*theParticleIterator)())    {
+  while((*aParticleIterator)())    {
     int i = 0;
-    G4ParticleDefinition* particle = theParticleIterator->value();
+    G4ParticleDefinition* particle = aParticleIterator->value();
     CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
     if(CustomParticleFactory::isCustomParticle(particle)) {
-      LogDebug("CustomPhysics") << particle->GetParticleName()<<", "<<particle->GetPDGEncoding()
+      LogDebug("CustomPhysics") << particle->GetParticleName()
+				<<", "<<particle->GetPDGEncoding()
 				<< " is Custom. Mass is "
 				<<particle->GetPDGMass()/GeV  <<" GeV.";
       if(cp->GetCloud()!=0) {
@@ -67,9 +69,11 @@ void CustomPhysicsList::addCustomPhysics(){
       G4ProcessManager* pmanager = particle->GetProcessManager();
       if(pmanager) {
 	if(cp!=0) {
-	  if(particle->GetParticleType()=="rhadron" || particle->GetParticleType()=="mesonino" || particle->GetParticleType() == "sbaryon"){
+	  if(particle->GetParticleType()=="rhadron" || 
+	     particle->GetParticleType()=="mesonino" || 
+	     particle->GetParticleType() == "sbaryon"){
 	    if(!myHelper) myHelper = new G4ProcessHelper(myConfig);
-	    pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper)); //GHEISHA
+	    pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper));
 	  }
 	}
 	if(particle->GetPDGCharge()/eplus != 0) {
