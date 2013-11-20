@@ -142,10 +142,22 @@ void EmbeddingKineReweightNtupleProducer::analyze(const edm::Event& evt, const e
 	std::cerr << "Failed to find daughters of genDiTau --> skipping !!" << std::endl;
 	continue;
       }
+      const reco::Candidate* genTauPlus  = 0;
+      const reco::Candidate* genTauMinus = 0;
+      if ( genTau1->charge() > +0.5 && genTau2->charge() < -0.5 ) {
+	genTauPlus  = genTau1;
+	genTauMinus = genTau2;
+      } else if ( genTau1->charge() < -0.5 && genTau2->charge() > +0.5 ) {
+	genTauPlus  = genTau2;
+	genTauMinus = genTau1;
+      } else {
+	std::cerr << "Failed to find daughters of genDiTau --> skipping !!" << std::endl;
+	continue;
+      }
       
       setValue_EnPxPyPz("genDiTau", genDiTau->p4());
-      setValue_EnPxPyPz("genTau1", genTau1->p4());
-      setValue_EnPxPyPz("genTau2", genTau2->p4());
+      setValue_EnPxPyPz("genTauPlus", genTauPlus->p4());
+      setValue_EnPxPyPz("genTauMinus", genTauMinus->p4());
       genDiTau_ref = &(*genDiTau);
     }
   }
@@ -196,12 +208,14 @@ void EmbeddingKineReweightNtupleProducer::analyze(const edm::Event& evt, const e
   edm::Handle<CandidateView> recLeg1;
   evt.getByLabel(srcRecLeg1_, recLeg1);
   if ( recLeg1->size() >= 1 ) {
-    setValue_EnPxPyPz("recLeg1", recLeg1->front().p4());
+    setValue_EnPxPyPz("recLeg1", recLeg1->at(0).p4());
   }
   edm::Handle<CandidateView> recLeg2;
   evt.getByLabel(srcRecLeg2_, recLeg2);
-  if ( recLeg2->size() >= 1 ) {
-    setValue_EnPxPyPz("recLeg2", recLeg2->front().p4());
+  if ( srcRecLeg2_ == srcRecLeg1_ && recLeg2->size() >= 2 ) {
+    setValue_EnPxPyPz("recLeg2", recLeg1->at(1).p4());
+  } else if ( recLeg2->size() >= 1 ) {
+    setValue_EnPxPyPz("recLeg2", recLeg2->at(0).p4());
   }
 
   edm::Handle<pat::JetCollection> recJets;

@@ -479,7 +479,7 @@ def customise(process):
     print "Zmumu skim disabled"
 
   # CV: keep track of which events pass/fail muon -> muon + photon radiation filters
-  #     on generator and recobnstruction level, but do not actually reject any events
+  #     on generator and reconstruction level, but do not actually reject any events
   if process.customization_options.isMC.value():
     process.load("TauAnalysis/MCEmbeddingTools/genMuonRadiationFilter_cfi")
     process.genMuonRadiationFilter.srcGenParticles = cms.InputTag('genParticles::%s' % process.customization_options.inputProcessSIM.value())

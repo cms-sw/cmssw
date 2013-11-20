@@ -106,13 +106,29 @@ class EmbeddingKineReweightProducer : public edm::EDProducer
 	if ( genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2 ) {
 	  const reco::Candidate* genTau1 = genDiTau_composite->daughter(0);
 	  const reco::Candidate* genTau2 = genDiTau_composite->daughter(1);
-	  if ( genTau1 && genTau2 ) {
+	  if ( !(genTau1 && genTau2) ) {
+	    std::cerr << "Failed to find daughters of genDiTau --> skipping !!" << std::endl;
+	    return 0.;
+	  }
+	  const reco::Candidate* genTauPlus  = 0;
+	  const reco::Candidate* genTauMinus = 0;
+	  if ( genTau1->charge() > +0.5 && genTau2->charge() < -0.5 ) {
+	    genTauPlus  = genTau1;
+	    genTauMinus = genTau2;
+	  } else if ( genTau1->charge() < -0.5 && genTau2->charge() > +0.5 ) {
+	    genTauPlus  = genTau2;
+	    genTauMinus = genTau1;
+	  } else {
+	    std::cerr << "Failed to find daughters of genDiTau --> skipping !!" << std::endl;
+	    return 0.;
+	  }
+	  if ( genTauPlus && genTauMinus ) {
 	    if ( variable_ == kGenTau2Pt_vs_genTau1Pt ) {
-	      x = genTau1->pt();
-	      y = genTau2->pt();
+	      x = genTauPlus->pt();
+	      y = genTauMinus->pt();
 	    } else if ( variable_ == kGenTau2Eta_vs_genTau1Eta ) {
-	      x = genTau1->eta();
-	      y = genTau2->eta();
+	      x = genTauPlus->eta();
+	      y = genTauMinus->eta();
 	    } else assert(0);
 	    genTauFound = true;
 	  }
