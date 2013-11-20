@@ -41,13 +41,21 @@ public:
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
   virtual void endJob();
 private:
-  edm::ParameterSet conf_; 
   int verbose_;
+  std::string file_;
   TObjArray hList;
+  edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
+  edm::EDGetTokenT<edm::SimTrackContainer> simTrackContainerToken_;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVertexContainerToken_;
 };
 
 PixelTrackVal::PixelTrackVal(const edm::ParameterSet& conf)
-  : conf_(conf),hList(0)
+  : verbose_( conf.getUntrackedParameter<unsigned int>( "Verbosity", 0 ) ) // How noisy?
+  , file_( conf.getUntrackedParameter<std::string>( "HistoFile", "pixelTrackHistos.root" ) )
+  , hList(0)
+  , trackCollectionToken_( consumes<reco::TrackCollection>( edm::InputTag( conf.getParameter<std::string>( "TrackCollection" ) ) ) )
+  , simTrackContainerToken_( consumes<edm::SimTrackContainer>( conf.getParameter<edm::InputTag>( "simG4" ) ) )
+  , simVertexContainerToken_( consumes<edm::SimVertexContainer>( conf.getParameter<edm::InputTag>( "simG4" ) ) )
 {
   edm::LogInfo("PixelTrackVal")<<" CTOR";
 }
@@ -58,9 +66,6 @@ PixelTrackVal::~PixelTrackVal()
 }
 
 void PixelTrackVal::beginJob() {
-  // How noisy?
-  verbose_ = conf_.getUntrackedParameter<unsigned int>("Verbosity",0);
-
   hList.Add( new TH1F("h_Pt","h_Pt",31, -2., 1.2) );
   hList.Add( new TH1F("h_dR","h_dR",30,0.,0.06) );
   hList.Add( new TH1F("h_TIP","h_TIP",100,-0.1,0.1) );
@@ -84,8 +89,7 @@ void PixelTrackVal::analyze(
 
 //------------------------ simulated tracks
   Handle<reco::TrackCollection> trackCollection;
-  std::string trackCollName = conf_.getParameter<std::string>("TrackCollection");
-  ev.getByLabel(trackCollName,trackCollection);
+  ev.getByToken(trackCollectionToken_, trackCollection );
   const reco::TrackCollection tracks = *(trackCollection.product());
 
   typedef reco::TrackCollection::const_iterator IT;
@@ -132,9 +136,8 @@ void PixelTrackVal::analyze(
 
 //------------------------ simulated vertices and tracks
    
-   InputTag simG4 = conf_.getParameter<edm::InputTag>( "simG4" );
    Handle<SimVertexContainer> simVtcs;
-   ev.getByLabel( simG4, simVtcs);
+   ev.getByToken( simVertexContainerToken_, simVtcs );
 
 //   std::cout << "SimVertex " << simVtcs->size() << std::endl;
 //   for(edm::SimVertexContainer::const_iterator v=simVtcs->begin();
@@ -144,7 +147,7 @@ void PixelTrackVal::analyze(
 //         << v->parentIndex() << " " << v->noParent() << " " << std::endl; }
 
    Handle<SimTrackContainer> simTrks;
-   ev.getByLabel( simG4, simTrks);
+   ev.getByToken( simTrackContainerToken_, simTrks );
    std::cout << "simtrks " << simTrks->size() << std::endl;
 
 //-------------- association
@@ -204,8 +207,7 @@ void PixelTrackVal::analyze(
 void PixelTrackVal::endJob() 
 {
   // Make my little tree
-  std::string file = conf_.getUntrackedParameter<std::string>("HistoFile","pixelTrackHistos.root");
-  TFile f(file.c_str(),"RECREATE");
+  TFile f(file_.c_str(),"RECREATE");
   hList.Write();
   f.Close();
 }
