@@ -19,6 +19,8 @@
 
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.hh"
 #include "SimG4Core/CustomPhysics/interface/ToyModelHadronicProcess.hh"
+
+using namespace CLHEP;
  
 
 CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet & p)  :  G4VPhysicsConstructor(name) {

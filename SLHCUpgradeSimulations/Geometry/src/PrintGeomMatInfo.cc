@@ -29,6 +29,8 @@
 #include <set>
 #include <map>
 
+using namespace CLHEP;
+
 PrintGeomMatInfo::PrintGeomMatInfo(const edm::ParameterSet &p)
 {
     _dumpSummary = p.getUntrackedParameter<bool>("DumpSummary", true);
@@ -470,7 +472,7 @@ void PrintGeomMatInfo::dumpTouch(G4VPhysicalVolume * pv, unsigned int leafDepth,
         out << leafDepth << spaces << "### VOLUME = " << lv->GetName() 
 	    << " Copy No " << pv->GetCopyNo() << " in " << mother
 	    << " global position of centre " << globalpoint << " (r = " 
-	    <<  globalpoint.perp() << ", phi = " <<  globalpoint.phi()/deg
+    <<  globalpoint.perp() << ", phi = " <<  globalpoint.phi()/deg
 	    << ")" << std::endl;
 
     int NoDaughters = lv->GetNoDaughters();

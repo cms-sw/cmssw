@@ -46,6 +46,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace CLHEP;
+
 G4MiscLHEPBuilder_WP::G4MiscLHEPBuilder_WP(): wasActivated(false)
 {
   theWrappedAntiProtonInelastic=new GflashHadronWrapperProcess("G4AntiProtonInelasticProcess");
