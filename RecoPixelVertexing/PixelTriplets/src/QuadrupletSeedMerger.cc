@@ -63,8 +63,8 @@ namespace {
 ///
 ///
 ///
-QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig):
-  theLayerBuilder_(iConfig)
+QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC):
+  theLayerBuilder_(iConfig, iC)
  {
 
   // by default, do not..

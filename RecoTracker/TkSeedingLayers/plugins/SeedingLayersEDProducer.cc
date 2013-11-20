@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -21,7 +22,7 @@ private:
 };
 
 SeedingLayersEDProducer::SeedingLayersEDProducer(const edm::ParameterSet& iConfig):
-  builder_(iConfig)
+  builder_(iConfig, consumesCollector())
 {
   produces<SeedingLayerSetsHits>();
 }

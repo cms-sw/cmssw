@@ -5,8 +5,12 @@
 #include <iterator>
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "DataFormats/Common/interface/ContainerMask.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 
-namespace edm { class Event; class EventSetup; }
+namespace edm { class Event; class EventSetup; class ConsumesCollector;}
 namespace ctfseeding { class SeedingLayer; }
 
 namespace ctfseeding {
@@ -21,12 +25,13 @@ public:
   virtual HitExtractor * clone() const = 0;
 
   //skip clusters
-  void useSkipClusters( const edm::InputTag & m) {
+  void useSkipClusters(const edm::InputTag & m, edm::ConsumesCollector& iC) {
     skipClusters=true;
-    theSkipClusters=m;
+    useSkipClusters_(m, iC);
   }
   bool skipClusters;
-  edm::InputTag theSkipClusters;
+protected:
+  virtual void useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) = 0;
 };
 
 class HitConv {

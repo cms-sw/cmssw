@@ -43,7 +43,7 @@ PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
     edm::ParameterSet seedmergerLayerList = mergerPSet.getParameter<edm::ParameterSet>( "layerList" );
     bool seedmergerAddTriplets = mergerPSet.getParameter<bool>( "addRemainingTriplets" );
     bool seedmergerMergeTriplets = mergerPSet.getParameter<bool>( "mergeTriplets" );
-    theMerger_ = new QuadrupletSeedMerger(seedmergerLayerList);
+    theMerger_ = new QuadrupletSeedMerger(seedmergerLayerList, iC);
     theMerger_->setMergeTriplets( seedmergerMergeTriplets );
     theMerger_->setAddRemainingTriplets( seedmergerAddTriplets );
     theMerger_->setTTRHBuilderLabel( seedmergerTTRHBuilderLabel );

@@ -9,6 +9,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 
 #include <numeric>
@@ -16,7 +17,7 @@ typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 using namespace std;
 SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const& conf) : 
   conf_(conf),
-  theLsb(conf.getParameter<edm::ParameterSet>("TripletsPSet")),
+  theLsb(conf.getParameter<edm::ParameterSet>("TripletsPSet"), consumesCollector()),
   writeTriplets_(conf.getParameter<bool>("writeTriplets")),
   seedOnMiddle_(conf.existsAs<bool>("seedOnMiddle") ? conf.getParameter<bool>("seedOnMiddle") : false),
   rescaleError_(conf.existsAs<double>("rescaleError") ? conf.getParameter<double>("rescaleError") : 1.0),

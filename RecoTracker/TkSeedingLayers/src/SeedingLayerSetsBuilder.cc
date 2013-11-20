@@ -120,7 +120,10 @@ std::string SeedingLayerSetsBuilder::LayerSpec::print() const
 }
 
 SeedingLayerSetsBuilder::SeedingLayerSetsBuilder() {}
-SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
+SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector&& iC):
+  SeedingLayerSetsBuilder(cfg, iC)
+{}
+SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC)
 {
   std::vector<std::string> namesPset = cfg.getParameter<std::vector<std::string> >("layerList");
   std::vector<std::vector<std::string> > layerNamesInSets = this->layerNamesInSets(namesPset);
@@ -170,18 +173,18 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
       layer.idLayer = std::get<2>(subdetData);
       if(layer.subdet == GeomDetEnumerators::PixelBarrel ||
          layer.subdet == GeomDetEnumerators::PixelEndcap) {
-        layer.extractor = std::make_shared<HitExtractorPIX>(layer.side, layer.idLayer, layer.pixelHitProducer);
+        layer.extractor = std::make_shared<HitExtractorPIX>(layer.side, layer.idLayer, layer.pixelHitProducer, iC);
       }
       else if(layer.subdet != GeomDetEnumerators::invalidDet) {
-        std::shared_ptr<HitExtractorSTRP> extractor = std::make_shared<HitExtractorSTRP>(layer.side, layer.idLayer);
+        std::shared_ptr<HitExtractorSTRP> extractor = std::make_shared<HitExtractorSTRP>(layer.side, layer.idLayer, iC);
         if (cfgLayer.exists("matchedRecHits")) {
-          extractor->useMatchedHits(cfgLayer.getParameter<edm::InputTag>("matchedRecHits"));
+          extractor->useMatchedHits(cfgLayer.getParameter<edm::InputTag>("matchedRecHits"), iC);
         }
         if (cfgLayer.exists("rphiRecHits")) {
-	  extractor->useRPhiHits(cfgLayer.getParameter<edm::InputTag>("rphiRecHits"));
+	  extractor->useRPhiHits(cfgLayer.getParameter<edm::InputTag>("rphiRecHits"), iC);
         }
         if (cfgLayer.exists("stereoRecHits")) {
-          extractor->useStereoHits(cfgLayer.getParameter<edm::InputTag>("stereoRecHits"));
+          extractor->useStereoHits(cfgLayer.getParameter<edm::InputTag>("stereoRecHits"), iC);
         }
         if (cfgLayer.exists("useRingSlector") && cfgLayer.getParameter<bool>("useRingSlector")) {
           extractor->useRingSelector(cfgLayer.getParameter<int>("minRing"),
@@ -207,7 +210,7 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
         layer.extractor = extractor;
       }
       if(layer.extractor && skipClusters) {
-        layer.extractor->useSkipClusters(cfgLayer.getParameter<edm::InputTag>("skipClusters"));
+        layer.extractor->useSkipClusters(cfgLayer.getParameter<edm::InputTag>("skipClusters"), iC);
       }
 
 

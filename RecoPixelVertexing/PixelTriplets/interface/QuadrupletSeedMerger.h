@@ -42,6 +42,7 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 
 class TrackerTopology;
+namespace edm { class ConsumesCollector; }
 
 ///
 /// helper class for extracting info
@@ -78,7 +79,7 @@ class QuadrupletSeedMerger {
 
  public:
 
-  explicit QuadrupletSeedMerger(const edm::ParameterSet& iConfig);
+  explicit QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC);
   ~QuadrupletSeedMerger();
 
   void update(const edm::EventSetup& );
