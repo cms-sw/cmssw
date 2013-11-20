@@ -15,7 +15,7 @@
 class TECLayerBuilder {  
  public:
   TECLayerBuilder(){};
-  TECLayer* build(const GeometricDet* aTECLayer,
+  TECLayer* build(GeometricDetPtr aTECLayer,
 		  const TrackerGeometry* theGeomDetGeometry);
 
   

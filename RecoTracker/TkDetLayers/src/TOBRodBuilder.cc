@@ -4,16 +4,16 @@
 using namespace edm;
 using namespace std;
 
-TOBRod* TOBRodBuilder::build(const GeometricDet* negTOBRod,
-			     const GeometricDet* posTOBRod,
+TOBRod* TOBRodBuilder::build(GeometricDetPtr negTOBRod,
+			     GeometricDetPtr posTOBRod,
 			     const TrackerGeometry* theGeomDetGeometry)
 {  
-  vector<const GeometricDet*>  theNegativeGeometricDets;
+  vector<GeometricDetPtr>  theNegativeGeometricDets;
   if (negTOBRod != 0) theNegativeGeometricDets = negTOBRod->components();
-  vector<const GeometricDet*>  thePositiveGeometricDets;
+  vector<GeometricDetPtr>  thePositiveGeometricDets;
   if (posTOBRod != 0) thePositiveGeometricDets = posTOBRod->components();
 
-  vector<const GeometricDet*> allGeometricDets = theNegativeGeometricDets;
+  auto allGeometricDets = theNegativeGeometricDets;
   allGeometricDets.insert(allGeometricDets.end(),thePositiveGeometricDets.begin(),
 			  thePositiveGeometricDets.end());
 
@@ -21,7 +21,7 @@ TOBRod* TOBRodBuilder::build(const GeometricDet* negTOBRod,
   vector<const GeomDet*> outerGeomDets;
 
   double meanR = (allGeometricDets[0]->positionBounds().perp()+allGeometricDets[1]->positionBounds().perp())/2;
-  for(vector<const GeometricDet*>::iterator it=allGeometricDets.begin();
+  for(auto it=allGeometricDets.begin();
       it!=allGeometricDets.end(); it++){
     const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*it)->geographicalID() );
 

@@ -5,14 +5,14 @@
 using namespace edm;
 using namespace std;
 
-ForwardDetLayer* PixelForwardLayerBuilder::build(const GeometricDet* aPixelForwardLayer,
+ForwardDetLayer* PixelForwardLayerBuilder::build(GeometricDetPtr aPixelForwardLayer,
 						   const TrackerGeometry* theGeomDetGeometry){
-  vector<const GeometricDet*>  theGeometricPanels = aPixelForwardLayer->components();
+  auto theGeometricPanels = aPixelForwardLayer->components();
   int panelsSize = theGeometricPanels.size();
 
   /*
-  for(vector<const GeometricDet*>::const_iterator it= theGeometricPanels.begin(); 
-      it!=theGeometricPanels.end();it++){
+  for(auto it= theGeometricPanels.cbegin(); 
+      it!=theGeometricPanels.cend();it++){
     
     edm::LogInfo(TkDetLayers) << "panel.phi(): " << (*it)->positionBounds().phi() << " , " 
 	 << "panel.z():   " << (*it)->positionBounds().z()   << " , "

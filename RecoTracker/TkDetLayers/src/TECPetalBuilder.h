@@ -15,7 +15,7 @@
 class TECPetalBuilder {  
  public:
   TECPetalBuilder(){};
-  TECPetal* build(const GeometricDet* aTECPetal,
+  TECPetal* build(GeometricDetPtr aTECPetal,
 		  const TrackerGeometry* theGeomDetGeometry);
 
   

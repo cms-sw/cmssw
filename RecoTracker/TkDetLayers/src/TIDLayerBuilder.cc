@@ -4,17 +4,17 @@
 using namespace edm;
 using namespace std;
 
-TIDLayer* TIDLayerBuilder::build(const GeometricDet* aTIDLayer,
+TIDLayer* TIDLayerBuilder::build(GeometricDetPtr aTIDLayer,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
-  vector<const GeometricDet*>  theGeometricRings = aTIDLayer->components();
+  auto theGeometricRings = aTIDLayer->components();
   //edm::LogInfo(TkDetLayers) << "theGeometricRings.size(): " << theGeometricRings.size() ;
 
   TIDRingBuilder myBuilder;
   vector<const TIDRing*> theTIDRings;
 
-  for(vector<const GeometricDet*>::const_iterator it=theGeometricRings.begin();
-      it!=theGeometricRings.end();it++){
+  for(auto it=theGeometricRings.cbegin();
+      it!=theGeometricRings.cend();it++){
     theTIDRings.push_back(myBuilder.build( *it,theGeomDetGeometry));    
   }
 
