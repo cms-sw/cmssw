@@ -284,4 +284,7 @@
   <field name="substitutionSrfs_" mapping="blob" />
 </class>
 
+
+<class name="EcalTimeBiasCorrections" />
+
 </lcgdict>
