@@ -34,15 +34,15 @@ class MuonRadiationFilter : public edm::EDFilter
  private:
   bool filter(edm::Event&, const edm::EventSetup&);
 
-  typedef edm::View<reco::PFCandidate> PFCandidateView;
+  typedef edm::View<edm::FwdPtr<reco::PFCandidate> > PFView;
 
-  double compCaloEnECAL(const reco::Candidate::LorentzVector&, const PFCandidateView&);
-  void compPFIso_raw(const reco::Candidate::LorentzVector&, const PFCandidateView&, 
+  double compCaloEnECAL(const reco::Candidate::LorentzVector&, const PFView&);
+  void compPFIso_raw(const reco::Candidate::LorentzVector&, const PFView&, 
 		     const reco::Candidate::LorentzVector&, const reco::Candidate::LorentzVector&, 
 		     double&, double&, double&);
-  double compPFIso_puCorr(const reco::Candidate::LorentzVector&, const PFCandidateView&, const PFCandidateView&, 
+  double compPFIso_puCorr(const reco::Candidate::LorentzVector&, const PFView&, const PFView&, 
 			  const reco::Candidate::LorentzVector&, const reco::Candidate::LorentzVector&);
-  bool checkMuonRadiation(const reco::Candidate::LorentzVector&, const reco::Candidate::LorentzVector*, double, const PFCandidateView&, const PFCandidateView&, 
+  bool checkMuonRadiation(const reco::Candidate::LorentzVector&, const reco::Candidate::LorentzVector*, double, const PFView&, const PFView&, 
 			  const reco::Candidate&, const reco::Candidate&);
 
   edm::InputTag srcSelectedMuons_;

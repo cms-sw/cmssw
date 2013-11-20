@@ -5,8 +5,8 @@ import os
 
 import CommonTools.ParticleFlow.pfPileUp_cfi as config
 pfPileUpForMuonRadiationFilter = config.pfPileUp.clone(
-    PFCandidates = cms.InputTag('particleFlow')
-)    
+    PFCandidates = cms.InputTag('particleFlowPtrs')
+)
 
 import CommonTools.ParticleFlow.TopProjectors.pfNoPileUp_cfi as config
 pfNoPileUpForMuonRadiationFilter = config.pfNoPileUp.clone(

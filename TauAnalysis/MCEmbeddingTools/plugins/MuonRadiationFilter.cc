@@ -69,9 +69,9 @@ bool MuonRadiationFilter::filter(edm::Event& evt, const edm::EventSetup& es)
 
   if ( muPlus.isNull() || muMinus.isNull() ) return false; // not selected Z --> mu+ mu- event: reject event
 
-  edm::Handle<PFCandidateView> pfCandidatesNoPU;
+  edm::Handle<PFView> pfCandidatesNoPU;
   evt.getByLabel(srcPFCandsNoPU_, pfCandidatesNoPU);
-  edm::Handle<PFCandidateView> pfCandidatesPU;
+  edm::Handle<PFView> pfCandidatesPU;
   evt.getByLabel(srcPFCandsPU_, pfCandidatesPU);
 
   double muPlusCaloEnECAL = compCaloEnECAL(muPlus->p4(), *pfCandidatesNoPU);
@@ -83,13 +83,13 @@ bool MuonRadiationFilter::filter(edm::Event& evt, const edm::EventSetup& es)
 
   bool isMuonRadiation = false;
   
-  for ( PFCandidateView::const_iterator pfCandidate = pfCandidatesNoPU->begin();
+  for ( PFView::const_iterator pfCandidate = pfCandidatesNoPU->begin();
 	pfCandidate != pfCandidatesNoPU->end(); ++pfCandidate ) {
-    if ( pfCandidate->particleId() == reco::PFCandidate::gamma || pfCandidate->particleId() == reco::PFCandidate::e ) { // CV: include converted photons
-      double dRmuPlus = deltaR(pfCandidate->p4(), muPlus->p4());
-      if ( checkMuonRadiation(pfCandidate->p4(), &caloP4muPlus,  dRmuPlus,  *pfCandidatesNoPU, *pfCandidatesPU, *muPlus, *muMinus) ) isMuonRadiation = true;
-      double dRmuMinus = deltaR(pfCandidate->p4(), muMinus->p4());
-      if ( checkMuonRadiation(pfCandidate->p4(), &caloP4muMinus, dRmuMinus, *pfCandidatesNoPU, *pfCandidatesPU, *muPlus, *muMinus) ) isMuonRadiation = true;
+    if ( (*pfCandidate)->particleId() == reco::PFCandidate::gamma || (*pfCandidate)->particleId() == reco::PFCandidate::e ) { // CV: include converted photons
+      double dRmuPlus = deltaR((*pfCandidate)->p4(), muPlus->p4());
+      if ( checkMuonRadiation((*pfCandidate)->p4(), &caloP4muPlus,  dRmuPlus,  *pfCandidatesNoPU, *pfCandidatesPU, *muPlus, *muMinus) ) isMuonRadiation = true;
+      double dRmuMinus = deltaR((*pfCandidate)->p4(), muMinus->p4());
+      if ( checkMuonRadiation((*pfCandidate)->p4(), &caloP4muMinus, dRmuMinus, *pfCandidatesNoPU, *pfCandidatesPU, *muPlus, *muMinus) ) isMuonRadiation = true;
     }
   }
   
@@ -108,57 +108,57 @@ bool MuonRadiationFilter::filter(edm::Event& evt, const edm::EventSetup& es)
   }
 }
 
-double MuonRadiationFilter::compCaloEnECAL(const reco::Candidate::LorentzVector& refP4, const PFCandidateView& pfCandidates)
+double MuonRadiationFilter::compCaloEnECAL(const reco::Candidate::LorentzVector& refP4, const PFView& pfCandidates)
 {
   double caloEnECAL = 0.;
-  for ( PFCandidateView::const_iterator pfCandidate = pfCandidates.begin();
+  for ( PFView::const_iterator pfCandidate = pfCandidates.begin();
 	pfCandidate != pfCandidates.end(); ++pfCandidate ) {
-    double dR = deltaR(refP4, pfCandidate->p4());
+    double dR = deltaR(refP4, (*pfCandidate)->p4());
     if ( dR < dRvetoCone_ ) {
-      caloEnECAL += pfCandidate->ecalEnergy();
+      caloEnECAL += (*pfCandidate)->ecalEnergy();
     }
   }
   return caloEnECAL;
 }
 
 void MuonRadiationFilter::compPFIso_raw(const reco::Candidate::LorentzVector& refP4, 
-					const PFCandidateView& pfCandidates,
+					const PFView& pfCandidates,
 					const reco::Candidate::LorentzVector& muPlusP4, const reco::Candidate::LorentzVector& muMinusP4,
 					double& pfChargedCandIsoSum, double& pfGammaIsoSum, double& pfNeutralHadronIsoSum)
 {
   pfChargedCandIsoSum   = 0.;
   pfGammaIsoSum         = 0.;
   pfNeutralHadronIsoSum = 0.;
-  for ( PFCandidateView::const_iterator pfCandidate = pfCandidates.begin();
+  for ( PFView::const_iterator pfCandidate = pfCandidates.begin();
 	pfCandidate != pfCandidates.end(); ++pfCandidate ) {
-    double dR = deltaR(refP4, pfCandidate->p4());
+    double dR = deltaR(refP4, (*pfCandidate)->p4());
     if ( dR < dRisoCone_ ) {
       bool isVeto = false;
       if ( dR < dRvetoCone_ ) {
 	isVeto = true;
       } else {
-	double dRmuPlus  = deltaR(muPlusP4,  pfCandidate->p4());
+	double dRmuPlus  = deltaR(muPlusP4,  (*pfCandidate)->p4());
 	if ( dRmuPlus  < dRvetoCone_ ) isVeto = true;
-	double dRmuMinus = deltaR(muMinusP4, pfCandidate->p4());
+	double dRmuMinus = deltaR(muMinusP4, (*pfCandidate)->p4());
 	if ( dRmuMinus < dRvetoCone_ ) isVeto = true;
       }
       if ( isVeto ) continue;
-      if ( TMath::Abs(pfCandidate->charge()) > 0.5 ) {
-	if ( verbosity_ ) std::cout << " adding PFChargedCand: Pt = " << pfCandidate->pt() << ", eta = " << pfCandidate->eta() << ", phi = " << pfCandidate->phi() << " (dR = " << dR << ")" << std::endl;
-	pfChargedCandIsoSum += pfCandidate->pt();
-      } else if ( pfCandidate->particleId() == reco::PFCandidate::gamma ) {
-	if ( verbosity_ ) std::cout << " adding PFGamma: Pt = " << pfCandidate->pt() << ", eta = " << pfCandidate->eta() << ", phi = " << pfCandidate->phi() << " (dR = " << dR << ")" << std::endl;
-	pfGammaIsoSum += pfCandidate->pt();
-      } else if ( pfCandidate->particleId() == reco::PFCandidate::h0 ) {
-	if ( verbosity_ ) std::cout << " adding PFNeutralHadron: Pt = " << pfCandidate->pt() << ", eta = " << pfCandidate->eta() << ", phi = " << pfCandidate->phi() << " (dR = " << dR << ")" << std::endl;
-	pfNeutralHadronIsoSum += pfCandidate->pt();
+      if ( TMath::Abs((*pfCandidate)->charge()) > 0.5 ) {
+	if ( verbosity_ ) std::cout << " adding PFChargedCand: Pt = " << (*pfCandidate)->pt() << ", eta = " << (*pfCandidate)->eta() << ", phi = " << (*pfCandidate)->phi() << " (dR = " << dR << ")" << std::endl;
+	pfChargedCandIsoSum += (*pfCandidate)->pt();
+      } else if ( (*pfCandidate)->particleId() == reco::PFCandidate::gamma ) {
+	if ( verbosity_ ) std::cout << " adding PFGamma: Pt = " << (*pfCandidate)->pt() << ", eta = " << (*pfCandidate)->eta() << ", phi = " << (*pfCandidate)->phi() << " (dR = " << dR << ")" << std::endl;
+	pfGammaIsoSum += (*pfCandidate)->pt();
+      } else if ( (*pfCandidate)->particleId() == reco::PFCandidate::h0 ) {
+	if ( verbosity_ ) std::cout << " adding PFNeutralHadron: Pt = " << (*pfCandidate)->pt() << ", eta = " << (*pfCandidate)->eta() << ", phi = " << (*pfCandidate)->phi() << " (dR = " << dR << ")" << std::endl;
+	pfNeutralHadronIsoSum += (*pfCandidate)->pt();
       } 
     }
   }
 }
 
 double MuonRadiationFilter::compPFIso_puCorr(const reco::Candidate::LorentzVector& refP4, 
-					     const PFCandidateView& pfCandidatesNoPU, const PFCandidateView& pfCandidatesPU,
+					     const PFView& pfCandidatesNoPU, const PFView& pfCandidatesPU,
 					     const reco::Candidate::LorentzVector& muPlusP4, const reco::Candidate::LorentzVector& muMinusP4)
 {
   if ( verbosity_ ) std::cout << "computing isoSum(NoPU)" << std::endl;
@@ -221,7 +221,7 @@ namespace
 }
 
 bool MuonRadiationFilter::checkMuonRadiation(const reco::Candidate::LorentzVector& photonP4, const reco::Candidate::LorentzVector* caloP4mu, double dR, 
-					     const PFCandidateView& pfCandidatesNoPU, const PFCandidateView& pfCandidatesPU,
+					     const PFView& pfCandidatesNoPU, const PFView& pfCandidatesPU,
 					     const reco::Candidate& muPlus, const reco::Candidate& muMinus)
 {
   bool isMuonRadiation = false;
