@@ -52,6 +52,7 @@
 #include "G4MesonConstructor.hh"
 #include "G4BaryonConstructor.hh"
 #include "G4ShortLivedConstructor.hh"
+#include "G4SystemOfUnits.hh"
 
 HadronPhysicsQGSP_WP::HadronPhysicsQGSP_WP(const G4String& name, G4bool quasiElastic)
                  :  G4VPhysicsConstructor(name) , QuasiElastic(quasiElastic)
@@ -62,20 +63,20 @@ void HadronPhysicsQGSP_WP::CreateModels()
   theNeutrons=new G4NeutronBuilder;
   theQGSPNeutron=new G4QGSPNeutronBuilder(QuasiElastic);
   theNeutrons->RegisterMe(theQGSPNeutron);
-  theNeutrons->RegisterMe(theLEPNeutron=new G4LEPNeutronBuilder);
-  theLEPNeutron->SetMaxInelasticEnergy(25*GeV);  
+  // theNeutrons->RegisterMe(theLEPNeutron=new G4LEPNeutronBuilder);
+  // theLEPNeutron->SetMaxInelasticEnergy(25*GeV);  
 
   thePro=new G4ProtonBuilder_WP;
   theQGSPPro=new G4QGSPProtonBuilder(QuasiElastic);
   thePro->RegisterMe(theQGSPPro);
-  thePro->RegisterMe(theLEPPro=new G4LEPProtonBuilder);
-  theLEPPro->SetMaxEnergy(25*GeV);
+  //  thePro->RegisterMe(theLEPPro=new G4LEPProtonBuilder);
+  // theLEPPro->SetMaxEnergy(25*GeV);
   
   thePiK=new G4PiKBuilder_WP;
   theQGSPPiK=new G4QGSPPiKBuilder(QuasiElastic);
   thePiK->RegisterMe(theQGSPPiK);
-  thePiK->RegisterMe(theLEPPiK=new G4LEPPiKBuilder);
-  theLEPPiK->SetMaxEnergy(25*GeV);
+  // thePiK->RegisterMe(theLEPPiK=new G4LEPPiKBuilder);
+  // theLEPPiK->SetMaxEnergy(25*GeV);
   
   theMiscLHEP=new G4MiscLHEPBuilder_WP;
 }
@@ -84,12 +85,12 @@ HadronPhysicsQGSP_WP::~HadronPhysicsQGSP_WP()
 {
    delete theMiscLHEP;
    delete theQGSPNeutron;
-   delete theLEPNeutron;
+   // delete theLEPNeutron;
    delete theQGSPPro;
-   delete theLEPPro;
+   //  delete theLEPPro;
    delete thePro;
    delete theQGSPPiK;
-   delete theLEPPiK;
+   // delete theLEPPiK;
    delete thePiK;
 }
 
