@@ -3,6 +3,7 @@
 
 #include "DataFormats/EcalDetId/interface/EcalContainer.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 template < typename T >
 class ESCondObjectContainer {
@@ -81,34 +82,16 @@ class ESCondObjectContainer {
 
                 inline
                 Item & operator[]( uint32_t rawId ) {
-                        DetId id(rawId);
-                        static Item dummy;
-                        switch (id.subdetId()) {
-                                case EcalPreshower :
-                                        { 
-                                                return es_[rawId];
-                                        }
-                                        break;
-                                default:
-                                        // FIXME (add throw)
-                                        return dummy;
-                        }
+                        if (DetId(rawId).subdetId() == EcalPreshower)
+				return es_[rawId];
+                        throw cms::Exception("TypeNotEcalPreshower");
                 }
                 
                 inline
                 Item const & operator[]( uint32_t rawId ) const {
-                        DetId id(rawId);
-                        static Item dummy;
-                        switch (id.subdetId()) {
-                                case EcalPreshower :
-                                        { 
-                                                return es_[rawId];
-                                        }
-                                        break;
-                                default:
-                                        // FIXME (add throw)
-                                        return dummy;
-                        }
+                        if (DetId(rawId).subdetId() == EcalPreshower)
+				return es_[rawId];
+			throw cms::Exception("TypeNotEcalPreshower");
                 }
                 
         private:
