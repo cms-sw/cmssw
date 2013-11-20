@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def customize(process):
+def setCrossingFrameOn(process):
 
     process.mix.mixObjects.mixCH.crossingFrames = cms.untracked.vstring(
         'CaloHitsTk', 
