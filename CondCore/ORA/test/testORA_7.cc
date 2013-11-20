@@ -11,8 +11,10 @@
 #include <stdexcept>
 #include <cstring>
 // externals
-#include "Reflex/Member.h"
-#include "Reflex/Object.h"
+
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "CoralBase/Blob.h"
 
 using namespace testORA;
@@ -25,9 +27,9 @@ class PrimitiveContainerStreamingService : public ora::IBlobStreamingService {
     
     virtual ~PrimitiveContainerStreamingService();
 
-    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData, const Reflex::Type& classDictionary, bool );
+    boost::shared_ptr<coral::Blob> write( const void* addressOfInputData, const edm::TypeWithDict& classDictionary, bool );
 
-    void read( const coral::Blob& blobData, void* addressOfContainer, const Reflex::Type& classDictionary );
+    void read( const coral::Blob& blobData, void* addressOfContainer, const edm::TypeWithDict& classDictionary );
 };
 
 PrimitiveContainerStreamingService::PrimitiveContainerStreamingService(){
@@ -37,24 +39,24 @@ PrimitiveContainerStreamingService::~PrimitiveContainerStreamingService(){
 }
 
 boost::shared_ptr<coral::Blob> PrimitiveContainerStreamingService::write( const void* addressOfInputData,
-                                                                          const Reflex::Type& type,
+                                                                          const edm::TypeWithDict& type,
                                                                           bool ){
   // The actual object
-  Reflex::Object theContainer( type, const_cast<void*>( addressOfInputData ) );
+  edm::ObjectWithDict theContainer( type, const_cast<void*>( addressOfInputData ) );
 
   // Retrieve the size of the container
-  Reflex::Member sizeMethod = type.MemberByName( "size" );
+  edm::MemberWithDict sizeMethod = type.MemberByName( "size" );
   if ( ! sizeMethod )
     throw std::runtime_error( "No size method is defined for the container" );
   size_t containerSize = 0;
   sizeMethod.Invoke(theContainer, containerSize);
   
   // Retrieve the element size
-  Reflex::Member beginMethod = type.MemberByName( "begin" );
+  edm::MemberWithDict beginMethod = type.MemberByName( "begin" );
   if ( ! beginMethod )
     throw std::runtime_error( "No begin method is defined for the container" );
-  Reflex::Type iteratorType = beginMethod.TypeOf().ReturnType();
-  Reflex::Member dereferenceMethod = iteratorType.MemberByName( "operator*" );
+  edm::TypeWithDict iteratorType = beginMethod.TypeOf().ReturnType();
+  edm::MemberWithDict dereferenceMethod = iteratorType.MemberByName( "operator*" );
   if ( ! dereferenceMethod )
     throw std::runtime_error( "Could not retrieve the dereference method of the container's iterator" );
   size_t elementSize = dereferenceMethod.TypeOf().ReturnType().SizeOf();
@@ -64,13 +66,13 @@ boost::shared_ptr<coral::Blob> PrimitiveContainerStreamingService::write( const 
   void* startingAddress = blob->startingAddress();
 
   // Create an iterator
-  Reflex::Type retType2 =  beginMethod.TypeOf().ReturnType();
+  edm::TypeWithDict retType2 =  beginMethod.TypeOf().ReturnType();
   char* retbuf2 = ::new char[retType2.SizeOf()];
-  Reflex::Object iteratorObject(retType2, retbuf2);
-  beginMethod.Invoke( Reflex::Object( type, const_cast< void * > ( addressOfInputData ) ), &iteratorObject );
+  edm::ObjectWithDict iteratorObject(retType2, retbuf2);
+  beginMethod.Invoke( edm::ObjectWithDict( type, const_cast< void * > ( addressOfInputData ) ), &iteratorObject );
 
   // Loop over the elements of the container
-  Reflex::Member incrementMethod = iteratorObject.TypeOf().MemberByName( "operator++" );
+  edm::MemberWithDict incrementMethod = iteratorObject.TypeOf().MemberByName( "operator++" );
   if ( ! incrementMethod )
     throw std::runtime_error( "Could not retrieve the increment method of the container's iterator" );
 
@@ -93,13 +95,13 @@ boost::shared_ptr<coral::Blob> PrimitiveContainerStreamingService::write( const 
 
 void PrimitiveContainerStreamingService::read( const coral::Blob& blobData,
                                                void* addressOfContainer,
-                                               const Reflex::Type& type ){
+                                               const edm::TypeWithDict& type ){
   // Retrieve the element size
-  Reflex::Member beginMethod = type.MemberByName( "begin" );
+  edm::MemberWithDict beginMethod = type.MemberByName( "begin" );
   if ( ! beginMethod )
     throw std::runtime_error( "No begin method is defined for the container" );
-  Reflex::Type iteratorType = beginMethod.TypeOf().ReturnType();
-  Reflex::Member dereferenceMethod = iteratorType.MemberByName( "operator*" );
+  edm::TypeWithDict iteratorType = beginMethod.TypeOf().ReturnType();
+  edm::MemberWithDict dereferenceMethod = iteratorType.MemberByName( "operator*" );
   if ( ! dereferenceMethod )
     throw std::runtime_error( "Could not retrieve the dereference method of the container's iterator" );
 
@@ -111,27 +113,27 @@ void PrimitiveContainerStreamingService::read( const coral::Blob& blobData,
   size_t contrainerSize = blobData.size() / elementSize;
 
   // Retrieve the end method
-  Reflex::Member endMethod = type.MemberByName( "end" );
+  edm::MemberWithDict endMethod = type.MemberByName( "end" );
   if ( ! endMethod )
    throw std::runtime_error( "Could not retrieve the end method of the container" );
 
   // Retrieve the insert method
-  Reflex::Member insertMethod;
+  edm::MemberWithDict insertMethod;
   for( unsigned int i = 0; i < type.FunctionMemberSize();i++){
-    Reflex::Member im = type.FunctionMemberAt(i);
-    if( im.Name() != std::string( "insert" ) ) continue;
-    if( im.TypeOf().FunctionParameterSize() != 2) continue;
+    edm::MemberWithDict im = type.FunctionMemberAt(i);
+    if( im.name() != std::string( "insert" ) ) continue;
+    if( im.typeOf().FunctionParameterSize() != 2) continue;
     insertMethod = im;
     break;
   }
 
   // Retrieve the clear method
-  Reflex::Member clearMethod = type.MemberByName( "clear" );
+  edm::MemberWithDict clearMethod = type.functionMemberByName( "clear" );
   if ( ! clearMethod )
    throw std::runtime_error( "Could not retrieve the clear method of the container" );
 
   // Clear the container
-  Reflex::Object containerObject( type, addressOfContainer );
+  edm::ObjectWithDict containerObject( type, addressOfContainer );
 
   clearMethod.Invoke( containerObject ,0 );
 
@@ -141,9 +143,9 @@ void PrimitiveContainerStreamingService::read( const coral::Blob& blobData,
     std::vector< void* > args( 2 );
 
     // call container.end()
-    Reflex::Type retType =  endMethod.TypeOf().ReturnType();
+    edm::TypeWithDict retType =  endMethod.typeOf().ReturnType();
     char* retbuf = ::new char[retType.SizeOf()];
-    Reflex::Object ret(retType, retbuf);
+    edm::ObjectWithDict ret(retType, retbuf);
     endMethod.Invoke(containerObject, &ret);
     args[0] = ret.Address();
     //    delete [] retbuf;
@@ -153,7 +155,7 @@ void PrimitiveContainerStreamingService::read( const coral::Blob& blobData,
     insertMethod.Invoke( containerObject, 0, args );
 
     // this is required! (as it was in Reflect). 
-    iteratorType.Destruct( args[0] );
+    iteratorType.destruct( args[0] );
     
     const char* cstartingAddress = static_cast<const char*>( startingAddress );
     cstartingAddress += elementSize;

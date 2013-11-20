@@ -5,7 +5,8 @@
 #include <cstring>
 #include <cstdio>
 // externals
-#include "Reflex/Reflex.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "CondCore/ORA/src/RflxPropList.h"
 
 namespace cond {
   
@@ -58,7 +59,7 @@ namespace cond {
     char buff[20];
     std::string clguid("");
     //  first lookup the class guid in the dictionary
-    Reflex::Type containerType = Reflex::Type::ByName( className );
+    edm::TypeWithDict containerType = edm::TypeWithDict::byName( className );
     if( containerType ){
       Reflex::PropertyList props = containerType.Properties();
       if( props.HasProperty("ClassID")){

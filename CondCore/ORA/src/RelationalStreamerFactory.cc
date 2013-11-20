@@ -24,13 +24,13 @@ ora::RelationalStreamerFactory::RelationalStreamerFactory( ContainerSchema& cont
 ora::RelationalStreamerFactory::~RelationalStreamerFactory(){
 }
 
-ora::IRelationalStreamer* ora::RelationalStreamerFactory::newStreamer( const Reflex::Type& type,
+ora::IRelationalStreamer* ora::RelationalStreamerFactory::newStreamer( const edm::TypeWithDict& type,
                                                                        MappingElement& mapping ){
   IRelationalStreamer* newStreamer = 0;
   if ( mapping.elementType() == MappingElement::Primitive ) { // Primitives
     if( ! ClassUtils::isTypePrimitive( type ) ){
       throwException( "Mapped variable \"" + mapping.variableName() +
-                      "\", declared as Primitive, is associated to non-primitive type \""+type.Name()+"\"",
+                      "\", declared as Primitive, is associated to non-primitive type \""+type.name()+"\"",
                       "RelationalStreamerFactory::newStreamer" );
     }
     newStreamer = new PrimitiveStreamer( type, mapping );
@@ -43,25 +43,25 @@ ora::IRelationalStreamer* ora::RelationalStreamerFactory::newStreamer( const Ref
       throwException( "Mapped variable \"" + mapping.variableName() +" of type "+
                       mapping.variableType() +
                       "\", declared as Array, is associated to the non-container type \""+
-                      type.Name()+"\".",
+                      type.name()+"\".",
                       "RelationalStreamerFactory::newStreamer" );
     }
     newStreamer = new STLContainerStreamer( type, mapping, m_containerSchema );
   } else if ( mapping.elementType() == MappingElement::CArray ) { 
-    if ( ! type.IsArray() ) {
+    if ( ! type.isArray() ) {
       throwException( "Mapped variable \"" + mapping.variableName() +" of type "+
                       mapping.variableType() +
                       "\", declared as C-Array, is associated to the non-array type \""+
-                      type.Name()+"\".",
+                      type.name()+"\".",
                       "RelationalStreamerFactory::newStreamer" );
     }
     newStreamer = new CArrayStreamer( type, mapping, m_containerSchema );
   } else if ( mapping.elementType() == MappingElement::InlineCArray ) { 
-    if ( ! type.IsArray() ) {
+    if ( ! type.isArray() ) {
       throwException( "Mapped variable \"" + mapping.variableName() +" of type "+
                       mapping.variableType() +
                       "\", declared as Inline C-Array, is associated to the non-array type \""+
-                      type.Name()+"\".",
+                      type.name()+"\".",
                       "RelationalStreamerFactory::newStreamer" );
     }
     newStreamer = new InlineCArrayStreamer( type, mapping, m_containerSchema );
@@ -70,7 +70,7 @@ ora::IRelationalStreamer* ora::RelationalStreamerFactory::newStreamer( const Ref
       throwException( "Mapped variable \"" + mapping.variableName() +" of type "+
                       mapping.variableType() +
                       "\", declared as OraArray, is associated to the non-array type \""+
-                      type.Name()+"\".",
+                      type.name()+"\".",
                       "RelationalStreamerFactory::newStreamer" );
     }
     if( ClassUtils::isTypePVector( type ) )
@@ -82,7 +82,7 @@ ora::IRelationalStreamer* ora::RelationalStreamerFactory::newStreamer( const Ref
       throwException( "Mapped variable \"" + mapping.variableName() +" of type "+
                       mapping.variableType() +
                       "\", declared as a OraPointer, is associated to the type \""+
-                      type.Name()+"\".",
+                      type.name()+"\".",
                       "RelationalStreamerFactory::newStreamer" );
     }
     newStreamer = new OraPtrStreamer( type, mapping, m_containerSchema );
@@ -91,7 +91,7 @@ ora::IRelationalStreamer* ora::RelationalStreamerFactory::newStreamer( const Ref
       throwException( "Mapped variable \"" + mapping.variableName() +" of type "+
                       mapping.variableType() +
                       "\", declared as a OraReference, is associated to the type \""+
-                      type.Name()+"\".",
+                      type.name()+"\".",
                       "RelationalStreamerFactory::newStreamer" );
     }
     newStreamer = new OraReferenceStreamer( type, mapping, m_containerSchema );
@@ -100,7 +100,7 @@ ora::IRelationalStreamer* ora::RelationalStreamerFactory::newStreamer( const Ref
       throwException( "Mapped variable \"" + mapping.variableName() +" of type "+
                       mapping.variableType() +
                       "\", declared as a NamedReference, is associated to the type \""+
-                      type.Name()+"\".",
+                      type.name()+"\".",
                       "RelationalStreamerFactory::newStreamer" );
     }
     newStreamer = new NamedRefStreamer( type, mapping, m_containerSchema );
@@ -109,7 +109,7 @@ ora::IRelationalStreamer* ora::RelationalStreamerFactory::newStreamer( const Ref
       throwException( "Mapped variable \"" + mapping.variableName() +" of type "+
                       mapping.variableType() +
                       "\", declared as a UniqueReference, is associated to the type \""+
-                      type.Name()+"\".",
+                      type.name()+"\".",
                       "RelationalStreamerFactory::newStreamer" );
     }
     newStreamer = new UniqueRefStreamer( type, mapping, m_containerSchema );
@@ -125,19 +125,19 @@ ora::IRelationalStreamer* ora::RelationalStreamerFactory::newStreamer( const Ref
 
 
 
-ora::IRelationalWriter* ora::RelationalStreamerFactory::newWriter(const Reflex::Type& type,
+ora::IRelationalWriter* ora::RelationalStreamerFactory::newWriter(const edm::TypeWithDict& type,
                                                                   MappingElement& mapping ){
   std::auto_ptr<IRelationalStreamer> streamer( newStreamer( type, mapping ) );
   return streamer->newWriter();
 }
 
-ora::IRelationalUpdater* ora::RelationalStreamerFactory::newUpdater(const Reflex::Type& type,
+ora::IRelationalUpdater* ora::RelationalStreamerFactory::newUpdater(const edm::TypeWithDict& type,
                                                                     MappingElement& mapping ){
   std::auto_ptr<IRelationalStreamer> streamer( newStreamer( type, mapping ) );
   return streamer->newUpdater();
 }
 
-ora::IRelationalReader* ora::RelationalStreamerFactory::newReader(const Reflex::Type& type,
+ora::IRelationalReader* ora::RelationalStreamerFactory::newReader(const edm::TypeWithDict& type,
                                                                   MappingElement& mapping ){
   std::auto_ptr<IRelationalStreamer> streamer( newStreamer( type, mapping ) );
   return streamer->newReader();

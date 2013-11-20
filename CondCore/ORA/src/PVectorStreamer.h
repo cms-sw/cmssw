@@ -9,7 +9,7 @@ namespace ora {
     
     public:
       /// Constructor
-      PVectorWriter( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      PVectorWriter( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
       virtual ~PVectorWriter();
 
       bool build( DataElement& offset, IRelationalData& relationalData, RelationalBuffer& operationBuffer );
@@ -25,7 +25,7 @@ namespace ora {
     public:
 
     /// Constructor
-    PVectorUpdater(const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    PVectorUpdater(const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
     virtual ~PVectorUpdater();
 
     bool build( DataElement& offset, IRelationalData& relationalData, RelationalBuffer& operationBuffer);
@@ -42,7 +42,7 @@ namespace ora {
     public:
     
     /// Constructor
-    PVectorReader(const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    PVectorReader(const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     virtual ~PVectorReader();
     
@@ -59,7 +59,7 @@ namespace ora {
   class PVectorStreamer : public IRelationalStreamer 
   {
     public:
-    PVectorStreamer( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    PVectorStreamer( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     ~PVectorStreamer();
 
@@ -70,7 +70,7 @@ namespace ora {
     IRelationalReader* newReader();
     
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
     ContainerSchema& m_schema;
   }; 

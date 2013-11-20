@@ -7,11 +7,13 @@
 #include "MappingRules.h"
 #include "ClassUtils.h"
 // externals 
-#include "Reflex/Reflex.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "CoralBase/AttributeSpecification.h"
+#include "CondCore/ORA/src/RflxPropList.h"
 
 size_t
-ora::RelationalMapping::sizeInColumns(const Reflex::Type& topLevelClassType ){
+ora::RelationalMapping::sizeInColumns(const edm::TypeWithDict& topLevelClassType ){
   size_t sz=0;
   bool hasDependencies = false;
   _sizeInColumns(topLevelClassType, sz, hasDependencies );
@@ -19,7 +21,7 @@ ora::RelationalMapping::sizeInColumns(const Reflex::Type& topLevelClassType ){
 }
 
 std::pair<bool,size_t>
-ora::RelationalMapping::sizeInColumnsForCArray(const Reflex::Type& topLevelClassType ){
+ora::RelationalMapping::sizeInColumnsForCArray(const edm::TypeWithDict& topLevelClassType ){
   size_t sz=0;
   bool hasDependencies = false;
   _sizeInColumnsForCArray(topLevelClassType, sz, hasDependencies );
@@ -28,11 +30,11 @@ ora::RelationalMapping::sizeInColumnsForCArray(const Reflex::Type& topLevelClass
 
 
 void
-ora::RelationalMapping::_sizeInColumns(const Reflex::Type& topLevelClassType,
+ora::RelationalMapping::_sizeInColumns(const edm::TypeWithDict& topLevelClassType,
                                        size_t& sz,
                                        bool& hasDependencies ){
   // resolve possible typedef chains
-  Reflex::Type typ = ClassUtils::resolvedType( topLevelClassType );
+  edm::TypeWithDict typ = ClassUtils::resolvedType( topLevelClassType );
   bool isOraPolyPointer = ora::ClassUtils::isTypeUniqueReference(typ);
   bool isPrimitive = ora::ClassUtils::isTypePrimitive( typ );
 
@@ -44,8 +46,8 @@ ora::RelationalMapping::_sizeInColumns(const Reflex::Type& topLevelClassType,
     _sizeInColumnsForCArray( typ,arraySize, hasDependencies );
     if( arraySize < MappingRules::MaxColumnsForInlineCArray ) sz += arraySize;
     else hasDependencies = true;
-  } else if (typ.TypeInfo() == typeid(ora::Reference) ||
-             typ.HasBase( Reflex::Type::ByTypeInfo( typeid(ora::Reference) ) )){
+  } else if (typ.typeInfo() == typeid(ora::Reference) ||
+             typ.hasBase( edm::TypeWithDict( typeid(ora::Reference) ) )){
     sz += 2;
   } else {
   
@@ -56,15 +58,15 @@ ora::RelationalMapping::_sizeInColumns(const Reflex::Type& topLevelClassType,
       
       // loop over the data members
       typ.UpdateMembers();
-      //std::vector<Reflex::Type> carrays;
-      for ( size_t i=0; i< typ.DataMemberSize(); i++){
-        Reflex::Member objMember = typ.DataMemberAt(i);
+      //std::vector<edm::TypeWithDict> carrays;
+      for ( size_t i=0; i< typ.dataMemberSize(); i++){
+        edm::MemberWithDict objMember = typ.dataMemberAt(i);
 
         // Skip the transient ones
-        if ( objMember.IsTransient() ) continue;
+        if ( objMember.isTransient() ) continue;
 
         // Retrieve the field type
-        Reflex::Type objMemberType = objMember.TypeOf();
+        edm::TypeWithDict objMemberType = objMember.typeOf();
 
         _sizeInColumns(objMemberType,sz, hasDependencies );
       }
@@ -75,17 +77,17 @@ ora::RelationalMapping::_sizeInColumns(const Reflex::Type& topLevelClassType,
 }
 
 void
-ora::RelationalMapping::_sizeInColumnsForCArray(const Reflex::Type& topLevelClassType,
+ora::RelationalMapping::_sizeInColumnsForCArray(const edm::TypeWithDict& topLevelClassType,
                                                 size_t& sz,
                                                 bool& hasDependencies){
   // resolve possible typedef chains
-  Reflex::Type typ = ClassUtils::resolvedType( topLevelClassType );
+  edm::TypeWithDict typ = ClassUtils::resolvedType( topLevelClassType );
   if( !typ.IsArray()){
     return;
   }
 
-  size_t arraySize = typ.ArrayLength();
-  Reflex::Type arrayType = typ.ToType();
+  size_t arraySize = typ.size();
+  edm::TypeWithDict arrayType = typ.toType();
   size_t arrayElementSize = 0;
   _sizeInColumns(arrayType, arrayElementSize, hasDependencies);
   size_t totSize = arraySize*arrayElementSize;
@@ -100,12 +102,12 @@ ora::RelationalMappingFactory::RelationalMappingFactory( TableRegister& tableReg
 ora::RelationalMappingFactory::~RelationalMappingFactory(){
 }
 
-ora::IRelationalMapping* ora::RelationalMappingFactory::newProcessor( const Reflex::Type& attributeType,
+ora::IRelationalMapping* ora::RelationalMappingFactory::newProcessor( const edm::TypeWithDict& attributeType,
                                                                       bool blobStreaming ){
   if( blobStreaming ){
     return new BlobMapping( attributeType, m_tableRegister );
   }
-  Reflex::Type resType = ClassUtils::resolvedType( attributeType );
+  edm::TypeWithDict resType = ClassUtils::resolvedType( attributeType );
   if ( ora::ClassUtils::isTypePrimitive(resType) ) {
     return new PrimitiveMapping( attributeType, m_tableRegister );
   }
@@ -115,7 +117,7 @@ ora::IRelationalMapping* ora::RelationalMappingFactory::newProcessor( const Refl
   else if ( ora::ClassUtils::isTypeContainer( resType ) ) {
     return new ArrayMapping( attributeType, m_tableRegister );
   }
-  else if ( resType.IsPointer() || resType.IsReference() ){
+  else if ( resType.isPointer() || resType.isReference() ){
     return new EmptyMapping();
   }
   else if ( ora::ClassUtils::isTypeOraPointer( resType )){
@@ -124,17 +126,18 @@ ora::IRelationalMapping* ora::RelationalMappingFactory::newProcessor( const Refl
   else if ( ora::ClassUtils::isTypeUniqueReference( resType )){
     return new UniqueReferenceMapping( attributeType, m_tableRegister );
   }
-  else if ( resType.TypeInfo() == typeid(ora::Reference) ||
-            resType.HasBase( Reflex::Type::ByTypeInfo( typeid(ora::Reference) ) ) ){
+  else if ( resType.typeInfo() == typeid(ora::Reference) ||
+            resType.hasBase( edm::TypeWithDict( typeid(ora::Reference) ) ) ){
     return new OraReferenceMapping( attributeType, m_tableRegister );
   }
-  else if ( resType.TypeInfo() == typeid(ora::NamedReference) ||
-            resType.HasBase( Reflex::Type::ByTypeInfo( typeid(ora::NamedReference) ) ) ){
+  else if ( resType.typeInfo() == typeid(ora::NamedReference) ||
+            resType.hasBase( edm::TypeWithDict( typeid(ora::NamedReference) ) ) ){
     return new NamedRefMapping( attributeType, m_tableRegister );
   }
   else { // embeddedobject
     return new ObjectMapping( attributeType, m_tableRegister );
   } 
+  return 0; // make the compiler happy -- we should never come here !! 
 }
 
 namespace ora {
@@ -170,7 +173,7 @@ namespace ora {
   }
 }
 
-ora::PrimitiveMapping::PrimitiveMapping( const Reflex::Type& attributeType, TableRegister& tableRegister ):
+ora::PrimitiveMapping::PrimitiveMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister ):
   m_type(attributeType),m_tableRegister( tableRegister ){
 }
 
@@ -181,9 +184,9 @@ void ora::PrimitiveMapping::process( MappingElement& parentElement,
                                      const std::string& attributeName,
                                      const std::string& attributeNameForSchema,
                                      const std::string& scopeNameForSchema ){
-  Reflex::Type t = ClassUtils::resolvedType( m_type );
-  const std::type_info* attrType = &t.TypeInfo();
-  if(t.IsEnum()) attrType = &typeid(int);
+  edm::TypeWithDict t = ClassUtils::resolvedType( m_type );
+  const std::type_info* attrType = &t.typeInfo();
+  if(t.isEnum()) attrType = &typeid(int);
   //std::string tn = ClassUtils::demangledName(*attrType);
   if(ClassUtils::isTypeString( t )) attrType = &typeid(std::string);
   std::string typeName = coral::AttributeSpecification::typeNameForId(*attrType);
@@ -197,7 +200,7 @@ void ora::PrimitiveMapping::process( MappingElement& parentElement,
                      m_tableRegister);  
 }
 
-ora::BlobMapping::BlobMapping( const Reflex::Type& attributeType, TableRegister& tableRegister ):
+ora::BlobMapping::BlobMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister ):
   m_type(attributeType),m_tableRegister( tableRegister ){
 }
 
@@ -207,7 +210,7 @@ void ora::BlobMapping::process( MappingElement& parentElement,
                                 const std::string& attributeName,
                                 const std::string& attributeNameForSchema,
                                 const std::string& scopeNameForSchema ){
-  std::string className = m_type.Name(Reflex::SCOPED);
+  std::string className = m_type.qualifiedName();
   processLeafElement(parentElement,
                      ora::MappingElement::blobMappingElementType(),
                      className,
@@ -217,7 +220,7 @@ void ora::BlobMapping::process( MappingElement& parentElement,
                      m_tableRegister);
 }
 
-ora::OraReferenceMapping::OraReferenceMapping( const Reflex::Type& attributeType, TableRegister& tableRegister ):
+ora::OraReferenceMapping::OraReferenceMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister ):
   m_type(attributeType),m_tableRegister( tableRegister ){
 }
 
@@ -228,7 +231,7 @@ void ora::OraReferenceMapping::process( MappingElement& parentElement,
                                         const std::string& attributeName,
                                         const std::string& attributeNameForSchema,
                                         const std::string& scopeNameForSchema ){
-  std::string className = m_type.Name(Reflex::SCOPED);
+  std::string className = m_type.qualifiedName();
   std::string elementType = ora::MappingElement::OraReferenceMappingElementType();
   if(!m_tableRegister.checkTable( parentElement.tableName())){
     throwException("Table \""+parentElement.tableName()+"\" has not been allocated.",
@@ -251,7 +254,7 @@ void ora::OraReferenceMapping::process( MappingElement& parentElement,
   me.setColumnNames( cols );
 }
 
-ora::UniqueReferenceMapping::UniqueReferenceMapping( const Reflex::Type& attributeType, TableRegister& tableRegister ):
+ora::UniqueReferenceMapping::UniqueReferenceMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister ):
   m_type(attributeType),m_tableRegister( tableRegister ){
 }
 
@@ -263,7 +266,7 @@ void ora::UniqueReferenceMapping::process( MappingElement& parentElement,
                                            const std::string& attributeNameForSchema,
                                            const std::string& scopeNameForSchema ){
     
-  std::string typeName = m_type.Name(Reflex::SCOPED);
+  std::string typeName = m_type.qualifiedName();
   if(!m_tableRegister.checkTable( parentElement.tableName())){
     throwException("Table \""+parentElement.tableName()+"\" has not been allocated.",
                    "UniqueReferenceMapping::process");
@@ -294,7 +297,7 @@ void ora::UniqueReferenceMapping::process( MappingElement& parentElement,
   me.setColumnNames( cols );
 }
 
-ora::OraPtrMapping::OraPtrMapping( const Reflex::Type& attributeType, TableRegister& tableRegister ):
+ora::OraPtrMapping::OraPtrMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister ):
   m_type(attributeType), m_tableRegister( tableRegister ){
 }
 
@@ -306,19 +309,19 @@ void ora::OraPtrMapping::process( MappingElement& parentElement,
                                   const std::string& attributeNameForSchema,
                                   const std::string& scopeNameForSchema ){
   
-  std::string typeName = m_type.Name(Reflex::SCOPED);
+  std::string typeName = m_type.qualifiedName();
   ora::MappingElement& me = parentElement.appendSubElement( ora::MappingElement::OraPointerMappingElementType(), attributeName, typeName, parentElement.tableName() );
   me.setColumnNames( parentElement.columnNames() );
 
-  Reflex::Type ptrType = m_type.TemplateArgumentAt(0);
-  std::string ptrTypeName = ptrType.Name();
+  edm::TypeWithDict ptrType = m_type.templateArgumentAt(0);
+  std::string ptrTypeName = ptrType.name();
 
   RelationalMappingFactory factory( m_tableRegister );
   std::auto_ptr<IRelationalMapping> processor( factory.newProcessor( ptrType ) );
   processor->process( me, ptrTypeName, attributeNameForSchema, scopeNameForSchema );
 }
 
-ora::NamedRefMapping::NamedRefMapping( const Reflex::Type& attributeType, TableRegister& tableRegister ):
+ora::NamedRefMapping::NamedRefMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister ):
   m_type( attributeType ),
   m_tableRegister( tableRegister ){
 }
@@ -330,7 +333,7 @@ void ora::NamedRefMapping::process( MappingElement& parentElement,
                                     const std::string& attributeName,
                                     const std::string& attributeNameForSchema, 
                                     const std::string& scopeNameForSchema ){
-  std::string typeName = m_type.Name(Reflex::SCOPED);
+  std::string typeName = m_type.qualifiedName();
   ora::MappingElement& me = parentElement.appendSubElement( ora::MappingElement::namedReferenceMappingElementType(), attributeName, typeName, parentElement.tableName() );
 
   std::vector< std::string > cols;
@@ -348,7 +351,7 @@ void ora::NamedRefMapping::process( MappingElement& parentElement,
   
 }
 
-ora::ArrayMapping::ArrayMapping( const Reflex::Type& attributeType, TableRegister& tableRegister ):
+ora::ArrayMapping::ArrayMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister ):
   m_type(attributeType), m_tableRegister( tableRegister ){
 }
 
@@ -370,7 +373,7 @@ void ora::ArrayMapping::process( MappingElement& parentElement,
   }
   m_tableRegister.insertTable(arrayTable);
 
-  std::string className = m_type.Name(Reflex::SCOPED);
+  std::string className = m_type.qualifiedName();
 
   std::string elementType = ora::MappingElement::arrayMappingElementType();
   if(ora::ClassUtils::isTypePVector(m_type) || ora::ClassUtils::isTypeQueryableVector(m_type)){
@@ -405,8 +408,8 @@ void ora::ArrayMapping::process( MappingElement& parentElement,
   bool singleItemContainer =  ora::ClassUtils::isTypeNonAssociativeContainer(m_type);
   bool associativeContainer =  ora::ClassUtils::isTypeAssociativeContainer(m_type);
 
-  Reflex::Type contentType;
-  Reflex::Type keyType;
+  edm::TypeWithDict contentType;
+  edm::TypeWithDict keyType;
   
   if( singleItemContainer ){
     contentType = ClassUtils::containerValueType(m_type);
@@ -415,34 +418,34 @@ void ora::ArrayMapping::process( MappingElement& parentElement,
     contentType = ClassUtils::containerDataType( m_type );
     keyType = ClassUtils::containerKeyType( m_type );
     if( !keyType || !ClassUtils::resolvedType(keyType) ){
-      throwException( "Cannot not resolve the type of the key item of container \""+m_type.Name(Reflex::SCOPED)+"\".",
+      throwException( "Cannot not resolve the type of the key item of container \""+m_type.qualifiedName()+"\".",
                       "ArrayMapping::process");
     }
   }
   else {
     // Not supported container
-      throwException( "Container type=\""+m_type.Name(Reflex::SCOPED)+"\".is not supported.",
+      throwException( "Container type=\""+m_type.qualifiedName()+"\".is not supported.",
                       "ArrayMapping::process");    
   }
 
   if( !contentType || !ClassUtils::resolvedType(contentType) ){
-      throwException( "Cannot not resolve the type of the content item of container \""+m_type.Name(Reflex::SCOPED)+"\".",
+      throwException( "Cannot not resolve the type of the content item of container \""+m_type.qualifiedName()+"\".",
                       "ArrayMapping::process");
   }
   RelationalMappingFactory mappingFactory( m_tableRegister );
   if ( keyType ) {
-    std::string keyTypeName = keyType.Name();
+    std::string keyTypeName = keyType.name();
     std::string keyTypeNameForSchema = MappingRules::variableNameForContainerKey();
     std::auto_ptr<IRelationalMapping> keyProcessor( mappingFactory.newProcessor( keyType ) );
     keyProcessor->process( me, keyTypeName, keyTypeNameForSchema, arrayScopeNameForSchema  );
   }
-  std::string contentTypeName = contentType.Name();
+  std::string contentTypeName = contentType.name();
   std::string contentTypeNameForSchema = MappingRules::variableNameForContainerValue();
   std::auto_ptr<IRelationalMapping> contentProcessor( mappingFactory.newProcessor( contentType ) );
   contentProcessor->process( me, contentTypeName, contentTypeNameForSchema, arrayScopeNameForSchema );
 }
 
-ora::CArrayMapping::CArrayMapping( const Reflex::Type& attributeType, TableRegister& tableRegister ):
+ora::CArrayMapping::CArrayMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister ):
   m_type(attributeType), m_tableRegister( tableRegister ){
 }
 
@@ -453,9 +456,9 @@ void ora::CArrayMapping::process( MappingElement& parentElement,
                                   const std::string& attributeName,
                                   const std::string& attributeNameForSchema,
                                   const std::string& scopeNameForSchema ){
-  Reflex::Type arrayElementType = m_type.ToType();
+  edm::TypeWithDict arrayElementType = m_type.toType();
   if( !arrayElementType || !ClassUtils::resolvedType( arrayElementType ) ){
-    throwException("Cannot resolve the type of the content of the array \""+m_type.Name(Reflex::SCOPED)+"\".",
+    throwException("Cannot resolve the type of the content of the array \""+m_type.qualifiedName()+"\".",
                    "CArrayMapping::process");
   }
 
@@ -463,7 +466,7 @@ void ora::CArrayMapping::process( MappingElement& parentElement,
     throwException("Table \""+parentElement.tableName()+"\" has not been allocated.",
                    "CArrayMapping::process");
   }
-  std::string className = m_type.Name(Reflex::SCOPED);
+  std::string className = m_type.qualifiedName();
   RelationalMappingFactory mappingFactory( m_tableRegister );
 
   std::string arrayScopeNameForSchema = scopeNameForSchema;
@@ -479,7 +482,7 @@ void ora::CArrayMapping::process( MappingElement& parentElement,
       ora::MappingElement& me = parentElement.appendSubElement( mappingElementType, attributeName, className, parentElement.tableName() );
       me.setColumnNames( parentElement.columnNames() );
       std::auto_ptr<IRelationalMapping> processor( mappingFactory.newProcessor( arrayElementType ) );
-      for(size_t i=0;i<m_type.ArrayLength();i++){
+      for(size_t i=0;i<m_type.size();i++){
         processor->process( me, MappingRules::variableNameForArrayIndex(attributeName,i), 
                             MappingRules::variableNameForArrayColumn(i), arrayScopeNameForSchema );
       }
@@ -517,13 +520,13 @@ void ora::CArrayMapping::process( MappingElement& parentElement,
   me.setColumnNames( columns );
   m_tableRegister.insertColumns(arrayTable, columns );
 
-  std::string contentTypeName = arrayElementType.Name();
+  std::string contentTypeName = arrayElementType.name();
   std::string variableNameForSchema = MappingRules::variableNameForArrayColumn( m_type  );
   std::auto_ptr<IRelationalMapping> processor( mappingFactory.newProcessor( arrayElementType ) );
   processor->process( me, contentTypeName, variableNameForSchema, arrayScopeNameForSchema );
 }
 
-ora::ObjectMapping::ObjectMapping( const Reflex::Type& attributeType, TableRegister& tableRegister ):
+ora::ObjectMapping::ObjectMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister ):
   m_type(attributeType), m_tableRegister( tableRegister ){
 }
 
@@ -532,7 +535,7 @@ ora::ObjectMapping::~ObjectMapping(){
 
 namespace ora {
 
-  bool isLoosePersistencyOnWriting( const Reflex::Member& dataMember ){
+  bool isLoosePersistencyOnWriting( const edm::MemberWithDict& dataMember ){
     std::string persistencyType("");
     Reflex::PropertyList memberProps = dataMember.Properties();
     if( memberProps.HasProperty(ora::MappingRules::persistencyPropertyNameInDictionary())){
@@ -542,30 +545,30 @@ namespace ora {
   }
   
   void processBaseClasses( MappingElement& mappingElement,
-                           const Reflex::Type& objType,
+                           const edm::TypeWithDict& objType,
                            const std::string& scopeNameForSchema,
                            TableRegister& tableRegister ){
-    std::string className = objType.Name(Reflex::SCOPED);
+    std::string className = objType.qualifiedName();
     for ( size_t i=0; i< objType.BaseSize(); i++){
-      Reflex::Base base = objType.BaseAt(i);
-      Reflex::Type baseType = ClassUtils::resolvedType( base.ToType() );
+      edm::BaseWithDict base = objType.BaseAt(i);
+      edm::TypeWithDict baseType = ClassUtils::resolvedType( base.typeOf() ); // ?? base.toType() );
       if(!baseType){
-        throwException( "Class for base \""+base.Name()+"\" is not in the dictionary.","ObjectMapping::process");
+        throwException( "Class for base \""+base.name()+"\" is not in the dictionary.","ObjectMapping::process");
       }
 
       // TO BE FIXED:: here there is still to fix the right scopeName to pass 
       processBaseClasses( mappingElement, baseType, scopeNameForSchema, tableRegister );
-      for ( size_t j=0; j< baseType.DataMemberSize(); j++){
-        Reflex::Member baseMember = baseType.DataMemberAt(j);
+      for ( size_t j=0; j< baseType.dataMemberSize(); j++){
+        edm::MemberWithDict baseMember = baseType.DataMemberAt(j);
         // Skip the transient and the static ones
-        if ( baseMember.IsTransient() || baseMember.IsStatic() || isLoosePersistencyOnWriting( baseMember ) ) continue;
+        if ( baseMember.isTransient() || baseMember.isStatic() || isLoosePersistencyOnWriting( baseMember ) ) continue;
         // Retrieve the data member type
-        Reflex::Type type = ClassUtils::resolvedType( baseMember.TypeOf() );
-        Reflex::Type declaringType = ClassUtils::resolvedType( baseMember.DeclaringType());
-        std::string scope = declaringType.Name(Reflex::SCOPED);
+        edm::TypeWithDict type = ClassUtils::resolvedType( baseMember.typeOf() );
+        edm::TypeWithDict declaringType = ClassUtils::resolvedType( baseMember.declaringType());
+        std::string scope = declaringType.qualifiedName();
         // Retrieve the field name
-        std::string objectMemberName = ora::MappingRules::scopedVariableName( baseMember.Name(), scope );
-        std::string objectMemberNameForSchema = ora::MappingRules::scopedVariableForSchemaObjects( baseMember.Name(), scope );
+        std::string objectMemberName = ora::MappingRules::scopedVariableName( baseMember.name(), scope );
+        std::string objectMemberNameForSchema = ora::MappingRules::scopedVariableForSchemaObjects( baseMember.name(), scope );
 
         std::string mappingType("");
         Reflex::PropertyList memberProps = baseMember.Properties();
@@ -586,13 +589,13 @@ void ora::ObjectMapping::process( MappingElement& parentElement,
                                   const std::string& attributeName,
                                   const std::string& attributeNameForSchema,
                                   const std::string& scopeNameForSchema ){
-  std::string className = m_type.Name(Reflex::SCOPED);
+  std::string className = m_type.qualifiedName();
   std::string elementType = ora::MappingElement::objectMappingElementType();
   ora::MappingElement& me = parentElement.appendSubElement( elementType, attributeName, className, parentElement.tableName() );
   me.setColumnNames( parentElement.columnNames() );
 
   // resolve possible typedef chains
-  Reflex::Type objectType = ClassUtils::resolvedType(m_type);
+  edm::TypeWithDict objectType = ClassUtils::resolvedType(m_type);
   // process base class data members
   processBaseClasses( me, m_type, scopeNameForSchema, m_tableRegister );
   RelationalMappingFactory mappingFactory( m_tableRegister );
@@ -602,29 +605,29 @@ void ora::ObjectMapping::process( MappingElement& parentElement,
   objectScopeNameForSchema += attributeNameForSchema;
 
   // loop over the data members 
-  for ( size_t i=0; i< objectType.DataMemberSize(); i++){
+  for ( size_t i=0; i< objectType.dataMemberSize(); i++){
 
-    Reflex::Member objectMember = m_type.DataMemberAt(i);
+    edm::MemberWithDict objectMember = m_type.DataMemberAt(i);
     // Skip the transient and the static ones
-    if ( objectMember.IsTransient() || objectMember.IsStatic() || isLoosePersistencyOnWriting( objectMember )) continue;
+    if ( objectMember.isTransient() || objectMember.isStatic() || isLoosePersistencyOnWriting( objectMember )) continue;
 
     // Retrieve the field type
-    Reflex::Type type = ClassUtils::resolvedType( objectMember.TypeOf() );
+    edm::TypeWithDict type = ClassUtils::resolvedType( objectMember.typeOf() );
     // Check for the existence of the dictionary information
     if ( !type ){
-      throwException( "Type for data member \""+objectMember.Name()+"\" of class \""+className+
+      throwException( "Type for data member \""+objectMember.name()+"\" of class \""+className+
                       "\" has not been found in the dictionary.",
                       "ObjectMapping::process");
     }
     
     // check if the member is from a class in the inheritance tree
-    Reflex::Type declaringType = ClassUtils::resolvedType( objectMember.DeclaringType());
+    edm::TypeWithDict declaringType = ClassUtils::resolvedType( objectMember.declaringType());
     if( declaringType != objectType ){
       continue;
     }
     // Retrieve the field name
-    std::string objectMemberName = objectMember.Name();
-    std::string objectNameForSchema = objectMember.Name();
+    std::string objectMemberName = objectMember.name();
+    std::string objectNameForSchema = objectMember.name();
     
     std::string mappingType("");
     Reflex::PropertyList memberProps = objectMember.Properties();

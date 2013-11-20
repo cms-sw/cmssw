@@ -1,4 +1,5 @@
 #include "DataElement.h"
+#include <stddef.h>     /* offsetof */
 
 ora::DataElement::DataElement():
   m_parent(0),
@@ -8,7 +9,7 @@ ora::DataElement::DataElement():
 }
 
 ora::DataElement::DataElement( size_t declaringScopeOffset,
-                               Reflex::OffsetFunction offsetFunc ):
+                               size_t offsetFunc ):
   m_parent(0),
   m_children(),
   m_declaringScopeOffset(declaringScopeOffset),
@@ -24,7 +25,7 @@ ora::DataElement::~DataElement(){
 
 ora::DataElement&
 ora::DataElement::addChild( size_t declaringScopeOffset,
-                            Reflex::OffsetFunction offsetFunction ){
+                            size_t offsetFunction ){
   DataElement* child = new DataElement( declaringScopeOffset, offsetFunction );
   child->m_parent = this;
   m_children.push_back(child);
@@ -40,7 +41,7 @@ size_t ora::DataElement::offset( const void* topLevelAddress ) const {
     address = static_cast<char*>(const_cast<void*>(topLevelAddress))+parentOffset;
   }
   if(m_offsetFunction){
-    offset += m_offsetFunction( const_cast<void*>(address));
+    offset += offsetof( const_cast<void*>(address), m_offsetFunction) );
   }
   return offset;  
 }

@@ -8,7 +8,7 @@
 #include "IDatabaseSchema.h"
 #include "MappingTree.h"
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 ora::DatabaseUtilitySession::DatabaseUtilitySession(  DatabaseSession& dbSession ):
   m_session( dbSession ){
@@ -202,7 +202,7 @@ void ora::DatabaseUtilitySession::importContainer( const std::string& sourceConn
   Handle<ora::DatabaseContainer> cont = sourceSession.containerHandle( containerName );
   Handle<IteratorBuffer> iterator = cont->iteratorBuffer();
   std::vector<void*> objects;
-  const Reflex::Type& contType = cont->type();
+  const edm::TypeWithDict& contType = cont->type();
   while( iterator->next() ){
     void* data = iterator->getItem();
     objects.push_back( data );
@@ -210,7 +210,7 @@ void ora::DatabaseUtilitySession::importContainer( const std::string& sourceConn
   }
   newCont->flush();
   for( std::vector<void*>::const_iterator iO = objects.begin(); iO != objects.end(); iO++ ){
-    contType.Destruct( *iO );
+    contType.destruct( *iO );
   }
   sourceSession.commitTransaction();
 }

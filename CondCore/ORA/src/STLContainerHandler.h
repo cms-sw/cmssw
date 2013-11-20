@@ -5,8 +5,9 @@
 //
 #include <memory>
 // externals
-#include "Reflex/Reflex.h"
-#include "Reflex/Builder/CollectionProxy.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "CondCore/ORA/src/RflxEnv.h"
+#include "CondCore/ORA/src/RflxCollProxy.h"
 
 namespace ora {
 
@@ -15,7 +16,7 @@ namespace ora {
       /// Constructor
     STLContainerIteratorHandler( const Reflex::Environ<long>& collEnv,
                                  Reflex::CollFuncTable& collProxy,
-                                 const Reflex::Type& iteratorReturnType );
+                                 const edm::TypeWithDict& iteratorReturnType );
 
       /// Destructor
       ~STLContainerIteratorHandler();
@@ -27,12 +28,12 @@ namespace ora {
       void* object();
 
       /// Returns the return type of the iterator dereference method
-      Reflex::Type& returnType();
+      edm::TypeWithDict& returnType();
 
     private:
 
       /// The return type of the iterator dereference method
-      Reflex::Type m_returnType;
+      edm::TypeWithDict m_returnType;
       
       /// Structure containing parameters of the collection instance  
       Reflex::Environ<long> m_collEnv;
@@ -49,7 +50,7 @@ namespace ora {
 
     public:
       /// Constructor
-      explicit STLContainerHandler( const Reflex::Type& dictionary );
+      explicit STLContainerHandler( const edm::TypeWithDict& dictionary );
 
       /// Destructor
       ~STLContainerHandler();
@@ -67,17 +68,17 @@ namespace ora {
       void clear( const void* address );
       
       /// Returns the iterator return type
-      Reflex::Type& iteratorReturnType();
+      edm::TypeWithDict& iteratorReturnType();
 
       /// Returns the associativeness of the container
       bool isAssociative() const { return m_isAssociative; }
       
     private:
       /// The dictionary information
-      Reflex::Type m_type;
+      edm::TypeWithDict m_type;
 
       /// The iterator return type
-      Reflex::Type m_iteratorReturnType;
+      edm::TypeWithDict m_iteratorReturnType;
 
       /// Flag indicating whether the container is associative
       bool m_isAssociative;
@@ -95,7 +96,7 @@ namespace ora {
 
     public:
       /// Constructor
-      explicit SpecialSTLContainerHandler( const Reflex::Type& dictionary );
+      explicit SpecialSTLContainerHandler( const edm::TypeWithDict& dictionary );
 
       /// Destructor
       ~SpecialSTLContainerHandler();
@@ -113,7 +114,7 @@ namespace ora {
       void clear( const void* address );
 
       /// Returns the iterator return type
-      Reflex::Type& iteratorReturnType();
+      edm::TypeWithDict& iteratorReturnType();
 
     private:
       /// The handler of the unserlying container

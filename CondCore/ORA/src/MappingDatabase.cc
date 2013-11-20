@@ -6,11 +6,12 @@
 //
 #include <sstream>
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "CondCore/ORA/src/RflxPropList.h"
 
 std::string
-ora::MappingDatabase::versionOfClass( const Reflex::Type& dictionary ){
-  std::string className = dictionary.Name(Reflex::SCOPED);
+ora::MappingDatabase::versionOfClass( const edm::TypeWithDict& dictionary ){
+  std::string className = dictionary.qualifiedName();
   Reflex::PropertyList classProps = dictionary.Properties();
   std::string classVersion = MappingRules::defaultClassVersion(className);
   if(classProps.HasProperty(MappingRules::classVersionPropertyNameInDictionary())){
@@ -266,21 +267,21 @@ bool ora::MappingDatabase::getClassVersionListForContainer( int containerId,
   return m_schema.mappingSchema().getClassVersionListForContainer( containerId, versionMap );
 }
 
-void ora::MappingDatabase::insertClassVersion( const Reflex::Type& dictionaryEntry,
+void ora::MappingDatabase::insertClassVersion( const edm::TypeWithDict& dictionaryEntry,
                                                int depIndex,
                                                int containerId,
                                                const std::string& mappingVersion,
                                                bool asBase  ){
-  std::string className = dictionaryEntry.Name( Reflex::SCOPED );
+  std::string className = dictionaryEntry.qualifiedName();
   std::string classVersion = versionOfClass( dictionaryEntry );
   insertClassVersion( className, classVersion, depIndex, containerId, mappingVersion, asBase );
 }
 
-void ora::MappingDatabase::setMappingVersionForClass( const Reflex::Type& dictionaryEntry,
+void ora::MappingDatabase::setMappingVersionForClass( const edm::TypeWithDict& dictionaryEntry,
                                                       int containerId,
                                                       const std::string& mappingVersion,
                                                       bool dependency ){
-  std::string className = dictionaryEntry.Name( Reflex::SCOPED );
+  std::string className = dictionaryEntry.qualifiedName();
   std::string classVersion = versionOfClass( dictionaryEntry );
   std::string classId = MappingRules::classId( className, classVersion );
   std::string mv("");

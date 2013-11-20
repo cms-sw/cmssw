@@ -7,7 +7,7 @@
 #include <memory>
 #include <boost/shared_ptr.hpp>
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace ora {
 
@@ -22,14 +22,14 @@ namespace ora {
     
     public:
       /// Constructor
-      QueryableVectorWriter( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      QueryableVectorWriter( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
       virtual ~QueryableVectorWriter();
 
       bool build( DataElement& offset, IRelationalData& relationalData, RelationalBuffer& operationBuffer );
       void setRecordId( const std::vector<int>& identity );
       void write( int oid,const void* data );
     private:
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       DataElement* m_offset;
       DataElement m_localElement;
     private:  
@@ -41,7 +41,7 @@ namespace ora {
     public:
 
     /// Constructor
-    QueryableVectorUpdater(const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    QueryableVectorUpdater(const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
     virtual ~QueryableVectorUpdater();
 
     bool build( DataElement& offset, IRelationalData& relationalData, RelationalBuffer& operationBuffer);
@@ -49,7 +49,7 @@ namespace ora {
     void update( int oid,const void* data );
 
     private:
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       DataElement* m_offset;
       DataElement m_localElement;
     private:
@@ -61,7 +61,7 @@ namespace ora {
     public:
     
     /// Constructor
-    QueryableVectorReader(const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    QueryableVectorReader(const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     virtual ~QueryableVectorReader();
     
@@ -72,7 +72,7 @@ namespace ora {
     void clear();
 
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
     ContainerSchema& m_schema;
     DataElement* m_dataElement;
@@ -83,7 +83,7 @@ namespace ora {
   class QueryableVectorStreamer : public IRelationalStreamer 
   {
     public:
-    QueryableVectorStreamer( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    QueryableVectorStreamer( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     ~QueryableVectorStreamer();
 
@@ -94,7 +94,7 @@ namespace ora {
     IRelationalReader* newReader();
     
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
     ContainerSchema& m_schema;
   }; 

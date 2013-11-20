@@ -4,12 +4,14 @@
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "ClassUtils.h"
 //
+#include <typeinfo>
 #include <cxxabi.h>
 // externals
-#include "Reflex/Object.h"
-#include "Reflex/Base.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "TROOT.h"
 
-ora::RflxDeleter::RflxDeleter( const Reflex::Type& type ):
+ora::RflxDeleter::RflxDeleter( const edm::TypeWithDict& type ):
   m_type( type ){
 }
 
@@ -21,7 +23,7 @@ ora::RflxDeleter::~RflxDeleter(){
 }
 
 void ora::RflxDeleter::operator()( void* ptr ){
-  m_type.Destruct( ptr );
+  m_type.destruct( ptr );
 }
 
 void ora::ClassUtils::loadDictionary( const std::string& className ){
@@ -29,53 +31,61 @@ void ora::ClassUtils::loadDictionary( const std::string& className ){
   edmplugin::PluginCapabilities::get()->load(prefix + className);
 }
 
-void* ora::ClassUtils::upCast( const Reflex::Type& type,
+void* ora::ClassUtils::upCast( const edm::TypeWithDict& type,
                                void* ptr,
-                               const Reflex::Type& castType ){
+                               const edm::TypeWithDict& castType ){
   void* ret = 0;
   if( type == castType ){
     ret = ptr;
-  } else if( type.HasBase( castType )){
-    Reflex::Object theObj( type, ptr );
-    ret = theObj.CastObject( castType ).Address();
+  } else if( type.hasBase( castType )){
+    edm::ObjectWithDict theObj( type, ptr );
+    ret = theObj.objectCast<castType>().address();
   }
   return ret;
 }
 
-bool ora::ClassUtils::isType( const Reflex::Type& type,
-                              const Reflex::Type& baseType ){
+bool ora::ClassUtils::isType( const edm::TypeWithDict& type,
+                              const edm::TypeWithDict& baseType ){
   bool ret = false;
-  if( type == baseType || type.HasBase( baseType )){
+  if( type == baseType || type.hasBase( baseType )){
     ret = true;
   }
   return ret;
 }
 
-bool ora::ClassUtils::checkMappedType( const Reflex::Type& type, 
-				       const std::string& mappedTypeName ){
+bool ora::ClassUtils::checkMappedType( const edm::TypeWithDict& type, 
+				                       const std::string& mappedTypeName ){
   if( isTypeString( type ) ){
     return (mappedTypeName=="std::basic_string<char>" || mappedTypeName=="basic_string<char>" || mappedTypeName=="std::string" || mappedTypeName=="string");
-  } else if ( type.IsEnum() ){
+  } else if ( type.isEnum() ){
     return mappedTypeName=="int";
   } else if ( isTypeOraVector( type ) ){
     return isTypeNameOraVector( mappedTypeName );
   } else {
-    return type.Name(Reflex::SCOPED)==mappedTypeName;
+    return type.qualifiedName()==mappedTypeName;
   }
 }
 
-bool ora::ClassUtils::findBaseType( Reflex::Type& type, Reflex::Type& baseType, Reflex::OffsetFunction& func ){
+bool ora::ClassUtils::findBaseType( edm::TypeWithDict& type, edm::TypeWithDict& baseType, size_t& func ){
   bool found = false;
+  if ( ! type.hasBase(baseType) ) {
+      return found; // no inheritance, nothing to do
+  } else {
+      func = type.getBaseClassOffset(baseType);
+      found = true;
+  }
+/*-ap old code        
   for ( unsigned int i=0;i<type.BaseSize() && !found; i++){
-     Reflex::Base base = type.BaseAt(i);
-     Reflex::Type bt = resolvedType( base.ToType() );
+     edm::BaseWithDict base = type.BaseAt(i);
+     edm::TypeWithDict bt = resolvedType( base.ToType() );
      if( bt == baseType ){
-       func = base.OffsetFP();
+       func = type.getBaseClassOffset(baseType);
        found = true;
      } else {
        found = findBaseType( bt, baseType, func );
      }
   }
+*/
   return found;
 }
 
@@ -90,15 +100,16 @@ std::string ora::ClassUtils::demangledName( const std::type_info& typeInfo ){
   return ret;
 }
 
-Reflex::Type ora::ClassUtils::lookupDictionary( const std::type_info& typeInfo, bool throwFlag ){
-  Reflex::Type type = Reflex::Type::ByTypeInfo( typeInfo );
+edm::TypeWithDict ora::ClassUtils::lookupDictionary( const std::type_info& typeInfo, bool throwFlag ){
+  edm::TypeWithDict type ( typeInfo );
   if( typeInfo == typeid(std::string) ){
     // ugly, but no other way with Reflex...
-    type = Reflex::Type::ByName("std::string");
+    type = edm::TypeWithDict::byName("std::string");
   }
   if( !type ){
     loadDictionary( demangledName(typeInfo) );
-    type = Reflex::Type::ByTypeInfo( typeInfo );
+    edm::TypeWithDict type1 ( typeInfo );
+    type = type1;
   }
   if( !type && throwFlag ){
     throwException( "Class \""+demangledName(typeInfo)+"\" has not been found in the dictionary.",
@@ -107,15 +118,15 @@ Reflex::Type ora::ClassUtils::lookupDictionary( const std::type_info& typeInfo, 
   return type;
 }
 
-Reflex::Type ora::ClassUtils::lookupDictionary( const std::string& className, bool throwFlag   ){
-  Reflex::Type type = Reflex::Type::ByName( className );
+edm::TypeWithDict ora::ClassUtils::lookupDictionary( const std::string& className, bool throwFlag   ){
+  edm::TypeWithDict type = edm::TypeWithDict::byName( className );
   if( className == "std::basic_string<char>" ){
     // ugly, but no other way with Reflex...
-    type = Reflex::Type::ByName("std::string");
+    type = edm::TypeWithDict::byName("std::string");
   }
   if( !type ){
     loadDictionary( className );
-    type = Reflex::Type::ByName( className );
+    type = edm::TypeWithDict::byName( className );
   }
   if( !type && throwFlag ){
     throwException( "Class \""+className+"\" has not been found in the dictionary.",
@@ -124,32 +135,31 @@ Reflex::Type ora::ClassUtils::lookupDictionary( const std::string& className, bo
   return type;
 }
 
-void* ora::ClassUtils::constructObject( const Reflex::Type& typ ){
+void* ora::ClassUtils::constructObject( const edm::TypeWithDict& typ ){
   void* ptr = 0;
-  if( typ.Name(Reflex::SCOPED)=="std::string"){
+  if( typ.qualifiedName()=="std::string"){
     ptr = new std::string("");
   } else {
-    ptr = typ.Construct().Address();
+    ptr = typ.construct().address();
   }
   return ptr;
 }
 
-bool ora::ClassUtils::isTypeString(const Reflex::Type& typ){
-  std::string name = typ.Name(Reflex::SCOPED|Reflex::FINAL);
+bool ora::ClassUtils::isTypeString(const edm::TypeWithDict& typ){
+  std::string name = typ.qualifiedName();
   return ( name == "std::string" ||
            name == "std::basic_string<char>" );
 }
 
-bool ora::ClassUtils::isTypePrimitive(const Reflex::Type& typ){
-  return ( typ.IsFundamental() || typ.IsEnum() || isTypeString( typ ) );
+bool ora::ClassUtils::isTypePrimitive(const edm::TypeWithDict& typ){
+  return ( typ.isFundamental() || typ.isEnum() || isTypeString( typ ) );
 }
 
-bool ora::ClassUtils::isTypeContainer(const Reflex::Type& typ){
-  Reflex::TypeTemplate templ = typ.TemplateFamily();
-  if (! templ) {
+bool ora::ClassUtils::isTypeContainer(const edm::TypeWithDict& typ){
+  if ( ! typ.isTemplateInstance() ) {
     return false;
   } else {
-    std::string contName = templ.Name(Reflex::SCOPED|Reflex::FINAL); 
+    std::string contName = typ.templateName(); 
     if(  contName == "std::vector"              ||
          contName == "std::list"                ||
          contName == "std::deque"               ||
@@ -170,12 +180,11 @@ bool ora::ClassUtils::isTypeContainer(const Reflex::Type& typ){
   return false;
 }
 
-bool ora::ClassUtils::isTypeKeyedContainer(const Reflex::Type& typ){
-  Reflex::TypeTemplate tt = typ.TemplateFamily();
-  if (! tt) {
+bool ora::ClassUtils::isTypeKeyedContainer(const edm::TypeWithDict& typ){
+  if ( ! typ.isTemplateInstance() ) {
     return false;
   } else {
-    std::string contName = tt.Name(Reflex::SCOPED|Reflex::FINAL); 
+    std::string contName = typ.templateName(); 
     if(  contName == "std::map"                 ||
          contName == "std::multimap"            ||
          contName == "std::set"                 ||
@@ -190,12 +199,11 @@ bool ora::ClassUtils::isTypeKeyedContainer(const Reflex::Type& typ){
   return false;
 }
 
-bool ora::ClassUtils::isTypeNonKeyedContainer(const Reflex::Type& typ){
-  Reflex::TypeTemplate templ = typ.TemplateFamily();
-  if (! templ) {
+bool ora::ClassUtils::isTypeNonKeyedContainer(const edm::TypeWithDict& typ){
+  if ( ! typ.isTemplateInstance() ) {
     return false;
   } else {
-    std::string contName = templ.Name(Reflex::SCOPED|Reflex::FINAL); 
+    std::string contName = typ.templateName(); 
     if(  contName == "std::vector"              ||
          contName == "std::list"                ||
          contName == "std::deque"               ||
@@ -208,12 +216,11 @@ bool ora::ClassUtils::isTypeNonKeyedContainer(const Reflex::Type& typ){
   return false;
 }
  
-bool ora::ClassUtils::isTypeAssociativeContainer(const Reflex::Type& typ){
-  Reflex::TypeTemplate tt = typ.TemplateFamily();
-  if (! tt) {
+bool ora::ClassUtils::isTypeAssociativeContainer(const edm::TypeWithDict& typ){
+  if ( ! typ.isTemplateInstance() ) {
     return false;
   } else {
-    std::string contName = tt.Name(Reflex::SCOPED|Reflex::FINAL); 
+    std::string contName = typ.templateName(); 
     if(  contName == "std::map"            ||
          contName == "std::multimap"       ||
          contName == "__gnu_cxx::hash_map" ||
@@ -224,12 +231,11 @@ bool ora::ClassUtils::isTypeAssociativeContainer(const Reflex::Type& typ){
   return false;
 }
 
-bool ora::ClassUtils::isTypeNonAssociativeContainer(const Reflex::Type& typ){
-  Reflex::TypeTemplate tt = typ.TemplateFamily();
-  if (! tt) {
+bool ora::ClassUtils::isTypeNonAssociativeContainer(const edm::TypeWithDict& typ){
+  if ( ! typ.isTemplateInstance() ) {
     return false;
   } else {
-    std::string contName = tt.Name(Reflex::SCOPED|Reflex::FINAL); 
+    std::string contName = typ.templateName(); 
     if(  contName == "std::vector"              ||
          contName == "std::list"                ||
          contName == "std::deque"               ||
@@ -247,12 +253,11 @@ bool ora::ClassUtils::isTypeNonAssociativeContainer(const Reflex::Type& typ){
 }
 
 
-bool ora::ClassUtils::isTypeOraPointer( const Reflex::Type& typ){
-  Reflex::TypeTemplate templ = typ.TemplateFamily();
-  if (! templ) {
+bool ora::ClassUtils::isTypeOraPointer( const edm::TypeWithDict& typ){
+  if ( ! typ.isTemplateInstance() ) {
     return false;
   } else {
-    std::string contName = templ.Name(Reflex::SCOPED|Reflex::FINAL); 
+    std::string contName = typ.templateName(); 
     if(  contName == "ora::Ptr" ){
        return true;
     }
@@ -260,20 +265,19 @@ bool ora::ClassUtils::isTypeOraPointer( const Reflex::Type& typ){
   return false;  
 }
 
-bool ora::ClassUtils::isTypeOraReference( const Reflex::Type& typ){
-  return typ.HasBase(Reflex::Type::ByTypeInfo(typeid(ora::Reference)));
+bool ora::ClassUtils::isTypeOraReference( const edm::TypeWithDict& typ){
+  return typ.hasBase( edm::TypeWithDict(typeid(ora::Reference)) );
 }
 
-bool ora::ClassUtils::isTypeNamedReference( const Reflex::Type& typ){
-  return typ.HasBase(Reflex::Type::ByTypeInfo(typeid(ora::NamedReference)));
+bool ora::ClassUtils::isTypeNamedReference( const edm::TypeWithDict& typ){
+  return typ.hasBase( edm::TypeWithDict(typeid(ora::NamedReference)) );
 }
 
-bool ora::ClassUtils::isTypeUniqueReference( const Reflex::Type& typ){
-  Reflex::TypeTemplate templ = typ.TemplateFamily();
-  if (! templ) {
+bool ora::ClassUtils::isTypeUniqueReference( const edm::TypeWithDict& typ){
+  if ( ! typ.isTemplateInstance() ) {
     return false;
   } else {
-    std::string contName = templ.Name(Reflex::SCOPED|Reflex::FINAL); 
+    std::string contName = typ.templateName(); 
     if(  contName == "ora::UniqueRef" ){
        return true;
     }
@@ -281,12 +285,11 @@ bool ora::ClassUtils::isTypeUniqueReference( const Reflex::Type& typ){
   return false;  
 }
 
-bool ora::ClassUtils::isTypePVector( const Reflex::Type& typ){
-  Reflex::TypeTemplate templ = typ.TemplateFamily();
-  if (! templ) {
+bool ora::ClassUtils::isTypePVector( const edm::TypeWithDict& typ){
+  if ( ! typ.isTemplateInstance() ) {
     return false;
   } else {
-    std::string contName = templ.Name(Reflex::SCOPED|Reflex::FINAL); 
+    std::string contName = typ.templateName(); 
     if(  contName == "ora::PVector" ){
        return true;
     }
@@ -294,12 +297,11 @@ bool ora::ClassUtils::isTypePVector( const Reflex::Type& typ){
   return false;  
 }
 
-bool ora::ClassUtils::isTypeQueryableVector( const Reflex::Type& typ){
-  Reflex::TypeTemplate templ = typ.TemplateFamily();
-  if (! templ) {
+bool ora::ClassUtils::isTypeQueryableVector( const edm::TypeWithDict& typ){
+  if ( ! typ.isTemplateInstance() ) {
     return false;
   } else {
-    std::string contName = templ.Name(Reflex::SCOPED|Reflex::FINAL); 
+    std::string contName = typ.templateName(); 
     if(  contName == "ora::QueryableVector" ){
        return true;
     }
@@ -307,7 +309,7 @@ bool ora::ClassUtils::isTypeQueryableVector( const Reflex::Type& typ){
   return false;  
 }
 
-bool ora::ClassUtils::isTypeOraVector( const Reflex::Type& typ){
+bool ora::ClassUtils::isTypeOraVector( const edm::TypeWithDict& typ){
   if( isTypePVector( typ ) || isTypeQueryableVector( typ ) ){
     return true;
   }
@@ -323,28 +325,29 @@ bool ora::ClassUtils::isTypeNameOraVector( const std::string& typeName ){
   return false;
 }
 
-bool ora::ClassUtils::isTypeObject( const Reflex::Type& typ){
-  Reflex::Type resType = ClassUtils::resolvedType( typ );
+bool ora::ClassUtils::isTypeObject( const edm::TypeWithDict& typ){
+  edm::TypeWithDict resType = ClassUtils::resolvedType( typ );
   if( isTypePrimitive( resType ) ) {
     //if ( resType.IsFundamental() || resType.IsEnum() || isTypeString(resType) ) {
     return false;
   } else {
-    if( resType.IsArray() ) return false;
-    if( isTypeContainer( resType ) ) return false;
-    if( isTypeOraPointer( resType ) ) return false;
+    if( resType.isArray( )               ) return false;
+    if( isTypeContainer( resType )       ) return false;
+    if( isTypeOraPointer( resType )      ) return false;
     if( isTypeUniqueReference( resType ) ) return false;
-    if( isTypeOraVector( resType ) ) return false;
+    if( isTypeOraVector( resType )       ) return false;
   }
   return true;
 }
 
-Reflex::Type ora::ClassUtils::containerValueType(const Reflex::Type& typ){
-  Reflex::Type valueType;
+edm::TypeWithDict ora::ClassUtils::containerValueType(const edm::TypeWithDict& typ){
+    /*-ap old code
+  edm::TypeWithDict valueType;
   // find the iterator return type as the member value_type of the containers  
   size_t subTypeSize = typ.SubTypeSize();
   size_t i=0;
   while(i<subTypeSize){
-    Reflex::Type sti = typ.SubTypeAt(i);    
+    edm::TypeWithDict sti = typ.SubTypeAt(i);    
     if(sti.Name()=="value_type") {
       valueType = sti;
       break;
@@ -352,15 +355,18 @@ Reflex::Type ora::ClassUtils::containerValueType(const Reflex::Type& typ){
     i++;
   }
   return valueType;
+    */
+    return typ.nestedType("value_type");
 }
 
-Reflex::Type ora::ClassUtils::containerKeyType(const Reflex::Type& typ){
-  Reflex::Type keyType;
+edm::TypeWithDict ora::ClassUtils::containerKeyType(const edm::TypeWithDict& typ){
+    /*-ap old code
+  edm::TypeWithDict keyType;
   // find the iterator return type as the member value_type of the containers  
   size_t subTypeSize = typ.SubTypeSize();
   size_t i=0;
   while(i<subTypeSize){
-    Reflex::Type sti = typ.SubTypeAt(i);    
+    edm::TypeWithDict sti = typ.SubTypeAt(i);    
     if(sti.Name()=="key_type") {
       keyType = sti;
       break;
@@ -368,15 +374,19 @@ Reflex::Type ora::ClassUtils::containerKeyType(const Reflex::Type& typ){
     i++;
   }
   return keyType;
+  */
+  return typ.nestedType("key_type");
+  
 }
 
-Reflex::Type ora::ClassUtils::containerDataType(const Reflex::Type& typ){
-  Reflex::Type dataType;
+edm::TypeWithDict ora::ClassUtils::containerDataType(const edm::TypeWithDict& typ){
+    /*-ap old code
+  edm::TypeWithDict dataType;
   // find the iterator return type as the member value_type of the containers  
   size_t subTypeSize = typ.SubTypeSize();
   size_t i=0;
   while(i<subTypeSize){
-    Reflex::Type sti = typ.SubTypeAt(i);    
+    edm::TypeWithDict sti = typ.SubTypeAt(i);    
     if(sti.Name()=="mapped_type") {
       dataType = sti;
       break;
@@ -384,14 +394,17 @@ Reflex::Type ora::ClassUtils::containerDataType(const Reflex::Type& typ){
     i++;
   }
   return dataType;
+  */
+  return typ.nestedType("mapped_type");
 }
 
-Reflex::Type ora::ClassUtils::containerSubType(const Reflex::Type& typ, const std::string& subTypeName){
-  Reflex::Type subType;
+edm::TypeWithDict ora::ClassUtils::containerSubType(const edm::TypeWithDict& typ, const std::string& subTypeName){
+    /*-ap old code
+  edm::TypeWithDict subType;
   size_t subTypeSize = typ.SubTypeSize();
   size_t i=0;
   while(i<subTypeSize){
-    Reflex::Type sti = typ.SubTypeAt(i);
+    edm::TypeWithDict sti = typ.SubTypeAt(i);
     if(sti.Name()==subTypeName) {
       subType = sti;
       break;
@@ -399,12 +412,14 @@ Reflex::Type ora::ClassUtils::containerSubType(const Reflex::Type& typ, const st
     i++;
   }
   return resolvedType(subType);
+  */
+  return typ.nestedType(subTypeName);
 }
 
-Reflex::Type ora::ClassUtils::resolvedType(const Reflex::Type& typ){
-  Reflex::Type resolvedType = typ;
-  while(resolvedType.IsTypedef()){
-    resolvedType = resolvedType.ToType();
+edm::TypeWithDict ora::ClassUtils::resolvedType(const edm::TypeWithDict& typ){
+  edm::TypeWithDict resolvedType = typ;
+  while(resolvedType.isTypedef()){
+    resolvedType = resolvedType.toType();
   }
   return resolvedType;
 }
