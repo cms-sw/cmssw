@@ -4,7 +4,7 @@
 /** \class DTChamberEfficiency
  *
  * Description:
- *  
+ *
  * This class provides the histograms for the calculation of the
  * efficiency of muons reconstruction in the DTs. It is applicable
  * both in presence or absence of a magnetic field.
@@ -55,7 +55,7 @@ class DTChamberEfficiency : public edm::EDAnalyzer
 {
 
  public:
-  //Constructor 
+  //Constructor
   DTChamberEfficiency(const edm::ParameterSet& pset) ;
 
   //Destructor
@@ -82,7 +82,8 @@ class DTChamberEfficiency : public edm::EDAnalyzer
   //data members
   bool debug;
 
-  edm::InputTag theTracksLabel;
+  edm::InputTag theTracksLabel_;
+  edm::EDGetTokenT<reco::TrackCollection> theTracksToken_;
 
   edm::InputTag labelRPCRecHits;
   edm::InputTag thedt4DSegments;
@@ -114,3 +115,8 @@ class DTChamberEfficiency : public edm::EDAnalyzer
 };
 
 #endif // DTANALYZER_H
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

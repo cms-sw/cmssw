@@ -11,6 +11,8 @@
 #include <set>
 #include <map>
 
+using namespace CLHEP;
+
 PrintSensitive::PrintSensitive(const edm::ParameterSet &p) {
   name  = p.getUntrackedParameter<std::string>("Name","*");
   nchar = name.find("*");

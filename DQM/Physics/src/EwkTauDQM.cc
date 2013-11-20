@@ -34,7 +34,7 @@ EwkTauDQM::EwkTauDQM(const edm::ParameterSet& cfg)
   edm::ParameterSet cfgChannels = cfg.getParameter<edm::ParameterSet>("channels");
 
   edm::ParameterSet cfgElecTauChannel = cfgChannels.getParameter<edm::ParameterSet>("elecTauChannel");
-  std::string dqmSubDirectoryElecTauChannel = cfgElecTauChannel.getParameter<std::string>("dqmSubDirectory");  
+  std::string dqmSubDirectoryElecTauChannel = cfgElecTauChannel.getParameter<std::string>("dqmSubDirectory");
   cfgElecTauChannel.addParameter<std::string>("dqmDirectory", dqmDirectoryName(dqmDirectory_, dqmSubDirectoryElecTauChannel));
   cfgElecTauChannel.addParameter<int>("maxNumWarnings", maxNumWarnings_);
   elecTauHistManager_ = new EwkElecTauHistManager(cfgElecTauChannel, dqmStore);
@@ -55,7 +55,7 @@ EwkTauDQM::~EwkTauDQM()
 void EwkTauDQM::beginJob()
 {
   if ( dqmError_ ) return;
- 
+
   elecTauHistManager_->bookHistograms();
   muTauHistManager_->bookHistograms();
 }
@@ -111,7 +111,7 @@ void EwkTauDQM::endJob()
 #include <iostream>
 #include <iomanip>
 
-EwkElecTauHistManager::EwkElecTauHistManager(const edm::ParameterSet& cfg, DQMStore* dqmStore) 
+EwkElecTauHistManager::EwkElecTauHistManager(const edm::ParameterSet& cfg, DQMStore* dqmStore)
   : dqmStore_(dqmStore),
     dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory")),
     numEventsAnalyzed_(0),
@@ -187,7 +187,7 @@ void EwkElecTauHistManager::bookHistograms()
   //hTauJetCharge_ = dqmStore_->book1D("TauJetCharge" , "Q_{#tau-Jet}", 11, -5.5, +5.5);
   //hTauJetNumSignalTracks_ = dqmStore_->book1D("TauJetNumSignalTracks" , "Num. Tau signal Cone Tracks", 20, -0.5, +19.5);
   //hTauJetNumIsoTracks_ = dqmStore_->book1D("TauJetNumIsoTracks" , "Num. Tau isolation Cone Tracks", 20, -0.5, +19.5);
-  
+
   hVisMass_ = dqmStore_->book1D("VisMass", "e + #tau-Jet visible Mass", 20, 20., 120.);
   //hMtElecCaloMEt_ = dqmStore_->book1D("MtElecCaloMEt", "e + E_{T}^{miss} (Calo) transverse Mass", 20, 20., 120.);
   hMtElecPFMEt_ = dqmStore_->book1D("MtElecPFMEt", "e + E_{T}^{miss} (PF) transverse Mass", 20, 20., 120.);
@@ -232,12 +232,12 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
 
 //--- get decision of high-level trigger for the event
   edm::Handle<edm::TriggerResults> hltDecision;
-  readEventData(evt, triggerResultsSource_, hltDecision, numWarningsTriggerResults_, maxNumWarnings_, 
+  readEventData(evt, triggerResultsSource_, hltDecision, numWarningsTriggerResults_, maxNumWarnings_,
 		readError, "Failed to access Trigger results");
   if ( readError ) return;
-  
+
   const edm::TriggerNames & triggerNames = evt.triggerNames(*hltDecision);
-   
+
   bool isTriggered = false;
   for ( vstring::const_iterator hltPath = hltPaths_.begin();
 	hltPath != hltPaths_.end(); ++hltPath ) {
@@ -245,13 +245,13 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
     if ( index < triggerNames.size() ) {
       if ( hltDecision->accept(index) ) isTriggered = true;
     } else {
-      if ( numWarningsHLTpath_ < maxNumWarnings_ || maxNumWarnings_ == -1 ) 
+      if ( numWarningsHLTpath_ < maxNumWarnings_ || maxNumWarnings_ == -1 )
 	edm::LogWarning ("EwkElecTauHistManager") << " Undefined HLT path = " << (*hltPath) << " !!";
       ++numWarningsHLTpath_;
       continue;
     }
   }
-  
+
 //--- get reconstructed primary event vertex of the event
 //   (take as "the" primary event vertex the first entry in the collection
 //    of vertex objects, corresponding to the vertex associated to the highest Pt sum of tracks)
@@ -267,7 +267,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
   readEventData(evt, beamSpotSource_, beamSpot, numWarningsBeamSpot_, maxNumWarnings_,
 		readError, "Failed to access Beam-spot");
   if ( readError ) return;
-  
+
 //--- get collections of reconstructed electrons from the event
   edm::Handle<reco::GsfElectronCollection> electrons;
   readEventData(evt, electronSource_, electrons, numWarningsElectron_, maxNumWarnings_,
@@ -345,7 +345,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
   if ( readError ) return;
 
   const reco::CaloMET& caloMEt = caloMEtCollection->at(0);
-  
+
   edm::Handle<reco::PFMETCollection> pfMEtCollection;
   readEventData(evt, pfMEtSource_, pfMEtCollection, numWarningsPFMEt_, maxNumWarnings_,
 		readError, "Failed to access pf. MET collection");
@@ -450,7 +450,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
     //hTauJetCharge_->Fill(theTauJet->charge());
     //if ( theTauJet->signalTracks().isAvailable()    ) hTauJetNumSignalTracks_->Fill(theTauJet->signalTracks().size());
     //if ( theTauJet->isolationTracks().isAvailable() ) hTauJetNumIsoTracks_->Fill(theTauJet->isolationTracks().size());
-  
+
     if (fullSelect ) {hVisMass_->Fill(mElecTau);}
     //hMtElecCaloMEt_->Fill(mtElecCaloMEt);
     hMtElecPFMEt_->Fill(mtElecPFMEt);
@@ -464,7 +464,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
       hVertexZ_->Fill(theEventVertex->z());
       //hVertexD0_->Fill(getVertexD0(*theEventVertex, *beamSpot));
     }
-    
+
     hCaloMEtPt_->Fill(caloMEt.pt());
     //hCaloMEtPhi_->Fill(caloMEt.phi());
 
@@ -477,14 +477,14 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
 
 void EwkElecTauHistManager::finalizeHistograms()
 {
-  edm::LogInfo ("EwkElecTauHistManager") 
+  edm::LogInfo ("EwkElecTauHistManager")
     << "Filter-Statistics Summary:" << std::endl
     << " Events analyzed = " << numEventsAnalyzed_ << std::endl
     << " Events selected = " << numEventsSelected_;
   if ( numEventsAnalyzed_ > 0 ) {
     double eff = numEventsSelected_/(double)numEventsAnalyzed_;
-    edm::LogInfo ("") 
-      << "Overall efficiency = " << std::setprecision(4) << eff*100. 
+    edm::LogInfo ("")
+      << "Overall efficiency = " << std::setprecision(4) << eff*100.
       << " +/- " << std::setprecision(4) << TMath::Sqrt(eff*(1 - eff)/numEventsAnalyzed_)*100. << ")%";
   }
 }
@@ -524,7 +524,7 @@ void EwkElecTauHistManager::finalizeHistograms()
 #include <iostream>
 #include <iomanip>
 
-EwkMuTauHistManager::EwkMuTauHistManager(const edm::ParameterSet& cfg, DQMStore* dqmStore) 
+EwkMuTauHistManager::EwkMuTauHistManager(const edm::ParameterSet& cfg, DQMStore* dqmStore)
   : dqmStore_(dqmStore),
     dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory")),
     numEventsAnalyzed_(0),
@@ -599,7 +599,7 @@ void EwkMuTauHistManager::bookHistograms()
   //hTauJetCharge_ = dqmStore_->book1D("TauJetCharge" , "Q_{#tau-Jet}", 11, -5.5, +5.5);
   hTauJetNumSignalTracks_ = dqmStore_->book1D("TauJetNumSignalTracks" , "Num. Tau signal Cone Tracks", 20, -0.5, +19.5);
   hTauJetNumIsoTracks_ = dqmStore_->book1D("TauJetNumIsoTracks" , "Num. Tau isolation Cone Tracks", 20, -0.5, +19.5);
-  
+
   hVisMass_ = dqmStore_->book1D("VisMass", "#mu + #tau-Jet visible Mass", 20, 0., 120.);
 hVisMassFinal_ = dqmStore_->book1D("VisMassFinal", "#mu + #tau-Jet visible final Mass", 20, 0., 120.);
   //hMtMuCaloMEt_ = dqmStore_->book1D("MtMuCaloMEt", "#mu + E_{T}^{miss} (Calo) transverse Mass", 20, 20., 120.);
@@ -647,12 +647,12 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
 
 //--- get decision of high-level trigger for the event
   edm::Handle<edm::TriggerResults> hltDecision;
-  readEventData(evt, triggerResultsSource_, hltDecision, numWarningsTriggerResults_, maxNumWarnings_, 
+  readEventData(evt, triggerResultsSource_, hltDecision, numWarningsTriggerResults_, maxNumWarnings_,
 		readError, "Failed to access Trigger results");
   if ( readError ) return;
-  
+
   const edm::TriggerNames & triggerNames = evt.triggerNames(*hltDecision);
-   
+
   bool isTriggered = false;
   for ( vstring::const_iterator hltPath = hltPaths_.begin();
 	hltPath != hltPaths_.end(); ++hltPath ) {
@@ -660,13 +660,13 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
     if ( index < triggerNames.size() ) {
       if ( hltDecision->accept(index) ) isTriggered = true;
     } else {
-      if ( numWarningsHLTpath_ < maxNumWarnings_ || maxNumWarnings_ == -1 ) 
+      if ( numWarningsHLTpath_ < maxNumWarnings_ || maxNumWarnings_ == -1 )
 	edm::LogWarning ("EwkMuTauHistManager") << " Undefined HLT path = " << (*hltPath) << " !!";
       ++numWarningsHLTpath_;
       continue;
     }
   }
-  
+
 //--- get reconstructed primary event vertex of the event
 //   (take as "the" primary event vertex the first entry in the collection
 //    of vertex objects, corresponding to the vertex associated to the highest Pt sum of tracks)
@@ -682,7 +682,7 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
   readEventData(evt, beamSpotSource_, beamSpot, numWarningsBeamSpot_, maxNumWarnings_,
 		readError, "Failed to access Beam-spot");
   if ( readError ) return;
-  
+
 //--- get collections of reconstructed muons from the event
   edm::Handle<reco::MuonCollection> muons;
   readEventData(evt, muonSource_, muons, numWarningsMuon_, maxNumWarnings_,
@@ -757,7 +757,7 @@ double theMuonCombIsoPt = 1.e+3;
   if ( readError ) return;
 
   const reco::CaloMET& caloMEt = caloMEtCollection->at(0);
-  
+
   edm::Handle<reco::PFMETCollection> pfMEtCollection;
   readEventData(evt, pfMEtSource_, pfMEtCollection, numWarningsPFMEt_, maxNumWarnings_,
 		readError, "Failed to access pf. MET collection");
@@ -811,12 +811,12 @@ double theMuonCombIsoPt = 1.e+3;
   }
   if ( cutFlowStatus == kPassedTrigger && (theMuon->isGlobalMuon()||theMuon->isTrackerMuon()) ) {
     cutFlowStatus = kPassedMuonId;
-   
+
   }
- 
+
   if ( cutFlowStatus == kPassedMuonId && (theTauDiscrByLeadTrackFinding > 0.5) && (theTauJet->eta() < tauJetEtaCut_) && (theTauJet->pt() > tauJetPtCut_)  ) {
     cutFlowStatus = kPassedTauLeadTrack;
-    
+
   }
   if ( cutFlowStatus == kPassedTauLeadTrack && theTauDiscrByLeadTrackPtCut > 0.5 ) {
     cutFlowStatus = kPassedTauLeadTrackPt;
@@ -843,7 +843,7 @@ hMuonPt_->Fill(theMuon->pt());
     //hTauJetCharge_->Fill(theTauJet->charge());
     if ( theTauJet->signalTracks().isAvailable()    ) hTauJetNumSignalTracks_->Fill(theTauJet->signalTracks().size());
     if ( theTauJet->isolationTracks().isAvailable() ) hTauJetNumIsoTracks_->Fill(theTauJet->isolationTracks().size());
-  
+
     hVisMass_->Fill(mMuTau);
     //hMtMuCaloMEt_->Fill(mtMuCaloMEt);
     hMtMuPFMEt_->Fill(mtMuPFMEt);
@@ -858,7 +858,7 @@ hMuTauDeltaR_->Fill(dRMuTau);
       hVertexZ_->Fill(theEventVertex->z());
       //hVertexD0_->Fill(getVertexD0(*theEventVertex, *beamSpot));
     }
-    
+
     hCaloMEtPt_->Fill(caloMEt.pt());
     //hCaloMEtPhi_->Fill(caloMEt.phi());
 
@@ -877,7 +877,7 @@ if ( theTauJet->leadTrack().isAvailable() ) hTauLeadTrackPt_->Fill(theTauJet->le
 
   }
 
-  
+
 
   if ( (cutFlowStatus == kPassedDeltaR) && (((theMuonTrackIsoPt < muonTrackIsoCut_)&&(muonIsoMode_ == kAbsoluteIso))||((1>0)&&(muonIsoMode_ == kRelativeIso))) ) {
     cutFlowStatus = kPassedMuonTrackIso;
@@ -903,7 +903,7 @@ isSelected = true;
     hCutFlowSummary_->Fill(iCut);
   }
 
-  
+
 
 
 
@@ -917,11 +917,11 @@ for ( int iCut = 1; iCut <= cutFlowStatus; ++iCut ) {
 
 
 //     }
-    
 
 
 
-  if ( isSelected ) 
+
+  if ( isSelected )
     {
 hVisMassFinal_->Fill(mMuTau);
 ++numEventsSelected_;
@@ -930,14 +930,14 @@ hVisMassFinal_->Fill(mMuTau);
 
 void EwkMuTauHistManager::finalizeHistograms()
 {
-  edm::LogInfo ("EwkMuTauHistManager") 
+  edm::LogInfo ("EwkMuTauHistManager")
     << "Filter-Statistics Summary:" << std::endl
     << " Events analyzed = " << numEventsAnalyzed_ << std::endl
     << " Events selected = " << numEventsSelected_;
   if ( numEventsAnalyzed_ > 0 ) {
     double eff = numEventsSelected_/(double)numEventsAnalyzed_;
-    edm::LogInfo ("") 
-      << "Overall efficiency = " << std::setprecision(4) << eff*100. 
+    edm::LogInfo ("")
+      << "Overall efficiency = " << std::setprecision(4) << eff*100.
       << " +/- " << std::setprecision(4) << TMath::Sqrt(eff*(1 - eff)/numEventsAnalyzed_)*100. << ")%";
   }
 }
@@ -957,7 +957,7 @@ int getIsoMode(const std::string& isoMode_string, int& error)
     isoMode_int = kAbsoluteIso;
   } else if ( isoMode_string == "relativeIso" ) {
     isoMode_int = kRelativeIso;
-  } else { 
+  } else {
     edm::LogError ("getIsoMode") << " Failed to decode isoMode string = " << isoMode_string << " !!";
     isoMode_int = kUndefinedIso;
     error = 1;
@@ -969,7 +969,7 @@ int getIsoMode(const std::string& isoMode_string, int& error)
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-double calcDeltaPhi(double phi1, double phi2) 
+double calcDeltaPhi(double phi1, double phi2)
 {
   double deltaPhi = phi1 - phi2;
 
@@ -980,7 +980,7 @@ double calcDeltaPhi(double phi1, double phi2)
   return deltaPhi;
 }
 
-double calcMt(double px1, double py1, double px2, double py2) 
+double calcMt(double px1, double py1, double px2, double py2)
 {
   double pt1 = TMath::Sqrt(px1*px1 + py1*py1);
   double pt2 = TMath::Sqrt(px2*px2 + py2*py2);
@@ -1036,12 +1036,12 @@ bool passesElectronId(const reco::GsfElectron& electron)
 {
   if ( passesElectronPreId(electron) &&
        ((TMath::Abs(electron.eta()) > 1.566 && // electron reconstructed in ECAL endcap
-	 electron.sigmaEtaEta() < 0.03 && electron.hcalOverEcal() < 0.05 && 
-	 TMath::Abs(electron.deltaEtaSuperClusterTrackAtVtx()) < 0.009 && 
+	 electron.sigmaEtaEta() < 0.03 && electron.hcalOverEcal() < 0.05 &&
+	 TMath::Abs(electron.deltaEtaSuperClusterTrackAtVtx()) < 0.009 &&
 	 TMath::Abs(electron.deltaPhiSuperClusterTrackAtVtx()) < 0.7 ) ||
 	(TMath::Abs(electron.eta()) < 1.479 && // electron reconstructed in ECAL barrel
-	 electron.sigmaEtaEta() < 0.01 && electron.hcalOverEcal() < 0.12 && 
-	 TMath::Abs(electron.deltaEtaSuperClusterTrackAtVtx()) < 0.007 && 
+	 electron.sigmaEtaEta() < 0.01 && electron.hcalOverEcal() < 0.12 &&
+	 TMath::Abs(electron.deltaEtaSuperClusterTrackAtVtx()) < 0.007 &&
 	 TMath::Abs(electron.deltaPhiSuperClusterTrackAtVtx()) < 0.8)) ) {
     return true;
   } else {
@@ -1056,14 +1056,14 @@ bool passesElectronId(const reco::GsfElectron& electron)
 const reco::GsfElectron* getTheElectron(const reco::GsfElectronCollection& electrons, double electronEtaCut, double electronPtCut)
 {
   const reco::GsfElectron* theElectron = 0;
-  
+
   for ( reco::GsfElectronCollection::const_iterator electron = electrons.begin();
 	electron != electrons.end(); ++electron ) {
     if ( TMath::Abs(electron->eta()) < electronEtaCut && electron->pt() > electronPtCut && passesElectronPreId(*electron) ) {
       if ( theElectron == 0 || electron->pt() > theElectron->pt() ) theElectron = &(*electron);
     }
   }
-  
+
   return theElectron;
 }
 
@@ -1114,3 +1114,8 @@ double getVertexD0(const reco::Vertex& vertex, const reco::BeamSpot& beamSpot)
   double dY = vertex.y() - beamSpot.y0();
   return TMath::Sqrt(dX*dX + dY*dY);
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

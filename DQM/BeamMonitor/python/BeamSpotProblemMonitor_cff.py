@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 dqmBeamSpotProblemMonitor = cms.EDAnalyzer("BeamSpotProblemMonitor",
                               monitorName = cms.untracked.string('BeamSpotProblemMonitor'),
+                              DCSStatus   = cms.untracked.InputTag('scalersRawToDigi'),
                               pixelTracks = cms.untracked.InputTag('pixelTracks'),
                               scalarBSCollection =cms.untracked.InputTag('scalersRawToDigi'), 
                               nCosmicTrk = cms.untracked.int32(10),

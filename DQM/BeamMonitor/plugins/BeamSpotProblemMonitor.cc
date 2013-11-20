@@ -15,8 +15,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -27,11 +25,9 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
-#include "RecoVertex/BeamSpotProducer/interface/BeamSpotOnlineProducer.h"                                                                             
+#include "RecoVertex/BeamSpotProducer/interface/BeamSpotOnlineProducer.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
-#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DQMServices/Core/interface/QReport.h"
 
 #include <numeric>
@@ -54,9 +50,13 @@ BeamSpotProblemMonitor::BeamSpotProblemMonitor( const ParameterSet& ps ) :
 
   parameters_     = ps;
   monitorName_    = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
-  trkSrc_         = parameters_.getUntrackedParameter<InputTag>("pixelTracks");
   nCosmicTrk_     = parameters_.getUntrackedParameter<int>("nCosmicTrk");
-  scalertag_      = parameters_.getUntrackedParameter<InputTag>("scalarBSCollection");
+  dcsStatus_      = consumes<DcsStatusCollection>(
+      parameters_.getUntrackedParameter<InputTag>("DCSStatus"));
+  scalertag_      = consumes<BeamSpotOnlineCollection>(
+      parameters_.getUntrackedParameter<InputTag>("scalarBSCollection"));
+  trkSrc_         = consumes<reco::TrackCollection>(
+      parameters_.getUntrackedParameter<InputTag>("pixelTracks"));
   intervalInSec_  = parameters_.getUntrackedParameter<int>("timeInterval",920);//40 LS X 23"
   debug_          = parameters_.getUntrackedParameter<bool>("Debug");
   onlineMode_     = parameters_.getUntrackedParameter<bool>("OnlineMode");
@@ -194,7 +194,7 @@ void BeamSpotProblemMonitor::analyze(const Event& iEvent,
 
     // Checking TK status
     Handle<DcsStatusCollection> dcsStatus;
-    iEvent.getByLabel("scalersRawToDigi", dcsStatus);
+    iEvent.getByToken(dcsStatus_, dcsStatus);
     for (int i=0;i<6;i++) dcsTk[i]=true;
     for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
          dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
@@ -218,7 +218,7 @@ void BeamSpotProblemMonitor::analyze(const Event& iEvent,
 
      //If tracker is ON and collision is going on then must be few track ther
      edm::Handle<reco::TrackCollection> TrackCollection;
-     iEvent.getByLabel(trkSrc_, TrackCollection);
+     iEvent.getByToken(trkSrc_, TrackCollection);
      const reco::TrackCollection *tracks = TrackCollection.product();
      for ( reco::TrackCollection::const_iterator track = tracks->begin();track != tracks->end();++track ) 
       {
@@ -230,7 +230,7 @@ void BeamSpotProblemMonitor::analyze(const Event& iEvent,
 
   // get scalar collection and BeamSpot
   Handle<BeamSpotOnlineCollection> handleScaler;
-  iEvent.getByLabel( scalertag_, handleScaler);
+  iEvent.getByToken( scalertag_, handleScaler);
      
    // beam spot scalar object
    BeamSpotOnline spotOnline;
@@ -369,3 +369,8 @@ void BeamSpotProblemMonitor::endJob(const LuminosityBlock& lumiSeg,
 }
 
 DEFINE_FWK_MODULE(BeamSpotProblemMonitor);
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

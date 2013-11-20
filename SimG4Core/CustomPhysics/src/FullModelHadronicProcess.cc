@@ -9,6 +9,8 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 
+using namespace CLHEP;
+
 FullModelHadronicProcess::FullModelHadronicProcess(G4ProcessHelper * aHelper, const G4String& processName) :
   G4VDiscreteProcess(processName), theHelper(aHelper)
 {}
