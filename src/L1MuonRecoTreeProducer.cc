@@ -643,18 +643,20 @@ L1MuonRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  if (detid.subdetId() != MuonSubdetId::CSC) continue;
 
 	  CSCDetId id(detid.rawId());
-	  // std::cout << "before Lut id.station = " <<id.station() 
-	  // << " id.layer() = " << id.layer() << " globalTypeRCH = " 
-	  // << globalTypeRCH  << std::endl; 
+          //std::cout << "before Lut id.station = " <<id.station() 
+          //          << " id.layer() = " << id.layer() << " globalTypeRCH = " 
+          //          << globalTypeRCH  << std::endl; 
 	  // another sanity check
 	  if  (id.station() < 1) continue;
 
 	  // Look up some stuff specific to CSCRecHit2D
-	  // std::cout << " typeid().name() " << typeid(**hit).name() << std::endl; 
+          // std::cout << " typeid().name() " << typeid(**hit).name() << std::endl; 
 	  // const CSCRecHit2D* CSChit =dynamic_cast<const CSCRecHit2D*>(&**hit);
 
 	  const CSCSegment* cscSegment =dynamic_cast<const CSCSegment*>(&**hit);
-	  // const CSCRecHit2D* CSChit =(CSCRecHit2D*)(&**hit);
+          //std::cout << "cscSegment = " << cscSegment << std::endl;
+	  if (cscSegment == NULL) continue;
+          // const CSCRecHit2D* CSChit =(CSCRecHit2D*)(&**hit);
 
 	  // std::cout << " after CSCRecHit2D, CSChit = "  << CSChit << std::endl; 
 	  // LocalPoint rhitlocal = CSChit->localPosition();
@@ -663,8 +665,8 @@ L1MuonRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  // for debugging purpouses
 	  //if (printLevel > 0) {
 	  //std::cout << "!!!!rhitlocal.phi = "<<rhitlocal.phi() << std::endl;
-	  //  std::cout << "rhitlocal.y="<<rhitlocal.y();
-	  //  std::cout << "rhitlocal.z="<<rhitlocal.z();
+          //std::cout << "rhitlocal.y="<<rhitlocal.y();
+          //std::cout << "rhitlocal.z="<<rhitlocal.z();
 	  //}
 
 	  GlobalPoint gp = GlobalPoint(0.0, 0.0, 0.0);
@@ -701,7 +703,7 @@ L1MuonRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    globalEtaRCH     = gp.eta();
 	    globalPhiRCH     = gp.phi();// phi from -pi to pi
 	    //std::cout << "globalEtaRCH =  "  <<globalEtaRCH 
-	    // << " globalPhiRCH = " << globalPhiRCH << std::endl; 
+            //          << " globalPhiRCH = " << globalPhiRCH << std::endl; 
 	    if(globalPhiRCH < 0) globalPhiRCH = globalPhiRCH + 2*pig;// convert to [0; 2pi]
 	  }
 	  // -------------------------------------------------- 
