@@ -11,6 +11,8 @@
 #include "SimG4Core/CustomPhysics/interface/HadronicProcessHelper.hh"
 #include "SimG4Core/CustomPhysics/interface/Decay3Body.h"
 
+using namespace CLHEP;
+
 ToyModelHadronicProcess::ToyModelHadronicProcess(HadronicProcessHelper * aHelper, const G4String& processName) :
   G4VDiscreteProcess(processName), m_verboseLevel(0),  m_helper(aHelper),  m_detachCloud(true)
 {

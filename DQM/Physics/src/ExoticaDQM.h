@@ -16,7 +16,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "DataFormats/Common/interface/Handle.h" 
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/DataKeyTags.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -45,7 +45,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/MuonReco/interface/MuonIsolation.h" 
+#include "DataFormats/MuonReco/interface/MuonIsolation.h"
 
 // Tau
 #include "DataFormats/TauReco/interface/CaloTau.h"
@@ -81,14 +81,14 @@
 #include <map>
 
 class DQMStore;
- 
+
 class ExoticaDQM: public edm::EDAnalyzer{
 
 public:
 
   ExoticaDQM(const edm::ParameterSet& ps);
   virtual ~ExoticaDQM();
-  
+
 protected:
 
   virtual void beginJob();
@@ -98,16 +98,16 @@ protected:
   virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
   virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
   virtual void endJob();
-  
+
   //Diagnostic
   virtual void analyzeMultiJets(edm::Event const& e);
   virtual void analyzeMultiJetsTrigger(edm::Event const& e);
-  
+
   virtual void analyzeLongLived(edm::Event const& e);
-  virtual void analyzeLongLivedTrigger(edm::Event const& e); 
+  virtual void analyzeLongLivedTrigger(edm::Event const& e);
 
   virtual void analyzeEventInterpretation(edm::Event const& e, edm::EventSetup const& eSetup);
-  
+
   //
   //virtual void analyzeTopLike(edm::Event const& e);
   //virtual void analyzeTopLikeTrigger(edm::Event const& e);
@@ -121,15 +121,15 @@ protected:
 private:
 
   void bookHistos(DQMStore * bei );
-  
+
   unsigned long long m_cacheID_;
   int nLumiSecs_;
   int nEvents_, irun, ievt;
   reco::CandidateCollection *leptonscands_;
   int leptonflavor;
   float pi;
-  
-  DQMStore* bei_;  
+
+  DQMStore* bei_;
   HLTConfigProvider hltConfigProvider_;
   bool isValidHltConfig_;
 
@@ -141,66 +141,70 @@ private:
 
 
   // Electrons
-  edm::InputTag ElectronLabel_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> ElectronToken_;
   edm::Handle<reco::GsfElectronCollection> ElectronCollection_;
   //
-  edm::InputTag PFElectronLabelEI_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> PFElectronTokenEI_;
   edm::Handle<reco::PFCandidateCollection> pfElectronCollectionEI_;
-  reco::PFCandidateCollection pfelectronsEI; 
-  
-  
+  reco::PFCandidateCollection pfelectronsEI;
+
+
   // Muons
-  edm::InputTag MuonLabel_;
+  edm::EDGetTokenT<reco::MuonCollection> MuonToken_;
   edm::Handle<reco::MuonCollection> MuonCollection_;
   //
-  edm::InputTag PFMuonLabelEI_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> PFMuonTokenEI_;
   edm::Handle<reco::PFCandidateCollection> pfMuonCollectionEI_;
-  reco::PFCandidateCollection pfmuonsEI; 
+  reco::PFCandidateCollection pfmuonsEI;
 
-  
+
   // Taus
-  edm::InputTag TauLabel_;
+  edm::EDGetTokenT<reco::CaloTauCollection> TauToken_;
   edm::Handle<reco::CaloTauCollection> TauCollection_;
   //
   edm::InputTag PFTauLabelEI_;
   edm::Handle<reco::PFTauCollection> pfTauCollectionEI_;
 
-  
+
   // Photons
-  edm::InputTag PhotonLabel_;
+  edm::EDGetTokenT<reco::PhotonCollection> PhotonToken_;
   edm::Handle<reco::PhotonCollection> PhotonCollection_;
   //
   edm::InputTag PFPhotonLabelEI_;
   edm::Handle<reco::PFCandidateCollection> pfPhotonCollectionEI_;
   reco::PFCandidateCollection pfphotons;
 
-  
+
   // Jets
-  edm::InputTag CaloJetLabel_;
+  edm::EDGetTokenT<reco::CaloJetCollection> CaloJetToken_;
   edm::Handle<reco::CaloJetCollection> caloJetCollection_;
-  reco::CaloJetCollection calojets; 
+  reco::CaloJetCollection calojets;
   //
-  edm::InputTag PFJetLabel_; 
+  edm::EDGetTokenT<reco::PFJetCollection> PFJetToken_;
   edm::Handle<reco::PFJetCollection> pfJetCollection_;
   reco::PFJetCollection pfjets;
   //
-  edm::InputTag PFJetLabelEI_; 
+  edm::EDGetTokenT<reco::PFJetCollection> PFJetTokenEI_;
   edm::Handle<reco::PFJetCollection> pfJetCollectionEI_;
   reco::PFJetCollection pfjetsEI;
-  
-  
+
+
   // MET
-  edm::InputTag CaloMETLabel_;
+  edm::EDGetTokenT<reco::CaloMETCollection> CaloMETToken_;
   edm::Handle<reco::CaloMETCollection> caloMETCollection_;
   //
-  edm::InputTag PFMETLabel_;
-  edm::Handle<reco::PFMETCollection> pfMETCollection_; 
+  edm::EDGetTokenT<reco::PFMETCollection> PFMETToken_;
+  edm::Handle<reco::PFMETCollection> pfMETCollection_;
   //
-  edm::InputTag PFMETLabelEI_;
+  edm::EDGetTokenT<reco::PFMETCollection> PFMETTokenEI_;
   edm::Handle<reco::PFMETCollection> pfMETCollectionEI_;
-  
+
+  // ECAL RECHITS
+  edm::EDGetTokenT<EBRecHitCollection> ecalBarrelRecHitToken_; // reducedEcalRecHitsEB
+  edm::EDGetTokenT<EERecHitCollection> ecalEndcapRecHitToken_; // reducedEcalRecHitsEE
+
   ///////////////////////////
-  // Parameters 
+  // Parameters
   ///////////////////////////
   // Cuts - MultiJets
   // inputs
@@ -246,7 +250,7 @@ private:
   double PFJetEICHEF;
   double PFJetEINEMF;
   double PFJetEICEMF;
-  
+
   ///////////////////////////
   // Histograms
   ///////////////////////////
@@ -272,8 +276,8 @@ private:
   //
   // Histograms - LongLived
   //
-  MonitorElement* ll_gammajet_sMajMajPhot; 
-  MonitorElement* ll_gammajet_sMinMinPhot;  
+  MonitorElement* ll_gammajet_sMajMajPhot;
+  MonitorElement* ll_gammajet_sMinMinPhot;
   // Histograms - LongLived Trigger
   //
   // Histograms - EIComparison
@@ -281,8 +285,13 @@ private:
   MonitorElement* ei_pfmet_pt;
   MonitorElement* ei_pfmuon_pt;
   MonitorElement* ei_pfelectron_pt;
-  
+
 };
 
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

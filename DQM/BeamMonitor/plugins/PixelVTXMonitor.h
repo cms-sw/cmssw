@@ -19,6 +19,10 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 //
 // class declaration
@@ -45,6 +49,9 @@ private:
 
   std::string moduleName_;
   std::string folderName_;
+  edm::EDGetTokenT<SiPixelClusterCollectionNew> pixelClusterInputTagToken_;
+  edm::EDGetTokenT<reco::VertexCollection> pixelVertexInputTagToken_;
+  edm::EDGetTokenT<edm::TriggerResults> hltInputTagToken_;
   edm::InputTag pixelClusterInputTag_;
   edm::InputTag pixelVertexInputTag_;
   edm::InputTag hltInputTag_;
@@ -62,3 +69,8 @@ private:
 };
 
 #endif
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

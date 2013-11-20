@@ -28,10 +28,10 @@ class QcdHighPtDQM : public edm::EDAnalyzer {
 
   /// Constructor
   QcdHighPtDQM(const edm::ParameterSet&);
-  
+
   /// Destructor
   virtual ~QcdHighPtDQM();
-  
+
   /// Inizialize parameters for histo binning
   void beginJob();
 
@@ -46,16 +46,16 @@ class QcdHighPtDQM : public edm::EDAnalyzer {
 
 
   // ----------member data ---------------------------
-  
+
   DQMStore* theDbe;
 
-  //input tags for Jets/MET
-  edm::InputTag jetLabel_;
-  edm::InputTag metLabel1_;
-  edm::InputTag metLabel2_;
-  edm::InputTag metLabel3_;
-  edm::InputTag metLabel4_;
-  
+  //input tags/Tokens for Jets/MET
+  edm::EDGetTokenT<reco::CaloJetCollection> jetToken_;
+  edm::EDGetTokenT<reco::CaloMETCollection> metToken1_;
+  edm::EDGetTokenT<reco::CaloMETCollection> metToken2_;
+  edm::EDGetTokenT<reco::CaloMETCollection> metToken3_;
+  edm::EDGetTokenT<reco::CaloMETCollection> metToken4_;
+
   //map of MEs
   std::map<std::string, MonitorElement*> MEcontainer_;
 
@@ -64,4 +64,9 @@ class QcdHighPtDQM : public edm::EDAnalyzer {
   float moverl(const reco::CaloMETCollection& metcollection, float& ljpt);
 
 };
-#endif  
+#endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

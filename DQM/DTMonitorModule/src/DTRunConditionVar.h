@@ -4,7 +4,7 @@
 /** \class DTRunConditionVar
  *
  * Description:
- *  
+ *
  *
  * \author : Paolo Bellan, Antonio Branca
  * $date   : 23/09/2011 15:42:04 CET $
@@ -18,6 +18,7 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -43,7 +44,7 @@ class DTRunConditionVar : public edm::EDAnalyzer
 {
 
   public:
-    //Constructor 
+    //Constructor
     DTRunConditionVar(const edm::ParameterSet& pset) ;
 
     //Destructor
@@ -63,7 +64,7 @@ class DTRunConditionVar : public edm::EDAnalyzer
     int nMinHitsPhi;
     double maxAnglePhiSegm;
 
-    edm::InputTag thedt4DSegments_;
+    edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegmentsToken_;
 
     edm::ESHandle<DTGeometry> dtGeom;
 
@@ -81,3 +82,8 @@ class DTRunConditionVar : public edm::EDAnalyzer
 
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */
