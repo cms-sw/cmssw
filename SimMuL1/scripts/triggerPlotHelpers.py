@@ -35,6 +35,13 @@ def getH(dir, histo_name):
   return histo
 
 #_______________________________________________________________________________
+def GetH(f, dir, name):
+  """Get the histogram"""
+  dir = "SimMuL1StrictAll"
+  return f.Get("%s/%s;1"%(dir,name))
+
+
+#_______________________________________________________________________________
 def getRootDirectory(input_dir, file_name, dir_name = "GEMCSCTriggerEfficiency"):
     """Get the ROOT directory from the GEMCSCTriggerEfficiency analyzer. Normally,
     the directory should be called GEMCSCTriggerEfficiency. You should check it anyway"""

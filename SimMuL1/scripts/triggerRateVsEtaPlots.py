@@ -222,8 +222,6 @@ def produceRateVsEtaPlot(h, i, j, col1, col2, col3, sty1, sty2, sty3, sty4,
   tex2.SetTextSize(0.05)
   tex2.SetNDC()
   tex2.Draw()
-
-  
   
   pad2.cd()
   setPad2Attributes(pad2)
@@ -305,41 +303,37 @@ def produceRateVsEtaPlotsForApproval(ext, plots):
   gStyle.SetTitleH(0.058)
   gStyle.SetTitleBorderSize(0)
 
-  """
-  ## ------------ +2 stubs, L1 candidate muon pt=10GeV ----------------##
+  ## ------------ +2 stubs, L1 candidate muon pt>=10GeV ----------------##
   produceRateVsEtaPlot(h_rt_tf10_2s,h_rt_tf10_2s1b,h_rt_tf10_gpt10_2s1b,
 		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,80,2,10,plots,ext)
 
-  ## ------------ +3 stubs, L1 candidate muon pt=10GeV ----------------##
+  ## ------------ +3 stubs, L1 candidate muon pt>=10GeV ----------------##
   produceRateVsEtaPlot(h_rt_tf10_3s,h_rt_tf10_3s1b,h_rt_tf10_gpt10_3s1b,
 		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,25,3,10,plots,ext)
-  """
 
-  ## ------------ +2 stubs, L1 candidate muon pt=20GeV ----------------##
+  ## ------------ +2 stubs, L1 candidate muon pt>=20GeV ----------------##
   produceRateVsEtaPlot(h_rt_tf20_2s,h_rt_tf20_2s1b,h_rt_tf20_gpt20_2s1b,
 		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,33,2,20,plots,ext)
-  ## ------------ +3 stubs, L1 candidate muon pt=20GeV ----------------##
+  ## ------------ +3 stubs, L1 candidate muon pt>=20GeV ----------------##
   produceRateVsEtaPlot(h_rt_tf20_3s,h_rt_tf20_3s1b,h_rt_tf20_gpt20_3s1b,
 		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,8,3,20,plots,ext)
 
-  ## ------------ +2 stubs & +3 stubs, L1 candidate muon pt=20GeV ----------------##
-  produceRateVsEtaPlot(h_rt_gmt_ptmax20_eta_sing, h_rt_tf20_gpt20_2s1b, h_rt_tf20_gpt20_3s1b,
-		       col1,kAzure+2,col3,sty1,sty2,sty3,3355,0.01,33,2,20,plots,"_test" + ext)
+  ## ------------ +2 stubs & +3 stubs, L1 candidate muon pt>=20GeV ----------------##
+#produceRateVsEtaPlot(h_rt_gmt_ptmax20_eta_sing, h_rt_tf20_gpt20_2s1b, h_rt_tf20_gpt20_3s1b,
+#		       col1,kAzure+2,col3,sty1,sty2,sty3,3355,0.01,33,2,20,plots,"_test" + ext)
 
-  """
-  ## ------------ +2 stubs, L1 candidate muon pt=30GeV ----------------##
+  ## ------------ +2 stubs, L1 candidate muon pt>=30GeV ----------------##
   produceRateVsEtaPlot(h_rt_tf30_2s,h_rt_tf30_2s1b,h_rt_tf30_gpt30_2s1b,
 		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,30,2,30,plots,ext)
-  ## ------------ +3 stubs, L1 candidate muon pt=30GeV ----------------##
+  ## ------------ +3 stubs, L1 candidate muon pt>=30GeV ----------------##
   produceRateVsEtaPlot(h_rt_tf30_3s,h_rt_tf30_3s1b,h_rt_tf30_gpt30_3s1b,
                        col1,col2,col3,sty1,sty2,sty3,3355,0.01, 6,3,30,plots,ext)
-  """
   
 #_______________________________________________________________________________
 if __name__ == "__main__":
-  produceRateVsEtaPlotsForApproval(".pdf", "plots_cmssw_601_postls1/rate_vs_eta/")
+  #produceRateVsEtaPlotsForApproval(".pdf", "plots_cmssw_601_postls1/rate_vs_eta/")
   produceRateVsEtaPlotsForApproval(".png", "plots_cmssw_601_postls1/rate_vs_eta/")
-  produceRateVsEtaPlotsForApproval(".eps", "plots_cmssw_601_postls1/rate_vs_eta/")
+  #produceRateVsEtaPlotsForApproval(".eps", "plots_cmssw_601_postls1/rate_vs_eta/")
 
 
 """
