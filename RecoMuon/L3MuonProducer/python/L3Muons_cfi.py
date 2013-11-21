@@ -77,6 +77,11 @@ L3Muons = cms.EDProducer("L3MuonProducer",
         ),
         ScaleTECyFactor = cms.double(-1.0),
         tkTrajLabel = cms.InputTag("hltL3TkTracksFromL2"),
+	tkTrajBeamSpot = cms.InputTag("hltOfflineBeamSpot"), # add a filter for L3 trajectory
+	tkTrajMaxChi2 = cms.double(999), # add a filter for L3 trajectory
+	tkTrajMaxDXYBeamSpot = cms.double(999), # add a filter for L3 trajectory
+	tkTrajVertex = cms.InputTag("pixelVertices"), # add a filter for L3 trajectory
+	tkTrajUseVertex = cms.bool(False), # add a filter for L3 trajectory
         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
         RefitRPCHits = cms.bool(True),
         TrackTransformer = cms.PSet(
