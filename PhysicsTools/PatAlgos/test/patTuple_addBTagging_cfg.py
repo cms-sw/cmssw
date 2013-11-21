@@ -7,22 +7,6 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
-# FIXME BEGIN: needed as long as new input not available in input RelVals
-process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
-process.load("RecoJets.JetAssociationProducers.ak7JTA_cff")
-process.patJets.discriminatorSources = cms.VInputTag(
-        cms.InputTag("jetBProbabilityBJetTags::RECO"),
-        cms.InputTag("jetProbabilityBJetTags::RECO"),
-        cms.InputTag("trackCountingHighPurBJetTags::RECO"),
-        cms.InputTag("trackCountingHighEffBJetTags::RECO"),
-        cms.InputTag("simpleSecondaryVertexHighEffBJetTags::RECO"),
-        cms.InputTag("simpleSecondaryVertexHighPurBJetTags::RECO"),
-        cms.InputTag("combinedSecondaryVertexBJetTags::RECO")
-    )
-process.patJets.trackAssociationSource = cms.InputTag("ak5JetTracksAssociatorAtVertex::RECO")
-process.patJets.jetIDMap = cms.InputTag("ak5JetID::RECO")
-# FIXME END
-
 ## uncomment the following line to add different jet collections
 ## to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
