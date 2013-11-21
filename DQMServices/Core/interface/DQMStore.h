@@ -86,6 +86,10 @@ public:
   {
   public:
     friend class DQMStore;
+    MonitorElement * bookString(const char *name,
+                                const char *value);
+    MonitorElement * bookString(const std::string &name,
+                                const std::string &value);
     MonitorElement * book1D(const std::string &name,
                             const std::string &title,
                             int nchX, double lowX, double highX);

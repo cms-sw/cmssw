@@ -263,6 +263,16 @@ void DQMStore::IBooker::setCurrentFolder(const std::string &fullpath) {
   owner_->setCurrentFolder(fullpath);
 }
 
+MonitorElement * DQMStore::IBooker::bookString(const char *name,
+                                               const char *value) {
+  return owner_->bookString(name, value);
+}
+
+MonitorElement * DQMStore::IBooker::bookString(const std::string &name,
+                                               const std::string &value) {
+  return owner_->bookString(name, value);
+}
+
 MonitorElement * DQMStore::IBooker::book1D(const std::string &name,
                                            const std::string &title,
                                            int nchX, double lowX, double highX) {
