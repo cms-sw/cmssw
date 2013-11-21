@@ -10,10 +10,6 @@ sys.argv.append( '-b' )
 import ROOT
 ROOT.gROOT.SetBatch(1)
 
-gem_dir = "files/"
-gem_label = "gem98"
-dir = "SimMuL1StrictAll"
-
 #_______________________________________________________________________________
 def drawLumiLabel2(x=0.2, y=0.4):
   """Label for the luminosity"""
@@ -37,8 +33,8 @@ def drawPULabel(x=0.17, y=0.15, font_size=0.):
 def setHistoEta(f_name, name, cname, title, lcolor, lstyle, lwidth):
   """Style for rate plot"""
   f = TFile.Open(f_name)
-##  print "opening ",f
-  h0 = GetH(f,dir,name)
+  dir = f.Get("SimMuL1StrictAll")
+  h0 = getH(dir,name)
   h = h0.Clone(name+cname)
   h.SetTitle(title)
   h.Sumw2()
@@ -96,15 +92,15 @@ def setHistoRatio(num, denom, title = "", ymin=0.4, ymax=1.6, color = kRed+3):
 def addRatePlotLegend(h, i, j, k, l):
   """Add legend to the trigger rate plot"""
   leg = TLegend(0.16,0.67,.8,0.9,
-                "L1 Selections (L1 muon candidate p_{T}#geq%d GeV/c):"%(l),"brNDC");
+                "L1 Selections (L1 muon candidate p_{T}#geq%d GeV/c):"%(k),"brNDC");
   leg.SetMargin(0.15)
   leg.SetBorderSize(0)
   leg.SetTextSize(0.04)
   leg.SetFillStyle(1001)
   leg.SetFillColor(kWhite)
-  leg.AddEntry(h,"CSC #geq%d stubs (anywhere)"%(k),"l");
-  leg.AddEntry(i,"CSC #geq%d stubs (one in Station 1)"%(k),"l");
-  leg.AddEntry(j,"GEM+CSC integrated trigger with #geq%d stubs"%(k),"l");
+  leg.AddEntry(h,"CSC #geq%d stubs (anywhere)"%(l),"l");
+  leg.AddEntry(i,"CSC #geq%d stubs (one in Station 1)"%(l),"l");
+  leg.AddEntry(j,"GEM+CSC integrated trigger with #geq%d stubs"%(l),"l");
 #  leg.AddEntry(0,"with #geq%d stubs"%(k),"");
   leg.Draw("same")
   ## carbage collection in PyROOT is something to pay attention to
@@ -128,37 +124,6 @@ def addRatioPlotLegend(h,k):
   return leg
 
 #_______________________________________________________________________________
-def addRatePlot(h, i, j, col1, col2, col3, sty1, sty2, sty3, sty4, miny, maxy):
-  h.SetFillColor(col1);
-  i.SetFillColor(col2);
-  j.SetFillColor(col3);
-  
-  h.SetFillStyle(sty1);
-  i.SetFillStyle(sty2);
-  j.SetFillStyle(sty3);
-  
-  ## Slava's proposal
-  h.SetFillStyle(0);
-  i.SetFillStyle(0);
-  j.SetFillStyle(0);
-  
-  h.SetLineStyle(1);
-  i.SetLineStyle(1);
-  j.SetLineStyle(1);
-  
-  h.SetLineWidth(2);
-  i.SetLineWidth(2);
-  j.SetLineWidth(2);
-
-  h.GetYaxis().SetRangeUser(miny,maxy);
-  i.GetYaxis().SetRangeUser(miny,maxy);
-  j.GetYaxis().SetRangeUser(miny,maxy);
-
-  i.Draw("hist e1");
-  j.Draw("same hist e1");
-  h.Draw("same hist e1");
-
-#_______________________________________________________________________________
 def setPad1Attributes(pad1):
   """Attributes for the top pad"""
   pad1.SetGridx(1)
@@ -180,9 +145,39 @@ def setPad2Attributes(pad2):
   pad2.SetBottomMargin(0.3)
 
 #_______________________________________________________________________________
-def produceRateVsEtaPlot(h, i, j, col1, col2, col3, sty1, sty2, sty3, sty4, 
-                         miny, maxy, k, l, plots, ext):
+def produceRateVsEtaPlotForApproval(f_def, f_gem, pt_threshold = 20, n_stubs = 3):
   """Build the rate and ratio plot on a canvas"""
+
+  colors = [kViolet+1,kAzure+2,kGreen-2]
+  styles = [3345,3003,1001]
+
+  miny = {
+#    5 :  { 2 : 0.01, 3 : 0.01 },
+#    6 :  { 2 : 0.01, 3 : 0.01 },
+    10 : { 2 : 0.01, 3 : 0.01 },
+#    15 : { 2 : 0.01, 3 : 0.01 },
+    20 : { 2 : 0.01, 3 : 0.01 },
+    30 : { 2 : 0.01, 3 : 0.01 },
+#    40 : { 2 : 0.01, 3 : 0.01 }
+    }
+
+  maxy = {
+#    5 : { 2 : 5, 3 : 3 },
+#    6 : { 2 : 5, 3 : 3 },
+    10 : { 2 : 80, 3 : 25 },
+#    15 : { 2 : 50, 3 : 20 },
+    20 : { 2 : 33, 3 : 8 },
+    30 : { 2 : 30, 3 : 6 },
+#    40 : { 2 : 10, 3 : 2 }
+    }
+  
+  ## Declaration of histograms
+  ttl = "                               CMS Phase-2 Simulation Preliminary;L1 muon candidate #eta;Trigger rate [kHz]";
+
+  h = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_%ds"%(pt_threshold,n_stubs), "_hAll100", ttl, colors[0], 1, 2)
+  i = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_%ds_%ds1b"%(pt_threshold,n_stubs,n_stubs), "_hAll100", ttl, colors[1], 1, 2)
+  j = setHistoEta(f_gem, "h_rt_gmt_csc_ptmax%d_eta_%ds_%ds1b"%(pt_threshold,n_stubs,n_stubs), "_hAll100", ttl, colors[2], 1, 2)
+
   c = TCanvas("c","c",800,800)
   c.Clear()
 
@@ -193,14 +188,42 @@ def produceRateVsEtaPlot(h, i, j, col1, col2, col3, sty1, sty2, sty3, sty4,
 
   pad1.cd()
   setPad1Attributes(pad1)
-  addRatePlot(h,i,j,col1,col2,col3,sty1,sty2,sty3,3355,miny,maxy)
-  leg = addRatePlotLegend(h, i, j, k, l)
+
+  h.SetFillColor(colors[0]);
+  i.SetFillColor(colors[1]);
+  j.SetFillColor(colors[2]);
+  
+  ## Slava's proposal
+  h.SetFillStyle(0);
+  i.SetFillStyle(0);
+  j.SetFillStyle(0);
+  
+  h.SetLineStyle(1);
+  i.SetLineStyle(1);
+  j.SetLineStyle(1);
+  
+  h.SetLineWidth(2);
+  i.SetLineWidth(2);
+  j.SetLineWidth(2);
+  
+  miny = miny[pt_threshold][n_stubs]
+  maxy = maxy[pt_threshold][n_stubs]
+
+  h.GetYaxis().SetRangeUser(miny,maxy);
+  i.GetYaxis().SetRangeUser(miny,maxy);
+  j.GetYaxis().SetRangeUser(miny,maxy);
+
+  i.Draw("hist e1");
+  j.Draw("same hist e1");
+  h.Draw("same hist e1");
+
+  leg = addRatePlotLegend(h, i, j, pt_threshold, n_stubs)
   tex = drawLumiLabel2()
 
   mini = miny
-  if k==2:
+  if n_stubs==2:
     maxi = 20
-  elif k==3:
+  elif n_stubs==3:
     maxi = 5
 
   l1 = TLine(1.6,mini,1.6,maxi)
@@ -213,9 +236,9 @@ def produceRateVsEtaPlot(h, i, j, col1, col2, col3, sty1, sty2, sty3, sty4,
   l2.SetLineWidth(2)
   l2.Draw()
 
-  if k==2:
+  if n_stubs==2:
     ypos = .55
-  elif k==3:
+  elif n_stubs==3:
     ypos = .57
       
   tex2 = TLatex(.515,ypos,"GE-1/1 region")
@@ -225,71 +248,43 @@ def produceRateVsEtaPlot(h, i, j, col1, col2, col3, sty1, sty2, sty3, sty4,
   
   pad2.cd()
   setPad2Attributes(pad2)
-  gem_ratio = setHistoRatio(j, i, "", 0.01,2.0, col2)
+  gem_ratio = setHistoRatio(j, i, "", 0.01,2.0, colors[1])
   gem_ratio.GetYaxis().SetNdivisions(3)  
   gem_ratio.Draw("Pe")
-  leg = addRatioPlotLegend(gem_ratio,k)
+  leg = addRatioPlotLegend(gem_ratio,n_stubs)
 
-  c.SaveAs(plots + "rates_vs_eta__minpt%d__PU100__def_%ds_%ds1b_%ds1bgem%s"%(l,k,k,k,ext))
+  c.SaveAs(output_dir + "rates_vs_eta__minpt%d__PU100__def_%ds_%ds1b_%ds1bgem"%(pt_threshold,n_stubs,n_stubs,n_stubs) + ext)
 
 #_______________________________________________________________________________
-def produceRateVsEtaPlotsForApproval(ext, plots):
-  """Produce the (6) rate & ratio vs eta plots"""
-  gStyle.SetOptStat(0)
-  gStyle.SetTitleStyle(0)
-  ## ##gStyle.SetPadTopMargin(0.08)
-  ## gStyle.SetTitleH(0.06)
+def produceRateVsEtaPlotsForApproval(): 
+  """Produce the rate & ratio vs eta plots"""
+
+  produceRateVsEtaPlotForApproval(f_def, f_g98_pt10, 10, 2)
+  produceRateVsEtaPlotForApproval(f_def, f_g98_pt10, 10, 3)
+#  produceRateVsEtaPlotForApproval(f_def, f_g98_pt15, 15, 2)
+#  produceRateVsEtaPlotForApproval(f_def, f_g98_pt15, 15, 3)
+  produceRateVsEtaPlotForApproval(f_def, f_g98_pt20, 20, 2)
+  produceRateVsEtaPlotForApproval(f_def, f_g98_pt20, 20, 3)
+  produceRateVsEtaPlotForApproval(f_def, f_g98_pt30, 30, 2)
+  produceRateVsEtaPlotForApproval(f_def, f_g98_pt30, 30, 3)
+#  produceRateVsEtaPlotForApproval(f_def, f_g98_pt40, 40, 2)
+#  produceRateVsEtaPlotForApproval(f_def, f_g98_pt40, 40, 3)
+
+  
+#_______________________________________________________________________________
+if __name__ == "__main__":
+
+  input_dir = "files/"
+  output_dir = "plots_cmssw_601_postls1/rate_vs_eta/"
+  ext = ".png"
 
   ## input files
-  f_def =      gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_def_pat2.root"
-  f_g98_pt10 = gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt10_pat2.root"
-  f_g98_pt15 = gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt15_pat2.root"
-  f_g98_pt20 = gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt20_pat2.root"
-  f_g98_pt30 = gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt30_pat2.root"
-  f_g98_pt40 = gem_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt40_pat2.root"
-
-  ## general stuff
-  hdir = "SimMuL1StrictAll"
-
-  ## colors - same colors as for rate vs pt plots!!
-  col1 = kViolet+1
-  col2 = kAzure+2
-  col3 = kGreen-2
-
-  ## styles
-  sty1 = 3345
-  sty2 = 3003
-  sty3 = 1001
-
-  ## Declaration of histograms
-  ttl = "                               CMS Phase-2 Simulation Preliminary;L1 muon candidate #eta;Trigger rate [kHz]";
-
-  pt = 10
-  h_rt_tf10_2s = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_2s"%(pt), "_hAll100", ttl, col1, 1, 2)
-  h_rt_tf10_2s1b = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(pt), "_hAll100", ttl, col2, 1, 2)
-  h_rt_tf10_gpt10_2s1b = setHistoEta(f_g98_pt10, "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(pt), "_hAll100", ttl, col3, 1, 2)
-  h_rt_tf10_3s = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_3s"%(pt), "_hAll100", ttl, col1, 1, 2)
-  h_rt_tf10_3s1b = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(pt), "_hAll100", ttl, col2, 1, 2)
-  h_rt_tf10_gpt10_3s1b = setHistoEta(f_g98_pt10, "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(pt), "_hAll100", ttl, col3, 7, 2)
-  
-  pt = 20
-  h_rt_tf20_2s = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_2s"%(pt), "_hAll100", ttl, col1, 1, 2)
-  h_rt_tf20_2s1b = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(pt), "_hAll100", ttl, col2, 1, 2)
-  h_rt_tf20_gpt20_2s1b = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(pt), "_hAll100", ttl, col2, 1, 2)
-  h_rt_tf20_3s = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_3s"%(pt), "_hAll100", ttl, col1, 1, 2)
-  h_rt_tf20_3s1b = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(pt), "_hAll100", ttl, col2, 1, 2)
-  h_rt_tf20_gpt20_3s1b = setHistoEta(f_g98_pt20, "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(pt), "_hAll100", ttl, col3, 1, 2)
-
-  pt = 30
-  h_rt_tf30_2s = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_2s"%(pt), "_hAll100", ttl, col1, 1, 2)
-  h_rt_tf30_2s1b = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(pt), "_hAll100", ttl, col2, 1, 2)
-  h_rt_tf30_gpt30_2s1b = setHistoEta(f_g98_pt30, "h_rt_gmt_csc_ptmax%d_eta_2s_2s1b"%(pt), "_hAll100", ttl, col3, 1, 2)
-  h_rt_tf30_3s = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_3s"%(pt), "_hAll100", ttl, col1, 1, 2)
-  h_rt_tf30_3s1b = setHistoEta(f_def, "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(pt), "_hAll100", ttl, col2, 1, 2)
-  h_rt_tf30_gpt30_3s1b = setHistoEta(f_g98_pt30, "h_rt_gmt_csc_ptmax%d_eta_3s_3s1b"%(pt), "_hAll100", ttl, col3, 1, 2)
-
-  h_rt_gmt_ptmax20_eta_sing = setHistoEta(f_def, "h_rt_gmt_ptmax20_eta_sing", "_hAll100", ttl, kRed, 1, 2)
-  
+  f_def =      input_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_def_pat2.root"
+  f_g98_pt10 = input_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt10_pat2.root"
+  f_g98_pt15 = input_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt15_pat2.root"
+  f_g98_pt20 = input_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt20_pat2.root"
+  f_g98_pt30 = input_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt30_pat2.root"
+  f_g98_pt40 = input_dir + "hp_minbias_6_0_1_POSTLS161_V12__pu100_w3_gem98_pt40_pat2.root"
 
   ## Style
   gStyle.SetStatW(0.07)
@@ -303,37 +298,7 @@ def produceRateVsEtaPlotsForApproval(ext, plots):
   gStyle.SetTitleH(0.058)
   gStyle.SetTitleBorderSize(0)
 
-  ## ------------ +2 stubs, L1 candidate muon pt>=10GeV ----------------##
-  produceRateVsEtaPlot(h_rt_tf10_2s,h_rt_tf10_2s1b,h_rt_tf10_gpt10_2s1b,
-		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,80,2,10,plots,ext)
-
-  ## ------------ +3 stubs, L1 candidate muon pt>=10GeV ----------------##
-  produceRateVsEtaPlot(h_rt_tf10_3s,h_rt_tf10_3s1b,h_rt_tf10_gpt10_3s1b,
-		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,25,3,10,plots,ext)
-
-  ## ------------ +2 stubs, L1 candidate muon pt>=20GeV ----------------##
-  produceRateVsEtaPlot(h_rt_tf20_2s,h_rt_tf20_2s1b,h_rt_tf20_gpt20_2s1b,
-		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,33,2,20,plots,ext)
-  ## ------------ +3 stubs, L1 candidate muon pt>=20GeV ----------------##
-  produceRateVsEtaPlot(h_rt_tf20_3s,h_rt_tf20_3s1b,h_rt_tf20_gpt20_3s1b,
-		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,8,3,20,plots,ext)
-
-  ## ------------ +2 stubs & +3 stubs, L1 candidate muon pt>=20GeV ----------------##
-#produceRateVsEtaPlot(h_rt_gmt_ptmax20_eta_sing, h_rt_tf20_gpt20_2s1b, h_rt_tf20_gpt20_3s1b,
-#		       col1,kAzure+2,col3,sty1,sty2,sty3,3355,0.01,33,2,20,plots,"_test" + ext)
-
-  ## ------------ +2 stubs, L1 candidate muon pt>=30GeV ----------------##
-  produceRateVsEtaPlot(h_rt_tf30_2s,h_rt_tf30_2s1b,h_rt_tf30_gpt30_2s1b,
-		       col1,col2,col3,sty1,sty2,sty3,3355,0.01,30,2,30,plots,ext)
-  ## ------------ +3 stubs, L1 candidate muon pt>=30GeV ----------------##
-  produceRateVsEtaPlot(h_rt_tf30_3s,h_rt_tf30_3s1b,h_rt_tf30_gpt30_3s1b,
-                       col1,col2,col3,sty1,sty2,sty3,3355,0.01, 6,3,30,plots,ext)
-  
-#_______________________________________________________________________________
-if __name__ == "__main__":
-  #produceRateVsEtaPlotsForApproval(".pdf", "plots_cmssw_601_postls1/rate_vs_eta/")
-  produceRateVsEtaPlotsForApproval(".png", "plots_cmssw_601_postls1/rate_vs_eta/")
-  #produceRateVsEtaPlotsForApproval(".eps", "plots_cmssw_601_postls1/rate_vs_eta/")
+  produceRateVsEtaPlotsForApproval() 
 
 
 """

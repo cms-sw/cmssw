@@ -12,25 +12,6 @@ ROOT.gROOT.SetBatch(1)
 gMinEta = 1.45
 gMaxEta = 2.5
 
-"""
-interactive = 1
-
-yrange[2]={0.,1.04}
-yrange05[2]={0.5,1.04}
-yrange06[2]={0.6,1.04}
-yrange07[2]={0.7,1.04}
-##yrange[2]={0.5,1.02}
-##yrange[2]={0.8,1.02}
-xrange[2]={0.86,2.5}
-xrangept[2]={0.,100.}
-
-do_h_eff_eta_steps_xchk1 = False
-do_h_eff_eta_me1_after_alct_okAlct = False
-h_eff_eta_steps_full10 = True
-
-##do_h_eff_eta_me1_after_alct_okAlct = True
-"""
-
 #_______________________________________________________________________________
 def setEffHisto(num_name, den_name, dir, nrebin, lcolor, lstyle, lwidth,
                 htitle, xtitle, ytitle, x_range, y_range):
@@ -116,7 +97,7 @@ def getEffHisto(fname, hdir, num_name, den_name, nrebin, lcolor, lstyle, lwidth,
     return heff
 
 #_______________________________________________________________________________
-def cscStationOccupanciesVsEta(input_dir, file_name, output_dir, ext):
+def cscStationOccupanciesVsEta():
     """Plot occupancy efficiencies in CSC stations 1-4"""
 
     dir = getRootDirectory(input_dir, file_name)
@@ -141,7 +122,7 @@ def cscStationOccupanciesVsEta(input_dir, file_name, output_dir, ext):
     c.SaveAs("%sc_eff_eta_simh_by_st%s"%(output_dir,ext))
 
 #_______________________________________________________________________________
-def cscStationOccupanciesMatchedVsEta_2(input_dir, file_name, output_dir, ext):
+def cscStationOccupanciesMatchedVsEta_2():
     """Plots the efficiency that a simtrack has at least 4 layers of simhits in CSC stations 1-3"""
 
     dir = getRootDirectory(input_dir, file_name)
@@ -172,7 +153,7 @@ def cscStationOccupanciesMatchedVsEta_2(input_dir, file_name, output_dir, ext):
     c.SaveAs("%sc_eff_eta_simh%s"%(output_dir,ext))
 
 #_______________________________________________________________________________
-def cscStationOccupanciesMatchedVsEta_3(input_dir, file_name, output_dir, ext):
+def cscStationOccupanciesMatchedVsEta_3():
     """Plots the efficiency that a simtrack has at least 4 layers of simhits in CSC stations 1-3"""
     
     dir = getRootDirectory(input_dir, file_name)
@@ -203,7 +184,7 @@ def cscStationOccupanciesMatchedVsEta_3(input_dir, file_name, output_dir, ext):
     c.SaveAs("%sc_eff_eta_simh_me1%s"%(output_dir,ext))
 
 #_______________________________________________________________________________
-def cscStationOccupanciesMatchedMpcVsEta(input_dir, file_name, output_dir, ext):
+def cscStationOccupanciesMatchedMpcVsEta():
     """Plot occupancy efficiencies with MPC matches in CSC stations 1-4"""
 
     #### FIXME - these plots look very strange ####
@@ -231,7 +212,7 @@ def cscStationOccupanciesMatchedMpcVsEta(input_dir, file_name, output_dir, ext):
 
 
 #_______________________________________________________________________________
-def cscStationOccupanciesMatchedMpcVsEta_2(input_dir, file_name, output_dir, ext):
+def cscStationOccupanciesMatchedMpcVsEta_2():
     """Plot occupancy efficiencies with MPC matches in CSC stations 1-3"""
 
     #### FIXME - these plots look very strange ####
@@ -266,7 +247,7 @@ def cscStationOccupanciesMatchedMpcVsEta_2(input_dir, file_name, output_dir, ext
 
 
 #_______________________________________________________________________________
-def cscStationOccupanciesMatchedMpcVsEta_3(input_dir, file_name, output_dir, ext):
+def cscStationOccupanciesMatchedMpcVsEta_3():
     """Plot occupancy efficiencies with MPC matches in CSC stations 1-3"""
 
     dir = getRootDirectory(input_dir, file_name)
@@ -298,7 +279,7 @@ def cscStationOccupanciesMatchedMpcVsEta_3(input_dir, file_name, output_dir, ext
     c.SaveAs("%sc_eff_eta_mpc_relative%s"%(output_dir,ext))
 
 #_______________________________________________________________________________
-def tfCandidateTriggerEfficiencyVsEta(input_dir, file_name, output_dir, ext):
+def tfCandidateTriggerEfficiencyVsEta():
 
     dir = getRootDirectory(input_dir, file_name)
     
@@ -340,7 +321,7 @@ def tfCandidateTriggerEfficiencyVsEta(input_dir, file_name, output_dir, ext):
 
 
 #_______________________________________________________________________________
-def cscStubMatchingEfficiencyVsEtaSummary(input_dir, file_name, output_dir, ext):
+def cscStubMatchingEfficiencyVsEtaSummary():
     """Summary of the CSC stub matching efficiencies"""
 
     dir = getRootDirectory(input_dir, file_name)
@@ -417,7 +398,7 @@ def cscStubMatchingEfficiencyVsEtaSummary(input_dir, file_name, output_dir, ext)
 
 
 #_______________________________________________________________________________
-def cscTFMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext):
+def cscTFMatchingEfficiencyVsEtaME1():
     """CSC TF matching efficiencies in ME1"""
 
     dir = getRootDirectory(input_dir, file_name)
@@ -454,7 +435,7 @@ def cscTFMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext):
 
 
 #_______________________________________________________________________________
-def cscTFCandMatchingEfficiencyVsEta(input_dir, file_name, output_dir, ext):
+def cscTFCandMatchingEfficiencyVsEta():
     """CSC TF Cand matching efficiencies"""
 
     dir = getRootDirectory(input_dir, file_name)
@@ -486,7 +467,7 @@ def cscTFCandMatchingEfficiencyVsEta(input_dir, file_name, output_dir, ext):
 
 
 #_______________________________________________________________________________
-def cscTFCandMatchingEfficiencyVsEta_2(input_dir, file_name, output_dir, ext):
+def cscTFCandMatchingEfficiencyVsEta_2():
     """CSC TF Cand matching efficiencies"""
 
     dir = getRootDirectory(input_dir, file_name)
@@ -522,7 +503,7 @@ def cscTFCandMatchingEfficiencyVsEta_2(input_dir, file_name, output_dir, ext):
     c.SaveAs("%sh_eff_eta_tf_3st1a%s"%(output_dir,ext))
 
 #_______________________________________________________________________________
-def cscTFCandMatchingEfficiencyVsEta_3(input_dir, file_name, output_dir, ext):
+def cscTFCandMatchingEfficiencyVsEta_3():
     """CSC TF Cand matching efficiencies"""
 
     dir = getRootDirectory(input_dir, file_name)
@@ -571,7 +552,7 @@ def cscTFCandMatchingEfficiencyVsEta_3(input_dir, file_name, output_dir, ext):
 
 
 #_______________________________________________________________________________
-def cscMpcTFCandGmtTriggerEfficiencyVsEta(input_dir, file_name, output_dir, ext):
+def cscMpcTFCandGmtTriggerEfficiencyVsEta():
     """cscMpcTFCandGmtTriggerEfficiency"""
 
     dir = getRootDirectory(input_dir, file_name)
@@ -1363,7 +1344,7 @@ def drawplot_etastep(fname, pu, dname="tf"):
 
 
 #_______________________________________________________________________________
-def simTrackToAlctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext):
+def simTrackToAlctMatchingEfficiencyVsEtaME1():
 
     dir = getRootDirectory(input_dir, file_name)
 
@@ -1396,7 +1377,7 @@ def simTrackToAlctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, e
 
 
 #_______________________________________________________________________________
-def simTrackToClctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext):
+def simTrackToClctMatchingEfficiencyVsEtaME1():
 
     dir = getRootDirectory(input_dir, file_name)
 
@@ -1428,7 +1409,7 @@ def simTrackToClctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, e
     c.Print("%ssimTrackToClctMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
 
 #_______________________________________________________________________________
-def simTrackToAlctClctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext):
+def simTrackToAlctClctMatchingEfficiencyVsEtaME1():
 
     dir = getRootDirectory(input_dir, file_name)
 
@@ -1480,7 +1461,7 @@ def simTrackToAlctClctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_di
 
 
 #_______________________________________________________________________________
-def simTrackToLctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext):
+def simTrackToLctMatchingEfficiencyVsEtaME1():
 
     dir = getRootDirectory(input_dir, file_name)
 
@@ -1522,7 +1503,7 @@ def simTrackToLctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ex
     c.Print("%ssimTrackToLctMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
 
 #_______________________________________________________________________________
-def simTrackToMpcLctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext):
+def simTrackToMpcLctMatchingEfficiencyVsEtaME1():
 
     dir = getRootDirectory(input_dir, file_name)
 
@@ -1553,11 +1534,11 @@ def simTrackToMpcLctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir,
     c.Print("%ssimTrackToMpcLctMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
 
 #_______________________________________________________________________________
-def simTrackToMpcLctTfMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext):
+def simTrackToMpcLctTfMatchingEfficiencyVsEtaME1():
     pass
 
 #_______________________________________________________________________________
-def simTrackToTFTrackMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext):
+def simTrackToTFTrackMatchingEfficiencyVsEtaME1():
 
     dir = getRootDirectory(input_dir, file_name)
 
@@ -1598,11 +1579,11 @@ def simTrackToTFTrackMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir
 
 
 #_______________________________________________________________________________
-def globalMuonTriggerEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext):
+def globalMuonTriggerEfficiencyVsEtaME1():
     pass
 
 #_______________________________________________________________________________
-def simTrackToAlctMatchingEfficiencyVsPhiME1(input_dir, file_name, output_dir, ext):
+def simTrackToAlctMatchingEfficiencyVsPhiME1():
 
     dir = getRootDirectory(input_dir, file_name)
 
@@ -1647,7 +1628,7 @@ def simTrackToAlctMatchingEfficiencyVsPhiME1(input_dir, file_name, output_dir, e
 
     
 #_______________________________________________________________________________
-def simTrackToAlctMatchingEfficiencyVsWGME11(input_dir, file_name, output_dir, ext):
+def simTrackToAlctMatchingEfficiencyVsWGME11():
 
     dir = getRootDirectory(input_dir, file_name)
     
@@ -1705,6 +1686,7 @@ if __name__ == "__main__":
     gStyle.SetOptStat(0)
     gStyle.SetMarkerStyle(1)
 
+    ## global variables
     input_dir = "files/"
     #file_name = "gem_trigger_eff_ana-out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_preTrig2.root"
     #file_name = 'gem_trigger_eff_ana-out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_replicateVadimOldResults.root'
@@ -1713,33 +1695,33 @@ if __name__ == "__main__":
     output_dir = "plots/"
     ext = ".png"
 
-    simTrackToAlctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext)
-    simTrackToClctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext)
-    simTrackToAlctClctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext)
-    simTrackToLctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext)
-    simTrackToMpcLctMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext)
-    simTrackToTFTrackMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext)
+    simTrackToAlctMatchingEfficiencyVsEtaME1()
+    simTrackToClctMatchingEfficiencyVsEtaME1()
+    simTrackToAlctClctMatchingEfficiencyVsEtaME1()
+    simTrackToLctMatchingEfficiencyVsEtaME1()
+    simTrackToMpcLctMatchingEfficiencyVsEtaME1()
+    simTrackToTFTrackMatchingEfficiencyVsEtaME1()
     
-    simTrackToAlctMatchingEfficiencyVsWGME11(input_dir, file_name, output_dir, ext)
+    simTrackToAlctMatchingEfficiencyVsWGME11()
 
-    cscStationOccupanciesVsEta(input_dir, file_name, output_dir, ext)
-    cscStationOccupanciesMatchedVsEta_2(input_dir, file_name, output_dir, ext)
-    cscStationOccupanciesMatchedVsEta_3(input_dir, file_name, output_dir, ext)
+    cscStationOccupanciesVsEta()
+    cscStationOccupanciesMatchedVsEta_2()
+    cscStationOccupanciesMatchedVsEta_3()
     
-    cscStationOccupanciesMatchedMpcVsEta(input_dir, file_name, output_dir, ext)
-    cscStationOccupanciesMatchedMpcVsEta_2(input_dir, file_name, output_dir, ext)
-    cscStationOccupanciesMatchedMpcVsEta_3(input_dir, file_name, output_dir, ext)
+    cscStationOccupanciesMatchedMpcVsEta()
+    cscStationOccupanciesMatchedMpcVsEta_2()
+    cscStationOccupanciesMatchedMpcVsEta_3()
 
-    tfCandidateTriggerEfficiencyVsEta(input_dir, file_name, output_dir, ext)
-    cscStubMatchingEfficiencyVsEtaSummary(input_dir, file_name, output_dir, ext)
-    cscTFMatchingEfficiencyVsEtaME1(input_dir, file_name, output_dir, ext)
-    cscTFCandMatchingEfficiencyVsEta(input_dir, file_name, output_dir, ext)
-    cscTFCandMatchingEfficiencyVsEta_2(input_dir, file_name, output_dir, ext)
-    cscTFCandMatchingEfficiencyVsEta_3(input_dir, file_name, output_dir, ext)
-    cscMpcTFCandGmtTriggerEfficiencyVsEta(input_dir, file_name, output_dir, ext)
+    tfCandidateTriggerEfficiencyVsEta()
+    cscStubMatchingEfficiencyVsEtaSummary()
+    cscTFMatchingEfficiencyVsEtaME1()
+    cscTFCandMatchingEfficiencyVsEta()
+    cscTFCandMatchingEfficiencyVsEta_2()
+    cscTFCandMatchingEfficiencyVsEta_3()
+    cscMpcTFCandGmtTriggerEfficiencyVsEta()
     
     """
-    simTrackToAlctMatchingEfficiencyVsPhiME1(input_dir, file_name, output_dir, ext)
-    simTrackToClctMatchingEfficiencyVsPhiME1(input_dir, file_name, output_dir, ext)
-    simTrackToLctMatchingEfficiencyVsPhiME1(input_dir, file_name, output_dir, ext)
+    simTrackToAlctMatchingEfficiencyVsPhiME1()
+    simTrackToClctMatchingEfficiencyVsPhiME1()
+    simTrackToLctMatchingEfficiencyVsPhiME1()
     """
