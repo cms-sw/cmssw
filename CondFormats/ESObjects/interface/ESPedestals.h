@@ -7,7 +7,7 @@
 struct ESPedestal {
         struct Zero { float z1; float z2;};
 
-        static Zero zero;
+        static const Zero zero;
 
         float mean;
         float rms;
