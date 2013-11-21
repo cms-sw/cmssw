@@ -92,7 +92,9 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) {
   sipixelInformationExtractor_ = new SiPixelInformationExtractor(offlineXMLfile_);
   sipixelActionExecutor_ = new SiPixelActionExecutor(offlineXMLfile_, Tier0Flag_);
   sipixelDataQuality_ = new SiPixelDataQuality(offlineXMLfile_);
-  
+
+  //set Token(-s)
+  inputSourceToken_ = consumes<FEDRawDataCollection>(ps.getUntrackedParameter<string>("inputSource", "source")); 
 // cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
 }
 //
@@ -211,7 +213,8 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
     if(nEvents_==1){
       // check if any Pixel FED is in readout:
       edm::Handle<FEDRawDataCollection> rawDataHandle;
-      e.getByLabel(inputSource_, rawDataHandle);
+      //e.getByLabel(inputSource_, rawDataHandle);
+      e.getByToken(inputSourceToken_, rawDataHandle);
       if(!rawDataHandle.isValid()){
         edm::LogInfo("SiPixelEDAClient") << inputSource_ << " is empty";
 	return;
