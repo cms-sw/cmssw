@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 patJets = cms.EDProducer("PATJetProducer",
     # input
-    jetSource = cms.InputTag("ak5CaloJets"),
+    jetSource = cms.InputTag("ak5PFJetsCHS"),
     # add user data
     userData = cms.PSet(
       # add custom classes here
@@ -51,7 +51,7 @@ patJets = cms.EDProducer("PATJetProducer",
     tagInfoSources  = cms.VInputTag(),
     # track association
     addAssociatedTracks    = cms.bool(True),
-    trackAssociationSource = cms.InputTag("ak5JetTracksAssociatorAtVertex"),
+    trackAssociationSource = cms.InputTag("ak5JetTracksAssociatorAtVertexPF"),
     # jet charge
     addJetCharge    = cms.bool(True),
     jetChargeSource = cms.InputTag("patJetCharge"),
