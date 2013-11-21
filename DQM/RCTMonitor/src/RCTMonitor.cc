@@ -11,6 +11,9 @@ RCTMonitor::RCTMonitor( const edm::ParameterSet& iConfig ):
   m_writeOutputFile(iConfig.getUntrackedParameter<bool>("WriteOutputFile")),
   m_outputFileName(iConfig.getUntrackedParameter<std::string>("OutputFileName"))
 {
+
+  //set Token(-s)
+  m_rctSourceToken_ = consumes<L1CaloEmCollection>(iConfig.getUntrackedParameter<edm::InputTag>("rctSource"));
 }
 
 
@@ -73,7 +76,8 @@ float DynamicScale(int EtaStamp)
  // iEvent.getByType(em);
  // iEvent.getByType(rgn);
   
-   iEvent.getByLabel(m_rctSource,em);
+   //iEvent.getByLabel(m_rctSource,em);
+   iEvent.getByToken(m_rctSourceToken_, em);
 
 
 
