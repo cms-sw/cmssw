@@ -90,7 +90,6 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
       double distZ = fabs(vtx.z()-aPV.z());
       if ( distR2 < sqr(originRadius) && distZ < originHalfLength ) {
         keepTrack = true;
-	std::cout << "we have used PV: "<< std::endl;
       }
     }
 
