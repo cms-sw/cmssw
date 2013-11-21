@@ -54,7 +54,6 @@ DiJetVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // ## Get jet collection
    edm::Handle<reco::CaloJetCollection> calojets_handle;
-   iEvent.getByLabel(inputJetTag_,calojets_handle);
    iEvent.getByToken(inputJetTagToken_, calojets_handle);
    //cout << "size: " << calojets_handle->size() << endl;              
    

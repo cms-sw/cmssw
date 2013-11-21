@@ -68,7 +68,6 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   
   // ## Get jet collection
   edm::Handle<reco::CaloJetCollection> calojets_handle;
-  //iEvent.getByLabel(jetCollectionTag_,calojets_handle);
   iEvent.getByToken(jetCollectionTagToken_,calojets_handle);
 
 
@@ -92,7 +91,6 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   
   // ## Get widejets 
   edm::Handle< vector<math::PtEtaPhiMLorentzVector> > widejets_handle;
-  //iEvent.getByLabel (widejetsCollectionTag_,widejets_handle);
   iEvent.getByToken(widejetsCollectionTagToken_, widejets_handle);
   
   TLorentzVector wj1;
@@ -133,12 +131,10 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
 
   // met
   edm::Handle<reco::CaloMETCollection> calomet_handle;
-  //iEvent.getByLabel(metCollectionTag_,calomet_handle);
   iEvent.getByToken(metCollectionTagToken_, calomet_handle);
 
   // met cleaned
   edm::Handle<reco::CaloMETCollection> calometClean_handle;
-  //iEvent.getByLabel(metCleanCollectionTag_,calometClean_handle);
   iEvent.getByToken(metCleanCollectionTagToken_, calometClean_handle);
  
   if( calomet_handle.isValid() && calometClean_handle.isValid() )

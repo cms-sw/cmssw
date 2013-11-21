@@ -461,7 +461,6 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   /////////////////////////////////////////////////////////////////
   // check if detectors whether they were ON
   edm::Handle<DcsStatusCollection> dcsStatus;
-  //e.getByLabel("scalersRawToDigi", dcsStatus);
   e.getByToken(dcsStatusToken_, dcsStatus);
   
   if (dcsStatus.isValid() && dcsStatus->size() != 0) 
@@ -560,7 +559,6 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
     }
   // try to get Raw Data
   edm::Handle<FEDRawDataCollection> rawraw;
-  //if (!(e.getByLabel(FEDRawDataCollection_,rawraw)))
   if ( !(e.getByToken(FEDRawDataCollectionToken_, rawraw)))
     {
       edm::LogWarning("HcalRawDataMonitor")<<" raw data with label "<<FEDRawDataCollection_<<" not available";

@@ -623,7 +623,6 @@ void L1TDTTF::analyze(const edm::Event& event,
   /// tracks handle
   edm::Handle<L1MuDTTrackContainer > myL1MuDTTrackContainer;
   try {
-    //event.getByLabel(trackInputTag_, myL1MuDTTrackContainer);
     event.getByToken(trackInputToken_, myL1MuDTTrackContainer);
   } catch (cms::Exception& iException) {
     edm::LogError("L1TDTTF::analyze::DataNotFound")
@@ -657,7 +656,6 @@ void L1TDTTF::analyze(const edm::Event& event,
     try {
 
       edm::Handle<reco::MuonCollection> muons;
-      //event.getByLabel(muonCollectionLabel_, muons);
       event.getByToken(muonCollectionToken_, muons);
       accept = false;
       if ( muons.isValid() ) {
@@ -711,7 +709,6 @@ void L1TDTTF::analyze(const edm::Event& event,
   try {
 
     edm::Handle<L1MuGMTReadoutCollection> pCollection;
-    //event.getByLabel(gmtSource_, pCollection);
     event.getByToken(gmtSourceToken_, pCollection);
 
     if ( !pCollection.isValid() ) {

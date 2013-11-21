@@ -483,18 +483,6 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   edm::Handle < L1GctEtHadCollection >   l1EtHad;
   edm::Handle < L1GctEtTotalCollection > l1EtTotal;
 
-  //e.getByLabel(gctIsoEmSource_, l1IsoEm);
-  //e.getByLabel(gctNonIsoEmSource_, l1NonIsoEm);
-  //e.getByLabel(gctCenJetsSource_, l1CenJets);
-  //e.getByLabel(gctForJetsSource_, l1ForJets);
-  //e.getByLabel(gctTauJetsSource_, l1TauJets);
-  //e.getByLabel(gctEnergySumsSource_, l1HFSums);
-  //e.getByLabel(gctEnergySumsSource_, l1HFCounts);
-  //e.getByLabel(gctEnergySumsSource_, l1EtMiss);
-  //e.getByLabel(gctEnergySumsSource_, l1HtMiss);
-  //e.getByLabel(gctEnergySumsSource_, l1EtHad);
-  //e.getByLabel(gctEnergySumsSource_, l1EtTotal);
-
   e.getByToken(gctIsoEmSourceToken_, l1IsoEm);
   e.getByToken(gctNonIsoEmSourceToken_, l1NonIsoEm);
   e.getByToken(gctCenJetsSourceToken_, l1CenJets);

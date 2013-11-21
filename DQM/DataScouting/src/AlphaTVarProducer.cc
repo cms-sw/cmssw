@@ -50,7 +50,6 @@ AlphaTVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of collection of objects
    edm::Handle<reco::CaloJetCollection> calojet_handle; 
-   iEvent.getByLabel(inputJetTag_,calojet_handle);
    iEvent.getByToken(inputJetTagToken_, calojet_handle);
 
    std::auto_ptr<std::vector<double> > result(new std::vector<double>); 

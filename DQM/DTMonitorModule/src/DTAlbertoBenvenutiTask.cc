@@ -234,7 +234,6 @@ void DTAlbertoBenvenutiTask::analyze(const edm::Event& e, const edm::EventSetup&
   if (nevents%1000 == 0 && debug) {}
   
   edm::Handle<DTDigiCollection> dtdigis;
-  //e.getByLabel("dtunpacker", dtdigis);
   e.getByToken(DTUnpackerToken_, dtdigis);
 
   bool checkNoisyChannels = parameters.getUntrackedParameter<bool>("checkNoisyChannels",false);

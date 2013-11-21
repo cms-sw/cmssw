@@ -292,11 +292,6 @@ void L1TCompare::analyze(const Event & e, const EventSetup & c)
     return;
   }
 
-  
-  //e.getByLabel(gctSource_.label(),"cenJets", gctCenJets);
-  //e.getByLabel(gctSource_.label(), "isoEm", gctIsoEmCands);
-  //e.getByLabel(gctSource_.label(), "nonIsoEm", gctNonIsoEmCands);
-
   e.getByToken(gctCenJetsToken_, gctCenJets);
   e.getByToken(gctIsoEmCandsToken_, gctIsoEmCands);
   e.getByToken(gctNonIsoEmCandsToken_, gctNonIsoEmCands);

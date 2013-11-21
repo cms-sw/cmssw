@@ -448,7 +448,6 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
   if( gmtProducer.label() != "null" )
     { // GMT block
-      //e.getByLabel(gmtProducer,pCollection);
       e.getByToken(gmtProducerToken_, pCollection);
       if (!pCollection.isValid()) 
         {
@@ -507,7 +506,6 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
   if( statusProducer.label() != "null" )
     {
       edm::Handle<L1CSCStatusDigiCollection> status;
-      //e.getByLabel(statusProducer.label(),statusProducer.instance(),status);
       e.getByToken(statusToken_, status);
       bool integrity=status->first, se=false, sm=false, bx=false, af=false, fmm=false;
       int nStat = 0;
@@ -543,7 +541,6 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
       CSCTriggerGeometry::setGeometry(pDD);
 
       edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
-      //e.getByLabel(lctProducer.label(),lctProducer.instance(),corrlcts);
       e.getByToken(corrlctsToken_, corrlcts);
 
       for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=corrlcts.product()->begin(); csc!=corrlcts.product()->end(); csc++)
@@ -638,7 +635,6 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
   if( trackProducer.label() != "null" )
     {
       edm::Handle<L1CSCTrackCollection> tracks;
-      //e.getByLabel(trackProducer.label(),trackProducer.instance(),tracks);
       e.getByToken(tracksToken_, tracks);
       for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk<tracks->end(); trk++)
         {
@@ -742,7 +738,6 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
              }
 				
              edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
-             e.getByLabel(lctProducer.label(),lctProducer.instance(),corrlcts);
              for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=corrlcts.product()->begin(); csc!=corrlcts.product()->end(); csc++)
              {
              CSCCorrelatedLCTDigiCollection::Range range1 = corrlcts.product()->get((*csc).first);
@@ -853,10 +848,8 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
     {
       // handle to needed collections
       edm::Handle<CSCTriggerContainer<csctf::TrackStub> > dtStubs;
-      //e.getByLabel(mbProducer.label(),  mbProducer.instance(),  dtStubs);
       e.getByToken(dtStubsToken_, dtStubs);
       edm::Handle<L1CSCTrackCollection> tracks;
-      //e.getByLabel(trackProducer.label(),trackProducer.instance(),tracks);
       e.getByToken(mbtracksToken_, tracks);
 		  
       // loop on the DT stubs

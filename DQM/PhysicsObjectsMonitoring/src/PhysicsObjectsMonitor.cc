@@ -109,7 +109,6 @@ void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& event
   
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
-  //event.getByLabel(theSTAMuonLabel, staTracks);
   event.getByToken(theSTAMuonToken_, staTracks);
 
   ESHandle<MagneticField> theMGField;
@@ -122,7 +121,6 @@ void PhysicsObjectsMonitor::analyze(const Event & event, const EventSetup& event
   // Get the SimTrack collection from the event
   //  if(theDataType == "SimData"){
   //  Handle<SimTrackContainer> simTracks;
-  //  event.getByLabel("g4SimHits",simTracks);
     
   //  numberOfRecTracks += staTracks->size();
 

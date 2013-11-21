@@ -459,7 +459,6 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   //-- TAKE IT AWAY for the time being
   ////---- try to get raw data and unpacker report
   edm::Handle<FEDRawDataCollection> RawData;  
-  //iEvent.getByLabel(inputLabelRaw_,RawData);
   iEvent.getByToken(inputLabelRawToken_, RawData);
   if (!RawData.isValid()) {
     rawOK_=false;
@@ -467,8 +466,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
 
   
-  edm::Handle<HcalUnpackerReport> report; 
-  //iEvent.getByLabel(inputLabelReport_,report);
+  edm::Handle<HcalUnpackerReport> report;
   iEvent.getByToken(inputLabelReportToken_, report);
   if (!report.isValid()) {
     rawOK_=false;
@@ -490,7 +488,6 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   //---------------------------------------------------------------//
 
   edm::Handle<CastorDigiCollection> CastorDigi;
-  //iEvent.getByLabel(inputLabelDigi_,CastorDigi);
   iEvent.getByToken(inputLabelDigiToken_, CastorDigi);
   if (!CastorDigi.isValid()) {
     digiOK_=false;
@@ -509,7 +506,6 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   //------------------- try to get RecHits ------------------------//
   //---------------------------------------------------------------//
   edm::Handle<CastorRecHitCollection> CastorHits;
-  //iEvent.getByLabel(inputLabelRecHitCASTOR_,CastorHits);
   iEvent.getByToken(inputLabelRecHitCASTORToken_, CastorHits);
   if (!CastorHits.isValid()) {
     rechitOK_ = false;

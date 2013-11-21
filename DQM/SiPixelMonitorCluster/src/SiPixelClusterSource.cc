@@ -157,7 +157,6 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   
   // get input data
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  input;
-  //iEvent.getByLabel( src_, input );
   iEvent.getByToken(srcToken_, input);
 
   edm::ESHandle<TrackerGeometry> pDD;

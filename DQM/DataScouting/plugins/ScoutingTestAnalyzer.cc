@@ -25,7 +25,6 @@ void ScoutingTestAnalyzer::analyze( const edm::Event & iEvent, const edm::EventS
   
   
   edm::Handle<reco::CaloJetCollection> calojets_handle ;
-  //iEvent.getByLabel(m_pfJetsCollectionTag,calojets_handle) ;
   iEvent.getByToken(m_pfJetsCollectionTagToken_, calojets_handle);
 
   /* This is an example of how C++11 can simplify or lifes. The auto keyword 

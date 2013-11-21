@@ -31,7 +31,6 @@ AlphaTVarAnalyzer::~AlphaTVarAnalyzer(){}
 void AlphaTVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup & c ){
   
   edm::Handle<std::vector<double> > alphaTvar_handle;
-  //iEvent.getByLabel(m_alphaTVarCollectionTag,alphaTvar_handle);
   iEvent.getByToken(m_alphaTVarCollectionTagToken_, alphaTvar_handle);
 
 

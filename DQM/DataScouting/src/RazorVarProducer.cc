@@ -53,12 +53,10 @@ RazorVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of collection of objects
    Handle< vector<math::XYZTLorentzVector> > hemispheres;
-   //iEvent.getByLabel (inputTag_,hemispheres);
    iEvent.getByToken (inputTagToken_, hemispheres);
 
    // get hold of the MET Collection
    Handle<CaloMETCollection> inputMet;
-   iEvent.getByLabel(inputMetTag_,inputMet);
    iEvent.getByToken(inputMetTagToken_, inputMet);
 
    std::auto_ptr<std::vector<double> > result(new std::vector<double>); 

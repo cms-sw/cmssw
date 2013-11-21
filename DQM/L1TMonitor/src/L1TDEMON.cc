@@ -340,7 +340,6 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
     /// get the comparison results
     edm::Handle < L1DataEmulRecord > deRecord;
-    //iEvent.getByLabel(DEsource_, deRecord);
     iEvent.getByToken(DEsourceToken_, deRecord);
 
     if (!deRecord.isValid()) {

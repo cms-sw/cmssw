@@ -46,8 +46,6 @@ void AlcaBeamSpotManager::reset(void){
 void AlcaBeamSpotManager::readLumi(const LuminosityBlock& iLumi){
 
   Handle<BeamSpot> beamSpotHandle;
-  iLumi.getByLabel(beamSpotModuleName_,beamSpotLabel_, beamSpotHandle);
-  //iLumi.getByLabel("beamspot","alcaBeamSpot", beamSpotHandle); 
   iLumi.getByToken(beamSpotToken_, beamSpotHandle);
 
   if(beamSpotHandle.isValid()) { // check the product

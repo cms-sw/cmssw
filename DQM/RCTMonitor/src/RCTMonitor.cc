@@ -72,12 +72,8 @@ float DynamicScale(int EtaStamp)
   // Get the RCT digis
   edm::Handle<L1CaloEmCollection> em;
  //  edm::Handle<L1CaloRegionCollection> rgn;
-
- // iEvent.getByType(em);
- // iEvent.getByType(rgn);
   
-   //iEvent.getByLabel(m_rctSource,em);
-   iEvent.getByToken(m_rctSourceToken_, em);
+  iEvent.getByToken(m_rctSourceToken_, em);
 
 
 

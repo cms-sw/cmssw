@@ -182,7 +182,6 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // get input data
   edm::Handle< edm::DetSetVector<PixelDigi> >  input;
-  //iEvent.getByLabel( src_, input );
   iEvent.getByToken(srcToken_, input);
   if (!input.isValid()) return; 
   // Get DQM interface

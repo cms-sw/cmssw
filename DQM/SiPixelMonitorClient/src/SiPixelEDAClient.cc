@@ -213,7 +213,6 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
     if(nEvents_==1){
       // check if any Pixel FED is in readout:
       edm::Handle<FEDRawDataCollection> rawDataHandle;
-      //e.getByLabel(inputSource_, rawDataHandle);
       e.getByToken(inputSourceToken_, rawDataHandle);
       if(!rawDataHandle.isValid()){
         edm::LogInfo("SiPixelEDAClient") << inputSource_ << " is empty";
