@@ -1,0 +1,1 @@
+cmsDriver.py ZEE_13TeV_cfi --conditions auto:upgradePLS1 -n 10 --eventcontent FEVTDEBUG --relval 9000,100 -s GEN,SIM --datatier GEN-SIM --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --geometry Extended2015 --fileout=test.root
