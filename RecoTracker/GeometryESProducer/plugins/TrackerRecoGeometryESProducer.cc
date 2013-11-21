@@ -37,7 +37,8 @@ TrackerRecoGeometryESProducer::produce(const TrackerRecoGeometryRecord & iRecord
   edm::ESHandle<TrackerGeometry> tG;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( geoLabel, tG );
   GeometricSearchTrackerBuilder builder;
-  _tracker  = boost::shared_ptr<GeometricSearchTracker>(builder.build( tG->trackerDet(), &(*tG) ));
+  auto dptr = GeometricDetPtr(const_cast<GeometricDet*>(tG->trackerDet()));
+  _tracker  = boost::shared_ptr<GeometricSearchTracker>(builder.build( dptr, &(*tG) ));
   return _tracker;
 }
 
