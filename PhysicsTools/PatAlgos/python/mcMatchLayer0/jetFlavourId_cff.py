@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 patJetPartons = cms.EDProducer("PartonSelector",
     withLeptons = cms.bool(False),
-    src = cms.InputTag("genParticles")                            
+    src = cms.InputTag("genParticles")
 )
 
 patJetPartonAssociation = cms.EDProducer("JetPartonMatcher",
-    jets    = cms.InputTag("ak5CaloJets"),
+    jets    = cms.InputTag("ak5PFJetsCHS"),
     partons = cms.InputTag("patJetPartons"),
     coneSizeToAssociate = cms.double(0.3),
 )

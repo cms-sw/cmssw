@@ -1,8 +1,11 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
+## switch to uncheduled mode
+process.options.allowUnscheduled = cms.untracked.bool(True)
+#process.Tracer = cms.Service("Tracer")
 
-# load the PAT config
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 ## add track candidates
 from PhysicsTools.PatAlgos.tools.trackTools import *
@@ -20,11 +23,6 @@ makeTrackCandidates(process,
 
 ## add generic tracks to the output file
 process.out.outputCommands.append('keep *_selectedPatTrackCands_*_*')
-
-## let it run
-process.p = cms.Path(
-    process.patDefaultSequence
-)
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
