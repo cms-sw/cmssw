@@ -96,6 +96,13 @@ HLTMonBTagMuSource::HLTMonBTagMuSource(const edm::ParameterSet & config) :
   m_plotL3MuonDeltaR(0),
   m_plotL3Discriminator(0)
 {
+  //set Token(-s)
+  m_triggerResultsToken_ = consumes<edm::TriggerResults>(config.getParameter<edm::InputTag>("triggerResults"));
+  m_L2JetsToken_ = consumes<edm::View<reco::Jet> >(config.getParameter<edm::InputTag>("L2Jets"));
+  m_L25TagInfoToken_ = consumes<reco::SoftLeptonTagInfoCollection>(config.getParameter<edm::InputTag>("L25TagInfo"));
+  m_L25JetTagsToken_ = consumes<reco::JetTagCollection>(config.getParameter<edm::InputTag>("L25JetTags"));
+  m_L3TagInfoToken_ = consumes<reco::SoftLeptonTagInfoCollection>(config.getParameter<edm::InputTag>("L3TagInfo"));
+  m_L3JetTagsToken_ = consumes<reco::JetTagCollection>(config.getParameter<edm::InputTag>("L3JetTags"));
 }
 
 HLTMonBTagMuSource::~HLTMonBTagMuSource(void) {
@@ -220,13 +227,13 @@ void HLTMonBTagMuSource::analyze(const edm::Event & event, const edm::EventSetup
   edm::Handle<reco::JetTagCollection>            h_L25JetTags;
   edm::Handle<reco::SoftLeptonTagInfoCollection> h_L3TagInfo;
   edm::Handle<reco::JetTagCollection>            h_L3JetTags;
-  
-  event.getByLabel(m_triggerResults, h_triggerResults);
-  event.getByLabel(m_L2Jets,         h_L2Jets);
-  event.getByLabel(m_L25TagInfo,     h_L25TagInfo);
-  event.getByLabel(m_L25JetTags,     h_L25JetTags);
-  event.getByLabel(m_L3TagInfo,      h_L3TagInfo);
-  event.getByLabel(m_L3JetTags,      h_L3JetTags);
+
+  event.getByToken(m_triggerResultsToken_, h_triggerResults);
+  event.getByToken(m_L2JetsToken_, h_L2Jets);
+  event.getByToken(m_L25TagInfoToken_, h_L25TagInfo);
+  event.getByToken(m_L25JetTagsToken_, h_L25JetTags);
+  event.getByToken(m_L3TagInfoToken_, h_L3TagInfo);
+  event.getByToken(m_L3JetTagsToken_, h_L3JetTags);
 
   // check if this path passed the L1, L2, L2.5 and L3 filters
   bool         wasrun = false;

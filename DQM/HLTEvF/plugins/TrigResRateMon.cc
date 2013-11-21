@@ -184,7 +184,12 @@ TrigResRateMon::TrigResRateMon(const edm::ParameterSet& iConfig): currentRun_(-9
       jmsFakeZBCounts = false;
       found_zbIndex = false;
       if (jmsDebug ) std::cout << "Printing extra info " << std::endl;
-      
+
+  //set Token(-s)
+  triggerResultsToken_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResultsLabel"));
+  edm::InputTag triggerResultsLabelFU(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU");
+  triggerResultsTokenFU_ = consumes<edm::TriggerResults>(triggerResultsLabelFU);
+  lumiScalersToken_ = consumes<LumiScalersCollection>(InputTag("hltScalersRawToDigi","",""));
 }
 
 
@@ -215,10 +220,10 @@ TrigResRateMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   edm::Handle<TriggerResults> triggerResults;
-  iEvent.getByLabel(triggerResultsLabel_,triggerResults);
+  iEvent.getByToken(triggerResultsToken_, triggerResults);
   if(!triggerResults.isValid()) {
     edm::InputTag triggerResultsLabelFU(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU");
-    iEvent.getByLabel(triggerResultsLabelFU,triggerResults);
+    iEvent.getByToken(triggerResultsTokenFU_, triggerResults);
     if(!triggerResults.isValid()) {
       edm::LogInfo("TrigResRateMon") << "TriggerResults not found, "
 	"skipping event"; 
@@ -276,7 +281,8 @@ TrigResRateMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   ////////////////////////////////////////////////////////////
 
   edm::Handle<LumiScalersCollection> lumiScalers;
-  bool lumiHandleOK = iEvent.getByLabel(InputTag("hltScalersRawToDigi","",""), lumiScalers);
+
+  bool lumiHandleOK = iEvent.getByToken(lumiScalersToken_, lumiScalers);
 
   if (jmsDebug) std::cout << "Tried to get lumi handle result = " << lumiHandleOK << std::endl;
   

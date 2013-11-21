@@ -102,7 +102,9 @@ eventCounter_(0)
   hMeanRecHitEnergyEE_min_ = ps.getUntrackedParameter<double>("hMeanRecHitEnergyEE_min",0); 
   hMeanRecHitEnergyEE_max_ = ps.getUntrackedParameter<double>("hMeanRecHitEnergyEE_max",5);
 
- 
+  //set Token(-s)
+  productMonitoredEBToken_ = consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBTag"));
+  productMonitoredEEToken_ = consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEETag"));
 
 }
 
@@ -220,9 +222,9 @@ void HLTAlCaMonEcalPhiSym::analyze(const Event& iEvent,
     
   edm::Handle<EcalRecHitCollection> rhEB;
   edm::Handle<EcalRecHitCollection> rhEE;
- 
-  iEvent.getByLabel(productMonitoredEB_, rhEB); 
-  iEvent.getByLabel(productMonitoredEE_, rhEE);
+
+  iEvent.getByToken(productMonitoredEBToken_, rhEB);
+  iEvent.getByToken(productMonitoredEEToken_, rhEE);
 
   EcalRecHitCollection::const_iterator itb;
 
