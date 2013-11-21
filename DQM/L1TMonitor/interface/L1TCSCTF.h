@@ -39,6 +39,12 @@
 #include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
+ 
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -118,6 +124,13 @@ class L1TCSCTF : public edm::EDAnalyzer {
   unsigned long long m_scalesCacheID ;
   unsigned long long m_ptScaleCacheID ;
 
+  //define Token(-s)
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtProducerToken_;
+  edm::EDGetTokenT<L1CSCStatusDigiCollection> statusToken_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> corrlctsToken_;
+  edm::EDGetTokenT<L1CSCTrackCollection> tracksToken_;
+  edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > dtStubsToken_;
+  edm::EDGetTokenT<L1CSCTrackCollection> mbtracksToken_;
 };
 
 #endif
