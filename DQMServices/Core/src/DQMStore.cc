@@ -255,6 +255,10 @@ bool fastmatch::match(std::string const& s) const
   }
 }
 
+void DQMStore::IBooker::cd(void) {
+  owner_->cd();
+}
+
 void DQMStore::IBooker::cd(const std::string &dir) {
   owner_->cd(dir);
 }
