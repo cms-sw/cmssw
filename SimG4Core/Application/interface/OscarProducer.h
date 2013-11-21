@@ -24,7 +24,7 @@ public:
     virtual void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
     virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override { }
     virtual void produce(edm::Event & e, const edm::EventSetup& c) override;
-protected:
+private:
     std::unique_ptr<RunManager> m_runManager;
     Producers     m_producers;
     std::unique_ptr<CustomUIsession> m_UIsession;
