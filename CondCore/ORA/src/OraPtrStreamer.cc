@@ -195,10 +195,11 @@ void ora::OraPtrWriter::write( int oid,
   
   edm::ObjectWithDict ptrObject( m_objectType, m_dataElement->address( data ) );
   // first load if required
-  ptrObject.Invoke("load",0);
+  ptrObject.typeOf().functionMemberByName("load").invoke(ptrObject,0);
   // then get the data...
-  void* ptrAddress = 0;
-  ptrObject.Invoke("address",ptrAddress);
+  size_t ptrAddress;
+  edm::ObjectWithDict ptrAddrObj = edm::ObjectWithDict(TypeWithDict(typeid(void*)), &ptrAddress);
+  ptrObject.typeOf().functionMemberByName("address").invoke(ptrObject, &ptrAddrObj);
   m_writer->write( oid, ptrAddress );
 }
 
@@ -257,9 +258,10 @@ void ora::OraPtrUpdater::update( int oid,
   }
   edm::ObjectWithDict ptrObject( m_objectType, m_dataElement->address( data ) );
   // first load if required
-  ptrObject.Invoke("load",0);
-  void* ptrAddress = 0;
-  ptrObject.Invoke("address",ptrAddress);
+  ptrObject.typeOf().functionMemberByName("load").invoke(ptrObject,0);
+  size_t ptrAddress;
+  edm::ObjectWithDict ptrAddrObj = edm::ObjectWithDict(TypeWithDict(typeid(void*)), &ptrAddress);
+  ptrObject.typeOf().functionMemberByName("address").invoke(ptrObject, &ptrAddrObj);
   m_updater->update( oid, ptrAddress );
 }
 

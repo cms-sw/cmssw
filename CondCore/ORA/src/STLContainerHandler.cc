@@ -47,10 +47,10 @@ ora::STLContainerHandler::STLContainerHandler( const edm::TypeWithDict& dictiona
   m_collProxy(){
   m_isAssociative = ClassUtils::isTypeKeyedContainer( m_type );
 
-  edm::MemberWithDict method = m_type.functionMemberByName("createCollFuncTable");
+  edm::FunctionWithDict method = m_type.functionMemberByName("createCollFuncTable");
   if(method){
     Reflex::CollFuncTable* collProxyPtr;
-    method.Invoke( collProxyPtr );
+    method.invoke( collProxyPtr );  //-ap needs conversion to ObjectWithDict ... ???
     m_collProxy.reset( collProxyPtr );
   }
   if( !m_collProxy.get() ){

@@ -381,9 +381,9 @@ void ora::QueryableVectorWriter::write( int oid,
   }
   void* vectorAddress = m_offset->address( inputData );
   edm::ObjectWithDict vectorObj( m_objectType,const_cast<void*>(vectorAddress));
-  vectorObj.Invoke("load",0);
+  vectorObj.typeOf().functionMemberByName("load").invoke(vectorObject,0);
   void* storageAddress = 0;
-  vectorObj.Invoke("storageAddress",storageAddress);
+  vectorObj.typeOf().functionMemberByName("storageAddress").invoke(vectorObject,storageAddress);
   m_writer.write( oid, storageAddress );
 }
 
@@ -419,9 +419,9 @@ void ora::QueryableVectorUpdater::update( int oid,
   }
   void* vectorAddress = m_offset->address( data );
   edm::ObjectWithDict vectorObj( m_objectType,const_cast<void*>(vectorAddress));
-  vectorObj.Invoke("load",0);
+  vectorObject.typeOf().functionMemberByName("load").invoke(vectorObject,0);
   void* storageAddress = 0;
-  vectorObj.Invoke("storageAddress",storageAddress);
+  vectorObject.typeOf().functionMemberByName("storageAddress").invoke(vectorObject,storageAddress);
   m_updater.update( oid, storageAddress );
 }  
   

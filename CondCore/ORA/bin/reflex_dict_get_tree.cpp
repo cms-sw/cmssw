@@ -170,4 +170,4 @@ int main ( int argc, char *argv[] )
   }
 }
 
-#endif defined AP_NOT_FOR_RIGHT_NOW
+#endif // defined AP_NOT_FOR_RIGHT_NOW

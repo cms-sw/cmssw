@@ -12,7 +12,7 @@ ora::ArrayHandlerFactory::newArrayHandler( const edm::TypeWithDict& arrayType )
   if(arrayType.IsArray()){
     return new CArrayHandler( arrayType );
   } else {  
-    edm::TypeWithDictTemplate templ = arrayType.TemplateFamily();
+    edm::TypeWithDict templ = arrayType.TemplateFamily();
     if ( templ ) {
       std::string contName = templ.qualifiedName(); 
       if(  contName == "std::vector"              ||

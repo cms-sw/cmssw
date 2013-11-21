@@ -48,7 +48,7 @@ ora::IRelationalStreamer* ora::RelationalStreamerFactory::newStreamer( const edm
     }
     newStreamer = new STLContainerStreamer( type, mapping, m_containerSchema );
   } else if ( mapping.elementType() == MappingElement::CArray ) { 
-    if ( ! type.isArray() ) {
+    if ( ! type.IsArray() ) {
       throwException( "Mapped variable \"" + mapping.variableName() +" of type "+
                       mapping.variableType() +
                       "\", declared as C-Array, is associated to the non-array type \""+
@@ -57,7 +57,7 @@ ora::IRelationalStreamer* ora::RelationalStreamerFactory::newStreamer( const edm
     }
     newStreamer = new CArrayStreamer( type, mapping, m_containerSchema );
   } else if ( mapping.elementType() == MappingElement::InlineCArray ) { 
-    if ( ! type.isArray() ) {
+    if ( ! type.IsArray() ) {
       throwException( "Mapped variable \"" + mapping.variableName() +" of type "+
                       mapping.variableType() +
                       "\", declared as Inline C-Array, is associated to the non-array type \""+

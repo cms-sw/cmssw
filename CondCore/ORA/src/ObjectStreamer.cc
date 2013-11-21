@@ -9,6 +9,8 @@
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "CondCore/ORA/src/RflxPropList.h"
 
+#include "oraHelper.h"
+
 namespace ora {
 
   bool isLoosePersistencyDataMember( const edm::MemberWithDict& dataMember ){
@@ -33,17 +35,18 @@ ora::ObjectStreamerBase::ObjectStreamerBase( const edm::TypeWithDict& objectType
 ora::ObjectStreamerBase::~ObjectStreamerBase(){
 }
 
+
 void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
                                                     IRelationalData& relationalData,
                                                     const edm::TypeWithDict& objType,
                                                     RelationalBuffer* operationBuffer ){
   
-  for ( unsigned int i=0;i<objType.BaseSize();i++){
-    edm::BaseWithDict base = objType.BaseAt(i);
+  for ( unsigned int i=0;i<ora::helper::BaseSize(objType);i++){
+    edm::BaseWithDict base = ora::helper::BaseAt(objType, i);
     edm::TypeWithDict baseType = ClassUtils::resolvedType( base.toType() );
     buildBaseDataMembers( dataElement, relationalData, baseType, operationBuffer );
     for ( unsigned int j=0;j<baseType.dataMemberSize();j++){
-      edm::MemberWithDict dataMember = baseType.dataMemberAt(j);      
+      edm::MemberWithDict dataMember = ora::helper::DataMemberAt(baseType, j);      
       DataElement& dataMemberElement = dataElement.addChild( dataMember.offset(), base.offsetFP() );
       // Ignore the transients and the statics (how to deal with non-const statics?)
       if ( dataMember.isTransient() || dataMember.isStatic() ) continue;
@@ -90,7 +93,7 @@ bool ora::ObjectStreamerBase::buildDataMembers( DataElement& dataElement,
     // Loop over the data members of the class.
   for ( unsigned int i=0;i<m_objectType.dataMemberSize();i++){
 
-    edm::MemberWithDict dataMember = m_objectType.dataMemberAt(i);
+    edm::MemberWithDict dataMember = ora::helper::DataMemberAt(m_objectType, i);
     DataElement& dataMemberElement = dataElement.addChild( dataMember.offset(), 0 );
 
     edm::TypeWithDict declaringType = ClassUtils::resolvedType( dataMember.declaringType());

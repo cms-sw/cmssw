@@ -45,51 +45,51 @@ boost::shared_ptr<coral::Blob> PrimitiveContainerStreamingService::write( const 
   edm::ObjectWithDict theContainer( type, const_cast<void*>( addressOfInputData ) );
 
   // Retrieve the size of the container
-  edm::MemberWithDict sizeMethod = type.MemberByName( "size" );
+  edm::FunctionWithDict sizeMethod = type.functionMemberByName( "size" );
   if ( ! sizeMethod )
     throw std::runtime_error( "No size method is defined for the container" );
   size_t containerSize = 0;
   sizeMethod.Invoke(theContainer, containerSize);
   
   // Retrieve the element size
-  edm::MemberWithDict beginMethod = type.MemberByName( "begin" );
+  edm::FunctionWithDict beginMethod = type.functionMemberByName( "begin" );
   if ( ! beginMethod )
     throw std::runtime_error( "No begin method is defined for the container" );
-  edm::TypeWithDict iteratorType = beginMethod.TypeOf().ReturnType();
-  edm::MemberWithDict dereferenceMethod = iteratorType.MemberByName( "operator*" );
+  edm::TypeWithDict iteratorType = beginMethod.typeOf().ReturnType();
+  edm::FunctionWithDict dereferenceMethod = iteratorType.functionMemberByName( "operator*" );
   if ( ! dereferenceMethod )
     throw std::runtime_error( "Could not retrieve the dereference method of the container's iterator" );
-  size_t elementSize = dereferenceMethod.TypeOf().ReturnType().SizeOf();
+  size_t elementSize = dereferenceMethod.typeOf().ReturnType().SizeOf();
 
   boost::shared_ptr<coral::Blob> blob( new coral::Blob( containerSize * elementSize ) );
   // allocate the blob
   void* startingAddress = blob->startingAddress();
 
   // Create an iterator
-  edm::TypeWithDict retType2 =  beginMethod.TypeOf().ReturnType();
+  edm::TypeWithDict retType2 =  beginMethod.typeOf().ReturnType();
   char* retbuf2 = ::new char[retType2.SizeOf()];
   edm::ObjectWithDict iteratorObject(retType2, retbuf2);
-  beginMethod.Invoke( edm::ObjectWithDict( type, const_cast< void * > ( addressOfInputData ) ), &iteratorObject );
+  beginMethod.invoke( edm::ObjectWithDict( type, const_cast< void * > ( addressOfInputData ) ), &iteratorObject );
 
   // Loop over the elements of the container
-  edm::MemberWithDict incrementMethod = iteratorObject.TypeOf().MemberByName( "operator++" );
+  edm::FunctionWithDict incrementMethod = iteratorObject.typeOf().functionMemberByName( "operator++" );
   if ( ! incrementMethod )
     throw std::runtime_error( "Could not retrieve the increment method of the container's iterator" );
 
   for ( size_t i = 0; i < containerSize; ++i ) {
 
     void* elementAddress = 0;
-    dereferenceMethod.Invoke( iteratorObject, elementAddress);
+    dereferenceMethod.invoke( iteratorObject, elementAddress);
     ::memcpy( startingAddress, elementAddress, elementSize );
     char* cstartingAddress = static_cast<char*>( startingAddress );
     cstartingAddress += elementSize;
     startingAddress = cstartingAddress;
 
-    incrementMethod.Invoke( iteratorObject, 0);
+    incrementMethod.invoke( iteratorObject, 0);
   }
 
   // Destroy the iterator
-  iteratorObject.Destruct();
+  iteratorObject.destruct();
   return blob;  
 }
 

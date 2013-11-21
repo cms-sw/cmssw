@@ -10,7 +10,8 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "CoralBase/AttributeSpecification.h"
-#include "CondCore/ORA/src/RflxPropList.h"
+#include "RflxPropList.h"
+#include "oraHelper.h"
 
 size_t
 ora::RelationalMapping::sizeInColumns(const edm::TypeWithDict& topLevelClassType ){
@@ -60,7 +61,7 @@ ora::RelationalMapping::_sizeInColumns(const edm::TypeWithDict& topLevelClassTyp
       typ.UpdateMembers();
       //std::vector<edm::TypeWithDict> carrays;
       for ( size_t i=0; i< typ.dataMemberSize(); i++){
-        edm::MemberWithDict objMember = typ.dataMemberAt(i);
+        edm::MemberWithDict objMember = ora::helper::DataMemberAt(typ,i);
 
         // Skip the transient ones
         if ( objMember.isTransient() ) continue;
@@ -549,8 +550,8 @@ namespace ora {
                            const std::string& scopeNameForSchema,
                            TableRegister& tableRegister ){
     std::string className = objType.qualifiedName();
-    for ( size_t i=0; i< objType.BaseSize(); i++){
-      edm::BaseWithDict base = objType.BaseAt(i);
+    for ( size_t i=0; i< ora::helper::BaseSize(objType); i++){
+      edm::BaseWithDict base = ora::helper::BaseAt(objType, i);
       edm::TypeWithDict baseType = ClassUtils::resolvedType( base.typeOf() ); // ?? base.toType() );
       if(!baseType){
         throwException( "Class for base \""+base.name()+"\" is not in the dictionary.","ObjectMapping::process");
@@ -559,7 +560,7 @@ namespace ora {
       // TO BE FIXED:: here there is still to fix the right scopeName to pass 
       processBaseClasses( mappingElement, baseType, scopeNameForSchema, tableRegister );
       for ( size_t j=0; j< baseType.dataMemberSize(); j++){
-        edm::MemberWithDict baseMember = baseType.DataMemberAt(j);
+        edm::MemberWithDict baseMember = ora::helper::DataMemberAt(baseType, j);
         // Skip the transient and the static ones
         if ( baseMember.isTransient() || baseMember.isStatic() || isLoosePersistencyOnWriting( baseMember ) ) continue;
         // Retrieve the data member type
@@ -607,7 +608,7 @@ void ora::ObjectMapping::process( MappingElement& parentElement,
   // loop over the data members 
   for ( size_t i=0; i< objectType.dataMemberSize(); i++){
 
-    edm::MemberWithDict objectMember = m_type.DataMemberAt(i);
+    edm::MemberWithDict objectMember = ora::helper::DataMemberAt(m_type, i);
     // Skip the transient and the static ones
     if ( objectMember.isTransient() || objectMember.isStatic() || isLoosePersistencyOnWriting( objectMember )) continue;
 
