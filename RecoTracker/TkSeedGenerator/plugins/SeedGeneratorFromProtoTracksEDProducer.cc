@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -33,6 +34,20 @@ typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
 
 struct HitLessByRadius { bool operator() (const Hit& h1, const Hit & h2) { return h1->globalPosition().perp2() < h2->globalPosition().perp2(); } };
 
+void SeedGeneratorFromProtoTracksEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<InputTag>("InputCollection", InputTag("pixelTracks"));
+  desc.add<InputTag>("InputVertexCollection", InputTag(""));
+  desc.add<double>("originHalfLength", 1E9);
+  desc.add<double>("originRadius", 1E9);
+  desc.add<bool>("useProtoTrackKinematics", false);
+  desc.add<bool>("useEventsWithNoVertex", true);
+  desc.add<std::string>("TTRHBuilder", "TTRHBuilderWithoutAngle4PixelTriplets");
+  desc.add<bool>("usePV", false);
+  descriptions.add("SeedGeneratorFromProtoTracksEDProducer", desc);
+}
+
+
 SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(const ParameterSet& cfg):theConfig(cfg)
 
 {
@@ -47,17 +62,6 @@ SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(c
   usePV_                      = cfg.getParameter<bool>( "usePV" );
 }
 
-void SeedGeneratorFromProtoTracksEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<InputTag>("InputCollection", InputTag("pixelTracks"));
-  desc.add<InputTag>("InputVertexCollection", InputTag(""));
-  desc.add<double>("originHalfLength", 1E9);
-  desc.add<double>("originRadius", 1E9);
-  desc.add<bool>("useProtoTrackKinematics", false);
-  desc.add<bool>("useEventsWithNoVertex", true);
-  desc.add<std::string>("TTRHBuilder", "TTRHBuilderWithoutAngle4PixelTriplets");
-  desc.add<bool>("usePV", false);
-}
 
 void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
