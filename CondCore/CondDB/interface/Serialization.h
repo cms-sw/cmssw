@@ -27,7 +27,6 @@
 class TBufferFile;
 
 namespace cond {
-namespace persistency {
 
   // Archives for the streaming based on ROOT.
 
@@ -102,6 +101,5 @@ namespace persistency {
     return payload;
   }
 
-}
 }
 #endif
