@@ -59,8 +59,6 @@ class MakeAODTrackCandidates(ConfigToolBase):
                                                         cut = cms.string(candSelection)
                                                         )
                 )
-        ### run production of TrackCandidates at the very beginning of the sequence
-        #process.patDefaultSequence.replace(process.patCandidates, getattr(process, 'patAOD' + label + 'Unfiltered') * getattr(process, 'patAOD' + label) * process.patCandidates)
 
 makeAODTrackCandidates=MakeAODTrackCandidates()
 
@@ -140,11 +138,6 @@ class MakePATTrackCandidates(ConfigToolBase):
         selectedL1cands = getattr(process, 'selectedPat' + label)
         cleanL1cands    = getattr(process, 'cleanPat' + label)
 
-        ### insert them in sequence, after the electrons
-        #process.patCandidates.replace(process.patElectrons, l1cands + process.patElectrons)
-        #process.selectedPatCandidates.replace(process.selectedPatElectrons, process.selectedPatElectrons + selectedL1cands)
-        #process.cleanPatCandidates.replace(process.cleanPatElectrons, process.cleanPatElectrons + cleanL1cands)
-
         ### add them to the Summary Tables
         #process.patCandidateSummary.candidates += [ cms.InputTag("allPat"+label) ]
         #process.selectedPatCandidateSummary.candidates += [ cms.InputTag("selectedPat"+label) ]
@@ -155,7 +148,6 @@ class MakePATTrackCandidates(ConfigToolBase):
             process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
             process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
             process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
-        isoModules = []
         runIsoDeps = {'tracker':False, 'caloTowers':False}
 
         for source,deltaR in isolation.items():
@@ -202,7 +194,6 @@ class MakePATTrackCandidates(ConfigToolBase):
                                        ExtractorPSet        = cms.PSet( MIsoTrackExtractorCtfBlock )
                                        )
                         )
-                isoModules.append( getattr(process, 'pat'+label+'IsoDepositTracks') )
             elif(dep == 'caloTowers'):
                 from RecoMuon.MuonIsolationProducers.caloExtractorByAssociatorBlocks_cff import MIsoCaloExtractorByAssociatorTowersBlock
                 setattr(process, 'pat'+label+'IsoDepositCaloTowers',
@@ -213,9 +204,6 @@ class MakePATTrackCandidates(ConfigToolBase):
                                        ExtractorPSet        = cms.PSet( MIsoCaloExtractorByAssociatorTowersBlock )
                                        )
                         )
-                isoModules.append( getattr(process, 'pat'+label+'IsoDepositCaloTowers') )
-        #for m in isoModules:
-            #process.patDefaultSequence.replace(l1cands, m * l1cands)
         # ES
         process.load( 'TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff' )
         # MC
@@ -226,7 +214,6 @@ class MakePATTrackCandidates(ConfigToolBase):
 
             ## clone mc matchiong module of object mcAs and add it to the path
             setattr(process, 'pat'+label+'MCMatch', findMatch[0].clone(src = input))
-            #process.patDefaultSequence.replace( l1cands, getattr(process, 'pat'+label+'MCMatch') * l1cands)
             l1cands.addGenMatch = True
             l1cands.genParticleMatch = cms.InputTag('pat'+label+'MCMatch')
 
