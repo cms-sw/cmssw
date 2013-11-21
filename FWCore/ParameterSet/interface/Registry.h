@@ -92,7 +92,7 @@ namespace edm {
     /// Associated free functions.
 
     /// Save the ParameterSetID of the top-level ParameterSet.
-    void setID(ParameterSetID const& id);
+    void setProcessParameterSetID(ParameterSetID const& id);
 
     /// Return the ParameterSetID of the top-level ParameterSet.
     /// Note the the returned ParameterSetID may be invalid;

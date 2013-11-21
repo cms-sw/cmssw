@@ -73,7 +73,7 @@ namespace edm {
       return s_ProcessParameterSetID;
     }
 
-    void setID(ParameterSetID const& id) {
+    void setProcessParameterSetID(ParameterSetID const& id) {
       pset::s_ProcessParameterSetID = id;
     }
 
