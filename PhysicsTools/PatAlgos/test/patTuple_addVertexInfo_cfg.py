@@ -1,8 +1,11 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
+## switch to uncheduled mode
+process.options.allowUnscheduled = cms.untracked.bool(True)
+#process.Tracer = cms.Service("Tracer")
 
-# load the PAT config
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 ## add track candidates
 from PhysicsTools.PatAlgos.tools.trackTools import *
@@ -42,13 +45,6 @@ process.patTrackVertexInfo = cms.EDProducer(
     vertices  = cms.InputTag('bestVertex'),
 )
 
-## add modules to the default sequence right after the patAODTrackCands
-process.patDefaultSequence.replace(process.patAODTrackCands,
-                                   process.patAODTrackCands *
-                                   process.bestVertex *
-                                   process.patTrackVertexInfo
-                                   )
-
 ## add it to the track candidates
 process.patTrackCands.vertexing = cms.PSet(
     vertexAssociations = cms.InputTag("patTrackVertexInfo"),
@@ -58,11 +54,6 @@ process.patTrackCands.vertexing = cms.PSet(
 process.out.outputCommands.append('keep *_selectedPatTrackCands_*_*')
 process.out.outputCommands.append('keep *_patTrackVertexInfo_*_*')
 process.out.outputCommands.append('keep *_bestVertex_*_*')
-
-## let it run
-process.p = cms.Path(
-        process.patDefaultSequence
-)
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
