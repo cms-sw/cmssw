@@ -1,13 +1,11 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
+## switch to uncheduled mode
+process.options.allowUnscheduled = cms.untracked.bool(True)
+#process.Tracer = cms.Service("Tracer")
 
-# load the PAT config
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
-## let it run
-process.p = cms.Path(
-        process.patDefaultSequence
-    )
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
@@ -19,7 +17,7 @@ process.p = cms.Path(
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
 process.source.fileNames = filesRelValProdTTbarAODSIM
 #                                         ##
-process.maxEvents.input = 10
+process.maxEvents.input = 100
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##

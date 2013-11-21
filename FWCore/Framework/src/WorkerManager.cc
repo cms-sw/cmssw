@@ -6,6 +6,9 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 
+static const std::string kFilterType("EDFilter");
+static const std::string kProducerType("EDProducer");
+
 namespace edm {
   // -----------------------------
 
@@ -45,8 +48,10 @@ namespace edm {
     //Need to
     // 1) create worker
     // 2) if it is a WorkerT<EDProducer>, add it to our list
-    Worker* newWorker = getWorker(pset, preg, prealloc, processConfiguration, label);
-    if(newWorker->moduleType() == Worker::kProducer || newWorker->moduleType() == Worker::kFilter) {
+    auto modType = pset.getParameter<std::string>("@module_edm_type");
+    if(modType == kProducerType || modType == kFilterType) {
+      Worker* newWorker = getWorker(pset, preg, prealloc, processConfiguration, label);
+      assert(newWorker->moduleType() == Worker::kProducer || newWorker->moduleType() == Worker::kFilter);
       unscheduledLabels.insert(label);
       unscheduled_->addWorker(newWorker);
       //add to list so it gets reset each new event

@@ -1,25 +1,15 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
+## switch to uncheduled mode
+process.options.allowUnscheduled = cms.untracked.bool(True)
+#process.Tracer = cms.Service("Tracer")
 
 ## load tau sequences up to selectedPatMuons
 process.load("PhysicsTools.PatAlgos.producersLayer1.muonProducer_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi")
 
 ## make sure to keep the created objects
-process.out.outputCommands = ['keep *_selectedPat*_*_*',]
-
-## to run in scheduled mode uncomment the following lines
-#process.p = cms.Path(
-#    process.makePatMuons *
-#    process.selectedPatMuons
-#)
-
-## to run in un-scheduled mode uncomment the following lines
-process.options.allowUnscheduled = cms.untracked.bool(True)
-#process.Tracer = cms.Service("Tracer")
-process.p = cms.Path(
-    process.selectedPatMuons
-    )
+process.out.outputCommands = ['keep *_selectedPat*_*_*']
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
