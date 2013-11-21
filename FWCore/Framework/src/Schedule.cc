@@ -396,7 +396,7 @@ namespace edm {
                        outputModulePathPositions);
     processEDAliases(proc_pset, processConfiguration->processName(), preg);
     proc_pset.registerIt();
-    pset::Registry::instance()->extraForUpdate().setID(proc_pset.id());
+    pset::setID(proc_pset.id());
     processConfiguration->setParameterSetID(proc_pset.id());
     processConfiguration->setProcessConfigurationID();
 
