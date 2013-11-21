@@ -4,5 +4,6 @@ DQMStore = cms.Service("DQMStore",
     referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0),
     verboseQT = cms.untracked.int32(0),
-    collateHistograms = cms.untracked.bool(False)
+    collateHistograms = cms.untracked.bool(False),
+    enableMultiThread = cms.untracked.bool(False)
 )

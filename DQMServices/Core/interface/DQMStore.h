@@ -124,9 +124,14 @@ public:
 		       uint32_t streamId,
 		       uint32_t moduleId) {
     std::lock_guard<std::mutex> guard(book_mutex_);
-    run_ = run;
-    streamId_ = streamId;
-    moduleId_ = moduleId;
+    /* If enableMultiThread is not enabled we do not set run_,
+       streamId_ and moduleId_ to 0, since we rely on their default
+       initialization in DQMSTore constructor. */
+    if (enableMultiThread_) {
+      run_ = run;
+      streamId_ = streamId;
+      moduleId_ = moduleId;
+    }
     f(*ibooker_);
   }
   //-------------------------------------------------------------------------
@@ -523,6 +528,7 @@ private:
   bool                          reset_;
   double                        scaleFlag_;
   bool                          collateHistograms_;
+  bool                          enableMultiThread_;
   std::string                   readSelectedDirectory_;
   uint32_t                      run_;
   uint32_t                      streamId_;

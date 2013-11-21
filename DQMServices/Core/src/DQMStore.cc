@@ -396,6 +396,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     verboseQT_ (1),
     reset_ (false),
     collateHistograms_ (false),
+    enableMultiThread_(false),
     readSelectedDirectory_ (""),
     run_(0),
     streamId_(0),
@@ -417,6 +418,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     verboseQT_ (1),
     reset_ (false),
     collateHistograms_ (false),
+    enableMultiThread_(false),
     readSelectedDirectory_ (""),
     run_(0),
     streamId_(0),
@@ -456,6 +458,10 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
   collateHistograms_ = pset.getUntrackedParameter<bool>("collateHistograms", false);
   if (collateHistograms_)
     std::cout << "DQMStore: histogram collation is enabled\n";
+
+  enableMultiThread_ = pset.getUntrackedParameter<bool>("enableMultiThread", false);
+  if (enableMultiThread_)
+    std::cout << "DQMStore: MultiThread option is enabled\n";
 
   std::string ref = pset.getUntrackedParameter<std::string>("referenceFileName", "");
   if (! ref.empty())
