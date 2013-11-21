@@ -98,12 +98,12 @@ namespace cond {
       
       // searches the DB for a valid iov containing the specified time.
       // if the available iov sequence subset contains the target time, it does not issue a new query.
-      // otherwise, a query according the two consecutives groups is executed.
+      // otherwise, a new query will be executed using the resolved group boundaries.
       Iterator find(cond::Time_t time);
       
       // searches the DB for a valid iov containing the specified time.
       // if the available iov sequence subset contains the target time, it does not issue a new query.
-      // otherwise, a query according the two consecutives groups is executed.
+      // otherwise, a new query will be executed using the resolved group boundaries.
       // throws if the target time cannot be found.
       cond::Iov_t getInterval( cond::Time_t time );
       

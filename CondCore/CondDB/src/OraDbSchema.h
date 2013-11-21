@@ -99,7 +99,7 @@ namespace cond {
       IOVCache& m_cache;
     };
         
-    class OraIOVSchema {
+    class OraIOVSchema : public IIOVSchema {
     public: 
       explicit OraIOVSchema( DbSession& session );
       virtual ~OraIOVSchema(){}
@@ -116,7 +116,7 @@ namespace cond {
       OraPayloadTable m_payloadTable;
     };
 
-    class OraGTTable {
+    class OraGTTable : public IGTTable {
     public:
       explicit OraGTTable( DbSession& session ); 
       virtual ~OraGTTable(){}
@@ -129,13 +129,13 @@ namespace cond {
 		   std::string& release, boost::posix_time::ptime& snapshotTime );
       void insert( const std::string& name, cond::Time_t validity, const std::string& description, const std::string& release, 
 		   const boost::posix_time::ptime& snapshotTime, const boost::posix_time::ptime& insertionTime );
-      virtual void update( const std::string& name, cond::Time_t validity, const std::string& description, const std::string& release, 
-			   const boost::posix_time::ptime& snapshotTime, const boost::posix_time::ptime& insertionTime );
+      void update( const std::string& name, cond::Time_t validity, const std::string& description, const std::string& release, 
+		   const boost::posix_time::ptime& snapshotTime, const boost::posix_time::ptime& insertionTime );
     private:
       cond::DbSession m_session;
     };
      
-    class OraGTMapTable {
+    class OraGTMapTable : public IGTMapTable {
     public:
       explicit OraGTMapTable( DbSession& session );
       virtual ~OraGTMapTable(){}
@@ -148,7 +148,7 @@ namespace cond {
       cond::DbSession m_session;
     };
     
-    class OraGTSchema {
+    class OraGTSchema : public IGTSchema {
     public: 
       OraGTSchema( DbSession& session );
       virtual ~OraGTSchema(){}
@@ -157,6 +157,8 @@ namespace cond {
       IGTMapTable& gtMapTable();
     private:
       cond::DbSession m_session;
+      OraGTTable m_gtTable;
+      OraGTMapTable m_gtMapTable;
     };
     
   }

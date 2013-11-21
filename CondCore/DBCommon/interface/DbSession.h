@@ -55,6 +55,7 @@ namespace cond{
     void open( const std::string& connectionString, bool readOnly=false );
     void open( const std::string& connectionString, const std::string&  role, bool readOnly=false );
     void openReadOnly( const std::string& connectionString, const std::string& id );
+    void open( boost::shared_ptr<coral::ISessionProxy>& coralSession, const std::string& connectionString, const std::string& schemaName="" );
     void close();
 
     bool isOpen() const;

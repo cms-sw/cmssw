@@ -2,6 +2,7 @@
 #define CondCore_CondDB_GTSchema_h
 
 #include "DbCore.h"
+#include "IDbSchema.h"
 //
 #include <boost/date_time/posix_time/posix_time.hpp>
 
@@ -18,7 +19,7 @@ namespace cond {
       column( SNAPSHOT_TIME, boost::posix_time::ptime );
       column( INSERTION_TIME, boost::posix_time::ptime );
       
-      class Table {
+      class Table : public IGTTable {
       public:
 	explicit Table( coral::ISchema& schema );
 	virtual ~Table(){}
@@ -47,7 +48,7 @@ namespace cond {
       column( LABEL, std::string );
       column( TAG_NAME, std::string );
       
-      class Table {
+      class Table : public IGTMapTable {
       public:
 	explicit Table( coral::ISchema& schema );
 	virtual ~Table(){}
@@ -59,7 +60,7 @@ namespace cond {
       };
     }
     
-    class GTSchema {
+    class GTSchema : public IGTSchema {
     public: 
       explicit GTSchema( coral::ISchema& schema );
       virtual ~GTSchema(){}

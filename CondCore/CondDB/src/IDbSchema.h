@@ -7,7 +7,7 @@
 namespace cond {
 
   namespace persistency {
-    
+
     class ITagTable {
     public:
       virtual ~ITagTable(){}
@@ -84,7 +84,7 @@ namespace cond {
     class IGTTable {
     public:
       virtual ~IGTTable(){}
-      virtual bool exists();
+      virtual bool exists() = 0;
       virtual bool select( const std::string& name ) = 0;
       virtual bool select( const std::string& name, cond::Time_t& validity, boost::posix_time::ptime& snapshotTime ) = 0;
       virtual bool select( const std::string& name, cond::Time_t& validity, std::string& description, 

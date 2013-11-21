@@ -1,9 +1,15 @@
 #include "CondCore/CondDB/interface/Exception.h"
 #include "OraDbSchema.h"
 //
+#include "CondCore/DBCommon/interface/TagMetadata.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondCore/TagCollection/interface/TagCollectionRetriever.h"
+#include "CondCore/TagCollection/interface/TagDBNames.h"
 //
+// externals
+#include "RelationalAccess/ISchema.h"
+
 namespace cond {
 
   namespace persistency {
@@ -206,6 +212,7 @@ namespace cond {
     };
 
     bool OraIOVSchema::exists(){
+      std::cout <<"## ORA: checking if it does exists..."<<std::endl;
       return m_cache.session().storage().exists();
     }
     
@@ -228,6 +235,80 @@ namespace cond {
     ITagMigrationTable& OraIOVSchema::tagMigrationTable(){
       throwException("Tag Migration interface is not available in this implementation.",
 		     "OraIOVSchema::tagMigrationTabl");
+    }
+
+    OraGTTable::OraGTTable( DbSession& session ):
+      m_session( session ){
+    }
+
+    bool OraGTTable::select( const std::string& name ){
+      cond::TagCollectionRetriever gtRetriever( m_session, "", "" );
+      return gtRetriever.existsTagCollection( name+"::All" );
+    }
+      
+    bool OraGTTable::select( const std::string& name, cond::Time_t& validity, boost::posix_time::ptime& snapshotTime){
+      bool ret = false;
+      if( select( name ) ){
+	ret = true;
+	validity = cond::time::MAX_VAL;
+	snapshotTime = boost::posix_time::ptime();
+      }
+      return ret;
+    }
+
+    bool OraGTTable::select( const std::string& name, cond::Time_t& validity, std::string&, 
+			     std::string&, boost::posix_time::ptime& snapshotTime){
+      return select( name, validity, snapshotTime );
+    }
+
+    void OraGTTable::insert( const std::string&, cond::Time_t, const std::string&, const std::string&, 
+			     const boost::posix_time::ptime&, const boost::posix_time::ptime&  ){
+      // not supported...
+    }
+      
+    void OraGTTable::update( const std::string&, cond::Time_t, const std::string&, const std::string&, 
+			     const boost::posix_time::ptime&, const boost::posix_time::ptime& ){
+      // not supported...
+    }
+     
+    OraGTMapTable::OraGTMapTable( DbSession& session ):
+      m_session( session ){
+    }
+      
+    bool OraGTMapTable::select( const std::string& gtName, std::vector<std::tuple<std::string,std::string,std::string> >& tags ){
+      std::set<cond::TagMetadata> tmp;
+      cond::TagCollectionRetriever gtRetriever( m_session, "", "" );
+      if(!gtRetriever.selectTagCollection( gtName+"::All", tmp ) ) return false;
+      if( tmp.size() ) tags.resize( tmp.size() );
+      size_t i = 0;
+      for( const auto& m : tmp ){
+	std::string tagFullName = m.tag+"@"+m.pfn;
+	tags[ i ] = std::make_tuple( m.recordname, m.labelname, tagFullName );
+      }
+      return true;
+    }
+      
+    void OraGTMapTable::insert( const std::string& gtName, const std::vector<std::tuple<std::string,std::string,std::string> >& tags ){
+      // not supported...
+    }
+
+    OraGTSchema::OraGTSchema( DbSession& session ):
+      m_session( session ),
+      m_gtTable( session ),
+      m_gtMapTable( session ){
+    }
+      
+    bool OraGTSchema::exists(){
+      cond::TagCollectionRetriever gtRetriever( m_session, "", "" );
+      return gtRetriever.existsTagDatabase();
+    }
+    
+    IGTTable& OraGTSchema::gtTable(){
+      return m_gtTable;
+    }
+
+    IGTMapTable& OraGTSchema::gtMapTable(){
+      return m_gtMapTable;
     }
 
   }

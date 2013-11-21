@@ -29,7 +29,6 @@ int main (int argc, char** argv)
 
     //*************
     Session session;
-    session.configuration().setMessageVerbosity( coral::Debug );
     session.open( connectionString );
     session.transaction().start( false );
     MyTestData d0( 17 );

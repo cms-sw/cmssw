@@ -78,7 +78,7 @@ namespace cond {
     //
     bool Session::existsDatabase(){
       m_session->openIovDb( SessionImpl::DO_NOT_THROW );
-      return m_session->transactionCache->iovDbExists;
+      return m_session->transaction->iovDbExists;
     }
     
     //

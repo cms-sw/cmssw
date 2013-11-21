@@ -1,6 +1,10 @@
 #include "CondCore/CondDB/interface/Exception.h"
 #include "SessionImpl.h"
 #include "DbConnectionString.h"
+// for the ORA bridge
+#include "OraDbSchema.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 //
 #include "RelationalAccess/ITransaction.h"
 
@@ -8,10 +12,54 @@ namespace cond {
 
   namespace persistency {
 
+    class CondDBTransaction : public ITransaction {
+    public:
+      CondDBTransaction( const boost::shared_ptr<coral::ISessionProxy>& coralSession ):
+	m_session( coralSession ){
+      }
+      virtual ~CondDBTransaction(){}
+     
+      void commit(){
+	m_session->transaction().commit();
+      }
+      
+      void rollback(){
+	m_session->transaction().rollback();
+      }
+
+      bool isActive(){
+	return m_session->transaction().isActive();
+      }
+    private: 
+      boost::shared_ptr<coral::ISessionProxy> m_session;
+    };
+
+    class OraTransaction : public ITransaction {
+    public:
+      OraTransaction( const cond::DbSession& session ):
+	m_session( session ){
+	isOra = true;
+      }
+      virtual ~OraTransaction(){}
+
+      void commit(){
+	m_session.transaction().commit();
+      }
+
+      void rollback(){
+	m_session.transaction().rollback();
+      }
+      bool isActive() {
+	return m_session.transaction().isActive();
+      }
+    private:
+      cond::DbSession m_session;
+    };
+
     SessionImpl::SessionImpl():
       configuration(),
-      connectionService(),
-      coralSession(){
+      coralSession(),
+      connectionString(""){
     }
 
     SessionImpl::~SessionImpl(){
@@ -22,18 +70,20 @@ namespace cond {
       connect( connectionString, "", readOnly );
     }
 
-    void SessionImpl::connect( const std::string& connectionString, 
+    void SessionImpl::connect( const std::string& connectionStr, 
 			       const std::string& transactionId,
 			       bool readOnly ){
       disconnect();
+      coral::ConnectionService connectionService;
       configuration.configure( connectionService.configuration() );
-      coralSession.reset( connectionService.connect( getRealConnectionString( connectionString, transactionId ), 
+      coralSession.reset( connectionService.connect( getRealConnectionString( connectionStr, transactionId ), 
 						     readOnly?coral::ReadOnly:coral::Update ) );
+      connectionString = connectionStr;
     }
 
+    // only required by the ORAWrapper ?
     void SessionImpl::connect( boost::shared_ptr<coral::ISessionProxy>& csession ){
       disconnect();
-      if( !configuration.isConfigured() ) configuration.configure( connectionService.configuration() );  
       coralSession = csession;
     }
 
@@ -41,11 +91,10 @@ namespace cond {
       if( coralSession.get() ){
 	if( coralSession->transaction().isActive() ){
 	  coralSession->transaction().rollback();
-	  transactionClients = 0;
 	}
 	coralSession.reset();
       }
-      transactionCache.reset();
+      transaction.reset();
     }
     
     bool SessionImpl::isActive() const {
@@ -53,24 +102,42 @@ namespace cond {
     }
 
     void SessionImpl::startTransaction( bool readOnly ){
-      if( !transactionClients ){ 
+      if( !transaction.get() ){ 
+	transaction.reset( new CondDBTransaction( coralSession ) );
 	coralSession->transaction().start( readOnly );
-	transactionCache.reset( new TransactionCache );
 	iovSchemaHandle.reset( new IOVSchema( coralSession->nominalSchema() ) );
-	gtSchemaHandle.reset( new GTSchema( coralSession->nominalSchema() ) );
+	gtSchemaHandle.reset( new GTSchema( coralSession->nominalSchema() ) );  		       
+	std::unique_ptr<IIOVSchema> iovSchema( new IOVSchema( coralSession->nominalSchema() ) );
+	std::unique_ptr<IGTSchema> gtSchema( new GTSchema( coralSession->nominalSchema() ) );
+	if( !iovSchemaHandle->exists() ){
+	  std::cout <<"## no db found. checking if it is ORA..."<<std::endl;
+	  cond::DbConnection oraConnection;
+	  cond::DbSession oraSession =  oraConnection.createSession();
+	  oraSession.open( coralSession, connectionString ); 
+	  std::unique_ptr<IIOVSchema> oraIovSchema( new OraIOVSchema( oraSession ) );
+	  std::unique_ptr<IGTSchema> oraGtSchema( new OraGTSchema( oraSession ) );
+	  oraSession.transaction().start();
+	  // try if it is an old iov or GT schema
+	  if( oraIovSchema->exists() ||  oraGtSchema->exists() ){
+	   std::cout <<"##  yes is ORA..."<<std::endl;
+	    iovSchemaHandle = std::move(oraIovSchema);
+	    gtSchemaHandle = std::move(oraGtSchema);
+	    transaction.reset( new OraTransaction( oraSession ) );
+	  }
+	}
       } else {
 	if(!readOnly ) throwException( "An update transaction is already active.",
 				       "SessionImpl::startTransaction" );
       }
-      transactionClients++;
+      transaction->clients++;
     }
     
     void SessionImpl::commitTransaction(){
-      if( transactionClients ) {
-	transactionClients--;
-	if( !transactionClients ){
-	  coralSession->transaction().commit();
-	  transactionCache.reset();
+      if( transaction ) {
+	transaction->clients--;
+	if( !transaction->clients ){
+	  transaction->commit();
+	  transaction.reset();
 	  iovSchemaHandle.reset();
 	  gtSchemaHandle.reset();
 	}
@@ -78,28 +145,29 @@ namespace cond {
     }
     
     void SessionImpl::rollbackTransaction(){
-      coralSession->transaction().rollback();
-      transactionCache.reset();
-      iovSchemaHandle.reset();
-      gtSchemaHandle.reset();
-      transactionClients = 0;
+      if( transaction ) {   
+	transaction->rollback();
+	transaction.reset();
+	iovSchemaHandle.reset();
+	gtSchemaHandle.reset();
+      }
     }
     
     bool SessionImpl::isTransactionActive() const {
-      if( !coralSession.get() ) return false;
-      return coralSession->transaction().isActive();
+      if( !transaction ) return false;
+      return transaction->isActive();
     }
 
     void SessionImpl::openIovDb( SessionImpl::FailureOnOpeningPolicy policy ){
-      if(!transactionCache.get()) throwException( "The transaction is not active.","SessionImpl::openIovDb" );
-      if( !transactionCache->iovDbOpen ){
-	transactionCache->iovDbExists = iovSchemaHandle->exists();
-	transactionCache->iovDbOpen = true;
+      if(!transaction.get()) throwException( "The transaction is not active.","SessionImpl::openIovDb" );
+      if( !transaction->iovDbOpen ){
+	transaction->iovDbExists = iovSchemaHandle->exists();
+	transaction->iovDbOpen = true;
       }      
-      if( !transactionCache->iovDbExists ){
+      if( !transaction->iovDbExists ){
 	if( policy==CREATE ){
 	  iovSchemaHandle->create();
-	  transactionCache->iovDbExists = true;
+	  transaction->iovDbExists = true;
 	} else {
 	  if( policy==THROW) throwException( "IOV Database does not exist.","SessionImpl::openIovDb");
 	}
@@ -107,12 +175,12 @@ namespace cond {
     }
 
     void SessionImpl::openGTDb(){
-      if(!transactionCache.get()) throwException( "The transaction is not active.","SessionImpl::open" );
-      if( !transactionCache->gtDbOpen ){
-	transactionCache->gtDbExists = gtSchemaHandle->exists();
-	transactionCache->gtDbOpen = true;
+      if(!transaction.get()) throwException( "The transaction is not active.","SessionImpl::open" );
+      if( !transaction->gtDbOpen ){
+	transaction->gtDbExists = gtSchemaHandle->exists();
+	transaction->gtDbOpen = true;
       }
-      if( !transactionCache->gtDbExists ){
+      if( !transaction->gtDbExists ){
 	throwException( "GT Database does not exist.","SessionImpl::openGTDb");
       }
     }
@@ -121,16 +189,14 @@ namespace cond {
       return *iovSchemaHandle;
     }
 
-    GTSchema& SessionImpl::gtSchema(){
+    IGTSchema& SessionImpl::gtSchema(){
       return *gtSchemaHandle;
     }
 
-    coral::ISchema& SessionImpl::coralSchema(){
-      if( !coralSession.get() ){
-	throwException("The session is not active.","SessionImpl::coralSchema");
-      }
-      return coralSession->nominalSchema();
+    bool SessionImpl::isOra(){
+      if(!transaction.get()) throwException( "The transaction is not active.","SessionImpl::open" );
+      return transaction->isOra;
     }
-    
+
   }
 }
