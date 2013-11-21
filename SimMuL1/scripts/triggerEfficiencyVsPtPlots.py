@@ -1,5 +1,6 @@
 from ROOT import * 
 from triggerPlotHelpers import *
+from mkdir import mkdir
 
 ## run quiet mode
 import sys
@@ -8,22 +9,6 @@ sys.argv.append( '-b' )
 import ROOT
 ROOT.gROOT.SetBatch(1)
 
-## global variables
-gMinEta = 1.45
-gMaxEta = 2.5
-
-"""
-interactive = 1
-
-yrange[2]={0.,1.04}
-yrange05[2]={0.5,1.04}
-yrange06[2]={0.6,1.04}
-yrange07[2]={0.7,1.04}
-##yrange[2]={0.5,1.02}
-##yrange[2]={0.8,1.02}
-xrange[2]={0.86,2.5}
-xrangept[2]={0.,100.}
-"""
 
 #_______________________________________________________________________________
 def setEffHisto(num_name, den_name, dir, nrebin, lcolor, lstyle, lwidth,
@@ -645,7 +630,12 @@ def gem_eff_draw(input_dir, file_name, output_dir, ext):
 
 
 
-####
+##################################################################################################
+#                                                  
+#                         P L O T S   W I T H   V A R I A B L E   P T    
+#
+##################################################################################################
+
 
 
 #_______________________________________________________________________________
@@ -819,6 +809,12 @@ def gem_eff_draw_gem1b(input_dir, file_name, output_dir, ext):
     leg.Draw()
     c2.Print(plotDir + "eff_gem1b_baselpcgem_dphi" + ext)
 
+#_______________________________________________________________________________
+def eff_pt_tf(output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+
+    c = TCanvas("c","c",1000,600 ) 
+    c.cd()
+
 
     helt2pt20.Draw("hist")
     helt3pt20.Draw("same hist")
@@ -841,13 +837,19 @@ def gem_eff_draw_gem1b(input_dir, file_name, output_dir, ext):
     leg.Draw()
     c2.Print(plotDir + "eff_gem1b_baselpcgem_123" + ext)
 
-    return
+
+#_______________________________________________________________________________
+def eff_pt_tf(output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+
+    c = TCanvas("c","c",1000,600 ) 
+    c.cd()
 
     hegl = getEffHisto(f_def, hdir, hgl, hini, ptreb, kRed, 1, 2, htitle, rpt, yrange)
     hegl.Draw("same hist")
     heg = getEffHisto(f_def, hdir, hg, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
     heg.Draw("same hist")
 
+    """
     hini = "h_pt_initial_1b"
     h2s = "h_pt_after_tfcand_eta1b_2s"
     h3s = "h_pt_after_tfcand_eta1b_3s"
@@ -865,310 +867,311 @@ def gem_eff_draw_gem1b(input_dir, file_name, output_dir, ext):
     h_eff_tf10_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange)
     h_eff_tf10_3s  = getEffHisto(f_def, hdir, h3s + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange)
     h_eff_tf10_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange)
+    """
+    c.SaveAs("test.png")
+
+
+
+##################################################################################################
+#                                                  
+#                           P L O T S   W I T H   F I X E D   P T    
+#
+##################################################################################################
+
+#_______________________________________________________________________________
+def eff_pt_tf(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+
+    dir = getRootDirectory(input_dir, file_name, dir_name)
+
+    c = TCanvas("c","c",1000,600 ) 
+    c.cd()
+
+    h_eff_pt_after_mpc_ok_plus = setEffHisto("h_pt_after_mpc_ok_plus","h_pt_initial",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (1.2<#eta<2.1)","p_{T}","",xrangept,yrange)
+    h_eff_pt_after_tfcand_ok_plus      = setEffHisto("h_pt_after_tfcand_ok_plus","h_pt_initial",dir, ptreb, kBlue, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_ok_plus_pt10 = setEffHisto("h_pt_after_tfcand_ok_plus_pt10","h_pt_initial",dir, ptreb, kBlue, 2,2, "","","",xrangept,yrange)
+    
+    h_eff_pt_after_mpc_ok_plus.Draw("hist")
+    h_eff_pt_after_tfcand_ok_plus.Draw("same hist")
+    h_eff_pt_after_tfcand_ok_plus_pt10.Draw("same hist")
+    
+    leg1 = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
+    leg1.SetBorderSize(0)
+    leg1.SetFillStyle(0)
+    leg1.SetHeader("Eff. for #mu crossing ME1+one more station in 1.2<#eta<2.1 with")
+    leg1.AddEntry(h_eff_pt_after_mpc_ok_plus,"MPC matched in 2stations","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus,"TF track with matched stubs in 2st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10,"p_{T}^{TF}>10 TF track with matched stubs in 2st","pl")
+    leg1.Draw()
+    
+    c.SaveAs("%sh_eff_pt_tf%s"%(output_dir,ext))
 
 
 #_______________________________________________________________________________
-def drawplot_etastep(fname, pu, dname="tf"):
+def eff_pt_tf_eta1b_2s(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+
+    dir = getRootDirectory(input_dir, file_name, dir_name)
+
+    c = TCanvas("c","c",1000,600 ) 
+    c.cd()
     
-    ## directory for plots is made as 
-    ## pdir = $PWD/pic[_{dname}]_{pu}
-
-    ##gStyle.SetStatW(0.13)
-    ##gStyle.SetStatH(0.08)
-    gStyle.SetStatW(0.07)
-    gStyle.SetStatH(0.06)
-
-    gStyle.SetOptStat(0)
-
-    gStyle.SetTitleStyle(0)
-
-    """
-    if (strcmp(dname,"")>0) sprintf(d1,"_%s",dname)
-    if (strcmp(pu,"")>0)    sprintf(d2,"_%s",pu)
-    sprintf(pdir,"pic%s%s",d1,d2)
-
-    if (interactive){
-      if( gSystem.AccessPathName(pdir)==0 ) {
-        cout<<"directory "<<pdir<<" exists, removing it!"<<endl
-        char cmd[111]
-        sprintf(cmd,"rm -r %s",pdir)
-        if (gSystem.Exec(cmd) != 0) {cout<<"can't remode directory! exiting..."<<endl return}
-      }
-      gSystem.MakeDirectory(pdir)
-    }
-
-    ##TFile *f = TFile::Open("piluphisto.root")
-    """
-    print "opening ",fname
-    f = TFile.Open(fname)
-
-    etareb=1
-    ptreb=2
-
-    ##################################################################################################
-
-        c_eff_pt_tf = TCanvas("c_eff_pt_tf","c_eff_pt_tf",1000,600 ) 
-
-        h_eff_pt_after_mpc_ok_plus = setEffHisto("h_pt_after_mpc_ok_plus","h_pt_initial",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (1.2<#eta<2.1)","p_{T}","",xrangept,yrange)
-        h_eff_pt_after_tfcand_ok_plus      = setEffHisto("h_pt_after_tfcand_ok_plus","h_pt_initial",dir, ptreb, kBlue, 1,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_ok_plus_pt10 = setEffHisto("h_pt_after_tfcand_ok_plus_pt10","h_pt_initial",dir, ptreb, kBlue, 2,2, "","","",xrangept,yrange)
-
-        h_eff_pt_after_mpc_ok_plus.Draw("hist")
-        h_eff_pt_after_tfcand_ok_plus.Draw("same hist")
-        h_eff_pt_after_tfcand_ok_plus_pt10.Draw("same hist")
-
-        leg1 = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
-        leg1.SetBorderSize(0)
-        leg1.SetFillStyle(0)
-        leg1.SetHeader("Eff. for #mu crossing ME1+one more station in 1.2<#eta<2.1 with")
-        leg1.AddEntry(h_eff_pt_after_mpc_ok_plus,"MPC matched in 2stations","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus,"TF track with matched stubs in 2st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10,"p_{T}^{TF}>10 TF track with matched stubs in 2st","pl")
-        leg1.Draw()
-
-        Print(c_eff_pt_tf,"h_eff_pt_tf" + ext)
-
-
-        ##################################################################################################
-
-        c_eff_pt_tf_eta1b_2s = TCanvas("c_eff_pt_tf_eta1b_2s","c_eff_pt_tf_eta1b_2s",1000,600 ) 
-
-        h_eff_pt_after_tfcand_eta1b_2s  = setEffHisto("h_pt_after_tfcand_eta1b_2s","h_pt_initial_1b",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (1.64<#eta<2.14)","p_{T}^{MC}","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_2s_pt10 = setEffHisto("h_pt_after_tfcand_eta1b_2s_pt10","h_pt_initial_1b",dir, ptreb, kGreen+2, 1,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_2s_pt20 = setEffHisto("h_pt_after_tfcand_eta1b_2s_pt20","h_pt_initial_1b",dir, ptreb, kBlue, 1,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_2s_pt25 = setEffHisto("h_pt_after_tfcand_eta1b_2s_pt25","h_pt_initial_1b",dir, ptreb, kOrange, 1,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_2s_pt30 = setEffHisto("h_pt_after_tfcand_eta1b_2s_pt30","h_pt_initial_1b",dir, ptreb, kRed, 1,2, "","","",xrangept,yrange)
-
-        h_eff_pt_after_tfcand_eta1b_2s.GetXaxis().SetRangeUser(0.,49.99)
-
-        h_eff_pt_after_tfcand_eta1b_2s.Draw("hist")
-        h_eff_pt_after_tfcand_eta1b_2s_pt10.Draw("same hist")
-        h_eff_pt_after_tfcand_eta1b_2s_pt20.Draw("same hist")
-        h_eff_pt_after_tfcand_eta1b_2s_pt25.Draw("same hist")
-        h_eff_pt_after_tfcand_eta1b_2s_pt30.Draw("same hist")
-
-        leg1 = TLegend(0.5,0.15,0.99,0.5,"","brNDC")
-        leg1.SetBorderSize(0)
-        leg1.SetFillStyle(0)
-        leg1.SetHeader("Eff. for #mu in 1.64<#eta<2.14 to have TF track with")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s,"stubs in (2+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt10,"p_{T}^{TF}>=10, stubs in (2+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt20,"p_{T}^{TF}>=20, stubs in (2+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt25,"p_{T}^{TF}>=25, stubs in (2+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt30,"p_{T}^{TF}>=30, stubs in (2+)st","pl")
-        leg1.Draw()
-
-        Print(c_eff_pt_tf_eta1b_2s, "h_eff_pt_tf_eta1b_2s" + ext)
-
-        ##################################################################################################
-
-        c_eff_pt_tf_eta1b_2s1b = TCanvas("c_eff_pt_tf_eta1b_2s1b","c_eff_pt_tf_eta1b_2s1b",1000,600 ) 
-
-        h_eff_pt_after_tfcand_eta1b_2s1b  = setEffHisto("h_pt_after_tfcand_eta1b_2s1b","h_pt_initial_1b",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (1.64<#eta<2.14)","p_{T}^{MC}","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_2s1b_pt10 = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt10","h_pt_initial_1b",dir, ptreb, kGreen+2, 1,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_2s1b_pt20 = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt20","h_pt_initial_1b",dir, ptreb, kBlue, 1,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_2s1b_pt25 = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt25","h_pt_initial_1b",dir, ptreb, kOrange, 1,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_2s1b_pt30 = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt30","h_pt_initial_1b",dir, ptreb, kRed, 1,2, "","","",xrangept,yrange)
-
-        h_eff_pt_after_tfcand_eta1b_2s1b.GetXaxis().SetRangeUser(0.,49.99)
-
-        h_eff_pt_after_tfcand_eta1b_2s1b.Draw("hist")
-        h_eff_pt_after_tfcand_eta1b_2s1b_pt10.Draw("same hist")
-        h_eff_pt_after_tfcand_eta1b_2s1b_pt20.Draw("same hist")
-        h_eff_pt_after_tfcand_eta1b_2s1b_pt25.Draw("same hist")
-        h_eff_pt_after_tfcand_eta1b_2s1b_pt30.Draw("same hist")
-
-        leg1 = TLegend(0.5,0.15,0.99,0.5,"","brNDC")
-        leg1.SetBorderSize(0)
-        leg1.SetFillStyle(0)
-        leg1.SetHeader("Eff. for #mu in 1.64<#eta<2.14 to have TF track with")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s1b,"stubs in ME1+(1+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s1b_pt10,"p_{T}^{TF}>=10, stubs in ME1+(1+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s1b_pt20,"p_{T}^{TF}>=20, stubs in ME1+(1+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s1b_pt25,"p_{T}^{TF}>=25, stubs in ME1+(1+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s1b_pt30,"p_{T}^{TF}>=30, stubs in ME1+(1+)st","pl")
-        leg1.Draw()
-
-        Print(c_eff_pt_tf_eta1b_2s1b, "h_eff_pt_tf_eta1b_2s1b" + ext)
-
-
-        ##################################################################################################
-
-        c_eff_pt_tf_eta1b_3s = TCanvas("c_eff_pt_tf_eta1b_3s","c_eff_pt_tf_eta1b_3s",1000,600 ) 
-
-        h_eff_pt_after_tfcand_eta1b_3s  = setEffHisto("h_pt_after_tfcand_eta1b_3s","h_pt_initial_1b",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (1.64<#eta<2.14)","p_{T}^{MC}","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_3s_pt10 = setEffHisto("h_pt_after_tfcand_eta1b_3s_pt10","h_pt_initial_1b",dir, ptreb, kGreen+2, 1,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_3s_pt20 = setEffHisto("h_pt_after_tfcand_eta1b_3s_pt20","h_pt_initial_1b",dir, ptreb, kBlue, 1,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_3s_pt25 = setEffHisto("h_pt_after_tfcand_eta1b_3s_pt25","h_pt_initial_1b",dir, ptreb, kOrange, 1,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_3s_pt30 = setEffHisto("h_pt_after_tfcand_eta1b_3s_pt30","h_pt_initial_1b",dir, ptreb, kRed, 1,2, "","","",xrangept,yrange)
-
-        h_eff_pt_after_tfcand_eta1b_3s.GetXaxis().SetRangeUser(0.,49.99)
-
-        h_eff_pt_after_tfcand_eta1b_3s.Draw("hist")
-        h_eff_pt_after_tfcand_eta1b_3s_pt10.Draw("same hist")
-        h_eff_pt_after_tfcand_eta1b_3s_pt20.Draw("same hist")
-        h_eff_pt_after_tfcand_eta1b_3s_pt25.Draw("same hist")
-        h_eff_pt_after_tfcand_eta1b_3s_pt30.Draw("same hist")
-
-        leg1 = TLegend(0.5,0.15,0.99,0.5,"","brNDC")
-        leg1.SetBorderSize(0)
-        leg1.SetFillStyle(0)
-        leg1.SetHeader("Eff. for #mu in 1.64<#eta<2.14 to have TF track with")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s,"stubs in (3+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s_pt10,"p_{T}^{TF}>=10, stubs in (3+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s_pt20,"p_{T}^{TF}>=20, stubs in (3+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s_pt25,"p_{T}^{TF}>=25, stubs in (3+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s_pt30,"p_{T}^{TF}>=30, stubs in (3+)st","pl")
-        leg1.Draw()
-
-        Print(c_eff_pt_tf_eta1b_3s, "h_eff_pt_tf_eta1b_3s" + ext)
-
-        ##################################################################################################
-
-        c_eff_pt_tf_eta1b_3s1b = TCanvas("c_eff_pt_tf_eta1b_3s1b","c_eff_pt_tf_eta1b_3s1b",1000,600 ) 
-
-        h_eff_pt_after_tfcand_eta1b_3s1b  = setEffHisto("h_pt_after_tfcand_eta1b_3s1b","h_pt_initial_1b",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (1.64<#eta<2.14)","p_{T}^{MC}","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_3s1b_pt10 = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt10","h_pt_initial_1b",dir, ptreb, kGreen+2, 1,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_3s1b_pt20 = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt20","h_pt_initial_1b",dir, ptreb, kBlue, 1,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_3s1b_pt25 = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt25","h_pt_initial_1b",dir, ptreb, kOrange, 1,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_eta1b_3s1b_pt30 = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt30","h_pt_initial_1b",dir, ptreb, kRed, 1,2, "","","",xrangept,yrange)
-
-        h_eff_pt_after_tfcand_eta1b_3s1b.GetXaxis().SetRangeUser(0.,49.99)
-
-        h_eff_pt_after_tfcand_eta1b_3s1b.Draw("hist")
-        h_eff_pt_after_tfcand_eta1b_3s1b_pt10.Draw("same hist")
-        h_eff_pt_after_tfcand_eta1b_3s1b_pt20.Draw("same hist")
-        h_eff_pt_after_tfcand_eta1b_3s1b_pt25.Draw("same hist")
-        h_eff_pt_after_tfcand_eta1b_3s1b_pt30.Draw("same hist")
-
-        leg1 = TLegend(0.5,0.15,0.99,0.5,"","brNDC")
-        leg1.SetBorderSize(0)
-        leg1.SetFillStyle(0)
-        leg1.SetHeader("Eff. for #mu in 1.64<#eta<2.14 to have TF track with")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s1b,"stubs in ME1+(2+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s1b_pt10,"p_{T}^{TF}>=10, stubs in ME1+(2+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s1b_pt20,"p_{T}^{TF}>=20, stubs in ME1+(2+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s1b_pt25,"p_{T}^{TF}>=25, stubs in ME1+(2+)st","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s1b_pt30,"p_{T}^{TF}>=30, stubs in ME1+(2+)st","pl")
-        leg1.Draw()
-
-        Print(c_eff_pt_tf_eta1b_3s1b, "h_eff_pt_tf_eta1b_3s1b" + ext)
-
-
-
-        ##################################################################################################
-
-        """
-        c_eff_pth_tf = TCanvas("c_eff_pth_tf","c_eff_pth_tf",1000,600 ) 
-        
-        h_eff_pth_after_mpc_ok_plus = setEffHisto("h_pth_after_mpc_ok_plus","h_pth_initial",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (2.1<#eta<2.4)","p_{T}","",xrangept,yrange)
-        h_eff_pth_after_tfcand_ok_plus      = setEffHisto("h_pth_after_tfcand_ok_plus","h_pth_initial",dir, ptreb, kBlue, 1,2, "","","",xrangept,yrange)
-        h_eff_pth_after_tfcand_ok_plus_pt10 = setEffHisto("h_pth_after_tfcand_ok_plus_pt10","h_pth_initial",dir, ptreb, kBlue, 2,2, "","","",xrangept,yrange)
-        
-        h_eff_pth_after_mpc_ok_plus.Draw("hist")
-        h_eff_pth_after_tfcand_ok_plus.Draw("same hist")
-        h_eff_pth_after_tfcand_ok_plus_pt10.Draw("same hist")
-        
-        leg1 = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
-        leg1.SetBorderSize(0)
-        leg1.SetFillStyle(0)
-        leg1.SetHeader("Eff. for #mu crossing ME1+one more station in 2.1<#eta<2.4 with")
-        leg1.AddEntry(h_eff_pth_after_mpc_ok_plus,"MPC matched in 2stations","pl")
-        leg1.AddEntry(h_eff_pth_after_tfcand_ok_plus,"TF track with matched stubs in 2st","pl")
-        leg1.AddEntry(h_eff_pth_after_tfcand_ok_plus_pt10,"p_{T}^{TF}>10 TF track with matched stubs in 2st","pl")
-        leg1.Draw()
-        
-        Print(c_eff_pth_tf,"h_eff_pth_tf" + ext)
-        """
-        
-    ##################################################################################################
-        
-        """
-        c_eff_pth_tf_3st1a = TCanvas("c_eff_pth_tf_3st1a","c_eff_pth_tf_3st1a",1000,600 ) 
-        
-        h_eff_pth_after_mpc_ok_plus = setEffHisto("h_pth_after_mpc_ok_plus","h_pth_initial",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (2.1<#eta<2.4)","p_{T}","",xrangept,yrange)
-        h_eff_pth_after_tfcand_ok_plus_3st1a      = setEffHisto("h_pth_after_tfcand_ok_plus_3st1a","h_pth_initial",dir, ptreb, kBlue, 1,2, "eff(p_{T}^{MC}): TF studies (denom: 2MPCs, 2.1<#eta<2.4)","p_{T}","",xrangept,yrange)
-        h_eff_pth_after_tfcand_ok_plus_pt10_3st1a = setEffHisto("h_pth_after_tfcand_ok_plus_pt10_3st1a","h_pth_initial",dir, ptreb, kBlue, 2,2, "","","",xrangept,yrange)
-        
-        h_eff_pth_after_mpc_ok_plus.Draw("hist")
-        h_eff_pth_after_tfcand_ok_plus_3st1a.Draw("same hist")
-        h_eff_pth_after_tfcand_ok_plus_pt10_3st1a.Draw("same hist")
-        
-        leg1 = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
-        leg1.SetBorderSize(0)
-        leg1.SetFillStyle(0)
-        leg1.SetHeader("Eff. for #mu crossing ME1+one more station in 2.1<#eta<2.4 with")
-        leg1.AddEntry(h_eff_pth_after_mpc_ok_plus,"MPC matched in 2stations","pl")
-        leg1.AddEntry(h_eff_pth_after_tfcand_ok_plus_3st1a,"TF track with matched stubs in 3st","pl")
-        leg1.AddEntry(h_eff_pth_after_tfcand_ok_plus_pt10_3st1a,"p_{T}^{TF}>10 TF track with matched stubs in 3st","pl")
-        leg1.Draw()
-        
-        Print(c_eff_pth_tf_3st1a,"h_eff_pth_tf_3st1a" + ext)
-        
-        """
-    ##################################################################################################
-
-    if interactive :
-        c_eff_pt_tf_q = TCanvas("c_eff_pt_tf_q","c_eff_pt_tf_q",1000,600 ) 
-
-        h_eff_pt_after_tfcand_ok_plus_q1   = setEffHisto("h_pt_after_tfcand_ok_plus_q1","h_pt_after_mpc_ok_plus",dir, etareb, kBlue, 1,1, "eff(p_{T}^{MC}): TF quality studies (denom: 2MPCs, 1.2<#eta<2.1)","p_{T}^{MC}","",xrangept,yrange)
-        h_eff_pt_after_tfcand_ok_plus_q2   = setEffHisto("h_pt_after_tfcand_ok_plus_q2","h_pt_after_mpc_ok_plus",dir, etareb, kCyan+2, 1,1, "eff(p_{T}^{MC}): TF quality studies (denom: 2MPCs, 1.2<#eta<2.1)","p_{T}^{MC}","",xrangept,yrange)
-        h_eff_pt_after_tfcand_ok_plus_q3   = setEffHisto("h_pt_after_tfcand_ok_plus_q3","h_pt_after_mpc_ok_plus",dir, etareb, kMagenta+1, 1,1, "","","",xrangept,yrange)
-
-        ##h_eff_pt_after_tfcand_ok_plus_pt10_q1   = setEffHisto("h_pt_after_tfcand_ok_plus_pt10_q1","h_pt_after_mpc_ok_plus",dir, etareb, kBlue, 2,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_ok_plus_pt10_q2   = setEffHisto("h_pt_after_tfcand_ok_plus_pt10_q2","h_pt_after_mpc_ok_plus",dir, etareb, kCyan+2, 2,2, "","","",xrangept,yrange)
-        h_eff_pt_after_tfcand_ok_plus_pt10_q3   = setEffHisto("h_pt_after_tfcand_ok_plus_pt10_q3","h_pt_after_mpc_ok_plus",dir, etareb, kMagenta+1, 2,2, "","","",xrangept,yrange)
-
-        h_eff_pt_after_tfcand_ok_plus_q1.Draw("hist")
-        ##h_eff_pt_after_tfcand_ok_plus_pt10_q1.Draw("same hist")
-        h_eff_pt_after_tfcand_ok_plus_q2.Draw("same hist")
-        ##h_eff_pt_after_tfcand_ok_plus_pt10_q2.Draw("same hist")
-        h_eff_pt_after_tfcand_ok_plus_q3.Draw("same hist")
-        h_eff_pt_after_tfcand_ok_plus_pt10_q3.Draw("same hist")
-
-        leg1 = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
-        leg1.SetBorderSize(0)
-        leg1.SetFillStyle(0)
-        leg1.SetNColumns(2)
-        leg1.SetHeader("TF track with matched stubs in 2st and ")
-        leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_q1,"Q#geq1","pl")
-        ##leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q1,"Q#geq1, p_{T}^{TF}>10","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_q2,"Q#geq2","pl")
-        ##leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q2,"Q#geq2, p_{T}^{TF}>10","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_q3,"Q=3","pl")
-        leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q3,"Q=3, p_{T}^{TF}>10","pl")
-        leg1.Draw()
-
-        Print(c_eff_pt_tf_q,"h_eff_pt_tf_q" + ext)
-
-        ##################################################################################################
-
-	do_h_pt_after_tfcand_ok_plus_pt10 = True
-	if do_h_pt_after_tfcand_ok_plus_pt10:
-	  
-	  c_eff_ptres_tf = TCanvas("c_eff_ptres_tf","c_eff_ptres_tf",1000,600 ) 
-	  h_eff_pt_after_tfcand_ok_plus_pt10 = setEffHisto("h_pt_after_tfcand_ok_plus_pt10","h_pt_after_tfcand_ok_plus",dir, ptreb, kBlue, 1,2, "p_{T}^{TF}>10 assignment eff(p_{T}^{MC}) studies (denom: any p_{T}^{TF}, 1.2<#eta<2.1)","p_{T}^{MC}","",xrangept,yrange)
-	  h_eff_pt_after_tfcand_ok_plus_pt10_q2 = setEffHisto("h_pt_after_tfcand_ok_plus_pt10_q2","h_pt_after_tfcand_ok_plus_q2",dir, ptreb, kCyan+2, 1,2, "","","",xrangept,yrange)
-	  h_eff_pt_after_tfcand_ok_plus_pt10_q3 = setEffHisto("h_pt_after_tfcand_ok_plus_pt10_q3","h_pt_after_tfcand_ok_plus_q3",dir, ptreb, kMagenta+1, 1,2, "","","",xrangept,yrange)
-	  
-	  h_eff_pt_after_tfcand_ok_plus_pt10.Draw("hist")
-	  h_eff_pt_after_tfcand_ok_plus_pt10_q2.Draw("same hist")
-	  h_eff_pt_after_tfcand_ok_plus_pt10_q3.Draw("same hist")
-	  
-	  leg1 = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
-	  leg1.SetBorderSize(0)
-	  leg1.SetFillStyle(0)
-	  leg1.SetHeader("for #mu with p_{T}>20 crossing ME1+one station to pass p_{T}^{TF}>10 with")
-	  leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10,"any Q","pl")
-	  leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q2,"Q#geq2","pl")
-	  leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q3,"Q=3","pl")
-	  leg1.Draw()
-	  
-	  Print(c_eff_ptres_tf,"h_eff_ptres_tf" + ext)	  
-
-        ##################################################################################################
-
+    h_eff_pt_after_tfcand_eta1b_2s  = setEffHisto("h_pt_after_tfcand_eta1b_2s","h_pt_initial_1b",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (1.64<#eta<2.14)","p_{T}^{MC}","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_2s_pt10 = setEffHisto("h_pt_after_tfcand_eta1b_2s_pt10","h_pt_initial_1b",dir, ptreb, kGreen+2, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_2s_pt20 = setEffHisto("h_pt_after_tfcand_eta1b_2s_pt20","h_pt_initial_1b",dir, ptreb, kBlue, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_2s_pt25 = setEffHisto("h_pt_after_tfcand_eta1b_2s_pt25","h_pt_initial_1b",dir, ptreb, kOrange, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_2s_pt30 = setEffHisto("h_pt_after_tfcand_eta1b_2s_pt30","h_pt_initial_1b",dir, ptreb, kRed, 1,2, "","","",xrangept,yrange)
     
+    h_eff_pt_after_tfcand_eta1b_2s.GetXaxis().SetRangeUser(0.,49.99)
+    
+    h_eff_pt_after_tfcand_eta1b_2s.Draw("hist")
+    h_eff_pt_after_tfcand_eta1b_2s_pt10.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_2s_pt20.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_2s_pt25.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_2s_pt30.Draw("same hist")
+    
+    leg1 = TLegend(0.5,0.15,0.99,0.5,"","brNDC")
+    leg1.SetBorderSize(0)
+    leg1.SetFillStyle(0)
+    leg1.SetHeader("Eff. for #mu in 1.64<#eta<2.14 to have TF track with")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s,"stubs in (2+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt10,"p_{T}^{TF}>=10, stubs in (2+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt20,"p_{T}^{TF}>=20, stubs in (2+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt25,"p_{T}^{TF}>=25, stubs in (2+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt30,"p_{T}^{TF}>=30, stubs in (2+)st","pl")
+    leg1.Draw()
+    
+    c.SaveAs("%sh_eff_pt_tf_eta1b_2s%s"%(output_dir,ext))
+
+
+#_______________________________________________________________________________
+def eff_pt_tf_eta1b_2s1b(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+
+    dir = getRootDirectory(input_dir, file_name, dir_name)
+
+    c = TCanvas("c","c",1000,600 ) 
+    c.cd()
+    
+    h_eff_pt_after_tfcand_eta1b_2s1b  = setEffHisto("h_pt_after_tfcand_eta1b_2s1b","h_pt_initial_1b",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (1.64<#eta<2.14)","p_{T}^{MC}","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_2s1b_pt10 = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt10","h_pt_initial_1b",dir, ptreb, kGreen+2, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_2s1b_pt20 = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt20","h_pt_initial_1b",dir, ptreb, kBlue, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_2s1b_pt25 = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt25","h_pt_initial_1b",dir, ptreb, kOrange, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_2s1b_pt30 = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt30","h_pt_initial_1b",dir, ptreb, kRed, 1,2, "","","",xrangept,yrange)
+    
+    h_eff_pt_after_tfcand_eta1b_2s1b.GetXaxis().SetRangeUser(0.,49.99)
+    
+    h_eff_pt_after_tfcand_eta1b_2s1b.Draw("hist")
+    h_eff_pt_after_tfcand_eta1b_2s1b_pt10.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_2s1b_pt20.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_2s1b_pt25.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_2s1b_pt30.Draw("same hist")
+    
+    leg1 = TLegend(0.5,0.15,0.99,0.5,"","brNDC")
+    leg1.SetBorderSize(0)
+    leg1.SetFillStyle(0)
+    leg1.SetHeader("Eff. for #mu in 1.64<#eta<2.14 to have TF track with")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s1b,"stubs in ME1+(1+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s1b_pt10,"p_{T}^{TF}>=10, stubs in ME1+(1+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s1b_pt20,"p_{T}^{TF}>=20, stubs in ME1+(1+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s1b_pt25,"p_{T}^{TF}>=25, stubs in ME1+(1+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_2s1b_pt30,"p_{T}^{TF}>=30, stubs in ME1+(1+)st","pl")
+    leg1.Draw()
+    
+    c.SaveAs("%sh_eff_pt_tf_eta1b_2s1b%s"%(output_dir,ext))
+    
+
+#_______________________________________________________________________________
+def eff_pt_tf_eta1b_3s(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+    
+    dir = getRootDirectory(input_dir, file_name, dir_name)
+
+    c = TCanvas("c","c",1000,600 ) 
+    c.cd()
+
+    h_eff_pt_after_tfcand_eta1b_3s  = setEffHisto("h_pt_after_tfcand_eta1b_3s","h_pt_initial_1b",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (1.64<#eta<2.14)","p_{T}^{MC}","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_3s_pt10 = setEffHisto("h_pt_after_tfcand_eta1b_3s_pt10","h_pt_initial_1b",dir, ptreb, kGreen+2, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_3s_pt20 = setEffHisto("h_pt_after_tfcand_eta1b_3s_pt20","h_pt_initial_1b",dir, ptreb, kBlue, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_3s_pt25 = setEffHisto("h_pt_after_tfcand_eta1b_3s_pt25","h_pt_initial_1b",dir, ptreb, kOrange, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_3s_pt30 = setEffHisto("h_pt_after_tfcand_eta1b_3s_pt30","h_pt_initial_1b",dir, ptreb, kRed, 1,2, "","","",xrangept,yrange)
+    
+    h_eff_pt_after_tfcand_eta1b_3s.GetXaxis().SetRangeUser(0.,49.99)
+    
+    h_eff_pt_after_tfcand_eta1b_3s.Draw("hist")
+    h_eff_pt_after_tfcand_eta1b_3s_pt10.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_3s_pt20.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_3s_pt25.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_3s_pt30.Draw("same hist")
+    
+    leg1 = TLegend(0.5,0.15,0.99,0.5,"","brNDC")
+    leg1.SetBorderSize(0)
+    leg1.SetFillStyle(0)
+    leg1.SetHeader("Eff. for #mu in 1.64<#eta<2.14 to have TF track with")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s,"stubs in (3+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s_pt10,"p_{T}^{TF}>=10, stubs in (3+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s_pt20,"p_{T}^{TF}>=20, stubs in (3+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s_pt25,"p_{T}^{TF}>=25, stubs in (3+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s_pt30,"p_{T}^{TF}>=30, stubs in (3+)st","pl")
+    leg1.Draw()
+    
+    c.SaveAs("%sh_eff_pt_tf_eta1b_3s%s"%(output_dir,ext))
+
+
+#_______________________________________________________________________________
+def eff_pt_tf_eta1b_3s1b(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+    
+    dir = getRootDirectory(input_dir, file_name, dir_name)
+
+    c = TCanvas("c","c",1000,600 ) 
+    c.cd()
+
+    h_eff_pt_after_tfcand_eta1b_3s1b  = setEffHisto("h_pt_after_tfcand_eta1b_3s1b","h_pt_initial_1b",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (1.64<#eta<2.14)","p_{T}^{MC}","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_3s1b_pt10 = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt10","h_pt_initial_1b",dir, ptreb, kGreen+2, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_3s1b_pt20 = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt20","h_pt_initial_1b",dir, ptreb, kBlue, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_3s1b_pt25 = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt25","h_pt_initial_1b",dir, ptreb, kOrange, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_3s1b_pt30 = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt30","h_pt_initial_1b",dir, ptreb, kRed, 1,2, "","","",xrangept,yrange)
+    
+    h_eff_pt_after_tfcand_eta1b_3s1b.GetXaxis().SetRangeUser(0.,49.99)
+    
+    h_eff_pt_after_tfcand_eta1b_3s1b.Draw("hist")
+    h_eff_pt_after_tfcand_eta1b_3s1b_pt10.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_3s1b_pt20.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_3s1b_pt25.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_3s1b_pt30.Draw("same hist")
+    
+    leg1 = TLegend(0.5,0.15,0.99,0.5,"","brNDC")
+    leg1.SetBorderSize(0)
+    leg1.SetFillStyle(0)
+    leg1.SetHeader("Eff. for #mu in 1.64<#eta<2.14 to have TF track with")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s1b,"stubs in ME1+(2+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s1b_pt10,"p_{T}^{TF}>=10, stubs in ME1+(2+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s1b_pt20,"p_{T}^{TF}>=20, stubs in ME1+(2+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s1b_pt25,"p_{T}^{TF}>=25, stubs in ME1+(2+)st","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_eta1b_3s1b_pt30,"p_{T}^{TF}>=30, stubs in ME1+(2+)st","pl")
+    leg1.Draw()
+    
+    c.SaveAs("%sh_eff_pt_tf_eta1b_3s1b%s"%(output_dir,ext))
+
+
+#_______________________________________________________________________________
+def eff_pth_tf(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+    
+    dir = getRootDirectory(input_dir, file_name, dir_name)
+
+    c = TCanvas("c","c",1000,600 ) 
+    c.cd()
+        
+    h_eff_pth_after_mpc_ok_plus = setEffHisto("h_pth_after_mpc_ok_plus","h_pth_initial",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (2.1<#eta<2.4)","p_{T}","",xrangept,yrange)
+    h_eff_pth_after_tfcand_ok_plus = setEffHisto("h_pth_after_tfcand_ok_plus","h_pth_initial",dir, ptreb, kBlue, 1,2, "","","",xrangept,yrange)
+    h_eff_pth_after_tfcand_ok_plus_pt10 = setEffHisto("h_pth_after_tfcand_ok_plus_pt10","h_pth_initial",dir, ptreb, kBlue, 2,2, "","","",xrangept,yrange)
+    
+    h_eff_pth_after_mpc_ok_plus.Draw("hist")
+    h_eff_pth_after_tfcand_ok_plus.Draw("same hist")
+    h_eff_pth_after_tfcand_ok_plus_pt10.Draw("same hist")
+    
+    leg1 = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
+    leg1.SetBorderSize(0)
+    leg1.SetFillStyle(0)
+    leg1.SetHeader("Eff. for #mu crossing ME1+one more station in 2.1<#eta<2.4 with")
+    leg1.AddEntry(h_eff_pth_after_mpc_ok_plus,"MPC matched in 2stations","pl")
+    leg1.AddEntry(h_eff_pth_after_tfcand_ok_plus,"TF track with matched stubs in 2st","pl")
+    leg1.AddEntry(h_eff_pth_after_tfcand_ok_plus_pt10,"p_{T}^{TF}>10 TF track with matched stubs in 2st","pl")
+    leg1.Draw()
+
+    c.SaveAs("%sh_eff_pth_tf%s"%(output_dir,ext))
+
+
+#_______________________________________________________________________________
+def eff_pth_tf_3st1a(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+    
+    dir = getRootDirectory(input_dir, file_name, dir_name)
+    
+    c = TCanvas("c","c",1000,600 ) 
+    c.cd()
+
+    h_eff_pth_after_mpc_ok_plus = setEffHisto("h_pth_after_mpc_ok_plus","h_pth_initial",dir, ptreb, kBlack, 1,2, "eff(p_{T}^{MC}): TF studies (2.1<#eta<2.4)","p_{T}","",xrangept,yrange)
+    h_eff_pth_after_tfcand_ok_plus_3st1a      = setEffHisto("h_pth_after_tfcand_ok_plus_3st1a","h_pth_initial",dir, ptreb, kBlue, 1,2, "eff(p_{T}^{MC}): TF studies (denom: 2MPCs, 2.1<#eta<2.4)","p_{T}","",xrangept,yrange)
+    h_eff_pth_after_tfcand_ok_plus_pt10_3st1a = setEffHisto("h_pth_after_tfcand_ok_plus_pt10_3st1a","h_pth_initial",dir, ptreb, kBlue, 2,2, "","","",xrangept,yrange)
+    
+    h_eff_pth_after_mpc_ok_plus.Draw("hist")
+    h_eff_pth_after_tfcand_ok_plus_3st1a.Draw("same hist")
+    h_eff_pth_after_tfcand_ok_plus_pt10_3st1a.Draw("same hist")
+    
+    leg1 = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
+    leg1.SetBorderSize(0)
+    leg1.SetFillStyle(0)
+    leg1.SetHeader("Eff. for #mu crossing ME1+one more station in 2.1<#eta<2.4 with")
+    leg1.AddEntry(h_eff_pth_after_mpc_ok_plus,"MPC matched in 2stations","pl")
+    leg1.AddEntry(h_eff_pth_after_tfcand_ok_plus_3st1a,"TF track with matched stubs in 3st","pl")
+    leg1.AddEntry(h_eff_pth_after_tfcand_ok_plus_pt10_3st1a,"p_{T}^{TF}>10 TF track with matched stubs in 3st","pl")
+    leg1.Draw()
+    
+    c.SaveAs("%sh_eff_pth_tf_3st1a%s"%(output_dir,ext))
+
+
+#_______________________________________________________________________________
+def eff_pt_tf_q(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+
+    dir = getRootDirectory(input_dir, file_name, dir_name)
+
+    c = TCanvas("c","c",1000,600) 
+    c.cd()
+    
+    h_eff_pt_after_tfcand_ok_plus_q1   = setEffHisto("h_pt_after_tfcand_ok_plus_q1","h_pt_after_mpc_ok_plus",dir, ptreb, kBlue, 1,1, "eff(p_{T}^{MC}): TF quality studies (denom: 2MPCs, 1.2<#eta<2.1)","p_{T}^{MC}","",xrangept,yrange)
+    h_eff_pt_after_tfcand_ok_plus_q2   = setEffHisto("h_pt_after_tfcand_ok_plus_q2","h_pt_after_mpc_ok_plus",dir, ptreb, kCyan+2, 1,1, "eff(p_{T}^{MC}): TF quality studies (denom: 2MPCs, 1.2<#eta<2.1)","p_{T}^{MC}","",xrangept,yrange)
+    h_eff_pt_after_tfcand_ok_plus_q3   = setEffHisto("h_pt_after_tfcand_ok_plus_q3","h_pt_after_mpc_ok_plus",dir, ptreb, kMagenta+1, 1,1, "","","",xrangept,yrange)
+    
+    ##h_eff_pt_after_tfcand_ok_plus_pt10_q1   = setEffHisto("h_pt_after_tfcand_ok_plus_pt10_q1","h_pt_after_mpc_ok_plus",dir, ptreb, kBlue, 2,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_ok_plus_pt10_q2   = setEffHisto("h_pt_after_tfcand_ok_plus_pt10_q2","h_pt_after_mpc_ok_plus",dir, ptreb, kCyan+2, 2,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_ok_plus_pt10_q3   = setEffHisto("h_pt_after_tfcand_ok_plus_pt10_q3","h_pt_after_mpc_ok_plus",dir, ptreb, kMagenta+1, 2,2, "","","",xrangept,yrange)
+
+    h_eff_pt_after_tfcand_ok_plus_q1.Draw("hist")
+    ##h_eff_pt_after_tfcand_ok_plus_pt10_q1.Draw("same hist")
+    h_eff_pt_after_tfcand_ok_plus_q2.Draw("same hist")
+    ##h_eff_pt_after_tfcand_ok_plus_pt10_q2.Draw("same hist")
+    h_eff_pt_after_tfcand_ok_plus_q3.Draw("same hist")
+    h_eff_pt_after_tfcand_ok_plus_pt10_q3.Draw("same hist")
+    
+    leg1 = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
+    leg1.SetBorderSize(0)
+    leg1.SetFillStyle(0)
+    leg1.SetNColumns(2)
+    leg1.SetHeader("TF track with matched stubs in 2st and ")
+    leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_q1,"Q#geq1","pl")
+    ##leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q1,"Q#geq1, p_{T}^{TF}>10","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_q2,"Q#geq2","pl")
+    ##leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q2,"Q#geq2, p_{T}^{TF}>10","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_q3,"Q=3","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q3,"Q=3, p_{T}^{TF}>10","pl")
+    leg1.Draw()
+    
+    c.SaveAs("%sh_eff_pt_tf_q%s"%(output_dir,ext))
+        
+
+#_______________________________________________________________________________
+def do_h_pt_after_tfcand_ok_plus_pt10(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+
+    dir = getRootDirectory(input_dir, file_name, dir_name)
+    
+    c = TCanvas("c","c",1000,600) 
+    c.cd()
+    h_eff_pt_after_tfcand_ok_plus_pt10 = setEffHisto("h_pt_after_tfcand_ok_plus_pt10","h_pt_after_tfcand_ok_plus",dir, ptreb, kBlue, 1,2, "p_{T}^{TF}>10 assignment eff(p_{T}^{MC}) studies (denom: any p_{T}^{TF}, 1.2<#eta<2.1)","p_{T}^{MC}","",xrangept,yrange)
+    h_eff_pt_after_tfcand_ok_plus_pt10_q2 = setEffHisto("h_pt_after_tfcand_ok_plus_pt10_q2","h_pt_after_tfcand_ok_plus_q2",dir, ptreb, kCyan+2, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_ok_plus_pt10_q3 = setEffHisto("h_pt_after_tfcand_ok_plus_pt10_q3","h_pt_after_tfcand_ok_plus_q3",dir, ptreb, kMagenta+1, 1,2, "","","",xrangept,yrange)
+    
+    h_eff_pt_after_tfcand_ok_plus_pt10.Draw("hist")
+    h_eff_pt_after_tfcand_ok_plus_pt10_q2.Draw("same hist")
+    h_eff_pt_after_tfcand_ok_plus_pt10_q3.Draw("same hist")
+    
+    leg1 = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
+    leg1.SetBorderSize(0)
+    leg1.SetFillStyle(0)
+    leg1.SetHeader("for #mu with p_{T}>20 crossing ME1+one station to pass p_{T}^{TF}>10 with")
+    leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10,"any Q","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q2,"Q#geq2","pl")
+    leg1.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q3,"Q=3","pl")
+    leg1.Draw()
+    
+    c.SaveAs("%sh_eff_ptres_tf%s"%(output_dir,ext))
+
+
 #_______________________________________________________________________________
 if __name__ == "__main__":
 
@@ -1189,14 +1192,36 @@ if __name__ == "__main__":
     gStyle.SetMarkerStyle(1)
 
     input_dir = "files/"
-    #file_name = "gem_trigger_eff_ana-out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_preTrig2.root"
-    #file_name = 'gem_trigger_eff_ana-out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_replicateVadimOldResults.root'
-    file_name = "gem_trigger_eff_ana-out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_replicateVadimOldResults_dphiCut.root"
-    #file_name = "gem_trigger_eff_ana_forAysen.root"
     output_dir = "plots/"
     ext = ".png"
 
-    dir = getRootDirectory(input_dir, file_name)
+    ## global variables
+    gMinEta = 1.45
+    gMaxEta = 2.5
+    xrangept = [0.,50.]
+    yrange = [0,1]
+    ptreb = 2
 
-    print "It works!"
+    ## input files
+    f_def =      "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem_dphi0_pat2.root"
+    f_g98_pt10 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt10_pat2.root"
+    f_g98_pt15 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt15_pat2.root"
+    f_g98_pt20 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt20_pat2.root"
+    f_g98_pt30 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt30_pat2.root"
+    f_g98_pt40 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt40_pat2.root"
+    
+    reuseOutputDirectory = True
+    if not reuseOutputDirectory:
+        output_dir = mkdir("myTtest")
+        
+    do_h_pt_after_tfcand_ok_plus_pt10(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
+    eff_pt_tf_q(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
+    eff_pth_tf_3st1a(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
+    eff_pth_tf(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
+    eff_pt_tf_eta1b_3s1b(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
+    eff_pt_tf_eta1b_3s(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
+    eff_pt_tf_eta1b_2s1b(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
+    eff_pt_tf_eta1b_2s(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
+    eff_pt_tf(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
+    
 
