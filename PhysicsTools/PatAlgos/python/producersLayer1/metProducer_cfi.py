@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 patMETs = cms.EDProducer("PATMETProducer",
     # input 
-    metSource  = cms.InputTag("caloType1CorrectedMet"),
+    metSource  = cms.InputTag("pfType1CorrectedMet"),
 
     # add user data
     userData = cms.PSet(
@@ -28,7 +28,7 @@ patMETs = cms.EDProducer("PATMETProducer",
     ),
 
     # muon correction
-    addMuonCorrections = cms.bool(True),
+    addMuonCorrections = cms.bool(False),
     muonSource         = cms.InputTag("muons"),
 
     # mc matching configurables

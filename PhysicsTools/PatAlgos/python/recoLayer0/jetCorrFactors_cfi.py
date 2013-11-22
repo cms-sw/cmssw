@@ -5,9 +5,9 @@ patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
     ## the use of emf in the JEC is not yet implemented
     emf = cms.bool(False),
     ## input collection of jets
-    src = cms.InputTag("ak5CaloJets"),
+    src = cms.InputTag("ak5PFJets"),
     ## payload postfix for testing
-    payload = cms.string('AK5Calo'),
+    payload = cms.string('AK5PF'),
     ## correction levels
     levels = cms.vstring(
         ## tags for the individual jet corrections; when

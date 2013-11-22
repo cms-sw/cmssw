@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 patJets = cms.EDProducer("PATJetProducer",
     # input
-    jetSource = cms.InputTag("ak5CaloJets"),
+    jetSource = cms.InputTag("ak5PFJets"),
                                
     # add user data
     userData = cms.PSet(
@@ -45,11 +45,8 @@ patJets = cms.EDProducer("PATJetProducer",
         cms.InputTag("jetProbabilityBJetTags"),
         cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
         cms.InputTag("simpleSecondaryVertexHighPurBJetTags"),
-        cms.InputTag("softElectronByPtBJetTags"),                
-        cms.InputTag("softElectronByIP3dBJetTags"),
-        cms.InputTag("softMuonBJetTags"),
-        cms.InputTag("softMuonByPtBJetTags"),                
-        cms.InputTag("softMuonByIP3dBJetTags"),
+        cms.InputTag("softPFMuonBJetTags"),                
+        cms.InputTag("softPFElectronBJetTags"),                
         cms.InputTag("trackCountingHighEffBJetTags"),
         cms.InputTag("trackCountingHighPurBJetTags"),
     ),
