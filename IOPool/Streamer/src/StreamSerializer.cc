@@ -60,7 +60,7 @@ namespace edm {
     sd.setBranchIDLists(branchIDLists);
     SendJobHeader::ParameterSetMap psetMap;
 
-    pset::fillMap(*pset::Registry::instance(), psetMap);
+    pset::Registry::instance()->fillMap(psetMap);
     sd.setParameterSetMap(psetMap);
 
     data_buffer.rootbuf_.Reset();

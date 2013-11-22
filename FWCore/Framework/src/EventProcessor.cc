@@ -549,10 +549,7 @@ namespace edm {
     looper_.reset();
     actReg_.reset();
 
-    pset::Registry* psetRegistry = pset::Registry::instance();
-    psetRegistry->dataForUpdate().clear();
-    psetRegistry->extraForUpdate().setID(ParameterSetID());
-
+    pset::Registry::instance()->clear();
     ParentageRegistry::instance()->clear();
   }
 
