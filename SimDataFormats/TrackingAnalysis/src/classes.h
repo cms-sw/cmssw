@@ -6,10 +6,8 @@
 #include "DataFormats/Common/interface/AssociationMapHelpers.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace
-{
-struct dictionary
-{
+namespace SimDataFormats_TrackingAnalysis {
+  struct dictionary {
     TrackingParticle dummy10;
     TrackingParticleContainer dummy11;
     TrackingParticleCollection c1;

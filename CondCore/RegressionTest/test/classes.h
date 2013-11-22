@@ -1,6 +1,6 @@
 
 #include "CondCore/RegressionTest/interface/RegressionTestPayload.h"
-namespace {
+namespace CondCore_RegressionTest {
 	struct dictionary {
 	  std::vector<double>::iterator dummy1;
 	  std::vector<int>::iterator dummy2;

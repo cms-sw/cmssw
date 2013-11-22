@@ -4,7 +4,7 @@
 #include <DataFormats/Common/interface/Wrapper.h>
 #include <DataFormats/Common/interface/RefProd.h>
 
- namespace{ 
+namespace DataFormats_FEDRawData {
    struct dictionary {
      FEDRawData              a1; 
      std::vector<FEDRawData> a2;

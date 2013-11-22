@@ -6,7 +6,7 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace DataFormats_DetId {
   struct dictionary {
     std::vector<DetId> dummy;
     edm::EDCollection<DetId> vDI_;

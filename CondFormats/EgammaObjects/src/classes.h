@@ -6,7 +6,7 @@
 #include "CondFormats/EgammaObjects/interface/GBRTree2D.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest2D.h"
 
-namespace {
+namespace CondFormats_EgammaObjects {
   struct dictionary {
     ElectronLikelihoodCategoryData a;
  

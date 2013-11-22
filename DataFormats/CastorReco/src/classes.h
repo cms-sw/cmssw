@@ -5,7 +5,7 @@
 #include "DataFormats/CastorReco/interface/CastorEgamma.h"
 #include "DataFormats/CastorReco/interface/CastorJet.h"
 
-namespace { 
+namespace DataFormats_CastorReco {
   struct dictionary {
     std::vector<reco::CastorTower> v11;
     reco::CastorTowerCollection v1;

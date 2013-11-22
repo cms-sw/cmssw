@@ -10,7 +10,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-namespace {
+namespace DataFormats_PatCandidates {
   struct dictionaryuser {
 
   /*   UserData: Core   */

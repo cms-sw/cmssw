@@ -46,7 +46,7 @@ namespace reco {
     typedef TauMassTagInfo::ClusterTrackAssociationCollection::ref_type     TauMassTagInfo_ClusterTrackAssociationRefType;
 }
 
-namespace {
+namespace DataFormats_BTauReco {
   struct dictionary {
 
     reco::SecondaryVertexTagInfo::TrackData                             sv_td;

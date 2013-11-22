@@ -17,7 +17,7 @@
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
 #include "DataFormats/PatCandidates/interface/Conversion.h"
 
-namespace {
+namespace DataFormats_PatCandidates {
   struct dictionaryobjects {
 
   /*   PAT Object Collection Iterators   */

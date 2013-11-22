@@ -38,7 +38,7 @@
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
-namespace {
+namespace DataFormats_JetReco {
   struct dictionary3 {
     reco::TrackJetCollection o6;
     reco::TrackJetRef r6;

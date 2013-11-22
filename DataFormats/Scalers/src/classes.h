@@ -14,10 +14,8 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-namespace 
-{
-  struct dictionary 
-  {
+namespace DataFormats_Scalers {
+  struct dictionary {
     L1AcceptBunchCrossing l1AcceptBunchCrossing;
     L1TriggerScalers l1TriggerScalers;
     L1TriggerRates l1TriggerRates;

@@ -6,7 +6,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 
-namespace {
+namespace DataFormats_CaloRecHit {
   struct dictionary {
     // FIXME: The following 2 entries are found already in DataFormats/EgammaReco with the typedef 'reco::BasicCluster'
 //     std::vector<reco::CaloCluster> v11;

@@ -6,7 +6,7 @@
 #include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
 
 
-namespace {
+namespace PhysicsTools_Utilities {
   struct dictionary {
 
     reweight::PoissonMeanShifter a;

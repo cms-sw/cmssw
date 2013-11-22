@@ -8,7 +8,7 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/OneToMany.h"
 
-namespace {
+namespace DataFormats_MuonSeed {
   struct dictionary {
     std::vector<L2MuonTrajectorySeed> v1;
     L2MuonTrajectorySeedCollection c1;

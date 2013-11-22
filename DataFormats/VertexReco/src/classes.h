@@ -17,7 +17,7 @@
 #include <vector>
 #include <utility>
 
-namespace {
+namespace DataFormats_VertexReco {
   struct dictionary {
     reco::Vertex rv1;
     std::vector<reco::Vertex> v1;

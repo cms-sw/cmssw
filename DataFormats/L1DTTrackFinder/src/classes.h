@@ -6,7 +6,7 @@
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h>
 #include <DataFormats/Common/interface/Wrapper.h>
 
-namespace{ 
+namespace DataFormats_L1DTTrackFinder {
   struct dictionary {
     L1MuDTChambPhDigi ph_S;
     L1MuDTChambThDigi th_S;

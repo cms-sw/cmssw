@@ -27,7 +27,7 @@
 #include <vector>
 #include <map>
 
-namespace {
+namespace DataFormats_TauReco {
   struct dictionary4 {
 
     reco::CaloTauDiscriminatorAgainstElectronBase               calotde_b;

@@ -2,7 +2,7 @@
 #include "FastSimDataFormats/External/interface/FastTrackerClusterCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace { 
+namespace FastSimDataFormats_External {
   struct dictionary { // dummy is a dummy
     
     FastL1BitInfoCollection dummy01;

@@ -1442,7 +1442,12 @@ void SetDefaultFuncs()
 		tmp[i] = b;	
 		factor += (dble) Gamma[i]*Hgamma[i];
 		}
-	if(deltaTgamma == 0) return 1;
+	if(deltaTgamma == 0) 
+        {
+          free(tmp);
+          free(Hgamma);
+          return 1;
+        }
 	a = 1 / deltaTgamma;	
 	factor = 1 + factor*a;
 	
@@ -3377,16 +3382,18 @@ int MLP_PrintInputStat()
 
 /* allocate memory */
 	mean = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+        if (mean == 0) return -111;
 	sigma = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+        if (sigma == 0) return -111;
 	STAT.mean = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+        if (STAT.mean == 0) return -111;
 	STAT.sigma = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+        if (STAT.sigma == 0) return -111;
 	minimum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+        if (minimum == 0) return -111;
 	maximum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
+        if (maximum == 0) return -111;
 	
-	if(mean == 0 || sigma == 0 || minimum == 0
-	   || maximum == 0 || STAT.mean == 0 ||
-	   STAT.sigma == 0) return -111;
-
 	MLP_StatInputs(PAT.Npat[0],NET.Nneur[0],PAT.Rin[0],
 			mean,sigma,minimum,maximum);
 
