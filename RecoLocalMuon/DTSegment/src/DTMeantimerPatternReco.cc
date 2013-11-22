@@ -218,16 +218,21 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHit
 //    }
             
     assHits.push_back(AssPoint(*hit, DTEnums::Left));
-    bool left_ok=fitWithT0(sl,assHits, chi2l, t0_corrl,0);
+    DTSegmentCand* left_seg = fitWithT0(sl,assHits, chi2l, t0_corrl,0);
     assHits.pop_back();
 //    if (debug) 
 //      cout << "    Left:  t0= " << t0_corrl << "  chi2/nHits= " << chi2l << "/" << nHits << "  ok: " << left_ok << endl;
 
     assHits.push_back(AssPoint(*hit, DTEnums::Right));
-    bool right_ok=fitWithT0(sl,assHits, chi2r, t0_corrr,0);
+    DTSegmentCand* right_seg = fitWithT0(sl,assHits, chi2r, t0_corrr,0);
     assHits.pop_back();
 //    if (debug) 
 //      cout << "   Right:  t0= " << t0_corrr << "  chi2/nHits= " << chi2r << "/" << nHits << "  ok: " << right_ok << endl;
+
+    bool left_ok=(left_seg);
+    bool right_ok=(right_seg);
+    delete left_seg;
+    delete right_seg;
 
     if (!left_ok && !right_ok) continue;
 
@@ -337,7 +342,10 @@ DTMeantimerPatternReco::fitWithT0(const DTSuperLayer* sl, const vector<AssPoint>
   // sanity check - drop segment candidates with a failed fit
   // for a 3-par fit this includes segments with hits after the calculated t0 correction ending up
   // beyond the chamber walls or on the other side of the wire
-  if (chi2==-1.) return false;
+  if (chi2==-1.) {
+    delete seg;
+    return false;
+  }
 
   // at this point we keep all 3-hit segments that passed the above check
   if (assHits.size()==3) return seg;
@@ -345,12 +353,18 @@ DTMeantimerPatternReco::fitWithT0(const DTSuperLayer* sl, const vector<AssPoint>
   // for segments with no t0 information we impose a looser chi2 cut
   if (t0_corr==0) {
     if (chi2<200.) return seg;
-      else return false; 
+      else {
+        delete seg;
+        return false; 
+      }
   }
 
   // cut on chi2/ndof of the segment candidate
   if ((chi2/(assHits.size()-3)<theMaxChi2)) return seg;
-    else return false;    
+    else {
+      delete seg;
+      return false;
+    }
 }
 
 

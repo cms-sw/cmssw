@@ -108,9 +108,9 @@ class DTSegmentUpdator{
     bool vdrift_4parfit;
     double T0_hit_resolution;
     bool perform_delta_rejecting;
-    bool debug;
-    bool test;
     bool enable3parFit;
+    bool test;
+    bool debug;
 
 };
 

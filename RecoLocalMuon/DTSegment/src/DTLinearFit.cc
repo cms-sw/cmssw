@@ -312,13 +312,13 @@ void DTLinearFit::fit4Var( const vector<float>& xfit,
     cminf3 = cminf;
     nppar3 = nppar;
 
-//    if (debug) {
-//      cout << "dt0= 0 : slope 2 = " << b << " pos in  = " << a << " chi2fitN2 = " << chi2fitN2
-//	   << " nppar = " << nppar2 << " nptfit = " << nptfit << endl;
-//      cout << "dt0 = 0 : slope 3 = " << bminf << " pos out = " << aminf << " chi2fitN3 = "
-//	   << chi2fitN3 << " nppar = " << nppar3 << " T0_ev ns = " << cminf/0.00543 << endl;
-//    } 
-//    cout << " vdrift_4parfit "<< vdrift_4parfit<<endl;
+    if (debug) {
+      cout << "dt0= 0 : slope 2 = " << b << " pos in  = " << a << " chi2fitN2 = " << chi2fitN2
+	   << " nppar = " << nppar2 << " nptfit = " << nptfit << endl;
+      cout << "dt0 = 0 : slope 3 = " << bminf << " pos out = " << aminf << " chi2fitN3 = "
+	   << chi2fitN3 << " nppar = " << nppar3 << " T0_ev ns = " << cminf/0.00543 << endl;
+      cout << " vdrift_4parfit "<< vdrift_4parfit<<endl;
+    } 
 
 
     if (nptfit>=5) {
