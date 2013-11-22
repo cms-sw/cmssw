@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import RecoTracker.TkSeedGenerator.SeedGeneratorFromProtoTracksEDProducer_cfi
-pixelTrackSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromProtoTracksEDProducer_cfi.seedsFromProtoTracks.clone(
+pixelTrackSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromProtoTracksEDProducer_cfi.SeedGeneratorFromProtoTracksEDProducer.clone(
     InputCollection = '',
     TTRHBuilder = 'WithTrackAngle'
     )
