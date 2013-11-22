@@ -47,7 +47,7 @@ private:
   float *mcvx, *mcvy, *mcvz, *mcpt, *mceta, *mcphi;
   int *mcpid, *mcstatus;
   int nmcpart,nmu3,nel3,nab,nbb,nwenu,nwmunu,nzee,nzmumu;
-  int npubx0;
+  int npubx0, npuvertbx0;
   float pthatf;
   float ptEleMax,ptMuMax;
   // input variables
