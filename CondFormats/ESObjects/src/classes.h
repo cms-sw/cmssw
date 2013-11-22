@@ -1,7 +1,7 @@
 #include "CondFormats/ESObjects/src/headers.h"
 
 
-namespace{
+namespace CondFormats_ESObjects {
   struct dictionary {
 
     ESCondObjectContainer<ESPedestal> ESPedestalsMap;

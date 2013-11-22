@@ -2,7 +2,7 @@
 
 
 
-namespace {
+namespace CondFormats_DQMObjects {
   struct dictionary { 
   
   std::vector<std::string>::iterator tmp30;

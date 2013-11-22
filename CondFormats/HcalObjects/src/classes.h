@@ -1,7 +1,7 @@
 #include "CondFormats/HcalObjects/src/headers.h"
 
 
-namespace {
+namespace CondFormats_HcalObjects {
   struct dictionary {
 
     HcalPedestals mypeds();

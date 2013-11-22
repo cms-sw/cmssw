@@ -1,7 +1,7 @@
 #include "CondFormats/CastorObjects/src/headers.h"
 
 
-namespace {
+namespace CondFormats_CastorObjects {
   struct dictionary {
     CastorPedestals mypeds;
     std::vector<CastorPedestal> mypedsVec;

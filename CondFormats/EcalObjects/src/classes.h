@@ -3,7 +3,7 @@
 
 
 
-namespace{
+namespace CondFormats_EcalObjects {
   struct dictionary {
     
     std::vector<EcalChannelStatusCode> v_ecalChannelStatusCode;

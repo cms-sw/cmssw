@@ -2,7 +2,7 @@
 #include <boost/cstdint.hpp> 
 #include <vector>
 
-namespace {
+namespace SimDataFormats_EncodedEventId {
   struct dictionary {
     std::vector<EncodedEventId> dummy;
   };

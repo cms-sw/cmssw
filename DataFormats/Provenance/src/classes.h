@@ -55,7 +55,7 @@ namespace edm {
   typedef Hash<ModuleDescriptionType> ModuleDescriptionID;
 }
 
-namespace {
+namespace DataFormats_Provenance {
   struct dictionary {
   std::pair<edm::BranchKey, edm::BranchDescription> dummyPairBranch;
   std::map<edm::ParameterSetID, edm::ParameterSetBlob> dummyMapParam;

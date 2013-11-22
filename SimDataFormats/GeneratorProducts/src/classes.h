@@ -18,7 +18,7 @@
 
 #include <HepMC/GenRanges.h>
 
-namespace {
+namespace SimDataFormats_GeneratorProducts {
 	struct dictionary {
 		// HepMC externals used in HepMCProduct
 

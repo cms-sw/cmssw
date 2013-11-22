@@ -1,7 +1,7 @@
 #include "CondFormats/SiStripObjects/src/headers.h"
 
 
-namespace {
+namespace CondFormats_SiStripObjects {
   struct dictionary {
     std::vector< std::vector<FedChannelConnection> > tmp1;
   

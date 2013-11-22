@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace {
+namespace DataFormats_StdDictionaries {
   struct dictionarymap {
   std::map<int,int> dummywm4;
   std::map<int,std::pair<double,double> > dummymipdd;

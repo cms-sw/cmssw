@@ -4,7 +4,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace SimDataFormats_CaloHit {
   struct dictionary {
     HFShowerLibraryEventInfo                             rv1;
     edm::Wrapper<HFShowerLibraryEventInfo>               p1;

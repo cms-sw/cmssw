@@ -1,6 +1,6 @@
 #include "CondFormats/PhysicsToolsObjects/src/headers.h"
 
-namespace { // anonymous
+namespace CondFormats_PhysicsToolsObjects { // anonymous
 struct dictionary {
 
 #ifdef STD_DICTIONARIES_STUFF_MISSING

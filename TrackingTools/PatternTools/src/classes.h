@@ -25,7 +25,7 @@
 #include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
 #include <vector>
 
-namespace {
+namespace TrackingTools_PatternTools {
   struct dictionary {
     std::vector<Trajectory> kk;
     edm::Wrapper<std::vector<Trajectory> > trajCollWrapper;

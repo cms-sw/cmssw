@@ -9,7 +9,7 @@
 // #include "DQMServices/Diagnostic/test/HDQMGraphAnalysis.h"
 
 
-namespace {
+namespace DQMServices_Diagnostic {
   struct dictionary {
     CondCachedIter<HDQMSummary> dummy13;
 

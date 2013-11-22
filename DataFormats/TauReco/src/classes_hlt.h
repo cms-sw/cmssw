@@ -20,7 +20,7 @@
 #include <vector>
 #include <map>
 
-namespace {
+namespace DataFormats_TauReco {
   struct dictionaryhlt {
     //Needed only in HLT-Open
     std::vector<reco::HLTTau>                                  ht_v;

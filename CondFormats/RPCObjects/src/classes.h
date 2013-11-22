@@ -1,7 +1,7 @@
 #include "CondFormats/RPCObjects/src/headers.h"
 
 
-namespace{
+namespace CondFormats_RPCObjects {
   struct dictionary {
     std::vector<ChamberStripSpec> theStrips;
  

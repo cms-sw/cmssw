@@ -1,6 +1,6 @@
 #include "CondFormats/CSCObjects/src/headers.h"
 
-namespace {
+namespace CondFormats_CSCObjects {
   struct dictionary {
 
     std::vector<CSCPedestals::Item>   pedcontainer1;

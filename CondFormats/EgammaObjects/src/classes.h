@@ -1,7 +1,7 @@
 #include "CondFormats/EgammaObjects/src/headers.h"
 
 
-namespace {
+namespace CondFormats_EgammaObjects {
   struct dictionary {
     ElectronLikelihoodCategoryData a;
  

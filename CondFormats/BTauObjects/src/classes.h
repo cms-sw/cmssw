@@ -2,7 +2,7 @@
 
 
 
-namespace {
+namespace CondFormats_BTauObjects {
   struct dictionary {
     std::vector<float> b1;
 

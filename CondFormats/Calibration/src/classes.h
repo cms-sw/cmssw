@@ -1,7 +1,7 @@
 #include "CondFormats/Calibration/src/headers.h"
 
 
-namespace {
+namespace CondFormats_Calibration {
   struct dictionary {
     fixedArray<unsigned short,2097> d;
     std::map<std::string, Algo> e;

@@ -63,7 +63,7 @@
 
 #include <map>
 
-namespace {
+namespace DataFormats_ParticleFlowReco {
   struct dictionary2 {
 
     std::vector<reco::PFCluster>                         dummy1;

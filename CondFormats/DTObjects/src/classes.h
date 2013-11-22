@@ -1,7 +1,7 @@
 #include "CondFormats/DTObjects/src/headers.h"
 
 
-namespace {
+namespace CondFormats_DTObjects {
   struct dictionary {
 //    std::pair<           DTT0Id,           DTT0Data>          t0Pair;
     std::pair<        DTTtrigId,        DTTtrigData>       tTrigPair;
@@ -53,7 +53,7 @@ namespace {
 
 /*
 // wrapper declarations
-namespace {
+namespace CondFormats_DTObjects {
    struct wrappers {
       pool::Ptr<DTReadOutMapping >          pMap;
       cond::DataWrapper<DTReadOutMapping > dwMap;
