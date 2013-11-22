@@ -185,7 +185,8 @@ void DTSegment4DQuality::endJob() {
     for (map<DTChamberId, PSimHitContainer>::const_iterator simHitsInChamber = simHitsPerCh.begin(); simHitsInChamber != simHitsPerCh.end(); ++simHitsInChamber) {
 
       DTChamberId chamberId = simHitsInChamber->first;
-      if (chamberId.station() == 4) continue; //use DTSegment2DSLPhiQuality to analyze MB4 performaces
+      int station = chamberId.station();
+      if (station == 4 && !(local) ) continue; //use DTSegment2DSLPhiQuality to analyze MB4 performaces in DQM
       int wheel = chamberId.wheel();
 
       //------------------------- simHits ---------------------------//
@@ -259,7 +260,7 @@ void DTSegment4DQuality::endJob() {
              ++segment4D){
 
           // Consider only segments with both projections
-          if((*segment4D).dimension() != 4) {
+          if(station!=4 && (*segment4D).dimension() != 4) {
             continue;
           }
           // Segment Local Direction and position (in Chamber RF)
@@ -276,7 +277,7 @@ void DTSegment4DQuality::endJob() {
 		 << "             position : " << (*segment4D).localPosition() << endl
 		 << "             alpha    : " << recSegAlpha << endl
 		 << "             beta     : " << recSegBeta << endl
-		 << "             nhits    : " << (*segment4D).phiSegment()->recHits().size() << " " << (*segment4D).zSegment()->recHits().size()
+		 << "             nhits    : " << (*segment4D).phiSegment()->recHits().size() << " " << (((*segment4D).zSegment()!=0)?(*segment4D).zSegment()->recHits().size():0)
 		 << endl;
 
 
@@ -285,7 +286,7 @@ void DTSegment4DQuality::endJob() {
 	  
 	  
           if ((fabs(recSegPosition.x()-simSegmLocalPos.x())<4)       // require rec and sim segments to be ~in the same cell in x
-	      && (fabs(recSegPosition.y()-simSegmLocalPos.y())<4)) { // ~in the same cell in y
+	      && ((fabs(recSegPosition.y()-simSegmLocalPos.y())<4)||(*segment4D).dimension()<4)) { // ~in the same cell in y, if segment has the theta view
 
 	    if (fabs(dAlphaRecSim-deltaAlpha) < epsilon) { // Numerically equivalent alphas, choose based on beta	      
 	      if (dBetaRecSim < deltaBeta) {
@@ -322,23 +323,40 @@ void DTSegment4DQuality::endJob() {
           // frame
           //if (bestRecHit->hasZed() ) {
           const DTSLRecSegment2D * zedRecSeg = bestRecHit->zSegment();
-          LocalPoint bestRecHitLocalPosRZ = zedRecSeg->localPosition();
-          LocalVector bestRecHitLocalDirRZ = zedRecSeg->localDirection();
-          // Errors on x and y
-          LocalError bestRecHitLocalPosErrRZ = zedRecSeg->localPositionError();
-          LocalError bestRecHitLocalDirErrRZ = zedRecSeg->localDirectionError();
+	  LocalPoint bestRecHitLocalPosRZ;
+	  LocalVector bestRecHitLocalDirRZ;
+	  LocalError bestRecHitLocalPosErrRZ;
+	  LocalError bestRecHitLocalDirErrRZ;
+	  LocalPoint simSegLocalPosRZ; // FIXME: this is not set for segments with only the phi view.
+	  float alphaBestRHitRZ = 0; // angle measured in the RZ SL, in its own frame
+	  float alphaSimSegRZ = betaSimSeg;
+	  if (zedRecSeg) {
+	     bestRecHitLocalPosRZ = zedRecSeg->localPosition();
+	     bestRecHitLocalDirRZ = zedRecSeg->localDirection();
+	     // Errors on x and y
+	     bestRecHitLocalPosErrRZ = zedRecSeg->localPositionError();
+	     bestRecHitLocalDirErrRZ = zedRecSeg->localDirectionError();
+	  
+	     // angle measured in the RZ SL, in its own frame
+	     alphaBestRHitRZ = DTHitQualityUtils::findSegmentAlphaAndBeta(bestRecHitLocalDirRZ).first;
 
-	  // angle measured in the RZ SL, in its own frame
-          float alphaBestRHitRZ = DTHitQualityUtils::findSegmentAlphaAndBeta(bestRecHitLocalDirRZ).first;
+	     // Get SimSeg position and Direction in rZ SL frame 
+	     const DTSuperLayer* sl = dtGeom->superLayer(zedRecSeg->superLayerId());
+	     LocalPoint simSegLocalPosRZTmp = sl->toLocal(simSegmGlobalPos);
+	     LocalVector simSegLocalDirRZ = sl->toLocal(simSegmGlobalDir);
+	     simSegLocalPosRZ =
+	       simSegLocalPosRZTmp + simSegLocalDirRZ*(-simSegLocalPosRZTmp.z()/(cos(simSegLocalDirRZ.theta())));
+	     alphaSimSegRZ = DTHitQualityUtils::findSegmentAlphaAndBeta(simSegLocalDirRZ).first;
 
-          // Get SimSeg position and Direction in rZ SL frame 
-          const DTSuperLayer* sl = dtGeom->superLayer(zedRecSeg->superLayerId());
-          LocalPoint simSegLocalPosRZTmp = sl->toLocal(simSegmGlobalPos);
-          LocalVector simSegLocalDirRZ = sl->toLocal(simSegmGlobalDir);
-          LocalPoint simSegLocalPosRZ =
-            simSegLocalPosRZTmp + simSegLocalDirRZ*(-simSegLocalPosRZTmp.z()/(cos(simSegLocalDirRZ.theta())));
-          float alphaSimSegRZ = DTHitQualityUtils::findSegmentAlphaAndBeta(simSegLocalDirRZ).first;
-
+	     if (debug) cout <<
+	       "RZ SL: recPos " << bestRecHitLocalPosRZ <<
+	       "recDir " << bestRecHitLocalDirRZ <<
+	       "recAlpha " << alphaBestRHitRZ << endl <<
+	       "RZ SL: simPos " << simSegLocalPosRZ <<
+	       "simDir " << simSegLocalDirRZ <<
+	       "simAlpha " << alphaSimSegRZ << endl ;
+	  }
+	  
 	  // get nhits and t0
 	  const DTChamberRecSegment2D*  phiSeg = bestRecHit->phiSegment();
 
@@ -356,14 +374,6 @@ void DTSegment4DQuality::endJob() {
 	    t0theta = zedRecSeg->t0();
 	    nHitTheta   = zedRecSeg->recHits().size();
 	  }
-
-          if (debug) cout <<
-            "RZ SL: recPos " << bestRecHitLocalPosRZ <<
-              "recDir " << bestRecHitLocalDirRZ <<
-              "recAlpha " << alphaBestRHitRZ << endl <<
-              "RZ SL: simPos " << simSegLocalPosRZ <<
-              "simDir " << simSegLocalDirRZ <<
-              "simAlpha " << alphaSimSegRZ << endl ;
 
 	  // Nominal cuts for efficiency - consider all matched segments for the time being
 //           if(fabs(alphaBestRHit - alphaSimSeg) < 5*sigmaResAlpha &&
@@ -442,7 +452,7 @@ void DTSegment4DQuality::endJob() {
 		       nHitPhi,nHitTheta,t0phi,t0theta
                       );
 
-	  if (local) h4DHitWS[abs(wheel)][chamberId.station()-1]->Fill(alphaSimSeg,
+	  if (local) h4DHitWS[abs(wheel)][station-1]->Fill(alphaSimSeg,
 			   alphaBestRHit,
 			   betaSimSeg,
 			   betaBestRHit,
@@ -481,7 +491,7 @@ void DTSegment4DQuality::endJob() {
 	  heff = hEff_W2;
 	heff->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
 	hEff_All->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
-	if (local) hEffWS[abs(wheel)][chamberId.station()-1]->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
+	if (local) hEffWS[abs(wheel)][station-1]->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
 
       }
     } // End of loop over chambers

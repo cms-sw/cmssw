@@ -11,7 +11,7 @@ myfile =  '"<sort -gs -k 2 True_RelValZMM5312_BP7X_noDRR_summary.txt"'
 
 
 #Set this to 1 to print plots to png files
-print=0
+print=1
 
 # Output to png viewer
 set terminal png enhanced font "Arial,14" size 800,600
@@ -63,11 +63,13 @@ if (sl==theta) unset arrow 4
 # 1:W 2:St 3:sec 4:SL 5:effS1RPhi 6:effS3RPhi 7:effSeg 8:resHit 9:pullHit 10:meanAngle  11:sigmaAngle 12:meanAngle_pull 13:sigmaAngle_pull 14:meanPos_pull 15:sigmaPos_pull
 
 
+# We use "set label 99" instead of ylabel, so that it can be right-aligned. 
+set ylabel " " 
 
 #### Hit Resolution
 if (print) {set output "TrueHitReso.png"}
 set yrange [100:900]
-set ylabel "True Hit Resolution [{/Symbol m}m]" offset 0,graph 0.30
+set label 99 "True Hit Resolution [{/Symbol m}m]" rotate right at screen 0.02,0.97
 plot \
 @myfile using (($3)==1&&int($4)==1?$8*10000:1/0) title '{/Symbol f} SLs' w p pt  5 ps 1.4 lc 4, \
 @myfile using (($3)==1&&int($4)==2?$8*10000:1/0) title '{/Symbol q} SLs' w p pt 13 ps 1.5 lc 13
@@ -79,7 +81,7 @@ set arrow 1 from -18,1 to 668,1 nohead back lt 0 lw 2 lc 0
 #### Hit Pull
 if (print) {set output "TrueHitPull.png"}
 set yrange [0:2]
-set ylabel "True Hit Pull" offset 0,graph 0.30
+set label 99 "True Hit Pull" rotate right at screen 0.02,0.97
 plot \
 @myfile using (($3)==1&&int($4)==1?$9:1/0) title '{/Symbol f} SLs' w p pt  5 ps 1.4 lc 4, \
 @myfile using (($3)==1&&int($4)==2?$9:1/0) title '{/Symbol q} SLs' w p pt 13 ps 1.5 lc 13
@@ -88,7 +90,7 @@ plot \
 #### Hit Eff
 if (print) {set output "TrueHitEff.png"}
 set yrange [0.8:1.05]
-set ylabel "True Hit Efficiency" offset 0,graph 0.30
+set label 99 "True Hit Efficiency" rotate right at screen 0.02,0.97
 plot \
 @myfile using (($3)==1&&int($4)==1?$5:1/0) title '{/Symbol f} SLs, S1' w p pt  5 ps 1.4 lc 4, \
 @myfile using (($3)==1&&int($4)==1?$6:1/0) title '{/Symbol f} SLs, S3' w p pt  4 ps 1.4 lc 4, \
@@ -99,25 +101,37 @@ plot \
 ### Segment eff
 if (print) {set output "TrueSegmentEff.png"}
 set yrange [0.8:1.05]
-set ylabel "True Segment Efficiency" offset 0,graph 0.30
+set label 99 "True Segment Efficiency" rotate right at screen 0.02,0.97
 plot \
 @myfile using (($3)==1&&int($4)==1?$7:1/0) title '4D segment' w p pt  5 ps 1.4 lc 4
 
 
-### Segment angular resolution
+### Segment position resolution
 unset arrow 1
+if (print) {set output "TrueSegmentPosReso.png"}
+set yrange [0:500]
+set label 99 "Segment Position Resolution [{/Symbol m}m]" rotate right at screen 0.02,0.97
+plot \
+@myfile using (($3)==1&&int($4)==1?$17*10000:1/0) title '{/Symbol f} SLs' w p pt  5 ps 1.4 lc 4, \
+@myfile using (($3)==1&&int($4)==2?$17*10000:1/0) title '{/Symbol q} SLs' w p pt 13 ps 1.5 lc 13
+
+
+### Segment angular resolution
+#unset arrow 1
 if (print) {set output "TrueSegmentAngleReso.png"}
 set yrange [0:20]
-set ylabel "Segment Angle Resolution [mrad]" offset 0,graph 0.20
+set label 99 "Segment Angle Resolution [mrad]" rotate right at screen 0.02,0.97
 plot \
 @myfile using (($3)==1&&int($4)==1?$11*1000.:1/0) title '{/Symbol f} SLs' w p pt  5 ps 1.4 lc 4, \
+@myfile using (($3)==1&&int($4)==1?$11*10000.:1/0) title '{/Symbol f} SLs (10x)' w p pt 4 ps 1.4 lc 4, \
 @myfile using (($3)==1&&int($4)==2?$11*1000.:1/0) title '{/Symbol q} SLs' w p pt 13 ps 1.5 lc 13
 
 
 ### Segment average angle bias
 if (print) {set output "TrueSegmentAngleBias.png"}
+set arrow 1 from -18,0 to 668,0 nohead back lt 0 lw 2 lc 0
 set yrange [-3:3]
-set ylabel "Segment Average Angle bias [mrad]" offset 0,graph 0.20
+set label 99 "Segment Average Angle bias [mrad]" rotate right at screen 0.02,0.97
 plot \
 @myfile using (($3)==1&&int($4)==1?$10*1000.:1/0) title '{/Symbol f} SLs' w p pt  5 ps 1.4 lc 4, \
 @myfile using (($3)==1&&int($4)==2?$10*1000.:1/0) title '{/Symbol q} SLs' w p pt 13 ps 1.5 lc 13
@@ -126,7 +140,7 @@ plot \
 set arrow 1 from -18,1 to 668,1 nohead back lt 0 lw 2 lc 0
 if (print) {set output "TrueSegmentAnglePull.png"}
 set yrange [0:2]
-set ylabel "Segment Angle Pull Width" offset 0,graph 0.20
+set label 99 "Segment Angle Pull Width" rotate right at screen 0.02,0.97
 plot \
 @myfile using (($3)==1&&int($4)==1?$13:1/0) title '{/Symbol f} SLs' w p pt  5 ps 1.4 lc 4, \
 @myfile using (($3)==1&&int($4)==2?$13:1/0) title '{/Symbol q} SLs' w p pt 13 ps 1.5 lc 13
@@ -134,7 +148,7 @@ plot \
 ### Segment position pull width
 if (print) {set output "TrueSegmentPosPull.png"}
 set yrange [0:2]
-set ylabel "Segment Pull Width" offset 0,graph 0.20
+set label 99 "Segment Position Pull Width" rotate right at screen 0.02,0.97
 plot \
 @myfile using (($3)==1&&int($4)==1?$15:1/0) title '{/Symbol f} SLs' w p pt  5 ps 1.4 lc 4, \
 @myfile using (($3)==1&&int($4)==2?$15:1/0) title '{/Symbol q} SLs' w p pt 13 ps 1.5 lc 13
