@@ -5,7 +5,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
 
-namespace {
+namespace DataFormats_SiPixelCluster {
   struct dictionary {
     std::vector<SiPixelCluster> v1;
     edm::DetSet<SiPixelCluster> ds1;

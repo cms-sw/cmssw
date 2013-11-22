@@ -14,7 +14,7 @@ namespace reco { namespace parser {
 } }
 
 
-namespace {
+namespace PhysicsTools_FWLite {
  struct dictionary {
     // all these are templates, so we need to instantiate them
     reco::parser::ExpressionPtr eptr;

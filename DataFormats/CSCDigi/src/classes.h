@@ -34,7 +34,7 @@
 #include <vector>
 #include <map>
 
-namespace{
+namespace DataFormats_CSCDigi {
   struct dictionary {
 
   CSCWireDigi cWD_;

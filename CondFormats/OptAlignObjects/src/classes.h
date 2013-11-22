@@ -32,7 +32,7 @@
 //template std::vector< PXsensors::Item >::const_iterator;
 //template edm::Wrapper<OpticalAlignments>;
 
-namespace{
+namespace CondFormats_OptAlignObjects {
   struct dictionary {
     std::vector<OpticalAlignInfo> optaligninfovec;
     std::vector<MBAChBenchCalPlateData> mbacalvec;

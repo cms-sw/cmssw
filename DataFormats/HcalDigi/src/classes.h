@@ -12,7 +12,7 @@
 #include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace DataFormats_HcalDigi {
   struct dictionary {
     std::vector<HcalQIESample> vQIE_;
     std::vector<HcalUpgradeQIESample> vUQIE_;

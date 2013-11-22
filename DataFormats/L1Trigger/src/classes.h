@@ -23,7 +23,7 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-namespace {
+namespace DataFormats_L1Trigger {
   struct dictionary {
 
      l1extra::L1EmParticleCollection emColl ;

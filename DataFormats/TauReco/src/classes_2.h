@@ -27,7 +27,7 @@
 #include <vector>
 #include <map>
 
-namespace {
+namespace DataFormats_TauReco {
   struct dictionary2 {
 
     std::vector<reco::PFTau>                                    pft_v;

@@ -3,7 +3,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-namespace {
+namespace SimGeneral_TrackingAnalysis {
   struct dictionary {
     std::pair<TrackingParticleRef, TrackPSimHitRef> dummy13;
     edm::Wrapper<std::pair<TrackingParticleRef, TrackPSimHitRef> > dummy14;

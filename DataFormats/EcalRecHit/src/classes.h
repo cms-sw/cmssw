@@ -8,7 +8,7 @@
 #include "DataFormats/Common/interface/Holder.h"
 #include <vector>
 
-namespace {
+namespace DataFormats_EcalRecHit {
   struct dictionary {
     EcalUncalibratedRecHit _ahit;
     std::vector<EcalUncalibratedRecHit> _hitVect;
@@ -50,7 +50,7 @@ namespace {
 #include "DataFormats/EcalRecHit/interface/EcalRecHitComparison.h"
 #include "boost/cstdint.hpp" 
 
-namespace {
+namespace DataFormats_EcalRecHit {
   struct dictionary2 {
     edm::Wrapper< EcalRecHit > dummy01;
     edm::Wrapper< std::vector<EcalRecHit>  > dummy11;

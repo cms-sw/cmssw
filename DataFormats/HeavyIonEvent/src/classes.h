@@ -3,7 +3,7 @@
 #include "DataFormats/HeavyIonEvent/interface/HeavyIon.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace { 
+namespace DataFormats_HeavyIonEvent {
   struct dictionary {
 
     reco::EvtPlane dummy1;

@@ -10,7 +10,7 @@
 #include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
 #include <vector>
 
-namespace {
+namespace DataFormats_HepMCCandidate {
   struct dictionary {
     reco::CompositeRefCandidateT<reco::GenParticleRefVector> v1;
     edm::Wrapper<reco::GenParticleCollection> w2;
