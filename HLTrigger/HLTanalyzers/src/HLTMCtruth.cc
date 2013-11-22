@@ -63,6 +63,7 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("MCptEleMax",&ptEleMax,"MCptEleMax/F");
   HltTree->Branch("MCptMuMax",&ptMuMax,"MCptMuMax/F");
   HltTree->Branch("NPUTrueBX0",&npubx0, "NPUTrueBX0/I");
+  HltTree->Branch("NPUgenBX0",&npuvertbx0, "NPUgenBX0/I");
 }
 
 /* **Analyze the event** */
@@ -90,8 +91,10 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
     ptMuMax  = -999.0;    
     pthatf   = pthat;
     npubx0  = 0.0;
+    npuvertbx0 = 0;
 
     int npvtrue = 0; 
+    int npuvert = 0;
 
     if((simTracks.isValid())&&(simVertices.isValid())){
       for (unsigned int j=0; j<simTracks->size(); j++) {
@@ -118,10 +121,12 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
       for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {  
 	
 	int BX = PVI->getBunchCrossing();  
-	npvtrue = PVI->getTrueNumInteractions();  
+	npvtrue = PVI->getTrueNumInteractions(); 
+	npuvert = PVI->getPU_NumInteractions(); 
 	if(BX == 0)  
 	  {  
 	    npubx0+=npvtrue;  
+	    npuvertbx0+=npuvert;
 	  }  
       }  
       
