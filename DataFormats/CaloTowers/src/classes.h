@@ -13,7 +13,7 @@
 #include "DataFormats/Common/interface/FwdPtr.h"
 
 
-namespace {
+namespace DataFormats_CaloTowers {
   struct dictionary {
     std::vector<CaloTower> v1;
     CaloTowerCollection c1;

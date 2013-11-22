@@ -12,7 +12,7 @@
 #include <map>
 #include <string>
 
-namespace {
+namespace SimDataFormats_CrossingFrame {
   struct dictionary {
  	CrossingFrame<PSimHit> dummy0;
 	

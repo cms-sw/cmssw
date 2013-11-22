@@ -52,7 +52,7 @@
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
-namespace {
+namespace DataFormats_JetReco {
   struct dictionary2 {
     reco::FFTBasicJet jet_fft_3;
     reco::FFTBasicJetCollection o2_fft_3;

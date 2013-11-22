@@ -14,7 +14,7 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include <vector>
 
-namespace {
+namespace DataFormats_Math {
   struct dictionary {
     math::XYZVector v1;
     math::XYZVectorD vd1;

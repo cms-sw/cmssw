@@ -1,7 +1,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/EcalIsolatedParticleCandidate.h"
-namespace {
+namespace DataFormats_HcalIsolatedTrack {
   struct dictionary {
     edm::Wrapper<std::map< int, std::pair<double,double> > > w2;
  

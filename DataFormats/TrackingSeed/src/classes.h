@@ -5,7 +5,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 
-namespace {
+namespace DataFormats_TrackingSeed {
   struct dictionary {
     edm::Wrapper<TrackingSeedCollection> trackingSeedCollectionWrapper;
   };

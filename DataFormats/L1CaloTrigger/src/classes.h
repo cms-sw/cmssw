@@ -3,7 +3,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace DataFormats_L1CaloTrigger {
   struct dictionary {
     L1CaloEmCollection em;
     L1CaloRegionCollection rgn;

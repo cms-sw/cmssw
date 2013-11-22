@@ -7,7 +7,7 @@
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingDetector.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingTrack.h"
 
-namespace {
+namespace SimDataFormats_ValidationFormats {
   struct dictionary {
     std::vector<PGlobalSimHit::Vtx>                         dummy1;
     std::vector<PGlobalSimHit::Trk>                         dummy2;

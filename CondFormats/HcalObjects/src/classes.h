@@ -2,7 +2,7 @@
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 
-namespace {
+namespace CondFormats_HcalObjects {
   struct dictionary {
 
     HcalPedestals mypeds();

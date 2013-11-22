@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
-namespace {
+namespace DataFormats_TrajectorySeed {
   struct dictionary {
     std::vector<TrajectorySeed> v1;
     TrajectorySeedCollection c1;

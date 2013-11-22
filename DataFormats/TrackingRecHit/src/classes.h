@@ -7,7 +7,7 @@
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace DataFormats_TrackingRecHit {
   struct dictionary {
     AlgebraicSymMatrix as;
 

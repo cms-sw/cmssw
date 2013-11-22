@@ -7,7 +7,7 @@
 #include "DataFormats/METObjects/interface/TowerMETCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace DataFormats_METObjects {
   struct dictionary {
     edm::Wrapper<BaseMETv0> dummy1;
     edm::Wrapper<METv0> dummy2;

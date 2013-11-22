@@ -16,7 +16,7 @@ template class PixelDCSObject<bool>;
 template class PixelDCSObject<float>;
 template class PixelDCSObject<CaenChannel>;
 
-namespace {
+namespace CondFormats_SiPixelObjects {
   struct dictionary {
     std::map<SiPixelFedCablingMap::Key, sipixelobjects::PixelROC> theMap; 
     std::pair<const SiPixelFedCablingMap::Key, sipixelobjects::PixelROC> theMapValueT; 
