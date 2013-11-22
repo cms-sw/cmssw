@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="hcalalgo.xml" eval="true">
+		<Constant name="Z0HBHE" value="389.550*cm"/>
+		<Constant name="Z0HE" value="398.250*cm"/>
+		<Constant name="Z1HB" value="324.200*cm"/>
+		<Constant name="z2HB" value="370.460*cm"/>
+		<Constant name="z3HB" value="375.022*cm"/>
+		<Constant name="z4HB" value="446.079*cm"/>
+		<Constant name="z5HB" value="449.127*cm"/>
+		<Constant name="z6HB" value="[cms:CalorBeamZ2]"/>
+		<Constant name="zRat" value="([Z0HE]-[z6HB])/([cms:CalorBeamZ1]-[z6HB])"/>
+		<Constant name="rMin1" value="177.500*cm"/>
+		<Constant name="rMin3" value="171.200*cm"/>
+		<Constant name="rMin4" value="277.071*cm"/>
+		<Constant name="rMin5" value="281.342*cm"/>
+		<Constant name="rMin2" value="[cms:CalorBeamR2]+[zRat]*                                 ([cms:CalorBeamR1]-[cms:CalorBeamR2])"/>
+		<Constant name="rMax1" value="186.650*cm"/>
+		<Constant name="rMax3" value="192.703*cm"/>
+		<Constant name="rMax4" value="287.000*cm"/>
+	</ConstantsSection>
+	<SolidSection label="hcalalgo.xml">
+		<Polycone name="HCal" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-[z6HB]" rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="-[Z0HE]" rMin="[rMin2]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="-[Z0HE]" rMin="[rMin3]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="-[Z0HBHE]" rMin="[rMin3]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="-[Z0HBHE]" rMin="[rMin1]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="[Z0HBHE]" rMin="[rMin1]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="[Z0HBHE]" rMin="[rMin3]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="[Z0HE]" rMin="[rMin3]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="[Z0HE]" rMin="[rMin2]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="[z6HB]" rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
+		</Polycone>
+		<Polyhedra name="HRCF" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
+			<ZSection z="[Z1HB]" rMin="[rMin1]" rMax="[rMax1]"/>
+			<ZSection z="[z2HB]" rMin="[rMin1]" rMax="[rMax1]"/>
+			<ZSection z="[z3HB]" rMin="[rMin1]" rMax="[rMax3]"/>
+			<ZSection z="[z4HB]" rMin="[rMin4]" rMax="[rMax4]"/>
+			<ZSection z="[z5HB]" rMin="[rMin5]" rMax="[rMax4]"/>
+			<ZSection z="[z6HB]" rMin="[rMin5]" rMax="[rMax4]"/>
+		</Polyhedra>
+		<Polyhedra name="HEC1" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="[Z1HB]" rMin="[rMin1]" rMax="[rMax1]"/>
+			<ZSection z="[z2HB]" rMin="[rMin1]" rMax="[rMax1]"/>
+			<ZSection z="[z3HB]" rMin="[rMin1]" rMax="[rMax3]"/>
+			<ZSection z="[z4HB]" rMin="[rMin4]" rMax="[rMax4]"/>
+			<ZSection z="[z5HB]" rMin="[rMin5]" rMax="[rMax4]"/>
+			<ZSection z="[z6HB]" rMin="[rMin5]" rMax="[rMax4]"/>
+		</Polyhedra>
+		<Polyhedra name="HHC1" numSide="1" startPhi="352.5*deg" deltaPhi="15*deg">
+			<ZSection z="[Z1HB]" rMin="[rMin1]" rMax="[rMax1]"/>
+			<ZSection z="[z2HB]" rMin="[rMin1]" rMax="[rMax1]"/>
+			<ZSection z="[z3HB]" rMin="[rMin1]" rMax="[rMax3]"/>
+			<ZSection z="[z4HB]" rMin="[rMin4]" rMax="[rMax4]"/>
+			<ZSection z="[z5HB]" rMin="[rMin5]" rMax="[rMax4]"/>
+			<ZSection z="[z6HB]" rMin="[rMin5]" rMax="[rMax4]"/>
+		</Polyhedra>
+		<Polyhedra name="HTC1" numSide="1" startPhi="356*deg" deltaPhi="8*deg">
+			<ZSection z="[Z1HB]" rMin="[rMin1]" rMax="[rMax1]"/>
+			<ZSection z="[z2HB]" rMin="[rMin1]" rMax="[rMax1]"/>
+			<ZSection z="[z3HB]" rMin="[rMin1]" rMax="[rMax3]"/>
+			<ZSection z="[z4HB]" rMin="[rMin4]" rMax="[rMax4]"/>
+			<ZSection z="[z5HB]" rMin="[rMin5]" rMax="[rMax4]"/>
+			<ZSection z="[z6HB]" rMin="[rMin5]" rMax="[rMax4]"/>
+		</Polyhedra>
+	</SolidSection>
+	<LogicalPartSection label="hcalalgo.xml">
+		<LogicalPart name="HCal" category="unspecified">
+			<rSolid name="HCal"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HRCF" category="unspecified">
+			<rSolid name="HRCF"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HEC1" category="unspecified">
+			<rSolid name="HEC1"/>
+			<rMaterial name="materials:Ec_Cable_1"/>
+		</LogicalPart>
+		<LogicalPart name="HHC1" category="unspecified">
+			<rSolid name="HHC1"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HTC1" category="unspecified">
+			<rSolid name="HTC1"/>
+			<rMaterial name="materials:Tk_square_bundles"/>
+		</LogicalPart>
+		<LogicalPart name="HEC2" category="unspecified">
+			<rSolid name="HEC1"/>
+			<rMaterial name="materials:Ec_Cable_1"/>
+		</LogicalPart>
+		<LogicalPart name="HHC2" category="unspecified">
+			<rSolid name="HHC1"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="hcalalgo.xml">
+		<PosPart copyNumber="1">
+			<rParent name="caloBase:CALO"/>
+			<rChild name="hcalalgo:HCal"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalalgo:HCal"/>
+			<rChild name="hcalalgo:HRCF"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalalgo:HCal"/>
+			<rChild name="hcalalgo:HRCF"/>
+			<rRotation name="rotations:180D"/>
+		</PosPart>
+		<!-- There are some subtle differences on the 0 degree and 180 degree
+		     segments so that is why only the 16 can be made with the algorithm -->
+		<!-- 16 sub-sections for the cabling ??? -->
+		<AlgoPosPart algo="global:angular">
+			<rParent name="hcalalgo:HRCF"/>
+			<rChild name="hcalalgo:HEC1"/>
+			<ParE name="n" value="8"/>
+			<ParE name="startCopyNo" value="0"/>
+			<ParE name="incrCopyNo" value="1"/>
+			<ParE name="rangeAngle" value="140*deg"/>
+			<ParE name="startAngle" value="20*deg"/>
+			<ParE name="radius" value="0"/>
+			<ParE name="center" value="0"/>
+			<ParE name="center" value="0"/>
+			<ParE name="center" value="0"/>
+		</AlgoPosPart>
+		<AlgoPosPart algo="global:angular">
+			<rParent name="hcalalgo:HRCF"/>
+			<rChild name="hcalalgo:HEC1"/>
+			<ParE name="n" value="8"/>
+			<ParE name="startCopyNo" value="8"/>
+			<ParE name="incrCopyNo" value="1"/>
+			<ParE name="rangeAngle" value="140*deg"/>
+			<ParE name="startAngle" value="200*deg"/>
+			<ParE name="radius" value="0"/>
+			<ParE name="center" value="0"/>
+			<ParE name="center" value="0"/>
+			<ParE name="center" value="0"/>
+		</AlgoPosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalalgo:HEC1"/>
+			<rChild name="hcalalgo:HHC1"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalalgo:HHC1"/>
+			<rChild name="hcalalgo:HTC1"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalalgo:HRCF"/>
+			<rChild name="hcalalgo:HEC2"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="hcalalgo:HRCF"/>
+			<rChild name="hcalalgo:HEC2"/>
+			<rRotation name="rotations:R180"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="hcalalgo:HEC2"/>
+			<rChild name="hcalalgo:HHC2"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>
