@@ -132,32 +132,6 @@ class PFEGammaAlgo {
     eetops_ = eetops;
   }
 
-  void setGBRForest(const GBRForest *LCorrForest,
-		    const GBRForest *GCorrForest,
-		    const GBRForest *ResForest
-		    )
-  {
-    ReaderLC_=LCorrForest;
-    ReaderGC_=GCorrForest;
-    ReaderRes_=ResForest;
-  }  
-  
-  void setGBRForest(
-		    const GBRForest *LCorrForestEB,
-		    const GBRForest *LCorrForestEE,
-		    const GBRForest *GCorrForestBarrel,
-		    const GBRForest *GCorrForestEndcapHr9,
-		    const GBRForest *GCorrForestEndcapLr9,
-		    const GBRForest *PFEcalResolution
-		    )
-  {
-    ReaderLCEB_=LCorrForestEB;
-    ReaderLCEE_=LCorrForestEE;
-    ReaderGCEB_=GCorrForestBarrel;
-    ReaderGCEEhR9_=GCorrForestEndcapHr9;
-    ReaderGCEElR9_=GCorrForestEndcapLr9;
-    ReaderRes_=PFEcalResolution;
-  }  
   void setnPU(int nVtx){
     nVtx_=nVtx;
   }
@@ -171,9 +145,7 @@ class PFEGammaAlgo {
 
   //check candidate validity
   bool isEGValidCandidate(const reco::PFBlockRef&  blockRef,
-			      std::vector< bool >&  active
-			      //      std::auto_ptr< reco::PFCandidateCollection > &pfElectronCandidates_  
-			      ){
+			  std::vector< bool >&  active){
     RunPFEG(blockRef,active);
     return (egCandidate_.size()>0);
   };
@@ -416,22 +388,6 @@ private:
   bool EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, 
 			    const reco::Vertex& primaryvtx, 
 			    unsigned int track_index);
-  
-  double ClustersPhiRMS(const std::vector<reco::CaloCluster>& PFClusters, 
-			float PFPhoPhi) const ;
-  float EvaluateLCorrMVA(const reco::PFClusterRef& clusterRef );
-  float EvaluateGCorrMVA(const reco::PFCandidate&, 
-		    const std::vector<reco::CaloCluster>& PFClusters) ;
-  float EvaluateResMVA(const reco::PFCandidate& ,
-		     const std::vector<reco::CaloCluster>& PFClusters ) ;
- 
-  void EarlyConversion(
-		       //std::auto_ptr< reco::PFCandidateCollection > 
-		       //&pfElectronCandidates_,
-		       const std::vector<reco::PFCandidate>& 
-		       tempElectronCandidates,
-		       const reco::PFBlockElementSuperCluster* sc
-		       ); 
 };
 
 #endif
