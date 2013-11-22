@@ -65,6 +65,8 @@ PreshowerPhiClusterProducer::PreshowerPhiClusterProducer(const edm::ParameterSet
   esPhiClusterDeltaEta_      = ps.getParameter<double>("esPhiClusterDeltaEta");
   esPhiClusterDeltaPhi_      = ps.getParameter<double>("esPhiClusterDeltaPhi");
 
+  etThresh_                  = ps.getParameter<double>("etThresh");
+
   presh_algo = new PreshowerPhiClusterAlgo(esStripECut);
 }
 
@@ -250,8 +252,13 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
     else if (condP1 == 0 && condP2 == 1) sc.setPreshowerPlanesStatus(2);
     else if (condP1 == 0 && condP2 == 0) sc.setPreshowerPlanesStatus(3);
 
-    new_SC.push_back(sc);
-    //cout<<"result : "<<sc.energy()<<" "<<it_super->energy()<<" "<<deltaE<<" "<<e1*mip_<<" "<<e2*mip_<<endl;    
+    if (etThresh_>0){ // calling postion().theta can be expensive
+        if (sc.energy()*sin(sc.position().theta())>etThresh_ ) 
+            new_SC.push_back(sc);
+    } else {
+        new_SC.push_back(sc);
+    }
+    
   } // end of cycle over SCs
   
   // copy the preshower clusters into collections and put in the Event:
