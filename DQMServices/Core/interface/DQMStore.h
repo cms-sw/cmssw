@@ -90,6 +90,10 @@ public:
                                 const char *value);
     MonitorElement * bookString(const std::string &name,
                                 const std::string &value);
+    MonitorElement * bookInt(const char *name);
+    MonitorElement * bookInt(const std::string &name);
+    MonitorElement * bookFloat(const char *name);
+    MonitorElement * bookFloat(const std::string &name);
     MonitorElement * book1D(const std::string &name,
                             const std::string &title,
                             int nchX, double lowX, double highX);

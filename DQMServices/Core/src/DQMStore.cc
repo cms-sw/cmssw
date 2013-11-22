@@ -277,6 +277,23 @@ MonitorElement * DQMStore::IBooker::bookString(const std::string &name,
   return owner_->bookString(name, value);
 }
 
+MonitorElement * DQMStore::IBooker::bookInt(const char *name){
+  return owner_->bookInt(name);
+}
+
+MonitorElement * DQMStore::IBooker::bookInt(const std::string &name){
+  return owner_->bookInt(name);
+}
+
+MonitorElement * DQMStore::IBooker::bookFloat(const char *name){
+  return owner_->bookFloat(name);
+}
+
+MonitorElement * DQMStore::IBooker::bookFloat(const std::string &name){
+  return owner_->bookFloat(name);
+}
+
+
 MonitorElement * DQMStore::IBooker::book1D(const std::string &name,
                                            const std::string &title,
                                            int nchX, double lowX, double highX) {
