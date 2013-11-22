@@ -11,7 +11,7 @@ static double MaximumFractionalError = 0.002; // 0.2% error allowed from this so
 HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
   correctForTimeslew_(correctForTimeslew),
   correctForPulse_(correctForPulse),
-  phaseNS_(phaseNS), setForData_(false), setLeakCorrection_(false)
+  phaseNS_(phaseNS), runnum_(0), setLeakCorrection_(false)
 { 
   
   pulseCorr_ = std::auto_ptr<HcalPulseContainmentManager>(
@@ -21,7 +21,7 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPul
   
 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo() : 
-  correctForTimeslew_(false), setForData_(false) { }
+  correctForTimeslew_(false), runnum_(0) { }
 
 
 void HcalSimpleRecAlgo::beginRun(edm::EventSetup const & es)
@@ -47,7 +47,7 @@ void HcalSimpleRecAlgo::setRecoParams(bool correctForTimeslew, bool correctForPu
    pileupCleaningID_=pileupCleaningID;
 }
 
-void HcalSimpleRecAlgo::setForData () { setForData_ = true;}
+void HcalSimpleRecAlgo::setForData (int runnum) { runnum_ = runnum;}
 
 void HcalSimpleRecAlgo::setLeakCorrection () { setLeakCorrection_ = true;}
 
@@ -62,7 +62,7 @@ static float timeshift_ns_hbheho(float wpksamp);
 static float timeshift_ns_hf(float wpksamp);
 
 /// Ugly hack to apply energy corrections to some HB- cells
-static float eCorr(int ieta, int iphi, double ampl);
+static float eCorr(int ieta, int iphi, double ampl, int runnum);
 
 /// Leak correction 
 static float leakCorr(double energy);
@@ -71,7 +71,7 @@ namespace HcalSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
   inline RecHit reco(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
 		     int ifirst, int n, bool slewCorrect, bool pulseCorrect, const HcalPulseContainmentCorrection* corr,
-		     HcalTimeSlew::BiasSetting slewFlavor, bool forData, bool useLeak) {
+		     HcalTimeSlew::BiasSetting slewFlavor, int runnum_, bool useLeak) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
 
@@ -141,11 +141,11 @@ namespace HcalSimpleRecAlgoImpl {
 
 
     // Temoprary hack to apply energy-dependent corrections to some HB- cells
-    if(forData) {
+    if(runnum_ > 0) {
       HcalDetId cell(digi.id());
-      int ieta  = cell.ieta();
-      int iphi  = cell.iphi();
-      if( cell.subdet() == HcalBarrel) ampl *= eCorr(ieta,iphi,ampl);
+      int ieta   = cell.ieta();
+      int iphi   = cell.iphi();
+      if( cell.subdet() == HcalBarrel) ampl *= eCorr(ieta,iphi,ampl,runnum_);
     }
 
     // Correction for a leak to pre-sample
@@ -163,7 +163,7 @@ HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, 
 							       first,toadd,correctForTimeslew_, correctForPulse_,
 							       pulseCorr_->get(digi.id(), toadd, phaseNS_),
 							       HcalTimeSlew::Medium,
-                                                               setForData_, setLeakCorrection_);
+                                                               runnum_, setLeakCorrection_);
 }
 
 HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
@@ -171,7 +171,7 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
 							   first,toadd,correctForTimeslew_,correctForPulse_,
 							   pulseCorr_->get(digi.id(), toadd, phaseNS_),
 							   HcalTimeSlew::Slow,
-                                                           setForData_, false);
+                                                           runnum_, false);
 }
 
 HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
@@ -179,7 +179,7 @@ HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, i
 									 first,toadd,correctForTimeslew_,correctForPulse_,
 									 pulseCorr_->get(digi.id(), toadd, phaseNS_),
 									 HcalTimeSlew::Fast,
-                                                                         setForData_, false );
+                                                                         runnum_, false );
 }
 
 HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
@@ -270,7 +270,7 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int 
 }
 
 /// Ugly hack to apply energy corrections to some HB- cells
-float eCorr(int ieta, int iphi, double energy) {
+float eCorr(int ieta, int iphi, double energy, int runnum) {
 // return energy correction factor for HBM channels 
 // iphi=6 ieta=(-1,-15) and iphi=32 ieta=(-1,-7)
 // I.Vodopianov 28 Feb. 2011
@@ -299,7 +299,7 @@ float eCorr(int ieta, int iphi, double energy) {
     if (en > 100.) corr = high32[jeta];
     else corr = low32[jeta]+(high32[jeta]-low32[jeta])/(1.0+exp(-(en-mid)*slope));
   }
-  else if (iphi == 6) {
+  else if (iphi == 6 && runnum < 216091 ) {
     slope = 0.1956;
     mid = 15.96 + 0.3075*xeta;
     if (en > 100.0) corr = high6[jeta];
