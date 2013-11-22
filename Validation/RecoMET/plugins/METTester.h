@@ -14,6 +14,8 @@
 // note: code rewrite
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/GenMET.h"
@@ -41,45 +43,6 @@
 #include "TMath.h"
 
 
-//#include "FWCore/PluginManager/interface/ModuleDef.h"
-//#include "FWCore/Framework/interface/MakerMacros.h"
-//
-//
-
-//
-
-//#include "FWCore/Framework/interface/ESHandle.h"
-
-
-//
-
-//  
-//
-//#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-//
-//
-
-//#include <vector>
-//#include <utility>
-//#include <ostream>
-//#include <fstream>
-//#include <iostream>
-//#include <algorithm>
-//#include <cmath>
-//#include <memory>
-//
-//#include "TMath.h"
-
-
-
-//#include <string>
-//#include <map>
-//
-
-
-
-
-
 class METTester: public edm::EDAnalyzer {
 public:
 
@@ -91,23 +54,20 @@ public:
   //virtual void beginJob() ;
   virtual void endJob() ;
 //  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-	void FillpfMETRes();
+	void FillMETRes();
 
 
  private:
 
-
-
-  // DAQ Tools
-  //DQMStore* dbe_;
   std::map<std::string, MonitorElement*> me;
 
   // Inputs from Configuration File
 
   edm::InputTag mInputCollection_;
-  std::string     mOutputFile;
+  std::string mOutputFile;
   std::string sample_;
   edm::InputTag inputMETLabel_;
+  std::string METType_;
  
   edm::InputTag inputCaloMETLabel_;
   edm::InputTag inputTrackLabel_;
@@ -139,10 +99,10 @@ public:
   MonitorElement* mMET_Nvtx;
   MonitorElement* mMETPhi;
   MonitorElement* mSumET;
-  MonitorElement* mMETResolution_GenMETTrue;
-  MonitorElement* mMETPhiResolution_GenMETTrue;
-  MonitorElement* mMETResolution_GenMETCalo;
-  MonitorElement* mMETPhiResolution_GenMETCalo;
+  MonitorElement* mMETDifference_GenMETTrue;
+  MonitorElement* mMETDeltaPhi_GenMETTrue;
+  MonitorElement* mMETDifference_GenMETCalo;
+  MonitorElement* mMETDeltaPhi_GenMETCalo;
   //CaloMET variables
 
   MonitorElement* mCaloMaxEtInEmTowers;
@@ -172,17 +132,32 @@ public:
   //MET variables
 
   //PFMET variables
-  MonitorElement* mMETResolution_GenMETTrue_MET0to20;
-  MonitorElement* mMETResolution_GenMETTrue_MET20to40;
-  MonitorElement* mMETResolution_GenMETTrue_MET40to60;
-  MonitorElement* mMETResolution_GenMETTrue_MET60to80;
-  MonitorElement* mMETResolution_GenMETTrue_MET80to100;
-  MonitorElement* mMETResolution_GenMETTrue_MET100to150;
-  MonitorElement* mMETResolution_GenMETTrue_MET150to200;
-  MonitorElement* mMETResolution_GenMETTrue_MET200to300;
-  MonitorElement* mMETResolution_GenMETTrue_MET300to400;
-  MonitorElement* mMETResolution_GenMETTrue_MET400to500;
-  MonitorElement* mMETResolution_GenMETTrue_METResolution;
+  MonitorElement* mPFphotonEtFraction;
+  MonitorElement* mPFphotonEt;
+  MonitorElement* mPFneutralHadronEtFraction;
+  MonitorElement* mPFneutralHadronEt;
+  MonitorElement* mPFelectronEtFraction;
+  MonitorElement* mPFelectronEt;
+  MonitorElement* mPFchargedHadronEtFraction;
+  MonitorElement* mPFchargedHadronEt;
+  MonitorElement* mPFmuonEtFraction;
+  MonitorElement* mPFmuonEt;
+  MonitorElement* mPFHFHadronEtFraction;
+  MonitorElement* mPFHFHadronEt;
+  MonitorElement* mPFHFEMEtFraction;
+  MonitorElement* mPFHFEMEt;
+
+  MonitorElement* mMETDifference_GenMETTrue_MET0to20;
+  MonitorElement* mMETDifference_GenMETTrue_MET20to40;
+  MonitorElement* mMETDifference_GenMETTrue_MET40to60;
+  MonitorElement* mMETDifference_GenMETTrue_MET60to80;
+  MonitorElement* mMETDifference_GenMETTrue_MET80to100;
+  MonitorElement* mMETDifference_GenMETTrue_MET100to150;
+  MonitorElement* mMETDifference_GenMETTrue_MET150to200;
+  MonitorElement* mMETDifference_GenMETTrue_MET200to300;
+  MonitorElement* mMETDifference_GenMETTrue_MET300to400;
+  MonitorElement* mMETDifference_GenMETTrue_MET400to500;
+  MonitorElement* mMETDifference_GenMETTrue_METResolution;
 
   
   //TCMET specific variables  
@@ -220,7 +195,7 @@ public:
   MonitorElement* mdMUy;
 
   bool isCaloMET;
-  bool isCorMET;
+//  bool isCorMET;
   bool isTcMET;
   bool isPFMET;
   bool isGenMET;

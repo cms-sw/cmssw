@@ -8,55 +8,57 @@ import FWCore.ParameterSet.Config as cms
 metAnalyzer = cms.EDAnalyzer(
     "METTester",
     OutputFile = cms.untracked.string('METTester.root'),
-    InputMETLabel = cms.InputTag("met")
+    InputMETLabel = cms.InputTag("met"),
+    METType = cms.untracked.string("calo")
     )
 
-metHOAnalyzer = cms.EDAnalyzer(
-    "METTester",
-    OutputFile = cms.untracked.string('METTester.root'),
-    InputMETLabel = cms.InputTag("metHO")
-    )
-
-metNoHFAnalyzer = cms.EDAnalyzer(
-    "METTester",
-    OutputFile = cms.untracked.string('METTester.root'),
-    InputMETLabel = cms.InputTag("metNoHF")
-    )
-
-metNoHFHOAnalyzer = cms.EDAnalyzer(
-    "METTester",
-    OutputFile = cms.untracked.string('METTester.root'),
-    InputMETLabel = cms.InputTag("metNoHFHO")
-    )
-
-metOptAnalyzer = cms.EDAnalyzer(
-    "METTester",
-    OutputFile = cms.untracked.string('METTester.root'),
-    InputMETLabel = cms.InputTag("metOpt")
-    )
-
-metOptHOAnalyzer = cms.EDAnalyzer(
-    "METTester",
-    OutputFile = cms.untracked.string('METTester.root'),
-    InputMETLabel = cms.InputTag("metOptHO")
-    )
-
-metOptNoHFAnalyzer = cms.EDAnalyzer(
-    "METTester",
-    OutputFile = cms.untracked.string('METTester.root'),
-    InputMETLabel = cms.InputTag("metOptNoHF")
-    )
-
-metOptNoHFHOAnalyzer = cms.EDAnalyzer(
-    "METTester",
-    OutputFile = cms.untracked.string('METTester.root'),
-    InputMETLabel = cms.InputTag("metOptNoHFHO")
-    )
+#metHOAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#    OutputFile = cms.untracked.string('METTester.root'),
+#    InputMETLabel = cms.InputTag("metHO")
+#    )
+#
+#metNoHFAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#    OutputFile = cms.untracked.string('METTester.root'),
+#    InputMETLabel = cms.InputTag("metNoHF")
+#    )
+#
+#metNoHFHOAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#    OutputFile = cms.untracked.string('METTester.root'),
+#    InputMETLabel = cms.InputTag("metNoHFHO")
+#    )
+#
+#metOptAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#    OutputFile = cms.untracked.string('METTester.root'),
+#    InputMETLabel = cms.InputTag("metOpt")
+#    )
+#
+#metOptHOAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#    OutputFile = cms.untracked.string('METTester.root'),
+#    InputMETLabel = cms.InputTag("metOptHO")
+#    )
+#
+#metOptNoHFAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#    OutputFile = cms.untracked.string('METTester.root'),
+#    InputMETLabel = cms.InputTag("metOptNoHF")
+#    )
+#
+#metOptNoHFHOAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#    OutputFile = cms.untracked.string('METTester.root'),
+#    InputMETLabel = cms.InputTag("metOptNoHFHO")
+#    )
 
 pfMetAnalyzer = cms.EDAnalyzer(
    "METTester",
    OutputFile = cms.untracked.string('METTester.root'),
-   InputMETLabel = cms.InputTag("pfMet")
+   InputMETLabel = cms.InputTag("pfMet"),
+    METType = cms.untracked.string("pf")
    ) 
 
 tcMetAnalyzer = cms.EDAnalyzer(
@@ -76,44 +78,48 @@ tcMetAnalyzer = cms.EDAnalyzer(
     maxpt = cms.double(100.),
     maxPtErr = cms.double(0.2),
     trkQuality = cms.vint32(2),
-    trkAlgos = cms.vint32()
+    trkAlgos = cms.vint32(),
+    METType = cms.untracked.string("tc")
     ) 
 
 corMetGlobalMuonsAnalyzer = cms.EDAnalyzer(
     "METTester",
-   OutputFile = cms.untracked.string('METTester.root'),
+     OutputFile = cms.untracked.string('METTester.root'),
     InputMETLabel = cms.InputTag("corMetGlobalMuons"),
+    METType = cms.untracked.string("cor")
+
     ) 
 
 
-genMptTrueAnalyzer = cms.EDAnalyzer(
-    "METTester",
-    OutputFile = cms.untracked.string('METTester.root'),
-    InputMETLabel = cms.InputTag("genMptTrue"),
-    )
+#genMptTrueAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#    OutputFile = cms.untracked.string('METTester.root'),
+#    InputMETLabel = cms.InputTag("genMptTrue"),
+#    )
 
 genMetTrueAnalyzer = cms.EDAnalyzer(
     "METTester",
-   OutputFile = cms.untracked.string('METTester.root'),
-    InputMETLabel = cms.InputTag("genMetTrue")
-    )
-
-genMetCaloAnalyzer = cms.EDAnalyzer(
-    "METTester",
     OutputFile = cms.untracked.string('METTester.root'),
-    InputMETLabel = cms.InputTag("genMetCalo")
+    InputMETLabel = cms.InputTag("genMetTrue"),
+    METType = cms.untracked.string("gen")
     )
 
-genMptCaloAnalyzer = cms.EDAnalyzer(
-    "METTester",
-    OutputFile = cms.untracked.string('METTester.root'),
-    InputMETLabel = cms.InputTag("genMptCalo")
-    )
-
-
-genMetCaloAndNonPromptAnalyzer = cms.EDAnalyzer(
-    "METTester",
-    OutputFile = cms.untracked.string('METTester.root'),
-    InputMETLabel = cms.InputTag("genMetCaloAndNonPrompt")
-    )
+#genMetCaloAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#    OutputFile = cms.untracked.string('METTester.root'),
+#    InputMETLabel = cms.InputTag("genMetCalo")
+#    )
+#
+#genMptCaloAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#    OutputFile = cms.untracked.string('METTester.root'),
+#    InputMETLabel = cms.InputTag("genMptCalo")
+#    )
+#
+#
+#genMetCaloAndNonPromptAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#    OutputFile = cms.untracked.string('METTester.root'),
+#    InputMETLabel = cms.InputTag("genMetCaloAndNonPrompt")
+#    )
 
