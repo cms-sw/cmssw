@@ -15,6 +15,11 @@ struct MySimTrack
   Char_t gem_sh_layer1, gem_sh_layer2;
   Char_t gem_dg_layer1, gem_dg_layer2;
   Char_t gem_pad_layer1, gem_pad_layer2;
+  Float_t gem_lx_even, gem_ly_even;
+  Float_t gem_lx_odd, gem_ly_odd;
+  Char_t has_gem_dg_l1, has_gem_dg_l2;
+  Char_t has_gem_pad_l1, has_gem_pad_l2;
+  Char_t has_gem_sh_l1, has_gem_sh_l2;
 };
 
 
@@ -74,8 +79,34 @@ GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::Par
   pad_phi[2] = new TH1F("pad_phi_l1or2","pad_phi_l1or2",100,-PI,PI);
   pad_phi[3] = new TH1F("copad_phi","copad_phi",100,-PI,PI);
 
+  dg_lx_even        = dbe_->book1D("dg_lx_even","dg_lx_even",100,-100,100); 
+  dg_lx_even_l1     = dbe_->book1D("dg_lx_even_l1","dg_lx_even_l1",100,-100,100);
+  dg_lx_even_l2     = dbe_->book1D("dg_lx_even_l2","dg_lx_even_l2",100,-100,100);
+  dg_lx_even_l1or2  = dbe_->book1D("dg_lx_even_l1or2","dg_lx_even_l1or2",100,-100,100);
+  dg_lx_even_l1and2 = dbe_->book1D("dg_lx_even_l1and2","dg_lx_even_l1and2",100,-100,100);
 
+  dg_ly_even        = dbe_->book1D("dg_ly_even","dg_ly_even",100,-100,100);
+  dg_ly_even_l1     = dbe_->book1D("dg_ly_even_l1","dg_ly_even_l1",100,-100,100);
+  dg_ly_even_l2     = dbe_->book1D("dg_ly_even_l2","dg_ly_even_l2",100,-100,100);
+  dg_ly_even_l1or2  = dbe_->book1D("dg_ly_even_l1or2","dg_ly_even_l1or2",100,-100,100);
+  dg_ly_even_l1and2 = dbe_->book1D("dg_ly_even_l1and2","dg_ly_even_l1and2",100,-100,100);
+
+  dg_lx_odd        = dbe_->book1D("dg_lx_odd","dg_lx_odd",100,-100,100);
+  dg_lx_odd_l1     = dbe_->book1D("dg_lx_odd_l1","dg_lx_odd_l1",100,-100,100);
+  dg_lx_odd_l2     = dbe_->book1D("dg_lx_odd_l2","dg_lx_odd_l2",100,-100,100);
+  dg_lx_odd_l1or2  = dbe_->book1D("dg_lx_odd_l1or2","dg_lx_odd_l1or2",100,-100,100);
+  dg_lx_odd_l1and2 = dbe_->book1D("dg_lx_odd_l1and2","dg_lx_odd_l1and2",100,-100,100);
   
+  dg_ly_odd        = dbe_->book1D("dg_ly_odd","dg_ly_odd",100,-100,100);
+  dg_ly_odd_l1     = dbe_->book1D("dg_ly_odd_l1","dg_ly_odd_l1",100,-100,100);
+  dg_ly_odd_l2     = dbe_->book1D("dg_ly_odd_l2","dg_ly_odd_l2",100,-100,100);
+  dg_ly_odd_l1or2  = dbe_->book1D("dg_ly_odd_l1or2","dg_ly_odd_l1or2",100,-100,100);
+  dg_ly_odd_l1and2 = dbe_->book1D("dg_ly_odd_l1and2","dg_ly_odd_l1and2",100,-100,100);
+
+  //theStrip_rm1_l1( dbe_->book1D("strip_dg_rm1_l1", "Digi occupancy per stip number: region -1, layer1;strip number; entries", 384,0.5,384.5))
+
+
+
 
 
 
@@ -105,17 +136,18 @@ bool GEMTrackMatch::isSimTrackGood(const SimTrack &t)
 
 void GEMTrackMatch::buildLUT()
 {
+  const int maxChamberId_ = GEMDetId().maxChamberId; 
   std::vector<int> pos_ids;
-  pos_ids.push_back(GEMDetId(1,1,1,1,36,1).rawId());
+  pos_ids.push_back(GEMDetId(1,1,1,1,maxChamberId_,1).rawId());
 
   std::vector<int> neg_ids;
-  neg_ids.push_back(GEMDetId(-1,1,1,1,36,1).rawId());
+  neg_ids.push_back(GEMDetId(-1,1,1,1,maxChamberId_,1).rawId());
 
   // VK: I would really suggest getting phis from GEMGeometry
   
   std::vector<float> phis;
   phis.push_back(0.);
-  for(int i=1; i<37; ++i)
+  for(int i=1; i<maxChamberId_+1; ++i)
   {
     pos_ids.push_back(GEMDetId(1,1,1,1,i,1).rawId());
     neg_ids.push_back(GEMDetId(-1,1,1,1,i,1).rawId());
@@ -126,6 +158,24 @@ void GEMTrackMatch::buildLUT()
 }
 
 
+void GEMTrackMatch::setGeometry(const GEMGeometry* geom)
+{
+  theGEMGeometry = geom;
+  const auto top_chamber = static_cast<const GEMEtaPartition*>(theGEMGeometry->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
+  const int nEtaPartitions(theGEMGeometry->chamber(GEMDetId(1,1,1,1,1,1))->nEtaPartitions());
+  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(theGEMGeometry->idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
+  const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
+  const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
+  const LocalPoint lp_top(0., top_half_striplength, 0.);
+  const LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
+  const GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
+  const GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
+
+  radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
+  chamberHeight_ = gp_top.perp() - gp_bottom.perp();
+
+  std::cout<<"radiusCenter"<<radiusCenter_<<std::endl;
+}  
 
 
 std::pair<int,int> GEMTrackMatch::getClosestChambers(int region, float phi)
@@ -173,7 +223,16 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     track_.gem_dg_layer2 = 0;
     track_.gem_pad_layer1 = 0;
     track_.gem_pad_layer2 = 0;
-
+    track_.gem_lx_even =0;
+    track_.gem_ly_even =0;
+    track_.gem_lx_odd  =0;
+    track_.gem_ly_odd  =0;
+    track_.has_gem_dg_l1 = 0;
+    track_.has_gem_dg_l2 = 0;
+    track_.has_gem_pad_l1 = 0;
+    track_.has_gem_pad_l2 = 0;
+   
+   
 
 
 
@@ -331,10 +390,127 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
 
+    // Calculation of the localXY efficiency
+    GlobalPoint gp_track(match_sh.propagatedPositionGEM());
+    
+    float track_angle = gp_track.phi().degrees();
+    if (track_angle < 0.) track_angle += 360.;
+//    std::cout << "track angle = " << track_angle << std::endl;
+    const int track_region = (gp_track.z() > 0 ? 1 : -1);
+ 
+ 
+ 
+ 
+ 
+    // chambers
+ 
+ 
+ 
+    // closest chambers in phi
+    const auto mypair = getClosestChambers(track_region, track_angle);
+    
+ 
+    GEMDetId detId_first(mypair.first);
+    GEMDetId detId_second(mypair.second);
+ 
+    // assignment of local even and odd chambers (there is always an even and an odd chamber)
+    bool firstIsOdd = detId_first.chamber() & 1;
+ 
+ 
+    GEMDetId detId_even_L1(firstIsOdd ? detId_second : detId_first);
+    GEMDetId detId_odd_L1(firstIsOdd ? detId_first : detId_second);
+ 
+    auto even_partition = theGEMGeometry->idToDetUnit(detId_even_L1)->surface();
+    auto odd_partition = theGEMGeometry->idToDetUnit(detId_odd_L1)->surface();
+ 
+    LocalPoint p0(0.,0.,0.);
+    GlobalPoint gp_even_partition = even_partition.toGlobal(p0);
+    GlobalPoint gp_odd_partition = odd_partition.toGlobal(p0);
+      
+    LocalPoint lp_track_even_partition = even_partition.toLocal(gp_track);
+    LocalPoint lp_track_odd_partition = odd_partition.toLocal(gp_track);
+ 
+    // track chamber local x is the same as track partition local x
+    track_.gem_lx_even = lp_track_even_partition.x();
+    track_.gem_lx_odd = lp_track_odd_partition.x();
+ 
+    // track chamber local y is the same as track partition local y
+    // corrected for partition's local y WRT chamber
+    track_.gem_ly_even = lp_track_even_partition.y() + (gp_even_partition.perp() - radiusCenter_);
+    track_.gem_ly_odd = lp_track_odd_partition.y() + (gp_odd_partition.perp() - radiusCenter_);
+ 
+    std::cout << track_.gem_lx_even << " " << track_.gem_ly_even << std::endl;
+    std::cout << track_.gem_lx_odd << " " << track_.gem_ly_odd << std::endl;
 
+    GEMDetId id_ch_even_L1(detId_even_L1.region(), detId_even_L1.ring(), detId_even_L1.station(), 1, detId_even_L1.chamber(), 0);
+    GEMDetId id_ch_odd_L1(detId_odd_L1.region(), detId_odd_L1.ring(), detId_odd_L1.station(), 1, detId_odd_L1.chamber(), 0);
+    GEMDetId id_ch_even_L2(detId_even_L1.region(), detId_even_L1.ring(), detId_even_L1.station(), 2, detId_even_L1.chamber(), 0);
+    GEMDetId id_ch_odd_L2(detId_odd_L1.region(), detId_odd_L1.ring(), detId_odd_L1.station(), 2, detId_odd_L1.chamber(), 0);
+ 
+    if(gem_sh_ids_ch.count(id_ch_even_L1)!=0) track_.has_gem_sh_l1 |= 2;
+    if(gem_sh_ids_ch.count(id_ch_odd_L1)!=0) track_.has_gem_sh_l1 |= 1;
+    if(gem_sh_ids_ch.count(id_ch_even_L2)!=0) track_.has_gem_sh_l2 |= 2;
+    if(gem_sh_ids_ch.count(id_ch_odd_L2)!=0) track_.has_gem_sh_l2 |= 1;
+ 
+    // check if track has dg
+    if(gem_dg_ids_ch.count(id_ch_even_L1)!=0){
+      track_.has_gem_dg_l1 |= 2;
+      track_.has_gem_pad_l1 |= 2;
+    }
+    if(gem_dg_ids_ch.count(id_ch_odd_L1)!=0){
+      track_.has_gem_dg_l1 |= 1;
+      track_.has_gem_pad_l1 |= 1;
+    }
+    if(gem_dg_ids_ch.count(id_ch_even_L2)!=0){
+      track_.has_gem_dg_l2 |= 2;
+      track_.has_gem_pad_l2 |= 2;
+    }
+    if(gem_dg_ids_ch.count(id_ch_odd_L2)!=0){
+      track_.has_gem_dg_l2 |= 1;
+      track_.has_gem_pad_l2 |= 1;
+    }
+ 
+    
 
+    dg_lx_even->Fill( track_.gem_lx_even);
+    dg_lx_odd->Fill( track_.gem_lx_odd);
+    dg_ly_even->Fill( track_.gem_ly_even);
+    dg_ly_odd->Fill( track_.gem_ly_odd);
+      
+    if ( track_.has_gem_dg_l1 > 0 ) {
+      dg_lx_even_l1->Fill ( track_.gem_lx_even);
+      dg_ly_even_l1->Fill ( track_.gem_ly_even);
+      dg_lx_odd_l1->Fill ( track_.gem_lx_odd);
+      dg_ly_odd_l1->Fill ( track_.gem_ly_odd);
+    }
+    if ( track_.has_gem_dg_l2 > 0 ) { 
+      dg_lx_even_l2->Fill ( track_.gem_lx_even);
+      dg_ly_even_l2->Fill ( track_.gem_ly_even);
+      dg_lx_odd_l2->Fill ( track_.gem_lx_odd);
+      dg_ly_odd_l2->Fill ( track_.gem_ly_odd);
+    }
+    if ( track_.has_gem_dg_l1 > 0 || track_.has_gem_dg_l2 > 0 ) {
+      dg_lx_even_l1or2->Fill ( track_.gem_lx_even);
+      dg_ly_even_l1or2->Fill ( track_.gem_ly_even);
+      dg_lx_odd_l1or2->Fill ( track_.gem_lx_odd);
+      dg_ly_odd_l1or2->Fill ( track_.gem_ly_odd);
+    }
+    if ( track_.has_gem_dg_l1 > 0 && track_.has_gem_dg_l2 > 0 ) {
+      dg_lx_even_l1and2->Fill ( track_.gem_lx_even);
+      dg_ly_even_l1and2->Fill ( track_.gem_ly_even);
+      dg_lx_odd_l1and2->Fill ( track_.gem_lx_odd);
+      dg_ly_odd_l1and2->Fill ( track_.gem_ly_odd);
+    }
 
- }
+      
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  }
 
 
 
