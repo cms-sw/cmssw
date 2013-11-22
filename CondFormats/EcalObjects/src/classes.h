@@ -59,6 +59,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 
 
 
@@ -200,5 +201,6 @@ namespace{
     //    std::vector<float> ecalSRSettings_dccNormalizedWeights_1;
     //    float ecalSRSettings_dccNormalizedWeights_elt_2;
     
+	EcalTimeBiasCorrections timeBiasCorrections;
   };
 }

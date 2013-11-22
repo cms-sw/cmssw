@@ -142,6 +142,8 @@
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
+#include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 
 
 REGISTER_PLUGIN(EcalPedestalsRcd,EcalPedestals);
@@ -193,4 +195,6 @@ REGISTER_PLUGIN(EcalDQMChannelStatusRcd,EcalDQMChannelStatus);
 REGISTER_PLUGIN(EcalDQMTowerStatusRcd,EcalDQMTowerStatus);
 
 REGISTER_PLUGIN(EcalSRSettingsRcd, EcalSRSettings);
-REGISTER_PLUGIN(EcalSampleMaskRcd,EcalSampleMask);
+REGISTER_PLUGIN(EcalSampleMaskRcd, EcalSampleMask);
+
+REGISTER_PLUGIN(EcalTimeBiasCorrectionsRcd, EcalTimeBiasCorrections);
