@@ -16,6 +16,7 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include <string>
+#include <sys/time.h>
 #include <unistd.h>
 #include "zlib.h"
 
@@ -151,8 +152,7 @@ namespace edm {
     uint32 run = 1;
 
     //Get the Process PSet ID
-    pset::Registry const& reg = *pset::Registry::instance();
-    ParameterSetID toplevel = pset::getProcessParameterSetID(reg);
+    ParameterSetID toplevel = pset::getProcessParameterSetID();
 
     //In case we need to print it
     //  cms::Digest dig(toplevel.compactForm());
