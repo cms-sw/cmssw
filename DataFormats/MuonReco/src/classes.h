@@ -28,7 +28,7 @@
 #include <vector>
 #include <map>
 
-namespace {
+namespace DataFormats_MuonReco {
   struct dictionary {
     std::vector<reco::Muon> v1;
     edm::Wrapper<std::vector<reco::Muon> > c1;

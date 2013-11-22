@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace {
+namespace DataFormats_StdDictionaries {
   struct dictionarypair {
   std::pair<const int,int> newDummy00;
   std::pair<const int,std::pair<double,double> > newDummy01;

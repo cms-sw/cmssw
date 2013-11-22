@@ -29,7 +29,7 @@ typedef edm::Ref<TrackParamConstraintAssociationCollection> TrackParamConstraint
 typedef edm::RefProd<TrackParamConstraintAssociationCollection> TrackParamConstraintAssociationRefProd;
 typedef edm::RefVector<TrackParamConstraintAssociationCollection> TrackParamConstraintAssociationRefVector;
 
-namespace {
+namespace TrackingTools_TrajectoryState {
   struct dictionary {
     std::vector<TrackParamConstraint> jjj2;
     edm::Wrapper<std::vector<TrackParamConstraint> > jjj3;

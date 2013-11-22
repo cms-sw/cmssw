@@ -38,7 +38,7 @@
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
 
-namespace {
+namespace DataFormats_RecoCandidate {
 
   struct dictionary {
     reco::RecoChargedCandidateCollection v1;

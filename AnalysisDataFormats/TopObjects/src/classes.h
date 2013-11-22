@@ -15,7 +15,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "TString.h"
 
-namespace {
+namespace AnalysisDataFormats_TopObjects {
   struct dictionary {
     TtGenEvent ttgen;
     StGenEvent stgen;

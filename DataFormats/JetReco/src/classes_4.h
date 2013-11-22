@@ -38,7 +38,7 @@
 
 #include "DataFormats/JetReco/interface/CATopJetTagInfo.h"
 
-namespace {
+namespace DataFormats_JetReco {
   struct dictionary4 {
     // jet id stuff
     reco::JetID jid;

@@ -14,7 +14,7 @@
 
 #include <iostream>
 
-namespace {
+namespace CondTools_Utilities {
   struct dictionary {
 
     CondCachedIter<Pedestals> dummy0;

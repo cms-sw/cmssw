@@ -63,7 +63,7 @@
 
 #include <map>
 
-namespace {
+namespace DataFormats_ParticleFlowReco {
   struct dictionary1 {
 
     /* NuclearInteraction stuffs  */

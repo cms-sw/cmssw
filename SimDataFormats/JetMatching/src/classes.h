@@ -7,7 +7,7 @@
 #include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
 #include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
 
-namespace {
+namespace SimDataFormats_JetMatching {
   struct dictionary {
     reco::JetFlavour                                 jf;
     reco::JetFlavour::Leptons                        jflep;

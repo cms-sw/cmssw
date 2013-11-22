@@ -4,7 +4,7 @@
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 
-namespace {
+namespace DataFormats_Luminosity {
    struct dictionary {
       edm::Wrapper<LumiSummaryRunHeader> lumisummaryrunheaderobj;
       edm::Wrapper<LumiSummary> lumisummaryobj;

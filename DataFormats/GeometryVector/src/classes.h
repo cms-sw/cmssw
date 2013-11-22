@@ -15,7 +15,7 @@
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
 #include "DataFormats/GeometryVector/interface/Vector3DBase.h"
 
-namespace {
+namespace DataFormats_GeometryVector {
   struct dictionary {
     Vector2DBase<float,MeasurementTag> dummy7;
     Vector3DBase<float,MeasurementTag> dummy6;

@@ -29,7 +29,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
 #include <vector>
 
-namespace {
+namespace DataFormats_TrackerRecHit2D {
   struct dictionary {
     ProjectedSiStripRecHit2D projHit;   
     SiStripRecHit2D a1;
