@@ -141,5 +141,6 @@ namespace{
     //    std::vector<float> ecalSRSettings_dccNormalizedWeights_1;
     //    float ecalSRSettings_dccNormalizedWeights_elt_2;
     
+	EcalTimeBiasCorrections timeBiasCorrections;
   };
 }
