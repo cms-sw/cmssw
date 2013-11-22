@@ -13,6 +13,8 @@ public:
   SeedGeneratorFromProtoTracksEDProducer(const edm::ParameterSet& cfg);
   virtual ~SeedGeneratorFromProtoTracksEDProducer(){}
   virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
 private:
   edm::ParameterSet theConfig;
   edm::InputTag theInputCollectionTag;
@@ -22,5 +24,7 @@ private:
   bool useProtoTrackKinematics;
   bool useEventsWithNoVertex;
   std::string builderName;
+  bool usePV_;
+
 };
 #endif
