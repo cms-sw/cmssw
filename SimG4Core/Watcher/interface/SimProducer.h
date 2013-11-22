@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <algorithm>
 #include <string>
 #include <vector>
 #include "boost/bind.hpp"
@@ -26,7 +27,12 @@
 
 // user include files
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
+
+namespace edm {
+   class Event;
+   class EventSetup;
+}
 
 // forward declarations
 namespace simproducer {
@@ -40,7 +46,7 @@ namespace simproducer {
 	 const std::string& instanceName() const {
 	    return m_instanceName; }
 
-	 virtual void registerProduct(edm::EDProducer*) const = 0;
+	 virtual void registerProduct(edm::ProducerBase*) const = 0;
       private:
 	 std::string m_instanceName;
    };
@@ -51,7 +57,7 @@ namespace simproducer {
 	 ProductInfo(const std::string& iInstanceName) :
 	    ProductInfoBase(iInstanceName) {}
 
-	 void registerProduct(edm::EDProducer* iProd) const {
+         void registerProduct(edm::ProducerBase* iProd) const {
 	    (*iProd). template produces<T>(this->instanceName());
 	 }
    };
@@ -71,7 +77,7 @@ class SimProducer : public SimWatcher
       // ---------- member functions ---------------------------
       virtual void produce(edm::Event&, const edm::EventSetup&) = 0;
       
-      void registerProducts(edm::EDProducer& iProd) {
+      void registerProducts(edm::ProducerBase& iProd) {
 	 std::for_each(m_info.begin(), m_info.end(),
 		       boost::bind(&simproducer::ProductInfoBase::registerProduct,_1, &iProd));
       }

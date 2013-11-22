@@ -26,6 +26,10 @@ class EndOfEvent;
 class G4StepPoint;
 class G4VTouchable;
 
+namespace edm {
+  class ParameterSet;
+}
+
 class MaterialBudgetAction : public SimProducer, 
 			     public Observer<const BeginOfRun*>,
 			     public Observer<const BeginOfTrack*>,
