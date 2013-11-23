@@ -52,6 +52,11 @@
 #include "TFile.h"
 #include "TTree.h"
 
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+
 namespace edm {
   namespace root {
     class FWLiteDelayedReader : public DelayedReader {

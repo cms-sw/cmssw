@@ -15,9 +15,12 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
+#include <iostream>
+#include <memory>
 #include <string>
 #include <sys/time.h>
 #include <unistd.h>
+#include <vector>
 #include "zlib.h"
 
 namespace {
