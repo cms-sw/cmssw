@@ -102,20 +102,20 @@ namespace edm {
       AR_WATCH_USING_METHOD_0(watchJobFailure)
       
       /// signal is emitted before the source starts creating an Event
-      typedef signalslot::Signal<void()> PreSource;
+      typedef signalslot::Signal<void(StreamContext const&)> PreSource;
       PreSource preSourceSignal_;
       void watchPreSource(PreSource::slot_type const& iSlot) {
         preSourceSignal_.connect(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPreSource)
+      AR_WATCH_USING_METHOD_1(watchPreSource)
 
       /// signal is emitted after the source starts creating an Event
-      typedef signalslot::Signal<void()> PostSource;
+      typedef signalslot::Signal<void(StreamContext const&)> PostSource;
       PostSource postSourceSignal_;
       void watchPostSource(PostSource::slot_type const& iSlot) {
          postSourceSignal_.connect_front(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPostSource)
+      AR_WATCH_USING_METHOD_1(watchPostSource)
         
       /// signal is emitted before the source starts creating a Lumi
       typedef signalslot::Signal<void()> PreSourceLumi;

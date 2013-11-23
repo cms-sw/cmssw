@@ -19,6 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
@@ -329,14 +330,22 @@ namespace edm {
   }
 
   void
-  InputSource::readEvent(EventPrincipal& ep, StreamContext* streamContext) {
+  InputSource::readEvent(EventPrincipal& ep, StreamContext& streamContext) {
     assert(state_ == IsEvent);
     assert(!eventLimitReached());
+
+    // PreSource signal
+    this->actReg()->preSourceSignal_(streamContext);
 
     callWithTryCatchAndPrint<void>( [this,&ep](){ readEvent_(ep); }, "Calling InputSource::readEvent_" );
     if(receiver_) {
       --numberOfEventsBeforeBigSkip_;
     }
+
+    // fill the actual EventID and Timestamp before calling the PostSource signal
+    streamContext.setEventID(ep.id());
+    streamContext.setTimestamp(ep.time());
+    this->actReg()->postSourceSignal_(streamContext);
 
     Event event(ep, moduleDescription(), nullptr);
     postRead(event);
@@ -347,14 +356,22 @@ namespace edm {
   }
 
   bool
-  InputSource::readEvent(EventPrincipal& ep, EventID const& eventID, StreamContext* streamContext) {
+  InputSource::readEvent(EventPrincipal& ep, EventID const& eventID, StreamContext& streamContext) {
     bool result = false;
 
-    if(!limitReached()) {
-      //result = callWithTryCatchAndPrint<bool>( [this,ep,&eventID](){ return readIt(eventID, ep); }, "Calling InputSource::readIt" );
-      result = readIt(eventID, ep);
-      if(result) {
+    if (not limitReached()) {
+      // PreSource signal
+      this->actReg()->preSourceSignal_(streamContext);
 
+      //result = callWithTryCatchAndPrint<bool>( [this,&eventID,&ep](){ return readIt(eventID, ep); }, "Calling InputSource::readIt" );
+      result = readIt(eventID, ep);
+
+      // fill the actual EventID and Timestamp before calling the PostSource signal
+      streamContext.setTimestamp(ep.time());
+      streamContext.setEventID(ep.id());
+      this->actReg()->postSourceSignal_(streamContext);
+
+      if (result) {
         Event event(ep, moduleDescription(), nullptr);
         postRead(event);
         if(remainingEvents_ > 0) --remainingEvents_;
@@ -606,10 +623,6 @@ namespace edm {
 
   InputSource::SourceSentry::~SourceSentry() {
     post_();
-  }
-
-  InputSource::EventSourceSentry::EventSourceSentry(InputSource const& source) :
-     sentry_(source.actReg()->preSourceSignal_, source.actReg()->postSourceSignal_) {
   }
 
   InputSource::LumiSourceSentry::LumiSourceSentry(InputSource const& source) :

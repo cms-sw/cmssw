@@ -64,8 +64,10 @@ private:
   void  postEndJob();
   void  jobFailure();
   
-  void  preSource  ();
-  void  postSource ();
+  void  preSource  ( StreamContext const & );
+  void  postSource ( StreamContext const & );
+  void  preSourceOther  ();
+  void  postSourceOther ();
   
   void  preFile       ( std::string const &, bool );
   void  preFileClose  ( std::string const&, bool );

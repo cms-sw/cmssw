@@ -1018,7 +1018,7 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
   m_is_first_event = false;
 }
 
-void FastTimerService::preSource() {
+void FastTimerService::preSource( edm::StreamContext const & ) {
   //edm::LogImportant("FastTimerService") << __func__ << "()";
 
   start(m_timer_source);
@@ -1035,7 +1035,7 @@ void FastTimerService::preSource() {
   ++m_summary_events;
 }
 
-void FastTimerService::postSource() {
+void FastTimerService::postSource( edm::StreamContext const & ) {
   //edm::LogImportant("FastTimerService") << __func__ << "()";
 
   stop(m_timer_source);

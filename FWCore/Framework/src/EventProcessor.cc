@@ -1807,15 +1807,24 @@ namespace edm {
   }
   void EventProcessor::readEvent(unsigned int iStreamIndex) {
     //TODO this will have to become per stream
-    auto& event = principalCache_.eventPrincipal(iStreamIndex);
-    StreamContext streamContext(event.streamID(), &processContext_);
-    input_->readEvent(event, &streamContext);
+    auto pep = &(principalCache_.eventPrincipal(iStreamIndex));
+    pep->setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
+    assert(pep->luminosityBlockPrincipalPtrValid());
+
+    // the actual EventID and Timestamp are filled by the InputSource
+    StreamContext streamContext(
+        pep->streamID(),
+        StreamContext::Transition::kEvent,
+        EventID(pep->runPrincipal().run(), pep->luminosityBlockPrincipal().luminosityBlock(), 0),
+        pep->runPrincipal().index(),
+        pep->luminosityBlockPrincipal().index(),
+        Timestamp(),
+        &processContext_);
+    input_->readEvent(*pep, streamContext);
     FDEBUG(1) << "\treadEvent\n";
   }
   void EventProcessor::processEvent(unsigned int iStreamIndex) {
     auto pep = &(principalCache_.eventPrincipal(iStreamIndex));
-    pep->setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
-    assert(pep->luminosityBlockPrincipalPtrValid());
     assert(principalCache_.lumiPrincipalPtr()->run() == pep->run());
     assert(principalCache_.lumiPrincipalPtr()->luminosityBlock() == pep->luminosityBlock());
 

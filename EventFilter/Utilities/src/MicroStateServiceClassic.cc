@@ -53,13 +53,14 @@ namespace evf{
     boost::mutex::scoped_lock sl(lock_);
     microstate2_ = &input;
   }
-  void MicroStateServiceClassic::preSource()
+
+  void MicroStateServiceClassic::preSource(const edm::StreamContext&)
   {
     boost::mutex::scoped_lock sl(lock_);
     microstate2_ = &input;
   }
 
-  void MicroStateServiceClassic::postSource()
+  void MicroStateServiceClassic::postSource(const edm::StreamContext&)
   {
     boost::mutex::scoped_lock sl(lock_);
     microstate2_ = &fwkovh;

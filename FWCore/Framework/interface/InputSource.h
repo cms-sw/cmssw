@@ -109,10 +109,10 @@ namespace edm {
     ItemType nextItemType();
 
     /// Read next event
-    void readEvent(EventPrincipal& ep, StreamContext *);
+    void readEvent(EventPrincipal& ep, StreamContext &);
 
     /// Read a specific event
-    bool readEvent(EventPrincipal& ep, EventID const&, StreamContext *);
+    bool readEvent(EventPrincipal& ep, EventID const&, StreamContext &);
 
     /// Read next luminosity block Auxilary
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary();
@@ -275,13 +275,6 @@ namespace edm {
 
     private:
       Sig& post_;
-    };
-
-    class EventSourceSentry {
-    public:
-      explicit EventSourceSentry(InputSource const& source);
-    private:
-      SourceSentry sentry_;
     };
 
     class LumiSourceSentry {

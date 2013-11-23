@@ -260,10 +260,10 @@ namespace edm {
       iRegistry.watchPreSource(this,&MessageLogger::preSource);
       iRegistry.watchPostSource(this,&MessageLogger::postSource);
       // change log 14:
-      iRegistry.watchPreSourceRun(this,&MessageLogger::preSource);
-      iRegistry.watchPostSourceRun(this,&MessageLogger::postSource);
-      iRegistry.watchPreSourceLumi(this,&MessageLogger::preSource);
-      iRegistry.watchPostSourceLumi(this,&MessageLogger::postSource);
+      iRegistry.watchPreSourceRun(this,&MessageLogger::preSourceOther);
+      iRegistry.watchPostSourceRun(this,&MessageLogger::postSourceOther);
+      iRegistry.watchPreSourceLumi(this,&MessageLogger::preSourceOther);
+      iRegistry.watchPostSourceLumi(this,&MessageLogger::postSourceOther);
       iRegistry.watchPreOpenFile(this,&MessageLogger::preFile);
       iRegistry.watchPostOpenFile(this,&MessageLogger::postFile);
       iRegistry.watchPreCloseFile(this,&MessageLogger::preFileClose);
@@ -676,12 +676,13 @@ namespace edm {
       MessageDrop::instance()->setSinglet("AfterBeginJob");     // Change Log 17
     }
     
-    void
-    MessageLogger::preSource()
-    {
-      establish("source");
-    }
-    void MessageLogger::postSource()
+    void MessageLogger::preSource(StreamContext const & )
+    { establish("source"); }
+    void MessageLogger::postSource(StreamContext const & )
+    { unEstablish("AfterSource"); }
+    void MessageLogger::preSourceOther()
+    { establish("source"); }
+    void MessageLogger::postSourceOther()
     { unEstablish("AfterSource"); }
     
     void MessageLogger::preFile( std::string const &, bool )

@@ -246,13 +246,14 @@ namespace evf{
     fmt_.m_data.processedJ_.value()++;
     fmt_.monlock_.unlock();
   }
-  void FastMonitoringService::preSource()
+
+  void FastMonitoringService::preSource(const edm::StreamContext & sc)
   {
     //    boost::mutex::scoped_lock sl(lock_);
     fmt_.m_data.microstate_ = &reservedMicroStateNames[mIdle];
   }
 
-  void FastMonitoringService::postSource()
+  void FastMonitoringService::postSource(const edm::StreamContext & sc)
   {
     //    boost::mutex::scoped_lock sl(lock_);
     fmt_.m_data.microstate_ = &reservedMicroStateNames[mFwkOvh];

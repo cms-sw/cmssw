@@ -164,13 +164,19 @@ Tracer::postEndJob() {
 }
 
 void
-Tracer::preSource() {
-  LogAbsolute("Tracer") << indention_ << indention_ << " starting: source event";
+Tracer::preSource(StreamContext const& sc) {
+  LogAbsolute out("Tracer");
+  out << indention_ << indention_ << " starting: source event";
+  if(dumpContextForLabels_.find("source") != dumpContextForLabels_.end())
+    out << "\n" << sc;
 }
 
 void
-Tracer::postSource() {
-  LogAbsolute("Tracer") << indention_ << indention_ << " finished: source event";
+Tracer::postSource(StreamContext const& sc) {
+  LogAbsolute out("Tracer");
+  out << indention_ << indention_ << " finished: source event";
+  if(dumpContextForLabels_.find("source") != dumpContextForLabels_.end())
+    out << "\n" << sc;
 }
 
 void
@@ -179,7 +185,7 @@ Tracer::preSourceLumi() {
 }
 
 void
-Tracer::postSourceLumi () {
+Tracer::postSourceLumi() {
   LogAbsolute("Tracer") << indention_ << indention_ << " finished: source lumi";
 }
 
@@ -189,7 +195,7 @@ Tracer::preSourceRun() {
 }
 
 void
-Tracer::postSourceRun () {
+Tracer::postSourceRun() {
   LogAbsolute("Tracer") << indention_ << indention_ << " finished: source run";
 }
 

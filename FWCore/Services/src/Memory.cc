@@ -267,7 +267,7 @@ namespace edm {
       }
     }
 
-    void SimpleMemoryCheck::postSource() {
+    void SimpleMemoryCheck::postSource(StreamContext const&) {
       bool expected = false;
       if(measurementUnderway_.compare_exchange_strong(expected,true,std::memory_order_acq_rel) ) {
         std::shared_ptr<void> guard(nullptr,[this](void const*) {

@@ -125,8 +125,8 @@ private:
   void preModuleBeginJob( edm::ModuleDescription const & );
   void preProcessEvent( edm::EventID const &, edm::Timestamp const & );
   void postProcessEvent( edm::Event const &, edm::EventSetup const & );
-  void preSource();
-  void postSource();
+  void preSource(  edm::StreamContext const & );
+  void postSource( edm::StreamContext const & );
   void prePathBeginRun( std::string const & );
   void preProcessPath(  std::string const & );
   void postProcessPath( std::string const &, edm::HLTPathStatus const & );

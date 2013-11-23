@@ -118,8 +118,8 @@ namespace evf{
       void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
       void postEventProcessing(const edm::Event&, const edm::EventSetup&);
       
-      void preSource();
-      void postSource();
+      void preSource(const edm::StreamContext&);
+      void postSource(const edm::StreamContext&);
       
       void preModule(const edm::ModuleDescription&);
       void postModule(const edm::ModuleDescription&);
