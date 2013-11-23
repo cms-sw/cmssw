@@ -2236,8 +2236,8 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase & sh
   for (unsigned int sample = 0 ; sample<nSample_ ; sample++) theWeights.push_back(iweight[sample]) ;
   std::cout<<std::endl ;
 
-  delete weight ;
-  delete iweight ;
+  delete[] weight ;
+  delete[] iweight ;
   return theWeights ;
 }
 
