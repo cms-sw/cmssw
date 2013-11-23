@@ -1,8 +1,19 @@
-
 #include "RecoPixelVertexing/PixelTriplets/interface/QuadrupletSeedMerger.h"
+#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h"
+#include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-#include <time.h>
+
+#include "DataFormats/GeometryVector/interface/Pi.h"
+
+#include <algorithm>
+
+namespace {
+  template <typename T>
+  constexpr T sqr(T x) {
+    return x*x;
+  }
+}
 
 /***
 
@@ -23,6 +34,29 @@ QuadrupletSeedMerger
 
 ***/
 
+
+// Helper functions
+namespace {
+  bool areHitsOnLayers(const SeedMergerPixelLayer& layer1, const SeedMergerPixelLayer& layer2,
+                       const std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& hits,
+                       const TrackerTopology *tTopo) {
+    DetId firstHitId = hits.first->geographicalId();
+    DetId secondHitId = hits.second->geographicalId();
+    return ((layer1.isContainsDetector(firstHitId, tTopo) &&
+             layer2.isContainsDetector(secondHitId, tTopo)) ||
+            (layer1.isContainsDetector(secondHitId, tTopo) &&
+             layer2.isContainsDetector(firstHitId, tTopo)));
+  }
+
+  bool areHitsEqual(const TransientTrackingRecHit& hit1, const TransientTrackingRecHit& hit2) {
+    constexpr double epsilon = 0.00001;
+    if(hit1.geographicalId() != hit2.geographicalId())
+      return false;
+
+    LocalPoint lp1 = hit1.localPosition(), lp2 = hit2.localPosition();
+    return std::abs(lp1.x() - lp2.x()) < epsilon && std::abs(lp1.y() - lp2.y()) < epsilon;
+  }
+}
 
 
 
@@ -131,37 +165,126 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
   std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer> sharedHits;
   std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer> nonSharedHits;
 
-  //std::vector<bool> phiEtaClose(nInputTriplets*nInputTriplets,true);
+  // k-d tree, indices are (th)eta, phi
+  // build the tree
+  std::vector<KDTreeNodeInfo<unsigned int> > nodes;
+  std::vector<unsigned int> foundNodes;
+  nodes.reserve(2*nInputTriplets);
+  foundNodes.reserve(100);
+  KDTreeLinkerAlgo<unsigned int> kdtree;
+  double minEta=1e10, maxEta=-1e10;
+  for(unsigned int it=0; it < nInputTriplets; ++it) {
+    double phi = phiEtaCache[it].first;
+    double eta = phiEtaCache[it].second;
+    nodes.push_back(KDTreeNodeInfo<unsigned int>(it, eta, phi));
+    minEta = std::min(minEta, eta);
+    maxEta = std::max(maxEta, eta);
 
-  //  for (unsigned int t1=0; t1<nInputTriplets-1; t1++) {
-  //  for (unsigned int t2=t1+1; t2<nInputTriplets; t2++) {
-  //    if( fabs( phiEtaCache[t1].second - phiEtaCache[t2].second ) > 0.05 ) {
-  //	phiEtaClose[t1*nInputTriplets+t2]=false;
-  //	phiEtaClose[t2*nInputTriplets+t1]=false;
-  //	continue;
-  //   }
-  //   double temp = fabs( phiEtaCache[t1].first - phiEtaCache[t2].first );
-  //   if( (temp > 0.15) && (temp <6.133185) ) {
-  //phiEtaClose[t1*nInputTriplets+t2]=false;
-  //phiEtaClose[t2*nInputTriplets+t1]=false;
-  //  }
-  //}
-  //}
- 
+    // to wrap all points in phi
+    // if(phi < 0) phi += twoPi(); else phi -= twoPi();
+    double twoPi = std::copysign(Geom::twoPi(), phi);
+    nodes.push_back(KDTreeNodeInfo<unsigned int>(it, eta, phi-twoPi));
+  }
+  KDTreeBox kdEtaPhi(minEta-0.01, maxEta+0.01, -1*Geom::twoPi(), Geom::twoPi());
+  kdtree.build(nodes, kdEtaPhi);
+  nodes.clear();
+  
+  // loop over triplets, search for close-by triplets by using the k-d tree
+  // also identify the hits which are shared by triplet pairs, and
+  // store indices to hits which are not shared
   std::vector<unsigned int> t1List;
   std::vector<unsigned int> t2List;
-  for (unsigned int t1=0; t1<nInputTriplets-1; t1++) {
-    for (unsigned int t2=t1+1; t2<nInputTriplets; t2++) {
-      if( fabs( phiEtaCache[t1].second - phiEtaCache[t2].second ) > 0.05 ) 
-  	continue;
-      double temp = fabs( phiEtaCache[t1].first - phiEtaCache[t2].first );
-      if( (temp > 0.15) && (temp <6.133185) ) {
-	continue;
+  std::vector<short> t1NonSharedHitList;
+  std::vector<short> t2NonSharedHitList;
+  constexpr short sharedToNonShared[7] = {-1, -1, -1,
+                                          2, // 011=3 shared, not shared = 2
+                                          -1,
+                                          1, // 101=5 shared, not shared = 1
+                                          0}; // 110=6 shared, not shared = 0
+  constexpr short nonSharedToShared[3][2] = {
+    {1, 2},
+    {0, 2},
+    {0, 1}
+  };
+
+  typedef std::tuple<unsigned int, short, short> T2NonSharedTuple;
+  std::vector<T2NonSharedTuple> t2Tmp; // temporary to sort t2's before insertion to t2List
+  for(unsigned int t1=0; t1<nInputTriplets; ++t1) {
+    double phi = phiEtaCache[t1].first;
+    double eta = phiEtaCache[t1].second;
+
+    KDTreeBox box(eta-0.05, eta+0.05, phi-0.15, phi+0.15);
+    foundNodes.clear();
+    kdtree.search(box, foundNodes);
+    if(foundNodes.empty())
+      continue;
+
+    const SeedingHitSet& tr1 = tripletCache[t1];
+
+    for(unsigned int t2: foundNodes) {
+      if(t1 >= t2)
+        continue;
+
+      // Ensure here that the triplet pairs share two hits.
+      const SeedingHitSet& tr2 = tripletCache[t2];
+
+      // If neither of first two hits in tr1 are found from tr2, this
+      // pair can be skipped
+      int equalHits=0;
+      // Find the indices of shared hits in both t1 and t2, use them
+      // to obtain the index of non-shared hit for both. The index of
+      // non-shared hit is then stored for later use (the indices of
+      // shared hits can be easily obtained from them).
+      unsigned int t1Shared = 0;
+      unsigned int t2Shared = 0;
+      for(unsigned int i=0; i<2; ++i) {
+        for(unsigned int j=0; j<3; ++j) {
+          if(areHitsEqual(*tr1[i], *tr2[j])) {
+            t1Shared |= (1<<i);
+            t2Shared |= (1<<j);
+            ++equalHits;
+            break;
+          }
+        }
       }
-      t1List.push_back(t1);
-      t2List.push_back(t2);
+      if(equalHits == 0)
+        continue;
+      // If, after including the third hit of tr1, number of equal
+      // hits is not 2, this pair can be skipped
+      if(equalHits != 2) {
+        for(unsigned int j=0; j<3; ++j) {
+          if(areHitsEqual(*tr1[2], *tr2[j])) {
+            t1Shared |= (1<<2);
+            t2Shared |= (1<<j);
+            ++equalHits;
+            break;
+          }
+        }
+        if(equalHits != 2)
+          continue;
+      }
+      // valid values for the bitfields are 011=3, 101=5, 110=6
+      assert(t1Shared <= 6 && t2Shared <= 6); // against out-of-bounds of sharedToNonShared[]
+      short t1NonShared = sharedToNonShared[t1Shared];
+      short t2NonShared = sharedToNonShared[t2Shared];
+      assert(t1NonShared >= 0 && t2NonShared >= 0); // against invalid value from sharedToNonShared[]
+
+      t2Tmp.emplace_back(t2, t1NonShared, t2NonShared);
     }
+
+    // Sort to increasing order in t2 in order to get exactly same result as before
+    std::sort(t2Tmp.begin(), t2Tmp.end(), [](const T2NonSharedTuple& a, const T2NonSharedTuple& b){
+        return std::get<0>(a) < std::get<0>(b);
+      });
+    for(T2NonSharedTuple& t2tpl: t2Tmp) {
+      t1List.push_back(t1);
+      t2List.push_back(std::get<0>(t2tpl));
+      t1NonSharedHitList.push_back(std::get<1>(t2tpl));
+      t2NonSharedHitList.push_back(std::get<2>(t2tpl));
+    }
+    t2Tmp.clear();
   }
+  nodes.clear();
 
   for( ctfseeding::SeedingLayerSets::const_iterator lsIt = theLayerSets_.begin(); lsIt < theLayerSets_.end(); ++lsIt ) {
 
@@ -192,23 +315,25 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
 
 	    if (usedTriplets[t1] || usedTriplets[t2] ) continue; 
 
-	    //    if ( !phiEtaClose[t1*nInputTriplets+t2] ) continue;
+            const SeedingHitSet& firstTriplet = tripletCache[t1];
 
-	    // do both triplets have shared hits on these two layers?
-	    if( isTripletsShareHitsOnLayers( (tripletCache[t1]), (tripletCache[t2]), 
-					     currentLayers[s1],
-					     currentLayers[s2], sharedHits, tTopo ) ) {
+            short t1NonShared = t1NonSharedHitList[t12];
+            sharedHits.first = firstTriplet[nonSharedToShared[t1NonShared][0]];
+            sharedHits.second = firstTriplet[nonSharedToShared[t1NonShared][1]];
+
+            // are the shared hits on these two layers?
+            if(areHitsOnLayers(currentLayers[s1], currentLayers[s2], sharedHits, tTopo)) {
+              short t2NonShared = t2NonSharedHitList[t12];
+              const SeedingHitSet& secondTriplet = tripletCache[t2];
+              nonSharedHits.first = firstTriplet[t1NonShared];
+              nonSharedHits.second = secondTriplet[t2NonShared];
 
 	      // are the remaining hits on different layers?
-	      if( isMergeableHitsInTriplets( (tripletCache[t1]), (tripletCache[t2]), 
-					     currentLayers[nonSharedLayerNums[0]],
-					     currentLayers[nonSharedLayerNums[1]], nonSharedHits, tTopo ) ) {
+              if(areHitsOnLayers(currentLayers[nonSharedLayerNums[0]], currentLayers[nonSharedLayerNums[1]], nonSharedHits, tTopo)) {
+                QuadrupletHits unsortedHits{ {sharedHits.first, sharedHits.second,
+                      nonSharedHits.first, nonSharedHits.second} };
 
-
-		std::vector<TransientTrackingRecHit::ConstRecHitPointer> unsortedHits=mySort(sharedHits.first,
-											     sharedHits.second,
-											     nonSharedHits.first,
-											     nonSharedHits.second);
+                mySort(unsortedHits);
 
 		//start here with old addtoresult
 		if( isValidQuadruplet( unsortedHits, currentLayers, tTopo ) ) {
@@ -350,29 +475,6 @@ const TrajectorySeedCollection QuadrupletSeedMerger::mergeTriplets( const Trajec
 }
 
 
-
-///
-///
-///
-bool QuadrupletSeedMerger::isEqual( const TrackingRecHit* hit1, const TrackingRecHit* hit2 ) const {
-
-  const double epsilon = 0.00001;
-  
-  DetId det1 =  hit1->geographicalId(), det2 =  hit2->geographicalId();
-  if (det1 == det2) { 
-    LocalPoint lp1 = hit1->localPosition(), lp2 = hit2->localPosition();
-    if( ( fabs( lp1.x() - lp2.x() ) < epsilon ) &&
-	( fabs( lp1.y() - lp2.y() ) < epsilon ) ) {
-      return true;
-    }
-    
-  }
-  return false;
-  
-}
-
-
-
 ///
 ///
 ///
@@ -383,14 +485,8 @@ std::pair<double,double> QuadrupletSeedMerger::calculatePhiEta( SeedingHitSet co
 //     throw; // tbr.
 //   }
 
-  const TrackingRecHit* hit1 = nTuplet[0]->hit();
-  const GeomDet* geomDet1 = theTrackerGeometry_->idToDet( hit1->geographicalId() );
-
-  const TrackingRecHit* hit2 = nTuplet[1]->hit();
-  const GeomDet* geomDet2 = theTrackerGeometry_->idToDet( hit2->geographicalId() );
-
-  GlobalPoint p1=geomDet1->toGlobal( hit1->localPosition() );
-  GlobalPoint p2=geomDet2->toGlobal( hit2->localPosition() );
+  GlobalPoint p1 = nTuplet[0]->globalPosition();
+  GlobalPoint p2 = nTuplet[1]->globalPosition();
 
   const double x1 = p1.x();
   const double x2 = p2.x();
@@ -400,7 +496,7 @@ std::pair<double,double> QuadrupletSeedMerger::calculatePhiEta( SeedingHitSet co
   const double z2 = p2.z();
 
   const double phi = atan2( x2 - x1, y2 -y1 );
-  const double eta = acos( (z2 - z1) / sqrt( pow( x2 - x1, 2. ) + pow( y2 - y1, 2. ) + pow( z2 - z1, 2. ) ) );
+  const double eta = acos( (z2 - z1) / sqrt( sqr( x2 - x1 ) + sqr( y2 - y1 ) + sqr( z2 - z1 ) ) ); // this is theta angle in reality
 
   std::pair<double,double> retVal;
   retVal=std::make_pair (phi,eta);
@@ -522,8 +618,7 @@ void QuadrupletSeedMerger::setAddRemainingTriplets( bool isAddTriplets ) {
 ///  1. after sorting, hits must be on layers according to the 
 ///     order given in PixelSeedMergerQuadruplets (from cfg)
 ///
-bool QuadrupletSeedMerger::isValidQuadruplet( std::vector<TransientTrackingRecHit::ConstRecHitPointer> &quadruplet, const std::vector<SeedMergerPixelLayer>& layers,
-					      const TrackerTopology *tTopo) const {
+bool QuadrupletSeedMerger::isValidQuadruplet(const QuadrupletHits &quadruplet, const std::vector<SeedMergerPixelLayer>& layers, const TrackerTopology *tTopo) const {
 
   const unsigned int quadrupletSize = quadruplet.size();
 
@@ -544,153 +639,6 @@ bool QuadrupletSeedMerger::isValidQuadruplet( std::vector<TransientTrackingRecHi
   return true;
 
 }
-
-
-
-///
-/// check if both triplets share a hit
-/// on either of the sharedLayers
-/// and return both hits (unsorted)
-///
-bool QuadrupletSeedMerger::isTripletsShareHitsOnLayers( const SeedingHitSet& firstTriplet, const SeedingHitSet& secondTriplet, 
-							const SeedMergerPixelLayer &shared1, const SeedMergerPixelLayer &shared2,
-							std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& hits,
-							const TrackerTopology *tTopo ) const {
-
-  bool isSuccess1[2],isSuccess2[2];
-  isSuccess1[0]=false;
-  isSuccess1[1]=false;
-  isSuccess2[0]=false;
-  isSuccess2[1]=false;
-
-  std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer> hitsTriplet1, hitsTriplet2;
-
-  // check if firstTriplet and secondTriplet have hits on sharedLayers
-  for( unsigned int index = 0; index < 3; ++index )
-    { // first triplet
-      if( ! firstTriplet[index]->isValid() ) return false; // catch invalid TTRH pointers (tbd: erase triplet)
-      bool firsthit(false); // Don't look in second layer if found in first
-      DetId const& thisDetId = firstTriplet[index]->hit()->geographicalId();
-      
-      if( ! isSuccess1[0] ) { // first triplet on shared layer 1
-	if( shared1.isContainsDetector( thisDetId, tTopo ) ) {
-	  isSuccess1[0] = true;
-	  firsthit = true;
-	  hitsTriplet1.first = firstTriplet[index];
-	}
-      }
-      
-      if ( (! firsthit) && (! isSuccess1[1] ) && ((index !=3) || isSuccess1[0]) ) { // first triplet on shared layer 2
-	if( shared2.isContainsDetector( thisDetId, tTopo ) ) {
-	  isSuccess1[1] = true;
-	  hitsTriplet1.second = firstTriplet[index];
-	}
-      } 
-    }
-  
-  if ( isSuccess1[0] && isSuccess1[1]) { // Don't do second triplet if first unsuccessful
-    for( unsigned int index = 0; index < 3; ++index )
-      { // second triplet
-	if( ! secondTriplet[index]->isValid() ) { return false; } // catch invalid TTRH pointers (tbd: erase triplet)
-	bool firsthit(false); // Don't look in second layer if found in first
-	DetId const& thisDetId = secondTriplet[index]->hit()->geographicalId();
-	
-	if( ! isSuccess2[0] ) { // second triplet on shared layer 1
-	  if( shared1.isContainsDetector( thisDetId, tTopo ) ) {
-	    isSuccess2[0] = true;
-	    firsthit = true;
-	    hitsTriplet2.first = secondTriplet[index];
-	  }
-	}
-	
-	if( (! firsthit) && (! isSuccess2[1]) && ((index !=3) || isSuccess2[0]) ) { // second triplet on shared layer 2
-	  if( shared2.isContainsDetector( thisDetId, tTopo ) ) {
-	    isSuccess2[1] = true;
-	    hitsTriplet2.second = secondTriplet[index];
-	  }
-	}
-      }
-    
-    // check if these hits are pairwise equal
-    if( isSuccess2[0] && isSuccess2[1] ) {
-      if( isEqual( hitsTriplet1.first->hit(),  hitsTriplet2.first->hit()  ) &&
-	  isEqual( hitsTriplet1.second->hit(), hitsTriplet2.second->hit() )    ) {
-	
-	// copy to output, take triplet1 since they're equal anyway
-	hits.first  = hitsTriplet1.first;
-	hits.second = hitsTriplet1.second;
-	return true;
-      }
-    }
-  }
-  
-  // empty output, careful
-  return false;
-  
-}
-
-
-
-///
-/// check if the triplets have hits on the nonSharedLayers
-/// triplet1 on layer1 && triplet2 on layer2, or vice versa,
-/// and return the hits on those layers (unsorted)
-bool QuadrupletSeedMerger::isMergeableHitsInTriplets( const SeedingHitSet& firstTriplet, const SeedingHitSet& secondTriplet, 
-						      const SeedMergerPixelLayer &nonShared1, const SeedMergerPixelLayer &nonShared2,
-						      std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& hits,
-						      const TrackerTopology *tTopo ) const {
-
-  // check if firstTriplet and secondTriplet have hits on sharedLayers
-  for( unsigned int index1 = 0; index1 < 3; ++index1 ) {
-    
-    { // first triplet on non-shared layer 1
-      DetId const& aDetId = firstTriplet[index1]->hit()->geographicalId();
-      if( nonShared1.isContainsDetector( aDetId, tTopo ) ) {
-	
-	// look for hit in other (second) triplet on other layer
-	for( unsigned int index2 = 0; index2 < 3; ++index2 ) {
-	  
-	  DetId const& anotherDetId = secondTriplet[index2]->hit()->geographicalId();
-	  if( nonShared2.isContainsDetector( anotherDetId, tTopo ) ) {
-	    
-	    // ok!
-	    hits.first  = firstTriplet[index1];
-	    hits.second = secondTriplet[index2];
-	    return true;
-	    
-	  }
-	}
-      }
-    }
-
-    // and vice versa..
-
-    { // second triplet on non-shared layer 1
-      DetId const& aDetId = secondTriplet[index1]->hit()->geographicalId();
-      if( nonShared1.isContainsDetector( aDetId, tTopo ) ) {
-	
-	// look for hit in other (second) triplet on other layer
-	for( unsigned int index2 = 0; index2 < 3; ++index2 ) {
-	  
-	  DetId const& anotherDetId = firstTriplet[index2]->hit()->geographicalId();
-	  if( nonShared2.isContainsDetector( anotherDetId, tTopo ) ) {
-	    
-	    // ok!
-	    hits.first  = firstTriplet[index1];
-	    hits.second = secondTriplet[index2];
-	    return true;
-	    
-	  }
-	}
-      }
-    }
-
-  } // for( index1
-
-  return false;
-    
-}
-
 
 
 ///
@@ -790,22 +738,10 @@ bool SeedMergerPixelLayer::isContainsDetector( const DetId& detId, const Tracker
 }
 
 
-std::vector<TransientTrackingRecHit::ConstRecHitPointer> QuadrupletSeedMerger::mySort(TransientTrackingRecHit::ConstRecHitPointer &h1,
-										      TransientTrackingRecHit::ConstRecHitPointer &h2,
-										      TransientTrackingRecHit::ConstRecHitPointer &h3,
-										      TransientTrackingRecHit::ConstRecHitPointer &h4) {
-  // create an intermediate vector with all hits
-  std::vector<TransientTrackingRecHit::ConstRecHitPointer> unsortedHits;
-  unsortedHits.reserve(4);
-  unsortedHits.push_back( h1);
-  unsortedHits.push_back( h2);
-  unsortedHits.push_back( h3);
-  unsortedHits.push_back( h4);
-  
+void QuadrupletSeedMerger::mySort(std::array<TransientTrackingRecHit::ConstRecHitPointer, 4>& unsortedHits) {
   float radiiSq[4];
   for ( unsigned int iR=0; iR<4; iR++){
-    const GeomDet* geom1=theTrackerGeometry_->idToDet( unsortedHits[iR]->hit()->geographicalId() );
-    GlobalPoint p1=geom1->toGlobal(  unsortedHits[iR]->hit()->localPosition() );
+    GlobalPoint p1 = unsortedHits[iR]->globalPosition();
     radiiSq[iR]=( p1.x()*p1.x()+p1.y()*p1.y()); // no need to take the sqrt
   }
   TransientTrackingRecHit::ConstRecHitPointer tempRHP;
@@ -822,7 +758,6 @@ std::vector<TransientTrackingRecHit::ConstRecHitPointer> QuadrupletSeedMerger::m
       }
     }
   }
-  return unsortedHits;
 }
 
 
