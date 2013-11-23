@@ -30,8 +30,7 @@ IdealCastorTrapezoid::IdealCastorTrapezoid( const GlobalPoint& faceCenter,
 					    const CornersMgr*  mgr       ,
 					    const CCGFloat*    parm       )
   : CaloCellGeometry ( faceCenter, mgr, parm )  
-{
-}
+{initSpan();}
 	 
 IdealCastorTrapezoid::~IdealCastorTrapezoid() 
 {
