@@ -46,7 +46,7 @@
 #include <algorithm>
 #include <limits>
 #include <cmath>
-
+#include <vdt/vdtMath.h>
 
 using namespace std;
 
@@ -60,7 +60,7 @@ namespace reco {
     };
 
   }
-}
+}                                                                                        
 
 //______________________________________________________________________________
 const char *VirtualJetProducer::JetType::names[] = {
@@ -74,14 +74,14 @@ VirtualJetProducer::JetType::byName(const string &name)
 {
   const char **pos = std::find(names, names + LastJetType, name);
   if (pos == names + LastJetType) {
-    std::string errorMessage="Requested jetType not supported: "+name+"\n"; 
+    std::string errorMessage="Requested jetType not supported: "+name+"\n";
     throw cms::Exception("Configuration",errorMessage);
   }
   return (Type)(pos-names);
 }
 
 
-void VirtualJetProducer::makeProduces( std::string alias, std::string tag ) 
+void VirtualJetProducer::makeProduces( std::string alias, std::string tag )
 {
 
 
@@ -542,9 +542,26 @@ void VirtualJetProducer::output(edm::Event & iEvent, edm::EventSetup const& iSet
   
 }
 
+namespace {
+template< typename T >
+struct Area { static float get(T const &) {return 0;}};
+
+template<>
+struct Area<reco::CaloJet>{ static float get(reco::CaloJet const & jet) {
+   return jet.getSpecific().mTowersArea;
+}
+};
+}
+
 template< typename T >
 void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& iSetup )
 {
+  // std::cout << "writeJets " << typeid(T).name() 
+  //          << (doRhoFastjet_ ? " doRhoFastjet " : "")
+  //          << (doAreaFastjet_ ? " doAreaFastjet " : "")
+  //          << (doAreaDiskApprox_ ? " doAreaDiskApprox " : "")
+  //          << std::endl;
+
   if (doRhoFastjet_) {
     // declare jet collection without the two jets, 
     // for unbiased background estimation.
@@ -606,9 +623,19 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
   std::auto_ptr<std::vector<T> > jets(new std::vector<T>() );
   jets->reserve(fjJets_.size());
   
-  // Distance between jet centers -- for disk-based area calculation
-  std::vector<std::vector<double> >   rij(fjJets_.size());
+  // Distance between jet centers and overlap area -- for disk-based area calculation
+  using RIJ = std::pair<double,double>; 
+  std::vector<std::vector<RIJ> >   rij(fjJets_.size());
 
+  float etaJ[fjJets_.size()],  phiJ[fjJets_.size()];
+  auto etaFromXYZ = [](float x, float y, float z)->float { float t(z/std::sqrt(x*x+y*y)); return vdt::fast_logf(t + std::sqrt(t*t+1.f));};
+  for (auto ijet=0U;ijet<fjJets_.size();++ijet) {
+     float x = fjJets_[ijet].px();
+     float y = fjJets_[ijet].py();
+     float z = fjJets_[ijet].pz();
+     phiJ[ijet] = vdt::fast_atan2(y,x);
+     etaJ[ijet] =etaFromXYZ(x,y,z);
+   } 
   for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
     // allocate this jet
     T jet;
@@ -630,14 +657,16 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       // Here it is assumed that fjJets_ is in decreasing order of pT, 
       // which should happen in FastjetJetProducer::runAlgorithm() 
       jetArea   = M_PI;
-      if (ijet) {
-        std::vector<double>&  distance  = rij[ijet];
+      if (0!=ijet) {
+        std::vector<RIJ>&  distance  = rij[ijet];
         distance.resize(ijet);
         for (unsigned jJet = 0; jJet < ijet; ++jJet) {
-          distance[jJet]      = reco::deltaR(fjJets_[ijet],fjJets_[jJet]) / rParam_;
-          jetArea            -= reco::helper::VirtualJetProducerHelper::intersection(distance[jJet]);
+          distance[jJet].first      = std::sqrt(reco::deltaR2(etaJ[ijet],phiJ[ijet], etaJ[jJet],phiJ[jJet])) / rParam_;
+          distance[jJet].second = reco::helper::VirtualJetProducerHelper::intersection(distance[jJet].first);
+          jetArea            -=distance[jJet].second;
           for (unsigned kJet = 0; kJet < jJet; ++kJet) {
-            jetArea          += reco::helper::VirtualJetProducerHelper::intersection(distance[jJet], distance[kJet], rij[jJet][kJet]);
+            jetArea          += reco::helper::VirtualJetProducerHelper::intersection(distance[jJet].first, distance[kJet].first, rij[jJet][kJet].first, 
+                                                                                     distance[jJet].second, distance[kJet].second, rij[jJet][kJet].second);
           } // end loop over harder jets
         } // end loop over harder jets
       }
@@ -663,6 +692,9 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       jet.setPileup (0.0);
     }
     
+    
+    // std::cout << "area " << ijet << " " << jetArea << " " << Area<T>::get(jet) << std::endl;
+
     // add to the list
     jets->push_back(jet);        
   }

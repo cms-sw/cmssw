@@ -191,11 +191,7 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
       // get area of the tower (++ minus --)
       const CaloCellGeometry* geometry = towerGeometry.getGeometry(tower->id());
       if (geometry) {
-	float dEta = fabs(geometry->getCorners()[0].eta()-
-			  geometry->getCorners()[2].eta());
-	float dPhi = fabs(geometry->getCorners()[0].phi() -
-			  geometry->getCorners()[2].phi());
-	jetArea += dEta * dPhi;
+	jetArea += geometry->etaSpan() * geometry->phiSpan();
       }
       else {
 	edm::LogWarning("DataNotFound") <<"reco::makeCaloJetSpecific: Geometry for cell "
