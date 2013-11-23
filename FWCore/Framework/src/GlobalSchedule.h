@@ -36,7 +36,8 @@ namespace edm {
     class GlobalScheduleSignalSentry {
     public:
       GlobalScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* principal, EventSetup const* es, typename T::Context const* context) :
-        a_(a), principal_(principal), es_(es), context_(context) {
+        a_(a), principal_(principal), es_(es), context_(context),
+        allowThrow_(false) {
         if (a_) T::preScheduleSignal(a_, principal_, context_);
       }
       ~GlobalScheduleSignalSentry() noexcept(false) {
