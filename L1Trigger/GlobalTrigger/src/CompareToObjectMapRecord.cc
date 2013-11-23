@@ -16,6 +16,7 @@
 #include "L1Trigger/GlobalTrigger/interface/CompareToObjectMapRecord.h"
 
 #include <algorithm>
+#include <iostream>
 #include <string>
 #include <vector>
 
