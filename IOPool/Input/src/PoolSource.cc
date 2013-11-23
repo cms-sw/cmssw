@@ -192,7 +192,6 @@ namespace edm {
 
   void
   PoolSource::readEvent_(EventPrincipal& eventPrincipal) {
-    EventSourceSentry sentry{*this};
     primaryFileSequence_->readEvent(eventPrincipal);
     if(secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
       bool found = secondaryFileSequence_->skipToItem(eventPrincipal.run(),
@@ -214,9 +213,10 @@ namespace edm {
   }
 
   bool
-  PoolSource::readIt(EventID const& id, EventPrincipal& eventPrincipal) {
+  PoolSource::readIt(EventID const& id, EventPrincipal& eventPrincipal, StreamContext& streamContext) {
     bool found = primaryFileSequence_->skipToItem(id.run(), id.luminosityBlock(), id.event());
     if(!found) return false;
+    EventSourceSentry sentry(*this, streamContext);
     readEvent_(eventPrincipal);
     return true;
   }

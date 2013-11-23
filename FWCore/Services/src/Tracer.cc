@@ -47,8 +47,8 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
   iRegistry.watchPostBeginJob(this, &Tracer::postBeginJob);
   iRegistry.watchPostEndJob(this, &Tracer::postEndJob);
 
-  iRegistry.watchPreSource(this, &Tracer::preSource);
-  iRegistry.watchPostSource(this, &Tracer::postSource);
+  iRegistry.watchPreSourceEvent(this, &Tracer::preSourceEvent);
+  iRegistry.watchPostSourceEvent(this, &Tracer::postSourceEvent);
 
   iRegistry.watchPreSourceLumi(this, &Tracer::preSourceLumi);
   iRegistry.watchPostSourceLumi(this, &Tracer::postSourceLumi);
@@ -164,12 +164,12 @@ Tracer::postEndJob() {
 }
 
 void
-Tracer::preSource() {
+Tracer::preSourceEvent(StreamID sid) {
   LogAbsolute("Tracer") << indention_ << indention_ << " starting: source event";
 }
 
 void
-Tracer::postSource() {
+Tracer::postSourceEvent(StreamID sid) {
   LogAbsolute("Tracer") << indention_ << indention_ << " finished: source event";
 }
 
@@ -179,7 +179,7 @@ Tracer::preSourceLumi() {
 }
 
 void
-Tracer::postSourceLumi () {
+Tracer::postSourceLumi() {
   LogAbsolute("Tracer") << indention_ << indention_ << " finished: source lumi";
 }
 
@@ -189,7 +189,7 @@ Tracer::preSourceRun() {
 }
 
 void
-Tracer::postSourceRun () {
+Tracer::postSourceRun() {
   LogAbsolute("Tracer") << indention_ << indention_ << " finished: source run";
 }
 

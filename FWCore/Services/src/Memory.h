@@ -62,7 +62,7 @@ namespace edm {
 
       void preSourceConstruction(const ModuleDescription&);
       void postSourceConstruction(const ModuleDescription&);
-      void postSource();
+      void postSourceEvent(StreamID);
 
       void postBeginJob();
       

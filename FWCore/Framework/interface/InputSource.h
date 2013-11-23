@@ -109,10 +109,10 @@ namespace edm {
     ItemType nextItemType();
 
     /// Read next event
-    void readEvent(EventPrincipal& ep, StreamContext *);
+    void readEvent(EventPrincipal& ep, StreamContext &);
 
     /// Read a specific event
-    bool readEvent(EventPrincipal& ep, EventID const&, StreamContext *);
+    bool readEvent(EventPrincipal& ep, EventID const&, StreamContext &);
 
     /// Read next luminosity block Auxilary
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary();
@@ -279,9 +279,15 @@ namespace edm {
 
     class EventSourceSentry {
     public:
-      explicit EventSourceSentry(InputSource const& source);
+      EventSourceSentry(InputSource const& source, StreamContext & sc);
+      ~EventSourceSentry();
+
+      EventSourceSentry(EventSourceSentry const&) = delete; // Disallow copying and moving
+      EventSourceSentry& operator=(EventSourceSentry const&) = delete; // Disallow copying and moving
+
     private:
-      SourceSentry sentry_;
+      InputSource const& source_;
+      StreamContext & sc_;
     };
 
     class LumiSourceSentry {
@@ -386,7 +392,7 @@ namespace edm {
     virtual void readRun_(RunPrincipal& runPrincipal);
     virtual void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
     virtual void readEvent_(EventPrincipal& eventPrincipal) = 0;
-    virtual bool readIt(EventID const&, EventPrincipal& eventPrincipal);
+    virtual bool readIt(EventID const& id, EventPrincipal& eventPrincipal, StreamContext& streamContext);
     virtual std::unique_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
     virtual bool goToEvent_(EventID const& eventID);
