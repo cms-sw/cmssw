@@ -48,7 +48,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   daqProvenanceHelper_(edm::TypeID(typeid(FEDRawDataCollection))),
   fileStream_(0),
   eventID_(),
-  lastOpenedLumi_(0),
+  currentLumiSection_(0),
   currentInputJson_(""),
   currentInputEventCount_(0),
   eorFileSeen_(false),
@@ -93,54 +93,56 @@ bool FedRawDataInputSource::checkNextEvent()
     return false;
   }
 
-  //same lumi, or new lumi detected in file (old mode)
   if (!getLSFromFilename_) {
     //get new lumi from file header
-    const uint32_t lumi = event_->lumi();
-    if (!luminosityBlockAuxiliary()
-        || luminosityBlockAuxiliary()->luminosityBlock() != lumi) {
-      lastOpenedLumi_ = lumi;
-      resetLuminosityBlockAuxiliary();
-      timeval tv;
-      gettimeofday(&tv, 0);
-      edm::Timestamp lsopentime(
-                                (unsigned long long) tv.tv_sec * 1000000
-                                + (unsigned long long) tv.tv_usec);
-      edm::LuminosityBlockAuxiliary* luminosityBlockAuxiliary =
-        new edm::LuminosityBlockAuxiliary(runAuxiliary()->run(),
-                                          lumi, lsopentime,
-                                          edm::Timestamp::invalidTimestamp());
-      setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
-    }
-
-  } else {
-
-    //new lumi from directory name
-    if (!luminosityBlockAuxiliary()
-        || luminosityBlockAuxiliary()->luminosityBlock()
-        != lastOpenedLumi_) {
-      resetLuminosityBlockAuxiliary();
-      
-      timeval tv;
-      gettimeofday(&tv, 0);
-      edm::Timestamp lsopentime(
-                                (unsigned long long) tv.tv_sec * 1000000
-                                + (unsigned long long) tv.tv_usec);
-      edm::LuminosityBlockAuxiliary* luminosityBlockAuxiliary =
-        new edm::LuminosityBlockAuxiliary(runAuxiliary()->run(),
-                                          lastOpenedLumi_, lsopentime,
-                                          edm::Timestamp::invalidTimestamp());
-      setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
-    }
+    maybeOpenNewLumiSection( event_->lumi() );
   }
 
-  eventID_ = edm::EventID(event_->run(), lastOpenedLumi_,
-                          event_->event());
+  eventID_ = edm::EventID(
+    event_->run(),
+    currentLumiSection_,
+    event_->event());
 
   setEventCached();
 
   return true;
 
+}
+
+void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
+{
+  if (!luminosityBlockAuxiliary()
+    || luminosityBlockAuxiliary()->luminosityBlock() != lumiSection) {
+
+    if ( currentLumiSection_ > 0 ) {
+      const string fuEoLS =
+        edm::Service<evf::EvFDaqDirector>()->formatEndOfLSSlave(currentLumiSection_);
+      struct stat buf;
+      bool found = (stat(fuEoLS.c_str(), &buf) == 0);
+      if ( !found ) {
+        int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+        close(eol_fd);
+      }
+    }
+
+    currentLumiSection_ = lumiSection;
+
+    resetLuminosityBlockAuxiliary();
+
+    timeval tv;
+    gettimeofday(&tv, 0);
+    const edm::Timestamp lsopentime( (unsigned long long) tv.tv_sec * 1000000 + (unsigned long long) tv.tv_usec );
+
+    edm::LuminosityBlockAuxiliary* luminosityBlockAuxiliary =
+      new edm::LuminosityBlockAuxiliary(
+        runAuxiliary()->run(),
+        lumiSection, lsopentime,
+        edm::Timestamp::invalidTimestamp());
+
+    setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
+
+    edm::LogInfo("FedRawDataInputSource") << "New lumi section " << lumiSection << " opened";
+  }
 }
 
 bool FedRawDataInputSource::cacheNextEvent()
@@ -276,7 +278,6 @@ bool FedRawDataInputSource::searchForNextFile()
     throw cms::Exception("RuntimeError") << "Went to search for next file but according to BU more events in " 
                                          << currentInputJson_.string();
   }
-  boost::filesystem::remove(currentInputJson_); //the content of this file is now accounted for in the output json
   
   std::string nextFile;
   uint32_t ls;
@@ -291,36 +292,21 @@ bool FedRawDataInputSource::searchForNextFile()
     edm::LogInfo("FedRawDataInputSource") << "The director says to grab: " << nextFile;
 
     fms->stoppedLookingForFile();
-    edm::LogInfo("FedRawDataInputSource") << "grabbing next file, setting last seen lumi to LS = " << ls;
 
     boost::filesystem::path jsonFile(nextFile);
     jsonFile.replace_extension(".jsn");
     assert( grabNextJsonFile(jsonFile) );
     openDataFile(nextFile);
 
-    if (getLSFromFilename_) lastOpenedLumi_ = ls;
-    return true;
-      
-  } else if (ls > lastOpenedLumi_) {
-    // ls was increased, so some EoL jsn files were seen, without new data files
-    edm::LogInfo("FedRawDataInputSource") << "EoL jsn file(s) seen! Current LS is: " << ls;
-    resetLuminosityBlockAuxiliary();
-    timeval tv;
-    gettimeofday(&tv, 0);
-    edm::Timestamp lsopentime(
-                              (unsigned long long) tv.tv_sec * 1000000
-                              + (unsigned long long) tv.tv_usec);
-    edm::LuminosityBlockAuxiliary* luminosityBlockAuxiliary =
-      new edm::LuminosityBlockAuxiliary(runAuxiliary()->run(), ls,
-                                        lsopentime, edm::Timestamp::invalidTimestamp());
-    setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
-          
-    return false;
-    
   } else {
     edm::LogInfo("FedRawDataInputSource") << "The DAQ Director has nothing for me! ";
-    return false;
   }
+
+  while ( getLSFromFilename_ && ls > currentLumiSection_ ) {
+    maybeOpenNewLumiSection(ls);
+  }
+
+  return fileIsOKToGrab;
 }
 
 bool FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonSourcePath)
