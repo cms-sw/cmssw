@@ -625,4 +625,11 @@ namespace evf {
        << ls << ".jsn";
     return ss.str();
   }
+
+  std::string EvFDaqDirector::formatEndOfLSSlave(unsigned int ls) const {
+    std::stringstream ss;
+    ss << run_dir_ << "/EoLS_" << std::setfill('0') << std::setw(4)
+       << ls << ".jsn";
+    return ss.str();
+  }
 }
