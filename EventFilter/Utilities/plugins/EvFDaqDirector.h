@@ -66,6 +66,7 @@ namespace evf{
       std::string formatOpenRawFilePath(unsigned int ls, unsigned int index) const;
       std::string formatMergeFilePath(unsigned int ls, std::string &stream) const;
       std::string formatEndOfLS(unsigned int ls) const;
+      std::string formatEndOfLSSlave(unsigned int ls) const;
 
     private:
       bool bulock();
