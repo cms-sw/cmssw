@@ -10,21 +10,20 @@
 //         Created:  Sun Feb 24 14:42:32 EST 2008
 //
 
-
-// user include files
-#include "Fireworks/Core/interface/FWConfigurable.h"
-#include "Fireworks/Core/interface/FWConfiguration.h"
-#include "Fireworks/Core/interface/FWConfigurationManager.h"
-#include "Fireworks/Core/interface/fwLog.h"
-#include "Fireworks/Core/src/SimpleSAXParser.h"
-
-#include "TROOT.h"
-
 // system include files
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include "TROOT.h"
+
+// user include files
+#include "Fireworks/Core/interface/FWConfigurationManager.h"
+#include "Fireworks/Core/interface/FWConfiguration.h"
+#include "Fireworks/Core/interface/FWConfigurable.h"
+#include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/src/SimpleSAXParser.h"
+
 //
 // constants, enums and typedefs
 //
