@@ -12,6 +12,9 @@ FunctionWithDict:  A holder for a class member function
 #include "TMethod.h"
 #include "TMethodArg.h"
 
+#include <cassert>
+#include <cstdlib>
+#include <cstdio>
 #include <string>
 #include <vector>
 
@@ -54,24 +57,36 @@ public:
 
 namespace edm {
 
-/// Call a static function of class T, derived from the type
-/// of the return value, by name with no arguments.
+/// Call a static function of class theType, with a return
+/// value of type T, by name with no arguments.
 template<typename T>
 inline
 void
-invokeByName(T& retval, const std::string& name)
+invokeByName(T& retval, const TypeWithDict& theType, const std::string& name)
 {
-  TypeWithDict theType(typeid(T));
+  if (!bool(theType)) {
+    fprintf(stderr, "FunctionWithDict: invokeByName<%s>: "
+            "Passed type is invalid!\n", typeid(T).name());
+    abort();
+  }
   FunctionWithDict func = theType.functionMemberByName(name);
   if (!bool(func)) {
-    return;
+    fprintf(stderr, "FunctionWithDict: invokeByName<%s>: "
+            "Could not find function named '%s' in type '%s'\n",
+            typeid(T).name(), name.c_str(), theType.name().c_str());
+    abort();
   }
   if (func.functionParameterSize(true) != 0) {
-    // FIXME: We should throw or write an error message here!
+    fprintf(stderr, "FunctionWithDict: invokeByName<%s>: "
+            "function '%s' in type '%s' should have zero "
+            "parameters, but has %lu parameters instead!\n",
+            typeid(T).name(), name.c_str(), theType.name().c_str(),
+            func.functionParameterSize(true));
+    abort();
     return;
   }
   ObjectWithDict retobj(typeid(T), &retval);
-  func.invoke(retobj);
+  func.invoke(&retobj);
 }
 
 } // namespace edm
