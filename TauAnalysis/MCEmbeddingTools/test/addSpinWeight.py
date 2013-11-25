@@ -11,7 +11,15 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:embed_AOD.root')
+    fileNames = cms.untracked.vstring('file:../emb/embedded_RH.root')
+)
+
+# Set up random number generator
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+    TauSpinnerReco = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+        engineName = cms.untracked.string('HepJamesRandom')
+    )
 )
 
 # Output definition

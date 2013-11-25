@@ -590,4 +590,17 @@ def customise(process):
   ])
   """
 
+  # TauSpinner
+#  process.RandomNumberGeneratorService.TauSpinnerReco = cms.PSet(
+#    initialSeed = cms.untracked.uint32(123456789),
+#    engineName = cms.untracked.string('HepJamesRandom')
+#  )
+
+#  process.load('GeneratorInterface.ExternalDecays.TauSpinner_cfi')
+#  #process.TauSpinnerReco.isTauolaConfigured = cms.bool(True)
+#  process.reconstruction_step += process.TauSpinnerReco
+#  outputModule.outputCommands.extend([
+#    'keep *_TauSpinnerReco_*_*'
+#  ])
+
   return(process)
