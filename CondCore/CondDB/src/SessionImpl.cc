@@ -39,6 +39,8 @@ namespace cond {
       if( !transactionClients ){ 
 	coralSession->transaction().start( readOnly );
 	transactionCache.reset( new TransactionCache );
+	iovSchemaHandle.reset( new IOVSchema( coralSession->nominalSchema() ) );
+	gtSchemaHandle.reset( new GTSchema( coralSession->nominalSchema() ) );
       } else {
 	if(!readOnly ) throwException( "An update transaction is already active.",
 				       "SessionImpl::startTransaction" );
@@ -52,6 +54,8 @@ namespace cond {
 	if( !transactionClients ){
 	  coralSession->transaction().commit();
 	  transactionCache.reset();
+	  iovSchemaHandle.reset();
+	  gtSchemaHandle.reset();
 	}
       }
     }
@@ -59,6 +63,8 @@ namespace cond {
     void SessionImpl::rollbackTransaction(){
       coralSession->transaction().rollback();
       transactionCache.reset();
+      iovSchemaHandle.reset();
+      gtSchemaHandle.reset();
       transactionClients = 0;
     }
     
@@ -66,7 +72,42 @@ namespace cond {
       if( !coralSession.get() ) return false;
       return coralSession->transaction().isActive();
     }
+
+    void SessionImpl::openIovDb( SessionImpl::FailureOnOpeningPolicy policy ){
+      if(!transactionCache.get()) throwException( "The transaction is not active.","SessionImpl::openIovDb" );
+      if( !transactionCache->iovDbOpen ){
+	transactionCache->iovDbExists = iovSchemaHandle->exists();
+	transactionCache->iovDbOpen = true;
+      }      
+      if( !transactionCache->iovDbExists ){
+	if( policy==CREATE ){
+	  iovSchemaHandle->create();
+	  transactionCache->iovDbExists = true;
+	} else {
+	  if( policy==THROW) throwException( "IOV Database does not exist.","SessionImpl::openIovDb");
+	}
+      }
+    }
+
+    void SessionImpl::openGTDb(){
+      if(!transactionCache.get()) throwException( "The transaction is not active.","SessionImpl::open" );
+      if( !transactionCache->gtDbOpen ){
+	transactionCache->gtDbExists = gtSchemaHandle->exists();
+	transactionCache->gtDbOpen = true;
+      }
+      if( !transactionCache->gtDbExists ){
+	throwException( "GT Database does not exist.","SessionImpl::openGTDb");
+      }
+    }
     
+    IOVSchema& SessionImpl::iovSchema(){
+      return *iovSchemaHandle;
+    }
+
+    GTSchema& SessionImpl::gtSchema(){
+      return *gtSchemaHandle;
+    }
+
     coral::ISchema& SessionImpl::coralSchema(){
       if( !coralSession.get() ){
 	throwException("The session is not active.","SessionImpl::coralSchema");

@@ -127,7 +127,7 @@ int cond::MigrateUtilities::execute(){
       int tt = (int) sourceIov.timetype();
       std::string payloadType = *(sourceIov.payloadClasses().begin());
       std::cout <<"    Importing tag. Size:"<<sourceIov.size()<<" timeType:"<<cond::timeTypeNames(tt)<<" payloadObjectType=\""<<payloadType<<"\""<<std::endl;
-      editor = session.createIov( destTag, (cond::TimeType)tt, payloadType );
+      editor = session.createIov( payloadType, destTag, (cond::TimeType)tt );
       editor.setDescription( "Tag "+t+" migrated from "+sourceConnect  );
       for(  auto iov : sourceIov ){
 	Time_t s = iov.since();

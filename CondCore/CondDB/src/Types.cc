@@ -29,18 +29,18 @@ namespace cond {
     lastValidatedTime = time::MIN_VAL;
   }
 
-  static auto s_synchronizationTypeMap = { enumPair( "Offline",OFFLINE ),
-					   enumPair( "HLT",HLT ),
-					   enumPair( "Prompt",PROMPT ),
-					   enumPair( "PCL",PCL ) };
+  auto s_synchronizationTypeMap = { enumPair( "Offline",OFFLINE ),
+				    enumPair( "HLT",HLT ),
+				    enumPair( "Prompt",PROMPT ),
+				    enumPair( "PCL",PCL ) };
 
   std::string synchronizationTypeNames(SynchronizationType type) {
-    std::vector<std::pair<const std::string, SynchronizationType> > tmp( s_synchronizationTypeMap );
+    static const std::vector<std::pair<const std::string, SynchronizationType> > tmp( s_synchronizationTypeMap );
     return tmp[type].first;
   }
 
   SynchronizationType synchronizationTypeFromName( const std::string& name ){
-    std::map<std::string,SynchronizationType> tmp( s_synchronizationTypeMap );
+    static const std::map<std::string,SynchronizationType> tmp( s_synchronizationTypeMap );
     auto t = tmp.find( name );
     if( t == tmp.end() ) throwException( "SynchronizationType \""+name+"\" is unknown.","synchronizationTypeFromName");
     return t->second;
