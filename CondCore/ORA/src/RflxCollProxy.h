@@ -3,15 +3,18 @@
 
 #include <iostream>
 
+#include "RflxEnv.h"
+
 namespace Reflex {
 
   class CollFuncTable {
     public:
-        int first_func() { std::cerr << "ERROR not yet implemented !!!" <<std::endl; return 0; }
-        int next_func () { std::cerr << "ERROR not yet implemented !!!" <<std::endl; return 0; }
-        int size_func () { std::cerr << "ERROR not yet implemented !!!" <<std::endl; return 0; }
-        int feed_func () { std::cerr << "ERROR not yet implemented !!!" <<std::endl; return 0; }
-        int clear_func() { std::cerr << "ERROR not yet implemented !!!" <<std::endl; return 0; }
+        void* first_func(Reflex::Environ<long int>*) { std::cerr << "CondCore/ORA/src/> Reflex::CollFuncTable> ERROR function void* first_func(Reflex::Environ<long int>*) not yet implemented !!!" <<std::endl; return 0; }
+        void* next_func (Reflex::Environ<long int>*) { std::cerr << "CondCore/ORA/src/> Reflex::CollFuncTable> ERROR function void* next_func (Reflex::Environ<long int>*) not yet implemented !!!" <<std::endl; return 0; }
+        void* size_func (Reflex::Environ<long int>*) { std::cerr << "CondCore/ORA/src/> Reflex::CollFuncTable> ERROR function void* size_func (Reflex::Environ<long int>*) not yet implemented !!!" <<std::endl; return 0; }
+        void* feed_func (Reflex::Environ<long int>*) { std::cerr << "CondCore/ORA/src/> Reflex::CollFuncTable> ERROR function void* feed_func (Reflex::Environ<long int>*) not yet implemented !!!" <<std::endl; return 0; }
+        void* feed_func (void*&, void*&, int)        { std::cerr << "CondCore/ORA/src/> Reflex::CollFuncTable> ERROR function void* feed_func (void*&, void*&, int)        not yet implemented !!!" <<std::endl; return 0; }
+        void* clear_func(Reflex::Environ<long int>*) { std::cerr << "CondCore/ORA/src/> Reflex::CollFuncTable> ERROR function void* clear_func(Reflex::Environ<long int>*) not yet implemented !!!" <<std::endl; return 0; }
 
   }; // end class CollFuncTable
 

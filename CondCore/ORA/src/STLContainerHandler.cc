@@ -5,6 +5,9 @@
 // externals
 #include "RVersion.h"
 
+#include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "oraHelper.h"
+
 ora::STLContainerIteratorHandler::STLContainerIteratorHandler( const Reflex::Environ<long>& collEnv,
                                                                Reflex::CollFuncTable& collProxy,
                                                                const edm::TypeWithDict& iteratorReturnType ):
@@ -49,9 +52,11 @@ ora::STLContainerHandler::STLContainerHandler( const edm::TypeWithDict& dictiona
 
   edm::FunctionWithDict method = m_type.functionMemberByName("createCollFuncTable");
   if(method){
-    Reflex::CollFuncTable* collProxyPtr;
-    method.invoke( collProxyPtr );  //-ap needs conversion to ObjectWithDict ... ???
-    m_collProxy.reset( collProxyPtr );
+    Reflex::CollFuncTable collProxyPtr;
+    // holds the return ObjectWithDict.
+    edm::ObjectWithDict collProxyPtrObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(Reflex::CollFuncTable*)), &collProxyPtr );
+    method.invoke(&collProxyPtrObj);
+    m_collProxy.reset( &collProxyPtr );
   }
   if( !m_collProxy.get() ){
     throwException( "Cannot find \"createCollFuncTable\" function for type \""+m_type.qualifiedName()+"\"",
@@ -117,7 +122,7 @@ ora::SpecialSTLContainerHandler::SpecialSTLContainerHandler( const edm::TypeWith
   dictionary.UpdateMembers(); 
   for ( unsigned int i=0;i<dictionary.dataMemberSize();i++){
 
-    edm::MemberWithDict field = dictionary.dataMemberAt(i);    
+    edm::MemberWithDict field = ora::helper::DataMemberAt(dictionary, i);
     edm::TypeWithDict fieldType = field.typeOf();
     if ( ! fieldType ) {
       throwException( "The dictionary of the underlying container of \"" +

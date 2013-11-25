@@ -7,15 +7,14 @@
 // externals
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
-#include "CondCore/ORA/src/RflxPropList.h"
-
+#include "RflxPropList.h"
 #include "oraHelper.h"
 
 namespace ora {
 
   bool isLoosePersistencyDataMember( const edm::MemberWithDict& dataMember ){
     std::string persistencyType("");
-    Reflex::PropertyList memberProps = dataMember.Properties();
+    Reflex::PropertyList memberProps = ora::helper::Properties(dataMember);
     if( memberProps.HasProperty(ora::MappingRules::persistencyPropertyNameInDictionary())){
        persistencyType = memberProps.PropertyAsString(ora::MappingRules::persistencyPropertyNameInDictionary());
     }
@@ -43,7 +42,7 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
   
   for ( unsigned int i=0;i<ora::helper::BaseSize(objType);i++){
     edm::BaseWithDict base = ora::helper::BaseAt(objType, i);
-    edm::TypeWithDict baseType = ClassUtils::resolvedType( base.toType() );
+    edm::TypeWithDict baseType = ClassUtils::resolvedType( base.typeOf() );
     buildBaseDataMembers( dataElement, relationalData, baseType, operationBuffer );
     for ( unsigned int j=0;j<baseType.dataMemberSize();j++){
       edm::MemberWithDict dataMember = ora::helper::DataMemberAt(baseType, j);      

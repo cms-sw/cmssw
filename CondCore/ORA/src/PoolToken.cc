@@ -6,7 +6,8 @@
 #include <cstdio>
 // externals
 #include "FWCore/Utilities/interface/TypeWithDict.h"
-#include "CondCore/ORA/src/RflxPropList.h"
+#include "RflxPropList.h"
+#include "oraHelper.h"
 
 namespace cond {
   
@@ -61,7 +62,7 @@ namespace cond {
     //  first lookup the class guid in the dictionary
     edm::TypeWithDict containerType = edm::TypeWithDict::byName( className );
     if( containerType ){
-      Reflex::PropertyList props = containerType.Properties();
+      Reflex::PropertyList props = ora::helper::Properties(containerType);
       if( props.HasProperty("ClassID")){
         clguid = props.PropertyAsString("ClassID");
       }

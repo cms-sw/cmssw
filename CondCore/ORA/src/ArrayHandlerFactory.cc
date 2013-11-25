@@ -12,9 +12,8 @@ ora::ArrayHandlerFactory::newArrayHandler( const edm::TypeWithDict& arrayType )
   if(arrayType.IsArray()){
     return new CArrayHandler( arrayType );
   } else {  
-    edm::TypeWithDict templ = arrayType.TemplateFamily();
-    if ( templ ) {
-      std::string contName = templ.qualifiedName(); 
+    if ( arrayType.isTemplate() ) {
+      std::string contName = arrayType.templateName(); 
       if(  contName == "std::vector"              ||
            contName == "std::list"                ||
            contName == "std::set"                 ||
@@ -36,7 +35,7 @@ ora::ArrayHandlerFactory::newArrayHandler( const edm::TypeWithDict& arrayType )
       
     }
   }
-  throwException( "No Array Handler available for class \""+arrayType.qualifiedName()+"\"",
+  throwException( "No Array Handler available for class \""+arrayType.templateName()+"\"",
                   "ArrayHandlerFactory::newArrayHandler");
   return 0;
 }

@@ -538,7 +538,7 @@ namespace ora {
 
   bool isLoosePersistencyOnWriting( const edm::MemberWithDict& dataMember ){
     std::string persistencyType("");
-    Reflex::PropertyList memberProps = dataMember.Properties();
+    Reflex::PropertyList memberProps = ora::helper::Properties(dataMember);
     if( memberProps.HasProperty(ora::MappingRules::persistencyPropertyNameInDictionary())){
        persistencyType = memberProps.PropertyAsString(ora::MappingRules::persistencyPropertyNameInDictionary());
     }
@@ -572,7 +572,7 @@ namespace ora {
         std::string objectMemberNameForSchema = ora::MappingRules::scopedVariableForSchemaObjects( baseMember.name(), scope );
 
         std::string mappingType("");
-        Reflex::PropertyList memberProps = baseMember.Properties();
+        Reflex::PropertyList memberProps = ora::helper::Properties(baseMember);
         if( memberProps.HasProperty(ora::MappingRules::mappingPropertyNameInDictionary())){
           mappingType = memberProps.PropertyAsString(ora::MappingRules::mappingPropertyNameInDictionary());
         }
@@ -631,7 +631,7 @@ void ora::ObjectMapping::process( MappingElement& parentElement,
     std::string objectNameForSchema = objectMember.name();
     
     std::string mappingType("");
-    Reflex::PropertyList memberProps = objectMember.Properties();
+    Reflex::PropertyList memberProps = ora::helper::Properties(objectMember);
     if( memberProps.HasProperty(ora::MappingRules::mappingPropertyNameInDictionary())){
       mappingType = memberProps.PropertyAsString(ora::MappingRules::mappingPropertyNameInDictionary());
     }

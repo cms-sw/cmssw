@@ -39,7 +39,7 @@ void* ora::ClassUtils::upCast( const edm::TypeWithDict& type,
     ret = ptr;
   } else if( type.hasBase( castType )){
     edm::ObjectWithDict theObj( type, ptr );
-    ret = theObj.objectCast<castType>().address();
+    ret = theObj.CastObject(castType).address();
   }
   return ret;
 }

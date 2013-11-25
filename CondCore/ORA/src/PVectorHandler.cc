@@ -1,4 +1,5 @@
 #include "CondCore/ORA/interface/Exception.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "PVectorHandler.h"
 #include "ClassUtils.h"
 // externals
@@ -54,14 +55,16 @@ ora::PVectorHandler::PVectorHandler( const edm::TypeWithDict& dictionary ):
   m_persistentSizeAttributeOffset(0),
   m_vecAttributeOffset(0)
 {
-  Reflex::Member privateVectorAttribute = m_type.dataMemberByName("m_vec");
+  edm::MemberWithDict privateVectorAttribute = m_type.dataMemberByName("m_vec");
   if(privateVectorAttribute){
-    m_vecAttributeOffset = privateVectorAttribute.Offset();
-    Reflex::Member method = privateVectorAttribute.TypeOf().MemberByName("createCollFuncTable");
+    m_vecAttributeOffset = privateVectorAttribute.offset();
+    edm::FunctionWithDict method = privateVectorAttribute.typeOf().functionMemberByName("createCollFuncTable");
     if(method){
-      Reflex::CollFuncTable* collProxyPtr;
-      method.Invoke(collProxyPtr);
-      m_collProxy.reset( collProxyPtr );
+      Reflex::CollFuncTable collProxyPtr;
+      // holds the return ObjectWithDict.
+      edm::ObjectWithDict collProxyPtrObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(Reflex::CollFuncTable*)), &collProxyPtr );
+      method.invoke(&collProxyPtrObj);
+      m_collProxy.reset( &collProxyPtr );
     }
     if(! m_collProxy.get() ){
       throwException( "Cannot find \"createCollFuncTable\" function for type \""+m_type.qualifiedName()+"\"",
@@ -69,9 +72,9 @@ ora::PVectorHandler::PVectorHandler( const edm::TypeWithDict& dictionary ):
     }
   }
 
-  Reflex::Member persistentSizeAttribute = m_type.dataMemberByName("m_persistentSize");
+  edm::MemberWithDict persistentSizeAttribute = m_type.dataMemberByName("m_persistentSize");
   if( persistentSizeAttribute ){
-    m_persistentSizeAttributeOffset = persistentSizeAttribute.Offset();
+    m_persistentSizeAttributeOffset = persistentSizeAttribute.offset();
   }
 
   // find the iterator return type as the member type_value of the containers

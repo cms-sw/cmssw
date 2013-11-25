@@ -9,6 +9,7 @@
 // externals
 #include "CoralBase/Attribute.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 
 namespace ora {
@@ -197,8 +198,8 @@ void ora::OraPtrWriter::write( int oid,
   // first load if required
   ptrObject.typeOf().functionMemberByName("load").invoke(ptrObject,0);
   // then get the data...
-  size_t ptrAddress;
-  edm::ObjectWithDict ptrAddrObj = edm::ObjectWithDict(TypeWithDict(typeid(void*)), &ptrAddress);
+  void* ptrAddress = 0;
+  edm::ObjectWithDict ptrAddrObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(void*)), ptrAddress );
   ptrObject.typeOf().functionMemberByName("address").invoke(ptrObject, &ptrAddrObj);
   m_writer->write( oid, ptrAddress );
 }
@@ -259,8 +260,8 @@ void ora::OraPtrUpdater::update( int oid,
   edm::ObjectWithDict ptrObject( m_objectType, m_dataElement->address( data ) );
   // first load if required
   ptrObject.typeOf().functionMemberByName("load").invoke(ptrObject,0);
-  size_t ptrAddress;
-  edm::ObjectWithDict ptrAddrObj = edm::ObjectWithDict(TypeWithDict(typeid(void*)), &ptrAddress);
+  void *ptrAddress = 0;
+  edm::ObjectWithDict ptrAddrObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(void*)), ptrAddress );
   ptrObject.typeOf().functionMemberByName("address").invoke(ptrObject, &ptrAddrObj);
   m_updater->update( oid, ptrAddress );
 }

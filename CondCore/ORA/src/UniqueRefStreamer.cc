@@ -33,7 +33,7 @@ namespace ora {
           m_depInsert->addId( *iC );
         }
 
-        MappingElement::iterator iMe = mapping.find( objectType.qualifiedName();
+        MappingElement::iterator iMe = mapping.find( objectType.qualifiedName() );
         // the first inner mapping is the relevant...
         if( iMe == mapping.end()){
           throwException("Could not find a mapping element for class \""+
@@ -85,7 +85,7 @@ namespace ora {
         m_type = objectType;
         m_depQuery.reset( new SelectOperation( depMapping.tableName(), contSchema.storageSchema()));
         m_depQuery->addWhereId(  depMapping.columnNames()[ 1 ] );
-        MappingElement::iterator iMap = depMapping.find( m_type.qualifiedName();
+        MappingElement::iterator iMap = depMapping.find( m_type.qualifiedName() );
         // the first inner mapping is the good one ...
         if( iMap == depMapping.end()){
           throwException("Could not find a mapping element for class \""+
@@ -225,16 +225,19 @@ void ora::UniqueRefWriter::write( int oid,
   edm::ObjectWithDict refObj( m_objectType, const_cast<void*>(refAddress));
 
   bool isNull;
-  refObj.Invoke("operator!",isNull);
+  edm::ObjectWithDict resObj = edm::ObjectWithDict(edm::TypeWithDict(typeid(bool)), &isNull);
+  refObj.typeOf().functionMemberByName("operator!").invoke(refObj, &resObj);
 
   int refId = 0;
   std::string className = uniqueRefNullLabel();
 
   if(!isNull){
     // resolving the ref type
-    std::type_info* refTypeInfo = 0;
-    refObj.Invoke("typeInfo",refTypeInfo);
-    edm::TypeWithDict refType = ClassUtils::lookupDictionary(*refTypeInfo);
+    const std::type_info *refTypeInfo = 0;
+    edm::ObjectWithDict refTIObj = edm::ObjectWithDict(edm::TypeWithDict( typeid(std::type_info)), const_cast<std::type_info *>(refTypeInfo) );
+    refObj.typeOf().functionMemberByName("typeInfo").invoke(refObj, &refTIObj);
+    
+    edm::TypeWithDict refType = ClassUtils::lookupDictionary( *refTypeInfo );
     className = refType.qualifiedName();
 
     // building the dependent buffer
@@ -245,8 +248,10 @@ void ora::UniqueRefWriter::write( int oid,
     
     DependentClassWriter writer;
     writer.build( refType, depMapping, m_schema, m_operationBuffer->addVolatileBuffer() );
-    void* refData;
-    refObj.Invoke("operator*",refData);
+    void* refData = 0;
+    edm::ObjectWithDict refDataObj = edm::ObjectWithDict(edm::TypeWithDict(typeid(void*)), refData);
+    refObj.typeOf().functionMemberByName("operator*").invoke(refObj, &refDataObj);
+    
     writer.write( oid, refId, refData );
 
   }
