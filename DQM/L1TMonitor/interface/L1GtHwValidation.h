@@ -37,6 +37,9 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtObject.h"
 #include "CondFormats/L1TObjects/interface/L1GtDefinitions.h"
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+
 // forward declarations
 class L1GtfeWord;
 class L1GtFdlWord;
@@ -276,6 +279,11 @@ private:
 
     std::vector<int> m_excludedAlgoList;
 
+    //define Token(-s)
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputToken_;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtEmulDaqInputToken_;
+    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtDataEvmInputToken_;
+    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEmulEvmInputToken_;
 
 };
 

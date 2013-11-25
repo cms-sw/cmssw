@@ -124,6 +124,11 @@ private:
   edm::InputTag gctSource_;
   edm::InputTag ecalTpgSource_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTpgSource_token_;
+
+  //define Token(-s)
+  edm::EDGetTokenT<L1GctJetCandCollection> gctCenJetsToken_;
+  edm::EDGetTokenT<L1GctEmCandCollection> gctIsoEmCandsToken_;
+  edm::EDGetTokenT<L1GctEmCandCollection> gctNonIsoEmCandsToken_;
   
   class RctObject {
   public:

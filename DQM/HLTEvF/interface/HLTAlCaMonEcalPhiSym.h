@@ -13,7 +13,8 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+ 
 class DQMStore;
 class MonitorElement;
 
@@ -127,7 +128,10 @@ private:
 
   /// Output file name if required
   std::string fileName_;
-
+  
+  //define Token(-s)
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEBToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEEToken_;
 };
 
 #endif

@@ -3,6 +3,7 @@
 
 // This class is used to test the functionalities of the package
 
+#include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "DQM/DataScouting/interface/ScoutingAnalyzerBase.h"
 
@@ -27,6 +28,8 @@ class ScoutingTestAnalyzer : public ScoutingAnalyzerBase
     MonitorElement * m_jetPt;
     MonitorElement * m_jetEtaPhi;
 
+  //define Token(-s)
+  edm::EDGetTokenT<reco::CaloJetCollection> m_pfJetsCollectionTagToken_;
  } ;
 
 #endif

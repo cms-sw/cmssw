@@ -92,5 +92,7 @@ class HLTMonBitSummary : public edm::EDAnalyzer {
   MonitorElement * pf_;
   MonitorElement * ratio_;
 
+  //define Token(-s)
+  edm::EDGetTokenT<edm::TriggerResults> inputToken_;
 };
 #endif
