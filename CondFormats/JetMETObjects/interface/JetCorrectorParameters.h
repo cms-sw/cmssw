@@ -200,23 +200,9 @@ class JetCorrectorParametersCollection {
   // Check if this is an L7 hashed value
   static bool isL7( key_type k );
 
-  static std::string findLabel( key_type k ){
-    if      ( isL5(k) ) return findL5Flavor(k);
-    else if ( isL7(k) ) return findL7Parton(k);
-    else                return labels_[k];
-  }
-
-  static std::string findL5Flavor( key_type k ){
-    if ( k == L5Flavor ) return labels_[L5Flavor];
-    else 
-      return l5Flavors_[k / 100 - 1];
-  }  
-
-  static std::string findL7Parton( key_type k ){
-    if ( k == L7Parton ) return labels_[L7Parton];
-    else 
-      return l7Partons_[k / 1000 - 1];
-  }
+  static std::string findLabel( key_type k );
+  static std::string findL5Flavor( key_type k );
+  static std::string findL7Parton( key_type k );
 
  protected:
 
