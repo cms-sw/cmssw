@@ -35,10 +35,10 @@ public:
 
 private:  
   // member data
-  edm::InputTag     srcPart_ ;  
-  edm::InputTag     srcPV_   ;
-  double            max_dxy_ ;
-  double            max_dz_  ;
+  double                                          max_dxy_           ;
+  double                                          max_dz_            ;
+  edm::EDGetTokenT< std::vector<reco::Vertex> >   v_recoVertexToken_ ;
+  edm::EDGetTokenT< std::vector<reco::Muon> >     v_recoMuonToken_   ;
 };
 
 
@@ -49,10 +49,10 @@ private:
 
 //______________________________________________________________________________
 MuonFromPVSelector::MuonFromPVSelector(const edm::ParameterSet& iConfig)
-  : srcPart_(iConfig.getParameter<edm::InputTag>("srcMuon"))
-  , srcPV_  (iConfig.getParameter<edm::InputTag>("srcVertex"))
-  , max_dxy_(iConfig.getParameter<double>("max_dxy"))
-  , max_dz_ (iConfig.getParameter<double>("max_dz"))
+  : max_dxy_          ( iConfig.getParameter<double>( "max_dxy" ) )
+  , max_dz_           ( iConfig.getParameter<double>( "max_dz" ) )
+  , v_recoVertexToken_( consumes< std::vector<reco::Vertex> >( iConfig.getParameter<edm::InputTag>( "srcVertex" ) ) )
+  , v_recoMuonToken_  ( consumes< std::vector<reco::Muon> >( iConfig.getParameter<edm::InputTag>( "srcMuon" ) ) )
 {
   produces<std::vector<reco::Muon> >();
 }
@@ -71,10 +71,10 @@ void MuonFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   std::auto_ptr<std::vector<reco::Muon> > goodMuons(new std::vector<reco::Muon >);
   
   edm::Handle< std::vector<reco::Vertex> > VertexHandle;
-  iEvent.getByLabel(srcPV_,VertexHandle);
+  iEvent.getByToken( v_recoVertexToken_, VertexHandle );
 
   edm::Handle< std::vector<reco::Muon> > MuonHandle;
-  iEvent.getByLabel(srcPart_,MuonHandle);
+  iEvent.getByToken( v_recoMuonToken_, MuonHandle );
   
   if( (VertexHandle->size() == 0) || (MuonHandle->size() == 0) ) 
   {
