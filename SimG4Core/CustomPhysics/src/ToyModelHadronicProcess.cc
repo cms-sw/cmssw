@@ -2,7 +2,6 @@
 #include "G4ProcessManager.hh"
 #include "G4ParticleTable.hh"
 #include "G4Track.hh"
-#include "G4InelasticInteraction.hh"
 #include "Randomize.hh"
 //Our includes
 #include "SimG4Core/CustomPhysics/interface/ToyModelHadronicProcess.hh"
@@ -343,14 +342,6 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 	  m_particleChange.AddSecondary(productTrack);
 	}
     } 
-
-
-
-
-
-
-
-
 
   //clear interaction length      
   ClearNumberOfInteractionLengthLeft();
