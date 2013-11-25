@@ -7,7 +7,7 @@
  *  these can later be subtracted from deposits in a cone.
  *  All work is done by TrackDetectorAssociator. Because of the heavy
  *  weight of the tool, all extractions can (should?) be placed in a single place.
- *  
+ *
  *  \author S. Krutelyov
  */
 
@@ -15,10 +15,11 @@
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
@@ -29,14 +30,14 @@ class TrackDetectorAssociator;
 class MuonServiceProxy;
 
 namespace muonisolation {
-  
+
   class CaloExtractorByAssociator : public reco::isodeposit::IsoDepositExtractor {
 
   public:
 
     //! constructors
     CaloExtractorByAssociator(){};
-    CaloExtractorByAssociator(const edm::ParameterSet& par);
+    CaloExtractorByAssociator(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
 
     //! destructor
     virtual ~CaloExtractorByAssociator();
@@ -44,17 +45,17 @@ namespace muonisolation {
     //! allows to set extra vetoes (in addition to the muon) -- no-op at this point
     virtual void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks);
     //! no-op: by design of this extractor the deposits are pulled out all at a time
-    virtual reco::IsoDeposit 
+    virtual reco::IsoDeposit
       deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
     //! return deposits for 3 calorimeter subdetectors (ecal, hcal, ho) -- in this order
-    virtual std::vector<reco::IsoDeposit> 
+    virtual std::vector<reco::IsoDeposit>
       deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
 
   private:
 
     //! use towers or rec hits
     bool theUseRecHitsFlag;
-  
+
     //! Label of deposit -- suggest to set to "" (all info is in collection name anyways)
     std::string theDepositLabel;
 
@@ -99,7 +100,7 @@ namespace muonisolation {
 
     //! associator, its' parameters and the propagator
     TrackAssociatorParameters* theAssociatorParameters;
-    TrackDetectorAssociator* theAssociator;  
+    TrackDetectorAssociator* theAssociator;
 
     //! flag to turn on/off printing of a time report
     bool thePrintTimeReport;

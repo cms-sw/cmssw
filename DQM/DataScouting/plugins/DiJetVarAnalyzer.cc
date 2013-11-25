@@ -40,6 +40,11 @@ DiJetVarAnalyzer::DiJetVarAnalyzer( const edm::ParameterSet & conf ):
   HLTpathMonitor_          (triggerExpression::parse( conf.getParameter<std::string>("HLTpathMonitor") )),
   triggerConfiguration_           (conf.getParameterSet("triggerConfiguration"))
 {
+  //set Token(-s)
+  jetCollectionTagToken_ = consumes<reco::CaloJetCollection>(conf.getUntrackedParameter<edm::InputTag>("jetCollectionTag"));
+  widejetsCollectionTagToken_ = consumes<std::vector<math::PtEtaPhiMLorentzVector> >(conf.getUntrackedParameter<edm::InputTag>("widejetsCollectionTag"));
+  metCollectionTagToken_ = consumes<reco::CaloMETCollection>(conf.getUntrackedParameter<edm::InputTag>("metCollectionTag"));
+  metCleanCollectionTagToken_ = consumes<reco::CaloMETCollection>(conf.getUntrackedParameter<edm::InputTag>("metCleanCollectionTag"));
 }
 
 //------------------------------------------------------------------------------
@@ -63,7 +68,8 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   
   // ## Get jet collection
   edm::Handle<reco::CaloJetCollection> calojets_handle;
-  iEvent.getByLabel(jetCollectionTag_,calojets_handle);
+  iEvent.getByToken(jetCollectionTagToken_,calojets_handle);
+
 
   // Loop over all the selected jets ( defined at DQM/DataScouting/python/dijetScouting_cff.py )  
   double thisHT = 0.;
@@ -85,7 +91,7 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   
   // ## Get widejets 
   edm::Handle< vector<math::PtEtaPhiMLorentzVector> > widejets_handle;
-  iEvent.getByLabel (widejetsCollectionTag_,widejets_handle);
+  iEvent.getByToken(widejetsCollectionTagToken_, widejets_handle);
   
   TLorentzVector wj1;
   TLorentzVector wj2;
@@ -125,11 +131,11 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
 
   // met
   edm::Handle<reco::CaloMETCollection> calomet_handle;
-  iEvent.getByLabel(metCollectionTag_,calomet_handle);
+  iEvent.getByToken(metCollectionTagToken_, calomet_handle);
 
   // met cleaned
   edm::Handle<reco::CaloMETCollection> calometClean_handle;
-  iEvent.getByLabel(metCleanCollectionTag_,calometClean_handle);
+  iEvent.getByToken(metCleanCollectionTagToken_, calometClean_handle);
  
   if( calomet_handle.isValid() && calometClean_handle.isValid() )
     {

@@ -29,6 +29,9 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+#include <DataFormats/MuonReco/interface/MuonFwd.h>
 
 #include <vector>
 #include <string>
@@ -39,20 +42,20 @@ class DTChamberId;
 class DTTrigGeomUtils;
 
 class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
-  
+
  public:
-  
+
   /// Constructor
   DTTriggerEfficiencyTask(const edm::ParameterSet& ps );
-  
+
   /// Destructor
   virtual ~DTTriggerEfficiencyTask();
-  
+
  protected:
-  
+
   // BeginJob
   void beginJob();
-  
+
   /// BeginRun
   void beginRun(const edm::Run& run, const edm::EventSetup& context);
 
@@ -73,12 +76,12 @@ class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
 
   /// To reset the MEs
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
-  
+
   /// EndJob
   void endJob(void);
-    
+
  private:
-  
+
   int nevents;
 
   std::string SegmArbitration;
@@ -90,13 +93,11 @@ class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
   float phiAccRange;
   int nMinHitsPhi;
 
-  edm::InputTag inputTagMuons;
-
-  edm::InputTag inputTagDCC;
-  edm::InputTag inputTagDDU;
+  edm::EDGetTokenT<reco::MuonCollection> muons_Token_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> dcc_Token_;
+  edm::EDGetTokenT<DTLocalTriggerCollection> ddu_Token_;
   edm::InputTag inputTagSEG;
-
-  edm::InputTag inputTagGMT;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> gmt_Token_;
 
   DQMStore* dbe;
   edm::ParameterSet parameters;
@@ -108,3 +109,8 @@ class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

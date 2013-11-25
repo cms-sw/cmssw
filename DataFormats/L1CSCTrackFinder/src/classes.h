@@ -6,7 +6,7 @@
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
 #include <DataFormats/Common/interface/Wrapper.h>
 
-namespace {
+namespace DataFormats_L1CSCTrackFinder {
   struct dictionary {
       csc::L1Track cL1TRK;
       csc::L1TrackId cL1TRKID;

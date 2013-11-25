@@ -323,7 +323,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	 case ddpseudotrap:
 	 {
 	    //implementation taken from SimG4Core/Geometry/src/DDG4SolidConverter.cc
-	    static DDRotationMatrix s_rot( ROOT::Math::RotationX( 90.*deg ));
+	    const static DDRotationMatrix s_rot( ROOT::Math::RotationX( 90.*deg ));
 	    DDPseudoTrap pt( iSolid );
 
 	    double r = pt.radius();

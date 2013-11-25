@@ -16,6 +16,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 //
 // class declaration
 //
@@ -105,6 +108,11 @@ class L1TDTTF : public edm::EDAnalyzer {
   int nev_dttf_; //Number of events with at least one DTTF track
   int nev_dttf_track2_; //Number of events with at least one DTTF 2nd track
   int numTracks[6][12];
+
+  //define Token(-s)
+  edm::EDGetTokenT<L1MuDTTrackContainer> trackInputToken_;
+  edm::EDGetTokenT<reco::MuonCollection> muonCollectionToken_;
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtSourceToken_;
 };
 
 #endif

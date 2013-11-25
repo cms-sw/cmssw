@@ -40,6 +40,7 @@
 
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Common/interface/AtomicPtrCache.h"
 
 
 // Define typedefs for convenience
@@ -492,13 +493,13 @@ namespace pat {
       // ---- for content embedding ----
 
       bool embeddedCaloTowers_;
-      mutable std::vector<CaloTowerPtr> caloTowersTemp_; // to simplify user interface
+      edm::AtomicPtrCache<std::vector<CaloTowerPtr> > caloTowersTemp_; // to simplify user interface
       CaloTowerCollection caloTowers_; // Compatibility embedding
       CaloTowerFwdPtrVector caloTowersFwdPtr_; // Refactorized content embedding
 
 
       bool embeddedPFCandidates_;
-      mutable std::vector<reco::PFCandidatePtr> pfCandidatesTemp_; // to simplify user interface
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > pfCandidatesTemp_; // to simplify user interface
       reco::PFCandidateCollection pfCandidates_; // Compatibility embedding
       reco::PFCandidateFwdPtrVector pfCandidatesFwdPtr_; // Refactorized content embedding
 
@@ -561,9 +562,7 @@ namespace pat {
       const JetCorrFactors * corrFactors_() const;
 
       /// cache calo towers
-      mutable bool isCaloTowerCached_;
       void cacheCaloTowers() const;
-      mutable bool isPFCandidateCached_;
       void cachePFCandidates() const;
 
   };

@@ -5,7 +5,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-namespace { 
+namespace DataFormats_L1GlobalMuonTrigger {
 struct dictionary {
   // L1MuRegionalTriggers -> GMT
   std::vector<L1MuRegionalCand> dummy0;

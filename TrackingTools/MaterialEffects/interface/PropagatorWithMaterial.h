@@ -20,8 +20,8 @@
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 
+class MagneticField;
 class PropagatorWithMaterial GCC11_FINAL : public Propagator {
   
 public:

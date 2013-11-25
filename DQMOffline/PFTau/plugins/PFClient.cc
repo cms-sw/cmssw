@@ -115,10 +115,11 @@ void PFClient::createResolutionPlots(std::string& folder, std::string& name) {
   MonitorElement* me = dqmStore_->get(folder+"/"+name);
   if (!me) return;
 
-  MonitorElement* me_average;
-  MonitorElement* me_rms;
-  MonitorElement* me_mean;
-  MonitorElement* me_sigma;
+  MonitorElement* me_average; 
+  MonitorElement* me_rms; 
+  MonitorElement* me_mean; 
+  MonitorElement* me_sigma; 
+
   if ( (me->kind() == MonitorElement::DQM_KIND_TH2F) ||
        (me->kind() == MonitorElement::DQM_KIND_TH2S) ||
        (me->kind() == MonitorElement::DQM_KIND_TH2D) ) {
@@ -141,12 +142,16 @@ void PFClient::createResolutionPlots(std::string& folder, std::string& name) {
 
     tit_new = ";"+xtit+";Average_"+ytit; 
     me_average = dqmStore_->book1D("average_"+name,tit_new, nbinx, xbins); 
+    me_average->setEfficiencyFlag();
     tit_new = ";"+xtit+";RMS_"+ytit; 
     me_rms     = dqmStore_->book1D("rms_"+name,tit_new, nbinx, xbins); 
+    me_rms->setEfficiencyFlag();
     tit_new = ";"+xtit+";Mean_"+ytit; 
     me_mean    = dqmStore_->book1D("mean_"+name,tit_new, nbinx, xbins); 
+    me_mean->setEfficiencyFlag();
     tit_new = ";"+xtit+";Sigma_"+ytit; 				 
     me_sigma   = dqmStore_->book1D("sigma_"+name,tit_new, nbinx, xbins); 
+    me_sigma->setEfficiencyFlag();
 
     double  average, rms, mean, sigma;
 

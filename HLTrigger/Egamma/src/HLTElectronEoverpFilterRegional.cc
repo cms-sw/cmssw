@@ -21,7 +21,7 @@
 //
 // constructors and destructor
 //
-HLTElectronEoverpFilterRegional::HLTElectronEoverpFilterRegional(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTElectronEoverpFilterRegional::HLTElectronEoverpFilterRegional(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
    candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
    electronIsolatedProducer_ = iConfig.getParameter< edm::InputTag > ("electronIsolatedProducer");
@@ -48,12 +48,12 @@ HLTElectronEoverpFilterRegional::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<double>("eoverpendcapcut",2.45);
   desc.add<int>("ncandcut",1);
   desc.add<bool>("doIsolated",true);
-  descriptions.add("hltElectronEoverpFilter",desc);  
+  descriptions.add("hltElectronEoverpFilter",desc);
 }
 
 // ------------ method called to produce the data  ------------
 bool
-HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
   // The filter object
@@ -80,26 +80,26 @@ HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
 
  // look at all candidates,  check cuts and add to filter object
   int n(0);
-  
-    //loop over all the RecoCandidates from the previous filter, 
-    // associate them with the corresponding Electron object 
+
+    //loop over all the RecoCandidates from the previous filter,
+    // associate them with the corresponding Electron object
     //(the matching is done checking the super clusters)
     // and put into the event a Ref to the Electron objects that passes the
-    // selections  
+    // selections
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
     reco::SuperClusterRef recr2 = recoecalcands[i]->superCluster();
 
     //loop over the electrons to find the matching one
     for(reco::ElectronCollection::const_iterator iElectron = electronIsolatedHandle->begin(); iElectron != electronIsolatedHandle->end(); iElectron++){
-      
+
       reco::ElectronRef electronref(reco::ElectronRef(electronIsolatedHandle,iElectron - electronIsolatedHandle->begin()));
       const reco::SuperClusterRef theClus = electronref->superCluster();
-      
+
       if(&(*recr2) ==  &(*theClus)) {
 
 	float elecEoverp = 0;
 	const math::XYZVector trackMom =  electronref->track()->momentum();
-	if( trackMom.R() != 0) elecEoverp = 
+	if( trackMom.R() != 0) elecEoverp =
 				 electronref->superCluster()->energy()/ trackMom.R();
 
 	if( fabs(electronref->eta()) < 1.5 ){
@@ -120,15 +120,15 @@ HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
     if(!doIsolated_) {
     //loop over the electrons to find the matching one
     for(reco::ElectronCollection::const_iterator iElectron = electronNonIsolatedHandle->begin(); iElectron != electronNonIsolatedHandle->end(); iElectron++){
-      
+
       reco::ElectronRef electronref(reco::ElectronRef(electronNonIsolatedHandle,iElectron - electronNonIsolatedHandle->begin()));
       const reco::SuperClusterRef theClus = electronref->superCluster();
-      
+
       if(&(*recr2) ==  &(*theClus)) {
 
 	float elecEoverp = 0;
 	const math::XYZVector trackMom =  electronref->track()->momentum();
-	if( trackMom.R() != 0) elecEoverp = 
+	if( trackMom.R() != 0) elecEoverp =
 				 electronref->superCluster()->energy()/ trackMom.R();
 
 	if( fabs(electronref->eta()) < 1.5 ){
@@ -150,6 +150,6 @@ HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
 
   // filter decision
   bool accept(n>=ncandcut_);
-  
+
   return accept;
 }

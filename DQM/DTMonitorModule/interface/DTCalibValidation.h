@@ -77,11 +77,11 @@ class DTCalibValidation: public edm::EDAnalyzer{
   edm::ESHandle<DTGeometry> dtGeom;
 
   // Lable of 1D rechits in the event
-  std::string recHits1DLabel;
+  edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
   // Lable of 2D segments in the event
-  std::string segment2DLabel;
+  edm::EDGetTokenT<DTRecSegment2DCollection> segment2DToken_;
   // Lable of 4D segments in the event
-  std::string segment4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
 
   // Return a map between DTRecHit1DPair and wireId
   std::map<DTWireId, std::vector<DTRecHit1DPair> >
@@ -96,7 +96,7 @@ class DTCalibValidation: public edm::EDAnalyzer{
     map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds);
 
   template  <typename type>
-  const type* 
+  const type*
   findBestRecHit(const DTLayer* layer,
 		 DTWireId wireId,
 		 const std::vector<type>& recHits,
@@ -110,7 +110,7 @@ class DTCalibValidation: public edm::EDAnalyzer{
   float recHitPosition(const DTRecHit1DPair& hitPair, const DTLayer* layer, const DTChamber* chamber, float segmPos, int sl);
   // Compute the position with respect to the wire (cm) of a hits in a DTRecHit1D
   float recHitPosition(const DTRecHit1D& recHit, const DTLayer* layer, const DTChamber* chamber, float segmPos, int sl);
-  
+
   // Does the real job
   template  <typename type>
     void compute(const DTGeometry *dtGeom,
@@ -120,7 +120,7 @@ class DTCalibValidation: public edm::EDAnalyzer{
 
   // Book a set of histograms for a give chamber
   void bookHistos(DTSuperLayerId slId, int step);
-  // Fill a set of histograms for a give chamber 
+  // Fill a set of histograms for a give chamber
   void fillHistos(DTSuperLayerId slId,
 		  float distance,
 		  float residualOnDistance,
@@ -135,3 +135,8 @@ class DTCalibValidation: public edm::EDAnalyzer{
 
 
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

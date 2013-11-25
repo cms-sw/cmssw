@@ -13,14 +13,15 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 HLTElectronMissingHitsFilter::HLTElectronMissingHitsFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
-  electronProducer_ = iConfig.getParameter< edm::InputTag > ("electronProducer");
+  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
+  electronTag_ = iConfig.getParameter< edm::InputTag >("electronProducer");
+  electronToken_ = consumes<reco::ElectronCollection>(electronTag_);
   barrelcut_ = iConfig.getParameter<int> ("barrelcut");
   endcapcut_ = iConfig.getParameter<int> ("endcapcut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
@@ -37,32 +38,32 @@ void HLTElectronMissingHitsFilter::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<int>("barrelcut", 0);
   desc.add<int>("endcapcut", 0);
   desc.add<int>("ncandcut", 1);
-  descriptions.add("hltElectronMissingHitsFilter", desc);  
+  descriptions.add("hltElectronMissingHitsFilter", desc);
 }
 
-bool HLTElectronMissingHitsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTElectronMissingHitsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
   using namespace trigger;
 
   if (saveTags())
-    filterproduct.addCollectionTag(electronProducer_);
-    
+    filterproduct.addCollectionTag(electronTag_);
+
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByLabel (candTag_,PrevFilterOutput);
+  iEvent.getByToken(candToken_,PrevFilterOutput);
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
-  if(recoecalcands.empty()) 
+  if(recoecalcands.empty())
     PrevFilterOutput->getObjects(TriggerPhoton,recoecalcands);
 
   edm::Handle<reco::ElectronCollection> electronHandle;
-  iEvent.getByLabel(electronProducer_, electronHandle);
+  iEvent.getByToken(electronToken_,electronHandle);
 
   int n(0);
-  
-  edm::RefToBase<reco::Candidate> candref;   
+
+  edm::RefToBase<reco::Candidate> candref;
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
-    
+
     reco::SuperClusterRef scCand = recoecalcands[i]->superCluster();
     for(reco::ElectronCollection::const_iterator iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++) {
       reco::ElectronRef electronref(reco::ElectronRef(electronHandle, iElectron - electronHandle->begin()));
@@ -95,6 +96,6 @@ bool HLTElectronMissingHitsFilter::hltFilter(edm::Event& iEvent, const edm::Even
   }
 
   bool accept(n >= ncandcut_);
-  
+
   return accept;
 }

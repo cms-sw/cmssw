@@ -43,7 +43,7 @@ public:
    
    void SetField(double B);
    void GetField(double r,   double z,   double phi,
-                 double &Br, double &Bz, double &Bphi);
+                 double &Br, double &Bz, double &Bphi) const;
 };
 }
 

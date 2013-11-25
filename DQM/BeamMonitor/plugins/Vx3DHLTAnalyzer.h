@@ -8,14 +8,18 @@
 // 
 /**\class Vx3DHLTAnalyzer Vx3DHLTAnalyzer.cc interface/Vx3DHLTAnalyzer.h
 
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
+ Description:     beam-spot monitor entirely based on pixel detector information
+ Implementation:  the monitoring is based on a 3D fit to the vertex cloud
 */
 //
-// Original Author:  Mauro Dinardo,28 S-020,+41227673777,
+// Original Author:  Mauro Dinardo, 28 S-012, +41-22-767-8302,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
+
+// -*- C++ -*-
+//
+// Package:    Vx3DHLTAnalyzer
+// Class:      Vx3DHLTAnalyzer
+// 
 
 
 // system include files
@@ -47,7 +51,7 @@
 // # Fit variables #
 // #################
 #define DIM 3
-void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int /*iflag*/);
+double Gauss3DFunc(const double* par);
 typedef struct
 {
   double x;

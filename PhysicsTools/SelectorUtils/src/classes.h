@@ -12,7 +12,7 @@
 #include "PhysicsTools/SelectorUtils/interface/RunLumiSelector.h"
 
 
-namespace {
+namespace PhysicsTools_SelectorUtils {
   struct dictionary {
 
     pat::strbitset strbitset;

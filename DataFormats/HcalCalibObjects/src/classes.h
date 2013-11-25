@@ -4,7 +4,7 @@
 // #include "DataFormats/HOCalibHit/interface/HOCalibVariableCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace DataFormats_HcalCalibObjects {
   struct dictionary {
    HEDarkening                                  hed;       
    HFRecalibration                              hfr;       

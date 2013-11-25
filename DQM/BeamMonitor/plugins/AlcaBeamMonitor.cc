@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include <numeric>
 //#include <iostream>
 
@@ -29,26 +30,29 @@ using namespace edm;
 using namespace reco;
 
 //----------------------------------------------------------------------------------------------------------------------
-AlcaBeamMonitor::AlcaBeamMonitor( const ParameterSet& ps ) : 
+AlcaBeamMonitor::AlcaBeamMonitor( const ParameterSet& ps ) :
   parameters_         	(ps),
   monitorName_        	(parameters_.getUntrackedParameter<string>("MonitorName","YourSubsystemName")),
-  primaryVertexLabel_ 	(parameters_.getUntrackedParameter<InputTag>("PrimaryVertexLabel")),
+  primaryVertexLabel_ 	(consumes<VertexCollection>(
+      parameters_.getUntrackedParameter<InputTag>("PrimaryVertexLabel"))),
+  trackLabel_         	(consumes<reco::TrackCollection>(
+      parameters_.getUntrackedParameter<InputTag>("TrackLabel"))),
+  scalerLabel_        	(consumes<BeamSpot>(
+      parameters_.getUntrackedParameter<InputTag>("ScalerLabel"))),
   beamSpotLabel_      	(parameters_.getUntrackedParameter<InputTag>("BeamSpotLabel")),
-  trackLabel_         	(parameters_.getUntrackedParameter<InputTag>("TrackLabel")),
-  scalerLabel_        	(parameters_.getUntrackedParameter<InputTag>("ScalerLabel")),
   numberOfValuesToSave_ (0)
 {
   dbe_ = Service<DQMStore>().operator->();
-  
+
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
-  
-  theBeamFitter_ = new BeamFitter(parameters_);
+
+  theBeamFitter_ = new BeamFitter(parameters_, consumesCollector() );
   theBeamFitter_->resetTrkVector();
   theBeamFitter_->resetLSRange();
   theBeamFitter_->resetRefTime();
   theBeamFitter_->resetPVFitter();
 
-  thePVFitter_ = new PVFitter(parameters_);
+  thePVFitter_ = new PVFitter(parameters_, consumesCollector());
 
 
   varNamesV_.push_back("x");
@@ -275,7 +279,7 @@ void AlcaBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup ){
   if(beamSpotsMap_.find("DB") != beamSpotsMap_.end()){
     //------ Tracks
     Handle<reco::TrackCollection> TrackCollection;
-    iEvent.getByLabel(trackLabel_, TrackCollection);
+    iEvent.getByToken(trackLabel_, TrackCollection);
     const reco::TrackCollection *tracks = TrackCollection.product();
     for ( reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track ) {    
       hD0Phi0_->Fill(track->phi(), -1*track->dxy(beamSpotsMap_["DB"].position()));
@@ -285,7 +289,7 @@ void AlcaBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup ){
   
   //------ Primary Vertices
   Handle<VertexCollection > PVCollection;
-  if (iEvent.getByLabel(primaryVertexLabel_, PVCollection )) {
+  if (iEvent.getByToken(primaryVertexLabel_, PVCollection )) {
     vertices_.push_back(*PVCollection.product());
   }
 
@@ -293,7 +297,7 @@ void AlcaBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup ){
     //BeamSpot from file for this stream is = to the scalar BeamSpot
     Handle<BeamSpot> recoBeamSpotHandle;
     try{
-      iEvent.getByLabel(scalerLabel_,recoBeamSpotHandle);
+      iEvent.getByToken(scalerLabel_,recoBeamSpotHandle);
     }
     catch( cms::Exception& exception ){ 			      
       LogInfo("AlcaBeamMonitor") 
@@ -562,3 +566,8 @@ void AlcaBeamMonitor::endJob(const LuminosityBlock& iLumi, const EventSetup& iSe
 
 
 DEFINE_FWK_MODULE(AlcaBeamMonitor);
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

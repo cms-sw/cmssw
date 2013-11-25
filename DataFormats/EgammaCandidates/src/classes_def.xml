@@ -6,9 +6,13 @@
   <class name="reco::Photon" ClassVersion="13">
    <version ClassVersion="13" checksum="2963666409"/>
   </class>
-  <class name="reco::Conversion" ClassVersion="10">
+  <class name="reco::Conversion" ClassVersion="11">
    <version ClassVersion="10" checksum="2140222741"/>
+   <version ClassVersion="11" checksum="598717096"/>
   </class>
+  <ioread sourceClass = "reco::Conversion" version="[1-10]" targetClass="reco::Conversion" source="std::vector<reco::TrackRef> tracks_; std::vector<edm::RefToBase<reco::Track> > trackToBaseRefs_" target="trackToBaseRefs_">
+     <![CDATA[trackToBaseRefs_=onfile.trackToBaseRefs_; if(onfile.tracks_.size()>onfile.trackToBaseRefs_.size()) { for(auto const& t: onfile.tracks_) { trackToBaseRefs_.emplace_back(t);} }]]>
+  </ioread>
   <class name="reco::Electron" ClassVersion="11">
    <version ClassVersion="11" checksum="1178796923"/>
   </class>

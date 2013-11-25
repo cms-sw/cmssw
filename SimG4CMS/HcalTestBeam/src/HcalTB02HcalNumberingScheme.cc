@@ -16,6 +16,8 @@
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02HcalNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4SystemOfUnits.hh"
+
 using namespace std;
 
 //

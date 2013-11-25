@@ -5,13 +5,11 @@
 // 
 /**\class Vx3DHLTAnalyzer Vx3DHLTAnalyzer.cc plugins/Vx3DHLTAnalyzer.cc
 
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
+ Description:     beam-spot monitor entirely based on pixel detector information
+ Implementation:  the monitoring is based on a 3D fit to the vertex cloud
 */
 //
-// Original Author:  Mauro Dinardo,28 S-020,+41227673777,
+// Original Author:  Mauro Dinardo, 28 S-012, +41-22-767-8302,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
 
 
@@ -24,7 +22,9 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include <TFitterMinuit.h>
+#include <Math/Minimizer.h>
+#include <Math/Factory.h>
+#include <Math/Functor.h>
 
 
 using namespace std;
@@ -173,7 +173,7 @@ char* Vx3DHLTAnalyzer::formatTime (const time_t& t)
 }
 
 
-void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int /*iflag*/)
+double Gauss3DFunc(const double* par)
 {
   double K[DIM][DIM]; // Covariance Matrix
   double M[DIM][DIM]; // K^-1
@@ -237,8 +237,8 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 	  counterVx++;
 	}
     }
-  
-  fval = sumlog;
+
+  return sumlog;
 }
 
 
@@ -271,18 +271,18 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       int bestMovementZ = 1;
       int goodData;
 
-      double arglist[2];
-      double amin,errdef,edm;
-      int nvpar,nparx;
-      
+      double edm;
+
       vector<double>::const_iterator it = vals->begin();
 
-      TFitterMinuit* Gauss3D = new TFitterMinuit(nParams);
+      ROOT::Math::Minimizer* Gauss3D = ROOT::Math::Factory::CreateMinimizer("Minuit2","Migrad");
+      Gauss3D->SetMaxFunctionCalls(1e4);
+      Gauss3D->SetTolerance(1e-9); // Tolerance on likelihood
       if (internalDebug == true) Gauss3D->SetPrintLevel(3);
-      else Gauss3D->SetPrintLevel(0);
-      Gauss3D->SetFCN(Gauss3DFunc);
-      arglist[0] = 10000; // Max number of function calls
-      arglist[1] = 1e-9;  // Tolerance on likelihood
+      else                       Gauss3D->SetPrintLevel(0);
+
+      ROOT::Math::Functor _Gauss3DFunc(&Gauss3DFunc,nParams);
+      Gauss3D->SetFunction(_Gauss3DFunc);
 
       if (internalDebug == true) cout << "\n@@@ START FITTING @@@" << endl;
 
@@ -295,41 +295,40 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 
 	  Gauss3D->Clear();
 
-	  // arg3 - first guess of parameter value
-	  // arg4 - step of the parameter
-	  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY, 0., 0.);
-	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY, 0., 0.);
-	  Gauss3D->SetParameter(2,"var z ", *(it+2), parDistanceZ*parDistanceZ, 0., 0.);
-	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistanceCxy, 0., 0.);
-	  Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistanceddZ, 0., 0.);
-	  Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistanceddZ, 0., 0.);
-	  Gauss3D->SetParameter(6,"mean x", *(it+6)+deltaMean, parDistanceXY, 0., 0.);
-	  Gauss3D->SetParameter(7,"mean y", *(it+7), parDistanceXY, 0., 0.);
-	  Gauss3D->SetParameter(8,"mean z", *(it+8), parDistanceZ, 0., 0.);
+	  Gauss3D->SetVariable(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY);
+	  Gauss3D->SetVariable(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY);
+	  Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ*parDistanceZ);
+	  Gauss3D->SetVariable(3,"cov xy", *(it+3), parDistanceCxy);
+	  Gauss3D->SetVariable(4,"dydz  ", *(it+4), parDistanceddZ);
+	  Gauss3D->SetVariable(5,"dxdz  ", *(it+5), parDistanceddZ);
+	  Gauss3D->SetVariable(6,"mean x", *(it+6)+deltaMean, parDistanceXY);
+	  Gauss3D->SetVariable(7,"mean y", *(it+7), parDistanceXY);
+	  Gauss3D->SetVariable(8,"mean z", *(it+8), parDistanceZ);
 
 	  // Set the central positions of the centroid for vertex rejection
-	  xPos = Gauss3D->GetParameter(6);
-	  yPos = Gauss3D->GetParameter(7);
-	  zPos = Gauss3D->GetParameter(8);
+	  xPos = Gauss3D->X()[6];
+	  yPos = Gauss3D->X()[7];
+	  zPos = Gauss3D->X()[8];
 
 	  // Set dimensions of the centroid for vertex rejection
-	  maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->GetParameter(0)) + std::fabs(Gauss3D->GetParameter(1))) / 2.;
-	  maxLongLength  = nSigmaZ  * std::sqrt(std::fabs(Gauss3D->GetParameter(2)));
+	  maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
+	  maxLongLength  = nSigmaZ  * std::sqrt(std::fabs(Gauss3D->X()[2]));
 
-	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
-	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
+	  Gauss3D->Minimize();
+	  goodData = Gauss3D->Status();
+	  edm = Gauss3D->Edm();
 
 	  if (counterVx < minNentries) goodData = -2;
 	  else if (edm::isNotFinite(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	  else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
-	      covyz = Gauss3D->GetParameter(4)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(1))) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(3);
-	      covxz = Gauss3D->GetParameter(5)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(0))) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(3);
+	      covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
+	      covxz = Gauss3D->X()[5]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[0])) - Gauss3D->X()[4]*Gauss3D->X()[3];
 	      
-	      det = std::fabs(Gauss3D->GetParameter(0)) * (std::fabs(Gauss3D->GetParameter(1))*std::fabs(Gauss3D->GetParameter(2)) - covyz*covyz) -
-		Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*std::fabs(Gauss3D->GetParameter(2)) - covxz*covyz) +
-		covxz * (Gauss3D->GetParameter(3)*covyz - covxz*std::fabs(Gauss3D->GetParameter(1)));
+	      det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1])*std::fabs(Gauss3D->X()[2]) - covyz*covyz) -
+		Gauss3D->X()[3] * (Gauss3D->X()[3]*std::fabs(Gauss3D->X()[2]) - covxz*covyz) +
+		covxz * (Gauss3D->X()[3]*covyz - covxz*std::fabs(Gauss3D->X()[1]));
 	      if (det < 0.) { goodData = -1; if (internalDebug == true) cout << "Negative determinant !" << endl; }
 	    }
 
@@ -350,41 +349,40 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 
 	  Gauss3D->Clear();
 
-	  // arg3 - first guess of parameter value
-	  // arg4 - step of the parameter
-	  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY, 0., 0.);
-	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY, 0., 0.);
-	  Gauss3D->SetParameter(2,"var z ", *(it+2), parDistanceZ*parDistanceZ, 0., 0.);
-	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistanceCxy, 0., 0.);
-	  Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistanceddZ, 0., 0.);
-	  Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistanceddZ, 0., 0.);
-	  Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor), parDistanceXY, 0., 0.);
-	  Gauss3D->SetParameter(7,"mean y", *(it+7)+deltaMean, parDistanceXY, 0., 0.);
-	  Gauss3D->SetParameter(8,"mean z", *(it+8), parDistanceZ, 0., 0.);
+	  Gauss3D->SetVariable(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY);
+	  Gauss3D->SetVariable(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY);
+	  Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ*parDistanceZ);
+	  Gauss3D->SetVariable(3,"cov xy", *(it+3), parDistanceCxy);
+	  Gauss3D->SetVariable(4,"dydz  ", *(it+4), parDistanceddZ);
+	  Gauss3D->SetVariable(5,"dxdz  ", *(it+5), parDistanceddZ);
+	  Gauss3D->SetVariable(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor), parDistanceXY);
+	  Gauss3D->SetVariable(7,"mean y", *(it+7)+deltaMean, parDistanceXY);
+	  Gauss3D->SetVariable(8,"mean z", *(it+8), parDistanceZ);
 
 	  // Set the central positions of the centroid for vertex rejection
-	  xPos = Gauss3D->GetParameter(6);
-	  yPos = Gauss3D->GetParameter(7);
-	  zPos = Gauss3D->GetParameter(8);
+	  xPos = Gauss3D->X()[6];
+	  yPos = Gauss3D->X()[7];
+	  zPos = Gauss3D->X()[8];
 
 	  // Set dimensions of the centroid for vertex rejection
-	  maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->GetParameter(0)) + std::fabs(Gauss3D->GetParameter(1))) / 2.;
-	  maxLongLength  = nSigmaZ  * std::sqrt(std::fabs(Gauss3D->GetParameter(2)));
+	  maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
+	  maxLongLength  = nSigmaZ  * std::sqrt(std::fabs(Gauss3D->X()[2]));
 
-	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
-	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
+          Gauss3D->Minimize();
+          goodData = Gauss3D->Status();
+	  edm = Gauss3D->Edm();
 
 	  if (counterVx < minNentries) goodData = -2;
 	  else if (edm::isNotFinite(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	  else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
-	      covyz = Gauss3D->GetParameter(4)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(1))) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(3);
-	      covxz = Gauss3D->GetParameter(5)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(0))) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(3);
+	      covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
+	      covxz = Gauss3D->X()[5]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[0])) - Gauss3D->X()[4]*Gauss3D->X()[3];
 	      
-	      det = std::fabs(Gauss3D->GetParameter(0)) * (std::fabs(Gauss3D->GetParameter(1))*std::fabs(Gauss3D->GetParameter(2)) - covyz*covyz) -
-		Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*std::fabs(Gauss3D->GetParameter(2)) - covxz*covyz) +
-		covxz * (Gauss3D->GetParameter(3)*covyz - covxz*std::fabs(Gauss3D->GetParameter(1)));
+	      det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1])*std::fabs(Gauss3D->X()[2]) - covyz*covyz) -
+		Gauss3D->X()[3] * (Gauss3D->X()[3]*std::fabs(Gauss3D->X()[2]) - covxz*covyz) +
+		covxz * (Gauss3D->X()[3]*covyz - covxz*std::fabs(Gauss3D->X()[1]));
 	      if (det < 0.) { goodData = -1; if (internalDebug == true) cout << "Negative determinant !" << endl; }
 	    }
 	  
@@ -406,41 +404,40 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 
 	  Gauss3D->Clear();
 
-	  // arg3 - first guess of parameter value
-	  // arg4 - step of the parameter
-	  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY, 0., 0.);
-	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY, 0., 0.);
-	  Gauss3D->SetParameter(2,"var z ", *(it+2), parDistanceZ*parDistanceZ, 0., 0.);
-	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistanceCxy, 0., 0.);
-	  Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistanceddZ, 0., 0.);
-	  Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistanceddZ, 0., 0.);
-	  Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor), parDistanceXY, 0., 0.);
-	  Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*std::sqrt((*(it+1))*varFactor), parDistanceXY, 0., 0.);
-	  Gauss3D->SetParameter(8,"mean z", *(it+8)+deltaMean, parDistanceZ, 0., 0.);
+	  Gauss3D->SetVariable(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY);
+	  Gauss3D->SetVariable(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY);
+	  Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ*parDistanceZ);
+	  Gauss3D->SetVariable(3,"cov xy", *(it+3), parDistanceCxy);
+	  Gauss3D->SetVariable(4,"dydz  ", *(it+4), parDistanceddZ);
+	  Gauss3D->SetVariable(5,"dxdz  ", *(it+5), parDistanceddZ);
+	  Gauss3D->SetVariable(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor), parDistanceXY);
+	  Gauss3D->SetVariable(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*std::sqrt((*(it+1))*varFactor), parDistanceXY);
+	  Gauss3D->SetVariable(8,"mean z", *(it+8)+deltaMean, parDistanceZ);
 
 	  // Set the central positions of the centroid for vertex rejection
-	  xPos = Gauss3D->GetParameter(6);
-	  yPos = Gauss3D->GetParameter(7);
-	  zPos = Gauss3D->GetParameter(8);
+	  xPos = Gauss3D->X()[6];
+	  yPos = Gauss3D->X()[7];
+	  zPos = Gauss3D->X()[8];
 
 	  // Set dimensions of the centroid for vertex rejection
-	  maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->GetParameter(0)) + std::fabs(Gauss3D->GetParameter(1))) / 2.;
-	  maxLongLength  = nSigmaZ  * std::sqrt(std::fabs(Gauss3D->GetParameter(2)));
+	  maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
+	  maxLongLength  = nSigmaZ  * std::sqrt(std::fabs(Gauss3D->X()[2]));
 
-	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
-	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
+          Gauss3D->Minimize();
+          goodData = Gauss3D->Status();
+	  edm = Gauss3D->Edm();
 
 	  if (counterVx < minNentries) goodData = -2;
 	  else if (edm::isNotFinite(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	  else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
-	      covyz = Gauss3D->GetParameter(4)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(1))) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(3);
-	      covxz = Gauss3D->GetParameter(5)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(0))) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(3);
-	      
-	      det = std::fabs(Gauss3D->GetParameter(0)) * (std::fabs(Gauss3D->GetParameter(1))*std::fabs(Gauss3D->GetParameter(2)) - covyz*covyz) -
-		Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*std::fabs(Gauss3D->GetParameter(2)) - covxz*covyz) +
-		covxz * (Gauss3D->GetParameter(3)*covyz - covxz*std::fabs(Gauss3D->GetParameter(1)));
+	      covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
+	      covxz = Gauss3D->X()[5]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[0])) - Gauss3D->X()[4]*Gauss3D->X()[3];
+
+	      det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1])*std::fabs(Gauss3D->X()[2]) - covyz*covyz) -
+		Gauss3D->X()[3] * (Gauss3D->X()[3]*std::fabs(Gauss3D->X()[2]) - covxz*covyz) +
+		covxz * (Gauss3D->X()[3]*covyz - covxz*std::fabs(Gauss3D->X()[1]));
 	      if (det < 0.) { goodData = -1; if (internalDebug == true) cout << "Negative determinant !" << endl; }
 	    }
 	  
@@ -451,47 +448,44 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       Gauss3D->Clear();
 
       // @@@ FINAL FIT @@@
-      // arg3 - first guess of parameter value
-      // arg4 - step of the parameter
-      Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY, 0., 0.);
-      Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY, 0., 0.);
-      Gauss3D->SetParameter(2,"var z ", *(it+2), parDistanceZ*parDistanceZ, 0., 0.);
-      Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistanceCxy, 0., 0.);
-      Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistanceddZ, 0., 0.);
-      Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistanceddZ, 0., 0.);
-      Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor), parDistanceXY, 0., 0.);
-      Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*std::sqrt((*(it+1))*varFactor), parDistanceXY, 0., 0.);
-      Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*std::sqrt(*(it+2)), parDistanceZ, 0., 0.);
+      Gauss3D->SetVariable(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY);
+      Gauss3D->SetVariable(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY);
+      Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ*parDistanceZ);
+      Gauss3D->SetVariable(3,"cov xy", *(it+3), parDistanceCxy);
+      Gauss3D->SetVariable(4,"dydz  ", *(it+4), parDistanceddZ);
+      Gauss3D->SetVariable(5,"dxdz  ", *(it+5), parDistanceddZ);
+      Gauss3D->SetVariable(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor), parDistanceXY);
+      Gauss3D->SetVariable(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*std::sqrt((*(it+1))*varFactor), parDistanceXY);
+      Gauss3D->SetVariable(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*std::sqrt(*(it+2)), parDistanceZ);
 
       // Set the central positions of the centroid for vertex rejection
-      xPos = Gauss3D->GetParameter(6);
-      yPos = Gauss3D->GetParameter(7);
-      zPos = Gauss3D->GetParameter(8);
-      
-      // Set dimensions of the centroid for vertex rejection
-      maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->GetParameter(0)) + std::fabs(Gauss3D->GetParameter(1))) / 2.;
-      maxLongLength  = nSigmaZ  * std::sqrt(std::fabs(Gauss3D->GetParameter(2)));
+      xPos = Gauss3D->X()[6];
+      yPos = Gauss3D->X()[7];
+      zPos = Gauss3D->X()[8];
 
-      goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);      
-      Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
+      // Set dimensions of the centroid for vertex rejection
+      maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
+      maxLongLength  = nSigmaZ  * std::sqrt(std::fabs(Gauss3D->X()[2]));
+
+      Gauss3D->Minimize();
+      goodData = Gauss3D->Status();
+      edm = Gauss3D->Edm();
       
       if (counterVx < minNentries) goodData = -2;
       else if (edm::isNotFinite(edm) == true) goodData = -1;
-      else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+      else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
       if (goodData == 0)
 	{
-	  covyz = Gauss3D->GetParameter(4)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(1))) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(3);
-	  covxz = Gauss3D->GetParameter(5)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(0))) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(3);
-	  
-	  det = std::fabs(Gauss3D->GetParameter(0)) * (std::fabs(Gauss3D->GetParameter(1))*std::fabs(Gauss3D->GetParameter(2)) - covyz*covyz) -
-	    Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*std::fabs(Gauss3D->GetParameter(2)) - covxz*covyz) +
-	    covxz * (Gauss3D->GetParameter(3)*covyz - covxz*std::fabs(Gauss3D->GetParameter(1)));
+	  covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
+	  covxz = Gauss3D->X()[5]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[0])) - Gauss3D->X()[4]*Gauss3D->X()[3];
+
+	  det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1])*std::fabs(Gauss3D->X()[2]) - covyz*covyz) -
+	    Gauss3D->X()[3] * (Gauss3D->X()[3]*std::fabs(Gauss3D->X()[2]) - covxz*covyz) +
+	    covxz * (Gauss3D->X()[3]*covyz - covxz*std::fabs(Gauss3D->X()[1]));
 	  if (det < 0.) { goodData = -1; if (internalDebug == true) cout << "Negative determinant !" << endl; }
 	}
 
       // @@@ FIT WITH DIFFERENT PARAMETER DISTANCES @@@
-      // arg3 - first guess of parameter value
-      // arg4 - step of the parameter
       for (unsigned int i = 0; i < trials; i++)
 	{
 	  if ((goodData != 0) && (goodData != -2))
@@ -500,39 +494,40 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  
 	      if (internalDebug == true) cout << "FIT WITH DIFFERENT PARAMETER DISTANCES - STEP " << i+1 << endl;      
 
-	      Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY * largerDist[i], 0, 0);
-	      Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY * largerDist[i], 0, 0);
-	      Gauss3D->SetParameter(2,"var z ", *(it+2), parDistanceZ*parDistanceZ * largerDist[i], 0, 0);
-	      Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistanceCxy * largerDist[i], 0, 0);
-	      Gauss3D->SetParameter(4,"dydz  ", *(it+4), parDistanceddZ * largerDist[i], 0, 0);
-	      Gauss3D->SetParameter(5,"dxdz  ", *(it+5), parDistanceddZ * largerDist[i], 0, 0);
-	      Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor), parDistanceXY * largerDist[i], 0, 0);
-	      Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*std::sqrt((*(it+1))*varFactor), parDistanceXY * largerDist[i], 0, 0);
-	      Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*std::sqrt(*(it+2)), parDistanceZ * largerDist[i], 0, 0);
+	      Gauss3D->SetVariable(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY * largerDist[i]);
+	      Gauss3D->SetVariable(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY * largerDist[i]);
+	      Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ*parDistanceZ * largerDist[i]);
+	      Gauss3D->SetVariable(3,"cov xy", *(it+3), parDistanceCxy * largerDist[i]);
+	      Gauss3D->SetVariable(4,"dydz  ", *(it+4), parDistanceddZ * largerDist[i]);
+	      Gauss3D->SetVariable(5,"dxdz  ", *(it+5), parDistanceddZ * largerDist[i]);
+	      Gauss3D->SetVariable(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor), parDistanceXY * largerDist[i]);
+	      Gauss3D->SetVariable(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*std::sqrt((*(it+1))*varFactor), parDistanceXY * largerDist[i]);
+	      Gauss3D->SetVariable(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*std::sqrt(*(it+2)), parDistanceZ * largerDist[i]);
 
 	      // Set the central positions of the centroid for vertex rejection
-	      xPos = Gauss3D->GetParameter(6);
-	      yPos = Gauss3D->GetParameter(7);
-	      zPos = Gauss3D->GetParameter(8);
+	      xPos = Gauss3D->X()[6];
+	      yPos = Gauss3D->X()[7];
+	      zPos = Gauss3D->X()[8];
 
 	      // Set dimensions of the centroid for vertex rejection
-	      maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->GetParameter(0)) + std::fabs(Gauss3D->GetParameter(1))) / 2.;
-	      maxLongLength  = nSigmaZ  * std::sqrt(std::fabs(Gauss3D->GetParameter(2)));
+	      maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
+	      maxLongLength  = nSigmaZ  * std::sqrt(std::fabs(Gauss3D->X()[2]));
 
-	      goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
-	      Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
+	      Gauss3D->Minimize();
+	      goodData = Gauss3D->Status();
+	      edm = Gauss3D->Edm();
       
 	      if (counterVx < minNentries) goodData = -2;
 	      else if (edm::isNotFinite(edm) == true) goodData = -1;
-	      else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	      else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
 	      if (goodData == 0)
 		{
-		  covyz = Gauss3D->GetParameter(4)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(1))) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(3);
-		  covxz = Gauss3D->GetParameter(5)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(0))) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(3);
+		  covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
+		  covxz = Gauss3D->X()[5]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[0])) - Gauss3D->X()[4]*Gauss3D->X()[3];
 	      
-		  det = std::fabs(Gauss3D->GetParameter(0)) * (std::fabs(Gauss3D->GetParameter(1))*std::fabs(Gauss3D->GetParameter(2)) - covyz*covyz) -
-		    Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*std::fabs(Gauss3D->GetParameter(2)) - covxz*covyz) +
-		    covxz * (Gauss3D->GetParameter(3)*covyz - covxz*std::fabs(Gauss3D->GetParameter(1)));
+		  det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1])*std::fabs(Gauss3D->X()[2]) - covyz*covyz) -
+		    Gauss3D->X()[3] * (Gauss3D->X()[3]*std::fabs(Gauss3D->X()[2]) - covxz*covyz) +
+		    covxz * (Gauss3D->X()[3]*covyz - covxz*std::fabs(Gauss3D->X()[1]));
 		  if (det < 0.) { goodData = -1; if (internalDebug == true) cout << "Negative determinant !" << endl; }
 		}
 	    } else break;
@@ -541,8 +536,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       if (goodData == 0)
 	for (unsigned int i = 0; i < nParams; i++)
 	  {
-	    vals->operator[](i) = Gauss3D->GetParameter(i);
-	    vals->operator[](i+nParams) = Gauss3D->GetParError(i);
+	    vals->operator[](i) = Gauss3D->X()[i];
+	    vals->operator[](i+nParams) = Gauss3D->Errors()[i];
 	  }
       
       delete Gauss3D;

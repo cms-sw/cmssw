@@ -30,9 +30,9 @@
    of simplicity and to force the analyst to keep the number of histograms to be monitored 
    small the MonitorEnsemble class contains the histograms for all objects at once. It should 
    not contain much more than 10 histograms though in the STANDARD configuration, as these 
-   histograms will be monitored at each SelectionStep. Monitoring of histograms after selec-
+   histograms will be monitored at each SelectionStepHLT. Monitoring of histograms after selec-
    tion steps within the same object collection needs to be implemented within the Monitor-
-   Ensemble. It will not be covered by the SelectionStep class.
+   Ensemble. It will not be covered by the SelectionStepHLT class.
 */
 
 namespace TopHLTSingleLepton {
@@ -171,7 +171,8 @@ namespace TopHLTSingleLepton {
 
 #include <utility>
 
-#include "DQM/Physics/interface/TopDQMHelpers.h"
+//#include "DQM/Physics/interface/TopDQMHelpers.h"
+#include "HLTriggerOffline/Top/interface/TopHLTDQMHelper.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -189,9 +190,9 @@ namespace TopHLTSingleLepton {
 
    Plugin to apply a monitored selection of top like events with some minimal flexibility 
    in the number and definition of the selection steps. To achieve this flexibility it 
-   employes the SelectionStep class. The MonitorEnsemble class is used to provide a well 
-   defined set of histograms to be monitored after each selection step. The SelectionStep 
-   class provides a flexible and intuitive selection via the StringCutParser. SelectionStep 
+   employes the SelectionStepHLT class. The MonitorEnsemble class is used to provide a well 
+   defined set of histograms to be monitored after each selection step. The SelectionStepHLT 
+   class provides a flexible and intuitive selection via the StringCutParser. SelectionStepHLT 
    and MonitorEnsemble classes are interleaved. The monitoring starts after a preselection 
    step (which is not monitored in the context of this module) with an instance of the 
    MonitorEnsemble class. The following objects are supported for selection:
@@ -251,7 +252,7 @@ class TopHLTSingleLeptonDQM : public edm::EDAnalyzer  {
   std::vector<std::string> selectionOrder_;
   /// this is the heart component of the plugin; std::string keeps a label 
   /// the selection step for later identification, edm::ParameterSet keeps
-  /// the configuration of the selection for the SelectionStep class, 
+  /// the configuration of the selection for the SelectionStepHLT class, 
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to 
   /// be filled _after_ each selection step
   std::map<std::string, std::pair<edm::ParameterSet, TopHLTSingleLepton::MonitorEnsemble*> > selection_;

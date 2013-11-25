@@ -28,8 +28,8 @@ class HLTAcoFilter : public HLTFilter {
    public:
       explicit HLTAcoFilter(const edm::ParameterSet&);
       ~HLTAcoFilter();
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
 

@@ -44,7 +44,7 @@
 #include <boost/cstdint.hpp>
 
 
-namespace {
+namespace DataFormats_EgammaCandidates {
 
   struct dictionary {
 

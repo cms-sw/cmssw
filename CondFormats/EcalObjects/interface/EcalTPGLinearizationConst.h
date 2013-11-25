@@ -5,6 +5,14 @@
 
 struct EcalTPGLinearizationConstant
 {
+   EcalTPGLinearizationConstant()
+   : mult_x12(0),
+     mult_x6(0),
+     mult_x1(0),
+     shift_x12(0),
+     shift_x6(0),
+     shift_x1(0) {}
+
    uint32_t mult_x12 ;
    uint32_t mult_x6 ;
    uint32_t mult_x1 ;

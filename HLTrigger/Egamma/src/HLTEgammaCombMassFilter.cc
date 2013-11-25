@@ -20,7 +20,7 @@
 //
 // constructors and destructor
 //
-HLTEgammaCombMassFilter::HLTEgammaCombMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTEgammaCombMassFilter::HLTEgammaCombMassFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   firstLegLastFilterTag_ = iConfig.getParameter<edm::InputTag>("firstLegLastFilter");
   secondLegLastFilterTag_= iConfig.getParameter<edm::InputTag>("secondLegLastFilter");
@@ -42,13 +42,13 @@ HLTEgammaCombMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
 }
 
 // ------------ method called to produce the data  ------------
-bool HLTEgammaCombMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTEgammaCombMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   //right, issue 1, we dont know if this is a TriggerElectron, TriggerPhoton, TriggerCluster (should never be a TriggerCluster btw as that implies the 4-vectors are not stored in AOD)
 
   //trigger::TriggerObjectType firstLegTrigType;
   std::vector<math::XYZTLorentzVector> firstLegP4s;
-  
+
   //trigger::TriggerObjectType secondLegTrigType;
   std::vector<math::XYZTLorentzVector> secondLegP4s;
 
@@ -58,22 +58,22 @@ bool HLTEgammaCombMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetu
   getP4OfLegCands(iEvent,secondLegLastFilterToken_,secondLegP4s);
 
   bool accept=false;
-  for(size_t firstLegNr=0;firstLegNr<firstLegP4s.size();firstLegNr++){ 
+  for(size_t firstLegNr=0;firstLegNr<firstLegP4s.size();firstLegNr++){
     for(size_t secondLegNr=0;secondLegNr<secondLegP4s.size();secondLegNr++){
       math::XYZTLorentzVector pairP4 = firstLegP4s[firstLegNr] + secondLegP4s[secondLegNr];
       double mass = pairP4.M();
       if(mass>=minMass_) accept=true;
     }
   }
-  
+
   return accept;
 }
 
 void  HLTEgammaCombMassFilter::getP4OfLegCands(const edm::Event& iEvent, const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>& filterToken, std::vector<math::XYZTLorentzVector>& p4s)
-{ 
+{
   edm::Handle<trigger::TriggerFilterObjectWithRefs> filterOutput;
   iEvent.getByToken(filterToken,filterOutput);
-  
+
   //its easier on the if statement flow if I try everything at once, shouldnt add to timing
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > phoCands;
   filterOutput->getObjects(trigger::TriggerPhoton,phoCands);

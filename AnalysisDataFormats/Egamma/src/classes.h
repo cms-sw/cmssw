@@ -3,10 +3,8 @@
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
-namespace
-{
-   struct dictionary
-   {
+namespace AnalysisDataFormats_Egamma {
+   struct dictionary {
       reco::ElectronIDCollection c1;
       edm::Wrapper<reco::ElectronIDCollection> w1;
       edm::Ref<reco::ElectronIDCollection> r1;

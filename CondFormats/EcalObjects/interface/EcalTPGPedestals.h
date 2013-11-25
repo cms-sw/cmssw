@@ -5,6 +5,7 @@
 
 struct EcalTPGPedestal
 {
+   EcalTPGPedestal() : mean_x12(0), mean_x6(0), mean_x1(0) {}
    uint32_t mean_x12 ;
    uint32_t mean_x6 ;
    uint32_t mean_x1 ;

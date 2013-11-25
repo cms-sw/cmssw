@@ -6,7 +6,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"
-namespace {
+namespace SimTracker_TrackerHitAssociation {
   struct dictionary {
     edm::AssociationMap<edm::OneToMany<std::vector<SimTrack>, std::vector<OmniClusterRef>, unsigned int > > dummy01;
     edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<SimTrack>, std::vector<OmniClusterRef>, unsigned int > > > dummy02;

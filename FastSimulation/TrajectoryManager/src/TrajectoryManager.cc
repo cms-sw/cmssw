@@ -679,7 +679,7 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
   // daughter to the mother's track. The same applies to a charged particle decay into
   // another charged particle.
   int localTkID = tkID;
-  if ( mySimEvent->track(tkID).mother().closestDaughterId() == tkID )
+  if ( !mySimEvent->track(tkID).noMother() && mySimEvent->track(tkID).mother().closestDaughterId() == tkID )
     localTkID = mySimEvent->track(tkID).mother().id();
 
   // FIXME: fix the track ID and the particle ID

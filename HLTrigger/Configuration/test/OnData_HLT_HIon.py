@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_0_0/HIon/V18 (CMSSW_7_0_0_pre6_HLT4)
+# /dev/CMSSW_7_0_0/HIon/V22 (CMSSW_7_0_0_pre8_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_0_0/HIon/V18')
+  tableName = cms.string('/dev/CMSSW_7_0_0/HIon/V22')
 )
 
 process.streams = cms.PSet( 
@@ -326,7 +326,7 @@ process.CSCINdexerESSource = cms.ESSource( "EmptyESSource",
     firstValid = cms.vuint32( 1 )
 )
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-    globaltag = cms.string( "GR_H_V32::All" ),
+    globaltag = cms.string( "GR_H_V33::All" ),
     RefreshEachRun = cms.untracked.bool( True ),
     RefreshOpenIOVs = cms.untracked.bool( False ),
     toGet = cms.VPSet( 
@@ -919,11 +919,11 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
 )
 process.hcal_db_producer = cms.ESProducer( "HcalDbProducer" )
 process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  categoryVariableName = cms.string( "vertexCategory" ),
+  correctVertexMass = cms.bool( True ),
   trackSelection = cms.PSet( 
     totalHitsMin = cms.uint32( 0 ),
     jetDeltaRMax = cms.double( 0.3 ),
@@ -945,7 +945,7 @@ process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESP
   calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
     'CombinedSVPseudoVertex',
     'CombinedSVNoVertex' ),
-  correctVertexMass = cms.bool( True ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   charmCut = cms.double( 1.5 ),
   vertexFlip = cms.bool( False ),
   minimumTrackWeight = cms.double( 0.5 ),
@@ -3717,8 +3717,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       'CirculatingBeam',
       'CirculatingBeam+HighRandom' )
 )
-process.UpdaterService = cms.Service( "UpdaterService",
-)
 
 process.hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
     toGet = cms.VPSet( 
@@ -4484,6 +4482,7 @@ process.hltHIPixelClusterVertices = cms.EDProducer( "HIPixelClusterVtxProducer",
     pixelRecHits = cms.string( "hltHISiPixelRecHits" )
 )
 process.hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       doVariablePtMin = cms.bool( True ),
       beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -4493,7 +4492,6 @@ process.hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
       siPixelRecHits = cms.InputTag( "hltHISiPixelRecHits" ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -5715,7 +5713,12 @@ process.hltHIL3MuonsOIState = cms.EDProducer( "L3MuonProducer",
       ),
       PtCut = cms.double( 1.0 ),
       TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-      tkTrajLabel = cms.InputTag( "hltHIL3TkTracksFromL2OIState" )
+      tkTrajLabel = cms.InputTag( "hltHIL3TkTracksFromL2OIState" ),
+      tkTrajBeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      tkTrajMaxChi2 = cms.double( 9.0E99 ),
+      tkTrajMaxDXYBeamSpot = cms.double( 9.0E99 ),
+      tkTrajVertex = cms.InputTag( "pixelVertices" ),
+      tkTrajUseVertex = cms.bool( False )
     ),
     TrackLoaderParameters = cms.PSet( 
       PutTkTrackIntoEvent = cms.untracked.bool( False ),
@@ -5969,7 +5972,12 @@ process.hltHIL3MuonsOIHit = cms.EDProducer( "L3MuonProducer",
       ),
       PtCut = cms.double( 1.0 ),
       TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-      tkTrajLabel = cms.InputTag( "hltHIL3TkTracksFromL2OIHit" )
+      tkTrajLabel = cms.InputTag( "hltHIL3TkTracksFromL2OIHit" ),
+      tkTrajBeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      tkTrajMaxChi2 = cms.double( 9.0E99 ),
+      tkTrajMaxDXYBeamSpot = cms.double( 9.0E99 ),
+      tkTrajVertex = cms.InputTag( "pixelVertices" ),
+      tkTrajUseVertex = cms.bool( False )
     ),
     TrackLoaderParameters = cms.PSet( 
       PutTkTrackIntoEvent = cms.untracked.bool( False ),
@@ -6214,7 +6222,12 @@ process.hltHIAllL3MuonsIOHit = cms.EDProducer( "L3MuonProducer",
       ),
       PtCut = cms.double( 1.0 ),
       TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-      tkTrajLabel = cms.InputTag( "hltHIL3TkTracksFromL2IOHit" )
+      tkTrajLabel = cms.InputTag( "hltHIL3TkTracksFromL2IOHit" ),
+      tkTrajBeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      tkTrajMaxChi2 = cms.double( 9.0E99 ),
+      tkTrajMaxDXYBeamSpot = cms.double( 9.0E99 ),
+      tkTrajVertex = cms.InputTag( "pixelVertices" ),
+      tkTrajUseVertex = cms.bool( False )
     ),
     TrackLoaderParameters = cms.PSet( 
       PutTkTrackIntoEvent = cms.untracked.bool( False ),
@@ -7171,6 +7184,7 @@ process.hltHIPixelClusterVerticesForHITrackTrigger = cms.EDProducer( "HIPixelClu
     pixelRecHits = cms.string( "hltHISiPixelRecHits" )
 )
 process.hltHIPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       ComponentName = cms.string( "HIProtoTrackFilter" ),
@@ -7180,7 +7194,6 @@ process.hltHIPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
       beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
       siPixelRecHits = cms.InputTag( "hltHISiPixelRecHits" )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -7279,6 +7292,7 @@ process.hltHISelectedVertex = cms.EDProducer( "HIBestVertexProducer",
     medianVertexCollection = cms.InputTag( "hltHIPixelMedianVertex" )
 )
 process.hltHIPixel3PrimTracks = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( True ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       ComponentName = cms.string( "HIPixelTrackFilter" ),
@@ -7290,7 +7304,6 @@ process.hltHIPixel3PrimTracks = cms.EDProducer( "PixelTrackProducer",
       nSigmaLipMaxTolerance = cms.double( 0.0 ),
       lipMax = cms.double( 0.3 )
     ),
-    useFilterWithES = cms.bool( True ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -7361,6 +7374,7 @@ process.hltHIPixelTrackSeeds = cms.EDProducer( "SeedGeneratorFromProtoTracksEDPr
     useEventsWithNoVertex = cms.bool( True ),
     originHalfLength = cms.double( 1.0E9 ),
     useProtoTrackKinematics = cms.bool( False ),
+    usePV = cms.bool( False ),
     InputVertexCollection = cms.InputTag( "" ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     InputCollection = cms.InputTag( "hltHIPixel3PrimTracks" ),

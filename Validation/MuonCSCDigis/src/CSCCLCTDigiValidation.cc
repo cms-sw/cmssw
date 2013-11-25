@@ -1,7 +1,6 @@
 #include "Validation/MuonCSCDigis/src/CSCCLCTDigiValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -9,12 +8,16 @@
 
 
 
-CSCCLCTDigiValidation::CSCCLCTDigiValidation(DQMStore* dbe, const edm::InputTag & inputTag)
+CSCCLCTDigiValidation::CSCCLCTDigiValidation(DQMStore* dbe,
+                                             const edm::InputTag & inputTag,
+                                             edm::ConsumesCollector && iC)
 : CSCBaseValidation(dbe, inputTag),
   theTimeBinPlots(),
   theNDigisPerLayerPlots(),
   theNDigisPerEventPlot( dbe_->book1D("CSCCLCTDigisPerEvent", "CSC CLCT Digis per event", 100, 0, 100) )
 {
+  clcts_Token_ = iC.consumes<CSCCLCTDigiCollection> (inputTag);
+
   for(int i = 0; i < 10; ++i)
   {
     char title1[200], title2[200];
@@ -32,8 +35,8 @@ CSCCLCTDigiValidation::~CSCCLCTDigiValidation()
 
 //   for(int i = 0; i < 10; ++i)
 //   {
-//     edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName() 
-//       << " is " << theTimeBinPlots[i]->getMean() 
+//     edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName()
+//       << " is " << theTimeBinPlots[i]->getMean()
 //       << " +/- " << theTimeBinPlots[i]->getRMS();
 //   }
 
@@ -44,7 +47,7 @@ void CSCCLCTDigiValidation::analyze(const edm::Event&e, const edm::EventSetup&)
 {
   edm::Handle<CSCCLCTDigiCollection> clcts;
 
-  e.getByLabel(theInputTag, clcts);
+  e.getByToken(clcts_Token_, clcts);
   if (!clcts.isValid()) {
     edm::LogError("CSCDigiDump") << "Cannot get clcts by label " << theInputTag.encode();
   }
@@ -56,13 +59,13 @@ void CSCCLCTDigiValidation::analyze(const edm::Event&e, const edm::EventSetup&)
     std::vector<CSCCLCTDigi>::const_iterator endDigi = (*j).second.second;
     CSCDetId detId((*j).first.rawId());
     int chamberType = detId.iChamberType();
- 
+
     int nDigis = endDigi-beginDigi;
     nDigisPerEvent += nDigis;
     theNDigisPerLayerPlots[chamberType-1]->Fill(nDigis);
 
     for( std::vector<CSCCLCTDigi>::const_iterator digiItr = beginDigi;
-         digiItr != endDigi; ++digiItr) 
+         digiItr != endDigi; ++digiItr)
     {
       theTimeBinPlots[chamberType-1]->Fill(digiItr->getBX());
     }

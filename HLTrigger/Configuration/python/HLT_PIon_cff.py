@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_0_0/PIon/V18 (CMSSW_7_0_0_pre6_HLT4)
+# /dev/CMSSW_7_0_0/PIon/V22 (CMSSW_7_0_0_pre8_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_0_0/PIon/V18')
+  tableName = cms.string('/dev/CMSSW_7_0_0/PIon/V22')
 )
 
 streams = cms.PSet( 
@@ -1009,11 +1009,11 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
     'HcalCellDead' )
 )
 hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  categoryVariableName = cms.string( "vertexCategory" ),
+  correctVertexMass = cms.bool( True ),
   trackSelection = cms.PSet( 
     totalHitsMin = cms.uint32( 0 ),
     jetDeltaRMax = cms.double( 0.3 ),
@@ -1035,7 +1035,7 @@ hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer"
   calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
     'CombinedSVPseudoVertex',
     'CombinedSVNoVertex' ),
-  correctVertexMass = cms.bool( True ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   charmCut = cms.double( 1.5 ),
   vertexFlip = cms.bool( False ),
   minimumTrackWeight = cms.double( 0.5 ),
@@ -3350,8 +3350,6 @@ DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
   fedIntegrityFolder = cms.untracked.string( "DT/FEDIntegrity_EvF" ),
   getSCInfo = cms.untracked.bool( True )
 )
-UpdaterService = cms.Service( "UpdaterService",
-)
 
 hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
     toGet = cms.VPSet( 
@@ -4494,7 +4492,12 @@ hltL3MuonsOIState = cms.EDProducer( "L3MuonProducer",
       ),
       PtCut = cms.double( 1.0 ),
       TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-      tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2OIState" )
+      tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2OIState" ),
+      tkTrajBeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      tkTrajMaxChi2 = cms.double( 9.0E99 ),
+      tkTrajMaxDXYBeamSpot = cms.double( 9.0E99 ),
+      tkTrajVertex = cms.InputTag( "pixelVertices" ),
+      tkTrajUseVertex = cms.bool( False )
     ),
     TrackLoaderParameters = cms.PSet( 
       PutTkTrackIntoEvent = cms.untracked.bool( False ),
@@ -4748,7 +4751,12 @@ hltL3MuonsOIHit = cms.EDProducer( "L3MuonProducer",
       ),
       PtCut = cms.double( 1.0 ),
       TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-      tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2OIHit" )
+      tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2OIHit" ),
+      tkTrajBeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      tkTrajMaxChi2 = cms.double( 9.0E99 ),
+      tkTrajMaxDXYBeamSpot = cms.double( 9.0E99 ),
+      tkTrajVertex = cms.InputTag( "pixelVertices" ),
+      tkTrajUseVertex = cms.bool( False )
     ),
     TrackLoaderParameters = cms.PSet( 
       PutTkTrackIntoEvent = cms.untracked.bool( False ),
@@ -4993,7 +5001,12 @@ hltL3MuonsIOHit = cms.EDProducer( "L3MuonProducer",
       ),
       PtCut = cms.double( 1.0 ),
       TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-      tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2IOHit" )
+      tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2IOHit" ),
+      tkTrajBeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      tkTrajMaxChi2 = cms.double( 9.0E99 ),
+      tkTrajMaxDXYBeamSpot = cms.double( 9.0E99 ),
+      tkTrajVertex = cms.InputTag( "pixelVertices" ),
+      tkTrajUseVertex = cms.bool( False )
     ),
     TrackLoaderParameters = cms.PSet( 
       PutTkTrackIntoEvent = cms.untracked.bool( False ),
@@ -8127,6 +8140,7 @@ hltAntiKT5CaloJetsPFEt5 = cms.EDFilter( "EtMinCaloJetSelector",
     etMin = cms.double( 5.0 )
 )
 hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -8135,7 +8149,6 @@ hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.1 ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -8186,6 +8199,7 @@ hltPFJetPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTrack
     useEventsWithNoVertex = cms.bool( True ),
     originHalfLength = cms.double( 0.3 ),
     useProtoTrackKinematics = cms.bool( False ),
+    usePV = cms.bool( False ),
     InputVertexCollection = cms.InputTag( "hltPixelVertices" ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     InputCollection = cms.InputTag( "hltPixelTracks" ),
@@ -8378,8 +8392,7 @@ hltIter1PFJetPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    )
 )
 hltIter1PFJetCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter1PFJetPixelSeeds" ),
@@ -8628,8 +8641,7 @@ hltIter2PFJetPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    )
 )
 hltIter2PFJetCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter2PFJetPixelSeeds" ),
@@ -8833,8 +8845,7 @@ hltIter3PFJetMixedSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    )
 )
 hltIter3PFJetCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter3PFJetMixedSeeds" ),
@@ -9083,8 +9094,7 @@ hltIter4PFJetPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProd
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    )
 )
 hltIter4PFJetCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter4PFJetPixelLessSeeds" ),
@@ -9704,15 +9714,18 @@ hltParticleFlowBlock = cms.EDProducer( "PFBlockProducer",
 hltParticleFlow = cms.EDProducer( "PFProducer",
     minPtForPostCleaning = cms.double( 20.0 ),
     pf_nsigma_ECAL = cms.double( 0.0 ),
+    GedPhotonValueMap = cms.InputTag( 'tmpGedPhotons','valMapPFEgammaCandToPhoton' ),
     sumPtTrackIsoForPhoton = cms.double( -1.0 ),
     metFactorForFakes = cms.double( 4.0 ),
     muon_HO = cms.vdouble( 0.9, 0.9 ),
+    electron_missinghits = cms.uint32( 1 ),
     metSignificanceForCleaning = cms.double( 3.0 ),
     usePFPhotons = cms.bool( False ),
-    maxDeltaPhiPt = cms.double( 7.0 ),
+    dptRel_DispVtx = cms.double( 10.0 ),
     nTrackIsoForEgammaSC = cms.uint32( 2 ),
     pf_nsigma_HCAL = cms.double( 1.0 ),
     cosmicRejectionDistance = cms.double( 1.0 ),
+    useEGammaFilters = cms.bool( False ),
     useEGammaElectrons = cms.bool( False ),
     nsigma_TRACK = cms.double( 1.0 ),
     useEGammaSupercluster = cms.bool( False ),
@@ -9721,8 +9734,10 @@ hltParticleFlow = cms.EDProducer( "PFProducer",
     usePFDecays = cms.bool( False ),
     rejectTracks_Step45 = cms.bool( False ),
     eventFractionForRejection = cms.double( 0.8 ),
+    photon_MinEt = cms.double( 10.0 ),
     usePFNuclearInteractions = cms.bool( False ),
     maxSignificance = cms.double( 2.5 ),
+    electron_iso_mva_endcap = cms.double( -0.1075 ),
     debug = cms.untracked.bool( False ),
     pf_convID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt" ),
     calibHF_eta_step = cms.vdouble( 0.0, 2.9, 3.0, 3.2, 4.2, 4.4, 4.6, 4.8, 5.2, 5.4 ),
@@ -9732,6 +9747,9 @@ hltParticleFlow = cms.EDProducer( "PFProducer",
     pf_conv_mvaCut = cms.double( 0.0 ),
     useCalibrationsFromDB = cms.bool( True ),
     usePFElectrons = cms.bool( False ),
+    electron_iso_combIso_endcap = cms.double( 10.0 ),
+    photon_combIso = cms.double( 10.0 ),
+    electron_iso_mva_barrel = cms.double( -0.1875 ),
     postHFCleaning = cms.bool( False ),
     factors_45 = cms.vdouble( 10.0, 100.0 ),
     cleanedHF = cms.VInputTag( 'hltParticleFlowRecHitHCAL:Cleaned','hltParticleFlowClusterHFHAD:Cleaned','hltParticleFlowClusterHFEM:Cleaned' ),
@@ -9742,12 +9760,16 @@ hltParticleFlow = cms.EDProducer( "PFProducer",
     maxDPtOPt = cms.double( 1.0 ),
     useHO = cms.bool( False ),
     pf_electron_output_col = cms.string( "electrons" ),
+    electron_noniso_mvaCut = cms.double( -0.1 ),
+    GedElectronValueMap = cms.InputTag( "gedGsfElectronsTmp" ),
     useVerticesForNeutral = cms.bool( True ),
     pf_Res_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes.root" ),
+    PFEGammaCandidates = cms.InputTag( "particleFlowEGamma" ),
     sumPtTrackIsoSlopeForPhoton = cms.double( -1.0 ),
     coneTrackIsoForEgammaSC = cms.double( 0.3 ),
     minDeltaMet = cms.double( 0.4 ),
     pt_Error = cms.double( 1.0 ),
+    useProtectionsForJetMET = cms.bool( True ),
     metFactorForRejection = cms.double( 4.0 ),
     sumPtTrackIsoForEgammaSC_endcap = cms.double( 4.0 ),
     calibHF_use = cms.bool( False ),
@@ -9773,26 +9795,49 @@ hltParticleFlow = cms.EDProducer( "PFProducer",
     muons = cms.InputTag( "hltMuons" ),
     metFactorForHighEta = cms.double( 25.0 ),
     minHFCleaningPt = cms.double( 5.0 ),
-    calibPFSCEle_barrel = cms.vdouble( 1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051.0, 25.0, 0.9932, -0.5444, 0.0, 0.5438, 0.7109, 7.645, 0.2904, 0.0 ),
+    muon_HCAL = cms.vdouble( 3.0, 3.0 ),
     pf_electron_mvaCut = cms.double( -0.1 ),
     ptFactorForHighEta = cms.double( 2.0 ),
-    dptRel_DispVtx = cms.double( 10.0 ),
+    maxDeltaPhiPt = cms.double( 7.0 ),
     pf_electronID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt" ),
     sumEtEcalIsoForEgammaSC_endcap = cms.double( 2.0 ),
     calibHF_b_EMHAD = cms.vdouble( 1.27541, 0.85361, 0.86333, 0.89091, 0.94348, 0.94348, 0.9437, 1.0034, 1.0444, 1.0444 ),
     pf_GlobC_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr.root" ),
+    photon_HoE = cms.double( 0.1 ),
     sumEtEcalIsoForEgammaSC_barrel = cms.double( 1.0 ),
     calibPFSCEle_Fbrem_endcap = cms.vdouble( 0.9, 6.5, -0.0692932, 0.101776, 0.995338, -0.00236548, 0.874998, 1.653, -0.0750184, 0.147, 0.923165, 4.74665E-4, 1.10782 ),
     punchThroughFactor = cms.double( 3.0 ),
     algoType = cms.uint32( 0 ),
+    electron_iso_combIso_barrel = cms.double( 10.0 ),
     postMuonCleaning = cms.bool( True ),
-    muon_HCAL = cms.vdouble( 3.0, 3.0 ),
+    calibPFSCEle_barrel = cms.vdouble( 1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051.0, 25.0, 0.9932, -0.5444, 0.0, 0.5438, 0.7109, 7.645, 0.2904, 0.0 ),
+    electron_protectionsForJetMET = cms.PSet( 
+      maxE = cms.double( 50.0 ),
+      maxTrackPOverEele = cms.double( 1.0 ),
+      maxEcalEOverP_2 = cms.double( 0.2 ),
+      maxHcalEOverEcalE = cms.double( 0.1 ),
+      maxEcalEOverP_1 = cms.double( 0.5 ),
+      maxHcalEOverP = cms.double( 1.0 ),
+      maxEcalEOverPRes = cms.double( 0.2 ),
+      maxHcalE = cms.double( 10.0 ),
+      maxEeleOverPout = cms.double( 0.2 ),
+      maxNtracks = cms.double( 3.0 ),
+      maxEleHcalEOverEcalE = cms.double( 0.1 ),
+      maxDPhiIN = cms.double( 0.1 ),
+      maxEeleOverPoutRes = cms.double( 0.5 )
+    ),
+    electron_iso_pt = cms.double( 10.0 ),
+    isolatedElectronID_mvaWeightFile = cms.string( "RecoEgamma/ElectronIdentification/data/TMVA_BDTSimpleCat_17Feb2011.weights.xml" ),
     vertexCollection = cms.InputTag( "hltPixelVertices" ),
     X0_Map = cms.string( "RecoParticleFlow/PFProducer/data/allX0histos.root" ),
     calibPFSCEle_Fbrem_barrel = cms.vdouble( 0.6, 6.0, -0.0255975, 0.0576727, 0.975442, -5.46394E-4, 1.26147, 25.0, -0.02025, 0.04537, 0.9728, -8.962E-4, 1.172 ),
     blocks = cms.InputTag( "hltParticleFlowBlock" ),
     punchThroughMETFactor = cms.double( 4.0 ),
     metSignificanceForRejection = cms.double( 4.0 ),
+    photon_protectionsForJetMET = cms.PSet( 
+      sumPtTrackIsoSlope = cms.double( 0.001 ),
+      sumPtTrackIso = cms.double( 2.0 )
+    ),
     usePhotonReg = cms.bool( False ),
     dzPV = cms.double( 0.2 ),
     calibHF_a_EMHAD = cms.vdouble( 1.42215, 1.00496, 0.68961, 0.81656, 0.98504, 0.98504, 1.00802, 1.0593, 1.4576, 1.4576 ),
@@ -11560,6 +11605,7 @@ hltHcalPM2Tower3GeVFilter = cms.EDFilter( "HLTHcalTowerFilter",
     MinN_HFP = cms.int32( 2 )
 )
 hltPAPixelTracksForHighMult = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -11568,7 +11614,6 @@ hltPAPixelTracksForHighMult = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.3 ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet tracks for vertexing" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -11769,6 +11814,7 @@ hltPrePAPixelTrackMultiplicity100FullTrack12 = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 hltPAPixelTracksForHighPt = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -11777,7 +11823,6 @@ hltPAPixelTracksForHighPt = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.0 ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet tracks for vertexing" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -11815,6 +11860,7 @@ hltPAPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksED
     useEventsWithNoVertex = cms.bool( True ),
     originHalfLength = cms.double( 0.6 ),
     useProtoTrackKinematics = cms.bool( False ),
+    usePV = cms.bool( False ),
     InputVertexCollection = cms.InputTag( "hltPAPixelVerticesForHighMult" ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     InputCollection = cms.InputTag( "hltPAPixelTracksForHighPt" ),
@@ -12007,8 +12053,7 @@ hltPAIter1PixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    )
 )
 hltPAIter1CkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltPAIter1PixelSeeds" ),
@@ -12257,8 +12302,7 @@ hltPAIter2PixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    )
 )
 hltPAIter2CkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltPAIter2PixelSeeds" ),
@@ -12462,8 +12506,7 @@ hltPAIter3MixedSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    )
 )
 hltPAIter3CkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltPAIter3MixedSeeds" ),
@@ -12712,8 +12755,7 @@ hltPAIter4PixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProduce
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    ),
-    TTRHBuilder = cms.string( "WithTrackAngle" )
+    )
 )
 hltPAIter4CkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltPAIter4PixelLessSeeds" ),
@@ -13262,6 +13304,7 @@ hltPrePAL1Tech53MBSingleTrack = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 hltPAPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
@@ -13270,7 +13313,6 @@ hltPAPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
       ptMin = cms.double( 0.4 ),
       tipMax = cms.double( 1.0 )
     ),
-    useFilterWithES = cms.bool( False ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
@@ -14063,6 +14105,7 @@ hltPAUpcTrackSeeds = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
     useEventsWithNoVertex = cms.bool( True ),
     originHalfLength = cms.double( 1.0E9 ),
     useProtoTrackKinematics = cms.bool( False ),
+    usePV = cms.bool( False ),
     InputVertexCollection = cms.InputTag( "" ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     InputCollection = cms.InputTag( "hltPAPixelTracksForMinBias" ),
@@ -14214,6 +14257,7 @@ hltMuTrackTrackSeedsUpcOnia = cms.EDProducer( "SeedGeneratorFromProtoTracksEDPro
     useEventsWithNoVertex = cms.bool( True ),
     originHalfLength = cms.double( 1.0E9 ),
     useProtoTrackKinematics = cms.bool( False ),
+    usePV = cms.bool( False ),
     InputVertexCollection = cms.InputTag( "" ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     InputCollection = cms.InputTag( "hltMuTrackPixelTrackSelectorUpcOnia" ),

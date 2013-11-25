@@ -31,7 +31,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 
-namespace {
+namespace DataFormats_ParticleFlowCandidate {
   struct dictionary {
 
     reco::PFCandidateRef c_r;

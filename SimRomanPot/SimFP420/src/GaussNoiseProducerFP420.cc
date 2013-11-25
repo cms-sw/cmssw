@@ -39,7 +39,7 @@ void GaussNoiseProducerFP420::generate(int NumberOfchannels,
   // draw noise at random according to Gaussian tail
   
   // initialise default gsl uniform generator engine
-  static gsl_rng * mt19937 = gsl_rng_alloc (gsl_rng_mt19937);
+  static gsl_rng const * const mt19937 = gsl_rng_alloc (gsl_rng_mt19937);
   
   float lowLimit = threshold * noiseRMS;
   for (int i = 0; i < numberOfNoisyChannels; i++) {

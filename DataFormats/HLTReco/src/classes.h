@@ -13,7 +13,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 
 
-namespace {
+namespace DataFormats_HLTReco {
   struct dictionary {
 
     edm::EventTime                                et0;

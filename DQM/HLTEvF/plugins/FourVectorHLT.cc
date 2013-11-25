@@ -63,6 +63,9 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig):
   }
   triggerSummaryLabel_ = 
     iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
+
+  //set Token(-s)
+  triggerSummaryToken_ = consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("triggerSummaryLabel"));
 }
 
 
@@ -89,7 +92,7 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   LogDebug("Status")<< "analyze" ;
   
   edm::Handle<TriggerEvent> triggerObj;
-  iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
+  iEvent.getByToken(triggerSummaryToken_, triggerObj);
   if(!triggerObj.isValid()) { 
     edm::LogInfo("Status") << "Summary HLT object (TriggerEvent) not found, "
       "skipping event"; 

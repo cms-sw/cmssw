@@ -171,11 +171,21 @@ namespace {
 
   struct SeedMatchesToProtoObject : public POMatcher {
     reco::SuperClusterRef _scfromseed;
+    bool _ispfsc;
     SeedMatchesToProtoObject(const reco::ElectronSeedRef& s) {
       _scfromseed = s->caloCluster().castTo<reco::SuperClusterRef>();
+      _ispfsc = false;
+      if( _scfromseed.isNonnull() ) {
+	const edm::Ptr<reco::PFCluster> testCast(_scfromseed->seed());
+	_ispfsc = testCast.isNonnull();
+      }      
     }
     bool operator() (const PFEGammaAlgo::ProtoEGObject& po) {
       if( _scfromseed.isNull() || !po.parentSC ) return false;      
+      if( _ispfsc ) {
+	return ( _scfromseed->seed() == 
+		 po.parentSC->superClusterRef()->seed() ); 
+      }      
       return ( _scfromseed->seed()->seed() == 
 	       po.parentSC->superClusterRef()->seed()->seed() );
     }
@@ -403,6 +413,15 @@ namespace {
 				    secdkf.first->type(),
 				    secdkf.first->index());
 	if( not_closer ) return true;	  
+      }
+      // check links brem -> cluster
+      for( const auto& brem : RO2.brems ) {
+	not_closer = elementNotCloserToOther(blk,
+					     cluster.first->type(),
+					     cluster.first->index(),
+					     brem.first->type(),
+					     brem.first->index());
+	if( not_closer ) return true;
       }
     }    
     // check links primary gsf -> secondary kf
@@ -1122,16 +1141,20 @@ void PFEGammaAlgo::EarlyConversion(
 }
 
 bool PFEGammaAlgo::isAMuon(const reco::PFBlockElement& pfbe) {
-  NotCloserToOther<reco::PFBlockElement::GSF,reco::PFBlockElement::TRACK>
-    getTrackPartner(_currentblock,_currentlinks,&pfbe);
   switch( pfbe.type() ) {
   case reco::PFBlockElement::GSF:    
     {
-      auto& tracks = _splayedblock[reco::PFBlockElement::TRACK];
-      auto notmatched = 
-	std::partition(tracks.begin(),tracks.end(),getTrackPartner);
-      for( auto tk = tracks.begin(); tk != notmatched; ++tk ) {
-	if( PFMuonAlgo::isMuon(*(tk->first)) ) return true;
+      auto& elements = _currentblock->elements();
+      std::multimap<double,unsigned> tks;
+      _currentblock->associatedElements(pfbe.index(),
+					_currentlinks,
+					tks,
+					reco::PFBlockElement::TRACK,
+					reco::PFBlock::LINKTEST_ALL);      
+      for( const auto& tk : tks ) {
+	if( PFMuonAlgo::isMuon(elements[tk.second]) ) {
+	  return true;
+	}
       }
     }
     break;
@@ -2323,6 +2346,7 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
 					 scE           ));
       math::XYZPointF ecalPOS_f(seedPos.x(),seedPos.y(),seedPos.z());
       cand.setPositionAtECALEntrance(ecalPOS_f);
+      cand.setEcalEnergy(the_sc.rawEnergy(),the_sc.energy());
     } else if ( cfg_.produceEGCandsWithNoSuperCluster && 
 		RO.primaryGSFs.size() ) {
       const PFGSFElement* gsf = RO.primaryGSFs[0].first;

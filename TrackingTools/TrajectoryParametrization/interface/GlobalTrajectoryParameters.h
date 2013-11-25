@@ -6,11 +6,7 @@
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
-// Can move the second constructor to .cc, too ... or make all 
-// functions inline?
-// class MagneticField;
-#include "MagneticField/Engine/interface/MagneticField.h"
-
+class MagneticField;
 /** Class providing access to a set of relevant parameters of a trajectory
  *  in the global, Cartesian frame. The basic data members used to calculate
  *  these parameters are the charge and global position and momentum.
@@ -31,13 +27,7 @@ public:
   GlobalTrajectoryParameters(const GlobalPoint& aX,
                              const GlobalVector& aP,
                              TrackCharge aCharge, 
-			     const MagneticField* fieldProvider) :
-    theField(fieldProvider),
-    theX(aX), theP(aP),     
-    theCharge(aCharge)
-  {
-    cachedMagneticField = theField ? theField->inTesla(theX) : GlobalVector(0, 0, 0);
-  } // we must initialize cache to non-NAN to avoid FPE
+			     const MagneticField* fieldProvider);
 
   /** Constructing class from global position, direction (unit length) 
    *  and transverse curvature. The fourth int argument is dummy, 

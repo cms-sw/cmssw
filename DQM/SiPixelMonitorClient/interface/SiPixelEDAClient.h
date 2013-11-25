@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -83,7 +85,8 @@ private:
   
   std::ostringstream html_out_;
   
-  
+  //define Token(-s)
+  edm::EDGetTokenT<FEDRawDataCollection> inputSourceToken_;
 };
 
 

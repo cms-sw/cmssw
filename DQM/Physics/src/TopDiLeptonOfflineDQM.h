@@ -16,7 +16,9 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 /**
    \class   MonitorEnsemble TopDQMHelpers.h "DQM/Physics/interface/TopDQMHelpers.h"
 
@@ -48,7 +50,8 @@ namespace TopDiLeptonOffline {
     
   public:
     /// default contructor
-    MonitorEnsemble(const char* label, const edm::ParameterSet& cfg);
+//    MonitorEnsemble(const char* label, const edm::ParameterSet& cfg);
+    MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector && iC );
     /// default destructor
     ~MonitorEnsemble(){};
     
@@ -70,9 +73,9 @@ namespace TopDiLeptonOffline {
     /// set labels for event logging histograms
     void loggerBinLabels(std::string hist);
     /// set configurable labels for trigger monitoring histograms
-    void triggerBinLabels(std::string channel, const std::vector<std::string>& labels);
+    void triggerBinLabels(std::string channel, const std::vector<std::string> labels);
     /// fill trigger monitoring histograms
-    void fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string>& labels) const;
+    void fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string> labels) const;
 
     /// check if histogram was booked
     bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
@@ -89,12 +92,18 @@ namespace TopDiLeptonOffline {
     /// instance label 
     std::string label_;
     /// input sources for monitoring
-    edm::InputTag elecs_, muons_, jets_; 
+    //edm::InputTag elecs_, muons_, jets_; 
+    edm::EDGetTokenT<edm::View<reco::Jet> >  jets_; 
+    edm::EDGetTokenT<edm::View<reco::Muon> > muons_;
+    edm::EDGetTokenT<edm::View<reco::GsfElectron> > elecs_;
+
     /// considers a vector of METs
-    std::vector<edm::InputTag> mets_;
+    //std::vector<edm::InputTag> mets_;
+    std::vector<edm::EDGetTokenT<edm::View<reco::MET> > > mets_;
 
     /// trigger table
-    edm::InputTag triggerTable_;
+    //edm::InputTag triggerTable_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerTable_;
     /// trigger paths for monitoring, expected 
     /// to be of form signalPath:MonitorPath
     std::vector<std::string> elecMuPaths_;
@@ -102,7 +111,8 @@ namespace TopDiLeptonOffline {
     std::vector<std::string> diMuonPaths_;
 
     /// electronId label
-    edm::InputTag electronId_;
+    //edm::InputTag electronId_;
+    edm::EDGetTokenT<edm::ValueMap<float> > electronId_;
     /// electronId pattern we expect the following pattern:
     ///  0: fails
     ///  1: passes electron ID only
@@ -127,7 +137,8 @@ namespace TopDiLeptonOffline {
     /// jetCorrector
     std::string jetCorrector_;
     /// jetID as an extra selection type 
-    edm::InputTag jetIDLabel_;
+    //edm::InputTag jetIDLabel_;
+    edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
     /// extra jetID selection on calo jets
     StringCutObjectSelector<reco::JetID>* jetIDSelect_;
     /// extra selection on jets (here given as std::string as it depends
@@ -172,7 +183,7 @@ namespace TopDiLeptonOffline {
   }
 
   inline void 
-  MonitorEnsemble::triggerBinLabels(std::string channel, const std::vector<std::string>& labels)
+  MonitorEnsemble::triggerBinLabels(std::string channel, const std::vector<std::string> labels)
   {
     for(unsigned int idx=0; idx<labels.size(); ++idx){
       hists_[(channel+"Mon_").c_str()]->setBinLabel( idx+1, "["+monitorPath(labels[idx])+"]", 1);
@@ -181,7 +192,7 @@ namespace TopDiLeptonOffline {
   }
 
   inline void 
-  MonitorEnsemble::fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string>& labels) const
+  MonitorEnsemble::fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string> labels) const
   {
     for(unsigned int idx=0; idx<labels.size(); ++idx){
       if( accept(event, triggerTable, monitorPath(labels[idx])) ){
@@ -252,6 +263,26 @@ class TopDiLeptonOfflineDQM : public edm::EDAnalyzer  {
   ~TopDiLeptonOfflineDQM(){ 
     if( beamspotSelect_ ) delete beamspotSelect_; 
     if( vertexSelect_ ) delete vertexSelect_;
+
+    if( MuonStep) delete MuonStep;
+
+    if( ElectronStep) delete ElectronStep;
+
+    if( PvStep) delete PvStep;
+
+    if( METStep) delete METStep;
+
+    for(unsigned int i = 0; i < JetSteps.size(); i++)
+
+	if( JetSteps[i]) delete JetSteps[i];
+
+   for(unsigned int i = 0; i < CaloJetSteps.size(); i++)
+
+	if( CaloJetSteps[i]) delete CaloJetSteps[i];
+
+  for(unsigned int i = 0; i < PFJetSteps.size(); i++)
+
+	if( PFJetSteps[i]) delete PFJetSteps[i];
   }
   
   /// do this during the event loop
@@ -267,15 +298,18 @@ class TopDiLeptonOfflineDQM : public edm::EDAnalyzer  {
 
  private:
   /// trigger table
-  edm::InputTag triggerTable_;
+  //edm::InputTag triggerTable_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerTable_;
   /// trigger paths
   std::vector<std::string> triggerPaths_;
   /// primary vertex 
-  edm::InputTag vertex_;
+  //edm::InputTag vertex_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > vertex_;
   /// string cut selector
   StringCutObjectSelector<reco::Vertex>* vertexSelect_;
   /// beamspot 
-  edm::InputTag beamspot_;
+  //edm::InputTag beamspot_;
+  edm::EDGetTokenT<reco::BeamSpot> beamspot_;
   /// string cut selector
   StringCutObjectSelector<reco::BeamSpot>* beamspotSelect_;
 
@@ -287,7 +321,14 @@ class TopDiLeptonOfflineDQM : public edm::EDAnalyzer  {
   /// the configuration of the selection for the SelectionStep class, 
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to 
   /// be filled _after_ each selection step
-    std::map<std::string, std::pair<edm::ParameterSet, TopDiLeptonOffline::MonitorEnsemble*> > selection_;
+  std::map<std::string, std::pair<edm::ParameterSet, TopDiLeptonOffline::MonitorEnsemble*> > selection_;
+  SelectionStep<reco::Muon> * MuonStep;
+  SelectionStep<reco::GsfElectron> * ElectronStep;
+  SelectionStep<reco::Vertex> * PvStep;
+  SelectionStep<reco::MET> * METStep;
+  std::vector<SelectionStep<reco::Jet> * > JetSteps;
+  std::vector<SelectionStep<reco::CaloJet> * > CaloJetSteps;
+  std::vector<SelectionStep<reco::PFJet> * > PFJetSteps;
 };
 
 #endif

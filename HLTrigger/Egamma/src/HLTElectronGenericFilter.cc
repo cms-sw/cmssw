@@ -37,8 +37,8 @@ HLTElectronGenericFilter::HLTElectronGenericFilter(const edm::ParameterSet& iCon
   thrTimesPtEE_ = iConfig.getParameter<double> ("thrTimesPtEE");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
-  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand");
+  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
 
   candToken_ =  consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
   isoToken_ = consumes<reco::ElectronIsolationMap>(isoTag_);
@@ -65,12 +65,12 @@ HLTElectronGenericFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<bool>("doIsolated",true);
   desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltPixelMatchElectronsL1Iso"));
   desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltPixelMatchElectronsL1NonIso"));
-  descriptions.add("hltElectronGenericFilter",desc);  
+  descriptions.add("hltElectronGenericFilter",desc);
 }
 
 // ------------ method called to produce the data  ------------
 bool
-HLTElectronGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTElectronGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
 
@@ -88,24 +88,24 @@ HLTElectronGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   std::vector<edm::Ref<reco::ElectronCollection> > elecands;
   PrevFilterOutput->getObjects(TriggerElectron, elecands);
 
-  
+
   //get hold of isolated association map
   edm::Handle<reco::ElectronIsolationMap> depMap;
   iEvent.getByToken (isoToken_,depMap);
-  
+
   //get hold of non-isolated association map
   edm::Handle<reco::ElectronIsolationMap> depNonIsoMap;
   if(!doIsolated_) iEvent.getByToken (nonIsoToken_,depNonIsoMap);
-  
+
   // look at all photons, check cuts and add to filter object
   int n = 0;
-  
+
   for (unsigned int i=0; i<elecands.size(); i++) {
-    
+
     ref = elecands[i];
-    reco::ElectronIsolationMap::const_iterator mapi = (*depMap).find( ref );    
-    if (mapi==(*depMap).end() && !doIsolated_) mapi = (*depNonIsoMap).find( ref ); 
-   
+    reco::ElectronIsolationMap::const_iterator mapi = (*depMap).find( ref );
+    if (mapi==(*depMap).end() && !doIsolated_) mapi = (*depNonIsoMap).find( ref );
+
     float vali = mapi->val;
     float Pt = ref->pt();
     float Eta = fabs(ref->eta());
@@ -146,10 +146,10 @@ HLTElectronGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
       }
     }
   }
-  
+
   // filter decision
   bool accept(n>=ncandcut_);
-  
+
   return accept;
 }
 

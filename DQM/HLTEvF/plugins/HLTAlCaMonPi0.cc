@@ -136,6 +136,11 @@ eventCounter_(0)
     ps.getParameter<edm::ParameterSet>("posCalcParameters");
   posCalculator_ = PositionCalc(posCalcParameters);
 
+  //set Token(-s)
+  productMonitoredEBpi0Token_ = consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBpi0Tag"));
+  productMonitoredEBetaToken_ = consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBetaTag"));
+  productMonitoredEEpi0Token_ = consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEEpi0Tag"));
+  productMonitoredEEetaToken_ = consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEEetaTag"));
 }
 
 
@@ -374,7 +379,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
  bool GetRecHitsCollectionEBpi0 = true;
  if(isMonEBpi0_) {
    try { 
-     iEvent.getByLabel(productMonitoredEBpi0_, rhEBpi0); 
+     iEvent.getByToken(productMonitoredEBpi0Token_, rhEBpi0);
    }catch( cms::Exception& exception ) {
      LogDebug("HLTAlCaPi0DQMSource") << "no EcalRecHits EB_pi0, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << std::endl;
      GetRecHitsCollectionEBpi0 = false;
@@ -384,9 +389,9 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
  bool GetRecHitsCollectionEBeta = true;
  if(isMonEBeta_) {
    try { 
-     if(isMonEBeta_) iEvent.getByLabel(productMonitoredEBeta_, rhEBeta); 
-     if(isMonEEpi0_) iEvent.getByLabel(productMonitoredEEpi0_, rhEEpi0);
-     if(isMonEEeta_) iEvent.getByLabel(productMonitoredEEeta_, rhEEeta);
+    if(isMonEBeta_) iEvent.getByToken(productMonitoredEBetaToken_, rhEBeta);
+    if(isMonEEpi0_) iEvent.getByToken(productMonitoredEEpi0Token_, rhEEpi0);
+    if(isMonEEeta_) iEvent.getByToken(productMonitoredEEetaToken_, rhEEeta);
    }catch( cms::Exception& exception ) {
      LogDebug("HLTAlCaPi0DQMSource") << "no EcalRecHits EB_Eta, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << std::endl;
      GetRecHitsCollectionEBeta = false;
@@ -396,7 +401,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
  bool GetRecHitsCollectionEEpi0 = true;
  if(isMonEEpi0_) {
    try { 
-     if(isMonEEpi0_) iEvent.getByLabel(productMonitoredEEpi0_, rhEEpi0);
+     if(isMonEEpi0_) iEvent.getByToken(productMonitoredEEpi0Token_, rhEEpi0);
    }catch( cms::Exception& exception ) {
      LogDebug("HLTAlCaPi0DQMSource") << "no EcalRecHits EE_Pi0, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << std::endl;
      GetRecHitsCollectionEEpi0 = false;
@@ -406,7 +411,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
  bool GetRecHitsCollectionEEeta = true;
  if(isMonEEeta_) {
    try { 
-     if(isMonEEeta_) iEvent.getByLabel(productMonitoredEEeta_, rhEEeta);
+     if(isMonEEeta_) iEvent.getByToken(productMonitoredEEetaToken_, rhEEeta);
    }catch( cms::Exception& exception ) {
      LogDebug("HLTAlCaPi0DQMSource") << "no EcalRecHits EE_Eta, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << std::endl;
      GetRecHitsCollectionEEeta = false;

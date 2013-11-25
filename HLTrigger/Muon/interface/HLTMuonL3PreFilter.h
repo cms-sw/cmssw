@@ -3,7 +3,7 @@
 
 /** \class HLTMuonL3PreFilter
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing a first
  *  filtering for HLT muons
  *
@@ -28,9 +28,10 @@ class HLTMuonL3PreFilter : public HLTFilter {
       explicit HLTMuonL3PreFilter(const edm::ParameterSet&);
       ~HLTMuonL3PreFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-      bool triggeredByLevel2(const reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+
    private:
+      bool triggeredByLevel2(const reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands) const;
 
       edm::InputTag                    beamspotTag_ ;
       edm::EDGetTokenT<reco::BeamSpot> beamspotToken_ ;
@@ -45,7 +46,7 @@ class HLTMuonL3PreFilter : public HLTFilter {
       double min_Dr_;           // minimum impact parameter cut
       double max_Dz_;           // dz cut
       double min_DxySig_;       // dxy significance cut
-      double min_Pt_;           // pt threshold in GeV 
+      double min_Pt_;           // pt threshold in GeV
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
       double max_NormalizedChi2_; // cutoff in normalized chi2
       double max_DXYBeamSpot_; // cutoff in dxy from the beamspot
@@ -54,7 +55,7 @@ class HLTMuonL3PreFilter : public HLTFilter {
   double min_TrackPt_; //cutoff in tracker track pt
 
   bool devDebug_;
-  
+
 
 };
 

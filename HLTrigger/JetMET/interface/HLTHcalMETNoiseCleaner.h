@@ -7,7 +7,7 @@
  *
  */
 
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 #include "DataFormats/METReco/interface/CaloMET.h"

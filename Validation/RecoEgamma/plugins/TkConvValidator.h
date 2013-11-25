@@ -15,6 +15,11 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -35,7 +40,7 @@ class TTree;
 class SimVertex;
 class SimTrack;
 /** \class TkConvValidator
- **  
+ **
  **
  **  $Id: TkConvValidator
  **  \author N.Marinelli - Univ. of Notre Dame
@@ -47,18 +52,18 @@ class TkConvValidator : public edm::EDAnalyzer
 {
 
  public:
-   
+
   //
   explicit TkConvValidator( const edm::ParameterSet& ) ;
   virtual ~TkConvValidator();
-                                   
-      
+
+
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
   virtual void beginJob();
   virtual void beginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
   virtual void endRun (edm::Run& r, edm::EventSetup const & es);
   virtual void endJob() ;
-  
+
  private:
   //
 
@@ -66,7 +71,7 @@ class TkConvValidator : public edm::EDAnalyzer
   float  etaTransformation( float a, float b);
   math::XYZVector recalculateMomentumAtFittedVertex (const MagneticField& mf, const TrackerGeometry& trackerGeom, const  edm::RefToBase<reco::Track>&   tk,const  reco::Vertex& vtx);
 
-      
+
   std::string fName_;
   DQMStore *dbe_;
   edm::ESHandle<MagneticField> theMF_;
@@ -83,15 +88,27 @@ class TkConvValidator : public edm::EDAnalyzer
   int nInvalidPCA_;
 
   edm::ParameterSet parameters_;
-  edm::ESHandle<CaloGeometry> theCaloGeom_;	    
+  edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<CaloTopology> theCaloTopo_;
 
-  std::string conversionCollectionProducer_;       
+  std::string conversionCollectionProducer_;
   std::string conversionCollection_;
+  edm::EDGetTokenT<reco::ConversionCollection> conversionCollectionPr_Token_;
+
   std::string conversionTrackProducer_;
 
-  std::string photonCollectionProducer_;       
+  std::string photonCollectionProducer_;
   std::string photonCollection_;
+  edm::EDGetTokenT<reco::PhotonCollection> photonCollectionPr_Token_;
+
+  edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
+  edm::EDGetTokenT<edm::SimTrackContainer> g4_simTk_Token_;
+  edm::EDGetTokenT<edm::SimVertexContainer> g4_simVtx_Token_;
+  edm::EDGetTokenT<TrackingParticleCollection> tpSelForEff_Token_;
+  edm::EDGetTokenT<TrackingParticleCollection> tpSelForFake_Token_;
+  edm::EDGetTokenT<edm::HepMCProduct> hepMC_Token_;
+  edm::EDGetTokenT<reco::GenJetCollection> genjets_Token_;
 
   std::string dqmpath_;
 
@@ -127,18 +144,18 @@ class TkConvValidator : public edm::EDAnalyzer
   double minProb_;
   uint maxHitsBeforeVtx_;
   double minLxy_;
-  
+
 
   /// global variable for the MC photon
   double mcPhi_;
   double mcEta_;
-  double mcConvPt_;      
-  double mcConvR_;      
+  double mcConvPt_;
+  double mcConvR_;
   double mcConvZ_;
-  double mcConvY_;            
-  double mcConvX_;            
-  double mcConvPhi_;            
-  double mcConvEta_;            
+  double mcConvY_;
+  double mcConvX_;
+  double mcConvPhi_;
+  double mcConvEta_;
   double mcJetEta_;
   double mcJetPhi_;
 
@@ -156,7 +173,7 @@ class TkConvValidator : public edm::EDAnalyzer
 
   double simMinPt_;
   double simMaxPt_;
-  
+
   /// Global variables for reco Photon
   double recMinPt_;
   double recMaxPt_;
@@ -190,7 +207,7 @@ class TkConvValidator : public edm::EDAnalyzer
   MonitorElement*   h_SimRecConvOneMTracks_[5];
   MonitorElement*   h_SimRecConvTwoTracks_[5];
   MonitorElement*   h_SimRecConvTwoMTracks_[5];
-  
+
   // Denominators for conversion fake rate
   MonitorElement*   h_RecoConvTwoTracks_[5];
   // Numerators for conversion fake rate
@@ -218,7 +235,7 @@ class TkConvValidator : public edm::EDAnalyzer
   MonitorElement* h_convPtRes_[3];
 
   MonitorElement* h_invMass_[3][3];
-  
+
   MonitorElement* h_DPhiTracksAtVtx_[3][3];
   MonitorElement* h2_DPhiTracksAtVtxVsEta_;
   MonitorElement* p_DPhiTracksAtVtxVsEta_;
@@ -241,7 +258,7 @@ class TkConvValidator : public edm::EDAnalyzer
 
   MonitorElement* h_DEtaTracksAtEcal_[3][3];
 
-  
+
 
   MonitorElement* h_convVtxRvsZ_[3];
   MonitorElement* h_convVtxYvsX_;
@@ -288,18 +305,18 @@ class TkConvValidator : public edm::EDAnalyzer
 
 
 
-  MonitorElement* h_zPVFromTracks_[2]; 
-  MonitorElement* h_dzPVFromTracks_[2]; 
+  MonitorElement* h_zPVFromTracks_[2];
+  MonitorElement* h_dzPVFromTracks_[2];
   MonitorElement* h2_dzPVVsR_;
   MonitorElement* p_dzPVVsR_;
 
   MonitorElement* h_lxybs_[3][3];
   MonitorElement* h_maxNHitsBeforeVtx_[3][3];
   MonitorElement* h_leadNHitsBeforeVtx_[3][3];
-  MonitorElement* h_trailNHitsBeforeVtx_[3][3]; 
-  MonitorElement* h_sumNHitsBeforeVtx_[3][3];  
-  MonitorElement* h_deltaExpectedHitsInner_[3][3];  
-  MonitorElement* h_leadExpectedHitsInner_[3][3];      
+  MonitorElement* h_trailNHitsBeforeVtx_[3][3];
+  MonitorElement* h_sumNHitsBeforeVtx_[3][3];
+  MonitorElement* h_deltaExpectedHitsInner_[3][3];
+  MonitorElement* h_leadExpectedHitsInner_[3][3];
   MonitorElement* h_maxDlClosestHitToVtx_[3][3];
   MonitorElement* h_maxDlClosestHitToVtxSig_[3][3];
   MonitorElement* h_nSharedHits_[3][3];
@@ -307,11 +324,11 @@ class TkConvValidator : public edm::EDAnalyzer
 
 
   //////////// info per track
-  MonitorElement* nHits_[3]; 
-  MonitorElement* p_nHitsVsEta_[3]; 
-  MonitorElement* nHitsVsEta_[3]; 
-  MonitorElement* p_nHitsVsR_[3]; 
-  MonitorElement* nHitsVsR_[3]; 
+  MonitorElement* nHits_[3];
+  MonitorElement* p_nHitsVsEta_[3];
+  MonitorElement* nHitsVsEta_[3];
+  MonitorElement* p_nHitsVsR_[3];
+  MonitorElement* nHitsVsR_[3];
   MonitorElement* h_tkChi2_[3];
   MonitorElement* h_tkChi2Large_[3];
   MonitorElement* h2_Chi2VsEta_[3];
@@ -329,7 +346,7 @@ class TkConvValidator : public edm::EDAnalyzer
 
   MonitorElement* h_match_;
 
-  MonitorElement* p2_effRZ_; 
+  MonitorElement* p2_effRZ_;
 
   MonitorElement* h_nHitsBeforeVtx_[3];
   MonitorElement* h_dlClosestHitToVtx_[3];

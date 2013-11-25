@@ -52,10 +52,10 @@ class AlcaBeamMonitor : public edm::EDAnalyzer {
   //Parameters
   edm::ParameterSet parameters_;
   std::string       monitorName_;
-  edm::InputTag     primaryVertexLabel_;
+  edm::EDGetTokenT<reco::VertexCollection> primaryVertexLabel_;
+  edm::EDGetTokenT<reco::TrackCollection>  trackLabel_;
+  edm::EDGetTokenT<reco::BeamSpot>         scalerLabel_;
   edm::InputTag     beamSpotLabel_;
-  edm::InputTag     trackLabel_;
-  edm::InputTag     scalerLabel_;
 
   //Service variables
   int         numberOfValuesToSave_;
@@ -80,3 +80,8 @@ class AlcaBeamMonitor : public edm::EDAnalyzer {
 
 #endif
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

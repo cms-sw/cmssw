@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 #include <algorithm>
+#include <cassert>
 
 /*----------------------------------------------------------------------
 

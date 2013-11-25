@@ -3,7 +3,7 @@
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToLocal.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCartesian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToLocal.h"
-
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 

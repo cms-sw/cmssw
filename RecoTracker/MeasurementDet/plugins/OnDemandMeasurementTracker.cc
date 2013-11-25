@@ -46,9 +46,6 @@
 #include <DataFormats/GeometrySurface/interface/BoundPlane.h>
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Services/interface/UpdaterService.h"
-
 using namespace std;
 
 OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet&              conf,

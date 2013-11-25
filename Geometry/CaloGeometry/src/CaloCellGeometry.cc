@@ -28,8 +28,6 @@ CaloCellGeometry::~CaloCellGeometry()
 
 
 
-
-
 CaloCellGeometry::CaloCellGeometry( CornersVec::const_reference gp ,
 				    const CornersMgr*           mgr,
 				    const CCGFloat*             par ) :

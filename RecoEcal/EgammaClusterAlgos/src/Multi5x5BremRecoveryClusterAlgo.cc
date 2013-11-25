@@ -43,102 +43,96 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterP
 		double etaRoad, double phiRoad)
 {
 
-	std::vector<DetId> usedSeedDetIds;
-	usedSeedDetIds.clear();
 
-	for (reco::CaloCluster_iterator currentSeed = clusters_v.begin(); currentSeed != clusters_v.end(); ++currentSeed)
-	{
+  bool usedSeed[clusters_v.size()];
+  for (auto ic=0U; ic<clusters_v.size(); ++ic) usedSeed[ic]=false;
+ 
+  float eta[clusters_v.size()], phi[clusters_v.size()], et[clusters_v.size()];
+  for (auto ic=0U; ic<clusters_v.size(); ++ic) {
+    eta[ic]=clusters_v[ic]->eta();
+    phi[ic]=clusters_v[ic]->phi();
+    et[ic]=clusters_v[ic]->energy() * sin(clusters_v[ic]->position().theta());
+  }
 
-		// check this seed was not already used
-		if (std::find(usedSeedDetIds.begin(), usedSeedDetIds.end(), (*currentSeed)->seed()) 
-			!= usedSeedDetIds.end()) continue;
+  for (auto is=0U; is<clusters_v.size(); ++is) {
+    // check this seed was not already used
+    if (usedSeed[is]) continue;
+    auto const & currentSeed = clusters_v[is];
+    
+    // Does our highest energy cluster have high enough energy?
+    // changed this to continue from break (to be robust against the order of sorting of the seed clusters)
+    if (et[is] < seedTransverseEnergyThreshold) continue;
 
-		// Does our highest energy cluster have high enough energy?
-		// changed this to continue from break (to be robust against the order of sorting of the seed clusters)
-		if ((*currentSeed)->energy() * sin((*currentSeed)->position().theta()) < seedTransverseEnergyThreshold) continue;
+    // if yes, make it a seed for a new SuperCluster:
+    double energy = (currentSeed)->energy();
+    math::XYZVector position_((currentSeed)->position().X(), 
+			      (currentSeed)->position().Y(), 
+			      (currentSeed)->position().Z());
+    position_ *= energy;
+    usedSeed[is]=true;
 
-		// if yes, make it a seed for a new SuperCluster:
-		double energy = (*currentSeed)->energy();
-		math::XYZVector position_((*currentSeed)->position().X(), 
-				(*currentSeed)->position().Y(), 
-				(*currentSeed)->position().Z());
-		position_ *= energy;
-		usedSeedDetIds.push_back((*currentSeed)->seed());
+    LogTrace("EcalClusters") << "*****************************";
+    LogTrace("EcalClusters") << "******NEW SUPERCLUSTER*******";
+    LogTrace("EcalClusters") << "Seed R = " << (currentSeed)->position().Rho();
+    
+    reco::CaloClusterPtrVector constituentClusters;
+    constituentClusters.push_back(currentSeed);
+    auto ic = is + 1;
+		
+    while (ic < clusters_v.size()) {
+      auto const & currentCluster = clusters_v[ic];
+  
+      // if dynamic phi road is enabled then compute the phi road for a cluster
+      // of energy of existing clusters + the candidate cluster.
+      if (dynamicPhiRoad_)
+	phiRoad = phiRoadAlgo_->endcapPhiRoad(energy + (currentCluster)->energy());
 
-LogTrace("EcalClusters") << "*****************************";
-LogTrace("EcalClusters") << "******NEW SUPERCLUSTER*******";
-LogTrace("EcalClusters") << "Seed R = " << (*currentSeed)->position().Rho();
+      auto dphi = [](float p1,float p2) {
+	auto dp=std::abs(p1-p2); if (dp>float(M_PI)) dp-=float(2*M_PI);
+	return std::abs(dp);
+      };
 
-		reco::CaloClusterPtrVector constituentClusters;
-		constituentClusters.push_back(*currentSeed);
-		reco::CaloCluster_iterator currentCluster = currentSeed + 1;
+      auto match = [&](int i, int j) {
+	return (dphi(phi[i],phi[j])< phiRoad) & (std::abs(eta[i]-eta[j])< etaRoad);
+      };
+      
+      // does the cluster match the phi road for this candidate supercluster
+      if (!usedSeed[ic] && match(is,ic)) {
+	
+	// add basic cluster to supercluster constituents
+	constituentClusters.push_back(currentCluster);
+	energy   += (currentCluster)->energy();
+	position_ += (currentCluster)->energy() * math::XYZVector((currentCluster)->position().X(),
+								  (currentCluster)->position().Y(), 
+								  (currentCluster)->position().Z()
+								  );
+	// remove cluster from vector of available clusters
+	usedSeed[ic]=true;
+	LogTrace("EcalClusters") << "Cluster R = " << (currentCluster)->position().Rho();
+      }
+      ++ic;
+    }
+    
+    position_ /= energy;
 
-		while (currentCluster != clusters_v.end())
-		{
-
-			// if dynamic phi road is enabled then compute the phi road for a cluster
-			// of energy of existing clusters + the candidate cluster.
-			if (dynamicPhiRoad_)
-				phiRoad = phiRoadAlgo_->endcapPhiRoad(energy + (*currentCluster)->energy());
-
-			// does the cluster match the phi road for this candidate supercluster
-			if (match(*currentSeed, *currentCluster, etaRoad, phiRoad) &&
-				std::find(usedSeedDetIds.begin(), usedSeedDetIds.end(), (*currentCluster)->seed()) == usedSeedDetIds.end())
-			{
-
-				// add basic cluster to supercluster constituents
-				constituentClusters.push_back(*currentCluster);
-				energy   += (*currentCluster)->energy();
-				position_ += (*currentCluster)->energy() * math::XYZVector((*currentCluster)->position().X(),
-						(*currentCluster)->position().Y(), 
-						(*currentCluster)->position().Z());
-
-				// remove cluster from vector of available clusters
-				usedSeedDetIds.push_back((*currentCluster)->seed());
-LogTrace("EcalClusters") << "Cluster R = " << (*currentCluster)->position().Rho();
-			}
-			++currentCluster;
-
-		}
-
-		position_ /= energy;
-
-LogTrace("EcalClusters") <<"Final SuperCluster R = " << position_.Rho();
-
-		reco::SuperCluster newSuperCluster(energy, 
-				math::XYZPoint(position_.X(), position_.Y(), position_.Z()), 
-				(*currentSeed), 
-				constituentClusters);
-
-		superclusters_v.push_back(newSuperCluster);
-LogTrace("EcalClusters") << "created a new supercluster of: ";
-LogTrace("EcalClusters") << "Energy = " << newSuperCluster.energy();
-LogTrace("EcalClusters") << "Position in (R, phi, theta) = ("
-                                << newSuperCluster.position().Rho() << ", "
-                                << newSuperCluster.position().phi() << ", "
-                                << newSuperCluster.position().theta() << ")" ;
-
-
-	}
-
-	clusters_v.clear();
-
-}
-
-
-bool Multi5x5BremRecoveryClusterAlgo::match(reco::CaloClusterPtr seed_p, 
-		reco::CaloClusterPtr cluster_p,
-		double dEtaMax, double dPhiMax)
-{
-	math::XYZPoint clusterPosition = cluster_p->position();
-	math::XYZPoint seedPosition = seed_p->position();
-
-	double dPhi = acos(cos(seedPosition.phi() - clusterPosition.phi()));
-
-	double dEta = fabs(seedPosition.eta() - clusterPosition.eta());
-
-	if (dEta > dEtaMax) return false;
-	if (dPhi > dPhiMax) return false;
-
-	return true;
+    LogTrace("EcalClusters") <<"Final SuperCluster R = " << position_.Rho();
+    
+    reco::SuperCluster newSuperCluster(energy, 
+				       math::XYZPoint(position_.X(), position_.Y(), position_.Z()),
+				       currentSeed, 
+				       constituentClusters);
+    
+    superclusters_v.push_back(newSuperCluster);
+    LogTrace("EcalClusters") << "created a new supercluster of: ";
+    LogTrace("EcalClusters") << "Energy = " << newSuperCluster.energy();
+    LogTrace("EcalClusters") << "Position in (R, phi, theta) = ("
+			     << newSuperCluster.position().Rho() << ", "
+			     << newSuperCluster.position().phi() << ", "
+			     << newSuperCluster.position().theta() << ")" ;
+    
+    
+  }
+  
+  clusters_v.clear();
+  
 }

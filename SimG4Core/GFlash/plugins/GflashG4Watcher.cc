@@ -14,6 +14,8 @@
 
 #include <TVector2.h>
 
+using namespace CLHEP;
+
 const double radLength = 8.9; // mm
 const double rMoliere = 21.9; // mm
 // constructors and destructor

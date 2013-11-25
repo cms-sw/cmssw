@@ -27,26 +27,26 @@ class RecoTrackRefSelector : public RecoTrackSelector {
   /// Constructors
   RecoTrackRefSelector() {}
 
-  RecoTrackRefSelector ( const edm::ParameterSet & cfg ) : RecoTrackSelector(cfg) {}
-  
+  RecoTrackRefSelector ( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) : RecoTrackSelector(cfg, iC) {}
+
   RecoTrackRefSelector ( double ptMin, double minRapidity, double maxRapidity,
-		         double tip, double lip, int minHit, int min3DHit, double maxChi2, 
+		         double tip, double lip, int minHit, int min3DHit, double maxChi2,
     		         const std::vector<std::string>& quality , const std::vector<std::string>& algorithm ) :
           RecoTrackSelector ( ptMin, minRapidity, maxRapidity,
-   		              tip, lip, minHit, min3DHit, maxChi2, 
+   		              tip, lip, minHit, min3DHit, maxChi2,
                               quality , algorithm ) {}
 
   const_ref_iterator begin() const { return ref_selected_.begin(); }
   const_ref_iterator end() const { return ref_selected_.end(); }
-  
+
   void select( const edm::Handle<collection>& c, const edm::Event & event, const edm::EventSetup&) {
     ref_selected_.clear();
     edm::Handle<reco::BeamSpot> beamSpot;
-    event.getByLabel(bsSrc_,beamSpot);
+    event.getByToken(bsSrcToken_,beamSpot);
     for (unsigned int i = 0; i < c->size(); i++) {
 
       edm::Ref<collection> trk(c, i);
- 
+
       if ( operator()(*trk,beamSpot.product()) ) {
 	ref_selected_.push_back( trk );
       }
@@ -54,7 +54,7 @@ class RecoTrackRefSelector : public RecoTrackSelector {
   }
 
   size_t size() const { return ref_selected_.size(); }
-  
+
  private:
   ref_container ref_selected_;
 };

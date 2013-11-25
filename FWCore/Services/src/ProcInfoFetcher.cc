@@ -51,7 +51,7 @@ namespace {
     int session; // %d
     int tty; // %d
     int tpgid; // %d
-    unsigned long flags; // %lu
+    unsigned int flags; // %u [before linux 2.6 %lu]
     unsigned long minflt; // %lu
     unsigned long cminflt; // %lu
     unsigned long majflt; // %lu
@@ -64,7 +64,7 @@ namespace {
     long nice; // %ld
     long num_threads; // %ld
     long itrealvalue; // %ld
-    int starttime; // %d
+    unsigned long long starttime; // %llu [before linux 2.6 %d]
     unsigned long vsize; // %lu
     long rss; // %ld
     unsigned long rlim; // %lu
@@ -86,6 +86,7 @@ namespace {
     friend Fetcher& operator>>(Fetcher&, long&);
     friend Fetcher& operator>>(Fetcher&, unsigned int&);
     friend Fetcher& operator>>(Fetcher&, unsigned long&);
+    friend Fetcher& operator>>(Fetcher&, unsigned long long&);
     friend Fetcher& operator>>(Fetcher&, char&);
     friend Fetcher& operator>>(Fetcher&, std::string&);
     
@@ -114,6 +115,11 @@ namespace {
       const char* t = getItem();
       //std::cout <<"ulong '"<<t <<"'"<<std::endl;
       return boost::lexical_cast<unsigned long>(t);
+    }
+    unsigned long long getULongLong() {
+      const char* t = getItem();
+      //std::cout <<"ulong '"<<t <<"'"<<std::endl;
+      return boost::lexical_cast<unsigned long long>(t);
     }
     char getChar() {
       return *getItem();
@@ -147,6 +153,10 @@ namespace {
   Fetcher& operator>>(Fetcher& iFetch, unsigned long& oValue) {
     oValue = iFetch.getULong();
     return iFetch;      
+  }
+  Fetcher& operator>>(Fetcher& iFetch, unsigned long long& oValue) {
+    oValue = iFetch.getULongLong();
+    return iFetch;
   }
   Fetcher& operator>>(Fetcher& iFetch, char& oValue) {
     oValue = iFetch.getChar();

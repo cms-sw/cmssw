@@ -30,7 +30,7 @@
 
 #include <vector>
 
-namespace {
+namespace DataFormats_TrackReco {
   struct dictionary {
     reco::TrackExtraCollection v3;
     edm::Wrapper<reco::TrackExtraCollection> c3;

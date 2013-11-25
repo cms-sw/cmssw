@@ -9,6 +9,7 @@
 
 struct EcalMappingElement
 {
+  EcalMappingElement() : electronicsid(0), triggerid(0) {}
   uint32_t electronicsid;
   uint32_t triggerid;
 };

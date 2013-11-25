@@ -3,11 +3,12 @@
 
 /* \author B.Mangano, UCSD
  *
- * Base class which defines the interface of a generic HistoProducerAlogs 
- * to be used within the MultiTrackValidator module. 
- * The concrete algorithms will be plugged into the MTV to produce all 
+ * Base class which defines the interface of a generic HistoProducerAlogs
+ * to be used within the MultiTrackValidator module.
+ * The concrete algorithms will be plugged into the MTV to produce all
  * the validation plots that the user wants.
  */
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -25,11 +26,12 @@
 
 class MTVHistoProducerAlgo{
  public:
-  
- MTVHistoProducerAlgo(const edm::ParameterSet& pset) : pset_(pset){};
+
+ MTVHistoProducerAlgo(const edm::ParameterSet& pset, edm::ConsumesCollector && iC) : MTVHistoProducerAlgo(pset, iC){};
+ MTVHistoProducerAlgo(const edm::ParameterSet& pset, edm::ConsumesCollector & iC) : pset_(pset){};
   virtual ~MTVHistoProducerAlgo() {}
   // to be implemented in the concrete classes
-  virtual void initialize()=0; 
+  virtual void initialize()=0;
 
   void setDQMStore(DQMStore* dbe) {dbe_ = dbe;}
 
@@ -60,7 +62,7 @@ class MTVHistoProducerAlgo{
 				     	     bool isSigMatched,
 				     	     bool isChargeMatched,
 					     int numAssocRecoTracks,
-                         	             int numVertices, 
+                         	             int numVertices,
                          		     int tpbunchcrossing,
 				             int nSimHits,
    					     double sharedFraction)=0;
@@ -71,8 +73,8 @@ class MTVHistoProducerAlgo{
   virtual void fill_simAssociated_recoTrack_histos(int count,
 						   const reco::Track& track)=0;
 
-  virtual void fill_trackBased_histos(int count, 
-		 	      	      int assTracks, 
+  virtual void fill_trackBased_histos(int count,
+		 	      	      int assTracks,
 			      	      int numRecoTracks,
 			      	      int numSimTracks)=0;
 
@@ -90,11 +92,11 @@ class MTVHistoProducerAlgo{
   virtual void fillProfileHistosFromVectors(int counter)=0;
 
 
- protected: 
-  //protected functions 
+ protected:
+  //protected functions
 
   virtual double getEta(double eta)=0;
-  
+
   virtual double getPt(double pt)=0;
 
   void doProfileX(TH2 * th2, MonitorElement* me);
@@ -102,11 +104,11 @@ class MTVHistoProducerAlgo{
   void doProfileX(MonitorElement * th2m, MonitorElement* me) {
     doProfileX(th2m->getTH2F(), me);
   }
-  
+
   void fillPlotFromVector(MonitorElement* h, std::vector<int>& vec);
-  
-  void fillPlotFromVectors(MonitorElement* h, 
-			   std::vector<int>& numerator, 
+
+  void fillPlotFromVectors(MonitorElement* h,
+			   std::vector<int>& numerator,
 			   std::vector<int>& denominator,
 			   std::string type);
 

@@ -12,7 +12,6 @@ MuonIdDQM::MuonIdDQM(const edm::ParameterSet& iConfig){
   
   dbe_ = 0;
   dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder(baseFolder_);
 }
 
 MuonIdDQM::~MuonIdDQM() {}
@@ -24,7 +23,12 @@ void MuonIdDQM::beginRun(const edm::Run& irun, const edm::EventSetup& isetup){
 
    char name[100], title[200];
 
+   dbe_->cd();
+   dbe_->setCurrentFolder(baseFolder_);
    // trackerMuon == 0; globalMuon == 1; trackerMuon && !globalMuon == 2; globalMuon && !trackerMuon == 3
+   
+   hSegmentIsAssociatedBool = dbe_->book1D("hSegmentIsAssociatedBool", "Segment Is Associated Boolean", 2, -0.5, 1.5);
+   
    for (unsigned int i = 0; i < 4; i++) {
       if ((i == 0 && ! useTrackerMuons_) || (i == 1 && ! useGlobalMuons_)) continue;
       if ((i == 2 && ! useTrackerMuonsNotGlobalMuons_) || (i == 3 && ! useGlobalMuonsNotTrackerMuons_)) continue;
@@ -39,7 +43,7 @@ void MuonIdDQM::beginRun(const edm::Run& irun, const edm::EventSetup& isetup){
 
       // by station
       for(int station = 0; station < 4; ++station)
-      {
+	{
          sprintf(name, "hDT%iNumSegments", station+1);
          sprintf(title, "DT Station %i Number of Segments (No Arbitration)", station+1);
          hDTNumSegments[i][station] = dbe_->book1D(name, title, 11, -0.5, 10.5);
@@ -116,7 +120,6 @@ void MuonIdDQM::beginRun(const edm::Run& irun, const edm::EventSetup& isetup){
       }// station
    }
 
-   hSegmentIsAssociatedBool = dbe_->book1D("hSegmentIsAssociatedBool", "Segment Is Associated Boolean", 2, -0.5, 1.5);
 }
 
 void MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

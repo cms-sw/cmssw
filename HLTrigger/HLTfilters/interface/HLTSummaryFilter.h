@@ -3,7 +3,7 @@
 
 /** \class HLTSummaryFilter
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing a smart HLT
  *  trigger cut, specified as a string such as "pt>15 && -3<eta<3",
  *  for objects in the TriggerSummaryAOD product, allowing to cut on
@@ -36,7 +36,7 @@ class HLTSummaryFilter : public HLTFilter {
       explicit HLTSummaryFilter(const edm::ParameterSet&);
       ~HLTSummaryFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       edm::InputTag                           summaryTag_;   // input tag identifying TriggerSummaryAOD

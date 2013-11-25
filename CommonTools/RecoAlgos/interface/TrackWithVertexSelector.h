@@ -9,18 +9,21 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class TrackWithVertexSelector {
    public:
-      explicit TrackWithVertexSelector(const edm::ParameterSet&);
+      explicit TrackWithVertexSelector(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
+        TrackWithVertexSelector(iConfig, iC) {}
+      explicit TrackWithVertexSelector(const edm::ParameterSet& iConfig, edm::ConsumesCollector & iC);
       ~TrackWithVertexSelector();
       bool operator()(const reco::Track &t, const edm::Event &iEvent) const ;
       bool operator()(const reco::Track &t, const reco::VertexCollection &vtxs) const;
       bool testTrack(const reco::Track &t) const ;
-      bool testVertices(const reco::Track &t, const reco::VertexCollection &vtxs) const ; 
+      bool testVertices(const reco::Track &t, const reco::VertexCollection &vtxs) const ;
    private:
       uint32_t numberOfValidHits_;
       uint32_t numberOfValidPixelHits_;
@@ -32,7 +35,7 @@ class TrackWithVertexSelector {
       std::string quality_;
 
       uint32_t      nVertices_;
-      edm::InputTag vertexTag_;
+      edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
       bool          vtxFallback_;
       double        zetaVtx_, rhoVtx_;
 

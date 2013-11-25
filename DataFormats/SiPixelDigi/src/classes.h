@@ -11,7 +11,7 @@
 #include "boost/cstdint.hpp"
 #include <vector>
 
-namespace {
+namespace DataFormats_SiPixelDigi {
   struct dictionary {
     SiPixelCalibDigi::datacontainer calibdatacontainer;
     SiPixelCalibDigi calibdigiitself;

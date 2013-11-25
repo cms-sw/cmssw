@@ -31,6 +31,7 @@ namespace evf{
       void preBeginRun(edm::RunID const& id, edm::Timestamp const& ts);
       void postEndRun(edm::Run const& run, edm::EventSetup const& es);
       std::string &baseDir(){return base_dir_;}
+      std::string &fuBaseDir(){return run_dir_;}
       std::string &smBaseDir(){return sm_base_dir_;}
       std::string &buBaseDir(){return bu_run_dir_;}
       std::string &buBaseOpenDir(){return bu_run_open_dir_;}
@@ -49,20 +50,23 @@ namespace evf{
       int readBuLock();
       // DEPRECATED
       //int updateFuLock(unsigned int &ls);
-      bool updateFuLock(unsigned int& ls, unsigned int& index, bool& eorSeen);
+      bool updateFuLock(unsigned int& ls, std::string& nextFile, bool& eorSeen);
       void writeLsStatisticsBU(unsigned int, unsigned int, unsigned long long, long long);
       void writeLsStatisticsFU(unsigned int ls, unsigned int events, timeval completion_time){}
       void writeDiskAndThrottleStat(double, int, int);
       void tryInitializeFuLockFile();
+      unsigned int getRunNumber() const { return run_; }
       unsigned int getJumpLS() const { return jumpLS_; }
       unsigned int getJumpIndex() const { return jumpIndex_; }
+      std::string getJumpFilePath() const { return formatRawFilePath(jumpLS_,jumpIndex_); }
       bool getTestModeNoBuilderUnit() { return testModeNoBuilderUnit_;}
       FILE * maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream);
       void unlockAndCloseMergeStream();
-      std::string formatRawFilePath(unsigned int ls, unsigned int index);
-      std::string formatOpenRawFilePath(unsigned int ls, unsigned int index);
-      std::string formatMergeFilePath(unsigned int ls, std::string &stream);
-      std::string formatEndOfLS(unsigned int ls);
+      std::string formatRawFilePath(unsigned int ls, unsigned int index) const;
+      std::string formatOpenRawFilePath(unsigned int ls, unsigned int index) const;
+      std::string formatMergeFilePath(unsigned int ls, std::string &stream) const;
+      std::string formatEndOfLS(unsigned int ls) const;
+      std::string formatEndOfLSSlave(unsigned int ls) const;
 
     private:
       bool bulock();
@@ -73,7 +77,7 @@ namespace evf{
       bool mkFuRunDir();
       // This functionality is for emulator running only
       bool createOutputDirectory();
-      bool bumpFile(unsigned int& ls, unsigned int& index);
+      bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile);
       bool findHighestActiveLS(unsigned int& startingLS) const;
       void openFULockfileStream(std::string& fuLockFilePath, bool create);
 

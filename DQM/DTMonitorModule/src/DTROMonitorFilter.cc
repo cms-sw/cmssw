@@ -22,16 +22,19 @@ using namespace edm;
 DTROMonitorFilter::DTROMonitorFilter(const edm::ParameterSet& pset) :
   HLTFilter(pset)
 {
-  inputLabel = pset.getUntrackedParameter<InputTag>("inputLabel",InputTag("source"));
+  rawDataToken_ = consumes<FEDRawDataCollection>(
+      pset.getUntrackedParameter<InputTag>("inputLabel",InputTag("source")));
 }
 
 DTROMonitorFilter::~DTROMonitorFilter(){}
 
 
-bool DTROMonitorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool DTROMonitorFilter::hltFilter(edm::Event& event,
+                                  const edm::EventSetup& setup,
+                                  trigger::TriggerFilterObjectWithRefs & filterproduct) const {
   // get the raw data
-  event.getByLabel(inputLabel, rawdata);
-  
+  edm::Handle<FEDRawDataCollection> rawdata;
+  event.getByToken(rawDataToken_, rawdata);
 
   // Loop over the DT FEDs
   int FEDIDmin = FEDNumbering::MINDTFEDID;
@@ -43,16 +46,16 @@ bool DTROMonitorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setu
 
   for (int dduID=FEDIDmin; dduID<=FEDIDMax; ++dduID) {  // loop over all feds
     const FEDRawData& feddata = rawdata->FEDData(dduID);
-    const int datasize = feddata.size();    
+    const int datasize = feddata.size();
     if (datasize){ // check the FED payload
       const unsigned int* index32 = reinterpret_cast<const unsigned int*>(feddata.data());
       const int numberOf32Words = datasize/wordSize_32;
-      
+
       const unsigned char* index8 = reinterpret_cast<const unsigned char*>(index32);
 
       // Check Status Words (1 x ROS)
       for (int rosId = 0; rosId < 12; rosId++ ) {
-	int wordIndex8 = numberOf32Words*wordSize_32 - 3*wordSize_64 + rosId; 
+	int wordIndex8 = numberOf32Words*wordSize_32 - 3*wordSize_64 + rosId;
 	DTDDUFirstStatusWord statusWord(index8[wordIndex8]);
 	// check the error bit
 	if(statusWord.errorFromROS() != 0) return true;
@@ -60,6 +63,11 @@ bool DTROMonitorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setu
     }
   }
 
-  // check the event error flag 
+  // check the event error flag
   return false;
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

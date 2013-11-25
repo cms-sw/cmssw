@@ -14,7 +14,7 @@ class HLTDiMuonGlbTrkFilter : public HLTFilter {
   HLTDiMuonGlbTrkFilter(const edm::ParameterSet&);
   virtual ~HLTDiMuonGlbTrkFilter(){}
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
  private:
   // WARNING: two input collection represent should be aligned and represent

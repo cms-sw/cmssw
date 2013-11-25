@@ -1,11 +1,13 @@
 #ifndef CommonTools_ParticleFlow_IsolatedPFCandidateSelectorDefinition
 #define CommonTools_ParticleFlow_IsolatedPFCandidateSelectorDefinition
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "CommonTools/ParticleFlow/interface/PFCandidateSelectorDefinition.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 namespace pf2pat {
 
@@ -14,45 +16,45 @@ namespace pf2pat {
   public:
     typedef edm::ValueMap<double> IsoMap;
 
-    IsolatedPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg ) :
-      isolationValueMapChargedLabels_(cfg.getParameter< std::vector<edm::InputTag> >("isolationValueMapsCharged") ),
-      isolationValueMapNeutralLabels_(cfg.getParameter< std::vector<edm::InputTag> >("isolationValueMapsNeutral") ),
+    IsolatedPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
+      isolationValueMapChargedTokens_(edm::vector_transform(cfg.getParameter< std::vector<edm::InputTag> >("isolationValueMapsCharged"), [&](edm::InputTag const & tag){return iC.consumes<IsoMap>(tag);}) ),
+      isolationValueMapNeutralTokens_(edm::vector_transform(cfg.getParameter< std::vector<edm::InputTag> >("isolationValueMapsNeutral"), [&](edm::InputTag const & tag){return iC.consumes<IsoMap>(tag);}) ),
       doDeltaBetaCorrection_(cfg.getParameter<bool>("doDeltaBetaCorrection")),
-      deltaBetaIsolationValueMap_(cfg.getParameter< edm::InputTag >("deltaBetaIsolationValueMap") ),
+      deltaBetaIsolationValueMapToken_(iC.mayConsume<IsoMap>(cfg.getParameter< edm::InputTag >("deltaBetaIsolationValueMap") ) ),
       deltaBetaFactor_(cfg.getParameter<double>("deltaBetaFactor")),
       isRelative_(cfg.getParameter<bool>("isRelative")),
       isolationCut_(cfg.getParameter<double>("isolationCut")) {}
-    
 
 
-    void select( const HandleToCollection & hc, 
-		 const edm::EventBase & e,
+
+    void select( const HandleToCollection & hc,
+		 const edm::Event & e,
 		 const edm::EventSetup& s) {
       selected_.clear();
-    
+
 
       // read all charged isolation value maps
-      std::vector< edm::Handle<IsoMap> > 
-	isoMapsCharged(isolationValueMapChargedLabels_.size());
-      for(unsigned iMap = 0; iMap<isolationValueMapChargedLabels_.size(); ++iMap) {
-	e.getByLabel(isolationValueMapChargedLabels_[iMap], isoMapsCharged[iMap]);
+      std::vector< edm::Handle<IsoMap> >
+	isoMapsCharged(isolationValueMapChargedTokens_.size());
+      for(unsigned iMap = 0; iMap<isolationValueMapChargedTokens_.size(); ++iMap) {
+	e.getByToken(isolationValueMapChargedTokens_[iMap], isoMapsCharged[iMap]);
       }
 
 
       // read all neutral isolation value maps
-      std::vector< edm::Handle<IsoMap> > 
-	isoMapsNeutral(isolationValueMapNeutralLabels_.size());
-      for(unsigned iMap = 0; iMap<isolationValueMapNeutralLabels_.size(); ++iMap) {
-	e.getByLabel(isolationValueMapNeutralLabels_[iMap], isoMapsNeutral[iMap]);
+      std::vector< edm::Handle<IsoMap> >
+	isoMapsNeutral(isolationValueMapNeutralTokens_.size());
+      for(unsigned iMap = 0; iMap<isolationValueMapNeutralTokens_.size(); ++iMap) {
+	e.getByToken(isolationValueMapNeutralTokens_[iMap], isoMapsNeutral[iMap]);
       }
 
       edm::Handle<IsoMap> dBetaH;
       if(doDeltaBetaCorrection_) {
-	e.getByLabel(deltaBetaIsolationValueMap_, dBetaH);
+	e.getByToken(deltaBetaIsolationValueMapToken_, dBetaH);
       }
 
       unsigned key=0;
-      for( collection::const_iterator pfc = hc->begin(); 
+      for( collection::const_iterator pfc = hc->begin();
 	   pfc != hc->end(); ++pfc, ++key) {
 	reco::PFCandidateRef candidate(hc,key);
 
@@ -71,12 +73,12 @@ namespace pf2pat {
 	  double val = isoMap[candidate];
 	  isoSumNeutral+=val;
 	}
-	
+
 
 	if ( doDeltaBetaCorrection_ ) {
 	  const IsoMap& isoMap = *dBetaH;
 	  double dBetaVal = isoMap[candidate];
-	  double dBetaCorIsoSumNeutral = isoSumNeutral + deltaBetaFactor_*dBetaVal; 
+	  double dBetaCorIsoSumNeutral = isoSumNeutral + deltaBetaFactor_*dBetaVal;
 	  isoSumNeutral = dBetaCorIsoSumNeutral>0 ? dBetaCorIsoSumNeutral : 0; //follow muon POG definition in 2012
 	}
 
@@ -98,15 +100,15 @@ namespace pf2pat {
 	}
       }
     }
-    
+
 
   private:
-    std::vector<edm::InputTag> isolationValueMapChargedLabels_;
-    std::vector<edm::InputTag> isolationValueMapNeutralLabels_;
+    std::vector<edm::EDGetTokenT<IsoMap> > isolationValueMapChargedTokens_;
+    std::vector<edm::EDGetTokenT<IsoMap> > isolationValueMapNeutralTokens_;
     bool                       doDeltaBetaCorrection_;
-    edm::InputTag              deltaBetaIsolationValueMap_;
+    edm::EDGetTokenT<IsoMap>              deltaBetaIsolationValueMapToken_;
     double                     deltaBetaFactor_;
-    bool                       isRelative_; 
+    bool                       isRelative_;
     double                     isolationCut_;
   };
 

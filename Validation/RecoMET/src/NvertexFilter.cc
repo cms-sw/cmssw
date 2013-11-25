@@ -18,29 +18,31 @@ using namespace std;
 
 class NvertexFilter : public edm::EDFilter{
 
-  public:
+ public:
 
-    explicit NvertexFilter(const edm::ParameterSet & iConfig);
-    ~NvertexFilter();
-    virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-    virtual void beginJob() override;
-    virtual void endJob() override;
+  explicit NvertexFilter(const edm::ParameterSet & iConfig);
+  ~NvertexFilter();
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  virtual void beginJob() override;
+  virtual void endJob() override;
 
-	private:
-    double minNvtx, maxNvtx;
-	 TH1F *Nvtx;
+ private:
+  double minNvtx, maxNvtx;
+  edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
+  TH1F *Nvtx;
 
 };
 
 NvertexFilter::NvertexFilter(const edm::ParameterSet & iConfig) {
 
-   minNvtx = iConfig.getParameter<double>("minNvtx");
-   maxNvtx = iConfig.getParameter<double>("maxNvtx");
- 
+  minNvtx = iConfig.getParameter<double>("minNvtx");
+  maxNvtx = iConfig.getParameter<double>("maxNvtx");
 
-//	edm::Service<TFileService> fs;
-//	Nvtx  = fs->make<TH1F> ("Nvtx" ,"Number of vertices", 80, 0, 80);
- 	
+  offline_pvToken_ = consumes<reco::VertexCollection> (
+      edm::InputTag("offlinePrimaryVertices"));
+  //	edm::Service<TFileService> fs;
+  //	Nvtx  = fs->make<TH1F> ("Nvtx" ,"Number of vertices", 80, 0, 80);
+
 }
 
 NvertexFilter::~NvertexFilter() {
@@ -49,20 +51,20 @@ NvertexFilter::~NvertexFilter() {
 // ------------ method called on each new Event  ------------
 bool NvertexFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-	Handle<reco::VertexCollection> vertexHandle;
-	iEvent.getByLabel("offlinePrimaryVertices", vertexHandle);
-   if (! vertexHandle.isValid())
-	{
-		std::cout << __FUNCTION__ << ":" << __LINE__ << ":vertexHandle handle not found!" << std::endl;
-		assert(false);
-	}
-	const int nvtx = vertexHandle->size();
-	bool pass = false;
-	if (nvtx >= minNvtx && nvtx <= maxNvtx) pass = true;
+  Handle<reco::VertexCollection> vertexHandle;
+  iEvent.getByToken(offline_pvToken_, vertexHandle);
+  if (! vertexHandle.isValid())
+  {
+    std::cout << __FUNCTION__ << ":" << __LINE__ << ":vertexHandle handle not found!" << std::endl;
+    assert(false);
+  }
+  const int nvtx = vertexHandle->size();
+  bool pass = false;
+  if (nvtx >= minNvtx && nvtx <= maxNvtx) pass = true;
 
-//	Nvtx->Fill(nvtx);
+  //	Nvtx->Fill(nvtx);
 
-	return pass;
+  return pass;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -71,8 +73,8 @@ void NvertexFilter::beginJob() {
 
 // ------------ method called once each job just after ending the event loop  ------------
 void NvertexFilter::endJob() {
-	std::cout << __FUNCTION__ << std::endl;
-	std::cout << ">>> Min/Max Nvtx = " << minNvtx << " / " << maxNvtx << std::endl;
+  std::cout << __FUNCTION__ << std::endl;
+  std::cout << ">>> Min/Max Nvtx = " << minNvtx << " / " << maxNvtx << std::endl;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

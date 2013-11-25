@@ -195,14 +195,14 @@ class JetPlusTrackCorrector {
 		     jpt::MatchedTracks &pions,
 		     jpt::MatchedTracks &muons,
 		     jpt::MatchedTracks &elecs,
-		     bool &validMatches) const;
+		     bool &validMatches) ;
   
   /// Scalar correction method
   double correction( const reco::Jet&, const reco::Jet&, const edm::Event&, const edm::EventSetup&, 
 		     jpt::MatchedTracks &pions,
 		     jpt::MatchedTracks &muons,
 		     jpt::MatchedTracks &elecs,
-		     bool &validMatches) const;
+		     bool &validMatches) ;
   
   /// Correction method (not used)
   double correction( const reco::Jet& ) const;
@@ -246,13 +246,13 @@ class JetPlusTrackCorrector {
 		    const edm::EventSetup&,
 		    jpt::MatchedTracks& pions, 
 		    jpt::MatchedTracks& muons, 
-		    jpt::MatchedTracks& elecs ) const;
+		    jpt::MatchedTracks& elecs ) ;
   
   /// Calculates corrections to be applied using pions
-  P4 pionCorrection( const P4& jet, const jpt::MatchedTracks& pions ) const;
+  P4 pionCorrection( const P4& jet, const jpt::MatchedTracks& pions ) ;
   
   /// Calculates correction to be applied using muons
-  P4 muonCorrection( const P4& jet, const jpt::MatchedTracks& muons ) const;
+  P4 muonCorrection( const P4& jet, const jpt::MatchedTracks& muons ) ;
   
   /// Calculates correction to be applied using electrons
   P4 elecCorrection( const P4& jet, const jpt::MatchedTracks& elecs ) const;
@@ -292,26 +292,26 @@ class JetPlusTrackCorrector {
 			    const edm::Event&, 
 			    jpt::MatchedTracks& pions, 
 			    jpt::MatchedTracks& muons, 
-			    jpt::MatchedTracks& elecs ) const;
+			    jpt::MatchedTracks& elecs ) ;
 
   /// Calculates individual pion corrections
   P4 pionCorrection( const P4& jet, 
 		     const TrackRefs& pions, 
 		     jpt::Efficiency&,
 		     bool in_cone_at_vertex,
-		     bool in_cone_at_calo_face ) const; 
+		     bool in_cone_at_calo_face ) ; 
 
   /// Calculates individual muons corrections
   P4 muonCorrection( const P4& jet, 
 		     const TrackRefs& muons, 
 		     bool in_cone_at_vertex,
-		     bool in_cone_at_calo_face ) const;
+		     bool in_cone_at_calo_face ) ;
   
   /// Calculates individual electron corrections
   P4 elecCorrection( const P4& jet, 
 		     const TrackRefs& elecs, 
 		     bool in_cone_at_vertex,
-		     bool in_cone_at_calo_face ) const;
+		     bool in_cone_at_calo_face ) ;
 
   /// Calculates vectorial correction using total track 3-momentum
   P4 jetDirFromTracks( const P4& jet, 
@@ -327,12 +327,12 @@ class JetPlusTrackCorrector {
 		    bool in_cone_at_calo_face,
 		    double mass,
 		    bool is_pion,
-		    double mip ) const;
+		    double mip ) ;
   
   /// Correction to be applied using tracking efficiency 
   P4 pionEfficiency( const P4& jet, 
 		     const jpt::Efficiency&,
-		     bool in_cone_at_calo_face ) const;
+		     bool in_cone_at_calo_face ) ;
   
   /// Check corrected 4-momentum does not give negative scale
   double checkScale( const P4& jet, P4& corrected ) const;
@@ -416,7 +416,7 @@ class JetPlusTrackCorrector {
   edm::InputTag srcPVs_;
   double ptErrorQuality_;
   double dzVertexCut_;
-  mutable reco::Particle::Point vertex_;
+  reco::Particle::Point vertex_;
 
   // Muons and electrons
   edm::InputTag muons_;
@@ -438,14 +438,14 @@ class JetPlusTrackCorrector {
 
   // Jet-related
   double maxEta_;
-  mutable float theResponseOfChargedWithEff;
-  mutable float theResponseOfChargedWithoutEff;
-  mutable float theSumPtWithEff;
-  mutable float theSumPtWithoutEff;
-  mutable float theSumEnergyWithEff;
-  mutable float theSumEnergyWithoutEff;
-  mutable float theSumPtForBeta;
-  
+  float theResponseOfChargedWithEff;
+  float theResponseOfChargedWithoutEff;
+  float theSumPtWithEff;
+  float theSumPtWithoutEff;
+  float theSumEnergyWithEff;
+  float theSumEnergyWithoutEff;
+  float theSumPtForBeta;
+  jpt::Efficiency not_used{response_,efficiency_,leakage_};
 };
 
 // ---------- Inline methods ----------
@@ -456,7 +456,7 @@ inline double JetPlusTrackCorrector::correction( const reco::Jet& fJet, const re
 						 jpt::MatchedTracks &pions,
 						 jpt::MatchedTracks &muons,
 						 jpt::MatchedTracks &elecs,
-						 bool &validMatches) const {
+						 bool &validMatches) {
   P4 not_used_for_scalar_correction;
   return correction( fJet, fJetcalo, event, setup, not_used_for_scalar_correction,pions,muons,elecs,validMatches );
 }
@@ -469,23 +469,21 @@ inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionCorrection( const P4
 									const TrackRefs& pions, 
 									jpt::Efficiency& eff,
 									bool in_cone_at_vertex,
-									bool in_cone_at_calo_face ) const {
+									bool in_cone_at_calo_face ) {
   return calculateCorr( jet, pions, eff, in_cone_at_vertex, in_cone_at_calo_face, pionMass_, true, -1. );
 }
 
 inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::muonCorrection( const P4& jet, 
 									const TrackRefs& muons, 
 									bool in_cone_at_vertex,
-									bool in_cone_at_calo_face ) const {
-  static jpt::Efficiency not_used( responseMap(), efficiencyMap(), leakageMap() );
+									bool in_cone_at_calo_face ) {
   return calculateCorr( jet, muons, not_used, in_cone_at_vertex, in_cone_at_calo_face, muonMass_, false, 2. );
 } 
 
 inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::elecCorrection( const P4& jet, 
 									const TrackRefs& elecs, 
 									bool in_cone_at_vertex,
-									bool in_cone_at_calo_face ) const {
-  static jpt::Efficiency not_used( responseMap(), efficiencyMap(), leakageMap() );
+									bool in_cone_at_calo_face ) {
   return calculateCorr( jet, elecs, not_used, in_cone_at_vertex, in_cone_at_calo_face, elecMass_, false, 0. ); 
 } 
 

@@ -24,6 +24,7 @@
 
 #include "G4EmProcessOptions.hh"
 #include "G4PhysicsListHelper.hh"
+#include "G4SystemOfUnits.hh"
 
 ParametrisedEMPhysics::ParametrisedEMPhysics(std::string name, const edm::ParameterSet & p) 
   : G4VPhysicsConstructor(name), theParSet(p) 

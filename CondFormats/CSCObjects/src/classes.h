@@ -22,7 +22,7 @@
 #include "CondFormats/CSCObjects/interface/CSCDBGasGainCorrection.h"
 
 
-namespace {
+namespace CondFormats_CSCObjects {
   struct dictionary {
 
     std::vector<CSCPedestals::Item>   pedcontainer1;

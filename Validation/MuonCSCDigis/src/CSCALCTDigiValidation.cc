@@ -1,7 +1,6 @@
 #include "Validation/MuonCSCDigis/src/CSCALCTDigiValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -9,12 +8,16 @@
 
 
 
-CSCALCTDigiValidation::CSCALCTDigiValidation(DQMStore* dbe, const edm::InputTag & inputTag)
-: CSCBaseValidation(dbe, inputTag),
-  theTimeBinPlots(),
-  theNDigisPerLayerPlots(),
-  theNDigisPerEventPlot( dbe_->book1D("CSCALCTDigisPerEvent", "CSC ALCT Digis per event", 100, 0, 100) )
+CSCALCTDigiValidation::CSCALCTDigiValidation(DQMStore* dbe,
+                                             const edm::InputTag & inputTag,
+                                             edm::ConsumesCollector && iC)
+    : CSCBaseValidation(dbe, inputTag),
+      theTimeBinPlots(),
+      theNDigisPerLayerPlots(),
+      theNDigisPerEventPlot( dbe_->book1D("CSCALCTDigisPerEvent", "CSC ALCT Digis per event", 100, 0, 100) )
 {
+  alcts_Token_ = iC.consumes<CSCALCTDigiCollection> (inputTag);
+
   for(int i = 0; i < 10; ++i)
   {
     char title1[200], title2[200];
@@ -29,12 +32,12 @@ CSCALCTDigiValidation::CSCALCTDigiValidation(DQMStore* dbe, const edm::InputTag 
 
 CSCALCTDigiValidation::~CSCALCTDigiValidation()
 {
-//   for(int i = 0; i < 10; ++i)
-//   {
-//     edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName() 
-//       << " is " << theTimeBinPlots[i]->getMean() 
-//       << " +/- " << theTimeBinPlots[i]->getRMS();
-//   }
+  //   for(int i = 0; i < 10; ++i)
+  //   {
+  //     edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName()
+  //       << " is " << theTimeBinPlots[i]->getMean()
+  //       << " +/- " << theTimeBinPlots[i]->getRMS();
+  //   }
 }
 
 
@@ -42,7 +45,7 @@ void CSCALCTDigiValidation::analyze(const edm::Event&e, const edm::EventSetup&)
 {
   edm::Handle<CSCALCTDigiCollection> alcts;
 
-  e.getByLabel(theInputTag, alcts);
+  e.getByToken(alcts_Token_, alcts);
   if (!alcts.isValid()) {
     edm::LogError("CSCDigiDump") << "Cannot get alcts by label " << theInputTag.encode();
   }
@@ -58,7 +61,7 @@ void CSCALCTDigiValidation::analyze(const edm::Event&e, const edm::EventSetup&)
     theNDigisPerLayerPlots[chamberType-1]->Fill(nDigis);
 
     for( std::vector<CSCALCTDigi>::const_iterator digiItr = beginDigi;
-         digiItr != endDigi; ++digiItr) 
+         digiItr != endDigi; ++digiItr)
     {
       theTimeBinPlots[chamberType-1]->Fill(digiItr->getBX());
     }

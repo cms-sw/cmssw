@@ -2,10 +2,9 @@
 #define ConfigurableAnalysis_CachingVariable_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Services/interface/UpdaterService.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -76,23 +75,33 @@ class CachingVariable {
  protected:
 
   mutable evalType cache_;
+  mutable edm::Event::CacheIdentifier_t eventCacheID_=0; 
 
   std::string method_;
   std::string name_;
   mutable std::string holderName_;
   void setCache(valueType & v) const { 
-    edm::Service<UpdaterService>()->checkOnce(name_+":"+holderName_);
+    eventCacheID_ = std::numeric_limits<edm::Event::CacheIdentifier_t>::max();
     cache_.first=true; cache_.second = v;}
   void setNotCompute() const { 
-    edm::Service<UpdaterService>()->checkOnce(name_+":"+holderName_);
+    eventCacheID_ = std::numeric_limits<edm::Event::CacheIdentifier_t>::max();
     cache_.first=false; cache_.second = 0;}
   evalType & baseEval(const edm::Event & iEvent) const {
-    if (edm::Service<UpdaterService>()->checkOnce(name_+":"+holderName_)){
+    if(notSeenThisEventAlready(iEvent)) {
       LogDebug("CachingVariable")<<name_+":"+holderName_<<" is checking once";
       cache_=eval(iEvent);
     }
     return cache_;
   }
+  bool notSeenThisEventAlready(const edm::Event& iEvent) const {
+    bool retValue = (std::numeric_limits<edm::Event::CacheIdentifier_t>::max() != eventCacheID_ and
+		     eventCacheID_ != iEvent.cacheIdentifier());
+    if(retValue) {
+      eventCacheID_=iEvent.cacheIdentifier();
+    }
+    return retValue;
+  }
+
   //cannot be made purely virtual otherwise one cannot have purely CachingVariableObjects
   virtual evalType eval(const edm::Event & iEvent) const {return std::make_pair(false,0);};
 
@@ -115,12 +124,23 @@ class VariableComputer{
   void doesNotCompute() const;
   void doesNotCompute(std::string var) const;
 
+  bool notSeenThisEventAlready(const edm::Event& iEvent) const {
+    bool retValue = eventCacheID_ != iEvent.cacheIdentifier();
+    if(retValue) {
+      eventCacheID_=iEvent.cacheIdentifier();
+    }
+    return retValue;
+  }
+
  protected:
   const CachingVariable::CachingVariableFactoryArg & arg_;
   std::string name_;
   std::string method_;
   mutable std::map<std::string ,const ComputedVariable *> iCompute_;
   std::string separator_;
+
+  mutable edm::Event::CacheIdentifier_t eventCacheID_=0; 
+
 };
 
 
@@ -138,7 +158,7 @@ class ComputedVariable : public CachingVariable {
   virtual ~ComputedVariable(){};
 
   virtual evalType eval(const edm::Event & iEvent) const {
-    if (edm::Service<UpdaterService>()->checkOnce(myComputer->name()+":"+holderName_))
+    if (myComputer->notSeenThisEventAlready(iEvent))
       myComputer->compute(iEvent);
     return cache_;
   }

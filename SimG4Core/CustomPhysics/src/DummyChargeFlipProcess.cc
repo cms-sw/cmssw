@@ -4,6 +4,8 @@
 
 #include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
 
+using namespace CLHEP;
+
 DummyChargeFlipProcess::
 DummyChargeFlipProcess(const G4String& processName) : 
       G4HadronicProcess(processName)

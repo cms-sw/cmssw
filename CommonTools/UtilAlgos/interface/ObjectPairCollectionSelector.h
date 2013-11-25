@@ -4,7 +4,7 @@
  *
  * selects object pairs wose combination satiefies a specific selection
  * for instance, could be based on invariant mass, deltaR , deltaPhi, etc.
- * 
+ *
  * \author Luca Lista, INFN
  *
  * \version $Revision: 1.1 $
@@ -13,6 +13,7 @@
  *
  */
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
@@ -21,19 +22,19 @@
 namespace edm { class Event; }
 
 template<typename InputCollection, typename Selector,
-	 typename StoreContainer = std::vector<const typename InputCollection::value_type *>, 
+	 typename StoreContainer = std::vector<const typename InputCollection::value_type *>,
 	 typename RefAdder = typename helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 class ObjectPairCollectionSelector {
 public:
   typedef InputCollection collection;
-  
+
 private:
   typedef const typename InputCollection::value_type * reference;
   typedef StoreContainer container;
   typedef typename container::const_iterator const_iterator;
-  
+
 public:
-  ObjectPairCollectionSelector(const edm::ParameterSet & cfg) : 
+  ObjectPairCollectionSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector && iC) :
     select_(reco::modules::make<Selector>(cfg)) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
@@ -47,10 +48,10 @@ public:
       }
     selected_.clear();
     for(unsigned int i = 0; i < s; ++i)
-    if (v[i]) 
+    if (v[i])
       addRef_(selected_, c, i);
   }
-  
+
 private:
   Selector select_;
   StoreContainer selected_;

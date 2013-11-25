@@ -59,10 +59,11 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 
 
 
-namespace{
+namespace CondFormats_EcalObjects {
   struct dictionary {
     
     std::vector<EcalChannelStatusCode> v_ecalChannelStatusCode;
@@ -200,5 +201,6 @@ namespace{
     //    std::vector<float> ecalSRSettings_dccNormalizedWeights_1;
     //    float ecalSRSettings_dccNormalizedWeights_elt_2;
     
+	EcalTimeBiasCorrections timeBiasCorrections;
   };
 }

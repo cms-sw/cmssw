@@ -1,7 +1,6 @@
 
 #include "RecoVertex/BeamSpotProducer/interface/BeamSpotOnlineProducer.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -11,15 +10,15 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 using namespace edm;
 
 
 BeamSpotOnlineProducer::BeamSpotOnlineProducer(const ParameterSet& iconf)
 {
-  
-  scalertag_ = iconf.getParameter<InputTag>("src");
+
+  scalerToken_ = consumes<BeamSpotOnlineCollection>(
+      iconf.getParameter<InputTag>("src"));
 
   changeFrame_ = iconf.getParameter<bool>("changeToCMSCoordinates");
 
@@ -28,9 +27,10 @@ BeamSpotOnlineProducer::BeamSpotOnlineProducer(const ParameterSet& iconf)
   theMaxZ = iconf.getParameter<double>("maxZ");
 
   theSetSigmaZ = iconf.getParameter<double>("setSigmaZ");
-  
-  thel1GtEvmReadoutRecordTag = iconf.getParameter<InputTag>("gtEvmLabel");
-  
+
+  l1GtEvmReadoutRecordToken_ = consumes<L1GlobalTriggerEvmReadoutRecord>(
+      iconf.getParameter<InputTag>("gtEvmLabel"));
+
   produces<reco::BeamSpot>();
 
 } 
@@ -43,7 +43,7 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //shout MODE only in stable beam
   bool shoutMODE=false;
   edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
-  if (iEvent.getByLabel(thel1GtEvmReadoutRecordTag, gtEvmReadoutRecord)){
+  if (iEvent.getByToken(l1GtEvmReadoutRecordToken_, gtEvmReadoutRecord)){
     const boost::uint16_t beamModeValue = (gtEvmReadoutRecord->gtfeWord()).beamMode();
     if (beamModeValue == 11) shoutMODE=true;
   }
@@ -53,7 +53,7 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   // get scalar collection
   Handle<BeamSpotOnlineCollection> handleScaler;
-  iEvent.getByLabel( scalertag_, handleScaler);
+  iEvent.getByToken( scalerToken_, handleScaler);
 
   // beam spot scalar object
   BeamSpotOnline spotOnline;

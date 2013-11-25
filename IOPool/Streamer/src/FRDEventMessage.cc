@@ -23,84 +23,76 @@
 /**
  * Constructor for the FRD event message viewer.
  */
-FRDEventMsgView::FRDEventMsgView(void* buf): buf_((uint8*)buf)
+FRDEventMsgView::FRDEventMsgView(void* buf)
+  : buf_((uint8*)buf),
+    payload_(0),
+    size_(0),
+    version_(0),
+    run_(0),
+    lumi_(0),
+    event_(0),
+    eventSize_(0),
+    paddingSize_(0),
+    adler32_(0)
 {
   uint32* bufPtr = static_cast<uint32*>(buf);
-  uint32 versionNumber = *bufPtr;
+  version_ = *bufPtr;
   // if the version number is rather large, then we assume that the true
   // version number is one.  (In version one of the format, there was
   // no version number in the data, and the run number appeared first.)
-  if (versionNumber >= 32) {
-      versionNumber = 1;
+  if (version_ >= 32) {
+      version_ = 1;
   }
 
-  // for now, all we need to do here is calculate the full event size
-  event_len_ = 0;
-  if (versionNumber >= 2) {
-      event_len_ += sizeof(uint32);  // version number
+  size_ = 0;
+
+  // version number
+  if (version_ >= 2) {
+      size_ += sizeof(uint32);
       ++bufPtr;
   }
-  event_len_ += sizeof(uint32);  // run number
+
+  // run number
+  run_ = *bufPtr;
+  size_ += sizeof(uint32);
   ++bufPtr;
-  if (versionNumber >= 2) {
-      event_len_ += sizeof(uint32);  // lumi number
+
+  // lumi number
+  if (version_ >= 2) {
+      lumi_ = *bufPtr;
+      size_ += sizeof(uint32);
       ++bufPtr;
   }
-  event_len_ += sizeof(uint32);  // event number
+
+  // event number
+  event_ = *bufPtr;
+  size_ += sizeof(uint32);
   ++bufPtr;
-  for (int idx = 0; idx < 1024; idx++) {
-    event_len_ += sizeof(uint32);  // FED N size
-    event_len_ += *bufPtr;         // FED N data
-    ++bufPtr;
-  }
-}
 
-uint32 FRDEventMsgView::version() const
-{
-  FRDEventHeader_V2* hdr = (FRDEventHeader_V2*) buf_;
-  uint32 version = hdr->version_;
-  if (version >= 32) {  // value looks like run number, so assume version 1
-      return 1;
-  }
-  else {  // version 2 and above
-      return hdr->version_;
-  }
-}
+  if (version_ >= 3) {
+      // event size
+      eventSize_ = *bufPtr;
+      size_ += sizeof(uint32) + eventSize_;
+      ++bufPtr;
 
-uint32 FRDEventMsgView::run() const
-{
-  FRDEventHeader_V2* hdr = (FRDEventHeader_V2*) buf_;
-  uint32 version = hdr->version_;
-  if (version >= 32) {  // value looks like run number, so assume version 1
-      FRDEventHeader_V1* hdrV1 = (FRDEventHeader_V1*) buf_;
-      return hdrV1->run_;
-  }
-  else {  // version 2 and above
-      return hdr->run_;
-  }
-}
+      // padding size
+      paddingSize_ = *bufPtr;
+      size_ += sizeof(uint32) + paddingSize_;
+      ++bufPtr;
 
-uint32 FRDEventMsgView::lumi() const
-{
-  FRDEventHeader_V2* hdr = (FRDEventHeader_V2*) buf_;
-  uint32 version = hdr->version_;
-  if (version >= 32) {  // value looks like run number, so assume version 1
-      return 1;
+      // adler32
+      adler32_ = *bufPtr;
+      size_ += sizeof(uint32);
+      ++bufPtr;
   }
-  else {  // version 2 and above
-      return hdr->lumi_;
+  else {
+      for (int idx = 0; idx < 1024; idx++) {
+          size_ += sizeof(uint32);  // FED N size
+          size_ += *bufPtr;         // FED N data
+          eventSize_ += *bufPtr;
+          ++bufPtr;
+      }
   }
-}
 
-uint32 FRDEventMsgView::event() const
-{
-  FRDEventHeader_V2* hdr = (FRDEventHeader_V2*) buf_;
-  uint32 version = hdr->version_;
-  if (version >= 32) {  // value looks like run number, so assume version 1
-      FRDEventHeader_V1* hdrV1 = (FRDEventHeader_V1*) buf_;
-      return hdrV1->event_;
-  }
-  else {  // version 2 and above
-      return hdr->event_;
-  }
+  payload_ = (void*)bufPtr;
 }

@@ -47,7 +47,11 @@ SiPixelMuonHLT::SiPixelMuonHLT(const edm::ParameterSet& iConfig) :
    ///////
    if (theDMBE != NULL) theDMBE->setCurrentFolder (monitorName_); 
    SiPixelMuonHLT::Histo_init();
-   
+
+   //set Token(-s)
+   clustersToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(std::string("hltSiPixelClusters"));
+   rechitsToken_ = consumes<edmNew::DetSetVector<SiPixelRecHit> >(std::string("hltSiPixelRecHits"));
+   l3MuonCollectionToken_ = consumes<reco::RecoChargedCandidateCollection>(parameters_.getUntrackedParameter < edm::InputTag > ("l3MuonCollectionTag", edm::InputTag ("hltL3MuonCandidates")));
 }
 
 SiPixelMuonHLT::~SiPixelMuonHLT()
@@ -99,17 +103,17 @@ void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bool GotRecHits  = true;
   bool GotL3Muons  = true;
   
-  iEvent.getByLabel("hltSiPixelClusters", clusters);
+  iEvent.getByToken(clustersToken_, clusters);
   if(!clusters.isValid()){
     edm::LogInfo("PixelHLTDQM") << "No pix clusters, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << std::endl;
     GotClusters = false;
   }
-  iEvent.getByLabel("hltSiPixelRecHits", rechits);
+  iEvent.getByToken(rechitsToken_, rechits);
   if(!rechits.isValid()){
     edm::LogInfo("PixelHLTDQM") << "No pix rechits, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << std::endl;
     GotRecHits = false;
   }
-  iEvent.getByLabel (l3MuonCollectionTag_, l3mucands);
+  iEvent.getByToken(l3MuonCollectionToken_, l3mucands);
   if(!l3mucands.isValid()){
     edm::LogInfo("PixelHLTDQM") << "No L3 Muons, cannot run for event " << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << std::endl;
     GotL3Muons = false;
