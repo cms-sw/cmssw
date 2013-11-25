@@ -37,6 +37,9 @@ HcalDigisClient::HcalDigisClient(const edm::ParameterSet& iConfig) {
     booking("HE");
     booking("HO");
     booking("HF");
+    // false for regular rel val and true for SLHC rel val
+    doslhc_  = false;
+
 }
 
 void HcalDigisClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -50,7 +53,10 @@ void HcalDigisClient::booking(std::string subdetopt) {
     std::string strtmp;
     HistLim ietaLim(82, -41., 41.);
 
-    for (int depth = 1; depth <= 4; depth++) {
+   int n_depth = 4;
+   if (doslhc_){n_depth = 7;} 
+  
+    for (int depth = 1; depth <= n_depth; depth++) {
         strtmp = "HcalDigiTask_occupancy_vs_ieta_depth" + str(depth) + "_" + subdetopt;
         book1D(strtmp, ietaLim);
     }
@@ -93,7 +99,9 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
     MonitorElement * ieta_iphi_occupancy_map2(0);
     MonitorElement * ieta_iphi_occupancy_map3(0);
     MonitorElement * ieta_iphi_occupancy_map4(0);
-
+    MonitorElement * ieta_iphi_occupancy_map5(0);
+    MonitorElement * ieta_iphi_occupancy_map6(0);
+    MonitorElement * ieta_iphi_occupancy_map7(0);
 
     std::cout << " Number of histos " <<     hcalMEs.size() << std::endl;
 
@@ -108,18 +116,45 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
          if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map3 = hcalMEs[ih];
          strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth4_" + subdet_;
          if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map4 = hcalMEs[ih];
-
+        
+         if (doslhc_){
+            strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth5_" + subdet_;
+            if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map5 = hcalMEs[ih];
+            strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth6_" + subdet_;
+            if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map6 = hcalMEs[ih];
+            strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth7_" + subdet_;
+            if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map7 = hcalMEs[ih];
+         }
     }//
 
-    if (nevtot                   == 0 ||
-	ieta_iphi_occupancy_map1 == 0 ||
-	ieta_iphi_occupancy_map2 == 0 ||
-	ieta_iphi_occupancy_map3 == 0 ||
-	ieta_iphi_occupancy_map4 == 0   
-	) {
-      edm::LogError("HcalDigisClient") << "No nevtot or maps histo found..."; 
-      return 0;
+
+    if (doslhc_ == false){
+       if (nevtot                   == 0 ||
+           ieta_iphi_occupancy_map1 == 0 ||
+           ieta_iphi_occupancy_map2 == 0 ||
+           ieta_iphi_occupancy_map3 == 0 ||
+           ieta_iphi_occupancy_map4 == 0  
+           ) {
+         edm::LogError("HcalDigisClient") << "No nevtot or maps histo found..."; 
+         return 0;
+       }
     }
+    else {
+       if (nevtot                   == 0 ||
+           ieta_iphi_occupancy_map1 == 0 ||
+           ieta_iphi_occupancy_map2 == 0 ||
+           ieta_iphi_occupancy_map3 == 0 ||
+           ieta_iphi_occupancy_map4 == 0 ||
+           ieta_iphi_occupancy_map5 == 0 ||
+           ieta_iphi_occupancy_map6 == 0 ||
+           ieta_iphi_occupancy_map7 == 0
+           ) {
+         edm::LogError("HcalDigisClient") << "No nevtot or maps histo found...";
+         return 0;
+        }
+   }
+
+
 
     int ev = nevtot->getEntries();
     if(ev <= 0) {
@@ -131,7 +166,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
 
     int nx = ieta_iphi_occupancy_map1->getNbinsX();
     int ny = ieta_iphi_occupancy_map1->getNbinsY();
-    float sumphi_1, sumphi_2, sumphi_3, sumphi_4;
+    float sumphi_1, sumphi_2, sumphi_3, sumphi_4, sumphi_5, sumphi_6, sumphi_7;
     float phi_factor;
     float cnorm;
     
@@ -140,6 +175,9 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
         sumphi_2 = 0.;
         sumphi_3 = 0.;
         sumphi_4 = 0.;
+        sumphi_5 = 0.;
+        sumphi_6 = 0.;
+        sumphi_7 = 0.;
 
         for (int j = 1; j <= ny; j++) {
 
@@ -164,6 +202,21 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
              cnorm = ieta_iphi_occupancy_map4->getBinContent(i, j) / fev; 
              ieta_iphi_occupancy_map4->setBinContent(i, j, cnorm);
              sumphi_4 += ieta_iphi_occupancy_map4->getBinContent(i, j);
+
+             if (doslhc_){
+                strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth5_" + subdet_;
+                cnorm = ieta_iphi_occupancy_map5->getBinContent(i, j) / fev;
+                ieta_iphi_occupancy_map5->setBinContent(i, j, cnorm);
+                sumphi_5 += ieta_iphi_occupancy_map5->getBinContent(i, j);
+                strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth6_" + subdet_;
+                cnorm = ieta_iphi_occupancy_map6->getBinContent(i, j) / fev;
+                ieta_iphi_occupancy_map6->setBinContent(i, j, cnorm);
+                sumphi_6 += ieta_iphi_occupancy_map6->getBinContent(i, j);
+                strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth7_" + subdet_;
+                cnorm = ieta_iphi_occupancy_map7->getBinContent(i, j) / fev;
+                ieta_iphi_occupancy_map7->setBinContent(i, j, cnorm);
+                sumphi_7 += ieta_iphi_occupancy_map7->getBinContent(i, j);
+             }
 
         }    
 
@@ -198,6 +251,18 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
         cnorm = sumphi_4 / phi_factor;
         strtmp = "HcalDigiTask_occupancy_vs_ieta_depth4_" + subdet_;
         fill1D(strtmp, deta, cnorm);
+
+        if (doslhc_){
+           cnorm = sumphi_5 / phi_factor;
+           strtmp = "HcalDigiTask_occupancy_vs_ieta_depth5_" + subdet_;
+           fill1D(strtmp, deta, cnorm);
+           cnorm = sumphi_6 / phi_factor;
+           strtmp = "HcalDigiTask_occupancy_vs_ieta_depth6_" + subdet_;
+           fill1D(strtmp, deta, cnorm);
+           cnorm = sumphi_7 / phi_factor;
+           strtmp = "HcalDigiTask_occupancy_vs_ieta_depth7_" + subdet_;
+           fill1D(strtmp, deta, cnorm);
+        }
 
     } // end of i-loop
 

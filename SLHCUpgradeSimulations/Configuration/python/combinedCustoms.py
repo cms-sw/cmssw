@@ -14,6 +14,7 @@ from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault as fastCustomiseDefault
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 as fastCustomisePhase2
+from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
@@ -47,14 +48,14 @@ def cust_2017(process):
     process=customisePostLS1(process)
     process=customisePhase1Tk(process)
     process=customise_HcalPhase0(process)
-    process=fixRPCConditions(process)
+#    process=fixRPCConditions(process)
     return process
 
 def cust_2019(process):
     process=customisePostLS1(process)
     process=customisePhase1Tk(process)
     process=customise_HcalPhase1(process)
-    process=fixRPCConditions(process)
+#    process=fixRPCConditions(process)
     return process
 
 def cust_2019WithGem(process):
@@ -64,19 +65,6 @@ def cust_2019WithGem(process):
 
 def noCrossing(process):
     process=customise_NoCrossing(process)
-    return process
-
-
-def fixRPCConditions(process):
-    if not hasattr(process.GlobalTag,'toGet'):
-        process.GlobalTag.toGet=cms.VPSet()
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("RPCStripNoisesRcd"),
-                 tag = cms.string("RPCStripNoise_upscope_mc_v2"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_RPC")
-                 )
-        )
-                                    )
     return process
 
 ##### clone aging.py here 
@@ -185,142 +173,55 @@ def ecal_complete_aging_3000(process):
     process=aging.ecal_complete_aging_3000(process)
     return process
 
-def fixEcalConditions_150(process):
-    if not hasattr(process.GlobalTag,'toGet'):
-        process.GlobalTag.toGet=cms.VPSet()
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalSRSettingsRcd"),
-                 tag = cms.string("EcalSRSettings_TL150_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
-                 tag = cms.string("EcalTPGLutIdMap_beamv5_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    return process
-
-def fixEcalConditions_100(process):
-    if not hasattr(process.GlobalTag,'toGet'):
-        process.GlobalTag.toGet=cms.VPSet()
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalSRSettingsRcd"),
-                 tag = cms.string("EcalSRSettings_TL100_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
-                 tag = cms.string("EcalTPGLutIdMap_beamv5_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    return process
-
-def fixEcalConditions_200(process):
-    if not hasattr(process.GlobalTag,'toGet'):
-        process.GlobalTag.toGet=cms.VPSet()
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalSRSettingsRcd"),
-                 tag = cms.string("EcalSRSettings_TL200_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
-                 tag = cms.string("EcalTPGLutIdMap_beamv5_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    return process
-
-def fixEcalConditions_300(process):
-    if not hasattr(process.GlobalTag,'toGet'):
-        process.GlobalTag.toGet=cms.VPSet()
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalSRSettingsRcd"),
-                 tag = cms.string("EcalSRSettings_TL300_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
-                 tag = cms.string("EcalTPGLutIdMap_beamv5_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    return process
-
-def fixEcalConditions_500(process):
-    if not hasattr(process.GlobalTag,'toGet'):
-        process.GlobalTag.toGet=cms.VPSet()
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalSRSettingsRcd"),
-                 tag = cms.string("EcalSRSettings_TL500_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
-                 tag = cms.string("EcalTPGLutIdMap_beamv5_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    return process
-
-def fixEcalConditions_1000(process):
-    if not hasattr(process.GlobalTag,'toGet'):
-        process.GlobalTag.toGet=cms.VPSet()
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalSRSettingsRcd"),
-                 tag = cms.string("EcalSRSettings_TL1000_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
-                 tag = cms.string("EcalTPGLutIdMap_beamv5_3GeV_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    return process
-
-def fixEcalConditions_3000(process):
-    if not hasattr(process.GlobalTag,'toGet'):
-        process.GlobalTag.toGet=cms.VPSet()
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalSRSettingsRcd"),
-                 tag = cms.string("EcalSRSettings_TL3000_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
-                 tag = cms.string("EcalTPGLutIdMap_beamv5_4GeV_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
-                 )
-        )
-                                    )
-    return process
-
 def fastsimDefault(process):
     return fastCustomiseDefault(process)
 
 def fastsimPhase2(process):
     return fastCustomisePhase2(process)
+
+def bsStudyStep1(process):
+    process.VtxSmeared.MaxZ = 11.0
+    process.VtxSmeared.MinZ = -11.0
+    return process
+
+def bsStudyStep2(process):
+    process.initialStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+        precise = cms.bool(True),
+        originRadius = cms.double(0.02),
+        originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
+        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        ptMin = cms.double(0.7)
+        )
+    process.highPtTripletStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+        precise = cms.bool(True),
+        originRadius = cms.double(0.02),
+        originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
+        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        ptMin = cms.double(0.7)
+        )
+    process.lowPtQuadStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+        precise = cms.bool(True),
+        originRadius = cms.double(0.02),
+        originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
+        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        ptMin = cms.double(0.2)
+        )
+    process.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+        precise = cms.bool(True),
+        originRadius = cms.double(0.015),
+        originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
+        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        ptMin = cms.double(0.35)
+        )
+    process.detachedQuadStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+        precise = cms.bool(True),
+        originRadius = cms.double(0.5),
+        originHalfLength = cms.double(11.0),#nSigmaZ = cms.double(4.0),
+        beamSpot = cms.InputTag("o..ineBeamSpot"),
+        ptMin = cms.double(0.3)
+        )
+    return process
+
+def customise_noPixelDataloss(process):
+    return cNoPixDataloss(process)
 

@@ -64,7 +64,7 @@ private:
 
 
   //edm::ParameterSet cfg_;
-  float minPt_;
+  //float minPt_;
   float   radiusCenter_, chamberHeight_;
 
 

@@ -5,6 +5,7 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 
+class TrackerTopology;
 
 /** GeometricSearchTracker implementation
  *  
@@ -21,7 +22,8 @@ class GeometricSearchTracker: public DetLayerGeometry {
 			 const std::vector<ForwardDetLayer*>& negTec,
 			 const std::vector<ForwardDetLayer*>& posPxlFwd,
 			 const std::vector<ForwardDetLayer*>& posTid,
-			 const std::vector<ForwardDetLayer*>& posTec);
+			 const std::vector<ForwardDetLayer*>& posTec,
+			 const TrackerTopology *tTopo);
   
   virtual ~GeometricSearchTracker();
 
@@ -69,6 +71,8 @@ class GeometricSearchTracker: public DetLayerGeometry {
   std::vector<ForwardDetLayer*> thePosPixelForwardLayers;
   std::vector<ForwardDetLayer*> thePosTidLayers;
   std::vector<ForwardDetLayer*> thePosTecLayers;
+
+  const TrackerTopology *theTrkTopo;
 };
 
 

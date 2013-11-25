@@ -15,9 +15,10 @@ def customise(process):
         process=customise_DQM(process)
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
-    if hasattr(process,'validation_step'):
-        process=customise_Validation(process)
-    
+    if hasattr( process,'prevalidation_step') and not hasattr(process,'reconstruction') :
+        process=customise_DigiPreValidation(process)
+    if hasattr(process,'validation_step') and not hasattr(process,'reconstruction'):
+        process=customise_DigiValidation(process)
     return process
 
 def customise_DigiToRaw(process):
@@ -61,13 +62,15 @@ def customise_L1Emulator(process):
 def customise_DQM(process):
     return process
 
-def customise_Validation(process):
-    #process.load('Validation.MuonGEMDigis.SimTrackMatching_cfi')
-    process.load('Validation.MuonGEMDigis.MuonGEMDigi_cfi')
-    #process.gemDigiValidation.simTrackMatching= process.SimTrackMatching
-    process.globalValidation += cms.Sequence(process.gemDigiValidation)
-   
+def customise_DigiPreValidation(process):
+    process.prevalidation = cms.Sequence(process.hltassociation)
+    return process
 
+def customise_DigiValidation(process):
+    process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
+    process.validation = cms.Sequence( process.gemDigiValidation )
+    process.validation_step = cms.EndPath(process.validation)
+    process = scheduleOrdering(process)
     return process
 
 def customise_harvesting(process):
@@ -77,7 +80,6 @@ def customise_Reco(process):
     process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
     process.gemRecHits.gemDigiLabel = cms.InputTag("simMuonGEMDigis")
     process.muonlocalreco += process.gemRecHits
-
     process=outputCustoms(process)
     return process
 
@@ -93,3 +95,11 @@ def outputCustoms(process):
             getattr(process,b).outputCommands.append('keep *_gemRecHits_*_*')
 
     return process
+
+def scheduleOrdering(process):
+    process.schedule = cms.Schedule()
+    for path in process.paths :
+      process.schedule.append(process.paths.get(path))
+    for endpath in process.endpaths :
+      process.schedule.append( process.endpaths.get(endpath)      )
+    return process 

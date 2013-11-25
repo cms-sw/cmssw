@@ -11,10 +11,15 @@ void HcalTDCReco::reconstruct(const HcalUpgradeDataFrame & digi,
   int n = digi.size();
   double risingTime = -999.;
   double fallingTime = -999.;
-  int signalBX = 5;              // NB: HARDWIRED !!!
+  int signalBX = 4;              // NB: HARDWIRED !!!
   int nbins = 50; // as in HcalTDCParameters.h (SimCalorimetry/HcalSimAlgos)
+  int direction(-1), stepSize(1); // where to go after signalBX
   // start at bunch crossing 3 by default
-  for(int i = 3; i < n; ++i)
+  int i(signalBX);
+
+  // for(int i = 3; i < n; ++i)
+  while ((i > 2) && (i < 8) && (i < n) && 
+	 ((risingTime < -998.) || (fallingTime < 998.)))
   {
     unsigned tdc = digi.tdc(i);
 
@@ -32,10 +37,14 @@ void HcalTDCReco::reconstruct(const HcalUpgradeDataFrame & digi,
     if(risingTime < -998. && rising != 62 && rising != 63) {
       risingTime = rising*25./nbins + (i-signalBX)*25.;
     }
-    if(fallingTime < -998. && falling != 62 && falling != 63) {
+    if(((fallingTime < -998.) || (fallingTime < risingTime)) && 
+       (falling != 62) && (falling != 63)) {
       fallingTime = falling*25./nbins + (i-signalBX)*25.;
-    }    
+    }  
 
+    i += direction*stepSize;
+    ++stepSize;
+    direction *= -1;
     /*
     std::cout << " digi.tdc[" << i << "] = " << tdc 
 	      << "  rising = " << rising << "  falling = " << falling

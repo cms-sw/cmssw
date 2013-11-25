@@ -1,32 +1,25 @@
-#include "Fireworks/Core/interface/FWDigitSetProxyBuilder.h"
-#include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWGeometry.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
-#include "DataFormats/HcalRecHit/interface/HORecHit.h"
+#include "Fireworks/Calo/plugins/FWCaloRecHitDigitSetProxyBuilder.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "TEveCompound.h"
 
-class FWHORecHitProxyBuilder : public FWDigitSetProxyBuilder
+
+class FWHORecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder
 {
 public:
-   FWHORecHitProxyBuilder( void ) 
-     : m_maxEnergy( 1.0 )
-    {}
-  
-   virtual ~FWHORecHitProxyBuilder( void ) 
-    {}
+   FWHORecHitProxyBuilder( void ) { invertBox(true); }
+   virtual ~FWHORecHitProxyBuilder( void ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );
-
-   Float_t m_maxEnergy;
-
    FWHORecHitProxyBuilder( const FWHORecHitProxyBuilder& );
    const FWHORecHitProxyBuilder& operator=( const FWHORecHitProxyBuilder& );
 };
 
+REGISTER_FWPROXYBUILDER( FWHORecHitProxyBuilder, HORecHitCollection, "HO RecHit", FWViewType::kISpyBit );
+
+// AMT scale around center, box is inverted. Scaling and e/et mode added now. Previously used fireworks::energyScaledBox3DCorners().
+
+/*
 void
 FWHORecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
@@ -57,5 +50,4 @@ FWHORecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* produc
       addBox(boxSet, &scaledCorners[0], iItem->modelInfo(index++).displayProperties());
    }
 }
-
-REGISTER_FWPROXYBUILDER( FWHORecHitProxyBuilder, HORecHitCollection, "HO RecHit", FWViewType::kISpyBit );
+*/
