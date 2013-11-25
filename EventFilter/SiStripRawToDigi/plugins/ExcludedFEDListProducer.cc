@@ -61,8 +61,7 @@ namespace sistrip {
       event.getByLabel( productLabel_, buffers ); 
  
       // Retrieve FED ids from cabling map and iterate through 
-      std::vector<uint16_t>::const_iterator ifed = cabling_->feds().begin();
-      for ( ; ifed != cabling_->feds().end(); ifed++ ) {
+      for (auto ifed = cabling_->fedIds().begin() ; ifed != cabling_->fedIds().end(); ifed++ ) {
       
 	// ignore trigger FED
 	// if ( *ifed == triggerFedId_ ) { continue; }
@@ -74,11 +73,10 @@ namespace sistrip {
 	if( input.size() == 0 ) {
 	  // std::cout << "Input size == 0 for FED number " << static_cast<int>(*ifed) << std::endl;
 	  // get the cabling connections for this FED
-	  const std::vector<FedChannelConnection>& conns = cabling_->connections(*ifed);
+	  auto conns = cabling_->fedConnections(*ifed);
 	  // Mark FED modules as bad
 	  detids_.reserve(detids_.size()+conns.size());
-	  std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
-	  for ( ; iconn != conns.end(); ++iconn ) {
+	  for (auto iconn = conns.begin() ; iconn != conns.end(); ++iconn ) {
 	    if ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) continue;
 	    detids_.push_back(iconn->detId()); //@@ Possible multiple entries
 	  }

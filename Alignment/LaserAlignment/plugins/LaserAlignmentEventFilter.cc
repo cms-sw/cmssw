@@ -91,7 +91,7 @@ bool LaserAlignmentEventFilter::filter( edm::Event& iEvent, const edm::EventSetu
      }
 
      // get the cabling connections for this FED
-     const std::vector<FedChannelConnection>& conns = cabling->connections(*ifed);
+     auto conns = cabling->fedConnections(*ifed);
 
      // construct FEDBuffer
      std::auto_ptr<sistrip::FEDBuffer> buffer;
