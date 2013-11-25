@@ -44,14 +44,15 @@ void
 }  
 
 void
-  UTC_SLUMMARY::analyze( edm::Event      const & /*unused*/
+  UTC_SLUMMARY::analyze( edm::Event      const & iEvent
                             , edm::EventSetup const & /*unused*/
                               )
 {
-  if (!edm::FreshErrorsExist()) {
+  auto const index = iEvent.streamID().value();
+  if (!edm::FreshErrorsExist(index)) {
     edm::LogInfo   ("NoFreshErrors") << "Not in this event, anyway";
   }
-  std::vector<edm::ErrorSummaryEntry> es = edm::LoggedErrorsSummary();
+  std::vector<edm::ErrorSummaryEntry> es = edm::LoggedErrorsSummary(index);
   std::ostringstream os;
   for (unsigned int i = 0; i != es.size(); ++i) {
     os << es[i].category << "   " << es[i].module << "   " 
