@@ -6,6 +6,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4Track.hh"
+#include "G4PhysicalConstants.hh"
+#include "G4SystemOfUnits.hh"
 
 SaveSimTrack::SaveSimTrack(edm::ParameterSet const & p) {
 
