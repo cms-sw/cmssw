@@ -100,6 +100,7 @@ public:
   void clear();
 
   std::string runEvent;
+  unsigned int streamID;
   bool debugEnabled;                             // change log 8
   bool infoEnabled;                              // change log 8
   bool warningEnabled;                           // change log 8
