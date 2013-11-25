@@ -60,6 +60,9 @@ namespace cond {
       // default constructor
       Session();
       
+      // constructor
+      explicit Session( coral::ISessionProxy* coralSession );
+
       // 
       Session( const Session& rhs );
       
@@ -69,25 +72,15 @@ namespace cond {
       //
       Session& operator=( const Session& rhs );
       
-      // explicit connection. 
-      // an implicit connection with a string specified in the configuration could be added.
-      void open( const std::string& connectionString, bool readOnly=false );
-      
-      // TO BE REMOVED AFTER THE TRANSITION
-      // required for the transition, allow to share the underlying session with the ORA implementation 
-      void open( boost::shared_ptr<coral::ISessionProxy> coralSession );
-      
       // 
       void close();
-      
-      //
-      SessionConfiguration& configuration();
       
       //
       Transaction& transaction();
       
       //
       bool existsDatabase();
+
       //
       void createDatabase();
       

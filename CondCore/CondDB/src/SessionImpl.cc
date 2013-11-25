@@ -8,7 +8,7 @@ namespace cond {
 
   namespace persistency {
 
-    SessionImpl::SessionImpl():
+    SessionImpl::SessionImpl( ):
       configuration(),
       connectionService(),
       coralSession(){

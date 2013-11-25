@@ -28,12 +28,9 @@ namespace cond {
     
     class SessionImpl {
     public:
-      SessionImpl();
+      explicit SessionImpl( boost::shared_ptr<coral::ISessionProxy>& coralSession );
       ~SessionImpl();
       
-      // session operation
-      void connect( const std::string& connectionString, bool readOnly=true );
-      void connect( const std::string& connectionString, const std::string& transactionId, bool readOnly=true );
       // TO BE REMOVED AFTER THE TRANSITION
       void connect( boost::shared_ptr<coral::ISessionProxy>& coralSession );
 
@@ -47,8 +44,6 @@ namespace cond {
       coral::ISchema& coralSchema();
       
     public:
-      SessionConfiguration configuration;
-      coral::ConnectionService connectionService;   
       // allows for session shared among more services. To be changed to unique_ptr when we stop needing this feature.
       boost::shared_ptr<coral::ISessionProxy> coralSession;
       std::unique_ptr<TransactionCache> transactionCache;
