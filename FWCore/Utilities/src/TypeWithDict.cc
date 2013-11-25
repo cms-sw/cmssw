@@ -287,7 +287,7 @@ TypeWithDict::
 operator bool() const
 {
   if (*ti_ == typeid(void)) {
-    return true;
+    return false;
   }
   if (type_ == nullptr) {
     // FIXME: Replace this with an exception!
