@@ -28,7 +28,6 @@ class TTTrack
     unsigned int                            theSector;
     unsigned int                            theWedge;
     double                                  theChi2;
-    int                                     theLargestResIdx;
 
   public:
     /// Constructors
@@ -66,10 +65,6 @@ class TTTrack
     double getChi2Red() const;
     void   setChi2( double aChi2 ) { theChi2 = aChi2; }
 
-    /// Largest Residual Idx
-    int  getLargestResIdx() const     { return theLargestResIdx; }
-    void setLargestResIdx( int aIdx ) { theLargestResIdx = aIdx; }
-
     /// Superstrip
     /// Here to prepare inclusion of AM L1 Track finding
     uint32_t getSuperStrip() const { return 0; }
@@ -103,7 +98,6 @@ TTTrack< T >::TTTrack()
   theSector   = 0;
   theWedge    = 0;
   theChi2     = 0;
-  theLargestResIdx = -1;
 }
 
 /// Another Constructor
@@ -117,7 +111,6 @@ TTTrack< T >::TTTrack( std::vector< edm::Ptr< TTStub< T > > > aStubs )
   theSector   = 0;
   theWedge    = 0;
   theChi2     = 0;
-  theLargestResIdx = -1;
 }
 
 /// Destructor
