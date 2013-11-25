@@ -1,12 +1,6 @@
 #ifndef ECALTPGPARAMBUILDER_H
 #define ECALTPGPARAMBUILDER_H
 
-//Author: Pascal Paganini - LLR
-//Date: 2006/07/10 15:58:06 $
-
-#define CMSSW_VERSION 340
-
-
 // system include files
 #include <memory>
 
@@ -27,11 +21,7 @@
 #include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
 #include "OnlineDB/EcalCondDB/interface/all_fe_config_types.h"
 
-#if (CMSSW_VERSION>=340)
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShapeBase.h"
-#else
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
-#endif
 
 
 #include <TH1F.h>
@@ -75,11 +65,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   void create_header() ;
   int uncodeWeight(double weight, int complement2 = 7) ;
   double uncodeWeight(int iweight, int complement2 = 7) ;
-#if (CMSSW_VERSION>=340)
   std::vector<unsigned int> computeWeights(EcalShapeBase & shape, TH1F * histo) ;
-#else
-  std::vector<unsigned int> computeWeights(EcalShape & shape, TH1F * histo) ;
-#endif
   void computeLUT(int * lut, std::string det="EB")  ;
   void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, uint rawId) ;
   void getCoeff(coeffStruc & coeff, const EcalGainRatioMap & gainMap, uint rawId) ;
