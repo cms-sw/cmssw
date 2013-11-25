@@ -55,7 +55,7 @@ public:
                   const float &        originRBound,
                   const float &        originZBound)
     : theDirection( direction), theVertexPos( originPos), 
-      theInvPtRange( invPtRange),
+      theInvPtRange( invPtRange), thePhi(direction.barePhi()),
       thePtMin(1.f/std::max( std::abs(invPtRange.max()), std::abs(invPtRange.min()) )),
       theVertexRBound( originRBound),
       theVertexZBound( originZBound) { }    
@@ -63,6 +63,7 @@ public:
 
   /// the direction around which region is constructed 
   GlobalVector const & direction() const { return theDirection; } 
+  float phiDirection() const { return thePhi;}
 
  /** The origin (centre,vertex) of the region. <BR> 
   *  The origin with bounds is ment to constraint point of the <BR>
@@ -118,13 +119,14 @@ public:
     return str.str();
   }
 
-  void setDirection(const GlobalVector & dir ) { theDirection = dir; }
+  // void setDirection(const GlobalVector & dir ) { theDirection = dir; }
 
 private:
   
   GlobalVector theDirection;
   GlobalPoint  theVertexPos;
   Range        theInvPtRange;
+  float        thePhi;
   float        thePtMin;
   float        theVertexRBound;
   float        theVertexZBound;

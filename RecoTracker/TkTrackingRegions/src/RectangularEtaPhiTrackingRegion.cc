@@ -246,7 +246,7 @@ RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer,const ed
 OuterHitPhiPrediction 
     RectangularEtaPhiTrackingRegion::phiWindow(const edm::EventSetup& iSetup) const
 {
-  float phi0 = direction().phi();
+  float phi0 = phiDirection();
   return OuterHitPhiPrediction( 
       OuterHitPhiPrediction::Range( phi0-thePhiMargin.left(),
                                     phi0+thePhiMargin.left()),
@@ -325,7 +325,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   }
    
   // TSOS
-  float phi = dir.phi();
+  float phi = phiDirection();
   Surface::RotationType rot( sin(phi), -cos(phi),           0,
                              0,                0,          -1,
                              cos(phi),  sin(phi),           0);
