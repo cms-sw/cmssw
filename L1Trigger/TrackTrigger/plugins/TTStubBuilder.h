@@ -77,8 +77,9 @@ class TTStubBuilder : public edm::EDProducer
 template< typename T >
 TTStubBuilder< T >::TTStubBuilder( const edm::ParameterSet& iConfig )
 {
-  produces< std::vector< TTStub< T > > >( "StubsPass" );
-  produces< std::vector< TTStub< T > > >( "StubsFail" );
+  produces< std::vector< TTCluster< T > > >( "ClusterAccepted" );
+  produces< std::vector< TTStub< T > > >( "StubAccepted" );
+  produces< std::vector< TTStub< T > > >( "StubRejected" );
   TTClustersInputTag = iConfig.getParameter< edm::InputTag >( "TTClusters" );
 }
 
@@ -115,6 +116,7 @@ template< typename T >
 void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {  
   /// Prepare output
+  std::auto_ptr< std::vector< TTCluster< T > > > TTClustersForOutput( new std::vector< TTCluster< T > > );
   std::auto_ptr< std::vector< TTStub< T > > > TTStubsForOutputAccepted( new std::vector< TTStub< T > > );
   std::auto_ptr< std::vector< TTStub< T > > > TTStubsForOutputRejected( new std::vector< TTStub< T > > );
 
@@ -231,6 +233,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
           {
             /// This means that ALL stubs go into the output
             TTStubsForOutputAccepted->push_back( tempTTStub );
+            TTClustersForOutput->push_back( *innerClusterIter );
+            TTClustersForOutput->push_back( *outerClusterIter );
           }
           else
           {
@@ -273,6 +277,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
         for ( auto const & ts: is.second )
         {
           TTStubsForOutputAccepted->push_back( ts );
+          TTClustersForOutput->push_back( *(ts.getClusterPtrs(0)) );
+          TTClustersForOutput->push_back( *(ts.getClusterPtrs(1)) );
         }
       }
       else
@@ -289,6 +295,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
         {
           /// Put the highest momenta (lowest bend) stubs into the event
           TTStubsForOutputAccepted->push_back(is.second[bendMap[i].first]);
+          TTClustersForOutput->push_back( *(is.second[bendMap[i].first].getClusterPtrs(0)) );
+          TTClustersForOutput->push_back( *(is.second[bendMap[i].first].getClusterPtrs(1)) );
         }
         for ( unsigned int i = maxStubs; i < is.second.size(); ++i )
         {
@@ -301,8 +309,10 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   } /// End of loop over detector elements
 
   /// Put output in the event
-  iEvent.put( TTStubsForOutputAccepted, "StubsPass" );
-  iEvent.put( TTStubsForOutputRejected, "StubsFail" );
+  iEvent.put( TTStubsForOutputAccepted, "StubAccepted" );
+  iEvent.put( TTStubsForOutputRejected, "StubRejected" );
+  iEvent.put( TTClustersForOutput, "ClusterAccepted" );
+
 }
 
 /// Sort routine for stub ordering

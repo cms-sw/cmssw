@@ -78,7 +78,7 @@ void TTClusterBuilder< Ref_PixelDigi_ >::produce( edm::Event& iEvent, const edm:
   } /// End of loop over detector elements
 
   /// Put output in the event
-  iEvent.put( TTClustersForOutput );
+  iEvent.put( TTClustersForOutput, "ClusterInclusive" );
 }
 
 /// Retrieve hits from the event

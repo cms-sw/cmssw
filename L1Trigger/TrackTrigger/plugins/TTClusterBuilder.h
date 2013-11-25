@@ -76,7 +76,7 @@ TTClusterBuilder< T >::TTClusterBuilder( const edm::ParameterSet& iConfig )
 {
   rawHitInputTags  = iConfig.getParameter< std::vector< edm::InputTag > >("rawHits");
   ADCThreshold     = iConfig.getParameter< unsigned int >("ADCThreshold");
-  produces< std::vector< TTCluster< T > > >();
+  produces< std::vector< TTCluster< T > > >( "ClusterInclusive" );
 }
 
 /// Destructor
