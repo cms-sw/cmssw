@@ -339,6 +339,12 @@ private:
 
   /// Output file name if required
   std::string fileName_;
+
+  //define Token(-s)
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEBpi0Token_;
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEBetaToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEEpi0Token_;
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEEetaToken_;
 };
 
 #endif

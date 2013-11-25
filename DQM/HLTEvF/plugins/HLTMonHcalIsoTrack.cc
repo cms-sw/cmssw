@@ -101,7 +101,12 @@ HLTMonHcalIsoTrack::HLTMonHcalIsoTrack(const edm::ParameterSet& iConfig)
       l3filterLabels_.push_back(inTrig->getParameter<std::string>("hltL3filterLabel"));
       l2collectionLabels_.push_back(inTrig->getParameter<std::string>("l2collectionLabel"));
       l3collectionLabels_.push_back(inTrig->getParameter<std::string>("l3collectionLabel"));
+      l2collectionToken_.push_back(consumes<reco::IsolatedPixelTrackCandidateCollection>(inTrig->getParameter<std::string>("l2collectionLabel")));
+      l3collectionToken_.push_back(consumes<reco::IsolatedPixelTrackCandidateCollection>(inTrig->getParameter<std::string>("l3collectionLabel")));
     }
+
+  //set Token(-s)
+  toLabToken_ = consumes<trigger::TriggerEventWithRefs>(edm::InputTag(hltRAWEventTag_,"",hltProcess_));
 }
 
 
@@ -112,7 +117,7 @@ void HLTMonHcalIsoTrack::analyze(const edm::Event& iEvent, const edm::EventSetup
 {
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
   edm::InputTag toLab=edm::InputTag(hltRAWEventTag_,"",hltProcess_);
-  iEvent.getByLabel(toLab,triggerObj); 
+  iEvent.getByToken(toLabToken_, triggerObj);
   if(!triggerObj.isValid()) return;
   
   for (unsigned int trInd=0; trInd<triggers.size(); trInd++)
@@ -156,7 +161,7 @@ void HLTMonHcalIsoTrack::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  hL2L3acc[trInd]->Fill(2+0.0001,1);
 	  if (useProducerCollections_)
 	    {
-	      iEvent.getByLabel(l3collectionLabels_[trInd],l3col);
+        iEvent.getByToken(l3collectionToken_[trInd], l3col);
 	      if(!l3col.isValid()) continue;
 	      
 	      for (reco::IsolatedPixelTrackCandidateCollection::const_iterator l3it=l3col->begin(); l3it!=l3col->end(); ++l3it)
@@ -215,7 +220,7 @@ void HLTMonHcalIsoTrack::analyze(const edm::Event& iEvent, const edm::EventSetup
       edm::InputTag l2colTag=edm::InputTag(l2collectionLabels_[trInd],"",hltProcess_);
       if (useProducerCollections_)
 	{
-	  iEvent.getByLabel(l2collectionLabels_[trInd],l2col);
+    iEvent.getByToken(l2collectionToken_[trInd], l2col);
 	  if(!l2col.isValid()) continue;
 	  for (reco::IsolatedPixelTrackCandidateCollection::const_iterator l2it=l2col->begin(); l2it!=l2col->end(); l2it++)
 	    {

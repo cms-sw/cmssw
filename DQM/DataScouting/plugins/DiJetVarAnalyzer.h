@@ -5,9 +5,12 @@
 #include "DQM/DataScouting/interface/ScoutingAnalyzerBase.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 #include "TLorentzVector.h"
 #include <vector>
+#include <cmath>
 
 class DiJetVarAnalyzer : public ScoutingAnalyzerBase
  {
@@ -97,6 +100,13 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
     MonitorElement * m_DetajjVsMjjWide_rebin;
 
     MonitorElement * m_metVSmetclean;
+
+    //define Token(-s)
+    edm::EDGetTokenT<reco::CaloJetCollection> jetCollectionTagToken_;
+    edm::EDGetTokenT<std::vector<math::PtEtaPhiMLorentzVector> > widejetsCollectionTagToken_;
+    edm::EDGetTokenT<reco::CaloMETCollection> metCollectionTagToken_;
+    edm::EDGetTokenT<reco::CaloMETCollection> metCleanCollectionTagToken_;
+
  } ;
 
 #endif

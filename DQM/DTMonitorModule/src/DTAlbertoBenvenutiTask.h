@@ -17,7 +17,8 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+ 
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -83,6 +84,8 @@ private:
 
   std::map<DTWireId, TH1F*> TBMap;
 
+  //define Token(-s)
+  edm::EDGetTokenT<DTDigiCollection> DTUnpackerToken_;
 
 };
 

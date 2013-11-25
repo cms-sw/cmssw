@@ -28,6 +28,9 @@ class AlphaTVarAnalyzer : public ScoutingAnalyzerBase
     MonitorElement * m_HTAlphaTg0p55;
     MonitorElement * m_HTAlphaTg0p60;
 
+    //define Token(-s)
+    edm::EDGetTokenT<std::vector<double> > m_alphaTVarCollectionTagToken_;
+
  } ;
 
 #endif
