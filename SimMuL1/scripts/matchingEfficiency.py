@@ -333,7 +333,193 @@ def padMatchingEffVsSimTrackEtaForOddEven(filesDir, plotDir, pt, doOverlaps, ext
     ## this has to be fixed
     c.Print("%sgem_pad_eff_for_LCT_vs_TrkEta_pt%d%s%s"%(plotDir,pt,overlapStr,ext))
 
-def cscMatchingEfficiencyToStripsAndWires(filesDir, plotDir, ext):
+
+#_______________________________________________________________________________
+def cscMatchingEfficiencyToStripsAndWires(filesDir, input_file, plotDir, ext):
+
+    gStyle.SetTitleStyle(0);
+    gStyle.SetTitleAlign(13); ##coord in top left
+    gStyle.SetTitleX(0.);
+    gStyle.SetTitleY(1.);
+    gStyle.SetTitleW(1);
+    gStyle.SetTitleH(0.058);
+    gStyle.SetTitleBorderSize(0);
+    
+    gStyle.SetPadLeftMargin(0.126);
+    gStyle.SetPadRightMargin(0.04);
+    gStyle.SetPadTopMargin(0.06);
+    gStyle.SetPadBottomMargin(0.13);
+    gStyle.SetOptStat(0);
+    gStyle.SetMarkerStyle(1);
+    
+    ok_eta = TCut("TMath::Abs(eta)>1.5 && TMath::Abs(eta)<2.5")
+
+    t = getTree("%s%s"%(filesDir,input_file))
+
+    ## variables for the plot
+    topTitle = " " * 11 + "CSC Digi matching" + " " * 35 + "CMS Simulation Preliminary"
+    xTitle = "Generated muon #eta"
+    yTitle = "Efficiency"
+    title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
+    toPlot = "TMath::Abs(eta)"
+    h_bins = "(100,1.5,2.5)"
+    nBins = int(h_bins[1:-1].split(',')[0])
+    minBin = float(h_bins[1:-1].split(',')[1])
+    maxBin = float(h_bins[1:-1].split(',')[2])
+
+    c = TCanvas("c","c",700,450)
+    c.Clear()
+    base  = TH1F("base",title,nBins,minBin,maxBin)
+    base.SetMinimum(0.0)
+    base.SetMaximum(1.02)
+    base.Draw("")
+    base.GetXaxis().SetLabelSize(0.05)
+    base.GetYaxis().SetLabelSize(0.05)
+
+    h1 = draw_geff(t, title, h_bins, toPlot, ok_sh1, ok_w1, "same", kRed)
+    h2 = draw_geff(t, title, h_bins, toPlot, ok_sh1, ok_st1, "same")
+   
+    leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC");
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetTextSize(0.06)
+    leg.AddEntry(h1, "Wires","l")
+    leg.AddEntry(h2, "Strips","l")
+    leg.Draw("same");
+    
+    tex = TLatex(.45,.4,"1.5<|#eta|<2.5")
+    tex.SetTextSize(0.05)
+    tex.SetNDC()
+    tex.Draw("same")
+
+    c.Print("%scsc_digi_matching_efficiency%s"%(plotDir,ext))
+
+
+#_______________________________________________________________________________
+def cscMatchingEfficiencyToStripsAndWires_2(filesDir, input_file, plotDir, ext):
+
+    gStyle.SetTitleStyle(0);
+    gStyle.SetTitleAlign(13); ##coord in top left
+    gStyle.SetTitleX(0.);
+    gStyle.SetTitleY(1.);
+    gStyle.SetTitleW(1);
+    gStyle.SetTitleH(0.058);
+    gStyle.SetTitleBorderSize(0);
+    
+    gStyle.SetPadLeftMargin(0.126);
+    gStyle.SetPadRightMargin(0.04);
+    gStyle.SetPadTopMargin(0.06);
+    gStyle.SetPadBottomMargin(0.13);
+    gStyle.SetOptStat(0);
+    gStyle.SetMarkerStyle(1);
+    
+    ok_eta = TCut("TMath::Abs(eta)>1.5 && TMath::Abs(eta)<2.5")
+
+    t = getTree("%s%s"%(filesDir, input_file))
+
+    ## variables for the plot
+    topTitle = " " * 11 + "CSC Digi matching" + " " * 35 + "CMS Simulation Preliminary"
+    xTitle = "Generated muon #eta"
+    yTitle = "Efficiency"
+    title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
+    toPlot = "TMath::Abs(eta)"
+    h_bins = "(100,1.5,2.5)"
+    nBins = int(h_bins[1:-1].split(',')[0])
+    minBin = float(h_bins[1:-1].split(',')[1])
+    maxBin = float(h_bins[1:-1].split(',')[2])
+
+    c = TCanvas("c","c",700,450)
+    c.Clear()
+    base  = TH1F("base",title,nBins,minBin,maxBin)
+    base.SetMinimum(0.0)
+    base.SetMaximum(1.02)
+    base.Draw("")
+    base.GetXaxis().SetLabelSize(0.05)
+    base.GetYaxis().SetLabelSize(0.05)
+
+    h1 = draw_geff(t, title, h_bins, toPlot, ok_sh1, OR(ok_w1,ok_st1), "same", kRed)
+    h2 = draw_geff(t, title, h_bins, toPlot, ok_sh1, AND(ok_w1,ok_st1), "same")
+   
+    leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC");
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetTextSize(0.06)
+    leg.AddEntry(h1, "Wires OR strips","l")
+    leg.AddEntry(h2, "Wires AND strips","l")
+    leg.Draw("same");
+    
+    tex = TLatex(.45,.4,"1.5<|#eta|<2.5")
+    tex.SetTextSize(0.05)
+    tex.SetNDC()
+    tex.Draw("same")
+
+    c.Print("%scsc_combined_digi_matching_efficiency%s"%(plotDir,ext))
+
+
+
+#_______________________________________________________________________________
+def cscMatchingEfficiencyToAlctClct(filesDir, input_file, plotDir, ext):
+
+    gStyle.SetTitleStyle(0);
+    gStyle.SetTitleAlign(13); ##coord in top left
+    gStyle.SetTitleX(0.);
+    gStyle.SetTitleY(1.);
+    gStyle.SetTitleW(1);
+    gStyle.SetTitleH(0.058);
+    gStyle.SetTitleBorderSize(0);
+    
+    gStyle.SetPadLeftMargin(0.126);
+    gStyle.SetPadRightMargin(0.04);
+    gStyle.SetPadTopMargin(0.06);
+    gStyle.SetPadBottomMargin(0.13);
+    gStyle.SetOptStat(0);
+    gStyle.SetMarkerStyle(1);
+    
+    ok_eta = TCut("TMath::Abs(eta)>1.5 && TMath::Abs(eta)<2.5")
+
+    t = getTree("%s%s"%(filesDir, input_file))
+
+    ## variables for the plot
+    topTitle = " " * 11 + "CSC Stub matching" + " " * 35 + "CMS Simulation Preliminary"
+    xTitle = "Generated muon #eta"
+    yTitle = "Efficiency"
+    title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
+    toPlot = "TMath::Abs(eta)"
+    h_bins = "(100,1.5,2.5)"
+    nBins = int(h_bins[1:-1].split(',')[0])
+    minBin = float(h_bins[1:-1].split(',')[1])
+    maxBin = float(h_bins[1:-1].split(',')[2])
+
+    c = TCanvas("c","c",700,450)
+    c.Clear()
+    base  = TH1F("base",title,nBins,minBin,maxBin)
+    base.SetMinimum(0.0)
+    base.SetMaximum(1.02)
+    base.Draw("")
+    base.GetXaxis().SetLabelSize(0.05)
+    base.GetYaxis().SetLabelSize(0.05)
+
+    h1 = draw_geff(t, title, h_bins, toPlot, AND(ok_sh1,ok_w1), ok_alct1, "same", kRed)
+    h2 = draw_geff(t, title, h_bins, toPlot, AND(ok_sh1,ok_st1), ok_clct1, "same")
+   
+    leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC");
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetTextSize(0.06)
+    leg.AddEntry(h1, "ALCT","l")
+    leg.AddEntry(h2, "CLCT","l")
+    leg.Draw("same");
+    
+    tex = TLatex(.45,.4,"1.64<|#eta|<2.12")
+    tex.SetTextSize(0.05)
+    tex.SetNDC()
+    tex.Draw("same")
+
+    c.Print("%scsc_stub_matching_efficiency%s"%(plotDir,ext))
+
+
+#_______________________________________________________________________________
+def cscMatchingEfficiencyToAlctClct_2(filesDir, input_file, plotDir, ext):
 
     gStyle.SetTitleStyle(0);
     gStyle.SetTitleAlign(13); ##coord in top left
@@ -352,49 +538,110 @@ def cscMatchingEfficiencyToStripsAndWires(filesDir, plotDir, ext):
     
     ok_eta = TCut("TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12")
 
-    t = getTree("%sgem-csc_stub_ana_L1_MuonGun_neweta_PU100_Pt20_50k_digi_preTrig2.root"%(filesDir))
-
+    t = getTree("%s%s"%(filesDir,input_file))
 
     ## variables for the plot
-    topTitle = " " * 9 + "CSC Digi matching" + " " * 16 + "CMS Simulation Preliminary"
+    topTitle = " " * 11 + "CSC Stub matching" + " " * 35 + "CMS Simulation Preliminary"
     xTitle = "Generated muon #eta"
     yTitle = "Efficiency"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
     toPlot = "TMath::Abs(eta)"
-    h_bins = "(140,1.5,2.2)"
+    h_bins = "(100,1.5,2.5)"
     nBins = int(h_bins[1:-1].split(',')[0])
     minBin = float(h_bins[1:-1].split(',')[1])
     maxBin = float(h_bins[1:-1].split(',')[2])
 
     c = TCanvas("c","c",700,450)
     c.Clear()
-    base  = TH1F("base","",nBins,minBin,maxBin)
-    base.SetMinimum(0.9)
+    base  = TH1F("base",title,nBins,minBin,maxBin)
+    base.SetMinimum(0.0)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
     base.GetYaxis().SetLabelSize(0.05)
-
-    h1 = draw_geff(t, title, h_bins, toPlot, ok_sh1, ok_w1, "same", kRed)
-    h2 = draw_geff(t, title, h_bins, toPlot, ok_sh1, ok_st1, "same")
-    h3 = draw_geff(t, title, h_bins, toPlot, AND(ok_sh1,OR(ok_w1,ok_st1)), ok_digi1, "same",kGreen+1)
-    
-    c.Print("%stest_matching%s"%(plotDir,ext))
-
-    leg = TLegend(0.25,0.23,.75,0.5, "", "brNDC");
+    #,ok_w1,ok_st1,  AND(ok_sh1,ok_w1,ok_st1)
+    h1 = draw_geff(t, title, h_bins, toPlot, ok_sh1, OR(ok_alct1,ok_clct1), "same", kRed)
+    h2 = draw_geff(t, title, h_bins, toPlot, ok_sh1, AND(ok_alct1,ok_clct1), "same")
+   
+    leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC");
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetTextSize(0.06)
-    leg.AddEntry(h1, "Wires","l")
-    leg.AddEntry(h2, "Strips","l")
-    leg.AddEntry(h3, "Wires and strips","l")
-    leg.Draw();
+    leg.AddEntry(h1, "ALCT OR CLCT","l")
+    leg.AddEntry(h2, "ALCT AND CLCT","l")
+    leg.Draw("same");
     
-    tex = TLatex(.66,.73,"1.64<|#eta|<2.12")
+    tex = TLatex(.45,.4,"1.64<|#eta|<2.12")
     tex.SetTextSize(0.05)
     tex.SetNDC()
-    tex.Draw()
+    tex.Draw("same")
 
+    c.Print("%scsc_combined_stub_matching_efficiency%s"%(plotDir,ext))
+
+
+#_______________________________________________________________________________
+def cscMatchingEfficiencyToLct(filesDir, input_file, plotDir, ext):
+
+    gStyle.SetTitleStyle(0);
+    gStyle.SetTitleAlign(13); ##coord in top left
+    gStyle.SetTitleX(0.);
+    gStyle.SetTitleY(1.);
+    gStyle.SetTitleW(1);
+    gStyle.SetTitleH(0.058);
+    gStyle.SetTitleBorderSize(0);
+    
+    gStyle.SetPadLeftMargin(0.126);
+    gStyle.SetPadRightMargin(0.04);
+    gStyle.SetPadTopMargin(0.06);
+    gStyle.SetPadBottomMargin(0.13);
+    gStyle.SetOptStat(0);
+    gStyle.SetMarkerStyle(1);
+    
+    ok_eta = TCut("TMath::Abs(eta)>1.64 && TMath::Abs(eta)<2.12")
+
+    t = getTree("%s%s"%(filesDir, input_file))
+
+    ## variables for the plot
+    topTitle = " " * 11 + "CSC Stub matching" + " " * 35 + "CMS Simulation Preliminary"
+    xTitle = "Generated muon #eta"
+    yTitle = "Efficiency"
+    title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
+    toPlot = "TMath::Abs(eta)"
+    h_bins = "(100,1.5,2.5)"
+    nBins = int(h_bins[1:-1].split(',')[0])
+    minBin = float(h_bins[1:-1].split(',')[1])
+    maxBin = float(h_bins[1:-1].split(',')[2])
+
+    c = TCanvas("c","c",700,450)
+    c.Clear()
+    base  = TH1F("base",title,nBins,minBin,maxBin)
+    base.SetMinimum(0.0)
+    base.SetMaximum(1.02)
+    base.Draw("")
+    base.GetXaxis().SetLabelSize(0.05)
+    base.GetYaxis().SetLabelSize(0.05)
+    #AND(ok_sh1, ok_st1, ok_w1)
+    h1 = draw_geff(t, title, h_bins, toPlot, AND(ok_sh1, ok_st1, ok_w1, ok_alct1, ok_clct1), ok_lct1, "same", kRed)
+    h2 = draw_geff(t, title, h_bins, toPlot, ok_sh1, ok_lct1, "same", kBlue)
+
+##    h2 = draw_geff(t, title, h_bins, toPlot, AND(ok_sh2, ok_st2, ok_w2, ok_alct2, ok_clct2), ok_lct2, "same", kBlue)
+   
+    leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC");
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetTextSize(0.06)
+    leg.AddEntry(h1, "LCT, requiring ALCT and CLCT","l")
+    leg.AddEntry(h2, "LCT","l")
+    leg.Draw("same");
+    
+    tex = TLatex(.45,.4,"1.64<|#eta|<2.12")
+    tex.SetTextSize(0.05)
+    tex.SetNDC()
+    tex.Draw("same")
+
+    c.Print("%scsc_lct_matching_efficiency%s"%(plotDir,ext))
+
+#_______________________________________________________________________________
 def makePlots(ext):
     input_dir = "files_09_10_2013"
     output_dir = "plots_09_10_2013/track_matching_eff/"
@@ -404,6 +651,7 @@ def makePlots(ext):
     padMatchingEffVsLctEtaForOddEven(input_dir,output_dir, 20, True, ext)
     padMatchingEffVsSimTrackEtaForOddEven(input_dir,output_dir, 20, True, ext)
 
+
 if __name__ == "__main__":
     """
     makePlots(".pdf")
@@ -411,9 +659,19 @@ if __name__ == "__main__":
     makePlots(".eps")
     """
     input_dir = "files/"
-    output_dir = "plots/"
+    output_dir = "csc_digi_matching/"
+
+#    input_file = "gem-csc_stub_ana_pt20_PU100_moreStats.root"
+    input_file = "gem-csc_stub_ana.root"
     
-    cscMatchingEfficiencyToStripsAndWires(input_dir, output_dir, ".png")
+    cscMatchingEfficiencyToStripsAndWires(input_dir, input_file, output_dir, ".png")
+    cscMatchingEfficiencyToStripsAndWires_2(input_dir, input_file, output_dir, ".png")
+    cscMatchingEfficiencyToAlctClct(input_dir, input_file, output_dir, ".png")
+    cscMatchingEfficiencyToAlctClct_2(input_dir, input_file, output_dir, ".png")
+    cscMatchingEfficiencyToLct(input_dir, input_file, output_dir, ".png")
+
+
+
    ### DO NOT REMOVE THE STUFF IN COMMENTS ###
    ### WE MIGHT NEED IT LATER ON ###
 

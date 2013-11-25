@@ -1,4 +1,5 @@
 ## This configuration runs the DIGI+L1Emulator step
+import os
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MUTRG")
@@ -7,6 +8,7 @@ process = cms.Process("MUTRG")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2019_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
@@ -15,15 +17,61 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load("Configuration.StandardSequences.L1Emulator_cff")
 process.load("Configuration.StandardSequences.L1Extra_cff")
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+################### Take inputs from crab.cfg file ##############
+from FWCore.ParameterSet.VarParsing import VarParsing
+options = VarParsing ('python')
+options.register ('pu',
+                  100,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.float,
+                  "PU: 100  default")
+
+options.register ('ptdphi',
+                  "pt05",
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.string,
+                  "ptdphi: 5 GeV/c default")
+
+import sys
+print sys.argv
+
+if len(sys.argv) > 0:
+    last = sys.argv.pop()
+    sys.argv.extend(last.split(","))
+    print sys.argv
+    
+if hasattr(sys, "argv") == True:
+    options.parseArguments()
+    pu = options.pu
+    ptdphi = options.ptdphi
+    print 'Using pu: %f' % pu
+    print 'Using ptdphi: %s GeV' % ptdphi
+    
+#--------------------------------------------------------------------------------
+
 
 ## global tag for 2019 upgrade studies
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 #process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+
+# GEM digitizer
+process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
+# GEM-CSC trigger pad digi producer
+process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
+# customization of the process.pdigi sequence to add the GEM digitizer
+from SimMuon.GEMDigitizer.customizeGEMDigi import *
+#process = customize_digi_addGEM(process)  # run all detectors digi
+process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
+#process = customize_digi_addGEM_gem_only(process)  # only GEM digi
+
 
 ## GEM geometry customization
 use6part = True
@@ -48,6 +96,7 @@ process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag('simMuonC
 ## GEM-CSC bending angle library
 process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
 process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
+#process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPretrig = 3
 process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
 tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
 tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
@@ -56,6 +105,17 @@ lct_store_gemdphi = True
 if lct_store_gemdphi:
     tmb.gemClearNomatchLCTs = cms.untracked.bool(False) 
     tmb.gemMatchDeltaPhiOdd = cms.untracked.double(2.)
+dphi_lct_pad98 = {
+    'pt05' : { 'odd' :   0.0220351 , 'even' :  0.00930056 },
+    'pt06' : { 'odd' :   0.0182579 , 'even' :  0.00790009 },
+    'pt10' : { 'odd' :     0.01066 , 'even' :  0.00483286 },
+    'pt15' : { 'odd' :  0.00722795 , 'even' :   0.0036323 },
+    'pt20' : { 'odd' :  0.00562598 , 'even' :  0.00304879 },
+    'pt30' : { 'odd' :  0.00416544 , 'even' :  0.00253782 },
+    'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
+}
+tmb.gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd'])
+tmb.gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even'])
 
 ## upgrade CSC TrackFinder 
 process.load('L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi')
@@ -70,21 +130,40 @@ process.l1extraParticles.produceMuonParticles = cms.bool(True)
 process.l1extraParticles.produceCaloParticles = cms.bool(False)
 process.l1extraParticles.ignoreHtMiss = cms.bool(False)
 
+addPileUp = True
+if addPileUp:
+    # list of MinBias files for pileup has to be provided
+    path = os.getenv( "CMSSW_BASE" ) + "/src/GEMCode/SimMuL1/test/"
+    ff = open('%sfilelist_minbias_61M_good.txt'%(path), "r")
+    pu_files = ff.read().split('\n')
+    ff.close()
+    pu_files = filter(lambda x: x.endswith('.root'),  pu_files)
+
+    process.mix.input = cms.SecSource("PoolSource",
+        nbPileupEvents = cms.PSet(
+             #### THIS IS AVERAGE PILEUP NUMBER THAT YOU NEED TO CHANGE
+            averageNumber = cms.double(pu)
+        ),
+        type = cms.string('poisson'),
+        sequential = cms.untracked.bool(False),
+        fileNames = cms.untracked.vstring(*pu_files)
+    )
+
 ## input commands
-    
 process.source = cms.Source("PoolSource",
   duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
   inputCommands = cms.untracked.vstring('keep  *_*_*_*'),
-  fileNames = cms.untracked.vstring('file:out_digi.root')
+  fileNames = cms.untracked.vstring('file:out_sim.root')
 )
 
 import os
 useInputDir = False
 if useInputDir:
-    inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/dildick/dildick/pT5_1M_v1/DigiL1CSC-MuonGunPt5_1M/82325e40d6202e6fec2dd983c477f3ca/'
+    #inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/dildick/dildick/pT5_1M_v1/DigiL1CSC-MuonGunPt5_1M/82325e40d6202e6fec2dd983c477f3ca/'
+    inputDir = '/uscms_data/d3/dildick/work/testForInstructions/CMSSW_6_2_0_SLHC1/src/digiFiles/GEM_NeutrinoGun_110K_pu100_DIGI_L1/'
     ls = os.listdir(inputDir)
     process.source.fileNames = cms.untracked.vstring(
-        [inputDir[16:] + x for x in ls if x.endswith('root')]
+        ['file:' + inputDir[:] + x for x in ls if x.endswith('root')]
     )
 
 physics = True
@@ -102,13 +181,13 @@ if not physics:
     
 ## output commands 
 theOutDir = ''
-theFileName = 'out_L1.root'
+theFileName = 'out_digi.root'
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(theOutDir + theFileName),
     outputCommands = cms.untracked.vstring('keep  *_*_*_*')
 )
 
-physics = True
+physics = False
 if not physics:
     ## drop all unnecessary collections
     process.output.outputCommands = cms.untracked.vstring(
@@ -140,6 +219,7 @@ if not physics:
 
 ## custom sequences
 process.mul1 = cms.Sequence(
+  process.pdigi *
   process.SimL1MuTriggerPrimitives *
   process.SimL1MuTrackFinders *
   process.simRpcTriggerDigis *
@@ -148,6 +228,7 @@ process.mul1 = cms.Sequence(
 )
 
 process.muL1Short = cms.Sequence(
+  process.pdigi *
   process.simCscTriggerPrimitiveDigis *
   process.SimL1MuTrackFinders *
   process.simGmtDigis *

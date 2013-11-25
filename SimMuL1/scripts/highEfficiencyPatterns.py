@@ -98,7 +98,7 @@ def getDphi(eff,pt,evenOdd):
 
 
 #_______________________________________________________________________________
-def highEfficiencyPatterns(filesDir, plotDir, eff, oddEven, ext):
+def highEfficiencyPatterns(filesDir, fileName, plotDir, eff, oddEven, ext):
     """Produce plot with GEM high efficiency patterns"""
     
     pt = ["pt10","pt20","pt30","pt40"]    
@@ -109,7 +109,7 @@ def highEfficiencyPatterns(filesDir, plotDir, eff, oddEven, ext):
     marker_colors = [kRed, kViolet+1, kAzure+2, kGreen-2]
     marker_styles = [20,21,23,22]
 
-    t = getTree("%sgem_csc_eff_pt2pt50_pad4.root"%(filesDir));
+    t = getTree("%s%s"%(filesDir, fileName));
 
     c = TCanvas("c","c",800,600)
     c.SetGridx(1)
@@ -208,9 +208,15 @@ def highEfficiencyPatterns(filesDir, plotDir, eff, oddEven, ext):
     c.SaveAs("%sGEM_highEffPatterns_%s_%s%s"%(plotDir, eff,oddEven,ext))
 
 if __name__ == "__main__":
-    highEfficiencyPatterns("files/", "plots/highEffPatterns/", 98, "even", ".pdf")
-    highEfficiencyPatterns("files/", "plots/highEffPatterns/", 98, "odd", ".pdf")
-    highEfficiencyPatterns("files/", "plots/highEffPatterns/", 98, "even", ".png")
-    highEfficiencyPatterns("files/", "plots/highEffPatterns/", 98, "odd", ".png")
-    highEfficiencyPatterns("files/", "plots/highEffPatterns/", 98, "even", ".eps")
-    highEfficiencyPatterns("files/", "plots/highEffPatterns/", 98, "odd", ".eps")
+    
+    inputDir = "files/"
+    fileName = "gem-csc_stub_ana.root"
+    outputDir = "plots/highEffPatterns/"
+    efficiency = 98
+    
+    highEfficiencyPatterns(inputDir, fileName, outputDir, efficiency, "even", ".pdf")
+    highEfficiencyPatterns(inputDir, fileName, outputDir, efficiency, "odd", ".pdf")
+    highEfficiencyPatterns(inputDir, fileName, outputDir, efficiency, "even", ".png")
+    highEfficiencyPatterns(inputDir, fileName, outputDir, efficiency, "odd", ".png")
+    highEfficiencyPatterns(inputDir, fileName, outputDir, efficiency, "even", ".eps")
+    highEfficiencyPatterns(inputDir, fileName, outputDir, efficiency, "odd", ".eps")

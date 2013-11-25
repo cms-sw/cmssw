@@ -52,7 +52,8 @@ SimHitMatcher::SimHitMatcher(const SimTrack& t, const SimVertex& v,
 SimHitMatcher::~SimHitMatcher() {}
 
 
-void SimHitMatcher::init()
+void 
+SimHitMatcher::init()
 {
   edm::ESHandle<CSCGeometry> csc_g;
   eventSetup().get<MuonGeometryRecord>().get(csc_g);
@@ -256,7 +257,8 @@ SimHitMatcher::matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
 }
 
 
-std::set<unsigned int> SimHitMatcher::detIdsGEM() const
+std::set<unsigned int> 
+SimHitMatcher::detIdsGEM() const
 {
   std::set<unsigned int> result;
   for (auto& p: gem_detid_to_hits_) result.insert(p.first);
@@ -264,7 +266,8 @@ std::set<unsigned int> SimHitMatcher::detIdsGEM() const
 }
 
 
-std::set<unsigned int> SimHitMatcher::detIdsCSC(int csc_type) const
+std::set<unsigned int> 
+SimHitMatcher::detIdsCSC(int csc_type) const
 {
   std::set<unsigned int> result;
   for (auto& p: csc_detid_to_hits_)
@@ -281,7 +284,8 @@ std::set<unsigned int> SimHitMatcher::detIdsCSC(int csc_type) const
 }
 
 
-std::set<unsigned int> SimHitMatcher::detIdsGEMCoincidences() const
+std::set<unsigned int> 
+SimHitMatcher::detIdsGEMCoincidences() const
 {
   std::set<unsigned int> result;
   for (auto& p: gem_detids_to_copads_) result.insert(p.first);
@@ -289,7 +293,8 @@ std::set<unsigned int> SimHitMatcher::detIdsGEMCoincidences() const
 }
 
 
-std::set<unsigned int> SimHitMatcher::chamberIdsGEM() const
+std::set<unsigned int> 
+SimHitMatcher::chamberIdsGEM() const
 {
   std::set<unsigned int> result;
   for (auto& p: gem_chamber_to_hits_) result.insert(p.first);
@@ -297,7 +302,8 @@ std::set<unsigned int> SimHitMatcher::chamberIdsGEM() const
 }
 
 
-std::set<unsigned int> SimHitMatcher::chamberIdsCSC(int csc_type) const
+std::set<unsigned int> 
+SimHitMatcher::chamberIdsCSC(int csc_type) const
 {
   std::set<unsigned int> result;
   for (auto& p: csc_chamber_to_hits_)
@@ -440,7 +446,8 @@ SimHitMatcher::simHitsMeanPosition(const edm::PSimHitContainer& sim_hits) const
 }
 
 
-float SimHitMatcher::simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const
+float 
+SimHitMatcher::simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const
 {
   if (sim_hits.empty()) return -1.f;
 
@@ -470,7 +477,8 @@ float SimHitMatcher::simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) con
 }
 
 
-std::set<int> SimHitMatcher::hitStripsInDetId(unsigned int detid, int margin_n_strips) const
+std::set<int> 
+SimHitMatcher::hitStripsInDetId(unsigned int detid, int margin_n_strips) const
 {
   set<int> result;
   auto simhits = hitsInDetId(detid);
@@ -508,7 +516,8 @@ std::set<int> SimHitMatcher::hitStripsInDetId(unsigned int detid, int margin_n_s
 }
 
 
-std::set<int> SimHitMatcher::hitWiregroupsInDetId(unsigned int detid, int margin_n_wg) const
+std::set<int> 
+SimHitMatcher::hitWiregroupsInDetId(unsigned int detid, int margin_n_wg) const
 {
   set<int> result;
   if ( !is_csc(detid) ) return result;
@@ -532,7 +541,8 @@ std::set<int> SimHitMatcher::hitWiregroupsInDetId(unsigned int detid, int margin
 }
 
 
-std::set<int> SimHitMatcher::hitPadsInDetId(unsigned int detid) const
+std::set<int> 
+SimHitMatcher::hitPadsInDetId(unsigned int detid) const
 {
   set<int> none;
   if (gem_detids_to_pads_.find(detid) == gem_detids_to_pads_.end()) return none;
@@ -549,7 +559,8 @@ SimHitMatcher::hitCoPadsInDetId(unsigned int detid) const
 }
 
 
-std::set<int> SimHitMatcher::hitPartitions() const
+std::set<int> 
+SimHitMatcher::hitPartitions() const
 {
   std::set<int> result;
 

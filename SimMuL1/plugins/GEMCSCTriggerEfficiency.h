@@ -233,7 +233,6 @@ private:
 // config parameters:
 
   bool lightRun;
-  bool gangedME1a;
   bool defaultME1a;
 
   bool doStrictSimHitToTrackMatch_;
@@ -256,7 +255,6 @@ private:
   int debugTFCAND;
   int debugGMTCAND;
   int debugL1EXTRA;
-  int debugRATE;
 
   double minSimTrPt_;
   double minSimTrPhi_;
@@ -270,8 +268,6 @@ private:
   int maxBX_;
   int minTMBBX_;
   int maxTMBBX_;
-  int minRateBX_;
-  int maxRateBX_;
 
   int minBxALCT_;
   int maxBxALCT_;
@@ -285,9 +281,7 @@ private:
   int maxBxGMT_;
 
   bool centralBxOnlyGMT_;
-
-  bool doSelectEtaForGMTRates_;
-
+  bool gangedME1a;
   bool goodChambersOnly_;
   
   int lookAtTrackCondition_;
@@ -337,7 +331,6 @@ private:
   edm::ESHandle<Propagator> propagatorAlong;
   edm::ESHandle<Propagator> propagatorOpposite;
   edm::ESHandle<MagneticField> theBField;
-
 
   int nevt;
 
@@ -781,6 +774,23 @@ private:
   TH1D * h_phi_after_xtra_all;
   TH1D * h_phi_after_xtra_dr;
 
+  TH1D * h_phi_me1_after_alct;
+  TH1D * h_phi_me1_after_alct_okAlct;
+  TH1D * h_phi_me1_after_clct;
+  TH1D * h_phi_me1_after_clct_okClct;
+  TH1D * h_phi_me1_after_alctclct;
+  TH1D * h_phi_me1_after_alctclct_okAlct;
+  TH1D * h_phi_me1_after_alctclct_okClct;
+  TH1D * h_phi_me1_after_alctclct_okAlctClct;
+  TH1D * h_phi_me1_after_lct;
+  TH1D * h_phi_me1_after_lct_okAlct;
+  TH1D * h_phi_me1_after_lct_okAlctClct;
+  TH1D * h_phi_me1_after_lct_okClct;
+  TH1D * h_phi_me1_after_lct_okClctAlct;
+  TH1D * h_phi_me1_after_mplct_ok;
+  TH1D * h_phi_me1_after_mplct_okAlctClct;
+  TH1D * h_phi_me1_after_mplct_okAlctClct_plus;
+  TH1D * h_phi_me1_after_tf_ok;
 
   TH1D * h_qu_alct;
   TH1D * h_qu_clct;
