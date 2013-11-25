@@ -28,8 +28,9 @@ Please get in touch with the browser name and version if you have any troubles w
 
 
 Editing
+Note: Editing for SequenceTypes(Paths,EndPaths etc.) has been temporarily disabled.
 In order to edit data on the html a local server is needed. Please follow the instructions in the "Problems with browsers" section to start a local server.
-When saving a json file will be provided with the changes. 
+When saving a python file will be provided with the changes. 
 
 
 Contact
