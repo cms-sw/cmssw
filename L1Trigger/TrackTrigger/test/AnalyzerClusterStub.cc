@@ -639,11 +639,12 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   /// Track Trigger
   edm::Handle< std::vector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;
+  edm::Handle< std::vector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterInclusiveHandle;
   edm::Handle< std::vector< TTStub< Ref_PixelDigi_ > > >    PixelDigiTTStubHandle;
-  edm::Handle< std::vector< TTStub< Ref_PixelDigi_ > > >    PixelDigiTTFailedStubHandle;
-  iEvent.getByLabel( "TTClustersFromPixelDigis",             PixelDigiTTClusterHandle );
-  iEvent.getByLabel( "TTStubsFromPixelDigis", "StubsPass",   PixelDigiTTStubHandle );
-  iEvent.getByLabel( "TTStubsFromPixelDigis", "StubsFail",   PixelDigiTTFailedStubHandle );
+  /// NOTE: the InputTag for the "Accepted" clusters is different from the "Inclusive" one
+  iEvent.getByLabel( "TTStubsFromPixelDigis", "ClusterAccepted",     PixelDigiTTClusterHandle );
+  iEvent.getByLabel( "TTClustersFromPixelDigis", "ClusterInclusive", PixelDigiTTClusterInclusiveHandle ); 
+  iEvent.getByLabel( "TTStubsFromPixelDigis", "StubAccepted",        PixelDigiTTStubHandle );
 
   /// Track Trigger MC Truth
   edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
