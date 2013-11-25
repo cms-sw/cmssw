@@ -1,24 +1,12 @@
 #ifndef FastTimerService_h
 #define FastTimerService_h
 
-//system headers
-#ifdef __linux
-#include <time.h>
-#else
-typedef int clockid_t;
-#endif
-
-/* Darwin system headers */
-#if defined(__APPLE__) || defined(__MACH__)
-#include <mach/clock.h>
-#include <mach/mach.h>
-#endif // defined(__APPLE__) || defined(__MACH__)
-
 // C++ headers
 #include <cmath>
 #include <string>
 #include <map>
 #include <unordered_map>
+#include <chrono>
 #include <unistd.h>
 
 // CMSSW headers
@@ -33,6 +21,7 @@ typedef int clockid_t;
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "HLTrigger/Timer/interface/FastTimer.h"
 
 
 /*
@@ -52,32 +41,36 @@ event processing time is diveded into
 */
 
 /*
-Timer per-call overhead (on lxplus, SLC 5.7):
+Assuming an HLT process with ~2500 modules and ~500 paths, tracking each step (with two calls per step, to start and stop the timer)
+with std::chrono::high_resolution_clock gives a per-event overhead of 1 ms
 
-Test results for "clock_gettime(CLOCK_THREAD_CPUTIME_ID, & value)"
- - average time per call: 340 ns
- - resolution:              ? ns
+Detailed informations on different timers can be extracted running $CMSSW_RELEASE_BASE/test/$SCRAM_ARCH/testChrono .
 
-Test results for "clock_gettime(CLOCK_PROCESS_CPUTIME_ID, & value)"
- - average time per call: 360 ns
- - resolution:              ? ns
 
-Test results for "clock_gettime(CLOCK_REALTIME, & value)"
- - average time per call: 320 ns
- - resolution:              1 us
+Timer per-call overhead on SLC5:
 
-Test results for "getrusage(RUSAGE_SELF, & value)"
- - average time per call: 380 ns
- - resolution:              1 ms
+Linux 2.6.18-371.1.2.el5 x86_64
+glibc version: 2.5
+clock source: unknown
+For each timer the resolution reported is the MINIMUM (MEDIAN) (MEAN +/- its STDDEV) of the increments measured during the test.
 
-Test results for "gettimeofday(& value, NULL)"
- - average time per call:  65 ns
- - resolution:              1 us
+Performance of std::chrono::high_resolution_clock
+        Average time per call:      317.0 ns
+        Clock tick period:            1.0 ns
+        Measured resolution:       1000.0 ns (median: 1000.0 ns) (sigma: 199.4 ns) (average: 1007.6 +/- 0.4 ns)
 
-Assuming an HLT process with ~2500 modules and ~500 paths, tracking each step
-with clock_gettime(CLOCK_THREAD_CPUTIME_ID) gives a per-event overhead of 2 ms
 
-Detailed informations on different timers can be extracted running $CMSSW_RELEASE_BASE/test/$SCRAM_ARCH/testTimer .
+Timer per-call overhead on SLC6 (virtualized):
+
+Linux 2.6.32-358.23.2.el6.x86_64 x86_64
+glibc version: 2.12
+clock source: kvm-clock
+For each timer the resolution reported is the MINIMUM (MEDIAN) (MEAN +/- its STDDEV) of the increments measured during the test.
+
+Performance of std::chrono::high_resolution_clock
+        Average time per call:      351.2 ns
+        Clock tick period:            1.0 ns
+        Measured resolution:          1.0 ns (median: 358.0 ns) (sigma: 30360.8 ns) (average: 685.7 +/- 42.4 ns)
 */
 
 
@@ -550,56 +543,35 @@ private:
   std::vector<StreamData> m_stream;
 
   // timers
-  std::pair<struct timespec, struct timespec>   m_timer_event;          // track time spent in each event
-  std::pair<struct timespec, struct timespec>   m_timer_source;         // track time spent in the source
-  std::pair<struct timespec, struct timespec>   m_timer_paths;          // track time spent in all paths
-  std::pair<struct timespec, struct timespec>   m_timer_endpaths;       // track time spent in all endpaths
-  std::pair<struct timespec, struct timespec>   m_timer_path;           // track time spent in each path
-  std::pair<struct timespec, struct timespec>   m_timer_module;         // track time spent in each module
-  struct timespec                               m_timer_first_module;   // record the start of the first active module in a path, if any
+  FastTimer                     m_timer_event;          // track time spent in each event
+  FastTimer                     m_timer_source;         // track time spent in the source
+  FastTimer                     m_timer_paths;          // track time spent in all paths
+  FastTimer                     m_timer_endpaths;       // track time spent in all endpaths
+  FastTimer                     m_timer_path;           // track time spent in each path
+  FastTimer                     m_timer_module;         // track time spent in each module
+  FastTimer::Clock::time_point  m_timer_first_module;   // record the start of the first active module in a path, if any
 
-#if defined(__APPLE__) || defined (__MACH__)
-  clock_serv_t m_clock_port;
-#endif // defined(__APPLE__) || defined(__MACH__)
-
-  void gettime(struct timespec & stamp) const
+  void start(FastTimer & times) const
   {
-#if defined(_POSIX_TIMERS) && _POSIX_TIMERS >= 0
-    clock_gettime(m_timer_id, & stamp);
-#else
-// special cases which do not support _POSIX_TIMERS
-#if defined(__APPLE__) || defined (__MACH__)
-    mach_timespec_t timespec;
-    clock_get_time(m_clock_port, &timespec);
-    stamp.tv_sec  = timespec.tv_sec;
-    stamp.tv_nsec = timespec.tv_nsec;
-#endif // defined(__APPLE__) || defined(__MACH__)
-#endif // defined(_POSIX_TIMERS) && _POSIX_TIMERS >= 0
+    times.start();
   }
 
-  void start(std::pair<struct timespec, struct timespec> & times) const
+  void stop(FastTimer & times) const
   {
-    gettime(times.first);
-  }
-
-  void stop(std::pair<struct timespec, struct timespec> & times) const
-  {
-    gettime(times.second);
+    times.stop();
   }
 
   static
-  double delta(const struct timespec & first, const struct timespec & second)
+  double delta(FastTimer::Clock::time_point const & first, FastTimer::Clock::time_point const & second)
   {
-    if (second.tv_nsec > first.tv_nsec)
-      return (double) (second.tv_sec - first.tv_sec) + (double) (second.tv_nsec - first.tv_nsec) / (double) 1e9;
-    else
-      return (double) (second.tv_sec - first.tv_sec) - (double) (first.tv_nsec - second.tv_nsec) / (double) 1e9;
+    return std::chrono::duration_cast<std::chrono::duration<double>>(second - first).count();
   }
 
   static
-  double delta(const std::pair<struct timespec, struct timespec> & times)
+  double delta(FastTimer const & times)
   {
-    return delta(times.first, times.second);
+    //return std::chrono::duration_cast<std::chrono::duration<double>>(times.value()).count();
+    return std::chrono::duration_cast<std::chrono::duration<double>>(times.getStopTime() - times.getStartTime()).count();
   }
 
   // associate to a path all the modules it contains
