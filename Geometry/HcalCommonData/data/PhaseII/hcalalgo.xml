@@ -21,16 +21,14 @@
 	</ConstantsSection>
 	<SolidSection label="hcalalgo.xml">
 		<Polycone name="HCal" startPhi="0*deg" deltaPhi="360*deg">
-			<ZSection z="-[z6HB]" rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
-			<ZSection z="-[Z0HE]" rMin="[rMin2]" rMax="[cms:CalorMuonR]"/>
-			<ZSection z="-[Z0HE]" rMin="[rMin3]" rMax="[cms:CalorMuonR]"/>
-			<ZSection z="-[Z0HBHE]" rMin="[rMin3]" rMax="[cms:CalorMuonR]"/>
-			<ZSection z="-[Z0HBHE]" rMin="[rMin1]" rMax="[cms:CalorMuonR]"/>
-			<ZSection z="[Z0HBHE]" rMin="[rMin1]" rMax="[cms:CalorMuonR]"/>
-			<ZSection z="[Z0HBHE]" rMin="[rMin3]" rMax="[cms:CalorMuonR]"/>
-			<ZSection z="[Z0HE]" rMin="[rMin3]" rMax="[cms:CalorMuonR]"/>
-			<ZSection z="[Z0HE]" rMin="[rMin2]" rMax="[cms:CalorMuonR]"/>
-			<ZSection z="[z6HB]" rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="-[z6HB]" rMin="[rMin5]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="-[z5HB]" rMin="[rMin5]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="-[z4HB]" rMin="[rMin4]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="-[z3HB]" rMin="[rMin1]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z=" [z3HB]" rMin="[rMin1]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z=" [z4HB]" rMin="[rMin4]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z=" [z5HB]" rMin="[rMin5]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z=" [z6HB]" rMin="[rMin5]" rMax="[cms:CalorMuonR]"/>
 		</Polycone>
 		<Polyhedra name="HRCF" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
 			<ZSection z="[Z1HB]" rMin="[rMin1]" rMax="[rMax1]"/>
