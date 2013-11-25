@@ -234,7 +234,11 @@ L1TDTTF::L1TDTTF(const edm::ParameterSet& ps)
     }
 
   }
-
+  
+  //set Token(-s)
+  trackInputToken_ = consumes<L1MuDTTrackContainer>(trackInputTag_);
+  muonCollectionToken_ = consumes<reco::MuonCollection>(ps.getParameter<edm::InputTag>("MuonCollection"));
+  gmtSourceToken_ = consumes<L1MuGMTReadoutCollection>(ps.getParameter< edm::InputTag >("gmtSource"));
 }
 
 
@@ -619,10 +623,10 @@ void L1TDTTF::analyze(const edm::Event& event,
   /// tracks handle
   edm::Handle<L1MuDTTrackContainer > myL1MuDTTrackContainer;
   try {
-    event.getByLabel(trackInputTag_, myL1MuDTTrackContainer);
+    event.getByToken(trackInputToken_, myL1MuDTTrackContainer);
   } catch (cms::Exception& iException) {
     edm::LogError("L1TDTTF::analyze::DataNotFound")
-      << "can't getByLabel L1MuDTTrackContainer with label " 
+      << "can't getByToken L1MuDTTrackContainer with label " 
       << dttpgSource_.label() << ":DATA:" << dttpgSource_.process();
     return;
   }
@@ -652,8 +656,7 @@ void L1TDTTF::analyze(const edm::Event& event,
     try {
 
       edm::Handle<reco::MuonCollection> muons;
-      event.getByLabel(muonCollectionLabel_, muons);
-
+      event.getByToken(muonCollectionToken_, muons);
       accept = false;
       if ( muons.isValid() ) {
 	for (reco::MuonCollection::const_iterator recoMu = muons->begin();
@@ -693,7 +696,7 @@ void L1TDTTF::analyze(const edm::Event& event,
     } catch (cms::Exception& iException) {
       /// in case of problems accept all
       accept = true;
-      edm::LogError("DataNotFound") << "Unable to getByLabel MuonCollection with label "
+      edm::LogError("DataNotFound") << "Unable to getByToken MuonCollection with label "
 				    << muonCollectionLabel_.label() ;
     }
 
@@ -706,7 +709,7 @@ void L1TDTTF::analyze(const edm::Event& event,
   try {
 
     edm::Handle<L1MuGMTReadoutCollection> pCollection;
-    event.getByLabel(gmtSource_, pCollection);
+    event.getByToken(gmtSourceToken_, pCollection);
 
     if ( !pCollection.isValid() ) {
       edm::LogError("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
@@ -739,7 +742,7 @@ void L1TDTTF::analyze(const edm::Event& event,
     }
 
   } catch (cms::Exception& iException) {
-    edm::LogError("DataNotFound") << "Unable to getByLabel L1MuGMTReadoutCollection with label "
+    edm::LogError("DataNotFound") << "Unable to getByToken L1MuGMTReadoutCollection with label "
 				  << gmtSource_.label() ;
   }
 

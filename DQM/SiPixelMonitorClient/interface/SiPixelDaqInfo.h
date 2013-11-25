@@ -21,6 +21,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 class SiPixelDaqInfo : public edm::EDAnalyzer {
 public:
@@ -51,7 +52,9 @@ private:
   int nFEDsEndcap_;
   std::string daqSource_;
   int FEDs_[40];
-  
+
+  //define Token(-s)
+  edm::EDGetTokenT<FEDRawDataCollection> daqSourceToken_;
 };
 
 #endif

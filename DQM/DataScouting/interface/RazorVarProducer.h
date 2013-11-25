@@ -9,6 +9,7 @@
 
 #include "TLorentzVector.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include <vector>
 
 class RazorVarProducer : public edm::EDProducer {
  public: 
@@ -23,6 +24,10 @@ class RazorVarProducer : public edm::EDProducer {
 
   edm::InputTag inputTag_; // input tag identifying product
   edm::InputTag inputMetTag_; // input tag identifying MET product
+
+  //define Token(-s)
+  edm::EDGetTokenT<std::vector<math::XYZTLorentzVector> > inputTagToken_;
+  edm::EDGetTokenT<reco::CaloMETCollection> inputMetTagToken_;
 };
 
 #endif //RazorVarProducer_h

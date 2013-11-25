@@ -136,7 +136,14 @@ L1TCompare::L1TCompare(const ParameterSet & ps) :
     dbe->setCurrentFolder("L1T/Compare");
   }
 
+  //set Token(-s)
+  edm::InputTag gctCenJetsTag_(gctSource_.label(),"cenJets");
+  edm::InputTag gctIsoEmCandsTag_(gctSource_.label(), "isoEm");
+  edm::InputTag gctNonIsoEmCandsTag_(gctSource_.label(), "nonIsoEm");
 
+  gctCenJetsToken_ = consumes<L1GctJetCandCollection>(gctCenJetsTag_);
+  gctIsoEmCandsToken_ = consumes<L1GctEmCandCollection>(gctIsoEmCandsTag_);
+  gctNonIsoEmCandsToken_ = consumes<L1GctEmCandCollection>(gctNonIsoEmCandsTag_);
 }
 
 L1TCompare::~L1TCompare()
@@ -285,10 +292,9 @@ void L1TCompare::analyze(const Event & e, const EventSetup & c)
     return;
   }
 
-  
-  e.getByLabel(gctSource_.label(),"cenJets", gctCenJets);
-  e.getByLabel(gctSource_.label(), "isoEm", gctIsoEmCands);
-  e.getByLabel(gctSource_.label(), "nonIsoEm", gctNonIsoEmCands);
+  e.getByToken(gctCenJetsToken_, gctCenJets);
+  e.getByToken(gctIsoEmCandsToken_, gctIsoEmCands);
+  e.getByToken(gctNonIsoEmCandsToken_, gctNonIsoEmCands);
   
   if (!gctCenJets.isValid()) {
     std::cerr << "L1TGCT: could not find one of the classes?" << std::endl;

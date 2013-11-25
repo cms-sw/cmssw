@@ -237,6 +237,10 @@ private:  ///Methods, variables accessible only within class code
   std::map<HcalDetId, std::vector<double> > PedestalsByCapId_;
 
   double pedSubtractedADC_[10]; // stores ped-subtracted ADCs for each digi time slice;  use this instead of a vector because of memory allocation issues
+
+  //define Token(-s)
+  edm::EDGetTokenT<DcsStatusCollection> dcsStatusToken_;
+  edm::EDGetTokenT<FEDRawDataCollection> FEDRawDataCollectionToken_;
 };
 
 float bins_cellcount_new[]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5,

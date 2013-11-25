@@ -109,6 +109,12 @@ class HLTJetMETDQMSource : public edm::EDAnalyzer {
       HLTConfigProvider hltConfig_;
       // data across paths
       MonitorElement* scalersSelect;
+
+      //define Tokens(-s)
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsTokenFU_;
+      edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryToken_;
+      edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryTokenFU_;
       // helper class to store the data path
 
       class PathInfo {

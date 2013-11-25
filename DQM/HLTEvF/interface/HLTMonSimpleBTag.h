@@ -92,6 +92,9 @@ private:
   edm::InputTag triggerSummaryLabel_;
   edm::InputTag triggerResultLabel_;
 
+  //define Token(-s)
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryToken_;
+
   // helper class to store the data
   class PathInfo {
     PathInfo():

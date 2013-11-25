@@ -273,6 +273,18 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
     dbe->setCurrentFolder("L1T/L1TGCT");
   }
 
+  //set Token(-s)
+  gctIsoEmSourceToken_ = consumes<L1GctEmCandCollection>(ps.getParameter<edm::InputTag>("gctIsoEmSource"));
+  gctNonIsoEmSourceToken_ = consumes<L1GctEmCandCollection>(ps.getParameter<edm::InputTag>("gctNonIsoEmSource"));
+  gctCenJetsSourceToken_ = consumes<L1GctJetCandCollection>(ps.getParameter<edm::InputTag>("gctCentralJetsSource"));
+  gctForJetsSourceToken_ = consumes<L1GctJetCandCollection>(ps.getParameter<edm::InputTag>("gctForwardJetsSource"));
+  gctTauJetsSourceToken_ = consumes<L1GctJetCandCollection>(ps.getParameter<edm::InputTag>("gctTauJetsSource"));
+  gctEnergySumsSourceToken_ = consumes<L1GctHFRingEtSumsCollection>(ps.getParameter<edm::InputTag>("gctEnergySumsSource"));
+  l1HFCountsToken_ = consumes<L1GctHFBitCountsCollection>(ps.getParameter<edm::InputTag>("gctEnergySumsSource"));
+  l1EtMissToken_ = consumes<L1GctEtMissCollection>(ps.getParameter<edm::InputTag>("gctEnergySumsSource"));
+  l1HtMissToken_ = consumes<L1GctHtMissCollection>(ps.getParameter<edm::InputTag>("gctEnergySumsSource"));
+  l1EtHadToken_ = consumes<L1GctEtHadCollection>(ps.getParameter<edm::InputTag>("gctEnergySumsSource"));
+  l1EtTotalToken_ = consumes<L1GctEtTotalCollection>(ps.getParameter<edm::InputTag>("gctEnergySumsSource"));
 }
 
 L1TGCT::~L1TGCT()
@@ -471,18 +483,17 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   edm::Handle < L1GctEtHadCollection >   l1EtHad;
   edm::Handle < L1GctEtTotalCollection > l1EtTotal;
 
-  e.getByLabel(gctIsoEmSource_, l1IsoEm);
-  e.getByLabel(gctNonIsoEmSource_, l1NonIsoEm);
-  e.getByLabel(gctCenJetsSource_, l1CenJets);
-  e.getByLabel(gctForJetsSource_, l1ForJets);
-  e.getByLabel(gctTauJetsSource_, l1TauJets);
-  e.getByLabel(gctEnergySumsSource_, l1HFSums);
-  e.getByLabel(gctEnergySumsSource_, l1HFCounts);  
-  e.getByLabel(gctEnergySumsSource_, l1EtMiss);
-  e.getByLabel(gctEnergySumsSource_, l1HtMiss);
-  e.getByLabel(gctEnergySumsSource_, l1EtHad);
-  e.getByLabel(gctEnergySumsSource_, l1EtTotal);
-
+  e.getByToken(gctIsoEmSourceToken_, l1IsoEm);
+  e.getByToken(gctNonIsoEmSourceToken_, l1NonIsoEm);
+  e.getByToken(gctCenJetsSourceToken_, l1CenJets);
+  e.getByToken(gctForJetsSourceToken_, l1ForJets);
+  e.getByToken(gctTauJetsSourceToken_, l1TauJets);
+  e.getByToken(gctEnergySumsSourceToken_, l1HFSums);
+  e.getByToken(l1HFCountsToken_, l1HFCounts);
+  e.getByToken(l1EtMissToken_, l1EtMiss);
+  e.getByToken(l1HtMissToken_, l1HtMiss);
+  e.getByToken(l1EtHadToken_, l1EtHad);
+  e.getByToken(l1EtTotalToken_, l1EtTotal);
 
   // Fill histograms
 
