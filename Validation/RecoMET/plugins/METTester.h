@@ -13,6 +13,9 @@
 // date: 02.28.2007
 // note: code rewrite
 
+// Rewritten by Viola Sordini, Matthias Artur Weber, Robert Schoefbeck Nov./Dez. 2013
+
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"

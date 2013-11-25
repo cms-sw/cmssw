@@ -5,6 +5,7 @@
 // F. Ratnikov, Sept. 7, 2006
 // Modified by Chiyoung Jeong, Feb. 2, 2010
 // Modified by J. Piedra, Sept. 11, 2013
+// Rewritten by Viola Sordini, Matthias Artur Weber, Robert Schoefbeck Nov./Dez. 2013
 
 #include <cmath>
 #include <string>
@@ -57,6 +58,7 @@ class JetTester : public edm::EDAnalyzer {
   edm::InputTag   mInputGenCollection;
   edm::InputTag   rhoTag;
   std::string     mOutputFile;
+  std::string     JetType;
 
   // Event variables
   MonitorElement* mNvtx;

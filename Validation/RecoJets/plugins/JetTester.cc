@@ -14,6 +14,7 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   mInputGenCollection            (iConfig.getParameter<edm::InputTag>       ("srcGen")),
   rhoTag                         (iConfig.getParameter<edm::InputTag>       ("srcRho")), 
   mOutputFile                    (iConfig.getUntrackedParameter<std::string>("OutputFile","")),
+  JetType                        (iConfig.getUntrackedParameter<std::string>("JetType")),
   mRecoJetPtThreshold            (iConfig.getParameter<double>              ("recoJetPtThreshold")),
   mMatchGenPtThreshold           (iConfig.getParameter<double>              ("matchGenPtThreshold")),
   mGenEnergyFractionThreshold    (iConfig.getParameter<double>              ("genEnergyFractionThreshold")),
@@ -23,13 +24,17 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 {
   std::string inputCollectionLabel(mInputCollection.label());
 
-  std::size_t foundCaloCollection = inputCollectionLabel.find("Calo");
-  std::size_t foundJPTCollection  = inputCollectionLabel.find("JetPlusTrack");
-  std::size_t foundPFCollection   = inputCollectionLabel.find("PF");
+//  std::size_t foundCaloCollection = inputCollectionLabel.find("Calo");
+//  std::size_t foundJPTCollection  = inputCollectionLabel.find("JetPlusTrack");
+//  std::size_t foundPFCollection   = inputCollectionLabel.find("PF");
 
-  isCaloJet = (foundCaloCollection != string::npos) ? true : false;
-  isJPTJet  = (foundJPTCollection  != string::npos) ? true : false;
-  isPFJet   = (foundPFCollection   != string::npos) ? true : false;
+  isCaloJet = (std::string("calo")==JetType);
+  isJPTJet  = (std::string("jpt") ==JetType);
+  isPFJet   = (std::string("pf")  ==JetType);
+
+//  isCaloJet = (foundCaloCollection != string::npos) ? true : false;
+//  isJPTJet  = (foundJPTCollection  != string::npos) ? true : false;
+//  isPFJet   = (foundPFCollection   != string::npos) ? true : false;
 
   // Events variables
   mNvtx           = 0;
