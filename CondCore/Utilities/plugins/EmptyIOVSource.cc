@@ -1,5 +1,4 @@
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
-#include "CondCore/CondDB/interface/Time.h"
 #include <string>
 namespace cond {
   class EmptyIOVSource : public edm::ProducerSourceBase {
@@ -43,11 +42,11 @@ namespace cond{
   }  
   bool EmptyIOVSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time){
     if(m_current<=m_lastValid){
-      if( m_timeType=="Run" ){
+      if( m_timeType=="runnumber" ){
 	id = edm::EventID(m_current, id.luminosityBlock(), 1);
-      }else if( m_timeType=="Time" ){
+      }else if( m_timeType=="timestamp" ){
 	time = m_current;
-      }else if( m_timeType=="Lumi" ){
+      }else if( m_timeType=="lumiid" ){
 	edm::LuminosityBlockID l(m_current);
         id = edm::EventID(l.run(), l.luminosityBlock(), 1);
 	//std::cout<<"run "<<l.run()<<std::endl;
@@ -59,13 +58,13 @@ namespace cond{
     return ok;
   }
   void EmptyIOVSource::initialize(edm::EventID& id, edm::TimeValue_t& time, edm::TimeValue_t& interval){
-    if( m_timeType=="Run" ){
+    if( m_timeType=="runnumber" ){
       id = edm::EventID(m_firstValid, id.luminosityBlock(), 1);
       interval = 0LL; 
-    }else if( m_timeType=="Time" ){
+    }else if( m_timeType=="timestamp" ){
       time = m_firstValid;
       interval = m_interval; 
-    }else if( m_timeType=="Lumi" ){
+    }else if( m_timeType=="lumiid" ){
       edm::LuminosityBlockID l(m_firstValid);
       id = edm::EventID(l.run(), l.luminosityBlock(), 1);
       interval = 0LL; 
