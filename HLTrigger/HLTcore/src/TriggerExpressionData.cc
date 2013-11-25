@@ -62,7 +62,7 @@ bool Data::setEvent(const edm::Event & event, const edm::EventSetup & setup) {
   // access L1 objects only if L1 is used
   if (not m_l1tResultsTag.label().empty()) {
     // cache the L1 GT results objects
-    if (m_l1tResultsToken.isUnitialized()) {
+    if (m_l1tResultsToken.isUninitialized()) {
       m_l1tResults = get<L1GlobalTriggerReadoutRecord>(event, m_l1tResultsTag);
     } else {
       m_l1tResults = get<L1GlobalTriggerReadoutRecord>(event, m_l1tResultsToken);
@@ -89,7 +89,7 @@ bool Data::setEvent(const edm::Event & event, const edm::EventSetup & setup) {
   // access HLT objects only if HLT is used
   if (not m_hltResultsTag.label().empty()) {
     // cache the HLT TriggerResults
-    if (m_hltResultsToken.isUnitialized()) {
+    if (m_hltResultsToken.isUninitialized()) {
       m_hltResults = get<edm::TriggerResults>(event, m_hltResultsTag);
     } else {
       m_hltResults = get<edm::TriggerResults>(event, m_hltResultsToken);

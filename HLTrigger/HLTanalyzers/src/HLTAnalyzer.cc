@@ -13,7 +13,7 @@ template <class T>
 static inline
 bool getCollection(const edm::Event & event, std::vector<MissingCollectionInfo> & missing, edm::Handle<T> & handle, const edm::InputTag & name, const edm::EDGetTokenT<T> token, const char * description) 
 {
-  if (token.isUnitialized()) {
+  if (token.isUninitialized()) {
     event.getByLabel(name, handle);
     std::cout << "*** HLTAnalyzer/getCollection: Token corresponding to label " << name << "is not initialized" << std::endl;
     }
