@@ -281,7 +281,11 @@ void Particle::cachePolar() const {
 void Particle::cacheCartesian() const {
     if(!p4Cartesian_.load(std::memory_order_acquire)) {
         cachePolar();
-        *p4Cartesian_ = (*p4Polar_.load(std::memory_order_acquire));
+        std::unique_ptr<LorentzVector> ptr{new LorentzVector(*p4Polar_.load(std::memory_order_acquire))};
+        LorentzVector* expected = nullptr;
+        if( p4Cartesian_.compare_exchange_strong(expected, ptr.get(), std::memory_order_acq_rel) ) {
+           ptr.release();
+        }
     }
 }
 /// clear internal cache
