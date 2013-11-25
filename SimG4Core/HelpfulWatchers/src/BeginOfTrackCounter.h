@@ -28,6 +28,10 @@
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 
 // forward declarations
+namespace edm {
+   class ParameterSet;
+}
+
 namespace simwatcher {
    class BeginOfTrackCounter : public SimProducer,
       public Observer<const BeginOfTrack*>
