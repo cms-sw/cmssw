@@ -68,6 +68,12 @@ HLTOniaSource::HLTOniaSource(const edm::ParameterSet& pset){
 
   //Foldering output
   subsystemFolder_ = pset.getUntrackedParameter<std::string>("SubSystemFolder","HLT/HLTMonMuon/Onia");
+
+  //set Token(-s)
+  pixelToken_ = consumes<reco::TrackCollection>(pset.getUntrackedParameter<edm::InputTag>("PixelTag",edm::InputTag("hltPixelTracks", "", "HLT")));
+  trackToken_ = consumes<reco::RecoChargedCandidateCollection>(pset.getUntrackedParameter<edm::InputTag>("TrackTag",edm::InputTag("hltMuTrackJpsiCtfTrackCands","", "HLT")));
+  beamSpotToken_ = consumes<reco::BeamSpot>(pset.getUntrackedParameter<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot", "", "HLT")));
+  triggerSummaryRAWToken_ = consumes<trigger::TriggerEventWithRefs>(pset.getUntrackedParameter<edm::InputTag>("TriggerSummaryTag",edm::InputTag("hltTriggerSummaryRAW", "", "HLT")));
 }
 
 
@@ -144,7 +150,7 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   //Get Pixel Tracks
   edm::Handle<reco::TrackCollection> pixelCands;
-  iEvent.getByLabel(pixelTag_, pixelCands);
+  iEvent.getByToken(pixelToken_, pixelCands);
 
   reco::TrackCollection mypixelCands; //This is needed for the sort!!!!
   if (pixelCands.isValid()) {
@@ -157,7 +163,7 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    
   //Get Tracker Tracks
   edm::Handle<reco::RecoChargedCandidateCollection>  trackCands;
-  iEvent.getByLabel(trackTag_, trackCands);
+  iEvent.getByToken(trackToken_, trackCands);
   reco::RecoChargedCandidateCollection mytrackCands; //This is needed for the sort!!!!
   if(trackCands.isValid()) {
     mytrackCands =  * trackCands;   
@@ -169,7 +175,7 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     
   //Get Beamspot 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel(beamSpotTag_, recoBeamSpotHandle);
+  iEvent.getByToken(beamSpotToken_, recoBeamSpotHandle);
   if (recoBeamSpotHandle.isValid()) {
     BSPosition_ = recoBeamSpotHandle->position();
   }else {
@@ -179,8 +185,7 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   //Get Trigger Summary RA
   edm::Handle<trigger::TriggerEventWithRefs> rawTriggerEvent;
-  iEvent.getByLabel(triggerSummaryRAWTag_, rawTriggerEvent );
-  
+  iEvent.getByToken(triggerSummaryRAWToken_, rawTriggerEvent);
   if( rawTriggerEvent.isValid() ){
 
     for(size_t i=0; i<oniaMuonTag_.size(); i++){

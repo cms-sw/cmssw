@@ -266,6 +266,12 @@ public:
   bool dump2database_;
   std::map<HcalCastorDetId, unsigned int> myquality_;
   CastorChannelQuality* chanquality_;
+
+  //define tokens
+  edm::EDGetTokenT<FEDRawDataCollection> inputLabelRawToken_;
+  edm::EDGetTokenT<HcalUnpackerReport> inputLabelReportToken_;
+  edm::EDGetTokenT<CastorDigiCollection> inputLabelDigiToken_;
+  edm::EDGetTokenT<CastorRecHitCollection> inputLabelRecHitCASTORToken_;
 };
 
 #endif

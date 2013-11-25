@@ -17,6 +17,9 @@ AlphaTVarAnalyzer::AlphaTVarAnalyzer( const edm::ParameterSet & conf ):
   ScoutingAnalyzerBase(conf),
   m_jetCollectionTag(conf.getUntrackedParameter<edm::InputTag>("jetCollectionName",edm::InputTag("hltCaloJetIDPassed"))),
   m_alphaTVarCollectionTag(conf.getUntrackedParameter<edm::InputTag>("alphaTVarCollectionName")){
+
+  //set Token(-s)
+  m_alphaTVarCollectionTagToken_ = consumes<std::vector<double> >(conf.getUntrackedParameter<edm::InputTag>("alphaTVarCollectionName"));
 }
 
 //------------------------------------------------------------------------------
@@ -28,7 +31,8 @@ AlphaTVarAnalyzer::~AlphaTVarAnalyzer(){}
 void AlphaTVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup & c ){
   
   edm::Handle<std::vector<double> > alphaTvar_handle;
-  iEvent.getByLabel(m_alphaTVarCollectionTag,alphaTvar_handle);
+  iEvent.getByToken(m_alphaTVarCollectionTagToken_, alphaTvar_handle);
+
 
   if(alphaTvar_handle->size() > 1){
     const double AlphaT = alphaTvar_handle->at(0);

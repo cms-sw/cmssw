@@ -28,6 +28,9 @@ AlphaTVarProducer::AlphaTVarProducer(const edm::ParameterSet& iConfig) :
 
   produces<std::vector<double> >();
 
+  //set Token(-s)
+  inputJetTagToken_ = consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("inputJetTag"));
+
   LogDebug("") << "Inputs: "
 	       << inputJetTag_.encode() << " ";
 }
@@ -47,7 +50,7 @@ AlphaTVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of collection of objects
    edm::Handle<reco::CaloJetCollection> calojet_handle; 
-   iEvent.getByLabel(inputJetTag_,calojet_handle);
+   iEvent.getByToken(inputJetTagToken_, calojet_handle);
 
    std::auto_ptr<std::vector<double> > result(new std::vector<double>); 
    // check the the input collections are available

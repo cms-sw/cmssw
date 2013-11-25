@@ -303,7 +303,6 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
   edm::Handle < L1CaloEmCollection > emEmul;
   edm::Handle < L1CaloRegionCollection > rgnEmul;
 
-  // need to change to getByLabel
   // bool doEm = true; FIXME gcc461: variable 'doEm' set but not used
   // bool doHd = true; FIXME gcc461: variable 'doHd' set but not used
   bool doEcal = true;

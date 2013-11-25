@@ -109,6 +109,14 @@ private:
   MonitorElement * m_plotL3MuonPtRel;
   MonitorElement * m_plotL3MuonDeltaR;
   MonitorElement * m_plotL3Discriminator;
+
+  //define Token(-s)
+  edm::EDGetTokenT<edm::TriggerResults> m_triggerResultsToken_;
+  edm::EDGetTokenT<edm::View<reco::Jet> > m_L2JetsToken_;
+  edm::EDGetTokenT<reco::SoftLeptonTagInfoCollection> m_L25TagInfoToken_;
+  edm::EDGetTokenT<reco::JetTagCollection> m_L25JetTagsToken_;
+  edm::EDGetTokenT<reco::SoftLeptonTagInfoCollection> m_L3TagInfoToken_;
+  edm::EDGetTokenT<reco::JetTagCollection> m_L3JetTagsToken_;
 };
 
 #endif // DQM_HLTEvF_HLTMonBTagMuSource_H

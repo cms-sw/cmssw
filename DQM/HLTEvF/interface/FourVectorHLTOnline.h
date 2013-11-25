@@ -211,6 +211,21 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
 
       edm::Handle<edm::TriggerResults> triggerResults_;
 
+      //define Token(-s)
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+      edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryToken_;
+      edm::EDGetTokenT<edm::TriggerResults> muonRecoCollectionNameToken_;
+      edm::EDGetTokenT<edm::TriggerResults> gsfElectronsToken_;
+      edm::EDGetTokenT<edm::TriggerResults> caloRecoTauProducerToken_;
+      edm::EDGetTokenT<edm::TriggerResults> iterativeCone5CaloJetsToken_;
+      edm::EDGetTokenT<edm::TriggerResults> jetProbabilityBJetTagsToken_;
+      edm::EDGetTokenT<edm::TriggerResults> softMuonBJetTagsToken_;
+      edm::EDGetTokenT<edm::TriggerResults> metToken_;
+      edm::EDGetTokenT<edm::TriggerResults> photonsToken_;
+      edm::EDGetTokenT<edm::TriggerResults> pixelTracksToken_;
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsTokenFU_;
+      edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryLabelFUToken_;
+
       class PathInfo {
 
        PathInfo():

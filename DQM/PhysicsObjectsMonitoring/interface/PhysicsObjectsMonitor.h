@@ -15,7 +15,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
+//#include "DataFormats/TrackReco/interface/Track.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 namespace edm {
   class ParameterSet;
@@ -78,7 +79,9 @@ private:
   int numberOfRecTracks;
 
   std::string theDataType;
-  
+
+  //define Token(-s)
+  edm::EDGetTokenT<reco::TrackCollection> theSTAMuonToken_;
 };
 #endif
 
