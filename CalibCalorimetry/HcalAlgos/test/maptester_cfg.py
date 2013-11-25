@@ -7,8 +7,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 process.GlobalTag.globaltag = "START62_V1::All"
 
-process.source = cms.Source("EmptySource",
-)
+process.source = cms.Source("EmptySource")
 
 process.demo = cms.EDAnalyzer("MapTester",
 #    mapIOV = cms.uint32(1), # HO pre 2009

@@ -20,60 +20,22 @@
 //---------------
 // C++ Headers --
 //---------------
+constexpr int cellsInTheta = 58;
+constexpr int cellsPerLayer[] = {0, 50, 60, 72, 96};
+constexpr int cellsInMB1 = ( cellsPerLayer[1] * 8 ) + ( cellsInTheta * 4 );
+constexpr int cellsInMB2 = ( cellsPerLayer[2] * 8 ) + ( cellsInTheta * 4 );
+constexpr int cellsInMB3 = ( cellsPerLayer[3] * 8 ) + ( cellsInTheta * 4 );
+constexpr int cellsInMB4 =   cellsPerLayer[4] * 8;
 
-
-//-------------------
-// Initializations --
-//-------------------
-int DTSequentialCellNumber::cellsPerWheel    = 0;
-int DTSequentialCellNumber::cellsPerSector   = 0;
-int DTSequentialCellNumber::cellsIn13Sectors = 0;
-int DTSequentialCellNumber::cellsInTheta     = 58;
-int DTSequentialCellNumber::cellsInMB1       = 0;
-int DTSequentialCellNumber::cellsInMB2       = 0;
-int DTSequentialCellNumber::cellsInMB3       = 0;
-int DTSequentialCellNumber::cellsInMB4       = 0;
-
-int* DTSequentialCellNumber::offsetChamber = 0;
-int* DTSequentialCellNumber::cellsPerLayer = 0;
-
-DTSequentialCellNumber DTSequentialCell;
-
-
-//----------------
-// Constructors --
-//----------------
-DTSequentialCellNumber::DTSequentialCellNumber() {
-  if ( cellsPerLayer == 0 ) {
-    cellsPerLayer = new int[5];
-    cellsPerLayer[1] = 50;
-    cellsPerLayer[2] = 60;
-    cellsPerLayer[3] = 72;
-    cellsPerLayer[4] = 96;
-  }
-  if ( offsetChamber == 0 ) {
-    offsetChamber = new int[5];
-    cellsInMB1 = ( cellsPerLayer[1] * 8 ) + ( cellsInTheta * 4 );
-    cellsInMB2 = ( cellsPerLayer[2] * 8 ) + ( cellsInTheta * 4 );
-    cellsInMB3 = ( cellsPerLayer[3] * 8 ) + ( cellsInTheta * 4 );
-    cellsInMB4 =   cellsPerLayer[4] * 8;
-    offsetChamber[1] = 0;
-    offsetChamber[2] = cellsInMB1;
-    offsetChamber[3] = cellsInMB1 + cellsInMB2;
-    offsetChamber[4] = cellsInMB1 + cellsInMB2 + cellsInMB3;
-    cellsPerSector   = cellsInMB1 + cellsInMB2 + cellsInMB3 + cellsInMB4;
-    cellsIn13Sectors = ( cellsPerSector * 12 ) + cellsInMB4;
-    cellsPerWheel = cellsIn13Sectors + cellsInMB4;
-  }
-}
-
-
-//--------------
-// Destructor --
-//--------------
-DTSequentialCellNumber::~DTSequentialCellNumber() {
-}
-
+constexpr int offsetChamber[] = {0,
+                                 0, 
+                                 cellsInMB1, 
+                                 cellsInMB1 + cellsInMB2,
+                                 cellsInMB1 + cellsInMB2 + cellsInMB3 
+                                };
+constexpr int cellsPerSector   = cellsInMB1 + cellsInMB2 + cellsInMB3 + cellsInMB4;
+constexpr int cellsIn13Sectors = ( cellsPerSector * 12 ) + cellsInMB4;
+constexpr int cellsPerWheel = cellsIn13Sectors + cellsInMB4;
 
 //--------------
 // Operations --
@@ -131,5 +93,3 @@ int DTSequentialCellNumber::id( int      wheel,
 int DTSequentialCellNumber::max() {
   return 5 * cellsPerWheel;
 }
-
-
