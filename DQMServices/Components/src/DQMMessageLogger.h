@@ -8,7 +8,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/FWLite/interface/Event.h"
-#include<vector>
+#include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
+#include <vector>
 #include <string>
 #include <map>
 
