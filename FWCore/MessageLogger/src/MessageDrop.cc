@@ -169,6 +169,7 @@ class StringProducerSinglet : public StringProducer{
 
 MessageDrop::MessageDrop()
   : runEvent("pre-events")
+  , streamID(std::numeric_limits<unsigned int>::max())
   , debugEnabled(true)
   , infoEnabled(true)
   , warningEnabled(true)

@@ -515,28 +515,13 @@ T2 timer error with identifier 21 event 9
 %MSG-i summary:  UTC_T2:ssm_2a Run: 1 Event: 10
 At ev = 9FreshErrorsExist() returns true
 %MSG
-%MSG-i summary:  UTC_T2:ssm_2a Run: 1 Event: 10
-After LoggedErrorsSummary() FreshErrorsExist() returns false
-%MSG
-Error Summary Vector with 18 entries:
-Category cat_A   Module UTC_T1:ssm_1a   Severity Warning   Count 10
-Category cat_A   Module UTC_T1:ssm_1a   Severity Error   Count 10
-Category cat_A   Module UTC_T1:ssm_1b   Severity Warning   Count 9
-Category cat_A   Module UTC_T1:ssm_1b   Severity Error   Count 9
-Category cat_A   Module UTC_T1:ssm_1c   Severity Warning   Count 9
-Category cat_A   Module UTC_T1:ssm_1c   Severity Error   Count 9
-Category cat_A   Module UTC_T2:ssm_2a   Severity Warning   Count 10
-Category cat_A   Module UTC_T2:ssm_2a   Severity Error   Count 10
-Category cat_A   Module UTC_T2:ssm_2b   Severity Warning   Count 9
-Category cat_A   Module UTC_T2:ssm_2b   Severity Error   Count 9
-Category cat_A   Module UTC_T2:ssm_2c   Severity Warning   Count 9
-Category cat_A   Module UTC_T2:ssm_2c   Severity Error   Count 9
-Category timer   Module UTC_T1:ssm_1a   Severity Error   Count 10
-Category timer   Module UTC_T1:ssm_1b   Severity Error   Count 9
-Category timer   Module UTC_T1:ssm_1c   Severity Error   Count 9
-Category timer   Module UTC_T2:ssm_2a   Severity Error   Count 10
-Category timer   Module UTC_T2:ssm_2b   Severity Error   Count 9
-Category timer   Module UTC_T2:ssm_2c   Severity Error   Count 9
+Error Summary Vector with 6 entries:
+Category cat_A   Module UTC_T1:ssm_1a   Severity Warning   Count 1
+Category cat_A   Module UTC_T1:ssm_1a   Severity Error   Count 1
+Category cat_A   Module UTC_T2:ssm_2a   Severity Warning   Count 1
+Category cat_A   Module UTC_T2:ssm_2a   Severity Error   Count 1
+Category timer   Module UTC_T1:ssm_1a   Severity Error   Count 1
+Category timer   Module UTC_T2:ssm_2a   Severity Error   Count 1
 -------------------------- 
 
 %MSG-e cat_A:  UTC_T1:ssm_1b Run: 1 Event: 10
@@ -560,15 +545,18 @@ T2 timer error with identifier 22 event 9
 %MSG-i summary:  UTC_T2:ssm_2b Run: 1 Event: 10
 At ev = 9FreshErrorsExist() returns true
 %MSG
-%MSG-i summary:  UTC_T2:ssm_2b Run: 1 Event: 10
-After LoggedErrorsSummary() FreshErrorsExist() returns false
-%MSG
-Error Summary Vector with 6 entries:
+Error Summary Vector with 12 entries:
+Category cat_A   Module UTC_T1:ssm_1a   Severity Warning   Count 1
+Category cat_A   Module UTC_T1:ssm_1a   Severity Error   Count 1
 Category cat_A   Module UTC_T1:ssm_1b   Severity Warning   Count 1
 Category cat_A   Module UTC_T1:ssm_1b   Severity Error   Count 1
+Category cat_A   Module UTC_T2:ssm_2a   Severity Warning   Count 1
+Category cat_A   Module UTC_T2:ssm_2a   Severity Error   Count 1
 Category cat_A   Module UTC_T2:ssm_2b   Severity Warning   Count 1
 Category cat_A   Module UTC_T2:ssm_2b   Severity Error   Count 1
+Category timer   Module UTC_T1:ssm_1a   Severity Error   Count 1
 Category timer   Module UTC_T1:ssm_1b   Severity Error   Count 1
+Category timer   Module UTC_T2:ssm_2a   Severity Error   Count 1
 Category timer   Module UTC_T2:ssm_2b   Severity Error   Count 1
 -------------------------- 
 
@@ -593,15 +581,24 @@ T2 timer error with identifier 23 event 9
 %MSG-i summary:  UTC_T2:ssm_2c Run: 1 Event: 10
 At ev = 9FreshErrorsExist() returns true
 %MSG
-%MSG-i summary:  UTC_T2:ssm_2c Run: 1 Event: 10
-After LoggedErrorsSummary() FreshErrorsExist() returns false
-%MSG
-Error Summary Vector with 6 entries:
+Error Summary Vector with 18 entries:
+Category cat_A   Module UTC_T1:ssm_1a   Severity Warning   Count 1
+Category cat_A   Module UTC_T1:ssm_1a   Severity Error   Count 1
+Category cat_A   Module UTC_T1:ssm_1b   Severity Warning   Count 1
+Category cat_A   Module UTC_T1:ssm_1b   Severity Error   Count 1
 Category cat_A   Module UTC_T1:ssm_1c   Severity Warning   Count 1
 Category cat_A   Module UTC_T1:ssm_1c   Severity Error   Count 1
+Category cat_A   Module UTC_T2:ssm_2a   Severity Warning   Count 1
+Category cat_A   Module UTC_T2:ssm_2a   Severity Error   Count 1
+Category cat_A   Module UTC_T2:ssm_2b   Severity Warning   Count 1
+Category cat_A   Module UTC_T2:ssm_2b   Severity Error   Count 1
 Category cat_A   Module UTC_T2:ssm_2c   Severity Warning   Count 1
 Category cat_A   Module UTC_T2:ssm_2c   Severity Error   Count 1
+Category timer   Module UTC_T1:ssm_1a   Severity Error   Count 1
+Category timer   Module UTC_T1:ssm_1b   Severity Error   Count 1
 Category timer   Module UTC_T1:ssm_1c   Severity Error   Count 1
+Category timer   Module UTC_T2:ssm_2a   Severity Error   Count 1
+Category timer   Module UTC_T2:ssm_2b   Severity Error   Count 1
 Category timer   Module UTC_T2:ssm_2c   Severity Error   Count 1
 -------------------------- 
 
@@ -902,22 +899,11 @@ T2 timer error with identifier 21 event 15
 %MSG-i summary:  UTC_T2:ssm_2a Run: 1 Event: 16
 At ev = 15FreshErrorsExist() returns true
 %MSG
-%MSG-i summary:  UTC_T2:ssm_2a Run: 1 Event: 16
-After LoggedErrorsOnlySummary() FreshErrorsExist() returns false
-%MSG
-Error Summary Vector with 12 entries:
-Category cat_A   Module UTC_T1:ssm_1a   Severity Error   Count 6
-Category cat_A   Module UTC_T1:ssm_1b   Severity Error   Count 5
-Category cat_A   Module UTC_T1:ssm_1c   Severity Error   Count 5
-Category cat_A   Module UTC_T2:ssm_2a   Severity Error   Count 6
-Category cat_A   Module UTC_T2:ssm_2b   Severity Error   Count 5
-Category cat_A   Module UTC_T2:ssm_2c   Severity Error   Count 5
-Category timer   Module UTC_T1:ssm_1a   Severity Error   Count 6
-Category timer   Module UTC_T1:ssm_1b   Severity Error   Count 5
-Category timer   Module UTC_T1:ssm_1c   Severity Error   Count 5
-Category timer   Module UTC_T2:ssm_2a   Severity Error   Count 6
-Category timer   Module UTC_T2:ssm_2b   Severity Error   Count 5
-Category timer   Module UTC_T2:ssm_2c   Severity Error   Count 5
+Error Summary Vector with 4 entries:
+Category cat_A   Module UTC_T1:ssm_1a   Severity Error   Count 1
+Category cat_A   Module UTC_T2:ssm_2a   Severity Error   Count 1
+Category timer   Module UTC_T1:ssm_1a   Severity Error   Count 1
+Category timer   Module UTC_T2:ssm_2a   Severity Error   Count 1
 -------------------------- 
 
 %MSG-e cat_A:  UTC_T1:ssm_1b Run: 1 Event: 16
@@ -941,13 +927,14 @@ T2 timer error with identifier 22 event 15
 %MSG-i summary:  UTC_T2:ssm_2b Run: 1 Event: 16
 At ev = 15FreshErrorsExist() returns true
 %MSG
-%MSG-i summary:  UTC_T2:ssm_2b Run: 1 Event: 16
-After LoggedErrorsOnlySummary() FreshErrorsExist() returns false
-%MSG
-Error Summary Vector with 4 entries:
+Error Summary Vector with 8 entries:
+Category cat_A   Module UTC_T1:ssm_1a   Severity Error   Count 1
 Category cat_A   Module UTC_T1:ssm_1b   Severity Error   Count 1
+Category cat_A   Module UTC_T2:ssm_2a   Severity Error   Count 1
 Category cat_A   Module UTC_T2:ssm_2b   Severity Error   Count 1
+Category timer   Module UTC_T1:ssm_1a   Severity Error   Count 1
 Category timer   Module UTC_T1:ssm_1b   Severity Error   Count 1
+Category timer   Module UTC_T2:ssm_2a   Severity Error   Count 1
 Category timer   Module UTC_T2:ssm_2b   Severity Error   Count 1
 -------------------------- 
 
@@ -972,13 +959,18 @@ T2 timer error with identifier 23 event 15
 %MSG-i summary:  UTC_T2:ssm_2c Run: 1 Event: 16
 At ev = 15FreshErrorsExist() returns true
 %MSG
-%MSG-i summary:  UTC_T2:ssm_2c Run: 1 Event: 16
-After LoggedErrorsOnlySummary() FreshErrorsExist() returns false
-%MSG
-Error Summary Vector with 4 entries:
+Error Summary Vector with 12 entries:
+Category cat_A   Module UTC_T1:ssm_1a   Severity Error   Count 1
+Category cat_A   Module UTC_T1:ssm_1b   Severity Error   Count 1
 Category cat_A   Module UTC_T1:ssm_1c   Severity Error   Count 1
+Category cat_A   Module UTC_T2:ssm_2a   Severity Error   Count 1
+Category cat_A   Module UTC_T2:ssm_2b   Severity Error   Count 1
 Category cat_A   Module UTC_T2:ssm_2c   Severity Error   Count 1
+Category timer   Module UTC_T1:ssm_1a   Severity Error   Count 1
+Category timer   Module UTC_T1:ssm_1b   Severity Error   Count 1
 Category timer   Module UTC_T1:ssm_1c   Severity Error   Count 1
+Category timer   Module UTC_T2:ssm_2a   Severity Error   Count 1
+Category timer   Module UTC_T2:ssm_2b   Severity Error   Count 1
 Category timer   Module UTC_T2:ssm_2c   Severity Error   Count 1
 -------------------------- 
 
@@ -990,9 +982,9 @@ MessageLogger Summary
  type     category        sev    module        subroutine        count    total
  ---- -------------------- -- ---------------- ----------------  -----    -----
     1 FwkReport            -i AfterSource                           16       16
-    2 summary              -i UTC_T2:ssm_2a                          6        6
-    3 summary              -i UTC_T2:ssm_2b                          6        6
-    4 summary              -i UTC_T2:ssm_2c                          6        6
+    2 summary              -i UTC_T2:ssm_2a                          4        4
+    3 summary              -i UTC_T2:ssm_2b                          4        4
+    4 summary              -i UTC_T2:ssm_2c                          4        4
     5 cat_A                -w UTC_T1:ssm_1a                         16       16
     6 cat_A                -w UTC_T1:ssm_1b                         16       16
     7 cat_A                -w UTC_T1:ssm_1c                         16       16
@@ -1039,6 +1031,6 @@ MessageLogger Summary
 
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------
-Info                   34                  34
+Info                   28                  28
 Warning                96                  96
 Error                 192                 192

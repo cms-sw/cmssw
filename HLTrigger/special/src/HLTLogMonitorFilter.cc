@@ -27,6 +27,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
+#include "FWCore/MessageLogger/interface/LoggedErrorsSummary.h"
 
 //
 // class declaration
@@ -147,7 +149,7 @@ HLTLogMonitorFilter::~HLTLogMonitorFilter()
 // ------------ method called on each new Event  ------------
 bool HLTLogMonitorFilter::filter(edm::Event & event, const edm::EventSetup & setup) {
   // no LogErrors or LogWarnings, skip processing and reject the event
-  if (not edm::MessageSender::freshError)
+  if (not edm::FreshErrorsExist(event.streamID().value()))
     return false;
 
   // clear "done" flag in all Categories
@@ -158,11 +160,11 @@ bool HLTLogMonitorFilter::filter(edm::Event & event, const edm::EventSetup & set
   bool accept = false;
   std::string category;
 
-  typedef std::map<edm::ErrorSummaryMapKey, unsigned int> ErrorSummaryMap;
-  BOOST_FOREACH(const ErrorSummaryMap::value_type & entry, edm::MessageSender::errorSummaryMap) {
+  std::vector<edm::ErrorSummaryEntry> errorSummary{ edm::LoggedErrorsSummary(event.streamID().value()) };
+  for( auto const& entry : errorSummary ) {
     // split the message category
     typedef boost::split_iterator<std::string::const_iterator> splitter;
-    for (splitter i = boost::make_split_iterator(entry.first.category, boost::first_finder("|", boost::is_equal()));
+    for (splitter i = boost::make_split_iterator(entry.category, boost::first_finder("|", boost::is_equal()));
          i != splitter();
          ++i)
     {
@@ -179,28 +181,20 @@ bool HLTLogMonitorFilter::filter(edm::Event & event, const edm::EventSetup & set
   // harvest the errors, but only if the filter will accept the event
   std::auto_ptr<std::vector<edm::ErrorSummaryEntry> > errors(new std::vector<edm::ErrorSummaryEntry>());
   if (accept) {
-    errors->reserve( edm::MessageSender::errorSummaryMap.size() );
-    BOOST_FOREACH(const ErrorSummaryMap::value_type & entry, edm::MessageSender::errorSummaryMap) {
-      errors->push_back(entry.first);        // sets category, module and severity
-      errors->back().count = entry.second;   // count is 0 in key; set it to correct value (see FWCore/MessageLogger/src/LoggedErrorsSummary.cc)
-    }
+    errors->swap(errorSummary);
   }
   event.put(errors);
-
-  // clear the errorSummaryMap
-  edm::MessageSender::errorSummaryMap.clear();
-  edm::MessageSender::freshError = false;
 
   return accept;
 }
 
 // ------------ method called at the end of the Job ---------
 void HLTLogMonitorFilter::beginJob(void) {
-  edm::MessageSender::errorSummaryIsBeingKept = true;
+  edm::EnableLoggedErrorsSummary();
 }
 // ------------ method called at the end of the Job ---------
 void HLTLogMonitorFilter::endJob(void) {
-  edm::MessageSender::errorSummaryIsBeingKept = false;
+  edm::DisableLoggedErrorsSummary();
   summary();
 }
 
