@@ -1,43 +1,26 @@
 #include "CondCore/CondDB/interface/Exception.h"
 #include "SessionImpl.h"
-#include "DbConnectionString.h"
 //
+#include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
 
 namespace cond {
 
   namespace persistency {
 
-    SessionImpl::SessionImpl( ):
-      configuration(),
-      connectionService(),
+    SessionImpl::SessionImpl():
       coralSession(){
     }
 
+    SessionImpl::SessionImpl( boost::shared_ptr<coral::ISessionProxy>& session ):
+      coralSession( session ){
+    }
+
     SessionImpl::~SessionImpl(){
+      close();
     }
     
-    void SessionImpl::connect( const std::string& connectionString, 
-			       bool readOnly ){
-      connect( connectionString, "", readOnly );
-    }
-
-    void SessionImpl::connect( const std::string& connectionString, 
-			       const std::string& transactionId,
-			       bool readOnly ){
-      disconnect();
-      configuration.configure( connectionService.configuration() );
-      coralSession.reset( connectionService.connect( getRealConnectionString( connectionString, transactionId ), 
-						     readOnly?coral::ReadOnly:coral::Update ) );
-    }
-
-    void SessionImpl::connect( boost::shared_ptr<coral::ISessionProxy>& csession ){
-      disconnect();
-      if( !configuration.isConfigured() ) configuration.configure( connectionService.configuration() );  
-      coralSession = csession;
-    }
-
-    void SessionImpl::disconnect(){
+    void SessionImpl::close(){
       if( coralSession.get() ){
 	if( coralSession->transaction().isActive() ){
 	  coralSession->transaction().rollback();

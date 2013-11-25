@@ -4,7 +4,7 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/Auth.h"
 
-#include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/CondDB/interface/IOVEditor.h"
 #include "CondCore/CondDB/interface/IOVProxy.h"
 
@@ -76,9 +76,9 @@ int cond::MigrateUtilities::execute(){
     metadata.listAllTags( tagToProcess );
   }
 
-  persistency::Session session;
+  persistency::ConnectionPool connPool;
   std::cout <<"# Opening session on destination database..."<<std::endl;
-  session.open( destConnect );
+  persistency::Session session = connPool.createSession( destConnect, true );
     
   session.transaction().start( false );
   if( !session.existsDatabase() ) session.createDatabase();

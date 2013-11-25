@@ -1,6 +1,8 @@
 #ifndef ConditionDatabase_ConnectionPool_h
 #define ConditionDatabase_ConnectionPool_h
 
+#include "CondCore/CondDB/interface/Session.h"
+//
 #include <string>
 #include <memory>
 //
@@ -16,7 +18,7 @@ namespace coral {
 
 namespace cond {
   class CoralServiceManager;
-  class DbConnectionConfiguration;
+  //class DbConnectionConfiguration;
 }
 
 namespace cond {
@@ -41,9 +43,10 @@ namespace cond {
       Session createReadOnlySession( const std::string& connectionString, const std::string& transactionId );
       
     private:
+      Session createSession( const std::string& connectionString, const std::string& transactionId, bool writeCapable=false );
       void configure( coral::IConnectionServiceConfiguration& coralConfig);
       // to be removed after the transition
-      void configure( cond::DbConnectionConfiguration& oraConfiguration );
+      //void configure( cond::DbConnectionConfiguration& oraConfiguration );
     private:
       std::string m_authPath;
       int m_authSys = 0;

@@ -3,9 +3,6 @@
 
 #include "CondCore/CondDB/interface/Configuration.h"
 //
-#include "RelationalAccess/ConnectionService.h"
-#include "RelationalAccess/ISessionProxy.h"
-//
 #include <memory>
 // temporarely
 #include <boost/shared_ptr.hpp>
@@ -28,13 +25,11 @@ namespace cond {
     
     class SessionImpl {
     public:
-      explicit SessionImpl( boost::shared_ptr<coral::ISessionProxy>& coralSession );
+      SessionImpl();
+      explicit SessionImpl( boost::shared_ptr<coral::ISessionProxy>& session );
       ~SessionImpl();
       
-      // TO BE REMOVED AFTER THE TRANSITION
-      void connect( boost::shared_ptr<coral::ISessionProxy>& coralSession );
-
-      void disconnect();
+      void close();
       bool isActive() const;
       void startTransaction( bool readOnly=true );
       void commitTransaction();

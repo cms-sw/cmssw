@@ -43,6 +43,11 @@ namespace cond {
       m_transaction( *m_session ){
     }
     
+    Session::Session( boost::shared_ptr<coral::ISessionProxy>& session ):
+      m_session( new SessionImpl( session ) ),
+      m_transaction( *m_session ){
+    }
+
     Session::Session( const Session& rhs ):
       m_session( rhs.m_session ),
       m_transaction( rhs.m_transaction ){
@@ -57,21 +62,8 @@ namespace cond {
       return *this;
     }
 
-    void Session::open( const std::string& connectionString, bool readOnly ){
-      m_session->connect( connectionString, readOnly );
-    } 
-
-    // TO BE REMOVED AFTER THE TRANSITION
-    void Session::open( boost::shared_ptr<coral::ISessionProxy> coralSession ){
-      m_session->connect( coralSession );
-    }
-
     void Session::close(){
-      m_session->disconnect();
-    }
-
-    SessionConfiguration& Session::configuration(){
-      return m_session->configuration;
+      m_session->close();
     }
 
     Transaction& Session::transaction(){

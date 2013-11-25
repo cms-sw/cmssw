@@ -4,7 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 //
-#include "CondCore/CondDB/interface/CondDB.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 //
 #include "MyTestData.h"
 //
@@ -13,7 +13,7 @@
 #include <cstdlib>
 #include <iostream>
 
-using namespace cond::db;
+using namespace cond::persistency;
 
 int main (int argc, char** argv)
 {
@@ -28,9 +28,9 @@ int main (int argc, char** argv)
   try{
 
     //*************
-    Session session;
-    session.configuration().setMessageVerbosity( coral::Debug );
-    session.open( connectionString );
+    ConnectionPool connPool;
+    connPool.setMessageVerbosity( coral::Debug );
+    Session session = connPool.createSession( connectionString, true );
     session.transaction().start( false );
     MyTestData d0( 17 );
     MyTestData d1( 999 );

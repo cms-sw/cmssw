@@ -61,7 +61,7 @@ namespace cond {
       Session();
       
       // constructor
-      explicit Session( coral::ISessionProxy* coralSession );
+      explicit Session( boost::shared_ptr<coral::ISessionProxy>& session );
 
       // 
       Session( const Session& rhs );
