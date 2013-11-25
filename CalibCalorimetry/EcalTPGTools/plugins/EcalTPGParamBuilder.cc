@@ -24,10 +24,8 @@
 #include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
-#if (CMSSW_VERSION>=340)
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
-#endif
 
 #include <iostream>
 #include <string>
@@ -1388,20 +1386,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   const int NWEIGROUPS = 2 ; 
   std::vector<unsigned int> weights[NWEIGROUPS] ;
 
-#if (CMSSW_VERSION>=340)
   EBShape shapeEB ;
   EEShape shapeEE ;
   weights[0] = computeWeights(shapeEB, hshapeEB) ;
   weights[1] = computeWeights(shapeEE, hshapeEE) ;
-#else
-  // loading reference signal representation
-  EcalSimParameterMap parameterMap;  
-  EBDetId   barrel(1,1);
-  double    phase = parameterMap.simParameters(barrel).timePhase();
-  EcalShape shape(phase); 
-  weights[0] = computeWeights(shape, hshapeEB) ;
-  weights[1] = weights[0] ;
-#endif
 
   map<EcalLogicID, FEConfigWeightGroupDat> dataset;
 
@@ -2137,18 +2125,10 @@ double EcalTPGParamBuilder::uncodeWeight(int iweight, int complement2)
   return weight ;
 }
 
-#if (CMSSW_VERSION>=340)
 std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase & shape, TH1F * histo)
-#else
-std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape, TH1F * histo)
-#endif
 {
   std::cout<<"Computing Weights..."<<std::endl ;
-#if (CMSSW_VERSION>=340)
   double timeMax = shape.timeOfMax() - shape.timeOfThr() ; // timeMax w.r.t begining of pulse
-#else
-  double timeMax = shape.computeTimeOfMaximum() - shape.computeT0() ; // timeMax w.r.t begining of pulse
-#endif
   double max = shape(timeMax) ;
 
   double sumf = 0. ;
@@ -2256,8 +2236,8 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   for (unsigned int sample = 0 ; sample<nSample_ ; sample++) theWeights.push_back(iweight[sample]) ;
   std::cout<<std::endl ;
 
-  delete weight ;
-  delete iweight ;
+  delete[] weight ;
+  delete[] iweight ;
   return theWeights ;
 }
 
