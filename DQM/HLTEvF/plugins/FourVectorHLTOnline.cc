@@ -129,7 +129,24 @@ FourVectorHLTOnline::FourVectorHLTOnline(const edm::ParameterSet& iConfig):
   ME_HLTAll_LS_ = NULL;
   ME_HLT_BX_ = NULL;
   ME_HLT_CUSTOM_BX_ = NULL;
-  
+
+  //set Token(-s)
+  triggerResultsToken_ = consumes<TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResultsLabel"));
+  triggerSummaryToken_ = consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("triggerSummaryLabel"));
+  muonRecoCollectionNameToken_ = consumes<TriggerResults>(iConfig.getUntrackedParameter("muonRecoCollectionName", std::string("muons")));
+  gsfElectronsToken_ = consumes<TriggerResults>(std::string("gsfElectrons"));
+  caloRecoTauProducerToken_ = consumes<TriggerResults>(std::string("caloRecoTauProducer"));
+  iterativeCone5CaloJetsToken_ = consumes<TriggerResults>(std::string("iterativeCone5CaloJets"));
+  jetProbabilityBJetTagsToken_ = consumes<TriggerResults>(std::string("jetProbabilityBJetTags"));
+  softMuonBJetTagsToken_ = consumes<TriggerResults>(std::string("softMuonBJetTags"));
+  metToken_ = consumes<TriggerResults>(std::string("met"));
+  photonsToken_ = consumes<TriggerResults>(std::string("photons"));
+  pixelTracksToken_ = consumes<TriggerResults>(std::string("pixelTracks"));
+  edm::InputTag triggerResultsLabelFU(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU");
+  triggerResultsTokenFU_ = consumes<TriggerResults>(triggerResultsLabelFU);
+  edm::InputTag triggerSummaryLabelFU(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(), "FU");
+  triggerSummaryLabelFUToken_ = consumes<trigger::TriggerEvent>(triggerSummaryLabelFU);
+
 }
 
 
@@ -158,41 +175,12 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   ++nev_;
   LogDebug("FourVectorHLTOnline")<< " analyze...." ;
 
-
-  
-  /*
-  Handle<GenParticleCollection> genParticles;
-  iEvent.getByLabel("genParticles", genParticles);
-  if(!genParticles.isValid()) { 
-    edm::LogInfo("FourVectorHLTOnline") << "genParticles not found, "
-      "skipping event"; 
-    return;
-  }
-
-  Handle<GenJetCollection> genJets;
-  iEvent.getByLabel("iterativeCone5GenJets",genJets);
-  if(!genJets.isValid()) { 
-    edm::LogInfo("FourVectorHLTOnline") << "genJets not found, "
-      "skipping event"; 
-    return;
-  }
-
-  Handle<GenMETCollection> genMets;
-  iEvent.getByLabel("genMetTrue",genMets);
-  if(!genMets.isValid()) { 
-    edm::LogInfo("FourVectorHLTOnline") << "genMets not found, "
-      "skipping event"; 
-    return;
-  }
-  */
-
   // Get trigger results
   
   edm::Handle<TriggerResults> triggerResults;
-  iEvent.getByLabel(triggerResultsLabel_,triggerResults);
+  iEvent.getByToken(triggerResultsToken_, triggerResults);
   if(!triggerResults.isValid()) {
-    edm::InputTag triggerResultsLabelFU(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU");
-   iEvent.getByLabel(triggerResultsLabelFU,triggerResults);
+    iEvent.getByToken(triggerResultsTokenFU_, triggerResults);
   if(!triggerResults.isValid()) {
     edm::LogInfo("FourVectorHLTOnline") << "TriggerResults not found, "
       "skipping event"; 
@@ -203,11 +191,10 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
   int npath = triggerResults->size();
 
-  iEvent.getByLabel(triggerSummaryLabel_,fTriggerObj); 
+  iEvent.getByToken(triggerSummaryToken_, fTriggerObj);
   if(!fTriggerObj.isValid()) {
 
-    edm::InputTag triggerSummaryLabelFU(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(), "FU");
-    iEvent.getByLabel(triggerSummaryLabelFU,fTriggerObj);
+    iEvent.getByToken(triggerSummaryLabelFUToken_, fTriggerObj);
 
     if(!fTriggerObj.isValid()) {
 
@@ -219,7 +206,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   edm::Handle<TriggerResults> muonHandle;
-  iEvent.getByLabel(muonRecoCollectionName_,muonHandle);
+  iEvent.getByToken(muonRecoCollectionNameToken_, muonHandle);
   if(!muonHandle.isValid()) { 
 
     edm::LogInfo("FourVectorHLTOnline") << "muonHandle not found, ";
@@ -230,44 +217,44 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
   edm::Handle<TriggerResults> gsfElectrons;
-  iEvent.getByLabel("gsfElectrons",gsfElectrons); 
+  iEvent.getByToken(gsfElectronsToken_, gsfElectrons);
   if(!gsfElectrons.isValid()) 
     edm::LogInfo("FourVectorHLTOnline") << "gsfElectrons not found, ";
 
   edm::Handle<TriggerResults> tauHandle;
-  iEvent.getByLabel("caloRecoTauProducer",tauHandle);
+  iEvent.getByToken(caloRecoTauProducerToken_, tauHandle);
   if(!tauHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOnline") << "tauHandle not found, ";
 
   edm::Handle<TriggerResults> jetHandle;
-  iEvent.getByLabel("iterativeCone5CaloJets",jetHandle);
+  iEvent.getByToken(iterativeCone5CaloJetsToken_, jetHandle);
   if(!jetHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOnline") << "jetHandle not found, ";
  
    // Get b tag information
  edm::Handle<TriggerResults> bTagIPHandle;
- iEvent.getByLabel("jetProbabilityBJetTags", bTagIPHandle);
+ iEvent.getByToken(jetProbabilityBJetTagsToken_, bTagIPHandle);
  if (!bTagIPHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOnline") << "mTagIPHandle trackCountingHighEffJetTags not found, ";
 
    // Get b tag information
  edm::Handle<TriggerResults> bTagMuHandle;
- iEvent.getByLabel("softMuonBJetTags", bTagMuHandle);
+ iEvent.getByToken(softMuonBJetTagsToken_, bTagMuHandle);
  if (!bTagMuHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOnline") << "bTagMuHandle  not found, ";
 
   edm::Handle<TriggerResults> metHandle;
-  iEvent.getByLabel("met",metHandle);
+  iEvent.getByToken(metToken_, metHandle);
   if(!metHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOnline") << "metHandle not found, ";
 
   edm::Handle<TriggerResults> photonHandle;
-  iEvent.getByLabel("photons",photonHandle);
+  iEvent.getByToken(photonsToken_, photonHandle);
   if(!photonHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOnline") << "photonHandle not found, ";
 
   edm::Handle<TriggerResults> trackHandle;
-  iEvent.getByLabel("pixelTracks",trackHandle);
+  iEvent.getByToken(pixelTracksToken_, trackHandle);
   if(!trackHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOnline") << "trackHandle not found, ";
 

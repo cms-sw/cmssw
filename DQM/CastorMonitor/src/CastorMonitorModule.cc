@@ -62,7 +62,12 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
 
   ////---- initialise CastorMonitorSelector
   evtSel_ = new CastorMonitorSelector(ps);
-
+  
+  //set Tokens
+  inputLabelRawToken_ = consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("rawLabel"));
+  inputLabelReportToken_ = consumes<HcalUnpackerReport>(ps.getParameter<edm::InputTag>("unpackerReportLabel"));
+  inputLabelDigiToken_ = consumes<CastorDigiCollection>(ps.getParameter<edm::InputTag>("digiLabel"));
+  inputLabelRecHitCASTORToken_ = consumes<CastorRecHitCollection>(ps.getParameter<edm::InputTag>("CastorRecHitLabel"));
  
  //---------------------- DigiMonitor ----------------------// 
   if ( ps.getUntrackedParameter<bool>("DigiMonitor", false) ) {
@@ -454,15 +459,15 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   //-- TAKE IT AWAY for the time being
   ////---- try to get raw data and unpacker report
   edm::Handle<FEDRawDataCollection> RawData;  
-  iEvent.getByLabel(inputLabelRaw_,RawData);
+  iEvent.getByToken(inputLabelRawToken_, RawData);
   if (!RawData.isValid()) {
     rawOK_=false;
     if (fVerbosity>0)  std::cout << "RAW DATA NOT FOUND!" << std::endl;
   }
 
   
-  edm::Handle<HcalUnpackerReport> report; 
-  iEvent.getByLabel(inputLabelReport_,report);  
+  edm::Handle<HcalUnpackerReport> report;
+  iEvent.getByToken(inputLabelReportToken_, report);
   if (!report.isValid()) {
     rawOK_=false;
     if (fVerbosity>0)  std::cout << "UNPACK REPORT HAS FAILED!" << std::endl;
@@ -483,7 +488,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   //---------------------------------------------------------------//
 
   edm::Handle<CastorDigiCollection> CastorDigi;
-  iEvent.getByLabel(inputLabelDigi_,CastorDigi);
+  iEvent.getByToken(inputLabelDigiToken_, CastorDigi);
   if (!CastorDigi.isValid()) {
     digiOK_=false;
     if (fVerbosity>0)  std::cout << "DIGI DATA NOT FOUND!" << std::endl;
@@ -501,7 +506,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   //------------------- try to get RecHits ------------------------//
   //---------------------------------------------------------------//
   edm::Handle<CastorRecHitCollection> CastorHits;
-  iEvent.getByLabel(inputLabelRecHitCASTOR_,CastorHits);
+  iEvent.getByToken(inputLabelRecHitCASTORToken_, CastorHits);
   if (!CastorHits.isValid()) {
     rechitOK_ = false;
     if (fVerbosity>0)  std::cout << "RECO DATA NOT FOUND!" << std::endl;

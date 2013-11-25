@@ -103,7 +103,8 @@
   MonitorElement* meClPosDisk1mz;
   MonitorElement* meClPosDisk2mz;
 
-
+  //define Token(-s)
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > srcToken_;
 };
 
 #endif

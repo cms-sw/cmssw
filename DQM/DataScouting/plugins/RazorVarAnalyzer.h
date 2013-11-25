@@ -4,6 +4,10 @@
 
 #include "DQM/DataScouting/interface/ScoutingAnalyzerBase.h"
 
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+
 class RazorVarAnalyzer : public ScoutingAnalyzerBase
  {
 
@@ -47,6 +51,11 @@ class RazorVarAnalyzer : public ScoutingAnalyzerBase
     MonitorElement * m_rsqMREleMJ;
     MonitorElement * m_rsqMRHadMJ;
 
+    //define Token(-s)
+    edm::EDGetTokenT<reco::CaloJetCollection> m_jetCollectionTagToken_;
+    edm::EDGetTokenT<std::vector<reco::RecoChargedCandidate> > m_muCollectionTagToken_;
+    edm::EDGetTokenT<reco::ElectronCollection> m_eleCollectionTagToken_;
+    edm::EDGetTokenT<std::vector<double> > m_razorVarCollectionTagToken_;
 
  } ;
 

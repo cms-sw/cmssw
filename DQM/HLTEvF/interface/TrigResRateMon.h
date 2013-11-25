@@ -55,6 +55,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
 
 /*
    needs cleaining of include statments (VR)
@@ -68,7 +69,8 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-
+//for LumiScalers in getByToken method
+#include "DataFormats/Scalers/interface/LumiScalers.h"
 
 #include <iostream>
 #include <fstream>
@@ -322,6 +324,12 @@ class TrigResRateMon : public edm::EDAnalyzer {
       // helper class to store the data path
 
       edm::Handle<edm::TriggerResults> triggerResults_;
+
+      //define Token(-s)
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsTokenFU_;
+      edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
+
 
 
   // create a class that can store all the strings

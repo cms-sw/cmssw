@@ -158,8 +158,7 @@ void HcalDataIntegrityTask::analyze(edm::Event const&e, edm::EventSetup const&s)
   // Now get the collections we need
   
   edm::Handle<FEDRawDataCollection> rawraw;
-  
-  // Trying new getByLabel
+
   if (!(e.getByToken(tok_raw_,rawraw)))
     {
       if (debug_>0) edm::LogWarning("HcalDataIntegrityTask")<<" raw data with label "<<inputLabelRawData_<<" not available";
