@@ -87,13 +87,13 @@ process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)  ## line ad
 
 ## path definitions
 process.p      = cms.Path(
-    process.simpleEleId70cIso          *
-    #process.DiMuonDQM                  +
-    #process.DiElectronDQM              +
-    #process.ElecMuonDQM                +
-    process.topSingleMuonLooseDQM      +
+    #process.simpleEleId70cIso          *
+    process.DiMuonDQM                  +
+    process.DiElectronDQM              +
+    process.ElecMuonDQM                +
+    #process.topSingleMuonLooseDQM      +
     process.topSingleMuonMediumDQM     +
-    process.topSingleElectronLooseDQM  +
+    #process.topSingleElectronLooseDQM  +
     process.topSingleElectronMediumDQM #+
    # process.singleTopMuonMediumDQM     +
   #  process.singleTopElectronMediumDQM

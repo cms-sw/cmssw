@@ -28,11 +28,11 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     ## will be filled w/o extras
     elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      electronId = cms.PSet(
-        src = cms.InputTag("simpleEleId70cIso"),
-        #src     = cms.InputTag("eidRobustLoose"),
-        pattern = cms.int32(1)
-      ),
+      #electronId = cms.PSet(
+      #  src = cms.InputTag("simpleEleId70cIso"),
+      #  #src     = cms.InputTag("eidRobustLoose"),
+      #  pattern = cms.int32(1)
+      #),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates                                                 
       select = cms.string("pt>10. && abs(eta)<2.4 && abs(gsfTrack.d0)<1. && abs(gsfTrack.dz)<20."),
@@ -178,11 +178,11 @@ DiMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     ## will be filled w/o extras
     elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      electronId = cms.PSet(
-        src = cms.InputTag("simpleEleId70cIso"),
+      #electronId = cms.PSet(
+      #  src = cms.InputTag("simpleEleId70cIso"),
         #src     = cms.InputTag("eidRobustLoose"),
-        pattern = cms.int32(1)
-      ),
+      #  pattern = cms.int32(1)
+      #),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates                                                 
       select = cms.string("pt>500. && abs(eta)<2.4 && abs(gsfTrack.d0)<1. && abs(gsfTrack.dz)<20."),
@@ -327,11 +327,11 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     ## will be filled w/o extras
     elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      electronId = cms.PSet(
-        src = cms.InputTag("simpleEleId70cIso"),
-        #src     = cms.InputTag("eidRobustLoose"),
-        pattern = cms.int32(1)
-      ),
+      #electronId = cms.PSet(
+      #  src = cms.InputTag("simpleEleId70cIso"),
+      #  #src     = cms.InputTag("eidRobustLoose"),
+      #  pattern = cms.int32(1)
+      #),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates                                                 
       select = cms.string("pt>10. && abs(eta)<2.4 && abs(gsfTrack.d0)<1. && abs(gsfTrack.dz)<20."),
@@ -428,10 +428,10 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     cms.PSet(
       label = cms.string("elecs:step0"),
       src   = cms.InputTag("gsfElectrons"),
-      electronId = cms.PSet(
-        src = cms.InputTag("simpleEleId70cIso"),
-        pattern = cms.int32(1)
-      ),
+#      electronId = cms.PSet(
+#        src = cms.InputTag("simpleEleId70cIso"),
+#        pattern = cms.int32(1)
+#      ),
       select = cms.string("pt>20 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.17"),
       min = cms.int32(2),
       max = cms.int32(2),
@@ -480,11 +480,11 @@ ElecMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     ## will be filled w/o extras
     elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      electronId = cms.PSet(
-        src = cms.InputTag("simpleEleId70cIso"),
+#      electronId = cms.PSet(
+#        src = cms.InputTag("simpleEleId70cIso"),
         #src     = cms.InputTag("eidRobustLoose"),
-        pattern = cms.int32(1)
-      ),
+#        pattern = cms.int32(1)
+#      ),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates                                                 
       select = cms.string("pt>10. && abs(eta)<2.4 && abs(gsfTrack.d0)<1. && abs(gsfTrack.dz)<20."),
@@ -588,10 +588,10 @@ ElecMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     cms.PSet(
       label = cms.string("elecs:step1"),
       src   = cms.InputTag("gsfElectrons"),
-      electronId = cms.PSet(
-        src = cms.InputTag("simpleEleId70cIso"),
-        pattern = cms.int32(1)
-      ),
+      #electronId = cms.PSet(
+      #  src = cms.InputTag("simpleEleId70cIso"),
+      #  pattern = cms.int32(1)
+      #),
       select = cms.string("pt>20 & abs(eta)<2.4 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.17"),
       min = cms.int32(1),
       max = cms.int32(1),
