@@ -1,6 +1,5 @@
 <lcgdict>
  <class name="edm::WrapperInterfaceBase"/>
-
  <class name="edm::ProductID" ClassVersion="11">
   <version ClassVersion="11" checksum="3913437934"/>
   <version ClassVersion="10" checksum="1501211476"/>
@@ -215,7 +214,7 @@
  </class>
  <class name="std::vector<ROOT::TSchemaHelper>"/>
  <class name="std::vector<TFormula*>"/>
-
+ 
  <ioread sourceClass="edm::ProductProvenance" targetClass="edm::ProductProvenance" version="[1-]" source="" target="transient_">
  <![CDATA[
 	newObj->initializeTransients();
