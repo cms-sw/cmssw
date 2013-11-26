@@ -24,10 +24,15 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     # backward compatibility mechanism for ctf tracks
     ctfTracksCheck = cms.bool(True),
     ctfTracksTag = cms.InputTag("generalTracks"),
+
+    gedElectronMode = cms.bool(True),
+    PreSelectMVA = cms.double(-0.1),	
     
     # steering
     useGsfPfRecTracks = cms.bool(True),
-    applyPreselection = cms.bool(False),
+#TESTTESTTESTTEST
+    applyPreselection = cms.bool(True),
+###############
     ecalDrivenEcalEnergyFromClassBasedParameterization = cms.bool(False),
     ecalDrivenEcalErrorFromClassBasedParameterization = cms.bool(False),
     pureTrackerDrivenEcalErrorFromSimpleParameterization = cms.bool(True),
@@ -137,7 +142,11 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     crackCorrectionFunction = cms.string("EcalClusterCrackCorrection"),
 
    # Iso Values 
-   useIsolationValues = cms.bool(False)
+   useIsolationValues = cms.bool(False),
+ SoftElecMVAFilesString = cms.vstring(
+                                "SoftElectronInJetAnalyzer/SoftElecInJet/data/MVA_BDT_weight.weights.xml"
+                                ),
+
 )
 
 

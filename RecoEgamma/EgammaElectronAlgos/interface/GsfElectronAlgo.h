@@ -45,6 +45,9 @@ class EcalClusterFunctionBaseClass ;
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
+#include "RecoEgamma/ElectronIdentification/interface/SoftElectronMVAEstimator.h"
+
+
 #include <list>
 #include <string>
 
@@ -94,6 +97,8 @@ class GsfElectronAlgo {
       bool addPflowElectrons ;
       // for backward compatibility
       bool ctfTracksCheck ;
+      bool gedElectronMode;
+      float PreSelectMVA;		
      } ;
 
     struct CutsConfiguration
@@ -191,7 +196,8 @@ class GsfElectronAlgo {
       const IsolationConfiguration &,
       const EcalRecHitsConfiguration &,
       EcalClusterFunctionBaseClass * superClusterErrorFunction,
-      EcalClusterFunctionBaseClass * crackCorrectionFunction
+      EcalClusterFunctionBaseClass * crackCorrectionFunction,
+      const SoftElectronMVAEstimator::Configuration & mvaCfg	
      ) ;
 
     ~GsfElectronAlgo() ;
@@ -228,6 +234,7 @@ class GsfElectronAlgo {
 
     void createElectron() ;
 
+    void setMVAepiBasedPreselectionFlag(reco::GsfElectron * ele);
     void setCutBasedPreselectionFlag( reco::GsfElectron * ele, const reco::BeamSpot & ) ;
     void setPflowPreselectionFlag( reco::GsfElectron * ele ) ;
     bool isPreselected( reco::GsfElectron * ele ) ;

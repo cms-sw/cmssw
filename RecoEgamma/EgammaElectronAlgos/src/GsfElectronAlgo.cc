@@ -69,7 +69,8 @@ struct GsfElectronAlgo::GeneralData
      const IsolationConfiguration &,
      const EcalRecHitsConfiguration &,
      EcalClusterFunctionBaseClass * superClusterErrorFunction,
-     EcalClusterFunctionBaseClass * crackCorrectionFunction ) ;
+     EcalClusterFunctionBaseClass * crackCorrectionFunction,
+     const SoftElectronMVAEstimator::Configuration & mvaCfg ) ;
   ~GeneralData() ;
 
   // configurables
@@ -84,6 +85,7 @@ struct GsfElectronAlgo::GeneralData
   ElectronHcalHelper * hcalHelper, * hcalHelperPflow ;
   EcalClusterFunctionBaseClass * superClusterErrorFunction ;
   EcalClusterFunctionBaseClass * crackCorrectionFunction ;
+  SoftElectronMVAEstimator *sElectronMVAEstimator;
  } ;
 
  GsfElectronAlgo::GeneralData::GeneralData
@@ -96,7 +98,8 @@ struct GsfElectronAlgo::GeneralData
    const IsolationConfiguration & isoConfig,
    const EcalRecHitsConfiguration & recHitsConfig,
    EcalClusterFunctionBaseClass * superClusterErrorFunc,
-   EcalClusterFunctionBaseClass * crackCorrectionFunc
+   EcalClusterFunctionBaseClass * crackCorrectionFunc,
+   const SoftElectronMVAEstimator::Configuration & mvaConfig
  )
  : inputCfg(inputConfig),
    strategyCfg(strategyConfig),
@@ -107,13 +110,15 @@ struct GsfElectronAlgo::GeneralData
    hcalHelper(new ElectronHcalHelper(hcalConfig)),
    hcalHelperPflow(new ElectronHcalHelper(hcalConfigPflow)),
    superClusterErrorFunction(superClusterErrorFunc),
-   crackCorrectionFunction(crackCorrectionFunc)
+   crackCorrectionFunction(crackCorrectionFunc),
+   sElectronMVAEstimator(new SoftElectronMVAEstimator(mvaConfig))
  {}
 
 GsfElectronAlgo::GeneralData::~GeneralData()
  {
   delete hcalHelper ;
   delete hcalHelperPflow ;
+  delete sElectronMVAEstimator;
  }
 
 //===================================================================
@@ -528,6 +533,7 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
   const EcalRecHitCollection * recHits = 0 ;
   std::vector<int> recHitFlagsToBeExcluded ;
   std::vector<int> recHitSeverityToBeExcluded ;
+  const EcalSeverityLevelAlgo * severityLevelAlgo = eventSetupData_->sevLevel.product() ;
   if (detector==EcalBarrel)
    {
     recHits = eventData_->barrelRecHits.product() ;
@@ -541,15 +547,15 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
     recHitSeverityToBeExcluded = generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps ;
    }
 
-  std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,recHits,topology,geometry) ;
-  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,recHits,topology) ;
+  std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,recHits,topology,geometry,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
+  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
   showerShape.sigmaEtaEta = sqrt(covariances[0]) ;
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]) ;
   if (!edm::isNotFinite(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]) ;
-  showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,recHits,topology)  ;
-  showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,recHits,topology)  ;
-  showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,recHits,topology) ;
-  showerShape.r9 = EcalClusterTools::e3x3(seedCluster,recHits,topology)/theClus->rawEnergy() ;
+  showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)  ;
+  showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)  ;
+  showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
+  showerShape.r9 = EcalClusterTools::e3x3(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)/theClus->rawEnergy() ;
 
   if (pflow)
    {
@@ -584,9 +590,10 @@ GsfElectronAlgo::GsfElectronAlgo
    const IsolationConfiguration & isoCfg,
    const EcalRecHitsConfiguration & recHitsCfg,
    EcalClusterFunctionBaseClass * superClusterErrorFunction,
-   EcalClusterFunctionBaseClass * crackCorrectionFunction
+   EcalClusterFunctionBaseClass * crackCorrectionFunction,
+   const SoftElectronMVAEstimator::Configuration & mvaCfg
  )
- : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction)),
+ : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction,mvaCfg)),
    eventSetupData_(new EventSetupData),
    eventData_(0), electronData_(0)
  {}
@@ -982,7 +989,20 @@ void GsfElectronAlgo::addPflowInfo()
  }
 
 bool GsfElectronAlgo::isPreselected( GsfElectron * ele )
- { return (ele->passingCutBasedPreselection()||ele->passingPflowPreselection()) ; }
+ {
+	float mvaValue=generalData_->sElectronMVAEstimator->mva( *(ele),*(eventData_->event));
+	bool passCutBased=ele->passingCutBasedPreselection();
+	bool passPF=ele->passingPflowPreselection();
+	bool passmva=!(generalData_->strategyCfg.gedElectronMode==true && !ele->ecalDrivenSeed() && mvaValue<generalData_->strategyCfg.PreSelectMVA);
+	if(!ele->ecalDrivenSeed()){
+		return passmva;
+	}	
+	else{
+		return passCutBased || passPF || passmva;
+	}
+
+	return true; 
+ }
 
 void GsfElectronAlgo::removeNotPreselectedElectrons()
  {
@@ -997,6 +1017,7 @@ void GsfElectronAlgo::removeNotPreselectedElectrons()
      { delete (*eitr) ; eitr = eventData_->electrons->erase(eitr) ; ++ei ; }
    }
  }
+
 
 void GsfElectronAlgo::setCutBasedPreselectionFlag( GsfElectron * ele, const reco::BeamSpot & bs )
  {
@@ -1135,8 +1156,10 @@ void GsfElectronAlgo::setMVAOutputs(const std::map<reco::GsfTrackRef,reco::GsfEl
       el != eventData_->electrons->end() ;
       el++ )
     {
-      std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput>::const_iterator itcheck=mvaOutputs.find((*el)->gsfTrack());
-      (*el)->setMvaOutput(itcheck->second);
+	float mvaValue=generalData_->sElectronMVAEstimator->mva( *(*el),*(eventData_->event));
+        GsfElectron::MvaOutput mvaOutput ;
+        mvaOutput.mva = mvaValue ;
+        (*el)->setMvaOutput(mvaOutput);
     }
 }
 

@@ -24,6 +24,9 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     # backward compatibility mechanism for ctf tracks
     ctfTracksCheck = cms.bool(True),
     ctfTracksTag = cms.InputTag("generalTracks"),
+
+    gedElectronMode= cms.bool(False),
+    PreSelectMVA = cms.double(-0.1),
     
     # steering
     useGsfPfRecTracks = cms.bool(True),
@@ -137,7 +140,11 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     crackCorrectionFunction = cms.string("EcalClusterCrackCorrection"),
 
    # Iso Values 
-   useIsolationValues = cms.bool(False)
+   useIsolationValues = cms.bool(False),
+  SoftElecMVAFilesString = cms.vstring(
+                                "SoftElectronInJetAnalyzer/SoftElecInJet/data/MVA_BDT_weight.weights.xml"
+                                ),
+
 )
 
 
@@ -162,7 +169,10 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     # backward compatibility mechanism for ctf tracks
     ctfTracksCheck = cms.bool(True),
     ctfTracksTag = cms.InputTag("generalTracks"),
-    
+   
+    gedElectronMode= cms.bool(False),
+    PreSelectMVA = cms.double(-0.1),
+ 
     # steering
     useGsfPfRecTracks = cms.bool(True),
     applyPreselection = cms.bool(True),
@@ -284,8 +294,11 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
    edIsolationValues = cms.PSet(
            edSumChargedHadronPt = cms.InputTag('elEDIsoValueCharged04'),
            edSumPhotonEt = cms.InputTag('elEDIsoValueGamma04'),
-           edSumNeutralHadronEt= cms.InputTag('elEDIsoValueNeutral04'))
+           edSumNeutralHadronEt= cms.InputTag('elEDIsoValueNeutral04')),
 
+   SoftElecMVAFilesString = cms.vstring(
+                                "SoftElectronInJetAnalyzer/SoftElecInJet/data/MVA_BDT_weight.weights.xml"
+                                ),
 )
 
 

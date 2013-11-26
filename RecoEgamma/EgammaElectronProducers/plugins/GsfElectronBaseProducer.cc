@@ -38,6 +38,8 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
   desc.add<edm::InputTag>("seedsTag",edm::InputTag("ecalDrivenElectronSeeds")) ;
   desc.add<edm::InputTag>("beamSpotTag",edm::InputTag("offlineBeamSpot")) ;
   desc.add<edm::InputTag>("gsfPfRecTracksTag",edm::InputTag("pfTrackElec")) ;
+  //desc.add<std::vector<std::string>>("SoftElecMVAFilesString",std::vector<std::string> ("SoftElecMVAFile"));
+
 
   // backward compatibility mechanism for ctf tracks
   desc.add<bool>("ctfTracksCheck",true) ;
@@ -344,6 +346,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
      = EcalClusterFunctionFactory::get()->create(crackCorrectionFunctionName,cfg) ;
    }
 
+
+   mvaCfg_.vweightsfiles=cfg.getParameter<std::vector<std::string>>("SoftElecMVAFilesString");
   // create algo
   algo_ = new GsfElectronAlgo
    ( inputCfg_, strategyCfg_,
@@ -351,7 +355,10 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
      hcalCfg_,hcalCfgPflow_,
      isoCfg,recHitsCfg,
      superClusterErrorFunction,
-     crackCorrectionFunction ) ;
+     crackCorrectionFunction,
+     mvaCfg_ 
+   ) ;
+
  }
 
 GsfElectronBaseProducer::~GsfElectronBaseProducer()
@@ -386,14 +393,12 @@ void GsfElectronBaseProducer::fillEvent( edm::Event & event )
  {
   // all electrons
   algo_->displayInternalElectrons("GsfElectronAlgo Info (before preselection)") ;
-
   // preselection
   if (strategyCfg_.applyPreselection)
    {
     algo_->removeNotPreselectedElectrons() ;
     algo_->displayInternalElectrons("GsfElectronAlgo Info (after preselection)") ;
    }
-
   // ambiguity
   algo_->setAmbiguityData() ;
   if (strategyCfg_.applyAmbResolution)
@@ -401,12 +406,11 @@ void GsfElectronBaseProducer::fillEvent( edm::Event & event )
     algo_->removeAmbiguousElectrons() ;
     algo_->displayInternalElectrons("GsfElectronAlgo Info (after amb. solving)") ;
    }
-
   // final filling
   std::auto_ptr<GsfElectronCollection> finalCollection( new GsfElectronCollection ) ;
   algo_->copyElectrons(*finalCollection) ;
   orphanHandle_ = event.put(finalCollection) ;
- }
+}
 
 void GsfElectronBaseProducer::endEvent()
  {
