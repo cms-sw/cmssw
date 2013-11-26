@@ -51,6 +51,7 @@ class TTClusterBuilder : public edm::EDProducer
     edm::ESHandle< TTClusterAlgorithm< T > > theClusterFindingAlgoHandle; // Handles are needed in ::produce()
     std::vector< edm::InputTag >             rawHitInputTags;
     unsigned int                             ADCThreshold;  
+    bool                                     storeLocalCoord;
 
     /// Mandatory methods
     virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
@@ -76,6 +77,7 @@ TTClusterBuilder< T >::TTClusterBuilder( const edm::ParameterSet& iConfig )
 {
   rawHitInputTags  = iConfig.getParameter< std::vector< edm::InputTag > >("rawHits");
   ADCThreshold     = iConfig.getParameter< unsigned int >("ADCThreshold");
+  storeLocalCoord  = iConfig.getParameter< bool >("storeLocalCoord");
   produces< std::vector< TTCluster< T > > >( "ClusterInclusive" );
 }
 
