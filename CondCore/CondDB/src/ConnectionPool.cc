@@ -2,11 +2,9 @@
 #include "DbConnectionString.h"
 //
 #include "CondCore/DBCommon/interface/CoralServiceManager.h"
-//#include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/Auth.h"
 // CMSSW includes
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
 // coral includes
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
@@ -109,13 +107,11 @@ namespace cond {
 	  } 
 	}
 	servName = "COND/Services/RelationalAuthenticationService";     
-	//edm::LogInfo("DbSessionInfo") << "Authentication using Keys";  
       } else if( authSys == CoralXMLFile ){
 	if( authPath.empty() ){
 	  authPath = ".";
 	}
 	servName = "COND/Services/XMLAuthenticationService";  
-	//edm::LogInfo("DbSessionInfo") << "Authentication using XML File";  
       }
       if( !authPath.empty() ){
 	authServiceName = servName;    
@@ -124,16 +120,6 @@ namespace cond {
       }
       coralConfig.setAuthenticationService( authServiceName );
     }
-    
-    /**
-    void ConnectionPool::configure(  cond::DbConnectionConfiguration& oraConfiguration ) {
-      oraConfiguration.setPoolAutomaticCleanUp( false );
-      oraConfiguration.setConnectionSharing( false );
-      oraConfiguration.setMessageLevel( m_messageLevel );
-      oraConfiguration.setAuthenticationPath( m_authPath );
-      oraConfiguration.setAuthenticationSystem( m_authSys );
-    }
-    **/
     
     void ConnectionPool::configure() {
       coral::ConnectionService connServ;

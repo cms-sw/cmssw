@@ -18,7 +18,6 @@ namespace coral {
 
 namespace cond {
   class CoralServiceManager;
-  //class DbConnectionConfiguration;
 }
 
 namespace cond {
@@ -45,8 +44,6 @@ namespace cond {
     private:
       Session createSession( const std::string& connectionString, const std::string& transactionId, bool writeCapable=false );
       void configure( coral::IConnectionServiceConfiguration& coralConfig);
-      // to be removed after the transition
-      //void configure( cond::DbConnectionConfiguration& oraConfiguration );
     private:
       std::string m_authPath;
       int m_authSys = 0;
