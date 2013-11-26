@@ -177,7 +177,7 @@ c      CALL PYGIVE('PARP(93)=15')
       IF(ickkw.gt.0) CALL set_matching(npara,param,value)
  
 C...For photon initial states from protons: Set proton not to break up
-      CALL PYGIVE('MSTP(98)=1')
+CMRENNA      CALL PYGIVE('MSTP(98)=1')
 
   
 C      IF(ickkw.gt.0.and.(NPRUP.gt.1.or.iexclusive(LPRUP(1)).ne.-1))
@@ -1372,7 +1372,7 @@ C...Initialize the icount counter to detect infinite loops
 
 C...Need lower scale for final state radiation in e+e-
       IF(IABS(IDBMUP(1)).EQ.11.AND.IABS(IDBMUP(2)).EQ.11) then
-        CALL PYGIVE('PARP(71)=1')
+CMRENNA        CALL PYGIVE('PARP(71)=1')
       ENDIF
 
 C...CRUCIAL FOR JET-PARTON MATCHING: CALL UPVETO, ALLOW JET-PARTON MATCHING
@@ -1532,8 +1532,8 @@ C             WRITE(*,*) 'shower kt is activated'
        endif
       else if(ickkw.eq.2)then
 c     Turn off color coherence suppressions (leave this to ME)
-        CALL PYGIVE('MSTP(62)=2')
-        CALL PYGIVE('MSTP(67)=0')
+CMRENNA        CALL PYGIVE('MSTP(62)=2')
+CMRENNA        CALL PYGIVE('MSTP(67)=0')
         if(MSTP(81).LT.20)THEN
           WRITE(*,*)'WARNING: Must run CKKW with pt-ordered showers'
           WRITE(*,*)'         Setting MSTP(81)=',20+MOD(MSTP(81),10)
