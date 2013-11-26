@@ -103,7 +103,8 @@ TTCluster< T >::TTCluster()
 template< typename T >
 TTCluster< T >::TTCluster( std::vector< T > aHits,
                            DetId aDetId,
-                           unsigned int aStackMember )
+                           unsigned int aStackMember,
+                           bool storeLocal )
 {
   /// Set data members
   this->setHits( aHits );
@@ -112,7 +113,10 @@ TTCluster< T >::TTCluster( std::vector< T > aHits,
 
   theRows.clear();
   theCols.clear();
-  this->setCoordinates( this->findRows(), this->findCols() );
+  if ( storeLocal )
+  {
+    this->setCoordinates( this->findRows(), this->findCols() );
+  }
 }
 
 /// Destructor
