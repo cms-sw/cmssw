@@ -2,7 +2,7 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector
     'mc'                :   'MC_70_V1::All',
     # GlobalTag for MC production with realistic alignment and calibrations
-    'startup'           :   'START70_V1::All',
+    'startup'           :   'START70_V2::All',
     # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
     'starthi'           :   'STARTHI70_V1::All',
     # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations

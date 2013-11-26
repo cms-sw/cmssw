@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <map>
+#include <memory>
 using namespace std;
 
 //-----------------------------------------------------------------------------
@@ -30,6 +31,11 @@ PixelClusterParameterEstimator::LocalValues FastPixelCPE::localParameters(const 
   throw cms::Exception("FastPixelCPE") << "Cluster not filled.";
 }
 
-void FastPixelCPE::enterLocalParameters(unsigned int id, std::pair<int,int> &row_col, const std::pair<LocalPoint,LocalError>& pos_err_info) const {
+void FastPixelCPE::enterLocalParameters(unsigned int id, std::pair<int,int> &row_col, const std::pair<LocalPoint,LocalError>& pos_err_info) {
   pos_err_map.insert(std::make_pair(std::make_pair(id,row_col), pos_err_info));
+}
+
+std::unique_ptr<ClusterParameterEstimator<SiPixelCluster>>
+FastPixelCPE::clone() const {
+    return std::unique_ptr<ClusterParameterEstimator<SiPixelCluster>>(new ClusterParameterEstimator<SiPixelCluster>(*this));
 }

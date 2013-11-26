@@ -85,7 +85,6 @@ TtSemiLepSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSet
           double tmpdR = DeltaR(muon,jet);
           if(tmpdR<dRmin) dRmin = tmpdR;
         }
-        reco::TrackRef trtr = it->track(); // tracker track
         if(dRmin>0.3) {   //temporary problems with muon isolation
           nmuons++;
           selMuons.push_back(*it);

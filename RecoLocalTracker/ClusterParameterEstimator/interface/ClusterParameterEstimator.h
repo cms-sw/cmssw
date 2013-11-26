@@ -1,6 +1,8 @@
 #ifndef RecoLocalTracker_Cluster_Parameter_Estimator_H
 #define RecoLocalTracker_Cluster_Parameter_Estimator_H
 
+#include <memory>
+
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
@@ -14,7 +16,9 @@ class ClusterParameterEstimator {
  public:
   typedef std::pair<LocalPoint,LocalError>  LocalValues;
   typedef std::vector<LocalValues> VLocalValues;
-  virtual LocalValues localParameters( const T&,const GeomDetUnit&) const = 0; 
+  virtual LocalValues localParameters( const T&,const GeomDetUnit&) const {
+      return std::make_pair(LocalPoint(), LocalError());
+  }
   virtual LocalValues localParameters( const T& cluster, const GeomDetUnit& gd, const LocalTrajectoryParameters&) const {
     return localParameters(cluster,gd);
   }
@@ -36,10 +40,13 @@ class ClusterParameterEstimator {
   
   //methods needed by FastSim
   virtual void enterLocalParameters(unsigned int id, std::pair<int,int>
-				    &row_col, LocalValues pos_err_info) const {}
+				    &row_col, LocalValues pos_err_info) {}
   virtual void enterLocalParameters(uint32_t id, uint16_t firstStrip,
-				    LocalValues pos_err_info) const {}
-  virtual void clearParameters() const {}
+				    LocalValues pos_err_info) {}
+  virtual void clearParameters() {}
+  virtual std::unique_ptr<ClusterParameterEstimator<T>> clone() const {
+      return std::unique_ptr<ClusterParameterEstimator<T>>(new ClusterParameterEstimator<T>(*this));
+  }
   
 };
 
