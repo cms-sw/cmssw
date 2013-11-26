@@ -11,7 +11,6 @@ typedef CaloRecHitMixer<EcalRecHit> EcalRecHitMixer;
 typedef CaloRecHitMixer<HBHERecHit> HBHERecHitMixer;
 typedef CaloRecHitMixer<HFRecHit> HFRecHitMixer;
 typedef CaloRecHitMixer<HORecHit> HORecHitMixer;
-#warning "ZDCRHMixer still needs to be done" 
 //typedef CaloRecHitMixer<ZDCRecHit> ZDCRecHitMixer;
 typedef CaloRecHitMixer<CastorRecHit> CastorRecHitMixer;
 
