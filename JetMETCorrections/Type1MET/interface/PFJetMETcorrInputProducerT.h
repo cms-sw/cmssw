@@ -69,7 +69,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       skipMuonSelection_(0)
   {
-    src_ = cfg.getParameter<edm::InputTag>("src");
+    token_ = consumes<std::vector<T> >(cfg.getParameter<edm::InputTag>("src"));
     
     offsetCorrLabel_ = ( cfg.exists("offsetCorrLabel") ) ?
       cfg.getParameter<std::string>("offsetCorrLabel") : "";
@@ -132,7 +132,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 
     typedef std::vector<T> JetCollection;
     edm::Handle<JetCollection> jets;
-    evt.getByLabel(src_, jets);
+    evt.getByToken(token_, jets);
 
     int numJets = jets->size();
     for ( int jetIndex = 0; jetIndex < numJets; ++jetIndex ) {
@@ -207,7 +207,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag src_; // PFJet input collection
+  edm::EDGetTokenT<std::vector<T> > token_;
 
   std::string offsetCorrLabel_; // e.g. 'ak5PFJetL1Fastjet'
   std::string jetCorrLabel_;    // e.g. 'ak5PFJetL1FastL2L3' (MC) / 'ak5PFJetL1FastL2L3Residual' (Data)
