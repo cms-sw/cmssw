@@ -326,7 +326,6 @@ void TTStubAssociator< T >::produce( edm::Event& iEvent, const edm::EventSetup& 
     /// Put output in the event
     iEvent.put( AssociationMapForOutput, TTStubsInputTags.at(iTag).instance() );
 
-
   } /// End of loop over InputTags
 }
 
