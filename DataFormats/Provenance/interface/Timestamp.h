@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include<limits>
 
 // user include files
 
@@ -28,9 +29,17 @@ namespace edm {
 
 class Timestamp {
 
+   static const TimeValue_t kLowMask=0xFFFFFFFF;
+
    public:
-      explicit Timestamp(TimeValue_t iValue);
-      Timestamp();
+      explicit Timestamp(TimeValue_t iValue): 
+      timeLow_(static_cast<unsigned int>(kLowMask & iValue)),
+      timeHigh_(static_cast<unsigned int>(iValue >> 32)){}
+
+
+      Timestamp() : timeLow_(invalidTimestamp().timeLow_),
+                    timeHigh_(invalidTimestamp().timeHigh_) {}
+
 
       /// Time in seconds since January 1, 1970.
       unsigned int
@@ -44,7 +53,15 @@ class Timestamp {
         return timeLow_;
       }
 
-      TimeValue_t value() const;
+      TimeValue_t value() const {
+        TimeValue_t returnValue = timeHigh_;
+        returnValue = returnValue << 32;
+        returnValue += timeLow_;
+        return returnValue;
+      }
+
+
+
 
       // ---------- const member functions ---------------------
       bool operator==(Timestamp const& iRHS) const {
@@ -81,9 +98,9 @@ class Timestamp {
       }
 
       // ---------- static member functions --------------------
-      static Timestamp const& invalidTimestamp();
-      static Timestamp const& endOfTime();
-      static Timestamp const& beginOfTime();
+      static Timestamp invalidTimestamp() { return Timestamp(0);}
+      static Timestamp endOfTime() { return Timestamp(std::numeric_limits<TimeValue_t>::max()); }
+      static Timestamp beginOfTime() {return Timestamp(1);}
 
       // ---------- member functions ---------------------------
 

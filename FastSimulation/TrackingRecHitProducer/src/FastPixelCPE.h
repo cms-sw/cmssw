@@ -2,14 +2,13 @@
 #define FastSimulation_TrackingRecHitProducer_FastPixelCPE_H
 
 //Header files
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "FastSimDataFormats/External/interface/FastTrackerCluster.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <map>
-
-#if 0
-#endif
+#include <memory>
 
 class FastPixelCPE : public PixelClusterParameterEstimator
 {
@@ -22,12 +21,14 @@ class FastPixelCPE : public PixelClusterParameterEstimator
 							       const GeomDetUnit    & det) const;
 	
   //Put information into the map.
-  void enterLocalParameters(unsigned int id, std::pair<int,int> &row_col, const std::pair<LocalPoint,LocalError>& pos_err_info) const; 
+  void enterLocalParameters(unsigned int id, std::pair<int,int> &row_col, const std::pair<LocalPoint,LocalError>& pos_err_info); 
   
   //Clear the map.
   void clearParameters() const { 
     pos_err_map.clear(); 
   }
+
+  std::unique_ptr<ClusterParameterEstimator<SiPixelCluster>> clone() const;
   
  private:
   //Map used to store clusters distinctly.

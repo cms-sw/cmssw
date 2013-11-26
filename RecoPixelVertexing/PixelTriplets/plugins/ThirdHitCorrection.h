@@ -39,9 +39,12 @@ public:
       bool useBendingCorrection = false);
 
 
-  ~ThirdHitCorrection(){}
  
-  void correctRPhiRange( Range & range) const;
+  void correctRPhiRange( Range & range) const {
+    range.first -= theMultScattCorrRPhi;
+    range.second += theMultScattCorrRPhi;
+  }
+
   void correctRZRange( Range & range) const;
 
 private:
@@ -51,8 +54,8 @@ private:
   bool theUseBendingCorrection;
 
   PixelRecoLineRZ theLine;
-  float theMultScattCorrRPhi;
-  float theMScoeff;
+  float theMultScattCorrRPhi=0;
+  float theMScoeff=0;
 
   pixelrecoutilities::LongitudinalBendingCorrection theBendingCorrection;
   
