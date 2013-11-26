@@ -3,38 +3,6 @@
 
 #include <ostream>
 
-ESDetId::ESDetId() : DetId() 
-{
-}
-  
-ESDetId::ESDetId( uint32_t rawid ) : 
-   DetId( rawid ) 
-{
-}
-  
-ESDetId::ESDetId( int strip,
-		  int ixs,
-		  int iys,
-		  int plane,
-		  int iz     ) :
-   DetId( Ecal, EcalPreshower ) 
-{
-   if( !validDetId( strip, ixs, iys, plane, iz) )
-      throw cms::Exception("InvalidDetId") 
-	 << "ESDetId:  Cannot create object.  Indexes out of bounds \n" 
-	 << " strip = " << strip << " x = " << ixs << " y = " << iys << "\n" 
-	 << " plane = " << plane << " z = " << iz
-	 << " hxy = " << (1==plane?hxy1[ixs-1][iys-1]:hxy2[ixs-1][iys-1])
-	 << "\n";
-
-   id_ |=
-      (strip&0x3F) |
-      ((ixs&0x3F)<<6) |
-      ((iys&0x3F)<<12) |
-      (((plane-1)&0x1)<<18) |
-      ((iz>0)?(1<<19):(0));
-}
-  
 ESDetId::ESDetId( const DetId& gen ) 
 {
    if( !gen.null() && 
@@ -44,6 +12,22 @@ ESDetId::ESDetId( const DetId& gen )
       throw cms::Exception("InvalidDetId");
    }
    id_ = gen.rawId() ;
+}
+
+
+void ESDetId::verify( int strip,
+                 int ixs,
+                 int iys,
+                 int plane,
+                 int iz     )
+{
+   if( !validDetId( strip, ixs, iys, plane, iz) )
+      throw cms::Exception("InvalidDetId") 
+        << "ESDetId:  Cannot create object.  Indexes out of bounds \n" 
+        << " strip = " << strip << " x = " << ixs << " y = " << iys << "\n" 
+        << " plane = " << plane << " z = " << iz
+        << " hxy = " << (1==plane?hxy1[ixs-1][iys-1]:hxy2[ixs-1][iys-1])
+        << "\n";
 }
 
 bool 
