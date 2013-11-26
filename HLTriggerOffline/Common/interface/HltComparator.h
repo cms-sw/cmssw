@@ -45,6 +45,9 @@ class HltComparator : public edm::EDFilter
 			const edm::TriggerResults&,
                         edm::Event& e);
         std::string formatResult(const unsigned int);
+
+	edm::EDGetTokenT<edm::TriggerResults> hltOnlineResultsToken_;
+        edm::EDGetTokenT<edm::TriggerResults> hltOfflineResultsToken_;
 };
 
 #endif // HLTCOMPARATOR_HH
