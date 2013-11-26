@@ -37,8 +37,8 @@ HcalDigisClient::HcalDigisClient(const edm::ParameterSet& iConfig) {
     booking("HE");
     booking("HO");
     booking("HF");
-    // false for regular rel val and true for SLHC rel val
-    doslhc_  = false;
+    // false for regular relval and true for SLHC relval
+    doSLHC_ = iConfig.getUntrackedParameter<bool>("doSLHC", false);
 
 }
 
@@ -54,7 +54,7 @@ void HcalDigisClient::booking(std::string subdetopt) {
     HistLim ietaLim(82, -41., 41.);
 
    int n_depth = 4;
-   if (doslhc_){n_depth = 7;} 
+   if (doSLHC_){n_depth = 7;} 
   
     for (int depth = 1; depth <= n_depth; depth++) {
         strtmp = "HcalDigiTask_occupancy_vs_ieta_depth" + str(depth) + "_" + subdetopt;
@@ -117,7 +117,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
          strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth4_" + subdet_;
          if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map4 = hcalMEs[ih];
         
-         if (doslhc_){
+         if (doSLHC_){
             strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth5_" + subdet_;
             if (hcalMEs[ih]->getName() == strtmp) ieta_iphi_occupancy_map5 = hcalMEs[ih];
             strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth6_" + subdet_;
@@ -128,7 +128,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
     }//
 
 
-    if (doslhc_ == false){
+    if (doSLHC_ == false){
        if (nevtot                   == 0 ||
            ieta_iphi_occupancy_map1 == 0 ||
            ieta_iphi_occupancy_map2 == 0 ||
@@ -203,7 +203,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
              ieta_iphi_occupancy_map4->setBinContent(i, j, cnorm);
              sumphi_4 += ieta_iphi_occupancy_map4->getBinContent(i, j);
 
-             if (doslhc_){
+             if (doSLHC_){
                 strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth5_" + subdet_;
                 cnorm = ieta_iphi_occupancy_map5->getBinContent(i, j) / fev;
                 ieta_iphi_occupancy_map5->setBinContent(i, j, cnorm);
@@ -252,7 +252,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
         strtmp = "HcalDigiTask_occupancy_vs_ieta_depth4_" + subdet_;
         fill1D(strtmp, deta, cnorm);
 
-        if (doslhc_){
+        if (doSLHC_){
            cnorm = sumphi_5 / phi_factor;
            strtmp = "HcalDigiTask_occupancy_vs_ieta_depth5_" + subdet_;
            fill1D(strtmp, deta, cnorm);

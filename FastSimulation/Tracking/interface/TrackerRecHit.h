@@ -112,7 +112,7 @@ public:
 
   /// Check if a triplet is on the proper combination of detectors
   bool makesATripletWith(const TrackerRecHit& anotherHit,
-			 const TrackerRecHit& yetAnotherHit) const;
+			 const TrackerRecHit& yetAnotherHit, const std::string& seedingAlgo) const;
 
   /// Check if two hits are on the same layer of the same subdetector
   inline bool isOnTheSameLayer(const TrackerRecHit& other) const {

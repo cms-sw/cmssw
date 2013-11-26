@@ -15,6 +15,11 @@ def customise_NoCrossing(process):
     process.mix.mixObjects.mixTracks.makeCrossingFrame = cms.untracked.bool(False)
     process.mix.mixObjects.mixVertices.makeCrossingFrame = cms.untracked.bool(False)
     process.mix.mixObjects.mixHepMC.makeCrossingFrame = cms.untracked.bool(False)
+    #and get the tracking particles under control
+    if hasattr(process.mix,'digitizers'):
+        if hasattr(process.mix.digitizers,'mergedtruth'):
+            process.mix.digitizers.mergedtruth.createUnmergedCollection=cms.bool(False)
+            process.mix.digitizers.mergedtruth.maximumPreviousBunchCrossing=cms.uint32(5)
     return (process)
 
 def customise_pixelMixing_PU(process):
