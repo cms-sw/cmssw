@@ -6,8 +6,8 @@ import FWCore.ParameterSet.Config as cms
 buildTraintree = cms.EDAnalyzer("TtSemiLepSignalSelMVATrainer",
     #input tags used in the example
     muons  = cms.InputTag("selectedPatMuons"),
-    elecs  = cms.InputTag("selectedPatElectrons"),                         
-    jets   = cms.InputTag("selectedPatJets"),
+    elecs  = cms.InputTag("selectedPatElectrons"),
+    jets   = cms.InputTag("cleanPatJets"),
     mets   = cms.InputTag("patMETs"),
 
     # ------------------------------------------------
