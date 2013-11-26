@@ -64,14 +64,16 @@ private:
   virtual void endJob() override ;
       
   edm::InputTag src_, eidsrc_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> recoGsfElectronCollectionToken_;
+  edm::EDGetTokenT< edm::ValueMap<float> > edmValueMapFloatToken_;
   int eid_; 
   // ----------member data ---------------------------
 };
 
-ElectronIdFilter::ElectronIdFilter(const edm::ParameterSet& iConfig):
-  src_(iConfig.getParameter<edm::InputTag>("src")),
-  eidsrc_(iConfig.getParameter<edm::InputTag>("eidsrc")),
-  eid_(iConfig.getParameter<int>("eid"))
+ElectronIdFilter::ElectronIdFilter(const edm::ParameterSet& iConfig)
+  : recoGsfElectronCollectionToken_( consumes<reco::GsfElectronCollection>( iConfig.getParameter<edm::InputTag>( "src" ) ) )
+  , edmValueMapFloatToken_( consumes< edm::ValueMap<float> >( iConfig.getParameter<edm::InputTag>( "eidsrc" ) ) )
+  , eid_( iConfig.getParameter<int>( "eid" ) )
 {
   produces< reco::GsfElectronCollection >();
 }
@@ -88,10 +90,10 @@ ElectronIdFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace std;
   
   edm::Handle<GsfElectronCollection> electrons;
-  iEvent.getByLabel(src_,electrons);
+  iEvent.getByToken( recoGsfElectronCollectionToken_, electrons );
   
   edm::Handle<edm::ValueMap<float> > eIDValueMap;
-  iEvent.getByLabel(eidsrc_, eIDValueMap);
+  iEvent.getByToken( edmValueMapFloatToken_, eIDValueMap );
   const edm::ValueMap<float> & eIDmap = * eIDValueMap;
   GsfElectronCollection *product = new GsfElectronCollection();
 
