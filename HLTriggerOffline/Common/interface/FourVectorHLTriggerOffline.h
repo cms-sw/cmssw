@@ -161,8 +161,29 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
       std::string processname_;
       bool monitorDaemon_;
       int theHLTOutputType;
+
       edm::InputTag triggerSummaryLabel_;
+      edm::EDGetTokenT<trigger::TriggerEvent> triggerSummary_token_;
       edm::InputTag triggerResultsLabel_;
+      edm::EDGetTokenT<edm::TriggerResults> triggerResults_token_;
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsLabelFU_;
+      edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryLabelFU_;
+
+
+      edm::EDGetTokenT<reco::GenParticleCollection> genParticles_token_;
+      edm::EDGetTokenT<reco::GenJetCollection> iterativeCone5GenJets_token_;
+      edm::EDGetTokenT<reco::GenMETCollection> genMetTrue_token_;
+      edm::EDGetTokenT<reco::MuonCollection> muonCollection_;
+      edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronCollection_;
+      edm::EDGetTokenT<reco::CaloTauCollection> caloRecoTauCollection_;
+      edm::EDGetTokenT<reco::CaloJetCollection> caloJetCollection_;
+      edm::EDGetTokenT<reco::JetTagCollection> jetTagCollection_;
+      edm::EDGetTokenT<reco::JetTagCollection> softMuonBJetTags_;
+      edm::EDGetTokenT<reco::CaloMETCollection> caloMetCollection_;
+      edm::EDGetTokenT<reco::PhotonCollection> photonCollection_;
+      edm::EDGetTokenT<reco::TrackCollection> trackCollection_;
+
+
       HLTConfigProvider hltConfig_;
       // data across paths
       MonitorElement* scalersSelect;
