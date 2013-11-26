@@ -28,8 +28,7 @@ public:
 
   bool
   addLabel(edm::TypeID const& type, std::string const& label) const {
-    return true;
-    //return labels_.insert(std::make_pair(type, label)).second;
+    return labels_.insert(std::make_pair(type, label)).second;
   }
 
   edm::EventPrincipal const& principal() {
