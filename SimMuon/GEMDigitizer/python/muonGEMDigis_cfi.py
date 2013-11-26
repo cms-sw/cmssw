@@ -20,7 +20,7 @@ simMuonGEMDigis = cms.EDProducer("GEMDigiProducer",
     digitizeOnlyMuons = cms.bool(False),
 #    neutronGammaRoll = cms.vdouble(18., 23., 30., 39., 45., 52., 62., 76)#, #n and gamma bkg per roll
     neutronGammaRoll = cms.vdouble(69.3, 74.0, 101.7, 121.1, 145.5, 143.8, 199.1, 314.1), #n, gamma and charged prtcls bkg per roll
-    doNoiseCLS = cms.bool(False),
+    doNoiseCLS = cms.bool(True),
     minPabsNoiseCLS = cms.double(0.)
 
 )
