@@ -11,6 +11,10 @@ cond::Binary::Binary():
   m_data( new coral::Blob(0) ){
 }
 
+cond::Binary::Binary( const boost::shared_ptr<void>& objectPtr ):
+  m_object( objectPtr ){
+}
+
 cond::Binary::Binary( const void* data, size_t size  ):
   m_data( new coral::Blob( size ) ){
   ::memcpy( m_data->startingAddress(), data, size );
@@ -22,7 +26,8 @@ cond::Binary::Binary( const coral::Blob& data ):
 }
 
 cond::Binary::Binary( const Binary& rhs ):
-  m_data( rhs.m_data ){
+  m_data( rhs.m_data ),
+  m_object( rhs.m_object ){
 }
 
 cond::Binary& cond::Binary::operator=( const Binary& rhs ){
@@ -49,18 +54,11 @@ void* cond::Binary::data(){
 size_t cond::Binary::size() const {
   return m_data->size();
 }
+    
+boost::shared_ptr<void> cond::Binary::share(){
+  return m_object;
+}
 
-std::string cond::Binary::hash() const {
-  unsigned char hashData[20];                                                                                                                    
-  SHA1(static_cast<const unsigned char *>(m_data->startingAddress()), m_data->size(), hashData );
-  char tmp[20*2+1];
-  // re-write bytes in hex
-  for (unsigned int i = 0; i < 20; i++) {                                                                                                        
-    ::sprintf(&tmp[i * 2], "%02x", hashData[i]);                                                                                                 
-  }                                                                                                                                              
-  tmp[20*2] = 0;                                                                                                                                 
-  return tmp;                                                                                                                                    
-}  
 
 
 

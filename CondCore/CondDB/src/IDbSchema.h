@@ -7,7 +7,7 @@
 namespace cond {
 
   namespace persistency {
-    
+
     class ITagTable {
     public:
       virtual ~ITagTable(){}
@@ -32,10 +32,12 @@ namespace cond {
       virtual ~IPayloadTable(){}
       virtual bool exists() = 0;
       virtual void create() = 0;
-      virtual bool select( const cond::Hash& payloadHash ) = 0;
+      //virtual bool select( const cond::Hash& payloadHash ) = 0;
       virtual bool select( const cond::Hash& payloadHash, std::string& objectType, cond::Binary& payloadData ) = 0;
-      virtual bool insert( const cond::Hash& payloadHash, const std::string& objectType, 
-			   const cond::Binary& payloadData, const boost::posix_time::ptime& insertionTime ) = 0;
+      //virtual bool insert( const cond::Hash& payloadHash, const std::string& objectType, 
+      //			   const cond::Binary& payloadData, const boost::posix_time::ptime& insertionTime ) = 0;
+      virtual cond::Hash insertIfNew( const std::string& objectType, const cond::Binary& payloadData, 
+				      const boost::posix_time::ptime& insertionTime ) = 0;
     };
 
     class IIOVTable {
@@ -82,7 +84,7 @@ namespace cond {
     class IGTTable {
     public:
       virtual ~IGTTable(){}
-      virtual bool exists();
+      virtual bool exists() = 0;
       virtual bool select( const std::string& name ) = 0;
       virtual bool select( const std::string& name, cond::Time_t& validity, boost::posix_time::ptime& snapshotTime ) = 0;
       virtual bool select( const std::string& name, cond::Time_t& validity, std::string& description, 

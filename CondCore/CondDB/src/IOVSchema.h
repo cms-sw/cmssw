@@ -2,6 +2,7 @@
 #define CondCore_CondDB_IOVSchema_h
 
 #include "DbCore.h"
+#include "IDbSchema.h"
 //
 #include <boost/date_time/posix_time/posix_time.hpp>
 
@@ -21,9 +22,9 @@ namespace cond {
       column( INSERTION_TIME, boost::posix_time::ptime );
       column( MODIFICATION_TIME, boost::posix_time::ptime );
       
-      class Table {
+      class Table : public ITagTable {
       public:
-	Table( coral::ISchema& schema );
+	explicit Table( coral::ISchema& schema );
 	virtual ~Table(){}
 	bool exists();
 	void create();
@@ -55,9 +56,9 @@ namespace cond {
       column( VERSION, std::string );
       column( INSERTION_TIME, boost::posix_time::ptime );
      
-      class Table {
+      class Table : public IPayloadTable {
       public:
-	Table( coral::ISchema& schema );
+	explicit Table( coral::ISchema& schema );
 	virtual ~Table(){}
 	bool exists();
 	void create();
@@ -65,7 +66,8 @@ namespace cond {
 	bool select( const cond::Hash& payloadHash, std::string& objectType, cond::Binary& payloadData);
 	bool insert( const cond::Hash& payloadHash, const std::string& objectType, 
 		     const cond::Binary& payloadData, const boost::posix_time::ptime& insertionTime);
-	
+	cond::Hash insertIfNew( const std::string& objectType, const cond::Binary& payloadData, 
+				const boost::posix_time::ptime& insertionTime );
       private:
 	coral::ISchema& m_schema;
       };
@@ -96,9 +98,9 @@ namespace cond {
 	} 
       };
      
-      class Table {
+      class Table : public IIOVTable {
       public:
-	Table( coral::ISchema& schema );
+	explicit Table( coral::ISchema& schema );
 	virtual ~Table(){}
 	bool exists();
 	void create();
@@ -126,9 +128,9 @@ namespace cond {
       column( TAG_NAME, std::string );
       column( INSERTION_TIME, boost::posix_time::ptime );
       
-      class Table {
+      class Table : public ITagMigrationTable {
       public:
-	Table( coral::ISchema& schema );
+	explicit Table( coral::ISchema& schema );
 	virtual ~Table(){}
 	bool exists();
 	void create();
@@ -140,16 +142,16 @@ namespace cond {
       };
     }
     
-    class IOVSchema {
+    class IOVSchema : public IIOVSchema {
     public: 
-      IOVSchema( coral::ISchema& schema );
+      explicit IOVSchema( coral::ISchema& schema );
       virtual ~IOVSchema(){}
       bool exists();
       bool create();
-      TAG::Table& tagTable();
-      IOV::Table& iovTable();
-      PAYLOAD::Table& payloadTable();
-      TAG_MIGRATION::Table& tagMigrationTable();
+      ITagTable& tagTable();
+      IIOVTable& iovTable();
+      IPayloadTable& payloadTable();
+      ITagMigrationTable& tagMigrationTable();
     private:
       TAG::Table m_tagTable;
       IOV::Table m_iovTable;
