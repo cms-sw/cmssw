@@ -32,6 +32,9 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/KalmanUpdators/interface/EtaPhiMeasurementEstimator.h"
 
+
+#include<iostream>
+
 template <class T> T sqr( T t) {return t*t;}
 
 
@@ -110,6 +113,8 @@ checkRZOld(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::Even
   float cotTheta = fabs(leftLine.cotLine()+rightLine.cotLine())/2;
 
 //  float bendR = longitudinalBendingCorrection(outer.r(),ptMin());
+
+  std::cout << "RectangularEtaPhiTrackingRegion " << outer.r()<<','<< outer.z() << " " << innerScatt << " " << cotTheta << " " <<  hitZErr <<  std::endl; 
 
   if (isBarrel) {
     float sinTheta = 1/sqrt(1+sqr(cotTheta));
@@ -326,6 +331,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
    
   // TSOS
   float phi = phiDirection();
+  // std::cout << "dir " << direction().x()/direction().perp() <<','<< direction().y()/direction().perp() << " " << sin(phi) <<','<<cos(phi)<< std::endl;
   Surface::RotationType rot( sin(phi), -cos(phi),           0,
                              0,                0,          -1,
                              cos(phi),  sin(phi),           0);
@@ -350,7 +356,8 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
     if (ptrHit->isValid())  result.push_back( ptrHit );
   }
 
-  LogDebug("RectangularEtaPhiTrackingRegion")<<" found "<< meas.size()<<" minus one measurements on layer: "<<detLayer->subDetector();
+ // LogDebug("RectangularEtaPhiTrackingRegion")<<" found "<< meas.size()<<" minus one measurements on layer: "<<detLayer->subDetector();
+ std::cout << "RectangularEtaPhiTrackingRegion" <<" found "<< meas.size()<<" minus one measurements on layer: "<<detLayer->subDetector() << std::endl;
 
   } else {
   //
@@ -373,6 +380,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   }
   }
   
+  std::cout << "RectangularEtaPhiTrackingRegion hits "  << result.size() << std::endl;
   delete est;
   return result;
 }

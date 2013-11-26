@@ -54,7 +54,7 @@ public:
                   const Range        & invPtRange,
                   const float &        originRBound,
                   const float &        originZBound)
-    : theDirection( direction), theVertexPos( originPos), 
+    : theDirection( direction), theUnitDirection(direction.unit()), theVertexPos( originPos), 
       theInvPtRange( invPtRange), thePhi(direction.barePhi()),
       thePtMin(1.f/std::max( std::abs(invPtRange.max()), std::abs(invPtRange.min()) )),
       theVertexRBound( originRBound),
@@ -63,6 +63,8 @@ public:
 
   /// the direction around which region is constructed 
   GlobalVector const & direction() const { return theDirection; } 
+  GlobalVector const & unitDirection() const { return theUnitDirection; }
+
   float phiDirection() const { return thePhi;}
 
  /** The origin (centre,vertex) of the region. <BR> 
@@ -123,7 +125,8 @@ public:
 
 private:
   
-  GlobalVector theDirection;
+  GlobalVector theDirection; // this is not direction is momentum...
+  GlobalVector theUnitDirection; // the real direction
   GlobalPoint  theVertexPos;
   Range        theInvPtRange;
   float        thePhi;
