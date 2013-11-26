@@ -68,8 +68,8 @@ class TTStubAssociator : public edm::EDProducer
 template< typename T >
 TTStubAssociator< T >::TTStubAssociator( const edm::ParameterSet& iConfig )
 {
-  TTStubsInputTags = iConfig.getParameter< std::vector< edm::InputTags > >( "TTStubs" );
-  TTClusterTruthInputTags = iConfig.getParameter< std::vector< edm::InputTags > >( "TTClusterTruth" );
+  TTStubsInputTags = iConfig.getParameter< std::vector< edm::InputTag > >( "TTStubs" );
+  TTClusterTruthInputTags = iConfig.getParameter< std::vector< edm::InputTag > >( "TTClusterTruth" );
 
   for ( unsigned int iTag = 0; iTag < TTStubsInputTags.size(); iTag++ )
   {
