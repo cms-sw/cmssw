@@ -121,15 +121,15 @@ TTCluster< T >::~TTCluster(){}
 
 /// Cluster width
 template< >
-unsigned int TTCluster< edm::Ref< edm::DetSetVector<PixelDigi> , PixelDigi > >::findWidth() const;
+unsigned int TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findWidth() const;
 
 /// Single hit coordinates
 /// Average cluster coordinates
 template< >
-MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector<PixelDigi> , PixelDigi > >::findHitLocalCoordinates( unsigned int hitIdx ) const;
+MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findHitLocalCoordinates( unsigned int hitIdx ) const;
 
 template< >
-MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector<PixelDigi> , PixelDigi > >::findAverageLocalCoordinates() const;
+MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findAverageLocalCoordinates() const;
 
 /// Operations with coordinates stored locally
 template< typename T > 
@@ -147,10 +147,10 @@ std::vector< int > TTCluster< T >::findCols() const
 }
 
 template< >
-std::vector< int > TTCluster< edm::Ref< edm::DetSetVector<PixelDigi> , PixelDigi > >::findRows() const;
+std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findRows() const;
 
 template< >
-std::vector< int > TTCluster< edm::Ref< edm::DetSetVector<PixelDigi> , PixelDigi > >::findCols() const;
+std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findCols() const;
 
 /// Information
 template< typename T >
