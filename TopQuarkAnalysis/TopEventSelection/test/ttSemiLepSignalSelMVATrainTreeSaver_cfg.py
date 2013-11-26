@@ -19,7 +19,7 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    #allowUnscheduled = cms.untracked.bool(True), # What happens to the Looper?
+    allowUnscheduled = cms.untracked.bool(True),
     wantSummary = cms.untracked.bool(True)
 )
 
@@ -31,9 +31,12 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## std sequence for pat
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
-## std sequence for ttGenEvent
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+process.load("PhysicsTools.PatAlgos.cleaningLayer1.cleanPatCandidates_cff")
+process.cleanPatElectrons.checkOverlaps.muons.requireNoOverlaps = True
+process.cleanPatJets.checkOverlaps.muons.requireNoOverlaps     = True
+process.cleanPatJets.checkOverlaps.electrons.requireNoOverlaps = True
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
 ## configure mva trainer
@@ -44,8 +47,4 @@ from TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVATrainTreeSaver_cff 
 process.looper = looper
 
 ## produce pat objects and ttGenEvt and make mva training
-process.p = cms.Path(process.particleFlowPtrs *
-                     process.patCandidates *
-                     process.selectedPatCandidates *
-                     process.makeGenEvt *
-                     process.saveTrainTree)
+process.p = cms.Path(process.saveTrainTree)
