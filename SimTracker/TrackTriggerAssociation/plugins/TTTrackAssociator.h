@@ -114,7 +114,7 @@ void TTTrackAssociator< T >::produce( edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByLabel( TTStubTruthInputTag, TTStubAssociationMapHandle );
 
   /// Loop over InputTags to handle multiple collections
-  for ( unsigned int iTag = 0; iTag < TTStubsInputTags.size(); iTag++ )
+  for ( unsigned int iTag = 0; iTag < TTTracksInputTags.size(); iTag++ )
   {
     /// Prepare output
     std::auto_ptr< TTTrackAssociationMap< T > > AssociationMapForOutput( new TTTrackAssociationMap< T > );
