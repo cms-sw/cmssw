@@ -68,9 +68,13 @@ public:
    *     +--> spare                                               ( 1 bit )
    */
 
-  EcalRecHit();
+  EcalRecHit() : CaloRecHit(), flagBits_(0) {}
   // by default a recHit is greated with no flag
-  EcalRecHit(const DetId& id, float energy, float time, uint32_t flags = 0, uint32_t flagBits = 0);
+  EcalRecHit(const DetId& id, float energy, float time, uint32_t flags = 0, uint32_t flagBits = 0) :
+    CaloRecHit(id,energy,time,flags),
+    flagBits_(flagBits){}
+
+
   /// get the id
   // For the moment not returning a specific id for subdetector
   DetId id() const { return DetId(detid());}

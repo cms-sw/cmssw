@@ -6,14 +6,6 @@
 #include <cassert>
 #include <math.h>
 
-EcalRecHit::EcalRecHit() : CaloRecHit(), flagBits_(0) {
-}
-
-EcalRecHit::EcalRecHit(const DetId& id, float energy, float time, uint32_t flags, uint32_t flagBits) :
-  CaloRecHit(id,energy,time,flags),
-  flagBits_(flagBits)
-{
-}
 
 bool EcalRecHit::isRecovered() const {
 
@@ -131,9 +123,7 @@ bool EcalRecHit::isTimeErrorValid() const
 
 /// check if one of the flags in a set is true
 bool EcalRecHit::checkFlags(const std::vector<int>&  flagsvec ) const{
-  
-
-  for (std::vector<int>::const_iterator flagPtr = flagsvec.begin(); 
+    for (std::vector<int>::const_iterator flagPtr = flagsvec.begin(); 
        flagPtr!= flagsvec.end(); ++flagPtr) { // check if one of the flags is up
     if (checkFlag(*flagPtr)) return true;    
   }

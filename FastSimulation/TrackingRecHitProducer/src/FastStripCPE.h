@@ -3,12 +3,13 @@
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <ext/hash_map>
 #include <map>
-
+#include <memory>
 
 class FastStripCPE : public StripClusterParameterEstimator 
 {
@@ -23,13 +24,15 @@ class FastStripCPE : public StripClusterParameterEstimator
   StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl)const; 
   
   //Put information into the map.
-  void enterLocalParameters(uint32_t id, uint16_t firstStrip, const std::pair<LocalPoint,LocalError>& pos_err_info) const;
+  void enterLocalParameters(uint32_t id, uint16_t firstStrip, const std::pair<LocalPoint,LocalError>& pos_err_info);
   
   //Clear the map.
   void clearParameters() const {
     pos_err_map.clear();
   }
   
+  std::unique_ptr<ClusterParameterEstimator<SiStripCluster>> clone() const;
+
   LocalVector driftDirection(const StripGeomDetUnit* det)const;
   
  private:

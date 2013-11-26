@@ -51,19 +51,11 @@ void ThirdHitCorrection::init(const edm::EventSetup& es,
 }
 
 
-void ThirdHitCorrection::correctRPhiRange( Range & range) const
-{
-  if (theUseMultipleScattering) {
-    range.first -= theMultScattCorrRPhi;
-    range.second += theMultScattCorrRPhi;
-  }
-}
 void ThirdHitCorrection::correctRZRange( Range & range) const
 { 
-  if (theUseMultipleScattering) {
-    range.first -= theMScoeff;
-    range.second += theMScoeff;
-  } 
+  range.first -= theMScoeff;
+  range.second += theMScoeff;
+   
 
   if (theUseBendingCorrection) {
     if (theBarrel) {

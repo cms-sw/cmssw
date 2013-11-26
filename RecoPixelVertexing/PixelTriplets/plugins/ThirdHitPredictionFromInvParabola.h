@@ -15,6 +15,8 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
+#include <array>
+
 #include "FWCore/Utilities/interface/Visibility.h"
 
 
@@ -31,7 +33,6 @@ public:
   typedef PixelRecoRange<Scalar> RangeD;
   typedef Basic2DVector<Scalar> Point2D;
 
-
   ThirdHitPredictionFromInvParabola(){}
   ThirdHitPredictionFromInvParabola(Scalar x1,Scalar y1, Scalar x2,Scalar y2,  Scalar ip, Scalar curv,
 				    Scalar tolerance): theTolerance(tolerance)
@@ -45,7 +46,14 @@ public:
 //  inline Range operator()(Scalar radius, int charge) const { return rangeRPhiSlow(radius,charge,1); } 
   inline Range operator()(Scalar radius, int charge) const { return rangeRPhi(radius,charge); } 
 
-  Range rangeRPhi(Scalar radius, int charge) const __attribute__ ((optimize(3, "fast-math")));
+  inline Range operator()(Scalar radius) const { return rangeRPhi(radius); } 
+
+
+  Range rangeRPhi(Scalar radius, int charge) const; //  __attribute__ ((optimize(3, "fast-math")));
+
+  Range rangeRPhi(Scalar radius) const;
+
+
   // Range rangeRPhiSlow(Scalar radius, int charge, int nIter=5) const;
 
   void init( const GlobalPoint & P1, const GlobalPoint & P2,  Scalar ip, Scalar curv) {
@@ -54,6 +62,8 @@ public:
   void init(Scalar x1,Scalar y1, Scalar x2,Scalar y2,  Scalar ip, Scalar curv);
 
 private:
+
+
 
   inline Scalar coeffA(Scalar impactParameter) const;
   inline Scalar coeffB(Scalar impactParameter) const;
@@ -78,6 +88,7 @@ private:
 
   RangeD theIpRangePlus, theIpRangeMinus; 
   Scalar theTolerance;
+  bool emptyP, emptyM;
 
 };
 
