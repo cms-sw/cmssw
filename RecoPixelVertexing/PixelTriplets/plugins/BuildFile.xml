@@ -4,3 +4,5 @@
 <library   file="*.cc" name="RecoPixelVertexingPixelTripletsPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<flags   CXXFLAGS="-Ofast -ftree-loop-if-convert-stores -ftree-vectorizer-verbose=1 -fno-math-errno"/>

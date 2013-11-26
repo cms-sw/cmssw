@@ -2,11 +2,10 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 PFchsMETcorrInputProducer::PFchsMETcorrInputProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-    src_(cfg.getParameter<edm::InputTag>("src")),
+    token_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("src"))),
     goodVtxNdof_(cfg.getParameter<unsigned int>("goodVtxNdof")),
     goodVtxZ_(cfg.getParameter<double>("goodVtxZ"))
 {
@@ -21,7 +20,7 @@ PFchsMETcorrInputProducer::~PFchsMETcorrInputProducer()
 void PFchsMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   edm::Handle<reco::VertexCollection> recVtxs;
-  evt.getByLabel(src_, recVtxs);
+  evt.getByToken(token_, recVtxs);
 
   std::auto_ptr<CorrMETData> chsSum(new CorrMETData());
 

@@ -23,9 +23,15 @@ class CorrectedCaloMETProducer2 : public edm::EDProducer
 public:
 
   explicit CorrectedCaloMETProducer2(const edm::ParameterSet& cfg)
-    : src_(cfg.getParameter<edm::InputTag>("src")),
-      srcCorrections_(cfg.getParameter<std::vector<edm::InputTag> >("srcCorrections"))
+    : token_(consumes<METCollection>(cfg.getParameter<edm::InputTag>("src")))
   {
+
+  std::vector<edm::InputTag> corrInputTags = cfg.getParameter<std::vector<edm::InputTag> >("srcCorrections");
+  for (std::vector<edm::InputTag>::const_iterator inputTag = corrInputTags.begin(); inputTag != corrInputTags.end(); ++inputTag)
+      {
+	corrTokens_.push_back(consumes<CorrMETData>(*inputTag));
+      }
+
     produces<METCollection>("");
   }
 
@@ -35,13 +41,13 @@ private:
 
   typedef std::vector<reco::CaloMET> METCollection;
 
-  edm::InputTag src_;
-  std::vector<edm::InputTag> srcCorrections_;
+  edm::EDGetTokenT<METCollection> token_;
+  std::vector<edm::EDGetTokenT<CorrMETData> > corrTokens_;
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
     edm::Handle<METCollection> srcMETCollection;
-    evt.getByLabel(src_, srcMETCollection);
+    evt.getByToken(token_, srcMETCollection);
 
     const reco::CaloMET& srcMET = (*srcMETCollection)[0];
 
@@ -59,11 +65,13 @@ private:
     CorrMETData ret;
 
     edm::Handle<CorrMETData> corr;
-    for (std::vector<edm::InputTag>::const_iterator inputTag = srcCorrections_.begin(); inputTag != srcCorrections_.end(); ++inputTag)
+    for (std::vector<edm::EDGetTokenT<CorrMETData> >::const_iterator corrToken = corrTokens_.begin(); corrToken != corrTokens_.end(); ++corrToken)
       {
-	evt.getByLabel(*inputTag, corr);
+	evt.getByToken(*corrToken, corr);
 	ret += (*corr);
       }
+
+
     return ret;
   }
 

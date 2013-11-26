@@ -1,16 +1,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <math.h>
+#include <cmath>
 
-EcalUncalibratedRecHit::EcalUncalibratedRecHit() :
-     amplitude_(0.), pedestal_(0.), jitter_(0.), chi2_(10000.), OOTamplitude_(0.), OOTchi2_(10000.), flags_(0), aux_(0) { }
 
-EcalUncalibratedRecHit::EcalUncalibratedRecHit(const DetId& id, float ampl, float ped,
-                          float jit, float chi2, uint32_t flags, uint32_t aux) :
-     amplitude_(ampl), pedestal_(ped), jitter_(jit), chi2_(chi2), OOTamplitude_(0.), OOTchi2_(10000.), flags_(flags), aux_(aux), id_(id) { }
-
-EcalUncalibratedRecHit::~EcalUncalibratedRecHit() {
-}
 
 bool EcalUncalibratedRecHit::isSaturated() const {
   return EcalUncalibratedRecHit::checkFlag(kSaturated);
@@ -31,7 +23,7 @@ float EcalUncalibratedRecHit::jitterError() const
         float LSB = 1.26008;
         uint8_t exponent = jitterErrorBits>>5;
         uint8_t significand = jitterErrorBits & ~(0x7<<5);
-        return (float)(pow(2.,exponent)*significand*LSB)/(25.*1000);
+        return (float)(std::pow(2,exponent)*significand*LSB)/(25.*1000);
 }
 
 void EcalUncalibratedRecHit::setJitterError( float jitterErr )
@@ -58,7 +50,7 @@ void EcalUncalibratedRecHit::setJitterError( float jitterErr )
         int exponentTmp = log2OfQuantity - 4;
         uint8_t exponent=0;
         if (exponentTmp>0) exponent = exponentTmp;
-        uint8_t significand = (int) ( lround( quantityInLSB / pow(2.,exponent) )   );
+        uint8_t significand = (int) ( std::lround( quantityInLSB / std::pow(2,exponent) )   );
         uint32_t jitterErrorBits = exponent<<5 | significand;
   
         if( (0xFF & jitterErrorBits) == 0xFF)
@@ -96,7 +88,6 @@ uint8_t EcalUncalibratedRecHit::jitterErrorBits() const
 
 
 void EcalUncalibratedRecHit::setFlagBit(EcalUncalibratedRecHit::Flags flag){
-
        if  (flag == kGood) {
           //then set all bits to zero;
           flags_  = 0;
