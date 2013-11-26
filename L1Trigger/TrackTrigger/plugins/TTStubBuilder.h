@@ -233,8 +233,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
           {
             /// This means that ALL stubs go into the output
             TTStubsForOutputAccepted->push_back( tempTTStub );
-            TTClustersForOutput->push_back( *innerClusterIter );
-            TTClustersForOutput->push_back( *outerClusterIter );
+            TTClustersForOutput->push_back( **innerClusterIter );
+            TTClustersForOutput->push_back( **outerClusterIter );
           }
           else
           {
