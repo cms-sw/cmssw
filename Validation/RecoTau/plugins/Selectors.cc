@@ -63,7 +63,6 @@ private:
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
       
-  edm::InputTag src_, eidsrc_;
   edm::EDGetTokenT<reco::GsfElectronCollection> recoGsfElectronCollectionToken_;
   edm::EDGetTokenT< edm::ValueMap<float> > edmValueMapFloatToken_;
   int eid_; 
@@ -86,16 +85,14 @@ bool
 ElectronIdFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //cout << "NonVertexingLeptonFilter:: entering filter" << endl;
-  using namespace reco;
-  using namespace std;
   
-  edm::Handle<GsfElectronCollection> electrons;
+  edm::Handle<reco::GsfElectronCollection> electrons;
   iEvent.getByToken( recoGsfElectronCollectionToken_, electrons );
   
   edm::Handle<edm::ValueMap<float> > eIDValueMap;
   iEvent.getByToken( edmValueMapFloatToken_, eIDValueMap );
   const edm::ValueMap<float> & eIDmap = * eIDValueMap;
-  GsfElectronCollection *product = new GsfElectronCollection();
+  reco::GsfElectronCollection *product = new reco::GsfElectronCollection();
 
   // Loop over electrons
   for (unsigned int i = 0; i < electrons->size(); i++){
@@ -105,7 +102,7 @@ ElectronIdFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   //cout << "Putting in the event" << endl;
-  std::auto_ptr<GsfElectronCollection> collection(product);
+  std::auto_ptr<reco::GsfElectronCollection> collection(product);
   iEvent.put(collection);
   return true;
 }
