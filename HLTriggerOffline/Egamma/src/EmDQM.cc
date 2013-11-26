@@ -55,7 +55,13 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   dbe->setCurrentFolder(dirname_);
 
   triggerobjwithrefs = pset.getParameter<edm::InputTag>("triggerobject");
+  triggerobjwithrefs_token_ = consumes<trigger::TriggerEventWithRefs>(pset.getParameter<edm::InputTag>("triggerobject"));
+  triggerResults_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","", triggerobjwithrefs.process()));
   pathIndex = pset.getUntrackedParameter<unsigned int>("pathIndex", 0);
+
+  //collections
+  genParticlesCollection_ = consumes< edm::View<reco::Candidate> >(pset.getUntrackedParameter<std::string>("genParticlesCollection","genParticles"));
+
   // parameters for generator study
   reqNum    = pset.getParameter<unsigned int>("reqNum");
   pdgGen    = pset.getParameter<int>("pdgGen");
@@ -76,7 +82,7 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   verbosity = pset.getUntrackedParameter<unsigned int>("verbosity",0);
 
   //preselction cuts 
-  gencutCollection_= pset.getParameter<edm::InputTag>("cutcollection");
+  gencutCollection_= consumes< edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("cutcollection"));
   gencut_          = pset.getParameter<int>("cutnum");
 
   ////////////////////////////////////////////////////////////
@@ -375,7 +381,7 @@ bool EmDQM::checkGeneratedParticlesRequirement(const edm::Event & event)
    //  to have |eta| < 2.5 ?  Then continue.                 //
    ////////////////////////////////////////////////////////////
    edm::Handle< edm::View<reco::Candidate> > genParticles;
-   event.getByLabel("genParticles", genParticles);
+   event.getByToken(genParticlesCollection_, genParticles);
    if(!genParticles.isValid()) {
      if (verbosity >= OUTPUT_WARNINGS)
         edm::LogWarning("EmDQM") << "genParticles invalid.";
@@ -430,7 +436,7 @@ bool EmDQM::checkRecoParticlesRequirement(const edm::Event & event)
   // and hopefully can be merged with it at some point in the future
 
   edm::Handle< edm::View<reco::Candidate> > referenceParticles;
-  event.getByLabel(gencutCollection_,referenceParticles);
+  event.getByToken(gencutCollection_,referenceParticles);
   if(!referenceParticles.isValid()) {
      if (verbosity >= OUTPUT_WARNINGS)
         edm::LogWarning("EmDQM") << "referenceParticles invalid.";
@@ -476,7 +482,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   //             of interest                                //
   ////////////////////////////////////////////////////////////
   edm::Handle< edm::View<reco::Candidate> > cutCounter;
-  event.getByLabel(gencutCollection_,cutCounter);
+  event.getByToken(gencutCollection_,cutCounter);
   if (cutCounter->size() < (unsigned int)gencut_) {
     //edm::LogWarning("EmDQM") << "Less than "<< gencut_ <<" gen particles with pdgId=" << pdgGen;
     return;
@@ -486,7 +492,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   // fill L1 and HLT info
   // get objects possed by each filter
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
-  event.getByLabel(triggerobjwithrefs,triggerObj);
+  event.getByToken(triggerobjwithrefs_token_,triggerObj);
   if(!triggerObj.isValid()) {
     if (verbosity >= OUTPUT_WARNINGS)
        edm::LogWarning("EmDQM") << "parameter triggerobject (" << triggerobjwithrefs << ") does not corresond to a valid TriggerEventWithRefs product. Please check especially the process name (e.g. when running over reprocessed datasets)";
@@ -557,7 +563,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
 	  
   bool accepted = true;  // flags that the event has been accepted by all filters before
   edm::Handle<edm::TriggerResults> hltResults;
-  event.getByLabel(edm::InputTag("TriggerResults","", triggerobjwithrefs.process()), hltResults);
+  event.getByToken(triggerResults_, hltResults);
   ////////////////////////////////////////////////////////////
   //            Loop over filter modules                    //
   ////////////////////////////////////////////////////////////

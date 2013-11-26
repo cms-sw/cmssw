@@ -126,7 +126,11 @@ private:
   /** input tag for the reconstructed electron collection
    *  (with respect to which the HLT efficiencies are calculated ?)
    */
-  edm::InputTag recoElectronsInputTag;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > recoElectronsInputTag;
+  edm::EDGetTokenT<std::vector<reco::SuperCluster> > correctedHybridSuperClusters_token_;
+  edm::EDGetTokenT<std::vector<reco::SuperCluster> > correctedMulti5x5SuperClustersWithPreshower_token_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResults_token_;
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs> hltTriggerSummaryRAW_token_;
 
   ////////////////////////////////////////////////////////////
   //          Create Histograms                             //
