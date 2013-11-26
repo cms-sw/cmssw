@@ -58,7 +58,7 @@ public:
 				   bool etaPhiRegion=false) 
     : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), 
 			  rVertex, zVertex),
-    thePhiMargin( Margin( fabs(deltaPhi),fabs(deltaPhi))),
+    thePhiMargin(fabs(deltaPhi),fabs(deltaPhi)),
     theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise), theMeasurementTrackerName(measurementTrackerName),
     theUseEtaPhi(etaPhiRegion)
    { initEtaRange(dir, Margin( fabs(deltaEta),fabs(deltaEta))); }
@@ -151,7 +151,9 @@ private:
 private:
 
   Range theEtaRange;
+  Range theLambdaRange;
   Margin thePhiMargin;
+  float theMeanLambda;
   double theMeasurementTrackerUsage;
   bool thePrecise;
   std::string theMeasurementTrackerName;
