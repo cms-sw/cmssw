@@ -5,7 +5,7 @@
 PFCandMETcorrInputProducer::PFCandMETcorrInputProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
-  src_ = cfg.getParameter<edm::InputTag>("src");
+  token_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("src"));
 
   if ( cfg.exists("binning") ) {
     typedef std::vector<edm::ParameterSet> vParameterSet;
@@ -41,7 +41,7 @@ void PFCandMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup&
 
   typedef edm::View<reco::Candidate> CandidateView;
   edm::Handle<CandidateView> cands;
-  evt.getByLabel(src_, cands);
+  evt.getByToken(token_, cands);
   
   for ( edm::View<reco::Candidate>::const_iterator cand = cands->begin();
 	cand != cands->end(); ++cand ) {

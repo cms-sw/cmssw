@@ -1,18 +1,14 @@
 #include "JetMETCorrections/Type1MET/plugins/MuonMETcorrInputProducer.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
 MuonMETcorrInputProducer::MuonMETcorrInputProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
-  src_ = cfg.getParameter<edm::InputTag>("src");
-
-  srcMuonCorrections_ = cfg.getParameter<edm::InputTag>("srcMuonCorrections");
+  token_ = consumes<reco::MuonCollection>(cfg.getParameter<edm::InputTag>("src"));
+  muonCorrectionMapToken_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(cfg.getParameter<edm::InputTag>("srcMuonCorrections"));
 
   produces<CorrMETData>();
 }
@@ -27,11 +23,11 @@ void MuonMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& e
   std::auto_ptr<CorrMETData> unclEnergySum(new CorrMETData());
 
   edm::Handle<reco::MuonCollection> muons;
-  evt.getByLabel(src_, muons);
+  evt.getByToken(token_, muons);
 
   typedef edm::ValueMap<reco::MuonMETCorrectionData> MuonMETCorrectionMap;
   edm::Handle<MuonMETCorrectionMap> muonCorrections;
-  evt.getByLabel(srcMuonCorrections_, muonCorrections);
+  evt.getByToken(muonCorrectionMapToken_, muonCorrections);
 
 //--- sum muon corrections. 
 //
