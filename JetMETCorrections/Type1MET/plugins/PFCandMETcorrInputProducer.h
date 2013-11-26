@@ -40,7 +40,7 @@ class PFCandMETcorrInputProducer : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag src_; // PFCandidate input collection
+  edm::EDGetTokenT<edm::View<reco::Candidate> > token_;
 
   struct binningEntryType
   {

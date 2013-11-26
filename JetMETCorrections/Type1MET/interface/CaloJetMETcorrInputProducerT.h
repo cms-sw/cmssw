@@ -62,7 +62,7 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
   explicit CaloJetMETcorrInputProducerT(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
   {
-    src_ = cfg.getParameter<edm::InputTag>("src");
+    token_ = consumes<std::vector<T> >(cfg.getParameter<edm::InputTag>("src"));
 
     offsetCorrLabel_ = ( cfg.exists("offsetCorrLabel") ) ?
       cfg.getParameter<std::string>("offsetCorrLabel") : "";
@@ -78,9 +78,11 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
       skipEMfractionThreshold_ = cfg.getParameter<double>("skipEMfractionThreshold");
     }
 
-    if ( cfg.exists("srcMET") ) {
-      srcMET_ = cfg.getParameter<edm::InputTag>("srcMET");
-    }
+    if(cfg.exists("srcMET"))
+      {
+	srcMET_ = cfg.getParameter<edm::InputTag>("srcMET");
+	metToken_ = consumes<edm::View<reco::MET> >(cfg.getParameter<edm::InputTag>("srcMET"));
+      }
 
     produces<CorrMETData>("type1");
     produces<CorrMETData>("type2");
@@ -98,12 +100,12 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 
     typedef std::vector<T> JetCollection;
     edm::Handle<JetCollection> jets;
-    evt.getByLabel(src_, jets);
+    evt.getByToken(token_, jets);
 
     typedef edm::View<reco::MET> METView;
     edm::Handle<METView> met;
     if ( srcMET_.label() != "" ) {
-      evt.getByLabel(srcMET_, met);
+      evt.getByToken(metToken_, met);
       if ( met->size() != 1 )
 	throw cms::Exception("CaloJetMETcorrInputProducer::produce") 
 	  << "Failed to find unique MET in the event, src = " << srcMET_.label() << " !!\n";
@@ -170,7 +172,7 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag src_; // CaloJet input collection
+  edm::EDGetTokenT<std::vector<T> > token_;
 
   std::string offsetCorrLabel_; // e.g. 'ak5CaloJetL1Fastjet'
   std::string jetCorrLabel_;    // e.g. 'ak5CaloJetL1FastL2L3' (MC) / 'ak5CaloJetL1FastL2L3Residual' (Data)
@@ -191,6 +193,8 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
   double skipEMfractionThreshold_;
 
   edm::InputTag srcMET_; // MET input, needed to compute "unclustered energy" sum for Type 2 MET correction
+  edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
+
 };
 
 #endif
