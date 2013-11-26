@@ -649,8 +649,8 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
   /// Track Trigger MC Truth
   edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
   edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > >    MCTruthTTStubHandle;
-  iEvent.getByLabel( "TTClusterAssociatorFromPixelDigis", MCTruthTTClusterHandle );
-  iEvent.getByLabel( "TTStubAssociatorFromPixelDigis",    MCTruthTTStubHandle );
+  iEvent.getByLabel( "TTClusterAssociatorFromPixelDigis", "ClusterAccepted", MCTruthTTClusterHandle );
+  iEvent.getByLabel( "TTStubAssociatorFromPixelDigis", "StubAccepted",       MCTruthTTStubHandle );
 
   ////////////////////////////////
   /// COLLECT STUB INFORMATION ///
