@@ -87,11 +87,12 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
   
   edm::ESHandle<PixelClusterParameterEstimator> pixelCPE;
   es.get<TkPixelCPERecord>().get("FastPixelCPE",pixelCPE);
-  const PixelClusterParameterEstimator &pixelcpe(*pixelCPE);
+  auto pixelcpe = pixelCPE->clone();
+  pixelcpe->clearParameters();
   
   edm::ESHandle<StripClusterParameterEstimator> stripCPE;
   es.get<TkStripCPERecord>().get("FastStripCPE", stripCPE); 
-  const StripClusterParameterEstimator &stripcpe(*stripCPE);
+  auto stripcpe = stripCPE->clone();
     
   edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
   std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
@@ -118,8 +119,8 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
   std::map< DetId, std::vector<SiStripCluster> > temporaryStripClusters;
   
   //Clearing CPE maps from previous event.
-  stripcpe.clearParameters();
-  pixelcpe.clearParameters();
+  stripcpe->clearParameters();
+  pixelcpe->clearParameters();
   
   int ClusterNum = 0;
   
@@ -166,7 +167,7 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
       
       //Filling Pixel CPE with information.
       std::pair<int,int> row_col((int)pixelPos_out.first,(int)pixelPos_out.second);
-      pixelcpe.enterLocalParameters((unsigned int) det.rawId() , row_col, std::make_pair(position,error));
+      pixelcpe->enterLocalParameters((unsigned int) det.rawId() , row_col, std::make_pair(position,error));
       
       unsigned int ch = PixelChannelIdentifier::pixelToChannel((int)pixelPos_out.first, (int)pixelPos_out.second);
       
@@ -220,7 +221,7 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
       }
       
       //Filling Strip CPE with info.
-      stripcpe.enterLocalParameters(det.rawId(), strip_num, std::make_pair(position,error));
+      stripcpe->enterLocalParameters(det.rawId(), strip_num, std::make_pair(position,error));
       
       //Creating a new strip cluster
       SiStripCluster temporaryStripCluster(det.rawId(), strip_num, digi_vec.begin(), digi_vec.end());

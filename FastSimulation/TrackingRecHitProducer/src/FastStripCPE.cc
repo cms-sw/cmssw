@@ -3,9 +3,9 @@
 #include <algorithm>
 #include<cmath>
 #include<map>
+#include <memory>
 
-
-void FastStripCPE::enterLocalParameters(uint32_t id, uint16_t firstStrip, const std::pair<LocalPoint, LocalError>& pos_err_info ) const {
+void FastStripCPE::enterLocalParameters(uint32_t id, uint16_t firstStrip, const std::pair<LocalPoint, LocalError>& pos_err_info ) {
   //Filling the map.
   pos_err_map.insert(std::make_pair(std::make_pair(id, firstStrip), pos_err_info));
 }
@@ -21,6 +21,10 @@ StripClusterParameterEstimator::LocalValues FastStripCPE::localParameters( const
   throw cms::Exception("FastStripCPE") << "Cluster not filled.";
 }
 
+std::unique_ptr<ClusterParameterEstimator<SiStripCluster>>
+FastStripCPE::clone() const {
+    return std::unique_ptr<ClusterParameterEstimator<SiStripCluster>>(new ClusterParameterEstimator<SiStripCluster>(*this));
+}
 
 LocalVector FastStripCPE::driftDirection(const StripGeomDetUnit* det) const {
   throw cms::Exception("FastStripCPE") << "Should Not Be Called.";
