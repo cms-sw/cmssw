@@ -44,7 +44,7 @@ public:
   /// that has a value range of [0., nstrip]
   LocalPoint  centreOfStrip(float strip) const;
   LocalError  localError(float strip) const;
-
+  LocalError localError_cls(float strip, float cluster_size) const;
   /// returns fractional strip number [0..nstrips] for a LocalPoint
   /// E.g., if local point hit strip #2, the fractional strip number would be
   /// somewhere in the (1., 2] interval
