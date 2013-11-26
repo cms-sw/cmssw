@@ -108,7 +108,7 @@ void TTStubAssociator< T >::produce( edm::Event& iEvent, const edm::EventSetup& 
   if ( TTClusterTruthInputTags.size() != TTStubsInputTags.size() )
   {
     std::cerr << "E R R O R! the InputTag vectors have different size!" << std::endl;
-    return(0);
+    exit(0);
   }
 
   /// Loop over the InputTags to handle multiple collections
