@@ -33,6 +33,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 class TFile;
 class TH1F;
@@ -59,11 +60,11 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   
   // Begin Run
-  virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
+  virtual void beginRun(edm::Run const & run, const edm::EventSetup & es);
   
   void smearHits(MixCollection<PSimHit>& input,
                  std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits,
-                 std::map<unsigned, edm::OwnVector<FastTrackerCluster> >& theClusters);
+                 std::map<unsigned, edm::OwnVector<FastTrackerCluster> >& theClusters, const TrackerTopology *tTopo);
 
  void  matchHits( std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
 		  std::map<unsigned, edm::OwnVector<SiTrackerGSMatchedRecHit2D> >& matchedMap,
@@ -84,7 +85,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
 			Local3DPoint& position , 
 			LocalError& error, 
 			unsigned& alphaMult, 
-			unsigned& betaMult);
+			unsigned& betaMult, const TrackerTopology *tTopo);
   //
   void loadPixelData();
   //

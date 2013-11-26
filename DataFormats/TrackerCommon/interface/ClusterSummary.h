@@ -118,6 +118,7 @@ The number of variables for each module is stored within iterator_
 
 ********************************************************************************************/
 
+class TrackerTopology;
 
 class ClusterSummary {
 
@@ -278,8 +279,8 @@ class ClusterSummary {
   public:
     ModuleSelection(std::string gs);
     virtual ~ModuleSelection();
-    virtual std::pair<int,int> IsStripSelected (int DetId);
-    virtual std::pair<int,int> IsPixelSelected (int DetId);
+    virtual std::pair<int,int> IsStripSelected (int DetId, const TrackerTopology *tTopo);
+    virtual std::pair<int,int> IsPixelSelected (int DetId, const TrackerTopology *tTopo);
   private:
     std::string geosearch; // string of selected modules	
   };
