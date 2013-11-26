@@ -16,7 +16,6 @@
   <use   name="DataFormats/ParticleFlowCandidate"/>
   <use   name="DataFormats/PatCandidates"/>
   <use   name="DataFormats/RPCRecHit"/>  
-  <use   name="EGamma/EGammaAnalysisTools"/>
   <use   name="PhysicsTools/JetMCUtils"/>
   <use   name="RecoEcal/EgammaCoreTools"/>
   <use   name="RecoMuon/MuonIsolation"/>
