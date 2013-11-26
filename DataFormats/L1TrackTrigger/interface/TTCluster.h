@@ -31,7 +31,8 @@ class TTCluster
     TTCluster();
     TTCluster( std::vector< T > aHits,
                DetId aDetId,
-               unsigned int aStackMember );
+               unsigned int aStackMember,
+               bool storeLocal );
 
     /// Destructor
     ~TTCluster();
