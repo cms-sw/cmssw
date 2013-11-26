@@ -60,6 +60,8 @@ private:
   int maxBunch_;
   bool digitizeOnlyMuons_;
   std::vector<double> neutronGammaRoll_;
+  bool doNoiseCLS_;
+  double minPabsNoiseCLS_;
 
   CLHEP::RandFlat* flat1_;
   CLHEP::RandFlat* flat2_;
@@ -70,3 +72,4 @@ private:
 
 };
 #endif
+
