@@ -320,10 +320,10 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   
   EtaPhiMeasurementEstimator etaPhiEstimator ((theEtaRange.second-theEtaRange.first)/2.,
 					      (thePhiMargin.left()+thePhiMargin.right())/2.);
-  MeasurementEstimator & findDetAndHits = etaPhiEstimator;
+  MeasurementEstimator * findDetAndHits = &etaPhiEstimator;
   if (est){
     LogDebug("RectangularEtaPhiTrackingRegion")<<"use pixel specific estimator.";
-    findDetAndHits =*est;
+    findDetAndHits = est;
   }
   else{
     LogDebug("RectangularEtaPhiTrackingRegion")<<"use generic etat phi estimator.";
@@ -349,7 +349,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   ev.getByLabel(edm::InputTag(theMeasurementTrackerName), mte);
   LayerMeasurements lm(mte->measurementTracker(), *mte);
    
-  vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, findDetAndHits);
+  vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, *findDetAndHits);
   typedef vector<TrajectoryMeasurement>::const_iterator IM;
   for (IM im = meas.begin(); im != meas.end(); im++) {
     TrajectoryMeasurement::ConstRecHitPointer ptrHit = im->recHit();
