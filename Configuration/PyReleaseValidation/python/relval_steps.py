@@ -884,14 +884,13 @@ steps['TTbarFSPU2']=merge([PUFS2,Kby(100,500),steps['TTbarFS']])
 
 
 # step2 
-step2Defaults = { 
-                  '-s'            : 'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+step2Defaults = { '-s'            : 'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
                   '--datatier'    : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
                   '--eventcontent': 'FEVTDEBUGHLT',
                   '--conditions'  : 'auto:startup',
                   }
 #for 2015
-step2Upg2015Defaults = {'-s'     :'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
                  '--conditions'  :'auto:upgradePLS1', 
                  # '--magField'    : '38T_PostLS1',   #activate when 6_2_0_patch1 GEN-SIM will be available ( 6_2_0_pre8 GEN-SIM don't have 38T_PostLS1)
                  '--datatier'    :'GEN-SIM-DIGI-RAW',
@@ -902,7 +901,7 @@ step2Upg2015Defaults = {'-s'     :'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco'
                   }
 steps['DIGIUP15']=merge([step2Upg2015Defaults]) # todo: remove UP from label
 
-steps['DIGIPROD1']=merge([{'--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
+steps['DIGIPROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
 steps['DIGI']=merge([step2Defaults])
 #steps['DIGI2']=merge([stCond,step2Defaults])
 steps['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
@@ -917,12 +916,12 @@ steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
 steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
 
     
-steps['DIGIHI']=merge([{'--conditions':'auto:starthi_HIon', '-s':'DIGI,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"', '-n':10}, hiDefaults, step2Defaults])
+steps['DIGIHI']=merge([{'--conditions':'auto:starthi_HIon', '-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"', '-n':10}, hiDefaults, step2Defaults])
 
 #wmsplit['DIGIHI']=5
 
 #for pix phase1
-step2Upgpixphase1Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upgpixphase1Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'DESIGN61_V10::All', #to be updtaed with autocond
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -933,7 +932,7 @@ step2Upgpixphase1Defaults = {'-s':'DIGI,L1,DIGI2RAW',
 steps['DIGIUP']=merge([step2Upgpixphase1Defaults])
 
 #for 2017
-step2Upg2017Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'auto:upgradePLS1', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
