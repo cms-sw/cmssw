@@ -308,11 +308,34 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
   } /// End of loop over detector elements
 
-  /// Put output in the event
+  /// Put output in the event (1)
+  /// Get also the OrphanHandle of the accepted clusters
+  edm::OrphanHandle< std::vector< TTCluster< T > > > TTClusterAcceptedHandle = iEvent.put( TTClustersForOutput, "ClusterAccepted" );
+
+  /// Now, correctly reset the output
+  for ( unsigned int is = 0; is < TTStubsForOutputAccepted->size(); is++ )
+  {
+    /// This works under the assumption that (1) 2 elements of
+    /// TTClustersForOutput correspond exactly to one element
+    /// of TTStubsForOutputAccepted, (2) the order is preserved between
+    /// the two vectors, and (3) the order is preserved after putting
+    /// TTClustersForOutput to the event and getting the OrphanHandle
+    unsigned int ic = 2*is;
+
+    TTStub< T > tempTTStub( TTStubsForOutputAccepted->at(is).getDetId() );
+    tempTTStub.addClusterPtr( edm::Ptr< TTCluster< T > >( TTClusterAcceptedHandle, ic ) );
+    tempTTStub.addClusterPtr( edm::Ptr< TTCluster< T > >( TTClusterAcceptedHandle, ic+1 ) );
+    tempTTStub.setTriggerDisplacement( TTStubsForOutputAccepted->at(is).getTriggerDisplacement() );
+    tempTTStub.setTriggerOffset( TTStubsForOutputAccepted->at(is).getTriggerOffset() );
+
+    /// "at" and "operator[]" both return a reference to the indexed element,
+    /// so this is enough to replace the content
+    TTStubsForOutputAccepted->at(is) = tempTTStub;
+  }
+
+  /// Put output in the event (2)
   iEvent.put( TTStubsForOutputAccepted, "StubAccepted" );
   iEvent.put( TTStubsForOutputRejected, "StubRejected" );
-  iEvent.put( TTClustersForOutput, "ClusterAccepted" );
-
 }
 
 /// Sort routine for stub ordering
@@ -321,7 +344,6 @@ bool TTStubBuilder< T >::SortStubBendPairs( const std::pair< unsigned int, doubl
 {
   return left.second < right.second;
 }
-
 
 #endif
 
