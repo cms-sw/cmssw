@@ -277,8 +277,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
         for ( auto const & ts: is.second )
         {
           TTStubsForOutputAccepted->push_back( ts );
-          TTClustersForOutput->push_back( *(ts.getClusterPtrs(0)) );
-          TTClustersForOutput->push_back( *(ts.getClusterPtrs(1)) );
+          TTClustersForOutput->push_back( *(ts.getClusterPtr(0)) );
+          TTClustersForOutput->push_back( *(ts.getClusterPtr(1)) );
         }
       }
       else
@@ -295,8 +295,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
         {
           /// Put the highest momenta (lowest bend) stubs into the event
           TTStubsForOutputAccepted->push_back(is.second[bendMap[i].first]);
-          TTClustersForOutput->push_back( *(is.second[bendMap[i].first].getClusterPtrs(0)) );
-          TTClustersForOutput->push_back( *(is.second[bendMap[i].first].getClusterPtrs(1)) );
+          TTClustersForOutput->push_back( *(is.second[bendMap[i].first].getClusterPtr(0)) );
+          TTClustersForOutput->push_back( *(is.second[bendMap[i].first].getClusterPtr(1)) );
         }
         for ( unsigned int i = maxStubs; i < is.second.size(); ++i )
         {
