@@ -22,6 +22,8 @@ newAk5PFL1FastL2L3 = ak5PFL1FastL2L3.clone()
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5JPTL1FastL2L3,ak5JPTL1Fastjet,ak5JPTL2Relative,ak5JPTL3Absolute
 newAk5JPTL1FastL2L3 = ak5JPTL1FastL2L3.clone()
 
+from JetCorrectionServices_AK5CHS_cff import ak5PFchsL1FastL2L3,ak5PFchsL1Fastjet,ak5PFchsL2Relative,ak5PFchsL3Absolute
+newAk5PFchsL1FastL2L3 = ak5PFchsL1FastL2L3.clone()
 
 JetValidation = cms.Sequence(
 #    JetAnalyzerKt6PF*
