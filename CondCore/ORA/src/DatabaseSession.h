@@ -11,8 +11,8 @@
 #include <memory>
 #include <map>
 
-namespace Reflex {
-  class Type;
+namespace edm {
+  class TypeWithDict;
 }
 
 namespace ora {
@@ -79,7 +79,7 @@ namespace ora {
    
     std::string schemaVersion( bool userSchema );
 
-    Handle<DatabaseContainer> createContainer( const std::string& containerName, const Reflex::Type& type );
+    Handle<DatabaseContainer> createContainer( const std::string& containerName, const edm::TypeWithDict& type );
 
     Handle<ora::DatabaseContainer> addContainer( const std::string& containerName, const std::string& className );
     
@@ -101,7 +101,7 @@ namespace ora {
 
     Object fetchObjectByName( const std::string& name );
 
-    boost::shared_ptr<void> fetchTypedObjectByName( const std::string& name, const Reflex::Type& asType );
+    boost::shared_ptr<void> fetchTypedObjectByName( const std::string& name, const edm::TypeWithDict& asType );
 
     bool getNamesForContainer( int containerId, std::vector<std::string>& destination );
 

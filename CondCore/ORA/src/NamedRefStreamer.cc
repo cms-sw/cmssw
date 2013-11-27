@@ -9,14 +9,14 @@
 #include "RelationalStreamerFactory.h"
 // externals
 #include "CoralBase/Attribute.h"
-#include "Reflex/Member.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
 
 std::string ora::namedRefNullLabel(){
   static const std::string nullLabel("ora::NamedRef::Null");
   return nullLabel;
 }
 
-ora::NamedReferenceStreamerBase::NamedReferenceStreamerBase( const Reflex::Type& objectType,
+ora::NamedReferenceStreamerBase::NamedReferenceStreamerBase( const edm::TypeWithDict& objectType,
                                                              MappingElement& mapping,
                                                              ContainerSchema& schema):
   m_objectType( objectType ),
@@ -37,25 +37,25 @@ ora::NamedReferenceStreamerBase::~NamedReferenceStreamerBase(){
 bool ora::NamedReferenceStreamerBase::buildDataElement(DataElement& dataElement,
                                                        IRelationalData& relationalData){
   m_dataElement = &dataElement;
-  m_objectType.UpdateMembers();
-  Reflex::Member nameMember = m_objectType.DataMemberByName("m_name");
+  //-ap m_objectType.UpdateMembers();
+  edm::MemberWithDict nameMember = m_objectType.dataMemberByName("m_name");
   if( !nameMember ){
-    throwException("Data member \"m_name\" not found in class \""+m_objectType.Name()+"\".",
+    throwException("Data member \"m_name\" not found in class \""+m_objectType.name()+"\".",
                    "NamedReferenceStreamerBase::buildDataElement");
   }
-  m_refNameDataElement = &dataElement.addChild( nameMember.Offset(), 0 );
-  Reflex::Member ptrMember = m_objectType.DataMemberByName("m_ptr");
+  m_refNameDataElement = &dataElement.addChild( nameMember.offset(), 0 );
+  edm::MemberWithDict ptrMember = m_objectType.dataMemberByName("m_ptr");
   if( !ptrMember ){
-    throwException("Data member \"m_ptr\" not found in class \""+m_objectType.Name()+"\".",
+    throwException("Data member \"m_ptr\" not found in class \""+m_objectType.name()+"\".",
                    "NamedReferenceStreamerBase::buildDataElement");
   }
-  m_ptrDataElement = &dataElement.addChild( ptrMember.Offset(), 0 );
-  Reflex::Member flagMember = m_objectType.DataMemberByName("m_isPersistent");
+  m_ptrDataElement = &dataElement.addChild( ptrMember.offset(), 0 );
+  edm::MemberWithDict flagMember = m_objectType.dataMemberByName("m_isPersistent");
   if( !flagMember ){
-    throwException("Data member \"m_isPersistent\" not found in class \""+m_objectType.Name()+"\".",
+    throwException("Data member \"m_isPersistent\" not found in class \""+m_objectType.name()+"\".",
                    "NamedReferenceStreamerBase::buildDataElement");
   }
-  m_flagDataElement = &dataElement.addChild( flagMember.Offset(), 0 );
+  m_flagDataElement = &dataElement.addChild( flagMember.offset(), 0 );
   // then book the column in the data attribute... 
   const std::vector<std::string>& columns =  m_mapping.columnNames();
   if( columns.size()==0 ){
@@ -94,7 +94,7 @@ void ora::NamedReferenceStreamerBase::bindDataForRead( void* data ){
     name = std::string("");
   }
   if(!name.empty()){
-    Reflex::Type namedRefType = m_objectType.TemplateArgumentAt(0);
+    edm::TypeWithDict namedRefType = m_objectType.templateArgumentAt(0);
     boost::shared_ptr<void> ptr = m_schema.dbSession().fetchTypedObjectByName( name, namedRefType );
     *static_cast<boost::shared_ptr<void>*>(ptrAddress) = ptr;
     *static_cast<bool*>(flagAddress) = true;
@@ -102,7 +102,7 @@ void ora::NamedReferenceStreamerBase::bindDataForRead( void* data ){
   *static_cast<std::string*>(refNameAddress) = name;
 }
 
-ora::NamedRefWriter::NamedRefWriter( const Reflex::Type& objectType,
+ora::NamedRefWriter::NamedRefWriter( const edm::TypeWithDict& objectType,
                                      MappingElement& mapping,
                                      ContainerSchema& contSchema ):
   NamedReferenceStreamerBase( objectType, mapping, contSchema ){
@@ -126,7 +126,7 @@ void ora::NamedRefWriter::write( int oid,
   bindDataForUpdate( data );  
 }
 
-ora::NamedRefUpdater::NamedRefUpdater( const Reflex::Type& objectType,
+ora::NamedRefUpdater::NamedRefUpdater( const edm::TypeWithDict& objectType,
                                        MappingElement& mapping,
                                        ContainerSchema& contSchema ):
   NamedReferenceStreamerBase( objectType, mapping, contSchema ){
@@ -150,7 +150,7 @@ void ora::NamedRefUpdater::update( int oid,
   bindDataForUpdate( data );  
 }
 
-ora::NamedRefReader::NamedRefReader( const Reflex::Type& objectType,
+ora::NamedRefReader::NamedRefReader( const edm::TypeWithDict& objectType,
                                      MappingElement& mapping,
                                      ContainerSchema& contSchema ):
   NamedReferenceStreamerBase( objectType, mapping, contSchema ){
@@ -179,7 +179,7 @@ void ora::NamedRefReader::clear(){
 }
 
 
-ora::NamedRefStreamer::NamedRefStreamer( const Reflex::Type& objectType,
+ora::NamedRefStreamer::NamedRefStreamer( const edm::TypeWithDict& objectType,
                                          MappingElement& mapping,
                                          ContainerSchema& contSchema ):
   m_objectType( objectType ),

@@ -1,4 +1,5 @@
 #include "CondCore/ORA/interface/Exception.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "PVectorHandler.h"
 #include "ClassUtils.h"
 // externals
@@ -6,7 +7,7 @@
 
 ora::PVectorIteratorHandler::PVectorIteratorHandler( const Reflex::Environ<long>& collEnv,
                                                      Reflex::CollFuncTable& collProxy,
-                                                     const Reflex::Type& iteratorReturnType,
+                                                     const edm::TypeWithDict& iteratorReturnType,
                                                      size_t startElement):
   m_returnType(iteratorReturnType),
   m_collEnv(collEnv),
@@ -40,12 +41,12 @@ ora::PVectorIteratorHandler::object(){
   return m_currentElement;
 }
 
-Reflex::Type&
+edm::TypeWithDict&
 ora::PVectorIteratorHandler::returnType(){
   return m_returnType;
 }
 
-ora::PVectorHandler::PVectorHandler( const Reflex::Type& dictionary ):
+ora::PVectorHandler::PVectorHandler( const edm::TypeWithDict& dictionary ):
   m_type( dictionary ),
   m_iteratorReturnType(),
   m_isAssociative( false ),
@@ -54,28 +55,30 @@ ora::PVectorHandler::PVectorHandler( const Reflex::Type& dictionary ):
   m_persistentSizeAttributeOffset(0),
   m_vecAttributeOffset(0)
 {
-  Reflex::Member privateVectorAttribute = m_type.DataMemberByName("m_vec");
+  edm::MemberWithDict privateVectorAttribute = m_type.dataMemberByName("m_vec");
   if(privateVectorAttribute){
-    m_vecAttributeOffset = privateVectorAttribute.Offset();
-    Reflex::Member method = privateVectorAttribute.TypeOf().MemberByName("createCollFuncTable");
+    m_vecAttributeOffset = privateVectorAttribute.offset();
+    edm::FunctionWithDict method = privateVectorAttribute.typeOf().functionMemberByName("createCollFuncTable");
     if(method){
-      Reflex::CollFuncTable* collProxyPtr;
-      method.Invoke(collProxyPtr);
-      m_collProxy.reset( collProxyPtr );
+      Reflex::CollFuncTable collProxyPtr;
+      // holds the return ObjectWithDict.
+      edm::ObjectWithDict collProxyPtrObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(Reflex::CollFuncTable*)), &collProxyPtr );
+      method.invoke(&collProxyPtrObj);
+      m_collProxy.reset( &collProxyPtr );
     }
     if(! m_collProxy.get() ){
-      throwException( "Cannot find \"createCollFuncTable\" function for type \""+m_type.Name(Reflex::SCOPED)+"\"",
+      throwException( "Cannot find \"createCollFuncTable\" function for type \""+m_type.qualifiedName()+"\"",
                       "PVectorHandler::PVectorHandler");
     }
   }
 
-  Reflex::Member persistentSizeAttribute = m_type.DataMemberByName("m_persistentSize");
+  edm::MemberWithDict persistentSizeAttribute = m_type.dataMemberByName("m_persistentSize");
   if( persistentSizeAttribute ){
-    m_persistentSizeAttributeOffset = persistentSizeAttribute.Offset();
+    m_persistentSizeAttributeOffset = persistentSizeAttribute.offset();
   }
 
   // find the iterator return type as the member type_value of the containers
-  Reflex::Type valueType = ClassUtils::containerValueType( m_type );
+  edm::TypeWithDict valueType = ClassUtils::containerValueType( m_type );
   m_iteratorReturnType = ClassUtils::resolvedType( valueType );
 }
 
@@ -108,7 +111,7 @@ ora::IArrayIteratorHandler*
 ora::PVectorHandler::iterate( const void* address ){
   if ( ! m_iteratorReturnType ) {
     throwException( "Missing the dictionary information for the value_type member of the container \"" +
-                    m_type.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
+                    m_type.qualifiedName() + "\"",
                     "PVectorHandler" );
   }
   m_collEnv.fObject = static_cast<char*>(const_cast<void*>(address))+m_vecAttributeOffset;
@@ -134,7 +137,7 @@ ora::PVectorHandler::clear( const void* address ){
   m_collProxy->clear_func(&m_collEnv);
 }
 
-Reflex::Type&
+edm::TypeWithDict&
 ora::PVectorHandler::iteratorReturnType() {
   return m_iteratorReturnType;
 }

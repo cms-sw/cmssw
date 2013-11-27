@@ -7,7 +7,7 @@
 //
 #include <memory>
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace ora {
 
@@ -22,7 +22,7 @@ namespace ora {
     
     public:
       /// Constructor
-      STLContainerWriter( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      STLContainerWriter( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
       virtual ~STLContainerWriter();
 
       MappingElement& mapping();
@@ -39,7 +39,7 @@ namespace ora {
       void write( int oid,const void* data );
 
     private:
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mappingElement;
       ContainerSchema& m_schema;
       std::vector<int> m_recordId;
@@ -59,7 +59,7 @@ namespace ora {
     public:
 
     /// Constructor
-    STLContainerUpdater(const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    STLContainerUpdater(const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     virtual ~STLContainerUpdater();
 
@@ -81,7 +81,7 @@ namespace ora {
     public:
     
     /// Constructor
-    STLContainerReader(const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    STLContainerReader(const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     virtual ~STLContainerReader();
     
@@ -97,7 +97,7 @@ namespace ora {
     void clear();
 
     private:
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mappingElement;
       ContainerSchema& m_schema;
       std::vector<int> m_recordId;
@@ -115,7 +115,7 @@ namespace ora {
   class STLContainerStreamer : public IRelationalStreamer 
   {
     public:
-    STLContainerStreamer( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    STLContainerStreamer( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     ~STLContainerStreamer();
 
@@ -126,7 +126,7 @@ namespace ora {
     IRelationalReader* newReader();
     
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
     ContainerSchema& m_schema;
   }; 

@@ -5,8 +5,9 @@
 //
 #include <memory>
 // externals
-#include "Reflex/Reflex.h"
-#include "Reflex/Builder/CollectionProxy.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+
+#include "RflxCollProxy.h"
 
 namespace ora {
 
@@ -17,7 +18,7 @@ namespace ora {
     /// Constructor
     PVectorIteratorHandler( const Reflex::Environ<long>& collEnv,
                             Reflex::CollFuncTable& collProxy,
-                            const Reflex::Type& iteratorReturnType,
+                            const edm::TypeWithDict& iteratorReturnType,
                             size_t startElement );
 
     /// Destructor
@@ -30,12 +31,12 @@ namespace ora {
     void* object();
 
     /// Returns the return type of the iterator dereference method
-    Reflex::Type& returnType();
+    edm::TypeWithDict& returnType();
 
     private:
 
     /// The return type of the iterator dereference method
-    Reflex::Type m_returnType;
+    edm::TypeWithDict m_returnType;
 
     /// Structure containing parameters of the collection instance
     Reflex::Environ<long> m_collEnv;
@@ -54,7 +55,7 @@ namespace ora {
 
     public:
       /// Constructor
-      explicit PVectorHandler( const Reflex::Type& dictionary );
+      explicit PVectorHandler( const edm::TypeWithDict& dictionary );
 
       /// Destructor
       virtual ~PVectorHandler();
@@ -75,7 +76,7 @@ namespace ora {
       void clear( const void* address );
 
       /// Returns the iterator return type
-      Reflex::Type& iteratorReturnType();
+      edm::TypeWithDict& iteratorReturnType();
 
       /// Returns the associativeness of the container
       bool isAssociative() const {
@@ -90,10 +91,10 @@ namespace ora {
 
     private:
       /// The dictionary information
-      Reflex::Type m_type;
+      edm::TypeWithDict m_type;
 
       /// The iterator return type
-      Reflex::Type m_iteratorReturnType;
+      edm::TypeWithDict m_iteratorReturnType;
 
       /// Flag indicating whether the container is associative
       bool m_isAssociative;
