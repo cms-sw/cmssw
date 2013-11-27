@@ -39,7 +39,7 @@ void EventHeader::setup(edm::ConsumesCollector && iC, TTree* HltTree) {
   HltTree->Branch("Orbit",     &fOrbit,       "Orbit/I"); 
   HltTree->Branch("AvgInstDelLumi", &fAvgInstDelLumi, "AvgInstDelLumi/D");
 
-  lumi_Token = iC.consumes<LumiSummary>(edm::InputTag("lumiProducer")); 
+  lumi_Token = iC.consumes<LumiSummary,edm::InLumi>(edm::InputTag("lumiProducer")); 
 }
 
 /* **Analyze the event** */
