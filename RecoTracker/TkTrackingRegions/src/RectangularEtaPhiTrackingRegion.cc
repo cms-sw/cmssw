@@ -253,7 +253,7 @@ OuterHitPhiPrediction
   float phi0 = phiDirection();
   return OuterHitPhiPrediction( 
       OuterHitPhiPrediction::Range( phi0-thePhiMargin.left(),
-                                    phi0+thePhiMargin.left()),
+                                    phi0+thePhiMargin.right()),
       OuterHitPhiPrediction::Range( curvature(invPtRange().min(),iSetup), 
                                     curvature(invPtRange().max(),iSetup)),
       originRBound());
