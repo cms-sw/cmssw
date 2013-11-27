@@ -44,7 +44,7 @@ public:
 		      kThreeProng0pi0, kThreeProng1pi0,
 		      kOther, kUndefined};
 
-  edm::InputTag MC_;
+  edm::EDGetTokenT<reco::GenParticleCollection> MC_;
   double ptMinMCTau_;
   double ptMinMCElectron_;
   double ptMinMCMuon_;

@@ -5,12 +5,12 @@
 #include <fstream>
 
 L2TauAnalyzer::L2TauAnalyzer(const edm::ParameterSet& iConfig):
- l2TauInfoAssoc_(iConfig.getParameter<edm::InputTag>("L2InfoAssociationInput")),
- l1Taus_(iConfig.getParameter<edm::InputTag>("L1TauCollection")),
- l1Jets_(iConfig.getParameter<edm::InputTag>("L1JetCollection")),
+ l2TauInfoAssoc_(consumes<reco::L2TauInfoAssociation>(iConfig.getParameter<edm::InputTag>("L2InfoAssociationInput"))),
+ l1Taus_(consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1TauCollection"))),
+ l1Jets_(consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1JetCollection"))),
  rootFile_(iConfig.getParameter<std::string>("outputFileName")),
  IsSignal_(iConfig.getParameter<bool>("IsSignal")),
- mcColl_(iConfig.getParameter<edm::InputTag>("MatchedCollection"))
+ mcColl_(consumes<LVColl>(iConfig.getParameter<edm::InputTag>("MatchedCollection")))
 {
   //File Setup
   l2file = new TFile(rootFile_.c_str(),"recreate");
@@ -70,7 +70,7 @@ L2TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<l1extra::L1JetParticleCollection> L1Taus; //Handle To The L1 Taus
    Handle<l1extra::L1JetParticleCollection> L1Jets; //Handle To The L1 jets
 
-        if(iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc))//get the handle
+        if(iEvent.getByToken(l2TauInfoAssoc_,l2TauInfoAssoc))//get the handle
 	  {
 	    if(l2TauInfoAssoc->size()>0)
 	      for(L2TauInfoAssociation::const_iterator p = l2TauInfoAssoc->begin();p!=l2TauInfoAssoc->end();++p)
@@ -86,7 +86,7 @@ L2TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 		  if(IsSignal_) //Get Collection and match it
 		    {
-	              if(iEvent.getByLabel(mcColl_,McInfo))
+	              if(iEvent.getByToken(mcColl_,McInfo))
 			  mcMatch=match(jet,*McInfo);
 		    }
 
@@ -109,7 +109,7 @@ L2TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		      //Match with L1 and fill
 		      L1et=0;
 		      L1eta=0;
-		      if(iEvent.getByLabel(l1Taus_,L1Taus))
+		      if(iEvent.getByToken(l1Taus_,L1Taus))
 			{
 			    MatchElementL2 l1Match;
 			    l1Match.matched=false;
@@ -125,7 +125,7 @@ L2TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			    //If not matched look at the jet collection
 			    else
 			      {
-				if(iEvent.getByLabel(l1Jets_,L1Jets))
+				if(iEvent.getByToken(l1Jets_,L1Jets))
 				  {
 				    l1Match=match(jet,*L1Taus);
 				    if(l1Match.matched)
