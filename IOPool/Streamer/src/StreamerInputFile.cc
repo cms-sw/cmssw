@@ -229,6 +229,11 @@ namespace edm {
 
       IOSize nWant = sizeof(EventHeader);
       IOSize nGot = readBytes(&eventBuf_[0], nWant);
+      if(nGot == 0) {
+        // no more data available
+        endOfFile_ = true;
+        return 0;
+      }
       if(nGot != nWant) {
         throw edm::Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
           << "Failed reading streamer file, first read in readEventMessage\n"
@@ -237,13 +242,7 @@ namespace edm {
       HeaderView head(&eventBuf_[0]);
       uint32 code = head.code();
 
-      // When we get the EOF record we know we have read all events
-      // normally and are at the end, return 0 to indicate this
-      if(code == Header::EOFRECORD) {
-        endOfFile_ = true;
-        return 0;
-      }
-      // If it is not an event nor EOFRECORD then something is wrong.
+      // If it is not an event then something is wrong.
       if(code != Header::EVENT) {
         throw Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
           << "Failed reading streamer file, unknown code in event header\n"
