@@ -52,7 +52,7 @@ public:
   // explicit c'tor from a ParameterSet
   explicit Data(const edm::ParameterSet & config, edm::ConsumesCollector && iC) : Data(config) {
       if (not m_hltResultsTag.label().empty()) iC.consumes<edm::TriggerResults>(m_hltResultsTag);
-      if (not m_l1tResultsTag.label().empty()) iC.consumes<L1GlobalTriggerReadoutRecord>(m_hltResultsTag);
+      if (not m_l1tResultsTag.label().empty()) iC.consumes<L1GlobalTriggerReadoutRecord>(m_l1tResultsTag);
   }
 
   explicit Data(const edm::ParameterSet & config) :
