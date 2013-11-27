@@ -1,6 +1,7 @@
 #include <cmath>
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
-#include "RecoTracker/TkTrackingRegions/interface/OuterEstimator.h"
+
+#include "OuterEstimator.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
@@ -110,7 +111,7 @@ checkRZOld(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::Even
   SimpleLineRZ rightLine( vtxR, outerR);
 
   HitRZConstraint rzConstraint(leftLine, rightLine);
-  float cotTheta = fabs(leftLine.cotLine()+rightLine.cotLine())*0.5f;
+  float cotTheta = std::abs(leftLine.cotLine()+rightLine.cotLine())*0.5f;
 
 //  float bendR = longitudinalBendingCorrection(outer.r(),ptMin());
 
@@ -164,7 +165,7 @@ OuterEstimator *
     float hitErrRPhi = 0.;
     float hitErrZ = 0.;
     float corrPhi = (scatt+ hitErrRPhi)/radius;
-    float corrZ = scatt/sinTheta + bendR*fabs(cotTheta) + hitErrZ;
+    float corrZ = scatt/sinTheta + bendR*std::abs(cotTheta) + hitErrZ;
     
     phiPrediction.setTolerance(OuterHitPhiPrediction::Margin(corrPhi,corrPhi));
     zPrediction.setTolerance(HitZCheck::Margin(corrZ,corrZ));
@@ -221,7 +222,7 @@ RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer,const ed
     float hitErrRPhi = 0.;
     float hitErrR = 0.;
     float corrPhi = (scatt+hitErrRPhi)/detRWindow.min();
-    float corrR   = scatt/fabs(cosTheta) + bendR + hitErrR;
+    float corrR   = scatt/std::abs(cosTheta) + bendR + hitErrR;
 
     phiPrediction.setTolerance(OuterHitPhiPrediction::Margin(corrPhi,corrPhi));
     rPrediction.setTolerance(HitRCheck::Margin(corrR,corrR));

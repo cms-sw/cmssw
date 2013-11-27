@@ -56,12 +56,11 @@ public:
                                    bool precise = true,
                                    const std::string & measurementTrackerName = "",
 				   bool etaPhiRegion=false) 
-    : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), 
-			  rVertex, zVertex),
-    thePhiMargin(fabs(deltaPhi),fabs(deltaPhi)),
-    theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise), theMeasurementTrackerName(measurementTrackerName),
-    theUseEtaPhi(etaPhiRegion)
-   { initEtaRange(dir, Margin( fabs(deltaEta),fabs(deltaEta))); }
+    : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), rVertex, zVertex),
+    thePhiMargin(std::abs(deltaPhi),std::abs(deltaPhi)),
+    theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise),
+    theUseEtaPhi(etaPhiRegion), theMeasurementTrackerName(measurementTrackerName)
+  { initEtaRange(dir, Margin( std::abs(deltaEta),std::abs(deltaEta))); }
  
  /** constructor (asymmetrinc eta and phi margins). <BR>
   * non equal left-right eta and phi bounds around direction are
@@ -78,10 +77,10 @@ public:
 				   bool precise = true, 
                                    const std::string & measurementTrackerName = "",
 				   bool etaPhiRegion=false) 
-    : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), 
-      rVertex, zVertex), thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise),
-      theMeasurementTrackerName(measurementTrackerName),
-      theUseEtaPhi(etaPhiRegion)
+    : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), rVertex, zVertex), 
+    thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), 
+    thePrecise(precise),theUseEtaPhi(etaPhiRegion),
+    theMeasurementTrackerName(measurementTrackerName)
     { initEtaRange(dir, etaMargin); }
 
  /** constructor (explicit pt range, asymmetrinc eta and phi margins). <BR>
@@ -99,9 +98,8 @@ public:
                                    const std::string & measurementTrackerName = "",
 				   bool etaPhiRegion=false) 
     : TrackingRegionBase( dir, vertexPos, invPtRange, rVertex, zVertex),
-      thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise),
-      theMeasurementTrackerName(measurementTrackerName),
-      theUseEtaPhi(etaPhiRegion)
+    thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise),theUseEtaPhi(etaPhiRegion),
+    theMeasurementTrackerName(measurementTrackerName)
     { initEtaRange(dir, etaMargin); }
 
 
@@ -140,11 +138,11 @@ private:
       const TrackingRecHit*  outerHit,
       const edm::EventSetup& iSetup) const;
 
-  OuterEstimator * estimator(const BarrelDetLayer* layer,const edm::EventSetup& iSetup) const;
-  OuterEstimator * estimator(const ForwardDetLayer* layer,const edm::EventSetup& iSetup) const;
+  OuterEstimator * estimator(const BarrelDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
+  OuterEstimator * estimator(const ForwardDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
 
-  OuterHitPhiPrediction phiWindow(const edm::EventSetup& iSetup) const;
-  HitRZConstraint rzConstraint() const;
+  OuterHitPhiPrediction phiWindow(const edm::EventSetup& iSetup) const dso_internal;
+  HitRZConstraint rzConstraint() const dso_internal;
 
   void  initEtaRange( const GlobalVector & dir, const Margin& margin);
 
@@ -154,10 +152,10 @@ private:
   Range theLambdaRange;
   Margin thePhiMargin;
   float theMeanLambda;
-  double theMeasurementTrackerUsage;
+  float theMeasurementTrackerUsage;
   bool thePrecise;
-  std::string theMeasurementTrackerName;
   bool theUseEtaPhi;
+  std::string theMeasurementTrackerName;
 };
 
 #endif
