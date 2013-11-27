@@ -12,7 +12,7 @@ ora::ArrayHandlerFactory::newArrayHandler( const edm::TypeWithDict& arrayType )
   if(arrayType.IsArray()){
     return new CArrayHandler( arrayType );
   } else {  
-    if ( arrayType.isTemplate() ) {
+    if ( arrayType.isTemplateInstance() ) {
       std::string contName = arrayType.templateName(); 
       if(  contName == "std::vector"              ||
            contName == "std::list"                ||

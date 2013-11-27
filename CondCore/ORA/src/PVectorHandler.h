@@ -6,8 +6,7 @@
 #include <memory>
 // externals
 #include "FWCore/Utilities/interface/TypeWithDict.h"
-//#include "Reflex/Builder/CollectionProxy.h"
-#include "RflxEnv.h"
+
 #include "RflxCollProxy.h"
 
 namespace ora {

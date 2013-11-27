@@ -58,7 +58,7 @@ ora::RelationalMapping::_sizeInColumns(const edm::TypeWithDict& topLevelClassTyp
     if( !isContainer && !isOraPointer ){
       
       // loop over the data members
-      typ.UpdateMembers();
+      //-ap ignore for now:  typ.UpdateMembers();
       //std::vector<edm::TypeWithDict> carrays;
       for ( size_t i=0; i< typ.dataMemberSize(); i++){
         edm::MemberWithDict objMember = ora::helper::DataMemberAt(typ,i);

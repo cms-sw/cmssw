@@ -44,15 +44,26 @@ namespace ora {
             return baseWanted;
         } // end DataMemberAt
 
+        edm::FunctionWithDict FunctionMemberAt(const edm::TypeWithDict& objType, size_t index) {
+            size_t indexWanted = index;
+            size_t currentIndex = 0;
+            edm::TypeFunctionMembers bases(objType);
+            edm::FunctionWithDict baseWanted;
+            for (auto const & b : bases) {
+                if(currentIndex == indexWanted) {
+                   baseWanted = edm::FunctionWithDict(b);
+                   break;
+                }
+                ++currentIndex;
+            }
+            return baseWanted;
+        } // end DataMemberAt
+
         Reflex::PropertyList Properties( const edm::TypeWithDict& objType ) {
-            // return Reflex::PropertyList( objType.qualifiedName() );
-            Reflex::PropertyList pl; pl.setName( objType.qualifiedName() );
-            return pl;
+            return Reflex::PropertyList( objType );
         }
         Reflex::PropertyList Properties( const edm::MemberWithDict& objType ) {
-            // return Reflex::PropertyList( objType.qualifiedName() );
-            Reflex::PropertyList pl; pl.setName( objType.typeOf().qualifiedName() );
-            return pl;
+            return Reflex::PropertyList( objType );
         }
 
     } // end namespace helper

@@ -79,7 +79,7 @@ bool ora::ClassUtils::findBaseType( edm::TypeWithDict& type, edm::TypeWithDict& 
      edm::BaseWithDict base = type.BaseAt(i);
      edm::TypeWithDict bt = resolvedType( base.ToType() );
      if( bt == baseType ){
-       func = type.getBaseClassOffset(baseType);
+       func = base.OffsetFP();
        found = true;
      } else {
        found = findBaseType( bt, baseType, func );

@@ -7,8 +7,8 @@
 // externals
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/FunctionWithDict.h"
-#include "CondCore/ORA/src/RflxEnv.h"
-#include "CondCore/ORA/src/RflxCollProxy.h"
+
+#include "RflxCollProxy.h"
 
 namespace ora {
 

@@ -119,7 +119,7 @@ ora::SpecialSTLContainerHandler::SpecialSTLContainerHandler( const edm::TypeWith
   m_containerOffset( 0 )
 {
   // update dictionary to include base classes members
-  dictionary.UpdateMembers(); 
+  //-ap ignore for now:  dictionary.UpdateMembers(); 
   for ( unsigned int i=0;i<dictionary.dataMemberSize();i++){
 
     edm::MemberWithDict field = ora::helper::DataMemberAt(dictionary, i);
