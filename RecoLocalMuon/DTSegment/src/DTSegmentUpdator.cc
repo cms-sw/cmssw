@@ -203,6 +203,13 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg, const bool allow3par, const bool 
   vector<float> sigy;
   vector <int> lfit;
   vector <double> dist;
+  int i=0;
+  
+  x.reserve(8);
+  y.reserve(8);
+  sigy.reserve(8);
+  lfit.reserve(8);
+  dist.reserve(8);
 
   DTSegmentCand::AssPointCont hits=seg->hits();
   for (DTSegmentCand::AssPointCont::const_iterator iter=hits.begin(); iter!=hits.end(); ++iter) {
@@ -217,6 +224,7 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg, const bool allow3par, const bool 
     sigy.push_back(sqrt((*iter).first->localPositionError().xx()));
     x.push_back(pos.z()); 
     y.push_back(pos.x());
+    i++;
   }
 
   LocalPoint pos;
@@ -255,6 +263,11 @@ void DTSegmentUpdator::fit(DTRecSegment2D* seg) const {
   vector<float> sigy;
   vector <int> lfit;
   vector <double> dist;
+  x.reserve(8);
+  y.reserve(8);
+  sigy.reserve(8);
+  lfit.reserve(8);
+  dist.reserve(8);
 
   vector<DTRecHit1D> hits=seg->specificRecHits();
   for (vector<DTRecHit1D>::const_iterator hit=hits.begin();
