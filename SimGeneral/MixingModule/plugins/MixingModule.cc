@@ -6,6 +6,7 @@
 
 #include "MixingModule.h"
 #include "MixingWorker.h"
+#include "Adjuster.h"
 
 #include "CondFormats/RunInfo/interface/MixingModuleConfig.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -71,6 +72,7 @@ namespace edm {
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
+            adjusters_.push_back(new Adjuster<SimTrack>(bunchSpace_, tag));
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
               workersObjects_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
@@ -97,6 +99,7 @@ namespace edm {
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(),std::string(""),tag,label);
+            adjusters_.push_back(new Adjuster<SimVertex>(bunchSpace_, tag));
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
               workersObjects_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
@@ -112,6 +115,7 @@ namespace edm {
             std::string label;
 
             branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),tag,label);
+            // HepMCProduct does not need an adjuster
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
               workersObjects_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
@@ -132,6 +136,7 @@ namespace edm {
               std::string label;
 
               branchesActivate(TypeID(typeid(std::vector<PCaloHit>)).friendlyClassName(),subdets[ii],tag,label);
+              adjusters_.push_back(new Adjuster<PCaloHit>(bunchSpace_, tag));
               if(binary_search_all(crossingFrames, tag.instance())) {
                 workersObjects_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF));
                 produces<CrossingFrame<PCaloHit> >(label);
@@ -153,6 +158,7 @@ namespace edm {
               std::string label;
 
               branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
+              adjusters_.push_back(new Adjuster<PSimHit>(bunchSpace_, tag));
               if(binary_search_all(crossingFrames, tag.instance())) {
                 workersObjects_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF));
                 produces<CrossingFrame<PSimHit> >(label);
@@ -267,14 +273,18 @@ dropUnwantedBranches(wantedBranches_);
                                     int bunchCrossing, int eventId,
                                     int& vertexOffset,
                                     const edm::EventSetup& setup) {
-    PileUpEventPrincipal pep(eventPrincipal, bunchCrossing, bunchSpace_, eventId, vertexOffset);
+    PileUpEventPrincipal pep(eventPrincipal, bunchCrossing);
+    for (auto const& adjuster : adjusters_) {
+      adjuster->doOffset(bunchCrossing, eventPrincipal, eventId, vertexOffset);
+    }
+
     accumulateEvent(pep, setup);
 
-    for (unsigned int ii=0;ii<workers_.size();++ii) {
+    for (auto const& worker : workers_) {
       LogDebug("MixingModule") <<" merging Event:  id " << eventPrincipal.id();
       //      std::cout <<"PILEALLWORKERS merging Event:  id " << eventPrincipal.id() << std::endl;
 
-        workers_[ii]->addPileups(bunchCrossing,eventPrincipal, eventId, vertexoffset);
+      worker->addPileups(eventPrincipal, eventId);
     }
   }
 
@@ -467,3 +477,4 @@ dropUnwantedBranches(wantedBranches_);
     }
   }
 }//edm
+

@@ -40,6 +40,7 @@ class DigiAccumulatorMixMod;
 class PileUpEventPrincipal;
 
 namespace edm {
+  class AdjusterBase;
   class MixingWorkerBase;
 
   class MixingModule : public BMixingModule {
@@ -88,8 +89,9 @@ namespace edm {
       bool mixProdStep1_;
       CrossingFramePlaybackInfoExtended *playbackInfo_;
 
-      std::vector<MixingWorkerBase *> workers_;
-      std::vector<MixingWorkerBase *> workersObjects_;
+      std::vector<MixingWorkerBase*> workers_;
+      std::vector<MixingWorkerBase*> workersObjects_;
+      std::vector<AdjusterBase *> adjusters_; 
       std::vector<std::string> wantedBranches_;
       bool useCurrentProcessOnly_;
 
