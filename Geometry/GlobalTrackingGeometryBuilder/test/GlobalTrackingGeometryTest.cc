@@ -217,6 +217,16 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
        std::cout << "N/A" << std::endl;
     }
         
+    DetId detId5(DetId::Muon, 4); 
+    const GEMGeometry* gemGeometry = 0;
+    std::cout << "Pointer to GEM Geometry: ";
+    try {
+      gemGeometry = (const GEMGeometry*) geo->slaveGeometry(detId5);
+      std::cout <<  gemGeometry << std::endl;
+    } catch (...) {
+      std::cout << "N/A" << std::endl;
+    }
+
     if (cscGeometry) analyzeCSC(geo.product(), cscGeometry);
     if (dtGeometry) analyzeDT(geo.product(), dtGeometry);
     if (rpcGeometry) analyzeRPC(geo.product(), rpcGeometry);
