@@ -19,6 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
@@ -329,13 +330,17 @@ namespace edm {
   }
 
   void
-  InputSource::readEvent(EventPrincipal& ep, StreamContext* streamContext) {
+  InputSource::readEvent(EventPrincipal& ep, StreamContext& streamContext) {
     assert(state_ == IsEvent);
     assert(!eventLimitReached());
+    {
+      // block scope, in order to issue the PostSourceEvent signal before calling postRead and issueReports
+      EventSourceSentry sentry(*this, streamContext);
 
-    callWithTryCatchAndPrint<void>( [this,&ep](){ readEvent_(ep); }, "Calling InputSource::readEvent_" );
-    if(receiver_) {
-      --numberOfEventsBeforeBigSkip_;
+      callWithTryCatchAndPrint<void>( [this,&ep](){ readEvent_(ep); }, "Calling InputSource::readEvent_" );
+      if(receiver_) {
+        --numberOfEventsBeforeBigSkip_;
+      }
     }
 
     Event event(ep, moduleDescription(), nullptr);
@@ -347,14 +352,17 @@ namespace edm {
   }
 
   bool
-  InputSource::readEvent(EventPrincipal& ep, EventID const& eventID, StreamContext* streamContext) {
+  InputSource::readEvent(EventPrincipal& ep, EventID const& eventID, StreamContext& streamContext) {
     bool result = false;
 
-    if(!limitReached()) {
-      //result = callWithTryCatchAndPrint<bool>( [this,ep,&eventID](){ return readIt(eventID, ep); }, "Calling InputSource::readIt" );
-      result = readIt(eventID, ep);
-      if(result) {
+    if (not limitReached()) {
+      // the Pre/PostSourceEvent signals should be generated only if the event is actually found.
+      // this should be taken care of by an EventSourceSentry in the implementaion of readIt()
 
+      //result = callWithTryCatchAndPrint<bool>( [this,&eventID,&ep](){ return readIt(eventID, ep); }, "Calling InputSource::readIt" );
+      result = readIt(eventID, ep, streamContext);
+
+      if (result) {
         Event event(ep, moduleDescription(), nullptr);
         postRead(event);
         if(remainingEvents_ > 0) --remainingEvents_;
@@ -409,7 +417,7 @@ namespace edm {
   }
 
   bool
-  InputSource::readIt(EventID const&, EventPrincipal&) {
+  InputSource::readIt(EventID const&, EventPrincipal&, StreamContext&) {
     throw Exception(errors::LogicError)
       << "InputSource::readIt()\n"
       << "Random access is not implemented for this type of Input Source\n"
@@ -608,8 +616,15 @@ namespace edm {
     post_();
   }
 
-  InputSource::EventSourceSentry::EventSourceSentry(InputSource const& source) :
-     sentry_(source.actReg()->preSourceSignal_, source.actReg()->postSourceSignal_) {
+  InputSource::EventSourceSentry::EventSourceSentry(InputSource const& source, StreamContext & sc) :
+    source_(source),
+    sc_(sc)
+  {
+    source.actReg()->preSourceSignal_(sc_.streamID());
+  }
+
+  InputSource::EventSourceSentry::~EventSourceSentry() {
+    source_.actReg()->postSourceSignal_(sc_.streamID());
   }
 
   InputSource::LumiSourceSentry::LumiSourceSentry(InputSource const& source) :

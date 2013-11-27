@@ -207,8 +207,8 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   registry.watchPrePathBeginRun(   this, & FastTimerService::prePathBeginRun) ;
   registry.watchPreProcessEvent(   this, & FastTimerService::preProcessEvent );
   registry.watchPostProcessEvent(  this, & FastTimerService::postProcessEvent );
-  registry.watchPreSource(         this, & FastTimerService::preSource );
-  registry.watchPostSource(        this, & FastTimerService::postSource );
+  registry.watchPreSourceEvent(    this, & FastTimerService::preSourceEvent );
+  registry.watchPostSourceEvent(   this, & FastTimerService::postSourceEvent );
   // watch per-path events
   registry.watchPreProcessPath(    this, & FastTimerService::preProcessPath );
   registry.watchPostProcessPath(   this, & FastTimerService::postProcessPath );
@@ -1018,7 +1018,7 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
   m_is_first_event = false;
 }
 
-void FastTimerService::preSource() {
+void FastTimerService::preSourceEvent(edm::StreamID sid) {
   //edm::LogImportant("FastTimerService") << __func__ << "()";
 
   start(m_timer_source);
@@ -1035,7 +1035,7 @@ void FastTimerService::preSource() {
   ++m_summary_events;
 }
 
-void FastTimerService::postSource() {
+void FastTimerService::postSourceEvent(edm::StreamID sid) {
   //edm::LogImportant("FastTimerService") << __func__ << "()";
 
   stop(m_timer_source);
