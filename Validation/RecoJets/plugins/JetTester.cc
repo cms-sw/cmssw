@@ -761,7 +761,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         if (mPtHat) mPtHat->Fill(ptHat);
         delete myGenEvent; 
       }
-      // Generation jets
+      // Gen jets
       //------------------------------------------------------------------------
       edm::Handle<GenJetCollection> genJets;
       mEvent.getByLabel(mInputGenCollection, genJets);

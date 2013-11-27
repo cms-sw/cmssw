@@ -40,7 +40,7 @@ process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 process.ak5L1JPTOffset.offsetService = cms.string('')
 
 process.load('RecoJets.Configuration.RecoPFJets_cff')
-process.kt6PFJets.doRhoFastjet = True
+#process.kt6PFJets.doRhoFastjet = True
 process.ak5PFJets.doAreaFastjet = True
 
 # Validation module
@@ -121,7 +121,7 @@ process.source = cms.Source("PoolSource",
 #)
 
 process.p1 = cms.Path(#process.fileSaver*
-	              process.kt6PFJets 
+#	              process.kt6PFJets 
                       #* process.ak5PFJets 
                       #--- Non-Standard sequence (that involve Producers)
                       #*process.ak5CaloJetsL2L3
@@ -133,7 +133,7 @@ process.p1 = cms.Path(#process.fileSaver*
 #                      *process.JetAnalyzerIC5JPT
 #                      *process.JetAnalyzerAk5JPT
                       #--- Standard sequence
-                      *process.JetValidation
+                      process.JetValidation
                       #--- DQM stats module
 #                      *process.dqmStoreStats
 )
