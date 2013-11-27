@@ -121,3 +121,13 @@ files['_gem_dphi_pat2_PU0'] = ['/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_
 files['_gem_dphi_pat2_PU100'] = [
     '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_dphi_pat2_110K/',
     '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_dphi_pat2_128K/']
+
+files['_gem98_pt2-50_PU0_pt5_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt5/871a2070c5b60d6753827956fe591827/']
+files['_gem98_pt2-50_PU0_pt6_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt6/871a2070c5b60d6753827956fe591827/']
+files['_gem98_pt2-50_PU0_pt10_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt10/871a2070c5b60d6753827956fe591827/']
+files['_gem98_pt2-50_PU0_pt15_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt15/871a2070c5b60d6753827956fe591827/']
+files['_gem98_pt2-50_PU0_pt20_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt20/871a2070c5b60d6753827956fe591827/']
+files['_gem98_pt2-50_PU0_pt30_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt30/871a2070c5b60d6753827956fe591827/']
+files['_gem98_pt2-50_PU0_pt40_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt40/871a2070c5b60d6753827956fe591827/']
+
+
