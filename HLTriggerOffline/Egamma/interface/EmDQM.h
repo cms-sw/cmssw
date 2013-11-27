@@ -59,12 +59,7 @@ private:
 
   // Input from cfg file
   edm::InputTag triggerobjwithrefs;
-  edm::EDGetTokenT<trigger::TriggerEventWithRefs> triggerobjwithrefs_token_;
-  edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
   unsigned int pathIndex;
-  //collections
-  edm::EDGetTokenT< edm::View<reco::Candidate> > genParticlesCollection_;
-
   std::vector<edm::InputTag> theHLTCollectionLabels;  
   unsigned int numOfHLTCollectionLabels;  // Will be size of above vector
   bool useHumanReadableHistTitles;
@@ -110,7 +105,7 @@ private:
    *  This collection is used for matching the HLT objects against (e.g. match the HLT
    *  object to generated particles or reconstructed electrons/photons).
    */
-  edm::EDGetTokenT< edm::View<reco::Candidate> > gencutCollection_;
+  edm::InputTag gencutCollection_;
 
   /** number of generator level particles (electrons/photons) required (for MC) */
   unsigned int gencut_;
