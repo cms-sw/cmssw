@@ -52,7 +52,7 @@ class TrajectorySeedProducer : public edm::EDProducer
   
   Side setLayerSpecSide(const std::string& layerSpecSide) const;
 
- private:
+ protected:
 
   /// A mere copy (without memory leak) of an existing tracking method
   void stateOnDet(const TrajectoryStateOnSurface& ts,
@@ -67,7 +67,7 @@ class TrajectorySeedProducer : public edm::EDProducer
 			      bool forward,
 			      unsigned algo) const;
 
- private:
+ protected:
 
   const MagneticField*  theMagField;
   const MagneticFieldMap*  theFieldMap;
