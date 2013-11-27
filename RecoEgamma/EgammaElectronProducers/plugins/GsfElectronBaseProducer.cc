@@ -19,7 +19,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalSeverityLevel.h"
-
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include <iostream>
 
@@ -165,6 +165,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   inputCfg_.seedsTag = consumes<reco::ElectronSeedCollection>(cfg.getParameter<edm::InputTag>("seedsTag")); // used to check config consistency with seeding
   inputCfg_.beamSpotTag = consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpotTag"));
   inputCfg_.gsfPfRecTracksTag = consumes<reco::GsfPFRecTrackCollection>(cfg.getParameter<edm::InputTag>("gsfPfRecTracksTag"));
+  inputCfg_.vtxCollectionTag = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vtxTag"));
 
   bool useIsolationValues = cfg.getParameter<bool>("useIsolationValues") ;
   if ( useIsolationValues ) {
@@ -209,6 +210,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   strategyCfg_.ambClustersOverlapStrategy = cfg.getParameter<unsigned>("ambClustersOverlapStrategy") ;
   strategyCfg_.addPflowElectrons = cfg.getParameter<bool>("addPflowElectrons") ;
   strategyCfg_.ctfTracksCheck = cfg.getParameter<bool>("ctfTracksCheck");
+  strategyCfg_.useEcalRegression = cfg.getParameter<bool>("useEcalRegression");
+  strategyCfg_.useCombinationRegression = cfg.getParameter<bool>("useCombinationRegression");
 
   cutsCfg_.minSCEtBarrel = cfg.getParameter<double>("minSCEtBarrel") ;
   cutsCfg_.minSCEtEndcaps = cfg.getParameter<double>("minSCEtEndcaps") ;
@@ -323,6 +326,14 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   isoCfg.vetoClustered = cfg.getParameter<bool>("vetoClustered") ;
   isoCfg.useNumCrystals = cfg.getParameter<bool>("useNumCrystals") ;
 
+ 
+  RegressionHelper::Configuration regressionCfg ;
+  regressionCfg.ecalRegressionWeightLabels = cfg.getParameter<std::vector<std::string> >("ecalRefinedRegressionWeightLabels");
+  regressionCfg.combinationRegressionWeightLabels = cfg.getParameter<std::vector<std::string> >("combinationRegressionWeightLabels");
+  regressionCfg.ecalRegressionWeightFiles = cfg.getParameter<std::vector<std::string> >("ecalRefinedRegressionWeightFiles");
+  regressionCfg.combinationRegressionWeightFiles = cfg.getParameter<std::vector<std::string> >("combinationRegressionWeightFile");
+  regressionCfg.ecalWeightsFromDB = cfg.getParameter<bool>("ecalWeightsFromDB");
+  regressionCfg.combinationWeightsFromDB = cfg.getParameter<bool>("combinationWeightsFromDB");
   // functions for corrector
   EcalClusterFunctionBaseClass * superClusterErrorFunction = 0 ;
   std::string superClusterErrorFunctionName
@@ -356,8 +367,10 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
      isoCfg,recHitsCfg,
      superClusterErrorFunction,
      crackCorrectionFunction,
-     mvaCfg_ 
+     mvaCfg_,
+     regressionCfg
    ) ;
+
 
  }
 
