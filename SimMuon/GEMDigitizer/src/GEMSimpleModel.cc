@@ -24,21 +24,24 @@ namespace
 }
 
 GEMSimpleModel::GEMSimpleModel(const edm::ParameterSet& config) :
-  GEMDigiModel(config)//
-      , averageEfficiency_(config.getParameter<double> ("averageEfficiency"))//
-      , averageShapingTime_(config.getParameter<double> ("averageShapingTime"))//
-      , timeResolution_(config.getParameter<double> ("timeResolution"))//
-      , timeJitter_(config.getParameter<double> ("timeJitter"))//
-      , timeCalibrationOffset_(config.getParameter<double> ("timeCalibrationOffset"))//
-      , averageNoiseRate_(config.getParameter<double> ("averageNoiseRate"))//
-      , averageClusterSize_(config.getParameter<double> ("averageClusterSize"))//
-      , signalPropagationSpeed_(config.getParameter<double> ("signalPropagationSpeed"))//
-      , cosmics_(config.getParameter<bool> ("cosmics"))//
-      , bxwidth_(config.getParameter<int> ("bxwidth"))//
-      , minBunch_(config.getParameter<int> ("minBunch"))//
-      , maxBunch_(config.getParameter<int> ("maxBunch"))//
-      , digitizeOnlyMuons_(config.getParameter<bool> ("digitizeOnlyMuons"))//
-      , neutronGammaRoll_(config.getParameter<std::vector<double>>("neutronGammaRoll"))
+GEMDigiModel(config)//
+, averageEfficiency_(config.getParameter<double> ("averageEfficiency"))//
+, averageShapingTime_(config.getParameter<double> ("averageShapingTime"))//
+, timeResolution_(config.getParameter<double> ("timeResolution"))//
+, timeJitter_(config.getParameter<double> ("timeJitter"))//
+, timeCalibrationOffset_(config.getParameter<double> ("timeCalibrationOffset"))//
+, averageNoiseRate_(config.getParameter<double> ("averageNoiseRate"))//
+, averageClusterSize_(config.getParameter<double> ("averageClusterSize"))//
+, signalPropagationSpeed_(config.getParameter<double> ("signalPropagationSpeed"))//
+, cosmics_(config.getParameter<bool> ("cosmics"))//
+, bxwidth_(config.getParameter<int> ("bxwidth"))//
+, minBunch_(config.getParameter<int> ("minBunch"))//
+, maxBunch_(config.getParameter<int> ("maxBunch"))//
+, digitizeOnlyMuons_(config.getParameter<bool> ("digitizeOnlyMuons"))//
+, neutronGammaRoll_(config.getParameter<std::vector<double>>("neutronGammaRoll"))
+, doNoiseCLS_(config.getParameter<bool> ("doNoiseCLS"))//
+, minPabsNoiseCLS_(config.getParameter<double> ("minPabsNoiseCLS"))//
+
 {
 }
 
@@ -66,7 +69,7 @@ void GEMSimpleModel::setRandomEngine(CLHEP::HepRandomEngine& eng)
   gauss1_ = new CLHEP::RandGaussQ(eng);
   gauss2_ = new CLHEP::RandGaussQ(eng);
   gamma1_ = new CLHEP::RandGamma(eng);
-  gamma1_ = new CLHEP::RandGamma(eng);
+  //  gamma1_ = new CLHEP::RandGamma(eng);
 }
 
 void GEMSimpleModel::setup()
@@ -74,33 +77,31 @@ void GEMSimpleModel::setup()
   return;
 }
 
-
-void
-GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll,
-			       const edm::PSimHitContainer& simHits)
+void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSimHitContainer& simHits)
 {
   stripDigiSimLinks_.clear();
   detectorHitMap_.clear();
   stripDigiSimLinks_ = StripDigiSimLinks(roll->id().rawId());
 
   for (edm::PSimHitContainer::const_iterator hit = simHits.begin(); hit != simHits.end(); ++hit)
-//  for (const auto & hit: simHits)
   {
     if (std::abs(hit->particleType()) != 13 && digitizeOnlyMuons_)
-    continue;
+      continue;
+
+    if (std::abs(hit->particleType()) != 13 && digitizeOnlyMuons_)
+      continue;
     // Check GEM efficiency
     if (flat1_->fire(1) > averageEfficiency_)
-    continue;
+      continue;
     const int bx(getSimHitBx(&(*hit)));
     const std::vector<std::pair<int, int> > cluster(simulateClustering(roll, &(*hit), bx));
-    for (auto & digi : cluster)
+    for  (auto & digi : cluster)
     {
       detectorHitMap_.insert(DetectorHitMap::value_type(digi,&*(hit)));
       strips_.insert(digi);
     }
   }
 }
-
 
 int GEMSimpleModel::getSimHitBx(const PSimHit* simhit)
 {
@@ -154,8 +155,7 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit)
   return bx;
 }
 
-void
-GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
+void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
 {
   const GEMDetId gemId(roll->id());
   int rollNumb = gemId.roll();
@@ -171,36 +171,91 @@ GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
   const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*> (&(roll->topology())));
   const float striplength(top_->stripLength());
   trStripArea = (roll->pitch()) * striplength;
-  trArea = trStripArea*nstrips;
+  trArea = trStripArea * nstrips;
 
   const int nBxing(maxBunch_ - minBunch_ + 1);
   double averageNoiseRatePerRoll = neutronGammaRoll_[rollNumb - 1];
-  double averageNoiseRatePerStrip = averageNoiseRatePerRoll/(roll->nstrips()) + averageNoiseRate_;
+  double averageNoiseRatePerStrip = averageNoiseRatePerRoll / (roll->nstrips()) + averageNoiseRate_;
 
   const double averageNoise(averageNoiseRatePerStrip * nBxing * bxwidth_ * trArea * 1.0e-9);
   const int n_hits(poisson_->fire(averageNoise));
+
   for (int i = 0; i < n_hits; ++i)
   {
-    const int strip(static_cast<int> (flat1_->fire(1, nstrips)));
+    const int centralStrip(static_cast<int> (flat1_->fire(1, nstrips)));
     const int time_hit(static_cast<int> (flat2_->fire(nBxing)) + minBunch_);
-    std::pair<int, int> digi(strip, time_hit);
-    strips_.insert(digi);
+
+    if (doNoiseCLS_)
+    {
+      std::vector<std::pair<int, int> > cluster_;
+      cluster_.clear();
+      cluster_.push_back(std::pair<int, int>(centralStrip, time_hit));
+
+      //     const int clusterSize(static_cast<int>(std::round(poisson_->fire(averageClusterSize_))));
+      int clusterSize(static_cast<int> (std::round(gamma1_->fire(averageClusterSize_, averageClusterSize_))));
+
+      //keep cls between [1, 6]
+      if (clusterSize < 1 || clusterSize > 5)
+        clusterSize = 1;
+
+      //odd cls
+      if (clusterSize % 2 != 0)
+      {
+        int clsR = (clusterSize - 1) / 2;
+        for (int i = 1; i < clsR; ++i)
+        {
+          if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i > 0))
+            cluster_.push_back(std::pair<int, int>(centralStrip - i, time_hit));
+          if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + i <= nstrips))
+            cluster_.push_back(std::pair<int, int>(centralStrip + i, time_hit));
+        }
+      }
+      //even cls
+      if (clusterSize % 2 == 0)
+      {
+        int clsR = (clusterSize - 2) / 2;
+        {
+          if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 > 0))
+            cluster_.push_back(std::pair<int, int>(centralStrip - 1, time_hit));
+          for (int i = 1; i < clsR; ++i)
+          {
+            if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 - i > 0))
+              cluster_.push_back(std::pair<int, int>(centralStrip - 1 - i, time_hit));
+            if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + i <= nstrips))
+              cluster_.push_back(std::pair<int, int>(centralStrip + i, time_hit));
+          }
+        }
+      }
+      for(auto & digi : cluster_)
+      {
+        strips_.insert(digi);
+      }
+    }//end doNoiseCLS_
+    else
+    {
+      std::pair<int, int> digi(centralStrip, time_hit);
+      strips_.insert(digi);
+    }
   }
-  return ;
+  return;
 }
 
 std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEtaPartition* roll,
     const PSimHit* simHit, const int bx)
 {
-  const Topology& topology(roll->specs()->topology());
-  const LocalPoint& entry(simHit->entryPoint());
+  const StripTopology& topology = roll->specificTopology();
   const LocalPoint& hit_position(simHit->localPosition());
   const int nstrips(roll->nstrips());
-//  const auto entry(simHit->entryPoint());
-//  const auto hit_position(simHit->localPosition());
 
-  float centralStrip(topology.channel(hit_position)+1);
-  double deltaX(roll->centreOfStrip(centralStrip).x() - entry.x());
+  int centralStrip = 0;
+  if (!(topology.channel(hit_position) + 1 > nstrips))
+    centralStrip = topology.channel(hit_position) + 1;
+  else
+    centralStrip = topology.channel(hit_position);
+  //get delta Phi differences
+  GlobalPoint pointSimHit = roll->toGlobal(hit_position);
+  GlobalPoint pointDigiHit = roll->toGlobal(roll->centreOfStrip(centralStrip));
+  double deltaphi = pointSimHit.phi() - pointDigiHit.phi();
 
   // Add central digi to cluster vector
   std::vector<std::pair<int, int> > cluster_;
@@ -208,8 +263,11 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
   cluster_.push_back(std::pair<int, int>(centralStrip, bx));
 
   // get the cluster size
-//     const int clusterSize(static_cast<int>(std::round(poisson_->fire(averageClusterSize_))));
+  //     const int clusterSize(static_cast<int>(std::round(poisson_->fire(averageClusterSize_))));
   const int clusterSize(static_cast<int> (std::round(gamma1_->fire(averageClusterSize_, averageClusterSize_))));
+
+  if (abs(simHit->particleType()) != 13 && fabs(simHit->pabs()) < minPabsNoiseCLS_)
+    return cluster_;
 
   //keep cls between [1, 6]
   if (clusterSize < 1 || clusterSize > 5)
@@ -218,44 +276,45 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
   //odd cls
   if (clusterSize % 2 != 0)
   {
-    int clsR = (clusterSize - 1)/2;
+    int clsR = (clusterSize - 1) / 2;
     for (int i = 1; i < clsR; ++i)
     {
-    if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i > 0))
-      cluster_.push_back(std::pair<int, int>(centralStrip - i, bx));
-    if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + i <= nstrips))
-      cluster_.push_back(std::pair<int, int>(centralStrip + i, bx));
+      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i > 0))
+        cluster_.push_back(std::pair<int, int>(centralStrip - i, bx));
+      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + i <= nstrips))
+        cluster_.push_back(std::pair<int, int>(centralStrip + i, bx));
     }
   }
   //even cls
   if (clusterSize % 2 == 0)
   {
-    int clsR = (clusterSize - 2)/2;
-    if (deltaX <= 0)
+    int clsR = (clusterSize - 2) / 2;
+    if (deltaphi <= 0)
     {
-      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 >0 ))
-      cluster_.push_back(std::pair<int, int>(centralStrip - 1, bx));
+      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 > 0))
+        cluster_.push_back(std::pair<int, int>(centralStrip - 1, bx));
       for (int i = 1; i < clsR; ++i)
       {
-      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip -1 - i >0 ))
-        cluster_.push_back(std::pair<int, int>(centralStrip - 1 - i, bx));
-      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + i <= nstrips))
-        cluster_.push_back(std::pair<int, int>(centralStrip + i, bx));
+        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 - i > 0))
+          cluster_.push_back(std::pair<int, int>(centralStrip - 1 - i, bx));
+        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + i <= nstrips))
+          cluster_.push_back(std::pair<int, int>(centralStrip + i, bx));
       }
     }
     else
     {
-      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 != nstrips))
-      cluster_.push_back(std::pair<int, int>(centralStrip + 1, bx));
+      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
+        cluster_.push_back(std::pair<int, int>(centralStrip + 1, bx));
       for (int i = 1; i < clsR; ++i)
       {
-      if (flat1_->fire(1) < averageEfficiency_&& (centralStrip + 1 + i <= nstrips))
-        cluster_.push_back(std::pair<int, int>(centralStrip + 1 + i, bx));
-      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i < 0))
-        cluster_.push_back(std::pair<int, int>(centralStrip - i, bx));
+        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 + i <= nstrips))
+          cluster_.push_back(std::pair<int, int>(centralStrip + 1 + i, bx));
+        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i < 0))
+          cluster_.push_back(std::pair<int, int>(centralStrip - i, bx));
       }
     }
   }
 
   return cluster_;
 }
+
