@@ -15,8 +15,8 @@ namespace evf{
   
     reg.watchPreProcessEvent(this,&MicroStateServiceClassic::preEventProcessing);
     reg.watchPostProcessEvent(this,&MicroStateServiceClassic::postEventProcessing);
-    reg.watchPreSource(this,&MicroStateServiceClassic::preSource);
-    reg.watchPostSource(this,&MicroStateServiceClassic::postSource);
+    reg.watchPreSourceEvent(this,&MicroStateServiceClassic::preSourceEvent);
+    reg.watchPostSourceEvent(this,&MicroStateServiceClassic::postSourceEvent);
   
     reg.watchPreModule(this,&MicroStateServiceClassic::preModule);
     reg.watchPostModule(this,&MicroStateServiceClassic::postModule);
@@ -53,13 +53,14 @@ namespace evf{
     boost::mutex::scoped_lock sl(lock_);
     microstate2_ = &input;
   }
-  void MicroStateServiceClassic::preSource()
+
+  void MicroStateServiceClassic::preSourceEvent(edm::StreamID)
   {
     boost::mutex::scoped_lock sl(lock_);
     microstate2_ = &input;
   }
 
-  void MicroStateServiceClassic::postSource()
+  void MicroStateServiceClassic::postSourceEvent(edm::StreamID)
   {
     boost::mutex::scoped_lock sl(lock_);
     microstate2_ = &fwkovh;

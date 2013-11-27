@@ -50,7 +50,6 @@ public:
 
     blockWipedPool(&pool);
     if (m_useAlloc) BlockWipedPoolAllocated::usePool();
-    iAR.watchPreSource(this,&BlockWipedAllocatorService::preSource);
     iAR.watchPreProcessEvent(this,&BlockWipedAllocatorService::preEventProcessing);
     iAR.watchPostEndJob(this,&BlockWipedAllocatorService::postEndJob);
     iAR.watchPreModule(this,&BlockWipedAllocatorService::preModule);
@@ -59,11 +58,6 @@ public:
 
   // wipe the workspace before each event
   void preEventProcessing(const edm::EventID&, const edm::Timestamp&) { wiper();}
-
-  // nope event-principal deleted in source
-  void preSource() {
-   // wiper();
-  }
 
   void dump() {
     if (m_silent) return;

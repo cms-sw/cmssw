@@ -44,8 +44,8 @@ namespace evf{
     reg.watchPreProcessPath(this,&FastMonitoringService::preProcessPath);
     reg.watchPreProcessEvent(this,&FastMonitoringService::preEventProcessing);
     reg.watchPostProcessEvent(this,&FastMonitoringService::postEventProcessing);
-    reg.watchPreSource(this,&FastMonitoringService::preSource);
-    reg.watchPostSource(this,&FastMonitoringService::postSource);
+    reg.watchPreSourceEvent(this,&FastMonitoringService::preSourceEvent);
+    reg.watchPostSourceEvent(this,&FastMonitoringService::postSourceEvent);
   
     reg.watchPreModule(this,&FastMonitoringService::preModule);
     reg.watchPostModule(this,&FastMonitoringService::postModule);
@@ -246,13 +246,14 @@ namespace evf{
     fmt_.m_data.processedJ_.value()++;
     fmt_.monlock_.unlock();
   }
-  void FastMonitoringService::preSource()
+
+  void FastMonitoringService::preSourceEvent(edm::StreamID)
   {
     //    boost::mutex::scoped_lock sl(lock_);
     fmt_.m_data.microstate_ = &reservedMicroStateNames[mIdle];
   }
 
-  void FastMonitoringService::postSource()
+  void FastMonitoringService::postSourceEvent(edm::StreamID)
   {
     //    boost::mutex::scoped_lock sl(lock_);
     fmt_.m_data.microstate_ = &reservedMicroStateNames[mFwkOvh];
