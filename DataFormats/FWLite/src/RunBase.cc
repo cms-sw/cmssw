@@ -49,15 +49,17 @@ namespace fwlite
                  edp);
       if(!edp.isValid() || !edp.isPresent()) {
          edm::TypeID productType(iWrapperInfo);
-         boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
-         *whyFailed
-         << "getByLabel: Found zero products matching all criteria\n"
-         << "Looking for type: " << productType << "\n"
-         << "Looking for module label: " << iTag.label() << "\n"
-         << "Looking for productInstanceName: " << iTag.instance() << "\n"
-         << (iTag.process().empty() ? "" : "Looking for process: ") << iTag.process() << "\n";
 
-         edm::BasicHandle failed(whyFailed);
+        edm::BasicHandle failed([=]()->std::shared_ptr<cms::Exception> {
+          std::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
+          *whyFailed
+          << "getByLabel: Found zero products matching all criteria\n"
+          << "Looking for type: " << productType << "\n"
+          << "Looking for module label: " << iTag.label() << "\n"
+          << "Looking for productInstanceName: " << iTag.instance() << "\n"
+          << (iTag.process().empty() ? "" : "Looking for process: ") << iTag.process() << "\n";
+          return whyFailed;
+        });
          return failed;
       }
       edm::BasicHandle value(edp, &s_prov);

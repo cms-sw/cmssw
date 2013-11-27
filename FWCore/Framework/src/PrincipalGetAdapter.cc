@@ -108,17 +108,21 @@ namespace edm {
                                               EDGetToken token) const {
     EDConsumerBase::Labels labels;
     consumer_->labelsForToken(token,labels);
-    boost::shared_ptr<cms::Exception> exception(new Exception(errors::ProductNotFound));
-    if (kindOfType == PRODUCT_TYPE) {
-      *exception << "Principal::getByToken: Found zero products matching all criteria\nLooking for type: " << productType << "\n"
-      << "Looking for module label: " << labels.module << "\n" << "Looking for productInstanceName: " << labels.productInstance << "\n"
-      << (0==labels.process[0] ? "" : "Looking for process: ") << labels.process << "\n";
-    } else {
-      *exception << "Principal::getByToken: Found zero products matching all criteria\nLooking for a container with elements of type: " << productType << "\n"
-      << "Looking for module label: " << labels.module << "\n" << "Looking for productInstanceName: " << labels.productInstance << "\n"
-      << (0==labels.process[0] ? "" : "Looking for process: ") << labels.process << "\n";
-    }
-    return BasicHandle(exception);
+    //no need to copy memory since the exception will no occur after the
+    // const char* have been deleted
+    return BasicHandle([labels,kindOfType,productType]()->std::shared_ptr<cms::Exception> {
+      std::shared_ptr<cms::Exception> exception(new Exception(errors::ProductNotFound));
+      if (kindOfType == PRODUCT_TYPE) {
+        *exception << "Principal::getByToken: Found zero products matching all criteria\nLooking for type: " << productType << "\n"
+        << "Looking for module label: " << labels.module << "\n" << "Looking for productInstanceName: " << labels.productInstance << "\n"
+        << (0==labels.process[0] ? "" : "Looking for process: ") << labels.process << "\n";
+      } else {
+        *exception << "Principal::getByToken: Found zero products matching all criteria\nLooking for a container with elements of type: " << productType << "\n"
+        << "Looking for module label: " << labels.module << "\n" << "Looking for productInstanceName: " << labels.productInstance << "\n"
+        << (0==labels.process[0] ? "" : "Looking for process: ") << labels.process << "\n";
+      }
+      return exception;
+    });
   }
 
   void
