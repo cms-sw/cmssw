@@ -130,7 +130,6 @@ namespace edm {
   ThrowingSource::readEvent_(EventPrincipal& eventPrincipal) {
     if (whenToThrow_ == kReadEvent) throw cms::Exception("TestThrow") << "ThrowingSource::readEvent_";
     assert(eventCached() || processingMode() != RunsLumisAndEvents);
-    EventSourceSentry sentry(*this);
     EventAuxiliary aux(eventID(), processGUID(), Timestamp(presentTime()), false, EventAuxiliary::Undefined);
     eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry());
   }
