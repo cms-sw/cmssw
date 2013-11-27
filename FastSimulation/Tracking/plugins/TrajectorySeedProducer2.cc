@@ -18,7 +18,7 @@
 
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
 
-#include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
+#include "FastSimulation/Tracking/plugins/TrajectorySeedProducer2.h"
 #include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -44,324 +44,14 @@
 //for debug only 
 //#define FAMOS_DEBUG
 
-TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :thePropagator(0)
+TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
+    TrajectorySeedProducer(conf)
 {  
-
-  // The input tag for the beam spot
-  theBeamSpot = conf.getParameter<edm::InputTag>("beamSpot");
-
-  // The name of the TrajectorySeed Collections
-  seedingAlgo = conf.getParameter<std::vector<std::string> >("seedingAlgo");
-  for ( unsigned i=0; i<seedingAlgo.size(); ++i )
-    produces<TrajectorySeedCollection>(seedingAlgo[i]);
-
-  // The smallest true pT for a track candidate
-  pTMin = conf.getParameter<std::vector<double> >("pTMin");
-  if ( pTMin.size() != seedingAlgo.size() ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : pTMin does not have the proper size "
-      << std::endl;
-
-  for ( unsigned i=0; i<pTMin.size(); ++i )
-    pTMin[i] *= pTMin[i];  // Cut is done of perp2() - CPU saver
-  
-  // The smallest number of Rec Hits for a track candidate
-  minRecHits = conf.getParameter<std::vector<unsigned int> >("minRecHits");
-  if ( minRecHits.size() != seedingAlgo.size() ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : minRecHits does not have the proper size "
-      << std::endl;
-  // Set the overall number hits to be checked
-  absMinRecHits = 0;
-  for ( unsigned ialgo=0; ialgo<minRecHits.size(); ++ialgo ) 
-    if ( minRecHits[ialgo] > absMinRecHits ) absMinRecHits = minRecHits[ialgo];
-
-  // The smallest true impact parameters (d0 and z0) for a track candidate
-  maxD0 = conf.getParameter<std::vector<double> >("maxD0");
-  if ( maxD0.size() != seedingAlgo.size() ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : maxD0 does not have the proper size "
-      << std::endl;
-
-  maxZ0 = conf.getParameter<std::vector<double> >("maxZ0");
-  if ( maxZ0.size() != seedingAlgo.size() ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : maxZ0 does not have the proper size "
-      << std::endl;
-
-  // The name of the hit producer
-  hitProducer = conf.getParameter<edm::InputTag>("HitProducer");
-
-  // The cuts for seed cleaning
-  seedCleaning = conf.getParameter<bool>("seedCleaning");
-
-  // Number of hits needed for a seed
-  numberOfHits = conf.getParameter<std::vector<unsigned int> >("numberOfHits");
-  if ( numberOfHits.size() != seedingAlgo.size() ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : numberOfHits does not have the proper size "
-      << std::endl;
-
-  // Seeding based on muons
-  selectMuons = conf.getParameter<bool>("selectMuons");
-
-  // Layers
-  newSyntax = conf.getParameter<bool>("newSyntax");
-  if (newSyntax) {
-    std::vector<std::string> layerList = conf.getParameter<std::vector<std::string> >("layerList");
-    //for (unsigned i=0; i<layerList.size();i++) std::cout << "------- Layers = " << layerList[i] << std::endl; 
-
-    for(std::vector<std::string>::const_iterator it=layerList.begin(); it < layerList.end(); ++it) {
-      std::vector<LayerSpec> tempResult;
-      std::string line = *it;
-      std::string::size_type pos=0;
-      while (pos != std::string::npos) {
-        pos=line.find("+");
-        std::string layer = line.substr(0, pos);
-        //
-        LayerSpec layerSpec;
-        layerSpec.name = line.substr(0, pos);;
-        // Possible names: BPix(1-3) || FPix(1-2)(pos, neg) || TIB(1-4) || TID(1-3)(pos, neg) || TOB(1-6) || TEC(1-9)(pos, neg)
-        // BPix(1-3)
-        if (layerSpec.name.substr(0,4)=="BPix" ) {
-          layerSpec.subDet=PXB;
-          layerSpec.side=BARREL;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(4,1).c_str());
-          if (layerSpec.idLayer>3 || layerSpec.idLayer==0) {
-            throw cms::Exception("FastSimulation/Tracking/python")
-              << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-              << "Layers: " << layerSpec.name << ", number needs to be in range 1-3" << std::endl;
-          }
-        }
-        // FPix(1-2)(pos, neg)
-        else if (layerSpec.name.substr(0,4)=="FPix" ) {
-          layerSpec.subDet=PXD;
-          if(layerSpec.name.substr(layerSpec.name.size()-3)=="pos")
-            layerSpec.side = POS_ENDCAP;
-          else //no validation if it's not neg
-            layerSpec.side = NEG_ENDCAP;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(4,1).c_str());
-          if (layerSpec.idLayer>2 || layerSpec.idLayer==0) {
-            throw cms::Exception("FastSimulation/Tracking/python")
-              << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-              << "Layers: " << layerSpec.name << ", number needs to be in range 1-2" << std::endl;
-          }
-        }
-        // TIB(1-4)
-        else if (layerSpec.name.substr(0,3)=="TIB" ) {
-          layerSpec.subDet=TIB;
-          layerSpec.side=BARREL;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(3,1).c_str());
-          if (layerSpec.idLayer>4 || layerSpec.idLayer==0) {
-            throw cms::Exception("FastSimulation/Tracking/python")
-              << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-              << "Layers: " << layerSpec.name << ", number needs to be in range 1-4" << std::endl;
-          }
-        }
-        // TID(1-3)(pos, neg)
-        else if (layerSpec.name.substr(0,3)=="TID" ) {
-          layerSpec.subDet=TID;
-          if(layerSpec.name.substr(layerSpec.name.size()-3)=="pos")
-            layerSpec.side = POS_ENDCAP;
-          else
-            layerSpec.side = NEG_ENDCAP;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(3,1).c_str());
-          if (layerSpec.idLayer>3 || layerSpec.idLayer==0) {
-            throw cms::Exception("FastSimulation/Tracking/python")
-              << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-              << "Layers: " << layerSpec.name << ", number needs to be in range 1-3" << std::endl;
-          }
-        }
-        // TOB(1-6)
-        else if (layerSpec.name.substr(0,3)=="TOB" ) {
-          layerSpec.subDet=TOB;
-          layerSpec.side=BARREL;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(3,1).c_str());
-          if (layerSpec.idLayer>6 || layerSpec.idLayer==0) {
-            throw cms::Exception("FastSimulation/Tracking/python")
-              << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-              << "Layers: " << layerSpec.name << ", number needs to be in range 1-6" << std::endl;
-          }
-        }
-        // TEC(1-9)(pos, neg)
-        else if (layerSpec.name.substr(0,3)=="TEC" ) {
-          layerSpec.subDet=TEC;
-          if(layerSpec.name.substr(layerSpec.name.size()-3)=="pos")
-            layerSpec.side = POS_ENDCAP;
-          else
-            layerSpec.side = NEG_ENDCAP;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(3,1).c_str());
-          if (layerSpec.idLayer>9 || layerSpec.idLayer==0) {
-            throw cms::Exception("FastSimulation/Tracking/python")
-              << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-              << "Layers: " << layerSpec.name << ", number needs to be in range 1-9" << std::endl;
-          }
-        } 
-        else { 
-          throw cms::Exception("FastSimulation/Tracking/python")
-            << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
-            << "Layer: " << layerSpec.name << ", shouldn't exist" << std::endl
-            << "Case sensitive names: BPix FPix TIB TID TOB TEC" << std::endl;
-        }
-        //
-        tempResult.push_back(layerSpec);
-        line=line.substr(pos+1,std::string::npos); 
-      }
-      theLayersInSets.push_back(tempResult);
-    }
-
-    //prints theLayersInSets
-    /* for (std::vector<std::vector<LayerSpec> >::const_iterator it = theLayersInSets.begin(); it != theLayersInSets.end(); ++it) {
-      for (std::vector<LayerSpec>::const_iterator is = it->begin(); is != it->end(); ++is) {
-        std::cout << is->name << " | " << is->subDet << " | " << is->idLayer << " | " << is->side << std::endl;
-      }
-      std::cout << "---" << std::endl;
-    } */
-  } else {
-    // TO BE DELETED (AG)
-    firstHitSubDetectorNumber = 
-      conf.getParameter<std::vector<unsigned int> >("firstHitSubDetectorNumber");
-    if ( firstHitSubDetectorNumber.size() != seedingAlgo.size() ) 
-      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-	<< " WARNING : firstHitSubDetectorNumber does not have the proper size "
-	<< std::endl;
-    
-    std::vector<unsigned int> firstSubDets = 
-      conf.getParameter<std::vector<unsigned int> >("firstHitSubDetectors");
-    unsigned isub1 = 0;
-    unsigned check1 = 0;
-    firstHitSubDetectors.resize(seedingAlgo.size());
-    for ( unsigned ialgo=0; ialgo<firstHitSubDetectorNumber.size(); ++ialgo ) { 
-      check1 += firstHitSubDetectorNumber[ialgo];
-      for ( unsigned idet=0; idet<firstHitSubDetectorNumber[ialgo]; ++idet ) { 
-	firstHitSubDetectors[ialgo].push_back(firstSubDets[isub1++]);
-      }
-    }
-    if ( firstSubDets.size() != check1 ) 
-      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-	<< " WARNING : firstHitSubDetectors does not have the proper size (should be " << check1 << ")"
-	<< std::endl;
-    
-    
-    secondHitSubDetectorNumber = 
-      conf.getParameter<std::vector<unsigned int> >("secondHitSubDetectorNumber");
-    if ( secondHitSubDetectorNumber.size() != seedingAlgo.size() ) 
-      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-	<< " WARNING : secondHitSubDetectorNumber does not have the proper size "
-	<< std::endl;
-    
-    std::vector<unsigned int> secondSubDets = 
-      conf.getParameter<std::vector<unsigned int> >("secondHitSubDetectors");
-    unsigned isub2 = 0;
-    unsigned check2 = 0;
-    secondHitSubDetectors.resize(seedingAlgo.size());
-    for ( unsigned ialgo=0; ialgo<secondHitSubDetectorNumber.size(); ++ialgo ) { 
-      check2 += secondHitSubDetectorNumber[ialgo];
-      for ( unsigned idet=0; idet<secondHitSubDetectorNumber[ialgo]; ++idet ) { 
-	secondHitSubDetectors[ialgo].push_back(secondSubDets[isub2++]);
-      }
-    }
-    if ( secondSubDets.size() != check2 ) 
-      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-	<< " WARNING : secondHitSubDetectors does not have the proper size (should be " << check2 << ")"
-	<< std::endl;
-    
-    thirdHitSubDetectorNumber = 
-      conf.getParameter<std::vector<unsigned int> >("thirdHitSubDetectorNumber");
-    if ( thirdHitSubDetectorNumber.size() != seedingAlgo.size() ) 
-      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-	<< " WARNING : thirdHitSubDetectorNumber does not have the proper size "
-	<< std::endl;
-    
-    std::vector<unsigned int> thirdSubDets = 
-      conf.getParameter<std::vector<unsigned int> >("thirdHitSubDetectors");
-    unsigned isub3 = 0;
-    unsigned check3 = 0;
-    thirdHitSubDetectors.resize(seedingAlgo.size());
-    for ( unsigned ialgo=0; ialgo<thirdHitSubDetectorNumber.size(); ++ialgo ) { 
-      check3 += thirdHitSubDetectorNumber[ialgo];
-      for ( unsigned idet=0; idet<thirdHitSubDetectorNumber[ialgo]; ++idet ) { 
-	thirdHitSubDetectors[ialgo].push_back(thirdSubDets[isub3++]);
-      }
-    }
-    if ( thirdSubDets.size() != check3 ) 
-      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-	<< " WARNING : thirdHitSubDetectors does not have the proper size (should be " << check3 << ")"
-	<< std::endl;
-    }
-    
-    originRadius = conf.getParameter<std::vector<double> >("originRadius");
-    if ( originRadius.size() != seedingAlgo.size() ) 
-      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-	<< " WARNING : originRadius does not have the proper size "
-	<< std::endl;
-    
-    originHalfLength = conf.getParameter<std::vector<double> >("originHalfLength");
-    if ( originHalfLength.size() != seedingAlgo.size() ) 
-      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-	<< " WARNING : originHalfLength does not have the proper size "
-	<< std::endl;
-    
-    originpTMin = conf.getParameter<std::vector<double> >("originpTMin");
-    if ( originpTMin.size() != seedingAlgo.size() ) 
-      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-	<< " WARNING : originpTMin does not have the proper size "
-	<< std::endl;
-    
-    primaryVertices = conf.getParameter<std::vector<edm::InputTag> >("primaryVertices");
-    if ( primaryVertices.size() != seedingAlgo.size() ) 
-      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-	<< " WARNING : primaryVertices does not have the proper size "
-	<< std::endl;
-    
-    zVertexConstraint = conf.getParameter<std::vector<double> >("zVertexConstraint");
-    if ( zVertexConstraint.size() != seedingAlgo.size() ) 
-      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-	<< " WARNING : zVertexConstraint does not have the proper size "
-	<< std::endl;
-  //removed - }
-}
-  
-// Virtual destructor needed.
-TrajectorySeedProducer::~TrajectorySeedProducer() {
-  
-  if(thePropagator) delete thePropagator;
-
-  // do nothing
-#ifdef FAMOS_DEBUG
-  std::cout << "TrajectorySeedProducer destructed" << std::endl;
-#endif
-
 } 
- 
+
+
 void 
-TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es) {
-
-  //services
-  //  es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTracker);
-
-  edm::ESHandle<MagneticField>          magField;
-  edm::ESHandle<TrackerGeometry>        geometry;
-  edm::ESHandle<MagneticFieldMap>       magFieldMap;
-
-
-  es.get<IdealMagneticFieldRecord>().get(magField);
-  es.get<TrackerDigiGeometryRecord>().get(geometry);
-  es.get<MagneticFieldMapRecord>().get(magFieldMap);
-
-  theMagField = &(*magField);
-  theGeometry = &(*geometry);
-  theFieldMap = &(*magFieldMap);
-
-  thePropagator = new PropagatorWithMaterial(alongMomentum,0.105,&(*theMagField)); 
-
-  const GlobalPoint g(0.,0.,0.);
-
-}
-  
-  // Functions that gets called by framework every event
-void 
-TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {        
+TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {        
 
 
   //  if( seedingAlgo[0] ==  "FourthPixelLessPairs") std::cout << "Seed producer in 4th iteration " << std::endl;
@@ -421,6 +111,23 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
   e.getByLabel(hitProducer, theGSRecHits);
   
+  std::cout<<"event contains: "<<theSimTracks->size()<<" simtracks"<<std::endl;
+  std::cout<<"event contains: "<<theGSRecHits->size()<<" hits"<<std::endl;
+
+  int countValidHits=0;
+  for (SiTrackerGSMatchedRecHit2DCollection::const_iterator it = theGSRecHits->begin(); it!=theGSRecHits->end(); ++it)
+  {
+	  //idea: get associated simtrack from all valid hits
+	  const SiTrackerGSMatchedRecHit2D vec = *it;
+	  TrackerRecHit trackerHit = TrackerRecHit(&vec,theGeometry,tTopo);
+	  if (trackerHit.isOnRequestedDet(theLayersInSets))
+	  {
+		  ++countValidHits;
+	  }
+
+  }
+  std::cout<<"hits on requested layers: "<<countValidHits<<std::endl;
+
   // No tracking attempted if no hits (but put an empty collection in the event)!
 #ifdef FAMOS_DEBUG
   std::cout << " Step B: Full GS RecHits found " << theGSRecHits->size() << std::endl;
@@ -454,18 +161,17 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // loop over SimTrack Id's
   for ( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
+	  std::cout<<"process simtrack: "<<tkId<<" --------------------------"<<std::endl;
+
 
 #ifdef FAMOS_DEBUG
     std::cout << "Track number " << tkId << "--------------------------------" <<std::endl;
-    if (tkId>1)
-    {
-    	break;
-    }
 #endif
 
     ++nSimTracks;
     unsigned simTrackId = theSimTrackIds[tkId];
     const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
+    std::cout<<"simtrack produced: "<<theGSRecHits->get(simTrackId).second-theGSRecHits->get(simTrackId).first<<" total hits"<<std::endl;
 #ifdef FAMOS_DEBUG
     std::cout << "Pt = " << std::sqrt(theSimTrack.momentum().Perp2()) 
 	      << " eta " << theSimTrack.momentum().Eta()
@@ -505,6 +211,16 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit2;
     SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit3;
 
+    int effectiveHits=0;
+    for ( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
+    	const SiTrackerGSMatchedRecHit2D vec = *iterRecHit;
+		  TrackerRecHit trackerHit = TrackerRecHit(&vec,theGeometry,tTopo);
+		  if (trackerHit.isOnRequestedDet(theLayersInSets))
+		  {
+			  ++effectiveHits;
+		  }
+    }
+    std::cout<<"simtrack produced: "<<effectiveHits<<" hits on required layers"<<std::endl;
     // Check the number of layers crossed
     unsigned numberOfRecHits = 0;
     TrackerRecHit previousHit, currentHit;
@@ -809,116 +525,5 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
 
 }
-
-
-// This is a copy of a method in 
-// TrackingTools/TrajectoryState/src/TrajectoryStateTransform.cc
-// but it does not return a pointer (thus avoiding a memory leak)
-// In addition, it's also CPU more efficient, because 
-// ts.localError().matrix() is not copied
-void 
-TrajectorySeedProducer::stateOnDet(const TrajectoryStateOnSurface& ts,
-				   unsigned int detid,
-				   PTrajectoryStateOnDet& pts) const
-{
-
-  const AlgebraicSymMatrix55& m = ts.localError().matrix();
-  
-  int dim = 5; /// should check if corresponds to m
-
-  float localErrors[15];
-  int k = 0;
-  for (int i=0; i<dim; ++i) {
-    for (int j=0; j<=i; ++j) {
-      localErrors[k++] = m(i,j);
-    }
-  }
-  int surfaceSide = static_cast<int>(ts.surfaceSide());
-
-  pts = PTrajectoryStateOnDet( ts.localParameters(),
-			       localErrors, detid,
-			       surfaceSide);
-}
-
-bool
-TrajectorySeedProducer::compatibleWithBeamAxis(GlobalPoint& gpos1, 
-					       GlobalPoint& gpos2,
-					       double error,
-					       bool forward,
-					       unsigned algo) const {
-
-  if ( !seedCleaning ) return true;
-
-  // The hits 1 and 2 positions, in HepLorentzVector's
-  XYZTLorentzVector thePos1(gpos1.x(),gpos1.y(),gpos1.z(),0.);
-  XYZTLorentzVector thePos2(gpos2.x(),gpos2.y(),gpos2.z(),0.);
-#ifdef FAMOS_DEBUG
-  std::cout << "ThePos1 = " << thePos1 << std::endl;
-  std::cout << "ThePos2 = " << thePos2 << std::endl;
-#endif
-
-
-  // Create new particles that pass through the second hit with pT = ptMin 
-  // and charge = +/-1
-  
-  // The momentum direction is by default joining the two hits 
-  XYZTLorentzVector theMom2 = (thePos2-thePos1);
-
-  // The corresponding RawParticle, with an (irrelevant) electric charge
-  // (The charge is determined in the next step)
-  ParticlePropagator myPart(theMom2,thePos2,1.,theFieldMap);
-
-  /// Check that the seed is compatible with a track coming from within
-  /// a cylinder of radius originRadius, with a decent pT, and propagate
-  /// to the distance of closest approach, for the appropriate charge
-  bool intersect = myPart.propagateToBeamCylinder(thePos1,originRadius[algo]*1.);
-  if ( !intersect ) return false;
-
-#ifdef FAMOS_DEBUG
-  std::cout << "MyPart R = " << myPart.R() << "\t Z = " << myPart.Z() 
-	    << "\t pT = " << myPart.Pt() << std::endl;
-#endif
-
-  // Check if the constraints are satisfied
-  // 1. pT at cylinder with radius originRadius
-  if ( myPart.Pt() < originpTMin[algo] ) return false;
-
-  // 2. Z compatible with beam spot size
-  if ( fabs(myPart.Z()-z0) > originHalfLength[algo] ) return false;
-
-  // 3. Z compatible with one of the primary vertices (always the case if no primary vertex)
-  const reco::VertexCollection* theVertices = vertices[algo];
-  if (!theVertices) return true;
-  unsigned nVertices = theVertices->size();
-  if ( !nVertices || zVertexConstraint[algo] < 0. ) return true;
-  // Radii of the two hits with respect to the beam spot position
-  double R1 = std::sqrt ( (thePos1.X()-x0)*(thePos1.X()-x0) 
-			+ (thePos1.Y()-y0)*(thePos1.Y()-y0) );
-  double R2 = std::sqrt ( (thePos2.X()-x0)*(thePos2.X()-x0) 
-			+ (thePos2.Y()-y0)*(thePos2.Y()-y0) );
-  // Loop on primary vertices
-  for ( unsigned iv=0; iv<nVertices; ++iv ) { 
-    // Z position of the primary vertex
-    double zV = (*theVertices)[iv].z();
-    // Constraints on the inner hit
-    double checkRZ1 = forward ?
-      (thePos1.Z()-zV+zVertexConstraint[algo]) / (thePos2.Z()-zV+zVertexConstraint[algo]) * R2 : 
-      -zVertexConstraint[algo] + R1/R2*(thePos2.Z()-zV+zVertexConstraint[algo]);
-    double checkRZ2 = forward ?
-      (thePos1.Z()-zV-zVertexConstraint[algo])/(thePos2.Z()-zV-zVertexConstraint[algo]) * R2 :
-      +zVertexConstraint[algo] + R1/R2*(thePos2.Z()-zV-zVertexConstraint[algo]);
-    double checkRZmin = std::min(checkRZ1,checkRZ2)-3.*error;
-    double checkRZmax = std::max(checkRZ1,checkRZ2)+3.*error;
-    // Check if the innerhit is within bounds
-    bool compat = forward ?
-      checkRZmin < R1 && R1 < checkRZmax : 
-      checkRZmin < thePos1.Z()-zV && thePos1.Z()-zV < checkRZmax; 
-    // If it is, just return ok
-    if ( compat ) return compat;
-  }
-  // Otherwise, return not ok
-  return false;
-
-}  
 
 

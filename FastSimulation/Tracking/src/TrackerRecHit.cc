@@ -72,7 +72,6 @@ TrackerRecHit::init(const TrackerGeometry* theGeometry, const TrackerTopology *t
     theCylinderNumber = TrackerInteractionGeometry::PXD+theLayerNumber;
     forward = true;
   }
-  
 }
 
 bool
