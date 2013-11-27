@@ -45,7 +45,7 @@ namespace edm {
     virtual void closeFile_();
     virtual void endJob();
     virtual ItemType getNextItemType();
-    virtual bool readIt(EventID const& id, EventPrincipal& eventPrincipal);
+    virtual bool readIt(EventID const& id, EventPrincipal& eventPrincipal, StreamContext& streamContext) override;
     virtual void skip(int offset);
     virtual bool goToEvent_(EventID const& eventID);
     virtual void rewind_();

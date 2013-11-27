@@ -143,7 +143,7 @@ namespace edm {
       if(!oncePerEventMode_) { // default, prints on increases
         iReg.watchPreSourceConstruction(this, &SimpleMemoryCheck::preSourceConstruction);
         iReg.watchPostSourceConstruction(this, &SimpleMemoryCheck::postSourceConstruction);
-        iReg.watchPostSource(this, &SimpleMemoryCheck::postSource);
+        iReg.watchPostSourceEvent(this, &SimpleMemoryCheck::postSourceEvent);
         iReg.watchPostModuleConstruction(this, &SimpleMemoryCheck::postModuleConstruction);
         iReg.watchPostModuleBeginJob(this, &SimpleMemoryCheck::postModuleBeginJob);
         iReg.watchPostEvent(this, &SimpleMemoryCheck::postEvent);
@@ -267,7 +267,7 @@ namespace edm {
       }
     }
 
-    void SimpleMemoryCheck::postSource() {
+    void SimpleMemoryCheck::postSourceEvent(StreamID sid) {
       bool expected = false;
       if(measurementUnderway_.compare_exchange_strong(expected,true,std::memory_order_acq_rel) ) {
         std::shared_ptr<void> guard(nullptr,[this](void const*) {

@@ -53,8 +53,8 @@ namespace edm {
          void postBeginJob();
          void postEndJob();
          
-         void preSource();
-         void postSource();
+         void preSourceEvent(StreamID);
+         void postSourceEvent(StreamID);
 
          void preSourceLumi();
          void postSourceLumi();
