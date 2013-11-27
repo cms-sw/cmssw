@@ -31,7 +31,10 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
 
-#include "boost/shared_ptr.hpp"
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+
+#include <memory>
+#include <functional>
 
 namespace cms {
   class Exception;
@@ -49,7 +52,9 @@ namespace edm {
     BasicHandle(BasicHandle const& h) :
       product_(h.product_),
       prov_(h.prov_),
-      whyFailed_(h.whyFailed_){}
+      whyFailedFactory_(h.whyFailedFactory_){}
+
+    BasicHandle(BasicHandle &&h) = default;
 
     BasicHandle(void const* iProd, WrapperInterfaceBase const* iInterface, Provenance const* iProv) :
       product_(WrapperHolder(iProd, iInterface)),
@@ -67,10 +72,10 @@ namespace edm {
     }
 
     ///Used when the attempt to get the data failed
-    BasicHandle(boost::shared_ptr<cms::Exception> const& iWhyFailed):
+    BasicHandle(std::function<std::shared_ptr<cms::Exception>()> const& iWhyFailed):
     product_(),
     prov_(0),
-    whyFailed_(iWhyFailed) {}
+    whyFailedFactory_(iWhyFailed) {}
 
     ~BasicHandle() {}
 
@@ -78,7 +83,7 @@ namespace edm {
       using std::swap;
       swap(product_, other.product_);
       std::swap(prov_, other.prov_);
-      swap(whyFailed_,other.whyFailed_);
+      swap(whyFailedFactory_,other.whyFailedFactory_);
     }
 
     BasicHandle& operator=(BasicHandle const& rhs) {
@@ -92,7 +97,7 @@ namespace edm {
     }
 
     bool failedToGet() const {
-      return 0 != whyFailed_.get();
+      return bool(whyFailedFactory_);
     }
 
     WrapperInterfaceBase const* interface() const {
@@ -115,13 +120,22 @@ namespace edm {
       return prov_->productID();
     }
 
-    boost::shared_ptr<cms::Exception> whyFailed() const {
-      return whyFailed_;
+    std::shared_ptr<cms::Exception> whyFailed() const {
+      return whyFailedFactory_();
     }
+    
+    std::function<std::shared_ptr<cms::Exception>()> const& whyFailedFactory() const {
+      return whyFailedFactory_;
+    }
+    
+    std::function<std::shared_ptr<cms::Exception>()>& whyFailedFactory()  {
+      return whyFailedFactory_;
+    }
+
   private:
     WrapperHolder product_;
     Provenance const* prov_;
-    boost::shared_ptr<cms::Exception> whyFailed_;
+    std::function<std::shared_ptr<cms::Exception>()> whyFailedFactory_;
   };
 
   // Free swap function
@@ -131,5 +145,10 @@ namespace edm {
     a.swap(b);
   }
 }
+#else
+namespace edm {
+  class BasicHandle;
+}
+#endif
 
 #endif

@@ -33,6 +33,7 @@
 
 // system include files
 #include <string>
+#include <functional>
 
 // forward declarations
 namespace edm {
@@ -66,7 +67,7 @@ public:
    type_(h.type_),
    prod_(h.prod_),
    prov_(h.prov_),
-   whyFailed_(h.whyFailed_) {
+   whyFailedFactory_(h.whyFailedFactory_) {
    }
    
    Handle(ObjectWithDict const& prod, Provenance const* prov, ProductID const&):
@@ -85,7 +86,7 @@ public:
       swap(type_, other.type_);
       std::swap(prod_, other.prod_);
       swap(prov_, other.prov_);
-      swap(whyFailed_, other.whyFailed_);
+      swap(whyFailedFactory_, other.whyFailedFactory_);
    }
    
    
@@ -100,11 +101,11 @@ public:
    }
 
    bool failedToGet() const {
-     return 0 != whyFailed_.get();
+     return bool(whyFailedFactory_);
    }
    ObjectWithDict const* product() const { 
-     if(this->failedToGet()) { 
-       whyFailed_->raise();
+     if(this->failedToGet()) {
+       whyFailedFactory_()->raise();
      } 
      return &prod_;
    }
@@ -116,23 +117,23 @@ public:
    
    ProductID id() const {return prov_->productID();}
 
-   void clear() { prov_ = 0; whyFailed_.reset();}
+   void clear() { prov_ = 0; whyFailedFactory_=nullptr;}
       
-   void setWhyFailed(boost::shared_ptr<cms::Exception> const& iWhyFailed) {
-    whyFailed_=iWhyFailed;
+  void setWhyFailedFactory(std::function<std::shared_ptr<cms::Exception>()> const& iWhyFailed) {
+    whyFailedFactory_=iWhyFailed;
   }
 private:
    TypeWithDict type_;
    ObjectWithDict prod_;
    Provenance const* prov_;    
-   boost::shared_ptr<cms::Exception> whyFailed_;
+  std::function<std::shared_ptr<cms::Exception>()> whyFailedFactory_;
 
 };
 
 typedef Handle<GenericObject> GenericHandle;
 
 ///specialize this function for GenericHandle
-void convert_handle(BasicHandle const& orig,
+void convert_handle(BasicHandle && orig,
                     Handle<GenericObject>& result);
 
 
