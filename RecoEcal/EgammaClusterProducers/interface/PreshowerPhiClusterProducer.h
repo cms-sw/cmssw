@@ -64,6 +64,8 @@ class PreshowerPhiClusterProducer : public edm::EDProducer {
   double aEta_[4];
   double bEta_[4];
 
+  double etThresh_;
+
   PreshowerPhiClusterAlgo * presh_algo; // algorithm doing the real work
    // The set of used DetID's
   //std::set<DetId> used_strips;
