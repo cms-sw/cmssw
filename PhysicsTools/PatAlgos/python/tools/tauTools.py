@@ -24,7 +24,7 @@ def redoPFTauDiscriminators(process,
         else:
             #        remove producers
             for iname in process.patHPSPFTauDiscrimination.moduleNames():
-                if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1 or iname.find("kt6PFJetsForRhoComputationVoronoi")>-1):
+                if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1 or iname.find("kt6PFJetsForRhoComputationVoronoi")>-1 or iname.find("PtSum")>-1 or iname.find("ImpactParameters")>-1 or iname.find("VertexProducer")>-1):
                     process.patHPSPFTauDiscrimination.remove(getattr(process,iname) )
             tauDiscriminationSequence = cloneProcessingSnippet(process, process.patHPSPFTauDiscrimination, postfix)
 
@@ -66,11 +66,11 @@ def redoPFTauDiscriminators(process,
     else:
         raise StandardError, "Unkown tauType: '%s'"%tauType
 
-    ##if not hasattr(process,"updateHPSPFTaus"+postfix):
-    ##    applyPostfix(process,"patDefaultSequence",postfix).replace(
-    ##        applyPostfix(process,"patTaus",postfix),
-    ##        tauDiscriminationSequence*applyPostfix(process,"patTaus",postfix)
-    ##        )
+    if not hasattr(process,"updateHPSPFTaus"+postfix):
+        applyPostfix(process,"patDefaultSequence",postfix).replace(
+            applyPostfix(process,"patTaus",postfix),
+            tauDiscriminationSequence*applyPostfix(process,"patTaus",postfix)
+            )
 
     massSearchReplaceParam(tauDiscriminationSequence, tauSrc, oldPFTauLabel, newPFTauLabel)
 
@@ -137,7 +137,6 @@ def _switchToPFTau(process,
                    postfix = ""):
     """internal auxiliary function to switch to **any** PFTau collection"""
     print ' Taus: ', pfTauLabelOld, '->', pfTauLabelNew
-
     applyPostfix(process, "tauMatch" + patTauLabel, postfix).src = pfTauLabelNew
     applyPostfix(process, "tauGenJetMatch" + patTauLabel, postfix).src = pfTauLabelNew
 
@@ -350,7 +349,6 @@ def switchToPFTauHPS(process,
                      patTauLabel = "",
                      jecLevels = [],
                      postfix = ""):
-
     hpsTauJECpayloadMapping = pfTauJECpayloadMapping
 
     _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'hpsPFTau', hpsTauIDSources,
@@ -358,7 +356,12 @@ def switchToPFTauHPS(process,
                    patTauLabel = patTauLabel, postfix = postfix)
 
     # CV: enable tau lifetime information for HPS PFTaus
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).tauTransverseImpactParameterSource = pfTauLabelNew.value().replace("Producer", "TransverseImpactParameters")
+    applyPostfix(process, "patTaus" + patTauLabel, postfix).tauTransverseImpactParameterSource = pfTauLabelOld.value().replace("Producer", "TransverseImpactParameters")+patTauLabel+postfix
+    applyPostfix(process, "hpsPFTauPrimaryVertexProducer"+ patTauLabel, postfix).PFTauTag = pfTauLabelNew
+    applyPostfix(process, "hpsPFTauSecondaryVertexProducer" + patTauLabel, postfix).PFTauTag = pfTauLabelNew
+    applyPostfix(process, "hpsPFTauTransverseImpactParameters" +patTauLabel, postfix).PFTauTag = pfTauLabelNew
+    applyPostfix(process, "hpsPFTauTransverseImpactParameters" +patTauLabel, postfix).PFTauPVATag = "hpsPFTauPrimaryVertexProducer"+patTauLabel+postfix
+    applyPostfix(process, "hpsPFTauTransverseImpactParameters" +patTauLabel, postfix).PFTauSVATag = "hpsPFTauSecondaryVertexProducer"+patTauLabel+postfix
 
     ## adapt cleanPatTaus
     if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
