@@ -122,4 +122,23 @@ genMetTrueAnalyzer = cms.EDAnalyzer(
 #    OutputFile = cms.untracked.string('METTester.root'),
 #    InputMETLabel = cms.InputTag("genMetCaloAndNonPrompt")
 #    )
+pfType0CorrectedMetAnalyzer = cms.EDAnalyzer(
+   "METTester",
+   OutputFile = cms.untracked.string('METTester.root'),
+   InputMETLabel = cms.InputTag("pfType0CorrectedMet"),
+    METType = cms.untracked.string("pf")
+   )
+pfType1CorrectedMetAnalyzer = cms.EDAnalyzer(
+   "METTester",
+   OutputFile = cms.untracked.string('METTester.root'),
+   InputMETLabel = cms.InputTag("pfType1CorrectedMet"),
+    METType = cms.untracked.string("pf")
+   )
+pfType01CorrectedMetAnalyzer = cms.EDAnalyzer(
+   "METTester",
+   OutputFile = cms.untracked.string('METTester.root'),
+   InputMETLabel = cms.InputTag("pfType01CorrectedMet"),
+    METType = cms.untracked.string("pf")
+   )
+
 
