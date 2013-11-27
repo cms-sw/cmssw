@@ -59,7 +59,6 @@ namespace edm {
   void
   ProducerSourceBase::readEvent_(EventPrincipal& eventPrincipal) {
     assert(eventCached() || processingMode() != RunsLumisAndEvents);
-    EventSourceSentry sentry(*this);
     EventAuxiliary aux(eventID_, processGUID(), Timestamp(presentTime_), isRealData_, eType_);
     eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry());
     Event e(eventPrincipal, moduleDescription(), nullptr);

@@ -144,7 +144,6 @@ bool LHESource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&)
 void
 LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
 	assert(eventCached() || processingMode() != RunsLumisAndEvents);
-	EventSourceSentry sentry(*this);
 	edm::EventAuxiliary aux(eventID(), processGUID(), edm::Timestamp(presentTime()), false);
 	aux.setProcessHistoryID(phid_);
 	eventPrincipal.fillEventPrincipal(aux, processHistoryRegistryForUpdate());

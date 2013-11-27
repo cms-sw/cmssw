@@ -34,6 +34,10 @@ static void
 restrictDQMAccessM(const edm::ModuleDescription &)
 { restrictDQMAccess(); }
 
+static void
+restrictDQMAccessS(edm::StreamID)
+{ restrictDQMAccess(); }
+
 /// Release access to the DQM core.
 static void
 releaseDQMAccess(void)
@@ -41,6 +45,10 @@ releaseDQMAccess(void)
 
 static void
 releaseDQMAccessM(const edm::ModuleDescription &)
+{ releaseDQMAccess(); }
+
+static void
+releaseDQMAccessS(edm::StreamID)
 { releaseDQMAccess(); }
 
 // -------------------------------------------------------------------
@@ -53,8 +61,8 @@ DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
 {
   ar.watchPreSourceConstruction(&restrictDQMAccessM);
   ar.watchPostSourceConstruction(&releaseDQMAccessM);
-  ar.watchPreSource(&restrictDQMAccess);
-  ar.watchPostSource(&releaseDQMAccess);
+  ar.watchPreSourceEvent(&restrictDQMAccessS);
+  ar.watchPostSourceEvent(&releaseDQMAccessS);
   ar.watchPreModule(&restrictDQMAccessM);
   ar.watchPostModule(&releaseDQMAccessM);
   ar.watchPostProcessEvent(this, &DQMService::flush);
