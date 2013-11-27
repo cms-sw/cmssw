@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 	<ConstantsSection label="hcalalgo.xml" eval="true">
+		<Constant name="Z00HB" value="382.5*cm"/>
+		<Constant name="Z01HB" value="363.75*cm"/>
+		<Constant name="Z02HB" value="334.76*cm"/>
 		<Constant name="Z0HBHE" value="389.550*cm"/>
 		<Constant name="Z0HE" value="398.250*cm"/>
 		<Constant name="Z1HB" value="324.200*cm"/>
@@ -11,12 +14,15 @@
 		<Constant name="z6HB" value="[cms:CalorBeamZ2]"/>
 		<Constant name="zRat" value="([Z0HE]-[z6HB])/([cms:CalorBeamZ1]-[z6HB])"/>
 		<Constant name="rMin1" value="177.500*cm"/>
+		<Constant name="rMin11" value="183.203*cm"/>
+		<Constant name="rMin12" value="190*cm"/>
 		<Constant name="rMin3" value="171.200*cm"/>
 		<Constant name="rMin4" value="277.071*cm"/>
 		<Constant name="rMin5" value="281.342*cm"/>
 		<Constant name="rMin2" value="[cms:CalorBeamR2]+[zRat]*                                 ([cms:CalorBeamR1]-[cms:CalorBeamR2])"/>
 		<Constant name="rMax1" value="186.650*cm"/>
 		<Constant name="rMax3" value="192.703*cm"/>
+		<Constant name="rMax31" value="202.72*cm"/>
 		<Constant name="rMax4" value="287.000*cm"/>
 	</ConstantsSection>
 	<SolidSection label="hcalalgo.xml">
@@ -24,40 +30,50 @@
 			<ZSection z="-[z6HB]" rMin="[rMin5]" rMax="[cms:CalorMuonR]"/>
 			<ZSection z="-[z5HB]" rMin="[rMin5]" rMax="[cms:CalorMuonR]"/>
 			<ZSection z="-[z4HB]" rMin="[rMin4]" rMax="[cms:CalorMuonR]"/>
-			<ZSection z="-[z3HB]" rMin="[rMin1]" rMax="[cms:CalorMuonR]"/>
-			<ZSection z=" [z3HB]" rMin="[rMin1]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="-[Z00HB]" rMin="[rMin12]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="-[Z01HB]" rMin="[rMin11]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="-[Z02HB]" rMin="[rMin11]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="-[Z1HB]"  rMin="[rMin1]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="[Z1HB]"  rMin="[rMin1]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="[Z02HB]" rMin="[rMin11]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="[Z01HB]" rMin="[rMin11]" rMax="[cms:CalorMuonR]"/>
+			<ZSection z="[Z00HB]" rMin="[rMin12]" rMax="[cms:CalorMuonR]"/>
 			<ZSection z=" [z4HB]" rMin="[rMin4]" rMax="[cms:CalorMuonR]"/>
 			<ZSection z=" [z5HB]" rMin="[rMin5]" rMax="[cms:CalorMuonR]"/>
 			<ZSection z=" [z6HB]" rMin="[rMin5]" rMax="[cms:CalorMuonR]"/>
 		</Polycone>
 		<Polyhedra name="HRCF" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
 			<ZSection z="[Z1HB]" rMin="[rMin1]" rMax="[rMax1]"/>
-			<ZSection z="[z2HB]" rMin="[rMin1]" rMax="[rMax1]"/>
-			<ZSection z="[z3HB]" rMin="[rMin1]" rMax="[rMax3]"/>
+			<ZSection z="[Z02HB]" rMin="[rMin11]" rMax="[rMax3]"/>
+			<ZSection z="[Z01HB]" rMin="[rMin11]" rMax="[rMax3]"/>
+			<ZSection z="[Z00HB]" rMin="[rMin12]" rMax="[rMax31]"/>
 			<ZSection z="[z4HB]" rMin="[rMin4]" rMax="[rMax4]"/>
 			<ZSection z="[z5HB]" rMin="[rMin5]" rMax="[rMax4]"/>
 			<ZSection z="[z6HB]" rMin="[rMin5]" rMax="[rMax4]"/>
 		</Polyhedra>
 		<Polyhedra name="HEC1" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
 			<ZSection z="[Z1HB]" rMin="[rMin1]" rMax="[rMax1]"/>
-			<ZSection z="[z2HB]" rMin="[rMin1]" rMax="[rMax1]"/>
-			<ZSection z="[z3HB]" rMin="[rMin1]" rMax="[rMax3]"/>
+			<ZSection z="[Z02HB]" rMin="[rMin11]" rMax="[rMax3]"/>
+			<ZSection z="[Z01HB]" rMin="[rMin11]" rMax="[rMax3]"/>
+			<ZSection z="[Z00HB]" rMin="[rMin12]" rMax="[rMax31]"/>
 			<ZSection z="[z4HB]" rMin="[rMin4]" rMax="[rMax4]"/>
 			<ZSection z="[z5HB]" rMin="[rMin5]" rMax="[rMax4]"/>
 			<ZSection z="[z6HB]" rMin="[rMin5]" rMax="[rMax4]"/>
 		</Polyhedra>
 		<Polyhedra name="HHC1" numSide="1" startPhi="352.5*deg" deltaPhi="15*deg">
 			<ZSection z="[Z1HB]" rMin="[rMin1]" rMax="[rMax1]"/>
-			<ZSection z="[z2HB]" rMin="[rMin1]" rMax="[rMax1]"/>
-			<ZSection z="[z3HB]" rMin="[rMin1]" rMax="[rMax3]"/>
+			<ZSection z="[Z02HB]" rMin="[rMin11]" rMax="[rMax3]"/>
+			<ZSection z="[Z01HB]" rMin="[rMin11]" rMax="[rMax3]"/>
+			<ZSection z="[Z00HB]" rMin="[rMin12]" rMax="[rMax31]"/>
 			<ZSection z="[z4HB]" rMin="[rMin4]" rMax="[rMax4]"/>
 			<ZSection z="[z5HB]" rMin="[rMin5]" rMax="[rMax4]"/>
 			<ZSection z="[z6HB]" rMin="[rMin5]" rMax="[rMax4]"/>
 		</Polyhedra>
 		<Polyhedra name="HTC1" numSide="1" startPhi="356*deg" deltaPhi="8*deg">
 			<ZSection z="[Z1HB]" rMin="[rMin1]" rMax="[rMax1]"/>
-			<ZSection z="[z2HB]" rMin="[rMin1]" rMax="[rMax1]"/>
-			<ZSection z="[z3HB]" rMin="[rMin1]" rMax="[rMax3]"/>
+			<ZSection z="[Z02HB]" rMin="[rMin11]" rMax="[rMax3]"/>
+			<ZSection z="[Z01HB]" rMin="[rMin11]" rMax="[rMax3]"/>
+			<ZSection z="[Z00HB]" rMin="[rMin12]" rMax="[rMax31]"/>
 			<ZSection z="[z4HB]" rMin="[rMin4]" rMax="[rMax4]"/>
 			<ZSection z="[z5HB]" rMin="[rMin5]" rMax="[rMax4]"/>
 			<ZSection z="[z6HB]" rMin="[rMin5]" rMax="[rMax4]"/>
