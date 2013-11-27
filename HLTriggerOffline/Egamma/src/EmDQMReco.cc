@@ -126,15 +126,9 @@ EmDQMReco::EmDQMReco(const edm::ParameterSet& pset)
 
   triggerNameRecoMonPath = pset.getUntrackedParameter<std::string>("triggerNameRecoMonPath","HLT_MinBias");
   processNameRecoMonPath = pset.getUntrackedParameter<std::string>("processNameRecoMonPath","HLT");
-  triggerResults_token_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","",processNameRecoMonPath));
-  hltTriggerSummaryRAW_token_ = consumes<trigger::TriggerEventWithRefs>(pset.getUntrackedParameter<edm::InputTag>("hltTriggerSummaryRAW",edm::InputTag("hltTriggerSummaryRAW")));
 
-  recoElectronsInputTag  = consumes<edm::View<reco::Candidate> >(pset.getUntrackedParameter<edm::InputTag>("recoElectrons",edm::InputTag("gsfElectrons")));
-  correctedHybridSuperClusters_token_ = consumes<std::vector<reco::SuperCluster> >(pset.getUntrackedParameter<edm::InputTag>("HybridSuperClusters",edm::InputTag("correctedHybridSuperClusters")));
-  correctedMulti5x5SuperClustersWithPreshower_token_ = consumes<std::vector<reco::SuperCluster> >(pset.getUntrackedParameter<edm::InputTag>("Multi5x5SuperClustersWithPreshower",edm::InputTag("correctedMulti5x5SuperClustersWithPreshower_token_")));
+  recoElectronsInputTag  = pset.getUntrackedParameter<edm::InputTag>("recoElectrons",edm::InputTag("gsfElectrons"));
 
-
-  
   // preselction cuts
   // recocutCollection_= pset.getParameter<edm::InputTag>("cutcollection");
   recocut_          = pset.getParameter<int>("cutnum");
@@ -517,7 +511,7 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
 
   if (pdgGen == 11) {
 
-    event.getByToken(recoElectronsInputTag, recoObjects);
+    event.getByLabel(recoElectronsInputTag, recoObjects);
 
     if (recoObjects->size() < (unsigned int)recocut_) {
       // edm::LogWarning("EmDQMReco") << "Less than "<< recocut_ <<" Reco particles with pdgId=" << pdgGen << ".  Only " << cutRecoCounter->size() << " particles.";
@@ -525,8 +519,8 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
     }
   } else if (pdgGen == 22) {
 
-    event.getByToken(correctedHybridSuperClusters_token_, recoObjectsEB);
-    event.getByToken(correctedMulti5x5SuperClustersWithPreshower_token_, recoObjectsEE);
+    event.getByLabel("correctedHybridSuperClusters", recoObjectsEB);
+    event.getByLabel("correctedMulti5x5SuperClustersWithPreshower", recoObjectsEE);
 
     if (recoObjectsEB->size() + recoObjectsEE->size() < (unsigned int)recocut_) {
       // edm::LogWarning("EmDQMReco") << "Less than "<< recocut_ <<" Reco particles with pdgId=" << pdgGen << ".  Only " << cutRecoCounter.size() << " particles.";
@@ -535,7 +529,7 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
   }
 
   edm::Handle<edm::TriggerResults> HLTR;
-  event.getByToken(triggerResults_token_, HLTR);
+  event.getByLabel(edm::InputTag("TriggerResults","",processNameRecoMonPath), HLTR);
 
   ///
   /// NOTE:
@@ -564,7 +558,7 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
   // fill L1 and HLT info
   // get objects possed by each filter
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
-  event.getByToken(hltTriggerSummaryRAW_token_,triggerObj);
+  event.getByLabel("hltTriggerSummaryRAW",triggerObj);
   if(!triggerObj.isValid()) {
     edm::LogWarning("EmDQMReco") << "RAW-type HLT results not found, skipping event";
     return;
