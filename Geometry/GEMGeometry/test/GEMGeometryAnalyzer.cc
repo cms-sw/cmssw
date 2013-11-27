@@ -16,6 +16,8 @@
 
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -43,20 +45,20 @@ private:
   const std::string myName_;
   std::ofstream ofos;
 };
-
+using namespace std;
 GEMGeometryAnalyzer::GEMGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )
-  : dashedLineWidth_(104), dashedLine_( std::string(dashedLineWidth_, '-') ), 
+  : dashedLineWidth_(104), dashedLine_( string(dashedLineWidth_, '-') ), 
     myName_( "GEMGeometryAnalyzer" ) 
 { 
   ofos.open("MytestOutput.out"); 
-  ofos <<"======================== Opening output file"<< std::endl;
+  ofos <<"======================== Opening output file"<< endl;
 }
 
 
 GEMGeometryAnalyzer::~GEMGeometryAnalyzer() 
 {
   ofos.close();
-  ofos <<"======================== Closing output file"<< std::endl;
+  ofos <<"======================== Closing output file"<< endl;
 }
 
 void
@@ -65,31 +67,73 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   edm::ESHandle<GEMGeometry> pDD;
   iSetup.get<MuonGeometryRecord>().get(pDD);     
   
-  ofos << myName() << ": Analyzer..." << std::endl;
-  ofos << "start " << dashedLine_ << std::endl;
+  ofos << myName() << ": Analyzer..." << endl;
+  ofos << "start " << dashedLine_ << endl;
 
-  ofos << " Geometry node for GEMGeom is  " << &(*pDD) << std::endl;   
-  ofos << " I have "<<pDD->detTypes().size()      << " detTypes" << std::endl;
-  ofos << " I have "<<pDD->detUnits().size()      << " detUnits" << std::endl;
-  ofos << " I have "<<pDD->dets().size()          << " dets" << std::endl;
-  ofos << " I have "<<pDD->etaPartitions().size() << " eta partitions" << std::endl;
-  ofos << " I have "<<pDD->chambers().size()      << " chambers" << std::endl;
-  //  ofos << " I have "<<pDD->superChambers().size() << " super chambers" << std::endl;
+  ofos << " Geometry node for GEMGeom is  " << &(*pDD) << endl;   
+  ofos << " detTypes       \t"<<pDD->detTypes().size() << endl;
+  ofos << " GeomDetUnit       \t"<<pDD->detUnits().size() << endl;
+  ofos << " GeomDet           \t"<<pDD->dets().size() << endl;
+  ofos << " GeomDetUnit DetIds\t"<<pDD->detUnitIds().size() << endl;
+  ofos << " eta partitions \t"<<pDD->etaPartitions().size() << endl;
+  ofos << " chambers       \t"<<pDD->chambers().size() << endl;
+  ofos << " no. eta partitions \t"<< pDD->etaPartitions().size()/pDD->chambers().size() << endl;
 
-  ofos << myName() << ": Begin iteration over geometry..." << std::endl;
-  ofos << "iter " << dashedLine_ << std::endl;
+  //ofos << " super chambers  "<<pDD->superChambers().size() << endl;
 
+  // checking uniqueness of roll detIds 
+  bool flagNonUniqueRollID = false;
+  bool flagNonUniqueRollRawID = false;
+  int nstrips = 0;
+  int npads = 0;
+  for (auto roll1 : pDD->etaPartitions()){
+    nstrips += roll1->nstrips();
+    npads += roll1->npads();
+    for (auto roll2 : pDD->etaPartitions()){
+      if (roll1 != roll2){
+	if (roll1->id() == roll2->id()) flagNonUniqueRollID = true;
+	if (roll1->id().rawId() == roll2->id().rawId()) flagNonUniqueRollRawID = true;
+      }
+    }
+  }
+  ofos << " total number of strips\t"<<nstrips << endl;
+  ofos << " total number of pads  \t"<<npads << endl;
+  ofos << " flagNonUniqueRollID   \t"<<flagNonUniqueRollID << endl;
+  ofos << " flagNonUniqueRollRawID\t"<<flagNonUniqueRollRawID << endl;
+
+  // checking uniqueness of chamber detIds
+  bool flagNonUniqueChID = false;
+  bool flagNonUniqueChRawID = false;
+  for (auto ch1 : pDD->chambers()){
+    for (auto ch2 : pDD->chambers()){
+      if (ch1 != ch2){
+	if (ch1->id() == ch2->id()) flagNonUniqueChID = true;
+	if (ch1->id().rawId() == ch2->id().rawId()) flagNonUniqueChRawID = true;
+      }
+    }
+  }
+  ofos << " flagNonUniqueChID     \t"<<flagNonUniqueChID << endl;
+  ofos << " flagNonUniqueChRawID  \t"<<flagNonUniqueChRawID << endl;
+
+  // checking the number of strips and pads
+
+  ofos << myName() << ": Begin iteration over geometry..." << endl;
+  ofos << "iter " << dashedLine_ << endl;
   
   //----------------------- Global GEMGeometry TEST -------------------------------------------------------
-  ofos << myName() << "Begin GEMGeometry structure TEST" << std::endl;
+  ofos << myName() << "Begin GEMGeometry structure TEST" << endl;
   
   int j = 1;
+
+
+  // checking the dimensions of each partition & chamber
   for (auto ch : pDD->chambers()){
     GEMDetId chId(ch->id());
-    auto& rolls(ch->etaPartitions());
     int nRolls(ch->nEtaPartitions());
-    ofos << "  GEMChamber " << j << ", GEMDetId = " << chId.rawId() << ", " << chId << " has " << nRolls << " eta partitions." << std::endl;
+    ofos << "  GEMChamber " << j << ", GEMDetId = " << chId.rawId() << ", " << chId << " has " << nRolls << " eta partitions." << endl;
+
     int k = 1;
+    auto& rolls(ch->etaPartitions());
     
     /*
      * possible checklist for an eta partition:
@@ -102,12 +146,13 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
      *   gap thickness
      *   sum of all dx + gap = chamber height
      */      
+
     for (auto roll : rolls){
       GEMDetId rId(roll->id());
-      ofos<<"    GEMEtaPartition " << k << ", GEMDetId = " << rId.rawId() << ", " << rId << std::endl;
+      ofos<<"    GEMEtaPartition " << k << ", GEMDetId = " << rId.rawId() << ", " << rId << endl;
       
-      /*      const BoundPlane& bSurface(roll->surface());
-      const StripTopology* topology(dynamic_cast<const StripTopology*>(&(roll->topology())));
+      const BoundPlane& bSurface(roll->surface());
+      const StripTopology* topology(&(roll->specificTopology()));
       
       // base_bottom, base_top, height, strips, pads (all half length)
       auto& parameters(roll->specs()->parameters());
@@ -154,7 +199,7 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
       float bottomPitch(roll->localPitch(lBottom));
       
       // Type - should be GHA[1-nRolls]
-      std::string type(roll->type().name());
+      string type(roll->type().name());
       
       // print info about edges
       LocalPoint lEdge1(topology->localPosition(0.));
@@ -165,22 +210,20 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
       double dphi(cstripN - cstrip1);
       if (dphi < 0.) dphi += 360.;
       double deta(abs(beta - teta));
-      */
-      /*
-      ofos << "    \tType: " << type << std::endl
-		<< "    \tDimensions[cm]: b = " << bottomEdge << ", B = " << topEdge << ", h  = " << height << std::endl
-		<< "    \tnStrips = " << nStrips << ", nPads =  " << nPads << std::endl
-		<< "    \tcenter(x,y,z) = " << cx << " " << cy << " " << cz << ", center(eta,phi) = " << ceta << " " << cphi << std::endl
-		<< "    \ttop(x,y,z) = " << tx << " " << ty << " " << tz << ", top(eta,phi) = " << teta << " " << tphi << std::endl
-		<< "    \tbottom(x,y,z) = " << bx << " " << by << " " << bz << ", bottom(eta,phi) = " << beta << " " << bphi << std::endl
-		<< "    \tpith (top,center,bottom) = " << topPitch << " " << pitch << " " << bottomPitch << ", dEta = " << deta << ", dPhi = " << dphi << std::endl;
-      */
+      ofos << "    \tType: " << type << endl
+		<< "    \tDimensions[cm]: b = " << bottomEdge << ", B = " << topEdge << ", h  = " << height << endl
+		<< "    \tnStrips = " << nStrips << ", nPads =  " << nPads << endl
+		<< "    \tcenter(x,y,z) = " << cx << " " << cy << " " << cz << ", center(eta,phi) = " << ceta << " " << cphi << endl
+		<< "    \ttop(x,y,z) = " << tx << " " << ty << " " << tz << ", top(eta,phi) = " << teta << " " << tphi << endl
+		<< "    \tbottom(x,y,z) = " << bx << " " << by << " " << bz << ", bottom(eta,phi) = " << beta << " " << bphi << endl
+		<< "    \tpith (top,center,bottom) = " << topPitch << " " << pitch << " " << bottomPitch << ", dEta = " << deta << ", dPhi = " << dphi << endl;
+      
       ++k;
     }
     ++j;
   }
 
-  ofos << dashedLine_ << " end" << std::endl;
+  ofos << dashedLine_ << " end" << endl;
 }
 
 //define this as a plug-in
