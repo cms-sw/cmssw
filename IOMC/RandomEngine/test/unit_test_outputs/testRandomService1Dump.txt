@@ -31,7 +31,7 @@ RandomNumberGeneratorService dump
     engineStack_ size = 2
                  0  Points to end of engine map
                  1  t1  HepJamesRandom  81
-    restoreStateTag_ = InputTag:  label = , instance = 
+    restoreStateTag_ = InputTag:  label = , instance = , process = @skipCurrentProcess
     saveFileName_ = StashState1.data
     restoreFileName_ = 
 *** TestRandomNumberServiceAnalyzer constructor 81

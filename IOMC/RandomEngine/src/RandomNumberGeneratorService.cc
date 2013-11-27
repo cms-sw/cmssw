@@ -15,6 +15,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -56,10 +57,13 @@ namespace edm {
 
       if(pset.exists("restoreStateTag")) {
         restoreStateTag_ = pset.getUntrackedParameter<edm::InputTag>("restoreStateTag");
+        if(restoreStateTag_.process() == "") {
+          restoreStateTag_ = edm::InputTag(restoreStateTag_.label(), "", edm::InputTag::kSkipCurrentProcess);
+        }
       } else {
-        restoreStateTag_ = edm::InputTag(pset.getUntrackedParameter<std::string>("restoreStateLabel"), "", "");
+        restoreStateTag_ = edm::InputTag(pset.getUntrackedParameter<std::string>("restoreStateLabel"), "", edm::InputTag::kSkipCurrentProcess);
       }
-      restoreStateBeginLumiTag_ = edm::InputTag(restoreStateTag_.label(), "beginLumi", restoreStateTag_.process()); 
+      restoreStateBeginLumiTag_ = edm::InputTag(restoreStateTag_.label(), "beginLumi", restoreStateTag_.process());
 
       if(!restoreFileName_.empty() && !restoreStateTag_.label().empty()) {
         throw Exception(errors::Configuration)
@@ -672,6 +676,18 @@ namespace edm {
 
     void
     RandomNumberGeneratorService::readFromLuminosityBlock(LuminosityBlock const& lumi) {
+
+      Service<TriggerNamesService> tns;
+      if(tns.isAvailable()) {
+        if(tns->getProcessName() == restoreStateTag_.process()) {
+          throw Exception(errors::Configuration)
+            << "In the configuration for the RandomNumberGeneratorService the\n"
+            << "restoreStateTag contains the current process which is illegal.\n"
+            << "The process name in the replay process should have been changed\n"
+            << "to be different than the original process name and the restoreStateTag\n"
+            << "should contain either the original process name or an empty process name.\n";
+        }
+      }
 
       Handle<RandomEngineStates> states;
       lumi.getByLabel(restoreStateBeginLumiTag_, states);
