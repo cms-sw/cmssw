@@ -136,6 +136,7 @@ namespace ora {
     private:
     boost::shared_ptr<ConnectionPool> m_connectionPool;
     SharedSession m_dbSession;
+    bool m_ownedTransaction = true;
     std::string m_connectionString;
     std::string m_schemaName;
     std::auto_ptr<IDatabaseSchema> m_schema;

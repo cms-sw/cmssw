@@ -44,7 +44,7 @@ namespace cond {
 
     size_t size() const;
 
-    boost::shared_ptr<void> share();
+    boost::shared_ptr<void> share() const;
 
   private:
     std::shared_ptr<coral::Blob> m_data;

@@ -113,7 +113,7 @@ namespace cond {
 	database->configuration().setBlobStreamingService( blobStreamer );
 	database->configuration().properties().setFlag( ora::Configuration::automaticContainerCreation() );
 	database->connect( coralSession, connectionString, schemaName );
-	transaction.reset( new cond::DbTransaction( database->transaction() ) );
+	transaction.reset( new cond::DbTransaction( database->transaction(), false ) );
 	isOpen = true;
       }
 

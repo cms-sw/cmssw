@@ -104,6 +104,7 @@ bool ora::DatabaseSession::connect( const std::string& connectionString,
 bool ora::DatabaseSession::connect( boost::shared_ptr<coral::ISessionProxy>& coralSession, 
 				    const std::string& connectionString,
 				    const std::string& schemaName ){
+  m_ownedTransaction = false;
   m_dbSession = SharedSession( coralSession );
   if(m_dbSession.isValid()) {
     m_connectionString = connectionString;
@@ -124,7 +125,7 @@ void ora::DatabaseSession::clearTransaction(){
 }
 
 void ora::DatabaseSession::disconnect(){
-  if( isConnected() ){
+  if( isConnected() && m_ownedTransaction ){
     if( isTransactionActive()) rollbackTransaction();
   }
   clearTransaction();

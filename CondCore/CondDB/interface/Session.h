@@ -125,7 +125,8 @@ namespace cond {
       void addToMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, const std::string& destinationTag );
       
     private:
-      cond::Hash storePayloadData( const std::string& payloadObjectType, const cond::Binary& payloadData, const boost::posix_time::ptime& creationTime ); 
+      cond::Hash storePayloadData( const std::string& payloadObjectType, const cond::Binary& payloadData, const boost::posix_time::ptime& creationTime );
+      bool isOraSession(); 
       
     private:
       
@@ -140,7 +141,7 @@ namespace cond {
     template <typename T> inline cond::Hash Session::storePayload( const T& payload, const boost::posix_time::ptime& creationTime ){
       
       std::string payloadObjectType = cond::demangledName(typeid(payload));
-      return storePayloadData( payloadObjectType, serialize( payload ), creationTime ); 
+      return storePayloadData( payloadObjectType, serialize( payload, isOraSession() ), creationTime ); 
     }
     
     template <typename T> inline boost::shared_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
@@ -149,7 +150,7 @@ namespace cond {
       if(! fetchPayloadData( payloadHash, payloadType, payloadData ) ) 
 	throwException( "Payload with id="+payloadHash+" has not been found in the database.",
 			"Session::fetchPayload" );
-      return deserialize<T>(  payloadType, payloadData );
+      return deserialize<T>(  payloadType, payloadData, isOraSession() );
     }
 
   }

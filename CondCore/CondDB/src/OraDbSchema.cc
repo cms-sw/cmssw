@@ -45,7 +45,7 @@ namespace cond {
     }
       
     void IOVCache::addTag( const std::string& tag, const std::string token ){
-      if( tag != tag ){
+      if( tag != m_tag ){
 	cond::MetaData metadata( session() );
 	metadata.addMapping( tag, token );
 	m_tag = tag;
@@ -118,14 +118,16 @@ namespace cond {
     bool OraPayloadTable::select( const cond::Hash& payloadHash, std::string& objectType, cond::Binary& payloadData ){
       ora::Object obj = m_session.getObject( payloadHash );
       objectType = obj.typeName();
-      payloadData = cond::Binary( obj );
+      payloadData = cond::Binary( obj.makeShared() );
       return true;
     }
       
     cond::Hash OraPayloadTable::insertIfNew( const std::string& objectType, const cond::Binary& payloadData, 
 					     const boost::posix_time::ptime& ){
-      ora::Object obj( payloadData.data(), objectType );
-      std::string tok = m_session.storeObject( obj, objectType );  
+      void* ptr = payloadData.share().get();
+      ora::Object obj( ptr, objectType );
+      std::string tok = m_session.storeObject( obj, objectType );
+      m_session.flush();
       return tok;
     }
 
@@ -139,7 +141,7 @@ namespace cond {
       size_t ret = 0;
       for( auto iov : m_cache.iovSequence() ){
 	cond::Time_t group = (iov.since()/cond::time::SINCE_GROUP_SIZE)*cond::time::SINCE_GROUP_SIZE;
-	if( group != current ){
+	if( ret==0 || group != current ){
 	  current = group;
 	  groups.push_back( group );
 	  ret++;
@@ -212,7 +214,6 @@ namespace cond {
     };
 
     bool OraIOVSchema::exists(){
-      std::cout <<"## ORA: checking if it does exists..."<<std::endl;
       return m_cache.session().storage().exists();
     }
     

@@ -69,9 +69,6 @@ namespace cond {
       close();
     }
 
-    SessionImpl::~SessionImpl(){
-    }
-    
     void SessionImpl::close(){
       if( coralSession.get() ){
 	if( coralSession->transaction().isActive() ){
@@ -95,21 +92,20 @@ namespace cond {
 	std::unique_ptr<IIOVSchema> iovSchema( new IOVSchema( coralSession->nominalSchema() ) );
 	std::unique_ptr<IGTSchema> gtSchema( new GTSchema( coralSession->nominalSchema() ) );
 	if( !iovSchemaHandle->exists() ){
-	  std::cout <<"## no db found. checking if it is ORA..."<<std::endl;
 	  cond::DbConnection oraConnection;
 	  cond::DbSession oraSession =  oraConnection.createSession();
 	  oraSession.open( coralSession, connectionString ); 
 	  std::unique_ptr<IIOVSchema> oraIovSchema( new OraIOVSchema( oraSession ) );
 	  std::unique_ptr<IGTSchema> oraGtSchema( new OraGTSchema( oraSession ) );
-	  oraSession.transaction().start();
+	  oraSession.transaction().start( readOnly );
 	  // try if it is an old iov or GT schema
 	  if( oraIovSchema->exists() ||  oraGtSchema->exists() ){
-	   std::cout <<"##  yes is ORA..."<<std::endl;
 	    iovSchemaHandle = std::move(oraIovSchema);
 	    gtSchemaHandle = std::move(oraGtSchema);
 	    transaction.reset( new OraTransaction( oraSession ) );
-	  }
+	  } 
 	}
+        
       } else {
 	if(!readOnly ) throwException( "An update transaction is already active.",
 				       "SessionImpl::startTransaction" );

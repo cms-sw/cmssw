@@ -146,6 +146,10 @@ namespace cond {
       m_session->openIovDb();
       return m_session->iovSchema().payloadTable().select( payloadHash, payloadType, payloadData );
     }
+
+    bool Session::isOraSession(){
+      return m_session->isOra();
+    }
     
     bool Session::checkMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, std::string& destTag ){
       if(! m_session->iovSchema().tagMigrationTable().exists() ) m_session->iovSchema().tagMigrationTable().create();
