@@ -11,6 +11,7 @@ Changed by Viji on 29-06-2005
 #include "FWCore/Utilities/interface/CallNTimesNoWait.h"
 
 #include <thread>
+#include <atomic>
 
 class testCallXNoWait: public CppUnit::TestFixture
 {
@@ -74,7 +75,7 @@ void testCallXNoWait::onceThreadedTest()
   
   edm::CallOnceNoWait guard;
   
-  unsigned int iCount=0;
+  std::atomic<unsigned int> iCount{0};
   
   std::vector<std::thread> threads;
   
@@ -101,7 +102,7 @@ void testCallXNoWait::nTimesThreadedTest()
   const unsigned short kMaxTimes=3;
   edm::CallNTimesNoWait guard(kMaxTimes);
   
-  unsigned int iCount=0;
+  std::atomic<unsigned int> iCount{0};
   
   std::vector<std::thread> threads;
   
