@@ -48,8 +48,7 @@ class TTTrackAssociator : public edm::EDProducer
 
   private:
     /// Data members
-    edm::InputTag TTTracksInputTag;
-    edm::InputTag TTSeedsInputTag;
+    std::vector< edm::InputTag > TTTracksInputTags;
     edm::InputTag TTClusterTruthInputTag;
     edm::InputTag TTStubTruthInputTag;
 
@@ -71,13 +70,14 @@ class TTTrackAssociator : public edm::EDProducer
 template< typename T >
 TTTrackAssociator< T >::TTTrackAssociator( const edm::ParameterSet& iConfig )
 {
-  TTTracksInputTag = iConfig.getParameter< edm::InputTag >( "TTTracks" );
-  TTSeedsInputTag = iConfig.getParameter< edm::InputTag >( "TTSeeds" );
+  TTTracksInputTags = iConfig.getParameter< std::vector< edm::InputTag > >( "TTTracks" );
   TTClusterTruthInputTag = iConfig.getParameter< edm::InputTag >( "TTClusterTruth" );
   TTStubTruthInputTag = iConfig.getParameter< edm::InputTag >( "TTStubTruth" );
 
-  produces< TTTrackAssociationMap< T > >( "Seeds" );
-  produces< TTTrackAssociationMap< T > >( "NoDup" );
+  for ( unsigned int iTag = 0; iTag < TTTracksInputTags.size(); iTag++ )
+  {
+    produces< TTTrackAssociationMap< T > >( TTTracksInputTags.at(iTag).instance() );
+  }
 }
 
 /// Destructor
@@ -107,32 +107,21 @@ void TTTrackAssociator< T >::produce( edm::Event& iEvent, const edm::EventSetup&
   if ( iEvent.isRealData() )
     return;
 
-  /// Prepare output
-  std::auto_ptr< TTTrackAssociationMap< T > > AssociationMapForOutput( new TTTrackAssociationMap< T > );
-  std::auto_ptr< TTTrackAssociationMap< T > > AssociationMapForOutputSeeds( new TTTrackAssociationMap< T > );
-
-  /// Get the Tracks already stored away
-  edm::Handle< std::vector< TTTrack< T > > > TTTrackHandle;
-  iEvent.getByLabel( TTTracksInputTag, TTTrackHandle );
-  edm::Handle< std::vector< TTTrack< T > > > TTSeedHandle;
-  iEvent.getByLabel( TTSeedsInputTag, TTSeedHandle );
-
   /// Get the Stub and Cluster MC truth
   edm::Handle< TTClusterAssociationMap< T > > TTClusterAssociationMapHandle;
   iEvent.getByLabel( TTClusterTruthInputTag, TTClusterAssociationMapHandle );
   edm::Handle< TTStubAssociationMap< T > > TTStubAssociationMapHandle;
   iEvent.getByLabel( TTStubTruthInputTag, TTStubAssociationMapHandle );
 
-  /// Do the stuff for both Tracks and Seeds
-  edm::Handle< std::vector< TTTrack< T > > > AuxHandle;
-  for ( unsigned int qh = 0; qh < 2; qh++ )
+  /// Loop over InputTags to handle multiple collections
+  for ( unsigned int iTag = 0; iTag < TTTracksInputTags.size(); iTag++ )
   {
-    if ( qh == 0 )
-      AuxHandle = TTTrackHandle;
-    else if ( qh == 1 )
-      AuxHandle = TTSeedHandle;
-    else
-      return;
+    /// Prepare output
+    std::auto_ptr< TTTrackAssociationMap< T > > AssociationMapForOutput( new TTTrackAssociationMap< T > );
+
+    /// Get the Tracks already stored away
+    edm::Handle< std::vector< TTTrack< T > > > TTTrackHandle;
+    iEvent.getByLabel( TTTracksInputTags.at(iTag), TTTrackHandle );
 
     /// Prepare the necessary maps
     std::map< edm::Ptr< TTTrack< T > >, edm::Ptr< TrackingParticle > >                trackToTrackingParticleMap;
@@ -141,12 +130,12 @@ void TTTrackAssociator< T >::produce( edm::Event& iEvent, const edm::EventSetup&
 
     unsigned int j = 0; /// Counter needed to build the edm::Ptr to the TTTrack
     typename std::vector< TTTrack< T > >::const_iterator inputIter;
-    for ( inputIter = AuxHandle->begin();
-          inputIter != AuxHandle->end();
+    for ( inputIter = TTTrackHandle->begin();
+          inputIter != TTTrackHandle->end();
           ++inputIter )
     {
       /// Make the pointer to be put in the map
-      edm::Ptr< TTTrack< T > > tempTrackPtr( AuxHandle, j++ );
+      edm::Ptr< TTTrack< T > > tempTrackPtr( TTTrackHandle, j++ );
 
       /// Get the stubs
       std::vector< edm::Ptr< TTStub< T > > > theseStubs = tempTrackPtr->getStubPtrs();
@@ -283,27 +272,14 @@ void TTTrackAssociator< T >::produce( edm::Event& iEvent, const edm::EventSetup&
     edm::RefProd< TTStubAssociationMap< T > > theStubAssoMap( TTStubAssociationMapHandle );
 
     /// Put the maps in the association object
-    /// Separate Tracks from Seeds
-    if ( qh == 0 )
-    {
-      AssociationMapForOutput->setTTTrackToTrackingParticleMap( trackToTrackingParticleMap ); 
-      AssociationMapForOutput->setTrackingParticleToTTTracksMap( trackingParticleToTrackVectorMap );
-      AssociationMapForOutput->setTTStubAssociationMap( theStubAssoMap );
-    }
-    else if ( qh == 1 )
-    {
-      AssociationMapForOutputSeeds->setTTTrackToTrackingParticleMap( trackToTrackingParticleMap );
-      AssociationMapForOutputSeeds->setTrackingParticleToTTTracksMap( trackingParticleToTrackVectorMap );
-      AssociationMapForOutputSeeds->setTTStubAssociationMap( theStubAssoMap );
-    }
-    else
-      return;
+    AssociationMapForOutput->setTTTrackToTrackingParticleMap( trackToTrackingParticleMap ); 
+    AssociationMapForOutput->setTrackingParticleToTTTracksMap( trackingParticleToTrackVectorMap );
+    AssociationMapForOutput->setTTStubAssociationMap( theStubAssoMap );
 
-  } /// End of loop over the two products ( tracks and seeds )
+    /// Put output in the event
+    iEvent.put( AssociationMapForOutput, TTTracksInputTags.at(iTag).instance() );
 
-  /// Put output in the event
-  iEvent.put( AssociationMapForOutput, "NoDup" );
-  iEvent.put( AssociationMapForOutputSeeds, "Seeds" );
+  } /// End of loop over InputTags
 }
 
 #endif

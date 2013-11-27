@@ -66,19 +66,19 @@ void TTClusterBuilder< Ref_PixelDigi_ >::produce( edm::Event& iEvent, const edm:
     /// Create TTCluster objects and store them
     for ( unsigned int i = 0; i < innerHits.size(); i++ )
     {
-      TTCluster< Ref_PixelDigi_ > temp( innerHits.at(i), Id, 0 );
+      TTCluster< Ref_PixelDigi_ > temp( innerHits.at(i), Id, 0, storeLocalCoord );
       TTClustersForOutput->push_back( temp );
     }
     for ( unsigned int i = 0; i < outerHits.size(); i++ )
     {
-      TTCluster< Ref_PixelDigi_ > temp( outerHits.at(i), Id, 1 );
+      TTCluster< Ref_PixelDigi_ > temp( outerHits.at(i), Id, 1, storeLocalCoord );
       TTClustersForOutput->push_back( temp );
     }
 
   } /// End of loop over detector elements
 
   /// Put output in the event
-  iEvent.put( TTClustersForOutput );
+  iEvent.put( TTClustersForOutput, "ClusterInclusive" );
 }
 
 /// Retrieve hits from the event

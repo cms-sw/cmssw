@@ -229,7 +229,7 @@ GlobalVector StackedTrackerGeometry::findGlobalDirection( const L1TkStub< T > *s
 {
   /// Add 0.5 to get the center of the pixel
   const GeomDetUnit* geomDetUnit = idToDetUnit( cluster->getDetId(), cluster->getStackMember() );
-  T hit=cluster->getHits().at(hitIdx); 
+  T hit = cluster->getHits().at(hitIdx); 
   MeasurementPoint mp( hit->row() + 0.5, hit->column() + 0.5 );
   return geomDetUnit->topology().localPosition( mp );
 }
@@ -241,7 +241,7 @@ GlobalVector StackedTrackerGeometry::findGlobalDirection( const L1TkStub< T > *s
 {
   /// Add 0.5 to get the center of the pixel
   const GeomDetUnit* geomDetUnit = idToDetUnit( cluster->getDetId(), cluster->getStackMember() );
-  T hit=cluster->getHits().at(hitIdx); 
+  T hit = cluster->getHits().at(hitIdx); 
   MeasurementPoint mp( hit->row() + 0.5, hit->column() + 0.5 );
   return geomDetUnit->surface().toGlobal( geomDetUnit->topology().localPosition( mp ) );
 }
@@ -440,9 +440,21 @@ LocalPoint StackedTrackerGeometry::findHitLocalPosition( const TTCluster< T > *c
 {
   /// Add 0.5 to get the center of the pixel
   const GeomDetUnit* geomDetUnit = idToDetUnit( cluster->getDetId(), cluster->getStackMember() );
-  T hit=cluster->getHits().at(hitIdx);
+  int row = 0;
+  int col = 0;
 
-  MeasurementPoint mp( hit->row() + 0.5, hit->column() + 0.5 );
+  if ( cluster->getRows().size() == 0 || cluster->getCols().size() == 0 )
+  {
+    T hit = cluster->getHits().at(hitIdx);
+    row = hit->row();
+    col = hit->column();
+  }
+  else
+  {
+    row = cluster->getRows().at(hitIdx);
+    col = cluster->getCols().at(hitIdx);
+  } 
+  MeasurementPoint mp( row + 0.5, col + 0.5 );
   return geomDetUnit->topology().localPosition( mp );
 }
 
@@ -453,9 +465,21 @@ GlobalPoint StackedTrackerGeometry::findHitGlobalPosition( const TTCluster< T > 
 {
   /// Add 0.5 to get the center of the pixel
   const GeomDetUnit* geomDetUnit = idToDetUnit( cluster->getDetId(), cluster->getStackMember() );
-  T hit=cluster->getHits().at(hitIdx); 
+  int row = 0;
+  int col = 0;
 
-  MeasurementPoint mp( hit->row() + 0.5, hit->column() + 0.5 );
+  if ( cluster->getRows().size() == 0 || cluster->getCols().size() == 0 )
+  {
+    T hit = cluster->getHits().at(hitIdx);
+    row = hit->row();
+    col = hit->column();
+  }
+  else
+  {
+    row = cluster->getRows().at(hitIdx);
+    col = cluster->getCols().at(hitIdx);
+  }
+  MeasurementPoint mp( row + 0.5, col + 0.5 );
   return geomDetUnit->surface().toGlobal( geomDetUnit->topology().localPosition( mp ) );
 }
 
