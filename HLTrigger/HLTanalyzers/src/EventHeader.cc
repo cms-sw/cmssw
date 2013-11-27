@@ -11,7 +11,7 @@
 
 EventHeader::EventHeader(edm::ConsumesCollector && iC) : EventHeader::EventHeader()
 {
-  lumi_Token = iC.consumes<LumiSummary>(edm::InputTag("lumiProducer")); 
+  lumi_Token = iC.consumes<LumiSummary,edm::InLumi>(edm::InputTag("lumiProducer")); 
 }
 
 EventHeader::EventHeader() :
