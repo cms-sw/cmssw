@@ -1,6 +1,6 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="GeneratorInterface/Core"/>
-<use name="GeneratorInterface/ExternalDecays"/>
+<use name="tauola"/>
 <use name="boost"/>
 <use name="clhep"/> 
 <use name="herwig"/>

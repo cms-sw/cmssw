@@ -6,7 +6,7 @@
  * Wrapper to Fortran functions in TAUOLA tau decay library
  *
  * Christian Veelken
- *  04/17/07
+ * 04/17/07
  *
  * Modified to contain access to individual decays (COMMON TAUBRA), and
  * force polarization like in case of particle gun taus (SUBROUTINE DEXAY
@@ -35,7 +35,7 @@ extern "C" {
   void ranmar_(float*,int*);
   void rmarin_(int*, int*, int*);
 }
-#define tauola tauola_ 
+#define tauola tauola_
 
 void inline call_tauola (int mode, int polarization) { tauola(&mode, &polarization); }
 
@@ -62,22 +62,22 @@ extern "C" {
 #define ki_taumod ki_taumod_
 
 extern "C" {
-   extern struct {
-     int jak1;
-     int jak2;
-     int itdkrc; 
-     int ifphot; 
-     int ifhadm; 
-     int ifhadp; 
-   } libra_ ;
-} 
+  extern struct {
+    int jak1;
+    int jak2;
+    int itdkrc;
+    int ifphot;
+    int ifhadm;
+    int ifhadp;
+  } libra_ ;
+}
 #define libra libra_
 
 extern "C" {
   extern struct {
     float gamprt[30];
-    int   jlist[30];
-    int   nchan;
+    int jlist[30];
+    int nchan;
   } taubra_;
 }
 #define taubra taubra_
@@ -95,10 +95,10 @@ extern "C" {
 #define momdec momdec_
 
 extern "C" {
-   extern struct {
-      int np1;
-      int np2; 
-    } taupos_;
+  extern struct {
+    int np1;
+    int np2;
+  } taupos_;
 }
 #define taupos taupos_
 

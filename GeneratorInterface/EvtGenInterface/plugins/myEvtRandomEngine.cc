@@ -11,13 +11,13 @@
 //
 // Modification history:
 //
-//   Nello Nappi     May 9, 2007         Module created
+// Nello Nappi May 9, 2007 Module created
 //
 //------------------------------------------------------------------------
 //
 #include "CLHEP/Random/RandomEngine.h"
 #include "EvtGenBase/EvtRandomEngine.hh"
-#include "GeneratorInterface/ExternalDecays/interface/myEvtRandomEngine.h"
+#include "GeneratorInterface/EvtGenInterface/interface/myEvtRandomEngine.h"
 
 myEvtRandomEngine::myEvtRandomEngine(CLHEP::HepRandomEngine *xx) {the_engine = xx;}
 
@@ -27,5 +27,3 @@ double myEvtRandomEngine::random()
 {
   return the_engine->flat();
 }
-
-

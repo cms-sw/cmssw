@@ -1,6 +1,6 @@
 // This will force the symbols below to be kept, even in the case tauola 
 // is an archive library.
-#include "GeneratorInterface/ExternalDecays/interface/TauolaWrapper.h"
+#include "GeneratorInterface/TauolaInterface/interface/TauolaWrapper.h"
 
 extern "C" void phyfix_(void );
 extern "C" void spinhiggs_(void );
