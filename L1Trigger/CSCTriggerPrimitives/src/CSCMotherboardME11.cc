@@ -723,15 +723,8 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
   int npads = 0;
   
   int region = (theEndcap == 1) ? 1: -1;
-  auto chamber1(gem_g->chamber(GEMDetId(region, 1, 1, 1, chamber, 0)));
-  auto chamber2(gem_g->chamber(GEMDetId(region, 1, 1, 2, chamber, 0))); 
-
-  std::vector<const GEMChamber*> superChamber;
-  superChamber.clear();
-  superChamber.push_back(chamber1);
-  superChamber.push_back(chamber2);
-
-  for (auto ch : superChamber)
+  const GEMSuperChamber* superChamber(gem_g->superChamber(GEMDetId(region, 1, 1, 1, chamber, 0)));
+  for (auto ch : superChamber->chambers())
   {
     for (auto roll : ch->etaPartitions() )
     {
