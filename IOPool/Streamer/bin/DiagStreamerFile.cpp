@@ -42,10 +42,8 @@ bool uncompressBuffer(unsigned char* inputBuffer,
                               unsigned int expectedFullSize);
 bool test_chksum(EventMsgView const* eview);
 bool test_uncompress(EventMsgView const* eview, std::vector<unsigned char> &dest);
-bool test_hltStats(std::vector<uint32> const&, std::vector<uint32> const&);
 void readfile(std::string filename, std::string outfile);
 void help();
-void updateHLTStats(std::vector<uint8> const& packedHlt, uint32 hltcount, std::vector<uint32> &hltStats);
 
 //==========================================================================
 int main(int argc, char* argv[]){
@@ -82,8 +80,6 @@ void readfile(std::string filename, std::string outfile) {
   uint32 num_badchksum(0);
   uint32 num_goodevents(0);
   uint32 num_duplevents(0);
-  uint32 hltcount(0);
-  std::vector<uint32> hltStats(0);
   std::vector<unsigned char> compress_buffer(7000000);
   std::map<uint32, uint32> seenEventMap;
   bool output(false);
@@ -105,10 +101,6 @@ void readfile(std::string filename, std::string outfile) {
     if(output) {
       stream_output.write(*init);
     }
-    hltcount = init->get_hlt_bit_cnt();
-    //Initialize the HLT Stat vector with all ZEROs
-    for(uint32 i = 0; i != hltcount; ++i)
-      hltStats.push_back(0);
 
     // ------- event
     std::cout << "\n\n-------------EVENT Messages-------------------" << std::endl;
@@ -190,13 +182,6 @@ void readfile(std::string filename, std::string outfile) {
           ++num_goodevents;
           stream_output.write(*eview);
         }
-        //get the HLT Packed bytes
-        std::vector<uint8> packedHlt;
-        uint32 hlt_sz = 0;
-        if(hltcount != 0) hlt_sz = 1 + ((hltcount - 1)/4);
-        packedHlt.resize(hlt_sz);
-        eview->hltTriggerBits(&packedHlt[0]);
-        updateHLTStats(packedHlt, hltcount, hltStats);
         //dumpEventView(eview);
       }
       if((num_events % 50) == 0) {
@@ -207,25 +192,6 @@ void readfile(std::string filename, std::string outfile) {
         if(output) std::cout << "Wrote " << num_goodevents << " good events " << std::endl;
       }
     }
-    
-    EOFRecordView* eofRecord(0);
-    if(!stream_reader.eofRecordMessage(hltcount, eofRecord)) {
-      std::cout << "Failed to read EOF record" << std::endl;
-    } else {
-      if(eofRecord->events() != num_events)
-        std::cout << "EOF record claims to have " << eofRecord->events()
-                  << " while there are " << num_events << " events" << std::endl;
-      if(eofRecord->run() != 1)
-        std::cout << "EOF record has dummy run number " << eofRecord->run()
-                  << " instead of 1" << std::endl;
-      if(eofRecord->statusCode() != 1234)
-        std::cout << "EOF record has dummy status Code " << eofRecord->statusCode()
-                  << " instead of 1234" << std::endl;
-
-      std::vector<uint32> eofHltStats;
-      eofRecord->hltStats(eofHltStats);
-      test_hltStats(eofHltStats,hltStats);
-    }
 
     std::cout << std::endl << "------------END--------------" << std::endl
               << "read " << num_events << " events" << std::endl
@@ -235,8 +201,6 @@ void readfile(std::string filename, std::string outfile) {
               << "and " << num_duplevents << " duplicated event Id" << std::endl;
 
     if(output) {
-      uint32 dummyStatusCode = 1234;
-      stream_output.writeEOF(dummyStatusCode, hltStats);
       std::cout << "Wrote " << num_goodevents << " good events " << std::endl;
     }
 
@@ -340,41 +304,5 @@ bool uncompressBuffer(unsigned char *inputBuffer,
         return false;
     }
     return true;
-}
-
-//==========================================================================
-bool test_hltStats(std::vector<uint32> const& hltStats1, std::vector<uint32> const& hltStats2)
-{
-  bool is_bad(false);
-  const size_t hltcount = hltStats1.size();
-  if(hltcount != hltStats2.size()) {
-    std::cout << "HLT stats has different HLT counts: " 
-              << hltcount << " vs " << hltStats2.size() << std::endl;
-    is_bad = true;
-  }
-  for(size_t i = 0; i != hltcount; ++i) {
-    if(hltStats1[i] != hltStats2[i]) {
-      std::cout << "HLT stats for bit " << i << " differs: " 
-                << hltStats1[i] << " vs " << hltStats2[i] << std::endl;
-      is_bad = true;
-    }
-  }
-  return is_bad;
-}
-
-
-//==========================================================================
-void updateHLTStats(std::vector<uint8> const& packedHlt, uint32 hltcount, std::vector<uint32> &hltStats)
-{
-  unsigned int packInOneByte = 4;
-  unsigned char testAgaint = 0x01;
-  for(unsigned int i = 0; i != hltcount; ++i)
-  {
-    unsigned int whichByte = i/packInOneByte;
-    unsigned int indxWithinByte = i % packInOneByte;
-    if((testAgaint << (2 * indxWithinByte)) & (packedHlt.at(whichByte))) {
-        ++hltStats[i];
-    }
-  }
 }
 
