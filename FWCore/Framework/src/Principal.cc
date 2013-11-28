@@ -56,10 +56,10 @@ namespace edm {
   }
 
   static
-  boost::shared_ptr<cms::Exception>
+  std::shared_ptr<cms::Exception>
   makeNotFoundException(char const* where, KindOfType kindOfType,
                         TypeID const& productType, std::string const& label, std::string const& instance, std::string const& process) {
-    boost::shared_ptr<cms::Exception> exception(new Exception(errors::ProductNotFound));
+    std::shared_ptr<cms::Exception> exception(new Exception(errors::ProductNotFound));
     if (kindOfType == PRODUCT_TYPE) {
       *exception << "Principal::" << where << ": Found zero products matching all criteria\nLooking for type: " << productType << "\n"
                  << "Looking for module label: " << label << "\n" << "Looking for productInstanceName: " << instance << "\n"
@@ -100,7 +100,7 @@ namespace edm {
   static
   void
   throwNotFoundException(char const* where, TypeID const& productType, InputTag const& tag) {
-    boost::shared_ptr<cms::Exception> exception = makeNotFoundException(where, PRODUCT_TYPE, productType, tag.label(), tag.instance(), tag.process());
+    auto exception = makeNotFoundException(where, PRODUCT_TYPE, productType, tag.label(), tag.instance(), tag.process());
     throw *exception;
   }
 
@@ -464,9 +464,9 @@ namespace edm {
 
     ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, consumer, mcc);
     if(result == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed =
-        makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(), inputTag.process());
-      return BasicHandle(whyFailed);
+      return BasicHandle([=]()->std::shared_ptr<cms::Exception> {
+        return makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(), inputTag.process());
+      });
     }
     return BasicHandle(*result);
   }
@@ -482,9 +482,9 @@ namespace edm {
 
     ProductData const* result = findProductByLabel(kindOfType, typeID, label, instance, process,consumer, mcc);
     if(result == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed =
-        makeNotFoundException("getByLabel", kindOfType, typeID, label, instance, process);
-      return BasicHandle(whyFailed);
+      return BasicHandle([=]()->std::shared_ptr<cms::Exception> {
+        return makeNotFoundException("getByLabel", kindOfType, typeID, label, instance, process);
+      });
     }
     return BasicHandle(*result);
   }

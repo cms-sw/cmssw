@@ -5,16 +5,16 @@
 namespace edm {
   void const*
   HandleBase::productStorage() const {
-    if (whyFailed_) {
-      throw *whyFailed_;
+    if (whyFailedFactory_) {
+      throw *whyFailedFactory_();
     }
     return product_;
   }
 
   ProductID
   HandleBase::id() const {
-    if (whyFailed_) {
-      throw *whyFailed_;
+    if (whyFailedFactory_) {
+      throw *whyFailedFactory_();
     }
     return prov_->productID();
   }
