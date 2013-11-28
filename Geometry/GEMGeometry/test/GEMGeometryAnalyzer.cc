@@ -78,8 +78,7 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   ofos << " eta partitions \t"<<pDD->etaPartitions().size() << endl;
   ofos << " chambers       \t"<<pDD->chambers().size() << endl;
   ofos << " no. eta partitions \t"<< pDD->etaPartitions().size()/pDD->chambers().size() << endl;
-
-  //ofos << " super chambers  "<<pDD->superChambers().size() << endl;
+  ofos << " super chambers  "<<pDD->superChambers().size() << endl;
 
   // checking uniqueness of roll detIds 
   bool flagNonUniqueRollID = false;
