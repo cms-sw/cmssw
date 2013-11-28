@@ -12,7 +12,7 @@ using namespace std;
 JetTester::JetTester(const edm::ParameterSet& iConfig) :
   mInputCollection               (iConfig.getParameter<edm::InputTag>       ("src")),
   mInputGenCollection            (iConfig.getParameter<edm::InputTag>       ("srcGen")),
-  rhoTag                         (iConfig.getParameter<edm::InputTag>       ("srcRho")), 
+//  rhoTag                         (iConfig.getParameter<edm::InputTag>       ("srcRho")), 
   mOutputFile                    (iConfig.getUntrackedParameter<std::string>("OutputFile","")),
   JetType                        (iConfig.getUntrackedParameter<std::string>("JetType")),
   mRecoJetPtThreshold            (iConfig.getParameter<double>              ("recoJetPtThreshold")),
@@ -50,7 +50,7 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   mHadTiming    = 0;
   mEmTiming     = 0;
   mJetArea      = 0;
-  mRho          = 0;
+//  mRho          = 0;
 
   // Corrected jets
   mCorrJetPt  = 0;
@@ -255,20 +255,20 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 		     5.0, 5.2, 5.4, 5.6, 5.8, 6.0};
 
     // Event variables
-    mNvtx           = dbe->book1D("Nvtx",           "number of vertices", 12, 0, 60);
+    mNvtx           = dbe->book1D("Nvtx",           "number of vertices", 60, 0, 60);
 
     // Jet parameters
     mEta          = dbe->book1D("Eta",          "Eta",          120,   -6,    6); 
     mPhi          = dbe->book1D("Phi",          "Phi",           70, -3.5,  3.5); 
-    mPt           = dbe->book1D("Pt",           "Pt",           100,    0,  150); 
-    mP            = dbe->book1D("P",            "P",            100,    0,  500); 
-    mEnergy       = dbe->book1D("Energy",       "Energy",       100,    0,  500); 
+    mPt           = dbe->book1D("Pt",           "Pt",           100,    0,  1000); 
+    mP            = dbe->book1D("P",            "P",            100,    0,  1000); 
+    mEnergy       = dbe->book1D("Energy",       "Energy",       100,    0,  1000); 
     mMass         = dbe->book1D("Mass",         "Mass",         100,    0,  200); 
     mConstituents = dbe->book1D("Constituents", "Constituents", 100,    0,  100); 
     mHadTiming    = dbe->book1D("HadTiming",    "HadTiming",     75,  -50,  100);
     mEmTiming     = dbe->book1D("EmTiming",     "EmTiming",      75,  -50,  100);
     mJetArea      = dbe->book1D("JetArea",      "JetArea",       26, -0.5, 12.5);
-    mRho          = dbe->book1D("Rho",          "Rho",           100,    0,   5);
+//    mRho          = dbe->book1D("Rho",          "Rho",           100,    0,   5);
 
     // Corrected jets
     if (!JetCorrectionService.empty())	{
@@ -302,7 +302,7 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 
     mGenEta      = dbe->book1D("GenEta",      "GenEta",      120,   -6,    6);
     mGenPhi      = dbe->book1D("GenPhi",      "GenPhi",       70, -3.5,  3.5);
-    mGenPt       = dbe->book1D("GenPt",       "GenPt",       100,    0,  150);
+    mGenPt       = dbe->book1D("GenPt",       "GenPt",       100,    0,  1000);
     mGenEtaFirst = dbe->book1D("GenEtaFirst", "GenEtaFirst", 120,   -6,    6);
     mGenPhiFirst = dbe->book1D("GenPhiFirst", "GenPhiFirst",  70, -3.5,  3.5);
     mPtHat       = dbe->book1D("PtHat",       "PtHat",       100,    0, 1000); 
@@ -377,9 +377,9 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
       emEnergyInEB                = dbe->book1D("emEnergyInEB", "emEnergyInEB", 50,0,500);
       emEnergyInEE                = dbe->book1D("emEnergyInEE", "emEnergyInEE", 50,0,500);
       emEnergyInHF                = dbe->book1D("emEnergyInHF", "emEnergyInHF", 50,0,500);
-      towersArea                  = dbe->book1D("towersArea", "towersArea", 50,0,50);
-      n90                         = dbe->book1D("n90", "n90", 10,0,10);
-      n60                         = dbe->book1D("n60", "n60", 10,0,10);
+      towersArea                  = dbe->book1D("towersArea", "towersArea", 50,0,1);
+      n90                         = dbe->book1D("n90", "n90", 30,0,30);
+      n60                         = dbe->book1D("n60", "n60", 30,0,30);
     }
     // ---- JPT Jet specific information ----
     if (isJPTJet) {
@@ -389,10 +389,10 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
     if (isPFJet or isJPTJet) {
       muonMultiplicity = dbe->book1D("muonMultiplicity", "muonMultiplicity", 10,0,10);
       chargedMultiplicity = dbe->book1D("chargedMultiplicity", "chargedMultiplicity", 100,0,100);
-      chargedEmEnergy = dbe->book1D("chargedEmEnergy", "chargedEmEnergy", 50,0,50);
-      neutralEmEnergy = dbe->book1D("neutralEmEnergy", "neutralEmEnergy", 50,0,50);
-      chargedHadronEnergy = dbe->book1D("chargedHadronEnergy", "chargedHadronEnergy", 50,0,600);
-      neutralHadronEnergy = dbe->book1D("neutralHadronEnergy", "neutralHadronEnergy", 50,0,200);
+      chargedEmEnergy = dbe->book1D("chargedEmEnergy", "chargedEmEnergy", 100,0,500);
+      neutralEmEnergy = dbe->book1D("neutralEmEnergy", "neutralEmEnergy", 100,0,500);
+      chargedHadronEnergy = dbe->book1D("chargedHadronEnergy", "chargedHadronEnergy", 100,0,500);
+      neutralHadronEnergy = dbe->book1D("neutralHadronEnergy", "neutralHadronEnergy", 100,0,500);
       chargedHadronEnergyFraction = dbe->book1D("chargedHadronEnergyFraction", "chargedHadronEnergyFraction", 50,0,1);
       neutralHadronEnergyFraction = dbe->book1D("neutralHadronEnergyFraction", "neutralHadronEnergyFraction", 50,0,1);
       chargedEmEnergyFraction = dbe->book1D("chargedEmEnergyFraction", "chargedEmEnergyFraction", 50,0,1);
@@ -400,11 +400,11 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
     }
     // ---- PF Jet specific information ----
     if (isPFJet) {
-      photonEnergy = dbe->book1D("photonEnergy", "photonEnergy", 50,0,100);
+      photonEnergy = dbe->book1D("photonEnergy", "photonEnergy", 50,0,500);
       photonEnergyFraction = dbe->book1D("photonEnergyFraction", "photonEnergyFraction", 50,0,1);
-      electronEnergy = dbe->book1D("electronEnergy", "electronEnergy", 50,0,100);
+      electronEnergy = dbe->book1D("electronEnergy", "electronEnergy", 50,0,500);
       electronEnergyFraction = dbe->book1D("electronEnergyFraction", "electronEnergyFraction", 50,0,1);
-      muonEnergy = dbe->book1D("muonEnergy", "muonEnergy", 50,0,100);
+      muonEnergy = dbe->book1D("muonEnergy", "muonEnergy", 50,0,500);
       muonEnergyFraction = dbe->book1D("muonEnergyFraction", "muonEnergyFraction", 50,0,1);
       HFHadronEnergy = dbe->book1D("HFHadronEnergy", "HFHadronEnergy", 50,0,500);
       HFHadronEnergyFraction = dbe->book1D("HFHadronEnergyFraction", "HFHadronEnergyFraction", 50,0,1);
@@ -416,7 +416,7 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
       electronMultiplicity = dbe->book1D("electronMultiplicity", "electronMultiplicity", 10,0,10);
       HFHadronMultiplicity = dbe->book1D("HFHadronMultiplicity", "HFHadronMultiplicity", 50,0,50);
       HFEMMultiplicity = dbe->book1D("HFEMMultiplicity", "HFEMMultiplicity", 50,0,50);
-      chargedMuEnergy = dbe->book1D("chargedMuEnergy", "chargedMuEnergy", 50,0,100);
+      chargedMuEnergy = dbe->book1D("chargedMuEnergy", "chargedMuEnergy", 50,0,500);
       chargedMuEnergyFraction = dbe->book1D("chargedMuEnergyFraction", "chargedMuEnergyFraction", 50,0,1);
       neutralMultiplicity = dbe->book1D("neutralMultiplicity", "neutralMultiplicity", 50,0,50);
     }
@@ -499,17 +499,17 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
     }  
 
 
-  // Get the jet rho
-  //----------------------------------------------------------------------------
-  edm::Handle<double> pRho;
-  mEvent.getByLabel(rhoTag, pRho);
-
-  if (pRho.isValid())
-    {
-      double jetRho = *pRho;
-
-      if (mRho) mRho->Fill(jetRho);
-    }
+//  // Get the jet rho
+//  //----------------------------------------------------------------------------
+//  edm::Handle<double> pRho;
+//  mEvent.getByLabel(rhoTag, pRho);
+//
+//  if (pRho.isValid())
+//    {
+//      double jetRho = *pRho;
+//
+//      if (mRho) mRho->Fill(jetRho);
+//    }
 
 
   // Get the Jet collection

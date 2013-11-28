@@ -140,7 +140,6 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   mmuD0=0;
   mnMus=0;
   mnMusPis=0;
-  mmuSAhits=0;
   mnEls=0;
   mfracTrks=0;
   mdMET=0;
@@ -158,13 +157,13 @@ METTester::METTester(const edm::ParameterSet& iConfig)
     dbe_->setCurrentFolder("JetMET/METValidation/"+inputMETLabel_.label());
 
     mNvertex                         = dbe_->book1D("Nvertex","Nvertex",80,0,80);
-    mMEx                         = dbe_->book1D("MEx","MEx",150,-1000,500); 
-    mMEy                         = dbe_->book1D("MEy","MEy",150,-1000,500);
+    mMEx                         = dbe_->book1D("MEx","MEx",160,-800,800); 
+    mMEy                         = dbe_->book1D("MEy","MEy",160,-800,800);
     mMETSig                      = dbe_->book1D("METSig","METSig",25,0,24.5);
     mMET                         = dbe_->book1D("MET", "MET (20 GeV binning)"           , 100,0,2000);
     mMETFine                     = dbe_->book1D("METFine", "MET (2 GeV binning)"        , 1000,0,2000);
     mMET_Nvtx                    = dbe_->bookProfile("MET_Nvtx", "MET vs. nvtx",    60, 0., 60., 0., 2000., " ");
-    mMETPhi                      = dbe_->book1D("METPhi","METPhi",40,-4,4);
+    mMETPhi                      = dbe_->book1D("METPhi","METPhi",80,-4,4);
     mSumET                       = dbe_->book1D("SumET"            , "SumET"            , 200,0,4000);   //10GeV
     mMETDifference_GenMETTrue    = dbe_->book1D("METDifference_GenMETTrue","METDifference_GenMETTrue", 500,-500,500); 
     mMETDeltaPhi_GenMETTrue = dbe_->book1D("METDeltaPhi_GenMETTrue","METDeltaPhi_GenMETTrue", 80,0,4); 
@@ -255,7 +254,6 @@ METTester::METTester(const edm::ParameterSet& iConfig)
         mmuD0 = dbe_->book1D("muonD0", "muonD0", 50, -1, 1);
         mnMus = dbe_->book1D("nMus", "nMus", 5, -0.5, 4.5);
         mnMusPis = dbe_->book1D("nMusAsPis", "nMusAsPis", 5, -0.5, 4.5);
-        mmuSAhits = dbe_->book1D("muonSAhits", "muonSAhits", 51, -0.5, 50.5);
         mnEls = dbe_->book1D("nEls", "nEls", 5, -0.5, 4.5);
         mfracTrks = dbe_->book1D("fracTracks", "fracTracks", 100, 0, 1);
         mdMETx = dbe_->book1D("dMETx", "difference to caloMETx", 500, -250, 250);
@@ -276,7 +274,6 @@ METTester::METTester(const edm::ParameterSet& iConfig)
 //        mmuNhits = dbe_->book1D("muonNhits", "muonNhits", 50, 0, 50);
 //        mmuChi2 = dbe_->book1D("muonNormalizedChi2", "muonNormalizedChi2", 20, 0, 20);
 //        mmuD0 = dbe_->book1D("muonD0", "muonD0", 50, -1, 1);
-//        mmuSAhits = dbe_->book1D("muonSAhits", "muonSAhits", 51, -0.5, 50.5);
 //        mMuonCorrectionFlag->setBinLabel(1,"Not Corrected");
 //        mMuonCorrectionFlag->setBinLabel(2,"Global Fit");
 //        mMuonCorrectionFlag->setBinLabel(3,"Tracker Fit");

@@ -56,7 +56,7 @@ class JetTester : public edm::EDAnalyzer {
   
   edm::InputTag   mInputCollection;
   edm::InputTag   mInputGenCollection;
-  edm::InputTag   rhoTag;
+//  edm::InputTag   rhoTag;
   std::string     mOutputFile;
   std::string     JetType;
 
@@ -74,7 +74,7 @@ class JetTester : public edm::EDAnalyzer {
   MonitorElement* mHadTiming;
   MonitorElement* mEmTiming;
   MonitorElement* mJetArea;
-  MonitorElement* mRho;
+//  MonitorElement* mRho;
 
   // Corrected jets
   MonitorElement* mCorrJetPt;
