@@ -36,6 +36,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -167,6 +168,23 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
       // data across paths
       MonitorElement* scalersSelect;
       // helper class to store the data path
+
+      edm::EDGetTokenT<reco::GenParticleCollection> m_genParticlesToken_;
+      edm::EDGetTokenT<reco::GenJetCollection> m_iterativeCone5GenJetsToken_;
+      edm::EDGetTokenT<reco::GenMETCollection> m_genMetTrueToken_;
+      edm::EDGetTokenT<edm::TriggerResults> m_triggerResultsToken_;
+      edm::EDGetTokenT<edm::TriggerResults> m_triggerResultsFUToken_;
+      edm::EDGetTokenT<trigger::TriggerEvent> m_triggerSummaryToken_;
+      edm::EDGetTokenT<trigger::TriggerEvent> m_triggerSummaryFUToken_;
+      edm::EDGetTokenT<reco::MuonCollection> m_muonsToken_;
+      edm::EDGetTokenT<reco::GsfElectronCollection> m_gsfElectronsToken_;
+      edm::EDGetTokenT<reco::CaloTauCollection> m_caloRecoTauProducerToken_;
+      edm::EDGetTokenT<reco::CaloJetCollection> m_iterativeCone5CaloJetsToken_;
+      edm::EDGetTokenT<reco::JetTagCollection> m_jetProbabilityBJetTagsToken_;
+      edm::EDGetTokenT<reco::JetTagCollection> m_softMuonBJetTagsToken_;
+      edm::EDGetTokenT<reco::CaloMETCollection> m_metToken_;
+      edm::EDGetTokenT<reco::PhotonCollection> m_photonsToken_;
+      edm::EDGetTokenT<reco::TrackCollection> m_pixelTracksToken_;
 
       class PathInfo {
 	PathInfo():

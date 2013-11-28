@@ -40,6 +40,9 @@ HltComparator::HltComparator(const edm::ParameterSet & iConfig):
   //std::cout << " HERE I AM " << std::endl;
   produces<StringCollection >("failedTriggerDescription");
   //std::cout << " HERE I GO " << std::endl;
+
+  hltOnlineResultsToken_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("OnlineResults"));
+  hltOfflineResultsToken_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("OfflineResults"));
 }
 
 
@@ -161,8 +164,10 @@ HltComparator::filter(edm::Event & event,
   // Get trigger results
   edm::Handle<edm::TriggerResults> onlineResults;
   edm::Handle<edm::TriggerResults> offlineResults;
-  event.getByLabel(hltOnlineResults_, onlineResults);
-  event.getByLabel(hltOfflineResults_, offlineResults);
+  // event.getByLabel(hltOnlineResults_, onlineResults);
+  // event.getByLabel(hltOfflineResults_, offlineResults);
+  event.getByToken(hltOnlineResultsToken_, onlineResults);
+  event.getByToken(hltOfflineResultsToken_, offlineResults);
 
   std::auto_ptr<StringCollection> resultDescription(new StringCollection);
   
