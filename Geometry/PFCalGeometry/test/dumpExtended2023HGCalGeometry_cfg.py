@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEODUMP")
-process.load("Geometry.PFCalGeometry.GeometryExtended2023HGCal_cff")
+process.load("Configuration.Geometry.GeometryExtended2023_cff")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
