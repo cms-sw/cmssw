@@ -110,7 +110,7 @@ public:
   bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond) const;
   bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const;
 
-  static bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, std::vector<TrackerRecHit> seedHits);
+  static bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, const std::vector<TrackerRecHit>& seedHits);
 
   /// Check if a pair is on the proper combination of detectors
   bool makesAPairWith(const TrackerRecHit& anotherHit) const;

@@ -108,7 +108,7 @@ TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProd
 }
 
 bool
-TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, std::vector<TrackerRecHit> seedHits)
+TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, const std::vector<TrackerRecHit>& seedHits)
 {
 
 	for (unsigned int ilayerSet=0; ilayerSet<theLayersInSets.size(); ++ilayerSet)
