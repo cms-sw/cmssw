@@ -495,7 +495,7 @@ namespace edm {
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(ELEMENT)),ELEMENT_TYPE, token, moduleCallingContext_);
     if(bh.failedToGet()) {
-      Handle<View<ELEMENT> > h(bh.whyFailedFactory());
+      Handle<View<ELEMENT> > h(std::move(bh.whyFailedFactory()));
       h.swap(result);
       return false;
     }
