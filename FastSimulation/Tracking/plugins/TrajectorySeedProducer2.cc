@@ -132,6 +132,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				TrackerRecHit currentTrackerHit;
 
 				std::vector<TrackerRecHit> validTrackerRecHitList;
+				validTrackerRecHitList.reserve(8);
 				for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second; ++itRecHit)
 				{
 					const SiTrackerGSMatchedRecHit2D vec = *itRecHit;
