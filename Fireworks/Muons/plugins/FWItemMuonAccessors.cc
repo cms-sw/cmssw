@@ -63,11 +63,6 @@ REGISTER_TEMPLATE_FWITEMACCESSOR(RPCDigiAccessor, RPCDigiCollection, "RPCDigiCol
 typedef FWItemMuonDigiAccessor<CSCRPCDigiCollection, CSCRPCDigi> CSCRPCDigiAccessor;
 REGISTER_TEMPLATE_FWITEMACCESSOR(CSCRPCDigiAccessor, CSCRPCDigiCollection, "CSCRPCDigiCollectionAccessor");
 
-//==============================================================================
-
-#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
-
 typedef FWItemMuonDigiAccessor<GEMDigiCollection, GEMDigi> GEMDigiAccessor;
 REGISTER_TEMPLATE_FWITEMACCESSOR(GEMDigiAccessor, GEMDigiCollection, "GEMDigiCollectionAccessor");
 

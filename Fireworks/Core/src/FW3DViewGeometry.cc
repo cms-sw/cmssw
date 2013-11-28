@@ -201,29 +201,28 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 	 }
 	 // Actual GEM geometry:
 	 // Station 1 has 1 rings with 36 chambers in each
+	 // for Phase 1, 1 ring and 1 station
 	 maxChambers = 36;
-         for( Int_t iStation = 1; iStation <= 1; ++iStation )
-         {
-            std::ostringstream s; s << "Station" << iStation;
-            TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
-            cEndcap->AddElement( cStation );
-            for( Int_t iRing = 1; iRing <= 1; ++iRing )
-	    {
-               std::ostringstream s; s << "Ring" << iRing;
-               TEveElementList* cRing  = new TEveElementList( s.str().c_str() );
-               cStation->AddElement( cRing );
-               for( Int_t iChamber = 1; iChamber <= maxChambers; ++iChamber )
-               {
-                  Int_t iLayer = 1; // Actually it should be GEM super chambers
-                  GEMDetId id( iEndcap, iRing, iStation, iLayer, iChamber, 0 );
-                  TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
-                  shape->SetTitle(TString::Format("GEM: %s, R=%d, S=%d, C=%d\ndet-id=%u",
-                                                  cEndcap->GetName(), iRing, iStation, iChamber, id.rawId()));
+         // for( Int_t iStation = 1; iStation <= 1; ++iStation ){
+	 Int_t iStation = 1;
+	 std::ostringstream s; 
+	 s << "Station" << iStation;
+	 TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
+	 cEndcap->AddElement( cStation );
+	 // for( Int_t iRing = 1; iRing <= 1; ++iRing ){
+	 Int_t iRing = 1;
+	 s << "Ring" << iRing;
+	 TEveElementList* cRing  = new TEveElementList( s.str().c_str() );
+	 cStation->AddElement( cRing );
+	 for( Int_t iChamber = 1; iChamber <= maxChambers; ++iChamber ) {
+	   Int_t iLayer = 1; // Actually it should be GEM super chambers
+	   GEMDetId id( iEndcap, iRing, iStation, iLayer, iChamber, 0 );
+	   TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
+	   shape->SetTitle(TString::Format("GEM: %s, R=%d, S=%d, C=%d\ndet-id=%u",
+					   cEndcap->GetName(), iRing, iStation, iChamber, id.rawId()));
  	  	            
-                  addToCompound(shape, kFWMuonEndcapLineColorIndex);
-                  cRing->AddElement( shape );
-               }
-	    }
+	   addToCompound(shape, kFWMuonEndcapLineColorIndex);
+	   cRing->AddElement( shape );
 	 }
       }
       AddElement( m_muonEndcapElements );
