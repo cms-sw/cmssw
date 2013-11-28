@@ -53,7 +53,7 @@ private:
  
  std::string outputFile_;
 
- edm::InputTag ESdigiCollection_;
+ edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
 
  MonitorElement* meESDigiMultiplicity_;
  

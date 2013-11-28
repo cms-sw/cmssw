@@ -97,18 +97,19 @@ private:
 
  void checkCalibrations(edm::EventSetup const & c);
  
- std::string HepMCLabel;
- std::string hitsProducer_;
-
  bool verbose_;
 
  DQMStore* dbe_;
  
  std::string outputFile_;
-
- edm::InputTag EBdigiCollection_;
- edm::InputTag EEdigiCollection_;
- edm::InputTag ESdigiCollection_;
+ 
+ edm::EDGetTokenT<edm::HepMCProduct> HepMCToken_;
+ 
+ edm::EDGetTokenT<EBDigiCollection> EBdigiCollectionToken_;
+ edm::EDGetTokenT<EEDigiCollection> EEdigiCollectionToken_;
+ edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
+ 
+ edm::EDGetTokenT< CrossingFrame<PCaloHit> > crossingFramePCaloHitEBToken_, crossingFramePCaloHitEEToken_, crossingFramePCaloHitESToken_;
  
  std::map<int, double, std::less<int> > gainConv_;
 
