@@ -7,6 +7,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include <vector>
 #include <string>
@@ -24,6 +25,11 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
   explicit TrajectorySeedProducer2(const edm::ParameterSet& conf);
   
   virtual void produce(edm::Event& e, const edm::EventSetup& es) override;
+
+  virtual bool passSimTrackQualityCuts(const SimTrack& theSimTrack, unsigned int trackingAlgorithmId)
+  {
+	  return true;
+  }
 
 };
 

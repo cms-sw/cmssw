@@ -21,7 +21,7 @@
 #include "FastSimulation/Tracking/plugins/TrajectorySeedProducer2.h"
 #include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
@@ -107,26 +107,59 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
   std::cout << " Step A: SimTracks found " << theSimTracks->size() << std::endl;
 #endif
   
-  //  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
-  edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
-  e.getByLabel(hitProducer, theGSRecHits);
-  
-  std::cout<<"event contains: "<<theSimTracks->size()<<" simtracks"<<std::endl;
-  std::cout<<"event contains: "<<theGSRecHits->size()<<" hits"<<std::endl;
+	//  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
+	edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
+	e.getByLabel(hitProducer, theGSRecHits);
 
-  int countValidHits=0;
-  for (SiTrackerGSMatchedRecHit2DCollection::const_iterator it = theGSRecHits->begin(); it!=theGSRecHits->end(); ++it)
-  {
-	  //idea: get associated simtrack from all valid hits
-	  const SiTrackerGSMatchedRecHit2D vec = *it;
-	  TrackerRecHit trackerHit = TrackerRecHit(&vec,theGeometry,tTopo);
-	  if (trackerHit.isOnRequestedDet(theLayersInSets))
-	  {
-		  ++countValidHits;
-	  }
+	std::cout<<"event contains: "<<theSimTracks->size()<<" simtracks"<<std::endl;
+	std::cout<<"event contains: "<<theGSRecHits->ids().size()<<" ids"<<std::endl;
+	std::cout<<"event contains: "<<theGSRecHits->size()<<" hits"<<std::endl;
 
-  }
-  std::cout<<"hits on requested layers: "<<countValidHits<<std::endl;
+
+	for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
+	{
+		const unsigned int currentID = *itSimTrackId;
+		std::cout<<"processing simtrack with id: "<<currentID<<std::endl;
+		const SimTrack& theSimTrack = (*theSimTracks)[*itSimTrackId];
+		for ( unsigned int ialgo = 0; ialgo < seedingAlgo.size(); ++ialgo )
+		{
+			if (this->passSimTrackQualityCuts(theSimTrack,ialgo))
+			{
+				SiTrackerGSMatchedRecHit2DCollection::range recHitRange = theGSRecHits->get(*itSimTrackId);
+				std::cout<<"\ttotal produced: "<<recHitRange.second-recHitRange.first<<" hits"<<std::endl;
+
+				TrackerRecHit previousTrackerHit;
+				TrackerRecHit currentTrackerHit;
+
+				std::vector<TrackerRecHit> validTrackerRecHitList;
+				for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second; ++itRecHit)
+				{
+					const SiTrackerGSMatchedRecHit2D vec = *itRecHit;
+					previousTrackerHit=currentTrackerHit;
+					currentTrackerHit = TrackerRecHit(&vec,theGeometry,tTopo);
+					if (currentTrackerHit.isOnTheSameLayer(previousTrackerHit))
+					{
+						//TODO: perform check with SiTrackerGSMatchedRecHit2D directly -> saves the unnecessary creation of TrackerRecHit
+						continue;
+					}
+					//std::cout<<itRecHit-recHitRange.first<<" = "<<currentTrackerHit.isOnRequestedDet(theLayersInSets)<<std::endl;
+					validTrackerRecHitList.push_back(currentTrackerHit);
+					//TODO: if already enough hits have been found break this loop
+					if (!TrackerRecHit::isOnRequestedDet(theLayersInSets,validTrackerRecHitList))
+					{
+						//TODO: bad to push and pop so often
+						validTrackerRecHitList.pop_back();
+						continue;
+					}
+					std::cout<< itRecHit-recHitRange.first<<" (hit "<<validTrackerRecHitList.size()<<")"<<std::endl;
+				}
+				//std::cout<<"\tuse for seeding: "<<validTrackerRecHitList.size()<<" hits"<<std::endl;
+			}
+		}
+	}
+
+	std::cout<<std::endl;
+    std::cout<<"old result:"<<std::endl;
 
   // No tracking attempted if no hits (but put an empty collection in the event)!
 #ifdef FAMOS_DEBUG
@@ -161,8 +194,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // loop over SimTrack Id's
   for ( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
-	  std::cout<<"process simtrack: "<<tkId<<" --------------------------"<<std::endl;
-
+	  std::cout<<"process simtrack: "<<theSimTrackIds[tkId]<<std::endl;
 
 #ifdef FAMOS_DEBUG
     std::cout << "Track number " << tkId << "--------------------------------" <<std::endl;
@@ -170,8 +202,8 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
     ++nSimTracks;
     unsigned simTrackId = theSimTrackIds[tkId];
-    const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
-    std::cout<<"simtrack produced: "<<theGSRecHits->get(simTrackId).second-theGSRecHits->get(simTrackId).first<<" total hits"<<std::endl;
+    const SimTrack& theSimTrack = (*theSimTracks)[simTrackId];
+
 #ifdef FAMOS_DEBUG
     std::cout << "Pt = " << std::sqrt(theSimTrack.momentum().Perp2()) 
 	      << " eta " << theSimTrack.momentum().Eta()
@@ -211,16 +243,9 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
     SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit2;
     SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit3;
 
-    int effectiveHits=0;
-    for ( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
-    	const SiTrackerGSMatchedRecHit2D vec = *iterRecHit;
-		  TrackerRecHit trackerHit = TrackerRecHit(&vec,theGeometry,tTopo);
-		  if (trackerHit.isOnRequestedDet(theLayersInSets))
-		  {
-			  ++effectiveHits;
-		  }
-    }
-    std::cout<<"simtrack produced: "<<effectiveHits<<" hits on required layers"<<std::endl;
+    unsigned int hit1,hit2,hit3;
+
+
     // Check the number of layers crossed
     unsigned numberOfRecHits = 0;
     TrackerRecHit previousHit, currentHit;
@@ -262,7 +287,8 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
       bool compatible = false;
       
       for ( iterRecHit1 = theRecHitRangeIteratorBegin; iterRecHit1 != theRecHitRangeIteratorEnd; ++iterRecHit1) {
-      //std::cout << (*iterRecHit1).localPosition().phi() << " | J - iterRecHit1"<< std::endl; // 
+    	  hit1=iterRecHit1-theRecHitRangeIteratorBegin;
+    	  //std::cout << (*iterRecHit1).localPosition().phi() << " | J - iterRecHit1"<< std::endl; //
 	theSeedHits[0] = TrackerRecHit(&(*iterRecHit1),theGeometry,tTopo);
 #ifdef FAMOS_DEBUG
 	std::cout << "The first hit position = " << theSeedHits0.globalPosition() << std::endl;
@@ -286,7 +312,10 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	bool isOndet = true;
 	if (!selectMuons) {
 	  if (newSyntax)
+	  {
       isOndet = theSeedHits[0].isOnRequestedDet(theLayersInSets);
+	  std::cout<<hit1<<" = "<<isOndet<<" (selected hit 1)"<<std::endl;
+	  }
 	  else
 	    isOndet = theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo], seedingAlgo[ialgo]);
       //std::cout << firstHitSubDetectors[ialgo][0] << " | " << seedingAlgo[ialgo] << " " << std::endl;  //seedingAlgo[iAlgo]: PixelTriplet, LowPtPixelTriplets, PixelPair, DetachedPixelTriplets, MixedTriplets, PixelLessPairs, TobTecLayerPairs......
@@ -299,7 +328,8 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	std::cout << "Apparently the first hit is on the requested detector! " << std::endl;
 #endif
 	for ( iterRecHit2 = iterRecHit1+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
-	  theSeedHits[1] = TrackerRecHit(&(*iterRecHit2),theGeometry,tTopo);
+		hit2=iterRecHit2-theRecHitRangeIteratorBegin;
+		theSeedHits[1] = TrackerRecHit(&(*iterRecHit2),theGeometry,tTopo);
 #ifdef FAMOS_DEBUG
 	  std::cout << "The second hit position = " << theSeedHits1.globalPosition() << std::endl;
 	  std::cout << "The second hit subDetId = " << theSeedHits1.subDetId() << std::endl;
@@ -316,14 +346,17 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
 	    // Check if on requested detectors
 	    if (newSyntax)
+	    {
         isOndet = theSeedHits[0].isOnRequestedDet(theLayersInSets, theSeedHits[1]);
+	    std::cout<<hit2<<" = "<<isOndet<<" (selected hit 2)"<<std::endl;
+	    }
 	    else
 	      isOndet =  theSeedHits1.isOnRequestedDet(secondHitSubDetectors[ialgo], seedingAlgo[ialgo]);
 	    if ( !isOndet ) break;
+
 	  }
 	  // Check if on the same layer as previous hit
 	  if ( theSeedHits1.isOnTheSameLayer(theSeedHits0) ) continue;
-
 #ifdef FAMOS_DEBUG
 	  std::cout << "Apparently the second hit is on the requested detector! " << std::endl;
 #endif
@@ -376,7 +409,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	  compatible = false;
 	  // Check if there is a third satisfying hit otherwise
 	  for ( iterRecHit3 = iterRecHit2+1; iterRecHit3 != theRecHitRangeIteratorEnd; ++iterRecHit3) {
-    
+		hit3=iterRecHit3-theRecHitRangeIteratorBegin;
 	    theSeedHits[2] = TrackerRecHit(&(*iterRecHit3),theGeometry,tTopo);
 #ifdef FAMOS_DEBUG
 	    std::cout << "The third hit position = " << theSeedHits2.globalPosition() << std::endl;
@@ -394,11 +427,15 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	    
 	      // Check if on requested detectors
 	      if (newSyntax) 
+	      {
           isOndet = theSeedHits[0].isOnRequestedDet(theLayersInSets, theSeedHits[1], theSeedHits[2]);
+	      std::cout<<hit3<<" = "<<isOndet<<" (selected hit 3)"<<std::endl;
+	      }
 	      else 
           isOndet =  theSeedHits2.isOnRequestedDet(thirdHitSubDetectors[ialgo], seedingAlgo[ialgo]);
 	      //	    if ( !isOndet ) break;
 	      if ( !isOndet ) continue;
+
 	    }
 
 	    // Check if on the same layer as previous hit
@@ -509,6 +546,19 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 		 recHits.front().geographicalId().rawId(),
 		 initialState);
       // Create a new Trajectory Seed    
+
+
+      std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<simTrackId<<", #recHits="<<hit1<<","<<hit2<<","<<hit3<<std::endl;
+      for (unsigned int i = 0; i< recHits.size();++i)
+      {
+    	  TrackerRecHit hit = theSeedHits[i];
+    	  if (!hit.isOnRequestedDet(theLayersInSets))
+    	  {
+    		  std::cout<<"hit "<<i<<" not on requested layer"<<std::endl;
+    	  }
+      }
+
+
       output[ialgo]->push_back(TrajectorySeed(initialState, recHits, alongMomentum));
 #ifdef FAMOS_DEBUG
       std::cout << "Trajectory seed created ! " << std::endl;
@@ -523,7 +573,8 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
     std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
     e.put(p,seedingAlgo[ialgo]);
   }
-
+  std::cout<<"-------------------"<<std::endl;
+  std::cout<<"-------------------"<<std::endl;
 }
 
 
