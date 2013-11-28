@@ -8,69 +8,55 @@
 
 GEMGeometry::GEMGeometry(){}
 
-
 GEMGeometry::~GEMGeometry(){}  
 
- 
 const GEMGeometry::DetTypeContainer&  GEMGeometry::detTypes() const{
   return theEtaPartitionTypes;
 }
-
 
 const GEMGeometry::DetUnitContainer& GEMGeometry::detUnits() const{
   return theEtaPartitions;
 }
 
-
 const GEMGeometry::DetContainer& GEMGeometry::dets() const{
   return theDets;
 }
 
-  
 const GEMGeometry::DetIdContainer& GEMGeometry::detUnitIds() const{
   return theEtaPartitionIds;
 }
-
 
 const GEMGeometry::DetIdContainer& GEMGeometry::detIds() const{
   return theDetIds;
 }
 
-
 const GeomDetUnit* GEMGeometry::idToDetUnit(DetId id) const{
   return dynamic_cast<const GeomDetUnit*>(idToDet(id));
 }
-
 
 const GeomDet* GEMGeometry::idToDet(DetId id) const{
   mapIdToDet::const_iterator i = theMap.find(id);
   return (i != theMap.end()) ? i->second : 0 ;
 }
 
-
-/*
-const std::vector<GEMSuperChamber*>& GEMGeometry::superChambers() const {
+const std::vector<const GEMSuperChamber*>& GEMGeometry::superChambers() const {
   return allSuperChambers;
 }
-*/
 
-const std::vector<GEMChamber*>& GEMGeometry::chambers() const {
+const std::vector<const GEMChamber*>& GEMGeometry::chambers() const {
   return allChambers;
 }
-
 
 const std::vector<const GEMEtaPartition*>& GEMGeometry::etaPartitions() const{
   return allEtaPartitions;
 }
 
-
-/*
-FIXME
 const GEMSuperChamber* GEMGeometry::superChamber(GEMDetId id) const{
-  GEMDetId schId = GEMDetId(id.region(),id.ring(),id.station(),0,id.chamber(),0);
-  return dynamic_cast<const GEMSuperChamber*>(idToDet(schId));
+  
+//   GEMDetId chamberId = GEMDetId(id.region(),id.ring(),id.station(),0,id.chamber(),0);
+//   return dynamic_cast<const GEMSuperChamber*>(idToDet(schId));
+  return NULL;
 }
-*/
 
 const GEMChamber* GEMGeometry::chamber(GEMDetId id) const{ 
   return dynamic_cast<const GEMChamber*>(idToDet(id.chamberId()));
@@ -105,14 +91,11 @@ GEMGeometry::add(GEMChamber* chamber){
 		(chamber->geographicalId(),chamber));
 }
 
-/*
-FIXME
 void
 GEMGeometry::add(GEMSuperChamber* superChamber){
   allSuperChambers.push_back(superChamber);
-  theDets.push_back(superChamber);
-  theDetIds.push_back(superChamber->geographicalId());
-  theMap.insert(std::pair<DetId,GeomDet*>
- 		(superChamber->geographicalId(),superChamber));
+//   theDets.push_back(superChamber);
+//   theDetIds.push_back(superChamber->geographicalId());
+//   theMap.insert(std::pair<DetId,GeomDet*>
+//  		(superChamber->geographicalId(),superChamber));
 }
-*/
