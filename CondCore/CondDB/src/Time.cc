@@ -9,23 +9,22 @@
 namespace cond {
 
   namespace time {
-    auto s_timeTypeMap = { enumPair( "Run",cond::runnumber ),
-			   enumPair( "Time",cond::timestamp ),
-			   enumPair( "Lumi",cond::lumiid ),
-			   enumPair( "Hash",cond::hash ),
-			   enumPair( "User",cond::userid ) };
-
+    static const std::pair<const char*, TimeType> s_timeTypeMap[] = { std::make_pair("Run", cond::runnumber),
+                                                                      std::make_pair("Time", cond::timestamp ),
+                                                                      std::make_pair("Lumi", cond::lumiid ),
+                                                                      std::make_pair("Hash", cond::hash ),
+                                                                      std::make_pair("User", cond::userid ) };
+    
     std::string timeTypeName(TimeType type) {
-      static const std::vector<std::pair<const std::string,TimeType> > tmp( s_timeTypeMap );
       if( type==invalid ) return "";
-      return tmp[type].first;
+      return s_timeTypeMap[type].first;
     }
-
+    
     TimeType timeTypeFromName( const std::string& name ){
-      static const std::map<std::string,TimeType> tmp( s_timeTypeMap );
-      auto t = tmp.find( name );
-      if( t == tmp.end() ) throwException( "TimeType \""+name+"\" is unknown.","timeTypeFromName");
-      return t->second;
+      for (auto const &i : s_timeTypeMap)
+        if (name.compare(i.first))
+          return i.second;
+      throwException( "TimeType \""+name+"\" is unknown.","timeTypeFromName");
     }
 
     Time_t tillTimeFromNextSince( Time_t nextSince, TimeType timeType ){
