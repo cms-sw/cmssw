@@ -5,12 +5,12 @@
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
 
-cond::DbTransaction::DbTransaction( ora::Transaction& dbTrans ):
-  m_dbTrans( dbTrans ),m_readOnly(true),m_clients(0){
+cond::DbTransaction::DbTransaction( ora::Transaction& dbTrans, bool owned ):
+  m_dbTrans( dbTrans ),m_readOnly(true),m_clients(0),m_owned(owned ){
 }
 
 cond::DbTransaction::~DbTransaction(){
-  rollback();
+  if( m_owned ) rollback();
 }
 
 int cond::DbTransaction::start(bool readOnly){
