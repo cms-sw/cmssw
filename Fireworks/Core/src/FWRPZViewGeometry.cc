@@ -266,7 +266,7 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
      Int_t step = 9;
      Int_t iRing = 1;
      Int_t maxRolls = 8;
-     for( Int_t iEndcap = -1; iEndcap <= 1; iEndcap+=2 ){ // 1=forward (+Z), 2=backward(-Z)
+     for( Int_t iEndcap = -1; iEndcap <= 1; iEndcap+=2 ){ // 1=forward (+Z), -1=backward(-Z)
        // Actual GEM geometry:
        // Station 1 has 1 rings with 36 chambers in each
        // for( Int_t iStation = 1; iStation <= 1; ++iStation ){
