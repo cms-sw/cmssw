@@ -63,29 +63,29 @@ cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo( edm::TypeWithDict const & type_)
     if (!m_arraySize)
       m_arraySize = 1;
     m_arraySize *= type.ArrayLength();
-    type = type.ToType();
+    type = type.toType();
   }
 
-  if (type.IsClass()) {
-    const std::type_info &typeInfo = type.TypeInfo();
+  if (type.isClass()) {
+    const std::type_info &typeInfo = type.typeInfo();
     m_class = TClass::GetClass(typeInfo);
     if (!m_class)
       throw cond::Exception("TBufferBlobTypeInfo::TBufferBlobTypeInfo "
-                            "No ROOT class registered for " + type.Name());
-  } else if (type.IsFundamental()) {
+                            "No ROOT class registered for " + type.name());
+  } else if (type.isFundamental()) {
     if (!m_arraySize)
         throw cond::Exception("TBufferBlobTypeInfo::TBufferBlobTypeInfo "
                               "Only arrays of primitive types supported. "
 	                      "Please to not use a Blob for this member.");
 
     m_primitive = std::find(primitives, primitives + nPrimitives,
-                            type.TypeInfo()) - primitives;
+                            type.typeInfo()) - primitives;
     if (m_primitive >= nPrimitives)
       throw cond::Exception("TBufferBlobTypeInfo::TBufferBlobTypeInfo "
-                            "Cannot handle primitive type " + type.Name());
+                            "Cannot handle primitive type " + type.name());
   } else
     throw cond::Exception("TBufferBlobTypeInfo::TBufferBlobTypeInfo "
-                          "Cannot handle C++ type " + type.Name());
+                          "Cannot handle C++ type " + type.name());
 }
 
 

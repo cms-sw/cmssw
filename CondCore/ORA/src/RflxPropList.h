@@ -7,8 +7,6 @@
 #include <string>
 #include "TClassAttributeMap.h"
 
-#include "CondProperties.h"
-
 namespace Reflex {
 
     class PropertyList {
