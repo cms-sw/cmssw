@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
@@ -259,7 +260,6 @@ namespace edm {
     return nullptr;
   }
 
-  
   void
   InputSource::registerProducts() {
     if(!typeLabelList().empty()) {
@@ -367,6 +367,7 @@ namespace edm {
       //result = callWithTryCatchAndPrint<bool>( [this,&eventID,&ep](){ return readIt(eventID, ep); }, "Calling InputSource::readIt" );
       result = readIt(eventID, ep, streamContext);
 
+      if (result) {
         if(remainingEvents_ > 0) --remainingEvents_;
         ++readCount_;
         issueReports(ep.id());
