@@ -63,22 +63,14 @@ namespace evf
     void doOutputEventFragment(RecoEventWriterForFUEventParams const&);
 
     void start(){}
-    void stop();
-    // Returns the sizes of EOF records, call them after 
-    // u called stop, just before destruction
-    uint32 getStreamEOFSize() const {return stream_eof_size_;}
+    void stop(){};
 
     uint32 get_adler32() const { return stream_writer_events_->adler32();}
 
   private:
-    void updateHLTStats(std::vector<uint8> const& packedHlt);
 
     std::auto_ptr<StreamerOutputFile> stream_writer_preamble_;
-    std::auto_ptr<StreamerOutputFile> stream_writer_postamble_;
     std::auto_ptr<StreamerOutputFile> stream_writer_events_;
-    uint32 hltCount_;
-    std::vector<uint32> hltStats_;
-    uint32 stream_eof_size_;
 
   };
 }
