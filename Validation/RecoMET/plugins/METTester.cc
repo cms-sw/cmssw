@@ -222,9 +222,9 @@ METTester::METTester(const edm::ParameterSet& iConfig)
       mPFmuonEtFraction = dbe_->book1D("muonEtFraction", "muonEtFraction", 100, 0, 1);
       mPFmuonEt = dbe_->book1D("muonEt", "muonEt", 100, 0, 1000);
       mPFHFHadronEtFraction = dbe_->book1D("HFHadronEtFraction", "HFHadronEtFraction", 100, 0, 1);
-      mPFHFHadronEt = dbe_->book1D("HFHadronEt", "HFHadronEt", 100, 0, 1000);
+      mPFHFHadronEt = dbe_->book1D("HFHadronEt", "HFHadronEt", 100, 0, 500);
       mPFHFEMEtFraction = dbe_->book1D("HFEMEtFraction", "HFEMEtFraction", 100, 0, 1);
-      mPFHFEMEt = dbe_->book1D("HFEMEt", "HFEMEt", 100, 0, 1000);
+      mPFHFEMEt = dbe_->book1D("HFEMEt", "HFEMEt", 100, 0, 300);
 
     }
 
