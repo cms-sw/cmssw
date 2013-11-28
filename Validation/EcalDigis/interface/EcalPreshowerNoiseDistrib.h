@@ -46,8 +46,7 @@ private:
  
  std::string outputFile_;
 
- edm::InputTag ESdigiCollection_;
-
+ edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
 
  MonitorElement* meESDigiADC_[3];
  MonitorElement* meESDigiCorr_[3];

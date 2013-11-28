@@ -1,5 +1,4 @@
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
-#include "IOPool/Streamer/interface/EOFRecordBuilder.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
   StreamerOutputFile::~StreamerOutputFile() {
@@ -131,25 +130,4 @@
     }
     streamerfile_->set_run(inview.run()); 
   }
- 
-  uint32 StreamerOutputFile::writeEOF(uint32 statusCode, 
-                                      const std::vector<uint32>& hltStats) 
-  {
-    EOFRecordBuilder eof(streamerfile_->run(), 
-                         streamerfile_->events(),
-                         statusCode,
-                         hltStats,
-                         streamerfile_->first_event_offset(),
-                         streamerfile_->last_event_offset());
 
-    bool ret = streamerfile_->write((const char*) 
-                                    eof.recAddress(), 
-                                    eof.size());  
-    if (ret) {
-      throw cms::Exception("OutputFile", "writeEOF")
-        << "Error writing streamer end-of-file to "
-        << streamerfile_->fileName() << ".  Possibly the output disk "
-        << "is full?" << std::endl;
-    }
-    return eof.size();  
-  }
