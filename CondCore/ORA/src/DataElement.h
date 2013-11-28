@@ -26,7 +26,7 @@ namespace ora {
     const DataElement* m_parent;
     std::vector<DataElement*> m_children;
     size_t m_declaringScopeOffset;
-    size_t m_offsetFunction;
+    Reflex::OffsetFunction m_offsetFunction;
   };
   
 }

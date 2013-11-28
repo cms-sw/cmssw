@@ -41,7 +41,7 @@ size_t ora::DataElement::offset( const void* topLevelAddress ) const {
     address = static_cast<char*>(const_cast<void*>(topLevelAddress))+parentOffset;
   }
   if(m_offsetFunction){
-    offset += offsetof( (const_cast<void*>(address)), m_offsetFunction) );
+    offset += m_offsetFunction( const_cast<void*>(address));
   }
   return offset;  
 }
