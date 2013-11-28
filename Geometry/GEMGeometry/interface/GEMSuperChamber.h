@@ -60,7 +60,6 @@ class GEMSuperChamber : public GeomDet
  private:
 
   GEMDetId detId_;
-  std::vector<GEMDetId> detIds_;
 
   // vector of chambers for a super chamber
   std::vector<const GEMChamber*> chambers_;
