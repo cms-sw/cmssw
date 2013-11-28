@@ -24,7 +24,7 @@ const T * get(const edm::Event & event, const edm::InputTag & tag) {
   edm::Handle<T> handle;
   event.getByLabel(tag, handle);
   if (not handle.isValid()) {
-    boost::shared_ptr<cms::Exception> const & error = handle.whyFailed();
+    auto const & error = handle.whyFailed();
     edm::LogWarning(error->category()) << error->what();
     return 0;
   } else {
@@ -38,7 +38,7 @@ const T * get(const edm::Event & event, const edm::EDGetTokenT<T> & token) {
   edm::Handle<T> handle;
   event.getByToken(token, handle);
   if (not handle.isValid()) {
-    boost::shared_ptr<cms::Exception> const & error = handle.whyFailed();
+    auto const & error = handle.whyFailed();
     edm::LogWarning(error->category()) << error->what();
     return 0;
   } else {
