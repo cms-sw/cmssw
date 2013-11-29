@@ -38,7 +38,7 @@ namespace cond{
     ora::Transaction& m_dbTrans;
     bool m_readOnly;
     int m_clients;
-    bool m_owned = true;
+    bool m_owned;
 
   };
 }
