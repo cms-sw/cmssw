@@ -115,7 +115,7 @@ checkRZOld(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::Even
 
 //  float bendR = longitudinalBendingCorrection(outer.r(),ptMin());
 
-  std::cout << "RectangularEtaPhiTrackingRegion " << outer.r()<<','<< outer.z() << " " << innerScatt << " " << cotTheta << " " <<  hitZErr <<  std::endl; 
+  // std::cout << "RectangularEtaPhiTrackingRegion " << outer.r()<<','<< outer.z() << " " << innerScatt << " " << cotTheta << " " <<  hitZErr <<  std::endl; 
 
   if (isBarrel) {
     float sinTheta = 1/std::sqrt(1+sqr(cotTheta));
@@ -357,7 +357,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
     }
   
     // LogDebug("RectangularEtaPhiTrackingRegion")<<" found "<< meas.size()<<" minus one measurements on layer: "<<detLayer->subDetector();
-    std::cout << "RectangularEtaPhiTrackingRegion" <<" found "<< meas.size()<<" minus one measurements on layer: "<<detLayer->subDetector() << std::endl;
+    // std::cout << "RectangularEtaPhiTrackingRegion" <<" found "<< meas.size()<<" minus one measurements on layer: "<<detLayer->subDetector() << std::endl;
   
   } else {
     //
