@@ -684,6 +684,11 @@ void PhotonValidator::bookHistograms(void) {
     histname = "psE";
     h_psE_ = dbe_->book1D(histname+"Endcap"," ES Energy  ",eBin,eMin, 50.);
 
+    histname = "diffSCpfSC";
+    h_dSCpfSC_[0][0] = dbe_->book1D(histname+"All"," SC Energy: All Ecal  ",eBin,-0.04,0.04);
+    h_dSCpfSC_[0][1] = dbe_->book1D(histname+"Barrel"," E(SC)-E(pfSC): Barrel ",eBin,-0.04, 0.04);
+    h_dSCpfSC_[0][2] = dbe_->book1D(histname+"Endcap"," E(SC)-E(pfSC): Endcap ",eBin,-0.04, 0.04);
+
 
     histname = "scEt";
     h_scEt_[0][0] = dbe_->book1D(histname+"All"," SC Et: All Ecal ",etBin,etMin, etMax) ;
@@ -2197,6 +2202,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       }
       h_scE_[type][0]->Fill( matchingPho.superCluster()->energy() );
       h_scEt_[type][0]->Fill( matchingPho.superCluster()->energy()/cosh( matchingPho.superCluster()->eta()) );
+      if ( matchingPho.pfSuperCluster().isNonnull() ) h_dSCpfSC_[type][0]->Fill( matchingPho.superCluster()->energy()-matchingPho.pfSuperCluster()->energy());
       if ( phoIsInEndcap ) h_psE_->Fill( matchingPho.superCluster()->preshowerEnergy() ) ;
       //
       h_r9_[type][0]->Fill( r9 );
@@ -2359,6 +2365,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       if ( phoIsInBarrel ) {
 	h_scE_[type][1]->Fill( matchingPho.superCluster()->energy() );
 	h_scEt_[type][1]->Fill( matchingPho.superCluster()->energy()/cosh( matchingPho.superCluster()->eta()) );
+	if ( matchingPho.pfSuperCluster().isNonnull() ) h_dSCpfSC_[type][1]->Fill( matchingPho.superCluster()->energy()-matchingPho.pfSuperCluster()->energy());
 	h_r9_[type][1]->Fill( r9 );
 	h_r1_[type][1]->Fill( r1 );
 	h_r2_[type][1]->Fill( r2 );
@@ -2420,6 +2427,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	//std::cout << " Looking for troubles 1 " << std::endl;
 	h_scE_[type][2]->Fill( matchingPho.superCluster()->energy() );
 	h_scEt_[type][2]->Fill( matchingPho.superCluster()->energy()/cosh( matchingPho.superCluster()->eta()) );
+	if ( matchingPho.pfSuperCluster().isNonnull() ) h_dSCpfSC_[type][2]->Fill( matchingPho.superCluster()->energy()-matchingPho.pfSuperCluster()->energy());
 	h_r9_[type][2]->Fill( r9 );
 	h_r1_[type][2]->Fill( r1 );
 	h_r2_[type][2]->Fill( r2 );
