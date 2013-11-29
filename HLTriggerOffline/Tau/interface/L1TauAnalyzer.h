@@ -96,20 +96,20 @@ class L1TauAnalyzer : public edm::EDAnalyzer {
   
   // ----------member data ---------------------------
 
-  edm::InputTag _PFTauSource;
-  edm::InputTag _PFTauDiscriminatorSource;
-  edm::InputTag _GenParticleSource;
+  edm::EDGetTokenT<reco::PFTauCollection> _PFTauSource;
+  edm::EDGetTokenT<reco::PFTauDiscriminatorByIsolation> _PFTauDiscriminatorSource;
+  edm::EDGetTokenT<edm::HepMCProduct> _GenParticleSource;
 
-  edm::InputTag _L1extraTauJetSource;
-  edm::InputTag _L1extraCenJetSource;
-  edm::InputTag _L1extraForJetSource;
-  edm::InputTag _L1extraNonIsoEgammaSource;
-  edm::InputTag _L1extraIsoEgammaSource;
-  edm::InputTag _L1extraMETSource;
-  edm::InputTag _L1extraMuonSource;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> _L1extraTauJetSource;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> _L1extraCenJetSource;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> _L1extraForJetSource;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection> _L1extraNonIsoEgammaSource;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection> _L1extraIsoEgammaSource;
+  edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> _L1extraMETSource;
+  edm::EDGetTokenT<l1extra::L1MuonParticleCollection> _L1extraMuonSource;
 
-  edm::InputTag _L1GtReadoutRecord;
-  edm::InputTag _L1GtObjectMap;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> _L1GtReadoutRecord;
+  edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> _L1GtObjectMap;
 
   bool _DoMCMatching;
   bool _DoPFTauMatching;
