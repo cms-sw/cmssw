@@ -364,7 +364,7 @@ std::vector<unsigned char> CaloTPGTranscoderULUT::getCompressionLUT(HcalTrigTowe
    return lut;
 }
 
-void CaloTPGTranscoderULUT::setup(const edm::EventSetup& es, Mode mode=All) const{
+void CaloTPGTranscoderULUT::setup(const edm::EventSetup& es, Mode mode=All) {
    if (isLoaded_) return;
    // TODO Try/except
    es.get<HcalLutMetadataRcd>().get(lutMetadata_);
