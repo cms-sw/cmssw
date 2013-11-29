@@ -18,6 +18,8 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+
 
 #include "Validation/MuonGEMDigis/interface/SimTrackMatchManager.h"
 
@@ -25,14 +27,14 @@
 class GEMTrackMatch 
 {
 public:
-  GEMTrackMatch(DQMStore* , std::string , edm::ParameterSet, double, double, double );
+  GEMTrackMatch(DQMStore* , std::string , edm::ParameterSet);
   ~GEMTrackMatch();
   void analyze(const edm::Event& e, const edm::EventSetup&);
 
   void buildLUT();
   std::pair<int,int> getClosestChambers(int region, float phi);
   bool isSimTrackGood(const SimTrack& );
-  void setGeometry(const GEMGeometry* geom) { theGEMGeometry = geom; }
+  void setGeometry(const GEMGeometry* geom); 
 
   TH1F** GetDgEta()  { return dg_eta;    }
   TH1F** GetPadEta() { return pad_eta;   }
@@ -47,6 +49,8 @@ public:
   TH1F* GetTrackDgEta()  { return track_dg_eta; }
   TH1F* GetTrackShEta()  { return track_sh_eta; }
   TH1F* GetTrackPhi()  { return track_phi; }
+  
+
 
  private:
 
@@ -76,6 +80,31 @@ public:
   TH1F* pad_eta[4];
 
   TH1F* pad_phi[4];
+
+
+  MonitorElement* dg_lx_even;
+  MonitorElement* dg_lx_even_l1;
+  MonitorElement* dg_lx_even_l2;
+  MonitorElement* dg_lx_even_l1or2;
+  MonitorElement* dg_lx_even_l1and2;
+
+  MonitorElement* dg_ly_even;
+  MonitorElement* dg_ly_even_l1;
+  MonitorElement* dg_ly_even_l2;
+  MonitorElement* dg_ly_even_l1or2;
+  MonitorElement* dg_ly_even_l1and2;
+
+  MonitorElement* dg_lx_odd;
+  MonitorElement* dg_lx_odd_l1;
+  MonitorElement* dg_lx_odd_l2;
+  MonitorElement* dg_lx_odd_l1or2;
+  MonitorElement* dg_lx_odd_l1and2;
+
+  MonitorElement* dg_ly_odd;
+  MonitorElement* dg_ly_odd_l1;
+  MonitorElement* dg_ly_odd_l2;
+  MonitorElement* dg_ly_odd_l1or2;
+  MonitorElement* dg_ly_odd_l1and2;
 
 
 
