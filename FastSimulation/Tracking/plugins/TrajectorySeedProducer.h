@@ -48,8 +48,8 @@ class TrajectorySeedProducer : public edm::EDProducer
     Side side;
     unsigned int idLayer;
   };
-  //
-  
+
+
   Side setLayerSpecSide(const std::string& layerSpecSide) const;
 
  protected:
