@@ -7,7 +7,6 @@
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/CondDB/interface/Session.h"
 #include "CondCore/CondDB/interface/Utils.h"
-#include "CondCore/CondDB/interface/Configuration.h"
 
 #include "CondCore/CondDB/src/DbCore.h"
 

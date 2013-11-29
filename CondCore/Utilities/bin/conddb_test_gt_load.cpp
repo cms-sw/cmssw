@@ -1,7 +1,6 @@
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/CondDB/interface/IOVProxy.h"
 #include "CondCore/CondDB/interface/GTProxy.h"
-#include "CondCore/CondDB/interface/Configuration.h"
 
 #include "CondCore/Utilities/interface/Utilities.h"
 #include <iostream>
