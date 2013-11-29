@@ -7,5 +7,6 @@ namespace edm {class ParameterSet; class ConsumesCollector;}
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 typedef edmplugin::PluginFactory<TrackingRegionProducer *(const edm::ParameterSet &, edm::ConsumesCollector &&)> TrackingRegionProducerFactory;
+typedef edmplugin::PluginFactory<TrackingRegionProducer *(const edm::ParameterSet &)> TrackingRegionProducerFactoryNoConsumes;
 #endif
 
