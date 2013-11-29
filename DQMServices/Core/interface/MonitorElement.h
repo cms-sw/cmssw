@@ -38,45 +38,54 @@ class MonitorElement
 public:
   struct Scalar
   {
-    int64_t		num;
-    double		real;
-    std::string		str;
+    int64_t             num;
+    double              real;
+    std::string         str;
   };
 
   enum Kind
   {
-    DQM_KIND_INVALID	= DQMNet::DQM_PROP_TYPE_INVALID,
-    DQM_KIND_INT	= DQMNet::DQM_PROP_TYPE_INT,
-    DQM_KIND_REAL	= DQMNet::DQM_PROP_TYPE_REAL,
-    DQM_KIND_STRING	= DQMNet::DQM_PROP_TYPE_STRING,
-    DQM_KIND_TH1F	= DQMNet::DQM_PROP_TYPE_TH1F,
-    DQM_KIND_TH1S	= DQMNet::DQM_PROP_TYPE_TH1S,
-    DQM_KIND_TH1D	= DQMNet::DQM_PROP_TYPE_TH1D,
-    DQM_KIND_TH2F	= DQMNet::DQM_PROP_TYPE_TH2F,
-    DQM_KIND_TH2S	= DQMNet::DQM_PROP_TYPE_TH2S,
-    DQM_KIND_TH2D	= DQMNet::DQM_PROP_TYPE_TH2D,
-    DQM_KIND_TH3F	= DQMNet::DQM_PROP_TYPE_TH3F,
-    DQM_KIND_TPROFILE	= DQMNet::DQM_PROP_TYPE_TPROF,
-    DQM_KIND_TPROFILE2D	= DQMNet::DQM_PROP_TYPE_TPROF2D
+    DQM_KIND_INVALID    = DQMNet::DQM_PROP_TYPE_INVALID,
+    DQM_KIND_INT        = DQMNet::DQM_PROP_TYPE_INT,
+    DQM_KIND_REAL       = DQMNet::DQM_PROP_TYPE_REAL,
+    DQM_KIND_STRING     = DQMNet::DQM_PROP_TYPE_STRING,
+    DQM_KIND_TH1F       = DQMNet::DQM_PROP_TYPE_TH1F,
+    DQM_KIND_TH1S       = DQMNet::DQM_PROP_TYPE_TH1S,
+    DQM_KIND_TH1D       = DQMNet::DQM_PROP_TYPE_TH1D,
+    DQM_KIND_TH2F       = DQMNet::DQM_PROP_TYPE_TH2F,
+    DQM_KIND_TH2S       = DQMNet::DQM_PROP_TYPE_TH2S,
+    DQM_KIND_TH2D       = DQMNet::DQM_PROP_TYPE_TH2D,
+    DQM_KIND_TH3F       = DQMNet::DQM_PROP_TYPE_TH3F,
+    DQM_KIND_TPROFILE   = DQMNet::DQM_PROP_TYPE_TPROF,
+    DQM_KIND_TPROFILE2D = DQMNet::DQM_PROP_TYPE_TPROF2D
   };
 
   typedef std::vector<QReport>::const_iterator QReportIterator;
 
 private:
-  DQMNet::CoreObject	data_;       //< Core object information.
-  Scalar		scalar_;     //< Current scalar value.
-  TH1			*object_;    //< Current ROOT object value.
-  TH1			*reference_; //< Current ROOT reference object.
-  TH1			*refvalue_;  //< Soft reference if any.
-  std::vector<QReport>	qreports_;   //< QReports associated to this object.
+  DQMNet::CoreObject    data_;       //< Core object information.
+  Scalar                scalar_;     //< Current scalar value.
+  TH1                   *object_;    //< Current ROOT object value.
+  TH1                   *reference_; //< Current ROOT reference object.
+  TH1                   *refvalue_;  //< Soft reference if any.
+  std::vector<QReport>  qreports_;   //< QReports associated to this object.
 
   MonitorElement *initialise(Kind kind);
   MonitorElement *initialise(Kind kind, TH1 *rootobj);
   MonitorElement *initialise(Kind kind, const std::string &value);
+  void globalize() {
+    data_.streamId = 0;
+    data_.moduleId = 0;
+  }
+  void setLumi(uint32_t ls) {data_.lumi = ls;}
 
 public:
   MonitorElement(void);
-  MonitorElement(const std::string *path, const std::string &name);
+  MonitorElement(const std::string *path,
+                 const std::string &name,
+                 uint32_t run = 0,
+                 uint32_t streamId = 0,
+                 uint32_t moduleId = 0);
   MonitorElement(const MonitorElement &);
   MonitorElement &operator=(const MonitorElement &);
   ~MonitorElement(void);
@@ -110,7 +119,7 @@ public:
       path.reserve(data_.dirname->size() + data_.objname.size() + 2);
       path += *data_.dirname;
       if (! data_.dirname->empty())
-	path += '/';
+        path += '/';
       path += data_.objname;
       return path;
     }
@@ -140,11 +149,11 @@ public:
   /// normalized when drawn in the DQM GUI.
   void setEfficiencyFlag(void)
     { data_.flags |= DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
-  
+
   // A static assert to check that T actually fits in
   // int64_t.
   template <typename T>
-  struct fits_in_int64_t 
+  struct fits_in_int64_t
   {
     int checkArray[sizeof(int64_t) - sizeof(T) + 1];
   };
@@ -160,7 +169,7 @@ public:
   void Fill(char x) { fits_in_int64_t<char>(); doFill(static_cast<int64_t>(x)); }
   void Fill(unsigned char x) { fits_in_int64_t<unsigned char>(); doFill(static_cast<int64_t>(x)); }
 
-  void Fill(float x)	{ Fill(static_cast<double>(x)); } 
+  void Fill(float x)    { Fill(static_cast<double>(x)); }
   void Fill(double x);
   void Fill(std::string &value);
 
@@ -207,7 +216,7 @@ public:
   /// get errors from last set of quality tests
   std::vector<QReport *> getQErrors(void) const;
 
-  /// get "other" (i.e. non-error, non-warning, non-"ok") QReports 
+  /// get "other" (i.e. non-error, non-warning, non-"ok") QReports
   /// from last set of quality tests
   std::vector<QReport *> getQOthers(void) const;
 
@@ -297,7 +306,7 @@ private:
   void addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, float c1, float c2);
   void copyFunctions(TH1 *from, TH1 *to);
   void copyFrom(TH1 *from);
-    
+
 
   // --- Operations on MEs that are normally reset at end of monitoring cycle ---
   void getQReport(bool create, const std::string &qtname, QReport *&qr, DQMNet::QValue *&qv);
@@ -352,12 +361,22 @@ public:
     {
       DQMNet::TagList tags;
       if (data_.flags & DQMNet::DQM_PROP_TAGGED)
-	tags.push_back(data_.tag);
+        tags.push_back(data_.tag);
       return tags;
     }
 
   const uint32_t getTag(void) const
     { return data_.tag; }
+
+  const uint32_t run(void) const {return data_.run;}
+  const uint32_t lumi(void) const {return data_.lumi;}
+  const uint32_t streamId(void) const {return data_.streamId;}
+  const uint32_t moduleId(void) const {return data_.moduleId;}
 };
 
 #endif // DQMSERVICES_CORE_MONITOR_ELEMENT_H
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

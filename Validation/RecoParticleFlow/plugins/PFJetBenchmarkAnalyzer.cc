@@ -39,6 +39,8 @@
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
 #include "FWCore/ServiceRegistry/interface/Service.h" 
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 using namespace edm;
 using namespace reco;
 using namespace std;

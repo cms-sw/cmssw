@@ -8,9 +8,9 @@
 //
 // constructors and destructor
 //
-TrackExtrapolator::TrackExtrapolator(const edm::ParameterSet& iConfig) :
-  tracksSrc_(iConfig.getParameter<edm::InputTag> ("trackSrc"))
+TrackExtrapolator::TrackExtrapolator(const edm::ParameterSet& iConfig)
 {
+  tracksSrc_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackSrc"));
   trackQuality_ = 
     reco::TrackBase::qualityByName (iConfig.getParameter<std::string> ("trackQuality"));
   if (trackQuality_ == reco::TrackBase::undefQuality) { // we have a problem
@@ -48,7 +48,7 @@ TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get stuff from Event
   edm::Handle <reco::TrackCollection> tracks_h;
-  iEvent.getByLabel (tracksSrc_, tracks_h);
+  iEvent.getByToken (tracksSrc_, tracks_h);
 
   std::auto_ptr< std::vector<reco::TrackExtrapolation> > extrapolations( new std::vector<reco::TrackExtrapolation>() );
 
