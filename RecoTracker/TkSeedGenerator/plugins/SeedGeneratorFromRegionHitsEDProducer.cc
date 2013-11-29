@@ -20,6 +20,7 @@
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/QuadrupletSeedMerger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 
 SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
@@ -59,7 +60,7 @@ void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run const&run, const e
   edm::ParameterSet regfactoryPSet = 
       theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
+  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
 
   edm::ParameterSet hitsfactoryPSet = 
       theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
